@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_IMPLEMENT_MESA_CXX
 
 #include <math.h>
+#include "vtkToolkits.h"
 #include "vtkMesaRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkMesaProperty.h"

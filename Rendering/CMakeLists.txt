@@ -108,53 +108,92 @@ vtkVolumeTextureMapper
 )
 
 SOURCE_FILES ( RenderingOpenGL_SRCS
-vtkOpenGLActor
-vtkOpenGLCamera
-vtkOpenGLImageActor
-vtkOpenGLImageMapper
-vtkOpenGLImager
-vtkOpenGLLight
-vtkOpenGLPolyDataMapper
-vtkOpenGLPolyDataMapper2D
-vtkOpenGLProjectedPolyDataRayBounder
-vtkOpenGLProperty
-vtkOpenGLRenderer
-vtkOpenGLTexture
-vtkOpenGLVolumeTextureMapper2D
-)
+               vtkOpenGLActor
+               vtkOpenGLCamera
+               vtkOpenGLImageActor
+               vtkOpenGLImageMapper
+               vtkOpenGLImager
+               vtkOpenGLLight
+               vtkOpenGLPolyDataMapper
+               vtkOpenGLPolyDataMapper2D
+               vtkOpenGLProjectedPolyDataRayBounder
+               vtkOpenGLProperty
+               vtkOpenGLRenderer
+               vtkOpenGLTexture
+               vtkOpenGLVolumeTextureMapper2D
+              )
 
 IF (WIN32)
+  SET(HAVE_OPENGL_SRCS ON)
   SOURCE_FILES(RenderingOpenGL_SRCS 
-     vtkWin32OpenGLRenderWindow 
-     vtkWin32RenderWindowInteractor
-     vtkWin32OpenGLImageWindow
-     vtkWin32OpenGLTextMapper
-     vtkWin32TextMapper)
+               vtkWin32OpenGLRenderWindow 
+               vtkWin32RenderWindowInteractor
+               vtkWin32OpenGLImageWindow
+               vtkWin32OpenGLTextMapper
+               vtkWin32TextMapper)
 
   LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
-  ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
 ELSE (WIN32)
   IF (OPENGL_LIBRARY)
+    SET(HAVE_OPENGL_SRCS ON)
     SOURCE_FILES(RenderingOpenGL_SRCS 
-      vtkOpenGLImageWindow
-      vtkOpenGLRenderWindow
-      vtkXImageWindow
-      vtkXOpenGLTextMapper
-      vtkXRenderWindowInteractor
-      vtkXRenderWindow
-      vtkXTextMapper)
+               vtkOpenGLImageWindow
+               vtkOpenGLRenderWindow
+               vtkXOpenGLTextMapper)
     ABSTRACT_FILES(
-      vtkXImageWindow
-      vtkXTextMapper)
+              vtkXImageWindow
+              vtkXTextMapper)
     LINK_LIBRARIES (${OPENGL_LIBRARY})
-    ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
-  ELSE (OPENGL_LIBRARY)
-    ADD_LIBRARY(vtkRendering Rendering_SRCS)
   ENDIF (OPENGL_LIBRARY)
   IF (OPENGL_INCLUDE_PATH)
     INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_PATH})
   ENDIF(OPENGL_INCLUDE_PATH)     
 ENDIF (WIN32)
+
+IF(UNIX)
+  IF(NOT WIN32)
+    SOURCE_FILES ( Rendering_SRCS
+                 vtkXImageWindow
+                 vtkXRenderWindowInteractor
+                 vtkXRenderWindow
+                 vtkXTextMapper)
+  ENDIF(NOT WIN32)
+ENDIF(UNIX)
+
+IF (VTK_MANGLE_MESA)
+  IF (MESA_LIBRARY)
+    SET(HAVE_OPENGL_SRCS ON)
+    SOURCE_FILES ( RenderingOpenGL_SRCS
+                 vtkMesaActor
+                 vtkMesaCamera
+                 vtkMesaImageActor
+                 vtkMesaImageMapper
+                 vtkMesaImager
+                 vtkMesaLight
+                 vtkMesaPolyDataMapper
+                 vtkMesaPolyDataMapper2D
+                 vtkMesaProjectedPolyDataRayBounder
+                 vtkMesaProperty
+                 vtkMesaRenderer
+                 vtkMesaTexture
+                 vtkMesaVolumeTextureMapper2D
+                 vtkMesaImageWindow
+                 vtkMesaRenderWindow
+                 vtkXMesaTextMapper
+                )
+
+    LINK_LIBRARIES (${MESA_LIBRARY})
+    IF (MESA_INCLUDE_PATH)
+      INCLUDE_DIRECTORIES(${MESA_INCLUDE_PATH})
+    ENDIF(MESA_INCLUDE_PATH)     
+  ENDIF (MESA_LIBRARY)
+ENDIF(VTK_MANGLE_MESA)
+
+IF (HAVE_OPENGL_SRCS)
+  ADD_LIBRARY(vtkRendering Rendering_SRCS RenderingOpenGL_SRCS)
+ELSE (HAVE_OPENGL_SRCS)
+  ADD_LIBRARY(vtkRendering Rendering_SRCS)
+ENDIF (HAVE_OPENGL_SRCS)
 
 # Allow the user to customize their build with some local options
 #
@@ -182,7 +221,8 @@ IF (VTK_WRAP_TCL)
     SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
 
-  VTK_WRAP_TCL(vtkRenderingTCL
+  IF (HAVE_OPENGL_SRCS)
+    VTK_WRAP_TCL(vtkRenderingTCL
                SOURCES 
                RenderingTCL_SRCS 
                Rendering_SRCS 
@@ -191,6 +231,16 @@ IF (VTK_WRAP_TCL)
                vtkTkRenderWidget
                vtkTkImageViewerWidget
                vtkTkImageWindowWidget)
+  ELSE (HAVE_OPENGL_SRCS)
+    VTK_WRAP_TCL(vtkRenderingTCL
+               SOURCES 
+               RenderingTCL_SRCS 
+               Rendering_SRCS 
+               COMMANDS
+               vtkTkRenderWidget
+               vtkTkImageViewerWidget
+               vtkTkImageWindowWidget)
+  ENDIF (HAVE_OPENGL_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL 
                          vtkGraphicsTCL 
@@ -208,10 +258,17 @@ ENDIF (VTK_WRAP_TCL)
 # source files
 #
 IF (VTK_WRAP_PYTHON)
-  VTK_WRAP_PYTHON(vtkRenderingPython 
+  IF (HAVE_OPENGL_SRCS)
+    VTK_WRAP_PYTHON(vtkRenderingPython 
                  RenderingPython_SRCS 
                  Rendering_SRCS
                  RenderingOpenGL_SRCS)
+  ELSE (HAVE_OPENGL_SRCS)
+    VTK_WRAP_PYTHON(vtkRenderingPython 
+                 RenderingPython_SRCS 
+                 Rendering_SRCS)
+  ENDIF (HAVE_OPENGL_SRCS)
+  
   ADD_LIBRARY(vtkRenderingPython RenderingPython_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          vtkGraphicsPython
