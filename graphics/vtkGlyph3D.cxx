@@ -91,6 +91,7 @@ void vtkGlyph3D::Execute()
   vtkPointData *pd;
   vtkScalars *inScalars;
   vtkVectors *inVectors;
+  int requestedGhostLevel;
   vtkGhostLevels *inGhostLevels;
   vtkNormals *inNormals, *sourceNormals;
   vtkDataArray *newScalarsData, *inScalarsData;
@@ -113,7 +114,7 @@ void vtkGlyph3D::Execute()
   vtkPointData *outputPD = output->GetPointData();
   vtkDataSet *input = this->GetInput();
   int numberOfSources = this->GetNumberOfSources();
-
+  
   vtkDebugMacro(<<"Generating glyphs");
 
   pts = vtkIdList::New();
@@ -129,7 +130,9 @@ void vtkGlyph3D::Execute()
   inVectors = pd->GetVectors();
   inNormals = pd->GetNormals();
   inGhostLevels = pd->GetGhostLevels();
-
+  requestedGhostLevel = output->GetUpdateGhostLevel();
+  
+  
   numPts = input->GetNumberOfPoints();
   if (numPts < 1)
     {
@@ -352,7 +355,15 @@ void vtkGlyph3D::Execute()
       }
 
     // Check ghost points.
-    if (inGhostLevels && inGhostLevels->GetGhostLevel(inPtId) > 0)
+    // If we are processing a piece, we do not want to duplicate 
+    // glyphs on the borders.  The corrct check here is:
+    // ghostLevel > 0.  I am leaving this over glyphing here because
+    // it make a nice example (sphereGhost.tcl) to show the 
+    // point ghost levels with the glyph filter.  I am not certain 
+    // of the usefullness of point ghost levels over 1, but I will have
+    // to think about it.
+    if (inGhostLevels && 
+	inGhostLevels->GetGhostLevel(inPtId) > requestedGhostLevel)
       {
       continue;
       }
