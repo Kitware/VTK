@@ -243,8 +243,7 @@ public:
   class ListContainer //the container for the data
   {
   public:
-    ListContainer(const T& x):Data(x),Next(0),Previous(0) {}
-//    ~ListContainer() { delete this->Data; }
+    ListContainer(const T& x) : Data(x),Next(0),Previous(0) {}
     T Data;
     ListContainer* Next;
     ListContainer* Previous;
@@ -263,7 +262,7 @@ public:
     T& operator*()
       {return this->Container->Data;}
     T* GetPointer() 
-      {return this->Container->Data;}
+      {return &(this->Container->Data);}
     Iterator& operator++() 
       {this->Container = this->Container->Next; return *this;}
     int operator!=(const Iterator& it) const
@@ -285,7 +284,7 @@ public:
   //Methods for linked list
   vtkOTLinkedList()
     {
-      ListContainer *tail = new ListContainer(0);//create dummy container
+      ListContainer *tail = new ListContainer(T(0));//create dummy container
       this->Head = this->Tail = tail;            //marks end of list
     }
   ~vtkOTLinkedList()
