@@ -32,12 +32,10 @@ vtkXTextMapper
 
 ABSTRACT_H = 
 
-
 CONCRETE_H = 
 
 ABSTRACT = \
 vtkImageDecomposeFilter \
-vtkImageFilter \
 vtkImageInPlaceFilter \
 vtkImageIterateFilter \
 vtkImageMultipleInputFilter \
