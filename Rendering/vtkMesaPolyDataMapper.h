@@ -55,7 +55,7 @@ public:
 
   // Description:
   // Draw method for Mesa.
-  virtual void Draw(vtkRenderer *ren, vtkActor *a);
+  virtual int Draw(vtkRenderer *ren, vtkActor *a);
   
   //BTX  begin tcl exclude
   
