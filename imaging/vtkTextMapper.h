@@ -85,6 +85,11 @@ public:
   virtual void Render(vtkViewport*, vtkActor2D*) {};
 
   // Description:
+  // What is the size of the rectangle required to draw this
+  // mapper ?
+  virtual void GetSize(vtkViewport* viewport, int *size) {};
+  
+  // Description:
   // Set the input text string to the mapper.  The mapper doesn't parse 
   // the string for carriage returns or line feeds.
   vtkSetStringMacro(Input);
@@ -132,6 +137,15 @@ public:
   void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
 
+  // Description:
+  // Set/Get the horizontal justification to Left (default), centered 
+  // or right.
+  vtkSetClampMacro(Justification,int,0,2);
+  vtkGetMacro(Justification,int);
+  void SetJustificationToLeft() {this->SetJustification(0);};
+  void SetJustificationToCentered() {this->SetJustification(1);};
+  void SetJustificationToRight() {this->SetJustification(2);};
+    
 protected:
   int   Italic;
   int	Bold;
@@ -140,6 +154,7 @@ protected:
   int   FontFamily;
   char* Input;
   int   FontChanged;  
+  int   Justification;
 };
 
 

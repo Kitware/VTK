@@ -57,6 +57,7 @@ vtkTextMapper::vtkTextMapper()
   this->Shadow = 0;
   this->FontFamily = VTK_ARIAL;
   this->FontChanged = 0;
+  this->Justification = 0;
 }
 
 vtkTextMapper *vtkTextMapper::New()
