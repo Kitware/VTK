@@ -38,7 +38,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.7");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.8");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
@@ -46,6 +46,7 @@ vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, FROM_OUTPUT_PORT, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
 
 //----------------------------------------------------------------------------
 class vtkDemandDrivenPipelineInternals
@@ -450,6 +451,23 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 
     // Request data from the algorithm.
     result = this->ExecuteData(outputPort);
+
+    // Release input data if requested.
+    for(int k=0; k < this->Algorithm->GetNumberOfInputPorts(); ++k)
+      {
+      for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(k); ++j)
+        {
+        vtkInformation* inInfo =
+          this->GetInputInformation(k)
+          ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
+          ->GetInformationObject(j);
+        vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
+        if(dataObject && inInfo->Get(RELEASE_DATA()))
+          {
+          dataObject->ReleaseData();
+          }
+        }
+      }
 
     // Data are now up to date.
     this->DataTime.Modified();

@@ -73,6 +73,7 @@ public:
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
   static vtkInformationIntegerKey* FROM_OUTPUT_PORT();
+  static vtkInformationIntegerKey* RELEASE_DATA();
 
   virtual int UpdateDataObject();
   virtual int UpdateInformation();
