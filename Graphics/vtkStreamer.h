@@ -184,9 +184,6 @@ protected:
   // Integrate data
   void Integrate();
 
-  // Special method for computing streamer vorticity
-  void ComputeVorticity();
-
   // Controls where streamlines start from (either position or location).
   int StartFrom;
 
@@ -205,17 +202,17 @@ protected:
   //
   class StreamPoint {
   public:
-    double   x[3];    // position 
-    vtkIdType     cellId;  // cell
-    int     subId;   // cell sub id
-    double   p[3];    // parametric coords in cell 
-    double   v[3];    // velocity 
-    double   speed;   // velocity norm 
-    double   s;       // scalar value 
-    double   t;       // time travelled so far 
-    double   d;       // distance travelled so far 
-    double   omega;   // stream vorticity, if computed
-    double   theta;    // rotation angle, if vorticity is computed
+    double    x[3];    // position 
+    vtkIdType cellId;  // cell
+    int       subId;   // cell sub id
+    double    p[3];    // parametric coords in cell 
+    double    v[3];    // velocity 
+    double    speed;   // velocity norm 
+    double    s;       // scalar value 
+    double    t;       // time travelled so far 
+    double    d;       // distance travelled so far 
+    double    omega;   // stream vorticity, if computed
+    double    theta;   // rotation angle, if vorticity is computed
   };
 
   class StreamArray;
@@ -243,11 +240,11 @@ protected:
     StreamPoint *Resize(vtkIdType sz); //reallocates data
     void Reset() {this->MaxId = -1;};
 
-    StreamPoint *Array;  // pointer to data
+    StreamPoint *Array;     // pointer to data
     vtkIdType MaxId;        // maximum index inserted thus far
     vtkIdType Size;         // allocated size of data
     vtkIdType Extend;       // grow array by this amount
-    double Direction;        // integration direction
+    double Direction;       // integration direction
   };
   //ETX
   //
@@ -285,7 +282,7 @@ protected:
   // value is small, by default, it will store all/most points.
   double SavePointInterval;
 
-  static  VTK_THREAD_RETURN_TYPE ThreadedIntegrate( void *arg );
+  static VTK_THREAD_RETURN_TYPE ThreadedIntegrate( void *arg );
 
   // Description:
   // These methods were added to allow access to these variables from the
@@ -304,7 +301,7 @@ private:
 
 // Description:
 // Return the integration direction as a character string.
-inline const char *vtkStreamer::GetIntegrationDirectionAsString(void)
+inline const char *vtkStreamer::GetIntegrationDirectionAsString()
 {
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD ) 
     {

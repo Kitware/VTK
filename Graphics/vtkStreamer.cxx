@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkStreamer, "1.86");
+vtkCxxRevisionMacro(vtkStreamer, "1.87");
 vtkCxxSetObjectMacro(vtkStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -204,23 +204,23 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkStreamer              *self;
   int                      thread_count;
   int                      thread_id;
-  vtkStreamer::StreamArray           *streamer;
+  vtkStreamer::StreamArray *streamer;
   vtkStreamer::StreamPoint *sNext = 0, *sPtr;
   vtkStreamer::StreamPoint pt1, pt2;
   int                      i;
   vtkIdType                idxNext, ptId;
-  double                    d, step, dir;
-  double                    xNext[3], vel[3];
-  double                    *cellVel;
-  double                    derivs[9];
-  double                    *w, pcoords[3];
-  double                    coords[4];
+  double                   d, step, dir;
+  double                   xNext[3], vel[3];
+  double                   *cellVel;
+  double                   derivs[9];
+  double                   *w, pcoords[3];
+  double                   coords[4];
   vtkDataSet               *input;
   vtkGenericCell           *cell;
   vtkPointData             *pd;
   vtkDataArray             *inScalars;
   vtkDataArray             *inVectors;
-  vtkDoubleArray            *cellVectors;
+  vtkDoubleArray           *cellVectors;
   vtkDataArray             *cellScalars=0;
   double tOffset, vort[3];
   double err;
@@ -445,9 +445,9 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
 
 void vtkStreamer::Integrate()
 {
-  vtkDataSet *input = this->GetInput();
+  vtkDataSet *input  = this->GetInput();
   vtkDataSet *source = this->GetSource();
-  vtkPointData *pd=input->GetPointData();
+  vtkPointData *pd   = input->GetPointData();
   vtkDataArray *inScalars;
   vtkDataArray *inVectors;
   vtkIdType numSourcePts, idx, idxNext;
@@ -457,7 +457,7 @@ void vtkStreamer::Integrate()
   vtkCell *cell;
   double v[3], *cellVel, derivs[9], xNext[3], vort[3];
   double tol2;
-  double *w=new double[input->GetMaxCellSize()];
+  double *w = new double[input->GetMaxCellSize()];
   vtkDoubleArray *cellVectors;
   vtkDataArray *cellScalars=0;
 
@@ -668,10 +668,6 @@ void vtkStreamer::Integrate()
     {
     cellScalars->Delete();
     }
-}
-
-void vtkStreamer::ComputeVorticity()
-{
 }
 
 void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
