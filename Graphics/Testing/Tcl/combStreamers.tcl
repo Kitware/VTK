@@ -62,7 +62,7 @@ ren1 AddActor outlineActor
 ren1 AddActor streamline
 
 ren1 SetBackground 1 1 1
-renWin SetSize 400 400
+renWin SetSize 300 300
 ren1 SetBackground 0.1 0.2 0.4
 
 set cam1 [ren1 GetActiveCamera]
