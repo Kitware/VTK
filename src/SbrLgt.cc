@@ -17,13 +17,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SbrRen.hh"
 #include "SbrLgt.hh"
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlSbrLight::Render(vlRenderer *ren,int light_index)
 {
   this->Render((vlSbrRenderer *)ren,light_index);
 }
 
-// set the appropriate attributes in Sbr for this light
+// Description:
+// Actual light render method.
 void vlSbrLight::Render(vlSbrRenderer *ren,int light_index)
 {
   float	dx, dy, dz;

@@ -27,6 +27,19 @@ static char *lights[MAX_LIGHTS] =
 {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
+vlSbrRenderWindow::vlSbrRenderWindow()
+{
+  this->Fd = -1;
+  this->DisplayId = (Display *)NULL;
+  this->WindowId = (Window)NULL;
+  this->NextWindowId = (Window)NULL;
+  this->ColorMap = (Colormap)NULL;
+
+  strcpy(this->Name,"Visualization Library - Starbase");
+}
+
+// Description:
+// Create a starbase-specific actor.
 vlActor *vlSbrRenderWindow::MakeActor()
 {
   vlActor *actor;
@@ -39,6 +52,8 @@ vlActor *vlSbrRenderWindow::MakeActor()
   return (vlActor *)actor;
 }
 
+// Description:
+// Create a starbase specific light.
 vlLight *vlSbrRenderWindow::MakeLight()
 {
   vlSbrLight *light;
@@ -47,6 +62,8 @@ vlLight *vlSbrRenderWindow::MakeLight()
   return (vlLight *)light;
 }
 
+// Description:
+// Create a starbase specific renderer.
 vlRenderer *vlSbrRenderWindow::MakeRenderer()
 {
   vlSbrRenderer *ren;
@@ -59,6 +76,8 @@ vlRenderer *vlSbrRenderWindow::MakeRenderer()
   return (vlRenderer *)ren;
 }
 
+// Description:
+// Create a starbase specific camera.
 vlCamera *vlSbrRenderWindow::MakeCamera()
 {
   vlSbrCamera *camera;
@@ -67,17 +86,8 @@ vlCamera *vlSbrRenderWindow::MakeCamera()
   return (vlCamera *)camera;
 }
 
-vlSbrRenderWindow::vlSbrRenderWindow()
-{
-  this->Fd = -1;
-  this->DisplayId = (Display *)NULL;
-  this->WindowId = (Window)NULL;
-  this->NextWindowId = (Window)NULL;
-  this->ColorMap = (Colormap)0;
-
-  strcpy(this->Name,"Visualization Library - Starbase");
-}
-
+// Description:
+// Begin the rendering process.
 void vlSbrRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
@@ -87,6 +97,8 @@ void vlSbrRenderWindow::Start(void)
   flush_matrices(this->Fd);
 }
 
+// Description:
+// End the rendering process and display the image.
 void vlSbrRenderWindow::Frame(void)
 {
   // flush and display the buffer
@@ -301,6 +313,8 @@ int vlSbrRenderWindow::GetDesiredDepth ()
   return depth;  
 }
 
+// Description:
+// Obtain a colormap from windowing system.
 Colormap vlSbrRenderWindow::GetDesiredColormap ()
 {
   XVisualInfo *pVisInfo, visInfo;
@@ -389,6 +403,8 @@ Colormap vlSbrRenderWindow::GetDesiredColormap ()
 }
 
 
+// Description:
+// Get a visual from the windowing system.
 Visual *vlSbrRenderWindow::GetDesiredVisual ()
 {
   Visual *vis;
@@ -410,7 +426,8 @@ Visual *vlSbrRenderWindow::GetDesiredVisual ()
 }
 
 
-// create a window for starbase output
+// Description:
+// Create a window for starbase output.
 int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos, 
 				     int width,int height,int depth, 
 				     char name[80])
@@ -556,6 +573,8 @@ int vlSbrRenderWindow::CreateXWindow(Display *dpy,int xpos,int ypos,
   return 1;
 }
  
+// Description:
+// Initialize the rendering window.
 void vlSbrRenderWindow::WindowInitialize (void)
 {
   char *device, *driver, *getenv(), *str;
@@ -743,9 +762,11 @@ void vlSbrRenderWindow::WindowInitialize (void)
   this->Mapped = 1;
 }
 
+// Description:
+// Initialize the rendering window.
 void vlSbrRenderWindow::Initialize (void)
 {
-  // make sure we haven't already been initialiozed 
+  // make sure we haven't already been initialized 
   if (this->Fd != -1) return;
 
   // now initialize the window 
@@ -753,6 +774,8 @@ void vlSbrRenderWindow::Initialize (void)
 }
 
 
+// Description:
+// Change the window to fill the entire screen.
 void vlSbrRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
@@ -810,6 +833,8 @@ void vlSbrRenderWindow::SetFullScreen(int arg)
   this->Modified();
 }
 
+// Description:
+// Get the size of the window in screen coordinates.
 int *vlSbrRenderWindow::GetScreenSize()
 {
   this->ScreenSize[0] = 
@@ -820,6 +845,8 @@ int *vlSbrRenderWindow::GetScreenSize()
   return this->ScreenSize;
 }
 
+// Description:
+// Set the preferred window size to full screen.
 void vlSbrRenderWindow::PrefFullScreen()
 {
   int *size;
@@ -837,6 +864,8 @@ void vlSbrRenderWindow::PrefFullScreen()
 }
 
 
+// Description:
+// Resize the window.
 void vlSbrRenderWindow::WindowRemap()
 {
   // close the starbase window 
@@ -860,6 +889,8 @@ void vlSbrRenderWindow::WindowRemap()
 }
 
 
+// Description:
+// Get the current size of the window.
 int *vlSbrRenderWindow::GetSize(void)
 {
   XWindowAttributes attribs;
@@ -880,6 +911,8 @@ int *vlSbrRenderWindow::GetSize(void)
   return this->Size;
 }
 
+// Description:
+// Get the position in screen coordinates of the window.
 int *vlSbrRenderWindow::GetPosition(void)
 {
   XWindowAttributes attribs;
@@ -904,6 +937,8 @@ int *vlSbrRenderWindow::GetPosition(void)
   return this->Position;
 }
 
+// Description:
+// Specify the size of the rendering window.
 void vlSbrRenderWindow::SetSize(int x,int y)
 {
   // if we arent mappen then just set the ivars 
@@ -930,6 +965,8 @@ void vlSbrRenderWindow::SetSize(int x,int y)
 }
 
 
+// Description:
+// Get the window display id.
 Display *vlSbrRenderWindow::GetDisplayId()
 {
   vlDebugMacro(<< "Returning DisplayId of " << (void *)this->DisplayId << "\n"); 
@@ -937,6 +974,8 @@ Display *vlSbrRenderWindow::GetDisplayId()
   return this->DisplayId;
 }
 
+// Description:
+// Get the window id.
 Window vlSbrRenderWindow::GetWindowId()
 {
   vlDebugMacro(<< "Returning WindowId of " << (void *)this->WindowId << "\n"); 
@@ -944,6 +983,8 @@ Window vlSbrRenderWindow::GetWindowId()
   return this->WindowId;
 }
 
+// Description:
+// Set the window id to a pre-existing window.
 void vlSbrRenderWindow::SetWindowId(Window arg)
 {
   vlDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
@@ -951,6 +992,8 @@ void vlSbrRenderWindow::SetWindowId(Window arg)
   this->WindowId = arg;
 }
 
+// Description:
+// Set the display id of the window to a pre-exisiting display id.
 void vlSbrRenderWindow::SetDisplayId(Display  *arg)
 {
   vlDebugMacro(<< "Setting DisplayId to " << (void *)arg << "\n"); 

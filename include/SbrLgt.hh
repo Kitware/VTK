@@ -13,6 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlSbrLight - HP starbase light
+// .SECTION Description
+// vlSbrLight is a concrete implementation of the abstract class vlLight.
+// vlSbrLight interfaces to the Hewlett-Packard starbase rendering library.
+
 #ifndef __vlSbrLight_hh
 #define __vlSbrLight_hh
 
@@ -26,8 +31,9 @@ protected:
   
 public:
   char *GetClassName() {return "vlSbrLight";};
-  void Render(vlRenderer *ren,int light_index); // overides base 
-  void Render(vlSbrRenderer *ren,int light_index); // real function 
+
+  void Render(vlRenderer *ren,int light_index);
+  void Render(vlSbrRenderer *ren,int light_index);
   
 };
 

@@ -20,14 +20,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 static float xform[4][4] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlSbrCamera::Render(vlRenderer *ren)
 {
   this->Render((vlSbrRenderer *)ren);
 }
 
-// set the appropriate attributes in Sbr for this camera
-//
+// Description:
+// Actual camera render method.
 void vlSbrCamera::Render(vlSbrRenderer *ren)
 {
   float aspect[3];

@@ -13,6 +13,11 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlSbrCamera - HP starbase camera
+// .SECTION Description
+// vlSbrCamera is a concrete implementation of the abstract class vlCamera.
+// vlSbrCamera interfaces to the Hewlett-Packard starbase rendering library.
+
 #ifndef __vlSbrCamera_hh
 #define __vlSbrCamera_hh
 
@@ -24,9 +29,10 @@ class vlSbrRenderer;
 class vlSbrCamera : public vlCamera
 {
  public:
-  virtual char *GetClassName() {return "vlSbrCamera";};
-  void Render(vlRenderer *ren); // overides base 
-  void Render(vlSbrRenderer *ren); // real function 
+  char *GetClassName() {return "vlSbrCamera";};
+
+  void Render(vlRenderer *ren);
+  void Render(vlSbrRenderer *ren);
 
 };
 

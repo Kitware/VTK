@@ -19,13 +19,15 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "SbrPrim.hh"
 #include "starbase.c.h"
 
-// typecast if neccessary 
+// Description:
+// Implement base class method.
 void vlSbrProperty::Render(vlRenderer *ren)
 {
   this->Render((vlSbrRenderer *)ren);
 }
 
-// set the appropriate attributes in Sbr for this property
+// Description:
+// Actual property render method.
 void vlSbrProperty::Render(vlSbrRenderer *ren)
 {
   int fd;

@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlSbrRenderer - HP starbase renderer
+// .SECTION Description
+// vlSbrRenderer is a concrete implementation of the abstract class
+// vlRenderer. vlSbrRenderer interfaces to the Hewlett-Packard starbase
+// graphics library.
+
 #ifndef __vlSbrRenderer_hh
 #define __vlSbrRenderer_hh
 
@@ -24,17 +30,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlSbrRenderer : public vlRenderer
 {
- protected:
-  int NumberOfLightsBound;
-  int LightSwitch;
-  int Fd;
-
- public:
+public:
   vlSbrRenderer();
-
-  void Render(void); // overides base 
   char *GetClassName() {return "vlSbrRenderer";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void Render(void);
   vlGeometryPrimitive *GetPrimitive(char *);
   void ClearLights(void);
   int UpdateActors(void);
@@ -42,6 +43,12 @@ class vlSbrRenderer : public vlRenderer
   int UpdateLights(void);
   vlGetMacro(Fd,int);
   vlGetMacro(LightSwitch,int);
+
+protected:
+  int NumberOfLightsBound;
+  int LightSwitch;
+  int Fd;
+
 };
 
 #endif

@@ -13,6 +13,12 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
+// .NAME vlSbrRenderWindow - HP starbase rendering window
+// .SECTION Description
+// vlSbrRenderWindow is a concrete implementation of the abstract class
+// vlRenderWindow. vlSbrRenderer interfaces to the Hewlett-Packard starbase
+// graphics library.
+
 #ifndef __vlSbrRenderWindow_hh
 #define __vlSbrRenderWindow_hh
 
@@ -24,16 +30,6 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 class vlSbrRenderWindow : public vlRenderWindow
 {
-protected:
-  Window   WindowId;
-  Window   NextWindowId;
-  Display *DisplayId;
-  Colormap ColorMap;
-  int      Fd;
-  int      Buffer;
-  int      ScreenSize[2];
-  int      OwnWindow;
-
 public:
   vlSbrRenderWindow();
   char *GetClassName() {return "vlSbrRenderWindow";};
@@ -68,6 +64,17 @@ public:
   Visual  *GetDesiredVisual();
   int      CreateXWindow(Display *,int x,int y,int w,int h,int depth,
 			 char name[80]);
+
+protected:
+  Window   WindowId;
+  Window   NextWindowId;
+  Display *DisplayId;
+  Colormap ColorMap;
+  int      Fd;
+  int      Buffer;
+  int      ScreenSize[2];
+  int      OwnWindow;
+
 };
 
 #endif

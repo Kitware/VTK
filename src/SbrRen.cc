@@ -43,6 +43,8 @@ vlSbrRenderer::vlSbrRenderer()
 {
 }
 
+// Description:
+// Ask actors to build and draw themselves.
 int vlSbrRenderer::UpdateActors()
 {
   vlActor *anActor;
@@ -80,6 +82,8 @@ int vlSbrRenderer::UpdateActors()
   return count;
 }
 
+// Description:
+// Ask active camera to load its view matrix.
 int vlSbrRenderer::UpdateCameras ()
 {
   // update the viewing transformation 
@@ -89,6 +93,9 @@ int vlSbrRenderer::UpdateCameras ()
   return 1;
 }
 
+// Description:
+// Internal method temporarily removes lights before reloading them
+// into graphics pipeline.
 void vlSbrRenderer::ClearLights (void)
 {
   light_ambient(this->Fd, this->Ambient[0],
@@ -105,6 +112,8 @@ void vlSbrRenderer::ClearLights (void)
   this->NumberOfLightsBound = 1;
 }
 
+// Description:
+// Ask lights to load themselves into graphics pipeline.
 int vlSbrRenderer::UpdateLights ()
 {
   vlLight *light;
@@ -145,6 +154,8 @@ int vlSbrRenderer::UpdateLights ()
   return count;
 }
  
+// Description:
+// Concrete starbase render method.
 void vlSbrRenderer::Render(void)
 {
   vlSbrRenderWindow *temp;
@@ -160,6 +171,8 @@ void vlSbrRenderer::Render(void)
   this->DoActors();
 }
 
+// Description:
+// Create particular type of starbase geometry primitive.
 vlGeometryPrimitive *vlSbrRenderer::GetPrimitive(char *type)
 {
   vlGeometryPrimitive *prim;
