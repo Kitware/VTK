@@ -35,6 +35,17 @@ import math, os, sys
 from wxPython.wx import *
 import vtk
 
+# wxPython 2.4.0.4 and newer prefers the use of True and False, standard
+# booleans in Python 2.2 but not earlier.  Here we define these values if
+# they don't exist so that we can use True and False in the rest of the
+# code.  At the time of this writing, that happens exactly ONCE in
+# CreateTimer()
+try:
+    True
+except NameError:
+    True = 1
+    False = 0
+
 # a few configuration items, see what works best on your system
 
 # Use wxGLCanvas as base class instead of wxWindow.
@@ -202,7 +213,7 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def CreateTimer(self, obj, evt):
         t = EventTimer(self)
-        t.Start(10, TRUE)
+        t.Start(10, True)
 
     def DestroyTimer(self, obj, evt):
         """The timer is a one shot timer so will expire automatically."""
