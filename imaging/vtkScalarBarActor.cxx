@@ -227,6 +227,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   int stringHeight, stringWidth;
   int fontSize;
   int titleHeight;
+  int numLines;
   
   if ( ! this->LookupTable )
     {
@@ -422,9 +423,17 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 	}
       barWidth = size[0] - 4 - stringWidth;
       barHeight = (int)(size[1] - stringHeight*2.2);
-      titleHeight = stringHeight + 
-        (stringHeight / this->TitleMapper->
-         GetNumberOfLines(this->TitleMapper->GetInput()) ) * 1.2; 
+      numLines = this->TitleMapper->GetNumberOfLines(
+                                      this->TitleMapper->GetInput());
+      if (numLines != 0)
+        {
+        titleHeight = stringHeight + (stringHeight / numLines) * 1.2; 
+        }
+      else
+        {
+        titleHeight = 0;
+        }
+
       barHeight = (int)(size[1] - titleHeight);
       delta=(float)barHeight/numColors;
       for (i=0; i<numPts/2; i++)
@@ -439,9 +448,16 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     else
       {
       barWidth = size[0];
-      titleHeight = stringHeight + 
-        (stringHeight / this->TitleMapper->
-         GetNumberOfLines(this->TitleMapper->GetInput()) ) * 1.6; 
+      numLines = this->TitleMapper->GetNumberOfLines(
+                                      this->TitleMapper->GetInput());
+      if (numLines != 0)
+        {
+        titleHeight = stringHeight + (stringHeight / numLines) * 1.6; 
+        }
+      else
+        {
+        titleHeight = 0;
+        }
       barHeight = (int)(size[1] - titleHeight);
       delta=(float)barWidth/numColors;
       for (i=0; i<numPts/2; i++)
