@@ -176,32 +176,53 @@ unsigned char *vlLookupTable::MapValue(float v)
 }
 
 // Description:
-// Directly load color into lookup table
-void vlLookupTable::SetTableValue (int indx, unsigned char rgba[4])
+// Directly load color into lookup table. Use [0,1] float values for color
+// component specification.
+void vlLookupTable::SetTableValue (int indx, float rgba[4])
 {
+  unsigned char _rgba[4];
+
+  for (int i=0; i<4; i++) _rgba[i] = (unsigned char) ((float)255.0 * rgba[i]);
+
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
-  this->Table.SetColor(indx,rgba);
+  this->Table.SetColor(indx,_rgba);
   this->InsertTime.Modified();
   this->Modified();
 }
 
 // Description:
-// Directly load color into lookup table
-void vlLookupTable::SetTableValue (int indx, unsigned char r, unsigned char g,
-                                   unsigned char b, unsigned char a)
+// Directly load color into lookup table. Use [0,1] float values for color 
+// component specification.
+void vlLookupTable::SetTableValue(int indx, float r, float g, float b, float a)
 {
-  unsigned char rgba[4];
+  float rgba[4];
   rgba[0] = r; rgba[1] = g; rgba[2] = b; rgba[4] = a;
   this->SetTableValue(indx,rgba);
 }
 
 // Description:
-// Return a rgba color value for the given index into the lookup table.
-unsigned char *vlLookupTable::GetTableValue (int indx)
+// Return a rgba color value for the given index into the lookup table. Color
+// componenets are expressed as [0,1] float values.
+float *vlLookupTable::GetTableValue (int indx)
 {
+  static float rgba[4];
+  unsigned char *_rgba;
+
   indx = (indx < 0 ? 0 : (indx >= this->NumberOfColors ? this->NumberOfColors-1 : indx));
-  return this->Table.GetColor(indx);
-  
+  _rgba = this->Table.GetColor(indx);
+  for (int i=0; i<4; i++) rgba[i] = _rgba[i] / 255.0;
+
+  return rgba;
+}
+
+// Description:
+// Return a rgba color value for the given index into the lookup table. Color
+// componenets are expressed as [0,1] float values.
+void vlLookupTable::GetTableValue (int indx, float rgba[4])
+{
+  float *_rgba = this->GetTableValue(indx);
+
+  for (int i=0; i<4; i++) rgba[i] = _rgba[i];
 }
 
 void vlLookupTable::PrintSelf(ostream& os, vlIndent indent)
