@@ -292,10 +292,13 @@ QPixmap &QVTKWidget::cachedImagePixmap()
 }
 
 /*! overloaded Qt's event handler to capture additional keys that Qt has
-    default behavior for (for example the Tab key)
+    default behavior for (for example the Tab and Shift-Tab key)
 */
 bool QVTKWidget::event(QEvent* e)
 {
+  if(QObject::event(e))
+    return TRUE;
+
   if(e->type() == QEvent::KeyPress)
   {
     QKeyEvent* ke = static_cast<QKeyEvent*>(e);
