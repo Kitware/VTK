@@ -315,10 +315,8 @@ public:
   // Description:
   // When an event occurs, we must determine which Renderer the event
   // occurred within, since one RenderWindow may contain multiple
-  // renderers. We also need to know what camera to operate on.
-  // These methods return this information.
-  vtkCamera *FindPokedCamera(int,int);
-  vtkRenderer * FindPokedRenderer(int,int);
+  // renderers.
+  vtkRenderer *FindPokedRenderer(int,int);
 
 protected:
   vtkRenderWindowInteractor();
