@@ -8,29 +8,39 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
 ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx)
 
 # Link against all the kit wrappers.
-TARGET_LINK_LIBRARIES (vtkpython
-  vtkCommonPython
-  vtkFilteringPython
-  vtkIOPython
-  vtkGraphicsPython
-  vtkImagingPython
-)
+IF (APPLE)
+  SET_TARGET_PROPERTIES(vtkpython PROPERTIES LINK_FLAGS "-flat_namespace -undefined suppress")
+  OPTION(VTK_HAVE_FRAMEWORK_PYTHON "The system has Python installed by default (Mac OSX 10.2)" OFF)
+  IF (VTK_HAVE_FRAMEWORK_PYTHON)
+    TARGET_LINK_LIBRARIES (vtkpython "-framework Python")
+  ELSE (VTK_HAVE_FRAMEWORK_PYTHON)
+    TARGET_LINK_LIBRARIES (vtkpython ${PYTHON_LIBRARY})
+  ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
+ELSE (APPLE)
+  TARGET_LINK_LIBRARIES (vtkpython
+    vtkCommonPython
+    vtkFilteringPython
+    vtkIOPython
+    vtkGraphicsPython
+    vtkImagingPython
+  )
 
-IF (VTK_USE_RENDERING)
-  TARGET_LINK_LIBRARIES(vtkpython vtkRenderingPython)
-ENDIF (VTK_USE_RENDERING)
+  IF (VTK_USE_RENDERING)
+    TARGET_LINK_LIBRARIES(vtkpython vtkRenderingPython)
+  ENDIF (VTK_USE_RENDERING)
 
-IF (VTK_USE_PATENTED)
-  TARGET_LINK_LIBRARIES(vtkpython vtkPatentedPython)
-ENDIF (VTK_USE_PATENTED)
+  IF (VTK_USE_PATENTED)
+    TARGET_LINK_LIBRARIES(vtkpython vtkPatentedPython)
+  ENDIF (VTK_USE_PATENTED)
 
-IF (VTK_USE_HYBRID)
-  TARGET_LINK_LIBRARIES(vtkpython vtkHybridPython)
-ENDIF (VTK_USE_HYBRID)
+  IF (VTK_USE_HYBRID)
+    TARGET_LINK_LIBRARIES(vtkpython vtkHybridPython)
+  ENDIF (VTK_USE_HYBRID)
 
-IF (VTK_USE_PARALLEL)
-  TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython)
-ENDIF (VTK_USE_PARALLEL)
+  IF (VTK_USE_PARALLEL)
+    TARGET_LINK_LIBRARIES(vtkpython vtkParallelPython)
+  ENDIF (VTK_USE_PARALLEL)
+ENDIF (APPLE)
 
 # Create the pvtkpython Python wrapper executable with MPI support.
 IF (VTK_USE_PARALLEL)
