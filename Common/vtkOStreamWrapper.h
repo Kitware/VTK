@@ -77,6 +77,15 @@ public:
   vtkOStreamWrapper& operator << (bool);
 #endif
   
+  // Work-around for IBM Visual Age bug in overload resolution.
+#if defined(__IBMCPP__)
+  template <typename T>
+  vtkOStreamWrapper& operator << (T* p)
+    {
+    return this->operator << (p);
+    }
+#endif
+
 #ifdef VTK_NEED_ID_TYPE_STREAM_OPERATORS
   vtkOStreamWrapper& operator << (vtkIdType);
 #endif
