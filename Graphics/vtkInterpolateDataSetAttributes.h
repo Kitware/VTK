@@ -30,20 +30,16 @@
 #ifndef __vtkInterpolateDataSetAttributes_h
 #define __vtkInterpolateDataSetAttributes_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
 class vtkDataSetCollection;
 
-class VTK_GRAPHICS_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetToDataSetFilter
+class VTK_GRAPHICS_EXPORT vtkInterpolateDataSetAttributes : public vtkDataSetAlgorithm
 {
 public:
   static vtkInterpolateDataSetAttributes *New();
-  vtkTypeRevisionMacro(vtkInterpolateDataSetAttributes,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkInterpolateDataSetAttributes,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-
-  // Description:
-  // Add a dataset to the list of data to interpolate.
-  void AddInput(vtkDataSet *in);
 
   // Description:
   // Return the list of inputs to this filter.
@@ -60,17 +56,12 @@ protected:
 
   virtual void ReportReferences(vtkGarbageCollector*);
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int port, vtkInformation *info);
   
   vtkDataSetCollection *InputList; // list of data sets to interpolate 
   double T; // interpolation parameter
 
-private:
-  // hide the superclass' AddInput() from the user and the compiler
-  void AddInput(vtkDataObject *)
-    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
-  void RemoveInput(vtkDataObject *input)
-    { this->vtkProcessObject::RemoveInput(input); };
 private:
   vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);  // Not implemented.
   void operator=(const vtkInterpolateDataSetAttributes&);  // Not implemented.

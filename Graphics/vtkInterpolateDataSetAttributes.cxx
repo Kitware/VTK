@@ -16,7 +16,10 @@
 
 #include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
+#include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -25,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.28");
+vtkCxxRevisionMacro(vtkInterpolateDataSetAttributes, "1.29");
 vtkStandardNewMacro(vtkInterpolateDataSetAttributes);
 
 // Create object with no input or output.
@@ -45,59 +48,45 @@ vtkInterpolateDataSetAttributes::~vtkInterpolateDataSetAttributes()
     }
 }
 
-
-//----------------------------------------------------------------------------
-// Adds an input to the first null position in the input list.
-// Expands the list memory if necessary
-void vtkInterpolateDataSetAttributes::AddInput(vtkDataSet *input)
-{
-  if (this->NumberOfInputs == 0)
-    {
-    // this is important because it sets the output type, otherwise we could
-    // just call AddInput all the time
-    this->SetInput(input);
-    }
-  else
-    {
-    this->vtkProcessObject::AddInput(input);
-    }
-}
-
 vtkDataSetCollection *vtkInterpolateDataSetAttributes::GetInputList()
 {
   int i;
   this->InputList->RemoveAllItems();
-  
-  for (i = 0; i < this->NumberOfInputs; i++)
+
+  for (i = 0; i < this->GetNumberOfInputConnections(0); i++)
     {
-    if (this->Inputs[i])
-      {
-      this->InputList->AddItem((vtkDataSet *)this->Inputs[i]);
-      }
+    this->InputList->AddItem((vtkDataSet *)this->GetExecutive()->GetInputData(0, i));
     }
   return this->InputList;
 }
 
 // Interpolate the data
-void vtkInterpolateDataSetAttributes::Execute()
+int vtkInterpolateDataSetAttributes::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSetCollection *inputList = this->GetInputList();
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells, i;
-  int numInputs = inputList->GetNumberOfItems();
+  int numInputs = this->GetNumberOfInputConnections(0);
   int lowDS, highDS;
   vtkDataSet *ds, *ds2;
-  vtkDataSet *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkPointData *inputPD, *input2PD;
   vtkCellData *inputCD, *input2CD;
   double t;
-  
 
-  if ( inputList->GetNumberOfItems() < 2 )
+  if ( numInputs < 2 )
     {
     vtkErrorMacro(<< "Need at least two inputs to interpolate!");
-    return;
+    return 1;
     }  
   
   vtkDebugMacro(<<"Interpolating data...");
@@ -107,7 +96,7 @@ void vtkInterpolateDataSetAttributes::Execute()
   if ( this->T > (double)numInputs )
     {
     vtkErrorMacro(<<"Bad interpolation parameter");
-    return;
+    return 1;
     }
 
   lowDS = (int) this->T;
@@ -123,8 +112,10 @@ void vtkInterpolateDataSetAttributes::Execute()
     t =1.0;
     }
   
-  ds = inputList->GetItem(lowDS);
-  ds2 = inputList->GetItem(highDS);
+  vtkInformation *dsInfo = inputVector[0]->GetInformationObject(lowDS);
+  vtkInformation *ds2Info = inputVector[0]->GetInformationObject(highDS);
+  ds = vtkDataSet::SafeDownCast(dsInfo->Get(vtkDataObject::DATA_OBJECT()));
+  ds2 = vtkDataSet::SafeDownCast(ds2Info->Get(vtkDataObject::DATA_OBJECT()));
 
   numPts = ds->GetNumberOfPoints();
   numCells = ds->GetNumberOfCells();
@@ -133,7 +124,7 @@ void vtkInterpolateDataSetAttributes::Execute()
        numCells != ds2->GetNumberOfCells() )
     {
     vtkErrorMacro(<<"Data sets not consistent!");
-    return;
+    return 1;
     }
   
   output->CopyStructure(ds);
@@ -229,8 +220,20 @@ void vtkInterpolateDataSetAttributes::Execute()
 
     outputCD->InterpolateTime(inputCD, input2CD, i, t);
     }
+
+  return 1;
 }
 
+int vtkInterpolateDataSetAttributes::FillInputPortInformation(
+  int port, vtkInformation *info)
+{
+  if (!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+  return 1;
+}
 
 void vtkInterpolateDataSetAttributes::PrintSelf(ostream& os, vtkIndent indent)
 {
