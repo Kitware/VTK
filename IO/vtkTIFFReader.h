@@ -15,7 +15,7 @@
 // .NAME vtkTIFFReader - read TIFF files
 // .SECTION Description
 // vtkTIFFReader is a source object that reads TIFF files.
-// It should be able to read most any TIFF file
+// It should be able to read almost any TIFF file
 //
 // .SECTION See Also
 // vtkTIFFWriter
@@ -61,17 +61,18 @@ public:
   // Auxilary methods used by the reader internally.
   void InitializeColors();
 
-//BTX
+  //BTX
   enum { NOFORMAT, RGB, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
 
   void ReadImageInternal( void *, void *outPtr,
                           int *outExt, unsigned int size );
 
-
   // Description:
   // Method to access internal image. Not to be used outside the class.
   vtkTIFFReaderInternal *GetInternalImage() { return this->InternalImage; }
-//ETX
+
+  int EvaluateImageAt( void*, void* );
+  //ETX
 
 protected:
   vtkTIFFReader();
@@ -82,12 +83,6 @@ protected:
   unsigned int  GetFormat();
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
-
-  void ReadGenericImage( void *out,
-                         unsigned int width, unsigned int height,
-                         unsigned int size );
-  
-  int EvaluateImageAt( void*, void* ); 
 
 private:
   vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
