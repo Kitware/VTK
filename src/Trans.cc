@@ -39,6 +39,9 @@ vlTransform::vlTransform ()
   // initialize current matrix to identity
   this->Identity ();
 
+  this->Point[0] = this->Point[1] = this->Point[2] = this->Point[3] = 0.0;
+  this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
+
   this->Modified ();
 }
 
