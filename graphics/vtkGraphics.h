@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 
-#include "vtk3DS.h"
 #include "vtk3DSImporter.h"
 #include "vtkAbstractMapper3D.h"
 #include "vtkAbstractPicker.h"
@@ -174,17 +173,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMergeDataObjectFilter.h"
 #include "vtkMergeFilter.h"
 #include "vtkMergePoints.h"
-#include "vtkMesaActor.h"
-#include "vtkMesaCamera.h"
-#include "vtkMesaImageActor.h"
-#include "vtkMesaLight.h"
-#include "vtkMesaPolyDataMapper.h"
-#include "vtkMesaProjectedPolyDataRayBounder.h"
-#include "vtkMesaProperty.h"
-#include "vtkMesaRenderWindow.h"
-#include "vtkMesaRenderer.h"
-#include "vtkMesaTexture.h"
-#include "vtkMesaVolumeTextureMapper2D.h"
 #include "vtkOBBDicer.h"
 #include "vtkOBBTree.h"
 #include "vtkOBJExporter.h"
