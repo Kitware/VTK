@@ -43,11 +43,12 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkScalarTree.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredPoints.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.28");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.29");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -254,6 +255,7 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
 {
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
+  vtkPolyData *contourOutput;
 
   if ( dim == 2 ) //marching squares
     {
@@ -262,7 +264,6 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     
     msquares = vtkMarchingSquares::New();
     msquares->SetInput((vtkImageData *)input);
-    msquares->SetOutput(output);
     msquares->SetDebug(this->Debug);
     msquares->SetNumberOfContours(numContours);
     for (i=0; i < numContours; i++)
@@ -270,8 +271,9 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
       msquares->SetValue(i,values[i]);
       }
          
+    contourOutput = msquares->GetOutput();
     msquares->Update();
-    this->SetOutput(output);
+    output->ShallowCopy(contourOutput);
     msquares->Delete();
     }
 
@@ -282,7 +284,6 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
     
     mcubes = vtkImageMarchingCubes::New();
     mcubes->SetInput((vtkImageData *)input);
-    mcubes->SetOutput(output);
     mcubes->SetComputeNormals (this->ComputeNormals);
     mcubes->SetComputeGradients (this->ComputeGradients);
     mcubes->SetComputeScalars (this->ComputeScalars);
@@ -293,8 +294,9 @@ void vtkMarchingContourFilter::ImageContour(int dim, vtkDataSet *input,
       mcubes->SetValue(i,values[i]);
       }
 
+    contourOutput = mcubes->GetOutput();
     mcubes->Update();
-    this->SetOutput(output);
+    output->ShallowCopy(contourOutput);
     mcubes->Delete();
     }
 }
