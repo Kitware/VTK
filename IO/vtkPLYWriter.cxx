@@ -107,7 +107,7 @@ void vtkPLYWriter::WriteData()
   unsigned char *cellColors, *pointColors;
   PlyFile *ply;
   float version;
-  static char *elemNames[] = { "vertex", "face" };
+  static const char *elemNames[] = { "vertex", "face" };
   static PlyProperty vertProps[] = { // property information for a vertex
     {"x", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[0]), 0, 0, 0, 0},
     {"y", PLY_FLOAT, PLY_FLOAT, offsetof(plyVertex,x[1]), 0, 0, 0, 0},

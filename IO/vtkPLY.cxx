@@ -103,7 +103,7 @@ static void *plyAllocateMemory(size_t n)
 }
 
 
-char *type_names[] = {
+const char *type_names[] = {
 "invalid",
 "char", "short", "int",
 "uchar", "ushort", "uint",
@@ -144,7 +144,7 @@ Exit:
 PlyFile *vtkPLY::ply_write(
   FILE *fp,
   int nelems,
-  char **elem_names,
+  const char **elem_names,
   int file_type
 )
 {
@@ -200,7 +200,7 @@ Exit:
 PlyFile *vtkPLY::ply_open_for_writing(
   char *filename,
   int nelems,
-  char **elem_names,
+  const char **elem_names,
   int file_type,
   float *version
 )
@@ -1390,7 +1390,7 @@ void vtkPLY::ply_close(PlyFile *plyfile)
     if ( elem->name ) {free(elem->name);}
     for (j=0; j<elem->nprops; j++)
       {
-      if ( elem->props[j]->name ) {free(elem->props[j]->name);}
+      if ( elem->props[j]->name ) {free(const_cast<char *>(elem->props[j]->name));}
       free (elem->props[j]);
       }
     free (elem->props);
@@ -1443,7 +1443,7 @@ void vtkPLY::ply_get_info(PlyFile *ply, float *version, int *file_type)
 Compare two strings.  Returns 1 if they are the same, 0 if not.
 ******************************************************************************/
 
-int vtkPLY::equal_strings(char *s1, char *s2)
+int vtkPLY::equal_strings(const char *s1, const char *s2)
 {
   while (*s1 && *s2)
     if (*s1++ != *s2++)
@@ -1491,7 +1491,7 @@ Exit:
   returns a pointer to the property, or NULL if not found
 ******************************************************************************/
 
-PlyProperty *vtkPLY::find_property(PlyElement *elem, char *prop_name, int *index)
+PlyProperty *vtkPLY::find_property(PlyElement *elem, const char *prop_name, int *index)
 {
   int i;
 
