@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.6");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 // Construct the wedge with 13 points + 1 extra point for internal
@@ -391,7 +391,7 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
   double tTemp;
   double pc[3], xTemp[3];
   int faceNum;
-  bool inter;
+  int inter;
 
   t = VTK_DOUBLE_MAX;
   for (faceNum=0; faceNum<5; faceNum++)
