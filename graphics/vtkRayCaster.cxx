@@ -1311,6 +1311,14 @@ void vtkRayCaster::Render(vtkRenderer *ren, int raycastCount,
 
     // Delete the structures that we created during
     // ray casting.
+    for ( i = 0; i < this->RayCastVolumeCount; i++ )
+      {
+      if ( this->VolumeInfo[i].RowBounds )
+	{
+	delete this->VolumeInfo[i].RowBounds;
+	}
+      }
+
     delete this->RayCastVolumes;
     delete this->VolumeInfo;
     }
