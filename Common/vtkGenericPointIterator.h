@@ -72,8 +72,13 @@ public:
   virtual vtkIdType GetId() = 0;
   
 protected:
+  // Description:
+  // Destructor.
   virtual ~vtkGenericPointIterator();
   
+private:
+  vtkGenericPointIterator(const vtkGenericPointIterator&);  // Not implemented.
+  void operator=(const vtkGenericPointIterator&);  // Not implemented.
 };
 
 #endif
