@@ -51,7 +51,7 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
 {
   this->NumberOfFilteredAxes = 3;
   this->NumberOfExecutionAxes = 3;
-  
+  this->HandleBoundaries = 1;
   this->SetOutputScalarType(VTK_FLOAT);
 }
 
