@@ -27,7 +27,7 @@
 #include "vtkIdList.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.4");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.5");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -44,8 +44,8 @@ vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
 {
-  TetraPerCell  = VTK_VOXEL_TO_5_TET;
-  RememberVoxelId = 0;
+  this->TetraPerCell  = VTK_VOXEL_TO_5_TET;
+  this->RememberVoxelId = 0;
 }
 
 //-------------------------------------------------------------------------
@@ -82,7 +82,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const float ExtentX,
   float Spacing[3];
   Extent[0]  = ExtentX;    Extent[1] = ExtentY;    Extent[2] = ExtentZ;
   Spacing[0] = SpacingX;  Spacing[1] = SpacingY;  Spacing[2] = SpacingZ;
-  return this->SetInput(Extent,Spacing,tol);
+  this->SetInput(Extent,Spacing,tol);
 }
 
 
@@ -99,9 +99,10 @@ void vtkRectilinearGridToTetrahedra::SetInput(const float Extent[3],
   // the selected region
   // 
 
+  int i, j;
   int NumPointsInDir[3];
   vtkFloatArray *Coord[3];
-  for(int i = 0;i<3;i++)
+  for(i = 0;i<3;i++)
     {
     float NumRegion = Extent[i]/Spacing[i];
 
@@ -116,7 +117,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const float Extent[3],
 
      // The last data point inserted is exactly the Extent
     // Thus avoiding a bit of numerical error.
-    for(int j=0;j<NumPointsInDir[i]-1;j++)
+    for(j=0;j<NumPointsInDir[i]-1;j++)
       {
       Coord[i]->SetValue(j,Spacing[i]*j);
       }
@@ -160,17 +161,18 @@ void vtkRectilinearGridToTetrahedra::DetermineGridDivisionTypes(
 
   int Rec[3];
   int flip = 0;
+  int i;
 
   switch (TetraPerCell)
     {
     case (VTK_VOXEL_TO_12_TET):
-      for(int i=0;i<numRec;i++)
+      for(i=0;i<numRec;i++)
         {
         VoxelSubdivisionType->SetValue(i,VTK_TETRAHEDRALIZE_12);
         }
     break;
     case (VTK_VOXEL_TO_6_TET):
-      for(int i=0;i<numRec;i++)
+      for(i=0;i<numRec;i++)
         {
         VoxelSubdivisionType->SetValue(i,VTK_TETRAHEDRALIZE_6);
         }
@@ -218,6 +220,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
                                 const int &RememberVoxelId,
                                 vtkUnstructuredGrid *TetMesh)
 {
+  int i, j;
   int numPts = RectGrid->GetNumberOfPoints();
   int numRec = RectGrid->GetNumberOfCells();
 
@@ -244,9 +247,9 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
     }
 
   // Start by copying over the points
-  for(int s=0;s<numPts;s++)
+  for(i=0;i<numPts;i++)
     {
-    NodePoints->InsertNextPoint(RectGrid->GetPoint(s));
+    NodePoints->InsertNextPoint(RectGrid->GetPoint(i));
     }
 
   // If they want, we can add Scalar Data
@@ -264,7 +267,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   VoxelCorners->SetNumberOfIds(9);
 
   int NumTetFromVoxel;
-  for(int i=0;i<numRec;i++)
+  for(i=0;i<numRec;i++)
     {
     RectGrid->GetCellPoints(i,VoxelCorners);
     NumTetFromVoxel = TetrahedralizeVoxel(VoxelCorners,
@@ -272,7 +275,7 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
                                           NodePoints,TetList);
     if (RememberVoxelId)
       {
-      for(int j=0;j<NumTetFromVoxel;j++)
+      for(j=0;j<NumTetFromVoxel;j++)
         {
         TetOriginalVoxel->InsertNextValue(i);
         }
@@ -292,9 +295,9 @@ void vtkRectilinearGridToTetrahedra::GridToTetMesh(vtkRectilinearGrid *RectGrid,
   // Need to tell the tet mesh that every cell  is a Tetrahedron
   int numTet = TetList->GetNumberOfCells();
   int *CellTypes = new int[numTet];
-  for(int ii=0;ii<numTet;ii++)
+  for(i=0;i<numTet;i++)
     {
-    CellTypes[ii] = VTK_TETRA;
+    CellTypes[i] = VTK_TETRA;
     }
 
   TetMesh->SetPoints(NodePoints);
@@ -447,6 +450,7 @@ Want right handed Tetrahedra...
     {8,2,7,6}};
 
 
+  int i, j;
   // Get the point Ids
   int numTet = 0; // =0 removes warning messages
   vtkIdType TetPts[4];
@@ -455,9 +459,9 @@ Want right handed Tetrahedra...
     {
     case (VTK_TETRAHEDRALIZE_6) : 
       numTet = 6;
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-        for(int j=0;j<4;j++)
+        for(j=0;j<4;j++)
           {
           TetPts[j] = VoxelCorners->GetId(tet6[i][j]);
           }
@@ -466,9 +470,9 @@ Want right handed Tetrahedra...
     break; 
     case (VTK_TETRAHEDRALIZE_5) : 
       numTet = 5;
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-        for(int j=0;j<4;j++)
+        for(j=0;j<4;j++)
           {
           TetPts[j] = VoxelCorners->GetId(tet5[i][j]);
           }
@@ -477,9 +481,9 @@ Want right handed Tetrahedra...
     break; 
     case (VTK_TETRAHEDRALIZE_5_FLIP) : 
       numTet = 5;
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-          for(int j=0;j<4;j++)
+          for(j=0;j<4;j++)
             {
             TetPts[j] = VoxelCorners->GetId(tet5flip[i][j]);
             }
@@ -489,9 +493,9 @@ Want right handed Tetrahedra...
     case (VTK_TETRAHEDRALIZE_12) :
       numTet = 12;
       TetrahedralizeAddCenterPoint(VoxelCorners,NodeList);
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-        for(int j=0;j<4;j++)
+        for(j=0;j<4;j++)
           {
           TetPts[j] = VoxelCorners->GetId(tet12[i][j]);
           }
@@ -501,9 +505,9 @@ Want right handed Tetrahedra...
     case (VTK_TETRAHEDRALIZE_12_CONFORM) :
       numTet = 12;
       TetrahedralizeAddCenterPoint(VoxelCorners,NodeList);
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-        for(int j=0;j<4;j++)
+        for(j=0;j<4;j++)
           {
           TetPts[j] = VoxelCorners->GetId(tet12_conform[i][j]);
           }
@@ -513,9 +517,9 @@ Want right handed Tetrahedra...
     case (VTK_TETRAHEDRALIZE_12_CONFORM_FLIP) :
       numTet = 12;
       TetrahedralizeAddCenterPoint(VoxelCorners,NodeList);
-      for(int i=0;i<numTet;i++)
+      for(i=0;i<numTet;i++)
         {
-        for(int j=0;j<4;j++)
+        for(j=0;j<4;j++)
           {
           TetPts[j] = VoxelCorners->GetId(tet12_conform_flip[i][j]);
           }
@@ -589,6 +593,6 @@ void vtkRectilinearGridToTetrahedra::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkUnstructuredGridSource::PrintSelf(os,indent);
 
-  os << indent << "Mesh Type: " << TetraPerCell << "\n";
-  os << indent << "RememberVoxel Id: " << RememberVoxelId << "\n";
+  os << indent << "Mesh Type: " << this->TetraPerCell << "\n";
+  os << indent << "RememberVoxel Id: " << this->RememberVoxelId << "\n";
 }
