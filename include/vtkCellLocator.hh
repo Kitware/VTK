@@ -103,11 +103,14 @@ public:
   vtkSetClampMacro(Tolerance,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Tolerance,float);
 
-  virtual int FindClosestCell(float x[3], float dist2, int& subId, float pcoords[3]);
-  virtual int IntersectWithLine(float a0[3], float a1[3], vtkIdList& cells);
+  virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
+				float& t, float x[3], float pcoords[3],
+				int &subId);
   vtkIdList *GetOctantCells(int octantId);
   virtual int IntersectWithCellLocator(vtkCellLocator& locator, vtkIdList cells);
 
+  void Update();
+  
 protected:
   // place points in appropriate cells
   void SubDivide();
@@ -126,7 +129,7 @@ protected:
   vtkIdList **Tree; // octree
   vtkTimeStamp SubDivideTime;  
 
-  void MarkParents(void*, int i, int j, int k);
+  void MarkParents(void*, int idx);
   void GetChildren(int idx, int level, int children[8]);
 };
 
