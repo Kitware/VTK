@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkImageLogarithmicScale.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.19");
+vtkCxxRevisionMacro(vtkImageLogarithmicScale, "1.20");
 vtkStandardNewMacro(vtkImageLogarithmicScale);
 
 //----------------------------------------------------------------------------
@@ -34,66 +35,39 @@ vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
-                                            vtkImageData *inData, T *inPtr,
-                                            vtkImageData *outData, T *outPtr, 
-                                            int outExt[6], int id)
+                                            vtkImageData *inData,
+                                            vtkImageData *outData, 
+                                            int outExt[6], int id, T *)
 {
-  int idxR, idxY, idxZ;
-  int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
-  int rowLength;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt(inData, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float c;
 
   c = self->GetConstant();
 
-  // find the region to loop over
-  rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
-  
-  // Get increments to march through data 
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    T* inSI = inIt.BeginSpan();
+    T* outSI = outIt.BeginSpan();
+    T* outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // Pixel operation
+      if (*inSI > 0)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        *outSI = (T)(c*log((double)(*inSI)+1.0));
         }
-      for (idxR = 0; idxR < rowLength; idxR++)
+      else
         {
-
-        // Pixel operation
-        if (*inPtr > 0)
-          {
-          *outPtr = (T)(c*log((double)(*inPtr)+1.0));
-          }
-        else
-          {
-          *outPtr = (T)(-c*log(1.0-(double)(*inPtr)));
-          }
-
-        outPtr++;
-        inPtr++;
+        *outSI = (T)(-c*log(1.0-(double)(*inSI)));
         }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      
+      outSI++;
+      inSI++;
       }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
+    inIt.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -104,28 +78,24 @@ static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageLogarithmicScale::ThreadedExecute(vtkImageData *inData, 
-                                        vtkImageData *outData,
-                                        int outExt[6], int id)
+                                               vtkImageData *outData,
+                                               int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
-    << ", outData = " << outData);
+  << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                << ", must match out ScalarType " << outData->GetScalarType());
+    << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageLogarithmicScaleExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
-                      outExt, id);
+    vtkTemplateMacro6(vtkImageLogarithmicScaleExecute, this, inData, 
+                      outData, outExt, id,  static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
