@@ -168,7 +168,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // the Scale() was the last transform applied.
   void GetOrientationWXYZ(double wxyz[4]);
   void GetOrientationWXYZ(float wxyz[3]) {
-    double temp[4]; this->GetOrientation(temp); 
+    double temp[4]; this->GetOrientationWXYZ(temp); 
     wxyz[0]=temp[0]; wxyz[1]=temp[1]; wxyz[2]=temp[2]; wxyz[3]=temp[3];};
   float *GetOrientationWXYZ() { 
     this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
