@@ -12,7 +12,7 @@
 /*
   Support Mangle Mesa
 */
-#cmakedefine VTKFTGL_SUPPORT_MANGLE_MESA
+#cmakedefine FTGL_SUPPORT_MANGLE_MESA
 
 /*
   Do not use texture fonts (crash on Type1 fonts)

@@ -16,6 +16,13 @@ typedef float    FTGL_FLOAT;
 
 typedef void (*FTCallback)();
 
+struct FTGLRenderContext
+{
+#ifdef FTGL_SUPPORT_MANGLE_MESA  
+  int UseMangleMesa; 
+#endif 
+};
+
 #ifdef WIN32
 
     // Under windows avoid including <windows.h> is overrated. 

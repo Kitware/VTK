@@ -72,7 +72,8 @@ FTPolyGlyph::~FTPolyGlyph()
 }
 
 
-float FTPolyGlyph::Render( const FT_Vector& pen)
+float FTPolyGlyph::Render( const FT_Vector& pen,
+                           const FTGLRenderContext *context)
 {
   if( glList)
   {

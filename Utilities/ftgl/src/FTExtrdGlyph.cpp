@@ -222,7 +222,8 @@ bool FTExtrdGlyph::Winding( int numPoints, FTGL_DOUBLE *points)
 }
 
 
-float FTExtrdGlyph::Render( const FT_Vector& pen)
+float FTExtrdGlyph::Render( const FT_Vector& pen,
+                            const FTGLRenderContext *context)
 {
   if( glList)
   {

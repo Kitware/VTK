@@ -82,7 +82,8 @@ FTTextureGlyph::~FTTextureGlyph()
 {}
 
 
-float FTTextureGlyph::Render( const FT_Vector& pen)
+float FTTextureGlyph::Render( const FT_Vector& pen,
+                              const FTGLRenderContext *context)
 {
   glGetIntegerv( GL_TEXTURE_2D_BINDING_EXT, &activeTextureID);
   if( activeTextureID != glTextureID)

@@ -89,7 +89,8 @@ class FTGL_EXPORT FTGlyph
      * @param pen  The current pen position.
      * @return    The advance distance for this glyph.
      */
-    virtual float Render( const FT_Vector& pen) = 0;
+    virtual float Render( const FT_Vector& pen,
+                          const FTGLRenderContext *context = 0) = 0;
     
     /**
      * Return the advance width for this glyph.

@@ -169,14 +169,16 @@ class FTGL_EXPORT FTFont
      * 
      * @param string  'C' style string to be output.   
      */
-    virtual void render( const char* string );
+    virtual void render(const char* string, 
+                        const FTGLRenderContext *context = 0);
 
     /**
      * Render a string of characters
      * 
      * @param string  wchar_t string to be output.   
      */
-    virtual void render( const wchar_t* string );
+    virtual void render(const wchar_t* string, 
+                        const FTGLRenderContext *context = 0);
 
     /**
      * Queries the Font for errors.
@@ -223,7 +225,9 @@ class FTGL_EXPORT FTFont
      * @param chr    current character
      * @param nextChr  next character
      */
-    void doRender( const unsigned int chr, const unsigned int nextChr);
+    void doRender( const unsigned int chr, 
+                   const unsigned int nextChr, 
+                   const FTGLRenderContext *context = 0);
     
     /**
      * Current face object

@@ -1,5 +1,4 @@
 #include  "FTBitmapGlyph.h"
-#include  "FTGLgl.h"
 #ifdef FTGL_DEBUG
   #include "mmgr.h"
 #endif
@@ -87,7 +86,8 @@ FTBitmapGlyph::~FTBitmapGlyph()
 }
 
 
-float FTBitmapGlyph::Render( const FT_Vector& pen)
+float FTBitmapGlyph::Render( const FT_Vector& pen,
+                             const FTGLRenderContext *context)
 {
   if (!this->glyphHasBeenConverted)
     {
@@ -95,15 +95,18 @@ float FTBitmapGlyph::Render( const FT_Vector& pen)
     }
 
   if( data)
-  {
-    // Move the glyph origin
-    glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0 );
+    {
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+    if (context && context->UseMangleMesa)
+      {
+      this->RenderMesa(pen, context);
+      }
+    else
+#endif
+      {
+      this->RenderOpenGL(pen, context);
+      }
+    }
 
-    glBitmap( destWidth, destHeight, 0.0f, 0.0, 0.0, 0.0, (const GLubyte *)data);
-
-    // Restore the glyph origin
-    glBitmap( 0, 0, 0.0, 0.0, (float)(-pen.x - pos.x), (float)(-pen.y + pos.y), (const GLubyte *)0 );
-  }
-  
   return advance;
 }

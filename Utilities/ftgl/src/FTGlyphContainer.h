@@ -87,7 +87,10 @@ class FTGL_EXPORT FTGlyphContainer
      * @param pen  the position to render the glyph
      * @return     The distance to advance the pen position after rendering
      */
-    FT_Vector& render( unsigned int index, unsigned int next, FT_Vector pen);
+    FT_Vector& render( unsigned int index, 
+                       unsigned int next, 
+                       FT_Vector pen, 
+                       const FTGLRenderContext *context = 0);
     
     /**
      * Queries the Font for errors.

@@ -26,26 +26,23 @@ SET (VTKFTGL_LIBS "")
 SET (VTKFTGL_DO_NOT_USE_STL 1)
 
 #
-# Support Mangle Mesa
-#
-IF (VTK_MANGLE_MESA)
-  SET (VTKFTGL_SUPPORT_MANGLE_MESA 1)
-ENDIF (VTK_MANGLE_MESA)
-
-#
 # Source files
 #
 SET (FTGL_SRCS
   src/FTBitmapGlyph.cpp
+  src/FTBitmapGlyphRenderOpenGL.cpp
   src/FTCharmap.cpp
   src/FTFace.cpp
   src/FTFont.cpp
   src/FTGLBitmapFont.cpp
+  src/FTGLBitmapFontRenderOpenGL.cpp
   src/FTGLPixmapFont.cpp
+  src/FTGLPixmapFontRenderOpenGL.cpp
   src/FTGlyph.cpp
   src/FTGlyphContainer.cpp
   src/FTLibrary.cpp
   src/FTPixmapGlyph.cpp
+  src/FTPixmapGlyphRenderOpenGL.cpp
   src/FTSize.cpp
 )
 
@@ -81,6 +78,21 @@ IF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
   ENDIF (GLU_INCLUDE_PATH)
   SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${GLU_LIBRARY}")
 ENDIF (NOT VTKFTGL_DO_NOT_USE_VECTORISER)
+
+#
+# Support Mangle Mesa
+#
+IF (VTK_MANGLE_MESA)
+  SET (FTGL_SUPPORT_MANGLE_MESA 1)
+  IF (FTGL_SUPPORT_MANGLE_MESA)
+    SET (FTGL_SRCS ${FTGL_SRCS}
+      src/FTBitmapGlyphRenderMesa.cpp
+      src/FTGLBitmapFontRenderMesa.cpp
+      src/FTGLPixmapFontRenderMesa.cpp
+      src/FTPixmapGlyphRenderMesa.cpp
+    )
+  ENDIF (FTGL_SUPPORT_MANGLE_MESA)
+ENDIF (VTK_MANGLE_MESA)
 
 #
 # Shared/static lib settings)

@@ -1,6 +1,5 @@
 #include  "FTGLPixmapFont.h"
 #include  "FTPixmapGlyph.h"
-#include  "FTGLgl.h"
 #ifdef FTGL_DEBUG
   #include "mmgr.h"
 #endif
@@ -29,39 +28,35 @@ FTGlyph* FTGLPixmapFont::MakeGlyph( unsigned int g)
 }
 
 
-void FTGLPixmapFont::render( const char* string)
+void FTGLPixmapFont::render(const char* string,
+                            const FTGLRenderContext *context)
+
 {  
-  glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT);
-  glPushAttrib( GL_ENABLE_BIT | GL_PIXEL_MODE_BIT);
-
-  glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
-
-  glEnable(GL_BLEND);
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable( GL_TEXTURE_2D);
-
-  FTFont::render( string);
-
-  glPopAttrib();
-  glPopClientAttrib();
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+  if (context && context->UseMangleMesa)
+    {
+    this->RenderMesa(string, context);
+    }
+  else
+#endif
+    {
+    this->RenderOpenGL(string, context);
+    }
 }
 
 
-void FTGLPixmapFont::render( const wchar_t* string)
+void FTGLPixmapFont::render(const wchar_t* string,
+                            const FTGLRenderContext *context)
+
 {  
-  glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT);
-  glPushAttrib( GL_ENABLE_BIT | GL_PIXEL_MODE_BIT);
-
-  glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
-
-  glEnable(GL_BLEND);
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable( GL_TEXTURE_2D);
-
-  FTFont::render( string);
-
-  glPopAttrib();
-  glPopClientAttrib();
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+  if (context && context->UseMangleMesa)
+    {
+    this->RenderMesa(string, context);
+    }
+  else
+#endif
+    {
+    this->RenderOpenGL(string, context);
+    }
 }
-
-

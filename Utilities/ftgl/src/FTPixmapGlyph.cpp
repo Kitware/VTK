@@ -1,5 +1,4 @@
 #include  "FTPixmapGlyph.h"
-#include  "FTGLgl.h"
 #ifdef FTGL_DEBUG
   #include "mmgr.h"
 #endif
@@ -17,7 +16,7 @@ FTPixmapGlyph::FTPixmapGlyph( FT_Glyph _glyph)
   advance = (float)(this->glyph->advance.x >> 16);
 }
 
-void FTPixmapGlyph::ConvertGlyph()
+void FTPixmapGlyph::ConvertGlyph(const FTGLRenderContext *context)
 {
   // This function will always fail if the glyph's format isn't scalable????
   err = FT_Glyph_To_Bitmap( &this->glyph, ft_render_mode_normal, 0, 1);
@@ -46,7 +45,16 @@ void FTPixmapGlyph::ConvertGlyph()
     
     // Get the current glColor.
     float ftglColour[4];
-    glGetFloatv( GL_CURRENT_COLOR, ftglColour);
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+    if (context && context->UseMangleMesa)
+      {
+      this->GetCurrentColorMesa(ftglColour, context);
+      }
+    else
+#endif
+      {
+      this->GetCurrentColorOpenGL(ftglColour, context);
+      }
       
 #if 1
     unsigned char red = static_cast<unsigned char>(ftglColour[0]*255.0f);
@@ -125,23 +133,27 @@ FTPixmapGlyph::~FTPixmapGlyph()
 }
 
 
-float FTPixmapGlyph::Render( const FT_Vector& pen)
+float FTPixmapGlyph::Render( const FT_Vector& pen,
+                             const FTGLRenderContext *context)
 {
   if (!this->glyphHasBeenConverted)
     {
-    this->ConvertGlyph();
+    this->ConvertGlyph(context);
     }
 
   if( data)
     {
-    // Move the glyph origin
-    glBitmap( 0, 0, 0.0, 0.0, (float)(pen.x + pos.x), (float)(pen.y - pos.y), (const GLubyte *)0);
-
-    glDrawPixels( destWidth, destHeight, GL_RGBA, GL_UNSIGNED_BYTE, (const GLvoid*)data);
-
-    // Restore the glyph origin
-    glBitmap( 0, 0, 0.0, 0.0, (float)(-pen.x - pos.x), (float)(-pen.y + pos.y), (const GLubyte *)0);
-  }
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+    if (context && context->UseMangleMesa)
+      {
+      this->RenderMesa(pen, context);
+      }
+    else
+#endif
+      {
+      this->RenderOpenGL(pen, context);
+      }
+    }
 
   return advance;
 }

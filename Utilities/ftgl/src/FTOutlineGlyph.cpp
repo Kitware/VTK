@@ -76,7 +76,8 @@ FTOutlineGlyph::~FTOutlineGlyph()
 }
 
 
-float FTOutlineGlyph::Render( const FT_Vector& pen)
+float FTOutlineGlyph::Render( const FT_Vector& pen,
+                              const FTGLRenderContext *context)
 {
   if( glList)
   {

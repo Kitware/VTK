@@ -33,14 +33,16 @@ class FTGL_EXPORT FTGLPixmapFont : public FTFont
      * 
      * @param string  'C' style string to be output.   
      */
-    void render( const char* string);
+    void render(const char* string, 
+                const FTGLRenderContext *context = 0);
     
     /**
      * Renders a string of characters
      * 
      * @param string  wchar_t string to be output.   
      */
-    void render( const wchar_t* string);
+    void render(const wchar_t* string, 
+                const FTGLRenderContext *context = 0);
 
 
   private:
@@ -51,9 +53,20 @@ class FTGL_EXPORT FTGLPixmapFont : public FTFont
      * @return  An FTPixmapGlyph or <code>null</code> on failure.
      */
     virtual FTGlyph* MakeGlyph( unsigned int g);
+
+    void RenderOpenGL(const char* string,
+                      const FTGLRenderContext *context = 0);
+    void RenderOpenGL(const wchar_t* string, 
+                      const FTGLRenderContext *context = 0);
+
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+    void RenderMesa(const char* string,
+                    const FTGLRenderContext *context = 0);
+    void RenderMesa(const wchar_t* string, 
+                    const FTGLRenderContext *context = 0);
+#endif
     
 };
-
 
 #endif  //  __FTGLPixmapFont__
 

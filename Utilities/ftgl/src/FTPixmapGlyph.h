@@ -37,9 +37,10 @@ class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
      * @param pen  The current pen position.
      * @return    The advance distance for this glyph.
      */
-    virtual float Render( const FT_Vector& pen);
+    virtual float Render( const FT_Vector& pen,
+                          const FTGLRenderContext *context = 0);
     
-    virtual void ConvertGlyph();
+    virtual void ConvertGlyph(const FTGLRenderContext *context = 0);
 
   private:
     /**
@@ -62,6 +63,18 @@ class  FTGL_EXPORT FTPixmapGlyph : public FTGlyph
      */
     unsigned char* data;
     
+    void RenderOpenGL(const FT_Vector& pen,
+                      const FTGLRenderContext *context = 0);
+    void GetCurrentColorOpenGL(float colour[4],
+                               const FTGLRenderContext *context = 0);
+
+#ifdef FTGL_SUPPORT_MANGLE_MESA
+    void RenderMesa(const FT_Vector& pen,
+                    const FTGLRenderContext *context = 0);
+    void GetCurrentColorMesa(float colour[4],
+                             const FTGLRenderContext *context = 0);
+#endif
+
 };
 
 #endif  //  __FTPixmapGlyph__

@@ -44,7 +44,10 @@ float FTGlyphContainer::Advance( unsigned int index, unsigned int next)
 }
 
 
-FT_Vector& FTGlyphContainer::render( unsigned int index, unsigned int next, FT_Vector pen)
+FT_Vector& FTGlyphContainer::render( unsigned int index, 
+                                     unsigned int next, 
+                                     FT_Vector pen,
+                                     const FTGLRenderContext *context)
 {
   kernAdvance.x = 0; kernAdvance.y = 0;
   
@@ -55,7 +58,7 @@ FT_Vector& FTGlyphContainer::render( unsigned int index, unsigned int next, FT_V
     
   if( !face->Error())
   {
-    advance = glyphs[left]->Render( pen);
+    advance = glyphs[left]->Render(pen, context);
   }
   
   kernAdvance.x = (FT_Pos)(advance + kernAdvance.x);

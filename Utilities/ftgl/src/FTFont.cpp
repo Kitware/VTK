@@ -250,33 +250,37 @@ float FTFont::doAdvance( const unsigned int chr, const unsigned int nextChr)
 }
 
 
-void FTFont::render( const char* string )
+void FTFont::render( const char* string, 
+                     const FTGLRenderContext *context)
 {
   const unsigned char* c = (unsigned char*)string;
   pen.x = 0; pen.y = 0;
 
   while( *c)
   {
-    doRender( *c, *(c + 1));
+    doRender( *c, *(c + 1), context);
     ++c;
   }
 }
 
 
-void FTFont::render( const wchar_t* string )
+void FTFont::render( const wchar_t* string, 
+                     const FTGLRenderContext *context)
 {
   const wchar_t* c = string;
   pen.x = 0; pen.y = 0;
 
   while( *c)
   {
-    doRender( *c, *(c + 1));
+    doRender( *c, *(c + 1), context);
     ++c;
   }
 }
 
 
-void FTFont::doRender( const unsigned int chr, const unsigned int nextChr)
+void FTFont::doRender( const unsigned int chr, 
+                       const unsigned int nextChr, 
+                       const FTGLRenderContext *context)
 {
   if( !glyphList->Glyph( chr))
   {
@@ -284,7 +288,7 @@ void FTFont::doRender( const unsigned int chr, const unsigned int nextChr)
     glyphList->Add( MakeGlyph( g), g);
   }
 
-  FT_Vector kernAdvance = glyphList->render( chr, nextChr, pen);
+  FT_Vector kernAdvance = glyphList->render( chr, nextChr, pen, context);
   
   pen.x += kernAdvance.x;
   pen.y += kernAdvance.y;
