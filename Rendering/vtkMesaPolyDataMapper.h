@@ -30,6 +30,7 @@ class vtkProperty;
 class vtkRenderWindow;
 class vtkMesaRenderer;
 class vtkTimerLog;
+class vtkOpenGLTexture;
 
 class VTK_RENDERING_EXPORT vtkMesaPolyDataMapper : public vtkPolyDataMapper
 {
@@ -100,6 +101,7 @@ protected:
 
   vtkIdType TotalCells;
   int ListId;
+  vtkOpenGLTexture* InternalColorTexture;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
 private:
   vtkMesaPolyDataMapper(const vtkMesaPolyDataMapper&);  // Not implemented.
