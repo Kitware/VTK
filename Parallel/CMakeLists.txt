@@ -35,6 +35,7 @@ ENDIF("VTK_HAVE_SOCKLEN_T" MATCHES "^VTK_HAVE_SOCKLEN_T$")
   
 SET ( Kit_SRCS
 vtkDuplicatePolyData.cxx
+vtkBoxClipDataSet.cxx
 vtkBranchExtentTranslator.cxx
 vtkCollectPolyData.cxx
 vtkCommunicator.cxx
@@ -42,12 +43,20 @@ vtkCompositer.cxx
 vtkCompositeRenderManager.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
+vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
+vtkExtractCells.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
+vtkExtractUserDefinedPiece.cxx
+vtkKdTree.cxx
+vtkPKdTree.cxx
+vtkPlanesIntersection.cxx
+vtkPointsProjectedHull.cxx
 vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
+vtkMergeCells.cxx
 vtkMultiProcessController.cxx
 vtkOutputPort.cxx
 vtkParallelRenderManager.cxx
