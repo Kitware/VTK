@@ -25,6 +25,7 @@ public:
 	BOOL	m_GEMSIO;
 	BOOL	m_GEMSIP;
 	BOOL	m_GEMSVOLUME;
+	BOOL	m_Patented;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides

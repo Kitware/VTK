@@ -33,6 +33,7 @@ CPcmakerDlg::CPcmakerDlg(CWnd* pParent /*=NULL*/)
 	m_GEMSIO = FALSE;
 	m_GEMSIP = FALSE;
 	m_GEMSVOLUME = FALSE;
+	m_Patented = FALSE;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -57,6 +58,7 @@ void CPcmakerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_GEMSIO, m_GEMSIO);
 	DDX_Check(pDX, IDC_GEMSIP, m_GEMSIP);
 	DDX_Check(pDX, IDC_GEMSVOLUME, m_GEMSVOLUME);
+	DDX_Check(pDX, IDC_PATENTED, m_Patented);
 	//}}AFX_DATA_MAP
 }
 

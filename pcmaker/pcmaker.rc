@@ -72,42 +72,43 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\pcmaker.ico"
 // Dialog
 //
 
-IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 214
+IDD_PCMAKER_DIALOG DIALOGEX 0, 0, 185, 227
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "pcmaker"
 FONT 8, "MS Sans Serif"
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,31,193,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,97,193,50,14
-    GROUPBOX        "What Compiler",IDC_COMPILER,7,92,74,44,WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,31,206,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,97,206,50,14
+    GROUPBOX        "What Compiler",IDC_COMPILER,7,92,171,25,WS_TABSTOP
     EDITTEXT        IDC_WHEREVTK,16,15,155,14,ES_AUTOHSCROLL
     LTEXT           "Where is vtk installed",IDC_STATIC,7,7,65,8
     LTEXT           "Where do you want to build the vtk libraries",
                     IDC_STATIC,7,33,139,8
     EDITTEXT        IDC_WHEREBUILD,16,45,154,14,ES_AUTOHSCROLL
     CONTROL         "Microsoft",IDC_MSCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,104,43,10
+                    WS_TABSTOP,16,103,43,10
     CONTROL         "Borland",IDC_BORLANDCOMP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,120,40,10
-    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,140,171,46
+                    WS_TABSTOP,66,103,40,10
+    GROUPBOX        "Additional Toolkits",IDC_STATIC,7,156,171,46
     CONTROL         "Graphics",IDC_Graphics,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,153,48,10
+                    WS_TABSTOP,15,169,48,10
     CONTROL         "Imaging",IDC_Imaging,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,68,153,41,10
+                    WS_TABSTOP,68,169,41,10
     CONTROL         "Contrib",IDC_Contrib,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,117,153,38,10
+                    WS_TABSTOP,117,169,38,10
     LTEXT           "Where is your compiler",IDC_STATIC,7,63,148,13
     EDITTEXT        IDC_WHERECOMPILER,16,75,153,13,ES_AUTOHSCROLL
-    GROUPBOX        "Debug",IDC_STATIC,103,93,75,31
-    CONTROL         "Debug Build",IDC_Debug,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,114,106,55,10
+    CONTROL         "Build a Debug Version",IDC_Debug,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,50,125,85,10
     CONTROL         "GemsIO",IDC_GEMSIO,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,15,170,41,10
+                    WS_TABSTOP,15,186,41,10
     CONTROL         "GemsIP",IDC_GEMSIP,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,68,170,41,10
+                    WS_TABSTOP,68,186,41,10
     CONTROL         "GemsVolume",IDC_GEMSVOLUME,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,117,170,57,10
+                    WS_TABSTOP,117,186,57,10
+    CONTROL         "Include Patented Algorithms",IDC_PATENTED,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,43,141,99,10
 END
 
 
@@ -167,7 +168,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 178
         TOPMARGIN, 7
-        BOTTOMMARGIN, 207
+        BOTTOMMARGIN, 220
     END
 END
 #endif    // APSTUDIO_INVOKED

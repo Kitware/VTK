@@ -320,10 +320,10 @@ void MakeForce(char *fname)
 }
 
 void doHeader(FILE *fp, const char *vtkHome,
-	      const char *vtkBuild, const char *vtkCompiler, int Debug);
+	      const char *vtkBuild, const char *vtkCompiler, int Debug, int doPatented);
 void doTclHeader(FILE *fp, const char *vtkHome,
 		 const char *vtkBuild, const char *vtkCompiler, int Debug,
-     int doAddedValue);
+     int doAddedValue, int doPatented);
 
 
 void makeMakefile(CPcmakerDlg *vals)
@@ -348,6 +348,11 @@ void makeMakefile(CPcmakerDlg *vals)
   {
     sprintf(fname,"%s\\contrib\\Makefile.in",vals->m_WhereVTK);
     readInMakefile(fname,strdup("contrib"));
+  }
+  if (vals->m_Patented)
+  {
+    sprintf(fname,"%s\\patented\\Makefile.in",vals->m_WhereVTK);
+    readInMakefile(fname,strdup("patented"));
   }
   if (vals->m_GEMSIO)
   {
@@ -418,13 +423,13 @@ void makeMakefile(CPcmakerDlg *vals)
   sprintf(fname,"%s\\vtkdll\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
   if (vals->m_MSComp) doHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug);
+    vals->m_Debug,vals->m_Patented);
   fclose(ofp);
   
   sprintf(fname,"%s\\vtktcl\\makefile",vals->m_WhereBuild);
   ofp = fopen(fname,"w");
   if (vals->m_MSComp) doTclHeader(ofp, vals->m_WhereVTK, vals->m_WhereBuild, vals->m_WhereCompiler,
-    vals->m_Debug, doAddedValue);
+    vals->m_Debug, doAddedValue,vals->m_Patented);
   fclose(ofp);
   
 }
@@ -435,7 +440,8 @@ void makeMakefile(CPcmakerDlg *vals)
   Here are the different makefile methods
 *******************************************************************************/
 void doHeader(FILE *fp, const char *vtkHome,
-              const char *vtkBuild, const char *vtkCompiler, int Debug)
+              const char *vtkBuild, const char *vtkCompiler, int Debug,
+              int doPatented)
 {
   int i;
 
@@ -457,7 +463,15 @@ void doHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vtkCompiler, vtkCompiler, vtkHome, vtkHome);
     }
-  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+  if (doPatented)
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
+      vtkHome);
+    }
+  else
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n");
+    }
   fprintf(fp," /Fp\"$(OUTDIR)/vtkdll.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
   fprintf(fp,"LINK32=link.exe\n");
   if (Debug)
@@ -555,7 +569,7 @@ void doHeader(FILE *fp, const char *vtkHome,
 
 void doTclHeader(FILE *fp, const char *vtkHome,
 		   const char *vtkBuild, const char *vtkCompiler, int Debug,
-       int doAddedValue)
+       int doAddedValue, int doPatented)
 {
   int i;
 
@@ -578,7 +592,15 @@ void doTclHeader(FILE *fp, const char *vtkHome,
     fprintf(fp,"CPP_PROJ=/nologo /MT /GX /O2 /I \"%s\\mfc\\include\" /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /I \"%s\\contrib\" /I \"%s\\pcmaker\\xlib\" /D \"NDEBUG\" /D \"WIN32\" /D\\\n",
       vtkCompiler, vtkCompiler, vtkHome, vtkHome, vtkHome, vtkHome, vtkHome);
     }
-  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
+  if (doPatented)
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n",
+      vtkHome);
+    }
+  else
+    {
+    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_USRDLL\" /D \"_MBCS\" \\\n");
+    }
   if (doAddedValue) fprintf(fp," /I \"%s\\gemsio\" /I \"%s\\gemsip\" /I \"%s\\gemsvolume\" \\\n",
     vtkHome, vtkHome, vtkHome);
   fprintf(fp," /Fp\"$(OUTDIR)/vtktcl.pch\" /YX /Fo\"$(OUTDIR)/\" /c \n");
