@@ -16,12 +16,15 @@
 
 =========================================================================*/
 #include "vtkVectorText.h"
-#include "vtkPoints.h"
-#include "vtkTransformPolyDataFilter.h"
-#include "vtkPolyDataReader.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVectorText, "1.30");
+#include "vtkCellArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataReader.h"
+#include "vtkTransformPolyDataFilter.h"
+
+vtkCxxRevisionMacro(vtkVectorText, "1.31");
 vtkStandardNewMacro(vtkVectorText);
 
 char *VTK_VECTOR_TEXT_33 = (char *) "11 0.438482 "

@@ -51,6 +51,9 @@
 #define VTK_PLOT_FIELD_DATA 6
 
 class vtkCamera;
+class vtkDataArray;
+class vtkPointData;
+class vtkPoints;
 
 class VTK_HYBRID_EXPORT vtkArcPlotter : public vtkPolyDataToPolyDataFilter 
 {

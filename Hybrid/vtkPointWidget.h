@@ -99,8 +99,7 @@ public:
   // Description:
   // Grab the polydata (including points) that defines the point. A
   // single point and a vertex compose the vtkPolyData.
-  void GetPolyData(vtkPolyData *pd)
-    {this->Cursor3D->Update(); pd->DeepCopy(this->Cursor3D->GetFocus()); }
+  void GetPolyData(vtkPolyData *pd);
   
   // Description:
   // Set/Get the position of the point. Note that if the position is set

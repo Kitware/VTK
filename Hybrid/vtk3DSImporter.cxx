@@ -22,13 +22,14 @@
 #include "vtkCamera.h"
 #include "vtkLight.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkStripper.h"
 
-vtkCxxRevisionMacro(vtk3DSImporter, "1.31");
+vtkCxxRevisionMacro(vtk3DSImporter, "1.32");
 vtkStandardNewMacro(vtk3DSImporter);
 
 static vtk3DSColour Black = {0.0, 0.0, 0.0};

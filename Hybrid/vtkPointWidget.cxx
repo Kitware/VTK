@@ -23,6 +23,7 @@
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkMath.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
@@ -30,7 +31,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.11");
+vtkCxxRevisionMacro(vtkPointWidget, "1.12");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -643,3 +644,8 @@ void vtkPointWidget::PlaceWidget(float bds[6])
 
 }
 
+void vtkPointWidget::GetPolyData(vtkPolyData *pd)
+{
+  this->Cursor3D->Update(); 
+  pd->DeepCopy(this->Cursor3D->GetFocus()); 
+}

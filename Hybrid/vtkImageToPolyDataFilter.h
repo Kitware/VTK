@@ -71,10 +71,15 @@
 #define VTK_COLOR_MODE_LUT 0
 #define VTK_COLOR_MODE_LINEAR_256 1
 
-class vtkStructuredPoints;
-class vtkEdgeTable;
 class vtkAppendPolyData;
+class vtkDataArray;
+class vtkEdgeTable;
+class vtkIdTypeArray;
+class vtkIntArray;
 class vtkScalarsToColors;
+class vtkStructuredPoints;
+class vtkTimeStamp;
+class vtkUnsignedCharArray;
 
 class VTK_HYBRID_EXPORT vtkImageToPolyDataFilter : public vtkStructuredPointsToPolyDataFilter
 {

@@ -15,23 +15,25 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkMath.h"
 #include "vtkImplicitModeller.h"
+
 #include "vtkCellLocator.h"
-#include "vtkMultiThreader.h"
-#include "vtkMutexLock.h"
 #include "vtkClipPolyData.h"
-#include "vtkPlane.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 #include "vtkFloatArray.h"
+#include "vtkMath.h"
+#include "vtkMultiThreader.h"
+#include "vtkMutexLock.h"
+#include "vtkObjectFactory.h"
+#include "vtkPlane.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.77");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.78");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo

@@ -183,8 +183,7 @@ public:
   // sphere. These point values are guaranteed to be up-to-date when either the
   // InteractionEvent or EndInteraction events are invoked. The user provides
   // the vtkPolyData and the points and polysphere are added to it.
-  void GetPolyData(vtkPolyData *pd)
-    { pd->ShallowCopy(this->SphereSource->GetOutput()); }
+  void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Get the spherical implicit function defined by this widget.  Note that

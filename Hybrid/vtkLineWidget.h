@@ -153,8 +153,7 @@ public:
   // line. These point values are guaranteed to be up-to-date when either the
   // InteractionEvent or EndInteraction events are invoked. The user provides
   // the vtkPolyData and the points and polyline are added to it.
-  void GetPolyData(vtkPolyData *pd)
-    { pd->ShallowCopy(this->LineSource->GetOutput()); }
+  void GetPolyData(vtkPolyData *pd);
 
   // Description:
   // Get the handle properties (the little balls are the handles). The 

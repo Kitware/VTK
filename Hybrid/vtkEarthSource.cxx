@@ -16,14 +16,16 @@
 
 =========================================================================*/
 #include "vtkEarthSource.h"
-#include "vtkPoints.h"
+
+#include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkFloatArray.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEarthSource, "1.22");
+vtkCxxRevisionMacro(vtkEarthSource, "1.23");
 vtkStandardNewMacro(vtkEarthSource);
 
 // Description:

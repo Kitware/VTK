@@ -37,7 +37,7 @@
 #include "vtkPointWidget.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.33");
+vtkCxxRevisionMacro(vtkLineWidget, "1.34");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -931,3 +931,7 @@ void vtkLineWidget::SetPoint2(float x, float y, float z)
   this->PositionHandles();
 }
 
+void vtkLineWidget::GetPolyData(vtkPolyData *pd)
+{ 
+  pd->ShallowCopy(this->LineSource->GetOutput()); 
+}

@@ -22,8 +22,9 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
+#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkArcPlotter, "1.18");
+vtkCxxRevisionMacro(vtkArcPlotter, "1.19");
 vtkStandardNewMacro(vtkArcPlotter);
 
 vtkCxxSetObjectMacro(vtkArcPlotter,Camera,vtkCamera);
