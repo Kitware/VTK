@@ -130,7 +130,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
   const char *rl = vtkImagingFactoryGetRenderLibrary();
 
 #ifdef VTK_USE_OGLR
-#ifndef VTK_USE_NATIVE_IMAGING
+#ifdef VTK_USE_NATIVE_IMAGING
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
       return vtkXTextMapper::New();
@@ -175,7 +175,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 #endif
 
 #ifdef _WIN32
-#ifndef VTK_USE_NATIVE_IMAGING
+#ifdef VTK_USE_NATIVE_IMAGING
   if(strcmp(vtkclassname, "vtkTextMapper") == 0)
     {
     return vtkWin32TextMapper::New();
@@ -220,7 +220,7 @@ vtkObject* vtkImagingFactory::CreateInstance(const char* vtkclassname )
 #endif
 
 #ifdef VTK_USE_MESA
-#ifndef VTK_USE_NATIVE_IMAGING
+#ifdef VTK_USE_NATIVE_IMAGING
     if(strcmp(vtkclassname, "vtkTextMapper") == 0)
       {
       return vtkXTextMapper::New();
