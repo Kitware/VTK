@@ -111,6 +111,7 @@ void vtkPolyNormals::Execute()
   OldMesh->BuildLinks();
   
   pd = input->GetPointData();
+  outPD = output->GetPointData();
     
   NewMesh = new vtkPolyData;
   NewMesh->SetPoints(inPts);
@@ -215,7 +216,6 @@ void vtkPolyNormals::Execute()
 //
 //  Now need to map values of old points into new points.
 //
-    outPD = output->GetPointData();
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
