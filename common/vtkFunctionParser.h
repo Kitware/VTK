@@ -116,11 +116,6 @@ public:
   vtkGetStringMacro(Function);
   
   // Description:
-  // Add a variable name.
-  void AddScalarVariableName(char* variableName);
-  void AddVectorVariableName(char* variableName);
-
-  // Description:
   // Get the ith scalar variable name.
   char* GetScalarVariableName(int i);
   
@@ -129,35 +124,28 @@ public:
   char* GetVectorVariableName(int i);
   
   // Description:
-  // Set the values for the variables in the order that their variable names
-  // were added.
-  void SetScalarVariableValues(double* values);
-  void SetVectorVariableValues(double values[][3]);
-  
-  // Description:
-  // Set the value of a particular variable.  Make sure you set
-  // the variable names and call SetNumberOfVectorVariables / 
-  // SetNumberOfScalarVariables first.
+  // Set the value of a particular variable.  If a variable with this name
+  // exists, then its value will be set to the new value.  If there is not
+  // already a variable with this name, variableName will be added to the
+  // list of variables, and its value will be set to the new value.
   void SetScalarVariableValue(const char* variableName, double value);
   void SetVectorVariableValue(const char* variableName, double xValue,
                               double yValue, double zValue);
   void SetVectorVariableValue(const char* variableName, double values[3]);
   
   // Description:
+  // Set the value of the ith variable.  If i > the number of variables,
+  // nothing will be set.
+  void SetScalarVariableValue(int i, double value);
+  void SetVectorVariableValue(int i, double xValue, double yValue,
+			      double zValue);
+  void SetVectorVariableValue(int i, double values[3]);
+  
+  // Description:
   // Get the value of a particular variable.
   double GetScalarVariableValue(const char* variableName);
   double* GetVectorVariableValue(const char* variableName);
   
-  // Description:
-  // Set/Get the number of scalar variables.
-  void SetNumberOfScalarVariables(int numScalars);
-  vtkGetMacro(NumberOfScalarVariables, int);
-  
-  // Description:
-  // Set/Get the number of vector variables.
-  void SetNumberOfVectorVariables(int numVectors);
-  vtkGetMacro(NumberOfVectorVariables, int);
-
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
@@ -198,8 +186,8 @@ protected:
   double *Immediates;
   int ImmediatesSize;
   double *Stack;
-  unsigned int StackSize;
-  unsigned int StackPointer;
+  int StackSize;
+  int StackPointer;
 };
 
 #endif
