@@ -129,47 +129,44 @@ void vtkBMPWriter::WriteFile(ofstream *file, vtkImageData *data,
     {
     for (idx1 = extent[2]; idx1 <= extent[3]; idx1++)
       {
-      for (idx0 = extent[0]; idx0 <= extent[1]; idx0++)
+      ptr = (unsigned char *)data->GetScalarPointer(extent[0], idx1, idx2);
+      if (bpp == 1)
 	{
-	ptr = (unsigned char *)data->GetScalarPointer(idx0, idx1, idx2);
-	if (bpp == 1)
+	for (i = 0; i < rowLength; i++)
 	  {
-	  for (i = 0; i < rowLength; i++)
-	    {
-	    file->put(ptr[i]);
-	    file->put(ptr[i]);
-	    file->put(ptr[i]);
-	    }
+	  file->put(ptr[i]);
+	  file->put(ptr[i]);
+	  file->put(ptr[i]);
 	  }
-	if (bpp == 2)
-	  {
-	  for (i = 0; i < rowLength; i++)
-	    {
-	    file->put(ptr[i*2]);
-	    file->put(ptr[i*2]);
-	    file->put(ptr[i*2]);
-	    }
-	  }
-	if (bpp == 3)
-	  {
-	  for (i = 0; i < rowLength; i++)
-	    {
-	    file->put(ptr[i*3 + 2]);
-	    file->put(ptr[i*3 + 1]);
-	    file->put(ptr[i*3]);
-	    }
-	  }
-	if (bpp == 4)
-	  {
-	  for (i = 0; i < rowLength; i++)
-	    {
-	    file->put(ptr[i*4 + 2]);
-	    file->put(ptr[i*4 + 1]);
-	    file->put(ptr[i*4]);
-	    }
-	  }
-	for (i = 0; i < rowAdder; i++) file->put((char)0);
 	}
+      if (bpp == 2)
+	{
+	for (i = 0; i < rowLength; i++)
+	  {
+	  file->put(ptr[i*2]);
+	  file->put(ptr[i*2]);
+	  file->put(ptr[i*2]);
+	  }
+	}
+      if (bpp == 3)
+	{
+	for (i = 0; i < rowLength; i++)
+	  {
+	  file->put(ptr[i*3 + 2]);
+	  file->put(ptr[i*3 + 1]);
+	  file->put(ptr[i*3]);
+	  }
+	}
+      if (bpp == 4)
+	{
+	for (i = 0; i < rowLength; i++)
+	  {
+	  file->put(ptr[i*4 + 2]);
+	  file->put(ptr[i*4 + 1]);
+	  file->put(ptr[i*4]);
+	  }
+	}
+      for (i = 0; i < rowAdder; i++) file->put((char)0);
       }
     }
 }
