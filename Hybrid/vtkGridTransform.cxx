@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.23");
+vtkCxxRevisionMacro(vtkGridTransform, "1.24");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -137,6 +137,9 @@ inline void vtkNearestNeighborInterpolation(double point[3],
       break;
     case VTK_UNSIGNED_SHORT:
       vtkNearestHelper(displacement, (unsigned short *)gridPtr, increment);
+      break;
+    case VTK_FLOAT:
+      vtkNearestHelper(displacement, (float *)gridPtr, increment);
       break;
     case VTK_DOUBLE:
       vtkNearestHelper(displacement, (double *)gridPtr, increment);
@@ -269,6 +272,10 @@ void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
       break;
     case VTK_UNSIGNED_SHORT:
       vtkNearestHelper(displacement, derivatives, (unsigned short *)gridPtr, 
+                       gridId, gridId0, gridId1, gridInc);
+      break;
+    case VTK_FLOAT:
+      vtkNearestHelper(displacement, derivatives, (float *)gridPtr,
                        gridId, gridId0, gridId1, gridInc);
       break;
     case VTK_DOUBLE:
@@ -447,6 +454,11 @@ void vtkTrilinearInterpolation(double point[3], double displacement[3],
     case VTK_UNSIGNED_SHORT:
       vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2], 
                       (unsigned short *)gridPtr,
+                      i000, i001, i010, i011, i100, i101, i110, i111);
+      break;
+    case VTK_FLOAT:
+      vtkLinearHelper(displacement, derivatives, f[0], f[1], f[2],
+                      (float *)gridPtr,
                       i000, i001, i010, i011, i100, i101, i110, i111);
       break;
     case VTK_DOUBLE:
@@ -798,6 +810,11 @@ void vtkTricubicInterpolation(double point[3], double displacement[3],
                      interpModeX, interpModeY, interpModeZ,
                      factX, factY, factZ);
       break;
+    case VTK_FLOAT:
+      vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
+                     (float *)gridPtr,
+                     interpModeX, interpModeY, interpModeZ,
+                     factX, factY, factZ);
     case VTK_DOUBLE:
       vtkCubicHelper(displacement, derivatives, f[0], f[1], f[2],
                      (double *)gridPtr,
@@ -1285,6 +1302,7 @@ void vtkGridTransform::InternalUpdate()
       grid->GetScalarType() != VTK_UNSIGNED_CHAR &&
       grid->GetScalarType() != VTK_SHORT &&
       grid->GetScalarType() != VTK_UNSIGNED_SHORT &&
+      grid->GetScalarType() != VTK_FLOAT &&
       grid->GetScalarType() != VTK_DOUBLE)
     {
     vtkErrorMacro(<< "TransformPoint: displacement grid is of unsupported numerical type");
