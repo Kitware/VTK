@@ -67,6 +67,13 @@ public:
   vtkSetMacro(Center, double);
   vtkGetMacro(Center, double);
 
+  // Description:
+  // If on (the default), copy the input geometry to the output. If off,
+  // the output will only contain the reflection.
+  vtkSetMacro(CopyInput, int);
+  vtkGetMacro(CopyInput, int);
+  vtkBooleanMacro(CopyInput, int);
+  
 protected:
   vtkReflectionFilter();
   ~vtkReflectionFilter();
@@ -75,7 +82,8 @@ protected:
 
   int Plane;
   double Center;
-
+  int CopyInput;
+  
   void FlipVector(double tuple[3], int mirrorDir[3]);
   
 private:

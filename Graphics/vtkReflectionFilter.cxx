@@ -21,7 +21,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkReflectionFilter, "1.13");
+vtkCxxRevisionMacro(vtkReflectionFilter, "1.14");
 vtkStandardNewMacro(vtkReflectionFilter);
 
 //---------------------------------------------------------------------------
@@ -29,6 +29,7 @@ vtkReflectionFilter::vtkReflectionFilter()
 {
   this->Plane = USE_X_MIN;
   this->Center = 0.0;
+  this->CopyInput = 1;
 }
 
 //---------------------------------------------------------------------------
@@ -70,8 +71,16 @@ void vtkReflectionFilter::Execute()
   input->GetBounds(bounds);
   outPoints = vtkPoints::New();
 
-  outPoints->Allocate(2* numPts);
-  output->Allocate(numCells * 2);
+  if (this->CopyInput)
+    {
+    outPoints->Allocate(2* numPts);
+    output->Allocate(numCells * 2);
+    }
+  else
+    {
+    outPoints->Allocate(numPts);
+    output->Allocate(numCells);
+    }
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
@@ -89,13 +98,16 @@ void vtkReflectionFilter::Execute()
   outCellNormals = outCD->GetNormals();
   
   // Copy first points.
-  for (i = 0; i < numPts; i++)
+  if (this->CopyInput)
     {
-    input->GetPoint(i, point);
-    ptId = outPoints->InsertNextPoint(point);
-    outPD->CopyData(inPD, i, ptId);
+    for (i = 0; i < numPts; i++)
+      {
+      input->GetPoint(i, point);
+      ptId = outPoints->InsertNextPoint(point);
+      outPD->CopyData(inPD, i, ptId);
+      }
     }
-
+  
   // Copy reflected points.
   switch (this->Plane)
     {
@@ -165,13 +177,16 @@ void vtkReflectionFilter::Execute()
   vtkIdList *cellPts;
   
   // Copy original cells.
-  for (i = 0; i < numCells; i++)
+  if (this->CopyInput)
     {
-    input->GetCellPoints(i, ptIds);
-    output->InsertNextCell(input->GetCellType(i), ptIds);
-    outCD->CopyData(inCD, i, i);
+    for (i = 0; i < numCells; i++)
+      {
+      input->GetCellPoints(i, ptIds);
+      output->InsertNextCell(input->GetCellType(i), ptIds);
+      outCD->CopyData(inCD, i, i);
+      }
     }
-
+  
   // Generate reflected cells.
   for (i = 0; i < numCells; i++)
     {
@@ -192,7 +207,11 @@ void vtkReflectionFilter::Execute()
       newCellPts[3] = cellPts->GetId(2) + numPts;
       for (j = 4; j < numCellPts; j++)
         {
-        newCellPts[j] = cellPts->GetId(j-1) + numPts;
+        newCellPts[j] = cellPts->GetId(j-1);
+        if (this->CopyInput)
+          {
+          newCellPts[j] += numPts;
+          }
         }
       }
     else
@@ -200,7 +219,11 @@ void vtkReflectionFilter::Execute()
       newCellPts = new vtkIdType[numCellPts];
       for (j = numCellPts-1; j >= 0; j--)
         {
-        newCellPts[numCellPts-1-j] = cellPts->GetId(j) + numPts;
+        newCellPts[numCellPts-1-j] = cellPts->GetId(j);
+        if (this->CopyInput)
+          {
+          newCellPts[numCellPts-1-j] += numPts;
+          }
         }
       }
     cellId = output->InsertNextCell(cellType, numCellPts, newCellPts);
@@ -234,4 +257,5 @@ void vtkReflectionFilter::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "Plane: " << this->Plane << endl;
   os << indent << "Center: " << this->Center << endl;
+  os << indent << "CopyInput: " << this->CopyInput << endl;
 }
