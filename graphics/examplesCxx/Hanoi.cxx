@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
   float scale;
   vtkMath math;
   int puckResolution=48;
+  float red, green, blue;
 
 //
 // Parse command line
@@ -257,7 +258,8 @@ int main(int argc, char *argv[])
     {
     puck[i] = vtkActor::New();
     puck[i]->SetMapper(puckMapper);
-    puck[i]->GetProperty()->SetColor(math.Random(0, 1),math.Random(0, 1),math.Random(0, 1));
+    red = math.Random (); green = math.Random (); blue = math.Random ();
+    puck[i]->GetProperty()->SetColor(red, green, blue);
     puck[i]->AddPosition(0,i*L+L/2, 0);
     scale = rMax - i*(rMax-rMin) / (NumberOfPucks-1);
     puck[i]->SetScale(scale,1,scale);
