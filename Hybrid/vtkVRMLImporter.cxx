@@ -144,8 +144,25 @@ static void defyyInput(char *buf, int &result, int max_size);
 using namespace std;
 #endif
 
+// used to hold the VRML DEF names and assoc vtkObjects
+class vtkVRMLUseStruct {
+public:
+  vtkVRMLUseStruct( char *n, vtkObject *o) { defName = n; defObject = o; }
+  char            *defName;
+  vtkObject       *defObject;
+
+  void* operator new(size_t n)
+    {
+      return vtkVRMLAllocator::AllocateMemory(n);
+    }
+  
+  void operator delete(void *vtkNotUsed(ptr)) {}
+};
+
+
+
 class VrmlNodeType {
- public:
+public:
   // Constructor.  Takes name of new type (e.g. "Transform" or "Box")
   // Copies the string given as name.
   VrmlNodeType(const char *nm);
@@ -198,11 +215,22 @@ class VrmlNodeType {
     void operator delete(void *vtkNotUsed(ptr)) {}
     
   };
+
+// This is used to keep track of which field in which type of node is being
+// parsed.  Field are nested (nodes are contained inside MFNode/SFNode fields)
+// so a stack of these is needed:
+  struct FieldRec 
+  {
+    const VrmlNodeType *nodeType;
+    const char *fieldName;
+  };
         
   // Node types are stored in this data structure:
-  static VectorType<VrmlNodeType*> typeList;
+  static VectorType<VrmlNodeType*>* typeList;
+  static VectorType<vtkVRMLUseStruct *>* useList;
+  static VectorType<FieldRec*>* currentField;
 
- private:
+private:
   void add(VectorType<NameTypeRec*> &,const char *,int);
   int has(const VectorType<NameTypeRec*> &,const char *) const;
 
@@ -224,7 +252,9 @@ class VrmlNodeType {
 //
 // Static list of node types.
 //
-VectorType<VrmlNodeType*> VrmlNodeType::typeList;
+VectorType<VrmlNodeType*>* VrmlNodeType::typeList;
+VectorType<vtkVRMLUseStruct *>* VrmlNodeType::useList;
+VectorType<VrmlNodeType::FieldRec*>* VrmlNodeType::currentField;
 
 VrmlNodeType::VrmlNodeType(const char *nm)
 {
@@ -267,7 +297,7 @@ VrmlNodeType::addToNameSpace(VrmlNodeType *_type)
     cerr << "PROTO " << _type->getName() << " already defined\n";
     return;
     }
-  typeList += _type;
+  *typeList += _type;
 }
 
 //
@@ -278,16 +308,16 @@ VrmlNodeType::addToNameSpace(VrmlNodeType *_type)
 void
 VrmlNodeType::pushNameSpace()
 {
-  typeList += (VrmlNodeType *) NULL;
+  *typeList += (VrmlNodeType *) NULL;
 }
 
 void
 VrmlNodeType::popNameSpace()
 {
   // Remove everything up to and including the next NULL marker:
-  for (int i = 0;i < typeList.Count(); i++) 
+  for (int i = 0;i < typeList->Count(); i++) 
     {
-    VrmlNodeType *nodeType = typeList.Pop();
+    VrmlNodeType *nodeType = typeList->Pop();
     
     if (nodeType == NULL) 
       {
@@ -308,9 +338,9 @@ const VrmlNodeType *
 VrmlNodeType::find(const char *_name)
 {
   // Look through the type stack:
-  for (int i = 0;i < typeList.Count(); i++) 
+  for (int i = 0;i < typeList->Count(); i++) 
     {
-    const VrmlNodeType *nt = typeList[i];
+    const VrmlNodeType *nt = (*typeList)[i];
     if (nt != NULL && strcmp(nt->getName(),_name) == 0) 
       {
       return nt;
@@ -473,14 +503,6 @@ using namespace std;
 
 static VectorType<VrmlNodeType*> *CurrentProtoStack = NULL;
 
-// This is used to keep track of which field in which type of node is being
-// parsed.  Field are nested (nodes are contained inside MFNode/SFNode fields)
-// so a stack of these is needed:
-typedef struct {
-  const VrmlNodeType *nodeType;
-  const char *fieldName;
-} FieldRec;
-VectorType<FieldRec*> currentField;
 
 // This is used when the parser knows what kind of token it expects
 // to get next-- used when parsing field values (whose types are declared
@@ -1031,7 +1053,7 @@ yyparse(vtkVRMLImporter* self)
   /* Push a new state, which is found in  yystate  .  */
   /* In all cases, when you get here, the value and location stacks
      have just been pushed. so pushing a state here evens the stacks.  */
- yynewstate:
+  yynewstate:
 
   *++yyssp = yystate;
 
@@ -1111,7 +1133,7 @@ yyparse(vtkVRMLImporter* self)
 #endif
 
   goto yybackup;
- yybackup:
+  yybackup:
 
   /* Do appropriate processing given the current state.  */
   /* Read a lookahead token if we need one and don't already have one.  */
@@ -1216,14 +1238,14 @@ yyparse(vtkVRMLImporter* self)
   goto yynewstate;
 
   /* Do the default action for the current state.  */
- yydefault:
+  yydefault:
 
   yyn = yydefact[yystate];
   if (yyn == 0)
     goto yyerrlab;
 
   /* Do a reduction.  yyn is the number of a rule to reduce with.  */
- yyreduce:
+  yyreduce:
   yylen = yyr2[yyn];
   if (yylen > 0)
     yyval = yyvsp[1-yylen]; /* implement default value of the action */
@@ -1249,120 +1271,120 @@ yyparse(vtkVRMLImporter* self)
   switch (yyn) {
 
   case 8:
-    { creatingDEF = 1; ;
-    break;}
+  { creatingDEF = 1; ;
+  break;}
   case 9:
-    { curDEFName = yyvsp[0].string; ;
-    break;}
+  { curDEFName = yyvsp[0].string; ;
+  break;}
   case 10:
-    { creatingDEF = 0; ;
-    break;}
+  { creatingDEF = 0; ;
+  break;}
   case 11:
-    { self->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
-    break;}
+  { self->useNode(yyvsp[0].string);free(yyvsp[0].string); ;
+  break;}
   case 14:
-    { beginProto(yyvsp[0].string); ;
-    break;}
+  { beginProto(yyvsp[0].string); ;
+  break;}
   case 15:
-    { endProto();  free(yyvsp[-7].string);;
-    break;}
+  { endProto();  free(yyvsp[-7].string);;
+  break;}
   case 16:
-    { beginProto(yyvsp[0].string); ;
-    break;}
+  { beginProto(yyvsp[0].string); ;
+  break;}
   case 17:
-    { expect(MFSTRING); ;
-    break;}
+  { expect(MFSTRING); ;
+  break;}
   case 18:
-    { endProto();  free(yyvsp[-6].string); ;
-    break;}
+  { endProto();  free(yyvsp[-6].string); ;
+  break;}
   case 21:
-    { addEventIn(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addEventIn(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 22:
-    { addEventOut(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addEventOut(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 23:
-    { int type = addField(yyvsp[-1].string, yyvsp[0].string);
-    expect(type); ;
-    break;}
+  { int type = addField(yyvsp[-1].string, yyvsp[0].string);
+  expect(type); ;
+  break;}
   case 24:
-    { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
-    break;}
+  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  break;}
   case 25:
-    { int type = addExposedField(yyvsp[-1].string, yyvsp[0].string);
-    expect(type); ;
-    break;}
+  { int type = addExposedField(yyvsp[-1].string, yyvsp[0].string);
+  expect(type); ;
+  break;}
   case 26:
-    { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
-    break;}
+  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  break;}
   case 29:
-    { addEventIn(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addEventIn(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 30:
-    { addEventOut(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addEventOut(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 31:
-    { addField(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addField(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 32:
-    { addExposedField(yyvsp[-1].string, yyvsp[0].string);
-    free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { addExposedField(yyvsp[-1].string, yyvsp[0].string);
+  free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 33:
-    { free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
-    break;}
+  { free(yyvsp[-6].string); free(yyvsp[-4].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  break;}
   case 34:
-    { self->enterNode(yyvsp[0].string); ;
-    break;}
+  { self->enterNode(yyvsp[0].string); ;
+  break;}
   case 35:
-    { self->exitNode(); free(yyvsp[-4].string);;
-    break;}
+  { self->exitNode(); free(yyvsp[-4].string);;
+  break;}
   case 38:
-    { self->enterField(yyvsp[0].string); ;
-    break;}
+  { self->enterField(yyvsp[0].string); ;
+  break;}
   case 39:
-    { self->exitField(); free(yyvsp[-2].string); ;
-    break;}
+  { self->exitField(); free(yyvsp[-2].string); ;
+  break;}
   case 42:
-    { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 43:
-    { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
-    break;}
+  { inScript(); free(yyvsp[-1].string); free(yyvsp[0].string); ;
+  break;}
   case 44:
-    { inScript(); 
-    int type = fieldType(yyvsp[-1].string);
-    expect(type); ;
-    break;}
+  { inScript(); 
+  int type = fieldType(yyvsp[-1].string);
+  expect(type); ;
+  break;}
   case 45:
-    { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
-    break;}
+  { free(yyvsp[-3].string); free(yyvsp[-2].string); ;
+  break;}
   case 46:
-    { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
-    break;}
+  { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  break;}
   case 47:
-    { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
-    break;}
+  { inScript(); free(yyvsp[-3].string); free(yyvsp[-2].string); free(yyvsp[0].string); ;
+  break;}
   case 49:
-    {;
-    break;}
+  {;
+  break;}
   case 50:
-    {     break;}
+  {     break;}
   case 55:
-    {     break;}
+  {     break;}
   case 63:
-    { ;
-    break;}
+  { ;
+  break;}
   case 64:
-    {     break;}
+  {     break;}
   case 68:
-    { free(yyvsp[0].string); ;
-    break;}
+  { free(yyvsp[0].string); ;
+  break;}
   }
   /* the action file gets copied in in place of this dollarsign */
 
@@ -1418,7 +1440,7 @@ yyparse(vtkVRMLImporter* self)
 
   goto yynewstate;
 
- yyerrlab:   /* here on detecting error */
+  yyerrlab:   /* here on detecting error */
 
   if (! yyerrstatus)
     /* If not already recovering from an error, report this error.  */
@@ -1470,7 +1492,7 @@ yyparse(vtkVRMLImporter* self)
     }
 
   goto yyerrlab1;
- yyerrlab1:   /* here on error raised explicitly by an action */
+  yyerrlab1:   /* here on error raised explicitly by an action */
 
   if (yyerrstatus == 3)
     {
@@ -1495,7 +1517,7 @@ yyparse(vtkVRMLImporter* self)
 
   goto yyerrhandle;
 
- yyerrdefault:  /* current state does not do anything special for the error token. */
+  yyerrdefault:  /* current state does not do anything special for the error token. */
 
 #if 0
   /* This is wrong; only states that explicitly want error tokens
@@ -1504,7 +1526,7 @@ yyparse(vtkVRMLImporter* self)
   if (yyn) goto yydefault;
 #endif
 
- yyerrpop:   /* pop the current state because it cannot handle the error token */
+  yyerrpop:   /* pop the current state because it cannot handle the error token */
 
   if (yyssp == yyss) YYABORT;
   yyvsp--;
@@ -1524,7 +1546,7 @@ yyparse(vtkVRMLImporter* self)
     }
 #endif
 
- yyerrhandle:
+  yyerrhandle:
 
   yyn = yypact[yystate];
   if (yyn == YYFLAG)
@@ -1677,7 +1699,7 @@ fieldType(const char *type)
 static void
 inScript()
 {
-  FieldRec *fr = currentField.Top();
+  VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   if (fr->nodeType == NULL ||
       strcmp(fr->nodeType->getName(), "Script") != 0) 
     {
@@ -4364,7 +4386,7 @@ int yylex ( vtkVRMLImporter* self )
     yy_bp = yy_cp;
 
     yy_current_state = yy_start;
-    yy_match:
+      yy_match:
     do
       {
       register YY_CHAR yy_c = yy_ec[YY_SC_TO_UI(*yy_cp)];
@@ -4384,13 +4406,13 @@ int yylex ( vtkVRMLImporter* self )
       }
     while ( yy_base[yy_current_state] != 7663 );
 
-    yy_find_action:
+      yy_find_action:
     yy_act = yy_accept[yy_current_state];
 
     YY_DO_BEFORE_ACTION;
 
 
-    do_action:      /* This label is used only to access EOF actions. */
+      do_action:      /* This label is used only to access EOF actions. */
 
     if ( yy_flex_debug )
       {
@@ -4564,8 +4586,8 @@ int yylex ( vtkVRMLImporter* self )
           }
           }
         YY_BREAK
-      case 29:
-        YY_USER_ACTION
+          case 29:
+            YY_USER_ACTION
           {   BEGIN NODE; expectToken = 0;
           float num[3];
           yylval.vec3f = self->PointsNew();
@@ -4740,129 +4762,129 @@ int yylex ( vtkVRMLImporter* self )
         yyterminate();
 
       case YY_END_OF_BUFFER:
+      {
+      /* Amount of text matched not including the EOB char. */
+      int yy_amount_of_matched_text = yy_cp - yytext_ptr - 1;
+
+      /* Undo the effects of YY_DO_BEFORE_ACTION. */
+      *yy_cp = yy_hold_char;
+
+      if ( yy_current_buffer->yy_buffer_status == YY_BUFFER_NEW )
         {
-        /* Amount of text matched not including the EOB char. */
-        int yy_amount_of_matched_text = yy_cp - yytext_ptr - 1;
-
-        /* Undo the effects of YY_DO_BEFORE_ACTION. */
-        *yy_cp = yy_hold_char;
-
-        if ( yy_current_buffer->yy_buffer_status == YY_BUFFER_NEW )
-          {
-          /* We're scanning a new file or input source.  It's
-           * possible that this happened because the user
-           * just pointed yyin at a new source and called
-           * yylex().  If so, then we have to assure
-           * consistency between yy_current_buffer and our
-           * globals.  Here is the right place to do so, because
-           * this is the first action (other than possibly a
-           * back-up) that will match for the new input source.
-           */
-          yy_n_chars = yy_current_buffer->yy_n_chars;
-          yy_current_buffer->yy_input_file = yyin;
-          yy_current_buffer->yy_buffer_status = YY_BUFFER_NORMAL;
-          }
-
-        /* Note that here we test for yy_c_buf_p "<=" to the position
-         * of the first EOB in the buffer, since yy_c_buf_p will
-         * already have been incremented past the NUL character
-         * (since all states make transitions on EOB to the
-         * end-of-buffer state).  Contrast this with the test
-         * in input().
+        /* We're scanning a new file or input source.  It's
+         * possible that this happened because the user
+         * just pointed yyin at a new source and called
+         * yylex().  If so, then we have to assure
+         * consistency between yy_current_buffer and our
+         * globals.  Here is the right place to do so, because
+         * this is the first action (other than possibly a
+         * back-up) that will match for the new input source.
          */
-        if ( yy_c_buf_p <= &yy_current_buffer->yy_ch_buf[yy_n_chars] )
-          { /* This was really a NUL. */
-          yy_state_type yy_next_state;
+        yy_n_chars = yy_current_buffer->yy_n_chars;
+        yy_current_buffer->yy_input_file = yyin;
+        yy_current_buffer->yy_buffer_status = YY_BUFFER_NORMAL;
+        }
 
-          yy_c_buf_p = yytext_ptr + yy_amount_of_matched_text;
+      /* Note that here we test for yy_c_buf_p "<=" to the position
+       * of the first EOB in the buffer, since yy_c_buf_p will
+       * already have been incremented past the NUL character
+       * (since all states make transitions on EOB to the
+       * end-of-buffer state).  Contrast this with the test
+       * in input().
+       */
+      if ( yy_c_buf_p <= &yy_current_buffer->yy_ch_buf[yy_n_chars] )
+        { /* This was really a NUL. */
+        yy_state_type yy_next_state;
 
-          yy_current_state = yy_get_previous_state();
+        yy_c_buf_p = yytext_ptr + yy_amount_of_matched_text;
 
-          /* Okay, we're now positioned to make the NUL
-           * transition.  We couldn't have
-           * yy_get_previous_state() go ahead and do it
-           * for us because it doesn't know how to deal
-           * with the possibility of jamming (and we don't
-           * want to build jamming into it because then it
-           * will run more slowly).
-           */
+        yy_current_state = yy_get_previous_state();
 
-          yy_next_state = yy_try_NUL_trans( yy_current_state );
+        /* Okay, we're now positioned to make the NUL
+         * transition.  We couldn't have
+         * yy_get_previous_state() go ahead and do it
+         * for us because it doesn't know how to deal
+         * with the possibility of jamming (and we don't
+         * want to build jamming into it because then it
+         * will run more slowly).
+         */
 
-          yy_bp = yytext_ptr + YY_MORE_ADJ;
+        yy_next_state = yy_try_NUL_trans( yy_current_state );
 
-          if ( yy_next_state )
-            {
+        yy_bp = yytext_ptr + YY_MORE_ADJ;
+
+        if ( yy_next_state )
+          {
                                 /* Consume the NUL. */
-            yy_cp = ++yy_c_buf_p;
-            yy_current_state = yy_next_state;
-            goto yy_match;
-            }
-
-          else
-            {
-            yy_cp = yy_c_buf_p;
-            goto yy_find_action;
-            }
+          yy_cp = ++yy_c_buf_p;
+          yy_current_state = yy_next_state;
+          goto yy_match;
           }
 
-        else switch ( yy_get_next_buffer() )
+        else
           {
-          case EOB_ACT_END_OF_FILE:
-            {
-            yy_did_buffer_switch_on_eof = 0;
+          yy_cp = yy_c_buf_p;
+          goto yy_find_action;
+          }
+        }
 
-            if ( yywrap() )
-              {
-              /* Note: because we've taken care in
-               * yy_get_next_buffer() to have set up
-               * yytext, we can now set up
-               * yy_c_buf_p so that if some total
-               * hoser (like flex itself) wants to
-               * call the scanner after we return the
-               * YY_NULL, it'll still work - another
-               * YY_NULL will get returned.
-               */
-              yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
+      else switch ( yy_get_next_buffer() )
+        {
+        case EOB_ACT_END_OF_FILE:
+        {
+        yy_did_buffer_switch_on_eof = 0;
 
-              yy_act = YY_STATE_EOF(YY_START);
-              goto do_action;
-              }
+        if ( yywrap() )
+          {
+          /* Note: because we've taken care in
+           * yy_get_next_buffer() to have set up
+           * yytext, we can now set up
+           * yy_c_buf_p so that if some total
+           * hoser (like flex itself) wants to
+           * call the scanner after we return the
+           * YY_NULL, it'll still work - another
+           * YY_NULL will get returned.
+           */
+          yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
 
-            else
-              {
-              if ( ! yy_did_buffer_switch_on_eof )
-                YY_NEW_FILE;
-              }
-            break;
-            }
+          yy_act = YY_STATE_EOF(YY_START);
+          goto do_action;
+          }
 
-          case EOB_ACT_CONTINUE_SCAN:
-            yy_c_buf_p =
-              yytext_ptr + yy_amount_of_matched_text;
-
-            yy_current_state = yy_get_previous_state();
-
-            yy_cp = yy_c_buf_p;
-            yy_bp = yytext_ptr + YY_MORE_ADJ;
-            goto yy_match;
-
-          case EOB_ACT_LAST_MATCH:
-            yy_c_buf_p =
-              &yy_current_buffer->yy_ch_buf[yy_n_chars];
-
-            yy_current_state = yy_get_previous_state();
-
-            yy_cp = yy_c_buf_p;
-            yy_bp = yytext_ptr + YY_MORE_ADJ;
-            goto yy_find_action;
+        else
+          {
+          if ( ! yy_did_buffer_switch_on_eof )
+            YY_NEW_FILE;
           }
         break;
         }
 
+        case EOB_ACT_CONTINUE_SCAN:
+          yy_c_buf_p =
+            yytext_ptr + yy_amount_of_matched_text;
+
+          yy_current_state = yy_get_previous_state();
+
+          yy_cp = yy_c_buf_p;
+          yy_bp = yytext_ptr + YY_MORE_ADJ;
+          goto yy_match;
+
+        case EOB_ACT_LAST_MATCH:
+          yy_c_buf_p =
+            &yy_current_buffer->yy_ch_buf[yy_n_chars];
+
+          yy_current_state = yy_get_previous_state();
+
+          yy_cp = yy_c_buf_p;
+          yy_bp = yytext_ptr + YY_MORE_ADJ;
+          goto yy_find_action;
+        }
+      break;
+      }
+
       default:
         YY_FATAL_ERROR(
-                       "fatal flex scanner internal error--no action found" );
+          "fatal flex scanner internal error--no action found" );
       } /* end of action switch */
     } /* end of scanning one token */
 } /* end of yylex */
@@ -4885,7 +4907,7 @@ static int yy_get_next_buffer()
 
   if ( yy_c_buf_p > &yy_current_buffer->yy_ch_buf[yy_n_chars + 1] )
     YY_FATAL_ERROR(
-                   "fatal flex scanner internal error--end of buffer missed" );
+      "fatal flex scanner internal error--end of buffer missed" );
 
   if ( yy_current_buffer->yy_fill_buffer == 0 )
     { /* Don't try to fill the buffer, so this is an EOF. */
@@ -4929,7 +4951,7 @@ static int yy_get_next_buffer()
       { /* Not enough room in the buffer - grow it. */
 #ifdef YY_USES_REJECT
       YY_FATAL_ERROR(
-                     "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
+        "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
 #else
 
       /* just a shorter name for the current buffer */
@@ -4944,7 +4966,7 @@ static int yy_get_next_buffer()
 
       if ( ! b->yy_ch_buf )
         YY_FATAL_ERROR(
-                       "fatal error - scanner input buffer overflow" );
+          "fatal error - scanner input buffer overflow" );
 
       yy_c_buf_p = &b->yy_ch_buf[yy_c_buf_p_offset];
 
@@ -5090,21 +5112,21 @@ static int yyinput()
       switch ( yy_get_next_buffer() )
         {
         case EOB_ACT_END_OF_FILE:
+        {
+        if ( yywrap() )
           {
-          if ( yywrap() )
-            {
-            yy_c_buf_p =
-              yytext_ptr + YY_MORE_ADJ;
-            return EOF;
-            }
-
-          YY_NEW_FILE;
-#ifdef __cplusplus
-          return yyinput();
-#else
-          return input();
-#endif
+          yy_c_buf_p =
+            yytext_ptr + YY_MORE_ADJ;
+          return EOF;
           }
+
+        YY_NEW_FILE;
+#ifdef __cplusplus
+        return yyinput();
+#else
+        return input();
+#endif
+        }
 
         case EOB_ACT_CONTINUE_SCAN:
           yy_c_buf_p = yytext_ptr + YY_MORE_ADJ;
@@ -5113,10 +5135,10 @@ static int yyinput()
         case EOB_ACT_LAST_MATCH:
 #ifdef __cplusplus
           YY_FATAL_ERROR(
-                         "unexpected last match in yyinput()" );
+            "unexpected last match in yyinput()" );
 #else
           YY_FATAL_ERROR(
-                         "unexpected last match in input()" );
+            "unexpected last match in input()" );
 #endif
         }
       }
@@ -5348,22 +5370,6 @@ static void yy_flex_free( void *ptr )
 }
 // End of Auto-generated Lexer Code
 
-// used to hold the VRML DEF names and assoc vtkObjects
-class vtkVRMLUseStruct {
- public:
-  vtkVRMLUseStruct( char *n, vtkObject *o) { defName = n; defObject = o; }
-  char            *defName;
-  vtkObject       *defObject;
-
-  void* operator new(size_t n)
-    {
-      return vtkVRMLAllocator::AllocateMemory(n);
-    }
-  
-  void operator delete(void *vtkNotUsed(ptr)) {}
-};
-
-VectorType<vtkVRMLUseStruct *> useList;
 
 vtkVRMLImporter::vtkVRMLImporter () : Heap(1)
 {
@@ -5408,6 +5414,15 @@ int vtkVRMLImporter::ImportBegin ()
   memyyInput_j = 0;
 
   vtkVRMLAllocator::Initialize();
+  VrmlNodeType::typeList = new VectorType<VrmlNodeType*>;
+  VrmlNodeType::typeList->Init();
+
+  VrmlNodeType::useList = new VectorType<vtkVRMLUseStruct *>;
+  VrmlNodeType::useList->Init();
+
+  VrmlNodeType::currentField = new VectorType<VrmlNodeType::FieldRec *>;
+  VrmlNodeType::currentField->Init();
+
   if (!this->OpenImportFile())
     {
     return 0;
@@ -5425,8 +5440,8 @@ int vtkVRMLImporter::ImportBegin ()
   yy_flex_debug = 0;
   /*FILE *standardNodes = fopen("standardNodes.wrl", "r");
     if (standardNodes == NULL) {
-        cerr << "Error, couldn't open standardNodes.wrl file";
-        return 0;
+    cerr << "Error, couldn't open standardNodes.wrl file";
+    return 0;
     }
     yyin = standardNodes;*/
   yyparse(this);
@@ -5464,10 +5479,17 @@ int vtkVRMLImporter::ImportBegin ()
 
 void vtkVRMLImporter::ImportEnd ()
 {
+  delete VrmlNodeType::typeList;
+  VrmlNodeType::typeList = 0;
+
+  delete VrmlNodeType::useList;
+  VrmlNodeType::useList = 0;
+
+  delete VrmlNodeType::currentField;
+  VrmlNodeType::currentField = 0;
+
   vtkVRMLAllocator::CleanUp();
-  VrmlNodeType::typeList.Init();
-  useList.Init();
-  currentField.Init();
+
   vtkDebugMacro(<<"Closing import file");
   if ( this->FileFD != NULL )
     {
@@ -5541,10 +5563,11 @@ void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
      << (this->FileName ? this->FileName : "(none)") << "\n";
 
   os << "Defined names in File:" << endl;
-  for (int i = 0;i < useList.Count();i++) 
+  for (int i = 0;i < VrmlNodeType::useList->Count();i++) 
     {
-    os << "\tName: " << useList[i]->defName <<
-      " is a " << useList[i]->defObject->GetClassName() << endl;
+    os << "\tName: " << (*VrmlNodeType::useList)[i]->defName 
+       << " is a " << (*VrmlNodeType::useList)[i]->defObject->GetClassName() 
+       << endl;
     }
 }
 
@@ -5564,10 +5587,10 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     yyerror(tmp);
     exit(99);
     }
-  FieldRec *fr = new FieldRec;
+  VrmlNodeType::FieldRec *fr = new VrmlNodeType::FieldRec;
   fr->nodeType = t;
   fr->fieldName = NULL;
-  currentField += fr;
+  *VrmlNodeType::currentField += fr;
   if (strcmp(fr->nodeType->getName(), "Appearance") == 0) 
     {
     if (this->CurrentProperty)
@@ -5577,7 +5600,8 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentProperty = vtkProperty::New();
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, this->CurrentProperty);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, 
+                                                     this->CurrentProperty);
       creatingDEF = 0;
       }
     }
@@ -5599,7 +5623,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentSource = cube;
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, pmap);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
@@ -5622,7 +5646,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentSource = cone;
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, pmap);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
@@ -5645,7 +5669,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentSource = cyl;
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, pmap);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
                 
       }
@@ -5660,7 +5684,8 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->Renderer->AddLight(this->CurrentLight);
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, this->CurrentLight);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, 
+                                                     this->CurrentLight);
       creatingDEF = 0;
       }
     }
@@ -5687,7 +5712,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->CurrentScalars = vtkFloatArray::New();
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, pmap);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF = 0;
       }
     }
@@ -5710,7 +5735,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
     this->Renderer->AddActor(actor);
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, actor);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, actor);
       creatingDEF= 0;
       }
     }
@@ -5732,7 +5757,7 @@ vtkVRMLImporter::enterNode(const char *nodeType)
       }
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, pmap);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, pmap);
       creatingDEF= 0;
       }
     }
@@ -5745,9 +5770,9 @@ vtkVRMLImporter::enterNode(const char *nodeType)
 void
 vtkVRMLImporter::exitNode()
 {
-  FieldRec *fr = currentField.Top();
+  VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   assert(fr != NULL);
-  currentField.Pop();
+  VrmlNodeType::currentField->Pop();
 
   // Exiting this means we need to setup the color mode and 
   // normals and other fun stuff.
@@ -5795,7 +5820,7 @@ vtkVRMLImporter::exitNode()
 void
 vtkVRMLImporter::enterField(const char *fieldName)
 {
-  FieldRec *fr = currentField.Top();
+  VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   assert(fr != NULL);
 
   fr->fieldName = fieldName;
@@ -5829,7 +5854,7 @@ void
 vtkVRMLImporter::exitField()
 {
   float vals[3];
-  FieldRec *fr = currentField.Top();
+  VrmlNodeType::FieldRec *fr = VrmlNodeType::currentField->Top();
   assert(fr != NULL);
   // For the radius field
   if (strcmp(fr->fieldName, "radius") == 0) 
@@ -6008,7 +6033,7 @@ vtkVRMLImporter::exitField()
         }
       if (creatingDEF) 
         {
-        useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
+        *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
         creatingDEF = 0;
         }
       }
@@ -6020,29 +6045,29 @@ vtkVRMLImporter::exitField()
     this->CurrentPoints->Register(this);
     if (creatingDEF) 
       {
-      useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
+      *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentPoints);
       creatingDEF = 0;
       }
 
     // There is no coordIndex for PointSet data, generate the PolyData here.
     if (strcmp(fr->nodeType->getName(), "PointSet") == 0)
       {
-        vtkCellArray *cells;
-        vtkIdType i;
-        vtkPolyData *pd;
+      vtkCellArray *cells;
+      vtkIdType i;
+      vtkPolyData *pd;
 
-        pd = vtkPolyData::New();
-        cells = vtkCellArray::New();
-        for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
-          {
-            cells->InsertNextCell(1, &i);
-          }
+      pd = vtkPolyData::New();
+      cells = vtkCellArray::New();
+      for (i=0;i < yylval.vec3f->GetNumberOfPoints();i++) 
+        {
+        cells->InsertNextCell(1, &i);
+        }
 
-        pd->SetVerts(cells);
+      pd->SetVerts(cells);
     
-        this->CurrentMapper->SetInput(pd);
-        pd->Delete();
-        cells->Delete();
+      this->CurrentMapper->SetInput(pd);
+      pd->Delete();
+      cells->Delete();
       }
     }
   // Handle color field
@@ -6076,7 +6101,7 @@ vtkVRMLImporter::exitField()
       this->CurrentLut = lut;
       if (creatingDEF) 
         {
-        useList += new vtkVRMLUseStruct(curDEFName, this->CurrentLut);
+        *VrmlNodeType::useList += new vtkVRMLUseStruct(curDEFName, this->CurrentLut);
         creatingDEF = 0;
         }
       }
@@ -6258,9 +6283,9 @@ vtkVRMLImporter::GetVRMLDEFObject(const char *name)
 {
   // Look through the type stack:
   // Need to go from top of stack since last DEF created is most current
-  for (int i = useList.Count()-1;i >=0 ; i--) 
+  for (int i = VrmlNodeType::useList->Count()-1;i >=0 ; i--) 
     {
-    const vtkVRMLUseStruct *nt = useList[i];
+    const vtkVRMLUseStruct *nt = (*VrmlNodeType::useList)[i];
     if (nt != NULL && strcmp(nt->defName,name) == 0) 
       {
       return nt->defObject;
