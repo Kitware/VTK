@@ -72,6 +72,11 @@ public:
   int GetPiece() { return this->Extent[0]; }
   int GetNumberOfPieces() { return this->Extent[1]; }
   
+  // Description:
+  // Serialization provided for the multi-process ports.
+  void ReadSelf(istream& is);
+  void WriteSelf(ostream& os);
+
 protected:
   
   vtkUnstructuredExtent();
