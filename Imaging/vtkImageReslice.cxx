@@ -15,16 +15,19 @@
 #include "vtkImageReslice.h"
 
 #include "vtkImageData.h"
+#include "vtkImageStencilData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
-#include "vtkImageStencilData.h"
 
 #include <limits.h>
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.50");
+vtkCxxRevisionMacro(vtkImageReslice, "1.51");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -137,6 +140,9 @@ vtkImageReslice::vtkImageReslice()
   // cache a matrix that converts output voxel indices -> input voxel indices
   this->IndexMatrix = NULL;
   this->OptimizedTransform = NULL;
+
+  // There is an optional second input.
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -217,20 +223,18 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageReslice::SetStencil(vtkImageStencilData *stencil)
 {
-  this->vtkProcessObject::SetNthInput(1, stencil); 
+  this->SetInput(1, stencil); 
 }
 
 //----------------------------------------------------------------------------
 vtkImageStencilData *vtkImageReslice::GetStencil()
 {
-  if (this->NumberOfInputs < 2) 
+  if (this->GetNumberOfInputConnections(1) < 1) 
     { 
     return NULL;
     }
-  else
-    {
-    return (vtkImageStencilData *)(this->Inputs[1]); 
-    }
+  return vtkImageStencilData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -343,31 +347,21 @@ unsigned long int vtkImageReslice::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::ComputeInputUpdateExtents(vtkDataObject *output)
+void vtkImageReslice::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  this->Superclass::ComputeInputUpdateExtents(output);
+  int inExt[6], outExt[6];
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
-  vtkImageStencilData *stencil = this->GetStencil();
-  if (stencil)
-    {
-    stencil->SetUpdateExtent(output->GetUpdateExtent());
-    }
-}
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), outExt);
 
-//----------------------------------------------------------------------------
-void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6], 
-                                               int outExt[6])
-{
-    
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro(<< "ComputeInputUpdateExtent: Input is not set.");
-    return;        
-    }
-    
   if (this->Optimization)
     {
     this->OptimizedComputeInputUpdateExtent(inExt,outExt);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
     return;
     }
 
@@ -376,7 +370,8 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
     this->ResliceTransform->Update();
     if (!this->ResliceTransform->IsA("vtkHomogeneousTransform"))
       { // update the whole input extent if the transform is nonlinear
-      this->GetInput()->GetWholeExtent(inExt);
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
       return;
       }
     }
@@ -388,10 +383,10 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
 
   int wrap = this->Wrap || this->Mirror;
   
-  inOrigin = this->GetInput()->GetOrigin();
-  inSpacing = this->GetInput()->GetSpacing();
-  outOrigin = this->GetOutput()->GetOrigin();
-  outSpacing = this->GetOutput()->GetSpacing();
+  inOrigin = inInfo->Get(vtkDataObject::ORIGIN());
+  inSpacing = inInfo->Get(vtkDataObject::SPACING());
+  outOrigin = outInfo->Get(vtkDataObject::ORIGIN());
+  outSpacing = outInfo->Get(vtkDataObject::SPACING());
 
   // save effor later: invert inSpacing
   inInvSpacing[0] = 1.0/inSpacing[0];
@@ -484,7 +479,8 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       }
     }
 
-  int *wholeExtent = this->GetInput()->GetWholeExtent();
+  int *wholeExtent =
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   // Clip, just to make sure we hit _some_ of the input extent
   for (i = 0; i < 3; i++)
     {
@@ -510,10 +506,35 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       inExt[2*i+1] = wholeExtent[2*i+1];
       }
     }
+
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
+
+  vtkImageStencilData *stencil = this->GetStencil();
+  if (stencil)
+    {
+    stencil->SetUpdateExtent(
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
+    }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
+int vtkImageReslice::FillInputPortInformation(int port, vtkInformation *info)
+{
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
+    // the stencil input is optional
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageReslice::GetAutoCroppedOutputBounds(vtkInformation *inInfo,
                                                  double bounds[6])
 {
   int i, j;
@@ -522,9 +543,9 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
   double f;
   double point[4];
 
-  input->GetWholeExtent(inWholeExt);
-  input->GetSpacing(inSpacing);
-  input->GetOrigin(inOrigin);
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
+  inInfo->Get(vtkDataObject::SPACING(), inSpacing);
+  inInfo->Get(vtkDataObject::ORIGIN(), inOrigin);
 
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   if (this->ResliceAxes)
@@ -578,27 +599,10 @@ void vtkImageReslice::GetAutoCroppedOutputBounds(vtkImageData *input,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageReslice::ExecuteInformation()
-{
-  this->Superclass::ExecuteInformation();
-
-  vtkImageData *input = this->GetInput();
-  if (input)
-    {
-    this->GetIndexMatrix();
-
-    vtkImageStencilData *stencil = this->GetStencil();
-    if (stencil)
-      {
-      stencil->SetSpacing(input->GetSpacing());
-      stencil->SetOrigin(input->GetOrigin());
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkImageReslice::ExecuteInformation(vtkImageData *input, 
-                                         vtkImageData *output) 
+void vtkImageReslice::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   int i,j;
   double inSpacing[3], inOrigin[3];
@@ -607,19 +611,22 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
   int outWholeExt[6];
   double maxBounds[6];
 
-  vtkImageData *information = this->InformationInput;
-  if (!information)
-    {
-    information = input;
-    }
-  if (information != input)
-    {
-    information->UpdateInformation();
-    }
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  information->GetWholeExtent(inWholeExt);
-  information->GetSpacing(inSpacing);
-  information->GetOrigin(inOrigin);
+  if (this->InformationInput)
+    {
+    this->InformationInput->UpdateInformation();
+    this->InformationInput->GetWholeExtent(inWholeExt);
+    this->InformationInput->GetSpacing(inSpacing);
+    this->InformationInput->GetOrigin(inOrigin);
+    }
+  else
+    {
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inWholeExt);
+    inInfo->Get(vtkDataObject::SPACING(), inSpacing);
+    inInfo->Get(vtkDataObject::ORIGIN(), inOrigin);
+    }
   
   // reslice axes matrix is identity by default
   double matrix[4][4];
@@ -639,7 +646,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
 
   if (this->AutoCropOutput)
     {
-    this->GetAutoCroppedOutputBounds(input, maxBounds);
+    this->GetAutoCroppedOutputBounds(inInfo, maxBounds);
     }
 
   // pass the center of the volume through the inverse of the
@@ -738,11 +745,24 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
       }
     }  
   
-  output->SetWholeExtent(outWholeExt);
-  output->SetSpacing(outSpacing);
-  output->SetOrigin(outOrigin);
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),outWholeExt,6);
+  outInfo->Set(vtkDataObject::SPACING(), outSpacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), outOrigin, 3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
+               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
+
+  this->GetIndexMatrix();
+
+  if (this->GetNumberOfInputConnections(1) > 0)
+    {
+    vtkInformation *stencilInfo = inputVector[1]->GetInformationObject(0);
+    stencilInfo->Set(vtkDataObject::SPACING(),
+                     inInfo->Get(vtkDataObject::SPACING()), 3);
+    stencilInfo->Set(vtkDataObject::ORIGIN(),
+                     inInfo->Get(vtkDataObject::ORIGIN()), 3);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1493,7 +1513,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
 
 
 //----------------------------------------------------------------------------
-// Some helper functions for 'Execute'
+// Some helper functions for 'RequestData'
 //----------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------
@@ -1836,42 +1856,47 @@ void vtkImageResliceExecute(vtkImageReslice *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageReslice::ThreadedExecute(vtkImageData *inData, 
-                                      vtkImageData *outData,
-                                      int outExt[6], int id)
+void vtkImageReslice::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   if (this->Optimization)
     {
-    this->OptimizedThreadedExecute(inData,outData,outExt,id);
+    this->OptimizedThreadedExecute(inData[0][0],outData[0],outExt,id);
     return;
     }
 
   int inExt[6];
-  inData->GetExtent(inExt);
+  inData[0][0]->GetExtent(inExt);
   void *inPtr = 0;
   if (inExt[0] <= inExt[1] && inExt[2] <= inExt[3] && inExt[4] <= inExt[5])
     {
-    inPtr = inData->GetScalarPointerForExtent(inExt);
+    inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
     }
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-                << ", outData = " << outData);
-  
+  void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-            << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, "
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType "
+                  << outData[0]->GetScalarType());
     return;
     }
   if (inPtr == 0)
     {
-    vtkImageResliceClearExecute(this, inData, 0, outData, outPtr, outExt, id);
+    vtkImageResliceClearExecute(this, inData[0][0], 0, outData[0], outPtr,
+                                outExt, id);
     }
   else
     {
-    vtkImageResliceExecute(this, inData, inPtr, outData, outPtr, outExt, id);
+    vtkImageResliceExecute(this, inData[0][0], inPtr, outData[0], outPtr,
+                           outExt, id);
     }
 }
 
@@ -2021,7 +2046,7 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
 void vtkImageReslice::OptimizedComputeInputUpdateExtent(int inExt[6], 
                                                         int outExt[6])
 {
-  vtkMatrix4x4 *matrix = this->IndexMatrix;
+  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
 
   if (this->GetOptimizedTransform() != NULL)
     { // update the entire input extent
@@ -3307,7 +3332,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   int i;
   
   // find maximum input range
-  self->GetInput()->GetExtent(inExt);
+  inData->GetExtent(inExt);
 
   // Get Increments to march through data 
   inData->GetIncrements(inInc);
@@ -3540,11 +3565,13 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
   double outOrigin[3];
   double outSpacing[3];
 
-  this->GetInput()->GetSpacing(inSpacing);
-  this->GetInput()->GetOrigin(inOrigin);
-  this->GetOutput()->GetSpacing(outSpacing);
-  this->GetOutput()->GetOrigin(outOrigin);  
-  
+  vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
+  inInfo->Get(vtkDataObject::SPACING(), inSpacing);
+  inInfo->Get(vtkDataObject::ORIGIN(), inOrigin);
+  outInfo->Get(vtkDataObject::SPACING(), outSpacing);
+  outInfo->Get(vtkDataObject::ORIGIN(), outOrigin);
+
   vtkTransform *transform = vtkTransform::New();
   vtkMatrix4x4 *inMatrix = vtkMatrix4x4::New();
   vtkMatrix4x4 *outMatrix = vtkMatrix4x4::New();
@@ -3593,7 +3620,7 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
     outMatrix->Element[i][i] = outSpacing[i];
     outMatrix->Element[i][3] = outOrigin[i];
     }
-  this->GetOutput()->GetOrigin(outOrigin); 
+  outInfo->Get(vtkDataObject::ORIGIN(), outOrigin);
 
   if (!isIdentity)
     {

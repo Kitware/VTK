@@ -51,7 +51,7 @@
 #define __vtkImageReslice_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
 // interpolation mode constants
 #define VTK_RESLICE_NEAREST 0
@@ -63,11 +63,11 @@ class vtkAbstractTransform;
 class vtkMatrix4x4;
 class vtkImageStencilData;
 
-class VTK_IMAGING_EXPORT vtkImageReslice : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageReslice : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageReslice *New();
-  vtkTypeRevisionMacro(vtkImageReslice, vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageReslice, vtkThreadedImageAlgorithm);
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -301,13 +301,14 @@ protected:
   vtkMatrix4x4 *IndexMatrix;
   vtkAbstractTransform *OptimizedTransform;
 
-  void GetAutoCroppedOutputBounds(vtkImageData *input, double bounds[6]);
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
-                       int ext[6], int id);
+  void GetAutoCroppedOutputBounds(vtkInformation *inInfo, double bounds[6]);
+  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void ThreadedRequestData(vtkInformation *request,
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector,
+                                   vtkImageData ***inData,
+                                   vtkImageData **outData, int ext[6], int id);
 
   vtkMatrix4x4 *GetIndexMatrix();
   vtkAbstractTransform *GetOptimizedTransform() { 
@@ -315,6 +316,7 @@ protected:
   void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                                 int ext[6], int id);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.
   void operator=(const vtkImageReslice&);  // Not implemented.

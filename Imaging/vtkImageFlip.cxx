@@ -15,10 +15,13 @@
 #include "vtkImageFlip.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageFlip, "1.37");
+vtkCxxRevisionMacro(vtkImageFlip, "1.38");
 vtkStandardNewMacro(vtkImageFlip);
 
 //----------------------------------------------------------------------------
@@ -37,16 +40,21 @@ vtkImageFlip::vtkImageFlip()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageFlip::ExecuteInformation(vtkImageData *input, 
-                                      vtkImageData *output) 
+void vtkImageFlip::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   double spacing[3];
   double origin[3];
   int wholeExt[6];
-   
-  input->GetWholeExtent(wholeExt);
-  input->GetSpacing(spacing);
-  input->GetOrigin(origin);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
+  inInfo->Get(vtkDataObject::ORIGIN(), origin);
 
   int iflip = this->FilteredAxis;
 
@@ -88,11 +96,13 @@ void vtkImageFlip::ExecuteInformation(vtkImageData *input,
       - spacing[iflip]*(wholeExt[2*iflip] + wholeExt[2*iflip+1]);
     }
 
-  output->SetWholeExtent(wholeExt);
-  output->SetSpacing(spacing);
-  output->SetOrigin(origin);
-  output->SetScalarType(input->GetScalarType());
-  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExt, 6);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), origin, 3);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),
+               inInfo->Get(vtkDataObject::SCALAR_TYPE()));
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               inInfo->Get(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS()));
 }
 
 //----------------------------------------------------------------------------

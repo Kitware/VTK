@@ -72,9 +72,7 @@ protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
 
-  void ExecuteInformation(vtkImageData *input, vtkImageData *output);
-  void ExecuteInformation() {
-    this->Superclass::ExecuteInformation(); };
+  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int FilteredAxis;
   int FlipAboutOrigin;

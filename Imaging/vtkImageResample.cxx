@@ -15,9 +15,12 @@
 #include "vtkImageResample.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageResample, "1.39");
+vtkCxxRevisionMacro(vtkImageResample, "1.40");
 vtkStandardNewMacro(vtkImageResample);
 
 //----------------------------------------------------------------------------
@@ -93,7 +96,8 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis)
       return 0.0;
       }
     this->GetInput()->UpdateInformation();
-    inputSpacing = this->GetInput()->GetSpacing();
+    vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
+    inputSpacing = inInfo->Get(vtkDataObject::SPACING());
     this->MagnificationFactors[axis] = 
       inputSpacing[axis] / this->OutputSpacing[axis];
     
@@ -109,14 +113,19 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis)
 
 //----------------------------------------------------------------------------
 // Computes any global image information associated with regions.
-void vtkImageResample::ExecuteInformation(vtkImageData *inData, 
-                                          vtkImageData *outData) 
+void vtkImageResample::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   int wholeMin, wholeMax, axis, ext[6];
   double spacing[3], factor;
 
-  inData->GetWholeExtent(ext);
-  inData->GetSpacing(spacing);
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
+  inInfo->Get(vtkDataObject::SPACING(), spacing);
   
   for (axis = 0; axis < 3; axis++)
     {
@@ -147,8 +156,8 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
       }
     }
 
-  outData->SetWholeExtent(ext);
-  outData->SetSpacing(spacing);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
 }
 
 void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
@@ -157,4 +166,3 @@ void vtkImageResample::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
 }
-
