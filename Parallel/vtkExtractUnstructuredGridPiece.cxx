@@ -18,6 +18,7 @@
 #include "vtkExtractUnstructuredGridPiece.h"
 
 #include "vtkCell.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -27,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.11");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.12");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -66,19 +67,25 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
   vtkUnstructuredGrid *input;
   int j;
   vtkIdType idx, numCells, ptId;
-  vtkIdList *cellPtIds;
+  vtkIdType* cellPointer;
+  vtkIdType* ids;
+  vtkIdType numCellPts;
 
   input = this->GetInput();
   numCells = input->GetNumberOfCells();
   
-  cellPtIds = vtkIdList::New();
-  // Clear Point ownership.
-  for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
+  // Clear Point ownership.  This is only necessary if we
+  // Are creating ghost points.
+  if (pointOwnership)
     {
-    pointOwnership->SetId(idx, -1);
+    for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
+      {
+      pointOwnership->SetId(idx, -1);
+      }
     }
-  
+    
   // Brute force division.
+  cellPointer = input->GetCells()->GetPointer();
   for (idx = 0; idx < numCells; ++idx)
     {
     if ((idx * numPieces / numCells) == piece)
@@ -90,18 +97,22 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
       tags->SetValue(idx, -1);
       }
     // Fill in point ownership mapping.
-    input->GetCellPoints(idx, cellPtIds);
-    for (j = 0; j < cellPtIds->GetNumberOfIds(); ++j)
+    if (pointOwnership)
       {
-      ptId = cellPtIds->GetId(j);
-      if (pointOwnership->GetId(ptId) == -1)
+      numCellPts = cellPointer[0];
+      ids = cellPointer+1;
+      // Move to the next cell.
+      cellPointer += (1 + numCellPts);
+      for (j = 0; j < numCellPts; ++j)
         {
-        pointOwnership->SetId(ptId, idx);
-        }  
+        ptId = ids[j];
+        if (pointOwnership->GetId(ptId) == -1)
+          {
+          pointOwnership->SetId(ptId, idx);
+          }
+        }
       }
     }
-  
-  cellPtIds->Delete(); 
 }
 
 void vtkExtractUnstructuredGridPiece::Execute()
@@ -110,18 +121,21 @@ void vtkExtractUnstructuredGridPiece::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
+  unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
+  int cellType;
   vtkIntArray *cellTags;
   int ghostLevel, piece, numPieces;
   vtkIdType cellId, newCellId;
-  vtkIdList *cellPts, *pointMap;
+  vtkIdList *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
-  vtkIdList *pointOwnership;
-  vtkCell *cell;
   vtkPoints *newPoints;
   vtkUnsignedCharArray* cellGhostLevels = 0;
+  vtkIdList *pointOwnership = 0;
   vtkUnsignedCharArray* pointGhostLevels = 0;
-  vtkIdType i, ptId, newId, numPts;
+  vtkIdType i, ptId, newId, numPts, numCells;
   int numCellPts;
+  vtkIdType *cellPointer;
+  vtkIdType *ids;
   float *x;
 
   // Pipeline update piece will tell us what to generate.
@@ -132,20 +146,28 @@ void vtkExtractUnstructuredGridPiece::Execute()
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
 
+  numPts = input->GetNumberOfPoints();
+  numCells = input->GetNumberOfCells();
+
   if (ghostLevel > 0 && this->CreateGhostCells)
     {
     cellGhostLevels = vtkUnsignedCharArray::New();
+    cellGhostLevels->SetNumberOfTuples(numCells);
+    // We may want to create point ghost levels even
+    // if there are no ghost cells.  Since it cost extra,
+    // and no filter really uses it, and the filter did not
+    // create a point ghost level array for this case before,
+    // I will leave it the way it was.
+    pointOwnership = vtkIdList::New();
+    pointOwnership->Allocate(numPts);
     pointGhostLevels = vtkUnsignedCharArray::New();
-    cellGhostLevels->Allocate(input->GetNumberOfCells());
-    pointGhostLevels->Allocate(input->GetNumberOfPoints());
+    pointGhostLevels->SetNumberOfTuples(numPts);
     }
     
   // Break up cells based on which piece they belong to.
   cellTags = vtkIntArray::New();
   cellTags->Allocate(input->GetNumberOfCells(), 1000);
-  pointOwnership = vtkIdList::New();
-  pointOwnership->Allocate(input->GetNumberOfPoints());
-  // Cell tags end up bieing 0 for cells in piece and -1 for all others.
+  // Cell tags end up being 0 for cells in piece and -1 for all others.
   // Point ownership is the cell that owns the point.
   this->ComputeCellTags(cellTags, pointOwnership, piece, numPieces);
   
@@ -160,7 +182,6 @@ void vtkExtractUnstructuredGridPiece::Execute()
   
   // Filter the cells.
 
-  numPts = input->GetNumberOfPoints();
   output->Allocate(input->GetNumberOfCells());
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
@@ -173,8 +194,16 @@ void vtkExtractUnstructuredGridPiece::Execute()
     }
 
   // Filter the cells
-  for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
+  cellPointer = input->GetCells()->GetPointer();
+  for (cellId=0; cellId < numCells; cellId++)
     {
+    // Direct access to cells.
+    cellType = cellTypes[cellId];
+    numCellPts = cellPointer[0];
+    ids = cellPointer+1;
+    // Move to the next cell.
+    cellPointer += (1 + *cellPointer);
+
     if ( cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {
       if (cellGhostLevels)
@@ -182,19 +211,15 @@ void vtkExtractUnstructuredGridPiece::Execute()
         cellGhostLevels->InsertNextValue(
           (unsigned char)(cellTags->GetValue(cellId)));
         }
- 
-      cell = input->GetCell(cellId);
-      cellPts = cell->GetPointIds();
-      numCellPts = cell->GetNumberOfPoints();
-    
+     
       for (i=0; i < numCellPts; i++)
         {
-        ptId = cellPts->GetId(i);
+        ptId = ids[i];
         if ( (newId = pointMap->GetId(ptId)) < 0 )
           {
           x = input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
-          if (pointGhostLevels)
+          if (pointGhostLevels && pointOwnership)
             {
             pointGhostLevels->InsertNextValue(
               cellTags->GetValue(pointOwnership->GetId(ptId)));
@@ -204,7 +229,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
           }
         newCellPts->InsertId(i,newId);
         }
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
+      newCellId = output->InsertNextCell(cellType,newCellPts);
       outCD->CopyData(cd,cellId,newCellId);
       newCellPts->Reset();
       } // satisfied thresholding
@@ -236,8 +261,11 @@ void vtkExtractUnstructuredGridPiece::Execute()
 
   output->Squeeze();
   cellTags->Delete();
-  pointOwnership->Delete();
-
+  if (pointOwnership)
+    {
+    pointOwnership->Delete();
+    pointOwnership = 0;
+    }
 }
 
 void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
@@ -247,6 +275,8 @@ void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
 }
 
+
+// This method is still slow...
 void vtkExtractUnstructuredGridPiece::AddGhostLevel(vtkUnstructuredGrid *input,
                                                     vtkIntArray *cellTags, 
                                                     int level)
