@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.114");
+vtkCxxRevisionMacro(vtkDataObject, "1.115");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -256,9 +256,8 @@ void vtkDataObject::Update()
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
-    // Since this method has been called on the data object, the
-    // update extent was probably set as well.
-    this->CopyUpdateExtentToInformation(sddp->GetOutputInformation(index));
+    // Synchronize ivars for compatibility layer.
+    this->CopyUpstreamIVarsToInformation(sddp->GetOutputInformation(index));
 
     // Update this output.
     sddp->Update(producer, index);
@@ -327,9 +326,8 @@ void vtkDataObject::PropagateUpdateExtent()
   if(vtkStreamingDemandDrivenPipeline* sddp =
      vtkStreamingDemandDrivenPipeline::SafeDownCast(producer->GetExecutive()))
     {
-    // Since this method has been called on the data object, the
-    // update extent was probably set as well.
-    this->CopyUpdateExtentToInformation(sddp->GetOutputInformation(index));
+    // Synchronize ivars for compatibility layer.
+    this->CopyUpstreamIVarsToInformation(sddp->GetOutputInformation(index));
 
     // Propagate the extent.
     sddp->PropagateUpdateExtent(this->ProducerPort->GetIndex());
@@ -879,7 +877,7 @@ void vtkDataObject::SetupProducer()
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::CopyUpdateExtentToInformation(vtkInformation* info)
+void vtkDataObject::CopyUpstreamIVarsToInformation(vtkInformation* info)
 {
   // Copy update extent to the information object.
   info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(),
@@ -903,7 +901,7 @@ void vtkDataObject::CopyUpdateExtentToInformation(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::CopyUpdateExtentFromInformation(vtkInformation* info)
+void vtkDataObject::CopyUpstreamIVarsFromInformation(vtkInformation* info)
 {
   // Copy update extent from the information object.
   this->UpdateExtentInitialized =
@@ -927,7 +925,7 @@ void vtkDataObject::CopyUpdateExtentFromInformation(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::CopyWholeExtentToInformation(vtkInformation* info)
+void vtkDataObject::CopyDownstreamIVarsToInformation(vtkInformation* info)
 {
   // Copy whole extent to the information object.
   if(this->GetExtentType() == VTK_PIECES_EXTENT)
@@ -945,7 +943,7 @@ void vtkDataObject::CopyWholeExtentToInformation(vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-void vtkDataObject::CopyWholeExtentFromInformation(vtkInformation* info)
+void vtkDataObject::CopyDownstreamIVarsFromInformation(vtkInformation* info)
 {
   // Copy whole extent from the information object.
   if(this->GetExtentType() == VTK_PIECES_EXTENT)

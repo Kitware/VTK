@@ -445,14 +445,16 @@ protected:
   double Locality;  
 
   void SetupProducer();
-  void CopyUpdateExtentFromInformation(vtkInformation*);
-  void CopyUpdateExtentToInformation(vtkInformation*);
-  void CopyWholeExtentFromInformation(vtkInformation*);
-  void CopyWholeExtentToInformation(vtkInformation*);
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
   virtual void GarbageCollectionStarting();
   int GarbageCollecting;
+
+  // Synchronize ivars with information for compatibility layer.
+  void CopyUpstreamIVarsFromInformation(vtkInformation*);
+  void CopyUpstreamIVarsToInformation(vtkInformation*);
+  void CopyDownstreamIVarsFromInformation(vtkInformation*);
+  void CopyDownstreamIVarsToInformation(vtkInformation*);
 
   // Arbitrary extra information associated with this data object.
   vtkInformation* Information;

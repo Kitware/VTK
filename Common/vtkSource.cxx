@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.122");
+vtkCxxRevisionMacro(vtkSource, "1.123");
 
 #ifndef NULL
 #define NULL 0
@@ -37,25 +37,25 @@ public:
     {
     return obj->UpdateExtentInitialized;
     }
-  static void CopyUpdateExtentToInformation(vtkDataObject* obj,
-                                            vtkInformation* info)
+  static void CopyUpstreamIVarsToInformation(vtkDataObject* obj,
+                                             vtkInformation* info)
     {
-    obj->CopyUpdateExtentToInformation(info);
+    obj->CopyUpstreamIVarsToInformation(info);
     }
-  static void CopyUpdateExtentFromInformation(vtkDataObject* obj,
-                                              vtkInformation* info)
+  static void CopyUpstreamIVarsFromInformation(vtkDataObject* obj,
+                                               vtkInformation* info)
     {
-    obj->CopyUpdateExtentFromInformation(info);
+    obj->CopyUpstreamIVarsFromInformation(info);
     }
-  static void CopyWholeExtentToInformation(vtkDataObject* obj,
-                                            vtkInformation* info)
+  static void CopyDownstreamIVarsToInformation(vtkDataObject* obj,
+                                               vtkInformation* info)
     {
-    obj->CopyWholeExtentToInformation(info);
+    obj->CopyDownstreamIVarsToInformation(info);
     }
-  static void CopyWholeExtentFromInformation(vtkDataObject* obj,
-                                              vtkInformation* info)
+  static void CopyDownstreamIVarsFromInformation(vtkDataObject* obj,
+                                                 vtkInformation* info)
     {
-    obj->CopyWholeExtentFromInformation(info);
+    obj->CopyDownstreamIVarsFromInformation(info);
     }
 };
 
@@ -174,12 +174,12 @@ void vtkSource::Update()
     if(vtkStreamingDemandDrivenPipeline* sddp =
        vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
       {
-      // The update extent may have been set on the output.
+      // Synchronize ivars for compatibility layer.
       if(this->NumberOfOutputs > 0)
         {
         vtkSourceToDataObjectFriendship
-          ::CopyUpdateExtentToInformation(this->Outputs[0],
-                                          sddp->GetOutputInformation(0));
+          ::CopyUpstreamIVarsToInformation(this->Outputs[0],
+                                           sddp->GetOutputInformation(0));
         }
       }
     ddp->Update(this, 0);
@@ -313,12 +313,26 @@ void vtkSource::PropagateUpdateExtent(vtkDataObject* output)
         {
         if(this->Outputs[i] == output)
           {
+          // Synchronize ivars for compatibility layer.
+          vtkSourceToDataObjectFriendship
+            ::CopyUpstreamIVarsToInformation(this->Outputs[i],
+                                             sddp->GetOutputInformation(i));
           sddp->PropagateUpdateExtent(i);
           }
         }
       }
     else
       {
+      // Synchronize ivars for compatibility layer.
+      for(int i=0; i < this->NumberOfOutputs; ++i)
+        {
+        if(this->Outputs[i])
+          {
+          vtkSourceToDataObjectFriendship
+            ::CopyUpstreamIVarsToInformation(this->Outputs[i],
+                                             sddp->GetOutputInformation(i));
+          }
+        }
       sddp->PropagateUpdateExtent(-1);
       }
     }
@@ -1056,17 +1070,6 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
         this->Inputs[i]->RequestExactExtentOff();
         }
       }
-    int outputPort =
-      request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
-
-    vtkDataObject* fromOutput = 0;
-    if(outputPort >= 0)
-      {
-      fromOutput = this->Outputs[outputPort];
-      vtkInformation* info = outputVector->GetInformationObject(outputPort);
-      vtkSourceToDataObjectFriendship::
-        CopyUpdateExtentFromInformation(fromOutput, info);
-      }
 
     // Check inputs.
     if(this->NumberOfRequiredInputs > 0 &&
@@ -1080,9 +1083,25 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
       return 0;
       }
 
-    vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
-                  "calling ComputeInputUpdateExtents using output port "
-                  << outputPort);
+    int outputPort =
+      request->Get(vtkDemandDrivenPipeline::FROM_OUTPUT_PORT());
+    vtkDataObject* fromOutput = 0;
+    if(outputPort >= 0)
+      {
+      fromOutput = this->Outputs[outputPort];
+      }
+
+    // Copy the information from the the information objects to
+    // synchronize ivars for compatibility layer.
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      if(this->Outputs[i])
+        {
+        vtkInformation* info = outputVector->GetInformationObject(i);
+        vtkSourceToDataObjectFriendship::
+          CopyUpstreamIVarsFromInformation(this->Outputs[i], info);
+        }
+      }
 
     // Give the subclass a chance to request a larger extent on the
     // inputs. This is necessary when, for example, a filter requires
@@ -1090,9 +1109,13 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
     // values - such as an image filter that derives a new pixel value
     // by applying some operation to a neighborhood of surrounding
     // original values.
+    vtkDebugMacro("ProcessUpstreamRequest(REQUEST_UPDATE_EXTENT) "
+                  "calling ComputeInputUpdateExtents using output port "
+                  << outputPort);
     this->ComputeInputUpdateExtents(fromOutput);
 
-    // Copy the resulting information back into the information objects.
+    // Copy the resulting information back into the information
+    // objects to synchronize ivars for compatibility layer.
     for(i=0; i < this->NumberOfInputs; ++i)
       {
       if(this->Inputs[i])
@@ -1102,7 +1125,7 @@ int vtkSource::ProcessUpstreamRequest(vtkInformation* request,
           ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i);
         vtkSourceToDataObjectFriendship::
-          CopyUpdateExtentToInformation(this->Inputs[i], info);
+          CopyUpstreamIVarsToInformation(this->Inputs[i], info);
         }
       }
     return 1;
@@ -1145,7 +1168,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
           ->Get(vtkAlgorithm::INPUT_CONNECTION_INFORMATION())
           ->GetInformationObject(i);
         vtkSourceToDataObjectFriendship::
-          CopyWholeExtentFromInformation(this->Inputs[i], info);
+          CopyDownstreamIVarsFromInformation(this->Inputs[i], info);
         }
       }
 
@@ -1156,7 +1179,8 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
     this->ExecuteInformation();
 
-    // Copy the resulting information back into the information objects.
+    // Copy the resulting information back into the information
+    // objects to synchronize ivars for compatibility layer.
     outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
@@ -1164,7 +1188,7 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
         {
         vtkInformation* info = outputVector->GetInformationObject(i);
         vtkSourceToDataObjectFriendship
-          ::CopyWholeExtentToInformation(this->Outputs[i], info);
+          ::CopyDownstreamIVarsToInformation(this->Outputs[i], info);
         }
       }
     return 1;
