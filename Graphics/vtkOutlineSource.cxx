@@ -22,16 +22,20 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkOutlineSource, "1.30");
+vtkCxxRevisionMacro(vtkOutlineSource, "1.31");
 vtkStandardNewMacro(vtkOutlineSource);
 
 //----------------------------------------------------------------------------
 vtkOutlineSource::vtkOutlineSource()
 {
-  for (int i=0; i<3; i++) 
+  for (int i=0; i<3; i++)
     {
     this->Bounds[2*i] = -1.0;
     this->Bounds[2*i+1] = 1.0;
+    }
+  for (int i=0; i<24; i++)
+    {
+    this->Corners[i] = 0.0;
     }
   this->BoxType = 0;
 }
@@ -130,8 +134,16 @@ void vtkOutlineSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Bounds: (" << this->Bounds[0] << ", " 
+  os << indent << "BoxType: " << this->BoxType << "\n";
+  os << indent << "Bounds: (" << this->Bounds[0] << ", "
      << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
      << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
      << this->Bounds[5] << ")\n";
+  os << indent << "Corners: (";
+  for (int i=0; i<24; i++)
+    {
+    os << this->Corners[i];
+    }
+  os << ")\n";
+
 }
