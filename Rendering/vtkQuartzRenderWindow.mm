@@ -62,19 +62,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //------------------------------------------------------------------------------
-vtkQuartzRenderWindow* vtkQuartzRenderWindow::New()
-{
+//vtkQuartzRenderWindow* vtkQuartzRenderWindow::New()
+//{
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuartzRenderWindow");
-  if(ret)
-    {
-    return (vtkQuartzRenderWindow*)ret;
-    }
+ // vtkObject* ret = vtkObjectFactory::CreateInstance("vtkQuartzRenderWindow");
+  //if(ret)
+  //  {
+  //  return (vtkQuartzRenderWindow*)ret;
+  //  }
   // If the factory was unable to create the object, then create it here.
-  return new vtkQuartzRenderWindow;
-}
+ // return new vtkQuartzRenderWindow;
+//}
 
-
+vtkCxxRevisionMacro(vtkQuartzRenderWindow, "1.8");
+vtkStandardNewMacro(vtkQuartzRenderWindow);
 
 
 #define VTK_MAX_LIGHTS 8
