@@ -120,8 +120,6 @@ void vtkImageMarchingCubes::Execute()
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
   
-  fprintf(stderr, "Image Marching Cubes\n");
-  
   vtkDebugMacro("Starting Execute Method");
   if ( ! this->Input)
     {
