@@ -314,6 +314,7 @@ float *vtkActor::GetBounds()
   // Check for the special case when the actor is empty.
   if (bounds[0] > bounds[1])
     { 
+    memcpy( this->MapperBounds, bounds, 6*sizeof(float) );
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
     this->BoundsMTime.Modified();
