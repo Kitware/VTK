@@ -288,14 +288,16 @@ void vtkRenderer::ResetCamera()
 // (xmin,xmax, ymin,ymax, zmin,zmax). Camera will reposition itself so
 // that its focal point is the center of the bounding box, and adjust its
 // distance and position to preserve its initial view plane normal 
-// (i.e., vector defined from camera position to focal point).
+// (i.e., vector defined from camera position to focal point). Note: is 
+// the view plane is parallel to the view up axis, the view up axis will
+// be reset to one of the three coordinate axes.
 void vtkRenderer::ResetCamera(float bounds[6])
 {
   float center[3];
   float distance;
   float width;
   vtkMath math;
-  float vn[3];
+  float vn[3], *vup;;
 
   if ( this->ActiveCamera != NULL )
     {
@@ -318,6 +320,14 @@ void vtkRenderer::ResetCamera(float bounds[6])
     }
   distance = 0.8*width/tan(this->ActiveCamera->GetViewAngle()*math.Pi()/360.0);
   distance = distance + (bounds[5] - bounds[4])/2.0;
+
+  // check view-up vector against view plane normal
+  vup = this->ActiveCamera->GetViewUp();
+  if ( fabs(math.Dot(vup,vn)) > 0.999 )
+    {
+    vtkWarningMacro(<<"Resetting view-up since view plane normal is parallel");
+    this->ActiveCamera->SetViewUp(-vup[2], vup[0], vup[1]);
+    }
 
   // update the camera
   this->ActiveCamera->SetFocalPoint(center);
