@@ -56,7 +56,7 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 // Description:
 // This filter executes if it or a previous filter has been modified or
 // if its data has been released and it is forced to update.
-void vtkFilter::ConditionalUpdate(int forcedFlag)
+void vtkImageToStructuredPoints::ConditionalUpdate(int forcedFlag)
 {
   int executeFlag;
   
@@ -66,9 +66,6 @@ void vtkFilter::ConditionalUpdate(int forcedFlag)
     vtkErrorMacro(<< "No input...can't execute!");
     return;
     }
-
-  // prevent chasing our tail
-  if (this->Updating) return;
 
   executeFlag = this->Input->GetPipelineMTime() > this->ExecuteTime
     || this->GetMTime() > this->ExecuteTime 
@@ -89,10 +86,6 @@ void vtkFilter::ConditionalUpdate(int forcedFlag)
     this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
-
-  // now that we are done with the inputs data, it can be released.
-  // (should this be in the condition statement?)
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
 
 
