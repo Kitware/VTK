@@ -877,6 +877,8 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
     {
     this->ParallelProjection = 1;
 
+    this->SelectedViewRays = NULL;
+
     // Just checking that our assumptions are correct. 
     if( this->Debug )
       {
@@ -921,6 +923,9 @@ void vtkRayCaster::InitializeRayCasting(vtkRenderer *ren)
 
     // Delete the object we created
     transform->Delete();
+
+    // Save the world position of the camera
+    ren->GetActiveCamera()->GetPosition(this->CameraPosition);
 
     // Zero out all the number of samples taken values
     for ( i = 0; i < VTK_MAX_THREADS; i++ )
@@ -995,7 +1000,11 @@ VTK_THREAD_RETURN_TYPE RayCast_RenderImage( void *arg )
     rayInfo.Origin[1] = 0.0;
     rayInfo.Origin[2] = 0.0;
     }
-  
+
+  // Make sure we pass in the position of the camera so that each
+  // ray caster can compute a Z value for the ray
+  memcpy( rayInfo.CameraPosition, raycaster->CameraPosition, 3*sizeof(float) );
+
   // We need to know the width of the image down in the mapper to 
   // decode z values from the ray bounder
   rayInfo.ImageSize[0] = raycaster->ImageSize[0];
