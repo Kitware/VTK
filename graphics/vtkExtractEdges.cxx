@@ -88,7 +88,8 @@ void vtkExtractEdges::Execute()
   //
   numNewPts = 0;
   numEdges = 0;
-  edgeTable = new vtkEdgeTable(numPts);
+  edgeTable = vtkEdgeTable::New();
+  edgeTable->InitEdgeInsertion(numPts);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newLines = vtkCellArray::New();
@@ -138,7 +139,7 @@ void vtkExtractEdges::Execute()
 	  {
 	  outPD->CopyData (pd,pt2,pts[1]);
 	  }
-        if ( i > 0 && !edgeTable->IsEdge(pt1,pt2) )
+        if ( i > 0 && edgeTable->IsEdge(pt1,pt2) == -1 )
           {
           edgeTable->InsertEdge(pt1, pt2);
           newId = newLines->InsertNextCell(2,pts);

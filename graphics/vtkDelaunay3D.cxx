@@ -394,7 +394,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
       else
         {
         nei = neiTetras->GetId(0);
-        if ( ! checkedTetras->IsId(nei) )
+        if ( checkedTetras->IsId(nei) == -1 )
           {
           if ( ! this->InSphere(x,nei) ) //if point outside circumsphere
             {
@@ -409,7 +409,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
           }
         else
           {
-          if ( ! tetras->IsId(nei) ) //if checked but not deleted
+          if ( tetras->IsId(nei) == -1 ) //if checked but not deleted
             {
             insertFace = 1;
             }
@@ -469,7 +469,7 @@ void vtkDelaunay3D::Execute()
   char *tetraUse;
   
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
-  //
+
   // Initialize; check input
   //
   if ( (inPoints=input->GetPoints()) == NULL )
@@ -503,7 +503,16 @@ void vtkDelaunay3D::Execute()
 
     this->InsertPoint(Mesh, points, ptId, x, holeTetras);
 
-    if ( ! (ptId % 100) ) vtkDebugMacro(<<"point #" << ptId);
+    if ( ! (ptId % 250) ) 
+      {
+      vtkDebugMacro(<<"point #" << ptId);
+      this->UpdateProgress ((float)ptId/numPoints);
+      if (this->GetAbortExecute()) 
+        {
+        break;
+        }
+      }
+    
     }//for all points
 
   vtkDebugMacro(<<"Triangulated " << numPoints <<" points, " 
@@ -557,7 +566,8 @@ void vtkDelaunay3D::Execute()
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
     vtkIdList *boundaryPts, *neiTetras;
 
-    edges = new vtkEdgeTable(numPoints+6);
+    edges = vtkEdgeTable::New();
+    edges->InitEdgeInsertion(numPoints+6);
     boundaryPts = new vtkIdList(3);
     neiTetras = new vtkIdList(2);
 
@@ -588,7 +598,10 @@ void vtkDelaunay3D::Execute()
             {
             p1 = tetraPts[edge[j][0]];
             p2 = tetraPts[edge[j][1]];
-            if ( ! edges->IsEdge(p1,p2) ) {edges->InsertEdge(p1,p2);}
+            if ( edges->IsEdge(p1,p2) == -1 ) 
+              {
+              edges->InsertEdge(p1,p2);
+              }
             }
           }
         }//if non-deleted tetra
@@ -631,15 +644,15 @@ void vtkDelaunay3D::Execute()
                 pts[1] = p2;
                 pts[2] = p3;
                 output->InsertNextCell(VTK_TRIANGLE,3,pts);
-                if ( ! edges->IsEdge(p1,p2) )
+                if ( edges->IsEdge(p1,p2) == -1 )
                   {
                   edges->InsertEdge(p1,p2);
                   }
-                if ( ! edges->IsEdge(p2,p3) )
+                if ( edges->IsEdge(p2,p3) == -1 )
                   {
                   edges->InsertEdge(p2,p3);
                   }
-                if ( ! edges->IsEdge(p3,p1) )
+                if ( edges->IsEdge(p3,p1) == -1 )
                   {
                   edges->InsertEdge(p3,p1);
                   }
@@ -668,7 +681,7 @@ void vtkDelaunay3D::Execute()
 
           if ((this->BoundingTriangulation || 
                (p1 < numPoints && p2 < numPoints))
-          && (!edges->IsEdge(p1,p2)) )
+          && (edges->IsEdge(p1,p2) == -1) )
             {
             points->GetPoint(p1,x1);
             points->GetPoint(p2,x2);

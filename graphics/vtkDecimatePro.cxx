@@ -971,8 +971,8 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
           {
           this->Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], cellIds);
           if ( cellIds->GetNumberOfIds() == 1 && 
-               triangles->IsId((tri=cellIds->GetId(0)))
-               && group->GetNumberOfIds() < maxGroupSize )
+               triangles->IsId((tri=cellIds->GetId(0))) > -1 && 
+               group->GetNumberOfIds() < maxGroupSize )
             {
             group->InsertNextId(tri);
             triangles->DeleteId(tri);
