@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_NW	1
 #define VTK_NE	2
 #define VTK_SE	3
-#define METERS_PER_FEET .305
-#define METERS_PER_ARC_SECOND 23.111
+#define VTK_METERS_PER_FEET .305
+#define VTK_METERS_PER_ARC_SECOND 23.111
 
 
 void ConvertDNotationToENotation (char *line);
@@ -63,7 +63,10 @@ vtkDEMReader::vtkDEMReader()
 
 vtkDEMReader::~vtkDEMReader()
 {
-  if (this->FileName) delete [] this->FileName;
+  if (this->FileName)
+    {
+    delete [] this->FileName;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -187,11 +190,11 @@ int vtkDEMReader::ReadTypeARecord ()
   elevationConversion = 1.0;
   if (this->ElevationUnitOfMeasure == 1) // feet
     {
-    elevationConversion = METERS_PER_FEET;
+    elevationConversion = VTK_METERS_PER_FEET;
     }
   else if (this->ElevationUnitOfMeasure == 3) // arc-seconds
     {
-    elevationConversion = METERS_PER_ARC_SECOND;
+    elevationConversion = VTK_METERS_PER_ARC_SECOND;
     }
   this->ElevationBounds[0] *= elevationConversion;
   this->ElevationBounds[1] *= elevationConversion;
@@ -269,11 +272,11 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing (int extent[6],
   planeConversion = 1.0;
   if (this->PlaneUnitOfMeasure == 1) // feet
     {
-    planeConversion = METERS_PER_FEET;
+    planeConversion = VTK_METERS_PER_FEET;
     }
   else if (this->PlaneUnitOfMeasure == 3) // arc-seconds
     {
-    planeConversion = METERS_PER_ARC_SECOND;
+    planeConversion = VTK_METERS_PER_ARC_SECOND;
     }
 
   //
@@ -327,11 +330,11 @@ int vtkDEMReader::ReadProfiles (vtkImageData *data)
   elevationConversion = 1.0;
   if (this->ElevationUnitOfMeasure == 1) // feet
     {
-    elevationConversion = METERS_PER_FEET;
+    elevationConversion = VTK_METERS_PER_FEET;
     }
   else if (this->ElevationUnitOfMeasure == 3) // arc-seconds
     {
-    elevationConversion = METERS_PER_ARC_SECOND;
+    elevationConversion = VTK_METERS_PER_ARC_SECOND;
     }
 
   units *= elevationConversion;
@@ -495,10 +498,10 @@ void vtkDEMReader::PrintSelf(ostream& os, vtkIndent indent)
       }
     os << indent << "PolygonSize: " << this->PolygonSize << "\n";
     os << indent << "GroundCoordinates: \n";
-    os << indent << "        " << GroundCoords[0][0] << ", " << GroundCoords[0][1] << "\n";
-    os << indent << "        " << GroundCoords[1][0] << ", " << GroundCoords[1][1] << "\n";
-    os << indent << "        " << GroundCoords[2][0] << ", " << GroundCoords[2][1] << "\n";
-    os << indent << "        " << GroundCoords[3][0] << ", " << GroundCoords[3][1] << "\n";
+    os << indent << "        " << this->GroundCoords[0][0] << ", " << this->GroundCoords[0][1] << "\n";
+    os << indent << "        " << this->GroundCoords[1][0] << ", " << this->GroundCoords[1][1] << "\n";
+    os << indent << "        " << this->GroundCoords[2][0] << ", " << this->GroundCoords[2][1] << "\n";
+    os << indent << "        " << this->GroundCoords[3][0] << ", " << this->GroundCoords[3][1] << "\n";
   
     os << indent << "ElevationBounds: " << this->ElevationBounds[0] << ", "
                                         << this->ElevationBounds[1]
