@@ -605,14 +605,14 @@ void vtkTreeComposite::ComputeVisiblePropBounds(vtkRenderer *ren,
   num = this->Controller->GetNumberOfProcesses();  
   for (id = 1; id < num; ++id)
     {
-    controller->TriggerRMI(id,  VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
+    this->Controller->TriggerRMI(id,  VTK_COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG);
     }
 
   ren->ComputeVisiblePropBounds(bounds);
 
   for (id = 1; id < num; ++id)
     {
-    controller->Receive(tmp, 6, id, VTK_COMPOSITE_BOUNDS_TAG);
+    this->Controller->Receive(tmp, 6, id, VTK_COMPOSITE_BOUNDS_TAG);
     if (tmp[0] < bounds[0]) {bounds[0] = tmp[0];}
     if (tmp[1] > bounds[1]) {bounds[1] = tmp[1];}
     if (tmp[2] < bounds[2]) {bounds[2] = tmp[2];}
