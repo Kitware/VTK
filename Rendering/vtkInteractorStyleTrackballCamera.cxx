@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.20");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballCamera, "1.21");
 vtkStandardNewMacro(vtkInteractorStyleTrackballCamera);
 
 //----------------------------------------------------------------------------
@@ -68,9 +68,6 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove(int vtkNotUsed(ctrl),
       this->Spin();
       break;
     }
-
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
 }
 
 //----------------------------------------------------------------------------
@@ -149,6 +146,7 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown(int vtkNotUsed(ctrl),
   
   this->StartPan();
 }
+
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp(int vtkNotUsed(ctrl),
                                                          int vtkNotUsed(shift), 
@@ -202,8 +200,8 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dx = rwi->GetEventPosition()[0] - this->LastPos[0];
-  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  int dx = rwi->GetEventPosition()[0] - rwi->GetLastEventPosition()[0];
+  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   
   int *size = this->CurrentRenderer->GetRenderWindow()->GetSize();
 
@@ -244,8 +242,10 @@ void vtkInteractorStyleTrackballCamera::Spin()
 
   double newAngle = atan2((double)(y) - this->Center[1],
                           (double)(x) - this->Center[0]);
-  double oldAngle = atan2((double)(this->LastPos[1]) -this->Center[1],
-                          (double)(this->LastPos[0]) - this->Center[0]);
+  double oldAngle = atan2((double)(rwi->GetLastEventPosition()[1]) - 
+                          this->Center[1],
+                          (double)(rwi->GetLastEventPosition()[0]) - 
+                          this->Center[0]);
   
   newAngle *= this->RadianToDegree;
   oldAngle *= this->RadianToDegree;
@@ -285,8 +285,8 @@ void vtkInteractorStyleTrackballCamera::Pan()
     
   // has to recalc old mouse point since the viewport has moved,
   // so can't move it outside the loop
-  this->ComputeDisplayToWorld(double(this->LastPos[0]),
-                              double(this->LastPos[1]),
+  this->ComputeDisplayToWorld(double(rwi->GetLastEventPosition()[0]),
+                              double(rwi->GetLastEventPosition()[1]),
                               focalDepth, oldPickPoint);
   
   // camera motion is reversed
@@ -323,7 +323,7 @@ void vtkInteractorStyleTrackballCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
   double dyf = this->MotionFactor * (double)(dy) / (double)(this->Center[1]);
   double zoomFactor = pow((double)1.1, dyf);
   

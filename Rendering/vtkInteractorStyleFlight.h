@@ -153,6 +153,9 @@ protected:
   double        PitchAngle;
   double        FixedUpVector[3];
   double        AzimuthStepSize;
+
+  int LastPos[2];
+
 private:
   vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
   void operator=(const vtkInteractorStyleFlight&);  // Not implemented.

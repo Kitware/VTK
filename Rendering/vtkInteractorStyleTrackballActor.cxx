@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.20");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.21");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -97,9 +97,6 @@ void vtkInteractorStyleTrackballActor::OnMouseMove(int vtkNotUsed(ctrl),
       this->UniformScale();
       break;
     }
-
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
 }
 
 //----------------------------------------------------------------------------
@@ -278,8 +275,8 @@ void vtkInteractorStyleTrackballActor::Rotate()
   
   double nxf = ((double)(x) - (double)(this->DispObjCenter[0])) / (double)(this->Radius);
   double nyf = ((double)(y) - (double)(this->DispObjCenter[1])) / (double)(this->Radius);
-  double oxf = ((double)(this->LastPos[0]) - (double)(this->DispObjCenter[0])) / (double)(this->Radius);
-  double oyf = ((double)(this->LastPos[1]) - (double)(this->DispObjCenter[1])) / (double)(this->Radius);
+  double oxf = ((double)(rwi->GetLastEventPosition()[0]) - (double)(this->DispObjCenter[0])) / (double)(this->Radius);
+  double oyf = ((double)(rwi->GetLastEventPosition()[1]) - (double)(this->DispObjCenter[1])) / (double)(this->Radius);
 
   if (((nxf * nxf + nyf * nyf) <= 1.0) &&
       ((oxf * oxf + oyf * oyf) <= 1.0))
@@ -363,8 +360,8 @@ void vtkInteractorStyleTrackballActor::Spin()
   // this has to be in the loop
   double newAngle = atan2((double)(y) - this->DispObjCenter[1],
                           (double)(x) - this->DispObjCenter[0]);
-  double oldAngle = atan2((double)(this->LastPos[1]) - this->DispObjCenter[1],
-                          (double)(this->LastPos[0]) - this->DispObjCenter[0]);
+  double oldAngle = atan2((double)(rwi->GetLastEventPosition()[1]) - this->DispObjCenter[1],
+                          (double)(rwi->GetLastEventPosition()[0]) - this->DispObjCenter[0]);
   
   newAngle *= this->RadianToDegree;
   oldAngle *= this->RadianToDegree;
@@ -416,8 +413,8 @@ void vtkInteractorStyleTrackballActor::Pan()
                               this->DispObjCenter[2],
                               this->NewPickPoint);
   
-  this->ComputeDisplayToWorld(double(this->LastPos[0]), 
-                              double(this->LastPos[1]), 
+  this->ComputeDisplayToWorld(double(rwi->GetLastEventPosition()[0]), 
+                              double(rwi->GetLastEventPosition()[1]), 
                               this->DispObjCenter[2],
                               this->OldPickPoint);
   
@@ -453,7 +450,7 @@ void vtkInteractorStyleTrackballActor::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
  
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
 
@@ -502,7 +499,7 @@ void vtkInteractorStyleTrackballActor::UniformScale()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  int dy = rwi->GetEventPosition()[1] - this->LastPos[1];
+  int dy = rwi->GetEventPosition()[1] - rwi->GetLastEventPosition()[1];
  
   float *center = this->InteractionProp->GetCenter();
   this->ObjCenter[0] = center[0];

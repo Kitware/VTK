@@ -80,7 +80,7 @@ protected:
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion. Since
   // they might be called from OnTimer, they do not have mouse coord parameters
-  // (use GetLastPos and interactor GetEventPosition)
+  // (use interactor's GetEventPosition and GetLastEventPosition)
   virtual void WindowLevel();
   virtual void Pick();
   

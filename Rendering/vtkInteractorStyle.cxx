@@ -24,7 +24,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.62");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.63");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -935,8 +935,6 @@ void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl),
                                      int x, 
                                      int y) 
 {
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
 }
 
 //----------------------------------------------------------------------------
@@ -1122,8 +1120,10 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       {
       this->AnimState = VTKIS_ANIM_ON;
       vtkAssemblyPath *path=NULL;
-      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
-      rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
+      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1]);
+      rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
+                             rwi->GetLastEventPosition()[1], 0.0, 
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
       if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
@@ -1145,7 +1145,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
 
     case 'r' :
     case 'R' :
-      this->FindPokedRenderer(this->LastPos[0], this->LastPos[1]);
+      this->FindPokedRenderer(rwi->GetLastEventPosition()[0], 
+                              rwi->GetLastEventPosition()[1]);
       this->CurrentRenderer->ResetCamera();
       rwi->Render();
       break;
@@ -1156,7 +1157,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
-      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
         {
@@ -1176,7 +1178,8 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       vtkActorCollection *ac;
       vtkActor *anActor, *aPart;
       vtkAssemblyPath *path;
-      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1]);
       ac = this->CurrentRenderer->GetActors();
       for (ac->InitTraversal(); (anActor = ac->GetNextItem()); ) 
         {
@@ -1207,9 +1210,11 @@ void vtkInteractorStyle::OnChar(int vtkNotUsed(ctrl),
       if (this->State == VTKIS_NONE) 
         {
         vtkAssemblyPath *path=NULL;
-        this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
+        this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
+                                rwi->GetLastEventPosition()[1]);
         rwi->StartPickCallback();
-        rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
+        rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
+                               rwi->GetLastEventPosition()[1], 0.0, 
                                this->CurrentRenderer);
         vtkAbstractPropPicker *picker;
         if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )

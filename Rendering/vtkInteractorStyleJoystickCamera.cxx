@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.18");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickCamera, "1.19");
 vtkStandardNewMacro(vtkInteractorStyleJoystickCamera);
 
 //----------------------------------------------------------------------------
@@ -58,9 +58,6 @@ void vtkInteractorStyleJoystickCamera::OnMouseMove(int vtkNotUsed(ctrl),
       this->FindPokedCamera(x, y);
       break;
     }
-
-  this->LastPos[0] = x;
-  this->LastPos[1] = y;
 }
 
 //----------------------------------------------------------------------------
@@ -193,8 +190,10 @@ void vtkInteractorStyleJoystickCamera::Rotate()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  double rxf = ((double)(this->LastPos[0]) - (double)(this->Center[0])) * this->DeltaAzimuth;
-  double ryf = ((double)(this->LastPos[1]) - (double)(this->Center[1])) * this->DeltaElevation;
+  double rxf = ((double)(rwi->GetLastEventPosition()[0]) - 
+                (double)(this->Center[0])) * this->DeltaAzimuth;
+  double ryf = ((double)(rwi->GetLastEventPosition()[1]) - 
+                (double)(this->Center[1])) * this->DeltaElevation;
 
   this->CurrentCamera->Azimuth(rxf);
   this->CurrentCamera->Elevation(ryf);
@@ -222,7 +221,8 @@ void vtkInteractorStyleJoystickCamera::Spin()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   // spin is based on y value
-  double yf = ((double)(this->LastPos[1]) - (double)(this->Center[1])) / 
+  double yf = ((double)(rwi->GetLastEventPosition()[1]) - 
+               (double)(this->Center[1])) / 
                        (double)(this->Center[1]);
   if (yf > 1)
     {
@@ -260,7 +260,8 @@ void vtkInteractorStyleJoystickCamera::Pan()
   double focalDepth = ViewFocus[2];
 
   double NewPickPoint[4];
-  this->ComputeDisplayToWorld((float)this->LastPos[0], (float)this->LastPos[1],
+  this->ComputeDisplayToWorld((float)rwi->GetLastEventPosition()[0], 
+                              (float)rwi->GetLastEventPosition()[1],
                               focalDepth, NewPickPoint);
 
   // get the current focal point and position
@@ -303,7 +304,8 @@ void vtkInteractorStyleJoystickCamera::Dolly()
   
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
-  double dyf = 0.5 * ((double)(this->LastPos[1]) - (double)(this->Center[1])) /
+  double dyf = 0.5 * ((double)(rwi->GetLastEventPosition()[1]) - 
+                      (double)(this->Center[1])) /
     (double)(this->Center[1]);
   double zoomFactor = pow((double)1.1, dyf);
   if (zoomFactor < 0.5 || zoomFactor > 1.5)

@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.17");
+vtkCxxRevisionMacro(vtkInteractorStyleImage, "1.18");
 vtkStandardNewMacro(vtkInteractorStyleImage);
 
 //----------------------------------------------------------------------------
@@ -225,8 +225,10 @@ void vtkInteractorStyleImage::OnChar(int ctrl,
       {
       this->AnimState = VTKIS_ANIM_ON;
       vtkAssemblyPath *path=NULL;
-      this->FindPokedRenderer(this->LastPos[0],this->LastPos[1]);
-      rwi->GetPicker()->Pick(this->LastPos[0],this->LastPos[1], 0.0, 
+      this->FindPokedRenderer(rwi->GetLastEventPosition()[0],
+                              rwi->GetLastEventPosition()[1]);
+      rwi->GetPicker()->Pick(rwi->GetLastEventPosition()[0],
+                             rwi->GetLastEventPosition()[1], 0.0, 
                              this->CurrentRenderer);
       vtkAbstractPropPicker *picker;
       if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )

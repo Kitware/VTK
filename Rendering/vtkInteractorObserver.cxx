@@ -19,7 +19,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.10");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.11");
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -38,9 +38,6 @@ vtkInteractorObserver::vtkInteractorObserver()
  
   this->CurrentRenderer = NULL;
 
-  this->LastPos[0] = 0;
-  this->LastPos[1] = 0;
-  
   this->Priority = 1.0;
   this->KeyPressActivation = 1;
   this->KeyPressActivationValue = 'i';
@@ -220,9 +217,6 @@ void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
      << (this->KeyPressActivation ? "On" : "Off") << "\n";
   os << indent << "Key Press Activation Value: " 
      << this->KeyPressActivationValue << "\n";
-  os << indent << "LastPos: (" << this->LastPos[0] << ", " 
-                               << this->LastPos[1] << ")\n";  
-
 }
 
 

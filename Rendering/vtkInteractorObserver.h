@@ -108,10 +108,6 @@ public:
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
 
-  // Description:
-  // Keep track of a previous state (mouse position in display coordinates)
-  vtkGetVectorMacro(LastPos,int,2);
-
 protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
@@ -149,9 +145,6 @@ protected:
   // Internal ivars for processing events
   vtkRenderer *CurrentRenderer;
   vtkCamera *CurrentCamera;
-
-  // Keep track of a previous state (mouse position in display coordinates)
-  int LastPos[2];
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
