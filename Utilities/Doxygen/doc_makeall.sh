@@ -57,13 +57,13 @@ export RESULTING_DOC_DIR=../../../doc
 # tag file is retrieved from its remote location using wget and stored in the
 # destination dir. It will be automatically deleted at the end of this script.
 # Example: VTK_TAGFILE=vtk4.tag
-#          VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly/html
+#          VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly
 #          VTK_TAGFILE_DEST_DIR=$DOXTEMP
 # The Doxygen configuration file must be tailored to make use of this tag file.
 # Example: TAGFILES = vtk4.tag=http://public.kitware.com/VTK/doc/nightly/html
 #
 # export VTK_TAGFILE=vtk4.tag
-# export VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly/html
+# export VTK_TAGFILE_REMOTE_DIR=http://public.kitware.com/VTK/doc/nightly
 # export VTK_TAGFILE_DEST_DIR=../../../$PROJECT_NAME-doxygen
 
 # ----------------------------------------------------------------------------
