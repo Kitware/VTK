@@ -8,6 +8,11 @@ catch {load vtktcl}
 #
 if { [catch {set REG_IMAGE_PATH $env(REG_IMAGE_PATH)/}] != 0} { set REG_IMAGE_PATH "" }
 
+#
+# if ALTERNATIVE_IMAGE_FILE is defined, then use if to get another valid image
+#
+if { [catch {set ALTERNATIVE_IMAGE_FILE ".$env(ALTERNATIVE_IMAGE_FILE)"}] != 0} { set ALTERNATIVE_IMAGE_FILE "" }
+
 # first find all the examples. they can be defined on command line or in
 # current directory
 
@@ -40,13 +45,22 @@ for {set i 0} {$i < [llength $noTest]} {incr i} {
 foreach afile $files {
    #
    # only tcl scripts with valid/ images are tested
-   if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
-      puts "WARNING: There is no valid image for $afile"
-      continue
-   } else {
-      close $channel
-   }
-   
+
+    set validImage valid/${afile}${ALTERNATIVE_IMAGE_FILE}.ppm
+   #
+   # first see if there is an alternate image for this architecture
+
+    if {[catch {set channel [open ${validImage}]}] != 0 } {
+     set validImage valid/$afile.ppm
+     if {[catch {set channel [open ${validImage}]}] != 0 } {
+        puts "WARNING: There is no valid image for $afile"
+        continue
+     } else {
+        close $channel
+     }
+    } else {
+       close $channel
+    }
    vtkMath rtExMath
    rtExMath RandomSeed 6
    
@@ -78,11 +92,11 @@ foreach afile $files {
    wm withdraw .
    update
 
-   if {[catch {set channel [open "valid/$afile.ppm"]}] != 0 } {
+    if {[catch {set channel [open ${validImage}]}] != 0 } {
       puts "\nWARNING: Creating a valid image for $afile"
       vtkPNMWriter rtpnmw
       rtpnmw SetInput [w2if GetOutput]
-      rtpnmw SetFileName "valid/$afile.ppm"
+      rtpnmw SetFileName ${validImage}
       rtpnmw Write
       vtkCommand DeleteAllObjects
       catch {destroy .top}
@@ -91,7 +105,7 @@ foreach afile $files {
    close $channel
    
    vtkPNMReader rtpnm
-   rtpnm SetFileName "valid/$afile.ppm"
+       rtpnm SetFileName ${validImage}
    
    vtkImageDifference imgDiff
    
