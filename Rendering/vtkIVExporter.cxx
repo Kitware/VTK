@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.52");
+vtkCxxRevisionMacro(vtkIVExporter, "1.53");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -255,7 +255,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   float tempf2;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
-  float *p;
+  double *p;
   unsigned char *c;
   vtkTransform *trans;
   
@@ -607,7 +607,7 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkDataArray *normals,
                                    vtkDataArray *tcoords, 
                                    vtkUnsignedCharArray *colors, FILE *fp)
 {
-  float *p;
+  double *p;
   int i;
   unsigned char *c;
   

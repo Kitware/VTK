@@ -18,7 +18,7 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.32");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.33");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -114,7 +114,14 @@ float *vtkPolyDataMapper::GetBounds()
   else
     {
     this->Update();
-    this->GetInput()->GetBounds(this->Bounds);
+    // TODO: cleanupo once Bounds is double
+    double *dbounds = this->GetInput()->GetBounds();
+    this->Bounds[0] = (float)dbounds[0];
+    this->Bounds[1] = (float)dbounds[1];
+    this->Bounds[2] = (float)dbounds[2];
+    this->Bounds[3] = (float)dbounds[3];
+    this->Bounds[4] = (float)dbounds[4];
+    this->Bounds[5] = (float)dbounds[5];
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
     if (((this->Bounds[0] == -VTK_LARGE_FLOAT) || 

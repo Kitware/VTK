@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.98");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.99");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1589,13 +1589,13 @@ void vtkVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
 {
   // Get the data spacing. This scaling is not accounted for in
   // the volume's matrix, so we must add it in.
-  float volumeSpacing[3];
+  double volumeSpacing[3];
   data->GetSpacing( volumeSpacing );
   
   // Get the origin of the data.  This translation is not accounted for in
   // the volume's matrix, so we must add it in.
   float volumeOrigin[3];
-  float *bds = data->GetBounds();
+  double *bds = data->GetBounds();
   volumeOrigin[0] = bds[0];
   volumeOrigin[1] = bds[2];
   volumeOrigin[2] = bds[4];
@@ -1651,8 +1651,8 @@ void vtkVolumeRayCastMapper::InitializeClippingPlanes(
                                            vtkPlaneCollection *planes )
 {
   vtkPlane *onePlane;
-  float    worldNormal[3], worldOrigin[3];
-  float    volumeOrigin[4];
+  double    worldNormal[3], worldOrigin[3];
+  double    volumeOrigin[4];
   int      i;
   float    *worldToVoxelsMatrix;
   float    *voxelsToWorldMatrix;

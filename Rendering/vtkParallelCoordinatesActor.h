@@ -145,8 +145,8 @@ private:
 
   int IndependentVariables;    // Use column or row
   vtkIdType N;                 // The number of independent variables
-  float *Mins;                 // Minimum data value along this row/column
-  float *Maxs;                 // Maximum data value along this row/column
+  double *Mins;                 // Minimum data value along this row/column
+  double *Maxs;                 // Maximum data value along this row/column
   int   *Xs;                   // Axes x-values (in viewport coordinates)
   int   YMin;                  // Axes y-min-value (in viewport coordinates)
   int   YMax;                  // Axes y-max-value (in viewport coordinates)

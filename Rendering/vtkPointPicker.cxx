@@ -20,7 +20,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointPicker, "1.31");
+vtkCxxRevisionMacro(vtkPointPicker, "1.32");
 vtkStandardNewMacro(vtkPointPicker);
 
 vtkPointPicker::vtkPointPicker()
@@ -28,14 +28,14 @@ vtkPointPicker::vtkPointPicker()
   this->PointId = -1;
 }
 
-float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+double vtkPointPicker::IntersectWithLine(double p1[3], double p2[3], double tol, 
                                         vtkAssemblyPath *path, vtkProp3D *p, 
                                         vtkAbstractMapper3D *m)
 {
   vtkIdType numPts;
   vtkIdType ptId, minPtId;
   int i;
-  float ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
+  double ray[3], rayFactor, tMin, x[3], t, projXYZ[3], minXYZ[3];
   vtkDataSet *input;
   vtkMapper *mapper;
   vtkVolumeMapper *volumeMapper;
@@ -75,8 +75,8 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   //  Project each point onto ray.  Keep track of the one within the
   //  tolerance and closest to the eye (and within the clipping range).
   //
-  float dist, maxDist, minPtDist=VTK_LARGE_FLOAT;
-  for (minPtId=(-1),tMin=VTK_LARGE_FLOAT,ptId=0; ptId<numPts; ptId++) 
+  double dist, maxDist, minPtDist=VTK_DOUBLE_MAX;
+  for (minPtId=(-1),tMin=VTK_DOUBLE_MAX,ptId=0; ptId<numPts; ptId++) 
     {
     input->GetPoint(ptId,x);
 

@@ -45,19 +45,19 @@ public:
   // 1 is returned, otherwise 0 is returned.  Use the GetProp() method
   // to get the instance of vtkProp that was picked.  Props are picked from
   // the renderers list of pickable Props.
-  int PickProp(float selectionX, float selectionY, vtkRenderer *renderer);  
+  int PickProp(double selectionX, double selectionY, vtkRenderer *renderer);  
 
   // Description:
   // Perform a pick from the user-provided list of vtkProps and not from the
   // list of vtkProps that the render maintains.
-  int PickProp(float selectionX, float selectionY, vtkRenderer *renderer, 
+  int PickProp(double selectionX, double selectionY, vtkRenderer *renderer, 
                vtkPropCollection* pickfrom);  
 
   // Description:
   // Overide superclasses' Pick() method.
-  int Pick(float selectionX, float selectionY, float selectionZ, 
+  int Pick(double selectionX, double selectionY, double selectionZ, 
            vtkRenderer *renderer);  
-  int Pick(float selectionPt[3], vtkRenderer *renderer)
+  int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->Pick( selectionPt[0], 
                          selectionPt[1], selectionPt[2], renderer); };  
 

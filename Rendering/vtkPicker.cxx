@@ -35,7 +35,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.80");
+vtkCxxRevisionMacro(vtkPicker, "1.81");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -50,7 +50,7 @@ vtkPicker::vtkPicker()
 
   this->Mapper = NULL;
   this->DataSet = NULL;
-  this->GlobalTMin = VTK_LARGE_FLOAT;
+  this->GlobalTMin = VTK_DOUBLE_MAX;
   this->Actors = vtkActorCollection::New();
   this->Prop3Ds = vtkProp3DCollection::New();
   this->PickedPositions = vtkPoints::New();
@@ -68,7 +68,7 @@ vtkPicker::~vtkPicker()
 // Update state when prop3D is picked.
 void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D, 
                            vtkAbstractMapper3D *m,
-                           float tMin, float mapperPos[3])
+                           double tMin, double mapperPos[3])
 {
   int i;
   vtkMapper *mapper;
@@ -108,29 +108,29 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
 // Perform pick operation with selection point provided. Normally the 
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
-int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
+int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
                     vtkRenderer *renderer)
 {
   int i;
   vtkProp *prop;
   vtkCamera *camera;
   vtkAbstractMapper3D *mapper = NULL;
-  float p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
+  double p1World[4], p2World[4], p1Mapper[4], p2Mapper[4];
   int picked=0;
   int *winSize;
-  float x, y, t;
+  double x, y, t;
   float *viewport;
-  float cameraPos[4], cameraFP[4];
+  double cameraPos[4], cameraFP[4];
   float *displayCoords, *worldCoords;
   double *clipRange;
-  float ray[3], rayLength;
+  double ray[3], rayLength;
   int pickable;
   int LODId;
-  float windowLowerLeft[4], windowUpperRight[4];
-  float bounds[6], tol;
-  float tF, tB;
-  float hitPosition[3];
-  float cameraDOP[3];
+  double windowLowerLeft[4], windowUpperRight[4];
+  double bounds[6], tol;
+  double tF, tB;
+  double hitPosition[3];
+  double cameraDOP[3];
   
   //  Initialize picking process
   this->Initialize();
@@ -152,10 +152,10 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   // coordinates. We need a depth value for z-buffer.
   //
   camera = renderer->GetActiveCamera();
-  camera->GetPosition((float *)cameraPos); cameraPos[3] = 1.0;
-  camera->GetFocalPoint((float *)cameraFP); cameraFP[3] = 1.0;
+  camera->GetPosition((double *)cameraPos); cameraPos[3] = 1.0;
+  camera->GetFocalPoint((double *)cameraFP); cameraFP[3] = 1.0;
 
-  renderer->SetWorldPoint(cameraFP);
+  renderer->SetWorldPoint(cameraFP[0],cameraFP[1],cameraFP[2],cameraFP[3]);
   renderer->WorldToDisplay();
   displayCoords = renderer->GetDisplayPoint();
   selectionZ = displayCoords[2];
@@ -343,16 +343,22 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
         //  Get the bounding box of the modeller.  Note that the tolerance is
         //  added to the bounding box to make sure things on the edge of the
         //  bounding box are picked correctly.
-        mapper->GetBounds(bounds);
+        float *fbounds = mapper->GetBounds();
+        bounds[0] = fbounds[0];
+        bounds[1] = fbounds[1];
+        bounds[2] = fbounds[2];
+        bounds[3] = fbounds[3];
+        bounds[4] = fbounds[4];
+        bounds[5] = fbounds[5];
         bounds[0] -= tol; bounds[1] += tol; 
         bounds[2] -= tol; bounds[3] += tol; 
         bounds[4] -= tol; bounds[5] += tol; 
-        if ( vtkBox::IntersectBox(bounds, (float *)p1Mapper, ray, hitPosition, t) )
+        if ( vtkBox::IntersectBox(bounds, (double *)p1Mapper, ray, hitPosition, t) )
           {
-          t = this->IntersectWithLine((float *)p1Mapper, 
-                                      (float *)p2Mapper, tol, path, 
+          t = this->IntersectWithLine((double *)p1Mapper, 
+                                      (double *)p2Mapper, tol, path, 
                                       (vtkProp3D *)propCandidate, mapper);
-          if ( t < VTK_LARGE_FLOAT )
+          if ( t < VTK_DOUBLE_MAX )
             {
             picked = 1;
             this->Prop3Ds->AddItem((vtkProp3D *)prop);
@@ -380,18 +386,21 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 }
 
 // Intersect data with specified ray.
-float vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
-                                   float vtkNotUsed(tol), 
+double vtkPicker::IntersectWithLine(double p1[3], double p2[3], 
+                                   double vtkNotUsed(tol), 
                                    vtkAssemblyPath *path, 
                                    vtkProp3D *prop3D, 
                                    vtkAbstractMapper3D *mapper)
 {
   int i;
-  float *center, t, ray[3], rayFactor;
+  double center[3], t, ray[3], rayFactor;
 
   // Get the data from the modeler
   //
-  center = mapper->GetCenter();
+  // TODO: cleanup when GetCeneter return double
+  center[0] = mapper->GetCenter()[0];
+  center[1] = mapper->GetCenter()[1];
+  center[2] = mapper->GetCenter()[2];
 
   for (i=0; i<3; i++)
     {
@@ -428,7 +437,7 @@ void vtkPicker::Initialize()
   this->MapperPosition[2] = 0.0;
 
   this->Mapper = NULL;
-  this->GlobalTMin = VTK_LARGE_FLOAT;
+  this->GlobalTMin = VTK_DOUBLE_MAX;
 }
 
 

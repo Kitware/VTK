@@ -49,7 +49,7 @@ protected:
 
   vtkIdType PointId; //picked point
 
-  float IntersectWithLine(float p1[3], float p2[3], float tol, 
+  double IntersectWithLine(double p1[3], double p2[3], double tol, 
                           vtkAssemblyPath *path, vtkProp3D *p, 
                           vtkAbstractMapper3D *m);
   void Initialize();

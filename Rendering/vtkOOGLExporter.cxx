@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.21");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.22");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -486,7 +486,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
        fprintf(fp, "%s", indent);
        for (i=0;i<npts;i++)
          {
-         float *pt = points->GetPoint(indx[i]);
+         double *pt = points->GetPoint(indx[i]);
          fprintf(fp, "%s%f %f %f ", indent, pt[0], pt[1], pt[2]);
          }
        fprintf(fp, "\n");
@@ -532,7 +532,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
         {
         for (i = 0; i < points->GetNumberOfPoints(); i++)
           {
-          float *pt = points->GetPoint(i);
+          double *pt = points->GetPoint(i);
           c = (unsigned char *)colors->GetPointer(4*i);
            
           fprintf (fp,"%s%g %g %g %g %g %g %g\n", indent,
@@ -544,7 +544,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
         {
         for (i = 0; i < points->GetNumberOfPoints(); i++)
           {
-          float *pt = points->GetPoint(i);
+          double *pt = points->GetPoint(i);
           fprintf (fp,"%s%g %g %g\n", indent, pt[0], pt[1], pt[2]);
           }
         }

@@ -47,7 +47,7 @@ public:
   // Description:
   // Get the parametric coordinates of the picked cell. Only valid if 
   // pick was made.
-  vtkGetVectorMacro(PCoords, float,3);
+  vtkGetVectorMacro(PCoords, double,3);
 
 protected:
   vtkCellPicker();
@@ -55,9 +55,9 @@ protected:
 
   vtkIdType CellId; // picked cell
   int SubId; // picked cell subId
-  float PCoords[3]; // picked cell parametric coordinates
+  double PCoords[3]; // picked cell parametric coordinates
 
-  virtual float IntersectWithLine(float p1[3], float p2[3], float tol, 
+  virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
                                   vtkAssemblyPath *path, vtkProp3D *p, 
                                   vtkAbstractMapper3D *m);
   void Initialize();

@@ -17,7 +17,7 @@
 #include "vtkLookupTable.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.104");
+vtkCxxRevisionMacro(vtkMapper, "1.105");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -82,7 +82,14 @@ float *vtkMapper::GetBounds()
   else
     {
     this->Update();
-    this->GetInput()->GetBounds(this->Bounds);
+    // TODO: cleanup
+    double *dbounds = this->GetInput()->GetBounds();
+    this->Bounds[0] = (float)dbounds[0];
+    this->Bounds[1] = (float)dbounds[1];
+    this->Bounds[2] = (float)dbounds[2];
+    this->Bounds[3] = (float)dbounds[3];
+    this->Bounds[4] = (float)dbounds[4];
+    this->Bounds[5] = (float)dbounds[5];    
     return this->Bounds;
     }
 }

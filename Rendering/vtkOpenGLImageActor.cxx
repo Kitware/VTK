@@ -30,7 +30,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.21");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.22");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -111,8 +111,8 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
     ydim = 2;
     }
   
-  float *spacing = this->Input->GetSpacing();
-  float *origin = this->Input->GetOrigin();
+  double *spacing = this->Input->GetSpacing();
+  double *origin = this->Input->GetOrigin();
   
   // compute the world coordinates
   this->Coords[0] = this->DisplayExtent[0]*spacing[0] + origin[0];

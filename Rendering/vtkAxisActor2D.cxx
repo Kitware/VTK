@@ -23,7 +23,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkAxisActor2D, "1.36");
+vtkCxxRevisionMacro(vtkAxisActor2D, "1.37");
 vtkStandardNewMacro(vtkAxisActor2D);
 
 vtkCxxSetObjectMacro(vtkAxisActor2D,LabelTextProperty,vtkTextProperty);
@@ -275,7 +275,8 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
   int i, *x, viewportSizeHasChanged, positionsHaveChanged;
   vtkIdType ptIds[2];
   float p1[3], p2[3], offset;
-  float interval, deltaX, deltaY, xTick[3];
+  float interval, deltaX, deltaY;
+  double xTick[3];
   float theta, val;
   int *size, stringSize[2];
   char string[512];
@@ -767,7 +768,7 @@ void vtkAxisActor2D::ComputeRange(float inRange[2],
 // Position text with respect to a point (xTick) where the angle of the line
 // from the point to the center of the text is given by theta. The offset
 // is the spacing between ticks and labels.
-void vtkAxisActor2D::SetOffsetPosition(float xTick[3], float theta, 
+void vtkAxisActor2D::SetOffsetPosition(double xTick[3], float theta, 
                                        int stringWidth, int stringHeight, 
                                        int offset, vtkActor2D *actor)
 {

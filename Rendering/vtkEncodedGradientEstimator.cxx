@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.33");
+vtkCxxRevisionMacro(vtkEncodedGradientEstimator, "1.34");
 
 vtkCxxSetObjectMacro(vtkEncodedGradientEstimator, Input, vtkImageData );
 
@@ -171,7 +171,7 @@ unsigned char *vtkEncodedGradientEstimator::GetGradientMagnitudes()
 void vtkEncodedGradientEstimator::Update( )
 {
   int                scalarInputSize[3];
-  float              scalarInputAspect[3];
+  double             scalarInputAspect[3];
   double             startSeconds, endSeconds;
   double             startCPUSeconds, endCPUSeconds;
 
@@ -235,7 +235,11 @@ void vtkEncodedGradientEstimator::Update( )
 
     // Copy info that multi threaded function will need into temp variables
     memcpy( this->InputSize, scalarInputSize, 3 * sizeof(int) );
-    memcpy( this->InputAspect, scalarInputAspect, 3 * sizeof(float) );
+    // TODO cleanup when double changes are further along
+    this->InputAspect[0] = static_cast<float>(scalarInputAspect[0]);
+    this->InputAspect[1] = static_cast<float>(scalarInputAspect[1]);
+    this->InputAspect[2] = static_cast<float>(scalarInputAspect[2]);
+    // memcpy( this->InputAspect, scalarInputAspect, 3 * sizeof(float) );
 
     if ( this->CylinderClip && 
          (this->InputSize[0] == this->InputSize[1]) )

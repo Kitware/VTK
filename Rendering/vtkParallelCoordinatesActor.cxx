@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.30");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.31");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -302,7 +302,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   vtkIdType i, j, id;
   vtkDataObject *input = this->GetInput();
   vtkFieldData *field = input->GetFieldData();
-  float v;
+  double v;
   
   this->Initialize();
 
@@ -345,12 +345,12 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   
   // We need to loop over the field to determine the range of
   // each independent variable.
-  this->Mins = new float [this->N];
-  this->Maxs = new float [this->N];
+  this->Mins = new double [this->N];
+  this->Maxs = new double [this->N];
   for (i=0; i<this->N; i++)
     {
-    this->Mins[i] =  VTK_LARGE_FLOAT;
-    this->Maxs[i] = -VTK_LARGE_FLOAT;
+    this->Mins[i] =  VTK_DOUBLE_MAX;
+    this->Maxs[i] = -VTK_DOUBLE_MAX;
     }
 
   if ( this->IndependentVariables == VTK_IV_COLUMN )
@@ -426,9 +426,11 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   this->YMax = p2[1];
   for (i=0; i<this->N; i++)
     {
-    this->Xs[i] = (int) (p1[0] + (float)i/((float)this->N) * (p2[0]-p1[0]));
-    this->Axes[i]->GetPositionCoordinate()->SetValue(this->Xs[i], this->YMin);
-    this->Axes[i]->GetPosition2Coordinate()->SetValue(this->Xs[i], this->YMax);
+    this->Xs[i] = (int) (p1[0] + (double)i/((double)this->N) * (p2[0]-p1[0]));
+    this->Axes[i]->GetPositionCoordinate()->SetValue((double)this->Xs[i], 
+                                                     this->YMin);
+    this->Axes[i]->GetPosition2Coordinate()->SetValue((double)this->Xs[i], 
+                                                      this->YMax);
     }
 
   // Now generate the lines to plot
@@ -439,7 +441,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   this->PlotData->SetPoints(pts);
   this->PlotData->SetLines(lines);
   
-  float x[3]; x[2] = 0.0;
+  double x[3]; x[2] = 0.0;
   if ( this->IndependentVariables == VTK_IV_COLUMN )
     {
     lines->Allocate(lines->EstimateSize(numRows,numColumns));

@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVolumeMapper.h"
 
-vtkCxxRevisionMacro(vtkCellPicker, "1.34");
+vtkCxxRevisionMacro(vtkCellPicker, "1.35");
 vtkStandardNewMacro(vtkCellPicker);
 
 vtkCellPicker::vtkCellPicker()
@@ -39,14 +39,14 @@ vtkCellPicker::~vtkCellPicker()
   this->Cell->Delete();
 }
 
-float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol, 
+double vtkCellPicker::IntersectWithLine(double p1[3], double p2[3], double tol, 
                                        vtkAssemblyPath *path, 
                                        vtkProp3D *prop3D, 
                                        vtkAbstractMapper3D *m)
 {
   vtkIdType numCells, cellId, minCellId;
   int i, minSubId, subId;
-  float x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
+  double x[3], tMin, t, pcoords[3], minXYZ[3], minPcoords[3];
   vtkDataSet *input;
   vtkMapper *mapper;
   vtkVolumeMapper *volumeMapper;
@@ -62,7 +62,7 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
     }
   else
     {
-    return VTK_LARGE_FLOAT;
+    return VTK_DOUBLE_MAX;
     }
 
   if ( (numCells = input->GetNumberOfCells()) < 1 )
@@ -81,8 +81,8 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   minCellId = -1;
   minSubId = -1;
   pcoords[0] = pcoords[1] = pcoords[2] = 0;
-  float pDistMin=VTK_LARGE_FLOAT, pDist;
-  for (tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
+  double pDistMin=VTK_DOUBLE_MAX, pDist;
+  for (tMin=VTK_DOUBLE_MAX,cellId=0; cellId<numCells; cellId++) 
     {
     input->GetCell(cellId, this->Cell);
 

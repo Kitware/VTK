@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.90");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.91");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -303,7 +303,10 @@ void vtkInteractorStyle::HighlightProp3D(vtkProp3D *prop3D)
       this->CurrentRenderer->AddActor(this->OutlineActor);
       this->PickedRenderer = this->CurrentRenderer;      
       }
-    this->Outline->SetBounds(prop3D->GetBounds());
+    // TODO: cleanup when prop is changed to double
+    float *bnds = prop3D->GetBounds();
+    this->Outline->SetBounds(bnds[0], bnds[1], bnds[2],
+                             bnds[3], bnds[4], bnds[5]);
     }
 }
 

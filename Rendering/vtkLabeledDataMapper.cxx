@@ -22,7 +22,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.36");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.37");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
@@ -101,7 +101,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
                                          vtkActor2D *actor)
 {
   int i;
-  float x[3];
+  double x[3];
   vtkDataSet *input=this->GetInput();
 
   if ( ! input )
@@ -124,9 +124,8 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 {
   int i, j, numComp = 0, pointIdLabels, activeComp = 0;
   char string[1024], format[1024];
-  float val, x[3];
+  double val, x[3];
   vtkDataArray *data;
-//   float *tuple=NULL;
   vtkDataSet *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
 

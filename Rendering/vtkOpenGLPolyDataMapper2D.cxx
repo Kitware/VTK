@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.47");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.48");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -259,7 +259,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2fv(p->GetPoint(pts[j]));
+      glVertex2dv(p->GetPoint(pts[j]));
       }
     glEnd();
     }
@@ -311,7 +311,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2fv(p->GetPoint(pts[j]));
+      glVertex2dv(p->GetPoint(pts[j]));
       }
     glEnd();
     }
@@ -337,7 +337,7 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
           }
         glColor4ubv(rgba);
         }
-      glVertex2fv(p->GetPoint(pts[j]));
+      glVertex2dv(p->GetPoint(pts[j]));
       }
     }
   glEnd();

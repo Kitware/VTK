@@ -19,7 +19,7 @@
 
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.2");
+vtkCxxRevisionMacro(vtkAbstractVolumeMapper, "1.3");
 
 // Construct a vtkAbstractVolumeMapper 
 vtkAbstractVolumeMapper::vtkAbstractVolumeMapper()
@@ -56,7 +56,15 @@ float *vtkAbstractVolumeMapper::GetBounds()
   else
     {
     this->Update();
-    this->GetDataSetInput()->GetBounds(this->Bounds);
+    // TODO: clean up when mapper API switched to double
+    double *dbounds = this->GetDataSetInput()->GetBounds();
+    this->Bounds[0] = (float)dbounds[0];
+    this->Bounds[1] = (float)dbounds[1];
+    this->Bounds[2] = (float)dbounds[2];
+    this->Bounds[3] = (float)dbounds[3];
+    this->Bounds[4] = (float)dbounds[4];
+    this->Bounds[5] = (float)dbounds[5];
+    //this->GetDataSetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }

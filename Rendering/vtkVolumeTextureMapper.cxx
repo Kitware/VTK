@@ -21,7 +21,7 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.27");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.28");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -198,11 +198,15 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     this->GradientMagnitudes = NULL;
     }
 
-  float *bds = this->GetInput()->GetBounds();
+  double *bds = this->GetInput()->GetBounds();
   this->DataOrigin[0] = bds[0];
   this->DataOrigin[1] = bds[2];
   this->DataOrigin[2] = bds[4];
-  this->GetInput()->GetSpacing( this->DataSpacing );
+  // TODO: cleanup
+  bds = this->GetInput()->GetSpacing();
+  this->DataSpacing[0] = (float)bds[0];
+  this->DataSpacing[1] = (float)bds[1];
+  this->DataSpacing[2] = (float)bds[2];
   
   this->ConvertCroppingRegionPlanesToVoxels();
 }

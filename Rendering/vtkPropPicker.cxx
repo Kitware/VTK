@@ -21,7 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkPropPicker, "1.22");
+vtkCxxRevisionMacro(vtkPropPicker, "1.23");
 vtkStandardNewMacro(vtkPropPicker);
 
 vtkPropPicker::vtkPropPicker()
@@ -42,15 +42,15 @@ void vtkPropPicker::Initialize()
 }
 
 // Pick from the given collection
-int vtkPropPicker::Pick(float selectionX, float selectionY, 
-                        float vtkNotUsed(z), vtkRenderer *renderer)
+int vtkPropPicker::Pick(double selectionX, double selectionY, 
+                        double vtkNotUsed(z), vtkRenderer *renderer)
 {
   return this->PickProp(selectionX, selectionY, renderer);
 }
 
 
 // Pick from the given collection
-int vtkPropPicker::PickProp(float selectionX, float selectionY,
+int vtkPropPicker::PickProp(double selectionX, double selectionY,
                             vtkRenderer *renderer, vtkPropCollection* pickfrom)
 {
   this->PickFromProps = pickfrom;
@@ -63,7 +63,7 @@ int vtkPropPicker::PickProp(float selectionX, float selectionY,
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkPropPicker::PickProp(float selectionX, float selectionY, 
+int vtkPropPicker::PickProp(double selectionX, double selectionY, 
                             vtkRenderer *renderer)
 {
   //  Initialize picking process

@@ -87,8 +87,8 @@ typedef struct
   void                        *ScalarDataPointer;
   int                          DataIncrement[3];
   int                          DataSize[3];
-  float                        DataSpacing[3];
-  float                        DataOrigin[3];
+  double                       DataSpacing[3];
+  double                       DataOrigin[3];
 
   // Information from the vtkVolumeProperty
   int                          Shading;

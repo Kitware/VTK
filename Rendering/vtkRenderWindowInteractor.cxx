@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.103");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.104");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -209,10 +209,10 @@ void vtkRenderWindowInteractor::EndPickCallback()
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 }
 
-void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float z)
+void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, double x, double y, double z)
 {
-  float flyFrom[3], flyTo[3];
-  float d[3], focalPt[3];
+  double flyFrom[3], flyTo[3];
+  double d[3], focalPt[3];
   int i, j;
 
   flyTo[0]=x; flyTo[1]=y; flyTo[2]=z;
@@ -221,8 +221,8 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float 
     {
     d[i] = flyTo[i] - flyFrom[i];
     }
-  float distance = vtkMath::Normalize(d);
-  float delta = distance/this->NumberOfFlyFrames;
+  double distance = vtkMath::Normalize(d);
+  double delta = distance/this->NumberOfFlyFrames;
   
   for (i=1; i<=NumberOfFlyFrames; i++)
     {
@@ -238,10 +238,10 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, float x, float y, float 
     }
 }
 
-void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, float x, float y)
+void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, double x, double y)
 {
-  float flyFrom[3], flyTo[3];
-  float d[3], focalPt[3], position[3], positionFrom[3];
+  double flyFrom[3], flyTo[3];
+  double d[3], focalPt[3], position[3], positionFrom[3];
   int i, j;
 
   flyTo[0]=x; flyTo[1]=y;
@@ -252,8 +252,8 @@ void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, float x, float y)
     d[i] = flyTo[i] - flyFrom[i];
     }
   d[2] = 0.0;
-  float distance = vtkMath::Normalize(d);
-  float delta = distance/this->NumberOfFlyFrames;
+  double distance = vtkMath::Normalize(d);
+  double delta = distance/this->NumberOfFlyFrames;
   
   for (i=1; i<=NumberOfFlyFrames; i++)
     {

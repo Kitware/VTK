@@ -34,7 +34,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.11");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.12");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -393,7 +393,7 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   this->ViewToWorldMatrix->DeepCopy(perspectiveTransform->GetMatrix());
   this->ViewToWorldMatrix->Invert();
   
-  float *origPtr;
+  double *origPtr;
   double *transformedPtr = this->Points;
   double in[4], out[4];
   in[3] = 1.0;

@@ -175,11 +175,11 @@ public:
   // Given a position x, move the current camera's focal point to x.
   // The movement is animated over the number of frames specified in
   // NumberOfFlyFrames. The LOD desired frame rate is used.
-  void FlyTo(vtkRenderer *ren, float x, float y, float z);
-  void FlyTo(vtkRenderer *ren, float *x)
+  void FlyTo(vtkRenderer *ren, double x, double y, double z);
+  void FlyTo(vtkRenderer *ren, double *x)
     {this->FlyTo(ren, x[0], x[1], x[2]);}
-  void FlyToImage(vtkRenderer *ren, float x, float y);
-  void FlyToImage(vtkRenderer *ren, float *x)
+  void FlyToImage(vtkRenderer *ren, double x, double y);
+  void FlyToImage(vtkRenderer *ren, double *x)
     {this->FlyToImage(ren, x[0], x[1]);}
 
   // Description:

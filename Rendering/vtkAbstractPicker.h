@@ -73,25 +73,25 @@ public:
   // Description:
   // Get the selection point in screen (pixel) coordinates. The third
   // value is related to z-buffer depth. (Normally should be =0.)
-  vtkGetVectorMacro(SelectionPoint,float,3);
+  vtkGetVectorMacro(SelectionPoint,double,3);
 
   // Description:
   // Return position in global coordinates of pick point.
-  vtkGetVectorMacro(PickPosition,float,3);
+  vtkGetVectorMacro(PickPosition,double,3);
 
   // Description:
   // Perform pick operation with selection point provided. Normally the 
   // first two values for the selection point are x-y pixel coordinate, and
   // the third value is =0. Return non-zero if something was successfully 
   // picked.
-  virtual int Pick(float selectionX, float selectionY, float selectionZ, 
+  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
                    vtkRenderer *renderer) = 0;
 
   // Description: Perform pick operation with selection point
   // provided. Normally the first two values for the selection point
   // are x-y pixel coordinate, and the third value is =0. Return
   // non-zero if something was successfully picked.
-  int Pick(float selectionPt[3], vtkRenderer *ren)
+  int Pick(double selectionPt[3], vtkRenderer *ren)
     {return this->Pick(selectionPt[0],selectionPt[1],selectionPt[2],ren);};  
 
   // Description:
@@ -125,8 +125,8 @@ protected:
   virtual void Initialize();
 
   vtkRenderer *Renderer; //pick occurred in this renderer's viewport
-  float SelectionPoint[3]; //selection point in window (pixel) coordinates
-  float PickPosition[3]; //selection point in world coordinates
+  double SelectionPoint[3]; //selection point in window (pixel) coordinates
+  double PickPosition[3]; //selection point in world coordinates
   
   // use the following to control picking from a list
   int PickFromList;

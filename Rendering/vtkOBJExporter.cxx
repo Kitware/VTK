@@ -30,7 +30,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkOBJExporter, "1.50");
+vtkCxxRevisionMacro(vtkOBJExporter, "1.51");
 vtkStandardNewMacro(vtkOBJExporter);
 
 vtkOBJExporter::vtkOBJExporter()
@@ -129,7 +129,8 @@ void vtkOBJExporter::WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMtl,
   vtkDataArray *tcoords = NULL;
   int i, i1, i2, idNext;
   vtkProperty *prop;
-  float *tempf, *p;
+  float *tempf;
+  double *p;
   vtkCellArray *cells;
   vtkTransform *trans = vtkTransform::New();
   vtkIdType npts = 0;

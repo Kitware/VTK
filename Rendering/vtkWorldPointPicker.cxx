@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkWorldPointPicker, "1.19");
+vtkCxxRevisionMacro(vtkWorldPointPicker, "1.20");
 vtkStandardNewMacro(vtkWorldPointPicker);
 
 vtkWorldPointPicker::vtkWorldPointPicker()
@@ -28,14 +28,14 @@ vtkWorldPointPicker::vtkWorldPointPicker()
 
 // Perform pick operation with selection point provided. The z location
 // is recovered from the zBuffer. Always returns 0 since no actors are picked.
-int vtkWorldPointPicker::Pick(float selectionX, float selectionY, 
-                              float selectionZ, vtkRenderer *renderer)
+int vtkWorldPointPicker::Pick(double selectionX, double selectionY, 
+                              double selectionZ, vtkRenderer *renderer)
 {
   vtkCamera *camera;
-  float cameraFP[4];
+  double cameraFP[4];
   float display[3], *world;
   float *displayCoord;
-  float z;
+  double z;
 
   // Initialize the picking process
   this->Initialize();
@@ -64,9 +64,9 @@ int vtkWorldPointPicker::Pick(float selectionX, float selectionY,
     // Get camera focal point and position. Convert to display (screen) 
     // coordinates. We need a depth value for z-buffer.
     camera = renderer->GetActiveCamera();
-    camera->GetFocalPoint((float *)cameraFP); cameraFP[3] = 1.0;
-    
-    renderer->SetWorldPoint(cameraFP);
+    camera->GetFocalPoint(cameraFP); cameraFP[3] = 1.0;
+
+    renderer->SetWorldPoint(cameraFP[0],cameraFP[1],cameraFP[2],cameraFP[3]);
     renderer->WorldToDisplay();
     displayCoord = renderer->GetDisplayPoint();
     selectionZ = displayCoord[2];

@@ -55,13 +55,13 @@ public:
   // Specify tolerance for performing pick operation. Tolerance is specified
   // as fraction of rendering window size. (Rendering window size is measured
   // across diagonal.)
-  vtkSetMacro(Tolerance,float);
-  vtkGetMacro(Tolerance,float);
+  vtkSetMacro(Tolerance,double);
+  vtkGetMacro(Tolerance,double);
 
   // Description:
   // Return position in mapper (i.e., non-transformed) coordinates of 
   // pick point.
-  vtkGetVectorMacro(MapperPosition,float,3);
+  vtkGetVectorMacro(MapperPosition,double,3);
 
   // Description:
   // Return mapper that was picked (if any).
@@ -94,14 +94,14 @@ public:
   // first two values for the selection point are x-y pixel coordinate, and
   // the third value is =0. Return non-zero if something was successfully 
   // picked.
-  virtual int Pick(float selectionX, float selectionY, float selectionZ, 
+  virtual int Pick(double selectionX, double selectionY, double selectionZ, 
                    vtkRenderer *renderer);  
 
   // Description: 
   // Perform pick operation with selection point provided. Normally the first
   // two values for the selection point are x-y pixel coordinate, and the
   // third value is =0. Return non-zero if something was successfully picked.
-  int Pick(float selectionPt[3], vtkRenderer *ren)
+  int Pick(double selectionPt[3], vtkRenderer *ren)
     {return this->Pick(selectionPt[0], selectionPt[1], selectionPt[2], ren);};
       
 protected:
@@ -109,19 +109,19 @@ protected:
   ~vtkPicker();
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m, 
-                  float tMin, float mapperPos[3]);
-  virtual float IntersectWithLine(float p1[3], float p2[3], float tol, 
+                  double tMin, double mapperPos[3]);
+  virtual double IntersectWithLine(double p1[3], double p2[3], double tol, 
                                   vtkAssemblyPath *path, vtkProp3D *p, 
                                   vtkAbstractMapper3D *m);
   virtual void Initialize();
 
-  float Tolerance;  //tolerance for computation (% of window)
-  float MapperPosition[3]; //selection point in untransformed coordinates
+  double Tolerance;  //tolerance for computation (% of window)
+  double MapperPosition[3]; //selection point in untransformed coordinates
 
   vtkAbstractMapper3D *Mapper; //selected mapper (if the prop has a mapper)
   vtkDataSet *DataSet; //selected dataset (if there is one)
 
-  float GlobalTMin; //parametric coordinate along pick ray where hit occured
+  double GlobalTMin; //parametric coordinate along pick ray where hit occured
   vtkTransform *Transform; //use to perform ray transformation
   vtkActorCollection *Actors; //candidate actors (based on bounding box)
   vtkProp3DCollection *Prop3Ds; //candidate actors (based on bounding box)

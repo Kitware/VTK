@@ -40,9 +40,9 @@ public:
 
   // Description:
   // Perform the pick. (This method overload's the superclass.)
-  int Pick(float selectionX, float selectionY, float selectionZ, 
+  int Pick(double selectionX, double selectionY, double selectionZ, 
            vtkRenderer *renderer);  
-  int Pick(float selectionPt[3], vtkRenderer *renderer)
+  int Pick(double selectionPt[3], vtkRenderer *renderer)
     { return this->vtkAbstractPicker::Pick( selectionPt, renderer); };  
 
 protected:

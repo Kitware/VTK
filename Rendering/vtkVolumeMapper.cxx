@@ -18,7 +18,7 @@
 #include "vtkImageData.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.51");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.52");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -47,10 +47,10 @@ vtkVolumeMapper::~vtkVolumeMapper()
 
 void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
 {
-  float *spacing    = this->GetInput()->GetSpacing();
+  double *spacing    = this->GetInput()->GetSpacing();
   int   *dimensions = this->GetInput()->GetDimensions();
-  float origin[3];
-  float *bds = this->GetInput()->GetBounds();
+  double origin[3];
+  double *bds = this->GetInput()->GetBounds();
   origin[0] = bds[0];
   origin[1] = bds[2];
   origin[2] = bds[4];

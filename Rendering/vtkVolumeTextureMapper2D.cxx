@@ -466,7 +466,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.53");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.54");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1013,7 +1013,13 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
   // could be computed accurately for parallel (but isn't right now). For 
   // perspective, this spacing changes across the image so no one number will 
   // be accurate. 1/2 the maximum is (1 + sqrt(2)) / 2 = 1.2071
-  this->GetInput()->GetSpacing( this->DataSpacing );
+
+  // TODO: DataSpacing should be converted to double at some point
+  double *dspacing;
+  dspacing = this->GetInput()->GetSpacing();
+  this->DataSpacing[0] = (float)dspacing[0];
+  this->DataSpacing[1] = (float)dspacing[1];
+  this->DataSpacing[2] = (float)dspacing[2];
   this->SampleDistance = 
     this->DataSpacing[this->MajorDirection/2]*this->InternalSkipFactor*1.2071;
   this->vtkVolumeTextureMapper::InitializeRender( ren, vol );
