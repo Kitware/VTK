@@ -3,7 +3,7 @@ PROJECT(VTK)
 
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.5)
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
 
 #-----------------------------------------------------------------------------
 # VTK version number.  An even minor number corresponds to releases.
