@@ -1137,12 +1137,11 @@ void vtkVolumeTextureMapper2D::ComputeAxisTextureSize( int axis, int *textureSiz
 // Print the vtkVolumeTextureMapper2D
 void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  os << indent << "TargetTextureSize: "
+  os << indent << "Target Texture Size: "
      << this->TargetTextureSize[0] << ", "
      << this->TargetTextureSize[1] << endl;
   
-  os << indent << "MaximumNumberOfPlanes: ";
-  
+  os << indent << "Maximum Number Of Planes: ";
   if ( this->MaximumNumberOfPlanes > 0 )
     {
     os << this->MaximumNumberOfPlanes << endl;
@@ -1152,5 +1151,10 @@ void vtkVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
     os << "<unlimited>" << endl;
     }
   
+  os << indent << "Maximum Storage Size: " 
+     << this->MaximumStorageSize << endl;
+  
   this->vtkVolumeTextureMapper::PrintSelf(os,indent);
 }
+
+

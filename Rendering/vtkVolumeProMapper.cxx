@@ -236,6 +236,9 @@ void vtkVolumeProMapper::PrintSelf(ostream& os, vtkIndent indent)
     this->SuperSamplingFactor[1] << " by " << 
     this->SuperSamplingFactor[2] << endl;
 
+  os << indent << "Intermix Intersecting Geometry: "
+     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
+    
   os << indent << "Cursor: " <<  (this->Cursor ? "On\n" : "Off\n");
 
   os << indent << "Cursor Position: (" << 

@@ -1284,6 +1284,9 @@ void vtkInteractorStyle::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
+  os << indent << "Auto Adjust Camera Clipping Range " 
+     << (this->AutoAdjustCameraClippingRange  ? "On\n" : "Off\n");
+
   os << indent << "Pick Color: (" << this->PickColor[0] << ", "
      << this->PickColor[1] << ", "
      << this->PickColor[2] << ")\n";

@@ -1940,6 +1940,9 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumImageSampleDistance << "\n";
   os << indent << "Auto Adjust Sample Distances: " 
      << this->AutoAdjustSampleDistances << "\n";
+  os << indent << "Intermix Intersecting Geometry: "
+    << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
+  
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 
   if ( this->VolumeRayCastFunction )

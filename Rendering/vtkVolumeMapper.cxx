@@ -212,8 +212,11 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "  In Z: " << this->CroppingRegionPlanes[4] 
      << " to " << this->CroppingRegionPlanes[5] << endl;
  
-  os << indent << "Cropping Region Flags: " << this->CroppingRegionFlags << endl;
+  os << indent << "Cropping Region Flags: " 
+     << this->CroppingRegionFlags << endl;
 
+  // Don't print this->VoxelCroppingRegionPlanes
+  
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
 }
 
