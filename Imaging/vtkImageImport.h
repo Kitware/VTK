@@ -28,14 +28,14 @@
 #ifndef __vtkImageImport_h
 #define __vtkImageImport_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 //#include "vtkTransform.h"
 
-class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageSource
+class VTK_IMAGING_EXPORT vtkImageImport : public vtkImageAlgorithm
 {
 public:
   static vtkImageImport *New();
-  vtkTypeRevisionMacro(vtkImageImport,vtkImageSource);
+  vtkTypeRevisionMacro(vtkImageImport,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -113,7 +113,9 @@ public:
   
   // Description:
   // Propagates the update extent through the callback if it is set.
-  virtual void PropagateUpdateExtent(vtkDataObject *output);
+  virtual void RequestUpdateExtent(  vtkInformation* request,
+                                     vtkInformationVector** inputVector,
+                                     vtkInformationVector* outputVector);
 
   //BTX
   // Description:
@@ -223,18 +225,21 @@ public:
   
   //ETX
 
-protected:
-  vtkImageImport();
-  ~vtkImageImport();
-
-  virtual void UpdateInformation();
-  virtual void ExecuteInformation();
-
+  // Description:
+  // Invoke the appropriate callbacks
   int InvokePipelineModifiedCallbacks();
   void InvokeUpdateInformationCallbacks();
   void InvokeExecuteInformationCallbacks();
   void InvokeExecuteDataCallbacks();
   void LegacyCheckWholeExtent();
+
+protected:
+  vtkImageImport();
+  ~vtkImageImport();
+
+  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector **, 
+                                   vtkInformationVector *);
+
   
   void *ImportVoidPointer;
   int SaveUserArray;

@@ -16,13 +16,17 @@
 
 #include "vtkByteSwap.h"
 #include "vtkImageData.h"
+#include "vtkImageImportExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <ctype.h>
 #include <vtkstd/exception>
 
-vtkCxxRevisionMacro(vtkImageImport, "1.44");
+vtkCxxRevisionMacro(vtkImageImport, "1.45");
 vtkStandardNewMacro(vtkImageImport);
 
 
@@ -73,6 +77,12 @@ vtkImageImport::vtkImageImport()
   this->UpdateDataCallback = 0;
   this->DataExtentCallback = 0;
   this->BufferPointerCallback = 0;
+
+  this->SetNumberOfInputPorts(0);
+
+  vtkExecutive *exec = vtkImageImportExecutive::New();
+  this->SetExecutive(exec);
+  exec->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -165,50 +175,52 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::PropagateUpdateExtent(vtkDataObject *output)
+void vtkImageImport::RequestUpdateExtent(
+  vtkInformation* vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
-  vtkImageSource::PropagateUpdateExtent(output);
   if (this->PropagateUpdateExtentCallback)
     {
+    int uExt[6];
+
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt);
     tryCatchMacro(
-      (this->PropagateUpdateExtentCallback)(this->CallbackUserData,
-                                            output->GetUpdateExtent()),
+      (this->PropagateUpdateExtentCallback)(this->CallbackUserData,uExt),
       "PropagateUpdateExtentCallback: ");
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageImport::UpdateInformation()
+void vtkImageImport::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  // If set, use the callbacks to propagate pipeline update information.
-  this->InvokeUpdateInformationCallbacks();
-  
-  vtkImageSource::UpdateInformation();
-}
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-//----------------------------------------------------------------------------
-void vtkImageImport::ExecuteInformation()
-{
   // If set, use the callbacks to fill in our data members.
   this->InvokeExecuteInformationCallbacks();
   
   // Legacy support for code that sets only DataExtent.
   this->LegacyCheckWholeExtent();
   
-  vtkImageData *output = this->GetOutput();
-  
   // set the whole extent
-  output->SetWholeExtent(this->WholeExtent);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
   
   // set the spacing
-  output->SetSpacing(this->DataSpacing);
+  outInfo->Set(vtkDataObject::SPACING(),this->DataSpacing,3);
 
   // set the origin.
-  output->SetOrigin(this->DataOrigin);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->DataOrigin,3);
 
   // set data type
-  output->SetScalarType(this->DataScalarType);
-  output->SetNumberOfScalarComponents(this->NumberOfScalarComponents);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),this->DataScalarType);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),
+               this->NumberOfScalarComponents);
 }
 
 //----------------------------------------------------------------------------

@@ -61,6 +61,7 @@ vtkImageHybridMedian2D.cxx
 vtkImageIdealHighPass.cxx
 vtkImageIdealLowPass.cxx
 vtkImageImport.cxx
+vtkImageImportExecutive.cxx
 vtkImageIslandRemoval2D.cxx
 vtkImageIterateFilter.cxx
 vtkImageLaplacian.cxx
