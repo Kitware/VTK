@@ -44,9 +44,8 @@ void vlLineSource::Execute()
   vlFloatPoints *newPoints; 
   vlFloatTCoords *newTCoords; 
   vlCellArray *newLines;
-//
-// Set things up; allocate memory
-//
+
+  vlDebugMacro(<<"Creating line");
   this->Initialize();
 
   newPoints = new vlFloatPoints(numPts);
