@@ -40,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.34");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.35");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -391,6 +391,18 @@ int vtkDebugLeaks::DisplayMessageBox(const char*)
 #endif
 
 //----------------------------------------------------------------------------
+int vtkDebugLeaks::GetExitAbort()
+{
+  return vtkDebugLeaks::ExitAbort;
+}
+
+//----------------------------------------------------------------------------
+void vtkDebugLeaks::SetExitAbort(int flag)
+{
+  vtkDebugLeaks::ExitAbort = flag;
+}
+
+//----------------------------------------------------------------------------
 void vtkDebugLeaks::ClassInitialize()
 {
 #ifdef VTK_DEBUG_LEAKS
@@ -399,9 +411,15 @@ void vtkDebugLeaks::ClassInitialize()
   
   // Create the lock for the critical sections.
   vtkDebugLeaks::CriticalSection = new vtkSimpleCriticalSection;
+
+  // Default to aborting when leaks occur when running tests.  Do not
+  // look for DART_TEST_FROM_DART because the Dart testing client
+  // cannot handle the Windows debug popup caused by the abort.
+  vtkDebugLeaks::ExitAbort = getenv("DASHBOARD_TEST_FROM_CTEST")? 1:0;
 #else
   vtkDebugLeaks::MemoryTable = 0;
   vtkDebugLeaks::CriticalSection = 0;
+  vtkDebugLeaks::ExitAbort = 0;
 #endif
 }
 
@@ -409,19 +427,22 @@ void vtkDebugLeaks::ClassInitialize()
 void vtkDebugLeaks::ClassFinalize()
 {
 #ifdef VTK_DEBUG_LEAKS
-  if(vtkDebugLeaks::PrintCurrentLeaks() && getenv("VTK_DEBUG_LEAKS_ABORT"))
-    {
-    // Make tests fail when leaks occur.
-    abort();
-    }
-  
+  // Report leaks.
+  int leaked = vtkDebugLeaks::PrintCurrentLeaks();
+
   // Destroy the hash table.
   delete vtkDebugLeaks::MemoryTable;
   vtkDebugLeaks::MemoryTable = 0;
-  
+
   // Destroy the lock for the critical sections.
   delete vtkDebugLeaks::CriticalSection;
   vtkDebugLeaks::CriticalSection = 0;
+
+  // Abort if leaks occured and abort mode is on.
+  if(leaked && vtkDebugLeaks::ExitAbort)
+    {
+    abort();
+    }
 #endif
 }
 
@@ -432,3 +453,6 @@ vtkDebugLeaksHashTable* vtkDebugLeaks::MemoryTable;
 
 // Purposely not initialized.  ClassInitialize will handle it.
 vtkSimpleCriticalSection* vtkDebugLeaks::CriticalSection;
+
+// Purposely not initialized.  ClassInitialize will handle it.
+int vtkDebugLeaks::ExitAbort;

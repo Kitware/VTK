@@ -59,6 +59,12 @@ public:
   static void PromptUserOn() {}
   static void PromptUserOff() {}
 
+  // Description:
+  // Get/Set flag for aborting when leaks are present at exit.
+  // Default is on when testing and off otherwise.
+  static int GetExitAbort();
+  static void SetExitAbort(int);
+
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
@@ -75,6 +81,7 @@ protected:
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
   static vtkSimpleCriticalSection* CriticalSection;
+  static int ExitAbort;
 
   vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
   void operator=(const vtkDebugLeaks&);  // Not implemented.
