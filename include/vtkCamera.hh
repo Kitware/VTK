@@ -106,7 +106,8 @@ class vtkCamera : public vtkObject
   // Description:
   // Set/Get the camera view angle (i.e., the width of view in degrees). 
   // Larger values yield greater perspective distortion.
-  vtkSetClampMacro(ViewAngle,float,1.0,179.0);
+//  vtkSetClampMacro(ViewAngle,float,1.0,179.0);
+  void SetViewAngle( float angle );
   vtkGetMacro(ViewAngle,float);
 
   // Description:
@@ -121,12 +122,14 @@ class vtkCamera : public vtkObject
 
   // Description:
   // Set/Get the center of the window.
-  vtkSetVector2Macro(WindowCenter,float);
+//  vtkSetVector2Macro(WindowCenter,float);
+  void SetWindowCenter( float x, float y );
   vtkGetVectorMacro(WindowCenter,float,2);
 
   // Description:
   // Set/Get the scaling used for a parallel projection.
-  vtkSetMacro(ParallelScale,float);
+//  vtkSetMacro(ParallelScale,float);
+  void SetParallelScale( float scale );
   vtkGetMacro(ParallelScale,float);
 
   // Description:
@@ -149,7 +152,17 @@ class vtkCamera : public vtkObject
   // Description: 
   // Set/Get the value of the ParallelProjection instance variable. This
   // determines if the camera should do a perspective or parallel projection.
-  vtkSetMacro(ParallelProjection,int);
+//  vtkSetMacro(ParallelProjection,int);
+  void SetParallelProjection( int flag )
+  {
+    if ( ParallelProjection != flag )
+      {
+      ParallelProjection = flag;
+      this->Modified();
+      this->ViewingRaysModified();
+      }
+  }
+
   vtkGetMacro(ParallelProjection,int);
   vtkBooleanMacro(ParallelProjection,int);
 
@@ -180,6 +193,9 @@ class vtkCamera : public vtkObject
 
   float *GetOrientation();
 
+  unsigned long int GetViewingRaysMTime();
+  void              ViewingRaysModified();
+
  protected:
   float WindowCenter[2];
   float FocalPoint[3];
@@ -199,8 +215,53 @@ class vtkCamera : public vtkObject
   vtkTransform PerspectiveTransform;
   float Orientation[3];
   float FocalDisk;
+
+  // ViewingRaysMtime keeps track of camera modifications which will 
+  // change the calculation of viewing rays for the camera before it is 
+  // transformed to the camera's location and orientation. 
+  vtkTimeStamp ViewingRaysMTime;
+
+  // VPN_dot_DOP stores the dot product between the view plane normal and
+  // the direction of projection. If this dot product changes then the view
+  // rays must be updated.
+  float        VPN_dot_DOP;
+
   vtkCameraDevice *Device;
 };
+
+inline void vtkCamera::SetWindowCenter( float x, float y )
+{
+  if ((WindowCenter[0] != x)||(WindowCenter[1] != y))
+    {
+    this->Modified();
+    this->ViewingRaysModified();
+    WindowCenter[0] = x;
+    WindowCenter[1] = y;
+    }
+}
+
+inline void vtkCamera::SetViewAngle( float angle )
+{
+  float min =   1.0;
+  float max = 179.0;
+
+  if ( ViewAngle != angle )
+    {
+    ViewAngle = (angle<min?min:(angle>max?max:angle));
+    this->Modified();
+    this->ViewingRaysModified();
+    }
+}
+
+inline void vtkCamera::SetParallelScale( float scale )
+{
+  if ( ParallelScale != scale )
+    {
+    ParallelScale = scale;
+    this->Modified();
+    this->ViewingRaysModified();
+    }
+}
 
 #endif
 
