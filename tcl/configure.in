@@ -227,6 +227,16 @@ case $system in
 	LD_FLAGS=""
 	LD_SEARCH_FLAGS=""
 	;;
+    IRIX-64-6*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="ld -shared -rdata_shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
     Linux*)
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""

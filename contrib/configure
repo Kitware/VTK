@@ -1871,6 +1871,16 @@ case $system in
 	LD_FLAGS=""
 	LD_SEARCH_FLAGS=""
 	;;
+    IRIX-64-6*)
+	SHLIB_CFLAGS=""
+	SHLIB_LD="ld -shared -rdata_shared"
+	SHLIB_LD_LIBS=""
+	SHLIB_SUFFIX=".so"
+	SHLIB_VERSION=""
+	DL_LIBS=""
+	LD_FLAGS=""
+	LD_SEARCH_FLAGS=""
+	;;
     Linux*)
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD_LIBS=""
@@ -1888,12 +1898,12 @@ if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 1892 "configure"
+#line 1902 "configure"
 #include "confdefs.h"
 #include <dld.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:1897: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:1907: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out`
 if test -z "$ac_err"; then
   rm -rf conftest*
