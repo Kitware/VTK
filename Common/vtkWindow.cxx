@@ -17,9 +17,7 @@
 =========================================================================*/
 #include "vtkWindow.h"
 
-#include "vtkString.h"
-
-vtkCxxRevisionMacro(vtkWindow, "1.23");
+vtkCxxRevisionMacro(vtkWindow, "1.24");
 
 // Construct an instance of  vtkRenderWindow with its screen size 
 // set to 300x300, borders turned on, positioned at (0,0), double 
@@ -68,7 +66,8 @@ void vtkWindow::SetWindowName( const char * _arg )
     {
     delete [] this->WindowName;
     }
-  this->WindowName = vtkString::Duplicate(_arg);
+  this->WindowName = new char[strlen(_arg) + 1];
+  strcpy(this->WindowName, _arg);
   this->Modified();
 }
 

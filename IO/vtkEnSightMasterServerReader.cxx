@@ -18,10 +18,18 @@
 #include "vtkEnSightMasterServerReader.h"
 
 #include "vtkObjectFactory.h"
-#include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.4");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.5");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
+
+static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
+{
+  if ( !str1 || !str2 || strlen(str1) < strlen(str2) )
+    {
+    return 0;
+    }
+  return !strncmp(str1, str2, strlen(str2));  
+}
 
 //----------------------------------------------------------------------------
 vtkEnSightMasterServerReader::vtkEnSightMasterServerReader()
@@ -114,15 +122,16 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
 
   while ( this->ReadNextDataLine(result) )
     {
-    if ( vtkString::Equals(result, "FORMAT") )
+    if ( strcmp(result, "FORMAT") == 0 )
       {
       // Format
       }
-    else if ( vtkString::Equals(result, "SERVERS") )
+    else if ( strcmp(result, "SERVERS") == 0 )
       {
       servers = 1;
       }
-    else if ( servers && vtkString::StartsWith(result, "number of servers:") )
+    else if ( servers && 
+              vtkEnSightMasterServerReaderStartsWith(result, "number of servers:") )
       {
       sscanf(result, "number of servers: %i", &numberservers);
       if ( !numberservers )
@@ -131,7 +140,8 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
         break;
         }
       }
-    else if ( servers && vtkString::StartsWith(result, "casefile:") )
+    else if ( servers && 
+              vtkEnSightMasterServerReaderStartsWith(result, "casefile:") )
       {
       if ( currentserver == piece )
         {

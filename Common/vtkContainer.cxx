@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContainer.h"
 
 #include "vtkDebugLeaks.h"
-#include "vtkString.h"
 
 vtkContainer::vtkContainer() 
 { 
@@ -54,13 +53,21 @@ vtkContainer::~vtkContainer()
 }
 
 int vtkContainerCompareMethod(const char* d1, const char* d2)
-{ return vtkString::Compare(d1, d2); }
+{ return strcmp(d1, d2); }
 
 int vtkContainerCompareMethod(char* d1, char* d2)
-{ return vtkString::Compare(d1, d2); }
+{ return strcmp(d1, d2); }
 
 const char* vtkContainerCreateMethod(const char* d1)
-{ return vtkString::Duplicate(d1); }
+{ 
+  char* str = new char[ strlen(d1) + 1];
+  strcpy(str, d1);
+  return d1;
+}
 
 char* vtkContainerCreateMethod(char* d1)
-{ return vtkString::Duplicate(d1); }
+{ 
+  char* str = new char[ strlen(d1) + 1];
+  strcpy(str, d1);
+  return d1;
+}

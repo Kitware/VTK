@@ -23,7 +23,6 @@
 #include "vtkObject.h"
 #include "vtkTimeStamp.h"
 #include "vtkObjectFactory.h"
-#include "vtkString.h"
 #include "vtkHashMap.txx"
 #include "vtkHashMapIterator.txx"
 
@@ -785,7 +784,7 @@ static PyObject *vtkBuildDocString(char *docstring[])
 
   for (i = 0; i < n; i++)
     {
-    m[i] = vtkString::Length(docstring[i]);
+    m[i] = static_cast<int>(strlen(docstring[i]));
     total += m[i];
     }
 
