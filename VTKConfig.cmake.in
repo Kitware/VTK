@@ -371,6 +371,7 @@ ENDIF(VTK_WRAP_JAVA)
 #-----------------------------------------------------------------------------
 # Create the VTK_LOAD_CMAKE_EXTENSIONS macro.
 # The argument is the directory in which to build the extensions.
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 MACRO(VTK_LOAD_CMAKE_EXTENSIONS BUILD_DIR)
   IF (COMMAND VTK_MAKE_INSTANTIATOR2)
   ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
@@ -393,6 +394,7 @@ MACRO(VTK_LOAD_CMAKE_EXTENSIONS BUILD_DIR)
   ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
   SET(VTK_USE_INSTANTIATOR_NEW "1")
 ENDMACRO(VTK_LOAD_CMAKE_EXTENSIONS)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 
 #-----------------------------------------------------------------------------
 # List of all settings created by this file.
