@@ -152,7 +152,10 @@ namespace eval ::vtk {
         # Wheel motion
         # Only x11 does not understand a mousewheel event
         # [tk windowingsystem] can be x11, win32, classic, aqua
-        if {[tk windowingsystem] == "x11"} {
+        # Unfortunately this call only appear recently
+        # so for now remove it
+        # if {[tk windowingsystem] == "x11"} {
+        if {$tcl_platform(platform) == "unix"} {
             bind $vtkw <Button-4> \
                     "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin 1"
             bind $vtkw <Button-5> \
