@@ -315,7 +315,7 @@
 
         total_read_count += read_count;
 
-      } while ( total_read_count != stream->size );
+      } while ( total_read_count != (ssize_t)stream->size );
 
       stream->close = ft_close_stream_by_free;
     }
