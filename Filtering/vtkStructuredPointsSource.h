@@ -69,13 +69,14 @@ public:
 protected:
   vtkStructuredPointsSource();
   ~vtkStructuredPointsSource() {};
-  vtkStructuredPointsSource(const vtkStructuredPointsSource&);
-  void operator=(const vtkStructuredPointsSource&);
 
   // Default method performs Update to get information.  Not all the old
   // structured points sources compute information
   void ExecuteInformation();
 
+private:
+  vtkStructuredPointsSource(const vtkStructuredPointsSource&);  // Not implemented.
+  void operator=(const vtkStructuredPointsSource&);  // Not implemented.
 };
 
 #endif

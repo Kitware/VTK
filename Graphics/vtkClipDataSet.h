@@ -161,8 +161,6 @@ public:
 protected:
   vtkClipDataSet(vtkImplicitFunction *cf=NULL);
   ~vtkClipDataSet();
-  vtkClipDataSet(const vtkClipDataSet&);
-  void operator=(const vtkClipDataSet&);
 
   void Execute();
   vtkImplicitFunction *ClipFunction;
@@ -173,6 +171,9 @@ protected:
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
+private:
+  vtkClipDataSet(const vtkClipDataSet&);  // Not implemented.
+  void operator=(const vtkClipDataSet&);  // Not implemented.
 };
 
 #endif

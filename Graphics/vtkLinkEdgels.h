@@ -102,8 +102,6 @@ public:
 protected:
   vtkLinkEdgels();
   ~vtkLinkEdgels() {};
-  vtkLinkEdgels(const vtkLinkEdgels&);
-  void operator=(const vtkLinkEdgels&);
 
   void Execute();
   void LinkEdgels(int xdim, int ydim,float *image, vtkDataArray *inVectors,
@@ -113,6 +111,9 @@ protected:
   float GradientThreshold;
   float PhiThreshold;
   float LinkThreshold;
+private:
+  vtkLinkEdgels(const vtkLinkEdgels&);  // Not implemented.
+  void operator=(const vtkLinkEdgels&);  // Not implemented.
 };
 
 #endif

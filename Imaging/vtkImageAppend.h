@@ -83,8 +83,6 @@ public:
 protected:
   vtkImageAppend();
   ~vtkImageAppend();
-  vtkImageAppend(const vtkImageAppend&);
-  void operator=(const vtkImageAppend&);
 
   int PreserveExtents;
   int AppendAxis;
@@ -99,6 +97,9 @@ protected:
 		       int extent[6], int id);
 
   void InitOutput(int outExt[6], vtkImageData *outData);
+private:
+  vtkImageAppend(const vtkImageAppend&);  // Not implemented.
+  void operator=(const vtkImageAppend&);  // Not implemented.
 };
 
 #endif

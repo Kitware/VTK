@@ -167,8 +167,6 @@ public:
 protected:
   vtkPolygon();
   ~vtkPolygon();
-  vtkPolygon(const vtkPolygon&);
-  void operator=(const vtkPolygon&);
 
   // variables used by instances of this class
   float   Tolerance; // Intersection tolerance
@@ -188,6 +186,9 @@ protected:
   // Points and PointIds).
   int EarCutTriangulation();
 
+private:
+  vtkPolygon(const vtkPolygon&);  // Not implemented.
+  void operator=(const vtkPolygon&);  // Not implemented.
 };
 
 #endif

@@ -115,8 +115,6 @@ public:
 protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
-  vtkShepardMethod(const vtkShepardMethod&);
-  void operator=(const vtkShepardMethod&);
 
   void Execute();
 
@@ -124,6 +122,9 @@ protected:
   float MaximumDistance;
   float ModelBounds[6];
   float NullValue;
+private:
+  vtkShepardMethod(const vtkShepardMethod&);  // Not implemented.
+  void operator=(const vtkShepardMethod&);  // Not implemented.
 };
 
 #endif

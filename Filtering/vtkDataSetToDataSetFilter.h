@@ -122,11 +122,12 @@ public:
 protected:
   vtkDataSetToDataSetFilter();
   ~vtkDataSetToDataSetFilter();
-  vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&);
-  void operator=(const vtkDataSetToDataSetFilter&);
 
   void ExecuteInformation();
 
+private:
+  vtkDataSetToDataSetFilter(const vtkDataSetToDataSetFilter&);  // Not implemented.
+  void operator=(const vtkDataSetToDataSetFilter&);  // Not implemented.
 };
 
 #endif

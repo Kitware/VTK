@@ -73,14 +73,15 @@ public:
 protected:
   vtkImageMedian3D();
   ~vtkImageMedian3D() {};
-  vtkImageMedian3D(const vtkImageMedian3D&);
-  void operator=(const vtkImageMedian3D&);
 
   int NumberOfElements;
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
 
+private:
+  vtkImageMedian3D(const vtkImageMedian3D&);  // Not implemented.
+  void operator=(const vtkImageMedian3D&);  // Not implemented.
 };
 
 #endif

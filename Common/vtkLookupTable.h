@@ -215,8 +215,6 @@ public:
 protected:
   vtkLookupTable(int sze=256, int ext=256);
   ~vtkLookupTable();
-  vtkLookupTable(const vtkLookupTable&);
-  void operator=(const vtkLookupTable&);
 
   int NumberOfColors;
   vtkUnsignedCharArray *Table;
@@ -230,6 +228,9 @@ protected:
   vtkTimeStamp InsertTime;
   vtkTimeStamp BuildTime;
   float RGBA[4]; //used during conversion process
+private:
+  vtkLookupTable(const vtkLookupTable&);  // Not implemented.
+  void operator=(const vtkLookupTable&);  // Not implemented.
 };
 
 inline unsigned char *vtkLookupTable::WritePointer(const int id, 

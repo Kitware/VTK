@@ -90,8 +90,6 @@ public:
 protected:
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
-  vtkInteractorStyleImage(const vtkInteractorStyleImage&);
-  void operator=(const vtkInteractorStyleImage&);
 
   void WindowLevelXY(int dx, int dy);
   void PanXY(int x, int y, int oldX, int oldY);
@@ -103,6 +101,9 @@ protected:
   int State;
   float MotionFactor;
   float RadianToDegree; // constant: for conv from deg to rad
+private:
+  vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
+  void operator=(const vtkInteractorStyleImage&);  // Not implemented.
 };
 
 #endif

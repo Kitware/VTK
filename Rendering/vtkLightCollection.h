@@ -72,14 +72,15 @@ class VTK_RENDERING_EXPORT vtkLightCollection : public vtkCollection
 protected:
   vtkLightCollection() {};
   ~vtkLightCollection() {};
-  vtkLightCollection(const vtkLightCollection&);
-  void operator=(const vtkLightCollection&);
 
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkLightCollection(const vtkLightCollection&);  // Not implemented.
+  void operator=(const vtkLightCollection&);  // Not implemented.
 };
 
 

@@ -113,8 +113,6 @@ public:
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
-  vtkAppendPolyData(const vtkAppendPolyData&);
-  void operator=(const vtkAppendPolyData&);
 
   // Flag for selecting parallel streaming behavior
   int ParallelStreaming;
@@ -139,6 +137,9 @@ protected:
     { this->vtkProcessObject::RemoveInput(input);
     this->vtkProcessObject::SqueezeInputArray();};
   int UserManagedInputs;
+private:
+  vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.
+  void operator=(const vtkAppendPolyData&);  // Not implemented.
 };
 
 #endif

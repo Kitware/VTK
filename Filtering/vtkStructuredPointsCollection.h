@@ -71,8 +71,6 @@ public:
 protected:
   vtkStructuredPointsCollection() {};
   ~vtkStructuredPointsCollection() {};
-  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&);
-  void operator=(const vtkStructuredPointsCollection&);
   
   
 
@@ -80,6 +78,9 @@ private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkStructuredPointsCollection(const vtkStructuredPointsCollection&);  // Not implemented.
+  void operator=(const vtkStructuredPointsCollection&);  // Not implemented.
 };
 
 

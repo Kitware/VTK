@@ -75,8 +75,6 @@ public:
 protected:
   vtkImagePadFilter();
   ~vtkImagePadFilter() {};
-  vtkImagePadFilter(const vtkImagePadFilter&);
-  void operator=(const vtkImagePadFilter&);
 
   int OutputWholeExtent[6];
   int OutputNumberOfScalarComponents;
@@ -84,6 +82,9 @@ protected:
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
+private:
+  vtkImagePadFilter(const vtkImagePadFilter&);  // Not implemented.
+  void operator=(const vtkImagePadFilter&);  // Not implemented.
 };
 
 #endif

@@ -96,8 +96,6 @@ public:
 protected:
   vtkImageConvolve();
   ~vtkImageConvolve();
-  vtkImageConvolve(const vtkImageConvolve&);
-  void operator=(const vtkImageConvolve&);
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                        int outExt[6], int id);
@@ -110,6 +108,9 @@ protected:
 
   int KernelSize[3];
   float Kernel[343];
+private:
+  vtkImageConvolve(const vtkImageConvolve&);  // Not implemented.
+  void operator=(const vtkImageConvolve&);  // Not implemented.
 };
 
 #endif

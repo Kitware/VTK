@@ -375,8 +375,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 protected:
   vtkCamera();
   ~vtkCamera();
-  vtkCamera(const vtkCamera&);
-  void operator=(const vtkCamera&);
 
   // Description:
   // These methods should only be used within vtkCamera.cxx.
@@ -416,6 +414,9 @@ protected:
   // change the calculation of viewing rays for the camera before it is 
   // transformed to the camera's location and orientation. 
   vtkTimeStamp ViewingRaysMTime;
+private:
+  vtkCamera(const vtkCamera&);  // Not implemented.
+  void operator=(const vtkCamera&);  // Not implemented.
 };
 
 #endif

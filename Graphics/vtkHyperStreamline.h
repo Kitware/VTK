@@ -204,8 +204,6 @@ public:
 protected:
   vtkHyperStreamline();
   ~vtkHyperStreamline();
-  vtkHyperStreamline(const vtkHyperStreamline&);
-  void operator=(const vtkHyperStreamline&);
 
   // Integrate data
   void Execute();
@@ -252,6 +250,9 @@ protected:
 
   // which eigenvector to use as integration vector field
   int IntegrationEigenvector;
+private:
+  vtkHyperStreamline(const vtkHyperStreamline&);  // Not implemented.
+  void operator=(const vtkHyperStreamline&);  // Not implemented.
 };
 
 #endif

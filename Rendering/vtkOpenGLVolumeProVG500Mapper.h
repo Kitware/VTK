@@ -78,8 +78,6 @@ public:
 protected:
   vtkOpenGLVolumeProVG500Mapper() {};
   ~vtkOpenGLVolumeProVG500Mapper() {};
-  vtkOpenGLVolumeProVG500Mapper(const vtkOpenGLVolumeProVG500Mapper&);
-  void operator=(const vtkOpenGLVolumeProVG500Mapper&);
 
   // Render the hexagon returned by the hardware to the screen.
   void RenderHexagon( vtkRenderer  *ren, 
@@ -88,6 +86,9 @@ protected:
 		      int          size[2],
 		      VLIVector3D  hexagon[6], 
 		      VLIVector2D  textureCoords[6] );
+private:
+  vtkOpenGLVolumeProVG500Mapper(const vtkOpenGLVolumeProVG500Mapper&);  // Not implemented.
+  void operator=(const vtkOpenGLVolumeProVG500Mapper&);  // Not implemented.
 };
 
 

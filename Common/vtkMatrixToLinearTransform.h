@@ -91,14 +91,15 @@ class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
 protected:
   vtkMatrixToLinearTransform();
   ~vtkMatrixToLinearTransform();
-  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&);
-  void operator=(const vtkMatrixToLinearTransform&);
 
   void InternalUpdate();
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
   int InverseFlag;
   vtkMatrix4x4 *Input;
+private:
+  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&);  // Not implemented.
+  void operator=(const vtkMatrixToLinearTransform&);  // Not implemented.
 };
 
 #endif

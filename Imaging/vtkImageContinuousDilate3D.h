@@ -74,13 +74,14 @@ public:
 protected:
   vtkImageContinuousDilate3D();
   ~vtkImageContinuousDilate3D();
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);
-  void operator=(const vtkImageContinuousDilate3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
+private:
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.
+  void operator=(const vtkImageContinuousDilate3D&);  // Not implemented.
 };
 
 #endif

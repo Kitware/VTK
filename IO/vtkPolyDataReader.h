@@ -75,8 +75,6 @@ public:
 protected:
   vtkPolyDataReader();
   ~vtkPolyDataReader();
-  vtkPolyDataReader(const vtkPolyDataReader&);
-  void operator=(const vtkPolyDataReader&);
 
   void Execute();
 
@@ -90,6 +88,9 @@ protected:
   int ExecutePiece;
   int ExecuteNumberOfPieces;
   int ExecuteGhostLevel;
+private:
+  vtkPolyDataReader(const vtkPolyDataReader&);  // Not implemented.
+  void operator=(const vtkPolyDataReader&);  // Not implemented.
 };
 
 #endif

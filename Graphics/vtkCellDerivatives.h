@@ -123,12 +123,13 @@ public:
 protected:
   vtkCellDerivatives();
   ~vtkCellDerivatives() {};
-  vtkCellDerivatives(const vtkCellDerivatives&);
-  void operator=(const vtkCellDerivatives&);
   void Execute();
 
   int VectorMode;
   int TensorMode;
+private:
+  vtkCellDerivatives(const vtkCellDerivatives&);  // Not implemented.
+  void operator=(const vtkCellDerivatives&);  // Not implemented.
 };
 
 #endif

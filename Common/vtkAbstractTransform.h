@@ -292,8 +292,6 @@ public:
 protected:
   vtkAbstractTransform();
   ~vtkAbstractTransform();
-  vtkAbstractTransform(const vtkAbstractTransform&);
-  void operator=(const vtkAbstractTransform&);
 
   // Description:
   // Perform any subclass-specific Update.
@@ -327,6 +325,10 @@ private:
   vtkAbstractTransform *MyInverse;
 
   int InUnRegister;
+  
+private:
+  vtkAbstractTransform(const vtkAbstractTransform&);  // Not implemented.
+  void operator=(const vtkAbstractTransform&);  // Not implemented.
 };
 
 //BTX

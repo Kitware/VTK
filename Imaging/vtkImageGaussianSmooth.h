@@ -98,8 +98,6 @@ public:
 protected:
   vtkImageGaussianSmooth();
   ~vtkImageGaussianSmooth();
-  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);
-  void operator=(const vtkImageGaussianSmooth&);
 
   int Dimensionality;
   float StandardDeviations[3];
@@ -113,6 +111,9 @@ protected:
   void ThreadedExecute(vtkImageData *inData, 
 		       vtkImageData *outData, int outExt[6], int id);
   
+private:
+  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);  // Not implemented.
+  void operator=(const vtkImageGaussianSmooth&);  // Not implemented.
 };
 
 #endif

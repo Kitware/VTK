@@ -73,8 +73,6 @@ public:
 protected:
   vtkMesaTexture();
   ~vtkMesaTexture();
-  vtkMesaTexture(const vtkMesaTexture&);
-  void operator=(const vtkMesaTexture&);
 
   unsigned char *ResampleToPowerOfTwo(int &xsize, int &ysize, 
                                       unsigned char *dptr, int bpp);
@@ -83,6 +81,9 @@ protected:
   long          Index;
   static   long GlobalIndex;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
+private:
+  vtkMesaTexture(const vtkMesaTexture&);  // Not implemented.
+  void operator=(const vtkMesaTexture&);  // Not implemented.
 };
 
 #endif

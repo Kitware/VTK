@@ -166,8 +166,6 @@ public:
 protected:
   vtkQuartzImageWindow();
   ~vtkQuartzImageWindow();
-  vtkQuartzImageWindow(const vtkQuartzImageWindow&) {};
-  void operator=(const vtkQuartzImageWindow&) {};
 
   void      *ApplicationInstance;
   void      *Palette;
@@ -192,6 +190,9 @@ protected:
   int ScreenDoubleBuffer;
   void *ScreenContextId;
 
+private:
+  vtkQuartzImageWindow(const vtkQuartzImageWindow&) {};  // Not implemented.
+  void operator=(const vtkQuartzImageWindow&) {};  // Not implemented.
 };
 
 

@@ -119,11 +119,12 @@ public:
 protected:
   vtkPixel();
   ~vtkPixel();
-  vtkPixel(const vtkPixel&);
-  void operator=(const vtkPixel&);
 
   vtkLine *Line;
 
+private:
+  vtkPixel(const vtkPixel&);  // Not implemented.
+  void operator=(const vtkPixel&);  // Not implemented.
 };
 
 #endif

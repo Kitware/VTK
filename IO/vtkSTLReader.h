@@ -109,8 +109,6 @@ public:
 protected:
   vtkSTLReader();
   ~vtkSTLReader();
-  vtkSTLReader(const vtkSTLReader&);
-  void operator=(const vtkSTLReader&);
 
   char *FileName;
   int Merging;
@@ -122,6 +120,9 @@ protected:
   int ReadASCIISTL(FILE *fp, vtkPoints*, vtkCellArray*, 
 		   vtkFloatArray* scalars=0);
   int GetSTLFileType(FILE *fp);
+private:
+  vtkSTLReader(const vtkSTLReader&);  // Not implemented.
+  void operator=(const vtkSTLReader&);  // Not implemented.
 };
 
 #endif

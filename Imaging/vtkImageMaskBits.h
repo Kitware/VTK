@@ -84,14 +84,15 @@ public:
 protected:
   vtkImageMaskBits();
   ~vtkImageMaskBits() {};
-  vtkImageMaskBits(const vtkImageMaskBits&);
-  void operator=(const vtkImageMaskBits&);
 
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 
   unsigned int Masks[4];
   int Operation;      
+private:
+  vtkImageMaskBits(const vtkImageMaskBits&);  // Not implemented.
+  void operator=(const vtkImageMaskBits&);  // Not implemented.
 };
 
 #endif

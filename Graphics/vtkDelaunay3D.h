@@ -211,8 +211,6 @@ public:
 protected:
   vtkDelaunay3D();
   ~vtkDelaunay3D();
-  vtkDelaunay3D(const vtkDelaunay3D&);
-  void operator=(const vtkDelaunay3D&);
 
   void Execute();
 
@@ -247,6 +245,9 @@ private: //members added for performance
   vtkIdList *CheckedTetras; //used by InsertPoint
   vtkIdList *NeiTetras; //used by InsertPoint
 
+private:
+  vtkDelaunay3D(const vtkDelaunay3D&);  // Not implemented.
+  void operator=(const vtkDelaunay3D&);  // Not implemented.
 };
 
 #endif

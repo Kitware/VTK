@@ -76,8 +76,6 @@ public:
 protected:
   vtkImageCursor3D();
   ~vtkImageCursor3D() {};
-  vtkImageCursor3D(const vtkImageCursor3D&);
-  void operator=(const vtkImageCursor3D&);
 
   float CursorPosition[3];
   float CursorValue;
@@ -85,6 +83,9 @@ protected:
   
   // not threaded because it's too simple a filter
   void ExecuteData(vtkDataObject *outData);
+private:
+  vtkImageCursor3D(const vtkImageCursor3D&);  // Not implemented.
+  void operator=(const vtkImageCursor3D&);  // Not implemented.
 };
 
 

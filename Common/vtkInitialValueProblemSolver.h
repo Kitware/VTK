@@ -90,8 +90,6 @@ public:
 protected:
   vtkInitialValueProblemSolver();
   ~vtkInitialValueProblemSolver();
-  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&);
-  void operator=(const vtkInitialValueProblemSolver&);
 
   virtual void Initialize();
 
@@ -100,6 +98,9 @@ protected:
   float* Vals;
   float* Derivs;
   int Initialized;
+private:
+  vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&);  // Not implemented.
+  void operator=(const vtkInitialValueProblemSolver&);  // Not implemented.
 };
 
 #endif

@@ -166,8 +166,6 @@ public:
 protected:
   vtkExtractTensorComponents();
   ~vtkExtractTensorComponents() {};
-  vtkExtractTensorComponents(const vtkExtractTensorComponents&);
-  void operator=(const vtkExtractTensorComponents&);
 
   void Execute();
 
@@ -189,6 +187,9 @@ protected:
   int NumberOfTCoords;
   int TCoordComponents[6];
 
+private:
+  vtkExtractTensorComponents(const vtkExtractTensorComponents&);  // Not implemented.
+  void operator=(const vtkExtractTensorComponents&);  // Not implemented.
 };
 
 #endif

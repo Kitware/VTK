@@ -69,9 +69,10 @@ public:
 protected:
   vtkRectilinearGridSource();
   ~vtkRectilinearGridSource() {};
-  vtkRectilinearGridSource(const vtkRectilinearGridSource&);
-  void operator=(const vtkRectilinearGridSource&);
 
+private:
+  vtkRectilinearGridSource(const vtkRectilinearGridSource&);  // Not implemented.
+  void operator=(const vtkRectilinearGridSource&);  // Not implemented.
 };
 
 #endif

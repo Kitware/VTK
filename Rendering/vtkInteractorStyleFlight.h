@@ -146,8 +146,6 @@ public:
 protected:
   vtkInteractorStyleFlight();
   ~vtkInteractorStyleFlight();
-  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);
-  void operator=(const vtkInteractorStyleFlight&);
   //
   // Description:
   // Routines used internally for computing motion and steering
@@ -183,6 +181,9 @@ protected:
   double        PitchAngle;
   double        FixedUpVector[3];
   double        AzimuthStepSize;
+private:
+  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
+  void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
 };
 
 #endif

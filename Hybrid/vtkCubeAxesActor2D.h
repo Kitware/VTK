@@ -237,8 +237,6 @@ public:
 protected:
   vtkCubeAxesActor2D();
   ~vtkCubeAxesActor2D();
-  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&);
-  void operator=(const vtkCubeAxesActor2D&);
 
   vtkDataSet *Input;    //Define bounds from input data, or
   vtkProp    *Prop;     //Define bounds from actor/assembly, or
@@ -290,6 +288,9 @@ protected:
 private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+private:
+  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&);  // Not implemented.
+  void operator=(const vtkCubeAxesActor2D&);  // Not implemented.
 };
 
 

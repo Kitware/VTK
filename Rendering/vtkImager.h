@@ -96,14 +96,15 @@ public:
 protected:
   vtkImager();
   ~vtkImager();
-  vtkImager(const vtkImager&);
-  void operator=(const vtkImager&);
 
   virtual void StartPick(unsigned int pickFromSize);
   virtual void UpdatePickId();
   virtual void DonePick(); 
   virtual unsigned int GetPickedId();
   virtual void DevicePickRender();
+private:
+  vtkImager(const vtkImager&);  // Not implemented.
+  void operator=(const vtkImager&);  // Not implemented.
 };
 
 

@@ -127,14 +127,15 @@ public:
 protected:
   vtkMesaImageWindow();
   ~vtkMesaImageWindow();
-  vtkMesaImageWindow(const vtkMesaImageWindow&);
-  void operator=(const vtkMesaImageWindow&);
 
   GLXContext ContextId;
   OSMesaContext OffScreenContextId;
   void *OffScreenWindow;
   int ScreenDoubleBuffer;
   int ScreenMapped;
+private:
+  vtkMesaImageWindow(const vtkMesaImageWindow&);  // Not implemented.
+  void operator=(const vtkMesaImageWindow&);  // Not implemented.
 };
 
 

@@ -86,13 +86,14 @@ public:
 protected:
   vtkSurfaceReconstructionFilter();
   ~vtkSurfaceReconstructionFilter() {};
-  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);
-  void operator=(const vtkSurfaceReconstructionFilter&);
 
   void Execute();
 
   int NeighborhoodSize;
   float SampleSpacing;
+private:
+  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.
+  void operator=(const vtkSurfaceReconstructionFilter&);  // Not implemented.
 };
 
 #endif

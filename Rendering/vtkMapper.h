@@ -325,8 +325,6 @@ public:
 protected:
   vtkMapper();
   ~vtkMapper();
-  vtkMapper(const vtkMapper&);
-  void operator=(const vtkMapper&);
 
   vtkScalars *Scalars;
   vtkUnsignedCharArray *Colors;
@@ -347,6 +345,9 @@ protected:
   char ArrayName[256];
   int ArrayComponent;
   int ArrayAccessMode;
+private:
+  vtkMapper(const vtkMapper&);  // Not implemented.
+  void operator=(const vtkMapper&);  // Not implemented.
 };
 
 #endif

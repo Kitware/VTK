@@ -88,8 +88,6 @@ public:
 protected:
   vtkCylinderSource(int res=6);
   ~vtkCylinderSource() {};
-  vtkCylinderSource(const vtkCylinderSource&);
-  void operator=(const vtkCylinderSource&);
 
   void Execute();
   float Height;
@@ -98,6 +96,9 @@ protected:
   int Resolution;
   int Capping;
 
+private:
+  vtkCylinderSource(const vtkCylinderSource&);  // Not implemented.
+  void operator=(const vtkCylinderSource&);  // Not implemented.
 };
 
 #endif

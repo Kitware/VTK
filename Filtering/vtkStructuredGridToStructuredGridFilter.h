@@ -66,8 +66,9 @@ public:
 protected:
   vtkStructuredGridToStructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredGridToStructuredGridFilter() {};
-  vtkStructuredGridToStructuredGridFilter(const vtkStructuredGridToStructuredGridFilter&);
-  void operator=(const vtkStructuredGridToStructuredGridFilter&);
+private:
+  vtkStructuredGridToStructuredGridFilter(const vtkStructuredGridToStructuredGridFilter&);  // Not implemented.
+  void operator=(const vtkStructuredGridToStructuredGridFilter&);  // Not implemented.
 };
 
 #endif

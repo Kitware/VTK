@@ -71,8 +71,6 @@ public:
 protected:
   vtkSLCReader();
   ~vtkSLCReader();
-  vtkSLCReader(const vtkSLCReader&);
-  void operator=(const vtkSLCReader&);
 
   // Stores the FileName of the SLC file to read.
   char *FileName;
@@ -89,6 +87,9 @@ protected:
   // Decodes an array of eight bit run-length encoded data.
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
   int Error;
+private:
+  vtkSLCReader(const vtkSLCReader&);  // Not implemented.
+  void operator=(const vtkSLCReader&);  // Not implemented.
 };
 
 #endif

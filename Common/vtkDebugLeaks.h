@@ -88,13 +88,14 @@ public:
 protected:
   vtkDebugLeaks(){}; 
   virtual ~vtkDebugLeaks(){}; 
-  vtkDebugLeaks(const vtkDebugLeaks&);
-  void operator=(const vtkDebugLeaks&);
 
   static int PromptUser;
 
 private:
   static vtkDebugLeaksHashTable* MemoryTable;
+private:
+  vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
+  void operator=(const vtkDebugLeaks&);  // Not implemented.
 };
 
 #endif // __vtkDebugLeaks_h

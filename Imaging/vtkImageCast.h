@@ -94,8 +94,6 @@ public:
 protected:
   vtkImageCast();
   ~vtkImageCast() {};
-  vtkImageCast(const vtkImageCast&);
-  void operator=(const vtkImageCast&);
 
   int ClampOverflow;
   int OutputScalarType;
@@ -105,6 +103,9 @@ protected:
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 
+private:
+  vtkImageCast(const vtkImageCast&);  // Not implemented.
+  void operator=(const vtkImageCast&);  // Not implemented.
 };
 
 #endif

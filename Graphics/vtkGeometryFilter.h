@@ -153,8 +153,6 @@ public:
 protected:
   vtkGeometryFilter();
   ~vtkGeometryFilter();
-  vtkGeometryFilter(const vtkGeometryFilter&);
-  void operator=(const vtkGeometryFilter&);
 
   void Execute();
   void PolyDataExecute(); //special cases for performance
@@ -174,6 +172,9 @@ protected:
 
   int Merging;
   vtkPointLocator *Locator;
+private:
+  vtkGeometryFilter(const vtkGeometryFilter&);  // Not implemented.
+  void operator=(const vtkGeometryFilter&);  // Not implemented.
 };
 
 #endif

@@ -148,8 +148,6 @@ public:
 protected:
   vtkVRMLImporter();
   ~vtkVRMLImporter();
-  vtkVRMLImporter(const vtkVRMLImporter&);
-  void operator=(const vtkVRMLImporter&);
 
   virtual int ImportBegin ();
   virtual void ImportEnd ();
@@ -194,6 +192,9 @@ private:
 
 //ETX
 
+private:
+  vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
+  void operator=(const vtkVRMLImporter&);  // Not implemented.
 };
 
 #endif

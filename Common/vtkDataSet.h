@@ -330,8 +330,6 @@ protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
   ~vtkDataSet();  
-  vtkDataSet(const vtkDataSet&);
-  void operator=(const vtkDataSet&);  
 
   vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
   vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
@@ -342,6 +340,9 @@ protected:
 
 private:
   void InternalDataSetCopy(vtkDataSet *src);  
+private:
+  vtkDataSet(const vtkDataSet&);  // Not implemented.
+  void operator=(const vtkDataSet&);    // Not implemented.
 };
 
 inline void vtkDataSet::GetPoint(vtkIdType id, float x[3])

@@ -81,8 +81,6 @@ public:
 protected:
   vtkGLUTesselatorTriangleFilter();
   ~vtkGLUTesselatorTriangleFilter();
-  vtkGLUTesselatorTriangleFilter(const vtkGLUTesselatorTriangleFilter&);
-  void operator=(const vtkGLUTesselatorTriangleFilter&);
 
   // Usual data generation method
   void Execute();
@@ -92,6 +90,9 @@ protected:
   int PassLines;
   GLUtesselator *GLUTesselator;
 
+private:
+  vtkGLUTesselatorTriangleFilter(const vtkGLUTesselatorTriangleFilter&);  // Not implemented.
+  void operator=(const vtkGLUTesselatorTriangleFilter&);  // Not implemented.
 };
 
 #endif

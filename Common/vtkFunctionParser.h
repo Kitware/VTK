@@ -181,8 +181,6 @@ public:
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
-  vtkFunctionParser(const vtkFunctionParser&);
-  void operator=(const vtkFunctionParser&);
   
   int Parse();
   void Evaluate();
@@ -228,6 +226,9 @@ protected:
   vtkTimeStamp ParseMTime;
   vtkTimeStamp VariableMTime;
   vtkTimeStamp EvaluateMTime;
+private:
+  vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.
+  void operator=(const vtkFunctionParser&);  // Not implemented.
 };
 
 #endif

@@ -42,8 +42,9 @@ public:
 protected:
   vtkParallelFactory();
   ~vtkParallelFactory() { }
-  vtkParallelFactory(const vtkParallelFactory&);
-  void operator=(const vtkParallelFactory&);
+private:
+  vtkParallelFactory(const vtkParallelFactory&);  // Not implemented.
+  void operator=(const vtkParallelFactory&);  // Not implemented.
 };
 
 extern "C" VTK_PARALLEL_EXPORT vtkObjectFactory* vtkLoad();

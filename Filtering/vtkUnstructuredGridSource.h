@@ -69,14 +69,15 @@ public:
 protected:
   vtkUnstructuredGridSource();
   ~vtkUnstructuredGridSource() {};
-  vtkUnstructuredGridSource(const vtkUnstructuredGridSource&);
-  void operator=(const vtkUnstructuredGridSource&);
   
   // Since the Outputs[0] has the same UpdateExtent format
   // as the generic DataObject we can copy the UpdateExtent
   // as a default behavior.
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
+private:
+  vtkUnstructuredGridSource(const vtkUnstructuredGridSource&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridSource&);  // Not implemented.
 };
 
 #endif

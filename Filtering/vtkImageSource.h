@@ -71,8 +71,6 @@ public:
 protected:
   vtkImageSource();
   ~vtkImageSource() {};
-  vtkImageSource(const vtkImageSource&);
-  void operator=(const vtkImageSource&);
 
   void Execute();
   virtual void Execute(vtkImageData *data);
@@ -85,6 +83,9 @@ protected:
 					 int *vtkNotUsed(out) ) 
     {VTK_LEGACY_METHOD(ComputeRequiredInputUpdateExtent,"3.2");}
   
+private:
+  vtkImageSource(const vtkImageSource&);  // Not implemented.
+  void operator=(const vtkImageSource&);  // Not implemented.
 };
 
 

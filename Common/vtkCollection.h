@@ -130,8 +130,6 @@ public:
 protected:
   vtkCollection();
   ~vtkCollection();
-  vtkCollection(const vtkCollection&);
-  void operator=(const vtkCollection&);
 
   virtual void DeleteElement(vtkCollectionElement *); 
   int NumberOfItems;
@@ -139,6 +137,9 @@ protected:
   vtkCollectionElement *Bottom;
   vtkCollectionElement *Current;
 
+private:
+  vtkCollection(const vtkCollection&);
+  void operator=(const vtkCollection&);
 };
 
 

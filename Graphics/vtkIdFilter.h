@@ -96,8 +96,6 @@ public:
 protected:
   vtkIdFilter();
   ~vtkIdFilter();
-  vtkIdFilter(const vtkIdFilter&);
-  void operator=(const vtkIdFilter&);
 
   void Execute();
 
@@ -106,6 +104,9 @@ protected:
   int FieldData;
   char *IdsArrayName;
 
+private:
+  vtkIdFilter(const vtkIdFilter&);  // Not implemented.
+  void operator=(const vtkIdFilter&);  // Not implemented.
 };
 
 #endif

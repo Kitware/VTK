@@ -181,8 +181,6 @@ public:
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor();
-  vtkScalarBarActor(const vtkScalarBarActor&);
-  void operator=(const vtkScalarBarActor&);
 
   vtkScalarsToColors *LookupTable;
   int   MaximumNumberOfColors;
@@ -215,6 +213,9 @@ private:
   void SizeTitle(int *titleSize, int *size, vtkViewport *viewport);
   void AllocateAndSizeLabels(int *labelSize, int *size,
                              vtkViewport *viewport, float *range);
+private:
+  vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
+  void operator=(const vtkScalarBarActor&);  // Not implemented.
 };
 
 

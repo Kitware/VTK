@@ -267,8 +267,6 @@ public:
 protected:
   vtkDataReader();
   ~vtkDataReader();
-  vtkDataReader(const vtkDataReader&);
-  void operator=(const vtkDataReader&);
 
   char *FileName;
   int FileType;
@@ -329,6 +327,9 @@ protected:
   void CheckFor(const char* name, char *line, int &num, char** &array, 
                 int& allocSize);
 
+private:
+  vtkDataReader(const vtkDataReader&);  // Not implemented.
+  void operator=(const vtkDataReader&);  // Not implemented.
 };
 
 #endif

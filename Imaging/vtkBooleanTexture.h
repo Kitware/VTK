@@ -141,8 +141,6 @@ public:
 protected:
   vtkBooleanTexture();
   ~vtkBooleanTexture() {};
-  vtkBooleanTexture(const vtkBooleanTexture&);
-  void operator=(const vtkBooleanTexture&);
 
   void Execute();
 
@@ -160,6 +158,9 @@ protected:
   unsigned char InOn[2];
   unsigned char OutOn[2];
 
+private:
+  vtkBooleanTexture(const vtkBooleanTexture&);  // Not implemented.
+  void operator=(const vtkBooleanTexture&);  // Not implemented.
 };
 
 #endif

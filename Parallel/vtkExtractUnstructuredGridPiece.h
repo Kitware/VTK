@@ -63,8 +63,6 @@ public:
 protected:
   vtkExtractUnstructuredGridPiece();
   ~vtkExtractUnstructuredGridPiece() {};
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);
-  void operator=(const vtkExtractUnstructuredGridPiece&);
 
   // Usual data generation method
   void Execute();
@@ -78,6 +76,9 @@ protected:
   void AddGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags, int ghostLevel);
   
   int CreateGhostCells;
+private:
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
+  void operator=(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
 };
 
 #endif

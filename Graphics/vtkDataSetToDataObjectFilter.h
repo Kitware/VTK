@@ -123,8 +123,6 @@ public:
 protected:
   vtkDataSetToDataObjectFilter();
   ~vtkDataSetToDataObjectFilter();
-  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&);
-  void operator=(const vtkDataSetToDataObjectFilter&);
 
   void Execute(); //generate output data
   void ComputeInputUpdateExtents(vtkDataObject *output);
@@ -135,6 +133,9 @@ protected:
   int CellData;
   int FieldData;
 
+private:
+  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&);  // Not implemented.
+  void operator=(const vtkDataSetToDataObjectFilter&);  // Not implemented.
 };
 
 #endif

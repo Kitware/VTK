@@ -95,8 +95,6 @@ public:
 protected:
   vtkRIBProperty();
   ~vtkRIBProperty();
-  vtkRIBProperty(const vtkRIBProperty&);
-  void operator=(const vtkRIBProperty&);
 
   void Render(vtkActor *a, vtkRenderer *ren);
   vtkProperty *Property;
@@ -104,6 +102,9 @@ protected:
   char *DisplacementShader;
   char *Declarations;
   char *Parameters;
+private:
+  vtkRIBProperty(const vtkRIBProperty&);  // Not implemented.
+  void operator=(const vtkRIBProperty&);  // Not implemented.
 };
 
 #endif

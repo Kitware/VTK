@@ -204,8 +204,6 @@ public:
 protected:
   vtkPLOT3DReader();
   ~vtkPLOT3DReader();
-  vtkPLOT3DReader(const vtkPLOT3DReader&);
-  void operator=(const vtkPLOT3DReader&);
 
   void ExecuteInformation();
   void Execute();
@@ -271,6 +269,9 @@ protected:
   void ComputeVorticity(vtkPointData *outputPD);
   void ComputeMomentum(vtkPointData *outputPD);
   void ComputePressureGradient(vtkPointData *outputPD);
+private:
+  vtkPLOT3DReader(const vtkPLOT3DReader&);  // Not implemented.
+  void operator=(const vtkPLOT3DReader&);  // Not implemented.
 };
 
 #endif

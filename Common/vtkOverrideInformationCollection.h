@@ -69,14 +69,15 @@ public:
 protected:
   vtkOverrideInformationCollection() {};
   ~vtkOverrideInformationCollection() {};
-  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);
-  void operator=(const vtkOverrideInformationCollection&);
   
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);  // Not implemented.
+  void operator=(const vtkOverrideInformationCollection&);  // Not implemented.
 };
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f) 

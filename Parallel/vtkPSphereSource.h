@@ -63,10 +63,11 @@ public:
 protected:
   vtkPSphereSource() {};
   ~vtkPSphereSource() {};
-  vtkPSphereSource(const vtkPSphereSource&);
-  void operator=(const vtkPSphereSource&);
 
   void Execute();
+private:
+  vtkPSphereSource(const vtkPSphereSource&);  // Not implemented.
+  void operator=(const vtkPSphereSource&);  // Not implemented.
 };
 
 #endif

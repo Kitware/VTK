@@ -220,8 +220,6 @@ public:
 protected:
   vtkLight();
   ~vtkLight();
-  vtkLight(const vtkLight&);
-  void operator=(const vtkLight&);
 
   float FocalPoint[3];
   float Position[3];
@@ -236,6 +234,9 @@ protected:
   float TransformedFocalPointReturn[3];
   float TransformedPositionReturn[3];
   int LightType;
+private:
+  vtkLight(const vtkLight&);  // Not implemented.
+  void operator=(const vtkLight&);  // Not implemented.
 };
 
 #endif

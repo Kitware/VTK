@@ -153,10 +153,11 @@ protected:
 
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
-  vtkSocketCommunicator(const vtkSocketCommunicator&);
-  void operator=(const vtkSocketCommunicator&);
 
   int ReceiveMessage(char *data, int size, int length, int tag );
+private:
+  vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
+  void operator=(const vtkSocketCommunicator&);  // Not implemented.
 };
 
 #endif

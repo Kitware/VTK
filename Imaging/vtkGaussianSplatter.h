@@ -214,8 +214,6 @@ public:
 protected:
   vtkGaussianSplatter();
   ~vtkGaussianSplatter() {};
-  vtkGaussianSplatter(const vtkGaussianSplatter&);
-  void operator=(const vtkGaussianSplatter&);
 
   void Execute();
   void Cap(vtkFloatArray *s);
@@ -257,6 +255,9 @@ private:
   float NullValue;
 //ETX
 
+private:
+  vtkGaussianSplatter(const vtkGaussianSplatter&);  // Not implemented.
+  void operator=(const vtkGaussianSplatter&);  // Not implemented.
 };
 
 #endif

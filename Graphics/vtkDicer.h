@@ -136,8 +136,6 @@ public:
 protected:
   vtkDicer();
   ~vtkDicer() {};
-  vtkDicer(const vtkDicer&);
-  void operator=(const vtkDicer&);
 
   virtual void UpdatePieceMeasures();
 
@@ -148,6 +146,9 @@ protected:
   int           FieldData;
   int           DiceMode;
 
+private:
+  vtkDicer(const vtkDicer&);  // Not implemented.
+  void operator=(const vtkDicer&);  // Not implemented.
 };
 
 #endif

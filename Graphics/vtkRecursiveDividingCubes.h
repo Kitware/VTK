@@ -90,8 +90,6 @@ public:
 protected:
   vtkRecursiveDividingCubes();
   ~vtkRecursiveDividingCubes();
-  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&);
-  void operator=(const vtkRecursiveDividingCubes&);
 
   void Execute();
   void SubDivide(float origin[3], float h[3], float values[8]);
@@ -105,6 +103,9 @@ protected:
   
   // to replace a static
   vtkVoxel *Voxel;
+private:
+  vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&);  // Not implemented.
+  void operator=(const vtkRecursiveDividingCubes&);  // Not implemented.
 };
 
 #endif

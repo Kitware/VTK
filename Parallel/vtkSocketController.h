@@ -153,11 +153,12 @@ protected:
 
   vtkSocketController();
   ~vtkSocketController();
-  vtkSocketController(const vtkSocketController&);
-  void operator=(const vtkSocketController&);
 
   // Initialize only once, finialize on destruction.
   static int Initialized;
+private:
+  vtkSocketController(const vtkSocketController&);  // Not implemented.
+  void operator=(const vtkSocketController&);  // Not implemented.
 };
 
 

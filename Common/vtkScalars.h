@@ -199,8 +199,6 @@ public:
 protected:
   vtkScalars();
   ~vtkScalars();
-  vtkScalars(const vtkScalars&);
-  void operator=(const vtkScalars&);
 
   float Range[8];
   vtkTimeStamp ComputeTime;
@@ -223,6 +221,9 @@ protected:
   unsigned char RGBA[4];
   int ActiveComponent;
   //ETX
+private:
+  vtkScalars(const vtkScalars&);  // Not implemented.
+  void operator=(const vtkScalars&);  // Not implemented.
 };
 
 inline vtkAttributeData *vtkScalars::MakeObject()

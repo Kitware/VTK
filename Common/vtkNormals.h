@@ -125,9 +125,10 @@ public:
 protected:
   vtkNormals();
   ~vtkNormals() {};
-  vtkNormals(const vtkNormals&);
-  void operator=(const vtkNormals&);
   
+private:
+  vtkNormals(const vtkNormals&);  // Not implemented.
+  void operator=(const vtkNormals&);  // Not implemented.
 };
 
 

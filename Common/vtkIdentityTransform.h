@@ -140,11 +140,12 @@ public:
 protected:
   vtkIdentityTransform();
   ~vtkIdentityTransform();
-  vtkIdentityTransform(const vtkIdentityTransform&);
-  void operator=(const vtkIdentityTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
 
+private:
+  vtkIdentityTransform(const vtkIdentityTransform&);  // Not implemented.
+  void operator=(const vtkIdentityTransform&);  // Not implemented.
 };
 
 #endif

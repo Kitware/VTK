@@ -120,13 +120,14 @@ public:
 protected:
   vtkImplicitBoolean();
   ~vtkImplicitBoolean();
-  vtkImplicitBoolean(const vtkImplicitBoolean&);
-  void operator=(const vtkImplicitBoolean&);
 
   vtkImplicitFunctionCollection *FunctionList;
 
   int OperationType;
 
+private:
+  vtkImplicitBoolean(const vtkImplicitBoolean&);  // Not implemented.
+  void operator=(const vtkImplicitBoolean&);  // Not implemented.
 };
 
 // Description:

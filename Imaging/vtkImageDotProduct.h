@@ -60,13 +60,14 @@ public:
 protected:
   vtkImageDotProduct() {};
   ~vtkImageDotProduct() {};
-  vtkImageDotProduct(const vtkImageDotProduct&);
-  void operator=(const vtkImageDotProduct&);
 
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageDotProduct(const vtkImageDotProduct&);  // Not implemented.
+  void operator=(const vtkImageDotProduct&);  // Not implemented.
 };
 
 #endif

@@ -137,13 +137,14 @@ public:
 protected:
   vtkImageActor();
   ~vtkImageActor();
-  vtkImageActor(const vtkImageActor&);
-  void operator=(const vtkImageActor&);
 
   int           Interpolate;
   vtkImageData* Input;
   int           DisplayExtent[6];
   float         Bounds[6];
+private:
+  vtkImageActor(const vtkImageActor&);  // Not implemented.
+  void operator=(const vtkImageActor&);  // Not implemented.
 };
 
 #endif

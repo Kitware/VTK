@@ -227,12 +227,13 @@ protected:
 
   vtkMPICommunicator();
   ~vtkMPICommunicator();
-  vtkMPICommunicator(const vtkMPICommunicator&);
-  void operator=(const vtkMPICommunicator&);
 
  private:
   static int CheckForMPIError(int err);
 
+private:
+  vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
+  void operator=(const vtkMPICommunicator&);  // Not implemented.
 };
 
 

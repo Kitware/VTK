@@ -143,8 +143,6 @@ public:
 protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
-  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);
-  void operator=(const vtkSynchronizedTemplates2D&);
 
   void Execute();
   vtkContourValues *ContourValues;
@@ -155,6 +153,9 @@ private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
   //ETX
+private:
+  vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);  // Not implemented.
+  void operator=(const vtkSynchronizedTemplates2D&);  // Not implemented.
 };
 
 

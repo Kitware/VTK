@@ -69,9 +69,10 @@ public:
 protected:
   vtkStructuredGridSource();
   ~vtkStructuredGridSource() {};
-  vtkStructuredGridSource(const vtkStructuredGridSource&);
-  void operator=(const vtkStructuredGridSource&);
 
+private:
+  vtkStructuredGridSource(const vtkStructuredGridSource&);  // Not implemented.
+  void operator=(const vtkStructuredGridSource&);  // Not implemented.
 };
 
 #endif

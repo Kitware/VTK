@@ -105,13 +105,14 @@ public:
 protected:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();
-  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);
-  void operator=(const vtkImplicitWindowFunction&);
 
   vtkImplicitFunction *ImplicitFunction;
   float WindowRange[2];
   float WindowValues[2];
 
+private:
+  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);  // Not implemented.
+  void operator=(const vtkImplicitWindowFunction&);  // Not implemented.
 };
 
 #endif

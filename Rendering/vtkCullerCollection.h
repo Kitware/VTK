@@ -77,14 +77,15 @@ class VTK_RENDERING_EXPORT vtkCullerCollection : public vtkCollection
 protected:
   vtkCullerCollection() {};
   ~vtkCullerCollection() {};
-  vtkCullerCollection(const vtkCullerCollection&);
-  void operator=(const vtkCullerCollection&);
   
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkCullerCollection(const vtkCullerCollection&);  // Not implemented.
+  void operator=(const vtkCullerCollection&);  // Not implemented.
 };
 
 

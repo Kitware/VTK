@@ -80,11 +80,12 @@ public:
 protected:
   vtkQuadric();
   ~vtkQuadric() {};
-  vtkQuadric(const vtkQuadric&);
-  void operator=(const vtkQuadric&);
 
   float Coefficients[10];
 
+private:
+  vtkQuadric(const vtkQuadric&);  // Not implemented.
+  void operator=(const vtkQuadric&);  // Not implemented.
 };
 
 #endif

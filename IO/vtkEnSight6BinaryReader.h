@@ -73,8 +73,6 @@ public:
 protected:
   vtkEnSight6BinaryReader();
   ~vtkEnSight6BinaryReader();
-  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&);
-  void operator=(const vtkEnSight6BinaryReader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
@@ -170,6 +168,9 @@ protected:
   int ElementIdsListed;
   
   FILE *IFile;
+private:
+  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&);  // Not implemented.
+  void operator=(const vtkEnSight6BinaryReader&);  // Not implemented.
 };
 
 #endif

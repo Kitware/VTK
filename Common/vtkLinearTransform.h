@@ -227,8 +227,9 @@ public:
 protected:
   vtkLinearTransform() {};
   ~vtkLinearTransform() {};
-  vtkLinearTransform(const vtkLinearTransform&);
-  void operator=(const vtkLinearTransform&);
+private:
+  vtkLinearTransform(const vtkLinearTransform&);  // Not implemented.
+  void operator=(const vtkLinearTransform&);  // Not implemented.
 };
 
 #endif

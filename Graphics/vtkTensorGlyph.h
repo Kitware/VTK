@@ -137,8 +137,6 @@ public:
 protected:
   vtkTensorGlyph();
   ~vtkTensorGlyph();
-  vtkTensorGlyph(const vtkTensorGlyph&);
-  void operator=(const vtkTensorGlyph&);
 
   void Execute();
 
@@ -148,6 +146,9 @@ protected:
   int ColorGlyphs; // Boolean controls coloring with input scalar data
   int ClampScaling; // Boolean controls whether scaling is clamped.
   float MaxScaleFactor; // Maximum scale factor (ScaleFactor*eigenvalue)
+private:
+  vtkTensorGlyph(const vtkTensorGlyph&);  // Not implemented.
+  void operator=(const vtkTensorGlyph&);  // Not implemented.
 };
 
 #endif

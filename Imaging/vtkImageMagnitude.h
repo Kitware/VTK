@@ -59,13 +59,14 @@ public:
 protected:
   vtkImageMagnitude() {};
   ~vtkImageMagnitude() {};
-  vtkImageMagnitude(const vtkImageMagnitude&);
-  void operator=(const vtkImageMagnitude&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageMagnitude(const vtkImageMagnitude&);  // Not implemented.
+  void operator=(const vtkImageMagnitude&);  // Not implemented.
 };
 
 #endif

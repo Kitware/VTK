@@ -83,8 +83,6 @@ public:
 protected:
   vtkLoopSubdivisionFilter () {};
   ~vtkLoopSubdivisionFilter () {};
-  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);
-  void operator=(const vtkLoopSubdivisionFilter&);
 
   void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData,
                                   vtkPoints *outputPts,
@@ -95,6 +93,9 @@ protected:
                            vtkIdList *stencilIds, float *weights);
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
+private:
+  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkLoopSubdivisionFilter&);  // Not implemented.
 };
 
 #endif

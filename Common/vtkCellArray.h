@@ -240,13 +240,14 @@ protected:
   vtkCellArray();
   vtkCellArray (const vtkIdType sz, const int ext=1000);
   ~vtkCellArray();
-  vtkCellArray(const vtkCellArray&);
-  void operator=(const vtkCellArray&);
 
   vtkIdType NumberOfCells;
   vtkIdType InsertLocation;     //keep track of current insertion point
   vtkIdType TraversalLocation;   //keep track of traversal position
   vtkIdTypeArray *Ia;
+private:
+  vtkCellArray(const vtkCellArray&);  // Not implemented.
+  void operator=(const vtkCellArray&);  // Not implemented.
 };
 
 

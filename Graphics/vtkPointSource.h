@@ -91,8 +91,6 @@ public:
 protected:
   vtkPointSource(vtkIdType numPts=10);
   ~vtkPointSource() {};
-  vtkPointSource(const vtkPointSource&);
-  void operator=(const vtkPointSource&);
 
   void Execute();
   void ExecuteInformation();
@@ -101,6 +99,9 @@ protected:
   float Center[3];
   float Radius;
   int Distribution;
+private:
+  vtkPointSource(const vtkPointSource&);  // Not implemented.
+  void operator=(const vtkPointSource&);  // Not implemented.
 };
 
 #endif

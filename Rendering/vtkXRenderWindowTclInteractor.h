@@ -178,8 +178,6 @@ public:
 protected:
   vtkXRenderWindowTclInteractor();
   ~vtkXRenderWindowTclInteractor();
-  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&);
-  void operator=(const vtkXRenderWindowTclInteractor&);
 
   Widget TopLevelShell;
 
@@ -191,6 +189,9 @@ protected:
   int PositionBeforeStereo[2];
 
   int BreakLoopFlag;
+private:
+  vtkXRenderWindowTclInteractor(const vtkXRenderWindowTclInteractor&);  // Not implemented.
+  void operator=(const vtkXRenderWindowTclInteractor&);  // Not implemented.
 };
 
 #endif

@@ -170,8 +170,6 @@ public:
 protected:
   vtkConnectivityFilter();
   ~vtkConnectivityFilter();
-  vtkConnectivityFilter(const vtkConnectivityFilter&);
-  void operator=(const vtkConnectivityFilter&);
 
   // Usual data generation method
   void Execute();
@@ -204,6 +202,9 @@ private:
   vtkIdList *Wave2;
   vtkIdList *PointIds;
   vtkIdList *CellIds;
+private:
+  vtkConnectivityFilter(const vtkConnectivityFilter&);  // Not implemented.
+  void operator=(const vtkConnectivityFilter&);  // Not implemented.
 };
 
 // Description:

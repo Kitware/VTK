@@ -105,10 +105,11 @@ public:
 protected:
   vtkDynamicLoader() {};
   ~vtkDynamicLoader() {};
-  vtkDynamicLoader(const vtkDynamicLoader&);
-  void operator=(const vtkDynamicLoader&);
 
   
+private:
+  vtkDynamicLoader(const vtkDynamicLoader&);  // Not implemented.
+  void operator=(const vtkDynamicLoader&);  // Not implemented.
 };
 
 #endif

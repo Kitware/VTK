@@ -72,8 +72,6 @@ public:
 protected:
   vtkImageVariance3D();
   ~vtkImageVariance3D();
-  vtkImageVariance3D(const vtkImageVariance3D&);
-  void operator=(const vtkImageVariance3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     
@@ -81,6 +79,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
+private:
+  vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
+  void operator=(const vtkImageVariance3D&);  // Not implemented.
 };
 
 #endif

@@ -80,12 +80,13 @@ public:
 protected:
   vtkCellCenters();
   ~vtkCellCenters() {};
-  vtkCellCenters(const vtkCellCenters&);
-  void operator=(const vtkCellCenters&);
 
   void Execute();
 
   int VertexCells;
+private:
+  vtkCellCenters(const vtkCellCenters&);  // Not implemented.
+  void operator=(const vtkCellCenters&);  // Not implemented.
 };
 
 #endif

@@ -68,9 +68,10 @@ public:
 protected:
   vtkMergePoints2D() {};
   ~vtkMergePoints2D() {};
-  vtkMergePoints2D(const vtkMergePoints2D&);
-  void operator=(const vtkMergePoints2D&);
 
+private:
+  vtkMergePoints2D(const vtkMergePoints2D&);  // Not implemented.
+  void operator=(const vtkMergePoints2D&);  // Not implemented.
 };
 
 #endif

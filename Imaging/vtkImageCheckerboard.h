@@ -68,12 +68,13 @@ public:
 protected:
   vtkImageCheckerboard();
   ~vtkImageCheckerboard() {};
-  vtkImageCheckerboard(const vtkImageCheckerboard&) {};
-  void operator=(const vtkImageCheckerboard&) {};
 
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
   int NumberOfDivisions[3];
+private:
+  vtkImageCheckerboard(const vtkImageCheckerboard&) {};  // Not implemented.
+  void operator=(const vtkImageCheckerboard&) {};  // Not implemented.
 };
 
 #endif

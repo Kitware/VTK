@@ -69,8 +69,6 @@ public:
 protected:
   vtkImageRange3D();
   ~vtkImageRange3D();
-  vtkImageRange3D(const vtkImageRange3D&);
-  void operator=(const vtkImageRange3D&);
 
   vtkImageEllipsoidSource *Ellipse;
     
@@ -78,6 +76,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
+private:
+  vtkImageRange3D(const vtkImageRange3D&);  // Not implemented.
+  void operator=(const vtkImageRange3D&);  // Not implemented.
 };
 
 #endif

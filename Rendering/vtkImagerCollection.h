@@ -68,13 +68,14 @@ class VTK_RENDERING_EXPORT vtkImagerCollection : public vtkCollection
 protected:  
   vtkImagerCollection() {};
   ~vtkImagerCollection() {};
-  vtkImagerCollection(const vtkImagerCollection&);
-  void operator=(const vtkImagerCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkImagerCollection(const vtkImagerCollection&);  // Not implemented.
+  void operator=(const vtkImagerCollection&);  // Not implemented.
 };
 
 inline void vtkImagerCollection::AddItem(vtkImager *a) 

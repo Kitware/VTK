@@ -185,8 +185,6 @@ public:
 protected:
   vtkActor();
   ~vtkActor();
-  vtkActor(const vtkActor&);
-  void operator=(const vtkActor&);
 
   vtkProperty *Property; 
   vtkProperty *BackfaceProperty; 
@@ -201,6 +199,9 @@ protected:
   float        MapperBounds[6];
   vtkTimeStamp BoundsMTime;
 
+private:
+  vtkActor(const vtkActor&);  // Not implemented.
+  void operator=(const vtkActor&);  // Not implemented.
 };
 
 #endif

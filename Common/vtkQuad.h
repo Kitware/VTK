@@ -121,11 +121,12 @@ public:
 protected:
   vtkQuad();
   ~vtkQuad();
-  vtkQuad(const vtkQuad&);
-  void operator=(const vtkQuad&);
 
   vtkLine *Line;
 
+private:
+  vtkQuad(const vtkQuad&);  // Not implemented.
+  void operator=(const vtkQuad&);  // Not implemented.
 };
 
 #endif

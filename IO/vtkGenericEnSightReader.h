@@ -126,8 +126,6 @@ public:
 protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&);
-  void operator=(const vtkGenericEnSightReader&);
 
   void Execute();
   
@@ -207,6 +205,9 @@ protected:
   float TimeValue;
   float MinimumTimeValue;
   float MaximumTimeValue;
+private:
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.
+  void operator=(const vtkGenericEnSightReader&);  // Not implemented.
 };
 
 #endif

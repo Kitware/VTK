@@ -55,6 +55,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include "vtkRenderWindowInteractor.h"
 
+private:
+vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
+void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.
 class VTK_RENDERING_EXPORT vtkWin32RenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
   // Description:
@@ -143,8 +146,6 @@ public:
 protected:
   vtkWin32RenderWindowInteractor();
   ~vtkWin32RenderWindowInteractor();
-  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);
-  void operator=(const vtkWin32RenderWindowInteractor&);
 
   HWND    WindowId;
   UINT    TimerId;

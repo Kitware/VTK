@@ -429,8 +429,6 @@ public:
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
-  vtkDataSetAttributes(const vtkDataSetAttributes&);
-  void operator=(const vtkDataSetAttributes&);
 
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
@@ -467,6 +465,9 @@ private:
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd);
 //ETX
 
+private:
+  vtkDataSetAttributes(const vtkDataSetAttributes&);  // Not implemented.
+  void operator=(const vtkDataSetAttributes&);  // Not implemented.
 };
 
 #endif

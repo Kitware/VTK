@@ -72,8 +72,6 @@ public:
 protected:
   vtkOBBDicer() {};
   ~vtkOBBDicer() {};
-  vtkOBBDicer(const vtkOBBDicer&);
-  void operator=(const vtkOBBDicer&);
 
   // Usual data generation method
   void Execute();
@@ -84,6 +82,9 @@ protected:
   void DeleteTree(vtkOBBNode *OBBptr);
   vtkPoints *PointsList;
   
+private:
+  vtkOBBDicer(const vtkOBBDicer&);  // Not implemented.
+  void operator=(const vtkOBBDicer&);  // Not implemented.
 };
 
 #endif

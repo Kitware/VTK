@@ -70,9 +70,10 @@ public:
 protected:
   vtkMesaActor() {};
   ~vtkMesaActor() {};
-  vtkMesaActor(const vtkMesaActor&);
-  void operator=(const vtkMesaActor&);
 
+private:
+  vtkMesaActor(const vtkMesaActor&);  // Not implemented.
+  void operator=(const vtkMesaActor&);  // Not implemented.
 };
 
 #endif

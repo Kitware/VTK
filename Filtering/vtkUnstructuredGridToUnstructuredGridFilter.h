@@ -63,8 +63,9 @@ public:
 protected:
   vtkUnstructuredGridToUnstructuredGridFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkUnstructuredGridToUnstructuredGridFilter() {};
-  vtkUnstructuredGridToUnstructuredGridFilter(const vtkUnstructuredGridToUnstructuredGridFilter&);
-  void operator=(const vtkUnstructuredGridToUnstructuredGridFilter&);
+private:
+  vtkUnstructuredGridToUnstructuredGridFilter(const vtkUnstructuredGridToUnstructuredGridFilter&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridToUnstructuredGridFilter&);  // Not implemented.
 };
 
 #endif

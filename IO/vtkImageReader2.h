@@ -180,8 +180,6 @@ public:
 protected:
   vtkImageReader2();
   ~vtkImageReader2();
-  vtkImageReader2(const vtkImageReader2&);
-  void operator=(const vtkImageReader2&);
 
   char *InternalFileName;
   char *FileName;
@@ -208,6 +206,9 @@ protected:
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();
+private:
+  vtkImageReader2(const vtkImageReader2&);  // Not implemented.
+  void operator=(const vtkImageReader2&);  // Not implemented.
 };
 
 #endif

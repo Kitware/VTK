@@ -237,8 +237,6 @@ public:
 protected:
   vtkCaptionActor2D();
   ~vtkCaptionActor2D();
-  vtkCaptionActor2D(const vtkCaptionActor2D&);
-  void operator=(const vtkCaptionActor2D&);
 
   vtkCoordinate *AttachmentPointCoordinate;
 
@@ -280,6 +278,9 @@ private:
   vtkPolyDataMapper *LeaderMapper3D;
   vtkActor          *LeaderActor3D;
 
+private:
+  vtkCaptionActor2D(const vtkCaptionActor2D&);  // Not implemented.
+  void operator=(const vtkCaptionActor2D&);  // Not implemented.
 };
 
 

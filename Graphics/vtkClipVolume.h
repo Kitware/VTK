@@ -164,8 +164,6 @@ public:
 protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
   ~vtkClipVolume();
-  vtkClipVolume(const vtkClipVolume&);
-  void operator=(const vtkClipVolume&);
 
   void Execute();
   void ClipVoxel(float value, vtkDataArray *cellScalars, int flip,
@@ -187,6 +185,9 @@ private:
   vtkUnstructuredGrid    *Mesh;
   vtkOrderedTriangulator *Triangulator;
   
+private:
+  vtkClipVolume(const vtkClipVolume&);  // Not implemented.
+  void operator=(const vtkClipVolume&);  // Not implemented.
 };
 
 #endif

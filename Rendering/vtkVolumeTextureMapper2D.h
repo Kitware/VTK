@@ -118,8 +118,6 @@ public:
 protected:
   vtkVolumeTextureMapper2D();
   ~vtkVolumeTextureMapper2D();
-  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);
-  void operator=(const vtkVolumeTextureMapper2D&);
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol )
     {this->InitializeRender( ren, vol, -1 );}
@@ -145,6 +143,9 @@ protected:
   
   void           RenderSavedTexture();
   
+private:
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);  // Not implemented.
+  void operator=(const vtkVolumeTextureMapper2D&);  // Not implemented.
 };
 
 

@@ -134,14 +134,15 @@ protected:
   // associated vtkImageData.  However, since the data is reference counted,
   // it may not actually be deleted.
   ~vtkImageCanvasSource2D();
-  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&);
-  void operator=(const vtkImageCanvasSource2D&);
 
   vtkImageData *ImageData;
   float DrawColor[4];
   int DefaultZ;
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
+private:
+  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&);  // Not implemented.
+  void operator=(const vtkImageCanvasSource2D&);  // Not implemented.
 };
 
 

@@ -90,8 +90,6 @@ public:
 protected:
   vtkVoxelContoursToSurfaceFilter();
   ~vtkVoxelContoursToSurfaceFilter();
-  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&);
-  void operator=(const vtkVoxelContoursToSurfaceFilter&);
 
   void    Execute();
 
@@ -120,6 +118,9 @@ protected:
 		     int gridSize[3], int type );
 
   void    PushDistances( float *ptr, int gridSize[3], int chunkSize );
+private:
+  vtkVoxelContoursToSurfaceFilter(const vtkVoxelContoursToSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkVoxelContoursToSurfaceFilter&);  // Not implemented.
 };
 
 #endif

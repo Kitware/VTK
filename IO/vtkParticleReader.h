@@ -96,8 +96,6 @@ public:
 protected:
   vtkParticleReader();
   ~vtkParticleReader();
-  vtkParticleReader(const vtkParticleReader&);
-  void operator=(const vtkParticleReader&);
 
   void OpenFile();
 
@@ -109,6 +107,9 @@ protected:
   
   void ExecuteInformation();
   void Execute();
+private:
+  vtkParticleReader(const vtkParticleReader&);  // Not implemented.
+  void operator=(const vtkParticleReader&);  // Not implemented.
 };
 
 #endif

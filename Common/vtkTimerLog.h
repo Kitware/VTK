@@ -165,8 +165,6 @@ public:
 protected:
   vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
   ~vtkTimerLog() {};
-  vtkTimerLog(const vtkTimerLog&);
-  void operator=(const vtkTimerLog&);
 
   static int               MaxEntries;
   static int               NextEntry;
@@ -194,6 +192,9 @@ protected:
                         int tick, int deltatick, char *event);
   //ETX
 
+private:
+  vtkTimerLog(const vtkTimerLog&);  // Not implemented.
+  void operator=(const vtkTimerLog&);  // Not implemented.
 };
 
 

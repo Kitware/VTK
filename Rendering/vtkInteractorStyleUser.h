@@ -198,8 +198,6 @@ public:
 protected:
   vtkInteractorStyleUser();
   ~vtkInteractorStyleUser();
-  vtkInteractorStyleUser(const vtkInteractorStyleUser&);
-  void operator=(const vtkInteractorStyleUser&);
 
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   void OnKeyPress(int ctrl, int shift, char keycode, char *keysym,
@@ -242,6 +240,9 @@ protected:
   void vtkSetOldCallback(unsigned long &tag, unsigned long event, 
                          void (*f)(void *), void *arg);
   void vtkSetOldDelete(unsigned long tag, void (*f)(void *));
+private:
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
+  void operator=(const vtkInteractorStyleUser&);  // Not implemented.
 };
 
 #endif

@@ -73,12 +73,13 @@ public:
 protected:
   vtkBrownianPoints();
   ~vtkBrownianPoints() {};
-  vtkBrownianPoints(const vtkBrownianPoints&);
-  void operator=(const vtkBrownianPoints&);
 
   void Execute();
   float MinimumSpeed;
   float MaximumSpeed;
+private:
+  vtkBrownianPoints(const vtkBrownianPoints&);  // Not implemented.
+  void operator=(const vtkBrownianPoints&);  // Not implemented.
 };
 
 #endif

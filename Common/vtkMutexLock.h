@@ -125,8 +125,9 @@ public:
 protected:
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {};
-  vtkMutexLock(const vtkMutexLock&);
-  void operator=(const vtkMutexLock&);
+private:
+  vtkMutexLock(const vtkMutexLock&);  // Not implemented.
+  void operator=(const vtkMutexLock&);  // Not implemented.
 };
 
 

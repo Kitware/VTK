@@ -168,8 +168,6 @@ public:
 protected:
   vtkLongArray(vtkIdType numComp=1);
   ~vtkLongArray();
-  vtkLongArray(const vtkLongArray&);
-  void operator=(const vtkLongArray&);
 
   long *Array;   // pointer to data
   long *ResizeAndExtend(const vtkIdType sz);  // function to resize data
@@ -178,6 +176,9 @@ protected:
   float *Tuple;
 
   int SaveUserArray;
+private:
+  vtkLongArray(const vtkLongArray&);  // Not implemented.
+  void operator=(const vtkLongArray&);  // Not implemented.
 };
 
 inline void vtkLongArray::SetNumberOfValues(const vtkIdType number) 

@@ -144,8 +144,6 @@ public:
 protected:
   vtkPropAssembly();
   ~vtkPropAssembly();
-  vtkPropAssembly(const vtkPropAssembly&);
-  void operator=(const vtkPropAssembly&);
 
   vtkPropCollection *Parts;
   float Bounds[6];
@@ -153,6 +151,9 @@ protected:
   // Support the BuildPaths() method,
   vtkTimeStamp PathTime;
   void UpdatePaths(); //apply transformations and properties recursively
+private:
+  vtkPropAssembly(const vtkPropAssembly&);  // Not implemented.
+  void operator=(const vtkPropAssembly&);  // Not implemented.
 };
 
 #endif

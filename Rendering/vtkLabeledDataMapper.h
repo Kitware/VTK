@@ -190,8 +190,6 @@ public:
 protected:
   vtkLabeledDataMapper();
   ~vtkLabeledDataMapper();
-  vtkLabeledDataMapper(const vtkLabeledDataMapper&);
-  void operator=(const vtkLabeledDataMapper&);
 
   vtkDataSet *Input;
   int LabelMode;
@@ -213,6 +211,9 @@ private:
   int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
 
+private:
+  vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.
+  void operator=(const vtkLabeledDataMapper&);  // Not implemented.
 };
 
 #endif

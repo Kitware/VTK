@@ -118,8 +118,6 @@ public:
 protected:
   vtkOutputPort();
   ~vtkOutputPort();  
-  vtkOutputPort(const vtkOutputPort&);
-  void operator=(const vtkOutputPort&);
   
   int Tag;
   
@@ -131,6 +129,9 @@ protected:
   void (*ParameterMethod)(void *);
   void (*ParameterMethodArgDelete)(void *);
   void *ParameterMethodArg;
+private:
+  vtkOutputPort(const vtkOutputPort&);  // Not implemented.
+  void operator=(const vtkOutputPort&);  // Not implemented.
 };
 
 #endif

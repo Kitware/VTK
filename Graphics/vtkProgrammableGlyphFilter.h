@@ -144,8 +144,6 @@ public:
 protected:
   vtkProgrammableGlyphFilter();
   ~vtkProgrammableGlyphFilter();
-  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&);
-  void operator=(const vtkProgrammableGlyphFilter&);
 
   void Execute();
 
@@ -158,6 +156,9 @@ protected:
   void (*GlyphMethodArgDelete)(void *);
   void *GlyphMethodArg;
   
+private:
+  vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableGlyphFilter&);  // Not implemented.
 };
 
 #endif

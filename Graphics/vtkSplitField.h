@@ -153,8 +153,6 @@ protected:
 
   vtkSplitField();
   virtual ~vtkSplitField();
-  vtkSplitField(const vtkSplitField&);
-  void operator=(const vtkSplitField&);
 
   void Execute();
 
@@ -202,6 +200,9 @@ protected:
 	} 
       while (cur);
     }
+private:
+  vtkSplitField(const vtkSplitField&);  // Not implemented.
+  void operator=(const vtkSplitField&);  // Not implemented.
 };
 
 #endif

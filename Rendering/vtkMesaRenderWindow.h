@@ -124,10 +124,11 @@ public:
 protected:
   vtkMesaRenderWindow();
   ~vtkMesaRenderWindow();
-  vtkMesaRenderWindow(const vtkMesaRenderWindow&);
-  void operator=(const vtkMesaRenderWindow&);
 
   vtkIdList *TextureResourceIds;
+private:
+  vtkMesaRenderWindow(const vtkMesaRenderWindow&);  // Not implemented.
+  void operator=(const vtkMesaRenderWindow&);  // Not implemented.
 };
 
 #endif

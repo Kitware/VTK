@@ -152,8 +152,6 @@ public:
 protected:
   vtkDepthSortPolyData();
   ~vtkDepthSortPolyData();
-  vtkDepthSortPolyData(const vtkDepthSortPolyData&);
-  void operator=(const vtkDepthSortPolyData&);
 
   void Execute();
   void ComputeProjectionVector(double vector[3], double origin[3]);
@@ -167,6 +165,9 @@ protected:
   double Origin[3];
   int SortScalars;
   
+private:
+  vtkDepthSortPolyData(const vtkDepthSortPolyData&);  // Not implemented.
+  void operator=(const vtkDepthSortPolyData&);  // Not implemented.
 };
 
 #endif

@@ -241,8 +241,6 @@ public:
 protected:
   vtkGeneralTransform();
   ~vtkGeneralTransform();
-  vtkGeneralTransform(const vtkGeneralTransform&);
-  void operator=(const vtkGeneralTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
   void InternalUpdate();
@@ -250,6 +248,9 @@ protected:
   vtkAbstractTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
+private:
+  vtkGeneralTransform(const vtkGeneralTransform&);  // Not implemented.
+  void operator=(const vtkGeneralTransform&);  // Not implemented.
 };
 
 

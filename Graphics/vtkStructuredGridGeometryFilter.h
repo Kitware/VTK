@@ -93,12 +93,13 @@ public:
 protected:
   vtkStructuredGridGeometryFilter();
   ~vtkStructuredGridGeometryFilter() {}
-  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&);
-  void operator=(const vtkStructuredGridGeometryFilter&);
 
   void Execute();
   void ComputeInputUpdateExtents( vtkDataObject *output );
   int Extent[6];
+private:
+  vtkStructuredGridGeometryFilter(const vtkStructuredGridGeometryFilter&);  // Not implemented.
+  void operator=(const vtkStructuredGridGeometryFilter&);  // Not implemented.
 };
 
 #endif

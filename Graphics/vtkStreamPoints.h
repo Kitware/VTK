@@ -72,8 +72,6 @@ public:
 protected:
   vtkStreamPoints();
   ~vtkStreamPoints() {};
-  vtkStreamPoints(const vtkStreamPoints&);
-  void operator=(const vtkStreamPoints&);
 
   // Convert streamer array into vtkPolyData
   void Execute();
@@ -81,6 +79,9 @@ protected:
   // the separation of points
   float TimeIncrement;
   
+private:
+  vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
+  void operator=(const vtkStreamPoints&);  // Not implemented.
 };
 
 #endif

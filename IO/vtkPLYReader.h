@@ -81,12 +81,13 @@ public:
 protected:
   vtkPLYReader();
   ~vtkPLYReader();
-  vtkPLYReader(const vtkPLYReader&);
-  void operator=(const vtkPLYReader&);
 
   char *FileName;
 
   void Execute();
+private:
+  vtkPLYReader(const vtkPLYReader&);  // Not implemented.
+  void operator=(const vtkPLYReader&);  // Not implemented.
 };
 
 #endif

@@ -118,8 +118,6 @@ public:
 protected:
   vtkTextureMapToPlane();
   ~vtkTextureMapToPlane() {};
-  vtkTextureMapToPlane(const vtkTextureMapToPlane&);
-  void operator=(const vtkTextureMapToPlane&);
 
   void Execute();
   void ComputeNormal();
@@ -132,6 +130,9 @@ protected:
   float TRange[2];
   int AutomaticPlaneGeneration;
 
+private:
+  vtkTextureMapToPlane(const vtkTextureMapToPlane&);  // Not implemented.
+  void operator=(const vtkTextureMapToPlane&);  // Not implemented.
 };
 
 #endif

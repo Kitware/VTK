@@ -84,8 +84,6 @@ public:
 protected:
   vtkAxes();
   ~vtkAxes() {};
-  vtkAxes(const vtkAxes&);
-  void operator=(const vtkAxes&);
 
   void Execute();
   // This source does not know how to generate pieces yet.
@@ -97,6 +95,9 @@ protected:
   
   int Symmetric;
   int ComputeNormals;
+private:
+  vtkAxes(const vtkAxes&);  // Not implemented.
+  void operator=(const vtkAxes&);  // Not implemented.
 };
 
 #endif

@@ -153,8 +153,6 @@ public:
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
-  vtkContourFilter(const vtkContourFilter&);
-  void operator=(const vtkContourFilter&);
 
   void Execute();
 
@@ -166,6 +164,9 @@ protected:
   int UseScalarTree;
   vtkScalarTree *ScalarTree;
   
+private:
+  vtkContourFilter(const vtkContourFilter&);  // Not implemented.
+  void operator=(const vtkContourFilter&);  // Not implemented.
 };
 
 // Description:

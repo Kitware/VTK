@@ -129,8 +129,6 @@ public:
 protected:
   vtkImageImport();
   ~vtkImageImport();
-  vtkImageImport(const vtkImageImport&);
-  void operator=(const vtkImageImport&);
 
   virtual void ExecuteInformation();
   
@@ -145,6 +143,9 @@ protected:
   float DataOrigin[3];
   
   virtual void ExecuteData(vtkDataObject *d);
+private:
+  vtkImageImport(const vtkImageImport&);  // Not implemented.
+  void operator=(const vtkImageImport&);  // Not implemented.
 };
 
 

@@ -157,8 +157,6 @@ public:
 protected:
   vtkLocator();
   ~vtkLocator();
-  vtkLocator(const vtkLocator&);
-  void operator=(const vtkLocator&);
 
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)
@@ -169,6 +167,9 @@ protected:
 
   vtkTimeStamp BuildTime;  // time at which locator was built
 
+private:
+  vtkLocator(const vtkLocator&);  // Not implemented.
+  void operator=(const vtkLocator&);  // Not implemented.
 };
 
 #endif

@@ -121,8 +121,6 @@ public:
 protected:
   vtkImplicitSelectionLoop();
   ~vtkImplicitSelectionLoop();
-  vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&);
-  void operator=(const vtkImplicitSelectionLoop&);
 
   vtkPoints *Loop;
   float Normal[3];
@@ -140,6 +138,9 @@ private:
 
   vtkTimeStamp InitializationTime;
 
+private:
+  vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&);  // Not implemented.
+  void operator=(const vtkImplicitSelectionLoop&);  // Not implemented.
 };
 
 #endif

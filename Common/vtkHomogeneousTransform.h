@@ -125,12 +125,13 @@ public:
 protected:
   vtkHomogeneousTransform();
   ~vtkHomogeneousTransform();
-  vtkHomogeneousTransform(const vtkHomogeneousTransform&);
-  void operator=(const vtkHomogeneousTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
   vtkMatrix4x4 *Matrix;
+private:
+  vtkHomogeneousTransform(const vtkHomogeneousTransform&);  // Not implemented.
+  void operator=(const vtkHomogeneousTransform&);  // Not implemented.
 };
 
 #endif

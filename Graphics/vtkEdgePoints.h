@@ -75,13 +75,14 @@ public:
 protected:
   vtkEdgePoints();
   ~vtkEdgePoints();
-  vtkEdgePoints(const vtkEdgePoints&);
-  void operator=(const vtkEdgePoints&);
 
   void Execute();
 
   float Value;
   vtkMergePoints *Locator;
+private:
+  vtkEdgePoints(const vtkEdgePoints&);  // Not implemented.
+  void operator=(const vtkEdgePoints&);  // Not implemented.
 };
 
 #endif

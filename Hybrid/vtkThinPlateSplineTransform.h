@@ -128,8 +128,6 @@ public:
 protected:
   vtkThinPlateSplineTransform();
   ~vtkThinPlateSplineTransform();
-  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&);
-  void operator=(const vtkThinPlateSplineTransform&);
 
   // Description:
   // Prepare the transformation for application.
@@ -160,6 +158,9 @@ protected:
 
   int NumberOfPoints;
   double **MatrixW;
+private:
+  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&);  // Not implemented.
+  void operator=(const vtkThinPlateSplineTransform&);  // Not implemented.
 };
 
 #endif

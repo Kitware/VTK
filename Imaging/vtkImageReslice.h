@@ -305,8 +305,6 @@ public:
 protected:
   vtkImageReslice();
   ~vtkImageReslice();
-  vtkImageReslice(const vtkImageReslice&);
-  void operator=(const vtkImageReslice&);
 
   vtkMatrix4x4 *ResliceAxes;
   double ResliceAxesDirectionCosines[9];
@@ -343,6 +341,9 @@ protected:
   void OptimizedComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void OptimizedThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
                                 int ext[6], int id);
+private:
+  vtkImageReslice(const vtkImageReslice&);  // Not implemented.
+  void operator=(const vtkImageReslice&);  // Not implemented.
 };
 
 //----------------------------------------------------------------------------

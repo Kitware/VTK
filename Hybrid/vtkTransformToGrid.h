@@ -107,8 +107,6 @@ public:
 protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
-  vtkTransformToGrid(const vtkTransformToGrid&);
-  void operator=(const vtkTransformToGrid&);
 
   void ExecuteInformation();
 
@@ -131,6 +129,9 @@ protected:
   float DisplacementScale;
   float DisplacementShift;
   vtkTimeStamp ShiftScaleTime;
+private:
+  vtkTransformToGrid(const vtkTransformToGrid&);  // Not implemented.
+  void operator=(const vtkTransformToGrid&);  // Not implemented.
 };
 
 #endif

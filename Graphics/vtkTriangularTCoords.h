@@ -68,11 +68,12 @@ public:
 protected:
   vtkTriangularTCoords() {};
   ~vtkTriangularTCoords() {};
-  vtkTriangularTCoords(const vtkTriangularTCoords&);
-  void operator=(const vtkTriangularTCoords&);
 
   // Usual data generation method
   void Execute();
+private:
+  vtkTriangularTCoords(const vtkTriangularTCoords&);  // Not implemented.
+  void operator=(const vtkTriangularTCoords&);  // Not implemented.
 };
 
 #endif

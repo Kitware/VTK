@@ -192,8 +192,6 @@ public:
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
-  vtkStructuredGrid(const vtkStructuredGrid&);
-  void operator=(const vtkStructuredGrid&);
 
   // for the GetCell method
   vtkVertex *Vertex;
@@ -226,6 +224,9 @@ private:
   // Internal method used by DeepCopy and ShallowCopy.
   void InternalStructuredGridCopy(vtkStructuredGrid *src);
 
+private:
+  vtkStructuredGrid(const vtkStructuredGrid&);  // Not implemented.
+  void operator=(const vtkStructuredGrid&);  // Not implemented.
 };
 
 

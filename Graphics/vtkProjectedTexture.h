@@ -106,8 +106,6 @@ public:
 protected:
   vtkProjectedTexture();
   ~vtkProjectedTexture() {};
-  vtkProjectedTexture(const vtkProjectedTexture&);
-  void operator=(const vtkProjectedTexture&);
 
   void Execute();
   void ComputeNormal();
@@ -119,6 +117,9 @@ protected:
   float AspectRatio[3];
   float SRange[2];
   float TRange[2];
+private:
+  vtkProjectedTexture(const vtkProjectedTexture&);  // Not implemented.
+  void operator=(const vtkProjectedTexture&);  // Not implemented.
 };
 
 #endif

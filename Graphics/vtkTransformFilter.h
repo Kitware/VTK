@@ -81,11 +81,12 @@ public:
 protected:
   vtkTransformFilter();
   ~vtkTransformFilter();
-  vtkTransformFilter(const vtkTransformFilter&);
-  void operator=(const vtkTransformFilter&);
 
   void Execute();
   vtkAbstractTransform *Transform;
+private:
+  vtkTransformFilter(const vtkTransformFilter&);  // Not implemented.
+  void operator=(const vtkTransformFilter&);  // Not implemented.
 };
 
 #endif

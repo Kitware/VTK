@@ -344,8 +344,6 @@ public:
 protected:
   vtkRenderer();
   ~vtkRenderer();
-  vtkRenderer(const vtkRenderer&);
-  void operator=(const vtkRenderer&);
 
   // internal method for doing a render for picking purposes
   virtual void PickRender(vtkPropCollection *props);
@@ -421,6 +419,9 @@ protected:
   virtual int UpdateLights(void) {return 0;};
   
   vtkRayCaster *RayCaster;
+private:
+  vtkRenderer(const vtkRenderer&);  // Not implemented.
+  void operator=(const vtkRenderer&);  // Not implemented.
 };
 
 // Description:

@@ -92,8 +92,6 @@ public:
 protected:
   vtkCutMaterial();
   ~vtkCutMaterial();
-  vtkCutMaterial(const vtkCutMaterial&);
-  void operator=(const vtkCutMaterial&);
 
   void Execute(); //generate output data
   void ComputeMaximumPoint(vtkDataSet *input);
@@ -109,6 +107,9 @@ protected:
   
   vtkPlane *PlaneFunction;
   
+private:
+  vtkCutMaterial(const vtkCutMaterial&);  // Not implemented.
+  void operator=(const vtkCutMaterial&);  // Not implemented.
 };
 
 #endif

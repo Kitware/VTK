@@ -102,8 +102,6 @@ public:
 protected:
   vtkExtractGrid();
   ~vtkExtractGrid() {};
-  vtkExtractGrid(const vtkExtractGrid&);
-  void operator=(const vtkExtractGrid&);
 
   void Execute();
   void ExecuteInformation();
@@ -113,6 +111,9 @@ protected:
   int SampleRate[3];
   int IncludeBoundary;
   
+private:
+  vtkExtractGrid(const vtkExtractGrid&);  // Not implemented.
+  void operator=(const vtkExtractGrid&);  // Not implemented.
 };
 
 #endif

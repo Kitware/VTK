@@ -226,8 +226,6 @@ public:
 protected:
   vtkVolumeProMapper();
   ~vtkVolumeProMapper();
-  vtkVolumeProMapper(const vtkVolumeProMapper&);
-  void operator=(const vtkVolumeProMapper&);
  // Make sure everything is OK for rendering
   int StatusOK();
 
@@ -293,6 +291,9 @@ protected:
   int                  WrongVLIVersion;
   int                  DisplayedMessage;
 
+private:
+  vtkVolumeProMapper(const vtkVolumeProMapper&);  // Not implemented.
+  void operator=(const vtkVolumeProMapper&);  // Not implemented.
 };
 
 // Description:

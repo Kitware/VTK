@@ -172,8 +172,6 @@ public:
 protected:
   vtkIdTypeArray(vtkIdType numComp=1);
   ~vtkIdTypeArray();
-  vtkIdTypeArray(const vtkIdTypeArray&);
-  void operator=(const vtkIdTypeArray&);
 
   vtkIdType *Array;   // pointer to data
   vtkIdType *ResizeAndExtend(const vtkIdType sz);  // function to resize data
@@ -182,6 +180,9 @@ protected:
   float *Tuple;
 
   int SaveUserArray;
+private:
+  vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
+  void operator=(const vtkIdTypeArray&);  // Not implemented.
 };
 
 

@@ -127,14 +127,15 @@ public:
 protected:
   vtkMarchingSquares();
   ~vtkMarchingSquares();
-  vtkMarchingSquares(const vtkMarchingSquares&);
-  void operator=(const vtkMarchingSquares&);
 
   void Execute();
 
   vtkContourValues *ContourValues;
   int ImageRange[6];
   vtkPointLocator *Locator;
+private:
+  vtkMarchingSquares(const vtkMarchingSquares&);  // Not implemented.
+  void operator=(const vtkMarchingSquares&);  // Not implemented.
 };
 
 // Description:

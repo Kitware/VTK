@@ -102,8 +102,6 @@ public:
 protected:
   vtkExtractPolyDataGeometry(vtkImplicitFunction *f=NULL);
   ~vtkExtractPolyDataGeometry();
-  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&);
-  void operator=(const vtkExtractPolyDataGeometry&);
 
   // Usual data generation method
   void Execute();
@@ -111,6 +109,9 @@ protected:
   vtkImplicitFunction *ImplicitFunction;
   int ExtractInside;
   int ExtractBoundaryCells;
+private:
+  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&);  // Not implemented.
+  void operator=(const vtkExtractPolyDataGeometry&);  // Not implemented.
 };
 
 #endif

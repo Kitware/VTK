@@ -60,8 +60,6 @@ public:
 protected:
   vtkStructuredGridOutlineFilter() {};
   ~vtkStructuredGridOutlineFilter() {};
-  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);
-  void operator=(const vtkStructuredGridOutlineFilter&);
 
   int GetNumberOfStreamDivisions();
   int ComputeDivisionExtents(vtkDataObject *output, int idx, int NumDivisions);
@@ -69,6 +67,9 @@ protected:
   void Execute();
 
   void ConvertPiece(int piece, int numPieces, int &start, int &end);
+private:
+  vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.
+  void operator=(const vtkStructuredGridOutlineFilter&);  // Not implemented.
 };
 
 #endif

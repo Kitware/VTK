@@ -119,13 +119,14 @@ public:
 protected:
   vtkWedge();
   ~vtkWedge();
-  vtkWedge(const vtkWedge&);
-  void operator=(const vtkWedge&);
 
   vtkLine *Line;
   vtkTriangle *Triangle;
   vtkQuad *Quad;
 
+private:
+  vtkWedge(const vtkWedge&);  // Not implemented.
+  void operator=(const vtkWedge&);  // Not implemented.
 };
 
 inline int vtkWedge::GetParametricCenter(float pcoords[3])

@@ -105,13 +105,14 @@ public:
 protected:  
   vtkPolyDataMapper();
   ~vtkPolyDataMapper() {};
-  vtkPolyDataMapper(const vtkPolyDataMapper&);
-  void operator=(const vtkPolyDataMapper&);
 
   int Piece;
   int NumberOfPieces;
   int NumberOfSubPieces;
   int GhostLevel;
+private:
+  vtkPolyDataMapper(const vtkPolyDataMapper&);  // Not implemented.
+  void operator=(const vtkPolyDataMapper&);  // Not implemented.
 };
 
 #endif

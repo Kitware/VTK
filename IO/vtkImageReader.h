@@ -223,8 +223,6 @@ public:
 protected:
   vtkImageReader();
   ~vtkImageReader();
-  vtkImageReader(const vtkImageReader&);
-  void operator=(const vtkImageReader&);
 
   char *InternalFileName;
   char *FileName;
@@ -263,6 +261,9 @@ protected:
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);
   virtual void ComputeDataIncrements();
+private:
+  vtkImageReader(const vtkImageReader&);  // Not implemented.
+  void operator=(const vtkImageReader&);  // Not implemented.
 };
 
 #endif

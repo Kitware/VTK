@@ -366,8 +366,6 @@ protected:
 
   vtkFieldData();
   ~vtkFieldData();
-  vtkFieldData(const vtkFieldData&);
-  void operator=(const vtkFieldData&);
 
   int NumberOfArrays;
   int NumberOfActiveArrays;
@@ -475,6 +473,9 @@ public:
 
 //ETX
 
+private:
+  vtkFieldData(const vtkFieldData&);  // Not implemented.
+  void operator=(const vtkFieldData&);  // Not implemented.
 };
 
 

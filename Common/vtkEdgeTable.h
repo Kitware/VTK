@@ -142,8 +142,6 @@ public:
 protected:
   vtkEdgeTable();
   ~vtkEdgeTable();
-  vtkEdgeTable(const vtkEdgeTable&);
-  void operator=(const vtkEdgeTable&);
 
   vtkIdList **Table;
   vtkIdList **Attributes;
@@ -156,6 +154,9 @@ protected:
   vtkPoints *Points; //support point insertion
 
   vtkIdList **Resize(vtkIdType size);
+private:
+  vtkEdgeTable(const vtkEdgeTable&);  // Not implemented.
+  void operator=(const vtkEdgeTable&);  // Not implemented.
 };
 
 #endif

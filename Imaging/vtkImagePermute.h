@@ -67,8 +67,6 @@ public:
 protected:
   vtkImagePermute();
   ~vtkImagePermute() {};
-  vtkImagePermute(const vtkImagePermute&);
-  void operator=(const vtkImagePermute&);
 
   int  FilteredAxes[3];
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
@@ -76,6 +74,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
+private:
+  vtkImagePermute(const vtkImagePermute&);  // Not implemented.
+  void operator=(const vtkImagePermute&);  // Not implemented.
 };
 
 #endif

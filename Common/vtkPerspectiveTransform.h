@@ -325,8 +325,6 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
 protected:
   vtkPerspectiveTransform();
   ~vtkPerspectiveTransform();
-  vtkPerspectiveTransform(const vtkPerspectiveTransform& t);
-  void operator=(const vtkPerspectiveTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
   void InternalUpdate();
@@ -334,6 +332,9 @@ protected:
   vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;
   vtkTransformConcatenationStack *Stack;
+private:
+  vtkPerspectiveTransform(const vtkPerspectiveTransform& t);  // Not implemented.
+  void operator=(const vtkPerspectiveTransform&);  // Not implemented.
 };
 
 

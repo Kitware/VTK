@@ -61,8 +61,9 @@ public:
 
 protected:
   vtkImagingFactory() {};
-  vtkImagingFactory(const vtkImagingFactory&);
-  void operator=(const vtkImagingFactory&);
+private:
+  vtkImagingFactory(const vtkImagingFactory&);  // Not implemented.
+  void operator=(const vtkImagingFactory&);  // Not implemented.
 };
 
 #endif

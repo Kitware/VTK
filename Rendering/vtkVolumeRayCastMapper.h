@@ -208,8 +208,6 @@ public:
 protected:
   vtkVolumeRayCastMapper();
   ~vtkVolumeRayCastMapper();
-  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);
-  void operator=(const vtkVolumeRayCastMapper&);
 
   vtkVolumeRayCastFunction     *VolumeRayCastFunction;
   vtkEncodedGradientEstimator  *GradientEstimator;
@@ -303,6 +301,9 @@ protected:
   // the zbuffer image coordinates. Nearest neighbor value is returned.
   float         GetZBufferValue( int x, int y );
 
+private:
+  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkVolumeRayCastMapper&);  // Not implemented.
 };
 
 #endif

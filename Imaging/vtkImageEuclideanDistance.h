@@ -135,8 +135,6 @@ public:
 protected:
   vtkImageEuclideanDistance();
   ~vtkImageEuclideanDistance() {}
-  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);
-  void operator=(const vtkImageEuclideanDistance&);
 
   float MaximumDistance;
   int Initialize;
@@ -149,6 +147,9 @@ protected:
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int threadId);
+private:
+  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);  // Not implemented.
+  void operator=(const vtkImageEuclideanDistance&);  // Not implemented.
 };
 
 #endif

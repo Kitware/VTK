@@ -122,13 +122,14 @@ public:
 protected:
   vtkPyramid();
   ~vtkPyramid();
-  vtkPyramid(const vtkPyramid&);
-  void operator=(const vtkPyramid&);
 
   vtkLine *Line;
   vtkTriangle *Triangle;
   vtkQuad *Quad;
 
+private:
+  vtkPyramid(const vtkPyramid&);  // Not implemented.
+  void operator=(const vtkPyramid&);  // Not implemented.
 };
 
 inline int vtkPyramid::GetParametricCenter(float pcoords[3])

@@ -100,13 +100,14 @@ public:
 protected:
   vtkVoxelModeller();
   ~vtkVoxelModeller() {};
-  vtkVoxelModeller(const vtkVoxelModeller&);
-  void operator=(const vtkVoxelModeller&);
 
   void Execute();
   int SampleDimensions[3];
   float MaximumDistance;
   float ModelBounds[6];
+private:
+  vtkVoxelModeller(const vtkVoxelModeller&);  // Not implemented.
+  void operator=(const vtkVoxelModeller&);  // Not implemented.
 };
 
 #endif

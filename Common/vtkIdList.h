@@ -132,14 +132,15 @@ public:
 protected:
   vtkIdList();
   ~vtkIdList();
-  vtkIdList(const vtkIdList&);
-  void operator=(const vtkIdList&);
 
   vtkIdType NumberOfIds;
   vtkIdType Size; 
   vtkIdType *Ids;
 
   vtkIdType *Resize(const vtkIdType sz);
+private:
+  vtkIdList(const vtkIdList&);  // Not implemented.
+  void operator=(const vtkIdList&);  // Not implemented.
 };
 
 // In-lined for performance

@@ -119,8 +119,6 @@ public:
 protected:
   vtkImageChangeInformation();
   ~vtkImageChangeInformation();
-  vtkImageChangeInformation(const vtkImageChangeInformation&) {};
-  void operator=(const vtkImageChangeInformation&) {};
 
   vtkImageData *InformationInput;
   int CenterImage;
@@ -141,6 +139,9 @@ protected:
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };
   void ExecuteData(vtkDataObject *data);
+private:
+  vtkImageChangeInformation(const vtkImageChangeInformation&) {};  // Not implemented.
+  void operator=(const vtkImageChangeInformation&) {};  // Not implemented.
 };
 
 

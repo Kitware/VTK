@@ -97,13 +97,14 @@ public:
 protected:
   vtkVectorNorm();
   ~vtkVectorNorm() {};
-  vtkVectorNorm(const vtkVectorNorm&);
-  void operator=(const vtkVectorNorm&);
 
   void Execute();
 
   int Normalize;  // normalize 0<=n<=1 if true.
   int AttributeMode; //control whether to use point or cell data, or both
+private:
+  vtkVectorNorm(const vtkVectorNorm&);  // Not implemented.
+  void operator=(const vtkVectorNorm&);  // Not implemented.
 };
 
 #endif

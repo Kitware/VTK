@@ -134,8 +134,6 @@ public:
 protected:
   vtkImageViewer2();
   ~vtkImageViewer2();
-  vtkImageViewer2(const vtkImageViewer2&);
-  void operator=(const vtkImageViewer2&);
 
   vtkImageMapToWindowLevelColors  *WindowLevel;
   vtkRenderWindow *RenderWindow;
@@ -144,6 +142,9 @@ protected:
   int FirstRender;
   vtkRenderWindowInteractor *Interactor;
   vtkInteractorStyleImage *InteractorStyle;
+private:
+  vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.
+  void operator=(const vtkImageViewer2&);  // Not implemented.
 };
 
 #endif

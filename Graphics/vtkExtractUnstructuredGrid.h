@@ -148,8 +148,6 @@ public:
 protected:
   vtkExtractUnstructuredGrid();
   ~vtkExtractUnstructuredGrid() {};
-  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);
-  void operator=(const vtkExtractUnstructuredGrid&);
 
   void Execute();
 
@@ -164,6 +162,9 @@ protected:
 
   int Merging;
   vtkPointLocator *Locator;
+private:
+  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkExtractUnstructuredGrid&);  // Not implemented.
 };
 
 #endif

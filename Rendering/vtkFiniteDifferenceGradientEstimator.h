@@ -88,13 +88,14 @@ public:
 protected:
   vtkFiniteDifferenceGradientEstimator();
   ~vtkFiniteDifferenceGradientEstimator();
-  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);
-  void operator=(const vtkFiniteDifferenceGradientEstimator&);
 
 
   // Description:
   // Recompute the encoded normals and gradient magnitudes.
   void UpdateNormals( void );
+private:
+  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
+  void operator=(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
 }; 
 
 

@@ -94,8 +94,6 @@ public:
 protected:
   vtkImageStencil();
   ~vtkImageStencil();
-  vtkImageStencil(const vtkImageStencil&);
-  void operator=(const vtkImageStencil&);
 
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };
@@ -106,6 +104,9 @@ protected:
   
   int ReverseStencil;
   float BackgroundColor[4];
+private:
+  vtkImageStencil(const vtkImageStencil&);  // Not implemented.
+  void operator=(const vtkImageStencil&);  // Not implemented.
 };
 
 #endif

@@ -66,8 +66,9 @@ public:
 protected:
   vtkRectilinearGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkRectilinearGridToPolyDataFilter() {};
-  vtkRectilinearGridToPolyDataFilter(const vtkRectilinearGridToPolyDataFilter&);
-  void operator=(const vtkRectilinearGridToPolyDataFilter&);
+private:
+  vtkRectilinearGridToPolyDataFilter(const vtkRectilinearGridToPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkRectilinearGridToPolyDataFilter&);  // Not implemented.
 };
 
 #endif

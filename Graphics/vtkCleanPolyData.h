@@ -176,8 +176,6 @@ public:
 protected:
   vtkCleanPolyData();
  ~vtkCleanPolyData();
-  vtkCleanPolyData(const vtkCleanPolyData&);
-  void operator=(const vtkCleanPolyData&);
 
   // Usual data generation method
   void Execute();
@@ -194,6 +192,9 @@ protected:
   vtkPointLocator *Locator;
 
   int PieceInvariant;
+private:
+  vtkCleanPolyData(const vtkCleanPolyData&);  // Not implemented.
+  void operator=(const vtkCleanPolyData&);  // Not implemented.
 };
 
 #endif

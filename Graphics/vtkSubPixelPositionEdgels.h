@@ -87,8 +87,6 @@ public:
 protected:
   vtkSubPixelPositionEdgels();
   ~vtkSubPixelPositionEdgels();
-  vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&);
-  void operator=(const vtkSubPixelPositionEdgels&);
 
   // Usual data generation method
   void Execute();
@@ -98,6 +96,9 @@ protected:
   // extension for target instead of maximum
   int TargetFlag;
   float TargetValue;
+private:
+  vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&);  // Not implemented.
+  void operator=(const vtkSubPixelPositionEdgels&);  // Not implemented.
 };
 
 #endif

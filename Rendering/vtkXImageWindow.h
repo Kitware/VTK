@@ -172,8 +172,6 @@ public:
 protected:
   vtkXImageWindow();
   ~vtkXImageWindow();
-  vtkXImageWindow(const vtkXImageWindow&);
-  void operator=(const vtkXImageWindow&);
 
   // X stuff
   Window               ParentId;
@@ -201,6 +199,9 @@ protected:
 			       int &rscale, int &gscale, int &bscale,
 			       unsigned long &rmask, unsigned long &gmask,
 			       unsigned long &bmask);
+private:
+  vtkXImageWindow(const vtkXImageWindow&);  // Not implemented.
+  void operator=(const vtkXImageWindow&);  // Not implemented.
 };
 
 #endif

@@ -82,8 +82,6 @@ public:
  protected:
   vtkButterflySubdivisionFilter () {};
   ~vtkButterflySubdivisionFilter () {};
-  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);
-  void operator=(const vtkButterflySubdivisionFilter&);
 
  private:
   void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
@@ -94,6 +92,9 @@ public:
                            vtkIdList *stencilIds, float *weights);
   void GenerateBoundaryStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
                                vtkIdList *stencilIds, float *weights);
+private:
+  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkButterflySubdivisionFilter&);  // Not implemented.
 };
 
 #endif

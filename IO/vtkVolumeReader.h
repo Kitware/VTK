@@ -110,14 +110,15 @@ public:
 protected:
   vtkVolumeReader();
   ~vtkVolumeReader();
-  vtkVolumeReader(const vtkVolumeReader&);
-  void operator=(const vtkVolumeReader&);
 
   char *FilePrefix;
   char *FilePattern;
   int ImageRange[2];
   float DataSpacing[3];
   float DataOrigin[3];
+private:
+  vtkVolumeReader(const vtkVolumeReader&);  // Not implemented.
+  void operator=(const vtkVolumeReader&);  // Not implemented.
 };
 
 #endif

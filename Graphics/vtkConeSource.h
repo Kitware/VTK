@@ -95,8 +95,6 @@ public:
 protected:
   vtkConeSource(int res=6);
   ~vtkConeSource() {};
-  vtkConeSource(const vtkConeSource&);
-  void operator=(const vtkConeSource&);
 
   void Execute();
   void ExecuteInformation();
@@ -104,6 +102,9 @@ protected:
   float Radius;
   int Resolution;
   int Capping;
+private:
+  vtkConeSource(const vtkConeSource&);  // Not implemented.
+  void operator=(const vtkConeSource&);  // Not implemented.
 };
 
 #endif

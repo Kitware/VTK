@@ -162,8 +162,6 @@ public:
 protected:
   vtkBitArray(vtkIdType numComp=1);
   ~vtkBitArray();
-  vtkBitArray(const vtkBitArray&);
-  void operator=(const vtkBitArray&);
 
   unsigned char *Array;   // pointer to data
   unsigned char *ResizeAndExtend(const vtkIdType sz);
@@ -178,6 +176,9 @@ private:
   // hide superclass' DeepCopy() from the user and the compiler
   void DeepCopy(vtkDataArray &da) {this->vtkDataArray::DeepCopy(&da);}
   
+private:
+  vtkBitArray(const vtkBitArray&);  // Not implemented.
+  void operator=(const vtkBitArray&);  // Not implemented.
 };
 
 inline unsigned char *vtkBitArray::WritePointer(const vtkIdType id,

@@ -216,8 +216,6 @@ public:
 protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
-  vtkImplicitModeller(const vtkImplicitModeller&);
-  void operator=(const vtkImplicitModeller&);
 
   void Execute();
   void ExecuteInformation();
@@ -240,6 +238,9 @@ protected:
 
   int BoundsComputed; // flag to limit to one ComputeModelBounds per StartAppend
   float InternalMaxDistance; // the max distance computed during that one call
+private:
+  vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
+  void operator=(const vtkImplicitModeller&);  // Not implemented.
 };
 
 #endif

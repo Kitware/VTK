@@ -111,8 +111,6 @@ public:
 protected:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
-  vtkImplicitDataSet(const vtkImplicitDataSet&);
-  void operator=(const vtkImplicitDataSet&);
 
   vtkDataSet *DataSet;
   float OutValue;
@@ -121,6 +119,9 @@ protected:
   float *Weights; //used to compute interpolation weights
   int Size; //keeps track of length of weights array
 
+private:
+  vtkImplicitDataSet(const vtkImplicitDataSet&);  // Not implemented.
+  void operator=(const vtkImplicitDataSet&);  // Not implemented.
 };
 
 #endif

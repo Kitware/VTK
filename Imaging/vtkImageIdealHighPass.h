@@ -78,13 +78,14 @@ public:
 protected:
   vtkImageIdealHighPass();
   ~vtkImageIdealHighPass() {};
-  vtkImageIdealHighPass(const vtkImageIdealHighPass&);
-  void operator=(const vtkImageIdealHighPass&);
 
   float CutOff[3];
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);
+private:
+  vtkImageIdealHighPass(const vtkImageIdealHighPass&);  // Not implemented.
+  void operator=(const vtkImageIdealHighPass&);  // Not implemented.
 };
 
 #endif

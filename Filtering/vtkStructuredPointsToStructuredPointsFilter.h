@@ -67,8 +67,6 @@ public:
 protected:
   vtkStructuredPointsToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkStructuredPointsToStructuredPointsFilter() {};
-  vtkStructuredPointsToStructuredPointsFilter(const vtkStructuredPointsToStructuredPointsFilter&);
-  void operator=(const vtkStructuredPointsToStructuredPointsFilter&);
 
   // Since input[0] and output are of same type, we can create this
   // method that defaults to just copying information.
@@ -76,6 +74,9 @@ protected:
 
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
+private:
+  vtkStructuredPointsToStructuredPointsFilter(const vtkStructuredPointsToStructuredPointsFilter&);  // Not implemented.
+  void operator=(const vtkStructuredPointsToStructuredPointsFilter&);  // Not implemented.
 };
 
 #endif

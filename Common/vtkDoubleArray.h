@@ -168,8 +168,6 @@ public:
 protected:
   vtkDoubleArray(vtkIdType numComp=1);
   ~vtkDoubleArray();
-  vtkDoubleArray(const vtkDoubleArray&);
-  void operator=(const vtkDoubleArray&);
 
   double *Array;   // pointer to data
   double *ResizeAndExtend(const vtkIdType sz);  // function to resize data
@@ -178,6 +176,9 @@ protected:
   float *Tuple;
   
   int SaveUserArray;
+private:
+  vtkDoubleArray(const vtkDoubleArray&);  // Not implemented.
+  void operator=(const vtkDoubleArray&);  // Not implemented.
 };
 
 inline void vtkDoubleArray::SetNumberOfValues(const vtkIdType number) 

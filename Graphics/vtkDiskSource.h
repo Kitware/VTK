@@ -83,8 +83,6 @@ public:
 protected:
   vtkDiskSource();
   ~vtkDiskSource() {};
-  vtkDiskSource(const vtkDiskSource&);
-  void operator=(const vtkDiskSource&);
 
   void Execute();
   float InnerRadius;
@@ -92,6 +90,9 @@ protected:
   int RadialResolution;
   int CircumferentialResolution;
 
+private:
+  vtkDiskSource(const vtkDiskSource&);  // Not implemented.
+  void operator=(const vtkDiskSource&);  // Not implemented.
 };
 
 #endif

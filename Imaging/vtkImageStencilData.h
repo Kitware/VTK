@@ -164,8 +164,6 @@ public:
 protected:
   vtkImageStencilData();
   ~vtkImageStencilData();
-  vtkImageStencilData(const vtkImageStencilData&);
-  void operator=(const vtkImageStencilData&);
 
   // Description:
   // Check to see of the Spacing and Origin are different
@@ -188,6 +186,9 @@ protected:
   int NumberOfExtentEntries;
   int *ExtentListLengths;
   int **ExtentLists;
+private:
+  vtkImageStencilData(const vtkImageStencilData&);  // Not implemented.
+  void operator=(const vtkImageStencilData&);  // Not implemented.
 };
 
 #endif

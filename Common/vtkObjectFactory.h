@@ -213,8 +213,6 @@ protected:
   
   vtkObjectFactory();
   ~vtkObjectFactory();
-  vtkObjectFactory(const vtkObjectFactory&);
-  void operator=(const vtkObjectFactory&);
   //BTX
   struct OverrideInformation
   {
@@ -254,6 +252,9 @@ private:
   void* LibraryHandle;
   unsigned long LibraryDate;
   char* LibraryPath;
+private:
+  vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
+  void operator=(const vtkObjectFactory&);  // Not implemented.
 };
 
 // Macro to create an object creation function.

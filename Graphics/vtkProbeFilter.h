@@ -85,8 +85,6 @@ public:
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
-  vtkProbeFilter(const vtkProbeFilter&);
-  void operator=(const vtkProbeFilter&);
 
   int SpatialMatch;
 
@@ -95,6 +93,9 @@ protected:
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
   vtkIdTypeArray *ValidPoints;
+private:
+  vtkProbeFilter(const vtkProbeFilter&);  // Not implemented.
+  void operator=(const vtkProbeFilter&);  // Not implemented.
 };
 
 #endif

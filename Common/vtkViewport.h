@@ -265,8 +265,6 @@ protected:
   // culling turned off.
   vtkViewport();
   ~vtkViewport();
-  vtkViewport(const vtkViewport&);
-  void operator=(const vtkViewport&);
 
   //BTX
   // Picking functions to be implemented by sub-classes
@@ -311,6 +309,9 @@ protected:
   float ViewPoint[3];
   float WorldPoint[4];
 
+private:
+  vtkViewport(const vtkViewport&);  // Not implemented.
+  void operator=(const vtkViewport&);  // Not implemented.
 };
 
 

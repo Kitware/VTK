@@ -144,9 +144,10 @@ public:
 protected:
   vtkLine();
   ~vtkLine() {};
-  vtkLine(const vtkLine&);
-  void operator=(const vtkLine&);
 
+private:
+  vtkLine(const vtkLine&);  // Not implemented.
+  void operator=(const vtkLine&);  // Not implemented.
 };
 
 #endif

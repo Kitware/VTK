@@ -99,9 +99,10 @@ public:
 protected:
   vtkDataObjectSource();
   ~vtkDataObjectSource() {};
-  vtkDataObjectSource(const vtkDataObjectSource&);
-  void operator=(const vtkDataObjectSource&);
 
+private:
+  vtkDataObjectSource(const vtkDataObjectSource&);  // Not implemented.
+  void operator=(const vtkDataObjectSource&);  // Not implemented.
 };
 
 #endif

@@ -211,8 +211,6 @@ public:
 protected:
   vtkByteSwap() {};
   ~vtkByteSwap() {};
-  vtkByteSwap(const vtkByteSwap&);
-  void operator=(const vtkByteSwap&);
 
 private:
   // Description:
@@ -223,6 +221,9 @@ private:
  
   static void Swap8Bytes(char* &data);
 
+private:
+  vtkByteSwap(const vtkByteSwap&);  // Not implemented.
+  void operator=(const vtkByteSwap&);  // Not implemented.
 };
 
 

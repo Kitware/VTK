@@ -94,8 +94,6 @@ public:
 protected:
   vtkMaskPoints();
   ~vtkMaskPoints() {};
-  vtkMaskPoints(const vtkMaskPoints&);
-  void operator=(const vtkMaskPoints&);
 
   void Execute();
 
@@ -104,6 +102,9 @@ protected:
   int RandomMode;  // turn on/off randomization
   vtkIdType MaximumNumberOfPoints;
   int GenerateVertices; //generate polydata verts
+private:
+  vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
+  void operator=(const vtkMaskPoints&);  // Not implemented.
 };
 
 #endif

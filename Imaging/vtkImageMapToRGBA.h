@@ -62,8 +62,9 @@ public:
 protected:
   vtkImageMapToRGBA() {};
   ~vtkImageMapToRGBA() {};
-  vtkImageMapToRGBA(const vtkImageMapToRGBA&);
-  void operator=(const vtkImageMapToRGBA&);
+private:
+  vtkImageMapToRGBA(const vtkImageMapToRGBA&);  // Not implemented.
+  void operator=(const vtkImageMapToRGBA&);  // Not implemented.
 };
 
 #endif

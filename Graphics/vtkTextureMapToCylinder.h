@@ -113,8 +113,6 @@ public:
 protected:
   vtkTextureMapToCylinder();
   ~vtkTextureMapToCylinder() {};
-  vtkTextureMapToCylinder(const vtkTextureMapToCylinder&);
-  void operator=(const vtkTextureMapToCylinder&);
 
   void Execute();
 
@@ -123,6 +121,9 @@ protected:
   int AutomaticCylinderGeneration;
   int PreventSeam;
 
+private:
+  vtkTextureMapToCylinder(const vtkTextureMapToCylinder&);  // Not implemented.
+  void operator=(const vtkTextureMapToCylinder&);  // Not implemented.
 };
 
 #endif

@@ -269,8 +269,6 @@ public:
 protected:
   vtkDataObjectToDataSetFilter();
   ~vtkDataObjectToDataSetFilter();
-  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);
-  void operator=(const vtkDataObjectToDataSetFilter&);
 
   void Execute(); //generate output data
   void ExecuteInformation();
@@ -346,6 +344,9 @@ protected:
   void ConstructSpacing();
   void ConstructOrigin();
   
+private:
+  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);  // Not implemented.
+  void operator=(const vtkDataObjectToDataSetFilter&);  // Not implemented.
 };
 
 #endif

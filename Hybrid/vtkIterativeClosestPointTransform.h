@@ -164,8 +164,6 @@ protected:
 
   vtkIterativeClosestPointTransform();
   ~vtkIterativeClosestPointTransform();
-  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&);
-  void operator=(const vtkIterativeClosestPointTransform&);
 
   void InternalUpdate();
 
@@ -185,6 +183,9 @@ protected:
   int NumberOfIterations;
   float MeanDistance;
   vtkLandmarkTransform *LandmarkTransform;
+private:
+  vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&);  // Not implemented.
+  void operator=(const vtkIterativeClosestPointTransform&);  // Not implemented.
 };
 
 #endif

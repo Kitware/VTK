@@ -64,10 +64,11 @@ public:
 protected:
   vtkProcessStatistics();
   ~vtkProcessStatistics() {};
-  vtkProcessStatistics(const vtkProcessStatistics&);
-  void operator=(const vtkProcessStatistics&);
 
   
+private:
+  vtkProcessStatistics(const vtkProcessStatistics&);  // Not implemented.
+  void operator=(const vtkProcessStatistics&);  // Not implemented.
 };
 
 #endif

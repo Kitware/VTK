@@ -150,8 +150,6 @@ public:
 protected:
   vtkTubeFilter();
   ~vtkTubeFilter() {};
-  vtkTubeFilter(const vtkTubeFilter&);
-  void operator=(const vtkTubeFilter&);
 
   // Usual data generation method
   void Execute();
@@ -166,6 +164,9 @@ protected:
   int OnRatio; //control the generation of the sides of the tube
   int Offset;  //control the generation of the sides
   
+private:
+  vtkTubeFilter(const vtkTubeFilter&);  // Not implemented.
+  void operator=(const vtkTubeFilter&);  // Not implemented.
 };
 
 // Description:

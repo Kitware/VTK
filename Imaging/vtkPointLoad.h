@@ -103,8 +103,6 @@ public:
 protected:
   vtkPointLoad();
   ~vtkPointLoad() {};
-  vtkPointLoad(const vtkPointLoad&);
-  void operator=(const vtkPointLoad&);
 
   void Execute();
 
@@ -114,6 +112,9 @@ protected:
   float ModelBounds[6];
   int ComputeEffectiveStress;
 
+private:
+  vtkPointLoad(const vtkPointLoad&);  // Not implemented.
+  void operator=(const vtkPointLoad&);  // Not implemented.
 };
 
 #endif

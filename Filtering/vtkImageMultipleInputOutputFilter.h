@@ -80,8 +80,6 @@ public:
 protected:
   vtkImageMultipleInputOutputFilter();
   ~vtkImageMultipleInputOutputFilter();
-  vtkImageMultipleInputOutputFilter(const vtkImageMultipleInputOutputFilter&);
-  void operator=(const vtkImageMultipleInputOutputFilter&);
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   
@@ -102,6 +100,9 @@ protected:
   void ExecuteInformation();
   // This is the one you should override.
   virtual void ExecuteInformation(vtkImageData **, vtkImageData **) {};
+private:
+  vtkImageMultipleInputOutputFilter(const vtkImageMultipleInputOutputFilter&);  // Not implemented.
+  void operator=(const vtkImageMultipleInputOutputFilter&);  // Not implemented.
 };
 
 #endif

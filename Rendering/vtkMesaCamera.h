@@ -66,8 +66,9 @@ public:
 protected:  
   vtkMesaCamera() {};
   ~vtkMesaCamera() {};
-  vtkMesaCamera(const vtkMesaCamera&);
-  void operator=(const vtkMesaCamera&);
+private:
+  vtkMesaCamera(const vtkMesaCamera&);  // Not implemented.
+  void operator=(const vtkMesaCamera&);  // Not implemented.
 };
 
 #endif

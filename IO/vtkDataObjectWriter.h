@@ -90,12 +90,13 @@ public:
 protected:
   vtkDataObjectWriter();
   ~vtkDataObjectWriter();
-  vtkDataObjectWriter(const vtkDataObjectWriter&);
-  void operator=(const vtkDataObjectWriter&);
 
   void WriteData();
   vtkDataWriter *Writer;
   
+private:
+  vtkDataObjectWriter(const vtkDataObjectWriter&);  // Not implemented.
+  void operator=(const vtkDataObjectWriter&);  // Not implemented.
 };
 
 #endif

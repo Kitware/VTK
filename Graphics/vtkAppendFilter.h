@@ -87,8 +87,6 @@ public:
 protected:
   vtkAppendFilter();
   ~vtkAppendFilter();
-  vtkAppendFilter(const vtkAppendFilter&);
-  void operator=(const vtkAppendFilter&);
 
   // Usual data generation method
   void Execute();
@@ -103,6 +101,9 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   void RemoveInput(vtkDataObject *input)
     { this->vtkProcessObject::RemoveInput(input); };
+private:
+  vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.
+  void operator=(const vtkAppendFilter&);  // Not implemented.
 };
 
 

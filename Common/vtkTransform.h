@@ -318,8 +318,6 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
 protected:
   vtkTransform ();
   ~vtkTransform ();
-  vtkTransform (const vtkTransform& t);
-  void operator=(const vtkTransform&);
 
   void InternalDeepCopy(vtkAbstractTransform *t);
 
@@ -336,6 +334,9 @@ protected:
   float Point[4];
   double DoublePoint[4];
   float ReturnValue[4];
+private:
+  vtkTransform (const vtkTransform& t);  // Not implemented.
+  void operator=(const vtkTransform&);  // Not implemented.
 };
 
 #endif

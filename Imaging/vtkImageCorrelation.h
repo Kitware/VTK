@@ -70,8 +70,6 @@ public:
 protected:
   vtkImageCorrelation();
   ~vtkImageCorrelation() {};
-  vtkImageCorrelation(const vtkImageCorrelation&);
-  void operator=(const vtkImageCorrelation&);
 
   int Dimensionality;
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
@@ -80,6 +78,9 @@ protected:
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageCorrelation(const vtkImageCorrelation&);  // Not implemented.
+  void operator=(const vtkImageCorrelation&);  // Not implemented.
 };
 
 #endif

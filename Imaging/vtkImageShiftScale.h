@@ -107,8 +107,6 @@ public:
 protected:
   vtkImageShiftScale();
   ~vtkImageShiftScale() {};
-  vtkImageShiftScale(const vtkImageShiftScale&);
-  void operator=(const vtkImageShiftScale&);
 
   float Shift;
   float Scale;
@@ -119,6 +117,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageShiftScale(const vtkImageShiftScale&);  // Not implemented.
+  void operator=(const vtkImageShiftScale&);  // Not implemented.
 };
 
 #endif

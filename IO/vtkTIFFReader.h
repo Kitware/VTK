@@ -88,8 +88,6 @@ public:
 protected:
   vtkTIFFReader() {};
   ~vtkTIFFReader() {};
-  vtkTIFFReader(const vtkTIFFReader&);
-  void operator=(const vtkTIFFReader&);
 
   virtual void ExecuteInformation();
 
@@ -102,6 +100,9 @@ protected:
   void ReadTag(_vtkTifTag *tag, FILE *fp);
   vtkTiffLong ReadTagLong(_vtkTifTag *tag, FILE *fp);
   //ETX
+private:
+  vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
+  void operator=(const vtkTIFFReader&);  // Not implemented.
 };
 
 #endif

@@ -224,8 +224,6 @@ public:
 protected:
   vtkPointLocator();
   ~vtkPointLocator();
-  vtkPointLocator(const vtkPointLocator&);
-  void operator=(const vtkPointLocator&);
 
   // place points in appropriate buckets
   void GetBucketNeighbors(vtkNeighborPoints* buckets,
@@ -254,6 +252,9 @@ protected:
   vtkIdType InsertionPointId;
 
   float InsertionLevel; 
+private:
+  vtkPointLocator(const vtkPointLocator&);  // Not implemented.
+  void operator=(const vtkPointLocator&);  // Not implemented.
 };
 
 #endif

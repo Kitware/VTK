@@ -95,14 +95,15 @@ public:
 protected:
   vtkMergeDataObjectFilter();
   ~vtkMergeDataObjectFilter();
-  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&);
-  void operator=(const vtkMergeDataObjectFilter&);
 
   // Usual data generation method
   void Execute();
 
   int OutputField; // which output field
 
+private:
+  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&);  // Not implemented.
+  void operator=(const vtkMergeDataObjectFilter&);  // Not implemented.
 };
 
 #endif

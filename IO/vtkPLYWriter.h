@@ -144,8 +144,6 @@ public:
 protected:
   vtkPLYWriter();
   ~vtkPLYWriter();
-  vtkPLYWriter(const vtkPLYWriter&);
-  void operator=(const vtkPLYWriter&);
 
   void WriteData();
   unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
@@ -157,6 +155,9 @@ protected:
   vtkScalarsToColors *LookupTable;
   unsigned char Color[3];
 
+private:
+  vtkPLYWriter(const vtkPLYWriter&);  // Not implemented.
+  void operator=(const vtkPLYWriter&);  // Not implemented.
 };
 
 #endif

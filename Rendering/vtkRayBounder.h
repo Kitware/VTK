@@ -83,8 +83,9 @@ public:
 protected:
   vtkRayBounder() {};
   ~vtkRayBounder() {};
-  vtkRayBounder(const vtkRayBounder &);
-  void operator=(const vtkRayBounder &);
+private:
+  vtkRayBounder(const vtkRayBounder&);  // Not implemented.
+  void operator=(const vtkRayBounder&);  // Not implemented.
 };
 
 #endif

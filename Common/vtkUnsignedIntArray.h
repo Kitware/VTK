@@ -175,8 +175,6 @@ public:
 protected:
   vtkUnsignedIntArray(vtkIdType numComp=1);
   ~vtkUnsignedIntArray();
-  vtkUnsignedIntArray(const vtkUnsignedIntArray&);
-  void operator=(const vtkUnsignedIntArray&);
 
   unsigned int *Array;   // pointer to data
   unsigned int *ResizeAndExtend(const vtkIdType sz);
@@ -186,6 +184,9 @@ protected:
   float *Tuple;
 
   int SaveUserArray;
+private:
+  vtkUnsignedIntArray(const vtkUnsignedIntArray&);  // Not implemented.
+  void operator=(const vtkUnsignedIntArray&);  // Not implemented.
 };
 
 

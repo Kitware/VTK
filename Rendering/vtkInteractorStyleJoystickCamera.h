@@ -91,11 +91,12 @@ public:
 protected:
   vtkInteractorStyleJoystickCamera();
   ~vtkInteractorStyleJoystickCamera();
-  vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&);
-  void operator=(const vtkInteractorStyleJoystickCamera&);
   
   int State;
   float MotionFactor;
+private:
+  vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&);  // Not implemented.
+  void operator=(const vtkInteractorStyleJoystickCamera&);  // Not implemented.
 };
 
 #endif

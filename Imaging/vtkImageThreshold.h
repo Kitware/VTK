@@ -126,8 +126,6 @@ public:
 protected:
   vtkImageThreshold();
   ~vtkImageThreshold() {};
-  vtkImageThreshold(const vtkImageThreshold&);
-  void operator=(const vtkImageThreshold&);
 
   float UpperThreshold;
   float LowerThreshold;
@@ -142,6 +140,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
+private:
+  vtkImageThreshold(const vtkImageThreshold&);  // Not implemented.
+  void operator=(const vtkImageThreshold&);  // Not implemented.
 };
 
 #endif

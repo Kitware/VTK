@@ -64,11 +64,12 @@ public:
 protected:
   vtkOutlineSource();
   ~vtkOutlineSource() {};
-  vtkOutlineSource(const vtkOutlineSource&);
-  void operator=(const vtkOutlineSource&);
 
   void Execute();
   float Bounds[6];
+private:
+  vtkOutlineSource(const vtkOutlineSource&);  // Not implemented.
+  void operator=(const vtkOutlineSource&);  // Not implemented.
 };
 
 #endif

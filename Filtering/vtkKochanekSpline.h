@@ -110,8 +110,6 @@ public:
 protected:
   vtkKochanekSpline();
   ~vtkKochanekSpline() {};
-  vtkKochanekSpline(const vtkKochanekSpline&);
-  void operator=(const vtkKochanekSpline&);
 
   void Fit1D (int n, float *x, float *y,
               float tension, float bias, float continuity,
@@ -120,6 +118,9 @@ protected:
   float DefaultBias;
   float DefaultTension;
   float DefaultContinuity;
+private:
+  vtkKochanekSpline(const vtkKochanekSpline&);  // Not implemented.
+  void operator=(const vtkKochanekSpline&);  // Not implemented.
 };
 
 #endif

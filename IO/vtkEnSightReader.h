@@ -156,8 +156,6 @@ public:
 protected:
   vtkEnSightReader();
   ~vtkEnSightReader();
-  vtkEnSightReader(const vtkEnSightReader&);
-  void operator=(const vtkEnSightReader&);
   
   void Execute();
 
@@ -371,6 +369,9 @@ protected:
   // global list of points for measured geometry
   int NumberOfMeasuredPoints;
   vtkIdList *MeasuredNodeIds;
+private:
+  vtkEnSightReader(const vtkEnSightReader&);  // Not implemented.
+  void operator=(const vtkEnSightReader&);  // Not implemented.
 };
 
 #endif

@@ -90,12 +90,13 @@ public:
 protected:
   vtkRungeKutta4();
   ~vtkRungeKutta4();
-  vtkRungeKutta4(const vtkRungeKutta4&);
-  void operator=(const vtkRungeKutta4&);
 
   virtual void Initialize();
 
   float* NextDerivs[3];
+private:
+  vtkRungeKutta4(const vtkRungeKutta4&);  // Not implemented.
+  void operator=(const vtkRungeKutta4&);  // Not implemented.
 };
 
 #endif

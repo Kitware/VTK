@@ -106,8 +106,6 @@ public:
 protected:
   vtkImageAccumulate();
   ~vtkImageAccumulate();
-  vtkImageAccumulate(const vtkImageAccumulate&);
-  void operator=(const vtkImageAccumulate&);
 
   float ComponentSpacing[3];
   float ComponentOrigin[3];
@@ -125,6 +123,9 @@ protected:
 
   int ReverseStencil;
 
+private:
+  vtkImageAccumulate(const vtkImageAccumulate&);  // Not implemented.
+  void operator=(const vtkImageAccumulate&);  // Not implemented.
 };
 
 #endif

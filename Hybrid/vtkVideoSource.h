@@ -237,8 +237,6 @@ public:
 protected:
   vtkVideoSource();
   ~vtkVideoSource();
-  vtkVideoSource(const vtkVideoSource&);
-  void operator=(const vtkVideoSource&);
   void ExecuteInformation();
 
   int Initialized;
@@ -307,6 +305,9 @@ protected:
   // if some component conversion is required, it is done here:
   virtual void UnpackRasterLine(char *outPtr, char *rowPtr, 
 				int start, int count);
+private:
+  vtkVideoSource(const vtkVideoSource&);  // Not implemented.
+  void operator=(const vtkVideoSource&);  // Not implemented.
 };
 
 #endif

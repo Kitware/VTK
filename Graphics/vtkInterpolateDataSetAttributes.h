@@ -83,8 +83,6 @@ public:
 protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);
-  void operator=(const vtkInterpolateDataSetAttributes&);
 
   void Execute();
   
@@ -97,6 +95,9 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   void RemoveInput(vtkDataObject *input)
     { this->vtkProcessObject::RemoveInput(input); };
+private:
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);  // Not implemented.
+  void operator=(const vtkInterpolateDataSetAttributes&);  // Not implemented.
 };
 
 #endif

@@ -149,8 +149,6 @@ public:
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
-  vtkColorTransferFunction(const vtkColorTransferFunction&);
-  void operator=(const vtkColorTransferFunction&);
 
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
@@ -192,6 +190,9 @@ protected:
   void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
 
 
+private:
+  vtkColorTransferFunction(const vtkColorTransferFunction&);  // Not implemented.
+  void operator=(const vtkColorTransferFunction&);  // Not implemented.
 };
 
 #endif

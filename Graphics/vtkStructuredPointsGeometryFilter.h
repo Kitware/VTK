@@ -84,11 +84,12 @@ public:
 protected:
   vtkStructuredPointsGeometryFilter();
   ~vtkStructuredPointsGeometryFilter() {};
-  vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&);
-  void operator=(const vtkStructuredPointsGeometryFilter&);
 
   void Execute();
   int Extent[6];
+private:
+  vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&);  // Not implemented.
+  void operator=(const vtkStructuredPointsGeometryFilter&);  // Not implemented.
 };
 
 #endif

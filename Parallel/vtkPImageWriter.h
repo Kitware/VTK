@@ -70,8 +70,6 @@ public:
 protected:
   vtkPImageWriter();
   ~vtkPImageWriter();
-  vtkPImageWriter(const vtkPImageWriter&);
-  void operator=(const vtkPImageWriter&);
 
   unsigned long MemoryLimit;
   
@@ -81,6 +79,9 @@ protected:
     {this->vtkImageWriter::RecursiveWrite(dim,cache,data,file);};
   
   vtkPipelineSize *SizeEstimator;
+private:
+  vtkPImageWriter(const vtkPImageWriter&);  // Not implemented.
+  void operator=(const vtkPImageWriter&);  // Not implemented.
 };
 
 #endif

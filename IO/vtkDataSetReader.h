@@ -101,12 +101,13 @@ public:
 protected:
   vtkDataSetReader();
   ~vtkDataSetReader();
-  vtkDataSetReader(const vtkDataSetReader&);
-  void operator=(const vtkDataSetReader&);
 
   void Execute();
   vtkDataReader *Reader;
 
+private:
+  vtkDataSetReader(const vtkDataSetReader&);  // Not implemented.
+  void operator=(const vtkDataSetReader&);  // Not implemented.
 };
 
 #endif

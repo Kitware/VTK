@@ -65,11 +65,12 @@ public:
 protected:
   vtkDataSetWriter() {};
   ~vtkDataSetWriter() {};
-  vtkDataSetWriter(const vtkDataSetWriter&);
-  void operator=(const vtkDataSetWriter&);
 
   void WriteData();
 
+private:
+  vtkDataSetWriter(const vtkDataSetWriter&);  // Not implemented.
+  void operator=(const vtkDataSetWriter&);  // Not implemented.
 };
 
 #endif

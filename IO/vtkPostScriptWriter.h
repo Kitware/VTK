@@ -61,12 +61,13 @@ public:
 protected:
   vtkPostScriptWriter() {};
   ~vtkPostScriptWriter() {};
-  vtkPostScriptWriter(const vtkPostScriptWriter&);
-  void operator=(const vtkPostScriptWriter&);
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, int extent[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
   virtual void WriteFileTrailer(ofstream *, vtkImageData *);
+private:
+  vtkPostScriptWriter(const vtkPostScriptWriter&);  // Not implemented.
+  void operator=(const vtkPostScriptWriter&);  // Not implemented.
 };
 
 #endif

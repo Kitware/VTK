@@ -111,9 +111,10 @@ public:
 protected:
   vtkStructuredData() {};
   ~vtkStructuredData() {};
-  vtkStructuredData(const vtkStructuredData&);
-  void operator=(const vtkStructuredData&);
   
+private:
+  vtkStructuredData(const vtkStructuredData&);  // Not implemented.
+  void operator=(const vtkStructuredData&);  // Not implemented.
 };
 
 

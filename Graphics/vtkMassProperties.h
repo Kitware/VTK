@@ -109,8 +109,6 @@ public:
 protected:
   vtkMassProperties();
   ~vtkMassProperties();
-  vtkMassProperties(const vtkMassProperties&);
-  void operator=(const vtkMassProperties&);
 
   void Execute();
 
@@ -125,6 +123,9 @@ protected:
   double  NormalizedShapeIndex;
   vtkTimeStamp ExecuteTime;
 
+private:
+  vtkMassProperties(const vtkMassProperties&);  // Not implemented.
+  void operator=(const vtkMassProperties&);  // Not implemented.
 };
 
 #endif

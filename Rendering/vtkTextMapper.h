@@ -183,8 +183,6 @@ public:
 protected:
   vtkTextMapper();
   ~vtkTextMapper();
-  vtkTextMapper(const vtkTextMapper&);
-  void operator=(const vtkTextMapper&);
 
   int   Italic;
   int   Bold;
@@ -207,6 +205,9 @@ protected:
   void RenderOverlayMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
   void RenderOpaqueGeometryMultipleLines(vtkViewport *viewport, vtkActor2D *actor);
   
+private:
+  vtkTextMapper(const vtkTextMapper&);  // Not implemented.
+  void operator=(const vtkTextMapper&);  // Not implemented.
 };
 
 #endif

@@ -71,8 +71,6 @@ public:
   
 protected:
   vtkPipelineSize() {};
-  vtkPipelineSize(const vtkPipelineSize&);
-  void operator=(const vtkPipelineSize&);
   void GenericComputeSourcePipelineSize(vtkSource *src, 
                                         vtkDataObject *output,
                                         unsigned long size[3]);
@@ -91,6 +89,9 @@ protected:
                                unsigned long sizes[3]);
 
     
+private:
+  vtkPipelineSize(const vtkPipelineSize&);  // Not implemented.
+  void operator=(const vtkPipelineSize&);  // Not implemented.
 };
 
 #endif

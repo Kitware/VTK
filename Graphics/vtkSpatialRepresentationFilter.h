@@ -121,8 +121,6 @@ public:
 protected:
   vtkSpatialRepresentationFilter();
   ~vtkSpatialRepresentationFilter();
-  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);
-  void operator=(const vtkSpatialRepresentationFilter&);
 
   void Execute();
   void GenerateOutput();
@@ -131,6 +129,9 @@ protected:
   int TerminalNodesRequested;
 
   vtkLocator *SpatialRepresentation;
+private:
+  vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);  // Not implemented.
+  void operator=(const vtkSpatialRepresentationFilter&);  // Not implemented.
 };
 
 #endif

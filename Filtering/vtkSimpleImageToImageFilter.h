@@ -81,8 +81,6 @@ public:
 protected:
   vtkSimpleImageToImageFilter();
   ~vtkSimpleImageToImageFilter();
-  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);
-  void operator=(const vtkSimpleImageToImageFilter&);
 
   // These are called by the superclass.
   // You might have to override ExecuteInformation
@@ -93,6 +91,9 @@ protected:
   virtual void ExecuteData(vtkDataObject *output);
   // In the simplest case, this is the only method you need to define.
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;
+private:
+  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);  // Not implemented.
+  void operator=(const vtkSimpleImageToImageFilter&);  // Not implemented.
 };
 
 #endif

@@ -64,8 +64,6 @@ public:
 protected:
   vtkImageTranslateExtent();
   ~vtkImageTranslateExtent() {};
-  vtkImageTranslateExtent(const vtkImageTranslateExtent&);
-  void operator=(const vtkImageTranslateExtent&);
 
   int Translation[3];
   
@@ -74,6 +72,9 @@ protected:
   void ExecuteInformation() {
     this->vtkImageToImageFilter::ExecuteInformation(); };
   void ExecuteData(vtkDataObject *data);
+private:
+  vtkImageTranslateExtent(const vtkImageTranslateExtent&);  // Not implemented.
+  void operator=(const vtkImageTranslateExtent&);  // Not implemented.
 };
 
 #endif

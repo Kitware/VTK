@@ -129,8 +129,6 @@ public:
 protected:
   vtkCursor3D();
   ~vtkCursor3D();
-  vtkCursor3D(const vtkCursor3D&);
-  void operator=(const vtkCursor3D&);
 
   void Execute();
 
@@ -143,6 +141,9 @@ protected:
   int YShadows;
   int ZShadows;
   int Wrap;
+private:
+  vtkCursor3D(const vtkCursor3D&);  // Not implemented.
+  void operator=(const vtkCursor3D&);  // Not implemented.
 };
 
 #endif

@@ -107,8 +107,6 @@ public:
 protected:
   vtkProgrammableFilter();
   ~vtkProgrammableFilter();
-  vtkProgrammableFilter(const vtkProgrammableFilter&);
-  void operator=(const vtkProgrammableFilter&);
 
   void Execute();
 
@@ -116,6 +114,9 @@ protected:
   void (*ExecuteMethodArgDelete)(void *);
   void *ExecuteMethodArg;
   
+private:
+  vtkProgrammableFilter(const vtkProgrammableFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableFilter&);  // Not implemented.
 };
 
 #endif

@@ -119,8 +119,9 @@ public:
 protected:
   vtkOpenGLImageWindow();
   ~vtkOpenGLImageWindow();
-  vtkOpenGLImageWindow(const vtkOpenGLImageWindow&);
-  void operator=(const vtkOpenGLImageWindow&);
+private:
+  vtkOpenGLImageWindow(const vtkOpenGLImageWindow&);  // Not implemented.
+  void operator=(const vtkOpenGLImageWindow&);  // Not implemented.
 };
 
 

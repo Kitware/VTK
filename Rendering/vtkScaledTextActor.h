@@ -107,8 +107,6 @@ public:
 protected:
   vtkScaledTextActor();
   ~vtkScaledTextActor();
-  vtkScaledTextActor(const vtkScaledTextActor&);
-  void operator=(const vtkScaledTextActor&);
 
   int MinimumSize[2];
   float MaximumLineHeight;
@@ -121,6 +119,9 @@ protected:
 private:
   // hide the superclass' SetMapper method from the user and the compiler
   void SetMapper(vtkMapper2D *mapper) {this->vtkActor2D::SetMapper( mapper );};
+private:
+  vtkScaledTextActor(const vtkScaledTextActor&);  // Not implemented.
+  void operator=(const vtkScaledTextActor&);  // Not implemented.
 };
 
 

@@ -69,14 +69,15 @@ public:
 protected:
   vtkImplicitFunctionCollection() {};
   ~vtkImplicitFunctionCollection() {};
-  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&);
-  void operator=(const vtkImplicitFunctionCollection&);
   
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&);  // Not implemented.
+  void operator=(const vtkImplicitFunctionCollection&);  // Not implemented.
 };
 
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f) 

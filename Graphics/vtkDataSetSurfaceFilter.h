@@ -78,8 +78,6 @@ public:
 protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter();
-  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);
-  void operator=(const vtkDataSetSurfaceFilter&);
 
   int UseStrips;
   
@@ -114,6 +112,9 @@ protected:
   vtkIdType *PointMap;
   vtkIdType GetOutputPointId(vtkIdType inPtId, vtkDataSet *input, 
                              vtkPoints *outPts, vtkPointData *outPD);
+private:
+  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
 };
 
 #endif

@@ -66,12 +66,13 @@ public:
 protected:
   vtkImageInPlaceFilter() {};
   ~vtkImageInPlaceFilter() {};
-  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);
-  void operator=(const vtkImageInPlaceFilter&);
 
   virtual void ExecuteData(vtkDataObject *out);
   void CopyData(vtkImageData *in, vtkImageData *out);
   
+private:
+  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.
+  void operator=(const vtkImageInPlaceFilter&);  // Not implemented.
 };
 
 #endif

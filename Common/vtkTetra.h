@@ -171,12 +171,13 @@ public:
 protected:
   vtkTetra();
   ~vtkTetra();
-  vtkTetra(const vtkTetra&);
-  void operator=(const vtkTetra&);
 
   vtkLine *Line;
   vtkTriangle *Triangle;
 
+private:
+  vtkTetra(const vtkTetra&);  // Not implemented.
+  void operator=(const vtkTetra&);  // Not implemented.
 };
 
 inline int vtkTetra::GetParametricCenter(float pcoords[3])

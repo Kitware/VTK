@@ -108,8 +108,6 @@ protected:
 private:
   vtkOverrideInformation();
   ~vtkOverrideInformation();
-  vtkOverrideInformation(const vtkOverrideInformation&);
-  void operator=(const vtkOverrideInformation&);
   // allow the object factory to set the values in this
   // class, but only the object factory
 //BTX
@@ -120,6 +118,9 @@ private:
   char* ClassOverrideWithName;
   char* Description;
   vtkObjectFactory* ObjectFactory;  
+private:
+  vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
+  void operator=(const vtkOverrideInformation&);  // Not implemented.
 };
 
 #endif

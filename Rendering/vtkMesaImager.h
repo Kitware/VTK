@@ -70,8 +70,9 @@ public:
 protected:
   vtkMesaImager() {};
   ~vtkMesaImager() {};
-  vtkMesaImager(const vtkMesaImager&);
-  void operator=(const vtkMesaImager&);
+private:
+  vtkMesaImager(const vtkMesaImager&);  // Not implemented.
+  void operator=(const vtkMesaImager&);  // Not implemented.
 };
 
 

@@ -95,10 +95,11 @@ public:
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);
-  void operator=(const vtkOpenGLPolyDataMapper&);
 
   int ListId;
+private:
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper&);  // Not implemented.
 };
 
 #endif

@@ -89,8 +89,6 @@ public:
 protected:
   vtkInteractorStyleTrackballActor();
   ~vtkInteractorStyleTrackballActor();
-  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&);
-  void operator=(const vtkInteractorStyleTrackballActor&);
 
   void RotateXY(int x, int y, int oldX, int oldY);
   void PanXY(int x, int y, int oldX, int oldY);
@@ -122,6 +120,9 @@ protected:
   double ViewFocus[3];
 //  vtkAbstractPropPicker *InteractionPicker;
   vtkCellPicker *InteractionPicker;
+private:
+  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTrackballActor&);  // Not implemented.
 };
 
 #endif

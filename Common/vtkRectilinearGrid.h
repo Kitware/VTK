@@ -207,8 +207,6 @@ public:
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid();
-  vtkRectilinearGrid(const vtkRectilinearGrid&);
-  void operator=(const vtkRectilinearGrid&);
 
   // for the GetCell method
   vtkVertex *Vertex;
@@ -240,6 +238,9 @@ private:
   // For legacy compatibility. Do not use.
   void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
+private:
+  vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
+  void operator=(const vtkRectilinearGrid&);  // Not implemented.
 };
 
 

@@ -93,8 +93,6 @@ public:
 protected:
   vtkStreamLine();
   ~vtkStreamLine() {};
-  vtkStreamLine(const vtkStreamLine&);
-  void operator=(const vtkStreamLine&);
 
   // Convert streamer array into vtkPolyData
   void Execute();
@@ -102,6 +100,9 @@ protected:
   // the length of line primitives
   float StepLength;
 
+private:
+  vtkStreamLine(const vtkStreamLine&);  // Not implemented.
+  void operator=(const vtkStreamLine&);  // Not implemented.
 };
 
 #endif

@@ -69,12 +69,13 @@ public:
 protected:
   vtkOutlineCornerSource();
   ~vtkOutlineCornerSource() {};
-  vtkOutlineCornerSource(const vtkOutlineCornerSource&);
-  void operator=(const vtkOutlineCornerSource&);
 
   void Execute();
 
   float CornerFactor;
+private:
+  vtkOutlineCornerSource(const vtkOutlineCornerSource&);  // Not implemented.
+  void operator=(const vtkOutlineCornerSource&);  // Not implemented.
 };
 
 #endif

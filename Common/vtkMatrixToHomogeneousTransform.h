@@ -91,14 +91,15 @@ class VTK_COMMON_EXPORT vtkMatrixToHomogeneousTransform :
 protected:
   vtkMatrixToHomogeneousTransform();
   ~vtkMatrixToHomogeneousTransform();
-  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&);
-  void operator=(const vtkMatrixToHomogeneousTransform&);
 
   void InternalUpdate();
   void InternalDeepCopy(vtkAbstractTransform *transform);
 
   int InverseFlag;
   vtkMatrix4x4 *Input;
+private:
+  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&);  // Not implemented.
+  void operator=(const vtkMatrixToHomogeneousTransform&);  // Not implemented.
 };
 
 #endif

@@ -116,8 +116,6 @@ public:
 protected:
   vtkVolumeTextureMapper();
   ~vtkVolumeTextureMapper();
-  vtkVolumeTextureMapper(const vtkVolumeTextureMapper &);
-  void operator=(const vtkVolumeTextureMapper &);
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
@@ -146,6 +144,9 @@ protected:
   float          SampleDistance;
   
   vtkRenderWindow *RenderWindow;
+private:
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&);  // Not implemented.
+  void operator=(const vtkVolumeTextureMapper&);  // Not implemented.
 };
 
 

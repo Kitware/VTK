@@ -71,12 +71,13 @@ public:
 protected:
   vtkQuartzTextMapper();
   ~vtkQuartzTextMapper();
-  vtkQuartzTextMapper(const vtkQuartzTextMapper&) {};
-  void operator=(const vtkQuartzTextMapper&) {};
 
   vtkTimeStamp  BuildTime;
   int LastSize[2];
   void *Font;
+private:
+  vtkQuartzTextMapper(const vtkQuartzTextMapper&) {};  // Not implemented.
+  void operator=(const vtkQuartzTextMapper&) {};  // Not implemented.
 };
 
 

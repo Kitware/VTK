@@ -85,8 +85,6 @@ public:
 protected:
   vtkMesaProjectedPolyDataRayBounder();
   ~vtkMesaProjectedPolyDataRayBounder();
-  void operator=(const vtkMesaProjectedPolyDataRayBounder&);
-
   GLuint    DisplayList;
   float     *DepthRangeBuffer;
 
@@ -98,6 +96,9 @@ protected:
   // Render the display list and create the near and far buffers
   float *Draw( vtkRenderer *ren, vtkMatrix4x4 *matrix );
 
+private:
+  void operator=(const vtkMesaProjectedPolyDataRayBounder&);  // Not implemented.
+  // Not implemented.
 };
 
 #endif

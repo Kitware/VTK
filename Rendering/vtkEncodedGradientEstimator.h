@@ -194,8 +194,6 @@ public:
 protected:
   vtkEncodedGradientEstimator();
   ~vtkEncodedGradientEstimator();
-  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);
-  void operator=(const vtkEncodedGradientEstimator&);
 
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
@@ -230,6 +228,9 @@ protected:
   
   int                        ZeroPad;
   
+private:
+  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);  // Not implemented.
+  void operator=(const vtkEncodedGradientEstimator&);  // Not implemented.
 }; 
 
 

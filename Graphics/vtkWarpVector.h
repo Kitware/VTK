@@ -67,11 +67,12 @@ public:
 protected:
   vtkWarpVector();
   ~vtkWarpVector();
-  vtkWarpVector(const vtkWarpVector&);
-  void operator=(const vtkWarpVector&);
 
   void Execute();
   float ScaleFactor;
+private:
+  vtkWarpVector(const vtkWarpVector&);  // Not implemented.
+  void operator=(const vtkWarpVector&);  // Not implemented.
 };
 
 #endif

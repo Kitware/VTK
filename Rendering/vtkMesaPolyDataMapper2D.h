@@ -65,9 +65,10 @@ public:
 protected:
   vtkMesaPolyDataMapper2D() {};
   ~vtkMesaPolyDataMapper2D() {};
-  vtkMesaPolyDataMapper2D(const vtkMesaPolyDataMapper2D&);
-  void operator=(const vtkMesaPolyDataMapper2D&);
   
+private:
+  vtkMesaPolyDataMapper2D(const vtkMesaPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkMesaPolyDataMapper2D&);  // Not implemented.
 };
 
 

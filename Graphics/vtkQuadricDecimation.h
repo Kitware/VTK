@@ -89,8 +89,6 @@ public:
 protected:
   vtkQuadricDecimation();
   ~vtkQuadricDecimation();
-  vtkQuadricDecimation(const vtkQuadricDecimation&);
-  void operator=(const vtkQuadricDecimation&);
 
   void Execute();
 
@@ -134,6 +132,9 @@ protected:
   int AttributeComponents[6];
   int NumberOfComponents;
   vtkPolyData *Mesh;
+private:
+  vtkQuadricDecimation(const vtkQuadricDecimation&);  // Not implemented.
+  void operator=(const vtkQuadricDecimation&);  // Not implemented.
 };
 
 #endif

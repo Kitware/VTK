@@ -67,13 +67,14 @@ public:
 protected:
   vtkImageEuclideanToPolar();
   ~vtkImageEuclideanToPolar() {};
-  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);
-  void operator=(const vtkImageEuclideanToPolar&);
 
   float ThetaMaximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int ext[6], int id);
+private:
+  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);  // Not implemented.
+  void operator=(const vtkImageEuclideanToPolar&);  // Not implemented.
 };
 
 #endif

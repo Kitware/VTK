@@ -127,12 +127,13 @@ public:
 protected:
   vtkPointSet();
   ~vtkPointSet();
-  vtkPointSet(const vtkPointSet&);
-  void operator=(const vtkPointSet&);
 
   vtkPoints *Points;
   vtkPointLocator *Locator;
 
+private:
+  vtkPointSet(const vtkPointSet&);  // Not implemented.
+  void operator=(const vtkPointSet&);  // Not implemented.
 };
 
 inline vtkIdType vtkPointSet::GetNumberOfPoints()

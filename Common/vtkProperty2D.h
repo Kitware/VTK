@@ -132,8 +132,6 @@ public:
 protected:
   vtkProperty2D();
   ~vtkProperty2D();
-  vtkProperty2D(const vtkProperty2D&);
-  void operator=(const vtkProperty2D&);
 
   float Color[3];
   float Opacity;
@@ -142,6 +140,9 @@ protected:
   int   LineStipplePattern;
   int   LineStippleRepeatFactor;
   int   DisplayLocation;
+private:
+  vtkProperty2D(const vtkProperty2D&);  // Not implemented.
+  void operator=(const vtkProperty2D&);  // Not implemented.
 };
   
   

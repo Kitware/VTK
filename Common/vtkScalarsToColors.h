@@ -165,13 +165,14 @@ public:
 protected:
   vtkScalarsToColors():Alpha(1.0) {}
   ~vtkScalarsToColors() {}
-  vtkScalarsToColors(const vtkScalarsToColors &);
-  void operator=(const vtkScalarsToColors &);
 
   float Alpha;
 
 private:
   float RGB[3];
+private:
+  vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
+  void operator=(const vtkScalarsToColors&);  // Not implemented.
 };
 
 #endif

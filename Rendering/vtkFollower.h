@@ -98,14 +98,15 @@ class VTK_RENDERING_EXPORT vtkFollower : public vtkActor
 protected:
   vtkFollower();
   ~vtkFollower();
-  vtkFollower(const vtkFollower&);
-  void operator=(const vtkFollower&);
 
   vtkCamera *Camera; 
   vtkActor  *Device;
 private:
   // hide the two parameter Render() method from the user and the compiler.
   virtual void Render(vtkRenderer *, vtkMapper *) {};
+private:
+  vtkFollower(const vtkFollower&);  // Not implemented.
+  void operator=(const vtkFollower&);  // Not implemented.
 };
 
 #endif

@@ -122,8 +122,6 @@ public:
 protected:
   vtkTransformTextureCoords();
   ~vtkTransformTextureCoords() {};
-  vtkTransformTextureCoords(const vtkTransformTextureCoords&);
-  void operator=(const vtkTransformTextureCoords&);
 
   void Execute();
 
@@ -133,6 +131,9 @@ protected:
   int FlipR; //boolean indicates whether to flip texture around r-axis
   int FlipS; //boolean indicates whether to flip texture around s-axis
   int FlipT; //boolean indicates whether to flip texture around t-axis
+private:
+  vtkTransformTextureCoords(const vtkTransformTextureCoords&);  // Not implemented.
+  void operator=(const vtkTransformTextureCoords&);  // Not implemented.
 };
 
 #endif

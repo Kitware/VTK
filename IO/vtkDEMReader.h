@@ -138,8 +138,6 @@ public:
 protected:
   vtkDEMReader();
   ~vtkDEMReader();
-  vtkDEMReader(const vtkDEMReader&);
-  void operator=(const vtkDEMReader&);
 
   vtkTimeStamp ReadHeaderTime;
   int NumberOfColumns;
@@ -166,6 +164,9 @@ protected:
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
   void ExecuteData(vtkDataObject *out);
+private:
+  vtkDEMReader(const vtkDEMReader&);  // Not implemented.
+  void operator=(const vtkDEMReader&);  // Not implemented.
 };
 
 #endif

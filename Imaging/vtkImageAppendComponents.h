@@ -73,13 +73,14 @@ public:
 protected:
   vtkImageAppendComponents() {};
   ~vtkImageAppendComponents() {};
-  vtkImageAppendComponents(const vtkImageAppendComponents&);
-  void operator=(const vtkImageAppendComponents&);
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
   void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageAppendComponents(const vtkImageAppendComponents&);  // Not implemented.
+  void operator=(const vtkImageAppendComponents&);  // Not implemented.
 };
 
 #endif

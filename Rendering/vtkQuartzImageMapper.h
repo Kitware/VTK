@@ -78,9 +78,10 @@ public:
 protected:
   vtkQuartzImageMapper();
   ~vtkQuartzImageMapper();
-  vtkQuartzImageMapper(const vtkQuartzImageMapper&) {};
-  void operator=(const vtkQuartzImageMapper&) {};
 
+private:
+  vtkQuartzImageMapper(const vtkQuartzImageMapper&) {};  // Not implemented.
+  void operator=(const vtkQuartzImageMapper&) {};  // Not implemented.
 };
 
 

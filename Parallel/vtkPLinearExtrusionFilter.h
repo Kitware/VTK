@@ -74,13 +74,14 @@ public:
 protected:
   vtkPLinearExtrusionFilter();
   ~vtkPLinearExtrusionFilter() {};
-  vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&);
-  void operator=(const vtkPLinearExtrusionFilter&);
 
   void Execute();
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
   int PieceInvariant;
+private:
+  vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkPLinearExtrusionFilter&);  // Not implemented.
 };
 
 #endif

@@ -122,12 +122,13 @@ public:
 protected:
   vtkPlane();
   ~vtkPlane() {};
-  vtkPlane(const vtkPlane&);
-  void operator=(const vtkPlane&);
 
   float Normal[3];
   float Origin[3];
 
+private:
+  vtkPlane(const vtkPlane&);  // Not implemented.
+  void operator=(const vtkPlane&);  // Not implemented.
 };
 
 inline float vtkPlane::Evaluate(float normal[3], float origin[3], float x[3])

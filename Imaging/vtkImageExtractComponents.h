@@ -75,8 +75,6 @@ public:
 protected:
   vtkImageExtractComponents();
   ~vtkImageExtractComponents() {};
-  vtkImageExtractComponents(const vtkImageExtractComponents&);
-  void operator=(const vtkImageExtractComponents&);
 
   int NumberOfComponents;
   int Components[3];
@@ -85,6 +83,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
+private:
+  vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.
+  void operator=(const vtkImageExtractComponents&);  // Not implemented.
 };
 
 #endif

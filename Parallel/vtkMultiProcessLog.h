@@ -75,9 +75,10 @@ protected:
 
   vtkMultiProcessLog() {}; //insure constructur/destructor protected
   ~vtkMultiProcessLog() {};
-  vtkMultiProcessLog(const vtkMultiProcessLog&);
-  void operator=(const vtkMultiProcessLog&);
 
+private:
+  vtkMultiProcessLog(const vtkMultiProcessLog&);  // Not implemented.
+  void operator=(const vtkMultiProcessLog&);  // Not implemented.
 };
 
 

@@ -146,14 +146,15 @@ protected:
 
   vtkCommunicator();
   ~vtkCommunicator();
-  vtkCommunicator(const vtkCommunicator&);
-  void operator=(const vtkCommunicator&);
 
   char *MarshalString;
   int MarshalStringLength;
   // The data may not take up all of the string.
   int MarshalDataLength;
 
+private:
+  vtkCommunicator(const vtkCommunicator&);  // Not implemented.
+  void operator=(const vtkCommunicator&);  // Not implemented.
 };
 
 #endif // __vtkCommunicator_h

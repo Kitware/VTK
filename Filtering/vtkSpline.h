@@ -134,8 +134,6 @@ public:
 protected:
   vtkSpline();
   ~vtkSpline ();
-  vtkSpline(const vtkSpline&);
-  void operator=(const vtkSpline&);
 
   unsigned long ComputeTime;
   int ClampValue;
@@ -147,6 +145,9 @@ protected:
   float RightValue;
   vtkPiecewiseFunction *PiecewiseFunction;
   int Closed;
+private:
+  vtkSpline(const vtkSpline&);  // Not implemented.
+  void operator=(const vtkSpline&);  // Not implemented.
 };
 
 #endif

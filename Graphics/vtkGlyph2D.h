@@ -72,10 +72,11 @@ public:
 protected:
   vtkGlyph2D() {};
   ~vtkGlyph2D() {};
-  vtkGlyph2D(const vtkGlyph2D&);
-  void operator=(const vtkGlyph2D&);
 
   void Execute();
+private:
+  vtkGlyph2D(const vtkGlyph2D&);  // Not implemented.
+  void operator=(const vtkGlyph2D&);  // Not implemented.
 };
 
 #endif

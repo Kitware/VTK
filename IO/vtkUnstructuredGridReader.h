@@ -75,8 +75,6 @@ public:
 protected:
   vtkUnstructuredGridReader();
   ~vtkUnstructuredGridReader();
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);
-  void operator=(const vtkUnstructuredGridReader&);
 
   void Execute();
 
@@ -85,6 +83,9 @@ protected:
   // as a default behavior.
   void ComputeInputUpdateExtents(vtkDataObject *output);
   
+private:
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridReader&);  // Not implemented.
 };
 
 #endif

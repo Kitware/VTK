@@ -136,8 +136,6 @@ public:
 protected:
   vtkCGMWriter();
   ~vtkCGMWriter();
-  vtkCGMWriter(const vtkCGMWriter&);
-  void operator=(const vtkCGMWriter&);
   void WriteData();
 
   vtkViewport *Viewport;
@@ -146,6 +144,9 @@ protected:
   int         Resolution;
   int         Sort;
   
+private:
+  vtkCGMWriter(const vtkCGMWriter&);  // Not implemented.
+  void operator=(const vtkCGMWriter&);  // Not implemented.
 };
 
 #endif

@@ -85,11 +85,12 @@ public:
 protected:
   vtkCone();
   ~vtkCone() {};
-  vtkCone(const vtkCone&);
-  void operator=(const vtkCone&);
 
   float Angle;
 
+private:
+  vtkCone(const vtkCone&);  // Not implemented.
+  void operator=(const vtkCone&);  // Not implemented.
 };
 
 #endif

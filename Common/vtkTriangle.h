@@ -218,11 +218,12 @@ public:
 protected:
   vtkTriangle();
   ~vtkTriangle();
-  vtkTriangle(const vtkTriangle&);
-  void operator=(const vtkTriangle&);
 
   vtkLine *Line;
 
+private:
+  vtkTriangle(const vtkTriangle&);  // Not implemented.
+  void operator=(const vtkTriangle&);  // Not implemented.
 };
 
 inline int vtkTriangle::GetParametricCenter(float pcoords[3])

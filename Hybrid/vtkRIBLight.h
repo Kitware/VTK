@@ -70,11 +70,12 @@ public:
 protected:
   vtkRIBLight();
   ~vtkRIBLight();
-  vtkRIBLight(const vtkRIBLight&);
-  void operator=(const vtkRIBLight&);
 
   vtkLight *Light;
   int Shadows;
+private:
+  vtkRIBLight(const vtkRIBLight&);  // Not implemented.
+  void operator=(const vtkRIBLight&);  // Not implemented.
 };
 
 #endif

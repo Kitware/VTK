@@ -72,12 +72,13 @@ public:
 protected:
   vtkOBJExporter();
   ~vtkOBJExporter();
-  vtkOBJExporter(const vtkOBJExporter&);
-  void operator=(const vtkOBJExporter&);
 
   void WriteData();
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;
+private:
+  vtkOBJExporter(const vtkOBJExporter&);  // Not implemented.
+  void operator=(const vtkOBJExporter&);  // Not implemented.
 };
 
 #endif

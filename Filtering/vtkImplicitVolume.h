@@ -113,14 +113,15 @@ public:
 protected:
   vtkImplicitVolume();
   ~vtkImplicitVolume();
-  vtkImplicitVolume(const vtkImplicitVolume&);
-  void operator=(const vtkImplicitVolume&);
 
   vtkImageData *Volume; // the structured points
   float OutValue;
   float OutGradient[3];
   // to replace a static
   vtkIdList *PointIds;
+private:
+  vtkImplicitVolume(const vtkImplicitVolume&);  // Not implemented.
+  void operator=(const vtkImplicitVolume&);  // Not implemented.
 };
 
 #endif

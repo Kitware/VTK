@@ -131,8 +131,6 @@ public:
 protected:
   vtkMarchingCubes();
   ~vtkMarchingCubes();
-  vtkMarchingCubes(const vtkMarchingCubes&);
-  void operator=(const vtkMarchingCubes&);
 
   void Execute();
 
@@ -141,6 +139,9 @@ protected:
   int ComputeGradients;
   int ComputeScalars;
   vtkPointLocator *Locator;
+private:
+  vtkMarchingCubes(const vtkMarchingCubes&);  // Not implemented.
+  void operator=(const vtkMarchingCubes&);  // Not implemented.
 };
 
 // Description:

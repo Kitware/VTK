@@ -254,8 +254,6 @@ protected:
   void InitializeWarmthFunctions();
   float WarmthToIntensity(float w);
 
-  vtkLightKit(const vtkLightKit&);
-  void operator=(const vtkLightKit&);
 
   float KeyLightIntensity;
   float KeyToFillRatio;
@@ -278,6 +276,9 @@ protected:
   int MaintainLuminance;
 
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
+private:
+  vtkLightKit(const vtkLightKit&);  // Not implemented.
+  void operator=(const vtkLightKit&);  // Not implemented.
 };
 
 #endif

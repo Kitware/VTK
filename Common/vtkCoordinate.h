@@ -163,8 +163,6 @@ public:
 protected:
   vtkCoordinate();
   ~vtkCoordinate();
-  vtkCoordinate(const vtkCoordinate&);
-  void operator=(const vtkCoordinate&);
 
   float Value[3];
   int   CoordinateSystem;
@@ -179,6 +177,9 @@ protected:
   float ComputedFloatViewportValue[2];
   float ComputedUserDefinedValue[3];
 
+private:
+  vtkCoordinate(const vtkCoordinate&);  // Not implemented.
+  void operator=(const vtkCoordinate&);  // Not implemented.
 };
 
 #endif

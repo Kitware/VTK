@@ -105,8 +105,6 @@ public:
 protected:
   vtkWarpLens();
   ~vtkWarpLens() {};
-  vtkWarpLens(const vtkWarpLens&);
-  void operator=(const vtkWarpLens&);
 
   void Execute();
 
@@ -119,6 +117,9 @@ protected:
   float FormatHeight;		// imager format height in mm
   int ImageWidth;		// image width in pixels
   int ImageHeight;		// image height in pixels
+private:
+  vtkWarpLens(const vtkWarpLens&);  // Not implemented.
+  void operator=(const vtkWarpLens&);  // Not implemented.
 };
 
 #endif

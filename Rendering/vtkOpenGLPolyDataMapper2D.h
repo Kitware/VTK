@@ -65,9 +65,10 @@ public:
 protected:
   vtkOpenGLPolyDataMapper2D() {};
   ~vtkOpenGLPolyDataMapper2D() {};
-  vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);
-  void operator=(const vtkOpenGLPolyDataMapper2D&);
   
+private:
+  vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
 };
 
 

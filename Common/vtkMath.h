@@ -445,10 +445,11 @@ public:
 protected:
   vtkMath() {};
   ~vtkMath() {};
-  vtkMath(const vtkMath&);
-  void operator=(const vtkMath&);
   
   static long Seed;
+private:
+  vtkMath(const vtkMath&);  // Not implemented.
+  void operator=(const vtkMath&);  // Not implemented.
 };
 
 inline float vtkMath::Normalize(float x[3])

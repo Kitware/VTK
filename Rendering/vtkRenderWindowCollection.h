@@ -74,13 +74,14 @@ class VTK_RENDERING_EXPORT vtkRenderWindowCollection : public vtkCollection
 protected:
   vtkRenderWindowCollection() {};
   ~vtkRenderWindowCollection() {};
-  vtkRenderWindowCollection(const vtkRenderWindowCollection&);
-  void operator=(const vtkRenderWindowCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkRenderWindowCollection(const vtkRenderWindowCollection&);  // Not implemented.
+  void operator=(const vtkRenderWindowCollection&);  // Not implemented.
 };
 
 

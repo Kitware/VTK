@@ -92,8 +92,6 @@ public:
 protected:
   vtkInteractorStyleJoystickActor();
   ~vtkInteractorStyleJoystickActor();
-  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&);
-  void operator=(const vtkInteractorStyleJoystickActor&);
 
   void RotateXY(int x, int y);
   void PanXY(int x, int y);
@@ -125,6 +123,9 @@ protected:
   double ViewFocus[3];
 //  vtkAbstractPropPicker *InteractionPicker;
   vtkCellPicker *InteractionPicker;
+private:
+  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&);  // Not implemented.
+  void operator=(const vtkInteractorStyleJoystickActor&);  // Not implemented.
 };
 
 #endif

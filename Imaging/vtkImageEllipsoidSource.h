@@ -115,8 +115,6 @@ public:
 protected:
   vtkImageEllipsoidSource();
   ~vtkImageEllipsoidSource();
-  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);
-  void operator=(const vtkImageEllipsoidSource&);
 
   int WholeExtent[6];
   float Center[3];
@@ -127,6 +125,9 @@ protected:
   
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *outData);
+private:
+  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);  // Not implemented.
+  void operator=(const vtkImageEllipsoidSource&);  // Not implemented.
 };
 
 

@@ -158,8 +158,6 @@ public:
 protected:
   vtkImageMarchingCubes();
   ~vtkImageMarchingCubes();
-  vtkImageMarchingCubes(const vtkImageMarchingCubes&);
-  void operator=(const vtkImageMarchingCubes&);
 
   int NumberOfSlicesPerChunk;
   int InputMemoryLimit;
@@ -179,6 +177,9 @@ protected:
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
   int *GetLocatorPointer(int cellX, int cellY, int edge);
+private:
+  vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
+  void operator=(const vtkImageMarchingCubes&);  // Not implemented.
 };
 
 // Description:

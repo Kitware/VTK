@@ -117,8 +117,6 @@ public:
 protected:
   vtkExporter();
   ~vtkExporter();
-  vtkExporter(const vtkExporter&);
-  void operator=(const vtkExporter&);
 
   vtkRenderWindow *RenderWindow;
   virtual void WriteData() = 0;
@@ -129,6 +127,9 @@ protected:
   void (*EndWrite)(void *);
   void (*EndWriteArgDelete)(void *);
   void *EndWriteArg;
+private:
+  vtkExporter(const vtkExporter&);  // Not implemented.
+  void operator=(const vtkExporter&);  // Not implemented.
 };
 
 #endif

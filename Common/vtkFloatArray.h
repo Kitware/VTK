@@ -188,13 +188,14 @@ public:
 protected:
   vtkFloatArray(vtkIdType numComp=1);
   ~vtkFloatArray();
-  vtkFloatArray(const vtkFloatArray&);
-  void operator=(const vtkFloatArray&);
 
   float *Array;  // pointer to data
   float *ResizeAndExtend(const vtkIdType sz);  // function to reallocate data
 
   int SaveUserArray;
+private:
+  vtkFloatArray(const vtkFloatArray&);  // Not implemented.
+  void operator=(const vtkFloatArray&);  // Not implemented.
 };
 
 inline void vtkFloatArray::SetNumberOfValues(const vtkIdType number) 

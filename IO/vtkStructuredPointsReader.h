@@ -75,8 +75,6 @@ public:
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader();
-  vtkStructuredPointsReader(const vtkStructuredPointsReader&);
-  void operator=(const vtkStructuredPointsReader&);
 
   void Execute();
 
@@ -84,6 +82,9 @@ protected:
   // structured points sources compute information
   void ExecuteInformation();
 
+private:
+  vtkStructuredPointsReader(const vtkStructuredPointsReader&);  // Not implemented.
+  void operator=(const vtkStructuredPointsReader&);  // Not implemented.
 };
 
 #endif

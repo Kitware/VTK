@@ -107,8 +107,6 @@ public:
 protected:
   vtkBYUReader();
   ~vtkBYUReader();
-  vtkBYUReader(const vtkBYUReader&);
-  void operator=(const vtkBYUReader&);
 
   void Execute();
   // This source does not know how to generate pieces yet.
@@ -128,6 +126,9 @@ protected:
   void ReadDisplacementFile(int numPts);
   void ReadScalarFile(int numPts);
   void ReadTextureFile(int numPts);
+private:
+  vtkBYUReader(const vtkBYUReader&);  // Not implemented.
+  void operator=(const vtkBYUReader&);  // Not implemented.
 };
 
 #endif

@@ -180,8 +180,6 @@ public:
 protected:
   vtkCutter(vtkImplicitFunction *cf=NULL);
   ~vtkCutter();
-  vtkCutter(const vtkCutter&);
-  void operator=(const vtkCutter&);
 
   void Execute();
   vtkImplicitFunction *CutFunction;
@@ -190,6 +188,9 @@ protected:
   int SortBy;
   vtkContourValues *ContourValues;
   int GenerateCutScalars;
+private:
+  vtkCutter(const vtkCutter&);  // Not implemented.
+  void operator=(const vtkCutter&);  // Not implemented.
 };
 
 // Description:

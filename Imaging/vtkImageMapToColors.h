@@ -97,8 +97,6 @@ public:
 protected:
   vtkImageMapToColors();
   ~vtkImageMapToColors();
-  vtkImageMapToColors(const vtkImageMapToColors&);
-  void operator=(const vtkImageMapToColors&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation() {
@@ -115,6 +113,9 @@ protected:
   int PassAlphaToOutput;
 
   int DataWasPassed;
+private:
+  vtkImageMapToColors(const vtkImageMapToColors&);  // Not implemented.
+  void operator=(const vtkImageMapToColors&);  // Not implemented.
 };
 
 #endif

@@ -102,8 +102,6 @@ public:
 protected:
   vtkImageToImageFilter();
   ~vtkImageToImageFilter();
-  vtkImageToImageFilter(const vtkImageToImageFilter&);
-  void operator=(const vtkImageToImageFilter&);
 
   vtkMultiThreader *Threader;
   int Bypass;
@@ -124,6 +122,9 @@ protected:
 
   void ComputeInputUpdateExtents( vtkDataObject *output );
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
+private:
+  vtkImageToImageFilter(const vtkImageToImageFilter&);  // Not implemented.
+  void operator=(const vtkImageToImageFilter&);  // Not implemented.
 };
 
 #endif

@@ -191,8 +191,6 @@ public:
 protected:
   vtkVolume();
   ~vtkVolume();
-  vtkVolume(const vtkVolume&);
-  void operator=(const vtkVolume&);
 
   vtkVolumeMapper              *Mapper;
   vtkVolumeProperty            *Property;
@@ -243,6 +241,9 @@ protected:
 
   // Function to compute screen coverage of this volume
   float ComputeScreenCoverage( vtkViewport *vp );
+private:
+  vtkVolume(const vtkVolume&);  // Not implemented.
+  void operator=(const vtkVolume&);  // Not implemented.
 };
 
 #endif

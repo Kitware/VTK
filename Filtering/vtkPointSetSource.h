@@ -65,9 +65,10 @@ public:
 protected:
   vtkPointSetSource();
   ~vtkPointSetSource() {};
-  vtkPointSetSource(const vtkPointSetSource&);
-  void operator=(const vtkPointSetSource&);
 
+private:
+  vtkPointSetSource(const vtkPointSetSource&);  // Not implemented.
+  void operator=(const vtkPointSetSource&);  // Not implemented.
 };
 
 #endif

@@ -75,12 +75,13 @@ public:
 protected:
   vtkVectorText();
   ~vtkVectorText();
-  vtkVectorText(const vtkVectorText&);
-  void operator=(const vtkVectorText&);
 
   void Execute();
   char *Text;
   char *Letters[127];
+private:
+  vtkVectorText(const vtkVectorText&);  // Not implemented.
+  void operator=(const vtkVectorText&);  // Not implemented.
 };
 
 #endif

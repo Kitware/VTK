@@ -65,8 +65,9 @@ public:
   
 protected:
   vtkGraphicsFactory() {};
-  vtkGraphicsFactory(const vtkGraphicsFactory&);
-  void operator=(const vtkGraphicsFactory&);
+private:
+  vtkGraphicsFactory(const vtkGraphicsFactory&);  // Not implemented.
+  void operator=(const vtkGraphicsFactory&);  // Not implemented.
 };
 
 #endif

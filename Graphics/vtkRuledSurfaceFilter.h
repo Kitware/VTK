@@ -156,8 +156,6 @@ public:
 protected:
   vtkRuledSurfaceFilter();
   ~vtkRuledSurfaceFilter();
-  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&);
-  void operator=(const vtkRuledSurfaceFilter&);
 
   // Usual data generation method
   void Execute();
@@ -179,6 +177,9 @@ private:
   void  PointWalk(vtkPolyData *output, vtkPoints *inPts, 
                   int npts, vtkIdType *pts, int npts2, vtkIdType *pts2);
   
+private:
+  vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkRuledSurfaceFilter&);  // Not implemented.
 };
 
 #endif

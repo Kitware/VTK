@@ -163,8 +163,6 @@ public:
 protected:
   vtkMCubesReader();
   ~vtkMCubesReader();
-  vtkMCubesReader(const vtkMCubesReader&);
-  void operator=(const vtkMCubesReader&);
 
   void Execute();
 
@@ -176,6 +174,9 @@ protected:
   int FlipNormals;
   int Normals;
 
+private:
+  vtkMCubesReader(const vtkMCubesReader&);  // Not implemented.
+  void operator=(const vtkMCubesReader&);  // Not implemented.
 };
 
 #endif

@@ -63,10 +63,11 @@ protected:
 
   vtkSimpleImageFilterExample() {};
   ~vtkSimpleImageFilterExample() {};
-  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&);
-  void operator=(const vtkSimpleImageFilterExample&);
 
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output);
+private:
+  vtkSimpleImageFilterExample(const vtkSimpleImageFilterExample&);  // Not implemented.
+  void operator=(const vtkSimpleImageFilterExample&);  // Not implemented.
 };
 
 #endif

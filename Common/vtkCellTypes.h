@@ -136,14 +136,15 @@ public:
 protected:
   vtkCellTypes();
   ~vtkCellTypes();
-  vtkCellTypes(const vtkCellTypes&);
-  void operator=(const vtkCellTypes&);  
 
   vtkUnsignedCharArray *TypeArray; // pointer to types array
   vtkIntArray *LocationArray;   // pointer to array of offsets
   int Size;            // allocated size of data
   int MaxId;           // maximum index inserted thus far
   int Extend;          // grow array by this point
+private:
+  vtkCellTypes(const vtkCellTypes&);  // Not implemented.
+  void operator=(const vtkCellTypes&);    // Not implemented.
 };
 
 

@@ -87,14 +87,15 @@ public:
 protected:
   vtkProgrammableDataObjectSource();
   ~vtkProgrammableDataObjectSource();
-  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&);
-  void operator=(const vtkProgrammableDataObjectSource&);
 
   void Execute();
 
   void (*ExecuteMethod)(void *); //function to invoke
   void (*ExecuteMethodArgDelete)(void *);
   void *ExecuteMethodArg;
+private:
+  vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&);  // Not implemented.
+  void operator=(const vtkProgrammableDataObjectSource&);  // Not implemented.
 };
 
 #endif

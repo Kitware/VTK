@@ -116,11 +116,12 @@ public:
 protected:
   vtkPolyVertex();
   ~vtkPolyVertex();
-  vtkPolyVertex(const vtkPolyVertex&);
-  void operator=(const vtkPolyVertex&);
 
   vtkVertex *Vertex;
 
+private:
+  vtkPolyVertex(const vtkPolyVertex&);  // Not implemented.
+  void operator=(const vtkPolyVertex&);  // Not implemented.
 };
 
 #endif

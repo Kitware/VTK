@@ -124,10 +124,11 @@ public:
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);
-  void operator=(const vtkOpenGLRenderWindow&);
 
   vtkIdList *TextureResourceIds;
+private:
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
 };
 
 #endif

@@ -322,8 +322,6 @@ public:
 protected:
   vtkImageData();
   ~vtkImageData();
-  vtkImageData(const vtkImageData&);
-  void operator=(const vtkImageData&);
 
   // for the GetCell method
   vtkVertex *Vertex;
@@ -350,6 +348,9 @@ protected:
 
 private:
   void InternalImageDataCopy(vtkImageData *src);
+private:
+  vtkImageData(const vtkImageData&);  // Not implemented.
+  void operator=(const vtkImageData&);  // Not implemented.
 };
 
 

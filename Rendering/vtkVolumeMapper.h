@@ -155,13 +155,14 @@ public:
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
-  vtkVolumeMapper(const vtkVolumeMapper&);
-  void operator=(const vtkVolumeMapper&);
 
   int                  Cropping;
   float                CroppingRegionPlanes[6];
   int                  CroppingRegionFlags;
   vtkTimeStamp         BuildTime;
+private:
+  vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.
+  void operator=(const vtkVolumeMapper&);  // Not implemented.
 };
 
 

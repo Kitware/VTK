@@ -137,8 +137,6 @@ public:
 protected:
   vtkImageFourierFilter() {};
   ~vtkImageFourierFilter() {};
-  vtkImageFourierFilter(const vtkImageFourierFilter&);
-  void operator=(const vtkImageFourierFilter&);
 
   //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out, 
@@ -148,6 +146,9 @@ protected:
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out, 
 				 int N, int fb);
   //ETX
+private:
+  vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.
+  void operator=(const vtkImageFourierFilter&);  // Not implemented.
 };
 
 

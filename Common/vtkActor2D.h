@@ -144,14 +144,15 @@ public:
 protected:
   vtkActor2D();
   ~vtkActor2D();
-  vtkActor2D(const vtkActor2D&);
-  void operator=(const vtkActor2D&);
 
   vtkMapper2D *Mapper;
   int LayerNumber;
   vtkProperty2D *Property;
   vtkCoordinate *PositionCoordinate;
   vtkCoordinate *Position2Coordinate;
+private:
+  vtkActor2D(const vtkActor2D&);  // Not implemented.
+  void operator=(const vtkActor2D&);  // Not implemented.
 };
 
 #endif

@@ -183,8 +183,6 @@ protected:
 
   vtkRearrangeFields();
   virtual ~vtkRearrangeFields();
-  vtkRearrangeFields(const vtkRearrangeFields&);
-  void operator=(const vtkRearrangeFields&);
 
   void Execute();
 
@@ -261,6 +259,9 @@ protected:
       os << indent << "Next operation: " << op->Next << endl;
       os << endl;
     }
+private:
+  vtkRearrangeFields(const vtkRearrangeFields&);  // Not implemented.
+  void operator=(const vtkRearrangeFields&);  // Not implemented.
 };
 
 #endif

@@ -149,9 +149,10 @@ public:
 protected:
   vtkRayCaster() {};
   ~vtkRayCaster() {};
-  vtkRayCaster(const vtkRayCaster&);
-  void operator=(const vtkRayCaster&);
 
+private:
+  vtkRayCaster(const vtkRayCaster&);  // Not implemented.
+  void operator=(const vtkRayCaster&);  // Not implemented.
 };
 #endif
 

@@ -131,8 +131,6 @@ public:
 protected:
   vtkScalarTree();
   ~vtkScalarTree();
-  vtkScalarTree(const vtkScalarTree&);
-  void operator=(const vtkScalarTree&);
 
   vtkDataSet *DataSet;
   vtkDataArray *Scalars;
@@ -152,6 +150,9 @@ private:
   vtkIdType CellId; //current cell id being examined
   int FindStartLeaf(vtkIdType index, int level);
   int FindNextLeaf(vtkIdType index,int level);
+private:
+  vtkScalarTree(const vtkScalarTree&);  // Not implemented.
+  void operator=(const vtkScalarTree&);  // Not implemented.
 };
 
 #endif

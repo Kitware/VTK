@@ -243,8 +243,6 @@ public:
 protected:
   vtkQuartzRenderWindow();
   ~vtkQuartzRenderWindow();
-  vtkQuartzRenderWindow(const vtkQuartzRenderWindow&);
-  void operator=(const vtkQuartzRenderWindow&);
 
   int       ApplicationInitialized; //NSApplication called?
   void     *ContextId;
@@ -270,5 +268,8 @@ protected:
 
   int CursorHidden;
 
+private:
+  vtkQuartzRenderWindow(const vtkQuartzRenderWindow&);  // Not implemented.
+  void operator=(const vtkQuartzRenderWindow&);  // Not implemented.
 };
 

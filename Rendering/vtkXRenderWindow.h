@@ -154,8 +154,6 @@ public:
 protected:
   vtkXRenderWindow();
   ~vtkXRenderWindow();
-  vtkXRenderWindow(const vtkXRenderWindow&);
-  void operator=(const vtkXRenderWindow&);
 
   Window   ParentId;
   Window   WindowId;
@@ -166,6 +164,9 @@ protected:
   int      OwnDisplay;
   int      ScreenSize[2];
   int      CursorHidden;
+private:
+  vtkXRenderWindow(const vtkXRenderWindow&);  // Not implemented.
+  void operator=(const vtkXRenderWindow&);  // Not implemented.
 };
 
 #endif

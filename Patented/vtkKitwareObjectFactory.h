@@ -62,9 +62,10 @@ public:
   virtual const char* GetVTKSourceVersion();
 protected:
   vtkKitwareObjectFactory() {};
-  vtkKitwareObjectFactory(const vtkKitwareObjectFactory&);
-  void operator=(const vtkKitwareObjectFactory&);
   virtual vtkObject* CreateObject(const char* vtkclassname );
+private:
+  vtkKitwareObjectFactory(const vtkKitwareObjectFactory&);  // Not implemented.
+  void operator=(const vtkKitwareObjectFactory&);  // Not implemented.
 };
 
 extern "C" VTK_PATENTED_EXPORT vtkObjectFactory* vtkLoad();

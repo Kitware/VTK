@@ -141,8 +141,6 @@ public:
 protected:
   vtkArrayCalculator();
   ~vtkArrayCalculator();
-  vtkArrayCalculator(const vtkArrayCalculator&);
-  void operator=(const vtkArrayCalculator&);
 
   void Execute();
   
@@ -158,6 +156,9 @@ protected:
   int* SelectedScalarComponents;
   int** SelectedVectorComponents;
   vtkFunctionParser* FunctionParser;
+private:
+  vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
+  void operator=(const vtkArrayCalculator&);  // Not implemented.
 };
 
 #endif

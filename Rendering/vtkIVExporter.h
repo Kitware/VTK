@@ -69,8 +69,6 @@ public:
 protected:
   vtkIVExporter();
   ~vtkIVExporter();
-  vtkIVExporter(const vtkIVExporter&);
-  void operator=(const vtkIVExporter&);
 
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
@@ -79,6 +77,9 @@ protected:
 		      vtkTCoords *tcoords, vtkUnsignedCharArray *colors, 
                       FILE *fp);
   char *FileName;
+private:
+  vtkIVExporter(const vtkIVExporter&);  // Not implemented.
+  void operator=(const vtkIVExporter&);  // Not implemented.
 };
 
 #endif

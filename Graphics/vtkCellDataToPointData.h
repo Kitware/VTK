@@ -80,12 +80,13 @@ public:
 protected:
   vtkCellDataToPointData();
   ~vtkCellDataToPointData() {};
-  vtkCellDataToPointData(const vtkCellDataToPointData&);
-  void operator=(const vtkCellDataToPointData&);
 
   void Execute();
 
   int PassCellData;
+private:
+  vtkCellDataToPointData(const vtkCellDataToPointData&);  // Not implemented.
+  void operator=(const vtkCellDataToPointData&);  // Not implemented.
 };
 
 #endif

@@ -65,11 +65,12 @@ public:
 protected:
   vtkPNGWriter();
   ~vtkPNGWriter() {};
-  vtkPNGWriter(const vtkPNGWriter&);
-  void operator=(const vtkPNGWriter&);
   
   void WriteSlice(vtkImageData *data);
 
+private:
+  vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
+  void operator=(const vtkPNGWriter&);  // Not implemented.
 };
 
 #endif

@@ -72,13 +72,14 @@ public:
 protected:
   vtkRenderLargeImage();
   ~vtkRenderLargeImage();
-  vtkRenderLargeImage(const vtkRenderLargeImage&);
-  void operator=(const vtkRenderLargeImage&);
 
   int Magnification;
   vtkRenderer *Input;
   void ExecuteData(vtkDataObject *data);
   void ExecuteInformation();  
+private:
+  vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
+  void operator=(const vtkRenderLargeImage&);  // Not implemented.
 };
 
 #endif

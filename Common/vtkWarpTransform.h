@@ -133,8 +133,6 @@ public:
 protected:
   vtkWarpTransform();
   ~vtkWarpTransform();
-  vtkWarpTransform(const vtkWarpTransform&);
-  void operator=(const vtkWarpTransform&);
 
   // Description:
   // If the InverseFlag is set to 0, then a call to InternalTransformPoint
@@ -168,6 +166,9 @@ protected:
   int InverseFlag;
   int InverseIterations;
   double InverseTolerance;
+private:
+  vtkWarpTransform(const vtkWarpTransform&);  // Not implemented.
+  void operator=(const vtkWarpTransform&);  // Not implemented.
 };
 
 #endif

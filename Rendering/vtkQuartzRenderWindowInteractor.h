@@ -73,6 +73,9 @@ void DoMouseDown(void *vtkClass, int shiftDown, int controlDown, int altDown, in
 
 
 
+private:
+vtkQuartzRenderWindowInteractor(const vtkQuartzRenderWindowInteractor&);  // Not implemented.
+void operator=(const vtkQuartzRenderWindowInteractor&);  // Not implemented.
 class VTK_RENDERING_EXPORT vtkQuartzRenderWindowInteractor : public vtkRenderWindowInteractor {
 public:
   // Description:
@@ -158,8 +161,6 @@ public:
 protected:
   vtkQuartzRenderWindowInteractor();
   ~vtkQuartzRenderWindowInteractor();
-  vtkQuartzRenderWindowInteractor(const vtkQuartzRenderWindowInteractor&);
-  void operator=(const vtkQuartzRenderWindowInteractor&);
 
   void   *WindowId;
   void	 *ApplicationId;

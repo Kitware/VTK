@@ -169,8 +169,6 @@ public:
 protected:
   vtkMarchingContourFilter();
   ~vtkMarchingContourFilter();
-  vtkMarchingContourFilter(const vtkMarchingContourFilter&);
-  void operator=(const vtkMarchingContourFilter&);
 
   void Execute();
 
@@ -188,6 +186,9 @@ protected:
   void ImageContour(int dim);
   //default if not structured data
   void DataSetContour();
+private:
+  vtkMarchingContourFilter(const vtkMarchingContourFilter&);  // Not implemented.
+  void operator=(const vtkMarchingContourFilter&);  // Not implemented.
 };
 
 // Description:

@@ -73,8 +73,6 @@ public:
 protected:
   vtkEnSight6Reader();
   ~vtkEnSight6Reader();
-  vtkEnSight6Reader(const vtkEnSight6Reader&);
-  void operator=(const vtkEnSight6Reader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
@@ -140,6 +138,9 @@ protected:
   int NumberOfUnstructuredPoints;
   vtkPoints* UnstructuredPoints;
   vtkIdList* UnstructuredNodeIds; // matching of node ids to point ids
+private:
+  vtkEnSight6Reader(const vtkEnSight6Reader&);  // Not implemented.
+  void operator=(const vtkEnSight6Reader&);  // Not implemented.
 };
 
 #endif

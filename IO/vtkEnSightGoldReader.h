@@ -73,8 +73,6 @@ public:
 protected:
   vtkEnSightGoldReader() {};
   ~vtkEnSightGoldReader() {};
-  vtkEnSightGoldReader(const vtkEnSightGoldReader&);
-  void operator=(const vtkEnSightGoldReader&);
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
@@ -161,6 +159,9 @@ protected:
   // Set/Get the Match file name.
   vtkSetStringMacro(MatchFileName);
   vtkGetStringMacro(MatchFileName);
+private:
+  vtkEnSightGoldReader(const vtkEnSightGoldReader&);  // Not implemented.
+  void operator=(const vtkEnSightGoldReader&);  // Not implemented.
 };
 
 #endif

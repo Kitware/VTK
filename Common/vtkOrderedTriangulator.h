@@ -181,8 +181,6 @@ public:
 protected:
   vtkOrderedTriangulator();
   ~vtkOrderedTriangulator();
-  vtkOrderedTriangulator(const vtkOrderedTriangulator&);
-  void operator=(const vtkOrderedTriangulator&);
 
 private:
   vtkOTMesh  *Mesh;
@@ -191,6 +189,9 @@ private:
   int PreSorted;
   vtkMemoryPool* Pool;
   
+private:
+  vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
+  void operator=(const vtkOrderedTriangulator&);  // Not implemented.
 };
 
 #endif

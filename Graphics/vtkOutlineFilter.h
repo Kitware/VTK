@@ -60,12 +60,13 @@ public:
 protected:
   vtkOutlineFilter();
   ~vtkOutlineFilter();
-  vtkOutlineFilter(const vtkOutlineFilter&);
-  void operator=(const vtkOutlineFilter&);
 
   vtkOutlineSource *OutlineSource;
   void Execute();
   void ExecuteInformation();
+private:
+  vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.
+  void operator=(const vtkOutlineFilter&);  // Not implemented.
 };
 
 #endif

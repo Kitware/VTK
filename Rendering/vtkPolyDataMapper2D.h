@@ -200,8 +200,6 @@ public:
 protected:
   vtkPolyDataMapper2D();
   ~vtkPolyDataMapper2D();
-  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&);
-  void operator=(const vtkPolyDataMapper2D&);
 
   vtkPolyData* Input;
 
@@ -223,6 +221,9 @@ protected:
   char ArrayName[256];
   int ArrayComponent;
   int ArrayAccessMode;
+private:
+  vtkPolyDataMapper2D(const vtkPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkPolyDataMapper2D&);  // Not implemented.
 };
 
 

@@ -82,14 +82,15 @@ class VTK_COMMON_EXPORT vtkPropCollection : public vtkCollection
 protected:
   vtkPropCollection() {};
   ~vtkPropCollection() {};
-  vtkPropCollection(const vtkPropCollection&);
-  void operator=(const vtkPropCollection&);
   
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkPropCollection(const vtkPropCollection&);  // Not implemented.
+  void operator=(const vtkPropCollection&);  // Not implemented.
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a) 

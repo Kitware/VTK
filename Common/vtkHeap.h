@@ -95,8 +95,6 @@ public:
 protected:  
   vtkHeap();
   ~vtkHeap();
-  vtkHeap(const vtkHeap&) {}
-  void operator=(const vtkHeap&) {}
 
   void Add(vtkHeapNode* node);
   void CleanAll();
@@ -107,6 +105,9 @@ protected:
   vtkHeapNode* Current;
 
   int NumberOfAllocations;
+private:
+  vtkHeap(const vtkHeap&); // Not implemented.
+  void operator=(const vtkHeap&);  // Not implemented.
 };
 
 #endif

@@ -109,8 +109,6 @@ public:
 protected:
   vtkImageDifference();
   ~vtkImageDifference() {};
-  vtkImageDifference(const vtkImageDifference&);
-  void operator=(const vtkImageDifference&);
 
   float ErrorPerThread[VTK_MAX_THREADS];
   float ThresholdedErrorPerThread[VTK_MAX_THREADS];
@@ -125,6 +123,9 @@ protected:
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);  
   
+private:
+  vtkImageDifference(const vtkImageDifference&);  // Not implemented.
+  void operator=(const vtkImageDifference&);  // Not implemented.
 };
 
 #endif

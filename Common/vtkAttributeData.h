@@ -138,11 +138,12 @@ protected:
   vtkAttributeData();
   vtkAttributeData(int dataType);
   ~vtkAttributeData();
-  vtkAttributeData(const vtkAttributeData&);
-  void operator=(const vtkAttributeData&);
 
   vtkDataArray *Data;  // Array which represents data
 
+private:
+  vtkAttributeData(const vtkAttributeData&);  // Not implemented.
+  void operator=(const vtkAttributeData&);  // Not implemented.
 };
 
 

@@ -68,11 +68,12 @@ public:
 protected:
   vtkRectilinearGridWriter() {};
   ~vtkRectilinearGridWriter() {};
-  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);
-  void operator=(const vtkRectilinearGridWriter&);
 
   void WriteData();
 
+private:
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
+  void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
 };
 
 #endif

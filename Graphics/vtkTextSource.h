@@ -96,14 +96,15 @@ public:
 protected:
   vtkTextSource();
   ~vtkTextSource();
-  vtkTextSource(const vtkTextSource&);
-  void operator=(const vtkTextSource&);
 
   void Execute();
   char *Text;
   int  Backing;
   float ForegroundColor[4];
   float BackgroundColor[4];
+private:
+  vtkTextSource(const vtkTextSource&);  // Not implemented.
+  void operator=(const vtkTextSource&);  // Not implemented.
 };
 
 #endif

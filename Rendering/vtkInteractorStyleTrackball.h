@@ -104,8 +104,6 @@ public:
 protected:
   vtkInteractorStyleTrackball();
   ~vtkInteractorStyleTrackball();
-  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&);
-  void operator=(const vtkInteractorStyleTrackball&);
 
   // used to track picked objects in actor mode
   // reason for existence: user may use any kind of picker.  Interactor
@@ -168,6 +166,9 @@ protected:
                       int NumRotation,double **rotate,
                       double *scale);
   void FindPickedActor(int X, int Y);
+private:
+  vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTrackball&);  // Not implemented.
 };
 
 #endif

@@ -64,8 +64,9 @@ public:
 protected:  
   vtkMesaLight() {};
   ~vtkMesaLight() {};
-  vtkMesaLight(const vtkMesaLight&);
-  void operator=(const vtkMesaLight&);
+private:
+  vtkMesaLight(const vtkMesaLight&);  // Not implemented.
+  void operator=(const vtkMesaLight&);  // Not implemented.
 };
 
 #endif

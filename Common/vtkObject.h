@@ -213,8 +213,6 @@ public:
 protected:
   vtkObject(); 
   virtual ~vtkObject(); 
-  vtkObject(const vtkObject&);
-  void operator=(const vtkObject&);
 
   unsigned char Debug;     // Enable debug messages
   vtkTimeStamp MTime;      // Keep track of modification time
@@ -225,6 +223,9 @@ private:
   //BTX
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObject& o);
   //ETX
+private:
+  vtkObject(const vtkObject&);  // Not implemented.
+  void operator=(const vtkObject&);  // Not implemented.
 };
 
 inline void vtkObject::Modified()

@@ -316,10 +316,11 @@ public:
 protected:
   vtkCell();
   ~vtkCell();
-  vtkCell(const vtkCell&);
-  void operator=(const vtkCell&);
 
   float Bounds[6];
+private:
+  vtkCell(const vtkCell&);  // Not implemented.
+  void operator=(const vtkCell&);  // Not implemented.
 };
 
 #endif

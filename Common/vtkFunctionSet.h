@@ -85,12 +85,13 @@ public:
 protected:
   vtkFunctionSet();
   ~vtkFunctionSet() {};
-  vtkFunctionSet(const vtkFunctionSet&);
-  void operator=(const vtkFunctionSet&);
 
   int NumFuncs;
   int NumIndepVars;
 
+private:
+  vtkFunctionSet(const vtkFunctionSet&);  // Not implemented.
+  void operator=(const vtkFunctionSet&);  // Not implemented.
 };
 
 #endif

@@ -224,8 +224,6 @@ public:
 protected:
   vtkProperty();
   ~vtkProperty() {};
-  vtkProperty(const vtkProperty&);
-  void operator=(const vtkProperty&);
 
   float Color[3];
   float AmbientColor[3];
@@ -246,6 +244,9 @@ protected:
   int   EdgeVisibility;
   int   BackfaceCulling;
   int   FrontfaceCulling;
+private:
+  vtkProperty(const vtkProperty&);  // Not implemented.
+  void operator=(const vtkProperty&);  // Not implemented.
 };
 
 // Description:

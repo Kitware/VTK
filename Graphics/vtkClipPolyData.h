@@ -160,8 +160,6 @@ public:
 protected:
   vtkClipPolyData(vtkImplicitFunction *cf=NULL);
   ~vtkClipPolyData();
-  vtkClipPolyData(const vtkClipPolyData&);
-  void operator=(const vtkClipPolyData&);
 
   void Execute();
   vtkImplicitFunction *ClipFunction;
@@ -172,6 +170,9 @@ protected:
   int GenerateClipScalars;
 
   int GenerateClippedOutput;
+private:
+  vtkClipPolyData(const vtkClipPolyData&);  // Not implemented.
+  void operator=(const vtkClipPolyData&);  // Not implemented.
 };
 
 #endif

@@ -199,8 +199,6 @@ public:
 protected:
   vtkDataWriter();
   ~vtkDataWriter();
-  vtkDataWriter(const vtkDataWriter&);
-  void operator=(const vtkDataWriter&);
 
   int WriteToOutputString;
   char *OutputString;
@@ -229,6 +227,9 @@ protected:
   int WriteTCoordData(ostream *fp, vtkDataArray *tc, int num);
   int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
 
+private:
+  vtkDataWriter(const vtkDataWriter&);  // Not implemented.
+  void operator=(const vtkDataWriter&);  // Not implemented.
 };
 
 #endif

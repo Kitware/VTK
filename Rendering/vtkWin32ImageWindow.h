@@ -146,8 +146,6 @@ public:
 protected:
   vtkWin32ImageWindow();
   ~vtkWin32ImageWindow();
-  vtkWin32ImageWindow(const vtkWin32ImageWindow&);
-  void operator=(const vtkWin32ImageWindow&);
 
   // the following is used to support rendering into memory
   BITMAPINFO MemoryDataHeader;
@@ -166,6 +164,9 @@ protected:
   HDC OldHdc;
   HBITMAP BackBuffer;
   BITMAPINFO DataHeader;
+private:
+  vtkWin32ImageWindow(const vtkWin32ImageWindow&);  // Not implemented.
+  void operator=(const vtkWin32ImageWindow&);  // Not implemented.
 };
 
 #endif

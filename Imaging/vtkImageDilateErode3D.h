@@ -82,8 +82,6 @@ public:
 protected:
   vtkImageDilateErode3D();
   ~vtkImageDilateErode3D();
-  vtkImageDilateErode3D(const vtkImageDilateErode3D&);
-  void operator=(const vtkImageDilateErode3D&);
 
   vtkImageEllipsoidSource *Ellipse;
   float DilateValue;
@@ -91,6 +89,9 @@ protected:
     
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int extent[6], int id);
+private:
+  vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.
+  void operator=(const vtkImageDilateErode3D&);  // Not implemented.
 };
 
 #endif

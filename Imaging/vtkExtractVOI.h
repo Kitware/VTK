@@ -93,14 +93,15 @@ public:
 protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
-  vtkExtractVOI(const vtkExtractVOI&);
-  void operator=(const vtkExtractVOI&);
 
   void Execute();
   void ExecuteInformation();
 
   int VOI[6];
   int SampleRate[3];
+private:
+  vtkExtractVOI(const vtkExtractVOI&);  // Not implemented.
+  void operator=(const vtkExtractVOI&);  // Not implemented.
 };
 
 #endif

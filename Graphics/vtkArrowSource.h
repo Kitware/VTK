@@ -89,8 +89,6 @@ public:
 protected:
   vtkArrowSource();
   ~vtkArrowSource() {};
-  vtkArrowSource(const vtkArrowSource&) {};
-  void operator=(const vtkArrowSource&) {};
 
   void Execute();
 
@@ -101,6 +99,9 @@ protected:
   int ShaftResolution;
   float ShaftRadius;
 
+private:
+  vtkArrowSource(const vtkArrowSource&) {};  // Not implemented.
+  void operator=(const vtkArrowSource&) {};  // Not implemented.
 };
 
 #endif

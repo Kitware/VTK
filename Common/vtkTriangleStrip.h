@@ -127,12 +127,13 @@ public:
 protected:
   vtkTriangleStrip();
   ~vtkTriangleStrip();
-  vtkTriangleStrip(const vtkTriangleStrip&);
-  void operator=(const vtkTriangleStrip&);
 
   vtkLine *Line;
   vtkTriangle *Triangle;
   
+private:
+  vtkTriangleStrip(const vtkTriangleStrip&);  // Not implemented.
+  void operator=(const vtkTriangleStrip&);  // Not implemented.
 };
 
 #endif

@@ -78,8 +78,6 @@ public:
 protected:
   vtkImageNoiseSource();
   ~vtkImageNoiseSource() {};
-  vtkImageNoiseSource(const vtkImageNoiseSource&);
-  void operator=(const vtkImageNoiseSource&);
 
   float Minimum;
   float Maximum;
@@ -87,6 +85,9 @@ protected:
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
+private:
+  vtkImageNoiseSource(const vtkImageNoiseSource&);  // Not implemented.
+  void operator=(const vtkImageNoiseSource&);  // Not implemented.
 };
 
 

@@ -213,8 +213,6 @@ public:
 protected:
   vtkXOpenGLRenderWindow();
   ~vtkXOpenGLRenderWindow();
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);
-  void operator=(const vtkXOpenGLRenderWindow&);
 
   Window   ParentId;
   Window   WindowId;
@@ -234,6 +232,9 @@ protected:
   // Looks like this just stores DoubleBuffer.
   int ScreenDoubleBuffer;
 #endif
+private:
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.
 };
 
 

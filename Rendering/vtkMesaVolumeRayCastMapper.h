@@ -69,11 +69,12 @@ public:
 protected:
   vtkMesaVolumeRayCastMapper();
   ~vtkMesaVolumeRayCastMapper();
-  vtkMesaVolumeRayCastMapper(const vtkMesaVolumeRayCastMapper&);
-  void operator=(const vtkMesaVolumeRayCastMapper&);
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren);
 
+private:
+  vtkMesaVolumeRayCastMapper(const vtkMesaVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkMesaVolumeRayCastMapper&);  // Not implemented.
 };
 
 #endif

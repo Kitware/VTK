@@ -74,14 +74,15 @@ public:
 protected:
   vtkDataSetCollection() {};
   ~vtkDataSetCollection() {};
-  vtkDataSetCollection(const vtkDataSetCollection&);
-  void operator=(const vtkDataSetCollection&);
 
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkDataSetCollection(const vtkDataSetCollection&);  // Not implemented.
+  void operator=(const vtkDataSetCollection&);  // Not implemented.
 };
 
 

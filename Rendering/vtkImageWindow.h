@@ -171,8 +171,6 @@ public:
 protected:
   vtkImageWindow();
   ~vtkImageWindow();
-  vtkImageWindow(const vtkImageWindow&);
-  void operator=(const vtkImageWindow&);
 
   vtkImagerCollection *Imagers;
   int WindowCreated;
@@ -181,6 +179,9 @@ protected:
   char *FileName;
   FILE* PPMImageFilePtr;
 
+private:
+  vtkImageWindow(const vtkImageWindow&);  // Not implemented.
+  void operator=(const vtkImageWindow&);  // Not implemented.
 };
 
 

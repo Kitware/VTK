@@ -319,8 +319,6 @@ public:
 protected:
   vtkDecimatePro();
   ~vtkDecimatePro();
-  vtkDecimatePro(const vtkDecimatePro&);
-  void operator=(const vtkDecimatePro&);
 
   void Execute();
 
@@ -394,6 +392,9 @@ private:
   int SplitState;   //State of the splitting process
   float Error;      //Maximum allowable surface error
 
+private:
+  vtkDecimatePro(const vtkDecimatePro&);  // Not implemented.
+  void operator=(const vtkDecimatePro&);  // Not implemented.
 };
 
 #endif

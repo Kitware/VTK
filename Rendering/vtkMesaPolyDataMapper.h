@@ -94,11 +94,12 @@ public:
 protected:
   vtkMesaPolyDataMapper();
   ~vtkMesaPolyDataMapper();
-  vtkMesaPolyDataMapper(const vtkMesaPolyDataMapper&);
-  void operator=(const vtkMesaPolyDataMapper&);
 
   int ListId;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for the previous render
+private:
+  vtkMesaPolyDataMapper(const vtkMesaPolyDataMapper&);  // Not implemented.
+  void operator=(const vtkMesaPolyDataMapper&);  // Not implemented.
 };
 
 #endif

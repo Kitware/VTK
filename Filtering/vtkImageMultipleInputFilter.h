@@ -111,8 +111,6 @@ public:
 protected:
   vtkImageMultipleInputFilter();
   ~vtkImageMultipleInputFilter();
-  vtkImageMultipleInputFilter(const vtkImageMultipleInputFilter&);
-  void operator=(const vtkImageMultipleInputFilter&);
 
   vtkMultiThreader *Threader;
   int Bypass;
@@ -138,6 +136,9 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkImageData not a vtkDataObject."); };
   void RemoveInput(vtkDataObject *)
     { vtkErrorMacro( << "RemoveInput() must be called with a vtkImageData not a vtkDataObject."); };
+private:
+  vtkImageMultipleInputFilter(const vtkImageMultipleInputFilter&);  // Not implemented.
+  void operator=(const vtkImageMultipleInputFilter&);  // Not implemented.
 };
 
 #endif

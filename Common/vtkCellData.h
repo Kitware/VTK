@@ -63,9 +63,10 @@ public:
 protected:
   vtkCellData() {}; //make sure constructor and desctructor are protected
   ~vtkCellData() {};
-  vtkCellData(const vtkCellData&);
-  void operator=(const vtkCellData&);
   
+private:
+  vtkCellData(const vtkCellData&);  // Not implemented.
+  void operator=(const vtkCellData&);  // Not implemented.
 };
 
 #endif

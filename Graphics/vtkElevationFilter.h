@@ -81,13 +81,14 @@ public:
 protected:
   vtkElevationFilter();
   ~vtkElevationFilter() {};
-  vtkElevationFilter(const vtkElevationFilter&);
-  void operator=(const vtkElevationFilter&);
 
   void Execute();
   float LowPoint[3];
   float HighPoint[3];
   float ScalarRange[2];
+private:
+  vtkElevationFilter(const vtkElevationFilter&);  // Not implemented.
+  void operator=(const vtkElevationFilter&);  // Not implemented.
 };
 
 #endif

@@ -71,11 +71,12 @@ public:
 protected:
   vtkOpenGLVolumeRayCastMapper();
   ~vtkOpenGLVolumeRayCastMapper();
-  vtkOpenGLVolumeRayCastMapper(const vtkOpenGLVolumeRayCastMapper&);
-  void operator=(const vtkOpenGLVolumeRayCastMapper&);
 
   void RenderTexture( vtkVolume *vol, vtkRenderer *ren);
 
+private:
+  vtkOpenGLVolumeRayCastMapper(const vtkOpenGLVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLVolumeRayCastMapper&);  // Not implemented.
 };
 
 #endif

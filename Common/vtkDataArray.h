@@ -371,8 +371,6 @@ protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkDataArray(vtkIdType numComp=1);
   ~vtkDataArray();
-  vtkDataArray(const vtkDataArray&);
-  void operator=(const vtkDataArray&);
 
   vtkLookupTable *LookupTable;
 
@@ -389,6 +387,9 @@ private:
 
   float* GetTupleN(const vtkIdType i, int n);
   
+private:
+  vtkDataArray(const vtkDataArray&);  // Not implemented.
+  void operator=(const vtkDataArray&);  // Not implemented.
 };
 
 #endif

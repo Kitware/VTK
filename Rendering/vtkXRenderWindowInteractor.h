@@ -180,8 +180,6 @@ public:
 protected:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor();
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);
-  void operator=(const vtkXRenderWindowInteractor&);
 
   Display *DisplayId;
   Window WindowId;
@@ -198,6 +196,9 @@ protected:
   void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd);
 
 
+private:
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif

@@ -313,8 +313,6 @@ public:
 protected:
   vtkProp3D();
   ~vtkProp3D();
-  vtkProp3D(const vtkProp3D&);
-  void operator=(const vtkProp3D&);
 
   vtkLinearTransform *UserTransform;
   vtkMatrix4x4  *UserMatrix;
@@ -329,6 +327,9 @@ protected:
   float         Bounds[6];
   vtkProp3D     *CachedProp3D; //support the PokeMatrix() method
   int           IsIdentity;
+private:
+  vtkProp3D(const vtkProp3D&);  // Not implemented.
+  void operator=(const vtkProp3D&);  // Not implemented.
 };
 
 #endif

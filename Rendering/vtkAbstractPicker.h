@@ -169,8 +169,6 @@ public:
 protected:
   vtkAbstractPicker();
   ~vtkAbstractPicker();
-  vtkAbstractPicker(const vtkAbstractPicker&);
-  void operator=(const vtkAbstractPicker&);
 
   virtual void Initialize();
 
@@ -192,6 +190,9 @@ protected:
   // use the following to control picking from a list
   int PickFromList;
   vtkPropCollection *PickList;
+private:
+  vtkAbstractPicker(const vtkAbstractPicker&);  // Not implemented.
+  void operator=(const vtkAbstractPicker&);  // Not implemented.
 };
 
 #endif

@@ -73,11 +73,12 @@ public:
 protected:
   vtkVectorDot();
   ~vtkVectorDot() {};
-  vtkVectorDot(const vtkVectorDot&);
-  void operator=(const vtkVectorDot&);
 
   void Execute();
   float ScalarRange[2];
+private:
+  vtkVectorDot(const vtkVectorDot&);  // Not implemented.
+  void operator=(const vtkVectorDot&);  // Not implemented.
 };
 
 #endif

@@ -113,11 +113,12 @@ public:
 protected:
   vtkTensors();
   ~vtkTensors();
-  vtkTensors(const vtkTensors&);
-  void operator=(const vtkTensors&);
 
   vtkTensor *T;
 
+private:
+  vtkTensors(const vtkTensors&);  // Not implemented.
+  void operator=(const vtkTensors&);  // Not implemented.
 };
 
 

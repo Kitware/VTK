@@ -155,8 +155,6 @@ public:
 protected:
   vtkGlyphSource2D();
   ~vtkGlyphSource2D() {};
-  vtkGlyphSource2D(const vtkGlyphSource2D&);
-  void operator=(const vtkGlyphSource2D&);
 
   void Execute();
 
@@ -197,6 +195,9 @@ protected:
   void CreateHookedArrow(vtkPoints *pts, vtkCellArray *lines,
                          vtkCellArray *polys, vtkUnsignedCharArray *colors);
 
+private:
+  vtkGlyphSource2D(const vtkGlyphSource2D&);  // Not implemented.
+  void operator=(const vtkGlyphSource2D&);  // Not implemented.
 };
 
 #endif

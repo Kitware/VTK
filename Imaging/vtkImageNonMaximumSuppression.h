@@ -84,8 +84,6 @@ public:
 protected:
   vtkImageNonMaximumSuppression();
   ~vtkImageNonMaximumSuppression() {};
-  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);
-  void operator=(const vtkImageNonMaximumSuppression&);
 
   int HandleBoundaries;
   int Dimensionality;
@@ -97,6 +95,9 @@ protected:
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
   
+private:
+  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.
+  void operator=(const vtkImageNonMaximumSuppression&);  // Not implemented.
 };
 
 #endif

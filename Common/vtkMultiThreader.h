@@ -215,8 +215,6 @@ public:
 protected:
   vtkMultiThreader();
   ~vtkMultiThreader();
-  vtkMultiThreader(const vtkMultiThreader&);
-  void operator=(const vtkMultiThreader&);
 
   // The number of threads to use
   int                        NumberOfThreads;
@@ -243,6 +241,9 @@ protected:
   void                       *SingleData;
   void                       *MultipleData[VTK_MAX_THREADS];
 
+private:
+  vtkMultiThreader(const vtkMultiThreader&);  // Not implemented.
+  void operator=(const vtkMultiThreader&);  // Not implemented.
 };
 
 #endif

@@ -94,8 +94,6 @@ public:
 protected:
   vtkTriangularTexture();
   ~vtkTriangularTexture() {};
-  vtkTriangularTexture(const vtkTriangularTexture&);
-  void operator=(const vtkTriangularTexture&);
 
   void Execute();
 
@@ -104,6 +102,9 @@ protected:
   float ScaleFactor;
 
   int TexturePattern;
+private:
+  vtkTriangularTexture(const vtkTriangularTexture&);  // Not implemented.
+  void operator=(const vtkTriangularTexture&);  // Not implemented.
 };
 
 #endif

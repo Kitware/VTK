@@ -114,8 +114,6 @@ public:
 protected:
   vtkProgrammableSource();
   ~vtkProgrammableSource();
-  vtkProgrammableSource(const vtkProgrammableSource&);
-  void operator=(const vtkProgrammableSource&);
 
   void Execute();
 
@@ -124,6 +122,9 @@ protected:
   void *ExecuteMethodArg;  
 
   vtkTimeStamp ExecuteTime;
+private:
+  vtkProgrammableSource(const vtkProgrammableSource&);  // Not implemented.
+  void operator=(const vtkProgrammableSource&);  // Not implemented.
 };
 
 #endif

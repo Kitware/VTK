@@ -64,8 +64,9 @@ public:
 protected:  
   vtkOpenGLLight() {};
   ~vtkOpenGLLight() {};
-  vtkOpenGLLight(const vtkOpenGLLight&);
-  void operator=(const vtkOpenGLLight&);
+private:
+  vtkOpenGLLight(const vtkOpenGLLight&);  // Not implemented.
+  void operator=(const vtkOpenGLLight&);  // Not implemented.
 };
 
 #endif

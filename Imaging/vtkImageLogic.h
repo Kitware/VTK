@@ -89,14 +89,15 @@ public:
 protected:
   vtkImageLogic();
   ~vtkImageLogic() {};
-  vtkImageLogic(const vtkImageLogic&);
-  void operator=(const vtkImageLogic&);
 
   int Operation;
   float OutputTrueValue;
   
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageLogic(const vtkImageLogic&);  // Not implemented.
+  void operator=(const vtkImageLogic&);  // Not implemented.
 };
 
 #endif

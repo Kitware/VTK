@@ -57,13 +57,14 @@ public:
 protected:
   vtkImageLuminance() {};
   ~vtkImageLuminance() {};
-  vtkImageLuminance(const vtkImageLuminance&);
-  void operator=(const vtkImageLuminance&);
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
+private:
+  vtkImageLuminance(const vtkImageLuminance&);  // Not implemented.
+  void operator=(const vtkImageLuminance&);  // Not implemented.
 };
 
 #endif

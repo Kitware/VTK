@@ -99,8 +99,6 @@ public:
 protected:
   vtkBlankStructuredGrid();
   ~vtkBlankStructuredGrid();
-  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&);
-  void operator=(const vtkBlankStructuredGrid&);
 
   void Execute();
   
@@ -110,6 +108,9 @@ protected:
   int   ArrayId;
   int   Component;
   
+private:
+  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&);  // Not implemented.
+  void operator=(const vtkBlankStructuredGrid&);  // Not implemented.
 };
 
 #endif

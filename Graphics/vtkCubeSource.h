@@ -88,14 +88,15 @@ public:
 protected:
   vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
   ~vtkCubeSource() {};
-  vtkCubeSource(const vtkCubeSource&);
-  void operator=(const vtkCubeSource&);
 
   void Execute();
   float XLength;
   float YLength;
   float ZLength;
   float Center[3];
+private:
+  vtkCubeSource(const vtkCubeSource&);  // Not implemented.
+  void operator=(const vtkCubeSource&);  // Not implemented.
 };
 
 #endif

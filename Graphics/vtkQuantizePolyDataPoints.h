@@ -88,10 +88,11 @@ public:
 protected:
   vtkQuantizePolyDataPoints();
   ~vtkQuantizePolyDataPoints() {};
-  vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);
-  void operator=(const vtkQuantizePolyDataPoints&);
 
   float QFactor;
+private:
+  vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);  // Not implemented.
+  void operator=(const vtkQuantizePolyDataPoints&);  // Not implemented.
 };
 
 #endif

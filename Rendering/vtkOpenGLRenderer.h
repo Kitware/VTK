@@ -78,8 +78,6 @@ public:
 protected:
   vtkOpenGLRenderer();
   ~vtkOpenGLRenderer();
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&);
-  void operator=(const vtkOpenGLRenderer&);
 
   //BTX
   // Picking functions to be implemented by sub-classes
@@ -93,6 +91,9 @@ protected:
   class vtkGLPickInfo* PickInfo;
   //ETX
   float PickedZ;
+private:
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
+  void operator=(const vtkOpenGLRenderer&);  // Not implemented.
 };
 
 #endif

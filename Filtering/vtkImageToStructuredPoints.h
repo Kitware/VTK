@@ -82,8 +82,6 @@ public:
 protected:
   vtkImageToStructuredPoints();
   ~vtkImageToStructuredPoints();
-  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&);
-  void operator=(const vtkImageToStructuredPoints&);
 
   // to translate the wholeExtent to have min 0 ( I do not like this hack).
   int Translate[3];
@@ -93,6 +91,9 @@ protected:
   void ComputeInputUpdateExtents(vtkDataObject *data);
 
   
+private:
+  vtkImageToStructuredPoints(const vtkImageToStructuredPoints&);  // Not implemented.
+  void operator=(const vtkImageToStructuredPoints&);  // Not implemented.
 };
 
 

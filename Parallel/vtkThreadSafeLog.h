@@ -79,8 +79,6 @@ protected:
 
   vtkThreadSafeLog(); //insure constructur/destructor protected
   ~vtkThreadSafeLog();
-  vtkThreadSafeLog(const vtkThreadSafeLog&);
-  void operator=(const vtkThreadSafeLog&);
 
 
   char *Tags[VTK_THREAD_SAFE_LOG_MAX];
@@ -88,6 +86,9 @@ protected:
   int NumberOfEntries;
 
   vtkTimerLog *Timer;
+private:
+  vtkThreadSafeLog(const vtkThreadSafeLog&);  // Not implemented.
+  void operator=(const vtkThreadSafeLog&);  // Not implemented.
 };
 
 

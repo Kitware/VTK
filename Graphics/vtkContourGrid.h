@@ -154,8 +154,6 @@ public:
 protected:
   vtkContourGrid();
   ~vtkContourGrid();
-  vtkContourGrid(const vtkContourGrid&);
-  void operator=(const vtkContourGrid&);
 
   void Execute();
 
@@ -168,6 +166,9 @@ protected:
   vtkScalarTree *ScalarTree;
   vtkEdgeTable *EdgeTable;
   
+private:
+  vtkContourGrid(const vtkContourGrid&);  // Not implemented.
+  void operator=(const vtkContourGrid&);  // Not implemented.
 };
 
 // Description:

@@ -104,8 +104,6 @@ public:
 protected:
   vtkRendererSource();
   ~vtkRendererSource();
-  vtkRendererSource(const vtkRendererSource&);
-  void operator=(const vtkRendererSource&);
 
   void Execute();
   
@@ -116,6 +114,9 @@ protected:
   int RenderFlag;
   int DepthValues;
 
+private:
+  vtkRendererSource(const vtkRendererSource&);  // Not implemented.
+  void operator=(const vtkRendererSource&);  // Not implemented.
 };
 
 #endif

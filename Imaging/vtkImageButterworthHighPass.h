@@ -84,14 +84,15 @@ public:
 protected:
   vtkImageButterworthHighPass();
   ~vtkImageButterworthHighPass() {};
-  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);
-  void operator=(const vtkImageButterworthHighPass&);
 
   int Order;
   float CutOff[3];
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);
+private:
+  vtkImageButterworthHighPass(const vtkImageButterworthHighPass&);  // Not implemented.
+  void operator=(const vtkImageButterworthHighPass&);  // Not implemented.
 };
 
 #endif

@@ -72,9 +72,10 @@ public:
 protected:
   vtkPNMReader() {};
   ~vtkPNMReader() {};
-  vtkPNMReader(const vtkPNMReader&);
-  void operator=(const vtkPNMReader&);
   void ExecuteInformation();
+private:
+  vtkPNMReader(const vtkPNMReader&);  // Not implemented.
+  void operator=(const vtkPNMReader&);  // Not implemented.
 };
 
 #endif

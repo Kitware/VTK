@@ -112,8 +112,6 @@ public:
 protected:
   vtkImplicitTextureCoords();
   ~vtkImplicitTextureCoords();
-  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&);
-  void operator=(const vtkImplicitTextureCoords&);
 
   void Execute();
 
@@ -121,6 +119,9 @@ protected:
   vtkImplicitFunction *SFunction;
   vtkImplicitFunction *TFunction;
   int FlipTexture;
+private:
+  vtkImplicitTextureCoords(const vtkImplicitTextureCoords&);  // Not implemented.
+  void operator=(const vtkImplicitTextureCoords&);  // Not implemented.
 };
 
 #endif

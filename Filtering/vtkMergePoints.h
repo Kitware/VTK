@@ -79,9 +79,10 @@ public:
 protected:
   vtkMergePoints() {};
   ~vtkMergePoints() {};
-  vtkMergePoints(const vtkMergePoints&);
-  void operator=(const vtkMergePoints&);
   
+private:
+  vtkMergePoints(const vtkMergePoints&);  // Not implemented.
+  void operator=(const vtkMergePoints&);  // Not implemented.
 };
 
 #endif

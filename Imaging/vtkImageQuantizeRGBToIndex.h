@@ -94,8 +94,6 @@ public:
 protected:
   vtkImageQuantizeRGBToIndex();
   ~vtkImageQuantizeRGBToIndex();
-  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&);
-  void operator=(const vtkImageQuantizeRGBToIndex&);
 
   vtkLookupTable  *LookupTable;
   int             NumberOfColors;
@@ -110,6 +108,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 
   virtual void ExecuteData(vtkDataObject *out);
+private:
+  vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
+  void operator=(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
 };
 
 #endif

@@ -99,14 +99,15 @@ public:
 protected:
   vtkMergeFilter();
   ~vtkMergeFilter();
-  vtkMergeFilter(const vtkMergeFilter&);
-  void operator=(const vtkMergeFilter&);
 
   // Usual data generation method
   void Execute();
   void ComputeInputUpdateExtents(vtkDataObject *data);
 
   vtkFieldList* FieldList;
+private:
+  vtkMergeFilter(const vtkMergeFilter&);  // Not implemented.
+  void operator=(const vtkMergeFilter&);  // Not implemented.
   };
 
 #endif

@@ -86,8 +86,6 @@ public:
 protected:
   vtkVolumeRayCastCompositeFunction();
   ~vtkVolumeRayCastCompositeFunction();
-  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&);
-  void operator=(const vtkVolumeRayCastCompositeFunction&);
 
 //BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
@@ -97,6 +95,9 @@ protected:
 //ETX
   
   int           CompositeMethod;
+private:
+  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
+  void operator=(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
 };
 
 

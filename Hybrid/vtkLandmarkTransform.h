@@ -108,8 +108,6 @@ public:
 protected:
   vtkLandmarkTransform();
   ~vtkLandmarkTransform();
-  vtkLandmarkTransform(const vtkLandmarkTransform&);
-  void operator=(const vtkLandmarkTransform&);
 
   // Update the matrix from the quaternion.
   void InternalUpdate();
@@ -122,6 +120,9 @@ protected:
   vtkPoints* TargetLandmarks;
 
   int Mode;
+private:
+  vtkLandmarkTransform(const vtkLandmarkTransform&);  // Not implemented.
+  void operator=(const vtkLandmarkTransform&);  // Not implemented.
 };
  
 //BTX

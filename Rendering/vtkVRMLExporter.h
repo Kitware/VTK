@@ -80,8 +80,6 @@ public:
 protected:
   vtkVRMLExporter();
   ~vtkVRMLExporter();
-  vtkVRMLExporter(const vtkVRMLExporter&);
-  void operator=(const vtkVRMLExporter&);
 
   void WriteData();
   void WriteALight(vtkLight *aLight, FILE *fp);
@@ -92,6 +90,9 @@ protected:
   char *FileName;
   FILE *FilePointer;
   float Speed;
+private:
+  vtkVRMLExporter(const vtkVRMLExporter&);  // Not implemented.
+  void operator=(const vtkVRMLExporter&);  // Not implemented.
 };
 
 #endif

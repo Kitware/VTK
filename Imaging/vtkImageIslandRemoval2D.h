@@ -95,8 +95,6 @@ public:
 protected:
   vtkImageIslandRemoval2D();
   ~vtkImageIslandRemoval2D() {};
-  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);
-  void operator=(const vtkImageIslandRemoval2D&);
 
   int AreaThreshold;
   int SquareNeighborhood;
@@ -104,6 +102,9 @@ protected:
   float ReplaceValue;
 
   void ExecuteData(vtkDataObject *output);
+private:
+  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);  // Not implemented.
+  void operator=(const vtkImageIslandRemoval2D&);  // Not implemented.
 };
 
 #endif

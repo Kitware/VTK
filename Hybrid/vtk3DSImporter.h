@@ -89,8 +89,6 @@ public:
 protected:
   vtk3DSImporter();
   ~vtk3DSImporter();
-  vtk3DSImporter(const vtk3DSImporter&);
-  void operator=(const vtk3DSImporter&);
 
   virtual int ImportBegin ();
   virtual void ImportEnd ();
@@ -104,6 +102,9 @@ protected:
   char *FileName;
   FILE *FileFD;
   int ComputeNormals;
+private:
+  vtk3DSImporter(const vtk3DSImporter&);  // Not implemented.
+  void operator=(const vtk3DSImporter&);  // Not implemented.
 };
 
 #endif

@@ -109,13 +109,14 @@ public:
 protected:
   vtkXImageMapper();
   ~vtkXImageMapper();
-  vtkXImageMapper(const vtkXImageMapper&);
-  void operator=(const vtkXImageMapper&);
 
   XImage          *Image;
   unsigned char   *DataOut;
   int             DataOutSize;
   int             NumberOfColors;
+private:
+  vtkXImageMapper(const vtkXImageMapper&);  // Not implemented.
+  void operator=(const vtkXImageMapper&);  // Not implemented.
 };
 #endif
 

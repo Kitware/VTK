@@ -96,8 +96,6 @@ public:
 protected:
   vtkRTAnalyticSource();
   ~vtkRTAnalyticSource() {};
-  vtkRTAnalyticSource(const vtkRTAnalyticSource&);
-  void operator=(const vtkRTAnalyticSource&);
 
   float XFreq;
   float YFreq;
@@ -112,6 +110,9 @@ protected:
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
+private:
+  vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.
+  void operator=(const vtkRTAnalyticSource&);  // Not implemented.
 };
 
 

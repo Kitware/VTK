@@ -111,10 +111,11 @@ public:
 protected:
   vtkEmptyCell() {};
   ~vtkEmptyCell() {};
-  vtkEmptyCell(const vtkEmptyCell&);
-  void operator=(const vtkEmptyCell&);
 
 
+private:
+  vtkEmptyCell(const vtkEmptyCell&);  // Not implemented.
+  void operator=(const vtkEmptyCell&);  // Not implemented.
 };
 
 #endif

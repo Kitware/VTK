@@ -126,11 +126,12 @@ public:
 protected:
   vtkImplicitFunction();
   ~vtkImplicitFunction();
-  vtkImplicitFunction(const vtkImplicitFunction&);
-  void operator=(const vtkImplicitFunction&);
 
   vtkAbstractTransform *Transform;
   float ReturnValue[3];
+private:
+  vtkImplicitFunction(const vtkImplicitFunction&);  // Not implemented.
+  void operator=(const vtkImplicitFunction&);  // Not implemented.
 };
 
 #endif

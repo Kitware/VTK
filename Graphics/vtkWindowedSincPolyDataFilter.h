@@ -220,8 +220,6 @@ public:
  protected:
   vtkWindowedSincPolyDataFilter();
   ~vtkWindowedSincPolyDataFilter() {};
-  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&);
-  void operator=(const vtkWindowedSincPolyDataFilter&);
 
   void Execute();
 
@@ -233,6 +231,9 @@ public:
   int BoundarySmoothing;
   int GenerateErrorScalars;
   int GenerateErrorVectors;
+private:
+  vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
 };
 
 #endif 

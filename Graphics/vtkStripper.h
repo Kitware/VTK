@@ -83,13 +83,14 @@ public:
 protected:
   vtkStripper();
   ~vtkStripper() {};
-  vtkStripper(const vtkStripper&);
-  void operator=(const vtkStripper&);
 
   // Usual data generation method
   void Execute();
 
   int MaximumLength;
+private:
+  vtkStripper(const vtkStripper&);  // Not implemented.
+  void operator=(const vtkStripper&);  // Not implemented.
 };
 
 #endif

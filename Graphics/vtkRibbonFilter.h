@@ -109,8 +109,6 @@ public:
 protected:
   vtkRibbonFilter();
   ~vtkRibbonFilter() {};
-  vtkRibbonFilter(const vtkRibbonFilter&);
-  void operator=(const vtkRibbonFilter&);
 
   void Execute();
   float Width;
@@ -119,6 +117,9 @@ protected:
   float WidthFactor;
   float DefaultNormal[3];
   int UseDefaultNormal;
+private:
+  vtkRibbonFilter(const vtkRibbonFilter&);  // Not implemented.
+  void operator=(const vtkRibbonFilter&);  // Not implemented.
 };
 
 #endif

@@ -142,8 +142,6 @@ public:
 protected:
   vtkInputPort();
   ~vtkInputPort();  
-  vtkInputPort(const vtkInputPort&);
-  void operator=(const vtkInputPort&);
   
   vtkMultiProcessController *Controller;
   int RemoteProcessId;
@@ -153,6 +151,9 @@ protected:
   unsigned long UpStreamMTime;
   int TransferNeeded;
   int DoUpdateInformation;
+private:
+  vtkInputPort(const vtkInputPort&);  // Not implemented.
+  void operator=(const vtkInputPort&);  // Not implemented.
 };
 
 #endif

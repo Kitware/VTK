@@ -60,11 +60,12 @@ public:
 protected:
   vtkSubdivideTetra();
   ~vtkSubdivideTetra() {};
-  vtkSubdivideTetra(const vtkSubdivideTetra&);
-  void operator=(const vtkSubdivideTetra&);
 
   void Execute();
 
+private:
+  vtkSubdivideTetra(const vtkSubdivideTetra&);  // Not implemented.
+  void operator=(const vtkSubdivideTetra&);  // Not implemented.
 };
 
 #endif

@@ -145,8 +145,6 @@ public:
 protected:
   vtkInteractorStyleUnicam();
   virtual ~vtkInteractorStyleUnicam();
-  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);
-  void operator=(const vtkInteractorStyleUnicam&);
 
   vtkWorldPointPicker *InteractionPicker;
   
@@ -191,6 +189,9 @@ protected:
 
   // return the aspect ratio of the current window
   float WindowAspect();
+private:
+  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);  // Not implemented.
+  void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
 };
 
 #endif  // __vtkInteractorStyleUnicam_h

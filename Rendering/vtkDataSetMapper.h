@@ -87,11 +87,12 @@ public:
 protected:
   vtkDataSetMapper();
   ~vtkDataSetMapper();
-  vtkDataSetMapper(const vtkDataSetMapper&);
-  void operator=(const vtkDataSetMapper&);
 
   vtkDataSetSurfaceFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;
+private:
+  vtkDataSetMapper(const vtkDataSetMapper&);  // Not implemented.
+  void operator=(const vtkDataSetMapper&);  // Not implemented.
 };
 
 #endif

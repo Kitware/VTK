@@ -200,8 +200,6 @@ public:
 protected:
   vtkSmoothPolyDataFilter();
   ~vtkSmoothPolyDataFilter() {};
-  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&);
-  void operator=(const vtkSmoothPolyDataFilter&);
 
   void Execute();
 
@@ -216,6 +214,9 @@ protected:
   int GenerateErrorVectors;
 
   vtkSmoothPoints *SmoothPoints;
+private:
+  vtkSmoothPolyDataFilter(const vtkSmoothPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkSmoothPolyDataFilter&);  // Not implemented.
 };
 
 #endif

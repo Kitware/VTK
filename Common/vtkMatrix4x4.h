@@ -211,11 +211,12 @@ public:
 protected:
   vtkMatrix4x4() { vtkMatrix4x4::Identity(*this->Element); };
   ~vtkMatrix4x4() {};
-  vtkMatrix4x4(const vtkMatrix4x4&);
-  void operator= (const vtkMatrix4x4& source);
   
   float FloatPoint[4];
   double DoublePoint[4];
+private:
+  vtkMatrix4x4(const vtkMatrix4x4&);  // Not implemented.
+  void operator= (const vtkMatrix4x4& source);  // Not implemented.
 };
 
 inline void vtkMatrix4x4::SetElement(int i, int j, double value)

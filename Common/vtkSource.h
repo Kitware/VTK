@@ -155,8 +155,6 @@ public:
 protected:
   vtkSource();
   ~vtkSource();
-  vtkSource(const vtkSource&);
-  void operator=(const vtkSource&);
 
   // Description:
   // This method is the one that should be used by subclasses, right now the 
@@ -188,6 +186,9 @@ protected:
   int Updating;
   // Time when ExecuteInformation was last called.
   vtkTimeStamp InformationTime;
+private:
+  vtkSource(const vtkSource&);  // Not implemented.
+  void operator=(const vtkSource&);  // Not implemented.
 };
 
 #endif

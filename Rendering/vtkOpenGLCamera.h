@@ -66,8 +66,9 @@ public:
 protected:  
   vtkOpenGLCamera() {};
   ~vtkOpenGLCamera() {};
-  vtkOpenGLCamera(const vtkOpenGLCamera&);
-  void operator=(const vtkOpenGLCamera&);
+private:
+  vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
+  void operator=(const vtkOpenGLCamera&);  // Not implemented.
 };
 
 #endif

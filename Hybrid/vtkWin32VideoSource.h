@@ -121,8 +121,6 @@ public:
 protected:
   vtkWin32VideoSource();
   ~vtkWin32VideoSource();
-  vtkWin32VideoSource(const vtkWin32VideoSource&);
-  void operator=(const vtkWin32VideoSource&);
 
   char WndClassName[16];
   HWND CapWnd;
@@ -143,6 +141,9 @@ protected:
 
   void DoVFWFormatSetup();
   void DoVFWFormatCheck();
+private:
+  vtkWin32VideoSource(const vtkWin32VideoSource&);  // Not implemented.
+  void operator=(const vtkWin32VideoSource&);  // Not implemented.
 };
 
 #endif

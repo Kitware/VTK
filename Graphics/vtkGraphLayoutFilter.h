@@ -108,8 +108,6 @@ public:
 protected:
   vtkGraphLayoutFilter();
   ~vtkGraphLayoutFilter() {}
-  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&);
-  void operator=(const vtkGraphLayoutFilter&);
 
   void Execute();
 
@@ -118,6 +116,9 @@ protected:
   int   MaxNumberOfIterations;  //Maximum number of iterations.
   float CoolDownRate;  //Cool-down rate.  Note:  Higher # = Slower rate.
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
+private:
+  vtkGraphLayoutFilter(const vtkGraphLayoutFilter&);  // Not implemented.
+  void operator=(const vtkGraphLayoutFilter&);  // Not implemented.
 };
 
 #endif

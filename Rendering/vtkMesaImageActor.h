@@ -73,8 +73,6 @@ public:
 protected:
   vtkMesaImageActor();
   ~vtkMesaImageActor();
-  vtkMesaImageActor(const vtkMesaImageActor&);
-  void operator=(const vtkMesaImageActor&);
 
   unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
 
@@ -84,6 +82,9 @@ protected:
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
   float Coords[12];
   float TCoords[8];
+private:
+  vtkMesaImageActor(const vtkMesaImageActor&);  // Not implemented.
+  void operator=(const vtkMesaImageActor&);  // Not implemented.
 };
 
 #endif

@@ -186,8 +186,6 @@ public:
 protected:
   vtkImageToPolyDataFilter();
   ~vtkImageToPolyDataFilter();
-  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);
-  void operator=(const vtkImageToPolyDataFilter&);
 
   void Execute();
 
@@ -245,6 +243,9 @@ private:
   unsigned char *GetColor(unsigned char *rgb);
   int IsSameColor(unsigned char *p1, unsigned char *p2);
   
+private:
+  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkImageToPolyDataFilter&);  // Not implemented.
 };
 
 #endif

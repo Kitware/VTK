@@ -360,8 +360,6 @@ public:
 protected:
   vtkRenderWindow();
   ~vtkRenderWindow();
-  vtkRenderWindow(const vtkRenderWindow&);
-  void operator=(const vtkRenderWindow&);
 
   virtual void DoStereoRender();
   virtual void DoFDRender();
@@ -397,6 +395,9 @@ protected:
   void (*AbortCheckMethod)(void *);
   void (*AbortCheckMethodArgDelete)(void *);
   void *AbortCheckMethodArg;
+private:
+  vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
+  void operator=(const vtkRenderWindow&);  // Not implemented.
 };
 
 // Description:

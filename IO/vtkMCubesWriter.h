@@ -75,11 +75,12 @@ public:
 protected:
   vtkMCubesWriter();
   ~vtkMCubesWriter();
-  vtkMCubesWriter(const vtkMCubesWriter&);
-  void operator=(const vtkMCubesWriter&);
 
   void WriteData();
   char *LimitsFileName;
+private:
+  vtkMCubesWriter(const vtkMCubesWriter&);  // Not implemented.
+  void operator=(const vtkMCubesWriter&);  // Not implemented.
 };
 
 #endif

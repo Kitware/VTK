@@ -87,13 +87,14 @@ public:
 protected:
   vtkImageBlockWriter();
   ~vtkImageBlockWriter();
-  vtkImageBlockWriter(const vtkImageBlockWriter&);
-  void operator=(const vtkImageBlockWriter&);
   
   char *FilePattern;
 
   int Divisions[3];
   int Overlap;
+private:
+  vtkImageBlockWriter(const vtkImageBlockWriter&);  // Not implemented.
+  void operator=(const vtkImageBlockWriter&);  // Not implemented.
 };
 
 

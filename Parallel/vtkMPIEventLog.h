@@ -102,13 +102,14 @@ protected:
 
   vtkMPIEventLog();
   ~vtkMPIEventLog();
-  vtkMPIEventLog(const vtkMPIEventLog&);
-  void operator=(const vtkMPIEventLog&);
 
   static int LastEventId;
   int Active;
   int BeginId;
   int EndId;
+private:
+  vtkMPIEventLog(const vtkMPIEventLog&);  // Not implemented.
+  void operator=(const vtkMPIEventLog&);  // Not implemented.
 };
 
 #endif

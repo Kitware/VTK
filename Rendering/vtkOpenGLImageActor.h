@@ -73,8 +73,6 @@ public:
 protected:
   vtkOpenGLImageActor();
   ~vtkOpenGLImageActor();
-  vtkOpenGLImageActor(const vtkOpenGLImageActor&);
-  void operator=(const vtkOpenGLImageActor&);
 
   unsigned char *MakeDataSuitable(int &xsize, int &ysize, int &release);
 
@@ -83,6 +81,9 @@ protected:
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
   float Coords[12];
   float TCoords[8];
+private:
+  vtkOpenGLImageActor(const vtkOpenGLImageActor&);  // Not implemented.
+  void operator=(const vtkOpenGLImageActor&);  // Not implemented.
 };
 
 #endif

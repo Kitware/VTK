@@ -80,8 +80,6 @@ public:
 protected:
   vtkImageFFT() {};
   ~vtkImageFFT() {};
-  vtkImageFFT(const vtkImageFFT&);
-  void operator=(const vtkImageFFT&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
@@ -89,6 +87,9 @@ protected:
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int threadId);
+private:
+  vtkImageFFT(const vtkImageFFT&);  // Not implemented.
+  void operator=(const vtkImageFFT&);  // Not implemented.
 };
 
 #endif

@@ -79,8 +79,6 @@ public:
 protected:
   vtkXTextMapper();
   ~vtkXTextMapper() {};
-  vtkXTextMapper(const vtkXTextMapper&);
-  void operator=(const vtkXTextMapper&);
 
   // Description:
   // Actually get the size of the rectangle.
@@ -92,6 +90,9 @@ protected:
   vtkTimeStamp  SizeMTime;
   int           Size[2];
   int           ViewportSize[2];
+private:
+  vtkXTextMapper(const vtkXTextMapper&);  // Not implemented.
+  void operator=(const vtkXTextMapper&);  // Not implemented.
 };
 
 

@@ -90,12 +90,13 @@ public:
 protected:
   vtkBranchExtentTranslator();
   ~vtkBranchExtentTranslator();
-  vtkBranchExtentTranslator(const vtkBranchExtentTranslator&);
-  void operator=(const vtkBranchExtentTranslator&);
 
   vtkImageData *OriginalSource;
   int AssignedPiece;
   int AssignedNumberOfPieces;
+private:
+  vtkBranchExtentTranslator(const vtkBranchExtentTranslator&);  // Not implemented.
+  void operator=(const vtkBranchExtentTranslator&);  // Not implemented.
 };
 
 #endif

@@ -73,9 +73,10 @@ public:
 protected:
   vtkDataSetToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToPolyDataFilter() {};
-  vtkDataSetToPolyDataFilter(const vtkDataSetToPolyDataFilter&);
-  void operator=(const vtkDataSetToPolyDataFilter&);
   
+private:
+  vtkDataSetToPolyDataFilter(const vtkDataSetToPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkDataSetToPolyDataFilter&);  // Not implemented.
 };
 
 #endif

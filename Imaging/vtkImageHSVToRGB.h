@@ -73,13 +73,14 @@ public:
 protected:
   vtkImageHSVToRGB();
   ~vtkImageHSVToRGB() {};
-  vtkImageHSVToRGB(const vtkImageHSVToRGB&);
-  void operator=(const vtkImageHSVToRGB&);
 
   float Maximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int ext[6], int id);
+private:
+  vtkImageHSVToRGB(const vtkImageHSVToRGB&);  // Not implemented.
+  void operator=(const vtkImageHSVToRGB&);  // Not implemented.
 };
 
 #endif

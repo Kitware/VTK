@@ -266,8 +266,6 @@ public:
 protected:
   vtkProp();
   ~vtkProp();
-  vtkProp(const vtkProp&);
-  void operator=(const vtkProp&);
 
   int Visibility;
   int Pickable;
@@ -283,6 +281,9 @@ protected:
   // stuff that follows is used to build the assembly hierarchy
   vtkAssemblyPaths *Paths;
   
+private:
+  vtkProp(const vtkProp&);  // Not implemented.
+  void operator=(const vtkProp&);  // Not implemented.
 };
 
 #endif

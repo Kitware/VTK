@@ -66,14 +66,15 @@ public:
 protected:
   vtkImageCacheFilter();
   ~vtkImageCacheFilter();
-  vtkImageCacheFilter(const vtkImageCacheFilter&);
-  void operator=(const vtkImageCacheFilter&);
 
   int CacheSize;
   
   vtkImageData **Data;
   // I do not have write access to UpdateTime.
   unsigned long *Times;
+private:
+  vtkImageCacheFilter(const vtkImageCacheFilter&);  // Not implemented.
+  void operator=(const vtkImageCacheFilter&);  // Not implemented.
 };
 
 

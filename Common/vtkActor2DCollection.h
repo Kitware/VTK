@@ -98,8 +98,6 @@ class VTK_COMMON_EXPORT vtkActor2DCollection : public vtkPropCollection
 protected:
   vtkActor2DCollection() {};
   ~vtkActor2DCollection();
-  vtkActor2DCollection(const vtkActor2DCollection&);
-  void operator=(const vtkActor2DCollection&);
 
   virtual void DeleteElement(vtkCollectionElement *); 
 
@@ -109,6 +107,9 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
   int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
 
+private:
+  vtkActor2DCollection(const vtkActor2DCollection&);  // Not implemented.
+  void operator=(const vtkActor2DCollection&);  // Not implemented.
 };
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a) 

@@ -95,8 +95,6 @@ public:
 protected:
   vtkKitwareContourFilter();
   ~vtkKitwareContourFilter();
-  vtkKitwareContourFilter(const vtkKitwareContourFilter&);
-  void operator=(const vtkKitwareContourFilter&);
 
   void ComputeInputUpdateExtents(vtkDataObject *data);
   void Execute();
@@ -108,6 +106,9 @@ protected:
   void StructuredGridContour(int dim);
   //default if not structured data
   void DataSetContour();
+private:
+  vtkKitwareContourFilter(const vtkKitwareContourFilter&);  // Not implemented.
+  void operator=(const vtkKitwareContourFilter&);  // Not implemented.
 };
 
 #endif

@@ -82,12 +82,13 @@ public:
 protected:
   vtkSphere();
   ~vtkSphere() {};
-  vtkSphere(const vtkSphere&);
-  void operator=(const vtkSphere&);
 
   float Radius;
   float Center[3];
 
+private:
+  vtkSphere(const vtkSphere&);  // Not implemented.
+  void operator=(const vtkSphere&);  // Not implemented.
 };
 
 #endif

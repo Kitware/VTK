@@ -77,9 +77,10 @@ public:
 protected:
   vtkOpenGLVolumeTextureMapper2D();
   ~vtkOpenGLVolumeTextureMapper2D();
-  vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&);
-  void operator=(const vtkOpenGLVolumeTextureMapper2D&);
 
+private:
+  vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
+  void operator=(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
 };
 
 

@@ -77,13 +77,14 @@ class VTK_RENDERING_EXPORT vtkMapperCollection : public vtkCollection
 protected:  
   vtkMapperCollection() {};
   ~vtkMapperCollection() {};
-  vtkMapperCollection(const vtkMapperCollection&);
-  void operator=(const vtkMapperCollection&);
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkMapperCollection(const vtkMapperCollection&);  // Not implemented.
+  void operator=(const vtkMapperCollection&);  // Not implemented.
 };
 
 

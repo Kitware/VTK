@@ -62,11 +62,12 @@ public:
 protected:
   vtkPNGReader() {};
   ~vtkPNGReader() {};
-  vtkPNGReader(const vtkPNGReader&);
-  void operator=(const vtkPNGReader&);
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
+private:
+  vtkPNGReader(const vtkPNGReader&);  // Not implemented.
+  void operator=(const vtkPNGReader&);  // Not implemented.
 };
 #endif
 

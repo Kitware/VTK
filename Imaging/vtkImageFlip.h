@@ -83,8 +83,6 @@ public:
 protected:
   vtkImageFlip();
   ~vtkImageFlip() {};
-  vtkImageFlip(const vtkImageFlip&);
-  void operator=(const vtkImageFlip&);
 
   int FilteredAxis;
   int PreserveImageExtent;
@@ -94,6 +92,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int id);
+private:
+  vtkImageFlip(const vtkImageFlip&);  // Not implemented.
+  void operator=(const vtkImageFlip&);  // Not implemented.
 };
 
 #endif

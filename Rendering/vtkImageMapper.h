@@ -141,8 +141,6 @@ public:
 protected:
   vtkImageMapper();
   ~vtkImageMapper();
-  vtkImageMapper(const vtkImageMapper&);
-  void operator=(const vtkImageMapper&);
 
   float ColorWindow;
   float ColorLevel;
@@ -152,6 +150,9 @@ protected:
   int UseCustomExtents;
   int CustomDisplayExtents[4];
   int RenderToRectangle;
+private:
+  vtkImageMapper(const vtkImageMapper&);  // Not implemented.
+  void operator=(const vtkImageMapper&);  // Not implemented.
 };
 
 

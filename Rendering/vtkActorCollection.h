@@ -87,8 +87,6 @@ public:
 protected:
   vtkActorCollection() {};
   ~vtkActorCollection() {};
-  vtkActorCollection(const vtkActorCollection&);
-  void operator=(const vtkActorCollection&);
     
 
 private:
@@ -96,6 +94,9 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
+private:
+  vtkActorCollection(const vtkActorCollection&);  // Not implemented.
+  void operator=(const vtkActorCollection&);  // Not implemented.
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a) 

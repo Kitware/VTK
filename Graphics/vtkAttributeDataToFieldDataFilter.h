@@ -87,12 +87,13 @@ public:
 protected:
   vtkAttributeDataToFieldDataFilter();
   ~vtkAttributeDataToFieldDataFilter() {};
-  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&);
-  void operator=(const vtkAttributeDataToFieldDataFilter&);
 
   void Execute(); //generate output data
 
   int PassAttributeData;
+private:
+  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&);  // Not implemented.
+  void operator=(const vtkAttributeDataToFieldDataFilter&);  // Not implemented.
 };
 
 #endif

@@ -106,8 +106,6 @@ protected:
 
   vtkThreadedController();
   ~vtkThreadedController();
-  vtkThreadedController(const vtkThreadedController&);
-  void operator=(const vtkThreadedController&);
   
   void CreateProcessControllers();
   
@@ -167,6 +165,9 @@ protected:
   // to controller for local thread.
   vtkMultiProcessController *GetLocalController();
 
+private:
+  vtkThreadedController(const vtkThreadedController&);  // Not implemented.
+  void operator=(const vtkThreadedController&);  // Not implemented.
 };
 
 #endif

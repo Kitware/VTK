@@ -70,13 +70,14 @@ public:
 protected:
   vtkImageRGBToHSV();
   ~vtkImageRGBToHSV() {};
-  vtkImageRGBToHSV(const vtkImageRGBToHSV&);
-  void operator=(const vtkImageRGBToHSV&);
 
   float Maximum;
   
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int ext[6], int id);
+private:
+  vtkImageRGBToHSV(const vtkImageRGBToHSV&);  // Not implemented.
+  void operator=(const vtkImageRGBToHSV&);  // Not implemented.
 };
 
 #endif

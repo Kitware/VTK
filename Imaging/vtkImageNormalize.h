@@ -61,13 +61,14 @@ public:
 protected:
   vtkImageNormalize() {};
   ~vtkImageNormalize() {};
-  vtkImageNormalize(const vtkImageNormalize&);
-  void operator=(const vtkImageNormalize&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageNormalize(const vtkImageNormalize&);  // Not implemented.
+  void operator=(const vtkImageNormalize&);  // Not implemented.
 };
 
 #endif

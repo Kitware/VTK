@@ -59,10 +59,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_MINOR_VERSION 0
 #define VTK_BUILD_VERSION 0
 #define VTK_VERSION "4.0.0"
-#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1021 $, $Date: 2001-10-11 08:11:41 $ (GMT)"
+#define VTK_SOURCE_VERSION "vtk version " VTK_VERSION ", vtk source $Revision: 1.1022 $, $Date: 2001-10-11 13:36:29 $ (GMT)"
 
 
-class VTK_COMMON_EXPORT vtkVersion : public vtkObject {
+class VTK_COMMON_EXPORT vtkVersion : public vtkObject
+{
 public:
   static vtkVersion *New();
   vtkTypeMacro(vtkVersion,vtkObject);
@@ -80,9 +81,9 @@ public:
 protected:
   vtkVersion() {}; //insure constructor/destructor protected
   ~vtkVersion() {};
-  vtkVersion(const vtkVersion&);
-  void operator=(const vtkVersion&);
-
+private:
+  vtkVersion(const vtkVersion&);  // Not implemented.
+  void operator=(const vtkVersion&);  // Not implemented.
 };
 
 #endif 

@@ -193,8 +193,6 @@ public:
 protected:
   vtkTreeComposite();
   ~vtkTreeComposite();
-  vtkTreeComposite(const vtkTreeComposite&);
-  void operator=(const vtkTreeComposite&);
   
   vtkRenderWindow* RenderWindow;
   vtkRenderWindowInteractor* RenderWindowInteractor;
@@ -242,6 +240,9 @@ protected:
 
   // Needed to compute the MaxRenderTime.
   vtkTimerLog *Timer;
+private:
+  vtkTreeComposite(const vtkTreeComposite&);  // Not implemented.
+  void operator=(const vtkTreeComposite&);  // Not implemented.
 };
 
 #endif

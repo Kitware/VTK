@@ -87,8 +87,6 @@ public:
 protected:
   vtkBMPReader();
   ~vtkBMPReader();
-  vtkBMPReader(const vtkBMPReader&);
-  void operator=(const vtkBMPReader&);
 
   unsigned char *Colors;
   short Depth;
@@ -96,6 +94,9 @@ protected:
   virtual void ComputeDataIncrements();
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
+private:
+  vtkBMPReader(const vtkBMPReader&);  // Not implemented.
+  void operator=(const vtkBMPReader&);  // Not implemented.
 };
 #endif
 

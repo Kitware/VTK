@@ -80,8 +80,6 @@ public:
 protected:
   vtkThresholdPoints();
   ~vtkThresholdPoints() {};
-  vtkThresholdPoints(const vtkThresholdPoints&);
-  void operator=(const vtkThresholdPoints&);
 
   // Usual data generation method
   void Execute();
@@ -97,6 +95,9 @@ protected:
   int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(float s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+private:
+  vtkThresholdPoints(const vtkThresholdPoints&);  // Not implemented.
+  void operator=(const vtkThresholdPoints&);  // Not implemented.
 };
 
 #endif

@@ -88,8 +88,6 @@ public:
 protected:
   vtkImageClip();
   ~vtkImageClip() {};
-  vtkImageClip(const vtkImageClip&);
-  void operator=(const vtkImageClip&);
 
   // Time when OutputImageExtent was computed.
   vtkTimeStamp CTime;
@@ -105,6 +103,9 @@ protected:
   int SplitExtentTmp(int piece, int numPieces, int *ext);
 
   virtual void ExecuteData(vtkDataObject *out);
+private:
+  vtkImageClip(const vtkImageClip&);  // Not implemented.
+  void operator=(const vtkImageClip&);  // Not implemented.
 };
 
 

@@ -62,11 +62,12 @@ public:
 protected:
   vtkJPEGReader() {};
   ~vtkJPEGReader() {};
-  vtkJPEGReader(const vtkJPEGReader&);
-  void operator=(const vtkJPEGReader&);
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *out);
+private:
+  vtkJPEGReader(const vtkJPEGReader&);  // Not implemented.
+  void operator=(const vtkJPEGReader&);  // Not implemented.
 };
 #endif
 

@@ -141,8 +141,6 @@ public:
 protected:
   vtkPlaneSource();
   ~vtkPlaneSource() {};
-  vtkPlaneSource(const vtkPlaneSource&);
-  void operator=(const vtkPlaneSource&);
 
   void Execute();
 
@@ -155,6 +153,9 @@ protected:
   float Center[3];
 
   int UpdatePlane(float v1[3], float v2[3]);
+private:
+  vtkPlaneSource(const vtkPlaneSource&);  // Not implemented.
+  void operator=(const vtkPlaneSource&);  // Not implemented.
 };
 
 #endif

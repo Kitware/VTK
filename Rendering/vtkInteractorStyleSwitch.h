@@ -94,8 +94,6 @@ public:
 protected:
   vtkInteractorStyleSwitch();
   ~vtkInteractorStyleSwitch();
-  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);
-  void operator=(const vtkInteractorStyleSwitch&);
   
   vtkInteractorStyleJoystickActor *JoystickActor;
   vtkInteractorStyleJoystickCamera *JoystickCamera;
@@ -104,6 +102,9 @@ protected:
   
   int JoystickOrTrackball;
   int CameraOrActor;
+private:
+  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);  // Not implemented.
+  void operator=(const vtkInteractorStyleSwitch&);  // Not implemented.
 };
 
 #endif

@@ -213,8 +213,6 @@ public:
 protected:
   vtkXMesaRenderWindow();
   ~vtkXMesaRenderWindow();
-  vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);
-  void operator=(const vtkXMesaRenderWindow&);
 
   Window   ParentId;
   Window   WindowId;
@@ -232,6 +230,9 @@ protected:
   int ScreenMapped;
   // Looks like this just stores DoubleBuffer.
   int ScreenDoubleBuffer;
+private:
+  vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.
+  void operator=(const vtkXMesaRenderWindow&);  // Not implemented.
 };
 
 

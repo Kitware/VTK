@@ -70,8 +70,9 @@ public:
 protected:
   vtkOpenGLImager() {};
   ~vtkOpenGLImager() {};
-  vtkOpenGLImager(const vtkOpenGLImager&);
-  void operator=(const vtkOpenGLImager&);
+private:
+  vtkOpenGLImager(const vtkOpenGLImager&);  // Not implemented.
+  void operator=(const vtkOpenGLImager&);  // Not implemented.
 };
 
 

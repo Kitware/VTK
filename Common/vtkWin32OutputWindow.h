@@ -73,13 +73,14 @@ public:
 protected: 
   vtkWin32OutputWindow() {}; 
   virtual ~vtkWin32OutputWindow() {}; 
-  vtkWin32OutputWindow(const vtkWin32OutputWindow&);
-  void operator=(const vtkWin32OutputWindow&);
   
   void PromptText(const char* text);
   static void AddText(const char*);
   static int Initialize();
   static HWND OutputWindow;
+private:
+  vtkWin32OutputWindow(const vtkWin32OutputWindow&);  // Not implemented.
+  void operator=(const vtkWin32OutputWindow&);  // Not implemented.
 };
 
 

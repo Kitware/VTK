@@ -130,8 +130,6 @@ public:
 protected:
   vtkSelectVisiblePoints();
   ~vtkSelectVisiblePoints();
-  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&);
-  void operator=(const vtkSelectVisiblePoints&);
 
   void Execute();
 
@@ -142,6 +140,9 @@ protected:
   int SelectInvisible;
   float Tolerance;
 
+private:
+  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&);  // Not implemented.
+  void operator=(const vtkSelectVisiblePoints&);  // Not implemented.
 };
 
 #endif

@@ -75,9 +75,10 @@ public:
 protected:
   vtkWorldPointPicker ();
   ~vtkWorldPointPicker() {};
-  vtkWorldPointPicker(const vtkWorldPointPicker&);
-  void operator=(const vtkWorldPointPicker&);
 
+private:
+  vtkWorldPointPicker(const vtkWorldPointPicker&);  // Not implemented.
+  void operator=(const vtkWorldPointPicker&);  // Not implemented.
 };
 
 #endif

@@ -122,8 +122,6 @@ public:
 protected:
   vtkThreshold();
   ~vtkThreshold();
-  vtkThreshold(const vtkThreshold&);
-  void operator=(const vtkThreshold&);
 
   // Usual data generation method
   void Execute();
@@ -143,6 +141,9 @@ protected:
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 
   char *ArrayName;
+private:
+  vtkThreshold(const vtkThreshold&);  // Not implemented.
+  void operator=(const vtkThreshold&);  // Not implemented.
 };
 
 #endif

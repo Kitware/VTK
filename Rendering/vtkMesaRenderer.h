@@ -89,8 +89,6 @@ public:
 protected:
   vtkMesaRenderer();
   ~vtkMesaRenderer();
-  vtkMesaRenderer(const vtkMesaRenderer&);
-  void operator=(const vtkMesaRenderer&);
 
   //BTX
   // Picking functions to be implemented by sub-classes
@@ -104,6 +102,9 @@ protected:
   class vtkGLPickInfo* PickInfo;
   //ETX
   float PickedZ;
+private:
+  vtkMesaRenderer(const vtkMesaRenderer&);  // Not implemented.
+  void operator=(const vtkMesaRenderer&);  // Not implemented.
 };
 
 #endif

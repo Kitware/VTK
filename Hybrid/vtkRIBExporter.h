@@ -132,8 +132,6 @@ public:
 protected:
   vtkRIBExporter();
   ~vtkRIBExporter();
-  vtkRIBExporter(const vtkRIBExporter&);
-  void operator=(const vtkRIBExporter&);
 
   int Background;
   int Size[2];
@@ -160,6 +158,9 @@ protected:
   char *FilePrefix;
   FILE *FilePtr;
   char *TexturePrefix;
+private:
+  vtkRIBExporter(const vtkRIBExporter&);  // Not implemented.
+  void operator=(const vtkRIBExporter&);  // Not implemented.
 };
 
 #endif

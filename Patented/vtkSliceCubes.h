@@ -124,8 +124,6 @@ public:
 protected:
   vtkSliceCubes();
   ~vtkSliceCubes();
-  vtkSliceCubes(const vtkSliceCubes&);
-  void operator=(const vtkSliceCubes&);
 
   void Execute();
 
@@ -133,6 +131,9 @@ protected:
   char *FileName;  
   float Value;
   char *LimitsFileName;
+private:
+  vtkSliceCubes(const vtkSliceCubes&);  // Not implemented.
+  void operator=(const vtkSliceCubes&);  // Not implemented.
 };
 
 #endif

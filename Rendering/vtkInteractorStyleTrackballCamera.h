@@ -88,8 +88,6 @@ public:
 protected:
   vtkInteractorStyleTrackballCamera();
   ~vtkInteractorStyleTrackballCamera();
-  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);
-  void operator=(const vtkInteractorStyleTrackballCamera&);
 
   void RotateXY(int dx, int dy);
   void PanXY(int x, int y, int oldX, int oldY);
@@ -99,6 +97,9 @@ protected:
   int State;
   float MotionFactor;
   float RadianToDegree;                 // constant: for conv from deg to rad
+private:
+  vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
 };
 
 #endif

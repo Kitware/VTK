@@ -79,8 +79,6 @@ public:
 protected:
   vtkCellPicker();
   ~vtkCellPicker();
-  vtkCellPicker(const vtkCellPicker&);
-  void operator=(const vtkCellPicker&);
 
   vtkIdType CellId; // picked cell
   int SubId; // picked cell subId
@@ -94,6 +92,9 @@ protected:
 private:
   vtkGenericCell *Cell; //used to accelerate picking
   
+private:
+  vtkCellPicker(const vtkCellPicker&);  // Not implemented.
+  void operator=(const vtkCellPicker&);  // Not implemented.
 };
 
 #endif

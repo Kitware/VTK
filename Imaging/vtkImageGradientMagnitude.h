@@ -78,8 +78,6 @@ public:
 protected:
   vtkImageGradientMagnitude();
   ~vtkImageGradientMagnitude() {};
-  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&);
-  void operator=(const vtkImageGradientMagnitude&);
 
   int HandleBoundaries;
   int Dimensionality;
@@ -89,6 +87,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&);  // Not implemented.
+  void operator=(const vtkImageGradientMagnitude&);  // Not implemented.
 };
 
 #endif

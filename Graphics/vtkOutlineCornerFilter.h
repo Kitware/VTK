@@ -71,14 +71,15 @@ public:
 protected:
   vtkOutlineCornerFilter();
   ~vtkOutlineCornerFilter();
-  vtkOutlineCornerFilter(const vtkOutlineCornerFilter&);
-  void operator=(const vtkOutlineCornerFilter&);
 
   vtkOutlineCornerSource *OutlineCornerSource;
   void Execute();
   void ExecuteInformation();
 
   float CornerFactor;
+private:
+  vtkOutlineCornerFilter(const vtkOutlineCornerFilter&);  // Not implemented.
+  void operator=(const vtkOutlineCornerFilter&);  // Not implemented.
 };
 
 #endif

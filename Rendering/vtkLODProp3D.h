@@ -262,8 +262,6 @@ public:
 protected:
   vtkLODProp3D();
   ~vtkLODProp3D();
-  vtkLODProp3D(const vtkLODProp3D&);
-  void operator=(const vtkLODProp3D&);
 
   int GetAutomaticPickPropIndex(void);
 
@@ -283,6 +281,9 @@ protected:
   vtkProp*          PreviousPickProp;
   void (*PreviousPickMethod)(void *);
   void *            PreviousPickMethodArg;
+private:
+  vtkLODProp3D(const vtkLODProp3D&);  // Not implemented.
+  void operator=(const vtkLODProp3D&);  // Not implemented.
 };
 
 #endif

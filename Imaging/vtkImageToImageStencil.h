@@ -88,8 +88,6 @@ public:
 protected:
   vtkImageToImageStencil();
   ~vtkImageToImageStencil();
-  vtkImageToImageStencil(const vtkImageToImageStencil&);
-  void operator=(const vtkImageToImageStencil&);
 
   void ThreadedExecute(vtkImageStencilData *output,
 		       int extent[6], int threadId);
@@ -97,6 +95,9 @@ protected:
   float UpperThreshold;
   float LowerThreshold;
   float Threshold;
+private:
+  vtkImageToImageStencil(const vtkImageToImageStencil&);  // Not implemented.
+  void operator=(const vtkImageToImageStencil&);  // Not implemented.
 };
 
 #endif

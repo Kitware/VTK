@@ -111,8 +111,6 @@ public:
 protected:
   vtkImageGridSource();
   ~vtkImageGridSource() {};
-  vtkImageGridSource(const vtkImageGridSource&);
-  void operator=(const vtkImageGridSource&);
 
   int GridSpacing[3];
   int GridOrigin[3];
@@ -128,6 +126,9 @@ protected:
 
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *data);
+private:
+  vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.
+  void operator=(const vtkImageGridSource&);  // Not implemented.
 };
 
 

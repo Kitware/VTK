@@ -203,8 +203,6 @@ public:
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
-  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);
-  void operator=(const vtkWin32OpenGLRenderWindow&);
 
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
@@ -246,6 +244,9 @@ protected:
   void CleanUpOffScreenRendering(void);
   void CreateOffScreenDC(int xsize, int ysize, HDC aHdc);
   void CreateOffScreenDC(HBITMAP hbmp, HDC aHdc);
+private:
+  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
 };
 
 

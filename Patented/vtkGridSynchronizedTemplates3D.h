@@ -171,8 +171,6 @@ public:
 protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
-  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);
-  void operator=(const vtkGridSynchronizedTemplates3D&);
 
   int ComputeNormals;
   int ComputeGradients;
@@ -196,6 +194,9 @@ private:
   //BTX
   friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
   //ETX
+private:
+  vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
+  void operator=(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
 };
 
 

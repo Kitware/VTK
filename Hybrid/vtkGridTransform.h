@@ -111,8 +111,6 @@ public:
 protected:
   vtkGridTransform();
   ~vtkGridTransform();
-  vtkGridTransform(const vtkGridTransform&);
-  void operator=(const vtkGridTransform&);
 
   // Description:
   // Update the displacement grid.
@@ -150,6 +148,9 @@ protected:
   vtkImageData *DisplacementGrid;
   float DisplacementScale;
   float DisplacementShift;
+private:
+  vtkGridTransform(const vtkGridTransform&);  // Not implemented.
+  void operator=(const vtkGridTransform&);  // Not implemented.
 };
 
 //BTX

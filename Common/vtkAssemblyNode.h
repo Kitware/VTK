@@ -105,13 +105,14 @@ public:
 protected:
   vtkAssemblyNode();
   ~vtkAssemblyNode();
-  vtkAssemblyNode(const vtkAssemblyNode &);
-  void operator=(const vtkAssemblyNode &);
-
+  vtkAssemblyNode(const vtkAssemblyNode&);
 private:
   vtkProp *Prop; //reference to vtkProp
   vtkMatrix4x4 *Matrix; //associated matrix
   
+private:
+  void operator=(const vtkAssemblyNode&);  // Not implemented.
+  // Not implemented.
 };
 
 #endif

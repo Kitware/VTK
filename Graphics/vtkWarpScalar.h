@@ -101,8 +101,6 @@ public:
 protected:
   vtkWarpScalar();
   ~vtkWarpScalar() {};
-  vtkWarpScalar(const vtkWarpScalar&);
-  void operator=(const vtkWarpScalar&);
 
   void Execute();
 
@@ -117,6 +115,9 @@ protected:
   float *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
   float *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
   //ETX
+private:
+  vtkWarpScalar(const vtkWarpScalar&);  // Not implemented.
+  void operator=(const vtkWarpScalar&);  // Not implemented.
 };
 
 #endif

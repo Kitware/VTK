@@ -120,13 +120,14 @@ public:
 protected:
   vtkAbstractMapper();
   ~vtkAbstractMapper();
-  vtkAbstractMapper(const vtkAbstractMapper&);
-  void operator=(const vtkAbstractMapper&);
 
   vtkTimerLog *Timer;
   float TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
   vtkPlaneCollection *ClippingPlanes;
+private:
+  vtkAbstractMapper(const vtkAbstractMapper&);  // Not implemented.
+  void operator=(const vtkAbstractMapper&);  // Not implemented.
 };
 
 #endif

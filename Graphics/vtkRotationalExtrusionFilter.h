@@ -125,8 +125,6 @@ public:
 protected:
   vtkRotationalExtrusionFilter();
   ~vtkRotationalExtrusionFilter() {};
-  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);
-  void operator=(const vtkRotationalExtrusionFilter&);
 
   void Execute();
   int Resolution;
@@ -134,6 +132,9 @@ protected:
   float Angle;
   float Translation;
   float DeltaRadius;
+private:
+  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkRotationalExtrusionFilter&);  // Not implemented.
 };
 
 #endif

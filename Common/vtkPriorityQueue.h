@@ -136,8 +136,6 @@ public:
 protected:
   vtkPriorityQueue();
   ~vtkPriorityQueue();
-  vtkPriorityQueue(const vtkPriorityQueue&);
-  void operator=(const vtkPriorityQueue&);
   
   vtkPriorityItem *Resize(const vtkIdType sz);
 
@@ -146,6 +144,9 @@ protected:
   vtkIdType Size;
   vtkIdType MaxId;
   vtkIdType Extend;
+private:
+  vtkPriorityQueue(const vtkPriorityQueue&);  // Not implemented.
+  void operator=(const vtkPriorityQueue&);  // Not implemented.
 };
 
 inline float vtkPriorityQueue::DeleteId(vtkIdType id)

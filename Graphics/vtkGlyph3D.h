@@ -237,8 +237,6 @@ public:
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
-  vtkGlyph3D(const vtkGlyph3D&);
-  void operator=(const vtkGlyph3D&);
 
   void Execute();
   void ExecuteInformation();
@@ -258,6 +256,9 @@ protected:
   int GeneratePointIds; // produce input points ids for each output point
   char *PointIdsName;
 
+private:
+  vtkGlyph3D(const vtkGlyph3D&);  // Not implemented.
+  void operator=(const vtkGlyph3D&);  // Not implemented.
 };
 
 // Description:

@@ -69,14 +69,15 @@ public:
 protected:
   vtkPlaneCollection() {};
   ~vtkPlaneCollection() {};
-  vtkPlaneCollection(const vtkPlaneCollection&);
-  void operator=(const vtkPlaneCollection&);
   
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkPlaneCollection(const vtkPlaneCollection&);  // Not implemented.
+  void operator=(const vtkPlaneCollection&);  // Not implemented.
 };
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f) 

@@ -151,8 +151,6 @@ protected:
   int OffScreenRendering;
   vtkWindow();
   ~vtkWindow();
-  vtkWindow(const vtkWindow&);
-  void operator=(const vtkWindow&);
 
   char *WindowName;
   int Size[2];
@@ -161,6 +159,9 @@ protected:
   int Erase;
   int DoubleBuffer;
   int DPI;
+private:
+  vtkWindow(const vtkWindow&);  // Not implemented.
+  void operator=(const vtkWindow&);  // Not implemented.
 };
 
 #endif

@@ -61,11 +61,12 @@ public:
 protected:
   vtkBMPWriter();
   ~vtkBMPWriter() {};
-  vtkBMPWriter(const vtkBMPWriter&);
-  void operator=(const vtkBMPWriter&);
 
   virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *);
+private:
+  vtkBMPWriter(const vtkBMPWriter&);  // Not implemented.
+  void operator=(const vtkBMPWriter&);  // Not implemented.
 };
 
 #endif

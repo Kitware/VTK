@@ -260,8 +260,6 @@ protected:
 
   vtkStreamer();
   ~vtkStreamer();
-  vtkStreamer(const vtkStreamer&);
-  void operator=(const vtkStreamer&);
 
   // Integrate data
   void Integrate();
@@ -325,6 +323,9 @@ protected:
   vtkMultiThreader           *Threader;
   int                        NumberOfThreads;
 
+private:
+  vtkStreamer(const vtkStreamer&);  // Not implemented.
+  void operator=(const vtkStreamer&);  // Not implemented.
 };
 
 // Description:

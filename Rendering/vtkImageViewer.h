@@ -135,13 +135,14 @@ public:
 protected:
   vtkImageViewer();
   ~vtkImageViewer();
-  vtkImageViewer(const vtkImageViewer&);
-  void operator=(const vtkImageViewer&);
 
   vtkImageMapper *ImageMapper;
   vtkImageWindow *ImageWindow;
   vtkImager      *Imager;
   vtkActor2D     *Actor2D;
+private:
+  vtkImageViewer(const vtkImageViewer&);  // Not implemented.
+  void operator=(const vtkImageViewer&);  // Not implemented.
 };
 
 #endif

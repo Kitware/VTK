@@ -157,8 +157,6 @@ public:
 protected:
   vtkArcPlotter();
   ~vtkArcPlotter();
-  vtkArcPlotter(const vtkArcPlotter&);
-  void operator=(const vtkArcPlotter&);
 
   void Execute();
   int  OffsetPoint(vtkIdType ptId, vtkPoints *inPts, float n[3],
@@ -184,6 +182,9 @@ private:
   int       StartComp;
   int       EndComp;
   
+private:
+  vtkArcPlotter(const vtkArcPlotter&);  // Not implemented.
+  void operator=(const vtkArcPlotter&);  // Not implemented.
 };
 
 #endif

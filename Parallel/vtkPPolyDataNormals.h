@@ -66,14 +66,15 @@ public:
 protected:
   vtkPPolyDataNormals();
   ~vtkPPolyDataNormals() {};
-  vtkPPolyDataNormals(const vtkPPolyDataNormals&);
-  void operator=(const vtkPPolyDataNormals&);
 
   // Usual data generation method
   virtual void Execute();
   void ComputeInputUpdateExtents(vtkDataObject *output);
 
   int PieceInvariant;
+private:
+  vtkPPolyDataNormals(const vtkPPolyDataNormals&);  // Not implemented.
+  void operator=(const vtkPPolyDataNormals&);  // Not implemented.
 };
 
 #endif

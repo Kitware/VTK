@@ -71,6 +71,9 @@ class vtkWedge;
 class vtkPyramid;
 
 class VTK_COMMON_EXPORT vtkUnstructuredGrid : public vtkPointSet {
+private:
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
 public:
   static vtkUnstructuredGrid *New();
 
@@ -184,8 +187,6 @@ public:
 protected:
   vtkUnstructuredGrid();
   ~vtkUnstructuredGrid();
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&);
-  void operator=(const vtkUnstructuredGrid&);
 
   // used by GetCell method
   vtkVertex *Vertex;

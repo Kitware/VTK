@@ -67,12 +67,13 @@ public:
 protected:
   vtkOBJReader();
   ~vtkOBJReader();
-  vtkOBJReader(const vtkOBJReader&);
-  void operator=(const vtkOBJReader&);
   
   void Execute();
 
   char *FileName;
+private:
+  vtkOBJReader(const vtkOBJReader&);  // Not implemented.
+  void operator=(const vtkOBJReader&);  // Not implemented.
 };
 
 #endif

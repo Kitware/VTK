@@ -73,8 +73,6 @@ public:
 protected:
   vtkImageMagnify();
   ~vtkImageMagnify() {};
-  vtkImageMagnify(const vtkImageMagnify&);
-  void operator=(const vtkImageMagnify&);
 
   int MagnificationFactors[3];
   int Interpolate;
@@ -83,6 +81,9 @@ protected:
   void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageMagnify(const vtkImageMagnify&);  // Not implemented.
+  void operator=(const vtkImageMagnify&);  // Not implemented.
 };
 
 #endif

@@ -214,8 +214,6 @@ public:
 protected:
   vtkMILVideoSource();
   ~vtkMILVideoSource();
-  vtkMILVideoSource(const vtkMILVideoSource&);
-  void operator=(const vtkMILVideoSource&);
 
   virtual void AllocateMILDigitizer();
   virtual void AllocateMILBuffer();
@@ -254,6 +252,9 @@ protected:
   int MILSysInternallyAllocated;
 
   int FatalMILError;
+private:
+  vtkMILVideoSource(const vtkMILVideoSource&);  // Not implemented.
+  void operator=(const vtkMILVideoSource&);  // Not implemented.
 };
 
 #endif

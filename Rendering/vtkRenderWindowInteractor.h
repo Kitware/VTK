@@ -266,8 +266,6 @@ public:
 protected:
   vtkRenderWindowInteractor();
   ~vtkRenderWindowInteractor();
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);
-  void operator=(const vtkRenderWindowInteractor&);
 
   vtkRenderWindow    *RenderWindow;
   vtkInteractorStyle *InteractorStyle;
@@ -296,6 +294,9 @@ protected:
   int NumberOfFlyFrames;
   float Dolly;
   
+private:
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkRenderWindowInteractor&);  // Not implemented.
 };
 
 #endif

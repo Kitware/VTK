@@ -132,8 +132,6 @@ public:
 protected:
   vtkProgrammableAttributeDataFilter();
   ~vtkProgrammableAttributeDataFilter();
-  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&);
-  void operator=(const vtkProgrammableAttributeDataFilter&);
 
   void Execute();
   vtkDataSetCollection *InputList; //list of datasets to process
@@ -147,6 +145,9 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
   void RemoveInput(vtkDataObject *input)
     { this->vtkProcessObject::RemoveInput(input); };
+private:
+  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
 };
 
 #endif

@@ -96,8 +96,6 @@ public:
 protected:
   vtkImageMask();
   ~vtkImageMask();
-  vtkImageMask(const vtkImageMask&);
-  void operator=(const vtkImageMask&);
 
   float *MaskedOutputValue;
   int MaskedOutputValueLength;
@@ -108,6 +106,9 @@ protected:
  
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageMask(const vtkImageMask&);  // Not implemented.
+  void operator=(const vtkImageMask&);  // Not implemented.
 };
 
 #endif

@@ -66,11 +66,12 @@ public:
 protected:
   vtkDataSetToStructuredPointsFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToStructuredPointsFilter() {};
-  vtkDataSetToStructuredPointsFilter(const vtkDataSetToStructuredPointsFilter&);
-  void operator=(const vtkDataSetToStructuredPointsFilter&);
 
   // All the DataSetToStructuredPointsFilters require all their input.
   void ComputeInputUpdateExtents(vtkDataObject *output);
+private:
+  vtkDataSetToStructuredPointsFilter(const vtkDataSetToStructuredPointsFilter&);  // Not implemented.
+  void operator=(const vtkDataSetToStructuredPointsFilter&);  // Not implemented.
 };
 
 #endif

@@ -100,8 +100,6 @@ public:
 protected:
   vtkImageSeedConnectivity();
   ~vtkImageSeedConnectivity();
-  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);
-  void operator=(const vtkImageSeedConnectivity&);
 
   unsigned char InputConnectValue;
   unsigned char OutputConnectedValue;
@@ -113,6 +111,9 @@ protected:
   void ComputeInputUpdateExtents(vtkDataObject *out);
 
   void ExecuteData(vtkDataObject *out); 
+private:
+  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);  // Not implemented.
+  void operator=(const vtkImageSeedConnectivity&);  // Not implemented.
 };
 
 

@@ -118,8 +118,6 @@ public:
 protected:
   vtkImageMathematics();
   ~vtkImageMathematics() {};
-  vtkImageMathematics(const vtkImageMathematics&);
-  void operator=(const vtkImageMathematics&);
 
   int Operation;
   double ConstantK;
@@ -129,6 +127,9 @@ protected:
   void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
+private:
+  vtkImageMathematics(const vtkImageMathematics&);  // Not implemented.
+  void operator=(const vtkImageMathematics&);  // Not implemented.
 };
 
 #endif

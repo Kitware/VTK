@@ -146,8 +146,6 @@ protected:
 
   vtkMergeFields();
   virtual ~vtkMergeFields();
-  vtkMergeFields(const vtkMergeFields&);
-  void operator=(const vtkMergeFields&);
 
   void Execute();
 
@@ -195,6 +193,9 @@ protected:
 	} 
       while (cur);
     }
+private:
+  vtkMergeFields(const vtkMergeFields&);  // Not implemented.
+  void operator=(const vtkMergeFields&);  // Not implemented.
 };
 
 #endif

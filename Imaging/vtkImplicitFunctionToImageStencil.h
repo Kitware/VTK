@@ -75,8 +75,6 @@ public:
 protected:
   vtkImplicitFunctionToImageStencil();
   ~vtkImplicitFunctionToImageStencil();
-  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&)
-    {};
   void operator=(const vtkImplicitFunctionToImageStencil&);
 
   void ThreadedExecute(vtkImageStencilData *output,
@@ -84,6 +82,9 @@ protected:
 
   vtkImplicitFunction *Input;
   float Threshold;
+private:
+  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&)  // Not implemented.
+    {};  // Not implemented.
 };
 
 #endif

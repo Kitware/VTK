@@ -186,8 +186,6 @@ public:
 protected:
   vtkShortArray(vtkIdType numComp=1);
   ~vtkShortArray();
-  vtkShortArray(const vtkShortArray&);
-  void operator=(const vtkShortArray&);
 
   short *Array;   // pointer to data
   short *ResizeAndExtend(const vtkIdType sz);  // function to resize data
@@ -196,6 +194,9 @@ protected:
   float *Tuple;
 
   int SaveUserArray;
+private:
+  vtkShortArray(const vtkShortArray&);  // Not implemented.
+  void operator=(const vtkShortArray&);  // Not implemented.
 };
 
 inline void vtkShortArray::SetNumberOfValues(const vtkIdType number) 

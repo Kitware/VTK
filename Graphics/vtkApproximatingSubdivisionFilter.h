@@ -68,8 +68,6 @@ public:
 protected:
   vtkApproximatingSubdivisionFilter();
   ~vtkApproximatingSubdivisionFilter() {};
-  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);
-  void operator=(const vtkApproximatingSubdivisionFilter&);
 
   void Execute();
   virtual void GenerateSubdivisionPoints (vtkPolyData *inputDS,
@@ -84,6 +82,9 @@ protected:
   vtkIdType InterpolatePosition (vtkPoints *inputPts, vtkPoints *outputPts,
                                  vtkIdList *stencil, float *weights);
   int NumberOfSubdivisions;
+private:
+  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
 };
 
 #endif

@@ -72,14 +72,15 @@ public:
 protected:
   vtkTransformCollection() {};
   ~vtkTransformCollection() {};
-  vtkTransformCollection(const vtkTransformCollection&);
-  void operator=(const vtkTransformCollection&);
 
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkTransformCollection(const vtkTransformCollection&);  // Not implemented.
+  void operator=(const vtkTransformCollection&);  // Not implemented.
 };
 
 inline void vtkTransformCollection::AddItem(vtkTransform *t) 

@@ -130,9 +130,10 @@ public:
 protected:
   vtkTCoords();
   ~vtkTCoords() {};
-  vtkTCoords(const vtkTCoords&);
-  void operator=(const vtkTCoords&);
   
+private:
+  vtkTCoords(const vtkTCoords&);  // Not implemented.
+  void operator=(const vtkTCoords&);  // Not implemented.
 };
 
 inline vtkAttributeData *vtkTCoords::MakeObject()

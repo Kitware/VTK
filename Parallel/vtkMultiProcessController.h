@@ -271,8 +271,6 @@ public:
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
-  vtkMultiProcessController(const vtkMultiProcessController&);
-  void operator=(const vtkMultiProcessController&);
   
   int MaximumNumberOfProcesses;
   int NumberOfProcesses;
@@ -317,6 +315,9 @@ protected:
   // responsible of deleting them.
   vtkCommunicator* RMICommunicator;
 
+private:
+  vtkMultiProcessController(const vtkMultiProcessController&);  // Not implemented.
+  void operator=(const vtkMultiProcessController&);  // Not implemented.
 };
 
 

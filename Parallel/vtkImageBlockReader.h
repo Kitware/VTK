@@ -94,8 +94,6 @@ public:
 protected:
   vtkImageBlockReader();
   ~vtkImageBlockReader();
-  vtkImageBlockReader(const vtkImageBlockReader&);
-  void operator=(const vtkImageBlockReader&);
   
   char *FilePattern;
 
@@ -130,6 +128,9 @@ protected:
   int *XExtents;
   int *YExtents;
   int *ZExtents;
+private:
+  vtkImageBlockReader(const vtkImageBlockReader&);  // Not implemented.
+  void operator=(const vtkImageBlockReader&);  // Not implemented.
 };
 
 

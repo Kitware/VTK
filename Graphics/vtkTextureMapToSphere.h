@@ -105,8 +105,6 @@ public:
 protected:
   vtkTextureMapToSphere();
   ~vtkTextureMapToSphere() {};
-  vtkTextureMapToSphere(const vtkTextureMapToSphere&);
-  void operator=(const vtkTextureMapToSphere&);
 
   void Execute();
 
@@ -114,6 +112,9 @@ protected:
   int AutomaticSphereGeneration;
   int PreventSeam;
 
+private:
+  vtkTextureMapToSphere(const vtkTextureMapToSphere&);  // Not implemented.
+  void operator=(const vtkTextureMapToSphere&);  // Not implemented.
 };
 
 #endif

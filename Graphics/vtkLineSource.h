@@ -75,13 +75,14 @@ public:
 protected:
   vtkLineSource(int res=1);
   ~vtkLineSource() {};
-  vtkLineSource(const vtkLineSource&);
-  void operator=(const vtkLineSource&);
 
   void Execute();
   float Point1[3];
   float Point2[3];
   int Resolution;
+private:
+  vtkLineSource(const vtkLineSource&);  // Not implemented.
+  void operator=(const vtkLineSource&);  // Not implemented.
 };
 
 #endif

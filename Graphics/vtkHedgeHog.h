@@ -77,13 +77,14 @@ public:
 protected:
   vtkHedgeHog();
   ~vtkHedgeHog() {};
-  vtkHedgeHog(const vtkHedgeHog&);
-  void operator=(const vtkHedgeHog&);
 
   void Execute();
   float ScaleFactor;
   int VectorMode; // Orient/scale via normal or via vector data
 
+private:
+  vtkHedgeHog(const vtkHedgeHog&);  // Not implemented.
+  void operator=(const vtkHedgeHog&);  // Not implemented.
 };
 
 // Description:

@@ -338,8 +338,6 @@ protected:
 
   vtkDataObject();
   ~vtkDataObject();
-  vtkDataObject(const vtkDataObject&);
-  void operator=(const vtkDataObject&);
 
   // General field data associated with data object      
   vtkFieldData  *FieldData;  
@@ -438,6 +436,9 @@ protected:
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);
+private:
+  vtkDataObject(const vtkDataObject&);  // Not implemented.
+  void operator=(const vtkDataObject&);  // Not implemented.
 };
 
 #endif

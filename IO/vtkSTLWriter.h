@@ -66,13 +66,14 @@ public:
 protected:
   vtkSTLWriter();
   ~vtkSTLWriter() {};
-  vtkSTLWriter(const vtkSTLWriter&);
-  void operator=(const vtkSTLWriter&);
 
   void WriteData();
 
   void WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys);
   void WriteAsciiSTL(vtkPoints *pts, vtkCellArray *polys);
+private:
+  vtkSTLWriter(const vtkSTLWriter&);  // Not implemented.
+  void operator=(const vtkSTLWriter&);  // Not implemented.
 };
 
 #endif

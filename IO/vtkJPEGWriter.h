@@ -78,8 +78,6 @@ public:
 protected:
   vtkJPEGWriter();
   ~vtkJPEGWriter() {};
-  vtkJPEGWriter(const vtkJPEGWriter&);
-  void operator=(const vtkJPEGWriter&);
   
   void WriteSlice(vtkImageData *data);
 
@@ -87,6 +85,9 @@ private:
   unsigned int Quality;
   unsigned int Progressive;
 
+private:
+  vtkJPEGWriter(const vtkJPEGWriter&);  // Not implemented.
+  void operator=(const vtkJPEGWriter&);  // Not implemented.
 };
 
 #endif

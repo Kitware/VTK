@@ -76,13 +76,14 @@ public:
 protected:
   vtkExtractEdges();
   ~vtkExtractEdges();
-  vtkExtractEdges(const vtkExtractEdges&);
-  void operator=(const vtkExtractEdges&);
 
   // Usual data generation method
   void Execute();
 
   vtkPointLocator *Locator;
+private:
+  vtkExtractEdges(const vtkExtractEdges&);  // Not implemented.
+  void operator=(const vtkExtractEdges&);  // Not implemented.
 };
 
 #endif

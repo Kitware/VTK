@@ -106,8 +106,6 @@ public:
 protected:
   vtkBYUWriter();
   ~vtkBYUWriter();
-  vtkBYUWriter(const vtkBYUWriter&);
-  void operator=(const vtkBYUWriter&);
 
   void WriteData();
 
@@ -123,6 +121,9 @@ protected:
   void WriteDisplacementFile(int numPts);
   void WriteScalarFile(int numPts);
   void WriteTextureFile(int numPts);
+private:
+  vtkBYUWriter(const vtkBYUWriter&);  // Not implemented.
+  void operator=(const vtkBYUWriter&);  // Not implemented.
 };
 
 #endif

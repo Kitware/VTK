@@ -108,8 +108,6 @@ public:
 protected:
   vtkUGFacetReader();
   ~vtkUGFacetReader();
-  vtkUGFacetReader(const vtkUGFacetReader&);
-  void operator=(const vtkUGFacetReader&);
 
   void Execute();
 
@@ -118,6 +116,9 @@ protected:
   int PartNumber;
   int Merging;
   vtkPointLocator *Locator;
+private:
+  vtkUGFacetReader(const vtkUGFacetReader&);  // Not implemented.
+  void operator=(const vtkUGFacetReader&);  // Not implemented.
 };
 
 #endif

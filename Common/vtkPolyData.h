@@ -409,8 +409,6 @@ public:
 protected:
   vtkPolyData();
   ~vtkPolyData();
-  vtkPolyData(const vtkPolyData&);
-  void operator=(const vtkPolyData&);
 
   // constant cell objects returned by GetCell called.
   vtkVertex *Vertex;
@@ -453,6 +451,9 @@ private:
   void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
     {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 
+private:
+  vtkPolyData(const vtkPolyData&);  // Not implemented.
+  void operator=(const vtkPolyData&);  // Not implemented.
 };
 
 inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells, 

@@ -144,11 +144,12 @@ public:
 protected:
   vtkGenericCell();
   ~vtkGenericCell();
-  vtkGenericCell(const vtkGenericCell&);
-  void operator=(const vtkGenericCell&);
 
   vtkCell *Cell;
   
+private:
+  vtkGenericCell(const vtkGenericCell&);  // Not implemented.
+  void operator=(const vtkGenericCell&);  // Not implemented.
 };
 
 #endif

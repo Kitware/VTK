@@ -115,11 +115,12 @@ public:
 protected:
   vtkExtractVectorComponents();
   ~vtkExtractVectorComponents();
-  vtkExtractVectorComponents(const vtkExtractVectorComponents&);
-  void operator=(const vtkExtractVectorComponents&);
 
   void Execute();
   int ExtractToFieldData;
+private:
+  vtkExtractVectorComponents(const vtkExtractVectorComponents&);  // Not implemented.
+  void operator=(const vtkExtractVectorComponents&);  // Not implemented.
 };
 
 #endif

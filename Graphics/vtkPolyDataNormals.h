@@ -140,8 +140,6 @@ public:
 protected:
   vtkPolyDataNormals();
   ~vtkPolyDataNormals() {};
-  vtkPolyDataNormals(const vtkPolyDataNormals&);
-  void operator=(const vtkPolyDataNormals&);
 
   // Usual data generation method
   void Execute();
@@ -175,6 +173,9 @@ private:
   // separate the mesh.
   void MarkAndSplit(vtkIdType ptId);
 
+private:
+  vtkPolyDataNormals(const vtkPolyDataNormals&);  // Not implemented.
+  void operator=(const vtkPolyDataNormals&);  // Not implemented.
 };
 
 #endif

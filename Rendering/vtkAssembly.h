@@ -172,8 +172,6 @@ public:
 protected:
   vtkAssembly();
   ~vtkAssembly();
-  vtkAssembly(const vtkAssembly&);
-  void operator=(const vtkAssembly&);
 
   // Keep a list of direct descendants of the assembly hierarchy
   vtkProp3DCollection *Parts;
@@ -183,6 +181,9 @@ protected:
   vtkTimeStamp PathTime;
   virtual void UpdatePaths(); //apply transformations and properties recursively
   
+private:
+  vtkAssembly(const vtkAssembly&);  // Not implemented.
+  void operator=(const vtkAssembly&);  // Not implemented.
 };
 
 // Description:

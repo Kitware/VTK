@@ -68,8 +68,9 @@ public:
 protected:
   vtkOpenGLProperty() {};
   ~vtkOpenGLProperty() {};
-  vtkOpenGLProperty(const vtkOpenGLProperty&);
-  void operator=(const vtkOpenGLProperty&);
+private:
+  vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
+  void operator=(const vtkOpenGLProperty&);  // Not implemented.
 };
 
 #endif

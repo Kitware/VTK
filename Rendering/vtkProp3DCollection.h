@@ -75,8 +75,6 @@ public:
 protected:
   vtkProp3DCollection() {};
   ~vtkProp3DCollection() {};
-  vtkProp3DCollection(const vtkProp3DCollection&);
-  void operator=(const vtkProp3DCollection&);
     
 
 private:
@@ -84,6 +82,9 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
+private:
+  vtkProp3DCollection(const vtkProp3DCollection&);  // Not implemented.
+  void operator=(const vtkProp3DCollection&);  // Not implemented.
 };
 
 inline void vtkProp3DCollection::AddItem(vtkProp3D *a) 

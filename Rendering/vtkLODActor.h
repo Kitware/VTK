@@ -129,8 +129,6 @@ public:
 protected:
   vtkLODActor();
   ~vtkLODActor();
-  vtkLODActor(const vtkLODActor&);
-  void operator=(const vtkLODActor&);
 
   vtkActor            *Device;
   vtkMapperCollection *LODMappers;
@@ -146,6 +144,9 @@ protected:
   void CreateOwnLODs();
   void UpdateOwnLODs();
   void DeleteOwnLODs();
+private:
+  vtkLODActor(const vtkLODActor&);  // Not implemented.
+  void operator=(const vtkLODActor&);  // Not implemented.
 };
 
 #endif

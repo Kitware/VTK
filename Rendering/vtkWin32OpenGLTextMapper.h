@@ -79,8 +79,9 @@ public:
 protected:
   vtkWin32OpenGLTextMapper();
   ~vtkWin32OpenGLTextMapper();
-  vtkWin32OpenGLTextMapper(const vtkWin32OpenGLTextMapper&);
-  void operator=(const vtkWin32OpenGLTextMapper&);
+private:
+  vtkWin32OpenGLTextMapper(const vtkWin32OpenGLTextMapper&);  // Not implemented.
+  void operator=(const vtkWin32OpenGLTextMapper&);  // Not implemented.
 };
 
 

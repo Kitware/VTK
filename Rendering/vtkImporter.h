@@ -109,8 +109,6 @@ public:
 protected:
   vtkImporter();
   ~vtkImporter();
-  vtkImporter(const vtkImporter&);
-  void operator=(const vtkImporter&);
 
   virtual int ImportBegin () {return 1;};
   virtual void ImportEnd () {};
@@ -124,6 +122,9 @@ protected:
 
   virtual void ReadData();
 
+private:
+  vtkImporter(const vtkImporter&);  // Not implemented.
+  void operator=(const vtkImporter&);  // Not implemented.
 };
 
 #endif

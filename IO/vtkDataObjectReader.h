@@ -75,10 +75,11 @@ public:
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader();
-  vtkDataObjectReader(const vtkDataObjectReader&);
-  void operator=(const vtkDataObjectReader&);
 
   void Execute();
+private:
+  vtkDataObjectReader(const vtkDataObjectReader&);  // Not implemented.
+  void operator=(const vtkDataObjectReader&);  // Not implemented.
 };
 
 #endif

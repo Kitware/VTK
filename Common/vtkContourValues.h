@@ -109,11 +109,12 @@ public:
 protected:
   vtkContourValues();
   ~vtkContourValues();
-  vtkContourValues(const vtkContourValues&);
-  void operator=(const vtkContourValues&);
 
   vtkFloatArray *Contours;
 
+private:
+  vtkContourValues(const vtkContourValues&);  // Not implemented.
+  void operator=(const vtkContourValues&);  // Not implemented.
 };
 
 #endif

@@ -150,12 +150,13 @@ public:
 protected:
   vtkImageExport();
   ~vtkImageExport();
-  vtkImageExport(const vtkImageExport&);
-  void operator=(const vtkImageExport&);
 
   int ImageLowerLeft;
   int DataDimensions[3];
   void *ExportVoidPointer;
+private:
+  vtkImageExport(const vtkImageExport&);  // Not implemented.
+  void operator=(const vtkImageExport&);  // Not implemented.
 };
 
 #endif

@@ -218,8 +218,6 @@ public:
 protected:
   vtkDelaunay2D();
   ~vtkDelaunay2D();
-  vtkDelaunay2D(const vtkDelaunay2D&);
-  void operator=(const vtkDelaunay2D&);
 
   void Execute();
 
@@ -260,6 +258,9 @@ private:
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
                  vtkIdType tri);
 
+private:
+  vtkDelaunay2D(const vtkDelaunay2D&);  // Not implemented.
+  void operator=(const vtkDelaunay2D&);  // Not implemented.
 };
 
 #endif

@@ -129,8 +129,6 @@ public:
 protected:
   vtkLinearExtrusionFilter();
   ~vtkLinearExtrusionFilter() {};
-  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&);
-  void operator=(const vtkLinearExtrusionFilter&);
 
   void Execute();
   int ExtrusionType;
@@ -147,6 +145,9 @@ protected:
   float *ViaPoint(float x[3], vtkIdType id, vtkDataArray *normals=0);
   //ETX
  
+private:
+  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkLinearExtrusionFilter&);  // Not implemented.
 };
 
 #endif

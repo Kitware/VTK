@@ -111,11 +111,12 @@ public:
 protected:
   vtkCell3D():Triangulator(NULL) {}
   ~vtkCell3D();
-  vtkCell3D(const vtkCell3D&);
-  void operator=(const vtkCell3D&);
   
   vtkOrderedTriangulator *Triangulator;
   
+private:
+  vtkCell3D(const vtkCell3D&);  // Not implemented.
+  void operator=(const vtkCell3D&);  // Not implemented.
 };
 
 #endif

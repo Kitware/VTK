@@ -75,12 +75,13 @@ public:
 protected:
   vtkRectilinearGridReader();
   ~vtkRectilinearGridReader();
-  vtkRectilinearGridReader(const vtkRectilinearGridReader&);
-  void operator=(const vtkRectilinearGridReader&);
 
   void Execute();
   void ExecuteInformation();
 
+private:
+  vtkRectilinearGridReader(const vtkRectilinearGridReader&);  // Not implemented.
+  void operator=(const vtkRectilinearGridReader&);  // Not implemented.
 };
 
 #endif

@@ -155,8 +155,6 @@ public:
 protected:
   vtkProcessObject();
   ~vtkProcessObject();
-  vtkProcessObject(const vtkProcessObject&);
-  void operator=(const vtkProcessObject&);
 
   // Progress/Update handling
   unsigned long StartTag;
@@ -188,6 +186,9 @@ protected:
   virtual void AddInput(vtkDataObject *input);
   virtual void RemoveInput(vtkDataObject *input);
   
+private:
+  vtkProcessObject(const vtkProcessObject&);  // Not implemented.
+  void operator=(const vtkProcessObject&);  // Not implemented.
 };
 
 #endif

@@ -194,8 +194,6 @@ public:
 protected:
   vtkLegendBoxActor();
   ~vtkLegendBoxActor();
-  vtkLegendBoxActor(const vtkLegendBoxActor&);
-  void operator=(const vtkLegendBoxActor&);
 
   void InitializeEntries();
 
@@ -228,6 +226,9 @@ protected:
   int           CachedSize[2];
   vtkTimeStamp  BuildTime;
 
+private:
+  vtkLegendBoxActor(const vtkLegendBoxActor&);  // Not implemented.
+  void operator=(const vtkLegendBoxActor&);  // Not implemented.
 };
 
 

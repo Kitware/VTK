@@ -87,11 +87,12 @@ public:
 protected:
   vtkWriter();
   ~vtkWriter();
-  vtkWriter(const vtkWriter&);
-  void operator=(const vtkWriter&);
 
   virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkTimeStamp WriteTime;
+private:
+  vtkWriter(const vtkWriter&);  // Not implemented.
+  void operator=(const vtkWriter&);  // Not implemented.
 };
 
 #endif

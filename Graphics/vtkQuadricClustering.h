@@ -205,8 +205,6 @@ public:
 protected:
   vtkQuadricClustering();
   ~vtkQuadricClustering();
-  vtkQuadricClustering(const vtkQuadricClustering&);
-  void operator=(const vtkQuadricClustering&);
 
   void Execute();
     
@@ -305,6 +303,9 @@ protected:
   int CopyCellData;
   int InCellCount;
   int OutCellCount;
+private:
+  vtkQuadricClustering(const vtkQuadricClustering&);  // Not implemented.
+  void operator=(const vtkQuadricClustering&);  // Not implemented.
 };
 
 #endif

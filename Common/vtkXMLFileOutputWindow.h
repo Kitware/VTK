@@ -90,11 +90,12 @@ public:
  protected:
   vtkXMLFileOutputWindow() {}; 
   virtual ~vtkXMLFileOutputWindow() {}; 
-  vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&);
-  void operator=(const vtkXMLFileOutputWindow&);
 
   void Initialize();
   virtual void DisplayXML(const char*, const char*);
+private:
+  vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&);  // Not implemented.
+  void operator=(const vtkXMLFileOutputWindow&);  // Not implemented.
 };
 
 

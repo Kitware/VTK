@@ -107,8 +107,6 @@ public:
 protected:
   vtkThresholdTextureCoords();
   ~vtkThresholdTextureCoords() {};
-  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&);
-  void operator=(const vtkThresholdTextureCoords&);
 
   // Usual data generation method
   void Execute();
@@ -129,6 +127,9 @@ protected:
   int Upper(float s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(float s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
+private:
+  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&);  // Not implemented.
+  void operator=(const vtkThresholdTextureCoords&);  // Not implemented.
 };
 
 #endif

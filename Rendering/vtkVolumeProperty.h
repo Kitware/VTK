@@ -211,8 +211,6 @@ public:
 protected:
   vtkVolumeProperty();
   ~vtkVolumeProperty();
-  vtkVolumeProperty(const vtkVolumeProperty&);
-  void operator=(const vtkVolumeProperty&);
 
   int				InterpolationType;
 
@@ -236,6 +234,9 @@ protected:
   float				Specular;
   float				SpecularPower;
   float                         RGBTextureCoefficient;
+private:
+  vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
+  void operator=(const vtkVolumeProperty&);  // Not implemented.
 };
 
 // Description:

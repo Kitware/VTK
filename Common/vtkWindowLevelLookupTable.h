@@ -151,8 +151,6 @@ public:
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
   ~vtkWindowLevelLookupTable() {};
-  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&);
-  void operator=(const vtkWindowLevelLookupTable&);
 
   float Window;
   float Level;
@@ -161,6 +159,9 @@ protected:
   float MinimumTableValue[4];
   unsigned char MinimumColor[4];
   unsigned char MaximumColor[4];
+private:
+  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&);  // Not implemented.
+  void operator=(const vtkWindowLevelLookupTable&);  // Not implemented.
 };
 
 #endif

@@ -68,8 +68,9 @@ public:
 protected:
   vtkMesaProperty() {};
   ~vtkMesaProperty() {};
-  vtkMesaProperty(const vtkMesaProperty&);
-  void operator=(const vtkMesaProperty&);
+private:
+  vtkMesaProperty(const vtkMesaProperty&);  // Not implemented.
+  void operator=(const vtkMesaProperty&);  // Not implemented.
 };
 
 #endif

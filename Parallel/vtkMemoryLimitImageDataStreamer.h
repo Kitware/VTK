@@ -69,10 +69,11 @@ public:
 protected:
   vtkMemoryLimitImageDataStreamer();
   ~vtkMemoryLimitImageDataStreamer() {};
-  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&);
-  void operator=(const vtkMemoryLimitImageDataStreamer&);
 
   unsigned long  MemoryLimit;
+private:
+  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
+  void operator=(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
 };
 
 

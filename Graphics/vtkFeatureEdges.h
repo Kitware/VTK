@@ -127,8 +127,6 @@ public:
 protected:
   vtkFeatureEdges();
   ~vtkFeatureEdges();
-  vtkFeatureEdges(const vtkFeatureEdges&);
-  void operator=(const vtkFeatureEdges&);
 
   // Usual data generation method
   void Execute();
@@ -141,6 +139,9 @@ protected:
   int ManifoldEdges;
   int Coloring;
   vtkPointLocator *Locator;
+private:
+  vtkFeatureEdges(const vtkFeatureEdges&);  // Not implemented.
+  void operator=(const vtkFeatureEdges&);  // Not implemented.
 };
 
 #endif

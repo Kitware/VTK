@@ -76,9 +76,10 @@ protected:
   //
   vtkOpenGLImageMapper();
   ~vtkOpenGLImageMapper();
-  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&);
-  void operator=(const vtkOpenGLImageMapper&);
 
+private:
+  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLImageMapper&);  // Not implemented.
 };
 
 

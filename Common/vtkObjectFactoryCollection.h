@@ -78,14 +78,15 @@ return new vtkObjectFactoryCollection;};
 protected:
   vtkObjectFactoryCollection() {};
   ~vtkObjectFactoryCollection() {};
-  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&);
-  void operator=(const vtkObjectFactoryCollection&);
 
 
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
+private:
+  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&);  // Not implemented.
+  void operator=(const vtkObjectFactoryCollection&);  // Not implemented.
 };
 
 

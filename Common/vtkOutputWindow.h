@@ -117,11 +117,12 @@ public:
 protected:
   vtkOutputWindow();
   virtual ~vtkOutputWindow();
-  vtkOutputWindow(const vtkOutputWindow&);
-  void operator=(const vtkOutputWindow&);
   int PromptUser;
 private:
   static vtkOutputWindow* Instance;
+private:
+  vtkOutputWindow(const vtkOutputWindow&);  // Not implemented.
+  void operator=(const vtkOutputWindow&);  // Not implemented.
 };
 
 #endif

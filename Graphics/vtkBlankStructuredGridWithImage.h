@@ -75,10 +75,11 @@ public:
 protected:
   vtkBlankStructuredGridWithImage() {this->NumberOfRequiredInputs = 2;}
   ~vtkBlankStructuredGridWithImage() {}
-  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&);
-  void operator=(const vtkBlankStructuredGridWithImage&);
 
   void Execute();
+private:
+  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&);  // Not implemented.
+  void operator=(const vtkBlankStructuredGridWithImage&);  // Not implemented.
 };
 
 #endif

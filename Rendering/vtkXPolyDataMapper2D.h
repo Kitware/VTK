@@ -66,9 +66,10 @@ public:
 protected:
   vtkXPolyDataMapper2D() {};
   ~vtkXPolyDataMapper2D() {};
-  vtkXPolyDataMapper2D(const vtkXPolyDataMapper2D&);
-  void operator=(const vtkXPolyDataMapper2D&);
   
+private:
+  vtkXPolyDataMapper2D(const vtkXPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkXPolyDataMapper2D&);  // Not implemented.
 };
 #endif
 

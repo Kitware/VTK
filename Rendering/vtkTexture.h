@@ -159,8 +159,6 @@ public:
 protected:
   vtkTexture();
   ~vtkTexture();
-  vtkTexture(const vtkTexture&);
-  void operator=(const vtkTexture&);
 
   int   Repeat;
   int   Interpolate;
@@ -171,6 +169,9 @@ protected:
   
   // this is to duplicated the previous behavior of SelfCreatedLookUpTable
   int SelfAdjustingTableRange;
+private:
+  vtkTexture(const vtkTexture&);  // Not implemented.
+  void operator=(const vtkTexture&);  // Not implemented.
 };
 
 #endif

@@ -93,8 +93,6 @@ public:
 protected:
   vtkTexturedSphereSource(int res=8);
   ~vtkTexturedSphereSource() {};
-  vtkTexturedSphereSource(const vtkTexturedSphereSource&);
-  void operator=(const vtkTexturedSphereSource&);
 
   void Execute();
   float Radius;
@@ -103,6 +101,9 @@ protected:
   int ThetaResolution;
   int PhiResolution;
 
+private:
+  vtkTexturedSphereSource(const vtkTexturedSphereSource&);  // Not implemented.
+  void operator=(const vtkTexturedSphereSource&);  // Not implemented.
 };
 
 #endif

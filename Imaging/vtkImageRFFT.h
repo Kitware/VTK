@@ -78,14 +78,15 @@ public:
 protected:
   vtkImageRFFT() {};
   ~vtkImageRFFT() {};
-  vtkImageRFFT(const vtkImageRFFT&);
-  void operator=(const vtkImageRFFT&);
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
   void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(){this->vtkImageIterateFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int outExt[6], int threadId);
+private:
+  vtkImageRFFT(const vtkImageRFFT&);  // Not implemented.
+  void operator=(const vtkImageRFFT&);  // Not implemented.
 };
 
 #endif

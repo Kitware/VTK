@@ -71,10 +71,11 @@ public:
 protected:
   vtkUnstructuredGridToPolyDataFilter() {this->NumberOfRequiredInputs = 1;}
   ~vtkUnstructuredGridToPolyDataFilter() {}
-  vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&) {}
-  void operator=(const vtkUnstructuredGridToPolyDataFilter&);
   
   
+private:
+  vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&) {}  // Not implemented.
+  void operator=(const vtkUnstructuredGridToPolyDataFilter&);  // Not implemented.
 };
 
 #endif

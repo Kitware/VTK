@@ -84,14 +84,15 @@ public:
 protected:
   vtkReverseSense();
   ~vtkReverseSense() {};
-  vtkReverseSense(const vtkReverseSense&);
-  void operator=(const vtkReverseSense&);
 
   // Usual data generation method
   void Execute();
 
   int ReverseCells;
   int ReverseNormals;
+private:
+  vtkReverseSense(const vtkReverseSense&);  // Not implemented.
+  void operator=(const vtkReverseSense&);  // Not implemented.
 };
 
 #endif

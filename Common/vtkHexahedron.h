@@ -115,12 +115,13 @@ public:
 protected:
   vtkHexahedron();
   ~vtkHexahedron();
-  vtkHexahedron(const vtkHexahedron&);
-  void operator=(const vtkHexahedron&);
 
   vtkLine *Line;
   vtkQuad *Quad;
 
+private:
+  vtkHexahedron(const vtkHexahedron&);  // Not implemented.
+  void operator=(const vtkHexahedron&);  // Not implemented.
 };
 
 #endif

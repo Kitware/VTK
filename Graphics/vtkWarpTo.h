@@ -76,13 +76,14 @@ public:
 protected:
   vtkWarpTo(); 
   ~vtkWarpTo() {};
-  vtkWarpTo(const vtkWarpTo&);
-  void operator=(const vtkWarpTo&);
 
   void Execute();
   float ScaleFactor;
   float Position[3];
   int   Absolute;
+private:
+  vtkWarpTo(const vtkWarpTo&);  // Not implemented.
+  void operator=(const vtkWarpTo&);  // Not implemented.
 };
 
 #endif

@@ -169,8 +169,6 @@ public:
 protected:
   vtkSweptSurface();
   ~vtkSweptSurface();
-  vtkSweptSurface(const vtkSweptSurface&);
-  void operator=(const vtkSweptSurface&);
 
   void Execute();
   void ExecuteInformation();
@@ -204,6 +202,9 @@ protected:
 private:
   //used to perform computations
   vtkTransform *T;
+private:
+  vtkSweptSurface(const vtkSweptSurface&);  // Not implemented.
+  void operator=(const vtkSweptSurface&);  // Not implemented.
 };
 
 #endif

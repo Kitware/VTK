@@ -117,8 +117,6 @@ public:
 protected:
   vtkImageMandelbrotSource();
   ~vtkImageMandelbrotSource();
-  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);
-  void operator=(const vtkImageMandelbrotSource&);
 
   int ProjectionAxes[3];
 
@@ -134,6 +132,9 @@ protected:
   virtual void ExecuteData(vtkDataObject *outData);
   virtual void ExecuteInformation();
   float EvaluateSet(double p[4]);
+private:
+  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.
+  void operator=(const vtkImageMandelbrotSource&);  // Not implemented.
 };
 
 

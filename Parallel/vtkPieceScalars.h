@@ -76,8 +76,6 @@ public:
 protected:
   vtkPieceScalars();
   ~vtkPieceScalars();
-  vtkPieceScalars(const vtkPieceScalars&);
-  void operator=(const vtkPieceScalars&);
   
   // Append the pieces.
   void Execute();
@@ -88,6 +86,9 @@ protected:
   vtkSetMacro(CellScalarsFlag,int);
   int CellScalarsFlag;
   int RandomMode;
+private:
+  vtkPieceScalars(const vtkPieceScalars&);  // Not implemented.
+  void operator=(const vtkPieceScalars&);  // Not implemented.
 };
 
 #endif

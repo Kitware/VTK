@@ -76,8 +76,6 @@ public:
 protected:
   vtkImageStencilSource();
   ~vtkImageStencilSource();
-  vtkImageStencilSource(const vtkImageStencilSource&);
-  void operator=(const vtkImageStencilSource&);
 
   void ExecuteData(vtkDataObject *out);
   vtkImageStencilData *AllocateOutputData(vtkDataObject *out);
@@ -89,6 +87,9 @@ protected:
   // that all code inside this method is thread-safe.
   virtual void ThreadedExecute(vtkImageStencilData *output,
 			       int extent[6], int threadId);
+private:
+  vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
+  void operator=(const vtkImageStencilSource&);  // Not implemented.
 };
 
 #endif

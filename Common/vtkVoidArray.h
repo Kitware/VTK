@@ -155,14 +155,15 @@ public:
 protected:
   vtkVoidArray();
   ~vtkVoidArray();
-  vtkVoidArray(const vtkVoidArray&);
-  void operator=(const vtkVoidArray&);
 
   void** Array;  // pointer to data
   void** ResizeAndExtend(const vtkIdType sz);  // function to resize data
 
   int TupleSize; //used for data conversion
   float *Tuple;
+private:
+  vtkVoidArray(const vtkVoidArray&);  // Not implemented.
+  void operator=(const vtkVoidArray&);  // Not implemented.
 };
 
 

@@ -187,8 +187,6 @@ public:
 protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData();
-  vtkSelectPolyData(const vtkSelectPolyData&);
-  void operator=(const vtkSelectPolyData&);
 
   void Execute();
 
@@ -204,6 +202,9 @@ protected:
 private:
   vtkPolyData *Mesh;
   void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);
+private:
+  vtkSelectPolyData(const vtkSelectPolyData&);  // Not implemented.
+  void operator=(const vtkSelectPolyData&);  // Not implemented.
 };
 
 // Description:

@@ -464,8 +464,6 @@ public:
 protected:
   vtkXYPlotActor();
   ~vtkXYPlotActor();
-  vtkXYPlotActor(const vtkXYPlotActor&);
-  void operator=(const vtkXYPlotActor&);
 
   vtkDataSetCollection *InputList; //list of data sets to plot
   vtkDataObjectCollection *DataObjectInputList; //list of data objects to plot
@@ -548,6 +546,9 @@ protected:
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
   float *TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3]);
   
+private:
+  vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
+  void operator=(const vtkXYPlotActor&);  // Not implemented.
 };
 
 

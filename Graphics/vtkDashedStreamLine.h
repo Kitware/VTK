@@ -78,8 +78,6 @@ public:
 protected:
   vtkDashedStreamLine();
   ~vtkDashedStreamLine() {};
-  vtkDashedStreamLine(const vtkDashedStreamLine&);
-  void operator=(const vtkDashedStreamLine&);
 
   // Convert streamer array into vtkPolyData
   void Execute();
@@ -87,6 +85,9 @@ protected:
   // the fraction of on versus off in dash
   float DashFactor;
   
+private:
+  vtkDashedStreamLine(const vtkDashedStreamLine&);  // Not implemented.
+  void operator=(const vtkDashedStreamLine&);  // Not implemented.
 };
 
 #endif

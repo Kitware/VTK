@@ -91,8 +91,6 @@ public:
 protected:
   vtkPropPicker();
   ~vtkPropPicker();
-  vtkPropPicker(const vtkPropPicker&);
-  void operator=(const vtkPropPicker&);
 
   void Initialize();
   
@@ -100,6 +98,9 @@ protected:
   
   // Used to get x-y-z pick position
   vtkWorldPointPicker *WorldPointPicker;
+private:
+  vtkPropPicker(const vtkPropPicker&);  // Not implemented.
+  void operator=(const vtkPropPicker&);  // Not implemented.
 };
 
 #endif

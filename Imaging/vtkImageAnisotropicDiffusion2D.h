@@ -113,8 +113,6 @@ public:
 protected:
   vtkImageAnisotropicDiffusion2D();
   ~vtkImageAnisotropicDiffusion2D() {};
-  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&);
-  void operator=(const vtkImageAnisotropicDiffusion2D&);
 
   int NumberOfIterations;
   float DiffusionThreshold;
@@ -130,6 +128,9 @@ protected:
 		       int extent[6], int id);
   void Iterate(vtkImageData *in, vtkImageData *out, 
 	       float ar0, float ar1, int *coreExtent, int count);
+private:
+  vtkImageAnisotropicDiffusion2D(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.
+  void operator=(const vtkImageAnisotropicDiffusion2D&);  // Not implemented.
 };
 
 #endif

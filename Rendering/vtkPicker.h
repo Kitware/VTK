@@ -138,8 +138,6 @@ public:
 protected:
   vtkPicker();
   ~vtkPicker();
-  vtkPicker(const vtkPicker&);
-  void operator=(const vtkPicker&);
 
   void MarkPicked(vtkAssemblyPath *path, vtkProp3D *p, vtkAbstractMapper3D *m, 
                   float tMin, float mapperPos[3]);
@@ -160,6 +158,9 @@ protected:
   vtkProp3DCollection *Prop3Ds; //candidate actors (based on bounding box)
   vtkPoints *PickedPositions; // candidate positions
   
+private:
+  vtkPicker(const vtkPicker&);  // Not implemented.
+  void operator=(const vtkPicker&);  // Not implemented.
 };
 
 

@@ -123,8 +123,6 @@ public:
 protected:
   vtkSampleFunction();
   ~vtkSampleFunction();
-  vtkSampleFunction(const vtkSampleFunction&);
-  void operator=(const vtkSampleFunction&);
 
   void Execute();
   void ExecuteInformation();
@@ -137,6 +135,9 @@ protected:
   float CapValue;
   vtkImplicitFunction *ImplicitFunction;
   int ComputeNormals;
+private:
+  vtkSampleFunction(const vtkSampleFunction&);  // Not implemented.
+  void operator=(const vtkSampleFunction&);  // Not implemented.
 };
 
 #endif
