@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.6");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.7");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -197,6 +197,7 @@ void vtkMoleculeReaderBase::Execute()
   vtkDebugMacro(<< "opening base file " << this->FileName);
   this->ReadMolecule(fp);
   fclose(fp);
+  this->GetOutput()->Print();
 
   this->GetOutput()->Squeeze();
 }
@@ -228,13 +229,13 @@ int vtkMoleculeReaderBase::ReadMolecule(FILE *fp)
     this->Points->Reset();
     }
 
-  newBonds = vtkCellArray::New();
-  newBonds->Allocate(500);
-
   this->ReadSpecificMolecule(fp);
 
   vtkDebugMacro(<< "End of scanning");
   output->SetPoints(this->Points);
+
+  newBonds = vtkCellArray::New();
+  newBonds->Allocate(500);
 
   this->MakeBonds(this->Points, this->AtomType, newBonds);
 
