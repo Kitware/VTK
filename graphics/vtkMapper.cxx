@@ -40,6 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkMapper.h"
 
+// Initialize static member that controls global immediate mode rendering
+static int vtkMapperGlobalImmediateModeRendering = 0;
+
 // Description:
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
@@ -68,6 +71,19 @@ vtkMapper::~vtkMapper()
   if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
     this->LookupTable->Delete();
   if ( this->Colors != NULL ) this->Colors->Delete();
+}
+
+void vtkMapper::SetGlobalImmediateModeRendering(int val)
+{
+  if (val == vtkMapperGlobalImmediateModeRendering) return;
+  vtkMapperGlobalImmediateModeRendering = val;
+  vtkDebugMacro( << "setting GlobalImmediateModeRendering to " << val );
+  this->Modified(); 
+}
+
+int vtkMapper::GetGlobalImmediateModeRendering()
+{
+  return vtkMapperGlobalImmediateModeRendering;
 }
 
 // Description:
@@ -324,6 +340,8 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << indent << "Immediate Mode Rendering: " 
     << (this->ImmediateModeRendering ? "On\n" : "Off\n");
+  os << indent << "Global Immediate Mode Rendering: " << 
+    (vtkMapperGlobalImmediateModeRendering ? "On\n" : "Off\n");
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
 

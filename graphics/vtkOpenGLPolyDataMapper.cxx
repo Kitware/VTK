@@ -137,7 +137,8 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     // sets this->Colors as side effect
     this->GetColors();
 
-    if (!this->ImmediateModeRendering)
+    if (!this->ImmediateModeRendering && 
+	!this->GetGlobalImmediateModeRendering())
       {
       // free any old display lists
       if (this->ListId)
@@ -156,7 +157,8 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   // if nothing changed but we are using display lists, draw it
   else
     {
-    if (!this->ImmediateModeRendering)
+    if (!this->ImmediateModeRendering && 
+	!this->GetGlobalImmediateModeRendering())
       {
       glCallList(this->ListId);
       }
@@ -164,7 +166,8 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
    
   // if we are in immediate mode rendering we always
   // want to draw the primitives here
-  if (this->ImmediateModeRendering)
+  if (this->ImmediateModeRendering ||
+      this->GetGlobalImmediateModeRendering())
     {
     this->Draw(ren,act);
     }
