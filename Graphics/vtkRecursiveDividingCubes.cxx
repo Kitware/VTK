@@ -86,7 +86,8 @@ static vtkCellArray *NewVerts; //verts being generated
 
 void vtkRecursiveDividingCubes::Execute()
 {
-  int i, j, k, idx;
+  int i, j, k;
+  vtkIdType idx;
   vtkScalars *inScalars;
   vtkIdList *voxelPts;
   float origin[3];
@@ -244,7 +245,7 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
   // if subdivided far enough, create point and end termination
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
     {
-    int id;
+    vtkIdType id;
     float x[3], n[3];
     float p[3], w[8];
 

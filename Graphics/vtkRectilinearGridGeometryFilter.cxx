@@ -75,15 +75,15 @@ void vtkRectilinearGridGeometryFilter::Execute()
 {
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
-  int idx, startIdx, startCellIdx;
+  vtkIdType idx, startIdx, startCellIdx;
   vtkIdType ptIds[4];
-  int cellId;
+  vtkIdType cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
-  int totPoints, numPolys;
-  int offset[3], pos;
+  vtkIdType totPoints, pos;
+  int offset[3], numPolys;
   float *x;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;

@@ -94,7 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkFeatureEdges;
 
 typedef struct {
-  int VertexId;
+  vtkIdType VertexId;
   // Dimension is supposed to be a flag representing the dimension of the cells
   // contributing to the quadric. Lines: 1, Triangles: 2 (and points 0 in the future?)
   unsigned char Dimension;
@@ -209,11 +209,11 @@ protected:
     
   // Description:
   // Given a point, determine what bin it falls into.
-  int HashPoint(float point[3]);
+  vtkIdType HashPoint(float point[3]);
   
   // Description:
   // Determine the representative point for this bin.
-  void ComputeRepresentativePoint(float quadric[9], int binId,
+  void ComputeRepresentativePoint(float quadric[9], vtkIdType binId,
 				  float point[3]);
 
   // Description:
@@ -223,7 +223,7 @@ protected:
                     int geometryFlag);
   void AddPolygons(vtkCellArray *polys, vtkPoints *points,
                    int geometryFlag);
-  void AddTriangle(int *binIds, float *pt0, float *pt1, float *pt2,
+  void AddTriangle(vtkIdType *binIds, float *pt0, float *pt1, float *pt2,
                    int geometeryFlag);
 
   // Description:
@@ -231,14 +231,14 @@ protected:
   // edges are added to the output.
   void AddEdges(vtkCellArray *edges, vtkPoints *points,
                 int geometryFlag);
-  void AddEdge(int *binIds, float *pt0, float *pt1, int geometeryFlag);
+  void AddEdge(vtkIdType *binIds, float *pt0, float *pt1, int geometeryFlag);
 
   // Description:
   // Add vertices to the quadric array.  If geometry flag is on then
   // vertices are added to the output.
   void AddVertices(vtkCellArray *verts, vtkPoints *points,
                    int geometryFlag);
-  void AddVertex(int binId, float *pt, int geometeryFlag);
+  void AddVertex(vtkIdType binId, float *pt, int geometeryFlag);
 
   // Description:
   // Initialize the quadric matrix to 0's.
@@ -246,7 +246,7 @@ protected:
   
   // Description:
   // Add this quadric to the quadric already associated with this bin.
-  void AddQuadric(int binId, float quadric[9]);
+  void AddQuadric(vtkIdType binId, float quadric[9]);
 
   // Description:
   // Find the feature points of a given set of edges.
@@ -284,7 +284,7 @@ protected:
   float YBinSize;
   float ZBinSize;
   VTK_POINT_QUADRIC* QuadricArray;
-  int NumberOfBinsUsed;
+  vtkIdType NumberOfBinsUsed;
 
   // Have to make these instance variables if we are going to allow
   // the algorithm to be driven by the Append methods.

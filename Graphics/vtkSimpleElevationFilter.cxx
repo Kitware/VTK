@@ -71,7 +71,7 @@ vtkSimpleElevationFilter::vtkSimpleElevationFilter()
 //
 void vtkSimpleElevationFilter::Execute()
 {
-  int i, numPts;
+  vtkIdType i, numPts;
   vtkScalars *newScalars;
   float s, x[3];
   vtkDataSet *input = this->GetInput();
@@ -106,7 +106,7 @@ void vtkSimpleElevationFilter::Execute()
   // Compute dot product
   //
   int abort=0;
-  int progressInterval=numPts/20 + 1;
+  vtkIdType progressInterval=numPts/20 + 1;
   for (i=0; i<numPts && !abort; i++)
     {
     if ( ! (i % progressInterval) ) 

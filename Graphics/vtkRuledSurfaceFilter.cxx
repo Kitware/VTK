@@ -80,7 +80,7 @@ vtkRuledSurfaceFilter::~vtkRuledSurfaceFilter()
 void vtkRuledSurfaceFilter::Execute()
 {
   vtkPoints *inPts, *newPts = NULL;
-  int i, numPts, numLines;
+  vtkIdType i, numPts, numLines;
   vtkCellArray *inLines, *newPolys, *newStrips;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -190,7 +190,8 @@ void  vtkRuledSurfaceFilter::Resample(vtkPolyData *output, vtkPoints *inPts,
                                       int npts, vtkIdType *pts, 
                                       int npts2, vtkIdType *pts2)
 {
-  int i, j, id, offset;
+  vtkIdType offset, id;
+  int i, j;
   float length, length2;
   vtkCellArray *newStrips;
   vtkPointData *inPD=this->GetInput()->GetPointData();

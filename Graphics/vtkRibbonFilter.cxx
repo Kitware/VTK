@@ -76,14 +76,15 @@ vtkRibbonFilter::vtkRibbonFilter()
 
 void vtkRibbonFilter::Execute()
 {
-  int i, j;
+  vtkIdType i;
+  int j;
   vtkPoints *inPts;
   vtkNormals *inNormals;
   vtkPointData *pd, *outPD;
   vtkCellData *cd, *outCD;
   vtkCellArray *inLines;
-  int numPts = 0;
-  int numNewPts = 0;
+  vtkIdType numPts = 0;
+  vtkIdType numNewPts = 0;
   vtkPoints *newPts;
   vtkNormals *newNormals;
   vtkCellArray *newStrips;
@@ -93,12 +94,13 @@ void vtkRibbonFilter::Execute()
   float *n;
   float s[3], sNext[3], sPrev[3], w[3];
   double BevelAngle;
-  int deleteNormals=0, ptId;
+  int deleteNormals=0;
+  vtkIdType ptId;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output= this->GetOutput();
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
-  int ptOffset=0;
+  vtkIdType ptOffset=0;
 
   // Initialize
   //

@@ -132,13 +132,14 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
 
 void vtkShepardMethod::Execute()
 {
-  int ptId, i, j, k;
+  vtkIdType ptId, i;
+  int j, k;
   float *px, x[3], s, *sum, spacing[3], origin[3];
   
   float maxDistance, distance2, inScalar;
   vtkScalars *inScalars;
   vtkScalars *newScalars;
-  int numPts, numNewPts, idx;
+  vtkIdType numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
   vtkDataSet *input = this->GetInput();

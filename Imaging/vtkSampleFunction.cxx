@@ -155,9 +155,9 @@ void vtkSampleFunction::ExecuteInformation()
 
 void vtkSampleFunction::Execute()
 {
-  int ptId;
+  vtkIdType ptId;
   vtkNormals *newNormals=NULL;
-  int numPts;
+  vtkIdType numPts;
   float *p, s;
   vtkStructuredPoints *output = this->GetOutput();
 
@@ -251,7 +251,7 @@ unsigned long vtkSampleFunction::GetMTime()
 void vtkSampleFunction::Cap(vtkScalars *s)
 {
   int i,j,k;
-  int idx;
+  vtkIdType idx;
   int d01=this->SampleDimensions[0]*this->SampleDimensions[1];
 
 // i-j planes

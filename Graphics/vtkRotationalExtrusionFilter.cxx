@@ -70,22 +70,22 @@ vtkRotationalExtrusionFilter::vtkRotationalExtrusionFilter()
 
 void vtkRotationalExtrusionFilter::Execute()
 {
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
-  int numEdges, cellId, dim;
-  vtkIdType *pts, npts;
-  int ptId, ncells;
+  int numEdges, dim;
+  vtkIdType *pts, npts, cellId, ptId, ncells;
   float *x, newX[3], radius, angleIncr, radIncr, transIncr;
   float psi, theta;
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
-  int i, j, k, p1, p2;
+  int i, j, k;
+  vtkIdType p1, p2;
   vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   double tempd;
@@ -251,7 +251,7 @@ void vtkRotationalExtrusionFilter::Execute()
   // If boundary edge found, extrude triangle strip.
   //
   int abort=0;
-  int progressInterval = numCells/10 + 1;
+  vtkIdType progressInterval = numCells/10 + 1;
   vtkGenericCell *cell = vtkGenericCell::New();
   for ( cellId=0; cellId < numCells && !abort; cellId++)
     {

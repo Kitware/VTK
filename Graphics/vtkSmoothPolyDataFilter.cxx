@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkCellLocator.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkSmoothPolyDataFilter* vtkSmoothPolyDataFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +58,6 @@ vtkSmoothPolyDataFilter* vtkSmoothPolyDataFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkSmoothPolyDataFilter;
 }
-
-
-
 
 // The following code defines a helper class for performing mesh smoothing
 // across the surface of another mesh.
@@ -82,9 +77,9 @@ public:
       delete [] this->Array;
       }
     };
-  int GetNumberOfPoints() {return this->MaxId + 1;};
-  vtkSmoothPoint *GetSmoothPoint(int i) {return this->Array + i;};
-  vtkSmoothPoint *InsertSmoothPoint(int ptId) 
+  vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
+  vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;};
+  vtkSmoothPoint *InsertSmoothPoint(vtkIdType ptId) 
     {
     if ( ptId >= this->Size )
       {
@@ -96,13 +91,13 @@ public:
       }
     return this->Array + ptId;
     }
-  vtkSmoothPoint *Resize(int sz); //reallocates data
+  vtkSmoothPoint *Resize(vtkIdType sz); //reallocates data
   void Reset() {this->MaxId = -1;};
 
   vtkSmoothPoint *Array;  // pointer to data
-  int MaxId;              // maximum index inserted thus far
-  int Size;               // allocated size of data
-  int Extend;             // grow array by this amount
+  vtkIdType MaxId;              // maximum index inserted thus far
+  vtkIdType Size;               // allocated size of data
+  vtkIdType Extend;             // grow array by this amount
 };
 
 vtkSmoothPoints::vtkSmoothPoints()
@@ -113,10 +108,10 @@ vtkSmoothPoints::vtkSmoothPoints()
   this->Extend = 5000;
 }
 
-vtkSmoothPoint *vtkSmoothPoints::Resize(int sz)
+vtkSmoothPoint *vtkSmoothPoints::Resize(vtkIdType sz)
 {
   vtkSmoothPoint *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if (sz >= this->Size)
     {
@@ -188,22 +183,22 @@ typedef struct _vtkMeshVertex
   {
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
-  } vtkMeshVertex, *vtkMeshVertexPtr;
+} vtkMeshVertex, *vtkMeshVertexPtr;
     
 void vtkSmoothPolyDataFilter::Execute()
 {
-  int numPts, numCells;
-  int i, j, k, numPolys, numStrips;
+  vtkIdType numPts, numCells, i, numPolys, numStrips;
+  int j, k;
   vtkIdType npts;
   vtkIdType *pts;
-  int p1, p2;
+  vtkIdType p1, p2;
   float *x, *y, deltaX[3], xNew[3], conv, maxDist, dist, factor;
   float x1[3], x2[3], x3[3], l1[3], l2[3];
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
   float closestPt[3], dist2, *w = NULL;
   int iterationNumber, abortExecute;
-  int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
+  vtkIdType numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
   vtkTriangleFilter *toTris=NULL;
@@ -325,7 +320,8 @@ void vtkSmoothPolyDataFilter::Execute()
   if ( numPolys > 0 || numStrips > 0 )
     { //build cell structure
     vtkCellArray *polys;
-    int numNei, cellId, nei, edge;
+    vtkIdType cellId;
+    int numNei, nei, edge;
     vtkIdType numNeiPts;
     vtkIdType *neiPts;
     float normal[3], neiNormal[3];

@@ -216,10 +216,6 @@ protected:
   int GenerateErrorVectors;
 
   vtkSmoothPoints *SmoothPoints;
-
 };
 
-
 #endif
-
-
