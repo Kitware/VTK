@@ -259,3 +259,17 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+// Description:
+// Sets the clamping for each of the R,G,B transfer functions
+void vtkColorTransferFunction::SetClamping(int val) {
+	Clamping = val;
+	this->Red.SetClamping(Clamping);
+	this->Green.SetClamping(Clamping);
+	this->Blue.SetClamping(Clamping);
+}
+
+// Description:
+// Gets the clamping value
+int vtkColorTransferFunction::GetClamping() {
+	return Clamping;
+}

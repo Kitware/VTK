@@ -79,7 +79,19 @@ public:
   // Fills in a table of n function values between x1 and x2
   void GetTable( float x1, float x2, int n, float* table );
 
+
+  // Description:
+  // Sets and gets the clamping value for this transfer function.
+  void SetClamping(int val);
+  int  GetClamping();
 protected:
+
+  // Determines the function value outside of defined points
+  // in each of the R,G,B transfer functions.
+  // Zero = always return 0.0 outside of defined points
+  // One  = clamp to the lowest value below defined points and
+  //        highest value above defined points
+  int Clamping;
 
   // Transfer functions for each color component
   vtkPiecewiseFunction	Red;
