@@ -647,7 +647,6 @@ class wxVTKRenderWindow(baseClass):
 
 #----------------------------------------------------------------------------  
 def wxVTKRenderWindowConeExample():
-    from vtkpython import *
 
     """Like it says, just a simple example
     """
