@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Subclasses that need to know the actor can supply this method.
-  virtual void Render(vtkProperty *prp, vtkActor *anActor, vtkRenderer *ren) {
+  virtual void Render(vtkProperty *prp, vtkActor *vtkNotUsed (anActor), vtkRenderer *ren) {
     Render (prp, ren);
   }
 
