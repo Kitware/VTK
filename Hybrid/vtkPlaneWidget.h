@@ -37,6 +37,8 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkPoints;
 class vtkPolyData;
+class vtkLineSource;
+class vtkConeSource;
 class vtkSphereSource;
 class vtkCellPicker;
 
@@ -111,7 +113,6 @@ public:
   vtkBooleanMacro(NormalToZAxis,int);
 
   // Description:
-
   // Grab the polydata (including points) that defines the plane.  The
   // polydata consists of (res+1)*(res+1) points, and res*res quadrilateral
   // polygons, where res is the resolution of the plane. These point values
@@ -182,6 +183,17 @@ protected:
   void HandlesOff();
   int HighlightHandle(vtkProp *prop); //returns cell id
   
+  // the normal cone
+  vtkActor *ConeActor;
+  vtkPolyDataMapper *ConeMapper;
+  vtkConeSource *ConeSource;
+  void HighlightNormal(int highlight);
+
+  // the normal line
+  vtkActor *LineActor;
+  vtkPolyDataMapper *LineMapper;
+  vtkLineSource *LineSource;
+
   // Do the picking
   vtkCellPicker *HandlePicker;
   vtkCellPicker *PlanePicker;
