@@ -1491,9 +1491,9 @@ case 3:
 	}
       fprintf(yyout,"int %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",class_name,class_name);
       fprintf(yyout,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name);
-      fprintf(yyout,"  if ((!strcmp(\"Delete\",argv[1]))&&(argc == 2))\n    {\n");
-      fprintf(yyout,"    if (!vtkTclDeleteObjectFromHash(cd))\n");
-      fprintf(yyout,"      {\n      return TCL_OK;\n      }\n    }\n");
+      fprintf(yyout,"  if ((!strcmp(\"Delete\",argv[1]))&&(argc == 2)&& !vtkTclInDelete())\n    {\n");
+      fprintf(yyout,"    Tcl_DeleteCommand(interp,argv[0]);\n");
+      fprintf(yyout,"    return TCL_OK;\n    }\n");
       fprintf(yyout,"   return %sCppCommand((%s *)cd,interp, argc, argv);\n}\n",class_name,class_name);
 
       fprintf(yyout,"\nint %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",class_name,class_name);
