@@ -10,16 +10,6 @@ ME = Graphics
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
-SBR_OBJ = \
-vtkStarbaseActor \
-vtkStarbaseCamera \
-vtkStarbaseLight \
-vtkStarbasePolyDataMapper \
-vtkStarbaseProperty \
-vtkStarbaseRenderWindow \
-vtkStarbaseRenderer \
-vtkStarbaseTexture 
-
 OGLR_OBJ = \
 vtkOpenGLActor \
 vtkOpenGLCamera \
@@ -30,16 +20,6 @@ vtkOpenGLProperty \
 vtkOpenGLRenderWindow \
 vtkOpenGLRenderer \
 vtkOpenGLTexture 
-
-XGLR_OBJ = \
-vtkXGLActor \
-vtkXGLCamera \
-vtkXGLLight \
-vtkXGLPolyDataMapper \
-vtkXGLProperty \
-vtkXGLRenderWindow \
-vtkXGLRenderer \
-vtkXGLTexture 
 
 ABSTRACT_H = \
 vtkCuller \
