@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractGrid, "1.40");
+vtkCxxRevisionMacro(vtkExtractGrid, "1.41");
 vtkStandardNewMacro(vtkExtractGrid);
 
 // Construct object to extract all of the input data.
@@ -229,7 +229,8 @@ void vtkExtractGrid::Execute()
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, uExt[6], voi[6];
-  int *inExt, *outWholeExt, *inWholeExt;
+  int *inExt;
+  int *inWholeExt;
   int iIn, jIn, kIn;
   int outSize, jOffset, kOffset, rate[3];
   vtkIdType idx, newIdx, newCellId;
@@ -242,7 +243,6 @@ void vtkExtractGrid::Execute()
 
   inPts = input->GetPoints();
 
-  outWholeExt = output->GetWholeExtent();
   output->GetUpdateExtent(uExt);
   inExt = input->GetExtent();
   inInc1 = (inExt[1]-inExt[0]+1);
