@@ -88,6 +88,7 @@ public:
   // Set the input text string to the mapper.  The mapper doesn't parse 
   // the string for carriage returns or line feeds.
   vtkSetStringMacro(Input);
+  vtkGetStringMacro(Input);
 
   // Description:
   // Set the font size used by the mapper.  The subclasses can override
