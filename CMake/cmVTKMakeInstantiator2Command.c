@@ -248,7 +248,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     {
     const char *srcName = info->CAPI->GetFilenameWithoutExtension(classes[i]);
     void *sf = info->CAPI->GetSource(mf,classes[i]);
-    
+
     /* Wrap-excluded and abstract classes do not have a New() method. */
     /* vtkIndent and vtkTimeStamp are special cases and are not */
     /* vtkObject subclasses. */
@@ -261,6 +261,10 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       {
       /* remove this class from the list */
       classes[i] = 0;
+      }
+    else
+      {
+      classes[i] = info->CAPI->GetFilenameWithoutExtension(classes[i]);
       }
     }    
   
