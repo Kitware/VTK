@@ -1,5 +1,6 @@
 PROJECT(VTK)
 OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
+OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
 SUBDIRS(Wrapping Common Filtering Imaging Graphics IO)
 
@@ -42,6 +43,11 @@ IF(BUILD_TESTING)
     SUBDIRS(Graphics/Testing )
   ENDIF (DART_ROOT)
 ENDIF(BUILD_TESTING)
+
+# add the examples
+IF (BUILD_EXAMPLES)
+ SUBDIRS(Examples)
+ENDIF (BUILD_EXAMPLES)
 
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 
