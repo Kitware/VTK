@@ -44,6 +44,7 @@ IF (VTK_USE_RENDERING)
     IF (VTK_USE_FREETYPE)
       FOREACH ( tfile
         TestFreetypeTextMapper
+        TestFreetypeTextMapperBigger
       )
         ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
