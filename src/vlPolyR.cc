@@ -130,9 +130,11 @@ void vlPolyReader::Execute()
 
   vlDebugMacro(<<"Reading vl polygonal data...");
   this->Initialize();
+  if ( this->Debug ) this->Reader.DebugOn();
+  else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
-  ! this->Reader.ReadHeader(fp,this->Debug) )
+  if ( !(fp=this->Reader.OpenVLFile()) ||
+  ! this->Reader.ReadHeader(fp) )
       return;
 //
 // Read polygonal data specific stuff
@@ -247,7 +249,7 @@ void vlPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts);
         break; //out of this loop
         }
 
@@ -273,7 +275,7 @@ void vlPolyReader::Execute()
       return;
       }
 
-    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
+    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts);
     }
 
   else 

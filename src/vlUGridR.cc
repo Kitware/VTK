@@ -132,9 +132,10 @@ void vlUnstructuredGridReader::Execute()
 
   vlDebugMacro(<<"Reading vl unstructured grid...");
   this->Initialize();
+  if ( this->Debug ) this->Reader.DebugOn();
+  else this->Reader.DebugOff();
 
-  if ( !(fp=this->Reader.OpenVLFile(this->Debug)) ||
-  ! this->Reader.ReadHeader(fp,this->Debug) )
+  if ( !(fp=this->Reader.OpenVLFile()) || !this->Reader.ReadHeader(fp) )
       return;
 //
 // Read unstructured grid specific stuff
@@ -239,7 +240,7 @@ void vlUnstructuredGridReader::Execute()
           return;
           }
 
-        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts, this->Debug);
+        this->Reader.ReadPointData(fp, (vlDataSet *)this, npts);
         break; //out of this loop
         }
 
@@ -262,7 +263,7 @@ void vlUnstructuredGridReader::Execute()
       return;
       }
 
-    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts, this->Debug);
+    this->Reader.ReadPointData(fp, (vlDataSet *)this, numPts);
     }
 
   else 

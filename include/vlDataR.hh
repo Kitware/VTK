@@ -84,9 +84,9 @@ public:
 
   // Special methods
   char *LowerCase(char *);
-  FILE *OpenVLFile(int debug);
-  int ReadHeader(FILE *fp, int debug);
-  int ReadPointData(FILE *fp, vlDataSet *ds, int numPts, int debug);
+  FILE *OpenVLFile();
+  int ReadHeader(FILE *fp);
+  int ReadPointData(FILE *fp, vlDataSet *ds, int numPts);
   int ReadPoints(FILE *fp, vlPointSet *ps, int numPts);
   int ReadCells(FILE *fp, int size, int *data);
   void CloseVLFile(FILE *fp);
