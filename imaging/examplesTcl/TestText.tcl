@@ -16,12 +16,12 @@ vtkTextMapper textMapper
     textMapper SetInput "This is a sphere"
     textMapper SetFontSize 18
     textMapper SetFontFamilyToArial
+    textMapper SetJustificationToCentered
     textMapper BoldOn
     textMapper ItalicOn
     textMapper ShadowOn
-vtkActor2D textActor
+vtkScaledTextActor textActor
     textActor SetMapper textMapper    
-    textActor SetPosition 90 50
     [textActor GetProperty] SetColor 0 0 1
 
 # Create the RenderWindow, Renderer and both Actors
