@@ -67,6 +67,7 @@ static void isomorphism(double in[3], double out[3])
 //------------------------------------------------------------------------------
 int TestOrderedTriangulator(int, char *[])
 {
+  int i;
   vtkOrderedTriangulator *triangulator1 = vtkOrderedTriangulator::New();
   triangulator1->InitTriangulation(-1.0,1.0, -1.0,1.0, -1.0,1.0, 200);
   triangulator1->PreSortedOff();
@@ -87,13 +88,13 @@ int TestOrderedTriangulator(int, char *[])
   
   vtkPoints *Points = vtkPoints::New();
   Points->SetNumberOfPoints(6);
-  for(int i=0;i<6;i++,p+=3)
+  for(i=0;i<6;i++,p+=3)
     {
     Points->SetPoint(i, p);
     }
 
   //first case
-  for(int i=0;i<6;i++)
+  for(i=0;i<6;i++)
   {
     double *temp = points + 3*i;
     double *temp2 = para_coord1 + 3*i;
@@ -102,7 +103,7 @@ int TestOrderedTriangulator(int, char *[])
   triangulator1->Triangulate();
 
   //second case:
-  for(int i=0;i<6;i++)
+  for(i=0;i<6;i++)
   {
     double *temp = points + 3*i;
     double *temp2 = para_coord2 + 3*i;
@@ -112,7 +113,7 @@ int TestOrderedTriangulator(int, char *[])
 
   //We now use isocoordinate and repeat case one and two
   //first case
-  for(int i=0;i<6;i++)
+  for(i=0;i<6;i++)
   {
     double *temp = points + 3*i;
     double *temp2 = para_coord1 + 3*i;
@@ -123,7 +124,7 @@ int TestOrderedTriangulator(int, char *[])
   isotriangulator1->Triangulate();
 
   //second case:
-  for(int i=0;i<6;i++)
+  for(i=0;i<6;i++)
   {
     double *temp = points + 3*i;
     double *temp2 = para_coord2 + 3*i;
