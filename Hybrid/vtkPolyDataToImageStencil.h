@@ -51,7 +51,6 @@ public:
 protected:
   vtkPolyDataToImageStencil();
   ~vtkPolyDataToImageStencil();
-  void operator=(const vtkPolyDataToImageStencil&);
 
   void ExecuteData(vtkDataObject *out);
   void ThreadedExecute(vtkImageStencilData *output,
@@ -60,8 +59,8 @@ protected:
   float Tolerance;
   vtkOBBTree *OBBTree;
 private:
-  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&)  // Not implemented.
-    {};  // Not implemented.
+  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.
+  void operator=(const vtkPolyDataToImageStencil&);  // Not implemented.
 };
 
 #endif

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPolyLine, "1.69");
+vtkCxxRevisionMacro(vtkPolyLine, "1.70");
 vtkStandardNewMacro(vtkPolyLine);
 
 vtkPolyLine::vtkPolyLine()
@@ -48,8 +48,8 @@ vtkCell *vtkPolyLine::MakeObject()
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals)
 {
-  vtkIdType npts;
-  vtkIdType *linePts;
+  vtkIdType npts=0;
+  vtkIdType *linePts=0;
   float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
   float p[3], pNext[3];
   float c[3], f1, f2;

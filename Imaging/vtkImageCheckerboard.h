@@ -48,8 +48,8 @@ protected:
                        int extent[6], int id);
   int NumberOfDivisions[3];
 private:
-  vtkImageCheckerboard(const vtkImageCheckerboard&) {};  // Not implemented.
-  void operator=(const vtkImageCheckerboard&) {};  // Not implemented.
+  vtkImageCheckerboard(const vtkImageCheckerboard&);  // Not implemented.
+  void operator=(const vtkImageCheckerboard&);  // Not implemented.
 };
 
 #endif

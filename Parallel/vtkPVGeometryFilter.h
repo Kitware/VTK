@@ -44,8 +44,6 @@ public:
 protected:
   vtkPVGeometryFilter();
   ~vtkPVGeometryFilter();
-  vtkPVGeometryFilter(const vtkPVGeometryFilter&) {};
-  void operator=(const vtkPVGeometryFilter&) {};
 
   void Execute();
   void ImageDataExecute(vtkImageData *input);
@@ -54,6 +52,10 @@ protected:
   void UnstructuredGridExecute(vtkUnstructuredGrid *input);
 
   int OutlineFlag;
+
+private:
+  vtkPVGeometryFilter(const vtkPVGeometryFilter&); // Not implemented
+  void operator=(const vtkPVGeometryFilter&); // Not implemented
 };
 
 #endif

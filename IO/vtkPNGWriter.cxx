@@ -20,7 +20,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.10");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.11");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkPNGWriter::vtkPNGWriter()
@@ -117,7 +117,7 @@ void vtkPNGWriteInit(png_structp png_ptr, png_bytep data,
     }
 }
 
-void vtkPNGWriteFlush(png_structp png_ptr)
+void vtkPNGWriteFlush(png_structp vtkNotUsed(png_ptr))
 {
 }
 

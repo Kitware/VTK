@@ -116,8 +116,8 @@ protected:
     this->vtkImageToImageFilter::ExecuteInformation(); };
   void ExecuteData(vtkDataObject *data);
 private:
-  vtkImageChangeInformation(const vtkImageChangeInformation&) {};  // Not implemented.
-  void operator=(const vtkImageChangeInformation&) {};  // Not implemented.
+  vtkImageChangeInformation(const vtkImageChangeInformation&);  // Not implemented.
+  void operator=(const vtkImageChangeInformation&);  // Not implemented.
 };
 
 

@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.20");
+vtkCxxRevisionMacro(vtkImageReslice, "1.21");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -1143,7 +1143,7 @@ template <class T>
 static
 void vtkTricubicInterpCoeffs(T F[4], int l, int h, T f)
 {
-  const static T half = T(0.5);
+  static const T half = T(0.5);
 
   int order = h - l;
 

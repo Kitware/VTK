@@ -4228,7 +4228,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.49");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.50");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
@@ -6080,7 +6080,8 @@ vtkVRMLImporter::exitField()
     {
     vtkCellArray *cells;
     int index, j;
-    vtkIdType *pts, npts;
+    vtkIdType *pts=0;
+    vtkIdType npts;
     vtkPolyData *pd = (vtkPolyData *)this->CurrentMapper->GetInput();
     if (pd->GetNumberOfPolys() > 0)
       cells = pd->GetPolys();

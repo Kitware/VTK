@@ -50,7 +50,7 @@ protected:
   
   
 private:
-  vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&) {}  // Not implemented.
+  vtkUnstructuredGridToPolyDataFilter(const vtkUnstructuredGridToPolyDataFilter&);  // Not implemented.
   void operator=(const vtkUnstructuredGridToPolyDataFilter&);  // Not implemented.
 };
 

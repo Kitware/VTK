@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.146");
+vtkCxxRevisionMacro(vtkPolyData, "1.147");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -548,7 +548,8 @@ void vtkPolyData::ComputeBounds()
       } 
 
     int t, i;
-    vtkIdType *pts, npts;
+    vtkIdType *pts = 0;
+    vtkIdType npts = 0;
     float x[3];
 
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
@@ -897,8 +898,8 @@ void vtkPolyData::BuildCells()
   vtkCellArray *inLines=this->GetLines();
   vtkCellArray *inPolys=this->GetPolys();
   vtkCellArray *inStrips=this->GetStrips();
-  vtkIdType npts;
-  vtkIdType *pts;
+  vtkIdType npts=0;
+  vtkIdType *pts=0;
   vtkCellTypes *cells;
 
   vtkDebugMacro (<< "Building PolyData cells.");
@@ -1756,8 +1757,8 @@ void vtkPolyData::RemoveGhostCells(int level)
   vtkCellArray *newPolys;
   vtkCellArray *newStrips;
   vtkIdType inCellId, outCellId;
-  vtkIdType npts;
-  vtkIdType *pts;
+  vtkIdType npts=0;
+  vtkIdType *pts=0;
 
   // Get a pointer to the cell ghost level array.
   vtkDataArray* temp = this->CellData->GetArray("vtkGhostLevels");

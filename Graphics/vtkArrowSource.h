@@ -78,8 +78,8 @@ protected:
   float ShaftRadius;
 
 private:
-  vtkArrowSource(const vtkArrowSource&) {};  // Not implemented.
-  void operator=(const vtkArrowSource&) {};  // Not implemented.
+  vtkArrowSource(const vtkArrowSource&); // Not implemented.
+  void operator=(const vtkArrowSource&); // Not implemented.
 };
 
 #endif

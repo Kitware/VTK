@@ -72,8 +72,6 @@ public:
 protected:
   vtkPOPReader();
   ~vtkPOPReader();
-  vtkPOPReader(const vtkPOPReader&) {};
-  void operator=(const vtkPOPReader&) {};
 
   void ExecuteInformation();
   void Execute();
@@ -118,6 +116,9 @@ protected:
   char *MakeFileName(char *name);
 
   int ClipExtent[6];
+
+  vtkPOPReader(const vtkPOPReader&);   // Not implemented
+  void operator=(const vtkPOPReader&); // Not implemented
 };
 
 #endif

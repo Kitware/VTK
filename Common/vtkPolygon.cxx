@@ -26,7 +26,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkPolygon, "1.95");
+vtkCxxRevisionMacro(vtkPolygon, "1.96");
 vtkStandardNewMacro(vtkPolygon);
 
 // Instantiate polygon.
@@ -891,10 +891,7 @@ int vtkPolygon::EarCutTriangulation ()
     {
     return (this->SuccessfulTriangulation=0);
     }
-  else
-    {
-    return (this->SuccessfulTriangulation=1);
-    }
+  return (this->SuccessfulTriangulation=1);
 }
 
 

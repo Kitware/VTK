@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellLinks, "1.23");
+vtkCxxRevisionMacro(vtkCellLinks, "1.24");
 vtkStandardNewMacro(vtkCellLinks);
 
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
@@ -204,8 +204,8 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data, vtkCellArray *Connectivity)
   vtkIdType numPts = data->GetNumberOfPoints();
   vtkIdType j, cellId;
   unsigned short *linkLoc;
-  vtkIdType npts;
-  vtkIdType *pts;
+  vtkIdType npts=0;
+  vtkIdType *pts=0;
   vtkIdType loc = Connectivity->GetTraversalLocation();
   
   // traverse data to determine number of uses of each point
