@@ -12,9 +12,9 @@ vtkDataSetWriter.cxx
 vtkDataWriter.cxx
 vtkEnSight6BinaryReader.cxx
 vtkEnSight6Reader.cxx
-vtkEnSightCompoundReader.cxx
 vtkEnSightGoldBinaryReader.cxx
 vtkEnSightGoldReader.cxx
+vtkEnSightMasterServerReader.cxx
 vtkEnSightReader.cxx
 vtkGESignaReader.cxx
 vtkGenericEnSightReader.cxx
