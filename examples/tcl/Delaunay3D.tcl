@@ -20,7 +20,6 @@ vtkDelaunay3D del
     del SetTolerance 0.01;
     del SetAlpha 0.2;
     del BoundingTriangulationOff;
-    del DebugOn;
     
 vtkShrinkFilter shrink;
     shrink SetInput [del GetOutput];

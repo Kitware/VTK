@@ -22,20 +22,17 @@ vtkVolume16Reader v16;
     v16 SetImageRange 1 256;
     v16 SetDataAspectRatio 0.3125 0.3125 0.390625;
     v16 SetDataMask 0x7fff;
-    v16 DebugOn;
 
 vtkSliceCubes mcubes;
     mcubes SetReader v16;
     mcubes SetValue 1750;
     mcubes SetFilename "pine_root.tri"
     mcubes SetLimitsFilename "pine_root.lim"
-    mcubes DebugOn;
     mcubes Update;
 
 vtkMCubesReader reader;
     reader SetFilename "pine_root.tri"
     reader SetLimitsFilename "pine_root.lim"
-    reader DebugOn;
 
 vtkPolyMapper mapper;
     mapper SetInput [reader GetOutput];
@@ -48,7 +45,7 @@ vtkActor a;
 #
 $ren1 AddActors a;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 eval $ren1 SetBackground $slate_grey;
 
 # render the image

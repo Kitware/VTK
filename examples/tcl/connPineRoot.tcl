@@ -15,11 +15,9 @@ set iren [$renWin MakeRenderWindowInteractor];
 #
 vtkMCubesReader reader;
     reader SetFilename "../../data/pineRoot/pine_root.tri";
-    reader DebugOn;
 vtkConnectivityFilter connect;
     connect SetInput [reader GetOutput];
     connect ExtractLargestRegion;
-    connect DebugOn;
 vtkDataSetMapper isoMapper;
     isoMapper SetInput [connect GetOutput];
     isoMapper ScalarsVisibleOff;
@@ -40,7 +38,7 @@ vtkActor outlineActor;
 $ren1 AddActors outlineActor;
 $ren1 AddActors isoActor;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 eval $ren1 SetBackground $slate_grey;
 
 # render the image
@@ -57,5 +55,3 @@ $renWin Render;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-$iren Start;

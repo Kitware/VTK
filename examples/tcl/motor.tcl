@@ -39,10 +39,8 @@ vtkTexture texture;
 vtkBYUReader byu;
     byu SetGeometryFilename "../../data/motor.g"
     byu SetPartNumber 1;
-    byu DebugOn;
 vtkPolyNormals normals;
     normals SetInput [byu GetOutput];
-    normals DebugOn;
 vtkImplicitTextureCoords tex1;
     tex1 SetInput [normals GetOutput];
     tex1 SetRFunction planes;
@@ -57,10 +55,8 @@ vtkActor byuActor;
 vtkBYUReader byu2;
     byu2 SetGeometryFilename "../../data/motor.g"
     byu2 SetPartNumber 2;
-    byu2 DebugOn;
 vtkPolyNormals normals2;
     normals2 SetInput [byu2 GetOutput];
-    normals2 DebugOn;
 vtkImplicitTextureCoords tex2;
     tex2 SetInput [normals2 GetOutput];
     tex2 SetRFunction planes;
@@ -75,10 +71,8 @@ vtkActor byuActor2;
 vtkBYUReader byu3;
     byu3 SetGeometryFilename "../../data/motor.g"
     byu3 SetPartNumber 3;
-    byu3 DebugOn;
 vtkPolyNormals normals3;
     normals3 SetInput [byu3 GetOutput];
-    normals3 DebugOn;
 vtkImplicitTextureCoords tex3;
     tex3 SetInput [normals3 GetOutput];
     tex3 SetRFunction planes;
@@ -93,10 +87,8 @@ vtkActor byuActor3;
 vtkBYUReader byu4;
     byu4 SetGeometryFilename "../../data/motor.g"
     byu4 SetPartNumber 4;
-    byu4 DebugOn;
 vtkPolyNormals normals4;
     normals4 SetInput [byu4 GetOutput];
-    normals4 DebugOn;
 vtkImplicitTextureCoords tex4;
     tex4 SetInput [normals4 GetOutput];
     tex4 SetRFunction planes;
@@ -111,10 +103,8 @@ vtkActor byuActor4;
 vtkBYUReader byu5;
     byu5 SetGeometryFilename "../../data/motor.g"
     byu5 SetPartNumber 5;
-    byu5 DebugOn;
 vtkPolyNormals normals5;
     normals5 SetInput [byu5 GetOutput];
-    normals5 DebugOn;
 vtkImplicitTextureCoords tex5;
     tex5 SetInput [normals5 GetOutput];
     tex5 SetRFunction planes;
@@ -134,7 +124,7 @@ $ren1 AddActors byuActor3;
 $ren1 AddActors byuActor4;
 $ren1 AddActors byuActor5;
 $ren1 SetBackground 1 1 1;
-$renWin SetSize 750 750;
+$renWin SetSize 500 500;
 
 vtkCamera camera;
     camera SetFocalPoint 0.0286334 0.0362996 0.0379685;
@@ -148,6 +138,8 @@ $ren1 SetActiveCamera camera;
 # render the image
 $iren SetUserMethod {wm deiconify .vtkInteract};
 $iren Initialize;
+$renWin SetFilename "motor.tcl.ppm";
+#$renWin SaveImageAsPPM;
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
