@@ -132,7 +132,7 @@ static int SendMessage(char* data, int length, int tag, int sock)
 
   int sent, total = 0;
 
-  total = send(sock, (char *)&tag, sizeof(int), 0);
+  total = send(sock, (char*)&tag, sizeof(int), 0);
   if (total == -1)
     {
     vtkGenericWarningMacro("Could not send tag.");
@@ -140,12 +140,12 @@ static int SendMessage(char* data, int length, int tag, int sock)
     }
   while ( total < (int)sizeof(int) )
     {
-    sent = send ( sock, (char*)data + total, sizeof(int) - total, 0 );
+    sent = send ( sock, data + total, sizeof(int) - total, 0 );
     vtkSCSendError;
     total += sent;
     }
 
-  total = send(sock, (char*)data, length, 0);
+  total = send(sock, data, length, 0);
   if (total == -1)
     {
     vtkGenericWarningMacro("Could not send message.");
@@ -153,7 +153,7 @@ static int SendMessage(char* data, int length, int tag, int sock)
     }
   while ( total < length )
     {
-    sent = send ( sock, (char*)data + total, length - total, 0 );
+    sent = send ( sock, data + total, length - total, 0 );
     vtkSCSendError;
     total += sent;
     }
@@ -238,6 +238,7 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
   char* charTag = (char*)&recvTag;
 
   total = recv( this->Socket, charTag, sizeof(int), MSG_PEEK );
+
   if ( total == -1 )
     {
     vtkErrorMacro("Could not receive tag.");
@@ -245,7 +246,6 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     }
   while ( total < (int)sizeof(int) )
     {
-    cout << total << endl;
     received = recv( this->Socket, &(charTag[total]), sizeof(int) - total, 0 );
     vtkSCReceiveError;
     total += received;
@@ -287,10 +287,12 @@ int vtkSocketCommunicator::ReceiveMessage( char *data, int size, int length,
     {
       if (size == 4)
 	{
+	  vtkDebugMacro(<< " swapping 4 range, size = " << size << " length = " << length);
 	  vtkSwap4Range(data, length);
 	}
-      else
+      else if (size == 8)
 	{
+	  vtkDebugMacro(<< " swapping 8 range, size = " << size << " length = " << length );
 	  vtkSwap8Range(data, length);
 	}
     }
