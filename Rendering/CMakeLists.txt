@@ -158,7 +158,12 @@ IF (VTK_WRAP_TCL)
     INCLUDE_DIRECTORIES(${TK_INCLUDE_PATH})
   ENDIF (TK_INCLUDE_PATH)
   IF (TK_LIBRARY)
-    LINK_LIBRARIES (${TK_LIBRARY})
+    TARGET_LINK_LIBRARIES (vtkRenderingTCL 
+                           vtkGraphicsTCL 
+                           vtkImagingTCL 
+                           vtkFilteringTCL 
+                           vtkCommonTCL
+                           ${TK_LIBRARY})
   ENDIF (TK_LIBRARY)
 
   # find the tk internals for win32
