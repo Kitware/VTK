@@ -50,7 +50,7 @@
 #ifndef __vtkTubeFilter_h
 #define __vtkTubeFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_VARY_RADIUS_OFF 0
 #define VTK_VARY_RADIUS_BY_SCALAR 1
@@ -69,10 +69,10 @@ class vtkFloatArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkTubeFilter : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkTubeFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTubeFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -182,7 +182,7 @@ protected:
   ~vtkTubeFilter() {}
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double Radius; //minimum radius of tube
   int VaryRadius; //controls radius variation

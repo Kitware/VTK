@@ -18,12 +18,14 @@
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.81");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.82");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -48,10 +50,21 @@ vtkTubeFilter::vtkTubeFilter()
   this->TextureLength = 1.0;
 }
 
-void vtkTubeFilter::Execute()
+int vtkTubeFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPointData *pd=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData();
@@ -87,7 +100,7 @@ void vtkTubeFilter::Execute()
       !(inLines = input->GetLines()) || 
        (numLines = inLines->GetNumberOfCells()) < 1 )
     {
-    return;
+    return 0;
     }
 
   // Create the geometry and topology
@@ -264,6 +277,8 @@ void vtkTubeFilter::Execute()
   lineNormalGenerator->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
 
 int vtkTubeFilter::GeneratePoints(vtkIdType offset, 
