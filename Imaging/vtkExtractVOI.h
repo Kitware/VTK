@@ -70,6 +70,7 @@ protected:
   vtkExtractVOI();
   ~vtkExtractVOI() {};
 
+  virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
   virtual void ExecuteInformation();
   virtual void ExecuteData(vtkDataObject *);
 
