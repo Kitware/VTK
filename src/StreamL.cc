@@ -17,7 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vtkStreamLine::vtkStreamLine()
 {
-  this->DashTime = 0.01;
+  this->StepLength = 0.01;
 }
 
 void vtkStreamLine::Execute()
@@ -46,69 +46,67 @@ void vtkStreamLine::Execute()
 //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
-    tOffset = 0.0;
-
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
+
+    sPrev = this->Streamers[ptId].GetStreamPoint(0);
+
     if ( this->Streamers[ptId].GetNumberOfPoints() == 2 )
       {
-      sPtr=this->Streamers[ptId].GetStreamPoint(1);
+      sPtr = this->Streamers[ptId].GetStreamPoint(1);
       if ( sPtr->cellId < 0 ) continue;
       }
 
-    for ( sPrev=sPtr=this->Streamers[ptId].GetStreamPoint(0), i=0; 
+    tOffset = sPrev->t;
+
+    for ( i=0, sPtr=sPrev; 
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
 
       if ( i == 0 ) //create first point
         {
-        npts = 0;
-        pts[npts++] = newPts->InsertNextPoint(sPtr->x);
-        newVectors->InsertVector(pts[npts-1],sPtr->v);
-        if ( newScalars ) newScalars->InsertScalar(pts[npts-1],sPtr->s);
+        npts = 1;
+        pts[0] = newPts->InsertNextPoint(sPrev->x);
+        newVectors->InsertVector(pts[0],sPrev->v);
+        if ( newScalars ) newScalars->InsertScalar(pts[0],sPrev->s);
         continue;
         }
 //
-// For each streamer, create points approximately "time increment" apart
+// Search for end of segment and create line segments
 //
-      if ( (sPtr->t - tOffset) > this->DashTime )
+      if ( (sPtr->t - tOffset) > this->StepLength )
         {
-        r = (this->DashTime - (sPrev->t-tOffset)) / (sPtr->t - sPrev->t);
-        if ( r >= 0.0 )
+        while ( tOffset < sPtr->t )
           {
+          r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
+
           for (j=0; j<3; j++)
             {
             x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
             v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
             }
-            tOffset += this->DashTime;
-          }
-        else //more than one "dash time" apart
-          {
-          for (j=0; j<3; j++)
+
+          // add point to line
+          pts[npts] = newPts->InsertNextPoint(x);
+          newVectors->InsertVector(pts[npts],v);
+
+          if ( newScalars ) 
             {
-            x[j] = sPtr->x[j];
-            v[j] = sPtr->v[j];
+            s = sPrev->s + r * (sPtr->s - sPrev->s);
+            newScalars->InsertScalar(pts[npts],s);
             }
-            tOffset = sPtr->t;
-          }
+  
+          if ( ++npts == MAX_CELL_SIZE )
+            {
+            newLines->InsertNextCell(npts,pts);
+            pts[0] = pts[npts-1];
+            npts = 1; //prepare for next line
+            }
 
-        pts[npts++] = newPts->InsertNextPoint(x);
-        newVectors->InsertVector(pts[npts-1],v);
+          tOffset += this->StepLength;
+          } // while
 
-        if ( newScalars ) 
-          {
-          s = sPrev->s + r * (sPtr->s - sPrev->s);
-          newScalars->InsertScalar(pts[npts-1],s);
-          }
-
-        if ( npts == MAX_CELL_SIZE )
-          {
-          newLines->InsertNextCell(npts,pts);
-          pts[0] = pts[npts-1];
-          npts = 1; //prepare for next line
-          }
-        }
+        } //if points should be created
       } //for this streamer
       if ( npts > 1 ) newLines->InsertNextCell(npts,pts);
     } //for all streamers
@@ -131,7 +129,7 @@ void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkStreamer::PrintSelf(os,indent);
 
-  os << indent << "Dash Time: " << this->DashTime << " <<\n";
+  os << indent << "Step Length: " << this->StepLength << " <<\n";
 
 }
 

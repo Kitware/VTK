@@ -80,7 +80,7 @@ void vtkDashedStreamLine::Execute()
 //
 // Search for end of dash...create end of one dash, beginning of next
 //
-      if ( (sPtr->t - tOffset) > this->DashTime )
+      if ( (sPtr->t - tOffset) > this->StepLength )
         {
         while ( tOffset < sPtr->t )
           {
@@ -120,7 +120,7 @@ void vtkDashedStreamLine::Execute()
             }
           if ( newScalars ) scalarPrev = s;
 
-          tOffset += this->DashTime;
+          tOffset += this->StepLength;
           } // while
 
         } //if dash should be created
