@@ -28,6 +28,28 @@ unsigned long int vlStructuredPointsToStructuredPointsFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+void vlStructuredPointsToStructuredPointsFilter::DebugOn()
+{
+  vlStructuredPoints::DebugOn();
+  vlStructuredPointsFilter::_DebugOn();
+}
+
+void vlStructuredPointsToStructuredPointsFilter::DebugOff()
+{
+  vlStructuredPoints::DebugOff();
+  vlStructuredPointsFilter::_DebugOff();
+}
+
+int vlStructuredPointsToStructuredPointsFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlStructuredPointsToStructuredPointsFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlStructuredPointsToStructuredPointsFilter::Update()
 {
   this->UpdateFilter();

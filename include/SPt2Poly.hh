@@ -32,9 +32,20 @@ public:
   char *GetClassName() {return "vlDataSetToPolyDataFilter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Object interface
   void Modified();
   unsigned long int GetMTime();
+  void DebugOn();
+  void DebugOff();
+
+  //DataSet interface
   void Update();
+
+protected:
+  //Filter interface
+  int GetDataReleased();
+  void SetDataReleased(int flag);
+
 };
 
 #endif

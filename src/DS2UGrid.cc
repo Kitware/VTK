@@ -28,9 +28,31 @@ unsigned long int vlDataSetToUnstructuredGridFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+int vlDataSetToUnstructuredGridFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlDataSetToUnstructuredGridFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlDataSetToUnstructuredGridFilter::Update()
 {
   this->UpdateFilter();
+}
+
+void vlDataSetToUnstructuredGridFilter::DebugOn()
+{
+  vlUnstructuredGrid::DebugOn();
+  vlDataSetFilter::_DebugOn();
+}
+
+void vlDataSetToUnstructuredGridFilter::DebugOff()
+{
+  vlUnstructuredGrid::DebugOff();
+  vlDataSetFilter::_DebugOff();
 }
 
 void vlDataSetToUnstructuredGridFilter::PrintSelf(ostream& os, vlIndent indent)

@@ -33,6 +33,28 @@ void vlPolyToPolyFilter::Update()
   this->UpdateFilter();
 }
 
+void vlPolyToPolyFilter::DebugOn()
+{
+  vlPolyData::DebugOn();
+  vlPolyFilter::_DebugOn();
+}
+
+void vlPolyToPolyFilter::DebugOff()
+{
+  vlPolyData::DebugOff();
+  vlPolyFilter::_DebugOff();
+}
+
+int vlPolyToPolyFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlPolyToPolyFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlPolyToPolyFilter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlPolyData::PrintSelf(os,indent);

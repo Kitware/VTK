@@ -33,6 +33,28 @@ void vlStructuredGridSource::Update()
   this->UpdateFilter();
 }
 
+void vlStructuredGridSource::DebugOn()
+{
+  vlStructuredGrid::DebugOn();
+  vlSource::_DebugOn();
+}
+
+void vlStructuredGridSource::DebugOff()
+{
+  vlStructuredGrid::DebugOff();
+  vlSource::_DebugOff();
+}
+
+int vlStructuredGridSource::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlStructuredGridSource::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlStructuredGridSource::PrintSelf(ostream& os, vlIndent indent)
 {
   vlStructuredGrid::PrintSelf(os,indent);

@@ -30,6 +30,7 @@ class vlSource : public vlLWObject
 public:
   vlSource();
   virtual ~vlSource() {};
+  char *_GetClassName() {return "vlSource";};
   void _PrintSelf(ostream& os, vlIndent indent);
 
   // Description:
@@ -47,6 +48,12 @@ protected:
   void (*EndMethod)(void *arg);
   void *EndMethodArg;
   vlTimeStamp ExecuteTime;
+
+  // Get flag indicating whether data has been released since last execution.
+  // Used during update method to determin whether to execute or not.
+  virtual int GetDataReleased();
+  virtual void SetDataReleased(int flag);
+
 };
 
 #endif

@@ -28,9 +28,31 @@ unsigned long int vlDataSetToPolyFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+void vlDataSetToPolyFilter::DebugOn()
+{
+  vlPolyData::DebugOn();
+  vlDataSetFilter::_DebugOn();
+}
+
+void vlDataSetToPolyFilter::DebugOff()
+{
+  vlPolyData::DebugOff();
+  vlDataSetFilter::_DebugOff();
+}
+
 void vlDataSetToPolyFilter::Update()
 {
   this->UpdateFilter();
+}
+
+int vlDataSetToPolyFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlDataSetToPolyFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
 }
 
 void vlDataSetToPolyFilter::PrintSelf(ostream& os, vlIndent indent)

@@ -28,9 +28,31 @@ unsigned long int vlStructuredGridToPolyFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+void vlStructuredGridToPolyFilter::DebugOn()
+{
+  vlPolyData::DebugOn();
+  vlStructuredGridFilter::_DebugOn();
+}
+
+void vlStructuredGridToPolyFilter::DebugOff()
+{
+  vlPolyData::DebugOff();
+  vlStructuredGridFilter::_DebugOff();
+}
+
 void vlStructuredGridToPolyFilter::Update()
 {
   this->UpdateFilter();
+}
+
+int vlStructuredGridToPolyFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlStructuredGridToPolyFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
 }
 
 void vlStructuredGridToPolyFilter::PrintSelf(ostream& os, vlIndent indent)

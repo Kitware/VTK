@@ -34,6 +34,28 @@ void vlPolySource::Update()
   this->UpdateFilter();
 }
 
+void vlPolySource::DebugOn()
+{
+  vlPolyData::DebugOn();
+  vlSource::_DebugOn();
+}
+
+void vlPolySource::DebugOff()
+{
+  vlPolyData::DebugOff();
+  vlSource::_DebugOff();
+}
+
+int vlPolySource::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlPolySource::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlPolySource::PrintSelf(ostream& os, vlIndent indent)
 {
   vlPolyData::PrintSelf(os,indent);

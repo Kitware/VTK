@@ -57,11 +57,33 @@ void vlDataSetToDataSetFilter::Modified()
   this->vlDataSetFilter::_Modified();
 }
 
+void vlDataSetToDataSetFilter::DebugOn()
+{
+  vlDataSet::DebugOn();
+  vlDataSetFilter::_DebugOn();
+}
+
+void vlDataSetToDataSetFilter::DebugOff()
+{
+  vlDataSet::DebugOff();
+  vlDataSetFilter::_DebugOff();
+}
+
 unsigned long int vlDataSetToDataSetFilter::GetMTime()
 {
   unsigned long dtime = this->vlDataSet::GetMTime();
   unsigned long ftime = this->vlDataSetFilter::_GetMTime();
   return (dtime > ftime ? dtime : ftime);
+}
+
+int vlDataSetToDataSetFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlDataSetToDataSetFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
 }
 
 void vlDataSetToDataSetFilter::Update()

@@ -33,6 +33,28 @@ void vlStructuredPointsSource::Update()
   this->UpdateFilter();
 }
 
+void vlStructuredPointsSource::DebugOn()
+{
+  vlStructuredPoints::DebugOn();
+  vlSource::_DebugOn();
+}
+
+void vlStructuredPointsSource::DebugOff()
+{
+  vlStructuredPoints::DebugOff();
+  vlSource::_DebugOff();
+}
+
+int vlStructuredPointsSource::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlStructuredPointsSource::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlStructuredPointsSource::PrintSelf(ostream& os, vlIndent indent)
 {
   vlStructuredPoints::PrintSelf(os,indent);

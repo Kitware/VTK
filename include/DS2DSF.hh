@@ -50,13 +50,21 @@ public:
 
   void ComputeBounds();
 
+  // Object interface
   void Modified();
   unsigned long int GetMTime();
+  void DebugOn();
+  void DebugOff();
+
+  //DataSet interface
   void Update();
 
 protected:
   vlDataSet *DataSet;
 
+  //Filter interface
+  int GetDataReleased();
+  void SetDataReleased(int flag);
 };
 
 #endif

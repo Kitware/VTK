@@ -30,11 +30,12 @@ vlSource::vlSource()
 void vlSource::UpdateFilter()
 {
   // Make sure virtual getMTime method is called since subclasses will overload
-  if ( this->_GetMTime() > this->ExecuteTime )
+  if ( this->_GetMTime() > this->ExecuteTime || this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
     this->ExecuteTime.Modified();
+    this->SetDataReleased(0);
     if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
     }
 }
@@ -65,7 +66,18 @@ void vlSource::SetEndMethod(void (*f)(void *), void *arg)
 
 void vlSource::Execute()
 {
-  cerr << "Execution of filter should be in derived class" << "\n";
+  vl_ErrorMacro(<< "Execution of filter should be in derived class");
+}
+
+int vlSource::GetDataReleased()
+{
+  vl_ErrorMacro(<<"Method should be implemented by subclass!");
+  return 1;
+}
+
+void vlSource::SetDataReleased(int flag)
+{
+  vl_ErrorMacro(<<"Method should be implemented by subclass!");
 }
 
 void vlSource::_PrintSelf(ostream& os, vlIndent indent)

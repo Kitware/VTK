@@ -28,9 +28,31 @@ unsigned long int vlStructuredPointsToPolyDataFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+void vlStructuredPointsToPolyDataFilter::DebugOn()
+{
+  vlPolyData::DebugOn();
+  vlStructuredPointsFilter::_DebugOn();
+}
+
+void vlStructuredPointsToPolyDataFilter::DebugOff()
+{
+  vlPolyData::DebugOff();
+  vlStructuredPointsFilter::_DebugOff();
+}
+
 void vlStructuredPointsToPolyDataFilter::Update()
 {
   this->UpdateFilter();
+}
+
+int vlStructuredPointsToPolyDataFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlStructuredPointsToPolyDataFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
 }
 
 void vlStructuredPointsToPolyDataFilter::PrintSelf(ostream& os, vlIndent indent)

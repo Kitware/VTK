@@ -48,6 +48,28 @@ unsigned long int vlPointSetToPointSetFilter::GetMTime()
   return (dtime > ftime ? dtime : ftime);
 }
 
+void vlPointSetToPointSetFilter::DebugOn()
+{
+  vlPointSet::DebugOn();
+  vlPointSetFilter::_DebugOn();
+}
+
+void vlPointSetToPointSetFilter::DebugOff()
+{
+  vlPointSet::DebugOff();
+  vlPointSetFilter::_DebugOff();
+}
+
+int vlPointSetToPointSetFilter::GetDataReleased()
+{
+  return this->DataReleased;
+}
+
+void vlPointSetToPointSetFilter::SetDataReleased(int flag)
+{
+  this->DataReleased = flag;
+}
+
 void vlPointSetToPointSetFilter::Update()
 {
   this->UpdateFilter();
