@@ -16,12 +16,18 @@
 
 =========================================================================*/
 #include "vtkCubeAxesActor2D.h"
-#include "vtkAxisActor2D.h"
+#include "vtkCamera.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkDataSet.h"
+#include "vtkAxisActor2D.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.31");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.32");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
+
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Prop, vtkProp);
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Camera,vtkCamera);
 
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
@@ -926,3 +932,4 @@ static int IsInBounds(float x[3], float bounds[6])
     return 1;
     }
 }
+

@@ -43,11 +43,14 @@
 #ifndef __vtkCubeAxesActor2D_h
 #define __vtkCubeAxesActor2D_h
 
-#include "vtkAxisActor2D.h"
-#include "vtkCamera.h"
+#include "vtkActor2D.h"
 
 #define VTK_FLY_OUTER_EDGES 0
 #define VTK_FLY_CLOSEST_TRIAD 1
+
+class vtkCamera;
+class vtkDataSet;
+class vtkAxisActor2D;
 
 class VTK_HYBRID_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
@@ -71,13 +74,13 @@ public:
   // Use the bounding box of this input dataset to draw the cube axes. If this
   // is not specified, then the class will attempt to determine the bounds from
   // the defined Prop or Bounds.
-  vtkSetObjectMacro(Input, vtkDataSet);
+  virtual void SetInput(vtkDataSet*);
   vtkGetObjectMacro(Input, vtkDataSet);
 
   // Description:
   // Use the bounding box of this prop to draw the cube axes. The Prop is used 
   // to determine the bounds only if the Input is not defined.
-  vtkSetObjectMacro(Prop, vtkProp);
+  virtual void SetProp(vtkProp*);
   vtkGetObjectMacro(Prop, vtkProp);
   
   // Description:
@@ -112,7 +115,7 @@ public:
   // Description:
   // Set/Get the camera to perform scaling and translation of the 
   // vtkCubeAxesActor2D.
-  vtkSetObjectMacro(Camera,vtkCamera);
+  virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
 
   // Description:
