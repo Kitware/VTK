@@ -25,7 +25,7 @@
  */
 
 #include <vtkConfigure.h>
-#include <string>
+#include <vtkstd/string>
 
 class Tokenizer
 {
