@@ -55,6 +55,11 @@ ENDIF (VTK_USE_HYBRID)
 
 IF (VTK_USE_PARALLEL)
   LINK_LIBRARIES(vtkParallelTCL vtkParallel)
+
+  IF (WIN32)
+    LINK_LIBRARIES( wsock32 )
+  ENDIF (WIN32)
+
   IF (VTK_USE_MPI)
     INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)
     IF (MPI_LIBRARY)
