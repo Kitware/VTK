@@ -1,58 +1,15 @@
-PROJECT(VTKExamples)
+# VTK examples now require CMake 2.0 or higher.
+CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
+IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.9)
+ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.9)
+  MESSAGE(FATAL_ERROR "VTKExamples requires CMake 2.0 or higher.")
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.9)
 
-# Tell the examples where to find VTK.
+# Choose behavior based on whether we are building inside the VTK tree.
 IF(VTK_BINARY_DIR)
-  # Building inside the VTK tree.  Directly specify the location.
-  SET(VTK_DIR ${VTK_BINARY_DIR})
-
-  # Prevent the UseVTK.cmake file from duplicating build settings in
-  # this tree.
-  SET(VTK_USE_FILE_INCLUDED 1)
-ENDIF(VTK_BINARY_DIR)
-
-# Load the VTK configuration.
-FIND_PACKAGE(VTK)
-IF(NOT VTK_DIR)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
-INCLUDE(${VTK_USE_FILE})
-
-# Build most examples.
-SUBDIRS(
-  #AMR/Cxx
-  DataManipulation/Cxx
-  Medical/Cxx
-  Modelling/Cxx
-  #MultiBlock/Cxx
-  )
-
-# Build optional examples.
-IF (VTK_USE_RENDERING)
-  SUBDIRS(Rendering/Cxx
-    Tutorial/Step1/Cxx
-    Tutorial/Step2/Cxx
-    Tutorial/Step3/Cxx
-    Tutorial/Step4/Cxx
-    Tutorial/Step5/Cxx
-    Tutorial/Step6/Cxx
-    )
-ENDIF (VTK_USE_RENDERING)
-
-IF (VTK_USE_PARALLEL)
-  SUBDIRS(ParallelProcessing)
-ENDIF (VTK_USE_PARALLEL)
-
-IF(VTK_USE_QVTK)
-  SUBDIRS(GUI/Qt)
-ENDIF(VTK_USE_QVTK)
-
-IF(VTK_USE_MFC)
-  SUBDIRS(GUI/Win32/vtkMFC)
-ENDIF(VTK_USE_MFC)
-
-# Test the build system examples.
-IF(VTK_BINARY_DIR AND BUILD_TESTING)
-  IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
+  # We are building in the VTK tree.  Add tests for some examples.
+  # Test the build system examples.
+  IF(BUILD_TESTING)
     ADD_TEST(Example-vtkLocal ${CMAKE_CTEST_COMMAND}
       --build-and-test
       ${VTK_SOURCE_DIR}/Examples/Build/vtkLocal
@@ -77,5 +34,104 @@ IF(VTK_BINARY_DIR AND BUILD_TESTING)
       --test-command
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1
       )
-  ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.8)
-ENDIF(VTK_BINARY_DIR AND BUILD_TESTING)
+  ENDIF(BUILD_TESTING)
+
+  # Build the examples as a separate project using a custom target.
+  # Make sure it uses the same build configuration as VTK.
+  IF(CMAKE_CONFIGURATION_TYPES)
+    SET(VTKExamples_CONFIG_TYPE -C "$(ConfigurationName)")
+  ELSE(CMAKE_CONFIGURATION_TYPES)
+    SET(VTKExamples_CONFIG_TYPE)
+  ENDIF(CMAKE_CONFIGURATION_TYPES)
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${VTK_BINARY_DIR}/VTKExamples
+    COMMAND ${CMAKE_CTEST_COMMAND}
+    ARGS ${VTKExamples_CONFIG_TYPE}
+         --build-and-test
+         ${VTK_SOURCE_DIR}/Examples
+         ${VTK_BINARY_DIR}/Examples/All
+         --build-noclean
+         --build-two-config
+         --build-project VTKExamples
+         --build-generator ${CMAKE_GENERATOR}
+         --build-makeprogram ${MAKEPROGRAM}
+         --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
+                         -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
+                         -DCMAKE_C_FLAGS_RELEASE:STRING=${CMAKE_C_FLAGS_RELEASE}
+                         -DCMAKE_C_FLAGS_MINSIZEREL:STRING=${CMAKE_C_FLAGS_MINSIZEREL}
+                         -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_C_FLAGS_RELWITHDEBINFO}
+                         -DCMAKE_CXX_FLAGS_DEBUG:STRING=${CMAKE_CXX_FLAGS_DEBUG}
+                         -DCMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+                         -DCMAKE_CXX_FLAGS_MINSIZEREL:STRING=${CMAKE_CXX_FLAGS_MINSIZEREL}
+                         -DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
+                         -DEXECUTABLE_OUTPUT_PATH:PATH=${EXECUTABLE_OUTPUT_PATH}
+                         -DLIBRARY_OUTPUT_PATH:PATH=${LIBRARY_OUTPUT_PATH}
+         )
+  ADD_CUSTOM_TARGET(VTKExamples ALL DEPENDS ${VTK_BINARY_DIR}/VTKExamples)
+
+  # Make sure the target builds after the rest of VTK.
+  ADD_DEPENDENCIES(VTKExamples
+    vtkCommon
+    vtkFiltering
+    vtkImaging
+    vtkGraphics
+    vtkGenericFiltering
+    vtkIO
+    )
+  IF(VTK_USE_RENDERING)
+    ADD_DEPENDENCIES(VTKExamples vtkRendering)
+  ENDIF(VTK_USE_RENDERING)
+  IF(VTK_USE_PATENTED)
+    ADD_DEPENDENCIES(VTKExamples vtkPatented)
+  ENDIF(VTK_USE_PATENTED)
+  IF(VTK_USE_HYBRID)
+    ADD_DEPENDENCIES(VTKExamples vtkHybrid)
+  ENDIF(VTK_USE_HYBRID)
+  IF(VTK_USE_PARALLEL)
+    ADD_DEPENDENCIES(VTKExamples vtkParallel)
+  ENDIF(VTK_USE_PARALLEL)
+
+ELSE(VTK_BINARY_DIR)
+  # We are building outside the VTK tree.  Build the examples directly.
+  PROJECT(VTKExamples)
+
+  # Find and load the VTK configuration.
+  FIND_PACKAGE(VTK)
+  IF(NOT VTK_DIR)
+    MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
+  ENDIF(NOT VTK_DIR)
+  INCLUDE(${VTK_USE_FILE})
+
+  # Most examples require rendering support.
+  IF(VTK_USE_RENDERING)
+    SUBDIRS(
+      #AMR/Cxx
+      #MultiBlock/Cxx
+      DataManipulation/Cxx
+      Medical/Cxx
+      Modelling/Cxx
+      Rendering/Cxx
+      Tutorial/Step1/Cxx
+      Tutorial/Step2/Cxx
+      Tutorial/Step3/Cxx
+      Tutorial/Step4/Cxx
+      Tutorial/Step5/Cxx
+      )
+
+    IF(VTK_USE_HYBRID)
+      SUBDIRS(Tutorial/Step6/Cxx)
+    ENDIF(VTK_USE_HYBRID)
+
+    IF(VTK_USE_PARALLEL)
+      SUBDIRS(ParallelProcessing)
+    ENDIF(VTK_USE_PARALLEL)
+
+    IF(VTK_USE_QVTK)
+      SUBDIRS(GUI/Qt)
+    ENDIF(VTK_USE_QVTK)
+
+    IF(VTK_USE_MFC)
+      SUBDIRS(GUI/Win32/vtkMFC)
+    ENDIF(VTK_USE_MFC)
+  ENDIF(VTK_USE_RENDERING)
+ENDIF(VTK_BINARY_DIR)

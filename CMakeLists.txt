@@ -452,11 +452,21 @@ IF(BUILD_TESTING)
   ENDIF(VTK_USE_PATENTED)
 ENDIF(BUILD_TESTING)
 
-# Examples.
+# Include the examples if they are enabled.  Note that the in-tree
+# build adds tests and a custom target to build the examples project
+# in a separate build tree.  The examples are not directly included in
+# the VTK build.  Doing so will not work because they are designed to
+# be built out-of-tree.
 IF(BUILD_EXAMPLES)
-  # Temporarily disable examples until we can get in-tree building
-  # to work again.
-  #SUBDIRS(Examples)
+  # The examples tree now requires CMake 2.0 or higher.
+  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+    # Temporarily disable examples until they are all working.
+    # SUBDIRS(Examples)
+  ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+    MESSAGE(
+      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0 or higher "
+      "and is being ignored.")
+  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
 ENDIF(BUILD_EXAMPLES)
 
 #-----------------------------------------------------------------------------
