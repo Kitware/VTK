@@ -1,9 +1,12 @@
 #!/usr/bin/env perl
-# Time-stamp: <2000-08-03 18:59:13 barre>
+# Time-stamp: <2000-11-25 00:32:45 barre>
 #
 # Extract VTK version and add it to documentation
 #
 # barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+#
+# 0.15 (barre) :
+#   - fix RCS/CVS tags problem (regexp replacement when this file is in a CVS)
 #
 # 0.14 (barre) :
 #   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them 
@@ -26,7 +29,7 @@ use Fcntl;
 use Getopt::Long;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.14, $0, "S. Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.15, $0, "S. Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
@@ -81,10 +84,10 @@ sysopen(FILE, $args{"header"}, O_RDONLY|$open_file_as_text)
 while (<FILE>) {
     if ($_ =~ /define\s+VTK_VERSION\s+\"(.*)\"/) {
         $version = $1;
-    } elsif ($_ =~ /define\s+VTK_SOURCE_VERSION.*(\$Revision: 1.1 $).*(\$Date: 2000-11-24 20:38:40 $).*\"/) {
+    } elsif ($_ =~ /define\s+VTK_SOURCE_VERSION.*(.Revision:.*.?\$).*(.Date:.*?\$).*\"/) {
         $revision = $1;
         $date = $2;
-        print "$revision $date";
+        print "$revision $date\n";
         last;
     }
 }
