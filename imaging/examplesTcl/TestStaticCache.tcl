@@ -13,12 +13,15 @@ reader SetFileName "../../../vtkdata/earth.ppm"
 vtkImageStaticCache staticCache
 set data [[reader GetOutput] UpdateAndReturnData]
 staticCache SetCachedData $data
+set range [staticCache GetScalarRange]
+set min [lindex $range 0]
+set max [lindex $range 1]
 
 
 vtkImageViewer viewer
 viewer SetInput staticCache
-viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorWindow [expr $max - $min]
+viewer SetColorLevel [expr ($max + $min) * 0.5]
 viewer Render
 
 viewer SetPosition 50 50
