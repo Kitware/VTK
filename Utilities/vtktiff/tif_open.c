@@ -426,7 +426,7 @@ TIFFGetMode(TIFF* tif)
  * tiles; zero if organized as strips.
  */
 int
-TIFFIsTiled(TIFF* tif)
+TEXPORT TIFFIsTiled(TIFF* tif)
 {
         return (isTiled(tif));
 }
