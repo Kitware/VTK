@@ -67,6 +67,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
   char *GetClassName() {return "vtkFollower";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  virtual void Render(vtkRenderer *ren);
   virtual void GetMatrix(vtkMatrix4x4& m);
 
   // Description:
@@ -77,6 +78,7 @@ class VTK_EXPORT vtkFollower : public vtkActor
 
 protected:
   vtkCamera *Camera; 
+  vtkActor  *Device;
 };
 
 #endif
