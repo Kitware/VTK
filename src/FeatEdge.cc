@@ -56,7 +56,7 @@ void vlFeatureEdges::Execute()
 //
 //  Check input
 //
-  if ( (numPts=input->GetNumberOfPoints()) )
+  if (!(numPts=input->GetNumberOfPoints()) )
     {
     vlErrorMacro(<<"No input data!");
     return;
