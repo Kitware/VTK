@@ -97,6 +97,7 @@ protected:
   void operator=(const vtkStructuredGridGeometryFilter&) {}
 
   void Execute();
+  void ComputeInputUpdateExtents( vtkDataObject *output );
   int Extent[6];
 };
 

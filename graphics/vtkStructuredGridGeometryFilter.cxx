@@ -40,6 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkStructuredGridGeometryFilter.h"
+#include "vtkExtentTranslator.h"
 #include "vtkObjectFactory.h"
 
 //--------------------------------------------------------------------------
@@ -88,7 +89,7 @@ void vtkStructuredGridGeometryFilter::Execute()
 
   if ( input->GetPoints() == NULL)
     {
-    vtkErrorMacro(<<"No data to extract");
+    //vtkErrorMacro(<<"No data to extract");
     return;
     }
 
@@ -454,6 +455,83 @@ void vtkStructuredGridGeometryFilter::SetExtent(int extent[6])
       }
     }
 }
+
+void vtkStructuredGridGeometryFilter::ComputeInputUpdateExtents( vtkDataObject *out )
+{
+  vtkStructuredGrid *input = this->GetInput();
+  vtkPolyData *output = vtkPolyData::SafeDownCast(out);
+  int piece, numPieces, ghostLevel;
+  int *wholeExt;
+  int ext[6];
+  vtkExtentTranslator *translator;
+  
+  if (!input)
+    {
+    vtkErrorMacro(<< "Input not set.");
+    return;
+    }
+
+  translator = input->GetExtentTranslator();  
+  wholeExt = input->GetWholeExtent();
+
+  // Get request from output
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+
+  // Start with the whole grid.
+  input->GetWholeExtent(ext);  
+
+  // get the extent associated with the piece.
+  if (translator == NULL)
+    {
+    // Default behavior
+    if (piece != 0)
+      {
+      ext[0] = ext[2] = ext[4] = 0;
+      ext[1] = ext[3] = ext[5] = -1;
+      }
+    }
+  else
+    {    
+    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+                                        translator->GetSplitMode(),0);
+    }
+  
+  if (ext[0] < this->Extent[0])
+    {
+    ext[0] = this->Extent[0];
+    }
+  if (ext[1] > this->Extent[1])
+    {
+    ext[1] = this->Extent[1];
+    }
+  if (ext[2] < this->Extent[2])
+    {
+    ext[2] = this->Extent[2];
+    }
+  if (ext[3] > this->Extent[3])
+    {
+    ext[3] = this->Extent[3];
+    }
+  if (ext[4] < this->Extent[4])
+    {
+    ext[4] = this->Extent[4];
+    }
+  if (ext[5] > this->Extent[5])
+    {
+    ext[5] = this->Extent[5];
+    }
+
+  // Should not be necessary, but will make things clearer.
+  if (ext[0] > ext[1] || ext[2] > ext[3] || ext[4] > ext[5])
+    {
+    ext[0] = ext[2] = ext[4] = 0;
+    ext[1] = ext[3] = ext[5] = -1;
+    }
+  
+  // Set the update extent of the input.
+  input->SetUpdateExtent(ext);
+}
+
 
 void vtkStructuredGridGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
