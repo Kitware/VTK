@@ -34,7 +34,7 @@ public:
   void RandomSeed(long s);  
   float Random();  
 private:
-  long Seed;
+  static long Seed;
 };
 
 #endif

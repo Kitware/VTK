@@ -14,11 +14,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 
+#include <math.h>
+#include <stdlib.h>
 #include "vlMath.hh"
+
+long vlMath::Seed = 1177; // One authors home address
 
 vlMath::vlMath()
 {
-  this->Seed = 1177; // One authors home address
 }
 
 //
