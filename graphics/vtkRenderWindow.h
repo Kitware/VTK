@@ -321,7 +321,7 @@ protected:
   int   Erase;
   int   SwapBuffers;
   float DesiredUpdateRate;
-  FILE* PpmImageFilePtr;
+  FILE* PPMImageFilePtr;
 };
 
 #endif
