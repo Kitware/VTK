@@ -793,6 +793,9 @@ INCLUDE(${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
 INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
+IF(VTK_WRAP_HINTS)
+  INSTALL_FILES(/lib/vtk FILES ${VTK_WRAP_HINTS})
+ENDIF(VTK_WRAP_HINTS)
 
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be

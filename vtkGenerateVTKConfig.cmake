@@ -29,6 +29,9 @@ SET(VTK_BUILD_SETTINGS_FILE ${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 # The directory containing class list files for each kit.
 SET(VTK_KITS_DIR_CONFIG ${VTK_BINARY_DIR}/Utilities)
 
+# The wrapping hints file.
+SET(VTK_WRAP_HINTS_CONFIG ${VTK_WRAP_HINTS})
+
 # Library directory.
 SET(VTK_LIBRARY_DIRS_CONFIG ${LIBRARY_OUTPUT_PATH})
 
@@ -120,6 +123,12 @@ SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cma
 
 # The directory containing class list files for each kit.
 SET(VTK_KITS_DIR_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk)
+
+# The wrapping hints file.
+IF(VTK_WRAP_HINTS)
+  GET_FILENAME_COMPONENT(VTK_HINTS_FNAME ${VTK_WRAP_HINTS} NAME)
+  SET(VTK_WRAP_HINTS_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/vtk/${VTK_HINTS_FNAME})
+ENDIF(VTK_WRAP_HINTS)
 
 # Include directories.
 SET(VTK_INCLUDE_DIRS_CONFIG
