@@ -67,7 +67,7 @@ public:
   // faces. (Note: GetNumberOfEdges() currently returns 0 because it is a 
   // rarely used method and hard to implement. It can be changed in the future.
   virtual int GetNumberOfEdges() {return 0;}
-  virtual vtkCell *GetEdge(int edgeId) {return NULL;}
+  virtual vtkCell *GetEdge(int) {return NULL;}
   virtual int GetNumberOfFaces();
   virtual vtkCell *GetFace(int faceId);
 

@@ -183,6 +183,7 @@ public:
     {
     int error = 0;
     int cc;  
+    names = names;
   
     MapType* soam = MapType::New();
     
