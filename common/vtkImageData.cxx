@@ -159,11 +159,13 @@ void vtkImageData::SetExtent(int *extent)
       this->Extent[idx*2 + 1] = extent[idx*2 + 1];
       modified = 1;
       }
-    this->Dimensions[idx] = this->Extent[idx*2+1] - this->Extent[idx*2] + 1;
     }
 
   if (modified)
     {
+    this->SetDimensions(this->Extent[1] - this->Extent[0] + 1,
+			this->Extent[3] - this->Extent[2] + 1,
+			this->Extent[5] - this->Extent[4] + 1);
     this->Modified();
     this->ComputeIncrements();
     }

@@ -63,6 +63,9 @@ vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 
   this->Input = NULL;
   this->VectorInput = NULL;
+
+  this->Output = vtkImageData::New();
+  this->Output->SetSource(this);
 }
 
 
@@ -76,7 +79,7 @@ vtkImageToStructuredPoints::~vtkImageToStructuredPoints()
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsSource::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 
   if (this->Input)
     {
@@ -197,8 +200,9 @@ void vtkImageToStructuredPoints::Execute()
   int extent[6];
   float origin[3];
   float spacing[3];
-
-  vtkStructuredPoints *output = (vtkStructuredPoints *)(this->Output);
+  int *uExtent, *wExtent;
+  
+  vtkImageData *output = (vtkImageData *)(this->Output);
   vtkImageData *data;
   vtkImageData *vData;
   
@@ -230,34 +234,120 @@ void vtkImageToStructuredPoints::Execute()
     }
   
   // setup the structured points
-  output->SetDimensions(data->GetDimensions());
+  uExtent = this->Input->GetUpdateExtent();
+  
+  output->SetExtent(uExtent);
+  output->SetScalarType(data->GetScalarType());
+  output->SetNumberOfScalarComponents(data->GetNumberOfScalarComponents());
+  output->SetDimensions(uExtent[1] - uExtent[0] + 1,
+			uExtent[3] - uExtent[2] + 1,
+			uExtent[5] - uExtent[4] + 1);
   output->SetSpacing(data->GetSpacing());
 
-  data->GetExtent(extent);
   data->GetSpacing(spacing);
   data->GetOrigin(origin);
 
-  origin[0] += (float)(extent[0]) * spacing[0]; 
-  origin[1] += (float)(extent[2]) * spacing[1]; 
-  origin[2] += (float)(extent[4]) * spacing[2];
+  origin[0] += (float)(uExtent[0]) * spacing[0]; 
+  origin[1] += (float)(uExtent[2]) * spacing[1]; 
+  origin[2] += (float)(uExtent[4]) * spacing[2];
 
   output->SetOrigin(origin);
-
-  output->GetPointData()->PassData(data->GetPointData());
-  if (this->VectorInput)
+  wExtent = data->GetExtent();
+  
+  // if the data extent matches the update extent then just pass the data
+  // otherwise we must reformat and copy the data
+  if (wExtent[0] == uExtent[0] && wExtent[1] == uExtent[1] &&
+      wExtent[2] == uExtent[2] && wExtent[3] == uExtent[3] &&
+      wExtent[4] == uExtent[4] && wExtent[5] == uExtent[5])
     {
-    // make sure the vectors are float
-    if (vData->GetScalarType() != VTK_FLOAT)
+    output->GetPointData()->PassData(data->GetPointData());
+    if (this->VectorInput)
       {
-      vtkWarningMacro(<< "vector data must be of type float!!");
+      // make sure the vectors are float
+      if (vData->GetScalarType() != VTK_FLOAT)
+	{
+	vtkWarningMacro(<< "vector data must be of type float!!");
+	}
+      else
+	{
+	vtkFloatVectors *fv = vtkFloatVectors::New();
+	output->GetPointData()->SetVectors(fv);
+	fv->SetV(((vtkFloatScalars *)
+		  vData->GetPointData()->GetScalars())->GetS());
+	fv->Delete();
+	}
       }
-    else
+    }
+  else
+    {
+    void *inPtr = data->GetScalarPointerForExtent(uExtent);
+    
+    void *outPtr = output->GetScalarPointer();
+    
+    int idxX, idxY, idxZ;
+    int maxX, maxY, maxZ;
+    int inIncX, inIncY, inIncZ;
+    int rowLength;
+    void *inPtr1;
+    
+    // Get increments to march through data 
+    data->GetIncrements(inIncX, inIncY, inIncZ);
+
+    // find the region to loop over
+    rowLength = (uExtent[1] - uExtent[0]+1)*inIncX*data->GetScalarSize();
+    maxX = uExtent[1] - uExtent[0]; 
+    maxY = uExtent[3] - uExtent[2]; 
+    maxZ = uExtent[5] - uExtent[4];
+    inIncY *= data->GetScalarSize();
+    inIncZ *= data->GetScalarSize();
+    
+    // Loop through ouput pixels
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
       {
-      vtkFloatVectors *fv = vtkFloatVectors::New();
-      output->GetPointData()->SetVectors(fv);
-      fv->SetV(((vtkFloatScalars *)
-		vData->GetPointData()->GetScalars())->GetS());
-      fv->Delete();
+      inPtr1 = inPtr + idxZ*inIncZ;
+      for (idxY = 0; idxY <= maxY; idxY++)
+	{
+	memcpy(outPtr,inPtr1,rowLength);
+	inPtr1 += inIncY;
+	outPtr += rowLength;
+	}
+      }
+
+    if (this->VectorInput)
+      {
+      // make sure the vectors are float
+      if (vData->GetScalarType() != VTK_FLOAT)
+	{
+	vtkWarningMacro(<< "vector data must be of type float!!");
+	}
+      else
+	{
+	vtkFloatVectors *fv = vtkFloatVectors::New();
+	output->GetPointData()->SetVectors(fv);
+	float *inPtr2 = (float *)(vData->GetScalarPointerForExtent(uExtent));
+	
+	fv->SetNumberOfVectors((maxZ+1)*(maxY+1)*(maxX+1));
+	vData->GetContinuousIncrements(uExtent, inIncX, inIncY, inIncZ);
+	int numComp = vData->GetNumberOfScalarComponents();
+	int idx = 0;
+	
+	// Loop through ouput pixels
+	for (idxZ = 0; idxZ <= maxZ; idxZ++)
+	  {
+	  for (idxY = 0; idxY <= maxY; idxY++)
+	    {
+	    for (idxX = 0; idxX <= maxX; idxX++)
+	      {
+	      fv->SetVector(idx,inPtr2);
+	      inPtr2 += numComp;
+	      idx++;
+	      }
+	    inPtr2 += inIncY;
+	    }
+	  inPtr2 += inIncZ;
+	  }
+	fv->Delete();
+	}
       }
     }
 }

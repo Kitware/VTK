@@ -52,12 +52,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkImageToStructuredPoints_h
 #define __vtkImageToStructuredPoints_h
 
-#include "vtkStructuredPointsSource.h"
+#include "vtkSource.h"
+#include "vtkImageData.h"
 class vtkImageCache;
 class vtkColorScalars;
 class vtkFloatVectors;
 
-class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
+class VTK_EXPORT vtkImageToStructuredPoints : public vtkSource
   {
 public:
   vtkImageToStructuredPoints();
@@ -83,6 +84,11 @@ public:
 
   void Update();
   
+  // Description:
+  // Get the output of this source.
+  vtkImageData *GetOutput()
+    {return (vtkImageData *)this->Output;};
+
 protected:
   vtkImageCache *Input;
   vtkImageCache *VectorInput;
