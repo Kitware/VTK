@@ -53,7 +53,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <math.h>
 #include "vtkMarchingCubesCases.h"
 #include "vtkImageMarchingCubes.h"
-#include "vtkImageRegion.h"
 
 //----------------------------------------------------------------------------
 // Description:
@@ -113,7 +112,7 @@ void vtkImageMarchingCubes::Update()
 //----------------------------------------------------------------------------
 void vtkImageMarchingCubes::Execute()
 {
-  vtkImageRegion *inRegion = NULL;
+  vtkImageData *inData = NULL;
   vtkPolyData *output = this->GetOutput();
   int extent[8], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
@@ -247,13 +246,9 @@ void vtkImageMarchingCubes::Execute()
       }
     // Get the chunk from the input
     this->Input->SetUpdateExtent(extent);
-    this->Input->Update();
-    inRegion = this->Input->GetScalarRegion();
-    inRegion->SetExtent(3, extent);
+    inData = this->Input->UpdateAndReturnData();
     
-    this->March(inRegion, chunkMin, chunkMax, numContours, values);
-    // Clean up
-    inRegion->Delete();
+    this->March(inData, chunkMin, chunkMax, numContours, values);
     if (this->Input->ShouldIReleaseData())
       {
       this->Input->ReleaseData();
@@ -517,7 +512,7 @@ static int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 template <class T>
 static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 					   int cellX, int cellY, int cellZ,
-					   vtkImageRegion *inRegion,
+					   vtkImageData *inData,
 					   T *ptr, int numContours, float *values)
 {
   int inc0, inc1, inc2;
@@ -527,7 +522,7 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
 
-  inRegion->GetIncrements(inc0, inc1, inc2);
+  inData->GetIncrements(inc0, inc1, inc2);
   for (valueIdx = 0; valueIdx < numContours; ++valueIdx)
     {
     value = values[valueIdx];
@@ -557,9 +552,9 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 	  // If the point has not been created yet
 	  if (pointIds[ii] == -1)
 	    {
-	    float *spacing = inRegion->GetSpacing();
-	    float *origin = inRegion->GetOrigin();
-	    int *extent = inRegion->GetWholeExtent();
+	    float *spacing = inData->GetSpacing();
+	    float *origin = inData->GetOrigin();
+	    int *extent = self->GetInput()->GetWholeExtent();
 	    
 	    pointIds[ii] = vtkImageMarchingCubesMakeNewPoint(self,
 					      cellX, cellY, cellZ,
@@ -582,7 +577,7 @@ static void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 // MagnitudeThreshold.
 template <class T>
 static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
-				      vtkImageRegion *inRegion, T *ptr,
+				      vtkImageData *inData, T *ptr,
 				      int chunkMin, int chunkMax,
                                       int numContours, float *values)
 {
@@ -595,9 +590,9 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
   ptr = ptr;
   
   // Get information to loop through images.
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-  ptr2 = (T *)(inRegion->GetScalarPointer(min0, min1, chunkMin));
-  inRegion->GetIncrements(inc0, inc1, inc2);
+  inData->GetExtent(min0, max0, min1, max1, min2, max2);
+  ptr2 = (T *)(inData->GetScalarPointer(min0, min1, chunkMin));
+  inData->GetIncrements(inc0, inc1, inc2);
 
   // Loop over all the cubes
   for (idx2 = chunkMin; idx2 < chunkMax; ++idx2)
@@ -609,7 +604,7 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
       for (idx0 = min0; idx0 < max0; ++idx0)
 	{
 	// put magnitudes into the cube structure.
-	vtkImageMarchingCubesHandleCube(self, idx0, idx1, idx2, inRegion, ptr0,
+	vtkImageMarchingCubesHandleCube(self, idx0, idx1, idx2, inData, ptr0,
                                        numContours, values);
 
 	ptr0 += inc0;
@@ -625,32 +620,32 @@ static void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 
 //----------------------------------------------------------------------------
 // This method calls the proper templade function.
-void vtkImageMarchingCubes::March(vtkImageRegion *inRegion, 
+void vtkImageMarchingCubes::March(vtkImageData *inData, 
 				 int chunkMin, int chunkMax,
                                  int numContours, float *values)
 {
-  void *ptr = inRegion->GetScalarPointer();
+  void *ptr = inData->GetScalarPointer();
   
-  switch (inRegion->GetScalarType())
+  switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageMarchingCubesMarch(this, inRegion, (float *)(ptr), 
+      vtkImageMarchingCubesMarch(this, inData, (float *)(ptr), 
 				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_INT:
-      vtkImageMarchingCubesMarch(this, inRegion, (int *)(ptr), 
+      vtkImageMarchingCubesMarch(this, inData, (int *)(ptr), 
 				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_SHORT:
-      vtkImageMarchingCubesMarch(this, inRegion, (short *)(ptr), 
+      vtkImageMarchingCubesMarch(this, inData, (short *)(ptr), 
 				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageMarchingCubesMarch(this, inRegion, (unsigned short *)(ptr), 
+      vtkImageMarchingCubesMarch(this, inData, (unsigned short *)(ptr), 
 				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageMarchingCubesMarch(this, inRegion, (unsigned char *)(ptr), 
+      vtkImageMarchingCubesMarch(this, inData, (unsigned char *)(ptr), 
 				chunkMin, chunkMax, numContours, values);
       break;
     default:

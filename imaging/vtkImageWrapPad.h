@@ -55,13 +55,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
-  vtkImageWrapPad();
   static vtkImageWrapPad *New() {return new vtkImageWrapPad;};
   const char *GetClassName() {return "vtkImageWrapPad";};
 
 protected:
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outRegion, 
+		       int ext[6], int id);
 };
 
 #endif

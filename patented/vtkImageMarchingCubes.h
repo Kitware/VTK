@@ -132,13 +132,6 @@ public:
   vtkGetMacro(ComputeGradients, int);
   vtkBooleanMacro(ComputeGradients, int);
   
-  // Description:
-  // The InputMemoryLimit determines the chunk size (the number of slices
-  // requested at each iteration).  The units of this limit is KiloBytes.
-  // For now, only the Z axis is split.
-  vtkSetMacro(InputMemoryLimit, int);
-  vtkGetMacro(InputMemoryLimit, int);
-
   // Should be protected, but the templated functions need these
   int ComputeScalars;
   int ComputeNormals;
@@ -157,10 +150,17 @@ public:
 
   void Update();
   
+  // Description:
+  // The InputMemoryLimit determines the chunk size (the number of slices
+  // requested at each iteration).  The units of this limit is KiloBytes.
+  // For now, only the Z axis is split.
+  vtkSetMacro(InputMemoryLimit, int);
+  vtkGetMacro(InputMemoryLimit, int);
+
 protected:
   vtkImageCache *Input;
-  int InputMemoryLimit;
   int NumberOfSlicesPerChunk;
+  int InputMemoryLimit;
 
   vtkContourValues *ContourValues;
    
@@ -172,7 +172,7 @@ protected:
   
   void Execute();
 
-  void March(vtkImageRegion *inRegion, int chunkMin, int chunkMax,
+  void March(vtkImageData *inData, int chunkMin, int chunkMax,
              int numContours, float *values);
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();

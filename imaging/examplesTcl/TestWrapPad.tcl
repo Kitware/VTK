@@ -16,7 +16,7 @@ reader SetDataMask 0x7fff
 
 vtkImageWrapPad pad
 pad SetInput [reader GetOutput]
-pad SetOutputWholeExtent -300 355 -300 370 0 92 0 0
+pad SetOutputWholeExtent -300 355 -300 370 0 92
 pad ReleaseDataFlagOff
 
 vtkImageViewer viewer

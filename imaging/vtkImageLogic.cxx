@@ -57,9 +57,10 @@ vtkImageLogic::vtkImageLogic()
 // Handles the one input operations
 template <class T>
 static void vtkImageLogicExecute1(vtkImageLogic *self,
-				  vtkImageData *in1Data, T *in1Ptr,
+				  vtkImageData *in1Data, 
+				  T *in1Ptr,
 				  vtkImageData *outData, 
-				  unsigned char *outPtr,
+				  T *outPtr,
 				  int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
@@ -69,7 +70,7 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
-  unsigned char trueValue = self->GetOutputTrueValue();
+  float trueValue = self->GetOutputTrueValue();
   int op = self->GetOperation();
 
   
@@ -102,7 +103,7 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 	  case VTK_NOT:
 	    if ( ! *in1Ptr)
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -112,7 +113,7 @@ static void vtkImageLogicExecute1(vtkImageLogic *self,
 	  case VTK_NOP:
 	    if (*in1Ptr)
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -141,7 +142,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 				  vtkImageData *in1Data, T *in1Ptr,
 				  vtkImageData *in2Data, T *in2Ptr,
 				  vtkImageData *outData, 
-				  unsigned char *outPtr,
+				  T *outPtr,
 				  int outExt[6], int id)
 {
   int idxR, idxY, idxZ;
@@ -152,7 +153,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
-  unsigned char trueValue = self->GetOutputTrueValue();
+  float trueValue = self->GetOutputTrueValue();
   int op = self->GetOperation();
 
   
@@ -186,7 +187,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 	  case VTK_AND:
 	    if (*in1Ptr && *in2Ptr)
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -196,7 +197,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 	  case VTK_OR:
 	    if (*in1Ptr || *in2Ptr)
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -206,7 +207,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 	  case VTK_XOR:
 	    if (( ! *in1Ptr && *in2Ptr) || (*in1Ptr && ! *in2Ptr))
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -216,7 +217,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 	  case VTK_NAND:
 	    if ( ! (*in1Ptr && *in2Ptr))
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -226,7 +227,7 @@ static void vtkImageLogicExecute2(vtkImageLogic *self,
 	  case VTK_NOR:
 	    if ( ! (*in1Ptr || *in2Ptr))
 	      {
-	      *outPtr = trueValue;
+	      *outPtr = (T)trueValue;
 	      }
 	    else
 	      {
@@ -280,19 +281,19 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
       {
       case VTK_FLOAT:
 	vtkImageLogicExecute1(this, inData[0], (float *)(in1Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (float *)(outPtr), outExt, id);
 	break;
       case VTK_INT:
 	vtkImageLogicExecute1(this, inData[0], (int *)(in1Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (int *)(outPtr), outExt, id);
 	break;
       case VTK_SHORT:
 	vtkImageLogicExecute1(this, inData[0], (short *)(in1Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (short *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageLogicExecute1(this, inData[0], (unsigned short *)(in1Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (unsigned short *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageLogicExecute1(this, inData[0], (unsigned char *)(in1Ptr), 
@@ -312,22 +313,22 @@ void vtkImageLogic::ThreadedExecute(vtkImageData **inData,
       case VTK_FLOAT:
 	vtkImageLogicExecute2(this, inData[0], (float *)(in1Ptr), 
 			      inData[1], (float *)(in2Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (float *)(outPtr), outExt, id);
 	break;
       case VTK_INT:
 	vtkImageLogicExecute2(this, inData[0], (int *)(in1Ptr), 
 			      inData[1], (int *)(in2Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (int *)(outPtr), outExt, id);
 	break;
       case VTK_SHORT:
 	vtkImageLogicExecute2(this, inData[0], (short *)(in1Ptr), 
 			      inData[1], (short *)(in2Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (short *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageLogicExecute2(this, inData[0], (unsigned short *)(in1Ptr), 
 			      inData[1], (unsigned short *)(in2Ptr), 
-			      outData, (unsigned char *)(outPtr), outExt, id);
+			      outData, (unsigned short *)(outPtr), outExt, id);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageLogicExecute2(this, inData[0], (unsigned char *)(in1Ptr), 

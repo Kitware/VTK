@@ -36,6 +36,7 @@ vtkImageExtractComponents \
 vtkImageFlip \
 vtkImageHSVToRGB \
 vtkImageLogic \
+vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
 vtkImagePermute \
@@ -46,6 +47,7 @@ vtkImageShiftScale \
 vtkImageShrink3D \
 vtkImageThreshold \
 vtkImageViewer \
+vtkImageWrapPad \
 vtkImageWriter \
 vtkImageXViewer \
 vtkPNMReader \
@@ -97,7 +99,6 @@ vtkTIFFWriter
 #vtkImageMagnify1D \
 #vtkImageMagnitude \
 #vtkImageMask \
-#vtkImageMathematics \
 #vtkImageNoiseSource \
 #vtkImageNonMaximumSuppression \
 #vtkImageOpenClose3D \
@@ -113,7 +114,6 @@ vtkTIFFWriter
 #vtkImageSobel3D \
 #vtkImageSubsample3D \
 #vtkImageVariance3D \
-#vtkImageWrapPad \
 
 
 #------------------------------------------------------------------------------

@@ -144,6 +144,14 @@ void vtkImagePadFilter::ComputeRequiredInputUpdateExtent(int inExt[6],
       {
       inExt[idx*2] = wholeExtent[idx*2];
       }
+    if (inExt[idx*2] > wholeExtent[idx*2 + 1])
+      {
+      inExt[idx*2] = wholeExtent[idx*2 + 1];
+      }
+    if (inExt[idx*2+1] < wholeExtent[idx*2])
+      {
+      inExt[idx*2+1] = wholeExtent[idx*2];
+      }
     if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
       {
       inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];

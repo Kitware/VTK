@@ -83,12 +83,12 @@ public:
 
   // Description:
   // Set the value to use for true in the output.
-  vtkSetMacro(OutputTrueValue, unsigned char);
-  vtkGetMacro(OutputTrueValue, unsigned char);
+  vtkSetMacro(OutputTrueValue, float);
+  vtkGetMacro(OutputTrueValue, float);
   
 protected:
   int Operation;
-  unsigned char OutputTrueValue;
+  float OutputTrueValue;
   
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
