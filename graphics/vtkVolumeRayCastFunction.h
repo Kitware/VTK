@@ -79,7 +79,7 @@ public:
 		 float ray_position[3], float ray_increment[3],
 		 int num_steps, float pixel_value[6] )=0;
 
-  float GetZeroOpacityThreshold( vtkVolume *vol );
+  virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
   // Description:
   // These are some variables set during FunctionInitialize. They
