@@ -19,12 +19,24 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.18");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.18.4.1");
 
 vtkScalarsToColors::vtkScalarsToColors()
 {
   this->Alpha = 1.0;
   this->VectorComponent = 0;
+  this->VectorMode = vtkScalarsToColors::COMPONENT;
+  this->UseMagnitude = 0;
+}
+
+void vtkScalarsToColors::SetVectorModeToComponent()
+{
+  this->SetVectorMode(vtkScalarsToColors::COMPONENT);
+}
+
+void vtkScalarsToColors::SetVectorModeToMagnitude()
+{
+  this->SetVectorMode(vtkScalarsToColors::MAGNITUDE);
 }
 
 // do not use SetMacro() because we do not the table to rebuild.
@@ -52,11 +64,19 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
     newColors = vtkUnsignedCharArray::New();
     newColors->SetNumberOfComponents(4);
     newColors->SetNumberOfTuples(scalars->GetNumberOfTuples());
-    // If mapper did not specify a component, use our component.
-    if (comp < 0)
+
+    // If mapper did not specify a component, use our mode.
+    this->UseMagnitude = 0;
+    if (comp < 0 && this->VectorMode == vtkScalarsToColors::COMPONENT)
       {
       comp = this->VectorComponent;
       }
+    if (comp < 0 && this->VectorMode == vtkScalarsToColors::MAGNITUDE)
+      {
+      comp = 0;
+      this->UseMagnitude = 1;
+      }
+
     // Just some error checking.
     if (comp < 0)
       {
@@ -67,13 +87,12 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
       comp = scalars->GetNumberOfComponents()-1;
       }
     // Fill in the colors.
-    this->
-      MapScalarsThroughTable2(scalars->GetVoidPointer(comp), 
-                              newColors->GetPointer(0),
-                              scalars->GetDataType(),
-                              scalars->GetNumberOfTuples(),
-                              scalars->GetNumberOfComponents(), 
-                              VTK_RGBA);
+    this->MapScalarsThroughTable2(scalars->GetVoidPointer(comp), 
+                                  newColors->GetPointer(0),
+                                  scalars->GetDataType(),
+                                  scalars->GetNumberOfTuples(),
+                                  scalars->GetNumberOfComponents(), 
+                                  VTK_RGBA);
     }//need to map
 
   return newColors;
@@ -221,5 +240,13 @@ void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Alpha: " << this->Alpha << endl;
-  os << indent << "VectorComponent: " << this->VectorComponent << endl;
+  if (this->VectorMode == vtkScalarsToColors::MAGNITUDE)
+    {
+    os << indent << "VectorMode: Magnitude\n";
+    }
+  else
+    {
+    os << indent << "VectorMode: Component\n";
+    os << indent << "VectorComponent: " << this->VectorComponent << endl;
+    }
 }

@@ -106,6 +106,13 @@ public:
                                    int component);
 
   // Description:
+  // Change mode that maps vectors by magnitude vs. component.
+  vtkSetMacro(VectorMode, int);
+  vtkGetMacro(VectorMode, int);
+  void SetVectorModeToMagnitude();
+  void SetVectorModeToComponent();
+
+  // Description:
   // If the mapper does not select which component of a vector
   // to map to colors, you can specify it here.
   vtkSetMacro(VectorComponent, int);
@@ -146,7 +153,19 @@ protected:
   float Alpha;
 
   // How to map arrays with multiple components.
+  int VectorMode;
+  // Internal flag used to togle between vector and component mode.
+  // We need this flag because the mapper can override our mode, and
+  // I do not want to change the interface to the map scalars methods.
+  int UseMagnitude;
   int VectorComponent;
+
+//BTX
+  enum VectorModes {
+    MAGNITUDE=0,
+    COMPONENT=1,
+  };
+//ETX
 
 private:
   float RGB[3];
