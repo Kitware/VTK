@@ -36,12 +36,14 @@
 #include "vtkInteractorStyle.h"
 #include "vtkAbstractPropPicker.h"
 
-#define VTKIS_JOY   0
-#define VTKIS_TRACK  1
-#define VTKIS_CAMERA 0
-#define VTKIS_ACTOR  1
+#define VTKIS_JOYSTICK    0
+#define VTKIS_TRACKBALL   1
+
+#define VTKIS_CAMERA      0
+#define VTKIS_ACTOR       1
+
 #define VTKIS_CONTROL_OFF 0
-#define VTKIS_CONTROL_ON 1
+#define VTKIS_CONTROL_ON  1
 
 class VTK_RENDERING_EXPORT vtkInteractorStyleTrackball : public vtkInteractorStyle 
 {
@@ -52,14 +54,23 @@ public:
   
   // Description:
   // Concrete implementation of event bindings
-  virtual   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
-  virtual   void OnRightButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual   void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
-  virtual   void OnMiddleButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual   void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
-  virtual   void OnLeftButtonUp  (int ctrl, int shift, int X, int Y);
-  virtual   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int Y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int Y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int Y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int Y);
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int Y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int Y);
+
+  // Description:
+  // OnChar implements keyboard functions, but subclasses can override this 
+  // behavior
+  virtual void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
+  // Description:
+  // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
+  // style subclasses.
+  virtual void OnTimer(void);
+
   // Description:
   // External switching between actor and camera mode.
   virtual void SetActorModeToCamera();
@@ -71,11 +82,6 @@ public:
   virtual void SetTrackballModeToTrackball();
   virtual void SetTrackballModeToJoystick();
   vtkGetMacro(TrackballMode, int);
-
-  // Description:
-  // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
-  // style subclasses.
-  virtual void OnTimer(void);
 
 protected:
   vtkInteractorStyleTrackball();
@@ -141,7 +147,7 @@ protected:
   void Prop3DTransform(vtkProp3D *prop3D,float *boxCenter,
                       int NumRotation,double **rotate,
                       double *scale);
-  void FindPickedActor(int X, int Y);
+  void FindPickedActor(int x, int Y);
 private:
   vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&);  // Not implemented.
   void operator=(const vtkInteractorStyleTrackball&);  // Not implemented.
