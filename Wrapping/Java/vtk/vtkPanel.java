@@ -54,9 +54,11 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
   public void setSize(int x, int y)
   {
     super.setSize(x,y);
-    Lock();
-    rw.SetSize(x,y);
-    UnLock();
+    if (windowset = 1) {
+      Lock();
+      rw.SetSize(x,y);
+      UnLock();
+    }
   }
   
   public synchronized void Render() 
