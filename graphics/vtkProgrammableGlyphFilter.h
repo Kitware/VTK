@@ -139,9 +139,9 @@ public:
   // Either color by the input or source scalar data.
   vtkSetMacro(ColorMode,int);
   vtkGetMacro(ColorMode,int);
-  void SetColorModeToColorByScale() 
+  void SetColorModeToColorByInput() 
     {this->SetColorMode(VTK_COLOR_BY_INPUT);};
-  void SetColorModeToColorByScalar() 
+  void SetColorModeToColorBySource() 
     {this->SetColorMode(VTK_COLOR_BY_SOURCE);};
   char *GetColorModeAsString();
 
