@@ -25,12 +25,12 @@
 #ifndef __vtkVoxelModeller_h
 #define __vtkVoxelModeller_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkDataSetToImageFilter 
+class VTK_IMAGING_EXPORT vtkVoxelModeller : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkVoxelModeller,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkVoxelModeller,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -66,17 +66,22 @@ public:
   void SetModelBounds(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
   vtkGetVectorMacro(ModelBounds,double,6);
 
-  // Description:
-  // The the volume out to a specified filename.
-  void Write(char *);
-
 protected:
   vtkVoxelModeller();
   ~vtkVoxelModeller() {};
 
   
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *);
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
+
+  // see vtkAlgorithm for details
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   int SampleDimensions[3];
   double MaximumDistance;

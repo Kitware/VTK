@@ -23,8 +23,6 @@ if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
    close $channel
    file delete -force voxelModel.vtk
 
-   voxelModel Write voxelDataFile
-
    vtkDataSetWriter aWriter
      aWriter SetFileName voxelModel.vtk
      aWriter SetInput [voxelModel GetOutput]
@@ -69,7 +67,6 @@ if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
 # prevent the tk window from showing up then start the event loop
    wm withdraw .
    file delete -force voxelModel.vtk
-   file delete -force voxelDataFile
 }
 
 

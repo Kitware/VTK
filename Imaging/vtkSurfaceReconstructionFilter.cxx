@@ -18,18 +18,22 @@
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.29");
+vtkCxxRevisionMacro(vtkSurfaceReconstructionFilter, "1.30");
 vtkStandardNewMacro(vtkSurfaceReconstructionFilter);
 
 vtkSurfaceReconstructionFilter::vtkSurfaceReconstructionFilter()
 {
   this->NeighborhoodSize = 20;
-  this->SampleSpacing = -1.0; // negative values cause the algorithm to make a reasonable guess
+  // negative values cause the algorithm to make a reasonable guess
+  this->SampleSpacing = -1.0; 
 }
 
 // some simple routines for vector math
@@ -104,16 +108,28 @@ void vtkSRMultiply(double **m,double f,long nrl, long nrh, long ncl, long nch)
     }
 }
 
-void vtkSurfaceReconstructionFilter::ExecuteInformation()
+//----------------------------------------------------------------------------
+int vtkSurfaceReconstructionFilter::FillInputPortInformation(
+  int port, vtkInformation* info)
 {
-  vtkImageData *output = this->GetOutput();
-  
-  output->SetScalarType(VTK_FLOAT);
-  output->SetNumberOfScalarComponents(1);
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
+}
 
+void vtkSurfaceReconstructionFilter::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
+  
   // would be nice to compute the whole extent but we need more info to
   // compute it.
-  output->SetWholeExtent(0,0,0,0,0,0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),0,0,0,0,0,0);
 }
 
 //-----------------------------------------------------------------------------
@@ -131,11 +147,21 @@ struct SurfacePoint
 };
 
 //-----------------------------------------------------------------------------
-void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
+void vtkSurfaceReconstructionFilter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
-  // Initialise the variables we need within this function
-  vtkDataSet *input = this->GetInput();
-
+  // get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // get the output
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   const vtkIdType COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints;
 
@@ -401,14 +427,19 @@ void vtkSurfaceReconstructionFilter::ExecuteData(vtkDataObject *outp)
                 << dim[0] << ", " << dim[1] << ", " << dim[2] << ")" );
 
   // initialise the output volume
-  this->GetOutput()->SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
-  this->GetOutput()->SetUpdateExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
-  vtkImageData *output = this->AllocateOutputData(outp);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+  output->SetExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+  output->AllocateScalars();
+
+  output->SetUpdateExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+
+  
   vtkFloatArray *newScalars = 
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
-  output->SetSpacing(this->SampleSpacing, this->SampleSpacing,
-                     this->SampleSpacing);
-  output->SetOrigin(topleft);
+  outInfo->Set(vtkDataObject::SPACING(),
+               this->SampleSpacing, this->SampleSpacing, this->SampleSpacing);
+  outInfo->Set(vtkDataObject::ORIGIN(),topleft,3);
   
   // initialise the point locator (have to use point insertion because we
   // need to set our own bounds, slightly larger than the dataset to allow

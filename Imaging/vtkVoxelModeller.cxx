@@ -17,12 +17,15 @@
 #include "vtkBitArray.h"
 #include "vtkCell.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVoxelModeller, "1.54");
+vtkCxxRevisionMacro(vtkVoxelModeller, "1.55");
 vtkStandardNewMacro(vtkVoxelModeller);
 
 // Construct an instance of vtkVoxelModeller with its sample dimensions
@@ -70,19 +73,25 @@ void vtkVoxelModeller::SetModelBounds(double xmin, double xmax, double ymin,
     }
 }
 
-void vtkVoxelModeller::ExecuteInformation()
+void vtkVoxelModeller::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int i;
   double ar[3], origin[3];
-  vtkImageData *output = this->GetOutput();
   
-  output->SetScalarType(VTK_BIT);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_BIT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   
-  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
-                         0, this->SampleDimensions[1]-1,
-                         0, this->SampleDimensions[2]-1);
-
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, this->SampleDimensions[0]-1,
+               0, this->SampleDimensions[1]-1,
+               0, this->SampleDimensions[2]-1);
+  
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -96,12 +105,30 @@ void vtkVoxelModeller::ExecuteInformation()
               / (this->SampleDimensions[i] - 1);
       }
     }
-  output->SetOrigin(origin);
-  output->SetSpacing(ar);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),ar,3);
 }
 
-void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
+void vtkVoxelModeller::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  // get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // get the output
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // We need to allocate our own scalars since we are overriding
+  // the superclasses "Execute()" method.
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
+
   vtkIdType cellNum, i;
   int j, k;
   double *bounds, adjBounds[6];
@@ -112,17 +139,15 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
   int min[3], max[3];
   double x[3], distance2;
   int jkFactor;
-  vtkDataSet *input=this->GetInput();
   double *weights=new double[input->GetMaxCellSize()];
   double closestPoint[3];
   double voxelHalfWidth[3], origin[3], spacing[3];
-  vtkImageData *output = this->AllocateOutputData(outp);
   vtkBitArray *newScalars = 
     vtkBitArray::SafeDownCast(output->GetPointData()->GetScalars());
 
-//
-// Initialize self; create output objects
-//
+  //
+  // Initialize self; create output objects
+  //
   vtkDebugMacro(<< "Executing Voxel model");
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
@@ -133,8 +158,8 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
     }
 
   maxDistance = this->ComputeModelBounds(origin,spacing);
-  output->SetSpacing(spacing);
-  output->SetOrigin(origin);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   //
   // Voxel widths are 1/2 the height, width, length of a voxel
   //
@@ -202,18 +227,21 @@ void vtkVoxelModeller::ExecuteData(vtkDataObject *outp)
 }
 
 // Compute the ModelBounds based on the input geometry.
-double vtkVoxelModeller::ComputeModelBounds(double origin[3], double spacing[3])
+double vtkVoxelModeller::ComputeModelBounds(double origin[3], 
+                                            double spacing[3])
 {
   double *bounds, maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5] )
+       this->ModelBounds[2] >= this->ModelBounds[3] ||
+       this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = (this->GetInput())->GetBounds();
+    vtkDataSet *ds = vtkDataSet::SafeDownCast(this->GetInput());
+    // ds better be non null otherwise something is very wrong here
+    bounds = ds->GetBounds();
     }
   else
     {
@@ -299,75 +327,11 @@ void vtkVoxelModeller::SetSampleDimensions(int dim[3])
     }
 }
 
-void vtkVoxelModeller::Write(char *fname)
+int vtkVoxelModeller::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
 {
-  FILE *fp;
-  int i, j, k;
-  double origin[3], spacing[3];
-  
-  vtkDataArray *newScalars;
-  int idx;
-  int bitcount;
-  unsigned char uc;
-  vtkImageData *output=this->GetOutput();
-
-  vtkDebugMacro(<< "Writing Voxel model");
-
-  // update the data
-  this->UpdateInformation();
-  output->SetUpdateExtent(output->GetWholeExtent());
-  this->Update();
-  
-  newScalars = output->GetPointData()->GetScalars();
-
-  output->SetDimensions(this->GetSampleDimensions());
-  this->ComputeModelBounds(origin,spacing);
-
-  fp = fopen(fname,"w");
-  if (!fp) 
-    {
-    vtkErrorMacro(<< "Couldn't open file: " << fname << endl);
-    return;
-    }
-
-  fprintf(fp,"Voxel Data File\n");
-  fprintf(fp,"Origin: %f %f %f\n",origin[0],origin[1],origin[2]);
-  fprintf(fp,"Aspect: %f %f %f\n",spacing[0],spacing[1],spacing[2]);
-  fprintf(fp,"Dimensions: %i %i %i\n",this->SampleDimensions[0],
-          this->SampleDimensions[1],this->SampleDimensions[2]);
-
-  // write out the data
-  bitcount = 0;
-  idx = 0;
-  uc = 0x00;
-
-  for (k = 0; k < this->SampleDimensions[2]; k++)
-    {
-    for (j = 0; j < this->SampleDimensions[1]; j++)
-      {
-      for (i = 0; i < this->SampleDimensions[0]; i++)
-        {
-        if (newScalars->GetComponent(idx,0))
-          {
-          uc |= (0x80 >> bitcount);
-          }
-        bitcount++;
-        if (bitcount == 8)
-          {
-          fputc(uc,fp);
-          uc = 0x00;
-          bitcount = 0;
-          }
-        idx++;
-        }
-      }
-    }
-  if (bitcount)
-    {
-    fputc(uc,fp);
-    }
-
-  fclose(fp);
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)

@@ -69,7 +69,7 @@
 #ifndef __vtkImplicitModeller_h
 #define __vtkImplicitModeller_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 #define VTK_VOXEL_MODE   0
 #define VTK_CELL_MODE    1
@@ -78,10 +78,10 @@ class vtkDataArray;
 class vtkExtractGeometry;
 class vtkMultiThreader;
 
-class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkDataSetToImageFilter 
+class VTK_HYBRID_EXPORT vtkImplicitModeller : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkImplicitModeller,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkImplicitModeller,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -184,9 +184,6 @@ public:
   // Method completes the append process.
   void EndAppend();
 
-  // Description:
-  virtual void UpdateData(vtkDataObject *output);
-
   // See the vtkAlgorithm for a desciption of what these do
   int ProcessRequest(vtkInformation*,
                      vtkInformationVector**,
@@ -196,9 +193,12 @@ protected:
   vtkImplicitModeller();
   ~vtkImplicitModeller();
 
-  void ExecuteData(vtkDataObject *);
-  void ExecuteInformation();
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
+  void RequestData (vtkInformation *, 
+                    vtkInformationVector **, vtkInformationVector *);
   
+  void StartAppend(int internal);
   void Cap(vtkDataArray *s);
 
   vtkMultiThreader *Threader;
@@ -215,10 +215,14 @@ protected:
   int ProcessMode;
   int LocatorMaxLevel;
 
-  int BoundsComputed; // flag to limit to one ComputeModelBounds per StartAppend
-  double InternalMaxDistance; // the max distance computed during that one call
+  // flag to limit to one ComputeModelBounds per StartAppend
+  int BoundsComputed; 
+  
+  // the max distance computed during that one call
+  double InternalMaxDistance; 
 
   virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
   void operator=(const vtkImplicitModeller&);  // Not implemented.

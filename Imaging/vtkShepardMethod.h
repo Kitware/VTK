@@ -35,12 +35,12 @@
 #ifndef __vtkShepardMethod_h
 #define __vtkShepardMethod_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkDataSetToImageFilter 
+class VTK_IMAGING_EXPORT vtkShepardMethod : public vtkImageAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkShepardMethod,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkShepardMethod,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -89,8 +89,17 @@ protected:
   vtkShepardMethod();
   ~vtkShepardMethod() {};
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *);
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
+
+  // see vtkAlgorithm for details
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   int SampleDimensions[3];
   double MaximumDistance;

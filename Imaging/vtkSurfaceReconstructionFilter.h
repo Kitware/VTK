@@ -25,12 +25,12 @@
 #ifndef __vtkSurfaceReconstructionFilter_h
 #define __vtkSurfaceReconstructionFilter_h
 
-#include "vtkDataSetToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkSurfaceReconstructionFilter : public vtkDataSetToImageFilter
+class VTK_IMAGING_EXPORT vtkSurfaceReconstructionFilter : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkSurfaceReconstructionFilter,vtkDataSetToImageFilter);
+  vtkTypeRevisionMacro(vtkSurfaceReconstructionFilter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,11 +57,17 @@ protected:
   vtkSurfaceReconstructionFilter();
   ~vtkSurfaceReconstructionFilter() {};
 
-  virtual void ExecuteInformation();
-  virtual void ExecuteData(vtkDataObject *);
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
+  virtual void RequestData (vtkInformation *, 
+                            vtkInformationVector **, 
+                            vtkInformationVector *);
 
   int NeighborhoodSize;
   double SampleSpacing;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
   vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.

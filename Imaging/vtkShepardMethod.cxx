@@ -17,10 +17,13 @@
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkShepardMethod, "1.43");
+vtkCxxRevisionMacro(vtkShepardMethod, "1.44");
 vtkStandardNewMacro(vtkShepardMethod);
 
 // Construct with sample dimensions=(50,50,50) and so that model bounds are
@@ -45,18 +48,21 @@ vtkShepardMethod::vtkShepardMethod()
 }
 
 // Compute ModelBounds from input geometry.
-double vtkShepardMethod::ComputeModelBounds(double origin[3], double spacing[3])
+double vtkShepardMethod::ComputeModelBounds(double origin[3], 
+                                            double spacing[3])
 {
   double *bounds, maxDist;
   int i, adjustBounds=0;
 
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
-  this->ModelBounds[2] >= this->ModelBounds[3] ||
-  this->ModelBounds[4] >= this->ModelBounds[5] )
+       this->ModelBounds[2] >= this->ModelBounds[3] ||
+       this->ModelBounds[4] >= this->ModelBounds[5] )
     {
     adjustBounds = 1;
-    bounds = this->GetInput()->GetBounds();
+    vtkDataSet *ds = vtkDataSet::SafeDownCast(this->GetInput());
+    // ds better be non null otherwise something is very wrong here
+    bounds = ds->GetBounds();
     }
   else
     {
@@ -90,25 +96,28 @@ double vtkShepardMethod::ComputeModelBounds(double origin[3], double spacing[3])
             / (this->SampleDimensions[i] - 1);
     }
 
-  this->GetOutput()->SetOrigin(origin);
-  this->GetOutput()->SetSpacing(spacing);
-
   return maxDist;  
 }
 
-void vtkShepardMethod::ExecuteInformation()
+void vtkShepardMethod::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int i;
   double ar[3], origin[3];
-  vtkImageData *output = this->GetOutput();
   
-  output->SetScalarType(VTK_FLOAT);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   
-  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
-                         0, this->SampleDimensions[1]-1,
-                         0, this->SampleDimensions[2]-1);
-
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, this->SampleDimensions[0]-1,
+               0, this->SampleDimensions[1]-1,
+               0, this->SampleDimensions[2]-1);
+  
   for (i=0; i < 3; i++)
     {
     origin[i] = this->ModelBounds[2*i];
@@ -122,12 +131,30 @@ void vtkShepardMethod::ExecuteInformation()
               / (this->SampleDimensions[i] - 1);
       }
     }
-  output->SetOrigin(origin);
-  output->SetSpacing(ar);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),ar,3);
 }
 
-void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
+void vtkShepardMethod::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
+  // get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // get the output
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // We need to allocate our own scalars since we are overriding
+  // the superclasses "Execute()" method.
+  output->SetExtent(output->GetWholeExtent());
+  output->AllocateScalars();
+  
   vtkIdType ptId, i;
   int j, k;
   double *px, x[3], s, *sum, spacing[3], origin[3];
@@ -137,13 +164,11 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
   vtkIdType numPts, numNewPts, idx;
   int min[3], max[3];
   int jkFactor;
-  vtkDataSet *input = this->GetInput();
-  vtkImageData *output = this->AllocateOutputData(outp);
   vtkFloatArray *newScalars = 
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
 
   vtkDebugMacro(<< "Executing Shepard method");
-
+  
   // Check input
   //
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
@@ -171,6 +196,9 @@ void vtkShepardMethod::ExecuteData(vtkDataObject *outp)
     }
 
   maxDistance = this->ComputeModelBounds(origin,spacing);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
+
 
   // Traverse all input points. 
   // Each input point affects voxels within maxDistance.
@@ -333,6 +361,13 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
     this->Modified();
     }
+}
+
+int vtkShepardMethod::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)

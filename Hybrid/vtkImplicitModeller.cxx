@@ -22,6 +22,7 @@
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkMultiThreader.h"
 #include "vtkMutexLock.h"
@@ -36,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.89");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.90");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -79,6 +80,7 @@ vtkImplicitModeller::vtkImplicitModeller()
 
   this->Threader                     = vtkMultiThreader::New();
   this->NumberOfThreads              = this->Threader->GetNumberOfThreads();
+
 }
 
 vtkImplicitModeller::~vtkImplicitModeller()
@@ -90,33 +92,27 @@ vtkImplicitModeller::~vtkImplicitModeller()
 }
 
 //----------------------------------------------------------------------------
-
-void vtkImplicitModeller::UpdateData(vtkDataObject *output)
-{
-  if (this->GetInput() == NULL)
-    {
-    // we do not want to release the data because user might
-    // have called Append ...
-    return;
-    }
-
-  this->vtkDataSetToImageFilter::UpdateData( output );
-}
-
-//----------------------------------------------------------------------------
 // Initialize the filter for appending data. You must invoke the
 // StartAppend() method before doing successive Appends(). It's also a
 // good idea to manually specify the model bounds; otherwise the input
 // bounds for the data will be used.
 void vtkImplicitModeller::StartAppend()
 {
+  this->StartAppend(0);
+}
+
+void vtkImplicitModeller::StartAppend(int internal)
+{
   vtkIdType numPts;
   vtkIdType i;
   double maxDistance;
 
-  // we must call execute information because we can't be sure that 
-  // it has been called.
-  this->ExecuteInformation();
+  if (!internal)
+    {
+    // we must call update information because we can't be sure that 
+    // it has been called.
+    this->UpdateInformation();
+    }
   this->GetOutput()->SetUpdateExtent(this->GetOutput()->GetWholeExtent());
   
   vtkDebugMacro(<< "Initializing data");
@@ -686,18 +682,24 @@ void vtkImplicitModeller::EndAppend()
 
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::ExecuteInformation()
+void vtkImplicitModeller::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
   int i;
   double ar[3], origin[3];
-  vtkImageData *output = this->GetOutput();
   
-  output->SetScalarType(VTK_FLOAT);
-  output->SetNumberOfScalarComponents(1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(),VTK_FLOAT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),1);
   
-  output->SetWholeExtent(0, this->SampleDimensions[0]-1,
-                         0, this->SampleDimensions[1]-1,
-                         0, this->SampleDimensions[2]-1);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, this->SampleDimensions[0]-1,
+               0, this->SampleDimensions[1]-1,
+               0, this->SampleDimensions[2]-1);
 
   for (i=0; i < 3; i++)
     {
@@ -712,25 +714,33 @@ void vtkImplicitModeller::ExecuteInformation()
               / (this->SampleDimensions[i] - 1);
       }
     }
-  output->SetOrigin(origin);
-  output->SetSpacing(ar);
+  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outInfo->Set(vtkDataObject::SPACING(),ar,3);
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImplicitModeller::ExecuteData(vtkDataObject *)
+void vtkImplicitModeller::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
+  // get the input
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   vtkDebugMacro(<< "Executing implicit model");
 
-  if (this->GetInput() == NULL)
+  if (input == NULL)
     {
     // we do not want to release the data because user might
     // have called Append ...
     return;
     }
 
-  this->StartAppend();
-  this->Append(this->GetInput());
+  this->StartAppend(1);
+  this->Append(input);
   this->EndAppend();
 }
 
@@ -740,7 +750,7 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
   double *bounds, maxDist;
   int i;
   vtkImageData *output=this->GetOutput();
-  double tempf[3];
+  double tempd[3];
   
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
@@ -753,13 +763,15 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
       }
     else
       {
-      if (this->GetInput() != NULL)
+      vtkDataSet *dsInput = vtkDataSet::SafeDownCast(this->GetInput());
+      if (dsInput != NULL)
         {
-        bounds = this->GetInput()->GetBounds();
+        bounds = dsInput->GetBounds();
         }
       else
         {
-        vtkErrorMacro( << "An input must be specified to Compute the model bounds.");
+        vtkErrorMacro( 
+          << "An input must be specified to Compute the model bounds.");
         return VTK_FLOAT_MAX;
         }
       }
@@ -799,15 +811,21 @@ double vtkImplicitModeller::ComputeModelBounds(vtkDataSet *input)
   maxDist *= this->MaximumDistance;
 
   // Set volume origin and data spacing
-  output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
+  output->SetOrigin(this->ModelBounds[0],
+                    this->ModelBounds[2],
                     this->ModelBounds[4]);
   
   for (i=0; i<3; i++)
     {
-    tempf[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+    tempd[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     }
-  output->SetSpacing(tempf);
+  output->SetSpacing(tempd);
+
+  vtkInformation *outInfo = this->GetExecutive()->GetOutputInformation(0);
+  outInfo->Set(vtkDataObject::ORIGIN(),this->ModelBounds[0],
+               this->ModelBounds[2], this->ModelBounds[4]);
+  outInfo->Set(vtkDataObject::SPACING(),tempd,3);
 
   this->BoundsComputed = 1;
   this->InternalMaxDistance = maxDist;
@@ -944,13 +962,10 @@ const char *vtkImplicitModeller::GetProcessModeAsString()
 }
 
 //----------------------------------------------------------------------------
-int
-vtkImplicitModeller::FillInputPortInformation(int port, vtkInformation* info)
+int vtkImplicitModeller::FillInputPortInformation(
+  int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
   return 1;
 }
