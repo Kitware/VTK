@@ -27,7 +27,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.14");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.15");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -91,6 +91,12 @@ const char* vtkDynamicLoader::LastError()
 
 #ifdef __APPLE__
 #define VTKDYNAMICLOADER_DEFINED
+
+// Visual Age Compiler for Mac OSX does not understand this extension.
+#if defined(__IBMCPP__) && !defined(__private_extern__)
+# define __private_extern__
+#endif
+
 #include <mach-o/dyld.h>
 
 vtkLibHandle vtkDynamicLoader::OpenLibrary(const char* libname )
