@@ -1,4 +1,5 @@
 SET ( Parallel_SRCS
+vtkDuplicatePolyData.cxx
 vtkBranchExtentTranslator.cxx
 vtkCollectPolyData.cxx
 vtkCommunicator.cxx
