@@ -29,10 +29,13 @@ vtkImageSpatialFilter \
 
 CONCRETE = \
 vtkBMPWriter \
+vtkImageCast \
+vtkImageConnector \
 vtkImageConstantPad \
 vtkImageMedian3D \
 vtkImagePermute \
 vtkImageReader \
+vtkImageSeedConnectivity \
 vtkImageShiftScale \
 vtkImageThreshold \
 vtkImageViewer \
@@ -49,11 +52,9 @@ vtkTIFFWriter
 #vtkImageButterworthHighPass \
 #vtkImageButterworthLowPass \
 #vtkImageCanvasSource2D \
-#vtkImageCast \
 #vtkImageCityBlockDistance \
 #vtkImageCityBlockDistance1D \
 #vtkImageClip \
-#vtkImageConnector \
 #vtkImageContinuousDilate3D \
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \
@@ -102,7 +103,6 @@ vtkTIFFWriter
 #vtkImageRange3D \
 #vtkImageResample \
 #vtkImageResample1D \
-#vtkImageSeedConnectivity \
 #vtkImageShortWriter \
 #vtkImageShrink3D \
 #vtkImageSinusoidSource \

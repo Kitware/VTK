@@ -154,7 +154,8 @@ void vtkImageXViewer::SetPosition(int x, int y)
 template <class T>
 static void vtkImageXViewerRenderGray(vtkImageXViewer *self, 
 				      vtkImageData *data,
-				      T *inPtr, unsigned char *outPtr)
+				      T *inPtr, unsigned char *outPtr,
+				      int *ext)
 {
   int colorIdx;
   T *inPtr0, *inPtr1, *endPtr;
@@ -167,7 +168,6 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   int visualDepth, visualClass;
   float lower, upper;
   unsigned char lowerPixel, upperPixel, temp;
-  int *ext;
   
   visualClass = self->GetVisualClass();
   
@@ -176,7 +176,6 @@ static void vtkImageXViewerRenderGray(vtkImageXViewer *self,
   scale = self->GetColorScale();
   visualDepth = self->GetVisualDepth();
 
-  ext = data->GetExtent();
   inMin0 = ext[0]; 
   inMax0 = ext[1];
   inMin1 = ext[2];
@@ -308,7 +307,8 @@ template <class T>
 static void vtkImageXViewerRenderColor(vtkImageXViewer *self, 
 				       vtkImageData *data,
 				       T *redPtr, int bpp,
-				       unsigned char *outPtr)
+				       unsigned char *outPtr,
+				       int *ext)
 {
   int red, green, blue;
   T *redPtr0, *redPtr1;
@@ -318,11 +318,9 @@ static void vtkImageXViewerRenderColor(vtkImageXViewer *self,
   int inInc0, inInc1;
   int idx0, idx1;
   float shift, scale;
-  int *ext;
   T *greenPtr; 
   T *bluePtr;
 
-  ext = data->GetExtent();
   inMin0 = ext[0]; 
   inMax0 = ext[1];
   inMin1 = ext[2];
@@ -406,7 +404,7 @@ void vtkImageXViewer::RenderData(vtkImageData *data)
     }
 
   // Compute the displayed size
-  data->GetExtent(extent);
+  this->Input->GetUpdateExtent(extent);
   width = (extent[1] - extent[0] + 1);
   height = (extent[3] - extent[2] + 1);
 
@@ -441,23 +439,23 @@ void vtkImageXViewer::RenderData(vtkImageData *data)
       {
       case VTK_FLOAT:
 	vtkImageXViewerRenderColor(this, data, 
-			   (float *)(ptr0), dim, dataOut);
+			   (float *)(ptr0), dim, dataOut, extent);
 	break;
       case VTK_INT:
 	vtkImageXViewerRenderColor(this, data, 
-			   (int *)(ptr0), dim, dataOut);
+			   (int *)(ptr0), dim, dataOut, extent);
 	break;
       case VTK_SHORT:
 	vtkImageXViewerRenderColor(this, data, 
-			   (short *)(ptr0),dim, dataOut);
+			   (short *)(ptr0),dim, dataOut, extent);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageXViewerRenderColor(this, data, (unsigned short *)(ptr0),
-				   dim, dataOut);
+				   dim, dataOut, extent);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageXViewerRenderColor(this, data, (unsigned char *)(ptr0), 
-				   dim, dataOut);
+				   dim, dataOut, extent);
 	break;
       }
     }
@@ -468,21 +466,24 @@ void vtkImageXViewer::RenderData(vtkImageData *data)
     switch (data->GetScalarType())
       {
       case VTK_FLOAT:
-	vtkImageXViewerRenderGray(this, data, (float *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (float *)(ptr0), dataOut,
+				  extent);
 	break;
       case VTK_INT:
-	vtkImageXViewerRenderGray(this, data, (int *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (int *)(ptr0), dataOut,
+				  extent);
 	break;
       case VTK_SHORT:
-	vtkImageXViewerRenderGray(this, data, (short *)(ptr0), dataOut);
+	vtkImageXViewerRenderGray(this, data, (short *)(ptr0), dataOut,
+				  extent);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageXViewerRenderGray(this, data, (unsigned short *)(ptr0), 
-				  dataOut);
+				  dataOut, extent);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageXViewerRenderGray(this, data, (unsigned char *)(ptr0), 
-				  dataOut);
+				  dataOut, extent);
 	break;
       }   
     }

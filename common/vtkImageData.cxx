@@ -114,6 +114,19 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
     }
 }
 
+void vtkImageData::GetExtent(int &x1, int &x2, int &y1, int &y2, 
+			     int &z1, int &z2)
+{
+  int *ext;
+  ext = this->GetExtent();
+  x1 = ext[0];
+  x2 = ext[1];
+  y1 = ext[2];
+  y2 = ext[3];
+  z1 = ext[4];
+  z2 = ext[5];
+}
+
 //----------------------------------------------------------------------------
 void vtkImageData::SetExtent(int *extent)
 {
@@ -156,12 +169,12 @@ void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
   e1 = extent[1];
   if (e1 > this->Extent[1]) e1 = this->Extent[1];
   e2 = extent[2];
-  if (e0 < this->Extent[2]) e2 = this->Extent[2];
+  if (e2 < this->Extent[2]) e2 = this->Extent[2];
   e3 = extent[3];
-  if (e1 > this->Extent[3]) e3 = this->Extent[3];
+  if (e3 > this->Extent[3]) e3 = this->Extent[3];
   
   incY = this->Increments[1] - (e1 - e0 + 1)*this->Increments[0];
-  incZ = this->Increments[3] - (e3 - e2 + 1)*this->Increments[1];
+  incZ = this->Increments[2] - (e3 - e2 + 1)*this->Increments[1];
 }
 
 

@@ -72,6 +72,7 @@ public:
   // The Extent is stored  in the order (X, Y, Z).
   void SetExtent(int *extent);
   vtkGetVectorMacro(Extent,int,6);
+  void GetExtent(int &x1, int &x2, int &y1, int &y2, int &z1, int &z2);
   
   // Description:
   // Set the data scalar type of the regions created by this cache.

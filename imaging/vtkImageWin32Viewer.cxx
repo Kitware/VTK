@@ -566,7 +566,7 @@ void vtkImageWin32Viewer::RenderData(vtkImageData *data)
     }
   
   // Determine the size of the displayed data.
-  data->GetExtent(extent);
+  this->Input->GetUpdateExtent(extent);
   width = (extent[1] - extent[0] + 1);
   height = (extent[3] - extent[2] + 1);
 

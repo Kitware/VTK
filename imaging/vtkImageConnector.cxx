@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageConnector.h"
 
 
@@ -133,20 +132,19 @@ vtkImageConnectorSeed *vtkImageConnector::PopSeed()
 
 //----------------------------------------------------------------------------
 // Description:
-// Input a region of 0's and "UnconnectedValue"s. Seeds of this object are 
+// Input a data of 0's and "UnconnectedValue"s. Seeds of this object are 
 // used to find connected pixels.
 // All pixels connected to seeds are set to ConnectedValue.  
-// The region has to be unsigned char.
-void vtkImageConnector::MarkRegion(vtkImageRegion *region, int numberOfAxes)
+// The data has to be unsigned char.
+void vtkImageConnector::MarkData(vtkImageData *data, int numberOfAxes, int extent[6])
 {
-  int *incs, *pIncs, *extent, *pExtent;
+  int *incs, *pIncs, *pExtent;
   vtkImageConnectorSeed *seed;
   unsigned char *ptr;
   int newIndex[3], *pIndex, idx;
   long count = 0;
 
-  incs = region->GetIncrements();
-  extent = region->GetExtent();
+  incs = data->GetIncrements();
   while (this->Seeds)
     {
     ++count;

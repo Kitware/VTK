@@ -38,7 +38,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkImageRegion.h"
 #include "vtkImageCache.h"
 #include "vtkImageSeedConnectivity.h"
 
@@ -51,7 +50,7 @@ vtkImageSeedConnectivity::vtkImageSeedConnectivity()
   this->OutputUnconnectedValue = 0;
   this->Seeds = NULL;
   this->Connector = vtkImageConnector::New();
-  this->SetFilteredAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------
@@ -72,18 +71,6 @@ void vtkImageSeedConnectivity::RemoveAllSeeds()
     delete temp;
     }
 }
-
-//----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::SetFilteredAxes(int num, int *axes)
-{
-  if (num > 3)
-    {
-    vtkWarningMacro("SetFilteredAxes: Only handle up to three axes");
-    num = 3;
-   }
-  this->vtkImageFilter::SetFilteredAxes(num, axes);
-}
-
 
 //----------------------------------------------------------------------------
 void vtkImageSeedConnectivity::AddSeed(int num, int *index)
@@ -134,9 +121,6 @@ void vtkImageSeedConnectivity::AddSeed(int i0, int i1)
 // image anyway.
 void vtkImageSeedConnectivity::InterceptCacheUpdate()
 {
-  int idx, axis;
-  int min, max;
-
   // Filter superclass has no control of intercept cache update.
   // a work around
   if (this->Bypass)
@@ -144,18 +128,13 @@ void vtkImageSeedConnectivity::InterceptCacheUpdate()
     return;
     }
   
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    this->Output->GetAxisWholeExtent(axis, min, max);
-    this->Output->SetAxisUpdateExtent(axis, min, max);
-    }    
+  this->Output->SetUpdateExtent(this->Output->GetWholeExtent());
 }
 
 
 //----------------------------------------------------------------------------
-void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
-				       vtkImageRegion *outRegion)
+void vtkImageSeedConnectivity::Execute(vtkImageData *inData,
+				       vtkImageData *outData)
 {
   vtkImageConnectorSeed *seed;
   int idx0, idx1, idx2;
@@ -167,8 +146,8 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
   unsigned char temp1, temp2;
   int temp;
 
-  if (inRegion->GetScalarType() != VTK_UNSIGNED_CHAR ||
-       outRegion->GetScalarType() != VTK_UNSIGNED_CHAR)
+  if (inData->GetScalarType() != VTK_UNSIGNED_CHAR ||
+      outData->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("Execute: Both input and output must have scalar type UnsignedChar");
     return;
@@ -192,11 +171,11 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
   
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
-  inRegion->GetIncrements(inInc0, inInc1, inInc2);
-  inRegion->GetExtent(min0, max0, min1, max1, min2, max2);
-  outRegion->GetIncrements(outInc0, outInc1, outInc2);
-  inPtr2 = (unsigned char *)(inRegion->GetScalarPointer());
-  outPtr2 = (unsigned char *)(outRegion->GetScalarPointer());
+  inData->GetIncrements(inInc0, inInc1, inInc2);
+  this->Output->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
+  outData->GetIncrements(outInc0, outInc1, outInc2);
+  inPtr2 = (unsigned char *)(inData->GetScalarPointer(min0,min1,min2));
+  outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     inPtr1 = inPtr2;
@@ -224,7 +203,7 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
     inPtr2 += inInc2;
     outPtr2 += outInc2;
     }
-
+  
   //-------
   // find actual seeds in this image. (only scan along the first axis for now)
   this->Connector->RemoveAllSeeds();
@@ -232,7 +211,10 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
   while (seed)
     {
     temp = seed->Index[0];
-    outPtr0 = (unsigned char *)(outRegion->GetScalarPointer(this->NumberOfFilteredAxes, seed->Index));
+    // make sure z value of seed is acceptable
+    if (seed->Index[2] < min2) seed->Index[2] = min2;
+    if (seed->Index[2] > max2) seed->Index[2] = max2;
+    outPtr0 = (unsigned char *)(outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
       {
       if (*outPtr0 == temp1)
@@ -251,11 +233,12 @@ void vtkImageSeedConnectivity::Execute(vtkImageRegion *inRegion,
   // connect
   this->Connector->SetUnconnectedValue(temp1);
   this->Connector->SetConnectedValue(temp2);
-  this->Connector->MarkRegion(outRegion, this->NumberOfFilteredAxes);
+  this->Connector->MarkData(outData, this->Dimensionality, 
+			    this->Output->GetUpdateExtent());
 
   //-------
   // Threshold to convert intermediate values into OutputUnconnectedValues
-  outPtr2 = (unsigned char *)(outRegion->GetScalarPointer());
+  outPtr2 = (unsigned char *)(outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
     {
     outPtr1 = outPtr2;

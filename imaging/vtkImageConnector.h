@@ -54,9 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageConnector_h
 
 #include "vtkObject.h"
-class vtkImageRegion;
-
-
+#include "vtkImageData.h"
 
 //
 // Special classes for manipulating data
@@ -96,7 +94,7 @@ public:
   vtkSetMacro(UnconnectedValue, unsigned char);
   vtkGetMacro(UnconnectedValue, unsigned char);
 
-  void MarkRegion(vtkImageRegion *region, int dimensionality);
+  void MarkData(vtkImageData *data, int dimensionality, int ext[6]);
 
 private:
   unsigned char ConnectedValue;
