@@ -401,6 +401,52 @@ public:
      series. Use the first series by default. */
   void GetImagePositionPatientFilenamePairs(dicom_stl::vector<dicom_stl::pair<float, dicom_stl::string> > &v);
 
+  float GetRescaleSlope()
+    {
+    return this->RescaleSlope;
+    }
+
+  float GetRescaleOffset()
+    {
+    return this->RescaleOffset;
+    }
+
+  dicom_stl::string GetPatientName()
+    {
+    return *(this->PatientName);
+    }
+
+  dicom_stl::string GetStudyUID()
+    {
+    return *(this->StudyUID);
+    }
+
+  void PatientNameCallback(DICOMParser *,
+                           doublebyte,
+                           doublebyte,
+                           DICOMParser::VRTypes,
+                           unsigned char* val,
+                           quadbyte);
+
+  void StudyUIDCallback(DICOMParser *,
+                           doublebyte,
+                           doublebyte,
+                           DICOMParser::VRTypes,
+                           unsigned char* val,
+                           quadbyte);
+
+  void GantryAngleCallback(DICOMParser *,
+                           doublebyte,
+                           doublebyte,
+                           DICOMParser::VRTypes,
+                           unsigned char* val,
+                           quadbyte);
+
+  float GetGantryAngle()
+    {
+    return this->GantryAngle;
+    }
+
  protected:
   int BitsAllocated;
   bool ByteSwapData;
@@ -433,6 +479,10 @@ public:
   DICOMParser::VRTypes ImageDataType;
   unsigned long ImageDataLengthInBytes;
 
+  dicom_stl::string* PatientName;
+  dicom_stl::string* StudyUID;
+  float GantryAngle;
+
   DICOMMemberCallback<DICOMAppHelper>* SeriesUIDCB;
   DICOMMemberCallback<DICOMAppHelper>* SliceNumberCB;
   DICOMMemberCallback<DICOMAppHelper>* SliceLocationCB;
@@ -449,6 +499,10 @@ public:
   DICOMMemberCallback<DICOMAppHelper>* RescaleOffsetCB;
   DICOMMemberCallback<DICOMAppHelper>* RescaleSlopeCB;
   DICOMMemberCallback<DICOMAppHelper>* PixelDataCB;
+  DICOMMemberCallback<DICOMAppHelper>* PatientNameCB;
+  DICOMMemberCallback<DICOMAppHelper>* StudyUIDCB;
+
+  DICOMMemberCallback<DICOMAppHelper>* GantryAngleCB;
 
   //
   // Implementation contains stl templated classes that 

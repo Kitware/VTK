@@ -83,6 +83,9 @@ DICOMAppHelper::DICOMAppHelper()
   this->RescaleSlope = 1.0;
   this->ImageData = NULL;
   this->ImageDataLengthInBytes = 0;
+  this->PatientName = NULL;
+  this->StudyUID = NULL;
+  this->GantryAngle = 0.0;
 
   this->SeriesUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->SliceNumberCB = new DICOMMemberCallback<DICOMAppHelper>;
@@ -100,6 +103,9 @@ DICOMAppHelper::DICOMAppHelper()
   this->RescaleOffsetCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->RescaleSlopeCB = new DICOMMemberCallback<DICOMAppHelper>;
   this->PixelDataCB = new DICOMMemberCallback<DICOMAppHelper>;
+  this->PatientNameCB = new DICOMMemberCallback<DICOMAppHelper>;
+  this->StudyUIDCB = new DICOMMemberCallback<DICOMAppHelper>;
+  this->GantryAngleCB = new DICOMMemberCallback<DICOMAppHelper>;
 
   this->Implementation = new DICOMAppHelperImplementation;
 }
@@ -126,6 +132,16 @@ DICOMAppHelper::~DICOMAppHelper()
     delete this->PhotometricInterpretation;
     }
 
+  if (this->PatientName)
+    {
+    delete this->PatientName;
+    }
+
+  if (this->StudyUID)
+    {
+    delete this->StudyUID;
+    }
+
   delete this->SeriesUIDCB;
   delete this->SliceNumberCB;
   delete this->SliceLocationCB;
@@ -142,6 +158,9 @@ DICOMAppHelper::~DICOMAppHelper()
   delete this->RescaleOffsetCB;
   delete this->RescaleSlopeCB;
   delete this->PixelDataCB;
+  delete this->PatientNameCB;
+  delete this->StudyUIDCB;
+  delete this->GantryAngleCB;
 
   delete this->Implementation;
 }
@@ -197,6 +216,16 @@ void DICOMAppHelper::RegisterCallbacks(DICOMParser* parser)
 
   RescaleSlopeCB->SetCallbackFunction(this, &DICOMAppHelper::RescaleSlopeCallback);
   parser->AddDICOMTagCallback(0x0028, 0x1053, DICOMParser::VR_FL, RescaleSlopeCB);
+
+  PatientNameCB->SetCallbackFunction(this, &DICOMAppHelper::PatientNameCallback);
+  parser->AddDICOMTagCallback(0x0010, 0x0010, DICOMParser::VR_PN, PatientNameCB);
+
+  StudyUIDCB->SetCallbackFunction(this, &DICOMAppHelper::StudyUIDCallback);
+  parser->AddDICOMTagCallback(0x0020, 0x000d, DICOMParser::VR_UI, StudyUIDCB);
+
+  GantryAngleCB->SetCallbackFunction(this, &DICOMAppHelper::GantryAngleCallback);
+  parser->AddDICOMTagCallback(0x0018, 0x1120, DICOMParser::VR_FL, GantryAngleCB);
+
 
   DICOMTagInfo dicom_tags[] = {
     {0x0002, 0x0002, DICOMParser::VR_UI, "Media storage SOP class uid"},
@@ -1159,6 +1188,52 @@ void DICOMAppHelper::Clear()
   this->Implementation->SliceOrderingMap.clear();
   this->Implementation->SeriesUIDMap.clear();
 }
+
+void DICOMAppHelper::PatientNameCallback(DICOMParser *,
+                                         doublebyte,
+                                         doublebyte,
+                                         DICOMParser::VRTypes,
+                                         unsigned char* val,
+                                         quadbyte) 
+{
+  if (this->PatientName)
+    {
+    delete this->PatientName;
+    }
+
+  this->PatientName = new dicom_stl::string((char*) val);
+
+}
+
+void DICOMAppHelper::StudyUIDCallback(DICOMParser *,
+                                         doublebyte,
+                                         doublebyte,
+                                         DICOMParser::VRTypes,
+                                         unsigned char* val,
+                                         quadbyte) 
+{
+  if (this->StudyUID)
+    {
+    delete this->StudyUID;
+    }
+
+  this->StudyUID = new dicom_stl::string((char*) val);
+
+}
+
+void DICOMAppHelper::GantryAngleCallback(DICOMParser * parser,
+                           doublebyte,
+                           doublebyte,
+                           DICOMParser::VRTypes,
+                           unsigned char* val,
+                           quadbyte)
+{
+  float fval = DICOMFile::ReturnAsFloat(val,
+                                        parser->GetDICOMFile()->GetPlatformIsBigEndian ());
+
+  this->GantryAngle = fval;
+}
+
 
 #ifdef _MSC_VER
 #pragma warning ( pop )
