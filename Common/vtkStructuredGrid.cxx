@@ -71,6 +71,7 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->Line = vtkLine::New();
   this->Quad = vtkQuad::New();
   this->Hexahedron = vtkHexahedron::New();
+  this->EmptyCell = vtkEmptyCell::New();
   
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
@@ -94,6 +95,7 @@ vtkStructuredGrid::~vtkStructuredGrid()
   this->Line->Delete();
   this->Quad->Delete();
   this->Hexahedron->Delete();
+  this->EmptyCell->Delete();
 }
 
 //----------------------------------------------------------------------------
