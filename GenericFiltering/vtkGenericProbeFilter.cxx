@@ -26,7 +26,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 
-vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.1");
+vtkCxxRevisionMacro(vtkGenericProbeFilter, "1.2");
 vtkStandardNewMacro(vtkGenericProbeFilter);
 
 //----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void vtkGenericProbeFilter::Execute()
   vtkIdType ptId, numPts;
   double x[3], tol2;
 //  vtkCell *cell;
-  vtkPointData *pd, *outPD;
+  vtkPointData *outPD;
   int subId;
   vtkGenericDataSet *source = this->GetSource();
   vtkDataSet *input = this->GetInput();
@@ -85,7 +85,6 @@ void vtkGenericProbeFilter::Execute()
     }
 
 //  pd = source->GetPointData();
-  pd = vtkPointData::New();
   //pd = NULL;
   //int size = input->GetNumberOfPoints();
   

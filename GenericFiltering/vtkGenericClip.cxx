@@ -35,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.1");
+vtkCxxRevisionMacro(vtkGenericClip, "1.2");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 
@@ -137,8 +137,6 @@ void vtkGenericClip::Execute()
   vtkPoints *newPoints;
   vtkDoubleArray *cellScalars; 
   vtkDataArray *clipScalars;
-  vtkPoints *cellPts;
-  vtkIdList *cellIds;
   double s;
   vtkIdType npts;
   vtkIdType *pts;
@@ -219,9 +217,6 @@ void vtkGenericClip::Execute()
     tmpScalars->SetNumberOfTuples(numPts);
     tmpScalars->SetName("ClipDataSetScalars");
 
-    (void)cellPts;
-    (void)cellIds;
-
 //    vtkGenericCellIterator *pointIt = input->NewVertexIterator(); //specifically ask for points
     vtkGenericPointIterator *pointIt = input->NewPointIterator();
     for( i = 0, pointIt->Begin(); !pointIt->IsAtEnd(); pointIt->Next() )
@@ -251,23 +246,18 @@ void vtkGenericClip::Execute()
         cell = cellIt->GetCell();
 //        tmpScalars->SetNumberOfComponents(
 //          cell->GetCurrentAttribute()->GetNumberOfComponents());//FIXME
-
-        //cellPts = cell->GetPoints();
-        //cellIds = cell->GetPointIds();
-        //numPts = cellPts->GetNumberOfPoints();
         numPts = cell->GetNumberOfPoints();
           double *point;
           double val[3]; // FIXME: should be double *val = new double[input->GetAttributes()->GetNumberOfComponents()]
         for(i=0; i<numPts;i++)
           {
-          //s = this->ClipFunction->FunctionValue(cellPts->GetPoint(i));
           //cell->GetParametricCoords(i, point);
           point = cell->GetParametricCoords() + i;
           //cell->EvaluateShapeFunction(point, val);
           
 //          input->GetAttributes()->EvaluateTuple(cell, point, val);
           cell->InterpolateTuple(input->GetAttributes(), point, val);
-          tmpScalars->SetTuple(i, val); //FIXME cellIds->GetId(i)
+          tmpScalars->SetTuple(i, val);
           }
         }
 
@@ -319,16 +309,11 @@ void vtkGenericClip::Execute()
     //FIXME: we temporaly create a vtkPoints and vtkIdList just for:
     //1. The num of points and 
     //2. retrieving there id . Should use iterator again
-    
-//    cellPts = cell->GetPoints();
-//    cellIds = cell->GetPointIds();
-//    npts = cellPts->GetNumberOfPoints();
     npts = cell->GetNumberOfPoints();
 
     // evaluate implicit cutting function
     for ( i=0; i < npts; i++ )
       {
-      //s = clipScalars->GetComponent(cellIds->GetId(i), 0);
       s = clipScalars->GetComponent(i, 0);
       //cellScalars->InsertTuple1(i, s);
       cellScalars->InsertTuple1(i, 0);

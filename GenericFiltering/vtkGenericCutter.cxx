@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.1");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.2");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
 
@@ -199,18 +199,16 @@ void vtkGenericCutter::Execute()
 void vtkGenericCutter::UnstructuredGridCutter()
 {
   vtkIdType i;
-  int iter;
   vtkDoubleArray *cellScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPoints;
   vtkDoubleArray *cutScalars;
-  double *values, s;
+  double s;
   vtkPolyData *output = this->GetOutput();
   vtkGenericDataSet *input = this->GetInput();
   vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
   vtkIdType numPts=input->GetNumberOfPoints();
-  vtkIdType cellArrayIt = 0;
-  int numCellPts;
+//  int numCellPts;
   vtkPointData *inPD = NULL, *outPD;
   //vtkCellData *inCD; //=input->GetCellData(), 
   vtkCellData *outCD=output->GetCellData();
@@ -286,17 +284,13 @@ void vtkGenericCutter::UnstructuredGridCutter()
 //  vtkUnstructuredGrid *grid = (vtkUnstructuredGrid *)input;
 //  vtkIdType *cellArrayPtr = grid->GetCells()->GetPointer();
   double *scalarArrayPtr = cutScalars->GetPointer(0);
-  double tempScalar;
+//  double tempScalar;
   cellScalars = cutScalars->NewInstance();
   cellScalars->SetNumberOfComponents(cutScalars->GetNumberOfComponents());
   cellScalars->Allocate(VTK_CELL_SIZE*cutScalars->GetNumberOfComponents());
-
-  (void)values;
-  (void)cellArrayIt;
+  
   (void)range;
   (void)scalarArrayPtr;
-  (void)numCellPts;
-  (void)tempScalar;
 
   //input->ResetCell();
   
@@ -357,7 +351,6 @@ void vtkGenericCutter::UnstructuredGridCutter()
           cellScalars->SetTuple(j, cutScalars->GetTuple(cellIds[j]));
           }
         
-        (void)iter;
         // Loop over all contour values.
 //        for (iter=0; iter < numContours && !abortExecute; iter++)
           {

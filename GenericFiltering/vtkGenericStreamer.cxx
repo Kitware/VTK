@@ -26,7 +26,7 @@
 #include "vtkRungeKutta2.h"
 #include "vtkGenericDataSet.h"
 
-vtkCxxRevisionMacro(vtkGenericStreamer, "1.3");
+vtkCxxRevisionMacro(vtkGenericStreamer, "1.4");
 vtkCxxSetObjectMacro(vtkGenericStreamer,Integrator,vtkInitialValueProblemSolver);
 
 #define VTK_START_FROM_POSITION 0
@@ -217,7 +217,7 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
   double                   *w=0;
   double pcoords[3];
   double                   coords[4];
-  vtkGenericDataSet    *input;
+//  vtkGenericDataSet    *input;
   vtkGenericCell           *cell;
   //vtkPointData             *pd;
   vtkDataArray             *inScalars=0;
@@ -232,7 +232,7 @@ VTK_THREAD_RETURN_TYPE vtkGenericStreamer::ThreadedIntegrate( void *arg )
   thread_count = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
   self = (vtkGenericStreamer *)(((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
 
-  input     = self->GetInput();
+//  input     = self->GetInput();
   //pd        = input->GetPointData();//FIXME
   //inScalars = pd->GetScalars();//FIXME
   //inVectors = pd->GetVectors();//FIXME
