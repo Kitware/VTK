@@ -88,6 +88,7 @@ ENDIF (UNIX)
 # Look for the PNG, zlib, jpeg, and tiff libraries and header files
 #
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/zlib)
+INCLUDE_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/zlib)
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/png)
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/jpeg)
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/tiff)
