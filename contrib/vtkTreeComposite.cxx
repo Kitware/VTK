@@ -679,4 +679,16 @@ void vtkTreeComposite::Composite(int flag, float *remoteZdata,
     }
 }
 
-
+void vtkTreeComposite::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->vtkObject::PrintSelf(os, indent);
+  
+  if ( this->RenderWindow )
+    {
+    os << indent << "RenderWindow: " << this->RenderWindow << "\n";
+    }
+  else
+    {
+    os << indent << "RenderWindow: (none)\n";
+    }
+}

@@ -66,7 +66,7 @@ class VTK_EXPORT vtkTreeComposite : public vtkObject
 public:
   static vtkTreeComposite *New();
   vtkTypeMacro(vtkTreeComposite,vtkObject);
-  //void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the RenderWindow to use for compositing.
