@@ -54,7 +54,14 @@ TaskParallelism
 task1
 task2)
 
+SOURCE_FILES( TaskParaPorts_SRCS
+TaskParallelismWithPorts
+task3
+task4)
+
 ADD_EXECUTABLE(TaskParallelism TaskPara_SRCS)
+
+ADD_EXECUTABLE(TaskParallelismWithPorts TaskParaPorts_SRCS)
 
 SOURCE_FILES( PipePara_SRCS
 PipelineParallelism
