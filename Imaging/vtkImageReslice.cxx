@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.45");
+vtkCxxRevisionMacro(vtkImageReslice, "1.46");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -33,35 +33,36 @@ vtkCxxSetObjectMacro(vtkImageReslice,ResliceTransform,vtkAbstractTransform);
 //--------------------------------------------------------------------------
 // The 'floor' function on x86 and mips is many times slower than these
 // and is used a lot in this code, optimize for different CPU architectures
-inline int vtkResliceFloor(double x)
+template<class F>
+inline int vtkResliceFloor(double x, F &f)
 {
 #if defined mips || defined sparc || defined __ppc__
-  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+  int i = (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+  f = x - i;
+  return i;
 #elif defined i386 || defined _M_IX86
-  unsigned int hilo[2];
-  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
-  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+  union { double d; unsigned short s[4]; unsigned int i[2]; } dual;
+  dual.d = x + 103079215104.0;  // (2**(52-16))*1.5
+  f = dual.s[0]*0.0000152587890625; // 2**(-16)
+  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
 #else
-  return int(floor(x));
+  double y = floor(x);
+  f = x - y;
+  return (int)(y);
 #endif
-}
-
-inline int vtkResliceCeil(double x)
-{
-  return -vtkResliceFloor(-x - 1.0) - 1;
 }
 
 inline int vtkResliceRound(double x)
 {
-  return vtkResliceFloor(x + 0.5);
-}
-
-// convert a float into an integer plus a fraction  
-inline int vtkResliceFloor(double x, double &f)
-{
-  int ix = vtkResliceFloor(x);
-  f = x - ix;
-  return ix;
+#if defined mips || defined sparc || defined __ppc__
+  return (int)((unsigned int)(x + 2147483648.5) - 2147483648U);
+#elif defined i386 || defined _M_IX86
+  union { double d; unsigned int i[2]; } dual;
+  dual.d = x + 103079215104.5;  // (2**(52-16))*1.5
+  return (int)((dual.i[1]<<16)|((dual.i[0])>>16));
+#else
+  return (int)(floor(x+0.5));
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -431,19 +432,28 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
       int extra = (this->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
         {
-        k = vtkResliceFloor(point[j]) - extra;
-        if (k < inExt[2*j]) 
+        k = vtkResliceFloor(point[j], f);
+        if (f == 0)
           {
-          inExt[2*j] = k;
+          if (k < inExt[2*j])
+            { 
+            inExt[2*j] = k;
+            }
+          if (k > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k;
+            }
           }
-        k = vtkResliceFloor(point[j]) + 1 + extra;
-        if (k > inExt[2*j+1])
+        else
           {
-          inExt[2*j+1] = k;
-          }
-        if (k == point[j])
-          {
-          inExt[2*j] = inExt[2*j+1] = k;
+          if (k - extra < inExt[2*j])
+            { 
+            inExt[2*j] = k - extra;
+            }
+          if (k + 1 + extra > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k + 1 + extra;
+            }
           }
         }
       }
@@ -1875,19 +1885,28 @@ void vtkResliceOptimizedComputeInputUpdateExtent(vtkImageReslice *self,
       int extra = (self->GetInterpolationMode() == VTK_RESLICE_CUBIC); 
       for (j = 0; j < 3; j++) 
         {
-        k = vtkResliceFloor(inPoint[j])-extra;
-        if (k < inExt[2*j])
-          { 
-          inExt[2*j] = k;
-          }
-        k = vtkResliceFloor(inPoint[j])+1+extra;
-        if (k > inExt[2*j+1])
-          { 
-          inExt[2*j+1] = k;
-          }
-        if (k == inPoint[j])
+        k = vtkResliceFloor(inPoint[j], f);
+        if (f == 0)
           {
-          inExt[2*j] = inExt[2*j+1] = k;
+          if (k < inExt[2*j])
+            { 
+            inExt[2*j] = k;
+            }
+          if (k > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k;
+            }
+          }
+        else
+          {
+          if (k - extra < inExt[2*j])
+            { 
+            inExt[2*j] = k - extra;
+            }
+          if (k + 1 + extra > inExt[2*j+1])
+            { 
+            inExt[2*j+1] = k + 1 + extra;
+            }
           }
         }
       }
@@ -3016,8 +3035,10 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
       }
 
     // do the output pixels lie exactly on top of the input pixels?
-    useNearestNeighbor[j] = (newmat[k][j] == vtkResliceFloor(newmat[k][j]) &&
-                             newmat[k][3] == vtkResliceFloor(newmat[k][3]));
+    F f1, f2;
+    vtkResliceFloor(newmat[k][j], f1);
+    vtkResliceFloor(newmat[k][3], f2);
+    useNearestNeighbor[j] = (f1 == 0 && f2 == 0);
     
     int inExtK = inExt[2*k+1] - inExt[2*k] + 1;
 
@@ -3026,7 +3047,7 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
       {
       F point = newmat[k][3] + i*newmat[k][j];
       F f;
-      int trunc = vtkResliceFloor(point,f);
+      int trunc = vtkResliceFloor(point, f);
       constants[j][2*i] = 1 - f;
       constants[j][2*i+1] = f;
       
@@ -3092,8 +3113,10 @@ void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
       }
 
     // do the output pixels lie exactly on top of the input pixels?
-    useNearestNeighbor[j] = (newmat[k][j] == vtkResliceFloor(newmat[k][j]) &&
-                             newmat[k][3] == vtkResliceFloor(newmat[k][3]));
+    F f1, f2;
+    vtkResliceFloor(newmat[k][j], f1);
+    vtkResliceFloor(newmat[k][3], f2);
+    useNearestNeighbor[j] = (f1 == 0 && f2 == 0);
 
     int inExtK = inExt[2*k+1] - inExt[2*k] + 1;
 
@@ -3193,7 +3216,10 @@ inline int vtkCanUseNearestNeighbor(F matrix[4][4], int outExt[6])
       y += x*outExt[2*i];
       x = 0;
       }
-    if (vtkResliceFloor(x) != x || vtkResliceFloor(y) != y)
+    F fx, fy;
+    vtkResliceFloor(x, fx);
+    vtkResliceFloor(y, fy);
+    if (fx != 0 || fy != 0)
       {
       return 0;
       }
