@@ -4,7 +4,8 @@ IF (VTK_USE_RENDERING)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
-    FOREACH ( tfile 
+    FOREACH ( tfile
+      cells 
       ImageActor
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
