@@ -17,16 +17,18 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.11");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.12");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -43,18 +45,8 @@ vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
 {
-  this->NumberOfRequiredInputs = 1;
-  this->SetNumberOfInputPorts(1);
   this->TetraPerCell  = VTK_VOXEL_TO_5_TET;
   this->RememberVoxelId = 0;
-}
-
-//-------------------------------------------------------------------------
-
-// Specify the input data or filter.
-void vtkRectilinearGridToTetrahedra::SetInput(vtkRectilinearGrid *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -62,11 +54,12 @@ void vtkRectilinearGridToTetrahedra::SetInput(vtkRectilinearGrid *input)
 // Specify the input data or filter.
 vtkRectilinearGrid *vtkRectilinearGridToTetrahedra::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
     return NULL;
     }
-  return (vtkRectilinearGrid *)(this->Inputs[0]);
+  return vtkRectilinearGrid::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -140,7 +133,7 @@ void vtkRectilinearGridToTetrahedra::SetInput(const double Extent[3],
   Coord[2]->Delete();
 
   // Get the reference counting right.
-  this->SetInput(RectGrid);
+  this->Superclass::SetInput(RectGrid);
   RectGrid->Delete();
 }
 
@@ -535,14 +528,20 @@ Want right handed Tetrahedra...
 
 //----------------------------------------------------------------------------
 
-void vtkRectilinearGridToTetrahedra::Execute()
+int vtkRectilinearGridToTetrahedra::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkRectilinearGrid *RectGrid = this->GetInput();
-  if  (RectGrid == NULL )
-    {
-    vtkErrorMacro("<<Cannot form tetrahedra; no input RectilinearGrid");
-    return;
-    }
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkRectilinearGrid *RectGrid = vtkRectilinearGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   // Create internal version of VoxelSubdivisionType
   // VoxelSubdivisionType indicates how to subdivide each cell
@@ -558,7 +557,7 @@ void vtkRectilinearGridToTetrahedra::Execute()
     if((TempVoxelSubdivisionType == NULL))
       {
       vtkErrorMacro(<< "Scalars to input Should be set!");
-      return;
+      return 1;
       }
     VoxelSubdivisionType->SetNumberOfValues(RectGrid->GetNumberOfCells());
     VoxelSubdivisionType->vtkCharArray::DeepCopy(TempVoxelSubdivisionType);
@@ -579,15 +578,17 @@ void vtkRectilinearGridToTetrahedra::Execute()
 
   // Subdivide each cell to a tetrahedron, forming the TetMesh
   GridToTetMesh(RectGrid,VoxelSubdivisionType,this->TetraPerCell,
-                this->RememberVoxelId,this->GetOutput());
+                this->RememberVoxelId,output);
 
   vtkDebugMacro(<< "Number of output points: " 
-                << this->GetOutput()->GetNumberOfPoints());
+                << output->GetNumberOfPoints());
   vtkDebugMacro(<< "Number of output tetrahedra: " 
-                << this->GetOutput()->GetNumberOfCells());
+                << output->GetNumberOfCells());
 
   // Clean Up
   VoxelSubdivisionType->Delete();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -607,7 +608,7 @@ vtkRectilinearGridToTetrahedra
 
 void vtkRectilinearGridToTetrahedra::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGridSource::PrintSelf(os,indent);
+  this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Mesh Type: " << this->TetraPerCell << "\n";
   os << indent << "RememberVoxel Id: " << this->RememberVoxelId << "\n";

@@ -49,17 +49,17 @@
 #define VTK_VOXEL_TO_6_TET        6
 #define VTK_VOXEL_TO_5_AND_12_TET -1
 
-#include "vtkUnstructuredGridSource.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 class vtkRectilinearGrid;
 class vtkCharArray;
 class vtkIdList;
 class vtkCellArray;
 class vtkPoints;
 
-class VTK_GRAPHICS_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstructuredGridSource
+class VTK_GRAPHICS_EXPORT vtkRectilinearGridToTetrahedra : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkRectilinearGridToTetrahedra,vtkUnstructuredGridSource);
+  vtkTypeRevisionMacro(vtkRectilinearGridToTetrahedra,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -102,18 +102,17 @@ public:
                 const double tol=0.001);
 
   // Description:
-  // Set / get the input data or filter.
+  // Get the input data or filter.
   // If TetraPerCell is VTK_VOXEL_TO_5_and_12_TET
   // then the input must have scalars, each set to 5 or 12
   // to specify how to subdivide each cell.
-  void SetInput(vtkRectilinearGrid *input);
   vtkRectilinearGrid *GetInput();
 
 protected:
   vtkRectilinearGridToTetrahedra();
   ~vtkRectilinearGridToTetrahedra() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int RememberVoxelId;
   int TetraPerCell;
