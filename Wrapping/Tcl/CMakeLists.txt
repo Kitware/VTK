@@ -107,7 +107,7 @@ ENDIF (VTK_USE_PARALLEL)
 #
 # link in the PNG library if it was found
 #
-TARGET_LINK_LIBRARIES(vtk vtkpng vtkzlib vtkjpeg vtktiff)
+TARGET_LINK_LIBRARIES(vtk vtkpng vtkzlib vtkjpeg vtktiff vtkexpat)
 
 INSTALL_TARGETS(/bin vtk)
 
