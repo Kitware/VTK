@@ -15,10 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 // .NAME vtkDashedStreamLine - generate constant-time dashed streamline in arbitrary dataset
 // .SECTION Description
-// vtkStreamLine is a filter that generates a streamline for an arbitrary 
-// dataset. The streamline consists of a series of dashes, each of which 
-// represents a constant time increment. (A streamline is a line that is 
-// everywhere tangent to the vector field (see vtkStreamLine).
+// vtkDashedStreamLine is a filter that generates a "dashed" streamline for 
+// an arbitrary dataset. The streamline consists of a series of dashes, each 
+// of which represents (approximately) a constant time increment. Thus in the
+// resulting visual representation, relatively long dashes represent areas of 
+// high velocity, and small dashes represent areas of low velocity.
+//   vtkDashedStreamLine introduces the instance variable DashFactor. 
+// DashFactor interacts with its superclass' instance variable StepLength to
+// create the dashes. DashFactor is the percentage of the StepLength line 
+// segment that is visible. Thus if DashFactor=0.75, the dashes will be 
+// "three-quarters on" and "one-quarter off".
+// .SECTION See Also
+// vtkStreamer, vtkStreamLine, vtkStreamPoints
 
 #ifndef __vtkDashedStreamLine_h
 #define __vtkDashedStreamLine_h
