@@ -108,6 +108,10 @@ public:
   vtkSetMacro(KeyPressActivationValue,char);
   vtkGetMacro(KeyPressActivationValue,char);
 
+  // Description:
+  // Keep track of a previous state (mouse position in display coordinates)
+  vtkGetVectorMacro(LastPos,int,2);
+
 protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
@@ -120,10 +124,10 @@ protected:
   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
   // helper method for subclasses
-  void ComputeDisplayToWorld(double x, double y, double z, double *worldPt);
-  void ComputeDisplayToWorld(double x, double y, double z, float *worldPt);
-  void ComputeWorldToDisplay(double x, double y, double z, double *displayPt);
-  void ComputeWorldToDisplay(double x, double y, double z, float *displayPt);
+  void ComputeDisplayToWorld(double x, double y, double z, double worldPt[4]);
+  void ComputeDisplayToWorld(double x, double y, double z, float worldPt[4]);
+  void ComputeWorldToDisplay(double x, double y, double z, double displayPt[3]);
+  void ComputeWorldToDisplay(double x, double y, double z, float displayPt[3]);
     
   // The state of the widget, whether on or off (observing events or not)
   int Enabled;
@@ -146,9 +150,8 @@ protected:
   vtkRenderer *CurrentRenderer;
   vtkCamera *CurrentCamera;
 
-  // Keep track of previous state: mouse position in display coordinates
-  int OldX;
-  int OldY;
+  // Keep track of a previous state (mouse position in display coordinates)
+  int LastPos[2];
 
 private:
   vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
