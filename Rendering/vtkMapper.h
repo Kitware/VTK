@@ -201,7 +201,7 @@ public:
   // Description:
   // Choose which component of which field data array to color by.
   void ColorByArrayComponent(int arrayNum, int component);
-  void ColorByArrayComponent(char* arrayName, int component);
+  void ColorByArrayComponent(const char* arrayName, int component);
   
   // Description:
   // Get the array name or number and component to color by.
