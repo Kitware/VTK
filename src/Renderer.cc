@@ -332,6 +332,43 @@ void vlRenderer::WorldToView()
     }
 }
 
+// Description:
+// Return center of renderer in display coordinates.
+float *vlRenderer::GetCenter()
+{
+  int *size;
+  
+  // get physical window dimensions 
+  size = this->RenderWindow->GetSize();
+
+  this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+		     /2.0*(float)size[0]);
+  this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+		     /2.0*(float)size[1]);
+
+  return this->Center;
+}
+
+// Description:
+// Is a given display point in this renderer's viewport.
+int vlRenderer::IsInViewport(int x,int y)
+{
+  int *size;
+  
+  // get physical window dimensions 
+  size = this->RenderWindow->GetSize();
+
+  if ((this->Viewport[0]*size[0] <= x)&&
+      (this->Viewport[2]*size[0] >= x)&&
+      (this->Viewport[1]*size[1] <= y)&&
+      (this->Viewport[3]*size[1] >= y))
+    {
+    return 1;
+    }
+
+  return 0;
+}
+
 void vlRenderer::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlObject::PrintSelf(os,indent);

@@ -43,6 +43,10 @@ public:
   int UpdateLights(void);
   vlGetMacro(Fd,int);
   vlGetMacro(LightSwitch,int);
+  virtual float *GetCenter();
+  virtual void DisplayToView(); 
+  virtual void ViewToDisplay(); 
+  virtual int  IsInViewport(int x,int y); 
 
 protected:
   int NumberOfLightsBound;

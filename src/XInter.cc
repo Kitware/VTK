@@ -226,6 +226,7 @@ void  vlXRenderWindowInteractor::EndPan()
 void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data, 
 				    XEvent *event, Boolean *ctd)
 {
+  int *size;
   vlXRenderWindowInteractor *me;
 
   me = (vlXRenderWindowInteractor *)client_data;
@@ -246,17 +247,17 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	{
 	case Button1 : 
           me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      ((XButtonEvent*)event)->y);
+			      me->Size[1] - ((XButtonEvent*)event)->y);
 	  me->StartRotate(); 
 	  break;
 	case Button2 : 
           me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      ((XButtonEvent*)event)->y);
+			      me->Size[1] - ((XButtonEvent*)event)->y);
 	  me->StartPan(); 
 	  break;
 	case Button3 : 
           me->FindPokedCamera(((XButtonEvent*)event)->x,
-			      ((XButtonEvent*)event)->y);
+			      me->Size[1] - ((XButtonEvent*)event)->y);
 	  me->StartZoom(); 
 	  break;
 	}
@@ -287,7 +288,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	case XK_r : //reset
 	  {
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
-			       ((XKeyEvent*)event)->y);
+			        me->Size[1] - ((XKeyEvent*)event)->y);
 	  me->CurrentRenderer->ResetCamera();
 	  me->RenderWindow->Render();
           }
@@ -299,7 +300,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  vlActor *anActor;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
-				((XKeyEvent*)event)->y);
+				me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
@@ -316,7 +317,7 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	  vlActor *anActor;
 	  
           me->FindPokedRenderer(((XKeyEvent*)event)->x,
-			       ((XKeyEvent*)event)->y);
+			        me->Size[1] - ((XKeyEvent*)event)->y);
 	  ac = me->CurrentRenderer->GetActors();
 	  for (ac->InitTraversal(); anActor = ac->GetNextItem(); )
 	    {
@@ -324,6 +325,25 @@ void vlXRenderWindowInteractorCallback(Widget w,XtPointer client_data,
 	    }
 	  
 	  me->RenderWindow->Render();
+          }
+	  break;
+	case XK_3 : // 3d rendering
+	  {
+	  // prepare the new window
+	  if (me->RenderWindow->GetStereoRender())
+	    {
+	    me->SetupNewWindow(1);
+	    me->RenderWindow->StereoRenderOff();
+	    }
+	  else
+	    {
+	    memcpy(me->PositionBeforeStereo,me->RenderWindow->GetPosition(),
+		   sizeof(int)*2);
+	    me->SetupNewWindow(1);
+	    me->RenderWindow->StereoRenderOn();
+	    }
+	  me->RenderWindow->Render();
+          me->FinishSettingUpNewWindow();
           }
 	  break;
         }
@@ -350,7 +370,7 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
       xf = (x - me->Center[0]) * me->DeltaAzimuth;
-      yf = (y - me->Center[1]) * me->DeltaElevation;
+      yf = ((me->Size[1] - y) - me->Center[1]) * me->DeltaElevation;
       me->CurrentCamera->Azimuth(xf);
       me->CurrentCamera->Elevation(yf);
       me->CurrentCamera->OrthogonalizeViewUp();
@@ -416,7 +436,7 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
       // get the pointer position
       XQueryPointer(XtDisplay(me->top),XtWindow(me->top),
 		    &root,&child,&root_x,&root_y,&x,&y,&keys);
-      yf = (y - me->Center[1])/(float)me->Center[1];
+      yf = ((me->Size[1] - y) - me->Center[1])/(float)me->Center[1];
       zoomFactor = pow(1.1,yf);
       clippingRange = me->CurrentCamera->GetClippingRange();
       me->CurrentCamera->SetClippingRange(clippingRange[0]/zoomFactor,
@@ -430,3 +450,78 @@ void vlXRenderWindowInteractorTimer(XtPointer client_data,XtIntervalId *id)
 }  
 
 
+
+// Description:
+// Setup a new window before a WindowRemap
+void vlXRenderWindowInteractor::SetupNewWindow(int Stereo)
+{
+  Display *display;
+  vlXRenderWindow *ren;
+  int depth;
+  Colormap cmap;
+  Visual  *vis;
+  int *size;
+  int *position;
+  int zero_pos[2];
+
+  // get the info we need from the RenderingWindow
+  ren = (vlXRenderWindow *)(this->RenderWindow);
+  display = ren->GetDisplayId();
+  depth   = ren->GetDesiredDepth();
+  cmap    = ren->GetDesiredColormap();
+  vis     = ren->GetDesiredVisual();
+  size    = ren->GetSize();
+  position= ren->GetPosition();
+
+  if (Stereo)
+    {
+    if (this->RenderWindow->GetStereoRender())
+      {
+      position = this->PositionBeforeStereo;
+      }
+    else
+      {
+      zero_pos[0] = 0;
+      zero_pos[1] = 0;
+      position = zero_pos;
+      }
+    }
+
+  // free the previous widget
+  XtDestroyWidget(this->top);
+
+  this->top = XtVaAppCreateShell(this->RenderWindow->GetName(),"vl",
+				 applicationShellWidgetClass,
+				 display,
+				 XtNdepth, depth,
+				 XtNcolormap, cmap,
+				 XtNvisual, vis,
+				 XtNx, position[0],
+				 XtNy, position[1],
+				 XtNwidth, size[0],
+				 XtNheight, size[1],
+				 XtNmappedWhenManaged, 0,
+				 NULL);
+
+  XtRealizeWidget(this->top);
+
+  /* add callback */
+  XSync(display,False);
+  ren->SetNextWindowId(XtWindow(this->top));
+}
+
+// Description:
+// Finish setting up a new window after the WindowRemap.
+void vlXRenderWindowInteractor::FinishSettingUpNewWindow()
+{
+  int *size;
+
+  XtAddEventHandler(this->top,
+		    KeyPressMask | ButtonPressMask | ExposureMask |
+		    StructureNotifyMask | ButtonReleaseMask,
+		    False,vlXRenderWindowInteractorCallback,(XtPointer)this);
+
+  size = this->RenderWindow->GetSize();
+  this->Size[0] = size[0];
+  this->Size[1] = size[1];
+}

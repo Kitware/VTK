@@ -133,8 +133,11 @@ public:
   vlSetVector4Macro(Viewport,float);
   vlGetVectorMacro(Viewport,float,4);
 
-  void DisplayToView();
-  void ViewToDisplay();
+  virtual float *GetCenter();
+
+  virtual void DisplayToView(); // these get modified in subclasses
+  virtual void ViewToDisplay(); // to handle stereo rendering
+  virtual int  IsInViewport(int x,int y); 
   void WorldToView();
   void ViewToWorld();
   void DisplayToWorld();
@@ -154,6 +157,7 @@ protected:
   float Viewport[4];
   int   Erase;
   float Aspect[2];
+  float Center[2];
 };
 
 // Description:

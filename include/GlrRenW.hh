@@ -32,7 +32,8 @@ class vlGlrRenderWindow : public vlXRenderWindow
 protected:
   int Gid;
   int MultiSamples;
-  
+  long OldMonitorSetting;
+
 public:
   vlGlrRenderWindow();
   char *GetClassName() {return "vlGlrRenderWindow";};
@@ -61,6 +62,10 @@ public:
 
   vlSetMacro(MultiSamples,int);
   vlGetMacro(MultiSamples,int);
+
+  // stereo rendering stuff
+  virtual void StereoUpdate();
+  virtual void StereoRenderComplete();
 };
 
 #endif

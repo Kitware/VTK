@@ -60,6 +60,9 @@ public:
   void EndZoom();
   void StartPan();
   void EndPan();
+
+  void SetupNewWindow(int Stereo = 0);
+  void FinishSettingUpNewWindow();
   
   friend void vlXRenderWindowInteractorCallback(Widget,XtPointer,
 					     XEvent *,Boolean *);
@@ -68,6 +71,7 @@ public:
 protected:
   Widget top;
   XtAppContext App;
+  int PositionBeforeStereo[2];
 };
 
 #endif

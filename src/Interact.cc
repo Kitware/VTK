@@ -42,7 +42,6 @@ void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
 {
   vlRendererCollection *rc;
   vlRenderer *aren;
-  float *vp;
 
   this->CurrentRenderer = NULL;
 
@@ -51,11 +50,7 @@ void vlRenderWindowInteractor::FindPokedRenderer(int x,int y)
   for (rc->InitTraversal(); 
        ((aren = rc->GetNextItem())&&(!this->CurrentRenderer));)
     {
-    vp = aren->GetViewport();
-    if ((vp[0]*this->Size[0] <= x)&&
-	(vp[2]*this->Size[0] >= x)&&
-	(vp[1]*this->Size[1] <= y)&&
-	(vp[3]*this->Size[1] >= y))
+    if (aren->IsInViewport(x,y))
       {
       this->CurrentRenderer = aren;
       }
@@ -79,9 +74,8 @@ void  vlRenderWindowInteractor::FindPokedCamera(int x,int y)
   vp = this->CurrentRenderer->GetViewport();
 
   this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();  
-  this->Center[0] = (int)((vp[2]+vp[0])/2.0*(float)this->Size[0]);
-  this->Center[1] = (int)((vp[3]+vp[1])/2.0*(float)this->Size[1]);
-  this->DeltaElevation = 20.0/((vp[3] - vp[1])*this->Size[1]);
+  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(int)*2);
+  this->DeltaElevation = -20.0/((vp[3] - vp[1])*this->Size[1]);
   this->DeltaAzimuth = -20.0/((vp[2] - vp[0])*this->Size[0]);
 
   // as a side effect also set the light 

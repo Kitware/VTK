@@ -52,6 +52,10 @@ public:
 
   vlGetMacro(Fd,int);
 
+  // stereo rendering stuff
+  virtual void StereoUpdate();
+  virtual void StereoRenderComplete();
+
   // Xwindow stuff
   int      GetDesiredDepth();
   Colormap GetDesiredColormap();

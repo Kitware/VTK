@@ -31,6 +31,7 @@ static char *lights[MAX_LIGHTS] =
 vlSbrRenderWindow::vlSbrRenderWindow()
 {
   this->Fd = -1;
+  this->StereoType = VL_STEREO_CRYSTAL_EYES;
   strcpy(this->Name,"Visualization Library - Starbase");
 }
 
@@ -102,6 +103,50 @@ void vlSbrRenderWindow::Start(void)
     this->Initialize();
 
   flush_matrices(this->Fd);
+}
+
+// Description:
+// Update system if needed due to stereo rendering.
+void vlSbrRenderWindow::StereoUpdate(void)
+{
+  // if stereo is on and it wasn't before
+  if (this->StereoRender && (!this->StereoStatus))
+    {
+    switch (this->StereoType) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	gescape_arg arg1,arg2;
+	arg1.i[0] = 1;
+	gescape(this->Fd,STEREO,&arg1,&arg2);
+	// make sure we are in full screen
+        this->StereoStatus = 1;
+	this->FullScreenOn();
+	}
+      }
+    }
+  else if ((!this->StereoRender) && this->StereoStatus)
+    {
+    switch (this->StereoType) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	gescape_arg arg1,arg2;
+	arg1.i[0] = 0;
+	gescape(this->Fd,STEREO,&arg1,&arg2);
+	// make sure we are in full screen
+        this->StereoStatus = 0;
+	this->FullScreenOff();
+	}
+      }
+    }
+}
+
+// Description:
+// Handles any post rendering stereo operations.
+void vlSbrRenderWindow::StereoRenderComplete(void)
+{
+  // Does nothing right now
 }
 
 // Description:
@@ -616,6 +661,8 @@ void vlSbrRenderWindow::WindowInitialize (void)
     }
   else
     {
+    XSetWindowAttributes xswattr;
+
     this->OwnWindow = 0;
     /* make sure the window is unmapped */
     XUnmapWindow(this->DisplayId, this->WindowId);
@@ -634,6 +681,14 @@ void vlSbrRenderWindow::WindowInitialize (void)
     vlDebugMacro( << "Resizing the xwindow\n");
     XSelectInput(this->DisplayId, this->WindowId, 
 		 KeyPressMask|ExposureMask);
+
+    xswattr.override_redirect = False;
+    if ((!this->Borders))
+      xswattr.override_redirect = True;
+
+    XChangeWindowAttributes(this->DisplayId,this->WindowId,
+			    CWOverrideRedirect, &xswattr);
+
     XResizeWindow(this->DisplayId,this->WindowId,
 		  WidthOfScreen(ScreenOfDisplay(this->DisplayId,0)),
 		  HeightOfScreen(ScreenOfDisplay(this->DisplayId,0)));

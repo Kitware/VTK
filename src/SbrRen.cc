@@ -198,6 +198,169 @@ vlGeometryPrimitive *vlSbrRenderer::GetPrimitive(char *type)
 }
 
 
+// Description:
+// Return center of renderer in display coordinates.
+float *vlSbrRenderer::GetCenter()
+{
+  int *size;
+  
+  // get physical window dimensions 
+  size = this->RenderWindow->GetSize();
+
+  if (this->RenderWindow->GetStereoRender())
+    {
+    // take into account stereo effects
+    switch (this->RenderWindow->GetStereoType()) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+				/2.0*(float)size[0]);
+	this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+				/2.0*(float)size[1]);
+	this->Center[1] = this->Center[1]/2.0;
+	}
+      }
+    }
+  else
+    {
+    this->Center[0] = ((this->Viewport[2]+this->Viewport[0])
+			    /2.0*(float)size[0]);
+    this->Center[1] = ((this->Viewport[3]+this->Viewport[1])
+			    /2.0*(float)size[1]);
+    }
+
+  return this->Center;
+}
+
+
+// Description:
+// Convert display coordinates to view coordinates.
+void vlSbrRenderer::DisplayToView()
+{
+  float vx,vy,vz;
+  int sizex,sizey;
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->RenderWindow->GetSize();
+  sizex = size[0];
+  sizey = size[1];
+
+  if (this->RenderWindow->GetStereoRender())
+    {
+    // take into account stereo effects
+    switch (this->RenderWindow->GetStereoType()) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+	  (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
+
+	vy = 2.0 * (this->DisplayPoint[1]*2.0 - sizey*this->Viewport[1])/ 
+	  (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
+	}
+      }
+    }
+  else
+    {
+    vx = 2.0 * (this->DisplayPoint[0] - sizex*this->Viewport[0])/ 
+      (sizex*(this->Viewport[2]-this->Viewport[0])) - 1.0;
+    vy = 2.0 * (this->DisplayPoint[1] - sizey*this->Viewport[1])/ 
+      (sizey*(this->Viewport[3]-this->Viewport[1])) - 1.0;
+    }
+
+  vz = this->DisplayPoint[2];
+
+  this->SetViewPoint(vx*this->Aspect[0],vy*this->Aspect[1],vz);
+}
+
+// Description:
+// Convert view coordinates to display coordinates.
+void vlSbrRenderer::ViewToDisplay()
+{
+  int dx,dy;
+  int sizex,sizey;
+  int *size;
+  
+  /* get physical window dimensions */
+  size = this->RenderWindow->GetSize();
+  sizex = size[0];
+  sizey = size[1];
+
+  if (this->RenderWindow->GetStereoRender())
+    {
+    // take into account stereo effects
+    switch (this->RenderWindow->GetStereoType()) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+		   (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+		   sizex*this->Viewport[0]);
+	dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+		   (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+		   sizey*this->Viewport[1]);
+	dy = dy/2.0;
+	}
+      }
+    }
+  else
+    {
+    dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
+	       (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
+	       sizex*this->Viewport[0]);
+    dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
+	       (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
+	       sizey*this->Viewport[1]);
+    }
+
+  this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
+}
+
+// Description:
+// Is a given display point in this renderer's viewport.
+int vlSbrRenderer::IsInViewport(int x,int y)
+{
+  int *size;
+  
+  // get physical window dimensions 
+  size = this->RenderWindow->GetSize();
+
+
+  if (this->RenderWindow->GetStereoRender())
+    {
+    // take into account stereo effects
+    switch (this->RenderWindow->GetStereoType()) 
+      {
+      case VL_STEREO_CRYSTAL_EYES:
+	{
+	int ty = y*2;
+
+	if ((this->Viewport[0]*size[0] <= x)&&
+	    (this->Viewport[2]*size[0] >= x)&&
+	    (this->Viewport[1]*size[1] <= ty)&&
+	    (this->Viewport[3]*size[1] >= ty))
+	  {
+	  return 1;
+	  }
+	}
+      }
+    }
+  else
+    {
+    if ((this->Viewport[0]*size[0] <= x)&&
+	(this->Viewport[2]*size[0] >= x)&&
+	(this->Viewport[1]*size[1] <= y)&&
+	(this->Viewport[3]*size[1] >= y))
+      {
+      return 1;
+      }
+    }
+  
+  return 0;
+}
+
 void vlSbrRenderer::PrintSelf(ostream& os, vlIndent indent)
 {
   this->vlRenderer::PrintSelf(os,indent);

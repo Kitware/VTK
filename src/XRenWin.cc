@@ -115,6 +115,15 @@ void vlXRenderWindow::SetWindowId(Window arg)
 }
 
 // Description:
+// Set the window id of the new window once a WindowRemap is done.
+void vlXRenderWindow::SetNextWindowId(Window arg)
+{
+  vlDebugMacro(<< "Setting NextWindowId to " << (void *)arg << "\n"); 
+
+  this->NextWindowId = arg;
+}
+
+// Description:
 // Set the display id of the window to a pre-exisiting display id.
 void vlXRenderWindow::SetDisplayId(Display  *arg)
 {

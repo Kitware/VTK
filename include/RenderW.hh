@@ -116,7 +116,19 @@ public:
   vlGetMacro(DoubleBuffer,int);
   vlBooleanMacro(DoubleBuffer,int);
 
+  // Description:
+  // Turn on/off stereo rendering.
   vlGetMacro(StereoRender,int);
+  vlSetMacro(StereoRender,int);
+  vlBooleanMacro(StereoRender,int);
+
+  // Description:
+  // Set what type of stereo rendering to use.
+  vlGetMacro(StereoType,int);
+  vlSetMacro(StereoType,int);
+
+  virtual void StereoUpdate() = 0;
+  virtual void StereoRenderComplete() = 0;
 
   // Description:
   // Get name of rendering window
@@ -134,6 +146,7 @@ protected:
   int DoubleBuffer;
   int StereoRender;
   int StereoType;
+  int StereoStatus; // used for keeping track of what's going on
   vlRenderWindowInteractor *Interactor;
 
 };

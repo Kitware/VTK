@@ -45,6 +45,12 @@ class vlGlrRenderer : public vlRenderer
   int UpdateActors(void);
   int UpdateCameras(void);
   int UpdateLights(void);
+
+  // stereo related stuff
+  virtual float *GetCenter();
+  virtual void DisplayToView(); 
+  virtual void ViewToDisplay(); 
+  virtual int  IsInViewport(int x,int y); 
 };
 
 #endif

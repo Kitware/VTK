@@ -18,6 +18,26 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRen.hh"
 #include "GlrCam.hh"
 
+// bonus stereo perspective function - from manual 
+void stereopersp(int fovy, float aspect, float near, float far, 
+		 float conv, float eye)
+{
+  float left, right, top, bottom;
+  float gltan;
+  
+  eye = tan(eye*3.1415926/180.0)*conv;
+  gltan = tan(fovy/2.0/10.0*M_PI/180.0);
+  top = gltan*near;
+  bottom = -top;
+  
+  gltan = tan(fovy*aspect/2.0/10.0*M_PI/180.0);
+  left = -gltan*near - eye/conv*near;
+  right = gltan*near - eye/conv*near;
+
+  window(left,right,bottom,top,near,far);
+  translate(-eye,0.0,0.0);
+}
+
 // Description:
 // Implement base class method.
 void vlGlrCamera::Render(vlRenderer *ren)
@@ -52,19 +72,66 @@ void vlGlrCamera::Render(vlGlrRenderer *ren)
 
   left = (int)(vport[0]*width);
   right = (int)(vport[2]*width);
-  bottom = (int)(vport[1]*height);
-  top = (int)(vport[3]*height);
+
+  // if were on a stereo renderer draw to special parts of screen
+  if (stereo)
+    {
+    if (this->LeftEye) 
+      {
+      bottom = 532 + (1023-532)*vport[1];
+      top = 532 + (1023-532)*vport[3];
+      }
+    else
+      {
+      bottom = 491*vport[1];
+      top = 491*vport[3];
+      }
+    }
+  else
+    {
+    bottom = (int)(vport[1]*height);
+    top = (int)(vport[3]*height);
+    }
   
   viewport(left,right,bottom,top);
     
-  aspect[0] = 1.0;
-  aspect[1] = (float)(top-bottom+1)/(float)(right-left+1);
+  /* for stereo we have to fiddle with aspect */
+  if (stereo)
+    {
+    aspect[0] = 1.0;
+    aspect[1] = 2.0*(float)(top-bottom+1)/(float)(right-left+1);
+    }
+  else
+    {
+    aspect[0] = 1.0;
+    aspect[1] = (float)(top-bottom+1)/(float)(right-left+1);
+    }
   
   ren->SetAspect(aspect);
 
   mmode(MPROJECTION);
-  perspective((short)(10.0*this->ViewAngle), aspect[0] / aspect[1], 
-	      this->ClippingRange[0], this->ClippingRange[1]);
+
+  // if were on a stereo renderer use correct perspective for eye 
+  if (stereo)
+    {
+    if (this->LeftEye)
+      {
+      stereopersp((short)(10.0*this->ViewAngle), aspect[0] / aspect[1],
+		  this->ClippingRange[0],this->ClippingRange[1],
+		  this->Distance,-1.0*this->EyeAngle);
+      }
+    else
+      {
+      stereopersp((short)(10.0*this->ViewAngle), aspect[0] / aspect[1],
+		  this->ClippingRange[0],this->ClippingRange[1],
+		  this->Distance,1.0*this->EyeAngle);
+      }
+    }
+  else
+    {
+    perspective((short)(10.0*this->ViewAngle), aspect[0] / aspect[1], 
+		this->ClippingRange[0], this->ClippingRange[1]);
+    }
 
   // get twist from camera object twist 
   twist = this->GetTwist();

@@ -33,8 +33,8 @@ vlRenderWindow::vlRenderWindow()
   Mapped = 0;
   DoubleBuffer = 1;
   StereoRender = 0;
+  StereoStatus = 0;
   Interactor = NULL;
-
   strcpy(this->Name,"Visualization Library");
 }
 
@@ -48,7 +48,13 @@ void vlRenderWindow::Render()
     this->Interactor->Initialize();
 
   this->Start();
+  this->StereoUpdate();
   this->Renderers.Render();
+  if (this->StereoRender)
+    {
+    this->Renderers.Render();
+    this->StereoRenderComplete();
+    }
   this->Frame();
 }
 
