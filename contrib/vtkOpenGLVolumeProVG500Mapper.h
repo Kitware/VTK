@@ -48,33 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 // This class is not included in the contrib Makefile.in by default. If you
 // want to add this class to your vtk build, you need to have the vli header
-// and library files, and you will need to perform the following steps:
-//
-// 1. Make sure you are building with the contrib kit. On Unix add
-//    --with-contrib to your configure line, on Windows check the
-//   contrib box on PCMaker.
-//
-// 2. Edit the Makefile.in in contrib. Add the following three classes to
-//    the CONCRETE list of classes: vtkVolumeProMapper, 
-//    vtkVolumeProVG500Mapper, vtkOpenGLVolumeProVG500Mapper. Please be
-//    certain that there are no spaces after the "\" that separates lines.
-//
-// 3. Either edit vtkVolumeProMapper.h and specify the include path
-//    for vli.h, or copy the vli.h file to your contrib directory.
-//
-// 4. On Windows - add the vli.lib file to the Extra Linker Flags under
-//    the Advanced Options. On Unix - add the vli shared object to the
-//    KIT_LIBS in the Makefile.in in contrib.
-//  
-// 5. On Windows - make sure vli.dll is somewhere in your path before you
-//    run vtk. You can put it in your vtkbin/lib or vtkbin/Debug/lib if
-//    you want. On Unix - make sure the vli shared object is in your
-//    shared library path before you run.
-//
-// 6. Reconfigure and rebuild vtk. You should now be able to create a
-//    vtkVolumeProMapper which, if you have a VolumePRO board and the
-//    device driver is running, should connect to the hardware and render
-//    your volumes quickly.
+// and library files.  Please see the vtkVolumeProVG500Mapper.h file for
+// instructions on how to use the vli library with vtk.
 //
 // For more information on the VolumePRO hardware, please see:
 //

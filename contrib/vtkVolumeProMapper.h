@@ -121,7 +121,7 @@ public:
 	{this->SetBlendMode(VTK_BLEND_MODE_MAX_INTENSITY);};
   void SetBlendModeToMinimumIntensity() 
 	{this->SetBlendMode(VTK_BLEND_MODE_MIN_INTENSITY);};
-  char *GetBlendModeAsString(void);
+  const char *GetBlendModeAsString(void);
 
   // Description:
   // Set the subvolume
@@ -143,7 +143,7 @@ public:
     { this->SetCursorType( VTK_CURSOR_TYPE_CROSSHAIR ); };
   void SetCursorTypeToPlane()
     { this->SetCursorType( VTK_CURSOR_TYPE_PLANE ); };
-  char *GetCursorTypeAsString( void );
+  const char *GetCursorTypeAsString( void );
 
   // Description:
   // Set/Get the cursor position
@@ -289,40 +289,33 @@ protected:
 
 // Description:
 // Get the blending mode as a descriptive string
-inline char *vtkVolumeProMapper::GetBlendModeAsString()
+inline const char *vtkVolumeProMapper::GetBlendModeAsString()
 {
   switch ( this->BlendMode )
     {
     case VTK_BLEND_MODE_COMPOSITE:
       return "Composite";
-      break;
     case VTK_BLEND_MODE_MAX_INTENSITY:
       return "Maximum Intensity";
-      break;
     case VTK_BLEND_MODE_MIN_INTENSITY:
       return "Minimum Intensity";
-      break;
     default:
       return "Unknown Blend Mode";
-      break;
     }
 }
 
 // Description:
 // Get the cursor type as a descriptive string
-inline char *vtkVolumeProMapper::GetCursorTypeAsString()
+inline const char *vtkVolumeProMapper::GetCursorTypeAsString()
 {
   switch ( this->CursorType )
     {
     case VTK_CURSOR_TYPE_CROSSHAIR:
       return "Crosshair";
-      break;
     case VTK_CURSOR_TYPE_PLANE:
       return "Plane";
-      break;
     default:
       return "Unknown Cursor Type";
-      break;
     }
 }
 
