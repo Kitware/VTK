@@ -60,6 +60,8 @@ public:
   ~vtkImageSimpleCache();
   static vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
   char *GetClassName() {return "vtkImageSimpleCache";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+
   void ReleaseData();
   void CacheRegion(vtkImageRegion *region);
 

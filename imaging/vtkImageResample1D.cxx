@@ -50,6 +50,7 @@ vtkImageResample1D::vtkImageResample1D()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->MagnificationFactor = 1.0;
+  this->OutputSpacing = 0.0; // not specified.
 
   // For better performance, the execute function was written as a 2d.
   this->ExecuteDimensionality = 2;
@@ -58,24 +59,45 @@ vtkImageResample1D::vtkImageResample1D()
 
 
 //----------------------------------------------------------------------------
-void vtkImageResample1D::SetSpacing(float spacingOut)
+void vtkImageResample1D::SetOutputSpacing(float spacing)
 {
-  vtkImageRegion *region = vtkImageRegion::New();
-  float spacingIn;
-  
-  if ( ! this->Input)
+  this->OutputSpacing = spacing;
+  // Delay computing the magnification factor.
+  // Input might not be set yet.
+  this->MagnificationFactor = 0.0; // Not computed yet.
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageResample1D::SetMagnificationFactor(float factor)
+{
+  this->MagnificationFactor = factor;
+  // Spacing is no longer valid.
+  this->OutputSpacing = 0.0; // Not computed yet.
+}
+
+//----------------------------------------------------------------------------
+float vtkImageResample1D::GetMagnificationFactor()
+{
+  if (this->MagnificationFactor == 0.0)
     {
-    vtkErrorMacro("SetSpacing: Input not set yet");
-    return;
+    vtkImageRegion *region;
+    float inputSpacing;
+    if ( ! this->Input)
+      {
+      vtkErrorMacro("GetMagnificationFactor: Input not set.");
+      return 0.0;
+      }
+    region = vtkImageRegion::New();
+    this->Input->UpdateImageInformation(region);
+    region->GetSpacing(inputSpacing);
+    this->MagnificationFactor = this->OutputSpacing / inputSpacing;
     }
   
-  region->SetAxes(this->Axes[0]);
-  this->Input->UpdateImageInformation(region);
-  region->GetSpacing(spacingIn);
-  region->Delete();
-
-  this->SetMagnificationFactor(spacingIn / spacingOut);
+  return this->MagnificationFactor;
 }
+
+
 
 
 //----------------------------------------------------------------------------
@@ -87,11 +109,11 @@ void vtkImageResample1D::ComputeRequiredInputRegionExtent(
 					       vtkImageRegion *inRegion)
 {
   int extent[2];
-  
+ 
   outRegion->GetExtent(1, extent);
   
-  extent[0] = (int)(floor((float)(extent[0]) / this->MagnificationFactor));
-  extent[1] = (int)(ceil((float)(extent[1]) / this->MagnificationFactor));
+  extent[0] = (int)(floor((float)(extent[0]) /this->GetMagnificationFactor()));
+  extent[1] = (int)(ceil((float)(extent[1]) / this->GetMagnificationFactor()));
 
   inRegion->SetExtent(1, extent);
 }
@@ -111,12 +133,12 @@ void vtkImageResample1D::ComputeOutputImageInformation(
 
   // Scale the output extent
   imageExtent[0] = (int)(ceil((float)(imageExtent[0]) 
-			      * this->MagnificationFactor));
+			      * this->GetMagnificationFactor()));
   imageExtent[1] = (int)(floor((float)(imageExtent[1]) 
-			       * this->MagnificationFactor));
+			       * this->GetMagnificationFactor()));
 
   // Change the data spacing
-  spacing /= this->MagnificationFactor;
+  spacing /= this->GetMagnificationFactor();
 
   outRegion->SetImageExtent(1, imageExtent);
   outRegion->SetSpacing(spacing);
@@ -154,6 +176,8 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
   outPtr1 = outPtr;
   for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
     {
+    inPtr0 = inPtr1;
+    outPtr0 = outPtr1;
     if (inMin0 == inMax0)
       { // the input only has one slice
       val = *inPtr0;
@@ -170,14 +194,11 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
       fStep = 1.0 / magFactor;
       valStep = fStep * valStep;
       }
-    inPtr0 = inPtr1;
-    outPtr0 = outPtr1;
     for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
       {
-      *outPtr = (T)(val);
+      *outPtr0 = (T)(val);
 
-      outPtr += outInc0;
-      inPtr += inInc0;
+      outPtr0 += outInc0;
       
       // Update interpolation loop parameters.
       f += fStep;
@@ -189,6 +210,7 @@ static void vtkImageResample1DExecute(vtkImageResample1D *self,
 	{ // crossed border, need to compute new start and steps.
 	f -= 1.0;
 	// interpolate start value
+	inPtr0 += inInc0;
 	valStep = *(inPtr0+inInc0) - *inPtr0;
 	val = *inPtr0 + valStep * f;
 	// Compute how f changes and val changes for each iteration.

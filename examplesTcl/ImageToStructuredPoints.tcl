@@ -40,7 +40,7 @@ atext InterpolateOn;
 planeActor SetTexture atext;
 
 # Add the actors to the renderer, set the background and size
-ren1 AddActors planeActor;
+ren1 AddActor planeActor;
 ren1 SetBackground 0.1 0.2 0.4;
 renWin SetSize 500 500;
 

@@ -67,3 +67,22 @@ set VTK_X_LINE 1
 set VTK_YZ_PLANE 5
 set VTK_Y_LINE 2
 set VTK_Z_LINE 3
+
+
+# A method to make an instance of a class with a unique name.
+proc new {className} {
+   set counterName [format {%sCounter} $className]
+   global $counterName
+   if {[info exists $counterName] == 0} {
+      set $counterName 0
+   }
+   # Choose a name that is not being used
+   set instanceName [format {%s%d} $className [incr $counterName]]
+   while {[info commands $instanceName] != ""} {
+      set instanceName [format {%s%d} $className [incr $counterName]]
+   }
+   # make the vtk object
+   $className $instanceName
+
+   return $instanceName
+}

@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkImageRegion.h"
 
+class vtkColorScalars;
 
 class VTK_EXPORT vtkImageToStructuredPoints : public vtkStructuredPointsSource
 {
@@ -140,7 +141,9 @@ protected:
   vtkScalars *ScalarExecute(vtkImageRegion *region);
   int ScalarSplitExecute(vtkImageRegion *outRegion, long volumeLimit);
   vtkVectors *VectorExecute(vtkImageRegion *region);
-  vtkScalars *CopyToColorScalars(vtkImageRegion *region);
+  vtkColorScalars *CreateColorScalars(vtkScalars *scalars, int dim);
+  
+  vtkScalars *ReformatRegionData(vtkImageRegion *region);
 };
 
 

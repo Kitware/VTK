@@ -364,7 +364,7 @@ void vtkImageClip::ComputeOutputImageExtent()
     {
     vtkErrorMacro("ComputeOutputImageExtent: No Input.");
     }
-  region = this->Input->GetOutput()->Update();
+  region = this->Input->GetOutput()->UpdateRegion();
   region->SetAxes(5, this->GetAxes());
 
   // Look through every pixel.

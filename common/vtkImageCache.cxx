@@ -56,6 +56,10 @@ vtkImageCache::vtkImageCache()
     this->Spacing[idx] = 1.0;
     this->Origin[idx] = 0.0;
     this->ImageExtent[idx*2] = this->ImageExtent[idx*2+1] = 0;
+    this->Dimensions[idx] = 1;
+    this->Center[idx] = 0.0;
+    this->Bounds[idx*2] = this->Bounds[idx*2+1] = 0.0;
+    this->Axes[idx] = idx;
     }
   
   this->Source = NULL;
@@ -79,6 +83,8 @@ vtkImageCache::~vtkImageCache()
 //----------------------------------------------------------------------------
 void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
+  
   vtkImageSource::PrintSelf(os,indent);
 
   os << indent << "Source: (" << this->Source << ").\n";
@@ -87,26 +93,69 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
      << "\n";
   os << indent << "ImageToStructuredPoints: (" 
      << this->ImageToStructuredPoints << ")\n";
+  
+  os << indent << "Spacing: (" << this->Spacing[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Spacing[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "Origin: (" << this->Origin[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Origin[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "Center: (" << this->Center[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Center[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "ImageExtent: (" << this->ImageExtent[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS*2; ++idx)
+    {
+    os << ", " << this->ImageExtent[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "Bounds: (" << this->Bounds[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS*2; ++idx)
+    {
+    os << ", " << this->Bounds[idx];
+    }
+  os << ")\n";
 }
   
     
 
 
 //----------------------------------------------------------------------------
-// Dummy
 void vtkImageCache::GetDataOrder(int num, int *axes)
 {
-  axes = axes;
-  num = num;
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetDataOrder: " << num << " dimensions is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->DataOrder[idx];
+    }
 }
 
 
 //----------------------------------------------------------------------------
-// Dummy
 void vtkImageCache::SetDataOrder(int num, int *axes)
 {
-  axes = axes;
-  num = num;
+  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, this->DataOrder);
+  this->Modified();
+  this->ReleaseData();
 }
 
 
@@ -145,9 +194,10 @@ unsigned long int vtkImageCache::GetPipelineMTime()
 void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
 {
   int saveAxes[VTK_IMAGE_DIMENSIONS];
+  int idx;
 
   // Save the old coordinate system
-  region->GetAxes(saveAxes);
+  region->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
 
   if (this->ImageInformationTime.GetMTime() < this->GetPipelineMTime())
     {
@@ -166,12 +216,24 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     this->Source->UpdateImageInformation(region);
     // Save the ImageExtent to satisfy later calls.
     // Choose some constant coordinate system.
-    region->SetAxes(1, 2, 3, 4, 0);
+    region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
     region->GetImageExtent(this->ImageExtent);
     region->GetSpacing(this->Spacing);
     region->GetOrigin(this->Origin);
     this->ImageInformationTime.Modified();
 
+    // Compute Bounds ... and other redundant variables.
+    for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+      {
+      this->Dimensions[idx] = this->ImageExtent[idx*2+1] 
+	- this->ImageExtent[idx*2] + 1;
+      this->Bounds[idx*2] = this->Origin[idx] 
+	+ this->Spacing[idx] * this->ImageExtent[idx*2];
+      this->Bounds[idx*2+1] = this->Origin[idx] 
+	+ this->Spacing[idx] * this->ImageExtent[idx*2+1];
+      this->Center[idx] = (this->Bounds[idx*2] + this->Bounds[idx*2+1]) * 0.5;
+      }
+    
     // Leave the region in the original (before this method) coordinate system.
     region->SetAxes(saveAxes);
  
@@ -187,7 +249,7 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // No modifications have been made, so return our own copy.
   vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
   // Image extent Are saved in some constant coordinate system.
-  region->SetAxes(1, 2, 3, 4, 0);
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, this->Axes);
   region->SetImageExtent(this->ImageExtent);
   region->SetSpacing(this->Spacing);
   region->SetOrigin(this->Origin);
@@ -242,6 +304,9 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   // We do not support writting into regions that already have data.
   // What if the cache already had the region? we would have to copy.
   region->ReleaseData();
+  
+  // Like ScalarType, this should by dynamic and not fixed.
+  region->SetDataOrder(VTK_IMAGE_DIMENSIONS, this->DataOrder);
   
   // If the extent has no "volume", just return.
   if (region->GetVolume() <= 0)
@@ -303,6 +368,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     tempRegion->SetAxes(VTK_IMAGE_DIMENSIONS, region->GetAxes());
     tempRegion->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetExtent());
     tempRegion->SetScalarType(saveScalarType);
+    tempRegion->SetDataOrder(this->DataOrder);
     vtkWarningMacro(<< "UpdateRegion: Have to copy data from type "
         << vtkImageScalarTypeNameMacro(this->ScalarType) << " to type "
         << vtkImageScalarTypeNameMacro(saveScalarType));
@@ -316,8 +382,6 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     tempRegion->Delete();
     }
 }
-
-
 
 //----------------------------------------------------------------------------
 // Description:
@@ -344,6 +408,211 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   this->Source->UpdatePointData(VTK_IMAGE_DIMENSIONS, region);
 }
 
+
+//----------------------------------------------------------------------------
+// Description: Returns the largest region possible.
+// The user assumes owner ship of the region and must delete it.
+vtkImageRegion *vtkImageCache::UpdateRegion()
+{
+  vtkImageRegion *region = vtkImageRegion::New();
+  this->UpdateImageInformation(region);
+  region->SetExtent(VTK_IMAGE_DIMENSIONS, region->GetImageExtent());
+  this->UpdateRegion(region);
+  
+  return region;
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the cache with the whole image.  The
+// image is not released even if ReleaseDataFlag is on.
+// Nothing is returned.
+void vtkImageCache::Update()
+{
+  vtkImageRegion *region;
+  int saveFlag;
+  
+  saveFlag = this->ReleaseDataFlag;
+  this->ReleaseDataFlag = 0;
+  region = this->UpdateRegion();
+  this->ReleaseDataFlag = saveFlag;
+  
+  vtkDebugMacro("Update: " << *region);
+  region->Delete();
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Causes the image information stored in cache to be up to date.
+// This method should be called before GetBounds, GetCenter, GetSpacing ...
+void vtkImageCache::UpdateImageInformation()
+{
+  vtkImageRegion *region = vtkImageRegion::New();
+  this->UpdateImageInformation(region);
+  region->Delete();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method allows the user to manually override the computed Spacing.
+// It does not change this objects modified time.  Any action (i.e. this or
+// previous object modified) will cause Spacing to be recomputed from input.
+// This method is meant for debugging and compatablility with 
+// vtkStructuredPoints.
+void vtkImageCache::SetSpacing(int num, float *spacing)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("SetSpacing: " << num << " is too many dimensions");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Spacing[idx] = spacing[idx];
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method allows the user to manually override the computed Origin.
+// It does not change this objects modified time.  Any action (i.e. this or
+// previous object modified) will cause Origin to be recomputed from input.
+// This method is meant for debugging and compatablility with 
+// vtkStructuredPoints.
+void vtkImageCache::SetOrigin(int num, float *origin)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("SetOrigin: " << num << " is too many dimensions");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->Origin[idx] = origin[idx];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetSpacing(int num, float *spacing)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetSpacing: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    spacing[idx] = this->Spacing[idx];
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetOrigin(int num, float *origin)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetOrigin: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    origin[idx] = this->Origin[idx];
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetImageExtent(int num, int *extent)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetImageExtent: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    extent[idx*2] = this->ImageExtent[idx*2];
+    extent[idx*2+1] = this->ImageExtent[idx*2+1];
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetDimensions(int num, int *dimensions)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetDimensions: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    dimensions[idx] = this->Dimensions[idx];
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetCenter(int num, float *center)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetCenter: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    center[idx] = this->Center[idx];
+    }
+
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCache::GetBounds(int num, float *bounds)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetBounds: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  
+  for (idx = 0; idx < num; ++idx)
+    {
+    bounds[idx*2] = this->Bounds[idx*2];
+    bounds[idx*2+1] = this->Bounds[idx*2+1];
+    }
+
+  return;
+}
 
 
 

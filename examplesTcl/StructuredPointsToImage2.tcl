@@ -23,8 +23,8 @@ vtkVolume16Reader v16
     v16 SetDataDimensions 256 256
     v16 SetFilePrefix "../data/fullHead/headsq";
     v16 SetDataOrigin -127.5 -127.5 5.33
-    v16 SetImageRange 1 20
-    v16 SetDataAspectRatio 1 1 5.33
+    v16 SetImageRange 1 90
+    v16 SetDataSpacing 1 1 5.33
     v16 SwapBytesOn
     v16 Update
 

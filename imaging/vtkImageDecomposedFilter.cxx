@@ -226,13 +226,10 @@ void vtkImageDecomposedFilter::SetAxes(int num, int *axes)
   this->vtkImageFilter::SetAxes(num, axes);
   for (idx = 0; idx < num; ++idx)
     {
-    if ( ! this->Filters[idx])
+    if (this->Filters[idx])
       {
-      vtkErrorMacro(<< "SetAxes: Sub filter not created yet. "
-		    << "Subclasses SetDimensionality did not work");
-      return;
+      this->Filters[idx]->SetAxes(axes[idx]);
       }
-    this->Filters[idx]->SetAxes(axes[idx]);
     }
   this->Modified();
 }

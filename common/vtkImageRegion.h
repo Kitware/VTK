@@ -106,8 +106,18 @@ public:
   void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);}
   void SetScalarTypeToUnsignedShort(){this->SetScalarType(VTK_UNSIGNED_SHORT);}
   void SetScalarTypeToUnsignedChar(){this->SetScalarType(VTK_UNSIGNED_CHAR);}
-  vtkSetMacro(ScalarType,int);
+  void SetScalarType(int type);
   vtkGetMacro(ScalarType,int);
+  
+  // Description:
+  // Set/Get the data order of the region.
+  // The data along the first axis is colocated in memory.
+  void SetDataOrder(int num, int *axes);
+  vtkImageSetMacro(DataOrder, int);
+  void GetDataOrder(int num, int *axes);
+  vtkImageGetMacro(DataOrder, int);
+  int *GetDataOrder() {return this->DataOrder;}
+  
   
   // Stuff to use region as an vtkImageSource.
   void UpdateRegion(vtkImageRegion *region); 
@@ -120,7 +130,7 @@ public:
   void SetData(vtkImageData *data);
   vtkImageData *GetData();
   void ReleaseData();
-
+  void MakeData();
 
   //--------------------------------------------------------------------------
   // Used by filters.
@@ -236,11 +246,21 @@ public:
   {int v[2];  v[0]=v0;v[1]=v1; this->Translate(2,v);}; 
   void Translate(int v0) 
   {int v[1];  v[0]=v0; this->Translate(1,v);};
-  
+
+  // These methods are used by vtkImageRegions and vtkImageData to
+  // reorder their axes and corresponding ivars.
+  static void ChangeVectorCoordinateSystem(int *vectIn, int *axesIn,
+					   int *vectOut, int *axesOut);
+  static void ChangeVectorCoordinateSystem(float *vectIn, int *axesIn,
+					   float *vectOut, int *axesOut);
+  static void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
+					   int *extentOut, int *axesOut);
+  static void CompleteUnspecifiedAxes(int num, int *axesIn, int *axesOut);
   
 protected:
   vtkImageData *Data;   // Data is stored in this object.
   int ScalarType;         // Remember the pixel type of this region.
+  int DataOrder[VTK_IMAGE_DIMENSIONS]; 
 
   // Defines the relative coordinate system
   int Axes[VTK_IMAGE_DIMENSIONS]; // Coordinate system of this region.
@@ -259,8 +279,6 @@ protected:
   void MakeDataWritable();
   void MakeScalarsWritable()
   {this->MakeDataWritable(); this->Data->MakeScalarsWritable();};
-  void ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
-				    int *extentOut, int *axesOut);
 };
 
 

@@ -174,7 +174,6 @@ public:
   int SwapBytes;
   // Flips are flags for each axis specifying whether "reflect" the data.
   int Flips[VTK_IMAGE_DIMENSIONS];
-  int PixelSize;
   
 protected:
   int ManualHeaderSize;

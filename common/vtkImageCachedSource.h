@@ -66,7 +66,7 @@ public:
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
 
   virtual unsigned long GetPipelineMTime();
-  vtkImageSource *GetOutput();
+  vtkImageCache *GetOutput();
 
   virtual void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
@@ -85,6 +85,14 @@ public:
   void SetOutputScalarType(int type);
   int  GetOutputScalarType();
   
+  // Description:
+  // These methods set the value of the caches DataOrder.  A local copy
+  // is kept to satify macros.
+  void SetOutputDataOrder(int num, int *axes);
+  vtkImageSetMacro(OutputDataOrder, int);
+  void GetOutputDataOrder(int num, int *axes);
+  vtkImageGetMacro(OutputDataOrder, int);
+    
   // Set/Get the coordinate system for this filter.
   virtual void SetAxes(int dim, int *axes);
   vtkImageSetMacro(Axes,int);
@@ -97,9 +105,9 @@ public:
   // The Update/Execute methods operate on this number of axes.
   vtkGetMacro(Dimensionality, int);
 
-  // Description:
-  // This method updates the cache with the whole image extent.
   void Update();
+  
+  void UpdateImageInformation();
   
 protected:
   vtkImageCache *Output;
@@ -107,6 +115,7 @@ protected:
   int Axes[VTK_IMAGE_DIMENSIONS]; // reorder the axes
   int ExecuteScalars;
   int ExecuteVectors;
+  int OutputDataOrder[VTK_IMAGE_DIMENSIONS];
   
   virtual void UpdatePointData(vtkImageRegion *region); 
   virtual void CheckCache();

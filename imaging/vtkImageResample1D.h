@@ -57,17 +57,20 @@ public:
   char *GetClassName() {return "vtkImageResample1D";};
 
   // Description:
-  // Set/Get the convolution axis.
-  vtkSetMacro(MagnificationFactor,float);
-  vtkGetMacro(MagnificationFactor,float);
+  // Set/Get the magnification resulting from resampling.
+  // Zero is a special value indicating the value has not been computed.
+  void SetMagnificationFactor(float factor);
+  float GetMagnificationFactor();
 
   // Description:
-  // Set the desired Spacing
-  void SetSpacing(float spacing);
+  // Set the desired Spacing of the output.
+  // Zero is a special value indicating the value has not been set.
+  void SetOutputSpacing(float spacing);
   
 protected:
   float MagnificationFactor;
-
+  float OutputSpacing;
+  
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion,

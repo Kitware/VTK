@@ -41,7 +41,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageToStructuredPoints.h"
-#include "vtkBitmap.h"
+#include "vtkGraymap.h"
+#include "vtkAGraymap.h"
+#include "vtkPixmap.h"
+#include "vtkAPixmap.h"
 
 
 
@@ -136,8 +139,6 @@ void vtkImageToStructuredPoints::GetSplitOrder(int num, int *axes)
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetAxes(int num, int *axes)
 {
-  int idx;
-
   if (num > VTK_IMAGE_DIMENSIONS)
     {
     vtkWarningMacro(<< "SetAxes: " << num << "is to many axes.");
@@ -145,11 +146,7 @@ void vtkImageToStructuredPoints::SetAxes(int num, int *axes)
     }
   
   this->Modified();
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->Axes[idx] = axes[idx];
-    }
-  
+  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, this->Axes);
 }
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::GetAxes(int num, int *axes)
@@ -309,6 +306,7 @@ void vtkImageToStructuredPoints::Execute()
     }
   
   // setup the structured points
+  region->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
   extent = region->GetExtent();
   region->GetSpacing(3, Spacing);
   region->GetOrigin(3, origin);
@@ -349,8 +347,6 @@ void vtkImageToStructuredPoints::Execute()
 // Region has no data when method returns.
 vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
 {
-  int *regionExtent;
-  int *dataExtent;
   vtkScalars *scalars;
   long volumeLimit;
   
@@ -401,30 +397,16 @@ vtkScalars *vtkImageToStructuredPoints::ScalarExecute(vtkImageRegion *region)
     }
   
   // If data is not the same size as the region, we need to reformat.
-  // Assume that relativeCoordinates == absoluteCoordinates.
-  // (Copy also required if we have to produce colored scalars.)
-  dataExtent = region->GetData()->GetExtent();
-  regionExtent = region->GetExtent();
-  if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
-      dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
-      dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
-      dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
-    {
-    vtkImageRegion *temp = region;
-    region = vtkImageRegion::New();
-    region->SetExtent(4, regionExtent);
-    region->CopyRegionData(temp);
-    temp->Delete();
-    }
+  // This may involve a copy.
+  scalars = this->ReformatRegionData(region);
 
+  // If ColorScalars are required, convert (with no copy)
   if (this->ColorScalars)
     {
-    scalars = this->CopyToColorScalars(region);
-    }
-  else
-    {
-    scalars = region->GetData()->GetPointData()->GetScalars();
-    scalars->Register(this);
+    int dim, min, max;
+    region->GetAxisExtent(VTK_IMAGE_COMPONENT_AXIS, min, max);
+    dim = max - min + 1;
+    scalars = this->CreateColorScalars(scalars, dim);
     }
   
   region->ReleaseData();
@@ -551,44 +533,45 @@ int vtkImageToStructuredPoints::ScalarSplitExecute(vtkImageRegion *outRegion,
 //----------------------------------------------------------------------------
 // The user wants color scalars. Copy image region to color scalars.
 // We only handle gray maps for now.  Not templated yet either.
-vtkScalars *
-vtkImageToStructuredPoints::CopyToColorScalars(vtkImageRegion *region)
+vtkColorScalars *
+vtkImageToStructuredPoints::CreateColorScalars(vtkScalars *scalars, int dim)
 {
-  int min0, max0, min1, max1, min2, max2;
-  vtkGraymap *scalars;
-  unsigned char *ptr0, *ptr1, *ptr2;
-  int inc0, inc1, inc2;
-  int idx0, idx1, idx2;
-  
-  if (region->GetScalarType() != VTK_UNSIGNED_CHAR)
+  vtkColorScalars *colorScalars;
+  vtkUnsignedCharScalars *charScalars;
+
+  // Get the unsigned char scalars to convert
+  if (strcmp(scalars->GetClassName(), "vtkUnsignedCharScalars") != 0)
     {
-    vtkErrorMacro("CopyToColorScalars: Input must be unsigned char");
+    vtkErrorMacro("CreateColorScalars: ScalarType needs to be unsigned char");
     return NULL;
     }
+  charScalars = (vtkUnsignedCharScalars *)(scalars);
   
-  region->GetExtent(min0, max0, min1, max1, min2, max2);
-  region->GetIncrements(inc0, inc1, inc2);
-  scalars = vtkGraymap::New();
-  scalars->Allocate((max0-min0+1)*(max1-min1+1)*(max2-min2+1));
-
-  ptr2 = (unsigned char *)(region->GetScalarPointer());
-  for (idx2 = min2; idx2 <= max2; ++idx2)
+  switch (dim)
     {
-    ptr1 = ptr2;
-    for (idx1 = min1; idx1 <= max1; ++idx1)
-      {
-      ptr0 = ptr1;
-      for (idx0 = min0; idx0 <= max0; ++idx0)
-	{
-	scalars->InsertNextGrayValue(*ptr0);
-	ptr0 += inc0;
-	}
-      ptr1 += inc1;
-      }
-    ptr2 += inc2;
+    case 1:
+      colorScalars = vtkGraymap::New();
+      break;
+    case 2:
+      colorScalars = vtkAGraymap::New();
+      break;
+    case 3:
+      colorScalars = vtkPixmap::New();
+      break;
+    case 4:
+      colorScalars = vtkAPixmap::New();
+      break;
+    default:
+      vtkErrorMacro("Do not know how to convert dimension " << dim
+		    << " to color.");
+      return NULL;
     }
-
-  return scalars;
+  
+  // transfer the Array (reference counted).
+  colorScalars->SetS(charScalars->GetS());
+  charScalars->UnRegister(this);
+  
+  return colorScalars;
 }
 
   
@@ -729,4 +712,98 @@ vtkVectors *vtkImageToStructuredPoints::VectorExecute(vtkImageRegion *region)
 
 
 
-
+//----------------------------------------------------------------------------
+// Description: This method returns scalars with the correct type and format.
+vtkScalars *
+vtkImageToStructuredPoints::ReformatRegionData(vtkImageRegion *region)
+{
+  int *regionExtent;
+  int *dataExtent;
+  int *dataAxes;
+  int reformat = 0;
+  vtkImageRegion *temp = NULL;
+  vtkScalars *scalars;
+  
+  dataAxes = region->GetDataOrder();
+  region->SetAxes(VTK_IMAGE_DIMENSIONS, dataAxes);
+  dataExtent = region->GetData()->GetExtent();
+  regionExtent = region->GetExtent();
+  
+  // Determine if we need to copy the data
+  if (this->ColorScalars)
+    {
+    // Color scalars need to be unsigned char
+    if (region->GetScalarType() != VTK_UNSIGNED_CHAR)
+      {
+      reformat = 1;
+      }
+    
+    // Check to see if data order needs to be changed.
+    // This is more tricky than it seems because axes can colapse.
+    // This is naive way of checking
+    if (dataAxes[0] != VTK_IMAGE_COMPONENT_AXIS || 
+	dataAxes[1] != VTK_IMAGE_X_AXIS || dataAxes[2] != VTK_IMAGE_Y_AXIS ||
+	dataAxes[3] != VTK_IMAGE_Z_AXIS)
+      {
+      reformat = 1;
+      }
+    }
+  else
+    {
+    // Check to see if data order needs to be changed.
+    // This is more tricky than it seems because axes can colapse.
+    // This is naive way of checking
+    if (dataAxes[0] != VTK_IMAGE_X_AXIS || dataAxes[1] != VTK_IMAGE_Y_AXIS ||
+	dataAxes[2] != VTK_IMAGE_Z_AXIS)
+      {
+      reformat = 1;
+      }
+    }
+  
+  if (dataExtent[0] != regionExtent[0] || dataExtent[1] != regionExtent[1] ||
+      dataExtent[2] != regionExtent[2] || dataExtent[3] != regionExtent[3] ||
+      dataExtent[4] != regionExtent[4] || dataExtent[5] != regionExtent[5] ||
+      dataExtent[6] != regionExtent[6] || dataExtent[7] != regionExtent[7])
+    {
+    reformat = 1;
+    }
+  
+  if (reformat)
+    {
+    vtkDebugMacro("Reformatting region");
+    if (this->ColorScalars)
+      {
+      temp = vtkImageRegion::New();
+      temp->SetScalarType(VTK_UNSIGNED_CHAR);
+      temp->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+      region->SetAxes(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+		    VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+      temp->SetDataOrder(VTK_IMAGE_COMPONENT_AXIS, VTK_IMAGE_X_AXIS, 
+			 VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+      temp->SetExtent(4, region->GetExtent());
+      temp->CopyRegionData(region);
+      scalars = temp->GetData()->GetPointData()->GetScalars();
+      scalars->Register(this);
+      temp->Delete();
+      }
+    else
+      {
+      temp = vtkImageRegion::New();
+      temp->SetScalarType(region->GetScalarType());
+      temp->SetDataOrder(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS, VTK_IMAGE_Z_AXIS);
+      temp->SetExtent(3, regionExtent);
+      temp->CopyRegionData(region);
+      scalars = temp->GetData()->GetPointData()->GetScalars();
+      scalars->Register(this);
+      temp->Delete();
+      }
+    }
+  else
+    { // no copy needed,
+    scalars = region->GetData()->GetPointData()->GetScalars();
+    scalars->Register(this);
+    }
+  
+  return scalars;
+}

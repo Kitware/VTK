@@ -173,7 +173,7 @@ vtkImageCache *vtkImageCachedSource::GetCache()
 //----------------------------------------------------------------------------
 // Description:
 // Returns an object which will generate data for Regions.
-vtkImageSource *vtkImageCachedSource::GetOutput()
+vtkImageCache *vtkImageCachedSource::GetOutput()
 {
   return this->GetCache();
 }
@@ -328,6 +328,34 @@ void vtkImageCachedSource::SetOutputScalarType(int value)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkImageCachedSource::SetOutputDataOrder(int num, int *axes)
+{
+  this->CheckCache();
+  this->Output->SetDataOrder(num, axes);
+  this->Output->GetDataOrder(VTK_IMAGE_DIMENSIONS, this->OutputDataOrder);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageCachedSource::GetOutputDataOrder(int num, int *axes)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetOutputDataOrder: "<< num <<" dimensions are too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+  for (idx = 0; idx < num; ++idx)
+    {
+    axes[idx] = this->OutputDataOrder[idx];
+    }
+}
+
+
+
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -341,14 +369,23 @@ int vtkImageCachedSource::GetOutputScalarType()
 
 
 //----------------------------------------------------------------------------
+// Description:
+// This method updates the cache with the whole image extent.
 void vtkImageCachedSource::Update()
 {
-  vtkImageRegion *region;
-  
   this->CheckCache();
-  region = this->Output->Update();
-  // Get rid of our reference count
-  region->Delete();
+  this->Output->Update();
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method updates the caches image information (no data).
+// It sould be called before GetBounds ...
+void vtkImageCachedSource::UpdateImageInformation()
+{
+  this->CheckCache();
+  this->Output->UpdateImageInformation();
 }
 
 

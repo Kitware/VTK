@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageData.h"
+#include "vtkImageRegion.h"
 
 //----------------------------------------------------------------------------
 // Description:
@@ -238,7 +239,7 @@ void vtkImageData::SetScalarType(int type)
 
 //----------------------------------------------------------------------------
 // This is the same as vtkImageRegion::SetAxes(int num, int *axes).  Should
-// we make a comman supperclass?
+// we make a common supperclass?  Axes determine the data order.
 void vtkImageData::SetAxes(int num, int *axes)
 {
   int idx, unusedAxis;
@@ -465,6 +466,7 @@ int vtkImageData::AllocateScalars()
     {
     case VTK_VOID:
       vtkErrorMacro(<< "AllocateScalars: ScalarType Unknown");
+      return 0;
       break;
     case VTK_FLOAT:
       scalars = vtkFloatScalars::New();

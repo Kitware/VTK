@@ -46,6 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct an instance of vtkImageRegion with no data.
 vtkImageRegion::vtkImageRegion()
 {
+  int idx;
+  
   this->Data = NULL;
   this->ScalarType = VTK_VOID;
   this->Axes[0] = VTK_IMAGE_X_AXIS;
@@ -56,6 +58,11 @@ vtkImageRegion::vtkImageRegion()
 
   this->Increments[0] = this->Increments[1] = this->Increments[2]
     = this->Increments[3] = this->Increments[4] = 0;
+  
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    this->DataOrder[idx] = idx;
+    }
   
   this->SetExtent(0,0, 0,0, 0,0, 0,0, 0,0);
   this->SetImageExtent(0,0, 0,0, 0,0, 0,0, 0,0);
@@ -88,6 +95,13 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
     }
   os << ")\n";
   
+  os << indent << "DataOrder: (" << vtkImageAxisNameMacro(this->DataOrder[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->DataOrder[idx]);
+    }
+  os << ")\n";
+  
   os << indent << "Extent: (" << this->Extent[0];
   for (idx = 1; idx < VTK_IMAGE_EXTENT_DIMENSIONS; ++idx)
     {
@@ -113,6 +127,13 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
   for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
     {
     os << ", " << this->Origin[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "Increments: (" << this->Increments[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Increments[idx];
     }
   os << ")\n";
   
@@ -157,7 +178,18 @@ vtkImageRegionChangeVectorCoordinateSystem(T *vectIn, int *axesIn,
     vectOut[idx] = absolute[axesOut[idx]];
     }
 }
-
+//----------------------------------------------------------------------------
+void vtkImageRegion::ChangeVectorCoordinateSystem(float *vectIn, int *axesIn, 
+						  float *vectOut, int *axesOut)
+{
+  vtkImageRegionChangeVectorCoordinateSystem(vectIn, axesIn, vectOut, axesOut);
+}
+//----------------------------------------------------------------------------
+void vtkImageRegion::ChangeVectorCoordinateSystem(int *vectIn, int *axesIn,
+						  int *vectOut, int *axesOut)
+{
+  vtkImageRegionChangeVectorCoordinateSystem(vectIn, axesIn, vectOut, axesOut);
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -184,8 +216,58 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
     }
 }
 
-
-
+//----------------------------------------------------------------------------
+// Description:
+// This method determines the order of unspecified axes.  By default
+// lower enumerated axes come first.  This method is used by
+// vtkImageRegion and vtkImageData.
+void vtkImageRegion::CompleteUnspecifiedAxes(int num, int *axesIn, 
+					     int *axesOut)
+{
+  int axesTable[VTK_IMAGE_DIMENSIONS];
+  int idx, axis;
+  
+  // Clear the table
+  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    axesTable[idx] = 0;
+    }
+  
+  // Copy the axes passed as parameters (and add to table)
+  for (idx = 0; idx < num; ++idx)
+    {
+    axis = axesIn[idx];
+    axesOut[idx] = axis;
+    // Error checking
+    if (axis < 0 || axis >= VTK_IMAGE_DIMENSIONS)
+      {
+      vtkGenericWarningMacro("CompleteUnspecifiedAxes: Bad axis: " << axis);
+      return;
+      }
+    // More Error checking
+    if (axesTable[axis])
+      {
+      vtkGenericWarningMacro("CompleteUnspecifiedAxes: Axis " << axis 
+        << " occurs more than once");
+      return;
+      }
+    // save axis in table
+    axesTable[axis] = 1;
+    }
+  
+  // Set the unspecified axes.
+  for (idx = num; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    // choose the first untaken axis
+    axis = 0;
+    while (axesTable[axis])
+      {
+      ++axis;
+      }
+    axesOut[idx] = axis;
+    axesTable[axis] = 1;
+    }
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -194,22 +276,11 @@ void vtkImageRegion::ChangeExtentCoordinateSystem(int *extentIn, int *axesIn,
 // data writable.
 void vtkImageRegion::MakeDataWritable()
 {
-  int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-
   // Check to make sure we have a data object.
   if ( ! this->Data)
     {
     this->Modified();
-    this->Data = vtkImageData::New();
-    this->Data->SetScalarType(this->ScalarType);
-    this->GetExtent(extent);
-    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				       extent, this->Data->GetAxes());
-    this->Data->SetExtent(extent);
-    // Compute the increments.
-    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(), 
-					       this->Increments, this->Axes);
+    this->MakeData();
     }
 
   // Check to make sure no one is referencing the data object.
@@ -316,60 +387,6 @@ void vtkImageRegion::ReleaseData()
 
 //----------------------------------------------------------------------------
 // Description:
-// You can set the data object explicitly, instead of using the Allocate
-// method.  Old data is released, and the region automatically registers
-// the new data.  This assumes that the Data has already been allocated,
-// and the increments will not change.  This method is used mainly by
-// vtkImageCache.
-void vtkImageRegion::SetData(vtkImageData *data)
-{
-  this->Modified();
-  // data objects have reference counts
-  data->Register(this);
-
-  // delete previous data
-  if (this->Data)
-    {
-    this->Data->Delete();
-    this->Data = NULL;
-    }
-
-  this->Data = data;
-  
-  // Compute the increments.
-  // Note that this implies that the extent of the data is fixed.
-  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					     this->Data->GetAxes(), 
-					     this->Increments, this->Axes);
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// Returns the data.  If one does not exist, the a data object is created.
-vtkImageData *vtkImageRegion::GetData()
-{
-  if ( ! this->Data)
-    {
-    int extent[VTK_IMAGE_EXTENT_DIMENSIONS];
-    this->Data = vtkImageData::New();
-    this->Data->SetScalarType(this->ScalarType);
-    this->GetExtent(extent);
-    this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				       extent, this->Data->GetAxes());
-    this->Data->SetExtent(extent);
-    // Compute the increments.
-    vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
-					       this->Data->GetAxes(), 
-					       this->Increments, this->Axes);
-    }
-  return this->Data;
-}
-
-
-
-//----------------------------------------------------------------------------
-// Description:
 // These method return the increments between pixels, rows, images and volumes.
 // A Coordinate system relative to "Axes" is used to set the order.
 // These values are determined by the actual dimensions of the data stored
@@ -428,58 +445,22 @@ void *vtkImageRegion::GetScalarPointer(int dim, int *coordinates)
 
 
 //----------------------------------------------------------------------------
-void vtkImageRegion::SetAxes(int dim, int *axes)
+void vtkImageRegion::SetAxes(int num, int *axes)
 {
   int allAxes[VTK_IMAGE_DIMENSIONS];
-  int axesTable[VTK_IMAGE_DIMENSIONS];
-  int idx, axis;
+  int idx;
   int modifiedFlag = 0;
 
-  
-  // Clear the table
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  if (num > VTK_IMAGE_DIMENSIONS)
     {
-    axesTable[idx] = 0;
-    }
-  
-  // Copy the axes passed as parameters (and add to table)
-  for (idx = 0; idx < dim; ++idx)
-    {
-    axis = axes[idx];
-    allAxes[idx] = axis;
-    // Error checking
-    if (axis < 0 || axis >= VTK_IMAGE_DIMENSIONS)
-      {
-      vtkErrorMacro(<< "SetAxes: Bad axis: " << axis);
-      return;
-      }
-    // More Error checking
-    if (axesTable[axis])
-      {
-      vtkErrorMacro(<< "SetAxes: Axis " << axis << " occurs more than once");
-      return;
-      }
-    // save axis in table
-    axesTable[axis] = 1;
-    }
-  
-  // Set the unspecified axes.
-  for (idx = dim; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    // choose the first untaken axis
-    axis = 0;
-    while (axesTable[axis])
-      {
-      ++axis;
-      }
-    allAxes[idx] = axis;
-    axesTable[axis] = 1;
+    vtkWarningMacro("SetAxes: " << num << " is too many");
+    num = VTK_IMAGE_DIMENSIONS;
     }
   
   // Check the case where the axes are the same
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+  for (idx = 0; idx < num; ++idx)
     {
-    if (this->Axes[idx] != allAxes[idx])
+    if (this->Axes[idx] != axes[idx])
       {
       modifiedFlag = 1;
       break;
@@ -493,17 +474,20 @@ void vtkImageRegion::SetAxes(int dim, int *axes)
   // Axes have been modified
   this->Modified();
   
+  // Get the complete axes (all 5)
+  vtkImageRegion::CompleteUnspecifiedAxes(num, axes, allAxes);
+  
   // Change the coordinate system of the ivars.
-  vtkImageRegionChangeVectorCoordinateSystem(this->Spacing, this->Axes,
-					     this->Spacing, allAxes);
-  vtkImageRegionChangeVectorCoordinateSystem(this->Origin, this->Axes,
-					     this->Origin, allAxes);
-  vtkImageRegionChangeVectorCoordinateSystem(this->Increments, this->Axes,
-					     this->Increments, allAxes);
-  this->ChangeExtentCoordinateSystem(this->Extent, this->Axes,
-				     this->Extent, allAxes);
-  this->ChangeExtentCoordinateSystem(this->ImageExtent, this->Axes,
-				     this->ImageExtent, allAxes);
+  vtkImageRegion::ChangeVectorCoordinateSystem(this->Spacing, this->Axes,
+					       this->Spacing, allAxes);
+  vtkImageRegion::ChangeVectorCoordinateSystem(this->Origin, this->Axes,
+					       this->Origin, allAxes);
+  vtkImageRegion::ChangeVectorCoordinateSystem(this->Increments, this->Axes,
+					       this->Increments, allAxes);
+  vtkImageRegion::ChangeExtentCoordinateSystem(this->Extent, this->Axes,
+					       this->Extent, allAxes);
+  vtkImageRegion::ChangeExtentCoordinateSystem(this->ImageExtent, this->Axes,
+					       this->ImageExtent, allAxes);
 
   // Actually change the regions axes.
   for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
@@ -543,7 +527,19 @@ void vtkImageRegion::SetExtent(int dim, int *extent)
     this->Extent[idx] = extent[idx];
     }
   this->Modified();
+  
+  // also set the extent of the data if it has not been allocated.
+  if (this->Data && ( ! this->Data->AreScalarsAllocated()))
+    {
+    int saveAxes[VTK_IMAGE_DIMENSIONS];
+    this->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+    this->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+    this->Data->SetExtent(dim, this->Extent);
+    this->Data->GetIncrements(VTK_IMAGE_DIMENSIONS, this->Increments);
+    this->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+    }
 }
+
 //----------------------------------------------------------------------------
 void vtkImageRegion::GetExtent(int dim, int *extent)
 {
@@ -939,5 +935,145 @@ void vtkImageRegion::Fill(float value)
       vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
     }   
 }
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Sets the scalar type of the region.  The region should not be allocated
+// yet.
+void vtkImageRegion::SetScalarType(int type)
+{
+  if (this->Data)
+    {
+    if (this->Data->AreScalarsAllocated())
+      {
+      vtkErrorMacro("SetScalarType: Data has already been allocated.");
+      return;
+      }
+    this->Data->SetScalarType(type);
+    }
+  
+  this->Modified();
+  this->ScalarType = type;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageRegion::SetDataOrder(int num, int *order)
+{
+  if (this->Data && this->Data->AreScalarsAllocated())
+    {
+    vtkErrorMacro("SetDataOrder: Data has already been allocated.");
+    return;
+    }
+  
+  this->Modified();
+  vtkImageRegion::CompleteUnspecifiedAxes(num, order, this->DataOrder);
+  if (this->Data)
+    {
+    this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageRegion::GetDataOrder(int num, int *order)
+{
+  int idx;
+  
+  if (num > VTK_IMAGE_DIMENSIONS)
+    {
+    vtkWarningMacro("GetDataOrder: " << num << " axes is too many");
+    num = VTK_IMAGE_DIMENSIONS;
+    }
+
+  for (idx = 0; idx < num; ++idx)
+    {
+    order[idx] = this->DataOrder[idx];
+    }
+}
+
+
+
+  
+//----------------------------------------------------------------------------
+// Description:
+// If the data of this region is not going to be set explicitely, this
+// method can be used to make a new data object for the region.
+// Extent, ScalarType, and DataOrder should be set before this method
+// is called.
+void vtkImageRegion::MakeData()
+{
+  int saveAxes[VTK_IMAGE_DIMENSIONS];
+  
+  if (this->Data)
+    {
+    vtkWarningMacro("MakeData: Data object already exists.");
+    return;
+    }
+
+  this->GetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+  // change to data coordinates
+  this->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  
+  this->Data = vtkImageData::New();
+  this->Data->SetScalarType(this->ScalarType);
+  this->Data->SetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  this->Data->SetExtent(VTK_IMAGE_DIMENSIONS, this->Extent);
+  this->Data->GetIncrements(VTK_IMAGE_DIMENSIONS, this->Increments);
+
+  // Now restore previous coordinate system
+  this->SetAxes(VTK_IMAGE_DIMENSIONS, saveAxes);
+}
+
+  
+
+//----------------------------------------------------------------------------
+// Description:
+// You can set the data object explicitly.
+// Old data is released, and the region automatically registers
+// the new data.  This assumes that the Data being set 
+// has already been allocated.  This method is used mainly by
+// vtkImageCache.
+void vtkImageRegion::SetData(vtkImageData *data)
+{
+  this->Modified();
+  // data objects have reference counts
+  data->Register(this);
+
+  // delete previous data
+  if (this->Data)
+    {
+    this->Data->Delete();
+    this->Data = NULL;
+    }
+
+  this->Data = data;
+  
+  // Set the scalar type
+  this->ScalarType = data->GetScalarType();
+  
+  // set the DataOrder of this region
+  data->GetAxes(VTK_IMAGE_DIMENSIONS, this->DataOrder);
+  
+  // Compute the increments.
+  // Note that this implies that the extent of the data is fixed.
+  vtkImageRegionChangeVectorCoordinateSystem(this->Data->GetIncrements(),
+					     this->Data->GetAxes(), 
+					     this->Increments, this->Axes);
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Returns the data.  If one does not exist, the a data object is created.
+vtkImageData *vtkImageRegion::GetData()
+{
+  if ( ! this->Data)
+    {
+    this->MakeData();
+    }
+  return this->Data;
+}
+
 
 

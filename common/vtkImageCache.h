@@ -70,6 +70,9 @@ public:
   unsigned long int GetPipelineMTime();
   void UpdateImageInformation(vtkImageRegion *region);
   void UpdateRegion(vtkImageRegion *region);
+  vtkImageRegion *UpdateRegion();
+  void Update();
+  void UpdateImageInformation();
   
   // Description:
   // Set/Get the source associated with this cache
@@ -108,21 +111,55 @@ public:
   void GetDataOrder(int num, int *axes);
   vtkImageGetMacro(DataOrder, int);
 
+  // Description:
+  // These methods allow direct access to the cached image information.
+  void GetSpacing(int num, float *spacing);
+  vtkImageGetMacro(Spacing, float);
+  float *GetSpacing() {return this->Spacing;}
+  void GetOrigin(int num, float *origin);
+  vtkImageGetMacro(Origin, float);
+  float *GetOrigin() {return this->Origin;}
+  void GetImageExtent(int num, int *extent);
+  vtkImageGetExtentMacro(ImageExtent);
+  // Description:
+  // These duplicate the above and also provide compatability 
+  // with vtkImageStructuredPoints.  Note: The result of these calls
+  // depends on the coordinate system!  Note:  These methods provide 
+  // image information, not the data in the cache.
+  void GetDimensions(int num, int *dimensions);
+  vtkImageGetMacro(Dimensions, int);
+  int *GetDimensions() {return this->Dimensions;}
+  void GetCenter(int num, float *center);
+  vtkImageGetMacro(Center, float);
+  float *GetCenter() {return this->Center;}
+  void GetBounds(int num, float *bounds);
+  vtkGetVector3Macro(Bounds, float);
+
+  void SetSpacing(int num, float *spacing);
+  vtkImageSetMacro(Spacing, float);
+  void SetOrigin(int num, float *origin);
+  vtkImageSetMacro(Origin, float);
+  
 protected:
   vtkImageCachedSource *Source;
 
-  // Needed for stupid macros (we need to change that)
-  // Not actually used.
+  // Spacing, Dimensions, ... are accessed in this fixed (0, 1, 2, 3, 4)
+  // coordinate system.  Should we allow the user to change the caches axes?
   int Axes[VTK_IMAGE_DIMENSIONS];
   
   //  to tell the cache to save data or not.
   int ReleaseDataFlag;
 
   // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
-  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  vtkTimeStamp ImageInformationTime;
   float Spacing[VTK_IMAGE_DIMENSIONS];
   float Origin[VTK_IMAGE_DIMENSIONS];
-  vtkTimeStamp ImageInformationTime;
+  int ImageExtent[VTK_IMAGE_EXTENT_DIMENSIONS];
+  // This is for vtkStructuredPoints compatability.  
+  // These variables are redundant.
+  int Dimensions[VTK_IMAGE_DIMENSIONS];
+  float Center[VTK_IMAGE_DIMENSIONS];
+  float Bounds[VTK_IMAGE_EXTENT_DIMENSIONS];
 
   // The cache manipulates (and returns) regions with this data type.
   int ScalarType;

@@ -59,6 +59,24 @@ vtkImageSimpleCache::~vtkImageSimpleCache()
 
 
 //----------------------------------------------------------------------------
+void vtkImageSimpleCache::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageCache::PrintSelf(os,indent);
+
+  os << indent << "GenerateTime: " << this->GenerateTime << "\n";
+
+  if ( ! this->CachedData)
+    {
+    os << indent << "CachedData: None";
+    }
+  else
+    {
+    os << indent << "CachedData: \n";
+    this->CachedData->PrintSelf(os, indent.GetNextIndent());
+    }
+}
+
+//----------------------------------------------------------------------------
 // Description:
 // This Method allocates a region and generates the data.
 void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
@@ -111,7 +129,6 @@ void vtkImageSimpleCache::GenerateCachedRegionData(vtkImageRegion *region)
   this->GenerateUnCachedRegionData(region);
   
   // Now the cached data should be OK.
-  region->SetScalarType(this->ScalarType);
   region->SetData(this->CachedData);
 }
 

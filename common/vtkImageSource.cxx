@@ -94,7 +94,7 @@ unsigned long vtkImageSource::GetPipelineMTime()
 //----------------------------------------------------------------------------
 // Description:
 // This method updates the whole region and returns it.
-vtkImageRegion *vtkImageSource::Update()
+vtkImageRegion *vtkImageSource::UpdateRegion()
 {
   vtkImageRegion *region;
   
