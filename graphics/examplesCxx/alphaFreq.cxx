@@ -79,12 +79,12 @@ main (int argc, char *argv[])
 //
 // Position actors
 //
-  for (y=0.0, j=0; j<2; j++, y+=(-2.0))
-    for (x=0.0, i=0; i<13; i++, x+=1.0)
+  for (y=0.0, j=0; j<2; j++, y+=(-3.0))
+    for (x=0.0, i=0; i<13; i++, x+=1.5)
       actors[j*13 + i]->SetPosition(x, y, 0.0);
 
   ren->SetBackground(1,1,1);
-  renWin->SetSize(1250,750);
+  renWin->SetSize(1250,500);
   renWin->Render();
 
   // interact with data
