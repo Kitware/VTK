@@ -59,6 +59,12 @@ public:
   vtkSetVector3Macro(Origin,float);
   vtkGetVectorMacro(Origin,float,3);
 
+  // Description:
+  // Translate the plane in the direction of the normal by the
+  // distance specified.  Negative values move the plane in the
+  // opposite direction.
+  void Push(float distance);
+
   // Description
   // Project a point x onto plane defined by origin and normal. The 
   // projected point is returned in xproj. NOTE : normal assumed to
