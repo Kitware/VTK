@@ -125,7 +125,7 @@ int vtkMergePoints::IsInsertedPoint(const float x[3])
 
 
 int
-vtkMergePoints::InsertUniquePoint(float x[3], int&id)
+vtkMergePoints::InsertUniquePoint(const float x[3], int&id)
 {
   int i, ijk0, ijk1, ijk2;
   int idx;
