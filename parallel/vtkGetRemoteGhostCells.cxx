@@ -73,12 +73,15 @@ vtkGetRemoteGhostCells::~vtkGetRemoteGhostCells()
 
 void vtkGetRemoteGhostCells::Execute()
 {
-  int myId, numProcs, numPoints, pointId;
+  int myId, numProcs;
+  vtkIdType numPoints, pointId;
   float point[3];
-  int numCells, cellId;
+  int numCells;
+  vtkIdType cellId;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int i = 0, j, k, id, gl;
+  vtkIdType i = 0, j;
+  int k, id, gl;
   vtkPoints *points = vtkPoints::New();
   vtkCellArray *polys;
   vtkIdList *cellIds = vtkIdList::New();
@@ -86,7 +89,7 @@ void vtkGetRemoteGhostCells::Execute()
   vtkUnsignedCharArray* ghostLevels = vtkUnsignedCharArray::New();
   float *myPoints, *remotePoints;
   float tempPoints[3000];
-  int numRemotePoints;
+  vtkIdType numRemotePoints;
   vtkIdList *insertedCells = vtkIdList::New();
   vtkIdList *newCells = vtkIdList::New();
   vtkIdList *currentPoints = vtkIdList::New();
@@ -97,8 +100,7 @@ void vtkGetRemoteGhostCells::Execute()
   vtkPoints *polyDataPoints = vtkPoints::New();
   float *bounds = input->GetBounds(), *remoteBounds = bounds;
   int ghostLevel = output->GetUpdateGhostLevel();
-  int pointIncr, cellIdCount;
-  int *cellIdMap;
+  vtkIdType pointIncr, cellIdCount, *cellIdMap;
   
   if (!this->Controller)
     {
@@ -179,7 +181,6 @@ void vtkGetRemoteGhostCells::Execute()
   output->SetPoints(points);
   output->SetPolys(polys);
 
-
   for (gl = 0; gl < ghostLevel; gl++)
     {
     unsigned char* ghostLevelsArray = ghostLevels->GetPointer(0);
@@ -235,7 +236,7 @@ void vtkGetRemoteGhostCells::Execute()
       {
       if (id != myId)
 	{
-	cellIdMap = new int[input->GetNumberOfCells()];
+	cellIdMap = new vtkIdType[input->GetNumberOfCells()];
 	cellIdCount = 0;
 	polyData->Allocate(input->GetNumberOfCells());
 	this->Controller->Receive((int*)(&numRemotePoints), 1, id,
@@ -301,7 +302,7 @@ void vtkGetRemoteGhostCells::Execute()
 	{
 	this->Controller->Receive(remotePolyData, id, VTK_POLY_DATA_TAG);
 	numCells = remotePolyData->GetNumberOfCells();
-	cellIdMap = new int[numCells];
+	cellIdMap = new vtkIdType[numCells];
 	this->Controller->Receive(cellIdMap, numCells, id, VTK_CELL_ID_TAG);
 	for (j = 0; j < numCells; j++)
 	  {

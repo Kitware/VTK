@@ -98,6 +98,7 @@ public:
   int Send(unsigned long *data, int length, int remoteProcessId, int tag);
   int Send(char *data, int length, int remoteProcessId, int tag);
   int Send(float *data, int length, int remoteProcessId, int tag);
+  int Send(vtkIdType *data, int length, int remoteProcessId, int tag);
   int Send(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkCommunicator::Send(data,remoteId,tag);}
 
@@ -109,6 +110,7 @@ public:
   int Receive(unsigned long *data, int length, int remoteProcessId, int tag);
   int Receive(char *data, int length, int remoteProcessId, int tag);
   int Receive(float *data, int length, int remoteProcessId, int tag);
+  int Receive(vtkIdType *data, int length, int remoteProcessId, int tag);
   int Receive(vtkDataObject *data, int remoteId, int tag)
     {return this->vtkCommunicator::Receive(data, remoteId, tag);}
 

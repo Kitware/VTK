@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIntArray.h"
 #include "vtkMath.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkPieceScalars* vtkPieceScalars::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkPieceScalars* vtkPieceScalars::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPieceScalars;
 }
-
-
-
 
 //----------------------------------------------------------------------------
 vtkPieceScalars::vtkPieceScalars()
@@ -74,8 +69,6 @@ vtkPieceScalars::~vtkPieceScalars()
 {
 }
 
-
-
 //----------------------------------------------------------------------------
 // Append data sets into single unstructured grid
 void vtkPieceScalars::Execute()
@@ -83,7 +76,7 @@ void vtkPieceScalars::Execute()
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
   vtkScalars *pieceColors;
-  int num;
+  vtkIdType num;
   
   if (this->CellScalarsFlag)
     {
@@ -117,11 +110,10 @@ void vtkPieceScalars::Execute()
   pieceColors->Delete();
 }
 
-
 //----------------------------------------------------------------------------
-vtkScalars *vtkPieceScalars::MakePieceScalars(int piece, int num)
+vtkScalars *vtkPieceScalars::MakePieceScalars(int piece, vtkIdType num)
 {
-  int i;
+  vtkIdType i;
   vtkScalars *pieceColors = NULL;
   vtkIntArray *ia;
 
@@ -138,11 +130,10 @@ vtkScalars *vtkPieceScalars::MakePieceScalars(int piece, int num)
   return pieceColors;
 }
 
-
 //----------------------------------------------------------------------------
-vtkScalars *vtkPieceScalars::MakeRandomScalars(int piece, int num)
+vtkScalars *vtkPieceScalars::MakeRandomScalars(int piece, vtkIdType num)
 {
-  int i;
+  vtkIdType i;
   vtkScalars *pieceColors = NULL;
   float randomValue;
   
@@ -161,7 +152,6 @@ vtkScalars *vtkPieceScalars::MakeRandomScalars(int piece, int num)
   return pieceColors;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -177,6 +167,3 @@ void vtkPieceScalars::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ScalarMode: PointData\n";
     }  
 }
-
-
-

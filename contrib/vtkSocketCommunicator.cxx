@@ -166,8 +166,21 @@ int vtkSocketCommunicator::Send(char *data, int length,
 
   return SendMessage(data, length, tag, this->Socket);
 }
+
 //----------------------------------------------------------------------------
 int vtkSocketCommunicator::Send(float *data, int length, 
+				int remoteProcessId, int tag)
+{
+  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
+    {
+    return 0;
+    }
+
+  return SendMessage(data, length, tag, this->Socket);
+}
+
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::Send(vtkIdType *data, int length, 
 				int remoteProcessId, int tag)
 {
   if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
@@ -283,6 +296,16 @@ int vtkSocketCommunicator::Receive(float *data, int length,
   return ReceiveMessage( (char *)data, sizeof(float), length, tag);
 }
 
+int vtkSocketCommunicator::Receive(vtkIdType *data, int length, 
+				   int remoteProcessId, int tag)
+{
+  if ( checkForError(remoteProcessId, this->NumberOfProcesses) )
+    {
+    return 0;
+    }
+
+  return ReceiveMessage( (char *)data, sizeof(vtkIdType), length, tag);
+}
 
 int vtkSocketCommunicator::WaitForConnection(int port, int timeout)
 {

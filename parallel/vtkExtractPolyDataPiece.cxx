@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOBBDicer.h"
 #include "vtkUnsignedCharArray.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkExtractPolyDataPiece* vtkExtractPolyDataPiece::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -90,8 +90,9 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
 					      int piece, int numPieces)
 {
   vtkPolyData *input;
-  int idx, j, numCells, ptId;
+  vtkIdType idx, j, numCells, ptId;
   vtkIdList *cellPtIds;
+
   input = this->GetInput();
   numCells = input->GetNumberOfCells();
   
@@ -125,8 +126,7 @@ void vtkExtractPolyDataPiece::ComputeCellTags(vtkIntArray *tags,
       }
     }
   
-  cellPtIds->Delete();
- 
+  cellPtIds->Delete(); 
   
   //dicer->SetInput(input);
   //dicer->SetDiceModeToSpecifiedNumberOfPieces();
@@ -146,7 +146,7 @@ void vtkExtractPolyDataPiece::Execute()
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
   int ghostLevel, piece, numPieces;
-  int cellId, newCellId;
+  vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
   vtkIdList *pointOwnership;
@@ -154,7 +154,8 @@ void vtkExtractPolyDataPiece::Execute()
   vtkPoints *newPoints;
   vtkUnsignedCharArray* cellGhostLevels = 0;
   vtkUnsignedCharArray* pointGhostLevels = 0;
-  int i, ptId, newId, numPts, numCellPts;
+  vtkIdType ptId, newId, numPts, i;
+  int numCellPts;
   float *x;
 
   // Pipeline update piece will tell us what to generate.
@@ -284,7 +285,8 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
 					    vtkIntArray *cellTags, 
 					    int level)
 {
-  int i, j, k, numCells, pointId, cellId;
+  vtkIdType numCells, pointId, cellId, i;
+  int j, k;
   vtkGenericCell *cell1 = vtkGenericCell::New();
   vtkGenericCell *cell2 = vtkGenericCell::New();
   vtkIdList *cellIds = vtkIdList::New();
@@ -316,11 +318,3 @@ void vtkExtractPolyDataPiece::AddGhostLevel(vtkPolyData *input,
   cell2->Delete();
   cellIds->Delete();
 }
-
-
-
-
-
-
-
-

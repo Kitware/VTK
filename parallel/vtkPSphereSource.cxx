@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkLargeInteger.h"
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkPSphereSource* vtkPSphereSource::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,19 +60,19 @@ vtkPSphereSource* vtkPSphereSource::New()
   return new vtkPSphereSource;
 }
 
-
 //----------------------------------------------------------------------------
 void vtkPSphereSource::Execute()
 {
-  int i, j;
-  int jStart, jEnd, numOffset;
-  int numPts, numPolys;
+  vtkIdType i, j, numOffset;
+  int jStart, jEnd;
+  vtkIdType numPts, numPolys;
   vtkPoints *newPoints; 
   vtkNormals *newNormals;
   vtkCellArray *newPolys;
   float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   float startTheta, endTheta, startPhi, endPhi;
-  int base, numPoles=0, thetaResolution, phiResolution;
+  vtkIdType base, thetaResolution, phiResolution;
+  int numPoles = 0;
   vtkIdType pts[3];
   vtkPolyData *output = this->GetOutput();
   int piece = output->GetUpdatePiece();
@@ -92,7 +92,7 @@ void vtkPSphereSource::Execute()
   deltaTheta = (localEndTheta - localStartTheta) / localThetaResolution;
 
   // Change the ivars based on pieces.
-  int start, end;
+  vtkIdType start, end;
   start = piece * localThetaResolution / numPieces;
   end = (piece+1) * localThetaResolution / numPieces;
   localEndTheta = localStartTheta + (float)(end) * deltaTheta;
@@ -146,9 +146,11 @@ void vtkPSphereSource::Execute()
     }
 
   // Check data, determine increments, and convert to radians
-  startTheta = (localStartTheta < localEndTheta ? localStartTheta : localEndTheta);
+  startTheta = (localStartTheta < localEndTheta ? localStartTheta
+                : localEndTheta);
   startTheta *= vtkMath::Pi() / 180.0;
-  endTheta = (localEndTheta > localStartTheta ? localEndTheta : localStartTheta);
+  endTheta = (localEndTheta > localStartTheta ? localEndTheta
+              : localStartTheta);
   endTheta *= vtkMath::Pi() / 180.0;
   
   startPhi = (this->StartPhi < this->EndPhi ? this->StartPhi : this->EndPhi);

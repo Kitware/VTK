@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkExtractUnstructuredGridPiece* vtkExtractUnstructuredGridPiece::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -89,8 +89,10 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
 					      int piece, int numPieces)
 {
   vtkUnstructuredGrid *input;
-  int idx, j, numCells, ptId;
+  int j;
+  vtkIdType idx, numCells, ptId;
   vtkIdList *cellPtIds;
+
   input = this->GetInput();
   numCells = input->GetNumberOfCells();
   
@@ -124,8 +126,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
       }
     }
   
-  cellPtIds->Delete();
- 
+  cellPtIds->Delete(); 
 }
 
 void vtkExtractUnstructuredGridPiece::Execute()
@@ -136,7 +137,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
   vtkIntArray *cellTags;
   int ghostLevel, piece, numPieces;
-  int cellId, newCellId;
+  vtkIdType cellId, newCellId;
   vtkIdList *cellPts, *pointMap;
   vtkIdList *newCellPts = vtkIdList::New();
   vtkIdList *pointOwnership;
@@ -144,7 +145,8 @@ void vtkExtractUnstructuredGridPiece::Execute()
   vtkPoints *newPoints;
   vtkUnsignedCharArray* cellGhostLevels = 0;
   vtkUnsignedCharArray* pointGhostLevels = 0;
-  int i, ptId, newId, numPts, numCellPts;
+  vtkIdType i, ptId, newId, numPts;
+  int numCellPts;
   float *x;
 
   // Pipeline update piece will tell us what to generate.
@@ -271,10 +273,11 @@ void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 void vtkExtractUnstructuredGridPiece::AddGhostLevel(vtkUnstructuredGrid *input,
-					    vtkIntArray *cellTags, 
-					    int level)
+                                                    vtkIntArray *cellTags, 
+                                                    int level)
 {
-  int i, j, k, numCells, pointId, cellId;
+  vtkIdType numCells, pointId, cellId, i;
+  int j, k;
   vtkGenericCell *cell1 = vtkGenericCell::New();
   vtkGenericCell *cell2 = vtkGenericCell::New();
   vtkIdList *cellIds = vtkIdList::New();
@@ -306,11 +309,3 @@ void vtkExtractUnstructuredGridPiece::AddGhostLevel(vtkUnstructuredGrid *input,
   cell2->Delete();
   cellIds->Delete();
 }
-
-
-
-
-
-
-
-
