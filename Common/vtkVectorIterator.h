@@ -64,8 +64,13 @@ public:
 
   // Description:
   // Retrieve the data from the iterator. 
-  // This method returns VTK_OK if key was retrieved correctly.
+  // This method returns VTK_OK if data were retrieved correctly.
   int GetData(DType&);
+  
+  // Description:
+  // Set the data at the iterator's position.
+  // This method returns VTK_OK if data were set correctly.
+  int SetData(const DType&);
   
   // Description:
   // Initialize the traversal of the container. 

@@ -94,6 +94,20 @@ int vtkHashMapIterator<KeyType,DataType>::GetKeyAndData(KeyType& key,
 
 //----------------------------------------------------------------------------
 template<class KeyType,class DataType>
+int vtkHashMapIterator<KeyType,DataType>::SetData(const DataType& data)
+{
+  if(this->IsDoneWithTraversal()) { return VTK_ERROR; }
+  ItemType item;
+  if(this->Iterator->GetData(item) == VTK_OK)
+    {
+    item.Data = data;
+    return this->Iterator->SetData(item);
+    }
+  return VTK_ERROR;
+}
+
+//----------------------------------------------------------------------------
+template<class KeyType,class DataType>
 int vtkHashMapIterator<KeyType,DataType>::IsDoneWithTraversal()
 {
   vtkHashMap<KeyType,DataType>* hmap 

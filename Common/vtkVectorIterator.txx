@@ -64,6 +64,16 @@ int vtkVectorIterator<DType>::GetData(DType& data)
 
 //----------------------------------------------------------------------------
 template<class DType>
+int vtkVectorIterator<DType>::SetData(const DType& data)
+{
+  vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);
+  if ( this->Index == llist->NumberOfItems ) { return VTK_ERROR; }
+  llist->Array[this->Index] = data;
+  return VTK_OK;
+}
+
+//----------------------------------------------------------------------------
+template<class DType>
 int vtkVectorIterator<DType>::IsDoneWithTraversal()
 {
   vtkVector<DType> *llist = static_cast<vtkVector<DType>*>(this->Container);

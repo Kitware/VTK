@@ -74,6 +74,11 @@ public:
   int GetKeyAndData(KeyType&, DataType&);
   
   // Description:
+  // Set the data at the iterator's position.
+  // This method returns VTK_OK if data were set correctly.
+  int SetData(const DataType&);
+  
+  // Description:
   // Initialize the traversal of the container. 
   // Set the iterator to the "beginning" of the container.
   void InitTraversal();
