@@ -23,7 +23,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.31");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.32");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
@@ -127,7 +127,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   char string[1024], format[1024];
   float val, x[3];
   vtkDataArray *data;
-  float *tuple=NULL;
+//   float *tuple=NULL;
   vtkDataSet *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
 
@@ -206,7 +206,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     else if ( data )
       {
       numComp = data->GetNumberOfComponents();
-      tuple = new float[numComp];
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
         {
@@ -248,32 +247,36 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
       else 
         {
-        data->GetTuple(i, tuple);
         if ( numComp == 1)
           {
-          sprintf(string, this->LabelFormat, tuple[activeComp]);
+            if (data->GetDataType() == VTK_CHAR) 
+              {
+                if (strcmp(this->LabelFormat,"%c") != 0) {
+                  vtkErrorMacro(<<"Label format must be %c to use with char");
+                  return;
+                }
+                sprintf(string, this->LabelFormat, 
+                        (char)data->GetComponent(i, activeComp));
+              } else {
+                sprintf(string, this->LabelFormat, 
+                        data->GetComponent(i, activeComp));
+              }
           }
         else
           {
           strcpy(format, "("); strcat(format, this->LabelFormat);
           for (j=0; j<(numComp-1); j++)
             {
-            sprintf(string, format, tuple[j]);
+            sprintf(string, format, data->GetComponent(i, j));
             strcpy(format,string); strcat(format,", ");
             strcat(format, this->LabelFormat);
             }
-          sprintf(string, format, tuple[numComp-1]);
+          sprintf(string, format, data->GetComponent(i, numComp-1));
           strcat(string, ")");
           }
         }
-
       this->TextMappers[i]->SetInput(string);
       this->TextMappers[i]->SetTextProperty(tprop);
-      }
-
-    if ( data )
-      {
-      delete [] tuple;
       }
 
     this->BuildTime.Modified();
