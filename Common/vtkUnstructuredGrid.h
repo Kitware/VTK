@@ -30,6 +30,7 @@
 class vtkCellArray;
 class vtkCellLinks;
 class vtkConvexPointSet;
+class vtkEmptyCell;
 class vtkHexahedron;
 class vtkIdList;
 class vtkIntArray;
@@ -197,6 +198,7 @@ protected:
   vtkQuadraticTetra      *QuadraticTetra;
   vtkQuadraticHexahedron *QuadraticHexahedron;
   vtkConvexPointSet      *ConvexPointSet;
+  vtkEmptyCell *EmptyCell;
   
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
