@@ -66,6 +66,7 @@ vtkImageContinuousDilate3D \
 vtkImageContinuousErode3D \
 vtkImageCorrelation \
 vtkImageCursor3D \
+vtkImageDataStreamer \
 vtkImageDifference \
 vtkImageDilateErode3D \
 vtkImageDivergence \
