@@ -51,7 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkSweptSurface.h"
-#include "vtkActor.h"
 #include "vtkVoxel.h"
 #include "vtkMath.h"
 
@@ -115,7 +114,7 @@ void vtkSweptSurface::Execute()
   int inDim[3];
   int numSteps, stepNum;
   int numTransforms, transNum;
-  vtkActor *a; //use the actor to do position/orientation stuff
+  vtkTransform *actorTransform; //use an actor-like transform to do position/orientation stuff
   vtkTransform *transform1, *transform2, *t = vtkTransform::New();
   float time;
   // position2 is [4] for GetPoint() call in GetRelativePosition
@@ -163,13 +162,13 @@ void vtkSweptSurface::Execute()
 
   // Get/Set the origin for the actor... for handling case when the input
   // is not centered at 0,0,0
-  a = vtkActor::New();
+  actorTransform = vtkTransform::New();
   float *bounds = input->GetBounds();
-  a->SetOrigin( (bounds[0]+bounds[1])/2.0,  
-	       (bounds[2]+bounds[3])/2.0,
-	       (bounds[4]+bounds[5])/2.0 );
-  float *actorOrigin = a->GetOrigin();
+  float actorOrigin[3];
 
+  actorOrigin[0] = (bounds[0]+bounds[1])/2.0;
+  actorOrigin[1] = (bounds[2]+bounds[3])/2.0;
+  actorOrigin[2] = (bounds[4]+bounds[5])/2.0;
 
   input->GetDimensions(inDim);
   input->GetSpacing(inSpacing);
@@ -239,18 +238,14 @@ void vtkSweptSurface::Execute()
       time = (float) stepNum / numSteps;
       this->InterpolateStates(position1, position2, orient1, orient2, time,
                                        position, orientation); 
-      a->SetPosition(position);
-      a->SetOrientation(orientation);
-      this->SampleInput(a->vtkProp3D::GetMatrixPointer(), inDim, inOrigin, 
-			inSpacing, inScalars, newScalars);
+      this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin, position, orientation),
+			inDim, inOrigin, inSpacing, inScalars, newScalars);
       }
     }
 
   //finish off last step
-  a->SetPosition(position2);
-  a->SetOrientation(orient2);
-  this->SampleInput(a->vtkProp3D::GetMatrixPointer(), inDim, inOrigin, inSpacing,
-                    inScalars, newScalars);
+  this->SampleInput(this->GetActorMatrixPointer(*actorTransform, actorOrigin, position2, orient2),
+		    inDim, inOrigin, inSpacing, inScalars, newScalars);
 
   // Cap if requested
   if ( this->Capping )
@@ -262,7 +257,7 @@ void vtkSweptSurface::Execute()
   outPD->SetScalars(newScalars);
   newScalars->Delete();
   t->Delete();
-  a->Delete();
+  actorTransform->Delete();
 }
 
 void vtkSweptSurface::SampleInput(vtkMatrix4x4 *m, int inDim[3], 
@@ -523,16 +518,17 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
     float position[3], orientation[3], position1[3], orient1[3];
     // position2 is [4] for GetPoint() call in GetRelativePosition
     float position2[4], orient2[3];
-    vtkActor *a = vtkActor::New();
+    vtkTransform *actorTransform = vtkTransform::New();
     vtkTransform *t, *t2, *transform1, *transform2;
 
     t = vtkTransform::New();
     t2 = vtkTransform::New();
 
-    a->SetOrigin( (bounds[0]+bounds[1])/2.0,  
-		 (bounds[2]+bounds[3])/2.0,
-		 (bounds[4]+bounds[5])/2.0 );
-    float *actorOrigin = a->GetOrigin();
+    float actorOrigin[3];
+
+    actorOrigin[0] = (bounds[0]+bounds[1])/2.0;
+    actorOrigin[1] = (bounds[2]+bounds[3])/2.0;
+    actorOrigin[2] = (bounds[4]+bounds[5])/2.0;
 
     xmin[0] = xmin[1] = xmin[2] = VTK_LARGE_FLOAT;
     xmax[0] = xmax[1] = xmax[2] = -VTK_LARGE_FLOAT;
@@ -600,9 +596,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
         {
         this->InterpolateStates(position1, position2, orient1, orient2, k*h,
                                        position, orientation); 
-        a->SetPosition(position);
-        a->SetOrientation(orientation);
-        a->GetMatrix(t2->GetMatrixPointer());
+        t2->SetMatrix (*this->GetActorMatrixPointer(*actorTransform, actorOrigin,position,orientation));
 
         for (i=0; i<8; i++) //loop over eight corners of bounding box
           {
@@ -631,7 +625,7 @@ void vtkSweptSurface::ComputeBounds(float origin[3], float spacing[3], float bbo
       }
     t->Delete();
     t2->Delete();
-    a->Delete();
+    actorTransform->Delete();
     } //if compute model bounds
 
   else // else use model bounds specified
@@ -856,4 +850,32 @@ void vtkSweptSurface::InterpolateStates(float *pos1, float *pos2,
     eulerOut[i] = euler1[i] + t*(euler2[i] - euler1[i]);
     }
 }
+
+
+// Simulate an actor's transform without all of the baggage of an actor
+vtkMatrix4x4* vtkSweptSurface::GetActorMatrixPointer(vtkTransform &t,
+						    float origin[3],
+						    float position[3], float orientation[3])
+{
+  t.Identity();  
+  t.PostMultiply();  
+    
+  // shift back to actor's origin
+  t.Translate(-origin[0],
+	      -origin[1],
+	      -origin[2]);
+
+  // rotate
+  t.RotateY(orientation[1]);
+  t.RotateX(orientation[0]);
+  t.RotateZ(orientation[2]);
+    
+  // move back from origin and translate
+  t.Translate(origin[0] + position[0],
+	      origin[1] + position[1],
+	      origin[2] + position[2]);
+
+  return t.GetMatrixPointer();
+}
+
 
