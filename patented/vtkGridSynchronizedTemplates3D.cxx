@@ -754,7 +754,6 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int threadId)
       vtkTemplateMacro9(ContourGrid, this, threadId, exExt, (VTK_TT *)scalars, 
                         newPts, newScalars, newPolys, newNormals, 
                         newGradients);
-      break;
       }//switch
     }
   else //multiple components - have to convert

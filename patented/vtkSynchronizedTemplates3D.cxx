@@ -539,7 +539,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
       {
       vtkTemplateMacro9(ContourImage, this, exExt, data, newPts, newScalars, 
                         newPolys, newNormals, newGradients,(VTK_TT *)ptr);
-      break;
       }
     }
   else //multiple components - have to convert
