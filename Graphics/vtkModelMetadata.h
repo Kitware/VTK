@@ -84,7 +84,7 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkModelMetadataSTLCloak;
 
-class VTK_EXPORT vtkModelMetadata : public vtkObject
+class VTK_GRAPHICS_EXPORT vtkModelMetadata : public vtkObject
 { 
 public:
   vtkTypeRevisionMacro(vtkModelMetadata, vtkObject);

@@ -100,6 +100,7 @@ vtkMergeCells.cxx
 vtkMergeFields.cxx
 vtkMergeFilter.cxx
 vtkMeshQuality.cxx
+vtkModelMetadata.cxx
 vtkOBBDicer.cxx
 vtkOBBTree.cxx
 vtkOutlineCornerFilter.cxx
