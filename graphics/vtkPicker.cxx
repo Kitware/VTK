@@ -71,6 +71,10 @@ vtkPicker::vtkPicker()
   this->Mapper = NULL;
   this->DataSet = NULL;
   this->GlobalTMin = VTK_LARGE_FLOAT;
+  this->Actors = vtkActorCollection::New();
+  this->PickedPositions = vtkPoints::New();
+  this->PickList = vtkActorCollection::New();
+  this->Transform = vtkTransform::New();
   
   this->StartPickMethod = NULL;
   this->StartPickMethodArgDelete = NULL;
@@ -99,6 +103,10 @@ vtkPicker::~vtkPicker()
     {
     (*this->EndPickMethodArgDelete)(this->EndPickMethodArg);
     }
+  this->Actors->Delete();
+  this->PickedPositions->Delete();
+  this->Transform->Delete();
+  this->PickList->Delete();
 }
 
 // Update state when actor is picked.
@@ -123,8 +131,8 @@ void vtkPicker::MarkPicked(vtkActor *assem, vtkActor *actor, vtkMapper *mapper,
 
   // The point has to be transformed back into world coordinates.
   // Note: it is assumed that the transform is in the correct state.
-  this->Transform.SetPoint(mapperHPosition);
-  worldHPosition = this->Transform.GetPoint();
+  this->Transform->SetPoint(mapperHPosition);
+  worldHPosition = this->Transform->GetPoint();
 
   for (i=0; i < 3; i++) this->PickPosition[i] = worldHPosition[i];
   
@@ -273,7 +281,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
     actors = renderer->GetActors();
     }
   
-  this->Transform.PostMultiply();
+  this->Transform->PostMultiply();
   for ( actors->InitTraversal(); (actor=actors->GetNextItem()); )
     {
     for ( actor->InitPartTraversal(); (part=actor->GetNextPart()); )
@@ -285,15 +293,15 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
       //  coordinates. 
       if (pickable && (mapper = part->GetMapper()) != NULL )
         {
-        this->Transform.SetMatrix(part->vtkProp::GetMatrix());
-        this->Transform.Push();
-        this->Transform.Inverse();
+        this->Transform->SetMatrix(part->vtkProp::GetMatrix());
+        this->Transform->Push();
+        this->Transform->Inverse();
 
-        this->Transform.SetPoint(p1World);
-        this->Transform.GetPoint(p1Mapper);
+        this->Transform->SetPoint(p1World);
+        this->Transform->GetPoint(p1Mapper);
 
-        this->Transform.SetPoint(p2World);
-        this->Transform.GetPoint(p2Mapper);
+        this->Transform->SetPoint(p2World);
+        this->Transform->GetPoint(p2Mapper);
 
         for (i=0; i<3; i++) 
           {
@@ -302,7 +310,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           ray[i] = p2Mapper[i] - p1Mapper[i];
           }
 
-        this->Transform.Pop();
+        this->Transform->Pop();
 
         //  Have the ray endpoints in mapper space, now need to compare this
         //  with the mapper bounds to see whether intersection is possible.
@@ -316,7 +324,11 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           picked = 1;
           this->IntersectWithLine((float *)p1Mapper, 
 				  (float *)p2Mapper,tol,actor,part,mapper);
-          this->Actors.AddItem(part);
+          this->Actors->AddItem(part);
+	  this->PickedPositions->InsertNextPoint
+	    ((1.0 - t)*p1World[0] + t*p2World[0],
+	     (1.0 - t)*p1World[1] + t*p2World[1],
+	     (1.0 - t)*p1World[2] + t*p2World[2]);
           }
 
         }//if visible and pickable not transparent and has mapper
@@ -330,7 +342,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
 }
 
 // Intersect data with specified ray.
-void vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
+float vtkPicker::IntersectWithLine(float p1[3], float p2[3], 
                                   float vtkNotUsed(tol), vtkActor *assem, 
                                   vtkActor *actor, vtkMapper *mapper)
 {
@@ -343,7 +355,7 @@ void vtkPicker::IntersectWithLine(float p1[3], float p2[3],
   center = mapper->GetCenter();
 
   for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
-  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return;
+  if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) return 2.0;
   //
   // Project the center point onto the ray and determine its parametric value
   //
@@ -354,13 +366,15 @@ void vtkPicker::IntersectWithLine(float p1[3], float p2[3],
     {
     this->MarkPicked(assem, actor, mapper, t, center);
     }
+  return t;
 }
 
 // Initialize the picking process.
 void vtkPicker::Initialize()
 {
-  this->Actors.RemoveAllItems();
-
+  this->Actors->RemoveAllItems();
+  this->PickedPositions->Reset();
+  
   this->PickPosition[0] = 0.0;
   this->PickPosition[1] = 0.0;
   this->PickPosition[2] = 0.0;
@@ -466,7 +480,7 @@ void vtkPicker::SetEndPickMethodArgDelete(void (*f)(void *))
 void vtkPicker::InitializePickList()
 {
   this->Modified();
-  this->PickList.RemoveAllItems();
+  this->PickList->RemoveAllItems();
 }
 
 // Description:
@@ -474,7 +488,7 @@ void vtkPicker::InitializePickList()
 void vtkPicker::AddPickList(vtkActor *a)
 {
   this->Modified();
-  this->PickList.AddItem(a);
+  this->PickList->AddItem(a);
 }
 
 // Description:
@@ -482,7 +496,7 @@ void vtkPicker::AddPickList(vtkActor *a)
 void vtkPicker::DeletePickList(vtkActor *a)
 {
   this->Modified();
-  this->PickList.RemoveItem(a);
+  this->PickList->RemoveItem(a);
 }
 
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)

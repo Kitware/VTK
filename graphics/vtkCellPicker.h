@@ -79,8 +79,8 @@ protected:
   int SubId; // picked cell subId
   float PCoords[3]; // picked cell parametric coordinates
 
-  virtual void IntersectWithLine(float p1[3], float p2[3], float tol, 
-                         vtkActor *assem, vtkActor *a, vtkMapper *m);
+  virtual float IntersectWithLine(float p1[3], float p2[3], float tol, 
+				  vtkActor *assem, vtkActor *a, vtkMapper *m);
   void Initialize();
 };
 
