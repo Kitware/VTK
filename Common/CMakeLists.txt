@@ -80,6 +80,7 @@ vtkMultiThreader
 vtkMutexLock 
 vtkNormals 
 vtkObject 
+vtkOrderedTriangulator
 vtkOutputWindow 
 vtkPerspectiveTransform 
 vtkPixel 

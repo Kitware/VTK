@@ -3,7 +3,7 @@
 # it sets up many default parameters and include paths
 #
 
-OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying")
+OPTION (VTK_USE_RENDERING "Build the rendering classes used for displaying" ON)
 IF (VTK_USE_RENDERING)
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
   INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Rendering)
