@@ -21,7 +21,7 @@
 #include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.110");
+vtkCxxRevisionMacro(vtkSource, "1.111");
 
 #ifndef NULL
 #define NULL 0
@@ -33,7 +33,6 @@ vtkSource::vtkSource()
   this->NumberOfOutputs = 0;
   this->Outputs = NULL;
   this->Updating = 0;
-  this->GarbageCollecting = 0;
 }
 
 //----------------------------------------------------------------------------
