@@ -308,12 +308,17 @@ public:
   // Description:
   // Set the properties of the margins.
   virtual void SetMarginProperty(vtkProperty*);
-  vtkGetObjectMacro(MarginProperty,vtkProperty);  
+  vtkGetObjectMacro(MarginProperty,vtkProperty);
 
   // Description:
   // Set/Get the text property for the image data and window-level annotation.
   void SetTextProperty(vtkTextProperty* tprop);
   vtkTextProperty* GetTextProperty();
+
+  // Description:
+  // Set/Get the property for the resliced image.
+  virtual void SetTexturePlaneProperty(vtkProperty*);
+  vtkGetObjectMacro(TexturePlaneProperty,vtkProperty);
 
   // Description:
   // Get the current window and level values.
@@ -418,11 +423,13 @@ protected:
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.  The plane property is actually that for
-  // the outline.
+  // the outline.  The TexturePlaneProperty can be used to control the
+  // lighting etc. of the resliced image data.
   vtkProperty   *PlaneProperty;
   vtkProperty   *SelectedPlaneProperty;
   vtkProperty   *CursorProperty;
   vtkProperty   *MarginProperty;
+  vtkProperty   *TexturePlaneProperty;
   void           CreateDefaultProperties();
 
   // Reslice and texture management
