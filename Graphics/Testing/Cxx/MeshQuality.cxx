@@ -41,9 +41,9 @@ int MeshQuality( int argc, char* argv[] )
   vtkUnstructuredGrid* ug;
   vtkMeshQuality* iq = vtkMeshQuality::New();
   double avg;
-  const char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uGridEx.vtk");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/uGridEx.vtk");
 
-  mr->SetFileName( argc > 1 ? argv[1] : fname );
+  mr->SetFileName( fname );
   mr->Update();
 
   ug = mr->GetOutput();
