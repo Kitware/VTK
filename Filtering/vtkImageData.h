@@ -269,14 +269,6 @@ public:
   const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
-  // Get the pipeline scalar type
-  int GetPipelineScalarType();
-
-  // Description:
-  // Get the pipeline number of scalar components for points.
-  int GetPipelineNumberOfScalarComponents();
-  
-  // Description:
   // Set/Get the number of scalar components for points.
   void SetNumberOfScalarComponents( int n );
   int GetNumberOfScalarComponents();

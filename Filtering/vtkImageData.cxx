@@ -42,7 +42,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.8");
+vtkCxxRevisionMacro(vtkImageData, "1.9");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -233,9 +233,9 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
   // Now do the specific stuff
   this->SetOrigin( image->GetOrigin() );
   this->SetSpacing( image->GetSpacing() );
-  this->SetScalarType( image->GetPipelineScalarType() );
+  this->SetScalarType( image->GetScalarType() );
   this->SetNumberOfScalarComponents( 
-    image->GetPipelineNumberOfScalarComponents() );
+    image->GetNumberOfScalarComponents() );
 }
 
 //----------------------------------------------------------------------------
@@ -1200,17 +1200,6 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
 //----------------------------------------------------------------------------
 int vtkImageData::GetNumberOfScalarComponents()
 {
-  vtkDataArray *scalars = this->GetPointData()->GetScalars();
-  if (scalars)
-    {
-    return scalars->GetNumberOfComponents();
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkImageData::GetPipelineNumberOfScalarComponents()
-{
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
     {
@@ -1513,17 +1502,6 @@ void vtkImageData::SetScalarType(int type)
 
 //----------------------------------------------------------------------------
 int vtkImageData::GetScalarType()
-{
-  vtkDataArray *scalars = this->GetPointData()->GetScalars();
-  if (scalars)
-    {
-    return scalars->GetDataType();
-    }
-  return VTK_DOUBLE;
-}
-
-//----------------------------------------------------------------------------
-int vtkImageData::GetPipelineScalarType()
 {
   this->GetProducerPort();
   if(vtkInformation* info = this->GetPipelineInformation())
