@@ -24,7 +24,8 @@
 #define __vtkRenderLargeImage_h
 
 #include "vtkImageSource.h"
-#include "vtkRenderer.h"
+
+class vtkRenderer;
 
 class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkImageSource
 {
@@ -40,7 +41,7 @@ public:
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  vtkSetObjectMacro(Input,vtkRenderer);
+  virtual void SetInput(vtkRenderer*);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
