@@ -216,6 +216,12 @@ void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
   outExt = outData->GetUpdateExtent();
   inData->SetUpdateExtent(outExt);
   inData->Update();
+  
+  if (inData->GetDataReleased())
+    { // special case for pipeline parallelism
+    return;
+    }
+  
   inExt = inData->GetExtent(); 
 
   if (this->ClipData && 
@@ -226,11 +232,13 @@ void vtkImageClip::InternalUpdate(vtkDataObject *outObject)
     outData->SetExtent(outExt);
     outData->AllocateScalars();
     this->CopyData(inData, outData, outExt);
+    outData->DataHasBeenGenerated();
     }
   else
     {
     outData->SetExtent(inExt);
     outData->GetPointData()->PassData(inData->GetPointData());
+    outData->DataHasBeenGenerated();
     }
 
   // release input data

@@ -187,7 +187,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   max1 = (max1 < extent[2]) ? extent[2] : max1;
   min1 = (min1 > extent[3]) ? extent[3] : min1;
   max1 = (max1 > extent[3]) ? extent[3] : max1;
-  
+   
   ptr = this->ImageData->GetScalarPointer(min0, min1, extent[4]);
   switch (this->ImageData->GetScalarType())
     {

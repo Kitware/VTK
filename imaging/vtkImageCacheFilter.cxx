@@ -187,6 +187,7 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
 	// Pass this data to output.
 	outData->SetExtent(ext);
 	outData->GetPointData()->PassData(this->Data[i]->GetPointData());
+	outData->DataHasBeenGenerated();
 	flag = 1;
 	}
       }
@@ -202,13 +203,19 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
     inData->SetUpdateExtent(uExt);
     inData->PreUpdate();
     inData->InternalUpdate();
+    
+    if (inData->GetDataReleased())
+      { // special case  
+      return;
+      }
 
     vtkDebugMacro("Generating Data to meet request" 
 		  << *(outData->GetGenericUpdateExtent()));
-
+    
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
-
+    outData->DataHasBeenGenerated();
+    
     // Save the image in cache.
     // Find a spot to put the data.
     for (i = 0; i < this->CacheSize; ++i)
@@ -235,7 +242,7 @@ void vtkImageCacheFilter::InternalUpdate(vtkDataObject *outObject)
     this->Data[bestIdx]->SetNumberOfScalarComponents(inData->GetNumberOfScalarComponents());
     this->Data[bestIdx]->GetPointData()->SetScalars(inData->GetPointData()->GetScalars());
     this->Times[bestIdx] = inData->GetUpdateTime();
-
+    
     // release input data
     if (this->GetInput()->ShouldIReleaseData())
       {

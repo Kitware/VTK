@@ -47,6 +47,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageComposite::vtkImageComposite()
 {
   this->SetOutput(vtkStructuredPoints::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
   this->Outputs[0]->Delete();
 }
 
@@ -109,14 +112,20 @@ void vtkImageComposite::Execute()
   vtkFieldData *outZField;
   float *outZPtr, *inZ, *outZ;
   vtkScalars *outPScalars;
-  unsigned char *outPPtr, *inP, *outP;
+  int alphaFlag = 0;
+  float alpha, oneMinusAlpha;
 
   // Since this is not an image filter, we need to allocate.
   input = this->GetInput(0);
   numPts = input->GetNumberOfPoints();
   output->SetDimensions(input->GetDimensions());
   output->SetSpacing(input->GetSpacing());
-
+  output->SetNumberOfScalarComponents(input->GetNumberOfScalarComponents());
+  if (input->GetNumberOfScalarComponents() == 4)
+    {
+    alphaFlag = 1;
+    }
+  
   // allocate the output
   outZArray = vtkFloatArray::New();
   outZArray->Allocate(numPts);
@@ -127,10 +136,17 @@ void vtkImageComposite::Execute()
   outZField->SetArrayName(0, "ZBuffer");
 
   outPScalars = vtkScalars::New();
-  outPScalars->SetDataType(VTK_UNSIGNED_CHAR);
-  outPScalars->SetNumberOfComponents(3);  
+  if (alphaFlag)
+    {
+    outPScalars->SetDataType(VTK_FLOAT);
+    }
+  else
+    {
+    outPScalars->SetDataType(VTK_UNSIGNED_CHAR);
+    }
+  
+  outPScalars->SetNumberOfComponents(3+alphaFlag);  
   outPScalars->SetNumberOfScalars(numPts);
-  outPPtr = (unsigned char *)(outPScalars->GetVoidPointer(0));
 
   // composite each input
   for (i = 0; i < this->NumberOfInputs; ++i)
@@ -145,8 +161,14 @@ void vtkImageComposite::Execute()
         continue;
         }
       inPScalars = input->GetPointData()->GetScalars();
-      if (inPScalars->GetDataType() != VTK_UNSIGNED_CHAR ||
-          inPScalars->GetNumberOfComponents() != 3)
+      if (!alphaFlag && (inPScalars->GetDataType() != VTK_UNSIGNED_CHAR ||
+          inPScalars->GetNumberOfComponents() != 3))
+        {
+        vtkErrorMacro("Bap Pixel data format.");
+        continue;
+        }
+      if (alphaFlag && (inPScalars->GetDataType() != VTK_FLOAT ||
+          inPScalars->GetNumberOfComponents() != 4))
         {
         vtkErrorMacro("Bap Pixel data format.");
         continue;
@@ -160,27 +182,73 @@ void vtkImageComposite::Execute()
 
       outZ = outZPtr;
       inZ = ((vtkFloatArray*)inZData)->GetPointer(0);
-      outP = outPPtr;
-      inP = (unsigned char *)(inPScalars->GetVoidPointer(0));
-      
-      for (j = 0; j < numPts; ++j)
-        {
-        if (firstFlag || *inZ < *outZ)
-          {
-          *outZ++ = *inZ++;
-          *outP++ = *inP++;
-          *outP++ = *inP++;
-          *outP++ = *inP++;
-          }
-        else
-          {
-          ++outZ;
-          ++inZ;
-          outP += 3;
-          inP += 3;
+      if (alphaFlag)
+	{
+	float *outPPtr, *inP, *outP;
+	outPPtr = (float*)(outPScalars->GetVoidPointer(0));
+	outP = outPPtr;
+	inP = (float*)(inPScalars->GetVoidPointer(0));
+	for (j = 0; j < numPts; ++j)
+	  {
+	  if (firstFlag)
+	    { // copy
+	    *outZ++ = *inZ++;
+	    *outP++ = *inP++;
+	    *outP++ = *inP++;
+	    *outP++ = *inP++;
+	    *outP++ = *inP++;
+	    }
+	  else if (*inZ <= *outZ)
+	    { // composite
+	    alpha = inZ[3];
+	    oneMinusAlpha = 1.0 - alpha;
+	    *outP = *outP * oneMinusAlpha + *inP * alpha;
+	    ++outP;  ++inP;
+	    *outP = *outP * oneMinusAlpha + *inP * alpha;
+	    ++outP;  ++inP;
+	    *outP = *outP * oneMinusAlpha + *inP * alpha;
+	    ++outP;  ++inP;
+	    *outP = *outP * oneMinusAlpha + *inP * alpha;
+	    ++outP;  ++inP;
+	    *outZ++ = *inZ++;
+	    }
+	  else
+	    { // skip
+	    ++outZ;
+	    ++inZ;
+	    outP += 4;
+	    inP += 4;
+	    }
           }
         }
-        firstFlag = 0;
+      else
+	{
+	unsigned char *outPPtr, *inP, *outP;
+	outPPtr = (unsigned char *)outPScalars->GetVoidPointer(0);
+	outP = outPPtr;
+	inP = (unsigned char *)(inPScalars->GetVoidPointer(0));
+	for (j = 0; j < numPts; ++j)
+	  {
+	  if (firstFlag || *inZ <= *outZ)
+	    { // copy
+	    *outZ++ = *inZ++;
+	    *outP++ = *inP++;
+	    *outP++ = *inP++;
+	    *outP++ = *inP++;
+	    }
+	  else
+	    { // skip
+	    ++outZ;
+	    ++inZ;
+	    outP += 3;
+	    inP += 3;
+	    }
+          }
+        }	
+      
+      
+      
+      firstFlag = 0;
       }
     }
   output->GetPointData()->SetScalars(outPScalars);

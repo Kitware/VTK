@@ -106,6 +106,7 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkDataObject *data)
     else
       {
       outData->GetPointData()->PassData(inData->GetPointData());
+      outData->DataHasBeenGenerated();
       }
 
     // release input data
@@ -146,12 +147,15 @@ void vtkImageInPlaceFilter::InternalUpdate(vtkDataObject *data)
       (*this->EndMethod)(this->EndMethodArg);
       }
     
-    // Like the graphics pipeline this source releases inputs data.
+    outData->DataHasBeenGenerated();
+      
+      // Like the graphics pipeline this source releases inputs data.
     this->GetInput()->ReleaseData();
     }
   else
     {
     this->RecursiveStreamUpdate(outData,2);
+    outData->DataHasBeenGenerated();
     }
   
   this->Updating = 0;
