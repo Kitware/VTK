@@ -28,6 +28,16 @@ vlWriter::vlWriter()
 }
 
 // Description:
+// General write method executes subclasses WriteData() method, as well as
+// StartWrite() and EndWrite() methods.
+void vlWriter::Write()
+{
+  if ( this->StartWrite ) (*this->StartWrite)(this->StartWriteArg);
+  this->WriteData();
+  if ( this->EndWrite ) (*this->EndWrite)(this->EndWriteArg);
+}
+
+// Description:
 // Specify a function to be called before data is written.
 // Function will be called with argument provided.
 void vlWriter::SetStartWrite(void (*f)(void *), void *arg)

@@ -40,7 +40,7 @@ vlBYUWriter::~vlBYUWriter()
 
 // Description:
 // Write out data in MOVIE.BYU format.
-void vlBYUWriter::Write()
+void vlBYUWriter::WriteData()
 {
   FILE *geomFp;
   vlPolyData *input=(vlPolyData *)this->Input;

@@ -49,9 +49,8 @@ public:
   vlSetClampMacro(WriteMode,int,STL_ASCII,STL_BINARY);
   vlGetMacro(WriteMode,int);
 
-  void Write();
-
 protected:
+  void WriteData();
   void Execute() {this->Write();};
 
   char *Filename;

@@ -28,7 +28,7 @@ vlSTLWriter::~vlSTLWriter()
   if ( this->Filename ) delete [] this->Filename;
 }
 
-void vlSTLWriter::Write()
+void vlSTLWriter::WriteData()
 {
   vlPoints *pts;
   vlCellArray *polys;

@@ -38,9 +38,8 @@ public:
   vlSetStringMacro(Filename);
   vlGetStringMacro(Filename);
 
-  void Write();
-
 protected:
+  void WriteData();
   void Execute() {this->Write();};
 
   char *Filename;

@@ -28,7 +28,7 @@ vlVoxelWriter::~vlVoxelWriter()
 
 // Description:
 // Write voxel data out.
-void vlVoxelWriter::Write()
+void vlVoxelWriter::WriteData()
 {
   FILE *fp;
   int i, j, k;

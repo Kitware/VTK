@@ -75,9 +75,8 @@ public:
   vlGetMacro(WriteTexture,int);
   vlBooleanMacro(WriteTexture,int);
 
-  void Write();
-
 protected:
+  void WriteData();
   void Execute() {this->Write();};
 
   char *GeometryFilename;
