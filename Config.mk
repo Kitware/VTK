@@ -38,6 +38,14 @@ MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 #   export CXX 
 # instead.
 
+# if you want to try the very alpha java support you'll need to set the following
+#
+#JAVAC=/home/martink/JDK/java/bin/javac
+#JAVA_CLASS_HOME=/home/martink/java
+#JAVAH=/home/martink/JDK/java/bin/javah
+#JAVA_INCLUDES=-I/home/martink/JDK/java/include -I/home/martink/JDK/java/include/solaris
+#JAVA_CXX_LIB=/common/software/g++-2.7.1/sun4/5.4/lib/libiberty.a /common/software/g++-2.7.1/sun4/5.4/lib/libstdc++.a /common/software/g++-2.7.1/sun4/5.4/lib/gcc-lib/sparc-sun-solaris2.4/2.7.1/libgcc.a
+
 # here are some generic settings
 #
 CFLAGS=-O
@@ -45,8 +53,8 @@ CXXFLAGS=-O
 
 # here are some common settings for gcc, g++
 #
-#CFLAGS=-O2 -Wall
-#CXXFLAGS=-O2 -Wall
+#CFLAGS=-O2 -Wall ${JAVA_INCLUDES}
+#CXXFLAGS=-O2 -Wall ${JAVA_INCLUDES}
 #MAKE_DEPEND_COMMAND=${CXX} -MM  $(CPPFLAGS) $(CXX_FLAGS) $(srcdir)/*.cxx > depend.make; ${CXX} -MM $(CPPFLAGS) $(CXX_FLAGS) tcl/*.cxx | sed -e "sz^\([^.]*\)\.oztcl/\1\.ozg" >> depend.make
 
 
