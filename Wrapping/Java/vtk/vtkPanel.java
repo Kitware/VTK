@@ -47,9 +47,9 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     return rw;
   }
 
-  private native void RenderCreate(vtkRenderWindow id0);
-  private native void Lock();
-  private native void UnLock();
+  protected native void RenderCreate(vtkRenderWindow id0);
+  protected native void Lock();
+  protected native void UnLock();
   
   public void setSize(int x, int y)
   {
