@@ -18,7 +18,7 @@
 #include "vtkTextActor.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.7");
+vtkCxxRevisionMacro(vtkTextActor, "1.8");
 vtkStandardNewMacro(vtkTextActor);
 // ----------------------------------------------------------------------------
 vtkTextActor::vtkTextActor()
@@ -214,7 +214,7 @@ int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
         {
         size[1] = this->MinimumSize[1];
         }    
-      int max_height = this->MaximumLineHeight * size[1];
+      int max_height = (int)(this->MaximumLineHeight * (float)size[1]);
 
       oldfontsize = fontSize;
       fontSize = mapper->GetConstrainedFontSize(
