@@ -22,7 +22,7 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.8");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.9");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkJPEGWriter::vtkJPEGWriter()
@@ -114,13 +114,17 @@ void vtkJPEGWriteToMemoryInit(j_compress_ptr cinfo)
     static_cast<vtkObject *>(cinfo->client_data));
   if (self)
     {
-    vtkUnsignedCharArray *uc = vtkUnsignedCharArray::New();
-    self->SetResult(uc);
-    // start out with 10K as a guess for the image size
-    uc->Allocate(10000);
+    vtkUnsignedCharArray *uc = self->GetResult();
+    if (!uc || uc->GetReferenceCount() > 1)
+      {
+      uc = vtkUnsignedCharArray::New();
+      self->SetResult(uc);
+      uc->Delete();
+      // start out with 10K as a guess for the image size
+      uc->Allocate(10000);
+      }
     cinfo->dest->next_output_byte = uc->GetPointer(0);
     cinfo->dest->free_in_buffer = uc->GetSize();
-    uc->Delete();
     }
 }
 
@@ -266,5 +270,6 @@ void vtkJPEGWriter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Quality: " << this->Quality << "\n";
   os << indent << "Progressive: " << (this->Progressive ? "On" : "Off") << "\n";
-  os << indent << "Write to memory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
+  os << indent << "Result: " << this->Result << "\n";
+  os << indent << "WriteToMemory: " << (this->WriteToMemory ? "On" : "Off") << "\n";
 }
