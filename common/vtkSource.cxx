@@ -311,50 +311,50 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
       // (Only need to be called for inputs with locality != 0.)
       this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
-	{
-	if (this->Inputs[idx] != NULL)
-	  {
-	  this->Inputs[idx]->PreUpdate();
-	  }
-	}
+        {
+        if (this->Inputs[idx] != NULL)
+          {
+          this->Inputs[idx]->PreUpdate();
+          }
+        }
       this->Updating = 0;
       
       // Update the inputs (these should be sorted by Locality)
       this->Updating = 1;
       for (idx = 0; idx < this->NumberOfInputs; ++idx)
-	{
-	if (this->Inputs[idx] != NULL)
-	  {
-	  this->Inputs[idx]->InternalUpdate();
-	  }
-	}
+        {
+        if (this->Inputs[idx] != NULL)
+          {
+          this->Inputs[idx]->InternalUpdate();
+          }
+        }
       this->Updating = 0;
       
       // Let the source initialize the data for streaming.
       // This allocates memory, so should be after input update,
       // but should be done only once per execute.
       if (division == 0)
-	{
-	this->StreamExecuteStart();
-	}
+        {
+        this->StreamExecuteStart();
+        }
       
       // Execute
       if ( this->StartMethod )
-	{
-	(*this->StartMethod)(this->StartMethodArg);
-	}
+        {
+        (*this->StartMethod)(this->StartMethodArg);
+        }
       // reset Abort flag
       this->AbortExecute = 0;
       this->Progress = 0.0;
       this->Execute();
       if ( !this->AbortExecute )
-	{
-	this->UpdateProgress(1.0);
-	}
+        {
+        this->UpdateProgress(1.0);
+        }
       if ( this->EndMethod )
-	{
-	(*this->EndMethod)(this->EndMethodArg);
-	}
+        {
+        (*this->EndMethod)(this->EndMethodArg);
+        }
       }
     }
   
@@ -366,9 +366,9 @@ void vtkSource::InternalUpdate(vtkDataObject *output)
     if (this->Inputs[idx] != NULL)
       {
       if ( this->Inputs[idx]->ShouldIReleaseData() )
-	{
-	this->Inputs[idx]->ReleaseData();
-	}
+        {
+        this->Inputs[idx]->ReleaseData();
+        }
       }  
     }
   
@@ -399,9 +399,9 @@ void vtkSource::PreUpdate(vtkDataObject *output)
     for (idx = 0; idx < this->NumberOfInputs; ++idx)
       {
       if (this->Inputs[idx] != NULL)
-	{
-	this->Inputs[idx]->PreUpdate();
-	}
+        {
+        this->Inputs[idx]->PreUpdate();
+        }
       }
     this->Updating = 0;
     }
@@ -429,7 +429,7 @@ void vtkSource::StreamExecuteStart()
 
 //----------------------------------------------------------------------------
 int vtkSource::ComputeDivisionExtents(vtkDataObject *output,
-				      int idx, int numDivisions)
+                                      int idx, int numDivisions)
 {
   // If only one division is requested (filter is no initiating streaming),
   // then call the non-streaming convenience method.
@@ -502,23 +502,23 @@ void vtkSource::UpdateInformation()
       // for MPI port stuff
       l2 = pd->GetDataInformation()->GetLocality();
       if (l2 > locality)
-	{
-	locality = l2;
-	}
+        {
+        locality = l2;
+        }
       
       // Pipeline MTime stuff
       t2 = pd->GetPipelineMTime();
       if (t2 > t1)
-	{
-	t1 = t2;
-	}
+        {
+        t1 = t2;
+        }
       // Pipeline MTime does not include the MTime of the data object itself.
       // Factor these mtimes into the next PipelineMTime
       t2 = pd->GetMTime();
       if (t2 > t1)
-	{
-	t1 = t2;
-	}
+        {
+        t1 = t2;
+        }
       
       // Default estimated size is just the sum of the sizes of the inputs.
       size += pd->GetEstimatedWholeMemorySize();
@@ -546,16 +546,16 @@ void vtkSource::UpdateInformation()
       {
       output = this->GetOutput(idx);
       if (output)
-	{
-	output->SetPipelineMTime(t1);
-	output->GetDataInformation()->SetLocality(locality * 0.5);
-	output->SetEstimatedWholeMemorySize(size);
-	// By default, copy information from first input.
-	if (pd)
-	  {
-	  output->CopyInformation(pd);
-	  }
-	}  
+        {
+        output->SetPipelineMTime(t1);
+        output->GetDataInformation()->SetLocality(locality * 0.5);
+        output->SetEstimatedWholeMemorySize(size);
+        // By default, copy information from first input.
+        if (pd)
+          {
+          output->CopyInformation(pd);
+          }
+        }  
       }
     
     this->ExecuteInformation();
@@ -609,14 +609,14 @@ int vtkSource::InRegisterLoop(vtkObject *o)
     if (this->Outputs[idx])
       {
       if (this->Outputs[idx] == o)
-	{
-	match = 1;
-	}
+        {
+        match = 1;
+        }
       if (this->Outputs[idx]->GetSource() == this)
-	{
-	num++;
-	cnum += this->Outputs[idx]->GetNetReferenceCount();
-	}
+        {
+        num++;
+        cnum += this->Outputs[idx]->GetNetReferenceCount();
+        }
       }
     }
   
@@ -644,16 +644,16 @@ void vtkSource::UnRegister(vtkObject *o)
     for (idx = 0; idx < this->NumberOfOutputs; idx++)
       {
       if (this->Outputs[idx])
-	{
-	if (this->Outputs[idx] == o)
-	  {
-	  done = 0;
-	  }
-	if (this->Outputs[idx]->GetNetReferenceCount() != 1)
-	  {
-	  done = 0;
-	  }
-	}
+        {
+        if (this->Outputs[idx] == o)
+          {
+          done = 0;
+          }
+        if (this->Outputs[idx]->GetNetReferenceCount() != 1)
+          {
+          done = 0;
+          }
+        }
       }
     }
   
@@ -664,13 +664,13 @@ void vtkSource::UnRegister(vtkObject *o)
     for (idx = 0; idx < this->NumberOfOutputs; idx++)
       {
       if (this->Outputs[idx])
-	{
-	if (this->Outputs[idx] == o)
-	  {
-	  match = 1;
-	  }
-	total += this->Outputs[idx]->GetNetReferenceCount();
-	}
+        {
+        if (this->Outputs[idx] == o)
+          {
+          match = 1;
+          }
+        total += this->Outputs[idx]->GetNetReferenceCount();
+        }
       }
     if (total == (this->NumberOfOutputs + 1) && match)
       {
@@ -683,18 +683,11 @@ void vtkSource::UnRegister(vtkObject *o)
     for (idx = 0; idx < this->NumberOfOutputs; idx++)
       {
       if (this->Outputs[idx])
-	{
-	this->Outputs[idx]->SetSource(NULL);
-	}
+        {
+        this->Outputs[idx]->SetSource(NULL);
+        }
       }
     }
   
   this->vtkObject::UnRegister(o);
 }
-
-
-
-
-
-
-
