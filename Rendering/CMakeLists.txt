@@ -92,6 +92,7 @@ vtkScaledTextActor.cxx
 vtkSelectVisiblePoints.cxx
 vtkTesting.cxx
 vtkTextActor.cxx
+# vtkTextActor2D.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
@@ -174,13 +175,13 @@ ABSTRACT
 # Freetype stuff
 
 SET(Kit_SRCS ${Kit_SRCS}
-  vtkFreeTypeFontCache.cxx
+  vtkFreeTypeUtilities.cxx
 )
 SET(KitOpenGL_SRCS ${KitOpenGL_SRCS}
   vtkOpenGLFreeTypeTextMapper.cxx
 )
 SET_SOURCE_FILES_PROPERTIES(
-  vtkFreeTypeFontCache
+  vtkFreeTypeUtilities
   WRAP_EXCLUDE
 )
 SET(Kit_FT_SRCS 

@@ -17,7 +17,7 @@ IF(PYTHON_EXECUTABLE)
            vtkTkImageViewerWidget.h
            vtkCocoaGLView.h
            vtkCocoaWindow.h
-           vtkFreeTypeFontCache.h
+           vtkFreeTypeUtilities.h
            vtkgluPickMatrix.h
            vtkOpenGLStateCache.h
            vtkVolumeRayCastStructures.h
