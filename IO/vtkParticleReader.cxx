@@ -82,7 +82,12 @@ vtkParticleReader::vtkParticleReader()
 {
   this->FileName = NULL;
   this->File = NULL;
+#ifndef VTK_WORDS_BIGENDIAN
   this->SwapBytes = 0;
+#else
+  this->SwapBytes = 1;
+#endif
+
 
   this->NumberOfPoints = 0;
 }
