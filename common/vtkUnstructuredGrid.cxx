@@ -735,8 +735,7 @@ void vtkUnstructuredGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
     if (primeCells[cellNum] != cellId)
       {
       // are all the remaining face points in the cell ?
-      allFound = 1;
-      for (i=1; i < numPts; i++)
+      for (allFound=1, i=1; i < numPts && allFound; i++)
         {
         ptId = ptIds->GetId(i);
         int numCurrent = this->Links->GetNcells(ptId);
