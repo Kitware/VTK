@@ -34,20 +34,14 @@ transformPlane.SetTransform(aTransform)
 clipPlane1 = vtkPlane()
 clipPlane1.SetNormal(0,0,1)
 
-clipper = vtkClipPolyData()
-clipper.GenerateClipScalarsOn()
-clipper.SetValue(0)
-clipper.SetClipFunction(clipPlane1)
-clipper.SetInput(transformPlane.GetOutput())
-
-planeMapper = vtkPolyDataMapper()
-planeMapper.SetInput(clipper.GetOutput())
-planeMapper.ScalarVisibilityOff()
+planeMapper = vtkDataSetMapper()
+planeMapper.SetInput(transformPlane.GetOutput())
+planeMapper.AddClippingPlane(clipPlane1)
 
 planeActor = vtkActor()
 planeActor.SetMapper(planeMapper)
 
-plane2Mapper = vtkPolyDataMapper()
+plane2Mapper = vtkDataSetMapper()
 plane2Mapper.SetInput(plane.GetOutput())
 
 plane2Actor = vtkActor()

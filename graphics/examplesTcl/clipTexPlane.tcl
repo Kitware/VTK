@@ -28,20 +28,14 @@ vtkTransformPolyDataFilter transformPlane
 vtkPlane clipPlane1
   clipPlane1 SetNormal  0 0 1
 
-vtkClipPolyData clipper
-  clipper GenerateClipScalarsOn
-  clipper SetValue 0
-  clipper SetClipFunction clipPlane1
-  clipper SetInput [transformPlane GetOutput]
-
-vtkPolyDataMapper  planeMapper
-  planeMapper SetInput [clipper GetOutput]
-  planeMapper ScalarVisibilityOff
+vtkDataSetMapper  planeMapper
+  planeMapper SetInput [transformPlane GetOutput]
+  planeMapper AddClippingPlane clipPlane1
 
 vtkActor planeActor
   planeActor SetMapper planeMapper
 
-vtkPolyDataMapper  plane2Mapper
+vtkDataSetMapper  plane2Mapper
   plane2Mapper SetInput [plane GetOutput]
 
 vtkActor plane2Actor
