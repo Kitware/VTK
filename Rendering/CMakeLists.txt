@@ -438,6 +438,7 @@ IF (VTK_WRAP_PYTHON)
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkRenderingPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+  TARGET_LINK_LIBRARIES(vtkRenderingPython vtkRendering)
 
   INSTALL_TARGETS(/lib/vtk vtkRenderingPython)
   IF (TK_LIBRARY)
@@ -449,6 +450,7 @@ IF (VTK_WRAP_PYTHON)
      ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
                  ${RenderingPythonTkWidgets_SRCS})
      TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
+                            vtkRendering
                             ${TCL_LIBRARY}
                             ${TK_LIBRARY})
      INSTALL_TARGETS(/lib/vtk vtkRenderingPythonTkWidgets)

@@ -260,6 +260,8 @@ IF (VTK_WRAP_PYTHON)
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkCommonPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+  TARGET_LINK_LIBRARIES(vtkCommonPython vtkCommon)
+
   INSTALL_TARGETS(/lib/vtk vtkCommonPython)
   INSTALL_FILES(/include/vtk .h
     vtkPythonUtil

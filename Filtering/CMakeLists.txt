@@ -145,6 +145,8 @@ IF (VTK_WRAP_PYTHON)
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkFilteringPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+  TARGET_LINK_LIBRARIES(vtkFilteringPython vtkFiltering)
+
   INSTALL_TARGETS(/lib/vtk vtkFilteringPython)
 ENDIF (VTK_WRAP_PYTHON)
 

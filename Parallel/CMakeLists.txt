@@ -147,6 +147,7 @@ IF (VTK_WRAP_PYTHON)
   ELSE(WIN32)
     TARGET_LINK_LIBRARIES (vtkParallelPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
+  TARGET_LINK_LIBRARIES(vtkParallelPython vtkParallel)
 
   INSTALL_TARGETS(/lib/vtk vtkParallelPython)
 ENDIF (VTK_WRAP_PYTHON)
