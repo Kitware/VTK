@@ -42,7 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct object to use input dimensions as sample dimensions,
-// and to conpute bounds automatically from input. Fill value is set
+// and to compute bounds automatically from input. Fill value is set
 // to large positive integer.
 vtkTransformStructuredPoints::vtkTransformStructuredPoints()
 {

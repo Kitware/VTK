@@ -158,7 +158,7 @@ void vtkTransform::Push ()
 
 // Description:
 // Creates an x rotation matrix and concatenates it with 
-// the current transformation matrix. The angle is specifed
+// the current transformation matrix. The angle is specified
 // in degrees.
 void vtkTransform::RotateX ( float angle)
 {
@@ -186,7 +186,7 @@ void vtkTransform::RotateX ( float angle)
 
 // Description:
 // Creates a y rotation matrix and concatenates it with 
-// the current transformation matrix. The angle is specifed
+// the current transformation matrix. The angle is specified
 // in degrees.
 void vtkTransform::RotateY ( float angle)
   //  Creates a y rotation matrix and concatenates it with 
@@ -216,7 +216,7 @@ void vtkTransform::RotateY ( float angle)
 
 // Description:
 // Creates a z rotation matrix and concatenates it with 
-// the current transformation matrix. The angle is specifed
+// the current transformation matrix. The angle is specified
 // in degrees.
 void vtkTransform::RotateZ (float angle)
   //  Creates a z rotation matrix and concatenates it with 

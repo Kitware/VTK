@@ -60,7 +60,7 @@ public:
   // possible for this number to wrap around back to zero.
   // This should only happen for processes that have been running
   // for a very long time while constantly changing objects
-  // within the program. When this does occure, the typical consequence
+  // within the program. When this does occur, the typical consequence
   // should be that some filters will update themselves when really
   // they don't need to.
   void Modified() {this->ModifiedTime = ++vtkTime;};
