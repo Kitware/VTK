@@ -682,7 +682,7 @@ void vtkCamera::Azimuth (float angle)
 			    this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(-angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
   
   
@@ -727,7 +727,7 @@ void vtkCamera::Elevation (float angle)
 			    this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(-angle,axis[0],axis[1],axis[2]);
+  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
   
   
   // translate to focal point
