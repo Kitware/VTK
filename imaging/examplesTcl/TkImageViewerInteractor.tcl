@@ -230,6 +230,14 @@ proc UpdateQueryInteraction {widget x y} {
    set height [lindex [$widget configure -height] 4]
    set y [expr $height - $y]
 
+   # make sure point is in the whole extent of the image.
+   scan [$input GetWholeExtent] "%d %d %d %d %d %d" \
+     xMin xMax yMin yMax zMin zMax
+   if {$x < $xMin || $x > $xMax || $y < $yMin || $y > $yMax || \
+       $z < $zMin || $z > $zMax} {
+      return
+   }
+
    $input SetUpdateExtent $x $x $y $y $z $z
    set data [$input UpdateAndReturnData]
    set numComps [$data GetNumberOfScalarComponents]
