@@ -55,8 +55,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include "vtkObject.h"
+#include "vtkByteSwap.h"
 #include "vtkCommunicator.h"
 
+#ifdef VTK_WORDS_BIGENDIAN
+# define vtkSwap4 vtkByteSwap::Swap4LE
+# define vtkSwap4Range vtkByteSwap::Swap4LERange
+#else
+# define vtkSwap4 vtkByteSwap::Swap4BE
+# define vtkSwap4Range vtkByteSwap::Swap4BERange
+#endif
 
 class VTK_EXPORT vtkSocketCommunicator : public vtkCommunicator
 {
@@ -76,6 +84,10 @@ public:
   // Description:
   // Open a connection to a give machine
   virtual int ConnectTo( char* hostName, int port);
+
+  // Description:
+  // Returns 1 if bytes must be swapped in received ints, floats, etc
+  vtkGetMacro(SwapBytesInReceivedData, int);
 
   //------------------ Communication --------------------
   
@@ -107,15 +119,14 @@ protected:
   int Socket;
   int IsConnected;
   int NumberOfProcesses;
+  int SwapBytesInReceivedData;
 
   vtkSocketCommunicator();
   ~vtkSocketCommunicator();
   vtkSocketCommunicator(const vtkSocketCommunicator&) {};
   void operator=(const vtkSocketCommunicator&) {};
 
+  int ReceiveMessage(char *data, int size, int length, int tag);
 };
 
-
 #endif
-
-
