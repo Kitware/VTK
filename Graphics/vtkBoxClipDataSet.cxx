@@ -20,9 +20,12 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
@@ -33,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.1");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.2");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -45,11 +48,13 @@ vtkBoxClipDataSet::vtkBoxClipDataSet()
   this->GenerateClippedOutput = 0;
   //this->MergeTolerance = 0.01;
 
-  this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
-  this->Outputs[1]->Delete();
+  this->SetNumberOfOutputPorts(2);
+  vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
+
   this->InputScalarsSelection = NULL;
   this->Orientation = 1;
-
 }
 
 //----------------------------------------------------------------------------
@@ -79,7 +84,7 @@ int vtkBoxClipDataSet::GetNumberOfOutputs()
 // then this object is modified as well.
 unsigned long vtkBoxClipDataSet::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToUnstructuredGridFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
@@ -94,27 +99,36 @@ unsigned long vtkBoxClipDataSet::GetMTime()
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid *vtkBoxClipDataSet::GetClippedOutput()
 {
-  if (this->NumberOfOutputs < 2)
+  if (this->GetNumberOfOutputPorts() < 2)
     {
     return NULL;
     }
   
-  return (vtkUnstructuredGrid *)(this->Outputs[1]);
+  return vtkUnstructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 //----------------------------------------------------------------------------
 //
 // Clip by box
 //
-void vtkBoxClipDataSet::Execute()
+int vtkBoxClipDataSet::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet          *input  = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
-  if (input == NULL)
-    {
-    return;
-    }
+
   vtkIdType      i;
   vtkIdType      npts;
   vtkIdType     *pts;
@@ -156,7 +170,7 @@ void vtkBoxClipDataSet::Execute()
   if ( numPts < 1 )
     {
     //vtkErrorMacro(<<"No data to clip");
-    return;
+    return 1;
     }
   
   // allocate the output and associated helper classes
@@ -376,6 +390,8 @@ void vtkBoxClipDataSet::Execute()
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
