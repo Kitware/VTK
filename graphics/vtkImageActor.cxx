@@ -72,6 +72,20 @@ vtkImageActor::~vtkImageActor()
     }
 }
 
+int vtkImageActor::GetSliceNumber()
+{
+  // find the first axis with a one pixel extent and return
+  // its value
+  if (this->DisplayExtent[0] == this->DisplayExtent[1])
+    {
+    return this->DisplayExtent[0];
+    }
+  if (this->DisplayExtent[2] == this->DisplayExtent[3])
+    {
+    return this->DisplayExtent[2];
+    }
+  return this->DisplayExtent[4];
+}
 
 //----------------------------------------------------------------------------
 void vtkImageActor::SetDisplayExtent(int extent[6])
@@ -94,8 +108,8 @@ void vtkImageActor::SetDisplayExtent(int extent[6])
 }
 //----------------------------------------------------------------------------
 void vtkImageActor::SetDisplayExtent(int minX, int maxX, 
-					     int minY, int maxY,
-					     int minZ, int maxZ)
+                                     int minY, int maxY,
+                                     int minZ, int maxZ)
 {
   int extent[6];
   

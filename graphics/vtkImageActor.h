@@ -102,9 +102,13 @@ public:
   // Support the standard render methods.
   // int RenderTranslucentGeometry(vtkViewport *viewport);
   int RenderOpaqueGeometry(vtkViewport *viewport);
-  virtual void Load(vtkRenderer *ren) {};
+  virtual void Load(vtkRenderer *) {};
 //ETX
 
+  // Description:
+  // Return a slice number computed from the display extent
+  int GetSliceNumber();
+  
 protected:
   vtkImageActor();
   ~vtkImageActor();
