@@ -62,6 +62,7 @@ vtkImageButterworthLowPass \
 vtkImageCacheFilter \
 vtkImageCanvasSource2D \
 vtkImageCast \
+vtkImageChangeInformation \
 vtkImageCheckerboard \
 vtkImageCityBlockDistance \
 vtkImageClip \
