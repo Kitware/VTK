@@ -80,7 +80,7 @@ IF (VTK_DATA_ROOT)
       IF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
-                 -V Baseline/Parallel/ParallelIsoTest.png)
+                 -V Baseline/Parallel/ParallelIso.cxx.png)
         ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
