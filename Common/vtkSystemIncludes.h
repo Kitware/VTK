@@ -74,7 +74,7 @@ typedef int vtkIdType;
 // Some constants used throughout the code
 #define VTK_LARGE_FLOAT 1.0e+38F
 #ifdef VTK_USE_64BIT_IDS
-#  ifdef _WIN32
+#  if defined(_WIN32) && !defined(__GNUC__)
 #    define VTK_LARGE_ID 9223372036854775807i64 // 2^63 - 1
 #  else
 #    define VTK_LARGE_ID 9223372036854775807LL // 2^63 - 1
