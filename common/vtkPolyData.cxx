@@ -109,11 +109,6 @@ vtkPolyData::vtkPolyData ()
 
   this->Cells = NULL;
   this->Links = NULL;
-
-  // We are using the pieces / number of pieces interface for streaming.
-  // By default, there is 1 piece.
-  this->MaximumNumberOfPieces = 1;
-  
 }
 
 //----------------------------------------------------------------------------
@@ -1765,8 +1760,6 @@ void vtkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Pieces: " << this->NumberOfPieces << endl;
   os << indent << "Piece: " << this->Piece << endl;
-  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
-
   os << indent << "Ghost Level: " << this->GhostLevel << endl;
   
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "

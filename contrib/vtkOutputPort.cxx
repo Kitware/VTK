@@ -138,7 +138,6 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
   // port will make the time comparison, and call Update if necessary.
   int wholeInformation[8];
   input->GetWholeExtent( wholeInformation );
-  wholeInformation[6] = input->GetMaximumNumberOfPieces();
   
   this->Controller->Send( wholeInformation, 7,
                           remoteProcessId, VTK_PORT_INFORMATION_TRANSFER_TAG);

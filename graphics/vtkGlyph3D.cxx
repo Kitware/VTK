@@ -517,8 +517,6 @@ void vtkGlyph3D::ExecuteInformation()
     vtkErrorMacro("Missing input or source");
     return;
     }
-  this->GetOutput()->SetMaximumNumberOfPieces(
-                        this->GetInput()->GetMaximumNumberOfPieces());
 }
 
 

@@ -323,8 +323,7 @@ void vtkInputPort::UpdateInformation()
                              VTK_PORT_INFORMATION_TRANSFER_TAG);
 
   output->SetWholeExtent( wholeInformation );
-  output->SetMaximumNumberOfPieces( wholeInformation[6] );
-  
+    
   // Save the upstream PMT for execute check (this may not be necessary)
   this->UpStreamMTime = pmt;
 
@@ -421,7 +420,6 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
   // Well here is a bit of a hack.
   // Since the reader will overwrite whole extents, we need to save the whole
   // extent and reset it.
-  int maxPieces = output->GetMaximumNumberOfPieces();
   int wholeExtent[6];
   output->GetWholeExtent(wholeExtent);
   // receive the data
@@ -430,7 +428,6 @@ void vtkInputPort::UpdateData(vtkDataObject *output)
 			    VTK_PORT_DATA_TRANSFER_TAG);
 
   output->SetWholeExtent( wholeExtent );
-  output->SetMaximumNumberOfPieces( maxPieces );
 
   this->InvokeEvent(vtkCommand::EndEvent,NULL);
 

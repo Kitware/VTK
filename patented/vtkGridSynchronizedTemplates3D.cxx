@@ -818,8 +818,6 @@ void vtkGridSynchronizedTemplates3D::ExecuteInformation()
   //  this->GetOutput()->SetEstimatedWholeMemorySize(
   //			numTris*sizeTri + numPts*sizePt);
 
-  this->GetOutput()->SetMaximumNumberOfPieces(100000);
-    
 }
 
 //----------------------------------------------------------------------------

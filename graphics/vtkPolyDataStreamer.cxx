@@ -78,7 +78,7 @@ vtkPolyDataStreamer::~vtkPolyDataStreamer()
 //----------------------------------------------------------------------------
 void vtkPolyDataStreamer::ComputeNumberOfStreamDivisionsFromMemoryLimit()
 {
-  int num, max;
+  int num;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
 
@@ -93,15 +93,9 @@ void vtkPolyDataStreamer::ComputeNumberOfStreamDivisionsFromMemoryLimit()
     return;
     }
   
-  max = input->GetMaximumNumberOfPieces();
   num = output->GetEstimatedMemorySize();
   num = 1 + num / this->MemoryLimit;
-  
-  if (num > max)
-    {
-    num = max;
-    }
-  
+    
   this->NumberOfStreamDivisions = num;
 }
 

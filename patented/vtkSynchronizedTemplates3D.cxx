@@ -601,8 +601,6 @@ void vtkSynchronizedTemplates3D::ExecuteInformation()
   //    }
   //  //  this->GetOutput()->SetEstimatedWholeMemorySize(
   //  //    numTris*sizeTri + numPts*sizePt);
-
-  this->GetOutput()->SetMaximumNumberOfPieces(1000);
 }
 
 

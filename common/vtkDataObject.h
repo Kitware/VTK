@@ -262,7 +262,7 @@ public:
   virtual unsigned long GetActualMemorySize();
 
   // Description:
-  // Copy the generic information (WholeExtent or MaximumNumberOfPieces)
+  // Copy the generic information (WholeExtent ...)
   void CopyInformation( vtkDataObject *data );
 
   // Description:
@@ -278,11 +278,6 @@ public:
   vtkGetMacro( UpdatePiece, int );
   vtkGetMacro( UpdateNumberOfPieces, int );
   
-  // Description:
-  // Set / Get the maximum number of pieces this data can be broken into
-  vtkSetMacro( MaximumNumberOfPieces, int );
-  vtkGetMacro( MaximumNumberOfPieces, int );
-
   // Description:
   // Set / Get the update ghost level and the update number of ghost levels.
   // Similar to update extent in 3D.
@@ -379,17 +374,7 @@ protected:
   // An object to translate from unstructured pieces to structured extents.
   vtkExtentTranslator *ExtentTranslator;
  
-  // If the ExtentType is VTK_PIECES_EXTENT, then these three variables 
-  // represent the maximum number of pieces that the data object can be
-  // broken into, which piece out of how many is currently in the extent,
-  // and the number of pieces and the specific piece requested for the 
-  // update. Data objects that do not support any division
-  // of the data (such as a vtkPiecewiseFunction) can simply leave the 
-  // MaximumNumberOfPieces as 1. The NumberOfPieces and Piece are similar
-  // to the Extent. The UpdateNumberOfPieces and UpdatePiece are similar to
-  // the UpdateExtent. The WholeExtent is always piece = 0 and number of 
-  // pieces = 1;
-  int MaximumNumberOfPieces;
+  // Unstructured extent stuff
   int NumberOfPieces;
   int Piece;
   int UpdateNumberOfPieces;

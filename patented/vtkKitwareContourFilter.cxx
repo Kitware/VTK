@@ -156,8 +156,6 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 
 void vtkKitwareContourFilter::ExecuteInformation()
 {
-  // Arbitrary to get thinks to work.
-  this->GetOutput()->SetMaximumNumberOfPieces(10000);
 }
 
 //

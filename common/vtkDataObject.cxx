@@ -96,8 +96,6 @@ vtkDataObject::vtkDataObject()
   this->UpdatePiece          =   0;
   this->UpdateNumberOfPieces =   1;
 
-  this->MaximumNumberOfPieces = 1;
-
   // ivars for ghost levels
   this->GhostLevel = 0;
   this->UpdateGhostLevel = 0;
@@ -491,51 +489,43 @@ int vtkDataObject::VerifyUpdateExtent()
     {
     // Are we asking for more pieces than we can get?
     case VTK_PIECES_EXTENT:
-      if ( this->UpdateNumberOfPieces > this->MaximumNumberOfPieces )
-	{
-	//vtkErrorMacro( << "Cannot break object into " <<
-	//               this->UpdateNumberOfPieces << ". The limit is " <<
-	//               this->MaximumNumberOfPieces );
-	retval = 0;
-	}
-
       if ( this->UpdatePiece >= this->UpdateNumberOfPieces ||
-	   this->UpdatePiece < 0 )
-	{
-	vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
-	               << ". Must be between 0 and " 
-	               << this->UpdateNumberOfPieces - 1);
-	retval = 0;
-	}
+        this->UpdatePiece < 0 )
+        {
+        vtkErrorMacro( << "Invalid update piece " << this->UpdatePiece
+        << ". Must be between 0 and " 
+        << this->UpdateNumberOfPieces - 1);
+        retval = 0;
+        }
       break;
 
     // Is our update extent within the whole extent?
     case VTK_3D_EXTENT:
-      if ( this->UpdateExtent[0] < this->WholeExtent[0] ||
-	   this->UpdateExtent[1] > this->WholeExtent[1] ||
-	   this->UpdateExtent[2] < this->WholeExtent[2] ||
-	   this->UpdateExtent[3] > this->WholeExtent[3] ||
-	   this->UpdateExtent[4] < this->WholeExtent[4] ||
-	   this->UpdateExtent[5] > this->WholeExtent[5] )
-	{
-	vtkErrorMacro( << "Update extent does not lie within whole extent" );
-	vtkErrorMacro( << "Update extent is: " <<
-	this->UpdateExtent[0] << ", " <<
-	this->UpdateExtent[1] << ", " <<
-	this->UpdateExtent[2] << ", " <<
-	this->UpdateExtent[3] << ", " <<
-	this->UpdateExtent[4] << ", " <<
-	this->UpdateExtent[5]);
-	vtkErrorMacro( << "Whole extent is: " <<
-	this->WholeExtent[0] << ", " <<
-	this->WholeExtent[1] << ", " <<
-	this->WholeExtent[2] << ", " <<
-	this->WholeExtent[3] << ", " <<
-	this->WholeExtent[4] << ", " <<
-	this->WholeExtent[5]);
-	
-	retval = 0;
-	}
+      if (this->UpdateExtent[0] < this->WholeExtent[0] ||
+          this->UpdateExtent[1] > this->WholeExtent[1] ||
+          this->UpdateExtent[2] < this->WholeExtent[2] ||
+          this->UpdateExtent[3] > this->WholeExtent[3] ||
+          this->UpdateExtent[4] < this->WholeExtent[4] ||
+          this->UpdateExtent[5] > this->WholeExtent[5] )
+        {
+        vtkErrorMacro( << "Update extent does not lie within whole extent" );
+        vtkErrorMacro( << "Update extent is: " <<
+        this->UpdateExtent[0] << ", " <<
+        this->UpdateExtent[1] << ", " <<
+        this->UpdateExtent[2] << ", " <<
+        this->UpdateExtent[3] << ", " <<
+        this->UpdateExtent[4] << ", " <<
+        this->UpdateExtent[5]);
+        vtkErrorMacro( << "Whole extent is: " <<
+        this->WholeExtent[0] << ", " <<
+        this->WholeExtent[1] << ", " <<
+        this->WholeExtent[2] << ", " <<
+        this->WholeExtent[3] << ", " <<
+        this->WholeExtent[4] << ", " <<
+        this->WholeExtent[5]);
+
+        retval = 0;
+        }
       break;
 
     // We should never have this case occur
@@ -632,11 +622,6 @@ void vtkDataObject::CopyInformation( vtkDataObject *data )
     {
     memcpy( this->WholeExtent, data->GetWholeExtent(), 6*sizeof(int) );
     }
-  else if ( this->GetExtentType() == VTK_PIECES_EXTENT &&
-	    data->GetExtentType() == VTK_PIECES_EXTENT )
-    {
-    this->MaximumNumberOfPieces = data->GetMaximumNumberOfPieces();
-    }  
 }
 
 //----------------------------------------------------------------------------
@@ -679,7 +664,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     this->Extent[idx] = src->Extent[idx];
     this->UpdateExtent[idx] = src->UpdateExtent[idx];
     }
-  this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
   this->Piece = src->Piece;
   this->NumberOfPieces = src->NumberOfPieces;
   this->UpdateNumberOfPieces = src->UpdateNumberOfPieces;
@@ -748,8 +732,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Update Number Of Pieces: " << this->UpdateNumberOfPieces << endl;
   os << indent << "Update Piece: " << this->UpdatePiece << endl;
-  os << indent << "Maximum Number Of Pieces: " << this->MaximumNumberOfPieces << endl;
-
   os << indent << "Update Ghost Level: " << this->UpdateGhostLevel << endl;
   
   os << indent << "UpdateExtent: " << this->UpdateExtent[0] << ", "

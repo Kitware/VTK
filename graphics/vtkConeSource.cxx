@@ -98,7 +98,7 @@ void vtkConeSource::Execute()
   
   piece = output->GetUpdatePiece();
   numPieces = output->GetUpdateNumberOfPieces();
-  maxPieces = output->GetMaximumNumberOfPieces();
+  maxPieces = this->Resolution;
   start = maxPieces * piece / numPieces;
   end = (maxPieces * (piece+1) / numPieces) - 1;
   createBottom = (this->Capping && (start == 0));
@@ -279,16 +279,6 @@ void vtkConeSource::ExecuteInformation()
   
   // convert to kilobytes
   size = (size / 1000) + 1;
-  
-  
-  if (this->Resolution < 3)
-    {
-    this->GetOutput()->SetMaximumNumberOfPieces(1);
-    }
-  else
-    {
-    this->GetOutput()->SetMaximumNumberOfPieces(this->Resolution);
-    }  
 }
 
 

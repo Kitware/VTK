@@ -1080,9 +1080,5 @@ void vtkGeometryFilter::ExecuteInformation()
     vtkErrorMacro("No Input");
     return;
     }
-  // I guess images do not set this properly.
-  //this->GetOutput()->SetMaximumNumberOfPieces(
-  //                    this->GetInput()->GetMaximumNumberOfPieces());
-  this->GetOutput()->SetMaximumNumberOfPieces(1000);
 }
 

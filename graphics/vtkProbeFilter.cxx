@@ -181,8 +181,6 @@ void vtkProbeFilter::ExecuteInformation()
     vtkErrorMacro("Missing input or source");
     return;
     }
-  this->GetOutput()->SetMaximumNumberOfPieces(
-                        this->GetInput()->GetMaximumNumberOfPieces());
 }
 
 
