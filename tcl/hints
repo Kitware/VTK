@@ -41,6 +41,8 @@ vtkProp			GetZRange	301 2
 vtkProp			GetOrientation	301 3
 vtkProp			GetOrientationWXYZ	301 4
 vtkViewport		GetCenter	301 3
+vtkViewport		GetSize		304 2
+vtkViewport		GetOrigin	304 2 	
 vtkWindow		GetPosition	304 2
 vtkWindow		GetSize		304 2
 vtkStructuredGridGeometryFilter	GetExtent	301 6
@@ -61,5 +63,6 @@ vtkVolume		GetBounds	301 6
 vtkVolume		GetXRange	301 2
 vtkVolume		GetYRange	301 2
 vtkVolume		GetZRange	301 2
+vtkActor2D		GetComputedDisplayPosition 304  2
 
 vtkDFALeader		GetTextPosition 301 2
