@@ -139,6 +139,9 @@ void vtkDecimatePro::Execute()
   int *cells, pt1, pt2, cellId, fedges[2];
   vtkIdList CollapseTris(100,100);
   float max, *bounds;
+  vtkPointData *outputPD=output->GetPointData();
+  vtkPointData *inPD=input->GetPointData();
+  int *map, numNewPts, totalPts, newCellPts[3];
 
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
@@ -280,24 +283,52 @@ void vtkDecimatePro::Execute()
       }//if cells attached
     }//while queue not empty and reduction not satisfied
 
+  totalPts = Mesh->GetNumberOfPoints();
   vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " to " 
                 << numTris - totalEliminated << " triangles)"
                 <<"\n\tPerformed " << numPops << " vertex pops"
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
                 <<" inflection points"
                 <<"\n\tPerformed " 
-                    << Mesh->GetNumberOfPoints() - numPts << " vertex splits"
+                    << totalPts - numPts << " vertex splits"
                 <<"\n\tPerformed " << NumCollapses << " edge collapses"
                 <<"\n\tPerformed " << NumMerges << " vertex merges"
                 <<"\n\tRecycled " << numRecycles << " points"
-                <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts << " points (" 
-                    << numPts << " to " << Mesh->GetNumberOfPoints() << " points)");
+                <<"\n\tAdded " << totalPts - numPts << " points (" 
+                    << numPts << " to " << totalPts << " points)");
 
-
-  // Generate output at the given reduction level.
+  //
+  // Create output and release memory
+  //
+  vtkDebugMacro (<<"Creating output...");
   this->DeleteQueue();
 
-  // Now grab the cells that are left
+  // Grab the points that are left; copy point data. Remember that splitting 
+  // data may have added new points.
+  map = new int[totalPts];
+  for (i=0; i < totalPts; i++) map[i] = -1;
+  numNewPts = 0;
+  for (ptId=0; ptId < totalPts; ptId++)
+    {
+    Mesh->GetPointCells(ptId,ncells,cells);
+    if ( ncells > 0 ) map[ptId] = numNewPts++;
+    }
+
+  outputPD->CopyAllocate(inPD,numNewPts);
+
+  // Copy points in place
+  for (ptId=0; ptId < totalPts; ptId++)
+    {
+    if ( map[ptId] > -1 )
+      {
+      newPts->SetPoint(map[ptId],newPts->GetPoint(ptId));
+      outputPD->CopyData(inPD,ptId,map[ptId]);
+      }
+    }
+  newPts->SetNumberOfPoints(numNewPts);
+  newPts->Squeeze();
+
+  // Now renumber connectivity
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(3,numTris-totalEliminated));
 
@@ -306,14 +337,16 @@ void vtkDecimatePro::Execute()
     if ( Mesh->GetCellType(cellId) == VTK_TRIANGLE ) // non-null element
       {
       Mesh->GetCellPoints(cellId, npts, pts);
-      newPolys->InsertNextCell(npts,pts);
+      for (i=0; i < 3; i++) newCellPts[i] = map[pts[i]];
+      newPolys->InsertNextCell(npts,newCellPts);
       }
     }
 
-  output->SetPoints(Mesh->GetPoints());
+  delete [] map;
+  output->SetPoints(newPts);
   output->SetPolys(newPolys);
-
   Mesh->Delete();
+  newPolys->Delete();
 }
 
 //
