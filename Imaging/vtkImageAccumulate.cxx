@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.42");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.43");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -235,6 +235,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
             {
             // Gather statistics
             sum[idxC]+= *tempPtr;
+            sumSqr[idxC]+= (*tempPtr * *tempPtr);
             if (*tempPtr > Max[idxC])
               {
               Max[idxC] = *tempPtr;
@@ -269,6 +270,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     Mean[0] = sum[0] / (double)*VoxelCount;    
     Mean[1] = sum[1] / (double)*VoxelCount;    
     Mean[2] = sum[2] / (double)*VoxelCount;    
+
     variance = sumSqr[0] / (double)*VoxelCount - ((double) *VoxelCount * Mean[0] * Mean[0] / (double) (*VoxelCount - 1));
     StandardDeviation[0] = sqrt(variance);
     variance = sumSqr[1] / (double)*VoxelCount - ((double) *VoxelCount * Mean[1] * Mean[1] / (double) (*VoxelCount - 1));
