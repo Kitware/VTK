@@ -281,6 +281,7 @@ IF (VTK_USE_MANGLED_MESA)
                  vtkMesaPolyDataMapper.cxx
                  vtkMesaPolyDataMapper2D.cxx
                  vtkMesaProperty.cxx
+                 vtkMesaRayCastImageDisplayHelper.cxx
                  vtkMesaRenderWindow.cxx
                  vtkMesaRenderer.cxx
                  vtkMesaTexture.cxx
