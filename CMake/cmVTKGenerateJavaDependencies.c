@@ -36,6 +36,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   int sargsCnt = 0;
   char **srcList = 0;
   int srcCnt = 0;
+  char* javaPath = 0;
   const char *libpath = info->CAPI->GetDefinition(mf,"LIBRARY_OUTPUT_PATH");
   const char *vtkpath = info->CAPI->GetDefinition(mf,"VTK_BINARY_DIR");
   const char *startTempFile;
@@ -74,11 +75,13 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   startTempFile = info->CAPI->GetDefinition(mf,"CMAKE_START_TEMP_FILE");
   endTempFile = info->CAPI->GetDefinition(mf,"CMAKE_END_TEMP_FILE");
 
+  javaPath = (char *)malloc(strlen(vtkpath) + 20);
+  sprintf(javaPath, "%s/java", vtkpath);
+
 #ifdef SINGLE_FILE_BUILD
   args[0] = strdup(startTempFile?startTempFile:"");
   args[1] = strdup("-classpath");
-  args[2] = (char *)malloc(strlen(vtkpath) + 20);
-  sprintf(args[2], "%s/java", vtkpath);
+  args[2] = strdup(javaPath);
   args[4] = strdup(endTempFile?endTempFile:"");
   
   /* get the classes for this lib */
@@ -127,8 +130,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   sargs = (char **)malloc((newArgc +4) * sizeof(char*));
   sargs[0] = strdup(startTempFile?startTempFile:"");
   sargs[1] = strdup("-classpath");
-  sargs[2] = (char *)malloc(strlen(vtkpath) + 20);
-  sprintf(sargs[2], "%s/java", vtkpath);
+  sargs[2] = strdup(javaPath);
   sargsCnt = 3;
   
   /* get the classes for this lib */
@@ -174,7 +176,7 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   jargs[0] = strdup("cvf");
   jargs[1] = jarFile;
   jargs[2] = strdup("-C");
-  jargs[3] = args[1];
+  jargs[3] = javaPath;
   jargs[4] = strdup("vtk");
 
   if ( jar && numClasses > 0 )
@@ -223,6 +225,8 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   free(jargs[0]);
   free(jargs[2]);
   free(jargs[4]);
+
+  free(javaPath);
 
   free(target);
 
