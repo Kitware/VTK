@@ -224,7 +224,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyVTKObject *self, PyObject *attr)
     if (strcmp(name,"__this__") == 0)
       {
       char buf[256];
-      sprintf(buf,"%s_p", self->vtk_ptr->GetClassName());
+      sprintf(buf,"p_%s", self->vtk_ptr->GetClassName());
       return PyString_FromString(vtkPythonManglePointer(self->vtk_ptr,buf));
       }
 
