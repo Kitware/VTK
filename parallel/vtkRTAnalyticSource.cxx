@@ -158,7 +158,7 @@ void vtkRTAnalyticSource::Execute(vtkImageData *data)
   int *outExt, *whlExt;
   double sum;
   double yContrib, zContrib;
-  double temp, temp2;
+  double temp2;
   unsigned long count = 0;
   unsigned long target;
   
