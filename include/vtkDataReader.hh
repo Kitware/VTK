@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDataReader_hh
 
 #include <stdio.h>
+#include <fstream.h>
 #include "vtkObject.hh"
 #include "vtkPointSet.hh"
 
@@ -134,12 +135,12 @@ public:
   int ReadShort(short *result);
   int ReadFloat(float *result);
   void EatWhiteSpace();
-  FILE *GetFP() {return this->fp;};
+  istream *GetIStream() {return this->IS;};
 
 protected:
   char *Filename;
   int FileType;
-  FILE *fp;
+  istream *IS;
 
   char *ScalarsName;
   char *VectorsName;
