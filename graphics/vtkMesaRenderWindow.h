@@ -53,20 +53,28 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <X11/Xutil.h>
 #include "vtkXRenderWindow.h"
 
+// include Mesa header files
 #ifdef VTK_MANGLE_MESA
 #define USE_MGL_NAMESPACE
+#include "mesagl.h"
 #include "mesaglx.h"
 #else
+#include "GL/gl.h"
 #include "GL/glx.h"
 #endif
+// if we really have the mesa headers then include off screen rendering
+#ifdef MESA
 #include "GL/osmesa.h"
+#endif
 
 class vtkIdList;
 
 class VTK_EXPORT vtkMesaRenderWindow : public vtkXRenderWindow
 {
 protected:
+#ifdef MESA
   OSMesaContext OffScreenContextId;
+#endif
   GLXContext ContextId;
 
 public:

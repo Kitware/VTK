@@ -51,13 +51,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMesaPolyDataMapper.h"
 #include "vtkIdList.h"
 
-#ifdef VTK_MANGLE_MESA
-#define USE_MGL_NAMESPACE
-#include "mesagl.h"
-#else
-#include "GL/gl.h"
-#endif
-
 #define MAX_LIGHTS 8
 
 // a couple of routines for offscreen rendering
@@ -228,7 +221,9 @@ vtkMesaRenderWindow::~vtkMesaRenderWindow()
     glFinish();
     if (this->OffScreenRendering)
       {
+#ifdef MESA
       OSMesaDestroyContext(this->OffScreenContextId);
+#endif
       this->OffScreenContextId = NULL;
       vtkOSMesaDestroyWindow(this->OffScreenWindow);
       this->OffScreenWindow = NULL;
@@ -459,7 +454,9 @@ void vtkMesaRenderWindow::WindowInitialize (void)
       this->Size[1] = height;      
       this->OwnWindow = 1;
       }    
+#ifdef MESA
     this->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+#endif
     this->MakeCurrent();
     this->Mapped = 0;
     }
@@ -627,7 +624,9 @@ void vtkMesaRenderWindow::WindowRemap()
   
   if (this->OffScreenRendering)
     {
+#ifdef MESA
     OSMesaDestroyContext(this->OffScreenContextId);
+#endif
     this->OffScreenContextId = NULL;
     vtkOSMesaDestroyWindow(this->OffScreenWindow);
     this->OffScreenWindow = NULL;
@@ -666,7 +665,9 @@ void vtkMesaRenderWindow::SetSize(int x,int y)
 
   if (this->OffScreenRendering && this->OffScreenWindow)
     {
+#ifdef MESA
     OSMesaDestroyContext(this->OffScreenContextId);
+#endif
     this->OffScreenContextId = NULL;
     vtkOSMesaDestroyWindow(this->OffScreenWindow);
     this->OffScreenWindow = NULL;      
@@ -1155,12 +1156,14 @@ void vtkMesaRenderWindow::MakeCurrent()
     {
     if (this->OffScreenContextId) 
       {
+#ifdef MESA
       if (OSMesaMakeCurrent(this->OffScreenContextId, 
 			    this->OffScreenWindow, GL_UNSIGNED_BYTE, 
 			    this->Size[0], this->Size[1]) != GL_TRUE) 
 	{
 	vtkWarningMacro("failed call to OSMesaMakeCurrent");
 	}
+#endif
       }
     }
   else
@@ -1184,6 +1187,7 @@ void vtkMesaRenderWindow::SetOffScreenRendering(int i)
     return;
     }
   
+#ifdef MESA
   // invoke super
   this->vtkRenderWindow::SetOffScreenRendering(i);
   
@@ -1214,6 +1218,7 @@ void vtkMesaRenderWindow::SetOffScreenRendering(int i)
     // reset the size based on the screen window
     this->GetSize();
     }
+#endif
 }
 
 void *vtkMesaRenderWindow::GetGenericContext()
