@@ -149,7 +149,8 @@ public:
   // prop prior to rendering. Generally used only for picking. See vtkProp3D
   // for more information.
   virtual void PokeMatrix(vtkMatrix4x4 *vtkNotUsed(matrix)) {};
-  virtual vtkMatrix4x4 *GetMatrixPointer() {return NULL;};
+  virtual vtkMatrix4x4 *GetMatrix() 
+    {return NULL;}
 
 //BTX  
   // Description:
@@ -297,6 +298,11 @@ public:
   virtual void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
 
 //ETX
+
+#ifndef VTK_REMOVE_LEGACY_CODE
+  virtual vtkMatrix4x4 *GetMatrixPointer() 
+    {VTK_LEGACY_METHOD(GetMatrixPointer,"3.2"); return NULL;};
+#endif
 
 protected:
   vtkProp();
