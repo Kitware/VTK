@@ -84,7 +84,7 @@ vtkDataWriter::vtkDataWriter()
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName,"lookup_table");
 
-  this->FieldDataName = new char[6];
+  this->FieldDataName = new char[10];
   strcpy(this->FieldDataName,"FieldData");
 }
 
