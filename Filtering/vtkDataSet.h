@@ -312,7 +312,12 @@ public:
   // and 0 if everything is ok.  It prints an error if an
   // array is too short, and a warning if an array is too long.
   int CheckAttributes();
-  
+
+  // Description:
+  // Normally called by pipeline executives or algoritgms only. This method
+  // computes the ghost arrays for a given dataset.
+  virtual void GenerateGhostLevelArray();
+
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
@@ -325,7 +330,6 @@ protected:
   double ScalarRange[2];
   double Center[3];
 
-  virtual void GenerateGhostLevelArray();
 private:
   void InternalDataSetCopy(vtkDataSet *src);  
   //BTX
