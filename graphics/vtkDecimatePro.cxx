@@ -68,7 +68,8 @@ static float Tolerance; // Intersection tolerance
 static float X[3]; //coordinates of current point
 static vtkVertexArray *V; //cycle of vertices around point
 static vtkTriArray *T; //cycle of triangles around point
-static int NumSplits; // Number of times splits occur
+static int NumCollapses; // Number of times edge collapses occur
+static int NumMerges; // Number of times vertex merges occur
 static int Split, DeferSplit; // Controls whether and when vertex splitting occurs
 
 // Helper functions
@@ -330,7 +331,7 @@ void vtkDecimatePro::Execute()
   VertexQueue = new vtkVertexQueue(this,numPts);
 
   // If not deferring splitting and splitting on, we'll start off by splitting the mesh
-  NumSplits = 0;
+  NumCollapses = NumMerges = 0;
   if ( Split && !DeferSplit )
     {
     float oldFeatureAngle = CosAngle;
@@ -434,10 +435,13 @@ void vtkDecimatePro::Execute()
                 <<"\n\tPerformed " << numPops << " vertex pops"
                 <<"\n\tFound " << this->GetNumberOfInflectionPoints() 
                 <<" inflection points"
-                <<"\n\tPerformed " << NumSplits << " vertex splits"
+                <<"\n\tPerformed " 
+                    << Mesh->GetNumberOfPoints() - numPts << " vertex splits"
+                <<"\n\tPerformed " << NumCollapses << " edge collapses"
+                <<"\n\tPerformed " << NumMerges << " vertex merges"
                 <<"\n\tRecycled " << numRecycles << " points"
-                <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts 
-                << " new points");
+                <<"\n\tAdded " << Mesh->GetNumberOfPoints() - numPts << " points (" 
+                    << numPts << " to " << Mesh->GetNumberOfPoints() << " points)");
 
 
   // Generate output at the given reduction level.
@@ -832,7 +836,6 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
   float error;
   int startTri, p[2], maxGroupSize;
 
-  NumSplits++;
   //
   // On an interior edge split along the edge
   //
@@ -922,7 +925,7 @@ static void SplitVertex(int ptId, int type, unsigned short int numTris, int *tri
     if ( type == VTK_SIMPLE_VERTEX || type == VTK_BOUNDARY_VERTEX ||
     type == VTK_EDGE_END_VERTEX || type == VTK_CRACK_TIP_VERTEX ||
     type == VTK_DEGENERATE_VERTEX )
-      maxGroupSize = (numTris/2) + 1; 
+      maxGroupSize = numTris / 2;
     else
       maxGroupSize = VTK_MAX_TRIS_PER_VERTEX - 1;
 
@@ -1216,12 +1219,14 @@ int CollapseEdge(int type, int ptId, int collapseId, int pt1,
   int tri[2];
   int verts[VTK_MAX_TRIS_PER_VERTEX+1];
 
+  NumCollapses++;
   for ( i=0; i < numDeleted; i++ ) tri[i] = CollapseTris.GetId(i);
 
   if ( numDeleted == 2 ) // type == VTK_CRACK_TIP_VERTEX || type == VTK_SIMPLE_VERTEX
     {
     if ( type == VTK_CRACK_TIP_VERTEX ) //got to seal the crack first
       {
+      NumMerges++;
       Mesh->RemoveReferenceToCell(V->Array[V->MaxId+1].id, tri[1]);
       Mesh->ReplaceCellPoint(tri[1],V->Array[V->MaxId+1].id, collapseId);
       }
