@@ -76,7 +76,7 @@ public:
   // Set the number of colors in the lookup table. Use this method before
   // building the lookup table. Use SetNumberOfTableValues() to change the
   // table size after the lookup table has been built.
-  vtkSetClampMacro(NumberOfColors,int,8, 65536);
+  vtkSetClampMacro(NumberOfColors,int,2, 65536);
   vtkGetMacro(NumberOfColors,int);
 
   void SetTableRange(float r[2]); // can't use macro 'cause don't want modified
