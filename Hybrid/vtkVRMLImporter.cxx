@@ -1,3 +1,27 @@
+
+#if defined (__digital__) && defined (__unix__)
+#define HAVE_ALLOCA_H 1
+#endif
+
+
+#ifdef __GNUC__
+#undef alloca
+#define alloca __builtin_alloca
+#else /* not __GNUC__ */
+#if HAVE_ALLOCA_H
+#include <alloca.h>
+#else /* not HAVE_ALLOCA_H */
+#ifdef _AIX
+#pragma alloca
+#else /* not _AIX */
+#ifndef alloca
+char *alloca ();
+#endif
+#include <malloc.h>
+#endif /* not _AIX */
+#endif /* not HAVE_ALLOCA_H */
+#endif /* not __GNUC__ */
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
@@ -794,29 +818,6 @@ static const short yycheck[] = {    66,
    Bison output file, you may use that output file without restriction.
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
-
-#if defined (__digital__) && defined (__unix__)
-#define HAVE_ALLOCA_H 1
-#endif
-
-
-#ifdef __GNUC__
-#undef alloca
-#define alloca __builtin_alloca
-#else /* not __GNUC__ */
-#if HAVE_ALLOCA_H
-#include <alloca.h>
-#else /* not HAVE_ALLOCA_H */
-#ifdef _AIX
-#pragma alloca
-#else /* not _AIX */
-#ifndef alloca
-char *alloca ();
-#endif
-#include <malloc.h>
-#endif /* not _AIX */
-#endif /* not HAVE_ALLOCA_H */
-#endif /* not __GNUC__ */
 
 extern int yylex(vtkVRMLImporter* self);
 extern void yyerror();
@@ -4256,7 +4257,7 @@ YY_MALLOC_DECL
 #define YY_BREAK break;
 #endif
 
-vtkCxxRevisionMacro(vtkVRMLImporter, "1.66");
+vtkCxxRevisionMacro(vtkVRMLImporter, "1.67");
 vtkStandardNewMacro(vtkVRMLImporter);
 
 vtkPoints* vtkVRMLImporter::PointsNew()
