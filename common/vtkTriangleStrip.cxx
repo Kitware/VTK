@@ -312,22 +312,32 @@ void vtkTriangleStrip::Clip(float value, vtkFloatScalars *cellScalars,
                             int insideOut)
 {
   int i;
+  int id1, id2, id3;
   vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
   static vtkTriangle tri;
 
   for ( i=0; i < this->Points.GetNumberOfPoints()-2; i++)
     {
-    tri.Points.SetPoint(0,this->Points.GetPoint(i));
-    tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
+    if (i % 2)
+      {
+      id1 = i + 2; id2 = i + 1; id3 = i;
+      }
+    else
+      {
+      id1 = i; id2 = i + 1; id3 = i + 2;
+      }
+  
+    tri.Points.SetPoint(0,this->Points.GetPoint(id1));
+    tri.Points.SetPoint(1,this->Points.GetPoint(id2));
+    tri.Points.SetPoint(2,this->Points.GetPoint(id3));
 
-    tri.PointIds.SetId(0,this->PointIds.GetId(i));
-    tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
-    tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+    tri.PointIds.SetId(0,this->PointIds.GetId(id1));
+    tri.PointIds.SetId(1,this->PointIds.GetId(id2));
+    tri.PointIds.SetId(2,this->PointIds.GetId(id3));
 
-    triScalars.SetScalar(0,cellScalars->GetScalar(i));
-    triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
-    triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
+    triScalars.SetScalar(0,cellScalars->GetScalar(id1));
+    triScalars.SetScalar(1,cellScalars->GetScalar(id2));
+    triScalars.SetScalar(2,cellScalars->GetScalar(id3));
 
     tri.Clip(value, &triScalars, locator, tris, inPd, outPd, insideOut);
     }
