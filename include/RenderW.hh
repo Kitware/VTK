@@ -33,6 +33,7 @@ class vlRenderWindowInteractor;
 
 // lets define the diferent types of stereo
 #define VL_STEREO_CRYSTAL_EYES 1
+#define VL_STEREO_RED_BLUE     2
 
 class vlRenderWindow : public vlObject
 {
@@ -127,12 +128,31 @@ public:
   vlGetMacro(StereoType,int);
   vlSetMacro(StereoType,int);
 
-  virtual void StereoUpdate() = 0;
-  virtual void StereoRenderComplete() = 0;
+  virtual void StereoUpdate();
+  virtual void StereoMidpoint();
+  virtual void StereoRenderComplete();
+
+  virtual int  GetRemapWindow();
 
   // Description:
   // Get name of rendering window
   vlGetStringMacro(Name);
+
+  // Description:
+  // Set/Get the filename used for saving images.
+  vlSetStringMacro(FileName);
+  vlGetStringMacro(FileName);
+
+
+  // Description:
+  // Save the current image as a PPM file.
+  virtual void SaveImageAsPPM();
+
+
+  // Description:
+  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
+  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2) = 0;
+  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *) = 0;
 
 protected:
   vlRendererCollection Renderers;
@@ -148,7 +168,8 @@ protected:
   int StereoType;
   int StereoStatus; // used for keeping track of what's going on
   vlRenderWindowInteractor *Interactor;
-
+  char *FileName;
+  unsigned char* temp_buffer;  // used for red blue stereo
 };
 
 #endif
