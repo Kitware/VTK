@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.1");
+vtkCxxRevisionMacro(vtkSource, "1.2");
 
 #ifndef NULL
 #define NULL 0
@@ -708,6 +708,15 @@ void vtkSource::SetNumberOfOutputs(int num)
   if (num == this->NumberOfOutputs)
     {
     return;
+    }
+
+  // Destroy extra outputs if decreasing number of outputs.
+  if(num < this->NumberOfOutputs)
+    {
+    for(idx=num; idx < this->NumberOfOutputs; ++idx)
+      {
+      this->SetNthOutput(idx, 0);
+      }
     }
   
   // Allocate new arrays.
