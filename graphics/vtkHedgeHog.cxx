@@ -55,6 +55,12 @@ vtkHedgeHog* vtkHedgeHog::New()
   return new vtkHedgeHog;
 }
 
+vtkHedgeHog::vtkHedgeHog()
+{
+  this->ScaleFactor = 1.0;
+  this->VectorMode = VTK_USE_VECTOR;
+}
+
 void vtkHedgeHog::Execute()
 {
   vtkDataSet *input= this->GetInput();
@@ -62,6 +68,7 @@ void vtkHedgeHog::Execute()
   vtkPoints *newPts;
   vtkPointData *pd;
   vtkVectors *inVectors;
+  vtkNormals *inNormals;
   int i, ptId, pts[2];
   vtkCellArray *newLines;
   float *x, *v;
@@ -74,9 +81,21 @@ void vtkHedgeHog::Execute()
   numPts = input->GetNumberOfPoints();
   pd = input->GetPointData();
   inVectors = pd->GetVectors();
-  if ( !inVectors || numPts < 1 )
+  if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No input data");
+    return;
+    }
+  if ( !inVectors && this->VectorMode == VTK_USE_VECTOR)
+    {
+    vtkErrorMacro(<<"No vectors in input data");
+    return;
+    }
+
+  inNormals = pd->GetNormals();
+  if ( !inNormals && this->VectorMode == VTK_USE_NORMAL)
+    {
+    vtkErrorMacro(<<"No normals in input data");
     return;
     }
   outputPD->CopyAllocate(pd, 2*numPts);
@@ -99,7 +118,14 @@ void vtkHedgeHog::Execute()
       }
     
     x = input->GetPoint(ptId);
-    v = inVectors->GetVector(ptId);
+    if (this->VectorMode == VTK_USE_VECTOR)
+      {
+      v = inVectors->GetVector(ptId);
+      }
+    else
+      {
+      v = inNormals->GetNormal(ptId);
+      }
     for (i=0; i<3; i++)
       {
       newX[i] = x[i] + this->ScaleFactor * v[i];
@@ -131,4 +157,6 @@ void vtkHedgeHog::PrintSelf(ostream& os, vtkIndent indent)
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
+  os << indent << "Orient Mode: " << (this->VectorMode == VTK_USE_VECTOR ? 
+                                       "Orient by vector\n" : "Orient by normal\n");
 }

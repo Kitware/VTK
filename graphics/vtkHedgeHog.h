@@ -41,14 +41,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkHedgeHog - create oriented lines from vector data
 // .SECTION Description
-// vtkHedgeHog creates oriented lines from the input data set. Line length
-// is controlled by vector magnitude times scale factor. Vectors are
-// colored by scalar data, if available.
+// vtkHedgeHog creates oriented lines from the input data set. Line
+// length is controlled by vector (or normal) magnitude times scale
+// factor. If VectorMode is UseNormal, normals determine the orientation
+// of the lines. Lines are colored by scalar data, if available.
 
 #ifndef __vtkHedgeHog_h
 #define __vtkHedgeHog_h
 
 #include "vtkDataSetToPolyDataFilter.h"
+
+#define VTK_USE_VECTOR 0
+#define VTK_USE_NORMAL 1
 
 class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyDataFilter
 {
@@ -62,17 +66,43 @@ public:
   vtkSetMacro(ScaleFactor,float);
   vtkGetMacro(ScaleFactor,float);
 
+  // Description:
+  // Specify whether to use vector or normal to perform vector operations.
+  vtkSetMacro(VectorMode,int);
+  vtkGetMacro(VectorMode,int);
+  void SetVectorModeToUseVector() {this->SetVectorMode(VTK_USE_VECTOR);};
+  void SetVectorModeToUseNormal() {this->SetVectorMode(VTK_USE_NORMAL);};
+  char *GetVectorModeAsString();
+
 protected:
-  vtkHedgeHog() { this->ScaleFactor = 1.0;};
+  vtkHedgeHog();
   ~vtkHedgeHog() {};
   vtkHedgeHog(const vtkHedgeHog&) {};
   void operator=(const vtkHedgeHog&) {};
 
   void Execute();
   float ScaleFactor;
+  int VectorMode; // Orient/scale via normal or via vector data
 
 };
 
+// Description:
+// Return the vector mode as a character string.
+inline char *vtkHedgeHog::GetVectorModeAsString(void)
+{
+  if ( this->VectorMode == VTK_USE_VECTOR) 
+    {
+    return "UseVector";
+    }
+  else if ( this->VectorMode == VTK_USE_NORMAL) 
+    {
+    return "UseNormal";
+    }
+  else 
+    {
+    return "Unknown";
+    }
+}
 #endif
 
 
