@@ -496,19 +496,19 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     {
     sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i + j*dims[0] + k*ijsize);
-    g[0] = (sp - sm) / ar[0];
+    g[0] = (sm - sp) / ar[0];
     }
   else if ( i == (dims[0]-1) )
     {
     sp = s->GetScalar(i + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
-    g[0] = (sp - sm) / ar[0];
+    g[0] = (sm - sp) / ar[0];
     }
   else
     {
     sp = s->GetScalar(i+1 + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i-1 + j*dims[0] + k*ijsize);
-    g[0] = 0.5 * (sp - sm) / ar[0];
+    g[0] = 0.5 * (sm - sp) / ar[0];
     }
 
   // y-direction
@@ -520,19 +520,19 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     {
     sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
     sm = s->GetScalar(i + j*dims[0] + k*ijsize);
-    g[1] = (sp - sm) / ar[1];
+    g[1] = (sm - sp) / ar[1];
     }
   else if ( j == (dims[1]-1) )
     {
     sp = s->GetScalar(i + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
-    g[1] = (sp - sm) / ar[1];
+    g[1] = (sm - sp) / ar[1];
     }
   else
     {
     sp = s->GetScalar(i + (j+1)*dims[0] + k*ijsize);
     sm = s->GetScalar(i + (j-1)*dims[0] + k*ijsize);
-    g[1] = 0.5 * (sp - sm) / ar[1];
+    g[1] = 0.5 * (sm - sp) / ar[1];
     }
 
   // z-direction
@@ -544,19 +544,19 @@ void vtkStructuredPoints::GetPointGradient(int i,int j,int k, vtkScalars *s,
     {
     sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
     sm = s->GetScalar(i + j*dims[0] + k*ijsize);
-    g[2] = (sp - sm) / ar[2];
+    g[2] = (sm - sp) / ar[2];
     }
   else if ( k == (dims[2]-1) )
     {
     sp = s->GetScalar(i + j*dims[0] + k*ijsize);
     sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
-    g[2] = (sp - sm) / ar[2];
+    g[2] = (sm - sp) / ar[2];
     }
   else
     {
     sp = s->GetScalar(i + j*dims[0] + (k+1)*ijsize);
     sm = s->GetScalar(i + j*dims[0] + (k-1)*ijsize);
-    g[2] = 0.5 * (sp - sm) / ar[2];
+    g[2] = 0.5 * (sm - sp) / ar[2];
     }
 }
 
