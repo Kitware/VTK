@@ -76,9 +76,9 @@ public:
                vtkCellArray *lines, vtkCellArray *polys, vtkFloatScalars *s);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
-                       float& dist2, float weights[MAX_CELL_SIZE]);
+                       float& dist2, float weights[VTK_MAX_CELL_SIZE]);
   void EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                        float weights[MAX_CELL_SIZE]);
+                        float weights[VTK_MAX_CELL_SIZE]);
   int IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                         float x[3], float pcoords[3], int& subId);
   int Triangulate(int index, vtkFloatPoints &pts);
@@ -86,7 +86,7 @@ public:
                    int dim, float *derivs);
 
   // Polygon specific
-  void ComputeWeights(float x[3], float weights[MAX_CELL_SIZE]);
+  void ComputeWeights(float x[3], float weights[VTK_MAX_CELL_SIZE]);
 
   int ParameterizePolygon(float p0[3], float p10[3], float &l10, 
                           float p20[3], float &l20, float n[3]);

@@ -94,7 +94,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   vtkFloatPoints *newPts;
   vtkCellArray *newPolys;
   float x[3];
-  int npts, pts[MAX_CELL_SIZE];
+  int npts, pts[VTK_MAX_CELL_SIZE];
   int id, polyId;
   vtkPolyData *output = this->GetOutput();
   
@@ -121,7 +121,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
     vtkDebugMacro(<<"Reading all parts.");
     for (i=0; i < numParts; i++) fscanf (geomFile, "%*d %*d");
     partStart = 1;
-    partEnd = LARGE_INTEGER;
+    partEnd = VTK_LARGE_INTEGER;
     }
 
   if ( numParts < 1 || numPts < 1 || numPolys < 1 )
@@ -148,7 +148,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   for ( polyId=1; polyId <= numPolys; polyId++ )
     {
     // read this polygon
-    for (npts=0; npts < MAX_CELL_SIZE; npts++)
+    for (npts=0; npts < VTK_MAX_CELL_SIZE; npts++)
       {
       fscanf (geomFile, "%d", pts+npts);
       if ( pts[npts] <= 0 ) break;

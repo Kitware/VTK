@@ -90,7 +90,7 @@ public:
   // Description:
   // Set/Get resolution of sweep operation. Resolution controls the number
   // of intermediate node points.
-  vtkSetClampMacro(Resolution,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(Resolution,int);
 
   // Description:

@@ -63,7 +63,7 @@ vtkQuad::vtkQuad(const vtkQuad& q)
 
 int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
                              int& subId, float pcoords[3], 
-                             float& dist2, float weights[MAX_CELL_SIZE])
+                             float& dist2, float weights[VTK_MAX_CELL_SIZE])
 {
   int i, j;
   float *pt1, *pt2, *pt3, *pt, n[3];
@@ -220,7 +220,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                              float weights[MAX_CELL_SIZE])
+                              float weights[VTK_MAX_CELL_SIZE])
 {
   int i, j;
   float *pt;
@@ -405,7 +405,7 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float *pt1, *pt2, *pt3, n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
-  float dist2, weights[MAX_CELL_SIZE];
+  float dist2, weights[VTK_MAX_CELL_SIZE];
 
   subId = 0;
   pcoords[0] = pcoords[1] = 0.0;

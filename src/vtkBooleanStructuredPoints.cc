@@ -145,8 +145,8 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
     {
     if ( this->InputList.GetNumberOfItems() > 0 )
       {
-       this->ModelBounds[0] = this->ModelBounds[2] = this->ModelBounds[4] = LARGE_FLOAT;
-       this->ModelBounds[1] = this->ModelBounds[3] = this->ModelBounds[5] = -LARGE_FLOAT;
+       this->ModelBounds[0] = this->ModelBounds[2] = this->ModelBounds[4] = VTK_LARGE_FLOAT;
+       this->ModelBounds[1] = this->ModelBounds[3] = this->ModelBounds[5] = -VTK_LARGE_FLOAT;
       for ( this->InputList.InitTraversal(); sp = this->InputList.GetNextItem(); )
         {
         bounds = sp->GetBounds();

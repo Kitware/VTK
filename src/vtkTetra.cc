@@ -56,7 +56,7 @@ vtkTetra::vtkTetra(const vtkTetra& t)
 
 int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
                               int& subId, float pcoords[3], 
-                              float& minDist2, float weights[MAX_CELL_SIZE])
+                              float& minDist2, float weights[VTK_MAX_CELL_SIZE])
 {
   float *pt1, *pt2, *pt3, *pt4;
   int i;
@@ -107,7 +107,7 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
     int sub;
     vtkTriangle *triangle;
 
-    for (minDist2=LARGE_FLOAT,i=0; i<4; i++)
+    for (minDist2=VTK_LARGE_FLOAT,i=0; i<4; i++)
       {
       triangle = (vtkTriangle *) this->GetFace (i);
       triangle->EvaluatePosition(x,closest,sub,pc,dist2,(float *)w);
@@ -125,7 +125,7 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkTetra::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                               float weights[MAX_CELL_SIZE])
+                               float weights[VTK_MAX_CELL_SIZE])
 {
   float u4;
   float *pt1, *pt2, *pt3, *pt4;
@@ -319,7 +319,7 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   int faceNum;
   static vtkTriangle tri;
 
-  t = LARGE_FLOAT;
+  t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)
     {
     pt1 = this->Points.GetPoint(faces[faceNum][0]);

@@ -75,8 +75,8 @@ void vtkScalars::ComputeRange()
 
   if ( this->GetMTime() > this->ComputeTime )
     {
-    this->Range[0] =  LARGE_FLOAT;
-    this->Range[1] =  -LARGE_FLOAT;
+    this->Range[0] =  VTK_LARGE_FLOAT;
+    this->Range[1] =  -VTK_LARGE_FLOAT;
     for (i=0; i<this->GetNumberOfScalars(); i++)
       {
       s = this->GetScalar(i);

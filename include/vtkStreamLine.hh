@@ -82,7 +82,7 @@ public:
   // Description:
   // Specify the length of a line segment. Smaller values result in smoother
   // appearing streamlines but greater numbers of line primitives.
-  vtkSetClampMacro(StepLength,float,0.000001,LARGE_FLOAT);
+  vtkSetClampMacro(StepLength,float,0.000001,VTK_LARGE_FLOAT);
   vtkGetMacro(StepLength,float);
 
 protected:

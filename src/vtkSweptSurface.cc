@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 // Description:
 // Construct object with SampleDimensions = (50,50,50), FillValue = 
-// LARGE_FLOAT, ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
+// VTK_LARGE_FLOAT, ModelBounds=(0,0,0,0,0,0) (i.e, bounds will be
 // computed automatically), and Capping turned on.
 vtkSweptSurface::vtkSweptSurface()
 {
@@ -60,7 +60,7 @@ vtkSweptSurface::vtkSweptSurface()
   this->SampleDimensions[2] = 50;
 
   this->NumberOfInterpolationSteps = 0;
-  this->FillValue = LARGE_FLOAT;
+  this->FillValue = VTK_LARGE_FLOAT;
   this->Transforms = NULL;
   this->Capping = 1;
 }

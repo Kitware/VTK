@@ -82,7 +82,7 @@ void vtkGlyph3D::Execute()
   vtkTransform trans;
   vtkCell *cell;
   vtkIdList *cellPts;
-  int npts, pts[MAX_CELL_SIZE];
+  int npts, pts[VTK_MAX_CELL_SIZE];
   int orient, scaleSource, ptIncr, cellId;
   float scale, den;
   vtkMath math;

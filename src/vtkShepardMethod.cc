@@ -204,8 +204,8 @@ void vtkShepardMethod::Execute()
 
           if ( distance2 == 0.0 )
             {
-            sum[idx] = LARGE_FLOAT;
-            newScalars->SetScalar(idx,LARGE_FLOAT);
+            sum[idx] = VTK_LARGE_FLOAT;
+            newScalars->SetScalar(idx,VTK_LARGE_FLOAT);
             }
           else
             {

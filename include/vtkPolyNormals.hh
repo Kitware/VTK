@@ -91,7 +91,7 @@ public:
   // Description:
   // Control the depth of recursion used in this algorithm. (Some systems
   // have limited stack depth.)
-  vtkSetClampMacro(MaxRecursionDepth,int,10,LARGE_INTEGER);
+  vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxRecursionDepth,int);
 
 protected:

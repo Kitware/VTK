@@ -171,9 +171,9 @@ void vtkPointLoad::Execute()
         if ( rho < 1.0e-10 )
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
-          tensor.SetComponent(0,0,LARGE_FLOAT);
-          tensor.SetComponent(1,1,LARGE_FLOAT);
-          tensor.SetComponent(2,2,LARGE_FLOAT);
+          tensor.SetComponent(0,0,VTK_LARGE_FLOAT);
+          tensor.SetComponent(1,1,VTK_LARGE_FLOAT);
+          tensor.SetComponent(2,2,VTK_LARGE_FLOAT);
           tensor.SetComponent(0,1,0.0);
           tensor.SetComponent(0,2,0.0);
           tensor.SetComponent(1,0,0.0);
@@ -182,7 +182,7 @@ void vtkPointLoad::Execute()
           tensor.SetComponent(2,1,0.0);
           newTensors->InsertNextTensor(&tensor);
           if ( this->ComputeEffectiveStress )
-            newScalars->InsertNextScalar(LARGE_FLOAT);
+            newScalars->InsertNextScalar(VTK_LARGE_FLOAT);
           continue;
           }
 

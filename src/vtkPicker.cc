@@ -69,7 +69,7 @@ vtkPicker::vtkPicker()
   this->Actor = NULL;
   this->Mapper = NULL;
   this->DataSet = NULL;
-  this->GlobalTMin = LARGE_FLOAT;
+  this->GlobalTMin = VTK_LARGE_FLOAT;
 }
 
 // Update state when actor is picked.
@@ -319,7 +319,7 @@ void vtkPicker::Initialize()
 
   this->Actor = NULL;
   this->Mapper = NULL;
-  this->GlobalTMin = LARGE_FLOAT;
+  this->GlobalTMin = VTK_LARGE_FLOAT;
 }
 
 void vtkPicker::PrintSelf(ostream& os, vtkIndent indent)

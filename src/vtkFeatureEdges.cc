@@ -74,7 +74,7 @@ void vtkFeatureEdges::Execute()
   vtkCellArray *inPolys;
   vtkFloatNormals *polyNormals;
   int numPts, nei;
-  vtkIdList neighbors(MAX_CELL_SIZE);
+  vtkIdList neighbors(VTK_MAX_CELL_SIZE);
   int p1, p2;
   vtkPolyData *output = this->GetOutput();
   

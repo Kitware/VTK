@@ -67,7 +67,7 @@ void vtkDashedStreamLine::Execute()
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
     newScalars = new vtkFloatScalars(1000);
   newLines = new vtkCellArray();
-  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,MAX_CELL_SIZE));
+  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_MAX_CELL_SIZE));
 //
 // Loop over all streamers generating points
 //

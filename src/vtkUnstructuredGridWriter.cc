@@ -79,7 +79,7 @@ void vtkUnstructuredGridWriter::WriteData()
     }
 
   fprintf (fp, "CELL_TYPES %d\n", ncells);
-  if ( this->FileType == ASCII )
+  if ( this->FileType == VTK_ASCII )
     {
     for (cellId=0; cellId<ncells; cellId++)
       {

@@ -52,7 +52,7 @@ void vtkStreamLine::Execute()
   vtkFloatVectors *newVectors;
   vtkFloatScalars *newScalars=NULL;
   vtkCellArray *newLines;
-  int i, ptId, j, npts, pts[MAX_CELL_SIZE];
+  int i, ptId, j, npts, pts[VTK_MAX_CELL_SIZE];
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -66,7 +66,7 @@ void vtkStreamLine::Execute()
   if ( this->Input->GetPointData()->GetScalars() || this->SpeedScalars )
     newScalars = new vtkFloatScalars(1000);
   newLines = new vtkCellArray();
-  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,MAX_CELL_SIZE));
+  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_MAX_CELL_SIZE));
 //
 // Loop over all streamers generating points
 //
@@ -122,7 +122,7 @@ void vtkStreamLine::Execute()
             newScalars->InsertScalar(pts[npts],s);
             }
   
-          if ( ++npts == MAX_CELL_SIZE )
+          if ( ++npts == VTK_MAX_CELL_SIZE )
             {
             newLines->InsertNextCell(npts,pts);
             pts[0] = pts[npts-1];

@@ -53,7 +53,7 @@ void vtkProbeFilter::Execute()
   vtkPointData *pd, *outPD;
   
   int numPts, subId;
-  float pcoords[3], weights[MAX_CELL_SIZE];
+  float pcoords[3], weights[VTK_MAX_CELL_SIZE];
   vtkDataSet *source=this->Source, *input=this->Input;
   vtkDataSet *output=this->Output;
 

@@ -113,7 +113,7 @@ void vtkAppendFilter::Execute()
   int numPts, numCells, ptOffset;
   vtkFloatPoints *newPts;
   vtkPointData *pd;
-  vtkIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
+  vtkIdList ptIds(VTK_MAX_CELL_SIZE), newPtIds(VTK_MAX_CELL_SIZE);
   int i;
   vtkDataSet *ds;
   int ptId, cellId;

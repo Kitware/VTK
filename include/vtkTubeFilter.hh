@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Set the minimum tube radius (minimum because the tube radius may vary).
-  vtkSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Radius,float);
 
   // Description:
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Set the number of sides for the tube. At a minimum, number of sides is 3.
-  vtkSetClampMacro(NumberOfSides,int,3,LARGE_INTEGER);
+  vtkSetClampMacro(NumberOfSides,int,3,VTK_LARGE_INTEGER);
   vtkGetMacro(NumberOfSides,int);
 
   // Description:

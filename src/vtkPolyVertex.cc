@@ -55,14 +55,14 @@ vtkPolyVertex::vtkPolyVertex(const vtkPolyVertex& pp)
 
 int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
-                                   float& minDist2, float weights[MAX_CELL_SIZE])
+                                   float& minDist2, float weights[VTK_MAX_CELL_SIZE])
 {
   int numPts=this->Points.GetNumberOfPoints();
   float *X;
   float dist2;
   int i;
 
-  for (minDist2=LARGE_FLOAT, i=0; i<numPts; i++)
+  for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
     {
     X = this->Points.GetPoint(i);
     dist2 = math.Distance2BetweenPoints(X,x);
@@ -91,7 +91,7 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkPolyVertex::EvaluateLocation(int& subId, float pcoords[3], 
-                                    float x[3], float weights[MAX_CELL_SIZE])
+                                    float x[3], float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   float *X = this->Points.GetPoint(subId);

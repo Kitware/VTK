@@ -67,16 +67,16 @@ float vtkPlanes::EvaluateFunction(float x[3])
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
-    return LARGE_FLOAT;
+    return VTK_LARGE_FLOAT;
     }
 
   if ( (numPlanes=this->Points->GetNumberOfPoints()) != this->Normals->GetNumberOfNormals() )
     {
     vtkErrorMacro(<<"Number of normals/points inconsistent!");
-    return LARGE_FLOAT;
+    return VTK_LARGE_FLOAT;
     }
 
-  for (minVal=LARGE_FLOAT, i=0; i < numPlanes; i++)
+  for (minVal=VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
     val = plane.Evaluate(this->Normals->GetNormal(i),this->Points->GetPoint(i), x);
     if ( val < minVal ) minVal = val;
@@ -105,7 +105,7 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
     return;
     }
 
-  for (minVal=LARGE_FLOAT, i=0; i < numPlanes; i++)
+  for (minVal=VTK_LARGE_FLOAT, i=0; i < numPlanes; i++)
     {
     nTemp = this->Normals->GetNormal(i);
     val = plane.Evaluate(nTemp,this->Points->GetPoint(i), x);

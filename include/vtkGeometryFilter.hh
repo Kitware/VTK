@@ -90,22 +90,22 @@ public:
 
   // Description:
   // Specify the minimum point id for point id selection.
-  vtkSetClampMacro(PointMinimum,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(PointMinimum,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(PointMinimum,int);
 
   // Description:
   // Specify the maximum point id for point id selection.
-  vtkSetClampMacro(PointMaximum,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(PointMaximum,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(PointMaximum,int);
 
   // Description:
   // Specify the minimum cell id for point id selection.
-  vtkSetClampMacro(CellMinimum,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(CellMinimum,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(CellMinimum,int);
 
   // Description:
   // Specify the maximum cell id for point id selection.
-  vtkSetClampMacro(CellMaximum,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(CellMaximum,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(CellMaximum,int);
 
   void SetExtent(float xMin, float xMax, float yMin, float yMax, float zMin, float zMax);

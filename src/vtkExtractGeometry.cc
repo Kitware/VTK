@@ -77,7 +77,7 @@ void vtkExtractGeometry::Execute()
   float *x;
   float multiplier;
   vtkFloatPoints *newPts;
-  vtkIdList newCellPts(MAX_CELL_SIZE);
+  vtkIdList newCellPts(VTK_MAX_CELL_SIZE);
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   

@@ -57,7 +57,7 @@ vtkTransformStructuredPoints::vtkTransformStructuredPoints()
   this->SampleDimensions[1] = 0;
   this->SampleDimensions[2] = 0;
 
-  this->FillValue = LARGE_FLOAT;
+  this->FillValue = VTK_LARGE_FLOAT;
 
   this->Transform = NULL;
 }

@@ -47,7 +47,7 @@ vtkHyperArray::vtkHyperArray()
   this->Array = new vtkHyperPoint[1000];
   this->Size = 1000;
   this->Extend = 5000;
-  this->Direction = INTEGRATE_FORWARD;
+  this->Direction = VTK_INTEGRATE_FORWARD;
 }
 
 vtkHyperPoint *vtkHyperArray::Resize(int sz)
@@ -73,7 +73,7 @@ vtkHyperPoint *vtkHyperArray::Resize(int sz)
 
 vtkHyperStreamline::vtkHyperStreamline()
 {
-  this->StartFrom = START_FROM_POSITION;
+  this->StartFrom = VTK_START_FROM_POSITION;
 
   this->StartCell = 0;
   this->StartSubId = 0;
@@ -81,7 +81,7 @@ vtkHyperStreamline::vtkHyperStreamline()
   this->StartPosition[0] = this->StartPosition[1] = this->StartPosition[2] = 0.0;
   this->Streamers = NULL;
   this->MaximumPropagationTime = 100.0;
-  this->IntegrationDirection = INTEGRATE_FORWARD;
+  this->IntegrationDirection = VTK_INTEGRATE_FORWARD;
   this->IntegrationStepLength = 0.2;
   this->TerminalSpeed = 0.0;
 }
@@ -97,7 +97,7 @@ void vtkHyperStreamline::SetStartLocation(int cellId, int subId, float pcoords[3
   pcoords[2] !=  this->StartPCoords[2] )
     {
     this->Modified();
-    this->StartFrom = START_FROM_LOCATION;
+    this->StartFrom = VTK_START_FROM_LOCATION;
 
     this->StartCell = cellId;
     this->StartSubId = subId;
@@ -140,7 +140,7 @@ void vtkHyperStreamline::SetStartPosition(float x[3])
   x[2] != this->StartPosition[2] )
     {
     this->Modified();
-    this->StartFrom = START_FROM_POSITION;
+    this->StartFrom = VTK_START_FROM_POSITION;
 
     this->StartPosition[0] = x[0];
     this->StartPosition[1] = x[1];
@@ -177,12 +177,12 @@ void vtkHyperStreamline::Execute()
   vtkHyperPoint *sNext, *sPtr;
   int i, j, ptId, offset, subId;
   vtkCell *cell;
-  vtkFloatVectors cellVectors(MAX_CELL_SIZE);
-  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkFloatVectors cellVectors(VTK_MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
   float *v, xNext[3];
   vtkMath math;
   float d, step, dir, vNext[3], tol2, p[3];
-  float w[MAX_CELL_SIZE], dist2;
+  float w[VTK_MAX_CELL_SIZE], dist2;
   float closestPoint[3];
   vtkPolyData *output = this->GetOutput();
 
@@ -202,7 +202,7 @@ void vtkHyperStreamline::Execute()
 //
   this->NumberOfStreamers = offset = 1;
  
-  if ( this->IntegrationDirection == INTEGRATE_BOTH_DIRECTIONS )
+  if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
     {
     offset = 2;
     this->NumberOfStreamers *= 2;
@@ -210,7 +210,7 @@ void vtkHyperStreamline::Execute()
 
   this->Streamers = new vtkHyperArray[this->NumberOfStreamers];
 
-  if ( this->StartFrom == START_FROM_POSITION )
+  if ( this->StartFrom == VTK_START_FROM_POSITION )
     {
     sPtr = this->Streamers[0].InsertNextHyperPoint();
     for (i=0; i<3; i++) sPtr->x[i] = this->StartPosition[i];
@@ -218,7 +218,7 @@ void vtkHyperStreamline::Execute()
                                    sPtr->subId, sPtr->p, w);
     }
 
-  else //START_FROM_LOCATION
+  else //VTK_START_FROM_LOCATION
     {
     sPtr = this->Streamers[0].InsertNextHyperPoint();
     cell =  input->GetCell(sPtr->cellId);
@@ -245,7 +245,7 @@ void vtkHyperStreamline::Execute()
       }
     sPtr->speed = math.Norm(sPtr->v);
 
-    if ( this->IntegrationDirection == INTEGRATE_BOTH_DIRECTIONS )
+    if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
       {
       this->Streamers[1].Direction = -1.0;
       sNext = this->Streamers[1].InsertNextHyperPoint();
@@ -353,7 +353,7 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
-  if ( this->StartFrom == START_FROM_POSITION )
+  if ( this->StartFrom == VTK_START_FROM_POSITION )
     {
     os << indent << "Starting Position: (" << this->StartPosition[0] << ","
        << this->StartPosition[1] << ", " << this->StartPosition[2] << ")\n";
@@ -370,9 +370,9 @@ void vtkHyperStreamline::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Propagation Time: " 
      << this->MaximumPropagationTime << "\n";
 
-  if ( this->IntegrationStepLength == INTEGRATE_FORWARD )
+  if ( this->IntegrationStepLength == VTK_INTEGRATE_FORWARD )
     os << indent << "Integration Direction: FORWARD\n";
-  else if ( this->IntegrationStepLength == INTEGRATE_BACKWARD )
+  else if ( this->IntegrationStepLength == VTK_INTEGRATE_BACKWARD )
     os << indent << "Integration Direction: BACKWARD\n";
   else
     os << indent << "Integration Direction: FORWARD & BACKWARD\n";

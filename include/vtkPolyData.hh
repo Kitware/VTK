@@ -99,7 +99,7 @@ public:
   // Allocate storage for cells when using the following InsertNextCell method
   void Allocate(int numCells=1000, int extSize=1000);
   // create verts, lines, polys, tmeshes from cell object
-  int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
+  int InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE]);
   // Use this method to reclaim memory when using InsertNextCell()
   void Squeeze();
 

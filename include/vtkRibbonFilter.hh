@@ -66,7 +66,7 @@ public:
   // Description:
   // Set the "half" width of the ribbon. If the width is allowed to vary, 
   // this is the minimum width.
-  vtkSetClampMacro(Width,float,0,LARGE_FLOAT);
+  vtkSetClampMacro(Width,float,0,VTK_LARGE_FLOAT);
   vtkGetMacro(Width,float);
 
   // Description:

@@ -91,9 +91,9 @@ void vtkThreshold::Execute()
 {
   int cellId;
   vtkIdList *cellPts, *pointMap;
-  vtkIdList newCellPts(MAX_CELL_SIZE);
+  vtkIdList newCellPts(VTK_MAX_CELL_SIZE);
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
   vtkCell *cell;
   vtkFloatPoints *newPoints;
   vtkPointData *pd, *outPD;

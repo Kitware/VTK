@@ -45,17 +45,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkGeometryFilter::vtkGeometryFilter()
 {
   this->PointMinimum = 0;
-  this->PointMaximum = LARGE_INTEGER;
+  this->PointMaximum = VTK_LARGE_INTEGER;
 
   this->CellMinimum = 0;
-  this->CellMaximum = LARGE_INTEGER;
+  this->CellMaximum = VTK_LARGE_INTEGER;
 
-  this->Extent[0] = -LARGE_FLOAT;
-  this->Extent[1] = LARGE_FLOAT;
-  this->Extent[2] = -LARGE_FLOAT;
-  this->Extent[3] = LARGE_FLOAT;
-  this->Extent[4] = -LARGE_FLOAT;
-  this->Extent[5] = LARGE_FLOAT;
+  this->Extent[0] = -VTK_LARGE_FLOAT;
+  this->Extent[1] = VTK_LARGE_FLOAT;
+  this->Extent[2] = -VTK_LARGE_FLOAT;
+  this->Extent[3] = VTK_LARGE_FLOAT;
+  this->Extent[4] = -VTK_LARGE_FLOAT;
+  this->Extent[5] = VTK_LARGE_FLOAT;
 
   this->PointClipping = 0;
   this->CellClipping = 0;
@@ -107,10 +107,10 @@ void vtkGeometryFilter::Execute()
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
-  static vtkIdList cellIds(MAX_CELL_SIZE);
+  static vtkIdList cellIds(VTK_MAX_CELL_SIZE);
   vtkFloatPoints *newPts;
   int ptId;
-  int npts, pts[MAX_CELL_SIZE];
+  int npts, pts[VTK_MAX_CELL_SIZE];
   vtkPointData *pd = this->Input->GetPointData();
   int allVisible;
   vtkPolyData *output = this->GetOutput();

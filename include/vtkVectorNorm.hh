@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkVectorNorm - generate scalars from euclidean norm of vectors
+// .NAME vtkVectorNorm - generate scalars from Euclidean norm of vectors
 // .SECTION Description
 // vtkVectorNorm is a filter that generates scalar values by computing
 // euclidean norm of vector triplets. Scalars can be normalized 

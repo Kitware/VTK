@@ -66,7 +66,7 @@ public:
   // cell creation/manipulation methods
   void Allocate(int numCells=1000, int extSize=1000);
   int InsertNextCell(int type, vtkIdList& ptIds);
-  int InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE]);
+  int InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE]);
   void SetCells(int *types, vtkCellArray *cells);
   vtkCellArray *GetCells() {return this->Connectivity;};
 

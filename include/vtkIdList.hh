@@ -44,8 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // may represent any type of integer id but usually represent point and
 // cell ids.
 
-#ifndef vtkIdList_h
-#define vtkIdList_h
+#ifndef __vtkIdList_h
+#define __vtkIdList_h
 
 #include "vtkObject.hh"
 #include "vtkIntArray.hh"

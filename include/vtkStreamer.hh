@@ -77,12 +77,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.hh"
 
-#define INTEGRATE_FORWARD 0
-#define INTEGRATE_BACKWARD 1
-#define INTEGRATE_BOTH_DIRECTIONS 2
+#define VTK_INTEGRATE_FORWARD 0
+#define VTK_INTEGRATE_BACKWARD 1
+#define VTK_INTEGRATE_BOTH_DIRECTIONS 2
 
-#define START_FROM_POSITION 0
-#define START_FROM_LOCATION 1
+#define VTK_START_FROM_POSITION 0
+#define VTK_START_FROM_LOCATION 1
 
 typedef struct _vtkStreamPoint {
     float   x[3];    // position 
@@ -150,13 +150,13 @@ public:
 
   // Description:
   // Specify the maximum length of the Streamer expressed in elapsed time.
-  vtkSetClampMacro(MaximumPropagationTime,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(MaximumPropagationTime,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MaximumPropagationTime,float);
 
   // Description:
   // Specify the direction in which to integrate the Streamer.
   vtkSetClampMacro(IntegrationDirection,int,
-                  INTEGRATE_FORWARD,INTEGRATE_BOTH_DIRECTIONS);
+                  VTK_INTEGRATE_FORWARD,VTK_INTEGRATE_BOTH_DIRECTIONS);
   vtkGetMacro(IntegrationDirection,int);
 
   // Description:
@@ -175,7 +175,7 @@ public:
   // Description:
   // Set/get terminal speed (i.e., speed is velocity magnitude).  Terminal 
   // speed is speed at which streamer will terminate propagation.
-  vtkSetClampMacro(TerminalSpeed,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(TerminalSpeed,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(TerminalSpeed,float);
 
   // Description:

@@ -58,12 +58,12 @@ public:
 
   // Description:
   // Set the minimum speed value.
-  vtkSetClampMacro(MinimumSpeed,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(MinimumSpeed,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MinimumSpeed,float);
 
   // Description:
   // Set the maximum speed value.
-  vtkSetClampMacro(MaximumSpeed,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(MaximumSpeed,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(MaximumSpeed,float);
 
 protected:

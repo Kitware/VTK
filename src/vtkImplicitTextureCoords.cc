@@ -97,8 +97,8 @@ void vtkImplicitTextureCoords::Execute()
 //
   for (i=0; i<3; i++) //initialize min/max values array
     {
-    min[i] = LARGE_FLOAT;
-    max[i] = -LARGE_FLOAT;
+    min[i] = VTK_LARGE_FLOAT;
+    max[i] = -VTK_LARGE_FLOAT;
     }
   for (ptId=0; ptId<numPts; ptId++) //compute texture coordinates
     {

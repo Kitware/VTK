@@ -64,7 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToPolyFilter.hh"
 
-#define MAX_CONTOURS 256
+#define VTK_MAX_CONTOURS 256
 
 class vtkContourFilter : public vtkDataSetToPolyFilter
 {
@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Return array of contour values (size of numContours).
-  vtkGetVectorMacro(Values,float,MAX_CONTOURS);
+  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
 
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
@@ -85,7 +85,7 @@ public:
 protected:
   void Execute();
 
-  float Values[MAX_CONTOURS];
+  float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
 };

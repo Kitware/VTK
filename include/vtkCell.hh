@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkPolyData, vtkUnstructuredGrid), and in some cases, the datasets are 
 // implicitly composed of cells (e.g., vtkStructuredPoints).
 // .SECTION Caveats
-// The #define parameter MAX_CELL_SIZE represents the maximum number of points
+// The #define VTK_MAX_CELL_SIZE represents the maximum number of points
 // that a cell can have. This parameter is used throughout the code to specify
 // sizes of arrays and other structures. As a programmer you must make sure
 // that you do not create cells with more than this number of points. (The 
@@ -57,8 +57,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCell_h
 #define __vtkCell_h
 
-#define MAX_CELL_SIZE 512
-#define TOL 1.e-05 // Tolerance for geometric calculation
+#define VTK_MAX_CELL_SIZE 512
+#define VTK_TOL 1.e-05 // Tolerance for geometric calculation
 
 #include "vtkObject.hh"
 #include "vtkFloatPoints.hh"
@@ -142,12 +142,12 @@ public:
   // the cell. Thus the value dist2 may be checked to determine true in/out.
   virtual int EvaluatePosition(float x[3], float closestPoint[3], 
                                int& subId, float pcoords[3], 
-                               float& dist2, float weights[MAX_CELL_SIZE]) = 0;
+                               float& dist2, float weights[VTK_MAX_CELL_SIZE]) = 0;
 
   // Description:
   // Determine global coordinate from subId and parametric coordinates
   virtual void EvaluateLocation(int& subId, float pcoords[3], 
-                                float x[3], float weights[MAX_CELL_SIZE]) = 0;
+                                float x[3], float weights[VTK_MAX_CELL_SIZE]) = 0;
 
   // Description:
   // Generate contouring primitives.

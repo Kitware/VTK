@@ -51,10 +51,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataSetToUnstructuredGridFilter.hh"
 
-#define EXTRACT_POINT_SEEDED_REGIONS 1
-#define EXTRACT_CELL_SEEDED_REGIONS 2
-#define EXTRACT_SPECIFIED_REGIONS 3
-#define EXTRACT_LARGEST_REGION 4
+#define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
+#define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
+#define VTK_EXTRACT_SPECIFIED_REGIONS 3
+#define VTK_EXTRACT_LARGEST_REGION 4
 
 class vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
@@ -82,7 +82,7 @@ public:
   // Description:
   // Extraction algorithm works recursively. In some systems the stack depth
   // is limited. This methods specifies the maximum recursion depth.
-  vtkSetClampMacro(MaxRecursionDepth,int,10,LARGE_INTEGER);
+  vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
   vtkGetMacro(MaxRecursionDepth,int);
 
   // Description:

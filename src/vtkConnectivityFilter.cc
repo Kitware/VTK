@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with default extraction mode to extract largest regions.
 vtkConnectivityFilter::vtkConnectivityFilter()
 {
-  this->ExtractionMode = EXTRACT_LARGEST_REGION;
+  this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
   this->ColorRegions = 0;
   this->MaxRecursionDepth = 10000;
 }
@@ -62,7 +62,7 @@ void vtkConnectivityFilter::Execute()
   int cellId, i, j, pt;
   int numPts, numCells;
   vtkFloatPoints *newPts;
-  vtkIdList cellIds(MAX_CELL_SIZE), ptIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(VTK_MAX_CELL_SIZE), ptIds(VTK_MAX_CELL_SIZE);
   vtkPointData *pd;
   int id;
   int maxCellsInRegion, largestRegionId;
@@ -103,8 +103,8 @@ void vtkConnectivityFilter::Execute()
   RegionNumber = 0;
   maxCellsInRegion = 0;
 
-  if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS && 
-  this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS ) 
+  if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS && 
+  this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS ) 
     { //visit all cells marking with region number
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -135,7 +135,7 @@ void vtkConnectivityFilter::Execute()
     {
     NumCellsInRegion = 0;
 
-    if ( this->ExtractionMode == EXTRACT_POINT_SEEDED_REGIONS )
+    if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
       {
       for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
         {
@@ -148,7 +148,7 @@ void vtkConnectivityFilter::Execute()
           }
         }
       }
-    else if ( this->ExtractionMode == EXTRACT_CELL_SEEDED_REGIONS )
+    else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
       {
       for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
         {
@@ -198,8 +198,8 @@ void vtkConnectivityFilter::Execute()
 //
 // Create output cells
 //
-  if ( this->ExtractionMode == EXTRACT_POINT_SEEDED_REGIONS ||
-  this->ExtractionMode == EXTRACT_CELL_SEEDED_REGIONS )
+  if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
+  this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
     { // extract any cell that's been visited
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -215,7 +215,7 @@ void vtkConnectivityFilter::Execute()
         }
       }
     }
-  else if ( this->ExtractionMode == EXTRACT_SPECIFIED_REGIONS )
+  else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS )
     {
     for (cellId=0; cellId < numCells; cellId++)
       {
@@ -318,10 +318,10 @@ int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 // Set the extraction mode to extract regions sharing specified point ids.
 void vtkConnectivityFilter::ExtractPointSeededRegions()
 {
-  if ( this->ExtractionMode != EXTRACT_POINT_SEEDED_REGIONS )
+  if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS )
     {
     this->Modified();
-    this->ExtractionMode = EXTRACT_POINT_SEEDED_REGIONS;
+    this->ExtractionMode = VTK_EXTRACT_POINT_SEEDED_REGIONS;
     }
 }
 
@@ -329,10 +329,10 @@ void vtkConnectivityFilter::ExtractPointSeededRegions()
 // Set the extraction mode to extract regions sharing specified cell ids.
 void vtkConnectivityFilter::ExtractCellSeededRegions()
 {
-  if ( this->ExtractionMode != EXTRACT_CELL_SEEDED_REGIONS )
+  if ( this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS )
     {
     this->Modified();
-    this->ExtractionMode = EXTRACT_CELL_SEEDED_REGIONS;
+    this->ExtractionMode = VTK_EXTRACT_CELL_SEEDED_REGIONS;
     }
 }
 
@@ -341,10 +341,10 @@ void vtkConnectivityFilter::ExtractCellSeededRegions()
 // have to execute filter first to determine region ids.
 void vtkConnectivityFilter::ExtractSpecifiedRegions()
 {
-  if ( this->ExtractionMode != EXTRACT_SPECIFIED_REGIONS )
+  if ( this->ExtractionMode != VTK_EXTRACT_SPECIFIED_REGIONS )
     {
     this->Modified();
-    this->ExtractionMode = EXTRACT_SPECIFIED_REGIONS;
+    this->ExtractionMode = VTK_EXTRACT_SPECIFIED_REGIONS;
     }
 }
 
@@ -352,10 +352,10 @@ void vtkConnectivityFilter::ExtractSpecifiedRegions()
 // Set the extraction mode to extract the largest region found.
 void vtkConnectivityFilter::ExtractLargestRegion()
 {
-  if ( this->ExtractionMode != EXTRACT_LARGEST_REGION )
+  if ( this->ExtractionMode != VTK_EXTRACT_LARGEST_REGION )
     {
     this->Modified();
-    this->ExtractionMode = EXTRACT_LARGEST_REGION;
+    this->ExtractionMode = VTK_EXTRACT_LARGEST_REGION;
     }
 }
 
@@ -414,16 +414,16 @@ void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extraction Mode: ";
   switch (this->ExtractionMode)
     {
-    case EXTRACT_POINT_SEEDED_REGIONS:
+    case VTK_EXTRACT_POINT_SEEDED_REGIONS:
       os << "(Extract point seeded regions)\n";
       break;
-    case EXTRACT_CELL_SEEDED_REGIONS:
+    case VTK_EXTRACT_CELL_SEEDED_REGIONS:
       os << "(Extract cell seeded regions)\n";
       break;
-    case EXTRACT_SPECIFIED_REGIONS:
+    case VTK_EXTRACT_SPECIFIED_REGIONS:
       os << "(Extract specified regions)\n";
       break;
-    case EXTRACT_LARGEST_REGION:
+    case VTK_EXTRACT_LARGEST_REGION:
       os << "(Extract largest region)\n";
       break;
     }

@@ -102,33 +102,33 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
   // 
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: // cellId can only be = 0
+    case VTK_SINGLE_POINT: // cellId can only be = 0
       iMin = iMax = jMin = jMax = kMin = kMax = 0;
       cell = &vertex;
       break;
 
-    case X_LINE:
+    case VTK_X_LINE:
       jMin = jMax = kMin = kMax = 0;
       iMin = cellId;
       iMax = cellId + 1;
       cell = &line;
       break;
 
-    case Y_LINE:
+    case VTK_Y_LINE:
       iMin = iMax = kMin = kMax = 0;
       jMin = cellId;
       jMax = cellId + 1;
       cell = &line;
       break;
 
-    case Z_LINE:
+    case VTK_Z_LINE:
       iMin = iMax = jMin = jMax = 0;
       kMin = cellId;
       kMax = cellId + 1;
       cell = &line;
       break;
 
-    case XY_PLANE:
+    case VTK_XY_PLANE:
       kMin = kMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
@@ -137,7 +137,7 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       cell = &pixel;
       break;
 
-    case YZ_PLANE:
+    case VTK_YZ_PLANE:
       iMin = iMax = 0;
       jMin = cellId % (this->Dimensions[1]-1);
       jMax = jMin + 1;
@@ -146,7 +146,7 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       cell = &pixel;
       break;
 
-    case XZ_PLANE:
+    case VTK_XZ_PLANE:
       jMin = jMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
@@ -155,7 +155,7 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       cell = &pixel;
       break;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       iMin = cellId % (this->Dimensions[0] - 1);
       iMax = iMin + 1;
       jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
@@ -193,44 +193,44 @@ float *vtkStructuredPoints::GetPoint(int ptId)
   
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: 
+    case VTK_SINGLE_POINT: 
       loc[0] = loc[1] = loc[2] = 0;
       break;
 
-    case X_LINE:
+    case VTK_X_LINE:
       loc[1] = loc[2] = 0;
       loc[0] = ptId;
       break;
 
-    case Y_LINE:
+    case VTK_Y_LINE:
       loc[0] = loc[2] = 0;
       loc[1] = ptId;
       break;
 
-    case Z_LINE:
+    case VTK_Z_LINE:
       loc[0] = loc[1] = 0;
       loc[2] = ptId;
       break;
 
-    case XY_PLANE:
+    case VTK_XY_PLANE:
       loc[2] = 0;
       loc[0] = ptId % this->Dimensions[0];
       loc[1] = ptId / this->Dimensions[0];
       break;
 
-    case YZ_PLANE:
+    case VTK_YZ_PLANE:
       loc[0] = 0;
       loc[1] = ptId % this->Dimensions[1];
       loc[2] = ptId / this->Dimensions[1];
       break;
 
-    case XZ_PLANE:
+    case VTK_XZ_PLANE:
       loc[1] = 0;
       loc[0] = ptId % this->Dimensions[0];
       loc[2] = ptId / this->Dimensions[0];
       break;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       loc[0] = ptId % this->Dimensions[0];
       loc[1] = (ptId / this->Dimensions[0]) % this->Dimensions[1];
       loc[2] = ptId / (this->Dimensions[0]*this->Dimensions[1]);
@@ -260,7 +260,7 @@ void vtkStructuredPoints::Initialize()
 
 int vtkStructuredPoints::FindCell(float x[3], vtkCell *cell, float tol2, 
                                  int& subId, float pcoords[3],
-                                 float weights[MAX_CELL_SIZE])
+                                 float weights[VTK_MAX_CELL_SIZE])
 {
   int i, loc[3];
   float d, floatLoc[3];
@@ -295,16 +295,16 @@ int vtkStructuredPoints::GetCellType(int cellId)
 {
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: 
+    case VTK_SINGLE_POINT: 
       return vtkVERTEX;
 
-    case X_LINE: case Y_LINE: case Z_LINE:
+    case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE:
       return vtkLINE;
 
-    case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
+    case VTK_XY_PLANE: case VTK_YZ_PLANE: case VTK_XZ_PLANE:
       return vtkPIXEL;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       return vtkVOXEL;
 
     default:

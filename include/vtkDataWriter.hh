@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkWriter.hh"
 #include "vtkDataSet.hh"
 
-#define ASCII 1
-#define BINARY 2
+#define VTK_ASCII 1
+#define VTK_BINARY 2
 
 class vtkDataWriter : public vtkWriter
 {
@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Specify file type (ASCII or BINARY) for vtk data file.
-  vtkSetClampMacro(FileType,int,ASCII,BINARY);
+  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
 
   // Description:

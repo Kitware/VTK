@@ -146,8 +146,8 @@ int vtkDataReader::ReadHeader(FILE *fp)
     return 0;
     }
 
-  if ( !strncmp(this->LowerCase(line),"ascii",5) ) this->FileType = ASCII;
-  else if ( !strncmp(line,"binary",6) ) this->FileType = BINARY;
+  if ( !strncmp(this->LowerCase(line),"ascii",5) ) this->FileType = VTK_ASCII;
+  else if ( !strncmp(line,"binary",6) ) this->FileType = VTK_BINARY;
   else
     {
     vtkErrorMacro(<< "Unrecognized file type: "<< line);
@@ -250,7 +250,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
     {
     vtkIntPoints *points = new vtkIntPoints(numPts);
     int *ptr = points->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(int),3*numPts,fp) != (3*numPts)) )
@@ -281,7 +281,7 @@ int vtkDataReader::ReadPoints(FILE *fp, vtkPointSet *ps, int numPts)
     {
     vtkFloatPoints *points = new vtkFloatPoints(numPts);
     float *ptr = points->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
@@ -353,7 +353,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkBitScalars *scalars = new vtkBitScalars(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),(numPts+1)/8,fp) != ((numPts+1)/8)) )
@@ -384,7 +384,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkUnsignedCharScalars *scalars = new vtkUnsignedCharScalars(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),numPts,fp) != numPts) )
@@ -415,7 +415,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkShortScalars *scalars = new vtkShortScalars(numPts);
     short *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(short),numPts,fp) != numPts) )
@@ -446,7 +446,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkIntScalars *scalars = new vtkIntScalars(numPts);
     int *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(int),numPts,fp) != numPts) )
@@ -477,7 +477,7 @@ int vtkDataReader::ReadScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkFloatScalars *scalars = new vtkFloatScalars(numPts);
     float *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(int),numPts,fp) != numPts) )
@@ -540,7 +540,7 @@ int vtkDataReader::ReadVectorData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkFloatVectors *vectors = new vtkFloatVectors(numPts);
     float *ptr = vectors->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
@@ -602,7 +602,7 @@ int vtkDataReader::ReadNormalData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkFloatNormals *normals = new vtkFloatNormals(numPts);
     float *ptr = normals->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(float),3*numPts,fp) != (3*numPts)) )
@@ -665,7 +665,7 @@ int vtkDataReader::ReadTensorData(FILE *fp, vtkDataSet *ds, int numPts)
     vtkFloatTensors *tensors = new vtkFloatTensors(numPts);
     tensors->SetDimension(3);
     float *ptr = tensors->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(float),9*numPts,fp) != (9*numPts)) )
@@ -731,7 +731,7 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkGraymap *scalars = new vtkGraymap(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),numPts,fp) != numPts) )
@@ -765,7 +765,7 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkAGraymap *scalars = new vtkAGraymap(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),2*numPts,fp) != (2*numPts)) )
@@ -800,7 +800,7 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkPixmap *scalars = new vtkPixmap(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),3*numPts,fp) != (3*numPts)) )
@@ -836,7 +836,7 @@ int vtkDataReader::ReadCoScalarData(FILE *fp, vtkDataSet *ds, int numPts)
     {
     vtkAPixmap *scalars = new vtkAPixmap(numPts);
     unsigned char *ptr = scalars->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),4*numPts,fp) != (4*numPts)) )
@@ -911,7 +911,7 @@ int vtkDataReader::ReadTCoordsData(FILE *fp, vtkDataSet *ds, int numPts)
     vtkFloatTCoords *tcoords = new vtkFloatTCoords(numPts);
     tcoords->SetDimension(dim);
     float *ptr = tcoords->WritePtr(0,numPts);
-    if ( this->FileType == BINARY)
+    if ( this->FileType == VTK_BINARY)
       {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(float),dim*numPts,fp) != (dim*numPts)) )
@@ -976,7 +976,7 @@ int vtkDataReader::ReadLutData(FILE *fp, vtkDataSet *ds)
   lut = new vtkLookupTable(size);
   ptr = lut->WritePtr(0,size);
 
-  if ( this->FileType == BINARY)
+  if ( this->FileType == VTK_BINARY)
     {
       if ( (fgets(line,256,fp) == NULL) || //suck up newline
       (fread(ptr,sizeof(unsigned char),4*size,fp) != (4*size)) )
@@ -1014,7 +1014,7 @@ int vtkDataReader::ReadCells(FILE *fp, int size, int *data)
   char line[257];
   int i, retStat;
 
-  if ( this->FileType == BINARY)
+  if ( this->FileType == VTK_BINARY)
     {
     if ( (fgets(line,256,fp) == NULL) || //suck up newline
     (fread(data,sizeof(int),size,fp) != size) )
@@ -1065,7 +1065,7 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     os << indent << "Filename: (None)\n";
 
-  if ( this->FileType == BINARY )
+  if ( this->FileType == VTK_BINARY )
     os << indent << "File Type: BINARY\n";
   else
     os << indent << "File Type: ASCII\n";

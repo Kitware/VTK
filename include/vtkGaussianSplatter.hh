@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Multiply Gaussian splat distribution by this value.
-  vtkSetClampMacro(ScaleFactor,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(ScaleFactor,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(ScaleFactor,float);
 
   // Description:
@@ -86,7 +86,7 @@ public:
   // Control the shape of elliptical splatting. Eccentricity is the ratio
   // of the major axis (aligned along normal) to the minor (axes) aligned
   // along other two axes.
-  vtkSetClampMacro(Eccentricity,float,0.001,LARGE_FLOAT);
+  vtkSetClampMacro(Eccentricity,float,0.001,VTK_LARGE_FLOAT);
   vtkGetMacro(Eccentricity,float);
 
   // Description:

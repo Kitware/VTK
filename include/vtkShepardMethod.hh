@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkShepardMethod - sample unstructured points onto structured points using Shepard's method
+// .NAME vtkShepardMethod - sample unstructured points onto structured points using the method of Shepard
 // .SECTION Description
 // vtkShepardMethod is a filter used to visualize unstructured point data using
 // Shepard's method. The method works by resampling the unstructured points 

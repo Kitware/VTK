@@ -61,7 +61,7 @@ vtkHexahedron::vtkHexahedron(const vtkHexahedron& h)
 
 int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
-                                   float& dist2, float weights[MAX_CELL_SIZE])
+                                   float& dist2, float weights[VTK_MAX_CELL_SIZE])
 {
   int iteration, converged;
   float  params[3];
@@ -219,7 +219,7 @@ void vtkHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
 }
 
 void vtkHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                    float weights[MAX_CELL_SIZE])
+                                    float weights[VTK_MAX_CELL_SIZE])
 {
   int i, j;
   float *pt;
@@ -401,7 +401,7 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   int faceNum;
   static vtkQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
-  t = LARGE_FLOAT;
+  t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)
     {
     pt1 = this->Points.GetPoint(faces[faceNum][0]);

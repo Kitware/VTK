@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Specify the separation of points in terms of absolute time.
-  vtkSetClampMacro(TimeIncrement,float,0.000001,LARGE_FLOAT);
+  vtkSetClampMacro(TimeIncrement,float,0.000001,VTK_LARGE_FLOAT);
   vtkGetMacro(TimeIncrement,float);
 
 protected:

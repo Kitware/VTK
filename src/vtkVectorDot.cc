@@ -90,7 +90,7 @@ void vtkVectorDot::Execute()
 //
 // Compute initial scalars
 //
-  for (min=LARGE_FLOAT,max=(-LARGE_FLOAT),ptId=0; ptId < numPts; ptId++)
+  for (min=VTK_LARGE_FLOAT,max=(-VTK_LARGE_FLOAT),ptId=0; ptId < numPts; ptId++)
     {
     n = inNormals->GetNormal(ptId);
     v = inVectors->GetVector(ptId);

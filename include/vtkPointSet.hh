@@ -68,7 +68,7 @@ public:
   float *GetPoint(int ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(int ptId, float x[3]) {this->Points->GetPoint(ptId,x);};
   int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
-               float pcoords[3], float weights[MAX_CELL_SIZE]);
+               float pcoords[3], float weights[VTK_MAX_CELL_SIZE]);
 
   unsigned long int GetMTime();
 

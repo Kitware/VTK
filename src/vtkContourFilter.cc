@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0.
 vtkContourFilter::vtkContourFilter()
 {
-  for (int i=0; i<MAX_CONTOURS; i++) this->Values[i] = 0.0;
+  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
   this->NumberOfContours = 1;
   this->Range[0] = 0.0;
   this->Range[1] = 1.0;
@@ -59,7 +59,7 @@ vtkContourFilter::vtkContourFilter()
 // between 0<=i<NumberOfContours.
 void vtkContourFilter::SetValue(int i, float value)
 {
-  i = (i >= MAX_CONTOURS ? MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
+  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
   if ( this->Values[i] != value )
     {
     this->Modified();
@@ -88,7 +88,7 @@ void vtkContourFilter::GenerateValues(int numContours, float range[2])
   float val, incr;
   int i;
 
-  numContours = (numContours > MAX_CONTOURS ? MAX_CONTOURS : 
+  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
                  (numContours > 1 ? numContours : 2) );
 
   incr = (range[1] - range[0]) / (numContours-1);
@@ -107,7 +107,7 @@ void vtkContourFilter::Execute()
   int cellId, i;
   vtkIdList *cellPts;
   vtkScalars *inScalars;
-  vtkFloatScalars cellScalars(MAX_CELL_SIZE);
+  vtkFloatScalars cellScalars(VTK_MAX_CELL_SIZE);
   vtkCell *cell;
   float *range, value;
   vtkFloatScalars *newScalars;

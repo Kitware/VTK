@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Set radius of sphere.
-  vtkSetClampMacro(Radius,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(Radius,float);
 
   // Description:

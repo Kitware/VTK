@@ -182,7 +182,7 @@ void vtkPolygon::ComputeNormal(vtkFloatPoints *p, float *n)
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
                                 int& subId, float pcoords[3], 
-                                float& minDist2, float weights[MAX_CELL_SIZE])
+                                float& minDist2, float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -213,7 +213,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     float closest[3];
 
     numPts = this->Points.GetNumberOfPoints();
-    for (minDist2=LARGE_FLOAT,i=0; i<numPts - 1; i++)
+    for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts - 1; i++)
       {
       dist2 = line.DistanceToLine(x,this->Points.GetPoint(i),
                                   this->Points.GetPoint(i+1),t,closest);
@@ -230,7 +230,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkPolygon::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                 float weights[MAX_CELL_SIZE])
+                                 float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -409,7 +409,7 @@ int vtkPolygon::PointInPolygon (float bounds[6], float *x, float *n)
       ray[comps[1]] = math.Random(-rayMag, rayMag);
       ray[maxComp] = -(n[comps[0]]*ray[comps[0]] + 
                         n[comps[1]]*ray[comps[1]]) / n[maxComp];
-      if ( (mag = math.Norm(ray)) > rayMag*TOL ) rayOK = TRUE;
+      if ( (mag = math.Norm(ray)) > rayMag*VTK_TOL ) rayOK = TRUE;
       }
 //
 //  The ray must be appropriately sized.
@@ -473,9 +473,9 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
 {
   int i, success;
   float *bounds, d;
-  int verts[MAX_CELL_SIZE];
+  int verts[VTK_MAX_CELL_SIZE];
   int numVerts=this->PointIds.GetNumberOfIds();
-  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
+  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
 
   bounds = this->GetBounds();
   
@@ -514,7 +514,7 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts, vtkIdList& Tris)
 {
   int i,j;
   int n1, n2;
-  int l1[MAX_CELL_SIZE], l2[MAX_CELL_SIZE];
+  int l1[VTK_MAX_CELL_SIZE], l2[VTK_MAX_CELL_SIZE];
   int fedges[2];
   float max, ar;
   int maxI, maxJ;
@@ -599,7 +599,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 {
   int i, sign;
   float *x, val, absVal, *sPt, *s2Pt, v21[3], sN[3];
-  float den, dist=LARGE_FLOAT;
+  float den, dist=VTK_LARGE_FLOAT;
   void SplitLoop();
 //
 //  Create two loops from the one using the splitting vertices provided.
@@ -701,9 +701,9 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
   int i, success;
   int numVerts=this->Points.GetNumberOfPoints();
   float *bounds, d;
-  int polyVerts[MAX_CELL_SIZE];
+  int polyVerts[VTK_MAX_CELL_SIZE];
   static vtkTriangle tri;
-  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
+  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
   static vtkFloatScalars triScalars(3);
 
   bounds = this->GetBounds();
@@ -761,7 +761,7 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 // Description:
 // Compute interpolation weights using 1/r**2 normalized sum.
 //
-void vtkPolygon::ComputeWeights(float x[3], float weights[MAX_CELL_SIZE])
+void vtkPolygon::ComputeWeights(float x[3], float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   int numPts=this->Points.GetNumberOfPoints();
@@ -796,7 +796,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   float *pt1, *pt2, *pt3, n[3];
   float tol2 = tol*tol;
   float closestPoint[3];
-  float dist2, weights[MAX_CELL_SIZE];
+  float dist2, weights[VTK_MAX_CELL_SIZE];
 
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
@@ -826,9 +826,9 @@ int vtkPolygon::Triangulate(int index, vtkFloatPoints &pts)
 {
   int i, success;
   float *bounds, d;
-  int verts[MAX_CELL_SIZE];
+  int verts[VTK_MAX_CELL_SIZE];
   int numVerts=this->PointIds.GetNumberOfIds();
-  static vtkIdList Tris((MAX_CELL_SIZE-2)*3);
+  static vtkIdList Tris((VTK_MAX_CELL_SIZE-2)*3);
 
   pts.Reset();
 

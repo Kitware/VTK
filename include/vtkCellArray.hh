@@ -123,7 +123,7 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 // Description:
 // Create cells by specifying count, and then adding points one at a time using
 // method InsertCellPoint(). WARNING: it is the user's responsibility not to
-// exceed the maximum allowable points per cell (MAX_CELL_SIZE).
+// exceed the maximum allowable points per cell (VTK_MAX_CELL_SIZE).
 inline int vtkCellArray::InsertNextCell(int npts)
 {
   this->Location = this->Ia.InsertNextValue(npts) + 1;

@@ -88,16 +88,16 @@ int vtkStructuredGrid::GetCellType(int cellId)
 {
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: 
+    case VTK_SINGLE_POINT: 
       return vtkVERTEX;
 
-    case X_LINE: case Y_LINE: case Z_LINE:
+    case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE:
       return vtkLINE;
 
-    case XY_PLANE: case YZ_PLANE: case XZ_PLANE:
+    case VTK_XY_PLANE: case VTK_YZ_PLANE: case VTK_XZ_PLANE:
       return vtkQUAD;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       return vtkHEXAHEDRON;
 
     default:
@@ -127,30 +127,30 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
   // 
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: // cellId can only be = 0
+    case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = &vertex;
       cell->PointIds.InsertId(0,0);
       break;
 
-    case X_LINE:
+    case VTK_X_LINE:
       cell = &line;
       cell->PointIds.InsertId(0,cellId);
       cell->PointIds.InsertId(1,cellId+1);
       break;
 
-    case Y_LINE:
+    case VTK_Y_LINE:
       cell = &line;
       cell->PointIds.InsertId(0,cellId);
       cell->PointIds.InsertId(1,cellId+1);
       break;
 
-    case Z_LINE:
+    case VTK_Z_LINE:
       cell = &line;
       cell->PointIds.InsertId(0,cellId);
       cell->PointIds.InsertId(1,cellId+1);
       break;
 
-    case XY_PLANE:
+    case VTK_XY_PLANE:
       cell = &quad;
       i = cellId % (this->Dimensions[0]-1);
       j = cellId / (this->Dimensions[0]-1);
@@ -164,7 +164,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       cell->PointIds.InsertId(3,idx+offset2);
       break;
 
-    case YZ_PLANE:
+    case VTK_YZ_PLANE:
       cell = &quad;
       j = cellId % (this->Dimensions[1]-1);
       k = cellId / (this->Dimensions[1]-1);
@@ -178,7 +178,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       cell->PointIds.InsertId(3,idx+offset2);
       break;
 
-    case XZ_PLANE:
+    case VTK_XZ_PLANE:
       cell = &quad;
       i = cellId % (this->Dimensions[0]-1);
       k = cellId / (this->Dimensions[0]-1);
@@ -192,7 +192,7 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       cell->PointIds.InsertId(3,idx+offset2);
       break;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       cell = &hexa;
       d01 = this->Dimensions[0]*this->Dimensions[1];
       i = cellId % (this->Dimensions[0] - 1);

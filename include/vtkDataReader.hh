@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkObject.hh"
 #include "vtkPointSet.hh"
 
-#define ASCII 1
-#define BINARY 2
+#define VTK_ASCII 1
+#define VTK_BINARY 2
 
 
 class vtkDataReader : public vtkObject

@@ -252,7 +252,7 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList& ptIds)
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
 int vtkUnstructuredGrid::InsertNextCell(int type, int npts, 
-				       int pts[MAX_CELL_SIZE])
+				       int pts[VTK_MAX_CELL_SIZE])
 {
   this->Connectivity->InsertNextCell(npts,pts);
 

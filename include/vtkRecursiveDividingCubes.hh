@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkRecursiveDividingCubes - create points lying on iso-surface (using recursive approach)
 // .SECTION Description
-// vtkRecursiveDividingCubes is a filter that generates points laying on a 
+// vtkRecursiveDividingCubes is a filter that generates points lying on a 
 // surface of constant scalar value (i.e., an iso-surface). Dense point 
 // clouds (i.e., at screen resolution) will appear as a surface. Less dense 
 // clouds can be used as a source to generate streamlines or to generate 
@@ -75,14 +75,14 @@ public:
 
   // Description:
   // Specify sub-voxel size at which to generate point..
-  vtkSetClampMacro(Distance,float,1.0e-06,LARGE_FLOAT);
+  vtkSetClampMacro(Distance,float,1.0e-06,VTK_LARGE_FLOAT);
   vtkGetMacro(Distance,float);
 
   // Description:
   // Every "Increment" point is added to the list of points. This parameter, if
   // set to a large value, can be used to limit the number of points while
   // retaining good accuracy.
-  vtkSetClampMacro(Increment,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(Increment,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(Increment,int);
 
 protected:

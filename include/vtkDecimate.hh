@@ -84,25 +84,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.hh"
 #include "vtkLine.hh"
 
-#define NUMBER_STATISTICS 12
-#define TOLERANCE 1.0e-05
+#define VTK_NUMBER_STATISTICS 12
+#define VTK_TOLERANCE 1.0e-05
 
-#define MAX_TRIS_PER_VERTEX MAX_CELL_SIZE
-#define MAX_SQUAWKS 10
+#define VTK_MAX_TRIS_PER_VERTEX VTK_MAX_CELL_SIZE
+#define VTK_MAX_SQUAWKS 10
 
-#define COMPLEX_VERTEX 0
-#define SIMPLE_VERTEX 1
-#define BOUNDARY_VERTEX 2
-#define INTERIOR_EDGE_VERTEX 3
-#define CORNER_VERTEX 4
+#define VTK_COMPLEX_VERTEX 0
+#define VTK_SIMPLE_VERTEX 1
+#define VTK_BOUNDARY_VERTEX 2
+#define VTK_INTERIOR_EDGE_VERTEX 3
+#define VTK_CORNER_VERTEX 4
 
-#define ELIMINATED_DISTANCE_TO_PLANE 5
-#define ELIMINATED_DISTANCE_TO_EDGE 6
-#define FAILED_DEGREE_TEST 7
-#define FAILED_NON_MANIFOLD 8
-#define FAILED_ZERO_AREA_TEST 9
-#define FAILED_ZERO_NORMAL_TEST 10
-#define FAILED_TO_TRIANGULATE 11
+#define VTK_ELIMINATED_DISTANCE_TO_PLANE 5
+#define VTK_ELIMINATED_DISTANCE_TO_EDGE 6
+#define VTK_FAILED_DEGREE_TEST 7
+#define VTK_FAILED_NON_MANIFOLD 8
+#define VTK_FAILED_ZERO_AREA_TEST 9
+#define VTK_FAILED_ZERO_NORMAL_TEST 10
+#define VTK_FAILED_TO_TRIANGULATE 11
 
 
 // Special structures for building loops
@@ -195,13 +195,13 @@ public:
   // Description:
   // Specify the maximum number of iterations to attempt. If decimation target
   // is reached first, this value will not be reached.
-  vtkSetClampMacro(MaximumIterations,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(MaximumIterations,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumIterations,int);
 
   // Description:
   // Specify the maximum sub-iterations to perform. If no triangles are deleted
   // in a sub-iteration, the sub-iteration process is stopped.
-  vtkSetClampMacro(MaximumSubIterations,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(MaximumSubIterations,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumSubIterations,int);
   
   // Description:
@@ -240,7 +240,7 @@ public:
   // If the number of triangles connected to a vertex exceeds "Degree", then 
   // the vertex is considered complex and is never deleted. (NOTE: the
   // complexity of the triangulation algorithm is proportional to Degree^2.)
-  vtkSetClampMacro(Degree,int,25,MAX_CELL_SIZE);
+  vtkSetClampMacro(Degree,int,25,VTK_MAX_CELL_SIZE);
   vtkGetMacro(Degree,int);
   
 protected:
@@ -259,7 +259,7 @@ protected:
   int MaximumSubIterations; // maximum non-incrementing passes
   float AspectRatio; // control triangle shape during triangulation
   int Degree; // maximum number of triangles incident on vertex
-  int Stats[NUMBER_STATISTICS]; // keep track of interesting statistics
+  int Stats[VTK_NUMBER_STATISTICS]; // keep track of interesting statistics
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
 
   void CreateOutput(int numPts, int numTris, int numEliminated, 

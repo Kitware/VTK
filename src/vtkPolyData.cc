@@ -523,7 +523,7 @@ void vtkPolyData::Allocate(int numCells, int extSize)
 // the PolyData::Allocate() function has been called first or that vertex,
 // line, polygon, and triangle strip arrays have been supplied.
 // Note: will also insert vtkPIXEL, but converts it to vtkQUAD.
-int vtkPolyData::InsertNextCell(int type, int npts, int pts[MAX_CELL_SIZE])
+int vtkPolyData::InsertNextCell(int type, int npts, int pts[VTK_MAX_CELL_SIZE])
 {
   int id = 0;
 

@@ -98,7 +98,7 @@ public:
   vtkGetMacro(ReadTexture,int)
   vtkBooleanMacro(ReadTexture,int)
 
-  vtkSetClampMacro(PartNumber,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(PartNumber,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(PartNumber,int);
 
 protected:

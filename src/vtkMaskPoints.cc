@@ -46,7 +46,7 @@ vtkMaskPoints::vtkMaskPoints()
   this->OnRatio = 2;
   this->Offset = 0;
   this->RandomMode = 0;
-  this->MaximumNumberOfPoints = LARGE_INTEGER;
+  this->MaximumNumberOfPoints = VTK_LARGE_INTEGER;
 }
 
 void vtkMaskPoints::Execute()

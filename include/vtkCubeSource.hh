@@ -58,17 +58,17 @@ public:
 
   // Description:
   // Set the length of the cube in the x-direction.
-  vtkSetClampMacro(XLength,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(XLength,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(XLength,float);
 
   // Description:
   // Set the length of the cube in the y-direction.
-  vtkSetClampMacro(YLength,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(YLength,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(YLength,float);
 
   // Description:
   // Set the length of the cube in the z-direction.
-  vtkSetClampMacro(ZLength,float,0.0,LARGE_FLOAT);
+  vtkSetClampMacro(ZLength,float,0.0,VTK_LARGE_FLOAT);
   vtkGetMacro(ZLength,float);
 
   // Description:

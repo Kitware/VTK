@@ -62,7 +62,7 @@ void vtkPlaneSource::SetResolution(const int xR, const int yR)
 void vtkPlaneSource::Execute()
 {
   float x[3], tc[2], n[3], xinc, yinc;
-  int pts[MAX_CELL_SIZE];
+  int pts[VTK_MAX_CELL_SIZE];
   int i, j;
   int numPts;
   int numPolys;

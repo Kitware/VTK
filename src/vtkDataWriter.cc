@@ -65,7 +65,7 @@ vtkDataWriter::vtkDataWriter()
 
   this->Header = new char[257];
   strcpy(this->Header,"vtk output");
-  this->FileType = ASCII;
+  this->FileType = VTK_ASCII;
 
   this->ScalarsName = new char[8];
   strcpy(this->ScalarsName,"scalars");
@@ -130,7 +130,7 @@ int vtkDataWriter::WriteHeader(FILE *fp)
   fprintf (fp, "# vtk DataFile Version 1.0\n");
   fprintf (fp, "%s\n", this->Header);
 
-  if ( this->FileType == ASCII )
+  if ( this->FileType == VTK_ASCII )
     fprintf (fp, "ASCII\n");
   else
     fprintf (fp, "BINARY\n");
@@ -217,7 +217,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
   if ( !strcmp(type,"float") )
     {
     fprintf (fp, "float\n");
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       float *p;
       for (i=0; i<numPts; i++)
@@ -240,7 +240,7 @@ int vtkDataWriter::WritePoints(FILE *fp, vtkPoints *points)
     {
     vtkIntPoints *ipoints = (vtkIntPoints *)points;
     fprintf (fp, "int\n");
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       int *p;
       for (i=0; i<numPts; i++)
@@ -287,7 +287,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
     if ( !strcmp(type,"bit") )
       {
       fprintf (fp, "%s bit\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == ASCII )
+      if ( this->FileType == VTK_ASCII )
         {
         float s;
         for (i=0; i<numPts; i++)
@@ -309,7 +309,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
     else if ( !strcmp(type,"unsigned char") )
       {
       fprintf (fp, "%s unsigned_char\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == ASCII )
+      if ( this->FileType == VTK_ASCII )
         {
         unsigned char s;
         for (i=0; i<numPts; i++)
@@ -331,7 +331,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
     else if ( !strcmp(type,"short") )
       {
       fprintf (fp, "%s short\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == ASCII )
+      if ( this->FileType == VTK_ASCII )
         {
         short s;
         for (i=0; i<numPts; i++)
@@ -353,7 +353,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
     else if ( !strcmp(type,"int") )
       {
       fprintf (fp, "%s int\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == ASCII )
+      if ( this->FileType == VTK_ASCII )
         {
         float s;
         for (i=0; i<numPts; i++)
@@ -375,7 +375,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
     else if ( !strcmp(type,"float") )
       {
       fprintf (fp, "%s float\nLOOKUP_TABLE %s\n", this->ScalarsName, name);
-      if ( this->FileType == ASCII )
+      if ( this->FileType == VTK_ASCII )
         {
         float s;
         for (i=0; i<numPts; i++)
@@ -408,7 +408,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
 
     fprintf (fp, "COLOR_SCALARS %s %d\n", this->ScalarsName, nvs);
 
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       if ( nvs == 1) //graymap
         {
@@ -467,7 +467,7 @@ int vtkDataWriter::WriteScalarData(FILE *fp, vtkScalars *scalars, int numPts)
   if ( lut && size > 0 )
     {
     fprintf (fp, "LOOKUP_TABLE %s %d\n", this->LookupTableName, size);
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       float *c;
       for (i=0; i<size; i++)
@@ -498,7 +498,7 @@ int vtkDataWriter::WriteVectorData(FILE *fp, vtkVectors *vectors, int numPts)
   if ( !strcmp(type,"float") )
     {
     fprintf (fp, "%s float\n", this->VectorsName);
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       float *v;
       for (i=0; i<numPts; i++)
@@ -537,7 +537,7 @@ int vtkDataWriter::WriteNormalData(FILE *fp, vtkNormals *normals, int numPts)
   if ( !strcmp(type,"float") )
     {
     fprintf (fp, "%s float\n", this->NormalsName);
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       float *n;
       for (i=0; i<numPts; i++)
@@ -577,7 +577,7 @@ int vtkDataWriter::WriteTCoordData(FILE *fp, vtkTCoords *tcoords, int numPts)
   if ( !strcmp(type,"float") )
     {
     fprintf (fp, "%s float\n", this->TCoordsName);
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       float *tc;
       for (i=0; i<numPts; i++)
@@ -617,7 +617,7 @@ int vtkDataWriter::WriteTensorData(FILE *fp, vtkTensors *tensors, int numPts)
   if ( !strcmp(type,"float") )
     {
     fprintf (fp, "%s float\n", this->TensorsName);
-    if ( this->FileType == ASCII )
+    if ( this->FileType == VTK_ASCII )
       {
       vtkTensor t;
       for (i=0; i<numPts; i++)
@@ -657,7 +657,7 @@ int vtkDataWriter::WriteCells(FILE *fp, vtkCellArray *cells, char *label)
 
   fprintf (fp, "%s %d %d\n", label, ncells, size);
 
-  if ( this->FileType == ASCII )
+  if ( this->FileType == VTK_ASCII )
     {
     int npts, *pts, j;
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
@@ -696,7 +696,7 @@ void vtkDataWriter::PrintSelf(ostream& os, vtkIndent indent)
   else
     os << indent << "Filename: (None)\n";
 
-  if ( this->FileType == BINARY )
+  if ( this->FileType == VTK_BINARY )
     os << indent << "File Type: BINARY\n";
   else
     os << indent << "File Type: ASCII\n";

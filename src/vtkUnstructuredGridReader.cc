@@ -226,7 +226,7 @@ void vtkUnstructuredGridReader::Execute()
           }
 
         types = new int[ncells];
-        if ( this->Reader.GetFileType() == BINARY )
+        if ( this->Reader.GetFileType() == VTK_BINARY )
           {
           if ( (fgets(line,256,fp) == NULL) ||
           (fread(types,sizeof(int),ncells,fp) != ncells) )

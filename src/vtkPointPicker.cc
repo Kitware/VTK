@@ -69,7 +69,7 @@ void vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
 //  Project each point onto ray.  Keep track of the one within the
 //  tolerance and closest to the eye (and within the clipping range).
 //
-  for (minPtId=(-1),tMin=LARGE_FLOAT,ptId=0; ptId<numPts; ptId++) 
+  for (minPtId=(-1),tMin=VTK_LARGE_FLOAT,ptId=0; ptId<numPts; ptId++) 
     {
     p = input->GetPoint(ptId);
 

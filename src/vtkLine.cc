@@ -58,7 +58,7 @@ vtkLine::vtkLine(const vtkLine& l)
 
 int vtkLine::EvaluatePosition(float x[3], float closestPoint[3], 
                              int& subId, float pcoords[3],
-                             float& dist2, float weights[MAX_CELL_SIZE])
+                             float& dist2, float weights[VTK_MAX_CELL_SIZE])
 {
   float *a1, *a2;
   int i;
@@ -79,7 +79,7 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                              float weights[MAX_CELL_SIZE])
+                              float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   float *a1 = this->Points.GetPoint(0);
@@ -131,7 +131,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
 //
 //  Solve the system of equations
 //
-  if ( (det=math.Determinant2x2(sys[0],sys[1])) <= TOL )
+  if ( (det=math.Determinant2x2(sys[0],sys[1])) <= VTK_TOL )
     {
     return ON_LINE;
     }
@@ -240,7 +240,7 @@ float vtkLine::DistanceToLine(float x[3], float p1[3], float p2[3],
   num = p21[0]*(x[0]-p1[0]) + p21[1]*(x[1]-p1[1]) + p21[2]*(x[2]-p1[2]);
   denom = math.Dot(p21,p21);
 
-  if ( (denom = math.Dot(p21,p21)) < fabs(TOL*num) ) //numerically bad!
+  if ( (denom = math.Dot(p21,p21)) < fabs(VTK_TOL*num) ) //numerically bad!
     {
     closest = p1; //arbitrary, point is (numerically) far away
     }

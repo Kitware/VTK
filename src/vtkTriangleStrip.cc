@@ -53,7 +53,7 @@ vtkTriangleStrip::vtkTriangleStrip(const vtkTriangleStrip& ts)
 
 int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
                                       int& subId, float pcoords[3], 
-                                      float& minDist2, float weights[MAX_CELL_SIZE])
+                                      float& minDist2, float weights[VTK_MAX_CELL_SIZE])
 {
   float pc[3], dist2;
   int ignoreId, i, return_status, status;
@@ -64,7 +64,7 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[2] = 0.0;
 
   return_status = 0;
-  for (minDist2=LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-2; i++)
+  for (minDist2=VTK_LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-2; i++)
     {
     weights[i] = 0.0;
     tri.Points.SetPoint(0,this->Points.GetPoint(i));
@@ -97,7 +97,7 @@ int vtkTriangleStrip::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3],
-                                       float weights[MAX_CELL_SIZE])
+                                       float weights[VTK_MAX_CELL_SIZE])
 {
   int i;
   float *pt1 = this->Points.GetPoint(subId);

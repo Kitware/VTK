@@ -45,7 +45,7 @@ vtkStructuredData::vtkStructuredData()
   this->Dimensions[0] = 1;
   this->Dimensions[1] = 1;
   this->Dimensions[2] = 1;
-  this->DataDescription = SINGLE_POINT;
+  this->DataDescription = VTK_SINGLE_POINT;
   
   this->Blanking = 0;
   this->PointVisibility = NULL;
@@ -75,13 +75,13 @@ int vtkStructuredData::GetDataDimension()
 {
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: return 0;
+    case VTK_SINGLE_POINT: return 0;
 
-    case X_LINE: case Y_LINE: case Z_LINE: return 1;
+    case VTK_X_LINE: case VTK_Y_LINE: case VTK_Z_LINE: return 1;
 
-    case XY_PLANE: case YZ_PLANE: case XZ_PLANE: return 2;
+    case VTK_XY_PLANE: case VTK_YZ_PLANE: case VTK_XZ_PLANE: return 2;
 
-    case XYZ_GRID: return 3;
+    case VTK_XYZ_GRID: return 3;
 
     default:
       return -1;                       
@@ -122,23 +122,23 @@ void vtkStructuredData::SetDimensions(int dim[3])
 
     if ( dataDim == 3 )
       {
-      this->DataDescription = XYZ_GRID;
+      this->DataDescription = VTK_XYZ_GRID;
       }
     else if ( dataDim == 2)
       {
-      if ( dim[0] == 1 ) this->DataDescription = YZ_PLANE;
-      else if ( dim[1] == 1 ) this->DataDescription = XZ_PLANE;
-      else this->DataDescription = XY_PLANE;
+      if ( dim[0] == 1 ) this->DataDescription = VTK_YZ_PLANE;
+      else if ( dim[1] == 1 ) this->DataDescription = VTK_XZ_PLANE;
+      else this->DataDescription = VTK_XY_PLANE;
       }
     else if ( dataDim == 1 )
       {
-      if ( dim[0] != 1 ) this->DataDescription = X_LINE;
-      else if ( dim[1] != 1 ) this->DataDescription = Y_LINE;
-      else this->DataDescription = Z_LINE;
+      if ( dim[0] != 1 ) this->DataDescription = VTK_X_LINE;
+      else if ( dim[1] != 1 ) this->DataDescription = VTK_Y_LINE;
+      else this->DataDescription = VTK_Z_LINE;
       }
     else
       {
-      this->DataDescription = SINGLE_POINT;
+      this->DataDescription = VTK_SINGLE_POINT;
       }
 
     this->_Modified();
@@ -239,29 +239,29 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
 
   switch (this->DataDescription)
     {
-    case SINGLE_POINT: // cellId can only be = 0
+    case VTK_SINGLE_POINT: // cellId can only be = 0
       iMin = iMax = jMin = jMax = kMin = kMax = 0;
       break;
 
-    case X_LINE:
+    case VTK_X_LINE:
       jMin = jMax = kMin = kMax = 0;
       iMin = cellId;
       iMax = cellId + 1;
       break;
 
-    case Y_LINE:
+    case VTK_Y_LINE:
       iMin = iMax = kMin = kMax = 0;
       jMin = cellId;
       jMax = cellId + 1;
       break;
 
-    case Z_LINE:
+    case VTK_Z_LINE:
       iMin = iMax = jMin = jMax = 0;
       kMin = cellId;
       kMax = cellId + 1;
       break;
 
-    case XY_PLANE:
+    case VTK_XY_PLANE:
       kMin = kMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
@@ -269,7 +269,7 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
       jMax = jMin + 1;
       break;
 
-    case YZ_PLANE:
+    case VTK_YZ_PLANE:
       iMin = iMax = 0;
       jMin = cellId % (this->Dimensions[1]-1);
       jMax = jMin + 1;
@@ -277,7 +277,7 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
       kMax = kMin + 1;
       break;
 
-    case XZ_PLANE:
+    case VTK_XZ_PLANE:
       jMin = jMax = 0;
       iMin = cellId % (this->Dimensions[0]-1);
       iMax = iMin + 1;
@@ -285,7 +285,7 @@ void vtkStructuredData::_GetCellPoints(int cellId, vtkIdList& ptIds)
       kMax = kMin + 1;
       break;
 
-    case XYZ_GRID:
+    case VTK_XYZ_GRID:
       iMin = cellId % (this->Dimensions[0] - 1);
       iMax = iMin + 1;
       jMin = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);

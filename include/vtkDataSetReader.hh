@@ -43,8 +43,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkDataSetReader is a class that provides instance variables 
 // and methods to read any type of dataset in visualization library format. 
 // The output type of this class will vary depending upon the type of data
-// file. Note: these formats are not standard. Use other more standard 
-// formats when you can.
+// file.
+// .SECTION Caveats
+// These vtk formats are not standard. Use other more standard formats when 
+// you can.
 
 #ifndef __vtkDataSetReader_h
 #define __vtkDataSetReader_h

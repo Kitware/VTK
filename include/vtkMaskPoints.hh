@@ -59,17 +59,17 @@ public:
 
   // Description:
   // Turn on every nth point.
-  vtkSetClampMacro(OnRatio,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(OnRatio,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(OnRatio,int);
 
   // Description:
   // Limit the number of points that can be passed through
-  vtkSetClampMacro(MaximumNumberOfPoints,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(MaximumNumberOfPoints,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(MaximumNumberOfPoints,int);
 
   // Description:
   // Start with this point.
-  vtkSetClampMacro(Offset,int,0,LARGE_INTEGER);
+  vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(Offset,int);
 
   // Description:

@@ -60,7 +60,7 @@ vtkSampleFunction::vtkSampleFunction()
   this->SampleDimensions[2] = 50;
 
   this->Capping = 0;
-  this->CapValue = LARGE_FLOAT;
+  this->CapValue = VTK_LARGE_FLOAT;
 
   this->ImplicitFunction = NULL;
 

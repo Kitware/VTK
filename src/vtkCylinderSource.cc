@@ -59,7 +59,7 @@ void vtkCylinderSource::Execute()
   float xbot[3], tcbot[2], nbot[3];
   float xtop[3], tctop[2], ntop[3];
   int i, idx;
-  int pts[MAX_CELL_SIZE];
+  int pts[VTK_MAX_CELL_SIZE];
   vtkFloatPoints *newPoints; 
   vtkFloatNormals *newNormals;
   vtkFloatTCoords *newTCoords;

@@ -62,7 +62,7 @@ vtkImplicitModeller::vtkImplicitModeller()
   this->SampleDimensions[2] = 50;
 
   this->Capping = 1;
-  this->CapValue = LARGE_FLOAT;
+  this->CapValue = VTK_LARGE_FLOAT;
 }
 
 void vtkImplicitModeller::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -92,7 +92,7 @@ void vtkImplicitModeller::Execute()
   int min[3], max[3];
   float x[3], prevDistance2, distance2;
   int jkFactor;
-  float weights[MAX_CELL_SIZE];
+  float weights[VTK_MAX_CELL_SIZE];
   float closestPoint[3];
   vtkStructuredPoints *output = this->GetOutput();
   float *aspectRatio;
@@ -103,7 +103,7 @@ void vtkImplicitModeller::Execute()
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
   newScalars = new vtkFloatScalars(numPts);
-  for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
+  for (i=0; i<numPts; i++) newScalars->SetScalar(i,VTK_LARGE_FLOAT);
 
   output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();

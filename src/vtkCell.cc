@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Description:
 // Construct cell.
 vtkCell::vtkCell():
-Points(MAX_CELL_SIZE), PointIds(MAX_CELL_SIZE)
+Points(VTK_MAX_CELL_SIZE), PointIds(VTK_MAX_CELL_SIZE)
 {
   this->Points.ReferenceCountingOff();
 }  
@@ -60,6 +60,10 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
     }
 }
  
+#define VTK_RIGHT 0
+#define VTK_LEFT 1
+#define VTK_MIDDLE 2
+
 // Description:
 // Bounding box intersection modified from Graphics Gems Vol I.
 // Note: the intersection ray is assumed normalized such that
@@ -67,9 +71,6 @@ void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 // value if bounding box is hit. Origin[3] starts the ray, dir[3] is the 
 // components of the ray in the x-y-z directions, coord[3] is the location 
 // of hit, and t is the parametric coordinate along line.
-#define RIGHT 0
-#define LEFT 1
-#define MIDDLE 2
 
 char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3], 
                       float coord[3], float& t)
@@ -85,19 +86,19 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
     {
     if ( origin[i] < bounds[2*i] ) 
       {
-      quadrant[i] = LEFT;
+      quadrant[i] = VTK_LEFT;
       candidatePlane[i] = bounds[2*i];
       inside = 0;
       }
     else if ( origin[i] > bounds[2*i+1] ) 
       {
-      quadrant[i] = RIGHT;
+      quadrant[i] = VTK_RIGHT;
       candidatePlane[i] = bounds[2*i+1];
       inside = 0;
       }
     else 
       {
-      quadrant[i] = MIDDLE;
+      quadrant[i] = VTK_MIDDLE;
       }
     }
 //
@@ -109,7 +110,7 @@ char vtkCell::HitBBox (float bounds[6], float origin[3], float dir[3],
 //
   for (i=0; i<3; i++)
     {
-    if ( quadrant[i] != MIDDLE && dir[i] != 0.0 )
+    if ( quadrant[i] != VTK_MIDDLE && dir[i] != 0.0 )
       {
       maxT[i] = (candidatePlane[i]-origin[i]) / dir[i];
       }
@@ -160,8 +161,8 @@ float *vtkCell::GetBounds ()
   int i, j;
   static float bounds[6];
 
-  bounds[0] = bounds[2] = bounds[4] =  LARGE_FLOAT;
-  bounds[1] = bounds[3] = bounds[5] = -LARGE_FLOAT;
+  bounds[0] = bounds[2] = bounds[4] =  VTK_LARGE_FLOAT;
+  bounds[1] = bounds[3] = bounds[5] = -VTK_LARGE_FLOAT;
 
   for (i=0; i<this->Points.GetNumberOfPoints(); i++)
     {

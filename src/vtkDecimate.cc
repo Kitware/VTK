@@ -113,8 +113,8 @@ void vtkDecimate::Execute()
   int numFEdges;
   vtkLocalVertexPtr fedges[2];
   int vtype;
-  vtkLocalVertexPtr verts[MAX_TRIS_PER_VERTEX];
-  vtkLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr verts[VTK_MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   int n1, n2;
   float ar, error;
   int totalEliminated=0;
@@ -123,8 +123,8 @@ void vtkDecimate::Execute()
 
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
-  static vtkVertexArray VertexArray(MAX_TRIS_PER_VERTEX+1);
-  static vtkTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
+  static vtkVertexArray VertexArray(VTK_MAX_TRIS_PER_VERTEX+1);
+  static vtkTriArray TriangleArray(VTK_MAX_TRIS_PER_VERTEX+1);
 
   vtkDebugMacro(<<"Decimating mesh...");
   V = &VertexArray;
@@ -147,7 +147,7 @@ void vtkDecimate::Execute()
     max = ((bounds[2*i+1]-bounds[2*i]) > max ? 
            (bounds[2*i+1]-bounds[2*i]) : max);
 
-  Tolerance = max * TOLERANCE;
+  Tolerance = max * VTK_TOLERANCE;
   error = this->InitialError;
   Distance = error * max;
   Angle = this->InitialFeatureAngle;
@@ -196,7 +196,7 @@ void vtkDecimate::Execute()
     for (sub=0; sub < this->MaximumSubIterations && trisEliminated &&
     reduction < this->TargetReduction; sub++) 
       {
-      for (i=0; i < NUMBER_STATISTICS; i++) this->Stats[i] = 0;
+      for (i=0; i < VTK_NUMBER_STATISTICS; i++) this->Stats[i] = 0;
       trisEliminated = 0;
 //
 //  For every vertex that is used by two or more elements and has a loop
@@ -209,11 +209,11 @@ void vtkDecimate::Execute()
         // compute allowable error for this vertex
         Mesh->GetPoint(ptId,X);
         Error = Distance - VertexError[ptId];
-        MinEdgeError = LARGE_FLOAT;
+        MinEdgeError = VTK_LARGE_FLOAT;
 
         Mesh->GetPointCells(ptId,ncells,cells);
         if ( ncells > 1 && 
-        (vtype=this->BuildLoop(ptId,ncells,cells)) != COMPLEX_VERTEX )
+        (vtype=this->BuildLoop(ptId,ncells,cells)) != VTK_COMPLEX_VERTEX )
           {
 //
 //  Determine the distance of the vertex to an "average plane"
@@ -225,7 +225,7 @@ void vtkDecimate::Execute()
           ContinueTriangulating = 0;
           this->EvaluateLoop (vtype, numFEdges, fedges);
 
-          if ( vtype != COMPLEX_VERTEX ) 
+          if ( vtype != VTK_COMPLEX_VERTEX ) 
             {
             ContinueTriangulating = 1;
             numVerts = V->GetNumberOfVertices();
@@ -235,26 +235,26 @@ void vtkDecimate::Execute()
 //  Note: interior edges can be eliminated if decimation criterion met
 //  and flag set.
 //
-          if ( (vtype == SIMPLE_VERTEX || 
-          ( (vtype == INTERIOR_EDGE_VERTEX || vtype == CORNER_VERTEX) && !this->PreserveEdges)) &&
+          if ( (vtype == VTK_SIMPLE_VERTEX || 
+          ( (vtype == VTK_INTERIOR_EDGE_VERTEX || vtype == VTK_CORNER_VERTEX) && !this->PreserveEdges)) &&
           plane.DistanceToPlane(X,Normal,Pt) <= Error)
             {
             this->Triangulate (numVerts, verts);
-            this->Stats[ELIMINATED_DISTANCE_TO_PLANE]++;
+            this->Stats[VTK_ELIMINATED_DISTANCE_TO_PLANE]++;
 //
 //  If the vertex is on an interior edge, then see whether the
 //  be eliminated based on distance to line (e.g., edge), and it the
 //  loop can be split.  
 //
             } 
-          else if ((vtype == INTERIOR_EDGE_VERTEX || 
-          vtype == BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
+          else if ((vtype == VTK_INTERIOR_EDGE_VERTEX || 
+          vtype == VTK_BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
           line.DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) &&
           this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
             {
             this->Triangulate (n1, l1);
             this->Triangulate (n2, l2);
-            this->Stats[ELIMINATED_DISTANCE_TO_EDGE]++;
+            this->Stats[VTK_ELIMINATED_DISTANCE_TO_EDGE]++;
             } 
           else
             {
@@ -265,7 +265,7 @@ void vtkDecimate::Execute()
             {
             if ( this->CheckError() )
               {
-              if ( vtype == BOUNDARY_VERTEX ) trisEliminated += 1;
+              if ( vtype == VTK_BOUNDARY_VERTEX ) trisEliminated += 1;
               else trisEliminated += 2;
 
               // Update the data structure to reflect deletion of vertex
@@ -302,18 +302,18 @@ void vtkDecimate::Execute()
                    <<"\tDistance = " << Distance << "\n"
                    <<"\tFeature angle = " << Angle << "\n"
                    <<"\nStatistics\n"
-                   <<"\tComplex verts: " << this->Stats[COMPLEX_VERTEX] << "\n"
-                   <<"\tSimple verts: " << this->Stats[SIMPLE_VERTEX] << "\n"
-                   <<"\tBoundary verts: " << this->Stats[BOUNDARY_VERTEX] << "\n"
-                   <<"\tInterior edge verts: " << this->Stats[INTERIOR_EDGE_VERTEX] << "\n"
-                   <<"\tCorner verts: " << this->Stats[CORNER_VERTEX] << "\n"
-                   <<"\tEliminated via distance to plane: " << this->Stats[ELIMINATED_DISTANCE_TO_PLANE] << "\n"
-                   <<"\tEliminated via distance to edge: " << this->Stats[ELIMINATED_DISTANCE_TO_EDGE] << "\n"
-                   <<"\tFailed degree test: " << this->Stats[FAILED_DEGREE_TEST] << "\n"
-                   <<"\tFailed non-manifold: " << this->Stats[FAILED_NON_MANIFOLD] << "\n"
-                   <<"\tFailed zero area test: " << this->Stats[FAILED_ZERO_AREA_TEST] << "\n"
-                   <<"\tFailed normal test: " << this->Stats[FAILED_ZERO_NORMAL_TEST] << "\n"
-                   <<"\tFailed to triangulate: " << this->Stats[FAILED_TO_TRIANGULATE] << "\n");
+                   <<"\tComplex verts: " << this->Stats[VTK_COMPLEX_VERTEX] << "\n"
+                   <<"\tSimple verts: " << this->Stats[VTK_SIMPLE_VERTEX] << "\n"
+                   <<"\tBoundary verts: " << this->Stats[VTK_BOUNDARY_VERTEX] << "\n"
+                   <<"\tInterior edge verts: " << this->Stats[VTK_INTERIOR_EDGE_VERTEX] << "\n"
+                   <<"\tCorner verts: " << this->Stats[VTK_CORNER_VERTEX] << "\n"
+                   <<"\tEliminated via distance to plane: " << this->Stats[VTK_ELIMINATED_DISTANCE_TO_PLANE] << "\n"
+                   <<"\tEliminated via distance to edge: " << this->Stats[VTK_ELIMINATED_DISTANCE_TO_EDGE] << "\n"
+                   <<"\tFailed degree test: " << this->Stats[VTK_FAILED_DEGREE_TEST] << "\n"
+                   <<"\tFailed non-manifold: " << this->Stats[VTK_FAILED_NON_MANIFOLD] << "\n"
+                   <<"\tFailed zero area test: " << this->Stats[VTK_FAILED_ZERO_AREA_TEST] << "\n"
+                   <<"\tFailed normal test: " << this->Stats[VTK_FAILED_ZERO_NORMAL_TEST] << "\n"
+                   <<"\tFailed to triangulate: " << this->Stats[VTK_FAILED_TO_TRIANGULATE] << "\n");
 
       } //********************* sub iteration ******************************
 
@@ -339,7 +339,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 {
   int *map, numNewPts;
   int i;
-  int newCellPts[MAX_CELL_SIZE];
+  int newCellPts[VTK_MAX_CELL_SIZE];
   unsigned short int ncells;
   int *cells;
   int ptId, cellId, npts, *pts;
@@ -424,7 +424,7 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 {
   int numVerts;
   int numNei;
-  static vtkIdList nei(MAX_TRIS_PER_VERTEX);
+  static vtkIdList nei(VTK_MAX_TRIS_PER_VERTEX);
   vtkLocalTri t;
   vtkLocalVertex sn;
   int i, j, *verts;
@@ -434,11 +434,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   if ( numTris >= this->Degree ) 
     {
-    if ( Squawks++ < MAX_SQUAWKS ) 
+    if ( Squawks++ < VTK_MAX_SQUAWKS ) 
       vtkWarningMacro (<<"Exceeded maximum vertex degree");
-    this->Stats[COMPLEX_VERTEX]++;
-    this->Stats[FAILED_DEGREE_TEST]++;
-    return COMPLEX_VERTEX;
+    this->Stats[VTK_COMPLEX_VERTEX]++;
+    this->Stats[VTK_FAILED_DEGREE_TEST]++;
+    return VTK_COMPLEX_VERTEX;
     }
 //
 //  From the adjacency structure we can find the triangles that use the
@@ -505,15 +505,15 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     {
     if ( T->GetNumberOfTriangles() != numTris ) //touching non-manifold
       {
-      this->Stats[FAILED_NON_MANIFOLD]++;
-      this->Stats[COMPLEX_VERTEX]++;
-      return COMPLEX_VERTEX;
+      this->Stats[VTK_FAILED_NON_MANIFOLD]++;
+      this->Stats[VTK_COMPLEX_VERTEX]++;
+      return VTK_COMPLEX_VERTEX;
       } 
     else  //remove last vertex addition
       {
       V->MaxId -= 1;
-      this->Stats[SIMPLE_VERTEX]++;
-      return SIMPLE_VERTEX;
+      this->Stats[VTK_SIMPLE_VERTEX]++;
+      return VTK_SIMPLE_VERTEX;
       }
     }
 //
@@ -521,11 +521,11 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
 //
   else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
-    if ( Squawks++ < MAX_SQUAWKS ) 
+    if ( Squawks++ < VTK_MAX_SQUAWKS ) 
       vtkWarningMacro(<<"Non-manifold geometry encountered");
-    this->Stats[FAILED_NON_MANIFOLD]++;
-    this->Stats[COMPLEX_VERTEX]++;
-    return COMPLEX_VERTEX;
+    this->Stats[VTK_FAILED_NON_MANIFOLD]++;
+    this->Stats[VTK_COMPLEX_VERTEX]++;
+    return VTK_COMPLEX_VERTEX;
     }
 //
 //  Boundary loop - but (luckily) completed semi-cycle
@@ -537,8 +537,8 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
     V->Array[0].deRefs = 1;
     V->Array[V->MaxId].deRefs = 1;
 
-    this->Stats[BOUNDARY_VERTEX]++;
-    return BOUNDARY_VERTEX;
+    this->Stats[VTK_BOUNDARY_VERTEX]++;
+    return VTK_BOUNDARY_VERTEX;
     }
 //
 //  Hit a boundary but didn't complete semi-cycle.  Gotta go back
@@ -623,16 +623,16 @@ int vtkDecimate::BuildLoop (int ptId, unsigned short int numTris, int *tris)
       V->Array[0].deRefs = 1;
       V->Array[V->MaxId].deRefs = 1;
 
-      this->Stats[BOUNDARY_VERTEX]++;
-      return BOUNDARY_VERTEX;
+      this->Stats[VTK_BOUNDARY_VERTEX]++;
+      return VTK_BOUNDARY_VERTEX;
       } 
     else // non-manifold
       {
-      if ( Squawks++ < MAX_SQUAWKS ) 
+      if ( Squawks++ < VTK_MAX_SQUAWKS ) 
         vtkWarningMacro(<<"Non-manifold geometry encountered");
-      this->Stats[FAILED_NON_MANIFOLD]++;
-      this->Stats[COMPLEX_VERTEX]++;
-      return COMPLEX_VERTEX;
+      this->Stats[VTK_FAILED_NON_MANIFOLD]++;
+      this->Stats[VTK_COMPLEX_VERTEX]++;
+      return VTK_COMPLEX_VERTEX;
       }
     }
 }
@@ -697,8 +697,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 //
   if ( !numNormals || loopArea == 0.0 ) 
     {
-    this->Stats[FAILED_ZERO_AREA_TEST]++;
-    vtype = COMPLEX_VERTEX;
+    this->Stats[VTK_FAILED_ZERO_AREA_TEST]++;
+    vtype = VTK_COMPLEX_VERTEX;
     return;
     }
 
@@ -709,8 +709,8 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
     }
   if ( math.Normalize(Normal) == 0.0 )
     {
-    this->Stats[FAILED_ZERO_NORMAL_TEST]++;
-    vtype = COMPLEX_VERTEX;
+    this->Stats[VTK_FAILED_ZERO_NORMAL_TEST]++;
+    vtype = VTK_COMPLEX_VERTEX;
     return;
     }
 //
@@ -719,7 +719,7 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 //  been set to 180.)  Also need to keep track whether any feature
 //  angles exceed the current value.
 //
-  if ( vtype == BOUNDARY_VERTEX ) 
+  if ( vtype == VTK_BOUNDARY_VERTEX ) 
     {
     numFEdges = 2;
     fedges[0] = V->Array;
@@ -730,7 +730,7 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 //
 //  Compare to cosine of feature angle to avoid cosine extraction
 //
-  if ( vtype == SIMPLE_VERTEX ) // first edge 
+  if ( vtype == VTK_SIMPLE_VERTEX ) // first edge 
     if ( (V->Array[0].FAngle = FEATURE_ANGLE(0,T->MaxId)) <= CosAngle )
       fedges[numFEdges++] = V->Array;
 
@@ -747,15 +747,15 @@ void vtkDecimate::EvaluateLoop (int& vtype, int& numFEdges,
 //
 //  Final classification
 //
-  if ( vtype == SIMPLE_VERTEX && numFEdges == 2 ) 
+  if ( vtype == VTK_SIMPLE_VERTEX && numFEdges == 2 ) 
     {
-    this->Stats[INTERIOR_EDGE_VERTEX]++;
-    vtype = INTERIOR_EDGE_VERTEX;
+    this->Stats[VTK_INTERIOR_EDGE_VERTEX]++;
+    vtype = VTK_INTERIOR_EDGE_VERTEX;
     }
-  else if ( vtype == SIMPLE_VERTEX && numFEdges > 0 ) 
+  else if ( vtype == VTK_SIMPLE_VERTEX && numFEdges > 0 ) 
     {
-    this->Stats[CORNER_VERTEX]++;
-    vtype = CORNER_VERTEX;
+    this->Stats[VTK_CORNER_VERTEX]++;
+    vtype = VTK_CORNER_VERTEX;
     }
 }
 
@@ -770,7 +770,7 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
 {
   int i, sign;
   float *x, val, absVal, sPt[3], v21[3], sN[3];
-  float dist=LARGE_FLOAT;
+  float dist=VTK_LARGE_FLOAT;
 //
 //  See whether creating this edge would duplicate a new edge (this
 //  means collapsing a tunnel)
@@ -872,7 +872,7 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
 {
   int i,j;
   int n1, n2;
-  vtkLocalVertexPtr l1[MAX_TRIS_PER_VERTEX], l2[MAX_TRIS_PER_VERTEX];
+  vtkLocalVertexPtr l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
   vtkLocalVertexPtr fedges[2];
   float max, ar;
   int maxI, maxJ;
@@ -964,7 +964,7 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
         return;
         }
 
-      this->Stats[FAILED_TO_TRIANGULATE]++;
+      this->Stats[VTK_FAILED_TO_TRIANGULATE]++;
       ContinueTriangulating = 0;
 
       return;
@@ -980,7 +980,7 @@ int vtkDecimate::CheckError ()
 //  Loop through triangles computing distance to plane (looking for minimum
 //  perpendicular distance)
 //
-  for (planeError=LARGE_FLOAT, i=0; i < T->GetNumberOfTriangles(); i++) 
+  for (planeError=VTK_LARGE_FLOAT, i=0; i < T->GetNumberOfTriangles(); i++) 
     {
     if ( T->Array[i].verts[0] == -1 ) break;
 

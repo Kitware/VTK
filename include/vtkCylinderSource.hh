@@ -60,17 +60,17 @@ public:
 
   // Description:
   // Set the height of the cylinder.
-  vtkSetClampMacro(Height,float,0.0,LARGE_FLOAT)
+  vtkSetClampMacro(Height,float,0.0,VTK_LARGE_FLOAT)
   vtkGetMacro(Height,float);
 
   // Description:
   // Set the radius of the cylinder.
-  vtkSetClampMacro(Radius,float,0.0,LARGE_FLOAT)
+  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT)
   vtkGetMacro(Radius,float);
 
   // Description:
   // Set the number of facets used to define cylinder.
-  vtkSetClampMacro(Resolution,int,0,MAX_CELL_SIZE)
+  vtkSetClampMacro(Resolution,int,0,VTK_MAX_CELL_SIZE)
   vtkGetMacro(Resolution,int);
 
   // Description:

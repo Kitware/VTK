@@ -85,7 +85,7 @@ void vtkPolyNormals::Execute()
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
-  vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(VTK_MAX_CELL_SIZE);
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -304,7 +304,7 @@ void vtkPolyNormals::TraverseAndOrder (int cellId)
   int p1, p2;
   int j, k, l;
   int npts, *pts;
-  vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(VTK_MAX_CELL_SIZE);
   int numNeiPts, *neiPts, neighbor;
 
   Visited[cellId] = Mark; //means that it's been ordered properly
@@ -365,7 +365,7 @@ void vtkPolyNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
   float *thisNormal, *neiNormal;
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
-  vtkIdList cellIds(MAX_CELL_SIZE);
+  vtkIdList cellIds(VTK_MAX_CELL_SIZE);
   vtkMath math;
 
   Visited[cellId] = Mark;

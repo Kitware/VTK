@@ -68,7 +68,7 @@ public:
 
   // Description:
   // Divide line into resolution number of pieces.
-  vtkSetClampMacro(Resolution,int,1,LARGE_INTEGER);
+  vtkSetClampMacro(Resolution,int,1,VTK_LARGE_INTEGER);
   vtkGetMacro(Resolution,int);
 
 protected:

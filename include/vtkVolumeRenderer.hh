@@ -42,11 +42,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkVolumeRenderer handles volume data much like the vtkRenderer handles
 // polygonal data. A vtkVolumeRenderer renders its image during the normal
-// rendering cycle, after the Renderer has rendered its surfaces, but
+// rendering cycle, after the renderer has rendered its surfaces, but
 // before any doublebuffer switching is done. Many of the attributes this
-// object requires for rendering are obtained from the Renderer which
-// invokes its Render method. This object must be associated with a Renderer
-// in order to work.
+// object requires for rendering are obtained from the renderer which
+// invokes its Render() method. This object must be associated with a 
+// renderer in order to work.
 
 // .SECTION see also
 // vtkRenderer vtkVolume
