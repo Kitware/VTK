@@ -64,7 +64,7 @@ static unsigned char unknownAtomColor[3] = {0,255,0};
 static float atomPos[MAXATOM][3];
 static float atomVal[MAXATOM];
 
-#define MAXBOND 1000
+#define MAXBOND 10000
 static int bondAtomIdx[MAXBOND][2];
 vtkLineSource *bond[MAXBOND];
 vtkTubeFilter *bondTube[MAXBOND];
