@@ -63,10 +63,6 @@ vtkXYPlotActor.cxx
 vtkXYPlotWidget.cxx
 )
 
-IF(OPENGL_GLU_FOUND)
-  SET(Kit_SRCS ${Kit_SRCS} vtkGLUTesselatorTriangleFilter.cxx)
-ENDIF(OPENGL_GLU_FOUND)
-
 SET_SOURCE_FILES_PROPERTIES(
 vtk3DWidget
 vtkPolyDataSourceWidget
