@@ -565,6 +565,7 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
   
   // reslice axes matrix is identity by default
   double matrix[4][4];
+  double imatrix[4][4];
   for (i = 0; i < 4; i++)
     {
     matrix[i][0] = matrix[i][1] = matrix[i][2] = matrix[i][3] = 0;
@@ -573,11 +574,21 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
   if (this->ResliceAxes)
     {
     vtkMatrix4x4::DeepCopy(*matrix, this->ResliceAxes);
+    vtkMatrix4x4::Invert(*matrix,*imatrix);
     }
 
   if (this->AutoCropOutput)
     {
     this->GetAutoCroppedOutputBounds(input, maxBounds);
+    }
+
+  // pass the center of the volume through the inverse of the
+  // 3x3 direction cosines matrix
+  double inCenter[3];
+  for (i = 0; i < 3; i++)
+    {
+    inCenter[i] = inOrigin[i] + \
+      0.5*(inWholeExt[2*i] + inWholeExt[2*i+1])*inSpacing[i];
     }
 
   // the default spacing, extent and origin are the input spacing, extent
@@ -589,12 +600,14 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
     double s = 0;  // default output spacing 
     double d = 0;  // default linear dimension
     double e = 0;  // default extent start
+    double c = 0;  // transformed center-of-volume
 
     if (this->TransformInputSampling)
       {
       double r = 0.0;
       for (j = 0; j < 3; j++)
 	{
+	c += imatrix[i][j]*(inCenter[j] - matrix[j][3]);
 	double tmp = fabs(matrix[j][i]);
 	s += tmp*fabs(inSpacing[j]);
 	d += tmp*(inWholeExt[2*j+1] - inWholeExt[2*j])*fabs(inSpacing[j]);
@@ -655,8 +668,6 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
 	}
       else
 	{ // center new bounds over center of input bounds
-	double c = inOrigin[i] - matrix[i][3] + \
-	  0.5*(inWholeExt[2*i] + inWholeExt[2*i+1])*inSpacing[i];
 	outOrigin[i] = c - \
 	  0.5*(outWholeExt[2*i] + outWholeExt[2*i+1])*outSpacing[i];
 	}
