@@ -49,6 +49,8 @@
 #-----------------------------------------------------------------------------
 # Instructions to use this script:
 #
+# CMake version 2.0.x is required, but 2.0.5 or better is preferred.
+#
 # Set the current working directory to the top of a source tree and
 # run this script with this command:
 #
@@ -58,6 +60,10 @@
 # Each line will consist of a file name and a partial method
 # signature.  Note that Set/Get macros are capable of producing
 # methods that might be mangled.  These are also listed.
+
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.0)
+  MESSAGE(FATAL_ERROR "CMake 2.0 or higher is required for this script.")
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.0)
 
 # List of symbols that might be mangled.
 SET(SYMBOLS
