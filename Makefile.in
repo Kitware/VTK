@@ -129,6 +129,7 @@ install_contrib:
 do_install_tcl_java: do_install_tcl
 
 do_install_java:
+	cd java; 	${MAKE} -${MAKEFLAGS} install
 
 do_install:
 
