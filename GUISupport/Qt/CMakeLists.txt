@@ -4,31 +4,44 @@ INCLUDE( ${CMAKE_ROOT}/Modules/FindQt.cmake )
 
 # set up sources to build
 SET ( QVTKLibSrcs
-    QVTKWidget.cxx)
+    QVTKWidget.cxx
+    vtkEventQtSlotConnect.cxx)
+
 SET ( QVTKMocHeaders
     QVTKWidget.h)
+
+SET ( QVTKExtraMoc
+    vtkEventQtSlotConnect.cxx)
+
 SET ( PluginLibSrcs
     QVTKWidget.cxx
     QVTKWidgetPlugin.cxx)
+
 SET ( PluginMocHeaders
     QVTKWidget.h)
 
 # CMake apparently doesn't do this automatically
 SET_SOURCE_FILES_PROPERTIES(QVTKWidgetPlugin.cxx PROPERTIES 
-                           OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
+                            OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
-# assuming a Qt dll
+# help CMake with this generated moc file
+SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
+                            OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
+
+# assuming a Qt dll, otherwise plugins aren't possible
 ADD_DEFINITIONS(-DQT_DLL -DQT_PLUGIN)
 
-# a multithreaded Qt dll
+# check for a multithreaded Qt dll
 IF(QT_QT_LIBRARY MATCHES "mt")
   ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
 ENDIF(QT_QT_LIBRARY MATCHES "mt")
 
 # include Qt
 INCLUDE_DIRECTORIES ( ${QT_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
 QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
+QT_WRAP_CPP ( QVTK QVTKLibExtraMocSrcs ${QVTKExtraMoc} )
 QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
 
 ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
@@ -46,6 +59,7 @@ ADD_LIBRARY ( QVTKWidgetPlugin
   ${PluginLibSrcs}
   ${PluginMocSrcs}
 )
+
 TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
   ${QT_QT_LIBRARY}
   vtkRendering
@@ -56,6 +70,9 @@ TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
 )
 
 # install rules
+
+# install at /plugins/designer allows one to set their designer plugin path
+# in the designer preferences to the vtk-install/plugins directory.
 INSTALL_TARGETS( /plugins/designer QVTKWidgetPlugin )
 
 IF ( UNIX )
@@ -64,8 +81,6 @@ IF ( UNIX )
                      DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
 ENDIF ( UNIX )
 
-
-
-INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} QVTKWidget.h)
+INSTALL_FILES( ${VTK_INSTALL_INCLUDE_DIR} .h ${QVTKLibSrcs})
 INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
 

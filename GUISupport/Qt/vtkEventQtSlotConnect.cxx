@@ -31,6 +31,51 @@
 
 #include "qobject.h"
 
+// class for managing a single VTK/Qt connection
+class vtkQtConnection : public QObject, public vtkCommand
+{
+  Q_OBJECT
+  
+  public:
+    
+    // standard new
+    static vtkQtConnection* New();
+    vtkTypeMacro(vtkQtConnection, vtkCommand)
+    void PrintSelf(ostream& os, vtkIndent indent);
+    
+    // callback from VTK to emit signal
+    void Execute(vtkObject* caller, unsigned long event, void* client_data);
+    
+    // set the connection
+    void SetConnection(vtkObject* vtk_obj, unsigned long event,
+                       QObject* qt_obj, const char* slot, void* client_data, float priority=0.0);
+    
+    // check if a connection matches input parameters
+    bool IsConnection(vtkObject* vtk_obj, unsigned long event,
+                      QObject* qt_obj, const char* slot);
+    
+  signals:
+    // the qt signal for moc to take care of
+    void EmitExecute(vtkObject*, unsigned long, void* client_data, vtkCommand*);
+
+  protected:
+    
+    // constructor
+    vtkQtConnection();
+
+    // destructor, disconnect if necessary
+    ~vtkQtConnection();
+    
+    // the connection information
+    vtkObject* VTKObject;
+    QObject* QtObject;
+    void* ClientData;
+    unsigned long VTKEvent;
+    QString QtSlot;
+
+};
+
+#include "moc_vtkEventQtSlotConnect.cxx"
 
 // standard new
 vtkQtConnection* vtkQtConnection::New()
@@ -46,9 +91,9 @@ vtkQtConnection::vtkQtConnection()
 // destructor, disconnect if necessary
 vtkQtConnection::~vtkQtConnection() 
 {
-  if(mVTKObject)
+  if(VTKObject)
   {
-    mVTKObject->RemoveObserver(this);
+    VTKObject->RemoveObserver(this);
     //Qt takes care of disconnecting slots
   }
 }
@@ -57,31 +102,31 @@ vtkQtConnection::~vtkQtConnection()
 void vtkQtConnection::Execute(vtkObject* caller, unsigned long event, void*)
 {
   if(event != vtkCommand::DeleteEvent || 
-     event == vtkCommand::DeleteEvent && mVTKEvent == vtkCommand::DeleteEvent)
+     event == vtkCommand::DeleteEvent && VTKEvent == vtkCommand::DeleteEvent)
     {
-    emit emitExecute(caller, event, mClientData, this);
+    emit EmitExecute(caller, event, ClientData, this);
     }
   
   if(event == vtkCommand::DeleteEvent)
     {
-    mVTKObject->RemoveObserver(this);
-    mVTKObject = NULL;
+    VTKObject->RemoveObserver(this);
+    VTKObject = NULL;
     }
 }
 
 bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
                   QObject* qt_obj, const char* slot)
 {
-  if(mVTKObject != vtk_obj)
+  if(VTKObject != vtk_obj)
     return false;
 
-  if(event != vtkCommand::NoEvent && event != mVTKEvent)
+  if(event != vtkCommand::NoEvent && event != VTKEvent)
     return false;
 
-  if(qt_obj && qt_obj != mQtObject)
+  if(qt_obj && qt_obj != QtObject)
     return false;
 
-  if(slot && mQtSlot != slot)
+  if(slot && QtSlot != slot)
     return false;
 
   return true;
@@ -92,11 +137,11 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
                    QObject* qt_obj, const char* slot, void* client_data, float priority)
 {
   // keep track of what we connected
-  mVTKObject = vtk_obj;
-  mQtObject = qt_obj;
-  mVTKEvent = event;
-  mClientData = client_data;
-  mQtSlot = slot;
+  VTKObject = vtk_obj;
+  QtObject = qt_obj;
+  VTKEvent = event;
+  ClientData = client_data;
+  QtSlot = slot;
 
   // make a connection between this and the vtk object
   vtk_obj->AddObserver(event, this, priority);
@@ -107,33 +152,40 @@ void vtkQtConnection::SetConnection(vtkObject* vtk_obj, unsigned long event,
     }
 
   // make a connection between this and the Qt object
-  qt_obj->connect(this, SIGNAL(emitExecute(vtkObject*,unsigned long,void*,vtkCommand*)), slot);
+  qt_obj->connect(this, SIGNAL(EmitExecute(vtkObject*,unsigned long,void*,vtkCommand*)), slot);
 }
 
+void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
+{
+  os << indent << 
+        this->VTKObject->GetClassName() << ":" <<
+        vtkCommand::GetStringFromEventId(this->VTKEvent) << 
+        "  <---->  " << this->QtObject->className() << "::" << this->QtSlot << "\n";
+}
       
 
 // hold all the connections
-class vtkEventQtSlotConnectPrivate : public vtkstd::vector< vtkQtConnection* > {};
+class vtkQtConnections : public vtkstd::vector< vtkQtConnection* > {};
 
 vtkStandardNewMacro(vtkEventQtSlotConnect)
 
 // constructor
 vtkEventQtSlotConnect::vtkEventQtSlotConnect()
 {
-  mPrivate = new vtkEventQtSlotConnectPrivate;
+  Connections = new vtkQtConnections;
 }
 
 
 vtkEventQtSlotConnect::~vtkEventQtSlotConnect()
 {
   // clean out connections
-  vtkEventQtSlotConnectPrivate::iterator iter;
-  for(iter=mPrivate->begin(); iter!=mPrivate->end(); ++iter)
+  vtkQtConnections::iterator iter;
+  for(iter=Connections->begin(); iter!=Connections->end(); ++iter)
     {
     (*iter)->Delete();
     }
 
-  delete mPrivate;
+  delete Connections;
 }
 
 void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
@@ -141,6 +193,7 @@ void vtkEventQtSlotConnect::Connect(vtkObject* vtk_obj, unsigned long event,
 {
   vtkQtConnection* connection = vtkQtConnection::New();
   connection->SetConnection(vtk_obj, event, qt_obj, slot, client_data, priority);
+  Connections->push_back(connection);
 }
 
 
@@ -151,18 +204,36 @@ void vtkEventQtSlotConnect::Disconnect(vtkObject* vtk_obj, unsigned long event,
   if(slot == NULL || qt_obj == NULL || event == vtkCommand::NoEvent)
     all_info = false;
 
-  vtkEventQtSlotConnectPrivate::iterator iter;
-  for(iter=mPrivate->begin(); iter!=mPrivate->end(); ++iter)
+  vtkQtConnections::iterator iter;
+  for(iter=Connections->begin(); iter!=Connections->end(); ++iter)
     {
       // if information matches, remove the connection
       if((*iter)->IsConnection(vtk_obj, event, qt_obj, slot))
         {
         (*iter)->Delete();
-        iter = mPrivate->erase(iter);
+        iter = Connections->erase(iter);
         // if user passed in all information, only remove one connection and quit
         if(all_info)
-          iter = mPrivate->end();
+          iter = Connections->end();
         }
+    }
+}
+
+void vtkEventQtSlotConnect::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
+  if(Connections->empty())
+    {
+    os << indent << "No Connections\n";
+    }
+  else
+    {
+    os << indent << "Connections:\n";
+    vtkQtConnections::iterator iter;
+    for(iter=Connections->begin(); iter!=Connections->end(); ++iter)
+      {
+      (*iter)->PrintSelf(os, indent.GetNextIndent());
+      }
     }
 }
 

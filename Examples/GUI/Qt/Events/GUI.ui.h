@@ -129,6 +129,8 @@ void Form1::init()
                        vtkCommand::MouseMoveEvent,
                        this,
                        SLOT(updateCoords(vtkObject*)));
+
+  connections->PrintSelf(cout, vtkIndent());
   
 }
 

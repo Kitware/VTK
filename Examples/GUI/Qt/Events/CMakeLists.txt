@@ -10,10 +10,8 @@ INCLUDE (${CMAKE_ROOT}/Modules/FindQt.cmake)
 
 SET (SRCS
   main.cxx
-  vtkEventQtSlotConnect.cxx
 )
 SET (MOC_HDRS
-  vtkEventQtSlotConnect.h
 )
 
 INCLUDE_DIRECTORIES(
@@ -23,7 +21,11 @@ INCLUDE_DIRECTORIES(
 )
 
 QT_WRAP_UI( qtevents UI_HDRS UI_SRCS GUI.ui )
-QT_WRAP_CPP( qtevents MOC_SRCS ${MOC_HDRS} )
+#QT_WRAP_CPP( qtevents MOC_SRCS ${MOC_HDRS} )
+
+# help cmake with Qt depends
+SET_SOURCE_FILES_PROPERTIES(GUI.cxx PROPERTIES
+                            OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/GUI.ui.h)
 
 # It's nice to have the ui in the windows project file...just double click on it
 # and designer comes up on that ui file :)
@@ -34,7 +36,7 @@ QT_WRAP_CPP( qtevents MOC_SRCS ${MOC_HDRS} )
   #SET (SimpleViewSrcs ${SimpleViewSrcs} uiSimpleView.ui)
 #ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 
-ADD_EXECUTABLE( qtevents ${SRCS} ${UI_SRCS} ${MOC_SRCS})
+ADD_EXECUTABLE( qtevents ${SRCS} ${UI_SRCS})
 
 # note: if you use Mesa in VTK and get link errors about opengl symbols
 #       they are coming from Qt.  Either link OpenGL in, configure Qt to
