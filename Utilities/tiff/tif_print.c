@@ -65,7 +65,7 @@ static const char *orientNames[] = {
  * to the specified stdio file stream.
  */
 void
-TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
+TEXPORT TIFFPrintDirectory(TIFF* tif, FILE* fd, long flags)
 {
         register TIFFDirectory *td;
         char *sep;

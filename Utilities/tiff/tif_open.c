@@ -122,7 +122,7 @@ _TIFFgetMode(const char* mode, const char* module)
 }
 
 TIFF*
-TIFFClientOpen(
+TEXPORT TIFFClientOpen(
         const char* name, const char* mode,
         thandle_t clientdata,
         TIFFReadWriteProc readproc,

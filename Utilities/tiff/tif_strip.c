@@ -131,7 +131,7 @@ TIFFStripSize(TIFF* tif)
  * to certain heuristics.
  */
 uint32
-TIFFDefaultStripSize(TIFF* tif, uint32 request)
+TEXPORT TIFFDefaultStripSize(TIFF* tif, uint32 request)
 {
         return (*tif->tif_defstripsize)(tif, request);
 }
