@@ -84,10 +84,18 @@ public:
   // that you set the ScalarComponents ivar.
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
-  void ScalarIsComponent() {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
-  void ScalarIsEffectiveStress() {
-    this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
-  void ScalarIsDeterminant() {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
+  void SetScalarModeToComponent()
+    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
+  void SetScalarModeToEffectiveStress()
+    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+  void SetScalarModeToDeterminant()
+    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
+  void ScalarIsComponent()
+    {this->SetScalarMode(VTK_EXTRACT_COMPONENT);};
+  void ScalarIsEffectiveStress()
+    {this->SetScalarMode(VTK_EXTRACT_EFFECTIVE_STRESS);};
+  void ScalarIsDeterminant()
+    {this->SetScalarMode(VTK_EXTRACT_DETERMINANT);};
 
   // Description:
   // Boolean controls whether vector data is extracted from tensor.
