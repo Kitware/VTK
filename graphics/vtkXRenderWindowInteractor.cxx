@@ -312,7 +312,7 @@ void vtkXRenderWindowInteractor::StartRotate()
   this->Preprocess = 1;
   this->State = VTKXI_ROTATE;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 void vtkXRenderWindowInteractor::EndRotate()
 {
@@ -334,7 +334,7 @@ void vtkXRenderWindowInteractor::StartZoom()
   this->Preprocess = 1;
   this->State = VTKXI_ZOOM;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 void vtkXRenderWindowInteractor::EndZoom()
 {
@@ -359,7 +359,7 @@ void vtkXRenderWindowInteractor::StartPan()
   this->Preprocess = 1;
   this->State = VTKXI_PAN;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
 void vtkXRenderWindowInteractor::EndPan()
@@ -382,7 +382,7 @@ void vtkXRenderWindowInteractor::StartSpin()
   this->Preprocess = 1;
   this->State = VTKXI_SPIN;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
 void vtkXRenderWindowInteractor::EndSpin()
@@ -405,7 +405,7 @@ void vtkXRenderWindowInteractor::StartDolly()
   this->Preprocess = 1;
   this->State = VTKXI_DOLLY;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
 void vtkXRenderWindowInteractor::EndDolly()
@@ -428,7 +428,7 @@ void vtkXRenderWindowInteractor::StartUniformScale()
   this->Preprocess = 1;
   this->State = VTKXI_USCALE;
   this->RenderWindow->SetDesiredUpdateRate(this->DesiredUpdateRate);
-  XtAppAddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
+  this->AddTimeOut(this->App,10,vtkXRenderWindowInteractorTimer,(XtPointer)this);
 }
 
 void vtkXRenderWindowInteractor::EndUniformScale()
@@ -916,8 +916,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   me = (vtkXRenderWindowInteractor *)client_data;
 
   // get the pointer position
-  XQueryPointer(me->DisplayId,me->WindowId,
-		&root,&child,&root_x,&root_y,&x,&y,&keys);
+  me->GetMousePosition(&x, &y);
 
   if (me->TimerMethod) 
     {
@@ -938,7 +937,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickRotateActor(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       else if (!(me->ActorMode))
@@ -951,7 +950,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickRotateCamera(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
 
         }
@@ -968,7 +967,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickPanActor(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       else if (!(me->ActorMode))
@@ -981,7 +980,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickPanCamera(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       break;
@@ -997,7 +996,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickDollyCamera(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       break;
@@ -1013,7 +1012,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickSpinActor(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       else if (!(me->ActorMode))
@@ -1026,7 +1025,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickSpinCamera(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       break;
@@ -1042,7 +1041,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickDollyActor(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       break;
@@ -1058,7 +1057,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
           {
           me->JoystickScaleActor(x, y);
           }
-        XtAppAddTimeOut(me->App,10,
+        me->AddTimeOut(me->App,10,
                         vtkXRenderWindowInteractorTimer,client_data);
         }
       break;
@@ -1066,4 +1065,36 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
     }
 }  
 
+
+
+
+XtIntervalId vtkXRenderWindowInteractor::AddTimeOut(XtAppContext app_context, 
+			      unsigned long interval,
+			      XtTimerCallbackProc proc, 
+			      XtPointer client_data) 
+{
+  return XtAppAddTimeOut(app_context, interval, proc, client_data);
+}
+
+void vtkXRenderWindowInteractor::GetMousePosition(int *x, int *y) 
+{
+  Window root,child;
+  int root_x,root_y;
+  unsigned int keys;
+  
+  XQueryPointer(this->DisplayId,this->WindowId,
+		&root,&child,&root_x,&root_y,x,y,&keys);
+}
+
+void vtkXRenderWindowInteractor::Timer(XtPointer client_data,
+				   XtIntervalId *id) {
+  vtkXRenderWindowInteractorTimer(client_data, id);
+}
+
+void vtkXRenderWindowInteractor::Callback(Widget w,
+				   XtPointer client_data, 
+				   XEvent *event, 
+				   Boolean *ctd) {
+ vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
+}
 

@@ -148,6 +148,12 @@ protected:
   Widget oldTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
+
+  XtIntervalId AddTimeOut(XtAppContext app_context, unsigned long interval,
+			  XtTimerCallbackProc proc, XtPointer client_data) ;
+  void GetMousePosition(int *x, int *y); 
+  void Timer(XtPointer client_data, XtIntervalId *id); 
+  void Callback(Widget w, XtPointer client_data, XEvent *event, Boolean *ctd); 
 };
 
 #endif
