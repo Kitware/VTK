@@ -62,7 +62,6 @@ public:
   // Get whether the given output port releases data when it is consumed.
   virtual int GetReleaseDataFlag(int port);
 
-  static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
@@ -86,15 +85,12 @@ protected:
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
 
-  // Put default information in output information objects.
-  virtual void FillDefaultOutputInformation(int port, vtkInformation*);
+  // Copy information for the given request.
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
 
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
-  void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
-  void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
-  virtual void CopyDefaultDownstreamInformation();
   virtual int CheckDataObject(int port);
 
   // Input connection validity checkers.

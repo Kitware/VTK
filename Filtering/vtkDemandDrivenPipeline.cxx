@@ -39,10 +39,9 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.9");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.10");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
@@ -191,19 +190,29 @@ vtkDemandDrivenPipeline::GetConnectedInputInformation(int port, int index)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::FillDefaultOutputInformation(int port,
-                                                           vtkInformation* info)
+void
+vtkDemandDrivenPipeline
+::CopyDefaultInformation(vtkInformation* request, int direction)
 {
-  // Add some keys to copy downstream by default.
-  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
-               vtkDataObject::SCALAR_TYPE());
-  info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
-               vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+  // Let the superclass copy first.
+  this->Superclass::CopyDefaultInformation(request, direction);
 
-  // Set the executive pointer and port number on the information
-  // object to tell it what produces it.
-  info->Set(vtkExecutive::EXECUTIVE(), this);
-  info->Set(vtkExecutive::PORT_NUMBER(), port);
+  if(request->Has(REQUEST_INFORMATION()))
+    {
+    if(this->GetNumberOfInputPorts() > 0)
+      {
+      // Copy information from the first input to all outputs.
+      if(vtkInformation* inInfo = this->GetInputInformation(0, 0))
+        {
+        for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+          {
+          vtkInformation* outInfo = this->GetOutputInformation(i);
+          outInfo->CopyEntry(inInfo, vtkDataObject::SCALAR_TYPE());
+          outInfo->CopyEntry(inInfo, vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
+          }
+        }
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -425,42 +434,17 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::CopyDefaultDownstreamInformation()
-{ 
-  // Setup default information for the outputs.
-  if(this->Algorithm->GetNumberOfInputPorts() > 0)
-    {
-    // Copy information from the first input.
-    if(vtkInformation* inInfo = this->GetInputInformation(0, 0))
-      {
-      for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
-        {
-        vtkInformation* outInfo = this->GetOutputInformation(i);
-        outInfo->CopyEntries(
-          inInfo, vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY());
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteDataObject()
 {
-  this->PrepareDownstreamRequest(REQUEST_DATA_OBJECT());
-
-  this->InProcessRequest = 1;
-  int result = this->Algorithm->ProcessRequest(
-    this->GetRequestInformation(), this->GetInputInformation(),
-    this->GetOutputInformation());
-  this->InProcessRequest = 0;
+  // Invoke the request on the algorithm.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_DATA_OBJECT(), 1);
+  int result = this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
 
   // Make sure a valid data object exists for all output ports.
-  for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+  for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
-    if(!this->CheckDataObject(i))
-      {
-      return 0;
-      }
+    result = this->CheckDataObject(i);
     }
 
   return result;
@@ -469,31 +453,20 @@ int vtkDemandDrivenPipeline::ExecuteDataObject()
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteInformation()
 {
-  this->PrepareDownstreamRequest(REQUEST_INFORMATION());
-
-  // Setup default information for the outputs.
-  this->CopyDefaultDownstreamInformation();
-
-  this->InProcessRequest = 1;
-  int result = this->Algorithm->ProcessRequest(
-    this->GetRequestInformation(), this->GetInputInformation(),
-    this->GetOutputInformation());
-
-  this->InProcessRequest = 0;
-  return result;
+  // Invoke the request on the algorithm.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_INFORMATION(), 1);
+  return this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
 }
 
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ExecuteData(int outputPort)
 {
-  this->PrepareDownstreamRequest(REQUEST_DATA());
-  this->GetRequestInformation()->Set(FROM_OUTPUT_PORT(), outputPort);
-  this->InProcessRequest = 1;
-  int result = this->Algorithm->ProcessRequest(
-    this->GetRequestInformation(), this->GetInputInformation(),
-    this->GetOutputInformation());
-  this->InProcessRequest = 0;
-  return result;
+  // Invoke the request on the algorithm.
+  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
+  r->Set(REQUEST_DATA(), 1);
+  r->Set(FROM_OUTPUT_PORT(), outputPort);
+  return this->CallAlgorithm(r, vtkExecutive::RequestDownstream);
 }
 
 //----------------------------------------------------------------------------
@@ -547,28 +520,6 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port)
                   << " specify any DATA_TYPE_NAME.");
     return 0;
     }
-}
-
-//----------------------------------------------------------------------------
-void
-vtkDemandDrivenPipeline
-::PrepareDownstreamRequest(vtkInformationIntegerKey* rkey)
-{
-  // Setup request information for this request.
-  vtkInformation* request = this->GetRequestInformation();
-  request->Clear();
-  request->Set(rkey, 1);
-
-  // Make sure the input connection information is up to date.
-  this->GetInputInformation();
-}
-
-//----------------------------------------------------------------------------
-void
-vtkDemandDrivenPipeline
-::PrepareUpstreamRequest(vtkInformationIntegerKey* rkey)
-{
-  this->PrepareDownstreamRequest(rkey);
 }
 
 //----------------------------------------------------------------------------

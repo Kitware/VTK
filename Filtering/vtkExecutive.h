@@ -126,18 +126,13 @@ protected:
   int GetNumberOfOutputPorts();
 
   // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
-  vtkInformation* GetRequestInformation();
   vtkInformationVector** GetInputInformation();
   vtkInformationVector* GetOutputInformation();
 
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);
-  virtual void CopyDefaultInformationDownstream(vtkInformation* request);
-  virtual void CopyDefaultInformationUpstream(vtkInformation* request);
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
   virtual int CallAlgorithm(vtkInformation* request, int direction);
-
-  // Put default information in output information objects.
-  virtual void FillDefaultOutputInformation(int port, vtkInformation*)=0;
 
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*)=0;

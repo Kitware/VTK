@@ -28,7 +28,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.7");
+vtkCxxRevisionMacro(vtkExecutive, "1.8");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -41,7 +41,6 @@ vtkInformationKeyMacro(vtkExecutive, PORT_NUMBER, Integer);
 class vtkExecutiveInternals
 {
 public:
-  vtkSmartPointer<vtkInformation> RequestInformation;
   vtkSmartPointer<vtkInformationVector> OutputInformation;
   vtkstd::vector< vtkSmartPointer<vtkInformationVector> > InputInformation;
   vtkstd::vector<vtkInformationVector*> InputInformationArray;
@@ -131,17 +130,6 @@ void vtkExecutive::SetAlgorithm(vtkAlgorithm* newAlgorithm)
 vtkAlgorithm* vtkExecutive::GetAlgorithm()
 {
   return this->Algorithm;
-}
-
-//----------------------------------------------------------------------------
-vtkInformation* vtkExecutive::GetRequestInformation()
-{
-  if(!this->ExecutiveInternal->RequestInformation)
-    {
-    this->ExecutiveInternal->RequestInformation =
-      vtkSmartPointer<vtkInformation>::New();
-    }
-  return this->ExecutiveInternal->RequestInformation.GetPointer();
 }
 
 //----------------------------------------------------------------------------
@@ -240,12 +228,16 @@ vtkInformationVector* vtkExecutive::GetOutputInformation()
   this->ExecutiveInternal->OutputInformation
     ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
 
-  // For any new information obects, fill in default information values.
+  // For any new information obects, set the executive pointer and
+  // port number on the information object to tell it what produces
+  // it.
   for (int i = oldNumberOfPorts;
        i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
-    this->FillDefaultOutputInformation(i,
-      this->ExecutiveInternal->OutputInformation->GetInformationObject(i));
+    vtkInformation* info =
+      this->ExecutiveInternal->OutputInformation->GetInformationObject(i);
+    info->Set(vtkExecutive::EXECUTIVE(), this);
+    info->Set(vtkExecutive::PORT_NUMBER(), i);
     }
 
   return this->ExecutiveInternal->OutputInformation;
@@ -536,13 +528,7 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-void vtkExecutive::CopyDefaultInformationDownstream(vtkInformation*)
-{
-  // Nothing copied by default in vtkExecutive.
-}
-
-//----------------------------------------------------------------------------
-void vtkExecutive::CopyDefaultInformationUpstream(vtkInformation*)
+void vtkExecutive::CopyDefaultInformation(vtkInformation*, int)
 {
   // Nothing copied by default in vtkExecutive.
 }
@@ -553,14 +539,7 @@ int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
   vtkSmartPointer<vtkInformation> ar = vtkSmartPointer<vtkInformation>::New();
   ar->Copy(request);
   ar->Set(ALGORITHM_DIRECTION(), direction);
-  if(direction == vtkExecutive::RequestUpstream)
-    {
-    this->CopyDefaultInformationUpstream(ar);
-    }
-  else
-    {
-    this->CopyDefaultInformationDownstream(ar);
-    }
+  this->CopyDefaultInformation(ar, direction);
   this->InAlgorithm = 1;
   int result = this->Algorithm->ProcessRequest(ar,
                                                this->GetInputInformation(),
