@@ -46,12 +46,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // to create vtk objects from the list of registered vtkObjectFactory 
 // sub-classes.   The first time CreateInstance is called, all dll's or shared
 // libraries in the environment variable VTK_AUTOLOAD_PATH are loaded into
-// the current process.   The C function vtkLoad is called on each dll.  
-// vtkLoad should return an instance of the factory sub-class implemented
-// in the shared library. VTK_AUTOLOAD_PATH is an environment variable 
+// the current process.   The C functions vtkLoad, vtkGetFactoryCompilerUsed, 
+// and vtkGetFactoryVersion are called on each dll.  To implement these
+// functions in a shared library or dll, use the macro:
+// VTK_FACTORY_INTERFACE_IMPLEMENT.
+// VTK_AUTOLOAD_PATH is an environment variable 
 // containing a colon separated (semi-colon on win32) list of paths.
 //
-// This can be use to override the creation of any object in VTK.  
+// The vtkObjectFactory can be use to override the creation of any object
+// in VTK with a sub-class of that object.  The factories can be registered
+// either at run time with the VTK_AUTOLOAD_PATH, or at compile time
+// with the vtkObjectFactory::RegisterFactory method.
 //
 
 
@@ -250,7 +255,8 @@ private:
   // member variables for a factory set by the base class
   // at load or register time
   void* LibraryHandle;
-  unsigned long LibraryDate;
+  char* LibraryVTKVersion;
+  char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
   vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
@@ -265,3 +271,35 @@ static vtkObject* vtkObjectFactoryCreate##classname() \
 { return classname::New(); }
 
 #endif
+
+
+#ifdef _WIN32
+#define VTK_FACTORY_INTERFACE_EXPORT  __declspec( dllexport )
+#else
+#define VTK_FACTORY_INTERFACE_EXPORT 
+#endif
+
+// Macro to create the interface "C" functions used in
+// a dll or shared library that contains a VTK object factory.
+// Put this function in the .cxx file of your object factory,
+// and pass in the name of the factory sub-class that you want
+// the dll to create.
+#define VTK_FACTORY_INTERFACE_IMPLEMENT(factoryName)  \
+extern "C"                                      \
+VTK_FACTORY_INTERFACE_EXPORT                    \
+const char* vtkGetFactoryCompilerUsed()         \
+{                                               \
+  return VTK_CXX_COMPILER;                      \
+}                                               \
+extern "C"                                      \
+VTK_FACTORY_INTERFACE_EXPORT                    \
+const char* vtkGetFactoryVersion()              \
+{                                               \
+  return VTK_SOURCE_VERSION;                    \
+}                                               \
+extern "C"                                      \
+VTK_FACTORY_INTERFACE_EXPORT                    \
+vtkObjectFactory* vtkLoad()                     \
+{                                               \
+  return factoryName ::New();                   \
+}

@@ -195,6 +195,8 @@ static char* CreateFullPath(const char* path, const char* file)
 // A file scope typedef to make the cast code to the load
 // function cleaner to read.
 typedef vtkObjectFactory* (* VTK_LOAD_FUNCTION)();
+typedef const char* (* VTK_VERSION_FUNCTION)();
+typedef const char* (* VTK_COMPILER_FUNCTION)();
 
 
 // A file scoped function to determine if a file has
@@ -238,22 +240,58 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
       vtkLibHandle lib = vtkDynamicLoader::OpenLibrary(fullpath);
       if(lib)
 	{
-	// Look for the symbol vtkLoad in the library
+	// Look for the symbol vtkLoad, vtkGetFactoryCompilerUsed,
+        // and vtkGetFactoryVersion in the library
 	VTK_LOAD_FUNCTION loadfunction
-	  = (VTK_LOAD_FUNCTION)vtkDynamicLoader::GetSymbolAddress(lib, "vtkLoad");
+	  = (VTK_LOAD_FUNCTION)
+          vtkDynamicLoader::GetSymbolAddress(lib,
+                                             "vtkLoad");
+        VTK_COMPILER_FUNCTION compilerFunction
+          = (VTK_COMPILER_FUNCTION)
+          vtkDynamicLoader::GetSymbolAddress(lib,
+                                             "vtkGetFactoryCompilerUsed");
+        VTK_VERSION_FUNCTION versionFunction
+	  = (VTK_VERSION_FUNCTION)
+          vtkDynamicLoader::GetSymbolAddress(lib,
+                                             "vtkGetFactoryVersion");
 	// if the symbol is found call it to create the factory
 	// from the library
-	if(loadfunction)
+	if(loadfunction && compilerFunction && versionFunction)
 	  {
-	  vtkObjectFactory* newfactory = (*loadfunction)();
-	  // initialize class members if load worked
-	  newfactory->LibraryHandle = (void*)lib;
-	  newfactory->LibraryPath = strcpy(new char[strlen(fullpath)+1], fullpath);
-	  newfactory->LibraryDate = 0; // unused for now...
-	  vtkObjectFactory::RegisterFactory(newfactory);
-	  newfactory->Delete();
-	  }
-	}
+          const char* compiler = (*compilerFunction)();
+          const char* version = (*versionFunction)();
+          if(strcmp(compiler, VTK_CXX_COMPILER) ||
+             strcmp(version, vtkVersion::GetVTKSourceVersion()))
+            {
+            vtkGenericWarningMacro(
+              << "Incompatible factory rejected:"   
+              << "\nRunning VTK compiled with: " <<  VTK_CXX_COMPILER
+              << "\nFactory compiled with: " << compiler
+              << "\nRunning VTK version: " << vtkVersion::GetVTKSourceVersion()
+              << "\nFactory version: " << version 
+              << "\nPath to rejected factory: " << fullpath << "\n");
+            }
+          else
+            {
+            vtkObjectFactory* newfactory = (*loadfunction)();
+            newfactory->LibraryVTKVersion = 
+              strcpy(new char[strlen(version)+1], version);
+            newfactory->LibraryCompilerUsed = 
+              strcpy(new char[strlen(compiler)+1], compiler);
+            // initialize class members if load worked
+            newfactory->LibraryHandle = (void*)lib;
+            newfactory->LibraryPath = 
+              strcpy(new char[strlen(fullpath)+1], fullpath);
+            vtkObjectFactory::RegisterFactory(newfactory);
+            newfactory->Delete();
+            }
+          }
+        // if only the loadfunction is found, then warn
+        else if (loadfunction)
+          {
+          vtkGenericWarningMacro("Old Style Factory not loaded.  Shared object has vtkLoad, but is missing vtkGetFactoryCompilerUsed and vtkGetFactoryVersion.  Recompile factory: " << fullpath << ", and use VTK_FACTORY_INTERFACE_IMPLEMENT macro.");
+          }
+        }
       delete [] fullpath;
       }
     }
@@ -273,18 +311,21 @@ void vtkObjectFactory::ReHash()
 vtkObjectFactory::vtkObjectFactory()
 {
   this->LibraryHandle = 0;
-  this->LibraryDate = 0;
   this->LibraryPath = 0;
   this->OverrideArray = 0;
   this->OverrideClassNames = 0;
   this->SizeOverrideArray = 0;
   this->OverrideArrayLength = 0;
+  this->LibraryVTKVersion = 0;
+  this->LibraryCompilerUsed = 0;
 }
 
 
 // Unload the library and free the path string
 vtkObjectFactory::~vtkObjectFactory()
 {
+  delete [] this->LibraryVTKVersion;
+  delete [] this->LibraryCompilerUsed;
   delete [] this->LibraryPath;
   this->LibraryPath = 0;
   
@@ -308,16 +349,43 @@ void vtkObjectFactory::RegisterFactory(vtkObjectFactory* factory)
     const char* nonDynamicName = "Non-Dynamicly loaded factory";
     factory->LibraryPath = strcpy(new char[strlen(nonDynamicName)+1], 
 				  nonDynamicName);
+    factory->LibraryCompilerUsed = 
+      strcpy(new char[strlen(VTK_CXX_COMPILER)+1], VTK_CXX_COMPILER);
+    factory->LibraryVTKVersion = 
+      strcpy(new char[strlen(vtkVersion::GetVTKSourceVersion())+1],
+             vtkVersion::GetVTKSourceVersion());
     }
-  else if(strcmp(factory->GetVTKSourceVersion(), 
-                 vtkVersion::GetVTKSourceVersion()) != 0)
+  else 
     {
-    vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
-    << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
-    << "\nLoaded Factory version:\n" << factory->GetVTKSourceVersion()
-    << "\nRejecting factory:\n" << factory->LibraryPath << "\n");
-    return;
+    if(strcmp(factory->LibraryCompilerUsed,
+              VTK_CXX_COMPILER) != 0)
+      {
+      vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
+      << "\nRunning vtk compiled with :\n" <<  VTK_CXX_COMPILER
+      << "\nLoaded Factory compiled with:\n" << factory->LibraryCompilerUsed
+      << "\nRejecting factory:\n" << factory->LibraryPath << "\n");
+      return;
+      }
+    if(strcmp(factory->LibraryVTKVersion, 
+              vtkVersion::GetVTKSourceVersion()) != 0)
+        {
+        vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
+        << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
+        << "\nLoaded Factory version:\n" << factory->LibraryVTKVersion
+        << "\nRejecting factory:\n" << factory->LibraryPath << "\n");
+        return;
+        }
+    if(strcmp(factory->GetVTKSourceVersion(), 
+              vtkVersion::GetVTKSourceVersion()) != 0)
+      {
+      vtkGenericWarningMacro(<< "Possible incompatible factory load:" 
+      << "\nRunning vtk version :\n" << vtkVersion::GetVTKSourceVersion() 
+      << "\nLoaded Factory version:\n" << factory->GetVTKSourceVersion()
+      << "\nRejecting factory:\n" << factory->LibraryPath << "\n");
+      return;
+      }
     }
+  
   vtkObjectFactory::Init();
   vtkObjectFactory::RegisteredFactories->AddItem(factory);
 }
@@ -328,6 +396,8 @@ void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
   vtkObject::PrintSelf(os, indent);
   os << indent 
      << "Factory DLL path: " << this->LibraryPath << "\n";
+  os << indent << "Library version: " << this->LibraryVTKVersion << "\n";
+  os << indent << "Compiler used: " << this->LibraryCompilerUsed << "\n";
   os << indent << "Factory description: " << this->GetDescription() << endl;
   int num = this->GetNumberOfOverrides();
   os << indent << "Factory overides " << num << " classes:" << endl;
@@ -361,20 +431,31 @@ void vtkObjectFactory::UnRegisterAllFactories()
     {
     return;
     }
-  
+  int num = vtkObjectFactory::RegisteredFactories->GetNumberOfItems();
+  // collect up all the library handles so they can be closed
+  // AFTER the factory has been deleted.
+  void** libs = new void*[num+1];
   vtkObjectFactory* factory = 0;
   vtkObjectFactory::RegisteredFactories->InitTraversal();
+  int index = 0;
   while((factory =
 	 vtkObjectFactory::RegisteredFactories->GetNextItem()))
     {
-    void* lib = factory->LibraryHandle;
-    if(lib)
-      {
-      vtkDynamicLoader::CloseLibrary((vtkLibHandle)lib);
-      }
+    libs[index] = factory->LibraryHandle;
     }
+  // delete the factory list and its factories
   vtkObjectFactory::RegisteredFactories->Delete();
   vtkObjectFactory::RegisteredFactories = 0;
+  // now close the libraries
+  for(int i = 0; i < num; i++)
+    {
+    void* lib = libs[i];
+    if(lib)
+      {
+      vtkDynamicLoader::CloseLibrary(reinterpret_cast<vtkLibHandle>(lib));
+      }
+    }
+  delete [] libs;
 }
 
 
