@@ -65,7 +65,7 @@ if [ catch { [ set files [ glob $FileExpression ] ] } result ] {
 
 if { [ llength $files ] < 1 } {
     puts "Cannot find any files that match your file expression"
-    exit 1
+    exit 0
 }
 
 set count 0
