@@ -1301,12 +1301,10 @@ plate SetVectorsName "mode8"
 vtkWarpVector warp
     warp SetInput [plate GetOutput]
     warp SetScaleFactor 0.5
-vtkGeometryFilter ds2poly
-    ds2poly SetInput [warp GetOutput]
-vtkCleanPolyData clean
-    clean SetInput [ds2poly GetOutput]
+vtkCastToConcrete caster
+    caster SetInput [warp GetOutput]
 vtkPolyNormals normals
-    normals SetInput [clean GetOutput]
+    normals SetInput [caster GetPolyDataOutput]
 vtkVectorDot color
     color SetInput [normals GetOutput]
 vtkLookupTable lut

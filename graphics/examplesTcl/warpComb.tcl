@@ -38,12 +38,10 @@ vtkWarpScalar warp
     warp UseNormalOn
     warp SetNormal 1.0 0.0 0.0
     warp SetScaleFactor 2.5
-vtkGeometryFilter ds2poly
-    ds2poly SetInput [warp GetOutput]
-vtkCleanPolyData clean
-    clean SetInput [ds2poly GetOutput]
+vtkCastToConcrete caster
+    caster SetInput [warp GetOutput]
 vtkPolyNormals normals
-    normals SetInput [clean GetOutput]
+    normals SetInput [caster GetPolyDataOutput]
     normals SetFeatureAngle 60
 vtkDataSetMapper planeMapper
     planeMapper SetInput [normals GetOutput]
