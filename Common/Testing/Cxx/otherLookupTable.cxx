@@ -13,16 +13,17 @@
 // this program tests the LookupTable
 
 #include "vtkLookupTable.h"
+#include "vtkLogLookupTable.h"
 #include "vtkDebugLeaks.h"
 
-void Test(ostream& strm)
+void Test(ostream& strm, vtkLookupTable *lut1)
 {
   // actual test
-  strm << "Test vtkLookupTable Start" << endl;
-  vtkLookupTable *lut1 = vtkLookupTable::New();
  
-  lut1->SetTableRange(0,1023);
+  float range[2] = {0, 1023};
+  lut1->SetRange(0,1023);
   lut1->SetScaleToLinear();
+  
 
   lut1->Allocate (1024);
   lut1->SetRampToLinear();
@@ -34,6 +35,9 @@ void Test(ostream& strm)
 
   float opacity;
   opacity = lut1->GetOpacity(0);
+
+  lut1->GetTableValue(10,rgb);
+  rgb2 = lut1->GetTableValue(10);
 
   lut1->SetAlpha(.5);
 
@@ -107,8 +111,6 @@ void Test(ostream& strm)
   lut1->MapScalarsThroughTable2((void *) doubleA, output, VTK_DOUBLE, 2, 1, VTK_LUMINANCE);
 
 
-  lut1->Delete();
-  strm << "Test vtkLookupTable End" << endl;
 }
 
 
@@ -116,7 +118,17 @@ int main(int argc, char* argv[])
 {
   vtkDebugLeaks::PromptUserOff();
 
-  Test(cout);
+  vtkLookupTable *lut1 = vtkLookupTable::New();
+  cout << "Test vtkLookupTable Start" << endl;
+  Test(cout, lut1);
+  lut1->Delete();
+  cout << "Test vtkLookupTable End" << endl;
+
+  vtkLogLookupTable *lut2 = vtkLogLookupTable::New();
+  cout << "Test vtkLogLookupTable Start" << endl;
+  Test(cout, lut2);
+  lut2->Delete();
+  cout << "Test vtkLogLookupTable End" << endl;
 
   return 0;
 } 
