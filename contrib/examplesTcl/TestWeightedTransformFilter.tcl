@@ -33,9 +33,8 @@ for {set i 0} {$i < $npoints} {incr i} {
     tfarray SetComponent $i 1 $zn
 }
 
-vtkFieldData fd
-fd AddArray tfarray "weights"
-[$sphereData GetPointData] SetFieldData fd
+tfarray SetName  "weights"
+[$sphereData GetPointData] AddArray tfarray
 
 vtkTransform stretch
 stretch Scale 1 1 3.2
