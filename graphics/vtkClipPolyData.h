@@ -77,7 +77,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // output may consist of different cell types than the input data.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkCutter
+// vtkImplicitFunction vtkCutter vtkClipVolume
 
 #ifndef __vtkClipPolyData_h
 #define __vtkClipPolyData_h
@@ -164,6 +164,7 @@ public:
 
 protected:
   void Execute();
+  void Update();
   vtkImplicitFunction *ClipFunction;
   
   vtkPointLocator *Locator;

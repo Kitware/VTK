@@ -370,6 +370,70 @@ void vtkClipPolyData::CreateDefaultLocator()
 }
 
 
+// Update input to this filter and the filter itself.
+// We need to override vtkFilter::Update() because we have
+// multiple outputs that all need to be initialized
+void vtkClipPolyData::Update()
+{
+  int i;
+
+  // make sure input is available
+  if ( !this->Input )
+    {
+    vtkErrorMacro(<< "No input...can't execute!");
+    return;
+    }
+
+  // prevent chasing our tail
+  if (this->Updating)
+    {
+    return;
+    }
+
+  this->Updating = 1;
+  this->Input->Update();
+  this->Updating = 0;
+
+  if (this->Input->GetMTime() > this->ExecuteTime ||
+  this->GetMTime() > this->ExecuteTime )
+    {
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
+
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
+
+    // reset Abort flag
+    this->AbortExecute = 0;
+    this->Progress = 0.0;
+    this->Output->Initialize(); //clear output
+    this->ClippedOutput->Initialize(); //clear output
+
+    this->Execute();
+    this->ExecuteTime.Modified();
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
+    this->SetDataReleased(0);
+    this->ClippedOutput->SetDataReleased(0);
+
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
+    }
+
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
+}
+
 void vtkClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
