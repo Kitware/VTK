@@ -620,7 +620,7 @@ ifstream *vtkPDataSetReader::OpenFile()
     {
     if (file)
       {
-      delete [] file;
+      delete file;
       }
     vtkErrorMacro(<< "Initialize: Could not open file " << this->FileName);
     return NULL;
