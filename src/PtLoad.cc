@@ -95,11 +95,13 @@ void vtkPointLoad::SetModelBounds(float *bounds)
 
 void vtkPointLoad::Execute()
 {
-  int ptId, i;
+  int ptId, i, j, k;
   vtkFloatTensors *newTensors;
   vtkTensor tensor;
   int numPts;
   vtkMath math;
+  float P, pi, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
+  float x, x2, y, y2, z, z2, z3, rhoPlusz2, zPlus2rho, txy, txz, tyz;
 
   vtkDebugMacro(<< "Computing point load stress tensors");
 //
@@ -120,10 +122,62 @@ void vtkPointLoad::Execute()
                            / (this->SampleDimensions[i] - 1);
     }
 //
+// Compute the location of the load
+//
+  xP[0] = (this->ModelBounds[0] + this->ModelBounds[1]) / 2.0; //in center
+  xP[1] = (this->ModelBounds[2] + this->ModelBounds[3]) / 2.0;
+  xP[2] = this->ModelBounds[5]; // at top of box
+//
 // Traverse all points evaluating implicit function at each point
 //
-  for (ptId=0; ptId < numPts; ptId++ )
+  twoPi = 2.0*math.Pi();
+  P = -this->LoadValue;
+
+  for (k=0; k<this->Dimensions[2]; k++)
     {
+    z = this->Origin[2] + k*this->AspectRatio[2];
+    for (j=0; j<this->Dimensions[1]; j++)
+      {
+      y = this->Origin[1] + k*this->AspectRatio[1];
+      for (i=0; i<this->Dimensions[0]; i++)
+        {
+        x = this->Origin[0] + k*this->AspectRatio[0];
+        rho = sqrt((x-xP[0])*(x-xP[0]) + (y-xP[1])*(y-xP[1]) + 
+                   (z-xP[2])*(z-xP[2]));
+        rho2 = rho*rho;
+        rho3 = rho2*rho;
+        rho5 = rho2*rho3;
+        nu = (1.0 - 2.0*this->PoissonsRatio);
+        x2 = x*x;
+        y2 = y*y;
+        rhoPlusz2 = (rho + z) * (rho + z);
+        zPlus2rho = (2.0*rho + z);
+
+        // normal stresses
+        tensor.SetComponent(0,0, P/(twoPi*rho2) * (3.0*z*x2/rho3 -
+                     nu*(z/rho - rho/(rho+z) + x2*(zPlus2rho)/(rho*rhoPlusz2))));
+        tensor.SetComponent(1,1, P/(twoPi*rho2) * (3.0*z*y2/rho3 -
+                     nu*(z/rho - rho/(rho+z) + y2*(zPlus2rho)/(rho*rhoPlusz2))));
+        tensor.SetComponent(2,2, 3.0*P*z3/(twoPi*rho5));
+        
+        //shear stresses
+        txy = P/(twoPi*rho2) * (3.0*x*y*z/rho3 - 
+                                nu*x*y*(zPlus2rho)/(rho*rhoPlusz2));
+
+        tensor.SetComponent(0,1,txy);
+        tensor.SetComponent(1,0,txy);
+
+        txz = 3.0*P*x*z2/(twoPi*rho5);
+        tensor.SetComponent(0,2,txz);
+        tensor.SetComponent(2,0,txz);
+      
+        tyz = 3.0*P*y*z2/(twoPi*rho5);
+        tensor.SetComponent(1,2,tyz);
+        tensor.SetComponent(2,1,tyz);
+
+        newTensors->InsertNextTensor(tensor);
+        }
+      }
     }
 //
 // Update self
@@ -144,4 +198,7 @@ void vtkPointLoad::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+  os << indent << "Poisson's Ratio: " << this->PoissonsRatio << "\n";
+  
 }
+
