@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 vtkVolumeRayCastMapper* vtkVolumeRayCastMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkGraphicsFactory::CreateInstance("vtkVolumeRayCastMapper");
+  vtkObject* ret=vtkGraphicsFactory::CreateInstance("vtkVolumeRayCastMapper");
   return (vtkVolumeRayCastMapper*)ret;
 }
 
@@ -382,12 +382,16 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   // The full image fills the viewport. First, compute the actual viewport
   // size, then divide by the ImageSampleDistance to find the full image
   // size in pixels
+  this->ImageViewportSize[0] = static_cast<int>
+    (static_cast<float>(renWinSize[0]) * (viewport[2]-viewport[0]));
+  this->ImageViewportSize[1] = static_cast<int>
+    (static_cast<float>(renWinSize[1]) * (viewport[3]-viewport[1]));
   this->ImageViewportSize[0] = 
-    (int)((float)renWinSize[0] * (viewport[2]-viewport[0]));
-  this->ImageViewportSize[1] = 
-    (int)((float)renWinSize[1] * (viewport[3]-viewport[1]));
-  this->ImageViewportSize[0] /= this->ImageSampleDistance;
-  this->ImageViewportSize[1] /= this->ImageSampleDistance;
+    static_cast<int>( static_cast<float>(this->ImageViewportSize[0]) / 
+                      this->ImageSampleDistance );
+  this->ImageViewportSize[1] =
+    static_cast<int>( static_cast<float>(this->ImageViewportSize[1]) / 
+                      this->ImageSampleDistance );
 
   
   // Compute row bounds. This will also compute the size of the image to
@@ -412,26 +416,28 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       
       // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
       // coordinates. 
-      x1 = viewport[0] * (float)renWinSize[0] +
-        (float) this->ImageOrigin[0] * this->ImageSampleDistance;
-      y1 = viewport[1] * (float)renWinSize[1] +
-        (float) this->ImageOrigin[1] * this->ImageSampleDistance;
+      x1 = static_cast<int> (
+        viewport[0] * static_cast<float>(renWinSize[0]) +
+        static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance );
+      y1 = static_cast<int> (
+        viewport[1] * static_cast<float>(renWinSize[1]) +
+        static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
       
       // compute z buffer size
-      this->ZBufferSize[0] = 
-        this->ImageInUseSize[0] * this->ImageSampleDistance;
-      this->ZBufferSize[1] = 
-        this->ImageInUseSize[1] * this->ImageSampleDistance;
+      this->ZBufferSize[0] = static_cast<int>(
+        static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
+      this->ZBufferSize[1] = static_cast<int>(
+        static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
       
       // Use the size to compute (x2,y2) in window coordinates
       x2 = x1 + this->ZBufferSize[0] - 1;
       y2 = y1 + this->ZBufferSize[1] - 1;
       
       // This is the z buffer origin (in viewport coordinates)
-      this->ZBufferOrigin[0] = 
-        (float) this->ImageOrigin[0] * this->ImageSampleDistance;
-      this->ZBufferOrigin[1] = 
-        (float) this->ImageOrigin[1] * this->ImageSampleDistance;
+      this->ZBufferOrigin[0] = static_cast<int>(
+        static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
+      this->ZBufferOrigin[1] = static_cast<int>(
+        static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
       
       // Capture the z buffer
       this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
@@ -449,7 +455,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     vol->UpdateScalarOpacityforSampleSize( ren, this->SampleDistance );
 
     staticInfo->CameraThickness = 
-      (float)ren->GetActiveCamera()->GetThickness();
+      static_cast<float>(ren->GetActiveCamera()->GetThickness());
     
     // Copy the viewToVoxels matrix to 16 floats
     int i, j;
@@ -458,7 +464,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       for ( i = 0; i < 4; i++ )
         {
         staticInfo->ViewToVoxelsMatrix[j*4+i] = 
-          (float)this->ViewToVoxelsMatrix->GetElement(j,i);
+          static_cast<float>(this->ViewToVoxelsMatrix->GetElement(j,i));
         }
       }
 
@@ -468,7 +474,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       for ( i = 0; i < 4; i++ )
         {
         staticInfo->WorldToVoxelsMatrix[j*4+i] = 
-          (float)this->WorldToVoxelsMatrix->GetElement(j,i);
+          static_cast<float>(this->WorldToVoxelsMatrix->GetElement(j,i));
         }
       }
 
@@ -478,7 +484,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       for ( i = 0; i < 4; i++ )
         {
         staticInfo->VoxelsToWorldMatrix[j*4+i] = 
-          (float)this->VoxelsToWorldMatrix->GetElement(j,i);
+          static_cast<float>(this->VoxelsToWorldMatrix->GetElement(j,i));
         }
       }
 
@@ -644,8 +650,8 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
   // -1 + 1/fullSize and 1 - 1/fullSize and are each 2/fullSize apart.
   // fullSize is the viewport size along the corresponding direction (in 
   // pixels)
-  float offsetX = 1.0 / (float)imageViewportSize[0];
-  float offsetY = 1.0 / (float)imageViewportSize[1];
+  float offsetX = 1.0 / static_cast<float>(imageViewportSize[0]);
+  float offsetY = 1.0 / static_cast<float>(imageViewportSize[1]);
 
   // Some variables needed for non-subvolume cropping
   float fullRayStart[3];
@@ -684,7 +690,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
     // multiply by two and subtract one to get a number from 
     // -1 to 1 - 2/fullSize. Then ass offsetX (which is 1/fullSize) to 
     // center it.
-    viewRay[1] = (((float)j + (float)imageOrigin[1]) /
+    viewRay[1] = ((static_cast<float>(j) + static_cast<float>(imageOrigin[1])) /
 		  imageViewportSize[1]) * 2.0 - 1.0 + offsetY;
 
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )
@@ -704,7 +710,7 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
       // multiply by two and subtract one to get a number from 
       // -1 to 1 - 2/fullSize. Then ass offsetX (which is 1/fullSize) to 
       // center it.
-      viewRay[0] = (((float)i + (float)imageOrigin[0]) /
+      viewRay[0] = ((static_cast<float>(i) + static_cast<float>(imageOrigin[0])) /
 		    imageViewportSize[0]) * 2.0 - 1.0 + offsetX;
       
       // Now transform this point with a z value of 0 for the ray start, and
@@ -1147,8 +1153,8 @@ float vtkVolumeRayCastMapper::GetZBufferValue(int x, int y)
 {
   int xPos, yPos;
   
-  xPos = (int)((float)x * this->ImageSampleDistance);
-  yPos = (int)((float)y * this->ImageSampleDistance);
+  xPos = static_cast<int>(static_cast<float>(x) * this->ImageSampleDistance);
+  yPos = static_cast<int>(static_cast<float>(y) * this->ImageSampleDistance);
   
   xPos = (xPos >= this->ZBufferSize[0])?(this->ZBufferSize[0]-1):(xPos);
   yPos = (yPos >= this->ZBufferSize[1])?(this->ZBufferSize[1]-1):(yPos);
@@ -1214,7 +1220,7 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     for ( i = 0; i < 4; i++ )
       {
       voxelsToViewMatrix[j*4+i] = 
-        (float)this->VoxelsToViewMatrix->GetElement(j,i);
+        static_cast<float>(this->VoxelsToViewMatrix->GetElement(j,i));
       }
     }
   
@@ -1430,11 +1436,11 @@ int vtkVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
              ( lines[i][1] != lines[i][3] ) )
           {
           x1 = lines[i][0] +
-            ((float)j - lines[i][1])/(lines[i][3] - lines[i][1]) *
+            (static_cast<float>(j) - lines[i][1])/(lines[i][3] - lines[i][1]) *
             (lines[i][2] - lines[i][0] );
 
-          xlow  = (int)(x1 + 1.5);
-          xhigh = (int)(x1 - 1.0);
+          xlow  = static_cast<int>(x1 + 1.5);
+          xhigh = static_cast<int>(x1 - 1.0);
           
           xlow = (xlow<0)?(0):(xlow);
           xlow = (xlow>this->ImageInUseSize[0]-1)?
@@ -1898,10 +1904,14 @@ void vtkVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   vtkVolumeMapper::PrintSelf(os,indent);
 
   os << indent << "Sample Distance: " << this->SampleDistance << "\n";
-  os << indent << "Image Sample Distance: " << this->ImageSampleDistance << "\n";
-  os << indent << "Minimum Image Sample Distance: " << this->MinimumImageSampleDistance << "\n";
-  os << indent << "Maximum Image Sample Distance: " << this->MaximumImageSampleDistance << "\n";
-  os << indent << "Auto Adjust Sample Distances: " << this->AutoAdjustSampleDistances << "\n";
+  os << indent << "Image Sample Distance: " 
+     << this->ImageSampleDistance << "\n";
+  os << indent << "Minimum Image Sample Distance: " 
+     << this->MinimumImageSampleDistance << "\n";
+  os << indent << "Maximum Image Sample Distance: " 
+     << this->MaximumImageSampleDistance << "\n";
+  os << indent << "Auto Adjust Sample Distances: " 
+     << this->AutoAdjustSampleDistances << "\n";
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
 
   if ( this->RayBounder )

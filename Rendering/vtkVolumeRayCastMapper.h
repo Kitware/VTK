@@ -211,7 +211,7 @@ protected:
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;
   float                        MaximumImageSampleDistance;
-  float                        AutoAdjustSampleDistances;
+  int                          AutoAdjustSampleDistances;
   
   float                        WorldSampleDistance;
   int                          ScalarDataType;
