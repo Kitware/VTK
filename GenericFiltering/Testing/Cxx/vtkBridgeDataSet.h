@@ -141,6 +141,9 @@ protected:
   friend class vtkBridgeCellIteratorOnDataSet;
   friend class vtkBridgeCellIteratorOne;
   friend class vtkBridgePointIterator;
+  friend class vtkBridgePointIteratorOnCell;
+  friend class vtkBridgePointIteratorOnDataSet;
+  friend class vtkBridgePointIteratorOne;
   //ETX
   
   // Description:

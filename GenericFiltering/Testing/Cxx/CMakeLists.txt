@@ -21,6 +21,9 @@ vtkBridgeDataSet.cxx
 vtkBridgeAttribute.cxx
 vtkBridgeCellIterator.cxx
 vtkBridgePointIterator.cxx
+vtkBridgePointIteratorOnCell.cxx
+vtkBridgePointIteratorOnDataSet.cxx
+vtkBridgePointIteratorOne.cxx
 vtkBridgeCellIteratorStrategy.cxx
 vtkBridgeCellIteratorOnDataSet.cxx
 vtkBridgeCellIteratorOne.cxx
@@ -32,6 +35,9 @@ SET_SOURCE_FILES_PROPERTIES(
 vtkBridgeCell.cxx
 vtkBridgeCellIterator.cxx
 vtkBridgePointIterator.cxx
+vtkBridgePointIteratorOnCell.cxx
+vtkBridgePointIteratorOnDataSet.cxx
+vtkBridgePointIteratorOne.cxx
 vtkBridgeAttribute.cxx
 vtkBridgeCellIteratorStrategy.cxx
 vtkBridgeCellIteratorOnDataSet.cxx
@@ -56,6 +62,7 @@ IF (VTK_DATA_ROOT)
   TestGenericClip.cxx
   TestGenericCutter.cxx
   TestGenericStreamTracer.cxx
+  TestViewDependentErrorMetric.cxx
  )
 ENDIF (VTK_DATA_ROOT)
 

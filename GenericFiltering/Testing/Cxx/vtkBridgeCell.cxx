@@ -35,6 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkBridgePointIterator.h"
 
 // All that stuff is for InterpolationFunction()
 
@@ -69,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.7");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.8");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -234,6 +235,16 @@ int vtkBridgeCell::GetNumberOfBoundaries(int dim)
 int vtkBridgeCell::GetNumberOfDOFNodes()
 {
   return this->GetNumberOfBoundaries(-1)+1;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Return the points of cell into `it'.
+// \pre it_exists: it!=0
+void vtkBridgeCell::GetPointIterator(vtkGenericPointIterator *it)
+{
+  assert("pre: it_exists" && it!=0);
+  static_cast<vtkBridgePointIterator *>(it)->InitWithCell(this);
 }
 
 //-----------------------------------------------------------------------------

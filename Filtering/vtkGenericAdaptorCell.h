@@ -75,7 +75,7 @@ class vtkImplicitFunction;
 class vtkGenericCellTessellator;
 class vtkGenericAttributeCollection;
 class vtkGenericAttribute;
-
+class vtkGenericPointIterator;
 
 class VTK_FILTERING_EXPORT vtkGenericAdaptorCell : public vtkObject
 {
@@ -157,6 +157,11 @@ public:
   // 1 region, 6 faces, 12 edges, 8 vertices.
   // \post valid_result: result==GetNumberOfBoundaries(-1)+1
   virtual int GetNumberOfDOFNodes()=0;
+  
+  // Description:
+  // Return the points of cell into `it'.
+  // \pre it_exists: it!=0
+  virtual void GetPointIterator(vtkGenericPointIterator *it)=0;
   
   // Description:
   // Create an empty cell iterator. The user is responsible for deleting it.
@@ -437,7 +442,7 @@ public:
   //                             ((!IsPrimary()) && (result==0))
   //                     result!=0 implies sizeof(result)==GetNumberOfPoints()
   virtual double *GetParametricCoords()=0;
-  
+
   // Description:
   // Tessellate the cell if it is not linear or if at least one attribute of
   // `attributes' is not linear. The output are linear cells of the same

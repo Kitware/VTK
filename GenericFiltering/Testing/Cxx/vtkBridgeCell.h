@@ -104,6 +104,11 @@ public:
   virtual int GetNumberOfDOFNodes();
   
   // Description:
+  // Return the points of cell into `it'.
+  // \pre it_exists: it!=0
+  virtual void GetPointIterator(vtkGenericPointIterator *it);
+  
+  // Description:
   // Create an empty cell iterator.
   // \post result_exists: result!=0
   virtual vtkGenericCellIterator *NewCellIterator();
@@ -451,6 +456,7 @@ protected:
   friend class vtkBridgeCellIteratorOnDataSet;
   friend class vtkBridgeCellIteratorOne;
   friend class vtkBridgeCellIteratorOnCellBoundaries;
+  friend class vtkBridgePointIteratorOnCell;
   
   vtkCell *Cell;
   vtkBridgeDataSet *DataSet;

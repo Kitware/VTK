@@ -27,7 +27,11 @@
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkBridgePointIterator, "1.1");
+#include "vtkBridgePointIteratorOnDataSet.h"
+#include "vtkBridgePointIteratorOne.h"
+#include "vtkBridgePointIteratorOnCell.h"
+
+vtkCxxRevisionMacro(vtkBridgePointIterator, "1.2");
 vtkStandardNewMacro(vtkBridgePointIterator);
 
 //-----------------------------------------------------------------------------
@@ -35,7 +39,10 @@ vtkStandardNewMacro(vtkBridgePointIterator);
 // Default constructor.
 vtkBridgePointIterator::vtkBridgePointIterator()
 {
-  this->DataSet=0;
+  this->CurrentIterator=0;
+  this->IteratorOnDataSet=vtkBridgePointIteratorOnDataSet::New();
+  this->IteratorOne=vtkBridgePointIteratorOne::New();
+  this->IteratorOnCell=vtkBridgePointIteratorOnCell::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -43,7 +50,9 @@ vtkBridgePointIterator::vtkBridgePointIterator()
 // Destructor.
 vtkBridgePointIterator::~vtkBridgePointIterator()
 {
-   vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,0);
+  this->IteratorOnDataSet->Delete();
+  this->IteratorOne->Delete();
+  this->IteratorOnCell->Delete();
 }
 
 //-----------------------------------------------------------------------------
@@ -57,13 +66,9 @@ void vtkBridgePointIterator::PrintSelf(ostream& os, vtkIndent indent)
 // Move iterator to first position if any (loop initialization).
 void vtkBridgePointIterator::Begin()
 {
-  if(!OnePoint)
+  if(this->CurrentIterator!=0)
     {
-    this->Id=0;
-    }
-  else
-    {
-    this->Id=this->Size-1;
+    this->CurrentIterator->Begin();
     }
 }
 
@@ -72,7 +77,13 @@ void vtkBridgePointIterator::Begin()
 // Is there no point at iterator position? (exit condition).
 int vtkBridgePointIterator::IsAtEnd()
 {
-  return (this->Id<0) || (this->Id>=this->Size);
+  int result=1;
+  
+  if(this->CurrentIterator!=0)
+    {
+    result=this->CurrentIterator->IsAtEnd();
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -82,7 +93,7 @@ int vtkBridgePointIterator::IsAtEnd()
 void vtkBridgePointIterator::Next()
 {
   assert("pre: not_off" && !IsAtEnd());
-  this->Id++;
+  this->CurrentIterator->Next();
 }
  
 //-----------------------------------------------------------------------------
@@ -94,7 +105,7 @@ double *vtkBridgePointIterator::GetPosition()
 {
   assert("pre: not_off" && !IsAtEnd());
   
-  double *result=this->DataSet->Implementation->GetPoint(this->Id);
+  double *result=this->CurrentIterator->GetPosition();
   
   assert("post: result_exists" && result!=0);
   return result;
@@ -109,7 +120,7 @@ void vtkBridgePointIterator::GetPosition(double x[3])
 {
   assert("pre: not_off" && !IsAtEnd());
   assert("pre: x_exists" && x!=0);
-  this->DataSet->Implementation->GetPoint(this->Id,x);
+  this->CurrentIterator->GetPosition(x);
 }
   
 //-----------------------------------------------------------------------------
@@ -120,7 +131,7 @@ vtkIdType vtkBridgePointIterator::GetId()
 {
   assert("pre: not_off" && !IsAtEnd());
   
-  return this->Id;
+  return this->CurrentIterator->GetId();
 }
   
 //-----------------------------------------------------------------------------
@@ -132,9 +143,8 @@ void vtkBridgePointIterator::InitWithDataSet(vtkBridgeDataSet *ds)
 {
   assert("pre: ds_exists" && ds!=0);
   
-  vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
-  this->OnePoint=0;
-  this->Size=ds->GetNumberOfPoints();
+  this->IteratorOnDataSet->InitWithDataSet(ds);
+  this->CurrentIterator=this->IteratorOnDataSet;
 }
 
 //-----------------------------------------------------------------------------
@@ -149,8 +159,18 @@ void vtkBridgePointIterator::InitWithOnePoint(vtkBridgeDataSet *ds,
   assert("pre: valid_id" && 
          ((!ds!=0)|| ((id>=0)&&(id<=ds->GetNumberOfCells())))); // A=>B: !A||B
   
-  vtkSetObjectBodyMacro(DataSet,vtkBridgeDataSet,ds);
-  this->Id=id;
-  this->OnePoint=1;
-  this->Size=id+1;
+  this->IteratorOne->InitWithOnePoint(ds,id);
+  this->CurrentIterator=this->IteratorOne;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// The iterator will iterate over the point of a cell
+// \pre cell_exists: cell!=0
+void vtkBridgePointIterator::InitWithCell(vtkBridgeCell *cell)
+{
+  assert("pre: cell_exists" && cell!=0);
+  
+  this->IteratorOnCell->InitWithCell(cell);
+  this->CurrentIterator=this->IteratorOnCell;
 }

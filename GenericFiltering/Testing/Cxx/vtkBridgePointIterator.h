@@ -26,6 +26,11 @@
 #include "vtkGenericPointIterator.h"
 
 class vtkBridgeDataSet;
+class vtkBridgeCell;
+class vtkBridgePointIteratorOnDataSet;
+class vtkBridgePointIteratorOne;
+class vtkBridgePointIteratorOnCell;
+
 
 class VTK_BRIDGE_EXPORT vtkBridgePointIterator : public vtkGenericPointIterator
 {
@@ -78,6 +83,11 @@ public:
   void InitWithOnePoint(vtkBridgeDataSet *ds,
                         vtkIdType id);
   
+  // Description:
+  // The iterator will iterate over the point of a cell
+  // \pre cell_exists: cell!=0
+  void InitWithCell(vtkBridgeCell *cell);
+  
 protected:
   // Description:
   // Default constructor.
@@ -87,10 +97,10 @@ protected:
   // Destructor.
   virtual ~vtkBridgePointIterator();
   
-  vtkBridgeDataSet *DataSet; // the structure on which the objet iterates.
-  vtkIdType Id; // the id at current position.
-  int OnePoint; // Is in one point mode?
-  int Size; // size of the structure.
+  vtkGenericPointIterator *CurrentIterator;
+  vtkBridgePointIteratorOnDataSet *IteratorOnDataSet;
+  vtkBridgePointIteratorOne *IteratorOne;
+  vtkBridgePointIteratorOnCell *IteratorOnCell;
   
 private:
   vtkBridgePointIterator(const vtkBridgePointIterator&); // Not implemented
