@@ -129,6 +129,12 @@ vtkImageXViewer viewer1;
 	viewer1 SetWindow [viewer GetWindow];
 	#viewer1 Render;
 
+vtkImageToStructuredPoints image;
+        image SetScalarInput [composite GetOutput];
+
+vtkStructuredPointsWriter writer;
+        writer SetInput [image GetOutput];
+        writer SetFilename "CTAStrucutredPoints.bin";
 
 
 
@@ -137,3 +143,5 @@ source CTASegmentation_main_ui.tcl
 source CTASegmentation_browser_ui.tcl;
 source CTASegmentation_wl_ui.tcl
 source CTASegmentation_reader_param_ui.tcl;
+
+

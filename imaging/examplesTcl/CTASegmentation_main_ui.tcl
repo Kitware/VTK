@@ -78,8 +78,14 @@ button .ctan.cta5.b1 -text "Display MIP" -command DMIP
 button .ctan.wl -text "Window & Level" -command PopupWL
 button .ctan.exit -text "Exit" -command Exit
 
+
+# Interface for saving structured points
+frame .ctan.cta6 -relief ridge -borderwidth 3;
+button .ctan.cta6.b1 -text "Save Segmented Data" -command SAVE
+
+
 # pack frames togther ...
-pack .ctan.dd .ctan.cta0 .ctan.cta1 .ctan.cta2 .ctan.cta3 .ctan.cta4 .ctan.cta5 -side top
+pack .ctan.dd .ctan.cta0 .ctan.cta1 .ctan.cta2 .ctan.cta3 .ctan.cta4 .ctan.cta5 .ctan.cta6 -side top
 
 # packing Display Data frame
 #pack .ctan.dd.slice .ctan.dd.wl -side bottom
@@ -157,6 +163,12 @@ pack  .ctan.wl \
       -side top -expand 1 -in .ctan -fill both -padx 2 -pady 2;
 pack  .ctan.exit \
       -side top -expand 1 -in .ctan -fill both -padx 2 -pady 2;
+
+pack  .ctan.cta6 \
+      -side top -expand 1 -in .ctan -fill both -padx 2 -pady 2;
+
+
+
 #-----------------------------------------------------------------
 global slicenumber numslices kernelradius thresholdvalue invalue
 global lprojection uprojection
@@ -182,6 +194,10 @@ bind .ctan.cta4.group.kernelradius <Return> { AMedian }
 bind .ctan.cta5.group.lowerprj <Return> { CHGMIP }
 bind .ctan.cta5.group.upperprj <Return> { CHGMIP }
 
+proc SAVE {} {
+   global writer;
+   writer write;
+}
 proc LData {} {
     wm deiconify .load_param
 }
