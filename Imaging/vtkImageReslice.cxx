@@ -614,11 +614,11 @@ void vtkImageReslice::ExecuteInformation(vtkImageData *input,
 	s += tmp*fabs(inSpacing[j]);
 	d += tmp*(inWholeExt[2*j+1] - inWholeExt[2*j])*fabs(inSpacing[j]);
 	e += tmp*inWholeExt[2*j];
-	r += tmp*tmp;
+	r += tmp;
 	}
       s /= r;
       d /= r;
-      e /= sqrt(r);
+      e /= r;
       }
     else
       {
