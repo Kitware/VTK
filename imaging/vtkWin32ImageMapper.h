@@ -60,6 +60,7 @@ public:
   vtkWin32ImageMapper();
   ~vtkWin32ImageMapper();
   static vtkWin32ImageMapper *New() {return new vtkWin32ImageMapper;};
+  const char *GetClassName() {return "vtkWin32ImageMapper";};
   
   // Description:
   // Handle the render method.

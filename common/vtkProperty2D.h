@@ -59,6 +59,7 @@ public:
   vtkProperty2D();
   ~vtkProperty2D();
   void PrintSelf(ostream& os, vtkIndent indent);
+  const char *GetClassName() {return "vtkProperty2D";};
 
   // Description:
   // Creates a vtkProperty2D with the following default values:

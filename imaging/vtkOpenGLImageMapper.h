@@ -59,6 +59,7 @@ public:
   vtkOpenGLImageMapper();
   ~vtkOpenGLImageMapper();
   static vtkOpenGLImageMapper *New() {return new vtkOpenGLImageMapper;};
+  const char *GetClassName() {return "vtkOpenGLImageMapper";};
   
   // Description:
   // Handle the render method.

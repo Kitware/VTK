@@ -67,6 +67,7 @@ public:
   vtkXImageMapper();
   ~vtkXImageMapper();
   static vtkXImageMapper *New() {return new vtkXImageMapper;};
+  const char *GetClassName() {return "vtkXImageMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
