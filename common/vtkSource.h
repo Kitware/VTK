@@ -161,7 +161,7 @@ protected:
   // Description:
   // This method is the one that should be used by subclasses, right now the 
   // default implementation is to call the backwards compatibility method
-  virtual void ExecuteData(vtkDataObject *output) {
+  virtual void ExecuteData(vtkDataObject *vtkNotUsed(output)) {
     this->Execute(); };
 
   // Description:
