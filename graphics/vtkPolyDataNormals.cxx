@@ -386,7 +386,7 @@ int vtkPolyDataNormals::TraverseAndOrder (int cellId, vtkIdList *cellIds,
 					  int *Visited, vtkPolyData *OldMesh, vtkPolyData *NewMesh)
 {
   int p1, p2;
-  int j, k, l, numNei;
+  int j, k, l;
   int npts, *pts;
   int numNeiPts, *neiPts, neighbor;
   int queuedCells = 0;
@@ -405,7 +405,7 @@ int vtkPolyDataNormals::TraverseAndOrder (int cellId, vtkIdList *cellIds,
     //  Check the direction of the neighbor ordering.  Should be
     //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
     //
-    if ( (numNei=cellIds->GetNumberOfIds()) == 1 ||
+    if ( cellIds->GetNumberOfIds() == 1 ||
     this->NonManifoldTraversal )
       {
       for (k=0; k < cellIds->GetNumberOfIds(); k++) 
