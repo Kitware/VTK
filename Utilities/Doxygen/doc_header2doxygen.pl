@@ -1,10 +1,14 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-17 16:29:58 barre>
+# Time-stamp: <2001-10-24 19:25:30 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.82 (barre) :
+#   - add --relativeto path : each file/directory to document is considered
+#     relative to 'path', where --to and --relativeto should be absolute
 #
 # 0.81 (barre) :
 #   - fix pb if both --to and path to the file to document were absolute
@@ -82,6 +86,7 @@
 
 
 use Carp;
+use Cwd 'abs_path';
 use Getopt::Long;
 use Fcntl;
 use File::Basename;
@@ -90,7 +95,7 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.81, $0, "Sebastien Barre et al.");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.82, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -108,6 +113,7 @@ my %default =
             "../../Parallel", 
             "../../Patented", 
             "../../Rendering"],
+   relativeto => "",
    temp => "doc_header2doxygen.tmp",
    to => "../../../VTK-doxygen"
   );
@@ -117,17 +123,18 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "update|u", "force|f", "temp=s", "to=s");
+GetOptions (\%args, "help", "verbose|v", "update|u", "force|f", "temp=s", "to=s", "relativeto=s");
 
 if (exists $args{"help"}) {
     print <<"EOT";
-Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--force|-f] [--temp file] [--to path] [files|directories...]
-  --help       : this message
-  --verbose|-v : verbose (display filenames while processing)
-  --update|-u  : update (convert only if newer, requires --to)
-  --force|-f   : force conversion for all files (overrides --update)
-  --temp file  : use 'file' as temporary file (default: $default{temp})
-  --to path    : use 'path' as destination directory (default: $default{to})
+Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--force|-f] [--temp file] [--to path] [--relativeto path] [files|directories...]
+  --help            : this message
+  --verbose|-v      : verbose (display filenames while processing)
+  --update|-u       : update (convert only if newer, requires --to)
+  --force|-f        : force conversion for all files (overrides --update)
+  --temp file       : use 'file' as temporary file (default: $default{temp})
+  --to path         : use 'path' as destination directory (default: $default{to})
+  --relativeto path : each file/directory to document is considered relative to 'path', where --to and --relativeto should be absolute (default: $default{relativeto})
 
 Example:
   $PROGNAME --to ../vtk-doxygen
@@ -142,6 +149,8 @@ $args{"force"} = 1 if exists $default{"force"};
 $args{"temp"} = $default{temp} if ! exists $args{"temp"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
+$args{"relativeto"} = $default{"relativeto"} if ! exists $args{"relativeto"};
+$args{"relativeto"} =~ s/[\\\/]*$// if exists $args{"relativeto"};
 
 croak "$PROGNAME: --update requires --to\n" 
   if exists $args{"update"} && ! exists $args{"to"};
@@ -182,9 +191,17 @@ foreach my $source (@files) {
     if (! exists $args{"to"}) {
         $dest = $args{"temp"};
     } else {
-        # if source has absolute path, just use the basename
+        # if source has absolute path, just use the basename, unless a
+        # relativeto path has been set
         if ($source =~ m/^(\/|[a-zA-W]\:[\/\\])/) {
-            $dest = $args{"to"} . '/' . basename($source);
+            if ($args{"relativeto"}) {
+                my ($dir, $absrel) = (abs_path(dirname($source)), 
+                                      abs_path($args{"relativeto"}));
+                $dir =~ s/$absrel//;
+                $dest = $args{"to"} . $dir . '/' . basename($source);
+            } else {
+                $dest = $args{"to"} . '/' . basename($source);
+            }
         } else {
             my $source2 = $source;
             # let's remove the ../ component before the source filename, so 
