@@ -84,7 +84,7 @@ void vtkCollection::AddItem(vtkObject *a)
 
 // Description:
 // Remove an object from the list. Removes the first object found, not
-// all occurences. If no object found, list is unaffected.
+// all occurrences. If no object found, list is unaffected.
 void vtkCollection::RemoveItem(vtkObject *a)
 {
   int i;
