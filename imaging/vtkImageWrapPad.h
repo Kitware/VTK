@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageWrapPad : public vtkImagePadFilter
 {
 public:
   vtkImageWrapPad();
-  vtkImageWrapPad *New() {return new vtkImageWrapPad;};
+  static vtkImageWrapPad *New() {return new vtkImageWrapPad;};
   char *GetClassName() {return "vtkImageWrapPad";};
 
 protected:

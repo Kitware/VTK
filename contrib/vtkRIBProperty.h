@@ -61,7 +61,7 @@ class VTK_EXPORT vtkRIBProperty : public vtkProperty
 public:
   vtkRIBProperty();
   ~vtkRIBProperty();
-  vtkRIBProperty *New() {return new vtkRIBProperty;};
+  static vtkRIBProperty *New() {return new vtkRIBProperty;};
   char *GetClassName() {return "vtkRIBProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageGradient : public vtkImageFilter
 {
 public:
   vtkImageGradient();
-  vtkImageGradient *New() {return new vtkImageGradient;};
+  static vtkImageGradient *New() {return new vtkImageGradient;};
   char *GetClassName() {return "vtkImageGradient";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

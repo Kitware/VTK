@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageConstantPad : public vtkImagePadFilter
 {
 public:
   vtkImageConstantPad();
-  vtkImageConstantPad *New() {return new vtkImageConstantPad;};
+  static vtkImageConstantPad *New() {return new vtkImageConstantPad;};
   char *GetClassName() {return "vtkImageConstantPad";};
 
   // Set/Get the pad value.

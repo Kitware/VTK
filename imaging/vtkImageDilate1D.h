@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageDilate1D : public vtkImageSpatialFilter
 {
 public:
   vtkImageDilate1D();
-  vtkImageDilate1D *New() {return new vtkImageDilate1D;};
+  static vtkImageDilate1D *New() {return new vtkImageDilate1D;};
   char *GetClassName() {return "vtkImageDilate1D";};
   void SetKernelSize(int size);
   void SetStride(int stride);

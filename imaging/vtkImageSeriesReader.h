@@ -53,7 +53,7 @@ class VTK_EXPORT vtkImageSeriesReader : public vtkImageReader
 public:
   vtkImageSeriesReader();
   ~vtkImageSeriesReader();
-  vtkImageSeriesReader *New() {return new vtkImageSeriesReader;};
+  static vtkImageSeriesReader *New() {return new vtkImageSeriesReader;};
   char *GetClassName() {return "vtkImageSeriesReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 

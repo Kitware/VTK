@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageGaussianSmooth : public vtkImageDecomposedFilter
 {
 public:
   vtkImageGaussianSmooth();
-  vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
+  static vtkImageGaussianSmooth *New() {return new vtkImageGaussianSmooth;};
   char *GetClassName() {return "vtkImageGaussianSmooth";};
 
   void SetDimensionality(int num);

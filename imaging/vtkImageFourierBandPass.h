@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageFourierBandPass : public vtkImageFilter
 {
 public:
   vtkImageFourierBandPass();
-  vtkImageFourierBandPass *New() {return new vtkImageFourierBandPass;};
+  static vtkImageFourierBandPass *New() {return new vtkImageFourierBandPass;};
   char *GetClassName() {return "vtkImageFourierBandPass";};
 
   // Description:

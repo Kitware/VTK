@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageXViewer : public vtkImageViewer {
 public:
   vtkImageXViewer();
   ~vtkImageXViewer();
-  vtkImageXViewer *New() {return new vtkImageXViewer;};
+  static vtkImageXViewer *New() {return new vtkImageXViewer;};
   char *GetClassName() {return "vtkImageXViewer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageMedian : public vtkImageSpatialFilter
 public:
   vtkImageMedian();
   ~vtkImageMedian();
-  vtkImageMedian *New() {return new vtkImageMedian;};
+  static vtkImageMedian *New() {return new vtkImageMedian;};
   char *GetClassName() {return "vtkImageMedian";};
 
   // Set/Get the size of the neighood.

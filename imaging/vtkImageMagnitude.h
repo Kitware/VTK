@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageMagnitude : public vtkImageFilter
 {
 public:
   vtkImageMagnitude();
-  vtkImageMagnitude *New() {return new vtkImageMagnitude;};
+  static vtkImageMagnitude *New() {return new vtkImageMagnitude;};
   char *GetClassName() {return "vtkImageMagnitude";};
 
   // Description:

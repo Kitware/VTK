@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageFlip : public vtkImageFilter
 {
 public:
   vtkImageFlip();
-  vtkImageFlip *New() {return new vtkImageFlip;};
+  static vtkImageFlip *New() {return new vtkImageFlip;};
   char *GetClassName() {return "vtkImageFlip";};
 
   // Description:

@@ -70,7 +70,7 @@ class VTK_EXPORT vtkMarchingSquares : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkMarchingSquares();
-  vtkMarchingSquares *New() {return new vtkMarchingSquares;};
+  static vtkMarchingSquares *New() {return new vtkMarchingSquares;};
   char *GetClassName() {return "vtkMarchingSquares";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

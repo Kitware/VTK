@@ -84,7 +84,7 @@ class VTK_EXPORT vtkRIBExporter : public vtkExporter
 public:
   vtkRIBExporter();
   ~vtkRIBExporter();
-  vtkRIBExporter *New() {return new vtkRIBExporter;};
+  static vtkRIBExporter *New() {return new vtkRIBExporter;};
   char *GetClassName() {return "vtkRIBExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

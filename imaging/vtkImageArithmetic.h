@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageArithmetic : public vtkImageTwoInputFilter
 {
 public:
   vtkImageArithmetic();
-  vtkImageArithmetic *New() {return new vtkImageArithmetic;};
+  static vtkImageArithmetic *New() {return new vtkImageArithmetic;};
   char *GetClassName() {return "vtkImageArithmetic";};
 
   // Description:

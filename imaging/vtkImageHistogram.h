@@ -54,7 +54,7 @@ class VTK_EXPORT vtkImageHistogram : public vtkImageFilter
 {
 public:
   vtkImageHistogram();
-  vtkImageHistogram *New() {return new vtkImageHistogram;};
+  static vtkImageHistogram *New() {return new vtkImageHistogram;};
   char *GetClassName() {return "vtkImageHistogram";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void InterceptCacheUpdate(vtkImageRegion *region);

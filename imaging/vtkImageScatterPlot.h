@@ -62,7 +62,7 @@ class VTK_EXPORT vtkImageScatterPlot : public vtkImageFilter
 {
 public:
   vtkImageScatterPlot();
-  vtkImageScatterPlot *New() {return new vtkImageScatterPlot;};
+  static vtkImageScatterPlot *New() {return new vtkImageScatterPlot;};
   char *GetClassName() {return "vtkImageScatterPlot";};
   
   // Description:

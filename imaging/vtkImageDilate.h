@@ -55,7 +55,7 @@ class VTK_EXPORT vtkImageDilate : public vtkImageDecomposedFilter
 {
 public:
   vtkImageDilate();
-  vtkImageDilate *New() {return new vtkImageDilate;};
+  static vtkImageDilate *New() {return new vtkImageDilate;};
   char *GetClassName() {return "vtkImageDilate";};
 
   void SetDimensionality(int num);

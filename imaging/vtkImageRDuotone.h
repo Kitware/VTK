@@ -57,7 +57,7 @@ class VTK_EXPORT vtkImageRDuotone : public vtkImageTwoInputFilter
 {
 public:
   vtkImageRDuotone();
-  vtkImageRDuotone *New() {return new vtkImageRDuotone;};
+  static vtkImageRDuotone *New() {return new vtkImageRDuotone;};
   char *GetClassName() {return "vtkImageRDuotone";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

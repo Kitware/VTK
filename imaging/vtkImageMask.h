@@ -59,7 +59,7 @@ class VTK_EXPORT vtkImageMask : public vtkImageTwoInputFilter
 {
 public:
   vtkImageMask();
-  vtkImageMask *New() {return new vtkImageMask;};
+  static vtkImageMask *New() {return new vtkImageMask;};
   char *GetClassName() {return "vtkImageMask";};
 
   // Description:

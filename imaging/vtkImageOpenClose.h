@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageOpenClose : public vtkImageFilter
 public:
   vtkImageOpenClose();
   ~vtkImageOpenClose();
-  vtkImageOpenClose *New() {return new vtkImageOpenClose;};
+  static vtkImageOpenClose *New() {return new vtkImageOpenClose;};
   char *GetClassName() {return "vtkImageOpenClose";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkImageThreshold : public vtkImageFilter
 {
 public:
   vtkImageThreshold();
-  vtkImageThreshold *New() {return new vtkImageThreshold;};
+  static vtkImageThreshold *New() {return new vtkImageThreshold;};
   char *GetClassName() {return "vtkImageThreshold";};
 
   void ThresholdByUpper(float thresh);

@@ -61,7 +61,7 @@ class VTK_EXPORT vtkImageShortReader : public vtkImageCachedSource
 public:
   vtkImageShortReader();
   ~vtkImageShortReader();
-  vtkImageShortReader *New() {return new vtkImageShortReader;};
+  static vtkImageShortReader *New() {return new vtkImageShortReader;};
   char *GetClassName() {return "vtkImageShortReader";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
