@@ -35,7 +35,7 @@ class VTK_EXPORT vtkParallelFactory : public vtkObjectFactory
 public: 
 // Methods from vtkObject
   vtkTypeMacro(vtkParallelFactory,vtkObjectFactory);
-  static vtkParallelFactory *New() {return new vtkParallelFactory;};
+  static vtkParallelFactory *New();
   void PrintSelf(ostream& os, vtkIndent indent);
   virtual const char* GetVTKSourceVersion();
   virtual const char* GetDescription();
