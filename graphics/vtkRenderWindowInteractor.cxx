@@ -372,7 +372,7 @@ void  vtkRenderWindowInteractor::FindPokedCamera(int x,int y)
   vp = this->CurrentRenderer->GetViewport();
 
   this->CurrentCamera = this->CurrentRenderer->GetActiveCamera();  
-  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(int)*2);
+  memcpy(this->Center,this->CurrentRenderer->GetCenter(),sizeof(float)*2);
   this->DeltaElevation = -20.0/((vp[3] - vp[1])*this->Size[1]);
   this->DeltaAzimuth = -20.0/((vp[2] - vp[0])*this->Size[0]);
 
