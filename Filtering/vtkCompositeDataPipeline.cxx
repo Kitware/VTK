@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.9");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.10");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -981,47 +981,15 @@ void vtkCompositeDataPipeline::CopyFromDataToInformation(
 //----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::PushInformation(vtkInformation* inInfo)
 {
-  if (inInfo->Has(WHOLE_EXTENT()))
-    {
-    this->InformationCache->Set(WHOLE_EXTENT(), inInfo->Get(WHOLE_EXTENT()), 6);
-    }
-  else
-    {
-    this->InformationCache->Remove(WHOLE_EXTENT());
-    }
-
-  if (inInfo->Has(MAXIMUM_NUMBER_OF_PIECES()))
-    {
-    this->InformationCache->Set(MAXIMUM_NUMBER_OF_PIECES(),
-                                inInfo->Get(MAXIMUM_NUMBER_OF_PIECES()));
-    }
-  else
-    {
-    this->InformationCache->Remove(MAXIMUM_NUMBER_OF_PIECES());
-    }
+  this->InformationCache->CopyEntry(inInfo, WHOLE_EXTENT());
+  this->InformationCache->CopyEntry(inInfo, MAXIMUM_NUMBER_OF_PIECES());
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::PopInformation(vtkInformation* inInfo)
 {
-  if (this->InformationCache->Has(WHOLE_EXTENT()))
-    {
-    inInfo->Set(WHOLE_EXTENT(), this->InformationCache->Get(WHOLE_EXTENT()), 6);
-    }
-  else
-    {
-    inInfo->Remove(WHOLE_EXTENT());
-    }
-
-  if (this->InformationCache->Has(MAXIMUM_NUMBER_OF_PIECES()))
-    {
-    inInfo->Set(MAXIMUM_NUMBER_OF_PIECES(),
-                this->InformationCache->Get(MAXIMUM_NUMBER_OF_PIECES()));
-    }
-  else
-    {
-    inInfo->Remove(MAXIMUM_NUMBER_OF_PIECES());
-    }
+  inInfo->CopyEntry(this->InformationCache, WHOLE_EXTENT());
+  inInfo->CopyEntry(this->InformationCache, MAXIMUM_NUMBER_OF_PIECES());
 }
 
 //----------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.17");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.18");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -333,7 +333,8 @@ void vtkXMLUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInf
    
   // Set the maximum number of pieces that can be provided by this
   // reader.
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), this->NumberOfPieces);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(),
+    this->NumberOfPieces);
 }
 
 
@@ -341,13 +342,8 @@ void vtkXMLUnstructuredDataReader::SetupOutputInformation(vtkInformation *outInf
 void vtkXMLUnstructuredDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
   {
   this->Superclass::CopyOutputInformation(outInfo, port);
-  vtkInformation *localInfo = this->GetExecutive()->GetOutputInformation( port );
-
-  if ( localInfo->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()) )
-    {
-    outInfo->CopyEntry( localInfo, 
-      vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
-    }
+  outInfo->CopyEntry( this->GetExecutive()->GetOutputInformation( port ), 
+    vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES() );
   }
 
 
