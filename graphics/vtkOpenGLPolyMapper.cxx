@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLPolyMapper.h"
 
 #ifdef _WIN32
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #else
 #include "vtkOpenGLRenderWindow.h"
 #endif
@@ -114,7 +114,7 @@ void vtkOpenGLPolyMapper::Draw(vtkRenderer *aren, vtkActor *act)
   
 // make sure our window is current
 #ifdef _WIN32
-  ((vtkWin32OglrRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
+  ((vtkWin32OpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
 #else
   ((vtkOpenGLRenderWindow *)(ren->GetRenderWindow()))->MakeCurrent();
 #endif

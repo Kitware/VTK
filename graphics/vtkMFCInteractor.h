@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // specific subclasses of vtkRenderWindowInteractor.
 
 // .SECTION see also
-// vtkRenderWindowInteractor vtkWin32OglrRenderWindow
+// vtkRenderWindowInteractor vtkWin32OpenGLRenderWindow
 
 // .SECTION Event Bindings
 // Mouse bindings: Button 1 - rotate, Button 2 - pan, Button 3 - zoom

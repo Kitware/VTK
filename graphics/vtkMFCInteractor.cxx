@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <afxext.h>         // MFC extensions
 #include <afxole.h>         // MFC OLE classes
  
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkMFCInteractor.h"
 #include "vtkActor.h" 
 #include <gl/gl.h>
@@ -135,7 +135,7 @@ void vtkMFCInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkMFCInteractor::Initialize()
 {
   static int any_initialized = 0;
-  vtkWin32OglrRenderWindow *ren;
+  vtkWin32OpenGLRenderWindow *ren;
   //int depth;
   int *size;
   int *position;
@@ -152,7 +152,7 @@ void vtkMFCInteractor::Initialize()
   this->Initialized = 1;
 
   // get the info we need from the RenderingWindow
-  ren = (vtkWin32OglrRenderWindow *)(this->RenderWindow);
+  ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
   ren->Render();
   size    = ren->GetSize();
   position= ren->GetPosition();
@@ -225,15 +225,15 @@ void vtkMFCInteractor::MakeDirectRenderer(HWND hwnd, CRect *rcBounds,vtkRenderWi
     bResult = wglMakeCurrent(this->WindowDC, this->WindowRC);
     ASSERT(bResult);
     
-    ((vtkWin32OglrRenderWindow *) this->RenderWindow)->SetContextId(this->WindowRC);
+    ((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->SetContextId(this->WindowRC);
     this->RenderWindow->SetWindowId(this->WindowHandle);
-    ((vtkWin32OglrRenderWindow *) this->RenderWindow)->SetDeviceContext(this->WindowDC);
+    ((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->SetDeviceContext(this->WindowDC);
     this->RenderWindow->SetSize(this->WindowWidth,this->WindowHeight);
     this->RenderWindow->DoubleBufferOn();
     this->RenderWindow->SwapBuffersOff();		// we do swapbuffers by ourselfs
     if(!this->Initialized) this->Initialize();
     }
-  ((vtkWin32OglrRenderWindow *) this->RenderWindow)->WindowInitialize();
+  ((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->WindowInitialize();
   
   wglMakeCurrent(NULL,NULL);
 }
@@ -304,16 +304,16 @@ void vtkMFCInteractor::MakeIndirectRenderer(int bitmap_width,int bitmap_height,i
 	this->RenderWindow->DoubleBufferOff();
 	this->RenderWindow->SwapBuffersOff();
 	
-	((vtkWin32OglrRenderWindow *) this->RenderWindow)->SetContextId(this->WindowRC);
+	((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->SetContextId(this->WindowRC);
 	this->RenderWindow->SetWindowId(this->WindowHandle);
-	((vtkWin32OglrRenderWindow *) this->RenderWindow)->SetDeviceContext(this->MemoryDC->m_hDC);
+	((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->SetDeviceContext(this->MemoryDC->m_hDC);
 	this->RenderWindow->SetSize(this->WindowWidth,this->WindowHeight);
 	Size[0] = this->WindowWidth;
 	Size[1] = this->WindowHeight;
 	}
       }
     }
-  ((vtkWin32OglrRenderWindow *) this->RenderWindow)->WindowInitialize();
+  ((vtkWin32OpenGLRenderWindow *) this->RenderWindow)->WindowInitialize();
   
   VERIFY(wglMakeCurrent(NULL,NULL));
 }

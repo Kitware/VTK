@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    %M%
+  Module:    vtkWin32RenderWindowInteractor.cxx
   Language:  C++
-  Date:      %G%
-  Version:   %I%
-
+  Date:      $Date$
+  Version:   $Revision$
 
 Copyright (c) 1993-1996 Ken Martin, Will Schroeder, Bill Lorensen.
 
@@ -41,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #include "vtkActor.h"
 #include <math.h>
@@ -83,12 +82,12 @@ void  vtkWin32RenderWindowInteractor::Start()
 void vtkWin32RenderWindowInteractor::Initialize()
 {
   static int any_initialized = 0;
-  vtkWin32OglrRenderWindow *ren;
+  vtkWin32OpenGLRenderWindow *ren;
   int depth;
   int *size;
   int *position;
   int argc = 0;
-  vtkWin32OglrRenderWindow *tmp;
+  vtkWin32OpenGLRenderWindow *tmp;
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
@@ -101,13 +100,13 @@ void vtkWin32RenderWindowInteractor::Initialize()
   this->Initialized = 1;
 
   // get the info we need from the RenderingWindow
-  ren = (vtkWin32OglrRenderWindow *)(this->RenderWindow);
+  ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
   ren->Render();
   size    = ren->GetSize();
   position= ren->GetPosition();
   this->WindowId = ren->GetWindowId();
   this->OldProc = (WNDPROC)GetWindowLong(this->WindowId,GWL_WNDPROC);
-  tmp = (vtkWin32OglrRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
+  tmp = (vtkWin32OpenGLRenderWindow *)GetWindowLong(this->WindowId,GWL_USERDATA);
   // watch for odd conditions
   if (tmp != ren)
     {
@@ -213,10 +212,10 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
 {
   static LPARAM lastPos;
   float xf,yf;
-  vtkWin32OglrRenderWindow *ren;
+  vtkWin32OpenGLRenderWindow *ren;
   vtkWin32RenderWindowInteractor *me;
 
-  ren = (vtkWin32OglrRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+  ren = (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
   me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
 
   if ((uMsg == WM_USER+13)&&(wParam == 26))

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWin32OglrRenderWindow.cxx
+  Module:    vtkWin32OpenGLRenderWindow.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -44,19 +44,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <afxwin.h>				// hsr
 #include <GL/glaux.h>
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkWin32RenderWindowInteractor.h"
-#include "vtkOglrRenderer.h"
-#include "vtkOglrProperty.h"
-#include "vtkOglrTexture.h"
-#include "vtkOglrCamera.h"
-#include "vtkOglrActor.h"
-#include "vtkOglrLight.h"
-#include "vtkOglrPolyMapper.h"
+#include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLProperty.h"
+#include "vtkOpenGLTexture.h"
+#include "vtkOpenGLCamera.h"
+#include "vtkOpenGLActor.h"
+#include "vtkOpenGLLight.h"
+#include "vtkOpenGLPolyMapper.h"
 
 #define MAX_LIGHTS 8
 
-vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
+vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
   this->ApplicationInstance = NULL;
   this->Palette = NULL;
@@ -73,7 +73,7 @@ vtkWin32OglrRenderWindow::vtkWin32OglrRenderWindow()
   this->WindowName = strdup("Visualization Toolkit - Win32OpenGL");
 }
 
-int vtkWin32OglrRenderWindow::GetEventPending()
+int vtkWin32OpenGLRenderWindow::GetEventPending()
 {
   MSG msg;
   
@@ -82,7 +82,7 @@ int vtkWin32OglrRenderWindow::GetEventPending()
 
 // Description:
 // Begin the rendering process.
-void vtkWin32OglrRenderWindow::Start(void)
+void vtkWin32OpenGLRenderWindow::Start(void)
 {
   // if the renderer has not been initialized, do so now
   if (!this->ContextId)
@@ -94,12 +94,12 @@ void vtkWin32OglrRenderWindow::Start(void)
   this->MakeCurrent();
 }
 
-void vtkWin32OglrRenderWindow::MakeCurrent()
+void vtkWin32OpenGLRenderWindow::MakeCurrent()
 {
   wglMakeCurrent(this->DeviceContext, this->ContextId);
 }
 
-void vtkWin32OglrRenderWindow::SetSize(int x, int y)
+void vtkWin32OpenGLRenderWindow::SetSize(int x, int y)
 {
   static int resizing = 0;
 
@@ -134,7 +134,7 @@ void vtkWin32OglrRenderWindow::SetSize(int x, int y)
     }
 }
 
-void vtkWin32OglrRenderWindow::SetPosition(int x, int y)
+void vtkWin32OpenGLRenderWindow::SetPosition(int x, int y)
 {
   static int resizing = 0;
 
@@ -157,19 +157,19 @@ void vtkWin32OglrRenderWindow::SetPosition(int x, int y)
     }
 }
 
-static void vtkWin32OglrSwapBuffers(HDC hdc)
+static void vtkWin32OpenGLSwapBuffers(HDC hdc)
 {
   SwapBuffers(hdc);
 }
 
 // Description:
 // End the rendering process and display the image.
-void vtkWin32OglrRenderWindow::Frame(void)
+void vtkWin32OpenGLRenderWindow::Frame(void)
 {
   glFlush();
   if (!this->AbortRender && this->DoubleBuffer)
     {
-    vtkWin32OglrSwapBuffers(wglGetCurrentDC());
+    vtkWin32OpenGLSwapBuffers(wglGetCurrentDC());
     vtkDebugMacro(<< " SwapBuffers\n");
     }
 }
@@ -177,19 +177,19 @@ void vtkWin32OglrRenderWindow::Frame(void)
 
 // Description:
 // Update system if needed due to stereo rendering.
-void vtkWin32OglrRenderWindow::StereoUpdate(void)
+void vtkWin32OpenGLRenderWindow::StereoUpdate(void)
 {
   // no stereo right now
 }
 
 // Description:
 // Specify various window parameters.
-void vtkWin32OglrRenderWindow::WindowConfigure()
+void vtkWin32OpenGLRenderWindow::WindowConfigure()
 {
   // this is all handles by the desiredVisualInfo method
 }
 
-void vtkWin32OglrSetupPixelFormat(HDC hDC)
+void vtkWin32OpenGLSetupPixelFormat(HDC hDC)
 {
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),  /* size */
@@ -227,9 +227,9 @@ void vtkWin32OglrSetupPixelFormat(HDC hDC)
     }
 }
 
-vtkWin32OglrRenderWindow *vtkWin32OglrRenderWindowPtr = NULL;
+vtkWin32OpenGLRenderWindow *vtkWin32OpenGLRenderWindowPtr = NULL;
 
-void vtkWin32OglrSetupPalette(HDC hDC, vtkWin32OglrRenderWindow *me)
+void vtkWin32OpenGLSetupPalette(HDC hDC, vtkWin32OpenGLRenderWindow *me)
 {
     int pixelFormat = GetPixelFormat(hDC);
     PIXELFORMATDESCRIPTOR pfd;
@@ -276,7 +276,7 @@ void vtkWin32OglrSetupPalette(HDC hDC, vtkWin32OglrRenderWindow *me)
     }
 }
 
-void vtkWin32OglrInit()
+void vtkWin32OpenGLInit()
 {
   glMatrixMode( GL_MODELVIEW );
   glDepthFunc( GL_LEQUAL );
@@ -291,24 +291,24 @@ void vtkWin32OglrInit()
 }
 
 
-LRESULT APIENTRY vtkWin32OglrWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT APIENTRY vtkWin32OpenGLWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  vtkWin32OglrRenderWindow *me = 
-    (vtkWin32OglrRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
+  vtkWin32OpenGLRenderWindow *me = 
+    (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
 
   switch (message) 
     {
     case WM_CREATE:
       {
         /* initialize OpenGL rendering */
-        me = vtkWin32OglrRenderWindowPtr; 
+        me = vtkWin32OpenGLRenderWindowPtr; 
         SetWindowLong(hWnd,GWL_USERDATA,(LONG)me);
         me->DeviceContext = GetDC(hWnd);
-        vtkWin32OglrSetupPixelFormat(me->DeviceContext);
-        vtkWin32OglrSetupPalette(me->DeviceContext,me);
+        vtkWin32OpenGLSetupPixelFormat(me->DeviceContext);
+        vtkWin32OpenGLSetupPalette(me->DeviceContext,me);
 		    me->ContextId = wglCreateContext(me->DeviceContext);
         wglMakeCurrent(me->DeviceContext, me->ContextId);
-        vtkWin32OglrInit();
+        vtkWin32OpenGLInit();
         return 0;
       }
     case WM_DESTROY:
@@ -377,7 +377,7 @@ LRESULT APIENTRY vtkWin32OglrWndProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 // Description:
 // Initialize the window for rendering.
-void vtkWin32OglrRenderWindow::WindowInitialize (void)
+void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
 {
   int x, y, width, height;
   GLenum type;
@@ -417,10 +417,10 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
 		  sprintf(this->WindowName,"Visualization Toolkit - Win32OpenGL #%i",count++);
 
       // has the class been registered ?
-      if (!GetClassInfo(this->ApplicationInstance,"vtkOglr",&wndClass))
+      if (!GetClassInfo(this->ApplicationInstance,"vtkOpenGL",&wndClass))
         {
         wndClass.style = CS_HREDRAW | CS_VREDRAW;
-        wndClass.lpfnWndProc = vtkWin32OglrWndProc;
+        wndClass.lpfnWndProc = vtkWin32OpenGLWndProc;
         wndClass.cbClsExtra = 0;
         wndClass.cbWndExtra = 0;
         wndClass.hInstance = this->ApplicationInstance;
@@ -428,21 +428,21 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
         wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
         wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
         wndClass.lpszMenuName = NULL;
-        wndClass.lpszClassName = "vtkOglr";
+        wndClass.lpszClassName = "vtkOpenGL";
         RegisterClass(&wndClass);
         }
       
       // use poor mans mutex
-      if (vtkWin32OglrRenderWindowPtr)
+      if (vtkWin32OpenGLRenderWindowPtr)
         {
         vtkErrorMacro("Two windows being created at the same time");
         }
-      vtkWin32OglrRenderWindowPtr = this;
+      vtkWin32OpenGLRenderWindowPtr = this;
       /* create window */
       if (this->ParentId)
         {
         this->WindowId = CreateWindow(
-          "vtkOglr", this->WindowName,
+          "vtkOpenGL", this->WindowName,
           WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height,
           this->ParentId, NULL, this->ApplicationInstance, NULL);
@@ -450,13 +450,13 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
       else
         {
         this->WindowId = CreateWindow(
-            "vtkOglr", this->WindowName,
+            "vtkOpenGL", this->WindowName,
             WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
             x,y, width+2*GetSystemMetrics(SM_CXFRAME),
             height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
             NULL, NULL, this->ApplicationInstance, NULL);
         }
-      vtkWin32OglrRenderWindowPtr = NULL;
+      vtkWin32OpenGLRenderWindowPtr = NULL;
       if (!this->WindowId)
         {
         vtkErrorMacro("Could not create window, error:  " << GetLastError());
@@ -476,7 +476,7 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
     }	
   else 
     {
-    vtkWin32OglrInit();
+    vtkWin32OpenGLInit();
     wglMakeCurrent(this->DeviceContext, this->ContextId); // hsr
     }
 
@@ -484,7 +484,7 @@ void vtkWin32OglrRenderWindow::WindowInitialize (void)
 
 // Description:
 // Initialize the rendering window.
-void vtkWin32OglrRenderWindow::Initialize (void)
+void vtkWin32OpenGLRenderWindow::Initialize (void)
 {
   // make sure we havent already been initialized 
   if (this->ContextId)
@@ -497,7 +497,7 @@ void vtkWin32OglrRenderWindow::Initialize (void)
 
 // Description:
 // Get the current size of the window.
-int *vtkWin32OglrRenderWindow::GetSize(void)
+int *vtkWin32OpenGLRenderWindow::GetSize(void)
 {
   RECT rect;
 
@@ -517,7 +517,7 @@ int *vtkWin32OglrRenderWindow::GetSize(void)
 }
 
 // Get the current size of the window.
-int *vtkWin32OglrRenderWindow::GetScreenSize(void)
+int *vtkWin32OpenGLRenderWindow::GetScreenSize(void)
 {
   RECT rect;
 
@@ -538,7 +538,7 @@ int *vtkWin32OglrRenderWindow::GetScreenSize(void)
 
 // Description:
 // Get the position in screen coordinates of the window.
-int *vtkWin32OglrRenderWindow::GetPosition(void)
+int *vtkWin32OpenGLRenderWindow::GetPosition(void)
 {
   // if we aren't mapped then just return the ivar 
   if (!this->Mapped)
@@ -554,7 +554,7 @@ int *vtkWin32OglrRenderWindow::GetPosition(void)
 
 // Description:
 // Change the window to fill the entire screen.
-void vtkWin32OglrRenderWindow::SetFullScreen(int arg)
+void vtkWin32OpenGLRenderWindow::SetFullScreen(int arg)
 {
   int *temp;
   
@@ -605,7 +605,7 @@ void vtkWin32OglrRenderWindow::SetFullScreen(int arg)
 
 // Description:
 // Set the preferred window size to full screen.
-void vtkWin32OglrRenderWindow::PrefFullScreen()
+void vtkWin32OpenGLRenderWindow::PrefFullScreen()
 {
   int *size;
 
@@ -623,7 +623,7 @@ void vtkWin32OglrRenderWindow::PrefFullScreen()
 
 // Description:
 // Remap the window.
-void vtkWin32OglrRenderWindow::WindowRemap()
+void vtkWin32OpenGLRenderWindow::WindowRemap()
 {
   short cur_light;
 
@@ -647,7 +647,7 @@ void vtkWin32OglrRenderWindow::WindowRemap()
   this->WindowInitialize();
 }
 
-void vtkWin32OglrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
+void vtkWin32OpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkRenderWindow::PrintSelf(os,indent);
 
@@ -657,7 +657,7 @@ void vtkWin32OglrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-unsigned char *vtkWin32OglrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2, 
+unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, int y2, 
 						 int front)
 {
   long     xloop,yloop;
@@ -721,7 +721,7 @@ unsigned char *vtkWin32OglrRenderWindow::GetPixelData(int x1, int y1, int x2, in
   return data;
 }
 
-void vtkWin32OglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
+void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 					    unsigned char *data, int front)
 {
   int     y_low, y_hi;
@@ -799,7 +799,7 @@ void vtkWin32OglrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
 // Description:
 // Get the window id.
-HWND vtkWin32OglrRenderWindow::GetWindowId()
+HWND vtkWin32OpenGLRenderWindow::GetWindowId()
 {
   vtkDebugMacro(<< "Returning WindowId of " << this->WindowId << "\n"); 
 
@@ -808,7 +808,7 @@ HWND vtkWin32OglrRenderWindow::GetWindowId()
 
 // Description:
 // Set the window id to a pre-existing window.
-void vtkWin32OglrRenderWindow::SetWindowId(HWND arg)
+void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 {
   vtkDebugMacro(<< "Setting WindowId to " << arg << "\n"); 
 
@@ -817,7 +817,7 @@ void vtkWin32OglrRenderWindow::SetWindowId(HWND arg)
 
 // Description:
 // Set the window id to a pre-existing window.
-void vtkWin32OglrRenderWindow::SetParentId(HWND arg)
+void vtkWin32OpenGLRenderWindow::SetParentId(HWND arg)
 {
   vtkDebugMacro(<< "Setting ParentId to " << arg << "\n"); 
 
@@ -826,25 +826,25 @@ void vtkWin32OglrRenderWindow::SetParentId(HWND arg)
 
 // Description:
 // Set the window id of the new window once a WindowRemap is done.
-void vtkWin32OglrRenderWindow::SetNextWindowId(HWND arg)
+void vtkWin32OpenGLRenderWindow::SetNextWindowId(HWND arg)
 {
   vtkDebugMacro(<< "Setting NextWindowId to " << arg << "\n"); 
 
   this->NextWindowId = arg;
 }
 
-void vtkWin32OglrRenderWindow::SetContextId(HGLRC arg) // hsr
+void vtkWin32OpenGLRenderWindow::SetContextId(HGLRC arg) // hsr
 {													   // hsr	
   this->ContextId = arg;							   // hsr
 }													   // hsr
 
-void vtkWin32OglrRenderWindow::SetDeviceContext(HDC arg) // hsr
+void vtkWin32OpenGLRenderWindow::SetDeviceContext(HDC arg) // hsr
 {														 // hsr
   this->DeviceContext = arg;							 // hsr
   this->MFChandledWindow = TRUE;						 // hsr
 }														 // hsr
 
-float *vtkWin32OglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
+float *vtkWin32OpenGLRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2, int front)
 {
   long    xloop,yloop;
   int     y_low, y_hi;
@@ -900,7 +900,7 @@ float *vtkWin32OglrRenderWindow::GetRGBAPixelData(int x1, int y1, int x2, int y2
   return data;
 }
 
-void vtkWin32OglrRenderWindow::SetRGBAPixelData(int x1, int y1, 
+void vtkWin32OpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, 
 						int x2, int y2,
 						float *data, int front)
 {
@@ -966,7 +966,7 @@ void vtkWin32OglrRenderWindow::SetRGBAPixelData(int x1, int y1,
 
 }
 
-float *vtkWin32OglrRenderWindow::GetZbufferData( int x1, int y1, 
+float *vtkWin32OpenGLRenderWindow::GetZbufferData( int x1, int y1, 
 						 int x2, int y2  )
 {
   int             y_low, y_hi;
@@ -1012,7 +1012,7 @@ float *vtkWin32OglrRenderWindow::GetZbufferData( int x1, int y1,
   return z_data;
 }
 
-void vtkWin32OglrRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
+void vtkWin32OpenGLRenderWindow::SetZbufferData( int x1, int y1, int x2, int y2,
 					       float *buffer )
 {
   int             y_low, y_hi;

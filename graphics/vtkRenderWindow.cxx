@@ -142,7 +142,7 @@ char *vtkRenderWindow::GetRenderLibrary()
     {
     if (!strcmp("sbr",temp)) temp = "Starbase";
     else if (!strcmp("glr",temp)) temp = "GL";
-    else if (!strcmp("oglr",temp)) temp = "OpenGL";
+    else if (!strcmp("oglrx",temp)) temp = "OpenGL";
     else if (!strcmp("woglr",temp)) temp = "Win32OpenGL";
     else if (!strcmp("xglr",temp)) temp = "XGL";
     else if ( strcmp("Starbase",temp) && strcmp("GL",temp) && 
@@ -189,7 +189,7 @@ char *vtkRenderWindow::GetRenderLibrary()
 #include "vtkXGLRenderWindow.h"
 #endif
 #ifdef _WIN32
-#include "vtkWin32OglrRenderWindow.h"
+#include "vtkWin32OpenGLRenderWindow.h"
 #endif
 // return the correct type of RenderWindow 
 vtkRenderWindow *vtkRenderWindow::New()
@@ -206,7 +206,7 @@ vtkRenderWindow *vtkRenderWindow::New()
   if (!strcmp("OpenGL",temp)) return vtkOpenGLRenderWindow::New();
 #endif
 #ifdef _WIN32
-  if (!strcmp("Win32OpenGL",temp)) return vtkWin32OglrRenderWindow::New();
+  if (!strcmp("Win32OpenGL",temp)) return vtkWin32OpenGLRenderWindow::New();
 #endif
 #ifdef VTK_USE_XGLR
   if (!strcmp("XGL",temp)) return vtkXGLRenderWindow::New();

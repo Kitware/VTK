@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkWin32OglrRenderWindow.h
+  Module:    vtkWin32OpenGLRenderWindow.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,20 +38,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkWin32OglrRenderWindow - SGI OpenGL rendering window
+// .NAME vtkWin32OpenGLRenderWindow - OpenGL rendering window
 // .SECTION Description
-// vtkWin32OglrRenderWindow is a concrete implementation of the abstract class
-// vtkRenderWindow. vtkWin32OglrRenderer interfaces to the Silicon Graphics 
-// OpenGL graphics library.
+// vtkWin32OpenGLRenderWindow is a concrete implementation of the abstract class
+// vtkRenderWindow. vtkWin32OpenGLRenderer interfaces to the standard
+// OpenGL graphics library in the Windows/NT environment..
 
-#ifndef __vtkWin32OglrRenderWindow_h
-#define __vtkWin32OglrRenderWindow_h
+#ifndef __vtkWin32OpenGLRenderWindow_h
+#define __vtkWin32OpenGLRenderWindow_h
 
 #include <stdlib.h>
 #include <afxwin.h>
 #include "vtkRenderWindow.h"
 
-class VTK_EXPORT vtkWin32OglrRenderWindow : public vtkRenderWindow
+class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
 public:
   HINSTANCE ApplicationInstance;
@@ -67,9 +67,9 @@ public:
   int       MultiSamples;
 
 public:
-  vtkWin32OglrRenderWindow();
-  static vtkWin32OglrRenderWindow *New() {return new vtkWin32OglrRenderWindow;};
-  char *GetClassName() {return "vtkWin32OglrRenderWindow";};
+  vtkWin32OpenGLRenderWindow();
+  static vtkWin32OpenGLRenderWindow *New() {return new vtkWin32OpenGLRenderWindow;};
+  char *GetClassName() {return "vtkWin32OpenGLRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void Start(void);

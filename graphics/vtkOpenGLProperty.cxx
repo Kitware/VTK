@@ -60,7 +60,7 @@ void vtkOpenGLProperty::Render(vtkActor *vtkNotUsed(anActor),
   glDisable(GL_TEXTURE_2D);
 
   // disable alpha testing (this may have been enabled
-  // by another actor in OglrTexture)
+  // by another actor in OpenGLTexture)
   glDisable (GL_ALPHA_TEST);
 
   glDisable(GL_COLOR_MATERIAL);
