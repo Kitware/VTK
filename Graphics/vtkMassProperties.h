@@ -33,18 +33,16 @@
 #ifndef __vtkMassProperties_h
 #define __vtkMassProperties_h
 
-#include "vtkProcessObject.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class vtkPolyData;
-
-class VTK_GRAPHICS_EXPORT vtkMassProperties : public vtkProcessObject
+class VTK_GRAPHICS_EXPORT vtkMassProperties : public vtkPolyDataAlgorithm
 {
 public:
   // Description:
   // Constructs with initial values of zero.
   static vtkMassProperties *New();
 
-  vtkTypeRevisionMacro(vtkMassProperties,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkMassProperties,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -75,16 +73,13 @@ public:
   double GetNormalizedShapeIndex() 
     {this->Update(); return this->NormalizedShapeIndex;}
 
-  void Update();
-  
-  void SetInput(vtkPolyData *input);
-  vtkPolyData *GetInput();
-
 protected:
   vtkMassProperties();
   ~vtkMassProperties();
 
-  void Execute();
+  virtual int RequestData(vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
 
   double  SurfaceArea;
   double  Volume;

@@ -15,13 +15,13 @@
 #include "vtkMassProperties.h"
 
 #include "vtkCell.h"
-#include "vtkCommand.h"
 #include "vtkDataObject.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkMassProperties, "1.27");
+vtkCxxRevisionMacro(vtkMassProperties, "1.28");
 vtkStandardNewMacro(vtkMassProperties);
 
 #define  VTK_CUBE_ROOT(x) \
@@ -39,6 +39,8 @@ vtkMassProperties::vtkMassProperties()
   this->Ky = 0.0;
   this->Kz = 0.0;
   this->NormalizedShapeIndex = 0.0;
+
+  this->SetNumberOfOutputPorts(0);
 }
 
 // Destroy any allocated memory.
@@ -47,73 +49,22 @@ vtkMassProperties::~vtkMassProperties()
 }
 
 // Description:
-// Specifies the input data...
-void vtkMassProperties::SetInput(vtkPolyData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
-vtkPolyData *vtkMassProperties::GetInput()
-{
-  if (this->NumberOfInputs < 1)
-    {
-    return NULL;
-    }
-  
-  return (vtkPolyData *)(this->Inputs[0]);
-}
-
-// Description:
-// Make sure input is available then call up execute method...
-void vtkMassProperties::Update()
-{
-  vtkPolyData *input = this->GetInput();
-  
-  // make sure input is available
-  if ( ! input )
-    {
-    vtkErrorMacro(<< "No input...can't execute!");
-    return;
-    }
-
-  input->Update();
-
-  if (input->GetMTime() > this->ExecuteTime || 
-      this->GetMTime() > this->ExecuteTime )
-    {
-    if ( input->GetDataReleased() )
-      {
-      input->Update();
-      }
-    this->InvokeEvent(vtkCommand::StartEvent,NULL);
-
-    // reset Abort flag
-    this->AbortExecute = 0;
-    this->Progress = 0.0;
-    this->Execute();
-    this->ExecuteTime.Modified();
-    if ( !this->AbortExecute )
-      {
-      this->UpdateProgress(1.0);
-      }
-
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
-    }
-  if ( input->ShouldIReleaseData() )
-    {
-    input->ReleaseData();
-    }
-
-}
-
-// Description:
 // This method measures volume, surface area, and normalized shape index.
 // Currently, the input is a ploydata which consists of triangles.
-void vtkMassProperties::Execute()
+int vtkMassProperties::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector ))
 {
   vtkIdList *ptIds;
-  vtkPolyData *input = this->GetInput();
+
+  vtkInformation *inInfo = 
+    inputVector[0]->GetInformationObject(0);
+
+  // call ExecuteData
+  vtkPolyData *input = vtkPolyData::SafeDownCast(  
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, numCells, numPts, numIds;
   double p[3];
   
@@ -122,7 +73,7 @@ void vtkMassProperties::Execute()
   if (numCells < 1 || numPts < 1)
     {
     vtkErrorMacro(<<"No data to measure...!");
-    return;
+    return 1;
     }
   
   ptIds = vtkIdList::New();
@@ -231,7 +182,7 @@ void vtkMassProperties::Execute()
     else 
       { 
       vtkErrorMacro(<<"Unpredicted situation...!");
-      return; 
+      return 1; 
       }
 
     // This is reduced to ...
@@ -280,13 +231,16 @@ void vtkMassProperties::Execute()
   this->NormalizedShapeIndex = 
     (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
   ptIds->Delete();
+
+  return 1;
 }
 
 void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (!this->GetInput()) 
+  vtkPolyData *input = vtkPolyData::SafeDownCast(this->GetInput(0));
+  if (!input) 
     {
     return;
     }
