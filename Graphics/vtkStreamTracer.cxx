@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.3");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.4");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -34,7 +34,7 @@ vtkStreamTracer::vtkStreamTracer()
 {
   this->Integrator = vtkRungeKutta2::New();
   this->IntegrationDirection = FORWARD;
-  for(int i=0; i<0; i++)
+  for(int i=0; i<3; i++)
     {
     this->StartPosition[i] = 0.0;
     }
@@ -337,8 +337,8 @@ float vtkStreamTracer::ConvertToUnit(vtkStreamTracer::IntervalInformation& inter
 }
 
 void vtkStreamTracer::ConvertIntervals(float& step, float& minStep, 
-                                     float& maxStep, int direction,
-                                     float cellLength, float speed)
+				       float& maxStep, int direction,
+				       float cellLength, float speed)
 {
   step = direction * this->ConvertToTime(
     this->InitialIntegrationStep, cellLength, speed);
@@ -563,8 +563,8 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     IntervalInformation delT;
     delT.Unit = TIME_UNIT;
     delT.Interval = 0;
-    float propagation = 0.0, step, minStep=0, maxStep=0, 
-      stepTaken, accumTime=0;
+    float propagation = 0.0, step, minStep=0, maxStep=0;
+    float stepTaken, accumTime=0;
     float speed;
     double cellLength;
     int retVal=OUT_OF_TIME, tmp;
