@@ -61,28 +61,25 @@ vtkShrinkPolyData::vtkShrinkPolyData(float sf)
   this->ShrinkFactor = sf;
 }
 
-void vtkShrinkPolyData::Execute()
+
+template <class T>
+static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
+                                     T *inPts, float shrinkFactor)
 {
   int j, k;
-  float center[3];
-  vtkPoints *inPts;
+  T center[3];
+  int   abortExecute=0;
+  vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPointData *pd;
   vtkCellArray *inVerts,*inLines,*inPolys,*inStrips;
   int numNewPts, numNewLines, numNewPolys, polyAllocSize;
-  int npts, *pts, newId, newIds[3];
+  int npts, *pts, newIds[3];
   vtkPoints *newPoints;
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  float *p1, *p2, *p3, pt[3];
-  vtkPolyData *input = this->GetInput();
-  vtkPolyData *output= this->GetOutput();
+  T *p1, *p2, *p3;
+  vtkPolyData *input = self->GetInput();
+  vtkPolyData *output= self->GetOutput();
   vtkPointData *pointData = output->GetPointData(); 
-  int   abortExecute=0;
 
-  // Initialize
-  //
-  vtkDebugMacro(<<"Shrinking polygonal data");
-
-  inPts = input->GetPoints();
   pd = input->GetPointData();
 
   inVerts = input->GetVerts();
@@ -117,9 +114,6 @@ void vtkShrinkPolyData::Execute()
 
   // Allocate
   //
-  newPoints = vtkPoints::New();
-  newPoints->Allocate(numNewPts);
-
   newVerts = vtkCellArray::New();
   newVerts->Allocate(input->GetNumberOfVerts());
 
@@ -131,29 +125,41 @@ void vtkShrinkPolyData::Execute()
 
   pointData->CopyAllocate(pd);
 
+  newPoints = vtkPoints::SafeDownCast(input->GetPoints()->MakeObject());
+  newPoints->Allocate(numNewPts);
+  newPoints->SetNumberOfPoints(numNewPts);
+  T *outPts = (T *)newPoints->GetVoidPointer(0);
+  int outCount = 0;
+  
   // Copy vertices (no shrinking necessary)
   //
-  for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts) && !abortExecute; )
+  for (inVerts->InitTraversal(); 
+       inVerts->GetNextCell(npts,pts) && !abortExecute; )
     {
     newVerts->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
-      newId = newPoints->InsertNextPoint(inPts->GetPoint(pts[j]));
-      newVerts->InsertCellPoint(newId);
-      pointData->CopyData(pd,pts[j],newId);
+      outPts[0] = inPts[pts[j]*3];
+      outPts[1] = inPts[pts[j]*3+1];
+      outPts[2] = inPts[pts[j]*3+2];
+      outPts += 3;
+      newVerts->InsertCellPoint(outCount);
+      pointData->CopyData(pd,pts[j],outCount);
+      outCount++;
       }    
-    abortExecute = this->GetAbortExecute();
+    abortExecute = self->GetAbortExecute();
     }
-  this->UpdateProgress (0.10);
-
+  self->UpdateProgress (0.10);
+  
   // Lines need to be shrunk, and if polyline, split into separate pieces
   //
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts) && !abortExecute; )
+  for (inLines->InitTraversal(); 
+       inLines->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (j=0; j<(npts-1); j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
-      p2 = inPts->GetPoint(pts[j+1]);
+      p1 = inPts + pts[j]*3;
+      p2 = inPts + pts[j+1]*3;
       for (k=0; k<3; k++)
 	{
 	center[k] = (p1[k] + p2[k]) / 2.0;
@@ -161,31 +167,35 @@ void vtkShrinkPolyData::Execute()
 
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
 	}
-      newIds[0] = newPoints->InsertNextPoint(pt);
-      pointData->CopyData(pd,pts[j],newIds[0]);
+      outPts += 3;
+      pointData->CopyData(pd,pts[j],outCount);
+      outCount++;
 
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p2[k] - center[k]);
 	}
-      newIds[1] = newPoints->InsertNextPoint(pt);
-      pointData->CopyData(pd,pts[j+1],newIds[1]);
-
+      outPts += 3;
+      pointData->CopyData(pd,pts[j+1],outCount);
+      outCount++;
+      newIds[0] = outCount - 1;
+      newIds[1] = outCount;
       newLines->InsertNextCell(2,newIds);
       }
-    abortExecute = this->GetAbortExecute();
+    abortExecute = self->GetAbortExecute();
     }
-  this->UpdateProgress (0.25);
+  self->UpdateProgress (0.25);
 
   // Polygons need to be shrunk
   //
-  for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts) && !abortExecute; )
+  for (inPolys->InitTraversal(); 
+       inPolys->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
+      p1 = inPts + pts[j]*3;
       for (k=0; k<3; k++)
 	{
 	center[k] += p1[k];
@@ -200,29 +210,31 @@ void vtkShrinkPolyData::Execute()
     newPolys->InsertNextCell(npts);
     for (j=0; j<npts; j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
+      p1 = inPts + pts[j]*3;
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
 	}
-      newId = newPoints->InsertNextPoint(pt);
-      newPolys->InsertCellPoint(newId);
-      pointData->CopyData(pd,pts[j],newId);
+      outPts += 3;
+      newPolys->InsertCellPoint(outCount);
+      pointData->CopyData(pd,pts[j],outCount);
+      outCount++;
       }
-    abortExecute = this->GetAbortExecute();
+    abortExecute = self->GetAbortExecute();
     }
-  this->UpdateProgress (0.75);
+  self->UpdateProgress (0.75);
 
   // Triangle strips need to be shrunk and split into separate pieces.
   //
   int tmp;
-  for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts) && !abortExecute; )
+  for (inStrips->InitTraversal(); 
+       inStrips->GetNextCell(npts,pts) && !abortExecute; )
     {
     for (j=0; j<(npts-2); j++)
       {
-      p1 = inPts->GetPoint(pts[j]);
-      p2 = inPts->GetPoint(pts[j+1]);
-      p3 = inPts->GetPoint(pts[j+2]);
+      p1 = inPts + pts[j]*3;
+      p2 = inPts + pts[j+1]*3;
+      p3 = inPts + pts[j+2]*3;
       for (k=0; k<3; k++)
 	{
 	center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
@@ -230,24 +242,30 @@ void vtkShrinkPolyData::Execute()
 
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
 	}
-      newIds[0] = newPoints->InsertNextPoint(pt);
-      pointData->CopyData(pd,pts[j],newIds[0]);
+      outPts += 3;
+      pointData->CopyData(pd,pts[j],outCount);
+      newIds[0] = outCount;
+      outCount++;
 
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p2[k] - center[k]);
 	}
-      newIds[1] = newPoints->InsertNextPoint(pt);
-      pointData->CopyData(pd,pts[j+1],newIds[1]);
+      outPts += 3;
+      pointData->CopyData(pd,pts[j+1],outCount);
+      newIds[1] = outCount;
+      outCount++;
 
       for (k=0; k<3; k++)
 	{
-        pt[k] = center[k] + this->ShrinkFactor*(p3[k] - center[k]);
+        outPts[k] = center[k] + shrinkFactor*(p3[k] - center[k]);
 	}
-      newIds[2] = newPoints->InsertNextPoint(pt);
-      pointData->CopyData(pd,pts[j+2],newIds[2]);
+      outPts += 3;
+      pointData->CopyData(pd,pts[j+2],outCount);
+      newIds[1] = outCount;
+      outCount++;
 
       // must reverse order for every other triangle
       if (j%2)
@@ -258,7 +276,7 @@ void vtkShrinkPolyData::Execute()
         }
       newPolys->InsertNextCell(3,newIds);
       }
-    abortExecute = this->GetAbortExecute();
+    abortExecute = self->GetAbortExecute();
     }
 
   // Update self and release memory
@@ -276,6 +294,27 @@ void vtkShrinkPolyData::Execute()
   newPolys->Delete();
 
   output->GetCellData()->PassData(input->GetCellData());
+}
+
+
+
+void vtkShrinkPolyData::Execute()
+{
+  // Initialize
+  vtkDebugMacro(<<"Shrinking polygonal data");
+
+  // get the input pointer for templating
+  void *inPtr = this->GetInput()->GetPoints()->GetVoidPointer(0);
+
+  // call templated function
+  switch (this->GetInput()->GetPoints()->GetDataType())
+    {
+    vtkTemplateMacro3(vtkShrinkPolyDataExecute, this, 
+                      (VTK_TT *)(inPtr), this->ShrinkFactor);
+    default:
+      break;
+    }
+
 }
 
 
