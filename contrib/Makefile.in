@@ -28,11 +28,9 @@ vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
-vtkStringTree \
 vtkSuperquadric \
 vtkSuperquadricSource \
-vtkSubdivideTetra \
-vtkTree 
+vtkSubdivideTetra 
 
 
 #------------------------------------------------------------------------------
