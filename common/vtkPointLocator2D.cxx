@@ -667,7 +667,8 @@ void vtkPointLocator2D::BuildLocator()
   float *x;
   typedef vtkIdList *vtkIdListPtr;
 
-  if ( this->HashTable != NULL && this->BuildTime > this->MTime )
+  if ( (this->HashTable != NULL) && (this->BuildTime > this->MTime)
+       && (this->BuildTime > this->DataSet->GetMTime()) )
     {
     return;
     }
