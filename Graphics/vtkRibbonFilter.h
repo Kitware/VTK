@@ -125,6 +125,13 @@ public:
   void SelectInputVectors(const char *fieldName) 
     {this->SetInputVectorsSelection(fieldName);}
 
+  // Description:
+  // If you want to use an arbitrary scalars array, then set its name here.
+  // By default this in NULL and the filter will use the active scalars array.
+  vtkGetStringMacro(InputScalarsSelection);
+  void SelectInputScalars(const char *fieldName) 
+    {this->SetInputScalarsSelection(fieldName);}
+
 protected:
   vtkRibbonFilter();
   ~vtkRibbonFilter();
@@ -160,6 +167,9 @@ protected:
   // not want to shade the input line with these values.
   char *InputVectorsSelection;
   vtkSetStringMacro(InputVectorsSelection);
+  
+  char *InputScalarsSelection;
+  vtkSetStringMacro(InputScalarsSelection);
   
 private:
   vtkRibbonFilter(const vtkRibbonFilter&);  // Not implemented.
