@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkDataSet, "1.2");
+vtkCxxRevisionMacro(vtkDataSet, "1.3");
 
 //----------------------------------------------------------------------------
 // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -433,19 +433,8 @@ void vtkDataSet::GenerateGhostLevelArray()
     return;
     }
 
-  int piece = this->Information->Get(vtkDataObject::DATA_PIECE_NUMBER());
-  int numberOfPieces =
-    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-  int ghostLevel =
-    this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
-
-  // Try to avoid generating these if the input has generated them,
-  // or the image data is already up to date.
-  // I guess we relly need an MTime check.
-  if(piece != this->GetUpdatePiece() ||
-     numberOfPieces != this->GetUpdateNumberOfPieces() ||
-     ghostLevel != this->GetUpdateGhostLevel() ||
-     !this->PointData->GetArray("vtkGhostLevels"))
+  // Avoid generating these if the producer has generated them.
+  if(!this->PointData->GetArray("vtkGhostLevels"))
     { // Create ghost levels for cells and points.
     vtkUnsignedCharArray *levels;
     int zeroExt[6], extent[6];
