@@ -40,14 +40,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkAssembly.hh"
 
+// Description:
+// Construct object with ApplyTransform enabled; and ApplyProperty disabled.
 vtkAssembly::vtkAssembly()
 {
+  this->ApplyTransform = 1;
+  this->ApplyProperty = 0;
+}
+
+// Description:
+// Add a part to the list of parts.
+void vtkAssembly::AddPart(vtkActor *actor)
+{
+  this->Parts.AddItem(actor);
+}
+
+// Description:
+// Remove a part from the list of parts,
+void vtkAssembly::RemovePart(vtkActor *actor)
+{
+  this->Parts.RemoveItem(actor);
 }
 
 // Description:
 // Render this assembly and all its parts. The rendering process is recursive.
 // Note that a mapper need not be defined. If not defined, then no geometry 
-// will be drawn for this actor. This allows you to create "logical"
+// will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
 // its parts.
 void vtkAssembly::Render(vtkRenderer *ren)
@@ -72,8 +90,8 @@ void vtkAssembly::Render(vtkRenderer *ren)
 
   if ( this->Parts.GetNumberOfItems() > 0 ) return;
 
-  this->ApplyProperties();
-  this->ApplyTransformation();
+  if (this->ApplyProperty) this->ApplyProperties();
+  if (this->ApplyTransform) this->ApplyTransformation();
 
   for (this->Parts.InitTraversal(); part = this->Parts.GetNextItem(); )
     {
@@ -105,5 +123,7 @@ void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "There are: " << this->Parts.GetNumberOfItems()
      << " parts in this assembly";
+  os << indent << "Apply Transform: " << (this->ApplyTransform ? "On\n" : "Off\n");
+  os << indent << "Apply Property: " << (this->ApplyProperty ? "On\n" : "Off\n");
 }
 
