@@ -818,7 +818,7 @@ ostream& operator<<(ostream& s, const vtkLargeInteger& n)
 
 istream& operator>>(istream& s, vtkLargeInteger& n)
 {
-  char c;
+  char c=0;
   while (s.get(c)) // strip any leading spaces
     if (c != ' ' && c != '\n' && c != '\r')
       {
