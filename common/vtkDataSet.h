@@ -197,8 +197,9 @@ public:
   virtual void Squeeze();
 
   // Description:
-  // Set the owner of this data object for Sources.
+  // Specify the filter creating this dataset. 
   vtkSetObjectMacro(Source,vtkSource);
+  vtkGetObjectMacro(Source,vtkSource);
   
   // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
