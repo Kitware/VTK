@@ -88,14 +88,16 @@ void vtkContourFilter::GenerateValues(int numContours, float range[2])
   float val, incr;
   int i;
 
-  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
-                 (numContours > 1 ? numContours : 2) );
+  numContours = (numContours >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : 
+                (numContours > 1 ? numContours : 2) );
 
   incr = (range[1] - range[0]) / (numContours-1);
   for (i=0, val=range[0]; i < numContours; i++, val+=incr)
     {
     this->SetValue(i,val);
     }
+
+  this->NumberOfContours = numContours;
 }
 
 
