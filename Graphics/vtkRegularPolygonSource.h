@@ -57,7 +57,7 @@ public:
   // Description:
   // Set/Get the radius of the polygon. By default, the radius is set to 0.5.
   vtkSetMacro(Radius,double);
-  vtkGetMacro(Radius,int);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Control whether a polygon is produced. By default, GeneratePolygon is enabled.
