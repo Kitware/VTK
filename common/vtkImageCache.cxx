@@ -80,7 +80,7 @@ vtkImageCache::vtkImageCache()
   this->DataReleased = 1;
   
   // Invalid data type
-  // This will be changed when the filter gets an input or
+  // This will be changed when the filter gets updated or
   // the ScalarType is set explicitly
   this->ScalarType = VTK_VOID;
 
@@ -446,13 +446,40 @@ vtkImageRegion *vtkImageCache::GetScalarRegion()
 }
 
 
+//----------------------------------------------------------------------------
+// Description:
+// Here for Bypass functionality.  I just can not seem to get
+// rid of CacheScalarData.
+void vtkImageCache::CacheScalarData(vtkImageData *data)
+{
+  if ( ! this->ScalarData)
+    {
+    // copy by reference
+    this->SetScalarData(data);
+    }
+  else
+    {
+    // data already exists, we must copy.
+    // Data does not have a copy method, so use a region.
+    vtkImageRegion *r1 = vtkImageRegion::New();
+    vtkImageRegion *r2 = vtkImageRegion::New();
+    r1->SetAxes(0, 1, 2, 3, 4);
+    r1->SetExtent(5, data->GetExtent());
+    r1->SetData(data);
+    r2->SetAxes(0, 1, 2, 3, 4);
+    r2->SetExtent(5, data->GetExtent());
+    r2->SetData(this->ScalarData);
+    r2->CopyRegionData(r1);
+    r1->Delete();
+    r2->Delete();
+    }
+}
+
 
 //----------------------------------------------------------------------------
 // Description:
-// This method is here for vtkImageToStructuredPoints.
-// It allows the converter to stream.  It fixes the update extent,
-// and then updates with tiled smaller extents. The cache allocates
-// one big extent, and sub extents update into the larger piece of memory.
+// Here for Bypass functionality.  I just can not seem to get
+// rid of CacheScalarData.
 void vtkImageCache::SetWholeUpdateExtent(int *extent)
 {
   this->SetUpdateExtent(extent);
