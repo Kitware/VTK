@@ -96,8 +96,23 @@ int main (int argc, char *argv[])
     sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
     OutputUNIXDepends(filename,fp);
     fprintf(fp,"\n");
+    fprintf(fp,"vtkTkRenderWidget.o : %s/vtkTkRenderWidget.cxx",
+	    vtkLocal,vtkLocal,argv[i]);
+    sprintf(filename,"%s/vtkTkRenderWidget.cxx",vtkLocal);
+    OutputUNIXDepends(filename,fp);
+    fprintf(fp,"\n");
     }
       
+  // if this is the imaging library we need to add dependencies
+  if (!strcmp(vtkLocal + strlen(vtkLocal) - 7,"imaging"))
+    {
+    fprintf(fp,"vtkTkImageViewerWidget.o : %s/vtkTkImageViewerWidget.cxx",
+	    vtkLocal,vtkLocal,argv[i]);
+    sprintf(filename,"%s/vtkTkImageViewerWidget.cxx",vtkLocal);
+    OutputUNIXDepends(filename,fp);
+    fprintf(fp,"\n");
+    }
+
   // generate depends for all the tcl wrappers
   for (i = 2; i < argc; i++)
     {
@@ -273,6 +288,13 @@ void SetupDepends(const char *vtkLocal, const char *vtkHome, int argc, char *arg
     sprintf(filename,"%s/vtkXRenderWindowInteractor.cxx",vtkLocal);
     AddToDepends(filename);
     sprintf(filename,"%s/vtkXRenderTclWindowInteractor.cxx",vtkLocal);
+    AddToDepends(filename);
+    sprintf(filename,"%s/vtkTkRenderWidget.cxx",vtkLocal);
+    AddToDepends(filename);
+    }
+  if (!strcmp(vtkLocal + strlen(vtkLocal) - 7,"imaging"))
+    {
+    sprintf(filename,"%s/vtkTkImageViewerWidget.cxx",vtkLocal);
     AddToDepends(filename);
     }
       
