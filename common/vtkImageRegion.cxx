@@ -79,37 +79,44 @@ vtkImageRegion::~vtkImageRegion()
 //----------------------------------------------------------------------------
 void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
+  
   vtkImageSource::PrintSelf(os,indent);
-  os << indent << "Axes: (";
-  os << vtkImageAxisNameMacro(this->Axes[0]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[1]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
+  os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->Axes[idx]);
+    }
+  os << ")\n";
   
-  os << indent << "Extent: (";
-  os << this->Extent[0] << ", " << this->Extent[1] << ", ";
-  os << this->Extent[2] << ", " << this->Extent[3] << ", ";
-  os << this->Extent[4] << ", " << this->Extent[5] << ", ";
-  os << this->Extent[6] << ", " << this->Extent[7] << ")\n";
+  os << indent << "Extent: (" << this->Extent[0];
+  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->Extent[idx];
+    }
+  os << ")\n";
   
-  os << indent << "ImageExtent: (";
-  os << this->ImageExtent[0] << ", " << this->ImageExtent[1] << ", ";
-  os << this->ImageExtent[2] << ", " << this->ImageExtent[3] << ", ";
-  os << this->ImageExtent[4] << ", " << this->ImageExtent[5] << ", ";
-  os << this->ImageExtent[6] << ", " << this->ImageExtent[7] << ")\n";
-
-  os << indent << "AspectRatio: (";
-  os << this->AspectRatio[0] << ", ";
-  os << this->AspectRatio[1] << ", ";
-  os << this->AspectRatio[2] << ", ";
-  os << this->AspectRatio[3] << ")\n";
-
-  os << indent << "Origin: (";
-  os << this->Origin[0] << ", ";
-  os << this->Origin[1] << ", ";
-  os << this->Origin[2] << ", ";
-  os << this->Origin[3] << ")\n";
-
+  os << indent << "ImageExtent: (" << this->ImageExtent[0];
+  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->ImageExtent[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "AspectRatio: (" << this->AspectRatio[0];
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->AspectRatio[idx];
+    }
+  os << ")\n";
+  
+  os << indent << "AspectRatio: (" << this->AspectRatio[0];
+  for (idx = 1; idx < VTK_IMAGE_BOUNDS_DIMENSIONS; ++idx)
+    {
+    os << ", " << this->AspectRatio[idx];
+    }
+  os << ")\n";
+  
   os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
      << "\n";
   
@@ -150,8 +157,11 @@ int vtkImageRegion::GetMemorySize()
     case VTK_UNSIGNED_CHAR:
       size = sizeof(char);
       break;
+    case VTK_IMAGE_VOID:
+      size = sizeof(char);
+      break;
     default:
-      vtkErrorMacro(<< "ImportMemory: Cannot handle DataType.");
+      vtkErrorMacro(<< "GetMemorySize: Cannot handle DataType.");
     }   
   
   return size * this->GetVolume() / 1000;

@@ -87,12 +87,11 @@ public:
   virtual void ReleaseData() = 0;
   
   // Description:
-  // Set/Get the MemoryLimit for region.  If a region
+  // Set/Get the OutputMemoryLimit for region.  If a UpdateRegion
   // exceeds this limit (number of pixels), the UpdateRegion method
-  // will return NULL.  I assume that a memory manager will query the memory
-  // resources of a system, and set this value when the program starts.
-  vtkSetMacro(MemoryLimit,long);
-  vtkGetMacro(MemoryLimit,long);
+  // will return NULL.  
+  vtkSetMacro(OutputMemoryLimit,long);
+  vtkGetMacro(OutputMemoryLimit,long);
 
   // Description:
   // Set the data type of the regions created by this cache.
@@ -110,7 +109,7 @@ protected:
   vtkImageData *Data;
   
   // Upperlimit on memory that can be allocated by UpdateRegion call
-  long MemoryLimit;
+  long OutputMemoryLimit;
 
   // Cache the ImageExtent, to avoid recomputing the ImageExtent on each pass.
   int ImageExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];

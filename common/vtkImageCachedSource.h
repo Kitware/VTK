@@ -62,10 +62,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual void InterceptCacheUpdate(vtkImageRegion *region);
-  virtual void UpdateRegion(vtkImageRegion *region); 
-  vtkImageSource *GetOutput();
+  virtual void UpdatePointData(int axisIdx, vtkImageRegion *region); 
   virtual void UpdateImageInformation(vtkImageRegion *region) = 0;
+
   virtual unsigned long GetPipelineMTime();
+  vtkImageSource *GetOutput();
 
   virtual void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
@@ -89,14 +90,10 @@ public:
 
 protected:
   vtkImageCache *Output;
-  int NumberOfAxes;
-  int Axes[VTK_IMAGE_DIMENSIONS];            // reorder the axes
+  int NumberOfAxes;               // execute method expects this number of axes
+  int Axes[VTK_IMAGE_DIMENSIONS]; // reorder the axes
   
-  virtual void UpdateRegion5d(vtkImageRegion *region); 
-  virtual void UpdateRegion4d(vtkImageRegion *region); 
-  virtual void UpdateRegion3d(vtkImageRegion *region); 
-  virtual void UpdateRegion2d(vtkImageRegion *region); 
-  virtual void UpdateRegion1d(vtkImageRegion *region); 
+  virtual void UpdatePointData(vtkImageRegion *region); 
   virtual void CheckCache();
 };
 

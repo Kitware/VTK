@@ -59,7 +59,7 @@ vtkImageCache::vtkImageCache()
   // default is to save data,
   // (But caches automatically created by sources set ReleaseDataFlag to 1)
   this->ReleaseDataFlag = 0;
-  this->MemoryLimit = 50000000;  // 512x512x178
+  this->OutputMemoryLimit = 100000; // 100 MB
 }
 
 
@@ -80,7 +80,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Source: (" << this->Source << ").\n";
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
-  os << indent << "MemoryLimit: " << this->MemoryLimit << "\n";
+  os << indent << "OutputMemoryLimit: " << this->OutputMemoryLimit << "\n";
   os << indent << "DataType: " << vtkImageDataTypeNameMacro(this->DataType) 
      << "\n";
   os << indent << "Data: " << this->Data << "\n";
@@ -93,8 +93,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 // Description:
 // This Method returns the MTime of the pipeline before this cache.
-// It considers both the source and the cache.  This method assumes
-// that the pipeline does not changed until the next UpdateRegion call.
+// It considers both the source and the cache.
 unsigned long int vtkImageCache::GetPipelineMTime()
 {
   unsigned long int time1, time2;
@@ -188,17 +187,14 @@ void vtkImageCache::SetReleaseDataFlag(int value)
 // Description:
 // This Method handles external calls to generate data.
 // It Allocates and fills the passed region.
-// If the method cannot complete, the region is not allocated and
-// SplitFactor is set as a hint for splitting the region so the next call
-// will suceed.  "region" should not have data when this method is called.
+// If the method cannot complete, the region is not allocated.
+// "region" should not have data when this method is called.
 void vtkImageCache::UpdateRegion(vtkImageRegion *region)
 {
   long memory;
   int saveAxes[VTK_IMAGE_DIMENSIONS];
   int saveExtent[VTK_IMAGE_BOUNDS_DIMENSIONS];
 
-  vtkDebugMacro(<< "UpdateRegion: ");
-  
   // First Update the Image information 
   this->UpdateImageInformation(region);
 
@@ -206,11 +202,11 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   region->ReleaseData();
   
   // Save the extent to restore later.
-  region->GetExtent(saveExtent);
+  region->GetExtent(saveExtent, VTK_IMAGE_DIMENSIONS);
   
   // Translate region into the sources coordinate system. (save old)
-  region->GetAxes(saveAxes);
-  region->SetAxes(this->Source->GetAxes());
+  region->GetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
+  region->SetAxes(this->Source->GetAxes(), VTK_IMAGE_DIMENSIONS);
 
   // Set default data type.
   if (region->GetDataType() == VTK_IMAGE_VOID)
@@ -230,13 +226,11 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   this->Source->InterceptCacheUpdate(region);
   
   // Check if extent exceeds memory limit
-  memory = region->GetVolume();
-  if ( memory > this->MemoryLimit)
+  memory = region->GetMemorySize();
+  if ( memory > this->OutputMemoryLimit)
     {
-    this->SplitFactor = (memory / this->MemoryLimit) + 1;
-    vtkDebugMacro(<< "UpdateRegion: Reuest too large, SplitFactor= "
-                  << this->SplitFactor);
-    region->SetAxes(saveAxes);
+    vtkDebugMacro(<< "UpdateRegion: Reuest too large " << memory);
+    region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
     return;
     }
   
@@ -244,7 +238,7 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   if (memory <= 0)
     {
     this->AllocateRegion(region);
-    region->SetAxes(saveAxes);
+    region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
     return;
     }
   
@@ -252,8 +246,6 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
   if ( ! this->Source)
     {
     vtkErrorMacro(<< "UpdateRegion: Can not generate data with no Source");
-    // Tell the consumer that spliting the region will not help.
-    this->SplitFactor = 0;
     region->SetAxes(saveAxes);
     return;
     }
@@ -265,13 +257,13 @@ void vtkImageCache::UpdateRegion(vtkImageRegion *region)
     }
   else
     {
-    // look to cached data for generate (subclass will handle the generate)
+    // look to cached data for update (subclass will handle the update)
     this->GenerateCachedRegionData(region);
     }
 
   // Leave the region in the original (before this method) coordinate system.
-  region->SetAxes(saveAxes);
-  region->SetExtent(saveExtent);
+  region->SetAxes(saveAxes, VTK_IMAGE_DIMENSIONS);
+  region->SetExtent(saveExtent, VTK_IMAGE_DIMENSIONS);
 }
 
 
@@ -314,7 +306,7 @@ void vtkImageCache::GenerateUnCachedRegionData(vtkImageRegion *region)
   // Tell the filter to generate the data for this region
   // IMPORTANT: Region is just to communicate extent, and does not
   // return any infomation!
-  this->Source->UpdateRegion(region);
+  this->Source->UpdatePointData(VTK_IMAGE_DIMENSIONS, region);
 
   // this->Data should be allocated by now. 
   // (unless somthing unexpected happened).
@@ -365,8 +357,7 @@ void vtkImageCache::AllocateRegion(vtkImageRegion *region)
       {
       // Output data could not be allocated.  Splitting will help.
       // Memory failure should not happen. MemoryLimits set wrong.
-      vtkWarningMacro(<< "AllocateRegion: Failure. MemoryLimits too big.");
-      this->SplitFactor = 2;
+      vtkWarningMacro(<< "AllocateRegion: OutputMemoryLimit must be too big.");
       return;
       }
 

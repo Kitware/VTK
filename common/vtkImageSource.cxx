@@ -44,7 +44,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
 {
-  this->SplitFactor = 2;
 }
 
 
@@ -55,7 +54,6 @@ vtkImageSource::vtkImageSource()
 void vtkImageSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
-  os << indent << "SplitFactor: " << this->SplitFactor << "\n";
 }
   
 

@@ -69,13 +69,16 @@ vtkImageCachedSource::~vtkImageCachedSource()
 //----------------------------------------------------------------------------
 void vtkImageCachedSource::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int idx;
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Axes: (";
-  os << vtkImageAxisNameMacro(this->Axes[0]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[1]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[2]) << ", ";
-  os << vtkImageAxisNameMacro(this->Axes[3]) << ")\n";
+  os << indent << "NumberOfAxes: " << this->NumberOfAxes << "\n";
+  os << indent << "Axes: (" << vtkImageAxisNameMacro(this->Axes[0]);
+  for (idx = 1; idx < VTK_IMAGE_DIMENSIONS; ++idx)
+    {
+    os << ", " << vtkImageAxisNameMacro(this->Axes[idx]);
+    }
+  os << ")\n";
 
   if (this->Output)
     {
@@ -101,156 +104,53 @@ void vtkImageCachedSource::InterceptCacheUpdate(vtkImageRegion *region)
 }
 
 
-
 //----------------------------------------------------------------------------
 // Description:
-// This method fills an empty region with data.
-void vtkImageCachedSource::UpdateRegion(vtkImageRegion *region)
+// This method loops over an axis and calls UpdatePointData
+// with a lower dimensional region.  The recursion is terminated when 
+// axesIdx is equal to NumberOfAxes.  At this point the subclasses
+// UpdatePointData is called.
+void vtkImageCachedSource::UpdatePointData(int axisIdx, vtkImageRegion *region)
 {
-  // switch statment is to determine the overhead of this series of 
-  // Update calls.
-  // It does nothing and is not tested.
-  switch (VTK_IMAGE_DIMENSIONS)
+  int coordinate;
+  int extent[2*axisIdx];
+  int min, max;
+
+  
+  // Terminate recursion?
+  if (axisIdx == this->NumberOfAxes)
     {
-    case 5:
-      this->UpdateRegion5d(region);
-      break;
-    case 4:
-      this->UpdateRegion4d(region);
-      break;
-    case 3:
-      this->UpdateRegion3d(region);
-      break;
-    case 2:
-      this->UpdateRegion2d(region);
-      break;
-    case 1:
-      this->UpdateRegion1d(region);
-      break;
+    this->UpdatePointData(region);
+    return;
     }
-}
-
   
-//----------------------------------------------------------------------------
-// Description:
-// This default GenerateRegion5d method treats the 5d image as a 
-// set of 4d images.  It loops over these 4d images and calls GenerateRegion4d.
-void vtkImageCachedSource::UpdateRegion5d(vtkImageRegion *region)
-{
-  int coordinate4;
-  int extent[10];
-  int min4, max4;
+  region->GetExtent(extent, axisIdx);
+  min = extent[axisIdx*2 - 2];
+  max = extent[axisIdx*2 - 1];
   
-  region->GetExtent(extent);
-  min4 = extent[8];
-  max4 = extent[9];
-  
-  for (coordinate4 = min4; coordinate4 <= max4; ++coordinate4)
+  for (coordinate = min; coordinate <= max; ++coordinate)
     {
-    extent[8] = extent[9] = coordinate4;
-    region->SetExtent(extent);
-    this->UpdateRegion4d(region);
+    // colapse one dimension.
+    extent[axisIdx*2 - 2] = extent[axisIdx*2 - 1] = coordinate;
+    region->SetExtent(extent, axisIdx);
+    // Continue recursion.
+    this->vtkImageCachedSource::UpdatePointData(axisIdx - 1, region);
     }
   // restore original extent
-  extent[8] = min4;
-  extent[9] = max4;
-  region->SetExtent(extent);  
+  extent[axisIdx*2 - 2] = min;
+  extent[axisIdx*2 - 1] = max;
+  region->SetExtent(extent, axisIdx);  
 }
-
 
 //----------------------------------------------------------------------------
 // Description:
-// This default GenerateRegion4d method treats the 4d image as a 
-// set of volumes.  It loops over these volumes and calls GenerateRegion3d.
-void vtkImageCachedSource::UpdateRegion4d(vtkImageRegion *region)
-{
-  int coordinate3;
-  int extent[8];
-  int min3, max3;
-  
-  region->GetExtent(extent);
-  min3 = extent[6];
-  max3 = extent[7];
-  
-  for (coordinate3 = min3; coordinate3 <= max3; ++coordinate3)
-    {
-    extent[6] = extent[7] = coordinate3;
-    region->SetExtent(extent);
-    this->UpdateRegion3d(region);
-    }
-  // restore original extent
-  extent[6] = min3;
-  extent[7] = max3;
-  region->SetExtent(extent);  
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This default UpdateRegion3d method treats the volume as a set of 
-// images.  It loops over these images and calls UpdateRegion2d.
-void vtkImageCachedSource::UpdateRegion3d(vtkImageRegion *region)
-{
-  int coordinate2;
-  int extent[6];
-  int min2, max2;
-  
-  region->GetExtent(extent);
-  min2 = extent[4];
-  max2 = extent[5];
-  
-  for (coordinate2 = min2; coordinate2 <= max2; ++coordinate2)
-    {
-    extent[4] = extent[5] = coordinate2;
-    region->SetExtent(extent);
-    this->UpdateRegion2d(region);
-    }
-  // restore original extent
-  extent[4] = min2;
-  extent[5] = max2;
-  region->SetExtent(extent);  
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// This default UpdateRegion2d method treats the image as a set of lines.
-// It loops over these lines and calls UpdateRegion1d.
-void vtkImageCachedSource::UpdateRegion2d(vtkImageRegion *region)
-{
-  int coordinate1;
-  int extent[4];
-  int min1, max1;
-  
-  region->GetExtent(extent);
-  min1 = extent[2];
-  max1 = extent[3];
-  
-  for (coordinate1 = min1; coordinate1 <= max1; ++coordinate1)
-    {
-    extent[2] = extent[3] = coordinate1;
-    region->SetExtent(extent);
-    this->UpdateRegion1d(region);
-    }
-  // restore original extent
-  extent[2] = min1;
-  extent[3] = max1;
-  region->SetExtent(extent);  
-}
-
-
-//----------------------------------------------------------------------------
-// Description:
-// There is no default UpdateRegion1d.  This method just prints an error.
-void vtkImageCachedSource::UpdateRegion1d(vtkImageRegion *region)
+// This function can be defined in a subclass to generate the data
+// for a region.
+void vtkImageCachedSource::UpdatePointData(vtkImageRegion *region)
 {
   region = region;
-  vtkErrorMacro(<< "UpdateRegion1d: "
-                << "Subclass did not provide a UpdateRegion method.");
+  vtkErrorMacro(<< "UpdatePointData: Method not defined.");
 }
-
-
-
 
 
 
@@ -310,7 +210,7 @@ unsigned long vtkImageCachedSource::GetPipelineMTime()
 void vtkImageCachedSource::SetOutputMemoryLimit(long limit)
 {
   this->CheckCache();
-  this->Output->SetMemoryLimit(limit);
+  this->Output->SetOutputMemoryLimit(limit);
   this->Modified();
 }
 
@@ -354,6 +254,7 @@ void vtkImageCachedSource::SetAxes(int *axes, int dim)
     {
     allAxes[idx1] = axes[idx1];
     }
+  this->NumberOfAxes = dim;
   
   // choose the rest of the axes
   // look through original axes to find ones not taken
