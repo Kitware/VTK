@@ -153,7 +153,7 @@ public:
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  int InsertNextValue(const short);
+  vtkIdType InsertNextValue(const short);
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
@@ -233,7 +233,7 @@ inline void vtkShortArray::InsertValue(const vtkIdType id, const short i)
     }
 }
 
-inline int vtkShortArray::InsertNextValue(const short i)
+inline vtkIdType vtkShortArray::InsertNextValue(const short i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;

@@ -144,7 +144,7 @@ public:
 
   // Description:
   // Insert data at the end of the array. Return its location in the array.
-  int InsertNextValue(const unsigned short);
+  vtkIdType InsertNextValue(const unsigned short);
 
   // Description:
   // Get the address of a particular data index. Performs no checks
@@ -215,7 +215,7 @@ inline void vtkUnsignedShortArray::SetNumberOfValues(const vtkIdType number)
 inline unsigned short *vtkUnsignedShortArray::WritePointer(const vtkIdType id,
                                                            const vtkIdType number) 
 {
-  int newSize=id+number;
+  vtkIdType newSize=id+number;
   if ( newSize > this->Size )
     {
     this->ResizeAndExtend(newSize);
@@ -241,7 +241,7 @@ inline void vtkUnsignedShortArray::InsertValue(const vtkIdType id,
     }
 }
 
-inline int vtkUnsignedShortArray::InsertNextValue(const unsigned short i)
+inline vtkIdType vtkUnsignedShortArray::InsertNextValue(const unsigned short i)
 {
   this->InsertValue (++this->MaxId,i); 
   return this->MaxId;
