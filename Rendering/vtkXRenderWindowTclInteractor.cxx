@@ -56,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.31");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.32");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -514,9 +514,14 @@ int vtkXRenderWindowTclInteractor::DestroyTimer(void)
 void vtkXRenderWindowTclInteractor::TerminateApp(void) 
 {
 #if ((TK_MAJOR_VERSION <= 4)||((TK_MAJOR_VERSION == 8)&&(TK_MINOR_VERSION == 0)))
-  Tcl_Interp* interp = tkMainWindowList->interp
+  Tcl_Interp* interp = tkMainWindowList->interp;
 #else
   Tcl_Interp* interp = TkGetMainInfoList()->interp;
 #endif
+
+#if TCL_MAJOR_VERSION == 8 && TCL_MINOR_VERSION <= 2
+  Tcl_GlobalEval(interp, "exit");
+#else
   Tcl_EvalEx(interp, "exit", -1, TCL_EVAL_GLOBAL);
+#endif
 }
