@@ -751,13 +751,13 @@ private:
   void ExtractSidesFromSideSetData(vtkstd::set<int> *idset, vtkModelMetadata *mmd);
 //ETX
 
-  void ShowFloats(char *what, int num, float *f);
-  void ShowLines(char *what, int num, char **l);
-  void ShowIntArray(char *what, int numx, int numy, int *id);
-  void ShowInts(char *what, int num, int *id);
-  void ShowListsOfInts(char *what, int *list,
+  void ShowFloats(const char *what, int num, float *f);
+  void ShowLines(const char *what, int num, char **l);
+  void ShowIntArray(const char *what, int numx, int numy, int *id);
+  void ShowInts(const char *what, int num, int *id);
+  void ShowListsOfInts(const char *what, int *list,
                        int nlists, int *idx, int len, int verbose);
-  void ShowListsOfFloats(char *what, float *list,
+  void ShowListsOfFloats(const char *what, float *list,
                          int nlists, int *idx, int len, int verbose);
 
   void SetOriginalElementVariableNames(int nvars, char **names);

@@ -32,7 +32,7 @@
 #include <time.h>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.2");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.3");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #undef FREE
@@ -3741,7 +3741,7 @@ char *vtkModelMetadata::FindOriginalElementVariableName(const char *name, int co
 // Display contents for debugging
 //-------------------------------------
 
-void vtkModelMetadata::ShowFloats(char *what, int num, float *f)
+void vtkModelMetadata::ShowFloats(const char *what, int num, float *f)
 {
   if (num < 1) return;
   if (!f) return;
@@ -3753,7 +3753,7 @@ void vtkModelMetadata::ShowFloats(char *what, int num, float *f)
     }
   cout << endl;
 }
-void vtkModelMetadata::ShowLines(char *what, int num, char **l)
+void vtkModelMetadata::ShowLines(const char *what, int num, char **l)
 {
   if (num < 1) return;
   if (!l) return;
@@ -3763,7 +3763,7 @@ void vtkModelMetadata::ShowLines(char *what, int num, char **l)
     if (l[i]) cout << "  " << l[i] << endl;
     }
 }
-void vtkModelMetadata::ShowIntArray(char *what, int numx, int numy, int *id)
+void vtkModelMetadata::ShowIntArray(const char *what, int numx, int numy, int *id)
 {
   if (numx < 1) return;
   if (numy < 1) return;
@@ -3780,7 +3780,7 @@ void vtkModelMetadata::ShowIntArray(char *what, int numx, int numy, int *id)
     }
   cout << endl;
 }
-void vtkModelMetadata::ShowInts(char *what, int num, int *id)
+void vtkModelMetadata::ShowInts(const char *what, int num, int *id)
 {
   if (num < 1) return;
   if (!id) return;
@@ -3792,7 +3792,7 @@ void vtkModelMetadata::ShowInts(char *what, int num, int *id)
     }
   cout << endl;
 }
-void vtkModelMetadata::ShowListsOfInts(char *what, int *list, 
+void vtkModelMetadata::ShowListsOfInts(const char *what, int *list, 
                        int nlists, int *idx, int len, int verbose)
 {
   int i, j, ii;
@@ -3825,7 +3825,7 @@ void vtkModelMetadata::ShowListsOfInts(char *what, int *list,
     cout << endl;
     }
 }
-void vtkModelMetadata::ShowListsOfFloats(char *what, float *list, 
+void vtkModelMetadata::ShowListsOfFloats(const char *what, float *list, 
                               int nlists, int *idx, int len, int verbose)
 {
   int i, j, ii;
