@@ -82,7 +82,7 @@ public:
   // responsibility to check if the edge has already been inserted
   // (use IsEdge()). Do not mix this method with the other two
   // InsertEdge() methods.
-  void InsertEdge(vtkIdType p1, vtkIdType p2, int attributeId);
+  void InsertEdge(vtkIdType p1, vtkIdType p2, vtkIdType attributeId);
 
   // Description:
   // Insert the edge (p1,p2) into the table with the attribute id
