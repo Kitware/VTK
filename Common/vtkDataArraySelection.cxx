@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVector.txx"
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.2");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.3");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 //----------------------------------------------------------------------------
@@ -104,7 +104,6 @@ int vtkDataArraySelection::ArrayExists(const char* name)
 {
   // Check if there is a specific entry for this array.
   vtkIdType pos=0;
-  int result=0;
   if( this->ArrayNames->FindItem(name, pos) == VTK_OK )
     {
     return 1;
