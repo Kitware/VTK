@@ -28,6 +28,9 @@
 #include "vtkModelMetadata.h"
 #include "vtkExtractCells.h"
 #include "vtkMergeCells.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkObjectFactory.h"
 #include "vtkPKdTree.h"
 #include "vtkUnstructuredGrid.h"
@@ -54,7 +57,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.24")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.25")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -448,47 +451,68 @@ void vtkDistributedDataFilter::SetDivideBoundaryCells(int val)
 // Execute
 //-------------------------------------------------------------------------
 
-void vtkDistributedDataFilter::ComputeInputUpdateExtents( vtkDataObject *output)
+int vtkDistributedDataFilter::RequestUpdateExtent(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
   int piece, numPieces, ghostLevels;
-  vtkDataSet *input = this->GetInput();
 
   // We require preceding filters to refrain from creating ghost cells.
 
-  if (this->GetInput() == NULL)
-    {
-    return;
-    }
-  piece = output->GetUpdatePiece();
-  numPieces = output->GetUpdateNumberOfPieces();
+  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   ghostLevels = 0;
 
-  input->SetUpdateExtent(piece, numPieces, ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+              numPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+              ghostLevels);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
-  input->RequestExactExtentOn();
+  return 1;
 }
 
-void vtkDistributedDataFilter::ExecuteInformation()
+int vtkDistributedDataFilter::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet* input = this->GetInput();
-  vtkUnstructuredGrid* output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  if (input && output)
-    {
-    output->CopyInformation(input);
-    output->SetMaximumNumberOfPieces(-1);
-    }
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
+               6);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR(),
+               inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES(), -1);
+
+  return 1;
 }
 
-void vtkDistributedDataFilter::Execute()
+int vtkDistributedDataFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkDataSet *input  = this->GetInput();
-  vtkUnstructuredGrid *output = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkDebugMacro(<< "vtkDistributedDataFilter::Execute()");
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  this->GhostLevel = this->GetOutput()->GetUpdateGhostLevel();
-
+  this->GhostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   this->NextProgressStep = 0;
   int progressSteps = 5 + this->GhostLevel;
   if (this->ClipCells)
@@ -503,9 +527,9 @@ void vtkDistributedDataFilter::Execute()
 
   if (this->NumProcesses == 1)
     {
-    this->SingleProcessExecute();
+    this->SingleProcessExecute(input, output);
     this->UpdateProgress(1.0);
-    return;
+    return 1;
     }
 
   // This method requires an MPI controller.
@@ -522,18 +546,18 @@ void vtkDistributedDataFilter::Execute()
   if (!aok)
     {
     vtkErrorMacro(<< "vtkDistributedDataFilter multiprocess requires MPI");
-    return;
+    return 1;
     }
 
   // Stage (0) - If any processes have 0 cell input data sets, then
   //   spread the input data sets around (quickly) before formal
   //   redistribution.
 
-  vtkDataSet *splitInput = this->TestFixTooFewInputFiles();
+  vtkDataSet *splitInput = this->TestFixTooFewInputFiles(input);
 
   if (splitInput == NULL)
     {
-    return;    // Fewer cells than processes - can't divide input
+    return 1;    // Fewer cells than processes - can't divide input
     }
 
   this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
@@ -561,7 +585,7 @@ void vtkDistributedDataFilter::Execute()
       splitInput->Delete();
       }
     vtkErrorMacro(<< "vtkDistributedDataFilter::Execute k-d tree failure");
-    return;
+    return 1;
     }
 
   this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
@@ -583,7 +607,8 @@ void vtkDistributedDataFilter::Execute()
   //
   // This call will delete splitInput if it's not this->GetInput().
 
-  vtkUnstructuredGrid *redistributedInput = this->RedistributeDataSet(splitInput);
+  vtkUnstructuredGrid *redistributedInput = this->RedistributeDataSet(splitInput,
+                                                                      input);
 
   if (redistributedInput == NULL)
     {
@@ -591,7 +616,7 @@ void vtkDistributedDataFilter::Execute()
     this->Kdtree = NULL;
 
     vtkErrorMacro(<< "vtkDistributedDataFilter::Execute redistribute failure");
-    return;
+    return 1;
     }
 
   this->UpdateProgress(this->NextProgressStep++ * this->ProgressIncrement);
@@ -614,7 +639,7 @@ void vtkDistributedDataFilter::Execute()
         this->Kdtree->Delete();
         this->Kdtree = NULL;
         vtkErrorMacro(<< "vtkDistributedDataFilter::Execute global node id creation");
-        return;
+        return 1;
         }
       }
 
@@ -666,8 +691,11 @@ void vtkDistributedDataFilter::Execute()
     }
 
   this->UpdateProgress(1);
+
+  return 1;
 }
-vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *set)
+vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(
+  vtkDataSet *set, vtkDataSet *input)
 {
   // Create global cell ids before redistributing data.  These
   // will be necessary if we need ghost cells later on.
@@ -676,7 +704,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *s
 
   if ((this->GhostLevel > 0) && (this->GetGlobalElementIdArrayName(set) == NULL))
     {
-    if (set == this->GetInput())
+    if (set == input)
       {
       inputPlus = set->NewInstance();
       inputPlus->ShallowCopy(set);
@@ -687,7 +715,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::RedistributeDataSet(vtkDataSet *s
 
   // next call deletes inputPlus at the earliest opportunity
 
-  vtkUnstructuredGrid *finalGrid = this->MPIRedistribute(inputPlus);
+  vtkUnstructuredGrid *finalGrid = this->MPIRedistribute(inputPlus, input);
 
   return finalGrid;
 }
@@ -805,11 +833,9 @@ vtkUnstructuredGrid *
 
   return expandedGrid;
 }
-void vtkDistributedDataFilter::SingleProcessExecute()
+void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
+                                                    vtkUnstructuredGrid *output)
 {
-  vtkDataSet *input               = this->GetInput();
-  vtkUnstructuredGrid *output     = this->GetOutput();
-
   vtkDebugMacro(<< "vtkDistributedDataFilter::SingleProcessExecute()");
 
   // we run the input through vtkMergeCells which will remove
@@ -946,12 +972,11 @@ extern "C"
       }
   }
 }
-vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles()
+vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 {
   int i, proc;
   int me = this->MyId;
   int nprocs = this->NumProcesses;
-  vtkDataSet *input = this->GetInput();
 
   int numMyCells = input->GetNumberOfCells();
 
@@ -2463,7 +2488,8 @@ void vtkDistributedDataFilter::AddMetadata(vtkUnstructuredGrid *grid,
   submmd->Delete(); 
 }
 
-vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in)
+vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in,
+                                                               vtkDataSet *input)
 {
   int proc;
   int nprocs = this->NumProcesses;
@@ -2503,7 +2529,7 @@ vtkUnstructuredGrid *vtkDistributedDataFilter::MPIRedistribute(vtkDataSet *in)
 
   int deleteDataSet = DeleteNo;
 
-  if (in != this->GetInput())
+  if (in != input)
     {
     deleteDataSet = DeleteYes;
     }
@@ -2920,7 +2946,9 @@ void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *gri
     ep->SetPieceFunction(insideBoxFunction);
     ep->CreateGhostCellsOn();
 
-    ep->GetOutput()->SetUpdateGhostLevel(this->GhostLevel);
+    ep->GetOutputPortInformation(0)->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      this->GhostLevel);
     ep->SetInput(combined);
 
     ep->Update();

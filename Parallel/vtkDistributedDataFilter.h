@@ -56,7 +56,7 @@
 #ifndef __vtkDistributedDataFilter_h
 #define __vtkDistributedDataFilter_h
 
-#include "vtkDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkUnstructuredGrid;
 class vtkPKdTree;
@@ -69,10 +69,10 @@ class vtkUnstructuredGrid;
 class vtkModelMetadata;
 class vtkDistributedDataFilterSTLCloak;
 
-class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkDataSetToUnstructuredGridFilter
+class VTK_PARALLEL_EXPORT vtkDistributedDataFilter: public vtkUnstructuredGridAlgorithm
 {
   vtkTypeRevisionMacro(vtkDistributedDataFilter, 
-    vtkDataSetToUnstructuredGridFilter);
+    vtkUnstructuredGridAlgorithm);
 
 public:
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -195,7 +195,7 @@ public:
   
   // Description:
   //   Ensure previous filters don't send up ghost cells
-  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   // Description:
   //  This class does a great deal of all-to-all communication
@@ -264,9 +264,9 @@ protected:
   //   data distributed across processes.  Execute() must be called
   //   by all processes, or it will hang.
 
-  void Execute();
-  void SingleProcessExecute();
-  void ExecuteInformation();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  void SingleProcessExecute(vtkDataSet *input, vtkUnstructuredGrid *output);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
 
@@ -291,7 +291,7 @@ private:
       };
 //ETX
   int PartitionDataAndAssignToProcesses(vtkDataSet *set);
-  vtkUnstructuredGrid *RedistributeDataSet(vtkDataSet *set);
+  vtkUnstructuredGrid *RedistributeDataSet(vtkDataSet *set, vtkDataSet *input);
   int ClipGridCells(vtkUnstructuredGrid *grid);
   vtkUnstructuredGrid * AcquireGhostCells(vtkUnstructuredGrid *grid);
 
@@ -299,9 +299,9 @@ private:
 
   int CheckFieldArrayTypes(vtkDataSet *set);
 
-  vtkDataSet *TestFixTooFewInputFiles();
+  vtkDataSet *TestFixTooFewInputFiles(vtkDataSet *input);
 
-  vtkUnstructuredGrid *MPIRedistribute(vtkDataSet *in);
+  vtkUnstructuredGrid *MPIRedistribute(vtkDataSet *in, vtkDataSet *input);
 
   vtkIdList **GetCellIdsForProcess(int proc, int *nlists);
 
