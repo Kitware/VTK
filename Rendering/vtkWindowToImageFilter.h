@@ -50,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImageSource.h"
 
-class vtkRenderWindow;
+class vtkWindow;
 
 class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkImageSource
 {
@@ -62,11 +62,11 @@ public:
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  void SetInput(vtkRenderWindow *input);
+  void SetInput(vtkWindow *input);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
-  vtkGetObjectMacro(Input,vtkRenderWindow);
+  vtkGetObjectMacro(Input,vtkWindow);
 
   // Description:
   // The magnification of the current render window
@@ -78,7 +78,7 @@ protected:
   ~vtkWindowToImageFilter();
 
   // vtkWindow is not a vtkDataObject, so we need our own ivar.
-  vtkRenderWindow *Input;
+  vtkWindow *Input;
   int Magnification;
   void ExecuteInformation();
   void ExecuteData(vtkDataObject *data);

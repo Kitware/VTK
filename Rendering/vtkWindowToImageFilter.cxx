@@ -81,7 +81,7 @@ vtkWindowToImageFilter::~vtkWindowToImageFilter()
 }
 
 //----------------------------------------------------------------------------
-void vtkWindowToImageFilter::SetInput(vtkRenderWindow *input)
+void vtkWindowToImageFilter::SetInput(vtkWindow *input)
 {
   if (input != this->Input)
     {
@@ -170,7 +170,14 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     
   float *viewAngles;
   double *windowCenters;
-  vtkRendererCollection *rc = this->Input->GetRenderers();
+  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(this->Input);
+  if (!renWin)
+    {
+    vtkWarningMacro("The window passed to window to image should be a RenderWIndow or one of its subclasses");
+    return;
+    }
+  
+  vtkRendererCollection *rc = renWin->GetRenderers();
   vtkRenderer *aren;
   vtkCamera *cam;
   int numRenderers = rc->GetNumberOfItems();
