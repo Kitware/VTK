@@ -124,7 +124,6 @@ void vtkImageThreshold::ThresholdBetween(float lower, float upper)
 }
 
 //----------------------------------------------------------------------------
-// Output is always float
 void vtkImageThreshold::ExecuteImageInformation()
 {
   if (this->OutputScalarType != -1)

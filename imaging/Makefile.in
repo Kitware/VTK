@@ -92,6 +92,7 @@ vtkImageShiftScale \
 vtkImageShrink3D \
 vtkImageSinusoidSource \
 vtkImageSkeleton2D \
+vtkImageSkeleton3D \
 vtkImageSobel2D \
 vtkImageSobel3D \
 vtkImageStaticCache \

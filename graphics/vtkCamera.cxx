@@ -133,6 +133,12 @@ vtkCamera *vtkCamera::New()
 
 void vtkCamera::SetPosition(float X, float Y, float Z)
 {
+  if (X == this->Position[0] && Y == this->Position[1] 
+      && Z == this->Position[2])
+    {
+    return;
+    }
+  
   this->Position[0] = X;
   this->Position[1] = Y;
   this->Position[2] = Z;
@@ -153,6 +159,12 @@ void vtkCamera::SetPosition(float a[3])
 
 void vtkCamera::SetFocalPoint(float X, float Y, float Z)
 {
+  if (X == this->FocalPoint[0] && Y == this->FocalPoint[1] 
+      && Z == this->FocalPoint[2])
+    {
+    return;
+    }
+
   this->FocalPoint[0] = X; 
   this->FocalPoint[1] = Y; 
   this->FocalPoint[2] = Z;
@@ -173,31 +185,34 @@ void vtkCamera::SetFocalPoint(float a[3])
 
 void vtkCamera::SetViewUp(float X, float Y, float Z)
 {
-  float dx, dy, dz, norm;
+  float norm;
+
+  // normalize ViewUp
+  norm = sqrt( X * X + Y * Y + Z * Z );
+  
+  if(norm != 0) 
+    {
+    X /= norm;
+    Y /= norm;
+    Z /= norm;
+    }
+  else 
+    {
+    X = 0;
+    Y = 1;
+    Z = 0;
+    }
+  
+  if (X == this->ViewUp[0] && Y == this->ViewUp[1] 
+      && Z == this->ViewUp[2])
+    {
+    return;
+    }
 
   this->ViewUp[0] = X;
   this->ViewUp[1] = Y;
   this->ViewUp[2] = Z;
 
-  // normalize ViewUp
-  dx = this->ViewUp[0];
-  dy = this->ViewUp[1];
-  dz = this->ViewUp[2];
-  norm = sqrt( dx * dx + dy * dy + dz * dz );
-  
-  if(norm != 0) 
-    {
-    this->ViewUp[0] /= norm;
-    this->ViewUp[1] /= norm;
-    this->ViewUp[2] /= norm;
-    }
-  else 
-    {
-    this->ViewUp[0] = 0;
-    this->ViewUp[1] = 1;
-    this->ViewUp[2] = 0;
-    }
-  
   vtkDebugMacro(<< " ViewUp set to ( " <<  this->ViewUp[0] << ", "
   << this->ViewUp[1] << ", " << this->ViewUp[2] << ")");
   
@@ -211,38 +226,47 @@ void vtkCamera::SetViewUp(float a[3])
 
 void vtkCamera::SetClippingRange(float X, float Y)
 {
-  this->ClippingRange[0] = X; 
-  this->ClippingRange[1] = Y; 
-
+  float thickness;
+  
   // check the order
-  if(this->ClippingRange[0] > this->ClippingRange[1]) 
+  if(X > Y) 
     {
     float temp;
     vtkDebugMacro(<< " Front and back clipping range reversed");
-    temp = this->ClippingRange[0];
-    this->ClippingRange[0] = this->ClippingRange[1];
-    this->ClippingRange[1] = temp;
+    temp = X;
+    X = Y;
+    Y = temp;
     }
   
   // front should be greater than 0.0001
-  if (this->ClippingRange[0] < 0.0001) 
+  if (X < 0.0001) 
     {
-    this->ClippingRange[1] += 0.0001 - this->ClippingRange[0];
-    this->ClippingRange[0] = 0.0001;
+    Y += 0.0001 - X;
+    X = 0.0001;
     vtkDebugMacro(<< " Front clipping range is set to minimum.");
     }
   
-  this->Thickness = this->ClippingRange[1] - this->ClippingRange[0];
+  thickness = Y - X;
   
   // thickness should be greater than 0.0001
-  if (this->Thickness < 0.0001) 
+  if (thickness < 0.0001) 
     {
-    this->Thickness = 0.0001;
+    thickness = 0.0001;
     vtkDebugMacro(<< " ClippingRange thickness is set to minimum.");
     
     // set back plane
-    this->ClippingRange[1] = this->ClippingRange[0] + this->Thickness;
+    Y = X + thickness;
     }
+  
+  if (X == this->ClippingRange[0] && Y == this->ClippingRange[1] &&
+      this->Thickness == thickness)
+    {
+    return;
+    }
+
+  this->ClippingRange[0] = X; 
+  this->ClippingRange[1] = Y; 
+  this->Thickness = thickness;
   
   vtkDebugMacro(<< " ClippingRange set to ( " <<  this->ClippingRange[0] << ", "
   << this->ClippingRange[1] << ")");
@@ -350,6 +374,11 @@ void vtkCamera::SetRoll(float roll)
   // get the current roll
   current = this->GetRoll();
 
+  if (fabs(current - roll) < 0.00001)
+    {
+    return;
+    }
+  
   roll -= current;
 
   this->Transform.Push();
@@ -1017,12 +1046,22 @@ void vtkCamera::SetViewPlaneNormal(float X,float Y,float Z)
     return;
     }
   
-  this->ViewPlaneNormal[0] = X/norm;
-  this->ViewPlaneNormal[1] = Y/norm;
-  this->ViewPlaneNormal[2] = Z/norm;
+  X = X/norm;
+  Y = Y/norm;
+  Z = Z/norm;
+  
+  if (X == this->ViewPlaneNormal[0] && Y == this->ViewPlaneNormal[1] 
+      && Z == this->ViewPlaneNormal[2])
+    {
+    return;
+    }
+  
+  this->ViewPlaneNormal[0] = X;
+  this->ViewPlaneNormal[1] = Y;
+  this->ViewPlaneNormal[2] = Z;
 
-  vtkDebugMacro(<< " ViewPlaneNormal set to ( " << X/norm << ", "
-  << Y/norm << ", " << Z/norm << ")");
+  vtkDebugMacro(<< " ViewPlaneNormal set to ( " << X << ", "
+    << Y << ", " << Z << ")");
  
   // Compute the dot product between the view plane normal and the 
   // direction of projection. If this has changed, the viewing rays need 

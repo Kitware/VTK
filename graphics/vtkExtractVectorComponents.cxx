@@ -116,10 +116,11 @@ vtkDataSet *vtkExtractVectorComponents::GetVzComponent()
 void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
 {
   vtkDataSet *thisInput=(vtkDataSet *)this->Input;
-
+  
   if ( thisInput != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vtkDataObject *)(input);
     thisInput = input;
     this->Modified();
 

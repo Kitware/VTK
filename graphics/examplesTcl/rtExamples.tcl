@@ -23,8 +23,7 @@ set noTest {
    TestHistogramEqualization.tcl TestMIPFilter.tcl
    TestSubsample3D.tcl
    TestWriter.tcl Timing.tcl WindowLevelInterface.tcl
-   vtkImageInclude.tcl TkViewer2.tcl Pad.tcl
-}
+   vtkImageInclude.tcl}
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
    if {[set pos [lsearch $files [lindex $noTest $i]]] != -1} {

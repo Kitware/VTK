@@ -49,17 +49,30 @@ vtkImageShiftScale::vtkImageShiftScale()
 {
   this->Shift = 0.0;
   this->Scale = 1.0;
+  this->OutputScalarType = -1;
 }
+
+
+
+//----------------------------------------------------------------------------
+void vtkImageShiftScale::ExecuteImageInformation()
+{
+  if (this->OutputScalarType != -1)
+    {
+    this->Output->SetScalarType(this->OutputScalarType);
+    }
+}
+
 
 
 
 //----------------------------------------------------------------------------
 // Description:
 // This templated function executes the filter for any type of data.
-template <class T>
+template <class IT, class OT>
 static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData, T *outPtr,
+				      vtkImageData *inData, IT *inPtr,
+				      vtkImageData *outData, OT *outPtr,
 				      int outExt[6], int id)
 {
   float shift = self->GetShift();
@@ -96,7 +109,7 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
       for (idxR = 0; idxR < rowLength; idxR++)
 	{
 	// Pixel operation
-	*outPtr = (T)(((float)(*inPtr) + shift) * scale);
+	*outPtr = (OT)(((float)(*inPtr) + shift) * scale);
 	outPtr++;
 	inPtr++;
 	}
@@ -111,6 +124,46 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 
 
 //----------------------------------------------------------------------------
+template <class T>
+static void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
+				      vtkImageData *inData, T *inPtr,
+				      vtkImageData *outData,
+				      int outExt[6], int id)
+{
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  switch (outData->GetScalarType())
+    {
+    case VTK_FLOAT:
+      vtkImageShiftScaleExecute(self, inData, inPtr,
+			       outData, (float *)(outPtr),outExt, id);
+      break;
+    case VTK_INT:
+      vtkImageShiftScaleExecute(self, inData, inPtr, 
+			       outData, (int *)(outPtr),outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageShiftScaleExecute(self, inData, inPtr, 
+			       outData, (short *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageShiftScaleExecute(self, inData, inPtr, 
+			       outData, (unsigned short *)(outPtr),outExt, id);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageShiftScaleExecute(self, inData, inPtr, 
+			       outData, (unsigned char *)(outPtr),outExt, id);
+      break;
+    default:
+      vtkGenericWarningMacro("Execute: Unknown input ScalarType");
+      return;
+    }
+}
+
+
+
+
+//----------------------------------------------------------------------------
 // Description:
 // This method is passed a input and output data, and executes the filter
 // algorithm to fill the output from the input.
@@ -121,45 +174,33 @@ void vtkImageShiftScale::ThreadedExecute(vtkImageData *inData,
 					 int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
-  
-  // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
-    {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-                  << ", must match out ScalarType " << outData->GetScalarType());
-    return;
-    }
   
   switch (inData->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageShiftScaleExecute(this, 
+      vtkImageShiftScaleExecute1(this, 
 			  inData, (float *)(inPtr), 
-			  outData, (float *)(outPtr), outExt, id);
+			  outData, outExt, id);
       break;
     case VTK_INT:
-      vtkImageShiftScaleExecute(this, 
+      vtkImageShiftScaleExecute1(this, 
 			  inData, (int *)(inPtr), 
-			  outData, (int *)(outPtr), outExt, id);
+			  outData, outExt, id);
       break;
     case VTK_SHORT:
-      vtkImageShiftScaleExecute(this, 
+      vtkImageShiftScaleExecute1(this, 
 			  inData, (short *)(inPtr), 
-			  outData, (short *)(outPtr), outExt, id);
+			  outData, outExt, id);
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageShiftScaleExecute(this, 
+      vtkImageShiftScaleExecute1(this, 
 			  inData, (unsigned short *)(inPtr), 
-			  outData, (unsigned short *)(outPtr), outExt, id);
+			  outData, outExt, id);
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageShiftScaleExecute(this, 
+      vtkImageShiftScaleExecute1(this, 
 			  inData, (unsigned char *)(inPtr), 
-			  outData, (unsigned char *)(outPtr), outExt, id);
+			  outData, outExt, id);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

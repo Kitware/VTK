@@ -96,6 +96,20 @@ void vtkTextMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+void vtkTextMapper::SetShadow(int val) 
+{
+  if (val == this->Shadow)
+    {
+    return;
+    }
+  
+  this->Shadow = val; 
+  this->FontChanged = 1; 
+  this->Modified();
+}
+
+
+
 
 
 

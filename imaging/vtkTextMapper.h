@@ -114,8 +114,7 @@ public:
   // Description:
   // Set/Get the shadow property.
   // vtkSetMacro(Shadow, int);
-  void SetShadow(int val) 
-  {this->Shadow = val; this->FontChanged = 1; this->Modified();};
+  void SetShadow(int val);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
   

@@ -222,6 +222,11 @@ unsigned long int vtkImageOpenClose3D::GetPipelineMTime()
 // Set the Input of the filter.
 void vtkImageOpenClose3D::SetInput(vtkImageCache *input)
 {
+  if (this->Input == input)
+    {
+    return;
+    }
+  
   this->Input = input;
   this->Modified();
 

@@ -98,6 +98,11 @@ void vtkDataReader::SetInputString(char* _arg, int len)
     vtkDebugMacro(<< "setting InputString to " << _arg );
     }
 
+  if (this->InputString && _arg && strncmp(_arg, this->InputString, len) == 0)
+    {
+    return;
+    }
+  
   if (this->InputString) delete [] this->InputString; 
   if (_arg) 
     { 

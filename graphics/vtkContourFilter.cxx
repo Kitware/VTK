@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifdef VTK_USE_PATENTED
 #include "vtkMarchingSquares.h"
 #include "vtkMarchingCubes.h"
+#include "vtkImageMarchingCubes.h"
 #endif
 
 // Description:

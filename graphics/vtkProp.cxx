@@ -133,6 +133,12 @@ void vtkProp::AddPosition (float deltaPosition[3])
 // RotateZ, RotateX, and finally RotateY.
 void vtkProp::SetOrientation (float x,float y,float z)
 {
+  if (x == this->Orientation[0] && y == this->Orientation[1] 
+      && z == this->Orientation[2])
+    {
+    return;
+    }
+    
   // store the coordinates
   this->Orientation[0] = x;
   this->Orientation[1] = y;

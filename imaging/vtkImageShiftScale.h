@@ -67,12 +67,24 @@ public:
   vtkSetMacro(Scale,float);
   vtkGetMacro(Scale,float);
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-		       int extent[6], int id);
-  
+  vtkSetMacro(OutputScalarType, int);
+  vtkGetMacro(OutputScalarType, int);
+  void SetOutputScalarTypeToFloat() {this->SetOutputScalarType(VTK_FLOAT);}
+  void SetOutputScalarTypeToInt() {this->SetOutputScalarType(VTK_INT);}
+  void SetOutputScalarTypeToShort() {this->SetOutputScalarType(VTK_SHORT);}
+  void SetOutputScalarTypeToUnsignedShort() 
+    {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
+  void SetOutputScalarTypeToUnsignedChar() 
+    {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
+
 protected:
   float Shift;
   float Scale;
+  int OutputScalarType;
+  
+  void ExecuteImageInformation();
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
 };
 
 #endif

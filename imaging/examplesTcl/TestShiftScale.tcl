@@ -19,6 +19,7 @@ vtkImageShiftScale shiftScale
 shiftScale SetInput [reader GetOutput]
 shiftScale SetShift 0
 shiftScale SetScale 0.5
+shiftScale SetOutputScalarTypeToFloat
 #[shiftScale GetOutput] SetMemoryLimit 50
 
 vtkImageShiftScale shiftScale2

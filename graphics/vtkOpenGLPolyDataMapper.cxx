@@ -99,6 +99,11 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 //
 // make sure that we've been properly initialized
 //
+  if (ren->GetRenderWindow()->CheckAbortStatus())
+    {
+    return;
+    }
+  
   if ( input == NULL ) 
     {
     vtkErrorMacro(<< "No input!");
