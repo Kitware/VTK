@@ -42,7 +42,7 @@ void vlVolumeRenderer::Render(vlRenderer *ren)
   vlVolume *aVolume;
   float p1World[4], p2World[4];
   int steps;
-  unsigned char *rays;
+  float *rays;
   int x,y,i;
   unsigned char *originalImage;
   unsigned char resultColor[4];
@@ -77,7 +77,7 @@ void vlVolumeRenderer::Render(vlRenderer *ren)
   // allocate the memory for image and rays
   if (this->Image) delete [] this->Image;
   this->Image = new (unsigned char) [size[0]*size[1]*3];
-  rays = new (unsigned char) [this->Volumes.GetNumberOfItems()*4*steps];
+  rays = new (float) [this->Volumes.GetNumberOfItems()*4*steps];
 
   for (x = 0; x < size[0]; x++)
     {
@@ -297,44 +297,46 @@ void vlVolumeRenderer::CalcRayValues(vlRenderer *ren, float Vecs[6][3],
 
 // Description:
 // Composite the rays into resulting pixel.
-void vlVolumeRenderer::Composite(unsigned char *rays,int steps, int numRays,
+void vlVolumeRenderer::Composite(float *rays,int steps, int numRays,
 				 unsigned char *resultColor)
 {
   int i,j;
   float alpha;
+  float *color;
   float alpha2;
-  unsigned char color[4];
-
-  memset(resultColor,0,4);
+  float fresCol[4];
+  
+  fresCol[0] = 0;
+  fresCol[1] = 0;
+  fresCol[2] = 0;
   alpha = 0;
 
-  for (i = 0; ((i < steps)&&(resultColor[3] < 254)); i++)
+  for (i = 0; ((i < steps)&&(alpha < 0.98)); i++)
     {
     for (j = 0; j < numRays; j++)
       {
-      if (rays[(j*steps+i)*4+3])
+      if (rays[(j*steps+i)*4+3] > 0)
 	{
-	memcpy(color,rays + (j*steps+i)*4,4);
-	alpha2 = color[3]/255.0;
-	resultColor[0] = 
-	  (unsigned char)(resultColor[0] + color[0]*(1-alpha)*alpha2);
-	resultColor[1] = 
-	  (unsigned char)(resultColor[1] + color[1]*(1-alpha)*alpha2);
-	resultColor[2] = 
-	  (unsigned char)(resultColor[2] + color[2]*(1-alpha)*alpha2);
-	resultColor[3] = 
-	  (unsigned char)(resultColor[3] + color[3]*(1-alpha));
-	alpha = resultColor[3]/255.0;
+	color = rays + (j*steps+i)*4;
+	alpha2 = color[3];
+	fresCol[0] = fresCol[0] + color[0]*(1-alpha)*alpha2;
+	fresCol[1] = fresCol[1] + color[1]*(1-alpha)*alpha2;
+	fresCol[2] = fresCol[2] + color[2]*(1-alpha)*alpha2;
+	alpha = alpha + alpha2*(1 - alpha);
 	}
       }
     }
+  resultColor[0] = fresCol[0]*255.0;
+  resultColor[1] = fresCol[1]*255.0;
+  resultColor[2] = fresCol[2]*255.0;
+  resultColor[3] = alpha*255.0;
 }
 
 // Description:
 // Traces one ray through one volume.
 void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4], 
 				   vlVolume *vol, 
-				   int steps, unsigned char *resultRay)
+				   int steps, float *resultRay)
 {
   int i,j;
   float p1Mapper[4], p2Mapper[4];
@@ -355,9 +357,13 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
   float currentAlpha = 0;
   float mag;
   float calcSteps;
+  unsigned char temp_col[4];
 
   // clear the memory for the ray
-  memset(resultRay,0,steps*4);
+  for (i = 0; i < steps*4; i++)
+    {
+    resultRay[i] = 0;
+    }
 
   //  Transform ray (defined from position of
   //  camera to selection point) into coordinates of mapper (not
@@ -484,9 +490,15 @@ void vlVolumeRenderer::TraceOneRay(float p1World[4],float p2World[4],
 				   (index[2]+1)*dimensions[0]*dimensions[1]);
 
 	// map through the lookup table
-        memcpy(resultRay + j*4,vol->GetLookupTable()->MapValue(sf[0]),4);
+        memcpy(temp_col,vol->GetLookupTable()->MapValue(sf[0]),4);
+	resultRay[j*4] = temp_col[0]/ 255.0;
+	resultRay[j*4+1] = temp_col[1]/ 255.0;
+	resultRay[j*4+2] = temp_col[2]/ 255.0;
+	mag = temp_col[3]*this->StepSize;
+	if (mag > 255) mag = 255;
+	resultRay[j*4+3] = mag/255.0;
 	currentAlpha = currentAlpha + 
-	  (1 - currentAlpha)*resultRay[j*4+3]/255.0;
+	  (1 - currentAlpha)*resultRay[j*4+3];
 
 	for (i = 0; i < 3; i++)
 	  {

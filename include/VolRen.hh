@@ -55,8 +55,8 @@ protected:
   vlVolumeCollection Volumes;
   unsigned char *Image;
   void TraceOneRay(float p1[4], float p2[4],vlVolume *vol, 
-			   int steps,unsigned char *res);
-  void Composite(unsigned char *rays,int steps,int numRays,
+			   int steps,float *res);
+  void Composite(float *rays,int steps,int numRays,
 		 unsigned char *resultColor);
   void CalcRayValues(vlRenderer *,float foo[6][3], int *size, int *steps);
 
