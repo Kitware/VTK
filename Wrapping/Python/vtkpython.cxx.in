@@ -1,0 +1,37 @@
+/* Minimal main program -- everything is loaded from the library */
+
+#include "Python.h"
+#include "iostream.h"
+#include "vtkString.h"
+#include "vtkVersion.h"
+
+extern "C" {
+  extern DL_EXPORT(int) Py_Main(int, char **);
+}
+
+int
+main(int argc, char **argv)
+{
+  int displayVersion = 0;
+  if ( argc > 1 )
+    {
+    int cc;
+    for ( cc = 1; cc < argc; cc ++ )
+      {
+      if ( vtkString::Equals(argv[cc], "-V") )
+	{
+        displayVersion = 1;
+	break;
+	}
+      }
+    }
+  else
+    {
+    displayVersion = 1;
+    }
+  if ( displayVersion )
+    {
+    cout << vtkVersion::GetVTKSourceVersion() << endl;
+    }
+  return Py_Main(argc, argv);
+}
