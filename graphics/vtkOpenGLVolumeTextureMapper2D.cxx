@@ -219,6 +219,6 @@ void vtkOpenGLVolumeTextureMapper2D::RenderQuads( int numQuads,
 // Print the vtkOpenGLVolumeTextureMapper2D
 void vtkOpenGLVolumeTextureMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkVolumeTextureMapper::PrintSelf(os,indent);
+  this->vtkVolumeTextureMapper2D::PrintSelf(os,indent);
 }
 
