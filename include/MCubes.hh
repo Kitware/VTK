@@ -19,7 +19,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // structured point set) and generates on output one or more iso-surfaces.
 // One or more contour values must be specified to generate the iso-surfaces.
 // Alternatively, you can specify a min/max scalar range and the number of
-// contours to generate a series of evenly spaced contour values.
+// contours to generate a series of evenly spaced contour values. The current
+// implementation requires that the scalar data is defined with "short int"
+// data values.
 // .SECTION Caveats
 // The output primitives are disjoint - that is, points may
 // be generated that are coincident but distinct. You may want to use
@@ -50,6 +52,7 @@ public:
   vlGetVectorMacro(Values,float,MAX_CONTOURS);
 
   void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float range1, float range2);
 
 protected:
   void Execute();
