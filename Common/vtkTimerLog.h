@@ -163,7 +163,7 @@ public:
   double GetElapsedTime();
 
 protected:
-  vtkTimerLog() {this->StartTime=0;}; //insure constructor/destructor protected
+  vtkTimerLog() {this->StartTime=0; this->EndTime = 0;}; //insure constructor/destructor protected
   ~vtkTimerLog() {};
   vtkTimerLog(const vtkTimerLog&);
   void operator=(const vtkTimerLog&);
