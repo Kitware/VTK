@@ -53,7 +53,12 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
       {
       delete [] this->DirectoryName;
       }
+    if (this->FileName)
+      {
+      delete [] this->FileName;
+      }
     this->DirectoryName = NULL;
+    this->FileName = NULL;
     this->vtkImageReader2::SetFileName(fn);
   }
 
