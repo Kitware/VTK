@@ -634,14 +634,25 @@ void vtkImageDataCopyData(vtkImageData *self, void *outPtr,
 // is set to the incoming type.  Otherwise, the dat is converted
 // with a simple type cast.  It will not deal with reducing precision
 // intelligently.  Bounds specify the data to copy and must be contained
-// in both data objects.
+// in both data objects.  Bounds is in coordinate system of this data object.
 void vtkImageData::CopyData(vtkImageData *data, int *bounds)
 {
   void *inPtr, *outPtr;
   int *inBounds, *outBounds;
   int inTemp, outTemp, temp;
   int origin[VTK_IMAGE_DIMENSIONS];
+  int *axes;
   int idx;
+
+  // A design flaw!!!!!!!!!
+  axes = data->GetAxes();
+  if (axes[0] != this->Axes[0] || axes[1] != this->Axes[1] || 
+      axes[2] != this->Axes[2] || axes[3] != this->Axes[3])
+    {
+    vtkErrorMacro(<< "CopyData: Coordinate system must be the same!!!!!!");
+    return;
+    }
+  
   
   // Make sure our bounds are contained in the data objects.
   inBounds = data->GetBounds();
@@ -713,34 +724,14 @@ void vtkImageData::CopyData(vtkImageData *data, int *bounds)
 }
 
 
+
+
 //----------------------------------------------------------------------------
 // Description:
-// Copies data into this object.  If Type is not set, the default type
-// is set to the incoming type.  Otherwise, the dat is converted
-// with a simple type cast.  It will not deal with reducing precision
-// intelligently.  The data copied is the overlapping portion of the 
-// two data objects.
+// Copies data into this object.  It tries to copy into every pixel.
 void vtkImageData::CopyData(vtkImageData *data)
 {
-  int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  int *inBounds, *outBounds;
-  int inTemp, outTemp;
-  int idx;
-  
-  // Compute intersection of bounds
-  inBounds = data->GetBounds();
-  outBounds = this->GetBounds();
-  for (idx = 0; idx < VTK_IMAGE_DIMENSIONS; ++idx)
-    {
-    inTemp = inBounds[2*idx];
-    outTemp = outBounds[2*idx];
-    overlap[2*idx] = (inTemp > outTemp) ? inTemp : outTemp;  // Max
-    inTemp = inBounds[2*idx + 1];
-    outTemp = outBounds[2*idx + 1];
-    overlap[2*idx + 1] = (inTemp < outTemp) ? inTemp : outTemp;  // Min
-    }
-  
-  this->CopyData(data, overlap);
+  this->CopyData(data, this->Bounds);
 }
 
 

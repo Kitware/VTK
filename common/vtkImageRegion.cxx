@@ -145,7 +145,9 @@ void vtkImageRegion::MakeWritable()
     {
     vtkDebugMacro(<< "MakeWritable: Need to copy data because of references.");
     newData = new vtkImageData;
-    // Set the bounds
+    newData->SetAxes(this->Data->GetAxes());
+    
+    // Set the bounds (the same as region)
     this->GetAxes(axesSave);
     this->SetAxes(newData->GetAxes());
     newData->SetBounds(this->GetBounds());
@@ -168,10 +170,29 @@ void vtkImageRegion::MakeWritable()
 // the intersection is copied.
 void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
 {
+  int thisAxesSave[VTK_IMAGE_DIMENSIONS];
+  int regionAxesSave[VTK_IMAGE_DIMENSIONS];  
   int overlap[VTK_IMAGE_BOUNDS_DIMENSIONS];
   int *inBounds, *outBounds;
   int inTemp, outTemp;
   int idx;
+
+  // Make sure this region is allocated
+  if ( ! this->IsAllocated())
+    {
+    this->Allocate();
+    }
+  if ( ! this->IsAllocated())
+    {
+    vtkErrorMacro(<< "Could not allocate region.");
+    return;
+    }
+
+  // Convert to common coordinate system of data.
+  this->GetAxes(thisAxesSave);
+  region->GetAxes(regionAxesSave);
+  this->SetAxes(this->Data->GetAxes());
+  region->SetAxes(this->Data->GetAxes());
   
   // Compute intersection of bounds
   inBounds = region->GetBounds();
@@ -192,19 +213,12 @@ void vtkImageRegion::CopyRegionData(vtkImageRegion *region)
     this->SetDataType(region->GetDataType());
     }
   
-  // Make sure the region is allocated
-  if ( ! this->IsAllocated())
-    {
-    this->Allocate();
-    }
-  if ( ! this->IsAllocated())
-    {
-    vtkErrorMacro(<< "Could not allocate region.");
-    return;
-    }
-
   // Copy data
   this->Data->CopyData(region->GetData(), overlap);
+
+  // restore the original coordinate system of the regions.
+  this->SetAxes(thisAxesSave);
+  region->SetAxes(regionAxesSave);
 }
 
 
