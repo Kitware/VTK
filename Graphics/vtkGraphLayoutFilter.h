@@ -31,14 +31,14 @@
 #ifndef __vtkGraphLayoutFilter_h
 #define __vtkGraphLayoutFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkGraphLayoutFilter : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkGraphLayoutFilter : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkGraphLayoutFilter *New();
 
-  vtkTypeRevisionMacro(vtkGraphLayoutFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGraphLayoutFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -81,7 +81,7 @@ protected:
   vtkGraphLayoutFilter();
   ~vtkGraphLayoutFilter() {}
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   double GraphBounds[6];
   int   AutomaticBoundsComputation;  //Boolean controls automatic bounds calc.

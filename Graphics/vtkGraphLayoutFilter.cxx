@@ -17,11 +17,13 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.12");
+vtkCxxRevisionMacro(vtkGraphLayoutFilter, "1.13");
 vtkStandardNewMacro(vtkGraphLayoutFilter);
 
 vtkGraphLayoutFilter::vtkGraphLayoutFilter()
@@ -72,13 +74,24 @@ static inline double forceRepulse(double x, double k)
     }
 }
 
-void vtkGraphLayoutFilter::Execute()
+int vtkGraphLayoutFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData *input = (vtkPolyData *)this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkPoints *pts = input->GetPoints();
   vtkCellArray *lines = input->GetLines();
   int numLines = lines->GetNumberOfCells();  //Number of lines/edges.
-  vtkPolyData *output = (vtkPolyData *)this->GetOutput();
   int numPts = input->GetNumberOfPoints();  //Number of points/vertices.
   double diff[3], len;  //The difference vector.
   int i, j, l;  //Iteration variables.
@@ -91,7 +104,7 @@ void vtkGraphLayoutFilter::Execute()
   if ( numPts <= 0 || numLines <= 0)
     {                   
     vtkErrorMacro(<<"No input");
-    return;
+    return 0;
     }
 
   // Generate bounds automatically if necessary. It's the same
@@ -255,6 +268,8 @@ void vtkGraphLayoutFilter::Execute()
   newPts->Delete();
   delete [] v;
   delete [] e;
+
+  return 1;
 }
 
 void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -280,5 +295,4 @@ void vtkGraphLayoutFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Three Dimensional Layout: " 
      << (this->ThreeDimensionalLayout ? "On\n" : "Off\n");
-
 }
