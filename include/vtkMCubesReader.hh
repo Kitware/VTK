@@ -89,7 +89,9 @@ public:
   vtkGetStringMacro(LimitsFilename);
 
   // Description:
-  // Specify whether to flip normals in opposite direction.
+  // Specify whether to flip normals in opposite direction. Flipping ONLY changes
+  // the direction of the normal vector. Contrast this with flipping in
+  // vtkPolyNormals which flips both the normal and the cell point order.
   vtkSetMacro(FlipNormals,int);
   vtkGetMacro(FlipNormals,int);
   vtkBooleanMacro(FlipNormals,int);
