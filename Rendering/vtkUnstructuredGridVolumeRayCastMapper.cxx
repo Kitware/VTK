@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.23");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.24");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -708,6 +708,10 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
   if (!this->CellScalars)
     {
     farIntersections->Delete();
+    }
+  else
+    {
+    intersectedCells->Delete();
     }
 }
 
