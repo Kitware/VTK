@@ -162,12 +162,12 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
       p2 = inPts + pts[j+1]*3;
       for (k=0; k<3; k++)
 	{
-	center[k] = (p1[k] + p2[k]) / 2.0;
+	center[k] = (p1[k] + p2[k]) / 2;
 	}
 
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p1[k] - center[k]));
 	}
       outPts += 3;
       pointData->CopyData(pd,pts[j],outCount);
@@ -175,14 +175,14 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
 
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p2[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p2[k] - center[k]));
 	}
       outPts += 3;
       pointData->CopyData(pd,pts[j+1],outCount);
-      outCount++;
       newIds[0] = outCount - 1;
       newIds[1] = outCount;
       newLines->InsertNextCell(2,newIds);
+      outCount++;
       }
     abortExecute = self->GetAbortExecute();
     }
@@ -193,7 +193,7 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
   for (inPolys->InitTraversal(); 
        inPolys->GetNextCell(npts,pts) && !abortExecute; )
     {
-    for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
+    for (center[0]=center[1]=center[2]=0, j=0; j<npts; j++)
       {
       p1 = inPts + pts[j]*3;
       for (k=0; k<3; k++)
@@ -213,7 +213,7 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
       p1 = inPts + pts[j]*3;
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p1[k] - center[k]));
 	}
       outPts += 3;
       newPolys->InsertCellPoint(outCount);
@@ -237,12 +237,12 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
       p3 = inPts + pts[j+2]*3;
       for (k=0; k<3; k++)
 	{
-	center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
+	center[k] = (p1[k] + p2[k] + p3[k]) / 3;
 	}
 
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p1[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p1[k] - center[k]));
 	}
       outPts += 3;
       pointData->CopyData(pd,pts[j],outCount);
@@ -251,7 +251,7 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
 
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p2[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p2[k] - center[k]));
 	}
       outPts += 3;
       pointData->CopyData(pd,pts[j+1],outCount);
@@ -260,7 +260,7 @@ static void vtkShrinkPolyDataExecute(vtkShrinkPolyData *self,
 
       for (k=0; k<3; k++)
 	{
-        outPts[k] = center[k] + shrinkFactor*(p3[k] - center[k]);
+        outPts[k] = (T)(center[k] + shrinkFactor*(p3[k] - center[k]));
 	}
       outPts += 3;
       pointData->CopyData(pd,pts[j+2],outCount);
