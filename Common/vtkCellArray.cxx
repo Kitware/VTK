@@ -18,7 +18,7 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellArray, "1.39");
+vtkCxxRevisionMacro(vtkCellArray, "1.40");
 vtkStandardNewMacro(vtkCellArray);
 
 vtkCellArray::vtkCellArray()
@@ -39,8 +39,8 @@ void vtkCellArray::DeepCopy (vtkCellArray *ca)
 
   this->Ia->DeepCopy(ca->Ia);
   this->NumberOfCells = ca->NumberOfCells;
-  this->InsertLocation = 0;
-  this->TraversalLocation = 0;
+  this->InsertLocation = ca->InsertLocation;
+  this->TraversalLocation = ca->TraversalLocation;
 }
 
 vtkCellArray::~vtkCellArray()
