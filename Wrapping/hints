@@ -46,8 +46,8 @@ vtkHyperStreamline      GetStartPosition        307 3
 vtkImageAccumulate      GetComponentExtent      304 6
 vtkImageActor           GetBounds               307 6
 vtkImageActor           GetDisplayExtent        304 6
-vtkImageButterworthHighPass GetCutOff           301 3
-vtkImageButterworthLowPass GetCutOff            301 3
+vtkImageButterworthHighPass GetCutOff           307 3
+vtkImageButterworthLowPass GetCutOff            307 3
 vtkImageClip            GetOutputWholeExtent    304 6
 vtkImageConvolve        GetKernel3x3            301 9
 vtkImageConvolve        GetKernel5x5            301 25
@@ -79,9 +79,9 @@ vtkImplicitFunction     FunctionGradient        307 3
 vtkImplicitPlaneWidget	GetNormal		307 3
 vtkImplicitPlaneWidget	GetOrigin		307 3
 vtkLegendBoxActor       GetEntryColor           301 3
-vtkLight                GetColor                301 3
-vtkLight                GetTransformedFocalPoint 301 3
-vtkLight                GetTransformedPosition  301 3
+vtkLight                GetColor                307 3
+vtkLight                GetTransformedFocalPoint 307 3
+vtkLight                GetTransformedPosition  307 3
 vtkLinearTransform      TransformDoubleNormal   307 3
 vtkLinearTransform      TransformDoubleNormal   307 3
 vtkLinearTransform      TransformDoubleVector   307 3
@@ -171,8 +171,8 @@ vtkWedge                GetEdgeArray            304 2
 vtkWedge                GetFaceArray            304 4
 vtkWindow               GetPosition             304 2
 vtkWindow               GetSize                 304 2
-vtkWindowLevelLookupTable GetMaximumTableValue  301 4
-vtkWindowLevelLookupTable GetMinimumTableValue  301 4
+vtkWindowLevelLookupTable GetMaximumTableValue  307 4
+vtkWindowLevelLookupTable GetMinimumTableValue  307 4
 vtkXImageWindow         GetPosition             304 2
 vtkXImageWindow         GetSize                 304 2
 vtkXRenderWindow        GetPosition             304 2
