@@ -65,9 +65,10 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
   if (this->RenderWindow)
     {
-    // This renderwindow should be a valid pointer (even though we are increase the renderwindow's
-    // reference count).  If the renderwindow had been deleted before the mapper,  then
-    // ReleaseGraphicsResources() would have been called on the mapper and these resources would
+    // This renderwindow should be a valid pointer (even though we do not
+    // increase the renderwindow's reference count).  If the renderwindow
+    // had been deleted before the mapper,  then ReleaseGraphicsResources()
+    // would have been called on the mapper and these resources would
     // have been released already.
     this->RenderWindow->MakeCurrent();
   
@@ -209,6 +210,83 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
 }
 
 
+//
+// Helper routine which starts a poly, triangle or quad based upon
+// the number of points in the polygon and whether triangles or quads
+// were the last thing being drawn (we can get better performance if we
+// can draw several triangles within a single glBegin(GL_TRIANGLES) or
+// several quads within a single glBegin(GL_QUADS). 
+//
+void vtkOpenGLBeginPolyTriangleOrQuad(GLenum aGlFunction,
+				      GLenum &previousGlFunction,
+				      int npts)
+{
+  if (aGlFunction == GL_POLYGON)
+    {
+    switch (npts)
+      {
+      case 3:  // Need to draw a triangle.
+	if (previousGlFunction != GL_TRIANGLES)
+	  {
+	  // we were not already drawing triangles, were we drawing quads?
+	  if (previousGlFunction == GL_QUADS)
+	    {
+	    // we were previously drawing quads, close down the quads.
+	    glEnd();
+	    }
+	  // start drawing triangles
+	  previousGlFunction = GL_TRIANGLES;
+	  glBegin(GL_TRIANGLES);
+	  }
+	  break;
+      case 4:  // Need to draw a quad
+	if (previousGlFunction != GL_QUADS)
+	  {
+	  // we were not already drawing quads, were we drawing triangles?
+	  if (previousGlFunction == GL_TRIANGLES)
+	    {
+	    // we were previously drawing triangles, close down the triangles.
+	    glEnd();
+	    }
+	  // start drawing quads
+	  previousGlFunction = GL_QUADS;
+	  glBegin(GL_QUADS);
+	  }
+	break;
+      default:
+	// if we were supposed to be drawing polygons but were really
+	// drawing triangles or quads, then we need to close down the
+	// triangles or quads and begin a polygon
+	if (previousGlFunction != GL_POLYGON)
+	  {
+	  glEnd();
+	  }
+	previousGlFunction = GL_POLYGON;
+	glBegin(aGlFunction);
+	break;
+      }
+    }
+  else if (aGlFunction == GL_POINTS)
+    {
+    // we are supposed to be drawing points
+    if (previousGlFunction != GL_POINTS)
+      {
+      // We were not drawing points before this, switch to points.
+      // We don't need to worry about switching from triangles or quads
+      // since draw all points before drawing any polygons (i.e. in the polys
+      // case we switch to triangles and quads as an optimization, there is
+      // nothing to switch to that is below points).
+      previousGlFunction = GL_POINTS;
+      glBegin(GL_POINTS);
+      }
+    }
+  else
+    {
+    previousGlFunction = aGlFunction;
+    glBegin(aGlFunction);
+    }
+}
+
 
 void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
 		     int &, vtkPoints *p, vtkNormals *, vtkScalars *, 
@@ -217,16 +295,24 @@ void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=GL_POLYGON+1;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
-    
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+
     for (j = 0; j < npts; j++) 
       {
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES)
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -238,6 +324,12 @@ void vtkOpenGLDraw01(vtkCellArray *aPrim, GLenum aGlFunction,
 	}
       }
     }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
+    }
 }
 
 void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
@@ -247,18 +339,26 @@ void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
 {
   int j, npts, *pts;
   int count = 0;
+
+  GLenum previousGlFunction=0xffff;
   
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
-    { 
-    glBegin(aGlFunction);
+    {
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -269,6 +369,12 @@ void vtkOpenGLDrawN013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -280,17 +386,26 @@ void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glNormal3fv(n->GetNormal(cellNum));
     
     for (j = 0; j < npts; j++) 
       {
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -301,6 +416,12 @@ void vtkOpenGLDrawCN013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -312,16 +433,25 @@ void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetColor(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -332,6 +462,12 @@ void vtkOpenGLDrawS01(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -343,10 +479,12 @@ void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -354,7 +492,13 @@ void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -365,6 +509,12 @@ void vtkOpenGLDrawNS013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -376,10 +526,13 @@ void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glNormal3fv(n->GetNormal(cellNum));
     
     for (j = 0; j < npts; j++) 
@@ -387,7 +540,13 @@ void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
       glColor4ubv(c->GetColor(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -398,6 +557,12 @@ void vtkOpenGLDrawCNS013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -409,17 +574,25 @@ void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -430,6 +603,12 @@ void vtkOpenGLDrawT01(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -441,10 +620,12 @@ void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+  
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -452,7 +633,13 @@ void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     if (count == 100)
       {
@@ -462,6 +649,12 @@ void vtkOpenGLDrawNT013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -473,10 +666,13 @@ void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glNormal3fv(n->GetNormal(cellNum));
     
     for (j = 0; j < npts; j++) 
@@ -484,7 +680,13 @@ void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     if (count == 100)
       {
@@ -494,6 +696,12 @@ void vtkOpenGLDrawCNT013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -505,10 +713,12 @@ void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -516,7 +726,13 @@ void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -527,6 +743,12 @@ void vtkOpenGLDrawST01(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -538,10 +760,12 @@ void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -550,7 +774,13 @@ void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -561,6 +791,12 @@ void vtkOpenGLDrawNST013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -572,10 +808,13 @@ void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
-    { 
-    glBegin(aGlFunction);
+    {
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glNormal3fv(n->GetNormal(cellNum));
     
     for (j = 0; j < npts; j++) 
@@ -584,7 +823,13 @@ void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -595,6 +840,12 @@ void vtkOpenGLDrawCNST013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -606,17 +857,25 @@ void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
       glColor4ubv(c->GetColor(cellNum));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -627,6 +886,12 @@ void vtkOpenGLDrawCS01(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -638,10 +903,13 @@ void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glColor4ubv(c->GetColor(cellNum));
     
     for (j = 0; j < npts; j++) 
@@ -649,7 +917,13 @@ void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -660,6 +934,12 @@ void vtkOpenGLDrawNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -671,10 +951,13 @@ void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glColor4ubv(c->GetColor(cellNum));
     glNormal3fv(n->GetNormal(cellNum));
     
@@ -682,7 +965,13 @@ void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
       {
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -693,6 +982,12 @@ void vtkOpenGLDrawCNCS013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -704,10 +999,12 @@ void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -715,7 +1012,13 @@ void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -726,6 +1029,12 @@ void vtkOpenGLDrawCST01(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -737,10 +1046,12 @@ void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     for (j = 0; j < npts; j++) 
       {
@@ -749,7 +1060,13 @@ void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(n->GetNormal(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -761,6 +1078,12 @@ void vtkOpenGLDrawNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
 	}
       }
     }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
+    }
 }
 
 void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
@@ -771,10 +1094,13 @@ void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
   int j, npts, *pts;
   int count = 0;
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     glColor4ubv(c->GetColor(cellNum));
     glNormal3fv(n->GetNormal(cellNum));
       
@@ -783,7 +1109,13 @@ void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
       glTexCoord2fv(t->GetTCoord(pts[j]));
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -794,6 +1126,12 @@ void vtkOpenGLDrawCNCST013(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -806,10 +1144,13 @@ void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
-    { 
-    glBegin(aGlFunction);
+    {
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -817,7 +1158,13 @@ void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -828,6 +1175,12 @@ void vtkOpenGLDraw3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -840,10 +1193,12 @@ void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
     
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
 
@@ -853,7 +1208,13 @@ void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -864,6 +1225,12 @@ void vtkOpenGLDrawS3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -876,10 +1243,13 @@ void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -888,7 +1258,13 @@ void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -899,6 +1275,12 @@ void vtkOpenGLDrawT3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -911,10 +1293,13 @@ void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -924,7 +1309,13 @@ void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES)
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -935,6 +1326,12 @@ void vtkOpenGLDrawST3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -947,10 +1344,13 @@ void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
 
     for (j = 0; j < npts; j++) 
@@ -959,8 +1359,14 @@ void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
-    
+
+    if ((previousGlFunction != GL_TRIANGLES)
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
+
     // check for abort condition
     if (count == 100)
       {
@@ -970,6 +1376,12 @@ void vtkOpenGLDrawCS3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -982,10 +1394,13 @@ void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkPolygon::ComputeNormal(p,npts,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -995,7 +1410,13 @@ void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1006,6 +1427,12 @@ void vtkOpenGLDrawCST3(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1020,10 +1447,13 @@ void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -1048,7 +1478,13 @@ void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1059,6 +1495,12 @@ void vtkOpenGLDraw2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1072,10 +1514,13 @@ void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -1101,8 +1546,14 @@ void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
-    
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
+
     // check for abort condition
     if (count == 100)
       {
@@ -1112,6 +1563,12 @@ void vtkOpenGLDrawS2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1125,10 +1582,13 @@ void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -1154,7 +1614,13 @@ void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1165,6 +1631,12 @@ void vtkOpenGLDrawT2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1178,10 +1650,13 @@ void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -1208,7 +1683,13 @@ void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1219,6 +1700,12 @@ void vtkOpenGLDrawST2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1232,10 +1719,13 @@ void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
     
     for (j = 0; j < npts; j++) 
@@ -1261,7 +1751,13 @@ void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1272,6 +1768,12 @@ void vtkOpenGLDrawCS2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
@@ -1285,10 +1787,13 @@ void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
   int count = 0;
   float polyNorm[3];
   
+  GLenum previousGlFunction=0xffff;
+
   for (aPrim->InitTraversal(); noAbort && aPrim->GetNextCell(npts,pts); 
        count++, cellNum++)
     { 
-    glBegin(aGlFunction);
+    vtkOpenGLBeginPolyTriangleOrQuad( aGlFunction, previousGlFunction, npts );
+    
     vtkTriangle::ComputeNormal(p,3,pts,polyNorm);
 
     for (j = 0; j < npts; j++) 
@@ -1315,7 +1820,13 @@ void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
       glNormal3fv(polyNorm);
       glVertex3fv(p->GetPoint(pts[j]));
       }
-    glEnd();
+
+    if ((previousGlFunction != GL_TRIANGLES) 
+	&& (previousGlFunction != GL_QUADS)
+	&& (previousGlFunction != GL_POINTS))
+      {
+      glEnd();
+      }
     
     // check for abort condition
     if (count == 100)
@@ -1326,6 +1837,12 @@ void vtkOpenGLDrawCST2(vtkCellArray *aPrim, GLenum aGlFunction,
 	noAbort = 0;
 	}
       }
+    }
+  if ((previousGlFunction == GL_TRIANGLES)
+      || (previousGlFunction == GL_QUADS)
+      || (previousGlFunction == GL_POINTS))
+    {
+    glEnd();
     }
 }
 
