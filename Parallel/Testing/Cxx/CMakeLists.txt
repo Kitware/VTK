@@ -51,19 +51,19 @@ IF (VTK_DATA_ROOT)
     ADD_TEST(ThreadedCommunicator-image 
              ${CXX_TEST_PATH}/ThreadedCommunicator
              -D ${VTK_DATA_ROOT}
-             -V Baseline/Parallel/GenericCommunicator.png)
+             -V Baseline/Parallel/ThreadedCommunicator.cxx.png)
 
     IF (VTK_USE_MPI)
       IF (MPIRUN)
         ADD_TEST(ParallelIsoMPI-image ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
-                 -V Baseline/Parallel/ParallelIsoTest.png
+                 -V Baseline/Parallel/ParallelIso.cxx.png
                  ${MPI_POSTFLAGS})
         ADD_TEST(TestCommunicatorMPI-image ${MPIRUN} ${MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
-                 -V Baseline/Parallel/GenericCommunicator.png
+                 -V Baseline/Parallel/GenericCommunicator.cxx.png
                  ${MPI_POSTFLAGS})
       ENDIF(MPIRUN)
     ELSE (VTK_USE_MPI)
@@ -73,7 +73,7 @@ IF (VTK_DATA_ROOT)
                  -V Baseline/Parallel/ParallelIsoTest.png)
         ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
-                 -V Baseline/Parallel/GenericCommunicator.png)
+                 -V Baseline/Parallel/GenericCommunicator.cxx.png)
       ENDIF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
