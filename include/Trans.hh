@@ -135,7 +135,10 @@ class vlTransform : public vlObject
   //  same as either of the two input matrices.
   void VectorMultiply (float in[4],float out[4]) 
      {this->Stack[0]->VectorMultiply(in,out);};
-  //  Multiply a vector in homo coords and store in another vector
+  //  Multiply a vector in homogeneous coords by current transformation
+  //  matrix and write to provided output vector (also in homogeneous 
+  //  coordinates).
+
   vlSetVector4Macro(Vector,float);
   float *GetVector();
 };
