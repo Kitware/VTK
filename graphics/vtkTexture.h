@@ -120,6 +120,10 @@ public:
   vtkGetObjectMacro(LookupTable,vtkLookupTable);
 
   // Description:
+  // Get Mapped Scalars
+  vtkGetObjectMacro(MappedScalars,vtkColorScalars);
+
+  // Description:
   // Get the texture device.
   vtkGetObjectMacro(Device,vtkTextureDevice);
 
