@@ -1,11 +1,26 @@
 package vtk;
 
 import java.util.Properties;
+import java.util.StringTokenizer;
 
 public class vtkSettings
 {
   private static String GetVTKBuildLibDir() { return "@LIBRARY_OUTPUT_PATH@"; }
   private static String GetVTKInstallLibDir() { return "@CMAKE_INSTALL_PREFIX@/lib/vtk"; }
+
+  private static String[] Split(String str, String sep)
+    {
+    StringTokenizer st = new StringTokenizer(str, sep);
+    int size = st.countTokens();
+    String[] res = new String[size];
+    int cnt = 0;
+    while (st.hasMoreTokens()) 
+      {
+      res[cnt] = st.nextToken();
+      cnt ++;
+      }
+    return res;
+    }
 
   public static String GetVTKLibraryDir()
     {
@@ -13,7 +28,7 @@ public class vtkSettings
     Properties p = System.getProperties();
     String path_separator = p.getProperty("path.separator");
     String s = p.getProperty("java.class.path");
-    String[] paths = s.split("[;\\:]");
+    String[] paths = vtkSettings.Split(s, path_separator);
     int cc;
     for ( cc = 0; cc < paths.length; cc ++ )
       {

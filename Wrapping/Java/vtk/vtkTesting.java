@@ -6,23 +6,10 @@ import java.util.Properties;
 
 public class vtkTesting
 {
-
-  public static void main (String []args) {
-    vtkRenderWindow renWin = new vtkRenderWindow();
-    vtkRenderer ren1 = new vtkRenderer();
-    renWin.AddRenderer(ren1);
-    vtkConeSource cone = new vtkConeSource();
-    cone.SetResolution(8);
-    vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-    coneMapper.SetInput(cone.GetOutput());
-
-    vtkActor coneActor = new vtkActor();
-    coneActor.SetMapper(coneMapper);
-
-    ren1.AddActor(coneActor);
-    renWin.Render();
-    vtkTesting.RegressionTestImage(renWin, args);
-  }
+  public static final int FAILED        = 0;
+  public static final int PASSED        = 1;
+  public static final int NOT_RUN       = 2;
+  public static final int DO_INTERACTOR = 3;
 
   private static void LoadLibrary(String path, String library)
     {
@@ -58,7 +45,8 @@ public class vtkTesting
       }
     }
 
-  public static int RegressionTestImage( vtkRenderWindow renWin, String[] args)
+  public static int RegressionTestImage( vtkRenderWindow renWin, String[] args,
+    int threshold )
     {
     String image_path = null;
     String data_path = null;
@@ -73,7 +61,7 @@ public class vtkTesting
       if ( args[cc].equals("-I") )
         {
         System.out.println("Interactive mode");
-        return 1;
+        return vtkTesting.DO_INTERACTOR;
         }
       if ( args[cc].equals("-D") )
         {
@@ -100,7 +88,7 @@ public class vtkTesting
         else
           {
           System.err.println("Image path not specified");
-          System.exit(1);
+          return vtkTesting.NOT_RUN;
           }
         }
       }
@@ -109,7 +97,7 @@ public class vtkTesting
     if ( !file.exists() )
       {
       System.err.println("File " + file.getName() + " does not exists");
-      System.exit(1);
+      return vtkTesting.NOT_RUN;
       }
 
     renWin.Render();
@@ -126,22 +114,19 @@ public class vtkTesting
     imgDiff.SetImage(rtpnm.GetOutput());
     imgDiff.Update();
 
-    if (imgDiff.GetThresholdedError() <= 10) 
+    if (imgDiff.GetThresholdedError() <= threshold) 
       {
       System.out.println("Java smoke test passed."); 
+      return vtkTesting.PASSED;
       } 
-    else 
-      {
-      System.out.println("Java smoke test error!"); 
-      System.out.println("Image difference: " + imgDiff.GetThresholdedError());
-      vtkJPEGWriter wr = new vtkJPEGWriter();
-      wr.SetFileName(data_path + "/" + image_path + ".error.jpg");
-      wr.SetInput(w2if.GetOutput());
-      wr.Write();
-      wr.SetFileName(data_path + "/" + image_path + ".diff.jpg");
-      wr.SetInput(imgDiff.GetOutput());
-      System.exit(1);
-      }	
-    return 0;
+    System.out.println("Java smoke test error!"); 
+    System.out.println("Image difference: " + imgDiff.GetThresholdedError());
+    vtkJPEGWriter wr = new vtkJPEGWriter();
+    wr.SetFileName(data_path + "/" + image_path + ".error.jpg");
+    wr.SetInput(w2if.GetOutput());
+    wr.Write();
+    wr.SetFileName(data_path + "/" + image_path + ".diff.jpg");
+    wr.SetInput(imgDiff.GetOutput());
+    return vtkTesting.FAILED;
     } 
 }
