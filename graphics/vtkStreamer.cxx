@@ -328,6 +328,7 @@ static VTK_THREAD_RETURN_TYPE vtkStreamer_ThreadedIntegrate( void *arg )
 	{
         continue;
 	}
+      func->SetLastCellId(sPtr->cellId);
 
       dir = streamer->Direction;
 

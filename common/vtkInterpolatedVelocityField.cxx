@@ -66,6 +66,8 @@ vtkInterpolatedVelocityField::vtkInterpolatedVelocityField()
   this->CacheHit = 0;
   this->CacheMiss = 0;
   this->Caching = 1; // Caching on by default
+
+  this->Cell = vtkGenericCell::New();
 }
 
 vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
@@ -76,6 +78,8 @@ vtkInterpolatedVelocityField::~vtkInterpolatedVelocityField()
   this->GenCell->Delete();
   delete[] this->Weights;
   this->Weights = 0;
+
+  this->Cell->Delete();
 }
 
 void vtkInterpolatedVelocityField::PrintSelf(ostream& os, vtkIndent indent)
@@ -143,9 +147,12 @@ int vtkInterpolatedVelocityField::FunctionValues(float* x, float* f)
 					      pcoords, dist2, this->Weights))
 	|| ret == -1)
       {
+	if (this->LastCellId != - 1 )
+	  this->DataSet->GetCell(this->LastCellId, this->Cell);
+
       // if not, find and get it
       this->LastCellId = 
-	this->DataSet->FindCell(x, 0, this->GenCell, -1, 0, 
+	this->DataSet->FindCell(x, this->Cell, this->GenCell, -1, 0, 
 				subId, pcoords, this->Weights);
       this->DataSet->GetCell(this->LastCellId, this->GenCell);
       this->CacheMiss++;
