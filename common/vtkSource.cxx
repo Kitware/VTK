@@ -579,7 +579,7 @@ void vtkSource::UnRegister(vtkObject *o)
 	total += this->Outputs[idx]->GetNetReferenceCount();
 	}
       }
-    if (total == 6 && match)
+    if (total == (this->NumberOfOutputs + 1) && match)
       {
       done = 1;
       }
