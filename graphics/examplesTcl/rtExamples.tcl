@@ -3,6 +3,11 @@ catch {load vtktcl}
 # This is a regression test script for VTK.
 #
 
+#
+# if REG_IMAGE_PATH is defined, then use if to qualify the error and test images
+#
+if { [catch {set REG_IMAGE_PATH $env(REG_IMAGE_PATH)/}] != 0} { set REG_IMAGE_PATH "" }
+
 # first find all the examples. they can be defined on command line or in
 # current directory
 
@@ -102,11 +107,11 @@ foreach afile $files {
        puts "but failed with an error of [imgDiff GetThresholdedError]"
          vtkPNMWriter rtpnmw
          rtpnmw SetInput [imgDiff GetOutput]
-         rtpnmw SetFileName "$afile.error.ppm"
+       rtpnmw SetFileName "${REG_IMAGE_PATH}$afile.error.ppm"
          rtpnmw Write
          vtkPNMWriter rtpnmw2
          rtpnmw2 SetInput [w2if GetOutput]
-         rtpnmw2 SetFileName "$afile.test.ppm"
+       rtpnmw2 SetFileName "${REG_IMAGE_PATH}$afile.test.ppm"
          rtpnmw2 Write
    }
    
