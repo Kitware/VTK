@@ -16,7 +16,7 @@ if { $argv != ""} {
 set noTest {
    rt.tcl rtAll.tcl rib.tcl TkInteractor.tcl TkRenderWidget.tcl RenderWidget.tcl 
    rtExamples.tcl polyViewer.tcl KeyFrame.tcl cameraKey.tcl timing.tcl 
-   Decimate.tcl assembly2.tcl connPineRoot.tcl aniIso.tcl deciHawa.tcl 
+   Decimate.tcl assembly2.tcl connPineRoot.tcl deciHawa.tcl 
    deciPineRoot.tcl deleted.tcl mcTest.tcl viewMCubesFile.tcl vol.tcl
    volTkInteractor.tcl spikeColor.tcl tkwin.tcl 3dsToRIB.tcl backdrop.tcl
 
