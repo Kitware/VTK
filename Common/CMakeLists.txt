@@ -206,6 +206,7 @@ vtkTransform.cxx
 vtkTransformCollection.cxx
 vtkTriangle.cxx
 vtkTriangleStrip.cxx
+vtkTrivialProducer.cxx
 vtkUniformGrid.cxx
 vtkUnsignedCharArray.cxx
 vtkUnsignedIntArray.cxx
