@@ -113,10 +113,13 @@ inline void vtkAGraymap::InsertColor(int i, unsigned char rgba[4])
 // allocate memory if necessary.
 inline int vtkAGraymap::InsertNextColor(unsigned char rgba[4]) 
 {
-  int id = this->S.GetMaxId() + 1;
-  this->S.InsertValue(id,rgba[3]);
-  this->S[id-1] = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
+  int id;
+  unsigned char intensity;
+
+  intensity = (rgba[0] > rgba[1] ? (rgba[0] > rgba[2] ? rgba[0] : rgba[2]) :
                                        (rgba[1] > rgba[2] ? rgba[1] : rgba[2]));
+  id = this->S.InsertNextValue(rgba[3]);
+  this->S.InsertNextValue(intensity);
 
   return id/2;
 }
