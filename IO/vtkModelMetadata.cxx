@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.12");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.1");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -1254,6 +1254,14 @@ void vtkModelMetadata::SetNodeVariableInfo(int numOrigNames, char **origNames,
 #define INT_ARRAY "vtkModelMetadataInts"
 #define FLOAT_ARRAY "vtkModelMetadataFloats"
 #define CHAR_ARRAY "vtkModelMetadataChars"
+
+void vtkModelMetadata::RemoveMetadata(vtkDataSet *grid)
+{
+  grid->GetFieldData()->RemoveArray(SIZE_ARRAY);
+  grid->GetFieldData()->RemoveArray(INT_ARRAY);
+  grid->GetFieldData()->RemoveArray(FLOAT_ARRAY);
+  grid->GetFieldData()->RemoveArray(CHAR_ARRAY);
+}
 
 int vtkModelMetadata::HasMetadata(vtkDataSet *grid)
 {

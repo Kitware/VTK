@@ -48,7 +48,6 @@ vtkCompositeRenderManager.cxx
 vtkCompressCompositer.cxx
 vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
-vtkModelMetadata.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkExtractCells.cxx

@@ -17,29 +17,30 @@
  See Copyright.txt or http://www.paraview.org/HTML/Copyright.html for details.
 ----------------------------------------------------------------------------*/
 
-// .NAME vtkModelMetadata
+// .NAME vtkModelMetadata - This class encapsulates the metadata
+//   that appear in mesh-based file formats but do not appear in 
+//   vtkUnstructuredGrid.  It can pack itself into the field
+//   arrays of a vtkUnstructuredGrid, and be unpacked by metadata
+//   aware filters and writers later on.
 //
 // .SECTION Description
-//   This class encapsulates the initialization and
-//   static model data that is in an Exodus II file but which is not
-//   stored in a vtkUnstructuredGrid.  It can be initialized by
-//   the Exodus reader (using the vtkExodusModel class, which
-//   interacts with the Exodus library).  It can be supplied 
-//   later on to the Exodus writer to improve the quality of the output.  
-//
-//   Because this class does not depend on the Exodus library, it 
+//   This class is inspired by the Exodus II file format, but
+//   because this class does not depend on the Exodus library, it 
 //   should be possible to use it to represent metadata for other 
-//   dataset file formats.
+//   dataset file formats.  Sandia Labs uses it in their Exodus II
+//   reader, their Exodus II writer and their EnSight writer.
+//   vtkDistributedDataFilter looks for metadata attached to
+//   it's input and redistributes the metadata with the grid.
 //  
 //   The fields in this class are those described in the document
 //   "EXODUS II: A Finite Element Data Model", SAND92-2137, November 1995.
 //
-//   Element and node IDs stored in this object must be global IDs.  
-//   (The IDs stored in the Exodus file are "internal IDs", or indices into 
-//   their location in an array in the Exodus file.  They will be
-//   replaced with internal IDs if the file is written back out.)
+//   Element and node IDs stored in this object must be global IDs,
+//   in the event that the original dataset was partitioned across
+//   many files.  
 //
-//   One way to initialize this object is by using vtkExodusModel.
+//   One way to initialize this object is by using vtkExodusModel
+//   (a Sandia class used by the Sandia Exodus reader).
 //   That class will take an open Exodus II file and a
 //   vtkUnstructuredGrid drawn from it and will set the required fields.
 //
@@ -49,25 +50,23 @@
 //   class will free the storage associated with your pointer 
 //   when the class is deleted.  Most fields have sensible defaults.
 //   The only requirement is that if you are using this ModelMetadata
-//   to write out an Exodus file in parallel, you must SetBlockIds and
-//   SetBlockIdArrayName.  Your vtkUnstructuredGrid must have a
-//   cell array giving the block ID for each cell.
+//   to write out an Exodus or EnSight file in parallel, you must 
+//   SetBlockIds and SetBlockIdArrayName.  Your vtkUnstructuredGrid must 
+//   have a cell array giving the block ID for each cell.
 //
 // .SECTION Caveats
-//   It is likely that the vtkUnstructuredGrid created from the Exodus
-//   file or files will be subsetted, redistributed, or perhaps will
-//   aquire ghost cells, prior to being written out by the writer.
-//   So it is essential to have global node and element IDs, and a 
-//   block ID array in the output grid, so these can be mapped to 
-//   tables in this model. 
-//
 //   The Exodus II library supports an optimized element order map 
 //   (section 3.7 in the SAND document).  It contains all the element 
 //   IDs, listed in the order in which a solver should process them.  
 //   We don't include this, and won't unless there is a request.
 //
+//   There is an assumption in some classes that the name of the cell
+//   array containing global element ids is "GlobalElementId" and the
+//   name of the point array containing global node ids is "GlobalNodeId".
+//   (element == cell) and (node == point).
+//
 // .SECTION See also
-//   vtkExodusModel vtkExodusReader  vtkExodusIIWriter 
+//   vtkDistributedDataFilter vtkExtractCells
 
 #ifndef __vtkModelMetadata_h
 #define __vtkModelMetadata_h
@@ -120,14 +119,11 @@ public:
   myVtkGetStringMacro(Title);
 
   // Description:
-  //   Set the information lines. At most 
-  //   MAX_LINE_LENGTH characters in each line will be used.
+  //   Set the information lines. 
   void SetInformationLines(int numLines, char **lines);
   
   // Description:
-  //   Add an information line.  The number 
-  //   of characters written out to the file will not exceed
-  //   MAX_LINE_LENGTH.  
+  //   Add an information line. 
   void AddInformationLine(char *info);
 
   // Description:
@@ -146,8 +142,7 @@ public:
   void SetQARecords(int numberOfRecords, char *QARecords[][4]); 
   
   // Description:
-  //   Add a QA record.  Each of the 4 fields must no larger
-  //   that MAX_STR_LENGTH.  They are:
+  //   Add a QA record.  They fields are:
   //    The code name
   //    The code version number
   //    The date (MM/DD/YY or NULL for today)
@@ -184,8 +179,6 @@ public:
 
   // Description:
   //   The name of the one, two or three coordinate dimensions.
-  //   Each name saved to the file will not exceed MAX_STR_LENGTH
-  //   characters.
   void SetCoordinateNames(int dimension, char **);
   char **GetCoordinateNames() const {return this->CoordinateNames;}
 
@@ -208,8 +201,7 @@ public:
 
   // Description:
   //   Element type for each block - a name that means 
-  //   something to person who created the file.  At most 
-  //   MAX_STR_LENGTH characters per name are written to file.
+  //   something to person who created the file.
   //   We use your pointers, and free the memory when the object is freed.
   void SetBlockElementType(char **);
   char **GetBlockElementType() const {return this->BlockElementType;}
@@ -358,7 +350,7 @@ public:
   // Description:
   //   Set or get a pointer to a list of the elements containing each
   //   side in each side set.  The list is organized by side set, and
-  //   within side set by element, by node. IS THAT RIGHT????
+  //   within side set by element.
   //   We use your pointer, and free the memory when the object is freed.
   void SetSideSetElementList(int *);
   int *GetSideSetElementList()const {return this->SideSetElementList;}
@@ -416,8 +408,7 @@ public:
   myVtkGetMacro(NumberOfBlockProperties, int);
 
   // Description:
-  //   Set or get the names of the block properties.  At most
-  //   MAX_STR_LENGTH characters are saved for each name.
+  //   Set or get the names of the block properties.  
   void SetBlockPropertyNames(int numProp, char **names);
   char **GetBlockPropertyNames()const {return this->BlockPropertyNames;}
 
@@ -433,8 +424,7 @@ public:
   myVtkGetMacro(NumberOfNodeSetProperties, int);
 
   // Description:
-  //   Set or get the names of the node setproperties.  At most
-  //   MAX_STR_LENGTH characters are saved for each name.
+  //   Set or get the names of the node setproperties.  
   void SetNodeSetPropertyNames(int numProp, char **names);
   char **GetNodeSetPropertyNames()const {return this->NodeSetPropertyNames;}
 
@@ -450,8 +440,7 @@ public:
   myVtkGetMacro(NumberOfSideSetProperties, int);
 
   // Description:
-  //   Set or get the names of the side set properties.  At most
-  //   MAX_STR_LENGTH characters are saved for each name.
+  //   Set or get the names of the side set properties.  
   void SetSideSetPropertyNames(int numProp, char **names);
   char **GetSideSetPropertyNames()const {return this->SideSetPropertyNames;}
 
@@ -582,6 +571,11 @@ public:
   //   Static function that returns 1 if the vtkUnstructuredGrid
   //   has metadata packed into it's field arrays, and 0 otherwise.
   static int HasMetadata(vtkDataSet *grid);
+
+  // Description:
+  //   Static function that removes the packed metadata arrays
+  //   from a dataset.
+  static void RemoveMetadata(vtkDataSet *grid);
 
   // Description:
   //   Pack this object's metadata into a field array of a dataset.
@@ -770,22 +764,22 @@ private:
   int CalculateMaximumLengths(int &maxString, int &maxLine);
 
   // Fields in Exodus II file and their size (defined in exodusII.h)
-  //   (G - global fields, the same in every file)
+  //   (G - global fields, relevant to entire file or file set)
   //   (L - local fields, they differ depending on which cells and nodes are
-  //        in a file)
+  //        in a file of a partitioned set, or are read in from file)
 
-  char *Title;                 // MAX_LINE_LENGTH    (G)
+  char *Title;                 // (G)
 
   int NumberOfQARecords;       // (G)
 //BTX
-  char *(*QARecord)[4];        // NumberOfQARecords * 4 * MAX_STR_LENGTH (G)
+  char *(*QARecord)[4];        // NumberOfQARecords * 4 (G)
 //ETX
 
   int NumberOfInformationLines; // (G)
-  char **InformationLine;       // each record is MAX_LINE_LENGTH (G)
+  char **InformationLine;       // (G)
 
   int Dimension;            // (G)
-  char **CoordinateNames;   // MAX_STR_LENGTH each (at most 3 of these) (G)
+  char **CoordinateNames;   // (at most 3 of these) (G)
 
   // Time steps
 
@@ -798,7 +792,7 @@ private:
   int NumberOfBlocks;       // (G)
 
   int *BlockIds;               // NumberOfBlocks (G) (start at 1)
-  char **BlockElementType;     // NumberOfBlocks, length MAX_STR_LENGTH (G)
+  char **BlockElementType;     // NumberOfBlocks (G)
   int *BlockNumberOfElements;  // NumberOfBlocks (L)
   int *BlockNodesPerElement;   // NumberOfBlocks (G)
   int *BlockNumberOfAttributesPerElement;// NumberOfBlocks (G)
@@ -856,15 +850,15 @@ private:
   // Other properties, provided as input with Set*
 
   int NumberOfBlockProperties; // (G)
-  char **BlockPropertyNames;   // one per property, MAX_STR_LENGTH (G)
+  char **BlockPropertyNames;   // one per property (G)
   int *BlockPropertyValue;     // NumBlocks * NumBlockProperties (G)
 
   int NumberOfNodeSetProperties; // (G)
-  char **NodeSetPropertyNames;   // one per property, MAX_STR_LENGTH (G)
+  char **NodeSetPropertyNames;   // one per property (G)
   int *NodeSetPropertyValue;     // NumNodeSets * NumNodeSetProperties (G)
 
   int NumberOfSideSetProperties; // (G)
-  char **SideSetPropertyNames;   // one per property, MAX_STR_LENGTH (G)
+  char **SideSetPropertyNames;   // one per property (G)
   int *SideSetPropertyValue;     // NumSideSets * NumSideSetProperties (G)
 
   // Global variables, 1 value per time step per variable.  We store
@@ -876,7 +870,7 @@ private:
   // to be updated everytime another read is done from the file.)
 
   int NumberOfGlobalVariables;   // (G)
-  char **GlobalVariableNames;    // (G) NumberOfGlobalVariables, MAX_STR_LENGTH
+  char **GlobalVariableNames;    // (G) NumberOfGlobalVariables
   float *GlobalVariableValue;   // (G) NumberOfGlobalVariables
 
   // The element and node arrays in the file were all scalar arrays.
