@@ -663,15 +663,15 @@ unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, 
   long     xloop,yloop;
   int     y_low, y_hi;
   int     x_low, x_hi;
-  unsigned long   *buffer;
+  unsigned char   *buffer;
   unsigned char   *data = NULL;
   unsigned char   *p_data = NULL;
 
   // set the current window 
   this->MakeCurrent();
 
-  buffer = new unsigned long[abs(x2 - x1)+1];
-  data = new unsigned char[(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
+  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
+  data = new unsigned char [(abs(x2 - x1) + 1)*(abs(y2 - y1) + 1)*3];
 
   if (y1 < y2)
     {
@@ -710,9 +710,9 @@ unsigned char *vtkWin32OpenGLRenderWindow::GetPixelData(int x1, int y1, int x2, 
     glReadPixels(x_low,yloop,(x_hi-x_low+1),1, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      *p_data = (buffer[xloop] & (0x000000ff)); p_data++;
-      *p_data = (buffer[xloop] & (0x0000ff00)) >> 8; p_data++;
-      *p_data = (buffer[xloop] & (0x00ff0000)) >> 16; p_data++;
+      *p_data = buffer[xloop*4]; p_data++;
+      *p_data = buffer[xloop*4+1]; p_data++;
+      *p_data = buffer[xloop*4+2]; p_data++;
       }
     }
   
@@ -727,7 +727,7 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   int     y_low, y_hi;
   int     x_low, x_hi;
   int     xloop,yloop;
-  unsigned long   *buffer;
+  unsigned char   *buffer;
   unsigned char   *p_data = NULL;
 
   // set the current window
@@ -742,7 +742,7 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glDrawBuffer(GL_BACK);
     }
 
-  buffer = new unsigned long[4*(abs(x2 - x1)+1)];
+  buffer = new unsigned char [4*(abs(x2 - x1)+1)];
 
   if (y1 < y2)
     {
@@ -772,10 +772,10 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     {
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
-      buffer[xloop] = 0xff000000;
-      buffer[xloop] += (*p_data); p_data++; 
-      buffer[xloop] += (*p_data) << 8; p_data++;
-      buffer[xloop] += (*p_data) << 16; p_data++;
+      buffer[xloop*4] = *p_data; p_data++; 
+      buffer[xloop*4+1] = *p_data; p_data++;
+      buffer[xloop*4+2] = *p_data; p_data++;
+      buffer[xloop*4+3] = 0xff;
       }
     /* write out a row of pixels */
     glMatrixMode( GL_MODELVIEW );
