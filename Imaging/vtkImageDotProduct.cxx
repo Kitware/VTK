@@ -17,8 +17,9 @@
 =========================================================================*/
 #include "vtkImageDotProduct.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageProgressIterator.h"
 
-vtkCxxRevisionMacro(vtkImageDotProduct, "1.23");
+vtkCxxRevisionMacro(vtkImageDotProduct, "1.24");
 vtkStandardNewMacro(vtkImageDotProduct);
 
 //----------------------------------------------------------------------------
@@ -36,69 +37,42 @@ void vtkImageDotProduct::ExecuteInformation(vtkImageData **vtkNotUsed(inDatas),
 template <class T>
 static void vtkImageDotProductExecute(vtkImageDotProduct *self,
                                       vtkImageData *in1Data, 
-                                      T *in1Ptr,
                                       vtkImageData *in2Data, 
-                                      T *in2Ptr,
                                       vtkImageData *outData, 
-                                      T *outPtr,
-                                      int outExt[6], int id)
+                                      int outExt[6], int id, T *)
 {
-  int idxC, idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
+  vtkImageIterator<T> inIt1(in1Data, outExt);
+  vtkImageIterator<T> inIt2(in2Data, outExt);
+  vtkImageProgressIterator<T> outIt(outData, outExt, self, id);
   float dot;
   
   // find the region to loop over
-  maxC = in1Data->GetNumberOfScalarComponents();
-  maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2]; 
-  maxZ = outExt[5] - outExt[4];
-  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
-  target++;
+  int maxC = in1Data->GetNumberOfScalarComponents();
+  int idxC;
   
-  // Get increments to march through data 
-  in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  in2Data->GetContinuousIncrements(outExt, in2IncX, in2IncY, in2IncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
   // Loop through ouput pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  while (!outIt.IsAtEnd())
     {
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    vtkImageIterator<T>::SpanIterator inSI1 = inIt1.BeginSpan();
+    vtkImageIterator<T>::SpanIterator inSI2 = inIt2.BeginSpan();
+    vtkImageIterator<T>::SpanIterator outSI = outIt.BeginSpan();
+    vtkImageIterator<T>::SpanIterator outSIEnd = outIt.EndSpan();
+    while (outSI != outSIEnd)
       {
-      if (!id) 
+      // now process the components
+      dot = 0.0;
+      for (idxC = 0; idxC < maxC; idxC++)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        dot += (float)(*inSI1 * *inSI2);
+        ++inSI1;
+        ++inSI2;
         }
-      for (idxX = 0; idxX <= maxX; idxX++)
-        {
-        // now process the components
-        dot = 0.0;
-        for (idxC = 0; idxC < maxC; idxC++)
-          {
-          // Pixel operation
-          dot += (float)(*in1Ptr * *in2Ptr);
-          in1Ptr++;
-          in2Ptr++;
-          }
-        *outPtr = (T)dot;
-        outPtr++;
-        }
-      outPtr += outIncY;
-      in1Ptr += inIncY;
-      in2Ptr += in2IncY;
+      *outSI = static_cast<T>(dot);
+      ++outSI;
       }
-    outPtr += outIncZ;
-    in1Ptr += inIncZ;
-    in2Ptr += in2IncZ;
+    inIt1.NextSpan();
+    inIt2.NextSpan();
+    outIt.NextSpan();
     }
 }
 
@@ -112,10 +86,6 @@ void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData,
                                          vtkImageData *outData,
                                          int outExt[6], int id)
 {
-  void *in1Ptr;
-  void *in2Ptr;
-  void *outPtr;
-  
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
@@ -129,9 +99,6 @@ void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData,
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;
     }
-  in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
-  in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
-  outPtr = outData->GetScalarPointerForExtent(outExt);
   
   // this filter expects that input is the same type as output.
   if (inData[0]->GetScalarType() != outData->GetScalarType())
@@ -165,9 +132,9 @@ void vtkImageDotProduct::ThreadedExecute(vtkImageData **inData,
 
   switch (inData[0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageDotProductExecute, this, inData[0], 
-                      (VTK_TT *)(in1Ptr), inData[1], (VTK_TT *)(in2Ptr), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro7(vtkImageDotProductExecute, this, inData[0], 
+                      inData[1], outData, outExt, id, 
+                      static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
