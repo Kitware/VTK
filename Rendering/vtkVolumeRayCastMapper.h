@@ -48,18 +48,29 @@ class vtkTransform;
 inline int vtkFloorFuncMacro(double x)
 {
 #if defined i386 || defined _M_IX86
-  unsigned int hilo[2];
-  *((double *)hilo) = x + 103079215104.0;  // (2**(52-16))*1.5
-  return (int)((hilo[1]<<16)|(hilo[0]>>16));
+  // use limited precision of double to get FPU to do rounding
+  //  to the nearest int, the '- 0.5' converts round() to floor()
+  double tempval;
+  tempval = (x - 0.5) + 6755399441055744.0; // (2**52)*1.5
+  return ((int *)&tempval)[0];
 #else
-  return (int)((unsigned int)(x + 2147483648.0) - 2147483648U);
+  // quick-and-dirty, assumes x >= 0
+  return (int)(x);
 #endif
 }
 
-// Macro for rounding x
+// Macro for rounding x (for x >= 0)
 inline int vtkRoundFuncMacro(double x)
 {
-  return vtkFloorFuncMacro(x + 0.5);
+#if defined i386 || defined _M_IX86
+  // use limited precision of double to get FPU to do rounding to int
+  double tempval;
+  tempval = x + 6755399441055744.0; // (2**52)*1.5
+  return ((int *)&tempval)[0];
+#else
+  // quick-and-dirty, assumes x >= 0
+  return (int)(x + 0.5);
+#endif
 }
 //ETX
 
