@@ -89,12 +89,6 @@ ren1 SetBackground .1 .2 .4
 iren Initialize
 renWin Render
 
-renWin DebugOn
-renWin SetFileName "TestStringTree2.tcl.ppm"
-renWin SaveImageAsPPM
-renWin DebugOff
-exit
-
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
@@ -102,4 +96,5 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
-
+# move back 
+cd examplesTcl
