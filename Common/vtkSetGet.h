@@ -79,7 +79,7 @@ virtual type Get##name () { \
 #define vtkSetStringMacro(name) \
 virtual void Set##name (const char* _arg) \
   { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << _arg ); \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting " << #name " to " << (_arg?_arg:"(null)") ); \
   if ( this->name == NULL && _arg == NULL) { return;} \
   if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
   if (this->name) { delete [] this->name; } \
@@ -101,7 +101,7 @@ virtual void Set##name (const char* _arg) \
 //
 #define vtkGetStringMacro(name) \
 virtual char* Get##name () { \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << this->name); \
+  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " of " << (this->name?this->name:"(null)")); \
   return this->name; \
   } 
 
