@@ -165,6 +165,7 @@ public:
   int Broadcast(unsigned long* data, int length, int root);
   int Broadcast(char* data         , int length, int root);
   int Broadcast(float* data        , int length, int root);
+  int Broadcast(double* data        , int length, int root);
 
   
   // Description:
@@ -174,6 +175,7 @@ public:
   int Gather(unsigned long* data, unsigned long* to, int length, int root);
   int Gather(char* data         , char* to         , int length, int root);
   int Gather(float* data        , float* to        , int length, int root);
+  int Gather(double* data       , double* to       , int length, int root);
 
 //BTX
 

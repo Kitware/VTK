@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.22");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.23");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -881,6 +881,17 @@ int vtkMPICommunicator::Broadcast(float* data, int length, int root)
                                     this->Comm->Handle));
 
 }
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Broadcast(double* data, int length, int root)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorBroadcastData(reinterpret_cast<char*>(data), 
+                                    length, root, MPI_DOUBLE, 
+                                    this->Comm->Handle));
+
+}
+
 
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(int* data, int* to, int length, int root)
@@ -921,6 +932,16 @@ int vtkMPICommunicator::Gather(float* data, float* to, int length, int root)
     vtkMPICommunicatorGatherData(reinterpret_cast<char*>(data), 
                                  reinterpret_cast<char*>(to), 
                                  length, root, MPI_FLOAT, this->Comm->Handle));
+
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::Gather(double* data, double* to, int length, int root)
+{
+
+  return CheckForMPIError(
+    vtkMPICommunicatorGatherData(reinterpret_cast<char*>(data), 
+                                 reinterpret_cast<char*>(to), 
+                                 length, root, MPI_DOUBLE, this->Comm->Handle));
 
 }
 
