@@ -163,6 +163,10 @@ proc check_header_file { filename } {
           puts "    Class Name: $class_name"
         }
 
+        if { [string compare $class_name ""] == 0 } {
+          puts "Problem with class definition in file $filename"
+        }
+
         set first [string first "public" $data]
 
         if { $first > -1 } {
@@ -444,7 +448,6 @@ proc check_for_defects { print } {
   set searchid [array startsearch class_list]
 
   while { [array anymore class_list $searchid] } {
-
     set element [array nextelement class_list $searchid]
     # Extract strings that represent PrintSelfs
     if { [string match "*.p" $element] == 1 } {
