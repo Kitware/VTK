@@ -21,6 +21,7 @@ vtkFloatTCoords \
 vtkFloatTensors \
 vtkFloatVectors \
 vtkImplicitFunctionCollection \
+vtkObjectFactoryCollection \
 vtkPlaneCollection \
 vtkPropCollection \
 vtkTransformCollection \
@@ -35,6 +36,7 @@ vtkDataSet \
 vtkExtent \
 vtkImplicitFunction \
 vtkLocator \
+vtkObjectFactory \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
@@ -57,6 +59,8 @@ vtkCoordinate \
 vtkDataInformation \
 vtkDataObject \
 vtkDataSetAttributes \
+vtkDirectory \
+vtkDynamicLoader \
 vtkDoubleArray \
 vtkEdgeTable \
 vtkEmptyCell \
