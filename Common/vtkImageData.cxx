@@ -35,7 +35,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkBitArray.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.139.4.1");
+vtkCxxRevisionMacro(vtkImageData, "1.139.4.2");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1527,7 +1527,8 @@ void vtkImageData::AllocateScalars()
 
   // if we currently have scalars then just adjust the size
   scalars = this->PointData->GetScalars();
-  if (scalars && scalars->GetDataType() == this->ScalarType) 
+  if (scalars && scalars->GetDataType() == this->ScalarType
+      && scalars->GetReferenceCount() == 1) 
     {
     scalars->SetNumberOfComponents(this->GetNumberOfScalarComponents());
     scalars->SetNumberOfTuples((this->Extent[1] - this->Extent[0] + 1)*
