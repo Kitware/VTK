@@ -395,13 +395,12 @@ JNIEXPORT jobject vtkJavaCreateNewJavaStubForObject(JNIEnv *env, vtkObject* obj)
   return vtkJavaCreateNewJavaStub(env, fullname, (void*)obj);
 }
 
-
 JNIEXPORT jobject vtkJavaCreateNewJavaStub(JNIEnv *env, const char* fullclassname, void* obj)
 {
   jclass cl= env->FindClass(fullclassname);
   if (!cl) { return NULL; }
   
-  jobject stub= env->AllocObject(cl);
+  jobject stub= env->NewObject(cl, env->GetMethodID(cl, "<init>","(I)V"), (int)0 );
   vtkJavaRegisterNewObject(env, stub, obj);
   env->CallVoidMethod(stub, env->GetMethodID(cl, "VTKCastInit", "()V"));
   return stub;
@@ -550,10 +549,10 @@ JNIEXPORT void vtkJavaVoidFuncArgDelete(void* arg)
 
 jobject vtkJavaExportedGetObjectFromPointer(void *ptr)
 {
-  return vtkJavaGetObjectFromPointer(ptr);
+	return vtkJavaGetObjectFromPointer(ptr);
 }
 
 void* vtkJavaExportedGetPointerFromObject(JNIEnv *env,jobject obj, char *result_type)
 {
-  return vtkJavaGetPointerFromObject(env, obj, result_type);
+	return vtkJavaGetPointerFromObject(env, obj, result_type);
 }
