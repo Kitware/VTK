@@ -15,8 +15,8 @@ ABSTRACT =
 
 CONCRETE = \
 vtkImageToIsoSurface \
-vtkRIBExporter \
-vtkRIBProperty
+vtkEarthSource \
+vtkIVWriter
 
 #------------------------------------------------------------------------------
 # Include the generated targets
