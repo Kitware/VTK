@@ -154,6 +154,10 @@ public:
   // Get the ith vector variable name.
   char* GetVectorVariableName(int i);
 
+  // Description:
+  // Remove all the current variables.
+  void RemoveAllVariables();
+  
 protected:
   vtkFunctionParser();
   ~vtkFunctionParser();
