@@ -42,7 +42,7 @@ vtkActor cutActor
 vtkMarchingContourFilter iso
     iso SetInput [toRectilinearGrid GetRectilinearGridOutput]
     iso SetValue 0 0.7
-iso DebugOn
+
 vtkPolyDataNormals normals
     normals SetInput [iso GetOutput]
     normals SetFeatureAngle 45

@@ -11,7 +11,7 @@
 #include "vtkTransformCollection.h"
 #include "vtkTransform.h"
 #include "vtkSweptSurface.h"
-#include "vtkContourFilter.h"
+#include "vtkMarchingContourFilter.h"
 #include "vtkPolyDataMapper.h"
 
 #include "SaveImage.h"
@@ -79,7 +79,7 @@ void main( int argc, char *argv[] )
     sweptSurfaceFilter->AdjustBoundsOn();
     sweptSurfaceFilter->SetAdjustDistance(0.5);
 
-  vtkContourFilter *iso = vtkContourFilter::New();
+  vtkMarchingContourFilter *iso = vtkMarchingContourFilter::New();
     iso->SetInput(sweptSurfaceFilter->GetOutput());
     iso->SetValue(0, 0.075);
 
