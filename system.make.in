@@ -61,7 +61,7 @@ GRAPHICS_API_LIBS    = @GRAPHICS_API_LIBS@
 # run-time.  INSTALL_ROOT is prepended to $prefix and $exec_prefix
 # when installing files.
 INSTALL_ROOT    =
-INSTALL         = @srcdir@/install-sh -c
+INSTALL         = install-sh -c
 LIB_INSTALL_DIR = $(INSTALL_ROOT)$(exec_prefix)/lib
 BIN_INSTALL_DIR = $(INSTALL_ROOT)$(exec_prefix)/bin
 

@@ -206,7 +206,7 @@ do_install:
 
 do_install_tcl:
 	@echo "Installing vtk"
-	@$(INSTALL) tcl/vtk $(BIN_INSTALL_DIR)/vtk
+	@${srcdir}/$(INSTALL) tcl/vtk $(BIN_INSTALL_DIR)/vtk
 
 install-dirs:
 	@for i in $(LIB_INSTALL_DIR) $(BIN_INSTALL_DIR) ; \
@@ -218,3 +218,5 @@ install-dirs:
 		else true; \
 		fi; \
 	    done;
+
+

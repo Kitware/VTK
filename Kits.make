@@ -91,22 +91,22 @@ clean_java:
 #------------------------------------------------------------------------------
 install_tcl_java: install_tcl
 	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"
-	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
+	@${srcdir}/../${INSTALL} libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 
 install_java: install
 	@echo "Installing libVTK${ME}Java${SHLIB_SUFFIX}"
-	@$(INSTALL) libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
+	@${srcdir}/../${INSTALL} libVTK${ME}Java${SHLIB_SUFFIX} $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 	@chmod 555 $(LIB_INSTALL_DIR)/libVTK${ME}Java${SHLIB_SUFFIX}
 
 install_tcl: install ${TCL_LIB_FILE}
 	@echo "Installing ${TCL_LIB_FILE}"
-	@$(INSTALL) $(TCL_LIB_FILE) $(LIB_INSTALL_DIR)/$(TCL_LIB_FILE)
+	@${srcdir}/../${INSTALL} $(TCL_LIB_FILE) $(LIB_INSTALL_DIR)/$(TCL_LIB_FILE)
 	@chmod 555 $(LIB_INSTALL_DIR)/$(TCL_LIB_FILE)
 
 install: ${VTK_LIB_FILE} 
 	@echo "Installing ${VTK_LIB_FILE}"
-	@$(INSTALL) $(VTK_LIB_FILE) $(LIB_INSTALL_DIR)/$(VTK_LIB_FILE)
+	@${srcdir}/../${INSTALL} $(VTK_LIB_FILE) $(LIB_INSTALL_DIR)/$(VTK_LIB_FILE)
 	@chmod 555 $(LIB_INSTALL_DIR)/$(VTK_LIB_FILE)
 
 
