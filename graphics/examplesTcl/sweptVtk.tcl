@@ -18,6 +18,7 @@ vtkImplicitModeller imp
   imp SetInput [reader GetOutput]
   imp SetSampleDimensions 50 50 40
   imp SetMaximumDistance 0.25
+  imp SetAdjustDistance 0.5
 
 # create swept surface
 vtkTransformCollection transforms
