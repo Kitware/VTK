@@ -275,6 +275,7 @@ public:
     {this->SetScalarType(VTK_CHAR);};
   vtkSetMacro(ScalarType, int);
   int GetScalarType();
+  const char* GetScalarTypeAsString() { return vtkImageScalarTypeNameMacro ( this->GetScalarType() ); };
 
   // Description:
   // Set/Get the number of scalar components for points.
