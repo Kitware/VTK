@@ -14,7 +14,7 @@ vtkDEMReader demReader
 set lo [lindex [[demReader GetOutput] GetScalarRange] 0]
 set hi [lindex [[demReader GetOutput] GetScalarRange] 1]
 
-vtkGeometryFilter surface
+vtkImageDataGeometryFilter surface
   surface SetInput [demReader GetOutput]
 
 vtkWarpScalar warp
