@@ -45,9 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkPLOT3DReader* vtkPLOT3DReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -59,9 +57,6 @@ vtkPLOT3DReader* vtkPLOT3DReader::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkPLOT3DReader;
 }
-
-
-
 
 #define VTK_BINARY 0
 #define VTK_ASCII 1
@@ -100,6 +95,8 @@ vtkPLOT3DReader::vtkPLOT3DReader()
   this->Energy = NULL;
   this->Density = NULL;
   this->Momentum = NULL;
+
+  this->NumberOfGrids = 0;
 } 
 
 vtkPLOT3DReader::~vtkPLOT3DReader()
@@ -1607,7 +1604,8 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "File Format: " << this->FileFormat << "\n";
 
   os << indent << "Grid Number: " << this->GridNumber << "\n";
-  os << indent << "Scalar Function Number: " << this->ScalarFunctionNumber << "\n";
+  os << indent << "Scalar Function Number: " 
+     << this->ScalarFunctionNumber << "\n";
 
   if ( this->VectorFunctionFileName )
     {
@@ -1619,8 +1617,10 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Vector Function Filename: (none)\n";
     }
 
-  os << indent << "Vector Function Number: " << this->VectorFunctionNumber << "\n";
-  os << indent << "Function Number: " << this->FunctionFileFunctionNumber << "\n";
+  os << indent << "Vector Function Number: " 
+     << this->VectorFunctionNumber << "\n";
+  os << indent << "Function Number: " 
+     << this->FunctionFileFunctionNumber << "\n";
 
   os << indent << "Free Stream Mach Number: " << this->Fsmach << "\n";
   os << indent << "Alpha: " << this->Alpha << "\n";
@@ -1632,5 +1632,7 @@ void vtkPLOT3DReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "UVinf: " << this->Uvinf << "\n";
   os << indent << "VVinf: " << this->Vvinf << "\n";
   os << indent << "WVinf: " << this->Wvinf << "\n";
+
+  os << indent << "Number Of Grids: " << this->NumberOfGrids << "\n";
 }
 
