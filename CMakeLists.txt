@@ -340,6 +340,10 @@ ELSE(CMAKE_COMPILER_IS_GNUCXX)
      SET(VTK_REQUIRED_CXX_FLAGS
          "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
   ENDIF(CMAKE_SYSTEM MATCHES "OSF1-V.*")
+  #silence duplicate symbol warnings on AIX
+  IF(CMAKE_SYSTEM MATCHES "AIX.*")
+    SET(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -bhalt:5")
+  ENDIF(CMAKE_SYSTEM MATCHES "AIX.*")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 IF(APPLE)
@@ -700,6 +704,7 @@ INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${VTK_REQUIRED_C_FLAGS}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTK_REQUIRED_CXX_FLAGS}")
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_FLAGS}")
 
 #-----------------------------------------------------------------------------
 # Allow local additions to this file without CVS conflicts.
