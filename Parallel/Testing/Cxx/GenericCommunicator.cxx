@@ -333,6 +333,7 @@ int main(int argc, char** argv)
 
   vtkMultiProcessController* contr = vtkMultiProcessController::New();
   contr->Initialize(&argc, &argv);
+  contr->CreateOutputWindow();
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
