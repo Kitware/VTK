@@ -141,10 +141,6 @@ protected:
   // This is the method you should override.
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
 
-  virtual void ComputeRequiredInputUpdateExtent(int inExt[6],int outExt[6])
-    {vtkErrorMacro( << "Obsolete: Use ComputeInputUpdateExtents instead" ); };
-
-
   void ComputeInputUpdateExtents( vtkDataObject *output );
   virtual void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
 };
