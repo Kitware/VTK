@@ -24,7 +24,7 @@
 #include "vtkInteractorStyleTrackballActor.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.11");
+vtkCxxRevisionMacro(vtkInteractorStyleSwitch, "1.12");
 vtkStandardNewMacro(vtkInteractorStyleSwitch);
 
 //----------------------------------------------------------------------------
@@ -100,9 +100,6 @@ void vtkInteractorStyleSwitch::OnChar(int ctrl, int shift,
     case 'a':
     case 'A':
       this->CameraOrActor = VTKIS_ACTOR;
-      break;
-    default:
-      vtkInteractorStyle::OnChar(ctrl, shift, keycode, repeatcount);
       break;
     }
   // Set the CurrentStyle pointer to the picked style
