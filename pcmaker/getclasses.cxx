@@ -2157,8 +2157,10 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"LIB_FLAGS=/machine:I386\n\n"); 
 
 
-  fprintf(fp,"TCLOBJLIBS=vtktclotherobjs.lib vtktclgraphicsobjs.lib\n\n");
-
+  fprintf(fp,"TCLOBJLIBS=vtktclotherobjs.lib");
+  if (vals->m_Graphics) 
+    fprintf(fp,"  vtktclgraphicsobjs.lib");
+  fprintf(fp,"\n\n");
 
   fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n\n",
 	  vals->adlg.m_LibPrefix);
@@ -3466,7 +3468,10 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
           targetName, targetName, targetName); 
   fprintf(fp,"LIB_FLAGS=/machine:I386\n"); 
 
-  fprintf(fp,"PYTHONOBJLIBS=vtkpythonotherobjs.lib vtkpythongraphicsobjs.lib\n\n");
+  fprintf(fp,"PYTHONOBJLIBS=vtkpythonotherobjs.lib");
+  if (vals->m_Graphics) 
+    fprintf(fp," vtkpythongraphicsobjs.lib");
+  fprintf(fp,"\n\n");
 
   fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n\n",
 	  vals->adlg.m_LibPrefix);
