@@ -132,6 +132,7 @@ vtkUnstructuredExtent \
 vtkUnstructuredInformation \
 vtkUnstructuredGrid \
 vtkVectors \
+vtkVersion \
 vtkVertex \
 vtkVoidArray \
 vtkVoxel \
