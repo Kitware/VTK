@@ -255,7 +255,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   if (strncmp(line, "FORMAT", 6) == 0)
     {
     // found the FORMAT section
-    vtkErrorMacro("*** FORMAT section");
+    vtkDebugMacro("*** FORMAT section");
     this->ReadNextDataLine(line);
     
     stringRead = sscanf(line, " %*s %*s %s", subLine);
