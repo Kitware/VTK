@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.2");
+vtkCxxRevisionMacro(vtkPowerCrustSurfaceReconstruction, "1.3");
 vtkStandardNewMacro(vtkPowerCrustSurfaceReconstruction);
 
 vtkPowerCrustSurfaceReconstruction::vtkPowerCrustSurfaceReconstruction()
@@ -400,8 +400,9 @@ extern char tmpfilenam[L_tmpnam];
 
 extern short check_overshoot_f;
 
-FILE* efopen(char *, char *);
-void  efclose(FILE* file);
+// TJH: stripping out all file use
+//FILE* efopen(char *, char *);
+//void  efclose(FILE* file);
 
 
 
@@ -837,10 +838,17 @@ int correct_orientation(double*,double*,double*,double*,double*);
 
 #endif
 //========tim_defs.h=============================================================
-int random();
-void srandom(int s);
+
+#define random rand
+#define srandom srand
+
+/* TJH: old attempts at solving compilation problem (don't work on other OS's)
+int random() { return rand(); }
+void srandom(int s) { srand(s); }
+
+/* TJH: these were put here to allow compiling under windows, getting problems on other OS's now
 #define popen _popen
-#define pclose _pclose
+#define pclose _pclose*/
 //========rand48.h=============================================================
 /*
  * Copyright (c) 1993 Martin Birgmeier
@@ -1250,7 +1258,7 @@ void make_shuffle(void){
         shufmat = (long*)malloc(mat_size*sizeof(long));
     }
     for (i=0;i<=num_sites;i++) {
-        shufmat[i] = i;
+        shufmat[i] = (double)i;  // TJH added this cast
     }
     for (i=0;i<num_sites;i++){
         t = shufmat[i];
@@ -5520,12 +5528,19 @@ void panic(char *fmt, ...) {
     /* TJH exit(1);*/ ASSERT(pcFALSE,fmt);
 }
 
-/*
-FILE * popen(char*, char*);
-void pclose(FILE*);
-*/
+
+// TJH: stripping out any file use
+// old TJH: uncommented these lines, they seem useful. Added dummy bodies.
+//FILE * popen(char*, char*) {return NULL;}
+//void pclose(FILE*) {}
+//FILE* efopen(char *file, char *mode) { return NULL;}
+//void efclose(FILE* file) {}
+//FILE* epopen(char *com, char *mode) {return NULL;}
+
 
 char tmpfilenam[L_tmpnam];
+
+/* TJH: we're not using file handling so can lose these
 
 FILE* efopen(char *file, char *mode) {
     FILE* fp;
@@ -5533,7 +5548,7 @@ FILE* efopen(char *file, char *mode) {
     // TJH: added this if statement
     if(DFILE)
         fprintf(DFILE, "couldn't open file %s mode %s\n",file,mode);
-    /* TJH exit(1);*/ ASSERT(pcFALSE);
+    ASSERT(pcFALSE);
     return NULL;
 }
 
@@ -5546,13 +5561,13 @@ FILE* epopen(char *com, char *mode) {
     FILE* fp;
     if ((fp = popen(com, mode))!=NULL) return fp;
     fprintf(stderr, "couldn't open stream %s mode %s\n",com,mode);
-    /* TJH exit(1);*/ ASSERT(pcFALSE);
+    ASSERT(pcFALSE);
     return 0;
-}
+}*/
 
-
-
-void print_neighbor_snum(FILE* F, neighbor *n){
+// TJH: replaced this function with an empty body
+void print_neighbor_snum(FILE* F, neighbor *n){}
+/*void print_neighbor_snum(FILE* F, neighbor *n){
     // TJH: added this line
     if(!F) return;
 
@@ -5565,31 +5580,37 @@ void print_neighbor_snum(FILE* F, neighbor *n){
     // TJH: fairly sure they meant F here
     //fflush(stdout);
     fflush(F);
-}
+}*/
 
-void print_basis(FILE *F, basis_s* b) {
+// TJH: replaced this function with an empty body
+void print_basis(FILE *F, basis_s* b) {}
+/*void print_basis(FILE *F, basis_s* b) {
     // TJH: added this line
     if(!F) return;
 
-    if (!b) {fprintf(F, "NULL basis ");fflush(stdout);return;}
+    if (!b) {fprintf(F, "NULL basis ");fflush(F);return;}
     if (b->lscale<0) {fprintf(F, "\nbasis computed");return;}
     fprintf(F, "\n%p  %d \n b=",(void*)b,b->lscale);
     print_point(F, rdim, b->vecs);
     fprintf(F, "\n a= ");
     print_point_int(F, rdim, b->vecs+rdim); fprintf(F, "   ");
     fflush(F);
-}
+}*/
 
-void print_simplex_num(FILE *F, simplex *s) {
+// TJH: replaced this function with an empty body
+void print_simplex_num(FILE *F, simplex *s) {}
+/*void print_simplex_num(FILE *F, simplex *s) {
     // TJH: added this line
     if(!F) return;
 
     fprintf(F, "simplex ");
     if(!s) fprintf(F, "NULL ");
     else fprintf(F, "%p  ", (void*)s);
-}
+}*/
 
-void print_neighbor_full(FILE *F, neighbor *n){
+// TJH: replaced this function with an empty body
+void print_neighbor_full(FILE *F, neighbor *n){}
+/*void print_neighbor_full(FILE *F, neighbor *n){
     // TJH: added this line
     if(!F) return;
 
@@ -5598,33 +5619,35 @@ void print_neighbor_full(FILE *F, neighbor *n){
     print_simplex_num(F, n->simp);
     print_neighbor_snum(F, n);fprintf(F, ":  ");fflush(F);
     if (n->vert) {
-        /*      if (n->basis && n->basis->lscale <0) fprintf(F, "trans ");*/
-        /* else */ print_point(F, pdim,n->vert);
+        //      if (n->basis && n->basis->lscale <0) fprintf(F, "trans ");
+        // else  
+            print_point(F, pdim,n->vert);
         fflush(F);
     }
     print_basis(F, n->basis);
     fflush(F);
     fprintf(F, "\n");
-}
+}*/
 
-void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) {
+// TJH: replaced this function with an empty body
+void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) { return NULL; }
+/*void *print_facet(FILE *F, simplex *s, print_neighbor_f *pnfin) {
     // TJH: added this line
     if(!F) return NULL;
 
     int i;
     neighbor *sn = s->neigh;
 
-    /*  fprintf(F, "%d ", s->mark);*/
+    //  fprintf(F, "%d ", s->mark);
     for (i=0; i<cdim;i++,sn++) (*pnfin)(F, sn);
     fprintf(F, "\n");
     fflush(F);
     return NULL;
-}
+}*/
 
-
-
-
-void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){
+// TJH: replaced this function with an empty body
+void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){ return NULL; }
+/*void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){
     // TJH: added this line
     if(!F) return NULL;
 
@@ -5639,16 +5662,10 @@ void *print_simplex_f(simplex *s, FILE *F, print_neighbor_f *pnfin){
     fprintf(F, "peak ="); (*pnf)(F, &(s->peak));
     fprintf (F, "facet =\n");fflush(F);
     return print_facet(F, s, pnf);
-}
+}*/
 
-// TJH: I took a dislike to this use of static (original below)
-void *print_simplex(simplex *s, void *Fout)
-{
-    if(!s) return NULL;
-    if(!Fout) return NULL;
-
-    return print_simplex_f(s, (FILE*)Fout, 0);
-}
+// TJH: replaced this function with an empty body
+void *print_simplex(simplex *s, void *Fin) { return NULL; }
 /*void *print_simplex(simplex *s, void *Fin) {
     static FILE *F;
 
@@ -5657,14 +5674,16 @@ void *print_simplex(simplex *s, void *Fout)
     return print_simplex_f(s, F, 0);
 }*/
 
-
-void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {
+// TJH: replaced this function with an empty body
+void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {}
+/*void print_triang(simplex *root, FILE *F, print_neighbor_f *pnf) {
     print_simplex(0,F);
     print_simplex_f(0,0,pnf);
     visit_triang(root, print_simplex);
-}
+}*/
 
-void *p_peak_test(simplex *s) {return (s->peak.vert==p) ? (void*)s : (void*)NULL;}
+// TJH: this code isn't used anywhere
+//void *p_peak_test(simplex *s) {return (s->peak.vert==p) ? (void*)s : (void*)NULL;}
 
 
 
@@ -5779,6 +5798,8 @@ void vlist_out(point *v, int vdim, FILE *Fout, int amble)
 
 void off_out(point *v, int vdim, FILE *Fin, int amble) {
 
+    /* TJH: this code never get used, have commented it out to make this clear
+
     static FILE *F, *G;
     static FILE *OFFFILE;
     static char offfilenam[L_tmpnam];
@@ -5826,14 +5847,16 @@ void off_out(point *v, int vdim, FILE *Fin, int amble) {
         efclose(G);
     }
 
+    */
 }
 
 
 
 void mp_out(point *v, int vdim, FILE *Fin, int amble) {
 
-
     /* should fix scaling */
+
+    /* TJH: this code never gets used, have commented it out to make clear
 
     static int figno=1;
     static FILE *F;
@@ -5863,10 +5886,14 @@ void mp_out(point *v, int vdim, FILE *Fin, int amble) {
     } else if (amble==1) {
         fprintf(F , "endfig;\n");
     }
+
+    */
 }
 
 
 void ps_out(point *v, int vdim, FILE *Fin, int amble) {
+
+    /* TJH: this code never gets used, have commented out to make clear
 
     static FILE *F;
     static double scaler;
@@ -5915,9 +5942,13 @@ void ps_out(point *v, int vdim, FILE *Fin, int amble) {
     } else if (amble==1) {
         fprintf(F , "showpage\n %%%%EOF\n");
     }
+
+    */
 }
 
 void cpr_out(point *v, int vdim, FILE *Fin, int amble) {
+
+    /* TJH: this code never gets used, have commented out to make clear
 
     static FILE *F;
     int i;
@@ -5933,6 +5964,8 @@ void cpr_out(point *v, int vdim, FILE *Fin, int amble) {
             v[1][0]/mult_up,v[1][1]/mult_up,v[1][2]/mult_up,
             v[2][0]/mult_up,v[2][1]/mult_up,v[2][2]/mult_up
         );
+
+    */
 }
 
 
@@ -11428,10 +11461,6 @@ srand48(long seed)
   _rand48_mult[2] = RAND48_MULT_2;
   _rand48_add = RAND48_ADD;
 }
-//========tim_defs.c=============================================================
-#include <stdlib.h>
-int random() { return rand(); }
-void srandom(int s) { srand(s); }
 //=====================================================================
 
 void vtkPowerCrustSurfaceReconstruction::Execute()
