@@ -93,6 +93,7 @@ vtkSelectVisiblePoints.cxx
 vtkTesting.cxx
 vtkTextActor.cxx
 # vtkTextActor2D.cxx
+vtkTextActor3D.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
