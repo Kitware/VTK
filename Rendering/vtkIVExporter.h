@@ -27,8 +27,13 @@
 #ifndef __vtkIVExporter_h
 #define __vtkIVExporter_h
 
-#include <stdio.h>
 #include "vtkExporter.h"
+
+class vtkLight;
+class vtkActor;
+class vtkPoints;
+class vtkDataArray;
+class vtkUnsignedCharArray;
 
 class VTK_RENDERING_EXPORT vtkIVExporter : public vtkExporter
 {

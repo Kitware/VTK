@@ -29,8 +29,9 @@
 #ifndef __vtkOBJExporter_h
 #define __vtkOBJExporter_h
 
-#include <stdio.h>
 #include "vtkExporter.h"
+
+class vtkActor;
 
 class VTK_RENDERING_EXPORT vtkOBJExporter : public vtkExporter
 {

@@ -40,7 +40,7 @@
 #define __vtkExporter_h
 
 #include "vtkObject.h"
-#include "vtkRenderWindow.h"
+class vtkRenderWindow;
 
 class VTK_RENDERING_EXPORT vtkExporter : public vtkObject 
 {
@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Set/Get the rendering window that contains the scene to be written.
-  vtkSetObjectMacro(RenderWindow,vtkRenderWindow);
+  virtual void SetRenderWindow(vtkRenderWindow*);
   vtkGetObjectMacro(RenderWindow,vtkRenderWindow);
   
   // Description:

@@ -28,8 +28,10 @@
 #ifndef __vtkOOGLExporter_h
 #define __vtkOOGLExporter_h
 
-#include <stdio.h>
 #include "vtkExporter.h"
+
+class vtkLight;
+class vtkActor;
 
 class VTK_RENDERING_EXPORT vtkOOGLExporter : public vtkExporter
 {

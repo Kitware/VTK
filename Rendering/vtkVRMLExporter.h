@@ -28,8 +28,13 @@
 #ifndef __vtkVRMLExporter_h
 #define __vtkVRMLExporter_h
 
-#include <stdio.h>
 #include "vtkExporter.h"
+
+class vtkLight;
+class vtkActor;
+class vtkPoints;
+class vtkDataArray;
+class vtkUnsignedCharArray;
 
 class VTK_RENDERING_EXPORT vtkVRMLExporter : public vtkExporter
 {
