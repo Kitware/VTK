@@ -220,6 +220,14 @@ int main(int argc, char** argv)
 
   contr->SetCommunicator(comm);
 
+  // The following lines were added for coverage
+  // These methods have empty implementations
+  contr->SingleMethodExecute();
+  contr->MultipleMethodExecute();
+  contr->CreateOutputWindow();
+  contr->Barrier();
+  contr->Finalize();
+
   // Test the ports
   vtkInputPort* ip = vtkInputPort::New();
   ip->SetController(contr);

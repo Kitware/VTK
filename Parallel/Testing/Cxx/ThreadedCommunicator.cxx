@@ -41,7 +41,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
   // Test receiving all supported types of arrays
   int datai[scMsgLength];
-  if (!comm->Receive(datai, scMsgLength, 1, 11))
+  if (!contr->Receive(datai, scMsgLength, 1, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -55,7 +55,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     }
 
   unsigned long dataul[scMsgLength];
-  if (!comm->Receive(dataul, scMsgLength, 1, 22))
+  if (!contr->Receive(dataul, scMsgLength, 1, 22))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -69,7 +69,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     }
 
   char datac[scMsgLength];
-  if (!comm->Receive(datac, scMsgLength, 1, 33))
+  if (!contr->Receive(datac, scMsgLength, 1, 33))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -83,7 +83,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     }
 
   unsigned char datauc[scMsgLength];
-  if (!comm->Receive(datauc, scMsgLength, 1, 44))
+  if (!contr->Receive(datauc, scMsgLength, 1, 44))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -97,7 +97,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     }
 
   float dataf[scMsgLength];
-  if (!comm->Receive(dataf, scMsgLength, 1, 7))
+  if (!contr->Receive(dataf, scMsgLength, 1, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -112,7 +112,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
 
   double datad[scMsgLength];
-  if (!comm->Receive(datad, scMsgLength, 1, 7))
+  if (!contr->Receive(datad, scMsgLength, 1, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -126,7 +126,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     }
 
   vtkIdType datait[scMsgLength];
-  if (!comm->Receive(datait, scMsgLength, 1, 7))
+  if (!contr->Receive(datait, scMsgLength, 1, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
     return;
@@ -184,7 +184,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datai[i] = i;
     }
-  if (!comm->Send(datai, scMsgLength, 0, 11))
+  if (!contr->Send(datai, scMsgLength, 0, 11))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -195,7 +195,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     dataul[i] = static_cast<unsigned long>(i);
     }
-  if (!comm->Send(dataul, scMsgLength, 0, 22))
+  if (!contr->Send(dataul, scMsgLength, 0, 22))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -206,7 +206,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datac[i] = static_cast<char>(i);
     }
-  if (!comm->Send(datac, scMsgLength, 0, 33))
+  if (!contr->Send(datac, scMsgLength, 0, 33))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -217,7 +217,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datauc[i] = static_cast<unsigned char>(i);
     }
-  if (!comm->Send(datauc, scMsgLength, 0, 44))
+  if (!contr->Send(datauc, scMsgLength, 0, 44))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -228,7 +228,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     dataf[i] = static_cast<float>(i);
     }
-  if (!comm->Send(dataf, scMsgLength, 0, 7))
+  if (!contr->Send(dataf, scMsgLength, 0, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -240,7 +240,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datad[i] = static_cast<double>(i);
     }
-  if (!comm->Send(datad, scMsgLength, 0, 7))
+  if (!contr->Send(datad, scMsgLength, 0, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -251,7 +251,7 @@ void Process2(vtkMultiProcessController *contr, void *arg)
     {
     datait[i] = static_cast<vtkIdType>(i);
     }
-  if (!comm->Send(datait, scMsgLength, 0, 7))
+  if (!contr->Send(datait, scMsgLength, 0, 7))
     {
     cerr << "Client error: Error sending data." << endl;
     return;
@@ -315,6 +315,7 @@ int main(int argc, char** argv)
 
   vtkThreadedController* contr = vtkThreadedController::New();
   contr->Initialize(&argc, &argv);
+  contr->CreateOutputWindow();
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
