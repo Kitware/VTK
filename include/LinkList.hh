@@ -46,7 +46,12 @@ public:
   void IncrementLinkCount(int ptId);
   void AllocateLinks(int n);
   void InsertCellReference(int ptId, unsigned short pos, int cellId);
+  void InsertNextCellReference(int ptId, int cellId);
   void BuildLinks(vlDataSet *data);
+
+  void DeletePoint(int ptId);
+  void RemoveCellReference(int cellId, int ptId);
+  void ResizeCellList(int ptId, int size);
 
   void Squeeze();
   void Reset();
@@ -86,6 +91,59 @@ inline void vlLinkList::IncrementLinkCount(int ptId)
 inline void vlLinkList::InsertCellReference(int ptId, unsigned short pos, int cellId) 
 {
   this->Array[ptId].cells[pos] = cellId;
+}
+
+// Description:
+// Delete point (and storage) by destroying links to using cells.
+inline void vlLinkList::DeletePoint(int ptId)
+{
+  this->Array[ptId].ncells = 0;
+  delete [] this->Array[ptId].cells;
+  this->Array[ptId].cells = NULL;
+}
+
+// Description:
+// Insert a cell id into the list of cells (at the end) using the cell id 
+// provided. (Make sure to extend the link list (if necessary) using the
+// method ResizeCellList()).
+inline void vlLinkList::InsertNextCellReference(int ptId, int cellId) 
+{
+  this->Array[ptId].cells[this->Array[ptId].ncells++] = cellId;
+}
+
+// Description:
+// Delete the reference to the cell (cellId) from the point (ptId). This
+// removes the reference to the cellId from the cell list, but does not resize
+// the list (recover memory with ResizeCellList(), if necessary).
+inline void vlLinkList::RemoveCellReference(int cellId, int ptId)
+{
+  int *cells=this->Array[ptId].cells;
+  int ncells=this->Array[ptId].ncells;
+
+  for (int i=0; i < ncells; i++)
+    {
+    if (cells[i] == cellId)
+      {
+      for (int j=i; j < (ncells-1); j++) cells[j] = cells[j+1];
+      this->Array[ptId].ncells--;
+      break;
+      }
+    }
+}
+
+// Description:
+// Increase the length of the list of cells using a point by the size 
+// specified. 
+inline void vlLinkList::ResizeCellList(int ptId, int size)
+{
+  int *cells, newSize;
+
+  newSize = this->Array[ptId].ncells + size;
+  cells = new int[newSize];
+  memcpy(cells, this->Array[ptId].cells, this->Array[ptId].ncells*sizeof(int));
+  delete [] this->Array[ptId].cells;
+  this->Array[ptId].cells = cells;
+  this->Array[ptId].ncells = newSize;
 }
 
 #endif

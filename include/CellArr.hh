@@ -62,7 +62,7 @@ public:
   int GetLocation(int npts);
   
   void ReverseCell(int loc);
-  void ReplaceCell(int loc, vlIdList& ptIds);
+  void ReplaceCell(int loc, int npts, int *pts);
 
 protected:
   int NumberOfCells;
@@ -200,12 +200,12 @@ inline void vlCellArray::ReverseCell(int loc)
 
 // Description:
 // Replace the point ids of the cell with a different list of point ids.
-inline void vlCellArray::ReplaceCell(int loc, vlIdList& ptIds)
+inline void vlCellArray::ReplaceCell(int loc, int npts, int *pts)
 {
   int i;
   int npts=this->Ia.GetValue(loc);
-  int *pts=this->Ia.GetPtr(loc+1);
-  for (i=0; i < npts; i++)  pts[i] = ptIds.GetId(i);
+  int *oldPts=this->Ia.GetPtr(loc+1);
+  for (i=0; i < npts; i++)  oldPts[i] = pts[i];
 }
 
 #endif

@@ -24,6 +24,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlCellList_h
 
 #include "RefCount.hh"
+#include "CellType.hh"
 
 struct vlCell_s {
     unsigned char type; //from CellTypes.hh
@@ -43,6 +44,8 @@ public:
   int GetCellLocation(const int id);
   void InsertCell(const int id, const unsigned char type, const int loc);
   int InsertNextCell(const unsigned char type, const int loc);
+
+  void DeleteCell(int cellId);
 
   void Squeeze();
   void Reset();
@@ -74,6 +77,13 @@ inline unsigned char vlCellList::GetCellType(const int cellId)
 inline int vlCellList::GetCellLocation(const int cellId) 
 {
   return this->Array[cellId].loc;
+}
+
+// Description:
+// Delete cell by setting to NULL cell type.
+inline void vlCellList::DeleteCell(int cellId)
+{
+  this->Array[cellId].type = vlNULL_ELEMENT;
 }
 
 #endif
