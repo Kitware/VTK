@@ -79,7 +79,6 @@ void vtkImageDecomposedFilter::PrintSelf(ostream& os, vtkIndent indent)
   int idx;
   
   vtkImageFilter::PrintSelf(os,indent);
-  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     if (this->Filters[idx])

@@ -84,12 +84,7 @@ public:
   // the sub filters.
   virtual void SetDimensionality(int num) = 0;
   
-  // Get the dimensionality of this filter.
-  vtkGetMacro(Dimensionality,int);
-
 protected:
-  int Dimensionality;
-  
   vtkImageFilter *Filters[VTK_IMAGE_DIMENSIONS];
 };
 

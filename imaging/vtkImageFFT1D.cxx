@@ -55,6 +55,12 @@ vtkImageFFT1D::vtkImageFFT1D()
 
   // To avoid compiler warnings
   _vtkImageComplexMultiplyTemp.Real = 0.0;
+
+  // Execute does not care that component is hard coded.
+  this->ExecuteDimensionality = 2;
+  // Not used.  Here I am ignoring component axis because it
+  // is hard coded. (complex numbers can not be put along any axis)
+  this->Dimensionality = 1;
 }
 
 

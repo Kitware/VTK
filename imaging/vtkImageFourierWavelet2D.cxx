@@ -50,6 +50,12 @@ vtkImageFourierWavelet2D::vtkImageFourierWavelet2D()
   this->SetOutputScalarType(VTK_FLOAT);
   this->Spacing = 2;
   this->Wavelets = NULL;
+  
+  // Output is 3d. (input cannot use the Component axis)
+  this->ExecuteDimensionality = 3;
+  // Since this is not really used, I will tell the users this is
+  // a 2D filter (ignoring component axis)
+  this->Dimensionality = 2;
 }
 
 

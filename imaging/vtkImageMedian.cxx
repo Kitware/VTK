@@ -51,6 +51,10 @@ vtkImageMedian::vtkImageMedian()
   this->SetKernelSize(1, 1, 1);
   this->HandleBoundariesOn();
   this->UseExecuteCenterOff();
+
+  this->ExecuteDimensionality = 3;
+  // KernelSize can simulated 1d and 2d.
+  this->Dimensionality = 3;
 }
 
 

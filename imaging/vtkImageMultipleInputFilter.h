@@ -83,6 +83,11 @@ public:
   // Get the number of inputs to this filter
   vtkGetMacro(NumberOfInputs, int);
   
+  // Description:
+  // The basic operation is on regions with this dimensionality.  
+  // Filters that operate on pixels would have dimensionality 0.
+  // 2D Image filters would have dimensionality 2.
+  vtkGetMacro(Dimensionality, int);
   
 protected:
   int NumberOfInputs;
@@ -90,6 +95,14 @@ protected:
   vtkImageRegion **Regions;   // We need an array for inputs.
   int UseExecuteMethod;        // Use UpdatePointData or Execute method?
 
+  int Dimensionality;
+  // This is set in the subclass constructor and (probably) should not be 
+  // changed.  It indicates the dimensionality of the regions the
+  // execute/update methods expect.  It may be larger than dimensionality
+  // to make the filter faster (this supper class is not efficient at
+  // looping over extra dimensions.
+  int ExecuteDimensionality;
+  
   long InputMemoryLimit;
   
   // Should be set in the constructor.

@@ -44,6 +44,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageDistance1D::vtkImageDistance1D()
 {
   this->SetOutputScalarType(VTK_SHORT);
+  
+  this->Dimensionality = 1;
+  this->ExecuteDimensionality = 1;
 }
 
 

@@ -57,6 +57,9 @@ vtkImageAnisotropicDiffusion2D::vtkImageAnisotropicDiffusion2D()
   this->EdgesOn();
   this->CornersOn();
   this->GradientMagnitudeThresholdOff();
+
+  this->ExecuteDimensionality = 2;
+  this->Dimensionality = 2;
 }
 
 

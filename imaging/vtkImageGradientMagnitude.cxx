@@ -48,8 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageGradientMagnitude::vtkImageGradientMagnitude()
 {
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
+  this->Dimensionality = 2;
+
   this->SetOutputScalarType(VTK_FLOAT);
   this->HandleBoundariesOn();
+  
+  this->ExecuteDimensionality = 4;  
 }
 
 

@@ -79,13 +79,14 @@ public:
   vtkBooleanMacro(HandleBoundaries, int);
   
   // Description:
-  // Mainly for templated function.  The actual number of axes used
-  // to compute the gradient.
-  vtkGetMacro(NumberOfAxes, int);
+  // Determines how the input is interpreted (set of 2d slices ...)
+  // and the number of components in the output vectors.
+  // (Input can not use the component axis).
+  vtkSetMacro(Dimensionality, int);
+  
   
 protected:
   int HandleBoundaries;
-  int NumberOfAxes;  // needs a better name
   
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);

@@ -54,6 +54,13 @@ vtkImageFourierBandPass::vtkImageFourierBandPass()
     {
     this->LowPass[idx] = this->HighPass[idx] = VTK_LARGE_FLOAT;
     }
+  
+  // One complex number at a time.
+  this->ExecuteDimensionality = 1;
+  // It operates on 1 complex number at a time, but it uses the
+  // location of this number, so that makes this what dimensionality?
+  this->Dimensionality = 1;
+  
 }
 
 

@@ -37,7 +37,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include <stdio.h>
 #include <math.h>
 #include "vtkImageXViewer.h"
 #include "vtkImage2DRobotSpace.h"

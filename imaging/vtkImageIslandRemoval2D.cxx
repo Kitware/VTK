@@ -57,6 +57,9 @@ vtkImageIslandRemoval2D::vtkImageIslandRemoval2D()
   this->SquareNeighborhoodOff();
   this->SetReplaceValue(255);
   this->SetIslandValue(0);
+
+  this->ExecuteDimensionality = 2;
+  this->Dimensionality = 2;
 }
 
 //----------------------------------------------------------------------------

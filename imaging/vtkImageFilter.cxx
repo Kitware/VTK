@@ -49,6 +49,9 @@ vtkImageFilter::vtkImageFilter()
   this->UseExecuteMethod = 1;
   this->SetSplitOrder(4,3,2,1,0);
   this->InputMemoryLimit = 5000000;   // 5 GB
+  // invalid settings
+  this->Dimensionality = -1;
+  this->ExecuteDimensionality = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -58,6 +61,7 @@ void vtkImageFilter::PrintSelf(ostream& os, vtkIndent indent)
   
   vtkImageCachedSource::PrintSelf(os,indent);
   os << indent << "Input: (" << this->Input << ").\n";
+  os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   if (this->UseExecuteMethod)
     {
     os << indent << "Use Execute Method.\n";
@@ -146,7 +150,13 @@ void vtkImageFilter::SetInput(vtkImageSource *input)
 void vtkImageFilter::UpdatePointData(int dim, vtkImageRegion *outRegion)
 {
   vtkImageRegion *inRegion;
-  
+
+  // Make sure the subclss has defined the execute dimensionality
+  if (this->ExecuteDimensionality < 0)
+    {
+    vtkErrorMacro(<< "Subclass has not set ExecuteDimensionality");
+    return;
+    }
 
   // If outBBox is empty return imediately.
   if (outRegion->IsEmpty())
@@ -353,7 +363,7 @@ void vtkImageFilter::Execute(int dim, vtkImageRegion *inRegion,
   
   
   // Terminate recursion?
-  if (dim <= this->Dimensionality)
+  if (dim <= this->ExecuteDimensionality)
     {
     this->Execute(inRegion, outRegion);
     return;

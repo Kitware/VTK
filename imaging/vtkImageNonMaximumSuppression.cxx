@@ -50,6 +50,10 @@ vtkImageNonMaximumSuppression::vtkImageNonMaximumSuppression()
   this->SetAxes(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS);
   
   this->SetOutputScalarType(VTK_FLOAT);
+
+  this->ExecuteDimensionality = 5;
+  // This is used, and defaults to 3.
+  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------
@@ -67,7 +71,7 @@ void vtkImageNonMaximumSuppression::SetAxes(int num, int *axes)
     }
   
   // Save the actual number of axes for execute method.
-  this->NumberOfAxes = num;
+  this->Dimensionality = num;
 
   // First set the axes to fill in all axes.
   this->vtkImageDyadicFilter::SetAxes(num, axes);
@@ -115,7 +119,7 @@ void vtkImageNonMaximumSuppression::ComputeOutputImageInformation(
   if ( ! this->HandleBoundaries)
     {
     // shrink output image extent.
-    for (idx = 0; idx < this->NumberOfAxes; ++idx)
+    for (idx = 0; idx < this->Dimensionality; ++idx)
       {
       extent[idx*2] += 1;
       extent[idx*2+1] -= 1;
@@ -146,7 +150,7 @@ void vtkImageNonMaximumSuppression::ComputeRequiredInputRegionExtent(
   extent[9] = 0;
   
   // grow input image extent.
-  for (idx = 0; idx < this->NumberOfAxes; ++idx)
+  for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     extent[idx*2] -= 1;
     extent[idx*2+1] += 1;
@@ -165,7 +169,7 @@ void vtkImageNonMaximumSuppression::ComputeRequiredInputRegionExtent(
     }
   
   inRegion1->SetExtent(VTK_IMAGE_DIMENSIONS, extent);
-  extent[9] = this->NumberOfAxes - 1;
+  extent[9] = this->Dimensionality - 1;
   inRegion2->SetExtent(VTK_IMAGE_DIMENSIONS, extent);
 }
 
@@ -250,14 +254,15 @@ void vtkImageNonMaximumSuppression::Execute(vtkImageRegion *inRegion1,
 	  neighborA = neighborB = 0;
 	  // Convert vector to pixel units and normalize.
 	  normalizeFactor = 0.0;
-	  for (idx = 0; idx < this->NumberOfAxes; ++idx)
+	  for (idx = 0; idx < this->Dimensionality; ++idx)
 	    {
-	    d = vector[idx] = *in2Ptr4 / ratio[idx];
+	    // d units dI/world  -> dI
+	    d = vector[idx] = *in2Ptr4 * ratio[idx];
 	    normalizeFactor += d * d;
 	    in2Ptr4 += in2Inc4;
 	    }
 	  normalizeFactor = 1.0 / sqrt(normalizeFactor);
-	  for (idx = 0; idx < this->NumberOfAxes; ++idx)
+	  for (idx = 0; idx < this->Dimensionality; ++idx)
 	    {
 	    d = vector[idx] * normalizeFactor;  
 	    // Vector points positive along this axis?

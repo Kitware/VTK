@@ -53,6 +53,12 @@ vtkImageMean1D::vtkImageMean1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->SetStride(1);
   this->SetKernelSize(1);
+
+  // For better performance, the execute function was written as a 2d.
+  this->ExecuteDimensionality = 2;
+  // The mean is taken over a 1d neighborhood.
+  // Not used.
+  this->Dimensionality = 1;
 }
 
 

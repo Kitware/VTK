@@ -46,6 +46,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMagnitude::vtkImageMagnitude()
 {
   this->SetAxes(VTK_IMAGE_COMPONENT_AXIS);
+
+  // For better performance, the execute function was written as a 3d.
+  this->ExecuteDimensionality = 3;
+  // Here we are counting the component axis (it can be any axis really).
+  // Not used.
+  this->Dimensionality = 1;
 }
 
 //----------------------------------------------------------------------------

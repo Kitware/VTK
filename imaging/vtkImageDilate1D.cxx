@@ -50,6 +50,10 @@ vtkImageDilate1D::vtkImageDilate1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->UseExecuteCenterOff();
   this->HandleBoundariesOn();
+
+  // Poor performance, but simple implementation.
+  this->ExecuteDimensionality = 1;
+  this->Dimensionality = 1;
 }
 
 

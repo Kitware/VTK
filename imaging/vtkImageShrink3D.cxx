@@ -52,6 +52,10 @@ vtkImageShrink3D::vtkImageShrink3D()
   this->SetShrinkFactors(1, 1, 1);
   this->SetShift(0, 0, 0);
   this->AveragingOn();
+
+  this->ExecuteDimensionality = 3;
+  // Other dimesionalities can be simulated with specific shrink factors.
+  this->Dimensionality = 3;
 }
 
 //----------------------------------------------------------------------------

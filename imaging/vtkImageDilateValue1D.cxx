@@ -51,6 +51,10 @@ vtkImageDilateValue1D::vtkImageDilateValue1D()
   this->HandleBoundariesOn();
   this->UseExecuteCenterOff();
   this->SetKernelSize(3);
+
+  // Poor performance, but simple implementation.
+  this->ExecuteDimensionality = 1;
+  this->Dimensionality = 1;
 }
 
 

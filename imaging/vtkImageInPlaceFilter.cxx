@@ -249,7 +249,7 @@ void vtkImageInPlaceFilter::Execute(int dim, vtkImageRegion *inRegion,
   
   
   // Terminate recursion?
-  if (dim <= this->Dimensionality)
+  if (dim <= this->ExecuteDimensionality)
     {
     this->Execute(inRegion, outRegion);
     return;

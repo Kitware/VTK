@@ -55,6 +55,11 @@ vtkImageScatterPlot::vtkImageScatterPlot()
   this->UseExecuteMethodOff();
   this->InRegion.SetExtent(1, 0, 255, 0, 255, 47, 47, 0);
   
+  // For better performance, the execute function was written as a 2d.
+  this->ExecuteDimensionality = 4;
+  // The input can be upt to 4d, but the output is 2D.
+  // What should this unused ivar be
+  this->Dimensionality = 2;
 }
 
 

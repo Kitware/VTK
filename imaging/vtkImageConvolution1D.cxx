@@ -51,6 +51,10 @@ vtkImageConvolution1D::vtkImageConvolution1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->BoundaryRescale = 1;
   this->HandleBoundariesOn();
+
+  // Poor performance, but simple implementation.
+  this->ExecuteDimensionality = 1;
+  this->Dimensionality = 1;
 }
 
 

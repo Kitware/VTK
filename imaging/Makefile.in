@@ -33,6 +33,7 @@ vtkImageDilate1D \
 vtkImageDilateErode \
 vtkImageDistance1D \
 vtkImageDistance \
+vtkImageDotProduct \
 vtkImageDraw \
 vtkImageFFT \
 vtkImageFFT1D \
@@ -41,6 +42,7 @@ vtkImageFourierWavelet2D \
 vtkImageGaussianSmooth \
 vtkImageGaussianSmooth1D \
 vtkImageGradient \
+vtkImageGradientDerivative \
 vtkImageGradientMagnitude \
 vtkImageHarrWavelet2D \
 vtkImageHistogram \
@@ -64,6 +66,7 @@ vtkImageShiftScale \
 vtkImageShortReader \
 vtkImageShortWriter \
 vtkImageShrink3D \
+vtkImageSobel3D \
 vtkImageStateSpace \
 vtkImageThreshold \
 vtkImageXViewer \

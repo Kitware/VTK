@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageGradientMagnitude.h
+  Module:    vtkImageSobel3D.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,41 +38,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageGradientMagnitude - Computes magnitude of the gradient.
+// .NAME vtkImageSobel3D - Computes a vector field using sobel functions.
 // .SECTION Description
-// vtkImageGradientMagnitude computes the gradient magnitude 
-// of an image.  Setting the axes determines whether the gradient
-// computed on 1D lines, 2D images, 3D volumes or higher dimensional 
-// images.  The default is two dimensional XY images.  OutputScalarType
-// is always float.
+// vtkImageSobel3D computes a vector field from a scalar field by using
+// Sobel functions.  The number of vector components is 3 because
+// the input is a volume.
 
 
 
-#ifndef __vtkImageGradientMagnitude_h
-#define __vtkImageGradientMagnitude_h
+#ifndef __vtkImageSobel3D_h
+#define __vtkImageSobel3D_h
 
 
-#include "vtkImageSpatialFilter.h"
+#include "vtkImageFilter.h"
 
-class vtkImageGradientMagnitude : public vtkImageFilter
+class vtkImageSobel3D : public vtkImageFilter
 {
 public:
-  vtkImageGradientMagnitude();
-  char *GetClassName() {return "vtkImageGradientMagnitude";};
+  vtkImageSobel3D();
+  char *GetClassName() {return "vtkImageSobel3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // If "HandleBoundariesOn" then boundary pixels are duplicated
-  // So central differences can get values.
-  vtkSetMacro(HandleBoundaries, int);
-  vtkGetMacro(HandleBoundaries, int);
-  vtkBooleanMacro(HandleBoundaries, int);
+  void InterceptCacheUpdate(vtkImageRegion *region);
 
-  vtkSetMacro(Dimensionality, int);
+  // Description:
+  // This SetAxes method sets VTK_COMPONENT_AXIS as the fourth axis.
+  // The superclass is told not to loop over this axis.
+  // Note: Get Axes still returns the super class axes.
+  void SetAxes(int num, int *axes);
+  vtkImageSetMacro(Axes,int);
   
 protected:
-  int HandleBoundaries;
-  
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionExtent(vtkImageRegion *outRegion, 

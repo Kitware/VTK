@@ -55,6 +55,11 @@ vtkImageThreshold::vtkImageThreshold()
   this->OutValue = 0.0;
 
   this->SetAxes(VTK_IMAGE_X_AXIS, VTK_IMAGE_Y_AXIS);
+
+  // For performance, it was implemented as 2d.
+  this->ExecuteDimensionality = 2;
+  // Pixel operation
+  this->Dimensionality = 0;
 }
 
 

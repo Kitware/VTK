@@ -51,7 +51,10 @@ vtkImageMagnify1D::vtkImageMagnify1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->SetMagnificationFactor(1);
   this->InterpolateOff();
-  this->Dimensionality = 2;
+
+  // For better performance, the execute function was written as a 2d.
+  this->ExecuteDimensionality = 2;
+  this->Dimensionality = 1;
 }
 
 

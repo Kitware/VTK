@@ -49,6 +49,10 @@ vtkImageDyadicFilter::vtkImageDyadicFilter()
   this->Input2 = NULL;
   this->UseExecuteMethodOn();
   this->InputMemoryLimit = 100000;   // 100 MBytes
+
+  // Invalid
+  this->Dimensionality = -1;
+  this->ExecuteDimensionality = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -338,7 +342,7 @@ void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
   
 
   // Terminate recursion?
-  if (dim <= this->Dimensionality)
+  if (dim <= this->ExecuteDimensionality)
     {
     this->Execute(inRegion1, inRegion2, outRegion);
     return;
@@ -368,7 +372,7 @@ void vtkImageDyadicFilter::Execute(int dim, vtkImageRegion *inRegion1,
   // restore the original extent
   inRegion1->SetAxisExtent(axis, inMin, inMax);
   inRegion2->SetAxisExtent(axis, inMin, inMax);
-  outRegion->SetAxisExtent(axis, outMax, outMax);
+  outRegion->SetAxisExtent(axis, outMin, outMax);
 }
   
   

@@ -364,7 +364,7 @@ void vtkImageMultipleInputFilter::Execute(int dim, vtkImageRegion **inRegions,
   int idx;
 
   // Terminate recursion?
-  if (dim <= this->Dimensionality)
+  if (dim <= this->ExecuteDimensionality)
     {
     this->Execute(inRegions, outRegion);
     return;

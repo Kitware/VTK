@@ -68,10 +68,24 @@ public:
   // Description:
   // Get input to this InPlaceFilter.
   vtkGetObjectMacro(Input,vtkImageSource);
-
+  
+  // Description:
+  // The basic operation is on regions with this dimensionality.  
+  // Filters that operate on pixels would have dimensionality 0.
+  // 2D Image filters would have dimensionality 2.
+  vtkGetMacro(Dimensionality, int);
+    
 protected:
   vtkImageSource *Input;     
 
+  int Dimensionality;
+  // This is set in the subclass constructor and (probably) should not be 
+  // changed.  It indicates the dimensionality of the regions the
+  // execute/update methods expect.  It may be larger than dimensionality
+  // to make the filter faster (this supper class is not efficient at
+  // looping over extra dimensions.
+  int ExecuteDimensionality;
+  
   // Description:
   // These are conveniance functions for writing InPlaceFilters that have their
   // own UpdateRegion methods.  They create the region object as well as 

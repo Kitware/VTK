@@ -41,7 +41,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .NAME vtkImageShrink3D - Subsamples an image.
 // .SECTION Description
 // vtkImageShrink3D shrinks an image by sub sampling on a 
-// uniform grid. (integer multiples)
+// uniform grid (integer multiples).  This has become an obsolete
+// filter, because spatial filters now have strides which will produce 
+// the save result.
 
 
 #ifndef __vtkImageShrink3D_h

@@ -51,6 +51,10 @@ vtkImageHarrWavelet2D::vtkImageHarrWavelet2D()
   this->SetNumberLevels(1);
   this->SetPixelScale(1.0);
   this->SetPixelOffset(0.0);
+
+  // Input and output are both 2d images.
+  this->ExecuteDimensionality = 2;
+  this->Dimensionality = 2;
 }
 
 

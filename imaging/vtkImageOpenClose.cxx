@@ -49,6 +49,9 @@ vtkImageOpenClose::vtkImageOpenClose()
   this->Filter1 = new vtkImageDilateErode;
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
+
+  // This dummy filter does not have an execute function, but
+  // what is its dimensionality (that is not used)?
 }
 
 

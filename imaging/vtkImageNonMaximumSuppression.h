@@ -79,7 +79,6 @@ public:
   
 protected:
   int HandleBoundaries;
-  int NumberOfAxes;
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion1,
 				     vtkImageRegion *inRegion2,
