@@ -593,3 +593,36 @@ int vtkGenericEnSightReader::GetComplexVariableType(int n)
     }
   return -1;
 }
+
+void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataSetSource::PrintSelf(os,indent);
+
+  os << indent << "CaseFileName: "
+     << (this->CaseFileName ? this->CaseFileName : "(none)") << endl;
+  os << indent << "NumberOfComplexScalarsPerNode: "
+     << this->NumberOfComplexScalarsPerNode << endl;
+  os << indent << "NumberOfVectorsPerElement :"
+     << this->NumberOfVectorsPerElement << endl;
+  os << indent << "NumberOfTensorsSymmPerElement: "
+     << this->NumberOfTensorsSymmPerElement << endl;
+  os << indent << "NumberOfComplexVectorsPerNode: "
+     << this->NumberOfComplexVectorsPerNode << endl;
+  os << indent << "NumberOfScalarsPerElement: "
+     << this->NumberOfScalarsPerElement << endl;
+  os << indent << "NumberOfComplexVectorsPerElement: "
+     << this->NumberOfComplexVectorsPerElement << endl;
+  os << indent << "NumberOfComplexScalarsPerElement: "
+     << this->NumberOfComplexScalarsPerElement << endl;
+  os << indent << "NumberOfTensorsSymmPerNode: "
+     << this->NumberOfTensorsSymmPerNode << endl;
+  os << indent << "NumberOfScalarsPerMeasuredNode: "
+     << this->NumberOfScalarsPerMeasuredNode << endl;
+  os << indent << "NumberOfVectorsPerMeasuredNode: "
+     << this->NumberOfVectorsPerMeasuredNode << endl;
+  os << indent << "NumberOfScalarsPerNode: "
+     << this->NumberOfScalarsPerNode << endl;
+  os << indent << "NumberOfVectorsPerNode: "
+     << this->NumberOfVectorsPerNode << endl;
+}
+

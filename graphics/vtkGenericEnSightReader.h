@@ -57,6 +57,7 @@ class VTK_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
 public:
   static vtkGenericEnSightReader *New();
   vtkTypeMacro(vtkGenericEnSightReader, vtkDataSetSource);
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Set/Get the Case file name.
