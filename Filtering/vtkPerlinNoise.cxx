@@ -16,17 +16,17 @@
 #include "vtkObjectFactory.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPerlinNoise, "1.5");
+vtkCxxRevisionMacro(vtkPerlinNoise, "1.6");
 vtkStandardNewMacro(vtkPerlinNoise);
 
 // These functions are from Greg Ward's recursive implementation in 
 // Graphics Gems II.  I've kept the names the same for instructional
 // purposes, and only changed things where optimizations could be made.
 
-static float hermite(float p0, float p1, 
-                     float r0, float r1, float t) 
+static double hermite(double p0, double p1, 
+                     double r0, double r1, double t) 
 {
-  float tt = t*t;
+  double tt = t*t;
 
   return (p0*((2.0*t - 3.0)*tt + 1.0) + 
           p1*(-2.0*t + 3.0)*tt +
@@ -35,15 +35,15 @@ static float hermite(float p0, float p1,
 }
 
 // assumes 32 bit ints, but so it seems does VTK
-static float frand(int s)
+static double frand(int s)
 {
   s = (s<<13) ^ s;
   s = (s*(s*s*15731 + 789221)+1376312589)&VTK_INT_MAX;
 
-  return 1.0 - float(s)/(VTK_INT_MAX/2 + 1);
+  return 1.0 - double(s)/(VTK_INT_MAX/2 + 1);
 }
 
-static void rand3abcd(int x, int y, int z, float outv[4]) 
+static void rand3abcd(int x, int y, int z, double outv[4]) 
 {
   outv[0] = frand(67*x + 59*y + 71*z);
   outv[1] = frand(73*x + 79*y + 83*z);
@@ -51,10 +51,10 @@ static void rand3abcd(int x, int y, int z, float outv[4])
   outv[3] = frand(103*x + 107*y + 109*z);
 }
 
-static void interpolate(float f[4], int i, int n, 
-                        int xlim[3][2], float xarg[2])
+static void interpolate(double f[4], int i, int n, 
+                        int xlim[3][2], double xarg[2])
 {
-  float f0[4], f1[4];
+  double f0[4], f1[4];
   
   if (n == 0) 
     {
@@ -72,9 +72,9 @@ static void interpolate(float f[4], int i, int n,
 }
 
 
-static void perlinNoise(float x[3], float noise[4])
+static void perlinNoise(double x[3], double noise[4])
 {
-  float xarg[3];
+  double xarg[3];
   int xlim[3][2];
 
   xlim[0][0] = int(floor(x[0]));
@@ -105,10 +105,10 @@ vtkPerlinNoise::vtkPerlinNoise()
   this->Amplitude = 1.0;
 }
 
-float vtkPerlinNoise::EvaluateFunction(float x[3])
+double vtkPerlinNoise::EvaluateFunction(double x[3])
 {
-  float xd[3];
-  float noise[4];
+  double xd[3];
+  double noise[4];
 
   xd[0] = x[0]*this->Frequency[0] - this->Phase[0]*2.0;
   xd[1] = x[1]*this->Frequency[1] - this->Phase[1]*2.0;
@@ -118,8 +118,8 @@ float vtkPerlinNoise::EvaluateFunction(float x[3])
 }
 
 // Evaluate PerlinNoise gradient.
-void vtkPerlinNoise::EvaluateGradient(float* vtkNotUsed(x), // Was x[3]
-                                      float n[3])
+void vtkPerlinNoise::EvaluateGradient(double* vtkNotUsed(x), // Was x[3]
+                                      double n[3])
 {
   // contrary to the paper, the vector computed as a byproduct of
   // the Perlin Noise computation isn't a gradient;  it's a tangent.

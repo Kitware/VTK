@@ -72,22 +72,22 @@ public:
   // Description:
   // Return intersection point (if any) of finite line with cells contained
   // in cell locator.
-  virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-                                float& t, float x[3], float pcoords[3],
+  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
+                                double& t, double x[3], double pcoords[3],
                                 int &subId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line.
-  virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-                                float& t, float x[3], float pcoords[3],
+  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
+                                double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId);
 
   // Description:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
-  virtual int IntersectWithLine(float a0[3], float a1[3], float tol,
-                                float& t, float x[3], float pcoords[3],
+  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
+                                double& t, double x[3], double pcoords[3],
                                 int &subId, vtkIdType &cellId,
                                 vtkGenericCell *cell);
 
@@ -95,8 +95,8 @@ public:
   // Return the closest point and the cell which is closest to the point x.
   // The closest point is somewhere on a cell, it need not be one of the
   // vertices of the cell.
-  void FindClosestPoint(float x[3], float closestPoint[3], vtkIdType &cellId,
-                        int &subId, float& dist2);
+  void FindClosestPoint(double x[3], double closestPoint[3], vtkIdType &cellId,
+                        int &subId, double& dist2);
   
   // Description:
   // Return the closest point and the cell which is closest to the point x.
@@ -108,9 +108,9 @@ public:
   // deallocation can be done only once outside the for loop.  If a cell is
   // found, "cell" contains the points and ptIds for the cell "cellId" upon
   // exit.
-  void FindClosestPoint(float x[3], float closestPoint[3],
+  void FindClosestPoint(double x[3], double closestPoint[3],
                         vtkGenericCell *cell, vtkIdType &cellId, int &subId,
-                        float& dist2);
+                        double& dist2);
   
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -119,9 +119,9 @@ public:
   // a point is found within the specified radius. If there are no cells within
   // the specified radius, the method returns 0 and the values of closestPoint,
   // cellId, subId, and dist2 are undefined.
-  int FindClosestPointWithinRadius(float x[3], float radius,
-                                   float closestPoint[3], vtkIdType &cellId,
-                                   int &subId, float& dist2);
+  int FindClosestPointWithinRadius(double x[3], double radius,
+                                   double closestPoint[3], vtkIdType &cellId,
+                                   int &subId, double& dist2);
  
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -136,10 +136,10 @@ public:
   // where the allocation and deallocation can be done only once outside the
   // for loop.  If a closest point is found, "cell" contains the points and
   // ptIds for the cell "cellId" upon exit.
-  int FindClosestPointWithinRadius(float x[3], float radius,
-                                   float closestPoint[3],
+  int FindClosestPointWithinRadius(double x[3], double radius,
+                                   double closestPoint[3],
                                    vtkGenericCell *cell, vtkIdType &cellId,
-                                   int &subId, float& dist2);
+                                   int &subId, double& dist2);
 
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -156,10 +156,10 @@ public:
   // ptIds for the cell "cellId" upon exit.  If a closest point is found,
   // inside returns the return value of the EvaluatePosition call to the
   // closest cell; inside(=1) or outside(=0).
-  int FindClosestPointWithinRadius(float x[3], float radius,
-                                   float closestPoint[3],
+  int FindClosestPointWithinRadius(double x[3], double radius,
+                                   double closestPoint[3],
                                    vtkGenericCell *cell, vtkIdType &cellId,
-                                   int &subId, float& dist2, int &inside);
+                                   int &subId, double& dist2, int &inside);
   
   // Description:
   // Get the cells in a particular bucket.
@@ -181,20 +181,20 @@ protected:
   ~vtkCellLocator();
 
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
-  void GetOverlappingBuckets(float x[3], int ijk[3], float dist, 
+  void GetOverlappingBuckets(double x[3], int ijk[3], double dist, 
                              int prevMinLevel[3], int prevMaxLevel[3]);
 
   void ClearCellHasBeenVisited();
   void ClearCellHasBeenVisited(int id);
 
-  float Distance2ToBucket(float x[3], int nei[3]);
-  float Distance2ToBounds(float x[3], float bounds[6]);
+  double Distance2ToBucket(double x[3], int nei[3]);
+  double Distance2ToBounds(double x[3], double bounds[6]);
   
   int NumberOfCellsPerBucket; // cells per octant
   int NumberOfOctants; // number of octants in tree
-  float Bounds[6]; // bounding box root octant
+  double Bounds[6]; // bounding box root octant
   int NumberOfParents; // number of parent octants
-  float H[3]; // width of leaf octant in x-y-z directions
+  double H[3]; // width of leaf octant in x-y-z directions
   int NumberOfDivisions; // number of "leaf" octant sub-divisions
   vtkIdList **Tree; // octree
 
@@ -210,12 +210,12 @@ protected:
   unsigned char QueryNumber;
   int CacheCellBounds;
 //BTX - begin tcl exclude
-  float (*CellBounds)[6];
+  double (*CellBounds)[6];
 //ETX - end tcl exclude
 
   void ComputeOctantBounds(int i, int j, int k);
-  float OctantBounds[6]; //the bounds of the current octant
-  int IsInOctantBounds(float x[3])
+  double OctantBounds[6]; //the bounds of the current octant
+  int IsInOctantBounds(double x[3])
     {
     if ( this->OctantBounds[0] <= x[0] && x[0] <= this->OctantBounds[1] &&
          this->OctantBounds[2] <= x[1] && x[1] <= this->OctantBounds[3] &&

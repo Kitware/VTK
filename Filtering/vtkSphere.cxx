@@ -15,7 +15,7 @@
 #include "vtkSphere.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSphere, "1.25");
+vtkCxxRevisionMacro(vtkSphere, "1.26");
 vtkStandardNewMacro(vtkSphere);
 
 // Construct sphere with center at (0,0,0) and radius=0.5.
@@ -29,7 +29,7 @@ vtkSphere::vtkSphere()
 }
 
 // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
-float vtkSphere::EvaluateFunction(float x[3])
+double vtkSphere::EvaluateFunction(double x[3])
 {
   return ( ((x[0] - this->Center[0]) * (x[0] - this->Center[0]) + 
            (x[1] - this->Center[1]) * (x[1] - this->Center[1]) + 
@@ -38,7 +38,7 @@ float vtkSphere::EvaluateFunction(float x[3])
 }
 
 // Evaluate sphere gradient.
-void vtkSphere::EvaluateGradient(float x[3], float n[3])
+void vtkSphere::EvaluateGradient(double x[3], double n[3])
 {
   n[0] = 2.0 * (x[0] - this->Center[0]);
   n[1] = 2.0 * (x[1] - this->Center[1]);

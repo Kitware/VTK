@@ -16,7 +16,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCone, "1.25");
+vtkCxxRevisionMacro(vtkCone, "1.26");
 vtkStandardNewMacro(vtkCone);
 
 // Construct cone with angle of 45 degrees.
@@ -26,17 +26,17 @@ vtkCone::vtkCone()
 }
 
 // Evaluate cone equation.
-float vtkCone::EvaluateFunction(float x[3])
+double vtkCone::EvaluateFunction(double x[3])
 {
-  float tanTheta = (float) 
+  double tanTheta = (double) 
     tan((double)this->Angle*vtkMath::DegreesToRadians());
   return x[1]*x[1] + x[2]*x[2] - x[0]*x[0]*tanTheta*tanTheta;
 }
 
 // Evaluate cone normal.
-void vtkCone::EvaluateGradient(float x[3], float g[3])
+void vtkCone::EvaluateGradient(double x[3], double g[3])
 {
-  float tanTheta = (float) 
+  double tanTheta = (double) 
     tan((double)this->Angle*vtkMath::DegreesToRadians());
   g[0] = -2.0*x[0]*tanTheta*tanTheta;
   g[1] = 2.0*x[1];

@@ -42,29 +42,29 @@ public:
 
   // Description
   // Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate cylinder function gradient.
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
   // Set/Get cylinder radius.
-  vtkSetMacro(Radius,float);
-  vtkGetMacro(Radius,float);
+  vtkSetMacro(Radius,double);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set/Get cylinder center
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 protected:
   vtkCylinder();
   ~vtkCylinder() {};
 
-  float Radius;
-  float Center[3];
+  double Radius;
+  double Center[3];
 
 private:
   vtkCylinder(const vtkCylinder&);  // Not implemented.

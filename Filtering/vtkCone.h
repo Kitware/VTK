@@ -42,24 +42,24 @@ public:
   
   // Description
   // Evaluate cone equation.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate cone normal.
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
   // Set/Get the cone angle (expressed in degrees).
-  vtkSetClampMacro(Angle,float,0.0f,89.0f);
-  vtkGetMacro(Angle,float);
+  vtkSetClampMacro(Angle,double,0.0f,89.0f);
+  vtkGetMacro(Angle,double);
 
 protected:
   vtkCone();
   ~vtkCone() {};
 
-  float Angle;
+  double Angle;
 
 private:
   vtkCone(const vtkCone&);  // Not implemented.

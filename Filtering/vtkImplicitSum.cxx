@@ -14,20 +14,20 @@
 =========================================================================*/
 #include "vtkImplicitSum.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImplicitFunctionCollection.h"
 #include "vtkObjectFactory.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitSum, "1.4");
+vtkCxxRevisionMacro(vtkImplicitSum, "1.5");
 vtkStandardNewMacro(vtkImplicitSum);
 
 // Constructor.
 vtkImplicitSum::vtkImplicitSum()
 {
   this->FunctionList = vtkImplicitFunctionCollection::New();
-  this->Weights = vtkFloatArray::New();
+  this->Weights = vtkDoubleArray::New();
   this->Weights->SetNumberOfComponents(1);
   this->TotalWeight = 0.0;
   this->NormalizeByWeight = 0;
@@ -64,7 +64,7 @@ unsigned long int vtkImplicitSum::GetMTime()
 }
 
 // Add another implicit function to the list of functions.
-void vtkImplicitSum::AddFunction(vtkImplicitFunction *f, float scale)
+void vtkImplicitSum::AddFunction(vtkImplicitFunction *f, double scale)
 {
   this->Modified();
   this->FunctionList->AddItem(f);
@@ -72,7 +72,7 @@ void vtkImplicitSum::AddFunction(vtkImplicitFunction *f, float scale)
   this->CalculateTotalWeight();
 }
 
-void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction *f, float scale)
+void vtkImplicitSum::SetFunctionWeight(vtkImplicitFunction *f, double scale)
 {
   int loc = this->FunctionList->IsItemPresent(f);
   if (! loc)
@@ -110,13 +110,13 @@ void vtkImplicitSum::CalculateTotalWeight(void)
 
 
 // Evaluate sum of implicit functions.
-float vtkImplicitSum::EvaluateFunction(float x[3])
+double vtkImplicitSum::EvaluateFunction(double x[3])
 {
-  float sum = 0;
-  float c;
+  double sum = 0;
+  double c;
   int i;
   vtkImplicitFunction *f;
-  float *weights = this->Weights->GetPointer(0);
+  double *weights = this->Weights->GetPointer(0);
 
   for (i = 0, this->FunctionList->InitTraversal(); 
        (f=this->FunctionList->GetNextItem()); i++)
@@ -135,13 +135,13 @@ float vtkImplicitSum::EvaluateFunction(float x[3])
 }
 
 // Evaluate gradient of sum of functions (valid only if linear)
-void vtkImplicitSum::EvaluateGradient(float x[3], float g[3])
+void vtkImplicitSum::EvaluateGradient(double x[3], double g[3])
 {
-  float c;
+  double c;
   int i;
-  float gtmp[3];
+  double gtmp[3];
   vtkImplicitFunction *f;
-  float *weights = this->Weights->GetPointer(0);
+  double *weights = this->Weights->GetPointer(0);
 
   g[0] = g[1] = g[2] = 0.0;
   for (i = 0, this->FunctionList->InitTraversal(); 

@@ -15,7 +15,7 @@
 #include "vtkCylinder.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCylinder, "1.26");
+vtkCxxRevisionMacro(vtkCylinder, "1.27");
 vtkStandardNewMacro(vtkCylinder);
 
 // Construct cylinder radius of 0.5.
@@ -26,19 +26,19 @@ vtkCylinder::vtkCylinder()
 }
 
 // Evaluate cylinder equation F(x,y,z) = (x-x0)^2 + (z-z0)^2 - R^2.
-float vtkCylinder::EvaluateFunction(float xyz[3])
+double vtkCylinder::EvaluateFunction(double xyz[3])
 {
-  float x = xyz[0] - this->Center[0];
-  float z = xyz[2] - this->Center[2];
+  double x = xyz[0] - this->Center[0];
+  double z = xyz[2] - this->Center[2];
 
   return ( x * x + z * z - this->Radius*this->Radius );
 }
 
 // Evaluate cylinder function gradient.
-void vtkCylinder::EvaluateGradient(float xyz[3], float g[3])
+void vtkCylinder::EvaluateGradient(double xyz[3], double g[3])
 {
-  float x = xyz[0] - this->Center[0];
-  float z = xyz[2] - this->Center[2];
+  double x = xyz[0] - this->Center[0];
+  double z = xyz[2] - this->Center[2];
 
   g[0] = 2.0 * (x - this->Center[0]);
   g[1] = 0.0;

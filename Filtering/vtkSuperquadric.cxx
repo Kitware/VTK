@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSuperquadric, "1.16");
+vtkCxxRevisionMacro(vtkSuperquadric, "1.17");
 vtkStandardNewMacro(vtkSuperquadric);
 
 // Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
@@ -42,10 +42,10 @@ vtkSuperquadric::vtkSuperquadric()
   this->Size = .5;
 }
 
-static const float MAX_FVAL = 1e12;
-static float VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
+static const double MAX_FVAL = 1e12;
+static double VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
 
-void vtkSuperquadric::SetThetaRoundness(float e) 
+void vtkSuperquadric::SetThetaRoundness(double e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -59,7 +59,7 @@ void vtkSuperquadric::SetThetaRoundness(float e)
     }
 }
 
-void vtkSuperquadric::SetPhiRoundness(float e) 
+void vtkSuperquadric::SetPhiRoundness(double e) 
 {
   if(e < VTK_MIN_SUPERQUADRIC_ROUNDNESS)
     {
@@ -74,7 +74,7 @@ void vtkSuperquadric::SetPhiRoundness(float e)
 }
 
 // Evaluate Superquadric equation
-float vtkSuperquadric::EvaluateFunction(float xyz[3])
+double vtkSuperquadric::EvaluateFunction(double xyz[3])
 {
   double e = this->ThetaRoundness;
   double n = this->PhiRoundness;
@@ -117,12 +117,12 @@ float vtkSuperquadric::EvaluateFunction(float xyz[3])
     val = -MAX_FVAL;
   }
   
-  return (float)(val);
+  return (double)(val);
 }
 
 // Description
 // Evaluate Superquadric function gradient.
-void vtkSuperquadric::EvaluateGradient(float vtkNotUsed(xyz)[3], float g[3])
+void vtkSuperquadric::EvaluateGradient(double vtkNotUsed(xyz)[3], double g[3])
 {
   // bogus! lazy!
   // if someone wants to figure these out, they are each the

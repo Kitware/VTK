@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.53");
+vtkCxxRevisionMacro(vtkImageToStructuredPoints, "1.54");
 vtkStandardNewMacro(vtkImageToStructuredPoints);
 
 //----------------------------------------------------------------------------
@@ -230,7 +230,7 @@ void vtkImageToStructuredPoints::ExecuteInformation()
   vtkImageData *vInput = this->GetVectorInput();
   vtkStructuredPoints *output = this->GetOutput();
   int whole[6], *tmp;
-  float *spacing, origin[3];
+  double *spacing, origin[3];
   
   if (output == NULL)
     {

@@ -34,30 +34,30 @@ public:
 
   // Description
   // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate sphere gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Set / get the radius of the sphere.
-  vtkSetMacro(Radius,float);
-  vtkGetMacro(Radius,float);
+  vtkSetMacro(Radius,double);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set / get the center of the sphere.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
 protected:
   vtkSphere();
   ~vtkSphere() {};
 
-  float Radius;
-  float Center[3];
+  double Radius;
+  double Center[3];
 
 private:
   vtkSphere(const vtkSphere&);  // Not implemented.

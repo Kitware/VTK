@@ -62,13 +62,13 @@ public:
 
   // Description:
   // Evaluate selection loop returning a signed distance.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate selection loop returning the gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Set/Get the array of point coordinates defining the loop. There must
@@ -86,8 +86,8 @@ public:
 
   // Description:
   // Set / get the normal used to determine what is inside and what is outside.
-  vtkSetVector3Macro(Normal,float);
-  vtkGetVectorMacro(Normal,float,3);
+  vtkSetVector3Macro(Normal,double);
+  vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Overload GetMTime() because we depend on the Loop
@@ -98,18 +98,18 @@ protected:
   ~vtkImplicitSelectionLoop();
 
   vtkPoints *Loop;
-  float Normal[3];
+  double Normal[3];
   int AutomaticNormalGeneration;
 
 private:
   void Initialize();
   vtkPolygon *Polygon;
 
-  float Origin[3];
-  float Bounds[6];
-  float DeltaX;
-  float DeltaY;
-  float DeltaZ;
+  double Origin[3];
+  double Bounds[6];
+  double DeltaX;
+  double DeltaY;
+  double DeltaZ;
 
   vtkTimeStamp InitializationTime;
 

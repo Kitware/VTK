@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImplicitVolume.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImplicitVolume, "1.29");
+vtkCxxRevisionMacro(vtkImplicitVolume, "1.30");
 vtkStandardNewMacro(vtkImplicitVolume);
 vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 
@@ -29,7 +29,7 @@ vtkCxxSetObjectMacro(vtkImplicitVolume,Volume,vtkImageData);
 vtkImplicitVolume::vtkImplicitVolume()
 {
   this->Volume = NULL;
-  this->OutValue = -VTK_LARGE_FLOAT;
+  this->OutValue = -VTK_DOUBLE_MAX;
 
   this->OutGradient[0] = 0.0;
   this->OutGradient[1] = 0.0;
@@ -51,12 +51,12 @@ vtkImplicitVolume::~vtkImplicitVolume()
 
 // Evaluate the ImplicitVolume. This returns the interpolated scalar value
 // at x[3].
-float vtkImplicitVolume::EvaluateFunction(float x[3])
+double vtkImplicitVolume::EvaluateFunction(double x[3])
 {
   vtkDataArray *scalars;
   int ijk[3];
   vtkIdType numPts, i;
-  float pcoords[3], weights[8], s;
+  double pcoords[3], weights[8], s;
 
   // See if a volume is defined
   if ( !this->Volume ||
@@ -106,14 +106,14 @@ unsigned long vtkImplicitVolume::GetMTime()
 
 
 // Evaluate ImplicitVolume gradient.
-void vtkImplicitVolume::EvaluateGradient(float x[3], float n[3])
+void vtkImplicitVolume::EvaluateGradient(double x[3], double n[3])
 {
   vtkDataArray *scalars;
   int i, ijk[3];
-  float pcoords[3], weights[8], *v;
-  vtkFloatArray *gradient; 
+  double pcoords[3], weights[8], *v;
+  vtkDoubleArray *gradient; 
   
-  gradient = vtkFloatArray::New();
+  gradient = vtkDoubleArray::New();
   gradient->SetNumberOfComponents(3);
   gradient->SetNumberOfTuples(8);
 

@@ -59,13 +59,13 @@ public:
   // Description
   // Evaluate the implicit function. This returns the interpolated scalar value
   // at x[3].
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate implicit function gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Set / get the dataset used for the implicit function evaluation.
@@ -74,23 +74,23 @@ public:
 
   // Description:
   // Set / get the function value to use for points outside of the dataset.
-  vtkSetMacro(OutValue,float);
-  vtkGetMacro(OutValue,float);
+  vtkSetMacro(OutValue,double);
+  vtkGetMacro(OutValue,double);
 
   // Description:
   // Set / get the function gradient to use for points outside of the dataset.
-  vtkSetVector3Macro(OutGradient,float);
-  vtkGetVector3Macro(OutGradient,float);
+  vtkSetVector3Macro(OutGradient,double);
+  vtkGetVector3Macro(OutGradient,double);
 
 protected:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
 
   vtkDataSet *DataSet;
-  float OutValue;
-  float OutGradient[3];
+  double OutValue;
+  double OutGradient[3];
 
-  float *Weights; //used to compute interpolation weights
+  double *Weights; //used to compute interpolation weights
   int Size; //keeps track of length of weights array
 
 private:

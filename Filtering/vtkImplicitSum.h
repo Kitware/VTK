@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkImplicitFunction.h"
 
-class vtkFloatArray;
+class vtkDoubleArray;
 class vtkImplicitFunctionCollection;
 
 class VTK_FILTERING_EXPORT vtkImplicitSum : public vtkImplicitFunction
@@ -65,14 +65,14 @@ public:
 
   // Description:
   // Evaluate implicit function using current functions and weights.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate gradient of the weighted sum of functions.  Input functions
   // should be linear.
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
   // Override modified time retrieval because of object dependencies.
@@ -81,7 +81,7 @@ public:
   // Description:
   // Add another implicit function to the list of functions, along with a 
   // weighting factor.
-  void AddFunction(vtkImplicitFunction *in, float weight);
+  void AddFunction(vtkImplicitFunction *in, double weight);
 
   // Description:
   // Add another implicit function to the list of functions, weighting it by
@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Set the weight (coefficient) of the given function to be weight.
-  void SetFunctionWeight(vtkImplicitFunction *f, float weight);
+  void SetFunctionWeight(vtkImplicitFunction *f, double weight);
 
   // Description: 
   // When calculating the function and gradient values of the
@@ -111,8 +111,8 @@ protected:
   ~vtkImplicitSum();
 
   vtkImplicitFunctionCollection *FunctionList;
-  vtkFloatArray *Weights;
-  float TotalWeight;
+  vtkDoubleArray *Weights;
+  double TotalWeight;
 
   void CalculateTotalWeight(void);
   int NormalizeByWeight;

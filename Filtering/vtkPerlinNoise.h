@@ -43,43 +43,43 @@ public:
 
   // Description:
   // Evaluate PerlinNoise function.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate PerlinNoise gradient.  Currently, the method returns a 0 
   // gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Set/get the frequency, or physical scale,  of the noise function 
   // (higher is finer scale).  The frequency can be adjusted per axis, or
   // the same for all axes.
-  vtkSetVector3Macro(Frequency,float);
-  vtkGetVectorMacro(Frequency,float,3);
+  vtkSetVector3Macro(Frequency,double);
+  vtkGetVectorMacro(Frequency,double,3);
 
   // Description: 
   // Set/get the phase of the noise function.  This parameter can be used to
   // shift the noise function within space (perhaps to avoid a beat with a
   // noise pattern at another scale).  Phase tends to repeat about every
   // unit, so a phase of 0.5 is a half-cycle shift.
-  vtkSetVector3Macro(Phase,float);
-  vtkGetVectorMacro(Phase,float,3);
+  vtkSetVector3Macro(Phase,double);
+  vtkGetVectorMacro(Phase,double,3);
 
   // Description:
   // Set/get the amplitude of the noise function.  By default, the amplitude
   // is 1.
-  vtkSetMacro(Amplitude,float);
-  vtkGetMacro(Amplitude,float);
+  vtkSetMacro(Amplitude,double);
+  vtkGetMacro(Amplitude,double);
 
 protected:
   vtkPerlinNoise();
   ~vtkPerlinNoise() {}
 
-  float Frequency[3];
-  float Phase[3];
-  float Amplitude;
+  double Frequency[3];
+  double Phase[3];
+  double Amplitude;
 
 private:
   vtkPerlinNoise(const vtkPerlinNoise&); // Not implemented

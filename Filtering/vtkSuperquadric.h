@@ -55,43 +55,43 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // ImplicitFunction interface
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
   // Set the center of the superquadric. Default is 0,0,0.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the scale factors of the superquadric. Default is 1,1,1.
-  vtkSetVector3Macro(Scale,float);
-  vtkGetVectorMacro(Scale,float,3);
+  vtkSetVector3Macro(Scale,double);
+  vtkGetVectorMacro(Scale,double,3);
 
   // Description:
   // Set/Get Superquadric ring thickness (toroids only).
   // Changing thickness maintains the outside diameter of the toroid.
-  vtkGetMacro(Thickness,float);
-  vtkSetClampMacro(Thickness,float,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0f);
+  vtkGetMacro(Thickness,double);
+  vtkSetClampMacro(Thickness,double,VTK_MIN_SUPERQUADRIC_THICKNESS,1.0f);
 
   // Description:
   // Set/Get Superquadric north/south roundness. 
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
-  vtkGetMacro(PhiRoundness,float);
-  void SetPhiRoundness(float e); 
+  vtkGetMacro(PhiRoundness,double);
+  void SetPhiRoundness(double e); 
 
   // Description:
   // Set/Get Superquadric east/west roundness.
   // Values range from 0 (rectangular) to 1 (circular) to higher orders.
-  vtkGetMacro(ThetaRoundness,float);
-  void SetThetaRoundness(float e);
+  vtkGetMacro(ThetaRoundness,double);
+  void SetThetaRoundness(double e);
 
   // Description:
   // Set/Get Superquadric isotropic size.
-  vtkSetMacro(Size,float);
-  vtkGetMacro(Size,float);
+  vtkSetMacro(Size,double);
+  vtkGetMacro(Size,double);
 
   // Description:
   // Set/Get whether or not the superquadric is toroidal (1) or ellipsoidal (0).
@@ -104,12 +104,12 @@ protected:
   ~vtkSuperquadric() {};
 
   int Toroidal;
-  float Thickness;
-  float Size;
-  float PhiRoundness;
-  float ThetaRoundness;
-  float Center[3];
-  float Scale[3];
+  double Thickness;
+  double Size;
+  double PhiRoundness;
+  double ThetaRoundness;
+  double Center[3];
+  double Scale[3];
 private:
   vtkSuperquadric(const vtkSuperquadric&);  // Not implemented.
   void operator=(const vtkSuperquadric&);  // Not implemented.

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkImplicitSelectionLoop.h"
 
-#include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -22,7 +22,7 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 
-vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.17");
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.18");
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
 vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 
@@ -52,9 +52,10 @@ vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
 void vtkImplicitSelectionLoop::Initialize()
 {
   int i, numPts;
-  float x[3], xProj[3];
+  double x[3], xProj[3];
 
   numPts = this->Loop->GetNumberOfPoints();
+  this->Polygon->Points->SetDataTypeToDouble();
   this->Polygon->Points->SetNumberOfPoints(numPts);
 
   if ( this->AutomaticNormalGeneration )
@@ -96,11 +97,11 @@ void vtkImplicitSelectionLoop::Initialize()
 #undef VTK_DELTA
 
 // Evaluate plane equations. Return smallest absolute value.
-float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
+double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
 {
   int i, numPts=this->Polygon->Points->GetNumberOfPoints();
-  float xProj[3];
-  float t, dist2, minDist2, closest[3];
+  double xProj[3];
+  double t, dist2, minDist2, closest[3];
   int inside=0;
 
   if ( this->InitializationTime < this->GetMTime() )
@@ -116,17 +117,18 @@ float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
   if ( xProj[0] >= this->Bounds[0] && xProj[0] <= this->Bounds[1] &&
        xProj[1] >= this->Bounds[2] && xProj[1] <= this->Bounds[3] &&
        xProj[2] >= this->Bounds[4] && xProj[2] <= this->Bounds[5] &&
-       this->Polygon->PointInPolygon(xProj, numPts,
-                ((vtkFloatArray *)this->Polygon->Points->GetData())->GetPointer(0), 
-                this->Bounds,this->Normal) == 1 )
+       this->Polygon->
+       PointInPolygon(xProj , numPts, 
+                      vtkDoubleArray::SafeDownCast(this->Polygon->Points->GetData())->GetPointer(0), 
+                      this->Bounds,this->Normal) == 1 )
     {
     inside = 1;
     }
 
   // determine distance to boundary
-  for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
+  for (minDist2=VTK_DOUBLE_MAX,i=0; i<numPts; i++)
     {
-    float p1[3], p2[3];
+    double p1[3], p2[3];
     this->Polygon->Points->GetPoint(i, p1);
     this->Polygon->Points->GetPoint((i+1)%numPts, p2);
     dist2 = vtkLine::DistanceToLine(xProj, p1, p2, t, closest);
@@ -136,16 +138,16 @@ float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
       }
     }
 
-  minDist2 = (float)sqrt(minDist2);
+  minDist2 = (double)sqrt(minDist2);
   return (inside ? -minDist2 : minDist2);
 }
 
 // Evaluate gradient of the implicit function. Use a numerical scheme: evaluate 
 // the function at four points (O,O+dx,O+dy,O+dz) and approximate the gradient.
 // It's damn slow.
-void vtkImplicitSelectionLoop::EvaluateGradient(float x[3], float n[3])
+void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
 {
-  float xp[3], yp[3], zp[3], g0, gx, gy, gz;
+  double xp[3], yp[3], zp[3], g0, gx, gy, gz;
   int i;
 
   g0 = this->EvaluateFunction(x); //side-effect is to compute DeltaX, Y, and Z

@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageToImageFilter, "1.57");
+vtkCxxRevisionMacro(vtkImageToImageFilter, "1.58");
 
 //----------------------------------------------------------------------------
 vtkImageToImageFilter::vtkImageToImageFilter()
@@ -285,10 +285,10 @@ vtkImageData *vtkImageToImageFilter::AllocateOutputData(vtkDataObject *out)
 
   // Conditionally copy point and cell data.
   // Only copy if corresponding indexes refer to identical points.
-  float *oIn = input->GetOrigin();
-  float *sIn = input->GetSpacing();
-  float *oOut = output->GetOrigin();
-  float *sOut = output->GetSpacing();
+  double *oIn = input->GetOrigin();
+  double *sIn = input->GetSpacing();
+  double *oOut = output->GetOrigin();
+  double *sOut = output->GetSpacing();
   if (oIn[0] == oOut[0] && oIn[1] == oOut[1] && oIn[2] == oOut[2] &&
       sIn[0] == sOut[0] && sIn[1] == sOut[1] && sIn[2] == sOut[2])   
     {

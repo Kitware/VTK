@@ -37,8 +37,8 @@ public:
   // Determine whether point given by x[3] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1.
-  vtkIdType IsInsertedPoint(const float x[3]);
-  vtkIdType IsInsertedPoint(float x, float  y, float z)
+  vtkIdType IsInsertedPoint(const double x[3]);
+  vtkIdType IsInsertedPoint(double x, double  y, double z)
     {return this->vtkPointLocator::IsInsertedPoint(x, y, z); };
 
   // Description:
@@ -48,7 +48,7 @@ public:
   // the point (newly inserted or not) is returned in the ptId argument.
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
-  int InsertUniquePoint(const float x[3], vtkIdType &ptId);
+  int InsertUniquePoint(const double x[3], vtkIdType &ptId);
   
 protected:
   vtkMergePoints() {};

@@ -62,13 +62,13 @@ public:
   // Description
   // Evaluate the ImplicitVolume. This returns the interpolated scalar value
   // at x[3].
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate ImplicitVolume gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Specify the volume for the implicit function.
@@ -77,21 +77,21 @@ public:
 
   // Description:
   // Set the function value to use for points outside of the dataset.
-  vtkSetMacro(OutValue,float);
-  vtkGetMacro(OutValue,float);
+  vtkSetMacro(OutValue,double);
+  vtkGetMacro(OutValue,double);
 
   // Description:
   // Set the function gradient to use for points outside of the dataset.
-  vtkSetVector3Macro(OutGradient,float);
-  vtkGetVector3Macro(OutGradient,float);
+  vtkSetVector3Macro(OutGradient,double);
+  vtkGetVector3Macro(OutGradient,double);
 
 protected:
   vtkImplicitVolume();
   ~vtkImplicitVolume();
 
   vtkImageData *Volume; // the structured points
-  float OutValue;
-  float OutGradient[3];
+  double OutValue;
+  double OutGradient[3];
   // to replace a static
   vtkIdList *PointIds;
 

@@ -53,13 +53,13 @@ public:
 
   // Description:
   // Evaluate boolean combinations of implicit function using current operator.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate gradient of boolean combination.
-  void EvaluateGradient(float x[3], float g[3]);
+  void EvaluateGradient(double x[3], double g[3]);
 
   // Description:
   // Override modified time retrieval because of object dependencies.

@@ -15,7 +15,7 @@
 #include "vtkImplicitWindowFunction.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.16");
+vtkCxxRevisionMacro(vtkImplicitWindowFunction, "1.17");
 vtkStandardNewMacro(vtkImplicitWindowFunction);
 vtkCxxSetObjectMacro(vtkImplicitWindowFunction,ImplicitFunction,vtkImplicitFunction);
 
@@ -37,10 +37,10 @@ vtkImplicitWindowFunction::~vtkImplicitWindowFunction()
 }
 
 // Evaluate window function.
-float vtkImplicitWindowFunction::EvaluateFunction(float x[3])
+double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 {
   static int beenWarned=0;
-  float value, diff1, diff2, scaledRange;
+  double value, diff1, diff2, scaledRange;
 
   if ( ! this->ImplicitFunction && ! beenWarned )
     {
@@ -86,7 +86,7 @@ float vtkImplicitWindowFunction::EvaluateFunction(float x[3])
 }
 
 // Evaluate window function gradient. Just return implicit function gradient.
-void vtkImplicitWindowFunction::EvaluateGradient(float x[3], float n[3])
+void vtkImplicitWindowFunction::EvaluateGradient(double x[3], double n[3])
 {
     if ( this->ImplicitFunction )
       {

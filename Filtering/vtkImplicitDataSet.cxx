@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImplicitDataSet, "1.22");
+vtkCxxRevisionMacro(vtkImplicitDataSet, "1.23");
 vtkStandardNewMacro(vtkImplicitDataSet);
 vtkCxxSetObjectMacro(vtkImplicitDataSet,DataSet,vtkDataSet);
 
@@ -29,7 +29,7 @@ vtkImplicitDataSet::vtkImplicitDataSet()
 {
   this->DataSet = NULL;
 
-  this->OutValue = -VTK_LARGE_FLOAT;
+  this->OutValue = -VTK_DOUBLE_MAX;
 
   this->OutGradient[0] = 0.0;
   this->OutGradient[1] = 0.0;
@@ -50,13 +50,13 @@ vtkImplicitDataSet::~vtkImplicitDataSet()
 
 // Evaluate the implicit function. This returns the interpolated scalar value
 // at x[3].
-float vtkImplicitDataSet::EvaluateFunction(float x[3])
+double vtkImplicitDataSet::EvaluateFunction(double x[3])
 {
   vtkDataArray *scalars;
   vtkCell *cell;
   vtkIdType id;
   int subId, i, numPts;
-  float pcoords[3], s;
+  double pcoords[3], s;
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
@@ -64,7 +64,7 @@ float vtkImplicitDataSet::EvaluateFunction(float x[3])
       {
       delete [] this->Weights;
       }
-    this->Weights = new float[this->DataSet->GetMaxCellSize()];
+    this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }
 
@@ -112,13 +112,13 @@ unsigned long vtkImplicitDataSet::GetMTime()
 
 
 // Evaluate implicit function gradient.
-void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
+void vtkImplicitDataSet::EvaluateGradient(double x[3], double n[3])
 {
   vtkDataArray *scalars;
   vtkCell *cell;
   vtkIdType id;
   int subId, i, numPts;
-  float pcoords[3];
+  double pcoords[3];
 
   if ( this->DataSet->GetMaxCellSize() > this->Size )
     {
@@ -126,7 +126,7 @@ void vtkImplicitDataSet::EvaluateGradient(float x[3], float n[3])
       {
       delete [] this->Weights;
       }
-    this->Weights = new float[this->DataSet->GetMaxCellSize()];
+    this->Weights = new double[this->DataSet->GetMaxCellSize()];
     this->Size = this->DataSet->GetMaxCellSize();
     }
 

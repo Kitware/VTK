@@ -44,13 +44,13 @@ public:
 
   // Description
   // Evaluate window function.
-  float EvaluateFunction(float x[3]);
-  float EvaluateFunction(float x, float y, float z)
+  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate window function gradient. Just return implicit function gradient.
-  void EvaluateGradient(float x[3], float n[3]);
+  void EvaluateGradient(double x[3], double n[3]);
 
   // Description:
   // Specify an implicit function to operate on.
@@ -60,15 +60,15 @@ public:
   // Description:
   // Specify the range of function values which are considered to lie within
   // the window. WindowRange[0] is assumed to be less than WindowRange[1].
-  vtkSetVector2Macro(WindowRange,float);
-  vtkGetVectorMacro(WindowRange,float,2);
+  vtkSetVector2Macro(WindowRange,double);
+  vtkGetVectorMacro(WindowRange,double,2);
 
   // Description:
   // Specify the range of output values that the window range is mapped
   // into. This is effectively a scaling and shifting of the original
   // function values.
-  vtkSetVector2Macro(WindowValues,float);
-  vtkGetVectorMacro(WindowValues,float,2);
+  vtkSetVector2Macro(WindowValues,double);
+  vtkGetVectorMacro(WindowValues,double,2);
 
   // Description:
   // Override modified time retrieval because of object dependencies.
@@ -79,8 +79,8 @@ protected:
   ~vtkImplicitWindowFunction();
 
   vtkImplicitFunction *ImplicitFunction;
-  float WindowRange[2];
-  float WindowValues[2];
+  double WindowRange[2];
+  double WindowValues[2];
 
 private:
   vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);  // Not implemented.

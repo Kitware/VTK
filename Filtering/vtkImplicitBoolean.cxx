@@ -19,7 +19,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitBoolean, "1.32");
+vtkCxxRevisionMacro(vtkImplicitBoolean, "1.33");
 vtkStandardNewMacro(vtkImplicitBoolean);
 
 // Construct with union operation.
@@ -73,15 +73,15 @@ void vtkImplicitBoolean::RemoveFunction(vtkImplicitFunction *f)
 }
 
 // Evaluate boolean combinations of implicit function using current operator.
-float vtkImplicitBoolean::EvaluateFunction(float x[3])
+double vtkImplicitBoolean::EvaluateFunction(double x[3])
 {
-  float value = 0;
-  float v;
+  double value = 0;
+  double v;
   vtkImplicitFunction *f;
 
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
-    for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) < value )
@@ -93,7 +93,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
 
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
-    for (value=-VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) > value )
@@ -105,7 +105,7 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
 
   else if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
     { //take minimum absolute value
-    for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value )
@@ -141,15 +141,15 @@ float vtkImplicitBoolean::EvaluateFunction(float x[3])
 }
 
 // Evaluate gradient of boolean combination.
-void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
+void vtkImplicitBoolean::EvaluateGradient(double x[3], double g[3])
 {
-  float value = 0;
-  float v;
+  double value = 0;
+  double v;
   vtkImplicitFunction *f;
 
   if ( this->OperationType == VTK_UNION )
     { //take minimum value
-    for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) < value )
@@ -162,7 +162,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 
   else if ( this->OperationType == VTK_INTERSECTION )
     { //take maximum value
-    for (value=-VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value=-VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=f->FunctionValue(x)) > value ) 
@@ -175,7 +175,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 
   if ( this->OperationType == VTK_UNION_OF_MAGNITUDES )
     { //take minimum value
-    for (value = VTK_LARGE_FLOAT, this->FunctionList->InitTraversal(); 
+    for (value = VTK_DOUBLE_MAX, this->FunctionList->InitTraversal(); 
     (f=this->FunctionList->GetNextItem()); )
       {
       if ( (v=fabs(f->FunctionValue(x))) < value )
@@ -188,7 +188,7 @@ void vtkImplicitBoolean::EvaluateGradient(float x[3], float g[3])
 
   else //difference
     {
-    float gTemp[3];
+    double gTemp[3];
     vtkImplicitFunction *firstF;
     this->FunctionList->InitTraversal();
     if ( (firstF = this->FunctionList->GetNextItem()) != NULL )
