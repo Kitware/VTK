@@ -55,8 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataSet;
 class vtkImageData;
 class vtkCollection;
-class vtkExtent;
-class vtkDataInformation;
 
 
 #define VTK_MP_CONTROLLER_MAX_PROCESSES 256
@@ -249,12 +247,6 @@ protected:
   int WriteImageData(vtkImageData *object);
   int ReadImageData(vtkImageData *object);
   void CopyImageData(vtkImageData *src, vtkImageData *dest);
-
-  int WriteExtent(vtkExtent *ext);
-  int ReadExtent(vtkExtent *ext);
-
-  int WriteDataInformation(vtkDataInformation *info);
-  int ReadDataInformation(vtkDataInformation *info);
 
   void ProcessRMI(int remoteProcessId, int rmiTag);
 
