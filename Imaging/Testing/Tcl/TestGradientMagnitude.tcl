@@ -4,18 +4,17 @@ package require vtk
 
 # Image pipeline
 
-vtkPNGReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
+vtkGESignaReader reader
+reader SetFileName $VTK_DATA_ROOT/Data/E07733S002I009.MR
 
 vtkImageGradientMagnitude gradient
 gradient SetDimensionality 2
 gradient SetInput [reader GetOutput]
 
 vtkImageViewer viewer
-#viewer DebugOn
 viewer SetInput [gradient GetOutput]
-viewer SetColorWindow 1000
-viewer SetColorLevel 500
+viewer SetColorWindow 250
+viewer SetColorLevel 125
 
 
 viewer Render
