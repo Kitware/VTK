@@ -205,7 +205,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
   float s[8];
   int i, j, k, idx, jOffset, ii, index, *vert, jj, sliceSize=0;
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
-  VTK_TRIANGLE_CASES *triCase;
+  VTK_TRIANGLE_CASES *triCase, *triCases;
   EDGE_LIST  *edge;
   float pts[8][3], grad[8][3];
   float t, *x1, *x2, *n1, *n2;
@@ -214,6 +214,8 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
                               {4,5}, {5,6}, {7,6}, {4,7},
                               {0,4}, {1,5}, {3,7}, {2,6}};
+
+  triCases =  VTK_TRIANGLE_CASES::GetCases();
 
   if ( slice == NULL ) //have to do conversion to float slice-by-slice
     {
@@ -387,7 +389,7 @@ static int vtkSliceCubesContour(T *slice, S *scalars, int imageRange[2], int dim
         ComputePointGradient(i,j+1, k+1, dims, Spacing, grad[7],
                              slice1, slice2, slice3);
 
-	triCase = VTK_TRIANGLE_CASES::GetCases() + index;
+	triCase = triCases + index;
         edge = triCase->edges;
 
         for ( ; edge[0] > -1; edge += 3 )
