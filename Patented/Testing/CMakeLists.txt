@@ -6,6 +6,5 @@ IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Patented ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
 	   "${VTK_SOURCE_DIR}/Patented"
-           vtkMPI.h
            )
 ENDIF(PYTHON_EXECUTABLE)
