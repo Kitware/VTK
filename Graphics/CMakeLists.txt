@@ -139,6 +139,10 @@ vtkInterpolatingSubdivisionFilter
 
 ADD_LIBRARY(vtkGraphics Graphics_SRCS)
 
+# Allow the user to customize their build with some local options
+#
+INCLUDE (LocalUserOptions.cmake OPTIONAL)
+
 # if we are wrapping into Tcl then add the library and extra 
 # source files
 #

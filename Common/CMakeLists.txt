@@ -59,6 +59,7 @@ vtkGenericCell
 vtkHexahedron 
 vtkIdentityTransform 
 vtkIdList 
+vtkIdTypeArray
 vtkImageData 
 vtkImplicitFunctionCollection 
 vtkIndent 
@@ -169,6 +170,10 @@ IF (WIN32)
 ENDIF (WIN32)
 WRAP_EXCLUDE_FILES(vtkLargeInteger)
 
+# Allow the user to customize their build with some local options
+#
+INCLUDE (LocalUserOptions.cmake OPTIONAL)
+
 # if we are wrapping into Tcl then add the library and extra 
 # source files
 #
@@ -204,3 +209,4 @@ LINK_LIBRARIES (vtkCommon )
 
 INSTALL_TARGETS(/lib vtkCommon)
 INSTALL_FILES(/include/vtk .h Common_SRCS)
+

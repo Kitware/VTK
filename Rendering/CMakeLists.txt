@@ -148,6 +148,10 @@ ELSE (WIN32)
   ENDIF(OPENGL_INCLUDE_PATH)     
 ENDIF (WIN32)
 
+# Allow the user to customize their build with some local options
+#
+INCLUDE (LocalUserOptions.cmake OPTIONAL)
+
 IF (VTK_WRAP_TCL)
   SOURCE_FILES(RenderingTCL_SRCS 
      vtkTkRenderWidget 
