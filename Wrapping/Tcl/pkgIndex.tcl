@@ -137,6 +137,7 @@ package ifneeded vtktcl_widgets 1.0 {
 
     source [file join $::vtktcl::package_index_dir WidgetObject.tcl]
     source [file join $::vtktcl::package_index_dir TkInteractor.tcl]
+    source [file join $::vtktcl::package_index_dir TkImageViewerInteractor.tcl]
 
     package provide vtktcl_widgets 1.0
 }
