@@ -1,5 +1,6 @@
 package require vtktcl
 package require vtktcl_interactor
+package require vtktcl_backdrop
 
 # Contour every cell type
 
@@ -781,7 +782,6 @@ aPolyVertexContourActor AddPosition 2 12 0
 aPolyVertexContourActor AddPosition 0 2 0
 aPolyVertexActor AddPosition 2 12 0
 
-source backdrop.tcl
 BuildBackdrop -1 11 -1 16 -1 2 .1
 
 ren1 AddActor base
