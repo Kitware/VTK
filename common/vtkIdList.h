@@ -62,6 +62,7 @@ class vtkIdList : public vtkObject
   void SetId(const int i, const int id);
   void InsertId(const int i, const int id);
   int InsertNextId(const int id);
+  int InsertUniqueId(const int id);
   int getChunk(const int sz);
   void Reset() {this->Ia.Reset();};
 
@@ -117,6 +118,17 @@ inline int vtkIdList::getChunk(const int sz)
   int pos = this->Ia.GetMaxId()+1;
   this->Ia.InsertValue(pos+sz-1,0);
   return pos;
+}
+
+// Description:
+// If id is not already in list, insert it and return location in
+// list. Otherwise return just location in list.
+inline int vtkIdList::InsertUniqueId(int id)
+{
+  for (int i=0; i<this->GetNumberOfIds(); i++) 
+    if (id == this->GetId(i)) return i;
+
+  return this->Ia.InsertNextValue(id);
 }
 
 // Description:

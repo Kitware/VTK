@@ -42,22 +42,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCell.h"
 
 // Description:
-// Delete specified id from list.
+// Delete specified id from list. Will replace all occurences of id in list.
 void vtkIdList::DeleteId(int Id)
 {
-  static vtkIdList tempList(VTK_CELL_SIZE);
-  int i, id;
+  int i=0, numIds=this->GetNumberOfIds();
 
-  tempList.Reset();
-  for (i=0; i < this->GetNumberOfIds(); i++)
+  // while loop is necessary to delete all occurences of Id
+  while ( i < numIds )
     {
-    if ( (id = this->GetId(i)) != Id ) tempList.InsertNextId(id);
-    }
+    // first find id
+    for ( ; i < numIds; i++)
+      if ( this->GetId(i) == Id ) 
+        break;
 
-  this->Reset();
-  for (i=0; i < tempList.GetNumberOfIds(); i++)
-    {
-    this->InsertNextId(tempList.GetId(i));
+    // if found; replace current id with last
+    if ( i < numIds )
+      {
+      this->SetId(i,this->Ia.GetValue(this->Ia.GetMaxId()));
+      this->Ia.SetNumberOfValues(--numIds);
+      }
     }
 }
 
