@@ -159,6 +159,7 @@ vtkFiniteDifferenceGradientEstimator \
 vtkFollower \
 vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
+vtkGenericEnSightReader \
 vtkGeometryFilter \
 vtkGlyph2D \
 vtkGlyph3D \

@@ -1310,6 +1310,24 @@ void vtkEnSightReader::SetCaseFileName(char* fileName)
   this->Modified();
 }
 
+int vtkEnSightReader::GetVariableType(int n)
+{
+  if (n < this->NumberOfVariables)
+    {
+    return this->VariableTypes[n];
+    }
+  return -1;
+}
+
+int vtkEnSightReader::GetComplexVariableType(int n)
+{
+  if (n < this->NumberOfComplexVariables)
+    {
+    return this->ComplexVariableTypes[n];
+    }
+  return -1;
+}
+
 void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetSource::PrintSelf(os,indent);
