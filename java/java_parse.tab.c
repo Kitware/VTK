@@ -438,7 +438,7 @@ output_function()
 	    }
 	  fprintf(yyout,"id%i",i);
 	  }
-	if (arg_types[0] == 5000) fprintf(yyout,",id1");
+	if ((num_args == 1) && (arg_types[0] == 5000)) fprintf(yyout,",id1");
 	fprintf(yyout,"); }\n");
 
 	funcNames[numFuncs] = strdup(func_name);
