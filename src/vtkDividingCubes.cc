@@ -62,7 +62,7 @@ static int SubSliceSize;
 
 void vtkDividingCubes::Execute()
 {
-  int i, j, k, idx, ii;
+  int i, j, k, idx;
   vtkScalars *inScalars;
   vtkIdList voxelPts(8);
   vtkFloatScalars voxelScalars(8);

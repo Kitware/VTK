@@ -39,7 +39,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkExtractGeometry.hh"
-#include "vtkMath.hh"
 
 // Description:
 // Construct object with ExtractInside turned on.
@@ -71,7 +70,6 @@ void vtkExtractGeometry::Execute()
   int ptId, numPts, numCells, i, cellId;
   vtkIdList *cellPts;
   vtkCell *cell;
-  vtkMath math;
   int numCellPts, newId, *pointMap;
   vtkPointData *pd;
   float *x;
