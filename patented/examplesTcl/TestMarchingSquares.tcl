@@ -22,10 +22,13 @@ vtkVolume16Reader v16
   v16 SetDataSpacing 1.6 1.6 1.5
   v16 Update
 
+vtkMergePoints myLocator
+
 vtkMarchingSquares isoXY
   isoXY SetInput [v16 GetOutput]
   isoXY GenerateValues 2 600 1200
   isoXY SetImageRange 0 64 64 127 45 45
+  isoXY SetLocator myLocator
 
 vtkPolyDataMapper isoXYMapper
   isoXYMapper SetInput [isoXY GetOutput]
