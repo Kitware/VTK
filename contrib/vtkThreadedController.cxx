@@ -298,8 +298,7 @@ int vtkThreadedController::GetLocalProcessId()
   
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
-#endif
-#ifdef VTK_USE_SPROC
+#elif defined VTK_USE_SPROC
   pid_t pid = PRDA->sys_prda.prda_sys.t_pid;
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
     {
@@ -311,10 +310,12 @@ int vtkThreadedController::GetLocalProcessId()
   
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
-#endif
+#else
 
   vtkErrorMacro("ThreadedController only works with pthreads or sproc");
-  return -1;  
+  return -1;
+  
+#endif  
 }
 
   
@@ -752,12 +753,10 @@ int vtkThreadedController::Receive(vtkObject *data,
       strcmp(data->GetClassName(), "vtkRectilinearGrid") == 0)
     {
     return this->Receive(data, NULL, 0, remoteProcessId, tag);
-    return 1;
     }
   if (strcmp(data->GetClassName(), "vtkImageData") == 0)
     {
     return this->Receive(data, NULL, 0, remoteProcessId, tag);
-    return 1;
     }
 
   // By default, just use the normal marshaling from the superclass. 
