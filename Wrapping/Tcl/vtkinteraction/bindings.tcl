@@ -12,6 +12,7 @@ namespace eval ::vtk {
     #    h:      height of an event or update
     #    ctrl:   1 if the Control key modifier was pressed, 0 otherwise
     #    shift:  1 if the Control key modifier was pressed, 0 otherwise
+    #    delta:  delta field for the MouseWheel event.
 
     # Called when a Tk mouse motion event is triggered.
     # Helper binding: propagate the event as a VTK event.
@@ -33,6 +34,18 @@ namespace eval ::vtk {
         $iren SetControlKey $ctrl
         $iren SetShiftKey $shift
         $iren ${pos}Button${event}Event
+    }
+
+    # Called when a Tk wheel motion event is triggered.
+    # Helper binding: propagate the event as a VTK event.
+
+    proc cb_vtkw_wheel_motion_binding {vtkw renwin delta} {
+        set iren [$renwin GetInteractor]
+        if {$delta < 0} {
+            $iren MouseWheelBackwardEvent
+        } else {
+            $iren MouseWheelForwardEvent
+        }
     }
 
     # Called when a Tk key event is triggered.
@@ -134,6 +147,11 @@ namespace eval ::vtk {
             }
         }
         
+        # Wheel motion
+
+        bind $vtkw <MouseWheel> \
+                "::vtk::cb_vtkw_wheel_motion_binding $vtkw $renwin %D"
+
         # Expose/Configure
 
         bind $vtkw <Configure> \
