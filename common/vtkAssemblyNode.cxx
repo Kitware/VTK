@@ -65,15 +65,22 @@ vtkAssemblyNode::vtkAssemblyNode()
 
 vtkAssemblyNode::~vtkAssemblyNode()
 {
-  if ( this->Prop )
-    {
-    this->Prop->Delete();
-    }
+//  if ( this->Prop )
+//    {
+//    this->Prop->Delete();
+//    }
   if ( this->Matrix )
     {
     this->Matrix->Delete();
     }
 }
+
+// Don't do reference counting
+void vtkAssemblyNode::SetProp(vtkProp *prop)
+{
+  this->Prop = prop;
+}
+
 
 void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
 {

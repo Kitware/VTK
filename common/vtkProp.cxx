@@ -167,20 +167,6 @@ void vtkProp::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
   childPath->Delete(); //okay, reference counting
 }
 
-void vtkProp::Delete()
-{
-  // Always delete paths because we can always rebuild them. Paths
-  // is set to NULL to avoid recursive deletes.
-  if ( this->Paths )
-    {
-    vtkAssemblyPaths *paths = this->Paths;
-    this->Paths = NULL;
-    paths->Delete();
-    }
-
-  this->vtkObject::Delete();
-}
-
 void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);

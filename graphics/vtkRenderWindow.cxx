@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -170,9 +170,9 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor *rwi)
       {
       this->Interactor->Register(this);
       if (this->Interactor->GetRenderWindow() != this)
-	{
-	this->Interactor->SetRenderWindow(this);
-	}
+        {
+        this->Interactor->SetRenderWindow(this);
+        }
       }
     }
 }
@@ -184,10 +184,10 @@ void vtkRenderWindow::SetDesiredUpdateRate(float rate)
   if (this->DesiredUpdateRate != rate)
     {
     for (this->Renderers->InitTraversal(); 
-	 (aren = this->Renderers->GetNextItem()); )
+         (aren = this->Renderers->GetNextItem()); )
       {
       aren->SetAllocatedRenderTime(1.0/
-				   (rate*this->Renderers->GetNumberOfItems()));
+                                   (rate*this->Renderers->GetNumberOfItems()));
       }
     this->DesiredUpdateRate = rate;
     this->Modified();
@@ -295,23 +295,23 @@ void vtkRenderWindow::Render()
       unsigned char *p2;
       unsigned char *p3;
       if (this->ResultFrame)
-	{
-	p2 = this->ResultFrame;
-	}
+        {
+        p2 = this->ResultFrame;
+        }
       else
-	{
-	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-	}
+        {
+        p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+        }
       p3 = p2;
       for (y = 0; y < size[1]; y++)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p1 += *p2; p1++; p2++;
-	  *p1 += *p2; p1++; p2++;
-	  *p1 += *p2; p1++; p2++;
-	  }
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p1 += *p2; p1++; p2++;
+          *p1 += *p2; p1++; p2++;
+          *p1 += *p2; p1++; p2++;
+          }
+        }
       delete [] p3;
       }
     
@@ -324,25 +324,25 @@ void vtkRenderWindow::Render()
       
       num = this->SubFrames;
       if (this->AAFrames)
-	{
-	num *= this->AAFrames;
-	}
+        {
+        num *= this->AAFrames;
+        }
       if (this->FDFrames)
-	{
-	num *= this->FDFrames;
-	}
+        {
+        num *= this->FDFrames;
+        }
 
       this->ResultFrame = p2;
       p1 = this->AccumulationBuffer;
       for (y = 0; y < size[1]; y++)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  }
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          }
+        }
       
       this->CurrentSubFrame = 0;
       this->CopyResultFrame();
@@ -367,29 +367,29 @@ void vtkRenderWindow::Render()
       unsigned char *p2 = new unsigned char [3*size[0]*size[1]];
 
       if (this->AAFrames) 
-	{
-	num = this->AAFrames;
-	}
+        {
+        num = this->AAFrames;
+        }
       else
-	{
-	num = 1;
-	}
+        {
+        num = 1;
+        }
       if (this->FDFrames)
-	{
-	num *= this->FDFrames;
-	}
+        {
+        num *= this->FDFrames;
+        }
 
       this->ResultFrame = p2;
       p1 = this->AccumulationBuffer;
       for (y = 0; y < size[1]; y++)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  *p2 = (unsigned char)(*p1/num); p1++; p2++;
-	  }
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          *p2 = (unsigned char)(*p1/num); p1++; p2++;
+          }
+        }
       
       delete [] this->AccumulationBuffer;
       this->AccumulationBuffer = NULL;
@@ -438,96 +438,96 @@ void vtkRenderWindow::DoAARender()
       offsets[1] = vtkMath::Random() - 0.5;
 
       for (this->Renderers->InitTraversal(); 
-	   (aren = this->Renderers->GetNextItem()); )
-	{
-	acam = aren->GetActiveCamera();
+           (aren = this->Renderers->GetNextItem()); )
+        {
+        acam = aren->GetActiveCamera();
 
-	// calculate the amount to jitter
-	acam->GetFocalPoint(origfocus);
-	aren->SetWorldPoint(origfocus);
-	aren->WorldToDisplay();
-	dpoint = aren->GetDisplayPoint();
-	aren->SetDisplayPoint(dpoint[0] + offsets[0],
-			      dpoint[1] + offsets[1],
-			      dpoint[2]);
-	aren->DisplayToWorld();
-	dpoint = aren->GetWorldPoint();
-	dpoint[0] /= dpoint[3];
-	dpoint[1] /= dpoint[3];
-	dpoint[2] /= dpoint[3];
-	acam->SetFocalPoint(dpoint);
+        // calculate the amount to jitter
+        acam->GetFocalPoint(origfocus);
+        aren->SetWorldPoint(origfocus);
+        aren->WorldToDisplay();
+        dpoint = aren->GetDisplayPoint();
+        aren->SetDisplayPoint(dpoint[0] + offsets[0],
+                              dpoint[1] + offsets[1],
+                              dpoint[2]);
+        aren->DisplayToWorld();
+        dpoint = aren->GetWorldPoint();
+        dpoint[0] /= dpoint[3];
+        dpoint[1] /= dpoint[3];
+        dpoint[2] /= dpoint[3];
+        acam->SetFocalPoint(dpoint);
 
-	worldOffset[0] = dpoint[0] - origfocus[0];
-	worldOffset[1] = dpoint[1] - origfocus[1];
-	worldOffset[2] = dpoint[2] - origfocus[2];
+        worldOffset[0] = dpoint[0] - origfocus[0];
+        worldOffset[1] = dpoint[1] - origfocus[1];
+        worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition(dpoint);
-	acam->SetPosition(dpoint[0]+worldOffset[0],
-			  dpoint[1]+worldOffset[1],
-			  dpoint[2]+worldOffset[2]);
-	}
+        acam->GetPosition(dpoint);
+        acam->SetPosition(dpoint[0]+worldOffset[0],
+                          dpoint[1]+worldOffset[1],
+                          dpoint[2]+worldOffset[2]);
+        }
 
       // draw the images
       this->DoFDRender();
 
       // restore the jitter to normal
       for (this->Renderers->InitTraversal(); 
-	   (aren = this->Renderers->GetNextItem()); )
-	{
-	acam = aren->GetActiveCamera();
+           (aren = this->Renderers->GetNextItem()); )
+        {
+        acam = aren->GetActiveCamera();
 
-	// calculate the amount to jitter
-	acam->GetFocalPoint(origfocus);
-	aren->SetWorldPoint(origfocus);
-	aren->WorldToDisplay();
-	dpoint = aren->GetDisplayPoint();
-	aren->SetDisplayPoint(dpoint[0] - offsets[0],
-			      dpoint[1] - offsets[1],
-			      dpoint[2]);
-	aren->DisplayToWorld();
-	dpoint = aren->GetWorldPoint();
-	dpoint[0] /= dpoint[3];
-	dpoint[1] /= dpoint[3];
-	dpoint[2] /= dpoint[3];
-	acam->SetFocalPoint(dpoint);
+        // calculate the amount to jitter
+        acam->GetFocalPoint(origfocus);
+        aren->SetWorldPoint(origfocus);
+        aren->WorldToDisplay();
+        dpoint = aren->GetDisplayPoint();
+        aren->SetDisplayPoint(dpoint[0] - offsets[0],
+                              dpoint[1] - offsets[1],
+                              dpoint[2]);
+        aren->DisplayToWorld();
+        dpoint = aren->GetWorldPoint();
+        dpoint[0] /= dpoint[3];
+        dpoint[1] /= dpoint[3];
+        dpoint[2] /= dpoint[3];
+        acam->SetFocalPoint(dpoint);
 
-	worldOffset[0] = dpoint[0] - origfocus[0];
-	worldOffset[1] = dpoint[1] - origfocus[1];
-	worldOffset[2] = dpoint[2] - origfocus[2];
+        worldOffset[0] = dpoint[0] - origfocus[0];
+        worldOffset[1] = dpoint[1] - origfocus[1];
+        worldOffset[2] = dpoint[2] - origfocus[2];
 
-	acam->GetPosition(dpoint);
-	acam->SetPosition(dpoint[0]+worldOffset[0],
-			  dpoint[1]+worldOffset[1],
-			  dpoint[2]+worldOffset[2]);
-	}
+        acam->GetPosition(dpoint);
+        acam->SetPosition(dpoint[0]+worldOffset[0],
+                          dpoint[1]+worldOffset[1],
+                          dpoint[2]+worldOffset[2]);
+        }
 
 
       // now accumulate the images 
       p1 = this->AccumulationBuffer;
       if (!this->FDFrames)
-	{
-	unsigned char *p2;
-	unsigned char *p3;
-	if (this->ResultFrame)
-	  {
-	  p2 = this->ResultFrame;
-	  }
-	else
-	  {
-	  p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-	  }
-	p3 = p2;
-	for (y = 0; y < size[1]; y++)
-	  {
-	  for (x = 0; x < size[0]; x++)
-	    {
-	    *p1 += (float)*p2; p1++; p2++;
-	    *p1 += (float)*p2; p1++; p2++;
-	    *p1 += (float)*p2; p1++; p2++;
-	    }
-	  }
-	delete [] p3;
-	}
+        {
+        unsigned char *p2;
+        unsigned char *p3;
+        if (this->ResultFrame)
+          {
+          p2 = this->ResultFrame;
+          }
+        else
+          {
+          p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+          }
+        p3 = p2;
+        for (y = 0; y < size[1]; y++)
+          {
+          for (x = 0; x < size[0]; x++)
+            {
+            *p1 += (float)*p2; p1++; p2++;
+            *p1 += (float)*p2; p1++; p2++;
+            *p1 += (float)*p2; p1++; p2++;
+            }
+          }
+        delete [] p3;
+        }
       }
     }
   else
@@ -573,27 +573,27 @@ void vtkRenderWindow::DoFDRender()
 
       // store offsets for each renderer 
       for (this->Renderers->InitTraversal(); 
-	   (aren = this->Renderers->GetNextItem()); )
-	{
-	acam = aren->GetActiveCamera();
-	focalDisk = acam->GetFocalDisk()*offsets[0];
+           (aren = this->Renderers->GetNextItem()); )
+        {
+        acam = aren->GetActiveCamera();
+        focalDisk = acam->GetFocalDisk()*offsets[0];
 
-	vpn = acam->GetViewPlaneNormal();
-	aTrans->Identity();
-	aTrans->Scale(focalDisk,focalDisk,focalDisk);
-	aTrans->RotateWXYZ(-offsets[1],vpn[0],vpn[1],vpn[2]);
-	aTrans->TransformVector(acam->GetViewUp(),vec);
+        vpn = acam->GetViewPlaneNormal();
+        aTrans->Identity();
+        aTrans->Scale(focalDisk,focalDisk,focalDisk);
+        aTrans->RotateWXYZ(-offsets[1],vpn[0],vpn[1],vpn[2]);
+        aTrans->TransformVector(acam->GetViewUp(),vec);
 
-	dpoint = acam->GetPosition();
+        dpoint = acam->GetPosition();
 
-	// store the position for later
-	memcpy(orig + j*3,dpoint,3 * sizeof (double));
-	j++;
+        // store the position for later
+        memcpy(orig + j*3,dpoint,3 * sizeof (double));
+        j++;
 
-	acam->SetPosition(dpoint[0]+vec[0],
-			  dpoint[1]+vec[1],
-			  dpoint[2]+vec[2]);
-	}
+        acam->SetPosition(dpoint[0]+vec[0],
+                          dpoint[1]+vec[1],
+                          dpoint[2]+vec[2]);
+        }
 
       // draw the images
       this->DoStereoRender();
@@ -601,34 +601,34 @@ void vtkRenderWindow::DoFDRender()
       // restore the jitter to normal
       j = 0;
       for (this->Renderers->InitTraversal(); 
-	   (aren = this->Renderers->GetNextItem()); )
-	{
-	acam = aren->GetActiveCamera();
-	acam->SetPosition(orig + j*3);
-	j++;
-	}
+           (aren = this->Renderers->GetNextItem()); )
+        {
+        acam = aren->GetActiveCamera();
+        acam->SetPosition(orig + j*3);
+        j++;
+        }
 
       // get the pixels for accumulation
       // now accumulate the images 
       p1 = this->AccumulationBuffer;
       if (this->ResultFrame)
-	{
-	p2 = this->ResultFrame;
-	}
+        {
+        p2 = this->ResultFrame;
+        }
       else
-	{
-	p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
-	}
+        {
+        p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+        }
       p3 = p2;
       for (y = 0; y < size[1]; y++)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p1 += (float)*p2; p1++; p2++;
-	  *p1 += (float)*p2; p1++; p2++;
-	  *p1 += (float)*p2; p1++; p2++;
-	  }
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p1 += (float)*p2; p1++; p2++;
+          *p1 += (float)*p2; p1++; p2++;
+          *p1 += (float)*p2; p1++; p2++;
+          }
+        }
       delete [] p3;
       }
   
@@ -820,7 +820,7 @@ void vtkRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 1;
-	break;
+        break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
       }
@@ -831,10 +831,10 @@ void vtkRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_RED_BLUE:
         this->StereoStatus = 0;
-	break;
+        break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 0;
-	break;
+        break;
       }
     }
 }
@@ -879,28 +879,28 @@ void vtkRenderWindow::StereoRenderComplete(void)
       // allocate the result
       result = new unsigned char [size[0]*size[1]*3];
       if (!result)
-	{
-	vtkErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
-	return;
-	}
+        {
+        vtkErrorMacro(<<"Couldn't allocate memory for RED BLUE stereo.");
+        return;
+        }
       p3 = result;
 
       // now merge the two images 
       for (x = 0; x < size[0]; x++)
-	{
-	for (y = 0; y < size[1]; y++)
-	  {
-	  res = p1[0] + p1[1] + p1[2];
-	  p3[0] = res/3;
-	  res = p2[0] + p2[1] + p2[2];
-	  p3[1] = 0;
-	  p3[2] = res/3;
-	  
-	  p1 += 3;
-	  p2 += 3;
-	  p3 += 3;
-	  }
-	}
+        {
+        for (y = 0; y < size[1]; y++)
+          {
+          res = p1[0] + p1[1] + p1[2];
+          p3[0] = res/3;
+          res = p2[0] + p2[1] + p2[2];
+          p3[1] = 0;
+          p3[2] = res/3;
+          
+          p1 += 3;
+          p2 += 3;
+          p3 += 3;
+          }
+        }
       this->ResultFrame = result;
       delete [] this->StereoBuffer;
       this->StereoBuffer = NULL;
@@ -926,40 +926,40 @@ void vtkRenderWindow::StereoRenderComplete(void)
       // allocate the result
       result = new unsigned char [size[0]*size[1]*3];
       if (!result)
-	{
-	vtkErrorMacro(<<"Couldn't allocate memory for interlaced stereo.");
-	return;
-	}
+        {
+        vtkErrorMacro(<<"Couldn't allocate memory for interlaced stereo.");
+        return;
+        }
 
       // now merge the two images 
       p3 = result;
       for (y = 0; y < size[1]; y += 2)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p3++ = *p1++;
-	  *p3++ = *p1++;
-	  *p3++ = *p1++;
-	  }
-	// skip a line
-	p3 += line;
-	p1 += line;
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p3++ = *p1++;
+          *p3++ = *p1++;
+          *p3++ = *p1++;
+          }
+        // skip a line
+        p3 += line;
+        p1 += line;
+        }
       // now the other eye
       p3 = result + line;
       p2 += line;
       for (y = 1; y < size[1]; y += 2)
-	{
-	for (x = 0; x < size[0]; x++)
-	  {
-	  *p3++ = *p2++;
-	  *p3++ = *p2++;
-	  *p3++ = *p2++;
-	  }
-	// skip a line
-	p3 += line;
-	p2 += line;
-	}
+        {
+        for (x = 0; x < size[0]; x++)
+          {
+          *p3++ = *p2++;
+          *p3++ = *p2++;
+          *p3++ = *p2++;
+          }
+        // skip a line
+        p3 += line;
+        p2 += line;
+        }
 
       this->ResultFrame = result;
       delete [] this->StereoBuffer;

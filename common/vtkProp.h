@@ -274,11 +274,6 @@ public:
 
 //ETX
 
-  // Description:
-  // Override vtkObject's Delete() method to break reference count loops 
-  // due to building assembly paths.
-  virtual void Delete();
-
 protected:
   vtkProp();
   ~vtkProp();

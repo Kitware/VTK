@@ -259,9 +259,8 @@ void vtkAssembly::UpdatePaths()
     {
     if ( this->Paths != NULL )
       {
-      vtkAssemblyPaths *paths = this->Paths;
-      this->Paths = NULL; //avoid recursive deletes
-      paths->Delete();
+      this->Paths->Delete();
+      this->Paths = NULL;
       }
 
     // Create the list to hold all the paths
