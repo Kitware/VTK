@@ -39,25 +39,25 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkImageConvolve - Computes any given 3x3 cross kernel.
+// .NAME vtkImageVectorConvolve - Computes any given 3x3 cross kernel.
 // .SECTION Description
-// vtkImageConvolve convolves the image with a given 3x3 cross kernel.
+// vtkImageVectorConvolve convolves the image with a given 3x3 cross kernel.
 // Boundaries are handled, so the input is the same size as the output.  The
 // output is always float.  Dimensionality determines how the input regions
 // are interpreted.  (images, or volumes). The Dimensionality defaults to
 // two.
 
-#ifndef __vtkImageConvolve_h
-#define __vtkImageConvolve_h
+#ifndef __vtkImageVectorConvolve_h
+#define __vtkImageVectorConvolve_h
 
 #include "vtkImageToImageFilter.h"
 
-class VTK_EXPORT vtkImageConvolve : public vtkImageToImageFilter
+class VTK_EXPORT vtkImageVectorConvolve : public vtkImageToImageFilter
 {
 public:
-  static vtkImageConvolve *New();
+  static vtkImageVectorConvolve *New();
 
-  vtkTypeMacro(vtkImageConvolve,vtkImageToImageFilter);
+  vtkTypeMacro(vtkImageVectorConvolve,vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -71,10 +71,10 @@ public:
   vtkGetMacro(Dimensionality,int);
   
 protected:
-  vtkImageConvolve();
-  ~vtkImageConvolve() {};
-  vtkImageConvolve(const vtkImageConvolve&) {};
-  void operator=(const vtkImageConvolve&) {};
+  vtkImageVectorConvolve();
+  ~vtkImageVectorConvolve() {};
+  vtkImageVectorConvolve(const vtkImageVectorConvolve&) {};
+  void operator=(const vtkImageVectorConvolve&) {};
 
   float Kernel[3];
   int Dimensionality;

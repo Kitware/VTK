@@ -41,26 +41,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include <math.h>
 
-#include "vtkImageConvolve.h"
+#include "vtkImageVectorConvolve.h"
 #include "vtkObjectFactory.h"
 
 
 //-------------------------------------------------------------------------
-vtkImageConvolve* vtkImageConvolve::New()
+vtkImageVectorConvolve* vtkImageVectorConvolve::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageConvolve");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkImageVectorConvolve");
   if(ret)
     {
-    return (vtkImageConvolve*)ret;
+    return (vtkImageVectorConvolve*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkImageConvolve;
+  return new vtkImageVectorConvolve;
 }
 
 //-------------------------------------------------------------------------
 // Construct an instance of vtkImageLaplacian fitler.
-vtkImageConvolve::vtkImageConvolve()
+vtkImageVectorConvolve::vtkImageVectorConvolve()
 {
   this->Dimensionality = 2;
 
@@ -71,7 +71,7 @@ vtkImageConvolve::vtkImageConvolve()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageVectorConvolve::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageToImageFilter::PrintSelf(os, indent);
 
@@ -83,8 +83,8 @@ void vtkImageConvolve::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Just clip the request.  The subclass may need to overwrite this method.
-void vtkImageConvolve::ComputeInputUpdateExtent(int inExt[6], 
-						 int outExt[6])
+void vtkImageVectorConvolve::ComputeInputUpdateExtent(int inExt[6], 
+                                                      int outExt[6])
 {
   int idx;
   int *wholeExtent;
@@ -121,10 +121,10 @@ void vtkImageConvolve::ComputeInputUpdateExtent(int inExt[6],
 // This execute method handles boundaries.  Pixels are just replicated to get
 // values out of extent.
 template <class T>
-static void vtkImageConvolveExecute(vtkImageConvolve *self,
-				      vtkImageData *inData, T *inPtr,
-				      vtkImageData *outData, T *outPtr,
-				      int outExt[6], int id)
+static void vtkImageVectorConvolveExecute(vtkImageVectorConvolve *self,
+                                          vtkImageData *inData, T *inPtr,
+                                          vtkImageData *outData, T *outPtr,
+                                          int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
@@ -224,9 +224,9 @@ static void vtkImageConvolveExecute(vtkImageConvolve *self,
 // This method contains a switch statement that calls the correct
 // templated function for the input data type.  The output data
 // must match input type.  This method does handle boundary conditions.
-void vtkImageConvolve::ThreadedExecute(vtkImageData *inData, 
-					vtkImageData *outData,
-					   int outExt[6], int id)
+void vtkImageVectorConvolve::ThreadedExecute(vtkImageData *inData, 
+                                             vtkImageData *outData,
+                                             int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
@@ -244,7 +244,7 @@ void vtkImageConvolve::ThreadedExecute(vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageConvolveExecute, this, inData, 
+    vtkTemplateMacro7(vtkImageVectorConvolveExecute, this, inData, 
                       (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
                       outExt, id);
     default:
