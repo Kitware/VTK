@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyLine.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkRibbonFilter* vtkRibbonFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,9 +58,6 @@ vtkRibbonFilter* vtkRibbonFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkRibbonFilter;
 }
-
-
-
 
 // Construct ribbon so that width is 0.1, the width does 
 // not vary with scalar values, and the width factor is 2.0.
@@ -103,7 +98,7 @@ void vtkRibbonFilter::Execute()
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   int ptOffset=0;
-  //
+
   // Initialize
   //
   vtkDebugMacro(<<"Creating ribbon");
@@ -133,7 +128,6 @@ void vtkRibbonFilter::Execute()
   outCD->CopyAllocate(cd, inLines->GetNumberOfCells());
   int inCellId, outCellId;
 
-
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
@@ -159,7 +153,8 @@ void vtkRibbonFilter::Execute()
       }
     lineNormalGenerator->Delete();
     }
-  //
+  this->UpdateProgress(0.10);
+
   // If varying width, get appropriate info.
   //
   if ( this->VaryWidth && (inScalars=pd->GetScalars()) )
@@ -173,16 +168,21 @@ void vtkRibbonFilter::Execute()
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-  //
+
   //  Create pairs of points along the line that are later connected into a 
   //  triangle strip.
   //
-  inCellId = 0;
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); ++inCellId)
+  int abort=0;
+  int numLines=inLines->GetNumberOfCells();
+
+  for (inCellId=0, inLines->InitTraversal(); 
+       inLines->GetNextCell(npts,pts) && !abort; ++inCellId)
     {
-    //
-    // Use "averaged" segment to create beveled effect. Watch out for first and 
-    // last points.
+    this->UpdateProgress((float)inCellId/numLines);
+    abort = this->GetAbortExecute();
+
+    // Use "averaged" segment to create beveled effect. Watch out 
+    // for first and last points.
     //
     for (j=0; j < npts; j++)
       {
@@ -279,7 +279,7 @@ void vtkRibbonFilter::Execute()
       newNormals->InsertNormal(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
       }
-    //
+
     // Generate the strip topology
     //
     outCellId = newStrips->InsertNextCell(npts*2);
@@ -290,10 +290,9 @@ void vtkRibbonFilter::Execute()
       }
     outCD->CopyData(cd,inCellId,outCellId);
 
-    
     ptOffset += npts*2;
     } //for this line
-  //
+
   // Update ourselves
   //
   if ( deleteNormals )

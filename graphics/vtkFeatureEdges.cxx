@@ -197,17 +197,17 @@ void vtkFeatureEdges::Execute()
   neighbors = vtkIdList::New();
   neighbors->Allocate(VTK_CELL_SIZE);
 
+  int abort=0;
+  int progressInterval=numCells/20+1;
+
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
-  for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
-  cellId++)
+  for (cellId=0, inPolys->InitTraversal(); 
+       inPolys->GetNextCell(npts,pts) && !abort; cellId++)
     {
-    if ( ! (cellId % 10000) ) //manage progress reports / early abort
+    if ( ! (cellId % progressInterval) ) //manage progress / early abort
       {
       this->UpdateProgress ((float)cellId / numCells);
-      if ( this->GetAbortExecute() ) 
-        {
-        break;
-        }
+      abort = this->GetAbortExecute();
       }
 
     for (i=0; i < npts; i++) 

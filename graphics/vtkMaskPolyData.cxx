@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMaskPolyData.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkMaskPolyData* vtkMaskPolyData::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,16 +55,12 @@ vtkMaskPolyData* vtkMaskPolyData::New()
   return new vtkMaskPolyData;
 }
 
-
-
-
 vtkMaskPolyData::vtkMaskPolyData()
 {
   this->OnRatio = 11;
   this->Offset = 0;
 }
 
-//
 // Down sample polygonal data.  Don't down sample points (that is, use the
 // original points, since usually not worth it.
 //
@@ -79,14 +73,12 @@ void vtkMaskPolyData::Execute()
   vtkCellArray *newPolys=NULL, *newStrips=NULL;
   int id, interval;
   vtkPointData *pd;
-  int npts, *pts;
+  int npts, *pts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPolyData *output = this->GetOutput();
   
-  //
   // Check input / pass data through
   //
-
   inVerts = input->GetVerts();
   numVerts = inVerts->GetNumberOfCells();
   numNewVerts = numVerts / this->OnRatio;
@@ -103,15 +95,16 @@ void vtkMaskPolyData::Execute()
   numStrips = inStrips->GetNumberOfCells();
   numNewStrips = numStrips / this->OnRatio;
 
-  if ( numNewVerts < 1 && numNewLines < 1 &&
-  numNewPolys < 1 && numNewStrips < 1 )
+  numCells = numVerts + numLines + numPolys + numStrips;
+
+  if ( numCells < 1 )
     {
     vtkErrorMacro (<<"No PolyData to mask!");
     return;
     }
-//
-// Allocate space
-//
+
+  // Allocate space
+  //
   if ( numNewVerts )
     {
     newVerts = vtkCellArray::New();
@@ -135,9 +128,9 @@ void vtkMaskPolyData::Execute()
     newStrips = vtkCellArray::New();
     newStrips->Allocate(newStrips->EstimateSize(numNewStrips,6));
     }
-//
-// Traverse topological lists and traverse
-//
+
+  // Traverse topological lists and traverse
+  //
   interval = this->Offset + this->OnRatio;
   if ( newVerts )
     {
@@ -148,6 +141,7 @@ void vtkMaskPolyData::Execute()
         newVerts->InsertNextCell(npts,pts);
         }
       }
+    this->UpdateProgress((float)numVerts/numCells);
     }
 
   if ( newLines )
@@ -159,6 +153,7 @@ void vtkMaskPolyData::Execute()
         newLines->InsertNextCell(npts,pts);
         }
       }
+    this->UpdateProgress((float)(numVerts+numLines)/numCells);
     }
 
   if ( newPolys )
@@ -170,6 +165,7 @@ void vtkMaskPolyData::Execute()
         newPolys->InsertNextCell(npts,pts);
         }
       }
+    this->UpdateProgress((float)(numVerts+numLines+numPolys)/numCells);
     }
 
   if ( newStrips )
@@ -182,8 +178,9 @@ void vtkMaskPolyData::Execute()
         }
       }
     }
-  //
+
   // Update ourselves and release memory
+  //
   output->SetPoints(input->GetPoints());
   pd = input->GetPointData();
   output->GetPointData()->PassData(pd);

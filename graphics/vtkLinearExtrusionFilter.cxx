@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkLinearExtrusionFilter* vtkLinearExtrusionFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkLinearExtrusionFilter;
 }
-
-
-
 
 // Create object with normal extrusion type, capping on, scale factor=1.0,
 // vector (0,0,1), and extrusion point (0,0,0).
@@ -127,12 +122,11 @@ void vtkLinearExtrusionFilter::Execute()
   float *x;
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
-  vtkCell *cell, *edge;
+  vtkCell *edge;
   vtkIdList *cellIds, *cellPts;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   
-  //
   // Initialize / check input
   //
   vtkDebugMacro(<<"Linearly extruding data");
@@ -162,7 +156,7 @@ void vtkLinearExtrusionFilter::Execute()
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaVector;
     }
-  //
+
   // Build cell data structure.
   //
   mesh = vtkPolyData::New();
@@ -184,7 +178,7 @@ void vtkLinearExtrusionFilter::Execute()
   cellIds = vtkIdList::New();
   cellIds->Allocate(VTK_CELL_SIZE);
 
-  //
+
   // Allocate memory for output. We don't copy normals because surface geometry
   // is modified. Copy all points - this is the usual requirement and it makes
   // creation of skirt much easier.
@@ -204,16 +198,25 @@ void vtkLinearExtrusionFilter::Execute()
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(ncells,4));
 
+  int progressInterval=numPts/10+1;
+  int abort=0;
+
   // copy points
   for (ptId=0; ptId < numPts; ptId++)
-    {
+    { 
+    if ( ! (cellId % progressInterval) ) //manage progress / early abort
+      {
+      this->UpdateProgress (0.25*cellId/numCells);
+      }
+
     x = inPts->GetPoint(ptId);
     newPts->SetPoint(ptId,x);
-    newPts->SetPoint(ptId+numPts,(this->*(this->ExtrudePoint))(x,ptId,inNormals));
+    newPts->SetPoint(ptId+numPts,
+                     (this->*(this->ExtrudePoint))(x,ptId,inNormals));
     outputPD->CopyData(pd,ptId,ptId);
     outputPD->CopyData(pd,ptId,ptId+numPts);
     }
-  //
+
   // If capping is on, copy 2D cells to output (plus create cap)
   //
   if ( this->Capping )
@@ -246,13 +249,22 @@ void vtkLinearExtrusionFilter::Execute()
         }
       }
     }
-  //
+  this->UpdateProgress (0.4);
+
   // Loop over all polygons and triangle strips searching for boundary edges. 
   // If boundary edge found, extrude triangle strip.
   //
-  for ( cellId=0; cellId < numCells; cellId++)
+  progressInterval=numCells/10+1;
+  vtkGenericCell *cell = vtkGenericCell::New();
+  for ( cellId=0; cellId < numCells && !abort; cellId++)
     {
-    cell = mesh->GetCell(cellId);
+    if ( ! (cellId % progressInterval) ) //manage progress / early abort
+      {
+      this->UpdateProgress (0.4 + 0.6*cellId/numCells);
+      abort = this->GetAbortExecute();
+      }
+
+    mesh->GetCell(cellId,cell);
     cellPts = cell->GetPointIds();
 
     if ( (dim=cell->GetCellDimension()) == 0 ) //create lines from points
@@ -304,7 +316,8 @@ void vtkLinearExtrusionFilter::Execute()
         } //for each edge
       } //for each polygon or triangle strip
     } //for each cell
-  //
+  cell->Delete();
+
   // Send data to output and release memory
   //
   output->SetPoints(newPts);

@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkReverseSense.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkReverseSense* vtkReverseSense::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkReverseSense* vtkReverseSense::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkReverseSense;
 }
-
-
-
 
 // Construct object so that behavior is to reverse cell ordering and
 // leave normal orientation as is.
@@ -82,6 +77,9 @@ void vtkReverseSense::Execute()
   output->GetCellData()->PassData(input->GetCellData());
 
   //If specified, traverse all cells and reverse them
+  int abort=0;
+  int progressInterval;
+  
   if ( this->ReverseCells )
     {
     int numCells=input->GetNumberOfCells();
@@ -102,8 +100,14 @@ void vtkReverseSense::Execute()
     output->SetPolys(polys);  polys->Delete();
     output->SetStrips(strips);  strips->Delete();
 
-    for ( int cellId=0; cellId < numCells; cellId++ )
+    progressInterval=numCells/10+1;
+    for ( int cellId=0; cellId < numCells && !abort; cellId++ )
       {
+      if ( ! (cellId % progressInterval) ) //manage progress / early abort
+        {
+        this->UpdateProgress (0.6*cellId/numCells);
+        abort = this->GetAbortExecute();
+        }
       output->ReverseCell(cellId);
       }
     }
@@ -118,8 +122,14 @@ void vtkReverseSense::Execute()
     outNormals->SetNumberOfNormals(numPoints);
     float n[3];
 
+    progressInterval=numPoints/5+1;
     for ( int ptId=0; ptId < numPoints; ptId++ )
       {
+      if ( ! (ptId % progressInterval) ) //manage progress / early abort
+        {
+        this->UpdateProgress (0.6 + 0.2*ptId/numPoints);
+        abort = this->GetAbortExecute();
+        }
       normals->GetNormal(ptId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
       outNormals->SetNormal(ptId,n);
@@ -137,8 +147,15 @@ void vtkReverseSense::Execute()
     outNormals->SetNumberOfNormals(numCells);
     float n[3];
 
+    progressInterval=numCells/5+1;
     for ( int cellId=0; cellId < numCells; cellId++ )
       {
+      if ( ! (cellId % progressInterval) ) //manage progress / early abort
+        {
+        this->UpdateProgress (0.8 + 0.2*cellId/numCells);
+        abort = this->GetAbortExecute();
+        }
+
       cellNormals->GetNormal(cellId,n);
       n[0] = -n[0]; n[1] = -n[1]; n[2] = -n[2];
       outNormals->SetNormal(cellId,n);
@@ -154,7 +171,9 @@ void vtkReverseSense::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Reverse Cells: " << (this->ReverseCells ? "On\n" : "Off\n");
-  os << indent << "Reverse Normals: " << (this->ReverseNormals ? "On\n" : "Off\n");
+  os << indent << "Reverse Cells: " 
+     << (this->ReverseCells ? "On\n" : "Off\n");
+  os << indent << "Reverse Normals: " 
+     << (this->ReverseNormals ? "On\n" : "Off\n");
 }
 

@@ -171,24 +171,18 @@ void vtkExtractPolyDataGeometry::Execute()
   output->Allocate(numCells);
   outputCD->CopyAllocate(cd);
 
-  updateInterval = numCells / 1000;
-  if (updateInterval < 1)
-    {
-    updateInterval = 1;
-    }
+  updateInterval = numCells/20 + 1;
+  int abort=0;
 
   // Loop over all cells inserting those that are "in"
-  for (cellId=0; cellId < numCells; cellId++)
+  for (cellId=0; cellId < numCells && !abort; cellId++)
     {
 
     //manage progress reports / early abort
-    if ( ! (cellId % updateInterval) ) 
+    if ( !(cellId % updateInterval) ) 
       {
       this->UpdateProgress ((float)cellId / numCells);
-      if ( this->GetAbortExecute() ) 
-        {
-        break;
-        }
+      abort = this->GetAbortExecute();
       }
 
     //check to see whether points are inside

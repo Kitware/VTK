@@ -540,10 +540,12 @@ void vtkHull::Execute()
   // Compute the D value for each plane according to the vertices in the
   // geometry
   this->ComputePlaneDistances();
+  this->UpdateProgress(0.25);
 
   // Create a large polygon representing each plane, and clip that polygon
   // against all other planes to form the polygons of the hull.
   this->ClipPolygonsFromPlanes( outPoints, outPolys, bounds );
+  this->UpdateProgress(0.80);
 
   // Set the output vertices and polygons
   output->SetPoints( outPoints );
