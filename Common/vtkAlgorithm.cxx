@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.12");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.13");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -60,12 +60,9 @@ public:
       }
     void Insert(vtkAlgorithm* algorithm, int portIndex)
       {
-      if(this->Find(algorithm, portIndex) == end())
-        {
-        this->resize(this->size()+1);
-        (end()-1)->Algorithm = algorithm;
-        (end()-1)->PortIndex = portIndex;
-        }
+      this->resize(this->size()+1);
+      (end()-1)->Algorithm = algorithm;
+      (end()-1)->PortIndex = portIndex;
       }
     void Remove(vtkAlgorithm* algorithm, int portIndex)
       {
@@ -395,21 +392,6 @@ void vtkAlgorithm::AddInputConnection(int port, vtkAlgorithmOutput* input)
 {
   if(!this->InputPortIndexInRange(port, "connect"))
     {
-    return;
-    }
-
-  // Check if the connection is already present.
-  if(!input ||
-     this->AlgorithmInternal->InputPorts[port].Find(input->GetProducer(),
-                                                    input->GetIndex()) !=
-     this->AlgorithmInternal->InputPorts[port].end())
-    {
-    vtkWarningMacro("Not adding connection from output port index "
-                    << input->GetIndex() << " on algorithm "
-                    << (input->GetProducer()?
-                        input->GetProducer()->GetClassName() : "NULL")
-                    << "(" << input->GetProducer() << ") to input port "
-                    << port << " because it is already present.");
     return;
     }
 
