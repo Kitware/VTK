@@ -27,7 +27,7 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include <Carbon/Carbon.h>
+#include <Carbon/Carbon.h> // Needed for Carbon types
 
 
 class VTK_RENDERING_EXPORT vtkCarbonRenderWindowInteractor : public vtkRenderWindowInteractor {

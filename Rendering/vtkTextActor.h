@@ -38,9 +38,8 @@
 // We need to include vtkTextMapper here otherwise we have an ambiguous
 // case of vtkMapper2D or vtkTextMapper in SetMapper(vtkTextMapper *mapper);
 // - two members with identical prototypes!
-#include "vtkTextMapper.h"
-
 class vtkTextProperty;
+class vtkTextMapper;
 
 class VTK_RENDERING_EXPORT vtkTextActor : public vtkActor2D
 {

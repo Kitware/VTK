@@ -18,10 +18,11 @@
 #include "vtkTextActor.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkTextActor, "1.13");
+vtkCxxRevisionMacro(vtkTextActor, "1.14");
 vtkStandardNewMacro(vtkTextActor);
 
 vtkCxxSetObjectMacro(vtkTextActor,TextProperty,vtkTextProperty);

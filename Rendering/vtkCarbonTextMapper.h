@@ -28,7 +28,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define __vtkCarbonTextMapper_h
 
 #include "vtkTextMapper.h"
-#include <Carbon/Carbon.h>
+#include <Carbon/Carbon.h> // Needed for FontInfo
 
 class VTK_RENDERING_EXPORT vtkCarbonTextMapper : public vtkTextMapper
 {
@@ -57,7 +57,7 @@ public:
   void GetSize(vtkViewport* viewport, int size[2]);  
   
 protected:
-    vtkCarbonTextMapper();
+  vtkCarbonTextMapper();
   ~vtkCarbonTextMapper();
 
 
@@ -67,7 +67,7 @@ protected:
   short currentFontNum; // last used FontNumber (for GLList loading)
   
 private:
-    vtkCarbonTextMapper(const vtkCarbonTextMapper&);  // Not implemented.
+  vtkCarbonTextMapper(const vtkCarbonTextMapper&);  // Not implemented.
   void operator=(const vtkCarbonTextMapper&);  // Not implemented.
 };
 

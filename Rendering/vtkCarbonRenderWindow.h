@@ -26,10 +26,10 @@
 
 #include "vtkOpenGLRenderWindow.h"
 
-// Carbon and MAC specific
-#include <Carbon/Carbon.h>
-#include <OpenGL/gl.h>
-#include <AGL/agl.h>
+
+#include <Carbon/Carbon.h> // Carbon and MAC specific
+#include <OpenGL/gl.h> // Carbon and MAC specific
+#include <AGL/agl.h> // Carbon and MAC specific
 
 class vtkIdList;
 
