@@ -27,7 +27,7 @@ VTK_LIB_FILE  = @VTK_LIB_FILE@
 EXAMPLES = TestMPI TestController TestPorts ParallelIso 
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
-	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
+	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
 	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
 	-I${srcdir}/../../imaging -I${srcdir}/../../graphics
 

@@ -46,6 +46,7 @@ EXAMPLES = VisQuad \
 	RGrid \
 	SGrid \
 	Sample \
+	SampleEx \
 	StrSph \
 	TPlane \
 	UGrid \
@@ -74,8 +75,8 @@ EXAMPLES = VisQuad \
 	volProt
   
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
-	${KIT_FLAGS} -I. ${USE_TOOLKIT_FLAGS} ${GRAPHICS_API_FLAGS} \
-	 -I${srcdir}/../../common -I${srcdir}/.. -I${srcdir}/../../patented \
+	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} \
+	 -I${srcdir}/../../common -I${srcdir}/.. \
 	-I${srcdir}/../../imaging
 
 VTKLIB = ${VTK_LIB_FILE}
@@ -155,6 +156,9 @@ SGrid: SGrid.o ${VTKLIB}
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 Sample: Sample.o ${VTKLIB}
 	${CXX} -o Sample ${CXX_FLAGS} Sample.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+SampleEx: SampleEx.o ${VTKLIB}
+	${CXX} -o SampleEx ${CXX_FLAGS} SampleEx.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 StrSph: StrSph.o ${VTKLIB}
 	${CXX} -o StrSph ${CXX_FLAGS} StrSph.o ${XLDFLAGS} ${LDLIBS} \
