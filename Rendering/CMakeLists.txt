@@ -172,10 +172,15 @@ IF (VTK_WRAP_TCL)
     SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
 
-  VTK_WRAP_TCL(vtkRenderingTCL 
+  VTK_WRAP_TCL(vtkRenderingTCL
+               SOURCES 
                RenderingTCL_SRCS 
                Rendering_SRCS 
-               RenderingOpenGL_SRCS)
+               RenderingOpenGL_SRCS
+               COMMANDS
+               vtkTkRenderWidget
+               vtkTkImageViewerWidget
+               vtkTkImageWindowWidget)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingTCL 
                          vtkGraphicsTCL 
@@ -245,7 +250,7 @@ ENDIF(CMAKE_HAS_X)
 
 
 
-ADD_EXECUTABLE(Mace Mace)
+ADD_EXECUTABLE(Mace Examples/Mace)
 INSTALL_TARGETS(/lib vtkRendering)
 INSTALL_TARGETS(/bin Mace)
 INSTALL_FILES(/include/vtk .h Rendering_SRCS)
