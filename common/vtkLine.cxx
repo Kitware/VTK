@@ -177,9 +177,9 @@ typedef int VERT_LIST;
 
 typedef struct {
   VERT_LIST verts[2];
-} LINE_CASES;
+} VERT_CASES;
 
-static LINE_CASES lineCases[4]= {
+static VERT_CASES vertCases[4]= {
   {{-1,-1}},
   {{1,0}},
   {{0,1}},
@@ -189,11 +189,11 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
 		      vtkPointLocator *locator, vtkCellArray *verts, 
 		      vtkCellArray *vtkNotUsed(lines), 
 		      vtkCellArray *vtkNotUsed(polys), 
-		      vtkFloatScalars *scalars)
+                      vtkPointData *inPd, vtkPointData *outPd)
 {
   static int CASE_MASK[2] = {1,2};
   int index, i;
-  LINE_CASES *lineCase;
+  VERT_CASES *vertCase;
   VERT_LIST *vert;
   float t, x[3], *x1, *x2;
   int pts[1];
@@ -205,8 +205,8 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
     if (cellScalars->GetScalar(i) >= value) 
       index |= CASE_MASK[i];
 
-  lineCase = lineCases + index;
-  vert = lineCase->verts;
+  vertCase = vertCases + index;
+  vert = vertCase->verts;
 
   if ( vert[0] > -1 )
     {
@@ -219,7 +219,12 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
     if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
       {
       pts[0] = locator->InsertNextPoint(x);
-      scalars->InsertScalar(pts[0],value);
+      if ( outPd ) 
+        {
+        int p1 = this->PointIds.GetId(vert[0]);
+        int p2 = this->PointIds.GetId(vert[1]);
+        outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);
+        }
       }
     verts->InsertNextCell(1,pts);
     }
@@ -335,10 +340,15 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
     }
 }
 
-int vtkLine::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoints &pts)
 {
   pts.Reset();
+  ptIds.Reset();
+
+  ptIds.InsertId(0,this->PointIds.GetId(0));
   pts.InsertPoint(0,this->Points.GetPoint(0));
+
+  ptIds.InsertId(1,this->PointIds.GetId(1));
   pts.InsertPoint(1,this->Points.GetPoint(1));
 
   return 1;
@@ -366,3 +376,87 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
 }
 
 
+// support line clipping
+typedef int LINE_LIST;
+typedef struct {
+       LINE_LIST lines[2];
+} LINE_CASES;
+ 
+static LINE_CASES lineCases[] = { 
+{{ -1,  -1}},   // 0
+{{100,   1}},   // 1
+{{  0, 101}},   // 2
+{{100, 101}}};  // 3
+
+// Description:
+// Clip this line using scalar value provided. Like contouring, except
+// that it cuts the line to produce other lines.
+void vtkLine::Clip(float value, vtkFloatScalars *cellScalars, 
+                   vtkPointLocator *locator, vtkCellArray *lines,
+                   vtkPointData *inPd, vtkPointData *outPd,
+                   int insideOut)
+{
+  static int CASE_MASK[3] = {1,2};
+  LINE_CASES *lineCase;
+  int i, j, index, *vert;
+  int pts[3];
+  int vertexId;
+  float t, x1[3], x2[3], x[3];
+
+  // Build the case table
+  if ( insideOut )
+    {    
+    for ( i=0, index = 0; i < 2; i++)
+      if (cellScalars->GetScalar(i) <= value)
+        index |= CASE_MASK[i];
+    }    
+  else
+    {
+    for ( i=0, index = 0; i < 2; i++)
+      if (cellScalars->GetScalar(i) > value)
+        index |= CASE_MASK[i];
+    }
+
+  // Select the case based on the index and get the list of lines for this case
+  lineCase = lineCases + index;
+  vert = lineCase->lines;
+
+  // generate clipped line
+  if ( vert[0] > -1 )
+    {
+    for (i=0; i<2; i++) // insert line
+      {
+      // vertex exists, and need not be interpolated
+      if (vert[i] >= 100)
+        {
+	vertexId = vert[i] - 100;
+        this->Points.GetPoint(vertexId, x);
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          }
+	}
+
+      else //new vertex, interpolate
+        {
+        t = (value - cellScalars->GetScalar(0)) /
+            (cellScalars->GetScalar(1) - cellScalars->GetScalar(0));
+
+        this->Points.GetPoint(0, x1);
+        this->Points.GetPoint(1, x2);
+        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          int p1 = this->PointIds.GetId(0);
+          int p2 = this->PointIds.GetId(1);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
+        }
+      }
+    // check for degenerate tri's
+    if ( pts[0] != pts[1] ) lines->InsertNextCell(2,pts);
+    }
+}

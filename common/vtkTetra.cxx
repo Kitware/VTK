@@ -44,7 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTriangle.h"
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
-
+#include "vtkUnstructuredGrid.h"
 
 // Description:
 // Deep copy of cell.
@@ -235,7 +235,8 @@ void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars,
 		       vtkPointLocator *locator,
 		       vtkCellArray *vtkNotUsed(verts), 
 		       vtkCellArray *vtkNotUsed(lines), 
-		       vtkCellArray *polys, vtkFloatScalars *scalars)
+		       vtkCellArray *polys,
+                       vtkPointData *inPd, vtkPointData *outPd)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
@@ -265,7 +266,12 @@ void vtkTetra::Contour(float value, vtkFloatScalars *cellScalars,
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
-        scalars->InsertScalar(pts[i],value);
+        if ( outPd ) 
+          {
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
         }
       }
     polys->InsertNextCell(3,pts);
@@ -365,13 +371,16 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return intersection;
 }
 
-int vtkTetra::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoints &pts)
 {
+  ptIds.Reset();
   pts.Reset();
-  pts.InsertPoint(0,this->Points.GetPoint(0));
-  pts.InsertPoint(1,this->Points.GetPoint(1));
-  pts.InsertPoint(2,this->Points.GetPoint(2));
-  pts.InsertPoint(3,this->Points.GetPoint(3));
+    
+  for ( int i=0; i < 4; i++ )
+    {
+    ptIds.InsertId(i,this->PointIds.GetId(i));
+    pts.InsertPoint(i,this->Points.GetPoint(i));
+    }
 
   return 1;
 }
@@ -594,5 +603,101 @@ void vtkTetra::JacobianInverse(double **inverse, float derivs[12])
     {
     vtkErrorMacro(<<"Jacobian inverse not found");
     return;
+    }
+}
+
+// support tetra clipping
+typedef int TETRA_EDGE_LIST;
+typedef struct {
+       TETRA_EDGE_LIST edges[7];
+} TETRA_CASES;
+ 
+static TETRA_CASES tetraCases[] = { 
+{{-1, -1, -1, -1, -1, -1, -1}},	// 0
+{{0, 2, 100, -1, -1, -1, -1}},	// 1
+{{1, 0, 101, -1, -1, -1, -1}},	// 2
+{{1, 2, 100, 1, 100, 101, -1}},	// 3
+{{2, 1, 102, -1, -1, -1, -1}},	// 4
+{{0, 1, 102, 102, 100, 0, -1}},	// 5
+{{0, 101, 2, 2, 101, 102, -1}},	// 6
+{{100, 101, 102, -1, -1, -1, -1}}	// 7
+};
+
+// Description:
+// Clip this tetra using scalar value provided. Like contouring, except
+// that it cuts the tetra to produce other tetrahedra.
+void vtkTetra::Clip(float value, vtkFloatScalars *cellScalars, 
+                    vtkPointLocator *locator, vtkUnstructuredGrid *mesh,
+                    vtkPointData *inPd, vtkPointData *outPd,
+                    int insideOut)
+{
+  static int CASE_MASK[4] = {1,2,4,8};
+  TETRA_CASES *tetraCase;
+  TETRA_EDGE_LIST  *edge;
+  int i, j, index, *vert;
+  int pts[4];
+  int vertexId;
+  float t, x1[3], x2[3], x[3];
+
+  // Build the case table
+  if ( insideOut )
+    {    
+    for ( i=0, index = 0; i < 3; i++)
+      if (cellScalars->GetScalar(i) <= value)
+        index |= CASE_MASK[i];
+    }    
+  else
+    {
+    for ( i=0, index = 0; i < 3; i++)
+      if (cellScalars->GetScalar(i) > value)
+        index |= CASE_MASK[i];
+    }
+
+  // Select the case based on the index and get the list of edges for this case
+  tetraCase = tetraCases + index;
+  edge = tetraCase->edges;
+
+  // generate each tetra
+  for ( ; edge[0] > -1; edge += 4 )
+    {
+    for (i=0; i<4; i++) // insert tetra
+      {
+      // vertex exists, and need not be interpolated
+      if (edge[i] >= 100)
+        {
+	vertexId = edge[i] - 100;
+        this->Points.GetPoint(vertexId, x);
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          }
+	}
+
+      else //new vertex, interpolate
+        {
+        vert = edges[edge[i]];
+
+        t = (value - cellScalars->GetScalar(vert[0])) /
+            (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+
+        this->Points.GetPoint(vert[0], x1);
+        this->Points.GetPoint(vert[1], x2);
+        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
+        }
+      }
+    // check for degenerate tri's
+    if ( pts[0] == pts[1] || pts[0] == pts[2] || pts[0] == pts[3] ||
+    pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] ) continue;
+
+    mesh->InsertNextCell(VTK_TETRA,3,pts);
     }
 }

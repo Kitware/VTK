@@ -107,26 +107,32 @@ inline void vtkFloatVectors::WrotePtr() {}
 
 inline void vtkFloatVectors::SetVector(int i, float v[3]) 
 {
-  i*=3; 
-  this->V[i]=v[0]; 
-  this->V[i+1]=v[1]; 
-  this->V[i+2]=v[2];
+  float *ptr = this->V.WritePtr(i*3,3);
+
+  *ptr++ = v[0];
+  *ptr++ = v[1];
+  *ptr   = v[2];
 }
 
 inline void vtkFloatVectors::InsertVector(int i, float v[3]) 
 {
-  this->V.InsertValue(3*i+2, v[2]);
-  this->V[3*i] =  v[0];
-  this->V[3*i+1] =  v[1];
+  float *ptr = this->V.WritePtr(i*3,3);
+
+  *ptr++ = v[0];
+  *ptr++ = v[1];
+  *ptr   = v[2];
 }
 
 inline int vtkFloatVectors::InsertNextVector(float v[3]) 
 {
-  int id = this->V.GetMaxId() + 3;
-  this->V.InsertValue(id,v[2]);
-  this->V[id-2] = v[0];
-  this->V[id-1] = v[1];
-  return id/3;
+  int id = this->V.GetMaxId() + 1;
+  float *ptr = this->V.WritePtr(id,3);
+
+  *ptr++ = v[0];
+  *ptr++ = v[1];
+  *ptr   = v[2];
+
+  return (id+2)/3;
 }
 
 #endif

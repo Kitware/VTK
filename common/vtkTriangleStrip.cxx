@@ -161,7 +161,7 @@ int vtkTriangleStrip::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars, 
                               vtkPointLocator *locator, vtkCellArray *verts, 
                               vtkCellArray *lines, vtkCellArray *polys, 
-                              vtkFloatScalars *scalars)
+                              vtkPointData *inPd, vtkPointData *outPd)
 {
   int i;
   vtkFloatScalars triScalars(3); triScalars.ReferenceCountingOff();
@@ -173,12 +173,19 @@ void vtkTriangleStrip::Contour(float value, vtkFloatScalars *cellScalars,
     tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
     tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
 
+    if ( outPd )
+      {
+      tri.PointIds.SetId(0,this->PointIds.GetId(i));
+      tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
+      tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+      }
+
     triScalars.SetScalar(0,cellScalars->GetScalar(i));
     triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
     triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
 
     tri.Contour(value, &triScalars, locator, verts,
-                lines, polys, scalars);
+                lines, polys, inPd, outPd);
     }
 }
 
@@ -235,14 +242,19 @@ int vtkTriangleStrip::IntersectWithLine(float p1[3], float p2[3], float tol,
   return 0;
 }
 
-int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
+                                  vtkFloatPoints &pts)
 {
   pts.Reset();
-  for (int subId=0; subId<this->Points.GetNumberOfPoints()-2; subId++)
+  ptIds.Reset();
+
+  for (int subId=0; subId < this->Points.GetNumberOfPoints()-2; subId++)
     {
-    pts.InsertNextPoint(this->Points.GetPoint(subId));
-    pts.InsertNextPoint(this->Points.GetPoint(subId+1));
-    pts.InsertNextPoint(this->Points.GetPoint(subId+2));
+    for ( int i=0; i < 3; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(subId+i));
+      pts.InsertNextPoint(this->Points.GetPoint(subId+i));
+      }
     }
 
   return 1;

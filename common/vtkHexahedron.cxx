@@ -328,7 +328,8 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
 			    vtkPointLocator *locator,
 			    vtkCellArray *vtkNotUsed(verts), 
 			    vtkCellArray *vtkNotUsed(lines), 
-			    vtkCellArray *polys, vtkFloatScalars *scalars)
+			    vtkCellArray *polys, 
+                            vtkPointData *inPd, vtkPointData *outPd)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
@@ -359,7 +360,12 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
-        scalars->InsertScalar(pts[i],value);
+        if ( outPd ) 
+          {
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
         }
       }
     polys->InsertNextCell(3,pts);
@@ -465,66 +471,89 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   return intersection;
 }
 
-int vtkHexahedron::Triangulate(int index, vtkFloatPoints &pts)
+int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts)
 {
+  int p[4], i;
+
+  ptIds.Reset();
   pts.Reset();
 //
 // Create five tetrahedron. Triangulation varies depending upon index. This
 // is necessary to insure compatible voxel triangulations.
 //
-  if ( index % 2 )
+  if ( (index % 2) )
     {
-    pts.InsertNextPoint(this->Points.GetPoint(0));
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(4));
-    pts.InsertNextPoint(this->Points.GetPoint(3));
+    p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 3;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(4));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
-    pts.InsertNextPoint(this->Points.GetPoint(5));
+    p[0] = 1; p[1] = 4; p[2] = 7; p[3] = 5;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(4));
-    pts.InsertNextPoint(this->Points.GetPoint(3));
-    pts.InsertNextPoint(this->Points.GetPoint(6));
+    p[0] = 1; p[1] = 4; p[2] = 3; p[3] = 6;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(3));
-    pts.InsertNextPoint(this->Points.GetPoint(2));
-    pts.InsertNextPoint(this->Points.GetPoint(6));
+    p[0] = 1; p[1] = 3; p[2] = 2; p[3] = 6;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(3));
-    pts.InsertNextPoint(this->Points.GetPoint(6));
-    pts.InsertNextPoint(this->Points.GetPoint(4));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
+    p[0] = 3; p[1] = 6; p[2] = 4; p[3] = 7;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
     }
   else
     {
-    pts.InsertNextPoint(this->Points.GetPoint(2));
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(0));
-    pts.InsertNextPoint(this->Points.GetPoint(5));
+    p[0] = 2; p[1] = 1; p[2] = 0; p[3] = 5;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(0));
-    pts.InsertNextPoint(this->Points.GetPoint(2));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
-    pts.InsertNextPoint(this->Points.GetPoint(3));
+    p[0] = 0; p[1] = 2; p[2] = 7; p[3] = 3;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(2));
-    pts.InsertNextPoint(this->Points.GetPoint(5));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
-    pts.InsertNextPoint(this->Points.GetPoint(6));
+    p[0] = 2; p[1] = 5; p[2] = 7; p[3] = 6;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(0));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
-    pts.InsertNextPoint(this->Points.GetPoint(5));
-    pts.InsertNextPoint(this->Points.GetPoint(4));
+    p[0] = 0; p[1] = 7; p[2] = 5; p[3] = 4;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
 
-    pts.InsertNextPoint(this->Points.GetPoint(1));
-    pts.InsertNextPoint(this->Points.GetPoint(2));
-    pts.InsertNextPoint(this->Points.GetPoint(5));
-    pts.InsertNextPoint(this->Points.GetPoint(7));
+    p[0] = 1; p[1] = 2; p[2] = 5; p[3] = 7;
+    for ( i=0; i < 4; i++ )
+      {
+      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
+      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      }
     }
 
   return 1;

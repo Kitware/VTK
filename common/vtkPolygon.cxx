@@ -823,7 +823,8 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars, 
                         vtkPointLocator *locator,
                         vtkCellArray *verts, vtkCellArray *lines, 
-                        vtkCellArray *polys, vtkFloatScalars *scalars)
+                        vtkCellArray *polys,
+                        vtkPointData *inPd, vtkPointData *outPd)
 {
   int i, success;
   int numVerts=this->Points.GetNumberOfPoints();
@@ -858,12 +859,19 @@ void vtkPolygon::Contour(float value, vtkFloatScalars *cellScalars,
       tri.Points.SetPoint(1,this->Points.GetPoint(i+1));
       tri.Points.SetPoint(2,this->Points.GetPoint(i+2));
 
+      if ( outPd )
+        {
+        tri.PointIds.SetId(0,this->PointIds.GetId(i));
+        tri.PointIds.SetId(1,this->PointIds.GetId(i+1));
+        tri.PointIds.SetId(2,this->PointIds.GetId(i+2));
+        }
+
       triScalars.SetScalar(0,cellScalars->GetScalar(i));
       triScalars.SetScalar(1,cellScalars->GetScalar(i+1));
       triScalars.SetScalar(2,cellScalars->GetScalar(i+2));
 
       tri.Contour(value, &triScalars, locator, verts,
-                   lines, polys, scalars);
+                   lines, polys, inPd, outPd);
       }
     }
   delete [] polyVerts;
@@ -952,7 +960,8 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
 
 }
 
-int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
+                            vtkFloatPoints &pts)
 {
   int i, success;
   float *bounds, d;
@@ -961,6 +970,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
   static vtkIdList Tris((VTK_CELL_SIZE-2)*3);
 
   pts.Reset();
+  ptIds.Reset();
 
   bounds = this->GetBounds();
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -983,6 +993,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
     {
     for (i=0; i<Tris.GetNumberOfIds(); i++)
       {
+      ptIds.InsertId(i,this->PointIds.GetId(Tris.GetId(i)));
       pts.InsertPoint(i,this->Points.GetPoint(Tris.GetId(i)));
       }
     }

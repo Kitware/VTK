@@ -119,7 +119,7 @@ void vtkPolyVertex::Contour(float value, vtkFloatScalars *cellScalars,
 			    vtkPointLocator *locator, vtkCellArray *verts,
 			    vtkCellArray *vtkNotUsed(lines), 
 			    vtkCellArray *vtkNotUsed(polys), 
-			    vtkFloatScalars *scalars)
+                            vtkPointData *inPd, vtkPointData *outPd)
 {
   int i, pts[1], numPts=this->Points.GetNumberOfPoints();
 
@@ -127,8 +127,11 @@ void vtkPolyVertex::Contour(float value, vtkFloatScalars *cellScalars,
     {
     if ( value == cellScalars->GetScalar(i) )
       {
-      pts[0] = locator->InsertNextPoint(this->Points.GetPoint(0));
-      scalars->InsertScalar(pts[0],value);
+      pts[0] = locator->InsertNextPoint(this->Points.GetPoint(i));
+      if ( outPd )
+        {   
+        outPd->CopyData(inPd,this->PointIds.GetId(i),pts[0]);
+        }
       verts->InsertNextCell(1,pts);
       }
     }
@@ -155,14 +158,17 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
   return 0;
 }
 
-int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
+                               vtkFloatPoints &pts)
 {
   int subId;
 
   pts.Reset();
+  ptIds.Reset();
   for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
     {
     pts.InsertPoint(subId,this->Points.GetPoint(subId));
+    ptIds.InsertId(subId,this->PointIds.GetId(subId));
     }
   return 1;
 }

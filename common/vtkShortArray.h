@@ -103,8 +103,9 @@ inline short *vtkShortArray::GetPtr(const int id) {return this->Array + id;};
 // data values requested.
 inline short *vtkShortArray::WritePtr(const int id, const int number) 
 {
-  if ( (id + number) > this->Size ) this->Resize(id+number);
-  this->MaxId = id + number - 1;
+  int newSize=id+number;
+  if ( newSize > this->Size ) this->Resize(newSize);
+  if ( (--newSize) > this->MaxId ) this->MaxId = newSize;
   return this->Array + id;
 }
 

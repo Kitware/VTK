@@ -121,10 +121,11 @@ inline int vtkCellArray::GetNumberOfCells() {return this->NumberOfCells;};
 // Create a cell by specifying the number of points and an array of point id's.
 inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 {
-  int id = this->Ia.GetMaxId() + npts + 1;
-  this->Ia.InsertValue(id,pts[npts-1]);
-  this->Ia[id-npts] = npts;
-  for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts[i];
+  int i = this->Ia.GetMaxId() + 1;
+  int *ptr = this->Ia.WritePtr(i,npts+1);
+  
+  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = *pts++;
+
   this->NumberOfCells++;
   this->Location += npts + 1;
 
@@ -136,10 +137,11 @@ inline int vtkCellArray::InsertNextCell(int npts, int* pts)
 inline int vtkCellArray::InsertNextCell(vtkIdList &pts)
 {
   int npts = pts.GetNumberOfIds();
-  int id = this->Ia.GetMaxId() + npts + 1;
-  this->Ia.InsertValue(id,pts.GetId(npts-1));
-  this->Ia[id-npts] = npts;
-  for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = pts.GetId(i);
+  int i = this->Ia.GetMaxId() + 1;
+  int *ptr = this->Ia.WritePtr(i,npts+1);
+  
+  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = pts.GetId(i);
+
   this->NumberOfCells++;
   this->Location += npts + 1;
 
@@ -179,10 +181,11 @@ inline void vtkCellArray::UpdateCellCount(int npts)
 inline int vtkCellArray::InsertNextCell(vtkCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
-  int id = this->Ia.GetMaxId() + npts + 1;
-  this->Ia.InsertValue(id,cell->PointIds.GetId(npts-1));
-  this->Ia[id-npts] = npts;
-  for (int i=0; i<npts-1; i++) this->Ia[id-npts+i+1] = cell->PointIds.GetId(i);
+  int i = this->Ia.GetMaxId() + 1;
+  int *ptr = this->Ia.WritePtr(i,npts+1);
+  
+  for ( *ptr++ = npts, i = 0; i < npts; i++) *ptr++ = cell->PointIds.GetId(i);
+
   this->NumberOfCells++;
   this->Location += npts + 1;
 

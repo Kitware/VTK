@@ -189,11 +189,7 @@ vtkCell *vtkPolyData::GetCell(int cellId)
       break;
     }
 
-  // make sure there's enough storage; insert does an allocate, set doesn't
-  cell->PointIds.InsertId(numPts-1,pts[numPts-1]);
-  cell->Points.InsertPoint(numPts-1,this->Points->GetPoint(pts[numPts-1]));
-  
-  for (i=0; i<numPts-1; i++)
+  for (i=0; i < numPts; i++)
     {
     cell->PointIds.SetId(i,pts[i]);
     cell->Points.SetPoint(i,this->Points->GetPoint(pts[i]));

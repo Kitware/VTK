@@ -242,16 +242,15 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
 			  vtkCellArray *vtkNotUsed(verts), 
 			  vtkCellArray *lines, 
 			  vtkCellArray *vtkNotUsed(polys), 
-			  vtkFloatScalars *scalars)
+                          vtkPointData *inPd, vtkPointData *outPd)
 {
   static int CASE_MASK[3] = {1,2,4};
   LINE_CASES *lineCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
   static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
-  int e1, e2;
   int pts[2];
-  float t, *x1, *x2, x[3], deltaScalar;
+  float t, *x1, *x2, x[3];
 
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
@@ -266,28 +265,21 @@ void vtkTriangle::Contour(float value, vtkFloatScalars *cellScalars,
     for (i=0; i<2; i++) // insert line
       {
       vert = edges[edge[i]];
+      t = (value - cellScalars->GetScalar(vert[0])) /
+          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
 
-      // calculate a preferred interpolation direction
-      deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-      if (deltaScalar > 0)
-          {
-	  e1 = vert[0]; e2 = vert[1];
-          }
-      else
-          {
-	   e1 = vert[1]; e2 = vert[0];
-           deltaScalar = -deltaScalar;
-          }
-
-      t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
-
-      x1 = this->Points.GetPoint(e1);
-      x2 = this->Points.GetPoint(e2);
+      x1 = this->Points.GetPoint(vert[0]);
+      x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
-        scalars->InsertScalar(pts[i],value);
+        if ( outPd ) 
+          {
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
         }
       }
     lines->InsertNextCell(2,pts);
@@ -350,12 +342,17 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   return 0;
 }
 
-int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, 
+                             vtkFloatPoints &pts)
 {
   pts.Reset();
-  pts.InsertPoint(0,this->Points.GetPoint(0));
-  pts.InsertPoint(1,this->Points.GetPoint(1));
-  pts.InsertPoint(2,this->Points.GetPoint(2));
+  ptIds.Reset();
+
+  for ( int i=0; i < 3; i++ )
+    {
+    ptIds.InsertId(i,this->PointIds.GetId(i));
+    pts.InsertPoint(i,this->Points.GetPoint(i));
+    }
 
   return 1;
 }
@@ -592,4 +589,101 @@ int vtkTriangle::ProjectTo2D(float x1[3], float x2[3], float x3[3],
   v3[1] = vtkMath::Dot(v31,v);
 
   return 1;
+}
+
+// support triangle clipping
+typedef int TRIANGLE_EDGE_LIST;
+typedef struct {
+       TRIANGLE_EDGE_LIST edges[7];
+} TRIANGLE_CASES;
+ 
+static TRIANGLE_CASES triangleCases[] = { 
+{{-1, -1, -1, -1, -1, -1, -1}},	// 0
+{{0, 2, 100, -1, -1, -1, -1}},	// 1
+{{1, 0, 101, -1, -1, -1, -1}},	// 2
+{{1, 2, 100, 1, 100, 101, -1}},	// 3
+{{2, 1, 102, -1, -1, -1, -1}},	// 4
+{{0, 1, 102, 102, 100, 0, -1}},	// 5
+{{0, 101, 2, 2, 101, 102, -1}},	// 6
+{{100, 101, 102, -1, -1, -1, -1}}	// 7
+};
+
+static int edges[3][2] = { {0,1}, {1,2}, {2,0} };
+
+// Description:
+// Clip this triangle using scalar value provided. Like contouring, except
+// that it cuts the triangle to produce other triangles.
+void vtkTriangle::Clip(float value, vtkFloatScalars *cellScalars, 
+                       vtkPointLocator *locator, vtkCellArray *tris,
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       int insideOut)
+{
+  static int CASE_MASK[3] = {1,2,4};
+  TRIANGLE_CASES *triangleCase;
+  TRIANGLE_EDGE_LIST  *edge;
+  int i, j, index, *vert;
+  int pts[3];
+  int vertexId;
+  float t, x1[3], x2[3], x[3];
+
+  // Build the case table
+  if ( insideOut )
+    {    
+    for ( i=0, index = 0; i < 3; i++)
+      if (cellScalars->GetScalar(i) <= value)
+        index |= CASE_MASK[i];
+    }    
+  else
+    {
+    for ( i=0, index = 0; i < 3; i++)
+      if (cellScalars->GetScalar(i) > value)
+        index |= CASE_MASK[i];
+    }
+
+  // Select the case based on the index and get the list of edges for this case
+  triangleCase = triangleCases + index;
+  edge = triangleCase->edges;
+
+  // generate each triangle
+  for ( ; edge[0] > -1; edge += 3 )
+    {
+    for (i=0; i<3; i++) // insert triangle
+      {
+      // vertex exists, and need not be interpolated
+      if (edge[i] >= 100)
+        {
+	vertexId = edge[i] - 100;
+        this->Points.GetPoint(vertexId, x);
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          }
+	}
+
+      else //new vertex, interpolate
+        {
+        vert = edges[edge[i]];
+
+        t = (value - cellScalars->GetScalar(vert[0])) /
+            (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+
+        this->Points.GetPoint(vert[0], x1);
+        this->Points.GetPoint(vert[1], x2);
+        for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
+
+        if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
+          {
+          pts[i] = locator->InsertNextPoint(x);
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
+        }
+      }
+    // check for degenerate tri's
+    if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2]) continue;
+
+    tris->InsertNextCell(3,pts);
+    }
 }

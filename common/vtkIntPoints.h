@@ -116,50 +116,62 @@ inline void vtkIntPoints::GetPoint(int id, float x[3])
 
 inline void vtkIntPoints::SetPoint(int i, float x[3]) 
 {
-  i*=3; 
-  this->P[i]=(int)x[0]; 
-  this->P[i+1]=(int)x[1]; 
-  this->P[i+2]=(int)x[2];
+  int *ptr = this->P.WritePtr(i*3,3);
+
+  *ptr++ = (int) x[0];
+  *ptr++ = (int) x[1];
+  *ptr   = (int) x[2];
 }
 
 inline void vtkIntPoints::SetPoint(int i, int x[3]) 
 {
-  i *= 3; 
-  this->P[i] = x[0]; 
-  this->P[i+1] = x[1]; 
-  this->P[i+2] = x[2];
+  int *ptr = this->P.WritePtr(i*3,3);
+
+  *ptr++ = x[0];
+  *ptr++ = x[1];
+  *ptr   = x[2];
 }
 
 inline void vtkIntPoints::InsertPoint(int i, int x[3]) 
 {
-  this->P.InsertValue(3*i+2, x[2]);
-  this->P[3*i] =  x[0];
-  this->P[3*i+1] = x[1];
+  int *ptr = this->P.WritePtr(i*3,3);
+
+  *ptr++ = x[0];
+  *ptr++ = x[1];
+  *ptr   = x[2];
 }
 
 inline void vtkIntPoints::InsertPoint(int i, float x[3]) 
 {
-  this->P.InsertValue(3*i+2, (int)x[2]);
-  this->P[3*i] = (int)x[0];
-  this->P[3*i+1] = (int)x[1];
+  int *ptr = this->P.WritePtr(i*3,3);
+
+  *ptr++ = (int) x[0];
+  *ptr++ = (int) x[1];
+  *ptr   = (int) x[2];
 }
 
 inline int vtkIntPoints::InsertNextPoint(int x[3]) 
 {
-  int id = this->P.GetMaxId() + 3;
-  this->P.InsertValue(id,x[2]);
-  this->P[id-2] = x[0];
-  this->P[id-1] = x[1];
-  return id/3;
+  int id = this->P.GetMaxId() + 1;
+  int *ptr = this->P.WritePtr(id,3);
+
+  *ptr++ = x[0];
+  *ptr++ = x[1];
+  *ptr   = x[2];
+
+  return (id+2)/3;
 }
 
 inline int vtkIntPoints::InsertNextPoint(float x[3]) 
 {
-  int id = this->P.GetMaxId() + 3;
-  this->P.InsertValue(id,(int)x[2]);
-  this->P[id-2] = (int)x[0];
-  this->P[id-1] = (int)x[1];
-  return id/3;
+  int id = this->P.GetMaxId() + 1;
+  int *ptr = this->P.WritePtr(id,3);
+
+  *ptr++ = (int) x[0];
+  *ptr++ = (int) x[1];
+  *ptr   = (int) x[2];
+
+  return (id+2)/3;
 }
 
 #endif

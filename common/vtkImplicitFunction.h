@@ -45,21 +45,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // operations are required: the ability to evaluate the function, and the 
 // function gradient at a given point.
 //
+// Implicit functions are very powerful. It is possible to represent almost
+// any type of geometry with implicit functions, especially if you use 
+// boolean combinations implicit functions (see vtkImplicitBoolean).
+//
 // vtkImplicitFunction provides a mechanism to transform the implicit
 // function(s) via a transformation matrix. This capability can be used to 
 // translate, orient, or scale implicit functions. For example, a sphere 
 // implicit function can be transformed into an oriented ellipse. This is 
 // accomplished by using an instance of vtkTransform.
+
 // .SECTION Caveats
 // The transformation matrix transforms a point into the space of the implicit
-// function (i.e., the model space). Typically we want to transpose the 
+// function (i.e., the model space). Typically we want to transform the 
 // implicit model into world coordinates. In this case the inverse of the 
-// transform is required.
+// transformation matrix is required.
 
 // .SECTION See Also
 // vtkTransform
-// vtkCylinder vtkImplicitBoolean vtkPlane vtkPlanes
-// vtkQuadric vtkSphere
+// vtkSphere vtkCylinder vtkImplicitBoolean vtkPlane vtkPlanes
+// vtkQuadric vtkImplicitVolume
+// vtkSampleFunction vtkCutter vtkClipper
 
 #ifndef __vtkImplicitFunction_h
 #define __vtkImplicitFunction_h

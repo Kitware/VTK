@@ -453,6 +453,112 @@ void vtkPointData::InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *p
     }
 }
 
+// Description:
+// Interpolate data from the two points p1,p2 (forming an edge) and an 
+// interpolation factor, t, along the edge. The weight ranges from (0,1), 
+// with t=0 located at p1. Make sure that the method InterpolateAllocate() 
+// has been invoked before using this method.
+void vtkPointData::InterpolateEdge(vtkPointData *fromPd, int toId,
+                                   int p1, int p2, float t)
+{
+  if ( fromPd->Scalars && this->Scalars && this->CopyScalars )
+    {
+    if (strcmp(this->Scalars->GetScalarType(),"ColorScalar"))
+      {
+      float s1 = fromPd->Scalars->GetScalar(p1);
+      float s2 = fromPd->Scalars->GetScalar(p2);
+
+      float s = s1 + t * (s2 - s1);
+      this->Scalars->InsertScalar(toId,s);
+      }
+    else //color scalar
+      {
+      unsigned char rgba[4], c1[4], c2[4];
+      vtkColorScalars *to=(vtkColorScalars *)this->Scalars;
+      vtkColorScalars *from=(vtkColorScalars *)fromPd->Scalars;
+
+      from->GetColor(p1, c1);
+      from->GetColor(p2, c2);
+      rgba[0] = (unsigned char) ((float)c1[0] + t * (c2[0] - c1[0]));
+      rgba[1] = (unsigned char) ((float)c1[1] + t * (c2[1] - c1[1]));
+      rgba[2] = (unsigned char) ((float)c1[2] + t * (c2[2] - c1[2]));
+      rgba[3] = (unsigned char) ((float)c1[3] + t * (c2[3] - c1[3]));
+   
+      to->InsertColor(toId,rgba);
+      }
+    }
+
+  if ( fromPd->Vectors && this->Vectors && this->CopyVectors )
+    {
+    float v[3], v1[3], v2[3];
+
+    fromPd->Vectors->GetVector(p1, v1);
+    fromPd->Vectors->GetVector(p2, v2);
+    v[0] = v1[0] + t * (v2[0] - v1[0]);
+    v[1] = v1[1] + t * (v2[1] - v1[1]);
+    v[2] = v1[2] + t * (v2[2] - v1[2]);
+
+    this->Vectors->InsertVector(toId,v);
+    }
+
+  if ( fromPd->Normals && this->Normals && this->CopyNormals )
+    {
+    float n[3], n1[3], n2[3];
+
+    fromPd->Normals->GetNormal(p1, n1);
+    fromPd->Normals->GetNormal(p2, n2);
+    n[0] = n1[0] + t * (n2[0] - n1[0]);
+    n[1] = n1[1] + t * (n2[1] - n1[1]);
+    n[2] = n1[2] + t * (n2[2] - n1[2]);
+
+    this->Normals->InsertNormal(toId,n);
+    }
+
+  if ( fromPd->TCoords && this->TCoords && this->CopyTCoords )
+    {
+    float tc[3], t1[3], t2[3];
+
+    fromPd->TCoords->GetTCoord(p1, t1);
+    fromPd->TCoords->GetTCoord(p2, t2);
+    for (int i=0; i<cellTCoords->GetDimension(); i++) 
+      {
+      tc[i] = t1[i] + t * (t2[i] - t1[i]);
+      }
+
+    this->TCoords->InsertTCoord(toId,tc);
+    }
+
+  if ( fromPd->Tensors && this->Tensors && this->CopyTensors )
+    {
+    float comp;
+    static vtkTensor tensor(3), t1(3), t2(3);
+
+    fromPd->Tensors->GetTensor(p1, t1);
+    fromPd->Tensors->GetTensor(p1, t2);
+    tensor.Initialize();
+    for (int i=0; i < cellTensors->GetDimension(); i++) 
+      {
+      for (int j=0; j < cellTensors->GetDimension(); j++) 
+        {
+        comp = t1.GetComponent(i,j) + t * 
+                        (t2.GetComponent(i,j) - t1.GetComponent(i,j));
+        tensor.SetComponent(i,j,comp);
+        }
+      }
+    this->Tensors->InsertTensor(toId,&tensor);
+    }
+
+  if ( fromPd->UserDefined && this->UserDefined && this->CopyUserDefined )
+    {
+    void *ud;
+
+    if ( t <= 0.5 ) ud = fromPd->UserDefined->GetUserDefined(p1);
+    else ud = fromPd->UserDefined->GetUserDefined(p2);
+
+    this->UserDefined->InsertUserDefined(toId,ud);
+    }
+}
+
 void vtkPointData::NullPoint (int ptId)
 {
   static float null[3] = {0.0, 0.0, 0.0};

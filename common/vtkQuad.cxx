@@ -342,7 +342,7 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
 		      vtkCellArray *vtkNotUsed(verts), 
 		      vtkCellArray *lines, 
 		      vtkCellArray *vtkNotUsed(polys), 
-		      vtkFloatScalars *scalars)
+                      vtkPointData *inPd, vtkPointData *outPd)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   LINE_CASES *lineCase;
@@ -372,7 +372,12 @@ void vtkQuad::Contour(float value, vtkFloatScalars *cellScalars,
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[i] = locator->InsertNextPoint(x);
-        scalars->InsertScalar(pts[i],value);
+        if ( outPd ) 
+          {
+          int p1 = this->PointIds.GetId(vert[0]);
+          int p2 = this->PointIds.GetId(vert[1]);
+          outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
+          }
         }
       }
     lines->InsertNextCell(2,pts);
@@ -431,13 +436,15 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   return 0;
 }
 
-int vtkQuad::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
+                         vtkFloatPoints &pts)
 {
   float d1, d2;
 
   pts.Reset();
+  ptIds.Reset();
 
-  // use minimum diagonal (Delaunay triangles)
+  // use minimum diagonal (Delaunay triangles) - assumed convex
   d1 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(0), 
                                    this->Points.GetPoint(2));
   d2 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(1), 
@@ -445,22 +452,34 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
 
   if ( d1 < d2 )
     {
+    ptIds.InsertId(0,this->PointIds.GetId(0));
     pts.InsertPoint(0,this->Points.GetPoint(0));
+    ptIds.InsertId(1,this->PointIds.GetId(1));
     pts.InsertPoint(1,this->Points.GetPoint(1));
+    ptIds.InsertId(2,this->PointIds.GetId(2));
     pts.InsertPoint(2,this->Points.GetPoint(2));
 
+    ptIds.InsertId(3,this->PointIds.GetId(0));
     pts.InsertPoint(3,this->Points.GetPoint(0));
+    ptIds.InsertId(4,this->PointIds.GetId(2));
     pts.InsertPoint(4,this->Points.GetPoint(2));
+    ptIds.InsertId(5,this->PointIds.GetId(3));
     pts.InsertPoint(5,this->Points.GetPoint(3));
     }
   else
     {
+    ptIds.InsertId(0,this->PointIds.GetId(0));
     pts.InsertPoint(0,this->Points.GetPoint(0));
+    ptIds.InsertId(1,this->PointIds.GetId(1));
     pts.InsertPoint(1,this->Points.GetPoint(1));
+    ptIds.InsertId(2,this->PointIds.GetId(3));
     pts.InsertPoint(2,this->Points.GetPoint(3));
 
+    ptIds.InsertId(3,this->PointIds.GetId(1));
     pts.InsertPoint(3,this->Points.GetPoint(1));
+    ptIds.InsertId(4,this->PointIds.GetId(2));
     pts.InsertPoint(4,this->Points.GetPoint(2));
+    ptIds.InsertId(5,this->PointIds.GetId(3));
     pts.InsertPoint(5,this->Points.GetPoint(3));
     }
 

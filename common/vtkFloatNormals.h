@@ -107,26 +107,32 @@ inline void vtkFloatNormals::WrotePtr() {}
 
 inline void vtkFloatNormals::SetNormal(int i, float n[3]) 
 {
-  i*=3; 
-  this->N[i]=n[0]; 
-  this->N[i+1]=n[1]; 
-  this->N[i+2]=n[2];
+  float *ptr = this->N.WritePtr(i*3,3);
+
+  *ptr++ = n[0];
+  *ptr++ = n[1];
+  *ptr   = n[2];
 }
 
 inline void vtkFloatNormals::InsertNormal(int i, float n[3]) 
 {
-  this->N.InsertValue(3*i+2, n[2]);
-  this->N[3*i] =  n[0];
-  this->N[3*i+1] =  n[1];
+  float *ptr = this->N.WritePtr(i*3,3);
+
+  *ptr++ = n[0];
+  *ptr++ = n[1];
+  *ptr   = n[2];
 }
 
 inline int vtkFloatNormals::InsertNextNormal(float n[3]) 
 {
-  int id = this->N.GetMaxId() + 3;
-  this->N.InsertValue(id,n[2]);
-  this->N[id-2] = n[0];
-  this->N[id-1] = n[1];
-  return id/3;
+  int id = this->N.GetMaxId() + 1;
+  float *ptr = this->N.WritePtr(id,3);
+
+  *ptr++ = n[0];
+  *ptr++ = n[1];
+  *ptr   = n[2];
+
+  return (id+2)/3;
 }
 
 #endif

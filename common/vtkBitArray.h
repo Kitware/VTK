@@ -102,8 +102,9 @@ inline unsigned char *vtkBitArray::GetPtr(const int id)
 // data values requested.
 inline unsigned char *vtkBitArray::WritePtr(const int id, const int number)
 {
-  if ( (id + number) > this->Size ) this->Resize(id+number);
-  this->MaxId = id + number - 1;
+  int newSize=id+number;
+  if ( newSize > this->Size ) this->Resize(newSize);
+  if ( (--newSize) > this->MaxId ) this->MaxId = newSize;
   return this->Array + id/8;
 }
 

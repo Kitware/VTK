@@ -78,7 +78,10 @@ public:
 
   // use to interpolate data
   void InterpolateAllocate(vtkPointData* pd, int sze=0, int ext=1000);
-  void InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, float *weights);
+  void InterpolatePoint(vtkPointData *fromPd, int toId, vtkIdList *ptIds, 
+                        float *weights);
+  void InterpolateEdge(vtkPointData *fromPd, int toId, int p1, int p2,
+                        float t);
 
   // Set point data to null values
   void NullPoint(int ptId);

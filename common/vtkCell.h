@@ -69,6 +69,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkCellArray;
 class vtkPointLocator;
+class vtkPointData;
 
 class vtkCell : public vtkObject
 {
@@ -156,12 +157,17 @@ public:
                                 float x[3], float *weights) = 0;
 
   // Description:
-  // Generate contouring primitives. The point locator is essentially a points list
-  // that merges points as they are inserted (i.e., prevents duplicates).
+  // Generate contouring primitives. The scalar list cellScalars are
+  // scalar values at each cell point. The point locator is essentially a 
+  // points list that merges points as they are inserted (i.e., prevents 
+  // duplicates). Contouring primitives can be vertices, lines, or
+  // polygons. It is possible to interpolate point data along the edge
+  // by providing input and output point data - if outPd is NULL, then
+  // no interpolation is performed.
   virtual void Contour(float value, vtkFloatScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys, 
-                       vtkFloatScalars *scalars) = 0;
+                       vtkPointData *inPd, vtkPointData *outPd) = 0;
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)
@@ -177,7 +183,7 @@ public:
   // cell dimension) defining a simplex. The index is a parameter that controls
   // which triangulation to use (if more than one is possible). If numerical
   // degeneracy encountered, 0 is returned, otherwise 1 is returned.
-  virtual int Triangulate(int index, vtkFloatPoints &pts) = 0;
+  virtual int Triangulate(int index, vtkIdList &ptIds, vtkFloatPoints &pts) = 0;
 
   // Description:
   // Compute derivatives given cell subId and parametric coordinates. The values

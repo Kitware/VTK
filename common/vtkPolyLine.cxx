@@ -460,7 +460,7 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
                          vtkPointLocator *locator, vtkCellArray *verts, 
                          vtkCellArray *lines, vtkCellArray *polys, 
-                         vtkFloatScalars *scalars)
+                         vtkPointData *inPd, vtkPointData *outPd)
 {
   int i;
   vtkFloatScalars lineScalars(2); lineScalars.ReferenceCountingOff();
@@ -471,11 +471,17 @@ void vtkPolyLine::Contour(float value, vtkFloatScalars *cellScalars,
     line.Points.SetPoint(0,this->Points.GetPoint(i));
     line.Points.SetPoint(1,this->Points.GetPoint(i+1));
 
+    if ( outPd )
+      {
+      line.PointIds.SetId(0,this->PointIds.GetId(i));
+      line.PointIds.SetId(1,this->PointIds.GetId(i+1));
+      }
+
     lineScalars.SetScalar(0,cellScalars->GetScalar(i));
     lineScalars.SetScalar(1,cellScalars->GetScalar(i+1));
 
     line.Contour(value, &lineScalars, locator, verts,
-                 lines, polys, scalars);
+                 lines, polys, inPd, outPd);
     }
 
 }
@@ -500,13 +506,19 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
   return 0;
 }
 
-int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkFloatPoints &pts)
+int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
+                             vtkFloatPoints &pts)
 {
   pts.Reset();
+  ptIds.Reset();
+
   for (int subId=0; subId<this->Points.GetNumberOfPoints()-1; subId++)
     {
-    pts.InsertPoint(subId,this->Points.GetPoint(subId));
-    pts.InsertPoint(subId+1,this->Points.GetPoint(subId+1));
+    pts.InsertNextPoint(this->Points.GetPoint(subId));
+    ptIds.InsertNextId(this->PointIds.GetId(subId));
+
+    pts.InsertNextPoint(this->Points.GetPoint(subId+1));
+    ptIds.InsertNextId(this->PointIds.GetId(subId+1));
     }
 
   return 1;
