@@ -35,9 +35,16 @@ public:
   vlSetStringMacro(Text);
   vlGetStringMacro(Text);
 
+  // Description:
+  // Controlls whether or not a background is drawn with the text.
+  vlSetMacro(Backing,int);
+  vlGetMacro(Backing,int);
+  vlBooleanMacro(Backing,int);
+
 protected:
   void Execute();
   char *Text;
+  int   Backing;
 };
 
 #endif

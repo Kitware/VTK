@@ -15,7 +15,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "TextSrc.hh"
 #include "FPoints.hh"
-#include "FNormals.hh"
+#include "Graymap.hh"
 
 #define vlfont_width 9
 #define vlfont_row_width 864
@@ -132,10 +132,11 @@ static char vlfont_bits[] = {
  };
 
 // Description:
-// Construct Text object with no string set.
+// Construct Text object with no string set and Backing enabled.
 vlTextSource::vlTextSource()
 {
   this->Text = NULL;
+  this->Backing = 1;
 }
 
 void vlTextSource::Execute()
@@ -143,22 +144,25 @@ void vlTextSource::Execute()
   int row, col;
   vlFloatPoints *newPoints; 
   vlCellArray *newPolys;
+  vlGraymap *newScalars;
   float x[3];
   int pos = 0;
   int pixelPos;
   int pts[5];
   int numPolys = 0;
   int acol;
-  int drawing = 0;
+  int drawingWhite = 0;
+  int drawingBlack = 0;
+  static unsigned char white[4] = {255, 255, 255, 255};
+  static unsigned char black[4] = {0, 0, 0, 255};
 
-  //
   // Set things up; allocate memory
-  //
   this->Initialize();
   x[2] = 0;
 
   newPoints = new vlFloatPoints();
   newPolys = new vlCellArray;
+  newScalars = new vlGraymap;
 
   // Create Text
   while (this->Text[pos])
@@ -170,32 +174,20 @@ void vlTextSource::Execute()
 	acol = (this->Text[pos] - 32)*vlfont_width + col - 2;
 	for (row = 0; row < vlfont_height; row++)
 	  {
-	  // if the pixel is set then add a square
 	  pixelPos = acol + row*vlfont_row_width;
 	  if (vlfont_bits[pixelPos/8] & (0x01 << pixelPos%8))
 	    {
-	    if (!drawing)
-	      {
-	      x[0] = pos*vlfont_width + col; 
-	      x[1] = vlfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      x[0] = pos*vlfont_width + col + 1; 
-	      x[1] = vlfont_height - row;
-	      newPoints->InsertNextPoint(x);
-	      drawing = 1;
-	      }
-	    }
-	  // if the pixel is not set the close up the rectangle
-	  else
-	    {
-	    if (drawing)
+	    if (drawingBlack)
 	      {
 	      x[0] = pos*vlfont_width + col + 1; 
 	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(black);
+
 	      x[0] = pos*vlfont_width + col; 
 	      x[1] = vlfont_height - row;
 	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(black);
 
 	      pts[0] = numPolys*4;
 	      pts[1] = numPolys*4 + 1;
@@ -203,19 +195,72 @@ void vlTextSource::Execute()
 	      pts[3] = numPolys*4 + 3;
 	      newPolys->InsertNextCell(4,pts);
 	      numPolys++;
-	      drawing = 0;
+	      drawingBlack = 0;
+	      }
+	    if (!drawingWhite)
+	      {
+	      x[0] = pos*vlfont_width + col; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(white);
+
+	      x[0] = pos*vlfont_width + col + 1; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(white);
+	      drawingWhite = 1;
+	      }
+	    }
+	  // if the pixel is not set the close up the rectangle
+	  else
+	    {
+	    if (drawingWhite)
+	      {
+	      x[0] = pos*vlfont_width + col + 1; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(white);
+
+	      x[0] = pos*vlfont_width + col; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(white);
+
+	      pts[0] = numPolys*4;
+	      pts[1] = numPolys*4 + 1;
+	      pts[2] = numPolys*4 + 2;
+	      pts[3] = numPolys*4 + 3;
+	      newPolys->InsertNextCell(4,pts);
+	      numPolys++;
+	      drawingWhite = 0;
+	      }
+	    if (!drawingBlack && this->Backing)
+	      {
+	      x[0] = pos*vlfont_width + col; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(black);
+
+	      x[0] = pos*vlfont_width + col + 1; 
+	      x[1] = vlfont_height - row;
+	      newPoints->InsertNextPoint(x);
+	      newScalars->InsertNextColor(black);
+	      drawingBlack = 1;
 	      }
 	    }
 	  }
 	// if we finished up a row but are still drawing close it up
-	if (drawing)
+	if (drawingWhite)
 	  {
 	  x[0] = pos*vlfont_width + col + 1; 
-	  x[1] = row - 1;
+	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
+	  newScalars->InsertNextColor(white);
+
 	  x[0] = pos*vlfont_width + col; 
-	  x[1] = row - 1;
+	  x[1] = 0;
 	  newPoints->InsertNextPoint(x);
+	  newScalars->InsertNextColor(white);
 	  
 	  pts[0] = numPolys*4;
 	  pts[1] = numPolys*4 + 1;
@@ -223,8 +268,61 @@ void vlTextSource::Execute()
 	  pts[3] = numPolys*4 + 3;
 	  newPolys->InsertNextCell(4,pts);
 	  numPolys++;
-	  drawing = 0;
+	  drawingWhite = 0;
 	  }
+	if (drawingBlack)
+	  {
+	  x[0] = pos*vlfont_width + col + 1; 
+	  x[1] = 0;
+	  newPoints->InsertNextPoint(x);
+	  newScalars->InsertNextColor(black);
+
+	  x[0] = pos*vlfont_width + col; 
+	  x[1] = 0;
+	  newPoints->InsertNextPoint(x);
+	  newScalars->InsertNextColor(black);
+	  
+	  pts[0] = numPolys*4;
+	  pts[1] = numPolys*4 + 1;
+	  pts[2] = numPolys*4 + 2;
+	  pts[3] = numPolys*4 + 3;
+	  newPolys->InsertNextCell(4,pts);
+	  numPolys++;
+	  drawingBlack = 0;
+	  }
+	}
+      }
+    else
+      {
+      // draw a black square for a space
+      if (this->Backing)
+	{
+	x[0] = pos*vlfont_width; 
+	x[1] = vlfont_height;
+	newPoints->InsertNextPoint(x);
+	newScalars->InsertNextColor(black);
+      
+	x[0] = pos*vlfont_width + vlfont_width - 1; 
+	x[1] = vlfont_height;
+	newPoints->InsertNextPoint(x);
+	newScalars->InsertNextColor(black);
+
+	x[0] = pos*vlfont_width + vlfont_width - 1; 
+	x[1] = 0;
+	newPoints->InsertNextPoint(x);
+	newScalars->InsertNextColor(black);
+      
+	x[0] = pos*vlfont_width; 
+	x[1] = 0;
+	newPoints->InsertNextPoint(x);
+	newScalars->InsertNextColor(black);
+      
+	pts[0] = numPolys*4;
+	pts[1] = numPolys*4 + 1;
+	pts[2] = numPolys*4 + 2;
+	pts[3] = numPolys*4 + 3;
+	newPolys->InsertNextCell(4,pts);
+	numPolys++;
 	}
       }
     pos++;
@@ -232,6 +330,7 @@ void vlTextSource::Execute()
 
   // Update ourselves
   this->SetPoints(newPoints);
+  this->PointData.SetScalars(newScalars);
   this->SetPolys(newPolys);
 }
 
