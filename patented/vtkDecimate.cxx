@@ -105,6 +105,8 @@ vtkDecimate::vtkDecimate()
 
   this->GenerateErrorScalars = 0;
   this->MaximumNumberOfSquawks = 10;
+
+  this->PreserveTopology = 1;
 }
 
 //
@@ -237,7 +239,7 @@ void vtkDecimate::Execute()
         MinEdgeError = VTK_LARGE_FLOAT;
 
         Mesh->GetPointCells(ptId,ncells,cells);
-        if ( ncells > 1 && 
+        if ( ncells > 0 && 
         (vtype=this->BuildLoop(ptId,ncells,cells)) != VTK_COMPLEX_VERTEX )
           {
 //
@@ -272,20 +274,33 @@ void vtkDecimate::Execute()
 //  loop can be split.  
 //
             } 
-          else if ((vtype == VTK_INTERIOR_EDGE_VERTEX || 
+
+          else if ( (vtype == VTK_INTERIOR_EDGE_VERTEX || 
           vtype == VTK_BOUNDARY_VERTEX) && this->BoundaryVertexDeletion &&
-          vtkLine::DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) &&
-          this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
+          vtkLine::DistanceToLine(X,fedges[0]->x,fedges[1]->x) <= (Error*Error) )
             {
-            this->Triangulate (n1, l1);
-            this->Triangulate (n2, l2);
-            this->Stats[VTK_ELIMINATED_DISTANCE_TO_EDGE]++;
+            if (ncells > 1 && this->CanSplitLoop (fedges,numVerts,verts,n1,l1,n2,l2,ar) )
+              {
+              this->Triangulate (n1, l1);
+              this->Triangulate (n2, l2);
+              this->Stats[VTK_ELIMINATED_DISTANCE_TO_EDGE]++;
+              }
+            else if ( ncells == 1 && !this->PreserveTopology ) 
+              { ////delete singleton triangles
+              MinEdgeError = vtkLine::DistanceToLine(X,fedges[0]->x,fedges[1]->x);
+              }
+            else 
+              {
+              ContinueTriangulating = 0;
+              }
             } 
-          else
+
+          else //type we can't triangulate
             {
             ContinueTriangulating = 0;
             }
 
+          // Okay if we've successfully triangulated
           if ( ContinueTriangulating ) 
             {
             if ( this->CheckError() )
@@ -801,7 +816,7 @@ int vtkDecimate::CanSplitLoop (vtkLocalVertexPtr fedges[2], int numVerts,
 //  See whether creating this edge would duplicate a new edge (this
 //  means collapsing a tunnel)
 //
-  if ( Mesh->IsEdge(fedges[0]->id, fedges[1]->id) ) return 0;
+  if ( this->PreserveTopology && Mesh->IsEdge(fedges[0]->id, fedges[1]->id) ) return 0;
 //
 //  Create two loops from the one using the splitting vertices provided.
 //
@@ -921,7 +936,8 @@ void vtkDecimate::Triangulate(int numVerts, vtkLocalVertexPtr verts[])
 //
 //  Make sure the new triangle doesn't duplicate an old one
 //
-      if ( Mesh->IsTriangle (verts[0]->id, verts[1]->id, verts[2]->id) ) 
+      if ( this->PreserveTopology &&
+      Mesh->IsTriangle (verts[0]->id, verts[1]->id, verts[2]->id) ) 
         {
         ContinueTriangulating = 0;
         return;
@@ -1062,8 +1078,8 @@ void vtkDecimate::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Feature Angle Increment: " << this->FeatureAngleIncrement << "\n";
   os << indent << "Maximum Feature Angle: " << this->MaximumFeatureAngle << "\n";
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
+  os << indent << "Preserve Topology: "  << (this->PreserveTopology ? "On\n" : "Off\n");
   os << indent << "Maximum Number Of Squawks: " << this->MaximumNumberOfSquawks << "\n";
-
 
 }
 

@@ -74,10 +74,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vertex. Vertices of high degree are considered "complex" and are
 // never deleted.
 //
+// .SECTION Caveats
 // This implementation has been adapted for a global error bound decimation
 // criterion. That is, the error is a global bound on distance to original
 // surface. This is an improvement over the original Siggraph paper ("Decimation
 // of Triangle Meshes", Proc Siggraph `92.)
+//
+// The algorithm has been extended with a special flag to allow
+// topology modification. When the PreserveTopology flag is on, then
+// the algorithm will preserve the topology of the original mesh. If
+// off, the algorithm may close holes and/or collapse tunnels (i.e.,
+// form non-manifold attachments).
+
+// .SECTION See Also
+// vtkDecimatePro
 
 #ifndef __vtkDecimate_h
 #define __vtkDecimate_h
@@ -222,6 +232,13 @@ public:
   vtkSetClampMacro(AspectRatio,float,1.0,1000.0);
   vtkGetMacro(AspectRatio,float);
 
+  // Decsription:
+  // Turn on/off whether to preserve the topology of the original mesh. If
+  // off, hole elimination and non-manifold attachment can occur.
+  vtkSetMacro(PreserveTopology,int);
+  vtkGetMacro(PreserveTopology,int);
+  vtkBooleanMacro(PreserveTopology,int);
+
   // Description:
   // If the number of triangles connected to a vertex exceeds "Degree", then 
   // the vertex is considered complex and is never deleted. (NOTE: the
@@ -255,6 +272,7 @@ protected:
   int Stats[VTK_NUMBER_STATISTICS]; // keep track of interesting statistics
   int GenerateErrorScalars; // turn on/off vertex error scalar generation
   int MaximumNumberOfSquawks; //control number of error messages
+  int PreserveTopology; //control whether mesh topology is preserved
 
   void CreateOutput(int numPts, int numTris, int numEliminated, 
                     vtkPointData *pd, vtkPoints *inPts);
