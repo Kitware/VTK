@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDataStreamer, "1.33");
+vtkCxxRevisionMacro(vtkImageDataStreamer, "1.34");
 vtkStandardNewMacro(vtkImageDataStreamer);
 vtkCxxSetObjectMacro(vtkImageDataStreamer,ExtentTranslator,vtkExtentTranslator);
 
@@ -68,63 +68,12 @@ void vtkImageDataStreamer::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-//---------------------------------------------------------------------------- 
-int vtkImageDataStreamer::FillOutputPortInformation(
-  int port, vtkInformation* info)
-{
-  // invoke super first
-  int retVal = this->Superclass::FillOutputPortInformation(port, info);
-  
-  // now add our info
-  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
-  
-  return retVal;
-}
-
-int vtkImageDataStreamer::FillInputPortInformation(
-  int port, vtkInformation* info)
-{
-  // invoke super first
-  int retVal = this->Superclass::FillInputPortInformation(port, info);
-  
-  // now add our info
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-  
-  return retVal;
-}
-
 //----------------------------------------------------------------------------
 int vtkImageDataStreamer::ProcessRequest(vtkInformation* request,
                                          vtkInformationVector** inputVector,
                                          vtkInformationVector* outputVector)
 {
-  // this is basically execute information
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    vtkDebugMacro("ProcessRequest(REQUEST_INFORMATION) "
-                  "calling ExecuteInformation.");
-
-    // Ask the subclass to fill in the information for the outputs.
-    this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
-
-    // information, we just need to change any that should be different from
-    // the input
-    vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
-    // make sure the output is there
-    vtkDataObject *output = 
-      vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    
-    if (!output)
-      {
-      output = vtkImageData::New();
-      outInfo->Set(vtkDataObject::DATA_OBJECT(), output);
-      output->Delete();
-      }
-    return 1;
-    }
-
-  else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
     // we must set the extent on the input
     vtkInformation* outInfo = outputVector->GetInformationObject(0);

@@ -21,15 +21,15 @@
 #ifndef __vtkImageDataStreamer_h
 #define __vtkImageDataStreamer_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkExtentTranslator;
 
-class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageDataStreamer : public vtkImageAlgorithm
 {
 public:
   static vtkImageDataStreamer *New();
-  vtkTypeRevisionMacro(vtkImageDataStreamer,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageDataStreamer,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -56,10 +56,6 @@ public:
 protected:
   vtkImageDataStreamer();
   ~vtkImageDataStreamer();
-
-  // see the vtkAlgorithm for what these methods do
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
   vtkExtentTranslator *ExtentTranslator;
   int            NumberOfStreamDivisions;
