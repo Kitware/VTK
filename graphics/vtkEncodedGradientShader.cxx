@@ -208,15 +208,15 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 						   vtkVolume *vol,
 						   vtkEncodedGradientEstimator *gradest)
 {
-  float                 light_direction[3], material[4], light_color[3];
-  float                 light_position[3], light_focal_point[3];
-  float                 light_intensity, view_direction[3];
-  float                 camera_position[3], camera_focal_point[3], mag;
-  vtkLightCollection    *light_collection;
+  float                 lightDirection[3], material[4], lightColor[3];
+  float                 lightPosition[3], lightFocalPoint[3];
+  float                 lightIntensity, viewDirection[3];
+  float                 cameraPosition[3], cameraFocalPoint[3], mag;
+  vtkLightCollection    *lightCollection;
   vtkLight              *light;
   float                 norm;
   int                   update_flag;
-  vtkVolumeProperty     *volume_property;
+  vtkVolumeProperty     *volumeProperty;
   vtkTransform          *transform;
   vtkMatrix4x4          *m;
   float                 in[4], out[4], zero[4];
@@ -258,44 +258,44 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   transform->SetMatrix(*m);
   transform->Inverse();
   
-  volume_property = vol->GetVolumeProperty();
+  volumeProperty = vol->GetVolumeProperty();
 
-  material[0] = volume_property->GetAmbient();
-  material[1] = volume_property->GetDiffuse();
-  material[2] = volume_property->GetSpecular();
-  material[3] = volume_property->GetSpecularPower();
+  material[0] = volumeProperty->GetAmbient();
+  material[1] = volumeProperty->GetDiffuse();
+  material[2] = volumeProperty->GetSpecular();
+  material[3] = volumeProperty->GetSpecularPower();
 
   // Set up the lights for traversal
-  light_collection = ren->GetLights();
-  light_collection->InitTraversal();
+  lightCollection = ren->GetLights();
+  lightCollection->InitTraversal();
     
   update_flag = 0;
 
-  ren->GetActiveCamera()->GetPosition( camera_position );
-  ren->GetActiveCamera()->GetFocalPoint( camera_focal_point );
+  ren->GetActiveCamera()->GetPosition( cameraPosition );
+  ren->GetActiveCamera()->GetFocalPoint( cameraFocalPoint );
   
-  view_direction[0] =  camera_focal_point[0] - camera_position[0];
-  view_direction[1] =  camera_focal_point[1] - camera_position[1];
-  view_direction[2] =  camera_focal_point[2] - camera_position[2];
+  viewDirection[0] =  cameraFocalPoint[0] - cameraPosition[0];
+  viewDirection[1] =  cameraFocalPoint[1] - cameraPosition[1];
+  viewDirection[2] =  cameraFocalPoint[2] - cameraPosition[2];
     
   mag = sqrt( (double)( 
-		       view_direction[0] * view_direction[0] + 
-		       view_direction[1] * view_direction[1] + 
-		       view_direction[2] * view_direction[2] ) );
+		       viewDirection[0] * viewDirection[0] + 
+		       viewDirection[1] * viewDirection[1] + 
+		       viewDirection[2] * viewDirection[2] ) );
     
   if ( mag )
     {
-    view_direction[0] /= mag;
-    view_direction[1] /= mag;
-    view_direction[2] /= mag;
+    viewDirection[0] /= mag;
+    viewDirection[1] /= mag;
+    viewDirection[2] /= mag;
     }
 
-  memcpy( in, view_direction, 3*sizeof(float) );
+  memcpy( in, viewDirection, 3*sizeof(float) );
   in[3] = 1.0;
   transform->MultiplyPoint( in, out );
-  view_direction[0] = out[0] / out[3];
-  view_direction[1] = out[1] / out[3];
-  view_direction[2] = out[2] / out[3];
+  viewDirection[0] = out[0] / out[3];
+  viewDirection[1] = out[1] / out[3];
+  viewDirection[2] = out[2] / out[3];
 
   in[0] = 0.0;
   in[1] = 0.0;
@@ -304,9 +304,9 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   zero[0] /= zero[3];
   zero[2] /= zero[3];
   zero[3] /= zero[3];
-  view_direction[0] -= zero[0];
-  view_direction[1] -= zero[1];
-  view_direction[2] -= zero[2];
+  viewDirection[0] -= zero[0];
+  viewDirection[1] -= zero[1];
+  viewDirection[2] -= zero[2];
 
   // Loop through all lights and compute a shading table. For
   // the first light, pass in an update_flag of 0, which means
@@ -314,51 +314,41 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   // in an update flag of 1, which means add to the shading table.
   // All lights are forced to be directional light sources
   // regardless of what they really are
-  while ( (light = light_collection->GetNextItem()) != NULL  )
+  while ( (light = lightCollection->GetNextItem()) != NULL  )
     { 
     // Get the light color, position, focal point, and intensity
-    light->GetColor( light_color );
-    light->GetPosition( light_position );
-    light->GetFocalPoint( light_focal_point );
-    light_intensity = light->GetIntensity( );
+    light->GetColor( lightColor );
+    light->GetPosition( lightPosition );
+    light->GetFocalPoint( lightFocalPoint );
+    lightIntensity = light->GetIntensity( );
     
 
     // Compute the light direction and normalize it
-    light_direction[0] = light_focal_point[0] - light_position[0];
-    light_direction[1] = light_focal_point[1] - light_position[1];
-    light_direction[2] = light_focal_point[2] - light_position[2];
+    lightDirection[0] = lightFocalPoint[0] - lightPosition[0];
+    lightDirection[1] = lightFocalPoint[1] - lightPosition[1];
+    lightDirection[2] = lightFocalPoint[2] - lightPosition[2];
     
-    norm = sqrt( (double) ( light_direction[0] * light_direction[0] + 
-			    light_direction[1] * light_direction[1] +
-			    light_direction[2] * light_direction[2] ) );
+    norm = sqrt( (double) ( lightDirection[0] * lightDirection[0] + 
+			    lightDirection[1] * lightDirection[1] +
+			    lightDirection[2] * lightDirection[2] ) );
     
-    light_direction[0] /= -norm;
-    light_direction[1] /= -norm;
-    light_direction[2] /= -norm;
+    lightDirection[0] /= -norm;
+    lightDirection[1] /= -norm;
+    lightDirection[2] /= -norm;
       
-    memcpy( in, light_direction, 3*sizeof(float) );
+    memcpy( in, lightDirection, 3*sizeof(float) );
     transform->MultiplyPoint( in, out );
-    light_direction[0] = out[0] / out[3] - zero[0];
-    light_direction[1] = out[1] / out[3] - zero[1];
-    light_direction[2] = out[2] / out[3] - zero[2];
+    lightDirection[0] = out[0] / out[3] - zero[0];
+    lightDirection[1] = out[1] / out[3] - zero[1];
+    lightDirection[2] = out[2] / out[3] - zero[2];
 
     // Build / Add to the shading table
-    this->BuildShadingTable( index, light_direction, light_color, 
-			     light_intensity, view_direction,
-			     material, gradest, 1, update_flag );
+    this->BuildShadingTable( index, lightDirection, lightColor, 
+			     lightIntensity, viewDirection,
+			     material, ren->GetTwoSidedLighting(),
+			     gradest, update_flag );
       
     update_flag = 1;
-
-    if ( ren->GetTwoSidedLighting() )
-      {
-      light_direction[0] = -light_direction[0];
-      light_direction[1] = -light_direction[1];
-      light_direction[2] = -light_direction[2];
-
-      this->BuildShadingTable( index, light_direction, light_color, 
-			       light_intensity, view_direction,
-			       material, gradest, 0, update_flag );
-      }
     }
 
   transform->Delete();
@@ -378,17 +368,18 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 // be handled. There is one shading table per volume, and the index
 // value indicates which index table is to be updated
 void vtkEncodedGradientShader::BuildShadingTable( int index,
-						  float light_direction[3],
-						  float light_color[3],
-						  float light_intensity,
-						  float view_direction[3],
+						  float lightDirection[3],
+						  float lightColor[3],
+						  float lightIntensity,
+						  float viewDirection[3],
 						  float material[4],
+						  int   twoSided,
 						  vtkEncodedGradientEstimator *gradest,
-						  int   ambient_flag,
-						  int   update_flag )
+						  int   updateFlag )
 {
   float    lx, ly, lz; 
   float    n_dot_l;   
+  float    n_dot_v;   
   int      i;
   float    *nptr;
   float    *sdr_ptr;
@@ -403,13 +394,13 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
   int      norm_size;
 
   // Move to local variables
-  lx = light_direction[0];
-  ly = light_direction[1];
-  lz = light_direction[2];
+  lx = lightDirection[0];
+  ly = lightDirection[1];
+  lz = lightDirection[2];
 
-  half_x = lx - view_direction[0];
-  half_y = ly - view_direction[1];
-  half_z = lz - view_direction[2];
+  half_x = lx - viewDirection[0];
+  half_y = ly - viewDirection[1];
+  half_z = lz - viewDirection[2];
 
   mag = sqrt( (double)(half_x*half_x + half_y*half_y + half_z*half_z ) );
   
@@ -420,10 +411,10 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
     half_z /= mag;
     }
 
-  Ka = material[0];
+  Ka = material[0] * lightIntensity;
   Es = material[3];
-  Kd_intensity = material[1] * light_intensity;
-  Ks_intensity = material[2] * light_intensity;
+  Kd_intensity = material[1] * lightIntensity;
+  Ks_intensity = material[2] * lightIntensity;
 
   nptr = gradest->GetDirectionEncoder()->GetDecodedGradientTable();
 
@@ -461,7 +452,7 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 	 ( *(nptr+2) == 0.0 ) )
       {
       // If we are not updating, initial everything to 0.0
-      if ( !update_flag )
+      if ( !updateFlag )
 	{
 	*(sdr_ptr) = 0.0;
 	*(sdg_ptr) = 0.0;
@@ -472,61 +463,64 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 	*(ssb_ptr) = 0.0;
 	}
 
-      // Only add some intensity if this is the first side of the
-      // two sided lighting calculation. We don't want to add it all
-      // twice
-      if ( ambient_flag )
-	{
-	// Now add in ambient
-	*(sdr_ptr) += Ka * light_color[0];
-	*(sdg_ptr) += Ka * light_color[1];
-	*(sdb_ptr) += Ka * light_color[2];
+      // Now add in ambient
+      *(sdr_ptr) += Ka * lightColor[0];
+      *(sdg_ptr) += Ka * lightColor[1];
+      *(sdb_ptr) += Ka * lightColor[2];
 
-	// Add in diffuse
-	*(sdr_ptr) += 
-	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[0]);
-	*(sdg_ptr) += 
-	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[1]);
-	*(sdb_ptr) += 
-	  (Kd_intensity * this->ZeroNormalDiffuseIntensity * light_color[2]);
+      // Add in diffuse
+      *(sdr_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[0]);
+      *(sdg_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[1]);
+      *(sdb_ptr) += 
+	(Kd_intensity * this->ZeroNormalDiffuseIntensity * lightColor[2]);
 	
-	// Add in specular
-	*(ssr_ptr) += this->ZeroNormalSpecularIntensity * light_color[0];
-	*(ssg_ptr) += this->ZeroNormalSpecularIntensity * light_color[1];
-	*(ssb_ptr) += this->ZeroNormalSpecularIntensity * light_color[2];
-	}
-
+      // Add in specular
+      *(ssr_ptr) += this->ZeroNormalSpecularIntensity * lightColor[0];
+      *(ssg_ptr) += this->ZeroNormalSpecularIntensity * lightColor[1];
+      *(ssb_ptr) += this->ZeroNormalSpecularIntensity * lightColor[2];
       }
     else
       {
       // The dot product between the normal and the light vector
+      // used for diffuse illumination
       n_dot_l = (*(nptr+0) * lx + *(nptr+1) * ly + *(nptr+2) * lz);
+      
+      // The dot product between the normal and the halfway vector
+      // used for specular illumination
+      n_dot_h = (*(nptr+0) * half_x + *(nptr+1) * half_y + *(nptr+2) * half_z);
+
+      // Flip the normal if two sided lighting is on and the normal
+      // is pointing away from the viewer
+      if ( twoSided )
+	{
+	// The dot product between the normal and the view vector
+	// used for two sided lighting
+	n_dot_v = (*(nptr+0) * viewDirection[0] + 
+		   *(nptr+1) * viewDirection[1] + 
+		   *(nptr+2) * viewDirection[2]);
+
+	if ( n_dot_v > 0.0 )
+	  {
+	  n_dot_l = -n_dot_l;
+	  n_dot_h = -n_dot_h;	
+	  }
+	}
     
       // If we are updating, then begin by adding in ambient
-      if ( update_flag )
+      if ( updateFlag )
 	{
-	if ( ambient_flag )
-	  {
-	  *(sdr_ptr) += Ka * light_color[0];
-	  *(sdg_ptr) += Ka * light_color[1];
-	  *(sdb_ptr) += Ka * light_color[2];
-	  }
+	*(sdr_ptr) += Ka * lightColor[0];
+	*(sdg_ptr) += Ka * lightColor[1];
+	*(sdb_ptr) += Ka * lightColor[2];
 	}
       // Otherwise begin by setting the value to the ambient contribution
       else
 	{
-	if ( ambient_flag )
-	  {
-	  *(sdr_ptr) = Ka * light_color[0];
-	  *(sdg_ptr) = Ka * light_color[1];
-	  *(sdb_ptr) = Ka * light_color[2];
-	  }
-	else
-	  {
-	  *(sdr_ptr) = 0.0;
-	  *(sdg_ptr) = 0.0;
-	  *(sdb_ptr) = 0.0;
-	  }
+	*(sdr_ptr) = Ka * lightColor[0];
+	*(sdg_ptr) = Ka * lightColor[1];
+	*(sdb_ptr) = Ka * lightColor[2];
 	*(ssr_ptr) = 0.0;
 	*(ssg_ptr) = 0.0;
 	*(ssb_ptr) = 0.0;
@@ -535,17 +529,16 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
       // If there is some diffuse contribution, add it in
       if ( n_dot_l > 0 )
 	{
-	*(sdr_ptr) += (Kd_intensity * n_dot_l * light_color[0]);
-	*(sdg_ptr) += (Kd_intensity * n_dot_l * light_color[1]);
-	*(sdb_ptr) += (Kd_intensity * n_dot_l * light_color[2]);
+	*(sdr_ptr) += (Kd_intensity * n_dot_l * lightColor[0]);
+	*(sdg_ptr) += (Kd_intensity * n_dot_l * lightColor[1]);
+	*(sdb_ptr) += (Kd_intensity * n_dot_l * lightColor[2]);
 	
-	n_dot_h = (*(nptr+0) * half_x + *(nptr+1) * half_y + *(nptr+2) * half_z);
 	if ( n_dot_h > 0.001 )
 	  {
 	  specular_value = Ks_intensity * pow( (double)n_dot_h, (double)Es );
-	  *(ssr_ptr) += specular_value * light_color[0];
-	  *(ssg_ptr) += specular_value * light_color[1];
-	  *(ssb_ptr) += specular_value * light_color[2];
+	  *(ssr_ptr) += specular_value * lightColor[0];
+	  *(ssg_ptr) += specular_value * lightColor[1];
+	  *(ssb_ptr) += specular_value * lightColor[2];
 	  }      
 	}
       }
