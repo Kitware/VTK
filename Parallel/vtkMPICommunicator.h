@@ -193,7 +193,35 @@ public:
   int GatherV(double* data, double* to, 
               int sendlength, int* recvlengths, int* offsets, int root);
 
+
   // Description:
+  // Same as Gather, but result ends up on all processes.
+  // Length is the length of the data array (input).  This length
+  // has to be the same on all processes.  The recv/output array 'to'
+  // has to be length (length*numprocs).
+  int AllGather(int* data          , int* to          , int length);
+  int AllGather(unsigned long* data, unsigned long* to, int length);
+  int AllGather(char* data         , char* to         , int length);
+  int AllGather(float* data        , float* to        , int length);
+  int AllGather(double* data       , double* to       , int length);
+  
+  // Description:
+  // same as gather, but the arrays can be different lengths on 
+  // different processes.  ProcId is the index into recvLengths 
+  // and recvOffsets.  These arrays determine how all the the arrays
+  // are packed into the received arra 'to'.
+  int AllGatherV(int* data, int* to, 
+                 int sendlength, int* recvlengths, int* recvOffsets);
+  int AllGatherV(unsigned long* data, unsigned long* to, 
+                 int sendlength, int* recvlengths, int* recvOffsets);
+  int AllGatherV(char* data, char* to, 
+                 int sendlength, int* recvlengths, int* recvOffsets);
+  int AllGatherV(float* data, float* to, 
+                 int sendlength, int* recvlengths, int* recvOffsets);
+  int AllGatherV(double* data, double* to, 
+                 int sendlength, int* recvlengths, int* recvOffsets);
+
+// Description:
   // Reduce an array to the given root process.  
   int ReduceMax(int* data, int* to, int size, int root);
   int ReduceMax(long* data, long* to, int size, int root);
