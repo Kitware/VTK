@@ -390,6 +390,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
   if ( this->ComputeRowBounds( vol, ren ) )
     {
     VTKVRCStaticInfo *staticInfo = new VTKVRCStaticInfo;
+    staticInfo->ClippingPlane = NULL;
     staticInfo->Volume = vol;
     staticInfo->Renderer = ren;
     staticInfo->ScalarDataPointer = 
@@ -523,6 +524,10 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       this->ImageSampleDistance = oldImageSampleDistance;
       }
     
+    if ( staticInfo->ClippingPlane )
+      {
+      delete staticInfo->ClippingPlane;
+      }
     delete staticInfo;
 
     if ( this->ZBuffer )
