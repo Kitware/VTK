@@ -1,11 +1,10 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHyperStreamline.cc
+  Module:    vtkHyperStreamline.cxx
   Language:  C++
-  Date:      06 Nov 1995
-  Version:   1.16
-
+  Date:      $Date$
+  Version:   $Revision$
 
 Copyright (c) 1993-2000 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
