@@ -44,7 +44,7 @@ IF (VTK_USE_RENDERING)
       cylindrical
       cylMap
       dataSetSurfaceFilter
-      deciFranFace
+      deciPlane
       Delaunay2D
       Delaunay2DAlpha
       Delaunay2DTransform
