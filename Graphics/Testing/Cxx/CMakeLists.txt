@@ -47,7 +47,9 @@ IF (VTK_USE_RENDERING)
     ADD_TEST(volProt-image ${CXX_TEST_PATH}/volProt
                 -D ${VTK_DATA_ROOT}
                 -V Baseline/Graphics/volProt.png)
-    ADD_TEST(RGrid ${CXX_TEST_PATH}/RGrid )
+    ADD_TEST(RGrid-image ${CXX_TEST_PATH}/RGrid
+                -D ${VTK_DATA_ROOT}
+                -V Baseline/Graphics/RGrid.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(Mace ${CXX_TEST_PATH}/Mace )
     ADD_TEST(RGrid ${CXX_TEST_PATH}/RGrid )
