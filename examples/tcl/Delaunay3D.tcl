@@ -1,15 +1,6 @@
 # get the interactor ui
 source vtkInt.tcl
 
-# First create the render master
-vtkRenderMaster rm;
-
-# Now create the RenderWindow, Renderer and both Actors
-#
-set renWin [rm MakeRenderWindow];
-set ren1   [$renWin MakeRenderer];
-set iren   [$renWin MakeRenderWindowInteractor];
-
 # create some random points in the unit cube centered at (.5,.5,.5)
 #
 vtkMath math;
@@ -27,12 +18,13 @@ vtkDelaunay3D del
     del SetInput profile;
     del BoundingTriangulationOn;
     del SetTolerance 0.01;
-    del SetAlpha 0.6;
+    del SetAlpha 0.2;
     del BoundingTriangulationOff;
-    del Update;
+    del DebugOn;
     
 vtkShrinkFilter shrink;
     shrink SetInput [del GetOutput];
+    shrink SetShrinkFactor 0.9;
 
 vtkDataSetMapper map;
     map SetInput [shrink GetOutput];
@@ -40,6 +32,15 @@ vtkDataSetMapper map;
 vtkActor triangulation;
     triangulation SetMapper map;
     [triangulation GetProperty] SetColor 1 0 0;
+
+# First create the render master
+vtkRenderMaster rm;
+
+# Create graphics stuff
+#
+set renWin [rm MakeRenderWindow];
+set ren1   [$renWin MakeRenderer];
+set iren   [$renWin MakeRenderWindowInteractor];
 
 # Add the actors to the renderer, set the background and size
 #
