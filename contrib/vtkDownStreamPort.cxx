@@ -305,7 +305,7 @@ void vtkDownStreamPort::UpdateInformation()
   // Trigger UpdateInformation in UpStreamPort.
   // Up-stream port should have the same tag.
   this->Controller->TriggerRMI(this->UpStreamProcessId, this->Tag);
-
+  
   // Now receive the information
   this->Controller->Receive(output->GetDataInformation(), 
                             this->UpStreamProcessId,
@@ -366,6 +366,13 @@ void vtkDownStreamPort::PreUpdate(vtkDataObject *output)
   this->Controller->Send((vtkObject*)(output->GetGenericUpdateExtent()),
 			 this->UpStreamProcessId, VTK_PORT_UPDATE_EXTENT_TAG);
 
+  // This is for pipeline parallism.
+  // The Upstream port may or may not promote its data (execute).
+  // It needs the data time of our output to compare to the mtime
+  // of its input to determine if it should send the data (execute).
+  this->Controller->Send( &(this->DataTime), 1, this->UpStreamProcessId,
+			  VTK_PORT_NEW_DATA_TIME_TAG);
+  
   // This automatically causes to UpStreamPort to send the data.
   // Tell the update method to receive the data.
   this->TransferNeeded = 1;

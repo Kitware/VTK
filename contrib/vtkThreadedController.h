@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkThreadController.h
+  Module:    vtkThreadedController.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,30 +37,30 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkThreadController - Allows communication between running threads.
+// .NAME vtkThreadedController - Allows communication between running threads.
 // .SECTION Description
-// vtkThreadController just uses a vtkMultiThreader to spawn threads.
+// vtkThreadedController just uses a vtkMultiThreader to spawn threads.
 // It the implements sends and receives using shared memory and reference 
 // counting.
 
 // .SECTION see also
 // vtkDownStreamPort vtkUpStreamPort vtkMultiThreader vtkMultiProcessController
 
-#ifndef __vtkThreadController_h
-#define __vtkThreadController_h
+#ifndef __vtkThreadedController_h
+#define __vtkThreadedController_h
 
 #include "vtkObject.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiThreader.h"
 
-class vtkThreadControllerProcessInfo;
+class vtkThreadedControllerProcessInfo;
 
 
-class VTK_EXPORT vtkThreadController : public vtkMultiProcessController
+class VTK_EXPORT vtkThreadedController : public vtkMultiProcessController
 {
 public:
-  static vtkThreadController *New();
-  const char *GetClassName() {return "vtkThreadController";};
+  static vtkThreadedController *New();
+  const char *GetClassName() {return "vtkThreadedController";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -106,7 +106,7 @@ public:
   
   // Description:
   // First method called after threads are spawned.
-  // It is public because the function vtkThreadControllerStart
+  // It is public because the function vtkThreadedControllerStart
   // is not a friend yet.  You should not call this method.
   void Start(int threadIdx);
 
@@ -121,13 +121,20 @@ protected:
 #endif
 
   // Locks and pointers for communication.
-  vtkThreadControllerProcessInfo *Processes[VTK_MP_CONTROLLER_MAX_PROCESSES];
+  vtkThreadedControllerProcessInfo *Processes[VTK_MP_CONTROLLER_MAX_PROCESSES];
   
+  // It is not enough to block on the messages, we have to mutex 
+  // the whole send interaction.  I was trying to avoid a central 
+  // mutex (oh well).
+  vtkMutexLock *MessageLock;
   
-  vtkThreadController();
-  ~vtkThreadController();
-  vtkThreadController(const vtkThreadController&) {};
-  void operator=(const vtkThreadController&) {};
+  // Trying to track down lockups.
+  FILE *LogFile;
+  
+  vtkThreadedController();
+  ~vtkThreadedController();
+  vtkThreadedController(const vtkThreadedController&) {};
+  void operator=(const vtkThreadedController&) {};
 
   // Initialize and clean up in main thread.
   void CreateThreadInfoObjects();

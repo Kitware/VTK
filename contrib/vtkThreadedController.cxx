@@ -1,7 +1,7 @@
 /*=========================================================================
   
   Program:   Visualization Toolkit
-  Module:    vtkThreadController.cxx
+  Module:    vtkThreadedController.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,22 +37,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkThreadController.h"
+#include "vtkThreadedController.h"
 #include "vtkObjectFactory.h"
 
 
 
-//------------------------------------------------------------------------------
-vtkThreadController* vtkThreadController::New()
+//----------------------------------------------------------------------------
+vtkThreadedController* vtkThreadedController::New()
 {
   // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadController");
+  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkThreadedController");
   if(ret)
     {
-    return (vtkThreadController*)ret;
+    return (vtkThreadedController*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return new vtkThreadController;
+  return new vtkThreadedController;
 }
 
 
@@ -62,10 +62,10 @@ vtkThreadController* vtkThreadController::New()
 
 // Since sends and receives block until the transation is complete,
 // each thread can have at most one receive or send pending.
-class vtkThreadControllerProcessInfo
+class vtkThreadedControllerProcessInfo
 {
 public:
-  vtkThreadControllerProcessInfo() 
+  vtkThreadedControllerProcessInfo() 
     { this->BlockLock = vtkMutexLock::New();
       this->InfoLock = vtkMutexLock::New();
       this->Data = NULL;
@@ -73,7 +73,7 @@ public:
       this->Tag = 0;
       this->SendFlag = 0;
       this->RemoteId = VTK_MP_CONTROLLER_INVALID_SOURCE; };
-  ~vtkThreadControllerProcessInfo() 
+  ~vtkThreadedControllerProcessInfo() 
     { this->BlockLock->Delete();
       this->BlockLock = NULL; 
       this->InfoLock->Delete();
@@ -93,7 +93,7 @@ public:
 
 
 //----------------------------------------------------------------------------
-vtkThreadController::vtkThreadController()
+vtkThreadedController::vtkThreadedController()
 {
   int idx;
   
@@ -104,17 +104,24 @@ vtkThreadController::vtkThreadController()
     {
     this->Processes[idx] = NULL;
     }  
+  
+  // Here for debugging intermitent problems
+  this->LogFile = fopen("ThreadedController.log", "w");
+  
+  this->MessageLock = vtkMutexLock::New();
 }
 
 //----------------------------------------------------------------------------
-vtkThreadController::~vtkThreadController()
+vtkThreadedController::~vtkThreadedController()
 {
   this->MultiThreader->Delete();
   this->MultiThreader = NULL;
+  fclose(this->LogFile);
+  this->MessageLock->Delete();
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadController::PrintSelf(ostream& os, vtkIndent indent)
+void vtkThreadedController::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkMultiProcessController::PrintSelf(os,indent);
   os << indent << "MultiThreader:\n";
@@ -122,7 +129,7 @@ void vtkThreadController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkThreadController::Initialize(int argc, char *argv[])
+void vtkThreadedController::Initialize(int argc, char *argv[])
 {
   this->Modified();
   
@@ -132,15 +139,17 @@ void vtkThreadController::Initialize(int argc, char *argv[])
 
 //----------------------------------------------------------------------------
 // Called before threads are spawned to create the thread info.
-void vtkThreadController::CreateThreadInfoObjects()
+void vtkThreadedController::CreateThreadInfoObjects()
 {
   int idx;
 
   for (idx = 0; idx < this->NumberOfProcesses; ++idx)
     {
-    this->Processes[idx] = new vtkThreadControllerProcessInfo;
+    this->Processes[idx] = new vtkThreadedControllerProcessInfo;
     // By default these blocking mutexes are locked.
     // I am assuming it is ok for one thread to lock, and another to unlock.
+    fprintf(this->LogFile, "Block%d: Lock (contruction)\n", idx);
+    fflush(this->LogFile);
     this->Processes[idx]->BlockLock->Lock();
     }
 }
@@ -148,7 +157,7 @@ void vtkThreadController::CreateThreadInfoObjects()
 
 //----------------------------------------------------------------------------
 // Called before threads are spawned to create the thread info.
-void vtkThreadController::DeleteThreadInfoObjects()
+void vtkThreadedController::DeleteThreadInfoObjects()
 {
   int idx;
 
@@ -156,6 +165,8 @@ void vtkThreadController::DeleteThreadInfoObjects()
     {
     // By default these blocking mutexes are locked.
     // I am assuming it is ok for one thread to lock, and another to unlock.
+    fprintf(this->LogFile, "Block%d: Unlock (destruction)\n", idx);
+    fflush(this->LogFile);
     this->Processes[idx]->BlockLock->Unlock();
     delete this->Processes[idx];
     this->Processes[idx] = NULL;
@@ -169,16 +180,16 @@ void vtkThreadController::DeleteThreadInfoObjects()
 
 
 //----------------------------------------------------------------------------
-VTK_THREAD_RETURN_TYPE vtkThreadControllerStart( void *arg )
+VTK_THREAD_RETURN_TYPE vtkThreadedControllerStart( void *arg )
 {
   ThreadInfoStruct *info = (ThreadInfoStruct*)(arg);
   int threadIdx = info->ThreadID;
-  vtkThreadController *self = (vtkThreadController*)(info->UserData);
+  vtkThreadedController *self = (vtkThreadedController*)(info->UserData);
 
   self->Start(threadIdx);
   return VTK_THREAD_RETURN_VALUE;
 }
-void vtkThreadController::Start(int threadIdx)
+void vtkThreadedController::Start(int threadIdx)
 {
   
   // Store threadId in a table.
@@ -212,22 +223,22 @@ void vtkThreadController::Start(int threadIdx)
 
 //----------------------------------------------------------------------------
 // Execute the method set as the SingleMethod on NumberOfThreads threads.
-void vtkThreadController::SingleMethodExecute()
+void vtkThreadedController::SingleMethodExecute()
 {
   this->CreateThreadInfoObjects();
   this->MultipleMethodFlag = 0;
-  this->MultiThreader->SetSingleMethod(vtkThreadControllerStart, (void*)this);
+  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
 }
 //----------------------------------------------------------------------------
 // Execute the methods set as the MultipleMethods.
-void vtkThreadController::MultipleMethodExecute()
+void vtkThreadedController::MultipleMethodExecute()
 {
   this->CreateThreadInfoObjects();
   this->MultipleMethodFlag = 1;
-  this->MultiThreader->SetSingleMethod(vtkThreadControllerStart, (void*)this);
+  this->MultiThreader->SetSingleMethod(vtkThreadedControllerStart, (void*)this);
   this->MultiThreader->SetNumberOfThreads(this->NumberOfProcesses);
   this->MultiThreader->SingleMethodExecute();
   this->DeleteThreadInfoObjects();
@@ -237,7 +248,7 @@ void vtkThreadController::MultipleMethodExecute()
 //----------------------------------------------------------------------------
 // I may need a mutex lock here. Although my own pid must have already been
 // set,  once before me could be in a funky state.
-int vtkThreadController::GetLocalProcessId()
+int vtkThreadedController::GetLocalProcessId()
 {
   int idx;
   
@@ -254,7 +265,7 @@ int vtkThreadController::GetLocalProcessId()
   vtkErrorMacro("Could Not Find my process id.");
   return -1;
 #else
-  vtkErrorMacro("ThreadController only works with pthreads for now");
+  vtkErrorMacro("ThreadedController only works with pthreads for now");
   return -1;
 #endif
   
@@ -262,19 +273,36 @@ int vtkThreadController::GetLocalProcessId()
 
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Send(void *data, int length, int remoteProcessId, 
+int vtkThreadedController::Send(void *data, int length, int remoteProcessId, 
 			      int tag)
 {
   int myIdx = this->GetLocalProcessId();
-  vtkThreadControllerProcessInfo *snd;
-  vtkThreadControllerProcessInfo *rcv = this->Processes[remoteProcessId];
+  vtkThreadedControllerProcessInfo *snd;
+  vtkThreadedControllerProcessInfo *rcv;
 
-  // Look at pending receives to find any matches.
+  // Avoid a send and recv starting at the same time.
+  fprintf(this->LogFile, "%d: Message: Lock (send %d->%d) T: %d\n",
+	  myIdx, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
+  this->MessageLock->Lock();  
+  
+  // Try to get a lock on the recv.
+  // Receive always gets blocked first to avoid deadlock
+  rcv = this->Processes[remoteProcessId];
+  fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
+	  myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
   rcv->InfoLock->Lock();
+  
+  // Look at pending receives to find any matches.
   if ((rcv->RemoteId == myIdx || rcv->RemoteId == VTK_MP_CONTROLLER_ANY_SOURCE)
       && rcv->SendFlag == 0 && rcv->Tag == tag)
     {
     // We have a match. A receive is already waiting.
+    fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  Match! \n",
+	    myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);    
+    
     if (length != rcv->DataLength)
       {
       vtkWarningMacro("tag: " << tag << ", Sending length " << length 
@@ -297,27 +325,62 @@ int vtkThreadController::Send(void *data, int length, int remoteProcessId,
     rcv->SendFlag = 0;
     rcv->Tag = 0;
     rcv->RemoteId = VTK_MP_CONTROLLER_INVALID_SOURCE;
+    // Release the receive block, so it can return.
+    fprintf(this->LogFile, "%d: Block%d: Unlock (send %d->%d) T: %d\n", 
+	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    rcv->BlockLock->Unlock();
     
     // we are done writing/reading the rcv
+    fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	    myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
     rcv->InfoLock->Unlock();
-    // Release the receive block, so it can return.
-    rcv->BlockLock->Unlock();
+    fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
+	    myIdx, myIdx, remoteProcessId, tag);
+    fflush(this->LogFile);
+    this->MessageLock->Unlock();
+    
     return 1;
     }
+  fprintf(this->LogFile, "%d:              send %d->%d, T: %d,  first=>wait\n",
+	  myIdx, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
+  
+  fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	  myIdx, remoteProcessId, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
+  rcv->InfoLock->Unlock();
   
   // Matching receive has not been initiated.
   // Put message information in "ProcessInfo"
+  // Block others before we write our message 
   snd = this->Processes[myIdx];
+  fprintf(this->LogFile, "%d:     Info%d: Lock (Send %d->%d) T: %d\n", 
+	  myIdx, myIdx, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
   snd->InfoLock->Lock();
   snd->SendFlag = 1;
   snd->Data = data;
   snd->DataLength = length;
   snd->Tag = tag;
   snd->RemoteId = remoteProcessId;
+  fprintf(this->LogFile, "%d:     Info%d: Unlock (Send %d->%d) T: %d\n", 
+	  myIdx, myIdx, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
   snd->InfoLock->Unlock();
+  
+  // Message in in the Que. Go ahead and start a receive.
+  fprintf(this->LogFile, "%d: Message: Unlock (send %d->%d) T: %d\n",
+	  myIdx, myIdx, remoteProcessId, tag);
+  fflush(this->LogFile);
+  this->MessageLock->Unlock();
   
   // Wait until this data is consumed.
   // I am assuming it is ok for one thread to lock, and another to unlock.
+  fprintf(this->LogFile, "%d: Block%d: Lock (send waiting for a recv) T: %d\n",
+	  myIdx, myIdx, tag);
+  fflush(this->LogFile);
   snd->BlockLock->Lock();
   // Transaction has been completed by the receive.
   
@@ -326,15 +389,21 @@ int vtkThreadController::Send(void *data, int length, int remoteProcessId,
 
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Receive(void *data, int length, int remoteProcessId, 
+int vtkThreadedController::Receive(void *data, int length, int remoteProcessId, 
 				 int tag)
 {
   int myIdx;
   int start, end, i;
-  vtkThreadControllerProcessInfo *snd, *rcv;
+  vtkThreadedControllerProcessInfo *snd, *rcv;
   
   myIdx = this->GetLocalProcessId();
 
+  // Avoid a send and recv starting at the same time.
+  fprintf(this->LogFile, "%d: Message: Lock (recv %d->%d) T: %d\n",
+	  myIdx, remoteProcessId, myIdx, tag);
+  fflush(this->LogFile);
+  this->MessageLock->Lock();
+  
   // Look at pending sends to find any matches.
   // A bit of a hack to handle AnySource.
   if (remoteProcessId == VTK_MP_CONTROLLER_ANY_SOURCE)
@@ -349,10 +418,17 @@ int vtkThreadController::Receive(void *data, int length, int remoteProcessId,
   for (i = start; i <= end; ++i)
     {
     snd = this->Processes[i];
+    fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
+	    myIdx, i, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
     snd->InfoLock->Lock();
     if (snd->RemoteId == myIdx && snd->SendFlag == 1 && snd->Tag == tag)
       {
       // We have a match. A send is already waiting.
+      fprintf(this->LogFile, "%d:              recv %d->%d, T: %d,  Match! \n",
+	      myIdx, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile);    
+   
       if (length != snd->DataLength)
 	{
 	vtkWarningMacro("tag: " << tag << ", Sending length "
@@ -374,28 +450,62 @@ int vtkThreadController::Receive(void *data, int length, int remoteProcessId,
       snd->SendFlag = 0;
       snd->Tag = 0;
       snd->RemoteId = VTK_MP_CONTROLLER_INVALID_SOURCE;
-      
-      // we are done writing/reading the rcv
-      snd->InfoLock->Unlock();
       // Release the send block, so it can return.
-      snd->BlockLock->Unlock();
+      fprintf(this->LogFile, "%d: Block%d: Unlock (recv %d->%d) T: %d\n", 
+	      myIdx, i, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile); 
+      snd->BlockLock->Unlock();      
+      
+      // Free up any locks we have
+      fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+	      myIdx, i, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile);
+      snd->InfoLock->Unlock();
+      fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
+	      myIdx, remoteProcessId, myIdx, tag);
+      fflush(this->LogFile);
+      this->MessageLock->Unlock();
+      
       return 1;
       }
+    fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+	    myIdx, i, remoteProcessId, myIdx, tag);
+    fflush(this->LogFile);
+    snd->InfoLock->Unlock();
     }
+  fprintf(this->LogFile, "%d:              recv %d->%d, T: %d,  first=>wait\n",
+	  myIdx, remoteProcessId, myIdx, tag);
+  fflush(this->LogFile);    
   
   // Matching send has not been initiated.
   // Put message information in "ProcessInfo"
   rcv = this->Processes[myIdx];
+  fprintf(this->LogFile, "%d:     Info%d: Lock (recv %d->%d) T: %d\n", 
+	  myIdx, myIdx, remoteProcessId, myIdx, tag);
+  fflush(this->LogFile);
   rcv->InfoLock->Lock();
   rcv->SendFlag = 0;
   rcv->Data = data;
   rcv->DataLength = length;
   rcv->Tag = tag;
   rcv->RemoteId = remoteProcessId;
+  fprintf(this->LogFile, "%d:     Info%d: Unlock (recv %d->%d) T: %d\n", 
+	  myIdx, myIdx, remoteProcessId, myIdx, tag);
+  fflush(this->LogFile);
   rcv->InfoLock->Unlock();
   
-  // Wait until this data is consumed.
+  
+  // Message request is on the queue.  Go ahead and start a send.
+  fprintf(this->LogFile, "%d: Message: Unlock (recv %d->%d) T: %d\n",
+	  myIdx, remoteProcessId, myIdx, tag);
+  fflush(this->LogFile);
+  this->MessageLock->Unlock();
+  
+  // Wait for the send (wait until this data is consumed).
   // I am assuming it is ok for one thread to lock, and another to unlock.
+  fprintf(this->LogFile, "%d: Block%d: Lock (recv waiting for a send) T: %d\n",
+	  myIdx, myIdx, tag);
+  fflush(this->LogFile);
   rcv->BlockLock->Lock();
   // Transaction has been completed by the send.
   
@@ -405,7 +515,7 @@ int vtkThreadController::Receive(void *data, int length, int remoteProcessId,
 
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Send(int *data, int length, int remoteProcessId, 
+int vtkThreadedController::Send(int *data, int length, int remoteProcessId, 
 			      int tag)
 {
   length = length * sizeof(int);
@@ -413,7 +523,7 @@ int vtkThreadController::Send(int *data, int length, int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Send(unsigned long *data, int length, 
+int vtkThreadedController::Send(unsigned long *data, int length, 
 			      int remoteProcessId, int tag)
 {
   length = length * sizeof(unsigned long);
@@ -421,7 +531,7 @@ int vtkThreadController::Send(unsigned long *data, int length,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Send(char *data, int length, int remoteProcessId, 
+int vtkThreadedController::Send(char *data, int length, int remoteProcessId, 
 			      int tag)
 {
   length = length * sizeof(char);
@@ -429,7 +539,7 @@ int vtkThreadController::Send(char *data, int length, int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Send(float *data, int length, int remoteProcessId, 
+int vtkThreadedController::Send(float *data, int length, int remoteProcessId, 
 			      int tag)
 {
   length = length * sizeof(float);
@@ -440,7 +550,7 @@ int vtkThreadController::Send(float *data, int length, int remoteProcessId,
 
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Receive(int *data, int length, int remoteProcessId, 
+int vtkThreadedController::Receive(int *data, int length, int remoteProcessId, 
 				 int tag)
 {
   length = length * sizeof(int);
@@ -448,7 +558,7 @@ int vtkThreadController::Receive(int *data, int length, int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Receive(unsigned long *data, int length, 
+int vtkThreadedController::Receive(unsigned long *data, int length, 
 				 int remoteProcessId, int tag)
 {
   length = length * sizeof(unsigned long);
@@ -456,7 +566,7 @@ int vtkThreadController::Receive(unsigned long *data, int length,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Receive(char *data, int length, int remoteProcessId, 
+int vtkThreadedController::Receive(char *data, int length, int remoteProcessId, 
 				 int tag)
 {
   length = length * sizeof(char);
@@ -464,7 +574,7 @@ int vtkThreadController::Receive(char *data, int length, int remoteProcessId,
 }
 
 //----------------------------------------------------------------------------
-int vtkThreadController::Receive(float *data, int length, int remoteProcessId, 
+int vtkThreadedController::Receive(float *data, int length, int remoteProcessId, 
 				 int tag)
 {
   length = length * sizeof(float);

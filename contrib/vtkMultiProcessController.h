@@ -153,6 +153,7 @@ public:
   virtual int Receive(float *data, int length, 
 		      int remoteProcessId, int tag) = 0;
   
+  //BTX
   // Description:
   // Register remote method invocation in the receiving process
   // which makes the call.  It must have a unique tag as an RMI id.
@@ -164,6 +165,7 @@ public:
   // Take an RMI away.
   void RemoveRMI(void (*f)(void *, int), void *arg, int tag)
     {vtkErrorMacro("RemoveRMI Not Implemented Yet");};
+  //ETX
   
   // Description:
   // A method to trigger a method invocation in another process.

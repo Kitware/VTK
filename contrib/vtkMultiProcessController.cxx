@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
-//#include "vtkThreadController.h"
-#include "vtkMPIController.h"
+#include "vtkThreadedController.h"
+//#include "vtkMPIController.h"
 
 #include "vtkCollection.h"
 #include "vtkDataSetReader.h"
@@ -139,7 +139,8 @@ vtkMultiProcessController *vtkMultiProcessController::New()
     return (vtkMultiProcessController*)ret;
     }
   // If the factory was unable to create the object, then create it here.
-  return vtkMPIController::New();
+  //return vtkMPIController::New();
+  return vtkThreadedController::New();
 }
 
 
@@ -268,7 +269,10 @@ int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId,
     }
   if (data == NULL)
     {
-    return 0;
+    this->MarshalDataLength = 0;
+    this->Send( &this->MarshalDataLength, 1,      
+		remoteProcessId, tag);
+    return 1;
     }
   if (this->WriteObject(data))
     {
@@ -296,7 +300,7 @@ int vtkMultiProcessController::Send(vtkObject *data, int remoteProcessId,
 
 //----------------------------------------------------------------------------
 int vtkMultiProcessController::Receive(vtkObject *data, 
-			      int remoteProcessId, int tag)
+				       int remoteProcessId, int tag)
 {
   int dataLength;
   vtkTimerLog *log = vtkTimerLog::New();
@@ -308,11 +312,17 @@ int vtkMultiProcessController::Receive(vtkObject *data,
   log->StopTimer();
   this->ReceiveWaitTime = log->GetElapsedTime();
 
-  if (dataLength <= 0)
+  if (dataLength < 0)
     {
     vtkErrorMacro("Bad data length");
     log->Delete();
     return 0;
+    }
+  
+  if (dataLength == 0)
+    { // This indicates a NULL object was sent. Do nothing.
+    log->Delete();
+    return 1;   
     }
   
   // if we cannot reuse the string, allocate a new one.
@@ -357,7 +367,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId, int rmiTag)
   int message[2];
   
   // Deal with sending RMI to ourself here for now.
-  if (remoteProcessId == this->LocalProcessId)
+  if (remoteProcessId == this->GetLocalProcessId())
     {
     this->ProcessRMI(remoteProcessId, rmiTag);
     return;
@@ -367,7 +377,7 @@ void vtkMultiProcessController::TriggerRMI(int remoteProcessId, int rmiTag)
   // Multiple processes might try to invoke the method at the same time.
   // The remote method will know where to get additional args.
   message[0] = rmiTag;
-  message[1] = this->LocalProcessId;
+  message[1] = this->GetLocalProcessId();
   
   this->Send(message, 2, remoteProcessId, VTK_MP_CONTROLLER_RMI_TAG);
 }
@@ -411,7 +421,7 @@ void vtkMultiProcessController::ProcessRMI(int remoteProcessId, int rmiTag)
   
   if ( ! found)
     {
-    vtkErrorMacro("Process " << this->LocalProcessId << 
+    vtkErrorMacro("Process " << this->GetLocalProcessId() << 
 		  " Could not find RMI with tag " << rmiTag);
     }
   else
@@ -523,8 +533,12 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
   vtkStructuredPointsWriter *writer;
   int *ext, size;
   
+  // keep Update from propagating
+  vtkImageData *tmp = vtkImageData::New();
+  this->CopyImageData(data, tmp);
+  
   clip = vtkImageClip::New();
-  clip->SetInput(data);
+  clip->SetInput(tmp);
   clip->SetOutputWholeExtent(data->GetExtent());
   writer = vtkStructuredPointsWriter::New();
   writer->SetFileTypeToBinary();
@@ -537,6 +551,7 @@ int vtkMultiProcessController::WriteImageData(vtkImageData *data)
   this->MarshalDataLength = size;
   clip->Delete();
   writer->Delete();
+  tmp->Delete();
   
   return 1;
 }
@@ -575,9 +590,13 @@ void vtkMultiProcessController::CopyImageData(vtkImageData *src,
   dest->SetSpacing(src->GetSpacing());
   // here is a hack: we want to be able to send images (not through ports).
   dest->SetWholeExtent(src->GetExtent());
-  dest->SetScalarType(src->GetPointData()->GetScalars()->GetDataType());
-  dest->SetNumberOfScalarComponents(
-    src->GetPointData()->GetScalars()->GetNumberOfComponents());
+  if (dest->GetPointData()->GetScalars())
+    {
+    dest->SetScalarType(src->GetPointData()->GetScalars()->GetDataType());
+    dest->SetNumberOfScalarComponents(
+      src->GetPointData()->GetScalars()->GetNumberOfComponents());
+    }
+  
 }
 
 
