@@ -17,7 +17,7 @@ TK_INCLUDE=/common/software/tk4.1/include
 TK_LIB=/common/software/tk4.1/sun4/5.4/lib/libtk4.1.a
 
 MESA_INCLUDE=/home/martink/storage/Mesa-1.2.6/include
-MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib/libMesaGL.a
+MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib-sun4-solaris/libMesaGL.a
 
 #------------------------------------------------------------------------------
 # C compiler and debug/optimization/profiling flag to use.  Set by configure,
@@ -39,8 +39,8 @@ MESA_LIB=/home/martink/storage/Mesa-1.2.6/lib/libMesaGL.a
 # instead.
 
 AR = ar
-CFLAGS=-O
-CXXFLAGS=-O
+CFLAGS=-O -Wall
+CXXFLAGS=-O -Wall
 
 
 
