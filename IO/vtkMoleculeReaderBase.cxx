@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.11");
+vtkCxxRevisionMacro(vtkMoleculeReaderBase, "1.12");
 
 static float vtkMoleculeReaderBaseCovRadius[103] = {
 0.32 , 1.6 , 0.68 , 0.352 , 0.832 , 0.72 ,
@@ -152,6 +152,7 @@ vtkMoleculeReaderBase::vtkMoleculeReaderBase()
   this->Points = NULL;
   this->RGB = NULL;
   this->Radii = NULL;
+  this->NumberOfAtoms = 0;
 }
 
 vtkMoleculeReaderBase::~vtkMoleculeReaderBase()
