@@ -42,16 +42,17 @@
 #ifndef __vtkWindowToImageFilter_h
 #define __vtkWindowToImageFilter_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkAlgorithm.h"
+#include "vtkImageData.h" // makes things a bit easier
 
 class vtkWindow;
 
-class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkImageAlgorithm
+class VTK_RENDERING_EXPORT vtkWindowToImageFilter : public vtkAlgorithm
 {
 public:
   static vtkWindowToImageFilter *New();
 
-  vtkTypeRevisionMacro(vtkWindowToImageFilter,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkWindowToImageFilter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
@@ -87,6 +88,16 @@ public:
   vtkSetVector4Macro(Viewport,double);
   vtkGetVectorMacro(Viewport,double,4);
 
+  // Description:
+  // Get the output data object for a port on this algorithm.
+  vtkImageData* GetOutput();
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkWindowToImageFilter();
   ~vtkWindowToImageFilter();
@@ -98,11 +109,15 @@ protected:
   int ShouldRerender;
   double Viewport[4];
 
+  void RequestData(vtkInformation *, 
+                   vtkInformationVector **, vtkInformationVector *);
+
   virtual void ExecuteInformation(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  void ExecuteData(vtkDataObject *data);
+  // see algorithm for more info
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.

@@ -24,15 +24,16 @@
 #ifndef __vtkTransformToGrid_h
 #define __vtkTransformToGrid_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkAlgorithm.h"
+#include "vtkImageData.h" // makes things a bit easier
 
 class vtkAbstractTransform;
 
-class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkImageAlgorithm
+class VTK_HYBRID_EXPORT vtkTransformToGrid : public vtkAlgorithm
 {
 public:
   static vtkTransformToGrid *New();
-  vtkTypeRevisionMacro(vtkTransformToGrid,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkTransformToGrid,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -78,6 +79,16 @@ public:
   double GetDisplacementShift() {
     this->UpdateShiftScale(); return this->DisplacementShift; };
 
+  // Description:
+  // Get the output data object for a port on this algorithm.
+  vtkImageData* GetOutput();
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkTransformToGrid();
   ~vtkTransformToGrid();
@@ -105,6 +116,10 @@ protected:
   double DisplacementScale;
   double DisplacementShift;
   vtkTimeStamp ShiftScaleTime;
+
+  // see algorithm for more info
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
 private:
   vtkTransformToGrid(const vtkTransformToGrid&);  // Not implemented.
   void operator=(const vtkTransformToGrid&);  // Not implemented.

@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.16");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.17");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -44,6 +44,7 @@ vtkTransformToGrid::vtkTransformToGrid()
   this->DisplacementScale = 1.0;
   this->DisplacementShift = 0.0;
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -418,4 +419,96 @@ unsigned long vtkTransformToGrid::GetMTime()
     }
 
   return mtime;
+}
+
+//----------------------------------------------------------------------------
+int vtkTransformToGrid::ProcessRequest(vtkInformation* request,
+                                      vtkInformationVector** inputVector,
+                                      vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    int i;
+    // for each output
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        output->PrepareForNewData();
+        }
+      }
+
+    this->RequestData(request, inputVector, outputVector);
+
+    // Mark the data as up-to-date.
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        if (output->GetRequestExactExtent())
+          {
+          output->Crop();
+          }
+        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
+        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
+        output->DataHasBeenGenerated();
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT())))
+        {
+        ds->GenerateGhostLevelArray();
+        }
+      }
+    return 1;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    this->ExecuteInformation(request, inputVector, outputVector);
+    // after executing set the origin and spacing from the
+    // info
+    int i;
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      // if execute info didn't set origin and spacing then we set them
+      if (!info->Has(vtkDataObject::ORIGIN()))
+        {
+        info->Set(vtkDataObject::ORIGIN(),0,0,0);
+        info->Set(vtkDataObject::SPACING(),1,1,1);
+        }
+      if (output)
+        {
+        output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+        output->SetSpacing(info->Get(vtkDataObject::SPACING()));
+        }
+      }
+    return 1;
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkTransformToGrid::GetOutput()
+{
+  return vtkImageData::SafeDownCast(this->GetOutputDataObject(0));
+}
+
+int vtkTransformToGrid::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  // now add our info
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  return 1;
 }

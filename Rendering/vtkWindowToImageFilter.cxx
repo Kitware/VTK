@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.31");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.32");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -39,6 +39,7 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
   this->Viewport[3] = 1;
 
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -49,6 +50,12 @@ vtkWindowToImageFilter::~vtkWindowToImageFilter()
     this->Input->UnRegister(this);
     this->Input = NULL;
     }
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkWindowToImageFilter::GetOutput()
+{
+  return vtkImageData::SafeDownCast(this->GetOutputDataObject(0));
 }
 
 //----------------------------------------------------------------------------
@@ -102,11 +109,11 @@ void vtkWindowToImageFilter::ExecuteInformation (
      (this->Viewport[0] != 0 || this->Viewport[1] != 0 || 
       this->Viewport[2] != 1 || this->Viewport[3] != 1))
     {
-      vtkWarningMacro(<<"Viewport extents are not used when Magnification > 1");
-      this->Viewport[0] = 0;
-      this->Viewport[1] = 0;
-      this->Viewport[2] = 1;
-      this->Viewport[3] = 1; 
+    vtkWarningMacro(<<"Viewport extents are not used when Magnification > 1");
+    this->Viewport[0] = 0;
+    this->Viewport[1] = 0;
+    this->Viewport[2] = 1;
+    this->Viewport[3] = 1; 
     }
   
  
@@ -129,22 +136,104 @@ void vtkWindowToImageFilter::ExecuteInformation (
   outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(),3);
 }
 
+//----------------------------------------------------------------------------
+int vtkWindowToImageFilter::ProcessRequest(vtkInformation* request,
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    int i;
+    // for each output
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        output->PrepareForNewData();
+        }
+      }
+
+    this->RequestData(request, inputVector, outputVector);
+
+    // Mark the data as up-to-date.
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        if (output->GetRequestExactExtent())
+          {
+          output->Crop();
+          }
+        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
+        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
+        output->DataHasBeenGenerated();
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT())))
+        {
+        ds->GenerateGhostLevelArray();
+        }
+      }
+    return 1;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    this->ExecuteInformation(request, inputVector, outputVector);
+    // after executing set the origin and spacing from the
+    // info
+    int i;
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      // if execute info didn't set origin and spacing then we set them
+      if (!info->Has(vtkDataObject::ORIGIN()))
+        {
+        info->Set(vtkDataObject::ORIGIN(),0,0,0);
+        info->Set(vtkDataObject::SPACING(),1,1,1);
+        }
+      if (output)
+        {
+        output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+        output->SetSpacing(info->Get(vtkDataObject::SPACING()));
+        }
+      }
+    return 1;
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
 
 
 //----------------------------------------------------------------------------
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
+void vtkWindowToImageFilter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *out = 
+    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  out->SetExtent(out->GetUpdateExtent());
+  out->AllocateScalars();
+
   if (!this->Input)
     {
     return;
     }
 
-  vtkImageData *out = this->GetOutput();
-  out->SetExtent(out->GetWholeExtent());
-  out->AllocateScalars();
-  
   int outIncrY;
   int size[2],winsize[2];
   unsigned char *pixels, *outPtr;
@@ -320,3 +409,10 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
 
 
 
+int vtkWindowToImageFilter::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  // now add our info
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  return 1;
+}

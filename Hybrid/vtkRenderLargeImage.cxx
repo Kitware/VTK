@@ -23,7 +23,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.25");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.26");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -34,6 +34,7 @@ vtkRenderLargeImage::vtkRenderLargeImage()
   this->Input = NULL;
   this->Magnification = 3;
   this->SetNumberOfInputPorts(0);
+  this->SetNumberOfOutputPorts(1);
 }
 
 //----------------------------------------------------------------------------
@@ -64,6 +65,90 @@ void vtkRenderLargeImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Magnification: " << this->Magnification << "\n";
 }
 
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkRenderLargeImage::GetOutput()
+{
+  return vtkImageData::SafeDownCast(this->GetOutputDataObject(0));
+}
+
+//----------------------------------------------------------------------------
+int vtkRenderLargeImage::ProcessRequest(vtkInformation* request,
+                                        vtkInformationVector** inputVector,
+                                        vtkInformationVector* outputVector)
+{
+  // generate the data
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+    {
+    int i;
+    // for each output
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        output->PrepareForNewData();
+        }
+      }
+
+    this->RequestData(request, inputVector, outputVector);
+
+    // Mark the data as up-to-date.
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        if (output->GetRequestExactExtent())
+          {
+          output->Crop();
+          }
+        //info->Set(vtkDataObject::ORIGIN(), output->GetOrigin(), 3);
+        //info->Set(vtkDataObject::SPACING(), output->GetSpacing(), 3);
+        output->DataHasBeenGenerated();
+        }
+      if(vtkDataSet* ds = vtkDataSet::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT())))
+        {
+        ds->GenerateGhostLevelArray();
+        }
+      }
+    return 1;
+    }
+
+  // execute information
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
+    {
+    this->ExecuteInformation(request, inputVector, outputVector);
+    // after executing set the origin and spacing from the
+    // info
+    int i;
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      // if execute info didn't set origin and spacing then we set them
+      if (!info->Has(vtkDataObject::ORIGIN()))
+        {
+        info->Set(vtkDataObject::ORIGIN(),0,0,0);
+        info->Set(vtkDataObject::SPACING(),1,1,1);
+        }
+      if (output)
+        {
+        output->SetOrigin(info->Get(vtkDataObject::ORIGIN()));
+        output->SetSpacing(info->Get(vtkDataObject::SPACING()));
+        }
+      }
+    return 1;
+    }
+
+  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
 
 //----------------------------------------------------------------------------
 // Description:
@@ -109,9 +194,16 @@ void vtkRenderLargeImage::ExecuteInformation (
 // Description:
 // This function reads a region from a file.  The regions extent/axes
 // are assumed to be the same as the file extent/order.
-void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
+void vtkRenderLargeImage::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector* outputVector)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *data = 
+    vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  data->SetExtent(data->GetUpdateExtent());
+  data->AllocateScalars();
   int inExtent[6];
   int inIncr[3];
   int *size;
@@ -223,4 +315,12 @@ void vtkRenderLargeImage::ExecuteData(vtkDataObject *output)
   cam->SetViewAngle(viewAngle);
   cam->SetParallelScale(parallelScale);
   cam->SetWindowCenter(windowCenter[0],windowCenter[1]);
+}
+
+int vtkRenderLargeImage::FillOutputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  // now add our info
+  info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
+  return 1;
 }

@@ -31,15 +31,16 @@
 #ifndef __vtkRendererSource_h
 #define __vtkRendererSource_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkAlgorithm.h"
+#include "vtkImageData.h" // makes things a bit easier
 
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkRendererSource : public vtkImageAlgorithm
+class VTK_RENDERING_EXPORT vtkRendererSource : public vtkAlgorithm
 {
 public:
   static vtkRendererSource *New();
-  vtkTypeRevisionMacro(vtkRendererSource,vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkRendererSource,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -84,6 +85,16 @@ public:
   vtkGetMacro(DepthValuesInScalars,int);
   vtkBooleanMacro(DepthValuesInScalars,int);
   
+  // Description:
+  // Get the output data object for a port on this algorithm.
+  vtkImageData* GetOutput();
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
+
 protected:
   vtkRendererSource();
   ~vtkRendererSource();
@@ -100,6 +111,9 @@ protected:
   int RenderFlag;
   int DepthValues;
   int DepthValuesInScalars;
+
+  // see algorithm for more info
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
   vtkRendererSource(const vtkRendererSource&);  // Not implemented.
