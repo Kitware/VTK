@@ -397,7 +397,7 @@ void vtkSliceCubes::Execute()
    return;
    }
 
-  if ( (outFP = fopen(this->FileName, "w")) == NULL )
+  if ( (outFP = fopen(this->FileName, "wb")) == NULL )
    {
    vtkErrorMacro(<<"Cannot open specified output file...");
    return;
