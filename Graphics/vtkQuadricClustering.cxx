@@ -25,7 +25,7 @@
 #include "vtkTimerLog.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadricClustering, "1.46.4.2");
+vtkCxxRevisionMacro(vtkQuadricClustering, "1.46.4.3");
 vtkStandardNewMacro(vtkQuadricClustering);
 
 //----------------------------------------------------------------------------
@@ -128,11 +128,11 @@ void vtkQuadricClustering::Execute()
     {
     double factor = pow(((double)numDiv/(double)target),0.33333);
     this->NumberOfDivisions[0] = 
-      (int)((float)(this->NumberOfXDivisions)/factor);  
+      (int)(0.5+(float)(this->NumberOfXDivisions)/factor);  
     this->NumberOfDivisions[1] = 
-      (int)((float)(this->NumberOfYDivisions)/factor);  
+      (int)(0.5+(float)(this->NumberOfYDivisions)/factor);  
     this->NumberOfDivisions[2] = 
-      (int)((float)(this->NumberOfZDivisions)/factor);  
+      (int)(0.5+(float)(this->NumberOfZDivisions)/factor);  
     }
   else
     {
