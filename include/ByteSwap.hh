@@ -24,10 +24,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 class vlByteSwap
 {
 public:
-  Swap4(char *c);
-  Swap4(float *p) {Swap4((char *)p);};
-  Swap4(int *i) {Swap4((char *)i);};
-  Swap4(unsigned long *i) {Swap4((char *)i);};
+  void Swap4(char *c);
+  void Swap4(float *p) {Swap4((char *)p);};
+  void Swap4(int *i) {Swap4((char *)i);};
+  void Swap4(unsigned long *i) {Swap4((char *)i);};
 };
 
 #endif
