@@ -15,7 +15,7 @@ vtkRenderWindowInteractor iren
 
 
 vtkMath math
-set numberOfInputPoints 50
+set numberOfInputPoints 10
 
 vtkKochanekSpline aSplineX
 vtkKochanekSpline aSplineY
@@ -75,7 +75,7 @@ set continuity 0
   aSplineZ SetDefaultContinuity $continuity
 
 vtkPolyData profileData
-set numberOfOutputPoints 5000
+set numberOfOutputPoints 500
 proc fit {} {
   global numberOfInputPoints numberOfOutputPoints
   points Reset
@@ -136,7 +136,7 @@ proc defaults {} {
 }
 proc varyBias {} {
     defaults
-    for {set bias -1} { $bias <= 1 } {set bias [expr $bias + .025]} {
+    for {set bias -1} { $bias <= 1 } {set bias [expr $bias + .05]} {
       aSplineX SetDefaultBias $bias
       aSplineY SetDefaultBias $bias
       aSplineZ SetDefaultBias $bias
@@ -146,7 +146,7 @@ proc varyBias {} {
 }
 proc varyTension {} {
     defaults
-    for {set tension -1} { $tension <= 1 } {set tension [expr $tension + .025]} {
+    for {set tension -1} { $tension <= 1 } {set tension [expr $tension + .05]} {
       aSplineX SetDefaultTension $tension
       aSplineY SetDefaultTension $tension
       aSplineZ SetDefaultTension $tension
@@ -156,7 +156,7 @@ proc varyTension {} {
 }
 proc varyContinuity {} {
     defaults
-    for {set Continuity -1} { $Continuity <= 1 } {set Continuity [expr $Continuity + .025]} {
+    for {set Continuity -1} { $Continuity <= 1 } {set Continuity [expr $Continuity + .05]} {
       aSplineX SetDefaultContinuity $Continuity
       aSplineY SetDefaultContinuity $Continuity
       aSplineZ SetDefaultContinuity $Continuity

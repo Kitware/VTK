@@ -111,7 +111,7 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 renWin Render
 
 proc varyLeft {} {
-    for {set left -1} { $left <= 1 } {set left [expr $left + .025]} {
+    for {set left -1} { $left <= 1 } {set left [expr $left + .05]} {
       aSplineX SetLeftValue $left
       aSplineY SetLeftValue $left
       aSplineZ SetLeftValue $left
@@ -121,7 +121,7 @@ proc varyLeft {} {
 }
 
 proc varyRight {} {
-    for {set right -1} { $right <= 1 } {set right [expr $right + .025]} {
+    for {set right -1} { $right <= 1 } {set right [expr $right + .05]} {
       aSplineX SetRightValue $right
       aSplineY SetRightValue $right
       aSplineZ SetRightValue $right
