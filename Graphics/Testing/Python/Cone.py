@@ -25,6 +25,29 @@ coneMapper.SetInput(cone.GetOutput())
 coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 
+# create a transform and distort the camera using it
+mat = vtkMatrix4x4()
+mat.SetElement(0,0,0.5)
+mat.SetElement(0,1,0)
+mat.SetElement(0,2,0)
+mat.SetElement(0,3,0)
+mat.SetElement(1,0,0)
+mat.SetElement(1,1,1)
+mat.SetElement(1,2,0)
+mat.SetElement(1,3,0)
+mat.SetElement(2,0,0)
+mat.SetElement(2,1,0)
+mat.SetElement(2,2,1)
+mat.SetElement(2,3,0)
+mat.SetElement(3,0,0)
+mat.SetElement(3,1,0)
+mat.SetElement(3,2,0)
+mat.SetElement(3,3,1)
+
+trans = vtkTransform()
+trans.SetMatrix(mat)
+ren.GetActiveCamera().SetUserTransform(trans); 
+
 # assign our actor to the renderer
 ren.AddActor(coneActor)
 renWin.Render()
