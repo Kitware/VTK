@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.7");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.8");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -67,6 +67,12 @@ void vtkImageDataGeometryFilter::Execute()
   outCD = output->GetCellData();
 //  this->PointData.CopyNormalsOff();
   dims = input->GetDimensions();
+
+  if (dims[0] <= 0 || dims[1] <= 0 || dims[2] <= 0)
+    {
+    return;
+    }
+
 //
 // Based on the dimensions of the structured data, and the extent of the geometry,
 // compute the combined extent plus the dimensionality of the data
