@@ -148,7 +148,6 @@ public:
   public:
     Iterator() : Container(0) {}
     Iterator(ListContainer* c) : Container(c) {}
-    Iterator(const ListContainer& c) {this->Container = c.Container;}
     Iterator& operator=(const Iterator& i) 
       {this->Container=i.Container; return *this;}
     Iterator& operator=(ListContainer *c) 
