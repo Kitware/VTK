@@ -45,7 +45,7 @@ int vlSbrRenderer::UpdateActors()
   int count = 0;
  
   // loop through actors 
-  for (num = 0; num < this->Actors.GetNumberOfMembers(); num++)
+  for (num = 1; num <= this->Actors.GetNumberOfMembers(); num++)
     {
     anActor = this->Actors.GetMember(num);
  
@@ -105,7 +105,7 @@ int vlSbrRenderer::UpdateLights ()
 
   cur_light= this->NumberOfLightsBound;
 
-  for (i = 0; i < this->Lights.GetNumberOfMembers(); i++)
+  for (i = 1; i <= this->Lights.GetNumberOfMembers(); i++)
     {
     light = this->Lights.GetMember(i);
 
