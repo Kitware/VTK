@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.25");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.26");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -30,6 +30,10 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
   this->Magnification = 1;
   this->ReadFrontBuffer = 1;
   this->ShouldRerender = 1;
+  this->Viewport[0] = 0;
+  this->Viewport[1] = 0;
+  this->Viewport[2] = 1;
+  this->Viewport[3] = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -71,6 +75,8 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadFrontBuffer: " << this->ReadFrontBuffer << "\n";
   os << indent << "Magnification: " << this->Magnification << "\n";
   os << indent << "ShouldRerender: " << this->ShouldRerender << "\n";
+  os << indent << "Viewport: " << this->Viewport[0] << "," << this->Viewport[1] 
+     << "," << this->Viewport[2] << "," << this->Viewport[3] << "\n";
 }
 
 
@@ -83,13 +89,27 @@ void vtkWindowToImageFilter::ExecuteInformation()
     vtkErrorMacro(<<"Please specify a renderer as input!");
     return;
     }
+  
+  if(this->Magnification > 1 &&
+     (this->Viewport[0] != 0 || this->Viewport[1] != 0 || 
+      this->Viewport[2] != 1 || this->Viewport[3] != 1))
+    {
+      vtkWarningMacro(<<"Viewport extents are not used when Magnification > 1");
+      this->Viewport[0] = 0;
+      this->Viewport[1] = 0;
+      this->Viewport[2] = 1;
+      this->Viewport[3] = 1; 
+    }
+  
   vtkImageData *out = this->GetOutput();
   
+ 
   // set the extent
+  int *size = this->Input->GetSize();
   out->SetWholeExtent(0, 
-                      this->Input->GetSize()[0]*this->Magnification - 1,
+                      int((this->Viewport[2] - this->Viewport[0])*size[0] + 0.5)*this->Magnification - 1,
                       0, 
-                      this->Input->GetSize()[1]*this->Magnification - 1,
+                      int((this->Viewport[3] - this->Viewport[1])*size[1] + 0.5)*this->Magnification - 1,
                       0, 0);
   
   // set the spacing
@@ -120,7 +140,7 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
   out->AllocateScalars();
   
   int outIncrY;
-  int size[2];
+  int size[2],winsize[2];
   unsigned char *pixels, *outPtr;
   int idxY, rowSize;
   int i;
@@ -132,8 +152,12 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
     }
   
   // get the size of the render window
-  size[0] = this->Input->GetSize()[0];
-  size[1] = this->Input->GetSize()[1];
+  winsize[0] = this->Input->GetSize()[0];
+  winsize[1] = this->Input->GetSize()[1];
+
+  size[0] = int(winsize[0]*(this->Viewport[2]-this->Viewport[0]) + 0.5);
+  size[1] = int(winsize[1]*(this->Viewport[3]-this->Viewport[1]) + 0.5);
+  
   rowSize = size[0]*3;
   outIncrY = size[0]*this->Magnification*3;
     
@@ -241,9 +265,11 @@ void vtkWindowToImageFilter::ExecuteData(vtkDataObject *vtkNotUsed(data))
         {
         buffer = 1;
         }      
+      pixels = this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
+                                         int(this->Viewport[1]* winsize[1]),
+                                         int(this->Viewport[2]* winsize[0]) - 1,  
+                                         int(this->Viewport[3]* winsize[1]) - 1, buffer);
 
-      pixels = this->Input->GetPixelData(0,0,size[0] - 1,
-                                         size[1] - 1, buffer);
       unsigned char *pixels1 = pixels;
       
       // now write the data to the output image
