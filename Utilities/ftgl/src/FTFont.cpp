@@ -82,30 +82,31 @@ bool FTFont::FaceSize( const unsigned int size, const unsigned int res )
   
   glyphList = new FTGlyphContainer( &face, numGlyphs, preCache);
   
-  if( MakeGlyphList())
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  if( preCache)
+    {
+    return MakeGlyphList() ? true : false;
+    }
+
+  return true;
 }
 
 
 bool FTFont::MakeGlyphList()
 {
-  for( unsigned int c = 0; c < numGlyphs; ++c)
-  {
-    if( preCache)
+  if( preCache)
     {
+    for( unsigned int c = 0; c < numGlyphs; ++c)
+      {
       glyphList->Add( MakeGlyph( c), c);
+      }
     }
-    else
+  else
     {
+    for( unsigned int c = 0; c < numGlyphs; ++c)
+      {
       glyphList->Add( NULL, c);
+      }
     }
-  }
   
   return !err; // FIXME what err?
 }
