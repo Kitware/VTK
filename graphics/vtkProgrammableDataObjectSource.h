@@ -80,6 +80,8 @@ public:
   // Description:
   // Get the output data object.
   vtkDataObject *GetOutput();
+  vtkDataObject *GetOutput(int idx)
+    {return (vtkDataObject *) this->vtkSource::GetOutput(idx); };
 
 protected:
   vtkProgrammableDataObjectSource();

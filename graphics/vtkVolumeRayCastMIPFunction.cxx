@@ -557,6 +557,24 @@ void vtkVolumeRayCastMIPFunction::SpecificFunctionInitialize(
 {
 }
 
+// Description:
+// Return the maximize method as a descriptive character string.
+char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
+{
+  if( this->MaximizeMethod == VTK_MAXIMIZE_SCALAR_VALUE )
+    {
+    return "Maximize Scalar Value";
+    }
+  if( this->MaximizeMethod == VTK_MAXIMIZE_OPACITY )
+    {
+    return "Maximize Opacity";
+    }
+  else
+    {
+    return "Unknown";
+    }
+}
+
 // Print method for vtkVolumeRayCastMIPFunction
 void vtkVolumeRayCastMIPFunction::PrintSelf(ostream& os, vtkIndent indent)
 {

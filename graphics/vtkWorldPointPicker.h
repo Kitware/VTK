@@ -71,6 +71,8 @@ public:
   // Perform the pick.
   int Pick(float selectionX, float selectionY, float selectionZ, 
            vtkRenderer *renderer);  
+  int Pick(float selectionPt[3], vtkRenderer *renderer)
+    { return this->vtkPicker::Pick( selectionPt, renderer); };  
 
 protected:
   vtkWorldPointPicker ();

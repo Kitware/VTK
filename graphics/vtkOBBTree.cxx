@@ -477,9 +477,25 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
                                   float& t, float x[3], float pcoords[3],
                                   int &subId, int &cellId)
 {
+  vtkGenericCell *cell=vtkGenericCell::New();
+  int returnVal;
+
+  returnVal = this->IntersectWithLine( a0, a1, tol, t, x, pcoords, subId,
+				       cellId, cell);
+
+  cell->Delete();
+  return returnVal;
+}
+
+// Return intersection point (if any) AND the cell which was intersected by
+// finite line
+int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
+                                      float& t, float x[3], float pcoords[3],
+                                      int &subId, int &cellId,
+				      vtkGenericCell *cell)
+{
   vtkOBBNode **OBBstack, *node;
   vtkIdList *cells;
-  vtkCell *cell;
   int depth, ii, foundIntersection = 0, bestIntersection = 0;
   float tBest = VTK_LARGE_FLOAT, xBest[3], pcoordsBest[3];
   int subIdBest, thisId, cellIdBest = -1;
@@ -499,7 +515,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
         for ( ii=0; ii<cells->GetNumberOfIds(); ii++ )
           {
           thisId = cells->GetId(ii);
-          cell = this->DataSet->GetCell( thisId );
+          this->DataSet->GetCell( thisId, cell);
           if ( cell->IntersectWithLine( a0, a1, tol, t, x,
                                         pcoords, subId ) )
             { // line intersects cell, but is it the best one?

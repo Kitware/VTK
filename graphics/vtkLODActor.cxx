@@ -107,7 +107,7 @@ void vtkLODActor::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *m)
+void vtkLODActor::Render(vtkRenderer *ren, vtkMapper *vtkNotUsed(m))
 {
   float myTime, bestTime, tempTime;
   vtkMatrix4x4 *matrix;

@@ -175,6 +175,7 @@ void vtkRectilinearGridReader::Execute()
   int numPts=0, npts, ncoords, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
+  int done=0;
   vtkRectilinearGrid *output = this->GetOutput();
   
   vtkDebugMacro(<<"Reading vtk rectilinear grid file...");
@@ -222,7 +223,7 @@ void vtkRectilinearGridReader::Execute()
     //
     // Read keyword and number of points
     //
-    while (1)
+    while (!done)
       {
       if (!this->Reader->ReadString(line))
 	{

@@ -71,19 +71,19 @@ vtkProgrammableSource::vtkProgrammableSource()
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
 
-  this->vtkSource::SetOutput(0,vtkPolyData::New());
+  this->vtkSource::SetNthOutput(0,vtkPolyData::New());
   this->Outputs[0]->Delete();
 
-  this->vtkSource::SetOutput(1,vtkStructuredPoints::New());
+  this->vtkSource::SetNthOutput(1,vtkStructuredPoints::New());
   this->Outputs[1]->Delete();
 
-  this->vtkSource::SetOutput(2,vtkStructuredGrid::New());
+  this->vtkSource::SetNthOutput(2,vtkStructuredGrid::New());
   this->Outputs[2]->Delete();
 
-  this->vtkSource::SetOutput(3,vtkUnstructuredGrid::New());
+  this->vtkSource::SetNthOutput(3,vtkUnstructuredGrid::New());
   this->Outputs[3]->Delete();
 
-  this->vtkSource::SetOutput(4,vtkRectilinearGrid::New());
+  this->vtkSource::SetNthOutput(4,vtkRectilinearGrid::New());
   this->Outputs[4]->Delete();
 }
 

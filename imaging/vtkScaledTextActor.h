@@ -79,7 +79,7 @@ public:
   // Description:
   // Draw the scalar bar and annotation text to the screen.
   int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentGeometry(vtkViewport* viewport) {return 0;};
+  int RenderTranslucentGeometry(vtkViewport* ) {return 0;};
   int RenderOverlay(vtkViewport* viewport);
 
   // Description:
@@ -124,6 +124,10 @@ protected:
   vtkTimeStamp  BuildTime;
   int LastSize[2];
   int LastOrigin[2];
+
+private:
+  // hide the superclass' SetMapper method from the user and the compiler
+  void SetMapper(vtkMapper2D *mapper) {this->vtkActor2D::SetMapper( mapper );};
 };
 
 

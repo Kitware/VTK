@@ -412,7 +412,7 @@ void vtkTensorGlyph::Update()
 
 void vtkTensorGlyph::SetSource(vtkPolyData *source)
 {
-  this->vtkProcessObject::SetInput(1, source);
+  this->vtkProcessObject::SetNthInput(1, source);
 }
 
 vtkPolyData *vtkTensorGlyph::GetSource()

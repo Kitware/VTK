@@ -256,13 +256,13 @@ void vtkSource::RemoveOutput(vtkDataObject *output)
 // Set an Output of this filter. 
 // tricky because we have to manage the double pointers and keep
 // them consistent.
-void vtkSource::SetOutput(int idx, vtkDataObject *newOutput)
+void vtkSource::SetNthOutput(int idx, vtkDataObject *newOutput)
 {
   vtkDataObject *oldOutput;
   
   if (idx < 0)
     {
-    vtkErrorMacro(<< "SetOutput: " << idx << ", cannot set output. ");
+    vtkErrorMacro(<< "SetNthOutput: " << idx << ", cannot set output. ");
     return;
     }
   // Expand array if necessary.
@@ -489,7 +489,7 @@ int vtkSource::ComputeDivisionExtents(vtkDataObject *output,
 
 
 //----------------------------------------------------------------------------
-int vtkSource::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkSource::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(output))
 {
   if (this->NumberOfInputs > 0)
     {

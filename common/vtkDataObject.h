@@ -206,8 +206,8 @@ public:
   // It does not include mtimes of the data objects.
   // UpdateInformation must be called for the PipelineMTime to be correct.
   // Only the source should set the PipelineMTime.
-  void SetPipelineMTime(long t);
-  long GetPipelineMTime();
+  void SetPipelineMTime(unsigned long t);
+  unsigned long GetPipelineMTime();
   
   // Description:
   // Copies the UpdateExtent from another dataset of the same type.

@@ -80,6 +80,7 @@ protected:
   int Components[3];
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
 		       int ext[6], int id);
 };

@@ -118,7 +118,7 @@ static void vtkImageMagnitudeExecute(vtkImageMagnitude *self,
 	sum = 0;
 	for (idxC = 0; idxC < maxC; idxC++)
 	  {
-	  sum += (*inPtr * *inPtr);
+	  sum += (float) (*inPtr * *inPtr);
 	  inPtr++;
 	  }
 	*outPtr = (T)(sqrt(sum));

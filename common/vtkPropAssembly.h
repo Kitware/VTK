@@ -131,6 +131,9 @@ protected:
   vtkPropCollection *Parts;
   float Bounds[6];
   
+private:
+  // hide the superclass' ShallowCopy() from the user and the compiler.
+  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 
 #endif

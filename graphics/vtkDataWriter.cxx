@@ -199,8 +199,8 @@ ostream *vtkDataWriter::OpenVTKFile()
       return NULL;    
       }
     input->Update();
-    this->OutputStringAllocatedLength = 500 
-      + 1000 * input->GetActualMemorySize();
+    this->OutputStringAllocatedLength = (int) (500 
+      + 1000 * input->GetActualMemorySize());
     this->OutputString = new char[this->OutputStringAllocatedLength];
 
     fptr = new ostrstream(this->OutputString, 
@@ -446,9 +446,11 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 template <class T>
 static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int num, int numComp)
 {
-  int i, j, idx;
+  int i, j, idx, sizeT;
   char str[1024];
   
+  sizeT = sizeof(T);
+
   if ( fileType == VTK_ASCII )
     {
     for (j=0; j<num; j++)
@@ -467,7 +469,7 @@ static void WriteDataArray(ostream *fp, T *data, int fileType, char *format, int
   else
     {
     // need to byteswap ??
-    switch (sizeof(T))
+    switch (sizeT)
       {
       case 2:
 	// typecast doesn't have to be valid here
@@ -766,7 +768,7 @@ int vtkDataWriter::WriteFieldData(ostream *fp, vtkFieldData *f)
 {
   char format[1024];
   int i, numArrays=f->GetNumberOfArrays();
-  int numComp, numTuples, numFieldComp=f->GetNumberOfComponents();
+  int numComp, numTuples;
   vtkDataArray *array;
 
   if ( numArrays < 1 )

@@ -75,7 +75,7 @@ vtkMergeFilter::~vtkMergeFilter()
 
 void vtkMergeFilter::SetScalars(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(1, input);
+  this->vtkProcessObject::SetNthInput(1, input);
 }
 vtkDataSet *vtkMergeFilter::GetScalars()
 {
@@ -88,7 +88,7 @@ vtkDataSet *vtkMergeFilter::GetScalars()
 
 void vtkMergeFilter::SetVectors(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(2, input);
+  this->vtkProcessObject::SetNthInput(2, input);
 }
 vtkDataSet *vtkMergeFilter::GetVectors()
 {
@@ -101,7 +101,7 @@ vtkDataSet *vtkMergeFilter::GetVectors()
 
 void vtkMergeFilter::SetNormals(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(3, input);
+  this->vtkProcessObject::SetNthInput(3, input);
 }
 vtkDataSet *vtkMergeFilter::GetNormals()
 {
@@ -114,7 +114,7 @@ vtkDataSet *vtkMergeFilter::GetNormals()
 
 void vtkMergeFilter::SetTCoords(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(4, input);
+  this->vtkProcessObject::SetNthInput(4, input);
 }
 vtkDataSet *vtkMergeFilter::GetTCoords()
 {
@@ -127,7 +127,7 @@ vtkDataSet *vtkMergeFilter::GetTCoords()
 
 void vtkMergeFilter::SetTensors(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(5, input);
+  this->vtkProcessObject::SetNthInput(5, input);
 }
 vtkDataSet *vtkMergeFilter::GetTensors()
 {
@@ -140,7 +140,7 @@ vtkDataSet *vtkMergeFilter::GetTensors()
 
 void vtkMergeFilter::SetFieldData(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(6, input);
+  this->vtkProcessObject::SetNthInput(6, input);
 }
 vtkDataSet *vtkMergeFilter::GetFieldData()
 {
@@ -344,7 +344,7 @@ void vtkMergeFilter::Execute()
 // Output/Geometry may be structured while ScalarInput may be 
 // unstructured (but really have same triagulation/topology as geometry).
 // Just request al the input. Always generate all of the output (todo).
-int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+int vtkMergeFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(data))
 {
   vtkDataSet *input;
   int idx;

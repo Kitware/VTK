@@ -82,6 +82,8 @@ public:
 
   // ImplicitFunction interface
   float EvaluateFunction(float x[3]);
+  float EvaluateFunction(float x, float y, float z)
+    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
   void EvaluateGradient(float x[3], float g[3]);
 
   // Description:

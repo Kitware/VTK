@@ -145,6 +145,7 @@ public:
 
   // Description:
   // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  void GetBounds(float bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
   float *GetBounds();
 
   // Description:
@@ -171,6 +172,11 @@ protected:
   void UpdatePaths(); //apply transformations and properties recursively
   void DeletePaths(); //delete the paths
 
+private:
+  // hide the superclass' ShallowCopy() from the user and the compiler.
+  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy(vtkProp3D *prop) { this->vtkProp3D::ShallowCopy( prop ); };
+  void ShallowCopy(vtkActor *prop) { this->vtkActor::ShallowCopy( prop ); };
 };
 
 // Description:

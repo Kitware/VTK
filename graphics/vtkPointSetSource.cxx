@@ -80,7 +80,7 @@ vtkPointSet *vtkPointSetSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkPointSetSource::SetOutput(vtkPointSet *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 

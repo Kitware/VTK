@@ -62,7 +62,7 @@ vtkStructuredGridSource* vtkStructuredGridSource::New()
 //----------------------------------------------------------------------------
 vtkStructuredGridSource::vtkStructuredGridSource()
 {
-  this->vtkSource::SetOutput(0, vtkStructuredGrid::New());
+  this->vtkSource::SetNthOutput(0, vtkStructuredGrid::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -86,7 +86,7 @@ vtkStructuredGrid *vtkStructuredGridSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkStructuredGridSource::SetOutput(vtkStructuredGrid *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 

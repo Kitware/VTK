@@ -74,6 +74,7 @@ public:
   // Description:
   // Get any input of this filter.
   vtkPolyData *GetInput(int idx);
+  vtkPolyData *GetInput() { return this->GetInput( 0 ); };
   
   // Description:
   // ParallelStreaming is for a particular application.
@@ -106,6 +107,14 @@ protected:
   void AppendData(vtkDataArray *dest, vtkDataArray *src, int offset);
   int *AppendCells(int *pDest, vtkCellArray *src, int offset);
 
+ private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkPolyData not a vtkDataObject."); };
+  void RemoveInput(vtkDataObject *input)
+    { this->vtkProcessObject::RemoveInput(input); };
+  
+  
 };
 
 #endif

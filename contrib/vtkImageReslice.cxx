@@ -593,7 +593,8 @@ static inline int vtkInterpolateMirror(int num, int range)
 template <class T>
 static int vtkTrilinearInterpolation(float *point, T *inPtr, T *outPtr,
 				     T *background, int numscalars, 
-				     int inExt[6], int inDim[3],
+				     int inExt[6],
+				     int vtkNotUsed(inDim)[3],
 				     int inInc[3])
 {
   int i;
@@ -772,7 +773,8 @@ static int vtkTrilinearInterpolationRepeat(float *point, T *inPtr, T *outPtr,
 template <class T>
 static int vtkNearestNeighborInterpolation(float *point, T *inPtr, T *outPtr,
                                            T *background, int numscalars, 
-                                           int inExt[6], int inDim[3],
+                                           int inExt[6],
+					   int vtkNotUsed(inDim)[3],
 					   int inInc[3])
 {
   int i;
@@ -921,7 +923,8 @@ void vtkImageResliceSetInterpCoeffs(float F[4],int *l, int *m, float f,
 template <class T>
 static int vtkTricubicInterpolation(float *point, T *inPtr, T *outPtr,
 				    T *background, int numscalars, 
-				    int inExt[6], int inDim[3],
+				    int inExt[6],
+				    int vtkNotUsed(inDim)[3],
 				    int inInc[3])
 {
   int i;
@@ -2490,7 +2493,6 @@ static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
     }
 
   int *traversal[3];
-  float *constants[3];
   double newmat[4][4];
   int region;
 

@@ -182,7 +182,7 @@ void vtkMultiThreader::SetMultipleMethod( int index,
 // Execute the method set as the SingleMethod on NumberOfThreads threads.
 void vtkMultiThreader::SingleMethodExecute()
 {
-  int                thread_loop;
+  int                thread_loop = 0;
 
 #ifdef _WIN32
   DWORD              threadId;
@@ -541,6 +541,10 @@ int vtkMultiThreader::SpawnThread( vtkThreadFunctionType f, void *UserData )
 {
   int id;
 
+  // avoid a warning
+  vtkThreadFunctionType tf;
+  tf = f; tf= tf;
+  
 #ifdef _WIN32
   DWORD              threadId;
 #endif

@@ -78,6 +78,11 @@ protected:
   ~vtkMapperCollection() {};
   vtkMapperCollection(const vtkMapperCollection&) {};
   void operator=(const vtkMapperCollection&) {};
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+
 };
 
 

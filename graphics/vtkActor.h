@@ -143,6 +143,7 @@ class VTK_EXPORT vtkActor : public vtkProp3D
   // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
   // method GetBounds(float bounds[6]) is available from the superclass.)
+  void GetBounds(float bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
   float *GetBounds();
 
   // Description:
@@ -215,6 +216,11 @@ protected:
   // help know when the Bounds need to be recomputed.
   float        MapperBounds[6];
   vtkTimeStamp BoundsMTime;
+
+private:
+  // hide the superclass' ShallowCopy() from the user and the compiler.
+  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy(vtkProp3D *prop) { this->vtkProp3D::ShallowCopy( prop ); };
 
 };
 

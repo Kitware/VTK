@@ -205,15 +205,16 @@ void vtkImageIterateFilter::ExecuteInformation()
 //----------------------------------------------------------------------------
 //  Called by the above for each decomposition.  Subclass can modify
 // the defaults by implementing this method.
-void vtkImageIterateFilter::ExecuteInformation(vtkImageData *inData,
-					       vtkImageData *outData)
+void vtkImageIterateFilter::ExecuteInformation(vtkImageData *vtkNotUsed(inData),
+				       vtkImageData *vtkNotUsed(outData))
 {
 }
 
 
 //----------------------------------------------------------------------------
 int vtkImageIterateFilter::ComputeDivisionExtents(vtkDataObject *output,
-						  int division, int numDivisions)
+						  int division,
+						  int vtkNotUsed(numDivisions))
 {
   vtkImageData *in, *out = (vtkImageData*)output;
   int inExt[6], idx;

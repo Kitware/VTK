@@ -85,7 +85,7 @@ vtkClipVolume::vtkClipVolume(vtkImplicitFunction *cf)
   
   this->Triangulator = vtkDelaunay3D::New();
   this->Triangulator->SetLocator(this->MeshLocator);
-  this->vtkSource::SetOutput(1,vtkUnstructuredGrid::New());
+  this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
   this->Outputs[1]->Delete();
 }
 
@@ -418,7 +418,8 @@ void vtkClipVolume::Execute()
 // regular spacing of voxel points, we don't have to worry about constrained
 // Delaunay problems.
 void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars, 
-                              int flip, float origin[3], float spacing[3], 
+                              int flip, float vtkNotUsed(origin)[3],
+			      float spacing[3], 
                               vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
                               vtkCellData *inCD, int cellId, 

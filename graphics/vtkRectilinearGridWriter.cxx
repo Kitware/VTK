@@ -63,7 +63,7 @@ vtkRectilinearGridWriter* vtkRectilinearGridWriter::New()
 // Specify the input data or filter.
 void vtkRectilinearGridWriter::SetInput(vtkRectilinearGrid *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

@@ -97,6 +97,7 @@ protected:
   
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
 		       int extent[6], int id);
 };

@@ -83,6 +83,12 @@ protected:
   vtkAssemblyPaths(const vtkAssemblyPaths&) {};
   void operator=(const vtkAssemblyPaths&) {};
   
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void RemoveItem(vtkObject *o) { this->vtkCollection::RemoveItem(o); };
+  void RemoveItem(int i) { this->vtkCollection::RemoveItem(i); };
+  int  IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o);};
 };
 
 inline void vtkAssemblyPaths::AddItem(vtkActorCollection *a) 

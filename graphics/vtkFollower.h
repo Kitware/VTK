@@ -79,6 +79,9 @@ class VTK_EXPORT vtkFollower : public vtkActor
   // Description:
   // Copy the follower's composite 4x4 matrix into the matrix provided.
   virtual void GetMatrix(vtkMatrix4x4 *m);
+  virtual vtkMatrix4x4& GetMatrix() {return *(this->GetMatrixPointer());}
+  virtual void GetMatrix(double m[16])
+    {this->GetMatrix(this->Matrix); vtkMatrix4x4::DeepCopy(m,this->Matrix);};
 
   // Description:
   // Set/Get the camera to follow. If this is not set, then the follower
@@ -98,6 +101,9 @@ protected:
 
   vtkCamera *Camera; 
   vtkActor  *Device;
+private:
+  // hide the two parameter Render() method from the user and the compiler.
+  virtual void Render(vtkRenderer *, vtkMapper *) {};
 };
 
 #endif

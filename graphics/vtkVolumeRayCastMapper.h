@@ -121,7 +121,7 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
-  void Render( vtkRenderer *ren, vtkVolume *vol ) {};
+  void Render( vtkRenderer *, vtkVolume * ) {};
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

@@ -83,6 +83,12 @@ protected:
   ~vtkVolumeCollection() {};
   vtkVolumeCollection(const vtkVolumeCollection&) {};
   void operator=(const vtkVolumeCollection&) {};
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+
 };
 
 

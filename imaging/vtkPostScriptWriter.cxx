@@ -61,7 +61,7 @@ vtkPostScriptWriter* vtkPostScriptWriter::New()
 #define VTK_MARGIN 0.95
 
 void vtkPostScriptWriter::WriteFileTrailer(ofstream *file, 
-					   vtkImageData *cache)
+					   vtkImageData *vtkNotUsed(cache))
 {
   *file << "\ngrestore\nshowpage\n%%%%Trailer\n";
 }

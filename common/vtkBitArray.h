@@ -168,6 +168,11 @@ protected:
   float *Tuple;
 
   int SaveUserArray;
+
+private:
+  // hide superclass' DeepCopy() from the user and the compiler
+  void DeepCopy(vtkDataArray &da) {this->vtkDataArray::DeepCopy(&da);}
+  
 };
 
 inline unsigned char *vtkBitArray::WritePointer(const int id, const int number)

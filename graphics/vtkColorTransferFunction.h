@@ -122,6 +122,7 @@ public:
   // The set method does nothing.
   float *GetRange();
   virtual void SetRange(float, float) {};
+  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
 
   // Description:
   // Fills in a table of n function values between x1 and x2

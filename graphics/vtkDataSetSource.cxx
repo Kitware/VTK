@@ -78,6 +78,6 @@ vtkDataSet *vtkDataSetSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkDataSetSource::SetOutput(vtkDataSet *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 

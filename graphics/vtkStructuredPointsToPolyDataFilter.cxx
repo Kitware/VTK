@@ -64,7 +64,7 @@ vtkStructuredPointsToPolyDataFilter* vtkStructuredPointsToPolyDataFilter::New()
 // Specify the input data or filter.
 void vtkStructuredPointsToPolyDataFilter::SetInput(vtkStructuredPoints *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

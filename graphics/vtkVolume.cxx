@@ -537,7 +537,7 @@ unsigned long int vtkVolume::GetRedrawMTime()
   return mTime;
 }
 
-void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
+void vtkVolume::UpdateTransferFunctions( vtkRenderer *vtkNotUsed(ren) )
 {
   int                       data_type;
   vtkPiecewiseFunction      *scalar_opacity_transfer_function;
@@ -769,7 +769,8 @@ void vtkVolume::UpdateTransferFunctions( vtkRenderer *ren )
 // This method computes the corrected alpha blending for a given
 // step size.  The ScalarOpacityArray reflects step size 1.
 // The CorrectedScalarOpacityArray reflects step size CorrectedStepSize.
-void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *ren, float sample_distance )
+void vtkVolume::UpdateScalarOpacityforSampleSize( vtkRenderer *vtkNotUsed(ren),
+						  float sample_distance )
 {
   int i;
   int needsRecomputing;

@@ -57,6 +57,8 @@ public:
   // Description:
   // Get the output of this source.
   vtkDataSet *GetOutput();
+  vtkDataSet *GetOutput(int idx)
+    {return (vtkDataSet *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkDataSet *);
   
 protected:  

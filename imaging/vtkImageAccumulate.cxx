@@ -181,7 +181,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 	for (idxC = 0; idxC < numC; ++idxC)
 	  {
 	  // compute the index
-	  outIdx = (int)((*inPtrC - origin[idxC]) / spacing[idxC]);
+	  outIdx = (int)(((float)*inPtrC - origin[idxC]) / spacing[idxC]);
 	  if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
 	    {
 	    // Out of bin range

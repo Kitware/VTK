@@ -82,6 +82,7 @@ public:
   // Description:
   // Standard vtkProp method to get 3D bounds of a 3D prop
   float *GetBounds();
+  void GetBounds(float bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
 
   // Description:
   // Do we need to ray cast this prop?

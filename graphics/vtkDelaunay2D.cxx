@@ -82,7 +82,7 @@ vtkDelaunay2D::~vtkDelaunay2D()
 // Specify the input data or filter.
 void vtkDelaunay2D::SetInput(vtkPointSet *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ vtkPointSet *vtkDelaunay2D::GetInput()
 // Specify the input data or filter.
 void vtkDelaunay2D::SetSource(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetInput(1, input);
+  this->vtkProcessObject::SetNthInput(1, input);
 }
 
 //----------------------------------------------------------------------------
@@ -547,7 +547,7 @@ void vtkDelaunay2D::Execute()
     {
     double alpha2 = this->Alpha * this->Alpha;
     double x1[3], x2[3], x3[3];
-    int cellId, numNei, ap1, ap2, nei;
+    int cellId, numNei, ap1, ap2, neighbor;
 
     vtkCellArray *alphaVerts = vtkCellArray::New();
     alphaVerts->Allocate(numPoints);
@@ -599,8 +599,8 @@ void vtkDelaunay2D::Execute()
             this->Mesh->GetCellEdgeNeighbors(cellId,ap1,ap2,neighbors);
             numNei = neighbors->GetNumberOfIds();
 
-            if ( numNei < 1 || ((nei=neighbors->GetId(0)) > cellId 
-                                && !triUse[nei]) )
+            if ( numNei < 1 || ((neighbor=neighbors->GetId(0)) > cellId 
+                                && !triUse[neighbor]) )
               {//see whether edge is shorter than Alpha
               this->GetPoint(ap1,x1);
               this->GetPoint(ap2,x2);

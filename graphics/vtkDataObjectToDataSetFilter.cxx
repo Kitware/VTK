@@ -74,7 +74,7 @@ vtkDataObjectToDataSetFilter::vtkDataObjectToDataSetFilter()
   this->Updating = 0;
 
   this->DataSetType = VTK_POLY_DATA;
-  this->vtkSource::SetOutput(0,vtkPolyData::New());
+  this->vtkSource::SetNthOutput(0,vtkPolyData::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -188,23 +188,23 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
   switch (dt)
     {
     case VTK_POLY_DATA:
-      this->SetOutput(0,vtkPolyData::New());
+      this->SetNthOutput(0,vtkPolyData::New());
       this->Outputs[0]->Delete();
       break;
     case VTK_STRUCTURED_GRID:
-      this->SetOutput(0,vtkStructuredGrid::New());
+      this->SetNthOutput(0,vtkStructuredGrid::New());
       this->Outputs[0]->Delete();
       break;
     case VTK_STRUCTURED_POINTS:
-      this->SetOutput(0,vtkStructuredPoints::New());
+      this->SetNthOutput(0,vtkStructuredPoints::New());
       this->Outputs[0]->Delete();
       break;
     case VTK_UNSTRUCTURED_GRID:
-      this->SetOutput(0,vtkUnstructuredGrid::New());
+      this->SetNthOutput(0,vtkUnstructuredGrid::New());
       this->Outputs[0]->Delete();
       break;
     case VTK_RECTILINEAR_GRID:
-      this->SetOutput(0,vtkRectilinearGrid::New());
+      this->SetNthOutput(0,vtkRectilinearGrid::New());
       this->Outputs[0]->Delete();
       break;
     default:
@@ -217,7 +217,7 @@ void vtkDataObjectToDataSetFilter::SetDataSetType(int dt)
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::SetInput(vtkDataObject *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -403,7 +403,7 @@ vtkRectilinearGrid *vtkDataObjectToDataSetFilter::GetRectilinearGridOutput()
 
 //----------------------------------------------------------------------------
 int 
-vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+vtkDataObjectToDataSetFilter::ComputeInputUpdateExtents(vtkDataObject *vtkNotUsed(output))
 {
   // what should we do here?
   if (this->GetInput()->GetDataObjectType() != VTK_DATA_OBJECT)

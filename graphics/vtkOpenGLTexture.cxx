@@ -133,7 +133,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     unsigned char *resultData=NULL;
     int xsize, ysize;
     unsigned short xs,ys;
-    GLuint tempIndex;
+    GLuint tempIndex=0;
 
     // get some info
     size = this->Input->GetDimensions();
@@ -243,7 +243,7 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
     // get a unique display list id
 #ifdef GL_VERSION_1_1
     glGenTextures(1, &tempIndex);
-    this->Index = tempIndex;
+    this->Index = (long) tempIndex;
     glBindTexture(GL_TEXTURE_2D, this->Index);
 #else
     this->Index = glGenLists(1);

@@ -331,7 +331,7 @@ static void vtkTkRenderWidget_EventProc(ClientData clientData,
 	}
       break;
     case ConfigureNotify:
-      if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
+      //if ( Tk_IsMapped(self->TkWin) ) 
         {
 	self->Width = Tk_Width(self->TkWin);
 	self->Height = Tk_Height(self->TkWin);

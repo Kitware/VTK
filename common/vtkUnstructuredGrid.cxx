@@ -593,14 +593,14 @@ int vtkUnstructuredGrid::ClipUpdateExtentWithWholeExtent()
   int valid = 1;
   int piece = this->GetUnstructuredUpdateExtent()->GetPiece();
   int numPieces = this->GetUnstructuredUpdateExtent()->GetNumberOfPieces();
-  int maxPieces;
+  unsigned long maxPieces;
   
   // Check to see if upstream filters can break up the data into the
   // requested number of pieces.
   maxPieces = this->GetUnstructuredInformation()->GetMaximumNumberOfPieces();
   if (numPieces > maxPieces)
     {
-    numPieces = maxPieces;
+    numPieces = (int) maxPieces;
     }
   
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)

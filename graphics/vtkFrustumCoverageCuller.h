@@ -124,26 +124,5 @@ protected:
   int          SortingStyle;
 };
 
-// Description:
-// Return the sorting style as a descriptive character string.
-inline char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
-{
-  if( this->SortingStyle == VTK_CULLER_SORT_NONE )
-    {
-    return "None";
-    }
-  if( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
-    {
-    return "Front To Back";
-    }
-  if( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
-    {
-    return "Back To Front";
-    }
-  else
-    {
-    return "Unknown";
-    }
-}
                                          
 #endif

@@ -87,6 +87,8 @@ public:
   // Get the output of this filter. If output is NULL, then input hasn't been
   // set, which is necessary for abstract filter objects.
   vtkPointSet *GetOutput();
+  vtkPointSet *GetOutput(int idx)
+    {return (vtkPointSet *) this->vtkPointSetSource::GetOutput(idx); };
 
   // Description:
   // Get the output as vtkPolyData. Performs run-time checking.

@@ -712,10 +712,10 @@ void vtkIVExporter::WritePointData(vtkPoints *points, vtkNormals *normals,
 }
 
 
-void vtkIVExporter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkIVExporter::PrintSelf(ostream& os, vtkIndent ind)
 {
-  vtkExporter::PrintSelf(os,indent);
+  vtkExporter::PrintSelf(os,ind);
  
-  os << indent << "FileName: " << this->FileName << "\n";
+  os << ind << "FileName: " << this->FileName << "\n";
 }
 

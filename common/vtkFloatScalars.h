@@ -78,7 +78,12 @@ protected:
   ~vtkFloatScalars() {};
   vtkFloatScalars(const vtkFloatScalars&) {};
   void operator=(const vtkFloatScalars&) {};
-  
+
+private:
+  // hide the vtkScalars' New() method
+  static vtkFloatScalars *New(int) { return vtkFloatScalars::New();};
+  static vtkFloatScalars *New(int dataType, int numComp)
+        { return (vtkFloatScalars *)vtkScalars::New(dataType, numComp);};
 };
 
 inline float *vtkFloatScalars::GetPointer(const int id)

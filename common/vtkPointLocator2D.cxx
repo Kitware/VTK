@@ -945,7 +945,7 @@ int vtkPointLocator2D::IsInsertedPoint(float x[2])
 // Build polygonal representation of locator. Create faces that separate
 // inside/outside buckets, or separate inside/boundary of locator.
 void vtkPointLocator2D::GenerateRepresentation(int vtkNotUsed(level),
-					       vtkPolyData *pd)
+					       vtkPolyData *vtkNotUsed(pd))
 {
   // to be done
 }
@@ -954,6 +954,12 @@ void vtkPointLocator2D::GenerateFace(int face, int i, int j, int k,
                                    vtkPoints *pts, vtkCellArray *polys)
 {
   // to be done
+  face = face;
+  i = i;
+  j = j;
+  k = k;
+  pts = pts;
+  polys = polys;
 }
 
 

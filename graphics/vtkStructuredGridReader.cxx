@@ -175,6 +175,7 @@ char *vtkStructuredGridReader::GetFieldDataName()
 void vtkStructuredGridReader::ExecuteInformation()
 {
   char line[256];
+  int done=0;
   vtkStructuredGrid *output = this->GetOutput();
   
   if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
@@ -213,7 +214,7 @@ void vtkStructuredGridReader::ExecuteInformation()
     //
     // Read keyword and dimensions
     //
-    while (1)
+    while (!done)
       {
       if (!this->Reader->ReadString(line))
 	{
@@ -253,6 +254,7 @@ void vtkStructuredGridReader::Execute()
   int numPts=0, npts, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
+  int done=0;
   vtkStructuredGrid *output = this->GetOutput();
   
   vtkDebugMacro(<<"Reading vtk structured grid file...");
@@ -300,7 +302,7 @@ void vtkStructuredGridReader::Execute()
     //
     // Read keyword and number of points
     //
-    while (1)
+    while (!done)
       {
       if (!this->Reader->ReadString(line))
 	{

@@ -110,6 +110,9 @@ protected:
   int Dimensionality;
   
   void Execute(vtkImageData *inData, vtkImageData *outData);
+  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute(vtkImageData *outData)
+    { this->vtkImageToImageFilter::Execute(outData); };
 
   // Description:
   // Generate more than requested.  Called by the superclass before

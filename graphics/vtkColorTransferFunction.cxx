@@ -392,7 +392,7 @@ vtkColorTransferFunctionMapDataToRGBAClamp(vtkColorTransferFunction *self,
 
   while (--i >= 0) 
     {
-    findx = *input;
+    findx = (float) *input;
 
     // do red
     if( findx < RRange[0] ) 
@@ -560,7 +560,7 @@ vtkColorTransferFunctionMapDataToRGBANoClamp(vtkColorTransferFunction *self,
 
   while (--i >= 0) 
     {
-    findx = *input;
+    findx = (float) *input;
 
     // do red
     if( findx < RRange[0] ) 

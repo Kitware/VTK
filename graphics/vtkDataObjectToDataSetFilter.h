@@ -133,6 +133,8 @@ public:
   // SetDataSetType(). Also, GetOutput() will return NULL if the filter
   // aborted due to inconsistent data.)
   vtkDataSet *GetOutput();
+  vtkDataSet *GetOutput(int idx)
+    {return (vtkDataSet *) this->vtkSource::GetOutput(idx); };
   vtkPolyData *GetPolyDataOutput();
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();

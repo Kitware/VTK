@@ -75,7 +75,6 @@ void vtkCellDataToPointData::Execute()
   vtkDataSet *output= this->GetOutput();
   vtkCellData *inPD=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
-  int maxCellSize=input->GetMaxCellSize();
   vtkIdList *cellIds;
   float weight, *weights=new float[VTK_MAX_CELLS_PER_POINT];
 

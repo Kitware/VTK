@@ -81,6 +81,7 @@ protected:
   int OutputNumberOfScalarComponents;
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
 };
 

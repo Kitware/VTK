@@ -131,7 +131,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   p = input->GetPoints();
   if ( this->TransformCoordinate )
     {
-    int *itmp, numPts = p->GetNumberOfPoints();
+    int *itmp;
+    numPts = p->GetNumberOfPoints();
     displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
     for ( j=0; j < numPts; j++ )

@@ -86,6 +86,7 @@ protected:
 
   void ExecuteInformation();
   void Execute(vtkImageData *data);
+  void Execute() { this->vtkImageSource::Execute(); };
 };
 
 

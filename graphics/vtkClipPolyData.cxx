@@ -75,7 +75,7 @@ vtkClipPolyData::vtkClipPolyData(vtkImplicitFunction *cf)
   this->GenerateClipScalars = 0;
 
   this->GenerateClippedOutput = 0;
-  this->vtkSource::SetOutput(1,vtkPolyData::New());
+  this->vtkSource::SetNthOutput(1,vtkPolyData::New());
   this->Outputs[1]->Delete();
 }
 

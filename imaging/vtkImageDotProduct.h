@@ -63,6 +63,7 @@ protected:
   void operator=(const vtkImageDotProduct&) {};
 
   void ExecuteInformation(vtkImageData **inDatas, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,
 		       int extent[6], int id);
 };

@@ -63,7 +63,7 @@ vtkPolyDataToPolyDataFilter* vtkPolyDataToPolyDataFilter::New()
 // Specify the input data or filter.
 void vtkPolyDataToPolyDataFilter::SetInput(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

@@ -62,7 +62,7 @@ vtkUnstructuredGridSource* vtkUnstructuredGridSource::New()
 //----------------------------------------------------------------------------
 vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
-  this->vtkSource::SetOutput(0, vtkUnstructuredGrid::New());
+  this->vtkSource::SetNthOutput(0, vtkUnstructuredGrid::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -83,7 +83,7 @@ vtkUnstructuredGrid *vtkUnstructuredGridSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkUnstructuredGridSource::SetOutput(vtkUnstructuredGrid *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 

@@ -65,7 +65,9 @@ public:
   // Description:
   // Specify the Input for comparison.
   void SetInput(vtkImageData *input) {this->SetInput1(input);}
-
+  void SetInput(int num, vtkImageData *input)
+    { this->vtkImageMultipleInputFilter::SetInput(num, input); };
+  
   // Description:
   // Return the total error in comparing the two images.
   float GetError(void);
@@ -116,6 +118,7 @@ protected:
   int Averaging;
   
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output); 
+  void ExecuteInformation(){this->vtkImageTwoInputFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
   void ThreadedExecute(vtkImageData **inDatas, vtkImageData *outData,

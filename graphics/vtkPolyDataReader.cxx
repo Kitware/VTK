@@ -176,6 +176,7 @@ void vtkPolyDataReader::Execute()
   int numPts=0;
   char line[256];
   int npts, size, ncells;
+  int done=0;
   vtkPolyData *output = this->GetOutput();
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
@@ -224,7 +225,7 @@ void vtkPolyDataReader::Execute()
 //
 // Might find points, vertices, lines, polygons, or triangle strips
 //
-    while (1)
+    while (!done)
       {
       if (!this->Reader->ReadString(line))
 	{

@@ -388,15 +388,15 @@ inline char *vtkRenderWindow::GetStereoTypeAsString(void)
   switch ( this->StereoType )
     {
     case VTK_STEREO_CRYSTAL_EYES:
-      return "CrystalEyes";
+      return (char *)"CrystalEyes";
     case VTK_STEREO_RED_BLUE:
-      return "RedBlue";
+      return (char *)"RedBlue";
     case VTK_STEREO_LEFT:
-      return "Left";
+      return (char *)"Left";
     case VTK_STEREO_RIGHT:
-      return "Right";
+      return (char *)"Right";
     default:
-      return "";
+      return (char *)"";
     }
 }
 

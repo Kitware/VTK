@@ -295,7 +295,8 @@ void vtkSurfaceReconstructionFilter::Execute()
   // that has the lowest cost connection with a visited vertex. Record this
   // vertex as visited, add any new neighbors to the neighbors list.
 
-  if(1) 
+  int orientationPropagation=1;
+  if(orientationPropagation) 
     {// set to false if you don't want orientation propagation (for testing)
     vtkIdList *nearby = vtkIdList::New(); // list of nearby, unvisited points
     
@@ -431,7 +432,7 @@ void vtkSurfaceReconstructionFilter::Execute()
   // for sampling around the edge)
   vtkPointLocator *locator = vtkPointLocator::New();
   vtkPoints *newPts = vtkPoints::New();
-  locator->InitPointInsertion(newPts,bounds,COUNT);
+  locator->InitPointInsertion(newPts,bounds,(int)COUNT);
   for(i=0;i<COUNT;i++)
     {
     locator->InsertPoint(i,surfacePoints[i].loc);
@@ -558,13 +559,14 @@ static float **Matrix(long nrl, long nrh, long ncl, long nch)
 }
 
 // free a float vector allocated with Vector()
-static void FreeVector(float *v, long nl, long nh)
+static void FreeVector(float *v, long nl, long vtkNotUsed(nh))
 { 
   delete [] (v+nl-VTK_NR_END);
 }
 
 // free a float matrix allocated by Matrix()
-static void FreeMatrix(float **m, long nrl, long nrh, long ncl, long nch)
+static void FreeMatrix(float **m, long nrl, long vtkNotUsed(nrh),
+		       long ncl, long vtkNotUsed(nch))
 	
 {
   delete [] (m[nrl]+ncl-VTK_NR_END);

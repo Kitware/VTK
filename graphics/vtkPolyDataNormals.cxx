@@ -102,7 +102,7 @@ void vtkPolyDataNormals::Execute()
   vtkPoints *newPts = NULL;
   vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
-  vtkCellData *cd, *outCD;
+  vtkCellData *outCD;
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
@@ -182,7 +182,6 @@ void vtkPolyDataNormals::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
     
-  cd = input->GetCellData();
   outCD = output->GetCellData();
     
   NewMesh = vtkPolyData::New();

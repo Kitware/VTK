@@ -68,6 +68,7 @@ public:
   void SetInput(vtkImageData *input);
   vtkImageData *GetInput();
 
+
   // Description:
   // Set/Get the input object from the image pipeline.
   void SetVectorInput(vtkImageData *input);
@@ -76,6 +77,8 @@ public:
   // Description:
   // Get the output of this source.
   vtkStructuredPoints *GetOutput();
+  vtkStructuredPoints *GetOutput(int idx)
+    {return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); };
   
 protected:
   vtkImageToStructuredPoints();
@@ -89,6 +92,8 @@ protected:
   void Execute();
   void ExecuteInformation();
   int ComputeInputUpdateExtents(vtkDataObject *data);
+
+  
 };
 
 

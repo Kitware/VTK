@@ -75,7 +75,7 @@ vtkLookupTable(sze,ext)
   this->MinimumColor[3] = 255;
   this->MaximumColor[0] = this->MaximumColor[1] = this->MaximumColor[2] = 255;
   this->MaximumColor[3] = 255;
-};
+}
 
 // Generate lookup table from window and level.
 // Table is built as a linear ramp, centered at Level and of width Window.

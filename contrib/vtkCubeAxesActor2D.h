@@ -88,7 +88,7 @@ public:
   // Draw the axes as per the vtkProp superclass' API.
   int RenderOverlay(vtkViewport*);
   int RenderOpaqueGeometry(vtkViewport*);
-  int RenderTranslucentGeometry(vtkViewport *viewport) {return 0;}
+  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
 
   // Description:
   // Use the bounding box of this input dataset to draw the cube axes. If this

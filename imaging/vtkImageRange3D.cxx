@@ -294,7 +294,7 @@ static void vtkImageRange3DExecute(vtkImageRange3D *self,
 	    hoodPtr2 += inInc2;
 	    maskPtr2 += maskInc2;
 	    }
-	  *outPtr0 = (pixelMax - pixelMin);
+	  *outPtr0 = (float)(pixelMax - pixelMin);
 	  
 	  inPtr0 += inInc0;
 	  outPtr0 += outInc0;

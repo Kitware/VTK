@@ -91,9 +91,9 @@ public:
   // Description:
   // Return the size[2]/width/height of the rectangle required to draw this
   // mapper (in pixels).
-  virtual void GetSize(vtkViewport* viewport, int size[2]) {};
-  int GetWidth(vtkViewport* viewport);
-  int GetHeight(vtkViewport* viewport);
+  virtual void GetSize(vtkViewport*, int size[2]) {size[0]=size[0];};
+  int GetWidth(vtkViewport*);
+  int GetHeight(vtkViewport*);
   
   // Description:
   // Set the input text string to the mapper.  The mapper recognizes "\n"
@@ -105,8 +105,7 @@ public:
   // Set the font size used by the mapper.  The subclasses can override
   // this function since all font sizes may not be available (especially
   // in X).
-  virtual void SetFontSize(int size) { if (size != this->FontSize)
-    {this->FontSize = size; this->Modified(); this->FontMTime.Modified();}};
+  virtual void SetFontSize(int size);
 
   // Description:
   // Return the font size actually in use by the mapper.  This value may
@@ -116,30 +115,26 @@ public:
 
   // Description:
   // Enable/disable text bolding.
-  void SetBold(int val) {if (val == this->Bold) { return; }
-    this->Bold = val; this->Modified(); this->FontMTime.Modified();};
+  void SetBold(int val);
   vtkGetMacro(Bold, int);
   vtkBooleanMacro(Bold, int);
 
   // Description:
   // Enable/disable text italic.
-  void SetItalic(int val) {if (val == this->Italic) { return; }
-    this->Italic = val; this->Modified(); this->FontMTime.Modified();};
+  void SetItalic(int val);
   vtkGetMacro(Italic, int);
   vtkBooleanMacro(Italic, int);
 
   // Description:
   // Enable/disable text shadows.
-  void SetShadow(int val) {if (val == this->Shadow) { return; }
-    this->Shadow = val; this->Modified();};
+  void SetShadow(int val);
   vtkGetMacro(Shadow, int);
   vtkBooleanMacro(Shadow, int);
   
   // Description:
   // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
   // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  void SetFontFamily(int val) {if (val == this->FontFamily) { return; }
-    this->FontFamily = val; this->Modified(); this->FontMTime.Modified();};
+  void SetFontFamily(int val);
   vtkGetMacro(FontFamily, int);
   void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
   void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};

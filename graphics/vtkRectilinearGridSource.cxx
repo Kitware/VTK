@@ -62,7 +62,7 @@ vtkRectilinearGridSource* vtkRectilinearGridSource::New()
 //----------------------------------------------------------------------------
 vtkRectilinearGridSource::vtkRectilinearGridSource()
 {
-  this->vtkSource::SetOutput(0,vtkRectilinearGrid::New());
+  this->vtkSource::SetNthOutput(0,vtkRectilinearGrid::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -85,6 +85,6 @@ vtkRectilinearGrid *vtkRectilinearGridSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkRectilinearGridSource::SetOutput(vtkRectilinearGrid *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 

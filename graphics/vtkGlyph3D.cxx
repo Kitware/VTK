@@ -511,7 +511,7 @@ void vtkGlyph3D::SetSource(int id, vtkPolyData *pd)
     vtkErrorMacro("Bad index " << id << " for source.");
     return;
     }
-  this->vtkProcessObject::SetInput(id + 1, pd);
+  this->vtkProcessObject::SetNthInput(id + 1, pd);
 }
 
 // Get a pointer to a source object at a specified table location.

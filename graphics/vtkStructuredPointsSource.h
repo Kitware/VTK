@@ -62,6 +62,8 @@ public:
   // Set/Get the output of this source.
   void SetOutput(vtkStructuredPoints *output);
   vtkStructuredPoints *GetOutput();
+  vtkStructuredPoints *GetOutput(int idx)
+    {return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); };
   
 protected:
   vtkStructuredPointsSource();

@@ -61,6 +61,8 @@ public:
   // Description
   // Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
   float EvaluateFunction(float x[3]);
+  float EvaluateFunction(float x, float y, float z)
+    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate sphere gradient.

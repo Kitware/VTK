@@ -205,13 +205,13 @@ static void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *
 	useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
 
 	// calculate the neighbors
-	d = vector[0] = *in2Ptr * ratio[0];
+	d = vector[0] = (float)*in2Ptr * ratio[0];
 	normalizeFactor = (d * d);
-	d = vector[1] = in2Ptr[1] * ratio[1];
+	d = vector[1] = (float)in2Ptr[1] * ratio[1];
 	normalizeFactor += (d * d);
 	if (axesNum == 3)
 	  {
-	  d = vector[2] = in2Ptr[2] * ratio[2];
+	  d = vector[2] = (float)in2Ptr[2] * ratio[2];
 	  normalizeFactor += (d * d);
 	  }
 	if (normalizeFactor)

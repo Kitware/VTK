@@ -99,13 +99,17 @@ public:
   // Description:
   // Set/Get the position of the window.
   int     *GetPosition();
+  void     GetPosition(int* x, int* y) {this->vtkImageWindow::GetPosition(x, y);};
   void     SetPosition(int,int);
-
+  void     SetPosition(int a[2]) { this->SetPosition(a[0],a[1]); };
+ 
   // Description:
   // Set/Get the size of the window.
   int     *GetSize();
+  void     GetSize(int* x, int* y) {this->vtkImageWindow::GetSize(x, y);};
   void     SetSize(int x, int y);
-
+  void     SetSize(int a[2]) { this->SetSize(a[0], a[1]); };
+  
   // Description:
   // The GetGenericXXX functions are necessary to draw into
   // a VTKWindow.

@@ -77,6 +77,11 @@ protected:
   vtkPropCollection(const vtkPropCollection&) {};
   void operator=(const vtkPropCollection&) {};
   
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a) 

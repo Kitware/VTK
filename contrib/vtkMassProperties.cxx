@@ -84,7 +84,7 @@ vtkMassProperties::~vtkMassProperties()
 // Specifies the input data...
 void vtkMassProperties::SetInput(vtkPolyData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

@@ -618,7 +618,7 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   streamStart += this->GetHeaderSize(idx);
   
   // error checking
-  this->File->seekg(streamStart, ios::beg);
+  this->File->seekg((long)streamStart, ios::beg);
   if (this->File->fail())
     {
     vtkWarningMacro("File operation failed.");
@@ -676,18 +676,18 @@ static void vtkImageReaderUpdate2(vtkImageReader *self, vtkImageData *data,
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = pixelRead * self->GetDataIncrements()[0];  
-  streamSkip0 = self->GetDataIncrements()[1] - streamRead;
-  streamSkip1 = self->GetDataIncrements()[2] - 
-    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
+  streamRead = (long)(pixelRead * self->GetDataIncrements()[0]);  
+  streamSkip0 = (long)(self->GetDataIncrements()[1] - streamRead);
+  streamSkip1 = (long)(self->GetDataIncrements()[2] - 
+    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
   pixelSkip = data->GetNumberOfScalarComponents();
     
   // read from the bottom up
   if (!self->GetFileLowerLeft()) 
     {
-    streamSkip0 = -streamRead - self->GetDataIncrements()[1];
-    streamSkip1 = self->GetDataIncrements()[2] + 
-      (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
+    streamSkip0 = (long)(-streamRead - self->GetDataIncrements()[1]);
+    streamSkip1 = (long)(self->GetDataIncrements()[2] + 
+      (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
     }
   
     

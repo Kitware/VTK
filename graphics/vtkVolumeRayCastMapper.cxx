@@ -673,9 +673,9 @@ int vtkVolumeRayCastMapper::ClipRayAgainstClippingPlanes(
 }
 
 int vtkVolumeRayCastMapper::ClipRayAgainstVolume( 
-					   VTKRayCastRayInfo *rayInfo, 
-					   VTKRayCastVolumeInfo *volumeInfo,
-					   float bounds[6] )
+			   VTKRayCastRayInfo *rayInfo, 
+			   VTKRayCastVolumeInfo *vtkNotUsed(volumeInfo),
+			   float bounds[6] )
 {
   int    loop;
   float  diff;

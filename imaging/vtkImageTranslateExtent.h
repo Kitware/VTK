@@ -74,6 +74,7 @@ protected:
   int Translation[3];
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 };
 
 

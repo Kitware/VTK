@@ -61,7 +61,7 @@ vtkImageComposite::~vtkImageComposite()
 //----------------------------------------------------------------------------
 void vtkImageComposite::SetOutput(vtkStructuredPoints *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 //----------------------------------------------------------------------------

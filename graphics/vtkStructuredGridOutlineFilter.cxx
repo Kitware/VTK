@@ -226,7 +226,8 @@ int vtkStructuredGridOutlineFilter::GetNumberOfStreamDivisions()
 //----------------------------------------------------------------------------
 // Always stream into 12 pieces.
 int vtkStructuredGridOutlineFilter::ComputeDivisionExtents(vtkDataObject *out,
-						   int idx, int NumDivisions)
+					          int idx,
+						  int vtkNotUsed(NumDivisions))
 {
   vtkStructuredGrid *input = this->GetInput();
   vtkPolyData *output = (vtkPolyData *)out;
@@ -337,7 +338,7 @@ void vtkStructuredGridOutlineFilter::UpdateInformation()
   vtkStructuredGrid *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   int *ext;
-  long t1, t2;
+  unsigned long t1, t2;
   long numPts, numLines;
   long sizePt, sizeLine;
   long size;

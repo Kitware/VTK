@@ -132,6 +132,10 @@ public:
   int IntersectWithLine(float a0[3], float a1[3], float tol,
                         float& t, float x[3], float pcoords[3],
                         int &subId, int &cellId);
+  
+  int IntersectWithLine(float a0[3], float a1[3], float tol,
+			float& t, float x[3], float pcoords[3],
+			int &subId, int &cellId, vtkGenericCell *cell);
 
   //BTX
   // Description:

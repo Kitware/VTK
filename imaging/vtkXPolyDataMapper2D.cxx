@@ -150,7 +150,8 @@ void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* acto
   p = input->GetPoints();
   if ( this->TransformCoordinate )
     {
-    int *itmp, numPts = p->GetNumberOfPoints();
+    int *itmp;
+    numPts = p->GetNumberOfPoints();
     displayPts = vtkPoints::New();
     displayPts->SetNumberOfPoints(numPts);
     for ( j=0; j < numPts; j++ )

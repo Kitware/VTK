@@ -380,7 +380,7 @@ int vtkPLOT3DReader::ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output)
   newPts->SetNumberOfPoints(this->NumPts);
 
   //seek to correct spot and read grid
-  fseek (fp, offset*sizeof(float), 1);
+  fseek (fp, (long)(offset*sizeof(float)), 1);
 
   if ( fread(this->TempStorage, sizeof(float), 3*this->NumPts, fp) < (unsigned long)3*this->NumPts ) 
     {
@@ -526,7 +526,7 @@ int vtkPLOT3DReader::ReadBinarySolution(FILE *fp,vtkStructuredGrid *output)
     }
     
   //seek to correct spot and read solution
-  fseek (fp, offset*sizeof(float), 1);
+  fseek (fp, (long)(offset*sizeof(float)), 1);
 
   //read solution parameters
   if ( fread (params, sizeof(float), 4, fp) < 4 )

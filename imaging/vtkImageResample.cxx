@@ -241,7 +241,7 @@ void vtkImageResample::ExecuteInformation(vtkImageData *inData,
 template <class T>
 static void vtkImageResampleExecuteNI(vtkImageResample *self,
                                       vtkImageData *inData, 
-                                      T *inPtr, int inExt[6],
+                                      T *inPtr, int vtkNotUsed(inExt)[6],
                                       vtkImageData *outData, T *outPtr,
                                       int outExt[6], int id)
 {
@@ -272,7 +272,6 @@ static void vtkImageResampleExecuteNI(vtkImageResample *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
-  int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
   float xStart = outExt[0]/magX;
@@ -375,7 +374,6 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
-  int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
   float xStart = outExt[0]/magX;
@@ -471,10 +469,10 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
         
         inPtrX = inPtrY;
         xPos = xStart;
-        A = *(inPtrX);
-        B = *(inPtrX + off1);
-        C = *(inPtrX + off2);
-        D = *(inPtrX + off3);
+        A = (float)*(inPtrX);
+        B = (float)*(inPtrX + off1);
+        C = (float)*(inPtrX + off2);
+        D = (float)*(inPtrX + off3);
         pXRatios = XRatios;
         pXSteps = XSteps;
 	for (idxX = 0; idxX <= xMaxIdx; idxX++)
@@ -485,10 +483,10 @@ static void vtkImageResampleExecute2D(vtkImageResample *self,
           if (*pXSteps) 
             {
             inPtrX = inPtrX + *pXSteps*inIncX;
-            A = *(inPtrX);
-            B = *(inPtrX + off1);
-            C = *(inPtrX + off2);
-            D = *(inPtrX + off3);
+            A = (float)*(inPtrX);
+            B = (float)*(inPtrX + off1);
+            C = (float)*(inPtrX + off2);
+            D = (float)*(inPtrX + off3);
             }
           pXSteps++;
           }
@@ -552,7 +550,6 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
 
   inData->GetExtent(idxC, inMaxX, idxC, inMaxY, idxC, inMaxZ);
-  int *wInExt = inData->GetWholeExtent();
 
   // find the starting sample locations
   float xStart = outExt[0]/magX;
@@ -694,14 +691,14 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
 	
 	inPtrX = inPtrY;
         xPos = xStart;
-        A = *(inPtrX);
-        B = *(inPtrX + off1);
-        C = *(inPtrX + off2);
-        D = *(inPtrX + off3);
-        E = *(inPtrX + off4);
-        F = *(inPtrX + off5);
-        G = *(inPtrX + off6);
-        H = *(inPtrX + off7);
+        A = (float)*(inPtrX);
+        B = (float)*(inPtrX + off1);
+        C = (float)*(inPtrX + off2);
+        D = (float)*(inPtrX + off3);
+        E = (float)*(inPtrX + off4);
+        F = (float)*(inPtrX + off5);
+        G = (float)*(inPtrX + off6);
+        H = (float)*(inPtrX + off7);
         pXRatios = XRatios;
         pXSteps = XSteps;
 	for (idxX = 0; idxX <= xMaxIdx; idxX++)
@@ -713,14 +710,14 @@ static void vtkImageResampleExecute3D(vtkImageResample *self,
           if (*pXSteps) 
             {
             inPtrX = inPtrX + *pXSteps*inIncX;
-            A = *(inPtrX);
-            B = *(inPtrX + off1);
-            C = *(inPtrX + off2);
-            D = *(inPtrX + off3);
-            E = *(inPtrX + off4);
-            F = *(inPtrX + off5);
-            G = *(inPtrX + off6);
-            H = *(inPtrX + off7);
+            A = (float)*(inPtrX);
+            B = (float)*(inPtrX + off1);
+            C = (float)*(inPtrX + off2);
+            D = (float)*(inPtrX + off3);
+            E = (float)*(inPtrX + off4);
+            F = (float)*(inPtrX + off5);
+            G = (float)*(inPtrX + off6);
+            H = (float)*(inPtrX + off7);
             }
           pXSteps++;
           }

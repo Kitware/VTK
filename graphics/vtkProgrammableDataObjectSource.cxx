@@ -65,7 +65,7 @@ vtkProgrammableDataObjectSource::vtkProgrammableDataObjectSource()
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
 
-  this->vtkSource::SetOutput(0,vtkDataObject::New());
+  this->vtkSource::SetNthOutput(0,vtkDataObject::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();

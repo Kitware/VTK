@@ -141,6 +141,7 @@ protected:
   float DataOrigin[3];
   
   void Execute(vtkImageData *data);
+  void Execute() { this->vtkImageSource::Execute(); };
 };
 
 

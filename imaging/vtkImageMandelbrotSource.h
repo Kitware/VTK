@@ -123,6 +123,7 @@ protected:
   unsigned short MaximumNumberOfIterations;
 
   void Execute(vtkImageData *outData);
+  void Execute() {this->vtkImageSource::Execute();};
   void ExecuteInformation();
   float EvaluateSet(double p[4]);
 };

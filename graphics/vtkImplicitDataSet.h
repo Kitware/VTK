@@ -85,6 +85,8 @@ public:
   // Evaluate the implicit function. This returns the interpolated scalar value
   // at x[3].
   float EvaluateFunction(float x[3]);
+  float EvaluateFunction(float x, float y, float z)
+    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate implicit function gradient.

@@ -407,7 +407,6 @@ void vtkHull::Execute()
 {
   vtkPolyData    *input       = this->GetInput();
   vtkPolyData    *output      = this->GetOutput();
-  vtkCellArray   *polys       = input->GetPolys(); 
   int            num_points;
   vtkPoints      *out_points;
   vtkCellArray   *out_polys;

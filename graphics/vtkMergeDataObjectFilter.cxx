@@ -75,7 +75,7 @@ vtkMergeDataObjectFilter::~vtkMergeDataObjectFilter()
 // Specify a data object at a specified table location.
 void vtkMergeDataObjectFilter::SetDataObject(vtkDataObject *d)
 {
-  this->vtkProcessObject::SetInput(1, d);
+  this->vtkProcessObject::SetNthInput(1, d);
 }
 
 //----------------------------------------------------------------------------

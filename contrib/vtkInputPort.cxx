@@ -133,7 +133,7 @@ vtkPolyData *vtkInputPort::GetPolyDataOutput()
   
   output = vtkPolyData::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkPolyData*)(output);
 }
 
@@ -164,7 +164,7 @@ vtkUnstructuredGrid *vtkInputPort::GetUnstructuredGridOutput()
   
   output = vtkUnstructuredGrid::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkUnstructuredGrid*)(output);
 }
 
@@ -194,7 +194,7 @@ vtkStructuredGrid *vtkInputPort::GetStructuredGridOutput()
   
   output = vtkStructuredGrid::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkStructuredGrid*)(output);
 }
 
@@ -225,7 +225,7 @@ vtkRectilinearGrid *vtkInputPort::GetRectilinearGridOutput()
   
   output = vtkRectilinearGrid::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkRectilinearGrid*)(output);
 }
 
@@ -256,7 +256,7 @@ vtkStructuredPoints *vtkInputPort::GetStructuredPointsOutput()
   
   output = vtkStructuredPoints::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkStructuredPoints*)(output);
 }
 
@@ -287,7 +287,7 @@ vtkImageData *vtkInputPort::GetImageDataOutput()
   
   output = vtkImageData::New();
   output->ReleaseData();
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
   return (vtkImageData*)(output);
 }
 

@@ -135,6 +135,8 @@ public:
   // to know the type of the data, the FileName must be set before GetOutput 
   // is applied.
   vtkDataSet *GetOutput();
+  vtkDataSet *GetOutput(int idx)
+    {return (vtkDataSet *) this->vtkSource::GetOutput(idx); };
 
   // Description:
   // Get the output as various concrete types. This method is typically used

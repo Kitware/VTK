@@ -222,11 +222,11 @@ void vtkProcessObject::RemoveInput(vtkDataObject *input)
 
 //----------------------------------------------------------------------------
 // Set an Input of this filter. 
-void vtkProcessObject::SetInput(int idx, vtkDataObject *input)
+void vtkProcessObject::SetNthInput(int idx, vtkDataObject *input)
 {
   if (idx < 0)
     {
-    vtkErrorMacro(<< "SetInput: " << idx << ", cannot set input. ");
+    vtkErrorMacro(<< "SetNthInput: " << idx << ", cannot set input. ");
     return;
     }
   // Expand array if necessary.

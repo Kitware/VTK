@@ -181,13 +181,13 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 	inPtrL = inPtr0 + inInc0L;
 	inPtrR = inPtr0 + inInc0R;
 	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (inPtrR[inInc1L] + inPtrR[inInc1R] 
+	sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R] 
 		+ inPtrR[inInc2L] + inPtrR[inInc2R]);
-	sum += (0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
+	sum += (float)(0.586 * (inPtrR[inInc1L+inInc2L] + inPtrR[inInc1L+inInc2R]
 			 + inPtrR[inInc1R+inInc2L] + inPtrR[inInc1R+inInc2R]));
-	sum -= (inPtrL[inInc1L] + inPtrL[inInc1R] 
+	sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R] 
 		+ inPtrL[inInc2L] + inPtrL[inInc2R]);
-	sum -= (0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
+	sum -= (float)(0.586 * (inPtrL[inInc1L+inInc2L] + inPtrL[inInc1L+inInc2R]
 			 + inPtrL[inInc1R+inInc2L] + inPtrL[inInc1R+inInc2R]));
 	*outPtrV = sum * r0;
 	++outPtrV;
@@ -195,13 +195,13 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 	inPtrL = inPtr0 + inInc1L;
 	inPtrR = inPtr0 + inInc1R;
 	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (inPtrR[inInc0L] + inPtrR[inInc0R] 
+	sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
 		+ inPtrR[inInc2L] + inPtrR[inInc2R]);
-	sum += (0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
+	sum += (float)(0.586 * (inPtrR[inInc0L+inInc2L] + inPtrR[inInc0L+inInc2R]
 			 + inPtrR[inInc0R+inInc2L] + inPtrR[inInc0R+inInc2R]));
-	sum -= (inPtrL[inInc0L] + inPtrL[inInc0R] 
+	sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
 		+ inPtrL[inInc2L] + inPtrL[inInc2R]);
-	sum -= (0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
+	sum -= (float)(0.586 * (inPtrL[inInc0L+inInc2L] + inPtrL[inInc0L+inInc2R]
 			 + inPtrL[inInc0R+inInc2L] + inPtrL[inInc0R+inInc2R]));
 	*outPtrV = sum * r1;
 	++outPtrV;
@@ -209,13 +209,13 @@ static void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 	inPtrL = inPtr0 + inInc2L;
 	inPtrR = inPtr0 + inInc2R;
 	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (inPtrR[inInc0L] + inPtrR[inInc0R] 
+	sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R] 
 		+ inPtrR[inInc1L] + inPtrR[inInc1R]);
-	sum += (0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
+	sum += (float)(0.586 * (inPtrR[inInc0L+inInc1L] + inPtrR[inInc0L+inInc1R]
 			 + inPtrR[inInc0R+inInc1L] + inPtrR[inInc0R+inInc1R]));
-	sum -= (inPtrL[inInc0L] + inPtrL[inInc0R] 
+	sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R] 
 		+ inPtrL[inInc1L] + inPtrL[inInc1R]);
-	sum -= (0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
+	sum -= (float)(0.586 * (inPtrL[inInc0L+inInc1L] + inPtrL[inInc0L+inInc1R]
 			 + inPtrL[inInc0R+inInc1L] + inPtrL[inInc0R+inInc1R]));
 	*outPtrV = sum * r2;
 	++outPtrV;

@@ -84,6 +84,10 @@ protected:
   
   // not threaded because it's too simple a filter
   void Execute(vtkImageData *inData, vtkImageData *outData);
+  // defined in superclass, but hidden by Execute().
+  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute(vtkImageData *outData)
+    { this->vtkImageToImageFilter::Execute(outData);};
 };
 
 

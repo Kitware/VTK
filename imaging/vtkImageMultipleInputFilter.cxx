@@ -98,7 +98,7 @@ void vtkImageMultipleInputFilter::AddInput(vtkImageData *input)
 // Set an Input of this filter. 
 void vtkImageMultipleInputFilter::SetInput(int idx, vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(idx, input);
+  this->vtkProcessObject::SetNthInput(idx, input);
 }
 
 //----------------------------------------------------------------------------
@@ -153,7 +153,9 @@ void vtkImageMultipleInputFilter::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-int vtkImageMultipleInputFilter::ComputeDivisionExtents(vtkDataObject *out,
+int
+vtkImageMultipleInputFilter::ComputeDivisionExtents(
+					      vtkDataObject *vtkNotUsed(out),
 					      int division, int numDivisions)
 {
   vtkImageData *input;

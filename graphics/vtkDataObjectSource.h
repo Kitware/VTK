@@ -91,6 +91,8 @@ public:
   // Description:
   // Get the output field of this source.
   vtkDataObject *GetOutput();
+  vtkDataObject *GetOutput(int idx)
+    {return (vtkDataObject *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkDataObject *);
   
 protected:

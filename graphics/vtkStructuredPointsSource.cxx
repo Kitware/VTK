@@ -74,7 +74,7 @@ vtkStructuredPointsSource::vtkStructuredPointsSource()
 //----------------------------------------------------------------------------
 void vtkStructuredPointsSource::SetOutput(vtkStructuredPoints *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 //----------------------------------------------------------------------------

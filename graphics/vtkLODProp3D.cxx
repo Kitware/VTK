@@ -306,7 +306,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, float time )
 
 // Convenience method to set an actor LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, float time )
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *vtkNotUsed(t), float time )
 {
   return this->AddLOD( m, (vtkProperty *)NULL, time );
 }

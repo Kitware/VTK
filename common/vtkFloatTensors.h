@@ -79,6 +79,9 @@ protected:
   vtkFloatTensors(const vtkFloatTensors&) {};
   void operator=(const vtkFloatTensors&) {};
   
+private:
+  // hide the vtkTensors' New() method
+  static vtkFloatTensors *New(int) { return vtkFloatTensors::New();};
 };
 
 

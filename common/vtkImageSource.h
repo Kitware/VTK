@@ -64,6 +64,8 @@ public:
   // Get the output of this source.
   void SetOutput(vtkImageData *output);
   vtkImageData *GetOutput();
+  vtkImageData *GetOutput(int idx)
+    {return (vtkImageData *) this->vtkSource::GetOutput(idx); };
   
   // Description:
   // Legacy.  Sets the UpdateExtent to the WholeExtent, and Updates.

@@ -140,21 +140,14 @@ unsigned long vtkMarchingContourFilter::GetMTime()
 //
 void vtkMarchingContourFilter::Execute()
 {
-  int cellId, i;
-  vtkIdList *cellPts;
   vtkScalars *inScalars;
-  vtkCell *cell;
-  float range[2];
-  vtkCellArray *newVerts, *newLines, *newPolys;
-  vtkPoints *newPts;
   vtkDataSet *input=this->GetInput();
   vtkPolyData *output=this->GetOutput();
-  int numCells, estimatedSize;
+  int numCells;
   vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
   vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   float *values=this->ContourValues->GetValues();
-  vtkScalars *cellScalars;
   
   vtkDebugMacro(<< "Executing marching contour filter");
 

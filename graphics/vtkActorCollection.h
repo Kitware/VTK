@@ -84,6 +84,12 @@ protected:
   vtkActorCollection(const vtkActorCollection&) {};
   void operator=(const vtkActorCollection&) {};
     
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a) 

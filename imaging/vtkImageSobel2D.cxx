@@ -179,8 +179,8 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
 	inPtrL = inPtr0 + inInc0L;
 	inPtrR = inPtr0 + inInc0R;
 	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (inPtrR[inInc1L] + inPtrR[inInc1R]);
-	sum -= (inPtrL[inInc1L] + inPtrL[inInc1R]);
+	sum += (float)(inPtrR[inInc1L] + inPtrR[inInc1R]);
+	sum -= (float)(inPtrL[inInc1L] + inPtrL[inInc1R]);
 	
 	*outPtrV = sum * r0;
 	++outPtrV;
@@ -188,8 +188,8 @@ static void vtkImageSobel2DExecute(vtkImageSobel2D *self,
 	inPtrL = inPtr0 + inInc1L;
 	inPtrR = inPtr0 + inInc1R;
 	sum = 2.0 * (*inPtrR - *inPtrL);
-	sum += (inPtrR[inInc0L] + inPtrR[inInc0R]);
-	sum -= (inPtrL[inInc0L] + inPtrL[inInc0R]);
+	sum += (float)(inPtrR[inInc0L] + inPtrR[inInc0R]);
+	sum -= (float)(inPtrL[inInc0L] + inPtrL[inInc0R]);
 	*outPtrV = sum * r1;
 	
 	outPtr0 += outInc0;

@@ -178,6 +178,7 @@ public:
   // Sets/Gets the range of scalars which will eb mapped.
   virtual float *GetRange() {return this->GetTableRange();};
   virtual void SetRange(float min, float max) {this->SetTableRange(min,max);};
+  void SetRange(float rng[2]) {this->SetRange(rng[0],rng[1]);};
 
 protected:
   vtkLookupTable(int sze=256, int ext=256);

@@ -2582,6 +2582,23 @@ void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize(
 {
 }
 
+// Description:
+// Return the composite method as a descriptive character string.
+char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
+{
+  if( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
+    {
+    return "Interpolate First";
+    }
+  if( this->CompositeMethod == VTK_COMPOSITE_CLASSIFY_FIRST )
+    {
+    return "Classify First";
+    }
+  else
+    {
+    return "Unknown";
+    }
+}
 
 // Print method for vtkVolumeRayCastCompositeFunction
 // Since there is nothing local to print, just print the object stuff.

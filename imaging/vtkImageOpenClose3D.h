@@ -90,6 +90,8 @@ public:
   // This method returns the cache to make a connection
   // It justs feeds the request to the sub filter.
   vtkImageData *GetOutput();
+  vtkImageData *GetOutput(int idx)
+    {return (vtkImageData *) this->vtkImageSource::GetOutput(idx); };
 
 
   // Foward filter messages

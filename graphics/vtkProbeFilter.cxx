@@ -73,7 +73,7 @@ vtkProbeFilter::~vtkProbeFilter()
 //----------------------------------------------------------------------------
 void vtkProbeFilter::SetSource(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(1, input);
+  this->vtkProcessObject::SetNthInput(1, input);
 }
 
 //----------------------------------------------------------------------------

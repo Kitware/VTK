@@ -64,7 +64,7 @@ vtkUnstructuredGridWriter* vtkUnstructuredGridWriter::New()
 // Specify the input data or filter.
 void vtkUnstructuredGridWriter::SetInput(vtkUnstructuredGrid *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

@@ -79,6 +79,11 @@ protected:
   vtkFloatTCoords(const vtkFloatTCoords&) {};
   void operator=(const vtkFloatTCoords&) {};
   
+private:
+  // hide the vtkTCoords' New() method
+  static vtkFloatTCoords *New(int) { return vtkFloatTCoords::New();};
+  static vtkFloatTCoords *New(int dataType, int numComp)
+    { return (vtkFloatTCoords *) vtkTCoords::New(dataType, numComp);};
 };
 
 inline float *vtkFloatTCoords::GetPointer(const int id)

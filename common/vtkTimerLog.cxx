@@ -405,5 +405,7 @@ void vtkTimerLog::Sleep(int ms)
 {
 #ifdef _WIN32
   Sleep(ms);
+#else
+  ms = ms;  // avoid warning
 #endif    
 }

@@ -91,7 +91,7 @@ vtkChairDisplay::~vtkChairDisplay()
 //----------------------------------------------------------------------------
 void vtkChairDisplay::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

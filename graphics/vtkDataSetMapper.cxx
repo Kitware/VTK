@@ -81,7 +81,7 @@ vtkDataSetMapper::~vtkDataSetMapper()
 
 void vtkDataSetMapper::SetInput(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 vtkDataSet *vtkDataSetMapper::GetInput()

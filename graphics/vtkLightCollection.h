@@ -73,6 +73,12 @@ protected:
   ~vtkLightCollection() {};
   vtkLightCollection(const vtkLightCollection&) {};
   void operator=(const vtkLightCollection&) {};
+
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+
 };
 
 

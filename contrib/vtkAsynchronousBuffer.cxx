@@ -220,7 +220,7 @@ void vtkAsynchronousBuffer::BlockingUpdateInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkAsynchronousBuffer::InternalUpdate(vtkDataObject *output)
+void vtkAsynchronousBuffer::InternalUpdate(vtkDataObject *vtkNotUsed(output))
 {
   if (this->Blocking)
     {

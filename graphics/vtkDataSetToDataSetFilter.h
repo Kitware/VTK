@@ -92,6 +92,8 @@ public:
   // Get the output of this filter. If output is NULL then input
   // hasn't been set which is necessary for abstract objects.
   vtkDataSet *GetOutput();
+  vtkDataSet *GetOutput(int idx)
+    {return (vtkDataSet *) this->vtkDataSetSource::GetOutput(idx); };
 
   // Description:
   // Get the output as vtkPolyData.

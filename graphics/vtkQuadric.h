@@ -62,6 +62,8 @@ public:
   // Description
   // Evaluate quadric equation.
   float EvaluateFunction(float x[3]);
+  float EvaluateFunction(float x, float y, float z)
+    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate the gradient to the quadric equation.

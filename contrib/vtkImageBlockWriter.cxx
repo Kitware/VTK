@@ -89,7 +89,7 @@ void vtkImageBlockWriter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageBlockWriter::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 

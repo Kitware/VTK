@@ -165,7 +165,7 @@ vtkSmoothPolyDataFilter::vtkSmoothPolyDataFilter()
 
 void vtkSmoothPolyDataFilter::SetSource(vtkPolyData *source)
 {
-  this->vtkProcessObject::SetInput(1, source);
+  this->vtkProcessObject::SetNthInput(1, source);
 }
 
 vtkPolyData *vtkSmoothPolyDataFilter::GetSource()

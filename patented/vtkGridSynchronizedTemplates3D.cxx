@@ -320,10 +320,11 @@ if (NeedGradients) \
 //----------------------------------------------------------------------------
 // Contouring filter specialized for images
 template <class T>
-static void ContourGrid(vtkGridSynchronizedTemplates3D *self, int threadId,
-                         int *exExt, T *scalars, vtkPoints *newPts,
-			 vtkScalars *newScalars, vtkCellArray *polys,
-			 vtkNormals *newNormals, vtkVectors *newGradients)
+static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
+			int vtkNotUsed(threadId),
+			int *exExt, T *scalars, vtkPoints *newPts,
+			vtkScalars *newScalars, vtkCellArray *polys,
+			vtkNormals *newNormals, vtkVectors *newGradients)
 {
   int *inExt = self->GetInput()->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;

@@ -270,14 +270,14 @@ static void vtkImageMagnifyExecute(vtkImageMagnify *self,
 	      interpSetup = 1;
 	      }
 	    *outPtrC = (T)
-	      (dataP*(magXIdx + 1)*iMagP + 
-	       dataPX*(magX - magXIdx - 1)*iMagP +
-	       dataPY*(magXIdx + 1)*iMagPY + 
-	       dataPXY*(magX - magXIdx - 1)*iMagPY +
-	       dataPZ*(magXIdx + 1)*iMagPZ + 
-	       dataPXZ*(magX - magXIdx - 1)*iMagPZ +
-	       dataPYZ*(magXIdx + 1)*iMagPYZ + 
-	       dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
+	      ((float)dataP*(magXIdx + 1)*iMagP + 
+	       (float)dataPX*(magX - magXIdx - 1)*iMagP +
+	       (float)dataPY*(magXIdx + 1)*iMagPY + 
+	       (float)dataPXY*(magX - magXIdx - 1)*iMagPY +
+	       (float)dataPZ*(magXIdx + 1)*iMagPZ + 
+	       (float)dataPXZ*(magX - magXIdx - 1)*iMagPZ +
+	       (float)dataPYZ*(magXIdx + 1)*iMagPYZ + 
+	       (float)dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
 	    }
 	  outPtrC += maxC;
 	  if (!magXIdx) 

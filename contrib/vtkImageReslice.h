@@ -188,6 +188,7 @@ protected:
   int OutputExtent[6];
   float BackgroundLevel[4];
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   
   vtkMatrix4x4 *IndexMatrix;

@@ -103,6 +103,9 @@ protected:
   float ReplaceValue;
 
   void Execute(vtkImageData *inData, vtkImageData *outData);
+  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute(vtkImageData *output)
+    { this->vtkImageToImageFilter::Execute(output); };
 
   // Description:
   // Generate more than requested.  Called by the superclass before

@@ -105,8 +105,14 @@ protected:
   float           LookupIndexExecuteTime;
 
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
+  // defined in superclass, but hidden by the Execute above
+  void Execute(vtkImageData *outData)
+    { this->vtkImageToImageFilter::Execute(outData);};
+  void Execute()
+    { this->vtkImageToImageFilter::Execute();};
 
   // Description:
   // Generate more than requested.  Called by the superclass before

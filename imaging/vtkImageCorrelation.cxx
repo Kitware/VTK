@@ -207,7 +207,7 @@ static void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 	      {
 	      for (idxC = 0; idxC < maxC; idxC++)
 		{
-		*outPtr = *outPtr + (*in1Ptr2) * (*in2Ptr2);
+		*outPtr = *outPtr + (float)((*in1Ptr2) * (*in2Ptr2));
 		in1Ptr2++;
 		in2Ptr2++;
 		}

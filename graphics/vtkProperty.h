@@ -237,15 +237,15 @@ inline char *vtkProperty::GetInterpolationAsString(void)
 {
   if ( this->Interpolation == VTK_FLAT )
     {
-    return "Flat";
+    return (char *)"Flat";
     }
   else if ( this->Interpolation == VTK_GOURAUD ) 
     {
-    return "Gouraud";
+    return (char *)"Gouraud";
     }
   else 
     {
-    return "Phong";
+    return (char *)"Phong";
     }
 }
 
@@ -256,15 +256,15 @@ inline char *vtkProperty::GetRepresentationAsString(void)
 {
   if ( this->Representation == VTK_POINTS )
     {
-    return "Points";
+    return (char *)"Points";
     }
   else if ( this->Representation == VTK_WIREFRAME ) 
     {
-    return "Wireframe";
+    return (char *)"Wireframe";
     }
   else 
     {
-    return "Surface";
+    return (char *)"Surface";
     }
 }
 

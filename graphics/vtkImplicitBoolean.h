@@ -79,6 +79,8 @@ public:
   // Description:
   // Evaluate boolean combinations of implicit function using current operator.
   float EvaluateFunction(float x[3]);
+  float EvaluateFunction(float x, float y, float z)
+    {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate gradient of boolean combination.

@@ -86,7 +86,7 @@ void vtkImageToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkImageToImageFilter::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -153,8 +153,10 @@ void vtkImageToImageFilter::ExecuteInformation(
 
 
 //----------------------------------------------------------------------------
-int vtkImageToImageFilter::ComputeDivisionExtents(vtkDataObject *output,
-						  int idx, int numDivisions)
+int
+vtkImageToImageFilter::ComputeDivisionExtents(
+					    vtkDataObject *vtkNotUsed(output),
+					    int idx, int numDivisions)
 {
   vtkImageData *input = this->GetInput();
   int actualSplits;

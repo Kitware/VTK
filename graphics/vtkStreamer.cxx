@@ -138,7 +138,7 @@ vtkStreamer::~vtkStreamer()
 
 void vtkStreamer::SetSource(vtkDataSet *source)
 {
-  this->vtkProcessObject::SetInput(1, source);
+  this->vtkProcessObject::SetNthInput(1, source);
 }
 
 vtkDataSet *vtkStreamer::GetSource()

@@ -244,7 +244,7 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
 //----------------------------------------------------------------------------
 void vtkOutputPort::SetInput(vtkDataObject *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

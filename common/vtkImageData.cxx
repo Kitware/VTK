@@ -950,7 +950,6 @@ int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3],
 void vtkImageData::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
-  vtkIndent i2 = indent.GetNextIndent();
   
   vtkDataSet::PrintSelf(os,indent);
 

@@ -277,7 +277,7 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
-      this->SetOutput(0, preader->GetOutput());
+      this->SetNthOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
@@ -303,7 +303,7 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
-      this->SetOutput(0, preader->GetOutput());
+      this->SetNthOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
@@ -329,7 +329,7 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
-      this->SetOutput(0, preader->GetOutput());
+      this->SetNthOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
@@ -355,7 +355,7 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
-      this->SetOutput(0, preader->GetOutput());
+      this->SetNthOutput(0, preader->GetOutput());
       preader->Delete();
       }
 
@@ -381,7 +381,7 @@ void vtkDataSetReader::Execute()
       preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
-      this->SetOutput(0, preader->GetOutput());
+      this->SetNthOutput(0, preader->GetOutput());
       preader->Delete();
       }
     

@@ -614,7 +614,7 @@ void  vtkInteractorStyle::EndTimer()
 // subclasses - none really required yet!
 //----------------------------------------------------------------------------
 void vtkInteractorStyle::OnChar(int ctrl, int shift, 
-                                char keycode, int repeatcount) 
+                                char keycode, int vtkNotUsed(repeatcount)) 
 {
   this->CtrlKey  = ctrl;
   this->ShiftKey = shift;
@@ -780,7 +780,8 @@ void vtkInteractorStyle::OnTimer(void)
 //----------------------------------------------------------------------------
 // Mouse events are identical for trackball and joystick mode
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMouseMove(int ctrl, int shift, int X, int Y) 
+void vtkInteractorStyle::OnMouseMove(int vtkNotUsed(ctrl), int vtkNotUsed(shift),
+				    int X, int Y) 
 {
   this->LastPos[0] = X;
   this->LastPos[1] = Y;
@@ -1037,7 +1038,7 @@ void vtkInteractorStyle::RotateCamera(int x, int y)
   rwi->Render();
 }
 
-void vtkInteractorStyle::SpinCamera(int x, int y)
+void vtkInteractorStyle::SpinCamera(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -1068,11 +1069,11 @@ void vtkInteractorStyle::PanCamera(int x, int y)
   this->CurrentCamera->GetFocalPoint(ViewFocus);
   this->ComputeWorldToDisplay(ViewFocus[0], ViewFocus[1],
                               ViewFocus[2], ViewFocus);
-  double FocalDepth = ViewFocus[2];
+  double focalDepth = ViewFocus[2];
 
   double NewPickPoint[4];
   this->ComputeDisplayToWorld((float)x, (float)y,
-                              FocalDepth, NewPickPoint);
+                              focalDepth, NewPickPoint);
 
   // get the current focal point and position
   this->CurrentCamera->GetFocalPoint(ViewFocus);
@@ -1103,7 +1104,7 @@ void vtkInteractorStyle::PanCamera(int x, int y)
   rwi->Render();
 }
 
-void vtkInteractorStyle::DollyCamera(int x, int y)
+void vtkInteractorStyle::DollyCamera(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
 

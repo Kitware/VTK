@@ -79,6 +79,9 @@ protected:
   vtkFloatVectors(const vtkFloatVectors&) {};
   void operator=(const vtkFloatVectors&) {};
   
+private:
+  // hide the vtkVectors' New() method
+  static vtkFloatVectors *New(int) { return vtkFloatVectors::New();};
 };
 
 inline float *vtkFloatVectors::GetPointer(const int id)

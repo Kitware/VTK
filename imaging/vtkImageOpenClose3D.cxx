@@ -234,7 +234,7 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
 // Set the Input of the filter.
 void vtkImageOpenClose3D::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 
   if ( ! this->Filter0 || ! this->Filter1)
     {

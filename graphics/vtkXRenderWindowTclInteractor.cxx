@@ -478,7 +478,7 @@ void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
   me->InteractorStyle->OnTimer();
 }
 
-int vtkXRenderWindowTclInteractor::CreateTimer(int timertype) 
+int vtkXRenderWindowTclInteractor::CreateTimer(int vtkNotUsed(timertype)) 
 {
   Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
   return 1;

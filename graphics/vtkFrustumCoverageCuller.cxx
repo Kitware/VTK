@@ -363,6 +363,28 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
   return total_time;
 }
 
+// Description:
+// Return the sorting style as a descriptive character string.
+char *vtkFrustumCoverageCuller::GetSortingStyleAsString(void)
+{
+  if( this->SortingStyle == VTK_CULLER_SORT_NONE )
+    {
+    return "None";
+    }
+  if( this->SortingStyle == VTK_CULLER_SORT_FRONT_TO_BACK )
+    {
+    return "Front To Back";
+    }
+  if( this->SortingStyle == VTK_CULLER_SORT_BACK_TO_FRONT )
+    {
+    return "Back To Front";
+    }
+  else
+    {
+    return "Unknown";
+    }
+}
+
 void vtkFrustumCoverageCuller::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkCuller::PrintSelf(os,indent);

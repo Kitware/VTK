@@ -101,6 +101,7 @@ public:
   // Get the bounds - either all six at once 
   // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
   float *GetBounds();
+  void GetBounds(float bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
   float GetMinXBound();
   float GetMaxXBound();
   float GetMinYBound();
@@ -315,6 +316,11 @@ protected:
   vtkTimeStamp                 GradientOpacityArrayMTime;
 
   VTKRayCastVolumeInfo *VolumeInfo;
+
+private:
+  // hide the superclass' ShallowCopy() from the user and the compiler.
+  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
+  void ShallowCopy(vtkProp3D *prop) { this->vtkProp3D::ShallowCopy( prop ); };
 };
 
 #endif

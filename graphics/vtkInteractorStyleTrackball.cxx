@@ -710,7 +710,7 @@ void vtkInteractorStyleTrackball::JoystickRotateActor(int x, int y)
   rwi->Render();
 }
 
-void vtkInteractorStyleTrackball::JoystickSpinActor(int x, int y)
+void vtkInteractorStyleTrackball::JoystickSpinActor(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   // get the axis to rotate around = vector from eye to origin
@@ -829,7 +829,7 @@ void vtkInteractorStyleTrackball::JoystickPanActor(int x, int y)
   rwi->Render();
 }
 
-void vtkInteractorStyleTrackball::JoystickDollyActor(int x, int y)
+void vtkInteractorStyleTrackball::JoystickDollyActor(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   // dolly is based on distance from center of screen,
@@ -882,7 +882,7 @@ void vtkInteractorStyleTrackball::JoystickDollyActor(int x, int y)
   rwi->Render();
 }
 
-void vtkInteractorStyleTrackball::JoystickScaleActor(int x, int y)
+void vtkInteractorStyleTrackball::JoystickScaleActor(int vtkNotUsed(x), int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;
   // Uniform scale is based on distance from center of screen,

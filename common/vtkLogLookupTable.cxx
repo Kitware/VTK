@@ -68,7 +68,7 @@ vtkLookupTable(sze,ext)
   this->LogMinRange = 0.0;
   this->LogMaxRange = 1.0;
   this->UseAbsoluteValue = 0;
-};
+}
 
 // Set the minimum/maximum scalar values for scalar mapping. Scalar values
 // less than minimum range value are clamped to minimum range value.
@@ -162,7 +162,7 @@ static void vtkLogLookupTableMapDataToRGBA(vtkLogLookupTable *self,
     }
 }
 
-void vtkLogLookupTable::MapScalarsThroughTable(void *input, 
+void vtkLogLookupTable::MapScalarsThroughTable2(void *input, 
 					       unsigned char *output,
 					       int inputDataType, 
 					       int numberOfValues,

@@ -144,7 +144,7 @@ void vtkImageVariance3D::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Output is always float
-void vtkImageVariance3D::ExecuteInformation(vtkImageData *inData, 
+void vtkImageVariance3D::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
 					    vtkImageData *outData)
 {
   outData->SetScalarType(VTK_FLOAT);

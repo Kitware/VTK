@@ -163,7 +163,7 @@ protected:
   vtkDataObject *GetOutput(int idx);
 
   // protected methods for setting inputs.
-  virtual void SetOutput(int num, vtkDataObject *output);
+  virtual void SetNthOutput(int num, vtkDataObject *output);
   virtual void AddOutput(vtkDataObject *output);
   virtual void RemoveOutput(vtkDataObject *output);
 

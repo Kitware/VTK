@@ -63,7 +63,7 @@ vtkDataSetToStructuredPointsFilter* vtkDataSetToStructuredPointsFilter::New()
 // Specify the input data or filter.
 void vtkDataSetToStructuredPointsFilter::SetInput(vtkDataSet *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

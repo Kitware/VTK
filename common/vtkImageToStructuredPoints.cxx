@@ -67,7 +67,7 @@ vtkImageToStructuredPoints* vtkImageToStructuredPoints::New()
 vtkImageToStructuredPoints::vtkImageToStructuredPoints()
 {
   this->Translate[0] = this->Translate[1] = this->Translate[2] = 0;
-  this->SetOutput(0,vtkStructuredPoints::New());
+  this->SetNthOutput(0,vtkStructuredPoints::New());
   this->Outputs[0]->Delete();
 }
 
@@ -98,7 +98,7 @@ vtkStructuredPoints *vtkImageToStructuredPoints::GetOutput()
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ vtkImageData *vtkImageToStructuredPoints::GetInput()
 //----------------------------------------------------------------------------
 void vtkImageToStructuredPoints::SetVectorInput(vtkImageData *input)
 {
-  this->vtkProcessObject::SetInput(1, input);
+  this->vtkProcessObject::SetNthInput(1, input);
 }
 
 //----------------------------------------------------------------------------

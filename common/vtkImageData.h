@@ -95,6 +95,7 @@ public:
   vtkCell *GetCell(int cellId);
   void GetCell(int cellId, vtkGenericCell *cell);
   void GetCellBounds(int cellId, float bounds[6]);
+  int FindPoint(float x, float y, float z) { return this->vtkDataSet::FindPoint(x, y, z);};
   int FindPoint(float x[3]);
   int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, int& subId, 
                float pcoords[3], float *weights);
@@ -322,7 +323,7 @@ public:
   
   // Description:
   // Legacy.  Replaced with GetEstimatedUpdateMemorySize.
-  long GetUpdateExtentMemorySize() 
+  unsigned long GetUpdateExtentMemorySize() 
     {
       vtkWarningMacro("Change GetUpdateExtentMemorySize to GetEstimatedUpdateMemorySize");
       return this->GetEstimatedUpdateMemorySize();

@@ -63,7 +63,7 @@ vtkStructuredPointsWriter* vtkStructuredPointsWriter::New()
 // Specify the input data or filter.
 void vtkStructuredPointsWriter::SetInput(vtkStructuredPoints *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

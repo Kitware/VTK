@@ -139,6 +139,8 @@ protected:
 
   // This is called by the superclass.
   void Execute();
+  // This one is not currently used
+  void Execute(vtkImageData *outData) { this->vtkImageSource::Execute(outData); };
   // This is the method you should override.
   virtual void Execute(vtkImageData *inData, vtkImageData *outData);
   // scalars are allocated here.   

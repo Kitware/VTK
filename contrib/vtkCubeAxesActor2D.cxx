@@ -197,7 +197,6 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   int i, idx;
   int xIdx, yIdx, zIdx, zIdx2, renderedSomething=0;
   int xAxes, yAxes, zAxes;
-  int *size = viewport->GetSize();
 
   // Initialization
   if ( !this->Camera )
@@ -573,7 +572,7 @@ void vtkCubeAxesActor2D::GetBounds(float& xmin, float& xmax,
   ymin = bounds[2];
   ymax = bounds[3];
   zmin = bounds[4];
-  zmin = bounds[5];
+  zmax = bounds[5];
 }
 
 // Compute the bounds

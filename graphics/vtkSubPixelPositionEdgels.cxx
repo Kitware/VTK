@@ -448,7 +448,7 @@ void vtkSubPixelPositionEdgels::Update()
 
 void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
 {
-  this->vtkProcessObject::SetInput(1, gm);
+  this->vtkProcessObject::SetNthInput(1, gm);
 }
 
 vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()

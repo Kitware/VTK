@@ -61,6 +61,8 @@ public:
   // Description:
   // Get the output of this source.
   vtkRectilinearGrid *GetOutput();
+  vtkRectilinearGrid *GetOutput(int idx)
+    {return (vtkRectilinearGrid *) this->vtkSource::GetOutput(idx); };
   void SetOutput(vtkRectilinearGrid *output);
 
 protected:

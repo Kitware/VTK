@@ -81,6 +81,7 @@ protected:
   int Interpolate;
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
 };
 
 #endif

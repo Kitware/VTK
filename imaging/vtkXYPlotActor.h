@@ -106,7 +106,7 @@ public:
   // Draw the x-y plot.
   int RenderOpaqueGeometry(vtkViewport*);
   int RenderOverlay(vtkViewport*);
-  int RenderTranslucentGeometry(vtkViewport *viewport) {return 0;}
+  int RenderTranslucentGeometry(vtkViewport *) {return 0;}
 
   // Description:
   // Add a dataset to the list of data to append.

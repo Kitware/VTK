@@ -68,7 +68,7 @@ vtkDelaunay3D* vtkDelaunay3D::New()
 // Specify the input data or filter.
 void vtkDelaunay3D::SetInput(vtkPointSet *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------
@@ -336,7 +336,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
                                       vtkUnstructuredGrid *Mesh,
                                       vtkPoints *points, float tol,
                                       vtkIdList *tetras, vtkIdList *faces,
-                                      vtkPointLocator *Locator)
+                                      vtkPointLocator *locator)
 {
   vtkTetra *tetraCell=NULL;
   int ptIds[4];
@@ -348,7 +348,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
   int closestPoint;
 
   // start off by finding closest point and tetras that use the point
-  if ( Locator->IsInsertedPoint(x) >= 0 ) 
+  if ( locator->IsInsertedPoint(x) >= 0 ) 
     {
     return 0;
     }
@@ -365,7 +365,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
   faces->Reset();
   boundaryPts->Reset();
 
-  closestPoint = Locator->FindClosestInsertedPoint(x);
+  closestPoint = locator->FindClosestInsertedPoint(x);
   Mesh->GetPointCells(closestPoint, checkedTetras);
 
   //check these cells to see if any contain the point

@@ -72,7 +72,7 @@ vtkDataObjectWriter::~vtkDataObjectWriter()
 //----------------------------------------------------------------------------
 void vtkDataObjectWriter::SetInput(vtkDataObject *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

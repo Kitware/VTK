@@ -179,18 +179,18 @@ static void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
 	  if (*inPtr0)
 	    {
 	    // neighbors independant of boundaries
-	    n[0] = (idx0>wholeMin0) ? *(inPtr0-inInc0) : 0;
+	    n[0] = (idx0>wholeMin0) ? (float)*(inPtr0-inInc0) : 0;
 	    n[1] = (idx0>wholeMin0)&&(idx1>wholeMin1) 
-	      ? *(inPtr0-inInc0-inInc1) : 0;
-	    n[2] = (idx1>wholeMin1) ? *(inPtr0-inInc1) : 0;
+	      ? (float)*(inPtr0-inInc0-inInc1) : 0;
+	    n[2] = (idx1>wholeMin1) ? (float)*(inPtr0-inInc1) : 0;
 	    n[3] = (idx1>wholeMin1)&&(idx0<wholeMax0) 
-	      ? *(inPtr0-inInc1+inInc0) : 0;
-	    n[4] = (idx0<wholeMax0) ? *(inPtr0+inInc0) : 0;
+	      ? (float)*(inPtr0-inInc1+inInc0) : 0;
+	    n[4] = (idx0<wholeMax0) ? (float)*(inPtr0+inInc0) : 0;
 	    n[5] = (idx0<wholeMax0)&&(idx1<wholeMax1) 
-	      ? *(inPtr0+inInc0+inInc1) : 0;
-	    n[6] = (idx1<wholeMax1) ? *(inPtr0+inInc1) : 0;
+	      ? (float)*(inPtr0+inInc0+inInc1) : 0;
+	    n[6] = (idx1<wholeMax1) ? (float)*(inPtr0+inInc1) : 0;
 	    n[7] = (idx1<wholeMax1)&&(idx0>wholeMin0) 
-	      ? *(inPtr0+inInc1-inInc0) : 0;
+	      ? (float)*(inPtr0+inInc1-inInc0) : 0;
 	    
 	    // Lets try a case table. (shifting bits would be faster)
 	    erodeCase = 0;

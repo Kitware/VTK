@@ -110,22 +110,5 @@ protected:
 };
 
 
-// Description:
-// Return the maximize method as a descriptive character string.
-inline char *vtkVolumeRayCastMIPFunction::GetMaximizeMethodAsString(void)
-{
-  if( this->MaximizeMethod == VTK_MAXIMIZE_SCALAR_VALUE )
-    {
-    return "Maximize Scalar Value";
-    }
-  if( this->MaximizeMethod == VTK_MAXIMIZE_OPACITY )
-    {
-    return "Maximize Opacity";
-    }
-  else
-    {
-    return "Unknown";
-    }
-}
 
 #endif

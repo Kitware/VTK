@@ -63,6 +63,8 @@ public:
   // Return id of previously inserted point if this is true, otherwise return
   // -1.
   int IsInsertedPoint(float x[3]);
+  int IsInsertedPoint(float x, float  y, float z)
+    {return this->vtkPointLocator::IsInsertedPoint(x, y, z); };
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.

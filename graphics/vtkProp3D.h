@@ -226,6 +226,10 @@ protected:
   float         Center[3];
   vtkTransform  *Transform;
   float         Bounds[6];
+
+ private:
+  // hide the superclass' ShallowCopy() from the user and the compiler.
+  void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 };
 
 #endif

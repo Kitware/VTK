@@ -63,7 +63,7 @@ vtkStructuredGridToStructuredGridFilter* vtkStructuredGridToStructuredGridFilter
 // Specify the input data or filter.
 void vtkStructuredGridToStructuredGridFilter::SetInput(vtkStructuredGrid *input)
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 //----------------------------------------------------------------------------

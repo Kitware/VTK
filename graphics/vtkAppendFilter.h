@@ -71,6 +71,7 @@ public:
   // Description:
   // Get any input of this filter.
   vtkDataSet *GetInput(int idx);
+  vtkDataSet *GetInput() { return this->GetInput( 0 ); };
   
   // Description:
   // Remove a dataset from the list of data to append.
@@ -97,7 +98,15 @@ protected:
   // list of data sets to append together.
   // Here as a convenience.  It is a copy of the input array.
   vtkDataSetCollection *InputList;
+
+ private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
+  void RemoveInput(vtkDataObject *input)
+    { this->vtkProcessObject::RemoveInput(input); };
 };
+
 
 #endif
 

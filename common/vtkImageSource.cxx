@@ -62,7 +62,7 @@ vtkImageSource* vtkImageSource::New()
 //----------------------------------------------------------------------------
 vtkImageSource::vtkImageSource()
 {
-  this->vtkSource::SetOutput(0,vtkImageData::New());
+  this->vtkSource::SetNthOutput(0,vtkImageData::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -73,7 +73,7 @@ vtkImageSource::vtkImageSource()
 // Specify the input data or filter.
 void vtkImageSource::SetOutput(vtkImageData *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 //----------------------------------------------------------------------------

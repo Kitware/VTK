@@ -79,6 +79,7 @@ protected:
   int *Shifts;
 
   void ExecuteInformation(vtkImageData **inputs, vtkImageData *output);
+  void ExecuteInformation(){this->vtkImageMultipleInputFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6],
 					int whichInput);
   

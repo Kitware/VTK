@@ -166,6 +166,7 @@ protected:
   int ReadTypeARecord ();
   int ReadProfiles (vtkImageData *data);
   void Execute(vtkImageData *outData);
+  void Execute() { this->vtkImageSource::Execute(); };
   // Description:
   // This method is call by the superclass before an update.  It sets
   // the UpdateExtent to the WholeExtent.

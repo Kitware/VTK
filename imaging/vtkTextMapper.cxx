@@ -343,3 +343,58 @@ void vtkTextMapper::RenderOpaqueGeometryMultipleLines(vtkViewport *viewport,
     this->TextLines[lineNum]->RenderOpaqueGeometry(viewport,actor);
     }
 }
+
+
+void vtkTextMapper::SetFontSize(int size)
+{
+  if (size != this->FontSize)
+    {
+    this->FontSize = size;
+    this->Modified();
+    this->FontMTime.Modified();
+    }
+
+}
+
+void vtkTextMapper::SetBold(int val)
+{
+  if (val == this->Bold)
+    {
+    return;
+    }
+  this->Bold = val;
+  this->Modified();
+  this->FontMTime.Modified();
+}
+
+void vtkTextMapper::SetItalic(int val)
+{
+  if (val == this->Italic)
+    {
+    return;
+    }
+  this->Italic = val;
+  this->Modified();
+  this->FontMTime.Modified();
+}
+
+void vtkTextMapper::SetShadow(int val)
+{
+  if (val == this->Shadow)
+    {
+    return;
+    }
+  this->Shadow = val;
+  this->Modified();
+}
+
+void vtkTextMapper::SetFontFamily(int val)
+{
+  if (val == this->FontFamily)
+    {
+    return;
+    }
+  this->FontFamily = val;
+  this->Modified();
+  this->FontMTime.Modified();
+}

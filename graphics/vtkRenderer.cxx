@@ -154,7 +154,6 @@ void vtkRenderer::Render(void)
     {
     int mods = 0;
     vtkLight *light;
-    vtkProp *aProp;
     
     // now we just need to check the lights and actors
     for(this->Lights->InitTraversal(); 

@@ -79,6 +79,9 @@ protected:
   vtkFloatNormals(const vtkFloatNormals&) {};
   void operator=(const vtkFloatNormals&) {};
 
+private:
+  // hide the vtkNormal's New() method
+  static vtkFloatNormals *New(int) { return vtkFloatNormals::New();};
 };
 
 inline float *vtkFloatNormals::GetPointer(const int id)

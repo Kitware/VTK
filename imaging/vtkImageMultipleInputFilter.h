@@ -118,18 +118,23 @@ protected:
 					int whichInput);
 
   void Execute();
+  void Execute(vtkImageData *outData) {this->vtkImageSource::Execute(outData);};
   virtual void Execute(vtkImageData **inDatas, vtkImageData *outData);
 
   // This one gets called by the superclass.
   void ExecuteInformation();
   // This is the one you should override.
-  virtual void ExecuteInformation(vtkImageData **inDatas, 
-				  vtkImageData *outData) {};
+  virtual void ExecuteInformation(vtkImageData **, vtkImageData *) {};
 
   // legacy  !!!!! ------------------------
   virtual void ExecuteImageInformation() {this->LegacyHack = 0;}
   int LegacyHack;
-  
+
+ private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkImageData not a vtkDataObject."); };
+
 };
 
 #endif

@@ -383,7 +383,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   me->InteractorStyle->OnTimer();
 }
 
-int vtkXRenderWindowInteractor::CreateTimer(int timertype) 
+int vtkXRenderWindowInteractor::CreateTimer(int vtkNotUsed(timertype)) 
 {
   this->AddTimeOut(this->App, 10,
 		   vtkXRenderWindowInteractorTimer,

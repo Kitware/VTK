@@ -159,7 +159,7 @@ protected:
   void SetNumberOfInputs(int num);
 
   // protected methods for setting inputs.
-  virtual void SetInput(int num, vtkDataObject *input);
+  virtual void SetNthInput(int num, vtkDataObject *input);
   virtual void AddInput(vtkDataObject *input);
   virtual void RemoveInput(vtkDataObject *input);
   

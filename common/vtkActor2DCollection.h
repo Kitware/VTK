@@ -100,6 +100,13 @@ protected:
   void operator=(const vtkActor2DCollection&) {};
 
   virtual void DeleteElement(vtkCollectionElement *); 
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+  void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
+  int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
+
 };
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a) 

@@ -62,7 +62,7 @@ vtkPolyDataSource* vtkPolyDataSource::New()
 //----------------------------------------------------------------------------
 vtkPolyDataSource::vtkPolyDataSource()
 {
-  this->vtkSource::SetOutput(0, vtkPolyData::New());
+  this->vtkSource::SetNthOutput(0, vtkPolyData::New());
   // Releasing data for pipeline parallism.
   // Filters will know it is empty. 
   this->Outputs[0]->ReleaseData();
@@ -84,7 +84,7 @@ vtkPolyData *vtkPolyDataSource::GetOutput()
 //----------------------------------------------------------------------------
 void vtkPolyDataSource::SetOutput(vtkPolyData *output)
 {
-  this->vtkSource::SetOutput(0, output);
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 

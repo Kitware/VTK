@@ -88,8 +88,11 @@ protected:
   int ComponentExtent[6];
 
   void ExecuteInformation(vtkImageData *input, vtkImageData *output);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
   void Execute(vtkImageData *inData, vtkImageData *outData);
+  void Execute() { this->vtkImageToImageFilter::Execute(); };
+  void Execute(vtkImageData *outData) { this->vtkImageToImageFilter::Execute(outData); };
 
   // Description:
   // Generate more than requested.  Called by the superclass before

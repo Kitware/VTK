@@ -98,22 +98,5 @@ protected:
   int           CompositeMethod;
 };
 
-// Description:
-// Return the composite method as a descriptive character string.
-inline char *vtkVolumeRayCastCompositeFunction::GetCompositeMethodAsString(void)
-{
-  if( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
-    {
-    return "Interpolate First";
-    }
-  if( this->CompositeMethod == VTK_COMPOSITE_CLASSIFY_FIRST )
-    {
-    return "Classify First";
-    }
-  else
-    {
-    return "Unknown";
-    }
-}
 
 #endif

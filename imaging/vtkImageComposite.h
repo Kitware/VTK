@@ -72,6 +72,8 @@ public:
   // Set/Get the output of this source.
   void SetOutput(vtkStructuredPoints *output);
   vtkStructuredPoints *GetOutput();
+  vtkStructuredPoints *GetOutput(int idx)
+    {return (vtkStructuredPoints *) this->vtkSource::GetOutput(idx); };
   
   // Description:
   // Add a dataset to the list of data to append.
@@ -94,6 +96,13 @@ protected:
   // Usual data generation method
   void Execute();
   int ComputeInputUpdateExtents(vtkDataObject *data);  
+
+private:
+  // hide the superclass' AddInput() from the user and the compiler
+  void AddInput(vtkDataObject *)
+    { vtkErrorMacro( << "AddInput() must be called with a vtkImageData not a vtkDataObject."); };
+  void RemoveInput(vtkDataObject *input)
+    { this->vtkProcessObject::RemoveInput(input); };
 };
 
 #endif

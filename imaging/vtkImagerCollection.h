@@ -69,6 +69,11 @@ protected:
   ~vtkImagerCollection() {};
   vtkImagerCollection(const vtkImagerCollection&) {};
   void operator=(const vtkImagerCollection&) {};
+
+private:
+  // hide the standard AddItem from the user and the compiler.
+  void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
+
 };
 
 inline void vtkImagerCollection::AddItem(vtkImager *a) 

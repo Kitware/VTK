@@ -94,7 +94,7 @@ float *vtkVolumeMapper::GetBounds()
 
 void vtkVolumeMapper::SetInput( vtkStructuredPoints *input )
 {
-  this->vtkProcessObject::SetInput(0, input);
+  this->vtkProcessObject::SetNthInput(0, input);
 }
 
 vtkStructuredPoints *vtkVolumeMapper::GetInput()
@@ -139,7 +139,7 @@ void vtkVolumeMapper::SetRGBTextureInput( vtkStructuredPoints *rgbTexture )
       }
     }
   
-  this->vtkProcessObject::SetInput(1, rgbTexture);
+  this->vtkProcessObject::SetNthInput(1, rgbTexture);
 
 }
 

@@ -128,7 +128,8 @@ void vtkBMPReader::UpdateInformation()
     }
 
   // get the size of the file
-  if (sizeof(long) == 4)
+  int sizeLong = sizeof(long);
+  if (sizeLong == 4)
     {
     fread(&tmp,4,1,fp);
     // skip 4 bytes
@@ -146,7 +147,7 @@ void vtkBMPReader::UpdateInformation()
     }
 
   // get size of header
-  if (sizeof(long) == 4)   // if we are on a 32 bit machine
+  if (sizeLong == 4)   // if we are on a 32 bit machine
     {
     fread(&infoSize,sizeof(long),1,fp);
     vtkByteSwap::Swap4LE(&infoSize);
@@ -395,16 +396,16 @@ static void vtkBMPReaderUpdate2(vtkBMPReader *self, vtkImageData *data,
 
   // length of a row, num pixels read at a time
   pixelRead = dataExtent[1] - dataExtent[0] + 1; 
-  streamRead = pixelRead * self->GetDataIncrements()[0];  
-  streamSkip0 = self->GetDataIncrements()[1] - streamRead;
-  streamSkip1 = self->GetDataIncrements()[2] - 
-    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1];
+  streamRead = (long) (pixelRead * self->GetDataIncrements()[0]);  
+  streamSkip0 = (long) (self->GetDataIncrements()[1] - streamRead);
+  streamSkip1 = (long) (self->GetDataIncrements()[2] - 
+    (dataExtent[3] - dataExtent[2] + 1)* self->GetDataIncrements()[1]);
   pixelSkip = self->GetDepth()/8;
     
   // read from the bottom up
   if (!self->GetFileLowerLeft()) 
     {
-    streamSkip0 = -streamRead - self->GetDataIncrements()[1];
+    streamSkip0 = (long) (-streamRead - self->GetDataIncrements()[1]);
     }
   
   // create a buffer to hold a row of the data

@@ -66,10 +66,11 @@ public:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Render the volume
-  virtual void Render(vtkRenderer *ren, vtkVolume *vol) {};
+  virtual void Render(vtkRenderer *, vtkVolume *) {};
 
-  virtual void RenderRectangle( float v[12], float t[8],
-				unsigned char *texture, int size[2]) {};
+  virtual void RenderRectangle( float vtkNotUsed(v)[12], float vtkNotUsed(t)[8],
+				unsigned char *vtkNotUsed(texture),
+				int vtkNotUsed(size)[2]) {};
 
   void ApplyProperties( unsigned char *texture,
 			int size[2], int tsize[2] ); 

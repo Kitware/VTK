@@ -99,6 +99,7 @@ protected:
   int ClipData;
   
   void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
   void CopyData(vtkImageData *inData, vtkImageData *outData, int *ext);
   int SplitExtent(int piece, int numPieces, int *ext);
 };

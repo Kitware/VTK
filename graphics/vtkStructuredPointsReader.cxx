@@ -177,6 +177,7 @@ void vtkStructuredPointsReader::Execute()
   char line[256];
   int npts, ncells;
   int dimsRead=0, arRead=0, originRead=0;
+  int done=0;
   vtkStructuredPoints *output = this->GetOutput();
   
   vtkDebugMacro(<<"Reading vtk structured points file...");
@@ -225,7 +226,7 @@ void vtkStructuredPointsReader::Execute()
 // Read keyword and number of points
 //
     numPts = output->GetNumberOfPoints(); // get default
-    while (1)
+    while (!done)
       {
       if (!this->Reader->ReadString(line))
 	{

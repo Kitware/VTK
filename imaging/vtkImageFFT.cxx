@@ -64,7 +64,7 @@ vtkImageFFT* vtkImageFFT::New()
 
 //----------------------------------------------------------------------------
 // This extent of the components changes to real and imaginary values.
-void vtkImageFFT::ExecuteInformation(vtkImageData *inData, 
+void vtkImageFFT::ExecuteInformation(vtkImageData *vtkNotUsed(inData), 
 				     vtkImageData *outData)
 {
   outData->SetNumberOfScalarComponents(2);

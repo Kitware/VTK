@@ -1002,7 +1002,9 @@ void vtkFieldDataToAttributeDataFilter::ConstructTensors(int num, vtkFieldData *
 
 // Stuff related to fields --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::ConstructFieldData(int num, vtkDataSetAttributes *attr)
+void
+vtkFieldDataToAttributeDataFilter::ConstructFieldData(int vtkNotUsed(num),
+				      vtkDataSetAttributes *vtkNotUsed(attr))
 {
 }
 
