@@ -20,7 +20,7 @@
 // vtkimageLaplacian computes the Laplacian (like a second derivative)
 // of a scalar image.  The operation is the same as taking the
 // divergence after a gradient.  Boundaries are handled, so the input
-// is the same as the output.  The output is always float.
+// is the same as the output.
 // Dimensionality determines how the input regions are interpreted.
 // (images, or volumes). The Dimensionality defaults to two.
 
