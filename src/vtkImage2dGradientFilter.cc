@@ -96,6 +96,37 @@ void vtkImage2dGradientFilter::InterceptCacheUpdate(vtkImageRegion *region)
 
 //----------------------------------------------------------------------------
 // Description:
+// This method is passed a region that holds the image bounds of this filters
+// input, and changes the region to hold the image bounds of this filters
+// output.
+void vtkImage2dGradientFilter::ComputeOutputImageInformation(
+		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
+{
+  int bounds[8];
+  int idx;
+
+  inRegion->GetImageBounds4d(bounds);
+  if ( ! this->HandleBoundaries)
+    {
+    // shrink output image bounds.
+    for (idx = 0; idx < 4; ++idx)
+      {
+      bounds[idx*2] += this->KernelMiddle[idx];
+      bounds[idx*2+1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
+      }
+    }
+  
+  // from 1 to 2 components
+  bounds[4] = 0;
+  bounds[5] = 1;
+
+  outRegion->SetImageBounds4d(bounds);
+}
+
+
+
+//----------------------------------------------------------------------------
+// Description:
 // This method executes the filter for the postion of the image which
 // is not affected by boundaries.  Component axis is axis2.  Gradient
 // is performed over axis0 and axis1.

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dGradientFilter.hh
+  Module:    vtkImage2dGradientDerivativeFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,35 +37,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage2dGradientFilter - magnitude and phase of gradient.
+// .NAME vtkImage2dGradientDerivativeFilter - Derivative of gradient images.
 // .SECTION Description
-// vtkImage2dGradientFilter computes a gradient of 2d image using central
-// differences.  The output is always float and has two components.
-// The magnitude is returned in component 0 and the phase [-pi, pi]
-// in component 1.
+// vtkImage2dGradientDerivativeFilter Operates only on gradient images
+// because it needs the phase in the second component.  It Takes 
+// a derivative along the gradient. Output has only one component.
 
 
-#ifndef __vtkImage2dGradientFilter_h
-#define __vtkImage2dGradientFilter_h
+
+#ifndef __vtkImage2dGradientDerivativeFilter_h
+#define __vtkImage2dGradientDerivativeFilter_h
 
 
 #include "vtkImageSpatialFilter.hh"
 
-class vtkImage2dGradientFilter : public vtkImageSpatialFilter
+class vtkImage2dGradientDerivativeFilter : public vtkImageSpatialFilter
 {
 public:
-  vtkImage2dGradientFilter();
-  char *GetClassName() {return "vtkImage2dGradientFilter";};
+  vtkImage2dGradientDerivativeFilter();
+  char *GetClassName() {return "vtkImage2dGradientDerivativeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetAxes2d(int axis0, int axis1);
   void InterceptCacheUpdate(vtkImageRegion *region);
+
+  // Description:
+  // Magnitude has to be above this threshold to register.
+  vtkSetMacro(LowerThreshold, float);
+  vtkGetMacro(LowerThreshold, float);
   
   
 protected:
-
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
+  float LowerThreshold;
+  
   void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ExecuteBoundary3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dGradientFilter.hh
+  Module:    vtkImage2dNonMaximalSuppressionFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,25 +37,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage2dGradientFilter - magnitude and phase of gradient.
+// .NAME vtkImage2dNonMaximalSuppressionFilter - Thins Gradient images..
 // .SECTION Description
-// vtkImage2dGradientFilter computes a gradient of 2d image using central
-// differences.  The output is always float and has two components.
-// The magnitude is returned in component 0 and the phase [-pi, pi]
-// in component 1.
+// vtkImage2dNonMaximalSuppressionFilter Sets to zero any gradient
+// that is not a peak.  If a pixel has a neighbor along the gradient
+// that has larger magnitude, the smaller pixel is set to zero.
+// The phase of the image is not touched.  The input and output must be float.
 
 
-#ifndef __vtkImage2dGradientFilter_h
-#define __vtkImage2dGradientFilter_h
+#ifndef __vtkImage2dNonMaximalSuppressionFilter_h
+#define __vtkImage2dNonMaximalSuppressionFilter_h
 
 
 #include "vtkImageSpatialFilter.hh"
 
-class vtkImage2dGradientFilter : public vtkImageSpatialFilter
+class vtkImage2dNonMaximalSuppressionFilter : public vtkImageSpatialFilter
 {
 public:
-  vtkImage2dGradientFilter();
-  char *GetClassName() {return "vtkImage2dGradientFilter";};
+  vtkImage2dNonMaximalSuppressionFilter();
+  char *GetClassName() {return "vtkImage2dNonMaximalSuppressionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetAxes2d(int axis0, int axis1);
@@ -64,8 +64,6 @@ public:
   
 protected:
 
-  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
-				     vtkImageRegion *outRegion);
   void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ExecuteBoundary3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
 

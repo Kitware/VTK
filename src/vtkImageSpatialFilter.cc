@@ -101,7 +101,7 @@ void vtkImageSpatialFilter::ComputeOutputImageInformation(
     bounds[idx*2] += this->KernelMiddle[idx];
     bounds[idx*2 + 1] -= (this->KernelSize[idx] - 1) - this->KernelMiddle[idx];
     }
-  outRegion->SetBounds4d(bounds);
+  outRegion->SetImageBounds4d(bounds);
 }
 
 
