@@ -173,7 +173,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 {
   int idX, idY, idZ, idxC;
   int r1, r2, cr1, cr2, iter, rval;
-  int min0, max0, min1, max1, min2, max2;
+  int pmin0, pmax0, min0, max0, min1, max1, min2, max2;
   int inInc0, inInc1, inInc2;
   T *tempPtr;
   int *outPtrC;
@@ -219,14 +219,46 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
         self->UpdateProgress(count/(50.0*target));
 	}
       count++;
-	
 
-      if (stencil == NULL)
-        {
-        tempPtr = inPtr + (inInc2*(idZ - min2) +
-                           inInc1*(idY - min1));
-        for (idX = min0; idX <= max0; idX++)
-          {
+      // loop over stencil sub-extents
+      iter = 0;
+      cr1 = min0;
+      rval = 1;
+      while (rval)
+	{
+	rval = 0;
+	r1 = max0 + 1;
+	r2 = max0;
+	if (stencil)
+	  { // get sub extent [r1,r2]
+	  rval = stencil->GetNextExtent(r1, r2, min0, max0, idY, idZ, iter);
+	  }
+	// sub extents [cr1,cr2] are the complement of sub extents [r1,r2]
+	cr2 = r1 - 1;
+
+	pmin0 = cr1;
+	pmax0 = cr2;
+	// check whether to use [r1,r2] or its complement [cr1,cr2]
+	if (stencil && !self->GetReverseStencil())
+	  {
+	  if (rval == 0)
+	    {
+	    break;
+	    }
+	  pmin0 = r1;
+	  pmax0 = r2;
+	  }
+	// set up cr1 for next iteration
+	cr1 = r2 + 1;
+	
+	// set up pointer for sub extent
+	tempPtr = inPtr + (inInc2*(idZ - min2) +
+			   inInc1*(idY - min1) +
+			   numC*(pmin0 - min0));
+
+	// accumulate over the sub extent
+	for (idX = pmin0; idX <= pmax0; idX++)
+	  {
 	  // find the bin for this pixel.
 	  outPtrC = outPtr;
 	  for (idxC = 0; idxC < numC; ++idxC)
@@ -234,12 +266,17 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 	    // Gather statistics
 	    sum[idxC]+= *tempPtr;
 	    if (*tempPtr > Max[idxC])
+	      {
 	      Max[idxC] = *tempPtr;
+	      }
 	    else if (*tempPtr < Min[idxC])
+	      {
 	      Min[idxC] = *tempPtr;
+	      }
 	    (*VoxelCount)++;
 	    // compute the index
-	    outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
+	    outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) 
+				  / spacing[idxC]));
 	    if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
 	      {
 	      // Out of bin range
@@ -252,100 +289,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 	    {
 	    ++(*outPtrC);
 	    }
-        
-          }          
-        }
-      else
-        {
-        iter = 0;
-        cr1 = min0;
-        for (;;)
-          {
-          rval = stencil->GetNextExtent(r1, r2, min0, max0,
-					idY, idZ, iter);
-          cr2 = r1 - 1;
-          if (!self->GetReverseStencil())
-            {
-            tempPtr = inPtr + (inInc2*(idZ - min2) +
-                               inInc1*(idY - min1) +
-                               numC*(cr1 - min0));
-
-            for (idX = cr1; idX <= cr2; idX++)
-              {
-	      // find the bin for this pixel.
-	      outPtrC = outPtr;
-	      for (idxC = 0; idxC < numC; ++idxC)
-		{
-		// Gather statistics
-		sum[idxC]+= *tempPtr;
-		if (*tempPtr > Max[idxC])
-		  Max[idxC] = *tempPtr;
-		else if (*tempPtr < Min[idxC])
-		  Min[idxC] = *tempPtr;
-		(*VoxelCount)++;
-		// compute the index
-		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
-		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
-		  {
-		  // Out of bin range
-		  outPtrC = NULL;
-		  break;
-		  }
-		outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
-		}
-	      if (outPtrC)
-		{
-		++(*outPtrC);
-		}
-	      
-	      }
-            }
-          cr1 = r2 + 1;
-
-          // break if no foreground extents left
-          if (rval == 0)
-            {
-            break;
-            }
-
-          if (self->GetReverseStencil())
-            {
-            // do unchanged portion
-            tempPtr = inPtr + (inInc2*(idZ - min2) +
-                               inInc1*(idY - min1) +
-                               numC*(r1 - min0));
-
-            for (idX = r1; idX <= r2; idX++)
-              {
-	      // find the bin for this pixel.
-	      outPtrC = outPtr;
-	      for (idxC = 0; idxC < numC; ++idxC)
-		{
-		// Gather statistics
-		sum[idxC]+= *tempPtr;
-		if (*tempPtr > Max[idxC])
-		  Max[idxC] = *tempPtr;
-		else if (*tempPtr < Min[idxC])
-		  Min[idxC] = *tempPtr;
-		(*VoxelCount)++;
-		// compute the index
-		outIdx = (int) floor((((double)*tempPtr++ - origin[idxC]) / spacing[idxC]));
-		if (outIdx < outExtent[idxC*2] || outIdx > outExtent[idxC*2+1])
-		  {
-		  // Out of bin range
-		  outPtrC = NULL;
-		  break;
-		  }
-		outPtrC += (outIdx - outExtent[idxC*2]) * outIncs[idxC];
-		}
-	      if (outPtrC)
-		{
-		++(*outPtrC);
-		}
-	      
-              }
-            }
-          }
+	  }
         }
       }
     }
@@ -358,7 +302,7 @@ static void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     }
   else
     {
-    Mean[0]=Mean[1]=Mean[2] = 0.0;
+    Mean[0] = Mean[1] = Mean[2] = 0.0;
     }
   
 }
