@@ -78,6 +78,7 @@ vtkImplicitFunction     FunctionGradient        301 3
 vtkImplicitPlaneWidget	GetNormal		301 3
 vtkImplicitPlaneWidget	GetOrigin		301 3
 vtkLegendBoxActor       GetEntryColor           301 3
+vtkLight                GetColor                301 3
 vtkLight                GetTransformedFocalPoint 301 3
 vtkLight                GetTransformedPosition  301 3
 vtkLinearTransform      TransformDoubleNormal   307 3
