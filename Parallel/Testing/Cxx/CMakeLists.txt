@@ -5,13 +5,19 @@ ENDIF (VTK_USE_HYBRID)
 
 ADD_EXECUTABLE(SocketServer SocketServer.cxx)
 ADD_EXECUTABLE(SocketClient SocketClient.cxx)
-ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
-ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator.cxx)
+
+IF (VTK_HAS_THREADS OR VTK_USE_MPI)
+ ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
+ TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
+ENDIF (VTK_HAS_THREADS OR VTK_USE_MPI)
+
+IF (VTK_HAS_THREADS)
+ ADD_EXECUTABLE(ThreadedCommunicator ThreadedCommunicator.cxx)
+ TARGET_LINK_LIBRARIES(ThreadedCommunicator vtkParallel)
+ENDIF (VTK_HAS_THREADS)
 
 TARGET_LINK_LIBRARIES(SocketServer vtkParallel)
 TARGET_LINK_LIBRARIES(SocketClient vtkParallel)
-TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
-TARGET_LINK_LIBRARIES(ThreadedCommunicator vtkParallel)
 
 IF (VTK_USE_MPI)
   ADD_EXECUTABLE(MPIGroups MPIGroups.cxx)
@@ -24,10 +30,12 @@ ENDIF (VTK_USE_MPI)
 
 IF (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
-    ADD_TEST(ThreadedCommunicator-image 
-             ${CXX_TEST_PATH}/ThreadedCommunicator
-             -D ${VTK_DATA_ROOT}
-             -V Baseline/Parallel/ThreadedCommunicator.cxx.png)
+    IF (VTK_HAS_THREADS)
+      ADD_TEST(ThreadedCommunicator-image 
+               ${CXX_TEST_PATH}/ThreadedCommunicator
+               -D ${VTK_DATA_ROOT}
+               -V Baseline/Parallel/ThreadedCommunicator.cxx.png)
+    ENDIF (VTK_HAS_THREADS)
 
     IF (VTK_USE_MPI)
      IF (UNIX)
@@ -54,14 +62,14 @@ IF (VTK_DATA_ROOT)
       ENDIF(MPIRUN)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
-      IF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
+      IF (VTK_HAS_THREADS)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/ParallelIso.cxx.png)
         ADD_TEST(TestCommunicator-image ${CXX_TEST_PATH}/GenericCommunicator
                  -D ${VTK_DATA_ROOT}
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
-      ENDIF (CMAKE_USE_PTHREADS OR CMAKE_USE_SPROC)
+      ENDIF (VTK_HAS_THREADS)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
 #
@@ -69,8 +77,9 @@ IF (VTK_DATA_ROOT)
 #
 ELSE (VTK_DATA_ROOT)
   IF (VTK_USE_HYBRID)
-    ADD_TEST(ThreadedCommunicator-image 
-             ${CXX_TEST_PATH}/ThreadedCommunicator)
+    IF (VTK_HAS_THREADS)
+      ADD_TEST(ThreadedCommunicator ${CXX_TEST_PATH}/ThreadedCommunicator)
+    ENDIF (VTK_HAS_THREADS)
     IF (VTK_USE_MPI)
      IF(UNIX)
       IF (MPIRUN)
@@ -81,8 +90,10 @@ ELSE (VTK_DATA_ROOT)
       ENDIF(MPIRUN)
      ENDIF(UNIX)
     ELSE (VTK_USE_MPI)
-      ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
-      ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
+      IF (VTK_HAS_THREADS)
+        ADD_TEST(ParallelIso ${CXX_TEST_PATH}/ParallelIsoTest)
+        ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
+      ENDIF (VTK_HAS_THREADS)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_HYBRID)
 ENDIF (VTK_DATA_ROOT)

@@ -27,15 +27,31 @@ vtkPieceScalars.cxx
 vtkPipelineSize.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
-vtkSharedMemoryCommunicator.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
-vtkThreadedController.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeComposite.cxx
 vtkTreeCompositer.cxx
 )
+
+IF (CMAKE_USE_PTHREADS)
+   SET(VTK_HAS_THREADS 1)
+ENDIF (CMAKE_USE_PTHREADS)
+IF (CMAKE_USE_SPROC)
+   SET(VTK_HAS_THREADS 1)
+ENDIF (CMAKE_USE_SPROC)
+IF (CMAKE_USE_WIN32_THREADS)
+   SET(VTK_HAS_THREADS 1)
+ENDIF (CMAKE_USE_WIN32_THREADS)
+
+IF (VTK_HAS_THREADS)
+ SET ( Parallel_SRCS
+      ${Parallel_SRCS}
+      vtkSharedMemoryCommunicator.cxx
+      vtkThreadedController.cxx)
+ENDIF (VTK_HAS_THREADS)
+
 
 SET_SOURCE_FILES_PROPERTIES(vtkCommunicator ABSTRACT)
 
