@@ -79,7 +79,7 @@ vtkWin32OffscreenRenderWindow
 
 @MAKEINCLUDE@ @MAKEQUOTE@targets.make@MAKEQUOTE@
 
-# add in any extra libraies here
+# add in any extra libraries here
 KIT_LIBS =
 
 # standard stuff here
