@@ -83,7 +83,7 @@ vtkCell *vtkLine::MakeObject()
 }
 
 static const int VTK_NO_INTERSECTION=0;
-static const int VTK_INTERSECTION=2;
+static const int VTK_YES_INTERSECTION=2;
 static const int VTK_ON_LINE=3;
 
 int vtkLine::EvaluatePosition(float x[3], float* closestPoint, 
@@ -180,7 +180,7 @@ int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   //  Check parametric coordinates for intersection.
   if ( (0.0 <= u) && (u <= 1.0) && (0.0 <= v) && (v <= 1.0) )
     {
-    return VTK_INTERSECTION;
+    return VTK_YES_INTERSECTION;
     }
   else
     {
@@ -392,7 +392,7 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   a1 = this->Points->GetPoint(0);
   a2 = this->Points->GetPoint(1);
 
-  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == VTK_INTERSECTION )
+  if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == VTK_YES_INTERSECTION )
     {
     // make sure we are withing tolerance
     for (i=0; i<3; i++)
