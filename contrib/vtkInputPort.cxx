@@ -369,14 +369,15 @@ void vtkInputPort::TriggerAsynchronousUpdate()
   // Trigger Update in remotePort.
   // remotePort should have the same tag.
   this->Controller->TriggerRMI(this->RemoteProcessId, this->Tag+1);
-
+  
   // Send the UpdateExtent request. The first 6 ints are the 3d extent, the next
   // to are the pieces extent (we don't know which type it is - just send both)
-  int extent[8];
+  int extent[9];
   output->GetUpdateExtent( extent );
   extent[6] = output->GetUpdatePiece();
   extent[7] = output->GetUpdateNumberOfPieces();  
-  this->Controller->Send( extent, 8, this->RemoteProcessId, 
+  extent[8] = output->GetUpdateGhostLevel();  
+  this->Controller->Send( extent, 9, this->RemoteProcessId, 
                           VTK_PORT_UPDATE_EXTENT_TAG);
 
   // This is for pipeline parallism.

@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 
 
-
 //----------------------------------------------------------------------------
 vtkOutputPort* vtkOutputPort::New()
 {
@@ -171,13 +170,13 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   vtkDataObject *input = this->GetInput();
   
   // First get the update extent requested.
-  int extent[8];
-  this->Controller->Receive( extent, 8, remoteProcessId, 
+  int extent[9];
+  this->Controller->Receive( extent, 9, remoteProcessId, 
 			    VTK_PORT_UPDATE_EXTENT_TAG);
   input->SetUpdateExtent( extent );
   input->SetUpdatePiece( extent[6] );
   input->SetUpdateNumberOfPieces( extent[7] );
-  
+  input->SetUpdateGhostLevel( extent[8] );
   
   // Note:  Receiving DataTime was the start of a more intelligent promotion
   // for pipeline parallism.  Unfortunately there was no way (I knew of)
@@ -192,10 +191,13 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   // of our input to determine if it should send the data (execute).
   this->Controller->Receive( &(downDataTime), 1, remoteProcessId,
 			     VTK_PORT_NEW_DATA_TIME_TAG);
-    
+
+  // What was the idea of using relesed data here?  It caused a bug for multiple updates.
+  // if ( input != NULL && input->GetDataReleased())
+  
   // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
-  if ( input != NULL && input->GetDataReleased())
+  if ( input != NULL && this->PipelineFlag == 0)
     {
     input->UpdateInformation();
     input->PropagateUpdateExtent();
