@@ -341,6 +341,34 @@ int TestNonTypeTemplate()
 
 //----------------------------------------------------------------------------
 
+/* Test mixed type and non-type template arguments in a non-trival way.  */
+
+template <class T, int N>
+int TestMixedTypeTemplateFunction(T (*)[N])
+{
+  return N;
+}
+
+int TestMixedTypeTemplate()
+{
+  int x2[2];
+  float x3[3];
+  int result = 1;
+  if(TestMixedTypeTemplateFunction(&x2) != 2)
+    {
+    cerr << "TestMixedTypeTemplateFunction(&x2) != 2\n";
+    result = 0;
+    }
+  if(TestMixedTypeTemplateFunction(&x3) != 3)
+    {
+    cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
+    result = 0;
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+
 int TestBinaryWriting()
 {
   int result = 1;
@@ -430,6 +458,7 @@ int main()
   DO_TEST(TestFullySpecializedClass);
   DO_TEST(TestIfScope);
   DO_TEST(TestNonTypeTemplate);
+  DO_TEST(TestMixedTypeTemplate);
   DO_TEST(TestBinaryWriting);
   DO_TEST(TestSafeBoolIdiom);
   return result;
