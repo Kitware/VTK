@@ -44,7 +44,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"  
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.53");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.54");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1777,7 +1777,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   //
   float qi[3];
   // Compute world to image coords
-  for (int i = 0; i < 3; i++)
+  for (i = 0; i < 3; i++)
     {
     qi[i] = (closestPt[i]-origin[i])/spacing[i];
     }
