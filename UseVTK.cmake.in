@@ -25,3 +25,28 @@ ENDIF(NOT VTK_USE_FILE)
 INCLUDE_DIRECTORIES(${VTK_INCLUDE_DIRS})
 LINK_DIRECTORIES(${VTK_LIBRARY_DIRS})
 ADD_DEFINITIONS(${VTK_DEFINITIONS})
+
+# Make sure the compiler settings match those used to build VTK.
+IF(NOT VTK_NO_ENFORCE_CXX_COMPILER)
+  IF(VTK_CXX_COMPILER_MISMATCH)
+    MESSAGE(SEND_ERROR
+            "The selected VTK was built with "
+            "\"${VTK_CXX_COMPILER}\""
+            ", but the current compiler is \"${CMAKE_CXX_COMPILER}\".  "
+            "Please set CMAKE_CXX_COMPILER to \"${VTK_CXX_COMPILER}\".")
+  ENDIF(VTK_CXX_COMPILER_MISMATCH)
+  IF(NOT VTK_NO_ENFORCE_BUILD_TYPE)
+    # Build type only needs to match on windows.  A user project can
+    # always set VTK_NO_ENFORCE_BUILD_TYPE and then check the build type
+    # itself to get the check on UNIX and Windows.
+    IF(WIN32)
+      IF(VTK_BUILD_TYPE_MISMATCH)
+        MESSAGE(SEND_ERROR
+                "The selected VTK was built with build type "
+                "\"${VTK_BUILD_TYPE}\""
+                ", but the current build type is \"${CMAKE_BUILD_TYPE}\".  "
+                "Please set CMAKE_BUILD_TYPE to \"${VTK_BUILD_TYPE}\".")
+      ENDIF(VTK_BUILD_TYPE_MISMATCH)
+    ENDIF(WIN32)
+  ENDIF(NOT VTK_NO_ENFORCE_BUILD_TYPE)
+ENDIF(NOT VTK_NO_ENFORCE_CXX_COMPILER)
