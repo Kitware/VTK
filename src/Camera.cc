@@ -601,8 +601,8 @@ void vlCamera::OrthogonalizeViewUp()
 
 // Description:
 // Move the position of the camera along the view plane normal. Moving
-// towards the focal point is a zoom-in, moving away from the focal point
-// is a zoom-out.
+// towards the focal point (e.g., zoom>1) is a zoom-in, moving away 
+// from the focal point (e.g., zoom<1) is a zoom-out.
 void vlCamera::Zoom(float amount)
 {
   float	distance;
