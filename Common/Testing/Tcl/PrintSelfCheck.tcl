@@ -388,7 +388,11 @@ proc read_directory { dirname } {
       if { $class_name != "" && [list_contains "$class_name.p"] == 1 } {
         set length [string length $headername]
         set filename [string range $headername 0 [expr $length - 3] ]
-        check_printself "$filename.cxx"
+          if {[file exists "$filename.mm"] == 1} {
+          check_printself "$filename.mm"
+        } else {
+          check_printself "$filename.cxx"
+        }
       }
 
     }
