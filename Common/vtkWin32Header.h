@@ -46,6 +46,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 #include <windows.h>
 
+#ifndef __cygwin__
 // Handle compiler warning messages, etc.
 #ifndef VTK_DISPLAY_WIN32_WARNINGS
 #pragma warning ( disable : 4127 )
@@ -58,6 +59,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #pragma warning ( disable : 4786 )
 #pragma warning ( disable : 4097 )
 #endif //VTK_DISPLAY_WIN32_WARNINGS
+#endif
 
 #endif
 
