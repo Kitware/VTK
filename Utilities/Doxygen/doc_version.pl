@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-10-01 09:54:39 barre>
+# Time-stamp: <2001-10-01 13:06:27 barre>
 #
 # Extract VTK version and add it to documentation
 #
@@ -140,7 +140,7 @@ print DEST_FILE
   "  $date\n",
   "  \@par Useful links:\n",
   "  \@li VTK Home: http://public.kitware.com\n",
-  "  \@li VTK Mailing List: http://public.kitware.com/mailman/listinfo/vtkusers\n",
+  "  \@li VTK Mailing-list: http://public.kitware.com/mailman/listinfo/vtkusers\n",
   "  \@li VTK FAQ: http://public.kitware.com/cgi-bin/vtkfaq\n",
   "  \@li VTK Search: http://www.kitware.com/search.html\n",
   "  \@li VTK Dashboard: http://public.kitware.com/vtkhtml/Testing/HTML/TestingResults/Dashboard/MostRecentResults-Nightly/Dashboard.html",
