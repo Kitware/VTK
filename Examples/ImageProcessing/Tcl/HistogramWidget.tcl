@@ -88,7 +88,7 @@ proc HistogramWidgetRender {widget} {
     set scale [expr 0.9 * $height / [lindex $histRange 1]]
 
     for {set idx 0} {$idx < $numBins} {incr idx} {
-        set y [$data GetScalarComponentAsFloat $idx 0 0 0]
+        set y [$data GetScalarComponentAsDouble $idx 0 0 0]
         set y1 [expr $y * $scale]
         set y2 [lindex [split $y1 .] 0]
         set x [expr $idx * 2]
@@ -163,7 +163,7 @@ proc HistogramWidgetUpdateInteraction {widget} {
     if {$x < 0 || $x > $max} {
         return
     }
-    set y [$data GetScalarComponentAsFloat $x 0 0 0]
+    set y [$data GetScalarComponentAsDouble $x 0 0 0]
 
     # Display the value
     

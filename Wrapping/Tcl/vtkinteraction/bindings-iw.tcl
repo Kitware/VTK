@@ -154,7 +154,7 @@ namespace eval ::vtk {
         set str "($x, $y):"
         for {set idx 0} {$idx < $num_comps} {incr idx} {
             set str [format "%s %.0f" $str \
-                    [$input GetScalarComponentAsFloat $x $y $z $idx]]
+                    [$input GetScalarComponentAsDouble $x $y $z $idx]]
         }
 
         set mapper [::vtk::get_widget_variable_value $vtkiw text1_mapper]

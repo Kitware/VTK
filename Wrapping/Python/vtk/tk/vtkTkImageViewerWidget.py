@@ -290,7 +290,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         numComps = input.GetNumberOfScalarComponents()
         text = ""
         for i in xrange(numComps):
-            val = input.GetScalarComponentAsFloat(x,y,z,i)
+            val = input.GetScalarComponentAsDouble(x,y,z,i)
             text = "%s  %.1f" % (text,val)  
 
         self._WindowMapper.SetInput("(%d, %d): %s" % (x,y,text))
