@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.33");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.34");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -253,9 +253,6 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   material[2] = property->GetSpecular(this->ActiveComponent);
   material[3] = property->GetSpecularPower(this->ActiveComponent);
 
-  // Set up the lights for traversal
-  lightCollection = ren->GetLights();
-  lightCollection->InitTraversal();
     
   update_flag = 0;
 
@@ -303,6 +300,9 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   // All lights are forced to be directional light sources
   // regardless of what they really are
 
+  // Set up the lights for traversal
+  lightCollection = ren->GetLights();
+
   // In rare cases there are no lights
   vtkLight *artificialLight=NULL;
   if ( lightCollection->GetNumberOfItems() == 0 )
@@ -312,7 +312,9 @@ void vtkEncodedGradientShader::UpdateShadingTable(
     lightCollection->AddItem(artificialLight);
     }
 
-  while ( (light = lightCollection->GetNextItem()) != NULL  )
+  vtkCollectionSimpleIterator sit;
+  lightCollection->InitTraversal(sit);
+  while ( (light = lightCollection->GetNextLight(sit)) != NULL  )
     { 
     if ( ! light->GetSwitch() )
       {

@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkImageReader2.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Collection, "1.6");
+vtkCxxRevisionMacro(vtkImageReader2Collection, "1.7");
 vtkStandardNewMacro(vtkImageReader2Collection);
 
 void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
@@ -28,6 +28,12 @@ void vtkImageReader2Collection::AddItem(vtkImageReader2 *f)
 vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
 { 
   return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
+}
+
+vtkImageReader2 *vtkImageReader2Collection::GetNextImageReader2(
+  vtkCollectionSimpleIterator &cookie) 
+{
+  return static_cast<vtkImageReader2 *>(this->GetNextItemAsObject(cookie));
 }
 
 //----------------------------------------------------------------------------

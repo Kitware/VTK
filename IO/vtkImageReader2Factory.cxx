@@ -26,7 +26,7 @@
 #include "vtkSLCReader.h"
 #include "vtkTIFFReader.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Factory, "1.13");
+vtkCxxRevisionMacro(vtkImageReader2Factory, "1.14");
 vtkStandardNewMacro(vtkImageReader2Factory);
 
 class vtkCleanUpImageReader2Factory
@@ -100,8 +100,9 @@ vtkImageReader2* vtkImageReader2Factory::CreateImageReader2(const char* path)
     }
   // get rid of the collection
   collection->Delete();
-  for(vtkImageReader2Factory::AvailiableReaders->InitTraversal();
-      (ret = vtkImageReader2Factory::AvailiableReaders->GetNextItem());)
+  vtkCollectionSimpleIterator sit;
+  for(vtkImageReader2Factory::AvailiableReaders->InitTraversal(sit);
+      (ret = vtkImageReader2Factory::AvailiableReaders->GetNextImageReader2(sit));)
     {
     if(ret->CanReadFile(path))
       {
@@ -155,8 +156,9 @@ void vtkImageReader2Factory::GetRegisteredReaders(vtkImageReader2Collection* col
                                       collection);
   // get the current registered readers
   vtkImageReader2* ret;
-  for(vtkImageReader2Factory::AvailiableReaders->InitTraversal();
-      (ret = vtkImageReader2Factory::AvailiableReaders->GetNextItem());)
+  vtkCollectionSimpleIterator sit;
+  for(vtkImageReader2Factory::AvailiableReaders->InitTraversal(sit);
+      (ret = vtkImageReader2Factory::AvailiableReaders->GetNextImageReader2(sit));)
     {
     collection->AddItem(ret);
     }
