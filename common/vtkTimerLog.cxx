@@ -406,6 +406,9 @@ void vtkTimerLog::Sleep(int ms)
 #ifdef _WIN32
   Sleep(ms);
 #else
-  ms = ms;  // avoid warning
+  struct timespec sleep_time, remaining_time;
+  sleep_time.tv_sec = ms / 1000;
+  sleep_time.tv_nsec = 1000000*(ms % 1000);
+  nanosleep(&sleep_time,&remaining_time);
 #endif    
 }
