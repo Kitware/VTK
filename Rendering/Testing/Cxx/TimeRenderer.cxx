@@ -10,21 +10,17 @@
 #include "vtkActor.h"
 #include "vtkTriangleFilter.h"
 #include "vtkStripper.h"
+#include "vtkTimerLog.h"
 
 int main( int argc, char *argv[] )
 {
   // For timings
-  struct tms buf;
-  clock_t t;
-  long   clk_tck=sysconf(_SC_CLK_TCK);
-
   int i;
-  int l, w, nActors, aPnts, N, n;
+  int l, w, nActors, N, n;
+  vtkIdType aPnts;
+  
   if (argc != 5) 
     {
-    cerr << "Usage: " << argv[0] 
-	 << " PntsInX PntsInY PntsPerActors #ofActors\n";
-    exit (-1);
     l = 10;
     w = 10;
     aPnts = 15;
@@ -44,7 +40,7 @@ int main( int argc, char *argv[] )
   N = aPnts * nActors;
 
   float x, y, z;
-  int *cdata = new int[aPnts];
+  vtkIdType *cdata = new vtkIdType [aPnts];
   for (int j = 0; j < aPnts; j++)
     {
     cdata[j] = j;
@@ -78,13 +74,13 @@ int main( int argc, char *argv[] )
   cpnts->SetPoint(12,  .1, -.1,  .1);
   cpnts->SetPoint(13, -.1, -.1,  .1);
 
-  int a[14];
+  vtkIdType a[14];
   for (i = 0; i < 14; i++)
     {
     a[i] = i;
     }
   
-  ccells->InsertNextCell(14, a);
+  ccells->InsertNextCell(14L, a);
   ccells->Squeeze();
 
   vtkPolyData *cube = vtkPolyData::New();
@@ -183,12 +179,9 @@ int main( int argc, char *argv[] )
   renWindow->Render();
   
   // Set up times
-  double ctime, cstart;
-  double wtime, wstart;
-  cerr << "Starting Timer!\n";
-  vtkTimerLog *t = vtkTimerLog::New();
+  vtkTimerLog *tl = vtkTimerLog::New();
   
-  t->StartTimer();
+  tl->StartTimer();
   
   // do a azimuth of the cameras 3 degrees per iteration
   for (i = 0; i < 360; i += 3) 
@@ -197,14 +190,14 @@ int main( int argc, char *argv[] )
     renWindow->Render();
     }
 
-  t->StopTimer();
+  tl->StopTimer();
   
-  cerr << "Wall Time = " << t->GetElapsedTime() << "\n";
-  cerr << "FrameRate = " << 120.0 / t->GetELapsedTime() << "\n";
+  cerr << "Wall Time = " << tl->GetElapsedTime() << "\n";
+  cerr << "FrameRate = " << 120.0 / tl->GetElapsedTime() << "\n";
 
   // Clean up
   ren1->Delete();
   renWindow->Delete();
-  t->Delete();
+  tl->Delete();
   return 1;
 }
