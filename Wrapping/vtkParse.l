@@ -154,6 +154,7 @@
 "friend"        return(FRIEND);
 "static"        return(STATIC);
 
+"vtkFloatingPointType" return(DOUBLE);
 "vtkIdType"            return(LONG);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
