@@ -33,9 +33,12 @@ public:
   
   // Description:
   // Construct a Mobius strip with the following parameters:
-  // MinimumU = 0, MaximumU = 2*Pi+2*Pi/PointsU,
-  // MinimumV = -1, MaximumV = 1, JoinU = 1, JoinV = 0,
-  // TwistU = 0, TwistV = 0; Ordering = 1, DerivativesSupplied = 1,
+  // MinimumU = 0, MaximumU = 2*Pi,
+  // MinimumV = -1, MaximumV = 1, 
+  // JoinU = 1, JoinV = 0,
+  // TwistU = 0, TwistV = 0,
+  // ClockwiseOrdering = 1, 
+  // DerivativesAvailable = 1,
   // Radius = 1.
   static vtkParametricMobius *New();
 
@@ -82,9 +85,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u,v are the parameters with Pt being the the cartesian point, 
-  // Du, Dv are the derivatives of this point with respect to u and v.
-  // Pt, Du, Dv are obtained from fn().
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Du, Dv are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunction::userDefined

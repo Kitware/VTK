@@ -45,10 +45,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Construct a supertoroid with the following parameters: MinimumU = 0,
-  // MaximumU = 2*Pi, MinimumV = 0, MaximumV = 2*Pi, JoinU = 1, JoinV = 1,
-  // TwistU = 0, TwistV = 0; Ordering = 1, DerivativesSupplied = 0,
-  // RingRadius = 1, CrossSectionRadius = 0.5, N1 = 1, N2 = 1, XRadius = 1,
+  // Construct a supertoroid with the following parameters: 
+  // MinimumU = 0, MaximumU = 2*Pi, 
+  // MinimumV = 0, MaximumV = 2*Pi, 
+  // JoinU = 1, JoinV = 1,
+  // TwistU = 0, TwistV = 0, 
+  // ClockwiseOrdering = 1, 
+  // DerivativesAvailable = 0,
+  // RingRadius = 1, CrossSectionRadius = 0.5, 
+  // N1 = 1, N2 = 1, XRadius = 1,
   // YRadius = 1, ZRadius = 1, a torus in this case.
   static vtkParametricSuperToroid *New();
 
@@ -144,9 +149,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u,v are the parameters with Pt being the the cartesian point, Du, Dv are
-  // the derivatives of this point with respect to u and v.  Pt, Du, Dv are
-  // obtained from fn().
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunction::userDefined

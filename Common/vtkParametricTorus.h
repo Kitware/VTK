@@ -35,9 +35,12 @@ public:
   
   // Description:
   // Construct a torus with the following parameters:
-  // PointsU = 50, PointsV = 50, MinimumU = 0, MaximumU = 2*Pi,
-  // MinimumV = 0, MaximumV = 2*Pi, JoinU = 1, JoinV = 1,
-  // TwistU = 0, TwistV = 0; Ordering = 1, DerivativesSupplied = 1,
+  // MinimumU = 0, MaximumU = 2*Pi,
+  // MinimumV = 0, MaximumV = 2*Pi, 
+  // JoinU = 1, JoinV = 1,
+  // TwistU = 0, TwistV = 0, 
+  // ClockwiseOrdering = 1, 
+  // DerivativesAvailable = 1,
   // RingRadius = 1, CrossSectionRadius = 0.5.
   static vtkParametricTorus *New();
 
@@ -97,9 +100,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u[3] are the parameters with Pt being the the Cartesian point, 
-  // Du[9] are the derivatives of this point with respect to u and v.
-  // Pt, Du are obtained from Evaluate().
+  // uvw are the parameters with Pt being the the Cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::SCALAR_FUNCTION_DEFINED

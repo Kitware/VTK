@@ -33,9 +33,13 @@ public:
   
   // Description:
   // Construct a conic spiral surface with the following parameters: 
-  // MinimumU = 0, MaximumU = 2Pi, MinimumV = 0, MaximumV = 2Pi, JoinU = 0, 
-  // JoinV = 0, TwistU = 0, TwistV = 0; ClockwiseOrdering = 1, 
-  // DerivativesAvailable = 1, A = 0.2, B = 1.0, C = 0.1, N = 2.
+  // MinimumU = 0, MaximumU = 2Pi, 
+  // MinimumV = 0, MaximumV = 2Pi, 
+  // JoinU = 0, JoinV = 0, 
+  // TwistU = 0, TwistV = 0, 
+  // ClockwiseOrdering = 1, 
+  // DerivativesAvailable = 1, 
+  // A = 0.2, B = 1.0, C = 0.1, N = 2.
   static vtkParametricConicSpiral *New();
 
   // Description
@@ -98,9 +102,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u,v are the parameters with Pt being the the cartesian point, 
-  // Du, Dv are the derivatives of this point with respect to u and v.
-  // Pt, Du, Dv are obtained from Evaluate().
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricFunctionSource::FunctionDefined.

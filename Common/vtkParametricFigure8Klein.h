@@ -42,9 +42,13 @@ public:
   
   // Description:
   // Construct a figure-8 Klein Bottle with the following parameters:
-  // MinimumU = -Pi, MaximumU = Pi, MinimumV = -Pi, MaximumV = Pi, JoinU = 1,
-  // JoinV = 1, TwistU = 0, TwistV = 0; Ordering = 1, DerivativesSupplied =
-  // 1, Radius = 1
+  // MinimumU = -Pi, MaximumU = Pi, 
+  // MinimumV = -Pi, MaximumV = Pi, 
+  // JoinU = 1, JoinV = 1, 
+  // TwistU = 0, TwistV = 0,
+  // ClockwiseOrdering = 1, 
+  // DerivativesAvailable = 1, 
+  // Radius = 1
   static vtkParametricFigure8Klein *New();
 
   // Description:
@@ -97,9 +101,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u,v are the parameters with Pt being the the cartesian point, 
-  // Du, Dv are the derivatives of this point with respect to u and v.
-  // Pt, Du, Dv are obtained from fn().
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricTriangulator::userDefined

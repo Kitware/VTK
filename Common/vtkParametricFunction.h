@@ -62,7 +62,7 @@ public:
   // Return the dimension of parametric space. Depending on the dimension,
   // then the (u,v,w) parameters and associated information (e.g., derivates)
   // have meaning. For example, if the dimension of the function is one, then
-  // u[0] and Du[0...2] have meaning.
+  // u[0] and Duvw[0...2] have meaning.
   virtual int GetDimension() = 0;
 
   // Description:
@@ -70,9 +70,12 @@ public:
   // This is a pure virtual function that must be instantiated in 
   // a derived class. 
   //
-  // uvw are the parameters with Pt the returned Cartesian point, Duvw are the
-  // derivatives of this point with respect to u, v and w.  Note that the first three
-  // values in Du are Du, the next three are Dv, and the final three are Dw.
+  // uvw are the parameters, with u corresponding to uvw[0],
+// v to uvw[1] and w to uvw[2] respectively. Pt is the returned Cartesian point, 
+// Duvw are the derivatives of this point with respect to u, v and w.  
+// Note that the first three values in Duvw are Du, the next three are Dv, 
+// and the final three are Dw. Du Dv Dw are the partial derivatives of the 
+// function at the point Pt with respect to u, v and w respectively.
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:
@@ -82,7 +85,7 @@ public:
   //
   // uvw are the parameters with Pt being the the cartesian point, 
   // Duvw are the derivatives of this point with respect to u, v, and w.
-  // Pt, Du are obtained from Evaluate().
+  // Pt, Duvw are obtained from Evaluate().
   virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) = 0;
 
   // Description:

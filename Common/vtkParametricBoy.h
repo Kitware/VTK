@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkParametricBoy generates Boy's surface.
 // This is a Model of the projective plane without singularities.
-// It was found  by Werner Boy on assignment from David Hilbert.
+// It was found by Werner Boy on assignment from David Hilbert.
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for 
 // creating and contributing the class.
@@ -110,9 +110,9 @@ public:
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
   //
-  // u,v are the parameters with Pt being the the cartesian point, 
-  // Du, Dv are the derivatives of this point with respect to u and v.
-  // Pt, Du, Dv are obtained from fn().
+  // uvw are the parameters with Pt being the the cartesian point, 
+  // Duvw are the derivatives of this point with respect to u, v and w.
+  // Pt, Duvw are obtained from Evaluate().
   //
   // This function is only called if the ScalarMode has the value
   // vtkParametricTriangulator::FunctionDefined
