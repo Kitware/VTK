@@ -48,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkTexture.h"
 
+class vtkRenderWindow;
 class vtkOpenGLRenderer;
 
 class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
@@ -61,7 +62,13 @@ public:
   // Implement base class method.
   void Load(vtkRenderer *ren);
   
-protected:
+  // Description:
+  // Release any graphics resources that are being consumed by this texture.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+ protected:
   vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;

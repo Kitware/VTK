@@ -71,6 +71,14 @@ void vtkDataSetMapper::SetInput(vtkDataSet *in)
     }
 }
 
+void vtkDataSetMapper::ReleaseGraphicsResources( vtkRenderWindow *renWin )
+{
+  if (this->PolyDataMapper)
+    {
+    this->PolyDataMapper->ReleaseGraphicsResources( renWin );
+    }
+}
+
 //
 // Return bounding box of data
 //

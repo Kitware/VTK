@@ -89,6 +89,12 @@ class VTK_EXPORT vtkActor : public vtkProp
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+  // Description:
   // Shallow copy of an actor.
   vtkActor &operator=(const vtkActor& actor);
 
@@ -187,6 +193,7 @@ class VTK_EXPORT vtkActor : public vtkProp
   // render.
   void SetAllocatedRenderTime(float t) {this->AllocatedRenderTime = t;};
   vtkGetMacro(AllocatedRenderTime, float);
+
   
   // Description:
   // For legacy compatibility. Do not use.

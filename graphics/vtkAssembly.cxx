@@ -113,6 +113,19 @@ void vtkAssembly::Render(vtkRenderer *ren)
     }
 }
 
+
+void vtkAssembly::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  vtkActor *actor;
+  
+  // broadcast the message down the Paths
+  for ( this->InitPartTraversal(); (actor  = this->GetNextPart()); )
+    {
+    actor->ReleaseGraphicsResources(renWin);
+    }
+}
+
+
 void vtkAssembly::InitPartTraversal()
 {
   this->UpdatePaths();

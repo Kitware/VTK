@@ -193,6 +193,21 @@ void vtkActor::Render(vtkRenderer *ren)
   this->Render(ren,this->Mapper);
 }
 
+void vtkActor::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  // pass this information onto the mapper
+  if (this->Mapper)
+    {
+    this->Mapper->ReleaseGraphicsResources(renWin);
+    }
+
+  // pass this information onto the texture
+  if (this->Texture)
+    {
+    this->Texture->ReleaseGraphicsResources(renWin);
+    }
+}
+
 void vtkActor::SetProperty(vtkProperty *lut)
 {
   if ( this->Property == lut) 

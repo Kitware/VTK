@@ -298,6 +298,15 @@ void vtkVolume::Render( vtkRenderer *ren )
     }
 }
 
+void vtkVolume::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  // pass this information onto the mapper
+  if (this->VolumeMapper)
+    {
+    this->VolumeMapper->ReleaseGraphicsResources(renWin);
+    }
+}
+
 void vtkVolume::Update()
 {
   if ( this->VolumeMapper )

@@ -64,6 +64,7 @@ class vtkVolume;
 #define VTK_FRAMEBUFFER_VOLUME_MAPPER 1
 #define VTK_SOFTWAREBUFFER_VOLUME_MAPPER 2
 
+class vtkRenderWindow;
 
 class VTK_EXPORT vtkVolumeMapper : public vtkObject
 {
@@ -77,6 +78,11 @@ public:
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkRenderWindow *) {};
 
   // Description:
   // Update the volume rendering pipeline by updating the scalar input

@@ -76,6 +76,13 @@ public:
   static vtkOpenGLProjectedPolyDataRayBounder *New() {
     return new vtkOpenGLProjectedPolyDataRayBounder;};
 
+  // Description:
+  // Release any graphics resources that are being consumed by this ray bounder.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+
 protected:
   GLuint    DisplayList;
   float     *DepthRangeBuffer;

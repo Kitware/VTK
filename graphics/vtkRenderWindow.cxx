@@ -704,7 +704,8 @@ void vtkRenderWindow::DoStereoRender()
 // Add a renderer to the list of renderers.
 void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
-  // we are its parent 
+  // we are its parent
+  this->MakeCurrent();
   ren->SetRenderWindow(this);
   this->Renderers->AddItem(ren);
 }

@@ -222,7 +222,25 @@ void vtkLODActor::Render(vtkRenderer *ren)
     }
 }
 
-      
+
+void vtkLODActor::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  vtkMapper *mapper;
+
+  if (this->Mapper)
+    {
+    this->Mapper->ReleaseGraphicsResources(renWin);
+    }
+  
+  // broadcast the message down to the individual LOD mappers
+  for ( this->LODMappers->InitTraversal();
+	(mapper = this->LODMappers->GetNextItem()); )
+    {
+    mapper->ReleaseGraphicsResources(renWin);
+    }
+}
+
+
 //----------------------------------------------------------------------------
 // does not matter if mapper is in mapper collection.
 void vtkLODActor::AddLODMapper(vtkMapper *mapper)

@@ -252,3 +252,17 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
   // now bind it 
   glEnable(GL_TEXTURE_2D);
 }
+
+
+void vtkOpenGLTexture::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  GLuint tempIndex;
+  
+#ifdef GL_VERSION_1_1
+  tempIndex = this->Index;
+  glDeleteTextures(1, &tempIndex);
+#else
+  glDeleteLists(this->Index,1);
+#endif
+  this->Index = 0;
+}

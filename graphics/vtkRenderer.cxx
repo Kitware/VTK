@@ -82,6 +82,8 @@ vtkRenderer::vtkRenderer()
 
 vtkRenderer::~vtkRenderer()
 {
+  this->SetRenderWindow( NULL );
+  
   if (this->ActiveCamera)
     {
     this->ActiveCamera->UnRegister(this);
@@ -773,6 +775,33 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
 // no reference counting!
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
+  vtkActor *actor;
+  vtkVolume *volume;
+  
+  if (renwin != this->RenderWindow)
+    {
+    // This renderer is be dis-associated with its previous render window.
+    // this information needs to be passed to the renderer's actors and volumes
+    // so they can release and render window specific (or graphics context
+    // specific) information (such as display lists and texture ids)
+    this->Actors->InitTraversal();
+    for ( actor = (vtkActor *) this->Actors->GetNextItemAsObject();
+	  actor != NULL;
+	  actor = (vtkActor *) this->Actors->GetNextItemAsObject() )
+      {
+      actor->ReleaseGraphicsResources(this->RenderWindow);
+      }
+    this->Volumes->InitTraversal();
+    for ( volume = (vtkVolume *) this->Volumes->GetNextItemAsObject();
+	  volume != NULL;
+	  volume = (vtkVolume *) this->Volumes->GetNextItemAsObject() )
+      {
+      volume->ReleaseGraphicsResources(this->RenderWindow);
+      }
+    // what about lights?
+    // what about cullers?
+    
+    }
   this->VTKWindow = renwin;
   this->RenderWindow = renwin;
 }

@@ -33,16 +33,17 @@ vtk3DSImporter importer
 ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.4
 
+
 #
 # export to rib format
 
 if { [info command vtkRIBExporter] != "" } {
-vtkRIBExporter exporter
-  exporter SetFilePrefix importExport
-  exporter SetRenderWindow [importer GetRenderWindow]
-  exporter BackgroundOn
-  exporter Write
-}
+ vtkRIBExporter exporter
+   exporter SetFilePrefix importExport
+   exporter SetRenderWindow [importer GetRenderWindow]
+   exporter BackgroundOn
+   exporter Write
+ }
 
 #
 # now do the normal rendering

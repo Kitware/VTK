@@ -311,6 +311,8 @@ public:
   virtual void *GetGenericDrawable() {return NULL;};
   virtual void SetWindowInfo(char *) {};
 
+  virtual void MakeCurrent() {};
+
 protected:
   virtual void DoStereoRender();
   virtual void DoFDRender();

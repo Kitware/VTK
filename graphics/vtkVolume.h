@@ -80,6 +80,12 @@ public:
   virtual void Render(vtkRenderer *ren);
 
   // Description:
+  // Release any graphics resources that are being consumed by this volume.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+  // Description:
   // Update the volume rendering pipeline by updating the volume mapper
   virtual void Update();
 

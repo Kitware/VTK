@@ -114,6 +114,12 @@ public:
   void Render(vtkRenderer *ren);
 
   // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+  // Description:
   // Methods to traverse the parts of an assembly. Each part (starting from
   // the root) will appear properly transformed and with the correct
   // properties (depending upon the ApplyProperty and ApplyTransform ivars).

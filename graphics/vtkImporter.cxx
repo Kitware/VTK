@@ -54,6 +54,12 @@ vtkImporter::vtkImporter ()
 vtkImporter::~vtkImporter ()
 {
   this->SetRenderWindow(NULL);
+
+  if (this->Renderer)
+    {
+    this->Renderer->UnRegister( NULL );
+    this->Renderer = NULL;
+    }
   
   if (this->FileName)
     {
@@ -85,6 +91,7 @@ void vtkImporter::Read ()
   else
     {
     this->Renderer = renderer;
+    this->Renderer->Register( this );
     }
 
   // Open the import file

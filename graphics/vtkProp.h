@@ -59,6 +59,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTransform.h"
 
 class vtkRenderer;
+class vtkRenderWindow;
 
 class VTK_EXPORT vtkProp : public vtkObject
 {
@@ -75,6 +76,12 @@ class VTK_EXPORT vtkProp : public vtkObject
   // Description:
   // All concrete subclasses must implement a Render method.
   virtual void Render(vtkRenderer *ren) = 0;
+
+  // Description:
+  // Release any graphics resources that are being consumed by this prop.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkRenderWindow *) {};
 
   // Description:
   // Set/Get/Add the position of the Prop in world coordinates.

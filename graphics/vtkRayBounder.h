@@ -69,6 +69,14 @@ public:
   // no clipping.
   virtual float *GetRayBounds( vtkRenderer *ren )=0;
 
+
+  // Description:
+  // Release any graphics resources that are being consumed by this ray bounder.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkRenderWindow *) {};
+
+  
 protected:
 };
 

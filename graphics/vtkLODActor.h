@@ -89,6 +89,12 @@ class VTK_EXPORT vtkLODActor : public vtkActor
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
   // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+  // Description:
   // Add another level of detail.  They do not have to be in any order
   // of complexity.
   void AddLODMapper(vtkMapper *mapper);

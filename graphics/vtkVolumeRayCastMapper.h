@@ -119,6 +119,14 @@ public:
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 			 struct VolumeRayCastVolumeInfoStruct *volumeInfo );
 //ETX
+
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter RenderWindow could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkRenderWindow *);
+
+
   // Description:
   // Return the scalar value below which all opacities are zero
   float GetZeroOpacityThreshold( vtkVolume *vol );

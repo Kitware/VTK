@@ -376,10 +376,23 @@ float *vtkOpenGLProjectedPolyDataRayBounder::Draw( vtkRenderer *ren,
   return ( this->DepthRangeBuffer );
 }
 
+
+void
+vtkOpenGLProjectedPolyDataRayBounder::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  if (this->DisplayList)
+    {
+    glDeleteLists(this->DisplayList,1);
+    this->DisplayList = 0;
+    }
+}
+
+
 // Print the vtkOpenGLProjectedPolyDataRayBounder
 void vtkOpenGLProjectedPolyDataRayBounder::PrintSelf(ostream& os, 
 						     vtkIndent indent)
 {
   vtkProjectedPolyDataRayBounder::PrintSelf(os,indent);
 }
+
 

@@ -109,6 +109,16 @@ void vtkVolumeRayCastMapper::SetGradientEstimator( vtkEncodedGradientEstimator *
   this->Modified();
 }
 
+
+void vtkVolumeRayCastMapper::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  // pass this information onto the ray bounder
+  if (this->RayBounder)
+    {
+    this->RayBounder->ReleaseGraphicsResources(renWin);
+    }
+}
+
 void vtkVolumeRayCastMapper::InitializeRender( vtkRenderer *ren, vtkVolume *vol,
 					       struct VolumeRayCastVolumeInfoStruct *volumeInfo )
 {

@@ -57,18 +57,44 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
   this->ListId = 0;
+  this->RenderWindow = 0;
 }
 
-// Construct empty object.
+// Destructor (don't call ReleaseGraphicsResources() since it is virtual
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
-      // free any old display lists
-      if (this->ListId)
-        {
-        glDeleteLists(this->ListId,1);
-        this->ListId = 0;
-        }
+  if (this->RenderWindow)
+    {
+    // This renderwindow should be a valid pointer (even though we are increase the renderwindow's
+    // reference count).  If the renderwindow had been deleted before the mapper,  then
+    // ReleaseGraphicsResources() would have been called on the mapper and these resources would
+    // have been released already.
+    this->RenderWindow->MakeCurrent();
+  
+    // free any old display lists
+    if (this->ListId)
+      {
+      glDeleteLists(this->ListId,1);
+      this->ListId = 0;
+      }
+    }
+
+  this->RenderWindow = NULL;
 }
+
+
+// Release the graphics resources used by this mapper.  In this case, release
+// the display list if any.
+void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkRenderWindow *renWin)
+{
+  if (this->ListId)
+    {
+    glDeleteLists(this->ListId,1);
+    this->ListId = 0;
+    }
+  this->RenderWindow = NULL;
+}
+
 
 // Get the lmcolor property, this is a pretty important little 
 // function.  It determines how vertex colors will be handled  
@@ -143,7 +169,8 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
   //
   if ( this->GetMTime() > this->BuildTime || 
        input->GetMTime() > this->BuildTime ||
-       act->GetProperty()->GetMTime() > this->BuildTime)
+       act->GetProperty()->GetMTime() > this->BuildTime ||
+       ren->GetRenderWindow() != this->RenderWindow)
     {
     // sets this->Colors as side effect
     this->GetColors();
@@ -151,12 +178,9 @@ void vtkOpenGLPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act)
     if (!this->ImmediateModeRendering && 
 	!this->GetGlobalImmediateModeRendering())
       {
-      // free any old display lists
-      if (this->ListId)
-        {
-        glDeleteLists(this->ListId,1);
-        this->ListId = 0;
-        }
+      this->ReleaseGraphicsResources(ren->GetRenderWindow());
+      this->RenderWindow = ren->GetRenderWindow();
+      
       // get a unique display list id
       this->ListId = glGenLists(1);
       glNewList(this->ListId,GL_COMPILE_AND_EXECUTE);
