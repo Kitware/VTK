@@ -19,6 +19,8 @@ IF (VTK_USE_RENDERING)
       capSphere
       clipArt
       contourCells
+      contour2DAll
+      contour3DAll
       createBFont
       cylMap
       dataSetSurfaceFilter
@@ -46,6 +48,7 @@ IF (VTK_USE_RENDERING)
       scalarConn
       schwarz
       shepards
+      skinOrder
       smoothCyl
       smoothCyl2
       socbal
