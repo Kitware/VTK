@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkCellCenters, "1.27");
+vtkCxxRevisionMacro(vtkCellCenters, "1.28");
 vtkStandardNewMacro(vtkCellCenters);
 
 // Construct object with vertex cell generation turned off.
@@ -74,6 +74,7 @@ int vtkCellCenters::RequestData(
 
   int abort=0;
   vtkIdType progressInterval = numCells/10 + 1;
+  int hasEmptyCells = 0;
   for (cellId=0; cellId < numCells && !abort; cellId++)
     {
     if ( ! (cellId % progressInterval) ) 
@@ -84,9 +85,16 @@ int vtkCellCenters::RequestData(
       }
 
     cell = input->GetCell(cellId);
-    subId = cell->GetParametricCenter(pcoords);
-    cell->EvaluateLocation(subId, pcoords, x, weights);
-    newPts->SetPoint(cellId,x);
+    if (cell->GetCellType() != VTK_EMPTY_CELL)
+      {
+      subId = cell->GetParametricCenter(pcoords);
+      cell->EvaluateLocation(subId, pcoords, x, weights);
+      newPts->SetPoint(cellId,x);
+      }
+    else
+      {
+      hasEmptyCells = 1;
+      }
     }
 
   if ( this->VertexCells )
@@ -105,20 +113,30 @@ int vtkCellCenters::RequestData(
         abort = this->GetAbortExecute();
         }
 
-      pts[0] = cellId;
-      verts->InsertNextCell(1,pts);
+      cell = input->GetCell(cellId);
+      if (cell->GetCellType() != VTK_EMPTY_CELL)
+        {
+        pts[0] = cellId;
+        verts->InsertNextCell(1,pts);
+        }
       }
 
     output->SetVerts(verts);
     verts->Delete();
-    outCD->PassData(inCD); //only if verts are generated
+    if (!hasEmptyCells)
+      {
+      outCD->PassData(inCD); //only if verts are generated
+      }
     }
 
   // clean up and update output
   output->SetPoints(newPts);
   newPts->Delete();
 
-  outPD->PassData(inCD); //because number of points = number of cells
+  if (!hasEmptyCells)
+    {
+    outPD->PassData(inCD); //because number of points = number of cells
+    }
   if (weights)
     {
     delete [] weights;
