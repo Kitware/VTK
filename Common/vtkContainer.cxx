@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContainer.h"
 #include "vtkDebugLeaks.h"
 
+/*
 void vtkContainer::Register()
 {
   this->ReferenceCount++;
@@ -55,18 +56,21 @@ void vtkContainer::UnRegister()
     delete this;
     }
 }
+*/
+
+vtkContainer* vtkContainer::New()
+{
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkContainer");
+#endif
+  return new vtkContainer;
+}
 
 vtkContainer::vtkContainer() 
 { 
   this->ReferenceCount = 1;
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::ConstructClass(this->GetClassName());
-#endif
 }
 
 vtkContainer::~vtkContainer() 
 {
-#ifdef VTK_DEBUG_LEAKS
-  vtkDebugLeaks::DestructClass(this->GetClassName());
-#endif
 }

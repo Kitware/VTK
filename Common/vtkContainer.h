@@ -32,53 +32,19 @@
 // .SECTION See Also
 // vtkAbstractIterator, vtkAbstractList, vtkAbstractMap
 
-#include "vtkObject.h"
+#include "vtkObjectBase.h"
 #include "vtkString.h"
 
 #ifndef __vtkContainer_h
 #define __vtkContainer_h
 
-// Macro used to determine whether a class is the same class or
-// a subclass of the named class.
-//
-#define vtkContainerTypeMacro(thisClass,superclass) \
-  typedef superclass Superclass; \
-  virtual const char *GetClassName() const {return #thisClass;} \
-  static int IsTypeOf(const char *type) \
-  { \
-    if ( !strcmp(#thisClass,type) ) \
-      { \
-      return 1; \
-      } \
-    return superclass::IsTypeOf(type); \
-  } \
-  virtual int IsA(const char *type) \
-  { \
-    return this->thisClass::IsTypeOf(type); \
-  } \
-  static thisClass* SafeDownCast(vtkObject *o) \
-  { \
-    if ( o && o->IsA(#thisClass) ) \
-      { \
-      return (thisClass *)o; \
-      } \
-    return NULL;\
-  }
-
-class VTK_COMMON_EXPORT vtkContainer
+class VTK_COMMON_EXPORT vtkContainer : public vtkObjectBase
 {
 public:
   // Description:
   // Return the class name as a string.
-  virtual const char* GetClassName() { return "vtkContainer"; }
-  static int IsTypeOf(const char *type)
-    {
-    return !strcmp(type, "vtkContainer");
-    }
-  virtual int IsA(const char *type)
-    {
-    return this->vtkContainer::IsTypeOf(type);
-    }  
+  virtual const char* GetClassName() const { return "vtkContainer"; }
+  static vtkContainer* New();
 
   // Description:
   // Return the number of items currently held in this container. This
@@ -93,22 +59,22 @@ public:
   // Description:
   // The counterpart to New(), Delete simply calls UnRegister to lower the
   // reference count by one. It is no different than calling UnRegister.
-  void Delete() { this->UnRegister(); }
+  //void Delete() { this->UnRegister(); }
   
   // Description:
   // Increase the reference count of this container.
-  void Register();
-  void Register(vtkObject *) { this->Register(); }
+  //void Register();
+  //void Register(vtkObject *) { this->Register(); }
   
   // Description:
   // Decrease the reference count (release by another object). This has
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
-  void UnRegister();
-  void UnRegister(vtkObject *) { this->UnRegister(); }
+  //void UnRegister();
+  //void UnRegister(vtkObject *) { this->UnRegister(); }
 
 protected:
-  vtkIdType ReferenceCount;   
+  //vtkIdType ReferenceCount;   
   vtkContainer();
   virtual ~vtkContainer();
 };
