@@ -55,6 +55,7 @@ IF (VTK_DATA_ROOT)
   TestGenericContourFilter.cxx
   TestGenericClip.cxx
   TestGenericCutter.cxx
+  TestGenericStreamTracer.cxx
  )
 ENDIF (VTK_DATA_ROOT)
 
