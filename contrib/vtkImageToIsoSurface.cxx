@@ -48,11 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0. ComputeNormal is on, ComputeGradients is off and ComputeScalars is on.
 vtkImageToIsoSurface::vtkImageToIsoSurface()
 {
-  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
   this->Input = NULL;
-  this->NumberOfContours = 1;
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
+  this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
@@ -61,76 +58,24 @@ vtkImageToIsoSurface::vtkImageToIsoSurface()
   this->InputMemoryLimit = 10000;  // 10 mega Bytes
 }
 
-
-//----------------------------------------------------------------------------
-void vtkImageToIsoSurface::PrintSelf(ostream& os, vtkIndent indent)
+vtkImageToIsoSurface::~vtkImageToIsoSurface()
 {
-  int i;
-
-  vtkPolySource::PrintSelf(os,indent);
-
-  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-  os << indent << "Contour Values: \n";
-  for ( i=0; i<this->NumberOfContours; i++)
-    {
-    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-    }
-
-  os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
-  os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";
-  os << indent << "ComputeGradients: " << this->ComputeGradients << "\n";
-
-  os << indent << "InputMemoryLimit: " << this->InputMemoryLimit <<"K bytes\n";
+  this->ContourValues->Delete();
 }
 
-
-//----------------------------------------------------------------------------
 // Description:
-// Set a particular contour value at contour number i.
-void vtkImageToIsoSurface::SetValue(int i, float value)
+// Overload standard modified time function. If contour values are modified,
+// then this object is modified as well.
+unsigned long vtkImageToIsoSurface::GetMTime()
 {
-  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
-  if ( this->Values[i] != value )
-    {
-    this->Modified();
-    this->Values[i] = value;
-    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
-    if ( value < this->Range[0] ) this->Range[0] = value;
-    if ( value > this->Range[1] ) this->Range[1] = value;
-    }
+  unsigned long mTime=this->vtkPolySource::GetMTime();
+  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+ 
+  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+
+  return mTime;
 }
 
-//----------------------------------------------------------------------------
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkImageToIsoSurface::GenerateValues(int numContours, float range[2])
-{
-  float val, incr;
-  int i;
-
-  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
-                 (numContours > 1 ? numContours : 2) );
-
-  incr = (range[1] - range[0]) / (numContours-1);
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkImageToIsoSurface::GenerateValues(int numContours, float r1, float r2)
-{
-  float rng[2];
-
-  rng[0] = r1;
-  rng[1] = r2;
-  this->GenerateValues(numContours,rng);
-}
 
 //----------------------------------------------------------------------------
 void vtkImageToIsoSurface::Execute()
@@ -140,6 +85,8 @@ void vtkImageToIsoSurface::Execute()
   int extent[6], estimatedSize;
   int temp, zMin, zMax, chunkMin, chunkMax;
   int minSlicesPerChunk, chunkOverlap;
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
   
   if ( ! this->Input)
     {
@@ -268,7 +215,7 @@ void vtkImageToIsoSurface::Execute()
     // Get the chunk from the input
     this->Input->UpdateRegion(inRegion);
     
-    this->March(inRegion, chunkMin, chunkMax);
+    this->March(inRegion, chunkMin, chunkMax, numContours, values);
     }
   
   // Put results in our output
@@ -531,7 +478,7 @@ template <class T>
 static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
 					   int cellX, int cellY, int cellZ,
 					   vtkImageRegion *inRegion,
-					   T *ptr)
+					   T *ptr, int numContours, float *values)
 {
   int inc0, inc1, inc2;
   int valueIdx;
@@ -541,9 +488,9 @@ static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
   EDGE_LIST  *edge;
 
   inRegion->GetIncrements(inc0, inc1, inc2);
-  for (valueIdx = 0; valueIdx < self->NumberOfContours; ++valueIdx)
+  for (valueIdx = 0; valueIdx < numContours; ++valueIdx)
     {
-    value = self->Values[valueIdx];
+    value = values[valueIdx];
     // compute the case index
     cubeIndex = 0;
     if ((float)(ptr[0]) > value) cubeIndex += 1;
@@ -596,7 +543,8 @@ static void vtkImageToIsoSurfaceHandleCube(vtkImageToIsoSurface *self,
 template <class T>
 static void vtkImageToIsoSurfaceMarch(vtkImageToIsoSurface *self,
 				      vtkImageRegion *inRegion, T *ptr,
-				      int chunkMin, int chunkMax)
+				      int chunkMin, int chunkMax,
+                                      int numContours, float *values)
 {
   int idx0, idx1, idx2;
   int min0, max0, min1, max1, min2, max2;
@@ -621,7 +569,8 @@ static void vtkImageToIsoSurfaceMarch(vtkImageToIsoSurface *self,
       for (idx0 = min0; idx0 < max0; ++idx0)
 	{
 	// put magnitudes into the cube structure.
-	vtkImageToIsoSurfaceHandleCube(self, idx0, idx1, idx2, inRegion, ptr0);
+	vtkImageToIsoSurfaceHandleCube(self, idx0, idx1, idx2, inRegion, ptr0,
+                                       numContours, values);
 
 	ptr0 += inc0;
 	}
@@ -637,7 +586,8 @@ static void vtkImageToIsoSurfaceMarch(vtkImageToIsoSurface *self,
 //----------------------------------------------------------------------------
 // This method calls the proper templade function.
 void vtkImageToIsoSurface::March(vtkImageRegion *inRegion, 
-				 int chunkMin, int chunkMax)
+				 int chunkMin, int chunkMax,
+                                 int numContours, float *values)
 {
   void *ptr = inRegion->GetScalarPointer();
   
@@ -645,23 +595,23 @@ void vtkImageToIsoSurface::March(vtkImageRegion *inRegion,
     {
     case VTK_FLOAT:
       vtkImageToIsoSurfaceMarch(this, inRegion, (float *)(ptr), 
-				chunkMin, chunkMax);
+				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_INT:
       vtkImageToIsoSurfaceMarch(this, inRegion, (int *)(ptr), 
-				chunkMin, chunkMax);
+				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_SHORT:
       vtkImageToIsoSurfaceMarch(this, inRegion, (short *)(ptr), 
-				chunkMin, chunkMax);
+				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_UNSIGNED_SHORT:
       vtkImageToIsoSurfaceMarch(this, inRegion, (unsigned short *)(ptr), 
-				chunkMin, chunkMax);
+				chunkMin, chunkMax, numContours, values);
       break;
     case VTK_UNSIGNED_CHAR:
       vtkImageToIsoSurfaceMarch(this, inRegion, (unsigned char *)(ptr), 
-				chunkMin, chunkMax);
+				chunkMin, chunkMax, numContours, values);
       break;
     default:
       cerr << "March: Unknown output ScalarType";
@@ -807,10 +757,17 @@ int *vtkImageToIsoSurface::GetLocatorPointer(int cellX,int cellY,int edge)
     + (cellX + cellY * (this->LocatorDimX)) * 5;
 }
 
-  
-  
+//----------------------------------------------------------------------------
+void vtkImageToIsoSurface::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkPolySource::PrintSelf(os,indent);
 
+  this->ContourValues->PrintSelf(os,indent);
 
+  os << indent << "ComputeScalars: " << this->ComputeScalars << "\n";
+  os << indent << "ComputeNormals: " << this->ComputeNormals << "\n";
+  os << indent << "ComputeGradients: " << this->ComputeGradients << "\n";
 
-
+  os << indent << "InputMemoryLimit: " << this->InputMemoryLimit <<"K bytes\n";
+}
 

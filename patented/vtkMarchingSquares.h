@@ -63,14 +63,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkMarchingSquares_h
 
 #include "vtkStructuredPointsToPolyDataFilter.h"
-
-#define VTK_MAX_CONTOURS 256
+#include "vtkContourValues.h"
 
 class VTK_EXPORT vtkMarchingSquares : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkMarchingSquares();
   static vtkMarchingSquares *New() {return new vtkMarchingSquares;};
+  ~vtkMarchingSquares();
   char *GetClassName() {return "vtkMarchingSquares";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -83,21 +83,18 @@ public:
   vtkGetVectorMacro(ImageRange,int,6);
   void SetImageRange(int imin, int imax, int jmin, int jmax, int kmin, int kmax);
 
+  // Methods to set contour values
   void SetValue(int i, float value);
-  float GetValue(int i) {return this->Values[i];};
-
-  // Description:
-  // Retrieve an array of contour values (NumberOfContours values will be returned).
-  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
-
-  // Description:
-  // Set/get the number of contour values. The number of values set (using SetValue)
-  // should match the NumberOfContours ivar value.
-  vtkSetMacro(NumberOfContours,int);
-  vtkGetMacro(NumberOfContours,int);
-
+  float GetValue(int i);
+  float *GetValues();
+  void GetValues(float *contourValues);
+  void SetNumberOfContours(int number);
+  int GetNumberOfContours();
   void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float range1, float range2);
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+
+  // Because we delegate to vtkContourValues
+  unsigned long int GetMTime();
 
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
@@ -111,14 +108,61 @@ public:
 protected:
   void Execute();
 
-  float Values[VTK_MAX_CONTOURS];
-  int NumberOfContours;
-  float Range[2];
+  vtkContourValues *ContourValues;
   int ImageRange[6];
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
 
 };
+
+// Description:
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
+inline void vtkMarchingSquares::SetValue(int i, float value)
+{this->ContourValues->SetValue(i,value);}
+
+// Description:
+// Get the ith contour value.
+inline float vtkMarchingSquares::GetValue(int i)
+{return this->ContourValues->GetValue(i);};
+
+// Description:
+// Get a pointer to an array of contour values. There will be
+// GetNumberOfContours() values in the list.
+inline float *vtkMarchingSquares::GetValues()
+{return this->ContourValues->GetValues();};
+
+// Description:
+// Fill a supplied list with contour values. There will be
+// GetNumberOfContours() values in the list.Make sure you allocate
+// enough memory to hold the list.
+inline void vtkMarchingSquares::GetValues(float *contourValues)
+{this->ContourValues->GetValues(contourValues);};
+
+// Description:
+// Set the number of contours to place into the list. You only really
+// need to use this method to reduce list size. The method SetValue()
+// will automatically increase list size as needed.
+inline void vtkMarchingSquares::SetNumberOfContours(int number)
+{this->ContourValues->SetNumberOfContours(number);};
+
+// Description:
+// Get the number of contours in the list of contour values.
+inline int vtkMarchingSquares::GetNumberOfContours()
+{return this->GetNumberOfContours();};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkMarchingSquares::GenerateValues(int numContours, float range[2])
+{this->ContourValues->GenerateValues(numContours, range);};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkMarchingSquares::GenerateValues(int numContours, float
+                                             rangeStart, float rangeEnd)
+{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
 
 #endif
 

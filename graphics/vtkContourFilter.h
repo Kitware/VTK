@@ -77,8 +77,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkContourFilter_h
 
 #include "vtkDataSetToPolyFilter.h"
-
-#define VTK_MAX_CONTOURS 256
+#include "vtkContourValues.h"
 
 class vtkScalarTree;
 
@@ -91,18 +90,18 @@ public:
   char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Methods to set contour values
   void SetValue(int i, float value);
-  float GetValue(int i) {return this->Values[i];};
+  float GetValue(int i);
+  float *GetValues();
+  void GetValues(float *contourValues);
+  void SetNumberOfContours(int number);
+  int GetNumberOfContours();
+  void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
 
-  // Description:
-  // Return array of contour values (size of numContours).
-  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
-
-  // Description:
-  // Return the number of contour values. The number of values set (using SetValue)
-  // should match the NumberOfContours ivar value.
-  vtkSetMacro(NumberOfContours,int);
-  vtkGetMacro(NumberOfContours,int);
+  // Because we delegate to vtkContourValues
+  unsigned long int GetMTime();
 
   // Description:
   // Set/Get the computation of normals. Normal computation is failrly expensive
@@ -134,9 +133,6 @@ public:
   vtkGetMacro(UseScalarTree,int);
   vtkBooleanMacro(UseScalarTree,int);
 
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float range1, float range2);
-
   void SetLocator(vtkPointLocator *locator);
   void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
   vtkGetObjectMacro(Locator,vtkPointLocator);
@@ -149,12 +145,10 @@ public:
 protected:
   void Execute();
 
+  vtkContourValues *ContourValues;
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
-  float Values[VTK_MAX_CONTOURS];
-  int NumberOfContours;
-  float Range[2];
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
   int UseScalarTree;
@@ -162,6 +156,56 @@ protected:
 
   void StructuredPointsContour(int dim); //special contouring for structured points
 };
+
+// Description:
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
+inline void vtkContourFilter::SetValue(int i, float value)
+{this->ContourValues->SetValue(i,value);}
+
+// Description:
+// Get the ith contour value.
+inline float vtkContourFilter::GetValue(int i)
+{return this->ContourValues->GetValue(i);};
+
+// Description:
+// Get a pointer to an array of contour values. There will be
+// GetNumberOfContours() values in the list.
+inline float *vtkContourFilter::GetValues()
+{return this->ContourValues->GetValues();};
+
+// Description:
+// Fill a supplied list with contour values. There will be
+// GetNumberOfContours() values in the list.Make sure you allocate
+// enough memory to hold the list.
+inline void vtkContourFilter::GetValues(float *contourValues)
+{this->ContourValues->GetValues(contourValues);};
+
+// Description:
+// Set the number of contours to place into the list. You only really
+// need to use this method to reduce list size. The method SetValue()
+// will automatically increase list size as needed.
+inline void vtkContourFilter::SetNumberOfContours(int number)
+{this->ContourValues->SetNumberOfContours(number);};
+
+// Description:
+// Get the number of contours in the list of contour values.
+inline int vtkContourFilter::GetNumberOfContours()
+{return this->GetNumberOfContours();};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkContourFilter::GenerateValues(int numContours, float range[2])
+{this->ContourValues->GenerateValues(numContours, range);};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkContourFilter::GenerateValues(int numContours, float
+                                             rangeStart, float rangeEnd)
+{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
+
 
 #endif
 

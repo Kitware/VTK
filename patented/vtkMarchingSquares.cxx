@@ -54,10 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkMarchingSquares::vtkMarchingSquares()
 {
-  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
-  this->NumberOfContours = 1;
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
+  this->ContourValues = vtkContourValues::New();
 
   this->ImageRange[0] = 0; this->ImageRange[1] = VTK_LARGE_INTEGER;
   this->ImageRange[2] = 0; this->ImageRange[3] = VTK_LARGE_INTEGER;
@@ -67,50 +64,9 @@ vtkMarchingSquares::vtkMarchingSquares()
   this->SelfCreatedLocator = 0;
 }
 
-
-// Description:
-// Set a particular contour value at contour number i.
-void vtkMarchingSquares::SetValue(int i, float value)
+vtkMarchingSquares::~vtkMarchingSquares()
 {
-  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
-  if ( this->Values[i] != value )
-    {
-    this->Modified();
-    this->Values[i] = value;
-    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
-    if ( value < this->Range[0] ) this->Range[0] = value;
-    if ( value > this->Range[1] ) this->Range[1] = value;
-    }
-}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkMarchingSquares::GenerateValues(int numContours, float range[2])
-{
-  float val, incr;
-  int i;
-
-  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
-                 (numContours > 1 ? numContours : 2) );
-
-  incr = (range[1] - range[0]) / (numContours-1);
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
-    }
-}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkMarchingSquares::GenerateValues(int numContours, float r1, float r2)
-{
-  float rng[2];
-
-  rng[0] = r1;
-  rng[1] = r2;
-  this->GenerateValues(numContours,rng);
+  this->ContourValues->Delete();
 }
 
 void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax, 
@@ -126,6 +82,19 @@ void vtkMarchingSquares::SetImageRange(int imin, int imax, int jmin, int jmax,
   dim[5] = kmax;
 
   this->SetImageRange(dim);
+}
+
+// Description:
+// Overload standard modified time function. If contour values are modified,
+// then this object is modified as well.
+unsigned long vtkMarchingSquares::GetMTime()
+{
+  unsigned long mTime=this->vtkStructuredPointsToPolyDataFilter::GetMTime();
+  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+
+  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+
+  return mTime;
 }
 
 //
@@ -150,6 +119,7 @@ static void ContourImage(T *scalars, vtkScalars *newScalars, int roi[6], int dir
 //
 // Get min/max contour values
 //
+  if ( numValues < 1 ) return;
   for ( min=max=values[0], i=1; i < numValues; i++)
     {
     if ( values[i] < min ) min = values[i];
@@ -255,6 +225,8 @@ void vtkMarchingSquares::Execute()
   char *type;
   vtkPolyData *output = this->GetOutput();
   int start[2], end[2], offset[3], dir[3], estimatedSize;
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
 
   vtkDebugMacro(<< "Executing marching squares");
 //
@@ -334,7 +306,7 @@ void vtkMarchingSquares::Execute()
 //
 // Allocate necessary objects
 //
-  estimatedSize = (int) (this->NumberOfContours * sqrt((double)dims[0]*dims[1]));
+  estimatedSize = (int) (numContours * sqrt((double)dims[0]*dims[1]));
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
@@ -357,7 +329,7 @@ void vtkMarchingSquares::Execute()
     newScalars = vtkUnsignedCharScalars::New();
     newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"unsigned short") )
@@ -366,7 +338,7 @@ void vtkMarchingSquares::Execute()
     newScalars = vtkUnsignedShortScalars::New();
     newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     }
   
   else if ( !strcmp(type,"short") )
@@ -375,7 +347,7 @@ void vtkMarchingSquares::Execute()
     newScalars = vtkShortScalars::New();
     newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     }
   
   else if ( !strcmp(type,"float") )
@@ -384,7 +356,7 @@ void vtkMarchingSquares::Execute()
     newScalars = vtkFloatScalars::New();
     newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     }
 
   else if ( !strcmp(type,"int") )
@@ -393,7 +365,7 @@ void vtkMarchingSquares::Execute()
     newScalars = vtkFloatScalars::New();
     newScalars->Allocate(5000,25000);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     }
 
   else //use general method - temporarily copies image
@@ -405,7 +377,7 @@ void vtkMarchingSquares::Execute()
     newScalars->Allocate(5000,25000);
     float *scalars = image->GetPointer(0);
     ContourImage(scalars,newScalars,roi,dir,start,end,offset,ar,origin,
-                 this->Values,this->NumberOfContours,this->Locator,newLines);
+                 values,numContours,this->Locator,newLines);
     image->Delete();
     }
   
@@ -452,16 +424,9 @@ void vtkMarchingSquares::CreateDefaultLocator()
 
 void vtkMarchingSquares::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
-
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-  os << indent << "Contour Values: \n";
-  for ( i=0; i<this->NumberOfContours; i++)
-    {
-    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-    }
+  this->ContourValues->PrintSelf(os,indent);
 
   if ( this->Locator )
     {

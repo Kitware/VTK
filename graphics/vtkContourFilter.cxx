@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatScalars.h"
 #include "vtkCell.h"
 #include "vtkMergePoints.h"
+#include "vtkContourValues.h"
 #include "vtkScalarTree.h"
 
 #ifdef VTK_USE_PATENTED
@@ -55,10 +56,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0.
 vtkContourFilter::vtkContourFilter()
 {
-  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
-  this->NumberOfContours = 1;
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
+  this->ContourValues = vtkContourValues::New();
+
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
@@ -72,56 +71,23 @@ vtkContourFilter::vtkContourFilter()
 
 vtkContourFilter::~vtkContourFilter()
 {
+  this->ContourValues->Delete();
   if ( this->SelfCreatedLocator && this->Locator ) this->Locator->Delete();
   if ( this->ScalarTree ) this->ScalarTree->Delete();
 }
 
 // Description:
-// Set a particular contour value at contour number i. The index i ranges 
-// between 0<=i<NumberOfContours.
-void vtkContourFilter::SetValue(int i, float value)
+// Overload standard modified time function. If contour values are modified,
+// then this object is modified as well.
+unsigned long vtkContourFilter::GetMTime()
 {
-  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
-  if ( this->Values[i] != value )
-    {
-    this->Modified();
-    this->Values[i] = value;
-    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
-    if ( value < this->Range[0] ) this->Range[0] = value;
-    if ( value > this->Range[1] ) this->Range[1] = value;
-    }
+  unsigned long mTime=this->vtkDataSetToPolyFilter::GetMTime();
+  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+
+  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
+
+  return mTime;
 }
-
-void vtkContourFilter::GenerateValues(int numContours, float range1, 
-				     float range2)
-{
-  float rng[2];
-
-  rng[0] = range1;
-  rng[1] = range2;
-  this->GenerateValues(numContours,rng);
-}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-void vtkContourFilter::GenerateValues(int numContours, float range[2])
-{
-  float val, incr;
-  int i;
-
-  numContours = (numContours >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : 
-                (numContours > 1 ? numContours : 2) );
-
-  incr = (range[1] - range[0]) / (numContours-1);
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
-    }
-
-  this->NumberOfContours = numContours;
-}
-
 
 //
 // General contouring filter.  Handles arbitrary input.
@@ -140,6 +106,8 @@ void vtkContourFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   int numCells, estimatedSize;
   vtkPointData *inPd, *outPd;
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -170,7 +138,7 @@ void vtkContourFilter::Execute()
 // Create objects to hold output of contour operation. First estimate allocation size.
 //
   estimatedSize = (int) pow ((double) numCells, .75);
-  estimatedSize *= this->NumberOfContours;
+  estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
@@ -202,9 +170,9 @@ void vtkContourFilter::Execute()
       cellPts = cell->GetPointIds();
       inScalars->GetScalars(*cellPts,cellScalars);
 
-      for (i=0; i < this->NumberOfContours; i++)
+      for (i=0; i < numContours; i++)
         {
-        cell->Contour(this->Values[i], &cellScalars, this->Locator, 
+        cell->Contour(values[i], &cellScalars, this->Locator, 
                       newVerts, newLines, newPolys, inPd, outPd);
 
         } // for all contour values
@@ -218,12 +186,12 @@ void vtkContourFilter::Execute()
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
     //
-    for (i=0; i < this->NumberOfContours; i++)
+    for (i=0; i < numContours; i++)
       {
-      for ( this->ScalarTree->InitTraversal(this->Values[i]); 
+      for ( this->ScalarTree->InitTraversal(values[i]); 
       (cell=this->ScalarTree->GetNextCell(cellId,cellPts,cellScalars)) != NULL; )
         {
-        cell->Contour(this->Values[i], &cellScalars, this->Locator, 
+        cell->Contour(values[i], &cellScalars, this->Locator, 
                       newVerts, newLines, newPolys, inPd, outPd);
 
         } //for all cells
@@ -262,7 +230,8 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 {
   vtkPolyData *output;
   vtkPolyData *thisOutput = (vtkPolyData *)this->Output;
-  int i;
+  int i, numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
 
 #ifdef VTK_USE_PATENTED  
   if ( dim == 2 ) //marching squares
@@ -271,9 +240,9 @@ void vtkContourFilter::StructuredPointsContour(int dim)
 
     msquares.SetInput((vtkStructuredPoints *)this->Input);
     msquares.SetDebug(this->Debug);
-    msquares.SetNumberOfContours(this->NumberOfContours);
-    for (i=0; i < this->NumberOfContours; i++)
-      msquares.SetValue(i,this->Values[i]);
+    msquares.SetNumberOfContours(numContours);
+    for (i=0; i < numContours; i++)
+      msquares.SetValue(i,values[i]);
          
     msquares.Update();
     output = msquares.GetOutput();
@@ -288,9 +257,9 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     mcubes.SetComputeGradients (this->ComputeGradients);
     mcubes.SetComputeScalars (this->ComputeScalars);
     mcubes.SetDebug(this->Debug);
-    mcubes.SetNumberOfContours(this->NumberOfContours);
-    for (i=0; i < this->NumberOfContours; i++)
-      mcubes.SetValue(i,this->Values[i]);
+    mcubes.SetNumberOfContours(numContours);
+    for (i=0; i < numContours; i++)
+      mcubes.SetValue(i,values[i]);
 
     mcubes.Update();
     output = mcubes.GetOutput();
@@ -325,16 +294,9 @@ void vtkContourFilter::CreateDefaultLocator()
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
-
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
 
-  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-  os << indent << "Contour Values: \n";
-  for ( i=0; i<this->NumberOfContours; i++)
-    {
-    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-    }
+  this->ContourValues->PrintSelf(os,indent);
 
   if ( this->Locator )
     {

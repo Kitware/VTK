@@ -50,24 +50,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageSource.h"
 #include "vtkPolySource.h"
 #include "vtkStructuredPointsToImage.h"
-
-#define VTK_MAX_CONTOURS 256
+#include "vtkContourValues.h"
 
 class VTK_EXPORT vtkImageToIsoSurface : public vtkPolySource
 {
 public:
   vtkImageToIsoSurface();
   static vtkImageToIsoSurface *New() {return new vtkImageToIsoSurface;};
+  ~vtkImageToIsoSurface();
   char *GetClassName() {return "vtkImageToIsoSurface";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
-  // Set/Get the source of the vector field.
+  // Set/Get the source for the scalar data to contour.
   vtkSetObjectMacro(Input, vtkImageSource);
   vtkGetObjectMacro(Input, vtkImageSource);
   void SetInput(vtkStructuredPoints *spts)
     {this->SetInput(spts->GetStructuredPointsToImage()->GetOutput());}
   
+  // Methods to set contour values
+  void SetValue(int i, float value);
+  float GetValue(int i);
+  float *GetValues();
+  void GetValues(float *contourValues);
+  void SetNumberOfContours(int number);
+  int GetNumberOfContours();
+  void GenerateValues(int numContours, float range[2]);
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+
+  // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
+  unsigned long int GetMTime();
+
   // Description:
   // Set/Get the computation of scalars.
   vtkSetMacro(ComputeScalars, int);
@@ -92,22 +105,6 @@ public:
   vtkGetMacro(ComputeGradients, int);
   vtkBooleanMacro(ComputeGradients, int);
   
-  void SetValue(int i, float value);
-  float GetValue(int i) {return this->Values[i];};
-
-  // Description:
-  // Return array of contour values (size of numContours).
-  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
-
-  // Description:
-  // Set/get the number of contour values. The number of values set (using SetValue)
-  // should match the NumberOfContours ivar value.
-  vtkSetMacro(NumberOfContours,int);
-  vtkGetMacro(NumberOfContours,int);
-
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float range1, float range2);
-  
   // Description:
   // The InputMemoryLimit determines the chunk size (the number of slices
   // requested at each iteration).  The units of this limit is KiloBytes.
@@ -121,9 +118,6 @@ public:
   int ComputeGradients;
   int NeedGradients;
 
-  float Values[VTK_MAX_CONTOURS];
-  int NumberOfContours;
-  
   vtkCellArray *Triangles;
   vtkFloatScalars *Scalars;
   vtkFloatPoints *Points;
@@ -139,8 +133,8 @@ protected:
   int InputMemoryLimit;
   int NumberOfSlicesPerChunk;
 
-  float Range[2];
-  
+  vtkContourValues *ContourValues;
+   
   int *LocatorPointIds;
   int LocatorDimX;
   int LocatorDimY;
@@ -149,11 +143,61 @@ protected:
   
   void Execute();
 
-  void March(vtkImageRegion *inRegion, int chunkMin, int chunkMax);
+  void March(vtkImageRegion *inRegion, int chunkMin, int chunkMax,
+             int numContours, float *values);
   void InitializeLocator(int min0, int max0, int min1, int max1);
   void DeleteLocator();
   int *GetLocatorPointer(int cellX, int cellY, int edge);
 };
+
+// Description:
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
+inline void vtkImageToIsoSurface::SetValue(int i, float value)
+{this->ContourValues->SetValue(i,value);}
+
+// Description:
+// Get the ith contour value.
+inline float vtkImageToIsoSurface::GetValue(int i)
+{return this->ContourValues->GetValue(i);};
+
+// Description:
+// Get a pointer to an array of contour values. There will be
+// GetNumberOfContours() values in the list.
+inline float *vtkImageToIsoSurface::GetValues()
+{return this->ContourValues->GetValues();};
+
+// Description:
+// Fill a supplied list with contour values. There will be
+// GetNumberOfContours() values in the list.Make sure you allocate
+// enough memory to hold the list.
+inline void vtkImageToIsoSurface::GetValues(float *contourValues)
+{this->ContourValues->GetValues(contourValues);};
+
+// Description:
+// Set the number of contours to place into the list. You only really
+// need to use this method to reduce list size. The method SetValue()
+// will automatically increase list size as needed.
+inline void vtkImageToIsoSurface::SetNumberOfContours(int number)
+{this->ContourValues->SetNumberOfContours(number);};
+
+// Description:
+// Get the number of contours in the list of contour values.
+inline int vtkImageToIsoSurface::GetNumberOfContours()
+{return this->GetNumberOfContours();};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkImageToIsoSurface::GenerateValues(int numContours, float range[2])
+{this->ContourValues->GenerateValues(numContours, range);};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkImageToIsoSurface::GenerateValues(int numContours, float
+                                                 rangeStart, float rangeEnd)
+{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
 
 #endif
 

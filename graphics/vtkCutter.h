@@ -51,11 +51,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkCutter_h
 
 #include "vtkDataSetToPolyFilter.h"
-#include "vtkImplicitFunction.h"
+#include "vtkContourValues.h"
 
-#define VTK_MAX_CONTOURS 1024
 #define VTK_SORT_BY_VALUE 0
 #define VTK_SORT_BY_CELL 1
+
+class vtkImplicitFunction;
 
 class VTK_EXPORT vtkCutter : public vtkDataSetToPolyFilter
 {
@@ -65,23 +66,18 @@ public:
   char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  unsigned long int GetMTime();
-
+  // Methods to set contour values
   void SetValue(int i, float value);
-  float GetValue(int i) {return this->Values[i];};
-
-  // Description:
-  // Return array of contour values (size of numContours).
-  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
-
-  // Description:
-  // Return the number of contour values. The number of values set (using SetValue)
-  // should match the NumberOfContours ivar value.
-  vtkSetMacro(NumberOfContours,int);
-  vtkGetMacro(NumberOfContours,int);
-
+  float GetValue(int i);
+  float *GetValues();
+  void GetValues(float *contourValues);
+  void SetNumberOfContours(int number);
+  int GetNumberOfContours();
   void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float range1, float range2);
+  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
+
+  // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
+  unsigned long int GetMTime();
 
   // Description
   // Specify the implicit function to perform the cutting.
@@ -127,9 +123,7 @@ protected:
   vtkPointLocator *Locator;
   int SelfCreatedLocator;
   int SortBy;
-  float Values[VTK_MAX_CONTOURS];
-  int NumberOfContours;
-  float Range[2];
+  vtkContourValues *ContourValues;
   int GenerateCutScalars;
 };
 
@@ -146,6 +140,55 @@ inline char *vtkCutter::GetSortByAsString(void)
     return "SortByCell";
     }
 }
+
+// Description:
+// Set a particular contour value at contour number i. The index i ranges 
+// between 0<=i<NumberOfContours.
+inline void vtkCutter::SetValue(int i, float value)
+{this->ContourValues->SetValue(i,value);}
+
+// Description:
+// Get the ith contour value.
+inline float vtkCutter::GetValue(int i)
+{return this->ContourValues->GetValue(i);};
+
+// Description:
+// Get a pointer to an array of contour values. There will be
+// GetNumberOfContours() values in the list.
+inline float *vtkCutter::GetValues()
+{return this->ContourValues->GetValues();};
+
+// Description:
+// Fill a supplied list with contour values. There will be
+// GetNumberOfContours() values in the list.Make sure you allocate
+// enough memory to hold the list.
+inline void vtkCutter::GetValues(float *contourValues)
+{this->ContourValues->GetValues(contourValues);};
+
+// Description:
+// Set the number of contours to place into the list. You only really
+// need to use this method to reduce list size. The method SetValue()
+// will automatically increase list size as needed.
+inline void vtkCutter::SetNumberOfContours(int number)
+{this->ContourValues->SetNumberOfContours(number);};
+
+// Description:
+// Get the number of contours in the list of contour values.
+inline int vtkCutter::GetNumberOfContours()
+{return this->GetNumberOfContours();};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkCutter::GenerateValues(int numContours, float range[2])
+{this->ContourValues->GenerateValues(numContours, range);};
+
+// Description:
+// Generate numContours equally spaced contour values between specified
+// range. Contour values will include min/max range values.
+inline void vtkCutter::GenerateValues(int numContours, float
+                                             rangeStart, float rangeEnd)
+{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);};
 
 #endif
 

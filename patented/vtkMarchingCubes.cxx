@@ -54,64 +54,31 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of 0.0. ComputeNormal is on, ComputeGradients is off and ComputeScalars is on.
 vtkMarchingCubes::vtkMarchingCubes()
 {
-  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
-  this->NumberOfContours = 1;
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
+  this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
-
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
 }
 
-
-// Description:
-// Set a particular contour value at contour number i.
-void vtkMarchingCubes::SetValue(int i, float value)
+vtkMarchingCubes::~vtkMarchingCubes()
 {
-  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
-  if ( this->Values[i] != value )
-    {
-    this->Modified();
-    this->Values[i] = value;
-    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
-    if ( value < this->Range[0] ) this->Range[0] = value;
-    if ( value > this->Range[1] ) this->Range[1] = value;
-    }
+  this->ContourValues->Delete();
 }
 
 // Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkMarchingCubes::GenerateValues(int numContours, float range[2])
+// Overload standard modified time function. If contour values are modified,
+// then this object is modified as well.
+unsigned long vtkMarchingCubes::GetMTime()
 {
-  float val, incr;
-  int i;
+  unsigned long mTime=this->vtkStructuredPointsToPolyDataFilter::GetMTime();
+  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
 
-  numContours = (numContours > VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS : 
-                 (numContours > 1 ? numContours : 2) );
+  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
-  incr = (range[1] - range[0]) / (numContours-1);
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
-    }
+  return mTime;
 }
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range.
-void vtkMarchingCubes::GenerateValues(int numContours, float r1, float r2)
-{
-  float rng[2];
-
-  rng[0] = r1;
-  rng[1] = r2;
-  this->GenerateValues(numContours,rng);
-}
-
 
 // Calculate the gradient using central difference.
 // NOTE: We calculate the negative of the gradient for efficiency
@@ -210,6 +177,7 @@ static void ContourVolume(T *scalars, int dims[3], float origin[3], float Spacin
 //
 // Get min/max contour values
 //
+  if ( numValues < 1 ) return;
   for ( min=max=values[0], i=1; i < numValues; i++)
     {
     if ( values[i] < min ) min = values[i];
@@ -378,6 +346,8 @@ void vtkMarchingCubes::Execute()
   float Spacing[3], origin[3];
   float bounds[6];
   vtkPolyData *output = this->GetOutput();
+  int numContours=this->ContourValues->GetNumberOfContours();
+  float *values=this->ContourValues->GetValues();
   
   vtkDebugMacro(<< "Executing marching cubes");
 //
@@ -452,7 +422,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
     }
 
   else if ( !strcmp(type,"short") )
@@ -469,7 +439,7 @@ void vtkMarchingCubes::Execute()
       }
 
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
     }
   
   else if ( !strcmp(type,"unsigned short") )
@@ -486,7 +456,7 @@ void vtkMarchingCubes::Execute()
       }
 
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
     }
   
   else if ( !strcmp(type,"float") )
@@ -502,7 +472,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
     }
 
   else if ( !strcmp(type,"int") )
@@ -518,7 +488,7 @@ void vtkMarchingCubes::Execute()
       newScalars = NULL;
       }
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
     }
 
   else //use general method - temporarily copies image
@@ -537,7 +507,7 @@ void vtkMarchingCubes::Execute()
       }
     float *scalars = image->GetPointer(0);
     ContourVolume(scalars,dims,origin,Spacing,this->Locator,newScalars,newGradients,
-                  newNormals,newPolys,this->Values,this->NumberOfContours);
+                  newNormals,newPolys,values,numContours);
 
     image->Delete();
     }
@@ -597,16 +567,9 @@ void vtkMarchingCubes::CreateDefaultLocator()
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
-
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-  os << indent << "Contour Values: \n";
-  for ( i=0; i<this->NumberOfContours; i++)
-    {
-    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-    }
+  this->ContourValues->PrintSelf(os,indent);
 
   if ( this->Locator )
     {

@@ -43,6 +43,7 @@ vtkCellArray \
 vtkCellList \
 vtkCharArray \
 vtkCollection \
+vtkContourValues \
 vtkDoubleArray \
 vtkEdgeTable \
 vtkEmptyCell \

@@ -38,35 +38,34 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
+#include <math.h>
 #include "vtkCutter.h"
 #include "vtkMergePoints.h"
-#include <math.h>
+#include "vtkImplicitFunction.h"
+#include "vtkContourValues.h"
 
 // Description:
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.
 vtkCutter::vtkCutter(vtkImplicitFunction *cf)
 {
-  for (int i=0; i<VTK_MAX_CONTOURS; i++) this->Values[i] = 0.0;
-  this->NumberOfContours = 1;
-  this->Range[0] = 0.0;
-  this->Range[1] = 1.0;
   this->SortBy = VTK_SORT_BY_VALUE;
   this->CutFunction = cf;
-
   this->GenerateCutScalars = 0;
-
   this->Locator = NULL;
   this->SelfCreatedLocator = 0;
 }
 
 // Description:
 // Overload standard modified time function. If cut functions is modified,
-// then this object is modified as well.
+// or contour values modified, then this object is modified as well.
 unsigned long vtkCutter::GetMTime()
 {
   unsigned long mTime=this->vtkDataSetFilter::GetMTime();
+  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
   unsigned long cutFuncMTime;
+ 
+  mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   if ( this->CutFunction != NULL )
     {
@@ -84,7 +83,7 @@ void vtkCutter::Execute()
 {
   int cellId, i, iter;
   vtkFloatPoints *cellPts;
-  vtkFloatScalars cellScalars(VTK_CELL_SIZE);
+  vtkFloatScalars *cellScalars=vtkFloatScalars::New();
   vtkCell *cell;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPoints;
@@ -96,9 +95,9 @@ void vtkCutter::Execute()
   int numPts=input->GetNumberOfPoints(), numCellPts;
   vtkPointData *inPD, *outPD;
   vtkIdList *cellIds;
+  int numContours=this->ContourValues->GetNumberOfContours();
   
   vtkDebugMacro(<< "Executing cutter");
-  cellScalars.ReferenceCountingOff();
   
   //
   // Initialize self; create output objects
@@ -117,7 +116,7 @@ void vtkCutter::Execute()
 //
 // Create objects to hold output of contour operation
 //
-  estimatedSize = (int) pow ((double) numCells, .75) * this->NumberOfContours;
+  estimatedSize = (int) pow ((double) numCells, .75) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024) estimatedSize = 1024;
 
@@ -167,7 +166,7 @@ void vtkCutter::Execute()
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
     //
-      for (iter=0; iter < this->NumberOfContours; iter++)
+      for (iter=0; iter < numContours; iter++)
         {
       //
       // Loop over all cells creating scalar function determined by evaluating cell
@@ -180,15 +179,15 @@ void vtkCutter::Execute()
           cellIds = cell->GetPointIds();
 
           numCellPts = cellPts->GetNumberOfPoints();
-          cellScalars.SetNumberOfScalars(numCellPts);
+          cellScalars->SetNumberOfScalars(numCellPts);
           for (i=0; i < numCellPts; i++)
             {
             s = cutScalars->GetScalar(cellIds->GetId(i));
-            cellScalars.SetScalar(i,s);
+            cellScalars->SetScalar(i,s);
             }
 
-          value = this->Values[iter];
-          cell->Contour(value, &cellScalars, this->Locator, 
+          value = this->ContourValues->GetValue(iter);
+          cell->Contour(value, cellScalars, this->Locator, 
                     newVerts, newLines, newPolys, inPD, outPD);
 
           } // for all cells
@@ -207,22 +206,22 @@ void vtkCutter::Execute()
       cellIds = cell->GetPointIds();
 
       numCellPts = cellPts->GetNumberOfPoints();
-      cellScalars.SetNumberOfScalars(numCellPts);
+      cellScalars->SetNumberOfScalars(numCellPts);
       for (i=0; i < numCellPts; i++)
         {
         s = cutScalars->GetScalar(cellIds->GetId(i));
-        cellScalars.SetScalar(i,s);
+        cellScalars->SetScalar(i,s);
         }
 
     //
     // Loop over all contour values.  Then for each contour value, 
     // loop over all cells.
     //
-      for (iter=0; iter < this->NumberOfContours; iter++)
+      for (iter=0; iter < numContours; iter++)
         {
-        value = this->Values[iter];
-        cell->Contour(value, &cellScalars, this->Locator, 
-                    newVerts, newLines, newPolys, inPD, outPD);
+        value = this->ContourValues->GetValue(iter);
+        cell->Contour(value, cellScalars, this->Locator, 
+                      newVerts, newLines, newPolys, inPD, outPD);
 
         } // for all contour values
       } // for all cells
@@ -232,7 +231,9 @@ void vtkCutter::Execute()
 // Update ourselves.  Because we don't know upfront how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
+  cellScalars->Delete();
   cutScalars->Delete();
+
   if ( this->GenerateCutScalars ) inPD->Delete();
 
   output->SetPoints(newPoints);
@@ -272,54 +273,6 @@ void vtkCutter::CreateDefaultLocator()
   this->SelfCreatedLocator = 1;
 }
 
-// Description:
-// Set a particular contour value at contour number i. The index i ranges 
-// between 0<=i<NumberOfContours.
-void vtkCutter::SetValue(int i, float value)
-{
-  i = (i >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : (i < 0 ? 0 : i) );
-  if ( this->Values[i] != value )
-    {
-    this->Modified();
-    this->Values[i] = value;
-    if ( i >= this->NumberOfContours ) this->NumberOfContours = i + 1;
-    if ( value < this->Range[0] ) this->Range[0] = value;
-    if ( value > this->Range[1] ) this->Range[1] = value;
-    }
-}
-
-void vtkCutter::GenerateValues(int numContours, float range1, 
-				     float range2)
-{
-  float rng[2];
-
-  rng[0] = range1;
-  rng[1] = range2;
-  this->GenerateValues(numContours,rng);
-}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-void vtkCutter::GenerateValues(int numContours, float range[2])
-{
-  float val, incr;
-  int i;
-
-  numContours = (numContours >= VTK_MAX_CONTOURS ? VTK_MAX_CONTOURS-1 : 
-                (numContours > 1 ? numContours : 2) );
-
-  incr = (range[1] - range[0]) / (numContours-1);
-  for (i=0, val=range[0]; i < numContours; i++, val+=incr)
-    {
-    this->SetValue(i,val);
-    }
-
-  this->NumberOfContours = numContours;
-
-  this->Modified();
-}
-
 void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyFilter::PrintSelf(os,indent);
@@ -335,11 +288,7 @@ void vtkCutter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 
-  os << indent << "Number Of Contours : " << this->NumberOfContours << "\n";
-  os << indent << "Contour Values: \n";
-  for ( int i=0; i<this->NumberOfContours; i++)
-    {
-    os << indent << "  Value " << i << ": " << this->Values[i] << "\n";
-    }
+  this->ContourValues->PrintSelf(os,indent);
+
   os << indent << "Generate Cut Scalars: " << (this->GenerateCutScalars ? "On\n" : "Off\n");
 }
