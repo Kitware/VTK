@@ -54,10 +54,24 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   int GetCentering();
   
   // Description:
-  // Type of the attribute: int, float, double
-  // \post valid_result: (result==VTK_INT)||(result==VTK_FLOAT)
+  // Type of the attribute: scalar, vector, normal, texture coordinate, tensor
+  // \post valid_result: (result==vtkDataSetAttributes::SCALARS)
+  //                   ||(result==vtkDataSetAttributes::VECTORS)
+  //                   ||(result==vtkDataSetAttributes::NORMALS)
+  //                   ||(result==vtkDataSetAttributes::TCOORDS)
+  //                   ||(result==vtkDataSetAttributes::TENSORS)
   int GetType();
 
+  // Description:
+  // Type of the components of the attribute: int, float, double
+  // \post valid_result: (result==VTK_BIT)           ||(result==VTK_CHAR)
+  //                   ||(result==VTK_UNSIGNED_CHAR) ||(result==VTK_SHORT)
+  //                   ||(result==VTK_UNSIGNED_SHORT)||(result==VTK_INT)
+  //                   ||(result==VTK_UNSIGNED_INT)  ||(result==VTK_LONG)
+  //                   ||(result==VTK_UNSIGNED_LONG) ||(result==VTK_FLOAT)
+  //                   ||(result==VTK_DOUBLE)        ||(result==VTK_ID_TYPE)
+  int GetComponentType();
+  
   // Description:
   // Number of tuples.
   // \post valid_result: result>=0
@@ -86,6 +100,22 @@ class VTK_BRIDGE_EXPORT vtkBridgeAttribute : public vtkGenericAttribute
   // Return the maximum euclidean norm for the tuples.
   // \post positive_result: result>=0
   double GetMaxNorm();
+  
+  // Description:
+  // Attribute at all points of cell `c'.
+  // \pre c_exists: c!=0
+  // \pre c_valid: !c->IsAtEnd()
+  // \post result_exists: result!=0
+  // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+  virtual double *GetTuple(vtkGenericAdaptorCell *c);
+  
+  // Description:
+  // Put attribute at all points of cell `c' in `tuple'.
+  // \pre c_exists: c!=0
+  // \pre c_valid: !c->IsAtEnd()
+  // \pre tuple_exists: tuple!=0
+  // \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+  virtual void GetTuple(vtkGenericAdaptorCell *c, double *tuple);
   
   // Description:
   // Attribute at all points of cell `c'.

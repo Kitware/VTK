@@ -32,7 +32,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkBridgeAttribute, "1.3");
+vtkCxxRevisionMacro(vtkBridgeAttribute, "1.4");
 vtkStandardNewMacro(vtkBridgeAttribute);
 
 void vtkBridgeAttribute::PrintSelf(ostream& os, vtkIndent indent)
@@ -82,12 +82,49 @@ int vtkBridgeAttribute::GetCentering()
 
 //-----------------------------------------------------------------------------
 // Description:
-// Type of the attribute: int, float, double
-// \post valid_result: (result==VTK_INT)||(result==VTK_FLOAT)
+// Type of the attribute: scalar, vector, normal, texture coordinate, tensor
+// \post valid_result: (result==vtkDataSetAttributes::SCALARS)
+//                   ||(result==vtkDataSetAttributes::VECTORS)
+//                   ||(result==vtkDataSetAttributes::NORMALS)
+//                   ||(result==vtkDataSetAttributes::TCOORDS)
+//                   ||(result==vtkDataSetAttributes::TENSORS)
 int vtkBridgeAttribute::GetType()
 {
+  int result=this->Data->IsArrayAnAttribute(this->AttributeNumber);
+  if(result==-1)
+    {
+    switch(this->GetNumberOfComponents())
+      {
+      case 1:
+        result=vtkDataSetAttributes::SCALARS;
+        break;
+      case 3:
+        result=vtkDataSetAttributes::VECTORS;
+        break;
+      case 9:
+        result=vtkDataSetAttributes::TENSORS;
+        break;
+      default:
+        assert("check: unknown attribute type" && 0);
+        break;
+      }
+    }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Type of the components of the attribute: int, float, double
+// \post valid_result: (result==VTK_BIT)           ||(result==VTK_CHAR)
+//                   ||(result==VTK_UNSIGNED_CHAR) ||(result==VTK_SHORT)
+//                   ||(result==VTK_UNSIGNED_SHORT)||(result==VTK_INT)
+//                   ||(result==VTK_UNSIGNED_INT)  ||(result==VTK_LONG)
+//                   ||(result==VTK_UNSIGNED_LONG) ||(result==VTK_FLOAT)
+//                   ||(result==VTK_DOUBLE)        ||(result==VTK_ID_TYPE)
+int vtkBridgeAttribute::GetComponentType()
+{
   return this->Data->GetArray(this->AttributeNumber)->GetDataType();
-}   
+}
 
 //-----------------------------------------------------------------------------
 // Description:
@@ -153,10 +190,108 @@ double vtkBridgeAttribute::GetMaxNorm()
 // \pre c_valid: !c->IsAtEnd()
 // \post result_exists: result!=0
 // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+double *vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell *c)
+{
+  assert("pre: c_exists" && c!=0);
+  
+  double *result=new double[this->GetNumberOfComponents()*c->GetNumberOfPoints()];
+  double *p=result;
+  int i;
+  int j;
+  int size;
+  vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
+  
+  if(this->Pd!=0)
+    {
+    i=0;
+    size=c2->GetNumberOfPoints();
+    while(i<size)
+      {
+      j=c2->Cell->GetPointId(i);
+      this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
+      ++i;
+      p=p+this->GetNumberOfComponents();
+      }
+    }
+  else
+    {
+    this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetId(),result);
+    // duplicate:
+    size=c2->GetNumberOfPoints();
+    i=1;
+    p=p+this->GetNumberOfComponents();
+    while(i<size)
+      {
+      memcpy(p,result,sizeof(double)*this->GetNumberOfComponents());
+      p=p+this->GetNumberOfComponents();
+      ++i;
+      }
+    }
+  
+  assert("post: result_exists" && result!=0);
+  return result;
+}
+  
+//-----------------------------------------------------------------------------
+// Description:
+// Put attribute at all points of cell `c' in `tuple'.
+// \pre c_exists: c!=0
+// \pre c_valid: !c->IsAtEnd()
+// \pre tuple_exists: tuple!=0
+// \pre valid_tuple: sizeof(tuple)>=GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
+void vtkBridgeAttribute::GetTuple(vtkGenericAdaptorCell *c, double *tuple)
+{
+  assert("pre: c_exists" && c!=0);
+  assert("pre: tuple_exists" && tuple!=0);
+  
+  double *p=tuple;
+  int i;
+  int j;
+  int size;
+  vtkBridgeCell *c2=static_cast<vtkBridgeCell *>(c);
+  
+  
+  if(this->Pd!=0)
+    {
+    i=0;
+    size=c2->GetNumberOfPoints();
+    while(i<size)
+      {
+      j=c2->Cell->GetPointId(i);
+      this->Data->GetArray(this->AttributeNumber)->GetTuple(j,p);
+      ++i;
+      p=p+this->GetNumberOfComponents();
+      }
+    }
+  else
+    {
+    this->Data->GetArray(this->AttributeNumber)->GetTuple(c2->GetId(),tuple);
+    // duplicate:
+    size=c2->GetNumberOfPoints();
+    i=1;
+    p=p+this->GetNumberOfComponents();
+    while(i<size)
+      {
+      memcpy(p,tuple,sizeof(double)*this->GetNumberOfComponents());
+      p=p+this->GetNumberOfComponents();
+      ++i;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Attribute at all points of cell `c'.
+// \pre c_exists: c!=0
+// \pre c_valid: !c->IsAtEnd()
+// \post result_exists: result!=0
+// \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
 double *vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c)
 {
   assert("pre: c_exists" && c!=0);
   assert("pre: c_valid" && !c->IsAtEnd());
+  
+#if 0
   
   double *result=new double[this->GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()];
   double *p=result;
@@ -195,6 +330,9 @@ double *vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c)
   
   assert("post: result_exists" && result!=0);
   return result;
+#else
+  return this->GetTuple(c->GetCell());
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -209,7 +347,7 @@ void vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c, double *tuple)
   assert("pre: c_exists" && c!=0);
   assert("pre: c_valid" && !c->IsAtEnd());
   assert("pre: tuple_exists" && tuple!=0);
-  
+#if 0
   double *p=tuple;
   int i;
   int j;
@@ -243,6 +381,9 @@ void vtkBridgeAttribute::GetTuple(vtkGenericCellIterator *c, double *tuple)
       ++i;
       }
     }
+#else
+  this->GetTuple(c->GetCell(),tuple);
+#endif
 }
 
 //-----------------------------------------------------------------------------
