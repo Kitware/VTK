@@ -48,12 +48,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkEncodedGradientEstimator_h
 #define __vtkEncodedGradientEstimator_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkMultiThreader.h"
 #include "vtkStructuredPoints.h"
 #include "vtkDirectionEncoder.h"
 
-class VTK_EXPORT vtkEncodedGradientEstimator : public vtkReferenceCount
+class VTK_EXPORT vtkEncodedGradientEstimator : public vtkObject
 {
 public:
 
@@ -151,7 +151,7 @@ protected:
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
 
-  vtkMultiThreader           Threader;
+  vtkMultiThreader           *Threader;
 
   vtkDirectionEncoder        *DirectionEncoder;
 

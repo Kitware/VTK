@@ -169,6 +169,11 @@ int vtkDelaunay3D::FindTetra(float x[3], int ptIds[4], float p[4][3],
   vtkIdList neighbors(2);
   float v12[3], vp[3], vx[3], v32[3], n[3], valx, valp, maxValx;
   
+  // quick fix
+  pts.ReferenceCountingOff();
+  facePts.ReferenceCountingOff();
+  neighbors.ReferenceCountingOff();
+
   // prevent aimless wandering and death by recursion
   if ( depth++ > 100 )
     {
@@ -267,6 +272,11 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
   int npts, *tetraPts, nei;
   int closestPoint;
 
+  // quick fix
+  boundaryPts.ReferenceCountingOff();
+  checkedTetras.ReferenceCountingOff();
+  neiTetras.ReferenceCountingOff();
+
   tetras.Reset();
   faces.Reset();
   boundaryPts.Reset();
@@ -290,8 +300,8 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
       tetraCell = (vtkTetra *) Mesh->GetCell(tetraId);
       for ( j=0; j < 4; j++ ) 
         {
-        tetraCell->Points.GetPoint(j,p[j]);
-        ptIds[j] = tetraCell->PointIds.GetId(j);
+        tetraCell->Points->GetPoint(j,p[j]);
+        ptIds[j] = tetraCell->PointIds->GetId(j);
         }
       break;
       }
@@ -403,6 +413,10 @@ void vtkDelaunay3D::Execute()
   float center[3], tol;
   char *tetraUse;
   
+  neighbors.ReferenceCountingOff();
+  cells.ReferenceCountingOff();
+  holeTetras.ReferenceCountingOff();
+
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
 //
 // Initialize; check input
@@ -485,6 +499,10 @@ void vtkDelaunay3D::Execute()
     vtkDelaunaySphere *sphere;
     static int edge[6][2] = {{0,1},{1,2},{2,0},{0,3},{1,3},{2,3}};
     vtkIdList boundaryPts(3), neiTetras(2);
+
+    edges.ReferenceCountingOff();
+    boundaryPts.ReferenceCountingOff();
+    neiTetras.ReferenceCountingOff();
 
     for (ptId=0; ptId < (numPoints+6); ptId++) pointUse[ptId] = 0;
 
@@ -795,6 +813,9 @@ void vtkDelaunay3D::InsertPoint(vtkUnstructuredGrid *Mesh, vtkPoints *points,
   int numFaces, tetraId, nodes[4], i;
   int tetraNum, numTetras;
   vtkIdList tetras(5), faces(15);
+
+  tetras.ReferenceCountingOff();
+  faces.ReferenceCountingOff();
 
   // Find faces containing point. (Faces are found by deleting
   // one or more tetrahedra "containing" point.) Tetrahedron contain point when 

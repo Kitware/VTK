@@ -62,6 +62,8 @@ vtkFieldDataToDataSet::vtkFieldDataToDataSet()
   
   this->RectilinearGrid = vtkRectilinearGrid::New();
   this->RectilinearGrid->SetSource(this);
+  
+  this->Input = NULL;
 }
 
 vtkFieldDataToDataSet::~vtkFieldDataToDataSet()
@@ -71,6 +73,7 @@ vtkFieldDataToDataSet::~vtkFieldDataToDataSet()
   this->StructuredGrid->Delete();
   this->UnstructuredGrid->Delete();
   this->RectilinearGrid->Delete();
+  if (this->Input) {this->Input->UnRegister(this);}
 }
 
 // Specify the input data or filter.
@@ -79,7 +82,9 @@ void vtkFieldDataToDataSet::SetInput(vtkDataObject *input)
   if ( this->Input != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
     }
 }

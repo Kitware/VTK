@@ -44,6 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
 {
+  this->Red = vtkPiecewiseFunction::New();
+  this->Green = vtkPiecewiseFunction::New();
+  this->Blue = vtkPiecewiseFunction::New();
+  
   this->ColorValue[0] = 0;
   this->ColorValue[1] = 0;
   this->ColorValue[2] = 0;
@@ -55,6 +59,12 @@ vtkColorTransferFunction::vtkColorTransferFunction()
 // Destruct a vtkColorTransferFunction
 vtkColorTransferFunction::~vtkColorTransferFunction()
 {
+  this->Red->Delete();
+  this->Red = NULL;
+  this->Green->Delete();
+  this->Green = NULL;
+  this->Blue->Delete();
+  this->Blue = NULL;  
 }
 
 // Returns the sum of the number of function points used to specify 
@@ -64,9 +74,9 @@ int vtkColorTransferFunction::GetTotalSize()
   int  size;
 
   // Sum all three function sizes
-  size = this->Red.GetSize() +
-         this->Green.GetSize() +
-         this->Blue.GetSize();
+  size = this->Red->GetSize() +
+         this->Green->GetSize() +
+         this->Blue->GetSize();
 
   return( size );
 }
@@ -74,7 +84,7 @@ int vtkColorTransferFunction::GetTotalSize()
 // Add a point to the red function
 void vtkColorTransferFunction::AddRedPoint( float x, float r )
 {
-  this->Red.AddPoint( x, r );
+  this->Red->AddPoint( x, r );
 
   this->UpdateRange();
 }
@@ -82,7 +92,7 @@ void vtkColorTransferFunction::AddRedPoint( float x, float r )
 // Add a point to the green function
 void vtkColorTransferFunction::AddGreenPoint( float x, float g )
 {
-  this->Green.AddPoint( x, g );
+  this->Green->AddPoint( x, g );
 
   this->UpdateRange();
 }
@@ -90,7 +100,7 @@ void vtkColorTransferFunction::AddGreenPoint( float x, float g )
 // Add a point to the blue function
 void vtkColorTransferFunction::AddBluePoint( float x, float b )
 {
-  this->Blue.AddPoint( x, b );
+  this->Blue->AddPoint( x, b );
 
   this->UpdateRange();
 }
@@ -99,9 +109,9 @@ void vtkColorTransferFunction::AddBluePoint( float x, float b )
 void vtkColorTransferFunction::AddRGBPoint( float x, float r,
      float g, float b )
 {
-  this->Red.AddPoint( x, r );
-  this->Green.AddPoint( x, g );
-  this->Blue.AddPoint( x, b );
+  this->Red->AddPoint( x, r );
+  this->Green->AddPoint( x, g );
+  this->Blue->AddPoint( x, b );
 
   this->UpdateRange();
 }
@@ -109,7 +119,7 @@ void vtkColorTransferFunction::AddRGBPoint( float x, float r,
 // Remove a point from the red function
 void vtkColorTransferFunction::RemoveRedPoint( float x )
 {
-  this->Red.RemovePoint( x );
+  this->Red->RemovePoint( x );
 
   this->UpdateRange();
 }
@@ -117,7 +127,7 @@ void vtkColorTransferFunction::RemoveRedPoint( float x )
 // Remove a point from the green function
 void vtkColorTransferFunction::RemoveGreenPoint( float x )
 {
-  this->Green.RemovePoint( x );
+  this->Green->RemovePoint( x );
 
   this->UpdateRange();
 }
@@ -125,7 +135,7 @@ void vtkColorTransferFunction::RemoveGreenPoint( float x )
 // Remove a point from the blue function
 void vtkColorTransferFunction::RemoveBluePoint( float x )
 {
-  this->Blue.RemovePoint( x );
+  this->Blue->RemovePoint( x );
 
   this->UpdateRange();
 }
@@ -133,9 +143,9 @@ void vtkColorTransferFunction::RemoveBluePoint( float x )
 // Remove a point from all three functions (RGB)
 void vtkColorTransferFunction::RemoveRGBPoint( float x )
 {
-  this->Red.RemovePoint( x );
-  this->Green.RemovePoint( x );
-  this->Blue.RemovePoint( x );
+  this->Red->RemovePoint( x );
+  this->Green->RemovePoint( x );
+  this->Blue->RemovePoint( x );
 
   this->UpdateRange();
 }
@@ -143,9 +153,9 @@ void vtkColorTransferFunction::RemoveRGBPoint( float x )
 // Remove all points from all three functions (RGB)
 void vtkColorTransferFunction::RemoveAllPoints()
 {
-  this->Red.RemoveAllPoints();
-  this->Green.RemoveAllPoints();
-  this->Blue.RemoveAllPoints();
+  this->Red->RemoveAllPoints();
+  this->Green->RemoveAllPoints();
+  this->Blue->RemoveAllPoints();
 
   this->UpdateRange();
 }
@@ -154,7 +164,7 @@ void vtkColorTransferFunction::RemoveAllPoints()
 void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
      float x2, float r2 )
 {
-  this->Red.AddSegment( x1, r1, x2, r2 );
+  this->Red->AddSegment( x1, r1, x2, r2 );
 
   this->UpdateRange();
 }
@@ -163,7 +173,7 @@ void vtkColorTransferFunction::AddRedSegment( float x1, float r1,
 void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
      float x2, float g2 )
 {
-  this->Green.AddSegment( x1, g1, x2, g2 );
+  this->Green->AddSegment( x1, g1, x2, g2 );
 
   this->UpdateRange();
 }
@@ -172,7 +182,7 @@ void vtkColorTransferFunction::AddGreenSegment( float x1, float g1,
 void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
      float x2, float b2 )
 {
-  this->Blue.AddSegment( x1, b1, x2, b2 );
+  this->Blue->AddSegment( x1, b1, x2, b2 );
 
   this->UpdateRange();
 }
@@ -181,9 +191,9 @@ void vtkColorTransferFunction::AddBlueSegment( float x1, float b1,
 void vtkColorTransferFunction::AddRGBSegment( float x1, float r1, 
         float g1, float b1, float x2, float r2, float g2, float b2 )
 {
-  this->Red.AddSegment( x1, r1, x2, r2 );
-  this->Green.AddSegment( x1, g1, x2, g2 );
-  this->Blue.AddSegment( x1, b1, x2, b2 );
+  this->Red->AddSegment( x1, r1, x2, r2 );
+  this->Green->AddSegment( x1, g1, x2, g2 );
+  this->Blue->AddSegment( x1, b1, x2, b2 );
 
   this->UpdateRange();
 }
@@ -191,9 +201,9 @@ void vtkColorTransferFunction::AddRGBSegment( float x1, float r1,
 // Returns the RGB color evaluated at the specified location
 float *vtkColorTransferFunction::GetValue( float x )
 {
-  this->ColorValue[0] = this->Red.GetValue( x );
-  this->ColorValue[1] = this->Green.GetValue( x );
-  this->ColorValue[2] = this->Blue.GetValue( x );
+  this->ColorValue[0] = this->Red->GetValue( x );
+  this->ColorValue[1] = this->Green->GetValue( x );
+  this->ColorValue[2] = this->Blue->GetValue( x );
 
   return( this->ColorValue );
 }
@@ -203,9 +213,9 @@ void vtkColorTransferFunction::UpdateRange()
 {
   float *red_range, *green_range, *blue_range;
 
-  red_range   = this->Red.GetRange();
-  green_range = this->Green.GetRange();
-  blue_range  = this->Blue.GetRange();
+  red_range   = this->Red->GetRange();
+  green_range = this->Green->GetRange();
+  blue_range  = this->Blue->GetRange();
 
   if( red_range[0] < this->Range[0] )
     {
@@ -271,9 +281,9 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
 
   for( i=0; i<size; i++ )
     {
-    table[i*3  ] = this->Red.GetValue( x );
-    table[i*3+1] = this->Green.GetValue( x );
-    table[i*3+2] = this->Blue.GetValue( x );
+    table[i*3  ] = this->Red->GetValue( x );
+    table[i*3+1] = this->Green->GetValue( x );
+    table[i*3+2] = this->Blue->GetValue( x );
     x += inc;
     }
 }
@@ -299,9 +309,9 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 // Sets the clamping for each of the R,G,B transfer functions
 void vtkColorTransferFunction::SetClamping(int val) {
 	this->Clamping = val;
-	this->Red.SetClamping(this->Clamping);
-	this->Green.SetClamping(this->Clamping);
-	this->Blue.SetClamping(this->Clamping);
+	this->Red->SetClamping(this->Clamping);
+	this->Green->SetClamping(this->Clamping);
+	this->Blue->SetClamping(this->Clamping);
 }
 
 // Gets the clamping value

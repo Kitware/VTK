@@ -55,7 +55,7 @@ void vtkPointDataToCellData::Execute()
   vtkPointData *inPD=input->GetPointData();
   vtkCellData *outPD=output->GetCellData();
   int maxCellSize=input->GetMaxCellSize();
-  vtkIdList cellPts(maxCellSize);
+  vtkIdList *cellPts;
   float weight, *weights=new float[maxCellSize];
 
   vtkDebugMacro(<<"Mapping point data to cell data");
@@ -66,23 +66,27 @@ void vtkPointDataToCellData::Execute()
     return;
     }
   
+  cellPts = vtkIdList::New();
+  cellPts->Allocate(maxCellSize);
+
   // notice that inPD and outPD are vtkPointData and vtkCellData; respectively.
   // It's weird, but it works.
   outPD->CopyAllocate(inPD,numCells);
 
   for (cellId=0; cellId < numCells; cellId++)
     {
-    input->GetCellPoints(cellId, cellPts);
-    numPts = cellPts.GetNumberOfIds();
+    input->GetCellPoints(cellId, *cellPts);
+    numPts = cellPts->GetNumberOfIds();
     if ( numPts > 0 )
       {
       weight = 1.0 / numPts;
       for (ptId=0; ptId < numPts; ptId++) weights[ptId] = weight;
-      outPD->InterpolatePoint(inPD, cellId, &cellPts, weights);
+      outPD->InterpolatePoint(inPD, cellId, cellPts, weights);
       }
     }
 
-  // Pass through any cell data that's in the input and not defined in the output.
+  // Pass through any cell data that's in the input 
+  // and not defined in the output.
   output->GetCellData()->PassNoReplaceData(input->GetCellData());
   
   if ( this->PassPointData )
@@ -90,6 +94,7 @@ void vtkPointDataToCellData::Execute()
     output->GetPointData()->PassData(input->GetPointData());
     }
   
+  cellPts->Delete();
   delete [] weights;
 }
 

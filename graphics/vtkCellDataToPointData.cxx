@@ -57,14 +57,18 @@ void vtkCellDataToPointData::Execute()
   vtkCellData *inPD=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
   int maxCellSize=input->GetMaxCellSize();
-  vtkIdList cellIds(VTK_MAX_CELLS_PER_POINT);
+  vtkIdList *cellIds;
   float weight, *weights=new float[VTK_MAX_CELLS_PER_POINT];
 
   vtkDebugMacro(<<"Mapping cell data to point data");
 
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(VTK_MAX_CELLS_PER_POINT);
+
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
     {
     vtkErrorMacro(<<"No input point data!");
+    cellIds->Delete();
     return;
     }
   
@@ -74,8 +78,8 @@ void vtkCellDataToPointData::Execute()
 
   for (ptId=0; ptId < numPts; ptId++)
     {
-    input->GetPointCells(ptId, cellIds);
-    numCells = cellIds.GetNumberOfIds();
+    input->GetPointCells(ptId, *cellIds);
+    numCells = cellIds->GetNumberOfIds();
     if ( numCells > 0 )
       {
       weight = 1.0 / numCells;
@@ -83,7 +87,7 @@ void vtkCellDataToPointData::Execute()
 	{
 	weights[cellId] = weight;
 	}
-      outPD->InterpolatePoint(inPD, ptId, &cellIds, weights);
+      outPD->InterpolatePoint(inPD, ptId, cellIds, weights);
       }
     else
       {
@@ -98,7 +102,8 @@ void vtkCellDataToPointData::Execute()
     {
     output->GetCellData()->PassData(input->GetCellData());
     }
-  
+
+  cellIds->Delete();
   delete [] weights;
 }
 

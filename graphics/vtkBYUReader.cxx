@@ -108,10 +108,13 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   float x[3];
-  vtkIdList pts(VTK_CELL_SIZE);
+  vtkIdList *pts;
   int polyId, pt;
   vtkPolyData *output = this->GetOutput();
   
+  pts = vtkIdList::New();
+  pts->Allocate(VTK_CELL_SIZE);
+
   //
   // Read header (not using fixed format! - potential problem in some files.)
   //
@@ -150,18 +153,19 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   if ( numParts < 1 || numPts < 1 || numPolys < 1 )
     {
     vtkErrorMacro(<<"Bad MOVIE.BYU file");
+    pts->Delete();
     return;
     }
-//
-// Allocate data objects
-//
+  //
+  // Allocate data objects
+  //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts);
   newPolys = vtkCellArray::New();
   newPolys->Allocate(numPolys+numEdges);
-//
-// Read data
-//
+  //
+  // Read data
+  //
   // read point coordinates
   for (i=0; i<numPts; i++)
     {
@@ -174,16 +178,16 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   for ( polyId=1; polyId <= numPolys; polyId++ )
     {
     // read this polygon
-    for ( pts.Reset(); fscanf(geomFile, "%d", &pt) && pt > 0; )
+    for ( pts->Reset(); fscanf(geomFile, "%d", &pt) && pt > 0; )
       {
-      pts.InsertNextId(pt-1);//convert to vtk 0-offset
+      pts->InsertNextId(pt-1);//convert to vtk 0-offset
       }
-    pts.InsertNextId(-(pt+1));
+    pts->InsertNextId(-(pt+1));
 
     // Insert polygon (if in selected part)
     if ( partStart <= polyId && polyId <= partEnd )
       {
-      newPolys->InsertNextCell(pts);
+      newPolys->InsertNextCell(*pts);
       }
     }
   this->UpdateProgress(0.6667);
@@ -196,6 +200,7 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
 
   output->SetPolys(newPolys);
   newPolys->Delete();
+  pts->Delete();
 }
 
 void vtkBYUReader::ReadDisplacementFile(int numPts)

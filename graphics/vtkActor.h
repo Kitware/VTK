@@ -65,16 +65,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAssemblyPaths.h"
 
 class vtkRenderer;
-class vtkMapper;
 
 class VTK_EXPORT vtkActor : public vtkProp
 {
  public:
 
-// Description:
-// Creates an actor with the following defaults: origin(0,0,0) 
-// position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
-// orientation=(0,0,0). No user defined matrix and no texture map.
+  // Description:
+  // Creates an actor with the following defaults: origin(0,0,0) 
+  // position=(0,0,0) scale=(1,1,1) visibility=1 pickable=1 dragable=1
+  // orientation=(0,0,0). No user defined matrix and no texture map.
   vtkActor();
 
   ~vtkActor();
@@ -82,21 +81,18 @@ class VTK_EXPORT vtkActor : public vtkProp
   const char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// This causes the actor to be rendered. It in turn will render the actor's
-// property, texture map and then mapper. If a property hasn't been 
-// assigned, then the actor will create one automatically. Note that a 
-// side effect of this method is that the visualization network is updated.
+  // Description:
+  // This causes the actor to be rendered. It in turn will render the actor's
+  // property, texture map and then mapper. If a property hasn't been 
+  // assigned, then the actor will create one automatically. Note that a 
+  // side effect of this method is that the visualization network is updated.
   virtual void Render(vtkRenderer *ren);
 
   virtual void Render(vtkRenderer *, vtkMapper *) {};
 
-
-// Description:
-// Shallow copy of an actor.
+  // Description:
+  // Shallow copy of an actor.
   vtkActor &operator=(const vtkActor& actor);
-
 
   // Description: 
   // Set/Get the property object that controls this
@@ -109,7 +105,8 @@ class VTK_EXPORT vtkActor : public vtkProp
   vtkProperty *GetProperty();
 
   void SetBackfaceProperty(vtkProperty *lut);
-  void SetBackfaceProperty(vtkProperty& lut) {this->SetBackfaceProperty(&lut);};
+  void SetBackfaceProperty(vtkProperty& lut) 
+    {this->SetBackfaceProperty(&lut);};
   vtkProperty *GetBackfaceProperty();
 
   // Description: 
@@ -125,7 +122,7 @@ class VTK_EXPORT vtkActor : public vtkProp
   // visualization pipeline, i.e. the mapper. This should be a subclass
   // of vtkMapper. Typically vtkPolyDataMapper and vtkDataSetMapper will
   // be used.
-  vtkSetObjectMacro(Mapper,vtkMapper);
+  vtkSetReferenceCountedObjectMacro(Mapper,vtkMapper);
 
   // Description:
   // Returns the Mapper that this actor is getting its data from.
@@ -141,13 +138,12 @@ class VTK_EXPORT vtkActor : public vtkProp
   // Get the matrix from the position, origin, scale and orientation
   // This matrix is cached, so multiple GetMatrix() calls will be
   // efficient.
-  void GetMatrix(vtkMatrix4x4& m);
+  void GetMatrix(vtkMatrix4x4 *m);
+  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
-
-// Description:
-// Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Description:
+  // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   float *GetBounds();
-
 
   // Description:
   // Subclasses of vtkActor can be composed of one or more parts. A part is an

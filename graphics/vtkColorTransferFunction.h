@@ -77,9 +77,9 @@ public:
   // Returns the sum of the number of function points used to specify 
   // the three independent functions (R,G,B).
   int  GetTotalSize();
-  int  GetRedSize() { return this->Red.GetSize(); }
-  int  GetGreenSize() { return this->Green.GetSize(); };
-  int  GetBlueSize() { return this->Blue.GetSize(); };
+  int  GetRedSize() { return this->Red->GetSize(); }
+  int  GetGreenSize() { return this->Green->GetSize(); };
+  int  GetBlueSize() { return this->Blue->GetSize(); };
 
   // Description:
   // Methods to add points to the R, G, B functions
@@ -118,9 +118,9 @@ public:
   // Description:
   // Returns an RGB color at the specified location.
   float *GetValue( float x );
-  float GetRedValue( float x ) { return this->Red.GetValue( x ); };
-  float GetGreenValue( float x ) { return this->Green.GetValue( x ); };
-  float GetBlueValue( float x ) { return this->Blue.GetValue( x ); };
+  float GetRedValue( float x ) { return this->Red->GetValue( x ); };
+  float GetGreenValue( float x ) { return this->Green->GetValue( x ); };
+  float GetBlueValue( float x ) { return this->Blue->GetValue( x ); };
 
   // Description:
   // Returns min and max position of all function points.
@@ -145,9 +145,9 @@ protected:
   int Clamping;
 
   // Transfer functions for each color component
-  vtkPiecewiseFunction	Red;
-  vtkPiecewiseFunction	Green;
-  vtkPiecewiseFunction	Blue;
+  vtkPiecewiseFunction	*Red;
+  vtkPiecewiseFunction	*Green;
+  vtkPiecewiseFunction	*Blue;
 
   // An evaluated color
   float  ColorValue[3];

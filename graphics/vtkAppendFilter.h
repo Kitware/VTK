@@ -59,23 +59,22 @@ class VTK_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkAppendFilter();
-  static vtkAppendFilter *New() {return new vtkAppendFilter;};
-  const char *GetClassName() {return "vtkAppendFilter";};
+  ~vtkAppendFilter();
+  static vtkAppendFilter *New() {return new vtkAppendFilter;}
+  const char *GetClassName() {return "vtkAppendFilter";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Add a dataset to the list of data to append.
+  // Description:
+  // Add a dataset to the list of data to append.
   void AddInput(vtkDataSet *in);
+  void AddInput(vtkDataSet& in) {this->AddInput(&in);}
 
-  void AddInput(vtkDataSet& in) {this->AddInput(&in);};
-
-// Description:
-// Remove a dataset from the list of data to append.
+  // Description:
+  // Remove a dataset from the list of data to append.
   void RemoveInput(vtkDataSet *in);
-
-  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);};
-  vtkDataSetCollection *GetInputList() {return &(this->InputList);};
+  void RemoveInput(vtkDataSet& in) {this->RemoveInput(&in);}
+  
+  vtkDataSetCollection *GetInputList() {return this->InputList;}
 
   // filter interface
   void Update();
@@ -84,7 +83,7 @@ protected:
   // Usual data generation method
   void Execute();
   // list of data sets to append together
-  vtkDataSetCollection InputList;
+  vtkDataSetCollection *InputList;
 };
 
 #endif

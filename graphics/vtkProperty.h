@@ -54,13 +54,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkProperty_h
 
 #include "vtkRender.h"
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkStructuredPoints.h"
 
 class vtkRenderer;
 class vtkActor;
 
-class VTK_EXPORT vtkProperty : public vtkReferenceCount
+class VTK_EXPORT vtkProperty : public vtkObject
 {
 public:
 

@@ -111,7 +111,7 @@ void vtkEdgePoints::Execute()
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
     cell = input->GetCell(cellId);
-    inScalars->GetScalars(cell->PointIds,cellScalars);
+    inScalars->GetScalars(cell->PointIds, &cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
@@ -136,7 +136,7 @@ void vtkEdgePoints::Execute()
         for (edgeId=0; edgeId < numEdges; edgeId++)
           {
           edge = cell->GetEdge(edgeId);
-          inScalars->GetScalars(edge->PointIds,cellScalars);
+          inScalars->GetScalars(edge->PointIds,&cellScalars);
 
           s0 = cellScalars.GetScalar(0);
           s1 = cellScalars.GetScalar(1);
@@ -158,8 +158,8 @@ void vtkEdgePoints::Execute()
 
 	    t = (this->Value - e0Scalar) / deltaScalar;
 
-            edge->Points.GetPoint(e0,x0);
-            edge->Points.GetPoint(e1,x1);
+            edge->Points->GetPoint(e0,x0);
+            edge->Points->GetPoint(e1,x1);
 
             for (i=0; i<3; i++) x[i] = x0[i] + t * (x1[i] - x0[i]);
             if ( (pts[0] = this->Locator.IsInsertedPoint(x)) < 0 )
@@ -167,8 +167,8 @@ void vtkEdgePoints::Execute()
               pts[0] = this->Locator.InsertNextPoint(x);
               newCellId = newVerts->InsertNextCell(1,pts);
 	      outCd->CopyData(inCd,cellId,newCellId);
-              p1 = edge->PointIds.GetId(e0);
-              p2 = edge->PointIds.GetId(e1);
+              p1 = edge->PointIds->GetId(e0);
+              p2 = edge->PointIds->GetId(e1);
               outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);
               } //if point not created before
             } //if edge straddles contour value

@@ -219,12 +219,14 @@ void vtkWindowedSincPolyDataFilter::Execute()
     int numNei, cellId, nei, edge;
     int *neiPts, numNeiPts;
     float normal[3], neiNormal[3];
-    vtkIdList neighbors(VTK_CELL_SIZE);
+    vtkIdList *neighbors;
 
     inMesh = vtkPolyData::New();
     inMesh->SetPoints(inPts);
     inMesh->SetPolys(inPolys);
     Mesh = inMesh;
+    neighbors = vtkIdList::New();
+    neighbors->Allocate(VTK_CELL_SIZE);
 
     if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
       { // convert data to triangles
@@ -259,8 +261,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
           // Verts[p2].edges = new vtkIdList(6,6);
           }
 
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
-        numNei = neighbors.GetNumberOfIds();
+        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+        numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;
         if ( numNei == 0 )
@@ -272,7 +274,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
           {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
-            if ( neighbors.GetId(j) < cellId )
+            if ( neighbors->GetId(j) < cellId )
               break;
           if ( j >= numNei )
             {
@@ -280,7 +282,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
             }
           }
 
-        else if ( numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
+        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
           {
           vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
           Mesh->GetCellPoints(nei,numNeiPts,neiPts);
@@ -330,8 +332,8 @@ void vtkWindowedSincPolyDataFilter::Execute()
       }
 
     //    delete inMesh; // delete this later, windowed sinc smoothing needs it
-    if (toTris) toTris->Delete();;
-
+    if (toTris) toTris->Delete();
+    neighbors->Delete();
     }//if strips or polys
 
   //post-process edge vertices to make sure we can smooth them
@@ -665,7 +667,7 @@ void vtkWindowedSincPolyDataFilter::Execute()
   //free up connectivity storage
   for (i=0; i<numPts; i++)
     {
-    if ( Verts[i].edges != NULL ) Verts[i].edges->Delete();
+    if ( Verts[i].edges != NULL ) {Verts[i].edges->Delete();}
     }
   delete [] Verts;
 }

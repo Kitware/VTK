@@ -59,9 +59,8 @@ public:
   const char *GetClassName() {return "vtkUnstructuredGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Specify the input data or filter.
   void SetInput(vtkUnstructuredGrid *input);
 
   void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};

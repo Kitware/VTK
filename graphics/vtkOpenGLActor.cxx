@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Actual actor render method.
 void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
-  static vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float opacity;
 
   // get opacity
@@ -64,12 +64,12 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 
   // build transformation 
   this->GetMatrix(matrix);
-  matrix.Transpose();
+  matrix->Transpose();
 
   // insert model transformation 
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
-  glMultMatrixf(matrix[0]);
+  glMultMatrixf(matrix->Element[0]);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);
@@ -82,5 +82,6 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
     {
     glDepthMask (GL_TRUE);
     }
+  matrix->Delete();
 }
 

@@ -62,29 +62,29 @@ vtkFollower::~vtkFollower()
 }
 
 // Copy the follower's composite 4x4 matrix into the matrix provided.
-void vtkFollower::GetMatrix(vtkMatrix4x4& result)
+void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
 {
   float *pos;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   this->GetOrientation();
-  this->Transform.Push();  
-  this->Transform.Identity();  
-  this->Transform.PreMultiply();  
+  this->Transform->Push();  
+  this->Transform->Identity();  
+  this->Transform->PreMultiply();  
 
   // apply user defined matrix last if there is one 
   if (this->UserMatrix)
     {
-    this->Transform.Concatenate(*this->UserMatrix);
+    this->Transform->Concatenate(this->UserMatrix);
     }
 
   // first translate
-  this->Transform.Translate(this->Position[0],
+  this->Transform->Translate(this->Position[0],
 			    this->Position[1],
 			    this->Position[2]);
    
   // shift to origin
-  this->Transform.Translate(this->Origin[0],
+  this->Transform->Translate(this->Origin[0],
 			    this->Origin[1],
 			    this->Origin[2]);
    
@@ -110,57 +110,57 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
     // rotate y
     if (distance > 0.0)
       {
-      matrix[0][0] = (this->Position[2]-pos[2])/distance;
-      matrix[0][2] = -1.0*(pos[0] - this->Position[0])/distance;
+      matrix->Element[0][0] = (this->Position[2]-pos[2])/distance;
+      matrix->Element[0][2] = -1.0*(pos[0] - this->Position[0])/distance;
       }
     else
       {
       if (this->Position[1] < pos[1])
 	{
-	matrix[0][0] = -1.0;
+	matrix->Element[0][0] = -1.0;
 	}
       else
 	{
-	matrix[0][0] = 1.0;
+	matrix->Element[0][0] = 1.0;
 	}
-      matrix[0][2] = 0.0;
+      matrix->Element[0][2] = 0.0;
       }
-    matrix[0][1] = matrix[0][3] = 0.0;
-    matrix[1][1] = 1.0;
-    matrix[1][0] = matrix[1][2] = matrix[1][3] = 0.0;
-    matrix[2][0] = -1.0*matrix[0][2];
-    matrix[2][2] = matrix[0][0];
-    matrix[2][3] = 0.0;
-    matrix[2][1] = 0.0;
-    matrix[3][3] = 1.0;
-    matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
-    this->Transform.Concatenate(matrix);
+    matrix->Element[0][1] = matrix->Element[0][3] = 0.0;
+    matrix->Element[1][1] = 1.0;
+    matrix->Element[1][0] = matrix->Element[1][2] = matrix->Element[1][3] = 0.0;
+    matrix->Element[2][0] = -1.0*matrix->Element[0][2];
+    matrix->Element[2][2] = matrix->Element[0][0];
+    matrix->Element[2][3] = 0.0;
+    matrix->Element[2][1] = 0.0;
+    matrix->Element[3][3] = 1.0;
+    matrix->Element[3][0] = matrix->Element[3][1] = matrix->Element[3][2] = 0.0;
+    this->Transform->Concatenate(matrix);
 
     // now rotate x 
     distance_old = distance;
     distance = sqrt((this->Position[0]-pos[0])*(this->Position[0]-pos[0]) +
 		    (this->Position[1]-pos[1])*(this->Position[1]-pos[1]) +
 		    (this->Position[2]-pos[2])*(this->Position[2]-pos[2]));
-    matrix[0][0] = 1.0;
-    matrix[0][1] = matrix[0][2] = matrix[0][3] = 0.0;
+    matrix->Element[0][0] = 1.0;
+    matrix->Element[0][1] = matrix->Element[0][2] = matrix->Element[0][3] = 0.0;
     if (distance > 0.0) 
       {
-      matrix[1][1] = distance_old/distance;
-      matrix[1][2] = (this->Position[1] - pos[1])/distance;
+      matrix->Element[1][1] = distance_old/distance;
+      matrix->Element[1][2] = (this->Position[1] - pos[1])/distance;
       }
     else
       {
-      matrix[1][1] = 1.0;
-      matrix[1][2] = 0.0;
+      matrix->Element[1][1] = 1.0;
+      matrix->Element[1][2] = 0.0;
       }
-    matrix[1][0] = matrix[1][3] = 0.0;
-    matrix[2][1] = -1.0*matrix[1][2];
-    matrix[2][2] = matrix[1][1];
-    matrix[2][3] = 0.0;
-    matrix[2][0] = 0.0;
-    matrix[3][3] = 1.0;
-    matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
-    this->Transform.Concatenate(matrix);
+    matrix->Element[1][0] = matrix->Element[1][3] = 0.0;
+    matrix->Element[2][1] = -1.0*matrix->Element[1][2];
+    matrix->Element[2][2] = matrix->Element[1][1];
+    matrix->Element[2][3] = 0.0;
+    matrix->Element[2][0] = 0.0;
+    matrix->Element[3][3] = 1.0;
+    matrix->Element[3][0] = matrix->Element[3][1] = matrix->Element[3][2] = 0.0;
+    this->Transform->Concatenate(matrix);
 
     // compute vn 
     // if the distance if zero then we cannot compute vn
@@ -219,43 +219,44 @@ void vtkFollower::GetMatrix(vtkMatrix4x4& result)
 	twist = -twist;
       
       // now rotate z (twist) 
-      matrix[0][0] = cos(-twist);
-      matrix[0][1] = sin(-twist);
-      matrix[0][2] = matrix[0][3] = 0.0;
-      matrix[1][0] = -1.0*matrix[0][1];
-      matrix[1][1] = matrix[0][0];
-      matrix[1][2] = matrix[1][3] = 0.0;
-      matrix[2][1] = 0.0;
-      matrix[2][2] = 1.0;
-      matrix[2][3] = 0.0;
-      matrix[2][0] = 0.0;
-      matrix[3][3] = 1.0;
-      matrix[3][0] = matrix[3][1] = matrix[3][2] = 0.0;
-      this->Transform.Concatenate(matrix);
+      matrix->Element[0][0] = cos(-twist);
+      matrix->Element[0][1] = sin(-twist);
+      matrix->Element[0][2] = matrix->Element[0][3] = 0.0;
+      matrix->Element[1][0] = -1.0*matrix->Element[0][1];
+      matrix->Element[1][1] = matrix->Element[0][0];
+      matrix->Element[1][2] = matrix->Element[1][3] = 0.0;
+      matrix->Element[2][1] = 0.0;
+      matrix->Element[2][2] = 1.0;
+      matrix->Element[2][3] = 0.0;
+      matrix->Element[2][0] = 0.0;
+      matrix->Element[3][3] = 1.0;
+      matrix->Element[3][0] =matrix->Element[3][1] =matrix->Element[3][2] =0.0;
+      this->Transform->Concatenate(matrix);
       
       // rotate y by 180 to get the positive zaxis instead of negative
-      this->Transform.RotateY(180);
+      this->Transform->RotateY(180);
       }
     }
   
   // rotate
-  this->Transform.RotateZ(this->Orientation[2]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateY(this->Orientation[1]);
+  this->Transform->RotateZ(this->Orientation[2]);
+  this->Transform->RotateX(this->Orientation[0]);
+  this->Transform->RotateY(this->Orientation[1]);
 
   // scale
-  this->Transform.Scale(this->Scale[0],
+  this->Transform->Scale(this->Scale[0],
 			this->Scale[1],
 			this->Scale[2]);
 
   // shift back from origin
-  this->Transform.Translate(-this->Origin[0],
+  this->Transform->Translate(-this->Origin[0],
 			    -this->Origin[1],
 			    -this->Origin[2]);
 
-  result = this->Transform.GetMatrix();
+  this->Transform->GetMatrix(result);
 
-  this->Transform.Pop();  
+  matrix->Delete();
+  this->Transform->Pop();  
 } 
 
 void vtkFollower::PrintSelf(ostream& os, vtkIndent indent)
@@ -297,10 +298,10 @@ void vtkFollower::Render(vtkRenderer *ren)
   if (this->Texture) this->Texture->Render(ren);
     
   // make sure the device has the same matrix
-  this->GetMatrix(*matrix);
+  this->GetMatrix(matrix);
   this->Device->SetUserMatrix(matrix);
   
   this->Device->Render(ren,this->Mapper);
 
-  delete matrix;
+  matrix->Delete();
 }

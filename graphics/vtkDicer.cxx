@@ -122,7 +122,7 @@ void vtkDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr)
 
       }//for all points
 
-    delete ptIds; //don't need to keep anymore
+    ptIds->Delete(); //don't need to keep anymore
     this->BuildTree(LHlist, LHnode);
     this->BuildTree(RHlist, RHnode);
     }//if should build tree

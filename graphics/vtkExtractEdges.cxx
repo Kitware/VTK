@@ -117,7 +117,7 @@ void vtkExtractEdges::Execute()
       
       for ( i=0; i < numEdgePts; i++, pt1=pt2, pts[0]=pts[1] )
         {
-        pt2 = edge->PointIds.GetId(i);
+        pt2 = edge->PointIds->GetId(i);
 	x = input->GetPoint(pt2);
         if ( (pts[1]=this->Locator->IsInsertedPoint(x)) < 0 )
 	  {
@@ -138,7 +138,7 @@ void vtkExtractEdges::Execute()
   //
   //  Update ourselves.
   //
-  delete edgeTable;
+  edgeTable->Delete();
 
   output->SetPoints(newPts);
   newPts->Delete();

@@ -74,6 +74,8 @@ vtkProp::vtkProp()
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 
   this->UserMatrix = NULL;
+  this->Matrix = vtkMatrix4x4::New();
+  this->Transform = vtkTransform::New();
 }
 
 vtkProp::~vtkProp()
@@ -81,6 +83,13 @@ vtkProp::~vtkProp()
   if ((this->PickMethodArg)&&(this->PickMethodArgDelete))
     {
     (*this->PickMethodArgDelete)(this->PickMethodArg);
+    }
+  this->Matrix->Delete();
+  this->Transform->Delete();
+  if (this->UserMatrix)
+    {
+    this->UserMatrix->UnRegister(this);
+    this->UserMatrix = NULL;
     }
 }
 
@@ -97,7 +106,7 @@ vtkProp& vtkProp::operator=(const vtkProp& prop)
     this->Center[i] = prop.Center[i];
     }
 
-  this->Transform = prop.Transform;
+  *(this->Transform) = *(prop.Transform);
 
   this->Visibility = prop.Visibility;
   this->Pickable   = prop.Pickable;
@@ -146,11 +155,11 @@ void vtkProp::SetOrientation (float x,float y,float z)
                 << this->Orientation[1] << ", " 
                 << this->Orientation[2] << ")\n");
 
-  this->Transform.Identity();
-  this->Transform.PreMultiply ();
-  this->Transform.RotateZ(this->Orientation[2]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateY(this->Orientation[1]);
+  this->Transform->Identity();
+  this->Transform->PreMultiply ();
+  this->Transform->RotateZ(this->Orientation[2]);
+  this->Transform->RotateX(this->Orientation[0]);
+  this->Transform->RotateY(this->Orientation[1]);
 
   this->Modified();
 }
@@ -168,7 +177,7 @@ float *vtkProp::GetOrientation ()
   float   *orientation;
 
   // return the orientation of the transformation matrix
-  orientation = this->Transform.GetOrientation();
+  orientation = this->Transform->GetOrientation();
   this->Orientation[0] = orientation[0];
   this->Orientation[1] = orientation[1];
   this->Orientation[2] = orientation[2];
@@ -182,7 +191,7 @@ float *vtkProp::GetOrientation ()
 // Returns the WXYZ orientation of the prop. 
 float *vtkProp::GetOrientationWXYZ()
 {
-  return this->Transform.GetOrientationWXYZ();
+  return this->Transform->GetOrientationWXYZ();
 }
 
 // Add to the current orientation. See SetOrientation and GetOrientation for 
@@ -208,8 +217,8 @@ void vtkProp::AddOrientation(float a[3])
 // is applied before all others in the current transformation matrix.
 void vtkProp::RotateX (float angle)
 {
-  this->Transform.PreMultiply ();
-  this->Transform.RotateX(angle);
+  this->Transform->PreMultiply ();
+  this->Transform->RotateX(angle);
   this->Modified();
 } 
 
@@ -219,8 +228,8 @@ void vtkProp::RotateX (float angle)
 // is applied before all others in the current transformation matrix.
 void vtkProp::RotateY (float angle)
 {
-  this->Transform.PreMultiply ();
-  this->Transform.RotateY(angle);
+  this->Transform->PreMultiply ();
+  this->Transform->RotateY(angle);
   this->Modified();
 } 
 
@@ -231,8 +240,8 @@ void vtkProp::RotateY (float angle)
 
 void vtkProp::RotateZ (float angle)
 {
-  this->Transform.PreMultiply ();
-  this->Transform.RotateZ(angle);
+  this->Transform->PreMultiply ();
+  this->Transform->RotateZ(angle);
   this->Modified();
 } 
 
@@ -241,47 +250,17 @@ void vtkProp::RotateZ (float angle)
 // rotate an about its model axes, use RotateX, RotateY, RotateZ.
 void vtkProp::RotateWXYZ (float degree, float x, float y, float z)
 {
-  this->Transform.PostMultiply();  
-  this->Transform.RotateWXYZ(degree,x,y,z);
-  this->Transform.PreMultiply();  
+  this->Transform->PostMultiply();  
+  this->Transform->RotateWXYZ(degree,x,y,z);
+  this->Transform->PreMultiply();  
   this->Modified();
 }
-#if 0
-// Copy the prop's composite 4x4 matrix into the matrix provided.
-void vtkProp::GetMatrix(vtkMatrix4x4& result)
-{
-  this->GetOrientation();
-  this->Transform.Push();  
-  this->Transform.Identity();  
-  this->Transform.PostMultiply();  
 
-  // shift back to prop's origin
-  this->Transform.Translate(-this->Origin[0],
-			    -this->Origin[1],
-			    -this->Origin[2]);
-
-  // rotate
-  this->Transform.RotateY(this->Orientation[1]);
-  this->Transform.RotateX(this->Orientation[0]);
-  this->Transform.RotateZ(this->Orientation[2]);
-
-  // move back from origin and translate
-  this->Transform.Translate(this->Origin[0] + this->Position[0],
-			    this->Origin[1] + this->Position[1],
-			    this->Origin[2] + this->Position[2]);
-   
-  this->Transform.PreMultiply();  
-  result = this->Transform.GetMatrix();
-
-  this->Transform.Pop();  
-} 
-#endif
 // Return a reference to the prop's 4x4 composite matrix.
 vtkMatrix4x4& vtkProp::GetMatrix()
 {
-  static vtkMatrix4x4 result;
-  this->GetMatrix(result);
-  return result;
+  this->GetMatrix(this->Matrix);
+  return *(this->Matrix);
 } 
 
 

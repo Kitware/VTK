@@ -119,7 +119,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
   FILE *fp;
   float n[3], *v1, *v2, *v3;
   int npts, *indx;
-  vtkByteSwap swap;
+  vtkByteSwap *swap;
   unsigned long ulint;
   unsigned short ibuff2=0;
 
@@ -128,19 +128,21 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName);
     return;
     }
-//
-//  Write header
-//
+  
+  swap = vtkByteSwap::New();
+  //
+  //  Write header
+  //
   vtkDebugMacro("Writing Binary sla file");
   fwrite (header, 1, 80, fp);
 
   ulint = (unsigned long int) polys->GetNumberOfCells();
-  swap.Swap4LE(&ulint);
+  swap->Swap4LE(&ulint);
   fwrite (&ulint, 1, 4, fp);
-//
-//  Write out triangle polygons.  In not a triangle polygon, only first 
-//  three vertices are written.
-//
+  //
+  //  Write out triangle polygons.  In not a triangle polygon, only first 
+  //  three vertices are written.
+  //
   for (polys->InitTraversal(); polys->GetNextCell(npts,indx); )
     {
     v1 = pts->GetPoint(indx[0]);
@@ -148,23 +150,24 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints *pts, vtkCellArray *polys)
     v3 = pts->GetPoint(indx[2]);
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
-    swap.Swap4LE(n); swap.Swap4LE(n+1); swap.Swap4LE(n+2);
+    swap->Swap4LE(n); swap->Swap4LE(n+1); swap->Swap4LE(n+2);
     fwrite (n, 4, 3, fp);
 
     n[0] = v1[0];  n[1] = v1[1];  n[2] = v1[2]; 
-    swap.Swap4LE(n); swap.Swap4LE(n+1); swap.Swap4LE(n+2);
+    swap->Swap4LE(n); swap->Swap4LE(n+1); swap->Swap4LE(n+2);
     fwrite (n, 4, 3, fp);
 
     n[0] = v2[0];  n[1] = v2[1];  n[2] = v2[2]; 
-    swap.Swap4LE(n); swap.Swap4LE(n+1); swap.Swap4LE(n+2);
+    swap->Swap4LE(n); swap->Swap4LE(n+1); swap->Swap4LE(n+2);
     fwrite (n, 4, 3, fp);
 
     n[0] = v3[0];  n[1] = v3[1];  n[2] = v3[2]; 
-    swap.Swap4LE(n); swap.Swap4LE(n+1); swap.Swap4LE(n+2);
+    swap->Swap4LE(n); swap->Swap4LE(n+1); swap->Swap4LE(n+2);
     fwrite (n, 4, 3, fp);
 
     fwrite (&ibuff2, 2, 1, fp);
     }
   fclose (fp);
+  swap->Delete();
 }
 

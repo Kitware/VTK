@@ -43,107 +43,113 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
-  this->Reader.SetSource(this);
+  this->Reader = vtkDataReader::New();
+  this->Reader->SetSource(this);
+}
+
+vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
+{
+  this->Reader->Delete();
 }
 
 unsigned long int vtkUnstructuredGridReader::GetMTime()
 {
   unsigned long dtime = this->vtkSource::GetMTime();
-  unsigned long rtime = this->Reader.GetMTime();
+  unsigned long rtime = this->Reader->GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Specify file name of vtk polygonal data file to read.
 void vtkUnstructuredGridReader::SetFileName(char *name) 
 {
-  this->Reader.SetFileName(name);
+  this->Reader->SetFileName(name);
 }
 char *vtkUnstructuredGridReader::GetFileName() 
 {
-  return this->Reader.GetFileName();
+  return this->Reader->GetFileName();
 }
 
 // Get the type of file (ASCII or BINARY)
 int vtkUnstructuredGridReader::GetFileType() 
 {
-  return this->Reader.GetFileType();
+  return this->Reader->GetFileType();
 }
 
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkUnstructuredGridReader::SetScalarsName(char *name) 
 {
-  this->Reader.SetScalarsName(name);
+  this->Reader->SetScalarsName(name);
 }
 char *vtkUnstructuredGridReader::GetScalarsName() 
 {
-  return this->Reader.GetScalarsName();
+  return this->Reader->GetScalarsName();
 }
 
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkUnstructuredGridReader::SetVectorsName(char *name) 
 {
-  this->Reader.SetVectorsName(name);
+  this->Reader->SetVectorsName(name);
 }
 char *vtkUnstructuredGridReader::GetVectorsName() 
 {
-  return this->Reader.GetVectorsName();
+  return this->Reader->GetVectorsName();
 }
 
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkUnstructuredGridReader::SetTensorsName(char *name) 
 {
-  this->Reader.SetTensorsName(name);
+  this->Reader->SetTensorsName(name);
 }
 char *vtkUnstructuredGridReader::GetTensorsName() 
 {
-  return this->Reader.GetTensorsName();
+  return this->Reader->GetTensorsName();
 }
 
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkUnstructuredGridReader::SetNormalsName(char *name) 
 {
-  this->Reader.SetNormalsName(name);
+  this->Reader->SetNormalsName(name);
 }
 char *vtkUnstructuredGridReader::GetNormalsName() 
 {
-  return this->Reader.GetNormalsName();
+  return this->Reader->GetNormalsName();
 }
 
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkUnstructuredGridReader::SetTCoordsName(char *name) 
 {
-  this->Reader.SetTCoordsName(name);
+  this->Reader->SetTCoordsName(name);
 }
 char *vtkUnstructuredGridReader::GetTCoordsName() 
 {
-  return this->Reader.GetTCoordsName();
+  return this->Reader->GetTCoordsName();
 }
 
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkUnstructuredGridReader::SetLookupTableName(char *name) 
 {
-  this->Reader.SetLookupTableName(name);
+  this->Reader->SetLookupTableName(name);
 }
 char *vtkUnstructuredGridReader::GetLookupTableName() 
 {
-  return this->Reader.GetLookupTableName();
+  return this->Reader->GetLookupTableName();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkUnstructuredGridReader::SetFieldDataName(char *name) 
 {
-  this->Reader.SetFieldDataName(name);
+  this->Reader->SetFieldDataName(name);
 }
 char *vtkUnstructuredGridReader::GetFieldDataName() 
 {
-  return this->Reader.GetFieldDataName();
+  return this->Reader->GetFieldDataName();
 }
 
 void vtkUnstructuredGridReader::Execute()
@@ -157,37 +163,37 @@ void vtkUnstructuredGridReader::Execute()
   
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
-  if ( this->Debug ) this->Reader.DebugOn();
-  else this->Reader.DebugOff();
+  if ( this->Debug ) this->Reader->DebugOn();
+  else this->Reader->DebugOff();
 
-  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
+  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
       return;
 //
 // Read unstructured grid specific stuff
 //
-  if (!this->Reader.ReadString(line))
+  if (!this->Reader->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader.CloseVTKFile ();
+    this->Reader->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
     {
 //
 // Make sure we're reading right type of geometry
 //
-    if (!this->Reader.ReadString(line))
+    if (!this->Reader->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       } 
 
-    if ( strncmp(this->Reader.LowerCase(line),"unstructured_grid",17) )
+    if ( strncmp(this->Reader->LowerCase(line),"unstructured_grid",17) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       }
 //
@@ -195,37 +201,37 @@ void vtkUnstructuredGridReader::Execute()
 //
     while (1)
       {
-      if (!this->Reader.ReadString(line)) break;
+      if (!this->Reader->ReadString(line)) break;
 
-      if ( ! strncmp(this->Reader.LowerCase(line),"points",6) )
+      if ( ! strncmp(this->Reader->LowerCase(line),"points",6) )
         {
-        if (!this->Reader.Read(&numPts))
+        if (!this->Reader->Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
-        if (!this->Reader.ReadPoints(output, numPts))
+        if (!this->Reader->ReadPoints(output, numPts))
           {
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         }
 
       else if ( !strncmp(line,"cells",5))
         {
-        if (!(this->Reader.Read(&ncells) && this->Reader.Read(&size)))
+        if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read cells!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
         cells = vtkCellArray::New();
-        if (!this->Reader.ReadCells(size, cells->WritePointer(ncells,size)) )
+        if (!this->Reader->ReadCells(size, cells->WritePointer(ncells,size)) )
           {
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         if (cells && types) output->SetCells(types, cells);
@@ -233,23 +239,23 @@ void vtkUnstructuredGridReader::Execute()
 
       else if (!strncmp(line,"cell_types",10))
         {
-        if (!this->Reader.Read(&ncells))
+        if (!this->Reader->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell types!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
         types = new int[ncells];
-        if (this->Reader.GetFileType() == VTK_BINARY)
+        if (this->Reader->GetFileType() == VTK_BINARY)
           {
           // suck up newline
-          this->Reader.GetIStream()->getline(line,256);
-          this->Reader.GetIStream()->read((char *)types,sizeof(int)*ncells);
-          if (this->Reader.GetIStream()->eof())
+          this->Reader->GetIStream()->getline(line,256);
+          this->Reader->GetIStream()->read((char *)types,sizeof(int)*ncells);
+          if (this->Reader->GetIStream()->eof())
             {
             vtkErrorMacro(<<"Error reading binary cell types!");
-            this->Reader.CloseVTKFile ();
+            this->Reader->CloseVTKFile ();
             return;
             }
           vtkByteSwap::Swap4BERange(types,ncells);
@@ -258,10 +264,10 @@ void vtkUnstructuredGridReader::Execute()
           {
           for (int i=0; i<ncells; i++)
             {
-            if (!this->Reader.Read(types+i))
+            if (!this->Reader->Read(types+i))
               {
               vtkErrorMacro(<<"Error reading cell types!");
-              this->Reader.CloseVTKFile ();
+              this->Reader->CloseVTKFile ();
               return;
               }
             }
@@ -271,48 +277,48 @@ void vtkUnstructuredGridReader::Execute()
 
       else if ( ! strncmp(line, "cell_data", 9) )
         {
-        if (!this->Reader.Read(&numCells))
+        if (!this->Reader->Read(&numCells))
           {
           vtkErrorMacro(<<"Cannot read cell data!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
-        this->Reader.ReadCellData(output, ncells);
+        this->Reader->ReadCellData(output, ncells);
         break; //out of this loop
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.Read(&npts))
+        if (!this->Reader->Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
-        this->Reader.ReadPointData(output, npts);
+        this->Reader->ReadPointData(output, npts);
         break; //out of this loop
         }
 
       else
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
-        this->Reader.CloseVTKFile ();
+        this->Reader->CloseVTKFile ();
         return;
         }
       }
@@ -323,14 +329,14 @@ void vtkUnstructuredGridReader::Execute()
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.Read(&numPts))
+    if (!this->Reader->Read(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       }
 
-    this->Reader.ReadPointData(output, numPts);
+    this->Reader->ReadPointData(output, numPts);
     }
 
   else 
@@ -349,20 +355,20 @@ void vtkUnstructuredGridReader::Execute()
   vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points," <<output->GetNumberOfCells() <<" cells.\n");
   
 
-  this->Reader.CloseVTKFile ();
+  this->Reader->CloseVTKFile ();
   return;
 }
 
 static int recursing = 0;
 void vtkUnstructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
+  // the reader ivar's source will be this Reader-> we must do this to prevent infinite printing
   if (!recursing)
     { 
     vtkUnstructuredGridSource::PrintSelf(os,indent);
     recursing = 1;
     os << indent << "Reader:\n";
-    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    this->Reader->PrintSelf(os,indent.GetNextIndent());
     }
   recursing = 0;
 }

@@ -43,15 +43,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkLightCollection.h"
 
-vtkLightCollection::~vtkLightCollection()
-{
-  this->RemoveAllItems();
-}
-
 // Add a light to the list.
 void vtkLightCollection::AddItem(vtkLight *a) 
 {
-  a->Register(this);
   this->vtkCollection::AddItem((vtkObject *)a);
 }
 
@@ -73,13 +67,6 @@ int vtkLightCollection::IsItemPresent(vtkLight *a)
 vtkLight *vtkLightCollection::GetNextItem() 
 { 
   return (vtkLight *)(this->GetNextItemAsObject());
-}
-
-// protected function to delete an element. Internal use only.
-void vtkLightCollection::DeleteElement(vtkCollectionElement *e)
-{
-  ((vtkLight *)(e->Item))->UnRegister(this); 
-  vtkCollection::DeleteElement(e);
 }
 
 

@@ -54,29 +54,35 @@ void vtkStreamLine::Execute()
   vtkScalars *newScalars=NULL;
   vtkCellArray *newLines;
   int i, ptId, j, id;
-  vtkIdList pts(2500);
+  vtkIdList *pts;
   float tOffset, x[3], v[3], s, r;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   this->vtkStreamer::Integrate();
-  if ( this->NumberOfStreamers <= 0 ) return;
-//
-//  Convert streamer into lines. Lines may be dashed.
-//
+  if ( this->NumberOfStreamers <= 0 ) {return;}
+
+  pts = vtkIdList::New();
+  pts->Allocate(2500);
+
+  //
+  //  Convert streamer into lines. Lines may be dashed.
+  //
   newPts  = vtkPoints::New();
   newPts ->Allocate(1000);
   newVectors  = vtkVectors::New();
   newVectors ->Allocate(1000);
-  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || this->SpeedScalars )
+  if ( ((vtkDataSet *)this->Input)->GetPointData()->GetScalars() || 
+       this->SpeedScalars )
     {
     newScalars = vtkScalars::New();
     newScalars->Allocate(1000);
     }
   newLines = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,VTK_CELL_SIZE));
-//
-// Loop over all streamers generating points
-//
+  newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,
+					    VTK_CELL_SIZE));
+  //
+  // Loop over all streamers generating points
+  //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
     {
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 ) continue;
@@ -92,9 +98,9 @@ void vtkStreamLine::Execute()
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
       {
-//
-// Create points for line
-//
+      //
+      // Create points for line
+      //
       while ( tOffset >= sPrev->t && tOffset < sPtr->t )
         {
         r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
@@ -107,7 +113,7 @@ void vtkStreamLine::Execute()
 
         // add point to line
         id = newPts->InsertNextPoint(x);
-        pts.InsertNextId(id);
+        pts->InsertNextId(id);
         newVectors->InsertVector(id,v);
 
         if ( newScalars ) 
@@ -121,15 +127,15 @@ void vtkStreamLine::Execute()
         } // while
       } //for this streamer
 
-    if ( pts.GetNumberOfIds() > 1 )
+    if ( pts->GetNumberOfIds() > 1 )
       {
-      newLines->InsertNextCell(pts);
-      pts.Reset();
+      newLines->InsertNextCell(*pts);
+      pts->Reset();
       }
     } //for all streamers
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
@@ -145,6 +151,7 @@ void vtkStreamLine::Execute()
     newScalars->Delete();
     }
 
+  pts->Delete();
   output->SetLines(newLines);
   newLines->Delete();
 

@@ -42,107 +42,114 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()
 {
-  this->Reader.SetSource(this);
+  this->Reader = vtkDataReader::New();
+  this->Reader->SetSource(this);
+}
+
+vtkStructuredPointsReader::~vtkStructuredPointsReader()
+{
+  this->Reader->Delete();
+  this->Reader = NULL;
 }
 
 unsigned long int vtkStructuredPointsReader::GetMTime()
 {
   unsigned long dtime = this->vtkSource::GetMTime();
-  unsigned long rtime = this->Reader.GetMTime();
+  unsigned long rtime = this->Reader->GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Specify file name of vtk structured points data file to read.
 void vtkStructuredPointsReader::SetFileName(char *name) 
 {
-  this->Reader.SetFileName(name);
+  this->Reader->SetFileName(name);
 }
 char *vtkStructuredPointsReader::GetFileName() 
 {
-  return this->Reader.GetFileName();
+  return this->Reader->GetFileName();
 }
 
 // Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkStructuredPointsReader::GetFileType() 
 {
-  return this->Reader.GetFileType();
+  return this->Reader->GetFileType();
 }
 
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkStructuredPointsReader::SetScalarsName(char *name) 
 {
-  this->Reader.SetScalarsName(name);
+  this->Reader->SetScalarsName(name);
 }
 char *vtkStructuredPointsReader::GetScalarsName() 
 {
-  return this->Reader.GetScalarsName();
+  return this->Reader->GetScalarsName();
 }
 
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkStructuredPointsReader::SetVectorsName(char *name) 
 {
-  this->Reader.SetVectorsName(name);
+  this->Reader->SetVectorsName(name);
 }
 char *vtkStructuredPointsReader::GetVectorsName() 
 {
-  return this->Reader.GetVectorsName();
+  return this->Reader->GetVectorsName();
 }
 
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkStructuredPointsReader::SetTensorsName(char *name) 
 {
-  this->Reader.SetTensorsName(name);
+  this->Reader->SetTensorsName(name);
 }
 char *vtkStructuredPointsReader::GetTensorsName() 
 {
-  return this->Reader.GetTensorsName();
+  return this->Reader->GetTensorsName();
 }
 
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkStructuredPointsReader::SetNormalsName(char *name) 
 {
-  this->Reader.SetNormalsName(name);
+  this->Reader->SetNormalsName(name);
 }
 char *vtkStructuredPointsReader::GetNormalsName() 
 {
-  return this->Reader.GetNormalsName();
+  return this->Reader->GetNormalsName();
 }
 
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkStructuredPointsReader::SetTCoordsName(char *name) 
 {
-  this->Reader.SetTCoordsName(name);
+  this->Reader->SetTCoordsName(name);
 }
 char *vtkStructuredPointsReader::GetTCoordsName() 
 {
-  return this->Reader.GetTCoordsName();
+  return this->Reader->GetTCoordsName();
 }
 
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkStructuredPointsReader::SetLookupTableName(char *name) 
 {
-  this->Reader.SetLookupTableName(name);
+  this->Reader->SetLookupTableName(name);
 }
 char *vtkStructuredPointsReader::GetLookupTableName() 
 {
-  return this->Reader.GetLookupTableName();
+  return this->Reader->GetLookupTableName();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkStructuredPointsReader::SetFieldDataName(char *name) 
 {
-  this->Reader.SetFieldDataName(name);
+  this->Reader->SetFieldDataName(name);
 }
 char *vtkStructuredPointsReader::GetFieldDataName() 
 {
-  return this->Reader.GetFieldDataName();
+  return this->Reader->GetFieldDataName();
 }
 
 void vtkStructuredPointsReader::Execute()
@@ -154,37 +161,37 @@ void vtkStructuredPointsReader::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
   
   vtkDebugMacro(<<"Reading vtk structured points file...");
-  if ( this->Debug ) this->Reader.DebugOn();
-  else this->Reader.DebugOff();
+  if ( this->Debug ) this->Reader->DebugOn();
+  else this->Reader->DebugOff();
 
-  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
+  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
       return;
 //
 // Read structured points specific stuff
 //
-  if (!this->Reader.ReadString(line))
+  if (!this->Reader->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader.CloseVTKFile ();
+    this->Reader->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
     {
 //
 // Make sure we're reading right type of geometry
 //
-    if (!this->Reader.ReadString(line))
+    if (!this->Reader->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       } 
 
-    if ( strncmp(this->Reader.LowerCase(line),"structured_points",17) )
+    if ( strncmp(this->Reader->LowerCase(line),"structured_points",17) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       }
 //
@@ -193,17 +200,17 @@ void vtkStructuredPointsReader::Execute()
     numPts = output->GetNumberOfPoints(); // get default
     while (1)
       {
-      if (!this->Reader.ReadString(line)) break;
+      if (!this->Reader->ReadString(line)) break;
 
-      if ( ! strncmp(this->Reader.LowerCase(line),"dimensions",10) )
+      if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
         {
         int dim[3];
-        if (!(this->Reader.Read(dim) && 
-	      this->Reader.Read(dim+1) && 
-	      this->Reader.Read(dim+2)))
+        if (!(this->Reader->Read(dim) && 
+	      this->Reader->Read(dim+1) && 
+	      this->Reader->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
@@ -216,12 +223,12 @@ void vtkStructuredPointsReader::Execute()
       else if ( !strncmp(line,"aspect_ratio",12) || !strncmp(line,"spacing",7) )
         {
         float ar[3];
-        if (!(this->Reader.Read(ar) && 
-	      this->Reader.Read(ar+1) && 
-	      this->Reader.Read(ar+2)))
+        if (!(this->Reader->Read(ar) && 
+	      this->Reader->Read(ar+1) && 
+	      this->Reader->Read(ar+2)))
           {
           vtkErrorMacro(<<"Error reading spacing!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
@@ -232,12 +239,12 @@ void vtkStructuredPointsReader::Execute()
       else if ( ! strncmp(line,"origin",6) )
         {
         float origin[3];
-        if (!(this->Reader.Read(origin) && 
-	      this->Reader.Read(origin+1) && 
-	      this->Reader.Read(origin+2)))
+        if (!(this->Reader->Read(origin) && 
+	      this->Reader->Read(origin+1) && 
+	      this->Reader->Read(origin+2)))
           {
           vtkErrorMacro(<<"Error reading origin!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
@@ -247,48 +254,48 @@ void vtkStructuredPointsReader::Execute()
 
       else if ( ! strncmp(line, "cell_data", 9) )
         {
-        if (!this->Reader.Read(&ncells))
+        if (!this->Reader->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell data!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match data values!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
-        this->Reader.ReadCellData(output, ncells);
+        this->Reader->ReadCellData(output, ncells);
         break; //out of this loop
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader.Read(&npts))
+        if (!this->Reader->Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match data values!");
-          this->Reader.CloseVTKFile ();
+          this->Reader->CloseVTKFile ();
           return;
           }
 
-        this->Reader.ReadPointData(output, npts);
+        this->Reader->ReadPointData(output, npts);
         break; //out of this loop
         }
 
       else
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
-        this->Reader.CloseVTKFile ();
+        this->Reader->CloseVTKFile ();
         return;
         }
       }
@@ -301,32 +308,32 @@ void vtkStructuredPointsReader::Execute()
   else if ( !strncmp(line,"cell_data",9) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.Read(&ncells))
+    if (!this->Reader->Read(&ncells))
       {
       vtkErrorMacro(<<"Cannot read cell data!");
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       }
-    this->Reader.ReadCellData(output, numCells);
+    this->Reader->ReadCellData(output, numCells);
     }
 
   else if ( !strncmp(line,"point_data",10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader.Read(&npts))
+    if (!this->Reader->Read(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
-      this->Reader.CloseVTKFile ();
+      this->Reader->CloseVTKFile ();
       return;
       }
-    this->Reader.ReadPointData(output, numPts);
+    this->Reader->ReadPointData(output, numPts);
     }
 
   else 
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
-  this->Reader.CloseVTKFile ();
+  this->Reader->CloseVTKFile ();
 }
 
 static int recursing = 0;
@@ -338,7 +345,7 @@ void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
     vtkStructuredPointsSource::PrintSelf(os,indent);
     recursing = 1;
     os << indent << "Reader:\n";
-    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    this->Reader->PrintSelf(os,indent.GetNextIndent());
     }
   recursing = 0;
 }

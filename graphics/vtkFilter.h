@@ -62,9 +62,11 @@ class VTK_EXPORT vtkFilter : public vtkSource
 {
 public:
 
-// Description:
-// Construct new filter without start or end methods.
+  // Description:
+  // Construct new filter without start or end methods.
   vtkFilter();
+
+  ~vtkFilter();
 
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkFilter *New() {return new vtkFilter;};

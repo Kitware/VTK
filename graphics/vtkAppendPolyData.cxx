@@ -44,25 +44,34 @@ vtkAppendPolyData::vtkAppendPolyData()
 {
   this->Output = vtkPolyData::New();
   this->Output->SetSource(this);
+  this->InputList = vtkPolyDataCollection::New();
 }
+
+vtkAppendPolyData::~vtkAppendPolyData()
+{
+  this->InputList->Delete();
+  this->InputList = NULL;
+}
+
+  
 
 // Add a dataset to the list of data to append.
 void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 {
-  if ( ! this->InputList.IsItemPresent(ds) )
+  if ( ! this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.AddItem(ds);
+    this->InputList->AddItem(ds);
     }
 }
 
 // Remove a dataset from the list of data to append.
 void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {
-  if ( this->InputList.IsItemPresent(ds) )
+  if ( this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.RemoveItem(ds);
+    this->InputList->RemoveItem(ds);
     }
 }
 
@@ -72,7 +81,7 @@ void vtkAppendPolyData::Update()
   vtkPolyData *pd;
 
   // make sure input is available
-  if ( this->InputList.GetNumberOfItems() < 1 )
+  if ( this->InputList->GetNumberOfItems() < 1 )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -85,8 +94,8 @@ void vtkAppendPolyData::Update()
     }
 
   this->Updating = 1;
-  for (mtime=0, this->InputList.InitTraversal(); 
-       (pd = this->InputList.GetNextItem());)
+  for (mtime=0, this->InputList->InitTraversal(); 
+       (pd = this->InputList->GetNextItem());)
     {
     pd->Update();
     pdMtime = pd->GetMTime();
@@ -99,7 +108,7 @@ void vtkAppendPolyData::Update()
 
   if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
-    for (this->InputList.InitTraversal();(pd=this->InputList.GetNextItem()); )
+    for (this->InputList->InitTraversal();(pd=this->InputList->GetNextItem()); )
       {
       if ( pd->GetDataReleased() )
 	{
@@ -128,7 +137,7 @@ void vtkAppendPolyData::Update()
       }
     }
 
-  for (this->InputList.InitTraversal(); (pd = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal(); (pd = this->InputList->GetNextItem()); )
     {
     if ( pd->ShouldIReleaseData() )
       {
@@ -168,7 +177,7 @@ void vtkAppendPolyData::Execute()
   tensorsPresent = 1;
   fieldPresent = 1;
 
-  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     {
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
@@ -248,8 +257,8 @@ void vtkAppendPolyData::Execute()
   newStrips->Allocate(numCells*4);
 
   // loop over all input sets
-  for (ptOffset=0, this->InputList.InitTraversal(); 
-       (ds = this->InputList.GetNextItem()); ptOffset+=numPts)
+  for (ptOffset=0, this->InputList->InitTraversal(); 
+       (ds = this->InputList->GetNextItem()); ptOffset+=numPts)
     {
     pd = ds->GetPointData();
 
@@ -341,6 +350,6 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
   vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
-  this->InputList.PrintSelf(os,indent.GetNextIndent());
+  this->InputList->PrintSelf(os,indent.GetNextIndent());
 }
 

@@ -58,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkRenderWindowInteractor_h
 #define __vtkRenderWindowInteractor_h
 
+#include "vtkObject.h"
 #include "vtkRenderWindow.h"
 #include "vtkCamera.h"
 #include "vtkLight.h"
@@ -69,8 +70,8 @@ class VTK_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
 public:
 
-// Description:
-// Construct object so that light follows camera motion.
+  // Description:
+  // Construct object so that light follows camera motion.
   vtkRenderWindowInteractor();
 
   ~vtkRenderWindowInteractor();
@@ -78,7 +79,7 @@ public:
   const char *GetClassName() {return "vtkRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  virtual void Initialize() {this->Initialized=1;this->RenderWindow->Render();};
+  virtual void Initialize() {this->Initialized=1;this->RenderWindow->Render();}
   virtual void Start() {};
 
   // Description:
@@ -297,7 +298,7 @@ protected:
   // for picking actors
   vtkPicker *Picker;
   int SelfCreatedPicker;
-  vtkOutlineSource Outline;
+  vtkOutlineSource *Outline;
   vtkPolyDataMapper *OutlineMapper;
   vtkActor *OutlineActor;
   vtkRenderer *PickedRenderer;

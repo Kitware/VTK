@@ -57,7 +57,7 @@ void vtkStarbaseCamera::Render(vtkRenderer *ren)
   float view_size[2];
   float vdc_vals[6];
   fd = ((vtkStarbaseRenderer *)ren)->GetFd();
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   // get the background color
   background = ren->GetBackground();
@@ -168,11 +168,11 @@ void vtkStarbaseCamera::Render(vtkRenderer *ren)
   hidden_surface(fd, TRUE, FALSE);
   vtkDebugMacro(<< " SB_hidden_surface: True False\n");
 
-  matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,1);
-  matrix.Transpose();
+  *matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,1);
+  matrix->Transpose();
  
   // insert model transformation 
-  view_matrix3d(fd, (float (*)[4])(matrix[0]),REPLACE_VW);
+  view_matrix3d(fd, (float (*)[4])(matrix->Element[0]),REPLACE_VW);
   
   viewpoint(fd,POSITIONAL,this->Position[0],this->Position[1],
 	    this->Position[2]);
@@ -185,4 +185,5 @@ void vtkStarbaseCamera::Render(vtkRenderer *ren)
     if (this->LeftEye) this->LeftEye = 0;
     else this->LeftEye = 1;
     }
+  matrix->Delete();
 }

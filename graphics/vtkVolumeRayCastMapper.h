@@ -217,7 +217,7 @@ protected:
   // perspective viewing transforms
   float                        *ViewRays;
   int                          ViewRaysSize[2];
-  vtkTransform                 ViewRaysTransform;
+  vtkTransform                 *ViewRaysTransform;
 
   // Accounting information
   int                          TotalStepsTaken;

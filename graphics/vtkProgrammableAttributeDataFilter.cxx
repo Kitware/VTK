@@ -45,6 +45,7 @@ vtkProgrammableAttributeDataFilter::vtkProgrammableAttributeDataFilter()
   this->ExecuteMethod = NULL;
   this->ExecuteMethodArg = NULL;
   this->ExecuteMethodArgDelete = NULL;
+  this->InputList = vtkDataSetCollection::New();
 }
 
 vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
@@ -54,25 +55,27 @@ vtkProgrammableAttributeDataFilter::~vtkProgrammableAttributeDataFilter()
     {
     (*this->ExecuteMethodArgDelete)(this->ExecuteMethodArg);
     }
+  this->InputList->Delete();
+  this->InputList = NULL;
 }
 
 // Add a dataset to the list of data to process.
 void vtkProgrammableAttributeDataFilter::AddInput(vtkDataSet *ds)
 {
-  if ( ! this->InputList.IsItemPresent(ds) )
+  if ( ! this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.AddItem(ds);
+    this->InputList->AddItem(ds);
     }
 }
 
 // Remove a dataset from the list of data to process.
 void vtkProgrammableAttributeDataFilter::RemoveInput(vtkDataSet *ds)
 {
-  if ( this->InputList.IsItemPresent(ds) )
+  if ( this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.RemoveItem(ds);
+    this->InputList->RemoveItem(ds);
     }
 }
 
@@ -125,7 +128,7 @@ void vtkProgrammableAttributeDataFilter::Update()
   this->Input->Update();
   if (this->Input->GetMTime() > mtime ) mtime = this->Input->GetMTime();
   
-  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     {
     ds->Update();
     dsMtime = ds->GetMTime();
@@ -141,7 +144,7 @@ void vtkProgrammableAttributeDataFilter::Update()
       this->Input->ForceUpdate();
       }
 
-    for ( this->InputList.InitTraversal(); (ds=this->InputList.GetNextItem()); )
+    for ( this->InputList->InitTraversal(); (ds=this->InputList->GetNextItem()); )
       {
       if ( ds->GetDataReleased() ) ds->ForceUpdate();
       }
@@ -163,7 +166,7 @@ void vtkProgrammableAttributeDataFilter::Update()
     this->Input->ReleaseData();
     }
   
-  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     if ( ds->ShouldIReleaseData() ) ds->ReleaseData();
 }
 
@@ -190,7 +193,7 @@ void vtkProgrammableAttributeDataFilter::PrintSelf(ostream& os, vtkIndent indent
   vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
-  this->InputList.PrintSelf(os,indent.GetNextIndent());
+  this->InputList->PrintSelf(os,indent.GetNextIndent());
   
   if ( this->ExecuteMethod )
     {

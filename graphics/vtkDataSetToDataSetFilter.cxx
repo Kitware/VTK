@@ -82,7 +82,9 @@ void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
   if ( this->Input != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
 
     if ( input == NULL )

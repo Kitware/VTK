@@ -67,6 +67,11 @@ vtkTexture::~vtkTexture()
     {
     this->LookupTable->Delete();
     }
+  if (this->Input) 
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
 }
 
 #ifdef VTK_USE_OGLR

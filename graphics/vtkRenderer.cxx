@@ -71,6 +71,11 @@ vtkRenderer::vtkRenderer()
   this->BackingStore = 0;
   this->BackingImage = NULL;
   this->LastRenderTimeInSeconds = -1.0;
+  
+  this->Lights = vtkLightCollection::New();
+  this->Actors = vtkActorCollection::New();
+  this->Volumes = vtkVolumeCollection::New();
+  this->Cullers = vtkCullerCollection::New();  
 }
 
 vtkRenderer::~vtkRenderer()
@@ -89,6 +94,15 @@ vtkRenderer::~vtkRenderer()
 
   this->RayCaster->Delete();
   if (this->BackingImage) delete [] this->BackingImage;
+  
+  this->Lights->Delete();
+  this->Lights = NULL;
+  this->Actors->Delete();
+  this->Actors = NULL;
+  this->Volumes->Delete();
+  this->Volumes = NULL;
+  this->Cullers->Delete();
+  this->Cullers = NULL;
 }
 
 #ifdef VTK_USE_OGLR
@@ -147,14 +161,14 @@ void vtkRenderer::Render(void)
     vtkActor *anActor;
     
     // now we just need to check the lights and actors
-    for(this->Lights.InitTraversal(); 
-	(light = this->Lights.GetNextItem()); )
+    for(this->Lights->InitTraversal(); 
+	(light = this->Lights->GetNextItem()); )
       {
       if (light->GetSwitch() && 
 	  light->GetMTime() > this->RenderTime) mods = 1;
       }
-    for (this->Actors.InitTraversal(); 
-	 (anActor = this->Actors.GetNextItem()); )
+    for (this->Actors->InitTraversal(); 
+	 (anActor = this->Actors->GetNextItem()); )
       {
       // if it's invisible, we can skip the rest 
       if (anActor->GetVisibility())
@@ -264,16 +278,16 @@ int vtkRenderer::UpdateActors()
   int        allocated_time_initialized = 0, i;
   float      render_time, new_render_time;
 
-  num_actors = this->Actors.GetNumberOfItems();
+  num_actors = this->Actors->GetNumberOfItems();
 
   // We don't have any cullers so don't try to do any culling
-  if ( this->Cullers.GetNumberOfItems() == 0 )
+  if ( this->Cullers->GetNumberOfItems() == 0 )
     {
     // Give each actor an equal slice of the time
     actor_time = this->AllocatedRenderTime / (float) num_actors;
 
     // loop through actors 
-    for ( this->Actors.InitTraversal(); (anActor=this->Actors.GetNextItem()); )
+    for ( this->Actors->InitTraversal(); (anActor=this->Actors->GetNextItem()); )
       {
       // we need to draw it only if it is visible 
       if ( anActor->GetVisibility() )
@@ -304,8 +318,8 @@ int vtkRenderer::UpdateActors()
     {
     // Create the initial list of actors
     actorList = new vtkActor *[num_actors];
-    for ( i = 0,	this->Actors.InitTraversal(); 
-	  (anActor = this->Actors.GetNextItem());
+    for ( i = 0,	this->Actors->InitTraversal(); 
+	  (anActor = this->Actors->GetNextItem());
 	  i++ )
       actorList[i] = anActor;
 
@@ -317,7 +331,7 @@ int vtkRenderer::UpdateActors()
     // returned is the number of non-zero, visible actors.
     // Some cullers may do additional sorting of the list (by distance,
     // importance, etc).
-    for (this->Cullers.InitTraversal(); (aCuller=this->Cullers.GetNextItem());)
+    for (this->Cullers->InitTraversal(); (aCuller=this->Cullers->GetNextItem());)
       total_time = aCuller->OuterCullMethod( (vtkRenderer *)this, 
 					     actorList, num_actors,
 					     allocated_time_initialized );
@@ -348,8 +362,8 @@ int vtkRenderer::UpdateActors()
         // time of the actor, so we'll have to check that again later.
 	// Cullers are not allowed to increase the allocated time for
 	// an actor.
-	for (this->Cullers.InitTraversal(); 
-	     (aCuller=this->Cullers.GetNextItem());)
+	for (this->Cullers->InitTraversal(); 
+	     (aCuller=this->Cullers->GetNextItem());)
 	  if ( !(aCuller->InnerCullMethod((vtkRenderer *)this, anActor ) ) ) 
 	    {
 	    break;
@@ -436,49 +450,49 @@ vtkCamera *vtkRenderer::GetActiveCamera()
 // Add a light to the list of lights.
 void vtkRenderer::AddLight(vtkLight *light)
 {
-  this->Lights.AddItem(light);
+  this->Lights->AddItem(light);
 }
 
 // Add an actor to the list of actors.
 void vtkRenderer::AddActor(vtkActor *actor)
 {
-  this->Actors.AddItem(actor);
+  this->Actors->AddItem(actor);
 }
 
 // Add a volume to the list of volumes.
 void vtkRenderer::AddVolume(vtkVolume *volume)
 {
-  this->Volumes.AddItem(volume);
+  this->Volumes->AddItem(volume);
 }
 
 // Remove a light from the list of lights.
 void vtkRenderer::RemoveLight(vtkLight *light)
 {
-  this->Lights.RemoveItem(light);
+  this->Lights->RemoveItem(light);
 }
 
 // Remove an actor from the list of actors.
 void vtkRenderer::RemoveActor(vtkActor *actor)
 {
-  this->Actors.RemoveItem(actor);
+  this->Actors->RemoveItem(actor);
 }
 
 // Remove a volume from the list of volumes.
 void vtkRenderer::RemoveVolume(vtkVolume *volume)
 {
-  this->Volumes.RemoveItem(volume);
+  this->Volumes->RemoveItem(volume);
 }
 
 // Add an culler to the list of cullers.
 void vtkRenderer::AddCuller(vtkCuller *culler)
 {
-  this->Cullers.AddItem(culler);
+  this->Cullers->AddItem(culler);
 }
 
 // Remove an actor from the list of cullers.
 void vtkRenderer::RemoveCuller(vtkCuller *culler)
 {
-  this->Cullers.RemoveItem(culler);
+  this->Cullers->RemoveItem(culler);
 }
 
 void vtkRenderer::CreateLight(void)
@@ -511,7 +525,7 @@ void vtkRenderer::ResetCamera()
   allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
   
   // loop through actors (and their parts)
-  for ( this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
+  for (this->Actors->InitTraversal();(anActor = this->Actors->GetNextItem()); )
     {
     // if it's invisible, or has no geometry, we can skip the rest 
     if ( anActor->GetVisibility() )
@@ -535,8 +549,8 @@ void vtkRenderer::ResetCamera()
     }
 
   // loop through volumes
-  for ( this->Volumes.InitTraversal(); 
-	(aVolume = this->Volumes.GetNextItem()); )
+  for ( this->Volumes->InitTraversal(); 
+	(aVolume = this->Volumes->GetNextItem()); )
     {
     // if it's invisible we can skip the rest 
     if ( aVolume->GetVisibility() )
@@ -664,14 +678,14 @@ float vtkRenderer::GetZ (int x, int y)
 // Convert view point coordinates to world coordinates.
 void vtkRenderer::ViewToWorld()
 {
-  vtkMatrix4x4 mat;
+  vtkMatrix4x4 *mat = vtkMatrix4x4::New();
   float result[4];
 
   // get the perspective transformation from the active camera 
-  mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  *mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
   
   // use the inverse matrix 
-  mat.Invert();
+  mat->Invert();
  
   // Transform point to world coordinates 
   result[0] = this->ViewPoint[0];
@@ -679,8 +693,8 @@ void vtkRenderer::ViewToWorld()
   result[2] = this->ViewPoint[2];
   result[3] = 1.0;
 
-  mat.Transpose();
-  mat.PointMultiply(result,result);
+  mat->Transpose();
+  mat->PointMultiply(result,result);
   
   // Get the transformed vector & set WorldPoint 
   // while we are at it try to keep w at one
@@ -693,18 +707,19 @@ void vtkRenderer::ViewToWorld()
     }
   
   this->SetWorldPoint(result);
+  mat->Delete();
 }
 
 void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
 {
-  vtkMatrix4x4 mat;
+  vtkMatrix4x4 *mat = vtkMatrix4x4::New();
   float result[4];
 
   // get the perspective transformation from the active camera 
-  mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  *mat = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
   
   // use the inverse matrix 
-  mat.Invert();
+  mat->Invert();
  
   // Transform point to world coordinates 
   result[0] = x;
@@ -712,8 +727,8 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
   result[2] = z;
   result[3] = 1.0;
 
-  mat.Transpose();
-  mat.PointMultiply(result,result);
+  mat->Transpose();
+  mat->PointMultiply(result,result);
   
   // Get the transformed vector & set WorldPoint 
   // while we are at it try to keep w at one
@@ -723,27 +738,28 @@ void vtkRenderer::ViewToWorld(float &x, float &y, float &z)
     y = result[1] / result[3];
     z = result[2] / result[3];
     }
+  mat->Delete();
 }
 
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView()
 {
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float     view[4];
   float     *world;
 
   // get the perspective transformation from the active camera 
-  matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  *matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
 
   world = this->WorldPoint;
-  view[0] = world[0]*matrix[0][0] + world[1]*matrix[0][1] +
-    world[2]*matrix[0][2] + world[3]*matrix[0][3];
-  view[1] = world[0]*matrix[1][0] + world[1]*matrix[1][1] +
-    world[2]*matrix[1][2] + world[3]*matrix[1][3];
-  view[2] = world[0]*matrix[2][0] + world[1]*matrix[2][1] +
-    world[2]*matrix[2][2] + world[3]*matrix[2][3];
-  view[3] = world[0]*matrix[3][0] + world[1]*matrix[3][1] +
-    world[2]*matrix[3][2] + world[3]*matrix[3][3];
+  view[0] = world[0]*matrix->Element[0][0] + world[1]*matrix->Element[0][1] +
+    world[2]*matrix->Element[0][2] + world[3]*matrix->Element[0][3];
+  view[1] = world[0]*matrix->Element[1][0] + world[1]*matrix->Element[1][1] +
+    world[2]*matrix->Element[1][2] + world[3]*matrix->Element[1][3];
+  view[2] = world[0]*matrix->Element[2][0] + world[1]*matrix->Element[2][1] +
+    world[2]*matrix->Element[2][2] + world[3]*matrix->Element[2][3];
+  view[3] = world[0]*matrix->Element[3][0] + world[1]*matrix->Element[3][1] +
+    world[2]*matrix->Element[3][2] + world[3]*matrix->Element[3][3];
 
   if (view[3] != 0.0)
     {
@@ -751,25 +767,26 @@ void vtkRenderer::WorldToView()
 		       view[1]/view[3],
 		       view[2]/view[3]);
     }
+  matrix->Delete();
 }
 
 // Convert world point coordinates to view coordinates.
 void vtkRenderer::WorldToView(float &x, float &y, float &z)
 {
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float     view[4];
 
   // get the perspective transformation from the active camera 
-  matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
+  *matrix = this->ActiveCamera->GetCompositePerspectiveTransform(1,0,1);
 
-  view[0] = x*matrix[0][0] + y*matrix[0][1] +
-    z*matrix[0][2] + matrix[0][3];
-  view[1] = x*matrix[1][0] + y*matrix[1][1] +
-    z*matrix[1][2] + matrix[1][3];
-  view[2] = x*matrix[2][0] + y*matrix[2][1] +
-    z*matrix[2][2] + matrix[2][3];
-  view[3] = x*matrix[3][0] + y*matrix[3][1] +
-    z*matrix[3][2] + matrix[3][3];
+  view[0] = x*matrix->Element[0][0] + y*matrix->Element[0][1] +
+    z*matrix->Element[0][2] + matrix->Element[0][3];
+  view[1] = x*matrix->Element[1][0] + y*matrix->Element[1][1] +
+    z*matrix->Element[1][2] + matrix->Element[1][3];
+  view[2] = x*matrix->Element[2][0] + y*matrix->Element[2][1] +
+    z*matrix->Element[2][2] + matrix->Element[2][3];
+  view[3] = x*matrix->Element[3][0] + y*matrix->Element[3][1] +
+    z*matrix->Element[3][2] + matrix->Element[3][3];
 
   if (view[3] != 0.0)
     {
@@ -777,6 +794,7 @@ void vtkRenderer::WorldToView(float &x, float &y, float &z)
     y = view[1]/view[3];
     z = view[2]/view[3];
     }
+  matrix->Delete();
 }
 
 void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
@@ -784,7 +802,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   this->vtkViewport::PrintSelf(os,indent);
 
   os << indent << "Actors:\n";
-  this->Actors.PrintSelf(os,indent.GetNextIndent());
+  this->Actors->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Ambient: (" << this->Ambient[0] << ", " 
     << this->Ambient[1] << ", " << this->Ambient[2] << ")\n";
 
@@ -792,7 +810,7 @@ void vtkRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DisplayPoint: ("  << this->DisplayPoint[0] << ", " 
     << this->DisplayPoint[1] << ", " << this->DisplayPoint[2] << ")\n";
   os << indent << "Lights:\n";
-  this->Lights.PrintSelf(os,indent.GetNextIndent());
+  this->Lights->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "ViewPoint: (" << this->ViewPoint[0] << ", " 
     << this->ViewPoint[1] << ", " << this->ViewPoint[2] << ")\n";
@@ -823,7 +841,7 @@ int vtkRenderer::VisibleActorCount()
   int count = 0;
 
   // loop through actors
-  for (this->Actors.InitTraversal(); (anActor = this->Actors.GetNextItem()); )
+  for (this->Actors->InitTraversal();(anActor = this->Actors->GetNextItem()); )
     if (anActor->GetVisibility())
       count++;
 
@@ -836,7 +854,7 @@ int vtkRenderer::VisibleVolumeCount()
   vtkVolume  *aVolume;
 
   // loop through volumes
-  for (this->Volumes.InitTraversal(); (aVolume = this->Volumes.GetNextItem()); )
+  for (this->Volumes->InitTraversal(); (aVolume = this->Volumes->GetNextItem()); )
     if (aVolume->GetVisibility())
       count++;
 

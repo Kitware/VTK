@@ -48,7 +48,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkDataSetReader::vtkDataSetReader()
 {
-  this->Reader.SetSource(this);
+  this->Reader = vtkDataReader::New();
+  this->Reader->SetSource(this);
+}
+
+
+vtkDataSetReader::~vtkDataSetReader()
+{
+  this->Reader->Delete();
 }
 
 
@@ -57,7 +64,7 @@ unsigned long int vtkDataSetReader::GetMTime()
   unsigned long int t1, t2;
   
   t1 = this->vtkSource::GetMTime();
-  t2 = this->Reader.GetMTime();
+  t2 = this->Reader->GetMTime();
   if (t2 > t1)
     {
     t1 = t2;
@@ -68,95 +75,95 @@ unsigned long int vtkDataSetReader::GetMTime()
 // Specify file name of vtk data file to read.
 void vtkDataSetReader::SetFileName(char *name) 
 {
-  this->Reader.SetFileName(name);
+  this->Reader->SetFileName(name);
 }
 
 char *vtkDataSetReader::GetFileName() 
 {
-  return this->Reader.GetFileName();
+  return this->Reader->GetFileName();
 }
 
 // Get the type of file (VTK_ASCII or VTK_BINARY).
 int vtkDataSetReader::GetFileType() 
 {
-  return this->Reader.GetFileType();
+  return this->Reader->GetFileType();
 }
 
 // Set the name of the scalar data to extract. If not specified, first 
 // scalar data encountered is extracted.
 void vtkDataSetReader::SetScalarsName(char *name) 
 {
-  this->Reader.SetScalarsName(name);
+  this->Reader->SetScalarsName(name);
 }
 char *vtkDataSetReader::GetScalarsName() 
 {
-  return this->Reader.GetScalarsName();
+  return this->Reader->GetScalarsName();
 }
 
 // Set the name of the vector data to extract. If not specified, first 
 // vector data encountered is extracted.
 void vtkDataSetReader::SetVectorsName(char *name) 
 {
-  this->Reader.SetVectorsName(name);
+  this->Reader->SetVectorsName(name);
 }
 char *vtkDataSetReader::GetVectorsName() 
 {
-  return this->Reader.GetVectorsName();
+  return this->Reader->GetVectorsName();
 }
 
 // Set the name of the tensor data to extract. If not specified, first 
 // tensor data encountered is extracted.
 void vtkDataSetReader::SetTensorsName(char *name) 
 {
-  this->Reader.SetTensorsName(name);
+  this->Reader->SetTensorsName(name);
 }
 char *vtkDataSetReader::GetTensorsName() 
 {
-  return this->Reader.GetTensorsName();
+  return this->Reader->GetTensorsName();
 }
 
 // Set the name of the normal data to extract. If not specified, first 
 // normal data encountered is extracted.
 void vtkDataSetReader::SetNormalsName(char *name) 
 {
-  this->Reader.SetNormalsName(name);
+  this->Reader->SetNormalsName(name);
 }
 char *vtkDataSetReader::GetNormalsName() 
 {
-  return this->Reader.GetNormalsName();
+  return this->Reader->GetNormalsName();
 }
 
 // Set the name of the texture coordinate data to extract. If not specified,
 // first texture coordinate data encountered is extracted.
 void vtkDataSetReader::SetTCoordsName(char *name) 
 {
-  this->Reader.SetTCoordsName(name);
+  this->Reader->SetTCoordsName(name);
 }
 char *vtkDataSetReader::GetTCoordsName() 
 {
-  return this->Reader.GetTCoordsName();
+  return this->Reader->GetTCoordsName();
 }
 
 // Set the name of the lookup table data to extract. If not specified, uses 
 // lookup table named by scalar. Otherwise, this specification supersedes.
 void vtkDataSetReader::SetLookupTableName(char *name) 
 {
-  this->Reader.SetLookupTableName(name);
+  this->Reader->SetLookupTableName(name);
 }
 char *vtkDataSetReader::GetLookupTableName() 
 {
-  return this->Reader.GetLookupTableName();
+  return this->Reader->GetLookupTableName();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkDataSetReader::SetFieldDataName(char *name) 
 {
-  this->Reader.SetFieldDataName(name);
+  this->Reader->SetFieldDataName(name);
 }
 char *vtkDataSetReader::GetFieldDataName() 
 {
-  return this->Reader.GetFieldDataName();
+  return this->Reader->GetFieldDataName();
 }
 
 
@@ -166,52 +173,53 @@ void vtkDataSetReader::Execute()
   vtkDataSet *output = NULL;
   
   vtkDebugMacro(<<"Reading vtk dataset...");
-  if ( this->Debug )
+
+  if ( this->Debug ) 
     {
-    this->Reader.DebugOn();
+    this->Reader->DebugOn();
     }
-  else
+  else 
     {
-    this->Reader.DebugOff();
+    this->Reader->DebugOff();
     }
-  if (!this->Reader.OpenVTKFile() || !this->Reader.ReadHeader())
+  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
     {
     return;
     }
-//
-// Determine dataset type
-//
-  if (!this->Reader.ReadString(line))
+  //
+  // Determine dataset type
+  //
+  if (!this->Reader->ReadString(line))
     {
     vtkErrorMacro(<< "Premature EOF reading dataset keyword");
     return;
     }
 
-  if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
     {
-//
-// See if type is recognized.
-//
-    if (!this->Reader.ReadString(line))
+    //
+    // See if type is recognized.
+    //
+    if (!this->Reader->ReadString(line))
       {
       vtkErrorMacro(<< "Premature EOF reading type");
       return;
       }
 
-    this->Reader.CloseVTKFile();
-    if ( ! strncmp(this->Reader.LowerCase(line),"polydata",8) )
+    this->Reader->CloseVTKFile();
+    if ( ! strncmp(this->Reader->LowerCase(line),"polydata",8) )
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
-      preader->SetFileName(this->Reader.GetFileName());
-      preader->SetInputString(this->Reader.GetInputString());
-      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
-      preader->SetScalarsName(this->Reader.GetScalarsName());
-      preader->SetVectorsName(this->Reader.GetVectorsName());
-      preader->SetNormalsName(this->Reader.GetNormalsName());
-      preader->SetTensorsName(this->Reader.GetTensorsName());
-      preader->SetTCoordsName(this->Reader.GetTCoordsName());
-      preader->SetLookupTableName(this->Reader.GetLookupTableName());
-      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->SetFileName(this->Reader->GetFileName());
+      preader->SetInputString(this->Reader->GetInputString());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
+      preader->SetScalarsName(this->Reader->GetScalarsName());
+      preader->SetVectorsName(this->Reader->GetVectorsName());
+      preader->SetNormalsName(this->Reader->GetNormalsName());
+      preader->SetTensorsName(this->Reader->GetTensorsName());
+      preader->SetTCoordsName(this->Reader->GetTCoordsName());
+      preader->SetLookupTableName(this->Reader->GetLookupTableName());
+      preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -219,16 +227,16 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_points",17) )
       {
       vtkStructuredPointsReader *preader = vtkStructuredPointsReader::New();
-      preader->SetFileName(this->Reader.GetFileName());
-      preader->SetInputString(this->Reader.GetInputString());
-      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
-      preader->SetScalarsName(this->Reader.GetScalarsName());
-      preader->SetVectorsName(this->Reader.GetVectorsName());
-      preader->SetNormalsName(this->Reader.GetNormalsName());
-      preader->SetTensorsName(this->Reader.GetTensorsName());
-      preader->SetTCoordsName(this->Reader.GetTCoordsName());
-      preader->SetLookupTableName(this->Reader.GetLookupTableName());
-      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->SetFileName(this->Reader->GetFileName());
+      preader->SetInputString(this->Reader->GetInputString());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
+      preader->SetScalarsName(this->Reader->GetScalarsName());
+      preader->SetVectorsName(this->Reader->GetVectorsName());
+      preader->SetNormalsName(this->Reader->GetNormalsName());
+      preader->SetTensorsName(this->Reader->GetTensorsName());
+      preader->SetTCoordsName(this->Reader->GetTCoordsName());
+      preader->SetLookupTableName(this->Reader->GetLookupTableName());
+      preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -236,16 +244,16 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"structured_grid",15) )
       {
       vtkStructuredGridReader *preader = vtkStructuredGridReader::New();
-      preader->SetFileName(this->Reader.GetFileName());
-      preader->SetInputString(this->Reader.GetInputString());
-      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
-      preader->SetScalarsName(this->Reader.GetScalarsName());
-      preader->SetVectorsName(this->Reader.GetVectorsName());
-      preader->SetNormalsName(this->Reader.GetNormalsName());
-      preader->SetTensorsName(this->Reader.GetTensorsName());
-      preader->SetTCoordsName(this->Reader.GetTCoordsName());
-      preader->SetLookupTableName(this->Reader.GetLookupTableName());
-      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->SetFileName(this->Reader->GetFileName());
+      preader->SetInputString(this->Reader->GetInputString());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
+      preader->SetScalarsName(this->Reader->GetScalarsName());
+      preader->SetVectorsName(this->Reader->GetVectorsName());
+      preader->SetNormalsName(this->Reader->GetNormalsName());
+      preader->SetTensorsName(this->Reader->GetTensorsName());
+      preader->SetTCoordsName(this->Reader->GetTCoordsName());
+      preader->SetLookupTableName(this->Reader->GetLookupTableName());
+      preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -253,16 +261,16 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"rectilinear_grid",16) )
       {
       vtkRectilinearGridReader *preader = vtkRectilinearGridReader::New();
-      preader->SetFileName(this->Reader.GetFileName());
-      preader->SetInputString(this->Reader.GetInputString());
-      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
-      preader->SetScalarsName(this->Reader.GetScalarsName());
-      preader->SetVectorsName(this->Reader.GetVectorsName());
-      preader->SetNormalsName(this->Reader.GetNormalsName());
-      preader->SetTensorsName(this->Reader.GetTensorsName());
-      preader->SetTCoordsName(this->Reader.GetTCoordsName());
-      preader->SetLookupTableName(this->Reader.GetLookupTableName());
-      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->SetFileName(this->Reader->GetFileName());
+      preader->SetInputString(this->Reader->GetInputString());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
+      preader->SetScalarsName(this->Reader->GetScalarsName());
+      preader->SetVectorsName(this->Reader->GetVectorsName());
+      preader->SetNormalsName(this->Reader->GetNormalsName());
+      preader->SetTensorsName(this->Reader->GetTensorsName());
+      preader->SetTCoordsName(this->Reader->GetTCoordsName());
+      preader->SetLookupTableName(this->Reader->GetLookupTableName());
+      preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -270,16 +278,16 @@ void vtkDataSetReader::Execute()
     else if ( ! strncmp(line,"unstructured_grid",17) )
       {
       vtkUnstructuredGridReader *preader = vtkUnstructuredGridReader::New();
-      preader->SetFileName(this->Reader.GetFileName());
-      preader->SetInputString(this->Reader.GetInputString());
-      preader->SetReadFromInputString(this->Reader.GetReadFromInputString());
-      preader->SetScalarsName(this->Reader.GetScalarsName());
-      preader->SetVectorsName(this->Reader.GetVectorsName());
-      preader->SetNormalsName(this->Reader.GetNormalsName());
-      preader->SetTensorsName(this->Reader.GetTensorsName());
-      preader->SetTCoordsName(this->Reader.GetTCoordsName());
-      preader->SetLookupTableName(this->Reader.GetLookupTableName());
-      preader->SetFieldDataName(this->Reader.GetFieldDataName());
+      preader->SetFileName(this->Reader->GetFileName());
+      preader->SetInputString(this->Reader->GetInputString());
+      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
+      preader->SetScalarsName(this->Reader->GetScalarsName());
+      preader->SetVectorsName(this->Reader->GetVectorsName());
+      preader->SetNormalsName(this->Reader->GetNormalsName());
+      preader->SetTensorsName(this->Reader->GetTensorsName());
+      preader->SetTCoordsName(this->Reader->GetTCoordsName());
+      preader->SetLookupTableName(this->Reader->GetLookupTableName());
+      preader->SetFieldDataName(this->Reader->GetFieldDataName());
       preader->Update();
       output = preader->GetOutput();
       }
@@ -291,7 +299,7 @@ void vtkDataSetReader::Execute()
       }
     }
 
-  else if ( !strncmp(this->Reader.LowerCase(line),"field",(unsigned long)5) )
+  else if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
     {
     vtkErrorMacro(<<"This object can only read datasets, not fields");
     }
@@ -322,7 +330,7 @@ void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
     vtkSource::PrintSelf(os,indent);
     recursing = 1;
     os << indent << "Reader:\n";
-    this->Reader.PrintSelf(os,indent.GetNextIndent());
+    this->Reader->PrintSelf(os,indent.GetNextIndent());
     }
     recursing = 0;
 }

@@ -42,30 +42,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkFieldDataReader::vtkFieldDataReader()
 {
-  this->Reader.SetSource(this);
+  this->Reader = vtkDataReader::New();
+  this->Reader->SetSource(this);
+}
+
+vtkFieldDataReader::~vtkFieldDataReader()
+{
+  this->Reader->Delete();
 }
 
 unsigned long int vtkFieldDataReader::GetMTime()
 {
   unsigned long dtime = this->vtkFieldDataSource::GetMTime();
-  unsigned long rtime = this->Reader.GetMTime();
+  unsigned long rtime = this->Reader->GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
 
 // Specify file name of vtk field data file to read.
 void vtkFieldDataReader::SetFileName(char *name) 
 {
-  this->Reader.SetFileName(name);
+  this->Reader->SetFileName(name);
 }
 char *vtkFieldDataReader::GetFileName() 
 {
-  return this->Reader.GetFileName();
+  return this->Reader->GetFileName();
 }
 
 // Get the type of file (ASCII or BINARY)
 int vtkFieldDataReader::GetFileType() 
 {
-  return this->Reader.GetFileType();
+  return this->Reader->GetFileType();
 }
 
 void vtkFieldDataReader::Execute()
@@ -74,29 +80,29 @@ void vtkFieldDataReader::Execute()
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
-  if ( this->Debug ) this->Reader.DebugOn();
-  else this->Reader.DebugOff();
+  if ( this->Debug ) this->Reader->DebugOn();
+  else this->Reader->DebugOff();
 
-  if ( !(this->Reader.OpenVTKFile()) || !this->Reader.ReadHeader())
+  if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
       return;
   //
   // Read field specific stuff
   //
-  if (!this->Reader.ReadString(line))
+  if (!this->Reader->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader.CloseVTKFile ();
+    this->Reader->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader.LowerCase(line),"field",(unsigned long)5) )
+  if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
     {
-    vtkFieldData *f = this->Reader.ReadFieldData();
+    vtkFieldData *f = this->Reader->ReadFieldData();
     this->Output->GetFieldData()->ShallowCopy(*f);
     f->Delete();
     }
 
-  else if ( !strncmp(this->Reader.LowerCase(line),"dataset",(unsigned long)7) )
+  else if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
     {
     vtkErrorMacro(<<"Field reader cannot read datasets");
     }
@@ -106,18 +112,18 @@ void vtkFieldDataReader::Execute()
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
   
-  this->Reader.CloseVTKFile();
+  this->Reader->CloseVTKFile();
 }
 
 // Set the name of the field data to extract. If not specified, uses 
 // first field data encountered in file.
 void vtkFieldDataReader::SetFieldDataName(char *name) 
 {
-  this->Reader.SetFieldDataName(name);
+  this->Reader->SetFieldDataName(name);
 }
 char *vtkFieldDataReader::GetFieldDataName() 
 {
-  return this->Reader.GetFieldDataName();
+  return this->Reader->GetFieldDataName();
 }
 
 void vtkFieldDataReader::PrintSelf(ostream& os, vtkIndent indent)
@@ -125,15 +131,15 @@ void vtkFieldDataReader::PrintSelf(ostream& os, vtkIndent indent)
   vtkFieldDataSource::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
-     << (this->Reader.GetFileName() ? this->Reader.GetFileName() : "(none)") << "\n";
+     << (this->Reader->GetFileName() ? this->Reader->GetFileName() : "(none)") << "\n";
 
-  if ( this->Reader.GetFileType() == VTK_BINARY )
+  if ( this->Reader->GetFileType() == VTK_BINARY )
     os << indent << "File Type: BINARY\n";
   else
     os << indent << "File Type: ASCII\n";
 
-  if ( this->Reader.GetFieldDataName() )
-    os << indent << "Field Data Name: " << this->Reader.GetFieldDataName() << "\n";
+  if ( this->Reader->GetFieldDataName() )
+    os << indent << "Field Data Name: " << this->Reader->GetFieldDataName() << "\n";
   else
     os << indent << "Field Data Name: (None)\n";
 }

@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct a new vtkVolumeRayCastMapper with default values
 vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 {
+  this->ViewRaysTransform = vtkTransform::New();
   this->ViewRays                      = NULL;
   this->ViewRaysSize[0]               = 0;
   this->ViewRaysSize[1]               = 0;
@@ -76,6 +77,9 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
 // Destruct a vtkVolumeRayCastMapper - clean up any memory used
 vtkVolumeRayCastMapper::~vtkVolumeRayCastMapper()
 {
+  this->ViewRaysTransform->Delete();
+  this->ViewRaysTransform = NULL;
+
   if ( this->RGBAImage )
     delete [] this->RGBAImage;
 
@@ -214,7 +218,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 
   this->CastTime = timer->GetElapsedTime();
 
-  delete timer;
+  timer->Delete();
 }
 
 int vtkVolumeRayCastMapper::ClipRayAgainstVolume( float ray_info[12], 
@@ -350,12 +354,12 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
   // Compute the transformation that will map the view rays (currently
   // in camera coordinates) into volume coordinates.
   // First, get the active camera transformation matrix
-  this->ViewRaysTransform.SetMatrix(
+  this->ViewRaysTransform->SetMatrix(
     ren->GetActiveCamera()->GetViewTransform() );
 
   // Now invert it so that we go from camera to world instead of
   // world to camera coordinates
-  this->ViewRaysTransform.Inverse();
+  this->ViewRaysTransform->Inverse();
 
   // Store the matrix of the volume in a temporary transformation matrix
   transform->SetMatrix( vol->vtkProp::GetMatrix() );
@@ -384,8 +388,8 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
 
   // Now concatenate the camera to world matrix with the world to volume
   // matrix to get the camera to volume matrix
-  this->ViewRaysTransform.PostMultiply();
-  this->ViewRaysTransform.Concatenate( transform->GetMatrix() );
+  this->ViewRaysTransform->PostMultiply();
+  this->ViewRaysTransform->Concatenate( transform->GetMatrix() );
 
   // Get the clipping range of the active camera. This will be used
   // for clipping the rays
@@ -506,12 +510,12 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
   // from camera to volume coordinates
   in[0] = in[1] = in[2] = 0.0;
   in[3] = 1.0;
-  this->ViewRaysTransform.MultiplyPoint( in, ray_origin );
+  this->ViewRaysTransform->MultiplyPoint( in, ray_origin );
 
   in[0] = in[1] = 0.0;
   in[2] = -1.0;
   in[3] = 1.0;
-  this->ViewRaysTransform.MultiplyPoint( in, ray_direction );
+  this->ViewRaysTransform->MultiplyPoint( in, ray_direction );
   ray_direction[0] -= ray_origin[0];
   ray_direction[1] -= ray_origin[1];
   ray_direction[2] -= ray_origin[2];
@@ -528,12 +532,12 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
   start_pos_ptr = ray_caster->GetParallelStartPosition();
   memcpy( in, start_pos_ptr, 3 * sizeof( float ) );
   in[3] = 1.0;
-  this->ViewRaysTransform.MultiplyPoint( in, start_ray );
+  this->ViewRaysTransform->MultiplyPoint( in, start_ray );
 
   // Determine increment to move to next pixel along a row
   pos_inc_ptr = ray_caster->GetParallelIncrements();
   in[0] = start_pos_ptr[0] + pos_inc_ptr[0];
-  this->ViewRaysTransform.MultiplyPoint( in, origin_inc_x );
+  this->ViewRaysTransform->MultiplyPoint( in, origin_inc_x );
   origin_inc_x[0] -= start_ray[0];
   origin_inc_x[1] -= start_ray[1];
   origin_inc_x[2] -= start_ray[2];
@@ -541,7 +545,7 @@ void vtkVolumeRayCastMapper::InitializeParallelImage( vtkRenderer *ren )
   // Determine increment to move to next pixel along a column
   in[0] = start_pos_ptr[0];
   in[1] = start_pos_ptr[1] + pos_inc_ptr[1];
-  this->ViewRaysTransform.MultiplyPoint( in, origin_inc_y );
+  this->ViewRaysTransform->MultiplyPoint( in, origin_inc_y );
 
   origin_inc_y[0] -= start_ray[0];
   origin_inc_y[1] -= start_ray[1];
@@ -866,7 +870,7 @@ void vtkVolumeRayCastMapper::InitializePerspectiveImage( vtkRenderer *ren )
   // from camera to volume coordinates
   in[0] = in[1] = in[2] = 0.0;
   in[3] = 1.0;
-  this->ViewRaysTransform.MultiplyPoint( in, this->LocalRayOrigin );
+  this->ViewRaysTransform->MultiplyPoint( in, this->LocalRayOrigin );
 
   // Delete the objects we created
   transform->Delete();
@@ -973,7 +977,7 @@ void vtkVolumeRayCastMapper::RenderPerspectiveImage( vtkRenderer *ren )
 	  in[1] = *(ray_ptr++);
 	  in[2] = *(ray_ptr++);
 	  in[3] = 1.0;
-	  this->ViewRaysTransform.MultiplyPoint( in, ray_direction );
+	  this->ViewRaysTransform->MultiplyPoint( in, ray_direction );
 	  
 	  ray_direction[0] -= ray_origin[0];
 	  ray_direction[1] -= ray_origin[1];

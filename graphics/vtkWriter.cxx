@@ -46,6 +46,15 @@ vtkWriter::vtkWriter()
   this->Input = NULL;
 }
 
+vtkWriter::~vtkWriter()
+{
+  if (this->Input != NULL)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+}
+
 // Write data to output. Method executes subclasses WriteData() method, as 
 // well as StartMethod() and EndMethod() methods.
 void vtkWriter::Write()

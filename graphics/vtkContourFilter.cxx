@@ -276,6 +276,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     static vtkMarchingSquares msquares;
     int i;
     
+    msquares.ReferenceCountingOff();
     msquares.SetInput((vtkStructuredPoints *)this->Input);
     msquares.SetDebug(this->Debug);
     msquares.SetNumberOfContours(numContours);
@@ -293,6 +294,7 @@ void vtkContourFilter::StructuredPointsContour(int dim)
     static vtkMarchingCubes mcubes;
     int i;
     
+    mcubes.ReferenceCountingOff();
     mcubes.SetInput((vtkStructuredPoints *)this->Input);
     mcubes.SetComputeNormals (this->ComputeNormals);
     mcubes.SetComputeGradients (this->ComputeGradients);

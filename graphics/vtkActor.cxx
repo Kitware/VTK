@@ -83,7 +83,12 @@ vtkActor::~vtkActor()
     this->BackfaceProperty->UnRegister(this);
     this->BackfaceProperty = NULL;
     }
-  
+
+  if (this->Mapper)
+    {
+    this->Mapper->UnRegister(this);
+    this->Mapper = NULL;
+    }
 }
 
 // Shallow copy of an actor.
@@ -91,20 +96,11 @@ vtkActor& vtkActor::operator=(const vtkActor& actor)
 {
   int i;
 
-  this->UserMatrix = actor.UserMatrix;
-  this->Mapper = actor.Mapper;
-  this->Property = actor.Property;
-  if (this->Property)
-    {
-    this->Property->Register(this);
-    }
-  
-  this->BackfaceProperty = actor.BackfaceProperty;
-  if (this->BackfaceProperty)
-    {
-    this->BackfaceProperty->Register(this);
-    }
-  this->Texture = actor.Texture;
+  this->SetUserMatrix(actor.UserMatrix);
+  this->SetMapper(actor.Mapper);
+  this->SetProperty(actor.Property);
+  this->SetBackfaceProperty(actor.BackfaceProperty);
+  this->SetTexture(actor.Texture);
 
   *((vtkProp *)this) = actor;
 
@@ -251,48 +247,48 @@ vtkProperty *vtkActor::GetBackfaceProperty()
 }
 
 // Copy the actor's composite 4x4 matrix into the matrix provided.
-void vtkActor::GetMatrix(vtkMatrix4x4& result)
+void vtkActor::GetMatrix(vtkMatrix4x4 *result)
 {
   // check whether or not need to rebuild the matri
   if ( this->GetMTime() > this->MatrixMTime )
     {
     this->GetOrientation();
-    this->Transform.Push();  
-    this->Transform.Identity();  
-    this->Transform.PostMultiply();  
+    this->Transform->Push();  
+    this->Transform->Identity();  
+    this->Transform->PostMultiply();  
     
     // shift back to actor's origin
-    this->Transform.Translate(-this->Origin[0],
+    this->Transform->Translate(-this->Origin[0],
                               -this->Origin[1],
                               -this->Origin[2]);
 
     // scale
-    this->Transform.Scale(this->Scale[0],
+    this->Transform->Scale(this->Scale[0],
                           this->Scale[1],
                           this->Scale[2]);
     
     // rotate
-    this->Transform.RotateY(this->Orientation[1]);
-    this->Transform.RotateX(this->Orientation[0]);
-    this->Transform.RotateZ(this->Orientation[2]);
+    this->Transform->RotateY(this->Orientation[1]);
+    this->Transform->RotateX(this->Orientation[0]);
+    this->Transform->RotateZ(this->Orientation[2]);
     
     // move back from origin and translate
-    this->Transform.Translate(this->Origin[0] + this->Position[0],
+    this->Transform->Translate(this->Origin[0] + this->Position[0],
                               this->Origin[1] + this->Position[1],
                               this->Origin[2] + this->Position[2]);
    
     // apply user defined matrix last if there is one 
     if (this->UserMatrix)
       {
-      this->Transform.Concatenate(*this->UserMatrix);
+      this->Transform->Concatenate(*this->UserMatrix);
       }
 
-    this->Transform.PreMultiply();  
-    this->Matrix = this->Transform.GetMatrix();
+    this->Transform->PreMultiply();  
+    this->Transform->GetMatrix(this->Matrix);
     this->MatrixMTime.Modified();
-    this->Transform.Pop();  
+    this->Transform->Pop();  
     }
-  result = this->Matrix;
+  *result = *(this->Matrix);
 } 
 
 // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -301,13 +297,14 @@ float *vtkActor::GetBounds()
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   vtkDebugMacro( << "Getting Bounds" );
 
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
     {
+    matrix->Delete();
     return this->Bounds;
     }
 
@@ -337,27 +334,27 @@ float *vtkActor::GetBounds()
   
     // save the old transform
     this->GetMatrix(matrix);
-    this->Transform.Push(); 
-    this->Transform.PostMultiply();
-    this->Transform.Identity();
-    this->Transform.Concatenate(matrix);
+    this->Transform->Push(); 
+    this->Transform->PostMultiply();
+    this->Transform->Identity();
+    this->Transform->Concatenate(*matrix);
 
     // and transform into actors coordinates
     fptr = bbox;
     for (n = 0; n < 8; n++) 
       {
-      this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
+      this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
   
       // now store the result
-      result = this->Transform.GetPoint();
+      result = this->Transform->GetPoint();
       fptr[0] = result[0] / result[3];
       fptr[1] = result[1] / result[3];
       fptr[2] = result[2] / result[3];
       fptr += 3;
       }
   
-    this->Transform.PreMultiply();
-    this->Transform.Pop();  
+    this->Transform->PreMultiply();
+    this->Transform->Pop();  
   
     // now calc the new bounds
     this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
@@ -379,6 +376,7 @@ float *vtkActor::GetBounds()
     this->BoundsMTime.Modified();
     }
 
+  matrix->Delete();
   return this->Bounds;
 }
 
@@ -452,6 +450,7 @@ void vtkActor::BuildPaths(vtkAssemblyPaths *vtkNotUsed(paths),
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   *matrix = previous->vtkProp::GetMatrix();
   copy->SetUserMatrix(matrix);
+  matrix->Delete();
 
   path->AddItem(copy);
 }

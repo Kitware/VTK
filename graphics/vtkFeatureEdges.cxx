@@ -63,7 +63,7 @@ void vtkFeatureEdges::Execute()
   vtkPoints *newPts;
   vtkScalars *newScalars;
   vtkCellArray *newLines;
-  vtkPolyData Mesh;
+  vtkPolyData *Mesh;
   int i, j, numNei, cellId;
   int numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
   float scalar, n[3], *x1, *x2;
@@ -73,14 +73,14 @@ void vtkFeatureEdges::Execute()
   vtkCellArray *inPolys;
   vtkNormals *polyNormals = NULL;
   int numPts, nei;
-  vtkIdList neighbors(VTK_CELL_SIZE);
+  vtkIdList *neighbors;
   int p1, p2;
   vtkPolyData *output = this->GetOutput();
   
   vtkDebugMacro(<<"Executing feature edges");
-//
-//  Check input
-//
+  //
+  //  Check input
+  //
   inPts=input->GetPoints();
   inPolys=input->GetPolys();
   if ( (numPts=input->GetNumberOfPoints()) < 1 || inPts == NULL ||
@@ -98,12 +98,13 @@ void vtkFeatureEdges::Execute()
     }
 
   // build cell structure.  Only operate with polygons.
-  Mesh.SetPoints(inPts);
-  Mesh.SetPolys(inPolys);
-  Mesh.BuildLinks();
-//
-//  Allocate storage for lines/points (arbitrary allocations size)
-//
+  Mesh = vtkPolyData::New();
+  Mesh->SetPoints(inPts);
+  Mesh->SetPolys(inPolys);
+  Mesh->BuildLinks();
+  //
+  //  Allocate storage for lines/points (arbitrary allocations size)
+  //
   newPts = vtkPoints::New();
   newPts->Allocate(numPts/10,numPts); 
   newScalars = vtkScalars::New();
@@ -128,6 +129,9 @@ void vtkFeatureEdges::Execute()
     cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
     }
 
+  neighbors = vtkIdList::New();
+  neighbors->Allocate(VTK_CELL_SIZE);
+
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
   for (cellId=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); 
   cellId++)
@@ -137,8 +141,8 @@ void vtkFeatureEdges::Execute()
       p1 = pts[i];
       p2 = pts[(i+1)%npts];
 
-      Mesh.GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
-      numNei = neighbors.GetNumberOfIds();
+      Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+      numNei = neighbors->GetNumberOfIds();
 
       if ( this->BoundaryEdges && numNei < 1 )
         {
@@ -150,7 +154,7 @@ void vtkFeatureEdges::Execute()
         {
         // check to make sure that this edge hasn't been created before
         for (j=0; j < numNei; j++)
-          if ( neighbors.GetId(j) < cellId )
+          if ( neighbors->GetId(j) < cellId )
             break;
         if ( j >= numNei )
           {
@@ -161,9 +165,10 @@ void vtkFeatureEdges::Execute()
         }
 
       else if ( this->FeatureEdges && 
-		numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
+		numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
         {
-        if ( vtkMath::Dot(polyNormals->GetNormal(nei),polyNormals->GetNormal(cellId)) <= cosAngle ) 
+        if ( vtkMath::Dot(polyNormals->GetNormal(nei),
+			  polyNormals->GetNormal(cellId)) <= cosAngle ) 
           {
           numFedges++;
           scalar = 0.444444;
@@ -179,8 +184,8 @@ void vtkFeatureEdges::Execute()
       else continue;
 
       // Add edge to output
-      x1 = Mesh.GetPoint(p1);
-      x2 = Mesh.GetPoint(p2);
+      x1 = Mesh->GetPoint(p1);
+      x2 = Mesh->GetPoint(p2);
 
       lineIds[0] = newPts->InsertNextPoint(x1);
       lineIds[1] = newPts->InsertNextPoint(x2);
@@ -197,13 +202,16 @@ void vtkFeatureEdges::Execute()
                 << numFedges << " feature edges, "
                 << numManifoldEdges << " manifold edges");
 
-//
-//  Update ourselves.
-//
+  //
+  //  Update ourselves.
+  //
   if ( this->FeatureEdges ) polyNormals->Delete();
 
+  Mesh->Delete();
+  
   output->SetPoints(newPts);
   newPts->Delete();
+  neighbors->Delete();
 
   output->SetLines(newLines);
   newLines->Delete();

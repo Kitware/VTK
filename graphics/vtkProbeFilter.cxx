@@ -83,7 +83,7 @@ void vtkProbeFilter::Execute()
     if (cell)
       {
       // Interpolate the point data
-      outPD->InterpolatePoint(pd,ptId,&(cell->PointIds),weights);
+      outPD->InterpolatePoint(pd,ptId,cell->PointIds,weights);
       }
     else
       {

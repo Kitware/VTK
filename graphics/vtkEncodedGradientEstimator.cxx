@@ -55,13 +55,17 @@ vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
   this->GradientMagnitudes         = NULL;
   this->GradientMagnitudeScale     = 1.0;
   this->GradientMagnitudeBias      = 0.0;
-  this->NumberOfThreads            = this->Threader.GetNumberOfThreads();
+  this->Threader = vtkMultiThreader::New();
+  this->NumberOfThreads            = this->Threader->GetNumberOfThreads();
   this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
 }
 
 // Destruct a vtkEncodedGradientEstimator - free up any memory used
 vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 {
+  this->Threader->Delete();
+  this->Threader = NULL;
+  
   if ( this->EncodedNormals )
     {
     delete [] this->EncodedNormals;
@@ -196,7 +200,7 @@ void vtkEncodedGradientEstimator::Update( )
 // Print the vtkEncodedGradientEstimator
 void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkReferenceCount::PrintSelf(os, indent);
+  this->vtkObject::PrintSelf(os, indent);
 
   if ( this->ScalarInput )
     {

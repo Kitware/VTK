@@ -79,7 +79,9 @@ void vtkPolyDataMapper::SetInput(vtkPolyData *in)
   if (in != this->Input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)in);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = (vtkDataSet *) in;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
     }
 }

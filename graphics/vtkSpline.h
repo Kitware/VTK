@@ -64,6 +64,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkSpline_h
 
 #include <stdio.h>
+#include "vtkObject.h"
 #include "vtkPiecewiseFunction.h"
 
 class VTK_EXPORT vtkSpline : public vtkObject

@@ -95,3 +95,30 @@ suppress fmr  __glXCloseDisplay; XCloseDisplay
 
 
 
+suppress mse _open
+suppress mse strlen
+suppress mse strcpy
+suppress mse memcpy
+suppress umr isLocal
+suppress mse _open
+suppress mse strlen
+suppress mse strcpy
+suppress mse memcpy
+suppress umr isLocal
+suppress mse _open
+suppress mse strlen
+suppress mse strcpy
+suppress mse memcpy
+suppress abr _open
+suppress abr strncmp
+suppress abr strcat
+suppress abr strncat
+suppress umr __glKonTexQuickSortPairs
+suppress umr __glKonTexChecksum
+suppress abr _bcopy
+suppress umr __glKonTexEvaluateCubicSpline
+suppress umr bindTexTable
+suppress mse _open
+suppress mse strlen
+suppress mse strcpy
+suppress mse memcpy

@@ -135,7 +135,7 @@ void vtkClipVolume::Execute()
   vtkCellData *clippedCD=clippedOutput->GetCellData();
   int dims[3], dimension, numICells, numJCells, numKCells, sliceSize;
   int above, below;
-  vtkIdList tetraIds(20);
+  vtkIdList *tetraIds;
   vtkPoints tetraPts; tetraPts.Allocate(20); tetraPts.ReferenceCountingOff();
   int ii, jj, pts[4], id, ntetra;
     
@@ -242,6 +242,8 @@ void vtkClipVolume::Execute()
   numKCells = dims[2] - 1;
   sliceSize = numICells * numJCells;
   
+  tetraIds = vtkIdList::New(); tetraIds->Allocate(20);
+
   // Loop over i-j-k directions so that we can control the direction of
   // face diagonals on voxels (i.e., the flip variable). The flip variable
   // also controls the ordered Delaunay triangulation used in ClipVoxel().
@@ -303,7 +305,7 @@ void vtkClipVolume::Execute()
         if ( (above && !below) || 
 	     (this->GenerateClippedOutput && (below && !above)) )
           {
-          ((vtkVoxel *)cell)->Triangulate(flip, tetraIds, tetraPts);
+          ((vtkVoxel *)cell)->Triangulate(flip, *tetraIds, tetraPts);
           ntetra = tetraPts.GetNumberOfPoints() / 4;
 
           if (above && !below)
@@ -324,7 +326,7 @@ void vtkClipVolume::Execute()
               if ( (pts[jj] = this->Locator->IsInsertedPoint(x)) < 0 )
                 {
                 pts[jj] = this->Locator->InsertNextPoint(x);
-                outPD->CopyData(inPD,tetraIds.GetId(id+jj),pts[jj]);
+                outPD->CopyData(inPD,tetraIds->GetId(id+jj),pts[jj]);
                 }
               }
             newCellId = outputPtr->InsertNextCell(VTK_TETRA, 4, pts);
@@ -371,6 +373,7 @@ void vtkClipVolume::Execute()
 
   output->SetPoints(newPoints);
   newPoints->Delete();
+  tetraIds->Delete();
 
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
@@ -405,6 +408,11 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars& cellScalars,
   static int order[2][8] = { {0,3,5,6,1,2,4,7},
                              {1,2,4,7,0,3,5,6}};//injection order based on flip
 
+  // quick fix until constructors are changed
+  holeTetras.ReferenceCountingOff();
+  cells.ReferenceCountingOff();
+  mergedPts.ReferenceCountingOff();
+  
   // compute bounds for voxel and initialize
   cellPts.GetPoint(0,voxelOrigin);
   for (length=0.0, i=0; i<3; i++)

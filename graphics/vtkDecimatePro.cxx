@@ -136,7 +136,7 @@ void vtkDecimatePro::Execute()
   int numRecycles, npts, *pts;
   unsigned short int ncells;
   int *cells, pt1, pt2, cellId, fedges[2];
-  vtkIdList CollapseTris(100,100);
+  vtkIdList *CollapseTris;
   float max, *bounds;
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
@@ -181,6 +181,8 @@ void vtkDecimatePro::Execute()
     {
     inPts = input->GetPoints();
     inPolys = input->GetPolys();
+    // this static should be eliminated
+    if (Mesh != NULL) {Mesh->Delete(); Mesh = NULL;}
     Mesh = vtkPolyData::New();
     newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
     for ( i=0; i < numPts; i++ ) newPts->SetPoint(i,inPts->GetPoint(i));
@@ -242,6 +244,9 @@ void vtkDecimatePro::Execute()
     }
   this->UpdateProgress (0.25);//25% spent inserting
 
+  CollapseTris = vtkIdList::New();
+  CollapseTris->Allocate(100,100);
+
   // While the priority queue is not empty, retrieve the top vertex from the
   // queue and attempt to delete it by performing an edge collapse. This 
   // in turn will cause modification to the surrounding vertices. For each
@@ -272,14 +277,14 @@ void vtkDecimatePro::Execute()
 
       // FindSplit finds the edge to collapse - and if it fails, we
       // split the vertex.
-      collapseId = this->FindSplit (type, fedges, pt1, pt2, CollapseTris);
+      collapseId = this->FindSplit (type, fedges, pt1, pt2, *CollapseTris);
 
       if ( collapseId >= 0 )
         {
         if ( this->AccumulateError ) this->DistributeError(error);
 
         totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2, 
-                                        CollapseTris);
+                                        *CollapseTris);
 
         reduction = (float) totalEliminated / numTris;
         NumberOfRemainingTris = numTris - totalEliminated;
@@ -302,6 +307,8 @@ void vtkDecimatePro::Execute()
 
       }//if cells attached
     }//while queue not empty and reduction not satisfied
+
+  CollapseTris->Delete();
 
   totalPts = Mesh->GetNumberOfPoints();
   vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " to " 
@@ -365,7 +372,7 @@ void vtkDecimatePro::Execute()
   delete [] map;
   output->SetPoints(newPts);
   output->SetPolys(newPolys);
-  Mesh->Delete();
+  if (Mesh != NULL) {Mesh->Delete(); Mesh = NULL;}
   newPolys->Delete();
 }
 
@@ -438,21 +445,23 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   int i, j, *verts, numNormals, vtype;
   float *x1, *x2, *normal;
   float v1[3], v2[3], center[3];
-//
-//  The first step is to evaluate topology.
-//
+  //
+  //  The first step is to evaluate topology.
+  //
 
-// Check cases with high vertex degree
-//
+  nei.ReferenceCountingOff();
+
+  // Check cases with high vertex degree
+  //
   if ( numTris >= VertexDegree ) 
     {
     return VTK_HIGH_DEGREE_VERTEX;
     }
 
-//  From the adjacency structure we can find the triangles that use the
-//  vertex. Traverse this structure, gathering all the surrounding vertices
-//  into an ordered list.
-//
+  //  From the adjacency structure we can find the triangles that use the
+  //  vertex. Traverse this structure, gathering all the surrounding vertices
+  //  into an ordered list.
+  //
   V->Reset();
   T->Reset();
 
@@ -463,10 +472,11 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   t.verts[0] = -1; // Marks the fact that this poly hasn't been replaced 
   t.verts[1] = -1;
   t.verts[2] = -1;
-//
-//  Find the starting edge.  Do it very carefully do make sure
-//  ordering is consistent (e.g., polygons ordering/normals remains consistent)
-//
+  //
+  //  Find the starting edge.  Do it very carefully do make sure
+  //  ordering is consistent
+  // (e.g., polygons ordering/normals remains consistent)
+  //
   Mesh->GetCellPoints(*tris,numVerts,verts); // get starting point
   for (i=0; i<3; i++) if (verts[i] == ptId) break;
   sn.id = startVertex = verts[(i+1)%3];
@@ -478,11 +488,11 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
   nei.Reset();
   nei.InsertId(0,*tris);
   numNei = 1;
-//
-//  Traverse the edge neighbors and see whether a cycle can be
-//  completed.  Also have to keep track of orientation of faces for
-//  computing normals.
-//
+  //
+  //  Traverse the edge neighbors and see whether a cycle can be
+  //  completed.  Also have to keep track of orientation of faces for
+  //  computing normals.
+  //
   while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
     {
     t.id = nei.GetId(0);
@@ -505,10 +515,10 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
     numNei = nei.GetNumberOfIds();
     } 
-//
-//  See whether we've run around the loop, hit a boundary, or hit a
-//  complex spot.
-//
+  //
+  //  See whether we've run around the loop, hit a boundary, or hit a
+  //  complex spot.
+  //
   if ( nextVertex == startVertex && numNei == 1 ) 
     {
     if ( T->GetNumberOfTriangles() != numTris ) //touching non-manifold
@@ -521,27 +531,27 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
       vtype = VTK_SIMPLE_VERTEX;
       }
     }
-//
-//  Check for non-manifold cases
-//
+  //
+  //  Check for non-manifold cases
+  //
   else if ( numNei > 1 || T->GetNumberOfTriangles() > numTris ) 
     {
     vtype = VTK_NON_MANIFOLD_VERTEX;
     }
-//
-//  Boundary loop - but (luckily) completed semi-cycle
-//
+  //
+  //  Boundary loop - but (luckily) completed semi-cycle
+  //
   else if ( numNei == 0 && T->GetNumberOfTriangles() == numTris ) 
     {
     V->Array[0].FAngle = -1.0; // using cosine of -180 degrees
     V->Array[V->MaxId].FAngle = -1.0;
     vtype = VTK_BOUNDARY_VERTEX;
     }
-//
-//  Hit a boundary but didn't complete semi-cycle.  Gotta go back
-//  around the other way.  Just reset the starting point and go 
-//  back the other way.
-//
+  //
+  //  Hit a boundary but didn't complete semi-cycle.  Gotta go back
+  //  around the other way.  Just reset the starting point and go 
+  //  back the other way.
+  //
   else 
     {
     t = T->GetTriangle(T->MaxId);
@@ -557,9 +567,9 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     nei.Reset();
     nei.InsertId(0,t.id);
     numNei = 1;
-//
-//  Now move from boundary edge around the other way.
-//
+    //
+    //  Now move from boundary edge around the other way.
+    //
     while ( T->MaxId < numTris && numNei == 1 && nextVertex != startVertex) 
       {
       t.id = nei.GetId(0);
@@ -583,16 +593,16 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
       Mesh->GetCellEdgeNeighbors(t.id, ptId, nextVertex, nei);
       numNei = nei.GetNumberOfIds();
       }
-//
-//  Make sure that there are only two boundaries (i.e., not non-manifold)
-//
+    //
+    //  Make sure that there are only two boundaries (i.e., not non-manifold)
+    //
     if ( T->GetNumberOfTriangles() == numTris ) 
       {
-//
-//  Because we've reversed order of loop, need to rearrange the order
-//  of the vertices and polygons to preserve consistent polygons
-//  ordering / normal orientation.
-//
+      //
+      //  Because we've reversed order of loop, need to rearrange the order
+      //  of the vertices and polygons to preserve consistent polygons
+      //  ordering / normal orientation.
+      //
       numVerts = V->GetNumberOfVertices();
       for (i=0; i<(numVerts/2); i++) 
         {
@@ -624,15 +634,15 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
       vtype = VTK_NON_MANIFOLD_VERTEX;
       }
     }
-//
-// If at this point, the vertex is either simple or boundary. Here we do
-// a geometric evaluation to find feature edges, if any, and then a
-// final classification.
-//
-
-//
-//  Traverse all polygons and generate normals and areas
-//
+  //
+  // If at this point, the vertex is either simple or boundary. Here we do
+  // a geometric evaluation to find feature edges, if any, and then a
+  // final classification.
+  //
+  
+  //
+  //  Traverse all polygons and generate normals and areas
+  //
   x2 =  V->Array[0].x;
   for (i=0; i<3; i++) v2[i] = x2[i] - X[i];
 
@@ -658,10 +668,10 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     LoopArea += T->Array[i].area;
 
     vtkMath::Cross (v1, v2, normal);
-//
-//  Get normals.  If null, then normal make no contribution to loop.
-//  The center of the loop is the center of gravity.
-//
+    //
+    //  Get normals.  If null, then normal make no contribution to loop.
+    //  The center of the loop is the center of gravity.
+    //
     if ( vtkMath::Normalize(normal) != 0.0 ) 
       {
       numNormals++;
@@ -672,10 +682,10 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
         }
       }
     }
-//
-//  Compute "average" plane normal and plane center.  Use an area
-//  averaged normal calulation
-//
+  //
+  //  Compute "average" plane normal and plane center.  Use an area
+  //  averaged normal calulation
+  //
   if ( !numNormals || LoopArea == 0.0 ) 
     {
     return VTK_DEGENERATE_VERTEX;
@@ -690,12 +700,12 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     {
     return VTK_DEGENERATE_VERTEX;
     }
-//
-//  Now run through polygons again generating feature angles.  (Note
-//  that if an edge is on the boundary its feature angle has already
-//  been set to 180.)  Also need to keep track whether any feature
-//  angles exceed the current value.
-//
+  //
+  //  Now run through polygons again generating feature angles.  (Note
+  //  that if an edge is on the boundary its feature angle has already
+  //  been set to 180.)  Also need to keep track whether any feature
+  //  angles exceed the current value.
+  //
   if ( vtype == VTK_BOUNDARY_VERTEX ) 
     {
     numFEdges = 2;
@@ -704,9 +714,9 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
     } 
   else
     numFEdges = 0;
-//
-//  Compare to cosine of feature angle to avoid cosine extraction
-//
+  //
+  //  Compare to cosine of feature angle to avoid cosine extraction
+  //
   if ( vtype == VTK_SIMPLE_VERTEX ) // first edge 
     if ( (V->Array[0].FAngle = FEATURE_ANGLE(0,T->MaxId)) <= CosAngle )
       fedges[numFEdges++] = 0;
@@ -721,9 +731,9 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris, int *tr
         fedges[numFEdges++] = i + 1;
       }
     }
-//
-//  Final classification
-//
+  //
+  //  Final classification
+  //
   if ( vtype == VTK_SIMPLE_VERTEX && numFEdges > 0 )
     {
     if ( numFEdges == 1 ) vtype = VTK_EDGE_END_VERTEX;
@@ -846,9 +856,13 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
   // Note: this code also handles high-degree vertices.
   else
     {
-    vtkIdList triangles(VTK_MAX_TRIS_PER_VERTEX);
-    vtkIdList cellIds(5,10);
-    vtkIdList group(VTK_MAX_TRIS_PER_VERTEX);
+    vtkIdList *triangles = vtkIdList::New();
+    vtkIdList *cellIds = vtkIdList::New();
+    vtkIdList *group = vtkIdList::New();
+
+    triangles->Allocate(VTK_MAX_TRIS_PER_VERTEX);
+    cellIds->Allocate(5,10);
+    group->Allocate(VTK_MAX_TRIS_PER_VERTEX);
 
      //changes in group size control how to split loop
     if ( numTris <= 1 ) return; //prevents infinite recursion
@@ -859,15 +873,15 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
     else
       maxGroupSize /= 2; //prevents infinite recursion
 
-    for ( i=0; i < numTris; i++ ) triangles.InsertId(i,tris[i]);
+    for ( i=0; i < numTris; i++ ) triangles->InsertId(i,tris[i]);
 
     // now group into manifold pieces
-    for ( i=0, id=ptId; triangles.GetNumberOfIds() > 0; i++ )
+    for ( i=0, id=ptId; triangles->GetNumberOfIds() > 0; i++ )
       {
-      group.Reset();
-      startTri = triangles.GetId(0);
-      group.InsertId(0,startTri);
-      triangles.DeleteId(startTri);
+      group->Reset();
+      startTri = triangles->GetId(0);
+      group->InsertId(0,startTri);
+      triangles->DeleteId(startTri);
       Mesh->GetCellPoints(startTri,nverts,verts);
       p[0] = ( verts[0] != ptId ? verts[0] : verts[1] );
       p[1] = ( verts[1] != ptId && verts[1] != p[0] ? verts[1] : verts[2] );
@@ -877,12 +891,13 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
         {
         for ( tri=startTri; p[j] >= 0; )
           {
-          Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], cellIds);
-          if ( cellIds.GetNumberOfIds() == 1 && triangles.IsId((tri=cellIds.GetId(0)))
-          && group.GetNumberOfIds() < maxGroupSize )
+          Mesh->GetCellEdgeNeighbors(tri, ptId, p[j], *cellIds);
+          if ( cellIds->GetNumberOfIds() == 1 && 
+	       triangles->IsId((tri=cellIds->GetId(0)))
+	       && group->GetNumberOfIds() < maxGroupSize )
             {
-            group.InsertNextId(tri);
-            triangles.DeleteId(tri);
+            group->InsertNextId(tri);
+            triangles->DeleteId(tri);
             Mesh->GetCellPoints(tri,nverts,verts);
             if ( verts[0] != ptId && verts[0] != p[j] ) p[j] = verts[0];
             else if ( verts[1] != ptId && verts[1] != p[j] ) p[j] = verts[1];
@@ -895,10 +910,10 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       // reconnect group into manifold chunk (first group is left attached)
       if ( i != 0 ) 
         {
-        id = Mesh->InsertNextLinkedPoint(X,group.GetNumberOfIds());
-        for ( j=0; j < group.GetNumberOfIds(); j++ )
+        id = Mesh->InsertNextLinkedPoint(X,group->GetNumberOfIds());
+        for ( j=0; j < group->GetNumberOfIds(); j++ )
           {
-          tri = group.GetId(j);
+          tri = group->GetId(j);
           Mesh->RemoveReferenceToCell(ptId, tri);
           Mesh->AddReferenceToCell(id, tri);
           Mesh->ReplaceCellPoint(tri, ptId, id);
@@ -910,6 +925,10 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       }//for all groups
     //Don't forget to reinsert original vertex
     if ( insert ) this->Insert(ptId);
+
+    triangles->Delete();
+    cellIds->Delete();
+    group->Delete();
     }
 
   return;
@@ -921,12 +940,14 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 // bad situation and we'll split the vertex.
 //
 int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2, 
-                      vtkIdList& CollapseTris)
+			       vtkIdList& CollapseTris)
 {
   int i, maxI;
   float dist2, e2dist2;
   int numVerts=V->MaxId+1;
   static vtkPriorityQueue EdgeLengths(VTK_MAX_TRIS_PER_VERTEX);
+
+  EdgeLengths.ReferenceCountingOff();
 
   CollapseTris.SetNumberOfIds(2);
   EdgeLengths.Reset();
@@ -1148,7 +1169,7 @@ void vtkDecimatePro::SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2
 // Collapse the point to the specified vertex. Distribute the error
 // and update neighborhood vertices.
 int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1, 
-                 int pt2, vtkIdList& CollapseTris)
+				 int pt2, vtkIdList& CollapseTris)
 {
   int i, numDeleted=CollapseTris.GetNumberOfIds();
   int ntris=T->MaxId+1;

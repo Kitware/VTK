@@ -33,5 +33,8 @@ iren Initialize
 #renWin SetFileName "stl.tcl.ppm"
 #renWin SaveImageAsPPM
 
+# test regeneration of the LODMappers
+stlActor Modified
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

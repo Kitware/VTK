@@ -44,19 +44,22 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkAssembly::vtkAssembly()
 {
   this->Paths = NULL;
+  this->Parts = vtkActorCollection::New();
 }
 
 vtkAssembly::~vtkAssembly()
 {
   this->DeletePaths();
+  this->Parts->Delete();
+  this->Parts = NULL;
 }
 
-// Add a part to the list of parts.
+// Add a part to the list of Parts.
 void vtkAssembly::AddPart(vtkActor *actor)
 {
-  if ( ! this->Parts.IsItemPresent(actor) )
+  if ( ! this->Parts->IsItemPresent(actor) )
     {
-    this->Parts.AddItem(actor);
+    this->Parts->AddItem(actor);
     this->Modified();
     } 
 }
@@ -64,9 +67,9 @@ void vtkAssembly::AddPart(vtkActor *actor)
 // Remove a part from the list of parts,
 void vtkAssembly::RemovePart(vtkActor *actor)
 {
-  if ( this->Parts.IsItemPresent(actor) )
+  if ( this->Parts->IsItemPresent(actor) )
     {
-    this->Parts.RemoveItem(actor);
+    this->Parts->RemoveItem(actor);
     this->Modified();
     } 
 }
@@ -80,11 +83,11 @@ vtkAssembly& vtkAssembly::operator=(const vtkAssembly& assembly)
   return *this;
 }
 
-// Render this assembly and all its parts. The rendering process is recursive.
+// Render this assembly and all its Parts. The rendering process is recursive.
 // Note that a mapper need not be defined. If not defined, then no geometry 
 // will be drawn for this assembly. This allows you to create "logical"
 // assemblies; that is, assemblies that only serve to group and transform
-// its parts.
+// its Parts.
 void vtkAssembly::Render(vtkRenderer *ren)
 {
   vtkActor *actor;
@@ -109,7 +112,7 @@ void vtkAssembly::InitPartTraversal()
   this->Paths->InitTraversal();
 }
 
-// Return the next part in the hierarchy of assembly parts.  This method 
+// Return the next part in the hierarchy of assembly Parts.  This method 
 // returns a properly transformed and updated actor.
 vtkActor *vtkAssembly::GetNextPart()
 {
@@ -165,16 +168,18 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
     if ( this->GetUserMatrix() )
       {
       matrix = vtkMatrix4x4::New();
-      *matrix = *(this->GetUserMatrix());
+      *(matrix) = *(this->GetUserMatrix());
       copy->SetUserMatrix(matrix);
+      matrix->Delete();
       }
     }
   else //somewhere in the middle of the assembly hierarchy
     {
     previous = path->GetLastItem();
     matrix = vtkMatrix4x4::New();
-    previous->GetMatrix(*matrix);
+    previous->GetMatrix(matrix);
     copy->SetUserMatrix(matrix);
+    matrix->Delete();
     }
 
   path->AddItem(copy);
@@ -182,7 +187,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
   // add our children to the path (if we're visible). 
   if ( this->Visibility )
     {
-    for ( this->Parts.InitTraversal(); (part = this->Parts.GetNextItem()); )
+    for ( this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
       {
       //a new path is created for each child
       childPath = vtkActorCollection::New();
@@ -199,6 +204,7 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkActorCollection *path)
           matrix = vtkMatrix4x4::New();
           *matrix = *(actor->GetUserMatrix());
           copy->SetUserMatrix(matrix);
+	  matrix->Delete();
           }
 
         childPath->AddItem(copy);
@@ -222,10 +228,6 @@ void vtkAssembly::DeletePaths()
       {
       for ( path->InitTraversal(); (actor = path->GetNextItem()); )
         {
-        if ( actor->GetUserMatrix() )
-	  {
-	  actor->GetUserMatrix()->Delete();
-	  }
         actor->Delete();
         }
       path->Delete();
@@ -242,7 +244,7 @@ void vtkAssembly::ApplyProperties()
   vtkProperty *prop=this->GetProperty();
   vtkProperty *actorProp;
 
-  for (this->Parts.InitTraversal(); (part = this->Parts.GetNextItem()); )
+  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
     {
     actorProp = part->GetProperty();
     *actorProp = *prop;
@@ -259,7 +261,7 @@ float *vtkAssembly::GetBounds()
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   int actorVisible=0;
 
   this->UpdatePaths();
@@ -275,7 +277,7 @@ float *vtkAssembly::GetBounds()
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
     }
 
-  this->Transform.PostMultiply();  
+  this->Transform->PostMultiply();  
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
     actor = path->GetLastItem();
@@ -297,25 +299,25 @@ float *vtkAssembly::GetBounds()
 
       // save the old transform
       actor->GetMatrix(matrix);
-      this->Transform.Push(); 
-      this->Transform.Identity();
-      this->Transform.Concatenate(matrix);
+      this->Transform->Push(); 
+      this->Transform->Identity();
+      this->Transform->Concatenate(matrix);
 
       // and transform into actors coordinates
       fptr = bbox;
       for (n = 0; n < 8; n++) 
         {
-        this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
+        this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
 
         // now store the result
-        result = this->Transform.GetPoint();
+        result = this->Transform->GetPoint();
         fptr[0] = result[0] / result[3];
         fptr[1] = result[1] / result[3];
         fptr[2] = result[2] / result[3];
         fptr += 3;
         }
 
-      this->Transform.Pop();  
+      this->Transform->Pop();  
 
       for (i = 0; i < 8; i++)
         {
@@ -334,7 +336,7 @@ float *vtkAssembly::GetBounds()
       }//if mapper
     }//for each path
 
-  this->Transform.PreMultiply();  
+  this->Transform->PreMultiply();  
 
   if ( ! actorVisible )
     {
@@ -342,6 +344,7 @@ float *vtkAssembly::GetBounds()
     this->Bounds[1] = this->Bounds[3] = this->Bounds[5] =  1.0;
     }
 
+  matrix->Delete();
   return this->Bounds;
 }
 
@@ -351,7 +354,7 @@ unsigned long int vtkAssembly::GetMTime()
   unsigned long time;
   vtkActor *part;
 
-  for (this->Parts.InitTraversal(); (part = this->Parts.GetNextItem()); )
+  for (this->Parts->InitTraversal(); (part = this->Parts->GetNextItem()); )
     {
     time = part->GetMTime();
     mTime = ( time > mTime ? time : mTime );
@@ -364,7 +367,7 @@ void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkActor::PrintSelf(os,indent);
 
-  os << indent << "There are: " << this->Parts.GetNumberOfItems()
+  os << indent << "There are: " << this->Parts->GetNumberOfItems()
      << " parts in this assembly\n";
 }
 

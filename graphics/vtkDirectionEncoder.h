@@ -56,9 +56,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDirectionEncoder_h
 #define __vtkDirectionEncoder_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 
-class VTK_EXPORT vtkDirectionEncoder : public vtkReferenceCount
+class VTK_EXPORT vtkDirectionEncoder : public vtkObject
 {
 public:
   const char *GetClassName() {return "vtkDirectionEncoder";};

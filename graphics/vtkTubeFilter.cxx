@@ -82,9 +82,9 @@ void vtkTubeFilter::Execute()
   vtkPointData *pd, *outPD;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Creating tube");
 
   if ( !(inPts=input->GetPoints()) || 
@@ -103,7 +103,7 @@ void vtkTubeFilter::Execute()
   outPD->CopyAllocate(pd,numNewPts);
 
   int generate_normals = 0;
-  vtkPolyLine lineNormalGenerator;
+  vtkPolyLine *lineNormalGenerator;
   
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
@@ -127,9 +127,9 @@ void vtkTubeFilter::Execute()
       
       }      
     }
-//
-// If varying width, get appropriate info.
-//
+  //
+  // If varying width, get appropriate info.
+  //
   if ( this->VaryRadius == VTK_VARY_RADIUS_BY_SCALAR && 
   (inScalars=pd->GetScalars()) )
     {
@@ -147,10 +147,11 @@ void vtkTubeFilter::Execute()
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-//
-//  Create points along the line that are later connected into a 
-//  triangle strip.
-//
+  //
+  //  Create points along the line that are later connected into a 
+  //  triangle strip.
+  //
+  lineNormalGenerator = vtkPolyLine::New();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
   {
     // if necessary calculate normals, each polyline calculates it's
@@ -159,18 +160,19 @@ void vtkTubeFilter::Execute()
     if (generate_normals) {
       single_polyline->InsertNextCell( npts, pts );
     
-      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,single_polyline,
+      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,single_polyline,
 					  (vtkNormals*)inNormals) )
       {
         vtkErrorMacro(<< "No normals for line!\n");
         if (deleteNormals) inNormals->Delete();
+	lineNormalGenerator->Delete();
         return;
       }
     }
-//
-// Use "averaged" segment to create beveled effect. Watch out for first and 
-// last points.
-//
+    //
+    // Use "averaged" segment to create beveled effect. 
+    // Watch out for first and last points.
+    //
     for (j=0; j < npts; j++)
       {
       if (npts < 2)
@@ -218,6 +220,7 @@ void vtkTubeFilter::Execute()
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
+	lineNormalGenerator->Delete();
         return;
         }
 
@@ -248,6 +251,7 @@ void vtkTubeFilter::Execute()
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
+	lineNormalGenerator->Delete();
         return;
         }
       
@@ -283,9 +287,9 @@ void vtkTubeFilter::Execute()
         outPD->CopyData(pd,pts[j],ptId);
         }
       }
-//
-// Generate the strips
-//
+    //
+    // Generate the strips
+    //
     for (k=0; k<this->NumberOfSides; k++)
       {
       i1 = (k+1) % this->NumberOfSides;
@@ -301,9 +305,9 @@ void vtkTubeFilter::Execute()
     ptOffset += this->NumberOfSides*npts;
     single_polyline->Delete();
   }
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   if ( deleteNormals ) inNormals->Delete();
 
   output->SetPoints(newPts);
@@ -314,6 +318,7 @@ void vtkTubeFilter::Execute()
 
   outPD->SetNormals(newNormals);
   newNormals->Delete();
+  lineNormalGenerator->Delete();
 
   output->Squeeze();
 }

@@ -53,6 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVolumeMapper_h
 #define __vtkVolumeMapper_h
 
+#include "vtkObject.h"
 #include "vtkStructuredPoints.h"
 #include "vtkImageToStructuredPoints.h"
 #include "vtkImageCache.h"

@@ -143,7 +143,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   float         nx, ny, nz;
   float         *aspect;
   int           x, y;
-  vtkMatrix4x4  mat;
+  vtkMatrix4x4  *mat = vtkMatrix4x4::New();
   float         result[4];
 
 
@@ -151,6 +151,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   if (this->Renderer == 0)
     {
     vtkErrorMacro(<< "A Renderer is not associated with this ViewRays object");
+    mat->Delete();
     return;
     }
   
@@ -158,6 +159,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   if( !vr_ptr)
     {
     vtkErrorMacro(<< "No memory allocated to build perspective viewing rays.");
+    mat->Delete();
     return;
     }  
 
@@ -166,15 +168,15 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
   
   // get the perspective transformation from the active camera
   // given the aspect ratio
-  mat = Renderer->GetActiveCamera()->GetPerspectiveTransform(
+  *mat = Renderer->GetActiveCamera()->GetPerspectiveTransform(
     aspect[0]/aspect[1],-1,1);
 
   // Invert this matrix because we want to go from screen space to
   // camera space
-  mat.Invert();
+  mat->Invert();
 
   // Transpose it for easier use
-  mat.Transpose();
+  mat->Transpose();
   
   // This is the increment between pixel locations in screen space
   xinc = 2.0/(float)(size[0]);
@@ -199,7 +201,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
       // Convert this location into camera space - this becomes our
       // view ray direction because we start the ray at (0,0,0) in
       // camera space and go in the direction of this result
-      mat.PointMultiply(result,result);
+      mat->PointMultiply(result,result);
       
       // Normalize view ray
       mag = sqrt( (double)(result[0]*result[0] +
@@ -225,6 +227,7 @@ void vtkViewRays::ComputePerspectiveInfo(float *vr_ptr,int size[2])
     // Increment the y position in screen space
     ypos += yinc;
     }
+  mat->Delete();
 }
 
 // Return the distance to move to the next ray starting point along the 

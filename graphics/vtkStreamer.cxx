@@ -311,7 +311,7 @@ void vtkStreamer::Integrate()
       cell = input->GetCell(sPtr->cellId);
       cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
 
-      inVectors->GetVectors(cell->PointIds,cellVectors);
+      inVectors->GetVectors(cell->PointIds,&cellVectors);
       sPtr->v[0]  = sPtr->v[1] = sPtr->v[2] = 0.0;
       for (i=0; i < cell->GetNumberOfPoints(); i++)
         {
@@ -322,7 +322,7 @@ void vtkStreamer::Integrate()
 
       if ( inScalars ) 
         {
-        inScalars->GetScalars(cell->PointIds,cellScalars);
+        inScalars->GetScalars(cell->PointIds,&cellScalars);
         for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
           sPtr->s += cellScalars.GetScalar(i) * w[i];
         }
@@ -352,8 +352,8 @@ void vtkStreamer::Integrate()
     cell = input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
     step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
-    inVectors->GetVectors(cell->PointIds,cellVectors);
-    if ( inScalars ) inScalars->GetScalars(cell->PointIds,cellScalars);
+    inVectors->GetVectors(cell->PointIds,&cellVectors);
+    if ( inScalars ) inScalars->GetScalars(cell->PointIds,&cellScalars);
 
     //integrate until time has been exceeded
     while ( sPtr->cellId >= 0 && sPtr->speed > this->TerminalSpeed &&
@@ -398,8 +398,8 @@ void vtkStreamer::Integrate()
           {
           for (i=0; i<3; i++) sNext->x[i] = xNext[i];
           cell = input->GetCell(sNext->cellId);
-          inVectors->GetVectors(cell->PointIds,cellVectors);
-          if ( inScalars ) inScalars->GetScalars(cell->PointIds,cellScalars);
+          inVectors->GetVectors(cell->PointIds,&cellVectors);
+          if ( inScalars ) inScalars->GetScalars(cell->PointIds,&cellScalars);
           step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
           }
         }

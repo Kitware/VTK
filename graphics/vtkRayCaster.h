@@ -170,7 +170,7 @@ protected:
   float		*cbuffer;
   vtkRenderer   *Renderer;
 
-  vtkViewRays   ViewRays[VTK_MAX_VIEW_RAYS_LEVEL+1];
+  vtkViewRays   *ViewRays[VTK_MAX_VIEW_RAYS_LEVEL+1];
   float         ImageScale[VTK_MAX_VIEW_RAYS_LEVEL+1];
   int		BilinearImageZoom;
   int           SelectedImageScaleIndex;

@@ -78,14 +78,14 @@ void vtkPolyDataNormals::Execute()
   int cellId, numPts;
   vtkPoints *inPts;
   vtkCellArray *inPolys, *inStrips, *polys;
-  vtkPolygon poly;
+  vtkPolygon *poly;
   vtkPoints *newPts = NULL;
   vtkNormals *newNormals;
   vtkPointData *pd, *outPD;
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
-  vtkIdList cellIds(VTK_CELL_SIZE);
+  vtkIdList *cellIds;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -106,22 +106,24 @@ void vtkPolyDataNormals::Execute()
   inPts = input->GetPoints();
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-
+  poly = vtkPolygon::New();
+  
   OldMesh = vtkPolyData::New();
   OldMesh->SetPoints(inPts);
   if ( numStrips > 0 ) //have to decompose strips into triangles
     {
-    vtkTriangleStrip strip;
+    vtkTriangleStrip *strip = vtkTriangleStrip::New();
     if ( numPolys > 0 ) polys = new vtkCellArray(*(inPolys));
     else 
       {
       polys = vtkCellArray::New();
       polys->Allocate(polys->EstimateSize(numStrips,5));
       }
-    strip.DecomposeStrips(inStrips,polys);
+    strip->DecomposeStrips(inStrips,polys);
     OldMesh->SetPolys(polys);
     polys->Delete();
     numPolys = polys->GetNumberOfCells();//added some new triangles
+    strip->Delete();
     }
   else
     {
@@ -141,9 +143,11 @@ void vtkPolyDataNormals::Execute()
   NewMesh->SetPolys(newPolys);
   NewMesh->BuildCells(); //builds connectivity
 
-//
-// The visited array keeps track of which polygons have been visited.
-//
+  cellIds = vtkIdList::New(); cellIds->Allocate(VTK_CELL_SIZE);
+
+  //
+  // The visited array keeps track of which polygons have been visited.
+  //
   if ( this->Consistency || this->Splitting ) 
     {
     Visited = new int[numPolys];
@@ -154,11 +158,11 @@ void vtkPolyDataNormals::Execute()
     {
     Visited = NULL;
     }
-//
-//  Traverse all elements insuring proper direction of ordering.  This
-//  is a recursive neighbor search.  Note: have to truncate recursion
-//  and keep track of seeds to start up again.
-//
+  //
+  //  Traverse all elements insuring proper direction of ordering.  This
+  //  is a recursive neighbor search.  Note: have to truncate recursion
+  //  and keep track of seeds to start up again.
+  //
   NumExceededMaxDepth = 0;
   NumFlips = 0;
   
@@ -195,9 +199,9 @@ void vtkPolyDataNormals::Execute()
     Seeds->Delete();
     }
   this->UpdateProgress(0.333);
-//
-//  Compute polygon normals
-//
+  //
+  //  Compute polygon normals
+  //
   PolyNormals = vtkNormals::New();
   PolyNormals->Allocate(numPolys);
 
@@ -205,20 +209,20 @@ void vtkPolyDataNormals::Execute()
   cellId++ )
     {
     if ((cellId % 1000) == 0) this->UpdateProgress ((float) cellId / (float) numPolys);
-    poly.ComputeNormal(inPts, npts, pts, n);
+    poly->ComputeNormal(inPts, npts, pts, n);
     PolyNormals->SetNormal(cellId,n);
     }
-//
-//  Traverse all nodes; evaluate loops and feature edges.  If feature
-//  edges found, split mesh creating new nodes.  Update element connectivity.
-//
+  //
+  //  Traverse all nodes; evaluate loops and feature edges.  If feature
+  //  edges found, split mesh creating new nodes.  Update element connectivity.
+  //
   if ( this->Splitting ) 
     {
     CosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
-//
-//  Splitting will create new points.  Have to create index array to map
-//  new points into old points.
-//
+    //
+    //  Splitting will create new points.  Have to create index array to map
+    //  new points into old points.
+    //
     Map = vtkIdList::New();
     Map->SetNumberOfIds(numPts);
     for (i=0; i < numPts; i++) Map->SetId(i,i);
@@ -227,11 +231,11 @@ void vtkPolyDataNormals::Execute()
       {
       Mark++;
       replacementPoint = ptId;
-      OldMesh->GetPointCells(ptId,cellIds);
-      for (j=0; j < cellIds.GetNumberOfIds(); j++)
+      OldMesh->GetPointCells(ptId,*cellIds);
+      for (j=0; j < cellIds->GetNumberOfIds(); j++)
         {
-        if ( Visited[cellIds.GetId(j)] != Mark )
-          this->MarkAndReplace (cellIds.GetId(j), ptId, replacementPoint);
+        if ( Visited[cellIds->GetId(j)] != Mark )
+          this->MarkAndReplace (cellIds->GetId(j), ptId, replacementPoint);
 
         replacementPoint = Map->GetNumberOfIds();
         }
@@ -241,9 +245,9 @@ void vtkPolyDataNormals::Execute()
     numNewPts = Map->GetNumberOfIds();
 
     vtkDebugMacro(<<"Created " << numNewPts-numPts << " new points");
-//
-//  Now need to map values of old points into new points.
-//
+    //
+    //  Now need to map values of old points into new points.
+    //
     outPD->CopyNormalsOff();
     outPD->CopyAllocate(pd,numNewPts);
 
@@ -301,17 +305,17 @@ void vtkPolyDataNormals::Execute()
     newNormals->SetNormal(i,n);
     }
   PolyNormals->Delete();
-//
-//  Update ourselves.  If no new nodes have been created (i.e., no
-//  splitting), can simply pass data through.
-//
+  //
+  //  Update ourselves.  If no new nodes have been created (i.e., no
+  //  splitting), can simply pass data through.
+  //
   if ( ! this->Splitting ) 
     {
     output->SetPoints(inPts);
     }
-//
-//  If there is splitting, then have to send down the new data.
-//
+  //
+  //  If there is splitting, then have to send down the new data.
+  //
   else
     {
     output->SetPoints(newPts);
@@ -324,8 +328,10 @@ void vtkPolyDataNormals::Execute()
   output->SetPolys(newPolys);
   newPolys->Delete();
 
+  cellIds->Delete();
   OldMesh->Delete();
   NewMesh->Delete();
+  poly->Delete();
 }
 
 //
@@ -337,7 +343,7 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
   int p1, p2;
   int j, k, l, numNei;
   int npts, *pts;
-  vtkIdList cellIds(5,10);
+  vtkIdList *cellIds;
   int numNeiPts, *neiPts, neighbor;
 
   if ( RecursionDepth++ > this->MaxRecursionDepth ) 
@@ -351,31 +357,33 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
 
   NewMesh->GetCellPoints(cellId, npts, pts);
 
+  cellIds = vtkIdList::New(); cellIds->Allocate(5,10);
+
   for (j=0; j < npts; j++) 
     {
     p1 = pts[j];
     p2 = pts[(j+1)%npts];
 
-    OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
-//
-//  Check the direction of the neighbor ordering.  Should be
-//  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
-//
-    if ( (numNei=cellIds.GetNumberOfIds()) == 1 ||
+    OldMesh->GetCellEdgeNeighbors(cellId, p1, p2, *cellIds);
+    //
+    //  Check the direction of the neighbor ordering.  Should be
+    //  consistent with us (i.e., if we are n1->n2, neighbor should be n2->n1).
+    //
+    if ( (numNei=cellIds->GetNumberOfIds()) == 1 ||
     this->NonManifoldTraversal )
       {
-      for (k=0; k < cellIds.GetNumberOfIds(); k++) 
+      for (k=0; k < cellIds->GetNumberOfIds(); k++) 
         {
-        if ( ! Visited[cellIds.GetId(k)] ) 
+        if ( ! Visited[cellIds->GetId(k)] ) 
           {
-          neighbor = cellIds.GetId(k);
+          neighbor = cellIds->GetId(k);
           NewMesh->GetCellPoints(neighbor,numNeiPts,neiPts);
           for (l=0; l < numNeiPts; l++)
             if (neiPts[l] == p2)
                break;
-  //
-  //  Have to reverse ordering if neighbor not consistent
-  //
+	  //
+	  //  Have to reverse ordering if neighbor not consistent
+	  //
            if ( neiPts[(l+1)%numNeiPts] != p1 ) 
              {
              NumFlips++;
@@ -387,6 +395,7 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
       } //for manifold or non-manifold traversal allowed
     } // for all edges of this polygon
 
+  cellIds->Delete();
   RecursionDepth--;
   return;
 }
@@ -395,20 +404,21 @@ void vtkPolyDataNormals::TraverseAndOrder (int cellId)
 //  Mark polygons around vertex.  Create new vertex (if necessary) and
 //  replace (i.e., split mesh).
 //
-void vtkPolyDataNormals::MarkAndReplace (int cellId, int n, int replacementPoint)
+void vtkPolyDataNormals::MarkAndReplace (int cellId, int n, 
+					 int replacementPoint)
 {
   int i, spot;
   int neiNode[2];
   float *thisNormal, *neiNormal;
   int numOldPts, *oldPts;
   int numNewPts, *newPts;
-  vtkIdList cellIds(5,10);
+  vtkIdList *cellIds;
 
   Visited[cellId] = Mark;
   OldMesh->GetCellPoints(cellId,numOldPts,oldPts);
-//
-//  Replace the node if necessary
-//
+  //
+  //  Replace the node if necessary
+  //
   if ( n != replacementPoint ) 
     {
     Map->InsertId(replacementPoint, n);
@@ -448,19 +458,23 @@ void vtkPolyDataNormals::MarkAndReplace (int cellId, int n, int replacementPoint
     neiNode[1] = oldPts[spot-1];
     }
 
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(5,10);
+
   for (i=0; i<2; i++) 
     {
-    OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], cellIds);
-    if ( cellIds.GetNumberOfIds() == 1 && Visited[cellIds.GetId(0)] != Mark ) 
+    OldMesh->GetCellEdgeNeighbors(cellId, n, neiNode[i], *cellIds);
+    if ( cellIds->GetNumberOfIds() == 1 && Visited[cellIds->GetId(0)] != Mark)
       {
       thisNormal = PolyNormals->GetNormal(cellId);
-      neiNormal =  PolyNormals->GetNormal(cellIds.GetId(0));
+      neiNormal =  PolyNormals->GetNormal(cellIds->GetId(0));
 
       if ( vtkMath::Dot(thisNormal,neiNormal) > CosAngle )
-        this->MarkAndReplace (cellIds.GetId(0), n, replacementPoint);
+        this->MarkAndReplace (cellIds->GetId(0), n, replacementPoint);
       }
     }
 
+  cellIds->Delete();
   return;
 }
 

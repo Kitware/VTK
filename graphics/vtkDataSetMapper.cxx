@@ -64,7 +64,9 @@ void vtkDataSetMapper::SetInput(vtkDataSet *in)
 {
   if (in != this->Input )
     {
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = in;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
     }
 }

@@ -61,7 +61,7 @@ void vtkRecursiveDividingCubes::Execute()
 {
   int i, j, k, idx;
   vtkScalars *inScalars;
-  vtkIdList voxelPts(8); voxelPts.SetNumberOfIds(8);
+  vtkIdList *voxelPts;
   float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
@@ -69,11 +69,11 @@ void vtkRecursiveDividingCubes::Execute()
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkScalars voxelScalars(VTK_FLOAT);
   voxelScalars.Allocate(8); voxelScalars.ReferenceCountingOff();
-
+  
   vtkDebugMacro(<< "Executing recursive dividing cubes...");
-//
-// Initialize self; check input; create output objects
-//
+  //
+  // Initialize self; check input; create output objects
+  //
   this->Count = 0;
 
   // make sure we have scalar data
@@ -101,10 +101,15 @@ void vtkRecursiveDividingCubes::Execute()
   NewVerts = vtkCellArray::New();
   NewVerts->Allocate(500000,1000000);
   NewVerts->InsertNextCell(0); //temporary cell count
-//
-// Loop over all cells checking to see which straddle the specified value. Since
-// we know that we are working with a volume, can create appropriate data directly.
-//
+
+  voxelPts = vtkIdList::New();
+  voxelPts->Allocate(8); 
+  voxelPts->SetNumberOfIds(8);
+  //
+  // Loop over all cells checking to see which straddle the specified value. 
+  // Since we know that we are working with a volume, can create 
+  // appropriate data directly.
+  //
   sliceSize = dim[0] * dim[1];
   for ( k=0; k < (dim[2]-1); k++)
     {
@@ -122,17 +127,17 @@ void vtkRecursiveDividingCubes::Execute()
         X[0] = origin[0] + i*Spacing[0];
 
         // get point ids of this voxel
-        voxelPts.SetId(0, idx);
-        voxelPts.SetId(1, idx + 1);
-        voxelPts.SetId(2, idx + dim[0]);
-        voxelPts.SetId(3, idx + dim[0] + 1);
-        voxelPts.SetId(4, idx + sliceSize);
-        voxelPts.SetId(5, idx + sliceSize + 1);
-        voxelPts.SetId(6, idx + sliceSize + dim[0]);
-        voxelPts.SetId(7, idx + sliceSize + dim[0] + 1);
+        voxelPts->SetId(0, idx);
+        voxelPts->SetId(1, idx + 1);
+        voxelPts->SetId(2, idx + dim[0]);
+        voxelPts->SetId(3, idx + dim[0] + 1);
+        voxelPts->SetId(4, idx + sliceSize);
+        voxelPts->SetId(5, idx + sliceSize + 1);
+        voxelPts->SetId(6, idx + sliceSize + dim[0]);
+        voxelPts->SetId(7, idx + sliceSize + dim[0] + 1);
 
         // get scalars of this voxel
-        inScalars->GetScalars(voxelPts,voxelScalars);
+        inScalars->GetScalars(*voxelPts,voxelScalars);
 
         // loop over 8 points of voxel to check if cell straddles value
         for ( above=below=0, vertNum=0; vertNum < 8; vertNum++ )
@@ -154,18 +159,19 @@ void vtkRecursiveDividingCubes::Execute()
             input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
 
             this->SubDivide(X, Spacing, 
-			    ((vtkFloatArray *)voxelScalars.GetData())->GetPointer(0));
+		    ((vtkFloatArray *)voxelScalars.GetData())->GetPointer(0));
             }
           }
         }
       }
     }
 
+  voxelPts->Delete();
   NewVerts->UpdateCellCount(NewPts->GetNumberOfPoints());
   vtkDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << " points");
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(NewPts);
   NewPts->Delete();
 
@@ -195,6 +201,8 @@ void vtkRecursiveDividingCubes::SubDivide(float origin[3], float h[3],
   int i;
   float hNew[3];
   static vtkVoxel voxel;
+
+  voxel.ReferenceCountingOff();
 
   for (i=0; i<3; i++) hNew[i] = h[i] / 2.0;
 

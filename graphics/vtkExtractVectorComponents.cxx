@@ -129,7 +129,9 @@ void vtkExtractVectorComponents::SetInput(vtkDataSet *input)
   if ( thisInput != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = (vtkDataObject *)(input);
+    if (this->Input) {this->Input->Register(this);}
     thisInput = input;
     this->Modified();
 

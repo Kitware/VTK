@@ -189,7 +189,8 @@ void vtkSmoothPolyDataFilter::Execute()
       else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
         { //multiply connected, becomes fixed!
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
-        delete Verts[pts[j]].edges;
+        Verts[pts[j]].edges->Delete();
+        Verts[pts[j]].edges = NULL;
         }
 
       } //for all points in this line
@@ -208,7 +209,10 @@ void vtkSmoothPolyDataFilter::Execute()
     int numNei, cellId, nei, edge;
     int *neiPts, numNeiPts;
     float normal[3], neiNormal[3];
-    vtkIdList neighbors(VTK_CELL_SIZE);
+    vtkIdList *neighbors;
+
+    neighbors = vtkIdList::New();
+    neighbors->Allocate(VTK_CELL_SIZE);
 
     inMesh = vtkPolyData::New();
     inMesh->SetPoints(inPts);
@@ -245,8 +249,8 @@ void vtkSmoothPolyDataFilter::Execute()
           Verts[p2].edges = new vtkIdList(6,6);
           }
 
-        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
-        numNei = neighbors.GetNumberOfIds();
+        Mesh->GetCellEdgeNeighbors(cellId,p1,p2,*neighbors);
+        numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;
         if ( numNei == 0 )
@@ -258,7 +262,7 @@ void vtkSmoothPolyDataFilter::Execute()
           {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
-            if ( neighbors.GetId(j) < cellId )
+            if ( neighbors->GetId(j) < cellId )
               break;
           if ( j >= numNei )
             {
@@ -266,7 +270,7 @@ void vtkSmoothPolyDataFilter::Execute()
             }
           }
 
-        else if ( numNei == 1 && (nei=neighbors.GetId(0)) > cellId ) 
+        else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
           {
           vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
           Mesh->GetCellPoints(nei,numNeiPts,neiPts);
@@ -315,10 +319,12 @@ void vtkSmoothPolyDataFilter::Execute()
         }
       }
 
-    delete inMesh;
-    if (toTris) delete toTris;
-
+    inMesh->Delete();
+    if (toTris) {toTris->Delete();}
+    
+    neighbors->Delete();
     }//if strips or polys
+
   this->UpdateProgress(0.50);
 
   //post-process edge vertices to make sure we can smooth them
@@ -483,7 +489,11 @@ void vtkSmoothPolyDataFilter::Execute()
   //free up connectivity storage
   for (i=0; i<numPts; i++)
     {
-    if ( Verts[i].edges != NULL ) delete Verts[i].edges;
+    if ( Verts[i].edges != NULL ) 
+      {
+      Verts[i].edges->Delete();
+      Verts[i].edges = NULL;
+      }
     }
   delete [] Verts;
 }

@@ -59,7 +59,7 @@ void vtkRotationalExtrusionFilter::Execute()
   int numPts, numCells;
   vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
-  vtkPolyData mesh;
+  vtkPolyData *mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;
   int npts, *pts, numEdges, cellId, dim;
@@ -69,7 +69,7 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkPoints *newPts;
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
-  vtkIdList cellIds(VTK_CELL_SIZE), *cellPts;
+  vtkIdList *cellIds, *cellPts;
   int i, j, k, p1, p2;
   vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
@@ -90,17 +90,18 @@ void vtkRotationalExtrusionFilter::Execute()
   //
   // Build cell data structure.
   //
+  mesh = vtkPolyData::New();
   inPts = input->GetPoints();
   inVerts = input->GetVerts();
   inLines = input->GetLines();
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-  mesh.SetPoints(inPts);
-  mesh.SetVerts(inVerts);
-  mesh.SetLines(inLines);
-  mesh.SetPolys(inPolys);
-  mesh.SetStrips(inStrips);
-  if ( inPolys || inStrips ) mesh.BuildLinks();
+  mesh->SetPoints(inPts);
+  mesh->SetVerts(inVerts);
+  mesh->SetLines(inLines);
+  mesh->SetPolys(inPolys);
+  mesh->SetStrips(inStrips);
+  if ( inPolys || inStrips ) mesh->BuildLinks();
 //
 // Allocate memory for output. We don't copy normals because surface geometry
 // is modified.
@@ -201,13 +202,16 @@ void vtkRotationalExtrusionFilter::Execute()
         }
       }
     }
-//
-// Loop over all polygons and triangle strips searching for boundary edges. 
-// If boundary edge found, extrude triangle strip.
-//
+
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(VTK_CELL_SIZE);
+  //
+  // Loop over all polygons and triangle strips searching for boundary edges. 
+  // If boundary edge found, extrude triangle strip.
+  //
   for ( cellId=0; cellId < numCells; cellId++)
     {
-    cell = mesh.GetCell(cellId);
+    cell = mesh->GetCell(cellId);
     cellPts = cell->GetPointIds();
 
     if ( (dim=cell->GetCellDimension()) == 0 ) //create lines from points
@@ -245,11 +249,11 @@ void vtkRotationalExtrusionFilter::Execute()
         edge = cell->GetEdge(i);
         for (j=0; j<(edge->GetNumberOfPoints()-1); j++)
           {
-          p1 = edge->PointIds.GetId(j);
-          p2 = edge->PointIds.GetId(j+1);
-          mesh.GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
+          p1 = edge->PointIds->GetId(j);
+          p2 = edge->PointIds->GetId(j+1);
+          mesh->GetCellEdgeNeighbors(cellId, p1, p2, *cellIds);
 
-          if ( cellIds.GetNumberOfIds() < 1 ) //generate strip
+          if ( cellIds->GetNumberOfIds() < 1 ) //generate strip
             {
             newStrips->InsertNextCell(2*(this->Resolution+1));
             for (k=0; k<=this->Resolution; k++)
@@ -262,11 +266,13 @@ void vtkRotationalExtrusionFilter::Execute()
         } //for each edge
       } //for each polygon or triangle strip
     } //for each cell
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
+  cellIds->Delete();
+  mesh->Delete();
 
   if ( newLines ) 
     {

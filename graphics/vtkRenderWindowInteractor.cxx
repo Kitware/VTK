@@ -53,6 +53,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->CurrentCamera   = NULL;
   this->CurrentLight    = NULL;
   this->CurrentRenderer = NULL;
+  this->Outline = vtkOutlineSource::New();
 
   this->LightFollowCamera = 1;
   this->Initialized = 0;
@@ -64,7 +65,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->Picker = this->CreateDefaultPicker();
   this->OutlineActor = NULL;
   this->OutlineMapper = vtkPolyDataMapper::New();  
-  this->OutlineMapper->SetInput(this->Outline.GetOutput());
+  this->OutlineMapper->SetInput(this->Outline->GetOutput());
   this->PickedRenderer = NULL;
   this->CurrentActor = NULL;
 
@@ -115,7 +116,9 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
   if ( this->OutlineActor ) this->OutlineActor->Delete();
   if ( this->OutlineMapper ) this->OutlineMapper->Delete();
   if ( this->SelfCreatedPicker && this->Picker) this->Picker->Delete();
-
+  this->Outline->Delete();
+  this->Outline = NULL;
+  
   // delete the current arg if there is one and a delete meth
   if ((this->UserMethodArg)&&(this->UserMethodArgDelete))
     {
@@ -264,7 +267,7 @@ void vtkRenderWindowInteractor::HighlightActor(vtkActor *actor)
     {
     this->PickedRenderer = this->CurrentRenderer;
     this->CurrentRenderer->AddActor(OutlineActor);
-    this->Outline.SetBounds(actor->GetBounds());
+    this->Outline->SetBounds(actor->GetBounds());
     this->CurrentActor = actor;
     }
   this->RenderWindow->Render();

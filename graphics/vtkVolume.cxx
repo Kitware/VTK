@@ -80,52 +80,52 @@ vtkVolume& vtkVolume::operator=(const vtkVolume& volume)
 }
 
 // Copy the volume's composite 4x4 matrix into the matrix provided.
-void vtkVolume::GetMatrix(vtkMatrix4x4& result)
+void vtkVolume::GetMatrix(vtkMatrix4x4 *result)
 {
   // check whether or not need to rebuild the matrix
   if ( this->GetMTime() > this->MatrixMTime )
     {
     this->GetOrientation();
-    this->Transform.Push();  
-    this->Transform.Identity();  
-    this->Transform.PreMultiply();  
+    this->Transform->Push();  
+    this->Transform->Identity();  
+    this->Transform->PreMultiply();  
 
     // apply user defined matrix last if there is one 
     if (this->UserMatrix)
       {
-	this->Transform.Concatenate(*this->UserMatrix);
+	this->Transform->Concatenate(*this->UserMatrix);
       }
 
     // first translate
-    this->Transform.Translate(this->Position[0],
+    this->Transform->Translate(this->Position[0],
 			      this->Position[1],
 			      this->Position[2]);
    
     // shift to origin
-    this->Transform.Translate(this->Origin[0],
+    this->Transform->Translate(this->Origin[0],
 			      this->Origin[1],
 			      this->Origin[2]);
    
     // rotate
-    this->Transform.RotateZ(this->Orientation[2]);
-    this->Transform.RotateX(this->Orientation[0]);
-    this->Transform.RotateY(this->Orientation[1]);
+    this->Transform->RotateZ(this->Orientation[2]);
+    this->Transform->RotateX(this->Orientation[0]);
+    this->Transform->RotateY(this->Orientation[1]);
 
     // scale
-    this->Transform.Scale(this->Scale,
+    this->Transform->Scale(this->Scale,
 			  this->Scale,
 			  this->Scale);
 
     // shift back from origin
-    this->Transform.Translate(-this->Origin[0],
+    this->Transform->Translate(-this->Origin[0],
 			      -this->Origin[1],
 			      -this->Origin[2]);
 
-    Matrix = this->Transform.GetMatrix();
+    *(this->Matrix) = this->Transform->GetMatrix();
     this->MatrixMTime.Modified();
-    this->Transform.Pop();  
+    this->Transform->Pop();  
     }
-  result = this->Matrix;
+  *result = *(this->Matrix);
 } 
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
@@ -134,11 +134,12 @@ float *vtkVolume::GetBounds()
   int i,n;
   float *bounds, bbox[24], *fptr;
   float *result;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   
   // get the bounds of the Mapper if we have one
   if (!this->VolumeMapper)
     {
+    matrix->Delete();
     return this->Bounds;
     }
 
@@ -156,27 +157,27 @@ float *vtkVolume::GetBounds()
   
   // save the old transform
   this->GetMatrix(matrix);
-  this->Transform.Push();
-  this->Transform.PostMultiply();
-  this->Transform.Identity();
-  this->Transform.Concatenate(matrix);
+  this->Transform->Push();
+  this->Transform->PostMultiply();
+  this->Transform->Identity();
+  this->Transform->Concatenate(matrix);
 
   // and transform into actors coordinates
   fptr = bbox;
   for (n = 0; n < 8; n++) 
     {
-    this->Transform.SetPoint(fptr[0],fptr[1],fptr[2],1.0);
+    this->Transform->SetPoint(fptr[0],fptr[1],fptr[2],1.0);
   
     // now store the result
-    result = this->Transform.GetPoint();
+    result = this->Transform->GetPoint();
     fptr[0] = result[0] / result[3];
     fptr[1] = result[1] / result[3];
     fptr[2] = result[2] / result[3];
     fptr += 3;
     }
   
-  this->Transform.PreMultiply();
-  this->Transform.Pop();  
+  this->Transform->PreMultiply();
+  this->Transform->Pop();  
   
   // now calc the new bounds
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
@@ -190,6 +191,7 @@ float *vtkVolume::GetBounds()
       }
     }
 
+  matrix->Delete();
   return this->Bounds;
 }
 

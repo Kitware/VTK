@@ -52,7 +52,7 @@ void vtkShrinkFilter::Execute()
   int oldId, newId, numIds;
   float center[3], *p, pt[3];
   vtkPointData *pd, *outPD;;
-  vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
+  vtkIdList *ptIds, *newPtIds;
   vtkDataSet *input=(vtkDataSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
@@ -66,54 +66,61 @@ void vtkShrinkFilter::Execute()
     return;
     }
 
+  ptIds = vtkIdList::New();
+  ptIds->Allocate(VTK_CELL_SIZE);
+  newPtIds = vtkIdList::New();
+  newPtIds->Allocate(VTK_CELL_SIZE);
+
   output->Allocate(numCells);
   newPts = vtkPoints::New();
   newPts->Allocate(numPts*8,numPts);
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyAllocate(pd,numPts*8,numPts);
-//
-// Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
-// then create new vertices shrunk towards center.
-//
+  //
+  // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
+  // then create new vertices shrunk towards center.
+  //
   for (cellId=0; cellId < numCells; cellId++)
     {
-    input->GetCellPoints(cellId,ptIds);
-    numIds = ptIds.GetNumberOfIds();
+    input->GetCellPoints(cellId,*ptIds);
+    numIds = ptIds->GetNumberOfIds();
 
     // get the center of the cell
     center[0] = center[1] = center[2] = 0.0;
     for (i=0; i < numIds; i++)
       {
-      p = input->GetPoint(ptIds.GetId(i));
+      p = input->GetPoint(ptIds->GetId(i));
       for (j=0; j < 3; j++) center[j] += p[j];
       }
     for (j=0; j<3; j++) center[j] /= numIds;
 
     // Create new points and cells
-    newPtIds.Reset();
+    newPtIds->Reset();
     for (i=0; i < numIds; i++)
       {
-      p = input->GetPoint(ptIds.GetId(i));
+      p = input->GetPoint(ptIds->GetId(i));
       for (j=0; j < 3; j++)
         pt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
 
-      oldId = ptIds.GetId(i);
+      oldId = ptIds->GetId(i);
       newId = newPts->InsertNextPoint(pt);
-      newPtIds.InsertId(i,newId);
+      newPtIds->InsertId(i,newId);
 
       outPD->CopyData(pd, oldId, newId);
       }
-    output->InsertNextCell(input->GetCellType(cellId), newPtIds);
+    output->InsertNextCell(input->GetCellType(cellId), *newPtIds);
     }
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->GetCellData()->PassData(input->GetCellData());
 
   output->SetPoints(newPts);
   output->Squeeze();
 
+  ptIds->Delete();
+  newPtIds->Delete();
   newPts->Delete();
 }
 

@@ -65,9 +65,8 @@ public:
   static vtkDataSetFilter *New() {return new vtkDataSetFilter;};
   const char *GetClassName() {return "vtkDataSetFilter";};
 
-
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Specify the input data or filter.
   virtual void SetInput(vtkDataSet *input);
 
   virtual void SetInput(vtkImageCache *cache)

@@ -51,14 +51,18 @@ void vtkTriangleFilter::Execute()
   vtkCellArray *newPolys;
   int numCells, cellNum;
   
-  vtkPolygon poly;
+  vtkPolygon *poly;
   int i, j;
-  vtkIdList outVerts(3*VTK_CELL_SIZE);
+  vtkIdList *outVerts;
   vtkPoints *inPoints=input->GetPoints();
   vtkPointData *pd;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Executing triangle filter");
+
+  poly = vtkPolygon::New();
+  outVerts = vtkIdList::New();
+  outVerts->Allocate(3*VTK_CELL_SIZE);
 
   newPolys = vtkCellArray::New();
   // approximation
@@ -75,13 +79,13 @@ void vtkTriangleFilter::Execute()
       }
     else if ( npts > 3 ) // triangulate poly
       {
-      poly.Initialize(npts,pts,inPoints);
-      poly.Triangulate(outVerts);
-      for (i=0; i<outVerts.GetNumberOfIds()/3; i++)
+      poly->Initialize(npts,pts,inPoints);
+      poly->Triangulate(*outVerts);
+      for (i=0; i<outVerts->GetNumberOfIds()/3; i++)
         {
         newPolys->InsertNextCell(3);
         for (j=0; j<3; j++)
-          newPolys->InsertCellPoint(outVerts.GetId(3*i+j));
+          newPolys->InsertCellPoint(outVerts->GetId(3*i+j));
         }
       }
 
@@ -94,12 +98,13 @@ void vtkTriangleFilter::Execute()
 
   if ( inStrips->GetNumberOfCells() > 0 )
     {
-    vtkTriangleStrip strip;
-    strip.DecomposeStrips(inStrips,newPolys);
+    vtkTriangleStrip *strip = vtkTriangleStrip::New();
+    strip->DecomposeStrips(inStrips,newPolys);
+    strip->Delete();
     }
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   newPolys->Squeeze();
   output->SetPolys(newPolys);
   newPolys->Delete();
@@ -112,6 +117,9 @@ void vtkTriangleFilter::Execute()
   // pass through other stuff if requested
   if ( this->PassVerts ) output->SetVerts(input->GetVerts());
   if ( this->PassLines ) output->SetLines(input->GetLines());
+
+  outVerts->Delete();
+  poly->Delete();
 
   vtkDebugMacro(<<"Converted " << inPolys->GetNumberOfCells() <<
                " polygons and " << inStrips->GetNumberOfCells() <<

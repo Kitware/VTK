@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkTransform.h"
 #include "vtkMath.h"
 
 // Construct an instance of  vtkRenderWindow with its screen size 
@@ -75,6 +76,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AbortCheckMethod = NULL;
   this->AbortCheckMethodArg = NULL;
   this->AbortCheckMethodArgDelete = NULL;
+  this->Renderers = vtkRendererCollection::New();
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -98,6 +100,8 @@ vtkRenderWindow::~vtkRenderWindow()
     {
     (*this->AbortCheckMethodArgDelete)(this->AbortCheckMethodArg);
     }
+  
+  this->Renderers->Delete();
 }
 
 // Specify a function to be called to check and see if an abort
@@ -226,11 +230,11 @@ void vtkRenderWindow::SetDesiredUpdateRate(float rate)
 
   if (this->DesiredUpdateRate != rate)
     {
-    for (this->Renderers.InitTraversal(); 
-	 (aren = this->Renderers.GetNextItem()); )
+    for (this->Renderers->InitTraversal(); 
+	 (aren = this->Renderers->GetNextItem()); )
       {
       aren->SetAllocatedRenderTime(1.0/
-				   (rate*this->Renderers.GetNumberOfItems()));
+				   (rate*this->Renderers->GetNumberOfItems()));
       }
     this->DesiredUpdateRate = rate;
     this->Modified();
@@ -329,7 +333,7 @@ void vtkRenderWindow::Render()
       this->CopyResultFrame();
 
       //###
-      this->Renderers.Render2D();
+      this->Renderers->Render2D();
 
       // free any memory
       delete [] this->AccumulationBuffer;
@@ -376,7 +380,7 @@ void vtkRenderWindow::Render()
     
     this->CopyResultFrame();
     //###
-    this->Renderers.Render2D();
+    this->Renderers->Render2D();
     }  
 
   if (this->ResultFrame) 
@@ -416,8 +420,8 @@ void vtkRenderWindow::DoAARender()
       offsets[0] = vtkMath::Random() - 0.5;
       offsets[1] = vtkMath::Random() - 0.5;
 
-      for (this->Renderers.InitTraversal(); 
-	   (aren = this->Renderers.GetNextItem()); )
+      for (this->Renderers->InitTraversal(); 
+	   (aren = this->Renderers->GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 
@@ -450,8 +454,8 @@ void vtkRenderWindow::DoAARender()
       this->DoFDRender();
 
       // restore the jitter to normal
-      for (this->Renderers.InitTraversal(); 
-	   (aren = this->Renderers.GetNextItem()); )
+      for (this->Renderers->InitTraversal(); 
+	   (aren = this->Renderers->GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 
@@ -535,7 +539,7 @@ void vtkRenderWindow::DoFDRender()
     float viewUp[4];
     float *vpn;
     float *dpoint;
-    vtkTransform aTrans;
+    vtkTransform *aTrans = vtkTransform::New();
     float offsets[2];
     float *orig;
 
@@ -544,7 +548,7 @@ void vtkRenderWindow::DoFDRender()
 
     viewUp[3] = 1.0;
 
-    orig = new float [3*this->Renderers.GetNumberOfItems()];
+    orig = new float [3*this->Renderers->GetNumberOfItems()];
 
     for (i = 0; i < FDFrames; i++)
       {
@@ -554,19 +558,19 @@ void vtkRenderWindow::DoFDRender()
       offsets[1] = vtkMath::Random()*360.0; // angle
 
       // store offsets for each renderer 
-      for (this->Renderers.InitTraversal(); 
-	   (aren = this->Renderers.GetNextItem()); )
+      for (this->Renderers->InitTraversal(); 
+	   (aren = this->Renderers->GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 	focalDisk = acam->GetFocalDisk()*offsets[0];
 
 	memcpy(viewUp,acam->GetViewUp(),12);
 	vpn = acam->GetViewPlaneNormal();
-	aTrans.Identity();
-	aTrans.Scale(focalDisk,focalDisk,focalDisk);
-	aTrans.RotateWXYZ(offsets[1],vpn[0],vpn[1],vpn[2]);
-	aTrans.SetPoint(viewUp);
-	vpn = aTrans.GetPoint();
+	aTrans->Identity();
+	aTrans->Scale(focalDisk,focalDisk,focalDisk);
+	aTrans->RotateWXYZ(offsets[1],vpn[0],vpn[1],vpn[2]);
+	aTrans->SetPoint(viewUp);
+	vpn = aTrans->GetPoint();
 	dpoint = acam->GetPosition();
 
 	// store the position for later
@@ -583,8 +587,8 @@ void vtkRenderWindow::DoFDRender()
 
       // restore the jitter to normal
       j = 0;
-      for (this->Renderers.InitTraversal(); 
-	   (aren = this->Renderers.GetNextItem()); )
+      for (this->Renderers->InitTraversal(); 
+	   (aren = this->Renderers->GetNextItem()); )
 	{
 	acam = aren->GetActiveCamera();
 	acam->SetPosition(orig + j*3);
@@ -617,6 +621,7 @@ void vtkRenderWindow::DoFDRender()
   
     // free memory
     delete [] orig;
+    aTrans->Delete();
     }
   else
     {
@@ -632,7 +637,7 @@ void vtkRenderWindow::DoStereoRender()
   this->StereoUpdate();
   if (this->StereoType != VTK_STEREO_RIGHT)
     { // render the left eye
-    this->Renderers.Render();
+    this->Renderers->Render();
     }
 
   if (this->StereoRender)
@@ -640,7 +645,7 @@ void vtkRenderWindow::DoStereoRender()
     this->StereoMidpoint();
     if (this->StereoType != VTK_STEREO_LEFT)
       { // render the right eye
-      this->Renderers.Render();
+      this->Renderers->Render();
       }
     this->StereoRenderComplete();
     }
@@ -651,14 +656,14 @@ void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
   // we are its parent 
   ren->SetRenderWindow(this);
-  this->Renderers.AddItem(ren);
+  this->Renderers->AddItem(ren);
 }
 
 // Remove a renderer from the list of renderers.
 void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent 
-  this->Renderers.RemoveItem(ren);
+  this->Renderers->RemoveItem(ren);
 }
 
 int vtkRenderWindow::CheckAbortStatus()
@@ -683,7 +688,7 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Double Buffer: " << (this->DoubleBuffer ? "On\n":"Off\n");
   os << indent << "Full Screen: " << (this->FullScreen ? "On\n":"Off\n");
   os << indent << "Renderers:\n";
-  this->Renderers.PrintSelf(os,indent.GetNextIndent());
+  this->Renderers->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 

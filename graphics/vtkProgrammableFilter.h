@@ -76,9 +76,8 @@ class vtkImageCache;
 class VTK_EXPORT vtkProgrammableFilter : public vtkFilter
 {
 public:
-
-// Description:
-// Construct programmable filter with empty execute method.
+  // Description:
+  // Construct programmable filter with empty execute method.
   vtkProgrammableFilter();
 
   ~vtkProgrammableFilter();
@@ -88,87 +87,74 @@ public:
 
   // methods used to define user function
 
-// Description:
-// Specify the function to use to operate on the point attribute data. Note
-// that the function takes a single (void *) argument.
+  // Description:
+  // Specify the function to use to operate on the point attribute data. Note
+  // that the function takes a single (void *) argument.
   void SetExecuteMethod(void (*f)(void *), void *arg);
 
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
+  // Description:
+  // Set the arg delete method. This is used to free user memory.
   void SetExecuteMethodArgDelete(void (*f)(void *));
-
 
   // methods to set input data
 
-// Description:
-// Specify the input data or filter.
+  // Description:
+  // Specify the input data or filter.
   void SetInput(vtkDataSet *input);
-
 
   // methods used to get the input data - user of this filter can get
   // filter input types - the execute method must manipulate the correct
   // type.
 
-// Description:
-// Get the input as a concrete type. This method is typically used by the
-// writer of the filter function to get the input as a particular type (i.e.,
-// it essentially does type casting). It is the users responsibility to know
-// the correct type of the input data.
+  // Description:
+  // Get the input as a concrete type. This method is typically used by the
+  // writer of the filter function to get the input as a particular type (i.e.,
+  // it essentially does type casting). It is the users responsibility to know
+  // the correct type of the input data.
   vtkPolyData *GetPolyDataInput();
 
-
-// Description:
-// Get the input as a concrete type.
+  // Description:
+  // Get the input as a concrete type.
   vtkStructuredPoints *GetStructuredPointsInput();
 
-
-// Description:
-// Get the input as a concrete type.
+  // Description:
+  // Get the input as a concrete type.
   vtkStructuredGrid *GetStructuredGridInput();
 
-
-// Description:
-// Get the input as a concrete type.
+  // Description:
+  // Get the input as a concrete type.
   vtkUnstructuredGrid *GetUnstructuredGridInput();
 
-
-// Description:
-// Get the input as a concrete type.
+  // Description:
+  // Get the input as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridInput();
-
 
   // methods used to get the output data - user of this filter can get
   // different output types - the execute method must manipulate the correct
   // type.
 
-// Description:
-// Get the output as a concrete type. This method is typically used by the
-// writer of the filter function to get the output as a particular type (i.e.,
-// it essentially does type casting). It is the users responsibility to know
-// the correct type of the output data.
+  // Description:
+  // Get the output as a concrete type. This method is typically used by the
+  // writer of the filter function to get the output as a particular type (i.e.,
+  // it essentially does type casting). It is the users responsibility to know
+  // the correct type of the output data.
   vtkPolyData *GetPolyDataOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkStructuredPoints *GetStructuredPointsOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkStructuredGrid *GetStructuredGridOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkUnstructuredGrid *GetUnstructuredGridOutput();
 
-
-// Description:
-// Get the output as a concrete type.
+  // Description:
+  // Get the output as a concrete type.
   vtkRectilinearGrid *GetRectilinearGridOutput();
-
 
 protected:
   void Execute();

@@ -43,6 +43,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkSubPixelPositionEdgels::vtkSubPixelPositionEdgels()
 {
   this->GradMaps = NULL;
+  this->TargetFlag = 0;
+  this->TargetValue = 0.0;
 }
 
 void vtkSubPixelPositionEdgels::Execute()
@@ -279,15 +281,42 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim,
       result[0] = x;
       result[1] = y;
       result[2] = z;
-      
-      // now fit to a parabola and find max
-      c = mag;
-      b = (valp - valn)/2.0;
-      a = (valp - c - b);
 
-      // assign the root to c because MSVC5.0 optimizer has problems with this
-      // function
-      c = -0.5*b/a;
+      if (this->TargetFlag)
+	{
+	// For target, do a simple linear interpolation to avoid binomial.
+	c = mag;
+	if (c == this->TargetValue)
+	  {
+	  c = 0.0;
+	  }
+	else if ((this->TargetValue < c && valp < c) ||
+		 (this->TargetValue > c && valp > c))
+	  {
+	  c = (this->TargetValue - c) / (valp - c);
+	  }
+	else if ((this->TargetValue < c && valn < c) ||
+		 (this->TargetValue < c && valn > c))
+	  {
+	  c = (this->TargetValue - c) / (c - valn);
+	  }
+	else
+	  {
+	  c = 0.0;
+	  }
+	}
+      else 
+	{
+	// now fit to a parabola and find max
+	c = mag;
+	b = (valp - valn)/2.0;
+	a = (valp - c - b);
+	
+	//assign the root to c because MSVC5.0 optimizer has problems with this
+	// function
+	c = -0.5*b/a;
+	}
+      
       if (c > 1.0) 
         {
         c = 1.0;
@@ -387,5 +416,8 @@ void vtkSubPixelPositionEdgels::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Gradient Data: (none)\n";
     }
+  
+  os << indent << "TargetFlag: " << this->TargetFlag << endl;
+  os << indent << "TargetValue: " << this->TargetValue << endl;
 }
 

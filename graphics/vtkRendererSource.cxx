@@ -47,6 +47,17 @@ vtkRendererSource::vtkRendererSource()
   this->WholeWindow = 0;
 }
 
+
+vtkRendererSource::~vtkRendererSource()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+}
+
+
 void vtkRendererSource::Execute()
 {
   int numOutPts;

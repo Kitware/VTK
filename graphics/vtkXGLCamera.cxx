@@ -62,7 +62,7 @@ void vtkXGLCamera::Render(vtkRenderer *aren)
   Xgl_trans view_trans;  
   vtkXGLRenderWindow *rw;
   float *vport;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
 
   context = ren->GetContext();
   win_ras = ren->GetRaster();
@@ -157,12 +157,12 @@ void vtkXGLCamera::Render(vtkRenderer *aren)
   xgl_object_set(*context,XGL_CTX_VDC_WINDOW, &vdc_bounds, NULL);
   xgl_object_set(*context,XGL_CTX_VIEW_CLIP_BOUNDS, &vdc_bounds, NULL);
 
-  matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,-1);
-  matrix.Transpose();
+  *matrix = this->GetCompositePerspectiveTransform(aspect[0]/aspect[1],0,-1);
+  matrix->Transpose();
  
   // insert model transformation 
   xgl_object_get(*context,XGL_CTX_VIEW_TRANS, &view_trans);
-  xgl_transform_write(view_trans,matrix[0]);
+  xgl_transform_write(view_trans,matrix->Element[0]);
   
     // if we have a stereo renderer, draw other eye next time 
   if (this->Stereo)
@@ -170,5 +170,5 @@ void vtkXGLCamera::Render(vtkRenderer *aren)
     if (this->LeftEye) this->LeftEye = 0;
     else this->LeftEye = 1;
     }
-
+  matrix->Delete();
 }

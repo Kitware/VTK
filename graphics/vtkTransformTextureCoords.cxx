@@ -80,8 +80,8 @@ void vtkTransformTextureCoords::Execute()
   vtkTCoords *newTCoords;
   int numPts=input->GetNumberOfPoints();
   int i, j, ptId, texDim;
-  vtkTransform transform;
-  vtkMatrix4x4 matrix;
+  vtkTransform *transform = vtkTransform::New();
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *TC, newTC[3];
 
   vtkDebugMacro(<<"Transforming texture coordinates...");
@@ -99,24 +99,24 @@ void vtkTransformTextureCoords::Execute()
 
   // just pretend texture coordinate is 3D point and use transform object to
   // manipulate
-  transform.PostMultiply();
+  transform->PostMultiply();
   // shift back to origin
-  transform.Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
+  transform->Translate(-this->Origin[0], -this->Origin[1], -this->Origin[2]);
 
   // scale
-  transform.Scale(this->Scale[0], this->Scale[1], this->Scale[2]);
+  transform->Scale(this->Scale[0], this->Scale[1], this->Scale[2]);
 
   // rotate about z, then x, then y
-  if ( this->FlipT ) transform.RotateZ(180.0);
-  if ( this->FlipR ) transform.RotateX(180.0);
-  if ( this->FlipS ) transform.RotateY(180.0);
+  if ( this->FlipT ) transform->RotateZ(180.0);
+  if ( this->FlipR ) transform->RotateX(180.0);
+  if ( this->FlipS ) transform->RotateY(180.0);
 
   // move back from origin and translate
-  transform.Translate(this->Origin[0] + this->Position[0],
+  transform->Translate(this->Origin[0] + this->Position[0],
                       this->Origin[1] + this->Position[1],
 		      this->Origin[2] + this->Position[2]);
 
-  matrix = transform.GetMatrix();
+  *matrix = transform->GetMatrix();
 
   newTC[0] = newTC[1] = newTC[2] = 0.0;
   newTC[0] = newTC[1] = newTC[2] = 0.0;
@@ -126,10 +126,10 @@ void vtkTransformTextureCoords::Execute()
     TC = inTCoords->GetTCoord(ptId);
     for (i=0; i<texDim; i++)
       {
-      newTC[i] = matrix.Element[i][3];
+      newTC[i] = matrix->Element[i][3];
       for (j=0; j<texDim; j++)
         {
-        newTC[i] += matrix.Element[i][j] * TC[j];
+        newTC[i] += matrix->Element[i][j] * TC[j];
         }
       }
 
@@ -144,6 +144,8 @@ void vtkTransformTextureCoords::Execute()
 
   output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
+  matrix->Delete();
+  transform->Delete();
 }
 
 void vtkTransformTextureCoords::PrintSelf(ostream& os, vtkIndent indent)

@@ -302,12 +302,12 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
 void vtkFiniteDifferenceGradientEstimator::UpdateNormals( )
 {
   vtkDebugMacro( << "Updating Normals!" );
-  this->Threader.SetNumberOfThreads( this->NumberOfThreads );
+  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
   
-  this->Threader.SetSingleMethod( vtkSwitchOnDataType,
+  this->Threader->SetSingleMethod( vtkSwitchOnDataType,
 				  (vtkObject *)this );
   
-  this->Threader.SingleMethodExecute();
+  this->Threader->SingleMethodExecute();
 }
 
 // Print the vtkFiniteDifferenceGradientEstimator

@@ -61,9 +61,9 @@ void vtkShrinkPolyData::Execute()
   vtkPolyData *input =(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkPointData *pointData = output->GetPointData(); 
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Shrinking polygonal data");
 
   inPts = input->GetPoints();
@@ -73,10 +73,10 @@ void vtkShrinkPolyData::Execute()
   inLines = input->GetLines();
   inPolys = input->GetPolys();
   inStrips = input->GetStrips();
-//
-// Count the number of new points and other primitives that 
-// need to be created.
-//
+  //
+  // Count the number of new points and other primitives that 
+  // need to be created.
+  //
   numNewPts = input->GetNumberOfVerts();
   numNewLines = 0;
   numNewPolys = 0;
@@ -98,9 +98,9 @@ void vtkShrinkPolyData::Execute()
     numNewPts += (npts-2) * 3;
     polyAllocSize += (npts - 2) * 4;
     }
-//
-// Allocate
-//
+  //
+  // Allocate
+  //
   newPoints = vtkPoints::New();
   newPoints->Allocate(numNewPts);
 
@@ -114,9 +114,9 @@ void vtkShrinkPolyData::Execute()
   newPolys->Allocate(polyAllocSize);
 
   pointData->CopyAllocate(pd);
-//
-// Copy vertices (no shrinking necessary)
-//
+  //
+  // Copy vertices (no shrinking necessary)
+  //
   for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
     {
     newVerts->InsertNextCell(npts);
@@ -127,9 +127,9 @@ void vtkShrinkPolyData::Execute()
       pointData->CopyData(pd,pts[j],newId);
       }    
     }
-//
-// Lines need to be shrunk, and if polyline, split into separate pieces
-//
+  //
+  // Lines need to be shrunk, and if polyline, split into separate pieces
+  //
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
     for (j=0; j<(npts-1); j++)
@@ -151,9 +151,9 @@ void vtkShrinkPolyData::Execute()
       newLines->InsertNextCell(2,newIds);
       }
     }
-//
-// Polygons need to be shrunk
-//
+  //
+  // Polygons need to be shrunk
+  //
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
     {
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
@@ -176,9 +176,9 @@ void vtkShrinkPolyData::Execute()
       pointData->CopyData(pd,pts[j],newId);
       }
     }
-//
-// Triangle strips need to be shrunk and split into separate pieces.
-//
+  //
+  // Triangle strips need to be shrunk and split into separate pieces.
+  //
   int tmp;
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
     {
@@ -214,9 +214,9 @@ void vtkShrinkPolyData::Execute()
       newPolys->InsertNextCell(3,newIds);
       }
     }
-//
-// Update self and release memory
-//
+  //
+  // Update self and release memory
+  //
   output->SetPoints(newPoints);
   newPoints->Delete();
 

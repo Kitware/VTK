@@ -60,6 +60,9 @@ vtkConnectivityFilter::vtkConnectivityFilter()
 
   this->NeighborCellPointIds = vtkIdList::New();
   this->NeighborCellPointIds->Allocate(8);
+  
+  this->Seeds = vtkIdList::New();
+  this->SpecifiedRegionIds = vtkIdList::New();
 }
 
 
@@ -68,6 +71,8 @@ vtkConnectivityFilter::~vtkConnectivityFilter()
   this->RegionSizes->Delete();
   this->CellScalars->Delete();
   this->NeighborCellPointIds->Delete();
+  this->Seeds->Delete();
+  this->SpecifiedRegionIds->Delete();
 }
 
 void vtkConnectivityFilter::Execute()
@@ -75,7 +80,7 @@ void vtkConnectivityFilter::Execute()
   int cellId, i, j, pt, newCellId;
   int numPts, numCells;
   vtkPoints *newPts;
-  vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
+  vtkIdList *cellIds, *ptIds;
   int id;
   int maxCellsInRegion;
   int largestRegionId = 0;
@@ -142,6 +147,9 @@ void vtkConnectivityFilter::Execute()
   this->RegionNumber = 0;
   maxCellsInRegion = 0;
 
+  cellIds = vtkIdList::New(); cellIds->Allocate(VTK_CELL_SIZE);
+  ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
+
   if ( this->ExtractionMode != VTK_EXTRACT_POINT_SEEDED_REGIONS && 
   this->ExtractionMode != VTK_EXTRACT_CELL_SEEDED_REGIONS &&
   this->ExtractionMode != VTK_EXTRACT_CLOSEST_POINT_REGION ) 
@@ -183,24 +191,24 @@ void vtkConnectivityFilter::Execute()
 
     if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
         {
-        pt = this->Seeds.GetId(i);
+        pt = this->Seeds->GetId(i);
         if ( pt >= 0 ) 
           {
-          input->GetPointCells(pt,cellIds);
-          for (j=0; j < cellIds.GetNumberOfIds(); j++) 
+          input->GetPointCells(pt,*cellIds);
+          for (j=0; j < cellIds->GetNumberOfIds(); j++) 
 	    {
-            this->RecursionSeeds->InsertNextId(cellIds.GetId(j));
+            this->RecursionSeeds->InsertNextId(cellIds->GetId(j));
 	    }
           }
         }
       }
     else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
         {
-        cellId = this->Seeds.GetId(i);
+        cellId = this->Seeds->GetId(i);
         if ( cellId >= 0 )
 	  {
 	  this->RecursionSeeds->InsertNextId(cellId);
@@ -220,10 +228,10 @@ void vtkConnectivityFilter::Execute()
 	  minId = i;
           minDist2 = dist2;
 	  }
-	input->GetPointCells(minId,cellIds);
-	for (j=0; j < cellIds.GetNumberOfIds(); j++) 
+	input->GetPointCells(minId,*cellIds);
+	for (j=0; j < cellIds->GetNumberOfIds(); j++) 
 	  {
-	  this->RecursionSeeds->InsertNextId(cellIds.GetId(j));
+	  this->RecursionSeeds->InsertNextId(cellIds->GetId(j));
 	  }
 	}
       }
@@ -286,13 +294,13 @@ void vtkConnectivityFilter::Execute()
       {
       if ( this->Visited[cellId] >= 0 )
         {
-        input->GetCellPoints(cellId, ptIds);
-        for (i=0; i < ptIds.GetNumberOfIds(); i++)
+        input->GetCellPoints(cellId, *ptIds);
+        for (i=0; i < ptIds->GetNumberOfIds(); i++)
           {
-          id = this->PointMap[ptIds.GetId(i)];
-          ptIds.InsertId(i,id);
+          id = this->PointMap[ptIds->GetId(i)];
+          ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),*ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -304,9 +312,9 @@ void vtkConnectivityFilter::Execute()
       int inReg, regionId;
       if ( (regionId=this->Visited[cellId]) >= 0 )
         {
-        for (inReg=0,i=0; i<this->SpecifiedRegionIds.GetNumberOfIds(); i++)
+        for (inReg=0,i=0; i<this->SpecifiedRegionIds->GetNumberOfIds(); i++)
           {
-          if ( regionId == this->SpecifiedRegionIds.GetId(i) )
+          if ( regionId == this->SpecifiedRegionIds->GetId(i) )
             {
             inReg = 1;
             break;
@@ -314,13 +322,13 @@ void vtkConnectivityFilter::Execute()
           }
         if ( inReg )
           {
-          input->GetCellPoints(cellId, ptIds);
-          for (i=0; i < ptIds.GetNumberOfIds(); i++)
+          input->GetCellPoints(cellId, *ptIds);
+          for (i=0; i < ptIds->GetNumberOfIds(); i++)
             {
-            id = this->PointMap[ptIds.GetId(i)];
-            ptIds.InsertId(i,id);
+            id = this->PointMap[ptIds->GetId(i)];
+            ptIds->InsertId(i,id);
             }
-          newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+          newCellId =output->InsertNextCell(input->GetCellType(cellId),*ptIds);
 	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
@@ -332,13 +340,13 @@ void vtkConnectivityFilter::Execute()
       {
       if ( this->Visited[cellId] == largestRegionId )
         {
-        input->GetCellPoints(cellId, ptIds);
-        for (i=0; i < ptIds.GetNumberOfIds(); i++)
+        input->GetCellPoints(cellId, *ptIds);
+        for (i=0; i < ptIds->GetNumberOfIds(); i++)
           {
-          id = this->PointMap[ptIds.GetId(i)];
-          ptIds.InsertId(i,id);
+          id = this->PointMap[ptIds->GetId(i)];
+          ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(input->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(input->GetCellType(cellId),*ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -347,6 +355,8 @@ void vtkConnectivityFilter::Execute()
   delete [] this->Visited;
   delete [] this->PointMap;
   output->Squeeze();
+  ptIds->Delete();
+  cellIds->Delete();
 
   int num = this->GetNumberOfExtractedRegions();
   int count = 0;
@@ -368,7 +378,7 @@ void vtkConnectivityFilter::Execute()
 void vtkConnectivityFilter::TraverseAndMark (int cellId)
 {
   int j, k, ptId, numPts, numCells;
-  vtkIdList ptIds(8,VTK_CELL_SIZE), cellIds(8,VTK_CELL_SIZE);
+  vtkIdList *ptIds, *cellIds;
   vtkDataSet *input=(vtkDataSet *)this->Input;
 
   this->Visited[cellId] = this->RegionNumber;
@@ -380,25 +390,28 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
     return;
     }
 
-  this->NumCellsInRegion++;
-  input->GetCellPoints(cellId, ptIds);
+  cellIds = vtkIdList::New(); cellIds->Allocate(8, VTK_CELL_SIZE);
+  ptIds = vtkIdList::New(); ptIds->Allocate(8, VTK_CELL_SIZE);
 
-  numPts = ptIds.GetNumberOfIds();
+  this->NumCellsInRegion++;
+  input->GetCellPoints(cellId, *ptIds);
+
+  numPts = ptIds->GetNumberOfIds();
   for (j=0; j < numPts; j++) 
     {
-    if ( this->PointMap[ptId=ptIds.GetId(j)] < 0 )
+    if ( this->PointMap[ptId=ptIds->GetId(j)] < 0 )
       {
       this->PointMap[ptId] = this->PointNumber++;
       this->NewScalars->SetScalar(this->PointMap[ptId], this->RegionNumber);
       }
      
-    input->GetPointCells(ptId,cellIds);
+    input->GetPointCells(ptId,*cellIds);
 
     // check connectivity criterion (geometric + scalar)
-    numCells = cellIds.GetNumberOfIds();
+    numCells = cellIds->GetNumberOfIds();
     for (k=0; k < numCells; k++)
       {
-      cellId = cellIds.GetId(k);
+      cellId = cellIds->GetId(k);
       if ( this->Visited[cellId] < 0 )
         {
         if ( this->InScalars )
@@ -437,6 +450,9 @@ void vtkConnectivityFilter::TraverseAndMark (int cellId)
 
     } // for all cells of this element
 
+  ptIds->Delete();
+  cellIds->Delete();
+
   this->RecursionDepth--;
   return;
 }
@@ -451,42 +467,42 @@ int vtkConnectivityFilter::GetNumberOfExtractedRegions()
 void vtkConnectivityFilter::InitializeSeedList()
 {
   this->Modified();
-  this->Seeds.Reset();
+  this->Seeds->Reset();
 }
 
 // Add a seed id (point or cell id). Note: ids are 0-offset.
 void vtkConnectivityFilter::AddSeed(int id)
 {
   this->Modified();
-  this->Seeds.InsertNextId(id);
+  this->Seeds->InsertNextId(id);
 }
 
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
 void vtkConnectivityFilter::DeleteSeed(int id)
 {
   this->Modified();
-  this->Seeds.DeleteId(id);
+  this->Seeds->DeleteId(id);
 }
 
 // Initialize list of region ids to extract.
 void vtkConnectivityFilter::InitializeSpecifiedRegionList()
 {
   this->Modified();
-  this->SpecifiedRegionIds.Reset();
+  this->SpecifiedRegionIds->Reset();
 }
 
 // Add a region id to extract. Note: ids are 0-offset.
 void vtkConnectivityFilter::AddSpecifiedRegion(int id)
 {
   this->Modified();
-  this->SpecifiedRegionIds.InsertNextId(id);
+  this->SpecifiedRegionIds->InsertNextId(id);
 }
 
 // Delete a region id to extract. Note: ids are 0-offset.
 void vtkConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
-  this->SpecifiedRegionIds.DeleteId(id);
+  this->SpecifiedRegionIds->DeleteId(id);
 }
 
 void vtkConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)

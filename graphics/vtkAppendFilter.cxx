@@ -42,25 +42,32 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAppendFilter::vtkAppendFilter()
 {
+  this->InputList = vtkDataSetCollection::New();
+}
+
+vtkAppendFilter::~vtkAppendFilter()
+{
+  this->InputList->Delete();
+  this->InputList = NULL;
 }
 
 // Add a dataset to the list of data to append.
 void vtkAppendFilter::AddInput(vtkDataSet *ds)
 {
-  if ( ! this->InputList.IsItemPresent(ds) )
+  if ( ! this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.AddItem(ds);
+    this->InputList->AddItem(ds);
     }
 }
 
 // Remove a dataset from the list of data to append.
 void vtkAppendFilter::RemoveInput(vtkDataSet *ds)
 {
-  if ( this->InputList.IsItemPresent(ds) )
+  if ( this->InputList->IsItemPresent(ds) )
     {
     this->Modified();
-    this->InputList.RemoveItem(ds);
+    this->InputList->RemoveItem(ds);
     }
 }
 
@@ -70,7 +77,7 @@ void vtkAppendFilter::Update()
   vtkDataSet *ds;
 
   // make sure input is available
-  if ( this->InputList.GetNumberOfItems() < 1 )
+  if ( this->InputList->GetNumberOfItems() < 1 )
     {
     vtkErrorMacro(<< "No input...can't execute!");
     return;
@@ -83,8 +90,8 @@ void vtkAppendFilter::Update()
     }
 
   this->Updating = 1;
-  for (mtime=0, this->InputList.InitTraversal(); 
-  (ds = this->InputList.GetNextItem()); )
+  for (mtime=0, this->InputList->InitTraversal(); 
+  (ds = this->InputList->GetNextItem()); )
     {
     ds->Update();
     dsMtime = ds->GetMTime();
@@ -97,7 +104,7 @@ void vtkAppendFilter::Update()
 
   if ( mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime )
     {
-    for ( this->InputList.InitTraversal();(ds=this->InputList.GetNextItem());)
+    for (this->InputList->InitTraversal();(ds=this->InputList->GetNextItem());)
       {
       if ( ds->GetDataReleased() )
 	{
@@ -126,7 +133,7 @@ void vtkAppendFilter::Update()
       }
     }
 
-  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal();(ds = this->InputList->GetNextItem());)
     {
     if ( ds->ShouldIReleaseData() )
       {
@@ -143,7 +150,7 @@ void vtkAppendFilter::Execute()
   int numPts, numCells, ptOffset;
   vtkPoints *newPts;
   vtkPointData *pd = NULL;
-  vtkIdList ptIds(VTK_CELL_SIZE), newPtIds(VTK_CELL_SIZE);
+  vtkIdList *ptIds, *newPtIds;
   int i;
   vtkDataSet *ds;
   int ptId, cellId;
@@ -162,7 +169,7 @@ void vtkAppendFilter::Execute()
   tensorsPresent = 1;
   fieldPresent = 1;
 
-  for (this->InputList.InitTraversal(); (ds = this->InputList.GetNextItem()); )
+  for (this->InputList->InitTraversal(); (ds = this->InputList->GetNextItem()); )
     {
     numPts += ds->GetNumberOfPoints();
     numCells += ds->GetNumberOfCells();
@@ -229,9 +236,11 @@ void vtkAppendFilter::Execute()
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
+  ptIds = vtkIdList::New(); ptIds->Allocate(VTK_CELL_SIZE);
+  newPtIds = vtkIdList::New(); newPtIds->Allocate(VTK_CELL_SIZE);
 
-  for (ptOffset=0, this->InputList.InitTraversal(); 
-       (ds = this->InputList.GetNextItem()); ptOffset+=numPts)
+  for (ptOffset=0, this->InputList->InitTraversal(); 
+       (ds = this->InputList->GetNextItem()); ptOffset+=numPts)
     {
     numPts = ds->GetNumberOfPoints();
     numCells = ds->GetNumberOfCells();
@@ -247,20 +256,22 @@ void vtkAppendFilter::Execute()
     // copy cells
     for (cellId=0; cellId < numCells; cellId++)
       {
-      ds->GetCellPoints(cellId,ptIds);
-      newPtIds.Reset ();
-      for (i=0; i < ptIds.GetNumberOfIds(); i++)
+      ds->GetCellPoints(cellId,*ptIds);
+      newPtIds->Reset ();
+      for (i=0; i < ptIds->GetNumberOfIds(); i++)
 	{
-        newPtIds.InsertId(i,ptIds.GetId(i)+ptOffset);
+        newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
 	}
-      output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+      output->InsertNextCell(ds->GetCellType(cellId),*newPtIds);
       }
     }
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   output->SetPoints(newPts);
   newPts->Delete();
+  ptIds->Delete();
+  newPtIds->Delete();
 }
 
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
@@ -268,7 +279,7 @@ void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
   vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
-  this->InputList.PrintSelf(os,indent.GetNextIndent());
+  this->InputList->PrintSelf(os,indent.GetNextIndent());
 }
 
 

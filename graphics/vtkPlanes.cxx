@@ -64,6 +64,8 @@ float vtkPlanes::EvaluateFunction(float x[3])
   int numPlanes, i;
   float val, maxVal;
   
+  plane.ReferenceCountingOff();
+
   if ( !this->Points || ! this->Normals )
     {
     vtkErrorMacro(<<"Please define points and/or normals!");
@@ -92,6 +94,8 @@ void vtkPlanes::EvaluateGradient(float x[3], float n[3])
   static vtkPlane plane;
   int numPlanes, i;
   float val, maxVal, *nTemp;
+
+  plane.ReferenceCountingOff();
 
   if ( !this->Points || ! this->Normals )
     {

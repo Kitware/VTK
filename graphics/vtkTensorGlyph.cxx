@@ -72,12 +72,12 @@ void vtkTensorGlyph::Execute()
   vtkScalars *newScalars=NULL;
   vtkNormals *newNormals=NULL;
   float *x, s;
-  vtkTransform trans;
+  vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
   int npts, *pts=new int[this->Source->GetMaxCellSize()];
   int ptIncr, cellId;
-  vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *m[3], w[3], *v[3];
   float m0[3], m1[3], m2[3];
   float v0[3], v1[3], v2[3];
@@ -104,9 +104,9 @@ void vtkTensorGlyph::Execute()
     vtkErrorMacro(<<"No data to glyph!");
     return;
     }
-//
-// Allocate storage for output PolyData
-//
+  //
+  // Allocate storage for output PolyData
+  //
   sourcePts = this->Source->GetPoints();
   numSourcePts = sourcePts->GetNumberOfPoints();
   numSourceCells = this->Source->GetNumberOfCells();
@@ -162,9 +162,9 @@ void vtkTensorGlyph::Execute()
     newNormals = vtkNormals::New();
     newNormals->Allocate(numPts*numSourcePts);
     }
-//
-// First copy all topology (transformation independent)
-//
+  //
+  // First copy all topology (transformation independent)
+  //
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
     ptIncr = inPtId * numSourcePts;
@@ -177,20 +177,20 @@ void vtkTensorGlyph::Execute()
       output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
-//
-// Traverse all Input points, transforming glyph at Source points
-//
-  trans.PreMultiply();
+  //
+  // Traverse all Input points, transforming glyph at Source points
+  //
+  trans->PreMultiply();
 
   for (inPtId=0; inPtId < numPts; inPtId++)
     {
     ptIncr = inPtId * numSourcePts;
     
-    trans.Identity();
+    trans->Identity();
 
     // translate Source to Input point
     x = input->GetPoint(inPtId);
-    trans.Translate(x[0], x[1], x[2]);
+    trans->Translate(x[0], x[1], x[2]);
 
     tensor = inTensors->GetTensor(inPtId);
 
@@ -240,16 +240,16 @@ void vtkTensorGlyph::Execute()
       }
 
     // normalized eigenvectors rotate object
-    matrix.Element[0][0] = xv[0];
-    matrix.Element[0][1] = yv[0];
-    matrix.Element[0][2] = zv[0];
-    matrix.Element[1][0] = xv[1];
-    matrix.Element[1][1] = yv[1];
-    matrix.Element[1][2] = zv[1];
-    matrix.Element[2][0] = xv[2];
-    matrix.Element[2][1] = yv[2];
-    matrix.Element[2][2] = zv[2];
-    trans.Concatenate(matrix);
+    matrix->Element[0][0] = xv[0];
+    matrix->Element[0][1] = yv[0];
+    matrix->Element[0][2] = zv[0];
+    matrix->Element[1][0] = xv[1];
+    matrix->Element[1][1] = yv[1];
+    matrix->Element[1][2] = zv[1];
+    matrix->Element[2][0] = xv[2];
+    matrix->Element[2][1] = yv[2];
+    matrix->Element[2][2] = zv[2];
+    trans->Concatenate(matrix);
 
     // make sure scale is okay (non-zero) and scale data
     for (maxScale=0.0, i=0; i<3; i++)
@@ -257,12 +257,12 @@ void vtkTensorGlyph::Execute()
     if ( maxScale == 0.0 ) maxScale = 1.0;
     for (i=0; i<3; i++)
       if ( w[i] == 0.0 ) w[i] = maxScale * 1.0e-06;
-    trans.Scale(w[0], w[1], w[2]);
+    trans->Scale(w[0], w[1], w[2]);
 
     // multiply points (and normals if available) by resulting matrix
-    trans.MultiplyPoints(sourcePts,newPts);
+    trans->MultiplyPoints(sourcePts,newPts);
     if ( newNormals )
-      trans.MultiplyNormals(sourceNormals,newNormals);
+      trans->MultiplyNormals(sourceNormals,newNormals);
 
     // Copy point data from source
     if ( inScalars && this->ColorGlyphs ) 
@@ -278,9 +278,9 @@ void vtkTensorGlyph::Execute()
       }
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
-//
-// Update output and release memory
-//
+  //
+  // Update output and release memory
+  //
   delete [] pts;
 
   output->SetPoints(newPts);
@@ -299,6 +299,8 @@ void vtkTensorGlyph::Execute()
     }
 
   output->Squeeze();
+  trans->Delete();
+  matrix->Delete();
 }
 
 // Override update method because execution can branch two ways (via Input 

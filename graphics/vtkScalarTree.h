@@ -58,6 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkScalarTree_h
 #define __vtkScalarTree_h
 
+#include "vtkObject.h"
 #include "vtkDataSet.h"
 
 typedef struct _vtkScalarRange

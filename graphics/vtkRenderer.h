@@ -287,11 +287,11 @@ protected:
 
   vtkCamera *ActiveCamera;
   vtkLight  *CreatedLight;
-  vtkLightCollection Lights;
-  vtkActorCollection Actors;
-  vtkVolumeCollection Volumes;
 
-  vtkCullerCollection Cullers;
+  vtkLightCollection *Lights;
+  vtkActorCollection *Actors;
+  vtkVolumeCollection *Volumes;
+  vtkCullerCollection *Cullers;
 
   float              Ambient[3];  
   vtkRenderWindow    *RenderWindow;
@@ -306,19 +306,19 @@ protected:
 
 // Description:
 // Get the list of lights for this renderer.
-inline vtkLightCollection *vtkRenderer::GetLights() {return &(this->Lights);}
+inline vtkLightCollection *vtkRenderer::GetLights() {return this->Lights;}
 
 // Description:
 // Get the list of actors for this renderer.
-inline vtkActorCollection *vtkRenderer::GetActors() {return &(this->Actors);}
+inline vtkActorCollection *vtkRenderer::GetActors() {return this->Actors;}
 
 // Description:
 // Get the list of volumes for this renderer.
-inline vtkVolumeCollection *vtkRenderer::GetVolumes(){return &(this->Volumes);}
+inline vtkVolumeCollection *vtkRenderer::GetVolumes(){return this->Volumes;}
 
 // Description:
 // Get the list of cullers for this renderer.
-inline vtkCullerCollection *vtkRenderer::GetCullers(){return &(this->Cullers);}
+inline vtkCullerCollection *vtkRenderer::GetCullers(){return this->Cullers;}
 
 
 #endif

@@ -135,132 +135,120 @@ class VTK_EXPORT vtkProp : public vtkObject
   // as position and orientation are left with  their default values then 
   // they will result in the identity matrix. And the resulting matrix
   // will be the user defined matrix.
-  vtkSetObjectMacro(UserMatrix,vtkMatrix4x4);
+  vtkSetReferenceCountedObjectMacro(UserMatrix,vtkMatrix4x4);
   vtkGetObjectMacro(UserMatrix,vtkMatrix4x4);
 
-
-// Description:
-// Return a reference to the prop's 4x4 composite matrix.
+  // Description:
+  // Return a reference to the prop's 4x4 composite matrix.
   vtkMatrix4x4& GetMatrix();
-
-  virtual void GetMatrix(vtkMatrix4x4& m) = 0;
+  virtual void GetMatrix(vtkMatrix4x4 *m) = 0;
+  void GetMatrix(vtkMatrix4x4 &m) {this->GetMatrix(&m);}
 
   // Get the (xmin,xmax, ymin,ymax, zmin,zmax) bounding box, center, and range
   // along coordinate axes. Bounds are transfomed into world space.
   virtual float *GetBounds() = 0;
 
-// Description:
-// Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
+  // Description:
+  // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   void GetBounds(float bounds[6]);
 
-
-// Description:
-// Get the center of the bounding box in world coordinates.
+  // Description:
+  // Get the center of the bounding box in world coordinates.
   float *GetCenter();
 
-
-// Description:
-// Get the prop's x range in world coordinates.
+  // Description:
+  // Get the prop's x range in world coordinates.
   float *GetXRange();
 
-
-// Description:
-// Get the prop's y range in world coordinates.
+  // Description:
+  // Get the prop's y range in world coordinates.
   float *GetYRange();
 
-
-// Description:
-// Get the prop's z range in world coordinates.
+  // Description:
+  // Get the prop's z range in world coordinates.
   float *GetZRange();
 
-
-// Description:
-// Get the length of the diagonal of the bounding box.
+  // Description:
+  // Get the length of the diagonal of the bounding box.
   float GetLength();
-
 
   // rotation around axis and arbitrary vector
 
-// Description:
-// Rotate the prop in degrees about the X axis using the right hand rule. The
-// axis is the prop's X axis, which can change as other rotations are performed.
-// To rotate about the world X axis use RotateWXYZ (angle, 1, 0, 0). This rotation
-// is applied before all others in the current transformation matrix.
+  // Description:
+  // Rotate the prop in degrees about the X axis using the right hand rule. The
+  // axis is the prop's X axis, which can change as other rotations are 
+  // performed.  To rotate about the world X axis use 
+  // RotateWXYZ (angle, 1, 0, 0). This rotation is applied before all others 
+  // in the current transformation matrix.
   void RotateX(float);
 
-
-// Description:
-// Rotate the prop in degrees about the Y axis using the right hand rule. The
-// axis is the prop's Y axis, which can change as other rotations are performed.
-// To rotate about the world Y axis use RotateWXYZ (angle, 0, 1, 0). This rotation
-// is applied before all others in the current transformation matrix.
+  // Description:
+  // Rotate the prop in degrees about the Y axis using the right hand rule. The
+  // axis is the prop's Y axis, which can change as other rotations are 
+  // performed.  To rotate about the world Y axis use 
+  // RotateWXYZ (angle, 0, 1, 0). This rotation
+  // is applied before all others in the current transformation matrix.
   void RotateY(float);
 
-
-// Description:
-// Rotate the prop in degrees about the Z axis using the right hand rule. The
-// axis is the prop's Z axis, which can change as other rotations are performed.
-// To rotate about the world Z axis use RotateWXYZ (angle, 0, 0, 1). This rotation
-// is applied before all others in the current transformation matrix.
+  // Description:
+  // Rotate the prop in degrees about the Z axis using the right hand rule. 
+  // The axis is the prop's Z axis, which can change as other rotations are 
+  // performed.  To rotate about the world Z axis use 
+  // RotateWXYZ (angle, 0, 0, 1). This rotation
+  // is applied before all others in the current transformation matrix.
   void RotateZ(float);
 
-
-// Description:
-// Rotate the prop in degrees about an arbitrary axis specified by the 
-// last three arguments. The axis is specified in world coordinates. To
-// rotate an about its model axes, use RotateX, RotateY, RotateZ.
+  // Description:
+  // Rotate the prop in degrees about an arbitrary axis specified by the 
+  // last three arguments. The axis is specified in world coordinates. To
+  // rotate an about its model axes, use RotateX, RotateY, RotateZ.
   void RotateWXYZ(float,float,float,float);
 
 
   // set Euler angles - order dependent
-
-// Description:
-// Sets the orientation of the prop.  Orientation is specified as
-// X,Y and Z rotations in that order, but they are performed as
-// RotateZ, RotateX, and finally RotateY.
+  
+  // Description:
+  // Sets the orientation of the prop.  Orientation is specified as
+  // X,Y and Z rotations in that order, but they are performed as
+  // RotateZ, RotateX, and finally RotateY.
   void SetOrientation(float,float,float);
 
-
-// Description:
-// Sets the orientation of the prop.  Orientation is specified as
-// X,Y and Z rotations in that order, but they are performed as
-// RotateZ, RotateX, and finally RotateY.
+  // Description:
+  // Sets the orientation of the prop.  Orientation is specified as
+  // X,Y and Z rotations in that order, but they are performed as
+  // RotateZ, RotateX, and finally RotateY.
   void SetOrientation(float a[3]);
 
-
-// Description:
-// Returns the orientation of the prop as s vector of X,Y and Z rotation.
-// The ordering in which these rotations must be done to generate the 
-// same matrix is RotateZ, RotateX, and finally RotateY. See also 
-// SetOrientation.
+  // Description:
+  // Returns the orientation of the prop as s vector of X,Y and Z rotation.
+  // The ordering in which these rotations must be done to generate the 
+  // same matrix is RotateZ, RotateX, and finally RotateY. See also 
+  // SetOrientation.
   float *GetOrientation();
 
-
-// Description:
-// Returns the WXYZ orientation of the prop. 
+  // Description:
+  // Returns the WXYZ orientation of the prop. 
   float *GetOrientationWXYZ();
 
-
-// Description:
-// Add to the current orientation. See SetOrientation and GetOrientation for 
-// more details. This basically does a GetOrientation, adds the passed in
-// arguments, and then calls SetOrientation.
+  // Description:
+  // Add to the current orientation. See SetOrientation and GetOrientation for 
+  // more details. This basically does a GetOrientation, adds the passed in
+  // arguments, and then calls SetOrientation.
   void AddOrientation(float,float,float);
 
-
-// Description:
-// Add to the current orientation. See SetOrientation and GetOrientation for 
-// more details. This basically does a GetOrientation, adds the passed in
-// arguments, and then calls SetOrientation.
+  // Description:
+  // Add to the current orientation. See SetOrientation and GetOrientation for 
+  // more details. This basically does a GetOrientation, adds the passed in
+  // arguments, and then calls SetOrientation.
   void AddOrientation(float a[3]);
 
-
   // Method invokes PickMethod() if one defined
-  virtual void Pick() {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
+  virtual void Pick() 
+    {if (this->PickMethod) (*this->PickMethod)(this->PickMethodArg);}
 
 protected:
   vtkMatrix4x4  *UserMatrix;
-  vtkMatrix4x4  Matrix;
+  vtkMatrix4x4  *Matrix;
   vtkTimeStamp  MatrixMTime;
   float         Origin[3];
   float         Position[3];
@@ -272,7 +260,7 @@ protected:
   void          (*PickMethodArgDelete)(void *);
   void          *PickMethodArg;
   int           Dragable;
-  vtkTransform  Transform;
+  vtkTransform  *Transform;
   float         Bounds[6];
 };
 

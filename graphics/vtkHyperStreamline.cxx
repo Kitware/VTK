@@ -370,7 +370,7 @@ void vtkHyperStreamline::Execute()
     cell = input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
 
-    inTensors->GetTensors(cell->PointIds,cellTensors);
+    inTensors->GetTensors(cell->PointIds,&cellTensors);
 
     // interpolate tensor, compute eigenfunctions
     for (j=0; j<3; j++) for (i=0; i<3; i++) m[i][j] = 0.0;
@@ -391,7 +391,7 @@ void vtkHyperStreamline::Execute()
 
     if ( inScalars ) 
       {
-      inScalars->GetScalars(cell->PointIds,cellScalars);
+      inScalars->GetScalars(cell->PointIds,&cellScalars);
       for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
         sPtr->s += cellScalars.GetScalar(i) * w[i];
       }
@@ -420,12 +420,12 @@ void vtkHyperStreamline::Execute()
     cell = input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
     step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
-    inTensors->GetTensors(cell->PointIds,cellTensors);
-    if ( inScalars ) inScalars->GetScalars(cell->PointIds,cellScalars);
+    inTensors->GetTensors(cell->PointIds,&cellTensors);
+    if ( inScalars ) {inScalars->GetScalars(cell->PointIds,&cellScalars);}
 
     //integrate until distance has been exceeded
     while ( sPtr->cellId >= 0 && fabs(sPtr->w[0]) > this->TerminalEigenvalue &&
-    sPtr->d < this->MaximumPropagationDistance )
+	    sPtr->d < this->MaximumPropagationDistance )
       {
 
       //compute updated position using this step (Euler integration)
@@ -474,8 +474,8 @@ void vtkHyperStreamline::Execute()
           {
           for (i=0; i<3; i++) sNext->x[i] = xNext[i];
           cell = input->GetCell(sNext->cellId);
-          inTensors->GetTensors(cell->PointIds,cellTensors);
-          if ( inScalars ) inScalars->GetScalars(cell->PointIds,cellScalars);
+          inTensors->GetTensors(cell->PointIds,&cellTensors);
+          if (inScalars){inScalars->GetScalars(cell->PointIds, &cellScalars);}
           step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
           }
         }

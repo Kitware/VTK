@@ -63,6 +63,8 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
   float pcoords[3], weights[8], s;
   static vtkIdList ptIds(8);
 
+  ptIds.ReferenceCountingOff();
+
   // See if a volume is defined
   if ( !this->Volume ||
   !(scalars = this->Volume->GetPointData()->GetScalars()) )

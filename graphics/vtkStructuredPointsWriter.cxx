@@ -46,7 +46,9 @@ void vtkStructuredPointsWriter::SetInput(vtkStructuredPoints *input)
   if ( this->Input != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = (vtkDataSet *) input;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
     }
 }

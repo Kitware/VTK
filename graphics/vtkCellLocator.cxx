@@ -79,7 +79,7 @@ void vtkCellLocator::FreeSearchStructure()
 	}
       if (cellIds)
 	{
-	delete cellIds;
+	cellIds->Delete();
 	}
       }
     delete [] this->Tree;

@@ -72,7 +72,7 @@ void vtkExtractGeometry::Execute()
   float *x;
   float multiplier;
   vtkPoints *newPts;
-  vtkIdList newCellPts(VTK_CELL_SIZE);
+  vtkIdList *newCellPts;
   vtkDataSet *input = (vtkDataSet *)this->Input;
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
@@ -88,12 +88,21 @@ void vtkExtractGeometry::Execute()
     return;
     }
 
-  if ( this->ExtractInside ) multiplier = 1.0;
-  else multiplier = -1.0;
-//
-// Loop over all points determining whether they are inside implicit function.
-// Copy if they are.
-//
+  newCellPts = vtkIdList::New();
+  newCellPts->Allocate(VTK_CELL_SIZE);
+
+  if ( this->ExtractInside )
+    {
+    multiplier = 1.0;
+    }
+  else 
+    {
+    multiplier = -1.0;
+    }
+  //
+  // Loop over all points determining whether they are inside implicit function
+  // Copy if they are.
+  //
   numPts = input->GetNumberOfPoints();
   numCells = input->GetNumberOfCells();
   pointMap = new int[numPts]; // maps old point ids into new
@@ -125,25 +134,25 @@ void vtkExtractGeometry::Execute()
     cellPts = cell->GetPointIds();
     numCellPts = cell->GetNumberOfPoints();
 
-    newCellPts.Reset();
+    newCellPts->Reset();
     for ( i=0; i < numCellPts; i++)
       {
       ptId = cellPts->GetId(i);
       if ( pointMap[ptId] < 0 ) break;
-      newCellPts.InsertId(i,pointMap[ptId]);
+      newCellPts->InsertId(i,pointMap[ptId]);
       }
 
     if ( i >= numCellPts )
       {
-      newCellId = output->InsertNextCell(cell->GetCellType(),newCellPts);
+      newCellId = output->InsertNextCell(cell->GetCellType(),*newCellPts);
       outputCD->CopyData(cd,cellId,newCellId);
       }
     }
-//
-// Update ourselves and release memory
-//
+  //
+  // Update ourselves and release memory
+  //
   delete [] pointMap;
-
+  newCellPts->Delete();
   output->SetPoints(newPts);
   newPts->Delete();
 

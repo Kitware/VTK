@@ -45,15 +45,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Implement base class method.
 void vtkStarbaseActor::Render(vtkRenderer *ren, vtkMapper *mapper)
 {
-  static vtkMatrix4x4 matrix;
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   int Fd=((vtkStarbaseRenderer *)ren)->GetFd();
 
   // build transformation 
-  this->GetMatrix(matrix);
-  matrix.Transpose();
+  this->GetMatrix(*matrix);
+  matrix->Transpose();
 
   // insert model transformation 
-  concat_transformation3d(Fd,(float (*)[4])(matrix[0]), PRE, PUSH);
+  concat_transformation3d(Fd,(float (*)[4])(matrix->Element), PRE, PUSH);
 
   // send a render to the mapper; update pipeline
   mapper->Render(ren,this);

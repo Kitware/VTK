@@ -68,8 +68,8 @@ int vtkXGLRenderer::UpdateLights ()
   count = 0;
   cur_light = 1;
 
-  for(this->Lights.InitTraversal(); 
-      (light = this->Lights.GetNextItem()); )
+  for(this->Lights->InitTraversal(); 
+      (light = this->Lights->GetNextItem()); )
     {
     status = light->GetSwitch();
     if ((status > 0.0)&& (cur_light < VTK_MAX_LIGHTS))
@@ -108,8 +108,8 @@ int vtkXGLRenderer::UpdateLights ()
   count = 0;
   cur_light = 1;
 
-  for (this->Lights.InitTraversal(); 
-       (light = this->Lights.GetNextItem()); )
+  for (this->Lights->InitTraversal(); 
+       (light = this->Lights->GetNextItem()); )
     {
     status = light->GetSwitch();
 

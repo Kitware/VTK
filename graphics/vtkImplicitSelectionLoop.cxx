@@ -50,11 +50,14 @@ vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
   this->Normal[0] = 0.0;
   this->Normal[1] = 0.0;
   this->Normal[2] = 1.0;
+  this->Polygon = vtkPolygon::New();
 }
 
 vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
 {
   if (this->Loop) this->Loop->Delete();
+  this->Polygon->Delete();
+  this->Polygon = NULL;
 }
 
 #define VTK_DELTA 0.0001
@@ -65,7 +68,7 @@ void vtkImplicitSelectionLoop::Initialize()
   float x[3], x0[3], xProj[3];
 
   numPts = this->Loop->GetNumberOfPoints();
-  this->Polygon.Points.SetNumberOfPoints(numPts);
+  this->Polygon->Points->SetNumberOfPoints(numPts);
 
   if ( this->AutomaticNormalGeneration )
     {
@@ -94,10 +97,10 @@ void vtkImplicitSelectionLoop::Initialize()
     {
     this->Loop->GetPoint(i, x);
     vtkPlane::ProjectPoint(x, this->Origin, this->Normal, xProj);
-    this->Polygon.Points.SetPoint(i, xProj);
+    this->Polygon->Points->SetPoint(i, xProj);
     }
 
-  this->Polygon.GetBounds(this->Bounds);
+  this->Polygon->GetBounds(this->Bounds);
   this->DeltaX = VTK_DELTA*(this->Bounds[1]-this->Bounds[0]);
   this->DeltaY = VTK_DELTA*(this->Bounds[3]-this->Bounds[2]);
   this->DeltaZ = VTK_DELTA*(this->Bounds[5]-this->Bounds[4]);
@@ -108,7 +111,7 @@ void vtkImplicitSelectionLoop::Initialize()
 // Evaluate plane equations. Return smallest absolute value.
 float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
 {
-  int i, numPts=this->Polygon.Points.GetNumberOfPoints();
+  int i, numPts=this->Polygon->Points->GetNumberOfPoints();
   float ray[3], val, pcoords[2], xProj[3];
   float t, dist2, minDist2, closest[3];
   int inside=0;
@@ -126,8 +129,8 @@ float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
   if ( xProj[0] >= this->Bounds[0] && xProj[0] <= this->Bounds[1] &&
        xProj[1] >= this->Bounds[2] && xProj[1] <= this->Bounds[3] &&
        xProj[2] >= this->Bounds[4] && xProj[2] <= this->Bounds[5] &&
-       this->Polygon.PointInPolygon(xProj, numPts,
-                ((vtkFloatArray *)this->Polygon.Points.GetData())->GetPointer(0), 
+       this->Polygon->PointInPolygon(xProj, numPts,
+                ((vtkFloatArray *)this->Polygon->Points->GetData())->GetPointer(0), 
                 this->Bounds,this->Normal) == 1 )
     {
     inside = 1;
@@ -136,8 +139,8 @@ float vtkImplicitSelectionLoop::EvaluateFunction(float x[3])
   // determine distance to boundary
   for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
     {
-    dist2 = vtkLine::DistanceToLine(xProj,this->Polygon.Points.GetPoint(i),
-			this->Polygon.Points.GetPoint((i+1)%numPts),t,closest);
+    dist2 = vtkLine::DistanceToLine(xProj,this->Polygon->Points->GetPoint(i),
+			this->Polygon->Points->GetPoint((i+1)%numPts),t,closest);
     if ( dist2 < minDist2 ) minDist2 = dist2;
     }
 

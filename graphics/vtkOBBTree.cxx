@@ -52,10 +52,15 @@ vtkOBBNode::vtkOBBNode()
 
 vtkOBBNode::~vtkOBBNode()
 {
-  if (this->Kids) delete [] this->Kids;
-  if (this->Cells) delete this->Cells;
+  if (this->Kids) 
+    {
+    delete [] this->Kids;
+    }
+  if (this->Cells) 
+    { 
+    this->Cells->Delete();
+    }
 }
-
 
 // Construct with automatic computation of divisions, averaging
 // 25 cells per octant.
@@ -258,7 +263,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 {
   int i, j, numCells=cells->GetNumberOfIds();
   int cellId, ptId;
-  vtkIdList cellPts;
+  vtkIdList *cellPts = vtkIdList::New();;
   float size[3];
 
   if ( level > this->DeepestLevel ) this->DeepestLevel = level;
@@ -270,10 +275,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   for ( i=0; i < numCells; i++ )
     {
     cellId = cells->GetId(i);
-    this->DataSet->GetCellPoints(cellId, cellPts);
-    for ( j=0; j < cellPts.GetNumberOfIds(); j++ )
+    this->DataSet->GetCellPoints(cellId, *cellPts);
+    for ( j=0; j < cellPts->GetNumberOfIds(); j++ )
       {
-      if ( this->InsertedPoints[(ptId = cellPts.GetId(j))] != this->OBBCount )
+      if ( this->InsertedPoints[(ptId = cellPts->GetId(j))] != this->OBBCount )
         {
         this->InsertedPoints[ptId] = this->OBBCount;
         this->PointsList->InsertNextPoint(this->DataSet->GetPoint(ptId));
@@ -322,10 +327,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       for ( i=0; i < numCells; i++ )
         {
         cellId = cells->GetId(i);
-        this->DataSet->GetCellPoints(cellId, cellPts);
-        for ( negative=positive=j=0; j < cellPts.GetNumberOfIds(); j++ )
+        this->DataSet->GetCellPoints(cellId, *cellPts);
+        for ( negative=positive=j=0; j < cellPts->GetNumberOfIds(); j++ )
           {
-          ptId = cellPts.GetId(j);
+          ptId = cellPts->GetId(j);
           x = this->DataSet->GetPoint(ptId);
           val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
           if ( val < 0.0 ) negative = 1;
@@ -390,7 +395,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       LHnode->Parent = OBBptr;
       RHnode->Parent = OBBptr;
 
-      delete cells; cells = NULL; //don't need to keep anymore
+      cells->Delete(); cells = NULL; //don't need to keep anymore
       this->BuildTree(LHlist, LHnode, level+1);
       this->BuildTree(RHlist, RHnode, level+1);
       }
@@ -409,8 +414,10 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
     }
   else if ( cells )
     {
-    delete cells;
+    cells->Delete();
     }
+
+  cellPts->Delete();
 }
 
 // Create polygonal representation for OBB tree at specified level. If 

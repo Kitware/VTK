@@ -51,7 +51,9 @@ void vtkDataSetWriter::SetInput(vtkDataSet *input)
   if ( this->Input != input )
     {
     vtkDebugMacro(<<" setting Input to " << (void *)input);
+    if (this->Input) {this->Input->UnRegister(this);}
     this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
     this->Modified();
     }
 }
@@ -59,44 +61,44 @@ void vtkDataSetWriter::SetInput(vtkDataSet *input)
 void vtkDataSetWriter::WriteData()
 {
   int type;
-  vtkPolyDataWriter pwriter;
-  vtkStructuredPointsWriter spwriter;
-  vtkStructuredGridWriter sgwriter;
-  vtkUnstructuredGridWriter ugwriter;
-  vtkRectilinearGridWriter rgwriter;
-  vtkDataWriter *writer;
+  vtkDataWriter *writer = NULL;
 
   vtkDebugMacro(<<"Writing vtk dataset...");
 
   type = ((vtkDataSet *)this->Input)->GetDataSetType();
   if ( type == VTK_POLY_DATA )
     {
-    pwriter.SetInput((vtkPolyData *)this->Input);
-    writer = (vtkDataWriter *)&pwriter;
+    vtkPolyDataWriter *pwriter = vtkPolyDataWriter::New();
+    pwriter->SetInput((vtkPolyData *)this->Input);
+    writer = (vtkDataWriter *)pwriter;
     }
 
   else if ( type == VTK_STRUCTURED_POINTS )
     {
-    spwriter.SetInput((vtkStructuredPoints *)this->Input);
-    writer = (vtkDataWriter *)&spwriter;
+    vtkStructuredPointsWriter *spwriter = vtkStructuredPointsWriter::New();
+    spwriter->SetInput((vtkStructuredPoints *)this->Input);
+    writer = (vtkDataWriter *)spwriter;
     }
 
   else if ( type == VTK_STRUCTURED_GRID )
     {
-    sgwriter.SetInput((vtkStructuredGrid *)this->Input);
-    writer = (vtkDataWriter *)&sgwriter;
+    vtkStructuredGridWriter *sgwriter = vtkStructuredGridWriter::New();
+    sgwriter->SetInput((vtkStructuredGrid *)this->Input);
+    writer = (vtkDataWriter *)sgwriter;
     }
 
   else if ( type == VTK_UNSTRUCTURED_GRID )
     {
-    ugwriter.SetInput((vtkUnstructuredGrid *)this->Input);
-    writer = (vtkDataWriter *)&ugwriter;
+    vtkUnstructuredGridWriter *ugwriter = vtkUnstructuredGridWriter::New();
+    ugwriter->SetInput((vtkUnstructuredGrid *)this->Input);
+    writer = (vtkDataWriter *)ugwriter;
     }
 
   else if ( type == VTK_RECTILINEAR_GRID )
     {
-    rgwriter.SetInput((vtkRectilinearGrid *)this->Input);
-    writer = (vtkDataWriter *)&sgwriter;
+    vtkRectilinearGridWriter *rgwriter = vtkRectilinearGridWriter::New();
+    rgwriter->SetInput((vtkRectilinearGrid *)this->Input);
+    writer = (vtkDataWriter *)rgwriter;
     }
 
   else
@@ -116,7 +118,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetFileType(this->FileType);
   writer->SetDebug(this->Debug);
   writer->Write();
-
+  writer->Delete();
 }
 
 void vtkDataSetWriter::PrintSelf(ostream& os, vtkIndent indent)

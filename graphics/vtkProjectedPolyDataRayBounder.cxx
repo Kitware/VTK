@@ -133,15 +133,15 @@ float *vtkProjectedPolyDataRayBounder::GetRayBounds( vtkRenderer *ren )
 
   // Get the matrix source's matrix (if there is one)
   if ( this->ActorMatrixSource )
-    this->ActorMatrixSource->GetMatrix( *matrix );
+    this->ActorMatrixSource->GetMatrix( matrix );
   else if ( this->VolumeMatrixSource )
-    this->VolumeMatrixSource->GetMatrix( *matrix );
+    this->VolumeMatrixSource->GetMatrix( matrix );
 
   // Call Draw() to obtain the bounds. 
   return_bounds = this->Draw( ren, matrix );
 
   // Delete the temporary matrix that we previously created
-  delete matrix;
+  matrix->Delete();
 
   return (return_bounds);
 }

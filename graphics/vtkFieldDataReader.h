@@ -58,49 +58,46 @@ class VTK_EXPORT vtkFieldDataReader : public vtkFieldDataSource
 {
 public:
   vtkFieldDataReader();
-  static vtkFieldDataReader *New() {return new vtkFieldDataReader;};
-  const char *GetClassName() {return "vtkFieldDataReader";};
+  ~vtkFieldDataReader();
+  static vtkFieldDataReader *New() {return new vtkFieldDataReader;}
+  const char *GetClassName() {return "vtkFieldDataReader";}
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // overload because of vtkDataReader ivar
   unsigned long int GetMTime();
 
-
-// Description:
-// Specify file name of vtk field data file to read.
+  // Description:
+  // Specify file name of vtk field data file to read.
   void SetFileName(char *name);
 
   char *GetFileName();
 
   // Description:
   // Specify the InputString for use when reading from a character array.
-  void SetInputString(char *in) {this->Reader.SetInputString(in);};
-  void SetInputString(char *in,int len) {this->Reader.SetInputString(in,len);};
-  char *GetInputString() { return this->Reader.GetInputString();};
+  void SetInputString(char *in) {this->Reader->SetInputString(in);}
+  void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
+  char *GetInputString() { return this->Reader->GetInputString();}
 
   // Description:
   // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader.SetReadFromInputString(i);};
-  int GetReadFromInputString() {return this->Reader.GetReadFromInputString();};
+  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
+  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
   vtkBooleanMacro(ReadFromInputString,int);
 
-
-// Description:
-// Get the type of file (ASCII or BINARY)
+  // Description:
+  // Get the type of file (ASCII or BINARY)
   int GetFileType();
 
-
-
-// Description:
-// Set the name of the field data to extract. If not specified, uses 
-// first field data encountered in file.
+  // Description:
+  // Set the name of the field data to extract. If not specified, uses 
+  // first field data encountered in file.
   void SetFieldDataName(char *name);
 
   char *GetFieldDataName();
 
 protected:
   void Execute();
-  vtkDataReader Reader;
+  vtkDataReader *Reader;
 };
 
 #endif

@@ -98,7 +98,7 @@ void vtkPointLoad::Execute()
 {
   int i, j, k;
   vtkTensors *newTensors;
-  vtkTensor tensor;
+  vtkTensor *tensor = vtkTensor::New();
   vtkScalars *newScalars = NULL;
   int numPts;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
@@ -107,9 +107,9 @@ void vtkPointLoad::Execute()
   vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Computing point load stress tensors");
-//
-// Initialize self; create output objects
-//
+  //
+  // Initialize self; create output objects
+  //
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
@@ -131,16 +131,16 @@ void vtkPointLoad::Execute()
     }
   output->SetOrigin(origin);
   output->SetSpacing(spacing);
-//
-// Compute the location of the load
-//
+  //
+  // Compute the location of the load
+  //
   xP[0] = (this->ModelBounds[0] + this->ModelBounds[1]) / 2.0; //in center
   xP[1] = (this->ModelBounds[2] + this->ModelBounds[3]) / 2.0;
   xP[2] = this->ModelBounds[5]; // at top of box
-//
-// Traverse all points evaluating implicit function at each point. Note that
-// points are evaluated in local coordinate system of applied force.
-//
+  //
+  // Traverse all points evaluating implicit function at each point. Note that
+  // points are evaluated in local coordinate system of applied force.
+  //
   twoPi = 2.0*vtkMath::Pi();
   P = -this->LoadValue;
 
@@ -157,16 +157,16 @@ void vtkPointLoad::Execute()
         if ( rho < 1.0e-10 )
           {
           vtkWarningMacro(<<"Attempting to set singularity, resetting");
-          tensor.SetComponent(0,0,VTK_LARGE_FLOAT);
-          tensor.SetComponent(1,1,VTK_LARGE_FLOAT);
-          tensor.SetComponent(2,2,VTK_LARGE_FLOAT);
-          tensor.SetComponent(0,1,0.0);
-          tensor.SetComponent(0,2,0.0);
-          tensor.SetComponent(1,0,0.0);
-          tensor.SetComponent(1,2,0.0);
-          tensor.SetComponent(2,0,0.0);
-          tensor.SetComponent(2,1,0.0);
-          newTensors->InsertNextTensor(&tensor);
+          tensor->SetComponent(0,0,VTK_LARGE_FLOAT);
+          tensor->SetComponent(1,1,VTK_LARGE_FLOAT);
+          tensor->SetComponent(2,2,VTK_LARGE_FLOAT);
+          tensor->SetComponent(0,1,0.0);
+          tensor->SetComponent(0,2,0.0);
+          tensor->SetComponent(1,0,0.0);
+          tensor->SetComponent(1,2,0.0);
+          tensor->SetComponent(2,0,0.0);
+          tensor->SetComponent(2,1,0.0);
+          newTensors->InsertNextTensor(tensor);
           if ( this->ComputeEffectiveStress )
             newScalars->InsertNextScalar(VTK_LARGE_FLOAT);
           continue;
@@ -197,16 +197,16 @@ void vtkPointLoad::Execute()
         txz = -(3.0*P*x*z2/(twoPi*rho5));
         tyz = 3.0*P*y*z2/(twoPi*rho5);
 
-        tensor.SetComponent(0,0, sx);
-        tensor.SetComponent(1,1, sy);
-        tensor.SetComponent(2,2, sz);
-        tensor.SetComponent(0,1, txy); // real symmetric matrix
-        tensor.SetComponent(1,0, txy);
-        tensor.SetComponent(0,2, txz);
-        tensor.SetComponent(2,0, txz);
-        tensor.SetComponent(1,2, tyz);
-        tensor.SetComponent(2,1, tyz);
-        newTensors->InsertNextTensor(&tensor);
+        tensor->SetComponent(0,0, sx);
+        tensor->SetComponent(1,1, sy);
+        tensor->SetComponent(2,2, sz);
+        tensor->SetComponent(0,1, txy); // real symmetric matrix
+        tensor->SetComponent(1,0, txy);
+        tensor->SetComponent(0,2, txz);
+        tensor->SetComponent(2,0, txz);
+        tensor->SetComponent(1,2, tyz);
+        tensor->SetComponent(2,1, tyz);
+        newTensors->InsertNextTensor(tensor);
 
         if ( this->ComputeEffectiveStress )
           {
@@ -217,9 +217,9 @@ void vtkPointLoad::Execute()
         }
       }
     }
-//
-// Update self and free memory
-//
+  //
+  // Update self and free memory
+  //
   output->GetPointData()->SetTensors(newTensors);
   newTensors->Delete();
 
@@ -228,6 +228,8 @@ void vtkPointLoad::Execute()
     output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     }
+  
+  tensor->Delete();
 }
 
 

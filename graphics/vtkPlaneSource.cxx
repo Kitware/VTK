@@ -178,7 +178,7 @@ void vtkPlaneSource::SetNormal(float N[3])
   float n[3], v1[3], v2[3], p[4];
   float rotVector[3], theta;
   int i;
-  vtkTransform transform;
+  vtkTransform *transform = vtkTransform::New();
 
   // compute plane axes
   for ( i=0; i < 3; i++)
@@ -202,27 +202,28 @@ void vtkPlaneSource::SetNormal(float N[3])
   theta = acos((double)vtkMath::Dot(this->Normal,n)) / vtkMath::DegreesToRadians();
 
   // create rotation matrix
-  transform.PostMultiply();
+  transform->PostMultiply();
 
-  transform.Translate(-this->Center[0],-this->Center[1],-this->Center[2]);
-  transform.RotateWXYZ(theta,rotVector[0],rotVector[1],rotVector[2]);
-  transform.Translate(this->Center[0],this->Center[1],this->Center[2]);
+  transform->Translate(-this->Center[0],-this->Center[1],-this->Center[2]);
+  transform->RotateWXYZ(theta,rotVector[0],rotVector[1],rotVector[2]);
+  transform->Translate(this->Center[0],this->Center[1],this->Center[2]);
 
   // transform the three defining points
-  transform.SetPoint(this->Origin[0],this->Origin[1],this->Origin[2],1.0);
-  transform.GetPoint(p);
+  transform->SetPoint(this->Origin[0],this->Origin[1],this->Origin[2],1.0);
+  transform->GetPoint(p);
   for (i=0; i < 3; i++) this->Origin[i] = p[i] / p[3];
 
-  transform.SetPoint(this->Point1[0],this->Point1[1],this->Point1[2],1.0);
-  transform.GetPoint(p);
+  transform->SetPoint(this->Point1[0],this->Point1[1],this->Point1[2],1.0);
+  transform->GetPoint(p);
   for (i=0; i < 3; i++) this->Point1[i] = p[i] / p[3];
 
-  transform.SetPoint(this->Point2[0],this->Point2[1],this->Point2[2],1.0);
-  transform.GetPoint(p);
+  transform->SetPoint(this->Point2[0],this->Point2[1],this->Point2[2],1.0);
+  transform->GetPoint(p);
   for (i=0; i < 3; i++) this->Point2[i] = p[i] / p[3];
 
   for (i=0; i < 3; i++) this->Normal[i] = n[i];
   this->Modified();
+  transform->Delete();
 }
 
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2

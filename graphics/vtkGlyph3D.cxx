@@ -84,11 +84,11 @@ void vtkGlyph3D::Execute()
   vtkVectors *newVectors=NULL;
   vtkNormals *newNormals=NULL;
   float *x, *v, vNew[3], s, vMag, value;
-  vtkTransform trans;
+  vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
   vtkIdList *cellPts;
   int npts;
-  vtkIdList pts(VTK_CELL_SIZE);
+  vtkIdList *pts;
   int haveVectors, haveNormals, ptIncr, cellId;
   float scale = 1.0;
   float den;
@@ -97,6 +97,9 @@ void vtkGlyph3D::Execute()
   vtkDataSet *input = (vtkDataSet *)this->Input;
   
   vtkDebugMacro(<<"Generating glyphs");
+
+  pts = vtkIdList::New();
+  pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
   inScalars = pd->GetScalars();
@@ -124,6 +127,7 @@ void vtkGlyph3D::Execute()
     if ( this->Source[0] == NULL )
       {
       vtkErrorMacro(<<"Indexing on but don't have data to index with");
+      pts->Delete();
       return;
       }
     else
@@ -260,7 +264,7 @@ void vtkGlyph3D::Execute()
     if ( this->Source[index] == NULL ) continue;
 
     // Now begin copying/transforming glyph
-    trans.Identity();
+    trans->Identity();
 
     // Copy all topology (transformation independent)
     for (cellId=0; cellId < numSourceCells; cellId++)
@@ -268,13 +272,13 @@ void vtkGlyph3D::Execute()
       cell = this->Source[index]->GetCell(cellId);
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
-      for (pts.Reset(), i=0; i < npts; i++) pts.InsertId(i,cellPts->GetId(i) + ptIncr);
-      output->InsertNextCell(cell->GetCellType(),pts);
+      for (pts->Reset(), i=0; i < npts; i++) pts->InsertId(i,cellPts->GetId(i) + ptIncr);
+      output->InsertNextCell(cell->GetCellType(),*pts);
       }
 
     // translate Source to Input point
     x = input->GetPoint(inPtId);
-    trans.Translate(x[0], x[1], x[2]);
+    trans->Translate(x[0], x[1], x[2]);
 
     if ( haveVectors )
       {
@@ -289,7 +293,7 @@ void vtkGlyph3D::Execute()
           {
           if (v[0] < 0) //just flip x if we need to
             {
-            trans.RotateWXYZ(180.0,0,1,0);
+            trans->RotateWXYZ(180.0,0,1,0);
             }
           }
         else
@@ -297,7 +301,7 @@ void vtkGlyph3D::Execute()
          vNew[0] = (v[0]+vMag) / 2.0;
          vNew[1] = v[1] / 2.0;
          vNew[2] = v[2] / 2.0;
-         trans.RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
+         trans->RotateWXYZ(180.0,vNew[0],vNew[1],vNew[2]);
          }
         }
       }
@@ -333,12 +337,12 @@ void vtkGlyph3D::Execute()
       else scale *= this->ScaleFactor;
 
       if ( scale == 0.0 ) scale = 1.0e-10;
-      trans.Scale(scale,scale,scale);
+      trans->Scale(scale,scale,scale);
       }
 
     // multiply points and normals by resulting matrix
-    trans.MultiplyPoints(sourcePts,newPts);
-    if ( haveNormals ) trans.MultiplyNormals(sourceNormals,newNormals);
+    trans->MultiplyPoints(sourcePts,newPts);
+    if ( haveNormals ) trans->MultiplyNormals(sourceNormals,newNormals);
 
     // Copy point data from source (if possible)
     if ( pd ) 
@@ -372,6 +376,8 @@ void vtkGlyph3D::Execute()
     }
 
   output->Squeeze();
+  trans->Delete();
+  pts->Delete();
 }
 
 

@@ -47,6 +47,18 @@ vtkFilter::vtkFilter()
   this->Updating = 0;
 }
 
+
+vtkFilter::~vtkFilter()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    }
+}
+
+
+
+
 // Update input to this filter and the filter itself.
 void vtkFilter::Update()
 {

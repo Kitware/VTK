@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include <fstream.h>
+#include "vtkObject.h"
 #include "vtkSource.h"
 #include "vtkDataSetAttributes.h"
 

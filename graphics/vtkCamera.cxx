@@ -89,7 +89,18 @@ vtkCamera::vtkCamera()
   this->FocalDisk = 1.0;
   this->Stereo = 0;
   this->VPNDotDOP = 0.0;
+
+  this->Transform = vtkTransform::New();
+  this->PerspectiveTransform = vtkTransform::New();
 }
+
+
+vtkCamera::~vtkCamera()
+{
+  this->Transform->Delete();
+  this->PerspectiveTransform->Delete();
+}
+
 
 #ifdef VTK_USE_OGLR
 #include "vtkOpenGLCamera.h"
@@ -388,12 +399,12 @@ void vtkCamera::SetRoll(float roll)
   
   roll -= current;
 
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PreMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PreMultiply();
 
   // rotate about view plane normal
-  this->Transform.RotateWXYZ(-roll,this->ViewPlaneNormal[0],
+  this->Transform->RotateWXYZ(-roll,this->ViewPlaneNormal[0],
 			     this->ViewPlaneNormal[1],
 			     this->ViewPlaneNormal[2]);
   
@@ -402,12 +413,12 @@ void vtkCamera::SetRoll(float roll)
   temp[1] = this->ViewUp[1];
   temp[2] = this->ViewUp[2];
   temp[3] = 1.0;
-  this->Transform.MultiplyPoint(temp,temp);
+  this->Transform->MultiplyPoint(temp,temp);
   
   // now store the result
   this->SetViewUp((float *)temp);
 
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Returns the roll of the camera.
@@ -471,9 +482,9 @@ void vtkCamera::ComputeDistance ()
 float *vtkCamera::GetOrientation ()
 {
   // calculate a new orientation
-//  this->ComputePerspectiveTransform(1,0,1);
+  //  this->ComputePerspectiveTransform(1,0,1);
   this->ComputeViewTransform();
-  this->PerspectiveTransform.GetOrientation (this->Orientation[0],
+  this->PerspectiveTransform->GetOrientation (this->Orientation[0],
 					     this->Orientation[1],
 					     this->Orientation[2]);
 
@@ -486,7 +497,7 @@ float *vtkCamera::GetOrientation ()
 // Returns the WXYZ orientation of the camera. 
 float *vtkCamera::GetOrientationWXYZ()
 {
-  vtkMatrix4x4  matrix;
+  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
   float *Rz, Rx[3], Ry[3];
   
   // calculate a new orientation
@@ -495,22 +506,23 @@ float *vtkCamera::GetOrientationWXYZ()
   vtkMath::Normalize(Rx);
   vtkMath::Cross(Rz,Rx,Ry);
   
-  matrix[0][0] = Rx[0];
-  matrix[1][0] = Rx[1];
-  matrix[2][0] = Rx[2];
-  matrix[0][1] = Ry[0];
-  matrix[1][1] = Ry[1];
-  matrix[2][1] = Ry[2];
-  matrix[0][2] = Rz[0];
-  matrix[1][2] = Rz[1];
-  matrix[2][2] = Rz[2];
-  matrix[3][0] = 0;
-  matrix[3][1] = 0;
-  matrix[3][2] = 0;
-  matrix[3][3] = 1;
+  matrix->Element[0][0] = Rx[0];
+  matrix->Element[1][0] = Rx[1];
+  matrix->Element[2][0] = Rx[2];
+  matrix->Element[0][1] = Ry[0];
+  matrix->Element[1][1] = Ry[1];
+  matrix->Element[2][1] = Ry[2];
+  matrix->Element[0][2] = Rz[0];
+  matrix->Element[1][2] = Rz[1];
+  matrix->Element[2][2] = Rz[2];
+  matrix->Element[3][0] = 0;
+  matrix->Element[3][1] = 0;
+  matrix->Element[3][2] = 0;
+  matrix->Element[3][3] = 1;
 
-  this->PerspectiveTransform.SetMatrix(matrix);
-  return this->PerspectiveTransform.GetOrientationWXYZ();
+  this->PerspectiveTransform->SetMatrix(*matrix);
+  matrix->Delete();
+  return this->PerspectiveTransform->GetOrientationWXYZ();
 }
 
 // Compute the view transform matrix. This is used in converting 
@@ -518,15 +530,15 @@ float *vtkCamera::GetOrientationWXYZ()
 // perspective effects but it does include shearing and scaling.
 void vtkCamera::ComputeViewTransform()
 {
-  vtkMatrix4x4  matrix;
+  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
   float *Rz, Rx[3], Ry[3];
   float p1[4],PRP[4];
   
-  this->PerspectiveTransform.PostMultiply();  
-  this->PerspectiveTransform.Identity();
+  this->PerspectiveTransform->PostMultiply();  
+  this->PerspectiveTransform->Identity();
 
   // translate to VRP
-  this->PerspectiveTransform.Translate(-this->FocalPoint[0],
+  this->PerspectiveTransform->Translate(-this->FocalPoint[0],
 				       -this->FocalPoint[1],
 				       -this->FocalPoint[2]);
   
@@ -537,17 +549,17 @@ void vtkCamera::ComputeViewTransform()
   vtkMath::Normalize(Rx);
   vtkMath::Cross(Rz,Rx,Ry);
   
-  matrix[0][0] = Rx[0];
-  matrix[0][1] = Rx[1];
-  matrix[0][2] = Rx[2];
-  matrix[1][0] = Ry[0];
-  matrix[1][1] = Ry[1];
-  matrix[1][2] = Ry[2];
-  matrix[2][0] = Rz[0];
-  matrix[2][1] = Rz[1];
-  matrix[2][2] = Rz[2];
+  matrix->Element[0][0] = Rx[0];
+  matrix->Element[0][1] = Rx[1];
+  matrix->Element[0][2] = Rx[2];
+  matrix->Element[1][0] = Ry[0];
+  matrix->Element[1][1] = Ry[1];
+  matrix->Element[1][2] = Ry[2];
+  matrix->Element[2][0] = Rz[0];
+  matrix->Element[2][1] = Rz[1];
+  matrix->Element[2][2] = Rz[2];
   
-  this->PerspectiveTransform.Concatenate(matrix);
+  this->PerspectiveTransform->Concatenate(*matrix);
 
   // translate to projection reference point PRP
   // this is the camera's position blasted through
@@ -556,7 +568,7 @@ void vtkCamera::ComputeViewTransform()
   p1[1] = this->Position[1];
   p1[2] = this->Position[2];
   p1[3] = 1.0;
-  this->PerspectiveTransform.MultiplyPoint(p1,PRP);
+  this->PerspectiveTransform->MultiplyPoint(p1,PRP);
   
   // dist is really VRP'n so it will be negative
   PRP[0] /= PRP[3];
@@ -576,7 +588,8 @@ void vtkCamera::ComputeViewTransform()
       }
     }
   
-  this->PerspectiveTransform.Translate(-PRP[0],-PRP[1],-PRP[2]);
+  matrix->Delete();
+  this->PerspectiveTransform->Translate(-PRP[0],-PRP[1],-PRP[2]);
 }
 
 // Compute the perspective transform matrix. This is used in converting 
@@ -584,18 +597,18 @@ void vtkCamera::ComputeViewTransform()
 void vtkCamera::ComputePerspectiveTransform(float aspect, 
 					 float nearz, float farz)
 {
-  vtkMatrix4x4  matrix;
+  vtkMatrix4x4  *matrix = vtkMatrix4x4::New();
   float DOP[3];
   float ftemp;
   float *Rz, Rx[3], Ry[3];
   float p1[4],PRP[4];
   
-  this->PerspectiveTransform.Push();  
-  this->PerspectiveTransform.PostMultiply();  
-  this->PerspectiveTransform.Identity();
+  this->PerspectiveTransform->Push();  
+  this->PerspectiveTransform->PostMultiply();  
+  this->PerspectiveTransform->Identity();
 
   // translate to VRP
-  this->PerspectiveTransform.Translate(-this->FocalPoint[0],
+  this->PerspectiveTransform->Translate(-this->FocalPoint[0],
 				       -this->FocalPoint[1],
 				       -this->FocalPoint[2]);
   
@@ -606,17 +619,17 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   vtkMath::Normalize(Rx);
   vtkMath::Cross(Rz,Rx,Ry);
   
-  matrix[0][0] = Rx[0];
-  matrix[0][1] = Rx[1];
-  matrix[0][2] = Rx[2];
-  matrix[1][0] = Ry[0];
-  matrix[1][1] = Ry[1];
-  matrix[1][2] = Ry[2];
-  matrix[2][0] = Rz[0];
-  matrix[2][1] = Rz[1];
-  matrix[2][2] = Rz[2];
+  matrix->Element[0][0] = Rx[0];
+  matrix->Element[0][1] = Rx[1];
+  matrix->Element[0][2] = Rx[2];
+  matrix->Element[1][0] = Ry[0];
+  matrix->Element[1][1] = Ry[1];
+  matrix->Element[1][2] = Ry[2];
+  matrix->Element[2][0] = Rz[0];
+  matrix->Element[2][1] = Rz[1];
+  matrix->Element[2][2] = Rz[2];
   
-  this->PerspectiveTransform.Concatenate(matrix);
+  this->PerspectiveTransform->Concatenate(*matrix);
 
   // translate to projection reference point PRP
   // this is the camera's position blasted through
@@ -625,7 +638,7 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   p1[1] = this->Position[1];
   p1[2] = this->Position[2];
   p1[3] = 1.0;
-  this->PerspectiveTransform.MultiplyPoint(p1,PRP);
+  this->PerspectiveTransform->MultiplyPoint(p1,PRP);
   
   // dist is really VRP'n so it will be negative
   PRP[0] /= PRP[3];
@@ -645,10 +658,10 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
       }
     }
   
-  this->PerspectiveTransform.Translate(-PRP[0],-PRP[1],-PRP[2]);
+  this->PerspectiveTransform->Translate(-PRP[0],-PRP[1],-PRP[2]);
   
   // restore the original matrix
-  this->PerspectiveTransform.Pop();
+  this->PerspectiveTransform->Pop();
   
   // now do the shear to get the z axis to go through the
   // center of the window
@@ -658,29 +671,29 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   DOP[1] = ftemp*this->WindowCenter[1] - PRP[1];
   DOP[2] = - PRP[2];
   
-  matrix[0][0] = 1;
-  matrix[0][1] = 0;
-  matrix[0][2] = -DOP[0]/DOP[2];
-  matrix[0][3] = 0;
-  matrix[1][0] = 0;
-  matrix[1][1] = 1;
-  matrix[1][2] = -DOP[1]/DOP[2];
-  matrix[1][3] = 0;
-  matrix[2][0] = 0;
-  matrix[2][1] = 0;
-  matrix[2][2] = 1;
-  matrix[2][3] = 0;
-  matrix[3][0] = 0;
-  matrix[3][1] = 0;
-  matrix[3][2] = 0;
-  matrix[3][3] = 1;
+  matrix->Element[0][0] = 1;
+  matrix->Element[0][1] = 0;
+  matrix->Element[0][2] = -DOP[0]/DOP[2];
+  matrix->Element[0][3] = 0;
+  matrix->Element[1][0] = 0;
+  matrix->Element[1][1] = 1;
+  matrix->Element[1][2] = -DOP[1]/DOP[2];
+  matrix->Element[1][3] = 0;
+  matrix->Element[2][0] = 0;
+  matrix->Element[2][1] = 0;
+  matrix->Element[2][2] = 1;
+  matrix->Element[2][3] = 0;
+  matrix->Element[3][0] = 0;
+  matrix->Element[3][1] = 0;
+  matrix->Element[3][2] = 0;
+  matrix->Element[3][3] = 1;
   
-  this->PerspectiveTransform.Concatenate(matrix);
+  this->PerspectiveTransform->Concatenate(*matrix);
 
   if (this->ParallelProjection)
     {
     // now scale according to page 269 Foley & VanDam 2nd Edition
-    this->PerspectiveTransform.Scale(1.0/(this->ParallelScale*aspect),
+    this->PerspectiveTransform->Scale(1.0/(this->ParallelScale*aspect),
 				     1.0/this->ParallelScale,
 				     1.0/(this->ClippingRange[1]-
 					  this->ClippingRange[0]));
@@ -688,7 +701,7 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
   else
     {
     // now scale according to page 269 Foley & VanDam 2nd Edition
-    this->PerspectiveTransform.Scale(1.0/(tan(this->ViewAngle*3.1415926/360.0)*
+    this->PerspectiveTransform->Scale(1.0/(tan(this->ViewAngle*3.1415926/360.0)*
 					  this->ClippingRange[1]*aspect),
 				     1.0/(tan(this->ViewAngle*3.1415926/360.0)*
 					  this->ClippingRange[1]),
@@ -696,33 +709,34 @@ void vtkCamera::ComputePerspectiveTransform(float aspect,
     }
   
   // now set the orientation
-  Rz = this->PerspectiveTransform.GetOrientation();
+  Rz = this->PerspectiveTransform->GetOrientation();
   this->Orientation[0] = Rz[0];
   this->Orientation[1] = Rz[1];
   this->Orientation[2] = Rz[2];
 
   if (this->ParallelProjection)
     {
-    matrix[0][2] = 0;
-    matrix[1][2] = 0;
-    matrix[2][2] = (nearz - farz);
-    matrix[2][3] = nearz + (nearz - farz)*this->ClippingRange[0]/
+    matrix->Element[0][2] = 0;
+    matrix->Element[1][2] = 0;
+    matrix->Element[2][2] = (nearz - farz);
+    matrix->Element[2][3] = nearz + (nearz - farz)*this->ClippingRange[0]/
       (this->ClippingRange[1] - this->ClippingRange[0]);
-    matrix[3][2] = 0;
-    matrix[3][3] = 1;
+    matrix->Element[3][2] = 0;
+    matrix->Element[3][3] = 1;
     }
   else
     {
     ftemp = this->ClippingRange[0]/this->ClippingRange[1];
-    matrix[0][2] = 0;
-    matrix[1][2] = 0;
-    matrix[2][2] = (nearz - farz)/(1 - ftemp) - nearz;
-    matrix[2][3] = (nearz - farz)*ftemp/(1 - ftemp);
-    matrix[3][2] = -1;
-    matrix[3][3] = 0;
+    matrix->Element[0][2] = 0;
+    matrix->Element[1][2] = 0;
+    matrix->Element[2][2] = (nearz - farz)/(1 - ftemp) - nearz;
+    matrix->Element[2][3] = (nearz - farz)*ftemp/(1 - ftemp);
+    matrix->Element[3][2] = -1;
+    matrix->Element[3][3] = 0;
     }
   
-  this->PerspectiveTransform.Concatenate(matrix);
+  this->PerspectiveTransform->Concatenate(*matrix);
+  matrix->Delete();
 }
 
 
@@ -731,12 +745,12 @@ vtkMatrix4x4 &vtkCamera::GetPerspectiveTransform(float aspect,
 						 float nearz, float farz)
 {
   // update transform 
-  this->PerspectiveTransform.PostMultiply();  
-  this->PerspectiveTransform.Identity();
+  this->PerspectiveTransform->PostMultiply();  
+  this->PerspectiveTransform->Identity();
   this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
-  return this->PerspectiveTransform.GetMatrix();
+  return this->PerspectiveTransform->GetMatrix();
 }
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
@@ -746,7 +760,7 @@ vtkMatrix4x4 &vtkCamera::GetViewTransform()
   this->ComputeViewTransform();
   
   // return the transform 
-  return this->PerspectiveTransform.GetMatrix();
+  return this->PerspectiveTransform->GetMatrix();
 }
 
 // Return the perspective transform matrix. See ComputePerspectiveTransform.
@@ -759,7 +773,7 @@ vtkMatrix4x4 &vtkCamera::GetCompositePerspectiveTransform(float aspect,
   this->ComputePerspectiveTransform(aspect, nearz,farz);
   
   // return the transform 
-  return this->PerspectiveTransform.GetMatrix();
+  return this->PerspectiveTransform->GetMatrix();
 }
 
 #define VTK_SQ_MAG(x) ( (x)[0]*(x)[0] + (x)[1]*(x)[1] + (x)[2]*(x)[2] )
@@ -821,41 +835,41 @@ void vtkCamera::Zoom(float amount)
 void vtkCamera::Azimuth (float angle)
 {
   // azimuth is a rotation of camera position about view up vector
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PostMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PostMultiply();
   
   // translate to focal point
-  this->Transform.Translate(-this->FocalPoint[0],
+  this->Transform->Translate(-this->FocalPoint[0],
 			    -this->FocalPoint[1],
 			    -this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
   
   // translate to focal point
-  this->Transform.Translate(this->FocalPoint[0],
+  this->Transform->Translate(this->FocalPoint[0],
 			    this->FocalPoint[1],
 			    this->FocalPoint[2]);
    
 
   // now transform position
-  this->Transform.SetPoint(this->Position[0],this->Position[1],
+  this->Transform->SetPoint(this->Position[0],this->Position[1],
 			    this->Position[2],1.0);
   
   // now store the result
-  this->SetPosition(this->Transform.GetPoint());
+  this->SetPosition(this->Transform->GetPoint());
 
   // also azimuth the vpn
-  this->Transform.Identity();
-  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform->Identity();
+  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
-  this->Transform.SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
+  this->Transform->SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
 			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform.GetPoint());
+  this->SetViewPlaneNormal(this->Transform->GetPoint());
   
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Rotate the camera about the cross product of the view plane normal and 
@@ -873,40 +887,40 @@ void vtkCamera::Elevation (float angle)
   axis[2] = (this->ViewPlaneNormal[0] * this->ViewUp[1] -
 	     this->ViewPlaneNormal[1] * this->ViewUp[0]);
 
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PostMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PostMultiply();
   
   // translate to focal point
-  this->Transform.Translate(-this->FocalPoint[0],
+  this->Transform->Translate(-this->FocalPoint[0],
 			    -this->FocalPoint[1],
 			    -this->FocalPoint[2]);
    
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
+  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
   
   
   // translate to focal point
-  this->Transform.Translate(this->FocalPoint[0],
+  this->Transform->Translate(this->FocalPoint[0],
 			    this->FocalPoint[1],
 			    this->FocalPoint[2]);
    
   // now transform position
-  this->Transform.SetPoint(this->Position[0],this->Position[1],
+  this->Transform->SetPoint(this->Position[0],this->Position[1],
 			    this->Position[2],1.0);
 
   // now store the result
-  this->SetPosition(this->Transform.GetPoint());
+  this->SetPosition(this->Transform->GetPoint());
 
   // also elevate the vpn
-  this->Transform.Identity();
-  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  this->Transform.SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
+  this->Transform->Identity();
+  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
+  this->Transform->SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
 			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform.GetPoint());
+  this->SetViewPlaneNormal(this->Transform->GetPoint());
   
   
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Rotate the focal point about the view up vector centered at the camera's 
@@ -914,40 +928,40 @@ void vtkCamera::Elevation (float angle)
 void vtkCamera::Yaw (float angle)
 {
   // yaw is a rotation of camera focal_point about view up vector
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PostMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PostMultiply();
   
   // translate to position
-  this->Transform.Translate(-this->Position[0],
+  this->Transform->Translate(-this->Position[0],
 			    -this->Position[1],
 			    -this->Position[2]);
 
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
   
   // translate to position
-  this->Transform.Translate(this->Position[0],
+  this->Transform->Translate(this->Position[0],
 			    this->Position[1],
 			    this->Position[2]);
 
   // now transform focal point
-  this->Transform.SetPoint(this->FocalPoint[0],this->FocalPoint[1],
+  this->Transform->SetPoint(this->FocalPoint[0],this->FocalPoint[1],
 			    this->FocalPoint[2],1.0);
   
   // now store the result
-  this->SetFocalPoint(this->Transform.GetPoint());
+  this->SetFocalPoint(this->Transform->GetPoint());
 
   // also yaw the vpn
-  this->Transform.Identity();
-  this->Transform.RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
+  this->Transform->Identity();
+  this->Transform->RotateWXYZ(angle,this->ViewUp[0],this->ViewUp[1],
 			     this->ViewUp[2]);
-  this->Transform.SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
+  this->Transform->SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
 			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform.GetPoint());
+  this->SetViewPlaneNormal(this->Transform->GetPoint());
   
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Rotate the focal point about the cross product of the view up vector 
@@ -966,39 +980,39 @@ void vtkCamera::Pitch (float angle)
   axis[2] = (this->ViewUp[0] * this->ViewPlaneNormal[1] -
 	     this->ViewUp[1] * this->ViewPlaneNormal[0]);
 
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PostMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PostMultiply();
   
   // translate to position
-  this->Transform.Translate(-this->Position[0],
+  this->Transform->Translate(-this->Position[0],
 			    -this->Position[1],
 			    -this->Position[2]);
 
   // rotate about view up
-  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
+  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
   
    
   // translate to position
-  this->Transform.Translate(this->Position[0],
+  this->Transform->Translate(this->Position[0],
 			    this->Position[1],
 			    this->Position[2]);
 
   // now transform focal point
-  this->Transform.SetPoint(this->FocalPoint[0],this->FocalPoint[1],
+  this->Transform->SetPoint(this->FocalPoint[0],this->FocalPoint[1],
 			    this->FocalPoint[2],1.0);
   
   // now store the result
-  this->SetFocalPoint(this->Transform.GetPoint());
+  this->SetFocalPoint(this->Transform->GetPoint());
 
   // also pitch the vpn
-  this->Transform.Identity();
-  this->Transform.RotateWXYZ(angle,axis[0],axis[1],axis[2]);
-  this->Transform.SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
+  this->Transform->Identity();
+  this->Transform->RotateWXYZ(angle,axis[0],axis[1],axis[2]);
+  this->Transform->SetPoint(this->ViewPlaneNormal[0],this->ViewPlaneNormal[1],
 			   this->ViewPlaneNormal[2],1.0);
-  this->SetViewPlaneNormal(this->Transform.GetPoint());
+  this->SetViewPlaneNormal(this->Transform->GetPoint());
   
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Rotate the camera around the view plane normal.
@@ -1006,23 +1020,23 @@ void vtkCamera::Roll (float angle)
 {
   
   // roll is a rotation of camera view up about view plane normal
-  this->Transform.Push();
-  this->Transform.Identity();
-  this->Transform.PreMultiply();
+  this->Transform->Push();
+  this->Transform->Identity();
+  this->Transform->PreMultiply();
 
   // rotate about view plane normal
-  this->Transform.RotateWXYZ(angle,this->ViewPlaneNormal[0],
+  this->Transform->RotateWXYZ(angle,this->ViewPlaneNormal[0],
 			     this->ViewPlaneNormal[1],
 			     this->ViewPlaneNormal[2]);
   
   // now transform view up
-  this->Transform.SetPoint(this->ViewUp[0],this->ViewUp[1],
+  this->Transform->SetPoint(this->ViewUp[0],this->ViewUp[1],
 			    this->ViewUp[2],1.0);
   
   // now store the result
-  this->SetViewUp(this->Transform.GetPoint());
+  this->SetViewUp(this->Transform->GetPoint());
 
-  this->Transform.Pop();
+  this->Transform->Pop();
 }
 
 // Set the direction that the camera points.
@@ -1096,17 +1110,17 @@ void vtkCamera::SetViewPlaneNormal(float a[3])
 // the view frustum. 
 void vtkCamera::GetFrustumPlanes( float planes[24] )
 {
-  vtkMatrix4x4 m;
-  vtkTransform transform;
+  vtkMatrix4x4 *m = vtkMatrix4x4::New();
+  vtkTransform *transform = vtkTransform::New();
   float        in[4], out[8][4] ;
   int          i, j, k, index;
   int          which_points[6][3];
   float        v1[3], v2[3], A, B, C, D, t;
 
-  m = this->GetCompositePerspectiveTransform(1,0,1);
-  transform.SetMatrix( m );
-  transform.Inverse();
-  transform.GetMatrix( m );
+  *m = this->GetCompositePerspectiveTransform(1,0,1);
+  transform->SetMatrix( *m );
+  transform->Inverse();
+  transform->GetMatrix( *m );
 
   in[3] = 1.0;
   index = 0;
@@ -1120,7 +1134,7 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
 	in[0] = i;
 	in[1] = j;
 	in[2] = k;
-	m.MultiplyPoint( in, out[index] );
+	m->MultiplyPoint( in, out[index] );
 	if ( out[index][3] )
 	  {
 	  out[index][0] /= out[index][3];
@@ -1170,6 +1184,9 @@ void vtkCamera::GetFrustumPlanes( float planes[24] )
     planes[4*index + 2] = C;
     planes[4*index + 3] = D;
     }
+
+  m->Delete();
+  transform->Delete();
 }
 
 unsigned long int vtkCamera::GetViewingRaysMTime()
@@ -1184,7 +1201,7 @@ void vtkCamera::ViewingRaysModified()
 
 void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   // update orientation
   this->GetOrientation();

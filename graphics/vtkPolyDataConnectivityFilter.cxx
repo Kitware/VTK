@@ -60,6 +60,9 @@ vtkPolyDataConnectivityFilter::vtkPolyDataConnectivityFilter()
 
   this->NeighborCellPointIds = vtkIdList::New();
   this->NeighborCellPointIds->Allocate(8);
+
+  this->Seeds = vtkIdList::New();
+  this->SpecifiedRegionIds = vtkIdList::New();
 }
 
 vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
@@ -67,6 +70,8 @@ vtkPolyDataConnectivityFilter::~vtkPolyDataConnectivityFilter()
   this->RegionSizes->Delete();
   this->CellScalars->Delete();
   this->NeighborCellPointIds->Delete();
+  this->Seeds->Delete();
+  this->SpecifiedRegionIds->Delete();
 }
 
 void vtkPolyDataConnectivityFilter::Execute()
@@ -75,7 +80,7 @@ void vtkPolyDataConnectivityFilter::Execute()
   int numPts, numCells;
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkIdList cellIds(VTK_CELL_SIZE), ptIds(VTK_CELL_SIZE);
+  vtkIdList *cellIds, *ptIds;
   int id, npts, *pts, *cells, n;
   unsigned short ncells;
   int maxCellsInRegion;
@@ -184,9 +189,9 @@ void vtkPolyDataConnectivityFilter::Execute()
 
     if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
         {
-        pt = this->Seeds.GetId(i);
+        pt = this->Seeds->GetId(i);
         if ( pt >= 0 ) 
           {
           this->Mesh->GetPointCells(pt,ncells,cells);
@@ -197,9 +202,9 @@ void vtkPolyDataConnectivityFilter::Execute()
       }
     else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
       {
-      for (i=0; i < this->Seeds.GetNumberOfIds(); i++) 
+      for (i=0; i < this->Seeds->GetNumberOfIds(); i++) 
         {
-        cellId = this->Seeds.GetId(i);
+        cellId = this->Seeds->GetId(i);
         if ( cellId >= 0 ) this->RecursionSeeds->InsertNextId(cellId);
         }
       }
@@ -239,10 +244,10 @@ void vtkPolyDataConnectivityFilter::Execute()
                  << " times");
 
   this->RecursionSeeds->Delete();
-//
-// Now that points and cells have been marked, traverse these lists pulling
-// everything that has been visited.
-//
+  //
+  // Now that points and cells have been marked, traverse these lists pulling
+  // everything that has been visited.
+  //
   //Pass through point data that has been visited
   pd = input->GetPointData();
   if ( this->ColorRegions ) outputPD->CopyScalarsOff();
@@ -264,9 +269,9 @@ void vtkPolyDataConnectivityFilter::Execute()
 
   output->SetPoints(newPts);
   newPts->Delete();
-//
-// Create output cells. Have to allocate storage first.
-//
+  //
+  // Create output cells. Have to allocate storage first.
+  //
   if ( (n=input->GetVerts()->GetNumberOfCells()) > 0 )
     {
     vtkCellArray *newVerts = vtkCellArray::New();
@@ -296,6 +301,11 @@ void vtkPolyDataConnectivityFilter::Execute()
     newStrips->Delete();
     }
   
+  cellIds = vtkIdList::New();
+  cellIds->Allocate(VTK_CELL_SIZE);
+  ptIds = vtkIdList::New();
+  ptIds->Allocate(VTK_CELL_SIZE);
+
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS ||
   this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS ||
   this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION ||
@@ -306,13 +316,14 @@ void vtkPolyDataConnectivityFilter::Execute()
       if ( this->Visited[cellId] >= 0 )
         {
         this->Mesh->GetCellPoints(cellId, npts, pts);
-        ptIds.Reset ();
+        ptIds->Reset();
         for (i=0; i < npts; i++)
           {
           id = this->PointMap[pts[i]];
-          ptIds.InsertId(i,id);
+          ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),
+					   *ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -324,9 +335,9 @@ void vtkPolyDataConnectivityFilter::Execute()
       int inReg, regionId;
       if ( (regionId=this->Visited[cellId]) >= 0 )
         {
-        for (inReg=0,i=0; i<this->SpecifiedRegionIds.GetNumberOfIds(); i++)
+        for (inReg=0,i=0; i<this->SpecifiedRegionIds->GetNumberOfIds(); i++)
           {
-          if ( regionId == this->SpecifiedRegionIds.GetId(i) )
+          if ( regionId == this->SpecifiedRegionIds->GetId(i) )
             {
             inReg = 1;
             break;
@@ -335,13 +346,14 @@ void vtkPolyDataConnectivityFilter::Execute()
         if ( inReg )
           {
           this->Mesh->GetCellPoints(cellId, npts, pts);
-          ptIds.Reset ();
+          ptIds->Reset ();
           for (i=0; i < npts; i++)
             {
             id = this->PointMap[pts[i]];
-            ptIds.InsertId(i,id);
+            ptIds->InsertId(i,id);
             }
-          newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
+          newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),
+					     *ptIds);
 	  outputCD->CopyData(cd,cellId,newCellId);
           }
         }
@@ -354,13 +366,14 @@ void vtkPolyDataConnectivityFilter::Execute()
       if ( this->Visited[cellId] == largestRegionId )
         {
         this->Mesh->GetCellPoints(cellId, npts, pts);
-        ptIds.Reset ();
+        ptIds->Reset ();
         for (i=0; i < npts; i++)
           {
           id = this->PointMap[pts[i]];
-          ptIds.InsertId(i,id);
+          ptIds->InsertId(i,id);
           }
-        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),ptIds);
+        newCellId = output->InsertNextCell(this->Mesh->GetCellType(cellId),
+					   *ptIds);
 	outputCD->CopyData(cd,cellId,newCellId);
         }
       }
@@ -370,6 +383,8 @@ void vtkPolyDataConnectivityFilter::Execute()
   delete [] this->PointMap;
   this->Mesh->Delete();
   output->Squeeze();
+  cellIds->Delete();
+  ptIds->Delete();
 
   int num = this->GetNumberOfExtractedRegions();
   int count = 0;
@@ -464,42 +479,42 @@ int vtkPolyDataConnectivityFilter::GetNumberOfExtractedRegions()
 void vtkPolyDataConnectivityFilter::InitializeSeedList()
 {
   this->Modified();
-  this->Seeds.Reset();
+  this->Seeds->Reset();
 }
 
 // Add a seed id (point or cell id). Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::AddSeed(int id)
 {
   this->Modified();
-  this->Seeds.InsertNextId(id);
+  this->Seeds->InsertNextId(id);
 }
 
 // Delete a seed id (point or cell id). Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::DeleteSeed(int id)
 {
   this->Modified();
-  this->Seeds.DeleteId(id);
+  this->Seeds->DeleteId(id);
 }
 
 // Initialize list of region ids to extract.
 void vtkPolyDataConnectivityFilter::InitializeSpecifiedRegionList()
 {
   this->Modified();
-  this->SpecifiedRegionIds.Reset();
+  this->SpecifiedRegionIds->Reset();
 }
 
 // Add a region id to extract. Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::AddSpecifiedRegion(int id)
 {
   this->Modified();
-  this->SpecifiedRegionIds.InsertNextId(id);
+  this->SpecifiedRegionIds->InsertNextId(id);
 }
 
 // Delete a region id to extract. Note: ids are 0-offset.
 void vtkPolyDataConnectivityFilter::DeleteSpecifiedRegion(int id)
 {
   this->Modified();
-  this->SpecifiedRegionIds.DeleteId(id);
+  this->SpecifiedRegionIds->DeleteId(id);
 }
 
 void vtkPolyDataConnectivityFilter::PrintSelf(ostream& os, vtkIndent indent)

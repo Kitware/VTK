@@ -193,11 +193,11 @@ void vtkExtractUnstructuredGrid::Execute()
     if ( allVisible || cellVis[cellId] )
       {
       cell = input->GetCell(cellId);
-      numIds = cell->PointIds.GetNumberOfIds();
+      numIds = cell->PointIds->GetNumberOfIds();
       cellIds->Reset();
       for (i=0; i < numIds; i++)
 	{
-	ptId = cell->PointIds.GetId(i);
+	ptId = cell->PointIds->GetId(i);
 	if ( pointMap[ptId] < 0 )
 	  {
 	  pointMap[ptId] = newPtId = newPts->InsertNextPoint(inPts->GetPoint(ptId));

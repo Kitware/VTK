@@ -84,8 +84,8 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   transform = vtkTransform::New();
   m = vtkMatrix4x4::New();
 
-  vol->GetMatrix( *m );
-  transform->SetMatrix( *m );
+  vol->GetMatrix(m);
+  transform->SetMatrix(m);
   transform->Inverse();
 
   volume_property = vol->GetVolumeProperty();

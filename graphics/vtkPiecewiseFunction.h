@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkObject.h"
 
-class VTK_EXPORT vtkPiecewiseFunction : public vtkObject 
+class VTK_EXPORT vtkPiecewiseFunction : public vtkObject
 {
 public:
 

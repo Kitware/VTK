@@ -60,23 +60,23 @@ class VTK_EXPORT vtkAppendPolyData : public vtkFilter
 {
 public:
   vtkAppendPolyData();
+  ~vtkAppendPolyData();
   static vtkAppendPolyData *New() {return new vtkAppendPolyData;};
   const char *GetClassName() {return "vtkAppendPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-
-// Description:
-// Add a dataset to the list of data to append.
+  // Description:
+  // Add a dataset to the list of data to append.
   void AddInput(vtkPolyData *);
 
   void AddInput(vtkPolyData& in) {this->AddInput(&in);};
 
-// Description:
-// Remove a dataset from the list of data to append.
+  // Description:
+  // Remove a dataset from the list of data to append.
   void RemoveInput(vtkPolyData *);
 
   void RemoveInput(vtkPolyData& in) {this->RemoveInput(&in);};
-  vtkPolyDataCollection *GetInput() {return &(this->InputList);};
+  vtkPolyDataCollection *GetInput() {return this->InputList;};
 
   // filter interface
   void Update();
@@ -90,7 +90,7 @@ protected:
   void Execute();
   
   // list of data sets to append together
-  vtkPolyDataCollection InputList;
+  vtkPolyDataCollection *InputList;
 };
 
 #endif

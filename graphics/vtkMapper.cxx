@@ -69,6 +69,11 @@ vtkMapper::~vtkMapper()
     this->LookupTable->UnRegister(this);
     }
   if ( this->Colors != NULL ) this->Colors->Delete();
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
 }
 
 void vtkMapper::SetGlobalImmediateModeRendering(int val)

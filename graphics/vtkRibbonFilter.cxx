@@ -83,9 +83,9 @@ void vtkRibbonFilter::Execute()
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   int ptOffset=0;
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Creating ribbon");
 
   inPts=input->GetPoints();
@@ -110,7 +110,7 @@ void vtkRibbonFilter::Execute()
 
   if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
-    vtkPolyLine lineNormalGenerator;
+    vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
     deleteNormals = 1;
     inNormals = vtkNormals::New();
 
@@ -124,17 +124,18 @@ void vtkRibbonFilter::Execute()
       }
     else
       {
-      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkNormals*)inNormals) )
+      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,inLines,(vtkNormals*)inNormals) )
 	{
 	vtkErrorMacro(<< "No normals for line!\n");
 	inNormals->Delete();
 	return;
 	}
       }
+    lineNormalGenerator->Delete();
     }
-//
-// If varying width, get appropriate info.
-//
+  //
+  // If varying width, get appropriate info.
+  //
   if ( this->VaryWidth && (inScalars=pd->GetScalars()) )
     {
     inScalars->GetRange(range);
@@ -146,17 +147,17 @@ void vtkRibbonFilter::Execute()
   newNormals->Allocate(numNewPts);
   newStrips = vtkCellArray::New();
   newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-//
-//  Create pairs of points along the line that are later connected into a 
-//  triangle strip.
-//
+  //
+  //  Create pairs of points along the line that are later connected into a 
+  //  triangle strip.
+  //
   theta = this->Angle * vtkMath::DegreesToRadians();
   for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
     {
-//
-// Use "averaged" segment to create beveled effect. Watch out for first and 
-// last points.
-//
+    //
+    // Use "averaged" segment to create beveled effect. Watch out for first and 
+    // last points.
+    //
     for (j=0; j < npts; j++)
       {
 
@@ -230,9 +231,9 @@ void vtkRibbonFilter::Execute()
       newNormals->InsertNormal(ptId,n);
       outPD->CopyData(pd,pts[j],ptId);
       }
-//
-// Generate the strip topology
-//
+    //
+    // Generate the strip topology
+    //
     newStrips->InsertNextCell(npts*2);
     for (i=0; i < npts; i++) 
       {//order important for consistent normals
@@ -242,9 +243,9 @@ void vtkRibbonFilter::Execute()
     
     ptOffset += npts*2;
     } //for this line
-//
-// Update ourselves
-//
+  //
+  // Update ourselves
+  //
   if ( deleteNormals ) inNormals->Delete();
 
   output->SetPoints(newPts);

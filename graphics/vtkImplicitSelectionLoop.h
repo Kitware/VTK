@@ -81,7 +81,7 @@ public:
   // Instantiate object with no initial loop.
   vtkImplicitSelectionLoop();
   ~vtkImplicitSelectionLoop();
-  static vtkImplicitSelectionLoop *New() {return new vtkImplicitSelectionLoop;};
+  static vtkImplicitSelectionLoop *New(){ return new vtkImplicitSelectionLoop;}
   const char *GetClassName() {return "vtkImplicitSelectionLoop";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -122,7 +122,7 @@ protected:
 
 private:
   void Initialize();
-  vtkPolygon Polygon;
+  vtkPolygon *Polygon;
 
   float Origin[3];
   float Bounds[6];
