@@ -80,7 +80,10 @@ void vtkPointDataToCellData::Execute()
     if ( numPts > 0 )
       {
       weight = 1.0 / numPts;
-      for (ptId=0; ptId < numPts; ptId++) weights[ptId] = weight;
+      for (ptId=0; ptId < numPts; ptId++)
+	{
+	weights[ptId] = weight;
+	}
       outPD->InterpolatePoint(inPD, cellId, cellPts, weights);
       }
     }

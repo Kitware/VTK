@@ -77,23 +77,23 @@ void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
     if (this->Input) {this->Input->Register(this);}
     this->Modified();
 
-    if ( this->Input == NULL ) return;
+    if ( this->Input == NULL )
+      {
+      return;
+      }
 
     if ( input->GetDataSetType() == VTK_POLY_DATA )
       {
       this->Output = this->PolyData;
       }
-
     else if ( input->GetDataSetType() == VTK_STRUCTURED_GRID )
       {
       this->Output = this->StructuredGrid;
       }
-
     else if ( input->GetDataSetType() == VTK_UNSTRUCTURED_GRID )
       {
       this->Output = this->UnstructuredGrid;
       }
-
     else
       {
       vtkErrorMacro(<<"Mismatch in data type");
@@ -122,7 +122,10 @@ void vtkPointSetToPointSetFilter::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -136,7 +139,10 @@ void vtkPointSetToPointSetFilter::Update()
       this->Input->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     // clear points and point data output 
     ((vtkDataSet *)this->Output)->CopyStructure((vtkDataSet *)this->Input);
     // reset AbortExecute flag and Progress
@@ -144,12 +150,21 @@ void vtkPointSetToPointSetFilter::Update()
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
   

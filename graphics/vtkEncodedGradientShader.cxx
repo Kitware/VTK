@@ -53,7 +53,9 @@ vtkEncodedGradientShader::vtkEncodedGradientShader()
       this->ShadingTableVolume[j] = NULL;
       this->ShadingTableSize[j] = 0;
       for ( i = 0; i < 6; i++ )
+	{
 	this->ShadingTable[j][i] = NULL;
+	}
     }
 }
 
@@ -62,10 +64,15 @@ vtkEncodedGradientShader::~vtkEncodedGradientShader()
   int i, j;
 
   for ( j = 0; j < VTK_MAX_SHADING_TABLES; j++ )
+    {
     for ( i=0; i<6; i++ )
       {
-      if ( this->ShadingTable[j][i] ) delete [] this->ShadingTable[j][i];
+      if ( this->ShadingTable[j][i] )
+	{
+	delete [] this->ShadingTable[j][i];
+	}
       }
+    }
 }
 
 float *vtkEncodedGradientShader::GetRedDiffuseShadingTable( vtkVolume *vol )
@@ -73,7 +80,12 @@ float *vtkEncodedGradientShader::GetRedDiffuseShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -89,7 +101,12 @@ float *vtkEncodedGradientShader::GetGreenDiffuseShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -105,7 +122,12 @@ float *vtkEncodedGradientShader::GetBlueDiffuseShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -121,7 +143,12 @@ float *vtkEncodedGradientShader::GetRedSpecularShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -137,7 +164,12 @@ float *vtkEncodedGradientShader::GetGreenSpecularShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -153,7 +185,12 @@ float *vtkEncodedGradientShader::GetBlueSpecularShadingTable( vtkVolume *vol )
   int                   index;
 
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
     {
@@ -186,16 +223,24 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
   // First search through all existing ones, then if one
   // is not found, use the first available index
   for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
-    if ( this->ShadingTableVolume[index] == vol ) break;
+    {
+    if ( this->ShadingTableVolume[index] == vol )
+      {
+      break;
+      }
+    }
 
   if ( index == VTK_MAX_SHADING_TABLES )
+    {
     for ( index = 0; index < VTK_MAX_SHADING_TABLES; index++ )
+      {
       if ( this->ShadingTableVolume[index] == NULL )
 	{
 	this->ShadingTableVolume[index] = vol;
 	break;
 	}
-
+      }
+    }
   if ( index == VTK_MAX_SHADING_TABLES )
     {
     vtkErrorMacro( << "Too many shading tables!\n" <<
@@ -370,7 +415,10 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
     {
     for ( i=0; i<6; i++ )
       {
-      if ( this->ShadingTable[index][i] ) delete [] this->ShadingTable[index][i];
+      if ( this->ShadingTable[index][i] )
+	{
+	delete [] this->ShadingTable[index][i];
+	}
       this->ShadingTable[index][i] = new float[norm_size];
       }
       this->ShadingTableSize[index] = norm_size;

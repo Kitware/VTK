@@ -104,7 +104,10 @@ void vtkPlaneSource::Execute()
     v1[i] = this->Point1[i] - this->Origin[i];
     v2[i] = this->Point2[i] - this->Origin[i];
     }
-  if ( !this->UpdatePlane(v1,v2) ) return;
+  if ( !this->UpdatePlane(v1,v2) )
+    {
+    return;
+    }
 
   //
   // Set things up; allocate memory
@@ -194,11 +197,17 @@ void vtkPlaneSource::SetNormal(float N[3])
     vtkErrorMacro(<<"Specified zero normal");
     return;
     }
-  if ( !this->UpdatePlane(v1,v2) ) return;
+  if ( !this->UpdatePlane(v1,v2) )
+    {
+    return;
+    }
   
   //compute rotation vector
   vtkMath::Cross(this->Normal,n,rotVector);
-  if ( vtkMath::Normalize(rotVector) == 0.0 ) return; //no rotation
+  if ( vtkMath::Normalize(rotVector) == 0.0 )
+    {
+    return; //no rotation
+    }
   theta = acos((double)vtkMath::Dot(this->Normal,n)) / vtkMath::DegreesToRadians();
 
   // create rotation matrix
@@ -211,17 +220,29 @@ void vtkPlaneSource::SetNormal(float N[3])
   // transform the three defining points
   transform->SetPoint(this->Origin[0],this->Origin[1],this->Origin[2],1.0);
   transform->GetPoint(p);
-  for (i=0; i < 3; i++) this->Origin[i] = p[i] / p[3];
+  for (i=0; i < 3; i++)
+    {
+    this->Origin[i] = p[i] / p[3];
+    }
 
   transform->SetPoint(this->Point1[0],this->Point1[1],this->Point1[2],1.0);
   transform->GetPoint(p);
-  for (i=0; i < 3; i++) this->Point1[i] = p[i] / p[3];
+  for (i=0; i < 3; i++)
+    {
+    this->Point1[i] = p[i] / p[3];
+    }
 
   transform->SetPoint(this->Point2[0],this->Point2[1],this->Point2[2],1.0);
   transform->GetPoint(p);
-  for (i=0; i < 3; i++) this->Point2[i] = p[i] / p[3];
+  for (i=0; i < 3; i++)
+    {
+    this->Point2[i] = p[i] / p[3];
+    }
 
-  for (i=0; i < 3; i++) this->Normal[i] = n[i];
+  for (i=0; i < 3; i++)
+    {
+    this->Normal[i] = n[i];
+    }
   this->Modified();
   transform->Delete();
 }
@@ -348,10 +369,12 @@ void vtkPlaneSource::SetPoint2(float x, float y, float z)
 // Negative values move the plane in the opposite direction.
 void vtkPlaneSource::Push(float distance)
 {
-  if ( distance == 0.0 ) return;
-
   int i;
-  
+
+  if ( distance == 0.0 )
+    {
+    return;
+    }
   for (i=0; i < 3; i++ )
     {
     this->Origin[i] += distance * this->Normal[i];

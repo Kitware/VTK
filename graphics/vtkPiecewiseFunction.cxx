@@ -55,7 +55,9 @@ vtkPiecewiseFunction::vtkPiecewiseFunction()
 vtkPiecewiseFunction::~vtkPiecewiseFunction()
 {
   if( this->Function )
+    {
     delete [] this->Function;
+    }
 }
 
 // Return the number of points which specify this function
@@ -82,7 +84,9 @@ char *vtkPiecewiseFunction::GetType()
   function_type = 0;
 
   if( this->FunctionSize )
+    {
     prev_value = this->Function[1];
+    }
 
   for( i=1; i < this->FunctionSize; i++ )
     {
@@ -123,7 +127,9 @@ char *vtkPiecewiseFunction::GetType()
 
     // Exit loop if we find a Varied function
     if( function_type == 3 )
+      {
       break;
+      }
     }
 
   switch( function_type )
@@ -152,7 +158,9 @@ float vtkPiecewiseFunction::GetFirstNonZeroValue()
 
   // Check if no points specified
   if( this->FunctionSize == 0 )
+    {
     return( 0 );
+    }
 
   for( i=0; i < this->FunctionSize; i++ )
     {
@@ -167,15 +175,21 @@ float vtkPiecewiseFunction::GetFirstNonZeroValue()
   // If every specified point has a zero value then return the first points
   // position
   if( all_zero )
+    {
     x = this->Function[0];
+    }
   else  // A point was found with a non-zero value
     {
     if( i > 0 )
       // Return the value of the point that precedes this one
+      {
       x = this->Function[2*(i-1)];
+      }
     else
       // If this is the first point in the function, return its value
+      {
       x = this->Function[0];
+      }
     }
  
   return( x );
@@ -196,7 +210,9 @@ int vtkPiecewiseFunction::InsertPoint( float x, float val )
 
   // Increase function size if we exceed array bound
   if( (this->FunctionSize*2) >= this->ArraySize )
+    {
     this->IncreaseArraySize();
+    }
 
   // Insert the first point 
   if( this->FunctionSize == 0 )
@@ -246,9 +262,13 @@ int vtkPiecewiseFunction::InsertPoint( float x, float val )
 
     // Update function range
     if( x < this->FunctionRange[0] )
+      {
       this->FunctionRange[0] = x;
+      }
     if( x > this->FunctionRange[1] )
+      {
       this->FunctionRange[1] = x;
+      }
     }
 
     this->Modified();
@@ -361,7 +381,9 @@ void vtkPiecewiseFunction::AddSegment( float x1, float val1,
   index2 = this->InsertPoint( x2, val2 );
 
   if( index1 == index2 )
+    {
     return;
+    }
 
   if( index1 > index2 )
     {
@@ -394,20 +416,28 @@ float vtkPiecewiseFunction::GetValue( float x )
   float value;
 
   if( this->FunctionSize == 0 )
+    {
     return 0.0;
+    }
 
   if( this->Clamping == 1 )  // Clamped to lowest value below range and highest above range
     {
     // Check to see if point is out of range
     if( x < this->FunctionRange[0] ) 
+      {
       x = this->Function[0];
+      }
     else if( x > this->FunctionRange[1] )
+      {
       x = this->Function[(this->FunctionSize-1)*2];
+      }
     }
   else if( this->Clamping == 0 )	// Always zero outside of range
     {
     if( (x < this->FunctionRange[0]) || (x > this->FunctionRange[1]) )
+      {
       return 0.0;
+      }
     }
   else
     {
@@ -428,7 +458,9 @@ float vtkPiecewiseFunction::GetValue( float x )
 
   // Check if we have found the exact point
   if( x2 == x )
+    {
     return( this->Function[(i2*2 + 1)] );
+    }
   else
     {
     i1 = i2 - 1;
@@ -458,13 +490,19 @@ void vtkPiecewiseFunction::GetTable( float x1, float x2, int size, float* table 
   int   i;
 
   if( x1 == x2 )
+    {
     return;
+    }
 
   x = x1;
   if( size > 1 )
+    {
     inc = (x2-x1)/(float)(size-1);
+    }
   else
+    {
     inc = 0;
+    }
 
   for( i=0; i<size; i++ )
     {
@@ -508,6 +546,8 @@ void vtkPiecewiseFunction::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Clamping: " << this->Clamping << "\n";
   os << indent << "Function Points: " << this->GetSize() << "\n";
   for( i=0; i<this->FunctionSize; i++ )
+    {
     os << indent << indent << i << ": " << this->Function[(2*i)] << ", " << this->Function[(2*i+1)] << "\n";
+    }
 }
 

@@ -55,11 +55,17 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   int ptId, i, minPtId;
   float ray[3], rayFactor, tMin, *p, t, projXYZ[3], minXYZ[3];
 
-  if ( (numPts = input->GetNumberOfPoints()) < 1 ) return 2.0;
+  if ( (numPts = input->GetNumberOfPoints()) < 1 )
+    {
+    return 2.0;
+    }
 //
 //   Determine appropriate info
 //
-  for (i=0; i<3; i++) ray[i] = p2[i] - p1[i];
+  for (i=0; i<3; i++)
+    {
+    ray[i] = p2[i] - p1[i];
+    }
   if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 ) 
     {
     vtkErrorMacro("Cannot process points");
@@ -84,7 +90,10 @@ float vtkPointPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
       for(i=0; i<3; i++) 
         {
         projXYZ[i] = p1[i] + t*ray[i];
-        if ( fabs(p[i]-projXYZ[i]) > tol ) break;
+        if ( fabs(p[i]-projXYZ[i]) > tol )
+	  {
+	  break;
+	  }
         }
       if ( i > 2 ) // within tolerance
         {

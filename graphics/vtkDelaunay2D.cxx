@@ -75,36 +75,60 @@ void vtkDelaunay2D::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
-  if ( this->Source ) this->Source->Update();
+  if ( this->Source )
+    {
+    this->Source->Update();
+    }
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->ExecuteTime || 
-  (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
-  this->GetMTime() > this->ExecuteTime )
+      (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
+      this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
     if ( this->Source && this->Source->GetDataReleased() ) 
+      {
       this->Source->ForceUpdate();
-
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+      }
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
   if ( this->Source && this->Source->ShouldIReleaseData() ) 
+    {
     this->Source->ReleaseData();
+    }
 }
 
 // Determine whether point x is inside of circumcircle of triangle
@@ -216,7 +240,7 @@ int vtkDelaunay2D::FindTriangle(float x[3], int ptIds[3], int tri,
     Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     if ( (newNei=neighbors->GetId(0)) == nei[0] )
       {
-      NumberOfDegeneracies++;
+      this->NumberOfDegeneracies++;
       neighbors->Delete();
       return -1;
       }
@@ -533,7 +557,7 @@ void vtkDelaunay2D::Execute()
     {
     float alpha2 = this->Alpha * this->Alpha;
     float x1[3], x2[3], x3[3];
-    int j, cellId, numNei, p1, p2, nei;
+    int cellId, numNei, ap1, ap2, nei;
 
     vtkCellArray *alphaVerts = vtkCellArray::New();
     alphaVerts->Allocate(numPoints);
@@ -541,7 +565,10 @@ void vtkDelaunay2D::Execute()
     alphaLines->Allocate(numPoints);
 
     char *pointUse = new char[numPoints+8];
-    for (ptId=0; ptId < (numPoints+8); ptId++) pointUse[ptId] = 0;
+    for (ptId=0; ptId < (numPoints+8); ptId++)
+      {
+      pointUse[ptId] = 0;
+      }
 
     //traverse all triangles; evaluating Delaunay criterion
     for (i=0; i < numTriangles; i++)
@@ -558,7 +585,7 @@ void vtkDelaunay2D::Execute()
           }
         else
           {
-          for (j=0; j<3; j++)
+          for (int j=0; j<3; j++)
 	    {
 	    pointUse[triPts[j]] = 1; 
 	    }
@@ -574,24 +601,24 @@ void vtkDelaunay2D::Execute()
         {
         for (i=0; i < npts; i++) 
           {
-          p1 = triPts[i];
-          p2 = triPts[(i+1)%npts];
+          ap1 = triPts[i];
+          ap2 = triPts[(i+1)%npts];
 
-          if (this->BoundingTriangulation || (p1<numPoints && p2<numPoints))
+          if (this->BoundingTriangulation || (ap1<numPoints && ap2<numPoints))
             {
-            Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
+            Mesh->GetCellEdgeNeighbors(cellId,ap1,ap2,neighbors);
             numNei = neighbors->GetNumberOfIds();
 
             if ( numNei < 1 || ((nei=neighbors->GetId(0)) > cellId 
                                 && !triUse[nei]) )
               {//see whether edge is shorter than Alpha
-              points->GetPoint(p1,x1);
-              points->GetPoint(p2,x2);
+              points->GetPoint(ap1,x1);
+              points->GetPoint(ap2,x2);
               if ( (vtkMath::Distance2BetweenPoints(x1,x2)*0.25) <= alpha2 )
                 {
-                pointUse[p1] = 1; pointUse[p2] = 1;
-                pts[0] = p1;
-                pts[1] = p2;
+                pointUse[ap1] = 1; pointUse[ap2] = 1;
+                pts[0] = ap1;
+                pts[1] = ap2;
                 alphaLines->InsertNextCell(2,pts);
                 }//if passed test
               }//test edge

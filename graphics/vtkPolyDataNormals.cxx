@@ -315,7 +315,10 @@ void vtkPolyDataNormals::Execute()
     for (i=0; i < npts; i++) 
       {
       vertNormal = newNormals->GetNormal(pts[i]);
-      for (j=0; j < 3; j++) n[j] = vertNormal[j] + polyNormal[j];
+      for (j=0; j < 3; j++)
+	{
+	n[j] = vertNormal[j] + polyNormal[j];
+	}
       newNormals->SetNormal(pts[i],n);
       }
     }

@@ -52,11 +52,13 @@ vtkPlanes::vtkPlanes()
 vtkPlanes::~vtkPlanes()
 {
   if ( this->Points )
+    {
     this->Points->UnRegister(this);
-
+    }
   if ( this->Normals )
+    {
     this->Normals->UnRegister(this);
-  
+    }
   this->Plane->Delete();
 }
 
@@ -82,7 +84,10 @@ float vtkPlanes::EvaluateFunction(float x[3])
     {
     val = this->Plane->Evaluate(this->Normals->GetNormal(i),
 			 this->Points->GetPoint(i), x);
-    if (val > maxVal ) maxVal = val;
+    if (val > maxVal )
+      {
+      maxVal = val;
+      }
     }
 
   return maxVal;
