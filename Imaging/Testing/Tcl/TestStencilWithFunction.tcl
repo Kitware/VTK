@@ -25,7 +25,8 @@ $stencilOriginal SetUpdateExtent 0 255 0 255 0 0
 $stencilOriginal Update
 
 # test making a copying of the stencil (for coverage)
-set stencilCopy [$stencilOriginal MakeObject]
+set stencilCopy [$stencilOriginal NewInstance]
+$stencilCopy DeepCopy $stencilOriginal
 
 vtkImageShiftScale shiftScale
 shiftScale SetInput [reader GetOutput]
