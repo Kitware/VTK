@@ -80,19 +80,28 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   this->Stereo = (ren->GetRenderWindow())->GetStereoRender();
   vport = ren->GetViewport();
 
+  float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
+
   float vpu, vpv;
-  vpu = vport[0];
-  vpv = vport[1];  
+  vpu = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[0];
+  vpv = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[1];  
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
   float vpu2, vpv2;
-  vpu2 = vport[2];
-  vpv2 = vport[3];  
+  vpu2 = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[2];
+  vpv2 = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[3];  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
   int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
   int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
-
+  
+  vpu2 = tileViewPort[0];
+  vpv2 = tileViewPort[1];  
+  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
+  lowerLeft[0] = lowerLeft[0] - (int)(vpu2+0.5);
+  lowerLeft[1] = lowerLeft[1] - (int)(vpv2+0.5);
+  
+  
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
     {
@@ -193,20 +202,29 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
 
   vport = ren->GetViewport();
 
+  float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
+
   float vpu, vpv;
-  vpu = vport[0];
-  vpv = vport[1];  
+  vpu = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[0];
+  vpv = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[1];  
   ren->NormalizedDisplayToDisplay(vpu,vpv);
   lowerLeft[0] = (int)(vpu+0.5);
   lowerLeft[1] = (int)(vpv+0.5);
   float vpu2, vpv2;
-  vpu2 = vport[2];
-  vpv2 = vport[3];  
+  vpu2 = tileViewPort[0] + (tileViewPort[2] - tileViewPort[0])*vport[2];
+  vpv2 = tileViewPort[1] + (tileViewPort[3] - tileViewPort[1])*vport[3];  
   ren->NormalizedDisplayToDisplay(vpu2,vpv2);
   int usize = (int)(vpu2 + 0.5) - lowerLeft[0];
   int vsize = (int)(vpv2 + 0.5) - lowerLeft[1];  
+
+  vpu2 = tileViewPort[0];
+  vpv2 = tileViewPort[1];  
+  ren->NormalizedDisplayToDisplay(vpu2,vpv2);
+  lowerLeft[0] = lowerLeft[0] - (int)(vpu2+0.5);
+  lowerLeft[1] = lowerLeft[1] - (int)(vpv2+0.5);
 
   glViewport(lowerLeft[0],lowerLeft[1], usize, vsize);
   glEnable( GL_SCISSOR_TEST );
   glScissor(lowerLeft[0],lowerLeft[1], usize, vsize);
 }
+
