@@ -82,7 +82,7 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   // Create a reader for the other data that will be contoured and
   // displayed as a polygonal mesh.
   filename = data_root;
-  filename += "/Data/Neghip.slc";
+  filename += "/Data/neghip.slc";
   vtkSLCReader *reader2 = vtkSLCReader::New();
   reader2->SetFileName(filename.c_str());
 
