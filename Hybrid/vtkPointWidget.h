@@ -266,8 +266,9 @@ protected:
   
   // The size of the hot spot.
   float HotSpotSize;
-  int DetermineConstraintAxis(int constraint, double *xPrev, double *x);
+  int DetermineConstraintAxis(int constraint, double *x);
   int WaitingForMotion;
+  int WaitCount;
   
   // Keep track of last pick position
   float LastPickPosition[3];

@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.6");
+vtkCxxRevisionMacro(vtkPointWidget, "1.7");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -253,8 +253,7 @@ void vtkPointWidget::Highlight(int highlight)
     }
 }
 
-int vtkPointWidget::DetermineConstraintAxis(int constraint, double *xPrev, 
-                                            double *x)
+int vtkPointWidget::DetermineConstraintAxis(int constraint, double *x)
 {
   // Look for trivial cases
   if ( ! this->Interactor->GetShiftKey() )
@@ -272,7 +271,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *xPrev,
     {
     float p[3], d2, tol;
     this->CursorPicker->GetPickPosition(p);
-    d2 = vtkMath::Distance2BetweenPoints(p,this->Cursor3D->GetFocalPoint());
+    d2 = vtkMath::Distance2BetweenPoints(p,this->LastPickPosition);
     tol = this->HotSpotSize*this->InitialLength;
     if ( d2 > (tol*tol) )
       {
@@ -282,16 +281,17 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *xPrev,
     else
       {
       this->WaitingForMotion = 1;
+      this->WaitCount = 0;
       return -1;
       }
     }
-  else if ( this->WaitingForMotion && xPrev ) 
+  else if ( this->WaitingForMotion && x ) 
     {
-    double v[3];
+    float v[3];
     this->WaitingForMotion = 0;
-    v[0] = fabs(x[0] - xPrev[0]);
-    v[1] = fabs(x[1] - xPrev[1]);
-    v[2] = fabs(x[2] - xPrev[2]);
+    v[0] = fabs(x[0] - this->LastPickPosition[0]);
+    v[1] = fabs(x[1] - this->LastPickPosition[1]);
+    v[2] = fabs(x[2] - this->LastPickPosition[2]);
     return ( v[0]>v[1] ? (v[0]>v[2]?0:2) : (v[1]>v[2]?1:2));
     }
   else
@@ -314,7 +314,7 @@ void vtkPointWidget::OnLeftButtonDown()
     {
     this->State = vtkPointWidget::Moving;
     this->Highlight(1);
-    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL,NULL);
+    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
     }
   else
     {
@@ -362,11 +362,8 @@ void vtkPointWidget::OnMiddleButtonDown()
     {
     this->State = vtkPointWidget::Translating;
     int idx = this->CursorPicker->GetCellId();
-    if ( idx >= 0 && idx < 3 )
-      {
-      this->ConstraintAxis = idx;
-      }
     this->Highlight(1);
+    this->ConstraintAxis = this->DetermineConstraintAxis(-1,NULL);
     }
   else
     {
@@ -483,10 +480,12 @@ void vtkPointWidget::OnMouseMove()
   // Process the motion
   if ( this->State == vtkPointWidget::Moving )
     {
-    this->ConstraintAxis = 
-      this->DetermineConstraintAxis(this->ConstraintAxis,prevPickPoint,
-                                    pickPoint);
-    this->MoveFocus(prevPickPoint, pickPoint);
+    if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
+      {
+      this->ConstraintAxis = 
+        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
+      this->MoveFocus(prevPickPoint, pickPoint);
+      }
     }
   else if ( this->State == vtkPointWidget::Scaling )
     {
@@ -494,7 +493,12 @@ void vtkPointWidget::OnMouseMove()
     }
   else if ( this->State == vtkPointWidget::Translating )
     {
-    this->Translate(prevPickPoint, pickPoint);
+    if ( !this->WaitingForMotion || this->WaitCount++ > 3 )
+      {
+      this->ConstraintAxis = 
+        this->DetermineConstraintAxis(this->ConstraintAxis,pickPoint);
+      this->Translate(prevPickPoint, pickPoint);
+      }
     }
 
   // Interact, if desired
@@ -513,7 +517,7 @@ void vtkPointWidget::MoveFocus(double *p1, double *p2)
 
   float focus[3];
   this->Cursor3D->GetFocalPoint(focus);
-  if ( this->Interactor->GetShiftKey() && this->ConstraintAxis >= 0 )
+  if ( this->ConstraintAxis >= 0 )
     {
     focus[this->ConstraintAxis] += v[this->ConstraintAxis];
     }
@@ -541,7 +545,7 @@ void vtkPointWidget::Translate(double *p1, double *p2)
   float newBounds[6], newFocus[3];
   int i;
 
-  if ( this->Interactor->GetShiftKey() && this->ConstraintAxis >= 0 )
+  if ( this->ConstraintAxis >= 0 )
     {//move along axis
     for (i=0; i<3; i++)
       {
