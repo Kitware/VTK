@@ -28,6 +28,9 @@ vtkKochanekSpline
 vtkMergePoints
 vtkMergePoints2D 
 vtkPiecewiseFunction
+vtkPiecewiseFunctionSource
+vtkPiecewiseFunctionShiftScale
+vtkPiecewiseFunctionToPiecewiseFunctionFilter
 vtkPointSetSource
 vtkPointSetToPointSetFilter
 vtkPolyDataCollection
@@ -61,6 +64,7 @@ vtkDataSetToStructuredGridFilter
 vtkDataSetToStructuredPointsFilter
 vtkDataSetToUnstructuredGridFilter
 vtkInterpolatingSubdivisionFilter
+vtkPiecewiseFunctionToPiecewiseFunctionFilter
 vtkPointSetToPointSetFilter
 vtkPolyDataToPolyDataFilter
 vtkProp3D
