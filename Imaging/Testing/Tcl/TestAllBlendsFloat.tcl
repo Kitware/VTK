@@ -72,9 +72,9 @@ set deltaY [expr 1.0/2.0]
 foreach background $backgrounds {
     foreach foreground $foregrounds {
 	vtkImageBlend blend${row}${column}
-	blend${row}${column} SetInput 0 [$background GetOutput]
+	blend${row}${column} AddInput [$background GetOutput]
 	if { $background == "backgroundColor" || $foreground == "luminance" || $foreground == "luminanceAlpha" } { 
-	    blend${row}${column} SetInput 1 [$foreground GetOutput]
+	    blend${row}${column} AddInput [$foreground GetOutput]
 	    blend${row}${column} SetOpacity 1 0.8
 	}
 

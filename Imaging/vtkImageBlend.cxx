@@ -16,12 +16,14 @@
 
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.32");
+vtkCxxRevisionMacro(vtkImageBlend, "1.33");
 vtkStandardNewMacro(vtkImageBlend);
-vtkCxxSetObjectMacro(vtkImageBlend,Stencil, vtkImageStencilData);
 
 //----------------------------------------------------------------------------
 vtkImageBlend::vtkImageBlend()
@@ -32,6 +34,9 @@ vtkImageBlend::vtkImageBlend()
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
   this->CompoundThreshold = 0.0;
   this->DataWasPassed = 0;
+
+  // we have the image inputs and the optional stencil input
+  this->SetNumberOfInputPorts(2);
 }
 
 //----------------------------------------------------------------------------
@@ -43,6 +48,24 @@ vtkImageBlend::~vtkImageBlend()
     delete [] this->Opacity;
     }
   this->OpacityArrayLength = 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageBlend::SetStencil(vtkImageStencilData *stencil)
+{
+  this->SetInput(1, stencil); 
+}
+
+
+//----------------------------------------------------------------------------
+vtkImageStencilData *vtkImageBlend::GetStencil()
+{
+  if (this->GetNumberOfInputConnections(1) < 1)
+    {
+    return 0;
+    }
+  return vtkImageStencilData::SafeDownCast(
+    this->GetExecutive()->GetInputData(1, 0));
 }
 
 //----------------------------------------------------------------------------
@@ -99,14 +122,20 @@ double vtkImageBlend::GetOpacity(int idx)
 }    
 
 //----------------------------------------------------------------------------
-void vtkImageBlend::ExecuteInformation(vtkImageData **inDatas,
-                                       vtkImageData *vtkNotUsed(outData))
+void vtkImageBlend::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed( outputVector ))
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+
+  // this is some scary stuff, propagating info upstream??? - Ken
   vtkImageStencilData *stencil = this->GetStencil();
   if (stencil)
     {
-    stencil->SetSpacing(inDatas[0]->GetSpacing());
-    stencil->SetOrigin(inDatas[0]->GetOrigin());
+    stencil->SetSpacing(inInfo->Get(vtkDataObject::SPACING()));
+    stencil->SetOrigin(inInfo->Get(vtkDataObject::ORIGIN()));
     }
 }
 
@@ -117,13 +146,12 @@ void vtkImageBlend::ExecuteInformation(vtkImageData **inDatas,
 // have the extent of the required input region.  The default method assumes
 // the required input extent are the same as the output extent.
 // Note: The splitting methods call this method with outRegion = inRegion.
-void vtkImageBlend::ComputeInputUpdateExtent(int inExt[6],
-                                             int outExt[6],
-                                             int whichInput)
+void vtkImageBlend::InternalComputeInputUpdateExtent(int inExt[6],
+                                                     int outExt[6],
+                                                     int wholeExtent[6])
 {
   memcpy(inExt,outExt,sizeof(int)*6);
 
-  int *wholeExtent = this->GetInput(whichInput)->GetWholeExtent();
   int i;
 
   // clip with the whole extent
@@ -141,44 +169,63 @@ void vtkImageBlend::ComputeInputUpdateExtent(int inExt[6],
 }
 
 //----------------------------------------------------------------------------
-// This method checks to see if we can simply reference the input data
-void vtkImageBlend::ExecuteData(vtkDataObject *output)
+void vtkImageBlend::RequestUpdateExtent(
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  
+  // default input extent will be that of output extent
+  int inExt[6];
+  int *outExt = 
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+
+  int whichInput;
+  for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); 
+       whichInput++)
+    {
+    int *inWextent;
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(whichInput);
+    inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent);
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),inExt,6);
+    }
+}
+
+void vtkImageBlend::RequestData(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
 {
   // check to see if we have more than one input
-  int singleInput = 1;
-  for (int idx = 1; idx < this->NumberOfInputs; idx++)
+  if (this->GetNumberOfInputConnections(0) == 1)
     {
-    if (this->GetInput(idx) != NULL)
-      {
-      singleInput = 0;
-      }
-    }
-  if (singleInput)
-    {
-    vtkDebugMacro("ExecuteData: single input, passing data");
+    vtkDebugMacro("RequestData: single input, passing data");
 
-    vtkImageData *outData = (vtkImageData *)(output);
-    vtkImageData *inData = this->GetInput();
- 
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkImageData *outData = static_cast<vtkImageData *>(
+      info->Get(vtkDataObject::DATA_OBJECT()));
+    info = inputVector[0]->GetInformationObject(0);
+    vtkImageData *inData = 
+      static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
+    
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
     }
   else // multiple inputs
     {
+    vtkInformation* info = outputVector->GetInformationObject(0);
+    vtkImageData *outData = static_cast<vtkImageData *>(
+      info->Get(vtkDataObject::DATA_OBJECT()));
     if (this->DataWasPassed)
       {
-      ((vtkImageData *)output)->GetPointData()->SetScalars(NULL);
+      outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
       }
-    
-    vtkImageStencilData *stencil = this->GetStencil();
-    if (stencil)
-      {
-      stencil->SetUpdateExtent(((vtkImageData *)output)->GetUpdateExtent());
-      stencil->Update();
-      }
-    this->vtkImageMultipleInputFilter::ExecuteData(output);
+    this->Superclass::RequestData(request,inputVector,outputVector);
     }
 }
 
@@ -625,7 +672,6 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   double* tmpPtr = (double *)tmpData->GetScalarPointerForExtent(extent);  
 
   // Opacity
-
   double minA, maxA;
   double r;
 
@@ -846,10 +892,13 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
 // algorithm to fill the output from the inputs.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageBlend::ThreadedExecute(vtkImageData **inData, 
-                                    vtkImageData *outData,
-                                    int outExt[6], 
-                                    int id)
+void vtkImageBlend::ThreadedRequestData (  
+  vtkInformation * vtkNotUsed( request ), 
+  vtkInformationVector** inputVector, 
+  vtkInformationVector * vtkNotUsed( outputVector ),
+  vtkImageData ***inData, 
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   int extent[6];
   void *inPtr;
@@ -860,21 +909,19 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
   vtkImageData *tmpData = NULL;
   
   // check
-
-  if (inData[0]->GetNumberOfScalarComponents() > 4)
+  if (inData[0][0]->GetNumberOfScalarComponents() > 4)
     {
     vtkErrorMacro("The first input can have a maximum of four components");
     return;
     }
 
   // init
-
   switch (this->BlendMode)
     {
     case VTK_IMAGE_BLEND_MODE_NORMAL:
       // copy the first image directly to the output
       vtkDebugMacro("Execute: copy input 0 to the output.");
-      vtkImageBlendCopyData(inData[0], outData, outExt);
+      vtkImageBlendCopyData(inData[0][0], outData[0], outExt);
       break;
 
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
@@ -886,7 +933,7 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
         }
       tmpData->SetExtent(outExt);
       tmpData->SetNumberOfScalarComponents(
-        (outData->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
+        (outData[0]->GetNumberOfScalarComponents() >= 3 ? 3 : 1) + 1);
       tmpData->SetScalarType(VTK_DOUBLE);
       tmpData->AllocateScalars();
       memset((void *)tmpData->GetScalarPointer(), 0, 
@@ -902,17 +949,16 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
     }
 
   // process each input
-
   int first_index = (this->BlendMode == VTK_IMAGE_BLEND_MODE_NORMAL ? 1 : 0);
-  for (int idx1 = first_index; idx1 < this->NumberOfInputs; ++idx1)
+  for (int idx1 = first_index; 
+       idx1 < this->GetNumberOfInputConnections(0); ++idx1)
     {
-    if (inData[idx1] != NULL)
+    if (inData[0][idx1] != NULL)
       {
 
       // RGB with RGB, greyscale with greyscale
-
-      if ((inData[idx1]->GetNumberOfScalarComponents()+1)/2 == 2 &&
-          (inData[0]->GetNumberOfScalarComponents()+1)/2 == 1)
+      if ((inData[0][idx1]->GetNumberOfScalarComponents()+1)/2 == 2 &&
+          (inData[0][0]->GetNumberOfScalarComponents()+1)/2 == 1)
         {
         vtkErrorMacro("input has too many components, can't blend RGB data \
                        into greyscale data");
@@ -920,19 +966,21 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
         }
       
       // this filter expects that input is the same type as output.
-      
-      if (inData[idx1]->GetScalarType() != outData->GetScalarType())
+      if (inData[0][idx1]->GetScalarType() != outData[0]->GetScalarType())
         {
         vtkErrorMacro(<< "Execute: input" << idx1 << " ScalarType (" << 
-        inData[idx1]->GetScalarType() << 
-        "), must match output ScalarType (" << outData->GetScalarType() 
+        inData[0][idx1]->GetScalarType() << 
+        "), must match output ScalarType (" << outData[0]->GetScalarType() 
         << ")");
         continue;
         }
       
       // input extents
-
-      this->ComputeInputUpdateExtent(extent, outExt, idx1);
+      vtkInformation *inInfo = 
+        inputVector[0]->GetInformationObject(idx1);
+      int *inWextent = 
+        inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      this->InternalComputeInputUpdateExtent(extent, outExt, inWextent);
 
       int skip = 0;
       for (int i = 0; i < 3; i++)
@@ -952,30 +1000,30 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
       
       opacity = this->GetOpacity(idx1);
           
-      inPtr = inData[idx1]->GetScalarPointerForExtent(extent);
+      inPtr = inData[0][idx1]->GetScalarPointerForExtent(extent);
 
       // vtkDebugMacro("Execute: " << idx1 << "=>" << extent[0] << ", " << extent[1] << " / " << extent[2] << ", " << extent[3] << " / " << extent[4] << ", " << extent[5]);
       
       switch (this->BlendMode)
         {
         case VTK_IMAGE_BLEND_MODE_NORMAL:
-          outPtr = outData->GetScalarPointerForExtent(extent);  
+          outPtr = outData[0]->GetScalarPointerForExtent(extent);  
           // for performance reasons, use a special method for unsigned char
-          if (inData[idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
+          if (inData[0][idx1]->GetScalarType() == VTK_UNSIGNED_CHAR)
             {
             vtkImageBlendExecuteChar(this, extent,
-                                     inData[idx1], (unsigned char *)(inPtr),
-                                     outData, (unsigned char *)(outPtr),
+                                     inData[0][idx1], (unsigned char *)(inPtr),
+                                     outData[0], (unsigned char *)(outPtr),
                                      opacity, id);
             }
           else
             {
-            switch (inData[idx1]->GetScalarType())
+            switch (inData[0][idx1]->GetScalarType())
               {
               vtkTemplateMacro8(vtkImageBlendExecute, 
                                 this, extent,
-                                inData[idx1], (VTK_TT *)(inPtr),
-                                outData, (VTK_TT *)(outPtr), 
+                                inData[0][idx1], (VTK_TT *)(inPtr),
+                                outData[0], (VTK_TT *)(outPtr), 
                                 opacity, id);
               default:
                 vtkErrorMacro(<< "Execute: Unknown ScalarType");
@@ -985,12 +1033,12 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
           break;
 
         case VTK_IMAGE_BLEND_MODE_COMPOUND:
-          switch (inData[idx1]->GetScalarType())
+          switch (inData[0][idx1]->GetScalarType())
             {
             vtkTemplateMacro7(vtkImageBlendCompoundExecute, 
                               this, 
                               extent,
-                              inData[idx1], 
+                              inData[0][idx1], 
                               (VTK_TT *)(inPtr), 
                               tmpData, 
                               opacity,
@@ -1008,20 +1056,19 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
     }
 
   // conclude
-  
   switch (this->BlendMode)
     {
     case VTK_IMAGE_BLEND_MODE_NORMAL:
       break;
 
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
-      outPtr = outData->GetScalarPointerForExtent(outExt);
-      switch (outData->GetScalarType())
+      outPtr = outData[0]->GetScalarPointerForExtent(outExt);
+      switch (outData[0]->GetScalarType())
         {
         vtkTemplateMacro5(vtkImageBlendCompoundTransferExecute, 
                           this, 
                           outExt,
-                          outData, 
+                          outData[0], 
                           (VTK_TT *)(outPtr), 
                           tmpData);
         default:
@@ -1042,7 +1089,7 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   int i;
-  for (i = 0; i < this->GetNumberOfInputs(); i++)
+  for (i = 0; i < this->OpacityArrayLength; i++)
     {
     os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl; 
     }
@@ -1051,3 +1098,19 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "Compound threshold: " << this->CompoundThreshold << endl;
 }
 
+//----------------------------------------------------------------------------
+int vtkImageBlend::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if (port == 0)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+    }
+  if (port == 1)
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
+    // the stencil input is optional
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+    }
+  return 1;
+}

@@ -20,7 +20,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.29");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.30");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -229,14 +229,22 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEllipsoidSource::ExecuteData(vtkDataObject *output)
+void vtkImageEllipsoidSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector ** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
 {
-  int *extent;
-  void *ptr;
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);  
+  vtkImageData *data = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int extent[6];
+
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),extent);
   
-  vtkImageData *data = this->AllocateOutputData(output);
+  data->SetExtent(extent);
+  data->AllocateScalars();
   
-  extent = this->GetOutput()->GetUpdateExtent();
+  void *ptr;  
   ptr = data->GetScalarPointerForExtent(extent);
   
   switch (data->GetScalarType())

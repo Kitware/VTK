@@ -23,8 +23,8 @@ vtkBMPReader reader1
 reader1 SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 
 vtkImageBlend blend
-blend SetInput 0 [reader1 GetOutput]
-blend SetInput 1 [alpha GetOutput]
+blend AddInputConnection 0 [reader1 GetOutputPort 0]
+blend AddInputConnection 0 [alpha GetOutputPort 0]
 
 # next, create a ThinPlateSpline transform 
 

@@ -72,18 +72,18 @@
 #define __vtkImageBlend_h
 
 
-#include "vtkImageMultipleInputFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
 class vtkImageStencilData;
 
 #define VTK_IMAGE_BLEND_MODE_NORMAL    0
 #define VTK_IMAGE_BLEND_MODE_COMPOUND 1
 
-class VTK_IMAGING_EXPORT vtkImageBlend : public vtkImageMultipleInputFilter
+class VTK_IMAGING_EXPORT vtkImageBlend : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageBlend *New();
-  vtkTypeRevisionMacro(vtkImageBlend,vtkImageMultipleInputFilter);
+  vtkTypeRevisionMacro(vtkImageBlend,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -94,8 +94,10 @@ public:
 
   // Description:
   // Set a stencil to apply when blending the data.
-  virtual void SetStencil(vtkImageStencilData*);
-  vtkGetObjectMacro(Stencil, vtkImageStencilData);
+  // Description:
+  // Use a stencil to specify which voxels to accumulate.
+  void SetStencil(vtkImageStencilData *stencil);
+  vtkImageStencilData *GetStencil();
 
   // Description:
   // Set the blend mode
@@ -119,20 +121,30 @@ protected:
   vtkImageBlend();
   ~vtkImageBlend();
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6],
-                                int whichInput);
+  void RequestUpdateExtent(vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteInformation() {
-    this->vtkImageMultipleInputFilter::ExecuteInformation(); };
+  void InternalComputeInputUpdateExtent(int inExt[6], int outExt[6],
+                                        int inWExtent[6]);
 
-  void ExecuteInformation(vtkImageData **, vtkImageData *);
+  
 
-  void ThreadedExecute(vtkImageData **inDatas, 
-                       vtkImageData *outData,
-                       int extent[6], 
-                       int id);
+  void ExecuteInformation (vtkInformation *, 
+                           vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteData(vtkDataObject *output);
+  void ThreadedRequestData (vtkInformation* request,
+                            vtkInformationVector** inputVector,
+                            vtkInformationVector* outputVector,
+                            vtkImageData ***inData, vtkImageData **outData,
+                            int ext[6], int id);
+
+  // see vtkAlgorithm for docs.
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
+  // see vtkAlgorithm for docs.
+  virtual void RequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
   
   vtkImageStencilData *Stencil;
   double *Opacity;
@@ -140,6 +152,7 @@ protected:
   int BlendMode;
   double CompoundThreshold;
   int DataWasPassed;  
+
 private:
   vtkImageBlend(const vtkImageBlend&);  // Not implemented.
   void operator=(const vtkImageBlend&);  // Not implemented.

@@ -96,8 +96,13 @@ protected:
   double OutValue;
   int OutputScalarType;
   
-  virtual void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  virtual void ExecuteData(vtkDataObject *outData);
+  virtual void ExecuteInformation (vtkInformation *, 
+                                   vtkInformationVector **, 
+                                   vtkInformationVector *);
+
+  void RequestData(vtkInformation *, 
+                   vtkInformationVector **, vtkInformationVector *);
+
 private:
   vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);  // Not implemented.
   void operator=(const vtkImageEllipsoidSource&);  // Not implemented.
