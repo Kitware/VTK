@@ -29,7 +29,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/stack>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.48");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.49");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -98,10 +98,6 @@ typedef PointListType::iterator PointListIterator;
 //---Class represents a face (and related typedefs)--------------------------
 struct vtkOTFace //used during tetra construction
 {
-  vtkOTFace() : Neighbor(0)
-    {
-      Points[0]=Points[1]=Points[2]=0;
-    }
   vtkOTPoint *Points[3]; //the three points of the face
   vtkOTTetra *Neighbor;
   double     Normal[3];
@@ -147,7 +143,14 @@ struct vtkOTTetra
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
   void operator delete(void*,vtkHeap*) {}
-  vtkOTTetra() : CurrentPointId(-1), Type(OutsideCavity) {}
+  vtkOTTetra() : Radius2(0.0L), CurrentPointId(-1), 
+    Type(OutsideCavity), ListIterator(0) 
+    {
+    this->Center[0] = this->Center[1] = this->Center[2] = 0.0L;
+    this->Points[0] = this->Points[1] = this->Points[2] = this->Points[3] = 0;
+    this->Neighbors[0] = this->Neighbors[1] = 
+      this->Neighbors[2] = this->Neighbors[3] = 0;
+    }
 
   double Radius2; //center and radius squared of circumsphere of this tetra
   double Center[3];
@@ -713,7 +716,7 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
         this->CavityFaces.push_back(face);
         valid = face.IsValidCavityFace(p->P,this->Tolerance2);
         }
-      // Neighbor tetra Not yet visited, check the face as possible boundary
+      // Neighbor tetra has not been visited, check for possible face boundary
       else if ( nei->CurrentPointId != p->InternalId )
         {
         nei->CurrentPointId = p->InternalId; //mark visited
@@ -764,18 +767,17 @@ int vtkOTMesh::CreateInsertionCavity(vtkOTPoint* p, vtkOTTetra *initialTet,
         }
 
       //reinitialize queue
-      this->CavityFaces.clear(); //cavity face boundary
-      this->CavityTetras.clear();
-      this->TetraStack.clear(); //reprocess
+      this->CavityFaces.clear();  //cavity face boundary
+      this->CavityTetras.clear(); //tetras forming cavity
+      this->TetraStack.clear();   //reprocess
       this->TetraStack.push(initialTet);
       initialTet->CurrentPointId = p->InternalId;
+      initialTet->Type = vtkOTTetra::InCavity;
       }
     if ( numCycles > 1000 ) return 0;
     }//while queue not empty
   
   // Make final pass and delete tetras in the cavity
-  // //TO DO: add pointers from tetra into linked list to avoid
-  // //making a complete pass over all tetras.
   for (t = this->CavityTetras.begin(); t != this->CavityTetras.end(); ++t)
     {
     this->Tetras.erase((*t)->ListIterator);
@@ -968,7 +970,6 @@ void vtkOrderedTriangulator::Triangulate()
       {
       //create a tetra (it's added to the list of tetras as a side effect)
       tetra = this->Mesh->CreateTetra(this->Heap,p,&(*fptr));
-      this->Mesh->TetraStack.push(tetra);
 
       for (i=0; i<3; ++i)
         {
