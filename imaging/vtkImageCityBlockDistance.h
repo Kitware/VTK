@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCityBlockDistance1D - 1,2 or 3D distance map.
+// .NAME vtkImageCityBlockDistance - 1,2 or 3D distance map.
 // .SECTION Description
 // vtkImageCityBlockDistance creates a distance map using the city block
 // (Manhatten) distance measure.  The input is a mask.  Zero values are
