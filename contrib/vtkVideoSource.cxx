@@ -134,20 +134,19 @@ vtkVideoSource::vtkVideoSource()
   this->Preview = 0;
   this->Opacity = 1.0;
 
-  int idx;
-  for (idx = 0; idx < 3; idx++)
+  for (i = 0; i < 3; i++)
     {
-    this->ClipRegion[idx*2] = 0;
-    this->ClipRegion[idx*2+1] = VTK_INT_MAX;
-    this->OutputWholeExtent[idx*2] = 0;
-    this->OutputWholeExtent[idx*2+1] = -1;
-    this->DataSpacing[idx] = 1.0;
-    this->DataOrigin[idx] = 0.0;
+    this->ClipRegion[i*2] = 0;
+    this->ClipRegion[i*2+1] = VTK_INT_MAX;
+    this->OutputWholeExtent[i*2] = 0;
+    this->OutputWholeExtent[i*2+1] = -1;
+    this->DataSpacing[i] = 1.0;
+    this->DataOrigin[i] = 0.0;
     }
 
-  for (idx = 0; idx < 6; idx++)
+  for (i = 0; i < 6; i++)
     {
-    this->LastOutputExtent[idx] = 0;
+    this->LastOutputExtent[i] = 0;
     }
   this->LastNumberOfScalarComponents = 0;
 
@@ -669,6 +668,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       framebuffer = NULL;
       timestamps = NULL;
       }
+
     // create new image buffers if necessary
     for (i = 0; i < bufsize - this->FrameBufferSize; i++)
       {
@@ -698,6 +698,7 @@ void vtkVideoSource::SetFrameBufferSize(int bufsize)
       }
     this->FrameBufferTimeStamps = timestamps;
 
+    // make sure that frame buffer index is within the buffer
     if (bufsize > 0)
       {
       this->FrameBufferIndex = this->FrameBufferIndex % bufsize;
