@@ -27,6 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLVolumeProVG500Mapper.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkToolkits.h"
@@ -36,7 +37,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.37");
+vtkCxxRevisionMacro(vtkVolumeProVG500Mapper, "1.38");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
