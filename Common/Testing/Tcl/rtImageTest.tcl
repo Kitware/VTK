@@ -34,7 +34,7 @@ if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} {
 set validImageFound 0
 for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    if {[lindex $argv $i] == "-A"} {
-      set auto_path "$auto_path [lindex $argv [expr $i +1]]"
+      linsert auto_path 0 [lindex $argv [expr $i +1]]
    }
    if {[lindex $argv $i] == "-V"} {
       set validImageFound 1
