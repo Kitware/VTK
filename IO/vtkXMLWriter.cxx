@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.19");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.20");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1433,6 +1433,10 @@ void vtkXMLWriter::WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
     vtkIdType total = (oxc->GetNumberOfTuples()+
                        oyc->GetNumberOfTuples()+
                        ozc->GetNumberOfTuples());
+    if(total == 0)
+      {
+      total = 1;
+      }
     float fractions[4] =
       {
         0,
@@ -1497,6 +1501,10 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc,
     vtkIdType total = (oxc->GetNumberOfTuples()+
                        oyc->GetNumberOfTuples()+
                        ozc->GetNumberOfTuples());
+    if(total == 0)
+      {
+      total = 1;
+      }
     float fractions[4] =
       {
         0,
