@@ -104,18 +104,18 @@ public:
 
   // Description:
   // Generic event bindings must be overridden in subclasses
-  virtual void OnMouseMove  (bool ctrl, bool shift, int X, int Y);
-  virtual void OnLeftButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual void OnLeftButtonUp  (bool ctrl, bool shift, int X, int Y);
-  virtual void OnMiddleButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual void OnMiddleButtonUp  (bool ctrl, bool shift, int X, int Y);
-  virtual void OnRightButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual void OnRightButtonUp  (bool ctrl, bool shift, int X, int Y);
+  virtual void OnMouseMove  (int ctrl, int shift, int X, int Y);
+  virtual void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
+  virtual void OnLeftButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual void OnRightButtonDown(int ctrl, int shift, int X, int Y);
+  virtual void OnRightButtonUp  (int ctrl, int shift, int X, int Y);
 
   // Description:
   // OnChar implements keybaord functions, but subclasses can override this 
   // behaviour
-  virtual void OnChar(bool ctrl, bool shift, char keycode, int repeatcount);
+  virtual void OnChar(int ctrl, int shift, char keycode, int repeatcount);
 
   // Description:
   // OnTimer calls RotateCamera, RotateActor etc which should be overridden by
@@ -148,7 +148,7 @@ protected:
   virtual void ComputeWorldToDisplay(double x, double y, double z,
                                      float *displayPt);
 
-  virtual void UpdateInternalState(bool ctrl, bool shift, int X, int Y);
+  virtual void UpdateInternalState(int ctrl, int shift, int X, int Y);
 
   // These methods for the different interactions in different modes
   // are overridden in subclasses to perform the correct motion
@@ -190,7 +190,7 @@ protected:
   float Center[2];
   float DeltaAzimuth;
   float DeltaElevation;
-  bool  CtrlKey, ShiftKey;
+  int  CtrlKey, ShiftKey;
   int   LastPos[2];
   int   State;
   float FocalDepth;  

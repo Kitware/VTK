@@ -152,8 +152,8 @@ public:
 
     // Description:
   // X timer methods
-  bool CreateTimer(int timertype);
-  bool DestroyTimer(void);
+  int CreateTimer(int timertype);
+  int DestroyTimer(void);
 
   // Description:
   // X Tcl specific application terminate. 

@@ -460,16 +460,16 @@ void vtkXRenderWindowTclInteractorTimer(XtPointer client_data,
   me->InteractorStyle->OnTimer();
 }
 
-bool vtkXRenderWindowTclInteractor::CreateTimer(int timertype) 
+int vtkXRenderWindowTclInteractor::CreateTimer(int timertype) 
 {
   Tk_CreateTimerHandler(10,vtkXTclTimerProc,(ClientData)this);
-  return true;
+  return 1;
 }
 
-bool vtkXRenderWindowTclInteractor::DestroyTimer(void) 
+int vtkXRenderWindowTclInteractor::DestroyTimer(void) 
 {
   // timers automatically expire in X windows
-  return true;
+  return 1;
 }
 
 void vtkXRenderWindowTclInteractor::TerminateApp(void) 

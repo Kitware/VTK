@@ -968,7 +968,7 @@ void vtkInteractorStyleTrackball::ActorTransform(vtkActor *actor,
 // Intercept any keypresses which are style independent here and do the rest in
 // subclasses - none really required yet!
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnChar(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnChar(int ctrl, int shift, 
                                          char keycode, int repeatcount) 
 {
   // first invoke superclass method
@@ -1237,7 +1237,7 @@ void vtkInteractorStyleTrackball::FindPickedActor(int X, int Y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnLeftButtonDown(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnLeftButtonDown(int ctrl, int shift, 
                                           int X, int Y) 
 {
   //
@@ -1278,7 +1278,7 @@ void vtkInteractorStyleTrackball::OnLeftButtonDown(bool ctrl, bool shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnLeftButtonUp(bool ctrl, bool shift, int X, int Y) 
+void vtkInteractorStyleTrackball::OnLeftButtonUp(int ctrl, int shift, int X, int Y) 
 {
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
@@ -1313,7 +1313,7 @@ void vtkInteractorStyleTrackball::OnLeftButtonUp(bool ctrl, bool shift, int X, i
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnMiddleButtonDown(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnMiddleButtonDown(int ctrl, int shift, 
                                             int X, int Y) 
 {
   this->OldX = X;
@@ -1346,7 +1346,7 @@ void vtkInteractorStyleTrackball::OnMiddleButtonDown(bool ctrl, bool shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnMiddleButtonUp(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnMiddleButtonUp(int ctrl, int shift, 
                                                    int X, int Y) 
 {
   //
@@ -1374,7 +1374,7 @@ void vtkInteractorStyleTrackball::OnMiddleButtonUp(bool ctrl, bool shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnRightButtonDown(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnRightButtonDown(int ctrl, int shift, 
                                                     int X, int Y) 
 {
   this->OldX = X;
@@ -1400,7 +1400,7 @@ void vtkInteractorStyleTrackball::OnRightButtonDown(bool ctrl, bool shift,
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyleTrackball::OnRightButtonUp(bool ctrl, bool shift, 
+void vtkInteractorStyleTrackball::OnRightButtonUp(int ctrl, int shift, 
                                                   int X, int Y) 
 {
   //

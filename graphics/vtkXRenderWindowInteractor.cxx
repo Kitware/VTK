@@ -361,18 +361,18 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
   me->InteractorStyle->OnTimer();
 }
 
-bool vtkXRenderWindowInteractor::CreateTimer(int timertype) 
+int vtkXRenderWindowInteractor::CreateTimer(int timertype) 
 {
   this->AddTimeOut(this->App, 10,
 		   vtkXRenderWindowInteractorTimer,
 		   (XtPointer)this);
-  return true;
+  return 1;
 }
 
-bool vtkXRenderWindowInteractor::DestroyTimer(void) 
+int vtkXRenderWindowInteractor::DestroyTimer(void) 
 {
   // timers automatically expire in X windows
-  return true;
+  return 1;
 }
 
 void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),

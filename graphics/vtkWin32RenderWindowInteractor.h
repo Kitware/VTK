@@ -104,8 +104,8 @@ public:
 
   // Description:
   // Win32 timer methods
-  bool CreateTimer(int timertype);
-  bool DestroyTimer(void);
+  int CreateTimer(int timertype);
+  int DestroyTimer(void);
 
   //BTX
   friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg, WPARAM w, LPARAM l);

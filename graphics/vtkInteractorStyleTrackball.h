@@ -66,13 +66,13 @@ public:
   
   // Description:
   // Concrete implementation of event bindings
-  virtual   void OnRightButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual   void OnRightButtonUp  (bool ctrl, bool shift, int X, int Y);
-  virtual   void OnMiddleButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual   void OnMiddleButtonUp  (bool ctrl, bool shift, int X, int Y);
-  virtual   void OnLeftButtonDown(bool ctrl, bool shift, int X, int Y);
-  virtual   void OnLeftButtonUp  (bool ctrl, bool shift, int X, int Y);
-  virtual   void OnChar(bool ctrl, bool shift, char keycode, int repeatcount);
+  virtual   void OnRightButtonDown(int ctrl, int shift, int X, int Y);
+  virtual   void OnRightButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual   void OnMiddleButtonDown(int ctrl, int shift, int X, int Y);
+  virtual   void OnMiddleButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual   void OnLeftButtonDown(int ctrl, int shift, int X, int Y);
+  virtual   void OnLeftButtonUp  (int ctrl, int shift, int X, int Y);
+  virtual   void OnChar(int ctrl, int shift, char keycode, int repeatcount);
   
   // Description:
   // External switching between actor and camera mode.

@@ -85,8 +85,8 @@ public:
 
   // Description:
   // X timer methods
-  bool CreateTimer(int timertype);
-  bool DestroyTimer(void);
+  int CreateTimer(int timertype);
+  int DestroyTimer(void);
 
   // Description: 
   // Initializes the event handlers using an XtAppContext that you have

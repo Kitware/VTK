@@ -211,16 +211,16 @@ void vtkWin32RenderWindowInteractor::TerminateApp(void)
   PostQuitMessage(0);
 }
 
-bool vtkWin32RenderWindowInteractor::CreateTimer(int timertype) 
+int vtkWin32RenderWindowInteractor::CreateTimer(int timertype) 
 {
   if (timertype==VTKI_TIMER_FIRST) 
     {
     return SetTimer(this->WindowId,this->TimerId,10,NULL);
     }
-  return true;
+  return 1;
 }
 
-bool vtkWin32RenderWindowInteractor::DestroyTimer(void) 
+int vtkWin32RenderWindowInteractor::DestroyTimer(void) 
 {
   return KillTimer(this->WindowId,this->TimerId);
 }

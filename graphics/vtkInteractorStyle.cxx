@@ -407,7 +407,7 @@ void vtkInteractorStyle::HighlightActor(vtkActor *actor)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::UpdateInternalState(bool ctrl, bool shift, 
+void vtkInteractorStyle::UpdateInternalState(int ctrl, int shift, 
                                              int X, int Y) 
 {
   this->CtrlKey  = ctrl;
@@ -530,7 +530,7 @@ void  vtkInteractorStyle::EndTimer()
 // Intercept any keypresses which are style independent here and do the rest in
 // subclasses - none really required yet!
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnChar(bool ctrl, bool shift, 
+void vtkInteractorStyle::OnChar(int ctrl, int shift, 
                                 char keycode, int repeatcount) 
 {
   this->CtrlKey  = ctrl;
@@ -674,14 +674,14 @@ void vtkInteractorStyle::OnTimer(void)
 //----------------------------------------------------------------------------
 // Mouse events are identical for trackball and joystick mode
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMouseMove(bool ctrl, bool shift, int X, int Y) 
+void vtkInteractorStyle::OnMouseMove(int ctrl, int shift, int X, int Y) 
 {
   this->LastPos[0] = X;
   this->LastPos[1] = Y;
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnLeftButtonDown(bool ctrl, bool shift, 
+void vtkInteractorStyle::OnLeftButtonDown(int ctrl, int shift, 
                                           int X, int Y) 
 {
   //
@@ -709,7 +709,7 @@ void vtkInteractorStyle::OnLeftButtonDown(bool ctrl, bool shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnLeftButtonUp(bool ctrl, bool shift, int X, int Y) 
+void vtkInteractorStyle::OnLeftButtonUp(int ctrl, int shift, int X, int Y) 
 {
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
@@ -734,7 +734,7 @@ void vtkInteractorStyle::OnLeftButtonUp(bool ctrl, bool shift, int X, int Y)
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMiddleButtonDown(bool ctrl, bool shift, 
+void vtkInteractorStyle::OnMiddleButtonDown(int ctrl, int shift, 
                                             int X, int Y) 
 {
   //
@@ -753,7 +753,7 @@ void vtkInteractorStyle::OnMiddleButtonDown(bool ctrl, bool shift,
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnMiddleButtonUp(bool ctrl, bool shift, 
+void vtkInteractorStyle::OnMiddleButtonUp(int ctrl, int shift, 
                                           int X, int Y) 
 {
   //
@@ -771,7 +771,7 @@ void vtkInteractorStyle::OnMiddleButtonUp(bool ctrl, bool shift,
 }
 
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnRightButtonDown(bool ctrl, bool shift, int X, int Y) 
+void vtkInteractorStyle::OnRightButtonDown(int ctrl, int shift, int X, int Y) 
 {
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
@@ -786,7 +786,7 @@ void vtkInteractorStyle::OnRightButtonDown(bool ctrl, bool shift, int X, int Y)
     }
 }
 //----------------------------------------------------------------------------
-void vtkInteractorStyle::OnRightButtonUp(bool ctrl, bool shift, int X, int Y) 
+void vtkInteractorStyle::OnRightButtonUp(int ctrl, int shift, int X, int Y) 
 {
   //
  this->UpdateInternalState(ctrl, shift, X, Y);
