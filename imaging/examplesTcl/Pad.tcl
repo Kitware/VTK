@@ -46,8 +46,8 @@ toplevel .top
 
 frame .top.f1 
 
-vtkTkImageViewerWidget .top.f1.r1 -width 512 -height 512 -iv viewer
-vtkTkImageViewerWidget .top.f1.r2 -width 512 -height 512 -iv viewer2
+vtkTkImageViewerWidget .top.f1.r1 -width 360 -height 512 -iv viewer
+vtkTkImageViewerWidget .top.f1.r2 -width 360 -height 512 -iv viewer2
 
 button .top.btn  -text Quit -command exit
 
@@ -59,10 +59,6 @@ pack .top.btn -fill x
 
 BindTkImageViewer .top.f1.r1 
 BindTkImageViewer .top.f1.r2
-
-
-
-
 
 
 
