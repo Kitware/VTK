@@ -15,16 +15,15 @@
 // .NAME vtkImageBlockReader - Breaks up image into blocks and save in files.
 // .SECTION Description
 // Experimenting with different file formats. This one saves an image in 
-// multiple files.  I am allowing overlap between file for efficiency.
+// multiple files. I am allowing overlap between file for efficiency.
 
 // .SECTION see also
-// vtkImageBlockReader.
+// vtkImageBlockWriter
 
 #ifndef __vtkImageBlockReader_h
 #define __vtkImageBlockReader_h
 
 #include "vtkImageSource.h"
-
 
 class VTK_PARALLEL_EXPORT vtkImageBlockReader : public vtkImageSource
 {
@@ -63,8 +62,6 @@ public:
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
 
-
-  
 protected:
   vtkImageBlockReader();
   ~vtkImageBlockReader();
@@ -102,6 +99,7 @@ protected:
   int *XExtents;
   int *YExtents;
   int *ZExtents;
+
 private:
   vtkImageBlockReader(const vtkImageBlockReader&);  // Not implemented.
   void operator=(const vtkImageBlockReader&);  // Not implemented.
