@@ -1,10 +1,42 @@
 #!/usr/bin/env python
 
+## /*=========================================================================
+
+##   Program:   Visualization Toolkit
+##   Module:    HeaderTesting.py
+##   Language:  Python
+##   Date:      $Date$
+##   Version:   $Revision$
+
+##   Copyright (c) 1993-2002 Ken Martin, Will Schroeder, Bill Lorensen 
+##   All rights reserved.
+##   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+##      This software is distributed WITHOUT ANY WARRANTY; without even 
+##      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
+##      PURPOSE.  See the above copyright notice for more information.
+
+## =========================================================================*/
+## .NAME HeaderTesting - a VTK style and validity checking utility
+## .SECTION Description
+## HeaderTesting is a script which checks the list of header files for
+## validity based on VTK coding standard. It checks for proper super
+## classes, number and style of include files, type macro, private
+## copy constructor and assignment operator, broken constructors, and
+## exsistence of PrintSelf method. This script should be run as a part
+## of the dashboard checking of the Visualization Toolkit and related
+## projects.
+
+## .SECTION See Also
+## http://www.vtk.org http://public.kitware.com/Dart/HTML/Index.shtml
+## http://www.vtk.org/contribute.php#coding-standards
+
 import sys
 import re
 import os
 import stat
 
+## For backward compatibility
 def StringEndsWith(str1, str2):
     l1 = len(str1)
     l2 = len(str2)
@@ -12,6 +44,7 @@ def StringEndsWith(str1, str2):
         return 0
     return (str1[(l1-l2):] == str2)
 
+##
 class TestVTKFiles:
     def __init__(self):
         self.FileName = ""
@@ -237,9 +270,10 @@ class TestVTKFiles:
         pass
         
 
-
+## 
 test = TestVTKFiles()
 
+## Check command line arguments
 if len(sys.argv) < 2:
     print "Testing directory not specified..."
     print "Usage: %s <directory> [ exception(s) ]" % sys.argv[0]
@@ -248,18 +282,23 @@ if len(sys.argv) < 2:
 dirname = sys.argv[1]
 exceptions = sys.argv[2:]
 
+## Traverse through the list of files
 for a in os.listdir(dirname):
-    if a in exceptions:
-        continue
+    ## Skip non-header files
     if not StringEndsWith(a, ".h"):
         continue
-    pathname = '%s/%s' % (dirname, a)
+    ## Skip exceptions
+    if a in exceptions:
+        continue
+    pathname = '%s/%s' % (dirname, a)    
     if pathname in exceptions:
         continue
     mode = os.stat(pathname)[stat.ST_MODE]
+    ## Skip directories
     if stat.S_ISDIR(mode):
-        pass
+        continue
     elif stat.S_ISREG(mode):
+        ## Do all the tests
         test.TestFile(pathname)
         test.CheckParent()
         test.CheckIncludes()
@@ -268,6 +307,7 @@ for a in os.listdir(dirname):
         test.CheckWeirdConstructors()
         test.CheckPrintSelf()
 
+## Summarize errors
 test.PrintErrors()
 sys.exit(test.ErrorValue)
     
