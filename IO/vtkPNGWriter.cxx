@@ -21,7 +21,7 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.23");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.24");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -144,6 +144,8 @@ extern "C"
 
 extern "C"
 {
+  /* The PNG library does not expect the error function to return.
+     Therefore we must use this ugly longjmp call.  */
   void vtkPNGWriteErrorFunction(png_structp png_ptr,
                                 png_const_charp vtkNotUsed(error_msg))
   {
