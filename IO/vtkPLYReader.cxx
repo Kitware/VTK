@@ -49,6 +49,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPLY.h"
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
+#ifndef true
+#define true 1
+#endif
+#ifndef false
+#define false 0
+#endif
+
 
 //---------------------------------------------------------------------------
 vtkPLYReader* vtkPLYReader::New()
@@ -146,7 +153,7 @@ void vtkPLYReader::Execute()
 
   // Check for optional attribute data. We can handle intensity; and the
   // triplet red, green, blue.
-  bool intensityAvailable=false, RGBAvailable=false;
+  unsigned char intensityAvailable=false, RGBAvailable=false;
   vtkUnsignedCharArray *intensity=NULL;
   vtkUnsignedCharArray *RGB=NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
