@@ -51,6 +51,9 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
 
+#renWin SetFileName "valid/imageWarp.tcl.ppm"
+#renWin SaveImageAsPPM
+
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 

@@ -1,10 +1,10 @@
 catch {load vtktcl}
 source ../../examplesTcl/vtkInt.tcl
 
-vtkRenderer ren
+vtkRenderer ren1
 
 vtkRenderWindow renWin
-renWin AddRenderer ren
+renWin AddRenderer ren1
 
 vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
@@ -26,7 +26,7 @@ vtkPiecewiseFunction tfun
 tfun AddPoint  70     0.0
 tfun AddPoint  80     1.0 
 
-ren SetBackground .1 .2 .4
+ren1 SetBackground .1 .2 .4
 
 vtkVolumeProperty vol_prop
 vol_prop SetColor white_tfun
@@ -45,7 +45,7 @@ vtkVolume vol
 vol SetVolumeProperty vol_prop
 vol SetVolumeMapper volmap
 
-ren AddVolume vol
+ren1 AddVolume vol
 
 vtkContourFilter contour
   contour SetInput [reader GetOutput]
@@ -80,16 +80,16 @@ vtkActor skin
   skin SetMapper skin_mapper
   [skin GetProperty] SetColor 0.8 0.4 0.2
 
-ren AddActor skin
+ren1 AddActor skin
 
 renWin SetSize 200 200
 
 
-[ren GetActiveCamera] SetPosition -47.5305 -319.315 92.0083
-[ren GetActiveCamera] SetFocalPoint 78.9121 89.8372 95.1229
-[ren GetActiveCamera] SetViewUp -0.00708891 0.00980254 -0.999927
-[ren GetActiveCamera] SetViewPlaneNormal -0.29525 -0.955392 -0.0072728
-[ren GetActiveCamera] SetClippingRange 42.8255 2141.28
+[ren1 GetActiveCamera] SetPosition -47.5305 -319.315 92.0083
+[ren1 GetActiveCamera] SetFocalPoint 78.9121 89.8372 95.1229
+[ren1 GetActiveCamera] SetViewUp -0.00708891 0.00980254 -0.999927
+[ren1 GetActiveCamera] SetViewPlaneNormal -0.29525 -0.955392 -0.0072728
+[ren1 GetActiveCamera] SetClippingRange 42.8255 2141.28
 
 iren Initialize
 

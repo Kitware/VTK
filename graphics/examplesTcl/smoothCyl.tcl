@@ -85,7 +85,8 @@ ren1 SetActiveCamera camera
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 iren Initialize
-#renWin SaveImageAsPPM
+renWin SetFileName "valid/smoothCyl.tcl.ppm"
+renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

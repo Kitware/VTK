@@ -10,6 +10,7 @@ vtkQuadric quadric
 vtkSampleFunction sample
   sample SetSampleDimensions 30 30 30
   sample SetImplicitFunction quadric
+  sample ComputeNormalsOff
 
 vtkExtractVOI extract
   extract SetInput [sample GetOutput]

@@ -43,6 +43,7 @@ vtkSampleFunction theConeSample
     theConeSample SetImplicitFunction theCone
     theConeSample SetModelBounds -1 1.5 -1.25 1.25 -1.25 1.25 
     theConeSample SetSampleDimensions 60 60 60
+    theConeSample ComputeNormalsOff
 vtkContourFilter theConeSurface
     theConeSurface SetInput [theConeSample GetOutput]
     theConeSurface SetValue 0 0.0
@@ -58,6 +59,7 @@ vtkSampleFunction theCreamSample
     theCreamSample SetImplicitFunction theCream
     theCreamSample SetModelBounds  0 2.5 -1.25 1.25 -1.25 1.25 
     theCreamSample SetSampleDimensions 60 60 60
+    theCreamSample ComputeNormalsOff
 vtkContourFilter theCreamSurface
     theCreamSurface SetInput [theCreamSample GetOutput]
     theCreamSurface SetValue 0 0.0

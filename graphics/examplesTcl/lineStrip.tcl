@@ -15,8 +15,11 @@ vtkVolume16Reader v16
 vtkContourFilter iso
     iso SetInput [v16 GetOutput]
     iso GenerateValues 6 600 1200
+vtkCleanPolyData cpd
+cpd SetInput [iso GetOutput]
+
 vtkStripper stripper
-    stripper SetInput [iso GetOutput]
+    stripper SetInput [cpd GetOutput]
 vtkTubeFilter tuber
     tuber SetInput [stripper GetOutput]
     tuber SetNumberOfSides 4
@@ -55,7 +58,7 @@ ren1 SetBackground 0.1 0.2 0.4
 
 iren Initialize
 
-renWin SetFileName "lineStrip.tcl.ppm"
+#renWin SetFileName "valid/lineStrip.tcl.ppm"
 #renWin SaveImageAsPPM
 
 iren SetUserMethod {wm deiconify .vtkInteract}

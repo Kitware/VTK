@@ -51,13 +51,12 @@ ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 450 450
 [ren1 GetActiveCamera] Elevation 90
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
-[ren1 GetActiveCamera] Azimuth 180
 iren Initialize
 
 # render the image
 #
 iren SetUserMethod {wm deiconify .vtkInteract}
-#renWin SetFileName "mcubes.tcl.ppm"
+#renWin SetFileName "valid/mcubes.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop

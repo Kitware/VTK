@@ -66,5 +66,8 @@ renWin Render
 iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
+#renWin SetFileName "valid/volSimple.ppm"
+#renWin SaveImageAsPPM
+
 wm withdraw .
 
