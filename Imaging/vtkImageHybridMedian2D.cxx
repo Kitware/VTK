@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.18");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.19");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr -= inInc1;
             array.push_back( *ptr );
             }
-          // right
+          // down
           ptr = inPtrC;
           if (idx1 < wholeMax1)
             {
@@ -152,12 +152,12 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
           vtkstd::sort(array.begin(),array.end());
           median1 = array[array.size()/2];
 
-          // Cross median
+          // compute median of x neighborhood
           array.clear();
           // Center
-          array.push_back( *ptr );
-          // Lower Left
           ptr = inPtrC;
+          array.push_back( *ptr );
+          // upper left
           if (idx0 > wholeMin0 && idx1 > wholeMin1)
             {
             ptr -= inInc0 + inInc1;
@@ -168,19 +168,19 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr -= inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // Upper Right
+          // lower right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 < wholeMax1)
             {
             ptr += inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          if (idx0+1 > wholeMax0 && idx1+1 > wholeMax1)
+          if (idx0+1 < wholeMax0 && idx1+1 < wholeMax1)
             {
-            ptr -= inInc0 + inInc1;
+            ptr += inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // Upper Left
+          // lower left
           ptr = inPtrC;
           if (idx0 > wholeMin0 && idx1 < wholeMax1)
             {
@@ -192,7 +192,7 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
             ptr += -inInc0 + inInc1;
             array.push_back( *ptr );
             }
-          // Lower Right
+          // upper right
           ptr = inPtrC;
           if (idx0 < wholeMax0 && idx1 > wholeMin1)
             {
