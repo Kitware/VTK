@@ -181,9 +181,10 @@ vtkCell *vtkStructuredPoints::GetCell(int cellId)
       for (loc[0]=iMin; loc[0]<=iMax; loc[0]++)
         {
         x[0] = this->Origin[0] + loc[0] * this->AspectRatio[0]; 
+
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
-        cell->PointIds.InsertId(npts,idx);
-        cell->Points.InsertPoint(npts++,x);
+        cell->PointIds.SetId(npts,idx);
+        cell->Points.SetPoint(npts++,x);
         }
       }
     }
@@ -306,6 +307,62 @@ int vtkStructuredPoints::FindCell(float x[3], vtkCell *vtkNotUsed(cell),
   subId = 0;
   return loc[2] * (this->Dimensions[0]-1)*(this->Dimensions[1]-1) +
          loc[1] * (this->Dimensions[0]-1) + loc[0];
+}
+
+vtkCell *vtkStructuredPoints::FindAndGetCell(float x[3], vtkCell *vtkNotUsed(cell), 
+                                  float vtkNotUsed(tol2), int& subId, 
+                                  float pcoords[3], float *weights)
+{
+  int i, j, k, loc[3];
+  int npts, idx;
+  int d01 = this->Dimensions[0]*this->Dimensions[1];
+  float d, floatLoc[3];
+  static vtkVoxel voxel;
+  static vtkCell *cell;
+//
+//  Compute the ijk location
+//
+  for (i=0; i<3; i++) 
+    {
+    d = x[i] - this->Origin[i];
+    if ( d < 0.0 || d > ((this->Dimensions[i]-1)*this->AspectRatio[i]) ) 
+      {
+      return NULL;
+      } 
+    else 
+      {
+      floatLoc[i] = d / this->AspectRatio[i];
+      loc[i] = (int) floatLoc[i];
+      pcoords[i] = floatLoc[i] - (float)loc[i];
+      }
+    }
+//
+// Get the parametric coordinates and weights for interpolation
+//
+  voxel.InterpolationFunctions(pcoords,weights);
+//
+// Build a voxel
+//
+  cell = &voxel;
+  for (npts=0,k = loc[2]; k <= loc[2] + 1; k++)
+    {
+    x[2] = this->Origin[2] + k * this->AspectRatio[2]; 
+    for (j = loc[1]; j <= loc[1] + 1; j++)
+      {
+      x[1] = this->Origin[1] + j * this->AspectRatio[1]; 
+      idx = loc[0] + j*this->Dimensions[0] + k*d01;
+      for (i = loc[0]; i <= loc[0] + 1; i++, idx++)
+        {
+        x[0] = this->Origin[0] + i * this->AspectRatio[0]; 
+
+        cell->PointIds.SetId(npts,idx);
+        cell->Points.SetPoint(npts++,x);
+        }
+      }
+    }
+
+  subId = 0;
+  return cell;
 }
 
 int vtkStructuredPoints::GetCellType(int vtkNotUsed(cellId))
