@@ -182,6 +182,10 @@ void vtkProjectedTexture::PrintSelf(ostream& os, vtkIndent indent)
                                 << this->Orientation[1] << ", "
                                 << this->Orientation[2] << ")\n";
 
+  os << indent << "Focal Point: (" << this->FocalPoint[0] << ", "
+                                << this->FocalPoint[1] << ", "
+                                << this->FocalPoint[2] << ")\n";
+
   os << indent << "Up: (" << this->Up[0] << ", "
                                 << this->Up[1] << ", "
                                 << this->Up[2] << ")\n";
