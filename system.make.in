@@ -1,4 +1,4 @@
-VTK_OBJ       = @OBJDIR@
+VTK_OBJ       = @VTK_OBJ@
 
 RANLIB        = @RANLIB@
 CC            = @CC@

@@ -557,7 +557,7 @@ fi
 
 
 
-OBJDIR=`pwd`
+VTK_OBJ=`pwd`
 
 
 #
@@ -2484,8 +2484,8 @@ if test "${with_graphics+set}" = set; then
   withval="$with_graphics"
   if test "$withval" = yes; then
          graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L${VTK_OBJ}/graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L${VTK_OBJ}/graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -2495,8 +2495,8 @@ if test "${with_graphics+set}" = set; then
          
 else
   graphicsdir=graphics
-         USE_GRAPHICS_LIBS="-L${VTK_OBJ}/graphics -lVTKGraphicsTcl"
-         USE_GRAPHICS_JAVA="-L${VTK_OBJ}/graphics -lVTKGraphicsJava"
+         USE_GRAPHICS_LIBS="-L\${VTK_OBJ}/graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_JAVA="-L\${VTK_OBJ}/graphics -lVTKGraphicsJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../graphics -DVTK_USE_GRAPHICS"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_graphics"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_graphics"
@@ -2510,8 +2510,8 @@ if test "${with_imaging+set}" = set; then
   withval="$with_imaging"
   if test "$withval" = yes; then
          imagingdir=imaging
-         USE_IMAGING_LIBS="-L${VTK_OBJ}/imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L${VTK_OBJ}/imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -2520,8 +2520,8 @@ if test "${with_imaging+set}" = set; then
          fi
 else
   imagingdir=imaging
-         USE_IMAGING_LIBS="-L${VTK_OBJ}/imaging -lVTKImagingTcl"
-         USE_IMAGING_JAVA="-L${VTK_OBJ}/imaging -lVTKImagingJava"
+         USE_IMAGING_LIBS="-L\${VTK_OBJ}/imaging -lVTKImagingTcl"
+         USE_IMAGING_JAVA="-L\${VTK_OBJ}/imaging -lVTKImagingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../imaging -DVTK_USE_IMAGING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_imaging"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_imaging"
@@ -2542,8 +2542,8 @@ if test "${with_patented+set}" = set; then
   withval="$with_patented"
   if test "$withval" = yes; then
          patenteddir=patented
-         USE_PATENTED_LIBS="-L${VTK_OBJ}/patented -lVTKPatentedTcl"
-         USE_PATENTED_JAVA="-L${VTK_OBJ}/patented -lVTKPatentedJava"
+         USE_PATENTED_LIBS="-L\${VTK_OBJ}/patented -lVTKPatentedTcl"
+         USE_PATENTED_JAVA="-L\${VTK_OBJ}/patented -lVTKPatentedJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../patented -DVTK_USE_PATENTED"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_patented"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_patented"
@@ -2558,8 +2558,8 @@ if test "${with_working+set}" = set; then
   withval="$with_working"
   if test "$withval" = yes; then
          workingdir=working
-         USE_WORKING_LIBS="-L${VTK_OBJ}/working -lVTKWorkingTcl"
-         USE_WORKING_JAVA="-L${VTK_OBJ}/working -lVTKWorkingJava"
+         USE_WORKING_LIBS="-L\${VTK_OBJ}/working -lVTKWorkingTcl"
+         USE_WORKING_JAVA="-L\${VTK_OBJ}/working -lVTKWorkingJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../working -DVTK_USE_WORKING"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_working"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_working"
@@ -2574,8 +2574,8 @@ if test "${with_contrib+set}" = set; then
   withval="$with_contrib"
   if test "$withval" = yes; then
          contribdir=contrib
-         USE_CONTRIB_LIBS="-L${VTK_OBJ}/contrib -lVTKContribTcl"
-         USE_CONTRIB_JAVA="-L${VTK_OBJ}/contrib -lVTKContribJava"
+         USE_CONTRIB_LIBS="-L\${VTK_OBJ}/contrib -lVTKContribTcl"
+         USE_CONTRIB_JAVA="-L\${VTK_OBJ}/contrib -lVTKContribJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../contrib -DVTK_USE_CONTRIB"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_contrib"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_contrib"
@@ -2590,8 +2590,8 @@ if test "${with_geae+set}" = set; then
   withval="$with_geae"
   if test "$withval" = yes; then
          geaedir=geae
-         USE_GEAE_LIBS="-L${VTK_OBJ}/geae -lVTKGeaeTcl"
-         USE_GEAE_JAVA="-L${VTK_OBJ}/geae -lVTKGeaeJava"
+         USE_GEAE_LIBS="-L\${VTK_OBJ}/geae -lVTKGeaeTcl"
+         USE_GEAE_JAVA="-L\${VTK_OBJ}/geae -lVTKGeaeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../geae -DVTK_USE_GEAE"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_geae"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_geae"
@@ -2606,8 +2606,8 @@ if test "${with_gemsip+set}" = set; then
   withval="$with_gemsip"
   if test "$withval" = yes; then
          gemsipdir=gemsip
-         USE_GEMSIP_LIBS="-L${VTK_OBJ}/gemsip -lVTKGemsipTcl"
-         USE_GEMSIP_JAVA="-L${VTK_OBJ}/gemsip -lVTKGemsipJava"
+         USE_GEMSIP_LIBS="-L\${VTK_OBJ}/gemsip -lVTKGemsipTcl"
+         USE_GEMSIP_JAVA="-L\${VTK_OBJ}/gemsip -lVTKGemsipJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsip -DVTK_USE_GEMSIP"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsip"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsip"
@@ -2622,8 +2622,8 @@ if test "${with_gemsio+set}" = set; then
   withval="$with_gemsio"
   if test "$withval" = yes; then
          gemsiodir=gemsio
-         USE_GEMSIO_LIBS="-L${VTK_OBJ}/gemsio -lVTKGemsioTcl"
-         USE_GEMSIO_JAVA="-L${VTK_OBJ}/gemsio -lVTKGemsioJava"
+         USE_GEMSIO_LIBS="-L\${VTK_OBJ}/gemsio -lVTKGemsioTcl"
+         USE_GEMSIO_JAVA="-L\${VTK_OBJ}/gemsio -lVTKGemsioJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsio -DVTK_USE_GEMSIO"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsio"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsio"
@@ -2638,8 +2638,8 @@ if test "${with_gemsvolume+set}" = set; then
   withval="$with_gemsvolume"
   if test "$withval" = yes; then
          gemsvolumedir=gemsvolume
-         USE_GEMSVOLUME_LIBS="-L${VTK_OBJ}/gemsvolume -lVTKGemsvolumeTcl"
-         USE_GEMSVOLUME_JAVA="-L${VTK_OBJ}/gemsvolume -lVTKGemsvolumeJava"
+         USE_GEMSVOLUME_LIBS="-L\${VTK_OBJ}/gemsvolume -lVTKGemsvolumeTcl"
+         USE_GEMSVOLUME_JAVA="-L\${VTK_OBJ}/gemsvolume -lVTKGemsvolumeJava"
          USE_TOOLKIT_FLAGS="${USE_TOOLKIT_FLAGS} -I\${srcdir}/../gemsvolume -DVTK_USE_GEMSVOLUME"
          INSTALL_TOOLKITS="${INSTALL_TOOLKITS} install_gemsvolume"
          BUILD_TOOLKITS="${BUILD_TOOLKITS} build_gemsvolume"
@@ -3028,31 +3028,31 @@ else
     VTK_LD_SEARCH_FLAGS=""
     TOOLKIT_DEPENDS="../common/libVTKCommonTcl.a"
     if test "X$graphicsdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/graphics/libVTKGraphicsTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/graphics/libVTKGraphicsTcl.a"
     fi
     if test "X$imagingdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/imaging/libVTKImagingTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/imaging/libVTKImagingTcl.a"
     fi
     if test "X$patenteddir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/patented/libVTKPatentedTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/patented/libVTKPatentedTcl.a"
     fi
     if test "X$workingdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/working/libVTKWorkingTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/working/libVTKWorkingTcl.a"
     fi
     if test "X$contribdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/contrib/libVTKContribTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/contrib/libVTKContribTcl.a"
     fi
     if test "X$geaedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/geae/libVTKGeaeTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/geae/libVTKGeaeTcl.a"
     fi
     if test "X$gemsipdir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/gemsip/libVTKGemsipTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/gemsip/libVTKGemsipTcl.a"
     fi
     if test "X$gemsiodir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/gemsio/libVTKGemsioTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/gemsio/libVTKGemsioTcl.a"
     fi
     if test "X$gemsvolumedir" != "X"; then
-       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} ${VTK_OBJ}/gemsvolume/libVTKGemsvolumeTcl.a"
+       TOOLKIT_DEPENDS="${TOOLKIT_DEPENDS} \${VTK_OBJ}/gemsvolume/libVTKGemsvolumeTcl.a"
     fi
 fi
 
@@ -3527,7 +3527,7 @@ s%@includedir@%$includedir%g
 s%@oldincludedir@%$oldincludedir%g
 s%@infodir@%$infodir%g
 s%@mandir@%$mandir%g
-s%@OBJDIR@%$OBJDIR%g
+s%@VTK_OBJ@%$VTK_OBJ%g
 s%@CC@%$CC%g
 s%@CXX@%$CXX%g
 s%@RANLIB@%$RANLIB%g
