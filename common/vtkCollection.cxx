@@ -104,7 +104,6 @@ void vtkCollection::RemoveItem(vtkObject *a)
     }
 
   elem = this->Top;
-  prev = NULL;
   for (i = 0; i < this->NumberOfItems; i++)
     {
     if (elem->Item == a)
@@ -114,7 +113,6 @@ void vtkCollection::RemoveItem(vtkObject *a)
       }
     else
       {
-      prev = elem;
       elem = elem->Next;
       }
     }
