@@ -33,7 +33,7 @@
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.54");
+vtkCxxRevisionMacro(vtkDataArray, "1.55");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -140,6 +140,13 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 
       default:
         vtkErrorMacro(<<"Unsupported data type!");
+      }
+
+    this->SetLookupTable(0);
+    if (da->LookupTable)
+      {
+      this->LookupTable = da->LookupTable->NewInstance();
+      this->LookupTable->DeepCopy(da->LookupTable);
       }
     }
 }
