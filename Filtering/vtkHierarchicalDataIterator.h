@@ -61,6 +61,8 @@ protected:
   vtkHierarchicalDataIterator(); 
   virtual ~vtkHierarchicalDataIterator(); 
 
+  void GoToNextNonEmptyLevel();
+
   vtkHierarchicalDataSet* DataSet;
   vtkHierarchicalDataIteratorInternal* Internal;
 
