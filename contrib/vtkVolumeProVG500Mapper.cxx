@@ -395,7 +395,10 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
 
   // Set up the gradient magnitude opacity modulation
   goFunc = vol->GetProperty()->GetGradientOpacity();
-  if ( !this->GradientOpacityModulation || !goFunc )
+
+  if ( !this->GradientOpacityModulation || !goFunc ||
+       ( !strcmp(goFunc->GetType(), "Constant") && 
+	 goFunc->GetValue(0) == 1.0 ))
     {
     this->Context->SetGradientOpacityModulation( VLIfalse );
     }
@@ -404,20 +407,20 @@ void vtkVolumeProVG500Mapper::UpdateProperties( vtkRenderer *vtkNotUsed(ren),
     switch ( this->VolumeDataType )
       {
       case VTK_VOLUME_8BIT:
-        scale = sqrt(3.0)*255.0;
+        scale = sqrt(3.0)*256.0;
         break;
       case VTK_VOLUME_12BIT_LOWER:
-        scale = sqrt(3.0)*4095;
+        scale = sqrt(3.0)*4096;
         break;
       case VTK_VOLUME_12BIT_UPPER:
-        scale = sqrt(3.0)*65535;
+        scale = sqrt(3.0)*65536;
       }
 
     gradientTable = new double [this->GradientTableSize];
     for ( i = 0; i < this->GradientTableSize; i++ )
       {
-      gradientTable[i] =
-	goFunc->GetValue( ((float)(i)/(this->GradientTableSize-1)) * scale );
+      gradientTable[i] = goFunc->GetValue(scale*((float)i+0.5)/
+					  (float)this->GradientTableSize);
       }
     
     this->Context->SetGradientOpacityModulation( VLItrue );
