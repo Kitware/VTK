@@ -48,7 +48,7 @@
 #include <algorithm>
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.2");
+vtkCxxRevisionMacro(vtkKdTree, "1.3");
 
 // methods for vtkKdNode -------------------------------------------
 
@@ -358,27 +358,27 @@ float vtkKdNode::_GetDistance2ToBoundary(
 
       if (mindim == 0)      
         {
-        p[0] = xmin;
+        p[0] = static_cast<float>(xmin);
         }
       else if (mindim == 1) 
         {
-        p[0] = xmax;
+        p[0] = static_cast<float>(xmax);
         }
       else if (mindim == 2) 
         {
-        p[1] = ymin;
+        p[1] = static_cast<float>(ymin);
         }
       else if (mindim == 3) 
         {
-        p[1] = ymax;
+        p[1] = static_cast<float>(ymax);
         }
       else if (mindim == 4) 
         {
-        p[2] = zmin;
+        p[2] = static_cast<float>(zmin);
         }
       else if (mindim == 5) 
         {
-        p[2] = zmax;
+        p[2] = static_cast<float>(zmax);
         }
       }
     }
@@ -390,36 +390,36 @@ float vtkKdNode::_GetDistance2ToBoundary(
     if (p)
       {
       p[0] = x; p[1] = y;
-      p[2] = (zless ? zmin : zmax);
+      p[2] = static_cast<float>(zless ? zmin : zmax);
       }
     }
   else if (withinX && withinZ)
     {
-    minDistance = (yless ? ymin - y : y - ymax);
+    minDistance = static_cast<float>(yless ? ymin - y : y - ymax);
     minDistance *= minDistance;
 
     if (p)
       {
       p[0] = x; p[2] = z;
-      p[1] = (yless ? ymin : ymax);
+      p[1] = static_cast<float>(yless ? ymin : ymax);
       }
     }
   else if (withinY && withinZ)
     {
-    minDistance = (xless ? xmin - x : x - ymax);
+    minDistance = static_cast<float>(xless ? xmin - x : x - ymax);
     minDistance *= minDistance;
 
     if (p)
       {
       p[1] = y; p[2] = z;
-      p[0] = (xless ? xmin: xmax);
+      p[0] = static_cast<float>(xless ? xmin: xmax);
       }
     }
   else if (withinX || withinY || withinZ)   // point is closest to an edge
     {
-    edgePt[0] = (withinX ? x : (xless ? xmin : xmax));
-    edgePt[1] = (withinY ? y : (yless ? ymin : ymax));
-    edgePt[2] = (withinZ ? z : (zless ? zmin : zmax));
+    edgePt[0] = static_cast<float>(withinX ? x : (xless ? xmin : xmax));
+    edgePt[1] = static_cast<float>(withinY ? y : (yless ? ymin : ymax));
+    edgePt[2] = static_cast<float>(withinZ ? z : (zless ? zmin : zmax));
 
     pt3[0] = x; pt3[1] = y; pt3[2] = z;
 
@@ -432,9 +432,9 @@ float vtkKdNode::_GetDistance2ToBoundary(
     }
   else                        // point is closest to a corner
     {
-    cornerPt[0] = (xless ? xmin : xmax);
-    cornerPt[1] = (yless ? ymin : ymax);
-    cornerPt[2] = (zless ? zmin : zmax);
+    cornerPt[0] = static_cast<float>(xless ? xmin : xmax);
+    cornerPt[1] = static_cast<float>(yless ? ymin : ymax);
+    cornerPt[2] = static_cast<float>(zless ? zmin : zmax);
 
     pt3[0] = x; pt3[1] = y; pt3[2] = z;
 
@@ -508,8 +508,9 @@ int vtkKdNode::IntersectsSphere2(double x, double y, double z, double rSquared,
     return 1; 
     }
 
-  float dist2 = this->GetDistance2ToBoundary(x, y, z, useDataBounds);
-
+  float dist2 = static_cast<float>(
+    this->GetDistance2ToBoundary(x, y, z, useDataBounds));
+  
   if (dist2 < rSquared)
     {
     return 1;
@@ -1438,7 +1439,8 @@ void vtkKdTree::BuildLocator()
   for (i=0; i<3; i++)
     {
      diff[i] = volBounds[2*i+1] - volBounds[2*i];
-     this->MaxWidth = (diff[i] > this->MaxWidth) ? diff[i] : this->MaxWidth;
+     this->MaxWidth = static_cast<float>(
+       (diff[i] > this->MaxWidth) ? diff[i] : this->MaxWidth);
     }
 
   this->FudgeFactor = this->MaxWidth * 10e-6;
@@ -1834,7 +1836,7 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 
       N = R - L + 1;
       I = K - L + 1;
-      Z = log((float)N);
+      Z = static_cast<float>(log((float)N));
       S = static_cast<int>(.5 * exp(2*Z/3));
       SD = static_cast<int>(.5 * sqrt(Z*S*(N-S)/N) * sign(1 - N/2));
       LL = max(L, K - (I*S/N) + SD);
@@ -2020,7 +2022,8 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
   for (i=0; i<3; i++)
     {
     diff[i] = bounds[2*i+1] - bounds[2*i];
-    this->MaxWidth = (diff[i] > this->MaxWidth) ? diff[i] : this->MaxWidth;
+    this->MaxWidth = (float)
+      ((diff[i] > this->MaxWidth) ? diff[i] : this->MaxWidth);
     }
 
   this->FudgeFactor = this->MaxWidth * 10e-6;
@@ -2465,10 +2468,18 @@ vtkIdType vtkKdTree::FindClosestPoint(float x, float y, float z, float &dist2)
     this->Top->GetDistance2ToBoundary(x, y, z, pt, 1);
 
     // can't be right on lower bounds, move it in a little
-
-    if (pt[0] == this->Top->Min[0]) pt[0] += this->FudgeFactor;
-    if (pt[1] == this->Top->Min[1]) pt[1] += this->FudgeFactor;
-    if (pt[2] == this->Top->Min[2]) pt[2] += this->FudgeFactor;
+    if (pt[0] == this->Top->Min[0]) 
+      {
+      pt[0] = pt[0] + (float)(this->FudgeFactor);
+      }
+    if (pt[1] == this->Top->Min[1]) 
+      {
+      pt[1] = pt[1] + (float)(this->FudgeFactor);
+      }
+    if (pt[2] == this->Top->Min[2]) 
+      {
+      pt[2] = pt[2] + (float)(this->FudgeFactor);
+      }
 
     regionId = this->GetRegionContainingPoint(pt[0], pt[1], pt[2]);
     }
