@@ -359,7 +359,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.13");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.14");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -631,7 +631,8 @@ public:
   int Refine( vtkSimpleCellTessellator* tess, vtkTetraTile *res);
 
   // Description:
-  // Return if the four first points of the tetra are all differents
+  // Return if the four corner points of the tetra are all differents
+#ifndef NDEBUG
   int PointsDifferents()
   {
     int result=1;
@@ -673,6 +674,7 @@ public:
  
     return result;
   }
+#endif
   
 private:
   // Need to keep track of local coordinate to evaluate shape functions
@@ -685,8 +687,9 @@ private:
 
 //-----------------------------------------------------------------------------
 int vtkTriangleTile::Refine(vtkSimpleCellTessellator* tess,
-                            vtkTriangleTile *res ) // res[4]
+                            vtkTriangleTile *res )
 {
+  // The output will contain a maximum of 4 vtkTriangleTiles
   int i, index;
   int numTriangleCreated = 0;
 
@@ -896,11 +899,12 @@ static void Reorder(vtkIdType in[4], vtkIdType order[4])
 
 
 //-----------------------------------------------------------------------------
-int vtkTetraTile::Refine( vtkSimpleCellTessellator* tess,
-                          vtkTetraTile *res) // res[8]
+int vtkTetraTile::Refine(vtkSimpleCellTessellator* tess,
+                         vtkTetraTile *res)
 {
+  // The output will contains a maximum of 8 vtkTetraTiles
   int i, index;
-  int numTetraCreated;
+  int numTetraCreated = 0;
 
   // We need to order the point by lower id first
   // this will create an edge ordering and based on that we can
@@ -908,16 +912,14 @@ int vtkTetraTile::Refine( vtkSimpleCellTessellator* tess,
 
   // There is only 6 edges in a tetra we need this structure to quickly
   // determine in which case we are to tessellate the tetra.
-  int edgeSplitList[6]; //FIXME
+  int edgeSplitList[6];
   vtkIdType ptId = 0;
   int l, r;
 
-  numTetraCreated = 0;
-  
   if(this->SubdivisionLevel < tess->GetMaxSubdivisionLevel())
     {
     // loop over edges:
-    for(i=0, index = 0;i<6;i++)
+    for(i=0, index=0; i<6; i++)
       {
       // we have to calculate mid point between edge TETRA_EDGES_TABLE[i][0] and
       // TETRA_EDGES_TABLE[i][1]
@@ -1172,7 +1174,6 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
       // The edge was not found in the hash table, that mean we have to 
       // determine it's reference counting from the higher order cell:
       int localId;
-      //int type = this->GenericCell->FindEdgeParent(left, right, localId);
       int type = FindEdgeParent2D(left, right, localId);
 
       if( type == 1)
@@ -1199,14 +1200,14 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
       if(doSubdivision)
         {
         // global position and attributes at the left vertex
-        this->EdgeTable->CheckPoint(leftId,leftPoint,
-                                    leftPoint+ATTRIBUTES_OFFSET);
+        this->EdgeTable->CheckPoint(leftId, leftPoint,
+                                    leftPoint + ATTRIBUTES_OFFSET);
         // global position and attributes at the right vertex
-        this->EdgeTable->CheckPoint(rightId,rightPoint,
-                                    rightPoint+ATTRIBUTES_OFFSET);
+        this->EdgeTable->CheckPoint(rightId, rightPoint,
+                                    rightPoint + ATTRIBUTES_OFFSET);
 
         // parametric center of the edge
-        local = midPoint+PARAMETRIC_OFFSET;
+        local = midPoint + PARAMETRIC_OFFSET;
         for(int i=0; i < 3; i++)
           {
           local[i] = left[i] + alpha*(right[i] - left[i]);
@@ -1247,7 +1248,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 
         //Put everything in ths point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
-                                              midPoint+ATTRIBUTES_OFFSET);
+                                              midPoint + ATTRIBUTES_OFFSET);
         }
       else
         {
@@ -1375,10 +1376,10 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
         {
         // global position and attributes at the left vertex
         this->EdgeTable->CheckPoint(leftId,leftPoint,
-                                    leftPoint+ATTRIBUTES_OFFSET);
+                                    leftPoint + ATTRIBUTES_OFFSET);
         // global position and attributes at the right vertex
         this->EdgeTable->CheckPoint(rightId,rightPoint,
-                                    rightPoint+ATTRIBUTES_OFFSET);
+                                    rightPoint + ATTRIBUTES_OFFSET);
 
         // parametric center of the edge
         local = midPoint + PARAMETRIC_OFFSET;
@@ -1423,7 +1424,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 
         //Put everything in the point hash table
         this->EdgeTable->InsertPointAndScalar(ptId, midPoint,
-                                              midPoint+ATTRIBUTES_OFFSET);
+                                              midPoint + ATTRIBUTES_OFFSET);
         }
       else
         {
@@ -1469,7 +1470,7 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable( vtkTriangleTile &tri )
   int i;
  
   // First setup the point reference count:
-  for(i = 0; i<3; i++)
+  for(i=0; i<3; i++)
     {
     this->EdgeTable->RemovePoint( tri.GetPointId(i));
     }
@@ -1490,7 +1491,7 @@ void vtkSimpleCellTessellator::RemoveEdgesFromEdgeTable( vtkTetraTile &tetra )
   int i;
  
   // First setup the point reference count:
-  for(i = 0; i<4; i++)
+  for(i=0; i<4; i++)
     {
     this->EdgeTable->RemovePoint( tetra.GetPointId(i));
     }
@@ -1632,8 +1633,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   this->AllocateScalars(this->PointOffset*3);
  
   // Pass data to hash table:
-  // FIXME some point are already in the hash table we shouldn't try
-  // to calculate their associate point/scalar value then.
   this->InsertPointsIntoEdgeTable( root );
 
   //Prepare the hash table with the top-level edges:
@@ -1643,7 +1642,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
   vtkstd::queue<vtkTetraTile> work;
   work.push( root );
  
-  vtkIdType count=0;
   while( !work.empty() ) 
     {
     vtkTetraTile piece[8];
@@ -1659,7 +1657,6 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
 
     // We are done we should clean ourself from the hash table:
     this->RemoveEdgesFromEdgeTable( curr );
-    count++;
     }
 
   // remove top level points
@@ -1667,12 +1664,12 @@ void vtkSimpleCellTessellator::Tessellate(vtkGenericAdaptorCell *cell,
     {
     this->EdgeTable->RemovePoint( root.GetPointId(i) );
     }
-  
+
+  // We are done with this cell, dump the hash-table to check if it is clean:
+  // Thus it should only contains points on face/edge:
+
 //  this->EdgeTable->LoadFactor();
 //  this->EdgeTable->DumpTable();
-
-  // Okay we are done with this cell, dump the hash-table to check it is clean:
-  // by clean I mean it only contains points on face/edge:
 }
 
 //-----------------------------------------------------------------------------
@@ -1692,11 +1689,11 @@ void vtkSimpleCellTessellator::PrintSelf(ostream& os, vtkIndent indent)
 //-----------------------------------------------------------------------------
 void
 vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell, 
-                                                  vtkGenericAttributeCollection *att,
-                                                  vtkIdType index,
-                                                  vtkDoubleArray *points,
-                                                  vtkCellArray *cellArray,
-                                                  vtkPointData *internalPd)
+                                                 vtkGenericAttributeCollection *att,
+                                                 vtkIdType index,
+                                                 vtkDoubleArray *points,
+                                                 vtkCellArray *cellArray,
+                                                 vtkPointData *internalPd)
 {
   assert("pre: cell_exixts" && cell!=0);
   assert("pre: valid_cell_type" && ((cell->GetType() == VTK_TETRA)
@@ -1704,7 +1701,6 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
                                   ||(cell->GetType() == VTK_HIGHER_ORDER_TETRAHEDRON))));
   assert("pre: valid_range_index" && index>=0 && index<=3 );
 
-  int i=0;
   // Save parameter for later use
   this->TessellateCellArray = cellArray;
   this->TessellatePoints    = points;
@@ -1732,7 +1728,7 @@ vtkSimpleCellTessellator::TessellateTriangleFace(vtkGenericAdaptorCell *cell,
   this->GenericCell->GetPointIds(tetra);
   int *indexTab = cell->GetFaceArray(index);
 
-  for(i=0; i<3; i++)
+  for(int i=0; i<3; i++)
     {
     point = this->GenericCell->GetParametricCoords() + 3*indexTab[i];
     root.SetVertex(i, point);
@@ -1760,7 +1756,6 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell *cell,
                                            vtkPointData *internalPd)
 {
   // Save parameter for later use
-
   this->GenericCell = cell;
 
   this->TessellatePoints    = points;
