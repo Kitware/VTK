@@ -219,8 +219,8 @@ void vlLinearExtrusionFilter::Execute()
         edge = cell->GetEdge(i);
         for (j=0; j<(edge->GetNumberOfPoints()-1); j++)
           {
-          p1 = pts[j];
-          p2 = pts[(j+1)%npts];
+          p1 = edge->PointIds.GetId(j);
+          p2 = edge->PointIds.GetId(j+1);
           mesh.GetCellEdgeNeighbors(cellId, p1, p2, cellIds);
 
           if ( cellIds.GetNumberOfIds() < 1 ) //generate strip
