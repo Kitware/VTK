@@ -18,17 +18,13 @@ set hi [expr $Scale * [lindex [demReader GetElevationBounds] 1]]
 # Decimate the terrain
 vtkGreedyTerrainDecimation deci
   deci SetInput [demReader GetOutput]
-
-# Now warp the results
-vtkWarpScalar warp
-  warp SetInput [deci GetOutput]
-  warp SetNormal 0 0 1
-  warp UseNormalOn
-  warp SetScaleFactor $Scale
+  deci BoundaryVertexDeletionOn
+  deci SetErrorMeasureToNumberOfTriangles
+  deci SetNumberOfTriangles 100
 
 # Color the results
 vtkElevationFilter elevation
-  elevation SetInput [warp GetOutput]
+  elevation SetInput [deci GetOutput]
   elevation SetLowPoint 0 0 $lo
   elevation SetHighPoint 0 0 $hi
   eval elevation SetScalarRange $lo $hi
