@@ -210,7 +210,7 @@ vtkIdType *vtkIdList::Resize(const vtkIdType sz)
   if (this->Ids)
     {
     memcpy(newIds, this->Ids,
-           (sz < this->Size ? sz : this->Size) * sizeof(int));
+           (sz < this->Size ? sz : this->Size) * sizeof(vtkIdType));
     delete [] this->Ids;
     }
 
