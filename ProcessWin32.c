@@ -49,15 +49,10 @@ Q190351 and Q150956.
 #pragma warning (disable: 4706)
 #endif
 
-/* The number of pipes for the child's output.  The standard stdout
-   and stderr pipes are the first two.  One more pipe is used to
-   detect when the child process has terminated.  The third pipe is
-   not given to the child process, so it cannot close it until it
-   terminates.  */
-#define KWSYSPE_PIPE_COUNT 3
+/* There are pipes for the process pipeline's stdout and stderr.  */
+#define KWSYSPE_PIPE_COUNT 2
 #define KWSYSPE_PIPE_STDOUT 0
 #define KWSYSPE_PIPE_STDERR 1
-#define KWSYSPE_PIPE_TERM 2
 
 /* The maximum amount to read from a pipe at a time.  */
 #define KWSYSPE_PIPE_BUFFER_SIZE 1024
@@ -860,9 +855,7 @@ void kwsysProcess_Execute(kwsysProcess* cp)
       }
     }
 
-  /* All children will share the stderr pipe.  They will also share
-     the termination pipe, but will not be given handles to it.  This
-     will allow detection of process termination when the pipe closes.  */
+  /* All children will share the stderr pipe.  */
   si.StartupInfo.hStdError = si.InheritedWrite[KWSYSPE_PIPE_STDERR];
 
   /* Create the pipeline of processes.  */
@@ -1021,10 +1014,6 @@ int kwsysProcess_WaitForData(kwsysProcess* cp, int pipes, char** data, int* leng
         {
         /* The pipe closed.  */
         --cp->PipesLeft;
-        }
-      else if(cp->CurrentIndex == KWSYSPE_PIPE_TERM)
-        {
-        /* This is data on the special termination pipe.  Ignore it.  */
         }
       else if(pipes & (1 << cp->CurrentIndex))
         {
