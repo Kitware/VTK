@@ -23,7 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.41");
+vtkCxxRevisionMacro(vtkBMPReader, "1.42");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -605,8 +605,60 @@ int vtkBMPReader::CanReadFile(const char* fname)
   // compare magic number to determine file type
   if ((fgetc(fp) != 'B')||(fgetc(fp) != 'M'))
     {
+    fclose(fp);
     return 0;
     }
+
+  long tmp;
+  long infoSize;
+  int  iinfoSize;  // in case we are on a 64bit machine
+  int  itmp;       // in case we are on a 64bit machine
+
+  // get the size of the file
+  int sizeLong = sizeof(long);
+  if (sizeLong == 4)
+    {
+    fread(&tmp,4,1,fp);
+    // skip 4 bytes
+    fread(&tmp,4,1,fp);
+    // read the offset
+    fread(&tmp,4,1,fp);
+    }
+  else
+    {
+    fread(&itmp,4,1,fp);
+    // skip 4 bytes
+    fread(&itmp,4,1,fp);
+    // read the offset
+    fread(&itmp,4,1,fp);
+    }
+
+  // get size of header
+  if (sizeLong == 4)   // if we are on a 32 bit machine
+    {
+    fread(&infoSize,sizeof(long),1,fp);
+    vtkByteSwap::Swap4LE(&infoSize);
+                       
+    // error checking
+    if ((infoSize != 40)&&(infoSize != 12))
+      {
+      fclose(fp);
+      return 0;
+      }
+    }
+  else    // else we are on a 64bit machine
+    {
+    fread(&iinfoSize,sizeof(int),1,fp);
+    vtkByteSwap::Swap4LE(&iinfoSize);
+    infoSize = iinfoSize;
+    
+    // error checking
+    if ((infoSize != 40)&&(infoSize != 12))
+      {
+      fclose(fp);
+      return 0;
+      }
+    }
   fclose(fp);
-  return 1;
+  return 3;
 }

@@ -27,7 +27,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.15");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.16");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -339,7 +339,7 @@ int vtkJPEGReader::CanReadFile(const char* fname)
   // if no errors have occurred yet, then it must be jpeg
   jpeg_destroy_decompress(&cinfo);
   fclose(fp);
-  return 1;
+  return 3;
 }
 #ifdef _MSC_VER
 // Put the warning back
