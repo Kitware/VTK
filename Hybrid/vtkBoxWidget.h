@@ -284,10 +284,16 @@ protected:
   void MovePlusZFace(double *p1, double *p2);
   void MoveMinusZFace(double *p1, double *p2);
 
-  void MoveFace(double *p1, double *p2, double *h1, double *h2, 
+  //"dir" is the direction in which the face can be moved i.e. the axis passing
+  //through the center
+  void MoveFace(double *p1, double *p2, double *dir, 
                 double *x1, double *x2, double *x3, double *x4,
                 double *x5);
-  
+  //Helper method to obtain the direction in which the face is to be moved.
+  //Handles special cases where some of the scale factors are 0.
+  void GetDirection(const double Nx[3],const double Ny[3], 
+                    const double Nz[3], double dir[3]);
+
   // Transform the hexahedral points (used for rotations)
   vtkTransform *Transform;
   

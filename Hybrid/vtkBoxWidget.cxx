@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.45");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.46");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -848,24 +848,22 @@ void vtkBoxWidget::OnMouseMove()
   this->Interactor->Render();
 }
 
-void vtkBoxWidget::MoveFace(double *p1, double *p2,
-                            double *h1, double *h2,
-                            double *x1, double *x2,
-                            double *x3, double *x4,
-                            double *x5)
-{
+void vtkBoxWidget::MoveFace(double *p1, double *p2, double *dir, 
+                double *x1, double *x2, double *x3, double *x4,
+                double *x5)
+  {
   int i;
   double v[3], v2[3];
 
   for (i=0; i<3; i++)
     {
     v[i] = p2[i] - p1[i];
-    v2[i] = h2[i] - h1[i];
+    v2[i] = dir[i];
     }
 
   vtkMath::Normalize(v2);
   double f = vtkMath::Dot(v,v2);
-
+  
   for (i=0; i<3; i++)
     {
     v[i] = f*v2[i];
@@ -879,19 +877,58 @@ void vtkBoxWidget::MoveFace(double *p1, double *p2,
   this->PositionHandles();
 }
 
+void vtkBoxWidget::GetDirection(const double Nx[3],const double Ny[3], const double Nz[3], double dir[3])
+{
+  double dotNy, dotNz;
+  double y[3];
+
+  if(vtkMath::Dot(Nx,Nx)!=0)
+    {
+    dir[0] = Nx[0];
+    dir[1] = Nx[1];
+    dir[2] = Nx[2];
+    }
+  else 
+    {
+    dotNy = vtkMath::Dot(Ny,Ny);
+    dotNz = vtkMath::Dot(Nz,Nz);
+    if(dotNy != 0 && dotNz != 0)
+      {
+      vtkMath::Cross(Ny,Nz,dir);
+      }
+    else if(dotNy != 0)
+      {
+      //dir must have been initialized to the 
+      //corresponding coordinate direction before calling
+      //this method
+      vtkMath::Cross(Ny,dir,y);
+      vtkMath::Cross(y,Ny,dir);
+      }
+    else if(dotNz != 0)
+      {
+      //dir must have been initialized to the 
+      //corresponding coordinate direction before calling
+      //this method
+      vtkMath::Cross(Nz,dir,y);
+      vtkMath::Cross(y,Nz,dir);
+      }
+    }
+}
 void vtkBoxWidget::MovePlusXFace(double *p1, double *p2)
 {
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*9;
-  double *h2 = pts + 3*8;
 
   double *x1 = pts + 3*1;
   double *x2 = pts + 3*2;
   double *x3 = pts + 3*5;
   double *x4 = pts + 3*6;
   
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+  double dir[3] = { 1 , 0 , 0};
+  this->ComputeNormals();
+  this->GetDirection(this->N[1],this->N[3],this->N[5],dir);
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 void vtkBoxWidget::MoveMinusXFace(double *p1, double *p2)
@@ -899,14 +936,17 @@ void vtkBoxWidget::MoveMinusXFace(double *p1, double *p2)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*8;
-  double *h2 = pts + 3*9;
 
   double *x1 = pts + 3*0;
   double *x2 = pts + 3*3;
   double *x3 = pts + 3*4;
   double *x4 = pts + 3*7;
   
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+  double dir[3]={-1,0,0};
+  this->ComputeNormals();
+  this->GetDirection(this->N[0],this->N[4],this->N[2],dir);
+
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 void vtkBoxWidget::MovePlusYFace(double *p1, double *p2)
@@ -914,14 +954,17 @@ void vtkBoxWidget::MovePlusYFace(double *p1, double *p2)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*11;
-  double *h2 = pts + 3*10;
 
   double *x1 = pts + 3*2;
   double *x2 = pts + 3*3;
   double *x3 = pts + 3*6;
   double *x4 = pts + 3*7;
   
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+  double dir[3]={0,1,0};
+  this->ComputeNormals();
+  this->GetDirection(this->N[3],this->N[5],this->N[1],dir);
+
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 void vtkBoxWidget::MoveMinusYFace(double *p1, double *p2)
@@ -929,14 +972,17 @@ void vtkBoxWidget::MoveMinusYFace(double *p1, double *p2)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*10;
-  double *h2 = pts + 3*11;
 
   double *x1 = pts + 3*0;
   double *x2 = pts + 3*1;
   double *x3 = pts + 3*4;
   double *x4 = pts + 3*5;
-  
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+
+  double dir[3] = {0, -1, 0};
+  this->ComputeNormals();
+  this->GetDirection(this->N[2],this->N[0],this->N[4],dir);
+
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 void vtkBoxWidget::MovePlusZFace(double *p1, double *p2)
@@ -944,14 +990,17 @@ void vtkBoxWidget::MovePlusZFace(double *p1, double *p2)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*13;
-  double *h2 = pts + 3*12;
 
   double *x1 = pts + 3*4;
   double *x2 = pts + 3*5;
   double *x3 = pts + 3*6;
   double *x4 = pts + 3*7;
-  
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+
+  double dir[3]={0,0,1};
+  this->ComputeNormals();
+  this->GetDirection(this->N[5],this->N[1],this->N[3],dir);
+
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 void vtkBoxWidget::MoveMinusZFace(double *p1, double *p2)
@@ -959,14 +1008,17 @@ void vtkBoxWidget::MoveMinusZFace(double *p1, double *p2)
   double *pts = ((vtkDoubleArray *)this->Points->GetData())->GetPointer(0);
 
   double *h1 = pts + 3*12;
-  double *h2 = pts + 3*13;
 
   double *x1 = pts + 3*0;
   double *x2 = pts + 3*1;
   double *x3 = pts + 3*2;
   double *x4 = pts + 3*3;
-  
-  this->MoveFace(p1, p2, h1, h2, x1, x2, x3, x4, h1);
+
+  double dir[3]={0,0,-1};
+  this->ComputeNormals();
+  this->GetDirection(this->N[4],this->N[2],this->N[0],dir);
+
+  this->MoveFace(p1,p2,dir,x1,x2,x3,x4,h1);
 }
 
 // Loop through all points and translate them
