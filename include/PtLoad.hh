@@ -17,8 +17,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .SECTION Description
 // vtkPointLoad is a source object that computes stress tensors on a volume. 
 // The tensors are computed from the application of a point load on a 
-// semi-infinite domain. This object serves as a specialized data generator
-// for some of the examples in the text.
+// semi-infinite domain. (The analytical results are adapted from Saada - see 
+// text). It is also possible to compute effective stress scalars if desired.
+// This object serves as a specialized data generator for some of the examples
+// in the text.
+// .SECTION See Also
+// vtkTensorGlyph, vtkHyperStreamline
 
 #ifndef __vtkPointLoad_h
 #define __vtkPointLoad_h
@@ -51,6 +55,12 @@ public:
   vtkSetMacro(PoissonsRatio,float);
   vtkGetMacro(PoissonsRatio,float);
 
+  // Description:
+  // Turn on/off computation of effective stress scalar.
+  vtkSetMacro(ComputeEffectiveStress,int);
+  vtkGetMacro(ComputeEffectiveStress,int);
+  vtkBooleanMacro(ComputeEffectiveStress,int);
+
 protected:
   void Execute();
 
@@ -58,6 +68,7 @@ protected:
   float PoissonsRatio;
   int SampleDimensions[3];
   float ModelBounds[6];
+  int ComputeEffectiveStress;
 
 };
 
