@@ -43,10 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <string.h>
 #include "vtkRenderWindow.hh"
 #include "vtkRenderWindowInteractor.hh"
-
-#ifdef _WIN32
-#define drand48() ((float)rand()/(float)RAND_MAX)
-#endif
+#include "vtkMath.hh"
 
 // Description:
 // Construct an instance of  vtkRenderWindow with its screen size 
@@ -254,7 +251,8 @@ void vtkRenderWindow::Render()
 void vtkRenderWindow::DoAARender()
 {
   int i;
-
+  static vtkMath math;
+  
   // handle any anti aliasing
   if (this->AAFrames)
     {
@@ -276,8 +274,8 @@ void vtkRenderWindow::DoAARender()
     for (i = 0; i < AAFrames; i++)
       {
       // jitter the cameras
-      offsets[0] = drand48() - 0.5;
-      offsets[1] = drand48() - 0.5;
+      offsets[0] = math.Random() - 0.5;
+      offsets[1] = math.Random() - 0.5;
 
       for (this->Renderers.InitTraversal(); 
 	   aren = this->Renderers.GetNextItem(); )
@@ -382,7 +380,8 @@ void vtkRenderWindow::DoAARender()
 void vtkRenderWindow::DoFDRender()
 {
   int i;
-
+  static vtkMath math;
+  
   // handle any focal depth
   if (this->FDFrames)
     {
@@ -411,8 +410,8 @@ void vtkRenderWindow::DoFDRender()
       {
       int j = 0;
 
-      offsets[0] = drand48(); // radius
-      offsets[1] = drand48()*360.0; // angle
+      offsets[0] = math.Random(); // radius
+      offsets[1] = math.Random()*360.0; // angle
 
       // store offsets for each renderer 
       for (this->Renderers.InitTraversal(); 
