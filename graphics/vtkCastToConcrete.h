@@ -81,6 +81,7 @@ protected:
   void operator=(const vtkCastToConcrete&) {};
 
   void Execute(); //insures compatibility; satisfies abstract api in vtkFilter
+  void ExecuteInformation();
 };
 
 #endif

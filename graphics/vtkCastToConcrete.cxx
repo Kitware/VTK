@@ -72,8 +72,16 @@ void vtkCastToConcrete::Execute()
   
   vtkDebugMacro(<<"Casting to concrete type...");
 
-  output->CopyStructure(input);
-  output->GetPointData()->PassData(input->GetPointData());
-  output->GetCellData()->PassData(input->GetCellData());
+  output->ShallowCopy(input);
 }
+
+
+void vtkCastToConcrete::ExecuteInformation()
+{
+  vtkDataSet *input = this->GetInput();
+  vtkDataSet *output = this->GetOutput();
+
+  output->CopyInformation(input);
+}
+
 
