@@ -51,16 +51,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // when magnitude of gradient opacities are included
 vtkEncodedGradientEstimator::vtkEncodedGradientEstimator()
 {
-  this->ScalarInput                    = NULL;
-  this->EncodedNormals                 = NULL;
-  this->GradientMagnitudes             = NULL;
-  this->GradientMagnitudeScale         = 1.0;
-  this->GradientMagnitudeBias          = 0.0;
-  this->Threader                       = vtkMultiThreader::New();
-  this->NumberOfThreads                = this->Threader->GetNumberOfThreads();
-  this->DirectionEncoder               = vtkRecursiveSphereDirectionEncoder::New();
-  this->LastUpdateTimeInSeconds        = -1.0;
-  this->LastUpdateTimeInCPUSeconds     = -1.0;
+  this->ScalarInput                = NULL;
+  this->EncodedNormals             = NULL;
+  this->GradientMagnitudes         = NULL;
+  this->GradientMagnitudeScale     = 1.0;
+  this->GradientMagnitudeBias      = 0.0;
+  this->Threader                   = vtkMultiThreader::New();
+  this->NumberOfThreads            = this->Threader->GetNumberOfThreads();
+  this->DirectionEncoder           = vtkRecursiveSphereDirectionEncoder::New();
+  this->ComputeGradientMagnitudes  = 1;
+  this->ClipOutsideCircle          = 0;
+  this->CircleLimits               = NULL;
+  this->CircleLimitsSize           = -1;
+  this->UseCircleClip              = 0;
+  this->LastUpdateTimeInSeconds    = -1.0;
+  this->LastUpdateTimeInCPUSeconds = -1.0;
 
 }
 
@@ -171,15 +176,20 @@ void vtkEncodedGradientEstimator::Update( )
     
     // If we previously have allocated space for the encoded normals,
     // and this space is no longer the right size, delete it
-    if ( this->EncodedNormals &&
-	 ( this->EncodedNormalsSize[0] != scalar_input_size[0] ||
-	   this->EncodedNormalsSize[1] != scalar_input_size[1] ||
-	   this->EncodedNormalsSize[2] != scalar_input_size[2] ) )
+    if ( this->EncodedNormalsSize[0] != scalar_input_size[0] ||
+	 this->EncodedNormalsSize[1] != scalar_input_size[1] ||
+	 this->EncodedNormalsSize[2] != scalar_input_size[2] )
       {
-      delete [] this->EncodedNormals;
-      this->EncodedNormals = NULL;
-      delete [] this->GradientMagnitudes;
-      this->GradientMagnitudes = NULL;
+      if ( this->EncodedNormals )
+	{
+	delete [] this->EncodedNormals;
+	this->EncodedNormals = NULL;
+	}
+      if ( this->GradientMagnitudes )
+	{
+	delete [] this->GradientMagnitudes;
+	this->GradientMagnitudes = NULL;
+	}
       }
 
     // Allocate space for the encoded normals if necessary
@@ -188,19 +198,32 @@ void vtkEncodedGradientEstimator::Update( )
       this->EncodedNormals = new unsigned short[ scalar_input_size[0] *
 					         scalar_input_size[1] *
 					         scalar_input_size[2] ];
-      this->GradientMagnitudes = new unsigned char[ scalar_input_size[0] *
-				 	            scalar_input_size[1] *
-						    scalar_input_size[2] ];
       this->EncodedNormalsSize[0] = scalar_input_size[0];
       this->EncodedNormalsSize[1] = scalar_input_size[1];
       this->EncodedNormalsSize[2] = scalar_input_size[2];
       }
 
+    if ( !this->GradientMagnitudes && this->ComputeGradientMagnitudes )
+      {
+      this->GradientMagnitudes = new unsigned char[ scalar_input_size[0] *
+				 	            scalar_input_size[1] *
+						    scalar_input_size[2] ];
+      }
 
     // Copy info that multi threaded function will need into temp variables
     memcpy( this->ScalarInputSize, scalar_input_size, 3 * sizeof(int) );
     memcpy( this->ScalarInputAspect, scalar_input_aspect, 3 * sizeof(float) );
 
+    if ( this->ClipOutsideCircle && 
+	 (this->ScalarInputSize[0] == this->ScalarInputSize[1]) )
+      {
+      this->UseCircleClip = 1;
+      this->ComputeCircleLimits( this->ScalarInputSize[0] );
+      }
+    else
+      {
+      this->UseCircleClip = 0;
+      }
     this->UpdateNormals();
 
     this->BuildTime.Modified();
@@ -210,6 +233,39 @@ void vtkEncodedGradientEstimator::Update( )
   
     this->LastUpdateTimeInSeconds    = (float)(endSeconds    - startSeconds);
     this->LastUpdateTimeInCPUSeconds = (float)(endCPUSeconds - startCPUSeconds);
+    }
+}
+
+void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
+{
+  int     *ptr, y;
+  double  w, halfsize, length, start, end;
+
+  if ( this->CircleLimitsSize != size )
+    {
+    if ( this->CircleLimits )
+      {
+      delete this->CircleLimits;
+      }
+    this->CircleLimits = new int[2*size];
+    this->CircleLimitsSize = size;
+    }
+
+  ptr = this->CircleLimits;
+
+  halfsize = (double)(size-1)/2.0;
+
+  for ( y = 0; y < size; y++ )
+    {
+    w = halfsize - (double)y;
+    length = (int)( sqrt( (halfsize*halfsize) - (w*w) ) + 0.5 );
+    start = halfsize - length - 1;
+    end   = halfsize + length + 1;
+    start = (start<0)?(0):(start);
+    end   = (end>(size-1))?(size-1):(end);
+
+    *(ptr++) = start;
+    *(ptr++) = end;
     }
 }
 
@@ -244,6 +300,12 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Gradient Magnitude Bias: " 
      << this->GradientMagnitudeBias << endl;
+
+  os << indent << "Compute Gradient Magnitudes: " 
+     << ((this->ComputeGradientMagnitudes)?"On":"Off") << endl;
+
+  os << indent << "Clip Outside Circle: " 
+     << ((this->ClipOutsideCircle)?"On":"Off") << endl;
 
   os << indent << "Number Of Threads: " 
      << this->NumberOfThreads << endl;
