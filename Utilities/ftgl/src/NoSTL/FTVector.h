@@ -157,12 +157,12 @@ void FT_VECTOR_CLASS_NAME::expand(size_type capacity_hint)
 
   // Copy values to new vector
 
-  iterator begin = this->begin();
-  iterator end = this->end();
+  iterator ibegin = this->begin();
+  iterator iend = this->end();
   value_type *ptr = new_items;
-  while (begin != end)
+  while (ibegin != iend)
     {
-    *ptr++ = *begin++;
+    *ptr++ = *ibegin++;
     }
 
   // Deallocate old vector and use new vector
@@ -268,20 +268,20 @@ void FT_VECTOR_CLASS_NAME::resize(size_type n, value_type x)
     return;
     }
   this->reserve(n);
-  iterator begin, end;
+  iterator ibegin, iend;
   if (n >= this->Size)
     {
-    begin = this->end();
-    end = this->begin() + n;
+    ibegin = this->end();
+    iend = this->begin() + n;
     }
   else
     {
-    begin = this->begin() + n;
-    end = this->end();
+    ibegin = this->begin() + n;
+    iend = this->end();
     }
-  while (begin != end)
+  while (ibegin != iend)
     {
-    *begin++ = x;
+    *ibegin++ = x;
     }
   this->Size = n;
 }
