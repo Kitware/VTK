@@ -16,8 +16,9 @@
 
 =========================================================================*/
 
-#ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkImageProgressIterator.txx"
+
+#ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
 template class VTK_COMMON_EXPORT vtkImageProgressIterator<char>;
 template class VTK_COMMON_EXPORT vtkImageProgressIterator<int>;

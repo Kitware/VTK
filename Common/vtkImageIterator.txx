@@ -15,11 +15,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Include blockers needed since vtkImageIterator.h includes this file
+// when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
+#ifndef __vtkImageIterator_txx
+#define __vtkImageIterator_txx
 
-#ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTATIATION
 #include "vtkImageIterator.h"
-#endif
-
 #include "vtkImageData.h"
 
 template <class DType>
@@ -52,3 +53,5 @@ void vtkImageIterator<DType>::NextSpan()
     this->SliceEndPointer += this->Increments[2];
     }
 }
+
+#endif

@@ -54,8 +54,7 @@ protected:
   int               ID;
 };
 
-#ifdef CMAKE_NO_EXPLICIT_TEMPLATE_INSTANTIATION
-// include the code
+#ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 #include "vtkImageProgressIterator.txx"
 #endif
 

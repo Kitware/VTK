@@ -15,12 +15,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+// Include blockers needed since vtkImageProgressIterator.h includes
+// this file when VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION is defined.
+#ifndef __vtkImageProgressIterator_txx
+#define __vtkImageProgressIterator_txx
 
-#ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTATIATION
 #include "vtkImageProgressIterator.h"
 #include "vtkImageData.h"
 #include "vtkProcessObject.h"
-#endif
 
 template <class DType>
 vtkImageProgressIterator<DType>::vtkImageProgressIterator(vtkImageData *imgd, 
@@ -60,4 +62,4 @@ void vtkImageProgressIterator<DType>::NextSpan()
     }
 }
 
-
+#endif

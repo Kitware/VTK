@@ -16,8 +16,9 @@
 
 =========================================================================*/
 
-#ifndef CMAKE_NO_EXPLICIT_TEMPLATE_INSTATIATION
 #include "vtkImageIterator.txx"
+
+#ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
 template class VTK_COMMON_EXPORT vtkImageIterator<char>;
 template class VTK_COMMON_EXPORT vtkImageIterator<int>;
