@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.2");
+vtkCxxRevisionMacro(vtkSimpleScalarTree, "1.3");
 vtkStandardNewMacro(vtkSimpleScalarTree);
 
 class vtkScalarNode {};
@@ -211,10 +211,10 @@ void vtkSimpleScalarTree::BuildTree()
 // will have scalar values that span the scalar value specified.
 void vtkSimpleScalarTree::InitTraversal(float scalarValue)
 {
+  this->BuildTree();
   vtkScalarRange<float> *TTree = 
     static_cast< vtkScalarRange<float> * > (this->Tree);
 
-  this->BuildTree();
   this->ScalarValue = scalarValue;
   this->TreeIndex = this->TreeSize;
 
