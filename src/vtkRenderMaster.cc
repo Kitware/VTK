@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endif
 
 #ifdef _WIN32
-#include "vtkWin32RenderWindow.hh"
+#include "vtkWin32OglrRenderWindow.hh"
 #endif
 
 #include "vtkRenderMaster.hh"

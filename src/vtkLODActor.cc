@@ -71,7 +71,7 @@ void vtkLODActor::Render(vtkRenderer *ren)
   static vtkMath math;
   int choice;
 #ifdef _WIN32
-  astruct timeb time1, time2;
+  struct timeb time1, time2;
 #else
   struct timeval time1,time2;
   struct timezone zone;
