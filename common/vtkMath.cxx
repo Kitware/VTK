@@ -1689,7 +1689,7 @@ void vtkMath::QuaternionToMatrix3x3(const double quat[4], double A[3][3])
 //  "Closed-form solution of absolute orientation using unit quaternions,"
 //  Journal of the Optical Society of America A, 4:629-642
 template<class T1, class T2>
-static inline void vtkMatrix3x3ToQuaternion(T1 A[3][3], T2 quat[4])
+static inline void vtkMatrix3x3ToQuaternion(const T1 A[3][3], T2 quat[4])
 {
   T2 N[4][4];
 
@@ -1759,7 +1759,7 @@ void vtkMath::Orthogonalize3x3(const double A[3][3], double B[3][3])
 // The eigenvectors returned in the columns of V are aligned optimally
 // with the x, y, and z axes respectively.
 template <class T1, class T2>
-static inline void vtkDiagonalize3x3(T1 A[3][3], T2 w[3], T2 V[3][3])
+static inline void vtkDiagonalize3x3(const T1 A[3][3], T2 w[3], T2 V[3][3])
 {
   int i,j,k,maxI;
   T2 tmp, maxVal;
