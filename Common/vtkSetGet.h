@@ -227,10 +227,15 @@ virtual void Set##name (type* _arg)             \
 // prototype in the header file. The prototype should look like this:
 // virtual void Set"name"("type" *);
 //
+// Please use vtkCxxSetObjectMacro not vtkSetObjectImplementationMacro.
+// The first one is just for people who already used it.
 #define vtkSetObjectImplementationMacro(class,name,type)        \
-void class::Set##name (type* _arg)                              \
-  {                                                             \
-  vtkSetObjectBodyMacro(name,type,_arg);                        \
+  vtkCxxSetObjectMacro(class,name,type)
+
+#define vtkCxxSetObjectMacro(class,name,type)   \
+void class::Set##name (type* _arg)              \
+  {                                             \
+  vtkSetObjectBodyMacro(name,type,_arg);        \
   }
 
 //
