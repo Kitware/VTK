@@ -89,5 +89,3 @@ protected:
 };
 
 #endif
-
-

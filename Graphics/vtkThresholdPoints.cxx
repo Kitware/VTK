@@ -105,8 +105,7 @@ void vtkThresholdPoints::Execute()
   vtkPoints *newPoints;
   vtkPointData *pd, *outPD;
   vtkCellArray *verts;
-  int ptId, numPts;
-  vtkIdType pts[1];
+  vtkIdType ptId, numPts, pts[1];
   float *x;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
@@ -130,7 +129,7 @@ void vtkThresholdPoints::Execute()
 
   // Check that the scalars of each point satisfy the threshold criterion
   int abort=0;
-  int progressInterval = numPts/20+1;
+  vtkIdType progressInterval = numPts/20+1;
   
   for (ptId=0; ptId < numPts && !abort; ptId++)
     {

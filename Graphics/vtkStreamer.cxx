@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkRungeKutta2.h"
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkStreamer* vtkStreamer::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -75,10 +75,10 @@ vtkStreamArray::vtkStreamArray()
   this->Direction = VTK_INTEGRATE_FORWARD;
 }
 
-vtkStreamPoint *vtkStreamArray::Resize(int sz)
+vtkStreamPoint *vtkStreamArray::Resize(vtkIdType sz)
 {
   vtkStreamPoint *newArray;
-  int newSize;
+  vtkIdType newSize;
 
   if (sz >= this->Size)
     {
@@ -156,7 +156,8 @@ vtkDataSet *vtkStreamer::GetSource()
 
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
-void vtkStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
+void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId,
+                                   float pcoords[3])
 {
   if ( cellId != this->StartCell || subId != this->StartSubId ||
        pcoords[0] !=  this->StartPCoords[0] || 
@@ -176,7 +177,8 @@ void vtkStreamer::SetStartLocation(int cellId, int subId, float pcoords[3])
 
 // Specify the start of the streamline in the cell coordinate system. That is,
 // cellId and subId (if composite cell), and parametric coordinates.
-void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, float t)
+void vtkStreamer::SetStartLocation(vtkIdType cellId, int subId, float r,
+                                   float s, float t)
 {
   float pcoords[3];
   pcoords[0] = r;
@@ -187,7 +189,7 @@ void vtkStreamer::SetStartLocation(int cellId, int subId, float r, float s, floa
 }
 
 // Get the starting location of the streamline in the cell coordinate system.
-int vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
+vtkIdType vtkStreamer::GetStartLocation(int& subId, float pcoords[3])
 {
   subId = this->StartSubId;
   pcoords[0] = this->StartPCoords[0];
@@ -240,8 +242,8 @@ VTK_THREAD_RETURN_TYPE vtkStreamer::ThreadedIntegrate( void *arg )
   vtkStreamArray           *streamer;
   vtkStreamPoint           *sNext = 0, *sPtr;
   vtkStreamPoint           pt1, pt2;
-  int                      i, ptId;
-  int                      idxNext;
+  int                      i;
+  vtkIdType                idxNext, ptId;
   float                    d, step, dir;
   float                    xNext[3], vel[3], *cellVel, derivs[9];
   float                    *w, pcoords[3];
@@ -472,9 +474,10 @@ void vtkStreamer::Integrate()
   vtkPointData *pd=input->GetPointData();
   vtkScalars *inScalars;
   vtkVectors *inVectors;
-  int numSourcePts, idx, idxNext;
+  vtkIdType numSourcePts, idx, idxNext;
   vtkStreamPoint *sNext, *sPtr;
-  int i, j, ptId, offset;
+  vtkIdType ptId, i;
+  int j, offset;
   vtkCell *cell;
   float *v, *cellVel, derivs[9], xNext[3], vort[3];
   float tol2;

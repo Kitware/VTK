@@ -60,8 +60,9 @@ vtkTriangleFilter* vtkTriangleFilter::New()
 void vtkTriangleFilter::Execute()
 {
   vtkPolyData *input = this->GetInput();
-  int numCells=input->GetNumberOfCells();
-  int dim, i, j, cellNum, numPts, numSimplices, newId, type;
+  vtkIdType numCells=input->GetNumberOfCells();
+  vtkIdType cellNum, numPts, numSimplices, newId, i;
+  int dim, j, type;
   vtkIdType pts[3];
   vtkIdList *ptIds=vtkIdList::New();
   vtkPoints *spts=vtkPoints::New();
@@ -69,8 +70,8 @@ void vtkTriangleFilter::Execute()
   vtkCellData *inCD=input->GetCellData();
   vtkCellData *outCD=output->GetCellData();
   vtkCell *cell;
-  int updateInterval;
-  int numPoints=input->GetNumberOfPoints();
+  vtkIdType updateInterval;
+  vtkIdType numPoints=input->GetNumberOfPoints();
 
   output->Allocate(numPoints, numPoints);
   outCD->CopyAllocate(inCD,numPoints);
@@ -132,4 +133,3 @@ void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Lines: " << (this->PassLines ? "On\n" : "Off\n");
 
 }
-

@@ -81,16 +81,18 @@ vtkTextureMapToPlane::vtkTextureMapToPlane()
 void vtkTextureMapToPlane::Execute()
 {
   float tcoords[2];
-  int numPts;
+  vtkIdType numPts;
   vtkTCoords *newTCoords;
-  int i, j;
+  vtkIdType i;
+  int j;
   float *bounds;
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir = 0;
   float s, t, sSf, tSf, *p;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
-  int abort=0, progressInterval;
+  int abort=0;
+  vtkIdType progressInterval;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
 
@@ -250,10 +252,10 @@ void vtkTextureMapToPlane::Execute()
 void vtkTextureMapToPlane::ComputeNormal()
 {
   vtkDataSet *output = this->GetOutput();
-  int numPts=output->GetNumberOfPoints();
+  vtkIdType numPts=output->GetNumberOfPoints();
   float m[9], v[3], *x;
-  int i, ptId;
-  int dir = 0;
+  vtkIdType ptId;
+  int dir = 0, i;
   float length, w, *c1, *c2, *c3, det;
   float *bounds;
 
@@ -354,4 +356,3 @@ void vtkTextureMapToPlane::PrintSelf(ostream& os, vtkIndent indent)
                                 << this->Normal[1] << ", "
                                 << this->Normal[2] << ")\n";
 }
-

@@ -93,8 +93,8 @@ void vtkTransformTextureCoords::Execute()
   vtkDataSet *output = this->GetOutput();
   vtkTCoords *inTCoords=input->GetPointData()->GetTCoords();
   vtkTCoords *newTCoords;
-  int numPts=input->GetNumberOfPoints();
-  int i, j, ptId, texDim;
+  vtkIdType numPts=input->GetNumberOfPoints(), ptId;
+  int i, j, texDim;
   vtkTransform *transform = vtkTransform::New();
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *TC, newTC[3];
@@ -206,4 +206,3 @@ void vtkTransformTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FlipS: " << (this->FlipS ? "On\n" : "Off\n");
   os << indent << "FlipT: " << (this->FlipT ? "On\n" : "Off\n");
 }
-

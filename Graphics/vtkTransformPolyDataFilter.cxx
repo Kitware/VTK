@@ -44,9 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVectors.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTransformPolyDataFilter* vtkTransformPolyDataFilter::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +56,6 @@ vtkTransformPolyDataFilter* vtkTransformPolyDataFilter::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTransformPolyDataFilter;
 }
-
-
-
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {

@@ -45,8 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkTensorGlyph* vtkTensorGlyph::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +57,6 @@ vtkTensorGlyph* vtkTensorGlyph::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkTensorGlyph;
 }
-
-
-
 
 // Construct object with scaling on and scale factor 1.0. Eigenvalues are 
 // extracted, glyphs are colored with input scalar data, and logarithmic
@@ -85,8 +81,8 @@ void vtkTensorGlyph::Execute()
   vtkDataArray *inTensors;
   float *tensor;
   vtkDataArray *inScalars;
-  int numPts, numSourcePts, numSourceCells;
-  int inPtId, i, j;
+  vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
+  int j;
   vtkPoints *sourcePts;
   vtkDataArray *sourceNormals;
   vtkCellArray *sourceCells, *cells;  
@@ -99,7 +95,7 @@ void vtkTensorGlyph::Execute()
   vtkIdList *cellPts;
   int npts;
   vtkIdType *pts = new vtkIdType[this->GetSource()->GetMaxCellSize()];
-  int ptIncr, cellId;
+  vtkIdType ptIncr, cellId;
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
   float *m[3], w[3], *v[3];
   float m0[3], m1[3], m2[3];
@@ -373,9 +369,6 @@ vtkPolyData *vtkTensorGlyph::GetSource()
   
 }
 
-
-
-
 void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
@@ -388,4 +381,3 @@ void vtkTensorGlyph::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Clamp Scaling: " << (this->ClampScaling ? "On\n" : "Off\n");
   os << indent << "Max Scale Factor: " << this->MaxScaleFactor << "\n";
 }
-

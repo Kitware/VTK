@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkThresholdTextureCoords.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkThresholdTextureCoords* vtkThresholdTextureCoords::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -56,9 +54,6 @@ vtkThresholdTextureCoords* vtkThresholdTextureCoords::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkThresholdTextureCoords;
 }
-
-
-
 
 // Construct with lower threshold=0, upper threshold=1, threshold 
 // function=upper, and texture dimension = 2. The "out" texture coordinate
@@ -116,9 +111,9 @@ void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
   
 void vtkThresholdTextureCoords::Execute()
 {
-  int numPts;
+  vtkIdType numPts;
   vtkTCoords *newTCoords;
-  int ptId;
+  vtkIdType ptId;
   vtkScalars *inScalars;
   vtkDataSet *input = this->GetInput();
   vtkDataSet *output = this->GetOutput();
