@@ -43,7 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 #include "vtkImageReslice.h"
 #include "vtkMath.h"
-#include <stdio.h>
 
 //----------------------------------------------------------------------------
 vtkImageReslice::vtkImageReslice()
@@ -434,77 +433,30 @@ invertible");
 //  Interplolation subroutines and associated code
 //----------------------------------------------------------------------------
 
-
 //----------------------------------------------------------------------------
-// first: a round-to-nearest function 
-#if defined __unix__ || defined unix
-//  
-static inline double vtkResliceRound(double val)
-{
-  return rint(val);
-}
-#elif defined _MSC_VER && defined _M_IX86
-// The only efficient way to round is in assembler
-// This does the trick for Visual C++ on an x86
-static double vtkResliceRound(double val) 
-{ 
-  __asm
-    {
-    fld val; 
-    frndint;
-    } 
-}
-#else
-// this code ensures round-to-nearest/even behaviour
-// on non-UNIX, non-Wintel platforms
-double vtkResliceRound(double val)
-{
-  double trunc;
-  double rem;
-
-  trunc = floor(val);
-  rem = val-trunc;
-  if (rem < 0.5)
-    {
-    return trunc;
-    }
-  else if (rem > 0.5)
-    {
-    return trunc+1;
-    }
-  else if (trunc != 0 && fmod(trunc,2.0) != 0)
-    {
-    return trunc+1;
-    }
-  else 
-    {
-    return trunc;
-    }
-}
-#endif
-
-//----------------------------------------------------------------------------
-// rounding functions split up for each type
+// rounding functions, split and optimized for each type
 // (because we don't want to round if the result is a float!)
+
+// in the case of a tie between integers, the larger integer wins.
 
 static inline void vtkResliceRound(double val, unsigned char& rnd)
 {
-  rnd = (unsigned char)(vtkResliceRound(val));
+  rnd = (unsigned char)(val+0.5);
 }
 
 static inline void vtkResliceRound(double val, short& rnd)
 {
-  rnd = (short)(vtkResliceRound(val));
+  rnd = (short)((int)(val+32768.5)-32768);
 }
 
 static inline void vtkResliceRound(double val, unsigned short& rnd)
 {
-  rnd = (unsigned short)(vtkResliceRound(val));
+  rnd = (unsigned short)(val+0.5);
 }
 
 static inline void vtkResliceRound(double val, int& rnd)
 {
-  rnd = (int)(vtkResliceRound(val));
+  rnd = (int)(floor(val+0.5));
 }
 
 static inline void vtkResliceRound(double val, float& rnd)
@@ -517,7 +469,6 @@ static inline void vtkResliceRound(double val, float& rnd)
 
 static inline void vtkResliceClamp(double val, unsigned char& clamp)
 {
-  val = vtkResliceRound(val);
   if (val < VTK_UNSIGNED_CHAR_MIN)
     { 
     val = VTK_UNSIGNED_CHAR_MIN;
@@ -526,12 +477,11 @@ static inline void vtkResliceClamp(double val, unsigned char& clamp)
     { 
     val = VTK_UNSIGNED_CHAR_MAX;
     }
-  clamp = (unsigned char)(val);
+  vtkResliceRound(val,clamp);
 }
 
 static inline void vtkResliceClamp(double val, short& clamp)
 {
-  val = vtkResliceRound(val);
   if (val < VTK_SHORT_MIN)
     { 
     val = VTK_SHORT_MIN;
@@ -540,12 +490,11 @@ static inline void vtkResliceClamp(double val, short& clamp)
     { 
     val = VTK_SHORT_MAX;
     }
-  clamp = short(val);
+  vtkResliceRound(val,clamp);
 }
 
 static inline void vtkResliceClamp(double val, unsigned short& clamp)
 {
-  val = vtkResliceRound(val);
   if (val < VTK_UNSIGNED_SHORT_MIN)
     { 
     val = VTK_UNSIGNED_SHORT_MIN;
@@ -554,12 +503,11 @@ static inline void vtkResliceClamp(double val, unsigned short& clamp)
     { 
     val = VTK_UNSIGNED_SHORT_MAX;
     }
-  clamp = (unsigned short)(val);
+  vtkResliceRound(val,clamp);
 }
 
 static inline void vtkResliceClamp(double val, int& clamp)
 {
-  val = vtkResliceRound(val);
   if (val < VTK_INT_MIN) 
     {
     val = VTK_INT_MIN;
@@ -568,7 +516,7 @@ static inline void vtkResliceClamp(double val, int& clamp)
     {
     val = VTK_INT_MAX;
     }
-  clamp = int(val);
+  vtkResliceRound(val,clamp);
 }
 
 static inline void vtkResliceClamp(double val, float& clamp)
@@ -581,7 +529,7 @@ static inline void vtkResliceClamp(double val, float& clamp)
     {
     val = VTK_FLOAT_MAX;
     }
-  clamp = float(val);
+  vtkResliceRound(val,clamp);
 }
 
 //----------------------------------------------------------------------------
