@@ -69,6 +69,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataToPolyDataFilter.h"
 #include "vtkContourValues.h"
 
+#define VTK_SCALAR_MODE_INDEX 0
+#define VTK_SCALAR_MODE_VALUE 1
+
 class VTK_GRAPHICS_EXPORT vtkBandedPolyDataContourFilter : public vtkPolyDataToPolyDataFilter
 {
 public:
@@ -95,13 +98,25 @@ public:
 
   // Description:
   // Indicate whether to clip outside the range specified by the user.
-  // (The range is contour value[0] to contour value[numContours-1].
+  // (The range is contour value[0] to contour value[numContours-1].)
   // Clipping means all cells outside of the range specified are not
   // sent to the output.
   vtkSetMacro(Clipping,int);
   vtkGetMacro(Clipping,int);
   vtkBooleanMacro(Clipping,int);
 
+  // Description:
+  // Control whether the cell scalars are output as an integer index or
+  // a scalar value. If an index, the index refers to the bands produced
+  // by the clipping range. If a value, then a scalar value which is a 
+  // value between clip values is used.
+  vtkSetClampMacro(ScalarMode,int,VTK_SCALAR_MODE_INDEX,VTK_SCALAR_MODE_VALUE);
+  vtkGetMacro(ScalarMode,int);
+  void SetScalarModeToIndex()
+    {this->SetScalarMode(VTK_SCALAR_MODE_INDEX);}
+  void SetScalarModeToValue()
+    {this->SetScalarMode(VTK_SCALAR_MODE_VALUE);}
+  
   // Description:
   // Overload GetMTime because we delegate to vtkContourValues so its
   // modified time must be taken into account.
@@ -113,21 +128,25 @@ protected:
 
   void Execute();
 
-  int ComputeIndex(float,float);
+  float ComputeScalar(int idx);
   int ComputeLowerScalarIndex(float);
   int ComputeUpperScalarIndex(float);
   int IsContourValue(float val);
   int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
                vtkPointData *inPD, vtkPointData *outPD);
+  int InsertCell(vtkCellArray *cells, int npts, vtkIdType *pts,
+                 int cellId, float s, vtkFloatArray *newS);
 
   // data members
   vtkContourValues *ContourValues;
-  int   NumberOfClipValues;
 
   int Clipping;
+  int ScalarMode;
 
   // sorted and cleaned contour values
   float *ClipValues;
+  int   NumberOfClipValues;
+  int ClipIndex[2]; //indices outside of this range (inclusive) are clipped
   
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
