@@ -61,6 +61,7 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
 {
   vtkScalars *scalars;
   int i, ijk[3];
+  int numPts;
   float pcoords[3], weights[8], s;
   static vtkIdList ptIds(8);
 
@@ -75,10 +76,11 @@ float vtkImplicitVolume::EvaluateFunction(float x[3])
   // Find the cell that contains xyz and get it
   if ( this->Volume->ComputeStructuredCoordinates(x,ijk,pcoords) )
     {
-    vtkVoxel::InterpolationFunctions(pcoords,weights);
     this->Volume->GetCellPoints(this->Volume->ComputeCellId(ijk),ptIds);
+    vtkVoxel::InterpolationFunctions(pcoords,weights);
 
-    for (s=0.0, i=0; i < 8; i++)
+    numPts = ptIds.GetNumberOfIds ();
+    for (s=0.0, i=0; i < numPts; i++)
       {
       s += scalars->GetScalar(ptIds.GetId(i)) * weights[i];
       }
