@@ -336,7 +336,7 @@ class TestVTKFiles:
             for a in lines:
                 self.Print( a )
             self.Print( "There should be only:\n %s();" % self.ClassName )
-            self.Error("Wierd constructor")
+            self.Error("Weird constructor")
         pass
 
     def CheckPrintSelf(self):
