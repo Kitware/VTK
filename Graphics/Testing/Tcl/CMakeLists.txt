@@ -84,6 +84,7 @@ IF (VTK_USE_RENDERING)
       skinOrder
       smoothCyl
       smoothCyl2
+      smoothMeshOnMesh
       socbal
       spatialRepAll
       splitVectors
