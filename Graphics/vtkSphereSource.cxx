@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.59");
+vtkCxxRevisionMacro(vtkSphereSource, "1.60");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -256,6 +256,7 @@ void vtkSphereSource::Execute()
   output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
+  newPolys->Squeeze();
   output->SetPolys(newPolys);
   newPolys->Delete();
 }
