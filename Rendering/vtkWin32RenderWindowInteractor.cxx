@@ -56,7 +56,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.89");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.90");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -696,10 +696,12 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
       
     case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
       me->OnKeyDown(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
 
     case WM_KEYUP:
+    case WM_SYSKEYUP:
       me->OnKeyUp(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
       break;
 
