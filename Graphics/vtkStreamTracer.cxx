@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyLine.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.5");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.6");
 vtkStandardNewMacro(vtkStreamTracer);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
@@ -467,23 +467,6 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
     this->GetIntegrator()->MakeObject();
   integrator->SetFunctionSet(func);
 
-
-  // Calculate the initial velocity (to check if the first point 
-  // is in bounds)
-  float velocity[3], position[3];
-  for (i=0; i<numLines; i++)
-    {
-    seedSource->GetTuple(seedIds->GetId(i), position);
-    if ( !func->FunctionValues(position, velocity) )
-      {
-      func->Delete();
-      integrator->Delete();
-      cell->Delete();
-      vtkWarningMacro("The initial position is not in the input data set.");
-      return;
-      }
-    }
-
   // Since we do not know what the total number of points
   // will be, we do not allocate any. This is important for
   // cases where a lot of streamers are used at once. If we
@@ -537,6 +520,7 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
   outputPD->InterpolateAllocate(inputPD);
 
   vtkIdType numPtsTotal=0;
+  float velocity[3];
 
   for(int currentLine = 0; currentLine < numLines; currentLine++)
     {
@@ -550,7 +534,11 @@ void vtkStreamTracer::Integrate(vtkDataArray* seedSource, vtkIdList* seedIds)
 
     // Initial point
     seedSource->GetTuple(seedIds->GetId(currentLine), point1);
-    func->FunctionValues(point1, velocity);
+    if (!func->FunctionValues(point1, velocity))
+      {
+      vtkWarningMacro("The initial position is not in the input data set.");
+      continue;
+      }
 
     numPts++;
     numPtsTotal++;
