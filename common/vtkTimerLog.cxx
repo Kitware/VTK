@@ -346,12 +346,12 @@ double vtkTimerLog::GetElapsedTime()
   return (this->EndTime - this->StartTime);
 }
 
-void vtkTimerLog::DumpEntry(ostream& os, int index, float time, 
+void vtkTimerLog::DumpEntry(ostream& os, int index, float ttime, 
 			    float deltatime,
 			    int tick, int deltatick, char *event)
 {
   os << index << "   "
-     << time << "  "
+     << ttime << "  "
      << deltatime << "   "
      << (float)tick/vtkTimerLog::TicksPerSecond << "  "
      << (float)deltatick/vtkTimerLog::TicksPerSecond << "  ";
