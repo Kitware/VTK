@@ -40,6 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkRendererSource.h"
 #include "vtkRenderWindow.h"
+#include "vtkFloatArray.h"
 
 vtkRendererSource::vtkRendererSource()
 {
@@ -64,8 +65,11 @@ void vtkRendererSource::Execute()
   vtkScalars *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels, *ptr;
+  float *zBuf, *zPtr;
   int dims[3];
   vtkStructuredPoints *output = this->GetOutput();
+  vtkFieldData *zField;
+  vtkFloatArray *zArray;
 
   vtkDebugMacro(<<"Converting points");
 
@@ -110,12 +114,29 @@ void vtkRendererSource::Execute()
   ptr = ((vtkUnsignedCharArray *)outScalars->GetData())->WritePointer(0,numOutPts*3);
   memcpy(ptr,pixels,3*numOutPts);
 
+  // Lets get the ZBuffer also.
+  zBuf = (this->Input->GetRenderWindow())->GetZbufferData((int)x1,(int)y1,
+							  (int)x2,(int)y2);
+  zArray = vtkFloatArray::New();
+  zArray->Allocate(numOutPts);
+  zArray->SetNumberOfTuples(numOutPts);
+  zPtr = zArray->WritePointer(0, numOutPts);
+  memcpy(zPtr,zBuf,numOutPts*sizeof(float));
+
+  zField = vtkFieldData::New();
+  zField->SetArray(0, zArray);
+  zField->SetArrayName(0, "ZBuffer");
+  zArray->Delete();
+
   // Update ourselves
   output->GetPointData()->SetScalars(outScalars);
   outScalars->Delete();
+  output->GetPointData()->SetFieldData(zField);
+  zField->Delete();
 
   // free the memory
   delete [] pixels;
+  delete [] zBuf;
 }
 
 void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
