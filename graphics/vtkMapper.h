@@ -86,12 +86,17 @@ class vtkActor;
 class VTK_EXPORT vtkMapper : public vtkProcessObject
 {
 public:
+  // Description:
+  // Construct with initial range (0,1).
   vtkMapper();
   ~vtkMapper();
   const char *GetClassName() {return "vtkMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void operator=(const vtkMapper& m);
 
+  // Description:
+  // Overload standard modified time function. If lookup table is modified,
+  // then this object is modified as well.
   unsigned long int GetMTime();
 
   // Description:
@@ -99,6 +104,8 @@ public:
   // as each frame is rendered.
   virtual void Render(vtkRenderer *ren, vtkActor *a) = 0;
 
+  // Description:
+  // Specify a lookup table for the mapper to use.
   void SetLookupTable(vtkLookupTable *lut);
   void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
   vtkLookupTable *GetLookupTable();
@@ -132,6 +139,9 @@ public:
     {this->SetColorMode(VTK_COLOR_MODE_MAP_SCALARS);};
   void SetColorModeToLuminance() 
     {this->SetColorMode(VTK_COLOR_MODE_LUMINANCE);};
+
+  // Description:
+  // Return the method of coloring scalar data.
   char *GetColorModeAsString();
 
   // Description:
@@ -200,7 +210,18 @@ public:
     {this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_DATA);};
   void SetScalarModeToUseCellData() 
     {this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_DATA);};
+
+  // Description:
+  // Return the method for obtaining scalar data.
   char *GetScalarModeAsString();
+
+  // Description:
+  // This instance variable is used by vtkLODActor to determine which
+  // mapper to use.  It is an estimate of the time necessary to render.
+  // Setting the render time does not modify the mapper.
+  void SetRenderTime(float time) {this->RenderTime = time;}
+  vtkGetMacro(RenderTime, float);
+  
 
 protected:
   vtkDataSet *Input;
@@ -213,7 +234,8 @@ protected:
   int ImmediateModeRendering;
   int ColorMode;
   int ScalarMode;
-  
+
+  float RenderTime;
 };
 
 #endif
