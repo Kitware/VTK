@@ -119,6 +119,9 @@ void vtkFollower::GetMatrix(vtkMatrix4x4 *result)
     if (this->Camera->GetParallelProjection())
       {
       this->Camera->GetDirectionOfProjection(Rz);
+      Rz[0] = -Rz[0];
+      Rz[1] = -Rz[1];
+      Rz[2] = -Rz[2];
       }
     else
       {
