@@ -63,8 +63,8 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
 
   strcpy(this->ArrayName, "");
   this->ArrayId = -1;
-  this->ArrayComponent = -1;
-  this->ArrayAccessMode = -1;
+  this->ArrayComponent = 0;
+  this->ArrayAccessMode = VTK_GET_ARRAY_BY_ID;
 }
 
 void vtkPolyDataMapper2D::ShallowCopy(vtkPolyDataMapper2D *m)
