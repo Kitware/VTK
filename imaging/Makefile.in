@@ -101,8 +101,7 @@ vtkImageVariance3D \
 vtkImageViewer \
 vtkImageVolume16Reader \
 vtkImageWrapPad \
-vtkImageXViewer \
-vtkPolyLinesToImage
+vtkImageXViewer 
 
 
 #------------------------------------------------------------------------------
