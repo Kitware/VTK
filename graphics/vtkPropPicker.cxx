@@ -71,7 +71,7 @@ vtkPropPicker::~vtkPropPicker()
 // set up for a pick
 void vtkPropPicker::Initialize()
 {
-  this->vtkAbstractPicker::Initialize();
+  this->vtkAbstractPropPicker::Initialize();
 }
 
 // Pick from the given collection
