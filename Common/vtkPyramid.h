@@ -38,7 +38,7 @@ class vtkUnstructuredGrid;
 class VTK_COMMON_EXPORT vtkPyramid : public vtkCell3D
 {
 public:
-  vtkTypeRevisionMacro(vtkPyramid,vtkCell);
+  vtkTypeRevisionMacro(vtkPyramid,vtkCell3D);
 
   // Description:
   // Create an instance of this class.

@@ -35,8 +35,10 @@
 #ifndef __vtkCellArray_h
 #define __vtkCellArray_h
 
-#include "vtkIdTypeArray.h"
-#include "vtkCell.h"
+#include "vtkObject.h"
+
+#include "vtkIdTypeArray.h" // Needed for inline methods
+#include "vtkCell.h" // Needed for inline methods
 
 class VTK_COMMON_EXPORT vtkCellArray : public vtkObject
 {

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkFieldData.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFieldData, "1.47");
+#include "vtkObjectFactory.h"
+#include "vtkIdList.h"
+
+vtkCxxRevisionMacro(vtkFieldData, "1.48");
 vtkStandardNewMacro(vtkFieldData);
 
 vtkFieldData::BasicIterator::BasicIterator(const int* list, 

@@ -26,8 +26,7 @@
 #include "vtkExtentTranslator.h"
 
 
-class VTK_COMMON_EXPORT vtkMultiPartExtentTranslator : 
-  public vtkExtentTranslator
+class VTK_COMMON_EXPORT vtkMultiPartExtentTranslator : public vtkExtentTranslator
 {
 public:
   static vtkMultiPartExtentTranslator *New();

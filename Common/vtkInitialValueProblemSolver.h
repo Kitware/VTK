@@ -32,7 +32,9 @@
 #ifndef __vtkInitialValueProblemSolver_h
 #define __vtkInitialValueProblemSolver_h
 
-#include "vtkFunctionSet.h"
+#include "vtkObject.h"
+
+class vtkFunctionSet;
 
 class VTK_COMMON_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {

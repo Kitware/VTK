@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkProcessObject.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkOldStyleCallbackCommand.h"
+#include "vtkDataObject.h"
 
-vtkCxxRevisionMacro(vtkProcessObject, "1.28");
+vtkCxxRevisionMacro(vtkProcessObject, "1.29");
 
 // Instantiate object with no start, end, or progress methods.
 vtkProcessObject::vtkProcessObject()

@@ -43,8 +43,11 @@
 #ifndef __vtkFieldData_h
 #define __vtkFieldData_h
 
-#include "vtkDataArray.h"
-#include "vtkIdList.h"
+#include "vtkObject.h"
+
+#include "vtkDataArray.h" // Needed for inline methods
+
+class vtkIdList;
 
 class VTK_COMMON_EXPORT vtkFieldData : public vtkObject
 {

@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkRungeKutta45.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta45, "1.8");
+#include "vtkObjectFactory.h"
+#include "vtkFunctionSet.h"
+
+vtkCxxRevisionMacro(vtkRungeKutta45, "1.9");
 vtkStandardNewMacro(vtkRungeKutta45);
 
 // Cash-Karp parameters

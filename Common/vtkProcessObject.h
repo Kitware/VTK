@@ -49,7 +49,9 @@
 #ifndef __vtkProcessObject_h
 #define __vtkProcessObject_h
 
-#include "vtkDataObject.h"
+#include "vtkObject.h"
+
+class vtkDataObject;
 
 class VTK_COMMON_EXPORT vtkProcessObject : public vtkObject
 {

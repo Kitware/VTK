@@ -39,7 +39,7 @@ class VTK_COMMON_EXPORT vtkWedge : public vtkCell3D
 {
 public:
   static vtkWedge *New();
-  vtkTypeRevisionMacro(vtkWedge,vtkCell);
+  vtkTypeRevisionMacro(vtkWedge,vtkCell3D);
 
   // Description:
   // See vtkCell3D API for description of these methods.

@@ -17,7 +17,9 @@
 =========================================================================*/
 #include "vtkInitialValueProblemSolver.h"
 
-vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.7");
+#include "vtkFunctionSet.h"
+
+vtkCxxRevisionMacro(vtkInitialValueProblemSolver, "1.8");
 
 vtkInitialValueProblemSolver::vtkInitialValueProblemSolver() 
 {

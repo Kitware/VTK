@@ -37,7 +37,7 @@ class VTK_COMMON_EXPORT vtkTetra : public vtkCell3D
 {
 public:
   static vtkTetra *New();
-  vtkTypeRevisionMacro(vtkTetra,vtkCell);
+  vtkTypeRevisionMacro(vtkTetra,vtkCell3D);
 
   // Description:
   // See vtkCell3D API for description of these methods.

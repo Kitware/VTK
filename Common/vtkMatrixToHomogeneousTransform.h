@@ -32,8 +32,7 @@
 #include "vtkHomogeneousTransform.h"
 #include "vtkMatrix4x4.h"
 
-class VTK_COMMON_EXPORT vtkMatrixToHomogeneousTransform : 
-  public vtkHomogeneousTransform
+class VTK_COMMON_EXPORT vtkMatrixToHomogeneousTransform : public vtkHomogeneousTransform
 {
  public:
   static vtkMatrixToHomogeneousTransform *New();

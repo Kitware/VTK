@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkRungeKutta4.h"
+
+#include "vtkFunctionSet.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRungeKutta4, "1.10");
+vtkCxxRevisionMacro(vtkRungeKutta4, "1.11");
 vtkStandardNewMacro(vtkRungeKutta4);
 
 vtkRungeKutta4::vtkRungeKutta4() 
