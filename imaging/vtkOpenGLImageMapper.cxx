@@ -127,7 +127,7 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
   T   lower, upper;
   int *Size;
   unsigned char lower_val, upper_val;
-  int width;
+  int width, height;
   
   vtkOpenGLImageMapperClamps ( data, self->GetColorWindow(), 
 			      self->GetColorLevel(), 
@@ -146,17 +146,17 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
   // Loop through in regions pixels
   inPtr1 = inPtr;
   width = inMax0 - inMin0 + 1;
-  unsigned char *outLinePtr = new unsigned char [width];
-  unsigned char *outPtr;
+  height = inMax1 - inMin1 + 1;
+  unsigned char *outLinePtr = new unsigned char [width*height];
+  unsigned char *outPtr = outLinePtr;
   
+  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
+		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
+
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
     inPtr0 = inPtr1;
     endPtr = inPtr0 + inInc0*width;
-    outPtr = outLinePtr;
-    glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		  (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
-    actorPos[1]++;
     while (inPtr0 != endPtr)
       {
       if (*inPtr0 <= lower) 
@@ -178,8 +178,9 @@ static void vtkOpenGLImageMapperRenderGray(vtkOpenGLImageMapper *self,
       inPtr0 += inInc0;
       }
     inPtr1 += inInc1;
-    glDrawPixels(width, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE, outLinePtr);
     }
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glDrawPixels(width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
 
@@ -203,7 +204,7 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
   T *greenPtr; 
   T *bluePtr;  
   unsigned char lower_val, upper_val;
-  int width;
+  int width, height;
   
   // data->GetExtent(inMin0, inMax0, inMin1, inMax1);
   int* tempExt = self->GetInput()->GetUpdateExtent();
@@ -239,8 +240,12 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
 			      lower, upper, lower_val, upper_val );
 
   width = inMax0 - inMin0 + 1;
-  unsigned char *outLinePtr = new unsigned char [3*width];
-  unsigned char *outPtr;
+  height = inMax1 - inMin1 + 1;
+  unsigned char *outLinePtr = new unsigned char [3*width*height];
+  unsigned char *outPtr = outLinePtr;
+
+  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
+		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
 
   // Loop through in regions pixels
   redPtr1 = redPtr;
@@ -248,13 +253,9 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
   bluePtr1 = bluePtr;
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
-    outPtr = outLinePtr;
     redPtr0 = redPtr1;
     greenPtr0 = greenPtr1;
     bluePtr0 = bluePtr1;
-    glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		  (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
-    actorPos[1]++;
     for (idx0 = inMin0; idx0 <= inMax0; idx0++)
       {
       if (*redPtr0 <= lower)
@@ -303,11 +304,12 @@ static void vtkOpenGLImageMapperRenderColor(vtkOpenGLImageMapper *self,
       greenPtr0 += inInc0;
       bluePtr0 += inInc0;
       }
-    glDrawPixels(width, 1, GL_RGB, GL_UNSIGNED_BYTE, outLinePtr);
     redPtr1 += inInc1;
     greenPtr1 += inInc1;
     bluePtr1 += inInc1;
     }
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
 
@@ -330,7 +332,7 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
   T   lower, upper;
   long sscale, sshift;
   unsigned char lower_val, upper_val;
-  int width;
+  int width, height;
   
   vtkOpenGLImageMapperClamps ( data, self->GetColorWindow(), 
 			      self->GetColorLevel(), 
@@ -353,18 +355,18 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
 
   // Loop through in regions pixels
   width = inMax0 - inMin0 + 1;
-  unsigned char *outLinePtr = new unsigned char [width];
-  unsigned char *outPtr;
+  height = inMax1 - inMin1 + 1;
+  unsigned char *outLinePtr = new unsigned char [width*height];
+  unsigned char *outPtr = outLinePtr;
   inPtr1 = inPtr;
+
+  glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
+		(2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
 
   for (idx1 = inMin1; idx1 <= inMax1; idx1++)
     {
-    glRasterPos3f((2.0 * (GLfloat)(actorPos[0]) / vsize[0] - 1), 
-		  (2.0 * (GLfloat)(actorPos[1]) / vsize[1] - 1), -1);
-    actorPos[1]++;
     inPtr0 = inPtr1;
     endPtr = inPtr0 + inInc0*(inMax0 - inMin0 + 1);
-    outPtr = outLinePtr;
     while (inPtr0 != endPtr)
       {
       if (*inPtr0 <= lower)
@@ -382,9 +384,10 @@ static void vtkOpenGLImageMapperRenderShortGray(vtkOpenGLImageMapper *self,
         }
       inPtr0 += inInc0;
       }
-    glDrawPixels(width, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE, outLinePtr);
     inPtr1 += inInc1;
     }
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  glDrawPixels(width, height, GL_LUMINANCE, GL_UNSIGNED_BYTE, outLinePtr);
   delete [] outLinePtr;
 }
 
