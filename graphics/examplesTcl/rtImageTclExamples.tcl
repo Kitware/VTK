@@ -2,6 +2,22 @@ catch {load vtktcl}
 #
 # This is a regression test script for VTK.
 #
+# Script returns status depending on outcome
+#    returnStatus = 0 (success)
+#    returnStatus = 1 (test failed)
+#    returnStatus = 2 (no valid image)
+#    returnStatus = 3 (excluded test)
+# if multiple tests are run, the return status of the last test is returned
+#
+# The following environment variables can be used to control the
+# behavior of this script:
+#    VTK_RESULTS_PATH -     where to put regression images, defaults to ./
+#    VTK_PLATFORM -         the OS of the computer, defaults to ""
+#    VTK_VALID_IMAGE_PATH - where the valid images are, defaults to ./valid
+#    VTK_REGRESSION_LOG -   where to send log messages, defaults to stdout
+#    VTK_ROOT -             vtk root directory, defaults to ../../../
+
+set returnStatus 3
 
 #
 # if VTK_RESULTS_PATH is defined, then use if to qualify the error 
@@ -134,6 +150,7 @@ foreach afile $files {
 	set validImage $validPath/$afile.tif
 	if {[catch {set channel [open ${validImage}]}] != 0 } {
 	    puts $logFile "WARNING: There is no valid image for $afile"
+            set returnStatus 2
 	    continue
 	} else {
 	    close $channel
@@ -191,6 +208,7 @@ foreach afile $files {
     
     if {[catch {set channel [open ${validImage}]}] != 0 } {
 	puts $logFile "\nWARNING: Creating a valid image for $afile"
+        set returnStatus 2
 	vtkTIFFWriter rttiffw
 	rttiffw SetInput [w2if GetOutput]
 	rttiffw SetFileName ${validImage}
@@ -216,8 +234,10 @@ foreach afile $files {
     # a test has to be off by at least threshold pixels for us to care   
     if {[imgDiff GetThresholdedError] <= $threshold} {
 	set imageStatus "Passed"
+        set returnStatus 0
     } else {
 	set imageStatus "Failed"
+        set returnStatus 1
 	vtkTIFFWriter rttiffw
 	rttiffw SetInput [imgDiff GetOutput]
 	rttiffw SetFileName "${VTK_RESULTS_PATH}$afile.error.tif"
@@ -254,4 +274,4 @@ foreach afile $files {
     catch {destroy .geo}
 }
 
-exit
+exit $returnStatus
