@@ -28,7 +28,11 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.22");
+#ifndef _WIN32
+# include <unistd.h> /* unlink */
+#endif
+
+vtkCxxRevisionMacro(vtkXMLWriter, "1.22.2.1");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -249,10 +253,16 @@ int vtkXMLWriter::Write()
   float wholeProgressRange[2] = {0,1};
   this->SetProgressRange(wholeProgressRange, 0, 1);
   
-  // Call the real writing code.
+  // Check input validity and call the real writing code.
   int result = this->WriteInternal();
   
-  // We have finished reading.
+  // If writing failed, delete the file.
+  if(!result)
+    {
+    this->DeleteFile();
+    }
+  
+  // We have finished writing.
   this->UpdateProgressDiscrete(1);
   
   return result;
@@ -296,7 +306,7 @@ int vtkXMLWriter::WriteInternal()
     {
     // We opened a file.  Close it.
     delete outFile;
-    this->Stream = 0;
+    this->Stream = 0;    
     }
   
   return result;
@@ -383,6 +393,21 @@ void vtkXMLWriter::EndFile()
   
   // Close the document-level element.
   os << "</VTKFile>\n";
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::DeleteFile()
+{
+  if(!this->Stream && this->FileName)
+    {
+    this->DeleteFile(this->FileName);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::DeleteFile(const char* name)
+{
+  unlink(name);
 }
 
 //----------------------------------------------------------------------------

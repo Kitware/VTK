@@ -53,7 +53,7 @@ protected:
   vtkXMLStructuredGridWriter();
   ~vtkXMLStructuredGridWriter();  
   
-  void WriteAppendedMode(vtkIndent indent);
+  int WriteAppendedMode(vtkIndent indent);
   void WriteAppendedPiece(int index, vtkIndent indent);
   void WriteAppendedPieceData(int index);
   void WriteInlinePiece(int index, vtkIndent indent);
