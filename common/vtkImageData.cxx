@@ -645,11 +645,10 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
   //
   // Get the parametric coordinates and weights for interpolation
   //
-  vtkVoxel::InterpolationFunctions(pcoords,weights);
-
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
+      vtkVertex::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2];
@@ -657,6 +656,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_X_LINE:
+      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2];
@@ -664,6 +664,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_Y_LINE:
+      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2];
@@ -671,6 +672,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_Z_LINE:
+      vtkLine::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1];
       kMax = loc[2] + 1;
@@ -678,6 +680,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_XY_PLANE:
+      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2];
@@ -685,6 +688,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_YZ_PLANE:
+      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
@@ -692,6 +696,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_XZ_PLANE:
+      vtkPixel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1];
       kMax = loc[2] + 1;
@@ -699,6 +704,7 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
       break;
 
     case VTK_XYZ_GRID:
+      vtkVoxel::InterpolationFunctions(pcoords,weights);
       iMax = loc[0] + 1;
       jMax = loc[1] + 1;
       kMax = loc[2] + 1;
@@ -709,21 +715,22 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
   npts = 0;
   for (k = loc[2]; k <= kMax; k++)
     {
-    xOut[2] = origin[2] + (k+this->Extent[4]) * spacing[2]; 
+    xOut[2] = origin[2] + k * spacing[2]; 
     for (j = loc[1]; j <= jMax; j++)
       {
-      xOut[1] = origin[1] + (j+this->Extent[2]) * spacing[1]; 
-      idx = loc[0] + j*this->Dimensions[0] + k*d01;
+      xOut[1] = origin[1] + j * spacing[1]; 
+      // make idx relative to the extent not the whole extent
+      idx = loc[0]-this->Extent[0] + (j-this->Extent[2])*this->Dimensions[0]
+	+ (k-this->Extent[4])*d01;
       for (i = loc[0]; i <= iMax; i++, idx++)
         {
-        xOut[0] = origin[0] + (i+this->Extent[0]) * spacing[0]; 
+        xOut[0] = origin[0] + i * spacing[0]; 
 
         cell->PointIds->SetId(npts,idx);
         cell->Points->SetPoint(npts++,xOut);
         }
       }
     }
-
   subId = 0;
 
   return cell;
@@ -931,12 +938,11 @@ int vtkImageData::ComputeStructuredCoordinates(float x[3], int ijk[3],
       {
       if (this->Dimensions[i] == 1)
         {
-        ijk[i] = 0;
         pcoords[i] = 0.0;
         }
       else
         {
-        ijk[i] = this->Dimensions[i] - 2;
+        ijk[i] -= 1;
         pcoords[i] = 1.0;
         }
       }
