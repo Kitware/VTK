@@ -112,6 +112,7 @@ vtkMultiProcessController::vtkMultiProcessController()
   this->ReceiveWaitTime = 0.0;
 
   this->BreakFlag = 0;
+  this->ForceDeepCopy = 1;
   
   // Define an rmi internally to exit from the processing loop.
   this->AddRMI(vtkMultiProcessControllerBreakRMI, this,
@@ -187,6 +188,7 @@ void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ReadTime: " << this->ReadTime << endl;
   os << indent << "WriteTime: " << this->WriteTime << endl;
   os << indent << "BreakFlag: " << this->BreakFlag << endl;
+  os << indent << "ForceDeepCopy: " << this->ForceDeepCopy << endl;
 }
 
 static vtkMultiProcessController *GLOBAL_VTK_MP_CONTROLLER = NULL;

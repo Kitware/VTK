@@ -193,6 +193,18 @@ public:
   vtkSetMacro(BreakFlag, int);
   vtkGetMacro(BreakFlag, int);
   
+  // Description:
+  // By default, sending objects use shallow copy whenever possible.
+  // This flag forces the controller to use deep copies instead.
+  // This is necessary when asyncronous processing occurs 
+  // (i.e. pipeline parallism). Right now, it is importatne that all the
+  // controllers in the different processes agree to force a deep copy.
+  // Deep copy is not implmented and just uses mashalling in the threaded
+  // controller.
+  vtkSetMacro(ForceDeepCopy, int);
+  vtkGetMacro(ForceDeepCopy, int);
+  vtkBooleanMacro(ForceDeepCopy, int);
+  
 protected:
   vtkMultiProcessController();
   ~vtkMultiProcessController();
@@ -253,6 +265,8 @@ protected:
   float ReceiveWaitTime;
   float ReceiveTime;
 
+  // This flag can force deep copies during send.
+  int ForceDeepCopy;
 };
 
 

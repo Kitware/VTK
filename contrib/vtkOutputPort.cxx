@@ -71,6 +71,9 @@ vtkOutputPort::vtkOutputPort()
     vtkMultiProcessController::RegisterAndGetGlobalController(this);
   
   this->PipelineFlag = 0;
+  this->ParameterMethod = NULL;
+  this->ParameterMethodArgDelete = NULL;
+  this->ParameterMethodArg = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -83,6 +86,11 @@ vtkOutputPort::~vtkOutputPort()
   tmp = this->Controller;
   this->Controller = NULL;
   tmp->UnRegister(this);
+
+  if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
+    {
+    (*this->ParameterMethodArgDelete)(this->ParameterMethodArg);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -173,13 +181,10 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
     
   // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
-  if (this->PipelineFlag == 0)
+  if ( input != NULL && input->GetDataReleased())
     {
-    if ( input != NULL )
-      {
-      input->PreUpdate();
-      input->InternalUpdate();
-      }
+    input->PreUpdate();
+    input->InternalUpdate();
     }
 
   // Did the input change?
@@ -225,13 +230,22 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
     this->Controller->Send( &downDataTime, 1, remoteProcessId,
 			    VTK_PORT_NEW_DATA_TIME_TAG);
     }
-
+  
   // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
   if (this->PipelineFlag)
     {
+    // change any parameters if the user wants to.
+    if ( this->ParameterMethod )
+      {
+      (*this->ParameterMethod)(this->ParameterMethodArg);
+      input->UpdateInformation();
+      }
+    
+    // Update to anticipate the next request.
     if ( input != NULL )
       {
+      input->UpdateInformation();
       input->PreUpdate();
       input->InternalUpdate();
       }
@@ -289,6 +303,29 @@ void vtkOutputPort::SetTag(int tag)
 }
 
 
+//----------------------------------------------------------------------------
+void vtkOutputPort::SetParameterMethod(void (*f)(void *), void *arg)
+{
+  if ( f != this->ParameterMethod || arg != this->ParameterMethodArg )
+    {
+    // delete the current arg if there is one and a delete meth
+    if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
+      {
+      (*this->ParameterMethodArgDelete)(this->ParameterMethodArg);
+      }
+    this->ParameterMethod = f;
+    this->ParameterMethodArg = arg;
+    this->Modified();
+    }
+}
 
 
-
+//----------------------------------------------------------------------------
+void vtkOutputPort::SetParameterMethodArgDelete(void (*f)(void *))
+{
+  if ( f != this->ParameterMethodArgDelete)
+    {
+    this->ParameterMethodArgDelete = f;
+    this->Modified();
+    }
+}
