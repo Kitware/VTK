@@ -110,6 +110,7 @@ void vtkArrayMap<KeyType,DataType>::RemoveAllItems()
       delete item;
       }
     this->Array->Delete(); 
+    this->Array = 0;
     }
 }
 
