@@ -18,7 +18,7 @@
 // scenes simple, flexible, and attractive (or at least not horribly
 // ugly without significant effort).  Use a LightKit when you want
 // more control over your lighting than you can get with the default
-// vtk light, which is a headlight located at the camera. (Headlights
+// vtk light, which is a headlight located at the camera. (HeadLights
 // are very simple to use, but they don't show the shape of objects very 
 // well, don't give a good sense of "up" and "down", and don't evenly
 // light the object.)
@@ -180,8 +180,8 @@ public:
   vtkSetMacro(FillLightWarmth, double);
   vtkGetMacro(FillLightWarmth, double);
 
-  vtkSetMacro(HeadlightWarmth, double);
-  vtkGetMacro(HeadlightWarmth, double);
+  vtkSetMacro(HeadLightWarmth, double);
+  vtkGetMacro(HeadLightWarmth, double);
 
   vtkSetMacro(BackLightWarmth, double);
   vtkGetMacro(BackLightWarmth, double);
@@ -190,7 +190,7 @@ public:
   // Returns the floating-point RGB values of each of the light's color.
   vtkGetVectorMacro(KeyLightColor,  double, 3);
   vtkGetVectorMacro(FillLightColor, double, 3);
-  vtkGetVectorMacro(HeadlightColor, double, 3);
+  vtkGetVectorMacro(HeadLightColor, double, 3);
   vtkGetVectorMacro(BackLightColor, double, 3);
 
   // Description:
@@ -315,9 +315,9 @@ protected:
 
   double BackLightAngle[2];
 
-  vtkLight *Headlight;
-  double HeadlightWarmth;
-  double HeadlightColor[3];
+  vtkLight *HeadLight;
+  double HeadLightWarmth;
+  double HeadLightColor[3];
 
   int MaintainLuminance;
 

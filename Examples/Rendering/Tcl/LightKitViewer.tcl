@@ -94,7 +94,7 @@ grid $backratlbl $backrat -sticky news
 grid $backelevlbl $backelev -sticky news
 grid $backazimlbl $backazim -sticky news
 
-# Headlight panel
+# HeadLight panel
 set headfrm [frame $root.headfrm]
 set headlbl [label $headfrm.lbl -text "Head Light" -anchor w  -font $TitleFont]
 set headwarmlbl [label $headfrm.warmlbl -text "Warmth" -anchor se]
@@ -171,8 +171,8 @@ proc SetLightWarmth {lt x} {
     renWin Render
 }
 
-proc SetHeadlightWarmth {x} {
-    lightKit SetHeadlightWarmth $x
+proc SetHeadLightWarmth {x} {
+    lightKit SetHeadLightWarmth $x
     renWin Render
 }
 
@@ -229,7 +229,7 @@ $backrat set [lightKit GetKeyToBackRatio]
 $backelev set [lightKit GetBackLightElevation]
 $backazim set [lightKit GetBackLightAzimuth]
 
-$headwarm set [lightKit GetHeadlightWarmth]
+$headwarm set [lightKit GetHeadLightWarmth]
 $headrat  set [lightKit GetKeyToHeadRatio]
 
 set MaintainLuminance [lightKit GetMaintainLuminance]
@@ -249,7 +249,7 @@ $backrat  config -command "SetKeyToBackRatio"
 $backelev config -command "SetLightElevation Back"
 $backazim config -command "SetLightAzimuth Back"
 
-$headwarm config -command "SetHeadlightWarmth"
+$headwarm config -command "SetHeadLightWarmth"
 $headrat  config -command "SetKeyToHeadRatio"
 
 $maintlum config -command SetMaintainLuminance
