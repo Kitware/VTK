@@ -137,8 +137,9 @@ public:
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual void GetGradientMagnitudeRange( float range[2] )
-    { range[0] = 0.0; range[1] = 1.0; };
+  virtual float GetGradientMagnitudeScale() {return 1.0;};
+  virtual float GetGradientMagnitudeBias()  {return 0.0;};
+  
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

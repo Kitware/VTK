@@ -143,10 +143,6 @@ public:
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual void GetGradientMagnitudeRange( float range[2] );
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void CastViewRay( VTKRayCastRayInfo *rayInfo,
 		    VTKRayCastVolumeInfo *volumeInfo );
 
@@ -159,6 +155,12 @@ public:
   // This is a ray cast mapper.
   virtual int IsARayCastMapper() {return 1;};
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Values needed by the volume
+  virtual float GetGradientMagnitudeScale();
+  virtual float GetGradientMagnitudeBias();
+  
 //ETX
 
 protected:

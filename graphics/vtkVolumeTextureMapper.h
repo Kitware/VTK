@@ -82,10 +82,6 @@ public:
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
-  virtual void GetGradientMagnitudeRange( float range[2] );
-
-  // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   virtual int GetMapperType() {return VTK_FRAMEBUFFER_VOLUME_MAPPER;};
 
   // Description:
@@ -112,6 +108,12 @@ public:
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol)=0;
 
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // Values needed by the volume
+  virtual float GetGradientMagnitudeScale();
+  virtual float GetGradientMagnitudeBias();
+  
 //ETX
 
 

@@ -93,23 +93,6 @@ void vtkVolumeTextureMapper::SetGradientEstimator(
   this->Modified();
 }
 
-void vtkVolumeTextureMapper::GetGradientMagnitudeRange( float range[2] )
-{
-  if ( this->GradientEstimator == NULL )
-    {
-    range[0] = 0.0;
-    range[1] = 1.0;
-    }
-  else
-    {
-    range[0] = -(this->GradientEstimator->GetGradientMagnitudeBias());
-    range[1] = 
-      ( 255.0 / 
-	this->GradientEstimator->GetGradientMagnitudeScale() ) -
-      this->GradientEstimator->GetGradientMagnitudeBias();
-    }
-}
-
 void vtkVolumeTextureMapper::Update()
 {
   if ( this->GetInput() )
@@ -181,9 +164,7 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
       this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
       this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
       this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
-      tmp = 0.5+AArray[i]*255.0*gradientOpacityConstant;
-      //tmp =  ( tmp > 0.2 && tmp < 2.0 )?(2.0):(tmp);
-      this->RGBAArray[j++] = (unsigned char) tmp;
+      this->RGBAArray[j++] = (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
       }
     }
   else if ( colorChannels == 1 )
@@ -192,12 +173,9 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     for ( i=0, j=0; i < size; i++ )
       {
       this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
-      tmp = 0.5 + AArray[i]*255.0*gradientOpacityConstant;
-      // tmp =  ( tmp > 0.2 && tmp < 2.0 )?(2.0):(tmp);
-      this->RGBAArray[j++] = (unsigned char) tmp;
+      this->RGBAArray[j++] = (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
       }
     }
-
 
   this->Shade =  vol->GetProperty()->GetShade();  
 
@@ -249,6 +227,28 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   this->GetInput()->GetOrigin( this->DataOrigin );
   this->GetInput()->GetSpacing( this->DataSpacing );
+}
+
+float vtkVolumeTextureMapper::GetGradientMagnitudeScale()
+{
+  if ( !this->GradientEstimator ) 
+    {
+    vtkErrorMacro( "You must have a gradient estimator set to get the scale" );
+    return 1.0;
+    }
+  
+  return this->GradientEstimator->GetGradientMagnitudeScale();  
+}
+
+float vtkVolumeTextureMapper::GetGradientMagnitudeBias()
+{
+  if ( !this->GradientEstimator ) 
+    {
+    vtkErrorMacro( "You must have a gradient estimator set to get the bias" );
+    return 1.0;
+    }
+  
+  return this->GradientEstimator->GetGradientMagnitudeBias();  
 }
 
 // Print the vtkVolumeTextureMapper
