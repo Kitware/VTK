@@ -180,7 +180,7 @@ int vtkTkImageViewerWidget_Widget(ClientData clientData, Tcl_Interp *interp,
     {
     // Unknown method name.
     Tcl_AppendResult(interp, "vtkTkImageViewerWidget: Unknown option: ", argv[1], 
-		     "\n", "Try: configure or GetImageViewerWindow\n", NULL);
+		     "\n", "Try: configure or GetImageViewer\n", NULL);
     result = TCL_ERROR;
     }
 
