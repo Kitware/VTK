@@ -474,8 +474,8 @@ void vtkViewport::NormalizedDisplayToViewport(float &u, float &v)
     this->NormalizedDisplayToDisplay(u,v);
     
     // subtract the vpo
-    u = u - vpou;
-    v = v - vpov;
+    u = u - vpou - 0.5;
+    v = v - vpov - 0.5;
     }
 }
 
@@ -528,8 +528,10 @@ void vtkViewport::ViewportToNormalizedDisplay(float &u, float &v)
     this->NormalizedDisplayToDisplay(vpou,vpov);
 
     // add the vpo
-    u = u + vpou;
-    v = v + vpov;
+    // the 0.5 offset is here because the viewport uses pixel centers
+    // while the display uses pixel edges. 
+    u = u + vpou + 0.5;
+    v = v + vpov + 0.5;
 
     // get the pixel value for the coordinate
     this->DisplayToNormalizedDisplay(u,v);
