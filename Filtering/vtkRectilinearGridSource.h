@@ -72,9 +72,6 @@ protected:
   vtkRectilinearGridSource(const vtkRectilinearGridSource&);
   void operator=(const vtkRectilinearGridSource&);
 
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtent method.
-  int ExecuteExtent[6];
 };
 
 #endif

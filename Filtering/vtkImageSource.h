@@ -68,23 +68,12 @@ public:
   vtkImageData *GetOutput(int idx)
     {return (vtkImageData *) this->vtkSource::GetOutput(idx);}
   
-  // Description:
-  // For streaming.  ExecuteExtent is set to the extent
-  // of the output that is currently being generated. 
-  // Note: Threaded execution might break this up further.
-  int *GetExecuteExtent() 
-    {return this->ExecuteExtent;}
-  
 protected:
   vtkImageSource();
   ~vtkImageSource() {};
   vtkImageSource(const vtkImageSource&);
   void operator=(const vtkImageSource&);
 
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method.
-  int ExecuteExtent[6];
-  
   void Execute();
   virtual void Execute(vtkImageData *data);
 

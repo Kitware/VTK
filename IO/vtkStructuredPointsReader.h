@@ -80,10 +80,6 @@ protected:
 
   void Execute();
 
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtent method.
-  int ExecuteExtent[6];
-  
   // Default method performs Update to get information.  Not all the old
   // structured points sources compute information
   void ExecuteInformation();

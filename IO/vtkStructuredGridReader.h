@@ -81,10 +81,6 @@ protected:
   void ExecuteInformation();
   void Execute();
 
-  // Used by streaming: The extent of the output being processed
-  // by the execute method. Set in the ComputeInputUpdateExtents method
-  // (in filter subclasses).
-  int ExecuteExtent[6];
 };
 
 #endif
