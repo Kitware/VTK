@@ -165,7 +165,8 @@ protected:
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadScalarsPerNode(char* fileName, char* description) = 0;
+  virtual int ReadScalarsPerNode(char* fileName, char* description,
+				 int numberOfComponents = 1, int component = 0) = 0;
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
@@ -180,7 +181,8 @@ protected:
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
-  virtual int ReadScalarsPerElement(char* fileName, char* description) = 0;
+  virtual int ReadScalarsPerElement(char* fileName, char* description,
+				    int numberOfComponents = 1, int component = 0) = 0;
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is

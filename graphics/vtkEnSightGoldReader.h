@@ -47,8 +47,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // file.
 // All variable information is being stored in field data.  The descriptions
 // listed in the case file are used as the array names in the field data.
-// For complex variables, the description is appended with _r (for the array
-// of real values) and _i (for the array if imaginary values).
+// For complex vector variables, the description is appended with _r (for the
+// array of real values) and _i (for the array if imaginary values).  Complex
+// scalar variables are stored as a single array with 2 components, real and
+// imaginary, listed in that order.
 // .SECTION Caveats
 // You must manually call Update on this reader and then connect the rest
 // of the pipeline because (due to the nature of the file format) it is
@@ -80,8 +82,10 @@ protected:
 
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
-  // returned; otherwise 1.
-  virtual int ReadScalarsPerNode(char* fileName, char* description);
+  // returned; otherwise 1.  If there will be more than one component in
+  // the data array, it is assumed that 0 is the first component added.
+  virtual int ReadScalarsPerNode(char* fileName, char* description,
+				 int numberOfComponents = 1, int component = 0);
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
@@ -95,8 +99,10 @@ protected:
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
-  // returned; otherwise 1.
-  virtual int ReadScalarsPerElement(char* fileName, char* description);
+  // returned; otherwise 1.  If there will be more than one componenet in the
+  // data array, it is assumed that 0 is the first component added.
+  virtual int ReadScalarsPerElement(char* fileName, char* description,
+				    int numberOfComponents = 1, int component = 0);
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is

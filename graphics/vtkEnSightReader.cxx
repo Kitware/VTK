@@ -806,14 +806,10 @@ int vtkEnSightReader::ReadVariableFiles()
     switch (this->ComplexVariableTypes[i])
       {
       case VTK_COMPLEX_SCALAR_PER_NODE:
-        strcpy(description, this->ComplexVariableDescriptions[i]);
-        strcat(description, "_r");
         this->ReadScalarsPerNode(this->ComplexVariableFileNames[2*i],
-                                 description);
-        strcpy(description, this->ComplexVariableDescriptions[i]);
-        strcat(description, "_i");
+                                 this->ComplexVariableDescriptions[i], 2);
         this->ReadScalarsPerNode(this->ComplexVariableFileNames[2*i+1],
-                                 description);
+                                 this->ComplexVariableDescriptions[i], 2, 1);
         break;
       case VTK_COMPLEX_VECTOR_PER_NODE:
         strcpy(description, this->ComplexVariableDescriptions[i]);
@@ -826,14 +822,10 @@ int vtkEnSightReader::ReadVariableFiles()
                                  description);
         break;
       case VTK_COMPLEX_SCALAR_PER_ELEMENT:
-        strcpy(description, this->ComplexVariableDescriptions[i]);
-        strcat(description, "_r");
         this->ReadScalarsPerElement(this->ComplexVariableFileNames[2*i],
-                                    description);
-        strcpy(description, this->ComplexVariableDescriptions[i]);
-        strcat(description, "_i");
+                                    this->ComplexVariableDescriptions[i], 2);
         this->ReadScalarsPerElement(this->ComplexVariableFileNames[2*i+1],
-                                    description);
+                                    this->ComplexVariableDescriptions[i], 2, 1);
         break;
       case VTK_COMPLEX_VECTOR_PER_ELEMENT:
         strcpy(description, this->ComplexVariableDescriptions[i]);

@@ -210,7 +210,8 @@ int vtkEnSight6Reader::ReadGeometryFile()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
+int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description,
+					  int numberOfComponents, int component)
 {
   char line[256];
   char formatLine[256], tempLine[256];
@@ -219,7 +220,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
   vtkFieldData *fieldData;
   int numLines, moreScalars;
   float scalarsRead[6];
-  int lineRead;
+  int lineRead, arrayNum;
   
   // Initialize
   //
@@ -248,7 +249,6 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
 
   lineRead = this->ReadNextDataLine(line); // 1st data line or part #
@@ -258,10 +258,18 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
     numPts = this->UnstructuredPoints->GetNumberOfPoints();
     numLines = numPts / 6;
     moreScalars = numPts % 6;
-    scalars = vtkFloatArray::New();
-    scalars->SetNumberOfTuples(numPts);
-    scalars->SetNumberOfComponents(1);
-    scalars->Allocate(numPts);
+    if (component == 0)
+      {
+      scalars = vtkFloatArray::New();
+      scalars->SetNumberOfTuples(numPts);
+      scalars->SetNumberOfComponents(numberOfComponents);
+      scalars->Allocate(numPts * numberOfComponents);
+      }
+    else
+      {
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetFieldData()->
+	GetArray(description, arrayNum));
+      }
     for (i = 0; i < numLines; i++)
       {
       sscanf(line, " %f %f %f %f %f %f", &scalarsRead[0], &scalarsRead[1],
@@ -269,7 +277,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
              &scalarsRead[5]);
       for (j = 0; j < 6; j++)
         {
-        scalars->InsertComponent(i*6 + j, 0, scalarsRead[j]);        
+        scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);        
         }
       lineRead = this->ReadNextDataLine(line);
       }
@@ -279,7 +287,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
       {
       strcat(formatLine, " %f");
       sscanf(line, formatLine, &scalarsRead[j]);
-      scalars->InsertComponent(i*6 + j, 0, scalarsRead[j]);
+      scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);
       strcat(tempLine, " %*f");
       strcpy(formatLine, tempLine);
       }
@@ -293,10 +301,17 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
         this->GetOutput(partId)->GetPointData()->SetFieldData(fieldData);
         fieldData->Delete();
         }
-      this->GetOutput(partId)->GetPointData()->GetFieldData()->
-        AddArray(scalars, description);
+      if (component == 0)
+	{
+	this->GetOutput(partId)->GetPointData()->GetFieldData()->
+	  AddArray(scalars, description);
+	scalars->Delete();
+	}
+      else
+	{
+	this->GetOutput(partId)->GetPointData()->GetFieldData()->SetArray(arrayNum, scalars);
+	}
       }
-    scalars->Delete();
     }
 
   // scalars for structured parts
@@ -309,10 +324,18 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
     numPts = this->GetOutput(partId)->GetNumberOfPoints();
     numLines = numPts / 6;
     moreScalars = numPts % 6;
-    scalars = vtkFloatArray::New();
-    scalars->SetNumberOfTuples(numPts);
-    scalars->SetNumberOfComponents(1);
-    scalars->Allocate(numPts);
+    if (component == 0)
+      {
+      scalars = vtkFloatArray::New();
+      scalars->SetNumberOfTuples(numPts);
+      scalars->SetNumberOfComponents(numberOfComponents);
+      scalars->Allocate(numPts * numberOfComponents);
+      }
+    else
+      {
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetPointData()->GetFieldData()->
+	GetArray(description, arrayNum)); 
+      }
     for (i = 0; i < numLines; i++)
       {
       lineRead = this->ReadNextDataLine(line);
@@ -321,7 +344,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
              &scalarsRead[5]);
       for (j = 0; j < 6; j++)
         {
-        scalars->InsertComponent(i*6 + j, 0, scalarsRead[j]);        
+        scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);        
         }
       }
     lineRead = this->ReadNextDataLine(line);
@@ -341,9 +364,16 @@ int vtkEnSight6Reader::ReadScalarsPerNode(char* fileName, char* description)
       this->GetOutput(partId)->GetPointData()->SetFieldData(fieldData);
       fieldData->Delete();
       }
-    this->GetOutput(partId)->GetPointData()->GetFieldData()->
-      AddArray(scalars, description);
-    scalars->Delete();
+    if (component == 0)
+      {
+      this->GetOutput(partId)->GetPointData()->GetFieldData()->
+	AddArray(scalars, description);
+      scalars->Delete();
+      }
+    else
+      {
+      this->GetOutput(partId)->GetPointData()->GetFieldData()->SetArray(arrayNum, scalars);
+      }
     }
   
   delete this->IS;
@@ -637,8 +667,8 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
-                                             char* description)
+int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName, char* description,
+					     int numberOfComponents, int component)
 {
   char line[256];
   char formatLine[256], tempLine[256];
@@ -648,6 +678,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
   int lineRead, elementType;
   float scalarsRead[6];
   int numLines, moreScalars;
+  int arrayNum;
   
   // Initialize
   //
@@ -676,20 +707,27 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadNextDataLine(line); // "part"
   
   while (lineRead && strncmp(line, "part", 4) == 0)
     {
-    scalars = vtkFloatArray::New();
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     numCells = this->GetOutput(partId)->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
-    scalars->SetNumberOfTuples(numCells);
-    scalars->SetNumberOfComponents(1);
-    scalars->Allocate(numCells);
+    if (component == 0)
+      {
+      scalars = vtkFloatArray::New();
+      scalars->SetNumberOfTuples(numCells);
+      scalars->SetNumberOfComponents(numberOfComponents);
+      scalars->Allocate(numCells * numberOfComponents);
+      }
+    else
+      {
+      scalars = (vtkFloatArray*)(this->GetOutput(partId)->GetCellData()->GetFieldData()->
+	GetArray(description, arrayNum));
+      }
     numLines = numCells / 6;
     moreScalars = numCells % 6;
     
@@ -705,7 +743,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
                &scalarsRead[5]);
         for (j = 0; j < 6; j++)
           {
-          scalars->InsertComponent(i*6 + j, 0, scalarsRead[j]);
+          scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);
           }
         }
       lineRead = this->ReadNextDataLine(line);
@@ -718,7 +756,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
           {
           strcat(formatLine, " %f");
           sscanf(line, formatLine, &scalarsRead[j]);
-          scalars->InsertComponent(i*6 + j, 0, scalarsRead[j]);
+          scalars->InsertComponent(i*6 + j, component, scalarsRead[j]);
           strcat(tempLine, " %*f");
           strcpy(formatLine, tempLine);
           }
@@ -749,7 +787,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
           for (j = 0; j < 6; j++)
             {
             scalars->InsertComponent(this->CellIds[idx][elementType]->GetId(i*6 + j),
-                                     0, scalarsRead[j]);
+                                     component, scalarsRead[j]);
             }
           }
         if (moreScalars)
@@ -762,7 +800,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
             strcat(formatLine, " %f");
             sscanf(line, formatLine, &scalarsRead[j]);
             scalars->InsertComponent(this->CellIds[idx][elementType]->GetId(i*6 + j),
-                                     0, scalarsRead[j]);
+                                     component, scalarsRead[j]);
             strcat(tempLine, " %*f");
             strcpy(formatLine, tempLine);
             }
@@ -777,9 +815,16 @@ int vtkEnSight6Reader::ReadScalarsPerElement(char* fileName,
       this->GetOutput(partId)->GetCellData()->SetFieldData(fieldData);
       fieldData->Delete();
       }
-    this->GetOutput(partId)->GetCellData()->GetFieldData()->
-      AddArray(scalars, description);
-    scalars->Delete();
+    if (component == 0)
+      {
+      this->GetOutput(partId)->GetCellData()->GetFieldData()->
+	AddArray(scalars, description);
+      scalars->Delete();
+      }
+    else
+      {
+      this->GetOutput(partId)->GetCellData()->GetFieldData()->SetArray(arrayNum, scalars);
+      }
     }
   
   delete this->IS;
