@@ -325,9 +325,6 @@ void vtkStructuredGridOutlineFilter::UpdateInformation()
 
   input->UpdateInformation();
   
-  // for MPI stuff
-  output->SetLocality(input->GetLocality() + 1);
-
   // this portion could be done in superclass.
   t1 = input->GetPipelineMTime();
   t2 = this->GetMTime();

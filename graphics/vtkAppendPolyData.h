@@ -88,9 +88,6 @@ public:
   vtkGetMacro(ParallelStreaming, int); 
   vtkBooleanMacro(ParallelStreaming, int); 
 
-  // hack until I get a real fix.
-  void UpdateInformation();
-  
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
