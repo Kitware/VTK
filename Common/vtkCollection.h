@@ -117,6 +117,7 @@ public:
   // Less bloated way to get the next object as a collection. Just pass the
   // same cookie back and forth. 
   vtkObject *GetNextItemAsObject(void *&cookie);
+  //ETX
   
   // Description:
   // Get an iterator to traverse the objects in this collection.
