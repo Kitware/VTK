@@ -48,6 +48,7 @@ class TVTK_Form : public TForm {
     void __fastcall ShrinkScrollChange(TObject *Sender);
     void __fastcall vtkWindow1Enter(TObject *Sender);
     void __fastcall vtkWindow1Exit(TObject *Sender);
+    void __fastcall FormShow(TObject *Sender);
 
   private:
   public:
