@@ -44,7 +44,7 @@ vtkImageClip \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageCursor3D \
-vtkImageElipsoidSource \
+vtkImageEllipsoidSource \
 vtkImageExtractComponents \
 vtkImageFFT \
 vtkImageFlip \
