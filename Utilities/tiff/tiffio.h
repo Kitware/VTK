@@ -250,7 +250,7 @@ extern  tsize_t TIFFVStripSize(TIFF*, uint32);
 extern  tsize_t TIFFTileRowSize(TIFF*);
 extern  tsize_t TIFFTileSize(TIFF*);
 extern  tsize_t TIFFVTileSize(TIFF*, uint32);
-extern  uint32 TIFFDefaultStripSize(TIFF*, uint32);
+TEXTERN uint32 TEXPORT TIFFDefaultStripSize(TIFF*, uint32);
 extern  void TIFFDefaultTileSize(TIFF*, uint32*, uint32*);
 extern  int TIFFFileno(TIFF*);
 extern  int TIFFGetMode(TIFF*);
@@ -272,21 +272,21 @@ extern  int TIFFLastDirectory(TIFF*);
 extern  int TIFFSetDirectory(TIFF*, tdir_t);
 extern  int TIFFSetSubDirectory(TIFF*, uint32);
 extern  int TIFFUnlinkDirectory(TIFF*, tdir_t);
-extern  int TIFFSetField(TIFF*, ttag_t, ...);
+TEXTERN int TEXPORT TIFFSetField(TIFF*, ttag_t, ...);
 extern  int TIFFVSetField(TIFF*, ttag_t, va_list);
 extern  int TIFFWriteDirectory(TIFF *);
 extern  int TIFFRewriteDirectory(TIFF *);
 extern  int TIFFReassignTagToIgnore(enum TIFFIgnoreSense, int);
 
 #if defined(c_plusplus) || defined(__cplusplus)
-extern  void TIFFPrintDirectory(TIFF*, FILE*, long = 0);
+TEXTERN void TEXPORT TIFFPrintDirectory(TIFF*, FILE*, long = 0);
 TEXTERN int TEXPORT TIFFReadScanline(TIFF*, tdata_t, uint32, tsample_t = 0);
-extern  int TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t = 0);
+TEXTERN int TEXPORT TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t = 0);
 TEXTERN int TEXPORT TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
 #else
-extern  void TIFFPrintDirectory(TIFF*, FILE*, long);
+TEXTERN void TEXPORT TIFFPrintDirectory(TIFF*, FILE*, long);
 TEXTERN int TEXPORT TIFFReadScanline(TIFF*, tdata_t, uint32, tsample_t);
-extern  int TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t);
+TEXTERN int TEXPORT TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t);
 TEXTERN int TEXPORT TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int);
 #endif
 
@@ -298,7 +298,7 @@ extern  int TIFFRGBAImageGet(TIFFRGBAImage*, uint32*, uint32, uint32);
 extern  void TIFFRGBAImageEnd(TIFFRGBAImage*);
 TEXTERN  TIFF* TEXPORT TIFFOpen(const char*, const char*);
 extern  TIFF* TIFFFdOpen(int, const char*, const char*);
-extern  TIFF* TIFFClientOpen(const char*, const char*,
+TEXTERN TIFF* TEXPORT TIFFClientOpen(const char*, const char*,
             thandle_t,
             TIFFReadWriteProc, TIFFReadWriteProc,
             TIFFSeekProc, TIFFCloseProc,
