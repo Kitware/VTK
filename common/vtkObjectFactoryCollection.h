@@ -61,12 +61,12 @@ public:
 
   // Description:
   // Add an ObjectFactory from the list.
-  inline void AddItem(vtkObjectFactory *t);
+  void AddItem(vtkObjectFactory *t) { this->vtkCollection::AddItem((vtkObject *)t); }
   
   // Description:
   // Get the next ObjectFactory in the list. Return NULL when the end of the
   // list is reached.
-  vtkObjectFactory *GetNextItem();
+  vtkObjectFactory *GetNextItem() { return (vtkObjectFactory *)(this->GetNextItemAsObject());}
 
 protected:
   vtkObjectFactoryCollection() {};
@@ -76,14 +76,5 @@ protected:
 
 };
 
-inline void vtkObjectFactoryCollection::AddItem(vtkObjectFactory *t) 
-{
-  this->vtkCollection::AddItem((vtkObject *)t);
-}
-
-inline vtkObjectFactory *vtkObjectFactoryCollection::GetNextItem() 
-{ 
-  return (vtkObjectFactory *)(this->GetNextItemAsObject());
-}
 
 #endif
