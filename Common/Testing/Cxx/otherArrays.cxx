@@ -34,7 +34,6 @@
 template <class T, class A, class V>
 int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
 {
-  T *ptr2;
   float tuple1[SIZE/100];
   double tuple3[SIZE/100];
   float *tuple2;
