@@ -81,15 +81,15 @@ public:
   //   Get a pointer to the 3 bound minima (xmin, ymin and zmin) or the
   //   3 bound maxima (xmax, ymax, zmax).  Don't free this pointer.
 
-  double *GetMinBounds(){return this->Min;}
-  double *GetMaxBounds(){return this->Max;}
+  double *GetMinBounds() {return this->Min;}
+  double *GetMaxBounds() {return this->Max;}
 
   // Description:
   //   Get a pointer to the 3 data bound minima (xmin, ymin and zmin) or the
   //   3 data bound maxima (xmax, ymax, zmax).  Don't free this pointer.
 
-  double *GetMinDataBounds(){return this->MinVal;}
-  double *GetMaxDataBounds(){return this->MaxVal;}
+  double *GetMinDataBounds() {return this->MinVal;}
+  double *GetMaxDataBounds() {return this->MaxVal;}
 
   // Description:
   //   Set/Get the ID associated with the region described by this node.  If
@@ -220,6 +220,8 @@ public:
   void PrintNode(int depth);
   void PrintVerboseNode(int depth);
 
+  vtkKdNode& operator=(const vtkKdNode& n);
+
 protected:
 
   vtkKdNode();
@@ -251,7 +253,6 @@ private:
   int MaxID;
 
   vtkKdNode(const vtkKdNode&); // Not implemented
-  void operator=(const vtkKdNode&); // Not implemented
 };
 
 #endif
