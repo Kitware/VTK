@@ -7,12 +7,14 @@ IF (VTK_USE_RENDERING)
   ADD_EXECUTABLE(AmoebaMinimizer AmoebaMinimizer.cxx)
   ADD_EXECUTABLE(TestPointWidget TestPointWidget.cxx)
   ADD_EXECUTABLE(TestImplicitPlaneWidget TestImplicitPlaneWidget.cxx)
+  ADD_EXECUTABLE(TestPlaneWidget TestPlaneWidget.cxx)
 
   TARGET_LINK_LIBRARIES(BoxWidget vtkHybrid)
   TARGET_LINK_LIBRARIES(ImagePlaneWidget vtkHybrid)
   TARGET_LINK_LIBRARIES(AmoebaMinimizer vtkHybrid)
   TARGET_LINK_LIBRARIES(TestPointWidget vtkHybrid)
   TARGET_LINK_LIBRARIES(TestImplicitPlaneWidget vtkHybrid)
+  TARGET_LINK_LIBRARIES(TestPlaneWidget vtkHybrid)
 
   #
   # Add tests, with the data
@@ -33,12 +35,17 @@ IF (VTK_USE_RENDERING)
              ${CXX_TEST_PATH}/TestImplicitPlaneWidget
              -D ${VTK_DATA_ROOT}
              -V Baseline/Hybrid/TestImplicitPlaneWidget.png)
+    ADD_TEST(TestPlaneWidget-image 
+             ${CXX_TEST_PATH}/TestPlaneWidget
+             -D ${VTK_DATA_ROOT}
+             -V Baseline/Hybrid/TestPlaneWidget.png)
   ELSE (VTK_DATA_ROOT)
     ADD_TEST(BoxWidget ${CXX_TEST_PATH}/BoxWidget)
     ADD_TEST(ImagePlaneWidget ${CXX_TEST_PATH}/ImagePlaneWidget)
     ADD_TEST(AmoebaMinimizer ${CXX_TEST_PATH}/AmoebaMinimizer)
     ADD_TEST(TestPointWidget ${CXX_TEST_PATH}/TestPointWidget)
     ADD_TEST(TestImplicitPlaneWidget ${CXX_TEST_PATH}/TestImplicitPlaneWidget)
+    ADD_TEST(TestPlaneWidget ${CXX_TEST_PATH}/TestPlaneWidget)
   ENDIF (VTK_DATA_ROOT)
 
 ENDIF (VTK_USE_RENDERING)
