@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkIdList.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkDataArray, "1.45");
+vtkCxxRevisionMacro(vtkDataArray, "1.46");
 
 // Construct object with default tuple dimension (number of components) of 1.
 vtkDataArray::vtkDataArray(vtkIdType numComp)
@@ -100,9 +100,41 @@ const char* vtkDataArray::GetName()
   return this->Name;
 }
 
+template <class IT, class OT>
+static void vtkDeepCopyArrayOfDifferentType(IT *input, OT *output,
+                                            int numTuples, int nComp)
+{
+  int i, j;
+  for (i=0; i<numTuples; i++)
+    {
+    for (j=0; j<nComp; j++)
+      {
+      output[i*nComp+j] = static_cast<OT>(input[i*nComp+j]);
+      }
+    }
+}
+
+template <class IT>
+static void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
+                                      int numTuples, int nComp)
+{
+  void *output = da->GetVoidPointer(0);
+
+  switch (da->GetDataType())
+    {
+    vtkTemplateMacro4(vtkDeepCopyArrayOfDifferentType,input,(VTK_TT*)output,
+                      numTuples,nComp);
+
+    default:
+      vtkGenericWarningMacro(<<"Unsupported data type!");
+    }
+}
+
+//Normally subclasses will do this when the input and output type of the
+//DeepCopy are the same. When they are not the same, then we use the
+//templated code below.
 void vtkDataArray::DeepCopy(vtkDataArray *da)
 {
-
   // Match the behavior of the old AttributeData
   if ( da == NULL )
     {
@@ -114,10 +146,24 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
     int numTuples = da->GetNumberOfTuples();
     this->NumberOfComponents = da->NumberOfComponents;
     this->SetNumberOfTuples(numTuples);
+    void *input=da->GetVoidPointer(0);
 
-    for (int i=0; i < numTuples; i++)
+    switch (da->GetDataType())
       {
-      this->SetTuple(i, da->GetTuple(i));
+      vtkTemplateMacro4(vtkDeepCopySwitchOnOutput,(VTK_TT*)input,
+                        this,numTuples,this->NumberOfComponents);
+
+      case VTK_BIT:
+                {//bit not supported, using generic float API
+        for (int i=0; i < numTuples; i++)
+          {
+          this->SetTuple(i, da->GetTuple(i));
+          }
+        break;
+                }
+
+      default:
+        vtkErrorMacro(<<"Unsupported data type!");
       }
     }
 }
