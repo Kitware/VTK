@@ -1,9 +1,118 @@
 catch {load vtktcl}
 
-
 source volTkInteractor.tcl
 
 set demo_font "-*-helvetica-bold-r-normal--17-*-*-*-p-92-iso8859-1"
+
+proc change_active_controls { } {
+    global control_menu_value
+
+    if [ winfo ismapped .top.f1.f1.f1.mip ] {
+	pack forget .top.f1.f1.f1.mip 
+    }
+
+    if [ winfo ismapped .top.f1.f1.f1.comp ] {
+	pack forget .top.f1.f1.f1.comp 
+    }
+
+    if [ winfo ismapped .top.f1.f1.f1.iso ] {
+	pack forget .top.f1.f1.f1.iso 
+    }
+
+    if [ winfo ismapped .top.f1.f1.f1.slice ] {
+	pack forget .top.f1.f1.f1.slice 
+    }
+
+    if { $control_menu_value == "MIP Controls" } {
+	pack .top.f1.f1.f1.mip -side top -expand 1 -fill both -pady 20
+    } elseif  { $control_menu_value == "Composite Controls" } {
+	pack .top.f1.f1.f1.comp -side top -expand 1 -fill both -pady 20
+    } elseif  { $control_menu_value == "Isosurface Controls" } {
+	pack .top.f1.f1.f1.iso -side top -expand 1 -fill both -pady 20
+    } elseif  { $control_menu_value == "Slice Viewer Controls" } {
+	pack .top.f1.f1.f1.slice -side top -expand 1 -fill both -pady 20
+    }
+}
+
+proc set_isosurface_value { } {
+  global iso_value
+  global  renWin4
+
+  iso_func SetIsoValue $iso_value
+  $renWin4 Render  
+}
+
+proc set_y_slice_value { } {
+  global y_slice_value
+  global renWin1
+  global xdiff ydiff zdiff
+
+  transform2 Identity
+
+  transform2 Translate \
+	  [ expr $xdiff / 2.0 ] \
+	  [ expr $ydiff / 2.0 ] \
+	  [ expr $zdiff / 2.0 ]
+
+  transform2 RotateX 90
+
+  transform2 Translate \
+	  0.0 \
+	  0.0 \
+	  [expr [expr $ydiff / 2.0 ] - $y_slice_value ] 
+ 
+  transform2 Scale     [ expr $xdiff ] [ expr $zdiff ] [ expr $ydiff ]
+
+  if { [[ren1 GetActors] GetNumberOfItems] > 0 } {
+      $renWin1 Render
+  }
+}
+
+proc set_x_slice_value { } {
+  global x_slice_value
+  global renWin1
+  global xdiff ydiff zdiff
+
+  transform3 Identity
+
+  transform3 Translate \
+	  [ expr $xdiff / 2.0 ] \
+	  [ expr $ydiff / 2.0 ] \
+	  [ expr $zdiff / 2.0 ]
+
+  transform3 RotateY 90
+
+  transform3 Translate \
+	  0.0 \
+	  0.0 \
+	  [expr $x_slice_value - [expr $xdiff / 2.0 ] ] 
+
+  transform3 Scale     [ expr $zdiff ] [ expr $ydiff ] [ expr $xdiff ]
+
+  if { [[ren1 GetActors] GetNumberOfItems] > 0 } {
+      $renWin1 Render
+  }
+}
+
+proc set_z_slice_value { } {
+  global z_slice_value
+  global renWin1
+  global xdiff ydiff zdiff
+
+  transform1 Identity
+
+  transform1 Translate \
+	  [ expr $xdiff / 2.0 ] \
+	  [ expr $ydiff / 2.0 ] \
+	  $z_slice_value
+
+  transform1 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
+
+  if { [[ren1 GetActors] GetNumberOfItems] > 0 } {
+      $renWin1 Render
+  }
+}
+
 ### Create the top level stuff and basic frames
 
 wm withdraw .
@@ -28,10 +137,16 @@ frame .top.f1.f2.f1 -bd 0
 frame .top.f1.f2.f2 -bd 0
 
 frame .top.f1.f2.f1.f1 -bd 4 -bg #770099 -relief ridge 
+frame .top.f1.f2.f1.f2 -bd 4 -bg #770099 -relief ridge 
 
 frame .top.f1.f2.f2.f1 -bd 4 -bg #770099 -relief ridge 
+frame .top.f1.f2.f2.f2 -bd 4 -bg #770099 -relief ridge 
 
 label .top.f1.f2.f1.f1.label -text "Slice Viewer" \
+	-bg #999999 -fg #440066 \
+	-font $demo_font
+
+label .top.f1.f2.f1.f2.label -text "MIP Rendering" \
 	-bg #999999 -fg #440066 \
 	-font $demo_font
 
@@ -39,32 +154,53 @@ label .top.f1.f2.f2.f1.label -text "Composite Rendering" \
 	-bg #999999 -fg #440066 \
 	-font $demo_font
 
+label .top.f1.f2.f2.f2.label -text "Isosurface Rendering" \
+	-bg #999999 -fg #440066 \
+	-font $demo_font
+
 vtkTkRenderWidget .top.f1.f2.f1.f1.ren -width 256 -height 256 
     BindTkRenderWidget .top.f1.f2.f1.f1.ren
 
+vtkTkRenderWidget .top.f1.f2.f1.f2.ren -width 256 -height 256 
+    BindTkRenderWidget .top.f1.f2.f1.f2.ren
+
 vtkRenderWindow renWin
-vtkTkRenderWidget .top.f1.f2.f2.f1.ren  -rw renWin -width 256 -height 256
+vtkTkRenderWidget .top.f1.f2.f2.f1.ren -rw renWin -width 256 -height 256 
     BindTkRenderWidget .top.f1.f2.f2.f1.ren
+
+vtkTkRenderWidget .top.f1.f2.f2.f2.ren -width 256 -height 256 
+    BindTkRenderWidget .top.f1.f2.f2.f2.ren
 
 pack .top.f1.f2.f1 .top.f1.f2.f2 -side top
 
-pack .top.f1.f2.f1.f1 -side left
-pack .top.f1.f2.f2.f1 -side left
+pack .top.f1.f2.f1.f1 .top.f1.f2.f1.f2 -side left
+pack .top.f1.f2.f2.f1 .top.f1.f2.f2.f2 -side left
 
 pack .top.f1.f2.f1.f1.label .top.f1.f2.f1.f1.ren -side top -expand 1 -fill both
+pack .top.f1.f2.f1.f2.label .top.f1.f2.f1.f2.ren -side top -expand 1 -fill both
 pack .top.f1.f2.f2.f1.label .top.f1.f2.f2.f1.ren -side top -expand 1 -fill both
+pack .top.f1.f2.f2.f2.label .top.f1.f2.f2.f2.ren -side top -expand 1 -fill both
 
 set renWin1 [.top.f1.f2.f1.f1.ren GetRenderWindow]
 vtkRenderer ren1
 $renWin1 AddRenderer ren1
 
+set renWin2 [.top.f1.f2.f1.f2.ren GetRenderWindow]
+vtkRenderer ren2
+$renWin2 AddRenderer ren2
 
-set renWin3 renWin
+set renWin3 [.top.f1.f2.f2.f1.ren GetRenderWindow]
 vtkRenderer ren3
 $renWin3 AddRenderer ren3
 
+set renWin4 [.top.f1.f2.f2.f2.ren GetRenderWindow]
+vtkRenderer ren4
+$renWin4 AddRenderer ren4
+
 $renWin1 SetSize 256 256
+$renWin2 SetSize 256 256
 $renWin3 SetSize 256 256
+$renWin4 SetSize 256 256
 
 
 ### Create the help message area
@@ -103,7 +239,7 @@ set control_menu_value {Slice Viewer Controls}
 
 set control_menu [tk_optionMenu .top.f1.f1.f1.menu control_menu_value \
         {Slice Viewer Controls} \
-	{Composite Controls} ]
+	{MIP Controls} {Composite Controls} {Isosurface Controls} ]
 
 .top.f1.f1.f1.menu configure -fg #999999 -bg #440066 \
 	-activeforeground #440066 -activebackground #999999 \
@@ -120,6 +256,65 @@ bind $control_menu <Unmap> { after 100 { update ; change_active_controls } }
 pack .top.f1.f1.f1 -side top -expand 1 -fill both 
 pack .top.f1.f1.f1.label  -side top -expand 0 -fill both -padx 50 -pady 5
 pack .top.f1.f1.f1.menu -side top -expand 0 -fill none -padx 2 -pady 5
+
+
+### Create the control options area for MIP
+
+set ww .top.f1.f1.f1
+
+frame $ww.mip -bg #999999
+
+label $ww.mip.l1 -text "Interpolation Type:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+set mip_interpolation_type 0
+
+radiobutton $ww.mip.rb1 -text "Nearest Neighbor" \
+	-variable mip_interpolation_type -value 0 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ mip_prop SetInterpolationTypeToNearest; $renWin2 Render }
+
+radiobutton $ww.mip.rb2 -text "Trilinear" \
+	-variable mip_interpolation_type -value 1 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ mip_prop SetInterpolationTypeToLinear; $renWin2 Render }
+ 
+pack $ww.mip.l1 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+
+pack $ww.mip.rb1 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.mip.rb2 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+
+label $ww.mip.l2 -text "Value To Color Mapping:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+set mip_color_type 0
+
+radiobutton $ww.mip.rb3 -text "Greyscale" \
+	-variable mip_color_type -value 0 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ mip_prop SetColor gtfun; $renWin2 Render }
+
+radiobutton $ww.mip.rb4 -text "Color" \
+	-variable mip_color_type -value 1 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ mip_prop SetColor ctfun; $renWin2 Render }
+
+pack $ww.mip.l2 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+
+pack $ww.mip.rb3 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.mip.rb4 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 
 ### Create the control options area for Composite
@@ -212,10 +407,118 @@ pack $ww.comp.rb5 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 pack $ww.comp.rb6 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
 
 
+### Create the control options area for Isosurface
+
+set ww .top.f1.f1.f1
+
+frame $ww.iso -bg #999999
+
+label $ww.iso.l1 -text "Interpolation Type:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+set iso_interpolation_type 1
+
+radiobutton $ww.iso.rb1 -text "Nearest Neighbor" \
+	-variable iso_interpolation_type -value 0 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ iso_prop SetInterpolationTypeToNearest; $renWin4 Render }
+
+
+radiobutton $ww.iso.rb2 -text "Trilinear" \
+	-variable iso_interpolation_type -value 1 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ iso_prop SetInterpolationTypeToLinear; $renWin4 Render }
+ 
+pack $ww.iso.l1 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+
+pack $ww.iso.rb1 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.iso.rb2 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+
+label $ww.iso.l2 -text "Shading:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+
+set iso_shade_type 1
+
+radiobutton $ww.iso.rb3 -text "Off" \
+	-variable iso_shade_type -value 0 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ iso_prop ShadeOff; $renWin4 Render }
+
+
+radiobutton $ww.iso.rb4 -text "On" \
+	-variable iso_shade_type -value 1 \
+	-bg #999999 -fg #000000 -selectcolor #aa00ff \
+	-highlightthickness 0 -activebackground #999999 \
+	-font $demo_font \
+	-activeforeground #7700ff -command \
+	{ iso_prop ShadeOn; $renWin4 Render }
+ 
+ 
+pack $ww.iso.l2 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+
+pack $ww.iso.rb3 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.iso.rb4 -side top -padx 22 -pady 2 -expand 0 -fill none -anchor w
+
+label $ww.iso.l3 -text "Isovalue:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+set iso_value 128
+
+scale $ww.iso.s1 -length 120 -from 1 -to 255 -resolution 1 \
+	-bg #999999 -fg #770099 -variable iso_value \
+	-font $demo_font \
+	-orient horizontal -highlightthickness 0
+
+bind $ww.iso.s1 <ButtonRelease> { set_isosurface_value }
+
+pack $ww.iso.l3 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.iso.s1 -side top -padx 22 -pady 10 -expand 0 -fill none -anchor n
+
+label $ww.iso.l4 -text "Surface Color:" -bg #999999 -fg #000000 \
+	-font $demo_font
+
+image create photo color_wheel -file "ColorWheel.ppm"
+
+label $ww.iso.l5 -image color_wheel -highlightthickness 0
+
+pack $ww.iso.l4 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor w
+pack $ww.iso.l5 -side top -padx 2 -pady 2 -expand 0 -fill none -anchor n
+
+bind $ww.iso.l5 <Button-1> {
+    scan [color_wheel get %x %y] "%%f %%f %%f" r g b
+    
+    set r [expr $r / 255.0]
+    set g [expr $g / 255.0]
+    set b [expr $b / 255.0]
+    
+    const_ctfun AddRedPoint     0.0 $r
+    const_ctfun AddRedPoint   255.0 $r
+    const_ctfun AddGreenPoint   0.0 $g
+    const_ctfun AddGreenPoint 255.0 $g
+    const_ctfun AddBluePoint    0.0 $b
+    const_ctfun AddBluePoint  255.0 $b
+
+    $renWin4 Render
+}
 
 vtkSLCReader reader
+if { $argv == "" || \
+     [string range [lindex $argv 0] \
+	  [expr [string length [lindex $argv 0]] - 3] end] != "slc"} {
     reader SetFileName "../../../vtkdata/poship.slc"
-
+} else {
+    reader SetFileName [lindex $argv 0]
+}
 reader Update
 
 set bounds [[reader GetOutput] GetBounds]
@@ -281,8 +584,6 @@ pack $ww.slice.z.s1 -side left -padx 5 -pady 2 -expand 0 -fill none -anchor w
 bind $ww.slice.z.s1 <ButtonRelease> { set_z_slice_value }
 
 
-
-
 ### Start with Slice Viewer controls up
 
 pack .top.f1.f1.f1.slice -side top -expand 1 -fill both -pady 20
@@ -292,6 +593,10 @@ pack .top.f1.f1.f1.slice -side top -expand 1 -fill both -pady 20
 vtkPiecewiseFunction tfun;
         tfun AddPoint  20   0.0
         tfun AddPoint  255  0.2
+
+vtkPiecewiseFunction mip_tfun;
+        mip_tfun AddPoint    0   0.0
+        mip_tfun AddPoint  255   1.0
 
 vtkPiecewiseFunction gtfun;
         gtfun AddPoint    0   0.0
@@ -312,6 +617,33 @@ vtkColorTransferFunction ctfun
         ctfun AddGreenPoint   192.0 1.0
         ctfun AddGreenPoint   255.0 0.2
 
+vtkPiecewiseFunction const_tfun
+        const_tfun AddPoint  0    1.0
+        const_tfun AddPoint  255  1.0
+
+vtkColorTransferFunction const_ctfun
+        const_ctfun AddRedPoint      0.0 1.0
+        const_ctfun AddRedPoint    255.0 1.0
+        const_ctfun AddGreenPoint    0.0 1.0
+        const_ctfun AddGreenPoint  255.0 1.0
+        const_ctfun AddBluePoint     0.0 1.0
+        const_ctfun AddBluePoint   255.0 1.0
+
+vtkVolumeProperty mip_prop
+        mip_prop SetColor gtfun
+        mip_prop SetScalarOpacity mip_tfun
+
+vtkVolumeRayCastMIPFunction  mip_func
+        mip_func SetMaximizeMethodToScalarValue
+
+vtkVolumeRayCastMapper mip_volmap
+        mip_volmap SetScalarInput [reader GetOutput]
+        mip_volmap SetVolumeRayCastFunction mip_func
+
+vtkVolume mip_volume
+        mip_volume SetVolumeMapper mip_volmap
+        mip_volume SetVolumeProperty mip_prop
+
 
 vtkVolumeProperty comp_prop
         comp_prop SetColor ctfun
@@ -326,6 +658,24 @@ vtkVolumeRayCastMapper comp_volmap
 vtkVolume comp_volume
         comp_volume SetVolumeMapper comp_volmap
         comp_volume SetVolumeProperty comp_prop
+
+
+vtkVolumeProperty iso_prop
+        iso_prop SetColor const_ctfun
+        iso_prop SetScalarOpacity const_tfun
+        iso_prop ShadeOn
+        iso_prop SetInterpolationTypeToLinear
+
+vtkVolumeRayCastIsosurfaceFunction  iso_func
+        iso_func SetIsoValue 128.0
+
+vtkVolumeRayCastMapper iso_volmap
+        iso_volmap SetScalarInput [reader GetOutput]
+        iso_volmap SetVolumeRayCastFunction iso_func
+
+vtkVolume iso_volume
+        iso_volume SetVolumeMapper iso_volmap
+        iso_volume SetVolumeProperty iso_prop
 
 
 vtkCubeSource outline
@@ -364,14 +714,10 @@ vtkLookupTable ColorLookupTable
 ## This is the first probe plane
 
 vtkPlaneSource plane1
-    plane1 SetResolution 66 66
+  plane1 SetResolution [format "%.0f" $xdiff] [format "%.0f" $ydiff]
 
 vtkTransform transform1
-  transform1 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  [ expr $zdiff / 2.0 ]
-  transform1 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
+set_z_slice_value
 
 vtkTransformPolyDataFilter transpd1
   transpd1 SetInput [plane1 GetOutput]
@@ -391,8 +737,11 @@ vtkProbeFilter probe1
     probe1 SetInput [transpd1 GetOutput]
     probe1 SetSource [reader GetOutput]
 
+vtkCastToConcrete cast1
+    cast1 SetInput [probe1 GetOutput]
+
 vtkTriangleFilter tf1
-    tf1 SetInput [probe1 GetPolyDataOutput]
+    tf1 SetInput [cast1 GetPolyDataOutput]
 
 vtkStripper strip1
     strip1 SetInput [tf1 GetOutput]
@@ -405,19 +754,15 @@ vtkPolyDataMapper probemapper1
 vtkActor probe_actor1
     probe_actor1 SetMapper probemapper1
     [probe_actor1 GetProperty] SetOpacity 1.0
+#    [probe_actor1 GetProperty] SetRepresentationToWireframe
 
 ## This is the second probe plane
 
 vtkPlaneSource plane2
-    plane2 SetResolution 66 66
+  plane2 SetResolution [format "%.0f" $xdiff] [format "%.0f" $zdiff]
 
 vtkTransform transform2
-  transform2 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  [ expr $zdiff / 2.0 ]
-  transform2 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
-  transform2 RotateX 90
+set_y_slice_value
 
 vtkTransformPolyDataFilter transpd2
   transpd2 SetInput [plane2 GetOutput]
@@ -437,8 +782,11 @@ vtkProbeFilter probe2
     probe2 SetInput [transpd2 GetOutput]
     probe2 SetSource [reader GetOutput]
 
+vtkCastToConcrete cast2
+    cast2 SetInput [probe2 GetOutput]
+
 vtkTriangleFilter tf2
-    tf2 SetInput [probe2 GetPolyDataOutput]
+    tf2 SetInput [cast2 GetPolyDataOutput]
 
 vtkStripper strip2
     strip2 SetInput [tf2 GetOutput]
@@ -451,20 +799,16 @@ vtkPolyDataMapper probemapper2
 vtkActor probe_actor2
     probe_actor2 SetMapper probemapper2
     [probe_actor2 GetProperty] SetOpacity 1.0
+#    [probe_actor2 GetProperty] SetRepresentationToWireframe
 
 
 ## This is the third probe plane
 
 vtkPlaneSource plane3
-    plane3 SetResolution 66 66
+  plane3 SetResolution [format "%.0f" $zdiff] [format "%.0f" $ydiff]
 
 vtkTransform transform3
-  transform3 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  [ expr $zdiff / 2.0 ]
-  transform3 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
-  transform3 RotateY 90
+set_x_slice_value
 
 vtkTransformPolyDataFilter transpd3
   transpd3 SetInput [plane3 GetOutput]
@@ -484,8 +828,11 @@ vtkProbeFilter probe3
     probe3 SetInput [transpd3 GetOutput]
     probe3 SetSource [reader GetOutput]
 
+vtkCastToConcrete cast3
+    cast3 SetInput [probe3 GetOutput]
+
 vtkTriangleFilter tf3
-    tf3 SetInput [probe3 GetPolyDataOutput]
+    tf3 SetInput [cast3 GetPolyDataOutput]
 
 vtkStripper strip3
     strip3 SetInput [tf3 GetOutput]
@@ -498,7 +845,7 @@ vtkPolyDataMapper probemapper3
 vtkActor probe_actor3
     probe_actor3 SetMapper probemapper3
     [probe_actor3 GetProperty] SetOpacity 1.0
-
+#    [probe_actor3 GetProperty] SetRepresentationToWireframe
 
 
 ren1 AddActor  probe_actor1
@@ -509,96 +856,12 @@ ren1 AddActor  plane_outline_actor1
 ren1 AddActor  plane_outline_actor2
 ren1 AddActor  plane_outline_actor3
 
+ren2 AddVolume mip_volume
+ren2 AddActor  outline_actor
+
 ren3 AddVolume comp_volume
 ren3 AddActor  outline_actor
-proc TkCheckAbort {} {
-  global renWin3
-  set foo [$renWin3 GetEventPending]
-  if {$foo != 0} {puts "Aborting a render"; $renWin3 SetAbortRender 1}
-}
-$renWin3 SetAbortCheckMethod {TkCheckAbort}
 
+ren4 AddVolume iso_volume
+ren4 AddActor  outline_actor
 
-proc change_active_controls { } {
-    global control_menu_value
-
-    if [ winfo ismapped .top.f1.f1.f1.comp ] {
-	pack forget .top.f1.f1.f1.comp 
-    }
-
-    if [ winfo ismapped .top.f1.f1.f1.slice ] {
-	pack forget .top.f1.f1.f1.slice 
-    }
-
-    if  { $control_menu_value == "Composite Controls" } {
-	pack .top.f1.f1.f1.comp -side top -expand 1 -fill both -pady 20
-    } elseif  { $control_menu_value == "Slice Viewer Controls" } {
-	pack .top.f1.f1.f1.slice -side top -expand 1 -fill both -pady 20
-    }
-}
-
-
-proc set_y_slice_value { } {
-  global y_slice_value
-  global renWin1
-  global xdiff ydiff zdiff
-
-  transform2 Identity
-
-  transform2 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  [ expr $zdiff / 2.0 ]
-
-  transform2 RotateX 90
-
-  transform2 Translate \
-	  0.0 \
-	  0.0 \
-	  [expr [expr $ydiff / 2.0 ] - $y_slice_value ] 
- 
-  transform2 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
-   
-  $renWin1 Render
-}
-
-proc set_x_slice_value { } {
-  global x_slice_value
-  global renWin1
-  global xdiff ydiff zdiff
-
-  transform3 Identity
-
-  transform3 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  [ expr $zdiff / 2.0 ]
-
-  transform3 RotateY 90
-
-  transform3 Translate \
-	  0.0 \
-	  0.0 \
-	  [expr $x_slice_value - [expr $xdiff / 2.0 ] ] 
-
-  transform3 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
-
-  $renWin1 Render
-}
-
-proc set_z_slice_value { } {
-  global z_slice_value
-  global renWin1
-  global xdiff ydiff zdiff
-
-  transform1 Identity
-
-  transform1 Translate \
-	  [ expr $xdiff / 2.0 ] \
-	  [ expr $ydiff / 2.0 ] \
-	  $z_slice_value
-
-  transform1 Scale     [ expr $xdiff ] [ expr $ydiff ] [ expr $zdiff ]
-
-  $renWin1 Render
-}
