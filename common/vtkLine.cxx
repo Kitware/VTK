@@ -368,6 +368,7 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
       else return 0;
       }
     }
+  return 0;
 }
 
 int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkFloatPoints &pts)
