@@ -79,83 +79,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkKitwareContourFilter_h
 #define __vtkKitwareContourFilter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
-#include "vtkContourValues.h"
+#include "vtkContourFilter.h"
 
-class vtkScalarTree;
-
-class VTK_EXPORT vtkKitwareContourFilter : public vtkDataSetToPolyDataFilter
+class VTK_EXPORT vtkKitwareContourFilter : public vtkContourFilter
 {
 public:
   const char *GetClassName() {return "vtkKitwareContourFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Construct object with initial range (0,1) and single contour value
   // of 0.0.
-  static vtkKitwareContourFilter *New() {return new vtkKitwareContourFilter;};
-
-  // Description:
-  // Methods to set / get contour values.
-  void SetValue(int i, float value);
-  float GetValue(int i);
-  float *GetValues();
-  void GetValues(float *contourValues);
-  void SetNumberOfContours(int number);
-  int GetNumberOfContours();
-  void GenerateValues(int numContours, float range[2]);
-  void GenerateValues(int numContours, float rangeStart, float rangeEnd);
-
-  // Description:
-  // Modified GetMTime Because we delegate to vtkContourValues
-  unsigned long GetMTime();
-
-  // Description:
-  // Set/Get the computation of normals. Normal computation is failrly
-  // expensive in both time and storage. If the output data will be
-  // processed by filters that modify topology or geometry, it may be
-  // wise to turn Normals and Gradients off.
-  vtkSetMacro(ComputeNormals,int);
-  vtkGetMacro(ComputeNormals,int);
-  vtkBooleanMacro(ComputeNormals,int);
-
-  // Description:
-  // Set/Get the computation of gradients. Gradient computation is
-  // fairly expensive in both time and storage. Note that if
-  // ComputeNormals is on, gradients will have to be calculated, but
-  // will not be stored in the output dataset.  If the output data
-  // will be processed by filters that modify topology or geometry, it
-  // may be wise to turn Normals and Gradients off.
-  vtkSetMacro(ComputeGradients,int);
-  vtkGetMacro(ComputeGradients,int);
-  vtkBooleanMacro(ComputeGradients,int);
-
-  // Description:
-  // Set/Get the computation of scalars.
-  vtkSetMacro(ComputeScalars,int);
-  vtkGetMacro(ComputeScalars,int);
-  vtkBooleanMacro(ComputeScalars,int);
-
-  // Description:
-  // Enable the use of a scalar tree to accelerate contour extraction.
-  vtkSetMacro(UseScalarTree,int);
-  vtkGetMacro(UseScalarTree,int);
-  vtkBooleanMacro(UseScalarTree,int);
-
-  // Description:
-  // Set / get a spatial locator for merging points. By default, 
-  // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
-
-  // Description:
-  // Create default locator. Used to create one when none is
-  // specified. The locator is used to merge coincident points.
-  void CreateDefaultLocator();
-
-  // Description:
-  // For legacy compatibility. Do not use.
-  void SetLocator(vtkPointLocator& locator) {this->SetLocator(&locator);};
+  static vtkKitwareContourFilter *New();
 
 protected:
   vtkKitwareContourFilter();
@@ -165,67 +99,13 @@ protected:
   
   void Execute();
 
-  vtkContourValues *ContourValues;
-  int ComputeNormals;
-  int ComputeGradients;
-  int ComputeScalars;
-  vtkPointLocator *Locator;
-  int UseScalarTree;
-  vtkScalarTree *ScalarTree;
-
-  void StructuredPointsContour(int dim); //special contouring for structured points
-  void StructuredGridContour(int dim); //special contouring for structured grid
+  //special contouring for structured points
+  void StructuredPointsContour(int dim); 
+  //special contouring for structured grid
+  void StructuredGridContour(int dim);
+  //default if not structured data
+  void DataSetContour();
 };
-
-// Description:
-// Set a particular contour value at contour number i. The index i ranges 
-// between 0<=i<NumberOfContours.
-inline void vtkKitwareContourFilter::SetValue(int i, float value)
-{this->ContourValues->SetValue(i,value);}
-
-// Description:
-// Get the ith contour value.
-inline float vtkKitwareContourFilter::GetValue(int i)
-{return this->ContourValues->GetValue(i);}
-
-// Description:
-// Get a pointer to an array of contour values. There will be
-// GetNumberOfContours() values in the list.
-inline float *vtkKitwareContourFilter::GetValues()
-{return this->ContourValues->GetValues();}
-
-// Description:
-// Fill a supplied list with contour values. There will be
-// GetNumberOfContours() values in the list. Make sure you allocate
-// enough memory to hold the list.
-inline void vtkKitwareContourFilter::GetValues(float *contourValues)
-{this->ContourValues->GetValues(contourValues);}
-
-// Description:
-// Set the number of contours to place into the list. You only really
-// need to use this method to reduce list size. The method SetValue()
-// will automatically increase list size as needed.
-inline void vtkKitwareContourFilter::SetNumberOfContours(int number)
-{this->ContourValues->SetNumberOfContours(number);}
-
-// Description:
-// Get the number of contours in the list of contour values.
-inline int vtkKitwareContourFilter::GetNumberOfContours()
-{return this->ContourValues->GetNumberOfContours();}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-inline void vtkKitwareContourFilter::GenerateValues(int numContours, float range[2])
-{this->ContourValues->GenerateValues(numContours, range);}
-
-// Description:
-// Generate numContours equally spaced contour values between specified
-// range. Contour values will include min/max range values.
-inline void vtkKitwareContourFilter::GenerateValues(int numContours, float
-                                             rangeStart, float rangeEnd)
-{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
-
 
 #endif
 
