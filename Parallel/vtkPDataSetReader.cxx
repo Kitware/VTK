@@ -251,6 +251,109 @@ vtkDataSet *vtkPDataSetReader::CheckOutput()
 
 
 //----------------------------------------------------------------------------
+// Returns 0 for end of file.
+// Returns 1 for start block, 2 for end block.  Puts block name in Param.
+// Returns 3 for parameter-value pair.
+int vtkPDataSetReader::ReadXML(ifstream *file, char **pb, char **retVal)
+{
+  static char str[1024];
+  static char* ptr = NULL;
+  static char block[256];
+  static char param[256];
+  static char value[512];
+  char *tmp;
+    
+  // skip white space
+  while (ptr == NULL || *ptr == ' ' || *ptr == '\t' || *ptr == '\n' || *ptr == '\0')
+    {
+    if (ptr == NULL || *ptr == '\0')
+      { // At the end of a line.  Read another.
+      file->getline(str, 1024);
+      if (file->fail())
+        {
+        *pb = NULL;
+        *retVal = NULL;
+        return 0;
+        }
+      str[1023] = '\0';
+      ptr = str;
+      }
+    else
+      {
+      ++ptr;
+      }
+    }
+
+  // Handle end block.
+  if (ptr[0] == '<' && ptr[1] == '/')
+    { // Assumes no spaces 
+    ptr += 2;
+    // We could check to see if the block name matches the start block...
+    tmp = block;
+    while (*ptr != '>' && *ptr != ' ' && *ptr != '\0')
+      {
+      *tmp++ = *ptr++;
+      }
+    *tmp = '\0';
+    *pb = block;
+    *retVal = NULL;
+    return 2;
+    }
+
+  // Handle start block.
+  if (ptr[0] == '<')
+    { // Assumes no spaces 
+    ptr += 1;
+    tmp = block;
+    while (*ptr != '>' && *ptr != ' ' && *ptr != '\0')
+      {
+      *tmp++ = *ptr++;
+      }
+    *tmp = '\0';
+    *pb = block;
+    *retVal = NULL;
+    return 1;
+    }
+
+  // Handle short version of end block.
+  if (ptr[0] == '/' && ptr[1] == '>')
+    { // Assumes no spaces 
+    ptr += 2;
+    // Uses block name saved from start block.
+    tmp = block;
+    return 2;
+    }
+  
+  // Must be a parameter
+  tmp = param;
+  while (*ptr != '=' && *ptr != '\0')
+    {
+    *tmp++ = *ptr++;
+    }
+  if (*ptr != '=')
+    {
+    vtkErrorMacro("Reached end of line before =");
+    return 0;
+    }
+  ++ptr;
+  if (*ptr != '"')
+    {
+    vtkErrorMacro("Expecting parameter value to be in quotes.");
+    return 0;
+    }
+  ++ptr;
+  tmp = value;
+  while (*ptr != '"' && *ptr != '\0')
+    {
+    *tmp++ = *ptr++;
+    }
+  
+  *pb = param;
+  *retVal = value;
+  return 3;
+}
+
+//----------------------------------------------------------------------------
 void vtkPDataSetReader::ExecuteInformation()
 {
   ifstream *file;

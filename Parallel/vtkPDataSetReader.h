@@ -105,6 +105,7 @@ protected:
 //BTX
   ifstream *vtkPDataSetReader::OpenFile();
 //ETX
+  int ReadXML(ifstream *file, char **param, char **value);
 
   int VTKFileFlag;
   int StructuredFlag;
