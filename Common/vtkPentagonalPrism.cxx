@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPentagonalPrism, "1.1");
+vtkCxxRevisionMacro(vtkPentagonalPrism, "1.2");
 vtkStandardNewMacro(vtkPentagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -407,7 +407,6 @@ void vtkPentagonalPrism::Contour(double value, vtkDataArray* cellScalars,
                                  vtkCellData *inCd, vtkIdType cellId,
                                  vtkCellData *outCd)
 {
-  int i;
   double s1, s2;
 
   // subdivide into 5 internal wedges with two points added in the middle
@@ -457,7 +456,6 @@ void vtkPentagonalPrism::Clip(double value, vtkDataArray *cellScalars,
                               vtkCellData *inCd, vtkIdType cellId, 
                               vtkCellData *outCd, int insideOut)
 {
-  int i;
   double s1, s2;
 
   // subdivide into 5 internal wedges with two points added in the middle
