@@ -52,6 +52,7 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *ren)
     int rowLength;
     unsigned char *resultData;
     int xsize, ysize;
+    unsigned short xs,ys;
 
     // get some info
     size = txt->GetInput()->GetDimensions();
@@ -101,10 +102,20 @@ void vtkOglrTexture::Load(vtkTexture *txt, vtkOglrRenderer *ren)
 	}
       }
 
-    // xsize and ysize must be a multiple of 2 in OpenGL
-    if (xsize % 2 || ysize % 2)
+    // xsize and ysize must be a power of 2 in OpenGL
+    xs = (unsigned short)xsize;
+    ys = (unsigned short)ysize;
+    while (!(xs & 0x01))
       {
-      vtkWarningMacro(<< "Texture maps must have an even width and height in OpenGL\n");
+      xs = xs >> 1;
+      }
+    while (!(ys & 0x01))
+      {
+      ys = ys >> 1;
+      }
+    if ((xs > 1)||(ys > 1))
+      {
+      vtkWarningMacro(<< "Texture map's width and height must be a power of two in OpenGL\n");
       }
 
     // format the data so that it can be sent to the gl
