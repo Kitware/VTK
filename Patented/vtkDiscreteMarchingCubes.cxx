@@ -55,7 +55,7 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.1");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.2");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -92,7 +92,6 @@ void vtkDiscreteMarchingCubesComputeGradient(
   EDGE_LIST  *edge;
   int contNum, jOffset, kOffset, idx, ii, index, *vert;
   vtkIdType ptIds[3];
-  vtkIdType cellId;
   int ComputeScalars = newCellScalars != NULL;
   vtkFloatingPointType t, *x1, *x2, x[3], min, max;
   vtkFloatingPointType pts[8][3], xp, yp, zp;
@@ -236,7 +235,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
                  ptIds[0] != ptIds[2] &&
                  ptIds[1] != ptIds[2] )
                 {
-                cellId = newPolys->InsertNextCell(3,ptIds);
+                newPolys->InsertNextCell(3,ptIds);
                 // Note that DiscreteMarchingCubes stores the scalar
                 // data in the cells. It does not use the point data
                 // since cells from different labeled segments may use
