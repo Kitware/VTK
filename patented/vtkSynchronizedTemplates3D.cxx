@@ -228,7 +228,6 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
 {
   int xdim = exExt[1] - exExt[0] + 1;
   int ydim = exExt[3] - exExt[2] + 1;
-  int zdim = exExt[5] - exExt[4] + 1;
   float *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
@@ -237,7 +236,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int xInc, yInc, zInc;
   float *origin = data->GetOrigin();
   float *spacing = data->GetSpacing();
-  int *itmp, *isect1Ptr, *isect2Ptr;
+  int *isect1Ptr, *isect2Ptr;
   float y, z, t;
   int i, j, k;
   int zstep, yisectstep;
@@ -246,7 +245,7 @@ static void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   int ComputeGradients = self->GetComputeGradients();
   int ComputeScalars = self->GetComputeScalars();
   int NeedGradients = ComputeGradients || ComputeNormals;
-  float n[3], n0[3], n1[3], n2[3], n3[3];
+  float n[3], n0[3], n1[3];
   int jj, g0;
   int *tablePtr;
   int idx, vidx;
@@ -483,7 +482,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   vtkCellArray *newPolys;
   void *ptr;
   vtkPolyData *output = this->GetOutput();
-  int estimatedSize;
   vtkScalars *newScalars;
   vtkNormals *newNormals;
   vtkVectors *newGradients;
