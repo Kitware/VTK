@@ -63,15 +63,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_STATE_SPLIT_ALL 2
 
 // Static variables used by object
-static vtkPolyData *Mesh; // operate on this data structure
-static float Pt[3], Normal[3]; // least squares plane point & normal
-static float LoopArea;   // the total area of all triangles in a loop
-static float CosAngle;   // Cosine of dihedral angle
-static float Tolerance;  // Intersection tolerance
+static vtkPolyData *Mesh; //operate on this data structure
+static float Pt[3], Normal[3]; //least squares plane point & normal
+static float LoopArea;   //the total area of all triangles in a loop
+static float CosAngle;   //Cosine of dihedral angle
+static float Tolerance;  //Intersection tolerance
 static float X[3];       //coordinates of current point
 static vtkVertexArray *V;//cycle of vertices around point
 static vtkTriArray *T;   //cycle of triangles around point
-static int NumCollapses; // Number of times edge collapses occur
+static int NumCollapses; //Number of times edge collapses occur
 static int NumMerges;    //Number of times vertex merges occur
 static int Split;        //Controls whether and when vertex splitting occurs
 static int VertexDegree; //Maximum number of triangles that can use a vertex
@@ -107,12 +107,15 @@ vtkDecimatePro::vtkDecimatePro()
   this->Degree = 25;
   this->BoundaryVertexDeletion = 1;
   this->InflectionPointRatio = 10.0;
+
   this->Queue = NULL;
+  this->VertexError = NULL;
 }
 
 vtkDecimatePro::~vtkDecimatePro()
 {
   if ( this->Queue ) delete this->Queue;
+  if ( this->VertexError ) delete this->VertexError;
 }
 
 //
@@ -191,9 +194,14 @@ void vtkDecimatePro::Execute()
     return;
     }
 
-  // Initialize data structures. Allocate a little extra space for 
-  // vertex splits.
+  // Initialize data structures: priority queue and errors.
   this->InitializeQueue(numPts);
+
+  if ( this->AccumulateError )
+    {
+    this->VertexError = new vtkFloatArray(numPts,(int) ((float)0.25*numPts));
+    for (i=0; i<numPts; i++) this->VertexError->SetValue(i, 0.0);
+    }
 
   // If not deferring splitting and splitting on, we'll start off by 
   // splitting the mesh. This has side effect of inserting vertices.
@@ -242,6 +250,8 @@ void vtkDecimatePro::Execute()
 
       if ( collapseId >= 0 )
         {
+        if ( this->AccumulateError ) this->DistributeError(error);
+
         totalEliminated += CollapseEdge(type, ptId, collapseId, pt1, pt2, 
                                         CollapseTris);
 
@@ -707,6 +717,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
     // Now split region
     id = Mesh->InsertNextLinkedPoint(X,numSplitTris);
+
     for ( i=fedge1; i < fedge2; i++ )
       { //disconnect from existing vertex
       tri = T->Array[i].id;
@@ -717,6 +728,9 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
     // Compute error and insert the two vertices (old + split)
     error = ComputeEdgeError(X, V->Array[fedge1].x, V->Array[fedge2].x);
+    if ( this->AccumulateError ) 
+      this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
+
     if ( insert )
       {
       this->Insert(ptId,error);
@@ -754,6 +768,9 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
 
       // Compute error for the vertex and insert
       error = ComputeEdgeError(X, V->Array[fedge1].x, V->Array[fedge2].x);
+      if ( this->AccumulateError ) 
+        this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
+
       if ( insert ) this->Insert(id,error);    
       }
 
@@ -762,6 +779,7 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
       error = ComputeEdgeError(X, V->Array[0].x, V->Array[veryFirst].x);
     else
       error = ComputeEdgeError(X, V->Array[veryFirst].x, V->Array[fedge1].x);
+
     if ( insert ) this->Insert(ptId,error);    
     }
 
@@ -826,6 +844,8 @@ void vtkDecimatePro::SplitVertex(int ptId, int type, unsigned short int numTris,
           Mesh->AddReferenceToCell(id, tri);
           Mesh->ReplaceCellPoint(tri, ptId, id);
           }
+        if ( this->AccumulateError ) 
+          this->VertexError->InsertValue(id, this->VertexError->GetValue(ptId));
         if ( insert ) this->Insert(id);
         }//if not first group
       }//for all groups
@@ -1103,9 +1123,9 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
         Mesh->ReplaceCellPoint(T->Array[i].id,ptId,collapseId);
         }
       }
-    }
+    }//if interior vertex
 
-  else if ( numDeleted == 1 ) //e.g., VTK_BOUNDARY_VERTEX
+  else // if ( numDeleted == 1 ) e.g., VTK_BOUNDARY_VERTEX
     {
     // delete one triangle
     Mesh->RemoveReferenceToCell(pt1, tri[0]);
@@ -1126,12 +1146,7 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
           }
         }
       }
-    }
-
-  else 
-    {
-    cerr << "bad fall thru\n";
-    }
+    } //else boundary vertex
 
   // Update surrounding vertices. Need to copy verts first because the V/T
   // arrays might change as points are being reinserted.
@@ -1187,6 +1202,9 @@ int vtkDecimatePro::GetNumberOfInflectionPoints()
 
 void vtkDecimatePro::InitializeQueue(int numPts)
 {
+  if ( !this->PreserveTopology && this->Splitting ) 
+    numPts = (int) ((float)numPts*1.25);
+
   this->Queue = new vtkPriorityQueue(numPts, (int)((float)0.25*numPts));
 }
 
@@ -1286,6 +1304,7 @@ void vtkDecimatePro::Insert(int ptId, float error)
 
       if ( simpleType )
         {
+        if ( this->AccumulateError ) error += this->VertexError->GetValue(ptId);
         this->Queue->Insert(error,ptId);
         }
 
@@ -1319,9 +1338,23 @@ void vtkDecimatePro::Insert(int ptId, float error)
   // Sometimes the error is computed for us so we insert it appropriately
   else 
     {
+    if ( this->AccumulateError ) error += this->VertexError->GetValue(ptId);
     this->Queue->Insert(error,ptId);
     }
+}
 
+// Compute the error of the point to the new triangulated surface
+void vtkDecimatePro::DistributeError(float error)
+{
+  int i;
+  int nverts=V->MaxId+1;
+  float previousError;
+
+  for (i=0; i < nverts; i++)
+    {
+    previousError = this->VertexError->GetValue(V->Array[i].id);
+    this->VertexError->SetValue(V->Array[i].id, previousError+error);
+    }
 }
 
 void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)

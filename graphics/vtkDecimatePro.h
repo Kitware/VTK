@@ -296,6 +296,7 @@ protected:
                    int insert);
   int CollapseEdge(int type, int ptId, int collapseId, int pt1, int pt2,
                    vtkIdList& CollapseTris);
+  void DistributeError(float error);
 
 private:
   void InitializeQueue(int numPts);
@@ -306,6 +307,7 @@ private:
   void Reset() {this->Queue->Reset();};
 
   vtkPriorityQueue *Queue;
+  vtkFloatArray *VertexError;
 
 };
 
