@@ -46,7 +46,7 @@ vtkImageToIsoSurface iso
 #iso Update
 #exit
 
-vtkPolyMapper isoMapper
+vtkPolyDataMapper isoMapper
     isoMapper SetInput [iso GetOutput]
     isoMapper SetScalarRange 100 1500
 vtkActor isoActor

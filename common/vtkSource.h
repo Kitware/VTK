@@ -70,7 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // data (please see text).
 
 // .SECTION See Also
-// vtkDataSetReader vtkFilter vtkPolySource vtkStructuredGridSource
+// vtkDataSetReader vtkFilter vtkPolyDataSource vtkStructuredGridSource
 // vtkStructuredPointsSource vtkUnstructuredGridSource
 
 #ifndef __vtkSource_h

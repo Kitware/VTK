@@ -44,15 +44,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // files.
 //
 // .SECTION See Also
-// vtkPolyWriter
+// vtkPolyDataWriter
 
 
 #ifndef __vtkIVWriter_h
 #define __vtkIVWriter_h
 
-#include "vtkPolyWriter.h"
+#include "vtkPolyDataWriter.h"
 
-class VTK_EXPORT vtkIVWriter : public vtkPolyWriter
+class VTK_EXPORT vtkIVWriter : public vtkPolyDataWriter
 {
 public:
   static vtkIVWriter *New() {return new vtkIVWriter;};

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkEarthSource_h
 #define __vtkEarthSource_h
 
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 
-class VTK_EXPORT vtkEarthSource : public vtkPolySource 
+class VTK_EXPORT vtkEarthSource : public vtkPolyDataSource 
 {
 public:
   vtkEarthSource();

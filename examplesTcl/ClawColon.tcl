@@ -157,7 +157,7 @@ glyph ScaleByScalar;
 glyph OrientOff;
 glyph SetInput [space GetPathPolyData claw];
 
-vtkPolyMapper pathMapper;
+vtkPolyDataMapper pathMapper;
 pathMapper SetInput [glyph GetOutput];
 
 vtkActor pathActor;
@@ -173,7 +173,7 @@ collisionGlyph ScalingOff;
 collisionGlyph OrientOff;
 collisionGlyph SetInput [space GetCollisionPolyData claw];
 
-vtkPolyMapper collisionMapper;
+vtkPolyDataMapper collisionMapper;
 collisionMapper SetInput [collisionGlyph GetOutput];
 
 vtkActor collisionActor;

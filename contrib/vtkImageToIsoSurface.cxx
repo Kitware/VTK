@@ -68,7 +68,7 @@ vtkImageToIsoSurface::~vtkImageToIsoSurface()
 // then this object is modified as well.
 unsigned long vtkImageToIsoSurface::GetMTime()
 {
-  unsigned long mTime=this->vtkPolySource::GetMTime();
+  unsigned long mTime=this->vtkPolyDataSource::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
  
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
@@ -760,7 +760,7 @@ int *vtkImageToIsoSurface::GetLocatorPointer(int cellX,int cellY,int edge)
 //----------------------------------------------------------------------------
 void vtkImageToIsoSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
 

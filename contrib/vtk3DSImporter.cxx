@@ -38,11 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
 #include "vtk3DSImporter.h"
 #include "vtkByteSwap.h"
-#include "vtkPolyMapper.h"
-#include "vtkPolyNormals.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataNormals.h"
 
 static int parse_3ds_file (vtk3DSImporter *importer);
 static void parse_3ds (vtk3DSImporter *importer, Chunk *mainchunk);
@@ -119,8 +118,8 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
 {
   MatProp *material;
   Mesh *mesh;
-  vtkPolyNormals *polyNormals;
-  vtkPolyMapper *polyMapper;
+  vtkPolyDataNormals *polyNormals;
+  vtkPolyDataMapper *polyMapper;
   vtkPolyData *polyData;
   vtkActor *actor;
 
@@ -135,12 +134,12 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
       }
 
     polyData = GeneratePolyData (mesh);
-    polyMapper = vtkPolyMapper::New ();
+    polyMapper = vtkPolyDataMapper::New ();
 
-    // if ComputeNormals is on, insert a vtkPolyNormals filter
+    // if ComputeNormals is on, insert a vtkPolyDataNormals filter
     if (this->ComputeNormals)
       {
-      polyNormals = vtkPolyNormals::New ();
+      polyNormals = vtkPolyDataNormals::New ();
       polyNormals->SetInput (polyData);
       polyMapper->SetInput (polyNormals->GetOutput ());
       }

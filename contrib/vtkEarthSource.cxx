@@ -57,7 +57,7 @@ vtkEarthSource::vtkEarthSource()
 
 void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkPolyDataSource::PrintSelf(os,indent);
   
   os << indent << "Radius: " << this->Radius << "\n";
   os << indent << "OnRatio: " << this->OnRatio << "\n";

@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .EXAMPLE XFormSph.cc
 // .SECTION see also
 // vtkMatrix4x4 vtkTransformCollection vtkTransformFilter
-// vtkTransformPolyFilter
+// vtkTransformPolyDataFilter
 
 #ifndef __vtkTransform_h
 #define __vtkTransform_h

@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
 
 # create a plane source and actor
 vtkPlaneSource plane;
-vtkPolyMapper  planeMapper;
+vtkPolyDataMapper  planeMapper;
 planeMapper SetInput [plane GetOutput];
 vtkActor planeActor;
 planeActor SetMapper planeMapper;

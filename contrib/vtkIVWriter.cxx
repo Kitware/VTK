@@ -40,7 +40,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <stdio.h>
 #include "vtkIVWriter.h"
-#include "vtkPolyMapper.h"
+#include "vtkPolyDataMapper.h"
 
 void vtkIVWriter::WriteData()
 {
@@ -83,10 +83,10 @@ void vtkIVWriter::WritePolyData(vtkPolyData *pd, FILE *fp)
   int i;
   vtkCellArray *cells;
   int npts, *indx;
-  vtkPolyMapper *pm;
+  vtkPolyDataMapper *pm;
   vtkColorScalars *colors;
   
-  pm = vtkPolyMapper::New();
+  pm = vtkPolyDataMapper::New();
   pm->SetInput(pd);
   
   points = pd->GetPoints();

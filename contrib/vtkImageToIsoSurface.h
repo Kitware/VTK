@@ -48,11 +48,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkImageToIsoSurface_h
 
 #include "vtkImageSource.h"
-#include "vtkPolySource.h"
+#include "vtkPolyDataSource.h"
 #include "vtkStructuredPointsToImage.h"
 #include "vtkContourValues.h"
 
-class VTK_EXPORT vtkImageToIsoSurface : public vtkPolySource
+class VTK_EXPORT vtkImageToIsoSurface : public vtkPolyDataSource
 {
 public:
   vtkImageToIsoSurface();
