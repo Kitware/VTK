@@ -146,8 +146,8 @@ void vtkGeometryFilter::Execute()
   vtkCell *cell, *face, *cellCopy;
   float *x;
   vtkIdList *ptIds;
-  vtkIdList *cellIds = vtkIdList::New();
-  vtkIdList *pts = vtkIdList::New();
+  vtkIdList *cellIds;
+  vtkIdList *pts;
   vtkPoints *newPts;
   int ptId;
   int npts, pt;
@@ -163,6 +163,9 @@ void vtkGeometryFilter::Execute()
     this->UnstructuredGridExecute();
     return;
     }
+  
+  cellIds = vtkIdList::New();
+  pts = vtkIdList::New();
 
   vtkDebugMacro(<<"Executing geometry filter");
 
@@ -547,7 +550,6 @@ void vtkGeometryFilter::UnstructuredGridExecute()
           break;
           
         case VTK_TRIANGLE:
-        case VTK_PIXEL:
         case VTK_QUAD:
         case VTK_POLYGON:
           newCellId = Polys->InsertNextCell(npts);
@@ -563,6 +565,26 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               {
               pt = newPts->InsertNextPoint(x);
               outputPD->CopyData(pd,pts[i],pt);
+              }
+            Polys->InsertCellPoint(pt);
+            }
+          outputCD->CopyData(cd,cellId,newCellId);
+          break;
+
+        case VTK_PIXEL:
+          newCellId = Polys->InsertNextCell(npts);
+          for ( i=0; i < npts; i++)
+            {
+            x = input->GetPoint(pts[PixelConvert[i]]);
+
+            if (this->Merging && this->Locator->InsertUniquePoint(x, pt))
+              {
+              outputPD->CopyData(pd,pts[PixelConvert[i]],pt);
+              }
+            else if (!this->Merging)
+              {
+              pt = newPts->InsertNextPoint(x);
+              outputPD->CopyData(pd,pts[PixelConvert[i]],pt);
               }
             Polys->InsertCellPoint(pt);
             }
@@ -800,6 +822,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
   << output->GetNumberOfCells() << " cells.");
 
   cellIds->Delete();
+  faceIds->Delete();
   if ( cellVis )
     {
     delete [] cellVis;
