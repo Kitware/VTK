@@ -76,21 +76,6 @@ public:
   void TriggerRequestDataObject(int remoteProcessId);
   void TriggerRequestData(int remoteProcessId);
   
-  // Description:
-  // Trying to get pipeline parallelism working.
-  vtkSetMacro(PipelineFlag, int);
-  vtkGetMacro(PipelineFlag, int);
-  vtkBooleanMacro(PipelineFlag, int);  
-  
-  // Description:
-  // This method is called after the port updates.  It is meant to change
-  // a parameter if a series is being processed (for pipeline parallelism).
-  void SetParameterMethod(void (*f)(void *), void *arg);
-
-  // Description:
-  // Set the arg delete method. This is used to free user memory.
-  void SetParameterMethodArgDelete(void (*f)(void *));
-  
 protected:
   vtkOutputPort();
   ~vtkOutputPort();  
@@ -103,11 +88,6 @@ protected:
   vtkMultiProcessController *Controller;
   vtkTimeStamp UpdateTime;
 
-  // Stuff for pipeline parallelism.
-  int PipelineFlag;
-  void (*ParameterMethod)(void *);
-  void (*ParameterMethodArgDelete)(void *);
-  void *ParameterMethodArg;
 private:
   vtkOutputPort(const vtkOutputPort&);  // Not implemented.
   void operator=(const vtkOutputPort&);  // Not implemented.

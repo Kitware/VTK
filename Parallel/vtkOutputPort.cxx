@@ -23,7 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.15");
+vtkCxxRevisionMacro(vtkOutputPort, "1.16");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -37,11 +37,6 @@ vtkOutputPort::vtkOutputPort()
   this->Controller = NULL;
   this->SetController(vtkMultiProcessController::GetGlobalController());
   
-  this->PipelineFlag = 0;
-  this->ParameterMethod = NULL;
-  this->ParameterMethodArgDelete = NULL;
-  this->ParameterMethodArg = NULL;
-
   this->SetNumberOfInputPorts(1);
 }
 
@@ -50,11 +45,6 @@ vtkOutputPort::vtkOutputPort()
 vtkOutputPort::~vtkOutputPort()
 {
   this->SetController(0);
-
-  if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
-    {
-    (*this->ParameterMethodArgDelete)(this->ParameterMethodArg);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -63,8 +53,6 @@ void vtkOutputPort::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << indent << "Tag: " << this->Tag << endl;
   os << indent << "Controller: (" << this->Controller << ")\n";
-  os << indent << "Pipeline Flag: " 
-     << (this->PipelineFlag ? "On\n" : "Off\n");
 }
 
 
@@ -128,7 +116,6 @@ void vtkOutputPort::TriggerRequestData(int remoteProcessId)
     // First transfer the new data.
     this->Controller->Send( input, remoteProcessId,
                             vtkInputPort::DATA_TRANSFER_TAG);
-    this->InvokeEvent(vtkCommand::EndEvent,NULL);
     
     // Since this time has to be local to downstream process
     // and we have no data, we have to create a time here.
@@ -154,27 +141,8 @@ void vtkOutputPort::TriggerRequestData(int remoteProcessId)
     this->Controller->Send( &this->DownDataTime, 1, remoteProcessId,
                             vtkInputPort::NEW_DATA_TIME_TAG);
     }
-  
-  // Postpone the update if we want pipeline parallism.
-  // Handle no input gracefully. (Not true: Later we will send a NULL input.)
-  if (this->PipelineFlag)
-    {
-    // change any parameters if the user wants to.
-    if ( this->ParameterMethod )
-      {
-      (*this->ParameterMethod)(this->ParameterMethodArg);
-      input->UpdateInformation();
-      }
-    
-    // Update to anticipate the next request.
-    if ( input != NULL )
-      {
-      input->UpdateInformation();
-      input->PropagateUpdateExtent();
-      input->TriggerAsynchronousUpdate();
-      input->UpdateData();
-      }
-    }
+
+  this->InvokeEvent(vtkCommand::EndEvent,NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -263,31 +231,14 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
   input->SetUpdateNumberOfPieces( extent[7] );
   input->SetUpdateGhostLevel( extent[8] );
   
-  // Note:  Receiving DataTime was the start of a more intelligent promotion
-  // for pipeline parallism.  Unfortunately there was no way (I knew of)
-  // for us to not promote on the first Update.  I backed off, and am 
-  // requiring either 1: Filters handle Update Not returning correct data,
-  // or 2: Pipeline parallelism must be primed with Updates on the Output
-  // ports (giving correct data).  This Receive can be removed.
-  
-  // This is for pipeline parallism.
-  // This Output port may or may not promote our data (execute).
-  // We need the data time of the last transfer to compare to the mtime
-  // of our input to determine if it should send the data (execute).
-  this->Controller->Receive( &(this->DownDataTime), 1, remoteProcessId,
-                             vtkInputPort::NEW_DATA_TIME_TAG);
-
   // What was the idea of using relesed data here?  It caused a bug for
   // multiple updates.  if ( input != NULL && input->GetDataReleased())
   
   // Postpone the update if we want pipeline parallism.
   // Handle no input gracefully. (Not true: Later we will send a NULL input.)
-  if ( input != NULL && this->PipelineFlag == 0)
+  if ( input != NULL)
     {
-    input->UpdateInformation();
-    input->PropagateUpdateExtent();
-    input->TriggerAsynchronousUpdate();
-    input->UpdateData();
+    input->Update();
     }
 
 }
@@ -354,33 +305,6 @@ void vtkOutputPort::SetTag(int tag)
                            (void *)this, tag+3);
 }
 
-
-//----------------------------------------------------------------------------
-void vtkOutputPort::SetParameterMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->ParameterMethod || arg != this->ParameterMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->ParameterMethodArg)&&(this->ParameterMethodArgDelete))
-      {
-      (*this->ParameterMethodArgDelete)(this->ParameterMethodArg);
-      }
-    this->ParameterMethod = f;
-    this->ParameterMethodArg = arg;
-    this->Modified();
-    }
-}
-
-
-//----------------------------------------------------------------------------
-void vtkOutputPort::SetParameterMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->ParameterMethodArgDelete)
-    {
-    this->ParameterMethodArgDelete = f;
-    this->Modified();
-    }
-}
 
 //----------------------------------------------------------------------------
 void vtkOutputPort::WaitForUpdate() 

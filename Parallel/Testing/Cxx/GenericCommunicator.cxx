@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkActor.h"
 #include "vtkCharArray.h"
+#include "vtkCallbackCommand.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
@@ -49,15 +50,12 @@ struct GenericCommunicatorArgs_tmp
   char** argv;
 };
 
-static void UpdateXFreq(void* arg)
+static void UpdateXFreq(vtkObject *vtkNotUsed( caller ),
+                        unsigned long vtkNotUsed(eventId), 
+                        void *cd, void *)
 {
-  vtkRTAnalyticSource* id = reinterpret_cast<vtkRTAnalyticSource*>(arg);
+  vtkRTAnalyticSource* id = reinterpret_cast<vtkRTAnalyticSource*>(cd);
   id->SetXFreq(id->GetXFreq()+20);
-}
-
-static void DeleteAnArg(void*)
-{
-  return;
 }
 
 void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
@@ -183,10 +181,13 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   id->SetZMag( 5 );
   id->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
 
+  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
+  cbc->SetCallback(UpdateXFreq);
+  cbc->SetClientData((void *)id);
+  op->AddObserver(vtkCommand::EndEvent,cbc);
+  cbc->Delete();
+                  
   op->SetInput(id->GetOutput());
-  op->PipelineFlagOn();
-  op->SetParameterMethod(UpdateXFreq, id);
-  op->SetParameterMethodArgDelete(DeleteAnArg);
   op->WaitForUpdate();
   id->Delete();
 

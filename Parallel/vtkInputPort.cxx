@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.19");
+vtkCxxRevisionMacro(vtkInputPort, "1.20");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -241,13 +241,6 @@ int vtkInputPort::RequestData(vtkInformation* vtkNotUsed(request),
   this->Controller->Send( extent, 9, this->RemoteProcessId, 
                           vtkInputPort::UPDATE_EXTENT_TAG);
 
-  // This is for pipeline parallism.
-  // The Upstream port may or may not promote its data (execute).
-  // It needs the data time of our output to compare to the mtime
-  // of its input to determine if it should send the data (execute).
-  this->Controller->Send( &(this->DataTime), 1, this->RemoteProcessId,
-                          vtkInputPort::NEW_DATA_TIME_TAG);
-  
   if (this->UpStreamMTime <= this->DataTime && ! output->GetDataReleased() &&
       !this->UpdateExtentIsOutsideOfTheExtent(output) )
     { 
