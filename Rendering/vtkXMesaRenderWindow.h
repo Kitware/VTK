@@ -91,6 +91,12 @@ public:
   void MakeCurrent();
   
   // Description:
+  // If called, allow MakeCurrent() to skip cache-check when called.
+  // MakeCurrent() reverts to original behavior of cache-checking     
+  // on the next render.     
+  void SetForceMakeCurrent();
+
+  // Description:
   // Xwindow get set functions
   virtual void *GetGenericDisplayId() {return (void *)this->GetDisplayId();};
   virtual void *GetGenericWindowId();
@@ -187,6 +193,7 @@ protected:
   int      OwnDisplay;
   int      ScreenSize[2];
   int      CursorHidden;
+  int      ForceMakeCurrent;
 
 private:
   vtkXMesaRenderWindow(const vtkXMesaRenderWindow&);  // Not implemented.
