@@ -15,8 +15,8 @@
 // .NAME vtkParametricFunctionSource - tessellate parametric functions
 // .SECTION Description
 // This class tessellates parametric functions. The user must specify how
-// many points in the parametric coordinate directions are required, and 
-// mode to use to generate scalars.
+// many points in the parametric coordinate directions are required (i.e.,
+// the resolution), and the mode to use to generate scalars.
 //
 // .SECTION Thanks
 // Andrew Maclean a.maclean@cas.edu.au for creating and contributing the
@@ -58,19 +58,25 @@ public:
   vtkGetObjectMacro(ParametricFunction,vtkParametricFunction);
 
   // Description:
-  // Set/Get the number of tessellant points in the u-direction.
-  vtkSetMacro(NumberOfUPoints,int);
-  vtkGetMacro(NumberOfUPoints,int);
+  // Set/Get the number of subdivisions / tessellations in the u parametric
+  // direction. Note that the number of tessellant points in the u 
+  // direction is the UResolution + 1.
+  vtkSetMacro(UResolution,int);
+  vtkGetMacro(UResolution,int);
 
   // Description:
-  // Set/Get the number of tessellant points in the v-direction.
-  vtkSetMacro(NumberOfVPoints,int);
-  vtkGetMacro(NumberOfVPoints,int);
+  // Set/Get the number of subdivisions / tessellations in the v parametric
+  // direction. Note that the number of tessellant points in the v 
+  // direction is the VResolution + 1.
+  vtkSetMacro(VResolution,int);
+  vtkGetMacro(VResolution,int);
 
   // Description:
-  // Set/Get the number of tessellant points in the w-direction.
-  vtkSetMacro(NumberOfWPoints,int);
-  vtkGetMacro(NumberOfWPoints,int);
+  // Set/Get the number of subdivisions / tessellations in the w parametric
+  // direction. Note that the number of tessellant points in the w 
+  // direction is the WResolution + 1.
+  vtkSetMacro(WResolution,int);
+  vtkGetMacro(WResolution,int);
 
   //BTX
   // Description:
@@ -147,12 +153,16 @@ protected:
   // Variables
   vtkParametricFunction *ParametricFunction;
   
-  int NumberOfUPoints;
-  int NumberOfVPoints;
-  int NumberOfWPoints;
+  int UResolution;
+  int VResolution;
+  int WResolution;
   int ScalarMode;
 
 private:
+  // Create output depending on function dimension
+  void Produce1DOutput(vtkInformationVector *output);
+  void Produce2DOutput(vtkInformationVector *output);
+
   // Description:
   // Generate triangle strips from an ordered set of points.
   //
@@ -160,8 +170,8 @@ private:
   // a vtkCellAarray of point IDs over the range MinimumU <= u < MaximumU 
   // and MinimumV <= v < MaximumV.
   //
-  // Before using this function, ensure that: NumberOfUPoints,
-  // NumberOfVPoints, MinimumU, MaximumU, MinimumV, MaximumV, JoinU, JoinV,
+  // Before using this function, ensure that: UResolution,
+  // VResolution, MinimumU, MaximumU, MinimumV, MaximumV, JoinU, JoinV,
   // TwistU, TwistV, ordering are set appropriately for the parametric function.
   //
   void MakeTriangleStrips ( vtkCellArray * strips, int PtsU, int PtsV );

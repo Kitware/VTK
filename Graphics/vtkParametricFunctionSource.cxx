@@ -29,15 +29,15 @@
 #include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.7");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.8");
 vtkStandardNewMacro(vtkParametricFunctionSource);
 
 
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
   ParametricFunction(NULL)
-  , NumberOfUPoints(50)
-  , NumberOfVPoints(50)
-  , NumberOfWPoints(50)
+  , UResolution(50)
+  , VResolution(50)
+  , WResolution(50)
   , ScalarMode(vtkParametricFunctionSource::SCALAR_NONE)
 {
   this->SetNumberOfInputPorts(0);
@@ -220,6 +220,56 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
     return 1;
     }
   
+  switch ( this->ParametricFunction->GetDimension() )
+    {
+    case 1:
+      this->Produce1DOutput(output);
+      break;
+    case 2:
+      this->Produce2DOutput(output);
+      break;
+    default:
+      vtkErrorMacro("Functions of dimension " 
+                    << this->ParametricFunction->GetDimension()
+                    << " are not supported.");
+    }
+
+  return 1;
+}
+
+void vtkParametricFunctionSource::Produce1DOutput(vtkInformationVector *output)
+{
+  vtkIdType numPts = this->UResolution + 1;
+  vtkCellArray *lines = vtkCellArray::New();
+  vtkPoints *pts = vtkPoints::New();
+  pts->SetNumberOfPoints(numPts);
+  vtkIdType i;
+  double x[3], Du[3], t[3];
+  
+  lines->Allocate(lines->EstimateSize(1,numPts));
+  lines->InsertNextCell(numPts);
+
+  // Insert points and cell points
+  for (i=0; i<numPts; i++)
+    {
+    t[0] = (double) i/this->UResolution;
+    this->ParametricFunction->Evaluate(t,x,Du);
+    pts->SetPoint(i,x);
+    lines->InsertCellPoint(i);
+    }
+  
+  vtkInformation *outInfo = output->GetInformationObject(0);
+  vtkPolyData *outData = static_cast<vtkPolyData*>
+    (outInfo->Get( vtkDataObject::DATA_OBJECT() ));
+  outData->SetPoints(pts);
+  outData->SetLines(lines);
+
+  pts->Delete();
+  lines->Delete();
+}
+
+void vtkParametricFunctionSource::Produce2DOutput(vtkInformationVector *output)
+{
   // Used to hold the surface
   vtkPolyData * pd = vtkPolyData::New();
 
@@ -227,12 +277,12 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
   // ... this->ParametricFunction->GetMaximumV() is included in the triangulation.
   double MaxU = this->ParametricFunction->GetMaximumU() + 
     (this->ParametricFunction->GetMaximumU() - this->ParametricFunction->GetMinimumU()) /
-    this->NumberOfUPoints;
-  int PtsU = this->NumberOfUPoints + 1;
+    (this->UResolution-1);
+  int PtsU = this->UResolution;
   double MaxV = this->ParametricFunction->GetMaximumV() + 
     (this->ParametricFunction->GetMaximumV() - this->ParametricFunction->GetMinimumV()) / 
-    this->NumberOfVPoints;
-  int PtsV = this->NumberOfVPoints + 1;
+    (this->VResolution-1);
+  int PtsV = this->VResolution;
   int totPts = PtsU * PtsV;
 
   // Scalars associated with each point 
@@ -452,8 +502,6 @@ int vtkParametricFunctionSource::RequestData(vtkInformation *vtkNotUsed(info),
   pd->Delete();
   tri->Delete();
   norm->Delete();
-
-  return 1;
 }
 
 /*
@@ -471,8 +519,8 @@ void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
   int & clockwiseOrdering,
   int & scalarMode)
 {
-  numberOfUPoints = this->NumberOfUPoints;
-  numberOfVPoints = this->NumberOfVPoints;
+  uResolution = this->UResolution;
+  vResolution = this->VResolution;
   minimumU = this->MinimumU;
   maximumU = this->ParametricFunction->GetMaximumU();
   minimumV = this->ParametricFunction->GetMinimumV();
@@ -486,8 +534,8 @@ void vtkParametricFunctionSource::GetAllParametricTriangulatorParameters (
 }
 
 void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
-  int numberOfUPoints,
-  int numberOfVPoints,
+  int uResolution,
+  int vResolution,
   double minimumU,
   double maximumU,
   double minimumV,
@@ -499,8 +547,8 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
   int ParametricFunction->GetclockwiseOrdering(),
   int scalarMode)
 {
-  this->NumberOfUPoints = numberOfUPoints;
-  this->NumberOfVPoints = numberOfVPoints;
+  this->UResolution = uResolution;
+  this->VResolution = vResolution;
   this->ParametricFunction->SetMinimumU( minimumU );
   this->ParametricFunction->SetMaximumU( maximumU );
   this->ParametricFunction->SetMinimumV( minimumV );
@@ -523,9 +571,9 @@ void vtkParametricFunctionSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "NumberOfUPoints: " << this->NumberOfUPoints << "\n";
-  os << indent << "NumberOfVPoints: " << this->NumberOfVPoints << "\n";
-  os << indent << "NumberOfWPoints: " << this->NumberOfWPoints << "\n";
+  os << indent << "U Resolution: " << this->UResolution << "\n";
+  os << indent << "V Resolution: " << this->VResolution << "\n";
+  os << indent << "W Resolution: " << this->WResolution << "\n";
 
   if ( this->ParametricFunction )
     {

@@ -123,6 +123,7 @@ vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkParametricKlein.cxx
 vtkParametricMobius.cxx
+vtkParametricSpline.cxx
 vtkParametricTorus.cxx
 vtkPentagonalPrism.cxx
 vtkPerlinNoise.cxx
