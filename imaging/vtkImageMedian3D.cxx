@@ -83,11 +83,12 @@ void vtkImageMedian3D::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
 {  
   int volume;
+  int modified = 1;
   
   if (this->KernelSize[0] == size0 && this->KernelSize[1] == size1 && 
       this->KernelSize[2] == size2)
     {
-    return;
+  	modified = 0;
     }
   
   // Set the kernel size and middle
@@ -103,7 +104,10 @@ void vtkImageMedian3D::SetKernelSize(int size0, int size1, int size2)
   volume *= size2;
 
   this->NumberOfElements = volume;
-  this->Modified();
+  if ( modified )
+  {
+	  this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
