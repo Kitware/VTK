@@ -69,9 +69,9 @@ camera SetPosition 1 0 0
 camera ComputeViewPlaneNormal
 ren100 ResetCamera
 camera Dolly 1.25
-renWin Render
 
-renWin SetSize 700 200
+renWin SetSize 600 180
+renWin Render
 iren Initialize
 
 # render the image
