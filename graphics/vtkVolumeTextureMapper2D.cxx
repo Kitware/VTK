@@ -1388,6 +1388,10 @@ void vtkVolumeTextureMapper2D::GenerateTexturesAndRenderQuads()
 	  break;
 	}
       break;
+    default:
+      vtkErrorMacro(
+        "vtkVolumeTextureMapper2D only works with short or char data.\n" << 
+        "Input type: " << inputType << " given.");
     }
 
 }
