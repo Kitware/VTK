@@ -142,8 +142,8 @@ vtkVoxel                GetFaceArray            304 4
 vtkWarpLens             GetCenter               301 2
 vtkWedge                GetEdgeArray            304 2
 vtkWedge                GetFaceArray            304 4
-vtkWindow               GetPosition             304 3
-vtkWindow               GetSize                 304 3
+vtkWindow               GetPosition             304 2
+vtkWindow               GetSize                 304 2
 vtkWindowLevelLookupTable GetMaximumTableValue  301 4
 vtkWindowLevelLookupTable GetMinimumTableValue  301 4
 vtkXImageWindow         GetPosition             304 2
