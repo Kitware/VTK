@@ -44,11 +44,15 @@ IF(JAVA_COMPILE)
       SET(KITS ${KITS} Rendering)
     ENDIF(VTK_USE_RENDERING)
 
+    ADD_EXECUTABLE(VTKJavaExecutable VTKJava.cxx)
+
     FOREACH(kit ${KITS})
+      TARGET_LINK_LIBRARIES(VTKJavaExecutable vtk${kit}Java)
       SET(VTK_JAVA_DEPENDENCIES "")
       ADD_CUSTOM_TARGET(VTKJava${kit} ALL)
       INCLUDE(${VTK_BINARY_DIR}/${kit}/JavaDependencies.cmake OPTIONAL)
       VTK_GENERATE_JAVA_DEPENDENCIES(VTKJava${kit} ${VTK_JAVA_DEPENDENCIES})
+      ADD_DEPENDENCIES(VTKJava${kit} VTKJavaExecutable)
       ADD_DEPENDENCIES(VTKJavaJar VTKJava${kit})
     ENDFOREACH(kit)
 
