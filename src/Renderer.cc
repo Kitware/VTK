@@ -132,7 +132,7 @@ void vtkRenderer::DoLights()
 
   if (!this->UpdateLights())
     {
-    vtkWarningMacro(<<"No lights are on, creating one.");
+    vtkDebugMacro(<<"No lights are on, creating one.");
     light1 = new vtkLight;
     this->AddLights(light1);
     light1->SetPosition(this->ActiveCamera->GetPosition());
@@ -149,7 +149,7 @@ void vtkRenderer::DoCameras()
 
   if (!this->UpdateCameras())
     {
-    vtkWarningMacro(<< "No cameras are on, creating one.");
+    vtkDebugMacro(<< "No cameras are on, creating one.");
     cam1 = new vtkCamera;
     this->SetActiveCamera(cam1);
     this->ResetCamera();
