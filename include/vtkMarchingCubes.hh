@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Return array of contour values (size of numContours).
-  vtkGetVectorMacro(Values,float,MAX_CONTOURS);
+  vtkGetVectorMacro(Values,float,VTK_MAX_CONTOURS);
 
   void GenerateValues(int numContours, float range[2]);
   void GenerateValues(int numContours, float range1, float range2);
@@ -81,7 +81,7 @@ public:
 protected:
   void Execute();
 
-  float Values[MAX_CONTOURS];
+  float Values[VTK_MAX_CONTOURS];
   int NumberOfContours;
   float Range[2];
 };
