@@ -27,7 +27,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkPStreamTracer, "1.1");
+vtkCxxRevisionMacro(vtkPStreamTracer, "1.2");
 vtkStandardNewMacro(vtkPStreamTracer);
 
 vtkCxxSetObjectMacro(vtkPStreamTracer, Controller, vtkMultiProcessController);
@@ -334,7 +334,6 @@ void vtkPStreamTracer::Execute()
                         this->IntegrationDirections);
   
   int myid = this->Controller->GetLocalProcessId();
-  float lastPoint[3];
   if (this->Seeds)
     {
     if (myid == 0)
