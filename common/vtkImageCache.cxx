@@ -101,13 +101,30 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
   os << indent << "NumberOfScalarComponents: " << 
     this->NumberOfScalarComponents << endl;
-  os << indent << "Source: (" << this->Source << ").\n";
+
+  if ( this->Source )
+    {
+    os << indent << "Source: (" << this->Source << ").\n";
+    }
+  else
+    {
+    os << indent << "Source: (none).\n";
+    }
+
   os << indent << "ReleaseDataFlag: " << this->ReleaseDataFlag << "\n";
   os << indent << "Data Released: " << this->DataReleased << "\n";
   os << indent << "ScalarType: "<<vtkImageScalarTypeNameMacro(this->ScalarType)
      << "\n";
-  os << indent << "ImageToStructuredPoints: (" 
-     << this->ImageToStructuredPoints << ")\n";
+
+  if ( this->ImageToStructuredPoints )
+    {
+    os << indent << "ImageToStructuredPoints: (" 
+       << this->ImageToStructuredPoints << ")\n";
+    }
+  else
+    {
+    os << indent << "ImageToStructuredPoints: (none)\n";
+    }
   
   os << indent << "Spacing: (" << this->Spacing[0];
   for (idx = 1; idx < 3; ++idx)

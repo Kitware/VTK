@@ -114,7 +114,14 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  os << indent << "Source: " << this->Source << "\n";
+  if ( this->Source )
+    {
+    os << indent << "Source: " << this->Source << "\n";
+    }
+  else
+    {
+    os << indent << "Source: (none)\n";
+    }
 
   os << indent << "Release Data: " << (this->ReleaseDataFlag ? "On\n" : "Off\n");
   os << indent << "Data Released: " << (this->DataReleased ? "True\n" : "False\n");
