@@ -98,12 +98,13 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     function += 2;
     }
 
-  cpset.insert(scalar_range[1]);
-  // Make sure there are at least two entries.
-  if (cpset.size() < 2)
-    {
-    cpset.insert(scalar_range[0]);
-    }
+  // Add the scalar at the beginning of the range so the interpolation is
+  // correct there.
+  cpset.insert(scalar_range[0]);
+  // Do the same for the end, but add a bunch of padding to make sure we
+  // don't have an array overrun (so long as the ray caster is behaving
+  // correctly).
+  cpset.insert(2*scalar_range[1] - scalar_range[0]);
 
   // Now record control points and colors.
   this->ControlPoints.erase(this->ControlPoints.begin(),
@@ -147,12 +148,13 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     function += 2;
     }
 
-  cpset.insert(scalar_range[1]);
-  // Make sure there are at least two entries.
-  if (cpset.size() < 2)
-    {
-    cpset.insert(scalar_range[0]);
-    }
+  // Add the scalar at the beginning of the range so the interpolation is
+  // correct there.
+  cpset.insert(scalar_range[0]);
+  // Do the same for the end, but add a bunch of padding to make sure we
+  // don't have an array overrun (so long as the ray caster is behaving
+  // correctly).
+  cpset.insert(2*scalar_range[1] - scalar_range[0]);
 
   // Now record control points and colors.
   this->ControlPoints.erase(this->ControlPoints.begin(),
@@ -193,7 +195,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.9");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.10");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
