@@ -163,10 +163,11 @@ int vtkPointSet::FindPoint(float x[3])
 int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
                           int& subId, float pcoords[3], float *weights)
 {
-  int ptId, walk;
-  float closestPoint[3];
-  float dist2;
-  vtkIdList *cellIds, *ptIds;
+  int             ptId, walk;
+  float           closestPoint[3];
+  float           dist2;
+  vtkIdList       *cellIds, *ptIds;
+  vtkGenericCell  *genericCell = NULL;
 
   // make sure everything is up to snuff
   if ( !this->Points )
@@ -191,7 +192,7 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   // If we don't have a starting cell, we'll have to find one. Find
   // the closest point to the input position, then get the cells that use
   // the point.  Then use one of the cells to begin the walking process.
-  if ( ! cell )
+  if ( !cell )
     {
     ptId = this->Locator->FindClosestPoint(x);
     if ( ptId < 0 )
@@ -204,15 +205,18 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
     this->GetPointCells(ptId, cellIds);
     if ( cellIds->GetNumberOfIds() > 0 )
       {
+      genericCell = vtkGenericCell::New();
       cellId = cellIds->GetId(0); //arbitrarily use first cell in list
-      cell = this->GetCell(cellId);
-  
+      this->GetCell(cellId, genericCell);
+
       // See whether this randomly choosen cell contains the point      
-      if ( cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,weights) == 1
-      && dist2 <= tol2 )
+      if ( genericCell->EvaluatePosition(x,closestPoint,subId,pcoords,
+				  dist2,weights) == 1
+	   && dist2 <= tol2 )
         {
 	cellIds->Delete();
 	ptIds->Delete();  
+	genericCell->Delete();
         return cellId;
         }
       }
@@ -222,27 +226,46 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   // previous chunk of code), then we use this to start our search. A
   // walking scheme is used, where we walk towards the point and eventually
   // locate the cell that contains the point.
-  if ( cell ) //we have a starting cell
+  if ( cell || genericCell) //we have a starting cell
     {
     for ( walk=0; walk < VTK_MAX_WALK; walk++ )
       {
-      cell->CellBoundary(subId, pcoords, ptIds);
+      if ( genericCell )
+	{
+	genericCell->CellBoundary(subId, pcoords, ptIds);
+	}
+      else
+	{
+	cell->CellBoundary(subId, pcoords, ptIds);
+	}
       this->GetCellNeighbors(cellId, ptIds, cellIds);
       if ( cellIds->GetNumberOfIds() > 0 )
         {
+	if ( !genericCell )
+	  {
+	  genericCell = vtkGenericCell::New();
+	  }
         cellId = cellIds->GetId(0);
-        cell = this->GetCell(cellId);
+        this->GetCell(cellId, genericCell);
         }
       else
         {
         break; //outside of data
         }
 
-      if ( cell->EvaluatePosition(x,closestPoint,subId,pcoords,dist2,weights) == 1
-      && dist2 <= tol2 )
+      if ( ( (genericCell && 
+	      genericCell->EvaluatePosition(x,closestPoint,subId,pcoords,
+					    dist2,weights) == 1 ) ||
+	     (!genericCell && cell->EvaluatePosition(x,closestPoint,
+				     subId,pcoords,dist2,weights) == 1 ) )
+	   && dist2 <= tol2 )
         {
 	cellIds->Delete();
 	ptIds->Delete();  
+	if ( genericCell )
+	  {
+	  genericCell->Delete();
+	  }
         return cellId;
         }
 
@@ -251,6 +274,11 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
 
   cellIds->Delete();
   ptIds->Delete();
+
+  if ( genericCell )
+    {
+    genericCell->Delete();
+    }
   
   return -1;
 }
