@@ -41,11 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkBandedPolyDataContourFilter - generate filled contours for vtkPolyData
 // .SECTION Description
-//
 // vtkBandedPolyDataContourFilter is a filter that takes as input vtkPolyData
 // and produces as output filled contours (also represented as vtkPolyData).
 // Filled conoturs are bands of cells that all have the same cell scalar
-// value, and can therefore be colored the same.
+// value, and can therefore be colored the same. The method is also referred
+// to as filled contour generation.
 //
 // To use this filter you must specify one or more contour values.  You can
 // either use the method SetValue() to specify each contour value, or use
@@ -54,8 +54,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // the contour value, and values above it. The scalar values of the piece
 // that is below the contour value is set to the average value of the (i-1)
 // and ith contour value; the piece above the contour value i is set to the
-// average of the ith and (i+1) contour value. Note that the contour values
-// of the first and last contour values are..
+// average of the ith and (i+1) contour value. Note that if the first and
+// last contour values are not the minimum/maximum contour range, then two
+// extra contour values are added corresponding to the minimum and maximum
+// range values.
 //
 #ifndef __vtkBandedPolyDataContourFilter_h
 #define __vtkBandedPolyDataContourFilter_h
@@ -77,7 +79,10 @@ public:
   static vtkBandedPolyDataContourFilter *New();
 
   // Description:
-  // Methods to set / get contour values.
+  // Methods to set / get contour values. A single value at a time can be
+  // set with SetValue(). Multiple contour values can be set with
+  // GenerateValues(). Note that GenerateValues() generates n values
+  // inclusive of the start and end range values.
   void SetValue(int i, float value);
   float GetValue(int i);
   float *GetValues();
@@ -88,28 +93,25 @@ public:
   void GenerateValues(int numContours, float rangeStart, float rangeEnd);
 
   // Description:
-  // Modified GetMTime Because we delegate to vtkContourValues
+  // Overload GetMTime because we delegate to vtkContourValues so its
+  // modified time must be taken into account.
   unsigned long GetMTime();
-
-  // Description:
-  // Set / get a spatial locator for merging points. By default, 
-  // an instance of vtkMergePoints is used.
-  void SetLocator(vtkPointLocator *locator);
-  vtkGetObjectMacro(Locator,vtkPointLocator);
-
-  // Description:
-  // Create default locator. Used to create one when none is
-  // specified. The locator is used to merge coincident points.
-  void CreateDefaultLocator();
 
 protected:
   vtkBandedPolyDataContourFilter();
   ~vtkBandedPolyDataContourFilter();
 
   void Execute();
+  int ComputeScalarIndex(float);
+  int ClipEdge(int v1, int v2, vtkPoints *pts, vtkDataArray *scalars,
+               vtkPointData *inPD, vtkPointData *outPD);
 
   vtkContourValues *ContourValues;
-  vtkPointLocator *Locator;
+  int   NumberOfClipValues;
+  float *ClipValues;
+  float *T;
+  int *PtIds;
+  int *CellScalars;
   
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
@@ -120,50 +122,52 @@ private:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
 inline void vtkBandedPolyDataContourFilter::SetValue(int i, float value)
-{this->ContourValues->SetValue(i,value);}
+  {this->ContourValues->SetValue(i,value);}
 
 // Description:
 // Get the ith contour value.
 inline float vtkBandedPolyDataContourFilter::GetValue(int i)
-{return this->ContourValues->GetValue(i);}
+  {return this->ContourValues->GetValue(i);}
 
 // Description:
 // Get a pointer to an array of contour values. There will be
 // GetNumberOfContours() values in the list.
 inline float *vtkBandedPolyDataContourFilter::GetValues()
-{return this->ContourValues->GetValues();}
+  {return this->ContourValues->GetValues();}
 
 // Description:
 // Fill a supplied list with contour values. There will be
 // GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
 inline void vtkBandedPolyDataContourFilter::GetValues(float *contourValues)
-{this->ContourValues->GetValues(contourValues);}
+  {this->ContourValues->GetValues(contourValues);}
 
 // Description:
 // Set the number of contours to place into the list. You only really
 // need to use this method to reduce list size. The method SetValue()
 // will automatically increase list size as needed.
 inline void vtkBandedPolyDataContourFilter::SetNumberOfContours(int number)
-{this->ContourValues->SetNumberOfContours(number);}
+  {this->ContourValues->SetNumberOfContours(number);}
 
 // Description:
 // Get the number of contours in the list of contour values.
 inline int vtkBandedPolyDataContourFilter::GetNumberOfContours()
-{return this->ContourValues->GetNumberOfContours();}
+  {return this->ContourValues->GetNumberOfContours();}
 
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, float range[2])
-{this->ContourValues->GenerateValues(numContours, range);}
+inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, 
+                                                           float range[2])
+  {this->ContourValues->GenerateValues(numContours, range);}
 
 // Description:
 // Generate numContours equally spaced contour values between specified
 // range. Contour values will include min/max range values.
-inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, float
-                                             rangeStart, float rangeEnd)
-{this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
+inline void vtkBandedPolyDataContourFilter::GenerateValues(int numContours, 
+                                                           float rangeStart, 
+                                                           float rangeEnd)
+  {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
 
 #endif
