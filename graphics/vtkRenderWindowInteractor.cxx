@@ -619,5 +619,8 @@ void vtkRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LightFollowCamera: " << (this->LightFollowCamera ? "On\n" : "Off\n");
   os << indent << "DesiredUpdateRate: " << this->DesiredUpdateRate << "\n";
   os << indent << "StillUpdateRate: " << this->StillUpdateRate << "\n";
+  os << indent << "Initialized: " << this->Initialized << "\n";
+  os << indent << "EventPosition: " << "( " << this->EventPosition[0] <<
+     ", " << this->EventPosition[1] << " )\n";
 }
 

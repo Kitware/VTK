@@ -443,6 +443,7 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Mapper: (none)\n";
     }
+
   if ( this->Property )
     {
     os << indent << "Property:\n";
@@ -452,6 +453,16 @@ void vtkActor::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Property: (none)\n";
     }
+
+  if ( this->Texture )
+    {
+    os << indent << "Texture: this->Texture\n";
+    }
+  else
+    {
+    os << indent << "Texture: (none)\n";
+    }
+
   os << indent << "Scale: (" << this->Scale[0] << ", " 
      << this->Scale[1] << ", " << this->Scale[2] << ")\n";
   os << indent << "AllocatedRenderingTime: " 

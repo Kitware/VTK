@@ -710,6 +710,16 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Stereo Render: " 
      << (this->StereoRender ? "On\n":"Off\n");
 
+  os << indent << "Anti Aliased Frames: " << this->AAFrames << "\n";
+  os << indent << "Abort Render: " << this->AbortRender << "\n";
+  os << indent << "Desired Update Rate: " << this->DesiredUpdateRate << "\n";
+  os << indent << "Focal Depth Frames: " << this->FDFrames << "\n";
+  os << indent << "In Abort Check: " << this->InAbortCheck << "\n";
+  os << indent << "Interactor: " << this->Interactor << "\n";
+  os << indent << "Motion Blur Frames: " << this->SubFrames << "\n";
+  os << indent << "Swapbuffers: " << (this->SwapBuffers ? "On\n":"Off\n");
+  os << indent << "StereoType: " << this->GetStereoTypeAsString() << "\n";
+
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
 

@@ -114,7 +114,7 @@ vtkLight *vtkLight::New()
 
 void vtkLight::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkReferenceCount::PrintSelf(os,indent);
 
   os << indent << "AttenuationValues: (" << this->AttenuationValues[0] << ", " 
     << this->AttenuationValues[1] << ", " << this->AttenuationValues[2] << ")\n";

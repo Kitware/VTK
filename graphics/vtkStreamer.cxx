@@ -487,9 +487,9 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Propagation Time: " 
      << this->MaximumPropagationTime << "\n";
 
-  if ( this->IntegrationStepLength == VTK_INTEGRATE_FORWARD )
+  if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
     os << indent << "Integration Direction: FORWARD\n";
-  else if ( this->IntegrationStepLength == VTK_INTEGRATE_BACKWARD )
+  else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
     os << indent << "Integration Direction: BACKWARD\n";
   else
     os << indent << "Integration Direction: FORWARD & BACKWARD\n";
@@ -499,6 +499,8 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vorticity: " << (this->Vorticity ? "On\n" : "Off\n");
 
   os << indent << "Terminal Speed: " << this->TerminalSpeed << "\n";
+
+  os << indent << "Speed Scalars: " << (this->SpeedScalars ? "On\n" : "Off\n");
 }
 
 

@@ -325,6 +325,11 @@ void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToPolyDataFilter::PrintSelf(os,indent);
 
+  os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
+  os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
+  os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
+  os << indent << "Use Scalar Tree: " << (this->UseScalarTree ? "On\n" : "Off\n");
+
   this->ContourValues->PrintSelf(os,indent);
 
   if ( this->Locator )

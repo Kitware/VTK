@@ -168,6 +168,8 @@ void vtkImplicitTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSetToDataSetFilter::PrintSelf(os,indent);
 
+  os << indent << "Flip Texture: " << this->FlipTexture << "\n";
+
   if ( this->RFunction != NULL )
     {
     if ( this->SFunction != NULL )

@@ -229,6 +229,16 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Pass Tensors To Output: " << (this->PassTensorsToOutput ? "On\n" : "Off\n");
 
   os << indent << "Extract Scalars: " << (this->ExtractScalars ? "On\n" : "Off\n");
+
+  os << indent << "Scalar Extraction Mode: ";
+
+  if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
+    os << "VTK_EXTRACT_COMPONENT\n";
+  else if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
+    os << "VTK_EXTRACT_EFFECTIVE_STRESS\n";
+  else
+    os << "VTK_EXTRACT_DETERMINANT\n";
+
   os << indent << "Scalar Components: \n";
   os << indent << "  (row,column): (" 
      << this->ScalarComponents[0] << ", " << this->ScalarComponents[1] << ")\n";

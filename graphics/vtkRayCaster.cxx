@@ -947,6 +947,19 @@ void vtkRayCaster::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os,indent);
 
+  os << indent << "Renderer: " << this->Renderer << "\n";
+
+  os << indent << "Selected Image Scale Index: " << 
+     this->SelectedImageScaleIndex << "\n";
+
+  os << indent << "Automatic Scale Adjustment: " << 
+     this->AutomaticScaleAdjustment << "\n";
+
+  os << indent << "Automatic Scale Lower Limit: " << 
+     this->AutomaticScaleLowerLimit << "\n";
+
   os << indent << "Bilinear Image Zoom: " << this->BilinearImageZoom << "\n";
+
+  os << indent << "Total Render Time: " << this->TotalRenderTime << "\n";
 }
 

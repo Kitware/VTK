@@ -245,7 +245,7 @@ void vtkBYUWriter::WriteTextureFile(int numPts)
 
 void vtkBYUWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkWriter::PrintSelf(os,indent);
+  vtkPolyDataWriter::PrintSelf(os,indent);
 
   os << indent << "Geometry File Name: " 
      << (this->GeometryFileName ? this->GeometryFileName : "(none)") << "\n";
