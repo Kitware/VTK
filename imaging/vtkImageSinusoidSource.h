@@ -66,7 +66,7 @@ public:
   // Set/Get the direction vector which determines the sinusoidal
   // orientation. The magnitude is ignored.
   void SetDirection(float,float,float);
-  void SetDirection(float *);
+  void SetDirection(float dir[3]);
   vtkGetVector3Macro(Direction, float);
   
   // Description:

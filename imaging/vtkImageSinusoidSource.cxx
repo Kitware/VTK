@@ -79,7 +79,7 @@ vtkImageSinusoidSource::vtkImageSinusoidSource()
   
 }
 
-void vtkImageSinusoidSource::SetDirection(float *v)
+void vtkImageSinusoidSource::SetDirection(float v[3])
 {
   this->SetDirection(v[0],v[1],v[2]);
 }
