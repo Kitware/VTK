@@ -20,7 +20,7 @@
 #define ID_B 1
 #define ID_C 2
 
-// Used to change the source (to get a series of images for the pipeline)
+// RMI used to change the source (to get a series of images for the pipeline)
 void change_param(void *arg)
 {
   vtkImageGaussianSource *source = (vtkImageGaussianSource *)arg;
@@ -39,7 +39,7 @@ void report(void *arg)
   int myid;
   char process;
   int center = 256 * 128 + 128;
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::GetGlobalController();
   myid = controller->GetLocalProcessId();
   if (myid == ID_A) {process = 'A';}
   if (myid == ID_B) {process = 'B';}
@@ -56,17 +56,13 @@ void report(void *arg)
     {
     cerr << process << " out = " << scalars->GetScalar(center) << endl;
     }
-  
-  controller->UnRegister(NULL);
 }
 
 
-VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
+void process_a( vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
-  controller->ForceDeepCopy();
-  controller->UnRegister(NULL);
+  controller->ForceDeepCopyOn();
 
   // Set up the pipeline source.
   vtkImageGaussianSource *source = vtkImageGaussianSource::New();
@@ -93,18 +89,13 @@ VTK_THREAD_RETURN_TYPE process_a( void *vtkNotUsed(arg) )
   
   source->Delete();
   upStreamPort->Delete();
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
+void process_b(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
-
   // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
-  controller->ForceDeepCopy();
+  controller->ForceDeepCopyOn();
   
   vtkInputPort *downStreamPort = vtkInputPort::New();
   downStreamPort->SetRemoteProcessId(ID_A);
@@ -125,20 +116,15 @@ VTK_THREAD_RETURN_TYPE process_b( void *vtkNotUsed(arg) )
   downStreamPort->Delete();
   scale->Delete();
   upStreamPort->Delete();
-  controller->UnRegister(NULL);
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
-VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
+void process_c(vtkMultiProcessController *controller, void *vtkNotUsed(arg) )
 {
-  vtkMultiProcessController *controller;
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
   int idx;
 
   // Pipeline parallelism oprerates asynchronously so shallow copy does not work.
-  controller->ForceDeepCopy();
+  controller->ForceDeepCopyOn();
 
   putenv("DISPLAY=:0.0");
 
@@ -201,9 +187,6 @@ VTK_THREAD_RETURN_TYPE process_c( void *vtkNotUsed(arg) )
   mapper->Delete();
   actor->Delete();
   downStreamPort->Delete();
-  controller->UnRegister(NULL);
-
-  return VTK_THREAD_RETURN_VALUE;
 }
 
 
@@ -211,7 +194,7 @@ void main( int argc, char *argv[] )
 {
   vtkMultiProcessController *controller;
   
-  controller = vtkMultiProcessController::RegisterAndGetGlobalController(NULL);
+  controller = vtkMultiProcessController::New();
   
   controller->Initialize(argc, argv);
   controller->SetNumberOfProcesses(3);
@@ -220,7 +203,7 @@ void main( int argc, char *argv[] )
   controller->SetMultipleMethod(ID_C, process_c, NULL);
   controller->MultipleMethodExecute();
 
-  controller->UnRegister(NULL);
+  controller->Delete();
 }
 
 
