@@ -7,13 +7,13 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 [reader GetCache] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 0 92
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
-#reader DebugOn
+reader DebugOn
 
 vtkImageGradient gradient
 gradient SetInput [reader GetOutput]

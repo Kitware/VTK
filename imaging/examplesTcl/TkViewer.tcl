@@ -18,7 +18,6 @@ viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 256
 viewer SetColorLevel 128
-viewer ColorFlagOn
 
 # Create the GUI: two renderer widgets and a quit button
 #

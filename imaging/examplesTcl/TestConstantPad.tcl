@@ -3,9 +3,9 @@ catch {load vtktcl}
 
 source vtkImageInclude.tcl
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader ReleaseDataFlagOff

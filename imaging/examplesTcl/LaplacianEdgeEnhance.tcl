@@ -6,11 +6,11 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 #reader DebugOn
 [reader GetCache] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 reader SetOutputScalarType $VTK_FLOAT
@@ -19,8 +19,8 @@ vtkImageLaplacian lap
 lap SetInput [reader GetOutput]
 lap SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 
-vtkImageArithmetic subtract
-subtract SetOperatorToSubtract
+vtkImageMathematics subtract
+subtract SetOperationToSubtract
 subtract SetInput1 [reader GetOutput]
 subtract SetInput2 [lap GetOutput]
 subtract ReleaseDataFlagOff

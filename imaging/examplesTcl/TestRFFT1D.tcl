@@ -5,10 +5,10 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 [reader GetCache] ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
@@ -27,7 +27,6 @@ viewer SetInput [rfft GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer ColorFlagOn
 viewer SetRedComponent 0
 viewer SetGreenComponent 1
 viewer SetBlueComponent 1

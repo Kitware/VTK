@@ -21,23 +21,21 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 #reader DebugOn
 
 vtkImageGradient gradient
-gradient SetAxes 0 1 2
 gradient SetInput [reader GetOutput]
 
 vtkImageMagnitude magnitude
 magnitude SetInput [gradient GetOutput]
 
 vtkImageGradient gradient2
-gradient2 SetAxes 0 1 2
 gradient2 SetInput [magnitude GetOutput]
 
 vtkImageDotProduct dot

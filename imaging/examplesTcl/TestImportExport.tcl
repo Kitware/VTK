@@ -56,7 +56,6 @@ viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewer SetInput [import GetOutput]
 viewer SetColorWindow 150
 viewer SetColorLevel 13
-viewer ColorFlagOn
 viewer Render
 
 

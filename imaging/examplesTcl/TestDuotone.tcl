@@ -78,7 +78,6 @@ viewerR SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewerR SetInput [rd GetOutput]
 viewerR SetColorWindow 256
 viewerR SetColorLevel 128
-viewerR ColorFlagOn
 viewerR SetXOffset 512
 viewerR Render
 
@@ -87,7 +86,6 @@ viewerD SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_COMPONENT_AXIS
 viewerD SetInput [canvas GetOutput]
 viewerD SetColorWindow 256
 viewerD SetColorLevel 128
-viewerD ColorFlagOn
 viewerD SetWindow [viewerR GetWindow]
 viewerD Render
 

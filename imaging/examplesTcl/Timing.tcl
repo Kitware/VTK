@@ -5,7 +5,7 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 reader ReleaseDataFlagOff
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 1
@@ -28,7 +28,6 @@ viewer SetInput [magnify GetOutput]
 viewer SetCoordinate2 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
-viewer SetOriginLocationToUpperLeft
 #viewer DebugOn
 viewer Render
 

@@ -21,8 +21,6 @@ vtkImageViewer viewer
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 160
 viewer SetColorLevel 80
-viewer ColorFlagOn
-viewer SetOriginLocationToUpperLeft
 
 # make interface
 source WindowLevelInterface.tcl

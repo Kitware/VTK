@@ -29,7 +29,6 @@ vtkImageViewer viewer
 viewer SetInput [append2 GetOutput]
 viewer SetColorWindow 255
 viewer SetColorLevel 128
-viewer ColorFlagOn
 
 # make interface
 source WindowLevelInterface.tcl

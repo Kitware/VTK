@@ -5,9 +5,6 @@ set numslices  10
 set xdim 256
 set ydim 256
 
-#set prefix "/home/alyassin2/database/gems/CTangio/CW1/LR_Data/max/i7903CTGE_sub"
-#set prefix "/home/alyassin2/database/gems/CTangio/CW1/HR_Data/i7903CTGE_flat"
-#set prefix "/home/alyassin2/database/gems/CTangio/CW1/processed/PM1_MaxT1390"
 set prefix "../../../vtkdata/fullHead/headsq"
 
 set numberofbins $xdim
@@ -30,7 +27,7 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 	#reader DebugOn
 	reader SetDataByteOrderToLittleEndian
 	reader SetDataDimensions $xdim $ydim $numslices 1

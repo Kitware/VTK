@@ -23,10 +23,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 reader DebugOn

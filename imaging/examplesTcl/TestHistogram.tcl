@@ -8,10 +8,7 @@ set numslices  93
 set xdim 256
 set ydim 256
 
-#set prefix "/home/alyassin2/database/gems/CTangio/CW1/HR_Data/i7903CTGE_flat"
-set prefix "/home/alyassin2/database/Duke/ss_dualpanc_3150/ss_dualpanc"
-
-#set prefix "../../../vtkdata/fullHead/headsq"
+set prefix "../../../vtkdata/fullHead/headsq"
 set numberofbins $xdim
 set offsetlevel 1050
 set window 3000
@@ -32,10 +29,10 @@ set VTK_IMAGE_COMPONENT_AXIS     4
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
     reader ReleaseDataFlagOff
     reader SetDataByteOrderToLittleEndian
-    reader SetDataDimensions 256 256 93
+    reader SetDataExtent 0 255 0 255 1 93
     reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
     reader SetDataMask 0x7fff
 

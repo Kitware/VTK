@@ -8,10 +8,10 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 #reader DebugOn
 reader SetDataByteOrderToLittleEndian
-reader SetDataDimensions 256 256 93
+reader SetDataDimensions 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
@@ -32,11 +32,11 @@ writer Write
 
 
 
-vtkImageVolume16Reader reader2
+vtkImageReader reader2
 #reader2 DebugOn
 reader2 ReleaseDataFlagOff
 reader2 SetDataByteOrderToBigEndian
-reader2 SetDataDimensions 256 256 93
+reader2 SetDataExtent 0 255 0 255 1 93
 reader2 SetFilePrefix "test"
 
 vtkImageViewer viewer

@@ -6,7 +6,7 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkImageVolume16Reader reader
+vtkImageReader reader
 reader SetDataByteOrderToLittleEndian
 reader SetDataDimensions 256 256 3
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
