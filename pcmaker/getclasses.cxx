@@ -242,6 +242,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
 
   /* prototype for tkRenderWidget */
   if (vals->m_Graphics) fprintf(fp,"extern \"C\" {int Vtktkrenderwidget_Init(Tcl_Interp *interp);}\n\n");
+  if (vals->m_Imaging) fprintf(fp,"extern \"C\" {int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}\n\n");
   
   fprintf(fp,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
   if (!strcmp(kitName,"Vtktcl"))
@@ -260,6 +261,7 @@ void stuffit(FILE *fp, CPcmakerDlg *vals)
     fprintf(fp,"  Tcl_CreateCommand(interp,\"vtkCommand\",vtkCommand,\n		    (ClientData *)NULL, NULL);\n\n");
     /* initialize the tkRenderWidget */
     if (vals->m_Graphics) fprintf(fp,"  Vtktkrenderwidget_Init(interp);\n");
+    if (vals->m_Imaging) fprintf(fp,"  Vtktkimageviewerwidget_Init(interp);\n");
   }
   
   for (i = 0; i < anindex; i++)
@@ -851,6 +853,7 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
   fprintf(fp,"LINK32_OBJS= \\\n");
   fprintf(fp,"    \"$(OUTDIR)\\vtkTclUtil.obj\" \\\n");
   if (vals->m_Graphics) fprintf(fp,"    \"$(OUTDIR)\\vtkTkRenderWidget.obj\" \\\n");
+  if (vals->m_Imaging)  fprintf(fp,"    \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" \\\n");
   for (i = 0; i < num_abstract; i++)
   {
     fprintf(fp,"    \"$(OUTDIR)\\%sTcl.obj\" \\\n",abstract[i]);
@@ -907,6 +910,14 @@ void doMSCTclHeader(FILE *fp,CPcmakerDlg *vals, int doAddedValue)
     fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
 	    vals->m_WhereVTK);
     fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+  if (vals->m_Imaging)
+    {
+    sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
+    OutputDepends(file,fp,vals->m_WhereVTK);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJ) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
     }
   fprintf(fp,"\"$(OUTDIR)\\vtktcl.obj\" : src\\vtktcl.cxx \"$(OUTDIR)\"\n");
   fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\vtktcl.cxx\n\n");
