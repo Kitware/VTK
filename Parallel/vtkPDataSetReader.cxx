@@ -34,7 +34,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkExtentTranslator.h"
 
-vtkCxxRevisionMacro(vtkPDataSetReader, "1.24");
+vtkCxxRevisionMacro(vtkPDataSetReader, "1.25");
 vtkStandardNewMacro(vtkPDataSetReader);
 
 //----------------------------------------------------------------------------
@@ -742,6 +742,9 @@ void vtkPDataSetReader::ReadVTKFileInformation(ifstream *file)
   float x, y, z;
   vtkDataSet *output;
   char str[1024];
+  
+  // To avoid UMR in the first string comparison
+  strcpy(str, "        "); 
 
   // Try to find the line that specifies the dataset type.
   i = 0;
