@@ -113,11 +113,6 @@ public:
   const char  *GetType();
 
   // Description:
-  // Get the mtime of this object - override to consider the
-  // mtime of the source as well.
-  unsigned long GetMTime();
-
-  // Description:
   // Returns the first point location which precedes a non-zero segment of the
   // function. Note that the value at this point may be zero.
   double GetFirstNonZeroValue();

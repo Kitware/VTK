@@ -13,10 +13,9 @@
 
 =========================================================================*/
 #include "vtkPiecewiseFunction.h"
-#include "vtkSource.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.39");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.40");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // Construct a new vtkPiecewiseFunction with default values
@@ -194,28 +193,6 @@ const char *vtkPiecewiseFunction::GetType()
     return "Unknown";
 }
 
-
-// Return the mtime of this object, or the source - whicheve is greater
-// This way the pipeline will update correctly
-unsigned long vtkPiecewiseFunction::GetMTime()
-{
-  unsigned long mt1, mt2, mtime;
-
-  mt1 = this->vtkObject::GetMTime();
-
-  if ( this->Source )
-    {
-    mt2 = this->Source->GetMTime();
-    }
-  else
-    {
-    mt2 = 0;
-    }
-
-  mtime = (mt1 > mt2)?(mt1):(mt2);
-
-  return mtime;
-}
 
 // Returns the first point location which starts a non-zero segment of the
 // function. Note that the value at this point may be zero.
