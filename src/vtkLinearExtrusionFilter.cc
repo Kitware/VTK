@@ -91,7 +91,7 @@ void vtkLinearExtrusionFilter::Execute()
   int numPts, numCells;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPointData *pd=input->GetPointData();
-  vtkNormals *inNormals;
+  vtkNormals *inNormals=NULL;
   vtkPolyData mesh;
   vtkPoints *inPts;
   vtkCellArray *inVerts, *inLines, *inPolys, *inStrips;

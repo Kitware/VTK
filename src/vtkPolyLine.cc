@@ -503,6 +503,11 @@ int vtkPolyLine::Triangulate(int index, vtkFloatPoints &pts)
 void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values, 
                               int dim, float *derivs)
 {
+  static vtkLine line;
 
+  line.Points.SetPoint(0,this->Points.GetPoint(subId));
+  line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+
+  line.Derivatives(0, pcoords, values, dim, derivs);
 }
 

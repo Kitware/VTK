@@ -344,5 +344,20 @@ int vtkLine::Triangulate(int index, vtkFloatPoints &pts)
 void vtkLine::Derivatives(int subId, float pcoords[3], float *values, 
                           int dim, float *derivs)
 {
+  float *x0, *x1, deltaX[3];
+  int i, j;
+
+  x0 = this->Points.GetPoint(0);
+  x1 = this->Points.GetPoint(1);
+
+  for (i=0; i<3; i++) deltaX[i] = x1[i] - x0[i];
+  for (i=0; i<dim; i++) 
+    {
+    for (j=0; j<3; j++)
+      {
+      derivs[3*i+j] = (values[2*i+1] - values[2*i]) / deltaX[j];
+      }
+    }
 }
+
 

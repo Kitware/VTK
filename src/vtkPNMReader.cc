@@ -119,6 +119,8 @@ void vtkPNMReader::Execute()
     newScalars = this->ReadVolume(dim);
     }
 
+  if ( ! newScalars ) return;
+
   output->SetDimensions(dim);
   output->SetAspectRatio(this->DataAspectRatio);
   output->SetOrigin(this->DataOrigin);

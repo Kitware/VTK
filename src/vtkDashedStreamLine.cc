@@ -116,8 +116,8 @@ void vtkDashedStreamLine::Execute()
 
         if ( newScalars ) 
           {
-          newScalars->InsertScalar(pts[0],s);
           s = sPrev->s + r * (sPtr->s - sPrev->s);
+          newScalars->InsertScalar(pts[0],s);
           sEnd = scalarPrev + this->DashFactor * (s - scalarPrev);
           newScalars->InsertScalar(pts[1],sEnd);
           }

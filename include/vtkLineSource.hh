@@ -58,13 +58,13 @@ public:
 
   // Description:
   // Set position of first end point.
-  vtkSetVector3Macro(Pt1,float);
-  vtkGetVectorMacro(Pt1,float,3);
+  vtkSetVector3Macro(Point1,float);
+  vtkGetVectorMacro(Point1,float,3);
 
   // Description:
   // Set position of other end point.
-  vtkSetVector3Macro(Pt2,float);
-  vtkGetVectorMacro(Pt2,float,3);
+  vtkSetVector3Macro(Point2,float);
+  vtkGetVectorMacro(Point2,float,3);
 
   // Description:
   // Divide line into resolution number of pieces.
@@ -73,8 +73,8 @@ public:
 
 protected:
   void Execute();
-  float Pt1[3];
-  float Pt2[3];
+  float Point1[3];
+  float Point2[3];
   int Resolution;
 };
 

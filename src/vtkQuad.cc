@@ -46,9 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkLine.hh"
 
 static vtkMath math;
-static vtkLine line;
-static vtkPolygon poly;
-static vtkPlane plane;
 
 // Description:
 // Deep copy of cell.
@@ -74,6 +71,9 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   float  params[2];
   float  fcol[2], rcol[2], scol[2];
   float derivs[8];
+  static vtkLine line;
+  static vtkPolygon poly;
+  static vtkPlane plane;
 
   subId = 0;
   pcoords[0] = pcoords[1] = params[0] = params[1] = 0.5;
@@ -406,6 +406,8 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   float tol2 = tol*tol;
   float closestPoint[3];
   float dist2, weights[4];
+  static vtkPolygon poly;
+  static vtkPlane plane;
 
   subId = 0;
   pcoords[0] = pcoords[1] = 0.0;
@@ -469,6 +471,15 @@ int vtkQuad::Triangulate(int index, vtkFloatPoints &pts)
 void vtkQuad::Derivatives(int subId, float pcoords[3], float *values, 
                           int dim, float *derivs)
 {
+  int i, idx;
 
+  // The following code is incorrect. Will be fixed in future release.
+  for (i=0; i<dim; i++)
+    {
+    idx = i*dim;
+    derivs[idx] = 0.0;
+    derivs[idx+1] = 0.0;
+    derivs[idx+2] = 0.0;
+    }
 }
 

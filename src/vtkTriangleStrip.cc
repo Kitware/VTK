@@ -211,6 +211,12 @@ int vtkTriangleStrip::Triangulate(int index, vtkFloatPoints &pts)
 void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values, 
                                    int dim, float *derivs)
 {
+  static vtkTriangle tri;
 
+  tri.Points.SetPoint(0,this->Points.GetPoint(subId));
+  tri.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+  tri.Points.SetPoint(2,this->Points.GetPoint(subId+2));
+
+  tri.Derivatives(0, pcoords, values, dim, derivs);
 }
 

@@ -45,7 +45,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.hh"
 
 static vtkMath math;  
-static vtkLine line;
 
 // Description:
 // Deep copy of cell.
@@ -266,7 +265,8 @@ void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars,
 vtkCell *vtkVoxel::GetEdge(int edgeId)
 {
   int *verts;
-
+  static vtkLine line;
+  
   verts = edges[edgeId];
 
   // load point id's

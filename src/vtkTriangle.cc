@@ -344,6 +344,15 @@ int vtkTriangle::Triangulate(int index, vtkFloatPoints &pts)
 void vtkTriangle::Derivatives(int subId, float pcoords[3], float *values, 
                               int dim, float *derivs)
 {
+  int i, idx;
 
+  // The following code is incorrect. Will be fixed in future release.
+  for (i=0; i<dim; i++)
+    {
+    idx = i*dim;
+    derivs[idx] = 0.0;
+    derivs[idx+1] = 0.0;
+    derivs[idx+2] = 0.0;
+    }
 }
 
