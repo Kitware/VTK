@@ -63,7 +63,6 @@ class vtkIdList;
 class vtkPointData;
 class vtkPriorityQueue;
 class vtkFloatArray;
-class vtkVoidArray;
 
 class VTK_GRAPHICS_EXPORT vtkQuadricDecimation : public vtkPolyDataToPolyDataFilter
 {
