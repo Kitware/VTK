@@ -28,6 +28,7 @@
 #include "vtkFloatArray.h"
 #include "vtkHedgeHog.h"
 #include "vtkMath.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"

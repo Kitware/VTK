@@ -16,12 +16,17 @@
 
 =========================================================================*/
 // include OS specific include file to mix in X code
-#include "vtkRenderWindow.h"
-#include "vtkXRenderWindowInteractor.h"
-#include "vtkSphereSource.h"
+
+#include "vtkActor.h"
 #include "vtkConeSource.h"
 #include "vtkGlyph3D.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
+#include "vtkSphereSource.h"
+#include "vtkXRenderWindowInteractor.h"
+
 #include <Xm/PushB.h>
 void quit_cb(Widget,XtPointer,XtPointer);
 main (int argc, char *argv[])

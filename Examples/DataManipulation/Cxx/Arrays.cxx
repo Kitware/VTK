@@ -20,16 +20,17 @@
 // well as attribute data explicitly.
 
 // first include the required header files for the vtk classes we are using
+#include "vtkActor.h"
+#include "vtkCellArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkCellArray.h"
+#include "vtkPointData.h"
 #include "vtkPoints.h"
+#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkPolyData.h"
-#include "vtkActor.h"
 #include "vtkRenderer.h"
 
 int main( int argc, char *argv[] )
