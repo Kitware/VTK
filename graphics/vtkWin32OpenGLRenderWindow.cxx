@@ -774,7 +774,7 @@ void vtkWin32OpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   
   // now write the binary info one row at a time 
   p_data = data;
-  for (yloop = y_hi; yloop >= y_low; yloop--)
+  for (yloop = y_low; yloop <= y_hi; yloop--)
     {
     for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
       {
