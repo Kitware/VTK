@@ -132,7 +132,7 @@ void vtkTimerLog::MarkEvent(char *event)
       }
     
 #ifdef _WIN32
-    ftime( &(vtkTimerLog::FirstWallTime) );
+    ::ftime( &(vtkTimerLog::FirstWallTime) );
 #else
     gettimeofday( &(vtkTimerLog::FirstWallTime), NULL );
     times(&FirstCpuTicks);
@@ -148,7 +148,7 @@ void vtkTimerLog::MarkEvent(char *event)
   
 #ifdef _WIN32
   static double scale = 1.0/1000.0;
-  ftime( &(vtkTimerLog::CurrentWallTime) );
+  ::ftime( &(vtkTimerLog::CurrentWallTime) );
   time_diff  =  vtkTimerLog::CurrentWallTime.time - vtkTimerLog::FirstWallTime.time;
   time_diff += 
     (vtkTimerLog::CurrentWallTime.millitm - vtkTimerLog::FirstWallTime.millitm) * scale;
@@ -284,7 +284,7 @@ double vtkTimerLog::GetCurrentTime()
 #ifdef _WIN32
   timeb CurrentTime;
   static double scale = 1.0/1000.0;
-  ftime( &CurrentTime );
+  ::ftime( &CurrentTime );
   currentTimeInSeconds = CurrentTime.time + scale * CurrentTime.millitm;
 #else
   timeval CurrentTime;
