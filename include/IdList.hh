@@ -16,8 +16,6 @@ public:
   void SetId(const int i, const int id) {this->Ia[i]=id;};
   void InsertId(const int i, const int id) {this->Ia.InsertValue(i,id);};
   int InsertNextId(const int id) {return this->Ia.InsertNextValue(id);};
-//  void operator+=(vlIdList& ids) {this->Ia += ids.Ia;};
-//  void operator+=(const int i) {this->Ia += i;};
   int getChunk(const int sz) { // get chunk of memory
     int pos = this->Ia.GetMaxId()+1;
     this->Ia.InsertValue(pos+sz-1,0);
