@@ -2888,8 +2888,8 @@ fi
 	SHLIB_LD_LIBS=""
 	SHLIB_SUFFIX=".sl"
 	DL_LIBS="-ldld"
-	VTK_SHLIB_BUILD_FLAGS='+Z -Wl,-E -Wl,-b'
-	VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
+	VTK_SHLIB_BUILD_FLAGS='+Z -Wl,-E -Wl,-b -b'
+	VTK_SHLIB_LINK_FLAGS='-Wl,-E -Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
         if test "$CC" = "gcc" -o `$CC -v 2>&1 | grep -c gcc` != "0" ; then
   	  VTK_SHLIB_BUILD_FLAGS='-shared -Wl,-E -Wl,-b'
 	  VTK_SHLIB_LINK_FLAGS='-Wl,+s -Wl,+b,${LIB_RUNTIME_DIR}'
