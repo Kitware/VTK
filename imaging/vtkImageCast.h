@@ -73,7 +73,17 @@ public:
   vtkSetMacro(OutputScalarType,int);
   vtkGetMacro(OutputScalarType,int);
 
+  // Description:
+  // When the ClampOverflow flag is on, the data is thresholded so that
+  // the output value does not exceed the amx or min of the data type.
+  // By defualt ClampOverflow is off.
+  vtkSetMacro(ClampOverflow, int);
+  vtkGetMacro(ClampOverflow, int);
+  vtkBooleanMacro(ClampOverflow, int);
+  
+  
 protected:
+  int ClampOverflow;
   int OutputScalarType;
   void ExecuteImageInformation();
   void InternalUpdate(vtkImageData *data);

@@ -78,10 +78,20 @@ public:
   void SetOutputScalarTypeToUnsignedChar() 
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
 
+  // Description:
+  // When the ClampOverflow flag is on, the data is thresholded so that
+  // the output value does not exceed the amx or min of the data type.
+  // By defualt ClampOverflow is off.
+  vtkSetMacro(ClampOverflow, int);
+  vtkGetMacro(ClampOverflow, int);
+  vtkBooleanMacro(ClampOverflow, int);
+  
+  
 protected:
   float Shift;
   float Scale;
   int OutputScalarType;
+  int ClampOverflow;
   
   void ExecuteImageInformation();
   void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,

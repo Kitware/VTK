@@ -41,19 +41,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImageCache.h"
 #include "vtkImageCast.h"
 
+
+
+//----------------------------------------------------------------------------
+vtkImageCast::vtkImageCast()
+{
+  this->OutputScalarType = VTK_FLOAT;
+  this->ClampOverflow = 0;
+}
+
+
 //----------------------------------------------------------------------------
 // Just change the Image extent.
 void vtkImageCast::ExecuteImageInformation()
 {
   this->Output->SetScalarType(this->OutputScalarType);
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// Constructor sets default values
-vtkImageCast::vtkImageCast()
-{
-  this->OutputScalarType = VTK_FLOAT;
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +95,8 @@ static void vtkImageCastExecute(vtkImageCast *self,
 				vtkImageData *outData, OT *outPtr,
 				int outExt[6], int id)
 {
+  float typeMin, typeMax, val;
+  int clamp;
   int idxR, idxY, idxZ;
   int maxY, maxZ;
   int inIncX, inIncY, inIncZ;
@@ -100,6 +104,11 @@ static void vtkImageCastExecute(vtkImageCast *self,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
+
+  // for preventing overflow
+  typeMin = outData->GetScalarTypeMin();
+  typeMax = outData->GetScalarTypeMax();
+  clamp = self->GetClampOverflow();
 
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
@@ -122,12 +131,35 @@ static void vtkImageCastExecute(vtkImageCast *self,
 	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
 	count++;
 	}
-      for (idxR = 0; idxR < rowLength; idxR++)
+      // put the test for clamp to avoid the innermost loop
+      if (clamp)
 	{
-	// Pixel operation
-	*outPtr = (OT)(*inPtr);
-	outPtr++;
-	inPtr++;
+	for (idxR = 0; idxR < rowLength; idxR++)
+	  {
+	  // Pixel operation
+	  val = (float)(*inPtr);
+	  if (val > typeMax)
+	    {
+	    val = typeMax;
+	    }
+	  if (val < typeMin)
+	    {
+	    val = typeMin;
+	    }
+	  *outPtr = (OT)(val);
+	  outPtr++;
+	  inPtr++;
+	  }
+	}
+      else
+	{
+	for (idxR = 0; idxR < rowLength; idxR++)
+	  {
+	  // Pixel operation
+	  *outPtr = (OT)(*inPtr);
+	  outPtr++;
+	  inPtr++;
+	  }
 	}
       outPtr += outIncY;
       inPtr += inIncY;
@@ -231,5 +263,14 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
   vtkImageFilter::PrintSelf(os,indent);
 
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
+  os << indent << "ClampOverflow: ";
+  if (this->ClampOverflow)
+    {
+    os << "On\n";
+    }
+  else 
+    {
+    os << "Off\n";
+    }
 }
 

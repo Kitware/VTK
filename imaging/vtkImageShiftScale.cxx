@@ -50,6 +50,7 @@ vtkImageShiftScale::vtkImageShiftScale()
   this->Shift = 0.0;
   this->Scale = 1.0;
   this->OutputScalarType = -1;
+  this->ClampOverflow = 0;
 }
 
 
@@ -75,6 +76,8 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 				      vtkImageData *outData, OT *outPtr,
 				      int outExt[6], int id)
 {
+  float typeMin, typeMax, val;
+  int clamp;
   float shift = self->GetShift();
   float scale = self->GetScale();
   int idxR, idxY, idxZ;
@@ -84,7 +87,12 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
-  
+
+  // for preventing overflow
+  typeMin = outData->GetScalarTypeMin();
+  typeMax = outData->GetScalarTypeMax();
+  clamp = self->GetClampOverflow();
+    
   // find the region to loop over
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();
   maxY = outExt[3] - outExt[2]; 
@@ -106,12 +114,35 @@ static void vtkImageShiftScaleExecute(vtkImageShiftScale *self,
 	if (!(count%target)) self->UpdateProgress(count/(50.0*target));
 	count++;
 	}
-      for (idxR = 0; idxR < rowLength; idxR++)
+      // put the test for clamp to avoid the innermost loop
+      if (clamp)
 	{
-	// Pixel operation
-	*outPtr = (OT)(((float)(*inPtr) + shift) * scale);
-	outPtr++;
-	inPtr++;
+	for (idxR = 0; idxR < rowLength; idxR++)
+	  {
+	  // Pixel operation
+	  val = ((float)(*inPtr) + shift) * scale;
+	  if (val > typeMax)
+	    {
+	    val = typeMax;
+	    }
+	  if (val < typeMin)
+	    {
+	    val = typeMin;
+	    }
+	  *outPtr = (OT)(val);
+	  outPtr++;
+	  inPtr++;
+	  }
+	}
+      else
+	{
+	for (idxR = 0; idxR < rowLength; idxR++)
+	  {
+	  // Pixel operation
+	  *outPtr = (OT)(((float)(*inPtr) + shift) * scale);
+	  outPtr++;
+	  inPtr++;
+	  }
 	}
       outPtr += outIncY;
       inPtr += inIncY;
@@ -217,5 +248,14 @@ void vtkImageShiftScale::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Shift: " << this->Shift << "\n";
   os << indent << "Scale: " << this->Scale << "\n";
   os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
+  os << indent << "ClampOverflow: ";
+  if (this->ClampOverflow)
+    {
+    os << "On\n";
+    }
+  else 
+    {
+    os << "Off\n";
+    }
 }
 
