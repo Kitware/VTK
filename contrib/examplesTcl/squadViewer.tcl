@@ -1,7 +1,10 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
 
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 source ../../graphics/examplesTcl/TkInteractor.tcl
 
 set root [toplevel .top -visual {truecolor 24}]
@@ -42,7 +45,7 @@ squad SetPhiResolution 20
 squad SetThetaResolution 25
 
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../../vtkdata/earth.ppm"
+  pnmReader SetFileName "$VTK_DATA/earth.ppm"
 vtkTexture atext
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOn

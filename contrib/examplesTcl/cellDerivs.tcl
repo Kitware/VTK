@@ -1,11 +1,14 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Demonstrate computation of cell derivatives
 # Compute vorticity - show vorticity vectors as hedgehogs
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # create reader and extract the velocity and temperature
 vtkUnstructuredGridReader reader
-    reader SetFileName "../../../vtkdata/cylFlow.vtk"
+    reader SetFileName "$VTK_DATA/cylFlow.vtk"
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [reader GetOutput]
     fd2ad SetInputFieldToPointDataField

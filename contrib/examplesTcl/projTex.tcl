@@ -1,11 +1,14 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Generate texture coordinates on a "random" sphere.
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 vtkPolyDataReader cyber
-    cyber SetFileName "../../../vtkdata/fran_cut.vtk"
+    cyber SetFileName "$VTK_DATA/fran_cut.vtk"
 
 vtkProjectedTexture tmapper
   tmapper SetPosition 0 0.0 1.2
@@ -20,7 +23,7 @@ vtkDataSetMapper mapper
 # load in the texture map and assign to actor
 #
 vtkPNMReader pnmReader
-  pnmReader SetFileName "../../../vtkdata/earth.ppm"
+  pnmReader SetFileName "$VTK_DATA/earth.ppm"
 vtkTexture atext
   atext SetInput [pnmReader GetOutput]
   atext InterpolateOn

@@ -1,4 +1,7 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Simple viewer for images.
 
 source ../../imaging/examplesTcl/vtkImageInclude.tcl
@@ -6,7 +9,7 @@ source ../../imaging/examplesTcl/vtkImageInclude.tcl
 # Image pipeline
 
 vtkPNMReader reader
-  reader SetFileName "../../../vtkdata/masonry.ppm"
+  reader SetFileName "$VTK_DATA/masonry.ppm"
   reader SetDataExtent 0 255 0 255 0 0
   reader SetDataSpacing 1 1 1
   reader SetDataOrigin 0 0 0

@@ -4,9 +4,12 @@
 
 
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
-source ../../examplesTcl/colors.tcl
+source $VTK_TCL/vtkInt.tcl
+source $VTK_TCL/colors.tcl
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -23,7 +26,7 @@ vtkLight lgt
 vtkImageReader reader
     reader SetDataByteOrderToLittleEndian
     reader SetDataExtent 0 127 0 127 1 93
-    reader SetFilePrefix "../../../vtkdata/headsq/half"
+    reader SetFilePrefix "$VTK_DATA/headsq/half"
     reader SetDataSpacing 1.6 1.6 1.5
 
 vtkImageMarchingCubes iso
@@ -91,8 +94,9 @@ eval lgt SetFocalPoint [$cam1 GetFocalPoint]
 iren SetUserMethod {wm deiconify .vtkInteract}
 
 renWin Render
+
 iren Initialize
-#renWin SetFileName "headBone.tcl.ppm"
+#renWin SetFileName "TestAsynchBuffer.tcl.ppm"
 #renWin SaveImageAsPPM
 
 # prevent the tk window from showing up then start the event loop

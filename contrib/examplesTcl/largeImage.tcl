@@ -1,8 +1,11 @@
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # Demonstrates rendering a large image
 
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 vtkRenderer ren1
 vtkRenderWindow renWin1
@@ -11,7 +14,7 @@ vtkRenderWindow renWin1
 vtk3DSImporter importer
   importer SetRenderWindow renWin1
   importer ComputeNormalsOn
-  importer SetFileName "../../../vtkdata/Viewpoint/iflamigm.3ds"
+  importer SetFileName "$VTK_DATA/Viewpoint/iflamigm.3ds"
   importer Read
 
 [importer GetRenderer] SetBackground 0.1 0.2 0.4

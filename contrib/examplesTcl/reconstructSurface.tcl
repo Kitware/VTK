@@ -1,19 +1,23 @@
 # Demonstrates the use of surface reconstruction
 catch {load vtktcl}
+if { [catch {set VTK_TCL $env(VTK_TCL)}] != 0} { set VTK_TCL "../../examplesTcl" }
+if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdata" }
+
 # get the interactor ui
-source ../../examplesTcl/vtkInt.tcl
+source $VTK_TCL/vtkInt.tcl
 
 # Read some points. Use a programmable filter to read them.
 #
 vtkProgrammableSource pointSource
     pointSource SetExecuteMethod readPoints
 proc readPoints {} {
+global VTK_DATA
     set output [pointSource GetPolyDataOutput]
     vtkPoints points
     $output SetPoints points
 
-#   set file [open "../../../vtkdata/SampledPoints/club71.16864.pts" r]
-   set file [open "../../../vtkdata/SampledPoints/cactus.3337.pts" r]
+#   set file [open "$VTK_DATA/SampledPoints/club71.16864.pts" r]
+   set file [open "$VTK_DATA/SampledPoints/cactus.3337.pts" r]
    while { [gets $file line] != -1 } {
       scan $line "%s" firstToken
       if { $firstToken == "p" } {
