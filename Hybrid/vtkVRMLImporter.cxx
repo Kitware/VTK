@@ -78,29 +78,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 
 // Heap to manage memory leaks
-static vtkHeap *vrmlHeap=NULL;
-static void vrmlInitialize()
+vtkHeap *vtkVRMLAllocator::Heap=NULL;
+
+void  vtkVRMLAllocator::Initialize()
 {
-  if ( vrmlHeap == NULL )
+  if ( Heap == NULL )
     {
-    vrmlHeap = vtkHeap::New();
+    Heap = vtkHeap::New();
     }
 }
-static void *vrmlAllocateMemory(size_t n)
+void* vtkVRMLAllocator::AllocateMemory(size_t n)
 {
-  return vrmlHeap->AllocateMemory(n);
+  return Heap->AllocateMemory(n);
 }
-static void vrmlCleanUp()
+
+void vtkVRMLAllocator::CleanUp()
 {
-  if ( vrmlHeap )
+  if ( Heap )
     {
-    vrmlHeap->Delete();
-    vrmlHeap = NULL;
+    Heap->Delete();
+    Heap = NULL;
     }
 }
-static char *vrmlStrDup(const char *str)
+char* vtkVRMLAllocator::StrDup(const char *str)
 {
-  return vrmlHeap->StrDup(str);
+  return Heap->StrDup(str);
 }
 
 
@@ -179,7 +181,7 @@ class VrmlNodeType {
 
   void* operator new(size_t n)
     {
-      return vrmlAllocateMemory(n);
+      return vtkVRMLAllocator::AllocateMemory(n);
     }
   
   void operator delete(void *vtkNotUsed(ptr)) {}
@@ -190,7 +192,7 @@ class VrmlNodeType {
     
     void* operator new(size_t n)
       {
-        return vrmlAllocateMemory(n);
+        return vtkVRMLAllocator::AllocateMemory(n);
       }
     
     void operator delete(void *vtkNotUsed(ptr)) {}
@@ -228,7 +230,7 @@ VrmlNodeType::VrmlNodeType(const char *nm)
 {
   assert(nm != NULL);
   name = static_cast<char*>(
-    vrmlAllocateMemory((strlen(nm)+1)*sizeof(char)));
+    vtkVRMLAllocator::AllocateMemory((strlen(nm)+1)*sizeof(char)));
   strcpy(name, nm);
 }
 
@@ -347,7 +349,7 @@ void
 VrmlNodeType::add(VectorType<NameTypeRec*> &recs, const char *nodeName, int type)
 {
   NameTypeRec *r = new NameTypeRec;
-  r->name = vrmlStrDup(nodeName); //strdup(nodeName);
+  r->name = vtkVRMLAllocator::StrDup(nodeName); //strdup(nodeName);
   r->type = type;
   recs += r;
 }
@@ -5350,7 +5352,7 @@ class vtkVRMLUseStruct {
 
   void* operator new(size_t n)
     {
-      return vrmlAllocateMemory(n);
+      return vtkVRMLAllocator::AllocateMemory(n);
     }
   
   void operator delete(void *vtkNotUsed(ptr)) {}
@@ -5400,7 +5402,7 @@ int vtkVRMLImporter::ImportBegin ()
   memyyInput_i = 0;
   memyyInput_j = 0;
 
-  vrmlInitialize();
+  vtkVRMLAllocator::Initialize();
   if (!this->OpenImportFile())
     {
     return 0;
@@ -5457,7 +5459,7 @@ int vtkVRMLImporter::ImportBegin ()
 
 void vtkVRMLImporter::ImportEnd ()
 {
-  vrmlCleanUp();
+  vtkVRMLAllocator::CleanUp();
   VrmlNodeType::typeList.Init();
   useList.Init();
   currentField.Init();

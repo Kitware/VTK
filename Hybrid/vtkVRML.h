@@ -81,8 +81,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // This code must come before "#include vtkVRML.h" because
 // it uses the functions below.
 #include "vtkHeap.h"
-static void vrmlInitialize();
-static void *vrmlAllocateMemory(size_t n);
+struct vtkVRMLAllocator
+{
+  static void Initialize();
+  static void *AllocateMemory(size_t n);
+  static void CleanUp();
+  static char* StrDup(const char *str);
+  static vtkHeap *Heap;
+};
 
 template <class T> 
 class VTK_EXPORT VectorType
@@ -97,8 +103,8 @@ public:
       Allocated=DEFAULTINCREMENT;
       if (!this->UseNew)
         {
-        vrmlInitialize();
-        void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
+        vtkVRMLAllocator::Initialize();
+        void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
         Data=new(mem) T[Allocated];
         }
       else
@@ -134,7 +140,7 @@ public:
       temp=Data;
       if (!this->UseNew)
 	{
-	void* mem = vrmlAllocateMemory(Allocated*sizeof(T));
+	void* mem = vtkVRMLAllocator::AllocateMemory(Allocated*sizeof(T));
 	Data=new(mem) T[Allocated];
 	}
       else
@@ -203,7 +209,7 @@ public:
 
   void* operator new(size_t n)
     {
-      return vrmlAllocateMemory(n);
+      return vtkVRMLAllocator::AllocateMemory(n);
     }
 
   void operator delete(void *)
