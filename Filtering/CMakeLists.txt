@@ -129,6 +129,7 @@ vtkPointSet.cxx
 vtkPointSetSource.cxx
 vtkPointSetToPointSetFilter.cxx
 vtkPolyData.cxx
+vtkPolyDataAlgorithm.cxx
 vtkPolyDataCollection.cxx
 vtkPolyDataSource.cxx
 vtkPolyDataToPolyDataFilter.cxx
