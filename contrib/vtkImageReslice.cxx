@@ -1818,11 +1818,8 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
 	  }
 	if (r1 > r2) 
 	  {
-	  r1 = r2+1;
-	  }
-	if (r2 < r1)
-	  { 
-	  r2 = r1-1;
+	  r1 = outExt[0];
+	  r2 = outExt[0]-1;
 	  }
 
 	// clear pixels to left of input extent
