@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.89");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.90");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -1420,7 +1420,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   
   cellNormals = 0;
-  if (input->GetCellData()->GetNormals())
+  if (n == 0 && input->GetCellData()->GetNormals())
     {
     cellNormals = 1;
     n = input->GetCellData()->GetNormals();
