@@ -80,7 +80,7 @@ vtkPointLocator::vtkPointLocator()
 
   this->Points = NULL;
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
-  this->NumberOfPointsPerBucket = 10;
+  this->NumberOfPointsPerBucket = 3;
   this->HashTable = NULL;
   this->NumberOfBuckets = 0;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
@@ -319,7 +319,6 @@ void vtkPointLocator::BuildLocator()
   int idx;
   vtkIdList *bucket;
   int numPts;
-  int numPtsPerBucket = this->NumberOfPointsPerBucket;
   float *x;
   typedef vtkIdList *vtkIdListPtr;
 
@@ -352,7 +351,7 @@ void vtkPointLocator::BuildLocator()
 
   if ( this->Automatic ) 
     {
-    level = (float) numPts / numPtsPerBucket;
+    level = (float) numPts / this->NumberOfPointsPerBucket;
     level = ceil( pow((double)level,(double)0.33333333) );
     for (i=0; i<3; i++) ndivs[i] = (int) level;
     } 
@@ -394,7 +393,8 @@ void vtkPointLocator::BuildLocator()
     if ( ! bucket )
       {
       bucket = vtkIdList::New();
-      bucket->Allocate(numPtsPerBucket/2,numPtsPerBucket/3);
+      bucket->Allocate(this->NumberOfPointsPerBucket/2,
+		       this->NumberOfPointsPerBucket/3);
       this->HashTable[idx] = bucket;
       }
     bucket->InsertNextId(i);
@@ -411,22 +411,22 @@ void vtkPointLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
 {
   int i, j, k, min, max, minLevel[3], maxLevel[3];
   int nei[3];
-//
-//  Initialize
-//
+  //
+  //  Initialize
+  //
   Buckets->Reset();
-//
-//  If at this bucket, just place into list
-//
+  //
+  //  If at this bucket, just place into list
+  //
   if ( level == 0 ) 
     {
     Buckets->InsertNextPoint(ijk);
     return;
     }
-//
-//  Create permutations of the ijk indices that are at the level
-//  required. If these are legal buckets, add to list for searching.
-//
+  //
+  //  Create permutations of the ijk indices that are at the level
+  //  required. If these are legal buckets, add to list for searching.
+  //
   for ( i=0; i<3; i++ ) 
     {
     min = ijk[i] - level;
@@ -440,10 +440,10 @@ void vtkPointLocator::GetBucketNeighbors(int ijk[3], int ndivs[3], int level)
     for ( j= minLevel[1]; j <= maxLevel[1]; j++ ) 
       {
       for ( k= minLevel[2]; k <= maxLevel[2]; k++ ) 
-      {
+	{
         if (i == (ijk[0] + level) || i == (ijk[0] - level) ||
-        j == (ijk[1] + level) || j == (ijk[1] - level) ||
-        k == (ijk[2] + level) || k == (ijk[2] - level) ) 
+	    j == (ijk[1] + level) || j == (ijk[1] - level) ||
+	    k == (ijk[2] + level) || k == (ijk[2] - level) ) 
           {
           nei[0]=i; nei[1]=j; nei[2]=k;
           Buckets->InsertNextPoint(nei);
@@ -502,10 +502,22 @@ static float InsertionLevel;
 // data. Bounds are the box that the points lie in.
 int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
 {
+  this->InitPointInsertion(newPts,bounds,0);
+}
+
+// Description:
+// Initialize the point insertion process. The newPts is an object representing
+// point coordinates into which incremental insertion methods place their 
+// data. Bounds are the box that the points lie in.
+int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6],
+					int estNumPts)
+{
   int i;
   int maxDivs;
   typedef vtkIdList *vtkIdListPtr;
   float hmin;
+  int ndivs[3];
+  float level;
 
   this->InsertionPointId = 0;
   if ( this->HashTable ) this->FreeSearchStructure();
@@ -525,16 +537,32 @@ int vtkPointLocator::InitPointInsertion(vtkPoints *newPts, float bounds[6])
       this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
     }
 
-  for (this->NumberOfBuckets=1, i=0; i<3; i++) 
-    this->NumberOfBuckets *= this->Divisions[i];
+  if ( this->Automatic ) 
+    {
+    level = (float) estNumPts / this->NumberOfPointsPerBucket;
+    level = ceil( pow((double)level,(double)0.33333333) );
+    for (i=0; i<3; i++) ndivs[i] = (int) level;
+    } 
+  else 
+    {
+    for (i=0; i<3; i++) ndivs[i] = (int) this->Divisions[i];
+    }
 
-  this->HashTable = new vtkIdListPtr[this->NumberOfBuckets];
-  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*sizeof(vtkIdListPtr));
-//
-//  Compute width of bucket in three directions
-//
   for (i=0; i<3; i++) 
-    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i])/this->Divisions[i];
+    {
+    ndivs[i] = (ndivs[i] > 0 ? ndivs[i] : 1);
+    this->Divisions[i] = ndivs[i];
+    }
+
+  this->NumberOfBuckets = ndivs[0]*ndivs[1]*ndivs[2];
+  this->HashTable = new vtkIdListPtr[this->NumberOfBuckets];
+  memset (this->HashTable, (int)NULL, this->NumberOfBuckets*
+	  sizeof(vtkIdListPtr));
+  //
+  //  Compute width of bucket in three directions
+  //
+  for (i=0; i<3; i++) 
+    this->H[i] = (this->Bounds[2*i+1] - this->Bounds[2*i]) / ndivs[i] ;
 
   this->InsertionTol2 = this->Tolerance * this->Tolerance;
 
@@ -633,9 +661,9 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
   int i, j, ijk[3];
   int idx;
   vtkIdList *bucket;
-//
-//  Locate bucket that point is in.
-//
+  //
+  //  Locate bucket that point is in.
+  //
   for (i=0; i<3; i++)
     {
     ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
@@ -652,12 +680,12 @@ int vtkPointLocator::IsInsertedPoint(float x[3])
     }
   else // see whether we've got duplicate point
     {
-//
-// Check the list of points in that bucket for merging.  Also need to 
-// search all neighboring buckets within the tolerance.  The number 
-// and level of neighbors to search depends upon the tolerance and 
-// the bucket width.
-//
+    //
+    // Check the list of points in that bucket for merging.  Also need to 
+    // search all neighboring buckets within the tolerance.  The number 
+    // and level of neighbors to search depends upon the tolerance and 
+    // the bucket width.
+    //
     int *nei, lvtk, cno, ptId;
     vtkIdList *ptIds;
     float *pt;

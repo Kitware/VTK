@@ -91,6 +91,8 @@ public:
 
   // these all operate on array of points from InitPointInsertion()
   virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6]);
+  virtual int InitPointInsertion(vtkPoints *newPts, float bounds[6], 
+				 int estSize);
   virtual void InsertPoint(int ptId, float x[3]);
   virtual int InsertNextPoint(float x[3]);
   virtual int IsInsertedPoint(float x[3]);
