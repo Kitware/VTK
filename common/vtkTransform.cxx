@@ -727,6 +727,7 @@ void vtkTransform::Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x
 void vtkTransform::Transpose ()
 {
   this->GetTranspose (**this->Stack);
+  this->Modified();
 }
 
 // Description:
