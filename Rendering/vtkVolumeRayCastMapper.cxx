@@ -628,6 +628,19 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
     bounds[4] = me->CroppingRegionPlanes[4];
     bounds[5] = me->CroppingRegionPlanes[5];
     }
+
+  bounds[0] = (bounds[0] < 0)?(0):(bounds[0]);
+  bounds[0] = (bounds[0] > dim[0]-1)?(dim[0]-1):(bounds[0]);
+  bounds[1] = (bounds[1] < 0)?(0):(bounds[1]);
+  bounds[1] = (bounds[1] > dim[0]-1)?(dim[0]-1):(bounds[1]);
+  bounds[2] = (bounds[2] < 0)?(0):(bounds[2]);
+  bounds[2] = (bounds[2] > dim[1]-1)?(dim[1]-1):(bounds[2]);
+  bounds[3] = (bounds[3] < 0)?(0):(bounds[3]);
+  bounds[3] = (bounds[3] > dim[1]-1)?(dim[1]-1):(bounds[3]);
+  bounds[4] = (bounds[4] < 0)?(0):(bounds[4]);
+  bounds[4] = (bounds[4] > dim[2]-1)?(dim[2]-1):(bounds[4]);
+  bounds[5] = (bounds[5] < 0)?(0):(bounds[5]);
+  bounds[5] = (bounds[5] > dim[2]-1)?(dim[2]-1):(bounds[5]);
   
 
   int *imageInUseSize     = staticInfo->ImageInUseSize;
