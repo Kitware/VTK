@@ -180,6 +180,8 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   float *background;
   float aspect[3];
   Xgl_bounds_d3d vdc_bounds;
+  Xgl_bounds_d3d dc_bounds;
+  Xgl_pt_d3d  max_device_values;
   Xgl_trans view_trans;
   Xgl_trans trans;
   Xgl_pt_f3d  eye,focus;
@@ -187,6 +189,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   float matrix[4][4];
   vtkXglrRenderWindow *rw;
   float *Position, *FocalPoint, *ClippingRange;
+  float *vport;
 
   context = ren->GetContext();
   win_ras = ren->GetRaster();
@@ -194,7 +197,10 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   // get size info
   rw = (vtkXglrRenderWindow*)(ren->GetRenderWindow());
   size = rw->GetSize();
-
+  vport = ren->GetViewport();
+  xgl_object_get(*win_ras, XGL_DEV_MAXIMUM_COORDINATES, 
+		 &max_device_values);
+		 
   // find out if we should stereo render
   stereo = rw->GetStereoRender();
   if (stereo)
@@ -234,6 +240,15 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
   bg_color.r = background[0];
   bg_color.g = background[1];
   bg_color.b = background[2];
+
+  dc_bounds.xmin = vport[0]*(size[0] - 1);
+  dc_bounds.xmax = vport[2]*(size[0] - 1);
+  dc_bounds.ymin = vport[1]*(size[1] - 1);
+  dc_bounds.ymax = vport[3]*(size[1] - 1);
+  dc_bounds.zmin = 0;
+  dc_bounds.zmax = max_device_values.z;
+  xgl_object_set(*context, XGL_CTX_DC_VIEWPORT, &dc_bounds, NULL);
+
   if (cam->GetLeftEye() || (!stereo) || 
       ((ren->GetRenderWindow())->GetStereoType() != VTK_STEREO_CRYSTAL_EYES))
     {
@@ -242,7 +257,7 @@ void vtkXglrCamera::Render(vtkCamera *cam, vtkXglrRenderer *ren)
     xgl_context_new_frame(*context);
     }
 
-  aspect[0] = ((float)size[0])/((float)size[1]);
+  aspect[0] = ((vport[2] - vport[0])*size[0])/((vport[3] - vport[1])*size[1]);
   aspect[1] = 1.0;
   
   vdc_bounds.xmin = -1;
