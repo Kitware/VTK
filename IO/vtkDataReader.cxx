@@ -379,7 +379,7 @@ int vtkDataReader::OpenVTKFile()
     {
     vtkDebugMacro(<< "Opening vtk file");
 
-    if ( !this->FileName )
+    if ( !this->FileName || (strlen(this->FileName) == 0))
       {
       vtkErrorMacro(<< "No file specified!");
       return 0;
