@@ -195,7 +195,7 @@ void vtkMCubesReader::Execute()
 // Description:
 // Specify a spatial locator for merging points. By default, 
 // an instance of vtkMergePoints is used.
-void vtkMCubesReader::SetLocator(vtkLocator *locator)
+void vtkMCubesReader::SetLocator(vtkPointLocator *locator)
 {
   if ( this->Locator != locator ) 
     {

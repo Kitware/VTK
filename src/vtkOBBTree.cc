@@ -41,6 +41,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOBBTree.hh"
 #include "vtkMath.hh"
 #include "vtkLine.hh"
+#include "vtkPolyData.hh"
 
 static vtkMath math;
 
@@ -67,20 +68,8 @@ vtkOBBTree::vtkOBBTree()
   this->Level = 4;
   this->MaxLevel = 12;
   this->Automatic = 1;
-  this->NumberOfCellsPerOBB = 10;
   this->Tolerance = 0.01;
   this->Tree = NULL;
-}
-
-vtkOBBTree::~vtkOBBTree()
-{
-  this->Initialize();
-}
-
-void vtkOBBTree::Initialize()
-{
-  // free up OBB tree recursively
-  this->FreeSearchStructure();
 }
 
 void vtkOBBTree::FreeSearchStructure()
@@ -90,15 +79,18 @@ void vtkOBBTree::FreeSearchStructure()
 
   if ( this->Tree )
     {
+    this->DeleteTree(this->Tree);
     }
 }
 
-void vtkOBBTree::Update()
+void vtkOBBTree::DeleteTree(vtkOBBNode *OBBptr)
 {
-  if ((this->SubDivideTime < this->MTime)||
-  (this->DataSet->GetMTime() < this->SubDivideTime))
+  if ( OBBptr->Kids != NULL )
     {
-    this->SubDivide();
+    this->DeleteTree(OBBptr->Kids[0]);
+    this->DeleteTree(OBBptr->Kids[1]);
+    delete OBBptr->Kids[0];
+    delete OBBptr->Kids[1];
     }
 }
 
@@ -209,37 +201,18 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float& t,
   return -1;
 }
 
-// Description:
-// Intersect against another vtkOBBTree. This initializes the process. Use
-// the method GetNextTreeIntersection() to obtain successive OBB nodess in 
-// collision. Not implimented yet.
-void vtkOBBTree::InitializeTreeIntersection(vtkOBBNode& tree)
-{
-}
-
-// Description:
-// Retrieve the next leaf OBB node in collision with other OBB tree. Returns
-// 0 is there are no more intersections. The argument list returns two
-// pointers to the intersecting nodes. Note: you must call the method
-// InitializeTreeIntersection() before using this method.
-// intersecting leaf bounding boxes. Not implimented yet.
-int vtkOBBTree::GetNextTreeIntersection(vtkOBBNode& n1, vtkOBBNode& n2)
-{
-  return 0;
-}
-
 //
 //  Method to form subdivision of space based on the cells provided and
 //  subject to the constraints of levels and NumberOfCellsInOctant.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vtkOBBTree::SubDivide()
+void vtkOBBTree::BuildLocator()
 {
   int numPts, numCells, i;
   vtkIdList *cellList;
 
   vtkDebugMacro(<<"Building OBB tree");
-  if ( this->Tree != NULL && this->SubDivideTime > this->MTime ) return;
+  if ( this->Tree != NULL && this->BuildTime > this->MTime ) return;
 
   if ( this->DataSet == NULL || 
   (numPts = this->DataSet->GetNumberOfPoints()) < 1 ||
@@ -278,7 +251,7 @@ void vtkOBBTree::SubDivide()
   delete [] this->InsertedPoints;
   this->PointsList->Delete();
 
-  this->SubDivideTime.Modified();
+  this->BuildTime.Modified();
 }
 
 void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
@@ -318,7 +291,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
   // Check whether to continue recursing; if so, create two children and
   // assign cells to appropriate child.
   //
-  if ( level < this->MaxLevel && numCells > this->NumberOfCellsPerOBB )
+  if ( level < this->MaxLevel && numCells > this->NumberOfCellsPerBucket )
     {
     vtkIdList *LHlist = new vtkIdList(cells->GetNumberOfIds()/2);
     vtkIdList *RHlist = new vtkIdList(cells->GetNumberOfIds()/2);
@@ -419,7 +392,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
       this->BuildTree(LHlist, LHnode, level+1);
       this->BuildTree(RHlist, RHnode, level+1);
       }
-    }//if should subdivide
+    }//if should build tree
 
   if ( cells && this->RetainCellLists ) 
     {
@@ -441,8 +414,7 @@ void vtkOBBTree::BuildTree(vtkIdList *cells, vtkOBBNode *OBBptr, int level)
 // represented either as two crossed polygons, or as a line, depending on
 // the relative diameter of the OBB compared to the diameter (d).
 
-void vtkOBBTree::GenerateRepresentation(int level, float ar, float d, 
-                                        vtkPolyData *pd)
+void vtkOBBTree::GenerateRepresentation(int level, vtkPolyData *pd)
 {
   vtkFloatPoints *pts;
   vtkCellArray *polys;
@@ -455,7 +427,7 @@ void vtkOBBTree::GenerateRepresentation(int level, float ar, float d,
 
   pts = new vtkFloatPoints(5000);
   polys = new vtkCellArray(10000);
-  this->GeneratePolygons(this->Tree,0,level,ar,d,pts,polys);
+  this->GeneratePolygons(this->Tree,0,level,pts,polys);
 
   pd->SetPoints(pts);
   pts->Delete();
@@ -465,8 +437,7 @@ void vtkOBBTree::GenerateRepresentation(int level, float ar, float d,
 }
 
 void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
-                                  float ar, float d, vtkFloatPoints *pts,
-                                  vtkCellArray *polys)
+                                  vtkFloatPoints *pts, vtkCellArray *polys)
 
 {
   if ( level == repLevel || (repLevel < 0 && OBBptr->Kids == NULL) )
@@ -544,7 +515,7 @@ void vtkOBBTree::GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
 
   else if ( (level < repLevel || repLevel < 0) && OBBptr->Kids != NULL )
     {
-    this->GeneratePolygons(OBBptr->Kids[0],level+1,repLevel,ar,d,pts,polys);
-    this->GeneratePolygons(OBBptr->Kids[1],level+1,repLevel,ar,d,pts,polys);
+    this->GeneratePolygons(OBBptr->Kids[0],level+1,repLevel,pts,polys);
+    this->GeneratePolygons(OBBptr->Kids[1],level+1,repLevel,pts,polys);
     }
 }

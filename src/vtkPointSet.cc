@@ -122,13 +122,13 @@ int vtkPointSet::FindPoint(float x[3])
 
   if ( !this->Locator )
     {
-    this->Locator = new vtkLocator;
-    this->Locator->SetPoints(this->Points);
+    this->Locator = new vtkPointLocator;
+    this->Locator->SetDataSet(this);
     }
 
   if ( this->Points->GetMTime() > this->Locator->GetMTime() )
     {
-    this->Locator->SetPoints(this->Points);
+    this->Locator->SetDataSet(this);
     }
 
   return this->Locator->FindClosestPoint(x);
@@ -150,13 +150,13 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, float tol2, int& subId,
 
   if ( !this->Locator )
     {
-    this->Locator = new vtkLocator;
-    this->Locator->SetPoints(this->Points);
+    this->Locator = new vtkPointLocator;
+    this->Locator->SetDataSet(this);
     }
 
   if ( this->Points->GetMTime() > this->Locator->GetMTime() )
     {
-    this->Locator->SetPoints(this->Points);
+    this->Locator->SetDataSet(this);
     }
 
 // Find the closest point to the input position.  Then get the cells that 

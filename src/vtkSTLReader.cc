@@ -264,7 +264,7 @@ int vtkSTLReader::GetSTLFileType(FILE *fp)
 // Description:
 // Specify a spatial locator for merging points. By
 // default an instance of vtkMergePoints is used.
-void vtkSTLReader::SetLocator(vtkLocator *locator)
+void vtkSTLReader::SetLocator(vtkPointLocator *locator)
 {
   if ( this->Locator != locator ) 
     {

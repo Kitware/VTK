@@ -39,12 +39,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include <math.h>
 #include "vtkCellLocator.hh"
-#include "vtkLocator.hh"
 #include "vtkMath.hh"
-#include "vtkIntArray.hh"
 #include "vtkVoxel.hh"
+#include "vtkPolyData.hh"
 
 #define OUTSIDE 0
 #define INSIDE 1
@@ -53,29 +51,13 @@ typedef vtkIdList *vtkIdListPtr;
 
 // Description:
 // Construct with automatic computation of divisions, averaging
-// 25 cells per octant.
+// 25 cells per bucket.
 vtkCellLocator::vtkCellLocator()
 {
-  this->DataSet = NULL;
-  this->Level = 4;
-  this->MaxLevel = 5;
-  this->Automatic = 1;
-  this->NumberOfCellsInOctant = 25;
-  this->Tolerance = 0.01;
+  this->NumberOfCellsPerBucket = 25;
   this->Tree = NULL;
   this->H[0] = this->H[1] = this->H[2] = 1.0;
   this->NumberOfDivisions = 1;
-}
-
-vtkCellLocator::~vtkCellLocator()
-{
-  this->Initialize();
-}
-
-void vtkCellLocator::Initialize()
-{
-  // free up octants
-  this->FreeSearchStructure();
 }
 
 void vtkCellLocator::FreeSearchStructure()
@@ -96,19 +78,26 @@ void vtkCellLocator::FreeSearchStructure()
     }
 }
 
-void vtkCellLocator::Update()
+// Given an offset into the structure, the number of divisions in the octree,
+// an i,j,k location in the octree; return the index (idx) into the structure.
+// Method returns 1 is the specified i,j,k location is "outside" of the octree.
+int vtkCellLocator::GenerateIndex(int offset, int numDivs, int i, int j, int k, 
+                                  int &idx)
 {
-  if ((this->SubDivideTime < this->MTime)||
-      (this->DataSet->GetMTime() < this->SubDivideTime))
+  if ( i < 0 || i >= numDivs || 
+  j < 0 || j >= numDivs || k < 0 || k >= numDivs )
     {
-    this->SubDivide();
+    return 1;
     }
+
+  idx = offset + i + j*numDivs + k*numDivs*numDivs;
+
+  return 0;
 }
 
 // Description:
-// Return list of octants that are intersected by line. The octants
-// are ordered along the line and are represented by octant number. To obtain
-// the cells in the octant, use the method GetOctantCells().
+// Return intersection point (if any) of finite line with cells contained
+// in cell locator.
 int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
 				      float& t, float x[3], float pcoords[3],
 				      int &subId)
@@ -274,52 +263,37 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
     return 1;
     }
   
-  // failed to find it recursing
-  // loop through all cells to check
-  //  for (cellId=0; cellId < this->DataSet->GetNumberOfCells(); cellId++) 
-  // {
-  // cell = this->DataSet->GetCell(cellId);
-  //if (cell->IntersectWithLine(a0, a1, tol, t, x, pcoords, 
-  //			subId))
-  //  {
-  //  vtkErrorMacro(<< " I did see a putty cat!");
-  //  return 1;
-  //  }
-  //}
-  
   return 0;
 }
 
 // Description:
-// Get the cells in an octant.
-vtkIdList* vtkCellLocator::GetOctantCells(int octantId)
+// Get the cells in a bucket.
+vtkIdList* vtkCellLocator::GetCells(int octantId)
 {
-  // is this a leaf ? should check
-  //  if (octantId >= 
-  //    (this->NumberOfOctants - this->NumberOfDivisions*
-  //    this->NumberOfDivisions*this->NumberOfDivisions))
-  // {
-// return this->Tree[octantId];
-//   }
-  
-// handle parents ?		  
-return this->Tree[octantId];
+  // handle parents ?		  
+  return this->Tree[octantId];
 }
 
 // Description:
 // Intersect against another vtkCellLocator returning cells that lie in 
 // intersecting octants. Not implimented yet.
-int vtkCellLocator::IntersectWithCellLocator(vtkCellLocator& locator, vtkIdList cells)
+void vtkCellLocator::InitializeIntersection(vtkCellLocator& locator)
 {
-  return 0;
+  // not yet implemented
 }
+
+int vtkCellLocator::GetNextIntersection(int& bucket1, int& bucket2)
+{
+  // not yet implemented
+}
+
 
 //
 //  Method to form subdivision of space based on the cells provided and
-//  subject to the constraints of levels and NumberOfCellsInOctant.
+//  subject to the constraints of levels and NumberOfCellsPerBucket.
 //  The result is directly addressable and of uniform subdivision.
 //
-void vtkCellLocator::SubDivide()
+void vtkCellLocator::BuildLocator()
 {
   vtkCell *cell;
   float *bounds, *cellBounds;
@@ -328,11 +302,11 @@ void vtkCellLocator::SubDivide()
   int i, j, k, cellId, ijkMin[3], ijkMax[3];
   int idx, parentOffset;
   vtkIdList *octant;
-  int numCellsInOctant = this->NumberOfCellsInOctant;
+  int numCellsPerBucket = this->NumberOfCellsPerBucket;
   typedef vtkIdList *vtkIdListPtr;
   int prod, numOctants;
 
-  if ( this->Tree != NULL && this->SubDivideTime > this->MTime ) return;
+  if ( this->Tree != NULL && this->BuildTime > this->MTime ) return;
 
   vtkDebugMacro( << "Subdividing octree..." );
 
@@ -354,10 +328,10 @@ void vtkCellLocator::SubDivide()
 
   if ( this->Automatic ) 
     {
-    this->Level = (int) (ceil(log((double)numCells/numCellsInOctant) / 
+    this->Level = (int) (ceil(log((double)numCells/numCellsPerBucket) / 
                               (log((double) 8.0))));
-    this->Level =(this->Level > this->MaxLevel ? this->MaxLevel : this->Level);
     } 
+  this->Level =(this->Level > this->MaxLevel ? this->MaxLevel : this->Level);
 
   // compute number of octants and number of divisions
   for (ndivs=1,prod=1,numOctants=1,i=0; i<this->Level; i++) 
@@ -407,11 +381,11 @@ void vtkCellLocator::SubDivide()
         for ( i = ijkMin[0]; i <= ijkMax[0]; i++ )
           {
           idx = parentOffset + i + j*ndivs + k*product;
-          this->MarkParents((void*)INSIDE,idx);
+          this->MarkParents((void*)INSIDE,i,j,k,ndivs,this->Level);
           octant = this->Tree[idx];
           if ( ! octant )
             {
-            octant = new vtkIdList(numCellsInOctant);
+            octant = new vtkIdList(numCellsPerBucket);
             this->Tree[idx] = octant;
             }
           octant->InsertNextId(cellId);
@@ -421,33 +395,201 @@ void vtkCellLocator::SubDivide()
 
     } //for all cells
 
-  this->SubDivideTime.Modified();
+  this->BuildTime.Modified();
 }
 
-void vtkCellLocator::MarkParents(void* a, int idx)
+void vtkCellLocator::MarkParents(void* a, int i, int j, int k, 
+                                 int ndivs, int level)
 {
-  int parentIdx = 0;
-  int prod = 1;
-  int offset;
-  
-  // will's code, well ken's code really
-  if (idx <= 0) return;
+  int offset, prod, ii, parentIdx;
 
-  while ((parentIdx + prod*8) < idx)
+  if ( level <= 0  ) return;
+
+  i /= 2;
+  j /= 2;
+  k /= 2;
+  ndivs /= 2;
+  level--;
+
+  for (offset=0, prod=1, ii=0; ii<level; ii++) 
     {
+    offset += prod;
     prod *= 8;
-    parentIdx += prod;
     }
-  
-  offset = idx - parentIdx - 1;
-  parentIdx = parentIdx - prod + 1;
-  
-  parentIdx = parentIdx + (offset/8);
-  
+
+  parentIdx = offset + i + j*ndivs + k*ndivs*ndivs;
+
   // if it already matches just return
   if (a == this->Tree[parentIdx]) return;
   
   this->Tree[parentIdx] = (vtkIdList *)a;
-  this->MarkParents(a,parentIdx);
+  this->MarkParents(a, i, j, k, ndivs, level);
+}
+
+void vtkCellLocator::GenerateRepresentation(int level, vtkPolyData *pd)
+{
+  vtkFloatPoints *pts;
+  vtkCellArray *polys;
+  int l, i, j, k, ii, inside, idx, Inside[3], boundary[3];
+  int numDivs=1;
+
+  if ( this->Tree == NULL )
+    {
+    vtkErrorMacro(<<"No tree to generate representation from");
+    return;
+    }
+
+  pts = new vtkFloatPoints(5000);
+  polys = new vtkCellArray(10000);
+
+  //
+  // Compute idx into tree at appropriate level; determine if
+  // faces of octants are visible.
+  //
+  int parentIdx = 0;
+  int numOctants = 1;
+  
+  if ( level < 0 ) level = this->Level;
+  for (l=0; l < level; l++)
+    {
+    numDivs *= 2;
+    parentIdx += numOctants;
+    numOctants *= 8;
+    }
+
+  //loop over all octabts generating visible faces
+  for ( k=0; k < numDivs; k++)
+    {
+    for ( j=0; j < numDivs; j++)
+      {
+      for ( i=0; i < numDivs; i++)
+        {
+        this->GenerateIndex(parentIdx,numDivs,i,j,k,idx);
+        inside = (int) this->Tree[idx];
+
+        if ( !(boundary[0] = this->GenerateIndex(parentIdx,numDivs,i-1,j,k,idx)) )
+          {
+          Inside[0] = (int) this->Tree[idx];
+          }
+        if ( !(boundary[1] = this->GenerateIndex(parentIdx,numDivs,i,j-1,k,idx)) )
+          {
+          Inside[1] = (int) this->Tree[idx];
+          }
+        if ( !(boundary[2] = this->GenerateIndex(parentIdx,numDivs,i,j,k-1,idx)) )
+          {
+          Inside[2] = (int) this->Tree[idx];
+          }
+
+        for (ii=0; ii < 3; ii++)
+          {
+          if ( boundary[ii] )
+            {
+            if ( inside ) this->GenerateFace(ii,numDivs,i,j,k,pts,polys);
+            }
+          else
+            {
+            if ( (Inside[ii] && !inside) || (!Inside[ii] && inside) )
+              {
+              this->GenerateFace(ii,numDivs,i,j,k,pts,polys);
+              }
+            }
+          //those buckets on "positive" boundaries can generate faces specially
+          if ( (i+1) >= numDivs && inside )
+            {
+            this->GenerateFace(0,numDivs,i+1,j,k,pts,polys);
+            }
+          if ( (j+1) >= numDivs && inside )
+            {
+            this->GenerateFace(1,numDivs,i,j+1,k,pts,polys);
+            }
+          if ( (k+1) >= numDivs && inside )
+            {
+            this->GenerateFace(2,numDivs,i,j,k+1,pts,polys);
+            }
+
+          }//over negative faces
+        }//over i divisions
+      }//over j divisions
+    }//over k divisions
+
+  pd->SetPoints(pts);
+  pts->Delete();
+  pd->SetPolys(polys);
+  polys->Delete();
+  pd->Squeeze();
+}
+
+void vtkCellLocator::GenerateFace(int face, int numDivs, int i, int j, int k,
+                                  vtkFloatPoints *pts, vtkCellArray *polys)
+{
+  int ii, ids[4];
+  float origin[3], x[3];
+  float h[3];
+
+  // define first corner; use ids[] as temporary array
+  ids[0] = i; ids[1] = j; ids[2] = k;
+  for (ii=0; ii<3; ii++)
+    {
+    h[ii] = (this->Bounds[2*ii+1] - this->Bounds[2*ii]) / numDivs;
+    origin[ii] = this->Bounds[2*ii] + ids[ii]*h[ii];
+    }
+
+  ids[0] = pts->InsertNextPoint(origin);
+
+  if ( face == 0 ) //x face
+    {
+    x[0] = origin[0];
+    x[1] = origin[1] + h[1];
+    x[2] = origin[2];
+    ids[1] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0];
+    x[1] = origin[1] + h[1];
+    x[2] = origin[2] + h[2];
+    ids[2] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0];
+    x[1] = origin[1];
+    x[2] = origin[2] + h[2];
+    ids[3] = pts->InsertNextPoint(x);
+    }
+
+  else if ( face == 1 ) //y face
+    {
+    x[0] = origin[0] + h[0];
+    x[1] = origin[1];
+    x[2] = origin[2];
+    ids[1] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0] + h[0];
+    x[1] = origin[1];
+    x[2] = origin[2] + h[2];
+    ids[2] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0];
+    x[1] = origin[1];
+    x[2] = origin[2] + h[2];
+    ids[3] = pts->InsertNextPoint(x);
+    }
+
+  else //z face
+    {
+    x[0] = origin[0] + h[0];
+    x[1] = origin[1];
+    x[2] = origin[2];
+    ids[1] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0] + h[0];
+    x[1] = origin[1] + h[1];
+    x[2] = origin[2];
+    ids[2] = pts->InsertNextPoint(x);
+
+    x[0] = origin[0];
+    x[1] = origin[1] + h[1];
+    x[2] = origin[2];
+    ids[3] = pts->InsertNextPoint(x);
+    }
+
+  polys->InsertNextCell(4,ids);
 }
 

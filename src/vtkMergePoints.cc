@@ -60,7 +60,7 @@ int *vtkMergePoints::MergePoints()
   if ( this->Points == NULL || 
   (numPts=this->Points->GetNumberOfPoints()) < 1 ) return NULL;
 
-  this->SubDivide(); // subdivides if necessary
+  this->BuildLocator(); // subdivides if necessary
 
   index = new int[numPts];
   for (i=0; i < numPts; i++) index[i] = -1;
@@ -135,7 +135,7 @@ int vtkMergePoints::InsertPoint(float x[3])
 
   if ( ! bucket )
     {
-    bucket = new vtkIdList(this->NumberOfPointsInBucket/2);
+    bucket = new vtkIdList(this->NumberOfPointsPerBucket/2);
     this->HashTable[idx] = bucket;
     }
   else // see whether we've got duplicate point
