@@ -208,6 +208,8 @@ void vtkSpherePuzzle::Execute()
   tmp->GetPointData()->PassData(append->GetOutput()->GetPointData());
   tmp->GetPointData()->SetScalars(scalars);
 
+  sphere->Delete();
+  scalars->Delete();
   append->Delete();
   tf->Delete();
 }
