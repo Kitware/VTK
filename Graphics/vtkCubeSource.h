@@ -21,13 +21,13 @@
 #ifndef __vtkCubeSource_h
 #define __vtkCubeSource_h
 
-#include "vtkPolyDataSource.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkCubeSource : public vtkPolyDataSource 
+class VTK_GRAPHICS_EXPORT vtkCubeSource : public vtkPolyDataAlgorithm 
 {
 public:
   static vtkCubeSource *New();
-  vtkTypeRevisionMacro(vtkCubeSource,vtkPolyDataSource);
+  vtkTypeRevisionMacro(vtkCubeSource,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -57,12 +57,11 @@ public:
                  double zMin, double zMax);
   void SetBounds(double bounds[6]);
 
-
 protected:
   vtkCubeSource(double xL=1.0, double yL=1.0, double zL=1.0);
   ~vtkCubeSource() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double XLength;
   double YLength;
   double ZLength;
@@ -73,5 +72,3 @@ private:
 };
 
 #endif
-
-

@@ -16,14 +16,17 @@
 
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCubeSource, "1.51");
+vtkCxxRevisionMacro(vtkCubeSource, "1.52");
 vtkStandardNewMacro(vtkCubeSource);
 
 vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
@@ -35,10 +38,22 @@ vtkCubeSource::vtkCubeSource(double xL, double yL, double zL)
   this->Center[0] = 0.0;
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
+
+  this->SetNumberOfInputPorts(0);
 }
 
-void vtkCubeSource::Execute()
+int vtkCubeSource::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the ouptut
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   double x[3], n[3], tc[3];
   int numPolys=6, numPts=24;
   int i, j, k;
@@ -47,9 +62,7 @@ void vtkCubeSource::Execute()
   vtkFloatArray *newNormals;
   vtkFloatArray *newTCoords; // CCS 7/27/98 Added for Texture Mapping
   vtkCellArray *newPolys;
-  vtkPolyData *output = this->GetOutput();
   
-  vtkDebugMacro(<<"Creating polygonal cube");
 //
 // Set things up; allocate memory
 //
@@ -150,6 +163,8 @@ void vtkCubeSource::Execute()
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
   output->SetPolys(newPolys);
   newPolys->Delete();
+
+  return 1;
 }
 
 // Convenience method allows creation of cube by specifying bounding box.
@@ -187,4 +202,3 @@ void vtkCubeSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Center: (" << this->Center[0] << ", " 
                << this->Center[1] << ", " << this->Center[2] << ")\n";
 }
-
