@@ -19,7 +19,7 @@
 #include "vtkAppendPolyData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCollectPolyData, "1.4");
+vtkCxxRevisionMacro(vtkCollectPolyData, "1.5");
 vtkStandardNewMacro(vtkCollectPolyData);
 
 //----------------------------------------------------------------------------
@@ -72,7 +72,8 @@ void vtkCollectPolyData::Execute()
 {
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  unsigned long size, tmp;
+  unsigned long size;
+  unsigned long tmp=0;
   int numProcs, myId;
   int idx;
 
