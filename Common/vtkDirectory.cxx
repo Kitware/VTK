@@ -71,7 +71,6 @@ int vtkDirectory::Open(const char* name)
   long srchHandle = _findfirst(buf, &data);
   if (srchHandle == -1)
     {
-    vtkWarningMacro(<< "can't open directory " << buf);
     this->NumberOfFiles = 0;
     _findclose(srchHandle);
     return 0;
