@@ -82,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkIdList;
 
-class VTK_EXPORT vtkMesaRenderWindow : public vtkXRenderWindow
+class VTK_EXPORT vtkMesaRenderWindow : public vtkOpenGLRenderWindow
 {
 protected:
 // If mesa is not defined it means that vtk was configured with-mesa
@@ -97,7 +97,7 @@ protected:
 
 public:
   static vtkMesaRenderWindow *New();
-  vtkTypeMacro(vtkMesaRenderWindow,vtkXRenderWindow);
+  vtkTypeMacro(vtkMesaRenderWindow,vtkOpenGLRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -145,10 +145,6 @@ public:
   virtual int      GetDesiredDepth();
 
   // Description:
-  // Update system if needed due to stereo rendering.
-  virtual void StereoUpdate();
-
-  // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
   // overrides the superclass method since this class can actually check
@@ -156,35 +152,8 @@ public:
   virtual void SetStereoCapableWindow(int capable);
 
   // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBRGB... 
-  virtual unsigned char *GetPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetPixelData(int x,int y,int x2,int y2,unsigned char *,
-			    int front);
-
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBARGBA... 
-  virtual float *GetRGBAPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetRGBAPixelData(int x,int y,int x2,int y2,float *,int front,
-                                int blend=0);
-
-  // Description:
-  // Set/Get the pixel data of an image, transmitted as RGBARGBA...
-  virtual unsigned char *GetRGBACharPixelData(int x,int y,int x2,int y2,int front);
-  virtual void SetRGBACharPixelData(int x,int y,int x2,int y2,unsigned char *,
-				    int front, int blend=0);  
-  
-  // Description:
-  // Set/Get the zbuffer data from an image
-  virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
-  virtual void SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
-
-  // Description:
   // Make this window the current Mesa context.
   void MakeCurrent();
-  
-  // Description:
-  // Register a texture name with this render window
-  void RegisterTextureResource (GLuint id);
   
   // Description:
   // Override the default implementation so that we can actively switch between
@@ -208,8 +177,6 @@ protected:
   ~vtkMesaRenderWindow();
   vtkMesaRenderWindow(const vtkMesaRenderWindow&);
   void operator=(const vtkMesaRenderWindow&);
-
-  vtkIdList *TextureResourceIds;
 };
 
 #endif

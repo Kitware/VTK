@@ -174,7 +174,6 @@ vtkMesaRenderWindow::vtkMesaRenderWindow()
   this->NextWindowId = (Window)NULL;
   this->ColorMap = (Colormap)0;
   this->OwnWindow = 0;
-  this->TextureResourceIds = vtkIdList::New();
   if ( this->WindowName ) 
     {
     delete [] this->WindowName;
@@ -252,8 +251,6 @@ vtkMesaRenderWindow::~vtkMesaRenderWindow()
       }
     }
   this->ContextId = NULL;
-
-  this->TextureResourceIds->Delete();
 }
 
 // Begin the rendering process.
@@ -282,41 +279,6 @@ void vtkMesaRenderWindow::Frame(void)
 }
  
 
-// Update system if needed due to stereo rendering.
-void vtkMesaRenderWindow::StereoUpdate(void)
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-    {
-    switch (this->StereoType) 
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	{
-	}
-	break;
-      case VTK_STEREO_RED_BLUE:
-	{
-        this->StereoStatus = 1;
-	}
-      }
-    }
-  else if ((!this->StereoRender) && this->StereoStatus)
-    {
-    switch (this->StereoType) 
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-	{
-        this->StereoStatus = 0;
-	}
-	break;
-      case VTK_STEREO_RED_BLUE:
-	{
-        this->StereoStatus = 0;
-	}
-      }
-    }
-}
-
 //
 // Set the variable that indicates that we want a stereo capable window
 // be created. This method can only be called before a window is realized.
@@ -333,13 +295,6 @@ void vtkMesaRenderWindow::SetStereoCapableWindow(int capable)
                     << "before the window is realized, i.e. before a render.");
     }
 }
-
-// Specify various window parameters.
-void vtkMesaRenderWindow::WindowConfigure()
-{
-  // this is all handles by the desiredVisualInfo method
-}
-
 
 // Initialize the window for rendering.
 void vtkMesaRenderWindow::WindowInitialize (void)
@@ -1378,11 +1333,6 @@ void vtkMesaRenderWindow::MakeCurrent()
       glXMakeCurrent(this->DisplayId,this->WindowId,this->ContextId);
       }
     }
-}
-
-void vtkMesaRenderWindow::RegisterTextureResource (GLuint id)
-{
-  this->TextureResourceIds->InsertNextId ((int) id);
 }
 
 void vtkMesaRenderWindow::SetOffScreenRendering(int i)
