@@ -145,26 +145,10 @@ unsigned long int vtkImageReslice::GetMTime()
 
 vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
 {
-  unsigned long mTime = 0;
-  unsigned long time;
-
   // first verify that we have to update the matrix
-  if ( this->ResliceTransform != NULL)
-    {
-    time = this->ResliceTransform->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    time = this->ResliceTransform->GetMatrixPointer()->GetMTime();
-    mTime = ( time > mTime ? time : mTime );    
-    }
-  if ( this->ResliceAxes != NULL)
-    {
-    time = this->ResliceAxes->GetMTime();
-    mTime = ( time > mTime ? time : mTime );
-    }
-
   if (this->IndexMatrix)
     {
-    if (mTime < this->IndexMatrix->GetMTime() && mTime != 0)
+    if (this->IndexMatrix->GetMTime() > this->GetMTime())
       {
       return this->IndexMatrix;
       }
@@ -201,7 +185,6 @@ vtkMatrix4x4 *vtkImageReslice::GetIndexMatrix()
   
   // the outMatrix takes OutputData indices to OutputData coordinates,
   // the inMatrix takes InputData coordinates to InputData indices
-
   for (i = 0; i < 3; i++) 
     {
     inMatrix->Element[i][i] = 1/inSpacing[i];
@@ -313,6 +296,7 @@ void vtkImageReslice::ExecuteInformation()
 
   int *inExt;
 
+  this->GetInput()->UpdateInformation();
   inExt = this->GetInput()->GetWholeExtent();
   inSpacing = this->GetInput()->GetSpacing();
   this->GetInput()->GetOrigin(inOrigin);
