@@ -25,7 +25,7 @@
 #include "vtkEnSightGoldReader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.31");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.32");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -954,6 +954,9 @@ void vtkGenericEnSightReader::ReplaceWildcards(char* fileName, int timeSet,
     sscanf(line, " %*s %*s %d", &fileNameNum);
     this->ReplaceWildcardsHelper(fileName, fileNameNum);
     }
+  
+  delete this->IS;
+  this->IS = NULL;
 }
 
 void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
