@@ -224,9 +224,10 @@ static void CheckEdge(int ptId, float x[3], int p1, int p2, int tri,
       swapTri[0] = ptId; swapTri[1] = p1; swapTri[2] = p3;
       Mesh->ReplaceCell(nei,3,swapTri);
 
+
       // two new edges become suspect
-      CheckEdge(ptId, x, p2, p3, tri, Mesh, points);
-      CheckEdge(ptId, x, p3, p1, nei, Mesh, points);
+      CheckEdge(ptId, x, p3, p2, tri, Mesh, points);
+      CheckEdge(ptId, x, p1, p3, nei, Mesh, points);
 
       }//in circle
     }//interior edge
@@ -248,7 +249,7 @@ void vtkDelaunay2D::Execute()
   vtkPoints *inPoints;
   vtkPoints *points;
   vtkCellArray *triangles;
-  vtkPolyData *Mesh=vtkPolyData::New();
+  vtkPolyData *Mesh;
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
   float x[3];
@@ -278,6 +279,9 @@ void vtkDelaunay2D::Execute()
   
   NumberOfDuplicatePoints = 0;
   NumberOfDegeneracies = 0;
+
+  Mesh = vtkPolyData::New();
+  
   //
   // Create initial bounding triangulation. Have to create bounding points.
   // Initialize mesh structure.
@@ -295,8 +299,10 @@ void vtkDelaunay2D::Execute()
 
   for (ptId=0; ptId<8; ptId++)
     {
-    x[0] = center[0] + radius*cos((double)(45.0*ptId)*vtkMath::DegreesToRadians());
-    x[1] = center[1] + radius*sin((double)(45.0*ptId)*vtkMath::DegreesToRadians());
+    x[0] = center[0]
+      + radius*cos((double)(45.0*ptId)*vtkMath::DegreesToRadians());
+    x[1] = center[1]
+      + radius*sin((double)(45.0*ptId)*vtkMath::DegreesToRadians());
     x[2] = center[2];
     points->SetPoint(numPoints+ptId,x);
     }
@@ -411,11 +417,11 @@ void vtkDelaunay2D::Execute()
   if ( NumberOfDegeneracies > 0 )
     {
     vtkWarningMacro(<< NumberOfDegeneracies 
-                    << " degenerate triangles encountered, mesh quality suspect");
+                 << " degenerate triangles encountered, mesh quality suspect");
     }
-//
-// Finish up by deleting all triangles connected to initial triangulation
-//
+  //
+  // Finish up by deleting all triangles connected to initial triangulation
+  //
   numTriangles = Mesh->GetNumberOfCells();
   if ( !this->BoundingTriangulation || this->Alpha > 0.0 )
     {
@@ -434,10 +440,10 @@ void vtkDelaunay2D::Execute()
         }
       }
     }
-//
-// If non-zero alpha value, then figure out which parts of mesh are
-// contained within alpha radius.
-//
+  //
+  // If non-zero alpha value, then figure out which parts of mesh are
+  // contained within alpha radius.
+  //
   if ( this->Alpha > 0.0 )
     {
     float alpha2 = this->Alpha * this->Alpha;
@@ -509,8 +515,8 @@ void vtkDelaunay2D::Execute()
     //traverse all points, create vertices if none used
     for (ptId=0; ptId<(numPoints+8); ptId++)
       {
-      if ( !pointUse[ptId] &&  (ptId < numPoints || 
-				this->BoundingTriangulation) )
+      if ( !pointUse[ptId]
+           &&  (ptId < numPoints || this->BoundingTriangulation) )
         {
         pts[0] = ptId;
         alphaVerts->InsertNextCell(1,pts);
@@ -576,5 +582,6 @@ void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Alpha: " << this->Alpha << "\n";
   os << indent << "Tolerance: " << this->Tolerance << "\n";
   os << indent << "Offset: " << this->Offset << "\n";
-  os << indent << "Bounding Triangulation: " << (this->BoundingTriangulation ? "On\n" : "Off\n");
+  os << indent << "Bounding Triangulation: "
+     << (this->BoundingTriangulation ? "On\n" : "Off\n");
 }
