@@ -153,6 +153,7 @@ void vtkOpenGLVolumeTextureMapper2D::Render(vtkRenderer *ren, vtkVolume *vol)
     {
     this->TimeToDraw = 0.0001;
     }	
+  timer->Delete();
 }
 
 void vtkOpenGLVolumeTextureMapper2D::RenderRectangle( float v[12], 
