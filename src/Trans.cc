@@ -548,6 +548,15 @@ void vlTransform::PrintSelf (ostream& os, vlIndent indent)
 
 float *vlTransform::GetVector()
 {
-  this->Stack[0]->VectorMultiply(this->Vector,this->Vector);
+  if (this->PreMultiplyFlag)
+    {
+    this->Stack[0]->Transpose();
+    this->Stack[0]->VectorMultiply(this->Vector,this->Vector);
+    this->Stack[0]->Transpose();
+    }
+  else
+    {
+    this->Stack[0]->VectorMultiply(this->Vector,this->Vector);
+    }
   return this->Vector;
 }
