@@ -34,7 +34,7 @@
 #include <math.h>
 #include <stdio.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.8");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.9");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -2125,7 +2125,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
       continue;                         // Tetrahedron is outside.
       }
    
-    float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
+    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
     for (allInside=1, i=0; i<4; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
@@ -2571,7 +2571,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
-    float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
+    //float  *pPtr = (float *)cellPts->GetVoidPointer(0);   
 
     // Test Outside: see(1)
     unsigned test[6] = {1,1,1,1,1,1};
