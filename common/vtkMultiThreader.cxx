@@ -52,6 +52,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <pthread.h>
 #endif
 
+// Initialize static member that controls global maximum number of threads
+static int vtkMultiThreaderGlobalMaximumNumberOfThreads = 0;
+
+void vtkMultiThreader::SetGlobalMaximumNumberOfThreads(int val)
+{
+  if (val == vtkMultiThreaderGlobalMaximumNumberOfThreads) return;
+  vtkMultiThreaderGlobalMaximumNumberOfThreads = val;
+}
+
+int vtkMultiThreader::GetGlobalMaximumNumberOfThreads()
+{
+  return vtkMultiThreaderGlobalMaximumNumberOfThreads;
+}
+
 // Description:
 // Constructor. Default all the methods to NULL. Since the
 // ThreadInfoArray is static, the ThreadIDs can be initialized here
@@ -170,6 +184,14 @@ void vtkMultiThreader::SingleMethodExecute()
     return;
     }
 
+  // obey the global maximum number of threads limit
+  if (vtkMultiThreaderGlobalMaximumNumberOfThreads &&
+      this->NumberOfThreads > vtkMultiThreaderGlobalMaximumNumberOfThreads)
+    {
+    this->NumberOfThreads = vtkMultiThreaderGlobalMaximumNumberOfThreads;
+    }
+  
+    
   // We are using sproc (on SGIs), pthreads(on Suns), or a single thread
   // (the default)  
 
@@ -326,6 +348,13 @@ void vtkMultiThreader::MultipleMethodExecute()
   pthread_t          process_id[VTK_MAX_THREADS];
 #endif
 
+
+  // obey the global maximum number of threads limit
+  if (vtkMultiThreaderGlobalMaximumNumberOfThreads &&
+      this->NumberOfThreads > vtkMultiThreaderGlobalMaximumNumberOfThreads)
+    {
+    this->NumberOfThreads = vtkMultiThreaderGlobalMaximumNumberOfThreads;
+    }
 
   for ( thread_loop = 0; thread_loop < this->NumberOfThreads; thread_loop++ )
     if ( this->MultipleMethod[thread_loop] == (vtkThreadFunctionType)NULL)
@@ -620,5 +649,7 @@ void vtkMultiThreader::PrintSelf(ostream& os, vtkIndent indent)
 {
   
   os << indent << "Thread Count: " << this->NumberOfThreads << "\n";
+  os << indent << "Global Maximum Number Of Threads: " << 
+    vtkMultiThreaderGlobalMaximumNumberOfThreads << endl;
 
 }
