@@ -15,13 +15,12 @@
 #include "vtkHierarchicalBoxDataSet.h"
 
 #include "vtkHierarchicalBoxDataSetInternal.h"
-#include "vtkHierarchicalBoxVisitor.h"
 
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.4");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 //----------------------------------------------------------------------------
@@ -34,14 +33,6 @@ vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
 vtkHierarchicalBoxDataSet::~vtkHierarchicalBoxDataSet()
 {
   delete this->BoxInternal;
-}
-
-//----------------------------------------------------------------------------
-vtkCompositeDataVisitor* vtkHierarchicalBoxDataSet::NewVisitor()
-{
-  vtkHierarchicalBoxVisitor* vis = vtkHierarchicalBoxVisitor::New();
-  vis->SetDataSet(this);
-  return vis;
 }
 
 //----------------------------------------------------------------------------

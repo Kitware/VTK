@@ -20,7 +20,7 @@
 // only provides an interface to access the datasets through iterators.
 
 // .SECTION See Also
-// vtkCompositeDataIterator vtkCompositeDataVisitor
+// vtkCompositeDataIterator 
 
 #ifndef __vtkCompositeDataSet_h
 #define __vtkCompositeDataSet_h
@@ -28,7 +28,6 @@
 #include "vtkDataObject.h"
 
 class vtkCompositeDataIterator;
-class vtkCompositeDataVisitor;
 
 class VTK_FILTERING_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
@@ -40,11 +39,6 @@ public:
   // Return a new (forward) iterator 
   // (the iterator has to be deleted by user)
   virtual vtkCompositeDataIterator* NewIterator() = 0;
-
-  // Description:
-  // Return a new visitor. Sub-classes should overload
-  // this method to return the appropriate visitor.
-  virtual vtkCompositeDataVisitor* NewVisitor() = 0;
 
   // Description:
   // Return class name of data type (see vtkSystemIncludes.h for

@@ -16,11 +16,10 @@
 
 #include "vtkMultiBlockDataIterator.h"
 #include "vtkMultiBlockDataSetInternal.h"
-#include "vtkMultiBlockDataVisitor.h"
 
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.2");
+vtkCxxRevisionMacro(vtkMultiBlockDataSet, "1.3");
 vtkStandardNewMacro(vtkMultiBlockDataSet);
 
 //----------------------------------------------------------------------------
@@ -68,17 +67,6 @@ vtkCompositeDataIterator* vtkMultiBlockDataSet::NewIterator()
   vtkMultiBlockDataIterator* iter = vtkMultiBlockDataIterator::New();
   iter->SetDataSet(this);
   return iter;
-}
-
-//----------------------------------------------------------------------------
-vtkCompositeDataVisitor* vtkMultiBlockDataSet::NewVisitor()
-{
-  vtkMultiBlockDataVisitor* vis = vtkMultiBlockDataVisitor::New();
-  vtkMultiBlockDataIterator* it = 
-    vtkMultiBlockDataIterator::SafeDownCast(this->NewIterator());
-  vis->SetDataIterator(it);
-  it->Delete();
-  return vis;
 }
 
 //----------------------------------------------------------------------------

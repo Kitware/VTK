@@ -42,10 +42,6 @@ public:
   virtual vtkCompositeDataIterator* NewIterator();
 
   // Description:
-  // This returns a vtkMultiBlockDataVisitor.
-  virtual vtkCompositeDataVisitor* NewVisitor();
-
-  // Description:
   // Return class name of data type (see vtkSystemIncludes.h for
   // definitions.
   virtual int GetDataObjectType() {return VTK_MULTI_BLOCK_DATA_SET;}

@@ -40,10 +40,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // This returns a vtkHierarchicalBoxVisitor.
-  virtual vtkCompositeDataVisitor* NewVisitor();
-
-  // Description:
   // Return class name of data type (see vtkSystemIncludes.h for
   // definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}

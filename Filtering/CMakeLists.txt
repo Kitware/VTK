@@ -15,7 +15,6 @@ vtkActor2D.cxx
 vtkActor2DCollection.cxx
 vtkAlgorithm.cxx
 vtkAlgorithmOutput.cxx
-vtkApplyFilterCommand.cxx
 vtkCachedStreamingDemandDrivenPipeline.cxx
 vtkCardinalSpline.cxx
 vtkCastToConcrete.cxx
@@ -27,11 +26,9 @@ vtkCellLinks.cxx
 vtkCellLocator.cxx
 vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
-vtkCompositeDataCommand.cxx
 vtkCompositeDataIterator.cxx
 #vtkCompositeDataPipeline.cxx
 vtkCompositeDataSet.cxx
-vtkCompositeDataVisitor.cxx
 vtkCone.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -75,12 +72,7 @@ vtkGeometricErrorMetric.cxx
 vtkAttributesErrorMetric.cxx
 vtkHexagonalPrism.cxx
 vtkHexahedron.cxx
-vtkHierarchicalBoxApplyFilterCommand.cxx
 vtkHierarchicalBoxDataSet.cxx
-vtkHierarchicalBoxSource.cxx
-vtkHierarchicalBoxToHierarchicalBoxFilter.cxx
-vtkHierarchicalBoxToPolyDataFilter.cxx
-vtkHierarchicalBoxVisitor.cxx
 #vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
@@ -124,11 +116,9 @@ vtkLine.cxx
 vtkLocator.cxx
 vtkMapper2D.cxx
 vtkMergePoints.cxx
-vtkMultiBlockApplyFilterCommand.cxx
 vtkMultiBlockDataSet.cxx
 #vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataIterator.cxx
-vtkMultiBlockDataVisitor.cxx
 vtkNonLinearCell.cxx
 vtkOrderedTriangulator.cxx
 vtkPentagonalPrism.cxx
@@ -207,13 +197,10 @@ vtkGenericInterpolatedVelocityField.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkAbstractMapper
-vtkApplyFilterCommand
 vtkCell
 vtkCell3D
-vtkCompositeDataCommand
 vtkCompositeDataIterator
 vtkCompositeDataSet
-vtkCompositeDataVisitor
 vtkDataObjectSource
 vtkDataSet
 vtkDataSetSource
@@ -236,9 +223,6 @@ vtkGenericDataSetToUnstructuredGridFilter
 vtkGenericDataSetToPolyDataFilter
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
-vtkHierarchicalBoxSource
-vtkHierarchicalBoxToHierarchicalBoxFilter
-vtkHierarchicalBoxToPolyDataFilter
 vtkHierarchicalDataSet
 vtkImageAlgorithm
 vtkImageInPlaceFilter

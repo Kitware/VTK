@@ -15,10 +15,9 @@
 #include "vtkCompositeDataSet.h"
 
 #include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataVisitor.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataSet, "1.2");
+vtkCxxRevisionMacro(vtkCompositeDataSet, "1.3");
 
 //----------------------------------------------------------------------------
 vtkCompositeDataSet::vtkCompositeDataSet()
