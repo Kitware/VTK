@@ -103,6 +103,7 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   int cellScalars = 0;
   int cellNum = 0;
   float tran;
+  HPEN pen, npen, oldPen;
 
   vtkDebugMacro (<< "vtkWin32PolyDataMapper2D::Render");
 
@@ -182,11 +183,19 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
       cellScalars = 1;
       }
     }
+vtkDebugMacro(<< c);
+//    printf("c = %s\n", c);
+vtkDebugMacro(<< cellScalars);
+//    printf("cellScalars = %d\n", cellScalars);
 
   // set the colors for the foreground
   brush = CreateSolidBrush(RGB(red,green,blue));
   oldBrush = (HBRUSH)SelectObject(hdc,brush);   
-  
+
+  // set the colors for the pen
+  pen = (HPEN) CreatePen(PS_SOLID,0,RGB(red,green,blue));
+  oldPen = (HPEN) SelectObject(hdc,pen);
+
   aPrim = input->GetPolys();
   
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
@@ -221,10 +230,44 @@ void vtkWin32PolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
     Polygon(hdc,points,npts);
     }
 
+  aPrim = input->GetLines();
+  
+  for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
+    { 
+    if (c) 
+      {
+      if (cellScalars) 
+	{
+	rgba = c->GetColor(cellNum);
+	}
+      else
+	{
+	rgba = c->GetColor(pts[j]);
+	}
+      //      npen = (HPEN) CreatePen(PS_SOLID,0,RGB(rgba[0],rgba[1],rgba[2]));
+      // pen =  (HPEN) SelectObject(hdc,npen);   
+      // DeleteObject(pen);
+      // pen = npen;
+      }
+    if (npts > currSize)
+      {
+      delete [] points;
+      points = new POINT [npts];
+      currSize = npts;
+      }
+    for (j = 0; j < npts; j++) 
+      {
+      ftmp = p->GetPoint(pts[j]);
+      points[j].x = (short)(actorPos[0] + ftmp[0]);
+      points[j].y = (short)(actorPos[1] - ftmp[1]);
+      }
+    Polyline(hdc,points,npts);
+    }
+
   delete [] points;
   
-  SelectObject(hdc, oldBrush);
-  DeleteObject(brush);
+  SelectObject(hdc, oldPen);
+  DeleteObject(pen);
 }
 
 
