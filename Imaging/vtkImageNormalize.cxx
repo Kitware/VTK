@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNormalize, "1.13.10.3");
+vtkCxxRevisionMacro(vtkImageNormalize, "1.13.10.4");
 vtkStandardNewMacro(vtkImageNormalize);
 
 //----------------------------------------------------------------------------
@@ -34,7 +34,6 @@ vtkImageNormalize::vtkImageNormalize()
 }
 
 //----------------------------------------------------------------------------
-// This method tells the superclass that the first axis will collapse.
 void vtkImageNormalize::ExecuteInformation(
   vtkInformation       * vtkNotUsed( request ),
   vtkInformationVector * vtkNotUsed( inputVector ), 

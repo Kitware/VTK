@@ -15,22 +15,22 @@
 // .NAME vtkImageMaskBits - applies a bit-mask pattern to each component.
 //
 // .SECTION Description
-// vtkImageMaskBits applies a bit-mask pattern to each component.  The bit-mask can be
-// applied using a variety of boolean bitwise operators.
+// vtkImageMaskBits applies a bit-mask pattern to each component.  The
+// bit-mask can be applied using a variety of boolean bitwise operators.
 
 
 #ifndef __vtkImageMaskBits_h
 #define __vtkImageMaskBits_h
 
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 #include "vtkImageLogic.h"     // included for the boolean operators
 
-class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageMaskBits : public vtkImageAlgorithm
 {
 public:
   static vtkImageMaskBits *New();
-  vtkTypeRevisionMacro(vtkImageMaskBits,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageMaskBits,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -53,13 +53,12 @@ public:
   void SetOperationToXor() {this->SetOperation(VTK_XOR);};
   void SetOperationToNand() {this->SetOperation(VTK_NAND);};
   void SetOperationToNor() {this->SetOperation(VTK_NOR);};
-   
   
 protected:
   vtkImageMaskBits();
   ~vtkImageMaskBits() {};
 
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData, 
+  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData, 
                        int ext[6], int id);
 
   unsigned int Masks[4];

@@ -24,22 +24,23 @@
 #ifndef __vtkImageDivergence_h
 #define __vtkImageDivergence_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkImageDivergence : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageDivergence : public vtkImageAlgorithm
 {
 public:
   static vtkImageDivergence *New();
-  vtkTypeRevisionMacro(vtkImageDivergence,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageDivergence,vtkImageAlgorithm);
 
 protected:
-  vtkImageDivergence() {};
+  vtkImageDivergence();
   ~vtkImageDivergence() {};
 
-  void ComputeInputUpdateExtent(int inExt[6], int outExt[6]);
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();}
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+  void ComputeInputUpdateExtent (vtkInformation *, vtkInformationVector *, 
+                                 vtkInformationVector *);
+  void ExecuteInformation (vtkInformation *, vtkInformationVector *, 
+                           vtkInformationVector *);
+  void ThreadedExecute (vtkImageData ***inData, vtkImageData **outData,
                        int ext[6], int id);
 
 private:

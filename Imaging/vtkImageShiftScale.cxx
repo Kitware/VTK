@@ -21,13 +21,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.46.10.3");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.46.10.4");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
 // Constructor sets default values
 vtkImageShiftScale::vtkImageShiftScale()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->Shift = 0.0;
   this->Scale = 1.0;
   this->OutputScalarType = -1;
