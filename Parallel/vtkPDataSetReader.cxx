@@ -161,11 +161,6 @@ vtkDataSet *vtkPDataSetReader::GetOutput()
 
   // Creates an output if necessary.
   this->CheckOutput();
-  if (!this->Outputs)
-    {
-    return 0;
-    }
-
   output = (vtkDataSet *)(this->Outputs[0]);
 
   return output;
@@ -362,14 +357,17 @@ void vtkPDataSetReader::ExecuteInformation()
     file->close();
     delete file;
     output = this->CheckOutput();
-    output->SetMaximumNumberOfPieces(1);
+    if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
+      {
+      output->SetMaximumNumberOfPieces(1);
+      }
     this->VTKFileFlag = 1;
     return;
     }
 
   this->VTKFileFlag = 0;
   file->getline(str, 1024);
-  if (strncmp(str, "      datatype=", 15) != 0)
+  if (strncmp(str, "      dataType=", 15) != 0)
     {
     vtkErrorMacro("Expecting DataType.");
     return;
@@ -411,7 +409,7 @@ void vtkPDataSetReader::ExecuteInformation()
 
   // Read the number of pieces.
   file->getline(str, 1024);
-  if (strncmp(str, "      numberofpieces=", 21) != 0)
+  if (strncmp(str, "      numberOfPieces=", 21) != 0)
     {
     vtkErrorMacro("Expecting numberofpieces.");
     return;
@@ -419,8 +417,10 @@ void vtkPDataSetReader::ExecuteInformation()
   // Take the last > off.
   str[strlen(str)-2] = '\0';
   this->SetNumberOfPieces(atoi(str+21));
-  output->SetMaximumNumberOfPieces(this->NumberOfPieces);
-  
+  if (output->IsA("vtkPolyData") || output->IsA("vtkUnstructuredGrid"))
+    {
+    output->SetMaximumNumberOfPieces(this->NumberOfPieces);
+    }
   for (i = 0; i < this->NumberOfPieces; ++i)
     {
     file->getline(str, 512);
