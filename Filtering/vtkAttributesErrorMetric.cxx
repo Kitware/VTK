@@ -21,20 +21,40 @@
 #include "vtkGenericDataSet.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.6");
+vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.7");
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 
 //-----------------------------------------------------------------------------
 vtkAttributesErrorMetric::vtkAttributesErrorMetric()
 {
   this->AttributeTolerance = 0.1; // arbitrary
+  this->AbsoluteAttributeTolerance = 0.1; // arbitrary
+  
   this->Range=0;
-  this->AbsoluteAttributeTolerance=0;
+  this->SquareAbsoluteAttributeTolerance=0;
 }
 
 //-----------------------------------------------------------------------------
 vtkAttributesErrorMetric::~vtkAttributesErrorMetric()
 {
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Set the absolute attribute accuracy to `value'. See
+// GetAbsoluteAttributeTolerance() for details.
+// \pre valid_range_value: value>0
+void vtkAttributesErrorMetric::SetAbsoluteAttributeTolerance(double value)
+{
+  assert("pre: valid_range_value" && value>0);
+  if(this->AbsoluteAttributeTolerance!=value)
+    {
+    this->AbsoluteAttributeTolerance=value;
+    this->Modified();
+    this->SquareAbsoluteAttributeTolerance=this->AbsoluteAttributeTolerance*this->AbsoluteAttributeTolerance;
+    this->SquareAbsoluteAttributeToleranceComputeTime.Modified();
+    this->Range=0;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -67,7 +87,7 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   double ae;
   vtkGenericAttributeCollection *ac;
   
-  this->ComputeAbsoluteAttributeTolerance();
+  this->ComputeSquareAbsoluteAttributeTolerance();
   
   const int ATTRIBUTE_OFFSET=6;
   
@@ -86,13 +106,13 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
     ae=tmp*tmp;
     }
   
-  if(this->AbsoluteAttributeTolerance==0)
+  if(this->SquareAbsoluteAttributeTolerance==0)
     {
     result=fabs(ae)>0.0001;
     }
   else
     {
-    result=ae>this->AbsoluteAttributeTolerance;
+    result=ae>this->SquareAbsoluteAttributeTolerance;
     }
   return result;
 }
@@ -117,7 +137,7 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
   double ae;
   vtkGenericAttributeCollection *ac;
   
-  this->ComputeAbsoluteAttributeTolerance();
+  this->ComputeSquareAbsoluteAttributeTolerance();
   
   const int ATTRIBUTE_OFFSET=6;
   
@@ -157,9 +177,9 @@ void vtkAttributesErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // Compute the absolute attribute tolerance, only if the cached value is
 // obsolete.
-void vtkAttributesErrorMetric::ComputeAbsoluteAttributeTolerance()
+void vtkAttributesErrorMetric::ComputeSquareAbsoluteAttributeTolerance()
 {
-  if ( this->GetMTime() > this->AbsoluteAttributeToleranceComputeTime )
+  if ( this->GetMTime() > this->SquareAbsoluteAttributeToleranceComputeTime )
     {
     vtkGenericAttributeCollection *ac=this->DataSet->GetAttributes();
     vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
@@ -174,7 +194,8 @@ void vtkAttributesErrorMetric::ComputeAbsoluteAttributeTolerance()
     
     this->Range=r[1]-r[0];
     
-    this->AbsoluteAttributeTolerance=tmp*tmp;
-    this->AbsoluteAttributeToleranceComputeTime.Modified();
+    this->SquareAbsoluteAttributeTolerance=tmp*tmp;
+    this->SquareAbsoluteAttributeToleranceComputeTime.Modified();
+    this->AbsoluteAttributeTolerance=sqrt(this->SquareAbsoluteAttributeTolerance);
     }
 }

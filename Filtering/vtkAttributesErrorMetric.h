@@ -44,6 +44,26 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
+  // Absolute tolerance of the active scalar (attribute+component).
+  // Subdivision is required if the square distance between the real attribute
+  // at the mid point on the edge and the interpolated attribute is greater
+  // than AbsoluteAttributeTolerance.
+  // This is the attribute accuracy.
+  // 0.01 will give better result than 0.1.
+  vtkGetMacro(AbsoluteAttributeTolerance, double);
+  
+  // Description:
+  // Set the absolute attribute accuracy to `value'. See
+  // GetAbsoluteAttributeTolerance() for details.
+  // It is particularly useful when some concrete implementation of
+  // vtkGenericAttribute does not support GetRange() request, called
+  // internally in SetAttributeTolerance(). It may happen when the
+  // implementation support higher order attributes but
+  // cannot compute the range.
+  // \pre valid_range_value: value>0
+  void SetAbsoluteAttributeTolerance(double value);
+  
+  // Description:
   // Relative tolerance of the active scalar (attribute+component).
   // Subdivision is required if the square distance between the real attribute
   // at the mid point on the edge and the interpolated attribute is greater
@@ -99,15 +119,18 @@ protected:
   virtual ~vtkAttributesErrorMetric();
   
   // Description:
-  // Compute the absolute attribute tolerance, only if the cached value is
-  // obsolete.
-  void ComputeAbsoluteAttributeTolerance();
+  // Compute the square absolute attribute tolerance, only if the cached value
+  // is obsolete.
+  void ComputeSquareAbsoluteAttributeTolerance();
   
   double AttributeTolerance;
   
-  double AbsoluteAttributeTolerance; // cached value computed from
+  double SquareAbsoluteAttributeTolerance; // cached value computed from
   // AttributeTolerance and active attribute/component
-  vtkTimeStamp AbsoluteAttributeToleranceComputeTime;
+  
+  double AbsoluteAttributeTolerance;
+  
+  vtkTimeStamp SquareAbsoluteAttributeToleranceComputeTime;
   
   double Range; // cached value computed from active attribute/component
   
