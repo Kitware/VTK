@@ -39,8 +39,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkLandmarkTransform - a linear transform specified by two 
-// corresponding point sets
+// .NAME vtkLandmarkTransform - a linear transform specified by two corresponding point sets
 // .SECTION Description
 // A vtkLandmarkTransform is defined by two sets of landmarks, the 
 // transform computed gives the best fit mapping one onto the other, in a 
