@@ -30,7 +30,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.10");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.11");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -94,6 +94,13 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     this->SetErrorCode(vtkErrorCode::NoError);
+
+    if(!this->Stream && !this->FileName)
+      {
+      this->SetErrorCode(vtkErrorCode::NoFileNameError);
+      vtkErrorMacro("The FileName or Stream must be set first.");
+      return 0;
+      }
 
     // We don't want to write more pieces than the pipeline can produce,
     // but we need to preserve the user's requested number of pieces in

@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.10");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -103,6 +103,13 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
   else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     this->SetErrorCode(vtkErrorCode::NoError);
+
+    if(!this->Stream && !this->FileName)
+      {
+      this->SetErrorCode(vtkErrorCode::NoFileNameError);
+      vtkErrorMacro("The FileName or Stream must be set first.");
+      return 0;
+      }
 
     // We are just starting to write.  Do not call
     // UpdateProgressDiscrete because we want a 0 progress callback the
