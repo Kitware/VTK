@@ -145,6 +145,7 @@ suppress ipr strcpy; StringCreate; Tcl_CreateCommand; Vtkcontribtcl_Init
 
 suppress ipr strcmp; vtkVtkcontribtclNewInstanceCommand
 suppress ipr strcmp; vtkMassPropertiesCppCommand
+suppress ipr strcmp; vtkImageResliceCppCommand
 
 suppress mse *
 
