@@ -273,9 +273,9 @@ int main(int argc, char** argv)
   ip->GetPolyDataOutput()->Update();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  pmapper->SetInput(ip->GetPolyDataOutput());
-  // Break the connection and tell the server to fall out of loop
-  ip->GetPolyDataOutput()->SetSource(0);
+  vtkPolyData* pd = ip->GetPolyDataOutput();
+  pd->SetSource(0);
+  pmapper->SetInput(pd);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* pactor = vtkActor::New();
@@ -286,8 +286,9 @@ int main(int argc, char** argv)
   ip->GetRectilinearGridOutput()->Update();
 
   vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
-  rgmapper->SetInput(ip->GetRectilinearGridOutput());
-  ip->GetRectilinearGridOutput()->SetSource(0);
+  vtkRectilinearGrid* rg = ip->GetRectilinearGridOutput();
+  rg->SetSource(0);
+  rgmapper->SetInput(rg);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* rgactor = vtkActor::New();
@@ -300,9 +301,10 @@ int main(int argc, char** argv)
   ip->GetStructuredPointsOutput()->Update();
 
   vtkContourFilter* iso = vtkContourFilter::New();
-  iso->SetInput(ip->GetStructuredPointsOutput());
+  vtkStructuredPoints* sp = ip->GetStructuredPointsOutput();
+  sp->SetSource(0);
+  iso->SetInput(sp);
   iso->SetValue(0, 128);
-  ip->GetStructuredPointsOutput()->SetSource(0);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkPolyDataMapper* spmapper = vtkPolyDataMapper::New();
@@ -319,9 +321,10 @@ int main(int argc, char** argv)
   ip->GetStructuredGridOutput()->Update();
 
   vtkContourFilter* iso2 = vtkContourFilter::New();
-  iso2->SetInput(ip->GetStructuredGridOutput());
+  vtkStructuredGrid* sg = ip->GetStructuredGridOutput();
+  sg->SetSource(0);
+  iso2->SetInput(sg);
   iso2->SetValue(0, .205);
-  ip->GetStructuredGridOutput()->SetSource(0);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkPolyDataMapper* sgmapper = vtkPolyDataMapper::New();
@@ -337,9 +340,10 @@ int main(int argc, char** argv)
   ip->GetImageDataOutput()->Update();
 
   vtkContourFilter* iso3 = vtkContourFilter::New();
-  iso3->SetInput(ip->GetImageDataOutput());
+  vtkImageData* id = ip->GetImageDataOutput();
+  id->SetSource(0);
+  iso3->SetInput(id);
   iso3->SetValue(0, .205);
-  ip->GetImageDataOutput()->SetSource(0);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkPolyDataMapper* immapper = vtkPolyDataMapper::New();
