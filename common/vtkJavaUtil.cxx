@@ -22,6 +22,7 @@ Copyright (c) Ken Martin 1995
 #define _INTEGRAL_MAX_BITS 64
 
 #ifdef _WIN32
+#include "vtkSetGet.h"
 #include "vtkWin32Header.h"
 HANDLE vtkGlobalMutex = NULL;
 #define VTK_GET_MUTEX() WaitForSingleObject(vtkGlobalMutex,INFINITE)
@@ -189,13 +190,13 @@ void vtkJavaAddObjectToHash(JNIEnv *env, jobject obj, void *ptr,
 VTK_GET_MUTEX();
 
 #ifdef VTKJAVADEBUG
-  cerr << "Adding an object to hash ptr = " << ptr << "\n";
+  vtkGenericWarningMacro("Adding an object to hash ptr = " << ptr);
 #endif  
   // lets make sure it isn't already there
   if (vtkJavaGetId(env,obj))
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Attempt to add an object to the hash when one already exists!!!\n";
+    vtkGenericWarningMacro("Attempt to add an object to the hash when one already exists!!!");
 #endif
     VTK_RELEASE_MUTEX();
     return;
@@ -218,7 +219,7 @@ VTK_GET_MUTEX();
   vtkJavaSetId(env,obj,vtkJavaIdCount);
   
 #ifdef VTKJAVADEBUG
-  cerr << "Added object to hash id= " << vtkJavaIdCount << " " << ptr << "\n";
+  vtkGenericWarningMacro("Added object to hash id= " << vtkJavaIdCount << " " << ptr);
 #endif  
   vtkJavaIdCount++;
   VTK_RELEASE_MUTEX();
@@ -233,7 +234,7 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
   if ((int)(vtkDeleteLookup->GetHashTableValue((void *)id)))
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Decided to delete id = " << id << "\n";
+    vtkGenericWarningMacro("Decided to delete id = " << id);
 #endif
     vtkJavaDeleteObjectFromHash(env, id);
     VTK_RELEASE_MUTEX();
@@ -241,7 +242,7 @@ int vtkJavaShouldIDeleteObject(JNIEnv *env,jobject obj)
     }
 
 #ifdef VTKJAVADEBUG
-  cerr << "Decided to NOT delete id = " << id << "\n";
+  vtkGenericWarningMacro("Decided to NOT delete id = " << id);
 #endif
   vtkJavaDeleteObjectFromHash(env, id);
   VTK_RELEASE_MUTEX();
@@ -259,7 +260,7 @@ void vtkJavaDeleteObjectFromHash(JNIEnv *env, int id)
   if (!ptr) 
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Attempt to delete an object that doesnt exist!!!";
+    vtkGenericWarningMacro("Attempt to delete an object that doesnt exist!!!");
 #endif  
     return;
     }
@@ -276,11 +277,11 @@ jobject vtkJavaGetObjectFromPointer(void *ptr)
   jobject obj;
 
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into pointer " << ptr << "\n";
+  vtkGenericWarningMacro("Checking into pointer " << ptr);
 #endif  
   obj = (jobject)vtkPointerLookup->GetHashTableValue((jobject *)ptr);
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into pointer " << ptr << " obj = " << obj << "\n";
+  vtkGenericWarningMacro("Checking into pointer " << ptr << " obj = " << obj);
 #endif  
   return obj;
 }
@@ -296,7 +297,7 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
   command = (void *(*)(void *,char *))vtkTypecastLookup->GetHashTableValue((void *)id);
 
 #ifdef VTKJAVADEBUG
-  cerr << "Checking into id " << id << " ptr = " << ptr << "\n";
+  vtkGenericWarningMacro("Checking into id " << id << " ptr = " << ptr);
 #endif  
 
   if (!ptr)
@@ -307,14 +308,14 @@ void *vtkJavaGetPointerFromObject(JNIEnv *env, jobject obj, char *result_type)
   if (command(ptr,result_type))
     {
 #ifdef VTKJAVADEBUG
-    cerr << "Got id= " << id << " ptr= " << ptr << " " << result_type << "\n";
+    vtkGenericWarningMacro("Got id= " << id << " ptr= " << ptr << " " << result_type);
 #endif  
     return command(ptr,result_type);
     }
   else
     {
 #ifdef VTKJAVADEBUG
-    fprintf(stderr,"vtk bad argument, type conversion failed.\n");
+    vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif  
     return NULL;
     }

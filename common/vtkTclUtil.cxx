@@ -17,6 +17,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <iostream.h>
 #include <stdlib.h>
 #include "vtkTclUtil.h"
+#include "vtkSetGet.h"
 
 int vtkTclEval(char *str)
 {
@@ -74,7 +75,7 @@ int vtkTclDeleteObjectFromHash(ClientData cd)
 
   if (vtkTclDebugOn)
     {
-    cerr << "vtkTcl Attempting to free object named " << temp << "\n";
+    vtkGenericWarningMacro("vtkTcl Attempting to free object named " << temp);
     }
   // if it isn't a temp object (i.e. we created it) then delete it 
   if (strncmp(temp,"vtkTemp",7))
