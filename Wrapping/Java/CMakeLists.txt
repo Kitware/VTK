@@ -1,6 +1,6 @@
 IF(JAVA_COMPILE)
   ADD_CUSTOM_TARGET(VTKJava ALL echo "Checking for Java library")
-  ADD_CUSTOM_COMMAND(SOURCE ${VTK_BINARY_DIR}/java/vtk/vtkObject.java
+  ADD_CUSTOM_COMMAND(SOURCE ${VTK_BINARY_DIR}/java/vtk/VTKJavaWrapped
                      COMMAND ${JAVA_COMPILE} 
 		     ARGS ${VTK_BINARY_DIR}/java/vtk/vtk*.java
                      TARGET VTKJava

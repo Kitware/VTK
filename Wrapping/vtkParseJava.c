@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "vtkParse.h"
 
 int numberOfWrappedFunctions = 0;
@@ -198,6 +199,7 @@ void HandleDataReader(FILE *fp, FileInfo *data)
     fprintf(fp,"%s(byte id0[],int id1)\n",currentFunction->Name);
     fprintf(fp,"    { %s_%i(id0,id1); }\n",
             currentFunction->Name,numberOfWrappedFunctions);
+    data = 0;
 }
 
 void outputFunction(FILE *fp, FileInfo *data)
@@ -432,5 +434,29 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  public native int AddObserver(String id0, Object id1, String id2);\n");
     }
   fprintf(fp,"\n}\n");
+  {
+  int cc;
+  int len;
+  char *dir;
+  char *fname;
+  char javaDone[] = "VTKJavaWrapped";
+  FILE* fp;
+  fname = data->OutputFileName;
+  dir = (char*)malloc(strlen(fname) + strlen(javaDone) + 2);
+  sprintf(dir, "%s", fname);
+  len = strlen(dir); 
+  for ( cc = len-1; cc > 0; cc -- )
+    {
+    if ( dir[cc] == '/' || dir[cc] == '\\' )
+      {
+      dir[cc+1] = 0;
+      break;
+      }
+    }
+  strcat(dir, javaDone);
+  fp = fopen(dir, "w");
+  fprintf(fp, "File: %s\n", fname);
+  fclose(fp);
+  }
 }
 
