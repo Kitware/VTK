@@ -270,7 +270,7 @@ void get_args(FILE *fp, int i)
       break;
     case 109:
     case 309:
-      fprintf(fp,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i,\"%s\"));\n",i,currentFunction->ArgClasses[i],i,currentFunction->ArgClasses[i]);
+      fprintf(fp,"  temp%i = (%s *)(vtkJavaGetPointerFromObject(env,id%i,(char *) \"%s\"));\n",i,currentFunction->ArgClasses[i],i,currentFunction->ArgClasses[i]);
       break;
     case 301:
     case 307:
@@ -440,7 +440,7 @@ void HandleDataReader(FILE *fp, FileInfo *data)
             data->ClassName,currentFunction->Name, numberOfWrappedFunctions);
     fprintf(fp,"{\n");
     fprintf(fp,"  %s *op;\n",data->ClassName);
-    fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
+    fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
             data->ClassName, data->ClassName);
     fprintf(fp,"  jboolean isCopy;\n");
     fprintf(fp,"  jbyte *data = env->GetByteArrayElements(id0,&isCopy);\n");
@@ -574,7 +574,7 @@ void outputFunction(FILE *fp, FileInfo *data)
 	    get_args(fp, i);
 	  }
       
-      fprintf(fp,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
+      fprintf(fp,"\n  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
 	      data->ClassName,data->ClassName);
       
       
@@ -668,7 +668,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"\nextern \"C\" JNIEXPORT void JNICALL Java_vtk_%s_VTKDelete(JNIEnv *env,jobject obj)\n",
 	    data->ClassName);
     fprintf(fp,"{\n  %s *op;\n",data->ClassName);
-    fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,\"%s\");\n",
+    fprintf(fp,"  op = (%s *)vtkJavaGetPointerFromObject(env,obj,(char *) \"%s\");\n",
 	    data->ClassName,data->ClassName);
     fprintf(fp,"  op->Delete();\n");
     
@@ -698,7 +698,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObject_Print(JNIEnv *env,jobject obj)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
     fprintf(fp,"  jstring tmp;\n\n");
-    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,\"vtkObject\");\n");
+    fprintf(fp,"  op = (vtkObject *)vtkJavaGetPointerFromObject(env,obj,(char *) \"vtkObject\");\n");
     
     fprintf(fp,"  ostrstream buf;\n");
     fprintf(fp,"  op->Print(buf);\n");
