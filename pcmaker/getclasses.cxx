@@ -1,3 +1,43 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    getclasses.cxx
+  Language:  C++
+  Date:      $Date$
+  Version:   $Revision$
+
+
+Copyright (c) 1993-1998 Ken Martin, Will Schroeder, Bill Lorensen.
+
+This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
+The following terms apply to all files associated with the software unless
+explicitly disclaimed in individual files. This copyright specifically does
+not apply to the related textbook "The Visualization Toolkit" ISBN
+013199837-4 published by Prentice Hall which is covered by its own copyright.
+
+The authors hereby grant permission to use, copy, and distribute this
+software and its documentation for any purpose, provided that existing
+copyright notices are retained in all copies and that this notice is included
+verbatim in any distributions. Additionally, the authors grant permission to
+modify this software and its documentation for any purpose, provided that
+such modifications are not distributed without the explicit consent of the
+authors and that existing copyright notices are retained in all copies. Some
+of the algorithms implemented by this software are patented, observe all
+applicable patent law.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY FOR
+DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
+OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY DERIVATIVES THEREOF,
+EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE IS PROVIDED ON AN
+"AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE NO OBLIGATION TO PROVIDE
+MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+=========================================================================*/
 #include "stdafx.h"
 #include "pcmaker.h"
 #include "pcmakerDlg.h"
@@ -926,8 +966,24 @@ void makeMakefiles(CPcmakerDlg *vals)
     if (ifp)
       {
       bbuilder = 1;  
-      }
-    fclose(ifp);
+     fclose(ifp);
+    sprintf(fname,"%s\\lib\\release\\vcl35.lib",vals->m_WhereCompiler);
+    ifp = fopen(fname,"r");
+    if (ifp)
+      {
+      bbuilder = 3;  
+     fclose(ifp);
+
+      } else {
+    	sprintf(fname,"%s\\lib\\release\\vcl40.lib",vals->m_WhereCompiler);
+    	ifp = fopen(fname,"r");
+    	if (ifp)
+    	  {
+    	  bbuilder = 4;  
+    	 fclose(ifp);
+    		  }
+         }
+     }                            
     }        // JCP end of physical check for Borland Builder. 
 
   ReadMakefiles(vals);
@@ -1635,24 +1691,39 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
 
   // JCP take Borland Builder specific action ...
-  if (bbuilder) 
+  if (bbuilder == 3) 
 	{
-	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+   if (debugFlag)
+      {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl35.lib \\\n");
+      } else {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+      }
 	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
+	}
+  // JCP take Borland Builder specific action ...
+  if (bbuilder == 4) 
+	{
+   if (debugFlag)
+      {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcle40.lib \\\n");
+      } else {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcle40.lib \\\n");
+       }
+	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
+      fprintf(fp,"    $(WHERECOMP)\\lib\\cp32mt.lib \\\n");
 	}
 
   fprintf(fp,"    $(WHERECOMP)\\lib\\import32.lib \\\n");
+ if (bbuilder < 4) 
+	{
   fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
+      }
   fprintf(fp,"\n");
 
-  // JCP take Borland Builder specific action ...
-  if (bbuilder) 
-	{
   fprintf(fp,"vtkdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n");
-
-   } else {
-  fprintf(fp,"vtkdll.dll : \"obj\" $(DEF_FILE) $(DEPLINK32_OBJS)\n");
-    }
 
   fprintf(fp,"    $(LINK32) @&&|\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(LINK32_OBJS)\n");
@@ -2167,14 +2238,36 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
   // JCP take Borland Builder specific action ...
-  if (bbuilder) 
+  if (bbuilder == 3) 
 	{
-	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+   if (debugFlag)
+      {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl35.lib \\\n");
+      } else {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+      }
 	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
-	} 
+	}
+  // JCP take Borland Builder specific action ...
+  if (bbuilder == 4) 
+	{
+   if (debugFlag)
+      {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcle40.lib \\\n");
+      } else {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcle40.lib \\\n");
+       }
+	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
+      fprintf(fp,"    $(WHERECOMP)\\lib\\cp32mt.lib \\\n");
+	}
 
-  fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
   fprintf(fp,"    $(WHERECOMP)\\lib\\import32.lib \\\n");
+ if (bbuilder < 4) 
+	{
+  fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
+      }
   fprintf(fp,"    ..\\vtkdll\\vtkdll.lib \\\n");
   fprintf(fp,"    $(WHEREVTK)\\pcmaker\\tk80.lib \\\n");
 
@@ -2616,8 +2709,14 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 
   fprintf(fp,"DEPLINK32_OBJS= \\\n");
 
-  fprintf(fp,"    $(WHERECOMP)\\lib\\c0d32.obj \\\n");
-
+  // JCP take Borland Builder specific action ...
+  if (bbuilder == 4) 
+	{
+	  fprintf(fp,"    $(WHERECOMP)\\lib\\c0pkg32.obj \\\n");
+	}
+    else {
+	  fprintf(fp,"    $(WHERECOMP)\\lib\\c0pkg32.obj \\\n");
+	}
   fprintf(fp,"    $(OUTDIR)\\vtkJavaUtil.obj \\\n");
   for (i = 0; i < num_abstract; i++)
     {
@@ -2660,14 +2759,36 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,", \\\n $<,$*,  \\\n");   // this is the target and map file name
   fprintf(fp,"    $(WHEREJDK)\\lib\\javai.lib \\\n");
   // JCP take Borland Builder specific action ...
-  if (bbuilder) 
-	{	
-	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+  if (bbuilder == 3) 
+	{
+   if (debugFlag)
+      {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl35.lib \\\n");
+      } else {
+	 fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl35.lib \\\n");
+      }
 	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
 	}
+  // JCP take Borland Builder specific action ...
+  if (bbuilder == 4) 
+	{
+   if (debugFlag)
+      {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\debug\\vcle40.lib \\\n");
+      } else {
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcl40.lib \\\n");
+	fprintf(fp,"    $(WHERECOMP)\\lib\\release\\vcle40.lib \\\n");
+       }
+	fprintf(fp,"    $(WHERECOMP)\\lib\\vcl.lib \\\n");
+      fprintf(fp,"    $(WHERECOMP)\\lib\\cp32mt.lib \\\n");
+	}
 
-  fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
   fprintf(fp,"    $(WHERECOMP)\\lib\\import32.lib \\\n");
+ if (bbuilder < 4) 
+	{
+  fprintf(fp,"    $(WHERECOMP)\\lib\\cw32mt.lib \\\n");
+      }
   fprintf(fp,"    ..\\vtkdll\\vtkdll.lib \\\n");
   fprintf(fp,"\n");
   fprintf(fp,"vtkjava.dll : obj $(DEF_FILE) $(DEPLINK32_OBJS)\n");
