@@ -119,12 +119,6 @@ public:
   virtual void Start();
 
   // Description:
-  // Hide or Show the mouse cursor, it is nice to be able to hide the
-  // default cursor if you want VTK to display a 3D cursor instead.
-  void HideCursor();
-  void ShowCursor();
-
-  // Description:
   // Specify the Xt widget to use for interaction. This method is
   // one of a couple steps that are required for setting up a
   // vtkRenderWindowInteractor as a widget inside of another user 

@@ -60,7 +60,6 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
   this->DesiredUpdateRate = 15;
   // default limit is 3 hours per frame
   this->StillUpdateRate = 0.0001;
-  this->CursorHidden = 0;
   
   this->Picker = this->CreateDefaultPicker();
   this->Picker->Register(this);

@@ -54,6 +54,7 @@ vtkXRenderWindow::vtkXRenderWindow()
   this->ScreenSize[0] = 0;
   this->ScreenSize[1] = 0;
   this->OwnDisplay = 0;
+  this->CursorHidden = 0;
 }
 
 vtkXRenderWindow::~vtkXRenderWindow()
@@ -234,6 +235,12 @@ void vtkXRenderWindow::SetWindowId(Window arg)
   vtkDebugMacro(<< "Setting WindowId to " << (void *)arg << "\n"); 
 
   this->WindowId = arg;
+
+  if (this->CursorHidden)
+    {
+    this->CursorHidden = 0;
+    this->HideCursor();
+    } 
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
@@ -257,8 +264,7 @@ void vtkXRenderWindow::SetWindowInfo(char *info)
 
   sscanf(info,"%i",&tmp);
  
-  this->WindowId = tmp;
-  vtkDebugMacro(<< "Setting WindowId to " << (void *)this->WindowId<< "\n"); 
+  this->SetWindowId(tmp);
 }
 
 void vtkXRenderWindow::SetWindowId(void *arg)
@@ -360,3 +366,50 @@ vtkXRenderWindow * vtkXRenderWindow::New()
 
   return (vtkXRenderWindow *)(vtkRenderWindow::New());
 }
+
+//----------------------------------------------------------------------------
+void vtkXRenderWindow::HideCursor()
+{
+  static char blankBits[] = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  
+  static XColor black = { 0, 0, 0, 0, 0, 0 };
+ 
+  if (!this->DisplayId || !this->WindowId)
+    {
+    this->CursorHidden = 1;
+    }
+  else if (!this->CursorHidden)
+    {
+    Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
+					       this->WindowId,
+					       blankBits, 16, 16);
+    
+    Cursor blankCursor = XCreatePixmapCursor(this->DisplayId, blankPixmap,
+					     blankPixmap, &black, &black,
+					     7, 7);
+    
+    XDefineCursor(this->DisplayId, this->WindowId, blankCursor);
+    
+    XFreePixmap(this->DisplayId, blankPixmap);
+    
+    this->CursorHidden = 1;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXRenderWindow::ShowCursor()
+{
+  if (!this->DisplayId || !this->WindowId)
+    {
+    this->CursorHidden = 0;
+    }
+  else if (this->CursorHidden)
+    {
+    XUndefineCursor(this->DisplayId, this->WindowId);
+    this->CursorHidden = 0;
+    }
+}				   

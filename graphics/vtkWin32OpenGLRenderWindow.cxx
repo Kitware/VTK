@@ -90,10 +90,16 @@ vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
   this->StereoType = VTK_STEREO_CRYSTAL_EYES;  
   this->SetWindowName("Visualization Toolkit - Win32OpenGL");
   this->TextureResourceIds = vtkIdList::New();
+  this->CursorHidden = 0;
 }
 
 vtkWin32OpenGLRenderWindow::~vtkWin32OpenGLRenderWindow()
 {
+  if (this->CursorHidden)
+    {
+    this->ShowCursor();
+    }
+
   if (this->WindowId && this->OwnWindow)
     {
     this->Clean();
@@ -1558,3 +1564,28 @@ void vtkWin32OpenGLRenderWindow::RegisterTextureResource (GLuint id)
 {
   this->TextureResourceIds->InsertNextId ((int) id);
 }
+
+//----------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindow::HideCursor()
+{
+  if (this->CursorHidden)
+    {
+    return;
+    }
+  this->CursorHidden = 1;
+
+  ::ShowCursor(!this->CursorHidden);
+}
+
+//----------------------------------------------------------------------------
+void vtkWin32OpenGLRenderWindow::ShowCursor()
+{
+  if (!this->CursorHidden)
+    {
+    return;
+    }
+  this->CursorHidden = 0;
+
+  ::ShowCursor(!this->CursorHidden);
+}				   
+

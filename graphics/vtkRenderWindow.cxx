@@ -661,6 +661,13 @@ void vtkRenderWindow::DoStereoRender()
     if (this->StereoType != VTK_STEREO_LEFT)
       { // render the right eye
       this->Renderers->Render();
+      vtkRenderer *ren;
+      this->MakeCurrent();
+      for (this->Renderers->InitTraversal(); 
+	   (ren = this->Renderers->GetNextItem()); )
+	{
+	ren->Clear();
+	}
       }
     this->StereoRenderComplete();
     }

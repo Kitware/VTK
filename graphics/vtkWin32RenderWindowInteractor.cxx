@@ -89,11 +89,6 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 {
   vtkWin32OpenGLRenderWindow *tmp;
 
-  if (this->CursorHidden)
-    {
-    this->HideCursor();
-    }
-
   // we need to release any hold we have on a windows event loop
   if (this->WindowId && this->Enabled && this->InstallMessageProc) 
     {
@@ -161,12 +156,6 @@ void vtkWin32RenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-
-  if (this->CursorHidden)
-    {
-    this->CursorHidden = 0;
-    this->HideCursor();
-    }
 }
 
 void vtkWin32RenderWindowInteractor::Enable() 
@@ -717,35 +706,5 @@ void vtkWin32RenderWindowInteractor::ExitCallback()
     this->TerminateApp();
     }
 }
-
-//----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::HideCursor()
-{
-  if (this->CursorHidden)
-    {
-    return;
-    }
-  this->CursorHidden = 1;
-
-  if (this->Initialized)
-    {
-    ::ShowCursor(!this->CursorHidden);
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::ShowCursor()
-{
-  if (!this->CursorHidden)
-    {
-    return;
-    }
-  this->CursorHidden = 0;
-
-  if (this->Initialized)
-    {
-    ::ShowCursor(!this->CursorHidden);
-    }
-}				   
 
 

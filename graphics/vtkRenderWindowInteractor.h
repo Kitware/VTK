@@ -234,8 +234,8 @@ public:
   // Description:
   // Hide or show the mouse cursor, it is nice to be able to hide the
   // default cursor if you want VTK to display a 3D cursor instead.
-  virtual void HideCursor() {};
-  virtual void ShowCursor() {};
+  void HideCursor() { this->RenderWindow->HideCursor(); };
+  void ShowCursor() { this->RenderWindow->ShowCursor(); };
 
   // Description:
   // Render the scene. Just pass the render call on to the 
@@ -264,7 +264,6 @@ protected:
   float StillUpdateRate;
   int   EventPosition[2];
   int   Size[2];
-  int   CursorHidden;
   
   // user methods that can be used to override default behavior
   unsigned long StartPickTag;

@@ -86,12 +86,6 @@ public:
   virtual void Start();
 
   // Description:
-  // Hide or Show the mouse cursor, it is nice to be able to hide the
-  // default cursor if you want VTK to display a 3D cursor instead.
-  void HideCursor();
-  void ShowCursor();
-
-  // Description:
   // By default the interactor installs a MessageProc callback which
   // intercepts windows messages to the window and controls interactions.
   // MFC or BCB programs can prevent this and instead directly route any mouse/key

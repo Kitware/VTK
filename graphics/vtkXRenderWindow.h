@@ -124,6 +124,12 @@ public:
   void     SetPosition(int a[2]) {this->SetPosition(a[0], a[1]);};
   
   // Description:
+  // Hide or Show the mouse cursor, it is nice to be able to hide the
+  // default cursor if you want VTK to display a 3D cursor instead.
+  void HideCursor();
+  void ShowCursor();
+
+  // Description:
   // Get the properties available at runtime that would result in 
   // the best Xwindow for 3D rendering.
   virtual int      GetDesiredDepth()    = 0;
@@ -154,7 +160,7 @@ protected:
   int      OwnWindow;
   int      OwnDisplay;
   int      ScreenSize[2];
-
+  int      CursorHidden;
 };
 
 #endif

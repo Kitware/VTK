@@ -313,12 +313,6 @@ void vtkXRenderWindowInteractor::Initialize()
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
-
-  if (this->CursorHidden)
-    {
-    this->CursorHidden = 0;
-    this->HideCursor();
-    }
 }
 
 void vtkXRenderWindowInteractor::Enable()
@@ -700,50 +694,4 @@ void vtkXRenderWindowInteractor::Callback(Widget w,
   vtkXRenderWindowInteractorCallback(w, client_data, event, ctd);
 }
 
-//----------------------------------------------------------------------------
-void vtkXRenderWindowInteractor::HideCursor()
-{
-  static char blankBits[] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  
-  static XColor black = { 0, 0, 0, 0, 0, 0 };
- 
-  if (!this->Initialized)
-    {
-    this->CursorHidden = 1;
-    }
-  else if (!this->CursorHidden)
-    {
-    Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
-					       this->WindowId,
-					       blankBits, 16, 16);
-    
-    Cursor blankCursor = XCreatePixmapCursor(this->DisplayId, blankPixmap,
-					     blankPixmap, &black, &black,
-					     7, 7);
-    
-    XDefineCursor(this->DisplayId, this->WindowId, blankCursor);
-    
-    XFreePixmap(this->DisplayId, blankPixmap);
-    
-    this->CursorHidden = 1;
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkXRenderWindowInteractor::ShowCursor()
-{
-  if (!this->Initialized)
-    {
-    this->CursorHidden = 0;
-    }
-  else if (this->CursorHidden)
-    {
-    XUndefineCursor(this->DisplayId, this->WindowId);
-    this->CursorHidden = 0;
-    }
-}				   
 

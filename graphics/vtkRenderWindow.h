@@ -129,6 +129,12 @@ public:
   virtual vtkRenderWindowInteractor *MakeRenderWindowInteractor();
 
   // Description:
+  // Hide or Show the mouse cursor, it is nice to be able to hide the
+  // default cursor if you want VTK to display a 3D cursor instead.
+  virtual void HideCursor() {};
+  virtual void ShowCursor() {};
+
+  // Description:
   // Turn on/off rendering full screen window size.
   virtual void SetFullScreen(int) {};
   vtkGetMacro(FullScreen,int);

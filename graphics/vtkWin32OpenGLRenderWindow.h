@@ -228,6 +228,12 @@ public:
   // Get the size of the depth buffer.
   int GetDepthBufferSize();
   
+  // Description:
+  // Hide or Show the mouse cursor, it is nice to be able to hide the
+  // default cursor if you want VTK to display a 3D cursor instead.
+  void HideCursor();
+  void ShowCursor();
+
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
@@ -268,7 +274,8 @@ protected:
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
 				  WPARAM wParam, LPARAM lParam);
   //ETX
-  
+
+  int CursorHidden;
 };
 
 
