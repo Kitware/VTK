@@ -202,8 +202,10 @@ unsigned char *vtkBitArray::Resize(const int sz)
 
   if (this->Array)
     {
+    int usedSize = (sz < this->Size) ? sz : this->Size;
+
     memcpy(newArray, this->Array, 
-         (sz < this->Size ? sz : this->Size) * sizeof(char));
+         ((usedSize+7)/8)*sizeof(unsigned char));
     if (!this->SaveUserArray)
       {
 	delete[] this->Array;
