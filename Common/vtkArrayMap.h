@@ -107,6 +107,11 @@ public:
   // will return how many items the container can currently hold.
   vtkIdType GetNumberOfItems() const;
 
+  // Description:
+  // Find an item in the vector. Return one if it was found, zero if it was
+  // not found.
+  int IsItemPresent(const KeyType& key);
+
   void DebugList();
 
 protected:

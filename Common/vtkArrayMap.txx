@@ -128,6 +128,19 @@ int vtkArrayMap<KeyType,DataType>::GetItem(const KeyType& key, DataType& data)
   return VTK_ERROR;
 }
 
+// Description:
+// Is a key present
+template<class KeyType, class DataType>
+int vtkArrayMap<KeyType,DataType>::IsItemPresent(const KeyType &key) 
+{
+  vtkAbstractMapItem<KeyType,DataType> *item = this->FindDataItem(key);
+  if ( item )
+    {
+    return 1;
+    }
+  return 0;
+}
+
 template<class KeyType, class DataType>
 vtkAbstractMapItem<KeyType,DataType> *
 vtkArrayMap<KeyType,DataType>::FindDataItem(const KeyType key)

@@ -70,6 +70,10 @@ public:
   int AppendItem(DType a);
   
   // Description:
+  // Make a copy of another conatiner.
+  void CopyItems(vtkVector<DType> *in);
+
+  // Description:
   // Insert an Item to the front of the linked list.
   int PrependItem(DType a);
   
@@ -117,6 +121,11 @@ public:
                vtkAbstractListCompareFunction(DType, compare), 
                vtkIdType &res);
   
+  // Description:
+  // Find an item in the vector. Return one if it was found, zero if it was
+  // not found. 
+  int IsItemPresent(DType a);
+
   // Description:
   // Return the number of items currently held in this container. This
   // different from GetSize which is provided for some containers. GetSize
