@@ -835,69 +835,6 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
   return Mesh;
 }
 
-// This is a helper method used with InsertPoint() to create 
-// tetrahedronalizations of points. Its purpose is construct an initial
-// Delaunay triangulation into which to inject other points. You must
-// specify the number of points you wish to insert, and then define an
-// initial Delaunay tetrahedronalization. This is defined by specifying 
-// the number of tetrahedra, and a list of points coordinates defining
-// the tetra (total of 4*numTetra points). The method returns a pointer 
-// to an unstructured grid. Use this pointer to manipulate the mesh as
-// necessary. You must delete (with Delete()) the mesh when done.
-// Note: The points you insert using InsertPoint() will range from
-// (0,numPtsToInsert-1). Make sure that numPtsToInsert is large enough to
-// accomodate this.
-vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(
-           vtkIdType numPtsToInsert, int numTetra, vtkPoints *boundingTetraPts,
-           float bounds[6], vtkPoints* &points)
-{
-  vtkIdType ptNum, tetraId;
-  int i, j;
-  vtkIdType pts[4];
-  float *x;
-  vtkUnstructuredGrid *Mesh=vtkUnstructuredGrid::New();
-
-  this->NumberOfDuplicatePoints = 0;
-  this->NumberOfDegeneracies = 0;
-
-  points = vtkPoints::New();
-  points->Allocate(numPtsToInsert+numTetra*4); //estimate
-
-  if ( this->Locator == NULL )
-    {
-    this->CreateDefaultLocator();
-    }
-  this->Locator->InitPointInsertion(points,bounds);
-
-  Mesh->Allocate(5*numPtsToInsert);
-  this->TetraArray = new vtkTetraArray(5*numPtsToInsert,numPtsToInsert);
-
-  for ( ptNum=0, j=0; j<numTetra; j++)
-    {
-    for ( i=0; i<4; i++)
-      {
-      x = boundingTetraPts->GetPoint(4*j+i);
-      if ( (pts[i]=this->Locator->IsInsertedPoint(x)) < 0 ) 
-        {
-        pts[i] = numPtsToInsert + ptNum++;
-        this->Locator->InsertPoint(pts[i], x);
-        }
-      }
-    tetraId = Mesh->InsertNextCell(VTK_TETRA,4,pts);
-    this->InsertTetra(Mesh, points, tetraId);
-    }
-
-  Mesh->SetPoints(points);
-  points->Delete();
-  Mesh->BuildLinks();
-
-  // Keep track of change in references to points
-  this->References = new int [points->GetNumberOfPoints()];
-  memset(this->References, 0, points->GetNumberOfPoints()*sizeof(int));
-
-  return Mesh;
-}
-  
 // This is a helper method used with InitPointInsertion() to create
 // tetrahedronalizations of points. Its purpose is to inject point at
 // coordinates specified into tetrahedronalization. The point id is an index
