@@ -330,7 +330,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       range[1] = this->YRange[1];
       }
 
-    vtkAxisActor2D::ComputeRange(range, yRange, this->NumberOfXLabels,
+    vtkAxisActor2D::ComputeRange(range, yRange, this->NumberOfYLabels,
                                  numTicks, interval);
     this->YComputedRange[0] = yRange[0];
     this->YComputedRange[1] = yRange[1];
