@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.13");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.14");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1577,7 +1577,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[4];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -2065,7 +2065,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[4];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -2538,7 +2538,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[4];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -3102,7 +3102,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
   vtkIdType     npts = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[4];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -3649,7 +3649,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[3];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -3991,7 +3991,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[3];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[4];
@@ -4391,7 +4391,7 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[3];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     tab_id[6];
@@ -4717,7 +4717,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
   vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
   vtkIdType     cellptId[VTK_CELL_SIZE];
   vtkIdType     iid[3];
-  vtkIdType    *v_id;
+  vtkIdType    *v_id = NULL;
   vtkIdType    *verts, v1, v2;
   vtkIdType     ptId;
   vtkIdType     ptIdout[3];

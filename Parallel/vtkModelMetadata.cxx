@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.8");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.9");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -489,14 +489,14 @@ int vtkModelMetadata::GetBlockLocalIndex(int id)
 
   vtkstd::map<int,int>::iterator mapit = blockIdIndex.find(id);
 
-  if (mapit == blockIdIndex.end())
+  int retVal = -1;
+
+  if (mapit != blockIdIndex.end())
     {
-    return -1;
+    retVal = mapit->second;
     }
-  else
-    {
-    return mapit->second;
-    }
+
+  return retVal;
 }
 
 void vtkModelMetadata::SetBlockIds(int *b)
