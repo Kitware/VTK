@@ -182,7 +182,7 @@ protected:
 inline void vtkThreadedController::WaitForPreviousBarrierToEnd()
 {
 #ifdef _WIN32
-  WaitForSingleObject(vtkThreadedController::BarrierEndedEvent);
+  WaitForSingleObject(vtkThreadedController::BarrierEndedEvent, INFINITE);
 #else
   vtkThreadedController::BarrierInProgress.Lock();
   vtkThreadedController::BarrierInProgress.Unlock();
@@ -236,7 +236,7 @@ inline  void vtkThreadedController::InitializeBarrier()
 inline void vtkThreadedController::WaitForNextThread()
 {
 #ifdef _WIN32
-  WaitForSingleObject(vtkThreadedController::NextThread);
+  WaitForSingleObject(vtkThreadedController::NextThread,INFINITE);
 #else
   vtkThreadedController::BarrierLock.Lock();
 #endif
