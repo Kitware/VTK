@@ -357,8 +357,9 @@ int TestLineWidget( int argc, char *argv[] )
     iren->Start();
     }
 
-  myCallback->Delete();
+  recorder->Off();
   recorder->Delete();
+  myCallback->Delete();
   seeds->Delete();
   lineWidget->Delete();
   pl3d->Delete();

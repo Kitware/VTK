@@ -527,6 +527,8 @@ int BoxWidget( int argc, char *argv[] )
     }
 
   // Clean up
+  recorder->Off();
+  recorder->Delete();
   t->Delete();
   myCallback->Delete();
   boxWidget->Delete();

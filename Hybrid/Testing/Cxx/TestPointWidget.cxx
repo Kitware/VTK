@@ -647,8 +647,9 @@ int TestPointWidget( int argc, char *argv[] )
     iren->Start();
     }
 
-  myCallback->Delete();
+  recorder->Off();
   recorder->Delete();
+  myCallback->Delete();
   pointWidget->Delete();
   pl3d->Delete();
   point->Delete();

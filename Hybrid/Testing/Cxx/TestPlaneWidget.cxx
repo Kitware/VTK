@@ -505,8 +505,9 @@ int TestPlaneWidget( int argc, char *argv[] )
     iren->Start();
     }
 
-  myCallback->Delete();
+  recorder->Off();
   recorder->Delete();
+  myCallback->Delete();
   planeWidget->Delete();
   pl3d->Delete();
   plane->Delete();

@@ -440,6 +440,7 @@ int TestScalarBarWidget( int argc, char *argv[] )
     iren->Start();
     }
   
+  recorder->Off();
   recorder->Delete();
   scalarWidget->Delete();
   pl3d->Delete();
