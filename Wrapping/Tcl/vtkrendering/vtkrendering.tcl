@@ -7,7 +7,8 @@ if {[catch {
     ::vtk::load_component tk
 }
 
-if {[::vtk::load_component vtkRenderingTCL] == ""} {
+if {[info commands vtkRenderWindow] != "" ||
+    [::vtk::load_component vtkRenderingTCL] == ""} {
 
     # Set the default exit method of vtkWin32RenderWindowInteractor to
     # call the Tcl 'exit' command
