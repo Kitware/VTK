@@ -88,7 +88,7 @@ void vtkRectilinearGridReader::SetFileName(const char *name)
   this->Reader->SetFileName(name);
 }
 //----------------------------------------------------------------------------
-char *vtkRectilinearGridReader::GetFileName() 
+const char *vtkRectilinearGridReader::GetFileName() 
 {
   return this->Reader->GetFileName();
 }

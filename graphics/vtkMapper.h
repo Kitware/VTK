@@ -218,7 +218,7 @@ public:
 
   // Description:
   // Return the method for obtaining scalar data.
-  char *GetScalarModeAsString();
+  const char *GetScalarModeAsString();
 
   // Description:
   // Set/Get a global flag that controls whether coincident topology (e.g., a

@@ -77,7 +77,7 @@ public:
 
   // Description:
   // The sprintf format used to build filename from FilePrefix and number.
-  void SetFilePattern(char *filePattern);
+  void SetFilePattern(const char *filePattern);
   vtkGetStringMacro(FilePattern);
 
   // Description:

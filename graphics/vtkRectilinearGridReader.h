@@ -67,14 +67,14 @@ public:
   // Description:
   // Set / get file name of vtk polygonal data file to read.
   void SetFileName(const char *name);
-  char *GetFileName();
+  const char *GetFileName();
 
   // Description:
   // Specify the InputString for use when reading from a character array.
-  void SetInputString(char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
+  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
+  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
   char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(char *in, int len) {
+  void SetBinaryInputString(const char *in, int len) {
       this->Reader->SetBinaryInputString(in,len);};
 
   // Description:

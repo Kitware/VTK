@@ -75,8 +75,8 @@ public:
 
   // Description:
   // Set / get the InputString for use when reading from a character array.
-  void SetInputString(char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(char *in,int len) {this->Reader->SetInputString(in,len);}
+  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
+  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
   char *GetInputString() { return this->Reader->GetInputString();}
 
   // Description:

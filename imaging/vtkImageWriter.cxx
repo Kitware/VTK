@@ -206,7 +206,7 @@ void vtkImageWriter::SetFilePrefix(char *prefix)
 // This function sets the pattern of the file name which turn a prefix
 // into a file name. "%s.%3d" would be the
 // pattern of a series: image.001, image.002 ...
-void vtkImageWriter::SetFilePattern(char *pattern)
+void vtkImageWriter::SetFilePattern(const char *pattern)
 {
   if ( this->FilePattern && pattern && 
        (!strcmp(this->FilePattern,pattern)))

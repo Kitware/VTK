@@ -321,7 +321,7 @@ const char *vtkMapper::GetColorModeAsString(void)
 }
 
 // Return the method for obtaining scalar data.
-char *vtkMapper::GetScalarModeAsString(void)
+const char *vtkMapper::GetScalarModeAsString(void)
 {
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
     {
