@@ -38,6 +38,10 @@ class vtkRenderer;
 class vtkPushPipelineProcessInfo;
 class vtkPushPipelineDataInfo;
 
+class vtkPushPipelineWindowsType;
+class vtkPushPipelineProcessMapType;
+class vtkPushPipelineDataMapType;
+
 class VTK_HYBRID_EXPORT vtkPushPipeline : public vtkObject
 {
 public:
@@ -82,14 +86,11 @@ protected:
   friend class vtkPushPipelineProcessInfo;
   friend class vtkPushPipelineDataInfo;
   friend class vtkPushPipelineConsumeCommand;
-  
-  class WindowsType;
-  class ProcessMapType;
-  class DataMapType;
-  WindowsType* Windows;
-  ProcessMapType* ProcessMap;
-  DataMapType* DataMap;
   //ETX
+  
+  vtkPushPipelineWindowsType* Windows;
+  vtkPushPipelineProcessMapType* ProcessMap;
+  vtkPushPipelineDataMapType* DataMap;
   
   vtkPushPipelineDataInfo *GetPushDataInfo(vtkDataObject *);
   vtkPushPipelineProcessInfo *GetPushProcessInfo(vtkProcessObject *);

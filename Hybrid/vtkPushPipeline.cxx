@@ -39,9 +39,9 @@ typedef vtkstd::map< vtkSmartPointer<vtkProcessObject>,
                      vtkPushPipelineProcessInfo*> ProcessMapTypeBase;
 typedef vtkstd::map< vtkSmartPointer<vtkDataObject>,
                      vtkPushPipelineDataInfo* > DataMapTypeBase;
-class vtkPushPipeline::WindowsType: public WindowsTypeBase {};
-class vtkPushPipeline::ProcessMapType: public ProcessMapTypeBase {};
-class vtkPushPipeline::DataMapType: public DataMapTypeBase {};
+class vtkPushPipelineWindowsType: public WindowsTypeBase {};
+class vtkPushPipelineProcessMapType: public ProcessMapTypeBase {};
+class vtkPushPipelineDataMapType: public DataMapTypeBase {};
 
 class vtkPushPipelineProcessInfo {
 public:
@@ -118,15 +118,15 @@ public:
   vtkPushPipeline *PushPipeline;
 };
 
-vtkCxxRevisionMacro(vtkPushPipeline, "1.10");
+vtkCxxRevisionMacro(vtkPushPipeline, "1.11");
 vtkStandardNewMacro(vtkPushPipeline);
 
 vtkPushPipeline::vtkPushPipeline()
 {
   this->RunState = 0;
-  this->ProcessMap = new ProcessMapType;
-  this->DataMap = new DataMapType;
-  this->Windows = new WindowsType;
+  this->ProcessMap = new vtkPushPipelineProcessMapType;
+  this->DataMap = new vtkPushPipelineDataMapType;
+  this->Windows = new vtkPushPipelineWindowsType;
 }
 
 vtkPushPipeline::~vtkPushPipeline()
@@ -695,7 +695,7 @@ void vtkPushPipeline::RenderWindows()
 {
   // look at all associated render windows and render any that
   // have all their data ready
-  for(WindowsType::iterator i = this->Windows->begin();
+  for(WindowsTypeBase::iterator i = this->Windows->begin();
       i != this->Windows->end(); ++i)
     {
     vtkRenderWindow* rwp = i->GetPointer();
@@ -802,7 +802,7 @@ void vtkPushPipeline::SetupWindows()
 {
   // look at all associated render windows and render any that
   // have all their data ready
-  for(WindowsType::iterator i = this->Windows->begin();
+  for(WindowsTypeBase::iterator i = this->Windows->begin();
       i != this->Windows->end(); ++i)
     {
     this->SetupRenderWindow(i->GetPointer());
