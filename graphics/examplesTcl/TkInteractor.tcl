@@ -11,11 +11,12 @@ proc BindTkRenderWidget {widget} {
     bind $widget <Shift-B1-Motion> {Pan %W %x %y}
     bind $widget <KeyPress-r> {Reset %W %x %y}
     bind $widget <KeyPress-u> {wm deiconify .vtkInteract}
-    bind $widget <Escape> ConfirmExit
+    bind $widget <KeyPress-w> Wireframe
+    bind $widget <KeyPress-s> Surface
     bind $widget <Enter> {Enter %W %x %y}
     bind $widget <Leave> {focus $oldFocus}
-    bind $widget <Shift-B3-Motion> {MoveCursor %W %x %y}
 }
+
 # Global variable keeps track of whether active renderer was found
 set RendererFound 0
 
@@ -142,12 +143,8 @@ proc Pan {widget x y} {
     set DPoint [$CurrentRenderer GetDisplayPoint]
     set focalDepth [lindex $DPoint 2]
 
-    puts $DPoint
-
     set APoint0 [expr $WindowCenterX + ($x - $LastX)]
     set APoint1 [expr $WindowCenterY - ($y - $LastY)]
-
-    puts "APoint: $APoint0 $APoint1"
 
     $CurrentRenderer SetDisplayPoint $APoint0 $APoint1 $focalDepth
     $CurrentRenderer DisplayToWorld
@@ -161,8 +158,6 @@ proc Pan {widget x y} {
         set RPoint1 [expr $RPoint1 / $RPoint3]
         set RPoint2 [expr $RPoint2 / $RPoint3]
     }
-
-    puts "FPoint: $FPoint; RPoint: $RPoint"
 
     $CurrentCamera SetFocalPoint \
       [expr ($FPoint0 - $RPoint0)/2.0 + $FPoint0] \
@@ -234,6 +229,36 @@ proc Reset {widget x y} {
     }
 
     if { $RendererFound } {$CurrentRenderer ResetCamera}
+
+    Render
+}
+
+proc Wireframe {} {
+    global CurrentRenderer
+
+    set actors [$CurrentRenderer GetActors]
+
+    $actors InitTraversal
+    set actor [$actors GetNextItem]
+    while { $actor != "" } {
+        [$actor GetProperty] SetRepresentationToWireframe
+        set actor [$actors GetNextItem]
+    }
+
+    Render
+}
+
+proc Surface {} {
+    global CurrentRenderer
+
+    set actors [$CurrentRenderer GetActors]
+
+    $actors InitTraversal
+    set actor [$actors GetNextItem]
+    while { $actor != "" } {
+        [$actor GetProperty] SetRepresentationToSurface
+        set actor [$actors GetNextItem]
+    }
 
     Render
 }
