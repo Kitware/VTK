@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.28");
+vtkCxxRevisionMacro(vtkInteractorStyleTrackballActor, "1.29");
 vtkStandardNewMacro(vtkInteractorStyleTrackballActor);
 
 //----------------------------------------------------------------------------
@@ -37,6 +37,7 @@ vtkInteractorStyleTrackballActor::vtkInteractorStyleTrackballActor()
   this->MotionFactor    = 10.0;
   this->InteractionProp = NULL;
   this->InteractionPicker = vtkCellPicker::New();
+  this->InteractionPicker->SetTolerance(0.001);
 }
 
 //----------------------------------------------------------------------------
