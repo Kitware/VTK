@@ -9,7 +9,6 @@ INCLUDE_DIRECTORIES(${CMAKE_ROOT}/include ${CMAKE_ROOT}/Source)
 ADD_LIBRARY(cmVTK_WRAP_TCL2 MODULE cmVTKWrapTcl2Command.c)
 ADD_LIBRARY(cmVTK_WRAP_PYTHON2 MODULE cmVTKWrapPython2Command.c)
 ADD_LIBRARY(cmVTK_WRAP_JAVA2 MODULE cmVTKWrapJava2Command.c)
-ADD_LIBRARY(cmVTK_MAKE_INSTANTIATOR2 MODULE cmVTKMakeInstantiator2Command.c)
 ADD_LIBRARY(cmVTK_GENERATE_JAVA_DEPENDENCIES MODULE cmVTKGenerateJavaDependencies.c)
 
 # Make sure we build with flags matching the CMake executable.

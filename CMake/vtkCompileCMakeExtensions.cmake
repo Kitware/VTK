@@ -4,8 +4,8 @@
 # commands project, and the variable in which success/failure should
 # be stored.
 MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
-  IF(COMMAND VTK_MAKE_INSTANTIATOR2)
-  ELSE(COMMAND VTK_MAKE_INSTANTIATOR2)
+  IF(COMMAND VTK_WRAP_TCL2)
+  ELSE(COMMAND VTK_WRAP_TCL2)
     MESSAGE(STATUS "Compiling VTK CMake commands")
     TRY_COMPILE("${result_var}" "${build_dir}" "${source_dir}"
                 VTK_LOADED_COMMANDS      
@@ -19,5 +19,5 @@ MACRO(VTK_COMPILE_CMAKE_EXTENSIONS source_dir build_dir result_var)
         "${VTK_COMPILE_CMAKE_EXTENSIONS_OUTPUT}\n" APPEND)
       MESSAGE(FATAL_ERROR "Compiling VTK CMake commands - failed")
     ENDIF("${result_var}")
-  ENDIF(COMMAND VTK_MAKE_INSTANTIATOR2)
+  ENDIF(COMMAND VTK_WRAP_TCL2)
 ENDMACRO(VTK_COMPILE_CMAKE_EXTENSIONS)

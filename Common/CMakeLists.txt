@@ -298,11 +298,10 @@ SET(Kit_JAVA_EXTRA_SRCS vtkJavaUtil.cxx)
 # Start of common section
 
 # Setup vtkInstantiator registration for this library's classes.
-VTK_MAKE_INSTANTIATOR2(vtk${KIT}Instantiator KitInstantiator_SRCS
-                       ${Kit_SRCS}
-                       EXPORT_MACRO VTK_${UKIT}_EXPORT
-                       HEADER_LOCATION ${VTK_BINARY_DIR})
-
+VTK_MAKE_INSTANTIATOR3(vtk${KIT}Instantiator KitInstantiator_SRCS
+                       "${Kit_SRCS}"
+                       VTK_${KIT}_EXPORT
+                       ${VTK_BINARY_DIR} "")
 ADD_LIBRARY(vtk${KIT} ${Kit_SRCS} ${Kit_EXTRA_SRCS} ${KitInstantiator_SRCS})
 
 IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
