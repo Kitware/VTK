@@ -22,7 +22,7 @@
 #include "vtkMath.h"
 #include "vtkOldStyleCallbackCommand.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.86");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.87");
 
 // Construct object so that light follows camera motion.
 vtkRenderWindowInteractor::vtkRenderWindowInteractor()
@@ -73,6 +73,10 @@ vtkRenderWindowInteractor::~vtkRenderWindowInteractor()
   if ( this->Picker)
     {
     this->Picker->UnRegister(this);
+    }
+  if ( this->KeySym )
+    {
+    delete [] this->KeySym;
     }
 }
 
