@@ -136,7 +136,8 @@ void vtkContourFilter::Execute()
 
   // If structured points, use more efficient algorithms
 #ifdef VTK_USE_PATENTED
-  if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS )
+  if ( input->GetDataSetType() == VTK_STRUCTURED_POINTS &&
+       inScalars->GetDataType() != VTK_BIT)
     {
     int dim = input->GetCell(0)->GetCellDimension();
 
