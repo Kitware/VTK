@@ -505,22 +505,22 @@ invertible");
 
 static inline void vtkResliceRound(float val, unsigned char& rnd)
 {
-  rnd = (unsigned char)(val+0.5);
+  rnd = (unsigned char)(val+0.5f);
 }
 
 static inline void vtkResliceRound(float val, short& rnd)
 {
-  rnd = (short)((int)(val+32768.5)-32768);
+  rnd = (short)((int)(val+32768.5f)-32768);
 }
 
 static inline void vtkResliceRound(float val, unsigned short& rnd)
 {
-  rnd = (unsigned short)(val+0.5);
+  rnd = (unsigned short)(val+0.5f);
 }
 
 static inline void vtkResliceRound(float val, int& rnd)
 {
-  rnd = (int)(floor(val+0.5));
+  rnd = (int)(floor(val+0.5f));
 }
 
 static inline void vtkResliceRound(float val, float& rnd)
