@@ -6,6 +6,7 @@
   Date:      $Date$
   Version:   $Revision$
 
+
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
 
@@ -81,18 +82,13 @@ vtkImageData::vtkImageData()
   this->Pixel = vtkPixel::New();
   this->Voxel = vtkVoxel::New();
   
-  // I do not like defaulting to one pixel, but it avoids
-  // a lot of special case checking.
-  // Since I am now allowing emtpy volumes, this should be changed.
-  this->Dimensions[0] = 1;
-  this->Dimensions[1] = 1;
-  this->Dimensions[2] = 1;
-  this->DataDescription = VTK_SINGLE_POINT;
+  this->DataDescription = VTK_EMPTY;
   
   for (idx = 0; idx < 3; ++idx)
     {
+    this->Dimensions[0] = 0;
     this->Extent[idx*2] = 0;
-    this->Extent[idx*2+1] = 0;    
+    this->Extent[idx*2+1] = -1;    
     this->Increments[idx] = 0;
     this->Origin[idx] = 0.0;
     this->Spacing[idx] = 1.0;
@@ -271,6 +267,11 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
   
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      //cell = this->EmptyCell;
+      return NULL;
+      break;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
       break;
@@ -368,11 +369,16 @@ void vtkImageData::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
     {
     vtkErrorMacro("Requesting a cell from an empty image.");
+    cell->SetCellTypeToEmptyCell();
     return;
     }
   
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      cell->SetCellTypeToEmptyCell();
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell->SetCellTypeToVertex();
       break;
@@ -473,6 +479,9 @@ void vtkImageData::GetCellBounds(vtkIdType cellId, float bounds[6])
   
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       break;
 
@@ -556,15 +565,18 @@ float *vtkImageData::GetPoint(vtkIdType ptId)
   float *spacing = this->GetSpacing();
   int *dims = this->GetDimensions();
 
+  x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
     {
     vtkErrorMacro("Requesting a point from an empty image.");
-    x[0] = x[1] = x[2] = 0.0;
     return x;
     }
 
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      return x;
+
     case VTK_SINGLE_POINT: 
       loc[0] = loc[1] = loc[2] = 0;
       break;
@@ -712,6 +724,9 @@ vtkCell *vtkImageData::FindAndGetCell(float x[3],
   //
   switch (this->DataDescription)
     {
+    case VTK_EMPTY:
+      return NULL;
+
     case VTK_SINGLE_POINT: // cellId can only be = 0
       vtkVertex::InterpolationFunctions(pcoords,weights);
       iMax = loc[0];
@@ -806,6 +821,9 @@ int vtkImageData::GetCellType(vtkIdType vtkNotUsed(cellId))
 {
   switch (this->DataDescription)
     {
+    case VTK_EMPTY: 
+      return VTK_EMPTY_CELL;
+
     case VTK_SINGLE_POINT: 
       return VTK_VERTEX;
 
@@ -1740,6 +1758,12 @@ void vtkImageData::Crop()
       && this->Extent[5] == this->UpdateExtent[5])
     {
     return;
+    }
+
+  // This should only happen if a source misbehaves. Avoid a seg fault.
+  if (this->GetPointData()->GetScalars() == NULL)
+    {
+    vtkErrorMacro("Crop could not find scalars.");
     }
 
   // if the scalar type has not been set then we have a problem

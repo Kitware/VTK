@@ -359,9 +359,11 @@ void vtkImageDifference::ThreadedExecute(vtkImageData **inData,
 // Make sure both the inputs are the same size. Doesn't really change 
 // the output. Just performs a sanity check
 void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
-                                            vtkImageData *vtkNotUsed(output))
+                                            vtkImageData *output)
 {
+  int i;
   int *in1Ext, *in2Ext;
+  int ext[6];
   
   // Make sure the Input has been set.
   // we require that input 1 be set.
@@ -378,14 +380,30 @@ void vtkImageDifference::ExecuteInformation(vtkImageData **inputs,
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] || 
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
     {
-    for (int i = 0; i < this->NumberOfThreads; i++)
+    for (i = 0; i < this->NumberOfThreads; i++)
       {
       this->ErrorPerThread[i] = 1000;
       this->ThresholdedErrorPerThread[i] = 1000;
       }
     vtkErrorMacro("ExecuteInformation: Input are not the same size.");
-    return;
     }
+
+  // We still need to set the whole extent to be the intersection.
+  // Otherwise the execute may crash.
+  for (i = 0; i < 3; ++i)
+    {
+    ext[i*2] = in1Ext[i*2];
+    if (ext[i*2] < in2Ext[i*2])
+      {
+      ext[i*2] = in2Ext[i*2];
+      }
+    ext[i*2+1] = in1Ext[i*2+1];
+    if (ext[i*2+1] > in2Ext[i*2+1])
+      {
+      ext[i*2+1] = in2Ext[i*2+1];
+      }
+    }
+  output->SetWholeExtent(ext);
 }
 
 float vtkImageDifference::GetError()

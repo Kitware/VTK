@@ -67,6 +67,9 @@ void vtkUnstructuredGridToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObjec
 {
   vtkDataObject *input = this->GetInput();
 
-  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
-  input->RequestExactExtentOn();
+  if (input)
+    {
+    this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+    input->RequestExactExtentOn();
+    }
 }

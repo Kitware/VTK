@@ -148,6 +148,12 @@ void vtkPNMReader::ExecuteInformation()
   do
     {
     c = vtkPNMReaderGetChar(fp);
+    if (c == '\0')
+      { // Bad file.
+      this->GetOutput()->SetWholeExtent(0, -1, 0, -1, 0, -1);
+      fclose(fp);
+      return;
+      }
     }
   while (c != 'P');
   magic[0] = c;

@@ -5,7 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
-  Thanks:    Thanks to C. Charles Law who developed this class.
+
 
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -156,6 +156,7 @@ void vtkImageReader::ComputeInternalFileName(int slice)
   if (this->InternalFileName)
     {
     delete [] this->InternalFileName;
+    this->InternalFileName = NULL;
     }
 
   
@@ -186,7 +187,7 @@ void vtkImageReader::ComputeInternalFileName(int slice)
     else
       {
       this->InternalFileName = new char [strlen(this->FilePattern) + 10];
-      sprintf (this->InternalFileName, this->FilePattern, slice);
+      sprintf (this->InternalFileName, this->FilePattern, "",slice);
       }
     }
 }
@@ -646,14 +647,14 @@ void vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   this->File->seekg((long)streamStart, ios::beg);
   if (this->File->fail())
     {
-    cerr << "File operation failed: " << streamStart << ", ext: "
-                      << dataExtent[0] << ", " << dataExtent[1] << ", "
-                      << dataExtent[2] << ", " << dataExtent[3] << ", "
-           << dataExtent[4] << ", " << dataExtent[5] << endl;
-    cerr << "Header size: " << this->GetHeaderSize(idx) << ", file ext: "
-                      << this->DataExtent[0] << ", " << this->DataExtent[1] << ", "
-                      << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
-         << this->DataExtent[4] << ", " << this->DataExtent[5] << endl;
+    vtkErrorMacro(<< "File operation failed: " << streamStart << ", ext: "
+                  << dataExtent[0] << ", " << dataExtent[1] << ", "
+                  << dataExtent[2] << ", " << dataExtent[3] << ", "
+                  << dataExtent[4] << ", " << dataExtent[5]);
+    vtkErrorMacro(<< "Header size: " << this->GetHeaderSize(idx) << ", file ext: "
+                  << this->DataExtent[0] << ", " << this->DataExtent[1] << ", "
+                  << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
+                  << this->DataExtent[4] << ", " << this->DataExtent[5]);
     return;
     }
         

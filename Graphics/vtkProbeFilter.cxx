@@ -210,6 +210,12 @@ void vtkProbeFilter::ComputeInputUpdateExtents( vtkDataObject *output )
   vtkDataObject *source = this->GetSource();
   int usePiece = 0;
   
+  if (input == NULL || source == NULL)
+    {
+    vtkErrorMacro("Missing input or source.");
+    return;
+    }
+
   // What ever happend to CopyUpdateExtent in vtkDataObject?
   // Copying both piece and extent could be bad.  Setting the piece
   // of a structured data set will affect the extent.

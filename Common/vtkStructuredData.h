@@ -61,6 +61,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_YZ_PLANE 6
 #define VTK_XZ_PLANE 7
 #define VTK_XYZ_GRID 8
+#define VTK_EMPTY 9
 
 class VTK_COMMON_EXPORT vtkStructuredData : public vtkObject 
 {

@@ -12,6 +12,7 @@ package require vtktesting
 
 # create pipeline - start by extracting a single plane from the grid
 #
+
 vtkPLOT3DReader pl3d
 pl3d SetXYZFileName "$VTK_DATA_ROOT/Data/combxyz.bin"
 pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"

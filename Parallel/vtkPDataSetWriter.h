@@ -49,6 +49,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkPDataSetWriter_h
 
 #include "vtkDataSetWriter.h"
+#include "vtkImageData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkRectilinearGrid.h"
 
 
 class VTK_PARALLEL_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
@@ -64,7 +67,7 @@ public:
 
   // Description:
   // This is how many pieces the whole data set will be divided into.
-  vtkSetMacro(NumberOfPieces, int);
+  void SetNumberOfPieces(int num);
   vtkGetMacro(NumberOfPieces, int);
 
   // Description:
@@ -89,6 +92,15 @@ public:
   vtkSetStringMacro(FilePattern);
   vtkGetStringMacro(FilePattern);
 
+  // Description:
+  // This flag determines whether to use absolute paths for the piece files.
+  // By default the pieces are put in the main directory, and the piece file
+  // names in the meta data pvtk file are relative to this directory.
+  // This should make moving the whole lot to another directory, an easier task.
+  vtkSetMacro(UseRelativeFileNames, int);
+  vtkGetMacro(UseRelativeFileNames, int);
+  vtkBooleanMacro(UseRelativeFileNames, int);
+
 protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter();
@@ -97,12 +109,22 @@ protected:
 
 //BTX
   ostream *vtkPDataSetWriter::OpenFile();
+  void WriteUnstructuredMetaData(vtkDataSet *input, 
+                          char *root, char *str, ostream *fptr);
+  void WriteImageMetaData(vtkImageData *input, 
+                          char *root, char *str, ostream *fptr);
+  void WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
+                          char *root, char *str, ostream *fptr);
+  void WriteStructuredGridMetaData(vtkStructuredGrid *input,
+                          char *root, char *str, ostream *fptr);
 //ETX
 
   int StartPiece;
   int EndPiece;
   int NumberOfPieces;
   int GhostLevel;
+
+  int UseRelativeFileNames;
 
   char *FilePattern;
 };

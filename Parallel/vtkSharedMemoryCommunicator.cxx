@@ -116,8 +116,8 @@ vtkSharedMemoryCommunicator::~vtkSharedMemoryCommunicator()
 {
   if (this->LocalThreadId == 0)
     {
-      delete[] this->Communicators;
-      this->Communicators = 0;
+    delete[] this->Communicators;
+    this->Communicators = 0;
     }
 
   // Note the communicators are not deleted because ThreadedControllers

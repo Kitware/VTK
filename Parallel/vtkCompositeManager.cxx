@@ -5,6 +5,7 @@
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
+
   
 Copyright (c) 1993-2001 Ken Martin, Will Schroeder, Bill Lorensen 
 All rights reserved.
@@ -302,6 +303,25 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
           ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
           cbc->Delete();
           }
+        }
+      else
+        {
+        ren = ren;
+#ifdef _WIN32
+        // I had a problem with some graphics cards getting front and back buffers
+        // mixed up, so I made the remote render windows single buffered. One nice
+        // feature of this is being able to see the render in these helper windows.
+        vtkWin32OpenGLRenderWindow *renWin;
+  
+        renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
+        if (renWin)
+          {
+          // Lets keep the render window single buffer
+          renWin->DoubleBufferOff();
+          // I do not want to replace the original.
+          renWin = renWin;
+          }
+#endif
         }
       }
     }
@@ -753,29 +773,9 @@ void vtkCompositeManager::InitializeOffScreen()
     {
     vtkDebugMacro("Process 0.  Keep OnScreen.");
     return;
-    }
-  
-#ifdef _WIN32
-  vtkWin32OpenGLRenderWindow *renWin;
-  
-  renWin = vtkWin32OpenGLRenderWindow::SafeDownCast(this->RenderWindow);
-  if (renWin)
-    {
-    // Lets keep the render window single buffer
-    renWin->DoubleBufferOff();
-    // I do not want to replace the original.
-    renWin = renWin;
-    }
-#elif defined(VTK_USE_MESA)
-  vtkMesaRenderWindow *renWin;
-  
-  renWin = vtkMesaRenderWindow::SafeDownCast(this->RenderWindow);
-  if (renWin)
-    {
-    renWin->SetOffScreenRendering(1);
-    }
-#endif    
-  
+    }  
+
+  this->RenderWindow->SetOffScreenRendering(1);
 }
 
 //-------------------------------------------------------------------------
