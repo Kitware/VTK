@@ -105,7 +105,7 @@ libVTK$(ME)Python$(SHLIB_SUFFIX): python/${ME}Init.o ${KIT_OBJ} \
 
 #------------------------------------------------------------------------------
 clean: ${CLEAN_TCL} $(CLEAN_JAVA) $(CLEAN_PYTHON)
-	-rm -f *.o *.a *.so *.sl *~ Makefile
+	-rm -f *.o *.a *.so *.sl *~ Makefile vtkConfigure.h vtkToolkits.h
 
 clean_tcl:
 	-cd tcl; rm -f *
