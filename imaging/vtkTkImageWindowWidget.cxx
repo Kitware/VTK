@@ -31,8 +31,8 @@ static Tk_ConfigSpec vtkTkImageWindowWidgetConfigSpecs[] = {
     {TK_CONFIG_PIXELS, "-width", "width", "Width",
      "400", Tk_Offset(struct vtkTkImageWindowWidget, Width), 0, NULL},
   
-    {TK_CONFIG_STRING, "-iv", "iv", "IV",
-     "", Tk_Offset(struct vtkTkImageWindowWidget, IV), 0, NULL},
+    {TK_CONFIG_STRING, "-iw", "iw", "IW",
+     "", Tk_Offset(struct vtkTkImageWindowWidget, IW), 0, NULL},
 
     {TK_CONFIG_END, (char *) NULL, (char *) NULL, (char *) NULL,
      (char *) NULL, 0, 0, NULL}
@@ -139,7 +139,7 @@ int vtkTkImageWindowWidget_Widget(ClientData clientData, Tcl_Interp *interp,
     if (result != TCL_ERROR)
       {
       // Return the name (Make Tcl copy the string)
-      Tcl_SetResult(interp, self->IV, TCL_VOLATILE);
+      Tcl_SetResult(interp, self->IW, TCL_VOLATILE);
       }
     }
   else 
@@ -203,7 +203,7 @@ static int vtkTkImageWindowWidget_Cmd(ClientData clientData,
   self->Width = 0;
   self->Height = 0;
   self->ImageWindow = NULL;
-  self->IV = NULL;
+  self->IW = NULL;
   
   // ...
   // Create command event handler
@@ -229,9 +229,9 @@ static int vtkTkImageWindowWidget_Cmd(ClientData clientData,
 
 
 //----------------------------------------------------------------------------
-char *vtkTkImageWindowWidget_IV(const struct vtkTkImageWindowWidget *self)
+char *vtkTkImageWindowWidget_IW(const struct vtkTkImageWindowWidget *self)
 {
-  return self->IV;
+  return self->IW;
 }
 
 
@@ -428,20 +428,20 @@ static int vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget 
     // XDestroyWindow(dpy, winPtr->window);
     }
 
-  if (self->IV[0] == '\0')
+  if (self->IW[0] == '\0')
     {
     // Make the ImageWindow window.
     self->ImageWindow = vtkImageWindow::New();
     ImageWindow = (vtkWin32ImageWindow *)(self->ImageWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
 			       vtkImageWindowCommand);
-    self->IV = strdup(self->Interp->result);
+    self->IW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
   else
     {
     self->ImageWindow = (vtkImageWindow *)
-      vtkTclGetPointerFromObject(self->IV, "vtkImageWindow", self->Interp, new_flag);
+      vtkTclGetPointerFromObject(self->IW, "vtkImageWindow", self->Interp, new_flag);
     ImageWindow = (vtkWin32ImageWindow *)(self->ImageWindow);
     }
   
@@ -577,20 +577,20 @@ vtkTkImageWindowWidget_MakeImageWindow(struct vtkTkImageWindowWidget *self)
     XDestroyWindow(dpy, winPtr->window);
     }
 
-  if (self->IV[0] == '\0')
+  if (self->IW[0] == '\0')
     {
     // Make the ImageWindow window.
     self->ImageWindow = vtkImageWindow::New();
     ImageWindow = (vtkXImageWindow *)(self->ImageWindow);
     vtkTclGetObjectFromPointer(self->Interp, self->ImageWindow,
 			       vtkImageWindowCommand);
-    self->IV = strdup(self->Interp->result);
+    self->IW = strdup(self->Interp->result);
     self->Interp->result[0] = '\0';
     }
   else
     {
     ImageWindow = (vtkXImageWindow *)
-      vtkTclGetPointerFromObject(self->IV,"vtkImageWindow",self->Interp, new_flag);
+      vtkTclGetPointerFromObject(self->IW,"vtkImageWindow",self->Interp, new_flag);
     self->ImageWindow = (vtkImageWindow *)(ImageWindow);
     }
   
