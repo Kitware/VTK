@@ -22,13 +22,13 @@ class vtkLight;
 class vtkCamera;
 class vtkProperty;
 
-typedef float Vector[3];
+typedef float vtk3DSVector[3];
 
 /* A generic list type */
-#define VTK_LIST_INSERT(root, node) list_insert ((List **)&root, reinterpret_cast<List *>(node))
-#define VTK_LIST_FIND(root, name)   list_find   ((List **)&root, name)
-#define VTK_LIST_DELETE(root, node) list_delete ((List **)&root, (List *)node)
-#define VTK_LIST_KILL(root)         list_kill   ((List **)&root)
+#define VTK_LIST_INSERT(root, node) list_insert ((vtk3DSList **)&root, reinterpret_cast<vtk3DSList *>(node))
+#define VTK_LIST_FIND(root, name)   list_find   ((vtk3DSList **)&root, name)
+#define VTK_LIST_DELETE(root, node) list_delete ((vtk3DSList **)&root, (vtk3DSList *)node)
+#define VTK_LIST_KILL(root)         list_kill   ((vtk3DSList **)&root)
 
 #define VTK_LIST_FIELDS  \
     char name[80];   \
@@ -41,53 +41,53 @@ typedef unsigned int  dword;
 
 typedef struct {
    VTK_LIST_FIELDS
-} List;
+} vtk3DSList;
 
 
 typedef struct {
     int a, b, c;
-} Face;
+} vtk3DSFace;
 
 
 typedef struct {
     float red, green, blue;
-} Colour;
+} vtk3DSColour;
 
 
 /* Omni light command */
 typedef struct {
     VTK_LIST_FIELDS
 
-    Vector pos;            /* Light position */
-    Colour col;            /* Light colour */
+    vtk3DSVector pos;            /* Light position */
+    vtk3DSColour col;            /* Light colour */
     vtkLight *aLight;
-} OmniLight;
+} vtk3DSOmniLight;
 
 
 /* Spotlight command */
 typedef struct {
     VTK_LIST_FIELDS
 
-    Vector pos;            /* Spotlight position */
-    Vector target;         /* Spotlight target location */
-    Colour col;            /* Spotlight colour */
+    vtk3DSVector pos;            /* Spotlight position */
+    vtk3DSVector target;         /* Spotlight target location */
+    vtk3DSColour col;            /* Spotlight colour */
     float  hotspot;        /* Hotspot angle (degrees) */
     float  falloff;        /* Falloff angle (degrees) */
     int    shadow_flag;    /* Shadow flag (not used) */
     vtkLight *aLight;
-} SpotLight;
+} vtk3DSSpotLight;
 
 
 /* Camera command */
 typedef struct {
     VTK_LIST_FIELDS
 
-    Vector pos;            /* Camera location */
-    Vector target;         /* Camera target */
+    vtk3DSVector pos;            /* Camera location */
+    vtk3DSVector target;         /* Camera target */
     float  bank;           /* Banking angle (degrees) */
     float  lens;           /* Camera lens size (mm) */
     vtkCamera *aCamera;
-} Camera;
+} vtk3DSCamera;
 
 
 /* Material list */
@@ -95,25 +95,25 @@ typedef struct {
     VTK_LIST_FIELDS
 
     int  external;         /* Externally defined material? */
-} Material;
+} vtk3DSMaterial;
 
 
 /* Object summary */
 typedef struct {
     VTK_LIST_FIELDS
 
-    Vector center;         /* Min value of object extents */
-    Vector lengths;        /* Max value of object extents */
-} Summary;
+    vtk3DSVector center;         /* Min value of object extents */
+    vtk3DSVector lengths;        /* Max value of object extents */
+} vtk3DSSummary;
 
 
 /* Material property */
 typedef struct {
     VTK_LIST_FIELDS
 
-    Colour ambient;
-    Colour diffuse;
-    Colour specular;
+    vtk3DSColour ambient;
+    vtk3DSColour diffuse;
+    vtk3DSColour specular;
     float  shininess;
     float  transparency;
     float  reflection;
@@ -123,7 +123,7 @@ typedef struct {
     char   bump_map[40];
     float  bump_strength;
     vtkProperty *aProperty;
-} MatProp;
+} vtk3DSMatProp;
 
 
 
@@ -140,11 +140,11 @@ typedef struct {
     VTK_LIST_FIELDS
 
     int  vertices;         /* Number of vertices */
-    Vector *vertex;        /* List of object vertices */
+    vtk3DSVector *vertex;        /* List of object vertices */
 
     int  faces;            /* Number of faces */
-    Face *face;            /* List of object faces */
-    Material **mtl;        /* Materials for each face */
+    vtk3DSFace *face;            /* List of object faces */
+    vtk3DSMaterial **mtl;        /* Materials for each face */
 
     int hidden;            /* Hidden flag */
     int shadow;            /* Shadow flag */
@@ -156,7 +156,7 @@ typedef struct {
     vtkCellArray *aCellArray;
     vtkPolyData *aPolyData;
  
-} Mesh;
+} vtk3DSMesh;
 
 
 typedef struct {
@@ -164,14 +164,14 @@ typedef struct {
     dword end;
     dword length;
     word  tag;
-} Chunk;
+} vtk3DSChunk;
 
 
 typedef struct {
     byte red;
     byte green;
     byte blue;
-} Colour_24;
+} vtk3DSColour_24;
 
 
 
