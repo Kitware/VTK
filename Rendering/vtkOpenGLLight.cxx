@@ -32,7 +32,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLLight, "1.20");
+vtkCxxRevisionMacro(vtkOpenGLLight, "1.21");
 vtkStandardNewMacro(vtkOpenGLLight);
 #endif
 
@@ -45,16 +45,13 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
   vtkMatrix4x4 *xform = NULL;
 
   // get required info from light
-  color[0] = this->Intensity * this->Color[0];
-  color[1] = this->Intensity * this->Color[1];
-  color[2] = this->Intensity * this->Color[2];
-  color[3] = 1.0;
 
   dx = this->FocalPoint[0] - this->Position[0];
   dy = this->FocalPoint[1] - this->Position[1];
   dz = this->FocalPoint[2] - this->Position[2];
 
-  if(this->TransformMatrix != NULL) {
+  if(this->TransformMatrix != NULL) 
+    {
     xform = vtkMatrix4x4::New();
     xform->DeepCopy(this->TransformMatrix);
     xform->Transpose();
@@ -62,9 +59,22 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
     // code assumes that we're already in GL_MODELVIEW matrix mode
     glPushMatrix();
     glMultMatrixd(xform->Element[0]);
-  }
+    }
 
+  color[0] = this->Intensity * this->AmbientColor[0];
+  color[1] = this->Intensity * this->AmbientColor[1];
+  color[2] = this->Intensity * this->AmbientColor[2];
+  color[3] = 1.0;
+  glLightfv((GLenum)light_index, GL_AMBIENT, color);
+
+  color[0] = this->Intensity * this->DiffuseColor[0];
+  color[1] = this->Intensity * this->DiffuseColor[1];
+  color[2] = this->Intensity * this->DiffuseColor[2];
   glLightfv((GLenum)light_index, GL_DIFFUSE, color);
+
+  color[0] = this->Intensity * this->SpecularColor[0];
+  color[1] = this->Intensity * this->SpecularColor[1];
+  color[2] = this->Intensity * this->SpecularColor[2];
   glLightfv((GLenum)light_index, GL_SPECULAR, color);
 
   // define the light source
@@ -112,10 +122,11 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren),int light_index)
       }
     }
 
-  if(this->TransformMatrix != NULL) {
+  if(this->TransformMatrix != NULL) 
+    {
     glPopMatrix();
     xform->Delete();
-  }
+    }
 }
 
 //----------------------------------------------------------------------------
