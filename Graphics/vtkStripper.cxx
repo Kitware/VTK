@@ -18,7 +18,7 @@
 #include "vtkStripper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.55");
+vtkCxxRevisionMacro(vtkStripper, "1.56");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -295,7 +295,6 @@ void vtkStripper::Execute()
 
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(pd);
-  output->SetFieldData(input->GetFieldData());
 
   // output strips
   if ( newStrips )

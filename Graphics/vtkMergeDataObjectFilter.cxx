@@ -18,7 +18,7 @@
 #include "vtkMergeDataObjectFilter.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.15");
+vtkCxxRevisionMacro(vtkMergeDataObjectFilter, "1.16");
 vtkStandardNewMacro(vtkMergeDataObjectFilter);
 
 //----------------------------------------------------------------------------
@@ -102,10 +102,6 @@ void vtkMergeDataObjectFilter::Execute()
       {
       output->GetPointData()->AddArray(fd->GetArray(i));
       }
-    }
-  else //( this->OutputField == VTK_DATA_OBJECT_FIELD )
-    {
-    output->SetFieldData(fd);
     }
 }
 

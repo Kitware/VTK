@@ -50,3 +50,4 @@ vtkImageViewer viewer
   viewer Render
 
 
+renWin1 Register ren1

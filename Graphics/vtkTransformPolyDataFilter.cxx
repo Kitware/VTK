@@ -19,7 +19,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.25");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.26");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
@@ -135,7 +135,6 @@ void vtkTransformPolyDataFilter::Execute()
   output->SetLines(input->GetLines());
   output->SetPolys(input->GetPolys());
   output->SetStrips(input->GetStrips());
-  output->SetFieldData(input->GetFieldData());
 
   if (newNormals)
     {

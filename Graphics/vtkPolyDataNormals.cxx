@@ -22,7 +22,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataNormals, "1.51");
+vtkCxxRevisionMacro(vtkPolyDataNormals, "1.52");
 vtkStandardNewMacro(vtkPolyDataNormals);
 
 // Construct with feature angle=30, splitting and consistency turned on, 
@@ -84,7 +84,6 @@ void vtkPolyDataNormals::Execute()
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
-        output->SetFieldData(input->GetFieldData());
     return;
     }
   output->GetCellData()->PassData(input->GetCellData());
