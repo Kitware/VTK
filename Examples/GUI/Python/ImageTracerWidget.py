@@ -178,7 +178,6 @@ itw.GetGlyphSource().SetScale(3.0)
 # Set the initial rotation of the glyph if desired.  The default glyph
 # set internally by the widget is a '+' so rotating 45 deg. gives a 'x'
 #
-itw.SetGlyphAngle(45.0)
 itw.GetGlyphSource().Modified()
 itw.ProjectToPlaneOn()
 itw.SetProjectionNormalToXAxes()
