@@ -108,7 +108,7 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
   //
   minCellId = -1;
   minSubId = -1;
-  minPcoords[0] = minPcoords[1] = minPcoords[2] = 0.0;
+  pcoords[0] = pcoords[1] = pcoords[2] = 0;
   for (tMin=VTK_LARGE_FLOAT,cellId=0; cellId<numCells; cellId++) 
     {
     input->GetCell(cellId,this->Cell);
@@ -126,7 +126,6 @@ float vtkCellPicker::IntersectWithLine(float p1[3], float p2[3], float tol,
       tMin = t;
       }
     }
-  
   //  Now compare this against other actors.
   //
   if ( minCellId>(-1) && tMin < this->GlobalTMin ) 
