@@ -83,7 +83,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.20");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.21");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -444,6 +444,11 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
     XSync(this->DisplayId,False);
     
     this->Internal->ContextId = glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
+    if(!this->Internal->ContextId)
+      {
+      vtkErrorMacro("Cannot create GLX context.  Aborting.");
+      abort();
+      }
     this->MakeCurrent();
     
     vtkDebugMacro(" Mapping the xwindow\n");
@@ -793,11 +798,11 @@ Colormap vtkXOpenGLRenderWindow::GetDesiredColormap ()
   // get the default visual to use 
   v = this->GetDesiredVisualInfo();
 
-  this->ColorMap = XCreateColormap(this->DisplayId,
-                                   RootWindow( this->DisplayId, v->screen),
-                                   v->visual, AllocNone ); 
   if (v)
     {
+    this->ColorMap = XCreateColormap(this->DisplayId,
+                                     RootWindow( this->DisplayId, v->screen),
+                                     v->visual, AllocNone ); 
     XFree(v);
     }
 
