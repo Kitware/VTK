@@ -21,7 +21,7 @@
 #include "vtkVoidArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkEdgeTable, "1.32");
+vtkCxxRevisionMacro(vtkEdgeTable, "1.33");
 vtkStandardNewMacro(vtkEdgeTable);
 
 // Instantiate object based on maximum point id.
@@ -234,6 +234,47 @@ vtkIdType vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2)
       else
         {
         return 1;
+        }
+      }
+    }
+}
+
+// Return non-negative if edge (p1,p2) is an edge; otherwise -1.
+void vtkEdgeTable::IsEdge(vtkIdType p1, vtkIdType p2, void* &ptr)
+{
+  vtkIdType index, search;
+
+  if ( p1 < p2 )
+    {
+    index = p1;
+    search = p2;
+    }
+  else
+    {
+    index = p2;
+    search = p1;
+    }
+
+  if ( this->Table[index] == NULL ) 
+    {
+    ptr = NULL;
+    }
+  else
+    {
+    vtkIdType loc;
+    if ( (loc=this->Table[index]->IsId(search)) == (-1) )
+      {
+      ptr = NULL;
+      }
+    else
+      {
+      if ( this->StoreAttributes == 2 )
+        {
+        ptr = this->PointerAttributes[index]->GetVoidPointer(loc);
+        }
+      else
+        {
+        ptr = NULL;
         }
       }
     }
