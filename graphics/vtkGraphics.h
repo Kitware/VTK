@@ -123,7 +123,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOutlineFilter.h"
 #include "vtkOutlineSource.h"
 #include "vtkPLOT3DReader.h"
-#include "vtkPNMWriter.h"
 #include "vtkPicker.h"
 #include "vtkPlaneSource.h"
 #include "vtkPlanes.h"
