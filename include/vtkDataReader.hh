@@ -69,9 +69,11 @@ public:
 
   // Description:
   // Specify the InputString for use when reading from a character array.
+  // Optionally include the length for binary strings.
   vtkSetStringMacro(InputString);
   vtkGetStringMacro(InputString);
-
+  void SetInputString(char *in, int len);
+  
   // Description:
   // Set/Get reading from an InputString instead of the default, a file.
   vtkSetMacro(ReadFromInputString,int);

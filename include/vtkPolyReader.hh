@@ -67,6 +67,7 @@ public:
   // Description:
   // Specify the InputString for use when reading from a character array.
   SetInputString(char *in) {this->Reader.SetInputString(in);};
+  SetInputString(char *in, int len) {this->Reader.SetInputString(in,len);};
   char *GetInputString() { return this->Reader.GetInputString();};
 
   // Description:

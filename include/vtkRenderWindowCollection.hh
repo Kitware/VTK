@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkRenderMaster.hh
+  Module:    vtkRenderWindowCollection.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,39 +38,60 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkRenderMaster - create a device specific rendering window
+// .NAME vtkRenderWindowCollection - a list of RenderWindows
 // .SECTION Description
-// vtkRenderMaster is used to create a device specific rendering window.
-// vtkRenderMaster interfaces with the operating system to determine
-// which type of rendering library to use. If the environment variable
-// VTK_RENDERER is set, then that rendering library is used. 
-// If VTK_RENDERER is not set then it will try to pick the best renderer
-// it can based on what was compiled into vtk.
+// vtkRenderWindowCollection represents and provides methods to manipulate a 
+// list of RenderWindows. The list is unsorted and duplicate entries are 
+// not prevented.
 
 // .SECTION see also
-// vtkRenderWindow vtkRenderer
+// vtkRenderWindow vtkCollection
 
-#ifndef __vtkRenderMaster_hh
-#define __vtkRenderMaster_hh
+#ifndef __vtkRenderWindowCollection_hh
+#define __vtkRenderWindowCollection_hh
 
-#include "vtkObject.hh"
+#include "vtkCollection.hh"
 #include "vtkRenderWindow.hh"
-#include "vtkRenderWindowCollection.hh"
-#include "vtkRenderWindowInteractor.hh"
 
-class vtkRenderMaster : public vtkObject
+class vtkRenderWindowCollection : public vtkCollection
 {
  public:
-  vtkRenderMaster();
-  ~vtkRenderMaster();
-  char *GetClassName() {return "vtkRenderMaster";};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkRenderWindowCollection";};
 
-  vtkRenderWindow *MakeRenderWindow(char *ren);
-  vtkRenderWindow *MakeRenderWindow(void);
-
-protected:
-  vtkRenderWindowCollection RenderWindows;
+  void AddItem(vtkRenderWindow *a);
+  void RemoveItem(vtkRenderWindow *a);
+  int IsItemPresent(vtkRenderWindow *a);
+  vtkRenderWindow *GetNextItem();
 };
+
+// Description:
+// Add a RenderWindow to the list.
+inline void vtkRenderWindowCollection::AddItem(vtkRenderWindow *a) 
+{
+  this->vtkCollection::AddItem((vtkObject *)a);
+}
+
+// Description:
+// Remove a RenderWindow from the list.
+inline void vtkRenderWindowCollection::RemoveItem(vtkRenderWindow *a) 
+{
+  this->vtkCollection::RemoveItem((vtkObject *)a);
+}
+
+// Description:
+// Determine whether a particular RenderWindow is present. Returns its position
+// in the list.
+inline int vtkRenderWindowCollection::IsItemPresent(vtkRenderWindow *a) 
+{
+  return this->vtkCollection::IsItemPresent((vtkObject *)a);
+}
+
+// Description:
+// Get the next RenderWindow in the list. Return NULL when at the end of the 
+// list.
+inline vtkRenderWindow *vtkRenderWindowCollection::GetNextItem() 
+{
+  return (vtkRenderWindow *)(this->GetNextItemAsObject());
+}
 
 #endif
