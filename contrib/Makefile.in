@@ -27,6 +27,7 @@ vtkCellDerivatives \
 vtkCubeAxesActor2D \
 vtkDEMReader \
 vtkEarthSource \
+vtkGridTransform \
 vtkImageToPolyDataFilter \
 vtkImageReslice \
 vtkIVWriter \
@@ -45,6 +46,7 @@ vtkSuperquadricSource \
 vtkSubdivideTetra \
 vtkThreadedController \
 vtkThinPlateSplineTransform \
+vtkTransformToGrid \
 vtkVideoSource \
 vtkVolumeProMapper \
 ${CONTROLLER_API_OBJ}
