@@ -48,15 +48,15 @@
 #ifndef __vtkPCAAnalysisFilter_h
 #define __vtkPCAAnalysisFilter_h
 
-#include "vtkSource.h"
+#include "vtkPointSetAlgorithm.h"
 
 class vtkFloatArray;
 class vtkPointSet;
 
-class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkSource
+class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkPointSetAlgorithm
 {
  public:
-  vtkTypeRevisionMacro(vtkPCAAnalysisFilter,vtkSource);
+  vtkTypeRevisionMacro(vtkPCAAnalysisFilter,vtkPointSetAlgorithm);
   
   // Description:
   // Prints information about the state of the filter.
@@ -74,17 +74,6 @@ class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkSource
   // Specify how many pointsets are going to be given as input.
   void SetNumberOfInputs(int n);
   
-  // Description:
-  // Specify the input pointset with index idx.
-  // Call SetNumberOfInputs before calling this function.
-  void SetInput(int idx,vtkPointSet* p);
-  
-  // Description:
-  // Retrieve the output point set with index idx.
-  // The output is the eigenvector sorted according to their
-  // eigenvalues (descending order)
-  vtkPointSet* GetOutput(int idx);
-
   // Description:
   // Fills the shape with:
   //
@@ -111,10 +100,6 @@ class VTK_HYBRID_EXPORT vtkPCAAnalysisFilter : public vtkSource
   void GetShapeParameters(vtkPointSet *shape, vtkFloatArray *b, int bsize);
 
   // Description:
-  // Retrieve the input with index idx (usually only used for pipeline tracing).
-  vtkPointSet* GetInput(int idx);
-
-  // Description:
   // Retrieve how many modes are necessary to model the given proportion of the variation.
   // proportion should be between 0 and 1
   int GetModesRequiredFor(double proportion);
@@ -125,7 +110,8 @@ protected:
 
   // Description:
   // Usual data generation method.
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
   vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&);  // Not implemented.

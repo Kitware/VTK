@@ -13,13 +13,16 @@
 
 =========================================================================*/
 #include "vtkPCAAnalysisFilter.h"
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.11");
+vtkCxxRevisionMacro(vtkPCAAnalysisFilter, "1.12");
 vtkStandardNewMacro(vtkPCAAnalysisFilter);
 
 //------------------------------------------------------------------------
@@ -175,14 +178,22 @@ vtkPCAAnalysisFilter::~vtkPCAAnalysisFilter()
 
 //----------------------------------------------------------------------------
 // protected
-void vtkPCAAnalysisFilter::Execute()
+int vtkPCAAnalysisFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPointSet *input = vtkPointSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPointSet *output = vtkPointSet::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro(<<"Execute()");
-  
-  if(!this->vtkProcessObject::Inputs) {
-    vtkErrorMacro(<<"No input!");
-    return;
-  }
   
   int i;
   
@@ -196,28 +207,51 @@ void vtkPCAAnalysisFilter::Execute()
     this->meanshape = NULL;
   }
   
-  const int N_SETS = this->vtkProcessObject::GetNumberOfInputs();
+  const int N_SETS = this->GetNumberOfInputConnections(0);
   
+  vtkInformation *tmpInfo;
+  vtkPointSet *tmpInput;
   // copy the inputs across
-  for(i=0;i<N_SETS;i++) {
-    this->GetOutput(i)->DeepCopy(this->GetInput(i));
-  }
+  output->DeepCopy(input);
+  for(i=1;i<N_SETS;i++)
+    {
+    tmpInfo = inputVector[0]->GetInformationObject(i);
+    tmpInput = 0;
+    if (tmpInfo)
+      {
+      tmpInput =
+        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+      }
+    this->GetOutput(i)->DeepCopy(tmpInput);
+    }
   
   // the number of points is determined by the first input (they must all be the same)
-  const int N_POINTS = this->GetInput(0)->GetNumberOfPoints();
+  const int N_POINTS = input->GetNumberOfPoints();
   
   vtkDebugMacro(<<"N_POINTS is " <<N_POINTS);
   
   if(N_POINTS == 0) {
     vtkErrorMacro(<<"No points!");
-    return;
+    return 1;
   }
   
   // all the inputs must have the same number of points to consider executing
-  for(i=1;i<N_SETS;i++) {
-    if(this->GetInput(i)->GetNumberOfPoints() != N_POINTS) {
+  for(i=1;i<N_SETS;i++)
+    {
+    tmpInfo = inputVector[0]->GetInformationObject(i);
+    tmpInput = 0;
+    if (tmpInfo)
+      {
+      tmpInput =
+        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+      }
+    else
+      {
+      continue;
+      }
+    if(tmpInput->GetNumberOfPoints() != N_POINTS) {
       vtkErrorMacro(<<"The inputs have different numbers of points!");
-      return;
+      return 1;
     }
   }
   
@@ -230,10 +264,22 @@ void vtkPCAAnalysisFilter::Execute()
   // Observation Matrix [number of points * 3 X number of shapes]
   double **D = NewMatrix(3*n, s);
   
-  for (i = 0; i < n; i++) {
+  for (i = 0; i < n; i++)
+    {
+    tmpInfo = inputVector[0]->GetInformationObject(i);
+    tmpInput = 0;
+    if (tmpInfo)
+      {
+      tmpInput =
+        vtkPointSet::SafeDownCast(tmpInfo->Get(vtkDataObject::DATA_OBJECT()));
+      }
+    else
+      {
+      continue;
+      }
     for (int j = 0; j < s; j++) {
       double p[3];
-      this->GetInput(j)->GetPoint(i, p);
+      tmpInput->GetPoint(i, p);
       D[i*3  ][j] = p[0];
       D[i*3+1][j] = p[1];
       D[i*3+2][j] = p[2];
@@ -281,6 +327,8 @@ void vtkPCAAnalysisFilter::Execute()
   DeleteVector(ev);
   DeleteMatrix(T);
   DeleteMatrix(D);
+
+  return 1;
 }
 
 
@@ -376,16 +424,16 @@ void vtkPCAAnalysisFilter::GetShapeParameters(vtkPointSet *shape, vtkFloatArray 
 // public
 void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 { 
-  this->vtkProcessObject::SetNumberOfInputs(n);
-  this->vtkSource::SetNumberOfOutputs(n);
+  this->SetNumberOfOutputPorts(n);
   
   // initialise the outputs
-  for(int i=0;i<n;i++) {
+  for(int i=0;i<n;i++)
+    {
     vtkPoints *points = vtkPoints::New();
     vtkPolyData *ps = vtkPolyData::New();
     ps->SetPoints(points);
     points->Delete();
-    this->vtkSource::SetNthOutput(i,ps);
+    this->GetExecutive()->SetOutputData(i,ps);
     ps->Delete();
   }
   
@@ -394,35 +442,12 @@ void vtkPCAAnalysisFilter::SetNumberOfInputs(int n)
 }
 
 //----------------------------------------------------------------------------
-// public
-void vtkPCAAnalysisFilter::SetInput(int idx,vtkPointSet* p) 
+int vtkPCAAnalysisFilter::FillInputPortInformation(int port,
+                                                   vtkInformation *info)
 {
-  this->vtkProcessObject::SetNthInput(idx,p);
-}
-
-
-//----------------------------------------------------------------------------
-// public
-vtkPointSet* vtkPCAAnalysisFilter::GetInput(int idx) 
-{
-  if(idx<0 || idx>=this->vtkProcessObject::GetNumberOfInputs()) {
-    vtkErrorMacro(<<"Index out of bounds in GetInput!");
-    return NULL;
-  }
-  
-  return static_cast<vtkPointSet*>(this->vtkProcessObject::Inputs[idx]);
-}
-
-//----------------------------------------------------------------------------
-// public
-vtkPointSet* vtkPCAAnalysisFilter::GetOutput(int idx) 
-{ 
-  if(idx<0 || idx>=this->vtkSource::GetNumberOfOutputs()) {
-    vtkErrorMacro(<<"Index out of bounds in GetOutput!");
-    return NULL;
-  }
-  
-  return static_cast<vtkPointSet*>(this->vtkSource::GetOutput(idx));
+  int retval = this->Superclass::FillInputPortInformation(port, info);
+  info->Set(vtkAlgorithm::INPUT_IS_REPEATABLE(), 1);
+  return retval;
 }
 
 //----------------------------------------------------------------------------
