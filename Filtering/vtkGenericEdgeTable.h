@@ -116,10 +116,12 @@ public:
   void IncrementPointReferenceCount(vtkIdType ptId );
 
   // Description:
-  // For debuggin purposes.
+  // For debugging purposes. It is particularly usefull to dump the table
+  // and check nothing is left after a complete iteration. LoadFactor should
+  // ideally very low to be able to have constant time access
   void DumpTable();
   void LoadFactor();
-  
+
 //BTX
 class PointEntry
 {

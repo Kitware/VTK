@@ -18,7 +18,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.6");
+vtkCxxRevisionMacro(vtkGenericEdgeTable, "1.7");
 vtkStandardNewMacro(vtkGenericEdgeTable);
 
 static int PRIME_NUMBERS[] = {1, 3, 7, 13, 31, 61, 127,  251,  509,  1021,
@@ -175,7 +175,7 @@ void vtkEdgeTableEdge::DumpEdges()
 }
 
 //-----------------------------------------------------------------------------
-static void OrderEdge(vtkIdType &e1, vtkIdType &e2)
+static inline void OrderEdge(vtkIdType &e1, vtkIdType &e2)
 {
   vtkIdType temp1 = e1;
   vtkIdType temp2 = e2;
@@ -190,12 +190,13 @@ vtkGenericEdgeTable::vtkGenericEdgeTable()
   this->EdgeTable = new vtkEdgeTableEdge;
   this->HashPoints = new vtkEdgeTablePoints;
 
-  this->NumberOfComponents=1;
+  // Default to only one component
+  this->NumberOfComponents = 1;
   
   // The whole problem is here to find the proper size for a descent hash table
   // Since we do not allow check our size as we go the hash table
   // Should be big enough from the begining otherwise we'll loose the
-  // linear time access
+  // constant time access
   // But on the other hand we do not want it to be too big for mem consumption
   // A compromise of 4093 was found fo be working in a lot of case
 #if 1
@@ -283,6 +284,8 @@ void vtkGenericEdgeTable::InsertEdge(vtkIdType e1, vtkIdType e2,
   vect.push_back( newEntry );
 }
 
+// A special care was done to try if there was any speed issue with
+// using a const iterator vs a direct access
 #define USE_CONST_ITERATOR 1
 
 //-----------------------------------------------------------------------------
