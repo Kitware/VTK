@@ -10,50 +10,50 @@ if { [catch {set VTK_DATA $env(VTK_DATA)}] != 0} { set VTK_DATA "../../../vtkdat
 
 source vtkImageInclude.tcl
 
-vtkImageCanvasSource2D canvas
-canvas SetNumberOfScalarComponents 3
-canvas SetScalarType $VTK_UNSIGNED_CHAR
-canvas SetExtent 0 511 0 511 0 0
-canvas SetDrawColor 100 100 0
-canvas FillBox 0 511 0 511
-canvas SetDrawColor 200 0 200
-canvas FillBox 32 511 100 500
-canvas SetDrawColor 100 0 0
-canvas FillTube 550 20 30 400 5
-canvas SetDrawColor 255 255 255
-canvas DrawSegment 10 20 90 510
-canvas SetDrawColor 200 50 50
-canvas DrawSegment 510 90 10 20
+vtkImageCanvasSource2D imageCanvas
+imageCanvas SetNumberOfScalarComponents 3
+imageCanvas SetScalarType $VTK_UNSIGNED_CHAR
+imageCanvas SetExtent 0 511 0 511 0 0
+imageCanvas SetDrawColor 100 100 0
+imageCanvas FillBox 0 511 0 511
+imageCanvas SetDrawColor 200 0 200
+imageCanvas FillBox 32 511 100 500
+imageCanvas SetDrawColor 100 0 0
+imageCanvas FillTube 550 20 30 400 5
+imageCanvas SetDrawColor 255 255 255
+imageCanvas DrawSegment 10 20 90 510
+imageCanvas SetDrawColor 200 50 50
+imageCanvas DrawSegment 510 90 10 20
 
 # Check segment clipping
-canvas SetDrawColor 0 200 0
-canvas DrawSegment -10 30 30 -10
-canvas DrawSegment -10 481 30 521
-canvas DrawSegment 481 -10 521 30
-canvas DrawSegment 481 521 521 481
+imageCanvas SetDrawColor 0 200 0
+imageCanvas DrawSegment -10 30 30 -10
+imageCanvas DrawSegment -10 481 30 521
+imageCanvas DrawSegment 481 -10 521 30
+imageCanvas DrawSegment 481 521 521 481
 
 # Check Filling a triangle
-canvas SetDrawColor 20 200 200
-canvas FillTriangle -100 100  190 150  40 300
+imageCanvas SetDrawColor 20 200 200
+imageCanvas FillTriangle -100 100  190 150  40 300
 
 # Check drawing a circle
-canvas SetDrawColor 250 250 10
-canvas DrawCircle 350 350  200.0
+imageCanvas SetDrawColor 250 250 10
+imageCanvas DrawCircle 350 350  200.0
 
 # Check drawing a point
-canvas SetDrawColor 250 250 250
-canvas DrawPoint 350 350
-canvas DrawPoint 350 550
+imageCanvas SetDrawColor 250 250 250
+imageCanvas DrawPoint 350 350
+imageCanvas DrawPoint 350 550
 
 
 # Test filling functionality
-canvas SetDrawColor 55 0 0
-canvas DrawCircle 450 350 80.0
-canvas SetDrawColor 100 255 100
-canvas FillPixel 450 350
+imageCanvas SetDrawColor 55 0 0
+imageCanvas DrawCircle 450 350 80.0
+imageCanvas SetDrawColor 100 255 100
+imageCanvas FillPixel 450 350
 
 vtkImageClip clip
-clip SetInput [canvas GetOutput]
+clip SetInput [imageCanvas GetOutput]
 clip SetOutputWholeExtent 0 255 0 255 0 0
 clip ReleaseDataFlagOff
 

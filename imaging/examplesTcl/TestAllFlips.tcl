@@ -25,17 +25,17 @@ vtkImageFlip flipY
   flipY SetInput [imageFloat GetOutput]
   flipY SetFilteredAxes $VTK_IMAGE_Y_AXIS 
 
-vtkImageAppend append
-  append AddInput [imageFloat GetOutput]
-  append AddInput [flipX GetOutput]
-  append AddInput [flipY GetOutput]
-  append SetAppendAxis $VTK_IMAGE_X_AXIS
+vtkImageAppend imageAppend
+  imageAppend AddInput [imageFloat GetOutput]
+  imageAppend AddInput [flipX GetOutput]
+  imageAppend AddInput [flipY GetOutput]
+  imageAppend SetAppendAxis $VTK_IMAGE_X_AXIS
 
 #flip BypassOn
 #flip PreserveImageExtentOn
 
 vtkImageViewer viewer
-viewer SetInput [append GetOutput]
+viewer SetInput [imageAppend GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

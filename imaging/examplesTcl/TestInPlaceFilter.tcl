@@ -44,13 +44,13 @@ cursor SetCursorRadius [expr 50 * $IMAGE_MAG_X]
 # stream to increase coverage of in place filter.
 
 # put thge two together in one image
-vtkImageAppend append
-append SetAppendAxis 0
-append AddInput [magnify2 GetOutput]
-append AddInput [cursor GetOutput]
+vtkImageAppend imageAppend
+imageAppend SetAppendAxis 0
+imageAppend AddInput [magnify2 GetOutput]
+imageAppend AddInput [cursor GetOutput]
 
 vtkImageViewer viewer
-viewer SetInput [append GetOutput]
+viewer SetInput [imageAppend GetOutput]
 viewer SetZSlice [expr $CURSOR_Z * $IMAGE_MAG_Z]
 viewer SetColorWindow 200
 viewer SetColorLevel 80

@@ -7,34 +7,34 @@ source vtkImageInclude.tcl
 source TkImageViewerInteractor.tcl
 
 
-vtkImageCanvasSource2D canvas
-canvas SetScalarType $VTK_FLOAT
-canvas SetExtent 0 255 0 255 0 0
+vtkImageCanvasSource2D imageCanvas
+imageCanvas SetScalarType $VTK_FLOAT
+imageCanvas SetExtent 0 255 0 255 0 0
 # back ground zero
-canvas SetDrawColor 0
-canvas FillBox 0 255 0 255
+imageCanvas SetDrawColor 0
+imageCanvas FillBox 0 255 0 255
 
-canvas SetDrawColor 255
-canvas FillBox 30 225 30 225
+imageCanvas SetDrawColor 255
+imageCanvas FillBox 30 225 30 225
 
-canvas SetDrawColor 0
-canvas FillBox 60 195 60 195
+imageCanvas SetDrawColor 0
+imageCanvas FillBox 60 195 60 195
 
-canvas SetDrawColor 255
-canvas FillTube 100 100 154 154 40.0
+imageCanvas SetDrawColor 255
+imageCanvas FillTube 100 100 154 154 40.0
 
-canvas SetDrawColor 0
+imageCanvas SetDrawColor 0
 
-canvas DrawSegment 45 45 45 210
-canvas DrawSegment 45 210 210 210
-canvas DrawSegment 210 210 210 45
-canvas DrawSegment 210 45 45 45
+imageCanvas DrawSegment 45 45 45 210
+imageCanvas DrawSegment 45 210 210 210
+imageCanvas DrawSegment 210 210 210 45
+imageCanvas DrawSegment 210 45 45 45
 
-canvas DrawSegment 100 150 150 100
-canvas DrawSegment 110 160 160 110
-canvas DrawSegment 90 140 140 90
-canvas DrawSegment 120 170 170 120
-canvas DrawSegment 80 130 130 80
+imageCanvas DrawSegment 100 150 150 100
+imageCanvas DrawSegment 110 160 160 110
+imageCanvas DrawSegment 90 140 140 90
+imageCanvas DrawSegment 120 170 170 120
+imageCanvas DrawSegment 80 130 130 80
 
 
 
@@ -46,7 +46,7 @@ source ShotNoiseInclude.tcl
 
 vtkImageMathematics add
 add SetInput1 [shotNoise GetOutput]
-add SetInput2 [canvas GetOutput]
+add SetInput2 [imageCanvas GetOutput]
 add SetOperationToAdd
 
 
@@ -64,7 +64,7 @@ vtkImageHybridMedian2D hybrid2
 hybrid2 SetInput [hybrid1 GetOutput]
 
 vtkImageViewer viewer1
-viewer1 SetInput [canvas GetOutput]
+viewer1 SetInput [imageCanvas GetOutput]
 viewer1 SetColorWindow 256
 viewer1 SetColorLevel 127.5
 

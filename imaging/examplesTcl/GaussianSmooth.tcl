@@ -28,19 +28,19 @@ smooth SetRadiusFactors 2.0 2.0
 
 
 
-vtkImageCanvasSource2D canvas
-canvas SetScalarType $VTK_FLOAT
-canvas SetExtent -10 10 -10 10 0 0
+vtkImageCanvasSource2D imageCanvas
+imageCanvas SetScalarType $VTK_FLOAT
+imageCanvas SetExtent -10 10 -10 10 0 0
 # back ground zero
-canvas SetDrawColor 0
-canvas FillBox -10 10 -10 10
+imageCanvas SetDrawColor 0
+imageCanvas FillBox -10 10 -10 10
 # impulse
-canvas SetDrawColor 8000
-canvas DrawPoint 0 0
+imageCanvas SetDrawColor 8000
+imageCanvas DrawPoint 0 0
  
 vtkImageGaussianSmooth smooth2
 smooth2 SetDimensionality 2
-smooth2 SetInput [canvas GetOutput]
+smooth2 SetInput [imageCanvas GetOutput]
 smooth2 SetStandardDeviations 4.0 4.0
 smooth2 SetRadiusFactors 3.0 3.0
  

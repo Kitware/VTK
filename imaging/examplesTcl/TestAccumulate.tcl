@@ -21,12 +21,12 @@ vtkImageGaussianSmooth smooth
   smooth SetStandardDeviations 1 1
   smooth SetInput [reader GetOutput]
 
-vtkImageAppendComponents append
-  append SetInput1 [reader GetOutput]
-  append SetInput2 [smooth GetOutput]
+vtkImageAppendComponents imageAppend
+  imageAppend SetInput1 [reader GetOutput]
+  imageAppend SetInput2 [smooth GetOutput]
 
 vtkImageClip clip
-  clip SetInput [append GetOutput]
+  clip SetInput [imageAppend GetOutput]
   clip SetOutputWholeExtent 0 255 0 255 20 22
 
 vtkImageAccumulate accum

@@ -19,13 +19,13 @@ vtkImageEllipsoidSource sphere3
 sphere3 SetCenter 128 160 0
 sphere3 SetRadius 70 70 70
 
-vtkImageAppendComponents append
-append AddInput [sphere3 GetOutput]
-append AddInput [sphere1 GetOutput]
-append AddInput [sphere2 GetOutput]
+vtkImageAppendComponents appendImage
+appendImage AddInput [sphere3 GetOutput]
+appendImage AddInput [sphere1 GetOutput]
+appendImage AddInput [sphere2 GetOutput]
 
 vtkImageViewer viewer
-viewer SetInput [append GetOutput]
+viewer SetInput [appendImage GetOutput]
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5
 

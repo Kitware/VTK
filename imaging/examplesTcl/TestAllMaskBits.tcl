@@ -9,11 +9,11 @@ vtkImageWindow imgWin
 
 # Image pipeline
 
-vtkBMPReader image
-  image SetFileName "$VTK_DATA/beach.bmp"
+vtkBMPReader image1
+  image1 SetFileName "$VTK_DATA/beach.bmp"
 
 vtkImageShrink3D shrink
-shrink SetInput [image GetOutput]
+shrink SetInput [image1 GetOutput]
 shrink SetShrinkFactors 4 4 1
 
 set operators "\

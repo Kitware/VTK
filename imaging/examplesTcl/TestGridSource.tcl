@@ -7,11 +7,11 @@ source vtkImageInclude.tcl
 
 # add grid lines to an image
 
-vtkImageGridSource grid
-grid SetGridSpacing 16 16 0
-grid SetGridOrigin 0 0 0
-grid SetDataExtent 0 255 0 255 0 0
-grid SetDataScalarTypeToUnsignedChar
+vtkImageGridSource imageGrid
+imageGrid SetGridSpacing 16 16 0
+imageGrid SetGridOrigin 0 0 0
+imageGrid SetDataExtent 0 255 0 255 0 0
+imageGrid SetDataScalarTypeToUnsignedChar
 
 vtkLookupTable table
 table SetTableRange 0 1
@@ -22,7 +22,7 @@ table SetAlphaRange 0.0 1.0
 table Build
 
 vtkImageMapToColors alpha
-alpha SetInput [grid GetOutput]
+alpha SetInput [imageGrid GetOutput]
 alpha SetLookupTable table
 
 vtkPNMReader reader1
@@ -53,13 +53,13 @@ SetOpacity 1
 
 proc SetXOrigin xorigin {
     global yorigin
-    grid SetGridOrigin $xorigin $yorigin 0
+    imageGrid SetGridOrigin $xorigin $yorigin 0
     viewer Render
 }
 
 proc SetYOrigin yorigin {
     global xorigin
-    grid SetGridOrigin $xorigin $yorigin 0
+    imageGrid SetGridOrigin $xorigin $yorigin 0
     viewer Render
 }
 

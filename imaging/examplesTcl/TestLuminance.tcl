@@ -10,11 +10,11 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkBMPReader image
-  image SetFileName "$VTK_DATA/beach.bmp"
+vtkBMPReader image1
+  image1 SetFileName "$VTK_DATA/beach.bmp"
 
 vtkImageLuminance luminance
-luminance SetInput [image GetOutput]
+luminance SetInput [image1 GetOutput]
 
 vtkImageViewer viewer
 viewer SetInput [luminance GetOutput]

@@ -9,8 +9,8 @@ imgWin SetSize 512 256
 
 # Image pipeline
 
-vtkBMPReader image
-  image SetFileName "$VTK_DATA/beach.bmp"
+vtkBMPReader image1
+  image1 SetFileName "$VTK_DATA/beach.bmp"
 
 vtkPNMReader image2
   image2 SetFileName "$VTK_DATA/masonry.ppm"
@@ -18,7 +18,7 @@ vtkPNMReader image2
 # shrink the images to a reasonable size
 
 vtkImageShrink3D color
-color SetInput [image GetOutput]
+color SetInput [image1 GetOutput]
 color SetShrinkFactors 4 4 1
 
 vtkImageShrink3D backgroundColor

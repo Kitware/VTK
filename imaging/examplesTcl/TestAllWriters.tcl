@@ -8,22 +8,22 @@ source vtkImageInclude.tcl
 
 # Image pipeline
 
-vtkBMPReader image
-  image SetFileName "$VTK_DATA/beach.bmp"
-  image Update
+vtkBMPReader image1
+  image1 SetFileName "$VTK_DATA/beach.bmp"
+  image1 Update
 
 vtkStructuredPoints sp
-eval sp SetDimensions [[image GetOutput] GetDimensions]
-eval sp SetExtent [[image GetOutput] GetExtent]
-sp SetScalarType [[image GetOutput] GetScalarType] 
-sp SetNumberOfScalarComponents [[image GetOutput] GetNumberOfScalarComponents] 
-[sp GetPointData] SetScalars [[[image GetOutput] GetPointData] GetScalars]
+eval sp SetDimensions [[image1 GetOutput] GetDimensions]
+eval sp SetExtent [[image1 GetOutput] GetExtent]
+sp SetScalarType [[image1 GetOutput] GetScalarType] 
+sp SetNumberOfScalarComponents [[image1 GetOutput] GetNumberOfScalarComponents] 
+[sp GetPointData] SetScalars [[[image1 GetOutput] GetPointData] GetScalars]
 
 vtkImageLuminance luminance
   luminance SetInput sp
 
 vtkTIFFWriter tiff1
-  tiff1 SetInput [image GetOutput]
+  tiff1 SetInput [image1 GetOutput]
   tiff1 SetFileName tiff1.tif
 
 vtkTIFFWriter tiff2
@@ -31,7 +31,7 @@ vtkTIFFWriter tiff2
   tiff2 SetFileName tiff2.tif
 
 vtkBMPWriter bmp1
-  bmp1 SetInput [image GetOutput]
+  bmp1 SetInput [image1 GetOutput]
   bmp1 SetFileName bmp1.bmp
 
 vtkBMPWriter bmp2
