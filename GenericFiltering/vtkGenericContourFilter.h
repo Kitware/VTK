@@ -49,18 +49,18 @@
 #ifndef __vtkGenericContourFilter_h
 #define __vtkGenericContourFilter_h
 
-#include "vtkGenericDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkContourValues;
 class vtkPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericContourFilter : public vtkGenericDataSetToPolyDataFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeRevisionMacro(vtkGenericContourFilter,
-                       vtkGenericDataSetToPolyDataFilter);
+                       vtkPolyDataAlgorithm);
   
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -136,8 +136,10 @@ protected:
   vtkGenericContourFilter();
   ~vtkGenericContourFilter();
 
-  void Execute();
-
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  
+  int FillInputPortInformation(int, vtkInformation*);
+  
   vtkContourValues *ContourValues;
   int ComputeNormals;
   int ComputeGradients;

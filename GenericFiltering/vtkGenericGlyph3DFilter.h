@@ -71,7 +71,7 @@
 #ifndef __vtkGenericGlyph3DFilter_h
 #define __vtkGenericGlyph3DFilter_h
 
-#include "vtkGenericDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
@@ -90,10 +90,10 @@
 #define VTK_INDEXING_BY_SCALAR 1
 #define VTK_INDEXING_BY_VECTOR 2
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericGlyph3DFilter : public vtkGenericDataSetToPolyDataFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericGlyph3DFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericGlyph3DFilter,vtkGenericDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGenericGlyph3DFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description
@@ -102,12 +102,6 @@ public:
   // orientation is by vector. Clamping and indexing are turned off. No
   // initial sources are defined.
   static vtkGenericGlyph3DFilter *New();
-
-  // Description:
-  // Get the number of source objects used to define the glyph
-  // table. Specify the number of sources before defining a table of glyphs.
-  void SetNumberOfSources(int num);
-  int GetNumberOfSources();
 
   // Description:
   // Set the source to use for he glyph.
@@ -236,16 +230,12 @@ public:
 protected:
   vtkGenericGlyph3DFilter();
   ~vtkGenericGlyph3DFilter();
-
-#if VTK_MAJOR_VERSION>4 || (VTK_MAJOR_VERSION==4 && VTK_MINOR_VERSION>4)
-  virtual int FillInputPortInformation(int, vtkInformation*);
-#endif
   
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-
-  int NumberOfSources; // Number of source objects
+  int FillInputPortInformation(int, vtkInformation*);
+  
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   vtkPolyData **Source; // Geometry to copy to each point
   int Scaling; // Determine whether scaling of geometry is performed
   int ScaleMode; // Scale by scalar value or vector magnitude

@@ -58,7 +58,7 @@
 #ifndef __vtkGenericClip_h
 #define __vtkGenericClip_h
 
-#include "vtkGenericDataSetToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkImplicitFunction;
 
@@ -66,10 +66,10 @@ class vtkPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericClip : public vtkGenericDataSetToUnstructuredGridFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericClip : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericClip,vtkGenericDataSetToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkGenericClip,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -157,7 +157,9 @@ protected:
   vtkGenericClip(vtkImplicitFunction *cf=NULL);
   ~vtkGenericClip();
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation*);
+  
   vtkImplicitFunction *ClipFunction;
   
   vtkPointLocator *Locator;

@@ -44,7 +44,7 @@
 #ifndef __vtkGenericCutter_h
 #define __vtkGenericCutter_h
 
-#include "vtkGenericDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkContourValues;
 
@@ -53,10 +53,10 @@ class vtkPointLocator;
 class vtkPointData;
 class vtkCellData;
 
-class VTK_GENERIC_FILTERING_EXPORT vtkGenericCutter : public vtkGenericDataSetToPolyDataFilter
+class VTK_GENERIC_FILTERING_EXPORT vtkGenericCutter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkGenericCutter,vtkGenericDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkGenericCutter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -139,7 +139,8 @@ protected:
   
   // Description:
   // Actual implementation of the cutter operation.
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int FillInputPortInformation(int, vtkInformation*);
   
   vtkImplicitFunction *CutFunction;
   vtkPointLocator     *Locator;

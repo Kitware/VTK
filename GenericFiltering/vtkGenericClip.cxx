@@ -22,6 +22,8 @@
 #include "vtkImplicitFunction.h"
 #include "vtkIdTypeArray.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
@@ -33,10 +35,11 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericPointIterator.h"
 #include "vtkGenericCellTessellator.h"
+#include "vtkExecutive.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericClip, "1.5");
+vtkCxxRevisionMacro(vtkGenericClip, "1.6");
 vtkStandardNewMacro(vtkGenericClip);
 vtkCxxSetObjectMacro(vtkGenericClip,ClipFunction,vtkImplicitFunction);
 
@@ -53,9 +56,12 @@ vtkGenericClip::vtkGenericClip(vtkImplicitFunction *cf)
 
   this->GenerateClippedOutput = 0;
   this->MergeTolerance = 0.01;
-
-  this->vtkSource::SetNthOutput(1,vtkUnstructuredGrid::New());
-  this->Outputs[1]->Delete();
+  
+  this->SetNumberOfOutputPorts(2);
+  vtkUnstructuredGrid *output2 = vtkUnstructuredGrid::New();
+  this->GetExecutive()->SetOutputData(1, output2);
+  output2->Delete();
+  
   this->InputScalarsSelection = NULL;
   
   this->internalPD=vtkPointData::New();
@@ -94,7 +100,7 @@ int vtkGenericClip::GetNumberOfOutputs()
 // then this object is modified as well.
 unsigned long vtkGenericClip::GetMTime()
 {
-  unsigned long mTime=this->vtkGenericDataSetToUnstructuredGridFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->ClipFunction != NULL )
@@ -114,12 +120,12 @@ unsigned long vtkGenericClip::GetMTime()
 //----------------------------------------------------------------------------
 vtkUnstructuredGrid *vtkGenericClip::GetClippedOutput()
 {
-  if (this->NumberOfOutputs < 2)
+  if (!this->GenerateClippedOutput)
     {
     return NULL;
     }
-  
-  return static_cast<vtkUnstructuredGrid *>(this->Outputs[1]);
+  return vtkUnstructuredGrid::SafeDownCast(
+    this->GetExecutive()->GetOutputData(1));
 }
 
 
@@ -127,15 +133,26 @@ vtkUnstructuredGrid *vtkGenericClip::GetClippedOutput()
 //
 // Clip through data generating surface.
 //
-void vtkGenericClip::Execute()
+int vtkGenericClip::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkGenericDataSet *input=this->GetInput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   if(input==0)
     {
-    return;
+    return 1;
     }
   
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   
   vtkIdType numPts = input->GetNumberOfPoints();
@@ -159,13 +176,13 @@ void vtkGenericClip::Execute()
   if ( numPts < 1 )
     {
     vtkErrorMacro(<<"No data to clip");
-    return;
+    return 1;
     }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
     {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
-    return;
+    return 1;
     }
 
   // allocate the output and associated helper classes
@@ -360,6 +377,7 @@ void vtkGenericClip::Execute()
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -434,4 +452,14 @@ void vtkGenericClip::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "InputScalarsSelection: " 
        << this->InputScalarsSelection << endl;
     }
+}
+//----------------------------------------------------------------------------
+int vtkGenericClip::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }

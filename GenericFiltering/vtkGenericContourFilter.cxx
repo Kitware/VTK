@@ -18,6 +18,8 @@
 #include "vtkCellArray.h"
 #include "vtkMergePoints.h"
 #include "vtkContourValues.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
@@ -33,7 +35,7 @@
 #include "vtkGenericAttribute.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericContourFilter, "1.6");
+vtkCxxRevisionMacro(vtkGenericContourFilter, "1.7");
 vtkStandardNewMacro(vtkGenericContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -73,7 +75,7 @@ vtkGenericContourFilter::~vtkGenericContourFilter()
 // then this object is modified as well.
 unsigned long vtkGenericContourFilter::GetMTime()
 {
-  unsigned long mTime = this->vtkGenericDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time;
 
   if (this->ContourValues)
@@ -95,19 +97,28 @@ unsigned long vtkGenericContourFilter::GetMTime()
 
 //-----------------------------------------------------------------------------
 // General contouring filter.  Handles arbitrary input.
-void vtkGenericContourFilter::Execute()
+int vtkGenericContourFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro(<< "Executing contour filter");
-  
-  vtkGenericDataSet *input=this->GetInput();
   
   if(input==0)
     {
     vtkErrorMacro("No input specified");
-    return;
+    return 1;
     }
-  
-  vtkPolyData *output=this->GetOutput();
   vtkPointData *outPd = output->GetPointData();
   vtkCellData *outCd = output->GetCellData();
   
@@ -267,6 +278,7 @@ void vtkGenericContourFilter::Execute()
 
   this->Locator->Initialize();//releases leftover memory
   output->Squeeze();
+  return 1;
 }
 
 
@@ -384,3 +396,14 @@ void vtkGenericContourFilter::GenerateValues(int numContours, double
                                              rangeStart, double rangeEnd)
 {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
+//----------------------------------------------------------------------------
+int vtkGenericContourFilter::FillInputPortInformation(int port,
+                                                      vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
+}

@@ -22,6 +22,8 @@
 #include "vtkGenericCell.h"
 #include "vtkImplicitFunction.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -37,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGenericCutter, "1.6");
+vtkCxxRevisionMacro(vtkGenericCutter, "1.7");
 vtkStandardNewMacro(vtkGenericCutter);
 vtkCxxSetObjectMacro(vtkGenericCutter,CutFunction,vtkImplicitFunction);
 
@@ -144,7 +146,7 @@ void vtkGenericCutter::GenerateValues(int numContours, double rangeStart,
 //
 unsigned long vtkGenericCutter::GetMTime()
 {
-  unsigned long mTime=this->vtkGenericDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long contourValuesMTime=this->ContourValues->GetMTime();
   unsigned long time;
  
@@ -168,31 +170,41 @@ unsigned long vtkGenericCutter::GetMTime()
 //----------------------------------------------------------------------------
 // Cut through data generating surface.
 //
-void vtkGenericCutter::Execute()
+int vtkGenericCutter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and output
+  vtkGenericDataSet *input = vtkGenericDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkDebugMacro(<< "Executing cutter");
-
-  vtkGenericDataSet *input=this->GetInput();
-
+  
   if (input==0)
     {
     vtkErrorMacro("No input specified");
-    return;
+    return 1;
     }
   
   if (this->CutFunction==0)
     {
     vtkErrorMacro("No cut function specified");
-    return;
+    return 1;
     }
 
   if ( input->GetNumberOfPoints()<1 )
     {
     vtkErrorMacro("Input data set is empty");
-    return;
+    return 1;
     }
   
-  vtkPolyData *output=this->GetOutput();
   vtkPointData *outPd = output->GetPointData();
   vtkCellData *outCd = output->GetCellData();
 
@@ -341,6 +353,7 @@ void vtkGenericCutter::Execute()
 
   this->Locator->Initialize();//releases leftover memory
   output->Squeeze();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -396,4 +409,15 @@ void vtkGenericCutter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Cut Scalars: " 
      << (this->GenerateCutScalars ? "On\n" : "Off\n");
+}
+//----------------------------------------------------------------------------
+int vtkGenericCutter::FillInputPortInformation(int port,
+                                               vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGenericDataSet");
+  return 1;
 }
