@@ -626,9 +626,9 @@ float *vtkTransform::GetScale()
 
   for (i = 0; i < 3; i++) 
     {
-    scale[i] = sqrt (temp.Element[i][0] * temp.Element[i][0] +
-                     temp.Element[i][1] * temp.Element[i][1] +
-                     temp.Element[i][2] * temp.Element[i][2]);
+    scale[i] = sqrt (temp.Element[0][i] * temp.Element[0][i] +
+                     temp.Element[1][i] * temp.Element[1][i] +
+                     temp.Element[2][i] * temp.Element[2][i]);
     }
 
   return scale;
