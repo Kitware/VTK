@@ -1362,18 +1362,26 @@ void vtkPLY::ply_close(PlyFile *plyfile)
     if ( elem->name ) {free(elem->name);}
     for (j=0; j<elem->nprops; j++)
       {
+      if ( elem->props[j]->name ) {free(elem->props[j]->name);}
       free (elem->props[j]);
       }
     free (elem->props);
     free (elem->store_prop);
     free (elem);
     }
+  free(plyfile->elems);
 
   for (i=0; i<plyfile->num_comments; i++)
     {
     free (plyfile->comments[i]);
     }
   free (plyfile->comments);
+  
+  for (i=0; i<plyfile->num_obj_info; i++)
+    {
+    free (plyfile->obj_info[i]);
+    }
+  free (plyfile->obj_info);
   
   free (plyfile);
 }
