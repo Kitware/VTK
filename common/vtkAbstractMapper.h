@@ -46,6 +46,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // vtkAbstractMapper can be used for rendering 2D data, geometry, or volumetric
 // data.
 //
+// This class also defines an API to support hardware clipping planes (at most
+// six planes can be defined). Not all 2D mappers currently support clipping
+// planes.
+//
 // .SECTION See Also
 // vtkAbstractMapper3D vtkMapper vtkPolyDataMapper vtkVolumeMapper
 
@@ -53,13 +57,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkAbstractMapper_h
 
 #include "vtkProcessObject.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPlane.h"
 class vtkWindow;
+class vtkPlanes;
 
 class VTK_EXPORT vtkAbstractMapper : public vtkProcessObject
 {
 public:
   vtkTypeMacro(vtkAbstractMapper,vtkProcessObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Perform a Shallow copy of this object
+  void ShallowCopy(vtkAbstractMapper *m);
+
+  // Description:
+  // Override Modifiedtime as we have added Clipping planes
+  virtual unsigned long GetMTime();
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
@@ -71,14 +86,34 @@ public:
   // Get the time required to draw the geometry last time it was rendered
   vtkGetMacro( TimeToDraw, float );
 
+  // Description:
+  // Specify clipping planes to be applied when the data is mapped
+  // (at most 6 clipping planes can be specified).
+  void AddClippingPlane(vtkPlane *plane);
+  void RemoveClippingPlane(vtkPlane *plane);
+  void RemoveAllClippingPlanes();
+
+  // Description:
+  // Get/Set the vtkPlaneCollection which specifies the
+  // clipping planes.
+  vtkSetObjectMacro(ClippingPlanes,vtkPlaneCollection);
+  vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
+
+  // Description:
+  // An alternative way to set clipping planes: use up to six planes found
+  // in the supplied instance of the implicit function vtkPlanes.
+  void SetClippingPlanes(vtkPlanes *planes);
+
 protected:
   vtkAbstractMapper();
-  ~vtkAbstractMapper() {};
+  ~vtkAbstractMapper();
   vtkAbstractMapper(const vtkAbstractMapper&) {};
   void operator=(const vtkAbstractMapper&) {};
 
   float TimeToDraw;
   vtkWindow *LastWindow;   // Window used for the previous render
+  vtkPlaneCollection *ClippingPlanes;
+
 };
 
 #endif
