@@ -13,6 +13,7 @@ public:
     int cc;
     int loopCounter;
     MapType* am = MapType::New();
+    am->RemoveAllItems();
     for ( cc = 9; cc >= 0; cc -- )
       {
       if ( am->SetItem(cc, names[cc]) != VTK_OK )
@@ -96,6 +97,7 @@ public:
     // Try printing the map.
     am->Print(cout);
     
+    am->RemoveAllItems();
     am->Delete();
     return error;
     }
@@ -111,6 +113,7 @@ public:
     int cc;  
   
     MapType* sam = MapType::New();
+    sam->RemoveAllItems();
     for ( cc = 9; cc >= 0; cc -- )
       {
       char *nkey = vtkString::Duplicate(names[cc]);
@@ -170,6 +173,7 @@ public:
     // Try printing the map.
     sam->Print(cout);
     
+    sam->RemoveAllItems();
     sam->Delete();
     return error;
     }
@@ -186,6 +190,7 @@ public:
     names = names;
   
     MapType* soam = MapType::New();
+    soam->RemoveAllItems();
     
     char name[20];
     for( cc = 0; cc < 10; cc ++ )
@@ -224,6 +229,7 @@ public:
     // Try printing the map.
     soam->Print(cout);
     
+    soam->RemoveAllItems();
     soam->Delete();
     return error;
     }
