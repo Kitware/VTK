@@ -92,8 +92,6 @@ float vtkScaledTextActor::GetHeight()
 
 int vtkScaledTextActor::RenderOverlay(vtkViewport *viewport)
 {
-  int renderedSomething = 0;
-  
   // Everything is built, just have to render
   this->TextActor->RenderOverlay(viewport);
   return 1;

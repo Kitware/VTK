@@ -197,7 +197,7 @@ int vtkImageIterateFilter::ComputeDivisionExtents(vtkDataObject *output,
 						  int division, int numDivisions)
 {
   vtkImageData *in, *out = (vtkImageData*)output;
-  int inExt[6], *outExt, idx;
+  int inExt[6], idx;
   
   // For now, lets disable streaming on iteration filters.  To be truly 
   // streaming (FFT) each iteration needs to break up it processing.  

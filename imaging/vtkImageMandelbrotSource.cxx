@@ -127,7 +127,6 @@ void vtkImageMandelbrotSource::GetWholeExtent(int extent[6])
 //----------------------------------------------------------------------------
 void vtkImageMandelbrotSource::ExecuteInformation()
 {
-  int *ext = this->WholeExtent;
   vtkImageData *output = this->GetOutput();
 
   output->SetSpacing(this->Spacing, this->Spacing, this->Spacing);

@@ -48,14 +48,12 @@ vtkBMPWriter::vtkBMPWriter()
 void vtkBMPWriter::WriteFileHeader(ofstream *file, vtkImageData *cache)
 {
   int min0, max0, min1, max1, min2, max2;
-  int bpp;
   long temp;
   int width, height, dataWidth;
   int row;
   
   // Find the length of the rows to write.
   cache->GetWholeExtent(min0, max0, min1, max1, min2, max2);
-  bpp = cache->GetNumberOfScalarComponents();
   width = (max0 - min0 + 1);
   height = (max1 - min1 + 1);
   
