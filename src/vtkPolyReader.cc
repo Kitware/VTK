@@ -198,7 +198,7 @@ void vtkPolyReader::Execute()
           return;
           }
 
-        this->Reader.ReadPoints(fp, (vtkPointSet *)this, numPts);
+        this->Reader.ReadPoints(fp, output, numPts);
         }
 
       else if ( ! strncmp(line,"vertices",8) )
