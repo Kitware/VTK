@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.27");
+vtkCxxRevisionMacro(vtkPerspectiveTransform, "1.28");
 vtkStandardNewMacro(vtkPerspectiveTransform);
 
 //----------------------------------------------------------------------------
@@ -462,4 +462,21 @@ void vtkPerspectiveTransform::SetupCamera(const double position[3],
   this->Concatenate(*matrix);
 }
 
+void vtkPerspectiveTransform::SetupCamera(double p0, double p1, double p2,
+                                          double fp0, double fp1, double fp2,
+                                          double vup0, double vup1, double vup2)
+{
+  double p[3], fp[3], vup[3];
+  p[0] = p0; 
+  p[1] = p1; 
+  p[2] = p2;
+  fp[0] = fp0; 
+  fp[1] = fp1; 
+  fp[2] = fp2;
+  vup[0] = vup0; 
+  vup[1] = vup1; 
+  vup[2] = vup2;
+
+  this->SetupCamera(p, fp, vup);
+}
   

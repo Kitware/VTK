@@ -141,6 +141,10 @@ class VTK_COMMON_EXPORT vtkPerspectiveTransform : public vtkHomogeneousTransform
   void SetupCamera(const double position[3], const double focalpoint[3],
                    const double viewup[3]);
 
+  void SetupCamera(double p0, double p1, double p2,
+                   double fp0, double fp1, double fp2,
+                   double vup0, double vup1, double vup2);
+
   // Description:
   // Create a translation matrix and concatenate it with the current
   // transformation according to PreMultiply or PostMultiply semantics.
