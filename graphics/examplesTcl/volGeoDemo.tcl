@@ -107,7 +107,7 @@ foreach i $dataList {
     CreateDataChoice .geo.dataset $i
     CreateMainWindowOption $i
 
-    label .geo.indicator.${i} -text "" -bg #000000  -fg #000000
+    label .geo.indicator.${i} -text "" -bg #000000  -fg #000000  -font {Helvetica -12 bold} 
     place .geo.indicator.${i} -x 2 -y $y -anchor nw
 
     if { $i == "chair" } { volume_chair RotateY 180 }
@@ -152,7 +152,7 @@ proc ReleaseScript {} {
 frame .geo.right.controls -bg #000000
 pack .geo.right.controls -side top -expand 1 -fill both
 
-label .geo.right.colorwheel -image ColorImage -bg #000000
+label .geo.right.colorwheel -image ColorImage -bg #000000  -font {Helvetica -12 bold} 
 pack .geo.right.colorwheel -side left -expand 1 -fill both -padx 10
 
 bind .geo.right.colorwheel <Button-1> {
@@ -189,6 +189,7 @@ frame .geo.right.sliders2 -bg #000000
 pack .geo.right.sliders2 -side left -expand 1 -fill both
 
 scale .geo.right.sliders1.ambient -label Ambient -from 0.0 -to 1.0 \
+    -font {Helvetica -12 bold} \
     -variable ambient -orient horizontal -bg #000000 -fg #aaaaaa \
     -troughcolor #224488 -resolution 0.05 \
     -highlightthickness 0 -activebackground #777777 
@@ -197,6 +198,7 @@ pack .geo.right.sliders1.ambient -side top -expand 1 \
 bind .geo.right.sliders1.ambient <ButtonRelease> { SetProperties }
 
 scale .geo.right.sliders1.diffuse -label Diffuse -from 0.0 -to 1.0 \
+    -font {Helvetica -12 bold} \
     -variable diffuse -orient horizontal -bg #000000 -fg #aaaaaa \
     -troughcolor #224488 -resolution 0.05 \
     -highlightthickness 0 -activebackground #777777 
@@ -205,6 +207,7 @@ pack .geo.right.sliders1.diffuse -side top -expand 1 \
 bind .geo.right.sliders1.diffuse <ButtonRelease> { SetProperties }
 
 scale .geo.right.sliders2.specular -label Specular -from 0.0 -to 1.0 \
+    -font {Helvetica -12 bold} \
     -variable specular -orient horizontal -bg #000000 -fg #aaaaaa \
     -troughcolor #224488 -resolution 0.05 \
     -highlightthickness 0 -activebackground #777777 
@@ -213,6 +216,7 @@ pack .geo.right.sliders2.specular -side top -expand 1 \
 bind .geo.right.sliders2.specular <ButtonRelease> { SetProperties }
 
 scale .geo.right.sliders2.specularpower -label Power -from 1 -to 200 \
+    -font {Helvetica -12 bold} \
     -variable specularpower -orient horizontal -bg #000000 -fg #aaaaaa \
     -troughcolor #224488 \
     -highlightthickness 0 -activebackground #777777 
@@ -222,6 +226,7 @@ bind .geo.right.sliders2.specularpower <ButtonRelease> { SetProperties }
 
 button .geo.right.exit -text Exit -command exit \
     -bg #111111 -fg #aaaaaa -activebackground #444444 \
+    -font {Helvetica -12 bold} \
     -activeforeground #aaaaaa -highlightthickness 0 \
     -bd 3 -highlightbackground #444444
 pack .geo.right.exit -side left -expand 1 -fill none -padx 15 -pady 2 -anchor se
