@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkImageExport* vtkImageExport::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -60,30 +60,17 @@ vtkImageExport* vtkImageExport::New()
   return new vtkImageExport;
 }
 
-
-
-
-
-
 //----------------------------------------------------------------------------
 vtkImageExport::vtkImageExport()
 {
-  this->ImageFlip = NULL;
   this->ImageLowerLeft = 1;
+  this->ExportVoidPointer = 0;
 }
-
-
 
 //----------------------------------------------------------------------------
 vtkImageExport::~vtkImageExport()
 {
-  if (this->ImageFlip)
-    {
-    this->ImageFlip->UnRegister(this);
-    this->ImageFlip = NULL;
-    }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
@@ -112,47 +99,11 @@ vtkImageData *vtkImageExport::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkImageExportGetDataTypeSize(int type)
-{
-  switch (type)
-    {
-    case VTK_VOID:
-      return 0;
-    case VTK_DOUBLE:
-      return sizeof(double);
-    case VTK_FLOAT:
-      return sizeof(float);
-    case VTK_LONG:
-      return sizeof(long);
-    case VTK_UNSIGNED_LONG:
-      return sizeof(unsigned long);
-    case VTK_INT:
-      return sizeof(int);
-    case VTK_UNSIGNED_INT:
-      return sizeof(unsigned int);
-    case VTK_SHORT:
-      return sizeof(short);
-    case VTK_UNSIGNED_SHORT:
-      return sizeof(unsigned short); 
-    case VTK_UNSIGNED_CHAR:
-      return sizeof(unsigned char); 
-    default:
-      return 0; 
-    }
-}
-
-//----------------------------------------------------------------------------
 int vtkImageExport::GetDataMemorySize()
 {
   this->GetInput()->UpdateInformation();
   int *extent = this->GetInput()->GetWholeExtent();
-
-  int size = vtkImageExportGetDataTypeSize(this->GetInput()->GetScalarType());
-  if (size == 0)
-    {
-    vtkErrorMacro(<< "GetDataMemorySize: Illegal ScalarType.");
-    return 0; 
-    }
+  int size = this->GetInput()->GetScalarSize();
   size *= this->GetInput()->GetNumberOfScalarComponents();
   size *= (extent[1] - extent[0] + 1);
   size *= (extent[3] - extent[2] + 1);
@@ -173,10 +124,46 @@ void vtkImageExport::GetDataDimensions(int *dims)
 }
 
 //----------------------------------------------------------------------------
+void vtkImageExport::SetExportVoidPointer(void *ptr)
+{
+  if (this->ExportVoidPointer == ptr)
+    {
+    return;
+    }
+  this->ExportVoidPointer = ptr;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 // Exports all the data from the input.
 void vtkImageExport::Export(void *output)
 {
-  memcpy(output,this->GetPointerToData(),this->GetDataMemorySize());
+  if (this->ImageLowerLeft)
+    {
+    memcpy(output,this->GetPointerToData(),this->GetDataMemorySize());
+    }
+  else
+    { // flip the image when it is output
+    void *ptr = this->GetPointerToData();
+    int *extent = this->GetInput()->GetWholeExtent();
+    int xsize = extent[1]-extent[0]+1;
+    int ysize = extent[3]-extent[2]+1;
+    int zsize = extent[5]-extent[4]+1;
+    int csize = this->GetInput()->GetScalarSize()* \
+                this->GetInput()->GetNumberOfScalarComponents();
+
+    for (int i = 0; i < zsize; i++)
+      {
+      ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
+      for (int j = 0; j < ysize; j++)
+	{
+	ptr = (void *)(((char *)ptr) - xsize*csize);
+	memcpy(output, ptr, xsize*csize);
+	output = (void *)(((char *)output) + xsize*csize);
+	}
+      ptr = (void *)(((char *)ptr) + ysize*xsize*csize);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -193,37 +180,12 @@ void *vtkImageExport::GetPointerToData()
     }
 
   vtkImageData *input = this->GetInput();
-
-  // flip data if necessary
-  if (this->ImageLowerLeft == 0)
-    {
-    if (this->ImageFlip == NULL)
-      {
-      this->ImageFlip = vtkImageFlip::New();
-      this->ImageFlip->SetInput(input);
-      this->ImageFlip->SetFilteredAxis(1);
-      input = this->ImageFlip->GetOutput();
-      }
-    }
-  else
-    {
-    if (this->ImageFlip)
-      {
-      this->ImageFlip->UnRegister(this);
-      this->ImageFlip = NULL;
-      }
-    }
-
-  //  if (this->GetDataMemorySize() > input->GetMemoryLimit())
-  //    {
-  //    input->SetMemoryLimit(this->GetDataMemorySize());
-  //    }
-
+  input->UpdateInformation();
   input->SetUpdateExtent(input->GetWholeExtent());
   input->ReleaseDataFlagOff();
 
-  this->UpdateProgress(0.0);
   input->Update();
+  this->UpdateProgress(0.0);
   this->UpdateProgress(1.0);
 
   return input->GetScalarPointer();
