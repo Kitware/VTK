@@ -97,6 +97,7 @@ protected:
   Display *DisplayId;
   Window WindowId;
   Widget top;
+  Widget oldTop;
   XtAppContext App;
   int PositionBeforeStereo[2];
 };
