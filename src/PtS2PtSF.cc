@@ -44,11 +44,12 @@ void vlPointSetToPointSetFilter::Update()
 
 void vlPointSetToPointSetFilter::Initialize()
 {
-  if ( this->Input )
+  if ( this->Input != NULL )
     {
+    vlDataSet *ds=this->Input->MakeObject();
     this->PointSet->UnRegister(this);
     // copies input geometry to internal data set
-    this->PointSet = this->Input->MakeObject(); 
+    this->PointSet = ds;
     this->PointSet->Register(this);
     }
   else
