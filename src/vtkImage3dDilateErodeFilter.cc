@@ -55,6 +55,16 @@ vtkImage3dDilateErodeFilter::vtkImage3dDilateErodeFilter()
 
 
 //----------------------------------------------------------------------------
+void vtkImage3dDilateErodeFilter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkImageSpatialFilter::PrintSelf(os,indent);
+  os << indent << "Dilate Value: " << this->DilateValue << "\n";
+  os << indent << "Erode Value: " << this->ErodeValue << "\n";
+}
+
+
+
+//----------------------------------------------------------------------------
 // Description:
 // This method sets the size of the 3d neighborhood.  It also sets the 
 // default mask/footprint (an elipse).
@@ -66,8 +76,14 @@ vtkImage3dDilateErodeFilter::SetKernelSize(int size0, int size1, int size2)
   int idx0, idx1, idx2;
   double f0, f1, f2, radius0, radius1, radius2;
   
-  // Call the superclass to set the kernel size
-  this->vtkImage3dSpatialFilter::SetKernelSize(size0, size1, size2);
+  
+  this->KernelSize[0] = size0;
+  this->KernelSize[1] = size1;
+  this->KernelSize[2] = size2;
+
+  this->KernelMiddle[0] = size0 / 2;
+  this->KernelMiddle[1] = size1 / 2;
+  this->KernelMiddle[2] = size2 / 2;
   
   // Create the eliptical mask
   if (this->Mask)
@@ -126,15 +142,15 @@ vtkImage3dDilateErodeFilter::SetKernelSize(int size0, int size1, int size2)
 
 //----------------------------------------------------------------------------
 // Description:
-// This method contains the second switch statement that calls the correct
-// templated function for the mask types.
-// It might be more efficient to loop through input pixels first depending
-// on whether there are more erode or dilate values.
-// A switch could be implemented to let the user choose.
+// This templated function executes the filter on any region,
+// whether it needs boundary checking or not.
+// If the filter needs to be faster, the function could be duplicated
+// for strictly center (no boundary ) processing.
 template <class T>
 void vtkImage3dDilateErodeFilterExecute(vtkImage3dDilateErodeFilter *self,
 					vtkImageRegion *inRegion, T *inPtr, 
-					vtkImageRegion *outRegion, T *outPtr)
+					vtkImageRegion *outRegion, T *outPtr,
+					int boundaryFlag)
 {
   T erodeValue, dilateValue;
   int *kernelMiddle, *kernelSize;
@@ -220,12 +236,13 @@ void vtkImage3dDilateErodeFilterExecute(vtkImage3dDilateErodeFilter *self,
 	      for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
 		{
 		// A quick but rather expensive way to handle boundaries
-		if (outIdx0 + hoodIdx0 >= inImageMin0 &&
-		    outIdx0 + hoodIdx0 <= inImageMax0 &&
-		    outIdx1 + hoodIdx1 >= inImageMin1 &&
-		    outIdx1 + hoodIdx1 <= inImageMax1 &&
-		    outIdx2 + hoodIdx2 >= inImageMin2 &&
-		    outIdx2 + hoodIdx2 <= inImageMax2)
+		if ( ! boundaryFlag ||
+		    (outIdx0 + hoodIdx0 >= inImageMin0 &&
+		     outIdx0 + hoodIdx0 <= inImageMax0 &&
+		     outIdx1 + hoodIdx1 >= inImageMin1 &&
+		     outIdx1 + hoodIdx1 <= inImageMax1 &&
+		     outIdx2 + hoodIdx2 >= inImageMin2 &&
+		     outIdx2 + hoodIdx2 <= inImageMax2))
 		  {
 		  if (*hoodPtr0 == dilateValue && *maskPtr0)
 		    {
@@ -259,8 +276,10 @@ void vtkImage3dDilateErodeFilterExecute(vtkImage3dDilateErodeFilter *self,
 // Description:
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
-void vtkImage3dDilateErodeFilter::Execute3d(vtkImageRegion *inRegion, 
-				     vtkImageRegion *outRegion)
+// This function deals with regions that are in the center of the image and 
+// need no boundary checking.
+void vtkImage3dDilateErodeFilter::ExecuteCenter3d(vtkImageRegion *inRegion, 
+						  vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetVoidPointer3d();
   void *outPtr = outRegion->GetVoidPointer3d();
@@ -288,27 +307,90 @@ void vtkImage3dDilateErodeFilter::Execute3d(vtkImageRegion *inRegion,
     case VTK_IMAGE_FLOAT:
       vtkImage3dDilateErodeFilterExecute(this, 
 			  inRegion, (float *)(inPtr), 
-			  outRegion, (float *)(outPtr));
+			  outRegion, (float *)(outPtr), 0);
       break;
     case VTK_IMAGE_INT:
       vtkImage3dDilateErodeFilterExecute(this, 
 			  inRegion, (int *)(inPtr), 
-			  outRegion, (int *)(outPtr));
+			  outRegion, (int *)(outPtr), 0);
       break;
     case VTK_IMAGE_SHORT:
       vtkImage3dDilateErodeFilterExecute(this, 
 			  inRegion, (short *)(inPtr), 
-			  outRegion, (short *)(outPtr));
+			  outRegion, (short *)(outPtr), 0);
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
       vtkImage3dDilateErodeFilterExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
-			  outRegion, (unsigned short *)(outPtr));
+			  outRegion, (unsigned short *)(outPtr), 0);
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
       vtkImage3dDilateErodeFilterExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
-			  outRegion, (unsigned char *)(outPtr));
+			  outRegion, (unsigned char *)(outPtr), 0);
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown DataType");
+      return;
+    }
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method contains the first switch statement that calls the correct
+// templated function for the input and output region types.
+// It hanldes image boundaries, so the image does not shrink.
+void vtkImage3dDilateErodeFilter::ExecuteBoundary3d(vtkImageRegion *inRegion, 
+						    vtkImageRegion *outRegion)
+{
+  void *inPtr = inRegion->GetVoidPointer3d();
+  void *outPtr = outRegion->GetVoidPointer3d();
+  
+  vtkDebugMacro(<< "Execute: inRegion = " << inRegion 
+		<< ", outRegion = " << outRegion);
+
+  // Error checking on mask
+  if ( ! this->Mask || (this->Mask->GetDataType() != VTK_IMAGE_UNSIGNED_CHAR))
+    {
+    vtkErrorMacro(<< "Execute3d: Bad Mask");
+    return;
+    }
+
+  // this filter expects that input is the same type as output.
+  if (inRegion->GetDataType() != outRegion->GetDataType())
+    {
+    vtkErrorMacro(<< "Execute: input DataType, " << inRegion->GetDataType()
+                  << ", must match out DataType " << outRegion->GetDataType());
+    return;
+    }
+  
+  switch (inRegion->GetDataType())
+    {
+    case VTK_IMAGE_FLOAT:
+      vtkImage3dDilateErodeFilterExecute(this, 
+			  inRegion, (float *)(inPtr), 
+			  outRegion, (float *)(outPtr), 1);
+      break;
+    case VTK_IMAGE_INT:
+      vtkImage3dDilateErodeFilterExecute(this, 
+			  inRegion, (int *)(inPtr), 
+			  outRegion, (int *)(outPtr), 1);
+      break;
+    case VTK_IMAGE_SHORT:
+      vtkImage3dDilateErodeFilterExecute(this, 
+			  inRegion, (short *)(inPtr), 
+			  outRegion, (short *)(outPtr), 1);
+      break;
+    case VTK_IMAGE_UNSIGNED_SHORT:
+      vtkImage3dDilateErodeFilterExecute(this, 
+			  inRegion, (unsigned short *)(inPtr), 
+			  outRegion, (unsigned short *)(outPtr), 1);
+      break;
+    case VTK_IMAGE_UNSIGNED_CHAR:
+      vtkImage3dDilateErodeFilterExecute(this, 
+			  inRegion, (unsigned char *)(inPtr), 
+			  outRegion, (unsigned char *)(outPtr), 1);
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown DataType");

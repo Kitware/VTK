@@ -127,11 +127,11 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
   // Save the old coordinate system
   region->GetAxes(saveAxes);
 
-  if (this->ImageBoundsTime.GetMTime() < this->GetPipelineMTime())
+  if (this->ImageInformationTime.GetMTime() < this->GetPipelineMTime())
     {
-    // pipeline has been modified, we have to get the ImageBounds again.
+    // pipeline has been modified, we have to get the ImageInformation again.
     vtkDebugMacro(<< "UpdateImageInformation: Pipeline modified, "
-                  << "recompute ImageBounds");
+                  << "recompute ImageInformation");
     if ( ! this->Source)
       {
       vtkErrorMacro(<< "UpdateImageInformation: No source");
@@ -146,7 +146,8 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     // Choose some constant coordinate system.
     region->SetAxes5d(0, 1, 2, 3, 4);
     region->GetImageBounds(this->ImageBounds);
-    this->ImageBoundsTime.Modified();
+    region->GetAspectRatio(this->AspectRatio);
+    this->ImageInformationTime.Modified();
 
     // Leave the region in the original (before this method) coordinate system.
     region->SetAxes(saveAxes);
@@ -155,10 +156,11 @@ void vtkImageCache::UpdateImageInformation(vtkImageRegion *region)
     }
   
   // No modifications have been made, so return our own copy.
-  vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageBounds");
+  vtkDebugMacro(<< "UpdateImageInformation: Using own copy of ImageInfo");
   // Image bounds Are saved in some constant coordinate system.
   region->SetAxes5d(0, 1, 2, 3, 4);
   region->SetImageBounds(this->ImageBounds);
+  region->SetAspectRatio(this->AspectRatio);
 
   // Leave the region in the original (before this method) coordinate system.
   region->SetAxes(saveAxes);

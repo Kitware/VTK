@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage3dDilateErodeFilter.hh
+  Module:    vtkImage2dGradientFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,47 +37,36 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage3dDilateErodeFilter - Dilates one value and erodes another.
+// .NAME vtkImage2dGradientFilter - magnitude and phase of gradient.
 // .SECTION Description
-// vtkImage3dDilateErodeFilter will dilate one value and erode another.
-// It uses an box foot print, and only erodes/dilates on the
-// boundary of the two values.
+// vtkImage2dGradientFilter computes a gradient of 2d image using central
+// differences.  The output is always float and has two components.
+// The magnitude is returned in component 0 and the phase [-pi, pi]
+// in component 1.
 
 
-#ifndef __vtkImage3dDilateErodeFilter_h
-#define __vtkImage3dDilateErodeFilter_h
+#ifndef __vtkImage2dGradientFilter_h
+#define __vtkImage2dGradientFilter_h
 
 
 #include "vtkImageSpatialFilter.hh"
 
-class vtkImage3dDilateErodeFilter : public vtkImageSpatialFilter
+class vtkImage2dGradientFilter : public vtkImageSpatialFilter
 {
 public:
-  vtkImage3dDilateErodeFilter();
-  char *GetClassName() {return "vtkImage3dDilateErodeFilter";};
+  vtkImage2dGradientFilter();
+  char *GetClassName() {return "vtkImage2dGradientFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetKernelSize(int size){this->SetKernelSize(size,size,size);};
-  void SetKernelSize(int size0, int size1, int size2);
+  void SetAxes2d(int axis0, int axis1);
+  void InterceptCacheUpdate(vtkImageRegion *region);
   
-  // Description:
-  // Set/Get the value to dilate/erode
-  vtkSetMacro(DilateValue, float);
-  vtkGetMacro(DilateValue, float);
-  vtkSetMacro(ErodeValue, float);
-  vtkGetMacro(ErodeValue, float);
-
-  // Description:
-  // Get the Mask used as a footprint.
-  vtkGetObjectMacro(Mask, vtkImageRegion);
   
 protected:
-  float DilateValue;
-  float ErodeValue;
-  vtkImageRegion *Mask;
-    
+
   void ExecuteCenter3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
   void ExecuteBoundary3d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
 };
 
 #endif

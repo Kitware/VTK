@@ -112,7 +112,8 @@ protected:
 
   // Cache the ImageBounds, to avoid recomputing the ImageBounds on each pass.
   int ImageBounds[VTK_IMAGE_BOUNDS_DIMENSIONS];
-  vtkTimeStamp ImageBoundsTime;
+  float AspectRatio[VTK_IMAGE_DIMENSIONS];
+  vtkTimeStamp ImageInformationTime;
 
   // The cache manipulates (and returns) regions with this data type.
   int DataType;

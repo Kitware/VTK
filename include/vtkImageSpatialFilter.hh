@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage3dSpatialFilter.hh
+  Module:    vtkImageSpatialFilter.hh
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,48 +37,70 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage3dSpatialFilter - Filters that operate on pixel neighborhoods.
+// .NAME vtkImageSpatialFilter - Filters that operate on pixel neighborhoods.
 // .SECTION Description
-// vtkImage3dSpatialFilter is a class of filters that use a 3d neighborhood
-// of input pixels to compute a output pixel.  
-// An example is vtkImageMedianFilter.
+// vtkImageSpatialFilter is meant to replace (or be a super class) of the
+// 1d, 2d and 3d spatial filters.  It was written for the 2d Gradient
+// filters.  It has an ivar describing the neighborhood, but does not supp;y
+// methods to allow the user to modify the neighborhood.  The main
+// functionalit of this class is to break the images into central
+// and boundary pieces.  Different execute methods are called for these
+// two classes of regions.
 
 
-#ifndef __vtkImage3dSpatialFilter_h
-#define __vtkImage3dSpatialFilter_h
+#ifndef __vtkImageSpatialFilter_h
+#define __vtkImageSpatialFilter_h
 
 
 #include "vtkImageFilter.hh"
 #include "vtkImageRegion.hh"
 
-class vtkImage3dSpatialFilter : public vtkImageFilter
+class vtkImageSpatialFilter : public vtkImageFilter
 {
 public:
-  vtkImage3dSpatialFilter();
-  char *GetClassName() {return "vtkImage3dSpatialFilter";};
+  vtkImageSpatialFilter();
+  char *GetClassName() {return "vtkImageSpatialFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
   
-  virtual void SetKernelSize(int size0, int size1, int size2);
-  void SetKernelSize(int size) {this->SetKernelSize(size, size, size);};
   // Description:
   // Get the Spatial kernel size and middle.
   vtkGetVector3Macro(KernelSize,int);
   vtkGetVector3Macro(KernelMiddle,int);
   // Description:
-  // Set/Get whether convolve up to boundaries or not (truncate kernel).
+  // Set/Get whether use boundary execute method or not (shrink image).
   vtkSetMacro(HandleBoundaries,int);
   vtkGetMacro(HandleBoundaries,int);
   vtkBooleanMacro(HandleBoundaries,int);
   
 
 protected:
-  int   KernelSize[3];
-  int   KernelMiddle[3];      // Index of kernel origin
-  int   HandleBoundaries; // Shrink kernel at boundaries.
+  int   KernelSize[4];
+  int   KernelMiddle[4];      // Index of kernel origin
+  int   HandleBoundaries;     // Shrink kernel at boundaries?
 
   void ComputeOutputImageInformation(vtkImageRegion *inRegion,
 				     vtkImageRegion *outRegion);
   void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
 					vtkImageRegion *inRegion);
+  
+  virtual void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  virtual void ExecuteCenter4d(vtkImageRegion *inRegion, 
+			       vtkImageRegion *outRegion);
+  virtual void ExecuteBoundary4d(vtkImageRegion *inRegion, 
+				 vtkImageRegion *outRegion);
+  virtual void ExecuteCenter3d(vtkImageRegion *inRegion, 
+			       vtkImageRegion *outRegion);
+  virtual void ExecuteBoundary3d(vtkImageRegion *inRegion, 
+				 vtkImageRegion *outRegion);
+  virtual void ExecuteCenter2d(vtkImageRegion *inRegion, 
+			       vtkImageRegion *outRegion);
+  virtual void ExecuteBoundary2d(vtkImageRegion *inRegion, 
+				 vtkImageRegion *outRegion);
+  virtual void ExecuteCenter1d(vtkImageRegion *inRegion, 
+			       vtkImageRegion *outRegion);
+  virtual void ExecuteBoundary1d(vtkImageRegion *inRegion, 
+				 vtkImageRegion *outRegion);
+  
 };
 
 #endif
