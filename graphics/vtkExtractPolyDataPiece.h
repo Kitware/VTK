@@ -68,10 +68,14 @@ protected:
 
   // Usual data generation method
   void Execute();
+  void ExecuteInformation();
+  void ComputeInputUpdateExtents(vtkDataObject *out);
+ 
+  // A method for labeling which piece the cells belong to.
+  void ComputeCellTags(vtkIntArray *cellTags, vtkIdList *pointOwnership,
+		       int piece, int numPieces);
   
-  void AddGhostLevel(vtkGhostLevels *ghostLevels, vtkPolyData *polyData,
-		     vtkCellArray *newPolys, vtkScalars *cellScalars,
-		     int ghostLevel);
+  void AddGhostLevel(vtkPolyData *input, vtkIntArray *cellTags, int ghostLevel);
   
   int CreateGhostCells;
 };
