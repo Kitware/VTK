@@ -176,7 +176,7 @@ inline float *vtkContourFilter::GetValues()
 
 // Description:
 // Fill a supplied list with contour values. There will be
-// GetNumberOfContours() values in the list.Make sure you allocate
+// GetNumberOfContours() values in the list. Make sure you allocate
 // enough memory to hold the list.
 inline void vtkContourFilter::GetValues(float *contourValues)
 {this->ContourValues->GetValues(contourValues);};
@@ -191,7 +191,7 @@ inline void vtkContourFilter::SetNumberOfContours(int number)
 // Description:
 // Get the number of contours in the list of contour values.
 inline int vtkContourFilter::GetNumberOfContours()
-{return this->GetNumberOfContours();};
+{return this->ContourValues->GetNumberOfContours();};
 
 // Description:
 // Generate numContours equally spaced contour values between specified
