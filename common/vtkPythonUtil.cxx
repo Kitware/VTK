@@ -145,6 +145,7 @@ static PyObject *PyVTKObject_PyGetAttr(PyObject *self, char *name)
     pyclass = NULL;
     if (PyTuple_Size(bases))
       {
+      PyErr_Clear();
       pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
       }
     }
@@ -309,6 +310,7 @@ static PyObject *PyVTKClass_PyGetAttr(PyObject *self, char *name)
     pyclass = NULL;
     if (PyTuple_Size(bases))
       {
+      PyErr_Clear();
       pyclass = (PyVTKClass *)PyTuple_GetItem(bases,0);
       }
     }
@@ -398,6 +400,7 @@ vtkObject *PyArg_VTKParseTuple(PyObject *self, PyObject *args,
   va_list va;
   va_start(va, format);
 
+  /* clear in case set from the previous overload of this method */
   PyErr_Clear();
 
   /* check if this was called as an unbound method */
