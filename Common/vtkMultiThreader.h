@@ -102,6 +102,7 @@ public:
   // SetMultipleMethod, or SpawnThread method.
 
   //BTX
+#define ThreadInfoStruct vtkMultiThreader::ThreadInfo
   class ThreadInfo
   {
   public:
