@@ -142,7 +142,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     if (bounds)
       {
       // a duff dataset like a polydata with no cells will have bad bounds
-      if (bounds[0] == -VTK_LARGE_FLOAT)
+      if ((bounds[0] == -VTK_LARGE_FLOAT) || (bounds[0] == VTK_LARGE_FLOAT))
         {
 	      coverage = 0.0;
 	      i = 7;
