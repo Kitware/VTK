@@ -3,12 +3,9 @@ import vtk.*;
 public class AxesActor extends vtkAssembly {
 
   private vtkRenderer ren;
-  private vtkActor axisActor;
-  private double textScale = 0.25;
   private double axisLength = 0.8;
   private double axisTextLength = 1.2;
-  private vtkActor2D axesTextActor = new vtkActor2D();
-  private vtkLabeledDataMapper ldm = new vtkLabeledDataMapper();
+  private vtkTextActor xactor, yactor, zactor;
 
   public AxesActor(vtkRenderer _ren) {
     super();
@@ -21,27 +18,45 @@ public class AxesActor extends vtkAssembly {
     axes.SetOrigin(0, 0, 0);
     axes.SetScaleFactor(axisLength);
 
-    vtkCharArray ca = new vtkCharArray();
-    ca.SetName("labels");
-    ca.SetArray("XYZ", 3, 1);
+    xactor = new vtkTextActor();
+    yactor = new vtkTextActor();
+    zactor = new vtkTextActor();
 
-    vtkPoints pts = new vtkPoints();
-    pts.InsertPoint(0, axisLength, 0.0, 0.0); 
-    pts.InsertPoint(1, 0.0, axisLength, 0.0);
-    pts.InsertPoint(2, 0.0, 0.0, axisLength);
+    xactor.SetInput("X");
+    yactor.SetInput("Y");
+    zactor.SetInput("Z");
 
-    vtkPolyData ptset = new vtkPolyData();
-    ptset.SetPoints(pts);
-    int index = ptset.GetPointData().AddArray(ca);
-    ptset.Update();
+    xactor.ScaledTextOn();
+    yactor.ScaledTextOn();
+    zactor.ScaledTextOn();
 
-    ldm.SetInput(ptset);
-    ldm.SetLabelFormat("%c");
-    ldm.SetFontSize(32);
-    ldm.SetLabelModeToLabelFieldData();
-    ldm.SetFieldDataArray(index);
-    ldm.GetLabelTextProperty().SetColor(1.0, 1.0, 1.0);
+    xactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
+    yactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
+    zactor.GetPositionCoordinate().SetCoordinateSystemToWorld();
 
+    xactor.GetPositionCoordinate().SetValue(axisLength, 0.0, 0.0);
+    yactor.GetPositionCoordinate().SetValue(0.0, axisLength, 0.0);
+    zactor.GetPositionCoordinate().SetValue(0.0, 0.0, axisLength);
+
+    xactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    xactor.GetTextProperty().ShadowOn();
+    xactor.GetTextProperty().ItalicOn();
+    xactor.GetTextProperty().BoldOff();
+
+    yactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    yactor.GetTextProperty().ShadowOn();
+    yactor.GetTextProperty().ItalicOn();
+    yactor.GetTextProperty().BoldOff();
+
+    zactor.GetTextProperty().SetColor(0.0, 0.0, 0.0);
+    zactor.GetTextProperty().ShadowOn();
+    zactor.GetTextProperty().ItalicOn();
+    zactor.GetTextProperty().BoldOff();
+
+    xactor.SetMaximumLineHeight(0.25);
+    yactor.SetMaximumLineHeight(0.25);
+    zactor.SetMaximumLineHeight(0.25);
+    
     vtkTubeFilter tube = new vtkTubeFilter();
     tube.SetInput(axes.GetOutput());
     tube.SetRadius(0.05);
@@ -92,8 +107,9 @@ public class AxesActor extends vtkAssembly {
     zconeActor.SetScale(coneScale, coneScale, coneScale);
     zconeActor.SetPosition(0.0, 0.0, axisLength);
 
-    axesTextActor.SetMapper(ldm);
-    ren.AddActor2D(axesTextActor);
+    ren.AddActor2D(xactor);
+    ren.AddActor2D(yactor);
+    ren.AddActor2D(zactor);
   
     this.AddPart(tubeActor);
     this.AddPart(xconeActor);
@@ -106,7 +122,9 @@ public class AxesActor extends vtkAssembly {
 
   public void setAxesVisibility(boolean ison) {
     this.SetVisibility(ison ? 1 : 0);
-    axesTextActor.SetVisibility(ison ? 1 : 0);
+    xactor.SetVisibility(ison ? 1 : 0);
+    yactor.SetVisibility(ison ? 1 : 0);
+    zactor.SetVisibility(ison ? 1 : 0);
   }
 
 }
