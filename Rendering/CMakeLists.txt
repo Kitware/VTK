@@ -168,19 +168,27 @@ IF (VTK_WRAP_TCL)
   ELSE (WIN32)
     SOURCE_FILES(RenderingTCL_SRCS vtkXRenderWindowTclInteractor)
   ENDIF (WIN32)  
-  VTK_WRAP_TCL(vtkRenderingTCL RenderingTCL_SRCS 
-               Rendering_SRCS RenderingOpenGL_SRCS)
+  VTK_WRAP_TCL(vtkRenderingTCL 
+               RenderingTCL_SRCS 
+               Rendering_SRCS 
+               RenderingOpenGL_SRCS)
   ADD_LIBRARY(vtkRenderingTCL RenderingTCL_SRCS)
-  TARGET_LINK_LIBRARIES (vtkRenderingTCL vtkIOTCL vtkGraphicsTCL 
-                         vtkImagingTCL vtkFilteringTCL vtkCommonTCL)
+  TARGET_LINK_LIBRARIES (vtkRenderingTCL 
+                         vtkGraphicsTCL 
+                         vtkImagingTCL 
+                         vtkFilteringTCL 
+                         vtkCommonTCL)
 ENDIF (VTK_WRAP_TCL)
 
 # if we are wrapping into Python then add the library and extra 
 # source files
 #
 IF (VTK_WRAP_PYTHON)
+  VTK_WRAP_PYTHON(vtkRenderingPython 
+                 RenderingPython_SRCS 
+                 Rendering_SRCS
+                 RenderingOpenGL_SRCS)
   ADD_LIBRARY(vtkRenderingPython RenderingPython_SRCS)
-  VTK_WRAP_PYTHON(vtkRenderingPython RenderingPython_SRCS Rendering_SRCS)
   TARGET_LINK_LIBRARIES (vtkRenderingPython 
                          vtkGraphicsPython
                          vtkImagingPython
@@ -195,10 +203,15 @@ ENDIF (VTK_WRAP_PYTHON)
 # source files
 #
 IF (VTK_WRAP_JAVA)
-  VTK_WRAP_JAVA(vtkRenderingJava RenderingJava_SRCS Rendering_SRCS)
+  VTK_WRAP_JAVA(vtkRenderingJava 
+                RenderingJava_SRCS 
+                Rendering_SRCS)
   ADD_LIBRARY(vtkRenderingJava RenderingJava_SRCS)
-  TARGET_LINK_LIBRARIES (vtkRenderingJava vtkCommonJava vtkFilteringJava
-                         vtkImagingJava vtkGraphicsJava)
+  TARGET_LINK_LIBRARIES (vtkRenderingJava 
+                         vtkCommonJava 
+                         vtkFilteringJava
+                         vtkImagingJava 
+                         vtkGraphicsJava)
   IF (JAVA_AWT_LIBRARY)
     TARGET_LINK_LIBRARIES (vtkCommonJava ${JAVA_AWT_LIBRARY})
   ENDIF (JAVA_AWT_LIBRARY)
