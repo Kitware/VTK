@@ -85,6 +85,14 @@ public:
   // if there was an error.
   static char* Append(const char* str1, const char* str2);
   
+  // Description:
+  // Transform the string to lowercase (inplace).
+  static char* ToLower(char* str);
+
+  // Description:
+  // Transform the string to uppercase (inplace).
+  static char* ToUpper(char* str);
+
 protected:
   vtkString() {};
   ~vtkString() {};
