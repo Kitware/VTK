@@ -46,11 +46,11 @@
 #endif
 #endif
 
-
 // If USE_PTHREADS is defined, then the multithreaded
 // function is of type void *, and returns NULL
 // Otherwise the type is void which is correct for WIN32
 // and SPROC
+//BTX
 #ifdef USE_PTHREADS
 typedef void *(*vtkThreadFunctionType)(void *);
 #define VTK_THREAD_RETURN_VALUE  NULL
@@ -70,6 +70,7 @@ typedef void (*vtkThreadFunctionType)(void *);
 #define VTK_THREAD_RETURN_TYPE void
 #endif
 #endif
+//ETX
 
 // Description:
 // This is the structure that is passed to the SingleMethod or
@@ -104,11 +105,11 @@ public:
   vtkSetClampMacro( ThreadCount, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( ThreadCount, int );
 
-// These methods are excluded from Tcl wrapping 1) because the
-// wrapper barfs on them and 2) because they really shouldn't be
-// called from a tcl script anyway.
-//BTX 
-
+  // These methods are excluded from Tcl wrapping 1) because the
+  // wrapper barfs on them and 2) because they really shouldn't be
+  // called from a tcl script anyway.
+  //BTX 
+  
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
   // this->ThreadCount threads.
@@ -133,7 +134,6 @@ public:
   // field of the ThreadInfoStruct that is passed to it will be data.
   void SetMultipleMethod( int index, vtkThreadFunctionType, 
 			  void *data ); 
-//ETX
 
 protected:
   // The number of threads to use
@@ -144,7 +144,6 @@ protected:
   // to void so that user data can be passed to each thread
   ThreadInfoStruct           ThreadInfoArray[VTK_MAX_THREADS];
 
-//BTX
   // The methods
   vtkThreadFunctionType      SingleMethod;
   vtkThreadFunctionType      MultipleMethod[VTK_MAX_THREADS];
