@@ -16,6 +16,15 @@ IF (VTK_DATA_ROOT)
     TestPointWidget.cxx    
     )
 ENDIF (VTK_DATA_ROOT)
+
+# remove some tests if there is no display
+IF(NOT VTK_USE_DISPLAY)
+  REMOVE(MyTests     
+    BoxWidget.cxx
+    TestImplicitPlaneWidget.cxx
+    )
+ENDIF(NOT VTK_USE_DISPLAY)
+
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                        EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
                        FUNCTION vtkSuppressCrtDbgWarning)
