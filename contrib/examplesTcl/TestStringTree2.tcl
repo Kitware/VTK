@@ -3,7 +3,9 @@ catch {load vtktcl}
 source ../../examplesTcl/vtkInt.tcl
 source ../../examplesTcl/colors.tcl
 
-
+# This script produces a test image that has nothing to do with the StringTree.
+# It is just to get better code coverage of the vtkTree/vtkString classes.
+# The actual script is TestStringTree.tcl
 
 
 
@@ -51,6 +53,18 @@ wm withdraw .
 #dovtk "dirTree Print" .vtkInteract
 
 
+# more coverage
+set temp [dirTree Print]
+set num [dirTree GetNumberOfItems]
+set last [dirTree GetItem [expr $num - 1]]
+
+# cut off the last branch
+vtkStringTree branch
+dirTree MoveToLevel 0
+set num [dirTree GetNumberOfChildren]
+dirTree CutChild [expr $num - 1] branch
+# now put it back at the begining
+dirTree PasteChild branch 0
 
 
 
