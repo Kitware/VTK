@@ -20,6 +20,7 @@
 
 #include "vtkTkImageViewerWidget.h"
 #include "vtkTkRenderWidget.h"
+#include "vtkImageData.h"
 
 //----------------------------------------------------------------------------
 // Vtkrenderingpythontkwidgets_Init
@@ -32,6 +33,9 @@ extern "C"
                             int argc, char **argv);
   int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
                                  int argc, char **argv);
+  int vtkImageDataToTkPhoto_Cmd (ClientData clientData,
+                                         Tcl_Interp *interp, 
+                                         int argc, char **argv);
 }
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
@@ -46,5 +50,8 @@ int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
   Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
                     vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
   
+  Tcl_CreateCommand(interp, (char *) "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, 
+                    NULL, NULL );
   return TCL_OK;
 }
+
