@@ -105,13 +105,6 @@ public:
   vtkBooleanMacro(BackLight,int);
 
   // Description:
-  // Turn on/off erasing the screen between images. Allows multiple exposure
-  // sequences if turned on.
-  vtkSetMacro(Erase,int);
-  vtkGetMacro(Erase,int);
-  vtkBooleanMacro(Erase,int);
-
-  // Description:
   // Create an image.
   virtual void Render() = 0;
 
@@ -191,7 +184,6 @@ protected:
   float ViewPoint[3];
   float WorldPoint[4];
   float Viewport[4];
-  int   Erase;
   float Aspect[2];
   float Center[2];
   int   SelfCreatedCamera;

@@ -78,7 +78,6 @@ public:
 
   // stereo rendering stuff
   virtual void StereoUpdate();
-  virtual void CopyResultFrame();
 
   // Description:
   // Set/Get the pixel data of an image, transmitted as RGBRGB... 
