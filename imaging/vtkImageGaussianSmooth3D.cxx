@@ -56,18 +56,31 @@ vtkImageGaussianSmooth3D::vtkImageGaussianSmooth3D()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the kernal. Both axes are the same.  
+// This method sets the StandardDeviation. Both axes are the same.  
 // A future simple extension could make the kernel eliptical.
-void vtkImageGaussianSmooth3D::SetGaussianStdRadius(float std, int rad)
+void vtkImageGaussianSmooth3D::SetStandardDeviation(float std)
 {
-  vtkDebugMacro(<< "SetGauss: Std = " << std << ", Radius = " << rad);
+  ((vtkImageGaussianSmooth1D *)
+   (this->Filter0))->SetStandardDeviation(std);
+  ((vtkImageGaussianSmooth1D *)
+   (this->Filter1))->SetStandardDeviation(std);
+  ((vtkImageGaussianSmooth1D *)
+   (this->Filter2))->SetStandardDeviation(std);
 
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// This method sets the radius of the kernel in standard deviation units.
+void vtkImageGaussianSmooth3D::SetRadiusFactor(float factor)
+{
   ((vtkImageGaussianSmooth1D *)
-   (this->Filter0))->SetGaussianStdRadius(std, rad);
+   (this->Filter0))->SetRadiusFactor(factor);
   ((vtkImageGaussianSmooth1D *)
-   (this->Filter1))->SetGaussianStdRadius(std, rad);
+   (this->Filter1))->SetRadiusFactor(factor);
   ((vtkImageGaussianSmooth1D *)
-   (this->Filter2))->SetGaussianStdRadius(std, rad);
+   (this->Filter2))->SetRadiusFactor(factor);
 
   this->Modified();
 }

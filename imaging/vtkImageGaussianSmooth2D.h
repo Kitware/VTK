@@ -57,7 +57,8 @@ public:
   vtkImageGaussianSmooth2D();
   char *GetClassName() {return "vtkImageGaussianSmooth2D";};
 
-  void SetGaussianStdRadius(float std, int rad);
+  void SetStandardDeviation(float std);
+  void SetRadiusFactor(float factor);
 
 protected:
 };

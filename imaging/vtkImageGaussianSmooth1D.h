@@ -53,17 +53,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkImageGaussianSmooth1D : public vtkImageConvolution1D
 {
 public:
+  vtkImageGaussianSmooth1D();
   char *GetClassName() {return "vtkImageGaussianSmooth1D";};
 
   // Description:
-  // Set/Get the Guassian.
-  void SetGaussianStdRadius(float Std, int Radius);
-  vtkGetMacro(Radius,float);
-  vtkGetMacro(Std,float);
+  // Set/Get the standard deviation of the Gaussian.
+  void SetStandardDeviation(float Std);
+  vtkGetMacro(StandardDeviation,float);
+  // Description:
+  // Set/Get the radius of the kernel in units of standard deviations.
+  void SetRadiusFactor(float radius);
+  vtkGetMacro(RadiusFactor,float);
+  // Description:
+  // Get the cutoff in units of pixels.
+  vtkGetMacro(Radius,int)
 
 protected:
-  float Radius;
-  float Std;
+  float StandardDeviation;
+  float RadiusFactor;
+  int Radius;
+  
+  void ComputeKernel();
 };
 
 #endif

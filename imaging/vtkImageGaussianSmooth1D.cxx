@@ -43,36 +43,39 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 //----------------------------------------------------------------------------
+vtkImageGaussianSmooth1D::vtkImageGaussianSmooth1D()
+{
+  this->StandardDeviation = 1.0;
+  this->RadiusFactor = 2.0;
+  this->Radius = 2;
+  this->ComputeKernel();
+}
+
+
+
+//----------------------------------------------------------------------------
 // Description:
 // This method sets up the Gaussian kernel.
-void vtkImageGaussianSmooth1D::SetGaussianStdRadius(float Std,int Radius)
+void vtkImageGaussianSmooth1D::ComputeKernel()
 {
-  int idx;
+  int idx, radius = this->Radius;
   float *kernel;
-  float sum;
-
-  vtkDebugMacro(<< "SetGaussianStdRadius: Std = " << Std 
-                << ", Radius = " << Radius);
-  
-  // save the values
-  this->Std = Std;
-  this->Radius = Radius;
-  this->Modified();
+  float sum, std = this->StandardDeviation;
 
   // generate the kernel
-  kernel = new float[2 * Radius + 1];
-  kernel[Radius] = 1.0;
+  kernel = new float[2 * radius + 1];
+  kernel[radius] = 1.0;
   sum = 0.5;
-  for (idx = 1; idx <= Radius; ++idx)
-    sum += kernel[Radius + idx] = 
-      exp(- (float)(idx * idx) / (2.0 * Std * Std));
+  for (idx = 1; idx <= radius; ++idx)
+    sum += kernel[radius + idx] = 
+      exp(- (float)(idx * idx) / (2.0 * std * std));
 
   // normalize
   sum = 0.5 / sum;
-  kernel[Radius] *= sum;
-  for (idx = 1; idx <= Radius; ++idx)
-    kernel[Radius + idx] = kernel[Radius - idx] = 
-      kernel[Radius + idx] * sum;
+  kernel[radius] *= sum;
+  for (idx = 1; idx <= radius; ++idx)
+    kernel[radius + idx] = kernel[radius - idx] = 
+      kernel[radius + idx] * sum;
 
   this->BoundaryRescaleOn();
   
@@ -81,6 +84,26 @@ void vtkImageGaussianSmooth1D::SetGaussianStdRadius(float Std,int Radius)
 
   // free kernel
   delete [] kernel;
+}
+  
+
+//----------------------------------------------------------------------------
+void vtkImageGaussianSmooth1D::SetStandardDeviation(float std)
+{
+  this->StandardDeviation = std;
+  this->Radius = (int)(std * this->RadiusFactor);
+  this->Modified();
+  this->ComputeKernel();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkImageGaussianSmooth1D::SetRadiusFactor(float factor)
+{
+  this->RadiusFactor = factor;
+  this->Radius = (int)(this->StandardDeviation * factor);
+  this->Modified();
+  this->ComputeKernel();
 }
   
 
