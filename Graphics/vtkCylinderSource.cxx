@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCylinderSource, "1.52");
+vtkCxxRevisionMacro(vtkCylinderSource, "1.53");
 vtkStandardNewMacro(vtkCylinderSource);
 
 vtkCylinderSource::vtkCylinderSource (int res)
@@ -84,8 +84,9 @@ void vtkCylinderSource::Execute()
   for (i=0; i<this->Resolution; i++)
     {
     // x coordinate
-    xbot[0] = xtop[0] = nbot[0] = ntop[0] = this->Radius * cos((double)i*angle);
-    xbot[0] += center[0]; xtop[0] += center[0];
+    nbot[0] = ntop[0] = cos((double)i*angle);
+    xbot[0] = (nbot[0] * this->Radius) + center[0]; 
+    xtop[0] = (ntop[0] * this->Radius) + center[0]; 
     tcbot[0] = tctop[0] = fabs(2.0*i/this->Resolution - 1.0);
 
     // y coordinate
@@ -96,8 +97,9 @@ void vtkCylinderSource::Execute()
     tctop[1] = 1.0;
 
     // z coordinate
-    xbot[2] = xtop[2] = nbot[2] = ntop[2] = -this->Radius * sin((double)i*angle);
-    xbot[2] += center[2]; xtop[2] += center[2];
+    nbot[2] = ntop[2] = -sin((double)i*angle);
+    xbot[2] = (nbot[2] * this->Radius) + center[2]; 
+    xtop[2] = (ntop[2] * this->Radius) + center[2]; 
 
     idx = 2*i;
     newPoints->InsertPoint(idx,xbot);
