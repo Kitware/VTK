@@ -99,6 +99,7 @@ proc padString { str amount } {
     return $str
 }
 
+
 # if VTK_ROOT is defined, then use it to find the CPU processing scripts
 if { [catch {set VTK_ROOT $env(VTK_ROOT)}] != 0} { set VTK_ROOT "../../../" }
 source $VTK_ROOT/vtk/graphics/examplesTcl/rtProcessCPUTimes.tcl
@@ -149,16 +150,17 @@ foreach afile $files {
     puts -nonewline $logFile "\n $Name - "
     flush stdout
     
+    vtkWindowToImageFilter w2if
+
     # Create a timer so that we can get CPU time.
     # Use the tcl time command to get wall time
     vtkTimerLog timer
     set startCPU [timer GetCPUTime]
-    set wallTime [decipadString [expr [lindex [time {source $afile} 1] 0] / 1000000.0] 4 9]
+    set wallTime [decipadString [expr [lindex [time {catch {source $afile; if {[info commands iren] == "iren"} {renWin Render}}} 1] 0] / 1000000.0] 4 9]
     set endCPU [timer GetCPUTime]
     set CPUTime [decipadString [expr $endCPU - $startCPU] 3 8]
     puts -nonewline $logFile "$wallTime wall, $CPUTime cpu, "
     
-    vtkWindowToImageFilter w2if
     
     # look for a renderWindow ImageWindow or ImageViewer
     # first check for some common names
