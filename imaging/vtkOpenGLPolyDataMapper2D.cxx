@@ -177,6 +177,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOpaqueGeometry(vtkViewport* viewport,
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
+
+  glDisable(GL_TEXTURE_2D);
   glDisable( GL_LIGHTING);
   if ( actor->GetProperty()->GetDisplayLocation() == 
        VTK_FOREGROUND_LOCATION )
