@@ -527,7 +527,7 @@ void vtkRIBExporter::WriteActor(vtkActor *anActor)
 {
   vtkDataSet *aDataSet;
   vtkPolyData *polyData;
-  vtkGeometryFilter *geometryFilter;
+  vtkGeometryFilter *geometryFilter = NULL;
   static vtkMatrix4x4 matrix;
   
 //  RiAttributeBegin ();
@@ -673,7 +673,7 @@ void vtkRIBExporter::WritePolygons (vtkPolyData *polyData, vtkColorScalars *c, v
 //    RiPolygon (npts, RI_P, (RtPointer) vertexPoints, RI_N, (RtPointer) vertexNormals, Has[0], HasPtr[0], Has[1], HasPtr[1]);
       fprintf (this->FilePtr, "Polygon ");
       fprintf (this->FilePtr, "\"P\" [");
-      for (int kk = 0; kk < npts; kk++)
+      for (kk = 0; kk < npts; kk++)
         {
 	fprintf (this->FilePtr, "%f %f %f ",
 	    vertexPoints[kk][0], vertexPoints[kk][1], vertexPoints[kk][2]);
@@ -851,7 +851,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
       if (c)
        {
         fprintf (this->FilePtr, "\"Cs\" [");
-        for (int kk = 0; kk < 3; kk++)
+        for (kk = 0; kk < 3; kk++)
           {
           fprintf (this->FilePtr, "%f %f %f ",
               vertexColors[kk][0], vertexColors[kk][1], vertexColors[kk][2]);
@@ -861,7 +861,7 @@ void vtkRIBExporter::WriteStrips (vtkPolyData *polyData, vtkColorScalars *c, vtk
       if (t)
        {
         fprintf (this->FilePtr, "\"st\" [");
-        for (int kk = 0; kk < 3; kk++)
+        for (kk = 0; kk < 3; kk++)
           {
           fprintf (this->FilePtr, "%f %f ",
               vertexTCoords[kk][0], vertexTCoords[kk][1]);
