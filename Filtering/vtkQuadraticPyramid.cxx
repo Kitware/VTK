@@ -27,7 +27,7 @@
 #include "vtkQuadraticQuad.h"
 #include "vtkQuadraticTriangle.h"
 
-vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.3");
+vtkCxxRevisionMacro(vtkQuadraticPyramid, "1.4");
 vtkStandardNewMacro(vtkQuadraticPyramid);
 
 //----------------------------------------------------------------------------
@@ -374,7 +374,7 @@ void vtkQuadraticPyramid::Contour(double value,
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Pyramid->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,0,outCd);
+                           this->PointData,outPd,this->CellData,0,outCd);
     }
 
   //contour each linear tetra separately
@@ -388,7 +388,7 @@ void vtkQuadraticPyramid::Contour(double value,
       this->Scalars->SetValue(j,localScalars->GetTuple1(LinearPyramids[i][j]));
       }
     this->Tetra->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,0,outCd);
+                         this->PointData,outPd,this->CellData,0,outCd);
     }
 }
 
@@ -419,7 +419,7 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
               this->PointIds->GetId(PyramidFaces[faceNum][i]));
         }
       inter = this->TriangleFace->IntersectWithLine(p1, p2, tol, tTemp, 
-                                      xTemp, pc, subId);
+                                                    xTemp, pc, subId);
       }
     else
       {
@@ -429,7 +429,7 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
               this->Points->GetPoint(PyramidFaces[faceNum][i]));
         }
       inter = this->Face->IntersectWithLine(p1, p2, tol, tTemp, 
-                                      xTemp, pc, subId);
+                                            xTemp, pc, subId);
       }
     if ( inter )
       {
