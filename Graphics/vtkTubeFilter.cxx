@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkTubeFilter, "1.61");
+vtkCxxRevisionMacro(vtkTubeFilter, "1.62");
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number 
@@ -52,6 +52,8 @@ void vtkTubeFilter::Execute()
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
+  vtkCellData *cd=input->GetCellData();
+  vtkCellData *outCD=output->GetCellData();
   vtkCellArray *inLines = NULL;
   vtkDataArray *inNormals;
   vtkDataArray *inScalars=NULL;
@@ -60,7 +62,7 @@ void vtkTubeFilter::Execute()
   vtkPoints *inPts;
   vtkIdType numPts = 0;
   vtkIdType numLines;
-  vtkIdType numNewPts;
+  vtkIdType numNewPts, numNewCells;
   vtkPoints *newPts;
   int deleteNormals=0;
   vtkFloatArray *newNormals;
@@ -70,6 +72,8 @@ void vtkTubeFilter::Execute()
   vtkIdType npts, *pts;
   vtkIdType offset=0;
   vtkFloatArray *newTCoords=NULL;
+  int abort=0;
+  vtkIdType inCellId;
 
   // Check input and initialize
   //
@@ -84,9 +88,18 @@ void vtkTubeFilter::Execute()
     return;
     }
 
+  // Create the geometry and topology
   numNewPts = numPts * this->NumberOfSides;
+  newPts = vtkPoints::New();
+  newPts->Allocate(numNewPts);
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
+  newNormals->Allocate(3*numNewPts);
+  newStrips = vtkCellArray::New();
+  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
+  vtkCellArray *singlePolyline = vtkCellArray::New();
 
-  // copy scalars, vectors, tcoords. Normals may be computed here.
+  // Point data: copy scalars, vectors, tcoords. Normals may be computed here.
   outPD->CopyNormalsOff();
   if ( this->GenerateTCoords != VTK_TCOORDS_OFF )
     {
@@ -134,22 +147,23 @@ void vtkTubeFilter::Execute()
     maxSpeed = inVectors->GetMaxNorm();
     }
 
-  newPts = vtkPoints::New();
-  newPts->Allocate(numNewPts);
-  newNormals = vtkFloatArray::New();
-  newNormals->SetNumberOfComponents(3);
-  newNormals->Allocate(3*numNewPts);
-  newStrips = vtkCellArray::New();
-  newStrips->Allocate(newStrips->EstimateSize(1,numNewPts));
-  vtkCellArray *singlePolyline = vtkCellArray::New();
+  // Copy selected parts of cell data; certainly don't want normals
+  //
+  numNewCells = inLines->GetNumberOfCells() * this->NumberOfSides + 2;
+  outCD->CopyNormalsOff();
+  outPD->CopyAllocate(pd,numNewCells);
 
   //  Create points along each polyline that are connected into NumberOfSides
   //  triangle strips. Texture coordinates are optionally generated.
   //
   this->Theta = 2.0*vtkMath::Pi() / this->NumberOfSides;
   vtkPolyLine *lineNormalGenerator = vtkPolyLine::New();
-  for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
+  for (inCellId=0, inLines->InitTraversal(); 
+       inLines->GetNextCell(npts,pts) && !abort; inCellId++)
     {
+    this->UpdateProgress((float)inCellId/numLines);
+    abort = this->GetAbortExecute();
+
     if (npts < 2)
       {
       vtkWarningMacro(<< "Less than two points in line!");
@@ -183,7 +197,7 @@ void vtkTubeFilter::Execute()
       
     // Generate the strips for this polyline (including caps)
     //
-    this->GenerateStrips(offset,npts,pts,newStrips);
+    this->GenerateStrips(offset,npts,pts,inCellId,cd,outCD,newStrips);
 
     // Generate the texture coordinates for this polyline
     //
@@ -447,9 +461,11 @@ int vtkTubeFilter::GeneratePoints(vtkIdType offset,
 }
 
 void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts, 
-                                   vtkIdType *pts, vtkCellArray *newStrips)
+                                   vtkIdType *pts, vtkIdType inCellId,
+                                   vtkCellData *cd, vtkCellData *outCD,
+                                   vtkCellArray *newStrips)
 {
-  vtkIdType i;
+  vtkIdType i, outCellId;
   int k;
   int i1, i2, i3;
 
@@ -460,7 +476,8 @@ void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
       {
       i1 = k % this->NumberOfSides;
       i2 = (k+1) % this->NumberOfSides;
-      newStrips->InsertNextCell(npts*2);
+      outCellId = newStrips->InsertNextCell(npts*2);
+      outCD->CopyData(cd,inCellId,outCellId);
       for (i=0; i < npts; i++) 
         {
         i3 = i*this->NumberOfSides;
@@ -476,7 +493,8 @@ void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
       {
       i1 = 2*(k % this->NumberOfSides) + 1;
       i2 = 2*((k+1) % this->NumberOfSides);
-      newStrips->InsertNextCell(npts*2);
+      outCellId = newStrips->InsertNextCell(npts*2);
+      outCD->CopyData(cd,inCellId,outCellId);
       for (i=0; i < npts; i++) 
         {
         i3 = i*2*this->NumberOfSides;
@@ -499,7 +517,8 @@ void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
       }
 
     //The start cap
-    newStrips->InsertNextCell(this->NumberOfSides);
+    outCellId = newStrips->InsertNextCell(this->NumberOfSides);
+    outCD->CopyData(cd,inCellId,outCellId);
     newStrips->InsertCellPoint(startIdx);
     newStrips->InsertCellPoint(startIdx+1);
     for (i1=this->NumberOfSides-1, i2=2, k=0; k<(this->NumberOfSides-2); k++)
@@ -520,7 +539,8 @@ void vtkTubeFilter::GenerateStrips(vtkIdType offset, vtkIdType npts,
     
     //The end cap - reversed order to be consistent with normal
     startIdx += this->NumberOfSides;
-    newStrips->InsertNextCell(this->NumberOfSides);
+    outCellId = newStrips->InsertNextCell(this->NumberOfSides);
+    outCD->CopyData(cd,inCellId,outCellId);
     newStrips->InsertCellPoint(startIdx);
     newStrips->InsertCellPoint(startIdx+this->NumberOfSides-1);
     for (i1=this->NumberOfSides-2, i2=1, k=0; k<(this->NumberOfSides-2); k++)

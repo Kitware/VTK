@@ -192,6 +192,7 @@ protected:
                      float range[2], vtkDataArray *inVectors, float maxNorm, 
                      vtkDataArray *inNormals);
   void GenerateStrips(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
+                      vtkIdType inCellId, vtkCellData *cd, vtkCellData *outCD,
                       vtkCellArray *newStrips);
   void GenerateTextureCoords(vtkIdType offset, vtkIdType npts, vtkIdType *pts, 
                              vtkPoints *inPts, vtkDataArray *inScalars,
