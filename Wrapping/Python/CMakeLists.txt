@@ -19,8 +19,12 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
       ADD_EXECUTABLE(vtkpython ${VTK_BINARY_DIR}/Wrapping/Python/vtkpython.cxx)
     
       IF (APPLE)
-        TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
-			       "-framework Python")
+        OPTION(VTK_HAVE_FRAMEWORK_PYTHON "The system has Python installed by def
+ault (Mac OSX 10.2)" OFF)
+        IF (VTK_HAVE_FRAMEWORK_PYTHON)
+          TARGET_LINK_LIBRARIES (vtkpython "-framework Python")
+        ENDIF (VTK_HAVE_FRAMEWORK_PYTHON)
+        TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging)
       ELSE (APPLE)
         TARGET_LINK_LIBRARIES (vtkpython vtkIO vtkGraphics vtkImaging
                                vtkIOPython vtkGraphicsPython vtkImagingPython)
