@@ -170,7 +170,7 @@ public:
 //
 
 
-class VTK_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkDecimate : public vtkPolyDataToPolyDataFilter
 {
 public:
   static vtkDecimate *New();

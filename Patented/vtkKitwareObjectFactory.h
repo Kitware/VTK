@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkObjectFactory.h"
 
-class VTK_EXPORT vtkKitwareObjectFactory : public vtkObjectFactory
+class VTK_PATENTED_EXPORT vtkKitwareObjectFactory : public vtkObjectFactory
 {
 public:
   static vtkKitwareObjectFactory *New() {return new vtkKitwareObjectFactory;};
@@ -67,5 +67,5 @@ protected:
   virtual vtkObject* CreateObject(const char* vtkclassname );
 };
 
-extern "C" VTK_EXPORT vtkObjectFactory* vtkLoad();
+extern "C" VTK_PATENTED_EXPORT vtkObjectFactory* vtkLoad();
 #endif

@@ -72,7 +72,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkContourValues.h"
 #include "vtkKitwareContourFilter.h"
 
-class VTK_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataSource
 {
 public:
   static vtkSynchronizedTemplates2D *New();
@@ -153,7 +153,7 @@ protected:
 
 private:
   //BTX
-  friend class VTK_EXPORT vtkKitwareContourFilter;
+  friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
   //ETX
 };
 

@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsToPolyDataFilter.h"
 #include "vtkContourValues.h"
 
-class VTK_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
+class VTK_PATENTED_EXPORT vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   static vtkMarchingCubes *New();

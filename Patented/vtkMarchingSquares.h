@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkImageData.h"
 #include "vtkContourValues.h"
 
-class VTK_EXPORT vtkMarchingSquares : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkMarchingSquares : public vtkPolyDataSource
 {
 public:
   static vtkMarchingSquares *New();

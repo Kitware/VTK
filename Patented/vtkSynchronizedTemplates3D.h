@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkMultiThreader.h"
 #include "vtkKitwareContourFilter.h"
 
-class VTK_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataSource
 {
 public:
   static vtkSynchronizedTemplates3D *New();
@@ -204,7 +204,7 @@ protected:
 
 private:
   //BTX
-  friend class VTK_EXPORT vtkKitwareContourFilter;
+  friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
   //ETX
   
 };

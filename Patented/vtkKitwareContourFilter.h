@@ -82,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkContourFilter.h"
 
-class VTK_EXPORT vtkKitwareContourFilter : public vtkContourFilter
+class VTK_PATENTED_EXPORT vtkKitwareContourFilter : public vtkContourFilter
 {
 public:
   vtkTypeMacro(vtkKitwareContourFilter,vtkContourFilter);

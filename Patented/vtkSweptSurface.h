@@ -80,7 +80,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredPointsToStructuredPointsFilter.h"
 #include "vtkTransformCollection.h"
 
-class VTK_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
+class VTK_PATENTED_EXPORT vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   static vtkSweptSurface *New();

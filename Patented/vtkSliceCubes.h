@@ -89,7 +89,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkVolumeReader.h"
 #include "vtkMCubesReader.h"
 
-class VTK_EXPORT vtkSliceCubes : public vtkObject
+class VTK_PATENTED_EXPORT vtkSliceCubes : public vtkObject
 {
 public:
   static vtkSliceCubes *New();

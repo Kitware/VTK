@@ -81,7 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFloatArray;
 
-class VTK_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
+class VTK_PATENTED_EXPORT vtkImageMarchingCubes : public vtkPolyDataSource
 {
 public:
   static vtkImageMarchingCubes *New();
