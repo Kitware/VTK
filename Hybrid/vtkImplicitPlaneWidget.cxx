@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.22");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.23");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -905,10 +905,7 @@ void vtkImplicitPlaneWidget::Push(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   this->Plane->Push( vtkMath::Dot(v,this->Plane->GetNormal()) );
-  // TODO: cleanup
-  this->SetOrigin(this->Plane->GetOrigin()[0],
-                  this->Plane->GetOrigin()[1],
-                  this->Plane->GetOrigin()[2]);
+  this->SetOrigin(this->Plane->GetOrigin());
   this->UpdateRepresentation();
 }
 
@@ -963,10 +960,7 @@ void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
 
   if (this->Input || this->Prop3D)
     {
-    // TODO cleanup
-    this->LineSource->SetPoint1(this->Plane->GetOrigin()[0],
-                                this->Plane->GetOrigin()[1],
-                                this->Plane->GetOrigin()[2]);
+    this->LineSource->SetPoint1(this->Plane->GetOrigin());
     if ( this->NormalToYAxis )
       {
       this->Plane->SetNormal(0,1,0);
@@ -1182,11 +1176,10 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
   p2[1] = origin[1] + 0.30 * d * normal[1];
   p2[2] = origin[2] + 0.30 * d * normal[2];
 
-  // TODO cleanup
-  this->LineSource->SetPoint1(origin[0],origin[1],origin[2]);
+  this->LineSource->SetPoint1(origin);
   this->LineSource->SetPoint2(p2);
   this->ConeSource->SetCenter(p2);
-  this->ConeSource->SetDirection(normal[0],normal[1],normal[2]);
+  this->ConeSource->SetDirection(normal);
 
   p2[0] = origin[0] - 0.30 * d * normal[0];
   p2[1] = origin[1] - 0.30 * d * normal[1];

@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.32");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.33");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -199,16 +199,16 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   double                 lightDirection[3], material[4], lightColor[3];
   double                 lightPosition[3], lightFocalPoint[3];
   double                 lightIntensity, viewDirection[3];
-  float                 cameraPosition[3], cameraFocalPoint[3], mag;
+  double                 cameraPosition[3], cameraFocalPoint[3], mag;
   vtkLightCollection    *lightCollection;
   vtkLight              *light;
-  float                 norm;
-  int                   update_flag;
+  double                 norm;
+  int                    update_flag;
   vtkVolumeProperty     *property;
   vtkTransform          *transform;
   vtkMatrix4x4          *m;
   double                 in[4], out[4], zero[4];
-  int                   index;
+  int                    index;
 
   // Figure out which shading table we are working with
   // First search through all existing ones, then if one

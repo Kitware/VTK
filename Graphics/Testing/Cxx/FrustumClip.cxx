@@ -64,7 +64,7 @@ int FrustumClip( int argc, char *argv[] )
 
   // Now get the camera frustum and then move the camera away to see the
   // clipped away stuff
-  float aspect=400.0/300.0, planeequations[24];
+  double aspect=400.0/300.0, planeequations[24];
   camera->GetFrustumPlanes(aspect, planeequations);
 
   vtkPlanes *implictplanes = vtkPlanes::New();

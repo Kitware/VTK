@@ -15,11 +15,12 @@
 #include "vtkFrustumCoverageCuller.h"
 
 #include "vtkCamera.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.30");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.31");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -35,31 +36,31 @@ vtkFrustumCoverageCuller::vtkFrustumCoverageCuller()
 // render time of the prop. After this, props with no allocated time are
 // removed from the list (and the list length is shortened) to make sure
 // that they are not considered again by another culler or for rendering.
-float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren, 
+double vtkFrustumCoverageCuller::Cull( vtkRenderer *ren, 
                                       vtkProp **propList,
                                       int& listLength,
                                       int& initialized )
 {
   vtkProp            *prop;
-  float               total_time;
+  double               total_time;
   double             *bounds, center[3];
-  float               radius = 0.0;
-  float               planes[24], d;
-  float               coverage, screen_bounds[4];
-  float               previous_time;
+  double               radius = 0.0;
+  double              planes[24], d;
+  double               coverage, screen_bounds[4];
+  double               previous_time;
   int                 i, propLoop;
-  float               full_w, full_h, part_w, part_h;
-  float               *allocatedTimeList;
-  float               *distanceList;
+  double               full_w, full_h, part_w, part_h;
+  double               *allocatedTimeList;
+  double               *distanceList;
   int                 index1, index2;
-  float               tmp;
+  double               tmp;
   double              aspect[2];
 
   // We will create a center distance entry for each prop in the list
   // If SortingStyle is set to BackToFront or FrontToBack we will then
   // sort the props that have a non-zero AllocatedRenderTime by their
   // center distance
-  distanceList = new float[listLength];
+  distanceList = new double[listLength];
 
   // We will return the total time of all props. This is used for
   // normalization.
@@ -71,7 +72,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 
   // Keep a list of allocated times to help with sorting / removing
   // props later
-  allocatedTimeList = new float[listLength];
+  allocatedTimeList = new double[listLength];
 
   // For each prop, compute coverage
   for ( propLoop = 0; propLoop < listLength; propLoop++ )
@@ -103,10 +104,10 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     if (bounds)
       {
       // a duff dataset like a polydata with no cells will have bad bounds
-      if ((bounds[0] == -VTK_LARGE_FLOAT) || (bounds[0] == VTK_LARGE_FLOAT))
+      if (!vtkMath::AreBoundsInitialized(bounds))
         {
-              coverage = 0.0;
-              i = 7;
+        coverage = 0.0;
+        i = 7;
         }
       else
         {
@@ -229,7 +230,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
     // that when sorted back to front they will be rendered last.
     else
       {
-      distanceList[propLoop] = -VTK_LARGE_FLOAT;
+      distanceList[propLoop] = -VTK_DOUBLE_MAX;
       coverage = 0.001;
       }
     // Multiply the new allocated time by the previous allocated time

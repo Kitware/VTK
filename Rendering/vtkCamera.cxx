@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.108");
+vtkCxxRevisionMacro(vtkCamera, "1.109");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -887,7 +887,7 @@ void vtkCamera::SetViewPlaneNormal(double vtkNotUsed(x),
 //----------------------------------------------------------------------------
 // Return the 6 planes (Ax + By + Cz + D = 0) that bound
 // the view frustum. 
-void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
+void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
 {
   int i;
   double f, normals[6][4], matrix[4][4];
@@ -904,8 +904,9 @@ void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
     }
 
   // get the composite perspective matrix
-  vtkMatrix4x4::DeepCopy(*matrix, 
-        this->GetCompositePerspectiveTransformMatrix(aspect,-1,+1));
+  vtkMatrix4x4::DeepCopy(
+    *matrix, 
+    this->GetCompositePerspectiveTransformMatrix(aspect,-1,+1));
   
   // transpose the matrix for use with normals
   vtkMatrix4x4::Transpose(*matrix,*matrix);
@@ -918,7 +919,7 @@ void vtkCamera::GetFrustumPlanes(float aspect, float planes[24])
     f = 1.0/sqrt(normals[i][0]*normals[i][0] +
                  normals[i][1]*normals[i][1] +
                  normals[i][2]*normals[i][2]);
-
+    
     planes[4*i + 0] = normals[i][0]*f;
     planes[4*i + 1] = normals[i][1]*f;
     planes[4*i + 2] = normals[i][2]*f;

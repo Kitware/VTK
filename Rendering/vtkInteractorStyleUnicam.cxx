@@ -35,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.33");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.34");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -154,11 +154,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
   // 
   this->FindPokedRenderer(x, y);
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
-  // TODO: cleanup double
-  double * ddp = this->InteractionPicker->GetPickPosition();
-  this->DownPt[0] = (double)ddp[0];
-  this->DownPt[1] = (double)ddp[1];
-  this->DownPt[2] = (double)ddp[2];
+  this->InteractionPicker->GetPickPosition(this->DownPt);
   
   // if someone has already clicked to make a dot and they're not clicking 
   // on it now, OR if the user is clicking on the perimeter of the screen, 

@@ -35,7 +35,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.83");
+vtkCxxRevisionMacro(vtkPicker, "1.84");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -391,11 +391,7 @@ double vtkPicker::IntersectWithLine(double p1[3], double p2[3],
   double center[3], t, ray[3], rayFactor;
 
   // Get the data from the modeler
-  //
-  // TODO: cleanup when GetCeneter return double
-  center[0] = mapper->GetCenter()[0];
-  center[1] = mapper->GetCenter()[1];
-  center[2] = mapper->GetCenter()[2];
+  mapper->GetCenter(center);
 
   for (i=0; i<3; i++)
     {

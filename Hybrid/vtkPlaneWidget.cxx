@@ -38,7 +38,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.41");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.42");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -1530,11 +1530,8 @@ void vtkPlaneWidget::GetPlane(vtkPlane *plane)
     return;
     }
   
-  // TODO: cleanupo
-  plane->SetNormal(this->GetNormal()[0],
-                   this->GetNormal()[1], this->GetNormal()[2]);
-  plane->SetOrigin(this->GetCenter()[0],
-                   this->GetCenter()[1], this->GetCenter()[2]);
+  plane->SetNormal(this->GetNormal());
+  plane->SetOrigin(this->GetCenter());
 }
 
 void vtkPlaneWidget::UpdatePlacement(void)

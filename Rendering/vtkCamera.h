@@ -52,14 +52,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetPosition(double x, double y, double z);
   void SetPosition(const double a[3]) {
     this->SetPosition(a[0], a[1], a[2]); };
-  void SetPosition(const float a[3]) {
-    this->SetPosition(a[0], a[1], a[2]); };
   vtkGetVector3Macro(Position,double);
-  void GetPosition(float a[3]) {
-    double tmp[3]; this->GetPosition(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); 
-    a[2] = static_cast<float>(tmp[2]); };     
 
   // Description:
   // Set/Get the focal of the camera in world coordinates.
@@ -67,14 +60,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetFocalPoint(double x, double y, double z);
   void SetFocalPoint(const double a[3]) {
     this->SetFocalPoint(a[0], a[1], a[2]);};
-  void SetFocalPoint(const float a[3]) {
-    this->SetFocalPoint(a[0], a[1], a[2]);};
   vtkGetVector3Macro(FocalPoint,double);
-  void GetFocalPoint(float a[3]) {
-    double tmp[3]; this->GetFocalPoint(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); 
-    a[2] = static_cast<float>(tmp[2]); }; 
   
   // Description:
   // Set/Get the view up direction for the camera.  The default
@@ -82,14 +68,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetViewUp(double vx, double vy, double vz);
   void SetViewUp(const double a[3]) {
     this->SetViewUp(a[0], a[1], a[2]); }
-  void SetViewUp(const float a[3]) {
-    this->SetViewUp(a[0], a[1], a[2]); }
   vtkGetVector3Macro(ViewUp,double);
-  void GetViewUp(float a[3]) {
-    double tmp[3]; this->GetViewUp(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); 
-    a[2] = static_cast<float>(tmp[2]); }; 
 
   // Description:
   // Recompute the ViewUp vector to force it to be perpendicular to
@@ -108,11 +87,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // focal point.  This is usually the opposite of the ViewPlaneNormal,
   // the vector perpendicular to the screen, unless the view is oblique.
   vtkGetVector3Macro(DirectionOfProjection,double);
-  void GetDirectionOfProjection(float a[3]) {
-    double tmp[3]; this->GetDirectionOfProjection(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); 
-    a[2] = static_cast<float>(tmp[2]); }; 
 
   // Description:
   // Move the position of the camera along the direction of projection. Moving
@@ -159,12 +133,12 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   vtkBooleanMacro(ParallelProjection,int);
 
   // Description:
-  // Set/Get the value of the UseHorizontalViewAngle instance variable. If set,
-  // the camera's view angle represents a horizontal view angle, rather than 
-  // the default vertical view angle. This is useful if the application uses
-  // a display device which whose specs indicate a particular horizontal view angle,
-  // or if the application varies the window height but wants to keep the
-  // perspective transform unchanges.
+  // Set/Get the value of the UseHorizontalViewAngle instance variable. If
+  // set, the camera's view angle represents a horizontal view angle, rather
+  // than the default vertical view angle. This is useful if the application
+  // uses a display device which whose specs indicate a particular horizontal
+  // view angle, or if the application varies the window height but wants to
+  // keep the perspective transform unchanges.
   void SetUseHorizontalViewAngle(int flag);
   vtkGetMacro(UseHorizontalViewAngle, int);
   vtkBooleanMacro(UseHorizontalViewAngle, int);
@@ -206,13 +180,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   void SetClippingRange(double near, double far);
   void SetClippingRange(const double a[2]) {
     this->SetClippingRange(a[0], a[1]); };
-  void SetClippingRange(const float a[2]) {
-    this->SetClippingRange(a[0], a[1]); };
   vtkGetVector2Macro(ClippingRange,double);
-  void GetClippingRange(float a[2]) {
-    double tmp[2]; this->GetClippingRange(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); }; 
 
   // Description:
   // Set the distance between clipping planes.  This method adjusts the 
@@ -253,12 +221,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // the direction of projection, unless you have created an sheared output
   // view using SetViewShear/SetObliqueAngles.
   vtkGetVector3Macro(ViewPlaneNormal,double);
-  void GetViewPlaneNormal(float a[3]) {
-    double tmp[3]; this->GetViewPlaneNormal(tmp); 
-    a[0] = static_cast<float>(tmp[0]); 
-    a[1] = static_cast<float>(tmp[1]); 
-    a[2] = static_cast<float>(tmp[2]); }; 
-
 
   // Description:
   // Set/get the shear transform of the viewing frustum.  Parameters are
@@ -294,9 +256,9 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
   virtual vtkMatrix4x4 *GetPerspectiveTransformMatrix(double aspect,
-                                              double nearz, 
-                                              double farz);
-
+                                                      double nearz, 
+                                                      double farz);
+  
   // Description:
   // Return the concatenation of the ViewTransform and the 
   // PerspectiveTransform.  This transform will convert world
@@ -305,8 +267,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Z-buffer values that map to the near and far clipping planes.
   // The viewport coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
   virtual vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(double aspect, 
-                                                       double nearz, 
-                                                       double farz);
+                                                               double nearz, 
+                                                               double farz);
 
   // Description:
   // In addition to the instance variables such as position and orientation,
@@ -336,7 +298,7 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // plane equations of the form (Ax+By+Cz+D=0), the first four
   // values are (A,B,C,D) which repeats for each of the planes.
   // The aspect of the viewport is needed to correctly compute the planes
-  virtual void GetFrustumPlanes(float aspect, float planes[24]);
+  virtual void GetFrustumPlanes(double aspect, double planes[24]);
 
   // Description:
   // Get the orientation of the camera.
@@ -349,8 +311,6 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // the ViewShear.
   void SetViewPlaneNormal(double x, double y, double z);
   void SetViewPlaneNormal(const double a[3]) {
-    this->SetViewPlaneNormal(a[0], a[1], a[2]); };
-  void SetViewPlaneNormal(const float a[3]) {
     this->SetViewPlaneNormal(a[0], a[1], a[2]); };
 
   // Description:

@@ -466,7 +466,7 @@ void vtkVolumeTextureMapper2D_TraverseVolume( T *data_ptr,
 
 }
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.54");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper2D, "1.55");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -949,7 +949,7 @@ void vtkVolumeTextureMapper2D::InitializeRender( vtkRenderer *ren,
     }
   else
     {
-    float vpn[3];
+    double vpn[3];
 
     // Take the vpn, convert it to volume coordinates, and find the 
     // major direction

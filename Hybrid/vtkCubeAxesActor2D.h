@@ -271,8 +271,8 @@ protected:
   void TransformBounds(vtkViewport *viewport, double bounds[6], 
                        double pts[8][3]);
   int ClipBounds(vtkViewport *viewport, double pts[8][3], double bounds[6]);
-  double EvaluatePoint(float planes[24], double x[3]);
-  double EvaluateBounds(float planes[24], double bounds[6]);
+  double EvaluatePoint(double planes[24], double x[3]);
+  double EvaluateBounds(double planes[24], double bounds[6]);
   void AdjustAxes(double pts[8][3], double bounds[6], 
                   int idx, int xIdx, int yIdx, int zIdx, int zIdx2, 
                   int xAxes, int yAxes, int zAxes,

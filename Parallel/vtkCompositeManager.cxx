@@ -41,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.54");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.55");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -56,14 +56,14 @@ struct vtkCompositeRenderWindowInfo
 
 struct vtkCompositeRendererInfo 
 {
-  float CameraPosition[3];
-  float CameraFocalPoint[3];
-  float CameraViewUp[3];
-  float CameraClippingRange[2];
+  double CameraPosition[3];
+  double CameraFocalPoint[3];
+  double CameraViewUp[3];
+  double CameraClippingRange[2];
   double LightPosition[3];
   double LightFocalPoint[3];
   double Background[3];
-  float ParallelScale;
+  double ParallelScale;
 };
 
 #define vtkInitializeVector3(v) { v[0] = 0; v[1] = 0; v[2] = 0; }
@@ -952,7 +952,7 @@ void vtkCompositeManager::ResetCameraClippingRange(vtkRenderer *ren)
 void vtkCompositeManager::ComputeVisiblePropBounds(vtkRenderer *ren, 
                                                    double bounds[6])
 {
-  float tmp[6];
+  double tmp[6];
   int id, num;
   
   num = this->NumberOfProcesses;  

@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.43");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.44");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -790,7 +790,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, double pts[8][3],
                                    double bounds[6])
 {
   int i, j, k, numIters;
-  float planes[24];
+  double planes[24];
   double x[3];
   double val, maxVal=0, anchor[3], scale;
   double delX, delY, delZ;
@@ -938,10 +938,10 @@ void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport,
 //----------------------------------------------------------------------------
 // Return smallest value of point evaluated against frustum planes. Also
 // sets the closest point coordinates in xyz.
-double vtkCubeAxesActor2D::EvaluatePoint(float planes[24], double x[3])
+double vtkCubeAxesActor2D::EvaluatePoint(double planes[24], double x[3])
 {
   int kk;
-  float *plane;
+  double *plane;
   double val, minPlanesValue;
 
   for (minPlanesValue=VTK_DOUBLE_MAX, kk=0; kk<6 ; kk++)
@@ -961,7 +961,7 @@ double vtkCubeAxesActor2D::EvaluatePoint(float planes[24], double x[3])
 //----------------------------------------------------------------------------
 // Return the smallest point of the bounding box evaluated against the
 // frustum planes.
-double vtkCubeAxesActor2D::EvaluateBounds(float planes[24], double bounds[6])
+double vtkCubeAxesActor2D::EvaluateBounds(double planes[24], double bounds[6])
 {
   double val, minVal, x[3];
   int i, j, k;

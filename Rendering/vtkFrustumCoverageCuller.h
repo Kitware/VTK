@@ -52,14 +52,14 @@ public:
   // Description:
   // Set/Get the minimum coverage - props with less coverage than this
   // are given no time to render (they are culled)
-  vtkSetMacro( MinimumCoverage, float );
-  vtkGetMacro( MinimumCoverage, float );
+  vtkSetMacro( MinimumCoverage, double );
+  vtkGetMacro( MinimumCoverage, double );
 
   // Description:
   // Set/Get the maximum coverage - props with more coverage than this are
   // given an allocated render time of 1.0 (the maximum)
-  vtkSetMacro( MaximumCoverage, float );
-  vtkGetMacro( MaximumCoverage, float );
+  vtkSetMacro( MaximumCoverage, double );
+  vtkGetMacro( MaximumCoverage, double );
 
   // Description:
   // Set the sorting style - none, front-to-back or back-to-front
@@ -82,7 +82,7 @@ public:
   // Perform the cull operation
   // This method should only be called by vtkRenderer as part of
   // the render process
-  float Cull( vtkRenderer *ren, vtkProp **propList,
+  double Cull( vtkRenderer *ren, vtkProp **propList,
               int& listLength, int& initialized );
 //ETX
 
@@ -90,8 +90,8 @@ protected:
   vtkFrustumCoverageCuller();
   ~vtkFrustumCoverageCuller() {};
 
-  float        MinimumCoverage;
-  float        MaximumCoverage;
+  double       MinimumCoverage;
+  double       MaximumCoverage;
   int          SortingStyle;
 private:
   vtkFrustumCoverageCuller(const vtkFrustumCoverageCuller&);  // Not implemented.

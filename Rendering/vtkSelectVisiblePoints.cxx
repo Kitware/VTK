@@ -25,7 +25,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.30");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.31");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -56,7 +56,7 @@ void vtkSelectVisiblePoints::Execute()
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *outPD=output->GetPointData();
   vtkIdType numPts=input->GetNumberOfPoints();
-  float x[4];
+  double x[4];
   double dx[3], z, diff;
   int selection[4];
   
@@ -102,7 +102,7 @@ void vtkSelectVisiblePoints::Execute()
   // WorldToView() is called.  This is expensive, so we get the matrix once
   // and handle the transformation ourselves.
   vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
-  float view[4];
+  double view[4];
   matrix->DeepCopy(this->Renderer->GetActiveCamera()->
                    GetCompositePerspectiveTransformMatrix(1,0,1));
 
@@ -123,10 +123,7 @@ void vtkSelectVisiblePoints::Execute()
   for (id=(-1), ptId=0; ptId < numPts && !abort; ptId++)
     {
     // perform conversion
-    // TODO: cleanup when double
-    x[0] = (float)input->GetPoint(ptId)[0];
-    x[1] = (float)input->GetPoint(ptId)[1];
-    x[2] = (float)input->GetPoint(ptId)[2];
+    input->GetPoint(ptId,x);
     matrix->MultiplyPoint(x, view);
     if (view[3] == 0.0)
       {
@@ -140,7 +137,7 @@ void vtkSelectVisiblePoints::Execute()
 
     if ( ! (ptId % progressInterval) ) 
       {
-      this->UpdateProgress((float)ptId/numPts);
+      this->UpdateProgress((double)ptId/numPts);
       abort = this->GetAbortExecute();
       }
 
