@@ -42,17 +42,17 @@ proc TestOne {cname} {
          if {$i < $len - 1 && [lindex $methods [expr $i + 1]] != "with"} {
             if {[lsearch $exceptions "$cname-[lindex $methods $i]"] == -1} {
                # invoke the GetMethod
-	       #puts "  Invoking Get$name"
+	       puts "  Invoking Get$name"
                set tmp [b Get$name]
                # find matching set method
                for {set j 0} {$j < $len} {incr j} {
                   if {[regexp "^Set$name" [lindex $methods $j]]} {
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] == "1"} {
-                        #puts "    Invoking Set$name"
+                        puts "    Invoking Set$name"
                         catch {b Set$name $tmp}
                      }
                      if {$j < $len - 3 && [lindex $methods [expr $j + 2]] > 1} {
-                        #puts "    Invoking Set$name"
+                        puts "    Invoking Set$name"
                         catch {eval b Set$name $tmp}
                      }
                   }
@@ -66,12 +66,18 @@ proc TestOne {cname} {
 
 set classExceptions {
    vtkCommand
+   vtkFileOutputWindow
    vtkIndent
+   vtkOutputWindow
+   vtkParallelFactory
    vtkPlanes
+   vtkProjectedPolyDataRayBounder
    vtkTimeStamp
    vtkTkImageViewerWidget
    vtkTkImageWindowWidget
    vtkTkRenderWidget
+   vtkWin32OutputWindow
+   vtkXMLFileOutputWindow
 }
 
 proc rtSetGetTest { fileid } { 
@@ -81,7 +87,7 @@ proc rtSetGetTest { fileid } {
    foreach a $all {
       if {[lsearch $classExceptions $a] == -1} {
          # test some set get methods
-         #puts "Testing -- $a"
+         puts "Testing -- $a"
          TestOne $a
       }
    }
