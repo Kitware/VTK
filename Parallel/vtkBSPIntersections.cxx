@@ -25,12 +25,9 @@
 #include "vtkCell.h"
 #include "vtkPoints.h"
 
-#ifdef _MSC_VER
-#pragma warning ( disable : 4100 )
-#endif
 #include <vtkstd/set>
 
-vtkCxxRevisionMacro(vtkBSPIntersections, "1.2");
+vtkCxxRevisionMacro(vtkBSPIntersections, "1.3");
 
 vtkStandardNewMacro(vtkBSPIntersections);
 
@@ -485,12 +482,19 @@ void vtkBSPIntersections::PrintSelf(ostream& os, vtkIndent indent)
 { 
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Cuts: " << Cuts << endl;
-  os << indent << "NumberOfRegions: " << NumberOfRegions << endl;
-  os << indent << "RegionList: " << RegionList << endl;
-  os << indent << "RegionListBuildTime: " << RegionListBuildTime << endl;
-  os << indent << "ComputeIntersectionsUsingDataBounds: " << ComputeIntersectionsUsingDataBounds << endl;
-  double *d = CellBoundsCache;
+  os << indent << "Cuts: ";
+  if( this->Cuts )
+  {
+    this->Cuts->PrintSelf(os << endl, indent.GetNextIndent() );
+  }
+  else
+  {
+    os << "(none)" << endl;
+  }
+  os << indent << "NumberOfRegions: " << this->NumberOfRegions << endl;
+  os << indent << "RegionList: " << this->RegionList << endl;
+  os << indent << "RegionListBuildTime: " << this->RegionListBuildTime << endl;
+  os << indent << "ComputeIntersectionsUsingDataBounds: " << this->ComputeIntersectionsUsingDataBounds << endl;
+  double *d = this->CellBoundsCache;
   os << indent << "CellBoundsCache " << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << " " << d[4] << " " << d[5] << " " << endl;
-
 }

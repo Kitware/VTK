@@ -175,9 +175,6 @@ private:
   int _IntersectsCell(vtkKdNode *node, int *ids, int len,
                       vtkCell *cell, int cellRegion=-1);
 
-  vtkBSPIntersections(const vtkBSPIntersections&); // Not implemented
-  void operator=(const vtkBSPIntersections&); // Not implemented
-
   vtkBSPCuts *Cuts;
 
   int NumberOfRegions;
@@ -186,5 +183,8 @@ private:
   vtkTimeStamp RegionListBuildTime;
 
   int ComputeIntersectionsUsingDataBounds;
+
+  vtkBSPIntersections(const vtkBSPIntersections&); // Not implemented
+  void operator=(const vtkBSPIntersections&); // Not implemented
 };
 #endif
