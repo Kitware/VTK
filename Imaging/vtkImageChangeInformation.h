@@ -21,15 +21,15 @@
 #ifndef __vtkImageChangeInformation_h
 #define __vtkImageChangeInformation_h
 
-#include "vtkImageAlgorithm.h"
+#include "vtkImageToImageFilter.h"
 
 class vtkImageData;
 
-class VTK_IMAGING_EXPORT vtkImageChangeInformation : public vtkImageAlgorithm
+class VTK_IMAGING_EXPORT vtkImageChangeInformation : public vtkImageToImageFilter
 {
 public:
   static vtkImageChangeInformation *New();
-  vtkTypeRevisionMacro(vtkImageChangeInformation, vtkImageAlgorithm);
+  vtkTypeRevisionMacro(vtkImageChangeInformation, vtkImageToImageFilter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -108,17 +108,11 @@ protected:
   double OriginScale[3];
   double OriginTranslation[3];
   
-  void RequestUpdateExtent (vtkInformation *,
-                            vtkInformationVector **,
-                            vtkInformationVector *);
-  void ExecuteInformation (vtkInformation *,
-                           vtkInformationVector **,
-                           vtkInformationVector *);
-  
-  virtual void RequestData(vtkInformation *,
-                           vtkInformationVector *,
-                           vtkInformationVector *);
-
+  void ComputeInputUpdateExtent(int extent[6], int wholeExtent[6]);
+  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
+  void ExecuteInformation() {
+    this->vtkImageToImageFilter::ExecuteInformation(); };
+  void ExecuteData(vtkDataObject *data);
 private:
   vtkImageChangeInformation(const vtkImageChangeInformation&);  // Not implemented.
   void operator=(const vtkImageChangeInformation&);  // Not implemented.

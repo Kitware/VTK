@@ -15,13 +15,10 @@
 #include "vtkImageChangeInformation.h"
 
 #include "vtkImageData.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageChangeInformation, "1.15");
+vtkCxxRevisionMacro(vtkImageChangeInformation, "1.16");
 vtkStandardNewMacro(vtkImageChangeInformation);
 
 //----------------------------------------------------------------------------
@@ -111,28 +108,21 @@ void vtkImageChangeInformation::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Change the information
-void vtkImageChangeInformation::ExecuteInformation (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageChangeInformation::ExecuteInformation(vtkImageData *inData, 
+                                                   vtkImageData *outData)
 {
-  // get the info objects
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
   int i;
   int extent[6], inExtent[6];
   double spacing[3], origin[3];
   
-  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),inExtent);
+  inData->GetWholeExtent(inExtent);
 
   if (this->GetInformationInput())
     {
-    // If there is an InformationInput, it is set as a second input
-    vtkInformation *in2Info = inputVector[1]->GetInformationObject(0);
-    in2Info->Get(vtkDataObject::ORIGIN(),origin);
-    in2Info->Get(vtkDataObject::SPACING(),spacing);
-    in2Info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
+    this->GetInformationInput()->GetOrigin(origin);
+    this->GetInformationInput()->GetSpacing(spacing);
+
+    this->GetInformationInput()->GetWholeExtent(extent);
     for (i = 0; i < 3; i++)
       {
       extent[2*i+1] = extent[2*i] - inExtent[2*i] + inExtent[2*i+1];
@@ -140,9 +130,9 @@ void vtkImageChangeInformation::ExecuteInformation (
     }
   else
     {
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
-    inInfo->Get(vtkDataObject::ORIGIN(),origin);
-    inInfo->Get(vtkDataObject::SPACING(),spacing);
+    inData->GetWholeExtent(extent);
+    inData->GetOrigin(origin);
+    inData->GetSpacing(spacing);
     }
 
   for (i = 0; i < 3; i++)
@@ -181,18 +171,15 @@ void vtkImageChangeInformation::ExecuteInformation (
     this->FinalExtentTranslation[i] = extent[2*i] - inExtent[2*i];
     }
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
-  outInfo->Set(vtkDataObject::SPACING(),spacing,3);
-  outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
+  outData->SetWholeExtent(extent);
+  outData->SetSpacing(spacing);
+  outData->SetOrigin(origin);
 }
 
 
 //----------------------------------------------------------------------------
 // This method simply copies by reference the input data to the output.
-void vtkImageChangeInformation::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector *inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageChangeInformation::ExecuteData(vtkDataObject *data)
 {
   if (this->FinalExtentTranslation[0] == VTK_INT_MAX)
     {
@@ -200,46 +187,39 @@ void vtkImageChangeInformation::RequestData(
     return;
     }
 
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *inData = this->GetInput();
+  if (!inData)
+    {
+    return;
+    }
+  vtkImageData *outData = (vtkImageData *)(data);
   int extent[6];
   
   // since inData can be larger than update extent.
-  inInfo->Get(vtkDataObject::DATA_EXTENT(),extent);
+  inData->GetExtent(extent);
   for (int i = 0; i < 3; ++i)
     {
     extent[i*2] += this->FinalExtentTranslation[i];
     extent[i*2+1] += this->FinalExtentTranslation[i];
     }
-  outInfo->Set(vtkDataObject::EXTENT(),extent,6);
+  outData->SetExtent(extent);
   outData->GetPointData()->PassData(inData->GetPointData());
 }
 
 //----------------------------------------------------------------------------
-void vtkImageChangeInformation::RequestUpdateExtent (
-  vtkInformation * vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+void vtkImageChangeInformation::ComputeInputUpdateExtent(int inExt[6], 
+                                                         int outExt[6])
 {
-  // get the info objects
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-
   if (this->FinalExtentTranslation[0] == VTK_INT_MAX)
     {
     vtkErrorMacro("Bug in code.");
     return;
     }
 
-  int inExt[6];
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt);
-  
-  inExt[0] -= this->FinalExtentTranslation[0];
-  inExt[1] -= this->FinalExtentTranslation[0];
-  inExt[2] -= this->FinalExtentTranslation[1];
-  inExt[3] -= this->FinalExtentTranslation[1];
-  inExt[4] -= this->FinalExtentTranslation[2];
-  inExt[5] -= this->FinalExtentTranslation[2];
-
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), inExt, 6);
+  inExt[0] = outExt[0] - this->FinalExtentTranslation[0];
+  inExt[1] = outExt[1] - this->FinalExtentTranslation[0];
+  inExt[2] = outExt[2] - this->FinalExtentTranslation[1];
+  inExt[3] = outExt[3] - this->FinalExtentTranslation[1];
+  inExt[4] = outExt[4] - this->FinalExtentTranslation[2];
+  inExt[5] = outExt[5] - this->FinalExtentTranslation[2];
 }
