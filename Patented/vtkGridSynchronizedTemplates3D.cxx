@@ -424,15 +424,15 @@ static void ContourGrid(vtkGridSynchronizedTemplates3D *self,
   vtkFloatArray *newNormals = NULL;
   vtkFloatArray *newGradients = NULL;
 
-  if (self->GetComputeScalars())
+  if (ComputeScalars)
     {
     newScalars = vtkFloatArray::New();
     }
-  if (self->GetComputeScalars())
+  if (ComputeNormals)
     {
     newNormals = vtkFloatArray::New();
     }
-  if (self->GetComputeScalars())
+  if (ComputeGradients)
     {
     newGradients = vtkFloatArray::New();
     }
