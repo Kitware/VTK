@@ -54,7 +54,7 @@ vtkFloatVectors::vtkFloatVectors(const vtkFloatVectors& fv)
 
 vtkFloatVectors::vtkFloatVectors(const int sz, const int ext)
 {
-  this->V = new vtkFloatArray(sz, ext);
+  this->V = new vtkFloatArray(3*sz, 3*ext);
 }
 
 vtkFloatVectors::~vtkFloatVectors()
