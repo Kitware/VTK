@@ -63,6 +63,8 @@ IF (VTK_USE_RENDERING)
         TestQuantizeTo16Colors 
         TestRange3D
         TestResample
+	TestShiftScale
+	TestShiftScale2
         TestSimpleImageExample
         TestSkeleton2D
         TestSobel2D
