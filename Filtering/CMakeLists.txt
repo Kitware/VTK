@@ -29,6 +29,7 @@ vtkCellTypes.cxx
 vtkColorTransferFunction.cxx
 vtkCompositeDataCommand.cxx
 vtkCompositeDataIterator.cxx
+#vtkCompositeDataPipeline.cxx
 vtkCompositeDataSet.cxx
 vtkCompositeDataVisitor.cxx
 vtkCone.cxx
@@ -80,6 +81,7 @@ vtkHierarchicalBoxSource.cxx
 vtkHierarchicalBoxToHierarchicalBoxFilter.cxx
 vtkHierarchicalBoxToPolyDataFilter.cxx
 vtkHierarchicalBoxVisitor.cxx
+#vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
 vtkImageAlgorithm.cxx
@@ -101,6 +103,7 @@ vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
 vtkInformation.cxx
 vtkInformationDataObjectKey.cxx
+vtkInformationDoubleKey.cxx
 vtkInformationDoubleVectorKey.cxx
 vtkInformationExecutiveKey.cxx
 vtkInformationInformationKey.cxx
@@ -121,6 +124,7 @@ vtkMapper2D.cxx
 vtkMergePoints.cxx
 vtkMultiBlockApplyFilterCommand.cxx
 vtkMultiBlockDataSet.cxx
+#vtkMultiBlockDataSetAlgorithm.cxx
 vtkMultiBlockDataIterator.cxx
 vtkMultiBlockDataVisitor.cxx
 vtkNonLinearCell.cxx
@@ -240,6 +244,7 @@ vtkImageSource
 vtkImageToImageFilter
 vtkImageTwoInputFilter
 vtkInformationDataObjectKey
+vtkInformationDoubleKey
 vtkInformationDoubleVectorKey
 vtkInformationExecutiveKey
 vtkInformationInformationKey
