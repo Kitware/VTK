@@ -89,8 +89,12 @@ void vtkApproximatingSubdivisionFilter::Execute()
     inputDS->GetPointData()->PassData(input->GetPointData());
     inputDS->GetCellData()->PassData(input->GetCellData());
 
-  for (level = 0; level < this->NumberOfSubdivisions; level++)
+  int abort=0;
+  for (level = 0; level < this->NumberOfSubdivisions && !abort; level++)
     {
+    this->UpdateProgress((float)(level+1)/this->NumberOfSubdivisions);
+    abort = this->GetAbortExecute();
+
     // Generate topology  for the input dataset
     inputDS->BuildLinks();
 
@@ -295,7 +299,8 @@ void vtkApproximatingSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyDataToPolyDataFilter::PrintSelf(os,indent);
 
-  os << indent << "Number of subdivisions: " << this->NumberOfSubdivisions << endl;
+  os << indent << "Number of subdivisions: " 
+     << this->NumberOfSubdivisions << endl;
 }
 
 
