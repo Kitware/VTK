@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.37");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.38");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -592,7 +592,7 @@ void vtkBandedPolyDataContourFilter::Execute()
         }
 
       //Trivial output - completely in a contour band or a triangle
-      if ( ! intersectionPoint || numFullPts <= 3 )
+      if ( ! intersectionPoint || numFullPts == 3 )
         {
         cellId = this->InsertCell(newPolys,npts,pts,cellId,s[idx],newScalars);
         continue;
@@ -617,8 +617,11 @@ void vtkBandedPolyDataContourFilter::Execute()
         {
         newPolygon[numPolyPoints++] = fullPoly[(mL+i)%numFullPts];
         }
-      cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
-                                cellId,s[idx],newScalars);
+      if(numPolyPoints >= 3)
+        {
+        cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
+                                  cellId,s[idx],newScalars);
+        }
       if ( this->GenerateContourEdges )
         {
         contourEdges->InsertNextCell(2);
@@ -634,7 +637,7 @@ void vtkBandedPolyDataContourFilter::Execute()
       while ( m2R != m2L )
         {
         numPointsToAdd = (mL > mR ? mL-mR+1 : numFullPts-(mR-mL)+1);
-        if ( numPointsToAdd <= 3 )
+        if ( numPointsToAdd == 3 )
           {//just a triangle left
           for (numPolyPoints=0, i=0; i<numPointsToAdd; i++)
             {
@@ -676,6 +679,10 @@ void vtkBandedPolyDataContourFilter::Execute()
             }
 
           //add the polygon
+          if(numPolyPoints < 3)
+            {
+            break;
+            }
           cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
                                     cellId,s[mR],newScalars);
           if ( this->GenerateContourEdges )
