@@ -37,13 +37,13 @@
 #ifndef __vtkExtractGrid_h
 #define __vtkExtractGrid_h
 
-#include "vtkStructuredGridToStructuredGridFilter.h"
+#include "vtkStructuredGridAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkExtractGrid : public vtkStructuredGridToStructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractGrid : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkExtractGrid *New();
-  vtkTypeRevisionMacro(vtkExtractGrid,vtkStructuredGridToStructuredGridFilter);
+  vtkTypeRevisionMacro(vtkExtractGrid,vtkStructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -76,9 +76,9 @@ protected:
   vtkExtractGrid();
   ~vtkExtractGrid() {};
 
-  void Execute();
-  void ExecuteInformation();
-  void ComputeInputUpdateExtents(vtkDataObject *out);
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   
   int VOI[6];
   int SampleRate[3];
