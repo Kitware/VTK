@@ -93,8 +93,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   // Compute a different color for each process.
   elev = vtkElevationFilter::New();
   elev->SetInput(iso->GetOutput());
-  vtkMath::RandomSeed(myid * 100);
-  val = vtkMath::Random();
+  val = (myid+1) / static_cast<float>(numProcs);
   elev->SetScalarRange(val, val+0.001);
 
   if (myid != 0)
