@@ -65,6 +65,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   lowerLeft[1] = (int)(vport[1]*size[1] + 0.5);
   upperRight[0] = (int)(vport[2]*size[0] + 0.5);
   upperRight[1] = (int)(vport[3]*size[1] + 0.5);
+  upperRight[0]--;
+  upperRight[1]--;
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->Stereo)
