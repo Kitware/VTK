@@ -21,6 +21,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
