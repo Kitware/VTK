@@ -23,6 +23,7 @@ vtkEdgePoints edgePoints
 #
 vtkDataSetMapper mapper
   mapper SetInput [edgePoints GetOutput]
+  mapper ImmediateModeRenderingOn
     
 vtkActor head
     head SetMapper mapper
