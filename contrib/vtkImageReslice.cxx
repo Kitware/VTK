@@ -284,6 +284,22 @@ void vtkImageReslice::ComputeInputUpdateExtent(int inExt[6],
 	}
       }
     }
+
+  int *wholeExtent = this->GetInput()->GetWholeExtent();
+  // Clip, just to make sure we hit _some_ of the input extent
+  for (i = 0; i < 6; i++)
+    {
+    j = i - i%2;
+    if (inExt[i] < wholeExtent[j])
+      {
+      inExt[i] = wholeExtent[j];
+      }
+    j++;
+    if (inExt[i] > wholeExtent[j])
+      {
+      inExt[i] = wholeExtent[j];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1290,6 +1306,22 @@ static void ComputeInputUpdateExtentOptimized(vtkImageReslice *self,
 	  inExt[2*j+1] = k;
 	  }
 	}
+      }
+    }
+
+  int *wholeExtent = self->GetInput()->GetWholeExtent();
+  // Clip, just to make sure we hit _some_ of the input extent
+  for (i = 0; i < 6; i++)
+    {
+    j = i - i%2;
+    if (inExt[i] < wholeExtent[j])
+      {
+      inExt[i] = wholeExtent[j];
+      }
+    j++;
+    if (inExt[i] > wholeExtent[j])
+      {
+      inExt[i] = wholeExtent[j];
       }
     }
 }
