@@ -722,9 +722,11 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkObject::PrintSelf(os,indent);
 
-  if ( this->GetName() )
+  os << indent << "Name: " ;
+  const char* name = this->GetName();
+  if (name)
     {
-    os << indent << "Name: " << this->GetName() << "\n";
+    os << indent << "Name: " << name << "\n";
     }
   else
     {
