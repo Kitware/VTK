@@ -20,6 +20,7 @@
 // can be used within a vtkUnstructuredGridVolumeRayCastMapper. 
 
 // .SECTION See Also
+// vtkUnstructuredGridVolumeRayCastMapper vtkUnstructuredGridVolumeRayIntegrator
 
 #ifndef __vtkUnstructuredGridVolumeRayCastFunction_h
 #define __vtkUnstructuredGridVolumeRayCastFunction_h
@@ -41,9 +42,7 @@ public:
   
   virtual void Finalize( )=0;
 
-  virtual void CastRay( int x, int y, vtkUnstructuredGridVolumeRayCastIterator *iterator, float color[4] )=0;
-
-  // Description:
+ // Description:
   // Returns a new object that will iterate over all the intersections of a
   // ray with the cells of the input.  The calling code is responsible for
   // deleting the returned object.

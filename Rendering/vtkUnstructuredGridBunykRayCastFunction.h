@@ -92,10 +92,6 @@ public:
   // Called by the ray cast mapper at the end of rendering
   virtual void Finalize();
 
-  // Description:
-  // Called by the ray cast mapper once per ray.
-  virtual void CastRay( int x, int y, vtkUnstructuredGridVolumeRayCastIterator *iterator, float color[4] );
-
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
 
   // Used to store each triangle - made public because of the 
@@ -151,12 +147,6 @@ public:
   // Access to an internal structure for the templated method.
   Intersection *GetIntersectionList( int x, int y ) { return this->Image[y*this->ImageSize[0] + x]; }
 
-  double **GetColorTable() {return this->ColorTable;}
-  double *GetColorTableShift() {return this->ColorTableShift;}
-  double *GetColorTableScale() {return this->ColorTableScale;}
-
-  vtkGetMacro( ScalarOpacityUnitDistance, double );
-  
 //ETX
   
 protected:
@@ -202,41 +192,11 @@ protected:
   // This is the full size of the image
   int               ImageViewportSize[2];
 
-  // This table holds the mapping from scalar value to color/opacity.
-  // There is one table per component.
-  double         **ColorTable;
-  int             *ColorTableSize;
-  
-  // This is the shift/scale that needs to be applied to the scalar value
-  // to map it into the (integer) range of the color table. There is one
-  // shift/scale value per component.
-  double           *ColorTableShift;
-  double           *ColorTableScale;
-  
-  // These are some values saved during the computation of the ColorTable.
-  // These saved values help us determine if anything changed since the
-  // last time the functions were updated - if so we need to recreate them,
-  // otherwise we can just keep using the current ones.
-  vtkColorTransferFunction **SavedRGBFunction;
-  vtkPiecewiseFunction     **SavedGrayFunction;
-  vtkPiecewiseFunction     **SavedScalarOpacityFunction;
-  int                       *SavedColorChannels;
-  double                    *SavedScalarOpacityDistance;
-  double                     SavedSampleDistance;
-  int                        SavedBlendMode;
-  int                        SavedNumberOfComponents;
-  vtkUnstructuredGrid       *SavedParametersInput;
-  vtkTimeStamp               SavedParametersMTime;
-
   // These are values saved for the building of the TriangleList. Basically
   // we need to check if the data has changed in some way.
   vtkUnstructuredGrid       *SavedTriangleListInput;
   vtkTimeStamp               SavedTriangleListMTime;
-  
-  // The sample distance is computed when building the triangle
-  // structure as the average length of a side of a triangle
-  double                     SampleDistance;
-  
+ 
 //BTX  
   // This is a memory intensive algorithm! For each tetra in the 
   // input data we create up to 4 triangles (we don't create duplicates)
@@ -292,22 +252,6 @@ protected:
   // compute the intersections for each pixel with the boundary
   // triangles.
   void          ComputePixelIntersections();
-
-  // This method is used during the initialization process to
-  // update the arrays holding the mapping from scalar value
-  // to color/opacity
-  virtual void  UpdateColorTable();
-
-  // This method is used to change the number of components
-  // for which information is being cached. This will delete
-  // the color table and all saved arrays for computing it, 
-  // and will reconstruct them with the right size.
-  void          SetNumberOfComponents( int num );
-
-  // Hang on to this value (from vtkVolumeProperty) since the CastRay method
-  // will need access to it to correct the opacity for the actual length
-  // through each cell
-  double ScalarOpacityUnitDistance;
   
 //ETX
   

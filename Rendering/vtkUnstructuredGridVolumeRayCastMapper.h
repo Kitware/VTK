@@ -31,6 +31,7 @@ class vtkTimerLog;
 class vtkVolume;
 class vtkUnstructuredGridVolumeRayCastFunction;
 class vtkUnstructuredGridVolumeRayCastIterator;
+class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkRayCastImageDisplayHelper;
 
 class VTK_RENDERING_EXPORT vtkUnstructuredGridVolumeRayCastMapper : public vtkUnstructuredGridVolumeMapper
@@ -85,6 +86,11 @@ public:
   // Set/Get the helper class for casting rays.
   virtual void SetRayCastFunction(vtkUnstructuredGridVolumeRayCastFunction *f);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridVolumeRayCastFunction);
+
+  // Description:
+  // Set/Get the helper class for integrating rays.
+  virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
+  vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
   
 //BTX
   // Description:
@@ -166,8 +172,9 @@ protected:
   double         GetMinimumBoundsDepth( vtkRenderer *ren,
                                        vtkVolume   *vol );
   
-  vtkUnstructuredGridVolumeRayCastFunction *RayCastFunction;
+  vtkUnstructuredGridVolumeRayCastFunction  *RayCastFunction;
   vtkUnstructuredGridVolumeRayCastIterator **RayCastIterators;
+  vtkUnstructuredGridVolumeRayIntegrator    *RayIntegrator;
 
   vtkVolume     *CurrentVolume;
   vtkRenderer   *CurrentRenderer;
