@@ -147,6 +147,11 @@ void vtkSweptSurface::Execute()
   vtkDebugMacro(<<"Creating swept surface");
 
   // make sure there is input
+  if (input == NULL)
+    {
+    vtkErrorMacro(<<"Input is NULL");
+    return;
+    }
   pd = input->GetPointData();
   outPD = output->GetPointData();
   
