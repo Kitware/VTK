@@ -113,6 +113,7 @@ void vtkDataSetWriter::WriteData()
   writer->SetNormalsName(this->NormalsName);
   writer->SetTensorsName(this->TensorsName);
   writer->SetTCoordsName(this->TCoordsName);
+  writer->SetHeader(this->Header);
   writer->SetLookupTableName(this->LookupTableName);
   writer->SetFieldDataName(this->FieldDataName);
   writer->SetFileType(this->FileType);
