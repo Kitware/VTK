@@ -53,7 +53,7 @@ vtkImageShrink3D::vtkImageShrink3D()
   this->Axes[1] = VTK_IMAGE_Y_AXIS;
   this->Axes[2] = VTK_IMAGE_Z_AXIS;
   this->ShrinkFactors[0] = this->ShrinkFactors[1] = this->ShrinkFactors[2] = 1;
-  this->Shift[0] = this->Shift[1] = this->Shift[2] = 1;
+  this->Shift[0] = this->Shift[1] = this->Shift[2] = 0;
   this->Averaging = 1;
 
   this->ExecuteDimensionality = 3;
