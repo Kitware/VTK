@@ -131,15 +131,23 @@ void vtkImageRegion::PrintSelf(ostream& os, vtkIndent indent)
 void vtkImageRegion::MakeWritable()
 {
   vtkImageData *newData;
+  int axesSave[VTK_IMAGE_DIMENSIONS];
   
   if ((this->Data->GetRefCount() > 1) || 
       (this->Data->GetScalars()->GetRefCount() > 1))
     {
     vtkDebugMacro(<< "MakeWritable: Need to copy data because of references.");
     newData = new vtkImageData;
+    // Set the bounds
+    this->GetAxes(axesSave);
+    this->SetAxes(newData->GetAxes());
+    newData->SetBounds(this->GetBounds());
+    this->SetAxes(axesSave);
+    
+    // Replace the data object with a copy
     newData->CopyData(this->Data);
-    this->Data->UnRegister(this);
-    this->Data = newData;
+    this->SetData(newData);
+    newData->Delete();
     }
 }
 
