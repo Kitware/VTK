@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING)
       pickCells
       rendererSource
       rotations
+      ScalarBar
       TestFlyTo
       TestStyleJoystickActor
       TestStyleJoystickCamera
