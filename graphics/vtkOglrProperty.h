@@ -53,7 +53,7 @@ class vtkOglrRenderer;
 class VTK_EXPORT vtkOglrProperty : public vtkPropertyDevice
 {
  public:
-  vtkOglrProperty *New() {return new vtkOglrProperty;};
+  static vtkOglrProperty *New() {return new vtkOglrProperty;};
   char *GetClassName() {return "vtkOglrProperty";};
 
   void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);

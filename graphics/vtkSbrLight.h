@@ -55,7 +55,7 @@ class VTK_EXPORT vtkSbrLight : public vtkLightDevice
 protected:
   
 public:
-  vtkSbrLight *New() {return new vtkSbrLight;};
+  static vtkSbrLight *New() {return new vtkSbrLight;};
   char *GetClassName() {return "vtkSbrLight";};
 
   void Render(vtkLight *lgt, vtkRenderer *ren,int light_index);

@@ -79,7 +79,7 @@ class VTK_EXPORT vtkImplicitTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkImplicitTextureCoords();
-  vtkImplicitTextureCoords *New() {return new vtkImplicitTextureCoords;};
+  static vtkImplicitTextureCoords *New() {return new vtkImplicitTextureCoords;};
   char *GetClassName() {return "vtkImplicitTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -87,7 +87,7 @@ class VTK_EXPORT vtkAssembly : public vtkActor
 public:
   vtkAssembly();
   ~vtkAssembly();
-  vtkAssembly *New() {return new vtkAssembly;};
+  static vtkAssembly *New() {return new vtkAssembly;};
   char *GetClassName() {return "vtkAssembly";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

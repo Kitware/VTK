@@ -60,7 +60,7 @@ class VTK_EXPORT vtkShrinkPolyData : public vtkPolyToPolyFilter
 {
 public:
   vtkShrinkPolyData(float sf=0.5);
-  vtkShrinkPolyData *New() {return new vtkShrinkPolyData;};
+  static vtkShrinkPolyData *New() {return new vtkShrinkPolyData;};
   char *GetClassName() {return "vtkShrinkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

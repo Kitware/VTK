@@ -76,7 +76,7 @@ class VTK_EXPORT vtkLinkEdgels : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkLinkEdgels();
-  vtkLinkEdgels *New() {return new vtkLinkEdgels;};
+  static vtkLinkEdgels *New() {return new vtkLinkEdgels;};
   char *GetClassName() {return "vtkLinkEdgels";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

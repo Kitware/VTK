@@ -53,7 +53,7 @@ class vtkGlrRenderer;
 class VTK_EXPORT vtkGlrProperty : public vtkPropertyDevice
 {
  public:
-  vtkGlrProperty *New() {return new vtkGlrProperty;};
+  static vtkGlrProperty *New() {return new vtkGlrProperty;};
   char *GetClassName() {return "vtkGlrProperty";};
 
   void Render(vtkProperty *prop, vtkActor *a, vtkRenderer *ren);

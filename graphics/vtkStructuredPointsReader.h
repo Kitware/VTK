@@ -55,7 +55,7 @@ class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
 {
 public:
   vtkStructuredPointsReader();
-  vtkStructuredPointsReader *New() {return new vtkStructuredPointsReader;};
+  static vtkStructuredPointsReader *New() {return new vtkStructuredPointsReader;};
   char *GetClassName() {return "vtkStructuredPointsReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

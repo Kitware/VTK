@@ -56,7 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
-  vtkStructuredPointsFilter *New() {return new vtkStructuredPointsFilter;};
+  static vtkStructuredPointsFilter *New() {return new vtkStructuredPointsFilter;};
   char *GetClassName() {return "vtkStructuredPointsFilter";};
 
   void SetInput(vtkStructuredPoints *input);

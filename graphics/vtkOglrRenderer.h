@@ -58,7 +58,7 @@ class VTK_EXPORT vtkOglrRenderer : public vtkRenderer
   vtkOglrRenderer();
 
   void Render(void); // overides base 
-  vtkOglrRenderer *New() {return new vtkOglrRenderer;};
+  static vtkOglrRenderer *New() {return new vtkOglrRenderer;};
   char *GetClassName() {return "vtkOglrRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

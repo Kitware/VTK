@@ -62,7 +62,7 @@ class VTK_EXPORT vtkDataSetMapper : public vtkMapper
 public:
   vtkDataSetMapper();
   ~vtkDataSetMapper();
-  vtkDataSetMapper *New() {return new vtkDataSetMapper;};
+  static vtkDataSetMapper *New() {return new vtkDataSetMapper;};
   char *GetClassName() {return "vtkDataSetMapper";};
   void PrintSelf(ostream& os, vtkIndent indent);
   void Render(vtkRenderer *ren, vtkActor *act);

@@ -69,7 +69,7 @@ class VTK_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkImplicitVolume();
-  vtkImplicitVolume *New() {return new vtkImplicitVolume;};
+  static vtkImplicitVolume *New() {return new vtkImplicitVolume;};
   char *GetClassName() {return "vtkImplicitVolume";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

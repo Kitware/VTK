@@ -63,7 +63,7 @@ class VTK_EXPORT vtkFilter : public vtkSource
 public:
   vtkFilter();
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkFilter *New() {return new vtkFilter;};
+  static vtkFilter *New() {return new vtkFilter;};
   char *GetClassName() {return "vtkFilter";};
 
   // Description:

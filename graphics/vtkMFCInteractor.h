@@ -74,7 +74,7 @@ class VTK_EXPORT vtkMFCInteractor : public vtkRenderWindowInteractor
 public:
   vtkMFCInteractor();
   ~vtkMFCInteractor();
-  vtkMFCInteractor *New() {return new vtkMFCInteractor;};
+  static vtkMFCInteractor *New() {return new vtkMFCInteractor;};
   char *GetClassName() {return "vtkMFCInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

@@ -65,7 +65,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   vtkCamera();
   ~vtkCamera();
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkCamera *New() {return new vtkCamera;};
+  static vtkCamera *New() {return new vtkCamera;};
   char *GetClassName() {return "vtkCamera";};
 
   // Description:

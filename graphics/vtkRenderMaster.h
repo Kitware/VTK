@@ -63,7 +63,7 @@ class VTK_EXPORT vtkRenderMaster : public vtkObject
  public:
   vtkRenderMaster();
   ~vtkRenderMaster();
-  vtkRenderMaster *New() {return new vtkRenderMaster;};
+  static vtkRenderMaster *New() {return new vtkRenderMaster;};
   char *GetClassName() {return "vtkRenderMaster";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

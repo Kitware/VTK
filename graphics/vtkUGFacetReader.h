@@ -56,7 +56,7 @@ class VTK_EXPORT vtkUGFacetReader : public vtkPolySource
 public:
   vtkUGFacetReader();
   ~vtkUGFacetReader();
-  vtkUGFacetReader *New() {return new vtkUGFacetReader;};
+  static vtkUGFacetReader *New() {return new vtkUGFacetReader;};
   char *GetClassName() {return "vtkUGFacetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

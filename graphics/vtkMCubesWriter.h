@@ -63,7 +63,7 @@ class VTK_EXPORT vtkMCubesWriter : public vtkPolyWriter
 public:
   vtkMCubesWriter();
   ~vtkMCubesWriter();
-  vtkMCubesWriter *New() {return new vtkMCubesWriter;};
+  static vtkMCubesWriter *New() {return new vtkMCubesWriter;};
   char *GetClassName() {return "vtkMCubesWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -64,7 +64,7 @@ class VTK_EXPORT vtkImplicitWindowFunction : public vtkImplicitFunction
 public:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();
-  vtkImplicitWindowFunction *New() {return new vtkImplicitWindowFunction;};
+  static vtkImplicitWindowFunction *New() {return new vtkImplicitWindowFunction;};
   char *GetClassName() {return "vtkImplicitWindowFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

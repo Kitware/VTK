@@ -72,7 +72,7 @@ class VTK_EXPORT vtkPicker : public vtkObject
 {
 public:
   vtkPicker();
-  vtkPicker *New() {return new vtkPicker;};
+  static vtkPicker *New() {return new vtkPicker;};
   char *GetClassName() {return "vtkPicker";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

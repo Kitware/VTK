@@ -53,7 +53,7 @@ class VTK_EXPORT vtkCubeSource : public vtkPolySource
 {
 public:
   vtkCubeSource(float xL=1.0, float yL=1.0, float zL=1.0);
-  vtkCubeSource *New() {return new vtkCubeSource;};
+  static vtkCubeSource *New() {return new vtkCubeSource;};
   char *GetClassName() {return "vtkCubeSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

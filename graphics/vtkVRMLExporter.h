@@ -59,7 +59,7 @@ class VTK_EXPORT vtkVRMLExporter : public vtkExporter
 public:
   vtkVRMLExporter();
   ~vtkVRMLExporter();
-  vtkVRMLExporter *New() {return new vtkVRMLExporter;};
+  static vtkVRMLExporter *New() {return new vtkVRMLExporter;};
   char *GetClassName() {return "vtkVRMLExporter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

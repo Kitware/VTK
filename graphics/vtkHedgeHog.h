@@ -53,7 +53,7 @@ class VTK_EXPORT vtkHedgeHog : public vtkDataSetToPolyFilter
 {
 public:
   vtkHedgeHog() : ScaleFactor(1.0) {};
-  vtkHedgeHog *New() {return new vtkHedgeHog;};
+  static vtkHedgeHog *New() {return new vtkHedgeHog;};
   char *GetClassName() {return "vtkHedgeHog";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkCutter : public vtkDataSetToPolyFilter
 {
 public:
   vtkCutter(vtkImplicitFunction *cf=NULL);
-  vtkCutter *New() {return new vtkCutter;};
+  static vtkCutter *New() {return new vtkCutter;};
   char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

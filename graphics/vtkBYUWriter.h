@@ -59,7 +59,7 @@ class VTK_EXPORT vtkBYUWriter : public vtkPolyWriter
 public:
   vtkBYUWriter();
   ~vtkBYUWriter();
-  vtkBYUWriter *New() {return new vtkBYUWriter;};
+  static vtkBYUWriter *New() {return new vtkBYUWriter;};
   char *GetClassName() {return "vtkBYUWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

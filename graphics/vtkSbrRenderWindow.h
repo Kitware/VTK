@@ -58,7 +58,7 @@ class VTK_EXPORT vtkSbrRenderWindow : public vtkXRenderWindow
 public:
   vtkSbrRenderWindow();
   ~vtkSbrRenderWindow();
-  vtkSbrRenderWindow *New() {return new vtkSbrRenderWindow;};
+  static vtkSbrRenderWindow *New() {return new vtkSbrRenderWindow;};
   char *GetClassName() {return "vtkSbrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   

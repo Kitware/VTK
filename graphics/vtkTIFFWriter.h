@@ -57,7 +57,7 @@ class VTK_EXPORT vtkTIFFWriter : public vtkWriter
 public:
   vtkTIFFWriter();
   ~vtkTIFFWriter();
-  vtkTIFFWriter *New() {return new vtkTIFFWriter;};
+  static vtkTIFFWriter *New() {return new vtkTIFFWriter;};
   char *GetClassName() {return "vtkTIFFWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

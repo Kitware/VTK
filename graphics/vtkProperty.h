@@ -66,7 +66,7 @@ class VTK_EXPORT vtkProperty : public vtkObject
 public:
   vtkProperty();
   ~vtkProperty();
-  vtkProperty *New() {return new vtkProperty;};
+  static vtkProperty *New() {return new vtkProperty;};
   char *GetClassName() {return "vtkProperty";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -52,7 +52,7 @@ class VTK_EXPORT vtkVectorText : public vtkPolySource
 {
 public:
   vtkVectorText();
-  vtkVectorText *New() {return new vtkVectorText;};
+  static vtkVectorText *New() {return new vtkVectorText;};
   char *GetClassName() {return "vtkVectorText";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

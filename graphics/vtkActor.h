@@ -74,7 +74,7 @@ class VTK_EXPORT vtkActor : public vtkProp
  public:
   vtkActor();
   ~vtkActor();
-  vtkActor *New() {return new vtkActor;};
+  static vtkActor *New() {return new vtkActor;};
   char *GetClassName() {return "vtkActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

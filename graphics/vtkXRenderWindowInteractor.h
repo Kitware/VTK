@@ -76,7 +76,7 @@ class VTK_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 public:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor();
-  vtkXRenderWindowInteractor *New() {return new vtkXRenderWindowInteractor;};
+  static vtkXRenderWindowInteractor *New() {return new vtkXRenderWindowInteractor;};
   char *GetClassName() {return "vtkXRenderWindowInteractor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

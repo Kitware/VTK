@@ -100,7 +100,7 @@ class VTK_EXPORT vtkOBBTree : public vtkCellLocator
 {
 public:
   vtkOBBTree();
-  vtkOBBTree *New() {return new vtkOBBTree;};
+  static vtkOBBTree *New() {return new vtkOBBTree;};
   char *GetClassName() {return "vtkOBBTree";};
 
   void ComputeOBB(vtkFloatPoints *pts, float corner[3], float max[3], 

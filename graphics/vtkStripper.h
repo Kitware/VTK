@@ -67,7 +67,7 @@ class VTK_EXPORT vtkStripper : public vtkPolyToPolyFilter
 {
 public:
   vtkStripper();
-  vtkStripper *New() {return new vtkStripper;};
+  static vtkStripper *New() {return new vtkStripper;};
   char *GetClassName() {return "vtkStripper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -72,7 +72,7 @@ class VTK_EXPORT vtkContourFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkContourFilter();
-  vtkContourFilter *New() {return new vtkContourFilter;};
+  static vtkContourFilter *New() {return new vtkContourFilter;};
   char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

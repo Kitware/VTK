@@ -19,7 +19,7 @@ class vtkVolume;
 class VTK_EXPORT vtkVolumeCollection : public vtkCollection
 {
  public:
-  vtkVolumeCollection *New() {return new vtkVolumeCollection;};
+  static vtkVolumeCollection *New() {return new vtkVolumeCollection;};
   char *GetClassName() {return "vtkVolumeCollection";};
 
   void AddItem(vtkVolume *a);

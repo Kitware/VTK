@@ -55,7 +55,7 @@ class VTK_EXPORT vtkUnstructuredGridWriter : public vtkDataWriter
 {
 public:
   vtkUnstructuredGridWriter() {};
-  vtkUnstructuredGridWriter *New() {return new vtkUnstructuredGridWriter;};
+  static vtkUnstructuredGridWriter *New() {return new vtkUnstructuredGridWriter;};
   char *GetClassName() {return "vtkUnstructuredGridWriter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

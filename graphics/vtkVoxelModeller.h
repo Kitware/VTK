@@ -57,7 +57,7 @@ class VTK_EXPORT vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkVoxelModeller();
-  vtkVoxelModeller *New() {return new vtkVoxelModeller;};
+  static vtkVoxelModeller *New() {return new vtkVoxelModeller;};
   char *GetClassName() {return "vtkVoxelModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

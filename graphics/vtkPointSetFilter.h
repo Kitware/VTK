@@ -57,7 +57,7 @@ class VTK_EXPORT vtkPointSetFilter : public vtkFilter
 public:
   vtkPointSetFilter() {};
   ~vtkPointSetFilter();
-  vtkPointSetFilter *New() {return new vtkPointSetFilter;};
+  static vtkPointSetFilter *New() {return new vtkPointSetFilter;};
   char *GetClassName() {return "vtkPointSetFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

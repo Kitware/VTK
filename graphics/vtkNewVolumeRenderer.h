@@ -16,7 +16,7 @@ class VTK_EXPORT vtkNewVolumeRenderer : public vtkObject
 public:
   vtkNewVolumeRenderer();
   ~vtkNewVolumeRenderer();
-  vtkNewVolumeRenderer *New() {return new vtkNewVolumeRenderer;};
+  static vtkNewVolumeRenderer *New() {return new vtkNewVolumeRenderer;};
   char *GetClassName() {return "vtkNewVolumeRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

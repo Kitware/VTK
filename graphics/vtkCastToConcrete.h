@@ -76,7 +76,7 @@ class VTK_EXPORT vtkCastToConcrete : public vtkDataSetFilter
 public:
   vtkCastToConcrete();
   ~vtkCastToConcrete();
-  vtkCastToConcrete *New() {return new vtkCastToConcrete;};
+  static vtkCastToConcrete *New() {return new vtkCastToConcrete;};
   char *GetClassName() {return "vtkCastToConcrete";};
 
   // filter interface (special pass-thru)

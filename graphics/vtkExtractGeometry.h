@@ -59,7 +59,7 @@ class VTK_EXPORT vtkExtractGeometry : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkExtractGeometry(vtkImplicitFunction *f=NULL);
-  vtkExtractGeometry *New() {return new vtkExtractGeometry;};
+  static vtkExtractGeometry *New() {return new vtkExtractGeometry;};
   char *GetClassName() {return "vtkExtractGeometry";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -54,7 +54,7 @@ class VTK_EXPORT vtkViewRays :public vtkObject
   public:
   vtkViewRays(void);
   ~vtkViewRays(void);
-  vtkViewRays *New() {return new vtkViewRays;};
+  static vtkViewRays *New() {return new vtkViewRays;};
   char *GetClassName() {return "vtkViewRays";};
   void PrintSelf(ostream& os,vtkIndent indent);
 

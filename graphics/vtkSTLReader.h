@@ -67,7 +67,7 @@ class VTK_EXPORT vtkSTLReader : public vtkPolySource
 public:
   vtkSTLReader();
   ~vtkSTLReader();
-  vtkSTLReader *New() {return new vtkSTLReader;};
+  static vtkSTLReader *New() {return new vtkSTLReader;};
   char *GetClassName() {return "vtkSTLReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

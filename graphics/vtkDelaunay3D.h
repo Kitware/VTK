@@ -116,7 +116,7 @@ class VTK_EXPORT vtkDelaunay3D : public vtkPointSetFilter
 {
 public:
   vtkDelaunay3D();
-  vtkDelaunay3D *New() {return new vtkDelaunay3D;};
+  static vtkDelaunay3D *New() {return new vtkDelaunay3D;};
   char *GetClassName() {return "vtkDelaunay3D";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

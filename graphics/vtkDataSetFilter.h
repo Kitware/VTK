@@ -62,7 +62,7 @@ class VTK_EXPORT vtkDataSetFilter : public vtkFilter
 {
 public:
   vtkDataSetFilter() {};
-  vtkDataSetFilter *New() {return new vtkDataSetFilter;};
+  static vtkDataSetFilter *New() {return new vtkDataSetFilter;};
   char *GetClassName() {return "vtkDataSetFilter";};
 
   virtual void SetInput(vtkDataSet *input);

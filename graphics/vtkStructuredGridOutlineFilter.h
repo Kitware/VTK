@@ -52,7 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyFilter
 {
 public:
-  vtkStructuredGridOutlineFilter *New() {return new vtkStructuredGridOutlineFilter;};
+  static vtkStructuredGridOutlineFilter *New() {return new vtkStructuredGridOutlineFilter;};
   char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
 protected:

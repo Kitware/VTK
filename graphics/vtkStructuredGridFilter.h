@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredGridFilter : public vtkFilter 
 {
 public:
-  vtkStructuredGridFilter *New() {return new vtkStructuredGridFilter;};
+  static vtkStructuredGridFilter *New() {return new vtkStructuredGridFilter;};
   char *GetClassName() {return "vtkStructuredGridFilter";};
 
   void SetInput(vtkStructuredGrid *input);

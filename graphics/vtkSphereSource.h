@@ -57,7 +57,7 @@ class VTK_EXPORT vtkSphereSource : public vtkPolySource
 {
 public:
   vtkSphereSource(int res=8);
-  vtkSphereSource *New() {return new vtkSphereSource;};
+  static vtkSphereSource *New() {return new vtkSphereSource;};
   char *GetClassName() {return "vtkSphereSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -60,7 +60,7 @@ class VTK_EXPORT vtkShrinkFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkShrinkFilter(float sf=0.5);
-  vtkShrinkFilter *New() {return new vtkShrinkFilter;};
+  static vtkShrinkFilter *New() {return new vtkShrinkFilter;};
   char *GetClassName() {return "vtkShrinkFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

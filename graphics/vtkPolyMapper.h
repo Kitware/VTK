@@ -58,7 +58,7 @@ class VTK_EXPORT vtkPolyMapper : public vtkMapper
 public:
   vtkPolyMapper();
   ~vtkPolyMapper();
-  vtkPolyMapper *New() {return new vtkPolyMapper;};
+  static vtkPolyMapper *New() {return new vtkPolyMapper;};
   char *GetClassName() {return "vtkPolyMapper";};
 
   void Render(vtkRenderer *ren, vtkActor *a);

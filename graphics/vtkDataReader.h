@@ -60,7 +60,7 @@ class VTK_EXPORT vtkDataReader : public vtkObject
 public:
   vtkDataReader();
   ~vtkDataReader();
-  vtkDataReader *New() {return new vtkDataReader;};
+  static vtkDataReader *New() {return new vtkDataReader;};
   char *GetClassName() {return "vtkDataReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -56,7 +56,7 @@ class VTK_EXPORT vtkThresholdPoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkThresholdPoints();
-  vtkThresholdPoints *New() {return new vtkThresholdPoints;};
+  static vtkThresholdPoints *New() {return new vtkThresholdPoints;};
   char *GetClassName() {return "vtkThresholdPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

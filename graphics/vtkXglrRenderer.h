@@ -64,7 +64,7 @@ protected:
 
 public:
   vtkXglrRenderer();
-  vtkXglrRenderer *New() {return new vtkXglrRenderer;};
+  static vtkXglrRenderer *New() {return new vtkXglrRenderer;};
   char *GetClassName() {return "vtkXglrRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

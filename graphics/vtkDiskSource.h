@@ -56,7 +56,7 @@ class VTK_EXPORT vtkDiskSource : public vtkPolySource
 {
 public:
   vtkDiskSource();
-  vtkDiskSource *New() {return new vtkDiskSource;};
+  static vtkDiskSource *New() {return new vtkDiskSource;};
   char *GetClassName() {return "vtkDiskSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

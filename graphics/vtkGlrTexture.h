@@ -54,7 +54,7 @@ class VTK_EXPORT vtkGlrTexture : public vtkTextureDevice
 {
 public:
   vtkGlrTexture();
-  vtkGlrTexture *New() {return new vtkGlrTexture;};
+  static vtkGlrTexture *New() {return new vtkGlrTexture;};
   char *GetClassName() {return "vtkGlrTexture";};
   
   void Load(vtkTexture *txt, vtkRenderer *ren);

@@ -55,7 +55,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkIVWriter : public vtkPolyWriter
 {
 public:
-  vtkIVWriter *New() {return new vtkIVWriter;};
+  static vtkIVWriter *New() {return new vtkIVWriter;};
   char *GetClassName() {return "vtkIVWriter";};
 
 protected:

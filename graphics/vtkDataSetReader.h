@@ -58,7 +58,7 @@ class VTK_EXPORT vtkDataSetReader : public vtkSource
 {
 public:
   vtkDataSetReader();
-  vtkDataSetReader *New() {return new vtkDataSetReader;};
+  static vtkDataSetReader *New() {return new vtkDataSetReader;};
   char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -68,7 +68,7 @@ class VTK_EXPORT vtkRenderer : public vtkObject
 public:
   vtkRenderer();
   ~vtkRenderer();
-  vtkRenderer *New() {return new vtkRenderer;};
+  static vtkRenderer *New() {return new vtkRenderer;};
   char *GetClassName() {return "vtkRenderer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

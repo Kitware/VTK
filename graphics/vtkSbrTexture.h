@@ -54,7 +54,7 @@ class VTK_EXPORT vtkSbrTexture : public vtkTexture
 {
 public:
   vtkSbrTexture();
-  vtkSbrTexture *New() {return new vtkSbrTexture;};
+  static vtkSbrTexture *New() {return new vtkSbrTexture;};
   char *GetClassName() {return "vtkSbrTexture";};
   
   void Load(vtkTexture *txt, vtkRenderer *ren);

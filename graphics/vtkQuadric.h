@@ -53,7 +53,7 @@ class VTK_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkQuadric();
-  vtkQuadric *New() {return new vtkQuadric;};
+  static vtkQuadric *New() {return new vtkQuadric;};
   char *GetClassName() {return "vtkQuadric";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

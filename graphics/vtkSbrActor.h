@@ -55,7 +55,7 @@ class VTK_EXPORT vtkSbrActor : public vtkActorDevice
 protected:
   
 public:
-  vtkSbrActor *New() {return new vtkSbrActor;};
+  static vtkSbrActor *New() {return new vtkSbrActor;};
   char *GetClassName() {return "vtkSbrActor";};
 
   void Render(vtkActor *a, vtkRenderer *ren, vtkMapper *mapper);

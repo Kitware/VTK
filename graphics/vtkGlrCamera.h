@@ -53,7 +53,7 @@ class vtkGlrRenderer;
 class VTK_EXPORT vtkGlrCamera : public vtkCameraDevice
 {
  public:
-  vtkGlrCamera *New() {return new vtkGlrCamera;};
+  static vtkGlrCamera *New() {return new vtkGlrCamera;};
   char *GetClassName() {return "vtkGlrCamera";};
 
   void Render(vtkCamera *cam, vtkRenderer *ren);

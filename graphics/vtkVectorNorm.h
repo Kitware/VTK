@@ -53,7 +53,7 @@ class VTK_EXPORT vtkVectorNorm : public vtkDataSetToDataSetFilter
 {
 public:
   vtkVectorNorm();
-  vtkVectorNorm *New() {return new vtkVectorNorm;};
+  static vtkVectorNorm *New() {return new vtkVectorNorm;};
   char *GetClassName() {return "vtkVectorNorm";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

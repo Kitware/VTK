@@ -54,7 +54,7 @@ class vtkSbrRenderer;
 class VTK_EXPORT vtkSbrCamera : public vtkCameraDevice
 {
  public:
-  vtkSbrCamera *New() {return new vtkSbrCamera;};
+  static vtkSbrCamera *New() {return new vtkSbrCamera;};
   char *GetClassName() {return "vtkSbrCamera";};
 
   void Render(vtkCamera *, vtkRenderer *ren);

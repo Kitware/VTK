@@ -130,7 +130,7 @@ class VTK_EXPORT vtkHyperStreamline : public vtkDataSetToPolyFilter
 public:
   vtkHyperStreamline();
   ~vtkHyperStreamline();
-  vtkHyperStreamline *New() {return new vtkHyperStreamline;};
+  static vtkHyperStreamline *New() {return new vtkHyperStreamline;};
   char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

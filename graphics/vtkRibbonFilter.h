@@ -62,7 +62,7 @@ class VTK_EXPORT vtkRibbonFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkRibbonFilter();
-  vtkRibbonFilter *New() {return new vtkRibbonFilter;};
+  static vtkRibbonFilter *New() {return new vtkRibbonFilter;};
   char *GetClassName() {return "vtkRibbonFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -59,7 +59,7 @@ class VTK_EXPORT vtkPolyToPolyFilter : public vtkPolyFilter
 {
 public:
   vtkPolyToPolyFilter();
-  vtkPolyToPolyFilter *New() {return new vtkPolyToPolyFilter;};
+  static vtkPolyToPolyFilter *New() {return new vtkPolyToPolyFilter;};
   char *GetClassName() {return "vtkPolyToPolyFilter";};
 
   // Description:

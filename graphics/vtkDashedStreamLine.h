@@ -63,7 +63,7 @@ class VTK_EXPORT vtkDashedStreamLine : public vtkStreamLine
 {
 public:
   vtkDashedStreamLine();
-  vtkDashedStreamLine *New() {return new vtkDashedStreamLine;};
+  static vtkDashedStreamLine *New() {return new vtkDashedStreamLine;};
   char *GetClassName() {return "vtkDashedStreamLine";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

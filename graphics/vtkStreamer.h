@@ -131,7 +131,7 @@ class VTK_EXPORT vtkStreamer : public vtkDataSetToPolyFilter
 public:
   vtkStreamer();
   ~vtkStreamer();
-  vtkStreamer *New() {return new vtkStreamer;};
+  static vtkStreamer *New() {return new vtkStreamer;};
   char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

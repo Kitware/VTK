@@ -63,7 +63,7 @@ class VTK_EXPORT vtkCleanPolyData : public vtkPolyToPolyFilter
 public:
   vtkCleanPolyData();
   ~vtkCleanPolyData();
-  vtkCleanPolyData *New() {return new vtkCleanPolyData;};
+  static vtkCleanPolyData *New() {return new vtkCleanPolyData;};
   char *GetClassName() {return "vtkCleanPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
