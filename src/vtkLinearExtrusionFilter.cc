@@ -45,7 +45,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vector (0,0,1), and extrusion point (0,0,0).
 vtkLinearExtrusionFilter::vtkLinearExtrusionFilter()
 {
-  this->ExtrusionType = NORMAL_EXTRUSION;
+  this->ExtrusionType = VTK_NORMAL_EXTRUSION;
   this->Capping = 1;
   this->ScaleFactor = 1.0;
   this->Vector[0] = this->Vector[1] = 0.0; this->Vector[2] = 1.0;
@@ -119,17 +119,17 @@ void vtkLinearExtrusionFilter::Execute()
 //
 // Decide which vector to use for extrusion
 //
-  if ( this->ExtrusionType == POINT_EXTRUSION )
+  if ( this->ExtrusionType == VTK_POINT_EXTRUSION )
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaPoint;
     }
-  else if ( this->ExtrusionType == NORMAL_EXTRUSION  &&
+  else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION  &&
   (inNormals = pd->GetNormals()) != NULL )
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaNormal;
     inNormals = pd->GetNormals();
     }
-  else // Vector_EXTRUSION
+  else // VTK_VECTOR_EXTRUSION
     {
     this->ExtrudePoint = &vtkLinearExtrusionFilter::ViaVector;
     }
@@ -292,13 +292,13 @@ void vtkLinearExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyToPolyFilter::PrintSelf(os,indent);
 
-  if ( this->ExtrusionType == VECTOR_EXTRUSION )
+  if ( this->ExtrusionType == VTK_VECTOR_EXTRUSION )
     {
     os << indent << "Extrusion Type: Extrude along vector\n";
     os << indent << "Vector: (" << this->Vector[0] << ", " 
        << this->Vector[1] << ", " << this->Vector[2] << ")\n";
     }
-  else if ( this->ExtrusionType == NORMAL_EXTRUSION )
+  else if ( this->ExtrusionType == VTK_NORMAL_EXTRUSION )
     {
     os << indent << "Extrusion Type: Extrude along vertex normals\n";
     }
