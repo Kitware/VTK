@@ -55,7 +55,7 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
   this->Shadow = 1;
   this->FontFamily = VTK_ARIAL;
   this->LabelFormat = new char[8]; 
-  sprintf(this->LabelFormat,"%g");
+  strcpy(this->LabelFormat,"%g");
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
  
