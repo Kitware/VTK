@@ -145,6 +145,9 @@ IF (VTK_WRAP_TCL)
   ELSE (TCL_INCLUDE_PATH)
     MESSAGE("Could not find the include directory for Tcl")
   ENDIF (TCL_INCLUDE_PATH)
+
+  # The tcl package location.
+  SET(VTK_TCL_HOME ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF (VTK_WRAP_TCL)
 
 #
