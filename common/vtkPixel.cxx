@@ -252,7 +252,7 @@ vtkPixel* vtkPixel::New()
 
 
 
-static int edges[4][2] = { {0,1}, {1,3}, {3,2}, {2,0} };
+static int edges[4][2] = { {0,1}, {1,3}, {2,3}, {0,2} };
 
 void vtkPixel::Contour(float value, vtkScalars *cellScalars,
 		       vtkPointLocator *locator, 
