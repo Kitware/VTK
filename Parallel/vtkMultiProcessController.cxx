@@ -17,6 +17,7 @@
 =========================================================================*/
 // This will be the default.
 #include "vtkMultiProcessController.h"
+#include "vtkDummyController.h"
 #include "vtkThreadedController.h"
 #include "vtkToolkits.h"
 
@@ -53,10 +54,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.15");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.16");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.15");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.16");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -153,8 +154,8 @@ vtkMultiProcessController *vtkMultiProcessController::New()
 #endif
 
   vtkGenericWarningMacro("No valid parallel library was found. "
-                         "Can not create controller.");
-  return NULL;
+                         "Creating dummy controller.");
+  return vtkDummyController::New();
 }
 
 
