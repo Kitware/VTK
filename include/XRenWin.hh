@@ -43,8 +43,10 @@ public:
   int     *GetPosition();
   Display *GetDisplayId();
   void     SetDisplayId(Display *);
+  void     SetDisplayId(void *);
   Window   GetWindowId();
   void     SetWindowId(Window);
+  void     SetWindowId(void *);
   void     SetNextWindowId(Window);
   virtual int      GetDesiredDepth()    = 0;
   virtual Colormap GetDesiredColormap() = 0;
