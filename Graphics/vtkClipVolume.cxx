@@ -142,7 +142,8 @@ void vtkClipVolume::Execute()
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkUnstructuredGrid *clippedOutput = this->GetClippedOutput();
   vtkUnstructuredGrid *outputPtr;
-  int cellId, i, j, k, flip, iflip, jflip, kflip, newCellId;
+  vtkIdType cellId, newCellId, i;
+  int j, k, flip, iflip, jflip, kflip;
   vtkPoints *cellPts;
   vtkScalars *clipScalars;
   vtkScalars *cellScalars; 
@@ -150,8 +151,8 @@ void vtkClipVolume::Execute()
   vtkPoints *newPoints;
   vtkIdList *cellIds;
   float value, s, *x, origin[3], spacing[3];
-  int estimatedSize, numCells=input->GetNumberOfCells();
-  int numPts=input->GetNumberOfPoints();
+  vtkIdType estimatedSize, numCells=input->GetNumberOfCells();
+  vtkIdType numPts=input->GetNumberOfPoints();
   vtkPointData *inPD=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *inCD=input->GetCellData(), *outCD=output->GetCellData();
   vtkCellData *clippedCD=clippedOutput->GetCellData();
@@ -417,7 +418,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
                               vtkIdList *cellIds, vtkPoints *cellPts,
                               vtkPointData *inPD, vtkPointData *outPD,
                               vtkCellData *vtkNotUsed(inCD),
-			      int vtkNotUsed(cellId), 
+			      vtkIdType vtkNotUsed(cellId), 
                               vtkCellData *vtkNotUsed(outCD),
 			      vtkCellData *vtkNotUsed(clippedCD))
 {
@@ -448,7 +449,7 @@ void vtkClipVolume::ClipVoxel(float value, vtkScalars *cellScalars,
   // Inject ordered voxel corner points into triangulation. Recall
   // that the PreSortedOn() flag was set in the triangulator.
   int type;
-  int internalId[8]; //used to merge points if nearby edge intersection
+  vtkIdType internalId[8]; //used to merge points if nearby edge intersection
   for (numPts=0; numPts<8; numPts++)
     {
     ptId = order[flip][numPts];

@@ -86,10 +86,14 @@ public:
   void operator=(const vtkButterflySubdivisionFilter&) {};
 
  private:
-  void GenerateSubdivisionPoints (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkPoints *outputPts, vtkPointData *outputPD);
-  void GenerateButterflyStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
-  void GenerateLoopStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
-  void GenerateBoundaryStencil (int p1, int p2, vtkPolyData *polys, vtkIdList *stencilIds, float *weights);
+  void GenerateSubdivisionPoints(vtkPolyData *inputDS, vtkIntArray *edgeData,
+                                 vtkPoints *outputPts, vtkPointData *outputPD);
+  void GenerateButterflyStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
+                                vtkIdList *stencilIds, float *weights);
+  void GenerateLoopStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
+                           vtkIdList *stencilIds, float *weights);
+  void GenerateBoundaryStencil(vtkIdType p1, vtkIdType p2, vtkPolyData *polys,
+                               vtkIdList *stencilIds, float *weights);
 };
 
 #endif

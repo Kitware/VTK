@@ -131,11 +131,11 @@ public:
 
   // Description:
   // Add a seed id (point or cell id). Note: ids are 0-offset.
-  void AddSeed(int id);
+  void AddSeed(vtkIdType id);
 
   // Description:
   // Delete a seed id (point or cell id). Note: ids are 0-offset.
-  void DeleteSeed(int id);
+  void DeleteSeed(vtkIdType id);
 
   // Description:
   // Initialize list of region ids to extract.
@@ -191,11 +191,11 @@ private:
   // used to support algorithm execution
   vtkScalars *CellScalars;
   vtkIdList *NeighborCellPointIds;
-  int *Visited;
-  int *PointMap;
+  vtkIdType *Visited;
+  vtkIdType *PointMap;
   vtkScalars *NewScalars;
   int RegionNumber;
-  int PointNumber;    
+  vtkIdType PointNumber;    
   int NumCellsInRegion;
   vtkScalars *InScalars;
   vtkIdList *Wave;

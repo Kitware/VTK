@@ -143,7 +143,7 @@ vtkDecimatePro::~vtkDecimatePro()
 //
 void vtkDecimatePro::Execute()
 {
-  int i, ptId, numPts, numTris, collapseId;
+  vtkIdType i, ptId, numPts, numTris, collapseId;
   vtkPoints *inPts;
   vtkPoints *newPts;
   vtkCellArray *inPolys;
@@ -151,11 +151,10 @@ void vtkDecimatePro::Execute()
   float error, previousError=0.0, reduction;
   vtkPolyData *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
-  int type, totalEliminated, numPops;
-  int numRecycles;
-  vtkIdType *pts, npts;
+  int type;
+  vtkIdType *pts, npts, totalEliminated, numRecycles, numPops;
   unsigned short int ncells;
-  int pt1, pt2, cellId, fedges[2];
+  vtkIdType pt1, pt2, cellId, fedges[2];
   vtkIdType *cells;
   vtkIdList *CollapseTris;
   float max, *bounds;
@@ -167,7 +166,7 @@ void vtkDecimatePro::Execute()
   vtkPointData *outputPD=output->GetPointData();
   vtkPointData *inPD=input->GetPointData();
   vtkPointData *meshPD=0;
-  int *map, numNewPts, totalPts;
+  vtkIdType *map, numNewPts, totalPts;
   vtkIdType newCellPts[3];
   int abortExecute=0;
 
@@ -178,10 +177,10 @@ void vtkDecimatePro::Execute()
   if ( ((numPts=input->GetNumberOfPoints()) < 1 || numTris < 1) &&
        (this->TargetReduction > 0.0) )
     {
-      vtkErrorMacro(<<"No data to decimate!");
-      return;
+    vtkErrorMacro(<<"No data to decimate!");
+    return;
     }
-
+  
   // Initialize
   bounds = input->GetBounds();
   for (max=0.0, i=0; i<3; i++)
@@ -190,15 +189,15 @@ void vtkDecimatePro::Execute()
            (bounds[2*i+1]-bounds[2*i]) : max);
     }
   if (!this->ErrorIsAbsolute)
-  {
+    {
     this->Error = (this->MaximumError >= VTK_LARGE_FLOAT ?
-           VTK_LARGE_FLOAT : this->MaximumError * max);
-  }
+                   VTK_LARGE_FLOAT : this->MaximumError * max);
+    }
   else
-  {
+    {
     this->Error = (this->AbsoluteError >= VTK_LARGE_FLOAT ?
-           VTK_LARGE_FLOAT : this->AbsoluteError);
-  }
+                   VTK_LARGE_FLOAT : this->AbsoluteError);
+    }
   this->Tolerance = VTK_TOLERANCE * input->GetLength();
   this->CosAngle = 
     cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
@@ -216,21 +215,21 @@ void vtkDecimatePro::Execute()
     // this static should be eliminated
     if (this->Mesh != NULL) {this->Mesh->Delete(); this->Mesh = NULL;}
     this->Mesh = vtkPolyData::New();
-
+    
     newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
     newPts->DeepCopy(inPts);
     this->Mesh->SetPoints(newPts);
     newPts->Delete(); //registered by Mesh and preserved
-
+    
     newPolys = vtkCellArray::New();
     newPolys->DeepCopy(inPolys);
     this->Mesh->SetPolys(newPolys);
     newPolys->Delete(); //registered by Mesh and preserved
-
+    
     meshPD = this->Mesh->GetPointData();
     meshPD->DeepCopy(inPD);
     meshPD->CopyAllocate(meshPD, input->GetNumberOfPoints());
-
+    
     this->Mesh->BuildLinks();
     }
   else
@@ -241,20 +240,20 @@ void vtkDecimatePro::Execute()
     //vtkWarningMacro(<<"Reduction == 0: passing data through unchanged");
     return;
     }
-
+  
   // Initialize data structures: priority queue and errors.
   this->InitializeQueue(numPts);
-
+  
   if ( this->AccumulateError )
     {
     this->VertexError = vtkFloatArray::New();
-    this->VertexError->Allocate(numPts,(int) ((float)0.25*numPts));
+    this->VertexError->Allocate(numPts,(vtkIdType) ((float)0.25*numPts));
     for (i=0; i<numPts; i++)
       {
       this->VertexError->SetValue(i, 0.0);
       }
     }
-
+  
   // If not deferring splitting and splitting on, we'll start off by 
   // splitting the mesh. This has side effect of inserting vertices.
   this->NumCollapses = this->NumMerges = 0;
@@ -264,7 +263,7 @@ void vtkDecimatePro::Execute()
     this->SplitState = VTK_STATE_SPLIT;
     this->SplitMesh();
     }
-
+  
   // Start by traversing all vertices. For each vertex, evaluate the
   // local topology/geometry. (Some vertex splitting may be
   // necessary to resolve non-manifold geometry or to split edges.) 
@@ -286,10 +285,10 @@ void vtkDecimatePro::Execute()
     this->Insert(ptId);
     }
   this->UpdateProgress (0.25);//25% spent inserting
-
+  
   CollapseTris = vtkIdList::New();
   CollapseTris->Allocate(100,100);
-
+  
   // While the priority queue is not empty, retrieve the top vertex from the
   // queue and attempt to delete it by performing an edge collapse. This 
   // in turn will cause modification to the surrounding vertices. For each
@@ -297,8 +296,8 @@ void vtkDecimatePro::Execute()
   // (While this is happening we keep track of operations on the data - 
   // this forms the core of the progressive mesh representation.)
   for ( totalEliminated=0, reduction=0.0, numRecycles=0, numPops=0;
-  reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abortExecute; 
-  numPops++)
+        reduction < this->TargetReduction && (ptId = this->Pop(error)) >= 0 && !abortExecute; 
+        numPops++)
     {
     if ( numPops && !(numPops % 5000) )
       {
@@ -313,49 +312,49 @@ void vtkDecimatePro::Execute()
     
     this->Mesh->GetPoint(ptId,this->X);
     this->Mesh->GetPointCells(ptId,ncells,cells);
-
+    
     if ( ncells > 0 )
       {
       type = this->EvaluateVertex(ptId, ncells, cells, fedges);
-
+      
       // FindSplit finds the edge to collapse - and if it fails, we
       // split the vertex.
       collapseId = this->FindSplit (type, fedges, pt1, pt2, CollapseTris);
-
+      
       if ( collapseId >= 0 )
         {
         if ( this->AccumulateError )
           {
           this->DistributeError(error);
           }
-
+        
         totalEliminated += this->CollapseEdge(type, ptId, collapseId, pt1, pt2,
                                               CollapseTris);
-
+        
         reduction = (float) totalEliminated / numTris;
         this->NumberOfRemainingTris = numTris - totalEliminated;
-
+        
         //see whether we've found inflection
         if ( numPops == 0 || (previousError == 0.0 && error != 0.0) ||
-        (previousError != 0.0 && 
-        fabs(error/previousError) > this->InflectionPointRatio) )
+             (previousError != 0.0 && 
+              fabs(error/previousError) > this->InflectionPointRatio) )
           {
           this->InflectionPoints->InsertNextValue(numPops);
           }
         previousError = error;
         }
-
+      
       else //Couldn't delete the vertex, so we'll re-insert it for splitting
         { 
         numRecycles++;
         this->Insert(ptId,VTK_RECYCLE_VERTEX);
         }
-
+      
       }//if cells attached
     }//while queue not empty and reduction not satisfied
-
+  
   CollapseTris->Delete();
-
+  
   totalPts = this->Mesh->GetNumberOfPoints();
   vtkDebugMacro(<<"\n\tReduction " << reduction << " (" << numTris << " to " 
                 << numTris - totalEliminated << " triangles)"
@@ -377,7 +376,7 @@ void vtkDecimatePro::Execute()
 
   // Grab the points that are left; copy point data. Remember that splitting 
   // data may have added new points.
-  map = new int[totalPts];
+  map = new vtkIdType[totalPts];
   for (i=0; i < totalPts; i++)
     {
     map[i] = -1;
@@ -391,7 +390,7 @@ void vtkDecimatePro::Execute()
       map[ptId] = numNewPts++;
       }
     }
-
+  
   outputPD->CopyAllocate(meshPD,numNewPts);
 
   // Copy points in place
@@ -465,7 +464,8 @@ static float ComputeSimpleError(float x[3], float normal[3], float point[3])
 //
 void vtkDecimatePro::SplitMesh()
 {
-  int ptId, type, fedges[2];
+  vtkIdType ptId, fedges[2];
+  int type;
   vtkIdType *cells;
   unsigned short int ncells;
 
@@ -491,15 +491,15 @@ void vtkDecimatePro::SplitMesh()
 // Evalute the local topology/geometry of a vertex. This is a two-pass
 // process: first topology is examined, and then the geometry.
 //
-int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris,
-                                   vtkIdType *tris, int fedges[2])
+int vtkDecimatePro::EvaluateVertex(vtkIdType ptId, unsigned short int numTris,
+                                   vtkIdType *tris, vtkIdType fedges[2])
 {
-  int numNei, numFEdges;
+  vtkIdType numNei, numFEdges;
   vtkIdType numVerts;
   vtkProLocalTri t;
   vtkProLocalVertex sn;
-  int startVertex, nextVertex;
-  int i, j, numNormals, vtype;
+  vtkIdType startVertex, nextVertex, numNormals;
+  int i, j, vtype;
   vtkIdType *verts;
   float *x1, *x2, *normal;
   float v1[3], v2[3], center[3];
@@ -847,15 +847,17 @@ int vtkDecimatePro::EvaluateVertex(int ptId, unsigned short int numTris,
 //
 // Split the vertex by modifying topological connections.
 //
-void vtkDecimatePro::SplitVertex(int ptId, int type,
+void vtkDecimatePro::SplitVertex(vtkIdType ptId, int type,
                                  unsigned short int numTris, vtkIdType *tris,
                                  int insert)
 {
-  int i, j, id, fedge1, fedge2;
-  int tri, numSplitTris, veryFirst;
+  vtkIdType id, fedge1, fedge2, i, j;
+  vtkIdType tri, veryFirst;
+  int numSplitTris;
   vtkIdType *verts, nverts;
   float error;
-  int startTri, p[2], maxGroupSize;
+  vtkIdType startTri, p[2];
+  int maxGroupSize;
   vtkPointData* meshPD = this->Mesh->GetPointData();
 
   //
@@ -1092,12 +1094,13 @@ void vtkDecimatePro::SplitVertex(int ptId, int type,
 // Find a way to split this loop. If -1 is returned, then we have a real
 // bad situation and we'll split the vertex.
 //
-int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2, 
-                               vtkIdList *CollapseTris)
+vtkIdType vtkDecimatePro::FindSplit (int type, vtkIdType fedges[2],
+                                     vtkIdType& pt1, vtkIdType& pt2,
+                                     vtkIdList *CollapseTris)
 {
-  int i, maxI;
+  vtkIdType i, maxI;
   float dist2, e2dist2;
-  int numVerts=this->V->MaxId+1;
+  vtkIdType numVerts=this->V->MaxId+1;
 
   pt2 = -1;
   CollapseTris->SetNumberOfIds(2);
@@ -1105,21 +1108,25 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 
   switch (type)
     {
-
-    case VTK_SIMPLE_VERTEX: case VTK_EDGE_END_VERTEX: case VTK_INTERIOR_EDGE_VERTEX:
+    case VTK_SIMPLE_VERTEX:
+    case VTK_EDGE_END_VERTEX:
+    case VTK_INTERIOR_EDGE_VERTEX:
       if ( type == VTK_INTERIOR_EDGE_VERTEX )
         {
-        dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[fedges[0]].x);
+        dist2 = vtkMath::Distance2BetweenPoints(this->X,
+                                                this->V->Array[fedges[0]].x);
         this->EdgeLengths->Insert(dist2,fedges[0]);
 
-        dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[fedges[1]].x);
+        dist2 = vtkMath::Distance2BetweenPoints(this->X,
+                                                this->V->Array[fedges[1]].x);
         this->EdgeLengths->Insert(dist2,fedges[1]);
         }
       else // Compute the edge lengths
         {
         for ( i=0; i < numVerts; i++ )
           {
-          dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[i].x);
+          dist2 = vtkMath::Distance2BetweenPoints(this->X,
+                                                  this->V->Array[i].x);
           this->EdgeLengths->Insert(dist2,i);
           }
         }
@@ -1157,7 +1164,7 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
       CollapseTris->SetNumberOfIds(1);
       // Compute the edge lengths
       dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[0].x);
-      e2dist2 = vtkMath::Distance2BetweenPoints(this->X, this->V->Array[this->V->MaxId].x);
+      e2dist2 = vtkMath::Distance2BetweenPoints(this->X,this->V->Array[this->V->MaxId].x);
 
       maxI = -1;
       if ( dist2 <= e2dist2 )
@@ -1250,11 +1257,12 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
 //
 int vtkDecimatePro::IsValidSplit(int index)
 {
-  int i, j, sign, fedges[2];
-  int nverts=this->V->MaxId+1;
+  vtkIdType fedges[2];
+  int i, sign;
+  vtkIdType nverts=this->V->MaxId+1, j;
   float *x, val, sPt[3], v21[3], sN[3];
-  int l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
-  int n1, n2;
+  vtkIdType l1[VTK_MAX_TRIS_PER_VERTEX], l2[VTK_MAX_TRIS_PER_VERTEX];
+  vtkIdType n1, n2;
 
   // For a edge collapse to be valid, all edges to that vertex must
   // divide the loop cleanly.
@@ -1328,11 +1336,12 @@ int vtkDecimatePro::IsValidSplit(int index)
 //
 //  Creates two loops from splitting plane provided
 //
-void vtkDecimatePro::SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2)
+void vtkDecimatePro::SplitLoop(vtkIdType fedges[2], vtkIdType& n1,
+                               vtkIdType *l1, vtkIdType& n2, vtkIdType *l2)
 {
-  int i;
-  int *loop;
-  int *count;
+  vtkIdType i;
+  vtkIdType *loop;
+  vtkIdType *count;
 
   n1 = n2 = 0;
   loop = l1;
@@ -1352,14 +1361,15 @@ void vtkDecimatePro::SplitLoop(int fedges[2], int& n1, int *l1, int& n2, int *l2
 
 // Collapse the point to the specified vertex. Distribute the error
 // and update neighborhood vertices.
-int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1, 
-                                 int pt2, vtkIdList *CollapseTris)
+int vtkDecimatePro::CollapseEdge(int type, vtkIdType ptId,
+                                 vtkIdType collapseId, vtkIdType pt1, 
+                                 vtkIdType pt2, vtkIdList *CollapseTris)
 {
-  int i, numDeleted=CollapseTris->GetNumberOfIds();
-  int ntris=this->T->MaxId+1;
-  int nverts=this->V->MaxId+1;
-  int tri[2];
-  int verts[VTK_MAX_TRIS_PER_VERTEX+1];
+  vtkIdType i, numDeleted=CollapseTris->GetNumberOfIds();
+  vtkIdType ntris=this->T->MaxId+1;
+  vtkIdType nverts=this->V->MaxId+1;
+  vtkIdType tri[2];
+  vtkIdType verts[VTK_MAX_TRIS_PER_VERTEX+1];
 
   this->NumCollapses++;
   for ( i=0; i < numDeleted; i++ ) 
@@ -1442,7 +1452,7 @@ int vtkDecimatePro::CollapseEdge(int type, int ptId, int collapseId, int pt1,
 // the correct size) into which the inflection points are written.
 void vtkDecimatePro::GetInflectionPoints(float *inflectionPoints)
 {
-  int i;
+  vtkIdType i;
 
   for (i=0; i < this->GetNumberOfInflectionPoints(); i++)
     {
@@ -1462,7 +1472,7 @@ float *vtkDecimatePro::GetInflectionPoints()
 
 // Get the number of inflection points. Only returns a valid value
 // after the filter has executed.
-int vtkDecimatePro::GetNumberOfInflectionPoints()
+vtkIdType vtkDecimatePro::GetNumberOfInflectionPoints()
 {
   return this->InflectionPoints->GetMaxId()+1;
 }
@@ -1472,15 +1482,15 @@ int vtkDecimatePro::GetNumberOfInflectionPoints()
 // queue of vertices.
 //
 
-void vtkDecimatePro::InitializeQueue(int numPts)
+void vtkDecimatePro::InitializeQueue(vtkIdType numPts)
 {
   if ( !this->PreserveTopology && this->Splitting ) 
     {
-    numPts = (int) ((float)numPts*1.25);
+    numPts = (vtkIdType) ((float)numPts*1.25);
     }
 
   this->Queue = vtkPriorityQueue::New();
-  this->Queue->Allocate(numPts, (int)((float)0.25*numPts));
+  this->Queue->Allocate(numPts, (vtkIdType)((float)0.25*numPts));
 }
 
 int vtkDecimatePro::Pop(float &error)
@@ -1560,11 +1570,11 @@ int vtkDecimatePro::Pop(float &error)
 }
 
 // Computes error and inserts point into priority queue.
-void vtkDecimatePro::Insert(int ptId, float error)
+void vtkDecimatePro::Insert(vtkIdType ptId, float error)
 {
   int type, simpleType;
   vtkIdType *cells;
-  int fedges[2];
+  vtkIdType fedges[2];
   unsigned short int ncells;
 
   // on value of error, we need to compute it or just insert the point
@@ -1652,8 +1662,8 @@ void vtkDecimatePro::Insert(int ptId, float error)
 // Compute the error of the point to the new triangulated surface
 void vtkDecimatePro::DistributeError(float error)
 {
-  int i;
-  int nverts=this->V->MaxId+1;
+  vtkIdType i;
+  vtkIdType nverts=this->V->MaxId+1;
   float previousError;
 
   for (i=0; i < nverts; i++)
@@ -1693,6 +1703,4 @@ void vtkDecimatePro::PrintSelf(ostream& os, vtkIndent indent)
      << this->InflectionPointRatio << "\n";
   os << indent << "Number Of Inflection Points: "
      << this->GetNumberOfInflectionPoints() << "\n";
-
 }
-

@@ -463,7 +463,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
                                   float& t, float x[3], float pcoords[3],
                                   int &subId)
 {
-  int cellId = -1;
+  vtkIdType cellId = -1;
 
   return this->IntersectWithLine( a0, a1, tol, t, x, pcoords,
                                   subId, cellId );
@@ -476,7 +476,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
 // coordinates, pcoords[3]; and subId of the cell. (Not yet implemented.)
 int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
                                   float& t, float x[3], float pcoords[3],
-                                  int &subId, int &cellId)
+                                  int &subId, vtkIdType &cellId)
 {
   vtkGenericCell *cell=vtkGenericCell::New();
   int returnVal;
@@ -492,7 +492,7 @@ int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
 // finite line
 int vtkOBBTree::IntersectWithLine(float a0[3], float a1[3], float tol,
                                       float& t, float x[3], float pcoords[3],
-                                      int &subId, int &cellId,
+                                      int &subId, vtkIdType &cellId,
 				      vtkGenericCell *cell)
 {
   vtkOBBNode **OBBstack, *node;

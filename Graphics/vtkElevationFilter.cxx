@@ -83,7 +83,8 @@ vtkElevationFilter::vtkElevationFilter()
 //
 void vtkElevationFilter::Execute()
 {
-  int i, j, numPts;
+  vtkIdType numPts, i;
+  int j;
   vtkFloatArray *newScalars;
   float l, *x, s, v[3];
   float diffVector[3], diffScalar;

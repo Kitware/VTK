@@ -196,14 +196,14 @@ protected:
 private:
   vtkPolyData *Mesh; //the created mesh
   double *Points;    //the raw points in double precision
-  void SetPoint(int id, double *x)
-    {int idx=3*id; 
+  void SetPoint(vtkIdType id, double *x)
+    {vtkIdType idx=3*id; 
     this->Points[idx] = x[0];
     this->Points[idx+1] = x[1];
     this->Points[idx+2] = x[2];
     }
       
-  void GetPoint(int id, double x[3])
+  void GetPoint(vtkIdType id, double x[3])
     {double *ptr = this->Points + 3*id;
     x[0] = *ptr++;
     x[1] = *ptr++;
@@ -214,13 +214,14 @@ private:
   int NumberOfDegeneracies;
 
   int *RecoverBoundary();
-  int RecoverEdge(int p1, int p2);
+  int RecoverEdge(vtkIdType p1, vtkIdType p2);
   void FillPolygons(vtkCellArray *polys, int *triUse);
 
   int InCircle (double x[3], double x1[3], double x2[3], double x3[3]);
-  int FindTriangle(double x[3], vtkIdType ptIds[3], int tri, double tol, 
-                   int nei[3], vtkIdList *neighbors);
-  void CheckEdge(int ptId, double x[3], int p1, int p2, int tri);
+  vtkIdType FindTriangle(double x[3], vtkIdType ptIds[3], vtkIdType tri,
+                         double tol, vtkIdType nei[3], vtkIdList *neighbors);
+  void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
+                 vtkIdType tri);
 
 };
 

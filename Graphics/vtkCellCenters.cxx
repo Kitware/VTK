@@ -69,7 +69,8 @@ vtkCellCenters::vtkCellCenters()
 // Generate points
 void vtkCellCenters::Execute()
 {
-  int cellId, numCells, subId;
+  vtkIdType cellId, numCells;
+  int subId;
   vtkDataSet *input = this->GetInput();
   vtkPolyData *output = this->GetOutput();
   vtkCellData *inCD;
@@ -103,7 +104,7 @@ void vtkCellCenters::Execute()
   newPts->SetNumberOfPoints(numCells);
 
   int abort=0;
-  int progressInterval = numCells/10 + 1;
+  vtkIdType progressInterval = numCells/10 + 1;
   for (cellId=0; cellId < numCells && !abort; cellId++)
     {
     if ( ! (cellId % progressInterval) ) 

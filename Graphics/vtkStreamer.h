@@ -87,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct _vtkStreamPoint {
   float   x[3];    // position 
-  int     cellId;  // cell
+  vtkIdType     cellId;  // cell
   int     subId;   // cell sub id
   float   p[3];    // parametric coords in cell 
   float   v[3];    // velocity 
