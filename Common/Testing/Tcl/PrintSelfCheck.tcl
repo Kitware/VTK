@@ -505,8 +505,13 @@ proc check_for_defects { print } {
       set end [expr [string wordend $element 0] - 1]
       set curr_class [string range $element 0 $end]
 
-      if { [class_has_ivars $curr_class] == 1 &&
-           $class_list($element) != 1 } {
+        if { $class_list($curr_class.s.Superclass) != 1 &&
+             [class_has_ivars $curr_class] == 1 &&
+             $class_list($element) != 1 } {
+            set start [expr $end + 4]
+            set end [expr [string wordend $element $start] - 1]
+            set parent [string range $element $start $end]
+            if { $parent == "Superclass" } continue;
 
         incr super_miss_count
       }
