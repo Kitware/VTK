@@ -54,6 +54,7 @@ vtkSubdivideTetra \
 vtkThreadedController \
 vtkThinPlateSplineTransform \
 vtkTransformToGrid \
+vtkTreeComposite \
 vtkVideoSource \
 vtkVolumeProMapper \
 vtkInputPort \
