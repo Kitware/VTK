@@ -29,6 +29,7 @@ EXAMPLES = TestPolyDataPort \
         TestImagePort \
 	TestStructuredGridPort \
 	ParallelIso \
+	FayShow \
 	DataParallelism
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
@@ -82,6 +83,10 @@ TestStructuredGridPort: TestStructuredGridPort.o
 
 ParallelIso: ParallelIso.o
 	${CXX} -o ParallelIso ${CXX_FLAGS} ParallelIso.o ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+FayShow: FayShow.o 
+	${CXX} -o FayShow ${CXX_FLAGS} FayShow.o ${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 #------------------------------------------------------------------------------
