@@ -205,7 +205,43 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
       points[j].x = (short)(actorPos[0] + ftmp[0]);
       points[j].y = (short)(actorPos[1] - ftmp[1]);
       }
-    XFillPolygon(displayId, drawable, gc, points, npts, Complex, CoordModeOrigin);
+    XFillPolygon(displayId, drawable, gc, points, npts, 
+		 Complex, CoordModeOrigin);
+    }
+
+  aPrim = input->GetLines();
+  
+  for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
+    { 
+    if (c) 
+      {
+      if (cellScalars) 
+	{
+	rgba = c->GetColor(cellNum);
+	}
+      else
+	{
+	rgba = c->GetColor(pts[j]);
+	}
+      aColor.red = (unsigned short) (rgba[0] * 256);
+      aColor.green = (unsigned short) (actorColor[1] * 256);
+      aColor.blue = (unsigned short) (actorColor[2] * 256);
+      XAllocColor(displayId, attr.colormap, &aColor);
+      XSetForeground(displayId, gc, aColor.pixel);
+      }
+    if (npts > currSize)
+      {
+      delete [] points;
+      points = new XPoint [npts];
+      currSize = npts;
+      }
+    for (j = 0; j < npts; j++) 
+      {
+      ftmp = p->GetPoint(pts[j]);
+      points[j].x = (short)(actorPos[0] + ftmp[0]);
+      points[j].y = (short)(actorPos[1] - ftmp[1]);
+      }
+    XDrawLines(displayId, drawable, gc, points, npts, CoordModeOrigin);
     }
 
   // Flush the X queue
