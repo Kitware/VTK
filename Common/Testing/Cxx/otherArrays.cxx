@@ -766,7 +766,7 @@ int Test(ostream& strm)
   return errors;
 }
 
-int main()
+int otherArrays(int, char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 

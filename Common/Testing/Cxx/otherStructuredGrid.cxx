@@ -28,7 +28,7 @@
 
 #include "vtkDebugLeaks.h"
 
-int Test(ostream& strm)
+int TestOSG(ostream& strm)
 {
   int i, j, k;
   // actual test
@@ -627,10 +627,10 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int otherStructuredGrid(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return TestOSG(vtkmsg);
 } 

@@ -1,32 +1,46 @@
+SET(KIT Common)
+CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx 
+  ObjectFactory.cxx
+  otherArrays.cxx
+  otherEmptyCell.cxx
+  otherRectilinearGrid.cxx
+  otherCellBoundaries.cxx
+  otherCellDerivatives.cxx
+  otherCellPosition.cxx
+  otherStructuredGrid.cxx
+  otherTimerLog.cxx
+  otherLookupTable.cxx
+  otherByteSwap.cxx
+  otherCellArray.cxx
+  otherCellTypes.cxx
+  otherFieldData.cxx
+  quadraticEvaluation.cxx
+  TestImageIterator.cxx
+  TestContainers.cxx
+  TestReferenceCountedList.cxx
+  TestList.cxx
+  TestMap.cxx
+  TestString.cxx
+)
+
+ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkCommon)
+
+SET (TestsToRun ${Tests})
+REMOVE (TestsToRun ${KIT}CxxTests.cxx)
+
 #
 # Add all the executables 
-#
-FOREACH (test 
-  ObjectFactory
-  otherArrays
-  otherEmptyCell
-  otherRectilinearGrid
-  otherCellBoundaries
-  otherCellDerivatives
-  otherCellPosition
-  otherStructuredGrid
-  otherTimerLog
-  otherLookupTable
-  otherByteSwap
-  otherCellArray
-  otherCellTypes
-  otherFieldData
-  quadraticEvaluation
-  TestImageIterator
-  TestContainers
-  TestCxxFeatures
-  TestReferenceCountedList
-  TestList
-  TestMap
-  TestString
-  )
-
-  ADD_EXECUTABLE(${test} ${test}.cxx)
-  TARGET_LINK_LIBRARIES(${test} vtkCommon)
-  ADD_TEST(${test} ${CXX_TEST_PATH}/${test})
+FOREACH (test ${TestsToRun})
+  GET_FILENAME_COMPONENT(TName ${test} NAME_WE)
+  ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
 ENDFOREACH (test) 
+
+#
+# Add the TestCxxFeatures test by itself so that if it doesn't compile
+# we don't loose all the tests for common
+#
+ADD_EXECUTABLE(TestCxxFeatures TestCxxFeatures.cxx)
+TARGET_LINK_LIBRARIES(TestCxxFeatures vtkCommon)
+ADD_TEST(TestCxxFeatures ${CXX_TEST_PATH}/TestCxxFeatures)
+

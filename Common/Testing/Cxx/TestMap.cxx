@@ -229,7 +229,7 @@ public:
     }
 };
 
-int main()
+int TestMap(int,char *[])
 {
   int error = 0;
   char names[][10] = {

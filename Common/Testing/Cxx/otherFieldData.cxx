@@ -21,7 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 
-int main()
+int otherFieldData(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 

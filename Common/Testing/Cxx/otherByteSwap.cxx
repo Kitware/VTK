@@ -23,7 +23,7 @@
 #include "vtkByteSwap.h"
 #include "vtkDebugLeaks.h"
 
-int Test(ostream& strm)
+int TestByteSwap(ostream& strm)
 {
   // actual test
   strm << "Test vtkByteSwap Start" << endl;
@@ -155,11 +155,10 @@ int Test(ostream& strm)
 }
 
 
-int main()
+int otherByteSwap(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
-
+  return TestByteSwap(vtkmsg);
 } 

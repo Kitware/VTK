@@ -42,7 +42,7 @@ inline int DoTest(T*)
 }
 
 
-int main()
+int TestImageIterator(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 

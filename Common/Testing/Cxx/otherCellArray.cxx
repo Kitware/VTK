@@ -27,7 +27,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkQuad.h"
 
-int Test(ostream& strm)
+int TestCellArray(ostream& strm)
 {
   // actual test
   strm << "Test CellArray Start" << endl;
@@ -82,10 +82,10 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int otherCellArray(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return TestCellArray(vtkmsg);
 } 

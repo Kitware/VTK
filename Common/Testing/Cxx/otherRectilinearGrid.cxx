@@ -27,7 +27,7 @@
 #include "vtkLongArray.h"
 #include "vtkShortArray.h"
 
-int Test(ostream& strm)
+int TestORG(ostream& strm)
 {
   int i, j, k;
   // actual test
@@ -594,10 +594,10 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int otherRectilinearGrid(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return TestORG(vtkmsg);
 } 

@@ -64,7 +64,7 @@ void Test(ostream& strm)
 }
 
 
-int main()
+int otherTimerLog(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 

@@ -87,7 +87,7 @@ int TestList(DType* tlist, int count)
   return 0;
 }
 
-int main()
+int TestReferenceCountedList(int,char *[])
 {
   int res = 0;
   int count = 300;

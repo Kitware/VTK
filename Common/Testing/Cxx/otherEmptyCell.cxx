@@ -27,7 +27,7 @@
 
 #include "vtkDebugLeaks.h"
 
-void Test(ostream& strm)
+void TestOEC(ostream& strm)
 {
   vtkEmptyCell *cell = vtkEmptyCell::New();
   vtkCell *cell2 = cell->MakeObject();
@@ -93,12 +93,12 @@ void Test(ostream& strm)
   strm << "Testing EmptyCell Complete" << endl;
 }
 
-int main()
+int otherEmptyCell(int , char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  Test(vtkmsg);
+  TestOEC(vtkmsg);
 
   return 0;
 } 

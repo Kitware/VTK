@@ -36,7 +36,7 @@
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 
-int Test(ostream& strm)
+int TestOCD(ostream& strm)
 {
   // actual test
   vtkIdList *ids = vtkIdList::New();
@@ -363,10 +363,10 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int otherCellDerivatives(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return TestOCD(vtkmsg);
 } 

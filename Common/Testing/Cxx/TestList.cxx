@@ -585,7 +585,7 @@ int TestLinkedList()
   return error;
 }
 
-int main()
+int TestList(int,char *[])
 {
   int res = 0;
 

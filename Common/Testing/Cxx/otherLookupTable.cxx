@@ -24,7 +24,7 @@
 #include "vtkLogLookupTable.h"
 #include "vtkDebugLeaks.h"
 
-void Test(vtkLookupTable *lut1)
+void TestOLT(vtkLookupTable *lut1)
 {
   // actual test
  
@@ -116,24 +116,24 @@ void Test(vtkLookupTable *lut1)
 }
 
 
-int main()
+int otherLookupTable(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   vtkLookupTable *lut1 = vtkLookupTable::New();
   lut1->SetAlpha(1.0);
   lut1->SetScaleToLinear();
-  Test(lut1);
+  TestOLT(lut1);
   lut1->SetAlpha(.5);
-  Test(lut1);
+  TestOLT(lut1);
   lut1->Delete();
 
   vtkLogLookupTable *lut2 = vtkLogLookupTable::New();
   lut2->SetAlpha(1.0);
   lut2->SetScaleToLog10();
-  Test(lut2);
+  TestOLT(lut2);
   lut2->SetAlpha(.5);
-  Test(lut2);
+  TestOLT(lut2);
   lut2->Delete();
 
   return 0;

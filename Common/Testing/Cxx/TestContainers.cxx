@@ -21,7 +21,7 @@
 #include "vtkAbstractMap.h"
 #include "vtkAbstractIterator.h"
 
-int main(int argc, char** vtkNotUsed(argv))
+int TestContainers(int argc, char *[])
 {
   // Let us for now just create pointers so that we see that
   // it can parse through the header file.
@@ -32,7 +32,7 @@ int main(int argc, char** vtkNotUsed(argv))
 
   // This is here so that it does not complain about 
   // pointers not being used
-  if ( cnt && alist && amap && iter || (argc > 1) )
+  if ( cnt && alist && amap && iter || (argc > 10) )
     {
     return 1;
     }

@@ -3,7 +3,7 @@
 
 #include "vtkString.h"
 
-int main(int, char** argv)
+int TestString(int, char* argv[])
 {
   int res = 0;
   int len = vtkString::Length(argv[0]);

@@ -40,7 +40,7 @@ void  ComputeDataValues(vtkPoints *pts, float *edgeValues)
     }
 }
 
-int Test(ostream& strm)
+int TestQE(ostream& strm)
 {
   // actual test
   float dist2;
@@ -285,10 +285,10 @@ int Test(ostream& strm)
   return 0;
 }
 
-int main()
+int quadraticEvaluation(int,char *[])
 {
   vtkDebugLeaks::PromptUserOff();
 
   ostrstream vtkmsg; 
-  return Test(vtkmsg);
+  return TestQE(vtkmsg);
 } 
