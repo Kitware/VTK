@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkXTextMapper.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,14 +55,11 @@ vtkXTextMapper* vtkXTextMapper::New()
   return new vtkXTextMapper;
 }
 
-
 vtkXTextMapper::vtkXTextMapper()
 {
   this->Size[0] = this->Size[1] = 0;
   this->ViewportSize[0] = this->ViewportSize[1] = 0;
 }
-
-
 
 void vtkXTextMapper::SetFontSize(int size)
 {
