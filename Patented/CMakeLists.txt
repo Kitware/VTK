@@ -23,8 +23,6 @@ vtkMarchingSquares.cxx
 vtkRectilinearSynchronizedTemplates.cxx
 vtkSliceCubes.cxx
 vtkSweptSurface.cxx
-vtkSynchronizedTemplates2D.cxx
-vtkSynchronizedTemplates3D.cxx
 )
 
 
