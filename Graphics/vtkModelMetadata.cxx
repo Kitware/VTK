@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.1");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.2");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -2291,7 +2291,19 @@ int vtkModelMetadata::AppendFloatLists(
 {
   if ((id1Len == 0) && (id2Len == 0))
     {
-    return 1;
+    if (idNew)
+      {
+      *idNew = NULL;
+      }
+    if (idNewIdx)
+      {
+      *idNewIdx = NULL;
+      }
+    if (idNewLen)
+      {
+      *idNewLen = 0;
+      }
+    return 0;
     }
 
   int i;
@@ -3115,11 +3127,26 @@ int vtkModelMetadata::MergeModelMetadata(const vtkModelMetadata *em)
     for (i=0; i<lastset; i++)
       {
       setSize[i] = index[i+1] - index[i];
-      setDF[i] = index2[i+1] - index2[i];
+      if (index2)
+        {
+        setDF[i] = index2[i+1] - index2[i];
+        }
+      else
+        {
+        setDF[i] = 0;
+        }
       }
 
     setSize[lastset] = newSize - index[lastset];
-    setDF[lastset] = newSize2 - index2[lastset];
+
+    if (index2)
+      {
+      setDF[lastset] = newSize2 - index2[lastset];
+      }
+    else
+      {
+      setDF[lastset] = 0;
+      }
 
     FREE(this->NodeSetNumberOfDistributionFactors);
     this->NodeSetNumberOfDistributionFactors = setDF;
@@ -3188,10 +3215,26 @@ int vtkModelMetadata::MergeModelMetadata(const vtkModelMetadata *em)
     for (i=0; i<lastset; i++)
       {
       setSize[i] = this->SideSetListIndex[i+1] - this->SideSetListIndex[i];
-      setDF[i] = index[i+1] - index[i];
+      if (index)
+        {
+        setDF[i] = index[i+1] - index[i];
+        }
+      else
+        {
+        setDF[i] = 0;
+        }
       }
+
     setSize[lastset] = this->SumSidesPerSideSet - this->SideSetListIndex[lastset];
-    setDF[lastset] = newSize - index[lastset];
+
+    if (index)
+      {
+      setDF[lastset] = newSize - index[lastset];
+      }
+    else
+      {
+      setDF[lastset] = 0;
+      }
 
     FREE(this->SideSetNumberOfDistributionFactors);
     this->SideSetNumberOfDistributionFactors = setDF;
