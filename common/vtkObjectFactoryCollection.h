@@ -73,7 +73,7 @@ return new vtkObjectFactoryCollection;};
   // Description:
   // Get the next ObjectFactory in the list. Return NULL when the end of the
   // list is reached.
-  vtkObjectFactory *GetNextItem() { return (vtkObjectFactory *)(this->GetNextItemAsObject());}
+  vtkObjectFactory *GetNextItem() { return vtkObjectFactory::SafeDownCast(this->GetNextItemAsObject());}
 
 protected:
   vtkObjectFactoryCollection() {};

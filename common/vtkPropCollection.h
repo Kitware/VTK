@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkPropC_h
 
 #include "vtkCollection.h"
-class vtkProp;
+#include "vtkProp.h"
 
 class VTK_EXPORT vtkPropCollection : public vtkCollection
 {
@@ -99,7 +99,7 @@ inline void vtkPropCollection::AddItem(vtkProp *a)
 
 inline vtkProp *vtkPropCollection::GetNextProp() 
 { 
-  return (vtkProp *)(this->GetNextItemAsObject());
+  return vtkProp::SafeDownCast(this->GetNextItemAsObject());
 }
 
 inline vtkProp *vtkPropCollection::GetLastProp() 
@@ -110,7 +110,7 @@ inline vtkProp *vtkPropCollection::GetLastProp()
     }
   else
     {
-    return (vtkProp *)(this->Bottom->Item);
+    return vtkProp::SafeDownCast(this->Bottom->Item);
     }
 }
 

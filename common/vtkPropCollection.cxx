@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkPropCollection.h"
 #include "vtkObjectFactory.h"
-#include "vtkProp.h"
 
 
 //------------------------------------------------------------------------------

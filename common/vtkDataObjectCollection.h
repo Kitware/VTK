@@ -64,12 +64,12 @@ public:
   // Description:
   // Get the next data object in the list.
   vtkDataObject *GetNextItem() { 
-    return (vtkDataObject *)(this->GetNextItemAsObject());};
+    return vtkDataObject::SafeDownCast(this->GetNextItemAsObject());};
 
   // Description:
   // Get the ith data object in the list.
   vtkDataObject *GetItem(int i) { 
-    return (vtkDataObject *)(this->GetItemAsObject(i));};
+    return vtkDataObject::SafeDownCast(this->GetItemAsObject(i));};
   
 protected:
   vtkDataObjectCollection() {};

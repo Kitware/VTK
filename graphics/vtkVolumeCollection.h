@@ -52,8 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkVolumeC_h
 
 #include "vtkPropCollection.h"
-
-class vtkVolume;
+#include "vtkVolume.h"
 
 class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
 {
@@ -70,7 +69,7 @@ class VTK_EXPORT vtkVolumeCollection : public vtkPropCollection
   // Get the next Volume in the list. Return NULL when at the end of the 
   // list.
   vtkVolume *GetNextVolume() {
-      return (vtkVolume *)(this->GetNextItemAsObject());};
+      return vtkVolume::SafeDownCast(this->GetNextItemAsObject());};
 
 
   // Description:

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkActorC_h
 
 #include "vtkPropCollection.h"
-class vtkActor;
+#include "vtkActor.h"
 class vtkProperty;
 
 class VTK_EXPORT vtkActorCollection : public vtkPropCollection
@@ -105,7 +105,7 @@ inline void vtkActorCollection::AddItem(vtkActor *a)
 
 inline vtkActor *vtkActorCollection::GetNextActor() 
 { 
-  return (vtkActor *)(this->GetNextItemAsObject());
+  return vtkActor::SafeDownCast(this->GetNextItemAsObject());
 }
 
 inline vtkActor *vtkActorCollection::GetLastActor() 
@@ -116,7 +116,7 @@ inline vtkActor *vtkActorCollection::GetLastActor()
     }
   else
     {
-    return (vtkActor *)(this->Bottom->Item);
+    return vtkActor::SafeDownCast(this->Bottom->Item);
     }
 }
 

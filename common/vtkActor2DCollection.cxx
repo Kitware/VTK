@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkCollection.h"
-#include "vtkActor2D.h"
 #include "vtkActor2DCollection.h"
 #include "vtkObjectFactory.h"
 

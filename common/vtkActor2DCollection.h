@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkActor2DCollection_h
 
 #include "vtkPropCollection.h"
-class vtkActor2D;
+#include "vtkActor2D.h"
 class vtkViewport;
 
 class VTK_EXPORT vtkActor2DCollection : public vtkPropCollection
@@ -118,7 +118,7 @@ inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)
 
 inline vtkActor2D *vtkActor2DCollection::GetNextActor2D() 
 { 
-    return (vtkActor2D *)(this->GetNextItemAsObject());
+  return vtkActor2D::SafeDownCast(this->GetNextItemAsObject());
 }
 
 inline vtkActor2D *vtkActor2DCollection::GetLastActor2D() 
@@ -129,7 +129,7 @@ inline vtkActor2D *vtkActor2DCollection::GetLastActor2D()
     }
   else
     {
-    return (vtkActor2D *)(this->Bottom->Item);
+    return vtkActor2D::SafeDownCast(this->Bottom->Item);
     }
 }
 

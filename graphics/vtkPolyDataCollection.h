@@ -67,7 +67,7 @@ public:
   // Description:
   // Get the next poly data in the list.
   vtkPolyData *GetNextItem() { 
-    return (vtkPolyData *)(this->GetNextItemAsObject());};
+    return vtkPolyData::SafeDownCast(this->GetNextItemAsObject());};
 protected:  
   vtkPolyDataCollection() {};
   ~vtkPolyDataCollection() {};

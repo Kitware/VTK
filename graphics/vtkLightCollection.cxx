@@ -73,7 +73,7 @@ void vtkLightCollection::AddItem(vtkLight *a)
 // exhausted.
 vtkLight *vtkLightCollection::GetNextItem() 
 { 
-  return (vtkLight *)(this->GetNextItemAsObject());
+  return vtkLight::SafeDownCast(this->GetNextItemAsObject());
 }
 
 

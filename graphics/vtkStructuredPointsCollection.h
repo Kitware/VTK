@@ -66,7 +66,7 @@ public:
   // Get the next item in the collection. NULL is returned if the collection
   // is exhausted.
   vtkStructuredPoints *GetNextItem() {
-    return (vtkStructuredPoints *)(this->GetNextItemAsObject());};
+    return vtkStructuredPoints::SafeDownCast(this->GetNextItemAsObject());};
   
 protected:
   vtkStructuredPointsCollection() {};

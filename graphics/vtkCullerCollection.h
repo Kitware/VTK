@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkCullerC_h
 
 #include "vtkCollection.h"
-class vtkCuller;
+#include "vtkCuller.h"
 
 class VTK_EXPORT vtkCullerCollection : public vtkCollection
 {
@@ -68,7 +68,7 @@ class VTK_EXPORT vtkCullerCollection : public vtkCollection
   // Description:
   // Get the next Culler in the list.
   vtkCuller *GetNextItem() { 
-    return (vtkCuller *)(this->GetNextItemAsObject());};
+    return vtkCuller::SafeDownCast(this->GetNextItemAsObject());};
   
   // Description:
   // Get the last Culler in the list.
@@ -96,7 +96,7 @@ inline vtkCuller *vtkCullerCollection::GetLastItem()
     }
   else
     {
-    return (vtkCuller *)(this->Bottom->Item);
+    return vtkCuller::SafeDownCast(this->Bottom->Item);
     }
 }
 

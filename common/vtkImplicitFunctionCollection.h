@@ -86,7 +86,7 @@ inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f)
 
 inline vtkImplicitFunction *vtkImplicitFunctionCollection::GetNextItem() 
 { 
-  return (vtkImplicitFunction *)(this->GetNextItemAsObject());
+  return vtkImplicitFunction::SafeDownCast(this->GetNextItemAsObject());
 }
 
 #endif

@@ -40,7 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkActorCollection.h"
-#include "vtkActor.h"
 #include "vtkObjectFactory.h"
 
 
