@@ -65,6 +65,8 @@ class vlActor : public vlObject
   // Description:
   // Sets the posiiton of the actor.
   vlSetVector3Macro(Position,float);
+  void AddPosition(float deltaPosition[3]);
+  void AddPosition(float delatX, float deltaY, float deltaZ);
 
   // Description:
   // Get the origin of the actor. This is the point about which all 
