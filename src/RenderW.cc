@@ -90,7 +90,7 @@ void vtkRenderWindow::Render()
     else
       {
       this->SubBuffer[this->CurrentSubFrame] 
-	= this->GetPixelData(0,0,size[0]-1,size[1]-1);
+	= this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
       }
 
     // if this is the last sub frame then merge the images
@@ -245,7 +245,7 @@ void vtkRenderWindow::DoAARender()
 	}
       else
 	{
-	this->AABuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+	this->AABuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	}
       }
     
@@ -374,7 +374,7 @@ void vtkRenderWindow::DoFDRender()
 	}
       else
 	{
-	this->FDBuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+	this->FDBuffer[i] = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
 	}
       }
     
@@ -516,7 +516,7 @@ void vtkRenderWindow::SaveImageAsPPM()
   // get the size
   size = this->GetSize();
   // get the data
-  buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+  buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,1);
 
   //  open the ppm file and write header 
   if ( this->Filename != NULL && *this->Filename != '\0')
@@ -580,7 +580,7 @@ void vtkRenderWindow::StereoMidpoint(void)
       // get the size
       size = this->GetSize();
       // get the data
-      this->temp_buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+      this->temp_buffer = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
       }
     }
 }
@@ -603,7 +603,7 @@ void vtkRenderWindow::StereoRenderComplete(void)
       // get the size
       size = this->GetSize();
       // get the data
-      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1);
+      buff = this->GetPixelData(0,0,size[0]-1,size[1]-1,0);
       p1 = this->temp_buffer;
       p2 = buff;
 
@@ -652,7 +652,7 @@ void vtkRenderWindow::CopyResultFrame(void)
     // get the size
     size = this->GetSize();
 
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,1);
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }

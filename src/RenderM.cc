@@ -30,6 +30,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "GlrRenW.hh"
 #endif
 
+#ifdef USE_OGLR
+#include "OglrRenW.hh"
+#endif
+
 #ifdef USE_XGLR
 #include "XglrRenW.hh"
 #endif
@@ -66,6 +70,15 @@ vtkRenderWindow *vtkRenderMaster::MakeRenderWindow(char *type)
     {
     vtkGlrRenderWindow *ren;
     ren = new vtkGlrRenderWindow;
+    return (vtkRenderWindow *)ren;
+    }
+#endif
+
+#ifdef USE_OGLR
+  if (!strncmp("oglr",type,4))
+    {
+    vtkOglrRenderWindow *ren;
+    ren = new vtkOglrRenderWindow;
     return (vtkRenderWindow *)ren;
     }
 #endif

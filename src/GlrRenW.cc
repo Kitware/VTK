@@ -686,7 +686,8 @@ void vtkGlrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2,
+						int front)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -723,7 +724,14 @@ unsigned char *vtkGlrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
     x_hi  = x1;
     }
 
-  /* now write the binary info one row at a time */
+  if (front)
+    {
+    readsource(SRC_FRONT);
+    }
+  else
+    { 
+    readsource(SRC_BACK);
+    }
   p_data = data;
   for (yloop = y_low; yloop <= y_hi; yloop++)
     {
@@ -756,8 +764,14 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
 
   if (this->DoubleBuffer)
     {
-    backbuffer(FALSE);
-    frontbuffer(TRUE);
+    if (front)
+      {
+      frontbuffer(TRUE);
+      }
+    else
+      {
+      backbuffer(FALSE);
+      }
     }
   dither(DT_OFF);
 
@@ -803,10 +817,5 @@ void vtkGlrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
   
   delete [] buffer;
 
-  if (this->DoubleBuffer)
-    {
-    backbuffer(TRUE);
-    frontbuffer(FALSE);
-    }
   dither(DT_ON);
 }

@@ -70,7 +70,7 @@ void vtkRendererSource::Execute()
   outScalars = new vtkPixmap;
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
-							  (int)x2,(int)y2);
+							  (int)x2,(int)y2,1);
 
   // copy scalars over
   memcpy(outScalars->WritePtr(0,numOutPts),pixels,3*numOutPts);

@@ -994,7 +994,12 @@ void vtkSbrRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 #define GREEN_FROM_666(p) ((p%36)/6*51)
 #define BLUE_FROM_666(p) ((p%6)*51)
 
-unsigned char *vtkSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
+unsigned char *vtkSbrRenderWindow::GetPixelData(
+int x1, 
+int y1, 
+int x2, 
+int y2,
+int front)
 {
   long     xloop,yloop;
   int     y_low, y_hi;
@@ -1151,15 +1156,15 @@ unsigned char *vtkSbrRenderWindow::GetPixelData(int x1, int y1, int x2, int y2)
   /* Restore the clip_indicator() back to its default value */
   clip_indicator( this->Fd, CLIP_TO_VIEWPORT);
 
-  delete buff1;
-  delete buff2;
-  delete buff3;
+  delete [] buff1;
+  delete [] buff2;
+  delete [] buff3;
 
   return data;
 }
 
 void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
-				     unsigned char *data)
+				      unsigned char *data,int front)
 {
   int     y_low, y_hi;
   int     x_low, x_hi;
@@ -1175,7 +1180,14 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
  
   if (this->DoubleBuffer)
     {
-/*    double_buffer(this->Fd, TRUE | DFRONT | INIT, this->NumPlanes);*/
+    if (front)
+      {
+      double_buffer(this->Fd, TRUE | DFRONT | INIT, this->NumPlanes);
+      }
+    else
+      {
+      double_buffer(this->Fd, TRUE | INIT, this->NumPlanes);
+      }
     }
 
   buff1 = new unsigned char[abs(x2 - x1)+1];
@@ -1300,13 +1312,13 @@ void vtkSbrRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
       }
     }
   
-  delete buff1;
-  delete buff2;
-  delete buff3;
+  delete [] buff1;
+  delete [] buff2;
+  delete [] buff3;
 
   if (this->DoubleBuffer)
     {
-/*    double_buffer(this->Fd, TRUE | INIT | SUPPRESS_CLEAR, this->NumPlanes);*/
+    double_buffer(this->Fd, TRUE | INIT | SUPPRESS_CLEAR, this->NumPlanes);
     }
 
   /* Restore the clip_indicator() back to its default value */
@@ -1326,7 +1338,7 @@ void vtkSbrRenderWindow::CopyResultFrame(void)
     // get the size
     size = this->GetSize();
 
-    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
+    this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame,0);
     delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
