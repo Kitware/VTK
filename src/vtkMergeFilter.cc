@@ -135,8 +135,8 @@ void vtkMergeFilter::Update()
     }
   this->Updating = 0;
 
-  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
-  this->GetDataReleased() )
+  if (mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime ||
+      this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Output->Initialize(); //clear output

@@ -108,7 +108,7 @@ void vtkBooleanStructuredPoints::Update()
     }
   this->Updating = 0;
 
-  if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
+  if (mtime > this->ExecuteTime || this->GetMTime() > this->ExecuteTime ||
   this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
