@@ -98,6 +98,10 @@ protected:
   vtkPoints *Points;
   vtkNormals *Normals;
   vtkPlane *Plane;
+
+private:
+  float Planes[24];
+
 };
 
 #endif

@@ -48,6 +48,11 @@ vtkPlanes::vtkPlanes()
   this->Points = NULL;
   this->Normals = NULL;
   this->Plane = vtkPlane::New();
+
+  for (int i=0; i<24; i++)
+    {
+    this->Planes[i] = 0.0;
+    }
 }
 
 vtkPlanes::~vtkPlanes()
@@ -130,6 +135,23 @@ void vtkPlanes::SetFrustumPlanes(vtkCamera *camera)
 {
   int i;
   float planes[24], *plane, n[3], x[3];
+  
+  // Get the planes and load them into the implicit function
+  camera->GetFrustumPlanes(planes);
+  for (i=0; i<24; i++)
+    {
+    if ( this->Planes[i] != planes[i] )
+      {
+      break;
+      }
+    }
+  if ( i >= 24 )
+    {
+    return; //same as before don't modify
+    }
+
+  // okay, need to allocate stuff
+  this->Modified();
   vtkPoints *pts = vtkPoints::New();
   vtkNormals *normals = vtkNormals::New();
 
@@ -137,9 +159,7 @@ void vtkPlanes::SetFrustumPlanes(vtkCamera *camera)
   normals->SetNumberOfNormals(6);
   this->SetPoints(pts);
   this->SetNormals(normals);
-  
-  // Get the planes and load them into the implicit function
-  camera->GetFrustumPlanes(planes);
+
   for (i=0; i<6; i++)
     {
     plane = planes + 4*i;
