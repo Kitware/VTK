@@ -132,7 +132,7 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-				float x[3], float *weights)
+                                float x[3], float *weights)
 {
   float u4;
   float *pt1, *pt2, *pt3, *pt4;
@@ -157,8 +157,12 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   weights[3] = pcoords[2];
 }
 
+// Description:
+// Returns the set of points that are on the boundary of the tetrahedron that
+// are closest parametrically to the point specified. This may include faces,
+// edges, or vertices.
 int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
-			   vtkIdList& pts)
+                           vtkIdList& pts)
 {
   float minPCoord = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
   int i, idx=3;
@@ -240,16 +244,17 @@ static TRIANGLE_CASES triCases[] = {
 };
 
 void vtkTetra::Contour(float value, vtkScalars *cellScalars, 
-		       vtkPointLocator *locator,
-		       vtkCellArray *vtkNotUsed(verts), 
-		       vtkCellArray *vtkNotUsed(lines), 
-		       vtkCellArray *polys,
-                       vtkPointData *inPd, vtkPointData *outPd)
+                       vtkPointLocator *locator,
+                       vtkCellArray *vtkNotUsed(verts), 
+                       vtkCellArray *vtkNotUsed(lines), 
+                       vtkCellArray *polys,
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
-  int i, j, index, *vert;
+  int i, j, index, *vert, newCellId;
   int pts[3];
   float t, *x1, *x2, x[3];
 
@@ -284,10 +289,11 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
       }
     // check for degenerate triangle
     if ( pts[0] != pts[1] &&
-	 pts[0] != pts[2] &&
-	 pts[1] != pts[2] )
+         pts[0] != pts[2] &&
+         pts[1] != pts[2] )
       {
-      polys->InsertNextCell(3,pts);
+      newCellId = polys->InsertNextCell(3,pts);
+      outCd->CopyData(inCd,cellId,newCellId);
       }
     }
 }
@@ -658,12 +664,13 @@ static TETRA_CASES tetraCases[] = {
 void vtkTetra::Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *tetras,
                     vtkPointData *inPd, vtkPointData *outPd,
+                    vtkCellData *inCd, int cellId, vtkCellData *outCd,
                     int insideOut)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   TETRA_CASES *tetraCase;
   TETRA_EDGE_LIST  *edge;
-  int i, j, index, *vert;
+  int i, j, index, *vert, newCellId;
   int pts[4];
   int vertexId;
   float t, x1[3], x2[3], x[3];
@@ -694,14 +701,14 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
       // vertex exists, and need not be interpolated
       if (edge[i] >= 100)
         {
-	vertexId = edge[i] - 100;
+        vertexId = edge[i] - 100;
         this->Points.GetPoint(vertexId, x);
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
           outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
           }
-	}
+        }
 
       else //new vertex, interpolate
         {
@@ -727,6 +734,7 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
     if ( pts[0] == pts[1] || pts[0] == pts[2] || pts[0] == pts[3] ||
     pts[1] == pts[2] || pts[1] == pts[3] || pts[2] == pts[3] ) continue;
 
-    tetras->InsertNextCell(4,pts);
+    newCellId = tetras->InsertNextCell(4,pts);
+    outCd->CopyData(inCd,cellId,newCellId);
     }
 }

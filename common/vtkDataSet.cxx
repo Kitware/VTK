@@ -231,7 +231,7 @@ vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId,
 void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
                                   vtkIdList &cellIds)
 {
-  int i;
+  int i, numPts;
   vtkIdList otherCells(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
@@ -241,7 +241,7 @@ void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
   // now perform multiple intersections on list
   if ( cellIds.GetNumberOfIds() > 0 )
     {
-    for ( i=1; i < ptIds.GetNumberOfIds(); i++)
+    for ( numPts=ptIds.GetNumberOfIds(), i=1; i < numPts; i++)
       {
       this->GetPointCells(ptIds.GetId(i), otherCells);
       cellIds.IntersectWith(otherCells);

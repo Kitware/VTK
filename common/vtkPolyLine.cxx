@@ -484,7 +484,8 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
                          vtkPointLocator *locator, vtkCellArray *verts, 
                          vtkCellArray *lines, vtkCellArray *polys, 
-                         vtkPointData *inPd, vtkPointData *outPd)
+                         vtkPointData *inPd, vtkPointData *outPd,
+                         vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   int i;
   vtkScalars *lineScalars=vtkScalars::New();
@@ -505,7 +506,7 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
     this->Line.Contour(value, lineScalars, locator, verts,
-		       lines, polys, inPd, outPd);
+		       lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
   lineScalars->Delete();
 }
@@ -562,6 +563,7 @@ void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values,
 void vtkPolyLine::Clip(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *lines,
                        vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, int cellId, vtkCellData *outCd,
                        int insideOut)
 {
   int i;
@@ -579,7 +581,8 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
     lineScalars->SetScalar(0,cellScalars->GetScalar(i));
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
-    this->Line.Clip(value, lineScalars, locator, lines, inPd, outPd, insideOut);
+    this->Line.Clip(value, lineScalars, locator, lines, inPd, outPd, 
+		    inCd, cellId, outCd, insideOut);
     }
   
   lineScalars->Delete();

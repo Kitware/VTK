@@ -72,10 +72,12 @@ public:
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator,vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd);
+               vtkPointData *inPd, vtkPointData *outPd,
+               vtkCellData *inCd, int cellId, vtkCellData *outCd);
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *tris,
-            vtkPointData *inPd, vtkPointData *outPd, int insideOut);
+            vtkPointData *inPd, vtkPointData *outPd,
+            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);
@@ -101,10 +103,9 @@ public:
                             float n[3]);  
 
   int Triangulate(vtkIdList &outTris);
-  int FastTriangulate(int numVerts, int *verts);
-  int SlowTriangulate(int numVerts, int *verts, float planeNormal[3]);
+  int RecursiveTriangulate(int numVerts, int *verts);
   int CanSplitLoop(int fedges[2], int numVerts, int *verts, int& n1, int *l1,
-                   int& n2, int *l2, float& ar);
+                   int& n2, int *l2);
   void SplitLoop (int fedges[2], int numVerts, int *verts, int& n1, int *l1, 
                   int& n2, int* l2);
 

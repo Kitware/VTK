@@ -70,10 +70,12 @@ public:
   void Contour(float value, vtkScalars *cellScalars, 
                vtkPointLocator *locator, vtkCellArray *verts, 
                vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd);
+               vtkPointData *inPd, vtkPointData *outPd,
+               vtkCellData *inCd, int cellId, vtkCellData *outCd);
   void Clip(float value, vtkScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *tetras,
-            vtkPointData *inPd, vtkPointData *outPd, int insideOut);
+            vtkPointData *inPd, vtkPointData *outPd,
+            vtkCellData *inCd, int cellId, vtkCellData *outCd, int insideOut);
   int EvaluatePosition(float x[3], float closestPoint[3],
                        int& subId, float pcoords[3],
                        float& dist2, float *weights);

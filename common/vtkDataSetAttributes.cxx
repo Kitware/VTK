@@ -89,6 +89,14 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->NullTuple = new float[3];
   this->Tuple = new float[3];
   this->TupleSize = 3;
+
+  this->AnyEnabled = 0;
+  this->CopyScalarsEnabled = 0;
+  this->CopyVectorsEnabled = 0;
+  this->CopyNormalsEnabled = 0;
+  this->CopyTCoordsEnabled = 0;
+  this->CopyTensorsEnabled = 0;
+  this->CopyFieldDataEnabled = 0;
 }
 
 vtkDataSetAttributes::~vtkDataSetAttributes()
@@ -404,6 +412,10 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
     {
     this->CopyFieldDataEnabled = 0;
     }
+
+  this->AnyEnabled = (this->CopyScalarsEnabled || this->CopyVectorsEnabled || 
+                      this->CopyNormalsEnabled || this->CopyTCoordsEnabled ||
+                      this->CopyTensorsEnabled || this->CopyFieldDataEnabled);
 };
 
 
@@ -412,6 +424,8 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, int sze, int e
 // been invoked before using this method.
 void vtkDataSetAttributes::CopyData(vtkDataSetAttributes* fromPd, int fromId, int toId)
 {
+  if ( !this->AnyEnabled ) return;
+
   if ( this->CopyScalarsEnabled )
     {
     this->CopyTuple(fromPd->Scalars->GetData(), this->Scalars->GetData(), fromId, toId);
@@ -503,6 +517,8 @@ void vtkDataSetAttributes::InterpolateAllocate(vtkDataSetAttributes* pd, int sze
 void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int toId, 
                                             vtkIdList *ptIds, float *weights)
 {
+  if ( !this->AnyEnabled ) return;
+
   if ( this->CopyScalarsEnabled )
     {
     this->InterpolateTuple(this->Scalars->GetData(), fromPd->Scalars->GetData(), toId,
@@ -557,6 +573,8 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd, int to
 void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd, int toId,
                                    int p1, int p2, float t)
 {
+  if ( !this->AnyEnabled ) return;
+
   if ( this->CopyScalarsEnabled )
     {
     this->InterpolateTuple(this->Scalars->GetData(), fromPd->Scalars->GetData(), 

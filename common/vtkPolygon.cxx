@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPlane.h"
 #include "vtkDataSet.h"
 #include "vtkCellArray.h"
+#include "vtkPriorityQueue.h"
 
 // Description:
 // Instantiate polygon.
@@ -200,8 +201,8 @@ void vtkPolygon::ComputeNormal (int numPts, float *pts, float n[3])
 
 
 int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
-				 int& vtkNotUsed(subId), float pcoords[3], 
-				 float& minDist2, float *weights)
+                                 int& vtkNotUsed(subId), float pcoords[3], 
+                                 float& minDist2, float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -250,7 +251,7 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 }
 
 void vtkPolygon::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3], 
-				  float x[3], float *weights)
+                                  float x[3], float *weights)
 {
   int i;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
@@ -506,33 +507,30 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  Tolerance = TOLERANCE * d;
-  SuccessfulTriangulation = 1;
+  this->Tolerance = TOLERANCE * d;
+  this->SuccessfulTriangulation = 1;
   this->ComputeNormal(&this->Points, Normal);
 
   for (i=0; i<numVerts; i++) verts[i] = i;
   this->Tris.Reset();
   outTris.Reset();
 
-  success = this->FastTriangulate(numVerts, verts);
-
-  if ( !success ) // Use slower but always successful technique.
-    {
-    float planeNormal[3];
-    this->ComputeNormal (&this->Points,planeNormal);
-    this->SlowTriangulate(numVerts, verts, planeNormal);
-    }
-  else // Copy the point id's into the supplied Id array
+  success = this->RecursiveTriangulate(numVerts, verts);
+  delete [] verts;
+  
+  if ( success )
     {
     for (i=0; i<this->Tris.GetNumberOfIds(); i++)
       {
       outTris.InsertId(i,this->PointIds.GetId(this->Tris.GetId(i)));
       }
+    return 1;
     }
-
-  delete [] verts;
-  
-  return 1;
+  else //degenerate triangle encountered
+    {
+    vtkWarningMacro(<< "Degenerate polyogn encountered during triangulation");
+    return 0;
+    }
 }
 
 // Description: 
@@ -540,85 +538,77 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
 // conquer based on plane splitting  to reduce loop into triangles.  
 // The cell (e.g., triangle) is presumed properly initialized (i.e., 
 // Points and PointIds).
-int vtkPolygon::FastTriangulate (int numVerts, int *verts)
+int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
 {
   int i,j;
   int n1, n2;
   int fedges[2];
-  float max, ar;
-  int maxI, maxJ;
+  float min, dist;
+  int minI, minJ;
 
-  if ( !SuccessfulTriangulation )
+  if ( ! this->SuccessfulTriangulation )
     return 0;
 
   switch (numVerts) 
     {
-    //
-    //  In loops of less than 3 vertices no elements are created
-    //
     case 0: case 1: case 2:
+      //  In loops of less than 3 vertices no elements are created - shouldn't happen
       return 1;
-      //
-      //  A loop of three vertices makes one triangle!  Replace an old
-      //  polygon with a newly created one.  
-      //
+
     case 3:
-      //
-      //  Create a triangle
-      //
+      //  A loop of three vertices makes one triangle!
       this->Tris.InsertNextId(verts[0]);
       this->Tris.InsertNextId(verts[1]);
       this->Tris.InsertNextId(verts[2]);
       return 1;
-      //
-      //  Loops greater than three vertices must be subdivided.  This is
-      //  done by finding the best splitting plane and creating two loop and 
-      //  recursively triangulating.  To find the best splitting plane, try
-      //  all possible combinations, keeping track of the one that gives the
-      //  largest dihedral angle combination.
-      //
+
     default:
       {
+      //  Loops greater than three vertices must be subdivided.  This is
+      //  done by finding the best splitting plane and creating two loops and 
+      //  recursively triangulating.  To find the best splitting plane, try
+      //  all possible combinations, keeping track of the one that gives the
+      //  shortest distance between points.
+      //
+      vtkPriorityQueue EdgeLengths(VTK_CELL_SIZE);
       int *l1 = new int[numVerts], *l2 = new int[numVerts];
+      int id;
+      float dist2, *p1, *p2;
 
-      max = 0.0;
-      maxI = maxJ = -1;
+      // find the minimum distance between points as candidates for the split line
       for (i=0; i<(numVerts-2); i++) 
         {
         for (j=i+2; j<numVerts; j++) 
           {
           if ( ((j+1) % numVerts) != i ) 
             {
-            fedges[0] = verts[i];
-            fedges[1] = verts[j];
-
-            if ( this->CanSplitLoop(fedges, numVerts, verts, 
-            n1, l1, n2, l2, ar) && ar > max ) 
-              {
-              max = ar;
-              maxI = i;
-              maxJ = j;
-              }
+            id = j*numVerts + i; //generated id
+            p1 = this->Points.GetPoint(verts[i]); //we depend on using vtkPoints of type float
+            p2 = this->Points.GetPoint(verts[j]);
+            dist2 = vtkMath::Distance2BetweenPoints(p1,p2);
+            EdgeLengths.Insert(dist2, id);
             }
           }
         }
 
-      if ( maxI > -1 ) 
+      // now see whether we can split loop using priority-ordered split candidates
+      while ( (id = EdgeLengths.Pop(dist2)) >= 0 )
         {
-        fedges[0] = verts[maxI];
-        fedges[1] = verts[maxJ];
+        fedges[0] = verts[id % numVerts];
+        fedges[1] = verts[id / numVerts];
 
-        this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
+        if ( this->CanSplitLoop(fedges, numVerts, verts, n1, l1, n2, l2) )
+          {
+          this->RecursiveTriangulate (n1, l1);
+          this->RecursiveTriangulate (n2, l2);
 
-        this->FastTriangulate (n1, l1);
-        this->FastTriangulate (n2, l2);
-
-        delete [] l1;
-        delete [] l2;
-        return 1;
+          delete [] l1;
+          delete [] l2;
+          return 1;
+          }
         }
-  
-      SuccessfulTriangulation = 0;
+      
+      this->SuccessfulTriangulation = 0;
 
       delete [] l1;
       delete [] l2;
@@ -628,72 +618,114 @@ int vtkPolygon::FastTriangulate (int numVerts, int *verts)
 }
 
 // Description:
-// Determine whether the loop can be split / build loops
+// Determine whether the loop can be split. Determines this by first checking
+// to see whether points in each loop are on opposite sides of the split
+// plane. If so, then the loop can be split; otherwise see whether one of the
+// loops has all its points on one side of the split plane and the split line
+// is inside the polygon.
 int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts, 
-                             int& n1, int *l1, int& n2, int *l2, float& ar)
+                             int& n1, int *l1, int& n2, int *l2)
 {
-  int i, sign;
-  float *x, val, absVal, *sPt, *s2Pt, v21[3], sN[3];
-  float den, dist=VTK_LARGE_FLOAT;
-  void SplitLoop();
-//
-//  Create two loops from the one using the splitting vertices provided.
-//
+  int i, sign1, sign2, loop1Split=1, loop2Split=1;
+  float *x, val, *sPt, *s2Pt, v21[3], sN[3];
+  float den, n[3];
+
+  //  Create two loops from the one using the splitting vertices provided.
   this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
-//
-//  Create splitting plane.  Splitting plane is parallel to the loop
-//  plane normal and contains the splitting vertices fedges[0] and fedges[1].
-//
+
+  // Create splitting plane.  Splitting plane is parallel to the loop
+  // plane normal and contains the splitting vertices fedges[0] and fedges[1].
   sPt = this->Points.GetPoint(fedges[0]);
   s2Pt = this->Points.GetPoint(fedges[1]);
   for (i=0; i<3; i++) v21[i] = s2Pt[i] - sPt[i];
 
-  vtkMath::Cross (v21,Normal,sN);
+  vtkMath::Cross (v21,this->Normal,sN);
   if ( (den=vtkMath::Norm(sN)) != 0.0 )
-    for (i=0; i<3; i++)
-      sN[i] /= den;
+    for (i=0; i<3; i++) sN[i] /= den;
   else
     return 0;
-//
-//  This plane can only be split if all points of each loop lie on the
-//  same side of the splitting plane.  Also keep track of the minimum 
-//  distance to the plane.
-//
-  for (sign=0, i=0; i < n1; i++) // first loop
+
+  // Evaluate the vertices in each loop to see which side of the split plane
+  // they are on. We want to see whether this plane cleanly separates the loop
+  // into two halves.
+  for (sign1=0, i=0; i < n1; i++) //first loop
     {
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
       {
       x = this->Points.GetPoint(l1[i]);
       val = vtkPlane::Evaluate(sN,sPt,x);
-      absVal = (float) fabs((double)val);
-      dist = (absVal < dist ? absVal : dist);
-      if ( !sign )
-        sign = (val > Tolerance ? 1 : -1);
-      else if ( sign != (val > 0 ? 1 : -1) )
-        return 0;
+      if ( !sign1 )
+        sign1 = (val > this->Tolerance ? 1 : -1);
+      else if ( sign1 != (val > 0 ? 1 : -1) )
+        {
+        loop1Split = 0;
+        break;
+        }
       }
     }
 
-  sign *= -1;
-  for (i=0; i < n2; i++) // second loop
+  for (sign2=0, i=0; i < n2; i++) //second loop
     {
     if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
       {
       x = this->Points.GetPoint(l2[i]);
       val = vtkPlane::Evaluate(sN,sPt,x);
-      absVal = (float) fabs((double)val);
-      dist = (absVal < dist ? absVal : dist);
-      if ( !sign )
-        sign = (val > Tolerance ? 1 : -1);
-      else if ( sign != (val > 0 ? 1 : -1) )
-        return 0;
+      if ( !sign2 )
+        sign2 = (val > this->Tolerance ? 1 : -1);
+      else if ( sign2 != (val > 0 ? 1 : -1) )
+        {
+        loop2Split = 0;
+        break;
+        }
       }
     }
-//
-//  Compute aspect ratio
-//
-  ar = (dist*dist)/(v21[0]*v21[0] + v21[1]*v21[1] + v21[2]*v21[2]);
-  return 1;
+
+  // If both loops cleanly split the split line is okay; if only one loop
+  // cleanly split check to see if it is valid. It is valid if the loop normal
+  // points in the same direction as the polygon normal, and no edges of the
+  // other loop intersect the split line.
+  if ( loop1Split && loop2Split ) //both loops cleanly split
+    {
+    if ( sign1 != sign2 ) return 1; //on opposite sides of split plane
+    else return 0; //on same side of plsit plane
+    }
+  else if ( !loop1Split && !loop2Split ) //neither loop cleanly split - skip
+    {
+    return 0;
+    }
+  else //one loop cleanly split - need to do edge intersection/normal check
+    {
+    float u, v, *p1, *p2;
+    int id1, id2, *loop, count, *otherLoop, otherCount;
+    
+    if ( loop1Split )
+      {
+      loop = l1; count = n1;
+      otherLoop = l2; otherCount = n2;
+      }
+    else
+      {
+      loop = l2; count = n2;
+      otherLoop = l1; otherCount = n1;
+      }
+
+    this->ComputeNormal(&this->Points, count, loop, n);
+    if ( vtkMath::Dot(n,this->Normal) < 0.0 ) return 0;
+    // Check line-line intersection
+    for (i=0; i < otherCount; i++)
+      {
+      id1 = otherLoop[i];
+      id2 = otherLoop[(i+1) % otherCount];
+      if ( id1 != fedges[0] && id1 != fedges[1] &&
+      id2 != fedges[0] && id2 != fedges[1] )
+        {
+        p1 = this->Points.GetPoint(id1);
+        p2 = this->Points.GetPoint(id2);
+        if ( vtkLine::Intersection(sPt,s2Pt,p1,p2,u,v) != 0 ) return 0;
+        }
+      }
+    return 1;
+    }
 }
 
 // Description:
@@ -721,95 +753,6 @@ void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
     }
 
   return;
-}
-
-// Description: 
-// Polygon triangulation that will always work - although may be slow.
-// Uses explicit analysis technique to split triangles into loops, which are
-// recursively split until only triangles remain. Very similar to the 
-// FastTriangulate method, except that extra edge intersection and 
-// containment tests are used to insure a valid splitting edge.
-int vtkPolygon::SlowTriangulate (int numVerts, int *verts, float planeNormal[3])
-{
-  int i,j;
-  int n1, n2;
-  int fedges[2];
-  float max, ar;
-  int maxI, maxJ;
-
-  switch (numVerts) 
-    {
-    //
-    //  In loops of less than 3 vertices no elements are created
-    //
-    case 0: case 1: case 2:
-      return 1;
-      //
-      //  A loop of three vertices makes one triangle!  Replace an old
-      //  polygon with a newly created one.  
-      //
-    case 3:
-      //
-      //  Create a triangle
-      //
-      this->Tris.InsertNextId(verts[0]);
-      this->Tris.InsertNextId(verts[1]);
-      this->Tris.InsertNextId(verts[2]);
-      return 1;
-      //
-      //  Loops greater than three vertices must be subdivided.  This is
-      //  done by finding the best splitting edge and creating two loop and 
-      //  recursively triangulating.  To find the best splitting edge, try
-      //  all possible combinations, keeping track of the one that gives the
-      //  largest dihedral angle combination.
-      //
-    default:
-      {
-      int *l1 = new int[numVerts], *l2 = new int[numVerts];
-
-      max = 0.0;
-      maxI = maxJ = -1;
-      for (i=0; i<(numVerts-2); i++) 
-        {
-        for (j=i+2; j<numVerts; j++) 
-          {
-          if ( ((j+1) % numVerts) != i ) 
-            {
-            fedges[0] = verts[i];
-            fedges[1] = verts[j];
-
-            if ( this->CanSplitLoop(fedges, numVerts, verts, 
-            n1, l1, n2, l2, ar) && ar > max ) 
-              {
-              max = ar;
-              maxI = i;
-              maxJ = j;
-              }
-            }
-          }
-        }
-
-      if ( maxI > -1 ) 
-        {
-        fedges[0] = verts[maxI];
-        fedges[1] = verts[maxJ];
-
-        this->SplitLoop (fedges, numVerts, verts, n1, l1, n2, l2);
-
-        this->FastTriangulate (n1, l1);
-        this->FastTriangulate (n2, l2);
-
-        return 1;
-
-        }
-  
-      SuccessfulTriangulation = 0;
-
-      delete [] l1;
-      delete [] l2;
-      return 0;
-      }
-    }
 }
 
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
@@ -878,7 +821,8 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
                         vtkPointLocator *locator,
                         vtkCellArray *verts, vtkCellArray *lines, 
                         vtkCellArray *polys,
-                        vtkPointData *inPd, vtkPointData *outPd)
+                        vtkPointData *inPd, vtkPointData *outPd,
+                        vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   int i, success;
   int numVerts=this->Points.GetNumberOfPoints();
@@ -892,14 +836,14 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  Tolerance = TOLERANCE * d;
-  SuccessfulTriangulation = 1;
+  this->Tolerance = TOLERANCE * d;
+  this->SuccessfulTriangulation = 1;
   this->ComputeNormal(&this->Points, Normal);
 
   for (i=0; i<numVerts; i++) polyVerts[i] = i;
   this->Tris.Reset();
 
-  success = this->FastTriangulate(numVerts, polyVerts);
+  success = this->RecursiveTriangulate(numVerts, polyVerts);
 
   if ( !success ) // Just skip for now.
     {
@@ -928,7 +872,7 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
       this->TriScalars.SetScalar(2,cellScalars->GetScalar(p3));
 
       this->Triangle.Contour(value, &this->TriScalars, locator, verts,
-                   lines, polys, inPd, outPd);
+                   lines, polys, inPd, outPd, inCd, cellId, outCd);
       }
     }
   delete [] polyVerts;
@@ -1037,14 +981,14 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  Tolerance = TOLERANCE * d;
-  SuccessfulTriangulation = 1;
+  this->Tolerance = TOLERANCE * d;
+  this->SuccessfulTriangulation = 1;
   this->ComputeNormal(&this->Points, Normal);
 
   for (i=0; i<numVerts; i++) verts[i] = i;
   this->Tris.Reset();
 
-  success = this->FastTriangulate(numVerts, verts);
+  success = this->RecursiveTriangulate(numVerts, verts);
 
   if ( !success ) // Use slower but always successful technique.
     {
@@ -1135,6 +1079,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 void vtkPolygon::Clip(float value, vtkScalars *cellScalars, 
                       vtkPointLocator *locator, vtkCellArray *tris,
                       vtkPointData *inPD, vtkPointData *outPD,
+                      vtkCellData *inCD, int cellId, vtkCellData *outCD,
                       int insideOut)
 {
   int i, success;
@@ -1148,20 +1093,17 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
-  Tolerance = TOLERANCE * d;
+  this->Tolerance = TOLERANCE * d;
 
-  SuccessfulTriangulation = 1;
+  this->SuccessfulTriangulation = 1;
   this->ComputeNormal(&this->Points, Normal);
 
   for (i=0; i<numVerts; i++) polyVerts[i] = i;
   this->Tris.Reset();
 
-  success = this->FastTriangulate(numVerts, polyVerts);
+  success = this->RecursiveTriangulate(numVerts, polyVerts);
 
-  if ( !success ) // Just skip for now.
-    {
-    }
-  else // clip triangles
+  if ( success ) // clip triangles
     {
     for (i=0; i<this->Tris.GetNumberOfIds(); i += 3)
       {
@@ -1182,7 +1124,7 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
       this->TriScalars.SetScalar(2,cellScalars->GetScalar(p3));
 
       this->Triangle.Clip(value, &this->TriScalars, locator, tris, 
-			  inPD, outPD, insideOut);
+                          inPD, outPD, inCD, cellId, outCD, insideOut);
       }
     }
   delete [] polyVerts;

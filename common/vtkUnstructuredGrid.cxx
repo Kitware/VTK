@@ -332,10 +332,8 @@ void vtkUnstructuredGrid::GetPointCells(int ptId, vtkIdList& cellIds)
   numCells = this->Links->GetNcells(ptId);
   cells = this->Links->GetCells(ptId);
 
-  for (i=0; i < numCells; i++)
-    {
-    cellIds.InsertId(i,cells[i]);
-    }
+  cellIds.SetNumberOfIds(numCells);
+  for (i=0; i < numCells; i++) cellIds.SetId(i,cells[i]);
 }
 
 void vtkUnstructuredGrid::Reset()

@@ -349,7 +349,8 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
 		      vtkCellArray *vtkNotUsed(verts), 
 		      vtkCellArray *lines, 
 		      vtkCellArray *vtkNotUsed(polys), 
-                      vtkPointData *inPd, vtkPointData *outPd)
+                      vtkPointData *inPd, vtkPointData *outPd,
+                      vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[4] = {1,2,4,8};
   LINE_CASES *lineCase;
@@ -642,6 +643,7 @@ static QUAD_CASES quadCasesComplement[] = {
 void vtkQuad::Clip(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *polys,
                        vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, int cellId, vtkCellData *outCd,
                        int insideOut)
 {
   static int CASE_MASK[4] = {1,2,4,8};

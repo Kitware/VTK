@@ -116,7 +116,8 @@ void vtkVertex::Contour(float value, vtkScalars *cellScalars,
 			vtkCellArray *verts, 
 			vtkCellArray *vtkNotUsed(lines), 
 			vtkCellArray *vtkNotUsed(polys), 
-                        vtkPointData *inPd, vtkPointData *outPd)
+                        vtkPointData *inPd, vtkPointData *outPd,
+                        vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   if ( value == cellScalars->GetScalar(0) )
     {
@@ -200,6 +201,7 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
 void vtkVertex::Clip(float value, vtkScalars *cellScalars, 
                      vtkPointLocator *locator, vtkCellArray *verts,
                      vtkPointData *inPD, vtkPointData *outPD,
+                     vtkCellData *inCD, int cellId, vtkCellData *outCD,
                      int insideOut)
 {
   float s, *x;

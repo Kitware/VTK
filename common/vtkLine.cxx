@@ -102,7 +102,7 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 // Description:
 // Performs intersection of two finite 3D lines. An intersection is found if
 // the projection of the two lines onto the plane perpendicular to the cross
-// product of the two lines intersect. The parameters (u,v) are the
+// product of the two lines intersect. The parameters (u,v) are the 
 // parametric coordinates of the lines at the position of closest approach.
 int vtkLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
                            float& u, float& v)
@@ -199,7 +199,8 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
 		      vtkPointLocator *locator, vtkCellArray *verts, 
 		      vtkCellArray *vtkNotUsed(lines), 
 		      vtkCellArray *vtkNotUsed(polys), 
-                      vtkPointData *inPd, vtkPointData *outPd)
+                      vtkPointData *inPd, vtkPointData *outPd,
+                      vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[2] = {1,2};
   int index, i;
@@ -314,10 +315,9 @@ float vtkLine::DistanceToLine (float x[3], float p1[3], float p2[3])
   return (vtkMath::Dot(np1,np1) - proj*proj);
 }
 
-//
+// Description:
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-//
 int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
                               float x[3], float pcoords[3], int& subId)
 {
@@ -430,6 +430,7 @@ static LINE_CASES lineCases[] = {
 void vtkLine::Clip(float value, vtkScalars *cellScalars, 
                    vtkPointLocator *locator, vtkCellArray *lines,
                    vtkPointData *inPd, vtkPointData *outPd,
+                   vtkCellData *inCd, int cellId, vtkCellData *outCd,
                    int insideOut)
 {
   static int CASE_MASK[3] = {1,2};

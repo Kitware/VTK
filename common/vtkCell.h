@@ -71,6 +71,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkCellArray;
 class vtkPointLocator;
 class vtkPointData;
+class vtkCellData;
 
 class VTK_EXPORT vtkCell : public vtkObject
 {
@@ -180,11 +181,16 @@ public:
   // duplicates). Contouring primitives can be vertices, lines, or
   // polygons. It is possible to interpolate point data along the edge
   // by providing input and output point data - if outPd is NULL, then
-  // no interpolation is performed.
+  // no interpolation is performed. Also, if the output cell data is
+  // non-NULL, the cell data from the contoured cell is passed to the
+  // generated contouring primitives. (Note: the CopyAllocate() method
+  // must be invoked on both the output cell and point data. The 
+  // cellId refers to the cell from which the cell data is copied.)
   virtual void Contour(float value, vtkScalars *cellScalars, 
                        vtkPointLocator *locator, vtkCellArray *verts, 
                        vtkCellArray *lines, vtkCellArray *polys, 
-                       vtkPointData *inPd, vtkPointData *outPd) = 0;
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, int cellId, vtkCellData *outCd) = 0;
 
   // Description:
   // Cut (or clip) the cell based on the input cellScalars and the
@@ -192,10 +198,16 @@ public:
   // more cells of the same topological dimension as the original cell. 
   // The flag insideOut controls what part of the cell is considered inside - 
   // normally cell points whose scalar value is greater than "value" are
-  // considered inside. If insideOut is on, this is reversed.
+  // considered inside. If insideOut is on, this is reversed. Also, if the 
+  // output cell data is non-NULL, the cell data from the clipped cell is 
+  // passed to the generated contouring primitives. (Note: the CopyAllocate() 
+  // method must be invoked on both the output cell and point data. The
+  // cellId refers to the cell from which the cell data is copied.)
   virtual void Clip(float value, vtkScalars *cellScalars, 
                     vtkPointLocator *locator, vtkCellArray *connectivity,
-                    vtkPointData *inPd, vtkPointData *outPd, int insideOut) = 0;
+                    vtkPointData *inPd, vtkPointData *outPd,
+                    vtkCellData *inCd, int cellId, vtkCellData *outCd, 
+                    int insideOut) = 0;
 
   // Description:
   // Intersect with a ray. Return parametric coordinates (both line and cell)

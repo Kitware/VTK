@@ -276,7 +276,8 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
 		       vtkCellArray *vtkNotUsed(verts), 
 		       vtkCellArray *vtkNotUsed(lines), 
 		       vtkCellArray *polys,
-                       vtkPointData *inPd, vtkPointData *outPd)
+                       vtkPointData *inPd, vtkPointData *outPd,
+                       vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   static int CASE_MASK[8] = {1,2,4,8,16,32,64,128};
   TRIANGLE_CASES *triCase;
@@ -515,12 +516,12 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
 }
 
 void vtkVoxel::Clip(float vtkNotUsed(value), 
-			 vtkScalars *vtkNotUsed(cellScalars), 
-                         vtkPointLocator *vtkNotUsed(locator), 
-			 vtkCellArray *vtkNotUsed(tetras),
-                         vtkPointData *vtkNotUsed(inPd), 
-			 vtkPointData *vtkNotUsed(outPd),
-                         int insideOut)
+		    vtkScalars *vtkNotUsed(cellScalars), 
+		    vtkPointLocator *vtkNotUsed(locator), 
+		    vtkCellArray *vtkNotUsed(tetras),
+		    vtkPointData *vtkNotUsed(inPd), vtkPointData *vtkNotUsed(outPd),
+		    vtkCellData *vtkNotUsed(inCd), int vtkNotUsed(cellId), 
+		    vtkCellData *vtkNotUsed(outCd), int vtkNotUsed(insideOut))
 {
 
 }
