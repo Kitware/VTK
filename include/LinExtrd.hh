@@ -83,8 +83,8 @@ public:
   // Description:
   // Set/Get extrusion point. Only needs to be set if PointExtrusion is
   // turned on. This is the point towards which extrusion occurs.
-  vlSetVector3Macro(Point,float);
-  vlGetVectorMacro(Point,float,3);
+  vlSetVector3Macro(ExtrusionPoint,float);
+  vlGetVectorMacro(ExtrusionPoint,float,3);
 
 protected:
   void Execute();
@@ -92,7 +92,7 @@ protected:
   int Capping;
   float ScaleFactor;
   float Vector[3];
-  float Point[3];
+  float ExtrusionPoint[3];
 
   //BTX
   float *(vlLinearExtrusionFilter::*ExtrudePoint)(float x[3], int id, vlNormals *normals);

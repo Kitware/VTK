@@ -17,14 +17,14 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 // Description:
 // Create object with normal extrusion type, capping on, scale factor=1.0,
-// vector (0,0,1), and point (0,0,0).
+// vector (0,0,1), and extrusion point (0,0,0).
 vlLinearExtrusionFilter::vlLinearExtrusionFilter()
 {
   this->ExtrusionType = NORMAL_EXTRUSION;
   this->Capping = 1;
   this->ScaleFactor = 1.0;
   this->Vector[0] = this->Vector[1] = 0.0; this->Vector[2] = 1.0;
-  this->Point[0] = this->Point[1] = this->Point[2] = 0.0;
+  this->ExtrusionPoint[0] = this->ExtrusionPoint[1] = this->ExtrusionPoint[2] = 0.0;
 }
 
 float *vlLinearExtrusionFilter::ViaNormal(float x[3], int id, vlNormals *n)
@@ -56,7 +56,7 @@ float *vlLinearExtrusionFilter::ViaPoint(float x[3], int id, vlNormals *n)
   int i;
 
   for (i=0; i<3; i++) 
-    xNew[i] = x[i] + this->ScaleFactor*(x[i] - this->Point[i]);
+    xNew[i] = x[i] + this->ScaleFactor*(x[i] - this->ExtrusionPoint[i]);
 
   return xNew;
 }
@@ -265,8 +265,8 @@ void vlLinearExtrusionFilter::PrintSelf(ostream& os, vlIndent indent)
   else //POINT_EXTRUSION
     {
     os << indent << "Extrusion Type: Extrude towards point\n";
-    os << indent << "Point: (" << this->Point[0] << ", " 
-       << this->Point[1] << ", " << this->Point[2] << ")\n";
+    os << indent << "Extrusion Point: (" << this->ExtrusionPoint[0] << ", " 
+       << this->ExtrusionPoint[1] << ", " << this->ExtrusionPoint[2] << ")\n";
     }
 
   os << indent << "Capping: " << (this->Capping ? "On\n" : "Off\n");
