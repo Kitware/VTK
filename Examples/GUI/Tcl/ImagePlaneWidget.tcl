@@ -40,7 +40,6 @@ vtkRenderWindowInteractor iren
 #
 vtkCellPicker picker 
   picker SetTolerance 0.005   
-  picker PickFromListOn   
 
 # The 3 image plane widgets are used to probe the dataset.
 #
@@ -62,6 +61,7 @@ vtkImagePlaneWidget planeWidgetY
   planeWidgetY SetPicker picker  
   set prop2 [planeWidgetY GetPlaneProperty]
   $prop2 SetColor 1 1 0  
+  planeWidgetY SetLookupTable [planeWidgetX GetLookupTable]
   planeWidgetY On  
 
 vtkImagePlaneWidget planeWidgetZ 
@@ -72,6 +72,7 @@ vtkImagePlaneWidget planeWidgetZ
   planeWidgetZ SetPicker picker  
   set prop3 [planeWidgetZ GetPlaneProperty]
   $prop3 SetColor 0 0 1
+  planeWidgetZ SetLookupTable [planeWidgetX GetLookupTable]
   planeWidgetZ On  
 
 # Add the outline actor to the renderer, set the background and size
