@@ -21,6 +21,11 @@
 #include "vtkSetGet.h"
 #include "vtkCallbackCommand.h"
 
+extern "C"
+{
+  typedef int (*vtkTclCommandType)(ClientData, Tcl_Interp *,int, char *[]);
+}
+
 vtkTclInterpStruct *vtkGetInterpStruct(Tcl_Interp *interp)
 {
   vtkTclInterpStruct *is = (vtkTclInterpStruct *)Tcl_GetAssocData(interp,(char *) "vtk",NULL);
@@ -268,7 +273,8 @@ vtkTclGetObjectFromPointer(Tcl_Interp *interp, void *temp1,
   vtkTclCommandArgStruct *as = new vtkTclCommandArgStruct;
   as->Pointer = (void *)temp;
   as->Interp = interp;
-  Tcl_CreateCommand(interp,name,command,
+  Tcl_CreateCommand(interp,name,
+                    reinterpret_cast<vtkTclCommandType>(command),
                     (ClientData)(as),
                     (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
   entry = Tcl_CreateHashEntry(&is->CommandLookup,name,&is_new);
@@ -526,7 +532,8 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   vtkTclCommandArgStruct *as = new vtkTclCommandArgStruct;
   as->Pointer = (void *)temp;
   as->Interp = interp;
-  Tcl_CreateCommand(interp,argv[1],command,
+  Tcl_CreateCommand(interp,argv[1],
+                    reinterpret_cast<vtkTclCommandType>(command),
                     (ClientData)as,
                     (Tcl_CmdDeleteProc *)vtkTclGenericDeleteObject);
   entry = Tcl_CreateHashEntry(&is->CommandLookup,argv[1],&is_new);
@@ -558,7 +565,9 @@ void vtkTclCreateNew(Tcl_Interp *interp, const char *cname,
   vtkTclCommandStruct *cs = new vtkTclCommandStruct;
   cs->NewCommand = NewCommand;
   cs->CommandFunction = CommandFunction;
-  Tcl_CreateCommand(interp,(char *) cname,vtkTclNewInstanceCommand,
+  Tcl_CreateCommand(interp,(char *) cname,
+                    reinterpret_cast<vtkTclCommandType>(
+                      vtkTclNewInstanceCommand),
                    (ClientData *)cs,
                    (Tcl_CmdDeleteProc *)vtkTclDeleteCommandStruct);
 }
