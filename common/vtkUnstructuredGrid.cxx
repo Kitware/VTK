@@ -267,6 +267,11 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
       break;
     }
 
+  if( !cell )
+    {
+    return NULL;
+    }
+
   loc = this->Cells->GetCellLocation(cellId);
   this->Connectivity->GetCell(loc,numPts,pts); 
 
