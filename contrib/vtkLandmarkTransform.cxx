@@ -135,6 +135,7 @@ void vtkLandmarkTransform::Update()
   const int N_PTS = this->SourceLandmarks->GetNumberOfPoints();
   if(N_PTS != this->TargetLandmarks->GetNumberOfPoints())
     {
+    this->UpdateMutex->Unlock();
     vtkErrorMacro("Update: Source and Target Landmarks contain a different number of points");
     return;
     }
