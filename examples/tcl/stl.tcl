@@ -11,7 +11,8 @@ set ren1   [$renWin MakeRenderer];
 set iren [$renWin MakeRenderWindowInteractor];
 
 vtkSTLReader sr;
-sr SetFilename ../../data/42400-IDGH.stl;
+    sr SetFilename ../../data/42400-IDGH.stl;
+    sr DebugOn;
 
 vtkPolyMapper   stlMapper;
     stlMapper SetInput [sr GetOutput];
