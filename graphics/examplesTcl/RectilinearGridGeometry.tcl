@@ -88,20 +88,12 @@ foreach dim $dims {
   for {set i 0} {$i < $numTuples} {incr i} {
     da$dim InsertComponent $i 0 [math Random 0 127]
   }
-  vtkScalars s$dim
-    s$dim SetData da$dim
-  vtkScalars sx$dim
-    sx$dim SetData sxArray$dim
-  vtkScalars sy$dim
-    sy$dim SetData syArray$dim
-  vtkScalars sz$dim
-    sz$dim SetData szArray$dim
   vtkRectilinearGrid rg$dim
   eval  rg$dim SetDimensions $dimensions($dim)
-    [rg$dim GetCellData] SetScalars s$dim
-    rg$dim SetXCoordinates sx$dim
-    rg$dim SetYCoordinates sy$dim
-    rg$dim SetZCoordinates sz$dim
+    [rg$dim GetCellData] SetScalars da$dim
+    rg$dim SetXCoordinates sxArray$dim
+    rg$dim SetYCoordinates syArray$dim
+    rg$dim SetZCoordinates szArray$dim
   vtkRectilinearGridGeometryFilter rggf$dim
     rggf$dim SetInput rg$dim
   vtkPolyDataMapper pdm$dim

@@ -1503,9 +1503,9 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   int iblanked = 0;
   int dimensions[3];
   int i;
-  vtkScalars *xCoords = vtkScalars::New();
-  vtkScalars *yCoords = vtkScalars::New();
-  vtkScalars *zCoords = vtkScalars::New();
+  vtkFloatArray *xCoords = vtkFloatArray::New();
+  vtkFloatArray *yCoords = vtkFloatArray::New();
+  vtkFloatArray *zCoords = vtkFloatArray::New();
   int numPts;
   
   if (this->GetOutput(partId) == NULL)
@@ -1533,21 +1533,26 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   yCoords->Allocate(dimensions[1]);
   zCoords->Allocate(dimensions[2]);
   numPts = dimensions[0] * dimensions[1] * dimensions[2];
-  
+
+  float val;
+
   for (i = 0; i < dimensions[0]; i++)
     {
     this->ReadNextDataLine(line);
-    xCoords->InsertNextScalar(atof(line));
+    val = atof(line);
+    xCoords->InsertNextTuple(&val);
     }
   for (i = 0; i < dimensions[1]; i++)
     {
     this->ReadNextDataLine(line);
-    yCoords->InsertNextScalar(atof(line));
+    val = atof(line);
+    yCoords->InsertNextTuple(&val);
     }
   for (i = 0; i < dimensions[2]; i++)
     {
     this->ReadNextDataLine(line);
-    zCoords->InsertNextScalar(atof(line));
+    val = atof(line);
+    zCoords->InsertNextTuple(&val);
     }
   if (iblanked)
     {

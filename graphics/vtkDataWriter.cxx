@@ -636,9 +636,10 @@ int vtkDataWriter::WritePoints(ostream *fp, vtkPoints *points)
 }
 
 // Write out coordinates for rectilinear grids.
-int vtkDataWriter::WriteCoordinates(ostream *fp, vtkScalars *coords, int axes)
+int vtkDataWriter::WriteCoordinates(ostream *fp, vtkDataArray *coords, 
+				    int axes)
 {
-  int ncoords=coords->GetNumberOfScalars();
+  int ncoords=coords->GetNumberOfTuples();
   
   if ( axes == 0 )
     {
@@ -653,7 +654,7 @@ int vtkDataWriter::WriteCoordinates(ostream *fp, vtkScalars *coords, int axes)
     *fp << "Z_COORDINATES " << ncoords << " ";
     }
 
-  return this->WriteArray(fp, coords->GetDataType(), coords->GetData(), "%s\n", ncoords, 1);
+  return this->WriteArray(fp, coords->GetDataType(), coords, "%s\n", ncoords, 1);
 }
 
 // Write out scalar data.

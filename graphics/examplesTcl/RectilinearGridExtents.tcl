@@ -38,15 +38,12 @@ for {set i 0} {$i < 22} {incr i} {
  sxArray InsertNextValue $x
 }
 
-vtkScalars sxDim
-  sxDim SetData sxArray
-
 # Create the rectilinear grid
 vtkRectilinearGrid rgrid
   rgrid SetDimensions 21  21  21 
-  rgrid SetXCoordinates sxDim
-  rgrid SetYCoordinates sxDim
-  rgrid SetZCoordinates sxDim
+  rgrid SetXCoordinates sxArray
+  rgrid SetYCoordinates sxArray
+  rgrid SetZCoordinates sxArray
   [rgrid GetCellData] SetScalars scalars 
 
 # Create the mapper and actor for the structrued grid

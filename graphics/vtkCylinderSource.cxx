@@ -42,8 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkCylinderSource.h"
 #include "vtkPoints.h"
-#include "vtkNormals.h"
-#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
 
@@ -83,8 +82,8 @@ void vtkCylinderSource::Execute()
   int i, idx;
   int pts[VTK_CELL_SIZE];
   vtkPoints *newPoints; 
-  vtkNormals *newNormals;
-  vtkTCoords *newTCoords;
+  vtkFloatArray *newNormals;
+  vtkFloatArray *newTCoords;
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
@@ -105,12 +104,14 @@ void vtkCylinderSource::Execute()
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(numPts);
-  newNormals = vtkNormals::New();
+  newNormals = vtkFloatArray::New();
+  newNormals->SetNumberOfComponents(3);
   newNormals->Allocate(numPts);
-  newNormals->GetData()->SetName("Normals");
-  newTCoords = vtkTCoords::New();
-  newTCoords->Allocate(numPts,2);
-  newTCoords->GetData()->SetName("TCoords");
+  newNormals->SetName("Normals");
+  newTCoords = vtkFloatArray::New();
+  newTCoords->SetNumberOfComponents(2);
+  newTCoords->Allocate(numPts);
+  newTCoords->SetName("TCoords");
 
   newPolys = vtkCellArray::New();
   newPolys->Allocate(newPolys->EstimateSize(numPolys,this->Resolution));
@@ -138,10 +139,10 @@ void vtkCylinderSource::Execute()
     idx = 2*i;
     newPoints->InsertPoint(idx,xbot);
     newPoints->InsertPoint(idx+1,xtop);
-    newTCoords->InsertTCoord(idx,tcbot);
-    newTCoords->InsertTCoord(idx+1,tctop);
-    newNormals->InsertNormal(idx,nbot);
-    newNormals->InsertNormal(idx+1,ntop);
+    newTCoords->InsertTuple(idx,tcbot);
+    newTCoords->InsertTuple(idx+1,tctop);
+    newNormals->InsertTuple(idx,nbot);
+    newNormals->InsertTuple(idx+1,ntop);
     }
 //
 // Generate polygons for sides
@@ -183,13 +184,13 @@ void vtkCylinderSource::Execute()
 
       idx = 2*this->Resolution;
       newPoints->InsertPoint(idx+i,xbot);
-      newTCoords->InsertTCoord(idx+i,tcbot);
-      newNormals->InsertNormal(idx+i,nbot);
+      newTCoords->InsertTuple(idx+i,tcbot);
+      newNormals->InsertTuple(idx+i,nbot);
 
       idx = 3*this->Resolution;
       newPoints->InsertPoint(idx+this->Resolution-i-1,xtop);
-      newTCoords->InsertTCoord(idx+this->Resolution-i-1,tctop);
-      newNormals->InsertNormal(idx+this->Resolution-i-1,ntop);
+      newTCoords->InsertTuple(idx+this->Resolution-i-1,tctop);
+      newNormals->InsertTuple(idx+this->Resolution-i-1,ntop);
       }
 //
 // Generate polygons for top/bottom polygons

@@ -171,7 +171,7 @@ public:
 
   // Description:
   // Write out coordinates for rectilinear grids.
-  int WriteCoordinates(ostream *fp, vtkScalars *coords, int axes);
+  int WriteCoordinates(ostream *fp, vtkDataArray *coords, int axes);
 
   // Description:
   // Write out the cells of the data set.
