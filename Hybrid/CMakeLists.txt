@@ -110,8 +110,6 @@ IF (VTK_WRAP_PYTHON)
     TARGET_LINK_LIBRARIES (vtkHybridPython
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
-  ELSE(WIN32)
-    TARGET_LINK_LIBRARIES (vtkHybridPython ${PYTHON_LIBRARY})
   ENDIF(WIN32)
   TARGET_LINK_LIBRARIES(vtkHybridPython vtkHybrid)
 
