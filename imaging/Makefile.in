@@ -120,6 +120,7 @@ vtkPNMWriter \
 vtkPolyDataMapper2D \
 vtkPostScriptWriter \
 vtkScalarBarActor \
+vtkScaledTextActor \
 vtkTextMapper \
 vtkTIFFReader \
 vtkTIFFWriter \
