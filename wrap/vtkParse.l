@@ -9,7 +9,7 @@
          }
      };
 
-"//BTX".*$ 
+^[\t ]*"//BTX".*$ 
      { int c1 = 0, c2 = 0, c3 = 0, c4 = 0, c5 = input();
        for (;;)
 	 {
@@ -25,8 +25,70 @@
          } 
      };
 
+^[\t ]*"// .NAME".* 
+                 { int pos = 1;
+	           while (yytext[pos-1] != 'M' || yytext[pos] != 'E') pos++; 
+                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
+                   memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
+                   yylval.str[yyleng - pos - 1] = '\0';
+		   data.NameComment = strdup(yylval.str);
+                 }
 
-"//".*$           ;
+^[\t ]*"// .SECTION Description".* 
+     { 
+     CommentState = 1;
+     data.Description = malloc(100000);
+     data.Description[0] = '\0';
+     };
+
+^[\t ]*"// .SECTION See Also".* 
+     { 
+     CommentState = 3;
+     data.SeeAlso = malloc(100000);
+     data.SeeAlso[0] = '\0';
+     };
+
+^[\t ]*"// .SECTION see also".* 
+     { 
+     CommentState = 3;
+     data.SeeAlso = malloc(100000);
+     data.SeeAlso[0] = '\0';
+     };
+
+^[\t ]*"// .SECTION Caveats".* 
+     { 
+     CommentState = 4;
+     data.Caveats = malloc(100000);
+     data.Caveats[0] = '\0';
+     };
+
+^[\t ]*"// Description:".* 
+     { 
+     CommentState = 2;
+     HaveComment = 1;
+     CommentText[0] = '\0';
+     };
+
+^[\t ]*[\n]  { 
+             HaveComment = 0; 
+             CommentState = 0; 
+             };
+
+^[\t ]*"//".*   { int pos = 1;
+	           while (yytext[pos-1] != '/' || yytext[pos] != '/') pos++; 
+                   yylval.str = (char *)malloc(yyleng + 1 - pos - 1);
+                   memcpy(yylval.str,yytext+ pos + 1,yyleng - pos - 1);
+                   yylval.str[yyleng - pos - 1] = '\0';
+	           switch (CommentState)
+                     {
+                     case 1: strcat(data.Description,yylval.str); break;
+                     case 2: strcat(CommentText,yylval.str); break;
+                     case 3: strcat(data.SeeAlso,yylval.str); break;
+                     case 4: strcat(data.Caveats,yylval.str); break;
+                     }
+                   };
+
+"//".* ;
 
 "VTK_EXPORT" ;
 
@@ -108,7 +170,8 @@
                           return(ID);
                         }
 
-[\t\n ]+ ;
+[\t\n ] ;
+
 
 "["	return(yytext[0]);
 "]"	return(yytext[0]);

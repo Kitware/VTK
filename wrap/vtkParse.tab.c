@@ -13,10 +13,13 @@
   FILE *fhint;
   char temps[2048];
   int  in_public;
+  int  HaveComment;
+  char CommentText[10000];
+  int CommentState;
   
 #define YYMAXDEPTH 1000
 
-# line 60 "vtkParse.y"
+# line 63 "vtkParse.y"
 typedef union
 #ifdef __cplusplus
 	YYSTYPE
@@ -120,7 +123,7 @@ YYSTYPE *yyv;
 static int yymaxdepth = YYMAXDEPTH;
 # define YYERRCODE 256
 
-# line 602 "vtkParse.y"
+# line 605 "vtkParse.y"
 
 #include <string.h>
 #include "lex.yy.c"
@@ -138,6 +141,7 @@ void InitFunction(FunctionInfo *func)
   func->HintSize = 0;
   func->ReturnType = 2;
   func->ReturnClass = NULL;
+  func->Comment = NULL;
 }
 
 /* when the cpp file doesn't have enough info use the hint file */
@@ -210,6 +214,11 @@ void output_function()
       }
     }
 
+  if (HaveComment)
+    {
+    currentFunction->Comment = strdup(CommentText);
+    }
+  
   data.NumberOfFunctions++;
   currentFunction = data.Functions + data.NumberOfFunctions;
   InitFunction(currentFunction);
@@ -240,7 +249,11 @@ int main(int argc,char *argv[])
     }
 
   data.FileName = argv[1];
-
+  data.NameComment = NULL;
+  data.Description = NULL;
+  data.Caveats = NULL;
+  data.SeeAlso = NULL;
+  CommentState = 0;
   data.IsConcrete = atoi(argv[3]);
 
   currentFunction = data.Functions;
@@ -1192,52 +1205,52 @@ int yyparse()
 	{
 		
 case 2:
-# line 121 "vtkParse.y"
+# line 124 "vtkParse.y"
 {
       data.ClassName = strdup(yypvt[-0].str);
       } break;
 case 12:
-# line 131 "vtkParse.y"
+# line 134 "vtkParse.y"
 { output_function(); } break;
 case 13:
-# line 132 "vtkParse.y"
+# line 135 "vtkParse.y"
 { output_function(); } break;
 case 14:
-# line 134 "vtkParse.y"
+# line 137 "vtkParse.y"
 {
          output_function();
 	 } break;
 case 15:
-# line 138 "vtkParse.y"
+# line 141 "vtkParse.y"
 {
          currentFunction->ReturnType = yypvt[-1].integer;
          output_function();
 	 } break;
 case 16:
-# line 143 "vtkParse.y"
+# line 146 "vtkParse.y"
 {
          currentFunction->ReturnType = yypvt[-1].integer;
          output_function();
 	 } break;
 case 17:
-# line 148 "vtkParse.y"
+# line 151 "vtkParse.y"
 {
          output_function();
 	 } break;
 case 18:
-# line 153 "vtkParse.y"
+# line 156 "vtkParse.y"
 {
       currentFunction->Name = yypvt[-4].str; 
       fprintf(stderr,"   Parsed func %s\n",yypvt[-4].str); 
     } break;
 case 19:
-# line 158 "vtkParse.y"
+# line 161 "vtkParse.y"
 { 
       currentFunction->IsOperator = 1; 
       fprintf(stderr,"   Converted operator\n"); 
     } break;
 case 20:
-# line 163 "vtkParse.y"
+# line 166 "vtkParse.y"
 { 
       currentFunction->Name = yypvt[-6].str; 
       fprintf(stderr,"   Parsed func %s\n",yypvt[-6].str); 
@@ -1245,98 +1258,98 @@ case 20:
       data.IsAbstract = 1;
     } break;
 case 32:
-# line 182 "vtkParse.y"
+# line 185 "vtkParse.y"
 { currentFunction->NumberOfArguments++;} break;
 case 33:
-# line 183 "vtkParse.y"
+# line 186 "vtkParse.y"
 { currentFunction->NumberOfArguments++;} break;
 case 35:
-# line 186 "vtkParse.y"
+# line 189 "vtkParse.y"
 {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
 	yypvt[-0].integer;} break;
 case 36:
-# line 191 "vtkParse.y"
+# line 194 "vtkParse.y"
 {
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 
 	yypvt[-1].integer;
     } break;
 case 38:
-# line 197 "vtkParse.y"
+# line 200 "vtkParse.y"
 { 
       currentFunction->ArgCounts[currentFunction->NumberOfArguments] = 0; 
       currentFunction->ArgTypes[currentFunction->NumberOfArguments] = 5000;
     } break;
 case 45:
-# line 209 "vtkParse.y"
+# line 212 "vtkParse.y"
 { currentFunction->ArrayFailure = 1; } break;
 case 46:
-# line 211 "vtkParse.y"
+# line 214 "vtkParse.y"
 { currentFunction->ArrayFailure = 1; } break;
 case 47:
-# line 214 "vtkParse.y"
+# line 217 "vtkParse.y"
 {yyval.integer = 1000 + yypvt[-0].integer;} break;
 case 48:
-# line 215 "vtkParse.y"
+# line 218 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 49:
-# line 216 "vtkParse.y"
+# line 219 "vtkParse.y"
 {yyval.integer = 2000 + yypvt[-0].integer;} break;
 case 50:
-# line 217 "vtkParse.y"
+# line 220 "vtkParse.y"
 {yyval.integer = 3000 + yypvt[-0].integer;} break;
 case 51:
-# line 219 "vtkParse.y"
+# line 222 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 52:
-# line 221 "vtkParse.y"
+# line 224 "vtkParse.y"
 {yyval.integer = yypvt[-1].integer + yypvt[-0].integer;} break;
 case 53:
-# line 230 "vtkParse.y"
+# line 233 "vtkParse.y"
 { yyval.integer = 100;} break;
 case 54:
-# line 231 "vtkParse.y"
+# line 234 "vtkParse.y"
 { yyval.integer = 300;} break;
 case 55:
-# line 232 "vtkParse.y"
+# line 235 "vtkParse.y"
 { yyval.integer = 100 + yypvt[-0].integer;} break;
 case 56:
-# line 233 "vtkParse.y"
+# line 236 "vtkParse.y"
 { yyval.integer = 400 + yypvt[-0].integer;} break;
 case 57:
-# line 235 "vtkParse.y"
+# line 238 "vtkParse.y"
 { yyval.integer = 10 + yypvt[-0].integer;} break;
 case 58:
-# line 236 "vtkParse.y"
+# line 239 "vtkParse.y"
 { yyval.integer = yypvt[-0].integer;} break;
 case 59:
-# line 239 "vtkParse.y"
+# line 242 "vtkParse.y"
 { yyval.integer = 1;} break;
 case 60:
-# line 240 "vtkParse.y"
+# line 243 "vtkParse.y"
 { yyval.integer = 2;} break;
 case 61:
-# line 241 "vtkParse.y"
+# line 244 "vtkParse.y"
 { yyval.integer = 3;} break;
 case 62:
-# line 242 "vtkParse.y"
+# line 245 "vtkParse.y"
 { yyval.integer = 4;} break;
 case 63:
-# line 243 "vtkParse.y"
+# line 246 "vtkParse.y"
 { yyval.integer = 5;} break;
 case 64:
-# line 244 "vtkParse.y"
+# line 247 "vtkParse.y"
 { yyval.integer = 6;} break;
 case 65:
-# line 245 "vtkParse.y"
+# line 248 "vtkParse.y"
 { yyval.integer = 7;} break;
 case 66:
-# line 246 "vtkParse.y"
+# line 249 "vtkParse.y"
 { yyval.integer = 8;} break;
 case 67:
-# line 248 "vtkParse.y"
+# line 251 "vtkParse.y"
 { 
       yyval.integer = 9; 
       currentFunction->ArgClasses[currentFunction->NumberOfArguments] =
@@ -1351,37 +1364,37 @@ case 67:
         }
     } break;
 case 70:
-# line 265 "vtkParse.y"
+# line 268 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 71:
-# line 270 "vtkParse.y"
+# line 273 "vtkParse.y"
 { 
       data.SuperClasses[data.NumberOfSuperClasses] = strdup(yypvt[-0].str); 
       data.NumberOfSuperClasses++; 
     } break;
 case 73:
-# line 275 "vtkParse.y"
+# line 278 "vtkParse.y"
 {in_public = 1;} break;
 case 74:
-# line 275 "vtkParse.y"
+# line 278 "vtkParse.y"
 {in_public = 0;} break;
 case 75:
-# line 276 "vtkParse.y"
+# line 279 "vtkParse.y"
 {in_public = 0;} break;
 case 78:
-# line 280 "vtkParse.y"
+# line 283 "vtkParse.y"
 {yyval.integer = yypvt[-0].integer;} break;
 case 79:
-# line 281 "vtkParse.y"
+# line 284 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 80:
-# line 281 "vtkParse.y"
+# line 284 "vtkParse.y"
 {yyval.integer = -1;} break;
 case 81:
-# line 285 "vtkParse.y"
+# line 288 "vtkParse.y"
 {
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1392,7 +1405,7 @@ case 81:
    output_function();
    } break;
 case 82:
-# line 295 "vtkParse.y"
+# line 298 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1401,7 +1414,7 @@ case 82:
    output_function();
    } break;
 case 83:
-# line 303 "vtkParse.y"
+# line 306 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-1].str); 
    currentFunction->Name = strdup(temps);
@@ -1412,7 +1425,7 @@ case 83:
    output_function();
    } break;
 case 84:
-# line 313 "vtkParse.y"
+# line 316 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-1].str); 
    currentFunction->Name = strdup(temps);
@@ -1421,7 +1434,7 @@ case 84:
    output_function();
    } break;
 case 85:
-# line 321 "vtkParse.y"
+# line 324 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-5].str); 
    currentFunction->Name = strdup(temps);
@@ -1432,7 +1445,7 @@ case 85:
    output_function();
    } break;
 case 86:
-# line 331 "vtkParse.y"
+# line 334 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1443,7 +1456,7 @@ case 86:
    output_function();
    } break;
 case 87:
-# line 341 "vtkParse.y"
+# line 344 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1454,7 +1467,7 @@ case 87:
    output_function();
    } break;
 case 88:
-# line 351 "vtkParse.y"
+# line 354 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1463,7 +1476,7 @@ case 88:
    output_function();
    } break;
 case 89:
-# line 359 "vtkParse.y"
+# line 362 "vtkParse.y"
 { 
    sprintf(temps,"%sOn",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1476,7 +1489,7 @@ case 89:
    output_function();
    } break;
 case 90:
-# line 371 "vtkParse.y"
+# line 374 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1495,7 +1508,7 @@ case 90:
    output_function();
    } break;
 case 91:
-# line 389 "vtkParse.y"
+# line 392 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1506,7 +1519,7 @@ case 91:
    output_function();
    } break;
 case 92:
-# line 399 "vtkParse.y"
+# line 402 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1527,7 +1540,7 @@ case 92:
    output_function();
    } break;
 case 93:
-# line 419 "vtkParse.y"
+# line 422 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1538,7 +1551,7 @@ case 93:
    output_function();
    } break;
 case 94:
-# line 429 "vtkParse.y"
+# line 432 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1561,7 +1574,7 @@ case 94:
    output_function();
    } break;
 case 95:
-# line 451 "vtkParse.y"
+# line 454 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1572,7 +1585,7 @@ case 95:
    output_function();
    } break;
 case 96:
-# line 461 "vtkParse.y"
+# line 464 "vtkParse.y"
 { 
    sprintf(temps,"Set%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1599,7 +1612,7 @@ case 96:
    output_function();
    } break;
 case 97:
-# line 487 "vtkParse.y"
+# line 490 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-3].str); 
    currentFunction->Name = strdup(temps);
@@ -1610,7 +1623,7 @@ case 97:
    output_function();
    } break;
 case 98:
-# line 497 "vtkParse.y"
+# line 500 "vtkParse.y"
 {
      sprintf(temps,"Set%s",yypvt[-5].str); 
      currentFunction->Name = strdup(temps);
@@ -1621,7 +1634,7 @@ case 98:
      output_function();
    } break;
 case 99:
-# line 507 "vtkParse.y"
+# line 510 "vtkParse.y"
 { 
    sprintf(temps,"Get%s",yypvt[-5].str); 
    currentFunction->Name = strdup(temps);
@@ -1632,7 +1645,7 @@ case 99:
    output_function();
    } break;
 case 100:
-# line 517 "vtkParse.y"
+# line 520 "vtkParse.y"
 { 
      sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
      currentFunction->Name = strdup(temps);
@@ -1666,7 +1679,7 @@ case 100:
      output_function();
    } break;
 case 101:
-# line 550 "vtkParse.y"
+# line 553 "vtkParse.y"
 { 
      sprintf(temps,"Get%sCoordinate",yypvt[-1].str); 
      currentFunction->Name = strdup(temps);

@@ -56,6 +56,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
     char *ArgClasses[MAX_ARGS];
     int   ReturnType;
     char *ReturnClass;
+    char *Comment;
   } FunctionInfo;
   
   typedef struct _FileInfo
@@ -70,4 +71,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
     int   NumberOfSuperClasses;
     int   NumberOfFunctions;
     FunctionInfo Functions[1000];
+    char *NameComment;
+    char *Description;
+    char *Caveats;
+    char *SeeAlso;
   } FileInfo;

@@ -7,6 +7,10 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   int i;
   
   fprintf(fp,"Class Name: %s\n",data->ClassName);
+  fprintf(fp,"Name Comment: %s\n",data->NameComment ? data->NameComment : "None");
+  fprintf(fp,"Description: %s\n",data->Description ?data->Description : "None");
+  fprintf(fp,"Caveats: %s\n",data->Caveats ? data->Caveats : "None");
+  fprintf(fp,"See Also: %s\n",data->SeeAlso ?data->SeeAlso : "None");
   fprintf(fp,"Has Delete: %s\n",data->HasDelete ? "Yes" : "No");
   fprintf(fp,"Abstract: %s\n",data->HasDelete ? "Yes" : "No");
   fprintf(fp,"Number Of Super Classes: %i\n",data->NumberOfSuperClasses);
@@ -39,5 +43,8 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    ReturnClass: %s\n",
 	    data->Functions[i].ReturnClass ? 
 	    data->Functions[i].ReturnClass : "None");
+    fprintf(fp,"    Comment: %s\n",
+	    data->Functions[i].Comment ? 
+	    data->Functions[i].Comment : "None");
     }
 }
