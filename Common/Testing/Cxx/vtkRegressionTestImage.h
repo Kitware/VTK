@@ -72,6 +72,8 @@ int vtkRegressionTester::Test(int argc, char *argv[], vtkWindow *rw,
 
     vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
     rt_w2if->SetInput(rw);
+    // perform and extra render to make sure it is displayed
+    rw->Render();
     FILE *rt_fin = fopen(fname,"r"); 
     if (rt_fin) 
       { 
