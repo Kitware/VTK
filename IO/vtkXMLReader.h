@@ -77,7 +77,12 @@ public:
   int GetCellArrayStatus(const char* name);
   void SetPointArrayStatus(const char* name, int status);  
   void SetCellArrayStatus(const char* name, int status);  
-  
+
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  virtual void CopyOutputInformation(vtkInformation *vtkNotUsed(outInfo),
+                                   int vtkNotUsed(port)) {}
+
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
@@ -100,7 +105,7 @@ protected:
   // Setup the output's information.
   virtual void SetupOutputInformation(vtkInformation *vtkNotUsed(outInfo)) {}
   
-  // Setup the output's idata with allocation.
+  // Setup the output's data with allocation.
   virtual void SetupOutputData();
   
   // Read the primary element from the file.  This is the element
