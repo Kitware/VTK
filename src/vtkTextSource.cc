@@ -196,7 +196,7 @@ void vtkTextSource::Execute()
       {
       for (col = 0; col < vtkfont_width; col++)
 	{
-	acol = (this->Text[pos] - 32)*vtkfont_width + col - 2;
+	acol = (this->Text[pos] - 32)*vtkfont_width + col - 1;
 	for (row = 0; row < vtkfont_height; row++)
 	  {
 	  pixelPos = acol + row*vtkfont_row_width;
