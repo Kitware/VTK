@@ -50,6 +50,7 @@ vtkDynamicLoader
 vtkDoubleArray 
 vtkEdgeTable 
 vtkEmptyCell 
+vtkExplicitCell
 vtkExtentTranslator 
 vtkFieldData 
 vtkFileOutputWindow 
@@ -80,6 +81,7 @@ vtkMatrixToHomogeneousTransform
 vtkMatrixToLinearTransform 
 vtkMultiThreader 
 vtkMutexLock 
+vtkNonLinearCell
 vtkObject 
 vtkOldStyleCallbackCommand 
 vtkOrderedTriangulator
@@ -104,6 +106,7 @@ vtkPropCollection
 vtkProperty2D 
 vtkPyramid 
 vtkQuad 
+vtkQuadraticEdge
 vtkQuadric 
 vtkRectilinearGrid 
 vtkReferenceCount 
@@ -149,10 +152,12 @@ vtkCell3D
 vtkCommand 
 vtkDataArray 
 vtkDataSet 
+vtkExplicitCell
 vtkHomogeneousTransform 
 vtkLinearTransform 
 vtkImplicitFunction 
 vtkLocator 
+vtkNonLinearCell
 vtkObjectFactory 
 vtkOldStyleCallbackCommand 
 vtkOverrideInformation 

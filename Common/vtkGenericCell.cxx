@@ -31,9 +31,10 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkPyramid.h"
+#include "vtkQuadraticEdge.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkGenericCell, "1.11");
+vtkCxxRevisionMacro(vtkGenericCell, "1.12");
 vtkStandardNewMacro(vtkGenericCell);
 
 // Construct cell.
@@ -74,9 +75,9 @@ int vtkGenericCell::GetCellDimension()
   return this->Cell->GetCellDimension();
 }
 
-int vtkGenericCell::GetInterpolationOrder()
+int vtkGenericCell::IsLinear()
 {
-  return this->Cell->GetInterpolationOrder();
+  return this->Cell->IsLinear();
 }
 
 int vtkGenericCell::GetNumberOfEdges()
@@ -219,6 +220,9 @@ void vtkGenericCell::SetCellType(int cellType)
         break;
       case VTK_PYRAMID:
         this->Cell = vtkPyramid::New();
+        break;
+      case VTK_QUADRATIC_EDGE:
+        this->Cell = vtkQuadraticEdge::New();
         break;
       default:
         vtkErrorMacro(<<"Unsupported cell type! Setting to vtkEmptyCell");

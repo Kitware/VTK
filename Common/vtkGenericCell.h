@@ -45,7 +45,7 @@ public:
   void DeepCopy(vtkCell *c);
   int GetCellType();
   int GetCellDimension();
-  int GetInterpolationOrder();
+  int IsLinear();
   int GetNumberOfEdges();
   int GetNumberOfFaces();
   vtkCell *GetEdge(int edgeId);
@@ -95,6 +95,9 @@ public:
   void SetCellTypeToHexahedron() {this->SetCellType(VTK_HEXAHEDRON);}
   void SetCellTypeToWedge() {this->SetCellType(VTK_WEDGE);}
   void SetCellTypeToPyramid() {this->SetCellType(VTK_PYRAMID);}
+  void SetCellTypeToQuadraticEdge() {this->SetCellType(VTK_QUADRATIC_EDGE);}
+  void SetCellTypeToQuadraticTriangle() {this->SetCellType(VTK_QUADRATIC_TRIANGLE);}
+  void SetCellTypeToQuadraticTetra() {this->SetCellType(VTK_QUADRATIC_TETRA);}
 
 protected:
   vtkGenericCell();

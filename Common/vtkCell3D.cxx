@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkMarchingCubesCases.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.20");
+vtkCxxRevisionMacro(vtkCell3D, "1.21");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -112,8 +112,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
 
       // generate edge intersection point
       this->Points->GetPoint(edges[0],p1);
-  
-    this->Points->GetPoint(edges[1],p2);
+      this->Points->GetPoint(edges[1],p2);
       for (i=0; i<3; i++)
         {
         x[i] = p1[i] + t * (p2[i] - p1[i]);
