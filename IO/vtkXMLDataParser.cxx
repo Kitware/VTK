@@ -23,7 +23,7 @@
 #include "vtkBase64InputStream.h"
 #include "vtkDataCompressor.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.6");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.7");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -104,7 +104,7 @@ int vtkXMLDataParser::Parse()
   int result = this->Superclass::Parse();
   
   // Check that the input is okay.
-  if(!this->CheckPrimaryAttributes())
+  if(result && !this->CheckPrimaryAttributes())
     {
     result = 0;
     }
