@@ -67,6 +67,7 @@ vtkImageBlend::vtkImageBlend()
     this->Opacity[i] = 1.0;
     }
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
+  this->CompoundThreshold = 0.0;
 }
 
 //----------------------------------------------------------------------------
@@ -517,31 +518,13 @@ void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
 // This templated function executes the filter for any type of data.
 template <class T>
 static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
-                                           int id,
-                                           int inExt[6], 
-                                           vtkImageData *inData, 
-                                           T *inPtr,
-                                           vtkImageData *tmpData, 
-                                           float opacity)
+                                         int inExt[6], 
+                                         vtkImageData *inData, 
+                                         T *inPtr,
+                                         vtkImageData *tmpData, 
+                                         float opacity,
+                                         float threshold)
 {
-  float minA, maxA;
-  float r;
-
-  if (inData->GetScalarType() == VTK_DOUBLE ||
-      inData->GetScalarType() == VTK_FLOAT)
-    {
-    minA = 0.0;
-    maxA = 1.0;
-    }
-  else
-    {
-    minA = inData->GetScalarTypeMin();
-    maxA = inData->GetScalarTypeMax();
-    }
-
-  r = opacity;
-  opacity = opacity/(maxA-minA);
-
   // find the region to loop over
 
   int maxX, maxY, maxZ;
@@ -572,21 +555,43 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 
   float* tmpPtr = (float *)tmpData->GetScalarPointerForExtent(inExt);  
 
+  // Opacity
+
+  float minA, maxA;
+  float r;
+
+  if (inData->GetScalarType() == VTK_DOUBLE ||
+      inData->GetScalarType() == VTK_FLOAT)
+    {
+    minA = 0.0;
+    maxA = 1.0;
+    }
+  else
+    {
+    minA = inData->GetScalarTypeMin();
+    maxA = inData->GetScalarTypeMax();
+    }
+
+  r = opacity;
+  opacity = opacity/(maxA-minA);
+
+  if ((inC == 3 || inC == 1) && r <= threshold)
+    {
+    return;
+    }
+
   // Loop through output pixels
 
   for (int idxZ = 0; idxZ < maxZ; idxZ++)
     {
     for (int idxY = 0; !self->AbortExecute && idxY < maxY; idxY++)
       {
-      if (!id) 
-	{
-	if (!(count%target))
-	  {
-	  self->UpdateProgress(count/(50.0*target));
-	  }
-	count++;
-	}
-
+      if (!(count%target))
+        {
+        self->UpdateProgress(count/(50.0*target));
+        }
+      count++;
+      
       if (tmpC >= 3)
         {
 
@@ -596,10 +601,13 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           for (int idxX = 0; idxX < maxX; idxX++)
             {
             r = opacity*(inPtr[3]-minA);
-            tmpPtr[0] += inPtr[0]*r;
-            tmpPtr[1] += inPtr[1]*r;
-            tmpPtr[2] += inPtr[2]*r;
-            tmpPtr[3] += r;
+            if (r > threshold) 
+              {
+              tmpPtr[0] += inPtr[0]*r;
+              tmpPtr[1] += inPtr[1]*r;
+              tmpPtr[2] += inPtr[2]*r;
+              tmpPtr[3] += r;
+              }
             tmpPtr += 4; 
             inPtr += inC;
             }
@@ -625,10 +633,13 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
           for (int idxX = 0; idxX < maxX; idxX++)
             {
             r = opacity*(inPtr[1]-minA);
-            tmpPtr[0] += (*inPtr)*r;
-            tmpPtr[1] += (*inPtr)*r;
-            tmpPtr[2] += (*inPtr)*r;
-            tmpPtr[3] += r;
+            if (r > threshold) 
+              {
+              tmpPtr[0] += (*inPtr)*r;
+              tmpPtr[1] += (*inPtr)*r;
+              tmpPtr[2] += (*inPtr)*r;
+              tmpPtr[3] += r;
+              }
             tmpPtr += 4; 
             inPtr += 2;
             }
@@ -655,8 +666,11 @@ static void vtkImageBlendCompoundExecute(vtkImageBlend *self,
 	for (int idxX = 0; idxX < maxX; idxX++)
 	  {
 	  r = opacity*(inPtr[1]-minA);
-	  tmpPtr[0] = (*inPtr)*r;
-          tmpPtr[1] += r;
+          if (r > threshold) 
+            {
+            tmpPtr[0] = (*inPtr)*r;
+            tmpPtr[1] += r;
+            }
           tmpPtr += 2; 
 	  inPtr += 2;
 	  }
@@ -923,12 +937,12 @@ void vtkImageBlend::ThreadedExecute(vtkImageData **inData,
             {
             vtkTemplateMacro7(vtkImageBlendCompoundExecute, 
                               this, 
-                              id, 
                               inExt,
                               inData[idx1], 
                               (VTK_TT *)(inPtr), 
                               tmpData, 
-                              opacity);
+                              opacity,
+                              this->CompoundThreshold);
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return;
@@ -980,6 +994,6 @@ void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << "\n"; 
     }
-  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << endl;
-
+  os << indent << "Blend Mode: " << this->GetBlendModeAsString() << endl
+     << indent << "Compound threshold: " << this->CompoundThreshold << endl;
 }

@@ -52,6 +52,11 @@ proc SetOpacity {input opacity} {
     viewer Render
 }
 
+proc SetCompoundThreshold {threshold} {
+    blend SetCompoundThreshold $threshold
+    viewer Render
+}
+
 #make interface
 vtkWindowToImageFilter windowToimage
   windowToimage SetInput [viewer GetImageWindow]
@@ -61,7 +66,7 @@ vtkTIFFWriter tiffWriter
   tiffWriter SetFileName "TestBlendCompound.tcl.tif"
 #  tiffWriter Write
 
-source ../../imaging/examplesTcl/WindowLevelInterface.tcl
+source $VTK_TCL/../imaging/examplesTcl/WindowLevelInterface.tcl
 
 # only show ui if not testing
 if {[info commands rtExMath] != "rtExMath"} {
@@ -78,6 +83,16 @@ if {[info commands rtExMath] != "rtExMath"} {
                 -resolution .01 
         pack .wl.opacity_$input -side top  -fill both -expand yes
     }
+    set compound_threshold [blend GetCompoundThreshold]
+    scale .wl.compound_threshold \
+            -from 0.0 \
+            -to 1.0 \
+            -orient horizontal \
+            -command "SetCompoundThreshold" \
+            -variable compound_threshold \
+            -label "Compound threshold:" \
+            -resolution .01 
+    pack .wl.compound_threshold -side top  -fill both -expand yes
     # blend mode 
     frame .wl.bmode
     label .wl.bmode.label -text "Blend Mode:"
