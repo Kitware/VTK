@@ -47,8 +47,6 @@ public:
 protected:
   vtkSpherePuzzleArrows();
   ~vtkSpherePuzzleArrows();
-  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&);
-  void operator=(const vtkSpherePuzzleArrows&);
 
   void Execute();
   void AppendArrow(int id0, int id1, vtkPoints *pts, vtkCellArray *polys);
@@ -56,6 +54,10 @@ protected:
   int Permutation[32];
 
   float Radius;
+
+private:
+  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&); // Not implemented
+  void operator=(const vtkSpherePuzzleArrows&); // Not implemented
 };
 
 #endif

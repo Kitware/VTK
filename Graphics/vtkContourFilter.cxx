@@ -29,8 +29,9 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.94");
+vtkCxxRevisionMacro(vtkContourFilter, "1.95");
 vtkStandardNewMacro(vtkContourFilter);
+vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.

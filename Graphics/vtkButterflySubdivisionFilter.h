@@ -46,9 +46,10 @@
 #define __vtkButterflySubdivisionFilter_h
 
 #include "vtkInterpolatingSubdivisionFilter.h"
-#include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkCellArray.h"
+
+class vtkCellArray;
+class vtkIdList;
+class vtkIntArray;
 
 class VTK_GRAPHICS_EXPORT vtkButterflySubdivisionFilter : public vtkInterpolatingSubdivisionFilter
 {

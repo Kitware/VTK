@@ -70,8 +70,6 @@ public:
 protected:
   vtkSpherePuzzle();
   ~vtkSpherePuzzle();
-  vtkSpherePuzzle(const vtkSpherePuzzle&);
-  void operator=(const vtkSpherePuzzle&);
 
   void Execute();
   void MarkVertical(int section);
@@ -91,6 +89,10 @@ protected:
   int VerticalFlag;
   int RightFlag;
   int Section;
+
+private:
+  vtkSpherePuzzle(const vtkSpherePuzzle&); // Not implemented
+  void operator=(const vtkSpherePuzzle&); // Not implemented
 };
 
 #endif

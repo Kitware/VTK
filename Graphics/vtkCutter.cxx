@@ -28,8 +28,9 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.68");
+vtkCxxRevisionMacro(vtkCutter, "1.69");
 vtkStandardNewMacro(vtkCutter);
+vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
 // Construct with user-specified implicit function; initial value of 0.0; and
 // generating cut scalars turned off.

@@ -115,7 +115,7 @@ public:
 
   // Description
   // Specify the implicit function to perform the cutting.
-  vtkSetObjectMacro(CutFunction,vtkImplicitFunction);
+  virtual void SetCutFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(CutFunction,vtkImplicitFunction);
 
   // Description:

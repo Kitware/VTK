@@ -65,17 +65,17 @@ public:
   
   // Description:
   // Specify an implicit function to compute the r texture coordinate.
-  vtkSetObjectMacro(RFunction,vtkImplicitFunction);
+  virtual void SetRFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(RFunction,vtkImplicitFunction);
 
   // Description:
   // Specify an implicit function to compute the s texture coordinate.
-  vtkSetObjectMacro(SFunction,vtkImplicitFunction);
+  virtual void SetSFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(SFunction,vtkImplicitFunction);
 
   // Description:
   // Specify an implicit function to compute the t texture coordinate.
-  vtkSetObjectMacro(TFunction,vtkImplicitFunction);
+  virtual void SetTFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(TFunction,vtkImplicitFunction);
 
   // Description:

@@ -21,8 +21,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.27");
+vtkCxxRevisionMacro(vtkTransformPolyDataFilter, "1.28");
 vtkStandardNewMacro(vtkTransformPolyDataFilter);
+vtkCxxSetObjectMacro(vtkTransformPolyDataFilter,
+                     Transform,vtkAbstractTransform);
 
 vtkTransformPolyDataFilter::vtkTransformPolyDataFilter()
 {

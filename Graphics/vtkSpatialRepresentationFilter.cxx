@@ -20,8 +20,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.29");
+vtkCxxRevisionMacro(vtkSpatialRepresentationFilter, "1.30");
 vtkStandardNewMacro(vtkSpatialRepresentationFilter);
+vtkCxxSetObjectMacro(vtkSpatialRepresentationFilter,
+                     SpatialRepresentation,vtkLocator);
 
 vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 {

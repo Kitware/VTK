@@ -25,8 +25,9 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkClipVolume, "1.50");
+vtkCxxRevisionMacro(vtkClipVolume, "1.51");
 vtkStandardNewMacro(vtkClipVolume);
+vtkCxxSetObjectMacro(vtkClipVolume,ClipFunction,vtkImplicitFunction);
 
 // Construct with user-specified implicit function; InsideOut turned off; value
 // set to 0.0; and generate clip scalars turned off. The merge tolerance is set

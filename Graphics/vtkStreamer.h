@@ -173,7 +173,7 @@ public:
   // is cloned with MakeObject by each thread/process in the
   // process of integration (prototype pattern). The default is 
   // 2nd order Runge Kutta.
-  vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  void SetIntegrator(vtkInitialValueProblemSolver *);
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
 
 protected:

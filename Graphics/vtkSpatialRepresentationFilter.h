@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Set/Get the locator that will be used to generate the representation.
-  vtkSetObjectMacro(SpatialRepresentation,vtkLocator);
+  virtual void SetSpatialRepresentation(vtkLocator*);
   vtkGetObjectMacro(SpatialRepresentation,vtkLocator);
 
   // Description:

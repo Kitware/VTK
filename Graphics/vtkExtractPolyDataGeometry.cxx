@@ -21,8 +21,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.17");
+vtkCxxRevisionMacro(vtkExtractPolyDataGeometry, "1.18");
 vtkStandardNewMacro(vtkExtractPolyDataGeometry);
+vtkCxxSetObjectMacro(vtkExtractPolyDataGeometry,
+                     ImplicitFunction,vtkImplicitFunction);
 
 // Construct object with ExtractInside turned on.
 vtkExtractPolyDataGeometry::vtkExtractPolyDataGeometry(vtkImplicitFunction *f)

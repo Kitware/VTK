@@ -25,8 +25,9 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.54");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.55");
 vtkStandardNewMacro(vtkDelaunay2D);
+vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
 // Construct object with Alpha = 0.0; Tolerance = 0.00001; Offset = 1.25;
 // BoundingTriangulation turned off.

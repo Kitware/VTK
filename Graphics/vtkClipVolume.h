@@ -98,7 +98,7 @@ public:
   // Specify the implicit function with which to perform the clipping. If you
   // do not define an implicit function, then the input scalar data will be
   // used for clipping.
-  vtkSetObjectMacro(ClipFunction,vtkImplicitFunction);
+  virtual void SetClipFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ClipFunction,vtkImplicitFunction);
 
   // Description:

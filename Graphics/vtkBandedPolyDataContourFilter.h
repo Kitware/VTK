@@ -41,11 +41,14 @@
 #define __vtkBandedPolyDataContourFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkContourValues.h"
+
+#include "vtkContourValues.h" // Needed for inline methods
 
 class vtkPoints;
 class vtkCellArray;
 class vtkPointData;
+class vtkDataArray;
+class vtkFloatArray;
 
 #define VTK_SCALAR_MODE_INDEX 0
 #define VTK_SCALAR_MODE_VALUE 1

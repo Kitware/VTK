@@ -118,7 +118,7 @@ public:
 
   // Description:
   // Enable the use of a scalar tree to accelerate contour extraction.
-  vtkSetObjectMacro(ScalarTree,vtkScalarTree);
+  virtual void SetScalarTree(vtkScalarTree*);
   vtkGetObjectMacro(ScalarTree,vtkScalarTree);
 
   // Description:

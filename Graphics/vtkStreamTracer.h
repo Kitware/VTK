@@ -138,7 +138,7 @@ public:
   // RUNGE_KUTTA2  = 0
   // RUNGE_KUTTA4  = 1
   // RUNGE_KUTTA45 = 2
-  vtkSetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
+  void SetIntegrator(vtkInitialValueProblemSolver *);
   vtkGetObjectMacro ( Integrator, vtkInitialValueProblemSolver );
   void SetIntegratorType(int type);
   int GetIntegratorType();

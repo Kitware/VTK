@@ -28,9 +28,13 @@
 #define __vtkApproximatingSubdivisionFilter_h
 
 #include "vtkPolyDataToPolyDataFilter.h"
-#include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkCellArray.h"
+
+class vtkCellArray;
+class vtkCellData;
+class vtkIdList;
+class vtkIntArray;
+class vtkPoints;
+class vtkPointData;
 
 class VTK_GRAPHICS_EXPORT vtkApproximatingSubdivisionFilter : public vtkPolyDataToPolyDataFilter
 {

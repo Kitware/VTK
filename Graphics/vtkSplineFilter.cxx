@@ -23,8 +23,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkSplineFilter, "1.8");
+vtkCxxRevisionMacro(vtkSplineFilter, "1.9");
 vtkStandardNewMacro(vtkSplineFilter);
+vtkCxxSetObjectMacro(vtkSplineFilter,Spline,vtkSpline);
 
 vtkSplineFilter::vtkSplineFilter()
 {

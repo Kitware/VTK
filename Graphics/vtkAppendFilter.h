@@ -31,7 +31,8 @@
 #define __vtkAppendFilter_h
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
-#include "vtkDataSetCollection.h"
+
+class vtkDataSetCollection;
 
 class VTK_GRAPHICS_EXPORT vtkAppendFilter : public vtkDataSetToUnstructuredGridFilter
 {

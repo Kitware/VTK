@@ -191,7 +191,7 @@ public:
   // original (untransformed) points.  The transform can be any
   // subclass of vtkAbstractTransform (thus it does not need to be a
   // linear or invertible transform).
-  vtkSetObjectMacro(Transform, vtkAbstractTransform);
+  virtual void SetTransform(vtkAbstractTransform*);
   vtkGetObjectMacro(Transform, vtkAbstractTransform);
 
 protected:

@@ -28,8 +28,9 @@
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.11");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.12");
 vtkStandardNewMacro(vtkStreamTracer);
+vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 
 const float vtkStreamTracer::EPSILON = 1.0E-12;
 

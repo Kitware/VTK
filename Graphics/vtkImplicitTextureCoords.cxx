@@ -21,8 +21,11 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.41");
+vtkCxxRevisionMacro(vtkImplicitTextureCoords, "1.42");
 vtkStandardNewMacro(vtkImplicitTextureCoords);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords,SFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords,RFunction,vtkImplicitFunction);
+vtkCxxSetObjectMacro(vtkImplicitTextureCoords,TFunction,vtkImplicitFunction);
 
 // Create object with texture dimension=2 and no r-s-t implicit functions
 // defined and FlipTexture turned off.

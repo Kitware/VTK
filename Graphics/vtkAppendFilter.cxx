@@ -17,10 +17,11 @@
 =========================================================================*/
 #include "vtkAppendFilter.h"
 
+#include "vtkDataSetCollection.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.60");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.61");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib

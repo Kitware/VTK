@@ -97,7 +97,7 @@ public:
 
   // Description:
   // Specify an instance of vtkSpline to use to perform the interpolation.
-  vtkSetObjectMacro(Spline,vtkSpline);
+  virtual void SetSpline(vtkSpline*);
   vtkGetObjectMacro(Spline,vtkSpline);
 
   // Description:

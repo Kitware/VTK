@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Specify the implicit function for inside/outside checks.
-  vtkSetObjectMacro(ImplicitFunction,vtkImplicitFunction);
+  virtual void SetImplicitFunction(vtkImplicitFunction*);
   vtkGetObjectMacro(ImplicitFunction,vtkImplicitFunction);
 
   // Description:

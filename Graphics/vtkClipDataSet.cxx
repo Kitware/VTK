@@ -26,8 +26,9 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.21");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.22");
 vtkStandardNewMacro(vtkClipDataSet);
+vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
 //----------------------------------------------------------------------------
 // Construct with user-specified implicit function; InsideOut turned off; value

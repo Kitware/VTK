@@ -24,8 +24,9 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkTransformFilter, "1.40");
+vtkCxxRevisionMacro(vtkTransformFilter, "1.41");
 vtkStandardNewMacro(vtkTransformFilter);
+vtkCxxSetObjectMacro(vtkTransformFilter,Transform,vtkAbstractTransform);
 
 vtkTransformFilter::vtkTransformFilter()
 {
