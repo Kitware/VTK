@@ -60,6 +60,10 @@ public:
   virtual void SetSize(int a[2]);
 
   // Description:
+  // Get the size of the screen in pixels
+  virtual int     *GetScreenSize() = 0;
+
+  // Description:
   // Keep track of whether the rendering window has been mapped to screen.
   vtkSetMacro(Mapped,int);
   vtkGetMacro(Mapped,int);
