@@ -462,6 +462,7 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   int is_new;
   char temps[80];
   vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cd;
+  Tcl_CmdInfo cinf;
 
   if (argc != 2)
     {
@@ -485,6 +486,13 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     return TCL_ERROR;
     }
 
+  // Make sure we are not clobbering a built in command
+  if (Tcl_GetCommandInfo(interp,argv[1],&cinf))
+    {
+    Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
+    vtkGenericWarningMacro(<< argv[1] << ": a tcl/tk command with that name already exists.");
+    }
+
   ClientData temp;
   if (!strcmp("ListInstances",argv[1]))
     {
@@ -500,7 +508,6 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   Tcl_SetHashValue(entry,(ClientData)(strdup(argv[1])));
   
   // check to see if we can find the command function based on class name
-  Tcl_CmdInfo cinf;
   char *tstr = strdup(((vtkObject *)temp)->GetClassName());
   if (Tcl_GetCommandInfo(interp,tstr,&cinf))
     {
