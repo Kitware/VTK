@@ -15,6 +15,7 @@ vtkObject-GetSuperClassName
 vtkPropAssembly-GetBounds
 vtkRenderWindow-GetEventPending
 vtkXOpenGLRenderWindow-GetEventPending
+vtkXMesaRenderWindow-GetEventPending
 vtkMPICommunicator-GetWorldCommunicator
 }
 
