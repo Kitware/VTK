@@ -20,7 +20,7 @@
 #include "vtkPointLocator.h"
 #include "vtkMarchingCubesCases.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.22");
+vtkCxxRevisionMacro(vtkCell3D, "1.23");
 
 vtkCell3D::~vtkCell3D()
 {
@@ -59,7 +59,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
   this->Triangulator->InitTriangulation(this->GetBounds(),
                                         (numPts + numEdges));
 
-  // Inject ordered cell points into triangulation. Recall
+  // Inject ordered voxel corner points into triangulation. Recall
   // that the PreSortedOn() flag was set in the triangulator.
   for (i=0; i<numPts; i++)
     {
@@ -113,6 +113,10 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
       // generate edge intersection point
       this->Points->GetPoint(edges[0],p1);
       this->Points->GetPoint(edges[1],p2);
+
+      // Got to compute the intersection point identically or the
+      // point merging (with the locator) will not work correctly due
+      // to precision problems in the last decimal place.
       if ( s1 < s2 )
         {
         for (i=0; i<3; i++)
@@ -120,7 +124,7 @@ void vtkCell3D::Clip(float value, vtkDataArray *cellScalars,
           x[i] = p1[i] + t * (p2[i] - p1[i]);
           }
         }
-      else //needed to insure identical calculation of x[3]
+      else
         {
         t = (value - s2) / (s1 - s2);
         for (i=0; i<3; i++)
