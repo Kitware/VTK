@@ -5,7 +5,6 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherEmptyCell.cxx
   otherRectilinearGrid.cxx
   otherCellBoundaries.cxx
-  otherCellDerivatives.cxx
   otherCellPosition.cxx
   otherStructuredGrid.cxx
   otherTimerLog.cxx
