@@ -252,11 +252,6 @@ public:
                                     vtkIdList *onBoundaryCells);
 
   // Description:
-  //    The internal process/region cell count tables may require a 
-  //    large amount of memory.  This call frees this memory.
-
-
-  // Description:
   //    Return a list of all processes in order from front to
   //    back, given a vtkCamera
 
