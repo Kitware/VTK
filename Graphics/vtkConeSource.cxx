@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.58");
+vtkCxxRevisionMacro(vtkConeSource, "1.59");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ void vtkConeSource::Execute()
     break;
   }
   newPoints = vtkPoints::New();
+  newPoints->SetDataTypeToFloat(); //used later during transformation
   newPoints->Allocate(numPts);
 
   // Create cone
