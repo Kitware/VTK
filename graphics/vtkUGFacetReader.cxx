@@ -40,18 +40,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUGFacetReader.h"
 #include "vtkByteSwap.h"
+#include "vtkMergePoints.h"
 
+// Description:
+// Construct object to extract all parts, and with point merging
+// turned on.
 vtkUGFacetReader::vtkUGFacetReader()
 {
   this->Filename = NULL;
   this->PartColors = NULL;
   this->PartNumber = (-1); //extract all parts
+
+  this->Merging = 1;
+  this->Locator = NULL;
+  this->SelfCreatedLocator = 0;
 }
 
 vtkUGFacetReader::~vtkUGFacetReader()
 {
   if ( this->Filename ) delete [] this->Filename;
   if ( this->PartColors ) this->PartColors->Delete();
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
 }
 
 void vtkUGFacetReader::Execute()
@@ -62,9 +71,9 @@ void vtkUGFacetReader::Execute()
   int ptId[3];
   short ugiiColor, direction;
   int numberTris, numFacetSets, setNumber, facetNumber;
-  vtkFloatPoints *newPoints;
-  vtkFloatNormals *newNormals;
-  vtkCellArray *newPolys;
+  vtkFloatPoints *newPts, *mergedPts;
+  vtkFloatNormals *newNormals, *mergedNormals;
+  vtkCellArray *newPolys, *mergedPolys;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Reading UG facet file...");
@@ -103,7 +112,7 @@ void vtkUGFacetReader::Execute()
     this->PartColors->Reset();
     }
 
-  newPoints = new vtkFloatPoints(25000,25000);
+  newPts = new vtkFloatPoints(25000,25000);
   newNormals = new vtkFloatNormals(25000,25000);
   newPolys = new vtkCellArray;
   newPolys->Allocate(newPolys->EstimateSize(25000,3),25000);
@@ -140,9 +149,9 @@ void vtkUGFacetReader::Execute()
       
       if ( this->PartNumber == -1 || this->PartNumber == setNumber )
         {
-        ptId[0] = newPoints->InsertNextPoint(facet.v1);
-        ptId[1] = newPoints->InsertNextPoint(facet.v2);
-        ptId[2] = newPoints->InsertNextPoint(facet.v3);
+        ptId[0] = newPts->InsertNextPoint(facet.v1);
+        ptId[1] = newPts->InsertNextPoint(facet.v2);
+        ptId[2] = newPts->InsertNextPoint(facet.v3);
 
         newNormals->InsertNormal(ptId[0],facet.n1);
         newNormals->InsertNormal(ptId[1],facet.n2);
@@ -155,19 +164,70 @@ void vtkUGFacetReader::Execute()
 
   // update output
   vtkDebugMacro(<<"Read " 
-                << newPolys->GetNumberOfCells() << " triangles, "
-                << newPoints->GetNumberOfPoints() << " points.");
+                << newPts->GetNumberOfPoints() << " points, "
+                << newPolys->GetNumberOfCells() << " triangles.");
 
   fclose(fp);
 
-  output->SetPoints(newPoints);
-  newPoints->Delete();
+  //
+  // Merge points/triangles if requested
+  //
+  if ( this->Merging )
+    {
+    int npts, *pts, i, nodes[3];
+    float *x;
 
-  output->GetPointData()->SetNormals(newNormals);
-  newNormals->Delete();
- 
-  output->SetPolys(newPolys);
-  newPolys->Delete();
+    mergedPts = new vtkFloatPoints(newPts->GetNumberOfPoints()/3);
+    mergedNormals = new vtkFloatNormals(newNormals->GetNumberOfNormals()/3);
+    mergedPolys = new vtkCellArray(newPolys->GetSize());
+
+    if ( this->Locator == NULL ) this->CreateDefaultLocator();
+    this->Locator->InitPointInsertion (mergedPts, newPts->GetBounds());
+
+    for (newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); )
+      {
+      for (i=0; i < 3; i++) 
+        {
+        x = newPts->GetPoint(pts[i]);
+        if ( (nodes[i] = this->Locator->IsInsertedPoint(x)) < 0 )
+          {
+          nodes[i] = this->Locator->InsertNextPoint(x);
+          mergedNormals->InsertNormal(nodes[i],newNormals->GetNormal(pts[i]));
+          }
+        }
+
+      if ( nodes[0] != nodes[1] && nodes[0] != nodes[2] && 
+      nodes[1] != nodes[2] )
+        mergedPolys->InsertNextCell(3,nodes);
+      }
+
+      newPts->Delete();
+      newNormals->Delete();
+      newPolys->Delete();
+
+      vtkDebugMacro(<< "Merged to: " 
+                   << mergedPts->GetNumberOfPoints() << " points, " 
+                   << mergedPolys->GetNumberOfCells() << " triangles");
+    }
+  else
+    {
+    mergedPts = newPts;
+    mergedNormals = newNormals;
+    mergedPolys = newPolys;
+    }
+//
+// Update ourselves
+//
+  output->SetPoints(mergedPts);
+  mergedPts->Delete();
+
+  output->GetPointData()->SetNormals(mergedNormals);
+  mergedNormals->Delete();
+
+  output->SetPolys(mergedPolys);
+  mergedPolys->Delete();
+
+  if (this->Locator) this->Locator->Initialize(); //free storage
 
   output->Squeeze();
 }
@@ -228,11 +288,42 @@ short vtkUGFacetReader::GetPartColorIndex(int partId)
     }
 }
 
+// Description:
+// Specify a spatial locator for merging points. By
+// default an instance of vtkMergePoints is used.
+void vtkUGFacetReader::SetLocator(vtkPointLocator *locator)
+{
+  if ( this->Locator != locator ) 
+    {
+    if ( this->SelfCreatedLocator ) this->Locator->Delete();
+    this->SelfCreatedLocator = 0;
+    this->Locator = locator;
+    this->Modified();
+    }
+}
+
+void vtkUGFacetReader::CreateDefaultLocator()
+{
+  if ( this->SelfCreatedLocator ) this->Locator->Delete();
+  this->Locator = new vtkMergePoints;
+  this->SelfCreatedLocator = 1;
+}
+
 void vtkUGFacetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
   os << indent << "Filename: " 
      << (this->Filename ? this->Filename : "(none)") << "\n";
+
+  os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
+  if ( this->Locator )
+    {
+    os << indent << "Locator: " << this->Locator << "\n";
+    }
+  else
+    {
+    os << indent << "Locator: (none)\n";
+    }
 }
 
