@@ -86,8 +86,8 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
-  int            clipping, clippingFlags;
-  float          *clippingPlanes;
+  int            cropping, croppingFlags;
+  float          *croppingBounds;
   int            flag[3], tmpFlag, index;
   int            clipLow, clipHigh;
 
@@ -125,11 +125,11 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
   v[10] = size[1];
   v[11] = 0.0;
 
-  clipping       = me->GetClipping();
-  clippingFlags  = me->GetClippingRegionFlags();
-  clippingPlanes = me->GetClippingPlanes();
+  cropping       = me->GetCropping();
+  croppingFlags  = me->GetCroppingRegionFlags();
+  croppingBounds = me->GetCroppingBounds();
 
-  if ( !clipping )
+  if ( !cropping )
     {
     clipLow    = 0;
     clipHigh   = size[1];
@@ -169,17 +169,17 @@ VolumeTextureMapper2D_XMajorDirection( T *data_ptr,
       tptr = texture + k*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + i;
 
-      // Given a X and Z value, what are the clipping bounds
+      // Given a X and Z value, what are the cropping bounds
       // on Y.
-      if ( clipping )
+      if ( cropping )
 	{
-	clipLow  = clippingPlanes[2];
-	clipHigh = clippingPlanes[3];
-	tmpFlag =    (i<clippingPlanes[0])?(0):(1+(i>=clippingPlanes[1]));
-	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
-	flag[0]  = clippingFlags&(1<<(tmpFlag));
-	flag[1]  = clippingFlags&(1<<(tmpFlag+3));
-	flag[2]  = clippingFlags&(1<<(tmpFlag+6));
+	clipLow  = croppingBounds[2];
+	clipHigh = croppingBounds[3];
+	tmpFlag =    (i<croppingBounds[0])?(0):(1+(i>=croppingBounds[1]));
+	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+	flag[0]  = croppingFlags&(1<<(tmpFlag));
+	flag[1]  = croppingFlags&(1<<(tmpFlag+3));
+	flag[2]  = croppingFlags&(1<<(tmpFlag+6));
 	}
 
       if ( shade )
@@ -339,8 +339,8 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
-  int            clipping, clippingFlags;
-  float          *clippingPlanes;
+  int            cropping, croppingFlags;
+  float          *croppingBounds;
   int            flag[3], tmpFlag, index;
   int            clipLow, clipHigh;
 
@@ -378,11 +378,11 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
   v[9] = 0.0;
   v[11] = size[2];
 
-  clipping       = me->GetClipping();
-  clippingFlags  = me->GetClippingRegionFlags();
-  clippingPlanes = me->GetClippingPlanes();
+  cropping       = me->GetCropping();
+  croppingFlags  = me->GetCroppingRegionFlags();
+  croppingBounds = me->GetCroppingBounds();
 
-  if ( !clipping )
+  if ( !cropping )
     {
     clipLow    = 0;
     clipHigh   = size[0];
@@ -422,17 +422,17 @@ VolumeTextureMapper2D_YMajorDirection( T *data_ptr,
       tptr = texture + k*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
-      // Given a Y and Z value, what are the clipping bounds
+      // Given a Y and Z value, what are the cropping bounds
       // on X.
-      if ( clipping )
+      if ( cropping )
 	{
-	clipLow  = clippingPlanes[0];
-	clipHigh = clippingPlanes[1];
-	tmpFlag = 3*((j<clippingPlanes[2])?(0):(1+(j>=clippingPlanes[3])));
-	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
-	flag[0]  = clippingFlags&(1<<(tmpFlag));
-	flag[1]  = clippingFlags&(1<<(tmpFlag+1));
-	flag[2]  = clippingFlags&(1<<(tmpFlag+2));
+	clipLow  = croppingBounds[0];
+	clipHigh = croppingBounds[1];
+	tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
+	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+	flag[0]  = croppingFlags&(1<<(tmpFlag));
+	flag[1]  = croppingFlags&(1<<(tmpFlag+1));
+	flag[2]  = croppingFlags&(1<<(tmpFlag+2));
 	}
 
       if ( shade )
@@ -592,8 +592,8 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   float          *blueSpecularShadingTable;
   int            shade;
   float          tmpval;
-  int            clipping, clippingFlags;
-  float          *clippingPlanes;
+  int            cropping, croppingFlags;
+  float          *croppingBounds;
   int            flag[3], tmpFlag, index;
   int            clipLow, clipHigh;
 
@@ -631,11 +631,11 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
   v[9] = 0.0;
   v[10] = size[1];
 
-  clipping       = me->GetClipping();
-  clippingFlags  = me->GetClippingRegionFlags();
-  clippingPlanes = me->GetClippingPlanes();
+  cropping       = me->GetCropping();
+  croppingFlags  = me->GetCroppingRegionFlags();
+  croppingBounds = me->GetCroppingBounds();
 
-  if ( !clipping )
+  if ( !cropping )
     {
     clipLow    = 0;
     clipHigh   = size[0];
@@ -675,17 +675,17 @@ VolumeTextureMapper2D_ZMajorDirection( T *data_ptr,
       tptr = texture + j*4*tsize[0];
       dptr = data_ptr + k*size[0]*size[1] + j*size[0];
 
-      // Given a Y and Z value, what are the clipping bounds
+      // Given a Y and Z value, what are the cropping bounds
       // on X.
-      if ( clipping )
+      if ( cropping )
 	{
-	clipLow  = clippingPlanes[0];
-	clipHigh = clippingPlanes[1];
-	tmpFlag = 3*((j<clippingPlanes[2])?(0):(1+(j>=clippingPlanes[3])));
-	tmpFlag+= 9*((k<clippingPlanes[4])?(0):(1+(k>=clippingPlanes[5])));
-	flag[0]  = clippingFlags&(1<<(tmpFlag));
-	flag[1]  = clippingFlags&(1<<(tmpFlag+1));
-	flag[2]  = clippingFlags&(1<<(tmpFlag+2));
+	clipLow  = croppingBounds[0];
+	clipHigh = croppingBounds[1];
+	tmpFlag = 3*((j<croppingBounds[2])?(0):(1+(j>=croppingBounds[3])));
+	tmpFlag+= 9*((k<croppingBounds[4])?(0):(1+(k>=croppingBounds[5])));
+	flag[0]  = croppingFlags&(1<<(tmpFlag));
+	flag[1]  = croppingFlags&(1<<(tmpFlag+1));
+	flag[2]  = croppingFlags&(1<<(tmpFlag+2));
 	}
 
       if ( shade )

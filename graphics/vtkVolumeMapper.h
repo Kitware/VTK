@@ -82,44 +82,39 @@ public:
   virtual void Update();
 
   // Description:
-  // Turn On/Off orthogonal clipping. (Clipping planes are
+  // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
-  vtkSetMacro(Clipping,int);
-  vtkGetMacro(Clipping,int);
-  vtkBooleanMacro(Clipping,int);
+  vtkSetMacro(Cropping,int);
+  vtkGetMacro(Cropping,int);
+  vtkBooleanMacro(Cropping,int);
 
   // Description:
-  // Get the clipping plane values one at a time
-  float GetXminClipPlane() { return this->ClippingPlanes[0]; };
-  float GetXmaxClipPlane() { return this->ClippingPlanes[1]; };
-  float GetYminClipPlane() { return this->ClippingPlanes[2]; };
-  float GetYmaxClipPlane() { return this->ClippingPlanes[3]; };
-  float GetZminClipPlane() { return this->ClippingPlanes[4]; };
-  float GetZmaxClipPlane() { return this->ClippingPlanes[5]; };
+  // Set/Get the Cropping Bounds ( xmin, xmax, ymin, ymax, zmin, zmax )
+  vtkSetVector6Macro( CroppingBounds, float );
+  vtkGetVectorMacro(  CroppingBounds, float, 6 );
 
   // Description:
-  // Set/Get the ClippingPlanes ( xmin, xmax, ymin, ymax, zmin, zmax )
-  void SetClippingPlanes( float a, float b, float c, 
-                          float d, float e, float f );
-  void SetClippingPlanes( float p[6] ); 
-  float *GetClippingPlanes() { return this->ClippingPlanes; };
-
-  // Description:
-  // Set the flags for the clipping regions. The clipping planes divide the
-  // volume into 27 regions - there is one bit for each region. The regions start
-  // from the one containing voxel (0,0,0), moving along the x axis fastest, the
-  // y axis next, and the z axis slowest. These are represented from the lowest
-  // bit to bit number 27 in the integer containing the flags. There are several
-  // convenience functions to set some common configurations - subvolume (the
-  // default), fence (between any of the clip plane plairs), inverted fence, 
-  // cross (between any two of the clip plane pairs) and inverted cross.
-  vtkSetClampMacro( ClippingRegionFlags, int, 0x0, 0x7ffffff );
-  vtkGetMacro( ClippingRegionFlags, int );
-  void SetClippingRegionFlagsToSubVolume() {this->SetClippingRegionFlags( VTK_CROP_SUBVOLUME );};
-  void SetClippingRegionFlagsToFence() {this->SetClippingRegionFlags( VTK_CROP_FENCE );};
-  void SetClippingRegionFlagsToInvertedFence() {this->SetClippingRegionFlags( VTK_CROP_INVERTED_FENCE );};
-  void SetClippingRegionFlagsToCross() {this->SetClippingRegionFlags( VTK_CROP_CROSS );};
-  void SetClippingRegionFlagsToInvertedCross() {this->SetClippingRegionFlags( VTK_CROP_INVERTED_CROSS );};
+  // Set the flags for the cropping regions. The clipping planes divide the
+  // volume into 27 regions - there is one bit for each region. The regions 
+  // start from the one containing voxel (0,0,0), moving along the x axis 
+  // fastest, the y axis next, and the z axis slowest. These are represented 
+  // from the lowest bit to bit number 27 in the integer containing the 
+  // flags. There are several convenience functions to set some common 
+  // configurations - subvolume (the default), fence (between any of the 
+  // clip plane plairs), inverted fence, cross (between any two of the 
+  // clip plane pairs) and inverted cross.
+  vtkSetClampMacro( CroppingRegionFlags, int, 0x0, 0x7ffffff );
+  vtkGetMacro( CroppingRegionFlags, int );
+  void SetCroppingRegionFlagsToSubVolume() 
+    {this->SetCroppingRegionFlags( VTK_CROP_SUBVOLUME );};
+  void SetCroppingRegionFlagsToFence() 
+    {this->SetCroppingRegionFlags( VTK_CROP_FENCE );};
+  void SetCroppingRegionFlagsToInvertedFence() 
+    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_FENCE );};
+  void SetCroppingRegionFlagsToCross() 
+    {this->SetCroppingRegionFlags( VTK_CROP_CROSS );};
+  void SetCroppingRegionFlagsToInvertedCross() 
+    {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
   // Description:
   // Set/Get the rgb texture input data
@@ -164,32 +159,12 @@ public:
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
-  int                  Clipping;
-  float                ClippingPlanes[6];
-  int                  ClippingRegionFlags;
+  int                  Cropping;
+  float                CroppingBounds[6];
+  int                  CroppingRegionFlags;
   vtkTimeStamp         BuildTime;
 };
 
-inline void vtkVolumeMapper::SetClippingPlanes(float a, float b, float c, 
-					       float d, float e, float f )
-{
-  this->ClippingPlanes[0] = a;
-  this->ClippingPlanes[1] = b;
-  this->ClippingPlanes[2] = c;
-  this->ClippingPlanes[3] = d;
-  this->ClippingPlanes[4] = e;
-  this->ClippingPlanes[5] = f;
-}
-
-inline void vtkVolumeMapper::SetClippingPlanes( float p[6] )
-{
-  this->ClippingPlanes[0] = p[0];
-  this->ClippingPlanes[1] = p[1];
-  this->ClippingPlanes[2] = p[2];
-  this->ClippingPlanes[3] = p[3];
-  this->ClippingPlanes[4] = p[4];
-  this->ClippingPlanes[5] = p[5];
-}
 
 #endif
 

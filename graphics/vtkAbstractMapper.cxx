@@ -41,7 +41,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkAbstractMapper.h"
 #include "vtkDataSet.h"
 
-//----------------------------------------------------------------------------
 // Construct with initial range (0,1).
 vtkAbstractMapper::vtkAbstractMapper()
 {
@@ -49,21 +48,44 @@ vtkAbstractMapper::vtkAbstractMapper()
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
   this->TimeToDraw = 0.0;
+  this->ClippingPlanes = NULL;
 }
 
-//----------------------------------------------------------------------------
 vtkAbstractMapper::~vtkAbstractMapper()
 {
+  if (this->ClippingPlanes)
+    {
+    this->ClippingPlanes->UnRegister(this);
+    }
+}
+
+void vtkAbstractMapper::AddClippingPlane(vtkPlane *plane)
+{
+  if (this->ClippingPlanes == NULL)
+    {
+    this->ClippingPlanes = vtkPlaneCollection::New();
+    this->ClippingPlanes->Register(this);
+    this->ClippingPlanes->Delete();
+    }
+
+  this->ClippingPlanes->AddItem(plane);
+}
+
+void vtkAbstractMapper::RemoveClippingPlane(vtkPlane *plane)
+{
+  if (this->ClippingPlanes == NULL)
+    {
+    vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
+    }
+  this->ClippingPlanes->RemoveItem(plane);
 }
 
 
-//----------------------------------------------------------------------------
 void vtkAbstractMapper::SetInput(vtkDataSet *input)
 {
   this->vtkProcessObject::SetInput(0, input);
 }
 
-//----------------------------------------------------------------------------
 vtkDataSet *vtkAbstractMapper::GetInput()
 {
   if (this->NumberOfInputs < 1)
@@ -77,7 +99,6 @@ vtkDataSet *vtkAbstractMapper::GetInput()
 
 
 
-//----------------------------------------------------------------------------
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 float *vtkAbstractMapper::GetBounds()
 {
@@ -95,7 +116,6 @@ float *vtkAbstractMapper::GetBounds()
     }
 }
 
-//----------------------------------------------------------------------------
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
 void vtkAbstractMapper::GetBounds(float bounds[6])
 {
@@ -106,7 +126,6 @@ void vtkAbstractMapper::GetBounds(float bounds[6])
     }
 }
 
-//----------------------------------------------------------------------------
 float *vtkAbstractMapper::GetCenter()
 {
   this->GetBounds();
@@ -117,7 +136,6 @@ float *vtkAbstractMapper::GetCenter()
   return this->Center;
 }
 
-//----------------------------------------------------------------------------
 float vtkAbstractMapper::GetLength()
 {
   double diff, l=0.0;
@@ -133,10 +151,19 @@ float vtkAbstractMapper::GetLength()
   return (float)sqrt(l);
 }
 
-//----------------------------------------------------------------------------
 void vtkAbstractMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkProcessObject::PrintSelf(os,indent);
+  this->vtkProcessObject::PrintSelf(os,indent);
+
+  if ( this->ClippingPlanes )
+    {
+    os << indent << "ClippingPlanes:\n";
+    this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "ClippingPlanes: (none)\n";
+    } 
 
   os << indent << "TimeToDraw: " << this->TimeToDraw << "\n";
 

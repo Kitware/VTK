@@ -52,6 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkAbstractMapper_h
 
 #include "vtkImageToStructuredPoints.h"
+#include "vtkPlaneCollection.h"
+#include "vtkPlane.h"
 
 class vtkWindow;
 class vtkDataSet;
@@ -105,12 +107,26 @@ public:
   void SetInput(vtkImageData *cache)
     {vtkImageToStructuredPoints *tmp = cache->MakeImageToStructuredPoints();
     this->SetInput(tmp->GetOutput()); tmp->Delete();}  
+
 //BTX
   vtkDataSet *GetInput();
 //ETX
+
   // Description:
   // Get the time required to draw the geometry last time it was rendered
   vtkGetMacro( TimeToDraw, float );
+
+  // Description:
+  // Specify clipping planes to be applied when the data is mapped
+  // (at most 6 clipping planes can be specified)
+  void AddClippingPlane(vtkPlane *plane);
+  void RemoveClippingPlane(vtkPlane *plane);
+
+  // Description:
+  // Get/Set the vtkPlaneCollection which specifies the 
+  // clipping planes
+  vtkSetObjectMacro(ClippingPlanes,vtkPlaneCollection);
+  vtkGetObjectMacro(ClippingPlanes,vtkPlaneCollection);
 
 protected:
   vtkAbstractMapper();
@@ -120,6 +136,9 @@ protected:
 
   float Bounds[6];
   float Center[3];
+
+  vtkPlaneCollection *ClippingPlanes;
+
 };
 
 #endif

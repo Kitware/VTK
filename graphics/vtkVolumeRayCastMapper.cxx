@@ -275,10 +275,10 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
     volumeRayDirection[2] /= rayLength;
     }
 
-  // If we are not clipping, or we are only clipping with a subvolume between the clipping
-  // planes, do the simple thing
+  // If we are not cropping, or we are only clipping with a subvolume 
+  // between the clipping planes, do the simple thing
   if ( incrementLength && rayLength && 
-       (!this->Clipping || this->ClippingRegionFlags == 0x2000) )
+       (!this->Cropping || this->CroppingRegionFlags == 0x2000) )
     {
     if ( this->ClipRayAgainstVolume( rayInfo, volumeInfo, this->VolumeBounds ) )
       {
@@ -325,7 +325,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	}
       }
     }
-  // Otherwise, we are clipping, and our flags are more complex than just a
+  // Otherwise, we are cropping, and our flags are more complex than just a
   // center crop box - so loop through all 27 subregions, cast the rays, and
   // merge the results.
   else
@@ -339,7 +339,7 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
     for ( bitLoop = 0; bitLoop < 27; bitLoop++ )
       {
       bitFlag = 1 << bitLoop;
-      if ( this->ClippingRegionFlags & bitFlag )
+      if ( this->CroppingRegionFlags & bitFlag )
 	{
 	memcpy( volumeRayStart, savedRayStart, 3*sizeof(float) );
 	memcpy( volumeRayEnd, savedRayEnd, 3*sizeof(float) );
@@ -349,14 +349,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[0] = 0;
-	    bounds[1] = this->ClippingPlanes[0];
+	    bounds[1] = this->CroppingBounds[0];
 	    break;
 	  case 1:
-	    bounds[0] = this->ClippingPlanes[0];
-	    bounds[1] = this->ClippingPlanes[1];
+	    bounds[0] = this->CroppingBounds[0];
+	    bounds[1] = this->CroppingBounds[1];
 	    break;
 	  case 2:
-	    bounds[0] = this->ClippingPlanes[1];
+	    bounds[0] = this->CroppingBounds[1];
 	    bounds[1] = volumeInfo->DataSize[0] - 1;
 	    break;
 	  }
@@ -365,14 +365,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[2] = 0;
-	    bounds[3] = this->ClippingPlanes[2];
+	    bounds[3] = this->CroppingBounds[2];
 	    break;
 	  case 1:
-	    bounds[2] = this->ClippingPlanes[2];
-	    bounds[3] = this->ClippingPlanes[3];
+	    bounds[2] = this->CroppingBounds[2];
+	    bounds[3] = this->CroppingBounds[3];
 	    break;
 	  case 2:
-	    bounds[2] = this->ClippingPlanes[3];
+	    bounds[2] = this->CroppingBounds[3];
 	    bounds[3] = volumeInfo->DataSize[1] - 1;
 	    break;
 	  }
@@ -381,14 +381,14 @@ void vtkVolumeRayCastMapper::CastViewRay( VTKRayCastRayInfo *rayInfo,
 	  {
 	  case 0:
 	    bounds[4] = 0;
-	    bounds[5] = this->ClippingPlanes[4];
+	    bounds[5] = this->CroppingBounds[4];
 	    break;
 	  case 1:
-	    bounds[4] = this->ClippingPlanes[4];
-	    bounds[5] = this->ClippingPlanes[5];
+	    bounds[4] = this->CroppingBounds[4];
+	    bounds[5] = this->CroppingBounds[5];
 	    break;
 	  case 2:
-	    bounds[4] = this->ClippingPlanes[5];
+	    bounds[4] = this->CroppingBounds[5];
 	    bounds[5] = volumeInfo->DataSize[2] - 1;
 	    break;
 	  }
@@ -729,17 +729,17 @@ void vtkVolumeRayCastMapper::GeneralImageInitialization( vtkRenderer *ren,
     this->VolumeBounds[2*i+1] = scalarDataSize[i] - 1;
     }
 
-  if ( this->Clipping )
+  if ( this->Cropping )
     {
     for ( i = 0; i < 3; i++ )
       {
-      if ( this->ClippingPlanes[2*i] > this->VolumeBounds[2*i] )
+      if ( this->CroppingBounds[2*i] > this->VolumeBounds[2*i] )
 	{
-	this->VolumeBounds[2*i] = this->ClippingPlanes[2*i];
+	this->VolumeBounds[2*i] = this->CroppingBounds[2*i];
 	}
-      if ( this->ClippingPlanes[2*i+1] < this->VolumeBounds[2*i+1] )
+      if ( this->CroppingBounds[2*i+1] < this->VolumeBounds[2*i+1] )
 	{
-	this->VolumeBounds[2*i+1] = this->ClippingPlanes[2*i+1];
+	this->VolumeBounds[2*i+1] = this->CroppingBounds[2*i+1];
 	}
       }
     }

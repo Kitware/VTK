@@ -50,7 +50,6 @@ vtkMapper::vtkMapper()
   this->Colors = NULL;
 
   this->LookupTable = NULL;
-  this->ClippingPlanes = NULL;
 
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
@@ -72,10 +71,6 @@ vtkMapper::~vtkMapper()
   if (this->LookupTable)
     {
     this->LookupTable->UnRegister(this);
-    }
-  if (this->ClippingPlanes)
-    {
-    this->ClippingPlanes->Delete();
     }
   if ( this->Colors != NULL )
     {
@@ -273,24 +268,6 @@ char *vtkMapper::GetScalarModeAsString(void)
     }
 }
 
-void vtkMapper::AddClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    this->ClippingPlanes = vtkPlaneCollection::New();
-    }
-
-  this->ClippingPlanes->AddItem(plane);
-}
-
-void vtkMapper::RemoveClippingPlane(vtkPlane *plane)
-{
-  if (this->ClippingPlanes == NULL)
-    {
-    vtkErrorMacro(<< "Cannot remove clipping plane: mapper has none");
-    }
-  this->ClippingPlanes->RemoveItem(plane);
-}
 
 void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -305,15 +282,7 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Lookup Table: (none)\n";
     }
-  if ( this->ClippingPlanes )
-    {
-    os << indent << "ClippingPlanes:\n";
-    this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
-  else
-    {
-    os << indent << "ClippingPlanes: (none)\n";
-    } 
+
   os << indent << "Immediate Mode Rendering: " 
     << (this->ImmediateModeRendering ? "On\n" : "Off\n");
   os << indent << "Global Immediate Mode Rendering: " << 

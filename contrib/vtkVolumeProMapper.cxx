@@ -517,17 +517,17 @@ void vtkVolumeProMapper::UpdateCropping( vtkRenderer *ren, vtkVolume *vol )
 
   crop = new VLICrop;
 
-  crop->SetSlabs( this->ClippingPlanes[0], this->ClippingPlanes[1],
-		  this->ClippingPlanes[2], this->ClippingPlanes[3],
-		  this->ClippingPlanes[4], this->ClippingPlanes[5] );
+  crop->SetSlabs( this->CroppingBounds[0], this->CroppingBounds[1],
+		  this->CroppingBounds[2], this->CroppingBounds[3],
+		  this->CroppingBounds[4], this->CroppingBounds[5] );
 
-  if ( !this->Clipping )
+  if ( !this->Cropping )
     {
     crop->SetFlags( VLICrop::kDisable );
     }
   else
     {
-    switch ( this->ClippingRegionFlags )
+    switch ( this->CroppingRegionFlags )
       {
       case VTK_CROP_SUBVOLUME:
 	crop->SetFlags( VLICrop::kSubVolume );
