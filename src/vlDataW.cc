@@ -75,15 +75,22 @@ vlDataWriter::~vlDataWriter()
 
 // Description:
 // Open a vl data file. Returns NULL if error.
-FILE *vlDataWriter::OpenVLFile(char *filename)
+FILE *vlDataWriter::OpenVLFile()
 {
   FILE *fptr;
 
   vlDebugMacro(<<"Opening vl file for writing...");
 
-  if ( !filename || (fptr=fopen(filename, "wb")) == NULL )
+  if ( !this->Filename )
     {
-    vlErrorMacro(<< "Unable to open file: "<< filename);
+    vlErrorMacro(<< "No filename specified! Can't write!");
+    return NULL;
+    }
+
+  if ( (fptr=fopen(this->Filename, "wb")) == NULL )
+    {
+    vlErrorMacro(<< "Unable to open file: "<< this->Filename);
+    return NULL;
     }
 
   return fptr;

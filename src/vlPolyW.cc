@@ -15,6 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "vlPolyW.hh"
 
+// Description:
+// Specify the input data or filter.
+void vlPolyWriter::SetInput(vlPolyData *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vlDataSet *) input;
+    this->Modified();
+    }
+}
+
 void vlPolyWriter::WriteData()
 {
   FILE *fp;
@@ -22,7 +34,7 @@ void vlPolyWriter::WriteData()
 
   vlDebugMacro(<<"Writing vl polygonal data...");
 
-  if ( !(fp=this->OpenVLFile(this->Filename)) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write polygonal data specific stuff
@@ -39,33 +51,7 @@ void vlPolyWriter::WriteData()
 
 }
 
-void vlPolyWriter::Modified()
-{
-  this->vlDataWriter::Modified();
-  this->vlPolyFilter::_Modified();
-}
-
-unsigned long int vlPolyWriter::GetMTime()
-{
-  unsigned long dtime = this->vlDataWriter::GetMTime();
-  unsigned long ftime = this->vlPolyFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vlPolyWriter::DebugOn()
-{
-  vlDataWriter::DebugOn();
-  vlPolyFilter::_DebugOn();
-}
-
-void vlPolyWriter::DebugOff()
-{
-  vlDataWriter::DebugOff();
-  vlPolyFilter::_DebugOff();
-}
-
 void vlPolyWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataWriter::PrintSelf(os,indent);
-  vlPolyFilter::_PrintSelf(os,indent);
 }

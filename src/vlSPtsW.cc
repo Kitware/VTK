@@ -15,6 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "vlSPtsW.hh"
 
+// Description:
+// Specify the input data or filter.
+void vlStructuredPointsWriter::SetInput(vlStructuredPoints *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vlDataSet *) input;
+    this->Modified();
+    }
+}
+
 void vlStructuredPointsWriter::WriteData()
 {
   FILE *fp;
@@ -24,7 +36,7 @@ void vlStructuredPointsWriter::WriteData()
 
   vlDebugMacro(<<"Writing vl structured points...");
 
-  if ( !(fp=this->OpenVLFile(this->Filename)) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write structured points specific stuff
@@ -43,33 +55,7 @@ void vlStructuredPointsWriter::WriteData()
   this->WritePointData(fp, input);
 }
 
-void vlStructuredPointsWriter::Modified()
-{
-  this->vlDataWriter::Modified();
-  this->vlStructuredPointsFilter::_Modified();
-}
-
-unsigned long int vlStructuredPointsWriter::GetMTime()
-{
-  unsigned long dtime = this->vlDataWriter::GetMTime();
-  unsigned long ftime = this->vlStructuredPointsFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vlStructuredPointsWriter::DebugOn()
-{
-  vlDataWriter::DebugOn();
-  vlStructuredPointsFilter::_DebugOn();
-}
-
-void vlStructuredPointsWriter::DebugOff()
-{
-  vlDataWriter::DebugOff();
-  vlStructuredPointsFilter::_DebugOff();
-}
-
 void vlStructuredPointsWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataWriter::PrintSelf(os,indent);
-  vlStructuredPointsFilter::_PrintSelf(os,indent);
 }

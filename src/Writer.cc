@@ -19,6 +19,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // Construct with no start and end write methods or arguments.
 vlWriter::vlWriter()
 {
+  this->Input = NULL;
   this->StartWrite = NULL;
   this->StartWriteArgDelete = NULL;
   this->StartWriteArg = NULL;
@@ -32,9 +33,20 @@ vlWriter::vlWriter()
 // StartWrite() and EndWrite() methods.
 void vlWriter::Write()
 {
+  // make sure input is available
+  if ( !this->Input )
+    {
+    vlErrorMacro(<< "No input!");
+    return;
+    }
+
+  this->Input->Update();
+
   if ( this->StartWrite ) (*this->StartWrite)(this->StartWriteArg);
   this->WriteData();
   if ( this->EndWrite ) (*this->EndWrite)(this->EndWriteArg);
+
+  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
 
 // Description:
@@ -99,6 +111,15 @@ void vlWriter::SetEndWrite(void (*f)(void *), void *arg)
 void vlWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlObject::PrintSelf(os,indent);
+
+  if ( this->Input )
+    {
+    os << indent << "Input: (" << (void *)this->Input << ")\n";
+    }
+  else
+    {
+    os << indent << "Input: (none)\n";
+    }
 
   if ( this->StartWrite )
     {

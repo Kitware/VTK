@@ -24,9 +24,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlStructuredPointsWriter_hh
 
 #include "vlDataW.hh"
-#include "StrPtsF.hh"
+#include "StrPts.hh"
 
-class vlStructuredPointsWriter : public vlDataWriter, public vlStructuredPointsFilter
+class vlStructuredPointsWriter : public vlDataWriter
 {
 public:
   vlStructuredPointsWriter() {};
@@ -34,15 +34,12 @@ public:
   char *GetClassName() {return "vlStructuredPointsWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Multiple inheritance/Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  void DebugOn();
-  void DebugOff();
-
+  void SetInput(vlStructuredPoints *input);
+  void SetInput(vlStructuredPoints &input) {this->SetInput(&input);};
+  vlStructuredPoints *GetInput() {return (vlStructuredPoints *)this->Input;};
+                               
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
 };
 

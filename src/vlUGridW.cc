@@ -15,6 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "vlUGridW.hh"
 
+// Description:
+// Specify the input data or filter.
+void vlUnstructuredGridWriter::SetInput(vlUnstructuredGrid *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vlDataSet *) input;
+    this->Modified();
+    }
+}
+
 void vlUnstructuredGridWriter::WriteData()
 {
   FILE *fp;
@@ -23,7 +35,7 @@ void vlUnstructuredGridWriter::WriteData()
 
   vlDebugMacro(<<"Writing vl unstructured grid data...");
 
-  if ( !(fp=this->OpenVLFile(this->Filename)) || !this->WriteHeader(fp) )
+  if ( !(fp=this->OpenVLFile()) || !this->WriteHeader(fp) )
       return;
 //
 // Write unstructured grid specific stuff
@@ -59,33 +71,7 @@ void vlUnstructuredGridWriter::WriteData()
   this->WritePointData(fp, input);
 }
 
-void vlUnstructuredGridWriter::Modified()
-{
-  this->vlDataWriter::Modified();
-  this->vlUnstructuredGridFilter::_Modified();
-}
-
-unsigned long int vlUnstructuredGridWriter::GetMTime()
-{
-  unsigned long dtime = this->vlDataWriter::GetMTime();
-  unsigned long ftime = this->vlUnstructuredGridFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vlUnstructuredGridWriter::DebugOn()
-{
-  vlDataWriter::DebugOn();
-  vlUnstructuredGridFilter::_DebugOn();
-}
-
-void vlUnstructuredGridWriter::DebugOff()
-{
-  vlDataWriter::DebugOff();
-  vlUnstructuredGridFilter::_DebugOff();
-}
-
 void vlUnstructuredGridWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataWriter::PrintSelf(os,indent);
-  vlUnstructuredGridFilter::_PrintSelf(os,indent);
 }

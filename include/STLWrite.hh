@@ -26,12 +26,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include <stdio.h>
 #include "Writer.hh"
-#include "PolyF.hh"
+#include "PolyData.hh"
 
 #define STL_ASCII 0
 #define STL_BINARY 1
 
-class vlSTLWriter : public vlWriter, public vlPolyFilter
+class vlSTLWriter : public vlWriter
 {
 public:
   vlSTLWriter();
@@ -39,6 +39,10 @@ public:
   char *GetClassName() {return "vlSTLWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  void SetInput(vlPolyData *input);
+  void SetInput(vlPolyData &input) {this->SetInput(&input);};
+  vlPolyData *GetInput() {return (vlPolyData *)this->Input;};
+                               
   // Description:
   // Specify the name of the file to write.
   vlSetStringMacro(Filename);
@@ -51,7 +55,6 @@ public:
 
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
   char *Filename;
   int WriteMode;

@@ -16,14 +16,17 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlWriter - abstract class to write data to file(s)
 // .SECTION Description
 // vlWriter is an abstract class for mapper objects that write their data
-// to disk (or into a communications port).
+// to disk (or into a communications port). All writers respond to Write()
+// method. This method insures that there is input and input is up to date.
 // .SECTION Caveats
-// Every subclass of vlWriter must implement a WriteData() method.
+// Every subclass of vlWriter must implement a WriteData() method. Most likely
+// will have to create SetInput() method as well.
 
 #ifndef __vlWriter_hh
 #define __vlWriter_hh
 
 #include "Object.hh"
+#include "DataSet.hh"
 
 class vlWriter : public vlObject 
 {
@@ -43,6 +46,7 @@ public:
   void SetEndWriteArgDelete(void (*f)(void *));
 
 protected:
+  vlDataSet *Input;
   virtual void WriteData() = 0;
 
   void (*StartWrite)(void *);

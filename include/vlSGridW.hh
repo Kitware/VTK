@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // .NAME vlStructuredGridWriter - write vl structured grid data file
 // .SECTION Description
 // vlStructuredGridWriter is a source object that writes ASCII or binary 
-// polygonal data files in vl format. See text for format details.
+// structured grid data files in vl format. See text for format details.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
 
@@ -24,9 +24,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlStructuredGridWriter_hh
 
 #include "vlDataW.hh"
-#include "SGridF.hh"
+#include "SGrid.hh"
 
-class vlStructuredGridWriter : public vlDataWriter, public vlStructuredGridFilter
+class vlStructuredGridWriter : public vlDataWriter
 {
 public:
   vlStructuredGridWriter() {};
@@ -34,15 +34,12 @@ public:
   char *GetClassName() {return "vlStructuredGridWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Multiple inheritance/Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  void DebugOn();
-  void DebugOff();
-
+  void SetInput(vlStructuredGrid *input);
+  void SetInput(vlStructuredGrid &input) {this->SetInput(&input);};
+  vlStructuredGrid *GetInput() {return (vlStructuredGrid *)this->Input;};
+                               
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
 };
 

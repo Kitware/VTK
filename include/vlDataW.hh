@@ -87,7 +87,7 @@ public:
   vlSetStringMacro(LookupTableName);
   vlGetStringMacro(LookupTableName);
 
-  FILE *OpenVLFile(char *filename);
+  FILE *OpenVLFile();
   int WriteHeader(FILE *fp);
   int WritePoints(FILE *fp, vlPoints *p);
   int WriteCells(FILE *fp, vlCellArray *cells, char *label);

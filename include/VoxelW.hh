@@ -23,15 +23,19 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include <stdio.h>
 #include "Writer.hh"
-#include "StrPtsF.hh"
+#include "StrPts.hh"
 
-class vlVoxelWriter : public vlWriter, public vlStructuredPointsFilter
+class vlVoxelWriter : public vlWriter
 {
 public:
   vlVoxelWriter();
   ~vlVoxelWriter();
   char *GetClassName() {return "vlVoxelWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
+
+  void SetInput(vlStructuredPoints *input);
+  void SetInput(vlStructuredPoints &input) {this->SetInput(&input);};
+  vlStructuredPoints *GetInput() {return (vlStructuredPoints *)this->Input;};
 
   // Description:
   // Specify name of file to write.
@@ -40,7 +44,6 @@ public:
 
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
   char *Filename;
 };

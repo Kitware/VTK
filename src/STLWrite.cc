@@ -28,13 +28,23 @@ vlSTLWriter::~vlSTLWriter()
   if ( this->Filename ) delete [] this->Filename;
 }
 
+// Description:
+// Specify the input data or filter.
+void vlSTLWriter::SetInput(vlPolyData *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vlDataSet *) input;
+    this->Modified();
+    }
+}
+
 void vlSTLWriter::WriteData()
 {
   vlPoints *pts;
   vlCellArray *polys;
   vlPolyData *input=(vlPolyData *)this->Input;
-
-  input->Update();
 
   if ( (pts = input->GetPoints()) == NULL ||
   (polys = input->GetPolys()) == NULL )
@@ -154,9 +164,14 @@ void vlSTLWriter::WriteBinarySTL(vlPoints *pts, vlCellArray *polys)
 
 void vlSTLWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlPolyFilter::_PrintSelf(os,indent);
   vlWriter::PrintSelf(os,indent);
-
+ 
   os << indent << "Filename: " << this->Filename << "\n";
+
+  if ( this->WriteMode == STL_ASCII  )
+    os << indent << "Write Mode: ASCII\n";
+  else
+    os << indent << "Write Mode: BINARY\n";
+
 }
 

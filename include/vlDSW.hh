@@ -22,9 +22,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #define __vlDataSetWriter_hh
 
 #include "vlDataW.hh"
-#include "DataSetF.hh"
 
-class vlDataSetWriter : public vlDataWriter, public vlDataSetFilter
+class vlDataSetWriter : public vlDataWriter
 {
 public:
   vlDataSetWriter() {};
@@ -32,16 +31,12 @@ public:
   char *GetClassName() {return "vlDataSetWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Multiple inheritance/Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  void DebugOn();
-  void DebugOff();
-
+  void SetInput(vlDataSet *input);
+  void SetInput(vlDataSet &input) {this->SetInput(&input);};
+  vlDataSet *GetInput() {return (vlDataSet *)this->Input;};
 
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
 };
 

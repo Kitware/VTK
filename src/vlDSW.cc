@@ -14,38 +14,78 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "vlDSW.hh"
+#include "vlPolyW.hh"
+#include "vlSPtsW.hh"
+#include "vlSGridW.hh"
+#include "vlUGridW.hh"
+
+// Description:
+// Specify the input data or filter.
+void vlDataSetWriter::SetInput(vlDataSet *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = input;
+    this->Modified();
+    }
+}
 
 void vlDataSetWriter::WriteData()
 {
-}
+  FILE *fp;
+  char *type;
+  vlPolyWriter pwriter;
+  vlStructuredPointsWriter spwriter;
+  vlStructuredGridWriter sgwriter;
+  vlUnstructuredGridWriter ugwriter;
+  vlDataWriter *writer;
 
-void vlDataSetWriter::Modified()
-{
-  this->vlDataWriter::Modified();
-  this->vlDataSetFilter::_Modified();
-}
+  vlDebugMacro(<<"Writing vl dataset...");
 
-unsigned long int vlDataSetWriter::GetMTime()
-{
-  unsigned long dtime = this->vlDataWriter::GetMTime();
-  unsigned long ftime = this->vlDataSetFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
+  type = this->Input->GetDataType();
+  if ( ! strcmp(type,"vlPolyData") )
+    {
+    pwriter.SetInput((vlPolyData *)this->Input);
+    writer = (vlDataWriter *)&pwriter;
+    }
 
-void vlDataSetWriter::DebugOn()
-{
-  vlDataWriter::DebugOn();
-  vlDataSetFilter::_DebugOn();
-}
+  else if ( ! strcmp(type,"vlStructuredPoints") )
+    {
+    spwriter.SetInput((vlStructuredPoints *)this->Input);
+    writer = (vlDataWriter *)&spwriter;
+    }
 
-void vlDataSetWriter::DebugOff()
-{
-  vlDataWriter::DebugOff();
-  vlDataSetFilter::_DebugOff();
+  else if ( ! strcmp(type,"vlStructuredGrid") )
+    {
+    sgwriter.SetInput((vlStructuredGrid *)this->Input);
+    writer = (vlDataWriter *)&sgwriter;
+    }
+
+  else if ( ! strcmp(type,"vlUnstructuredGrid") )
+    {
+    ugwriter.SetInput((vlUnstructuredGrid *)this->Input);
+    writer = (vlDataWriter *)&ugwriter;
+    }
+
+  else
+    {
+    vlErrorMacro(<< "Cannot write dataset type: " << type);
+    return;
+    }
+
+  writer->SetFilename(this->Filename);
+  writer->SetScalarsName(this->ScalarsName);
+  writer->SetVectorsName(this->VectorsName);
+  writer->SetNormalsName(this->NormalsName);
+  writer->SetTensorsName(this->TensorsName);
+  writer->SetTCoordsName(this->TCoordsName);
+  writer->SetLookupTableName(this->LookupTableName);
+  writer->Write();
+
 }
 
 void vlDataSetWriter::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataWriter::PrintSelf(os,indent);
-  vlDataSetFilter::_PrintSelf(os,indent);
 }

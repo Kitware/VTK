@@ -27,6 +27,18 @@ vlVoxelWriter::~vlVoxelWriter()
 }
 
 // Description:
+// Specify the input data or filter.
+void vlVoxelWriter::SetInput(vlStructuredPoints *input)
+{
+  if ( this->Input != input )
+    {
+    vlDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = (vlDataSet *) input;
+    this->Modified();
+    }
+}
+
+// Description:
 // Write voxel data out.
 void vlVoxelWriter::WriteData()
 {
@@ -42,9 +54,6 @@ void vlVoxelWriter::WriteData()
 
   vlDebugMacro(<< "Writing Voxel model");
 
-  // update the data
-  input->Update();
-  
   dim = input->GetDimensions();
   origin = input->GetOrigin();
   aspect = input->GetAspectRatio();
@@ -102,7 +111,6 @@ void vlVoxelWriter::WriteData()
 
 void vlVoxelWriter::PrintSelf(ostream& os, vlIndent indent)
 {
-  vlStructuredPointsFilter::_PrintSelf(os,indent);
   vlWriter::PrintSelf(os,indent);
 
   os << indent << "Filename: " << this->Filename << "\n";

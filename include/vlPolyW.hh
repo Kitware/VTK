@@ -23,10 +23,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #ifndef __vlPolyWriter_hh
 #define __vlPolyWriter_hh
 
-#include "vlDSW.hh"
-#include "PolyF.hh"
+#include "vlDataW.hh"
+#include "PolyData.hh"
 
-class vlPolyWriter : public vlDataWriter, public vlPolyFilter
+class vlPolyWriter : public vlDataWriter
 {
 public:
   vlPolyWriter() {};
@@ -34,15 +34,12 @@ public:
   char *GetClassName() {return "vlPolyWriter";};
   void PrintSelf(ostream& os, vlIndent indent);
 
-  // Multiple inheritance/Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  void DebugOn();
-  void DebugOff();
-
+  void SetInput(vlPolyData *input);
+  void SetInput(vlPolyData &input) {this->SetInput(&input);};
+  vlPolyData *GetInput() {return (vlPolyData *)this->Input;};
+                               
 protected:
   void WriteData();
-  void Execute() {this->Write();};
 
 };
 
