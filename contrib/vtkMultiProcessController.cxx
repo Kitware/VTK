@@ -312,7 +312,12 @@ int vtkMultiProcessController::Receive(vtkDataObject *data,
 
   // First receive the data length.
   log->StartTimer();
-  this->Receive( &dataLength, 1, remoteProcessId, tag);
+  if (!this->Receive( &dataLength, 1, remoteProcessId, tag))
+    {
+    vtkErrorMacro("Could not receive data!");
+    log->Delete();
+    return 0;
+    }
   
   log->StopTimer();
   this->ReceiveWaitTime = log->GetElapsedTime();
