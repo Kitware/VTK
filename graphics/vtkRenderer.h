@@ -146,12 +146,13 @@ public:
 
   void ResetCamera();
   void ResetCamera(float bounds[6]);
+  void ResetCamera(float xmin, float xmax, float ymin, float ymax, 
+                   float zmin, float zmax);
 
   void SetRenderWindow(vtkRenderWindow *);
   vtkRenderWindow *GetRenderWindow() {return RenderWindow;};
   virtual vtkWindow *GetVTKWindow();
   
-
   // Description:
   // Turn on/off two-sided lighting of surfaces. If two-sided lighting is
   // off, then only the side of the surface facing the light(s) will be lit,

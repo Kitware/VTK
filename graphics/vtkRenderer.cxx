@@ -436,6 +436,23 @@ void vtkRenderer::ResetCamera(float bounds[6])
 }
   
 // Description:
+// Alternative version of ResetCamera(bounds[6]);
+void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax, 
+			      float zmin, float zmax)
+{
+  float bounds[6];
+
+  bounds[0] = xmin;
+  bounds[1] = xmax;
+  bounds[2] = ymin;
+  bounds[3] = ymax;
+  bounds[4] = zmin;
+  bounds[5] = zmax;
+
+  this->ResetCamera(bounds);
+}
+
+// Description:
 // Specify the rendering window in which to draw. This is automatically set
 // when the renderer is created by MakeRenderer.  The user probably
 // shouldn't ever need to call this method.
