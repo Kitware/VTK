@@ -79,7 +79,9 @@ public:
   
   virtual void Initialize();
   virtual void Start();
-  
+
+  //BTX
+
   // Description: 
   // Various methods that a MFCView class can forward
   // to this class to be handled. The methods basically
@@ -139,6 +141,7 @@ protected:
   void MakeIndirectRenderer(int,int,int,vtkRenderWindow *);
   void CreateBMPFile(HWND hwnd, LPTSTR pszFile, PBITMAPINFO pbi,HBITMAP hBMP, HDC hDC);
   PBITMAPINFO CreateBitmapInfoStruct(HWND hwnd, HBITMAP hBmp);
+  //ETX
 };
 
 #endif
