@@ -3,13 +3,19 @@ also allows one to use specific packages inside the vtk directory.."""
 
 import os
 import sys
-import dl
+
+# AIX apparently does not have dl?
+try:
+    import dl
+except ImportError:
+    dl = None
+
 import __helper
 
 # set the dlopen flags so that VTK does not run into problems with
 # shared symbols.
 orig_dlopen_flags = sys.getdlopenflags()
-if os.name == 'posix':
+if dl and (os.name == 'posix'):
     sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)    
 
 # Load all required kits.
@@ -53,7 +59,7 @@ except ImportError, exc:
 from util.vtkConstants import *
 
 # reset the dlopen flags to the original state.
-if os.name == 'posix':
+if dl and (os.name == 'posix'):
     sys.setdlopenflags(orig_dlopen_flags)
 
 # removing things the user shouldn't have to see.
