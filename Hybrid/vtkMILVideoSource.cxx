@@ -18,12 +18,13 @@
 #include "vtkMILVideoSource.h"
 #include "vtkTimerLog.h"
 #include "vtkObjectFactory.h"
+#include "vtkCriticalSection.h"
 
 #include <mil.h>
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.19");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.20");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
