@@ -23,7 +23,7 @@
 #include "vtkgluPickMatrix.h"
 #include "vtkString.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.2");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.3");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -198,7 +198,7 @@ int vtkCarbonTextMapper::GetListBaseForFont(vtkViewport *vp)
   cache[numCached]->Italic = this->GetItalic();
   cache[numCached]->Bold = this->GetBold();
   cache[numCached]->FontSize = this->GetFontSize();
-  cache[numCached]->FontFamily = this->currentFontNum;
+  cache[numCached]->FontFamily = this->GetFontFamily();
   if (cache[numCached]->FontSize < 9)
     cache[numCached]->FontSize = 9; // minimum font size (or it goes blank!)
   aglUseFont((AGLContext)win->GetGenericDisplayId(), cache[numCached]->FontFamily,
