@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.10");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.11");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -266,23 +266,19 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
     return 1;
     }
 
-#if 0
   // If the update extent is outside of the extent, we need to execute.
   if(outputPort >= 0)
     {
     vtkInformation* info = this->GetOutputInformation(outputPort);
-    if(!info->Has(vtkInformation::DATA_EXTENT()))
+    vtkDataObject* dataObject = info->Get(vtkInformation::DATA_OBJECT());
+    if(dataObject && info->Has(UPDATE_EXTENT()))
       {
-      return 1;
-      }
-    if(info->Has(UPDATE_EXTENT()) &&
-       info->Has(vtkInformation::DATA_EXTENT_TYPE()))
-      {
-      if(info->Get(vtkInformation::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
+      vtkInformation* dInfo = dataObject->GetInformation();
+      if(dInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)
         {
         int dataExtent[6];
         int updateExtent[6];
-        info->Get(vtkInformation::DATA_EXTENT(), dataExtent);
+        dInfo->Get(vtkDataObject::DATA_EXTENT(), dataExtent);
         info->Get(UPDATE_EXTENT(), updateExtent);
         if(updateExtent[0] < dataExtent[0] ||
            updateExtent[1] > dataExtent[1] ||
@@ -294,9 +290,12 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
           return 1;
           }
         }
+      if(dInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
+        {
+        // TODO: Handle unstructured update extent.
+        }
       }
     }
-#endif
 
   // We do not need to execute.
   return 0;
