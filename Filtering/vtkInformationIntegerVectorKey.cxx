@@ -14,13 +14,17 @@
 =========================================================================*/
 #include "vtkInformationIntegerVectorKey.h"
 
+#include "vtkInformation.h" // For vtkErrorWithObjectMacro
+
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.1.2.1");
 
 //----------------------------------------------------------------------------
-vtkInformationIntegerVectorKey::vtkInformationIntegerVectorKey(const char* name, const char* location):
-  vtkInformationKey(name, location)
+vtkInformationIntegerVectorKey
+::vtkInformationIntegerVectorKey(const char* name, const char* location,
+                                 int length):
+  vtkInformationKey(name, location), RequiredLength(length)
 {
 }
 
@@ -65,6 +69,17 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
 {
   if(value)
     {
+    if(this->RequiredLength >= 0 && length != this->RequiredLength)
+      {
+      vtkErrorWithObjectMacro(
+        info,
+        "Cannot store integer vector of length " << length
+        << " with key " << this->Location << "::" << this->Name
+        << " which requires a vector of length "
+        << this->RequiredLength << ".  Removing the key instead.");
+      this->SetAsObjectBase(info, 0);
+      return;
+      }
     vtkInformationIntegerVectorValue* v =
       new vtkInformationIntegerVectorValue;
     this->ConstructClass("vtkInformationIntegerVectorValue");
