@@ -56,14 +56,15 @@ vtkPolyDataMapper2D::vtkPolyDataMapper2D()
   this->ScalarVisibility = 1;
   this->ScalarRange[0] = 0.0; this->ScalarRange[1] = 1.0;
 
-  this->SelfCreatedLookupTable = 0;
   this->ColorMode = VTK_COLOR_MODE_DEFAULT;
 }
 
 vtkPolyDataMapper2D::~vtkPolyDataMapper2D()
 {  
-  if ( this->SelfCreatedLookupTable && this->LookupTable != NULL) 
-    this->LookupTable->Delete();
+  if (this->LookupTable)
+    {
+    this->LookupTable->UnRegister(this);
+    }
   if ( this->Colors != NULL ) this->Colors->Delete();
 }
 
@@ -150,8 +151,14 @@ void vtkPolyDataMapper2D::SetLookupTable(vtkLookupTable *lut)
 {
   if ( this->LookupTable != lut ) 
     {
-    if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
-    this->SelfCreatedLookupTable = 0;
+    if (lut)
+      {
+      lut->Register(this);
+      }
+    if ( this->LookupTable ) 
+      {
+      this->LookupTable->UnRegister(this);
+      }
     this->LookupTable = lut;
     this->Modified();
     }
@@ -165,9 +172,11 @@ vtkLookupTable *vtkPolyDataMapper2D::GetLookupTable()
 
 void vtkPolyDataMapper2D::CreateDefaultLookupTable()
 {
-  if ( this->SelfCreatedLookupTable ) this->LookupTable->Delete();
+  if ( this->LookupTable ) 
+    {
+    this->LookupTable->UnRegister(this);
+    }
   this->LookupTable = vtkLookupTable::New();
-  this->SelfCreatedLookupTable = 1;
 }
 
 // Description:
