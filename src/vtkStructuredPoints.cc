@@ -339,7 +339,7 @@ void vtkStructuredPoints::GetVoxelGradient(int i, int j, int k, vtkScalars *s,
                                           vtkFloatVectors& g)
 {
   float gv[3];
-  int ii, jj, kk, idx;
+  int ii, jj, kk, idx=0;
 
   for ( kk=0; kk < 2; kk++)
     {
