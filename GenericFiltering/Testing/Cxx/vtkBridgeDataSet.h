@@ -36,7 +36,6 @@ public:
   // Set the dataset that will be manipulated through the adaptor interface.
   // \pre ds_exists: ds!=0
   void SetDataSet(vtkDataSet *ds);
-  
   // Description:
   // Number of points composing the dataset. See NewPointIterator for more
   // details.
@@ -110,11 +109,11 @@ public:
   // \pre not_empty: GetNumberOfCells()>0
   // \pre cell_exists: cell!=0
   // \pre positive_tolerance: tol2>0
-  vtkIdType FindCell(double x[3],
-                     vtkGenericCellIterator* &cell,
-                     double tol2,
-                     int &subId,
-                     double pcoords[3]);
+  int FindCell(double x[3],
+               vtkGenericCellIterator* &cell,
+               double tol2,
+               int &subId,
+               double pcoords[3]);
   
   // Description:
   // Locate closest point `p' to position `x' (global coordinates)
