@@ -168,7 +168,7 @@ proc GeneratePlotFiles { theTest currentTime } {
 
     set length [llength $timelist]
 
-    set fd [open "$theTest.tcl.90day.dat" w]
+    set fd [open "${VTK_RESULTS_PATH}$theTest.tcl.90day.dat" w]
     if { $fd < 0 } { return }
 
     set limits [ComputeLimits $timelist] 
