@@ -18,7 +18,9 @@
 // for use with JAWT
 #include "jawt_md.h"
 
-extern "C" JNIEXPORT void  JNICALL 
+#define VTK_JAVA_DEBUG
+
+extern "C" JNIEXPORT jint  JNICALL 
 Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 {
   JAWT awt;
@@ -34,25 +36,31 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
     {
+#ifndef VTK_JAVA_DEBUG
     printf("AWT Not found\n");
-    return;
+#endif
+    return 1;
     }
   
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL) 
     {
+#ifndef VTK_JAVA_DEBUG
     printf("NULL drawing surface\n");
-    return;
+#endif
+    return 1;
     }
   
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0) 
     {
+#ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
+#endif
     awt.FreeDrawingSurface(ds);
-    return;
+    return 1;
     }
 
   /* Get the drawing surface info */
@@ -62,7 +70,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
     printf("Error getting surface info\n");
     ds->Unlock(ds);
     awt.FreeDrawingSurface(ds);
-    return;
+    return 1;
     }
   
 // Here is the win32 drawing code
@@ -84,6 +92,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   dsi_x11 = (JAWT_X11DrawingSurfaceInfo*)dsi->platformInfo;
   temp0->SetDisplayId((void *)dsi_x11->display);
   temp0->SetWindowId((void *)dsi_x11->drawable);
+  temp0->SetParentId((void *)dsi_x11->display);
 #endif
   
   /* Free the drawing surface info */
@@ -95,6 +104,8 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
 
+  return 0;
+
 }
 
 
@@ -105,7 +116,7 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
 // java threads are prevented from accessing X at the same time.  The only
 // requirement JAWT has is that all operations on a JAWT_DrawingSurface 
 // MUST be performed from the same thread as the call to GetDrawingSurface.
-extern "C" JNIEXPORT void  JNICALL 
+extern "C" JNIEXPORT jint  JNICALL 
 Java_vtk_vtkPanel_Lock(JNIEnv *env, 
                        jobject canvas)
 {
@@ -116,33 +127,41 @@ Java_vtk_vtkPanel_Lock(JNIEnv *env,
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
-      {
-          printf("AWT Not found\n");
-          return;
-      }
+    {
+#ifndef VTK_JAVA_DEBUG
+    printf("AWT Not found\n");
+#endif
+    return 1;
+    }
   
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL) 
-      {
-          printf("NULL drawing surface\n");
-          return;
-      }
+    {
+#ifndef VTK_JAVA_DEBUG
+    printf("NULL drawing surface\n");
+#endif
+    return 1;
+    }
   
   /* Lock the drawing surface */
   lock = ds->Lock(ds);
   if((lock & JAWT_LOCK_ERROR) != 0) 
     {
+#ifndef VTK_JAVA_DEBUG
     printf("Error locking surface\n");
+#endif
     awt.FreeDrawingSurface(ds);
-    return;
+    return 1;
     }
+
+  return 0;
 
 }
 
 // UnLock() must be called after a Lock() and execution of a
 // function which might change the drawing surface.  See Lock().
-extern "C" JNIEXPORT void  JNICALL 
+extern "C" JNIEXPORT jint  JNICALL 
 Java_vtk_vtkPanel_UnLock(JNIEnv *env, 
                          jobject canvas)
 {
@@ -152,22 +171,28 @@ Java_vtk_vtkPanel_UnLock(JNIEnv *env,
   /* Get the AWT */
   awt.version = JAWT_VERSION_1_3;
   if (JAWT_GetAWT(env, &awt) == JNI_FALSE) 
-      {
-          printf("AWT Not found\n");
-          return;
-      }
+    {
+#ifndef VTK_JAVA_DEBUG
+    printf("AWT Not found\n");
+#endif
+    return 1;
+    }
   
   /* Get the drawing surface */
   ds = awt.GetDrawingSurface(env, canvas);
   if (ds == NULL) 
-      {
-          printf("NULL drawing surface\n");
-          return;
-      }
+    {
+#ifndef VTK_JAVA_DEBUG
+    printf("NULL drawing surface\n");
+#endif
+    return 1;
+    }
   
   /* Unlock the drawing surface */
   ds->Unlock(ds);
   
   /* Free the drawing surface */
   awt.FreeDrawingSurface(ds);
+
+  return 0;
 }
