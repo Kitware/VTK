@@ -30,7 +30,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -103,8 +103,8 @@ public:
   // Description:
   // Control the extraction of connected surfaces.
   vtkSetClampMacro(ExtractionMode,int,
-		   VTK_EXTRACT_POINT_SEEDED_REGIONS,
-		   VTK_EXTRACT_CLOSEST_POINT_REGION);
+                   VTK_EXTRACT_POINT_SEEDED_REGIONS,
+                   VTK_EXTRACT_CLOSEST_POINT_REGION);
   vtkGetMacro(ExtractionMode,int);
   void SetExtractionModeToPointSeededRegions()
     {this->SetExtractionMode(VTK_EXTRACT_POINT_SEEDED_REGIONS);};
@@ -155,17 +155,18 @@ public:
   int GetNumberOfExtractedRegions();
 
   // Description:
-  // The connectivity extraction algorithm works recursively. In some systems 
-  // the stack depth is limited. This methods specifies the maximum recursion 
-  // depth.
-  vtkSetClampMacro(MaxRecursionDepth,int,10,VTK_LARGE_INTEGER);
-  vtkGetMacro(MaxRecursionDepth,int);
-
-  // Description:
   // Turn on/off the coloring of connected regions.
   vtkSetMacro(ColorRegions,int);
   vtkGetMacro(ColorRegions,int);
   vtkBooleanMacro(ColorRegions,int);
+
+  // Description:
+  // FOR LEGACY COMPATIBILITY ONLY, DO NOT USE.
+  // The connectivity extraction algorithm works recursively. In some systems 
+  // the stack depth is limited. This methods specifies the maximum recursion 
+  // depth.
+  void SetMaxRecursionDepth(int);
+  int GetMaxRecursionDepth();
 
 protected:
   vtkPolyDataConnectivityFilter();
@@ -179,7 +180,6 @@ protected:
   int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
   vtkIdList *Seeds; //id's of points or cells used to seed regions
-  int MaxRecursionDepth; //prevent excessive recursion
   vtkIdList *SpecifiedRegionIds; //regions specified for extraction
   vtkIntArray *RegionSizes; //size (in cells) of each region extracted
 
@@ -188,23 +188,24 @@ protected:
   int ScalarConnectivity;
   float ScalarRange[2];
 
-  void TraverseAndMark(int cellId);
+  void TraverseAndMark();
 
 private:
   // used to support algorithm execution
   vtkScalars *CellScalars;
   vtkIdList *NeighborCellPointIds;
-  int NumExceededMaxDepth;
   int *Visited;
   int *PointMap;
   vtkScalars *NewScalars;
-  int RecursionDepth;
   int RegionNumber;
   int PointNumber;    
   int NumCellsInRegion;
-  vtkIdList *RecursionSeeds;
   vtkScalars *InScalars;
   vtkPolyData *Mesh;
+  vtkIdList *Wave;
+  vtkIdList *Wave2;
+  vtkIdList *PointIds;
+  vtkIdList *CellIds;
 };
 
 // Description:
