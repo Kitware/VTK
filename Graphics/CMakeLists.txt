@@ -4,6 +4,7 @@ vtkAppendFilter
 vtkAppendPolyData
 vtkApproximatingSubdivisionFilter
 vtkArrayCalculator
+vtkAssignAttribute
 vtkAttributeDataToFieldDataFilter
 vtkAxes
 vtkBlankStructuredGrid
@@ -67,6 +68,7 @@ vtkMaskPoints
 vtkMaskPolyData
 vtkMassProperties 
 vtkMergeDataObjectFilter
+vtkMergeFields
 vtkMergeFilter
 vtkOBBDicer
 vtkOBBTree
@@ -90,6 +92,7 @@ vtkProjectedTexture
 vtkQuadricClustering
 vtkQuadricDecimation
 vtkQuantizePolyDataPoints
+vtkRearrangeFields
 vtkRectilinearGridGeometryFilter
 vtkRecursiveDividingCubes
 vtkReverseSense
@@ -103,6 +106,7 @@ vtkSimpleElevationFilter
 vtkSmoothPolyDataFilter
 vtkSpatialRepresentationFilter
 vtkSphereSource
+vtkSplitField
 vtkStreamLine
 vtkStreamPoints
 vtkStreamer
