@@ -165,6 +165,7 @@ void vtkImageAnisotropicDiffusion2D::Execute(vtkImageRegion *inRegion,
   out->SetScalarType(VTK_FLOAT);
   out->AllocateScalars();
   
+
   // To compute extent of diffusion which will shrink.
   outRegion->GetExtent(2, extent);
   
@@ -180,7 +181,13 @@ void vtkImageAnisotropicDiffusion2D::Execute(vtkImageRegion *inRegion,
     }
   
   // copy results into output.
+
+  // NOTE: This method will allocate the data.
+  // ImageRegion::SetExtent should not be modifying the Data's extent
+  //
+  outRegion->GetScalarPointer ();
   outRegion->CopyRegionData(in);
+
   in->Delete ();
   out->Delete ();
 }
