@@ -42,18 +42,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageMagnify maps each pixel of the input onto a nxmx... region
 // of the output.  Location (0,0,...) remains in the same place.
-// The filter is decomposed into many filters, one for each axis.
 
 
 #ifndef __vtkImageMagnify_h
 #define __vtkImageMagnify_h
 
 
-#include "vtkImageDecomposedFilter.h"
-#include "vtkImageMagnify1D.h"
-#include "vtkImageSetGet.h"
+#include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageMagnify : public vtkImageDecomposedFilter
+class VTK_EXPORT vtkImageMagnify : public vtkImageFilter
 {
 public:
   vtkImageMagnify();
@@ -62,25 +59,23 @@ public:
 
   // Description:
   // Set/Get Magnification factors
-  void SetMagnificationFactors(int num, int *factors);
-  vtkImageSetMacro(MagnificationFactors,int);
-  void GetMagnificationFactors(int num, int *factors);
-  vtkImageGetMacro(MagnificationFactors,int);
-  int *GetMagnificationFactors() {return this->MagnificationFactors;};  
+  vtkSetVector3Macro(MagnificationFactors,int);
+  vtkGetVector3Macro(MagnificationFactors,int);
   
   // Description:
   // Turn interpolation on and off (pixel replication)
-  void SetInterpolate(int interpolate);
+  vtkSetMacro(Interpolate,int);
   vtkGetMacro(Interpolate,int);
   vtkBooleanMacro(Interpolate,int);
   
-  void SetFilteredAxes(int num, int *axes);
-  
+  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
+		       int extent[6], int id);
+
 protected:
-  int MagnificationFactors[4];
+  int MagnificationFactors[3];
   int Interpolate;
-  
-  void InitializeParameters();
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void ExecuteImageInformation();
 };
 
 #endif

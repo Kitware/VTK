@@ -39,6 +39,7 @@ vtkImageFlip \
 vtkImageGaussianSmooth \
 vtkImageHSVToRGB \
 vtkImageLogic \
+vtkImageMagnify \
 vtkImageMathematics \
 vtkImageMedian3D \
 vtkImageMirrorPad \
@@ -95,7 +96,6 @@ vtkTIFFWriter
 #vtkImageLaplacian \
 #vtkImageLogarithmicScale \
 #vtkImageMIPFilter \
-#vtkImageMagnify \
 #vtkImageMagnify1D \
 #vtkImageMagnitude \
 #vtkImageMask \

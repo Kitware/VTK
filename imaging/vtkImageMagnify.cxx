@@ -48,94 +48,264 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageMagnify::vtkImageMagnify()
 {
   int idx;
-  vtkImageMagnify1D *filter;
-
-  this->Interpolate = 1;
-  for (idx = 0; idx < 4; ++idx)
+  
+  this->Interpolate = 0;
+  for (idx = 0; idx < 3; ++idx)
     {
-    filter = vtkImageMagnify1D::New();
-    this->Filters[idx] = filter;
     this->MagnificationFactors[idx] = 1;
-    filter->SetFilteredAxis(idx);
     }
-  // Let the superclass set some superclass variables of the filters.
-  this->InitializeFilters();
-  this->InitializeParameters();
+}
+
+
+//----------------------------------------------------------------------------
+// Description:
+// Computes any global image information associated with regions.
+void vtkImageMagnify::ExecuteImageInformation()
+{
+  float *spacing;
+  int idx;
+  int *inExt;
+  float outSpacing[3];
+  int outExt[6];
+  
+  inExt = this->Input->GetWholeExtent();
+  spacing = this->Input->GetSpacing();
+  for (idx = 0; idx < 3; idx++)
+    {
+    // Scale the output extent
+    outExt[idx*2] = inExt[idx*2] * this->MagnificationFactors[idx];
+    if (this->Interpolate)
+      {
+      outExt[idx*2+1] = inExt[idx*2+1]*this->MagnificationFactors[idx];
+      }
+    else
+      {
+      outExt[idx*2+1] = (inExt[idx*2+1]+1) *this->MagnificationFactors[idx] -1;
+      }
+    
+    // Change the data spacing
+    outSpacing[idx] = spacing[idx] / (float)(this->MagnificationFactors[idx]);
+    }
+  
+  this->Output->SetWholeExtent(outExt);
+  this->Output->SetSpacing(outSpacing);
 }
 
 //----------------------------------------------------------------------------
-void vtkImageMagnify::InitializeParameters()
-{
-  int idx, axis;
-  
-  vtkImageMagnify1D *filter;
-  
-  for (idx = 0; idx < this->NumberOfFilteredAxes; ++idx)
-    {
-    axis = this->FilteredAxes[idx];
-    filter = (vtkImageMagnify1D *)(this->Filters[axis]);
-    filter->SetMagnificationFactor(this->MagnificationFactors[idx]);
-    filter->SetInterpolate(this->Interpolate);
-    }
-}
-      
-//----------------------------------------------------------------------------
-void vtkImageMagnify::SetMagnificationFactors(int num, int *factors)
+// Description:
+// This method computes the Region of input necessary to generate outRegion.
+// It assumes offset and size are multiples of Magnify Factors.
+void vtkImageMagnify::ComputeRequiredInputUpdateExtent(int inExt[6],
+						       int outExt[6])
 {
   int idx;
   
-  if (num > 4)
+  for (idx = 0; idx < 3; idx++)
     {
-    vtkWarningMacro("Too many factors");
-    num = 4;
+    // For Min. Round Down
+    inExt[idx*2] = (int)(floor((float)(outExt[idx*2]) / 
+			       (float)(this->MagnificationFactors[idx])));
+    
+    if (this->Interpolate)
+      {
+      // Round Up
+      inExt[idx*2+1] = (int)(ceil((float)(outExt[idx*2+1]) / 
+				  (float)(this->MagnificationFactors[idx])));
+      }
+    else
+      {
+      inExt[idx*2+1] = (int)(floor((float)(outExt[idx*2+1]) / 
+				   (float)(this->MagnificationFactors[idx])));
+      }
     }
-  for (idx = 0; idx < num; ++idx)
-    {
-    this->MagnificationFactors[idx] = factors[idx];
-    }
-  // initialize filters wiht ne parameters
-  // Sub Filters handle modifies.
-  this->InitializeParameters();
 }
 
 
+
+
 //----------------------------------------------------------------------------
-void vtkImageMagnify::GetMagnificationFactors(int num, int *factors)
+// The templated execute function handles all the data types.
+// 2d even though operation is 1d.
+// Note: Slight misalignment (pixel replication is not nearest neighbor).
+template <class T>
+static void vtkImageMagnifyExecute(vtkImageMagnify *self,
+				   vtkImageData *inData, T *inPtr,
+				   vtkImageData *outData, T *outPtr,
+				   int outExt[6], int id)
 {
-  int idx;
+  int idxC, idxX, idxY, idxZ;
+  int maxC, maxX, maxY, maxZ;
+  int inIncX, inIncY, inIncZ;
+  int outIncX, outIncY, outIncZ;
+  unsigned long count = 0;
+  unsigned long target;
+  int interpolate;
+  T *inPtrOrig, *outPtrOrig;
+  int magXIdx, magX;
+  int magYIdx, magY;
+  int magZIdx, magZ;
+  T *inPtrZ, *inPtrY, *inPtrX;
+  float iMag, iMagP, iMagPY, iMagPZ, iMagPYZ;
+  T dataP, dataPX, dataPY, dataPZ;
+  T dataPXY, dataPXZ, dataPYZ, dataPXYZ;
+
+  interpolate = self->GetInterpolate();
+  magX = self->GetMagnificationFactors()[0];
+  magY = self->GetMagnificationFactors()[1];
+  magZ = self->GetMagnificationFactors()[2];
+  iMag = 1.0/(magX*magY*magZ);
   
-  if (num > 4)
+  // find the region to loop over
+  maxC = outData->GetNumberOfScalarComponents();
+  maxX = outExt[1] - outExt[0];
+  maxY = outExt[3] - outExt[2]; 
+  maxZ = outExt[5] - outExt[4];
+  target = (unsigned long)((maxZ+1)*(maxY+1)/50.0);
+  target++;
+  
+  // Get increments to march through data 
+  inData->GetIncrements(inIncX, inIncY, inIncZ);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  
+  // Loop through ouput pixels
+  inPtrOrig = inPtr;
+  outPtrOrig = outPtr;
+  for (idxC = 0; idxC < maxC; idxC++)
     {
-    vtkWarningMacro(<< "GetMagnificationFactors: Asking for too many " << num);
-    num = 4;
+    inPtrZ = inPtrOrig + idxC;
+    outPtr = outPtrOrig + idxC;
+    magZIdx = magZ - 1;
+    for (idxZ = 0; idxZ <= maxZ; idxZ++, magZIdx--)
+      {
+      inPtrY = inPtrZ;
+      magYIdx = magY - 1;
+      for (idxY = 0; idxY <= maxY; idxY++, magYIdx--)
+	{
+	if (!id) 
+	  {
+	  if (!(count%target)) self->UpdateProgress(count/(50.0*target));
+	  count++;
+	  }
+	
+	if (interpolate)
+	  {
+	  // precompute some values for interpolation
+	  iMagP = (magYIdx + 1)*(magZIdx + 1)*iMag;
+	  iMagPY = (magY - magYIdx - 1)*(magZIdx + 1)*iMag;
+	  iMagPZ = (magYIdx + 1)*(magZ - magZIdx - 1)*iMag;
+	  iMagPYZ = (magY - magYIdx - 1)*(magZ - magZIdx - 1)*iMag;
+	  }
+	
+	magXIdx = magX - 1;
+	inPtrX = inPtrY;
+	for (idxX = 0; idxX <= maxX; idxX++, magXIdx--)
+	  {
+	  // Pixel operation
+	  if (!interpolate)
+	    {
+	    *outPtr = *inPtrX;
+	    }
+	  else
+	    {
+	    // setup data values for interp
+	    if (magXIdx == (magX - 1)) 
+	      {
+	      dataP = *inPtrX;
+	      dataPX = *(inPtrX + inIncX);
+	      dataPY = *(inPtrX + inIncY);
+	      dataPZ = *(inPtrX + inIncZ);
+	      dataPXY = *(inPtrX + inIncX + inIncY);
+	      dataPXZ = *(inPtrX + inIncX + inIncZ);
+	      dataPYZ = *(inPtrX + inIncY + inIncZ);
+	      dataPXYZ = *(inPtrX + inIncX + inIncY + inIncZ);
+	      }
+	    *outPtr = (T)
+	      (
+	       dataP*(magXIdx + 1)*iMagP + 
+	       dataPX*(magX - magXIdx - 1)*iMagP +
+	       dataPY*(magXIdx + 1)*iMagPY + 
+	       dataPXY*(magX - magXIdx - 1)*iMagPY +
+	       dataPZ*(magXIdx + 1)*iMagPZ + 
+	       dataPXZ*(magX - magXIdx - 1)*iMagPZ +
+	       dataPYZ*(magXIdx + 1)*iMagPYZ + 
+	       dataPXYZ*(magX - magXIdx - 1)*iMagPYZ);
+	    }
+	  outPtr += maxC;
+	  if (!magXIdx) 
+	    {
+	    inPtrX += inIncX;
+	    magXIdx = magX;
+	    }
+	  }
+	outPtr += outIncY;
+	if (!magYIdx) 
+	  {
+	  inPtrY += inIncY;
+	  magYIdx = magY;
+	  }
+	}
+      outPtr += outIncZ;
+      if (!magZIdx) 
+	{
+	inPtrZ += inIncZ;
+	magZIdx = magZ;
+	}
+      }
+    }
+}
+
+void vtkImageMagnify::ThreadedExecute(vtkImageData *inData, 
+				      vtkImageData *outData,
+				      int outExt[6], int id)
+{
+  int inExt[6];
+  this->ComputeRequiredInputUpdateExtent(inExt,outExt);
+  void *inPtr = inData->GetScalarPointerForExtent(inExt);
+  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  
+  vtkDebugMacro(<< "Execute: inData = " << inData 
+  << ", outData = " << outData);
+  
+  // this filter expects that input is the same type as output.
+  if (inData->GetScalarType() != outData->GetScalarType())
+    {
+    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
+    << ", must match out ScalarType " << outData->GetScalarType());
+    return;
     }
   
-  for (idx = 0; idx < num; ++idx)
+  switch (inData->GetScalarType())
     {
-    factors[idx] = this->MagnificationFactors[idx];
+    case VTK_FLOAT:
+      vtkImageMagnifyExecute(this, 
+			     inData, (float *)(inPtr),
+			     outData, (float *)(outPtr), outExt, id);
+      break;
+    case VTK_INT:
+      vtkImageMagnifyExecute(this, 
+			     inData, (int *)(inPtr),
+			     outData, (int *)(outPtr), outExt, id);
+      break;
+    case VTK_SHORT:
+      vtkImageMagnifyExecute(this, 
+			     inData, (short *)(inPtr),
+			     outData, (short *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_SHORT:
+      vtkImageMagnifyExecute(this, 
+			     inData, (unsigned short *)(inPtr),
+			     outData, (unsigned short *)(outPtr), outExt, id);
+      break;
+    case VTK_UNSIGNED_CHAR:
+      vtkImageMagnifyExecute(this, 
+			     inData, (unsigned char *)(inPtr),
+			     outData, (unsigned char *)(outPtr), outExt, id);
+      break;
+    default:
+      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      return;
     }
 }
-
-
-
-//----------------------------------------------------------------------------
-void vtkImageMagnify::SetInterpolate(int interpolate)
-{
-  this->Interpolate = interpolate;
-  this->InitializeParameters();
-  // Sub filters tak care of modified.
-}
-
-
-//----------------------------------------------------------------------------
-void vtkImageMagnify::SetFilteredAxes(int num, int *axes)
-{
-  this->vtkImageDecomposedFilter::SetFilteredAxes(num, axes);
-  this->InitializeParameters();
-}
-
-
-
 
 
 
