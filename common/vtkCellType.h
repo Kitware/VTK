@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // explicitly represented (as in vtkPolyData), or may be implicit to the
 // data type (vtkStructuredPoints).
 
-#ifndef __vtkCellTypes_h
-#define __vtkCellTypes_h
+#ifndef __vtkCellType_h
+#define __vtkCellType_h
 
 #define VTK_NULL_ELEMENT 0
 #define VTK_VERTEX 1

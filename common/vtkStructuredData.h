@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredData_h
 #define __vtkStructuredData_h
 
-#include "vtkObject.hh"
-#include "vtkIdList.hh"
-#include "vtkDataSet.hh"
+#include "vtkObject.h"
+#include "vtkIdList.h"
+#include "vtkDataSet.h"
 
 #define VTK_SINGLE_POINT 0
 #define VTK_X_LINE 1

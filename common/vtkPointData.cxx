@@ -38,14 +38,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointData.hh"
-#include "vtkCell.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkFloatVectors.hh"
-#include "vtkFloatNormals.hh"
-#include "vtkFloatTCoords.hh"
-#include "vtkFloatTensors.hh"
-#include "vtkPixmap.hh"
+#include "vtkPointData.h"
+#include "vtkCell.h"
+#include "vtkFloatScalars.h"
+#include "vtkFloatVectors.h"
+#include "vtkFloatNormals.h"
+#include "vtkFloatTCoords.h"
+#include "vtkFloatTensors.h"
+#include "vtkPixmap.h"
 
 // Description:
 // Construct object with copying turned on for all data.

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAGraymap.hh"
+#include "vtkAGraymap.h"
 
 vtkScalars *vtkAGraymap::MakeObject(int sze, int ext)
 {

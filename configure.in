@@ -19,16 +19,16 @@ AC_ARG_WITH(tcl,
 AC_SUBST(BUILD_TCL)
 AC_SUBST(CLEAN_TCL)
 
-AC_ARG_WITH(vis,
-         [  --with-vis              include the visualization classes],
-         visdir=vis
-         BUILD_VIS=build_vis
-         CLEAN_VIS=clean_vis)
+AC_ARG_WITH(graphics,
+         [  --with-graphics         include the graphics classes],
+         graphicsdir=graphics
+         BUILD_GRAPHICS=build_graphics
+         CLEAN_GRAPHICS=clean_graphics)
 
-AC_SUBST(BUILD_VIS)
-AC_SUBST(CLEAN_VIS)
+AC_SUBST(BUILD_GRAPHICS)
+AC_SUBST(CLEAN_GRAPHICS)
 
-AC_CONFIG_SUBDIRS(core $tcldir $visdir)
+AC_CONFIG_SUBDIRS(common $tcldir $graphicsdir)
 
 #------------------------------------------------------------------------------
 #       Some make programs require includes to be 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatNormals.hh"
+#include "vtkFloatNormals.h"
 
 vtkNormals *vtkFloatNormals::MakeObject(int sze, int ext)
 {

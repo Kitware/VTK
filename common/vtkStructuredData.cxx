@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredData.hh"
+#include "vtkStructuredData.h"
 
 // Description:
 // Return the topological dimension of the data (e.g., 0, 1, 2, or 3D).

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUserDefined.hh"
+#include "vtkUserDefined.h"
 
 vtkUserDefined *vtkUserDefined::MakeObject(int sze, int ext)
 {

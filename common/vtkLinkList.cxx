@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkLinkList.hh"
-#include "vtkDataSet.hh"
+#include "vtkLinkList.h"
+#include "vtkDataSet.h"
 
 vtkLinkList::vtkLinkList(int sz, int ext)
 {

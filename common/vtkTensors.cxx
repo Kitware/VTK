@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTensors.hh"
+#include "vtkTensors.h"
 
 vtkTensors::vtkTensors(int dim)
 {

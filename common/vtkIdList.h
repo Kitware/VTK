@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIdList_h
 #define __vtkIdList_h
 
-#include "vtkObject.hh"
-#include "vtkIntArray.hh"
+#include "vtkObject.h"
+#include "vtkIntArray.h"
 
 class vtkIdList : public vtkObject
 {

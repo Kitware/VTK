@@ -50,11 +50,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCellList_h
 #define __vtkCellList_h
 
-#include "vtkRefCount.hh"
-#include "vtkCellType.hh"
+#include "vtkRefCount.h"
+#include "vtkCellType.h"
 
 struct _vtkCell_s {
-    unsigned char type; //from CellTypes.hh
+    unsigned char type; //from CellTypes.h
     int loc; //location in associated CellArray object
 };
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPoints.hh"
+#include "vtkPoints.h"
 
 vtkPoints::vtkPoints()
 {

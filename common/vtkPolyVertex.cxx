@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyVertex.hh"
-#include "vtkMath.hh"
-#include "vtkCellArray.hh"
-#include "vtkVertex.hh"
-#include "vtkPointLocator.hh"
+#include "vtkPolyVertex.h"
+#include "vtkMath.h"
+#include "vtkCellArray.h"
+#include "vtkVertex.h"
+#include "vtkPointLocator.h"
 
 // Description:
 // Deep copy of cell.

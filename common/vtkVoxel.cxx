@@ -38,12 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVoxel.hh"
-#include "vtkMath.hh"
-#include "vtkLine.hh"
-#include "vtkPixel.hh"
-#include "vtkCellArray.hh"
-#include "vtkPointLocator.hh"
+#include "vtkVoxel.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
+#include "vtkPixel.h"
+#include "vtkCellArray.h"
+#include "vtkPointLocator.h"
 
 // Description:
 // Deep copy of cell.
@@ -262,7 +262,7 @@ static int faces[6][4] = { {0,2,4,6}, {1,3,5,7},
 //
 // Marching cubes case table
 //
-#include "vtkMarchingCubesCases.hh"
+#include "vtkMarchingCubesCases.h"
 
 void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars, 
 		       vtkPointLocator *locator,

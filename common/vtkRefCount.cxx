@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkRefCount.hh"
+#include "vtkRefCount.h"
 
 // Description:
 // Construct with initial reference count = 1 and reference counting on.

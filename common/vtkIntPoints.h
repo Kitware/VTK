@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIntPoints_h
 #define __vtkIntPoints_h
 
-#include "vtkPoints.hh"
-#include "vtkIntArray.hh"
+#include "vtkPoints.h"
+#include "vtkIntArray.h"
 
 class vtkIntPoints : public vtkPoints
 {

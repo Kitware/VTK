@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkGraymap.hh"
+#include "vtkGraymap.h"
 
 vtkScalars *vtkGraymap::MakeObject(int sze, int ext)
 {

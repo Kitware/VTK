@@ -38,15 +38,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyData.hh"
-#include "vtkVertex.hh"
-#include "vtkPolyVertex.hh"
-#include "vtkLine.hh"
-#include "vtkPolyLine.hh"
-#include "vtkTriangle.hh"
-#include "vtkTriangleStrip.hh"
-#include "vtkQuad.hh"
-#include "vtkPolygon.hh"
+#include "vtkPolyData.h"
+#include "vtkVertex.h"
+#include "vtkPolyVertex.h"
+#include "vtkLine.h"
+#include "vtkPolyLine.h"
+#include "vtkTriangle.h"
+#include "vtkTriangleStrip.h"
+#include "vtkQuad.h"
+#include "vtkPolygon.h"
 
 // Initialize static member.  This member is used to simplify traversal
 // of verts, lines, polygons, and triangle strips lists.  It basically 

@@ -46,10 +46,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolyLine_h
 #define __vtkPolyLine_h
 
-#include "vtkCell.hh"
-#include "vtkPoints.hh"
-#include "vtkCellArray.hh"
-#include "vtkFloatNormals.hh"
+#include "vtkCell.h"
+#include "vtkPoints.h"
+#include "vtkCellArray.h"
+#include "vtkFloatNormals.h"
 
 class vtkPolyLine : public vtkCell
 {

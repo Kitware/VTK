@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTriangle_h
 #define __vtkTriangle_h
 
-#include "vtkCell.hh"
-#include "vtkMath.hh"
+#include "vtkCell.h"
+#include "vtkMath.h"
 
 class vtkTriangle : public vtkCell
 {

@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatNormals_h
 #define __vtkFloatNormals_h
 
-#include "vtkNormals.hh"
-#include "vtkFloatArray.hh"
+#include "vtkNormals.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatNormals : public vtkNormals
 {

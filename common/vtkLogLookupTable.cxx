@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkLogLookupTable.hh"
+#include "vtkLogLookupTable.h"
 
 // Description:
 // Construct with (minimum,maximum) range 1 to 10 (based on 

@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkColorScalars.hh"
-#include "vtkLookupTable.hh"
+#include "vtkColorScalars.h"
+#include "vtkLookupTable.h"
 
 // Description:
 // Convert internal color representation into scalar value. Uses luminance 

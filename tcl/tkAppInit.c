@@ -92,13 +92,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
   }
   
   /* init the core vtk stuff */
-  if (Vtkcoretcl_Init(interp) == TCL_ERROR) 
+  if (Vtkcommontcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
     
-#ifdef USE_VIS
-  if (Vtkvistcl_Init(interp) == TCL_ERROR) 
+#ifdef USE_GRAPHICS
+  if (Vtkgraphicstcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

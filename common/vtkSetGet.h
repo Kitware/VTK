@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vector arrays of built-in types size 2,3,4; for setting objects; and
 // debug, warning, and error printout information.
 
-#ifndef __vtkSetGet_hh
-#define __vtkSetGet_hh
+#ifndef __vtkSetGet_h
+#define __vtkSetGet_h
 
 #include <string.h>
 

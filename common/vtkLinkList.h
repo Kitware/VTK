@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLinkList_h
 #define __vtkLinkList_h
 
-#include "vtkRefCount.hh"
+#include "vtkRefCount.h"
 class vtkDataSet;
 
 struct _vtkLink_s {

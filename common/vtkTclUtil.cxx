@@ -16,7 +16,7 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 #include <iostream.h>
 #include <stdlib.h>
-#include "vtkTclUtil.hh"
+#include "vtkTclUtil.h"
 
 int vtkRendererCommand(ClientData cd, Tcl_Interp *interp,
 		       int argc, char *argv[]);

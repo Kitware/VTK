@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBitScalars_h
 #define __vtkBitScalars_h
 
-#include "vtkScalars.hh"
-#include "vtkBitArray.hh"
+#include "vtkScalars.h"
+#include "vtkBitArray.h"
 
 class vtkBitScalars : public vtkScalars 
 {

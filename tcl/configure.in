@@ -35,13 +35,16 @@ fi
 AC_SUBST(BIGENDIAN)
 
 # what toolkits should we use
-AC_ARG_WITH(vis,
-         [  --with-vis              include the visualization classes],
-         USE_VIS_LIBS="-L../vis -lVTKVisTcl"
-         USE_VIS_FLAG=-DUSE_VIS)
+AC_ARG_WITH(graphics,
+         [  --with-graphics         include the graphics classes],
+         graphicsdir=graphics
+         USE_GRAPHICS_LIBS="vtkXRenderWindowInteractor.o -L../graphics -lVTKGraphicsTcl"
+         USE_GRAPHICS_DEPENDS="vtkXRenderWindowInteractor.o"
+         USE_GRAPHICS_FLAG="-I$(srcdir)/../graphics -DUSE_GRAPHICS")
 
-AC_SUBST(USE_VIS_FLAG)
-AC_SUBST(USE_VIS_LIBS)
+AC_SUBST(USE_GRAPHICS_FLAG)
+AC_SUBST(USE_GRAPHICS_LIBS)
+AC_SUBST(USE_GRAPHICS_DEPENDS)
 
 #
 # figure out what graphics we should compile in based on header files

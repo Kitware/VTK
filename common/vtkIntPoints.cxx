@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkIntPoints.hh"
+#include "vtkIntPoints.h"
 
 vtkPoints *vtkIntPoints::MakeObject(int sze, int ext)
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatTensors.hh"
+#include "vtkFloatTensors.h"
 
 vtkTensor *vtkFloatTensors::GetTensor(int i) 
 {

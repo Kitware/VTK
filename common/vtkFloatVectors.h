@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatVectors_h
 #define __vtkFloatVectors_h
 
-#include "vtkVectors.hh"
-#include "vtkFloatArray.hh"
+#include "vtkVectors.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatVectors : public vtkVectors
 {

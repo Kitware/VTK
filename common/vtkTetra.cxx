@@ -38,12 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTetra.hh"
-#include "vtkMath.hh"
-#include "vtkLine.hh"
-#include "vtkTriangle.hh"
-#include "vtkCellArray.hh"
-#include "vtkPointLocator.hh"
+#include "vtkTetra.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
+#include "vtkTriangle.h"
+#include "vtkCellArray.h"
+#include "vtkPointLocator.h"
 
 
 // Description:

@@ -38,9 +38,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkTCoords.hh"
-#include "vtkIdList.hh"
-#include "vtkFloatTCoords.hh"
+#include "vtkTCoords.h"
+#include "vtkIdList.h"
+#include "vtkFloatTCoords.h"
 
 void vtkTCoords::GetTCoord(int id, float tc[3])
 {

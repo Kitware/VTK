@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatTCoords_h
 #define __vtkFloatTCoords_h
 
-#include "vtkTCoords.hh"
-#include "vtkFloatArray.hh"
+#include "vtkTCoords.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatTCoords : public vtkTCoords
 {

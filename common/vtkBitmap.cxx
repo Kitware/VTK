@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBitmap.hh"
+#include "vtkBitmap.h"
 
 vtkScalars *vtkBitmap::MakeObject(int sze, int ext)
 {

@@ -50,9 +50,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredGrid_h
 #define __vtkStructuredGrid_h
 
-#include "vtkPointSet.hh"
-#include "vtkStructuredData.hh"
-#include "vtkBitScalars.hh"
+#include "vtkPointSet.h"
+#include "vtkStructuredData.h"
+#include "vtkBitScalars.h"
 
 class vtkStructuredGrid : public vtkPointSet {
 public:

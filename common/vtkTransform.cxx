@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <stdlib.h>
-#include "vtkTransform.hh"
-#include "vtkMath.hh"
+#include "vtkTransform.h"
+#include "vtkMath.h"
 
 // Description:
 // Constructs a transform and sets the following defaults

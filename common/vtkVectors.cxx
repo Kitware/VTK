@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVectors.hh"
-#include "vtkFloatVectors.hh"
-#include "vtkIdList.hh"
-#include "vtkMath.hh"
+#include "vtkVectors.h"
+#include "vtkFloatVectors.h"
+#include "vtkIdList.h"
+#include "vtkMath.h"
 
 vtkVectors::vtkVectors()
 {

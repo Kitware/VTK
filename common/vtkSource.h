@@ -76,8 +76,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSource_h
 #define __vtkSource_h
 
-#include "vtkObject.hh"
-#include "vtkDataSet.hh"
+#include "vtkObject.h"
+#include "vtkDataSet.h"
 
 class vtkSource : public vtkObject
 {

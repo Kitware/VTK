@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBitArray_h
 #define __vtkBitArray_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 class vtkBitArray : public vtkObject 
 {

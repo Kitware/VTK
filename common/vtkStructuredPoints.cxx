@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStructuredPoints.hh"
-#include "vtkVertex.hh"
-#include "vtkLine.hh"
-#include "vtkPixel.hh"
-#include "vtkVoxel.hh"
+#include "vtkStructuredPoints.h"
+#include "vtkVertex.h"
+#include "vtkLine.h"
+#include "vtkPixel.h"
+#include "vtkVoxel.h"
 
 vtkStructuredPoints::vtkStructuredPoints()
 {

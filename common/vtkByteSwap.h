@@ -45,8 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // files.
 // .EXAMPLE STLRead.cc
 
-#ifndef __vtkByteSwap_hh
-#define __vtkByteSwap_hh
+#ifndef __vtkByteSwap_h
+#define __vtkByteSwap_h
 #include <stdio.h>
 
 class vtkByteSwap

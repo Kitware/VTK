@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatVectors.hh"
+#include "vtkFloatVectors.h"
 
 vtkVectors *vtkFloatVectors::MakeObject(int sze, int ext)
 {

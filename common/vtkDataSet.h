@@ -51,11 +51,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSet_h
 #define __vtkDataSet_h
 
-#include "vtkObject.hh"
-#include "vtkIdList.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkPointData.hh"
-#include "vtkCell.hh"
+#include "vtkObject.h"
+#include "vtkIdList.h"
+#include "vtkFloatPoints.h"
+#include "vtkPointData.h"
+#include "vtkCell.h"
 
 class vtkSource;
 

@@ -52,8 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPointSet_h
 #define __vtkPointSet_h
 
-#include "vtkDataSet.hh"
-#include "vtkPointLocator.hh"
+#include "vtkDataSet.h"
+#include "vtkPointLocator.h"
 
 class vtkPointSet : public vtkDataSet
 {

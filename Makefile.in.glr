@@ -11,12 +11,22 @@ vtkGlrRenderer.o \
 vtkGlrTexture.o 
  
 TCL_GLR_OBJ = \
-tclvtkGlrActor.hh.o \
-tclvtkGlrCamera.hh.o \
-tclvtkGlrLight.hh.o \
-tclvtkGlrPolyMapper.hh.o \
-tclvtkGlrProperty.hh.o \
-tclvtkGlrRenderWindow.hh.o \
-tclvtkGlrRenderer.hh.o \
-tclvtkGlrTexture.hh.o \
-tclGNewGlr.o
+tcl/vtkGlrActorTcl.o \
+tcl/vtkGlrCameraTcl.o \
+tcl/vtkGlrLightTcl.o \
+tcl/vtkGlrPolyMapperTcl.o \
+tcl/vtkGlrPropertyTcl.o \
+tcl/vtkGlrRenderWindowTcl.o \
+tcl/vtkGlrRendererTcl.o \
+tcl/vtkGlrTextureTcl.o 
+
+TCL_GLR_NEWS = \
+vtkGlrActor.h \
+vtkGlrCamera.h \
+vtkGlrLight.h \
+vtkGlrPolyMapper.h \
+vtkGlrProperty.h \
+vtkGlrRenderWindow.h \
+vtkGlrRenderer.h \
+vtkGlrTexture.h 
+

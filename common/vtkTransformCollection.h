@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION see also
 // vtkCollection vtkTransform
 
-#ifndef __vtkTransformCollection_hh
-#define __vtkTransformCollection_hh
+#ifndef __vtkTransformCollection_h
+#define __vtkTransformCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkTransform.hh"
+#include "vtkCollection.h"
+#include "vtkTransform.h"
 
 class vtkTransformCollection : public vtkCollection
 {

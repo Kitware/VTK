@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTensors_h
 #define __vtkTensors_h
 
-#include "vtkRefCount.hh"
-#include "vtkTensor.hh"
+#include "vtkRefCount.h"
+#include "vtkTensor.h"
 
 class vtkIdList;
 class vtkFloatTensors;
@@ -117,9 +117,9 @@ protected:
 
 };
 
-// These include files are placed here so that if Tensors.hh is included 
+// These include files are placed here so that if Tensors.h is included 
 // all other classes necessary for compilation are also included. 
-#include "vtkIdList.hh"
-#include "vtkFloatTensors.hh"
+#include "vtkIdList.h"
+#include "vtkFloatTensors.h"
 
 #endif

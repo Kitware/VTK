@@ -38,13 +38,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkQuad.hh"
-#include "vtkTriangle.hh"
-#include "vtkPlane.hh"
-#include "vtkCellArray.hh"
-#include "vtkLine.hh"
-#include "vtkPointLocator.hh"
-#include "vtkMath.hh"
+#include "vtkQuad.h"
+#include "vtkTriangle.h"
+#include "vtkPlane.h"
+#include "vtkCellArray.h"
+#include "vtkLine.h"
+#include "vtkPointLocator.h"
+#include "vtkMath.h"
 
 // Description:
 // Deep copy of cell.

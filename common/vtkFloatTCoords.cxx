@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatTCoords.hh"
+#include "vtkFloatTCoords.h"
 
 vtkTCoords *vtkFloatTCoords::MakeObject(int sze, int d, int ext)
 {

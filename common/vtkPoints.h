@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPoints_h
 #define __vtkPoints_h
 
-#include "vtkRefCount.hh"
+#include "vtkRefCount.h"
 
 class vtkFloatPoints;
 class vtkIdList;
@@ -118,9 +118,9 @@ protected:
 
 };
 
-// These include files are placed here so that if Points.hh is included 
+// These include files are placed here so that if Points.h is included 
 // all other classes necessary for compilation are also included. 
-#include "vtkIdList.hh"
-#include "vtkFloatPoints.hh"
+#include "vtkIdList.h"
+#include "vtkFloatPoints.h"
 
 #endif

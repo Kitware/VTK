@@ -48,9 +48,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUserDefined_h
 #define __vtkUserDefined_h
 
-#include "vtkRefCount.hh"
-#include "vtkVoidArray.hh"
-#include "vtkIdList.hh"
+#include "vtkRefCount.h"
+#include "vtkVoidArray.h"
+#include "vtkIdList.h"
 
 class vtkUserDefined : public vtkRefCount 
 {

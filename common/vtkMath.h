@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // norm; matrix determinant for 2x2 and 3x3 matrices; and random 
 // number generation.
 
-#ifndef __vtkMath_hh
-#define __vtkMath_hh
+#ifndef __vtkMath_h
+#define __vtkMath_h
 
 #include <math.h>
 

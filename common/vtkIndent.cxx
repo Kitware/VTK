@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkIndent.hh"
+#include "vtkIndent.h"
 #define vtkStdIndent 2
 #define NumberOfBlanks 40
 

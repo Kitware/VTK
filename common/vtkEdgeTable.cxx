@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkEdgeTable.hh"
+#include "vtkEdgeTable.h"
 
 // Description:
 // Instantiate object based on maximum point id.

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkWindowLevelLookupTable.hh"
+#include "vtkWindowLevelLookupTable.h"
 
 // Description:
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 

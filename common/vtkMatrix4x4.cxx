@@ -41,8 +41,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdlib.h>
 #include <math.h>
 
-#include "vtkMatrix4x4.hh"
-#include "vtkMath.hh"
+#include "vtkMatrix4x4.h"
+#include "vtkMath.h"
 
 // Description:
 // Construct a 4x4 identity matrix.

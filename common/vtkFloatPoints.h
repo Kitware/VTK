@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatPoints_h
 #define __vtkFloatPoints_h
 
-#include "vtkPoints.hh"
-#include "vtkFloatArray.hh"
+#include "vtkPoints.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatPoints : public vtkPoints
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkAPixmap.hh"
+#include "vtkAPixmap.h"
 
 vtkScalars *vtkAPixmap::MakeObject(int sze, int ext)
 {

@@ -50,8 +50,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAPixmap_h
 #define __vtkAPixmap_h
 
-#include "vtkColorScalars.hh"
-#include "vtkUnsignedCharArray.hh"
+#include "vtkColorScalars.h"
+#include "vtkUnsignedCharArray.h"
 
 class vtkAPixmap : public vtkColorScalars 
 {

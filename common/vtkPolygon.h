@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolygon_h
 #define __vtkPolygon_h
 
-#include "vtkCell.hh"
-#include "vtkPoints.hh"
+#include "vtkCell.h"
+#include "vtkPoints.h"
 
 class vtkPolygon : public vtkCell
 {

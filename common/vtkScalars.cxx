@@ -38,11 +38,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkScalars.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkShortScalars.hh"
-#include "vtkIdList.hh"
-#include "vtkLookupTable.hh"
+#include "vtkScalars.h"
+#include "vtkFloatScalars.h"
+#include "vtkShortScalars.h"
+#include "vtkIdList.h"
+#include "vtkLookupTable.h"
 
 vtkScalars::vtkScalars()
 {

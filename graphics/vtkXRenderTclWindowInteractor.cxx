@@ -18,9 +18,9 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include <string.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
-#include "vtkXRenderWindowInteractor.hh"
-#include "vtkXRenderWindow.hh"
-#include "vtkActor.hh"
+#include "vtkXRenderWindowInteractor.h"
+#include "vtkXRenderWindow.h"
+#include "vtkActor.h"
 #include <X11/Shell.h>
 #include <math.h>
 #include "tk.h"

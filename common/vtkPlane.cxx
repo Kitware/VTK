@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPlane.hh"
-#include "vtkMath.hh"
+#include "vtkPlane.h"
+#include "vtkMath.h"
 
 
 // Description

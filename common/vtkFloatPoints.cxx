@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatPoints.hh"
+#include "vtkFloatPoints.h"
 
 vtkPoints *vtkFloatPoints::MakeObject(int sze, int ext)
 {

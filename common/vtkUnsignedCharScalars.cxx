@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnsignedCharScalars.hh"
+#include "vtkUnsignedCharScalars.h"
 
 vtkScalars *vtkUnsignedCharScalars::MakeObject(int sze, int ext)
 {

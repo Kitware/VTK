@@ -38,8 +38,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkIdList.hh"
-#include "vtkCell.hh"
+#include "vtkIdList.h"
+#include "vtkCell.h"
 
 // Description:
 // Delete specified id from list.

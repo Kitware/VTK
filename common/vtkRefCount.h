@@ -58,10 +58,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkLookupTable vtkTCoords vtkCellList vtkLinkList vtkNormals vtkPoints
 // vtkScalars vtkTensors vtkUserDefined vtkVectors
 
-#ifndef __vtkRefCount_hh
-#define __vtkRefCount_hh
+#ifndef __vtkRefCount_h
+#define __vtkRefCount_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 class vtkRefCount : public vtkObject
 {

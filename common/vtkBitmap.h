@@ -51,8 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkBitmap_h
 #define __vtkBitmap_h
 
-#include "vtkColorScalars.hh"
-#include "vtkBitArray.hh"
+#include "vtkColorScalars.h"
+#include "vtkBitArray.h"
 
 class vtkBitmap : public vtkColorScalars 
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkIntArray.hh"
+#include "vtkIntArray.h"
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.

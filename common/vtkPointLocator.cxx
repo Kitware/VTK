@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointLocator.hh"
-#include "vtkMath.hh"
-#include "vtkIntArray.hh"
-#include "vtkPolyData.hh"
+#include "vtkPointLocator.h"
+#include "vtkMath.h"
+#include "vtkIntArray.h"
+#include "vtkPolyData.h"
 
 class vtkNeighborPoints
 {

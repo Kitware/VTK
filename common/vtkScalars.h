@@ -63,7 +63,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkScalars_h
 #define __vtkScalars_h
 
-#include "vtkRefCount.hh"
+#include "vtkRefCount.h"
 
 class vtkIdList;
 class vtkFloatScalars;
@@ -154,9 +154,9 @@ protected:
   vtkLookupTable *LookupTable;
 };
 
-// These include files are placed here so that if Scalars.hh is included 
+// These include files are placed here so that if Scalars.h is included 
 // all other classes necessary for compilation are also included. 
-#include "vtkIdList.hh"
-#include "vtkFloatScalars.hh"
+#include "vtkIdList.h"
+#include "vtkFloatScalars.h"
 
 #endif

@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkQuad_h
 #define __vtkQuad_h
 
-#include "vtkCell.hh"
+#include "vtkCell.h"
 
 class vtkQuad : public vtkCell
 {

@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPolyVertex_h
 #define __vtkPolyVertex_h
 
-#include "vtkCell.hh"
+#include "vtkCell.h"
 
 class vtkPolyVertex : public vtkCell
 {

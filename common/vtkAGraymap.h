@@ -54,8 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkAGraymap_h
 #define __vtkAGraymap_h
 
-#include "vtkColorScalars.hh"
-#include "vtkUnsignedCharArray.hh"
+#include "vtkColorScalars.h"
+#include "vtkUnsignedCharArray.h"
 
 class vtkAGraymap : public vtkColorScalars 
 {

@@ -50,7 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // all locators. The GenerateRepresentation() is one such interesting method.
 // This method works in conjunction with vtkLocatorFilter to create polygonal
 // representations for the locator. For example, if the locator is an OBB tree
-// (i.e., vtkOBBTree.hh), then the representation is a set of one or more 
+// (i.e., vtkOBBTree.h), then the representation is a set of one or more 
 // oriented bounding boxes, depending upon the specified level.
 // 
 // Locators typically work as follows. One or more "entities", such as 
@@ -75,8 +75,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLocator_h
 #define __vtkLocator_h
 
-#include "vtkObject.hh"
-#include "vtkDataSet.hh"
+#include "vtkObject.h"
+#include "vtkDataSet.h"
 class vtkPolyData;
 
 class vtkLocator : public vtkObject

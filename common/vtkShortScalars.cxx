@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkShortScalars.hh"
+#include "vtkShortScalars.h"
 
 vtkScalars *vtkShortScalars::MakeObject(int sze, int ext)
 {

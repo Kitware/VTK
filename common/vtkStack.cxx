@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkStack.hh"
+#include "vtkStack.h"
 
 // Description:
 // Construct with empty stack.

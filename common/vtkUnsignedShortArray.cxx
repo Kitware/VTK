@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnsignedShortArray.hh"
+#include "vtkUnsignedShortArray.h"
 
 // Description:
 // Allocate memory for this array. Delete old storage if present.

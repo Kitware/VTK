@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPolyLine.hh"
-#include "vtkMath.hh"
-#include "vtkLine.hh"
-#include "vtkCellArray.hh"
+#include "vtkPolyLine.h"
+#include "vtkMath.h"
+#include "vtkLine.h"
+#include "vtkCellArray.h"
 
 // Description:
 // Deep copy of cell.

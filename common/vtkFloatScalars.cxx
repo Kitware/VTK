@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkFloatScalars.hh"
+#include "vtkFloatScalars.h"
 
 vtkScalars *vtkFloatScalars::MakeObject(int sze, int ext)
 {

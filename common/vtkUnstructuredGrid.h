@@ -48,11 +48,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkUnstructuredGrid_h
 #define __vtkUnstructuredGrid_h
 
-#include "vtkPointSet.hh"
-#include "vtkIdList.hh"
-#include "vtkCellArray.hh"
-#include "vtkCellList.hh"
-#include "vtkLinkList.hh"
+#include "vtkPointSet.h"
+#include "vtkIdList.h"
+#include "vtkCellArray.h"
+#include "vtkCellList.h"
+#include "vtkLinkList.h"
 
 class vtkUnstructuredGrid : public vtkPointSet {
 public:

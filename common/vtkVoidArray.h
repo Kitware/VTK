@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVoidArray_h
 #define __vtkVoidArray_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 class vtkVoidArray : public vtkObject 
 {

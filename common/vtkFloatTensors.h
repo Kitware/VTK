@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatTensors_h
 #define __vtkFloatTensors_h
 
-#include "vtkTensors.hh"
-#include "vtkFloatArray.hh"
+#include "vtkTensors.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatTensors : public vtkTensors
 {

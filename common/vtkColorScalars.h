@@ -60,7 +60,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkColorScalars_h
 #define __vtkColorScalars_h
 
-#include "vtkScalars.hh"
+#include "vtkScalars.h"
 
 class vtkAPixmap;
 
@@ -124,9 +124,9 @@ public:
   unsigned char *GetComponentRange();
 };
 
-// These include files are placed here so that if CoScalar.hh is included 
+// These include files are placed here so that if CoScalar.h is included 
 // all other classes necessary for compilation are also included. 
-#include "vtkIdList.hh"
-#include "vtkAPixmap.hh"
+#include "vtkIdList.h"
+#include "vtkAPixmap.h"
 
 #endif

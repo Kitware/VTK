@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFloatScalars_h
 #define __vtkFloatScalars_h
 
-#include "vtkScalars.hh"
-#include "vtkFloatArray.hh"
+#include "vtkScalars.h"
+#include "vtkFloatArray.h"
 
 class vtkFloatScalars : public vtkScalars 
 {

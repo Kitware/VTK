@@ -48,8 +48,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkStructuredPoints_h
 #define __vtkStructuredPoints_h
 
-#include "vtkDataSet.hh"
-#include "vtkStructuredData.hh"
+#include "vtkDataSet.h"
+#include "vtkStructuredData.h"
 
 class vtkStructuredPoints : public vtkDataSet
 {

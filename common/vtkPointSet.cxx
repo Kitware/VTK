@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkPointSet.hh"
+#include "vtkPointSet.h"
 
 vtkPointSet::vtkPointSet ()
 {

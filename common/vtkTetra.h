@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkTetra_h
 #define __vtkTetra_h
 
-#include "vtkCell.hh"
+#include "vtkCell.h"
 
 class vtkTetra : public vtkCell
 {

@@ -45,11 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION See Also
 // vtkCollection
 
-#ifndef __vtkImplicitFunctionCollection_hh
-#define __vtkImplicitFunctionCollection_hh
+#ifndef __vtkImplicitFunctionCollection_h
+#define __vtkImplicitFunctionCollection_h
 
-#include "vtkCollection.hh"
-#include "vtkImplicitFunction.hh"
+#include "vtkCollection.h"
+#include "vtkImplicitFunction.h"
 
 class vtkImplicitFunctionCollection : public vtkCollection
 {

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkBitScalars.hh"
+#include "vtkBitScalars.h"
 
 vtkScalars *vtkBitScalars::MakeObject(int sze, int ext)
 {

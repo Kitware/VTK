@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkVoidArray.hh"
+#include "vtkVoidArray.h"
 
 typedef void *voidPtr;
 // Description:

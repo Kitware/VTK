@@ -6,34 +6,249 @@
 # If it is a concrete class then it should be added to TCL_NEWS
 # as well.
 #
-ME = Core
+ME = Common
 
 # put all vtkFoo.cxx files here as .o files
 SRC_OBJ = \
+vtkAGraymap.o \
+vtkAPixmap.o \
+vtkBitArray.o \
+vtkBitScalars.o \
+vtkBitmap.o \
+vtkByteSwap.o \
+vtkCell.o \
+vtkCellArray.o \
+vtkCellList.o \
 vtkCollection.o \
+vtkColorScalars.o \
+vtkDataSet.o \
+vtkDoubleArray.o \
+vtkEdgeTable.o \
+vtkFloatArray.o \
+vtkFloatNormals.o \
+vtkFloatPoints.o \
+vtkFloatScalars.o \
+vtkFloatTCoords.o \
+vtkFloatTensors.o \
+vtkFloatVectors.o \
+vtkGraymap.o \
+vtkHexahedron.o \
+vtkIdList.o \
+vtkImplicitFunction.o \
 vtkIndent.o \
+vtkIntArray.o \
+vtkIntPoints.o \
+vtkIntScalars.o \
+vtkLine.o \
+vtkLinkList.o \
+vtkLocator.o \
+vtkLogLookupTable.o \
+vtkLookupTable.o \
+vtkMath.o \
+vtkMatrix4x4.o \
+vtkNormals.o \
 vtkObject.o \
+vtkPixel.o \
+vtkPixmap.o \
+vtkPlane.o \
+vtkPointData.o \
+vtkPointLocator.o \
+vtkPointSet.o \
+vtkPoints.o \
+vtkPolyData.o \
+vtkPolyLine.o \
+vtkPolyVertex.o \
+vtkPolygon.o \
+vtkQuad.o \
 vtkRefCount.o \
-vtkTimeStamp.o 
+vtkScalars.o \
+vtkShortArray.o \
+vtkShortScalars.o \
+vtkSource.o \
+vtkStack.o \
+vtkStructuredData.o \
+vtkStructuredGrid.o \
+vtkStructuredPoints.o \
+vtkTCoords.o \
+vtkTensors.o \
+vtkTetra.o \
+vtkTimeStamp.o \
+vtkTransform.o \
+vtkTriangle.o \
+vtkTriangleStrip.o \
+vtkUnsignedCharArray.o \
+vtkUnsignedCharScalars.o \
+vtkUnsignedShortArray.o \
+vtkUnsignedShortScalars.o \
+vtkUnstructuredGrid.o \
+vtkUserDefined.o \
+vtkVectors.o \
+vtkVertex.o \
+vtkVoidArray.o \
+vtkVoxel.o \
+vtkWindowLevelLookupTable.o 
 
-# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o files
+# put all vtk classes that are to be wrapped here as tcl/vtkFooTcl.o \ files
 TCL_OBJ = \
+tcl/vtkAGraymapTcl.o \
+tcl/vtkAPixmapTcl.o \
+tcl/vtkBitArrayTcl.o \
+tcl/vtkBitScalarsTcl.o \
+tcl/vtkBitmapTcl.o \
+tcl/vtkByteSwapTcl.o \
+tcl/vtkCellTcl.o \
+tcl/vtkCellArrayTcl.o \
+tcl/vtkCellListTcl.o \
 tcl/vtkCollectionTcl.o \
+tcl/vtkColorScalarsTcl.o \
+tcl/vtkDataSetTcl.o \
+tcl/vtkDoubleArrayTcl.o \
+tcl/vtkEdgeTableTcl.o \
+tcl/vtkFloatArrayTcl.o \
+tcl/vtkFloatNormalsTcl.o \
+tcl/vtkFloatPointsTcl.o \
+tcl/vtkFloatScalarsTcl.o \
+tcl/vtkFloatTCoordsTcl.o \
+tcl/vtkFloatTensorsTcl.o \
+tcl/vtkFloatVectorsTcl.o \
+tcl/vtkGraymapTcl.o \
+tcl/vtkHexahedronTcl.o \
+tcl/vtkIdListTcl.o \
+tcl/vtkImplicitFunctionTcl.o \
+tcl/vtkImplicitFunctionCollectionTcl.o \
 tcl/vtkIndentTcl.o \
+tcl/vtkIntArrayTcl.o \
+tcl/vtkIntPointsTcl.o \
+tcl/vtkIntScalarsTcl.o \
+tcl/vtkLineTcl.o \
+tcl/vtkLinkListTcl.o \
+tcl/vtkLocatorTcl.o \
+tcl/vtkLogLookupTableTcl.o \
+tcl/vtkLookupTableTcl.o \
+tcl/vtkMathTcl.o \
+tcl/vtkMatrix4x4Tcl.o \
+tcl/vtkNormalsTcl.o \
 tcl/vtkObjectTcl.o \
+tcl/vtkPixelTcl.o \
+tcl/vtkPixmapTcl.o \
+tcl/vtkPlaneTcl.o \
+tcl/vtkPointDataTcl.o \
+tcl/vtkPointLocatorTcl.o \
+tcl/vtkPointSetTcl.o \
+tcl/vtkPointsTcl.o \
+tcl/vtkPolyDataTcl.o \
+tcl/vtkPolyLineTcl.o \
+tcl/vtkPolyVertexTcl.o \
+tcl/vtkPolygonTcl.o \
+tcl/vtkQuadTcl.o \
 tcl/vtkRefCountTcl.o \
-tcl/vtkTimeStampTcl.o 
+tcl/vtkScalarsTcl.o \
+tcl/vtkShortArrayTcl.o \
+tcl/vtkShortScalarsTcl.o \
+tcl/vtkSourceTcl.o \
+tcl/vtkStackTcl.o \
+tcl/vtkStructuredDataTcl.o \
+tcl/vtkStructuredGridTcl.o \
+tcl/vtkStructuredPointsTcl.o \
+tcl/vtkTCoordsTcl.o \
+tcl/vtkTensorTcl.o \
+tcl/vtkTensorsTcl.o \
+tcl/vtkTetraTcl.o \
+tcl/vtkTimeStampTcl.o \
+tcl/vtkTransformTcl.o \
+tcl/vtkTransformCollectionTcl.o \
+tcl/vtkTriangleTcl.o \
+tcl/vtkTriangleStripTcl.o \
+tcl/vtkUnsignedCharArrayTcl.o \
+tcl/vtkUnsignedCharScalarsTcl.o \
+tcl/vtkUnsignedShortArrayTcl.o \
+tcl/vtkUnsignedShortScalarsTcl.o \
+tcl/vtkUnstructuredGridTcl.o \
+tcl/vtkUserDefinedTcl.o \
+tcl/vtkVectorsTcl.o \
+tcl/vtkVertexTcl.o \
+tcl/vtkVoidArrayTcl.o \
+tcl/vtkVoxelTcl.o \
+tcl/vtkWindowLevelLookupTableTcl.o 
 
 # put all vtk classes that are concrete here as vtkFooTcl.h files
 TCL_NEWS = \
+vtkAGraymap.h \
+vtkAPixmap.h \
+vtkBitArray.h \
+vtkBitScalars.h \
+vtkBitmap.h \
+vtkByteSwap.h \
+vtkCellArray.h \
+vtkCellList.h \
 vtkCollection.h \
+vtkDoubleArray.h \
+vtkEdgeTable.h \
+vtkFloatArray.h \
+vtkFloatNormals.h \
+vtkFloatPoints.h \
+vtkFloatScalars.h \
+vtkFloatTCoords.h \
+vtkFloatTensors.h \
+vtkFloatVectors.h \
+vtkGraymap.h \
+vtkHexahedron.h \
+vtkIdList.h \
+vtkImplicitFunctionCollection.h \
 vtkIndent.h \
+vtkIntArray.h \
+vtkIntPoints.h \
+vtkIntScalars.h \
+vtkLine.h \
+vtkLinkList.h \
+vtkLogLookupTable.h \
+vtkLookupTable.h \
+vtkMath.h \
+vtkMatrix4x4.h \
 vtkObject.h \
+vtkPixel.h \
+vtkPixmap.h \
+vtkPlane.h \
+vtkPointData.h \
+vtkPointLocator.h \
+vtkPolyData.h \
+vtkPolyLine.h \
+vtkPolyVertex.h \
+vtkPolygon.h \
+vtkQuad.h \
 vtkRefCount.h \
-vtkTimeStamp.h 
+vtkShortArray.h \
+vtkShortScalars.h \
+vtkSource.h \
+vtkStack.h \
+vtkStructuredData.h \
+vtkStructuredGrid.h \
+vtkStructuredPoints.h \
+vtkTensor.h \
+vtkTetra.h \
+vtkTimeStamp.h \
+vtkTransform.h \
+vtkTransformCollection.h \
+vtkTriangle.h \
+vtkTriangleStrip.h \
+vtkUnsignedCharArray.h \
+vtkUnsignedCharScalars.h \
+vtkUnsignedShortArray.h \
+vtkUnsignedShortScalars.h \
+vtkUnstructuredGrid.h \
+vtkUserDefined.h \
+vtkVertex.h \
+vtkVoidArray.h \
+vtkVoxel.h \
+vtkWindowLevelLookupTable.h 
 
 # add in any extra libraies here
-KIT_LIBS = vtkTclUtil.o
+KIT_LIBS = vtkTclUtil.o 
+
+# standard stuff here
+KIT_OBJ = ${SRC_OBJ}
+KIT_TCL_OBJ = ${TCL_OBJ}
+KIT_NEWS = ${TCL_NEWS}
 
 # The following is all boiler plate 
 #------------------------------------------------------------------------------
@@ -86,21 +301,244 @@ CLEAN_TCL         = @CLEAN_TCL@
 #
 # concrete classes will pass the last argument of 1 abstract will be 0.
 #
-tcl/vtkCollectionTcl.cxx: vtkCollection.h ../tcl/cpp_parse
-	rm -f tcl/vtkCollectionTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkCollection.h $(srcdir)/../tcl/hints 1 > tcl/vtkCollectionTcl.cxx
+tcl/vtkAGraymapTcl.cxx: vtkAGraymap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkAGraymapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkAGraymap.h ${srcdir}/../tcl/hints 1 > tcl/vtkAGraymapTcl.cxx
 
-tcl/vtkObjectTcl.cxx: vtkObject.h ../tcl/cpp_parse
-	rm -f tcl/vtkObjectTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkObject.h $(srcdir)/../tcl/hints 1 > tcl/vtkObjectTcl.cxx
+tcl/vtkAPixmapTcl.cxx: vtkAPixmap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkAPixmapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkAPixmap.h ${srcdir}/../tcl/hints 1 > tcl/vtkAPixmapTcl.cxx
+
+tcl/vtkBitArrayTcl.cxx: vtkBitArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkBitArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkBitArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkBitArrayTcl.cxx
+
+tcl/vtkBitScalarsTcl.cxx: vtkBitScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkBitScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkBitScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkBitScalarsTcl.cxx
+
+tcl/vtkBitmapTcl.cxx: vtkBitmap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkBitmapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkBitmap.h ${srcdir}/../tcl/hints 1 > tcl/vtkBitmapTcl.cxx
+
+tcl/vtkByteSwapTcl.cxx: vtkByteSwap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkByteSwapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkByteSwap.h ${srcdir}/../tcl/hints 1 > tcl/vtkByteSwapTcl.cxx
+
+tcl/vtkCellTcl.cxx: vtkCell.h ../tcl/cpp_parse
+	 rm -f tcl/vtkCellTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkCell.h ${srcdir}/../tcl/hints 0 > tcl/vtkCellTcl.cxx
+
+tcl/vtkCellArrayTcl.cxx: vtkCellArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkCellArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkCellArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkCellArrayTcl.cxx
+
+tcl/vtkCellListTcl.cxx: vtkCellList.h ../tcl/cpp_parse
+	 rm -f tcl/vtkCellListTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkCellList.h ${srcdir}/../tcl/hints 1 > tcl/vtkCellListTcl.cxx
+
+tcl/vtkCollectionTcl.cxx: vtkCollection.h ../tcl/cpp_parse
+	 rm -f tcl/vtkCollectionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkCollection.h ${srcdir}/../tcl/hints 1 > tcl/vtkCollectionTcl.cxx
+
+tcl/vtkColorScalarsTcl.cxx: vtkColorScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkColorScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkColorScalars.h ${srcdir}/../tcl/hints 0 > tcl/vtkColorScalarsTcl.cxx
+
+tcl/vtkDataSetTcl.cxx: vtkDataSet.h ../tcl/cpp_parse
+	 rm -f tcl/vtkDataSetTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkDataSet.h ${srcdir}/../tcl/hints 0 > tcl/vtkDataSetTcl.cxx
+
+tcl/vtkDoubleArrayTcl.cxx: vtkDoubleArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkDoubleArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkDoubleArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkDoubleArrayTcl.cxx
+
+tcl/vtkEdgeTableTcl.cxx: vtkEdgeTable.h ../tcl/cpp_parse
+	 rm -f tcl/vtkEdgeTableTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkEdgeTable.h ${srcdir}/../tcl/hints 1 > tcl/vtkEdgeTableTcl.cxx
+
+tcl/vtkFloatArrayTcl.cxx: vtkFloatArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatArrayTcl.cxx
+
+tcl/vtkFloatNormalsTcl.cxx: vtkFloatNormals.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatNormalsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatNormals.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatNormalsTcl.cxx
+
+tcl/vtkFloatPointsTcl.cxx: vtkFloatPoints.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatPointsTcl.cxx
+
+tcl/vtkFloatScalarsTcl.cxx: vtkFloatScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatScalarsTcl.cxx
+
+tcl/vtkFloatTCoordsTcl.cxx: vtkFloatTCoords.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatTCoordsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatTCoords.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatTCoordsTcl.cxx
+
+tcl/vtkFloatTensorsTcl.cxx: vtkFloatTensors.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatTensorsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatTensors.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatTensorsTcl.cxx
+
+tcl/vtkFloatVectorsTcl.cxx: vtkFloatVectors.h ../tcl/cpp_parse
+	 rm -f tcl/vtkFloatVectorsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkFloatVectors.h ${srcdir}/../tcl/hints 1 > tcl/vtkFloatVectorsTcl.cxx
+
+tcl/vtkGraymapTcl.cxx: vtkGraymap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkGraymapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkGraymap.h ${srcdir}/../tcl/hints 1 > tcl/vtkGraymapTcl.cxx
+
+tcl/vtkHexahedronTcl.cxx: vtkHexahedron.h ../tcl/cpp_parse
+	 rm -f tcl/vtkHexahedronTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkHexahedron.h ${srcdir}/../tcl/hints 1 > tcl/vtkHexahedronTcl.cxx
+
+tcl/vtkImplicitFunctionTcl.cxx: vtkImplicitFunction.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImplicitFunctionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImplicitFunction.h ${srcdir}/../tcl/hints 0 > tcl/vtkImplicitFunctionTcl.cxx
+
+tcl/vtkImplicitFunctionCollectionTcl.cxx: vtkImplicitFunctionCollection.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImplicitFunctionCollectionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImplicitFunctionCollection.h ${srcdir}/../tcl/hints 1 > tcl/vtkImplicitFunctionCollectionTcl.cxx
+
+tcl/vtkIdListTcl.cxx: vtkIdList.h ../tcl/cpp_parse
+	 rm -f tcl/vtkIdListTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIdList.h ${srcdir}/../tcl/hints 1 > tcl/vtkIdListTcl.cxx
 
 tcl/vtkIndentTcl.cxx: vtkIndent.h ../tcl/cpp_parse
-	rm -f tcl/vtkIndentTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkIndent.h $(srcdir)/../tcl/hints 1 > tcl/vtkIndentTcl.cxx
+	 rm -f tcl/vtkIndentTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIndent.h ${srcdir}/../tcl/hints 1 > tcl/vtkIndentTcl.cxx
 
-tcl/vtkTimeStampTcl.cxx: vtkTimeStamp.h ../tcl/cpp_parse
-	rm -f tcl/vtkTimeStampTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkTimeStamp.h $(srcdir)/../tcl/hints 1 > tcl/vtkTimeStampTcl.cxx
+tcl/vtkIntArrayTcl.cxx: vtkIntArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkIntArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIntArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkIntArrayTcl.cxx
+
+tcl/vtkIntPointsTcl.cxx: vtkIntPoints.h ../tcl/cpp_parse
+	 rm -f tcl/vtkIntPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIntPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkIntPointsTcl.cxx
+
+tcl/vtkIntScalarsTcl.cxx: vtkIntScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkIntScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIntScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkIntScalarsTcl.cxx
+
+tcl/vtkLineTcl.cxx: vtkLine.h ../tcl/cpp_parse
+	 rm -f tcl/vtkLineTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkLine.h ${srcdir}/../tcl/hints 1 > tcl/vtkLineTcl.cxx
+
+tcl/vtkLinkListTcl.cxx: vtkLinkList.h ../tcl/cpp_parse
+	 rm -f tcl/vtkLinkListTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkLinkList.h ${srcdir}/../tcl/hints 1 > tcl/vtkLinkListTcl.cxx
+
+tcl/vtkLocatorTcl.cxx: vtkLocator.h ../tcl/cpp_parse
+	 rm -f tcl/vtkLocatorTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkLocator.h ${srcdir}/../tcl/hints 0 > tcl/vtkLocatorTcl.cxx
+
+tcl/vtkLogLookupTableTcl.cxx: vtkLogLookupTable.h ../tcl/cpp_parse
+	 rm -f tcl/vtkLogLookupTableTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkLogLookupTable.h ${srcdir}/../tcl/hints 1 > tcl/vtkLogLookupTableTcl.cxx
+
+tcl/vtkLookupTableTcl.cxx: vtkLookupTable.h ../tcl/cpp_parse
+	 rm -f tcl/vtkLookupTableTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkLookupTable.h ${srcdir}/../tcl/hints 1 > tcl/vtkLookupTableTcl.cxx
+
+tcl/vtkMathTcl.cxx: vtkMath.h ../tcl/cpp_parse
+	 rm -f tcl/vtkMathTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkMath.h ${srcdir}/../tcl/hints 1 > tcl/vtkMathTcl.cxx
+
+tcl/vtkMatrix4x4Tcl.cxx: vtkMatrix4x4.h ../tcl/cpp_parse
+	 rm -f tcl/vtkMatrix4x4Tcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkMatrix4x4.h ${srcdir}/../tcl/hints 1 > tcl/vtkMatrix4x4Tcl.cxx
+
+tcl/vtkNormalsTcl.cxx: vtkNormals.h ../tcl/cpp_parse
+	 rm -f tcl/vtkNormalsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkNormals.h ${srcdir}/../tcl/hints 0 > tcl/vtkNormalsTcl.cxx
+
+tcl/vtkObjectTcl.cxx: vtkObject.h ../tcl/cpp_parse
+	 rm -f tcl/vtkObjectTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkObject.h ${srcdir}/../tcl/hints 1 > tcl/vtkObjectTcl.cxx
+
+tcl/vtkPixelTcl.cxx: vtkPixel.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPixelTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPixel.h ${srcdir}/../tcl/hints 1 > tcl/vtkPixelTcl.cxx
+
+tcl/vtkPixmapTcl.cxx: vtkPixmap.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPixmapTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPixmap.h ${srcdir}/../tcl/hints 1 > tcl/vtkPixmapTcl.cxx
+
+tcl/vtkPlaneTcl.cxx: vtkPlane.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPlaneTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPlane.h ${srcdir}/../tcl/hints 1 > tcl/vtkPlaneTcl.cxx
+
+tcl/vtkPointDataTcl.cxx: vtkPointData.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPointDataTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPointData.h ${srcdir}/../tcl/hints 1 > tcl/vtkPointDataTcl.cxx
+
+tcl/vtkPointLocatorTcl.cxx: vtkPointLocator.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPointLocatorTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPointLocator.h ${srcdir}/../tcl/hints 1 > tcl/vtkPointLocatorTcl.cxx
+
+tcl/vtkPointSetTcl.cxx: vtkPointSet.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPointSetTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPointSet.h ${srcdir}/../tcl/hints 0 > tcl/vtkPointSetTcl.cxx
+
+tcl/vtkPointsTcl.cxx: vtkPoints.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPoints.h ${srcdir}/../tcl/hints 0 > tcl/vtkPointsTcl.cxx
+
+tcl/vtkPolyDataTcl.cxx: vtkPolyData.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPolyDataTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPolyData.h ${srcdir}/../tcl/hints 1 > tcl/vtkPolyDataTcl.cxx
+
+tcl/vtkPolyLineTcl.cxx: vtkPolyLine.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPolyLineTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPolyLine.h ${srcdir}/../tcl/hints 1 > tcl/vtkPolyLineTcl.cxx
+
+tcl/vtkPolyVertexTcl.cxx: vtkPolyVertex.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPolyVertexTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPolyVertex.h ${srcdir}/../tcl/hints 1 > tcl/vtkPolyVertexTcl.cxx
+
+tcl/vtkPolygonTcl.cxx: vtkPolygon.h ../tcl/cpp_parse
+	 rm -f tcl/vtkPolygonTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkPolygon.h ${srcdir}/../tcl/hints 1 > tcl/vtkPolygonTcl.cxx
+
+tcl/vtkQuadTcl.cxx: vtkQuad.h ../tcl/cpp_parse
+	 rm -f tcl/vtkQuadTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkQuad.h ${srcdir}/../tcl/hints 1 > tcl/vtkQuadTcl.cxx
 
 tcl/vtkRefCountTcl.cxx: vtkRefCount.h ../tcl/cpp_parse
-	rm -f tcl/vtkRefCountTcl.cxx; ../tcl/cpp_parse $(srcdir)/vtkRefCount.h $(srcdir)/../tcl/hints 1 > tcl/vtkRefCountTcl.cxx
+	 rm -f tcl/vtkRefCountTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkRefCount.h ${srcdir}/../tcl/hints 1 > tcl/vtkRefCountTcl.cxx
 
+tcl/vtkScalarsTcl.cxx: vtkScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkScalars.h ${srcdir}/../tcl/hints 0 > tcl/vtkScalarsTcl.cxx
 
+tcl/vtkShortArrayTcl.cxx: vtkShortArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkShortArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkShortArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkShortArrayTcl.cxx
+
+tcl/vtkShortScalarsTcl.cxx: vtkShortScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkShortScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkShortScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkShortScalarsTcl.cxx
+
+tcl/vtkSourceTcl.cxx: vtkSource.h ../tcl/cpp_parse
+	 rm -f tcl/vtkSourceTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkSource.h ${srcdir}/../tcl/hints 1 > tcl/vtkSourceTcl.cxx
+
+tcl/vtkStackTcl.cxx: vtkStack.h ../tcl/cpp_parse
+	 rm -f tcl/vtkStackTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkStack.h ${srcdir}/../tcl/hints 1 > tcl/vtkStackTcl.cxx
+
+tcl/vtkStructuredDataTcl.cxx: vtkStructuredData.h ../tcl/cpp_parse
+	 rm -f tcl/vtkStructuredDataTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkStructuredData.h ${srcdir}/../tcl/hints 1 > tcl/vtkStructuredDataTcl.cxx
+
+tcl/vtkStructuredGridTcl.cxx: vtkStructuredGrid.h ../tcl/cpp_parse
+	 rm -f tcl/vtkStructuredGridTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkStructuredGrid.h ${srcdir}/../tcl/hints 1 > tcl/vtkStructuredGridTcl.cxx
+
+tcl/vtkStructuredPointsTcl.cxx: vtkStructuredPoints.h ../tcl/cpp_parse
+	 rm -f tcl/vtkStructuredPointsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkStructuredPoints.h ${srcdir}/../tcl/hints 1 > tcl/vtkStructuredPointsTcl.cxx
+
+tcl/vtkTCoordsTcl.cxx: vtkTCoords.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTCoordsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTCoords.h ${srcdir}/../tcl/hints 0 > tcl/vtkTCoordsTcl.cxx
+
+tcl/vtkTensorTcl.cxx: vtkTensor.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTensorTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTensor.h ${srcdir}/../tcl/hints 1 > tcl/vtkTensorTcl.cxx
+
+tcl/vtkTensorsTcl.cxx: vtkTensors.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTensorsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTensors.h ${srcdir}/../tcl/hints 0 > tcl/vtkTensorsTcl.cxx
+
+tcl/vtkTetraTcl.cxx: vtkTetra.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTetraTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTetra.h ${srcdir}/../tcl/hints 1 > tcl/vtkTetraTcl.cxx
+
+tcl/vtkTimeStampTcl.cxx: vtkTimeStamp.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTimeStampTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTimeStamp.h ${srcdir}/../tcl/hints 1 > tcl/vtkTimeStampTcl.cxx
+
+tcl/vtkTransformTcl.cxx: vtkTransform.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTransformTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTransform.h ${srcdir}/../tcl/hints 1 > tcl/vtkTransformTcl.cxx
+
+tcl/vtkTransformCollectionTcl.cxx: vtkTransformCollection.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTransformCollectionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTransformCollection.h ${srcdir}/../tcl/hints 1 > tcl/vtkTransformCollectionTcl.cxx
+
+tcl/vtkTriangleTcl.cxx: vtkTriangle.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTriangleTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTriangle.h ${srcdir}/../tcl/hints 1 > tcl/vtkTriangleTcl.cxx
+
+tcl/vtkTriangleStripTcl.cxx: vtkTriangleStrip.h ../tcl/cpp_parse
+	 rm -f tcl/vtkTriangleStripTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkTriangleStrip.h ${srcdir}/../tcl/hints 1 > tcl/vtkTriangleStripTcl.cxx
+
+tcl/vtkUnsignedCharArrayTcl.cxx: vtkUnsignedCharArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUnsignedCharArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUnsignedCharArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkUnsignedCharArrayTcl.cxx
+
+tcl/vtkUnsignedCharScalarsTcl.cxx: vtkUnsignedCharScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUnsignedCharScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUnsignedCharScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkUnsignedCharScalarsTcl.cxx
+
+tcl/vtkUnsignedShortArrayTcl.cxx: vtkUnsignedShortArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUnsignedShortArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUnsignedShortArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkUnsignedShortArrayTcl.cxx
+
+tcl/vtkUnsignedShortScalarsTcl.cxx: vtkUnsignedShortScalars.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUnsignedShortScalarsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUnsignedShortScalars.h ${srcdir}/../tcl/hints 1 > tcl/vtkUnsignedShortScalarsTcl.cxx
+
+tcl/vtkUnstructuredGridTcl.cxx: vtkUnstructuredGrid.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUnstructuredGridTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUnstructuredGrid.h ${srcdir}/../tcl/hints 1 > tcl/vtkUnstructuredGridTcl.cxx
+
+tcl/vtkUserDefinedTcl.cxx: vtkUserDefined.h ../tcl/cpp_parse
+	 rm -f tcl/vtkUserDefinedTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkUserDefined.h ${srcdir}/../tcl/hints 1 > tcl/vtkUserDefinedTcl.cxx
+
+tcl/vtkVectorsTcl.cxx: vtkVectors.h ../tcl/cpp_parse
+	 rm -f tcl/vtkVectorsTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkVectors.h ${srcdir}/../tcl/hints 0 > tcl/vtkVectorsTcl.cxx
+
+tcl/vtkVertexTcl.cxx: vtkVertex.h ../tcl/cpp_parse
+	 rm -f tcl/vtkVertexTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkVertex.h ${srcdir}/../tcl/hints 1 > tcl/vtkVertexTcl.cxx
+
+tcl/vtkVoidArrayTcl.cxx: vtkVoidArray.h ../tcl/cpp_parse
+	 rm -f tcl/vtkVoidArrayTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkVoidArray.h ${srcdir}/../tcl/hints 1 > tcl/vtkVoidArrayTcl.cxx
+
+tcl/vtkVoxelTcl.cxx: vtkVoxel.h ../tcl/cpp_parse
+	 rm -f tcl/vtkVoxelTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkVoxel.h ${srcdir}/../tcl/hints 1 > tcl/vtkVoxelTcl.cxx
+
+tcl/vtkWindowLevelLookupTableTcl.cxx: vtkWindowLevelLookupTable.h ../tcl/cpp_parse
+	 rm -f tcl/vtkWindowLevelLookupTableTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkWindowLevelLookupTable.h ${srcdir}/../tcl/hints 1 > tcl/vtkWindowLevelLookupTableTcl.cxx
 
 

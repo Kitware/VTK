@@ -11,13 +11,23 @@ vtkSbrRenderer.o \
 vtkSbrTexture.o 
 
 TCL_SBR_OBJ = \
-tclvtkSbrActor.hh.o \
-tclvtkSbrCamera.hh.o \
-tclvtkSbrLight.hh.o \
-tclvtkSbrPolyMapper.hh.o \
-tclvtkSbrProperty.hh.o \
-tclvtkSbrRenderWindow.hh.o \
-tclvtkSbrRenderer.hh.o \
-tclvtkSbrTexture.hh.o \
-tclGNewSbr.o
+tcl/vtkSbrActorTcl.o \
+tcl/vtkSbrCameraTcl.o \
+tcl/vtkSbrLightTcl.o \
+tcl/vtkSbrPolyMapperTcl.o \
+tcl/vtkSbrPropertyTcl.o \
+tcl/vtkSbrRenderWindowTcl.o \
+tcl/vtkSbrRendererTcl.o \
+tcl/vtkSbrTextureTcl.o 
+
+TCL_SBR_NEWS = \
+vtkSbrActor.h \
+vtkSbrCamera.h \
+vtkSbrLight.h \
+vtkSbrPolyMapper.h \
+vtkSbrProperty.h \
+vtkSbrRenderWindow.h \
+vtkSbrRenderer.h \
+vtkSbrTexture.h 
+
 

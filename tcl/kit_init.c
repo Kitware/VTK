@@ -15,7 +15,7 @@ void stuffit()
     fprintf(stdout,"ClientData %sNewCommand();\n",names[i]);
     }
 
-  if (!strcmp(kitName,"Vtkcoretcl"))
+  if (!strcmp(kitName,"Vtkcommontcl"))
     {
     fprintf(stdout,"\nTcl_HashTable vtkInstanceLookup;\n");
     fprintf(stdout,"Tcl_HashTable vtkPointerLookup;\n");
@@ -67,7 +67,7 @@ void stuffit()
   fprintf(stdout,"  return %s_Init(interp);\n}\n",kitName);
   
   fprintf(stdout,"\n\nint %s_Init(Tcl_Interp *interp)\n{\n",kitName);
-  if (!strcmp(kitName,"Vtkcoretcl"))
+  if (!strcmp(kitName,"Vtkcommontcl"))
     {
     fprintf(stdout,
 	    "  Tcl_InitHashTable(&vtkInstanceLookup, TCL_STRING_KEYS);\n");

@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkHexahedron_h
 #define __vtkHexahedron_h
 
-#include "vtkCell.hh"
+#include "vtkCell.h"
 
 class vtkHexahedron : public vtkCell
 {

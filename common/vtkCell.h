@@ -61,11 +61,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define VTK_CELL_SIZE 512
 #define VTK_TOL 1.e-05 // Tolerance for geometric calculation
 
-#include "vtkObject.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkFloatScalars.hh"
-#include "vtkIdList.hh"
-#include "vtkCellType.hh"
+#include "vtkObject.h"
+#include "vtkFloatPoints.h"
+#include "vtkFloatScalars.h"
+#include "vtkIdList.h"
+#include "vtkCellType.h"
 
 class vtkCellArray;
 class vtkPointLocator;

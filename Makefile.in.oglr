@@ -11,12 +11,23 @@ vtkOglrRenderer.o \
 vtkOglrTexture.o 
 
 TCL_OGLR_OBJ = \
-tclvtkOglrActor.hh.o \
-tclvtkOglrCamera.hh.o \
-tclvtkOglrLight.hh.o \
-tclvtkOglrPolyMapper.hh.o \
-tclvtkOglrProperty.hh.o \
-tclvtkOglrRenderWindow.hh.o \
-tclvtkOglrRenderer.hh.o \
-tclvtkOglrTexture.hh.o \
-tclGNewOglr.o
+tcl/vtkOglrActorTcl.o \
+tcl/vtkOglrCameraTcl.o \
+tcl/vtkOglrLightTcl.o \
+tcl/vtkOglrPolyMapperTcl.o \
+tcl/vtkOglrPropertyTcl.o \
+tcl/vtkOglrRenderWindowTcl.o \
+tcl/vtkOglrRendererTcl.o \
+tcl/vtkOglrTextureTcl.o 
+
+TCL_OGLR_NEWS = \
+vtkOglrActor.h \
+vtkOglrCamera.h \
+vtkOglrLight.h \
+vtkOglrPolyMapper.h \
+vtkOglrProperty.h \
+vtkOglrRenderWindow.h \
+vtkOglrRenderer.h \
+vtkOglrTexture.h 
+
+

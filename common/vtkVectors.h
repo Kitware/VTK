@@ -48,7 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkVectors_h
 #define __vtkVectors_h
 
-#include "vtkRefCount.hh"
+#include "vtkRefCount.h"
 
 class vtkIdList;
 class vtkFloatVectors;
@@ -110,9 +110,9 @@ protected:
   vtkTimeStamp ComputeTime; // Time at which MaxNorm computed
 };
 
-// These include files are placed here so that if Vectors.hh is included 
+// These include files are placed here so that if Vectors.h is included 
 // all other classes necessary for compilation are also included. 
-#include "vtkIdList.hh"
-#include "vtkFloatVectors.hh"
+#include "vtkIdList.h"
+#include "vtkFloatVectors.h"
 
 #endif

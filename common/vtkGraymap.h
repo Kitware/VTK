@@ -47,8 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkGraymap_h
 #define __vtkGraymap_h
 
-#include "vtkColorScalars.hh"
-#include "vtkUnsignedCharArray.hh"
+#include "vtkColorScalars.h"
+#include "vtkUnsignedCharArray.h"
 
 class vtkGraymap : public vtkColorScalars 
 {

@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLogLookupTable_h
 #define __vtkLogLookupTable_h
 
-#include "vtkLookupTable.hh"
+#include "vtkLookupTable.h"
 
 class vtkLogLookupTable : public vtkLookupTable
 {

@@ -11,13 +11,22 @@ vtkXglrRenderer.o \
 vtkXglrTexture.o 
 
 TCL_XGLR_OBJ = \
-tclvtkXglrActor.hh.o \
-tclvtkXglrCamera.hh.o \
-tclvtkXglrLight.hh.o \
-tclvtkXglrPolyMapper.hh.o \
-tclvtkXglrProperty.hh.o \
-tclvtkXglrRenderWindow.hh.o \
-tclvtkXglrRenderer.hh.o \
-tclvtkXglrTexture.hh.o \
-tclGNewXglr.o
+tcl/vtkXglrActorTcl.o \
+tcl/vtkXglrCameraTcl.o \
+tcl/vtkXglrLightTcl.o \
+tcl/vtkXglrPolyMapperTcl.o \
+tcl/vtkXglrPropertyTcl.o \
+tcl/vtkXglrRenderWindowTcl.o \
+tcl/vtkXglrRendererTcl.o \
+tcl/vtkXglrTextureTcl.o 
+
+TCL_XGLR_NEWS = \
+vtkXglrActor.h \
+vtkXglrCamera.h \
+vtkXglrLight.h \
+vtkXglrPolyMapper.h \
+vtkXglrProperty.h \
+vtkXglrRenderWindow.h \
+vtkXglrRenderer.h \
+vtkXglrTexture.h 
 

@@ -38,7 +38,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkLocator.hh"
+#include "vtkLocator.h"
 
 // Description:
 // Construct with automatic computation of divisions, averaging

@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIntScalars_h
 #define __vtkIntScalars_h
 
-#include "vtkScalars.hh"
-#include "vtkShortArray.hh"
+#include "vtkScalars.h"
+#include "vtkShortArray.h"
 
 class vtkIntScalars : public vtkScalars 
 {

@@ -50,10 +50,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkLightCollection vtkPolyDataCollection vtkRenderWindowCollection vtkRendererCollection
 // vtkStructuredPointsCollection vtkTransformCollection vtkVolumeCollection
 
-#ifndef __vtkCollection_hh
-#define __vtkCollection_hh
+#ifndef __vtkCollection_h
+#define __vtkCollection_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 //BTX - begin tcl exclude
 class vtkCollectionElement //;prevents pick-up by man page generator

@@ -2,14 +2,6 @@
 # vtk library makefile
 #
 
-ME = Core
-
-SRC_OBJ = \
-vtkIndent.o \
-vtkObject.o \
-vtkRefCount.o \
-vtkTimeStamp.o 
-
 #
 # Makefile for Visualization Toolkit sources. 
 # 
@@ -33,18 +25,19 @@ srcdir        = @srcdir@
 VPATH         = @srcdir@
 prefix        = @prefix@
 exec_prefix   = @exec_prefix@
-WORDS_BIGENDIAN = @BIGENDIAN@
+WORDS_BIGENDIAN   = @BIGENDIAN@
 LEX 	      = @LEX@
 LEXLIB        = @LEXLIB@
 YACC          = @YACC@
-XGL_HOME     = @XGL_HOME@
-X_EXTRA_LIBS = @X_EXTRA_LIBS@
-X_PRE_LIBS   = @X_PRE_LIBS@
-VTK_LIB_FILE = @VTK_LIB_FILE@
-DL_LIBS      = @DL_LIBS@
-VTK_INLINE_FLAGS = @VTK_INLINE_FLAGS@
-USE_VIS_FLAG = @USE_VIS_FLAG@
-USE_VIS_LIBS = @USE_VIS_LIBS@
+XGL_HOME      = @XGL_HOME@
+X_EXTRA_LIBS  = @X_EXTRA_LIBS@
+X_PRE_LIBS    = @X_PRE_LIBS@
+VTK_LIB_FILE  = @VTK_LIB_FILE@
+DL_LIBS       = @DL_LIBS@
+VTK_INLINE_FLAGS  = @VTK_INLINE_FLAGS@
+USE_GRAPHICS_FLAG = @USE_GRAPHICS_FLAG@
+USE_GRAPHICS_LIBS = @USE_GRAPHICS_LIBS@
+USE_GRAPHICS_DEPENDS = @USE_GRAPHICS_DEPENDS@
 
 #------------------------------------------------------------------------------
 # Include user-editable defines.
@@ -63,18 +56,18 @@ USE_VIS_LIBS = @USE_VIS_LIBS@
 @xglr_obj@
 
 #------------------------------------------------------------------------------
-LDLIBS = -L../core -lVTKCoreTcl ${USE_VIS_LIBS} ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} ${SBR_LIBS} ${XGLR_LIBS} ${TK_LIB} ${TCL_LIB} ${DL_LIBS}
+LDLIBS = -L../common -lVTKCommonTcl ${USE_GRAPHICS_LIBS} ${XLIBS} ${OGLR_LIBS} ${GLR_LIBS} ${SBR_LIBS} ${XGLR_LIBS} ${TK_LIB} ${TCL_LIB} ${DL_LIBS}
 
 CXX_FLAGS = ${CPPFLAGS} ${VTK_SHLIB_CFLAGS} ${XCFLAGS} ${CXXFLAGS} \
 	${VTK_INLINE_FLAGS} ${VTK_TEMPLATE_FLAGS} -I${srcdir} \
-	-I${TK_INCLUDE} -I${TCL_INCLUDE} \
-	${USE_VIS_FLAG} \
+	-I${srcdir}/../common -I${TK_INCLUDE} -I${TCL_INCLUDE} \
+	${USE_GRAPHICS_FLAG} \
 	${XGLR_FLAGS} ${OGLR_FLAGS} ${SBR_FLAGS} ${GLR_FLAGS} \
 	-D_HP_NO_FAST_MACROS ${HAVE_SETMON} ${WORDS_BIGENDIAN}
 
 C_FLAGS = ${CPPFLAGS} ${XCFLAGS} ${CFLAGS} -I${srcdir}/../include \
 	-I${TK_INCLUDE} -I${TCL_INCLUDE} \
-	${USE_VIS_FLAG} \
+	${USE_GRAPHICS_FLAG} \
 	${XGLR_FLAGS} ${OGLR_FLAGS} ${SBR_FLAGS} ${GLR_FLAGS} \
 	-D_HP_NO_FAST_MACROS
 
@@ -83,20 +76,24 @@ all:  kit_init cpp_parse
 kit_init: kit_init.c
 	$(CC) $(C_FLAGS) -o kit_init $(srcdir)/kit_init.c
 
+vtkXRenderWindowInteractor.o: vtkXRenderWindowInteractor.cxx
+	$(CXX) $(CXX_FLAGS) -c -o vtkXRenderWindowInteractor.o $(srcdir)/vtkXRenderWindowInteractor.cxx
+
 tkAppInit.o: tkAppInit.c
 	$(CC) $(C_FLAGS) -c -o tkAppInit.o $(srcdir)/tkAppInit.c
 
 cpp_parse: concrete.l cpp_parse.y
 	${LEX} $(srcdir)/concrete.l
 	${YACC} $(srcdir)/cpp_parse.y
-	$(CC) $(C_FLAGS) -o cpp_parse y.tab.c -ly ${LEXLIB} -lm
+	$(CC) $(C_FLAGS) -I. -o cpp_parse y.tab.c -ly ${LEXLIB} -lm
 
 #------------------------------------------------------------------------------
 # build the vtk executable
 #
-vtk: 	tkAppInit.o 
-	$(CXX) -o vtk tkAppInit.o -L. ${XLDFLAGS} \
-	${LDLIBS} ${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+vtk: 	tkAppInit.o ${USE_GRAPHICS_DEPENDS}
+	$(CXX) -o vtk tkAppInit.o vtkXRenderWindowInteractor.o \
+	-L. ${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 
 
 #------------------------------------------------------------------------------

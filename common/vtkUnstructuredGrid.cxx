@@ -38,19 +38,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-#include "vtkUnstructuredGrid.hh"
-#include "vtkVertex.hh"
-#include "vtkPolyVertex.hh"
-#include "vtkLine.hh"
-#include "vtkPolyLine.hh"
-#include "vtkTriangle.hh"
-#include "vtkTriangleStrip.hh"
-#include "vtkQuad.hh"
-#include "vtkPixel.hh"
-#include "vtkPolygon.hh"
-#include "vtkTetra.hh"
-#include "vtkHexahedron.hh"
-#include "vtkVoxel.hh"
+#include "vtkUnstructuredGrid.h"
+#include "vtkVertex.h"
+#include "vtkPolyVertex.h"
+#include "vtkLine.h"
+#include "vtkPolyLine.h"
+#include "vtkTriangle.h"
+#include "vtkTriangleStrip.h"
+#include "vtkQuad.h"
+#include "vtkPixel.h"
+#include "vtkPolygon.h"
+#include "vtkTetra.h"
+#include "vtkHexahedron.h"
+#include "vtkVoxel.h"
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
 {

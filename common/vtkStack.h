@@ -44,10 +44,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // of objects. vtkStack also serves as a base class for lists of
 // specific types of objects.
 
-#ifndef __vtkStack_hh
-#define __vtkStack_hh
+#ifndef __vtkStack_h
+#define __vtkStack_h
 
-#include "vtkObject.hh"
+#include "vtkObject.h"
 
 //BTX begin tcl exclude
 class vtkStackElement //;prevents pick-up by man page generator
