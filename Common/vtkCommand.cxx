@@ -63,6 +63,8 @@ static const char *vtkCommandEventStrings[] = {
   "EndInteractionEvent",
   "EnableEvent",
   "DisableEvent",
+  "CreateTimerEvent",
+  "DestroyTimerEvent",
   NULL
 };
 

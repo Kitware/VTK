@@ -149,6 +149,8 @@ public:
     EndInteractionEvent,
     EnableEvent,
     DisableEvent,
+    CreateTimerEvent,
+    DestroyTimerEvent,
     UserEvent = 1000
   };
 //ETX
