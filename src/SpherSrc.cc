@@ -93,21 +93,18 @@ void vlSphereSource::Execute()
 // Generate mesh connectivity
 //
   base = (this->PhiResolution - 1) * this->ThetaResolution;
-  // around north pole
   for (i=0; i < this->ThetaResolution; i++)
     {
+    // around north pole
     pts[0] = (this->PhiResolution-1)*i + 2;
-    pts[1] = (pts[0] + this->PhiResolution - 1) % base;
+    pts[1] = (((this->PhiResolution-1)*(i+1)) % base) + 2;
     pts[2] = 0;
     newPolys->InsertNextCell(3,pts);
-    }
 
-  // around south pole
-  for (i=0; i < this->ThetaResolution; i++)
-    {
-    pts[0] = (this->PhiResolution-1)*i + this->PhiResolution;
+    // around south pole
+    pts[0] = pts[0] + this->PhiResolution - 2;
+    pts[2] = pts[1] + this->PhiResolution - 2;
     pts[1] = 1;
-    pts[2] = (pts[0] + this->PhiResolution - 1) % base;
     newPolys->InsertNextCell(3,pts);
     }
 
@@ -118,7 +115,7 @@ void vlSphereSource::Execute()
       {
       pts[0] = 2 + (this->PhiResolution-1)*i + j;
       pts[1] = pts[0] + 1;
-      pts[2] = (pts[1] + this->PhiResolution - 1) % base;
+      pts[2] = (((this->PhiResolution-1)*(i+1)+j) % base) + 3;
       newPolys->InsertNextCell(3,pts);
 
       pts[1] = pts[2];
