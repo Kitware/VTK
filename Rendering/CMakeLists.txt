@@ -407,13 +407,8 @@ IF (VTK_WRAP_PYTHON)
           vtkTkRenderWidgetPython.cxx
           vtkTkImageViewerWidgetPython.cxx
           )
-       IF(APPLE)
-         ADD_LIBRARY(vtkRenderingPythonTkWidgets MODULE
-                      ${RenderingPythonTkWidgets_SRCS})
-       ELSE(APPLE)
          ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
                      ${RenderingPythonTkWidgets_SRCS})
-       ENDIF(APPLE)
        TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                               vtkRendering
                               ${TCL_LIBRARY}
