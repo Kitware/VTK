@@ -67,5 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Make sure vtkMesaImageActor is a copy of vtkOpenGLImageActor
 // with vtkOpenGLImageActor replaced with vtkMesaImageActor
 #define vtkOpenGLImageActor vtkMesaImageActor
+#define vtkOpenGLRenderWindow vtkMesaRenderWindow
 #include "vtkOpenGLImageActor.cxx"
 #undef vtkOpenGLImageActor
+#undef vtkOpenGLRenderWindow
