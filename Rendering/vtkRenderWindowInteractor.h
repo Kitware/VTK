@@ -227,20 +227,35 @@ public:
   vtkGetMacro(Dolly,float);
 
   // Description:
-  // Set/Get information about the current event.   The current x,y position
-  // is in the EventPosition. The current width/height (if any) is in 
+  // Set/Get information about the current event. 
+  // The current x,y position is in the EventPosition, and the previous
+  // event position is in LastEventPosition, updated automatically each
+  // time EventPosition is set through SetEventAndLastEventPositions() or
+  // any SetEventInformation*(). 
+  // The current width/height (if any) is in 
   // EventSize (Expose event, for example).
   // The other information is about key board input.
   vtkSetVector2Macro(EventPosition,int);
   vtkGetVector2Macro(EventPosition,int);
+  vtkSetVector2Macro(LastEventPosition,int);
+  vtkGetVector2Macro(LastEventPosition,int);
+  virtual void SetEventAndLastEventPositions (int x, int y)
+  {
+    this->SetLastEventPosition(this->EventPosition[0], this->EventPosition[1]);
+    this->SetEventPosition(x, y);
+  } 
+  virtual void SetEventAndLastEventPositions (int pos[2])
+  {
+    this->SetEventAndLastEventPositions(pos[0], pos[1]);
+  } 
   vtkSetVector2Macro(EventSize,int);
   vtkGetVector2Macro(EventSize,int);
   vtkSetMacro(ControlKey, int);
   vtkGetMacro(ControlKey, int);
   vtkSetMacro(ShiftKey, int);
   vtkGetMacro(ShiftKey, int);
-  vtkSetMacro(KeyCode, int);
-  vtkGetMacro(KeyCode, int);
+  vtkSetMacro(KeyCode, char);
+  vtkGetMacro(KeyCode, char);
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
   vtkSetStringMacro(KeySym);
@@ -249,9 +264,16 @@ public:
   // Description:
   // Set all the event information in one call.  This should be called for each
   // event to assure that the information from the last event has been cleared.
-  void SetEventInformation(int x, int y, int ctrl=0, int shift=0, int keycode=0, int repeatcount=0,
+  void SetEventInformation(int x, 
+                           int y, 
+                           int ctrl=0, 
+                           int shift=0, 
+                           char keycode=0, 
+                           int repeatcount=0,
                            const char* keysym=0)
     {
+      this->LastEventPosition[0] = this->EventPosition[0];
+      this->LastEventPosition[1] = this->EventPosition[1];
       this->EventPosition[0] = x;
       this->EventPosition[1] = y;
       this->ControlKey = ctrl;
@@ -266,9 +288,14 @@ public:
     }
 
   // Description:
-  // Calls SetEventInformation, but flips the Y based on the current Size[1] value.
-  // y = this->Size[1] - y - 1.
-  void SetEventInformationFlipY(int x, int y, int ctrl=0, int shift=0, int keycode=0, int repeatcount=0,
+  // Calls SetEventInformation, but flips the Y based on the current Size[1] 
+  // value (i.e. y = this->Size[1] - y - 1).
+  void SetEventInformationFlipY(int x, 
+                                int y, 
+                                int ctrl=0, 
+                                int shift=0, 
+                                char keycode=0, 
+                                int repeatcount=0,
                                 const char* keysym=0)
     {
       this->SetEventInformation(x, this->Size[1] - y - 1, ctrl, shift, keycode, repeatcount, keysym);
@@ -303,7 +330,6 @@ protected:
   // Used as a helper object to pick instances of vtkProp
   vtkAbstractPicker          *Picker;
 
-  //
   int   Initialized;
   int   Enabled;
   int   Style;
@@ -311,6 +337,7 @@ protected:
   int   ActorMode;
   float DesiredUpdateRate;
   float StillUpdateRate;  
+
   // Event information
   int   ControlKey;
   int   ShiftKey;
@@ -318,6 +345,7 @@ protected:
   int   RepeatCount;
   char* KeySym; 
   int   EventPosition[2];
+  int   LastEventPosition[2];
   int   EventSize[2];
   int   Size[2];
   
