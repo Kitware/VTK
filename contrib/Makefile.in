@@ -23,8 +23,11 @@ vtkWarpTransform
 
 CONCRETE = \
 vtkArcPlotter \
+vtkCellDerivatives \
+vtkCubeAxesActor2D \
 vtkDEMReader \
 vtkEarthSource \
+vtkImageToPolyDataFilter \
 vtkImageReslice \
 vtkIVWriter \
 vtkLandmarkTransform \
@@ -37,12 +40,10 @@ vtkRIBExporter \
 vtkRIBLight \
 vtkRIBProperty \
 vtkSuperquadric \
+vtkSurfaceReconstructionFilter \
 vtkSuperquadricSource \
 vtkSubdivideTetra \
 vtkThreadedController \
-vtkCellDerivatives \
-vtkCubeAxesActor2D \
-vtkSurfaceReconstructionFilter \
 vtkThinPlateSplineTransform \
 vtkVideoSource \
 vtkVolumeProMapper \
