@@ -179,7 +179,7 @@ void vtkUnsignedCharArray::PrintSelf(ostream& os, vtkIndent indent)
 
   if (this->Array)
     {
-    os << indent << "Array: " << this->Array << "\n";
+    os << indent << "Array: " << (void *) this->Array << "\n";
     }
   else
     {
