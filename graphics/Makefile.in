@@ -43,6 +43,7 @@ vtkXGLTexture
 
 ABSTRACT_H = \
 vtkCuller \
+vtkDirectionEncoder \
 vtkRayBounder 
 
 CONCRETE_H = \
@@ -57,6 +58,7 @@ vtkStructuredPointsCollection \
 vtkVolumeCollection
 
 ABSTRACT = \
+vtkEncodedGradientEstimator \
 vtkExporter \
 vtkImporter \
 vtkMapper \
@@ -120,6 +122,7 @@ vtkDicer \
 vtkDiskSource \
 vtkEdgePoints \
 vtkElevationFilter \
+vtkEncodedGradientShader \
 vtkExtractEdges \
 vtkExtractGeometry \
 vtkExtractGrid \
@@ -135,6 +138,7 @@ vtkFieldDataSource \
 vtkFieldDataToDataSet \
 vtkFieldDataWriter \
 vtkFilter \
+vtkFiniteDifferenceGradientEstimator \
 vtkFollower \
 vtkFrustumCoverageCuller \
 vtkGaussianSplatter \
@@ -202,6 +206,7 @@ vtkRectilinearGridSource \
 vtkRectilinearGridToPolyDataFilter \
 vtkRectilinearGridWriter \
 vtkRecursiveDividingCubes \
+vtkRecursiveSphereDirectionEncoder \
 vtkRenderWindow \
 vtkRenderWindowInteractor \
 vtkRenderer \
