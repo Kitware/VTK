@@ -116,7 +116,7 @@ class vtkCamera : public vtkObject
   vtkGetMacro(EyeAngle,float);
 
   // Description:
-  // Set the size of the cameras lense in world coordinates. This is only 
+  // Set the size of the cameras lens in world coordinates. This is only 
   // used when the renderer is doing focal depth rendering. When that is 
   // being done the size of the focal disk will effect how significant the
   // depth effects will be.

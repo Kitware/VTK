@@ -290,7 +290,7 @@ void vtkCamera::SetDistance(float X)
 }  
 
 // Description:
-// This returns the twist of the camera.  The twist corrisponds to Roll and
+// This returns the twist of the camera.  The twist corresponds to Roll and
 // represents the angle of rotation about the z axis to achieve the 
 // current view-up vector.
 float vtkCamera::GetTwist()
