@@ -241,10 +241,17 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
         }
       }
 
-    // free any old display lists
-    this->ReleaseGraphicsResources(ren->GetRenderWindow());
-    this->RenderWindow = ren->GetRenderWindow();
-
+    // free any old display lists (from the old context)
+    if (this->RenderWindow)
+      {
+      this->ReleaseGraphicsResources(this->RenderWindow);
+      }
+    
+     this->RenderWindow = ren->GetRenderWindow();
+     
+    // make the new context current before we mess with opengl
+    this->RenderWindow->MakeCurrent();
+ 
     // define a display list for this texture
     // get a unique display list id
 #ifdef GL_VERSION_1_1
