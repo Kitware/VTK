@@ -116,18 +116,22 @@ void vtkVRMLExporter::WriteData()
 	  tempf[3], tempf[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
-  fprintf(fp,"    NavigationInfo {headlight FALSE type [\"EXAMINE\",\"FLY\"] speed 4.0}\n");
+  fprintf(fp,"    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed 4.0\n");
+  if (ren->GetLights()->GetNumberOfItems() == 0)
+    {
+    fprintf(fp,"      headlight TRUE}\n\n");
+    }
+  else
+    {
+    fprintf(fp,"      headlight FALSE}\n\n");
+    }
   fprintf(fp,"    DirectionalLight { ambientIntensity 1 intensity 0 # ambient light\n");
   fprintf(fp,"      color %f %f %f }\n\n", ren->GetAmbient()[0],
 	  ren->GetAmbient()[1], ren->GetAmbient()[2]);
   
   // make sure we have a default light
+  // if we dont then use a headlight
   lc = ren->GetLights();
-  if (!lc->GetNextItem)
-    {
-    ren->CreateLight();
-    lc = ren->GetLights();
-    }
   for (lc->InitTraversal(); (aLight = lc->GetNextItem()); )
     {
     this->WriteALight(aLight, fp);
