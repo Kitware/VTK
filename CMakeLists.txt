@@ -35,6 +35,7 @@ INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
 # Platform configuration tests.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/CheckTypeSize.cmake)
 
 SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
 SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
