@@ -59,7 +59,7 @@ public:
   vtkBitArray(const int sz, const int ext=1000);
   vtkBitArray(const vtkBitArray& ia);
   ~vtkBitArray();
-  vtkBitArray *New() {return new vtkBitArray;};
+  static vtkBitArray *New() {return new vtkBitArray;};
   virtual char *GetClassName() {return "vtkBitArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

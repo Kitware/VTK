@@ -68,7 +68,7 @@ public:
   vtkLookupTable(int sze=256, int ext=256);
   int Allocate(int sz=256, int ext=256);
   virtual void Build();
-  vtkLookupTable *New() {return new vtkLookupTable;};
+  static vtkLookupTable *New() {return new vtkLookupTable;};
   char *GetClassName() {return "vtkLookupTable";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

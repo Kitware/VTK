@@ -64,7 +64,7 @@ class VTK_EXPORT vtkImageRegion : public vtkImageSource
 public:
   vtkImageRegion();
   ~vtkImageRegion();
-  vtkImageRegion *New() {return new vtkImageRegion;};
+  static vtkImageRegion *New() {return new vtkImageRegion;};
   char *GetClassName() {return "vtkImageRegion";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

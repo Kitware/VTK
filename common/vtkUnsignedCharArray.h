@@ -58,7 +58,7 @@ public:
   vtkUnsignedCharArray(const int sz, const int ext=1000);
   vtkUnsignedCharArray(const vtkUnsignedCharArray& ia);
   ~vtkUnsignedCharArray();
-  vtkUnsignedCharArray *New() {return new vtkUnsignedCharArray;};
+  static vtkUnsignedCharArray *New() {return new vtkUnsignedCharArray;};
   char *GetClassName() {return "vtkUnsignedCharArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

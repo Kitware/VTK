@@ -58,7 +58,7 @@ public:
   vtkVoidArray(const int sz, const int ext=1000);
   vtkVoidArray(const vtkVoidArray& fa);
   ~vtkVoidArray();
-  vtkVoidArray *New() {return new vtkVoidArray;};
+  static vtkVoidArray *New() {return new vtkVoidArray;};
   char *GetClassName() {return "vtkVoidArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

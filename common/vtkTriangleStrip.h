@@ -57,7 +57,7 @@ class VTK_EXPORT vtkTriangleStrip : public vtkCell
 public:
   vtkTriangleStrip() {};
   vtkTriangleStrip(const vtkTriangleStrip& ts);
-  vtkTriangleStrip *New() {return new vtkTriangleStrip;};
+  static vtkTriangleStrip *New() {return new vtkTriangleStrip;};
   char *GetClassName() {return "vtkTriangleStrip";};
 
   // cell methods

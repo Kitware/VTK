@@ -55,7 +55,7 @@ class VTK_EXPORT vtkEdgeTable : public vtkObject
 public:
   vtkEdgeTable(int numPoints=1);
   ~vtkEdgeTable();
-  vtkEdgeTable *New() {return new vtkEdgeTable;};
+  static vtkEdgeTable *New() {return new vtkEdgeTable;};
   char *GetClassName() {return "vtkEdgeTable";};
 
   // Insert/check existence of edges

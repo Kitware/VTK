@@ -54,7 +54,7 @@ class VTK_EXPORT vtkTriangle : public vtkCell
 public:
   vtkTriangle();
   vtkTriangle(const vtkTriangle& t);
-  vtkTriangle *New() {return new vtkTriangle;};
+  static vtkTriangle *New() {return new vtkTriangle;};
   char *GetClassName() {return "vtkTriangle";};
 
   // cell methods

@@ -70,7 +70,7 @@ public:
   void Delete();
   ~vtkRefCount();
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkRefCount *New() {return new vtkRefCount;};
+  static vtkRefCount *New() {return new vtkRefCount;};
   char *GetClassName() {return "vtkRefCount";};
 
   void Register(vtkObject* o);

@@ -65,7 +65,7 @@ public:
   vtkLinkList():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vtkLinkList(int sz, int ext=1000);
   ~vtkLinkList();
-  vtkLinkList *New() {return new vtkLinkList;};
+  static vtkLinkList *New() {return new vtkLinkList;};
   char *GetClassName() {return "vtkLinkList";};
 
   _vtkLink_s &GetLink(int ptId);

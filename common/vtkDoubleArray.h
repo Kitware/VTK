@@ -58,7 +58,7 @@ public:
   vtkDoubleArray(const int sz, const int ext=1000);
   vtkDoubleArray(const vtkDoubleArray& fa);
   ~vtkDoubleArray();
-  vtkDoubleArray *New() {return new vtkDoubleArray;};
+  static vtkDoubleArray *New() {return new vtkDoubleArray;};
   char *GetClassName() {return "vtkDoubleArray";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

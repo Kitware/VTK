@@ -59,7 +59,7 @@ public:
 
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};
   void Initialize() {this->S->Initialize();};
-  vtkFloatScalars *New() {return new vtkFloatScalars;};
+  static vtkFloatScalars *New() {return new vtkFloatScalars;};
   char *GetClassName() {return "vtkFloatScalars";};
 
   // vtkScalar interface

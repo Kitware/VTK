@@ -84,7 +84,7 @@ class VTK_EXPORT vtkSource : public vtkObject
 public:
   vtkSource();
   virtual ~vtkSource() { if (this->Output) this->Output->Delete();};
-  vtkSource *New() {return new vtkSource;};
+  static vtkSource *New() {return new vtkSource;};
   char *GetClassName() {return "vtkSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

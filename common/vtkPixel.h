@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPixel : public vtkCell
 public:
   vtkPixel();
   vtkPixel(const vtkPixel& r);
-  vtkPixel *New() {return new vtkPixel;};
+  static vtkPixel *New() {return new vtkPixel;};
   char *GetClassName() {return "vtkPixel";};
 
   // cell methods

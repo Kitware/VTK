@@ -60,7 +60,7 @@ public:
   vtkUserDefined(const int sz, const int ext=1000):UD(sz,ext){};
   int Allocate(const int sz, const int ext=1000) {return this->UD.Allocate(sz,ext);};
   void Initialize() {this->UD.Initialize();};
-  vtkUserDefined *New() {return new vtkUserDefined;};
+  static vtkUserDefined *New() {return new vtkUserDefined;};
   char *GetClassName() {return "vtkUserDefined";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

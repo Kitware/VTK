@@ -59,7 +59,7 @@ class VTK_EXPORT vtkMatrix4x4 : public vtkObject
   //  A 4 x 4 matrix.
   vtkMatrix4x4 ();
   vtkMatrix4x4 (const vtkMatrix4x4& m);
-  vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
+  static vtkMatrix4x4 *New() {return new vtkMatrix4x4;};
   char *GetClassName () {return "vtkMatrix4x4";};
   void PrintSelf (ostream& os, vtkIndent indent);
 

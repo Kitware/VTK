@@ -65,7 +65,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkStructuredData : public vtkObject 
 {
 public:
-  vtkStructuredData *New() {return new vtkStructuredData;};
+  static vtkStructuredData *New() {return new vtkStructuredData;};
   char *GetClassName() {return "vtkStructuredData";};
   static int SetDimensions(int inDim[3], int dim[3]);
   static int GetDataDimension(int dataDescription);

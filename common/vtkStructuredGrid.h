@@ -59,7 +59,7 @@ public:
   vtkStructuredGrid();
   vtkStructuredGrid(const vtkStructuredGrid& sg);
   ~vtkStructuredGrid();
-  vtkStructuredGrid *New() {return new vtkStructuredGrid;};
+  static vtkStructuredGrid *New() {return new vtkStructuredGrid;};
   char *GetClassName() {return "vtkStructuredGrid";};
   char *GetDataType() {return "vtkStructuredGrid";};
   void PrintSelf(ostream& os, vtkIndent indent);

@@ -56,7 +56,7 @@ public:
   vtkUnsignedCharScalars(const vtkUnsignedCharScalars& cs);
   vtkUnsignedCharScalars(const int sz, const int ext=1000);
   ~vtkUnsignedCharScalars();
-  vtkUnsignedCharScalars *New() {return new vtkUnsignedCharScalars;};
+  static vtkUnsignedCharScalars *New() {return new vtkUnsignedCharScalars;};
   char *GetClassName() {return "vtkUnsignedCharScalars";};
 
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(sz,ext);};

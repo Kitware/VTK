@@ -64,7 +64,7 @@ public:
   vtkCellList() : Array(NULL),Size(0),MaxId(-1),Extend(1000) {};
   vtkCellList(const int sz, const int ext);
   ~vtkCellList();
-  vtkCellList *New() {return new vtkCellList;};
+  static vtkCellList *New() {return new vtkCellList;};
   char *GetClassName() {return "vtkCellList";};
 
   _vtkCell_s &GetCell(const int id);

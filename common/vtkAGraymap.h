@@ -67,7 +67,7 @@ public:
   
   int Allocate(const int sz, const int ext=1000) {return this->S->Allocate(2*sz,2*ext);};
   void Initialize() {this->S->Initialize();};
-  vtkAGraymap *New() {return new vtkAGraymap;};
+  static vtkAGraymap *New() {return new vtkAGraymap;};
   char *GetClassName() {return "vtkAGraymap";};
 
   // vtkScalar interface

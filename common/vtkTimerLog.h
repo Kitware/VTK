@@ -87,7 +87,7 @@ class VTK_EXPORT vtkTimerLog : public vtkObject
 public:
   
   void PrintSelf(ostream& os, vtkIndent indent);
-  vtkTimerLog *New() {return new vtkTimerLog;};
+  static vtkTimerLog *New() {return new vtkTimerLog;};
   char *GetClassName() {return "vtkTimerLog";};
 
   // Description:

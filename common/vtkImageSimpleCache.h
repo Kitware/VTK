@@ -58,7 +58,7 @@ class VTK_EXPORT vtkImageSimpleCache : public vtkImageCache
 public:
   vtkImageSimpleCache();
   ~vtkImageSimpleCache();
-  vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
+  static vtkImageSimpleCache *New() {return new vtkImageSimpleCache;};
   char *GetClassName() {return "vtkImageSimpleCache";};
   void ReleaseData();
   void CacheRegion(vtkImageRegion *region);

@@ -52,7 +52,7 @@ class VTK_EXPORT vtkVertex : public vtkCell
 public:
   vtkVertex();
   vtkVertex(const vtkVertex& p);
-  vtkVertex *New() {return new vtkVertex;};
+  static vtkVertex *New() {return new vtkVertex;};
   char *GetClassName() {return "vtkVertex";};
 
   vtkCell *MakeObject() {return new vtkVertex(*this);};

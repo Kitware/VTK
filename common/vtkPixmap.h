@@ -57,7 +57,7 @@ public:
   vtkPixmap(const vtkPixmap& fs);
   vtkPixmap(const int sz, const int ext=1000);
   ~vtkPixmap();
-  vtkPixmap *New() {return new vtkPixmap;};
+  static vtkPixmap *New() {return new vtkPixmap;};
   char *GetClassName() {return "vtkPixmap";};
 
   void Initialize() {this->S->Initialize();};

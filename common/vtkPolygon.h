@@ -55,7 +55,7 @@ class VTK_EXPORT vtkPolygon : public vtkCell
 public:
   vtkPolygon() {};
   vtkPolygon(const vtkPolygon& p);
-  vtkPolygon *New() {return new vtkPolygon;};
+  static vtkPolygon *New() {return new vtkPolygon;};
   char *GetClassName() {return "vtkPolygon";};
 
   // Cell interface

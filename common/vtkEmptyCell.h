@@ -53,7 +53,7 @@ class VTK_EXPORT vtkEmptyCell : public vtkCell
 public:
   vtkEmptyCell() {};
   vtkEmptyCell(const vtkEmptyCell& p);
-  vtkEmptyCell *New() {return new vtkEmptyCell;};
+  static vtkEmptyCell *New() {return new vtkEmptyCell;};
   char *GetClassName() {return "vtkEmptyCell";};
 
   vtkCell *MakeObject() {return new vtkEmptyCell(*this);};

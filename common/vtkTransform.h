@@ -73,7 +73,7 @@ class VTK_EXPORT vtkTransform : public vtkObject
   vtkTransform ();
   vtkTransform (const vtkTransform& t);
   ~vtkTransform ();
-  vtkTransform *New() {return new vtkTransform;};
+  static vtkTransform *New() {return new vtkTransform;};
   char *GetClassName () {return "vtkTransform";};
   void PrintSelf (ostream& os, vtkIndent indent);
   vtkTransform &operator=(const vtkTransform &t);
