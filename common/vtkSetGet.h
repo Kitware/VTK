@@ -392,7 +392,7 @@ if (vtkObject::GetGlobalWarningDisplay()) cerr << "Generic Warning: In " __FILE_
 #define vtkDebugMacro(x)
 #else
 #define vtkDebugMacro(x) \
-if (Debug && vtkObject::GetGlobalWarningDIsplay()) cerr << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x <<  "\n\n"
+if (Debug && vtkObject::GetGlobalWarningDisplay()) cerr << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x <<  "\n\n"
 #endif
 //
 // This macro is used to print out warning messages.
