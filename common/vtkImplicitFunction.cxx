@@ -88,10 +88,10 @@ void vtkImplicitFunction::FunctionGradient(const float x[3], float g[3])
     // the gradient must be multiplied by the inverse of the
     // transposed inverse of the derivative of the transform,
     // which is (of course) just the transpose of the derivative.
-    float x = g[0], y = g[1], z = g[2];
-    g[0] = x*A[0][0] + y*A[1][0] + z*A[2][0];
-    g[1] = x*A[0][1] + y*A[1][1] + z*A[2][1];
-    g[2] = x*A[0][2] + y*A[1][2] + z*A[2][2];
+    float dx = g[0], dy = g[1], dz = g[2];
+    g[0] = dx*A[0][0] + dy*A[1][0] + dz*A[2][0];
+    g[1] = dx*A[0][1] + dy*A[1][1] + dz*A[2][1];
+    g[2] = dx*A[0][2] + dy*A[1][2] + dz*A[2][2];
     }
 }
 
