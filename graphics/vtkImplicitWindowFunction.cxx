@@ -119,9 +119,11 @@ unsigned long int vtkImplicitWindowFunction::GetMTime()
   unsigned long int fMtime;
   unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
 
-  if ( this->ImplicitFunction ) fMtime = this->ImplicitFunction->GetMTime();
-  if ( fMtime > mtime ) mtime = fMtime;
-
+  if ( this->ImplicitFunction )
+  {
+    fMtime = this->ImplicitFunction->GetMTime();
+    if ( fMtime > mtime ) mtime = fMtime;
+  }
   return mtime;
 }
 
