@@ -55,6 +55,26 @@ void vtkOutputWindowDisplayText(const char* message)
   vtkOutputWindow::GetInstance()->DisplayText(message);
 }
 
+void vtkOutputWindowDisplayErrorText(const char* message)
+{
+  vtkOutputWindow::GetInstance()->DisplayErrorText(message);
+}
+
+void vtkOutputWindowDisplayWarningText(const char* message)
+{
+  vtkOutputWindow::GetInstance()->DisplayWarningText(message);
+}
+
+void vtkOutputWindowDisplayGenericWarningText(const char* message)
+{
+  vtkOutputWindow::GetInstance()->DisplayGenericWarningText(message);
+}
+
+void vtkOutputWindowDisplayDebugText(const char* message)
+{
+  vtkOutputWindow::GetInstance()->DisplayDebugText(message);
+}
+
 vtkOutputWindowSmartPointer::~vtkOutputWindowSmartPointer()
 {
   if (Pointer)
@@ -103,6 +123,26 @@ void vtkOutputWindow::DisplayText(const char* txt)
       this->PromptUser = 0;
       }
     }
+}
+
+void vtkOutputWindow::DisplayErrorText(const char* txt)
+{
+  this->DisplayText(txt);
+}
+
+void vtkOutputWindow::DisplayWarningText(const char* txt)
+{
+  this->DisplayText(txt);
+}
+
+void vtkOutputWindow::DisplayGenericWarningText(const char* txt)
+{
+  this->DisplayText(txt);
+}
+
+void vtkOutputWindow::DisplayDebugText(const char* txt)
+{
+  this->DisplayText(txt);
 }
 
 // Up the reference count so it behaves like New

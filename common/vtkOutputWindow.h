@@ -92,8 +92,16 @@ public:
   // Supply a user defined output window. Call ->Delete() on the supplied
   // instance after setting it.
   static void SetInstance(vtkOutputWindow *instance);
-  //
+  // Description:
+  // Display the text. Four virtual methods exist, depending on the type of
+  // message to display. This allows redirection or reformatting of the
+  // messages. The default implementation uses DisplayText for all.
   virtual void DisplayText(const char*);
+  virtual void DisplayErrorText(const char*);
+  virtual void DisplayWarningText(const char*);
+  virtual void DisplayGenericWarningText(const char*);
+
+  virtual void DisplayDebugText(const char*);
   // Description:
   // If PromptUser is set to true then each time a line of text
   // is displayed, the user is asked if they want to keep getting

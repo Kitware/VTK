@@ -434,8 +434,10 @@ virtual void Get##name (type data[count]) \
 // This is to avoid vtkObject #include of vtkOutputWindow
 // while vtkOutputWindow #includes vtkObject
 
-extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
-
+extern VTK_EXPORT void vtkOutputWindowDisplayErrorText(const char*);
+extern VTK_EXPORT void vtkOutputWindowDisplayWarningText(const char*);
+extern VTK_EXPORT void vtkOutputWindowDisplayGenericWarningText(const char*);
+extern VTK_EXPORT void vtkOutputWindowDisplayDebugText(const char*);
 
 //
 // This macro is used for any output that may not be in an instance method
@@ -447,7 +449,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
       vtkmsg << "Generic Warning: In " __FILE__ ", line " << __LINE__ << "\n" x \
       << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayText(vtkmsgbuff);\
+      vtkOutputWindowDisplayGenericWarningText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
 
 //
@@ -463,7 +465,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
       ostrstream vtkmsg; \
       vtkmsg << "Debug: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x  << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayText(vtkmsgbuff);\
+      vtkOutputWindowDisplayDebugText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
 #endif
 //
@@ -476,7 +478,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
       ostrstream vtkmsg; \
       vtkmsg << "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayText(vtkmsgbuff);\
+      vtkOutputWindowDisplayWarningText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0);}}
 
 //
@@ -488,7 +490,7 @@ extern VTK_EXPORT void vtkOutputWindowDisplayText(const char*);
       ostrstream vtkmsg; \
       vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__ << "\n" << this->GetClassName() << " (" << this << "): " x << "\n\n" << ends; \
       vtkmsgbuff = vtkmsg.str(); \
-      vtkOutputWindowDisplayText(vtkmsgbuff);\
+      vtkOutputWindowDisplayErrorText(vtkmsgbuff);\
       vtkmsg.rdbuf()->freeze(0); vtkObject::BreakOnError();}}
 
 
