@@ -45,7 +45,6 @@ vtkPPolyDataNormals.cxx
 vtkPProbeFilter.cxx
 vtkPSphereSource.cxx
 vtkPStreamTracer.cxx
-vtkPVGeometryFilter.cxx
 vtkParallelFactory.cxx
 vtkPieceScalars.cxx
 vtkPipelineSize.cxx
