@@ -24,7 +24,7 @@
 // Each part of the ifdef contains a complete implementation for
 // the static methods of vtkDynamicLoader.  
 
-vtkCxxRevisionMacro(vtkDynamicLoader, "1.19");
+vtkCxxRevisionMacro(vtkDynamicLoader, "1.20");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -113,10 +113,14 @@ int vtkDynamicLoader::CloseLibrary(vtkLibHandle)
 void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle, const char* sym)
 {
   void *result = 0;
-  if( NSIsSymbolNameDefined(sym) )
+  // global 'C' symbols names are preceded with an underscore '_'
+  char *_sym = new char[ strlen(sym) + 2 ];
+  strcpy( _sym + 1, sym );
+  _sym[0] = '_';
+  if( NSIsSymbolNameDefined(_sym) )
     {
-    cout << sym << " is defined!" << endl;
-    NSSymbol symbol= NSLookupAndBindSymbol(sym);
+    cout << _sym << " is defined!" << endl;
+    NSSymbol symbol = NSLookupAndBindSymbol(_sym);
     if(symbol)
       {
       result = NSAddressOfSymbol(symbol);
@@ -124,9 +128,10 @@ void* vtkDynamicLoader::GetSymbolAddress(vtkLibHandle, const char* sym)
     }
   else
     {
-    cout << sym << " is not defined!" << endl;
+    cout << _sym << " is not defined!" << endl;
     }
 
+  delete[] _sym;
   return result;
 }
 
