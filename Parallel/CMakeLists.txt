@@ -120,8 +120,8 @@ IF (VTK_WRAP_JAVA)
   VTK_WRAP_JAVA(vtkParallelJava ParallelJava_SRCS Parallel_SRCS)
   ADD_LIBRARY(vtkParallelJava ParallelJava_SRCS)
   TARGET_LINK_LIBRARIES (vtkParallelJava 
-                         vtkCommonJava v
-                         tkFilteringJava
+                         vtkCommonJava 
+                         vtkFilteringJava
                          vtkImagingJava 
                          vtkGraphicsJava 
                          vtkRenderingJava
