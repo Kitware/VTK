@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.29");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.30");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
@@ -145,19 +145,19 @@ void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object),
                                           void* clientdata, 
                                           void* vtkNotUsed(calldata))
 {
-  vtkInteractorObserver* self 
-    = reinterpret_cast<vtkInteractorObserver *>( clientdata );
-
-  //look for char and delete events
-  switch(event)
+  if (event == vtkCommand::CharEvent)
     {
-    case vtkCommand::CharEvent:
+    vtkObject *vobj = reinterpret_cast<vtkObject *>( clientdata );
+    vtkInteractorObserver* self 
+      = vtkInteractorObserver::SafeDownCast(vobj);
+    if (self)
+      {
       self->OnChar();
-      break;
-    case vtkCommand::DeleteEvent:
-      //self->Interactor = NULL; //commented out, can't write to a 
-      //self->Enabled = 0;       //deleted object
-      break;
+      }
+    else
+      {
+      vtkGenericWarningMacro("Process Events received a bad client data. The client data class name was " << vobj->GetClassName());
+      }
     }
 }
 
