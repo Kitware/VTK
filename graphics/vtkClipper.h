@@ -76,6 +76,7 @@ class vtkClipper : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkClipper(vtkImplicitFunction *cf=NULL);
+  ~vtkClipper();
   char *GetClassName() {return "vtkClipper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
