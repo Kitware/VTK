@@ -11,6 +11,7 @@ vtkImageToPolyDataFilter
 vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
+vtkPolyDataToImageStencil
 vtkRenderLargeImage 
 vtkRIBExporter 
 vtkRIBLight 

@@ -15,7 +15,6 @@ vtkImageCanvasSource2D
 vtkImageCast
 vtkImageCityBlockDistance
 vtkImageClip
-vtkImageClippingExtents
 vtkImageConnector
 vtkImageConstantPad
 vtkImageContinuousDilate3D
@@ -85,10 +84,14 @@ vtkImageSkeleton2D
 vtkImageSobel2D
 vtkImageSobel3D
 vtkImageSpatialFilter
+vtkImageStencil
+vtkImageStencilData
+vtkImageStencilSource 
 vtkImageThreshold
 vtkImageTranslateExtent
 vtkImageVariance3D
 vtkImageWrapPad
+vtkImplicitFunctionToImageStencil
 vtkPointLoad
 vtkSampleFunction
 vtkShepardMethod
