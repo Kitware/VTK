@@ -142,9 +142,9 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
   T inverse[3], lastInverse[3];
   T deltaP[3], deltaI[3];
 
-  double functionValue = 1e30;
+  double functionValue = 0;
   double functionDerivative = 0;
-  double lastFunctionValue = 0;
+  double lastFunctionValue = VTK_DOUBLE_MAX;
 
   double errorSquared = 0;
   double toleranceSquared = self->GetInverseTolerance();
@@ -175,13 +175,14 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
     deltaP[2] -= point[2];
 
     // get the current function value
-    lastFunctionValue = functionValue;
     functionValue = (deltaP[0]*deltaP[0] +
 		     deltaP[1]*deltaP[1] +
 		     deltaP[2]*deltaP[2]);
 
     // if the function value is decreasing, do next Newton step
-    if (functionValue < lastFunctionValue)
+    // (the check on f is to ensure that we don't do too many
+    // reduction steps between the Newton steps)
+    if (functionValue < lastFunctionValue || f < 0.05)
       {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
@@ -202,6 +203,9 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
       lastInverse[0] = inverse[0];
       lastInverse[1] = inverse[1];
       lastInverse[2] = inverse[2];
+
+      // save the function value at that point
+      lastFunctionValue = functionValue;
 
       // derivative of functionValue at last inverse point
       functionDerivative = (deltaP[0]*derivative[0][0]*deltaI[0] +
@@ -246,6 +250,11 @@ static inline void vtkWarpInverseTransformPoint(vtkWarpTransform *self,
 
   if (i >= n)
     {
+    // didn't converge: back up to last good result
+    inverse[0] = lastInverse[0];
+    inverse[1] = lastInverse[1];
+    inverse[2] = lastInverse[2];
+
     // print warning: Newton's method didn't converge
     vtkGenericWarningMacro(<<
          "Warning: In " __FILE__ ", line " << __LINE__ << "\n" << 

@@ -1075,9 +1075,9 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
   float point[3], inverse[3], lastInverse[3];
   float deltaP[3], deltaI[3];
 
-  float functionValue = 1e30;
-  float functionDerivative = 0.0;
-  float lastFunctionValue;
+  float functionValue = 0;
+  float functionDerivative = 0;
+  float lastFunctionValue = VTK_FLOAT_MAX;
 
   float errorSquared = 0.0;
   float toleranceSquared = this->InverseTolerance;
@@ -1124,13 +1124,14 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
       }
 
     // get the current function value
-    lastFunctionValue = functionValue;
     functionValue = (deltaP[0]*deltaP[0] +
 		     deltaP[1]*deltaP[1] +
 		     deltaP[2]*deltaP[2]);
 
     // if the function value is decreasing, do next Newton step
-    if (functionValue < lastFunctionValue)
+    // (the f < 1.0 is there because I found that convergence
+    // is more stable if only a single reduction step is done)
+    if (functionValue < lastFunctionValue || f < 1.0)
       {
       // here is the critical step in Newton's method
       vtkMath::LinearSolve3x3(derivative,deltaP,deltaI);
@@ -1151,6 +1152,9 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
       lastInverse[0] = inverse[0];
       lastInverse[1] = inverse[1];
       lastInverse[2] = inverse[2];
+
+      // save error at last inverse point
+      lastFunctionValue = functionValue;
 
       // derivative of functionValue at last inverse point
       functionDerivative = (deltaP[0]*derivative[0][0]*deltaI[0] +
@@ -1190,6 +1194,11 @@ void vtkGridTransform::InverseTransformDerivative(const float inPoint[3],
 
   if (i >= n)
     {
+    // didn't converge: back up to last good result
+    inverse[0] = lastInverse[0];
+    inverse[1] = lastInverse[1];
+    inverse[2] = lastInverse[2];    
+
     vtkWarningMacro("InverseTransformPoint: no convergence (" <<
 		    inPoint[0] << ", " << inPoint[1] << ", " << inPoint[2] << 
 		    ") error = " << sqrt(errorSquared) << " after " <<
