@@ -34,6 +34,7 @@
 // Print debug info
 
 #define VTK_FTTM_DEBUG 0
+#define VTK_FTTM_DEBUG_CD 0
 
 // Cache by RBGA is nasty, but this is the way to go at the moment for pixmaps.
 // This will cache a font for each new text property color, where each color
@@ -213,6 +214,9 @@ private:
 
 void vtkFontCacheCleanupCallback ()
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCacheCleanupCallback\n");
+#endif
   vtkFontCache::SetInstance(0);
 }
 
@@ -227,6 +231,9 @@ vtkFontCacheCleanup vtkFontCache::Cleanup;
 
 vtkFontCacheCleanup::vtkFontCacheCleanup()
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCacheCleanup::vtkFontCacheCleanup\n");
+#endif
   FTLibraryCleanup::AddDependency(&vtkFontCacheCleanupCallback);
 }
 
@@ -237,6 +244,9 @@ vtkFontCacheCleanup::vtkFontCacheCleanup()
 
 vtkFontCacheCleanup::~vtkFontCacheCleanup()
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCacheCleanup::~vtkFontCacheCleanup\n");
+#endif
   vtkFontCacheCleanupCallback();
 }
 
@@ -272,11 +282,18 @@ void vtkFontCache::SetInstance(vtkFontCache* instance)
 
 vtkFontCache::vtkFontCache() 
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCache::vtkFontCache\n");
+#endif
+  this->NumberOfEntries = 0;
   this->InitializeCache();
 }
 
 vtkFontCache::~vtkFontCache() 
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCache::~vtkFontCache\n");
+#endif
   this->ReleaseCache();
 }
 
@@ -358,6 +375,9 @@ void vtkFontCache::ReleaseEntry(int i)
 
 void vtkFontCache::InitializeCache() 
 {
+#if VTK_FTTM_DEBUG_CD
+  printf("vtkFontCache::InitializeCache()\n");
+#endif  
   this->ReleaseCache();
 
   int i;
@@ -371,7 +391,7 @@ void vtkFontCache::InitializeCache()
 
 void vtkFontCache::ReleaseCache() 
 {
-#if VTK_FTTM_DEBUG
+#if VTK_FTTM_DEBUG_CD
   printf("vtkFontCache::ReleaseCache()\n");
 #endif  
 
@@ -586,7 +606,7 @@ FTFont* vtkFontCache::GetFont(vtkTextProperty *tprop,
 }
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.13");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.14");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 
 //----------------------------------------------------------------------------
