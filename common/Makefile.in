@@ -31,7 +31,9 @@ vtkObjectFactory \
 vtkPointSet \
 vtkScalarsToColors \
 vtkViewport \
-vtkWindow
+vtkWindow \
+vtkFunctionSet \
+vtkInitialValueProblemSolver
 
 # put all concrete classes here
 CONCRETE = \
@@ -151,7 +153,10 @@ vtkVoidArray \
 vtkVoxel \
 vtkWedge \
 vtkWindowLevelLookupTable \
-vtkWindowToImageFilter 
+vtkWindowToImageFilter \
+vtkInterpolatedVelocityField \
+vtkRungeKutta2 \
+vtkRungeKutta4 
 
 
 WIN32_OBJ = \
