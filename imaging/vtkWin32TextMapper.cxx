@@ -48,49 +48,6 @@ vtkWin32TextMapper::vtkWin32TextMapper()
   this->Font = 0;
 }
 
-
-int vtkWin32TextMapper::GetCompositingMode(vtkActor2D* actor)
-{
-  vtkProperty2D* tempProp = actor->GetProperty();
-  int compositeMode = tempProp->GetCompositingOperator();
-
-  switch (compositeMode)
-  {
-  case VTK_BLACK:
-	  return R2_BLACK;
-	  break;
-  case VTK_NOT_DEST:
-	  return R2_NOT;
-	  break;
-  case VTK_SRC_AND_DEST:
-	  return R2_MASKPEN;
-	  break;
-  case VTK_SRC_OR_DEST:
-	  return  R2_MERGEPEN;
-	  break;
-  case VTK_NOT_SRC:
-	  return R2_NOTCOPYPEN;
-	  break;
-  case VTK_SRC_XOR_DEST:
-	  return R2_XORPEN;
-      break;
-  case VTK_SRC_AND_notDEST:
-	  return R2_MASKPENNOT;
-	  break;
-  case VTK_SRC:
-	  return R2_COPYPEN;
-	  break;
-  case VTK_WHITE:
-	  return R2_WHITE;
-	  break;
-  default:
-	  return R2_COPYPEN;
-	  break;
-  }
-
-}
-
-
 void vtkWin32TextMapper::GetSize(vtkViewport* viewport, int *size)
 {
   // Check to see whether we have to rebuild anything
@@ -245,14 +202,7 @@ void vtkWin32TextMapper::RenderOverlay(vtkViewport* viewport,
   rect.top = rect.bottom - size[1];
   
   // Set the compositing operator
-  int compositeMode = this->GetCompositingMode(actor);
-  SetROP2(hdc, compositeMode);
-  // For Debug
-  int op = GetROP2(hdc);
-  if (op != compositeMode) 
-    {
-    vtkErrorMacro(<<"vtkWin32TextMapper::Render - ROP not set!");
-    }
+  SetROP2(hdc, R2_COPYPEN);
 
   int winJust;
   switch (this->Justification)

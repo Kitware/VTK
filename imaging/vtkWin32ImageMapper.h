@@ -76,7 +76,6 @@ public:
   HBITMAP HBitmap;			// our handle to the DIBSection
 
 protected:
-  int GetCompositingMode(vtkActor2D* actor);
 
 };
 

@@ -18,49 +18,6 @@ vtkWin32ImageMapper::~vtkWin32ImageMapper()
     }
 }
 
-int vtkWin32ImageMapper::GetCompositingMode(vtkActor2D* actor)
-{
-
-  vtkProperty2D* tempProp = actor->GetProperty();
-  int compositeMode = tempProp->GetCompositingOperator();
-
-  switch (compositeMode)
-    {
-    case VTK_BLACK:
-      return BLACKNESS;
-      break;
-    case VTK_NOT_DEST:
-      return DSTINVERT;
-      break;
-    case VTK_SRC_AND_DEST:
-      return SRCAND;
-      break;
-    case VTK_SRC_OR_DEST:
-      return  SRCPAINT;
-      break;
-    case VTK_NOT_SRC:
-      return NOTSRCCOPY;
-      break;
-    case VTK_SRC_XOR_DEST:
-      return SRCINVERT;
-      break;
-    case VTK_SRC_AND_notDEST:
-      return SRCERASE;
-      break;
-    case VTK_SRC:
-      return SRCCOPY;
-      break;
-    case VTK_WHITE:
-      return WHITENESS;
-      break;
-    default:
-      return SRCCOPY;
-      break;
-    }
-
-}
-
-//----------------------------------------------------------------------------
 /* 
  * This templated routine calculates effective lower and upper limits 
  * for a window of values of type T, lower and upper. 
@@ -627,10 +584,8 @@ void vtkWin32ImageMapper::RenderData(vtkViewport* viewport,
 
   actorPos[1] = actorPos[1] - height + 1;
 
-  int compositeMode = this->GetCompositingMode(actor);
-
   StretchBlt(windowDC,actorPos[0],actorPos[1],xSize,ySize,compatDC,0,
-	     0,width,height,compositeMode);
+	     0,width,height,SRCCOPY);
 
   SelectObject(compatDC, hOldBitmap);
   DeleteDC(compatDC);
