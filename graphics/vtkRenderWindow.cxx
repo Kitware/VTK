@@ -725,12 +725,15 @@ void vtkRenderWindow::SetPosition(int x, int y)
 
 int vtkRenderWindow::CheckAbortStatus()
 {
-  this->InAbortCheck = 1;
-  if (this->AbortCheckMethod) 
+  if (!this->InAbortCheck)
     {
-    (*this->AbortCheckMethod)(this->AbortCheckMethodArg);
+    this->InAbortCheck = 1;
+    if (this->AbortCheckMethod) 
+      {
+      (*this->AbortCheckMethod)(this->AbortCheckMethodArg);
+      }
+    this->InAbortCheck = 0;
     }
-  this->InAbortCheck = 0;
   return this->AbortRender;
 }
 
