@@ -162,6 +162,10 @@ public:
   virtual void Update();
 
   // Description:
+  // Backward compatibility method to invoke UpdateInformation on executive.
+  virtual void UpdateInformation();
+
+  // Description:
   // Bring this algorithm's outputs up-to-date.
   virtual void UpdateWholeExtent();
 

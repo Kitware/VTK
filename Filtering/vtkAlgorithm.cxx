@@ -30,7 +30,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.3");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -673,6 +673,17 @@ int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
 void vtkAlgorithm::Update()
 {
   this->GetExecutive()->Update(this);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::UpdateInformation()
+{
+  vtkDemandDrivenPipeline* ddp =
+    vtkDemandDrivenPipeline::SafeDownCast(this->GetExecutive());
+  if (ddp)
+    {
+    ddp->UpdateInformation();
+    }
 }
 
 //----------------------------------------------------------------------------
