@@ -37,7 +37,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkLODActor - a subclass of actor that supports Levels Of Detail
+// .NAME vtkLODActor - an actor that supports multiple levels of detail
 // .SECTION Description
 // vtkLODActor is an actor that stores multiple Levels of Detail and can
 // automatically switch between them. It selects which level of detail
