@@ -196,10 +196,7 @@ private:
   //BTX
   friend VTK_EXPORT vtkKitwareContourFilter;
   //ETX
-
-
 };
 
 
 #endif
-

@@ -126,7 +126,6 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
        }
      }
 
-
    if ( inputObjectType  == VTK_STRUCTURED_GRID )
      {
      int ext[6], dim=0;
@@ -138,24 +137,23 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 	 dim++;
 	 }
        }
-       if (dim == 3)
-	 {
-	 vtkGridSynchronizedTemplates3D *gridTemp3D =
-	   vtkGridSynchronizedTemplates3D::New();
-	 gridTemp3D->SetInput((vtkStructuredGrid *)input);
-	 gridTemp3D->SetComputeNormals (this->ComputeNormals);
-	 gridTemp3D->SetComputeGradients (this->ComputeGradients);
-	 gridTemp3D->SetComputeScalars (this->ComputeScalars);
-	 gridTemp3D->SetDebug(this->Debug);
-	 gridTemp3D->ComputeInputUpdateExtents(data);
-	 gridTemp3D->Delete();
-	 return;
-	 }
+     if (dim == 3)
+       {
+       vtkGridSynchronizedTemplates3D *gridTemp3D =
+         vtkGridSynchronizedTemplates3D::New();
+       gridTemp3D->SetInput((vtkStructuredGrid *)input);
+       gridTemp3D->SetComputeNormals (this->ComputeNormals);
+       gridTemp3D->SetComputeGradients (this->ComputeGradients);
+       gridTemp3D->SetComputeScalars (this->ComputeScalars);
+       gridTemp3D->SetDebug(this->Debug);
+       gridTemp3D->ComputeInputUpdateExtents(data);
+       gridTemp3D->Delete();
+       return;
+       }
      }
 
   this->vtkContourFilter::ComputeInputUpdateExtents(data);
   return;
-
 }
 
 void vtkKitwareContourFilter::ExecuteInformation()
@@ -169,7 +167,7 @@ void vtkKitwareContourFilter::Execute()
 {
   vtkScalars *inScalars;
   vtkDataSet *input=this->GetInput();
-  int numCells;
+  vtkIdType numCells;
   
   vtkDebugMacro(<< "Executing contour filter");
 
@@ -349,5 +347,3 @@ void vtkKitwareContourFilter::DataSetContour()
   this->SetOutput(output);
   contour->Delete();
 }
-
-
