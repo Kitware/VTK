@@ -162,12 +162,15 @@ protected:
   vtkXRenderWindowInteractor();
   ~vtkXRenderWindowInteractor();
 
+  //Using static here to avoid detroying context when many apps are open:
+  static XtAppContext App;
+  static int NumAppInitialized;
+
   Display *DisplayId;
   Window WindowId;
   Widget Top;
   int OwnTop;
   int OwnApp;
-  XtAppContext App;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
 

@@ -27,8 +27,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.113");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.114");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
+
+// Initialize static members:
+int vtkXRenderWindowInteractor::NumAppInitialized = 0;
+XtAppContext vtkXRenderWindowInteractor::App = 0;
+
 
 typedef struct
 {
@@ -55,7 +60,7 @@ XrmOptionDescRec Desc[] =
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
-  this->App = 0;
+  vtkXRenderWindowInteractor::App = 0;
   this->Top = 0;
   this->OwnTop = 0;
   this->OwnApp = 0;
@@ -75,9 +80,14 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     XtDestroyWidget(this->Top);
     }
   this->BreakXtLoopCallback->Delete();
-  if (this->OwnApp && this->App)
+  if (vtkXRenderWindowInteractor::App)
     {
-    XtDestroyApplicationContext(this->App);
+    if(vtkXRenderWindowInteractor::NumAppInitialized == 1)
+      {
+      XtDestroyApplicationContext(vtkXRenderWindowInteractor::App);
+      vtkXRenderWindowInteractor::App = 0;
+      }
+    vtkXRenderWindowInteractor::NumAppInitialized--;
     }
 }
 
@@ -170,7 +180,7 @@ void vtkXRenderWindowInteractor::Start()
   do 
     {
     XEvent event;
-    XtAppNextEvent(this->App, &event);
+    XtAppNextEvent(vtkXRenderWindowInteractor::App, &event);
     XtDispatchEvent(&event);
     } 
   while (this->BreakLoopFlag == 0);
@@ -181,7 +191,7 @@ void vtkXRenderWindowInteractor::Start()
 // provided.  This assumes that you want to own the event loop.
 void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 {
-  this->App = app;
+  vtkXRenderWindowInteractor::App = app;
 
   this->Initialize();
 }
@@ -191,8 +201,6 @@ void vtkXRenderWindowInteractor::Initialize(XtAppContext app)
 // want to have mouse interaction.
 void vtkXRenderWindowInteractor::Initialize()
 {
-  static int any_initialized = 0;
-  static XtAppContext app;
   vtkXOpenGLRenderWindow *ren;
   int depth;
   Colormap cmap;
@@ -213,29 +221,26 @@ void vtkXRenderWindowInteractor::Initialize()
   ren = (vtkXOpenGLRenderWindow *)(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
-    if (this->App)
+  if (vtkXRenderWindowInteractor::App)
     {
-    any_initialized = 1;
-    app = this->App;
+    vtkXRenderWindowInteractor::NumAppInitialized++;
     }
-  if (!any_initialized)
+  if (!vtkXRenderWindowInteractor::NumAppInitialized)
     {
     vtkDebugMacro("toolkit init");
     XtToolkitInitialize();
-    app = XtCreateApplicationContext();
+    vtkXRenderWindowInteractor::App = XtCreateApplicationContext();
     this->OwnApp = 1;
-    vtkDebugMacro("app ctx " << app);
-    any_initialized = 1;
+    vtkDebugMacro("app ctx " << vtkXRenderWindowInteractor::App);
+    vtkXRenderWindowInteractor::vtkXRenderWindowInteractor::NumAppInitialized = 1;
     }
   
-  this->App = app;
-
   this->DisplayId = ren->GetDisplayId();
   if (!this->DisplayId)
     {
     vtkDebugMacro("opening display");
     this->DisplayId = 
-      XtOpenDisplay(this->App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
+      XtOpenDisplay(vtkXRenderWindowInteractor::App,NULL,"VTK","vtk",NULL,0,&argc,NULL);
     vtkDebugMacro("opened display");
     }
   else
@@ -243,7 +248,7 @@ void vtkXRenderWindowInteractor::Initialize()
     // if there is no parent widget
     if (!this->Top)
       {
-      XtDisplayInitialize(this->App,this->DisplayId,
+      XtDisplayInitialize(vtkXRenderWindowInteractor::App,this->DisplayId,
                           "VTK","vtk",NULL,0,&argc,NULL);
       }
     }
@@ -362,9 +367,9 @@ void vtkXRenderWindowInteractor::Disable()
 void vtkXRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if (this->App)
+  if (vtkXRenderWindowInteractor::App)
     {
-    os << indent << "App: " << this->App << "\n";
+    os << indent << "App: " << vtkXRenderWindowInteractor::App << "\n";
     }
   else
     {
@@ -400,7 +405,7 @@ void vtkXRenderWindowInteractorTimer(XtPointer client_data,
 
 int vtkXRenderWindowInteractor::CreateTimer(int vtkNotUsed(timertype)) 
 {
-  this->AddTimeOut(this->App, 10,
+  this->AddTimeOut(vtkXRenderWindowInteractor::App, 10,
                    vtkXRenderWindowInteractorTimer,
                    (XtPointer)this);
   return 1;
