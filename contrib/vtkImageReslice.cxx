@@ -1126,7 +1126,7 @@ template <class T>
 static void vtkImageResliceExecute(vtkImageReslice *self,
 				   vtkImageData *inData, T *inPtr,
 				   vtkImageData *outData, T *outPtr,
-				   int outExt[6], int id)
+				   int outExt[6], int id, vtkMatrix4x4 *matrix)
 {
   int i, numscalars;
   int idX, idY, idZ;
@@ -1158,10 +1158,6 @@ static void vtkImageResliceExecute(vtkImageReslice *self,
   inData->GetIncrements(inInc);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numscalars = inData->GetNumberOfScalarComponents();
-  
-  // change transform matrix so that instead of taking 
-  // input coords -> output coords it takes output indices -> input indices
-  vtkMatrix4x4 *matrix = self->GetIndexMatrix();
   
   // Color for area outside of input volume extent  
   background = new T[numscalars];
@@ -1691,7 +1687,7 @@ template <class T>
 static void vtkOptimizedExecute(vtkImageReslice *self,
 				vtkImageData *inData, T *inPtr,
 				vtkImageData *outData, T *outPtr,
-				int outExt[6], int id)
+				int outExt[6], int id, vtkMatrix4x4 *matrix)
 {
   int i, numscalars;
   int idX, idY, idZ;
@@ -1733,10 +1729,6 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   inData->GetIncrements(inInc);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   numscalars = inData->GetNumberOfScalarComponents();
-
-  // change transform matrix so that instead of taking 
-  // input coords -> output coords it takes output indices -> input indices
-  vtkMatrix4x4 *matrix = self->GetIndexMatrix();
   
   // break matrix into a set of axes plus an origin
   // (this allows us to calculate the transform Incrementally)
@@ -1752,14 +1744,14 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   background = new T[numscalars];
   for (i = 0; i < numscalars; i++)
     {
-      if (i < 4)
-	{
-	background[i] = T(self->GetBackgroundColor()[i]);
-	}
-      else
-	{
-	background[i] = 0;
-	}
+    if (i < 4)
+      {
+      background[i] = T(self->GetBackgroundColor()[i]);
+      }
+    else
+      {
+      background[i] = 0;
+      }
     }
 
   // Set interpolation method
@@ -1944,6 +1936,720 @@ static void vtkOptimizedExecute(vtkImageReslice *self,
   delete [] background;
 }
 
+// vtkOptimizedPermuteExecute is specifically optimized for
+// cases where the IndexMatrix has only one non-zero component
+// per row, i.e. when the matrix is permutation+scale+translation.
+// All of the interpolation coefficients are calculated ahead
+// of time instead of on a pixel-by-pixel basis.
+
+template <class T>
+static void vtkOptimizedPermuteExecuteLinear(vtkImageReslice *self,
+					     vtkImageData *inData, T *inPtr,
+					     vtkImageData *outData, T *outPtr,
+					     int outExt[6], int id,
+					     vtkMatrix4x4 *matrix)
+{
+  int i, j, k, numscalars;
+  int idX, idY, idZ;
+  int outIncX, outIncY, outIncZ;
+  int inExt[6],inWholeExt[6];
+  int inMax[3], inMin[3], inDim[3];
+  int inInc[3];
+  int clipExt[6];
+  unsigned long count = 0;
+  unsigned long target;
+  int r1,r2;
+  T *background;
+
+  // find maximum input range
+  self->GetInput()->GetWholeExtent(inWholeExt);
+  self->GetInput()->GetExtent(inExt);
+
+  for (i = 0; i < 3; i++)
+    {
+    inMin[i] = inWholeExt[2*i];
+    inMax[i] = inWholeExt[2*i+1];
+    inDim[i] = inMax[i]-inMin[i]+1;
+    }
+  
+  target = (unsigned long)
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
+  
+  // Get Increments to march through data 
+  inData->GetIncrements(inInc);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  numscalars = inData->GetNumberOfScalarComponents();
+
+  // set up background levels
+  background = new T[numscalars];
+  for (i = 0; i < numscalars; i++)
+    {
+    if (i < 4)
+      {
+      background[i] = T(self->GetBackgroundColor()[i]);
+      }
+    else
+      {
+      background[i] = 0;
+      }
+    }
+
+  for (i = 0; i < 6; i++)
+    {
+    clipExt[i] = outExt[i];
+    }
+
+  int *traversal[3];
+  float *constants[3];
+  double newmat[4][4];
+  int region;
+
+  for (j = 0; j < 4; j++)
+    {
+    for (i = 0; i < 4; i++)
+      {
+      newmat[i][j] = matrix->GetElement(i,j);
+      }
+    } 
+
+  int trunc, inId, doInterp;
+  float point,f;
+  
+  // set up input traversal table for linear interpolation  
+  for (j = 0; j < 3; j++)
+    {
+    traversal[j] = new int[(outExt[2*j+1]+1)*2];
+    constants[j] = new float[(outExt[2*j+1]+1)*2];
+    region = 0;
+    for (i = outExt[2*j]; i <= outExt[2*j+1]; i++)
+      {
+      for (k = 0; k < 3; k++)
+	{ // find which element is nonzero
+	if (newmat[k][j] != 0)
+	  {
+	  break;
+	  }
+	}
+      point = newmat[k][3]+i*newmat[k][j];
+      trunc = int(point+1)-1;
+      f = point-trunc;
+      constants[j][2*i] = 1-f;
+      constants[j][2*i+1] = f;
+      
+      doInterp = (f != 0);
+      inId = trunc - inExt[2*k];
+      
+      traversal[j][2*i] = inId*inInc[k];
+      traversal[j][2*i+1] = (inId+doInterp)*inInc[k];
+      
+      if (inId < 0 || inId+doInterp > inExt[2*k+1]-inExt[2*k])
+	{
+	if (region == 1)
+	  { // leaving the input extent
+	  region = 2;
+	  clipExt[2*j+1] = i-1;
+	  }
+	}
+      else 
+	{
+	if (region == 0)
+	  { // entering the input extent
+	  region = 1;
+	  clipExt[2*j] = i;	   
+	  }
+	}
+      }
+    if (region == 0)
+      { // never entered input extent!
+      clipExt[2*j] = outExt[2*j+1]+1;
+      }
+    }
+
+  // Loop through output pixels
+  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+    {
+    int idZ0 = 2*idZ;
+    int idZ1 = 2*idZ+1;
+
+    int i0 = traversal[2][idZ0]; 
+    int i1 = traversal[2][idZ1];
+
+    float rz = constants[2][idZ0];
+    float fz = constants[2][idZ1];
+    
+    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+      {
+      int idY0 = 2*idY;
+      int idY1 = 2*idY+1;
+
+      int i00 = traversal[1][idY0] + i0;
+      int i01 = traversal[1][idY0] + i1;
+      int i10 = traversal[1][idY1] + i0;
+      int i11 = traversal[1][idY1] + i1;
+
+      float ry = constants[1][idY0];
+      float fy = constants[1][idY1];
+
+      float ryrz = ry*rz;
+      float ryfz = ry*fz;
+      float fyrz = fy*rz;
+      float fyfz = fy*fz;
+
+      if (!id) 
+	{
+	if (!(count%target)) 
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
+
+      // do extent check
+      if (idZ < clipExt[4] || idZ > clipExt[5] ||
+	  idY < clipExt[2] || idY > clipExt[3])
+	{
+	r1 = outExt[1]+1;
+	r2 = outExt[1];
+	}
+      else
+	{
+	r1 = clipExt[0];
+	r2 = clipExt[1];
+	}
+  
+      // clear pixels to left of input extent
+      for (idX = outExt[0]; idX < r1; idX++)
+	{
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      for (idX = r1; idX <= r2; idX++)
+	{
+        int idX0 = 2*idX;
+	int idX1 = 2*idX+1;
+	
+	int t0 = traversal[0][idX0];
+	int t1 = traversal[0][idX1];
+	
+	int i000 = t0 + i00; 
+	int i001 = t0 + i01; 
+	int i010 = t0 + i10; 
+	int i011 = t0 + i11; 
+	int i100 = t1 + i00; 
+	int i101 = t1 + i01; 
+	int i110 = t1 + i10; 
+	int i111 = t1 + i11; 
+	
+	float rx = constants[0][idX0];
+	float fx = constants[0][idX1];
+	
+	T *inPtr0 = inPtr;
+
+	for (i = 0; i < numscalars; i++)
+	  {
+	  vtkResliceRound((rx*(ryrz*inPtr0[i000]+ryfz*inPtr0[i001]+
+			       fyrz*inPtr0[i010]+fyfz*inPtr0[i011])
+			   + fx*(ryrz*inPtr0[i100]+ryfz*inPtr0[i101]+
+				 fyrz*inPtr0[i110]+fyfz*inPtr0[i111])),
+			  *outPtr++);
+	  inPtr0++;
+	  }
+	}
+
+      // clear pixels to right of input extent
+      for (idX = r2+1; idX <= outExt[1]; idX++)
+        {
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      outPtr += outIncY;
+      }
+    outPtr += outIncZ;
+    }
+
+  for (j = 0; j < 3; j++)
+    {
+    delete [] traversal[j];
+    }
+  delete [] background;
+}
+
+template <class T>
+static void vtkOptimizedPermuteExecuteCubic(vtkImageReslice *self,
+                                            vtkImageData *inData, T *inPtr,
+                                            vtkImageData *outData, T *outPtr,
+					    int outExt[6], int id,
+					    vtkMatrix4x4 *matrix)
+{
+  int i, j, k, l, numscalars;
+  int idX, idY, idZ;
+  int outIncX, outIncY, outIncZ;
+  int inExt[6];
+  int inInc[3];
+  int clipExt[6];
+  unsigned long count = 0;
+  unsigned long target;
+  int r1,r2;
+  T *background;
+
+  // find maximum input range
+  self->GetInput()->GetExtent(inExt);
+
+  target = (unsigned long)
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
+  
+  // Get Increments to march through data 
+  inData->GetIncrements(inInc);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  numscalars = inData->GetNumberOfScalarComponents();
+
+  // set up background levels
+  background = new T[numscalars];
+  for (i = 0; i < numscalars; i++)
+    {
+    if (i < 4)
+      {
+      background[i] = T(self->GetBackgroundColor()[i]);
+      }
+    else
+      {
+      background[i] = 0;
+      }
+    }
+
+  for (i = 0; i < 6; i++)
+    {
+    clipExt[i] = outExt[i];
+    }
+
+  int *traversal[3];
+  int *low[3];
+  int *high[3];
+  float *constants[3];
+  double newmat[4][4];
+  int region;
+
+  for (j = 0; j < 4; j++)
+    {
+    for (i = 0; i < 4; i++)
+      {
+      newmat[i][j] = matrix->GetElement(i,j);
+      }
+    } 
+
+  int trunc, inId, doInterp, interpMode;
+  float point,f;
+  
+  // set up input traversal table for cubic interpolation  
+  for (j = 0; j < 3; j++)
+    {
+    traversal[j] = new int[(outExt[2*j+1]+1)*4];
+    constants[j] = new float[(outExt[2*j+1]+1)*4];
+    low[j] = new int[(outExt[2*j+1]+1)];
+    high[j] = new int[(outExt[2*j+1]+1)];
+
+    region = 0;
+    for (i = outExt[2*j]; i <= outExt[2*j+1]; i++)
+      {
+      for (k = 0; k < 3; k++)
+	{ // find which element is nonzero
+	if (newmat[k][j] != 0)
+	  {
+	  break;
+	  }
+	}
+      point = newmat[k][3]+i*newmat[k][j];
+      trunc = int(point+1)-1;
+      f = point-trunc;      
+      doInterp = (f != 0);
+      inId = trunc - inExt[2*k];
+      
+      interpMode = ((inId > 0) << 2) + 
+	           ((inId+2 <= inExt[2*k+1]-inExt[2*k]) << 1) +
+	           doInterp;
+
+      vtkImageResliceSetInterpCoeffs(&constants[j][4*i],&low[j][i],
+				     &high[j][i],f,interpMode);
+
+      traversal[j][4*i] = (inId-1)*inInc[k];
+      traversal[j][4*i+1] = (inId+0)*inInc[k];
+      traversal[j][4*i+2] = (inId+1)*inInc[k];
+      traversal[j][4*i+3] = (inId+2)*inInc[k];
+
+      if (inId < 0 || inId+doInterp > inExt[2*k+1]-inExt[2*k])
+	{
+	if (region == 1)
+	  { // leaving the input extent
+	  region = 2;
+	  clipExt[2*j+1] = i-1;
+	  }
+	}
+      else 
+	{
+	if (region == 0)
+	  { // entering the input extent
+	  region = 1;
+	  clipExt[2*j] = i;	   
+	  }
+	}
+      }
+    if (region == 0)
+      { // never entered input extent!
+      clipExt[2*j] = outExt[2*j+1]+1;
+      }
+    }
+
+  // Loop through output pixels
+  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+    {
+    int lz = low[2][idZ];
+    int hz = high[2][idZ];
+    float fZ[4];
+    int iZ[4];
+
+    for (i = lz; i < hz; i++)
+      {
+      fZ[i] = constants[2][4*idZ+i];
+      iZ[i] = traversal[2][4*idZ+i];
+      }
+
+    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+      {
+      int ly = low[1][idY];
+      int hy = high[1][idY];
+      float fY[4];
+      int iY[4];
+      
+      for (i = ly; i < hy; i++)
+	{
+        fY[i] = constants[1][4*idY+i];
+	iY[i] = traversal[1][4*idY+i];
+	}
+
+      if (!id) 
+	{
+	if (!(count%target)) 
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
+
+      // do extent check
+      if (idZ < clipExt[4] || idZ > clipExt[5] ||
+	  idY < clipExt[2] || idY > clipExt[3])
+	{
+	r1 = outExt[1]+1;
+	r2 = outExt[1];
+	}
+      else
+	{
+	r1 = clipExt[0];
+	r2 = clipExt[1];
+	}
+  
+      // clear pixels to left of input extent
+      for (idX = outExt[0]; idX < r1; idX++)
+	{
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      for (idX = r1; idX <= r2; idX++)
+	{
+	int lx = low[0][idX];
+	int hx = high[0][idX];
+	float fX[4];
+	int iX[4];
+
+	for (i = lx; i < hx; i++)
+	  {
+	  fX[i] = constants[0][4*idX+i];
+	  iX[i] = traversal[0][4*idX+i];
+	  }
+	
+	T *inPtr0 = inPtr;
+	T *inPtr1,*inPtr2;
+	double val,vY,vZ;
+
+	for (l = 0; l < numscalars; l++)
+	  {
+	  val = 0;
+	  for (k = lz; k < hz; k++)
+	    {
+	    inPtr1 = inPtr0 + iZ[k];
+	    vZ = 0;
+	    for (j = ly; j < hy; j++)
+	      {
+	      inPtr2 = inPtr1 + iY[j];
+	      vY = 0;
+	      for (i = lx; i < hx; i++)
+		{
+		vY += *(inPtr2+iX[i]) * fX[i]; 
+		}
+	      vZ += vY*fY[j]; 
+	      }
+	    val += vZ*fZ[k];
+	    }
+	  vtkResliceClamp(val,*outPtr++); // clamp to limits of type
+	  inPtr0++;
+	  }
+	}
+      
+      // clear pixels to right of input extent
+      for (idX = r2+1; idX <= outExt[1]; idX++)
+        {
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      outPtr += outIncY;
+      }
+    outPtr += outIncZ;
+    }
+
+  for (j = 0; j < 3; j++)
+    {
+    delete [] traversal[j];
+    }
+  delete [] background;
+}
+
+template <class T>
+static void vtkOptimizedPermuteExecute(vtkImageReslice *self,
+				       vtkImageData *inData, T *inPtr,
+				       vtkImageData *outData, T *outPtr,
+				       int outExt[6], int id,
+				       vtkMatrix4x4 *matrix)
+{
+  if (self->GetInterpolationMode() == VTK_RESLICE_LINEAR)
+    {
+    vtkOptimizedPermuteExecuteLinear(self,inData,inPtr,outData,outPtr,
+				     outExt,id,matrix);
+    return;
+    }
+  else if (self->GetInterpolationMode() == VTK_RESLICE_CUBIC)
+    {
+    vtkOptimizedPermuteExecuteCubic(self,inData,inPtr,outData,outPtr,
+				    outExt,id,matrix);
+    return;
+    }
+
+  int i, j, k, numscalars;
+  int idX, idY, idZ;
+  int outIncX, outIncY, outIncZ;
+  int inExt[6];
+  int inInc[3];
+  int clipExt[6];
+  unsigned long count = 0;
+  unsigned long target;
+  int r1,r2;
+  T *background,*inPtr0,*inPtr1,*inPtr2;
+
+  // find maximum input range
+  self->GetInput()->GetExtent(inExt);
+
+  target = (unsigned long)
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
+  
+  // Get Increments to march through data 
+  inData->GetIncrements(inInc);
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  numscalars = inData->GetNumberOfScalarComponents();
+
+  // set up background levels
+  background = new T[numscalars];
+  for (i = 0; i < numscalars; i++)
+    {
+    if (i < 4)
+      {
+      background[i] = T(self->GetBackgroundColor()[i]);
+      }
+    else
+      {
+      background[i] = 0;
+      }
+    }
+
+  for (i = 0; i < 6; i++)
+    {
+    clipExt[i] = outExt[i];
+    }
+
+  int *traversal[3];
+  float *constants[3];
+  double newmat[4][4];
+  int region;
+
+  for (j = 0; j < 4; j++)
+    {
+    for (i = 0; i < 4; i++)
+      {
+      newmat[i][j] = matrix->GetElement(i,j);
+      }
+    } 
+
+  int inId;
+
+  // set up input traversal table for nearest-neighbor interpolation  
+  for (j = 0; j < 3; j++)
+    {
+    traversal[j] = new int[outExt[2*j+1]+1];
+    region = 0;
+    for (i = outExt[2*j]; i <= outExt[2*j+1]; i++)
+      {
+      for (k = 0; k < 3; k++)
+	{ // find which element is nonzero
+	if (newmat[k][j] != 0)
+	  {
+	  break;
+	  }
+	}
+      inId = int((newmat[k][3]+i*newmat[k][j])+1.5)-inExt[2*k]-1;
+      traversal[j][i] = inId*inInc[k];
+      if (inId < 0 || inId > inExt[2*k+1]-inExt[2*k])
+	{
+	if (region == 1)
+	  { // leaving the input extent
+          region = 2;
+	  clipExt[2*j+1] = i-1;
+	  }
+	}
+      else 
+	{
+	if (region == 0)
+	  { // entering the input extent
+	  region = 1;
+	  clipExt[2*j] = i;	   
+	  }
+	}
+      }
+    if (region == 0)
+      { // never entered input extent!
+      clipExt[2*j] = outExt[2*j+1]+1;
+      }
+    }
+  
+  // Loop through output pixels
+  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+    {
+    inPtr0 = inPtr + traversal[2][idZ]; 
+    
+    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+      {
+      inPtr1 = inPtr0 + traversal[1][idY];
+
+      if (!id) 
+	{
+	if (!(count%target)) 
+	  {
+	  self->UpdateProgress(count/(50.0*target));
+	  }
+	count++;
+	}
+
+      // do extent check
+      if (idZ < clipExt[4] || idZ > clipExt[5] ||
+	  idY < clipExt[2] || idY > clipExt[3])
+	{
+	r1 = outExt[1]+1;
+	r2 = outExt[1];
+	}
+      else
+	{
+	r1 = clipExt[0];
+	r2 = clipExt[1];
+	}
+  
+      // clear pixels to left of input extent
+      for (idX = outExt[0]; idX < r1; idX++)
+	{
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      for (idX = r1; idX <= r2; idX++)
+	{
+	inPtr2 = inPtr1 + traversal[0][idX];
+	
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = *inPtr2++;
+	  }
+	}
+
+      // clear pixels to right of input extent
+      for (idX = r2+1; idX <= outExt[1]; idX++)
+        {
+	for (i = 0; i < numscalars; i++)
+	  {
+	  *outPtr++ = background[i];
+	  }
+	}
+
+      outPtr += outIncY;
+      }
+    outPtr += outIncZ;
+    }
+
+  for (j = 0; j < 3; j++)
+    {
+    delete [] traversal[j];
+    }
+  delete [] background;
+}
+
+// check a matrix to ensure that it is a permutation+scale+translation
+// matrix
+
+static int vtkIsPermutationMatrix(vtkMatrix4x4 *matrix)
+{
+  int i,j,k;
+
+  for (i = 0; i < 3; i++)
+    {
+    if (matrix->GetElement(3,i) != 0.0)
+      {
+      return 0;
+      }
+    }
+  if (matrix->GetElement(3,3) != 1.0)
+    {
+    return 0;
+    }
+  for (j = 0; j < 3; j++)
+    {
+    k = 0;
+    for (i = 0; i < 3; i++)
+      {
+      if (matrix->GetElement(i,j) != 0.0)
+	{
+	k++;
+	}
+      }
+    if (k != 1)
+      {
+      return 0;
+      }
+    }
+  return 1;
+}
+
 //----------------------------------------------------------------------------
 // This method is passed a input and output region, and executes the filter
 // algorithm to fill the output from the input.
@@ -1966,30 +2672,74 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
             << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
+
+  // change transform matrix so that instead of taking 
+  // input coords -> output coords it takes output indices -> input indices
+  vtkMatrix4x4 *matrix = this->GetIndexMatrix();
   
-  if (this->Optimization)
+  if (this->Optimization == 2 && vtkIsPermutationMatrix(matrix) &&
+      !this->Wrap && !this->Mirror)
+    {
+    switch (inData->GetScalarType())
+      {
+      case VTK_FLOAT:
+	vtkOptimizedPermuteExecute(this, inData, (float *)(inPtr), 
+			    outData, (float *)(outPtr),outExt, id,
+			    matrix);
+	break;
+      case VTK_INT:
+	vtkOptimizedPermuteExecute(this, inData, (int *)(inPtr), 
+			    outData, (int *)(outPtr),outExt, id,
+			    matrix);
+	break;
+      case VTK_SHORT:
+	vtkOptimizedPermuteExecute(this, inData, (short *)(inPtr), 
+			    outData, (short *)(outPtr),outExt, id,
+			    matrix);
+	break;
+      case VTK_UNSIGNED_SHORT:
+	vtkOptimizedPermuteExecute(this, inData, (unsigned short *)(inPtr), 
+			    outData, (unsigned short *)(outPtr),outExt,id,
+			    matrix);
+	break;
+      case VTK_UNSIGNED_CHAR:
+	vtkOptimizedPermuteExecute(this, inData, (unsigned char *)(inPtr), 
+			    outData, (unsigned char *)(outPtr),outExt, id,
+			    matrix);
+	break;
+      default:
+	vtkErrorMacro(<< "Execute: Unknown input ScalarType");
+	return;
+      }
+    }
+  else if (this->Optimization)
     {
     switch (inData->GetScalarType())
       {
       case VTK_FLOAT:
 	vtkOptimizedExecute(this, inData, (float *)(inPtr), 
-			       outData, (float *)(outPtr),outExt, id);
+			    outData, (float *)(outPtr),outExt, id,
+			    matrix);
 	break;
       case VTK_INT:
 	vtkOptimizedExecute(this, inData, (int *)(inPtr), 
-			       outData, (int *)(outPtr),outExt, id);
+			    outData, (int *)(outPtr),outExt, id,
+			    matrix);
 	break;
       case VTK_SHORT:
 	vtkOptimizedExecute(this, inData, (short *)(inPtr), 
-			       outData, (short *)(outPtr),outExt, id);
+			    outData, (short *)(outPtr),outExt, id,
+			    matrix);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkOptimizedExecute(this, inData, (unsigned short *)(inPtr), 
-			       outData, (unsigned short *)(outPtr),outExt,id);
+			    outData, (unsigned short *)(outPtr),outExt,id,
+			    matrix);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkOptimizedExecute(this, inData, (unsigned char *)(inPtr), 
-			       outData, (unsigned char *)(outPtr),outExt, id);
+			    outData, (unsigned char *)(outPtr),outExt, id,
+			    matrix);
 	break;
       default:
 	vtkErrorMacro(<< "Execute: Unknown input ScalarType");
@@ -2002,23 +2752,28 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
       {
       case VTK_FLOAT:
 	vtkImageResliceExecute(this, inData, (float *)(inPtr), 
-			       outData, (float *)(outPtr),outExt, id);
+			       outData, (float *)(outPtr),outExt, id,
+			       matrix);
 	break;
       case VTK_INT:
 	vtkImageResliceExecute(this, inData, (int *)(inPtr), 
-			       outData, (int *)(outPtr),outExt, id);
+			       outData, (int *)(outPtr),outExt, id,
+			       matrix);
 	break;
       case VTK_SHORT:
 	vtkImageResliceExecute(this, inData, (short *)(inPtr), 
-			       outData, (short *)(outPtr),outExt, id);
+			       outData, (short *)(outPtr),outExt, id,
+			       matrix);
 	break;
       case VTK_UNSIGNED_SHORT:
 	vtkImageResliceExecute(this, inData, (unsigned short *)(inPtr), 
-			       outData, (unsigned short *)(outPtr),outExt,id);
+			       outData, (unsigned short *)(outPtr),outExt,id,
+			       matrix);
 	break;
       case VTK_UNSIGNED_CHAR:
 	vtkImageResliceExecute(this, inData, (unsigned char *)(inPtr), 
-			       outData, (unsigned char *)(outPtr),outExt, id);
+			       outData, (unsigned char *)(outPtr),outExt, id,
+			       matrix);
 	break;
       default:
 	vtkErrorMacro(<< "Execute: Unknown input ScalarType");
