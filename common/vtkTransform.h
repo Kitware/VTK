@@ -255,11 +255,11 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // Description:
   // Use this method only if you wish to compute the transformation in
   // homogenous (x,y,z,w) coordinates, otherwise use TransformPoint().
-  // This method calls this->Matrix->MultiplyPoint().
+  // This method calls this->GetMatrix()->MultiplyPoint().
   void MultiplyPoint(const float in[4], float out[4]) {
-    this->Matrix->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);};
   void MultiplyPoint(const double in[4], double out[4]) {      
-    this->Matrix->MultiplyPoint(in,out);};
+    this->GetMatrix()->MultiplyPoint(in,out);};
 
   // Description:
   // These methods are obsolete.  Use TransformPoints, TransformVectors,
