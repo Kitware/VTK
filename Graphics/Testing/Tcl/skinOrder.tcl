@@ -2,7 +2,7 @@ package require vtktcl
 package require vtktcl_interactor
 package require vtktcl_colors
 
-source SliceOrder.tcl
+source [file join [file dirname [info script]] SliceOrder.tcl]
 
 # Create the RenderWindow, Renderer and Interactor
 #
