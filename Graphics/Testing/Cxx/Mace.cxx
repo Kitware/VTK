@@ -8,6 +8,8 @@
 #include "vtkGlyph3D.h"
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkRegressionTestImage.h"
+
 int main( int argc, char *argv[] )
 {
   vtkRenderer *renderer = vtkRenderer::New();
@@ -46,6 +48,8 @@ int main( int argc, char *argv[] )
 
   // interact with data
   renWin->Render();
+
+  vtkRegressionTestImage( renWin );
 
   // Clean up
   renderer->Delete();
