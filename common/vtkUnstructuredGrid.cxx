@@ -382,7 +382,8 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
   // insert connectivity
   this->Connectivity->InsertNextCell(ptIds);
   // insert type and storage information   
-  vtkDebugMacro(<< "insert location " << this->Connectivity->GetInsertLocation(npts));
+  vtkDebugMacro(<< "insert location " 
+                << this->Connectivity->GetInsertLocation(npts));
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
   return this->Types->InsertNextValue((unsigned char) type);
 
