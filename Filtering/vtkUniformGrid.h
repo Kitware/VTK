@@ -225,6 +225,8 @@ public:
   // 0 otherwise.
   unsigned char GetCellBlanking();
 
+  vtkImageData* NewImageDataCopy();
+
 protected:
   vtkUniformGrid();
   ~vtkUniformGrid();

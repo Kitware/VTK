@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.3");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.4");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -998,6 +998,26 @@ unsigned long vtkUniformGrid::GetActualMemorySize()
   return this->vtkDataSet::GetActualMemorySize();
 }
 
+//----------------------------------------------------------------------------
+vtkImageData* vtkUniformGrid::NewImageDataCopy()
+{
+  vtkImageData* copy = vtkImageData::New();
+
+  copy->ShallowCopy(this);
+
+  double origin[3];
+  double spacing[3];
+  this->GetOrigin(origin);
+  this->GetSpacing(spacing);
+  // First set the extent of the copy to empty so that
+  // the next call computes the DataDescription for us
+  copy->SetExtent(0, -1, 0, -1, 0, -1);
+  copy->SetExtent(this->GetExtent());
+  copy->SetOrigin(origin);
+  copy->SetSpacing(spacing);
+
+  return copy;
+}
 
 //----------------------------------------------------------------------------
 void vtkUniformGrid::ShallowCopy(vtkDataObject *dataObject)
