@@ -93,7 +93,7 @@ int vlDataReader::ReadHeader(FILE *fp, int debug)
   else
     {
     vlReadErrorMacro(<< "Unrecognized file type: "<< line);
-    this->FileType == NULL;
+    this->FileType = NULL;
     return 0;
     }
 
