@@ -35,7 +35,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.10");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.11");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -128,7 +128,7 @@ vtkSplineWidget::vtkSplineWidget()
   // create new points
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
-    position = static_cast<float>(i)/this->Resolution;
+    position = static_cast<float>(i)*(this->NumberOfHandles - 1.0)/(this->NumberOfSplinePoints - 1.0);
     this->SplinePositions[i] = position;
     points->InsertPoint(i, XSpline->Evaluate(position),
                            YSpline->Evaluate(position),
@@ -644,9 +644,6 @@ void vtkSplineWidget::BuildRepresentation()
                        this->YSpline->Evaluate(position),
                        this->ZSpline->Evaluate(position));
     }
-  this->LineData->Update();
-  this->LineMapper->Update();
-  this->LineActor->Modified();
 }
 
 int vtkSplineWidget::HighlightHandle(vtkProp *prop)
@@ -691,16 +688,22 @@ void vtkSplineWidget::HighlightLine(int highlight)
 
 void vtkSplineWidget::OnLeftButtonDown()
 {
-  // We're only here is we are enabled
-  this->State = vtkSplineWidget::Moving;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkSplineWidget::Outside;
+    return;
+    }
+
+  this->State = vtkSplineWidget::Moving;
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path != NULL )
@@ -731,7 +734,8 @@ void vtkSplineWidget::OnLeftButtonDown()
 
 void vtkSplineWidget::OnLeftButtonUp()
 {
-  if ( this->State == vtkSplineWidget::Outside )
+  if ( this->State == vtkSplineWidget::Outside ||
+       this->State == vtkSplineWidget::Start )
     {
     return;
     }
@@ -750,6 +754,17 @@ void vtkSplineWidget::OnLeftButtonUp()
 
 void vtkSplineWidget::OnMiddleButtonDown()
 {
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkSplineWidget::Outside;
+    return;
+    }
+
   if ( this->Interactor->GetControlKey() )
     {
     this->State = vtkSplineWidget::Spinning;
@@ -759,13 +774,9 @@ void vtkSplineWidget::OnMiddleButtonDown()
     this->State = vtkSplineWidget::Moving;
     }
 
-  int X = this->Interactor->GetEventPosition()[0];
-  int Y = this->Interactor->GetEventPosition()[1];
-
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then try to pick the line.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path == NULL )
@@ -796,7 +807,8 @@ void vtkSplineWidget::OnMiddleButtonDown()
 
 void vtkSplineWidget::OnMiddleButtonUp()
 {
-  if ( this->State == vtkSplineWidget::Outside )
+  if ( this->State == vtkSplineWidget::Outside ||
+       this->State == vtkSplineWidget::Start )
     {
     return;
     }
@@ -814,15 +826,22 @@ void vtkSplineWidget::OnMiddleButtonUp()
 
 void vtkSplineWidget::OnRightButtonDown()
 {
-  this->State = vtkSplineWidget::Scaling;
-
   int X = this->Interactor->GetEventPosition()[0];
   int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, make sure that the pick is in the current renderer
+  vtkRenderer *ren = this->Interactor->FindPokedRenderer(X,Y);
+  if ( ren != this->CurrentRenderer )
+    {
+    this->State = vtkSplineWidget::Outside;
+    return;
+    }
+
+  this->State = vtkSplineWidget::Scaling;
 
   // Okay, we can process this. Try to pick handles first;
   // if no handles picked, then pick the bounding box.
   vtkAssemblyPath *path;
-  this->Interactor->FindPokedRenderer(X,Y);
   this->HandlePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->HandlePicker->GetPath();
   if ( path == NULL )
@@ -853,7 +872,8 @@ void vtkSplineWidget::OnRightButtonDown()
 
 void vtkSplineWidget::OnRightButtonUp()
 {
-  if ( this->State == vtkSplineWidget::Outside )
+  if ( this->State == vtkSplineWidget::Outside ||
+       this->State == vtkSplineWidget::Start )
     {
     return;
     }
@@ -897,7 +917,8 @@ void vtkSplineWidget::OnMouseMove()
   this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
                               this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),double(this->Interactor->GetLastEventPosition()[1]),
+  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
+                              double(this->Interactor->GetLastEventPosition()[1]),
                               z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -1312,7 +1333,7 @@ void vtkSplineWidget::Initialize(void)
     }
 
   this->NumberOfHandles = 0;
-  
+
   delete [] this->Handle;
   delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
@@ -1323,16 +1344,6 @@ void vtkSplineWidget::SetResolution(int resolution)
   if (this->Resolution == resolution || resolution < 1)
     {
     return;
-    }
-
-  if ( this->Interactor )
-    {
-    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
-    this->Interactor->GetLastEventPosition()[1]);
-    if ( this->CurrentRenderer != NULL)
-      {
-      this->CurrentRenderer->RemoveProp(this->LineActor);
-      }
     }
 
   this->NumberOfSplinePoints = resolution + 1;
@@ -1349,42 +1360,37 @@ void vtkSplineWidget::SetResolution(int resolution)
 
   this->Resolution = resolution;
 
-  this->LinePicker->DeletePickList(this->LineActor);
-
-  vtkPoints* points = this->LineData->GetPoints();
-  points->Initialize();
-  points->Allocate(this->NumberOfSplinePoints);
-  vtkCellArray* lines = this->LineData->GetLines();
-  lines->Initialize();
-  lines->Allocate(lines->EstimateSize(this->Resolution,2));
-  lines->InsertNextCell(this->NumberOfSplinePoints);
+  vtkPoints* newPoints = vtkPoints::New();
+  newPoints->Allocate(this->NumberOfSplinePoints);
+  vtkCellArray *newLines  = vtkCellArray::New();
+  newLines->Allocate(newLines->EstimateSize(this->Resolution,2));
 
   float position;
   int i;
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
-    position = static_cast<float>(i)/this->Resolution;
+    position = static_cast<float>(i)*(this->NumberOfHandles - 1.0)/(this->NumberOfSplinePoints - 1.0);
     this->SplinePositions[i] = position;
-    points->InsertPoint(i, XSpline->Evaluate(position),
+    newPoints->InsertPoint(i, XSpline->Evaluate(position),
                            YSpline->Evaluate(position),
                            ZSpline->Evaluate(position));
-    lines->InsertCellPoint(i);
     }
 
-  this->LineData->SetPoints(points);
-  this->LineData->SetLines(lines);
-  this->LineMapper->Update();
-  this->LinePicker->AddPickList(this->LineActor);
-
-  if(this->CurrentRenderer != NULL)
+  newLines->InsertNextCell(this->NumberOfSplinePoints);
+  for (i=0; i < this->NumberOfSplinePoints; i++)
     {
-    this->CurrentRenderer->AddActor(this->LineActor);
+    newLines->InsertCellPoint(i);
     }
-}    
+
+  this->LineData->SetPoints(newPoints);
+  newPoints->Delete();
+  this->LineData->SetLines(newLines);
+  newLines->Delete();
+}
 
 void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
-{ 
-  pd->ShallowCopy(this->LineData); 
+{
+  pd->ShallowCopy(this->LineData);
 }
 
 void vtkSplineWidget::SizeHandles()
