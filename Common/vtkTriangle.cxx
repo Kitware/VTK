@@ -26,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkQuadric.h"
 
-vtkCxxRevisionMacro(vtkTriangle, "1.103");
+vtkCxxRevisionMacro(vtkTriangle, "1.104");
 vtkStandardNewMacro(vtkTriangle);
 
 // Construct the triangle with three points.
@@ -985,7 +985,7 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
 
   //  Check whether normals go in same direction
   //
-  if ( (vtkMath::Dot(n1,n2) > 0.0) && (vtkMath::Dot(n2,n3) > 0.0) )
+  if ( (vtkMath::Dot(n1,n2) >= 0.0) && (vtkMath::Dot(n2,n3) >= 0.0) )
     {
     return 1;
     }
