@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.21");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.22");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -183,7 +183,36 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
 int vtkStreamingDemandDrivenPipeline::UpdateWholeExtent()
 {
   this->UpdateInformation();
-  this->SetUpdateExtentToWholeExtent(0);
+  // if we have an output then set the UE to WE for it
+  if (this->Algorithm->GetNumberOfOutputPorts())
+    {
+    this->SetUpdateExtentToWholeExtent(0);
+    }
+  // otherwise do it for the inputs
+  else
+    {
+    // Loop over all input ports.
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      // Loop over all connections on this input port.
+      int numInConnections = this->Algorithm->GetNumberOfInputConnections(i);
+      for (int j=0; j<numInConnections; j++)
+        {
+        // Get the pipeline information for this input connection.
+        vtkInformation* inInfo = this->GetInputInformation(i, j);
+        
+        // Get the executive and port number producing this input.
+        vtkStreamingDemandDrivenPipeline* inExec =
+          vtkStreamingDemandDrivenPipeline::SafeDownCast(
+            inInfo->GetExecutive(vtkExecutive::PRODUCER()));
+        int inPort = inInfo->GetPort(vtkExecutive::PRODUCER());
+        if(inExec)
+          {
+          inExec->SetUpdateExtentToWholeExtent(inPort);
+          }
+        }
+      }
+    }
   return this->Update();
 }
 
