@@ -25,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.11");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.12");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ void vtkAlgorithm::SetInput(int index, vtkAlgorithmOutput* input)
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkAlgorithm::GetOutput(int port)
+vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
 {
   if(!this->OutputPortIndexInRange(port, "get the data object for"))
     {

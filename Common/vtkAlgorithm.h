@@ -116,7 +116,7 @@ public:
   // Description:
   // Get the data object that will contain the algorithm output for
   // the given port.
-  vtkDataObject* GetOutput(int port);
+  vtkDataObject* GetOutputDataObject(int port);
 
   // Description:
   // Set the connection for the given input port index.  Removes
