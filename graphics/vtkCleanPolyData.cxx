@@ -61,11 +61,13 @@ void vtkCleanPolyData::Execute()
 {
   vtkPolyData *input=this->GetInput();
   vtkPointData *pd=input->GetPointData();
+  vtkCellData *cd=input->GetCellData();
   int numPts=input->GetNumberOfPoints();
   vtkPoints *inPts;
   vtkPoints *newPts;
   int numNewPts;
   int *updatedPts= new int[input->GetMaxCellSize()];
+  int cellId, newId;
   int i, ptId;
   int npts, *pts;
   float *x;
@@ -75,6 +77,7 @@ void vtkCleanPolyData::Execute()
   vtkCellArray *inStrips=input->GetStrips(), *newStrips=NULL;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
+  vtkCellData *outputCD = output->GetCellData();
   
   vtkDebugMacro(<<"Cleaning data");
 
@@ -85,6 +88,7 @@ void vtkCleanPolyData::Execute()
     }
 
   outputPD->CopyAllocate(pd);
+  outputCD->CopyAllocate(cd);
   this->CreateDefaultLocator();
 
   // Initialize; compute absolute tolerance from relative given
@@ -102,7 +106,8 @@ void vtkCleanPolyData::Execute()
     newVerts = vtkCellArray::New();
     newVerts->Allocate(inVerts->GetSize());
 
-    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
+    cellId = 0;
+    for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); cellId++)
       {
       for ( numNewPts=0, i=0; i < npts; i++ )
         {
@@ -116,7 +121,8 @@ void vtkCleanPolyData::Execute()
         }
       if ( numNewPts > 0 )
 	{
-	newVerts->InsertNextCell(numNewPts,updatedPts);
+	newId = newVerts->InsertNextCell(numNewPts,updatedPts);
+        outputCD->CopyData (cd, cellId, newId);
 	}
       }
     newVerts->Squeeze();
@@ -129,7 +135,8 @@ void vtkCleanPolyData::Execute()
     newLines = vtkCellArray::New();
     newLines->Allocate(inLines->GetSize());
 
-    for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
+    cellId = 0;
+    for (inLines->InitTraversal(); inLines->GetNextCell(npts,pts); newId++)
       {
       for ( numNewPts=0, i=0; i < npts; i++ )
         {
@@ -148,7 +155,8 @@ void vtkCleanPolyData::Execute()
 
       if ( numNewPts > 1 )
 	{
-	newLines->InsertNextCell(numNewPts,updatedPts);
+	newId = newLines->InsertNextCell(numNewPts,updatedPts);
+        outputCD->CopyData (cd, cellId, newId);
 	}
       }
     newLines->Squeeze();
@@ -162,7 +170,8 @@ void vtkCleanPolyData::Execute()
     {
     newPolys = vtkCellArray::New();
     newPolys->Allocate(inPolys->GetSize());
-    for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
+    cellId = 0;
+    for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); cellId++)
       {
       for ( numNewPts=0, i=0; i < npts; i++ )
         {
@@ -186,7 +195,8 @@ void vtkCleanPolyData::Execute()
 	}
       if ( numNewPts > 2 )
 	{
-	newPolys->InsertNextCell(numNewPts,updatedPts);
+	newId = newPolys->InsertNextCell(numNewPts,updatedPts);
+        outputCD->CopyData(cd, cellId, newId);
 	}
       }
 
@@ -202,7 +212,8 @@ void vtkCleanPolyData::Execute()
     newStrips = vtkCellArray::New();
     newStrips->Allocate(inStrips->GetSize());
 
-    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+    cellId = 0;
+    for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); cellId++)
       {
       for ( numNewPts=0, i=0; i < npts; i++ )
         {
@@ -221,7 +232,8 @@ void vtkCleanPolyData::Execute()
 
       if ( numNewPts > 2 )
 	{
-	newStrips->InsertNextCell(numNewPts,updatedPts);
+	newId = newStrips->InsertNextCell(numNewPts,updatedPts);
+        outputCD->CopyData (cd, cellId, newId);
 	}
       }
 
