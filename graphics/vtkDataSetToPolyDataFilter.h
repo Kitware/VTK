@@ -66,6 +66,10 @@ public:
   virtual void SetInput(vtkDataSet *input);
   vtkDataSet *GetInput();
   
+  // Description:
+  // Do not let images return more than requested.
+  virtual void ComputeInputUpdateExtents( vtkDataObject *output );
+
 protected:
   vtkDataSetToPolyDataFilter() {this->NumberOfRequiredInputs = 1;};
   ~vtkDataSetToPolyDataFilter() {};

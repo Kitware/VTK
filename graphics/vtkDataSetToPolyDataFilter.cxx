@@ -60,3 +60,13 @@ vtkDataSet *vtkDataSetToPolyDataFilter::GetInput()
   return (vtkDataSet *)(this->Inputs[0]);
 }
 
+
+//----------------------------------------------------------------------------
+// Copy the update information across
+void vtkDataSetToPolyDataFilter::ComputeInputUpdateExtents(vtkDataObject *output)
+{
+  vtkDataObject *input = this->GetInput();
+
+  this->vtkPolyDataSource::ComputeInputUpdateExtents(output);
+  input->RequestExactExtentOn();
+}
