@@ -92,6 +92,13 @@ public:
     {
     return vtkSmartPointer<T>(T::New(), NoReference());
     }
+
+  // Description:
+  // Create a new instance of the given VTK object.
+  static vtkSmartPointer<T> NewInstance(T* t)
+    {
+    return vtkSmartPointer<T>(t->NewInstance(), NoReference());
+    }
 protected:
   vtkSmartPointer(T* r, const NoReference& n): vtkSmartPointerBase(r, n) {}
 };
