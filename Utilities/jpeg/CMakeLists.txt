@@ -37,5 +37,5 @@ IF (WIN32)
    ENDIF (BUILD_SHARED_LIBS)
 ENDIF (WIN32)
 
-ADD_LIBRARY(jpeg systemdependent_SRCS common_SRCS compression_SRCS decompression_SRCS)
+ADD_LIBRARY(vtkjpeg systemdependent_SRCS common_SRCS compression_SRCS decompression_SRCS)
 

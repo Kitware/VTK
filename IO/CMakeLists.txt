@@ -61,7 +61,7 @@ vtkWriter
 )
 
 ADD_LIBRARY(vtkIO IO_SRCS)
-LINK_LIBRARIES ( png zlib jpeg )
+LINK_LIBRARIES ( png zlib vtkjpeg )
 
 # Allow the user to customize their build with some local options
 #
