@@ -144,9 +144,38 @@ void vtkRIBProperty::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkProperty::PrintSelf(os,indent);
  
-  os << indent << "SurfaceShader: " << this->SurfaceShader << "\n";
-  os << indent << "DisplacementShader: " << this->SurfaceShader << "\n";
-  os << indent << "Declarations: " << this->Declarations << "\n";
-  os << indent << "Parameters: " << this->Parameters << "\n";
+  if (this->SurfaceShader)
+    {
+    os << indent << "SurfaceShader: " << this->SurfaceShader << "\n";
+    }
+  else
+    {
+    os << indent << "SurfaceShader: (none)\n";
+    }
+  if (this->DisplacementShader)
+    {
+    os << indent << "DisplacementShader: " << this->DisplacementShader << "\n";
+    }
+  else
+    {
+    os << indent << "DisplacementShader: (none)\n";
+    }
+  if (this->Declarations)
+    {
+    os << indent << "Declarations: " << this->Declarations << "\n";
+    }
+  else
+    {
+    os << indent << "Declarations: (none)\n";
+    }
+  if (this->Parameters)
+    {
+    os << indent << "Parameters: " << this->Parameters << "\n";
+    }
+  else
+    {
+    os << indent << "Parameters: (none)\n";
+    }
+
 }
 
