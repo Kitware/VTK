@@ -49,7 +49,7 @@ vtkStructuredGrid::vtkStructuredGrid()
 }
 
 vtkStructuredGrid::vtkStructuredGrid(const vtkStructuredGrid& sg) :
-vtkStructuredData(sg), vtkPointSet(sg)
+vtkPointSet(sg), vtkStructuredData(sg)
 {
 }
 

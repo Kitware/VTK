@@ -292,7 +292,8 @@ unsigned long int vtkSweptSurface::GetMTime()
   unsigned long int transMtime;
   vtkTransform *t;
 
-  for (this->Transforms->InitTraversal(); t = this->Transforms->GetNextItem(); )
+  for (this->Transforms->InitTraversal(); 
+       (t = this->Transforms->GetNextItem()); )
     {
     transMtime = t->GetMTime();
     if ( transMtime > mtime ) mtime = transMtime;
