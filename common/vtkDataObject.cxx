@@ -479,6 +479,8 @@ int vtkDataObject::VerifyUpdateExtent()
 	vtkErrorMacro( << "Cannot break object into " <<
 	               this->UpdateNumberOfPieces << ". The limit is " <<
 	               this->MaximumNumberOfPieces );
+	cerr << "(" << this << "), piece " << this->UpdatePiece
+	     << ", Max " << this->MaximumNumberOfPieces << endl;
 	retval = 0;
 	}
 
@@ -657,8 +659,9 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
   this->DataReleased = src->DataReleased;
   for (idx = 0; idx < 6; ++idx)
     {
-    this->WholeExtent[idx] = this->Extent[idx] = this->UpdateExtent[idx] = 
-      src->Extent[idx];
+    this->WholeExtent[idx] = src->WholeExtent[idx];
+    this->Extent[idx] = src->Extent[idx];
+    this->UpdateExtent[idx] = src->UpdateExtent[idx];
     }
   this->MaximumNumberOfPieces = src->MaximumNumberOfPieces;
   this->Piece = src->Piece;
