@@ -154,7 +154,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
         }
       rtype = vtkGetType(data->Functions[i].ReturnType,
 			 data->Functions[i].ReturnClass);
-      fprintf(fp,"    <li><a name=\"#method%i\">%s%s (", i,
+      fprintf(fp,"    <li><a name=\"method%i\">%s%s (", i,
               rtype, data->Functions[i].Name);
       for (j = 0; j < data->Functions[i].NumberOfArguments; j++)
         {
