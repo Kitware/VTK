@@ -64,8 +64,8 @@ public:
   int CellBoundary(int subId, float pcoords[3], vtkIdList& pts);
 
   void Contour(float value, vtkFloatScalars *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *verts, 
+               vtkPointLocator *locator, vtkCellArray *verts1, 
+               vtkCellArray *lines, vtkCellArray *verts2, 
                vtkPointData *inPd, vtkPointData *outPd);
   void Clip(float value, vtkFloatScalars *cellScalars, 
             vtkPointLocator *locator, vtkCellArray *pts,
