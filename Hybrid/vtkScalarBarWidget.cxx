@@ -24,7 +24,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCoordinate.h"
 
-vtkCxxRevisionMacro(vtkScalarBarWidget, "1.1");
+vtkCxxRevisionMacro(vtkScalarBarWidget, "1.2");
 vtkStandardNewMacro(vtkScalarBarWidget);
 
 vtkScalarBarWidget::vtkScalarBarWidget()
@@ -195,12 +195,16 @@ void vtkScalarBarWidget::SetCursor(int State)
   switch (State)
     {
     case vtkScalarBarWidget::AdjustingP1:
+      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESW);
+      break;
     case vtkScalarBarWidget::AdjustingP3:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENESW);
+      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENE);
       break;
     case vtkScalarBarWidget::AdjustingP2:
+      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZESE);
+      break;
     case vtkScalarBarWidget::AdjustingP4:
-      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENWSE);
+      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_SIZENW);
       break;
     case vtkScalarBarWidget::AdjustingE1:
     case vtkScalarBarWidget::AdjustingE3:
@@ -292,6 +296,7 @@ void vtkScalarBarWidget::OnMouseMove()
         Y < pos1[1] || Y > pos2[1])
       {
       this->State = vtkScalarBarWidget::Outside;
+      this->Interactor->GetRenderWindow()->SetCurrentCursor(VTK_CURSOR_DEFAULT);
       return;
       }
     // adjust the cursor based on our position
