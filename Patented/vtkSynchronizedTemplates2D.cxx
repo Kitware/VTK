@@ -47,7 +47,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.28");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.28.2.1");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -59,6 +59,7 @@ vtkSynchronizedTemplates2D::vtkSynchronizedTemplates2D()
   this->ContourValues = vtkContourValues::New();
   this->ComputeScalars = 1;
   this->InputScalarsSelection = NULL;
+  this->ArrayComponent = 0;
 }
 
 vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
@@ -126,7 +127,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   float s0, s1, s2, value;
   int i, j;
   int lineCases[64];
-
+  
   // The update extent may be different than the extent of the image.
   // The only problem with using the update extent is that one or two 
   // sources enlarge the update extent.  This behavior is slated to be 
@@ -225,7 +226,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
   // on a part of the image.
   scalars += incs[0]*(updateExt[0]-ext[0]) 
     + incs[1]*(updateExt[2]-ext[2])
-    + incs[2]*(updateExt[4]-ext[4]);
+    + incs[2]*(updateExt[4]-ext[4]) + self->GetArrayComponent();
   
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
@@ -401,6 +402,7 @@ void vtkSynchronizedTemplates2D::Execute()
     vtkErrorMacro("Missing input.");
     return;
     }
+
   ext = input->GetUpdateExtent();
   pd = input->GetPointData();
   inScalars = pd->GetScalars(this->InputScalarsSelection);
@@ -410,6 +412,14 @@ void vtkSynchronizedTemplates2D::Execute()
     return;
     }
 
+  int numComps = inScalars->GetNumberOfComponents();
+  if (this->ArrayComponent >= numComps)
+    {
+    vtkErrorMacro("Scalars have " << numComps << " components. "
+                  "ArrayComponent must be smaller than " << numComps);
+    return;
+    }
+  
   // We have to compute the dimenisons from the update extent because
   // the extent may be larger.
   dims[0] = ext[1]-ext[0]+1;
@@ -437,37 +447,20 @@ void vtkSynchronizedTemplates2D::Execute()
   //
   // Check data type and execute appropriate function
   //
-  if (inScalars->GetNumberOfComponents() == 1 )
+
+  void *scalars = inScalars->GetVoidPointer(0);
+  if (this->ComputeScalars)
     {
-    void *scalars = inScalars->GetVoidPointer(0);
-    if (this->ComputeScalars)
-      {
-      newScalars = inScalars->NewInstance();
-      newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-      newScalars->SetName(inScalars->GetName());
-      newScalars->Allocate(5000,25000);
-      }
-    switch (inScalars->GetDataType())
-      {
-      vtkTemplateMacro5(vtkContourImage,this,(VTK_TT *)scalars, newPts,
-                        newScalars, newLines);
-      }//switch
+    newScalars = inScalars->NewInstance();
+    newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
+    newScalars->SetName(inScalars->GetName());
+    newScalars->Allocate(5000,25000);
     }
-  else //multiple components - have to convert
+  switch (inScalars->GetDataType())
     {
-    vtkFloatArray *image = vtkFloatArray::New();
-    image->SetNumberOfComponents(inScalars->GetNumberOfComponents());
-    image->SetNumberOfTuples(dataSize);
-    inScalars->GetTuples(0,dataSize,image);
-    if (this->ComputeScalars)
-      {
-      newScalars = vtkFloatArray::New();
-      newScalars->Allocate(5000,25000);
-      }
-    float *scalars =image->GetPointer(0);
-    vtkContourImage(this, scalars, newPts, newScalars, newLines);
-    image->Delete();
-    }
+    vtkTemplateMacro5(vtkContourImage,this,(VTK_TT *)scalars, newPts,
+                      newScalars, newLines);
+    }//switch
 
   // Lets set the name of the scalars here.
   if (newScalars)
@@ -515,7 +508,6 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "InputScalarsSelection: " 
        << this->InputScalarsSelection << endl;
-    }
+    }  
+  os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
-
-

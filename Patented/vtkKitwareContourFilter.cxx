@@ -33,13 +33,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.29");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.29.2.1");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
 // of 0.0.
 vtkKitwareContourFilter::vtkKitwareContourFilter()
 {
+  this->ArrayComponent = 0;
 }
 
 vtkKitwareContourFilter::~vtkKitwareContourFilter()
@@ -213,6 +214,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     syncTemp2D->SetInput((vtkImageData *)this->GetInput());
     syncTemp2D->SetDebug(this->Debug);
     syncTemp2D->SetNumberOfContours(numContours);
+    syncTemp2D->SetArrayComponent(this->ArrayComponent);
     for (i=0; i < numContours; i++)
       {
       syncTemp2D->SetValue(i,values[i]);
@@ -241,6 +243,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     syncTemp3D->SetComputeScalars (this->ComputeScalars);
     syncTemp3D->SetDebug(this->Debug);
     syncTemp3D->SetNumberOfContours(numContours);
+    syncTemp3D->SetArrayComponent(this->ArrayComponent);
     for (i=0; i < numContours; i++)
       {
       syncTemp3D->SetValue(i,values[i]);
@@ -333,4 +336,5 @@ void vtkKitwareContourFilter::DataSetContour()
 void vtkKitwareContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+  os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
