@@ -42,12 +42,21 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // length, an S range of (0, 1) and a T range of (0, 1).
 vtkProjectedTexture::vtkProjectedTexture()
 {
-  this->SetPosition(0.0, 0.0, 1.0);
+  this->Position[0] = 0.0;
+  this->Position[1] = 0.0;
+  this->Position[2] = 1.0;
+  this->Orientation[0] = this->Orientation[1] = this->Orientation[2] = 0.0;
   this->SetFocalPoint(0.0, 0.0, 0.0);
-  this->SetUp(0.0, 1.0, 0.0);
-  this->SetAspectRatio(1.0, 1.0, 1.0);
-  this->SetSRange(0.0, 1.0);
-  this->SetTRange(0.0, 1.0);
+  this->Up[0] = 0.0;
+  this->Up[1] = 1.0;
+  this->Up[2] = 0.0;
+  this->AspectRatio[0] = 0.0;
+  this->AspectRatio[1] = 1.0;
+  this->AspectRatio[2] = 0.0;
+  this->SRange[0] = 0.0;
+  this->SRange[1] = 1.0;
+  this->TRange[0] = 0.0;
+  this->TRange[1] = 1.0;
 }
 
 
