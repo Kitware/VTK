@@ -119,9 +119,9 @@ void vtkImageShrink3D::ComputeOutputImageInformation(
     imageExtent[2*idx] = 
       (int)(ceil((float)(imageExtent[2*idx] - this->Shift[idx]) 
       / (float)(this->ShrinkFactors[idx])));
-    imageExtent[2*idx+1] = 
-      (int)(ceil((float)(imageExtent[2*idx+1] - this->Shift[idx]) 
-      / (float)(this->ShrinkFactors[idx]))) - 1;
+    imageExtent[2*idx+1] = (int)(floor(
+     (float)(imageExtent[2*idx+1]-this->Shift[idx]-this->ShrinkFactors[idx]+1)
+         / (float)(this->ShrinkFactors[idx])));
     // Change the aspect ratio.
     aspectRatio[idx] *= (float)(this->ShrinkFactors[idx]);
     }
