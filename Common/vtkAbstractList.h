@@ -58,6 +58,16 @@ public:
   virtual int AppendItem(DType a) = 0;
   
   // Description:
+  // Insert an Item to the front of the list.
+  // It returns VTK_OK if successfull.
+  virtual int PrependItem(DType a) = 0;
+  
+  // Description:
+  // Insert an Item to the specific location in the list.
+  // It returns VTK_OK if successfull.
+  virtual int InsertItem(unsigned long loc, DType a) = 0;
+  
+  // Description:
   // Remove an Item from the list
   // It returns VTK_OK if successfull.
   virtual int RemoveItem(unsigned long id) = 0;
@@ -79,6 +89,11 @@ public:
   // not found. The location of the item is returned in res.
   // It returns VTK_OK if successfull.
   virtual int Find(DType a, CompareFunction compare, unsigned long &res) = 0;
+
+  // Description:
+  // Set the capacity of the list.
+  // It returns VTK_OK if successfull.
+  virtual int SetSize(unsigned long size) = 0;
   
 protected:
   vtkAbstractList() {}
