@@ -18,6 +18,7 @@ vtkPiecewiseFunction opacityTransferFunction
     opacityTransferFunction AddPoint 2000  1.0
 
 vtkColorTransferFunction colorTransferFunction
+    colorTransferFunction ClampingOff
     colorTransferFunction AddHSVPoint      0.0 0.01 1.0 1.0
     colorTransferFunction AddHSVPoint   1000.0 0.50 1.0 1.0
     colorTransferFunction AddHSVPoint   2000.0 0.99 1.0 1.0
