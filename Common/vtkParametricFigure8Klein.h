@@ -17,11 +17,11 @@
 // vtkParametricFigure8Klein generates a figure-8 Klein bottle.  A Klein bottle
 // is a closed surface with no interior and only one surface.  It is
 // unrealisable in 3 dimensions without intersecting surfaces.  It can be
-// realised in 4 dimensions by considering the map \f$ F:R^2 \rightarrow R^4 \f$  given by:
+// realised in 4 dimensions by considering the map \f$F:R^2 \rightarrow R^4\f$  given by:
 //
-// - \f$ f(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2)) \f$
+// - \f$f(u,v) = ((r*cos(v)+a)*cos(u),(r*cos(v)+a)*sin(u),r*sin(v)*cos(u/2),r*sin(v)*sin(u/2))\f$
 //
-// This representation of the immersion in \f$ R^3 \f$ is formed by taking two Mobius
+// This representation of the immersion in \f$R^3\f$ is formed by taking two Mobius
 // strips and joining them along their boundaries, this is the so called
 // "Figure-8 Klein Bottle"
 
@@ -63,10 +63,10 @@ public:
   // Description:
   // A Figure-8 Klein bottle.  
   //
-  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
+  // This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$ .
-  // Then the normal is \f$ N = Du X Dv \f$ .
+  // \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
+  // Then the normal is \f$N = Du X Dv\f$ .
   virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:

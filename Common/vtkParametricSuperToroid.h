@@ -101,11 +101,11 @@ public:
   // Description:
   // A supertoroid.
   //
-  // This function performs the mapping \f$ f(u,v) \rightarrow (x,y,x) \f$, returning it
+  // This function performs the mapping \f$f(u,v) \rightarrow (x,y,x)\f$, returning it
   // as Pt. It also returns the partial derivatives Du and Dv.
-  // \f$ Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv) \f$ .
-  // Then the normal is \f$ N = Du X Dv \f$ .
-  void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
+  // \f$Pt = (x, y, z), Du = (dx/du, dy/du, dz/du), Dv = (dx/dv, dy/dv, dz/dv)\f$ .
+  // Then the normal is \f$N = Du X Dv\f$ .
+  virtual void Evaluate(double uvw[3], double Pt[3], double Duvw[9]);
 
   // Description:
   // Calculate a user defined scalar using one or all of uvw,Pt,Duvw.
@@ -120,7 +120,7 @@ public:
   // If the user does not need to calculate a scalar, then the 
   // instantiated function should return zero. 
   //
-  double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
+  virtual double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]);
 
 protected:
   vtkParametricSuperToroid();
