@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class VTK_EXPORT vtkThinPlateSplineTransform : public vtkWarpTransform
 {
 public:
-  vtkTypeMacro(vtkThinPlateSplineTransform,vtkGeneralTransform);
+  vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkThinPlateSplineTransform *New();
 
