@@ -20,12 +20,14 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26");
+vtkCxxRevisionMacro(vtkImageEuclideanToPolar, "1.26.10.1");
 vtkStandardNewMacro(vtkImageEuclideanToPolar);
 
 //----------------------------------------------------------------------------
 vtkImageEuclideanToPolar::vtkImageEuclideanToPolar()
 {
+  this->SetNumberOfInputPorts(1);
+  this->SetNumberOfOutputPorts(1);
   this->ThetaMaximum = 255.0;
 }
 
@@ -83,32 +85,35 @@ void vtkImageEuclideanToPolarExecute(vtkImageEuclideanToPolar *self,
 }
 
 //----------------------------------------------------------------------------
-void vtkImageEuclideanToPolar::ThreadedExecute(vtkImageData *inData, 
-                                       vtkImageData *outData,
+void vtkImageEuclideanToPolar::ThreadedExecute (vtkImageData ***inData, 
+                                       vtkImageData **outData,
                                        int outExt[6], int id)
 {
   vtkDebugMacro(<< "Execute: inData = " << inData 
                 << ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: input ScalarType, " 
+                  << inData[0][0]->GetScalarType()
+                  << ", must match out ScalarType " 
+                  << outData[0]->GetScalarType());
     return;
     }
   
   // input must have at least two components
-  if (inData->GetNumberOfScalarComponents() < 2)
+  if (inData[0][0]->GetNumberOfScalarComponents() < 2)
     {
     vtkErrorMacro(<< "Execute: input does not have at least two components");
     return;
     }
 
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
     vtkTemplateMacro6(vtkImageEuclideanToPolarExecute, this, 
-                      inData, outData, outExt, id, static_cast<VTK_TT *>(0));
+                      inData[0][0], outData[0], outExt, id, 
+                      static_cast<VTK_TT *>(0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
