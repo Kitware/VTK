@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVOI, "1.36");
+vtkCxxRevisionMacro(vtkExtractVOI, "1.37");
 vtkStandardNewMacro(vtkExtractVOI);
 
 //-----------------------------------------------------------------------------
@@ -133,7 +133,6 @@ void vtkExtractVOI::ExecuteData(vtkDataObject *)
   vtkCellData *cd=input->GetCellData();
   vtkImageData *output = this->GetOutput();
   output->SetExtent(output->GetWholeExtent());
-  output->AllocateScalars();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
