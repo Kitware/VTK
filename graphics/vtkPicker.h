@@ -108,7 +108,11 @@ public:
   // Return a collection of all the actors that were intersected.
   // This collection is not sorted. (This is a convenience method
   // to maintain backward compatibility.)
-  vtkActorCollection *GetActors() {return this->Actors;};
+  vtkActorCollection *GetActors() {
+    if (this->Actors->GetNumberOfItems() != 
+	this->PickedPositions->GetNumberOfPoints()) {
+      vtkWarningMacro(<<"Not all Prop3Ds are actors, use GetProp3Ds instead");}
+    return this->Actors; };
 
   // Description:
   // Return a list of the points the the actors returned by GetActors
