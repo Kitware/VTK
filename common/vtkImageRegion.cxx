@@ -71,8 +71,7 @@ vtkImageRegion::vtkImageRegion()
 // actually be deleted.
 vtkImageRegion::~vtkImageRegion()
 {
-  if (this->Data)
-    this->Data->Delete();
+  this->ReleaseData();
 }
 
 
