@@ -196,6 +196,27 @@ public:
   int GatherV(double* data, double* to, 
               int sendlength, int* recvlengths, int* offsets, int root);
 
+  // Description:
+  // Reduce an array to the given root process.  
+  int ReduceMax(int* data, int* to, int size, int root);
+  int ReduceMax(long* data, long* to, int size, int root);
+  int ReduceMax(float* data, float* to, int size, int root);
+  int ReduceMax(double* data, double* to, int size, int root);
+
+  int ReduceMin(int* data, int* to, int size, int root);
+  int ReduceMin(long* data, long* to, int size, int root);
+  int ReduceMin(float* data, float* to, int size, int root);
+  int ReduceMin(double* data, double* to, int size, int root);
+
+  int ReduceSum(int* data, int* to, int size, int root);
+  int ReduceSum(long* data, long* to, int size, int root);
+  int ReduceSum(float* data, float* to, int size, int root);
+  int ReduceSum(double* data, double* to, int size, int root);
+
+  int ReduceAnd(bool* data, bool* to, int size, int root);
+  int ReduceOr(bool* data, bool* to, int size, int root);
+
+
 //BTX
 
   friend class vtkMPIController;

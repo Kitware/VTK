@@ -26,7 +26,7 @@
 
 #include "vtkMPI.h"
 
-vtkCxxRevisionMacro(vtkMPICommunicator, "1.24");
+vtkCxxRevisionMacro(vtkMPICommunicator, "1.25");
 vtkStandardNewMacro(vtkMPICommunicator);
 
 vtkCxxSetObjectMacro(vtkMPICommunicator,Group,vtkMPIGroup);
@@ -86,6 +86,15 @@ int vtkMPICommunicatorGatherVData(
   char* data, char* to, int sendlength, int* recvlengths, 
   int* offsets, int root, MPI_Datatype datatype, 
   MPI_Comm *Handle);
+
+template <class T>
+int vtkMPICommunicatorReduceData(T* data,T* to, int root,
+                                 int sendlength, MPI_Datatype datatype,
+                                 MPI_Op op, MPI_Comm *Handle)
+{
+  return MPI_Reduce(const_cast<T*>(data), to, sendlength, datatype, 
+                    op, root, *(Handle));
+}
 
 //----------------------------------------------------------------------------
 // Return the world communicator (i.e. MPI_COMM_WORLD).
@@ -945,7 +954,6 @@ int vtkMPICommunicator::Gather(float* data, float* to, int length, int root)
     vtkMPICommunicatorGatherData(reinterpret_cast<char*>(data), 
                                  reinterpret_cast<char*>(to), 
                                  length, root, MPI_FLOAT, this->Comm->Handle));
-
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::Gather(double* data, double* to, int length, int root)
@@ -955,7 +963,6 @@ int vtkMPICommunicator::Gather(double* data, double* to, int length, int root)
     vtkMPICommunicatorGatherData(reinterpret_cast<char*>(data), 
                                  reinterpret_cast<char*>(to), 
                                  length, root, MPI_DOUBLE, this->Comm->Handle));
-
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(int* data, int* to, 
@@ -968,7 +975,6 @@ int vtkMPICommunicator::GatherV(int* data, int* to,
                                   reinterpret_cast<char*>(to), 
                                   sendlength, recvlengths, offsets,
                                   root, MPI_INT, this->Comm->Handle));
-
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(unsigned long* data, unsigned long* to, 
@@ -982,7 +988,6 @@ int vtkMPICommunicator::GatherV(unsigned long* data, unsigned long* to,
                                   sendlength, recvlengths, offsets,
                                   root, MPI_UNSIGNED_LONG, 
                                   this->Comm->Handle));
-
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(char* data, char* to,
@@ -1008,7 +1013,6 @@ int vtkMPICommunicator::GatherV(float* data, float* to,
                                   sendlength, recvlengths, offsets,
                                   root, MPI_FLOAT, 
                                   this->Comm->Handle));
-
 }
 //----------------------------------------------------------------------------
 int vtkMPICommunicator::GatherV(double* data, double* to,
@@ -1022,7 +1026,175 @@ int vtkMPICommunicator::GatherV(double* data, double* to,
                                   sendlength, recvlengths, offsets,
                                   root, MPI_DOUBLE, 
                                   this->Comm->Handle));
-
-
 }
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMax(int* data, int* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to, 
+                                 root, sendlength, MPI_INT, 
+                                 MPI_MAX, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMax(long* data, long* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to, 
+                                 root, sendlength, MPI_LONG, 
+                                 MPI_MAX, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMax(float* data, float* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_FLOAT, 
+                                 MPI_MAX, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMax(double* data, double* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_DOUBLE, 
+                                 MPI_MAX, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMin(int* data, int* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_INT, 
+                                 MPI_MIN, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMin(long* data, long* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to, 
+                                 root, sendlength, MPI_LONG, 
+                                 MPI_MIN, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMin(float* data, float* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_FLOAT, 
+                                 MPI_MIN, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceMin(double* data, double* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_DOUBLE, 
+                                 MPI_MIN, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceSum(int* data, int* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_INT, 
+                                 MPI_SUM, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceSum(long* data, long* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to, 
+                                 root, sendlength, MPI_LONG, 
+                                 MPI_SUM, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceSum(float* data, float* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_FLOAT, 
+                                 MPI_SUM, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceSum(double* data, double* to,
+                                  int sendlength, int root)
+{
+  return CheckForMPIError(
+    vtkMPICommunicatorReduceData(data, to,
+                                 root, sendlength, MPI_DOUBLE, 
+                                 MPI_SUM, this->Comm->Handle));
+}
+//----------------------------------------------------------------------------
+// There is no MPI data type bool in the C binding of MPI 
+// -> convert to int!
+int vtkMPICommunicator::ReduceAnd(bool* data, bool* to,
+                                  int size, int root)
+{
+  int *intsbuffer;
+  int *intrbuffer;
 
+  intsbuffer = new int[size]; 
+  intrbuffer = new int[size]; 
+
+  for (int i = 0; i < size; ++i)
+    {
+    intsbuffer[i] = (data[i] ? 1 : 0);
+    }
+
+  int err = CheckForMPIError(
+    vtkMPICommunicatorReduceData(intsbuffer, intrbuffer,
+                                 root, size, MPI_INT, 
+                                 MPI_LAND, this->Comm->Handle));
+
+  for (int i = 0; i < size; ++i)
+    {
+    to[i] = (intrbuffer[i] == 1);
+    }
+
+  delete [] intsbuffer;
+  delete [] intrbuffer;
+
+  return err;
+}
+//----------------------------------------------------------------------------
+int vtkMPICommunicator::ReduceOr(bool* data, bool* to,
+                                 int size, int root)
+{
+  int *intsbuffer;
+  int *intrbuffer;
+
+  intsbuffer = new int[size]; 
+  intrbuffer = new int[size]; 
+
+  for (int i = 0; i < size; ++i)
+    {
+    intsbuffer[i] = (data[i] ? 1 : 0);
+    }
+
+  int err = CheckForMPIError(
+    vtkMPICommunicatorReduceData(intsbuffer, intrbuffer,
+                                 root, size, MPI_INT, 
+                                 MPI_LOR, this->Comm->Handle));
+
+  for (int i = 0; i < size; ++i)
+    {
+    to[i] = (intrbuffer[i] == 1);
+    }
+
+  delete [] intsbuffer;
+  delete [] intrbuffer;
+
+  return err;
+}
+//----------------------------------------------------------------------------
