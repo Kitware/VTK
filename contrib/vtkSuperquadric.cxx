@@ -46,12 +46,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
    in "Graphics Gems III", David Kirk, ed., Academic Press, 1992.
 */
 
-
 #include <math.h>
 #include "vtkSuperquadric.h"
 
-// Description
-// Construct Superquadric radius of 0.5.
+// Construct with superquadric radius of 0.5, toroidal off, center at 0.0,
+// scale (1,1,1), size 0.5, phi roundness 1.0, and theta roundness 0.0.
 vtkSuperquadric::vtkSuperquadric()
 {
   this->Toroidal = 0;
@@ -67,7 +66,6 @@ vtkSuperquadric::vtkSuperquadric()
 
 static const float MAX_FVAL = 1e12;
 static float VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
-
 
 void vtkSuperquadric::SetThetaRoundness(float e) 
 {
