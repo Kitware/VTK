@@ -589,7 +589,17 @@ void TestVoidReturnOuter()
 #endif
 }
 
+// MIPSpro warns about type qualifiers on return types.
+#if defined(_COMPILER_VERSION)
+# pragma set woff 3303 // type qualifier on return is meaningless
+#endif
+
 void const TestVoidConstReturn() {}
+
+#if defined(_COMPILER_VERSION)
+# pragma reset woff 3303 // type qualifier on return is meaningless
+#endif
+
 
 //-------------------------------------------------------------------
 // See if the following code works on all platforms
