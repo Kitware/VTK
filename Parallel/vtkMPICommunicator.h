@@ -177,6 +177,25 @@ public:
   int Gather(float* data        , float* to        , int length, int root);
   int Gather(double* data       , double* to       , int length, int root);
 
+  // Description:
+  // Gather an array to the given root process.  This method
+  // allows for arrays of different sizes on all processes
+  // to be gathered into a single array on the root process.  For the
+  // root process, all arguments are significant, on non-root
+  // processes, only data, sendlength, and root are significant
+  // (all other args can be NULL).  The argument offsets is an array
+  // of integers describing offset for each sent array.
+  int GatherV(int* data, int* to, 
+              int sendlength, int* recvlengths, int* offsets, int root);
+  int GatherV(unsigned long* data, unsigned long* to, 
+              int sendlength, int* recvlengths, int* offsets, int root);
+  int GatherV(char* data, char* to, 
+              int sendlength, int* recvlengths, int* offsets, int root);
+  int GatherV(float* data, float* to, 
+              int sendlength, int* recvlengths, int* offsets, int root);
+  int GatherV(double* data, double* to, 
+              int sendlength, int* recvlengths, int* offsets, int root);
+
 //BTX
 
   friend class vtkMPIController;
