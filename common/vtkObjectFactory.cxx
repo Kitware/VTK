@@ -449,7 +449,7 @@ int vtkObjectFactory::GetEnableFlag(int index)
   return this->OverrideArray[index].EnabledFlag;
 }
 
-const char* vtkObjectFactory::GetDescription(int index)
+const char* vtkObjectFactory::GetOverrideDescription(int index)
 {
   return this->OverrideArray[index].Description;
 }

@@ -160,7 +160,7 @@ public:
   // Description:
   // Return the description for a the class override at the given 
   // index.
-  virtual const char* GetDescription(int index);
+  virtual const char* GetOverrideDescription(int index);
 
   // Description:
   // Set and Get the Enable flag for the specific override of className.
