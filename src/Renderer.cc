@@ -269,10 +269,10 @@ void vlRenderer::ViewToDisplay()
   sizey = size[1];
 
   dx = (int)((this->ViewPoint[0]/this->Aspect[0] + 1.0) * 
-    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 + 0.5 +
+    (sizex*(this->Viewport[2]-this->Viewport[0])) / 2.0 +
       sizex*this->Viewport[0]);
   dy = (int)((this->ViewPoint[1]/this->Aspect[1] + 1.0) * 
-    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 + 0.5 +
+    (sizey*(this->Viewport[3]-this->Viewport[1])) / 2.0 +
       sizey*this->Viewport[1]);
 
   this->SetDisplayPoint(dx,dy,this->ViewPoint[2]);
@@ -297,6 +297,7 @@ void vlRenderer::ViewToWorld()
   result[2] = this->ViewPoint[2];
   result[3] = 1.0;
 
+  mat.Transpose();
   mat.PointMultiply(result,result);
   
   // Get the transformed vector & set WorldPoint 
@@ -315,14 +316,14 @@ void vlRenderer::WorldToView()
   matrix = this->ActiveCamera->GetPerspectiveTransform();
 
   world = this->WorldPoint;
-  view[0] = world[0]*matrix[0][0] + world[1]*matrix[1][0] +
-    world[2]*matrix[2][0] + world[3]*matrix[3][0];
-  view[1] = world[0]*matrix[0][1] + world[1]*matrix[1][1] +
-    world[2]*matrix[2][1] + world[3]*matrix[3][1];
-  view[2] = world[0]*matrix[0][2] + world[1]*matrix[1][2] +
-    world[2]*matrix[2][2] + world[3]*matrix[3][2];
-  view[3] = world[0]*matrix[0][3] + world[1]*matrix[1][3] +
-    world[2]*matrix[2][3] + world[3]*matrix[3][3];
+  view[0] = world[0]*matrix[0][0] + world[1]*matrix[0][1] +
+    world[2]*matrix[0][2] + world[3]*matrix[0][3];
+  view[1] = world[0]*matrix[1][0] + world[1]*matrix[1][1] +
+    world[2]*matrix[1][2] + world[3]*matrix[1][3];
+  view[2] = world[0]*matrix[2][0] + world[1]*matrix[2][1] +
+    world[2]*matrix[2][2] + world[3]*matrix[2][3];
+  view[3] = world[0]*matrix[3][0] + world[1]*matrix[3][1] +
+    world[2]*matrix[3][2] + world[3]*matrix[3][3];
 
   if (view[3] != 0.0)
     {
