@@ -21,6 +21,8 @@
 #include "vtkContourValues.h"
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -31,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.105");
+vtkCxxRevisionMacro(vtkContourFilter, "1.106");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -72,7 +74,7 @@ vtkContourFilter::~vtkContourFilter()
 // then this object is modified as well.
 unsigned long vtkContourFilter::GetMTime()
 {
-  unsigned long mTime=this->vtkDataSetToPolyDataFilter::GetMTime();
+  unsigned long mTime=this->Superclass::GetMTime();
   unsigned long time;
 
   if (this->ContourValues)
@@ -91,7 +93,10 @@ unsigned long vtkContourFilter::GetMTime()
 
 // General contouring filter.  Handles arbitrary input.
 //
-void vtkContourFilter::Execute()
+int vtkContourFilter::RequestData(
+  vtkInformation* request, 
+  vtkInformationVector* inputVector , 
+  vtkInformationVector* outputVector)
 {
   vtkIdType cellId;
   int i, abortExecute=0;
@@ -99,15 +104,25 @@ void vtkContourFilter::Execute()
   vtkDataArray *inScalars;
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
-  vtkDataSet *input=this->GetInput();
-  if (input == NULL) {return;}
-  vtkPolyData *output=this->GetOutput();
   vtkIdType numCells, estimatedSize;
-  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
-  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   int numContours=this->ContourValues->GetNumberOfContours();
   double *values=this->ContourValues->GetValues();
   vtkDataArray *cellScalars;
+
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+  if (!output) {return 0;}
+
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input) {return 0;}
+
+  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
+  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
 
   vtkDebugMacro(<< "Executing contour filter");
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
@@ -137,7 +152,7 @@ void vtkContourFilter::Execute()
     if ( ! inScalars || numCells < 1 )
       {
       vtkDebugMacro(<<"No data to contour");
-      return;
+      return 0;
       }
 
     // Create objects to hold output of contour operation. First estimate
@@ -266,6 +281,8 @@ void vtkContourFilter::Execute()
     this->Locator->Initialize();//releases leftover memory
     output->Squeeze();
     } //else if not vtkUnstructuredGrid
+
+  return 1;
 }
 
 // Specify a spatial locator for merging points. By default, 
@@ -357,4 +374,11 @@ void vtkContourFilter::RemoveReferences()
     this->ScalarTree = 0;
     }
   this->Superclass::RemoveReferences();
+}
+
+int vtkContourFilter::FillInputPortInformation(
+  int vtkNotUsed(port), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }

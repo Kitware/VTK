@@ -20,7 +20,10 @@
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkImageData.h"
 #include "vtkMergePoints.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
@@ -32,7 +35,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.34");
+vtkCxxRevisionMacro(vtkKitwareContourFilter, "1.35");
 vtkStandardNewMacro(vtkKitwareContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -46,125 +49,141 @@ vtkKitwareContourFilter::~vtkKitwareContourFilter()
 {
 }
 
-void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
+int vtkKitwareContourFilter::ComputeInputUpdateExtent(
+  vtkInformation* request,
+  vtkInformationVector* inputVector,
+  vtkInformationVector* outputVector)
 {
-  vtkDataSet *input=this->GetInput();
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!input) 
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+  
+  if (!input || !output) 
     {
-    this->vtkContourFilter::ComputeInputUpdateExtents(data);
-    return;
+    return 0;
     }
 
-   int inputObjectType = input->GetDataObjectType();
-
-   if ( inputObjectType == VTK_STRUCTURED_POINTS || 
-        inputObjectType == VTK_IMAGE_DATA )
-     {
+  int inputObjectType = input->GetDataObjectType();
+  
+  if ( inputObjectType == VTK_STRUCTURED_POINTS || 
+       inputObjectType == VTK_IMAGE_DATA )
+    {
      
-     int ext[6], dims[3], dim=0;
-     ((vtkImageData *)input)->GetWholeExtent(ext);
-     for(int j=0; j<3; j++)
-       {
-       dims[j] = ext[2*j+1]-ext[2*j];
-       if ( dims[j] != 0 )
-         {
-         dim++;
-         }
-       }
+    int ext[6], dims[3], dim=0;
+    ((vtkImageData *)input)->GetWholeExtent(ext);
+    for(int j=0; j<3; j++)
+      {
+      dims[j] = ext[2*j+1]-ext[2*j];
+      if ( dims[j] != 0 )
+        {
+        dim++;
+        }
+      }
      
-     if ((dim == 2) && (dims[2] == 0))
-       {
-       vtkSynchronizedTemplates2D *syncTemp2D = 
-         vtkSynchronizedTemplates2D::New();
-       syncTemp2D->SetInput((vtkImageData *)input);
-       syncTemp2D->SetDebug(this->Debug);
-       syncTemp2D->ComputeInputUpdateExtents(data);
-       syncTemp2D->Delete();
-       return;
-       }
-     else if (dim == 3)
-       {
-       vtkSynchronizedTemplates3D *syncTemp3D =
-         vtkSynchronizedTemplates3D::New();
-       syncTemp3D->SetInput((vtkImageData *)input);
-       syncTemp3D->SetDebug(this->Debug);
-       syncTemp3D->SetComputeNormals (this->ComputeNormals);
-       syncTemp3D->SetComputeGradients (this->ComputeGradients);
-       syncTemp3D->SetComputeScalars (this->ComputeScalars);
-       syncTemp3D->ComputeInputUpdateExtents(data);
-       syncTemp3D->Delete();
-       return;
-       }
-     }
+    if ((dim == 2) && (dims[2] == 0))
+      {
+      vtkSynchronizedTemplates2D *syncTemp2D = 
+        vtkSynchronizedTemplates2D::New();
+      syncTemp2D->SetInput(vtkImageData::SafeDownCast(input));
+      syncTemp2D->SetDebug(this->Debug);
+      syncTemp2D->ComputeInputUpdateExtents(output);
+      syncTemp2D->Delete();
+      return 1;
+      }
+    else if (dim == 3)
+      {
+      vtkSynchronizedTemplates3D *syncTemp3D =
+        vtkSynchronizedTemplates3D::New();
+      syncTemp3D->SetInput(vtkImageData::SafeDownCast(input));
+      syncTemp3D->SetDebug(this->Debug);
+      syncTemp3D->SetComputeNormals (this->ComputeNormals);
+      syncTemp3D->SetComputeGradients (this->ComputeGradients);
+      syncTemp3D->SetComputeScalars (this->ComputeScalars);
+      syncTemp3D->ComputeInputUpdateExtents(output);
+      syncTemp3D->Delete();
+      return 1;
+      }
+    }
 
-   if ( inputObjectType  == VTK_STRUCTURED_GRID )
-     {
-     int ext[6], dim=0;
-     ((vtkStructuredGrid *)input)->GetWholeExtent(ext);
-     for(int j=0; j<3; j++)
-       {
-       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
-         {
-         dim++;
-         }
-       }
-     if (dim == 3)
-       {
-       vtkGridSynchronizedTemplates3D *gridTemp3D =
-         vtkGridSynchronizedTemplates3D::New();
-       gridTemp3D->SetInput((vtkStructuredGrid *)input);
-       gridTemp3D->SetComputeNormals (this->ComputeNormals);
-       gridTemp3D->SetComputeGradients (this->ComputeGradients);
-       gridTemp3D->SetComputeScalars (this->ComputeScalars);
-       gridTemp3D->SetDebug(this->Debug);
-       gridTemp3D->ComputeInputUpdateExtents(data);
-       gridTemp3D->Delete();
-       return;
-       }
-     }
+  if ( inputObjectType  == VTK_STRUCTURED_GRID )
+    {
+    int ext[6], dim=0;
+    ((vtkStructuredGrid *)input)->GetWholeExtent(ext);
+    for(int j=0; j<3; j++)
+      {
+      if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
+        {
+        dim++;
+        }
+      }
+    if (dim == 3)
+      {
+      vtkGridSynchronizedTemplates3D *gridTemp3D =
+        vtkGridSynchronizedTemplates3D::New();
+      gridTemp3D->SetInput(vtkStructuredGrid::SafeDownCast(input));
+      gridTemp3D->SetComputeNormals (this->ComputeNormals);
+      gridTemp3D->SetComputeGradients (this->ComputeGradients);
+      gridTemp3D->SetComputeScalars (this->ComputeScalars);
+      gridTemp3D->SetDebug(this->Debug);
+      gridTemp3D->ComputeInputUpdateExtents(output);
+      gridTemp3D->Delete();
+      return 1;
+      }
+    }
 
-   if ( inputObjectType == VTK_RECTILINEAR_GRID )
-     {
-     int ext[6], dim=0;
-     ((vtkRectilinearGrid *)input)->GetWholeExtent(ext);
-     for(int j=0; j<3; j++)
-       {
-       if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
-         {
-         dim++;
-         }
-       }
-     if (dim == 3)
-       {
-       vtkRectilinearSynchronizedTemplates *rTemp =
-         vtkRectilinearSynchronizedTemplates::New();
-       rTemp->SetInput((vtkRectilinearGrid *)input);
-       rTemp->SetComputeNormals (this->ComputeNormals);
-       rTemp->SetComputeGradients (this->ComputeGradients);
-       rTemp->SetComputeScalars (this->ComputeScalars);
-       rTemp->SetDebug(this->Debug);
-       rTemp->ComputeInputUpdateExtents(data);
-       rTemp->Delete();
-       return;
-       }
-     }
+  if ( inputObjectType == VTK_RECTILINEAR_GRID )
+    {
+    int ext[6], dim=0;
+    ((vtkRectilinearGrid *)input)->GetWholeExtent(ext);
+    for(int j=0; j<3; j++)
+      {
+      if ( ( ext[2*j+1]-ext[2*j] ) != 0 )
+        {
+        dim++;
+        }
+      }
+    if (dim == 3)
+      {
+      vtkRectilinearSynchronizedTemplates *rTemp =
+        vtkRectilinearSynchronizedTemplates::New();
+      rTemp->SetInput(vtkRectilinearGrid::SafeDownCast(input));
+      rTemp->SetComputeNormals (this->ComputeNormals);
+      rTemp->SetComputeGradients (this->ComputeGradients);
+      rTemp->SetComputeScalars (this->ComputeScalars);
+      rTemp->SetDebug(this->Debug);
+      rTemp->ComputeInputUpdateExtents(output);
+      rTemp->Delete();
+      return 1;
+      }
+    }
    
-  this->vtkContourFilter::ComputeInputUpdateExtents(data);
-  return;
-}
-
-void vtkKitwareContourFilter::ExecuteInformation()
-{
+  return this->Superclass::ComputeInputUpdateExtent(request, 
+                                                    inputVector, 
+                                                    outputVector);
 }
 
 //
 // General contouring filter.  Handles arbitrary input.
 //
-void vtkKitwareContourFilter::Execute()
+int vtkKitwareContourFilter::RequestData(
+  vtkInformation* request, 
+  vtkInformationVector* inputVector , 
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input) {return 0;}
+
   vtkDataArray *inScalars;
-  vtkDataSet *input=this->GetInput();
   vtkIdType numCells;
   
   vtkDebugMacro(<< "Executing contour filter");
@@ -174,7 +193,7 @@ void vtkKitwareContourFilter::Execute()
   if ( ! inScalars || numCells < 1 )
     {
     // vtkErrorMacro(<<"No data to contour");
-    return;
+    return 0;
     }
 
   // If structured points and structured grid, use more efficient algorithms
@@ -198,8 +217,8 @@ void vtkKitwareContourFilter::Execute()
 
     if ( dim >= 2 ) 
       {
-      this->StructuredPointsContour(dim);
-      return;
+      this->StructuredPointsContour(dim, input);
+      return 1;
       }
     }
 
@@ -223,8 +242,8 @@ void vtkKitwareContourFilter::Execute()
     // only do 3D structured grids (to be extended in the future)
     if ( dim == 3 ) 
       {
-      this->StructuredGridContour(dim);
-      return;
+      this->StructuredGridContour(dim, input);
+      return 1;
       }
     }
 
@@ -247,20 +266,20 @@ void vtkKitwareContourFilter::Execute()
 
     if ( dim == 3 ) 
       {
-      this->RectilinearGridContour(dim);
-      return;
+      this->RectilinearGridContour(dim, input);
+      return 1;
       }
     }
 
   // otherwise just use the normal one
-  this->vtkContourFilter::Execute();
+  this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 
 //
 // Special method handles structured points
 //
-void vtkKitwareContourFilter::StructuredPointsContour(int dim)
+void vtkKitwareContourFilter::StructuredPointsContour(int dim, vtkDataSet* input)
 {
   vtkPolyData *output;
   vtkPolyData *thisOutput = this->GetOutput();
@@ -273,7 +292,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     int i;
     
     syncTemp2D = vtkSynchronizedTemplates2D::New();
-    syncTemp2D->SetInput((vtkImageData *)this->GetInput());
+    syncTemp2D->SetInput(vtkImageData::SafeDownCast(input));
     syncTemp2D->SetDebug(this->Debug);
     syncTemp2D->SetNumberOfContours(numContours);
     syncTemp2D->SetArrayComponent(this->ArrayComponent);
@@ -299,7 +318,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
     
     syncTemp3D = vtkSynchronizedTemplates3D::New();
     
-    syncTemp3D->SetInput((vtkImageData *)this->GetInput());
+    syncTemp3D->SetInput(vtkImageData::SafeDownCast(input));
     syncTemp3D->SetComputeNormals (this->ComputeNormals);
     syncTemp3D->SetComputeGradients (this->ComputeGradients);
     syncTemp3D->SetComputeScalars (this->ComputeScalars);
@@ -329,7 +348,7 @@ void vtkKitwareContourFilter::StructuredPointsContour(int dim)
 //
 // Special method handles structured grids
 //
-void vtkKitwareContourFilter::StructuredGridContour(int dim)
+void vtkKitwareContourFilter::StructuredGridContour(int dim, vtkDataSet* input)
 {
   vtkPolyData *output = NULL;
   vtkPolyData *thisOutput = this->GetOutput();
@@ -342,7 +361,7 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
     int i;
     
     gridTemp3D = vtkGridSynchronizedTemplates3D::New();
-    gridTemp3D->SetInput((vtkStructuredGrid*)(this->GetInput()));
+    gridTemp3D->SetInput(vtkStructuredGrid::SafeDownCast(input));
     gridTemp3D->SetComputeNormals (this->ComputeNormals);
     gridTemp3D->SetComputeGradients (this->ComputeGradients);
     gridTemp3D->SetComputeScalars (this->ComputeScalars);
@@ -372,7 +391,7 @@ void vtkKitwareContourFilter::StructuredGridContour(int dim)
 //
 // Special method handles rectilinear grids
 //
-void vtkKitwareContourFilter::RectilinearGridContour(int dim)
+void vtkKitwareContourFilter::RectilinearGridContour(int dim, vtkDataSet* input)
 {
   vtkPolyData *output = NULL;
   vtkPolyData *thisOutput = this->GetOutput();
@@ -385,7 +404,7 @@ void vtkKitwareContourFilter::RectilinearGridContour(int dim)
     int i;
     
     rTemp = vtkRectilinearSynchronizedTemplates::New();
-    rTemp->SetInput((vtkRectilinearGrid*)(this->GetInput()));
+    rTemp->SetInput(vtkRectilinearGrid::SafeDownCast(input));
     rTemp->SetComputeNormals (this->ComputeNormals);
     rTemp->SetComputeGradients (this->ComputeGradients);
     rTemp->SetComputeScalars (this->ComputeScalars);
@@ -410,31 +429,6 @@ void vtkKitwareContourFilter::RectilinearGridContour(int dim)
   thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
   thisOutput->GetCellData()->ShallowCopy(output->GetCellData());
   output->UnRegister(this);
-}
-
-void vtkKitwareContourFilter::DataSetContour()
-{
-  vtkPolyData *output = this->GetOutput();
-  int numContours=this->ContourValues->GetNumberOfContours();
-  double *values=this->ContourValues->GetValues();
-
-  vtkContourFilter *contour = vtkContourFilter::New();
-  contour->SetInput((vtkImageData *)this->GetInput());
-  contour->SetOutput(output);
-  contour->SetComputeNormals (this->ComputeNormals);
-  contour->SetComputeGradients (this->ComputeGradients);
-  contour->SetComputeScalars (this->ComputeScalars);
-  contour->SetDebug(this->Debug);
-  contour->SetNumberOfContours(numContours);
-  for (int i=0; i < numContours; i++)
-    {
-    contour->SetValue(i,values[i]);
-    }
-
-  contour->SelectInputScalars(this->InputScalarsSelection);
-  contour->Update();
-  this->SetOutput(output);
-  contour->Delete();
 }
 
 //----------------------------------------------------------------------------

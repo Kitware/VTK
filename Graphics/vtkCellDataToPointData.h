@@ -27,19 +27,21 @@
 // of output you want.
 
 // .SECTION See Also
-// vtkDataSetToDataSetFilter vtkPointData vtkCellData vtkPointDataToCellData
+// vtkPointData vtkCellData vtkPointDataToCellData
 
 
 #ifndef __vtkCellDataToPointData_h
 #define __vtkCellDataToPointData_h
 
-#include "vtkDataSetToDataSetFilter.h"
+#include "vtkDataSetAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkCellDataToPointData : public vtkDataSetToDataSetFilter
+class vtkDataSet;
+
+class VTK_GRAPHICS_EXPORT vtkCellDataToPointData : public vtkDataSetAlgorithm
 {
 public:
   static vtkCellDataToPointData *New();
-  vtkTypeRevisionMacro(vtkCellDataToPointData,vtkDataSetToDataSetFilter);
+  vtkTypeRevisionMacro(vtkCellDataToPointData,vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -54,7 +56,9 @@ protected:
   vtkCellDataToPointData();
   ~vtkCellDataToPointData() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation* request, 
+                          vtkInformationVector* inputVector, 
+                          vtkInformationVector* outputVector);
 
   int PassCellData;
 private:

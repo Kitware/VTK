@@ -45,7 +45,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.26");
+vtkCxxRevisionMacro(vtkMarchingContourFilter, "1.27");
 vtkStandardNewMacro(vtkMarchingContourFilter);
 
 // Construct object with initial range (0,1) and single contour value
@@ -222,7 +222,6 @@ void vtkMarchingContourFilter::DataSetContour()
 
   vtkContourFilter *contour = vtkContourFilter::New();
   contour->SetInput((vtkImageData *)this->GetInput());
-  contour->SetOutput(output);
   contour->SetComputeNormals (this->ComputeNormals);
   contour->SetComputeGradients (this->ComputeGradients);
   contour->SetComputeScalars (this->ComputeScalars);
@@ -234,6 +233,7 @@ void vtkMarchingContourFilter::DataSetContour()
     }
 
   contour->Update();
+  output->ShallowCopy(contour->GetOutput());
   this->SetOutput(output);
   contour->Delete();
 }

@@ -17,12 +17,15 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCellDataToPointData, "1.26");
+vtkCxxRevisionMacro(vtkCellDataToPointData, "1.27");
 vtkStandardNewMacro(vtkCellDataToPointData);
 
+//----------------------------------------------------------------------------
 // Instantiate object so that cell data is not passed to output.
 vtkCellDataToPointData::vtkCellDataToPointData()
 {
@@ -31,12 +34,26 @@ vtkCellDataToPointData::vtkCellDataToPointData()
 
 #define VTK_MAX_CELLS_PER_POINT 4096
 
-void vtkCellDataToPointData::Execute()
+//----------------------------------------------------------------------------
+int vtkCellDataToPointData::RequestData(
+  vtkInformation* request, 
+  vtkInformationVector* inputVector , 
+  vtkInformationVector* outputVector)
 {
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+  if (!output) {return 0;}
+
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  vtkDataSet *input = vtkDataSet::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  if (!input) {return 0;}
+
   vtkIdType cellId, ptId;
   vtkIdType numCells, numPts;
-  vtkDataSet *input= this->GetInput();
-  vtkDataSet *output= this->GetOutput();
   vtkCellData *inPD=input->GetCellData();
   vtkPointData *outPD=output->GetPointData();
   vtkIdList *cellIds;
@@ -55,7 +72,7 @@ void vtkCellDataToPointData::Execute()
     {
     vtkErrorMacro(<<"No input point data!");
     cellIds->Delete();
-    return;
+    return 0;
     }
   weights = new double[VTK_MAX_CELLS_PER_POINT];
   
@@ -102,8 +119,11 @@ void vtkCellDataToPointData::Execute()
 
   cellIds->Delete();
   delete [] weights;
+  
+  return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkCellDataToPointData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

@@ -49,17 +49,17 @@
 #ifndef __vtkContourFilter_h
 #define __vtkContourFilter_h
 
-#include "vtkDataSetToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 #include "vtkContourValues.h" // Needed for inline methods
 
 class vtkPointLocator;
 class vtkScalarTree;
 
-class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkDataSetToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkContourFilter,vtkDataSetToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkContourFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -144,7 +144,11 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
   virtual void RemoveReferences();
 
-  void Execute();
+  virtual int RequestData(vtkInformation *request, 
+                          vtkInformationVector *inputVector, 
+                          vtkInformationVector *outputVector);
+
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   vtkContourValues *ContourValues;
   int ComputeNormals;

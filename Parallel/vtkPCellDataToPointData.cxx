@@ -13,11 +13,14 @@
 
 =========================================================================*/
 #include "vtkPCellDataToPointData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.2");
+vtkCxxRevisionMacro(vtkPCellDataToPointData, "1.3");
 vtkStandardNewMacro(vtkPCellDataToPointData);
 
 //----------------------------------------------------------------------------
@@ -27,67 +30,91 @@ vtkPCellDataToPointData::vtkPCellDataToPointData()
 }
 
 //----------------------------------------------------------------------------
-void vtkPCellDataToPointData::Execute()
+int vtkPCellDataToPointData::RequestData(
+  vtkInformation* request, 
+  vtkInformationVector* inputVector , 
+  vtkInformationVector* outputVector)
 {
-  vtkDataSet *output = this->GetOutput();
+  vtkInformation* info = outputVector->GetInformationObject(0);
+  vtkDataSet *output = vtkDataSet::SafeDownCast(
+    info->Get(vtkDataObject::DATA_OBJECT()));
+  if (!output) {return 0;}
 
-  this->vtkCellDataToPointData::Execute();
+  if ( !this->Superclass::RequestData(request, inputVector, outputVector) )
+    {
+    return 0;
+    }
 
   // Remove the extra (now ivalid) ghost cells.
   // This is only necessary fro unstructured data.  
   if (this->PieceInvariant)
     {
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    int ghostLevel = outInfo->Get(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
     vtkPolyData *pd = vtkPolyData::SafeDownCast(output);
     vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(output);
     if (pd)
       {
-      pd->RemoveGhostCells(pd->GetUpdateGhostLevel()+1);
+      pd->RemoveGhostCells(ghostLevel+1);
       }
     if (ug)
       {
-      ug->RemoveGhostCells(ug->GetUpdateGhostLevel()+1);
+      ug->RemoveGhostCells(ghostLevel+1);
       }
-    }                                       
+    }
+  return 1;
 }
 
 //--------------------------------------------------------------------------
-void vtkPCellDataToPointData::ComputeInputUpdateExtents(vtkDataObject *output)
+int vtkPCellDataToPointData::ComputeInputUpdateExtent(
+  vtkInformation* request,
+  vtkInformationVector* inputVector,
+  vtkInformationVector* outputVector)
 {
-  vtkDataSet *input = this->GetInput();
-  int piece = output->GetUpdatePiece();
-  int numPieces = output->GetUpdateNumberOfPieces();
-  int ghostLevel = output->GetUpdateGhostLevel();
-  int i;
-
-  if (input == NULL)
-    {
-    return;
-    }
   if (this->PieceInvariant == 0)
     { 
     // I believe the default input update extent 
     // is set to the input update extent.
-    return;
+    return 1;
     }
 
-  switch (input->GetDataObjectType())
+  vtkInformation* opInfo = this->GetOutputPortInformation(0);
+  int extentType = opInfo->Get(vtkDataObject::DATA_EXTENT_TYPE());
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  vtkInformation* inInfo = 
+    inputVector->GetInformationObject(0)->Get(
+      vtkAlgorithm::INPUT_CONNECTION_INFORMATION())->GetInformationObject(0);
+  
+  int piece, numPieces, ghostLevel;
+  int* wholeExt;
+  int* upExt;
+  int ext[6];
+  switch (extentType)
     {
-    case VTK_POLY_DATA:
-    case VTK_UNSTRUCTURED_GRID:
-      input->SetUpdatePiece(piece);
-      input->SetUpdateNumberOfPieces(numPieces);
-      input->SetUpdateGhostLevel(ghostLevel);
+    case VTK_PIECES_EXTENT:
+      piece = outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+      numPieces = outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+      ghostLevel = outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()) + 1;
+      inInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
+      inInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), numPieces);
+      inInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), 
+        ghostLevel);
+      return 1;
       break;
-    case VTK_IMAGE_DATA:
-    case VTK_STRUCTURED_POINTS:
-    case VTK_STRUCTURED_GRID:
-    case VTK_RECTILINEAR_GRID:
-      {
-      int *wholeExt;
-      int ext[6];
-      wholeExt = input->GetWholeExtent();
-      output->GetUpdateExtent(ext);
-      for (i = 0; i < 3; ++i)
+    case VTK_3D_EXTENT:
+      wholeExt = inInfo->Get(
+        vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+      upExt = outInfo->Get(
+        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+      memcpy(ext, upExt, 6*sizeof(int));
+      for (int i = 0; i < 3; ++i)
         {
         --ext[i*2];
         if (ext[i*2] < wholeExt[i*2])
@@ -100,9 +127,12 @@ void vtkPCellDataToPointData::ComputeInputUpdateExtents(vtkDataObject *output)
           ext[i*2+1] = wholeExt[i*2+1];
           }
         }
-      input->SetUpdateExtent(ext);
-      }
-    }  
+      inInfo->Set(
+        vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
+      return 1;
+      break;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -55,6 +55,8 @@
 
 #include "vtkContourFilter.h"
 
+class vtkDataSet;
+
 class VTK_PATENTED_EXPORT vtkKitwareContourFilter : public vtkContourFilter
 {
 public:
@@ -76,18 +78,19 @@ protected:
   vtkKitwareContourFilter();
   ~vtkKitwareContourFilter();
 
-  void ComputeInputUpdateExtents(vtkDataObject *data);
-  void Execute();
-  void ExecuteInformation();
+  virtual int ComputeInputUpdateExtent(vtkInformation* request,
+                                       vtkInformationVector* inputVector,
+                                       vtkInformationVector* outputVector);
+  virtual int RequestData(vtkInformation* request, 
+                          vtkInformationVector* inputVector, 
+                          vtkInformationVector* outputVector);
 
   //special contouring for structured points
-  void StructuredPointsContour(int dim); 
+  void StructuredPointsContour(int dim, vtkDataSet* input); 
   //special contouring for structured grid
-  void StructuredGridContour(int dim);
+  void StructuredGridContour(int dim, vtkDataSet* input);
   //special contouring for rectilinear grid
-  void RectilinearGridContour(int dim);
-  //default if not structured data
-  void DataSetContour();
+  void RectilinearGridContour(int dim, vtkDataSet* input);
   
   int ArrayComponent;
   

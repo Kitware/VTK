@@ -46,8 +46,12 @@ protected:
   ~vtkPCellDataToPointData() {};
 
   // Usual data generation method
-  virtual void Execute();
-  void ComputeInputUpdateExtents(vtkDataObject *output);
+  virtual int RequestData(vtkInformation *request, 
+                          vtkInformationVector *inputVector, 
+                          vtkInformationVector *outputVector);
+  virtual int ComputeInputUpdateExtent(vtkInformation* request,
+                                       vtkInformationVector* inputVector,
+                                       vtkInformationVector* outputVector);
 
   int PieceInvariant;
 private:
