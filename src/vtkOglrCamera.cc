@@ -173,18 +173,18 @@ void vtkOglrCamera::Render(vtkCamera *cam, vtkOglrRenderer *ren)
     switch ((ren->GetRenderWindow())->GetStereoType())
       {
       case VTK_STEREO_CRYSTAL_EYES:
-	aspect[0] = 1.0;
-	aspect[1] = 2.0*(float)(top-bottom+1)/(float)(right-left+1);
+	aspect[0] = (float)(right-left+1)/(float)(2.0*(top-bottom+1));
+	aspect[1] = 1.0;
 	break;
       default:
-	aspect[0] = 1.0;
-	aspect[1] = (float)(top-bottom+1)/(float)(right-left+1);
+	aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
+	aspect[1] = 1.0;
       }
     }
   else
     {
-    aspect[0] = 1.0;
-    aspect[1] = (float)(top-bottom+1)/(float)(right-left+1);
+    aspect[0] = (float)(right-left+1)/(float)(top-bottom+1);
+    aspect[1] = 1.0;
     }
   
   ren->SetAspect(aspect);
