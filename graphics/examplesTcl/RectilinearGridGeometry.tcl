@@ -124,6 +124,10 @@ $cam1 Zoom 2.5
 iren Initialize
 #renWin SetFileName "RectilinearGridGeometry.tcl.ppm"
 #renWin SaveImageAsPPM
+vtkRectilinearGridWriter writer
+  writer SetFileName rgrid.vtk
+  writer SetInput rg3
+  writer Update
 
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
