@@ -83,6 +83,9 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->Function = NULL;
   this->FunctionSize = 0;
   this->NumberOfPoints = 0;
+
+  this->Table = NULL;
+  this->TableSize = 0;
 }
 
 // Destruct a vtkColorTransferFunction
@@ -95,10 +98,8 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   this->Blue->Delete();
   this->Blue = NULL;  
   
-  if ( this->Function )
-    {
-    delete [] this->Function;
-    }
+  delete [] this->Function;
+  delete [] this->Table;
 }
 
 
@@ -573,6 +574,126 @@ void vtkColorTransferFunction::GetTable( float x1, float x2,
     }
 }
 
+const unsigned char *vtkColorTransferFunction::GetTable( float x1, float x2, 
+                                                         int size)
+{
+  float x, xinc=0;
+  float *fptr = this->Function;
+  int   loc;
+  int   i;
+  float weight;
+  
+  if (this->GetMTime() <= this->BuildTime &&
+      this->TableSize == size)
+    {
+    return this->Table;
+    }
+
+  if ( this->NumberOfPoints == 0 )
+    {
+    vtkErrorMacro( 
+      "Attempting to lookup a value with no points in the function");
+    return this->Table;
+    }
+  
+  if (this->TableSize != size)
+    {
+    delete [] this->Table;
+    this->Table = new unsigned char [size*3];
+    this->TableSize = size;
+    }
+  unsigned char *tptr = this->Table;
+  
+  if ( size > 1 )
+    {
+    xinc = (x2 - x1) / (float)(size-1);
+    }
+  
+  loc  = 0;
+  for ( i = 0, x = x1; i < size; i++, x += xinc )
+    {
+    while ( (loc < this->NumberOfPoints) && (x > *fptr) )
+      {
+      loc++;
+      fptr+=4;
+      }
+    
+    // Are we past the outside edge? if so, fill in according to Clamping
+    if ( loc == this->NumberOfPoints )
+      {
+      if ( this->Clamping )
+        {
+        *(tptr++) = (unsigned char)(*(fptr-3)*255);
+        *(tptr++) = (unsigned char)(*(fptr-2)*255);
+        *(tptr++) = (unsigned char)(*(fptr-1)*255);        
+        }
+      else
+        {
+        *(tptr++) = 0;
+        *(tptr++) = 0;
+        *(tptr++) = 0;        
+        }      
+      }
+    else
+      {
+      // Do we have an exact match?
+      if ( x == *fptr )
+        {
+        *(tptr++) = (unsigned char)(*(fptr+1)*255);
+        *(tptr++) = (unsigned char)(*(fptr+2)*255);
+        *(tptr++) = (unsigned char)(*(fptr+3)*255);
+        }
+      // Are we before the beginning?
+      else if ( loc == 0 )
+        {
+        if ( this->Clamping )
+          {
+          *(tptr++) = (unsigned char)(*(fptr+1)*255);
+          *(tptr++) = (unsigned char)(*(fptr+2)*255);
+          *(tptr++) = (unsigned char)(*(fptr+3)*255);
+          }
+        else
+          {
+          *(tptr++) = 0;
+          *(tptr++) = 0;
+          *(tptr++) = 0;
+          }
+        }
+      // We are somewhere in the middle. Use the correct interpolation.
+      else
+        {
+        weight = (x - *(fptr-4)) / (*fptr - *(fptr-4));
+      
+        // RGB space
+        if ( this->ColorSpace == VTK_CTF_RGB )
+          {
+          *(tptr++) = (unsigned char)
+            (255*((1.0-weight) * *(fptr-3) + weight * *(fptr+1)));
+          *(tptr++) = (unsigned char)
+            (255*((1.0-weight) * *(fptr-2) + weight * *(fptr+2)));
+          *(tptr++) = (unsigned char)
+            (255*((1.0-weight) * *(fptr-1) + weight * *(fptr+3)));
+          }
+        // HSV space
+        else
+          {
+          float h1, h2, h3, s1, s2, s3, v1, v2, v3;
+          this->RGBToHSV(*(fptr-3), *(fptr-2), *(fptr-1), h1, s1, v1);
+          this->RGBToHSV(*(fptr+1), *(fptr+2), *(fptr+3), h2, s2, v2);
+          h3 = (1.0-weight)*h1 + weight*h2;
+          s3 = (1.0-weight)*s1 + weight*s2;
+          v3 = (1.0-weight)*v1 + weight*v2;
+          this->HSVToRGB(h3, s3, v3, h1, s1, v1 );
+          *(tptr++) = (unsigned char)(255*h1);
+          *(tptr++) = (unsigned char)(255*s1);
+          *(tptr++) = (unsigned char)(255*v1);
+          }
+        }
+      }
+    }
+  this->BuildTime.Modified();
+  return this->Table;
+}
 
 void vtkColorTransferFunction::BuildFunctionFromTable( float x1, float x2,
 						       int size, float *table)
@@ -722,6 +843,133 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
     }
 }
 
+
+
+static void 
+vtkColorTransferFunctionMapUnsignedCharData(vtkColorTransferFunction *self, 
+                                            unsigned char *input, 
+                                            unsigned char *output, 
+                                            int length, int inIncr, 
+                                            int outFormat)
+{
+  int            x;
+  int            i = length;
+  unsigned char  *optr = output;
+  unsigned char  *iptr = input;
+
+  if(self->GetSize() == 0)
+    {
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
+    }
+  
+  const unsigned char *table = self->GetTable(0,255,256);
+  switch (outFormat)
+    {
+    case VTK_RGB:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = table[x+1];
+        *(optr++) = table[x+2];
+        iptr += inIncr;
+        }
+      break;
+    case VTK_RGBA:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = table[x+1];
+        *(optr++) = table[x+2];
+        *(optr++) = 255;
+        iptr += inIncr;
+        }
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = 255;
+        iptr += inIncr;
+        }
+      break;
+    case VTK_LUMINANCE:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        iptr += inIncr;
+        }
+      break;
+    }  
+}
+
+static void 
+vtkColorTransferFunctionMapUnsignedShortData(vtkColorTransferFunction *self, 
+                                             unsigned short *input, 
+                                             unsigned char *output, 
+                                             int length, int inIncr, 
+                                             int outFormat)
+{
+  int            x;
+  int            i = length;
+  unsigned char  *optr = output;
+  unsigned short *iptr = input;
+
+  if(self->GetSize() == 0)
+    {
+    vtkGenericWarningMacro("Transfer Function Has No Points!");
+    return;
+    }
+  
+
+  const unsigned char *table = self->GetTable(0,65535,65536);
+  switch (outFormat)
+    {
+    case VTK_RGB:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = table[x+1];
+        *(optr++) = table[x+2];
+        iptr += inIncr;
+        }
+      break;
+    case VTK_RGBA:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = table[x+1];
+        *(optr++) = table[x+2];
+        *(optr++) = 255;
+        iptr += inIncr;
+        }
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        *(optr++) = 255;
+        iptr += inIncr;
+        }
+      break;
+    case VTK_LUMINANCE:
+      while (--i >= 0) 
+        {
+        x = *iptr*3;
+        *(optr++) = table[x];
+        iptr += inIncr;
+        }
+      break;
+    }  
+}
+
 void vtkColorTransferFunction::MapScalarsThroughTable2(void *input, 
                                                        unsigned char *output,
                                                        int inputDataType, 
@@ -738,9 +986,9 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
       break;
       
     case VTK_UNSIGNED_CHAR:
-      vtkColorTransferFunctionMapData(this,(unsigned char *)input,
-				      output,numberOfValues,
-				      inputIncrement,outputFormat);
+      vtkColorTransferFunctionMapUnsignedCharData(this,(unsigned char *)input,
+                                                  output,numberOfValues,
+                                                  inputIncrement,outputFormat);
       break;
       
     case VTK_SHORT:
@@ -750,9 +998,11 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
       break;
       
     case VTK_UNSIGNED_SHORT:
-      vtkColorTransferFunctionMapData(this,(unsigned short *)input,
-				      output,numberOfValues,
-				      inputIncrement,outputFormat);
+      vtkColorTransferFunctionMapUnsignedShortData(this,
+                                                   (unsigned short *)input,
+                                                   output,numberOfValues,
+                                                   inputIncrement,
+                                                   outputFormat);
       break;
       
     case VTK_INT:
