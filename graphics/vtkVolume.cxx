@@ -779,6 +779,16 @@ void vtkVolume::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Property: (not defined)\n";
     }
 
+  if( this->Mapper )
+    {
+    os << indent << "Mapper:\n";
+    this->Mapper->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Mapper: (not defined)\n";
+    }
+
   // make sure our bounds are up to date
   if ( this->Mapper )
     {
