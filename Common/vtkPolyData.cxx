@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCriticalSection.h"
 
-vtkCxxRevisionMacro(vtkPolyData, "1.145");
+vtkCxxRevisionMacro(vtkPolyData, "1.146");
 vtkStandardNewMacro(vtkPolyData);
 
 //----------------------------------------------------------------------------
@@ -1726,10 +1726,7 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
       }
     if (polyData->Cells)
       {
-      this->Cells = vtkCellTypes::New();
-      this->Cells->DeepCopy(polyData->Cells);
-      this->Cells->Register(this);
-      this->Cells->Delete();
+      this->BuildCells();
       }
 
     if ( this->Links )
@@ -1739,10 +1736,7 @@ void vtkPolyData::DeepCopy(vtkDataObject *dataObject)
       }
     if (polyData->Links)
       {
-      this->Links = vtkCellLinks::New();
-      this->Links->DeepCopy(polyData->Links);
-      this->Links->Register(this);
-      this->Links->Delete();
+      this->BuildLinks();
       }
     }
 
