@@ -400,7 +400,7 @@ INSTALL_TARGETS(/lib/vtk vtkRendering)
 INSTALL_FILES(/include/vtk .h Rendering_SRCS vtkRender)
 IF (HAVE_OPENGL_SRCS)
   INSTALL_FILES(/include/vtk .h RenderingOpenGL_SRCS)
-ENDIF (HAVE_OPENGL_SRCS))
+ENDIF (HAVE_OPENGL_SRCS)
 
 CONFIGURE_FILE(
 ${VTK_SOURCE_DIR}/Rendering/tkInternals/.NoDartCoverage 
