@@ -274,6 +274,15 @@ void vtkImageReader::UpdateImageInformation(vtkImageRegion *region)
 }
 
 
+//----------------------------------------------------------------------------
+// Manual initialization.
+void vtkImageReader::SetHeaderSize(int size)
+{
+  this->HeaderSize = size;
+  this->Modified();
+  this->Initialized = 1;
+}
+  
 
 //----------------------------------------------------------------------------
 // Description:

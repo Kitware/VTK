@@ -109,6 +109,10 @@ public:
   // Description:
   // Get the size of the header computed by this object.
   vtkGetMacro(HeaderSize, int);
+  // Description:
+  // If there is a tail on the file, you want to explicitly set the
+  // header size.
+  void SetHeaderSize(int size);
   
   // Description:
   // Set/Get the pixel mask. The mask is for legacy compatablilty.

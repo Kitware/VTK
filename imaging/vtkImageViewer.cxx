@@ -65,7 +65,6 @@ vtkImageViewer::vtkImageViewer()
   this->Red = 0;
   this->Green = 1;
   this->Blue = 2;
-  this->GreyScale = 0;
 
   this->XOffset = 0;
   this->YOffset = 0;
@@ -121,7 +120,19 @@ void vtkImageViewer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Extent: (" << b[0] << ", " << b[1] << ", " << b[2] 
      << ", " << b[3] << ")\n";
   os << indent << "Coordinate2: " << this->Coordinate2 << "\n";
-  os << indent << "Coordinate3: " << this->Coordinate3 << "\n";
+  os << indent << "ColorWindow: " << this->ColorWindow << "\n";
+  os << indent << "ColorLevel: " << this->ColorLevel << "\n";
+  if (this->ColorFlag)
+    {
+    os << indent << "ColorFlag: On \n";
+    os << indent << "Red: " << this->Red << "\n";
+    os << indent << "Green: " << this->Green << "\n";
+    os << indent << "Blue: " << this->Blue << "\n";
+    }
+  else
+    {
+    os << indent << "ColorFlag: Off \n";
+    }
 }
 
 
