@@ -139,8 +139,8 @@ template <class T>
 static int sendMessage(T* data, int length, int tag, int sock)
 {
   // Need to check the return value of these
-  send(sock, &tag, sizeof(int), 0);
-  send(sock, data, length*sizeof(T), 0);
+  send(sock, (char *)tag, sizeof(int), 0);
+  send(sock, (char *)data, length*sizeof(T), 0);
   return 1;
 }
 
@@ -196,12 +196,12 @@ static int receiveMessage(T* data, int length, int tag, int sock)
   int recvTag=-1;
 
   // Need to check the return value of these
-  recv(sock, &recvTag, sizeof(int), MSG_PEEK);
+  recv(sock, (char *)&recvTag, sizeof(int), MSG_PEEK);
   if (recvTag != tag)
     return 0;
 
-  recv(sock, &recvTag, sizeof(int), 0);
-  recv(sock, data, length*sizeof(T), 0);
+  recv(sock, (char *)&recvTag, sizeof(int), 0);
+  recv(sock, (char *)data, length*sizeof(T), 0);
 
   return 1;
 
