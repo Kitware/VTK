@@ -151,8 +151,8 @@ void vtkImage2dDecomposedFilter::SetAxes2d(int axis1, int axis2)
     return;
     }
   
-  this->Filter0->SetAxis1d(axis1);
-  this->Filter1->SetAxis1d(axis2);
+  this->Filter0->SetAxes1d(axis1);
+  this->Filter1->SetAxes1d(axis2);
   this->Modified();
 }
 
@@ -216,6 +216,22 @@ vtkImageCache *vtkImage2dDecomposedFilter::GetCache()
                 << cache->GetClassName() << " (" << cache << ")");
 
   return cache;
+}
+  
+
+
+//----------------------------------------------------------------------------
+// Description:
+// This method tells the last filter to save or release its output.
+void vtkImage2dDecomposedFilter::SetReleaseDataFlag(int flag)
+{
+  if ( ! this->Filter1)
+    {
+    vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet.");
+    return NULL;
+    }
+  
+  this->Filter1->SetReleaseDataFlag(flag);
 }
   
 

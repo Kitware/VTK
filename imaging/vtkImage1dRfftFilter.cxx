@@ -55,7 +55,7 @@ vtkImage1dRfftFilter::vtkImage1dRfftFilter()
 // Description:
 // This 1d filter is actually a 2d filter with the component axis as the first
 // axis (axis0).
-void vtkImage1dRfftFilter::SetAxis1d(int axis)
+void vtkImage1dRfftFilter::SetAxes1d(int axis)
 {
   this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, axis);
 }

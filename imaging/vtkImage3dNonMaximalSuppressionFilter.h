@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage1dRfftFilter.h
+  Module:    vtkImage3dNonMaximalSuppressionFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,37 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage1dRfftFilter - Performs a 1d reverse fast Fourier transform.
+// .NAME vtkImage3dNonMaximalSuppressionFilter - Thins Gradient images..
 // .SECTION Description
-// vtkImage1dRfftFilter implements a 1d reverse Fourier transform.  It
-// takes an frequency domain image with two components (real, imaginary) 
-// and changes it to spatial domain image also with two channels.
-// Input channels always must be 0 = real and 1 = imaginary.
+// vtkImage3dNonMaximalSuppressionFilter Sets to zero any gradient
+// that is not a peak.  If a pixel has a neighbor along the gradient
+// that has larger magnitude, the smaller pixel is set to zero.
+// The vector of the image is just passed along.  
+// The input and output must be float.
 
 
-#ifndef __vtkImage1dRfftFilter_h
-#define __vtkImage1dRfftFilter_h
+#ifndef __vtkImage3dNonMaximalSuppressionFilter_h
+#define __vtkImage3dNonMaximalSuppressionFilter_h
 
 
-#include "vtkImageFourierFilter.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImage1dRfftFilter : public vtkImageFourierFilter
+class vtkImage3dNonMaximalSuppressionFilter : public vtkImageSpatialFilter
 {
 public:
-  vtkImage1dRfftFilter();
-  char *GetClassName() {return "vtkImage1dRfftFilter";};
-
-  void SetAxes1d(int axis);
-  void InterceptCacheUpdate(vtkImageRegion *region);
+  vtkImage3dNonMaximalSuppressionFilter();
+  char *GetClassName() {return "vtkImage3dNonMaximalSuppressionFilter";};
   
+  void SetAxes3d(int axis0, int axis1, int axis2);
+  void InterceptCacheUpdate(vtkImageRegion *region);
+
 protected:
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ExecuteCenter4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
 };
 
 #endif
-
-
-
-
-
-
-
 
 
 

@@ -58,7 +58,7 @@ public:
   char *GetClassName() {return "vtkImage1dFftFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  void SetAxis1d(int axis);
+  void SetAxes1d(int axis);
   void InterceptCacheUpdate(vtkImageRegion *region);
 
   // Description:

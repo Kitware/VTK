@@ -62,10 +62,12 @@ public:
   void DebugOn();
   void Modified();
   // Foward Source messages to filter2
+  vtkImageSource *GetOutput();
   void SetCache(vtkImageCache *cache);
   vtkImageCache *GetCache();
-  vtkImageSource *GetOutput();
+  void SetReleaseDataFlag(int flag);
   unsigned long GetPipelineMTime();
+  
   // Foward filter messages to fitler1
   void SetInput(vtkImageSource *Input);
 

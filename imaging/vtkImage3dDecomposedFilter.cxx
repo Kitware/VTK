@@ -184,9 +184,9 @@ void vtkImage3dDecomposedFilter::SetAxes3d(int axis0, int axis1, int axis2)
     return;
     }
   
-  this->Filter0->SetAxis1d(axis0);
-  this->Filter1->SetAxis1d(axis1);
-  this->Filter2->SetAxis1d(axis2);
+  this->Filter0->SetAxes1d(axis0);
+  this->Filter1->SetAxes1d(axis1);
+  this->Filter2->SetAxes1d(axis2);
   this->Modified();
 }
 
@@ -210,6 +210,22 @@ void vtkImage3dDecomposedFilter::SetCache(vtkImageCache *cache)
   this->Filter2->SetCache(cache);
 }
   
+//----------------------------------------------------------------------------
+// Description:
+// This method tells the last filter to save or release its output.
+void vtkImage3dDecomposedFilter::SetReleaseDataFlag(int flag)
+{
+  if ( ! this->Filter2)
+    {
+    vtkErrorMacro(<< "SetReleaseDataFlag: Sub filter not created yet.");
+    return NULL;
+    }
+  
+  this->Filter2->SetReleaseDataFlag(flag);
+}
+  
+
+
 //----------------------------------------------------------------------------
 // Description:
 // This method returns the cache to make a connection

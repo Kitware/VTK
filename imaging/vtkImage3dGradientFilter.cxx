@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage2dGradientFilter.cxx
+  Module:    vtkImage3dGradientFilter.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,21 +38,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include <math.h>
-#include "vtkImage2dGradientFilter.h"
+#include "vtkImage3dGradientFilter.h"
 
 
 //----------------------------------------------------------------------------
 // Description:
-// Construct an instance of vtkImage2dGradientFilter fitler.
-vtkImage2dGradientFilter::vtkImage2dGradientFilter()
+// Construct an instance of vtkImage3dGradientFilter fitler.
+vtkImage3dGradientFilter::vtkImage3dGradientFilter()
 {
   this->KernelSize[0] = 3;
   this->KernelSize[1] = 3;
+  this->KernelSize[2] = 3;
 
   this->KernelMiddle[0] = 1;
   this->KernelMiddle[1] = 1;
+  this->KernelMiddle[2] = 1;
   
-  this->SetAxes3d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS, VTK_IMAGE_COMPONENT_AXIS);
+  this->SetAxes4d(VTK_IMAGE_X_AXIS,VTK_IMAGE_Y_AXIS,VTK_IMAGE_Z_AXIS,
+		  VTK_IMAGE_COMPONENT_AXIS);
   this->SetOutputDataType(VTK_IMAGE_FLOAT);
   
   this->UseExecuteCenterOff();
@@ -60,7 +63,7 @@ vtkImage2dGradientFilter::vtkImage2dGradientFilter()
 
 
 //----------------------------------------------------------------------------
-void vtkImage2dGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImage3dGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkImageSpatialFilter::PrintSelf(os, indent);
 }
@@ -69,29 +72,30 @@ void vtkImage2dGradientFilter::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Description:
-// Add Component as the third axis.
-void vtkImage2dGradientFilter::SetAxes2d(int axis0, int axis1)
+// Add Component as the fourth axis.
+void vtkImage3dGradientFilter::SetAxes3d(int axis0, int axis1, int axis2)
 {
-  if (axis0 == VTK_IMAGE_COMPONENT_AXIS || axis1 == VTK_IMAGE_COMPONENT_AXIS)
+  if (axis0 == VTK_IMAGE_COMPONENT_AXIS || axis1 == VTK_IMAGE_COMPONENT_AXIS ||
+      axis2 == VTK_IMAGE_COMPONENT_AXIS)
     {
-    vtkErrorMacro(<< "SetAxes2d: Cannot use Component as an axis");
+    vtkErrorMacro(<< "SetAxes3d: Cannot use Component as an axis");
     return;
     }
-  this->SetAxes3d(axis0, axis1, VTK_IMAGE_COMPONENT_AXIS);
+  this->SetAxes4d(axis0, axis1, axis2, VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
 //----------------------------------------------------------------------------
 // Description:
 // All components will be generated.
-void vtkImage2dGradientFilter::InterceptCacheUpdate(vtkImageRegion *region)
+void vtkImage3dGradientFilter::InterceptCacheUpdate(vtkImageRegion *region)
 {
-  int bounds[6];
+  int bounds[8];
   
-  region->GetBounds3d(bounds);
-  bounds[4] = 0;
-  bounds[5] = 2;
-  region->SetBounds3d(bounds);
+  region->GetBounds4d(bounds);
+  bounds[6] = 0;
+  bounds[7] = 3;
+  region->SetBounds4d(bounds);
 }
 
 
@@ -101,7 +105,7 @@ void vtkImage2dGradientFilter::InterceptCacheUpdate(vtkImageRegion *region)
 // This method is passed a region that holds the image bounds of this filters
 // input, and changes the region to hold the image bounds of this filters
 // output.
-void vtkImage2dGradientFilter::ComputeOutputImageInformation(
+void vtkImage3dGradientFilter::ComputeOutputImageInformation(
 		    vtkImageRegion *inRegion, vtkImageRegion *outRegion)
 {
   int bounds[8];
@@ -118,9 +122,9 @@ void vtkImage2dGradientFilter::ComputeOutputImageInformation(
       }
     }
   
-  // from 0 to 2 components
-  bounds[4] = 0;
-  bounds[5] = 2;
+  // from 0 to 3 components
+  bounds[6] = 0;
+  bounds[7] = 3;
 
   outRegion->SetImageBounds4d(bounds);
 }
@@ -133,75 +137,90 @@ void vtkImage2dGradientFilter::ComputeOutputImageInformation(
 // it handles boundaries. Pixels are just replicated to get values 
 // out of bounds.
 template <class T>
-void vtkImage2dGradientFilterExecute(vtkImage2dGradientFilter *self,
+void vtkImage4dGradientFilterExecute(vtkImage3dGradientFilter *self,
 				     vtkImageRegion *inRegion, T *inPtr, 
 				     vtkImageRegion *outRegion, float *outPtr)
 {
-  float d0, d1;
-  float r0, r1;
+  float d0, d1, d2;
+  float r0, r1, r2;
   float temp;
   // For looping though output (and input) pixels.
-  int outMin0, outMax0, outMin1, outMax1;
-  int outIdx0, outIdx1;
-  int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
-  int inInc0, inInc1;
-  T *inPtr0, *inPtr1;
+  int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
+  int outIdx0, outIdx1, outIdx2;
+  int outInc0, outInc1, outInc2, outInc3;
+  float *outPtr0, *outPtr1, *outPtr2, *outPtr3;
+  int inInc0, inInc1, inInc2;
+  T *inPtr0, *inPtr1, *inPtr2;
   // Boundary of input image
-  int inImageMin0, inImageMax0, inImageMin1, inImageMax1;
+  int inImageMin0,inImageMax0,inImageMin1,inImageMax1,inImageMin2,inImageMax2;
   
   self = self;
   // Get boundary information
-  inRegion->GetImageBounds2d(inImageMin0,inImageMax0, inImageMin1,inImageMax1);
+  inRegion->GetImageBounds3d(inImageMin0,inImageMax0, inImageMin1,inImageMax1,
+			     inImageMin2,inImageMax2);
   
   // Get information to march through data
-  inRegion->GetIncrements2d(inInc0, inInc1); 
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
+  inRegion->GetIncrements3d(inInc0, inInc1, inInc2); 
+  outRegion->GetIncrements4d(outInc0, outInc1, outInc2, outInc3); 
+  outRegion->GetBounds3d(outMin0, outMax0, outMin1, outMax1, outMin2, outMax2);
   
   // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetVoidPointer2d(outMin0, outMin1));
+  inPtr = (T *)(inRegion->GetVoidPointer3d(outMin0, outMin1, outMin2));
 
   // The aspect ratio is important for computing the gradient.
-  inRegion->GetAspectRatio2d(r0, r1);
+  inRegion->GetAspectRatio3d(r0, r1, r2);
   r0 = 1.0 / r0;
   r1 = 1.0 / r1;
+  r2 = 1.0 / r2;
   
   // loop through pixels of output
-  outPtr1 = outPtr;
-  inPtr1 = inPtr;
-  for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
+  outPtr2 = outPtr;
+  inPtr2 = inPtr;
+  for (outIdx2 = outMin2; outIdx2 <= outMax2; ++outIdx2)
     {
-    outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
-    for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+    outPtr1 = outPtr2;
+    inPtr1 = inPtr2;
+    for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
       {
+      outPtr0 = outPtr1;
+      inPtr0 = inPtr1;
+      for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
+	{
 	
-      // Compute gradient using central differences (if in bounds).
-      d0 = ((outIdx0 + 1) > inImageMax0) ? *inPtr0 : inPtr0[inInc0];
-      d1 = ((outIdx1 + 1) > inImageMax1) ? *inPtr0 : inPtr0[inInc1];
-      d0 -= ((outIdx0 - 1) < inImageMin0) ? *inPtr0 : inPtr0[-inInc0];
-      d1 -= ((outIdx1 - 1) < inImageMin1) ? *inPtr0 : inPtr0[-inInc1];
-      d0 *= r0;
-      d1 *= r1;
+	// Compute gradient using central differences (if in bounds).
+	d0 = ((outIdx0 + 1) > inImageMax0) ? *inPtr0 : inPtr0[inInc0];
+	d1 = ((outIdx1 + 1) > inImageMax1) ? *inPtr0 : inPtr0[inInc1];
+	d2 = ((outIdx2 + 1) > inImageMax1) ? *inPtr0 : inPtr0[inInc2];
+	d0 -= ((outIdx0 - 1) < inImageMin0) ? *inPtr0 : inPtr0[-inInc0];
+	d1 -= ((outIdx1 - 1) < inImageMin1) ? *inPtr0 : inPtr0[-inInc1];
+	d2 -= ((outIdx2 - 1) < inImageMin2) ? *inPtr0 : inPtr0[-inInc2];
+	d0 *= r0;
+	d1 *= r1;
+	d2 *= r2;
       
-      // Set the magnitude
-      outPtr2 = outPtr0;
-      *outPtr2 = (float)(hypot(d0, d1));
-      temp = 1.0 / *outPtr2;
-      // Set the vector
-      outPtr2 += outInc2;
-      *outPtr2 = d0 * temp;
-      outPtr2 += outInc2;
-      *outPtr2 = d1 * temp;
-      
-      outPtr0 += outInc0;
-      inPtr0 += inInc0;
+	// Set the magnitude
+	outPtr3 = outPtr0;
+	*outPtr3 = (float)(sqrt(d0*d0 + d1*d1 + d2*d2));
+	temp = 1.0 / *outPtr3;
+	// Set the vector
+	outPtr3 += outInc3;
+	*outPtr3 = d0 * temp;
+	outPtr3 += outInc3;
+	*outPtr3 = d1 * temp;
+	outPtr3 += outInc3;
+	*outPtr3 = d2 * temp;
+	
+	outPtr0 += outInc0;
+	inPtr0 += inInc0;
+	}
+      outPtr1 += outInc1;
+      inPtr1 += inInc1;
       }
-    outPtr1 += outInc1;
-    inPtr1 += inInc1;
+    outPtr2 += outInc2;
+    inPtr2 += inInc2;
     }
 }
+
 
 //----------------------------------------------------------------------------
 // Description:
@@ -209,16 +228,16 @@ void vtkImage2dGradientFilterExecute(vtkImage2dGradientFilter *self,
 // templated function for the input region type.  The output region
 // must be of type float.  This method does handle boundary conditions.
 // The third axis is the component axis for the output.
-void vtkImage2dGradientFilter::Execute3d(vtkImageRegion *inRegion, 
+void vtkImage3dGradientFilter::Execute4d(vtkImageRegion *inRegion, 
 					 vtkImageRegion *outRegion)
 {
-  void *inPtr = inRegion->GetVoidPointer3d();
-  void *outPtr = outRegion->GetVoidPointer3d();
+  void *inPtr = inRegion->GetVoidPointer4d();
+  void *outPtr = outRegion->GetVoidPointer4d();
   
   // this filter expects that output is type float.
   if (outRegion->GetDataType() != VTK_IMAGE_FLOAT)
     {
-    vtkErrorMacro(<< "Execute3d: output DataType, "
+    vtkErrorMacro(<< "Execute4d: output DataType, "
                   << vtkImageDataTypeNameMacro(outRegion->GetDataType())
                   << ", must be float");
     return;
@@ -227,32 +246,32 @@ void vtkImage2dGradientFilter::Execute3d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage2dGradientFilterExecute(this, 
+      vtkImage4dGradientFilterExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage2dGradientFilterExecute(this, 
+      vtkImage4dGradientFilterExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage2dGradientFilterExecute(this, 
+      vtkImage4dGradientFilterExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage2dGradientFilterExecute(this, 
+      vtkImage4dGradientFilterExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage2dGradientFilterExecute(this, 
+      vtkImage4dGradientFilterExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     default:
-      vtkErrorMacro(<< "Execute3d: Unknown DataType");
+      vtkErrorMacro(<< "Execute4d: Unknown DataType");
       return;
     }
 }

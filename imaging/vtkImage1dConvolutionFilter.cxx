@@ -48,7 +48,7 @@ vtkImage1dConvolutionFilter::vtkImage1dConvolutionFilter()
 {
   this->Kernel = NULL;
   this->BoundaryFactors = NULL;
-  this->SetAxis1d(VTK_IMAGE_X_AXIS);
+  this->SetAxes1d(VTK_IMAGE_X_AXIS);
   this->BoundaryRescaleOn();
   this->HandleBoundariesOn();
 }

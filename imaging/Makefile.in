@@ -41,6 +41,9 @@ vtkImage3dDilateErodeFilter.o \
 vtkImage3dDilateValueFilter.o \
 vtkImage3dDistanceFilter.o \
 vtkImage3dGaussianSmoothFilter.o \
+vtkImage3dGradientFilter.o \
+vtkImage3dMagnifyFilter.o \
+vtkImage3dNonMaximalSuppressionFilter.o \
 vtkImage3dOpenCloseFilter.o \
 vtkImage3dShrinkFilter.o \
 vtkImage3dSpatialFilter.o \
@@ -96,6 +99,9 @@ tcl/vtkImage3dDilateErodeFilterTcl.o \
 tcl/vtkImage3dDilateValueFilterTcl.o \
 tcl/vtkImage3dDistanceFilterTcl.o \
 tcl/vtkImage3dGaussianSmoothFilterTcl.o \
+tcl/vtkImage3dGradientFilterTcl.o \
+tcl/vtkImage3dMagnifyFilterTcl.o \
+tcl/vtkImage3dNonMaximalSuppressionFilterTcl.o \
 tcl/vtkImage3dOpenCloseFilterTcl.o \
 tcl/vtkImage3dShrinkFilterTcl.o \
 tcl/vtkImage3dSpatialFilterTcl.o \
@@ -151,6 +157,9 @@ vtkImage3dDilateErodeFilter.h \
 vtkImage3dDilateValueFilter.h \
 vtkImage3dDistanceFilter.h \
 vtkImage3dGaussianSmoothFilter.h \
+vtkImage3dGradientFilter.h \
+vtkImage3dMagnifyFilter.h \
+vtkImage3dNonMaximalSuppressionFilter.h \
 vtkImage3dOpenCloseFilter.h \
 vtkImage3dShrinkFilter.h \
 vtkImage3dSpatialFilter.h \
@@ -318,6 +327,15 @@ tcl/vtkImage3dDistanceFilterTcl.cxx: vtkImage3dDistanceFilter.h ../tcl/cpp_parse
 
 tcl/vtkImage3dGaussianSmoothFilterTcl.cxx: vtkImage3dGaussianSmoothFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage3dGaussianSmoothFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dGaussianSmoothFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dGaussianSmoothFilterTcl.cxx
+
+tcl/vtkImage3dGradientFilterTcl.cxx: vtkImage3dGradientFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImage3dGradientFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dGradientFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dGradientFilterTcl.cxx
+
+tcl/vtkImage3dMagnifyFilterTcl.cxx: vtkImage3dMagnifyFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImage3dMagnifyFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dMagnifyFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dMagnifyFilterTcl.cxx
+
+tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx: vtkImage3dNonMaximalSuppressionFilter.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dNonMaximalSuppressionFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dNonMaximalSuppressionFilterTcl.cxx
 
 tcl/vtkImage3dOpenCloseFilterTcl.cxx: vtkImage3dOpenCloseFilter.h ../tcl/cpp_parse
 	 rm -f tcl/vtkImage3dOpenCloseFilterTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImage3dOpenCloseFilter.h ${srcdir}/../tcl/hints 1 > tcl/vtkImage3dOpenCloseFilterTcl.cxx

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImage1dRfftFilter.h
+  Module:    vtkImage3dGradientFilter.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -37,43 +37,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImage1dRfftFilter - Performs a 1d reverse fast Fourier transform.
+// .NAME vtkImage3dGradientFilter - magnitude and phase of gradient.
 // .SECTION Description
-// vtkImage1dRfftFilter implements a 1d reverse Fourier transform.  It
-// takes an frequency domain image with two components (real, imaginary) 
-// and changes it to spatial domain image also with two channels.
-// Input channels always must be 0 = real and 1 = imaginary.
+// vtkImage3dGradientFilter computes a gradient of 3d volume using central
+// differences.  The output is always float and has four components.
+// The magnitude is returned in component 0 and the direction returned
+// in components 1, 2 and 3 as a normalized vector.
 
 
-#ifndef __vtkImage1dRfftFilter_h
-#define __vtkImage1dRfftFilter_h
+#ifndef __vtkImage3dGradientFilter_h
+#define __vtkImage3dGradientFilter_h
 
 
-#include "vtkImageFourierFilter.h"
+#include "vtkImageSpatialFilter.h"
 
-class vtkImage1dRfftFilter : public vtkImageFourierFilter
+class vtkImage3dGradientFilter : public vtkImageSpatialFilter
 {
 public:
-  vtkImage1dRfftFilter();
-  char *GetClassName() {return "vtkImage1dRfftFilter";};
-
-  void SetAxes1d(int axis);
+  vtkImage3dGradientFilter();
+  char *GetClassName() {return "vtkImage3dGradientFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  
+  void SetAxes3d(int axis0, int axis1, int axis2);
   void InterceptCacheUpdate(vtkImageRegion *region);
   
+  
 protected:
-  void ComputeRequiredInputRegionBounds(vtkImageRegion *outRegion, 
-					vtkImageRegion *inRegion);
-  void Execute2d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
+  void ComputeOutputImageInformation(vtkImageRegion *inRegion,
+				     vtkImageRegion *outRegion);
+  void Execute4d(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+
 };
 
 #endif
-
-
-
-
-
-
-
 
 
 

@@ -71,7 +71,7 @@ void vtkImage1dFftFilter::PrintSelf(ostream& os, vtkIndent indent)
 // Description:
 // This 1d filter is actually a 2d filter with the component axis as the first
 // axis (axis0).
-void vtkImage1dFftFilter::SetAxis1d(int axis)
+void vtkImage1dFftFilter::SetAxes1d(int axis)
 {
   this->SetAxes2d(VTK_IMAGE_COMPONENT_AXIS, axis);
 }

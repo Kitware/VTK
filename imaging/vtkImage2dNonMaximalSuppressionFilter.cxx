@@ -67,7 +67,7 @@ void vtkImage2dNonMaximalSuppressionFilter::SetAxes2d(int axis0, int axis1)
     vtkErrorMacro(<< "SetAxes2d: Cannot use Component as an axis");
     return;
     }
-  this->SetAxes3d(axis0, axis0, VTK_IMAGE_COMPONENT_AXIS);
+  this->SetAxes3d(axis0, axis1, VTK_IMAGE_COMPONENT_AXIS);
 }
 
 
@@ -254,7 +254,7 @@ void vtkImage2dNonMaximalSuppressionFilter::Execute3d(vtkImageRegion *inRegion,
 	  {
 	  neighborA = +inInc1;
 	  }
-	if (outIdx0 > inImageMin1)
+	if (outIdx1 > inImageMin1)
 	  {
 	  neighborB = -inInc1;
 	  }

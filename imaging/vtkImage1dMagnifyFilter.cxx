@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Constructor: Sets default filter to be identity.
 vtkImage1dMagnifyFilter::vtkImage1dMagnifyFilter()
 {
-  this->SetAxis1d(VTK_IMAGE_X_AXIS);
+  this->SetAxes1d(VTK_IMAGE_X_AXIS);
   this->SetMagnificationFactor(1);
   this->InterpolateOff();
 }
