@@ -1176,8 +1176,17 @@ void doMSCHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"CPP_PROJ=/nologo /D \"STRICT\" /MD /Ob1 /Oi /Ot /Oy /Gs /I \"%s\\include\" /I \"%s\\common\" /I \"%s\\graphics\" /I \"%s\\imaging\" /D \"NDEBUG\" /D \"WIN32\" \\\n",
 	    vals->m_WhereCompiler, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK, vals->m_WhereVTK);
     }
-  if (vals->m_Patented) fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
-				vals->m_WhereVTK);
+  if (vals->m_Patented) 
+    {
+    fprintf(fp," /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
+            vals->m_WhereVTK);
+    }
+  if (vals->m_Contrib) 
+    {
+    fprintf(fp," /D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+            vals->m_WhereVTK);
+    }
+  
   fprintf(fp," %s /D \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" /D \"VTKDLL\"\\\n",
 	  vals->adlg.m_EXTRA_CFLAGS);
 
@@ -1544,6 +1553,10 @@ void doBorHeader(FILE *fp, CPcmakerDlg *vals, int debugFlag)
   if (vals->m_Patented)
     {
     fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
+    }
+  if (vals->m_Contrib)
+    {
+    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
     }
 
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n");
@@ -2072,6 +2085,10 @@ void doBorTclHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     {
     fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
     }
+  if (vals->m_Contrib)
+    {
+    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
+    }
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;STRICT\n");
   fprintf(fp,"-tWM -tWD -Od -H- -VF  -I$(WHERECOMP)\\include;$(WHERECOMP)\\include\\rw;$(WHEREVTK)\\common;$(WHEREVTK)\\graphics -DWIN32\n");
   fprintf(fp," -I$(WHEREVTK)\\pcmaker\\xlib \n");
@@ -2321,13 +2338,16 @@ void doMSCJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     }
   if (vals->m_Patented)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"VTK_USE_PATENTED\" /I \"%s\\patented\" /D \"_WINDLL\" /D \"_MBCS\" \\\n",
+    fprintf(fp,"/D \"VTK_USE_PATENTED\" /I \"%s\\patented\" \\\n",
 	    vals->m_WhereVTK);
     }
-  else
+  if (vals->m_Contrib)
     {
-    fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
+    fprintf(fp,"/D \"VTK_USE_CONTRIB\" /I \"%s\\contrib\" \\\n",
+	    vals->m_WhereVTK);
     }
+
+  fprintf(fp," \"_WINDOWS\" /D \"_WINDLL\" /D \"_MBCS\" \\\n");
   fprintf(fp,"/I \"%s\\include\" /I \"%s\\include\\win32\" /Fo\"$(OUTDIR)/\" /c \n",
 	  vals->m_WhereJDK, vals->m_WhereJDK);
   fprintf(fp,"LINK32=link.exe\n");
@@ -2544,6 +2564,10 @@ void doBorJavaHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   if (vals->m_Patented)
     {
     fprintf(fp,"-DVTK_USE_PATENTED -I$(WHEREVTK)\\patented\n");
+    }
+  if (vals->m_Contrib)
+    {
+    fprintf(fp,"-DVTK_USE_CONTRIB -I$(WHEREVTK)\\contrib\n");
     }
   fprintf(fp,"-D_WINDOWS;_WINDLL;_USRDLL;VTKDLL;_RTLDLL;VTKJAVA;STRICT");
 
