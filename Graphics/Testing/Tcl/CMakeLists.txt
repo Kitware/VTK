@@ -75,6 +75,7 @@ IF (VTK_USE_RENDERING)
       progGlyphsBySource
       reconstructSurface
       quadricCut
+      rectGrid
       scalarConn
       schwarz
       shepards
