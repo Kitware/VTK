@@ -90,6 +90,8 @@ renWin SetSize 500 500
 renWin DoubleBufferOn
 iren Initialize
 
+renWin Render
+
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 8.88908 0.595038 29.3342

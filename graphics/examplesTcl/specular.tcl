@@ -33,6 +33,8 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
+renWin Render
+
 $cam1 Azimuth 30
 $cam1 Elevation -50
 

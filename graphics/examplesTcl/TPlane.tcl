@@ -42,6 +42,9 @@ renWin SetSize 500 500
 # render the image
 iren Initialize
 iren SetUserMethod {wm deiconify .vtkInteract}
+
+renWin Render
+
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation -30
 $cam1 Roll -20
