@@ -832,6 +832,14 @@ void vtkXImageWindow::MakeDefaultWindow()
 	       PointerMotionMask | StructureNotifyMask | PropertyChangeMask);
   
   // Map Window onto Screen and sysc
+  // RESIZE THE WINDOW TO THE DESIRED SIZE
+  vtkDebugMacro(<< "Resizing the xwindow\n");
+  XResizeWindow(this->DisplayId,this->WindowId,
+		((this->Size[0] > 0) ? 
+		 (int)(this->Size[0]) : 256),
+		((this->Size[1] > 0) ? 
+		 (int)(this->Size[1]) : 256));
+  XSync(this->DisplayId,False);
   XMapWindow(this->DisplayId, this->WindowId);
   
   XSync(this->DisplayId,0);
