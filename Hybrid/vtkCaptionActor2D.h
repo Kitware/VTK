@@ -74,6 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // .SECTION See Also
 // vtkLegendBoxActor vtkTextMapper vtkScaledTextActor vtkTextMapper
+// vtkCoordinate
 
 #ifndef __vtkCaptionActor2D_h
 #define __vtkCaptionActor2D_h
@@ -138,10 +139,18 @@ public:
   // Description:
   // Specify the relative size of the leader head. This is expressed as a
   // fraction of the size (diagonal length) of the renderer. The leader
-  // head is sutomatically scaled so that zooming or other camera motion
-  // does not cause the head to grow in size.
+  // head is automatically scaled so that window resize, zooming or other 
+  // camera motion results in proportional changes in size to the leader
+  // glyph.
   vtkSetClampMacro(LeaderGlyphSize,float,0.0,0.1);
   vtkGetMacro(LeaderGlyphSize,float);
+
+  // Description:
+  // Specify the maximum size of the leader head (if any) in pixels. This 
+  // is used in conjunction with LeaderGlyphSize to cap the maximum size of
+  // the LeaderGlyph.
+  vtkSetClampMacro(MaximumLeaderGlyphSize,int,1,1000);
+  vtkGetMacro(MaximumLeaderGlyphSize,int);
 
   // Description:
   // Set/Get the padding between the caption and the border. The value
@@ -183,9 +192,12 @@ public:
   // or right.
   vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
   vtkGetMacro(Justification,int);
-  void SetJustificationToLeft() {this->SetJustification(VTK_TEXT_LEFT);};
-  void SetJustificationToCentered() {this->SetJustification(VTK_TEXT_CENTERED);};
-  void SetJustificationToRight() {this->SetJustification(VTK_TEXT_RIGHT);};
+  void SetJustificationToLeft() 
+    {this->SetJustification(VTK_TEXT_LEFT);}
+  void SetJustificationToCentered() 
+    {this->SetJustification(VTK_TEXT_CENTERED);}
+  void SetJustificationToRight() 
+    {this->SetJustification(VTK_TEXT_RIGHT);}
     
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
@@ -193,11 +205,11 @@ public:
   vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
   vtkGetMacro(VerticalJustification,int);
   void SetVerticalJustificationToBottom() 
-    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
+    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);}
   void SetVerticalJustificationToCentered() 
-    {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
+    {this->SetVerticalJustification(VTK_TEXT_CENTERED);}
   void SetVerticalJustificationToTop() 
-    {this->SetVerticalJustification(VTK_TEXT_TOP);};
+    {this->SetVerticalJustification(VTK_TEXT_TOP);}
     
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual
@@ -235,6 +247,7 @@ protected:
   int   Leader;
   int   ThreeDimensionalLeader;
   float LeaderGlyphSize;
+  int   MaximumLeaderGlyphSize;
   vtkPolyData *LeaderGlyph; //what to put on the end of the leader
   
   int   Padding;
@@ -258,11 +271,8 @@ private:
   vtkPolyData   *LeaderPolyData; //line represents the leader
   vtkAppendPolyData *AppendLeader; //append head and leader
   
-  //coordinates for transformation
-  vtkCoordinate     *ToWorldCoordinate;
-  vtkCoordinate     *MapperCoordinate2D;
-
   //for 2D leader
+  vtkCoordinate       *MapperCoordinate2D;
   vtkPolyDataMapper2D *LeaderMapper2D;
   vtkActor2D          *LeaderActor2D;
 
@@ -274,4 +284,6 @@ private:
 
 
 #endif
+
+
 
