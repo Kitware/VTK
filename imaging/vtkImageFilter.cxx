@@ -311,12 +311,15 @@ void vtkImageFilter::RecursiveStreamUpdate(vtkImageRegion *outRegion)
         << vtkImageAxisNameMacro(splitAxis) << ": memory = " << memory <<
         ", extent = " << min << "->" << mid << " | " << mid+1 << "->" << max);
       outRegion->SetAxisExtent(splitAxis, min, mid);
+      this->Output->SetAxisUpdateExtent(splitAxis, min, mid);
       this->RecursiveStreamUpdate(outRegion);
       // Set the second half to update
+      this->Output->SetAxisUpdateExtent(splitAxis, mid+1, max);
       outRegion->SetAxisExtent(splitAxis, mid+1, max);
       this->RecursiveStreamUpdate(outRegion);
       // Restore the original extent
       outRegion->SetAxisExtent(splitAxis, min, max);
+      this->Output->SetAxisUpdateExtent(splitAxis, min, max);
       return;
       }
     else

@@ -187,6 +187,9 @@ static void vtkImageRFFT1DExecute(vtkImageRFFT1D *self,
     outPtrImag += outInc0;
     ++pComplex;
     }
+
+  delete inComplex;
+  delete outComplex;
 }
 
 

@@ -38,7 +38,6 @@ viewer SetZSlice 22
 viewer SetColorWindow 1000
 viewer SetColorLevel 500
 #viewer DebugOn
-viewer Render
 
 
 # make interface

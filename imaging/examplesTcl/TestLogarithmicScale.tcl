@@ -23,7 +23,7 @@ fft SetInput [reader GetOutput]
 fft ReleaseDataFlagOff
 #fft DebugOn
 
-vtkImageCompressRange compress
+vtkImageLogarithmicScale compress
 compress SetInput [fft GetOutput]
 compress SetConstant 15
 
@@ -32,7 +32,6 @@ viewer SetInput [compress GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 500
 viewer SetColorLevel 0
-viewer SetBlueComponent 0
 
 
 source WindowLevelInterface.tcl

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCompressRange.cxx
+  Module:    vtkImageLogarithmicScale.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -40,14 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <math.h>
 #include "vtkImageRegion.h"
-#include "vtkImageCompressRange.h"
+#include "vtkImageLogarithmicScale.h"
 
 
 
 //----------------------------------------------------------------------------
 // Description:
 // Constructor sets default values
-vtkImageCompressRange::vtkImageCompressRange()
+vtkImageLogarithmicScale::vtkImageLogarithmicScale()
 {
   // For better performance, the execute function was written as a 2d.
   this->NumberOfExecutionAxes = 2;
@@ -60,7 +60,7 @@ vtkImageCompressRange::vtkImageCompressRange()
 // Description:
 // This templated function executes the filter for any type of data.
 template <class T>
-static void vtkImageCompressRangeExecute(vtkImageCompressRange *self,
+static void vtkImageLogarithmicScaleExecute(vtkImageLogarithmicScale *self,
 					 vtkImageRegion *inRegion, T *inPtr,
 					 vtkImageRegion *outRegion, T *outPtr)
 {
@@ -114,7 +114,7 @@ static void vtkImageCompressRangeExecute(vtkImageCompressRange *self,
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.
-void vtkImageCompressRange::Execute(vtkImageRegion *inRegion, 
+void vtkImageLogarithmicScale::Execute(vtkImageRegion *inRegion, 
 					     vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
@@ -134,27 +134,27 @@ void vtkImageCompressRange::Execute(vtkImageRegion *inRegion,
   switch (inRegion->GetScalarType())
     {
     case VTK_FLOAT:
-      vtkImageCompressRangeExecute(this, 
+      vtkImageLogarithmicScaleExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_INT:
-      vtkImageCompressRangeExecute(this, 
+      vtkImageLogarithmicScaleExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (int *)(outPtr));
       break;
     case VTK_SHORT:
-      vtkImageCompressRangeExecute(this, 
+      vtkImageLogarithmicScaleExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (short *)(outPtr));
       break;
     case VTK_UNSIGNED_SHORT:
-      vtkImageCompressRangeExecute(this, 
+      vtkImageLogarithmicScaleExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (unsigned short *)(outPtr));
       break;
     case VTK_UNSIGNED_CHAR:
-      vtkImageCompressRangeExecute(this, 
+      vtkImageLogarithmicScaleExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (unsigned char *)(outPtr));
       break;

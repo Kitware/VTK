@@ -28,7 +28,7 @@ vtkImageFourierCenter center
 center SetInput [magnitude GetOutput]
 center SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 
-vtkImageCompressRange compress
+vtkImageLogarithmicScale compress
 compress SetInput [center GetOutput]
 compress SetConstant 15
 

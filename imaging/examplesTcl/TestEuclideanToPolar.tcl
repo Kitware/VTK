@@ -28,9 +28,6 @@ viewer SetInput [polar GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 128
-viewer SetRedComponent 0
-viewer SetBlueComponent 1
-viewer SetGreenComponent 1
 
 
 #make interface

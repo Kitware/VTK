@@ -38,3 +38,4 @@ viewer SetColorLevel 128
 
 
 # make interface
+source WindowLevelInterface.tcl

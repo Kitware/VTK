@@ -180,13 +180,20 @@ void vtkImageClip::ExecuteImageInformation()
     // Clip the OutputWholeExtent with the input WholeExtent
     for (idx = 0; idx < 4; ++idx)
       {
-      if (this->OutputWholeExtent[idx*2] > extent[idx*2])
+      if (this->OutputWholeExtent[idx*2] >= extent[idx*2] && 
+	  this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
 	{
 	extent[idx*2] = this->OutputWholeExtent[idx*2];
 	}
-      if (this->OutputWholeExtent[idx*2+1] < extent[idx*2+1])
+      if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] && 
+	  this->OutputWholeExtent[idx*2+1] <= extent[idx*2+1])
 	{
 	extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
+	}
+      // make usre the order is correct
+      if (extent[idx*2] > extent[idx*2+1])
+	{
+	extent[idx*2] = extent[idx*2+1];
 	}
       }
     }

@@ -39,7 +39,6 @@ vtkImageCast \
 vtkImageCityBlockDistance \
 vtkImageCityBlockDistance1D \
 vtkImageClip \
-vtkImageCompressRange \
 vtkImageConnector \
 vtkImageConstantPad \
 vtkImageContinuousDilate3D \
@@ -71,6 +70,7 @@ vtkImageIdealHighPass \
 vtkImageIdealLowPass \
 vtkImageIslandRemoval2D \
 vtkImageLaplacian \
+vtkImageLogarithmicScale \
 vtkImageMIPFilter \
 vtkImageMagnify \
 vtkImageMagnify1D \

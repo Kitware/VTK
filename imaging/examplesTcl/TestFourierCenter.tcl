@@ -29,7 +29,6 @@ viewer SetInput [center GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 10000
 viewer SetColorLevel 4000
-viewer SetBlueComponent 0
 
 
 source WindowLevelInterface.tcl

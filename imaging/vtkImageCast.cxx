@@ -70,13 +70,13 @@ void vtkImageCast::InternalUpdate()
     // just copy by reference. (use Bypass)
     vtkDebugMacro("Update: Cast is not necessary.");
     this->Bypass = 1;
-    this->vtkImageFilter::Update();
+    this->vtkImageFilter::InternalUpdate();
     this->Bypass = bypassSave;
     return;
     }
   
   // call the superclass update which will cause an execute.
-  this->vtkImageFilter::Update();
+  this->vtkImageFilter::InternalUpdate();
 }
 
 //----------------------------------------------------------------------------

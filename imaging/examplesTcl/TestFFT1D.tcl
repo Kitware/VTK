@@ -23,7 +23,6 @@ viewer SetInput [fft GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 8000
 viewer SetColorLevel 2500
-viewer SetBlueComponent 0
 
 
 source WindowLevelInterface.tcl

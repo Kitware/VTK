@@ -236,7 +236,7 @@ static void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
 		    outIdx2 + hoodIdx2 >= inImageMin2 &&
 		    outIdx2 + hoodIdx2 <= inImageMax2))
 		{
-		if (*hoodPtr0 > *outPtr0 && *maskPtr0)
+		if (*hoodPtr0 < *outPtr0 && *maskPtr0)
 		  {
 		  *outPtr0 = *hoodPtr0;
 		  }

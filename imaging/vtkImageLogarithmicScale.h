@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageCompressRange.h
+  Module:    vtkImageLogarithmicScale.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -38,26 +38,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkImageCompressRange - Reduces range of positive pixel values.
+// .NAME vtkImageLogarithmicScale - Passes each pixel through log function.
 // .SECTION Description
-// vtkImageCompressRange passes each pixel through the function
+// vtkImageLogarithmicScale passes each pixel through the function
 // c*log(1+x).  It also handles negative values with the function
 // -c*log(1-x).
 
 
 
-#ifndef __vtkImageCompressRange_h
-#define __vtkImageCompressRange_h
+#ifndef __vtkImageLogarithmicScale_h
+#define __vtkImageLogarithmicScale_h
 
 
 #include "vtkImageFilter.h"
 
-class VTK_EXPORT vtkImageCompressRange : public vtkImageFilter
+class VTK_EXPORT vtkImageLogarithmicScale : public vtkImageFilter
 {
 public:
-  vtkImageCompressRange();
-  static vtkImageCompressRange *New() {return new vtkImageCompressRange;};
-  const char *GetClassName() {return "vtkImageCompressRange";};
+  vtkImageLogarithmicScale();
+  static vtkImageLogarithmicScale *New() {return new vtkImageLogarithmicScale;};
+  const char *GetClassName() {return "vtkImageLogarithmicScale";};
 
   vtkSetMacro(Constant,float);
   vtkGetMacro(Constant,float);
