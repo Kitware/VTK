@@ -7,6 +7,47 @@
 #
 ME = Graphics
 
+
+SBR_OBJ = \
+vtkSbrActor \
+vtkSbrCamera \
+vtkSbrLight \
+vtkSbrPolyMapper \
+vtkSbrProperty \
+vtkSbrRenderWindow \
+vtkSbrRenderer \
+vtkSbrTexture 
+
+GLR_OBJ = \
+vtkGlrActor \
+vtkGlrCamera \
+vtkGlrLight \
+vtkGlrPolyMapper \
+vtkGlrProperty \
+vtkGlrRenderWindow \
+vtkGlrRenderer \
+vtkGlrTexture 
+
+OGLR_OBJ = \
+vtkOglrActor \
+vtkOglrCamera \
+vtkOglrLight \
+vtkOglrPolyMapper \
+vtkOglrProperty \
+vtkOglrRenderWindow \
+vtkOglrRenderer \
+vtkOglrTexture 
+
+XGLR_OBJ = \
+vtkXglrActor \
+vtkXglrCamera \
+vtkXglrLight \
+vtkXglrPolyMapper \
+vtkXglrProperty \
+vtkXglrRenderWindow \
+vtkXglrRenderer \
+vtkXglrTexture 
+
 ABSTRACT_H = \
 vtkActorDevice \
 vtkCameraDevice \
@@ -224,50 +265,8 @@ vtkVoxelReader \
 vtkVoxelWriter \
 vtkWarpScalar \
 vtkWarpTo \
-vtkWarpVector 
+vtkWarpVector  @OGLR_OBJ@ @GLR_OBJ@ @XGLR_OBJ@ @SBR_OBJ@
 
-
-SBR_OBJ = \
-vtkSbrActor \
-vtkSbrCamera \
-vtkSbrLight \
-vtkSbrPolyMapper \
-vtkSbrProperty \
-vtkSbrRenderWindow \
-vtkSbrRenderer \
-vtkSbrTexture 
-
-GLR_OBJ = \
-vtkGlrActor \
-vtkGlrCamera \
-vtkGlrLight \
-vtkGlrPolyMapper \
-vtkGlrProperty \
-vtkGlrRenderWindow \
-vtkGlrRenderer \
-vtkGlrTexture 
-
-OGLR_OBJ = \
-vtkOglrActor \
-vtkOglrCamera \
-vtkOglrLight \
-vtkOglrPolyMapper \
-vtkOglrProperty \
-vtkOglrRenderWindow \
-vtkOglrRenderer \
-vtkOglrTexture 
-
-XGLR_OBJ = \
-vtkXglrActor \
-vtkXglrCamera \
-vtkXglrLight \
-vtkXglrPolyMapper \
-vtkXglrProperty \
-vtkXglrRenderWindow \
-vtkXglrRenderer \
-vtkXglrTexture 
-
-CONCRETE := ${CONCRETE} @OGLR_OBJ@ @GLR_OBJ@ @XGLR_OBJ@ @SBR_OBJ@
 
 # The following is all boiler plate 
 #------------------------------------------------------------------------------
@@ -309,8 +308,8 @@ OGLR_INCLUDE       = @OGLR_INCLUDE@
 
 # add in any extra libraies here
 KIT_LIBS = 
-JAVA_O := ${JAVA_O} vtkJavaPanel.o 
-JAVA_CODE := ${JAVA_CODE} ../java/vtk/vtkPanel.class
+JAVA_O_ADD = vtkJavaPanel.o 
+JAVA_CODE_ADD = ../java/vtk/vtkPanel.class
 
 java/vtk_vtkPanel.h: ../java/vtk/vtkPanel.java
 	rm -f java/vtk_vtkPanel.h; ${JAVAH} -d java vtk.vtkPanel

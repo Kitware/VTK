@@ -109,7 +109,7 @@ vtkWindowLevelLookupTable
 
 # add in any extra libraies here
 KIT_LIBS = vtkTclUtil.o 
-JAVA_O := ${JAVA_O} vtkJavaUtil.o
+JAVA_O_ADD = vtkJavaUtil.o
 
 # standard stuff here
 KIT_OBJ = ${SRC_OBJ}

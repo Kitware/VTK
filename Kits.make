@@ -25,10 +25,7 @@ all: ${VTK_LIB_FILE} ${BUILD_TCL} ${BUILD_JAVA}
 	${CXX} ${CXX_FLAGS} -c $< -o $@
 
 targets.make: ../targets Makefile
-	../targets 1 1 $(CONCRETE)
-	../targets 0 1 $(ABSTRACT)
-	../targets 1 0 $(CONCRETE_H)
-	../targets 0 0 $(ABSTRACT_H)
+	../targets concrete $(CONCRETE) abstract $(ABSTRACT) concrete_h $(CONCRETE_H) abstract_h $(ABSTRACT_H)
 
 #------------------------------------------------------------------------------
 # rules for the normal library
@@ -63,15 +60,15 @@ libVTK$(ME)Tcl$(SHLIB_SUFFIX)$(SHLIB_VERSION): tcl/${ME}Init.o ${KIT_LIBS} ${KIT
 #------------------------------------------------------------------------------
 # rules for the java library
 #
-build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_O} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
+build_java: ${JAVA_CLASSES} ${JAVA_CODE} ${JAVA_CODE_ADD} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP} libVTK${ME}Java${SHLIB_SUFFIX}${SHLIB_VERSION}
 
 .java.class:
 	${JAVAC} -d ${JAVA_CLASS_HOME} $< 
 
-libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O} ${JAVA_WRAP}
+libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION): ${KIT_OBJ} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP}
 	rm -f libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION)
 	$(SHLIB_LD) -o libVTK$(ME)Java$(SHLIB_SUFFIX)$(SHLIB_VERSION) \
-	  ${KIT_OBJ} ${JAVA_O} ${JAVA_WRAP}
+	  ${KIT_OBJ} ${JAVA_O} ${JAVA_O_ADD} ${JAVA_WRAP}
 
 #------------------------------------------------------------------------------
 depend: 
