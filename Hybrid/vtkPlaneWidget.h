@@ -188,6 +188,8 @@ public:
   // EndInteraction events are invoked. The user provides the vtkPolyData and
   // the points and polyplane are added to it.
   void GetPolyData(vtkPolyData *pd);
+   
+  void RealiseGeometry(void);
 
   // Description:
   // Get the handle properties (the little balls are the handles). The 

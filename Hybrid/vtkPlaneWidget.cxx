@@ -32,7 +32,7 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkPlaneWidget, "1.11");
+vtkCxxRevisionMacro(vtkPlaneWidget, "1.12");
 vtkStandardNewMacro(vtkPlaneWidget);
 
 vtkCxxSetObjectMacro(vtkPlaneWidget,PlaneProperty,vtkProperty);
@@ -1291,4 +1291,11 @@ void vtkPlaneWidget::GetNormal(float xyz[3])
 void vtkPlaneWidget::GetPolyData(vtkPolyData *pd)
 { 
   pd->ShallowCopy(this->PlaneSource->GetOutput()); 
+}
+
+
+void vtkPlaneWidget::RealiseGeometry(void)
+{
+  this->PlaneSource->Update();
+  this->PositionHandles();
 }
