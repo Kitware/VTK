@@ -66,13 +66,7 @@ vtkImageMapper::vtkImageMapper()
   this->ColorWindow = 2000;
   this->ColorLevel = 1000;
 
-  this->DisplayExtent[0] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[1] = VTK_LARGE_INTEGER;
-  this->DisplayExtent[2] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[3] = VTK_LARGE_INTEGER;
-  this->DisplayExtent[4] = -VTK_LARGE_INTEGER;
-  this->DisplayExtent[5] = VTK_LARGE_INTEGER;
-  
+  this->ZSlice = 0;
 }
 
 void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
@@ -82,6 +76,7 @@ void vtkImageMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Color Window: " << this->ColorWindow << "\n";
   os << indent << "Color Level: " << this->ColorLevel << "\n";
+  os << indent << "ZSlice: " << this->ZSlice << "\n";
   os << indent << "Display Extent: (" << this->DisplayExtent[0] << ", "
      << this->DisplayExtent[1] << ", " << this->DisplayExtent[2] << ", " 
      << this->DisplayExtent[3] << ", " << this->DisplayExtent[4]
@@ -117,6 +112,7 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   int idx, axis;
   vtkImageData *data;
   int displayExtent[6];
+  int *wholeExtent = this->Input->GetWholeExtent();
 
   if (!viewport)
     {
@@ -138,14 +134,28 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
     }
 
   this->Input->UpdateImageInformation();
-  int *wholeExtent = this->Input->GetWholeExtent();
+  // start with the wholeExtent
+  memcpy(displayExtent,this->Input->GetWholeExtent(),6*sizeof(int));
 
-  displayExtent[0] = -VTK_LARGE_INTEGER;
-  displayExtent[1] = VTK_LARGE_INTEGER;
-  displayExtent[2] = -VTK_LARGE_INTEGER;
-  displayExtent[3] = VTK_LARGE_INTEGER;
-  displayExtent[4] = -VTK_LARGE_INTEGER;
-  displayExtent[5] = VTK_LARGE_INTEGER;
+  // Set The z values to the zslice
+  displayExtent[4] = this->ZSlice;
+  displayExtent[5] = this->ZSlice;
+
+  // scale the extent
+  float *scale = actor->GetScale();
+  displayExtent[0] *= scale[0];
+  displayExtent[1] *= scale[0];
+  displayExtent[2] *= scale[1];
+  displayExtent[3] *= scale[1];
+
+  // position the extent
+  float *pos = actor->GetViewPosition();
+  displayExtent[0] += pos[0];
+  displayExtent[1] += pos[0];
+  displayExtent[2] += pos[1];
+  displayExtent[3] += pos[1];
+
+
 
   // Clip minimum extents
   for (idx = 0; idx < 3; idx++)
@@ -194,18 +204,32 @@ void vtkImageMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
   this->RenderData(viewport, data, actor);
 }
 
-void vtkImageMapper::SetImageExtent2(int extent)
+//----------------------------------------------------------------------------
+int vtkImageMapper::GetWholeZMin()
 {
-  this->DisplayExtent[4] = extent;
-  this->DisplayExtent[5] = extent;
+  int *extent;
+  
+  if ( ! this->Input)
+    {
+    return 0;
+    }
+  this->Input->UpdateImageInformation();
+  extent = this->Input->GetWholeExtent();
+  return extent[4];
 }
 
-int vtkImageMapper::GetImageExtent2()
+//----------------------------------------------------------------------------
+int vtkImageMapper::GetWholeZMax()
 {
-  return this->DisplayExtent[4];
+  int *extent;
+  
+  if ( ! this->Input)
+    {
+    return 0;
+    }
+  this->Input->UpdateImageInformation();
+  extent = this->Input->GetWholeExtent();
+  return extent[5];
 }
-
-
-
 
 
