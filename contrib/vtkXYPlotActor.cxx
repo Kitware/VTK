@@ -149,7 +149,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->LegendActor->BorderOff();
   this->LegendActor->SetNumberOfEntries(50); //initial allocation
   this->GlyphSource = vtkGlyphSource2D::New();
-  this->GlyphSource->SetGlyphTypeToVertex();
+  this->GlyphSource->SetGlyphTypeToNone();
   this->GlyphSource->DashOn();
   this->GlyphSource->FilledOff();
   this->GlyphSize = 0.020;
@@ -548,6 +548,18 @@ char *vtkXYPlotActor::GetXValuesAsString()
     }
 }
 
+char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
+{
+  if ( this->XValues == VTK_XYPLOT_ROW ) 
+    {
+    return "Plot Rows";
+    }
+  else 
+    {
+    return "Plot Columns";
+    }
+}
+
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -560,6 +572,7 @@ void vtkXYPlotActor::ReleaseGraphicsResources(vtkWindow *win)
     {
     this->PlotActor[i]->ReleaseGraphicsResources(win);
     }
+  this->LegendActor->ReleaseGraphicsResources(win);
 }
 
 unsigned long vtkXYPlotActor::GetMTime()
@@ -580,6 +593,13 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input DataSets:\n";
   this->InputList->PrintSelf(os,indent.GetNextIndent());
 
+  os << indent << "Input DataObjects:\n";
+  this->InputList->PrintSelf(os,indent.GetNextIndent());
+  
+  os << indent << "Data Object Plot Mode: " << this->GetDataObjectPlotModeAsString() << endl;
+  os << indent << "Data Object X Component: " << this->DataObjectXComponent << endl;
+  os << indent << "Data Object Y Component: " << this->DataObjectYComponent << endl;
+
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "X Title: " 
      << (this->XTitle ? this->XTitle : "(none)") << "\n";
@@ -587,6 +607,8 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
      << (this->YTitle ? this->YTitle : "(none)") << "\n";
  
   os << indent << "X Values: " << this->GetXValuesAsString() << endl;
+  os << indent << "Point Component: " << this->PointComponent << endl;
+
   os << indent << "Plot points: " << (this->PlotPoints ? "On\n" : "Off\n");
   os << indent << "Plot lines: " << (this->PlotLines ? "On\n" : "Off\n");
 
@@ -766,7 +788,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
   vtkDataObject *dobj;
   vtkFieldData *field;
   int doNum, numRows, numColumns, numTuples;
-  float length, maxLength=0.0, x, y, xPrev;
+  float maxLength=0.0, x, y, xPrev;
   vtkDataArray *array;
 
   xrange[0] = yrange[0] = VTK_LARGE_FLOAT;
@@ -792,7 +814,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
     if ( this->XValues != VTK_XYPLOT_INDEX )
       {
       // gather the information to form a plot
-      for ( length=0.0, ptId=0; ptId < num; ptId++ )
+      for ( ptId=0; ptId < num; ptId++ )
         {
         if ( this->DataObjectPlotMode == VTK_XYPLOT_ROW )
           {
@@ -1055,7 +1077,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
           }
         }
       numPts = (this->DataObjectPlotMode == VTK_XYPLOT_ROW ? 
-                numTuples : numRows);
+                numColumns : numRows);
 
       // gather the information to form a plot
       for ( numLinePts=0, length=0.0, ptId=0; ptId < numPts; ptId++ )

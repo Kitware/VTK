@@ -207,6 +207,7 @@ public:
     {this->SetDataObjectPlotMode(VTK_XYPLOT_ROW);}
   void SetDataObjectPlotModeToColumns()
     {this->SetDataObjectPlotMode(VTK_XYPLOT_COLUMN);}
+  char *GetDataObjectPlotModeAsString();
 
   // Description:
   // Specify which component to use as the independent variable. (This
@@ -238,9 +239,17 @@ public:
   vtkPolyData *GetPlotSymbol(int i);
   void SetPlotLabel(int i, char *label);
   char *GetPlotLabel(int i);
+  //---end Per Curve Properties-----------------------------------------------
+
+  // Description:
+  // Retrieve handles to the legend box and glyph source. This is useful
+  // if you would like to change the default behavior of the legend box
+  // or glyph source. For example, the default glyph can be changed from
+  // a line to a vertex plus line, etc.)
   vtkLegendBoxActor *GetLegendBoxActor()
     {return this->LegendActor;}
-  //---end Per Curve Properties-----------------------------------------------
+  vtkGlyphSource2D *GetGlyphSource()
+    {return this->GlyphSource;}
 
   // Description:
   // Set/Get the title of the x-y plot, and the title along the 
