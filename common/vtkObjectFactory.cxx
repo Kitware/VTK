@@ -568,6 +568,9 @@ public:
   vtkObjectFactoryCollectionIterator(vtkCollection* source)
     {
       Source = source;
+#ifdef VTK_DEBUG_LEAKS
+      vtkDebugLeaks::ConstructClass("vtkCollection");
+#endif
     }
   vtkObjectFactory* GetNextItem() 
     {
@@ -614,6 +617,7 @@ vtkObjectFactory::GetOverrideInformation(const char* name)
         overInfo->SetObjectFactory(factory);
         // add the item to the collection
         ret->AddItem(overInfo);
+        overInfo->Delete();
         }
       }
     }
