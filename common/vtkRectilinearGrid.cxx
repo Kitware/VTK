@@ -1104,6 +1104,29 @@ unsigned long vtkRectilinearGrid::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
+void vtkRectilinearGrid::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+                                          vtkIdList *cellIds)
+{
+  int numPtIds=ptIds->GetNumberOfIds();
+
+  // Use special methods for speed
+  switch (numPtIds)
+    {
+    case 0:
+      cellIds->Reset();
+      return;
+
+    case 1: case 2: case 4: //vertex, edge, face neighbors
+      vtkStructuredData::GetCellNeigbors(cellId, ptIds, 
+                                         cellIds, this->Dimensions);
+      break;
+      
+    default:
+      this->vtkDataSet::GetCellNeighbors(cellId, ptIds, cellIds);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataSet::PrintSelf(os,indent);

@@ -94,6 +94,7 @@ public:
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void Initialize();
   int GetMaxCellSize() {return 8;}; //hexahedron is the largest
+  void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
 
   // Description:
   // following methods are specific to structured grid
@@ -221,6 +222,12 @@ protected:
 
   // This is a helper method that is not used at the moment. (law)
   void ClipWithUpdateExtent();
+
+private:
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 };
 
 

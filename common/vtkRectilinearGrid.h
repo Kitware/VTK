@@ -120,6 +120,7 @@ public:
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
   void ComputeBounds();
   int GetMaxCellSize() {return 8;}; //voxel is the largest
+  void GetCellNeighbors(int cellId, vtkIdList *ptIds, vtkIdList *cellIds);
 
   // Description:
   // Set dimensions of rectilinear grid dataset.
@@ -272,6 +273,12 @@ protected:
   // to the WholeExtent.  It assumes that UpdateInformation has been 
   // called.
   int ClipUpdateExtentWithWholeExtent();
+
+private:
+  // Description:
+  // For legacy compatibility. Do not use.
+  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 };
 
 
