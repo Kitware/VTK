@@ -54,7 +54,7 @@ float vtkCone::EvaluateFunction(float x[3])
 {
   float tanTheta = (float) 
     tan((double)this->Angle*vtkMath::DegreesToRadians());
-  return x[0]*x[0] + x[1]*x[1] - x[2]*tanTheta;
+  return x[1]*x[1] + x[2]*x[2] - x[0]*x[0]*tanTheta*tanTheta;
 }
 
 // Description
@@ -63,9 +63,9 @@ void vtkCone::EvaluateGradient(float x[3], float g[3])
 {
   float tanTheta = (float) 
     tan((double)this->Angle*vtkMath::DegreesToRadians());
-  g[0] = 2.0*x[0];
+  g[0] = -2.0*tanTheta*tanTheta;
   g[1] = 2.0*x[1];
-  g[2] = -tanTheta;
+  g[2] = 2.0*x[2];
 }
 
 void vtkCone::PrintSelf(ostream& os, vtkIndent indent)
