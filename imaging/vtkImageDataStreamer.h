@@ -54,7 +54,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define VTK_IMAGE_DATA_STREAMER_X_SLAB_MODE 0
 #define VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE 1
 #define VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE 2
-#define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE 3
+#define VTK_IMAGE_DATA_STREAMER_BLOCK_MODE  3
+
+//BTX
+// Define a helper class to keep track of a stack of extents 
+class vtkImageDataStreamerExtentStack
+{
+public:
+  vtkImageDataStreamerExtentStack()
+  { this->StackTop = NULL; 
+    this->StackStorageSize = 0;
+    this->StackSize = 0;
+    this->Stack = NULL; };
+
+  ~vtkImageDataStreamerExtentStack()
+  { if ( this->Stack ) { delete [] this->Stack; }; };
+
+  void Push( int extent[6] );
+  void Pop( int extent[6] );
+  void PopAll();
+  
+  int  GetStackSize() { return this->StackSize; };
+
+protected:
+  int    *Stack;
+  int    *StackTop;
+  int    StackSize;
+  int    StackStorageSize;
+};
+//ETX
+
 
 class VTK_EXPORT vtkImageDataStreamer : public vtkImageToImageFilter
 {
@@ -82,7 +111,12 @@ public:
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_Y_SLAB_MODE;}
  void SetSplitModeToZSlab()
     {this->SplitMode = VTK_IMAGE_DATA_STREAMER_Z_SLAB_MODE;}
-
+  
+  // Description:
+  // Need to override since this is where the check for incremental will
+  // be done
+  void UpdateInformation();
+  
   // Description:
   // Need to override since this is where streaming will be done
   void UpdateData( vtkDataObject *out );
@@ -91,17 +125,29 @@ public:
   // Need to override and do nothing since it should be triggered during
   // the update data pass due to streaming
   void TriggerAsynchronousUpdate();
-  
+
+  // Description:
+  // Is this an incremental streamer? If yes, then each update of this
+  // filter will produce another chunk of the output - update must be called
+  // multiple times to generate the whole output. If no, then one update 
+  // produces all of the output.
+  vtkSetClampMacro( IncrementalUpdate, int, 0, 1 );
+  vtkGetMacro( IncrementalUpdate, int );
+  vtkBooleanMacro( IncrementalUpdate, int );
+    
 protected:
   vtkImageDataStreamer();
   ~vtkImageDataStreamer() {};
   vtkImageDataStreamer(const vtkImageDataStreamer&) {};
   void operator=(const vtkImageDataStreamer&) {};
 
-  unsigned long MemoryLimit;
-  
-  int SplitMode;
-
+  unsigned long  MemoryLimit;
+  int            SplitMode;
+  int            IncrementalUpdate;
+  int            ProcessExtent[6];
+  int            DataWasPassed;
+    
+  vtkImageDataStreamerExtentStack ExtentStack;
 };
 
 
