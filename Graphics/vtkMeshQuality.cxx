@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.16");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.17");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -99,7 +99,6 @@ void vtkMeshQuality::Execute()
   vtkIdType nqua = 0;
   vtkIdType ntet = 0;
   vtkIdType nhex = 0;
-  vtkIdType c;
   vtkCell* cell;
 
   // Initialize the min and max values, std deviations, etc.
@@ -210,107 +209,116 @@ void vtkMeshQuality::Execute()
       }
     }
 
-  for ( c = 0; c < N; ++c )
+  int p;
+  vtkIdType c = 0;
+  vtkIdType sz = N < 19 ? 1 : N / 19;
+  vtkIdType inner;
+  this->UpdateProgress( 0.01 );
+  for ( p = 0; p < 20; ++p )
     {
-    cell = out->GetCell( c );
-    V = 0.;
-    switch ( cell->GetCellType() )
+    for ( inner = 0; ((inner < sz) && (c < N)); ++c, ++inner )
       {
-    case VTK_TRIANGLE:
-      q = TriangleQuality( cell );
-      if ( q > qtriM )
+      cell = out->GetCell( c );
+      V = 0.;
+      switch ( cell->GetCellType() )
         {
-        if ( qtrim > qtriM )
+      case VTK_TRIANGLE:
+        q = TriangleQuality( cell );
+        if ( q > qtriM )
+          {
+          if ( qtrim > qtriM )
+            {
+            qtrim = q;
+            }
+          qtriM = q;
+          }
+        else if ( q < qtrim )
           {
           qtrim = q;
           }
-        qtriM = q;
-        }
-      else if ( q < qtrim )
-        {
-        qtrim = q;
-        }
-      Eqtri += q;
-      Eqtri2 += q * q;
-      ntri++;
-      break;
-    case VTK_QUAD:
-      q = QuadQuality( cell );
-      if ( q > qquaM )
-        {
-        if ( qquam > qquaM )
+        Eqtri += q;
+        Eqtri2 += q * q;
+        ntri++;
+        break;
+      case VTK_QUAD:
+        q = QuadQuality( cell );
+        if ( q > qquaM )
+          {
+          if ( qquam > qquaM )
+            {
+            qquam = q;
+            }
+          qquaM = q;
+          }
+        else if ( q < qquam )
           {
           qquam = q;
           }
-        qquaM = q;
-        }
-      else if ( q < qquam )
-        {
-        qquam = q;
-        }
-      Eqqua += q;
-      Eqqua2 += q * q;
-      nqua++;
-      break;
-    case VTK_TETRA:
-      q = TetQuality( cell );
-      if ( q > qtetM )
-        {
-        if ( qtetm > qtetM )
+        Eqqua += q;
+        Eqqua2 += q * q;
+        nqua++;
+        break;
+      case VTK_TETRA:
+        q = TetQuality( cell );
+        if ( q > qtetM )
+          {
+          if ( qtetm > qtetM )
+            {
+            qtetm = q;
+            }
+          qtetM = q;
+          }
+        else if ( q < qtetm )
           {
           qtetm = q;
           }
-        qtetM = q;
-        }
-      else if ( q < qtetm )
-        {
-        qtetm = q;
-        }
-      Eqtet += q;
-      Eqtet2 += q * q;
-      ntet++;
-      if ( this->Volume )
-        {
-        V = TetVolume( cell );
-        if ( ! this->CompatibilityMode )
+        Eqtet += q;
+        Eqtet2 += q * q;
+        ntet++;
+        if ( this->Volume )
           {
-          volume->SetTuple1( 0, V );
+          V = TetVolume( cell );
+          if ( ! this->CompatibilityMode )
+            {
+            volume->SetTuple1( 0, V );
+            }
           }
-        }
-      break;
-    case VTK_HEXAHEDRON:
-      q = HexahedronQuality( cell );
-      if ( q > qhexM )
-        {
-        if ( qhexm > qhexM )
+        break;
+      case VTK_HEXAHEDRON:
+        q = HexahedronQuality( cell );
+        if ( q > qhexM )
+          {
+          if ( qhexm > qhexM )
+            {
+            qhexm = q;
+            }
+          qhexM = q;
+          }
+        else if ( q < qhexm )
           {
           qhexm = q;
           }
-        qhexM = q;
+        Eqhex += q;
+        Eqhex2 += q * q;
+        nhex++;
+        break;
+      default:
+        q = 0.;
         }
-      else if ( q < qhexm )
-        {
-        qhexm = q;
-        }
-      Eqhex += q;
-      Eqhex2 += q * q;
-      nhex++;
-      break;
-    default:
-      q = 0.;
-      }
 
-    if ( this->SaveCellQuality )
-      {
-      if ( this->CompatibilityMode && this->Volume )
+      if ( this->SaveCellQuality )
         {
-        quality->SetTuple2( c, V, q );
-        }
-      else
-        {
-        quality->SetTuple1( c, q );
+        if ( this->CompatibilityMode && this->Volume )
+          {
+          quality->SetTuple2( c, V, q );
+          }
+        else
+          {
+          quality->SetTuple1( c, q );
+          }
         }
       }
+    this->UpdateProgress( double(p+1)/20. );
     }
 
   if ( ntri )
