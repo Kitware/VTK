@@ -16,13 +16,13 @@
 
 =========================================================================*/
 #include "vtkXMLStructuredGridReader.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkStructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
-#include "vtkFloatArray.h"
-#include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.3");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------

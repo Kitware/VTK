@@ -17,14 +17,13 @@
 =========================================================================*/
 #include "vtkXMLPStructuredGridReader.h"
 
-#include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 #include "vtkStructuredGrid.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.3");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------
