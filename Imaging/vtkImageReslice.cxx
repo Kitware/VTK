@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.23");
+vtkCxxRevisionMacro(vtkImageReslice, "1.24");
 vtkStandardNewMacro(vtkImageReslice);
 
 //----------------------------------------------------------------------------
@@ -132,8 +132,8 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
   this->GetResliceAxesOrigin(this->ResliceAxesOrigin);
   os << indent << "ResliceAxesOrigin: " << 
     this->ResliceAxesOrigin[0] << " " <<
-    this->ResliceAxesOrigin[0] << " " <<
-    this->ResliceAxesOrigin[0] << "\n";
+    this->ResliceAxesOrigin[1] << " " <<
+    this->ResliceAxesOrigin[2] << "\n";
   os << indent << "ResliceTransform: " << this->ResliceTransform << "\n";
   if (this->ResliceTransform)
     {
