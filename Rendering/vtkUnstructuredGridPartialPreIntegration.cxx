@@ -271,7 +271,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.9");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.10");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
@@ -289,7 +289,10 @@ vtkUnstructuredGridPartialPreIntegration::vtkUnstructuredGridPartialPreIntegrati
 //-----------------------------------------------------------------------------
 vtkUnstructuredGridPartialPreIntegration::~vtkUnstructuredGridPartialPreIntegration()
 {
-  delete[] this->TransferFunctions;
+  if (this->TransferFunctions)
+    {
+    delete[] this->TransferFunctions;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -330,9 +333,12 @@ void vtkUnstructuredGridPartialPreIntegration::Initialize(
       }
     return;
     }
-
-  delete[] this->TransferFunctions;
-
+  
+  if (this->TransferFunctions)
+    {
+    delete[] this->TransferFunctions;
+    }
+  
   this->NumIndependentComponents = numcomponents;
   this->TransferFunctions
       = new vtkPartialPreIntegrationTransferFunction[numcomponents];
