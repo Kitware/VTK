@@ -2,13 +2,13 @@
 
 // These are the includes necessary for multithreaded rendering on an SGI
 // using the sproc() call
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <wait.h>
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
 #include <pthread.h>
 #endif
 
@@ -28,13 +28,13 @@ vtkMultiThreader::vtkMultiThreader()
 
   this->SingleMethod = NULL;
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
   // Default the number of threads to be the number of available
   // processors if we are using sproc()
   this->ThreadCount             = prctl( PR_MAXPPROCS );
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
   // Default the number of threads to be the number of available
   // processors if we are using pthreads()
   this->ThreadCount             = sysconf( _SC_NPROCESSORS_ONLN );
@@ -49,8 +49,8 @@ vtkMultiThreader::vtkMultiThreader()
 #endif
 
 #ifndef _WIN32
-#ifndef USE_SPROC
-#ifndef USE_PTHREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
   // If we are not multithreading, the number of threads should
   // always be 1
   this->ThreadCount             = 1;
@@ -106,12 +106,12 @@ void vtkMultiThreader::SingleMethodExecute()
   HANDLE             process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
   siginfo_t          info_ptr;
   int                process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
   pthread_t          process_id[VTK_MAX_THREADS];
 #endif
 
@@ -167,7 +167,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
 #endif
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
   // Using sproc() on an SGI
   //
   // We want to use sproc to start this->ThreadCount - 1 additional
@@ -200,7 +200,7 @@ void vtkMultiThreader::SingleMethodExecute()
     }
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
   // Using POSIX threads
   //
   // We want to use pthread_create to start this->ThreadCount - 1 additional
@@ -240,8 +240,8 @@ pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
 #endif
 
 #ifndef _WIN32
-#ifndef USE_SPROC
-#ifndef USE_PTHREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
   this->ThreadInfoArray[0].UserData    = this->SingleData;
   this->ThreadInfoArray[0].ThreadCount = this->ThreadCount;
@@ -260,12 +260,12 @@ void vtkMultiThreader::MultipleMethodExecute()
   HANDLE             process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
   siginfo_t          info_ptr;
   int                process_id[VTK_MAX_THREADS];
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
   pthread_t          process_id[VTK_MAX_THREADS];
 #endif
 
@@ -327,7 +327,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
 #endif
 
-#ifdef USE_SPROC
+#ifdef VTK_USE_SPROC
   // Using sproc() on an SGI
   //
   // We want to use sproc to start this->ThreadCount - 1 additional
@@ -364,7 +364,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     }
 #endif
 
-#ifdef USE_PTHREADS
+#ifdef VTK_USE_PTHREADS
   // Using POSIX threads
   //
   // We want to use pthread_create to start this->ThreadCount - 1 additional
@@ -401,8 +401,8 @@ void vtkMultiThreader::MultipleMethodExecute()
 #endif
 
 #ifndef _WIN32
-#ifndef USE_SPROC
-#ifndef USE_PTHREADS
+#ifndef VTK_USE_SPROC
+#ifndef VTK_USE_PTHREADS
   // There is no multi threading, so there is only one thread.
   this->ThreadInfoArray[0].UserData    = this->MultipleData[0];
   this->ThreadInfoArray[0].ThreadCount = this->ThreadCount;
