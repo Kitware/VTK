@@ -74,9 +74,10 @@ vtkOutputWindow::~vtkOutputWindow()
 void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->vtkObject::PrintSelf(os, indent);
+
   os << indent << "vtkOutputWindow Single instance = "
      << (void*)vtkOutputWindow::Instance << endl;
-  os << indent << "PromptUser Flag: " << this->PromptUser << endl;
+  os << indent << "Prompt User: " (this->PromptUser ? "On\n" : "Off\n");
 }
 
 
