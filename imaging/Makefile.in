@@ -10,6 +10,10 @@ ME = Imaging
 srcdir        = @srcdir@
 VPATH         = @srcdir@
 
+OGLR_OBJ = \
+vtkOpenGLImager \
+vtkOpenGLPolyDataMapper2D 
+
 ABSTRACT_H = 
 
 CONCRETE_H = \
@@ -113,7 +117,7 @@ vtkTIFFWriter \
 vtkXImageMapper \
 vtkXImageWindow \
 vtkXPolyDataMapper2D \
-vtkXTextMapper 
+vtkXTextMapper  ${GRAPHICS_API_OBJ}
 
 
 
@@ -144,7 +148,7 @@ KIT_OBJ = ${SRC_OBJ}
 KIT_TCL_OBJ = ${TCL_OBJ} ${KIT_OBJ}
 KIT_NEWS = ${TCL_NEWS}
 
-PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} 
+PYTHON_LIBS = -L../common -lVTKCommonPython ${XLIBS} ${GRAPHICS_API_LIBS}
 
 
 #------------------------------------------------------------------------------

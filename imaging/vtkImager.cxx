@@ -42,8 +42,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkImager.h"
 #include "vtkImageWindow.h"
 
+#ifdef __WIN32
+  #include "vtkOpenGLImager.h"
+#endif
+
 vtkImager* vtkImager::New()
 {
+#ifdef __WIN32
+  return vtkOpenGLImager::New();
+#endif
   return new vtkImager;
 }
 

@@ -141,7 +141,7 @@ public:
   // Description:
   // Obsolete methods for legacy compatability. Do not use.
   void SetLookupTable(vtkLookupTable& lut) {this->SetLookupTable(&lut);};
-  
+
 protected:
   vtkPolyData* Input;
   vtkScalars *Colors;
