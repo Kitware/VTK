@@ -73,9 +73,12 @@ void vtkExtractGrid::Execute()
 {
   vtkStructuredGrid *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
+  vtkCellData *cd=input->GetCellData();
   vtkStructuredGrid *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
+  vtkCellData *outCD=output->GetCellData();
   int i, j, k, dims[3], outDims[3], voi[6], dim, idx, newIdx;
+  int newCellId;
   int sliceSize, outSize, jOffset, kOffset, rate[3];
   vtkPoints *newPts, *inPts;
 
@@ -139,6 +142,7 @@ void vtkExtractGrid::Execute()
     {
     output->SetPoints(inPts);
     output->GetPointData()->PassData(input->GetPointData());
+    output->GetCellData()->PassData(input->GetCellData());
     vtkDebugMacro(<<"Passed data through bacause input and output are the same");
     return;
     }
@@ -147,6 +151,7 @@ void vtkExtractGrid::Execute()
 //
   newPts = (vtkPoints *) inPts->MakeObject(); newPts->SetNumberOfPoints(outSize);
   outPD->CopyAllocate(pd,outSize,outSize);
+  outCD->CopyAllocate(cd,outSize,outSize);
 //
 // Traverse input data and copy point attributes to output
 //
@@ -163,6 +168,25 @@ void vtkExtractGrid::Execute()
         idx = i + jOffset + kOffset;
         newPts->SetPoint(newIdx,inPts->GetPoint(idx));
         outPD->CopyData(pd, idx, newIdx++);
+        }
+      }
+    }
+
+//
+// Traverse input data and copy cell attributes to output
+//
+  newCellId = 0;
+  sliceSize = (dims[0]-1)*(dims[1]-1);
+  for ( k=voi[4]; k < voi[5]; k += rate[2] )
+    {
+    kOffset = k * sliceSize;
+    for ( j=voi[2]; j < voi[3]; j += rate[1] )
+      {
+      jOffset = j * (dims[0] - 1);
+      for ( i=voi[0]; i < voi[1]; i += rate[0] )
+        {
+        idx = i + jOffset + kOffset;
+        outCD->CopyData(cd, idx, newCellId++);
         }
       }
     }
