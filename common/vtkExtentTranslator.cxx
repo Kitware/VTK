@@ -62,12 +62,9 @@ vtkExtentTranslator* vtkExtentTranslator::New()
 //----------------------------------------------------------------------------
 vtkExtentTranslator::vtkExtentTranslator()
 {
-  int idx;
-
   this->MinimumPieceSize[0] = 2;
   this->MinimumPieceSize[1] = 2;
   this->MinimumPieceSize[2] = 2;  
-
 }
 
 //----------------------------------------------------------------------------
