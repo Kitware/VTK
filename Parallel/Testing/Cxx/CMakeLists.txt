@@ -99,15 +99,15 @@ IF (VTK_DATA_ROOT)
 
   IF (VTK_USE_MPI)
     IF (VTK_MPIRUN_EXE)
-      IF(VTK_MPI_MAX_NUMPROCS GREATER 3)
+      IF(VTK_MPI_MAX_NUMPROCS GREATER 1)
         ADD_TEST(DistributedData-image
-          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 4 ${VTK_MPI_PREFLAGS}
+          ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
                  ${CXX_TEST_PATH}/DistributedData
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/DistributedData.cxx.png
                  ${VTK_MPI_POSTFLAGS})
-      ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 3)
+      ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
     ENDIF (VTK_MPIRUN_EXE)
   ENDIF (VTK_USE_MPI)
 

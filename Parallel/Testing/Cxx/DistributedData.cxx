@@ -118,7 +118,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   renderer->SetBackground(0,0,0);
   renWin->SetSize(300,300);
-  renWin->SetPosition(0, 300*Me);
+  renWin->SetPosition(0, 360*Me);
 
   prm->SetRenderWindow(renWin);
   prm->SetController(contr);
@@ -142,6 +142,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
     camera->ParallelProjectionOn();
     camera->SetParallelScale(16);
 
+    renWin->Render();
     renWin->Render();
 
     *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
@@ -176,6 +177,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
       camera->ParallelProjectionOn();
       camera->SetParallelScale(16);
   
+      renWin->Render();
       renWin->Render();
   
       *(args->retVal) = vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
@@ -223,11 +225,11 @@ int main(int argc, char **argv)
   NumProcs = contr->GetNumberOfProcesses();
   Me = contr->GetLocalProcessId();
 
-  if (NumProcs != 4)
+  if (NumProcs != 2)
     {
     if (Me == 0)
       {
-      cout << "DistributedData test requires 4 processes" << endl;
+      cout << "DistributedData test requires 2 processes" << endl;
       }
     contr->Delete();
     return retVal;
