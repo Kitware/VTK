@@ -76,23 +76,19 @@ public:
 
   // Description:
   // Increment the iterator to the next location.
-  // Return VTK_OK if everything is ok.
-  int GoToNextItem();
+  void GoToNextItem();
 
   // Description:
   // Decrement the iterator to the next location.
-  // Return VTK_OK if everything is ok.
-  int GoToPreviousItem();
+  void GoToPreviousItem();
 
   // Description:
   // Go to the "first" item of the map.
-  // Return VTK_OK if everything is ok.
-  int GoToFirstItem();
+  void GoToFirstItem();
 
   // Description:
   // Go to the "last" item of the map.
-  // Return VTK_OK if everything is ok.
-  int GoToLastItem();
+  void GoToLastItem();
 
 protected:
   static vtkArrayMapIterator<KeyType,DataType> *New(); 

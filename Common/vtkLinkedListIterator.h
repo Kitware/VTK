@@ -78,25 +78,21 @@ public:
 
   // Description:
   // Increment the iterator to the next location.
-  // Return VTK_OK if everything is ok.
-  int GoToNextItem();
+  void GoToNextItem();
 
   // Description:
   // Decrement the iterator to the next location.
   // On singly Linked list this operations is extremely expensive, because
   // it has to traverse through potentially whole list.
-  // Return VTK_OK if everything is ok.
-  int GoToPreviousItem();
+  void GoToPreviousItem();
 
   // Description:
   // Go to the first item of the list.
-  // Return VTK_OK if everything is ok.
-  int GoToFirstItem() { this->InitTraversal(); return VTK_OK; }
+  void GoToFirstItem();
 
   // Description:
   // Go to the last item of the list.
-  // Return VTK_OK if everything is ok.
-  int GoToLastItem();
+  void GoToLastItem();
 
 protected:
   static vtkLinkedListIterator<DType> *New();

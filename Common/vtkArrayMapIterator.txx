@@ -37,17 +37,9 @@ vtkArrayMapIterator<KeyType,DataType> *vtkArrayMapIterator<KeyType,DataType>::Ne
 template<class KeyType,class DataType>
 void vtkArrayMapIterator<KeyType,DataType>::InitTraversal()
 {
-  if ( !this->Container )
-    {
-    //cout << "No container" << endl;
-    return;
-    }
-  this->Index = 0;
+  this->GoToFirstItem();
 }
 
-// Description:
-// Retrieve the index of the element.
-// This method returns VTK_OK if key was retrieved correctly.
 template<class KeyType,class DataType>
 int vtkArrayMapIterator<KeyType,DataType>::GetKey(KeyType& key)
 {  
@@ -62,9 +54,6 @@ int vtkArrayMapIterator<KeyType,DataType>::GetKey(KeyType& key)
   return VTK_OK;
 }
 
-// Description:
-// Retrieve the data from the iterator. 
-// This method returns VTK_OK if key was retrieved correctly.
 template<class KeyType,class DataType>
 int vtkArrayMapIterator<KeyType,DataType>::GetData(DataType& data)
 {
@@ -79,9 +68,6 @@ int vtkArrayMapIterator<KeyType,DataType>::GetData(DataType& data)
   return VTK_OK;
 }
 
-// Description:
-// Check if the iterator is at the end of the container. Return 
-// VTK_OK if it is.
 template<class KeyType,class DataType>
 int vtkArrayMapIterator<KeyType,DataType>::IsDoneWithTraversal()
 {
@@ -94,67 +80,55 @@ int vtkArrayMapIterator<KeyType,DataType>::IsDoneWithTraversal()
   return 0;
 }
 
-// Description:
-// Increment the iterator to the next location.
-// Return VTK_OK if everything is ok.
 template<class KeyType,class DataType>
-int vtkArrayMapIterator<KeyType,DataType>::GoToNextItem()
+void vtkArrayMapIterator<KeyType,DataType>::GoToNextItem()
 {
   vtkArrayMap<KeyType,DataType> *lmap 
     = static_cast<vtkArrayMap<KeyType,DataType>*>(this->Container);
-  if ( !lmap || this->Index >= lmap->GetNumberOfItems() )
+  if(this->Index < lmap->GetNumberOfItems())
     {
-    return VTK_ERROR;
+    ++this->Index;
     }
-  this->Index++;
-  return VTK_OK;
+  else
+    {
+    this->Index = 0;
+    }
 }
 
-// Description:
-// Decrement the iterator to the next location.
-// Return VTK_OK if everything is ok.
 template<class KeyType,class DataType>
-int vtkArrayMapIterator<KeyType,DataType>::GoToPreviousItem()
+void vtkArrayMapIterator<KeyType,DataType>::GoToPreviousItem()
 {
   vtkArrayMap<KeyType,DataType> *lmap 
     = static_cast<vtkArrayMap<KeyType,DataType>*>(this->Container);
-  if ( !lmap || this->Index < 0 || this->Index >= lmap->GetNumberOfItems() )
+  if(this->Index > 0)
     {
-    return VTK_ERROR;
+    --this->Index;
     }
-  if ( this->Index == 0 )
+  else
     {
     this->Index = lmap->GetNumberOfItems();
-    return VTK_OK;
     }
-  this->Index--;
-  return VTK_OK;
 }
 
-// Description:
-// Go to the "first" item of the map.
-// Return VTK_OK if everything is ok.
 template<class KeyType,class DataType>
-int vtkArrayMapIterator<KeyType,DataType>::GoToFirstItem()
+void vtkArrayMapIterator<KeyType,DataType>::GoToFirstItem()
 {
-  this->InitTraversal();
-  return VTK_OK;
+  this->Index = 0;
 }
 
-// Description:
-// Go to the "last" item of the map.
-// Return VTK_OK if everything is ok.
 template<class KeyType,class DataType>
-int vtkArrayMapIterator<KeyType,DataType>::GoToLastItem()
+void vtkArrayMapIterator<KeyType,DataType>::GoToLastItem()
 {
   vtkArrayMap<KeyType,DataType> *lmap 
     = static_cast<vtkArrayMap<KeyType,DataType>*>(this->Container);
-  if ( lmap->GetNumberOfItems() <= 0 )
+  if(lmap->GetNumberOfItems() > 0)
     {
-    return VTK_ERROR;
+    this->Index = lmap->GetNumberOfItems()-1;  
     }
-  this->Index = lmap->GetNumberOfItems()-1;
-  return VTK_OK;
+  else
+    {
+    this->Index = 0;
+    }
 }
 
 #if defined ( _MSC_VER )

@@ -37,14 +37,7 @@ vtkLinkedListIterator<DType> *vtkLinkedListIterator<DType>::New()
 template<class DType>
 void vtkLinkedListIterator<DType>::InitTraversal()
 {
-  if ( !this->Container )
-    {
-    vtkGenericWarningMacro("No container set");
-    return;
-    }
-  vtkLinkedList<DType> *llist 
-    = static_cast<vtkLinkedList<DType>*>(this->Container);
-  this->Pointer = llist->Head;
+  this->GoToFirstItem();
 }
 
 // Description:
@@ -88,9 +81,6 @@ int vtkLinkedListIterator<DType>::GetData(DType& data)
   return VTK_OK;
 }
 
-// Description:
-// Check if the iterator is at the end of the container. Return 
-// VTK_OK if it is.
 template<class DType>
 int vtkLinkedListIterator<DType>::IsDoneWithTraversal()
 {
@@ -101,71 +91,65 @@ int vtkLinkedListIterator<DType>::IsDoneWithTraversal()
   return 0;
 }
 
-// Description:
-// Increment the iterator to the next location.
-// Return VTK_OK if everything is ok.
 template<class DType>
-int vtkLinkedListIterator<DType>::GoToNextItem()
+void vtkLinkedListIterator<DType>::GoToNextItem()
 {
-  if ( !this->Pointer )
+  if(this->IsDoneWithTraversal())
     {
-    return VTK_ERROR;
+    this->GoToFirstItem();
     }
-  this->Pointer = this->Pointer->Next;
-  return VTK_OK;
+  else
+    {
+    this->Pointer = this->Pointer->Next;
+    }
 }
 
-// Description:
-// Decrement the iterator to the next location.
-// Return VTK_OK if everything is ok.
 template<class DType>
-int vtkLinkedListIterator<DType>::GoToPreviousItem()
+void vtkLinkedListIterator<DType>::GoToPreviousItem()
 {
-  if ( !this->Pointer )
+  if(this->IsDoneWithTraversal())
     {
-    return VTK_ERROR;
+    this->GoToLastItem();
+    return;
     }
+  
   vtkLinkedList<DType> *llist 
     = static_cast<vtkLinkedList<DType>*>(this->Container);
-
+  
   // Fast exit if at beginning of the list
   if ( this->Pointer == llist->Head )
     {
     this->Pointer = 0;
-    return VTK_OK;
+    return;
     }
 
-  // Traverse the list to find the pervious node
+  // Traverse the list to find the previous node
   vtkLinkedListNode<DType> *curr = 0;
-  for ( curr = llist->Head; curr && curr->Next; curr = curr->Next )
+  for ( curr = llist->Head; curr ; curr = curr->Next )
     {
     if ( curr->Next == this->Pointer )
       {
-      this->Pointer = curr;
-      return VTK_OK;
+      break;
       }
     }
-  return VTK_ERROR;
+  
+  this->Pointer = curr;
 }
 
-// Description:
-// Increment the iterator to the next location.
-// Return VTK_OK if everything is ok.
 template<class DType>
-int vtkLinkedListIterator<DType>::GoToLastItem()
+void vtkLinkedListIterator<DType>::GoToFirstItem()
 {
-  if ( !this->Pointer )
-    {
-    return VTK_ERROR;
-    }
+  vtkLinkedList<DType> *llist 
+    = static_cast<vtkLinkedList<DType>*>(this->Container);
+  this->Pointer = llist->Head;
+}
+
+template<class DType>
+void vtkLinkedListIterator<DType>::GoToLastItem()
+{
   vtkLinkedList<DType> *llist 
     = static_cast<vtkLinkedList<DType>*>(this->Container);
   this->Pointer = llist->Tail;
-  if ( !this->Pointer )
-    {
-    return VTK_ERROR;
-    }
-  return VTK_OK;
 }
 
 #if defined ( _MSC_VER )
