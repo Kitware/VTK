@@ -29,7 +29,7 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
 DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
@@ -38,7 +38,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkScaledTextActor - Create a text that will scale as needed
+// .NAME vtkScaledTextActor - create text that will scale as needed
 // .SECTION Description
 // vtkScaledTextActor can be used to place text annotation into a window
 // and have the font size scale so that the text always bounded by 
@@ -65,26 +65,20 @@ public:
   static vtkScaledTextActor *New();
   
   // Description:
+  // Set/Get the vtkTextMapper that defines the text to be drawn.
+  void SetMapper(vtkTextMapper *mapper);
+
+  // Description:
   // Access the Position2 instance variable. This variable controls
   // the upper right corner of the ScaledText. It is by default
-  // relative to Position1 and in Normalized Viewport coordinates.
+  // relative to Position and in normalized viewport coordinates.
   void SetPosition2(float,float);
   void SetPosition2(float x[2]);
   vtkCoordinate *GetPosition2Coordinate();
   float *GetPosition2();
   
   // Description:
-  // Set/Get the vtkMapper2D which defines the data to be drawn.
-  void SetMapper(vtkTextMapper *mapper);
-
-  // Description:
-  // Draw the scalar bar and annotation text to the screen.
-  int RenderOpaqueGeometry(vtkViewport* viewport);
-  int RenderTranslucentGeometry(vtkViewport* ) {return 0;};
-  int RenderOverlay(vtkViewport* viewport);
-
-  // Description:
-  // Set/Get the height and width of the scalar bar. The value is expressed
+  // Set/Get the height and width of the scaled text. The value is expressed
   // as a fraction of the viewport. This really is just another way of
   // setting the Position2 instance variable.
   void SetWidth(float w);
@@ -94,27 +88,39 @@ public:
   
   // Description:
   // Set/Get the minimum size in pixels for this actor.
-  // Defaults to 10,10
+  // Defaults to 10,10.
   vtkSetVector2Macro(MinimumSize,int);
   vtkGetVector2Macro(MinimumSize,int);
   
   // Description:
   // Set/Get the maximum height of a line of text as a 
   // percentage of the vertical area allocated to this
-  // scaled text actor. Defaults to 1.0
+  // scaled text actor. Defaults to 1.0.
   vtkSetMacro(MaximumLineHeight,float);
   vtkGetMacro(MaximumLineHeight,float);
   
   // Description:
+  // Shallow copy of this scaled text actor. Overloads the virtual 
+  // vtkProp method.
+  void ShallowCopy(vtkProp *prop);
+
+//BTX
+  // Description:
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
-  // Shallow copy of this scaled text actor. Overloads the virtual 
-  // vtkProp method.
-  void ShallowCopy(vtkProp *prop);
+  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
+  // Draw the scaled text actor to the screen.
+  int RenderOpaqueGeometry(vtkViewport* viewport);
+  int RenderTranslucentGeometry(vtkViewport* ) {return 0;};
+  int RenderOverlay(vtkViewport* viewport);
+//ETX
 
 protected:
   vtkScaledTextActor();
