@@ -29,6 +29,7 @@ class vtkMultiProcessController;
 class vtkCompositer;
 class vtkDataArray;
 class vtkFloatArray;
+class vtkUnsignedCharArray;
 
 class VTK_PARALLEL_EXPORT vtkCompositer : public vtkObject
 {
@@ -53,6 +54,14 @@ public:
   vtkSetMacro(NumberOfProcesses, int);
   vtkGetMacro(NumberOfProcesses, int);
 
+  // Description:
+  // Methods that allocate and delete memory with special MPIPro calls.
+  static void DeleteArray(vtkDataArray* da);
+  static void ResizeFloatArray(vtkFloatArray* fa, int numComp,
+                               vtkIdType size);
+  static void ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+                                      int numComp, vtkIdType size);
+  
 protected:
   vtkCompositer();
   ~vtkCompositer();

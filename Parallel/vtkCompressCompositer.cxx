@@ -49,11 +49,10 @@
 #include "vtkFloatArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
-#include "vtkCompositeManager.h"
 
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkCompressCompositer, "1.12");
+vtkCxxRevisionMacro(vtkCompressCompositer, "1.13");
 vtkStandardNewMacro(vtkCompressCompositer);
 
 
@@ -563,22 +562,22 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
     {
     if (this->InternalPData)
       {
-      vtkCompositeManager::DeleteArray(this->InternalPData);
+      vtkCompositer::DeleteArray(this->InternalPData);
       this->InternalPData = NULL;
       }
     if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
       {
       this->InternalPData = vtkUnsignedCharArray::New();
-      vtkCompositeManager::ResizeUnsignedCharArray(
-                               static_cast<vtkUnsignedCharArray*>(this->InternalPData),
-                               numComps, pBuf->GetSize());
+      vtkCompositer::ResizeUnsignedCharArray(
+        static_cast<vtkUnsignedCharArray*>(this->InternalPData),
+        numComps, pBuf->GetSize());
       }
     else 
       {
       this->InternalPData = vtkFloatArray::New();
-      vtkCompositeManager::ResizeFloatArray(
-                               static_cast<vtkFloatArray*>(this->InternalPData),
-                               numComps, pBuf->GetSize());
+      vtkCompositer::ResizeFloatArray(
+        static_cast<vtkFloatArray*>(this->InternalPData),
+        numComps, pBuf->GetSize());
       }
     }
   // Now float array.
@@ -587,13 +586,13 @@ void vtkCompressCompositer::CompositeBuffer(vtkDataArray *pBuf,
     {
     if (this->InternalZData)
       {
-      vtkCompositeManager::DeleteArray(this->InternalZData);
+      vtkCompositer::DeleteArray(this->InternalZData);
       this->InternalZData = NULL;
       }
     this->InternalZData = vtkFloatArray::New();
-    vtkCompositeManager::ResizeFloatArray(
-                             static_cast<vtkFloatArray*>(this->InternalZData),
-                             1, zBuf->GetSize());
+    vtkCompositer::ResizeFloatArray(
+      static_cast<vtkFloatArray*>(this->InternalZData),
+      1, zBuf->GetSize());
     }
 
   // Compress the incoming buffers (in place operation).

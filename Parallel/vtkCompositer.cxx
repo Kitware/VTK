@@ -17,9 +17,15 @@
 #include "vtkObjectFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkMultiProcessController.h"
 
-vtkCxxRevisionMacro(vtkCompositer, "1.7");
+#ifdef VTK_USE_MPI
+ #include <mpi.h>
+#endif
+
+vtkCxxRevisionMacro(vtkCompositer, "1.8");
 vtkStandardNewMacro(vtkCompositer);
 
 //-------------------------------------------------------------------------
@@ -68,6 +74,76 @@ void vtkCompositer::CompositeBuffer(vtkDataArray *pBuf, vtkFloatArray *zBuf,
   zBuf = zBuf;
   pTmp = pTmp;
   zTmp = zTmp;
+}
+
+//-------------------------------------------------------------------------
+
+void vtkCompositer::ResizeFloatArray(vtkFloatArray* fa, int numComp,
+                                     vtkIdType size)
+{
+  fa->SetNumberOfComponents(numComp);
+
+#ifdef MPIPROALLOC
+  vtkIdType fa_size = fa->GetSize();
+  if ( fa_size < size*numComp )
+    {
+    float* ptr = fa->GetPointer(0);
+    if (ptr)
+      {
+      MPI_Free_mem(ptr);
+      }
+    char* tptr;
+    MPI_Alloc_mem(size*numComp*sizeof(float), NULL, &tptr);
+    ptr = (float*)tptr;
+    fa->SetArray(ptr, size*numComp, 1);
+    }
+  else
+    {
+    fa->SetNumberOfTuples(size);
+    }
+#else
+  fa->SetNumberOfTuples(size);
+#endif
+}
+
+void vtkCompositer::ResizeUnsignedCharArray(vtkUnsignedCharArray* uca, 
+                                            int numComp, vtkIdType size)
+{
+  uca->SetNumberOfComponents(numComp);
+#ifdef MPIPROALLOC
+  vtkIdType uca_size = uca->GetSize();
+
+  if ( uca_size < size*numComp )
+    {
+    unsigned char* ptr = uca->GetPointer(0);
+    if (ptr)
+      {
+      MPI_Free_mem(ptr);
+      }
+    char* tptr;
+    MPI_Alloc_mem(size*numComp*sizeof(unsigned char), NULL, &tptr);
+    ptr = (unsigned char*)tptr;
+    uca->SetArray(ptr, size*numComp, 1);
+    }
+  else
+    {
+    uca->SetNumberOfTuples(size);
+    }
+#else
+  uca->SetNumberOfTuples(size);
+#endif
+}
+
+void vtkCompositer::DeleteArray(vtkDataArray* da)
+{
+#ifdef MPIPROALLOC
+  void* ptr = da->GetVoidPointer(0);
+  if (ptr)
+    {
+    MPI_Free_mem(ptr);
+    }
+#endif
+  da->Delete();
 }
 
 //-------------------------------------------------------------------------

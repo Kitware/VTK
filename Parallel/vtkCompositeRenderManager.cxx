@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkCompositeRenderManager.h"
 
-#include "vtkCompositer.h"
 #include "vtkCompressCompositer.h"
 #include "vtkFloatArray.h"
 #include "vtkMultiProcessController.h"
@@ -24,7 +23,7 @@
 #include "vtkTimerLog.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.4");
+vtkCxxRevisionMacro(vtkCompositeRenderManager, "1.5");
 vtkStandardNewMacro(vtkCompositeRenderManager);
 
 vtkCxxSetObjectMacro(vtkCompositeRenderManager, Compositer, vtkCompositer);
