@@ -4,6 +4,11 @@ proc ReadCPUTimeTable { } {
 
     if { [catch {set VTK_HISTORY_PATH $env(VTK_HISTORY_PATH)}] != 0} return
 
+    #
+    # the first time we run regression tests in a kit, the CPUTimeTable.tcl may not exist
+    #
+    if { ![file exists CPUTimeTable.tcl] } { return 0}
+
     source CPUTimeTable.tcl
     SetCPUTimeTestArchAndKit
     return
