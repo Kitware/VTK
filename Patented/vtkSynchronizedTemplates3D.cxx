@@ -48,7 +48,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.78");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.79");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -344,9 +344,16 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   zMin = exExt[4];
   zMax = exExt[5];
   
-  // increments to move through scalars Compute these ourself because
+  // increments to move through scalars. Compute these ourself because
   // we may be contouring an array other than scalars.
-  xInc = self->GetInput()->GetNumberOfScalarComponents();
+  if (inputScalars)
+    {
+    xInc = inPD->GetArray(inputScalars)->GetNumberOfComponents();
+    }
+  else
+    {
+    xInc = self->GetInput()->GetNumberOfScalarComponents();
+    }
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
