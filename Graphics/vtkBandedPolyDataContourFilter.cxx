@@ -25,7 +25,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.38");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.39");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -291,6 +291,7 @@ void vtkBandedPolyDataContourFilter::Execute()
   // These are the new cell scalars
   vtkFloatArray *newScalars = vtkFloatArray::New();
   newScalars->Allocate(numCells*5,numCells);
+  newScalars->SetName("Scalars");
 
   // Used to keep track of intersections
   vtkEdgeTable *edgeTable = vtkEdgeTable::New();
