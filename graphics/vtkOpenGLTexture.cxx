@@ -394,7 +394,7 @@ unsigned char *vtkOpenGLTexture::ResampleToPowerOfTwo(int &xs, int &ys, unsigned
       w3 = pcoords[0]*pcoords[1];
       for (k=0; k < bpp; k++)
         {
-        *p++ = (unsigned char) p1[k]*w0 + p2[k]*w1 + p3[k]*w2 + p4[k]*w3;
+        *p++ = (unsigned char) (p1[k]*w0 + p2[k]*w1 + p3[k]*w2 + p4[k]*w3);
         }
       }
     }
