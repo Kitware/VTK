@@ -76,7 +76,7 @@ public:
   // Set/Get the background color of the rendering screen using an rgb color
   // specification.
   vtkSetVector3Macro(Background,double);
-  vtkGetVectorMacro(Background,double,3);
+  vtkGetVector3Macro(Background,double);
 
   // Description:
   // Set the aspect ratio of the rendered image. This is computed 
