@@ -168,7 +168,9 @@ int vtkWin32OutputWindow::Initialize()
     wndClass.lpfnWndProc = vtkWin32OutputWindow::WndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = GetModuleHandle(NULL);
-//    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+#ifndef _WIN32_WCE
+    wndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+#endif
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = NULL;
