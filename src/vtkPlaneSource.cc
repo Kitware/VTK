@@ -42,28 +42,54 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFloatPoints.hh"
 #include "vtkFloatNormals.hh"
 #include "vtkFloatTCoords.hh"
+#include "vtkMath.hh"
+
+static vtkMath math;
+
+// Description:
+// Construct plane perpendicular to z-axis, resolution 1x1, width and height 1.0,
+// and centered at the origin.
+vtkPlaneSource::vtkPlaneSource()
+{
+  this->XResolution = 1;
+  this->YResolution = 1;
+
+  this->Origin[0] = this->Origin[1] = -0.5;
+  this->Origin[2] = 0.0;
+
+  this->Point1[0] = 0.5;
+  this->Point1[1] = -0.5;
+  this->Point1[2] = 0.0;
+
+  this->Point2[0] = -0.5;
+  this->Point2[1] = 0.5;
+  this->Point2[2] = 0.0;
+
+  this->Normal[2] = 1.0;
+  this->Normal[0] = this->Normal[1] = 0.0;
+}
 
 // Description:
 // Set the number of x-y subdivisions in the plane.
 void vtkPlaneSource::SetResolution(const int xR, const int yR)
 {
-  if ( xR != this->XRes || yR != this->YRes )
-  {
-    this->XRes = xR;
-    this->YRes = yR;
+  if ( xR != this->XResolution || yR != this->YResolution )
+    {
+    this->XResolution = xR;
+    this->YResolution = yR;
 
-    this->XRes = (this->XRes > 0 ? this->XRes : 1);
-    this->YRes = (this->YRes > 0 ? this->YRes : 1);
+    this->XResolution = (this->XResolution > 0 ? this->XResolution : 1);
+    this->YResolution = (this->YResolution > 0 ? this->YResolution : 1);
 
     this->Modified();
-  }
+    }
 }
 
 void vtkPlaneSource::Execute()
 {
-  float x[3], tc[2], n[3], xinc, yinc;
+  float x[3], tc[2], v1[3], v2[3];
   int pts[4];
-  int i, j;
+  int i, j, ii;
   int numPts;
   int numPolys;
   vtkFloatPoints *newPoints; 
@@ -72,12 +98,19 @@ void vtkPlaneSource::Execute()
   vtkCellArray *newPolys;
   vtkPolyData *output = this->GetOutput();
   
+  // Check input
+  for ( i=0; i < 3; i++ )
+    {
+    v1[i] = this->Point1[i] - this->Origin[i];
+    v2[i] = this->Point2[i] - this->Origin[i];
+    }
+  if ( !this->UpdateNormal(v1,v2) ) return;
+
   //
   // Set things up; allocate memory
   //
-
-  numPts = (this->XRes+1) * (this->YRes+1);
-  numPolys = this->XRes * this->YRes;
+  numPts = (this->XResolution+1) * (this->YResolution+1);
+  numPolys = this->XResolution * this->YResolution;
 
   newPoints = new vtkFloatPoints(numPts);
   newNormals = new vtkFloatNormals(numPts);
@@ -88,37 +121,34 @@ void vtkPlaneSource::Execute()
 //
 // Generate points and point data
 //
-  xinc = 1.0 / ((float)this->XRes);
-  yinc = 1.0 / ((float)this->YRes);
-  x[2] = 0.0; // z-value
-  n[0] = 0.0; n[1] = 0.0; n[2] = 1.0;
-
-  for (numPts=0, i=0; i<(this->YRes+1); i++)
+  for (numPts=0, i=0; i<(this->YResolution+1); i++)
     {
-    x[1] = -0.5 + i*yinc;
-    tc[1] = (float) i / this->YRes;
-    for (j=0; j<(this->XRes+1); j++)
+    tc[1] = (float) i / this->YResolution;
+    for (j=0; j<(this->XResolution+1); j++)
       {
-      x[0] = -0.5 + j*xinc;
-      tc[0] = (float) j / this->XRes;
+      tc[0] = (float) j / this->XResolution;
+
+      for ( ii=0; ii < 3; ii++)
+        {
+        x[ii] = this->Origin[ii] + tc[0]*v1[ii] + tc[1]*v2[ii];
+        }
 
       newPoints->InsertPoint(numPts,x);
       newTCoords->InsertTCoord(numPts,tc);
-      newNormals->InsertNormal(numPts++,n);
+      newNormals->InsertNormal(numPts++,this->Normal);
       }
     }
 //
-// Generate polygons
+// Generate polygon connectivity
 //
-  for (i=0; i<this->YRes; i++)
+  for (i=0; i<this->YResolution; i++)
     {
-    x[1] = tc[1] = i*yinc;
-    for (j=0; j<this->XRes; j++)
+    for (j=0; j<this->XResolution; j++)
       {
-      pts[0] = j + i*(this->XRes+1);
+      pts[0] = j + i*(this->XResolution+1);
       pts[1] = pts[0] + 1;
-      pts[2] = pts[0] + this->XRes + 2;
-      pts[3] = pts[0] + this->XRes + 1;
+      pts[2] = pts[0] + this->XResolution + 2;
+      pts[3] = pts[0] + this->XResolution + 1;
       newPolys->InsertNextCell(4,pts);
       }
     }
@@ -138,9 +168,104 @@ void vtkPlaneSource::Execute()
   newPolys->Delete();
 }
 
+// Description:
+// Set the normal to the plane. Will modify the Origin, Point1, and Point2
+// instance variables are necessary (i.e., rotate the plane around its center).
+void vtkPlaneSource::SetNormal(float N[3])
+{
+  float n[3], v1[3], v2[3], center[3];
+  float rotVector[3];
+  int i;
+
+  // compute plane axes
+  for ( i=0; i < 3; i++)
+    {
+    n[i] = N[i];
+    v1[i] = (this->Point1[i] - this->Origin[i]) / 2.0;
+    v2[i] = (this->Point2[i] - this->Origin[i]) / 2.0;
+    center[i] = this->Origin[i] + v1[i] + v2[i];
+    }
+
+  //make sure input is decent
+  if ( math.Normalize(n) == 0.0 )
+    {
+    vtkErrorMacro(<<"Specified zero normal");
+    return;
+    }
+  if ( !this->UpdateNormal(v1,v2) ) return;
+  
+  //compute rotation vector
+  math.Cross(this->Normal,n,rotVector);
+  if ( math.Normalize(rotVector) == 0.0 ) return; //no rotation
+
+  // determine components of rotation around the three axes
+  
+}
+
+// Description:
+// Set the normal to the plane. Will modify the Origin, Point1, and Point2
+// instance variables are necessary (i.e., rotate the plane around its center).
+void vtkPlaneSource::SetNormal(float nx, float ny, float nz)
+{
+  float n[3];
+
+  n[0] = nx; n[1] = ny; n[2] = nz;
+  this->SetNormal(n);
+}
+
+// Description:
+// Translate the plane in the direction of the normal by the distance specified.
+// Negative values move the plane in the opposite direction.
+void vtkPlaneSource::Push(float distance)
+{
+  if ( distance == 0.0 ) return;
+
+  for ( int i=0; i < 3; i++ )
+    {
+    this->Origin[i] += distance * this->Normal[i];
+    this->Point1[i] += distance * this->Normal[i];
+    this->Point2[i] += distance * this->Normal[i];
+    }
+
+  this->Modified();
+}
+
+// Protected method updates normals from two axes.
+int vtkPlaneSource::UpdateNormal(float v1[3], float v2[3])
+{
+  math.Cross(v1,v2,this->Normal);
+  if ( math.Normalize(this->Normal) == 0.0 )
+    {
+    vtkErrorMacro(<<"Bad plane coordinate system");
+    return 0;
+    }
+  else
+    {
+    return 1;
+    }
+}
+
 void vtkPlaneSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
 
-  os << indent << "Resolution: (" << this->XRes << " by " << this->YRes << ")\n";
+  os << indent << "X Resolution: " << this->XResolution << "\n";
+  os << indent << "Y Resolution: " << this->YResolution << "\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", "
+                              << this->Origin[1] << ", "
+                              << this->Origin[2] << ")\n";
+
+  os << indent << "Point 1: (" << this->Point1[0] << ", "
+                               << this->Point1[1] << ", "
+                               << this->Point1[2] << ")\n";
+
+  os << indent << "Point 2: (" << this->Point2[0] << ", "
+                               << this->Point2[1] << ", "
+                               << this->Point2[2] << ")\n";
+
+  os << indent << "Normal: (" << this->Normal[0] << ", "
+                              << this->Normal[1] << ", "
+                              << this->Normal[2] << ")\n";
+
 }

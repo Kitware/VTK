@@ -117,10 +117,12 @@ void vtkLineSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Resolution: " << this->Resolution << "\n";
 
   os << indent << "Point 1: (" << this->Point1[0] << ", "
-                                << this->Point1[1] << ", "
-                                << this->Point1[2] << ")\n";
+                               << this->Point1[1] << ", "
+                               << this->Point1[2] << ")\n";
 
   os << indent << "Point 2: (" << this->Point2[0] << ", "
-                                << this->Point2[1] << ", "
-                                << this->Point2[2] << ")\n";
+                               << this->Point2[1] << ", "
+                               << this->Point2[2] << ")\n";
+
+
 }
