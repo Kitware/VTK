@@ -29,6 +29,7 @@ vtkThreadedController \
 vtkTreeComposite \
 vtkGetRemoteGhostCells \
 vtkPieceScalars \
+vtkPipelineSize \
 vtkInputPort \
 vtkOutputPort \
 vtkExtractPolyDataPiece \
