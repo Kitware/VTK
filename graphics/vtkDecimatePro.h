@@ -301,7 +301,7 @@ protected:
 
 private:
   void InitializeQueue(int numPts);
-  void DeleteQueue() {if (this->Queue) delete this->Queue;};
+  void DeleteQueue() {if (this->Queue) delete this->Queue; this->Queue=NULL;};
   void Insert(int id, float error= -1.0);
   int Pop(float &error);
   float Delete(int id) {return this->Queue->Delete(id);};
