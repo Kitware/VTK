@@ -43,17 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 typedef float Vector[3];
 
-#define X 0
-#define Y 1
-#define Z 2
-
 /* A generic list type */
-#define LIST_INSERT(root, node) list_insert ((List **)&root, (List *)node)
-#define LIST_FIND(root, name)   list_find   ((List **)&root, name)
-#define LIST_DELETE(root, node) list_delete ((List **)&root, (List *)node)
-#define LIST_KILL(root)         list_kill   ((List **)&root)
+#define VTK_LIST_INSERT(root, node) list_insert ((List **)&root, (List *)node)
+#define VTK_LIST_FIND(root, name)   list_find   ((List **)&root, name)
+#define VTK_LIST_DELETE(root, node) list_delete ((List **)&root, (List *)node)
+#define VTK_LIST_KILL(root)         list_kill   ((List **)&root)
 
-#define LIST_FIELDS  \
+#define VTK_LIST_FIELDS  \
     char name[80];   \
     void *next;
 
@@ -63,7 +59,7 @@ typedef unsigned short word;
 typedef unsigned long  dword;
 
 typedef struct {
-    LIST_FIELDS
+   VTK_LIST_FIELDS
 } List;
 
 
@@ -79,7 +75,7 @@ typedef struct {
 
 /* Omni light command */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     Vector pos;            /* Light position */
     Colour col;            /* Light colour */
@@ -89,7 +85,7 @@ typedef struct {
 
 /* Spotlight command */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     Vector pos;            /* Spotlight position */
     Vector target;         /* Spotlight target location */
@@ -103,7 +99,7 @@ typedef struct {
 
 /* Camera command */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     Vector pos;            /* Camera location */
     Vector target;         /* Camera target */
@@ -115,7 +111,7 @@ typedef struct {
 
 /* Material list */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     int  external;         /* Externally defined material? */
 } Material;
@@ -123,7 +119,7 @@ typedef struct {
 
 /* Object summary */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     Vector center;         /* Min value of object extents */
     Vector lengths;        /* Max value of object extents */
@@ -132,7 +128,7 @@ typedef struct {
 
 /* Material property */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     Colour ambient;
     Colour diffuse;
@@ -160,7 +156,7 @@ class vtkPolyData;
 
 /* A mesh object */
 typedef struct {
-    LIST_FIELDS
+    VTK_LIST_FIELDS
 
     int  vertices;         /* Number of vertices */
     Vector *vertex;        /* List of object vertices */

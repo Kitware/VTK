@@ -145,7 +145,7 @@ int vtk3DSImporter::Read3DS ()
   aMaterial = (MatProp *) malloc (sizeof (MatProp));
   *aMaterial = DefaultMaterial;
   aMaterial->aProperty = vtkProperty::New ();
-  LIST_INSERT (this->MatPropList, aMaterial);
+  VTK_LIST_INSERT (this->MatPropList, aMaterial);
   return 1;
 }
 
@@ -189,7 +189,7 @@ void vtk3DSImporter::ImportActors (vtkRenderer *renderer)
     vtkDebugMacro (<< "Importing Actor: " << mesh->name);
     mesh->anActor = actor = vtkActor::New ();
     actor->SetMapper (polyMapper);
-    material = (MatProp *) LIST_FIND (this->MatPropList, mesh->mtl[0]->name);
+    material = (MatProp *) VTK_LIST_FIND (this->MatPropList, mesh->mtl[0]->name);
     actor->SetProperty (material->aProperty);
     renderer->AddActor (actor);
   }
@@ -397,14 +397,14 @@ static Material *update_materials (vtk3DSImporter *importer, char *new_material,
 {
     Material *p;
 
-    p = (Material *) LIST_FIND (importer->MaterialList, new_material);
+    p = (Material *) VTK_LIST_FIND (importer->MaterialList, new_material);
 
     if (p == NULL)
       {
       p = (Material *) malloc (sizeof (*p));
       strcpy (p->name, new_material);
       p->external = ext;
-      LIST_INSERT (importer->MaterialList, p);
+      VTK_LIST_INSERT (importer->MaterialList, p);
       }
     return p;
 }
@@ -639,7 +639,7 @@ static void parse_mat_entry (vtk3DSImporter *importer, Chunk *mainchunk)
 	end_chunk (importer, &chunk);
     } while (chunk.end <= mainchunk->end);
 
-    LIST_INSERT (importer->MatPropList, mprop);
+    VTK_LIST_INSERT (importer->MatPropList, mprop);
 }
 
 
@@ -726,7 +726,7 @@ static void parse_n_tri_object (vtk3DSImporter *importer, Chunk *mainchunk)
 
 	end_chunk (importer, &chunk);
     } while (chunk.end <= mainchunk->end);
-    LIST_INSERT (importer->MeshList, mesh);
+    VTK_LIST_INSERT (importer->MeshList, mesh);
 }
 
 
@@ -844,38 +844,38 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
 
     if (!spot_flag)
       {
-      o = (OmniLight *) LIST_FIND (importer->OmniList, obj_name);
+      o = (OmniLight *) VTK_LIST_FIND (importer->OmniList, obj_name);
 
       if (o != NULL)
 	{
-	pos[X] = o->pos[X];
-	pos[Y] = o->pos[Y];
-	pos[Z] = o->pos[Z];
+	pos[0] = o->pos[0];
+	pos[1] = o->pos[1];
+	pos[2] = o->pos[2];
 	col    = o->col;
 	}
 	else
 	  {
 	  o = (OmniLight *) malloc (sizeof (*o));
-	  o->pos[X] = pos[X];
-	  o->pos[Y] = pos[Y];
-	  o->pos[Z] = pos[Z];
+	  o->pos[0] = pos[0];
+	  o->pos[1] = pos[1];
+	  o->pos[2] = pos[2];
 	  o->col = col   ;
 	  strcpy (o->name, obj_name);
-	  LIST_INSERT (importer->OmniList, o);
+	  VTK_LIST_INSERT (importer->OmniList, o);
  	  }
       }
     else
       {
-      s = (SpotLight *) LIST_FIND (importer->SpotLightList, obj_name);
+      s = (SpotLight *) VTK_LIST_FIND (importer->SpotLightList, obj_name);
 
       if (s != NULL)
 	{
-	pos[X]    = s->pos[X];
-	pos[Y]    = s->pos[Y];
-	pos[Z]    = s->pos[Z];
-	target[X] = s->target[X];
-	target[Y] = s->target[Y];
-	target[Z] = s->target[Z];
+	pos[0]    = s->pos[0];
+	pos[1]    = s->pos[1];
+	pos[2]    = s->pos[2];
+	target[0] = s->target[0];
+	target[1] = s->target[1];
+	target[2] = s->target[2];
 	col       = s->col;
 	hotspot   = s->hotspot;
 	falloff   = s->falloff;
@@ -891,17 +891,17 @@ static void parse_n_direct_light (vtk3DSImporter *importer, Chunk *mainchunk)
 	hotspot = 0.7*falloff;
 	}
       s = (SpotLight *) malloc (sizeof (*s));
-      s->pos[X] = pos[X];
-      s->pos[Y] = pos[Y];
-      s->pos[Z] = pos[Z];
-      s->target[X] = target[X];
-      s->target[Y] = target[Y];
-      s->target[Z] = target[Z];
+      s->pos[0] = pos[0];
+      s->pos[1] = pos[1];
+      s->pos[2] = pos[2];
+      s->target[0] = target[0];
+      s->target[1] = target[1];
+      s->target[2] = target[2];
       s->col = col   ;
       s->hotspot = hotspot;
       s->falloff = falloff;
       strcpy (s->name, obj_name);
-      LIST_INSERT (importer->SpotLightList, s);
+      VTK_LIST_INSERT (importer->SpotLightList, s);
       }
     }
 }
@@ -928,16 +928,16 @@ static void parse_n_camera(vtk3DSImporter *importer)
     lens = read_float(importer);
 
 	strcpy (c->name, obj_name);
-	c->pos[X] = pos[X];
-	c->pos[Y] = pos[Y];
-	c->pos[Z] = pos[Z];
-	c->target[X] = target[X];
-	c->target[Y] = target[Y];
-	c->target[Z] = target[Z];
+	c->pos[0] = pos[0];
+	c->pos[1] = pos[1];
+	c->pos[2] = pos[2];
+	c->target[0] = target[0];
+	c->target[1] = target[1];
+	c->target[2] = target[2];
 	c->lens = lens;
 	c->bank = bank;
 
-	LIST_INSERT (importer->CameraList, c);
+	VTK_LIST_INSERT (importer->CameraList, c);
 }
 
 static void parse_colour (vtk3DSImporter *importer, Colour *colour)
@@ -1088,9 +1088,9 @@ static float read_float(vtk3DSImporter *importer)
 
 static void read_point (vtk3DSImporter *importer, Vector v)
 {
-    v[X] = read_float(importer);
-    v[Y] = read_float(importer);
-    v[Z] = read_float(importer);
+    v[0] = read_float(importer);
+    v[1] = read_float(importer);
+    v[2] = read_float(importer);
 }
 
 
@@ -1176,14 +1176,14 @@ vtk3DSImporter::~vtk3DSImporter()
     {
     omniLight->aLight->Delete();
     }
-  LIST_KILL (this->OmniList);
+  VTK_LIST_KILL (this->OmniList);
 
   // walk the spot light list and delete vtk objects
   for (spotLight = this->SpotLightList; spotLight != (SpotLight *) NULL; spotLight = (SpotLight *) spotLight->next)
     {
     spotLight->aLight->Delete();
     }
-  LIST_KILL (this->SpotLightList);
+  VTK_LIST_KILL (this->SpotLightList);
 
   Camera *camera;
   // walk the camera list and delete vtk objects
@@ -1191,7 +1191,7 @@ vtk3DSImporter::~vtk3DSImporter()
     {
     camera->aCamera->Delete ();
     }
-  LIST_KILL (this->CameraList);
+  VTK_LIST_KILL (this->CameraList);
 
   // walk the mesh list and delete malloced datra and vtk objects
   Mesh *mesh;
@@ -1241,8 +1241,8 @@ vtk3DSImporter::~vtk3DSImporter()
 
   // then delete the list structure
 
-  LIST_KILL (this->MeshList);
-  LIST_KILL (this->MaterialList);
+  VTK_LIST_KILL (this->MeshList);
+  VTK_LIST_KILL (this->MaterialList);
 
   // objects allocated in Material Property List
   MatProp *m;
@@ -1253,7 +1253,7 @@ vtk3DSImporter::~vtk3DSImporter()
     }
 
   // then delete the list structure
-  LIST_KILL (this->MatPropList);
+  VTK_LIST_KILL (this->MatPropList);
 }
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
