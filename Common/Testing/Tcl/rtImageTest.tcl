@@ -1,7 +1,11 @@
 
 # setup some common things for testing
 vtkObject rtTempObject;
-rtTempObject GlobalWarningDisplayOff;
+
+# This really should be removed but used to hang dashboards.
+# I'm commenting it out for now to see what happens.
+#rtTempObject GlobalWarningDisplayOff;
+
 vtkMath rtExMath
 rtExMath RandomSeed 6
 vtkDebugLeaks rtDebugLeaks
