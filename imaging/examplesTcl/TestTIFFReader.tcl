@@ -8,7 +8,7 @@ vtkImageViewer viewer
 #viewer DebugOn
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 #make interface
 source WindowLevelInterface.tcl

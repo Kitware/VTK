@@ -31,7 +31,7 @@ vtkImageViewer viewer
 viewer SetInput [my_close GetOutput]
 viewer SetZSlice 2
 viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 
 # make interface

@@ -71,7 +71,7 @@ vtkImageViewer viewer
 viewer SetInput [convertBack GetOutput]
 #viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 # make interface
 source WindowLevelInterface.tcl

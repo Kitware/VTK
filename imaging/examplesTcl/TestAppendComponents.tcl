@@ -28,7 +28,7 @@ append2 ReleaseDataFlagOff
 vtkImageViewer viewer
 viewer SetInput [append2 GetOutput]
 viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 # make interface
 source WindowLevelInterface.tcl

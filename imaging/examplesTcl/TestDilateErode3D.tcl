@@ -30,7 +30,7 @@ vtkImageViewer viewer
 viewer SetInput [dilate GetOutput]
 viewer SetZSlice 22
 viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 #viewer DebugOn
 
 

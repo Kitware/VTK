@@ -61,7 +61,7 @@ vtkImageViewer viewer
 viewer SetInput [div GetOutput]
 #viewer SetInput [cast GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 #viewer ColorFlagOn
 
 # make interface

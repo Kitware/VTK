@@ -29,7 +29,7 @@ convolve SetInput2 [s2 GetOutput]
 vtkImageViewer viewer
 viewer SetInput [convolve GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 
 # make interface

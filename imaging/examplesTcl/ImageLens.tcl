@@ -51,7 +51,7 @@ add SetInput2 [clip2 GetOutput]
 vtkImageViewer viewer
 viewer SetInput [add GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 proc moveLens {x y} {
    #flip Y axis

@@ -78,7 +78,7 @@ vtkImageViewer viewer
 viewer SetInput [rgb GetOutput]
 viewer SetZSlice 128
 viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 # make interface
 source WindowLevelInterface.tcl

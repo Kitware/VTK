@@ -88,7 +88,7 @@ hybrid2 SetInput [hybrid1 GetOutput]
 vtkImageViewer viewer
 viewer SetInput [hybrid1 GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 source WindowLevelInterface.tcl
 

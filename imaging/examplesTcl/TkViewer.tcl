@@ -15,7 +15,7 @@ reader SetFileName "../../../vtkdata/earth.ppm"
 vtkImageViewer viewer
 viewer SetInput [reader GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 # Create the GUI: two renderer widgets and a quit button
 #

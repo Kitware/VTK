@@ -33,7 +33,7 @@ reader SetFileName "../../../vtkdata/earth.ppm"
 set viewer [.top.f1.r1 GetImageViewer]
 $viewer SetInput [reader GetOutput]
 $viewer SetColorWindow 256
-$viewer SetColorLevel 128
+$viewer SetColorLevel 127.5
 
 
 BindTkImageViewer .top.f1.r1 

@@ -66,7 +66,7 @@ extract SetComponents 2
 vtkImageViewer viewer
 viewer SetInput [extract GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 #viewer SetInput [canvas GetOutput]
 
 # make interface

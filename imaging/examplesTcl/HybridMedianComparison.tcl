@@ -63,22 +63,22 @@ hybrid2 SetInput [hybrid1 GetOutput]
 vtkImageViewer viewer1
 viewer1 SetInput [canvas GetOutput]
 viewer1 SetColorWindow 256
-viewer1 SetColorLevel 128
+viewer1 SetColorLevel 127.5
 
 vtkImageViewer viewer
 viewer SetInput [add GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 vtkImageViewer viewer3
 viewer3 SetInput [hybrid2 GetOutput]
 viewer3 SetColorWindow 256
-viewer3 SetColorLevel 128
+viewer3 SetColorLevel 127.5
 
 vtkImageViewer viewer4
 viewer4 SetInput [median GetOutput]
 viewer4 SetColorWindow 256
-viewer4 SetColorLevel 128
+viewer4 SetColorLevel 127.5
 
 # Create the GUI
 wm withdraw .

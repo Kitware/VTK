@@ -49,7 +49,7 @@ canvas FillPixel 450 350
 vtkImageViewer viewer
 viewer SetInput [canvas GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 
 # make interface

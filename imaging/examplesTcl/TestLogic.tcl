@@ -21,7 +21,7 @@ xor SetOperationToXor
 vtkImageViewer viewer
 viewer SetInput [xor GetOutput]
 viewer SetColorWindow 255
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 # make interface
 source WindowLevelInterface.tcl

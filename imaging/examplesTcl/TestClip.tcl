@@ -57,7 +57,7 @@ clip ReleaseDataFlagOff
 vtkImageViewer viewer
 viewer SetInput [clip GetOutput]
 viewer SetColorWindow 256
-viewer SetColorLevel 128
+viewer SetColorLevel 127.5
 
 
 # make interface
