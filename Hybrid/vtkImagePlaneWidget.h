@@ -56,8 +56,11 @@
 //
 // Window-level is achieved by using the right mouse button.
 // The left mouse button can be used to query the underlying image data
-// with a cross-hair cursor. Text display of window-level and image
-// coordinates/data values are provided by a text actor/mapper pair.
+// with a snap-to cross-hair cursor.  Currently, the nearest point in the input
+// image data to the mouse cursor generates the cross-hairs.  With oblique
+// slicing, this behaviour may appear unsatisfactory. Text display of
+// window-level and image coordinates/data values are provided by a text
+// actor/mapper pair.
 // Events that occur outside of the widget (i.e., no part of the widget is
 // picked) are propagated to any other registered obsevers (such as the
 // interaction style). Turn off the widget by pressing the "i" key again
@@ -99,10 +102,8 @@
 #include "vtkPolyDataSourceWidget.h"
 
 class vtkActor;
-class vtkCellLocator;
 class vtkCellPicker;
 class vtkDataSetMapper;
-class vtkGenericCell;
 class vtkImageData;
 class vtkImageMapToColors;
 class vtkImageReslice;
@@ -449,8 +450,6 @@ protected:
   vtkPolyData       *CursorPolyData;
   vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
-  vtkCellLocator    *VoxelLocator;
-  vtkGenericCell    *Voxel;
   int                CurrentCursorPosition[3];
   float              CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
   void               GenerateCursor();

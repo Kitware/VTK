@@ -21,10 +21,8 @@
 #include "vtkAssemblyNode.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
-#include "vtkCellLocator.h"
 #include "vtkCellPicker.h"
 #include "vtkDataSetMapper.h"
-#include "vtkGenericCell.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageReslice.h"
@@ -42,9 +40,9 @@
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
 #include "vtkTextureMapToPlane.h"
-#include "vtkTransform.h"  
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.54");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.55");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -106,12 +104,6 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->CursorPolyData = vtkPolyData::New();
   this->CursorMapper   = vtkPolyDataMapper::New();
   this->CursorActor    = vtkActor::New();
-
-  // Manage the image data interrogation by cross hair cursor
-  //
-  this->VoxelLocator = vtkCellLocator::New();
-  this->Voxel = vtkGenericCell::New();
-  this->Voxel->SetCellTypeToVoxel();
 
   // Represent the oblique positioning margins
   //
@@ -229,8 +221,6 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
   this->CursorActor->Delete();
   this->CursorMapper->Delete();
   this->CursorPolyData->Delete();
-  this->VoxelLocator->Delete();
-  this->Voxel->Delete();
 
   this->MarginActor->Delete();
   this->MarginMapper->Delete();
@@ -1173,11 +1163,6 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->Texture->SetInterpolate(this->TextureInterpolate);
 
   this->SetPlaneOrientation(this->PlaneOrientation);
-
-  this->VoxelLocator->SetDataSet(this->ImageData);
-  this->VoxelLocator->AutomaticOn();
-  this->VoxelLocator->CacheCellBoundsOn();
-  this->VoxelLocator->BuildLocator();
 }
 
 void vtkImagePlaneWidget::UpdateOrigin()
@@ -1751,20 +1736,18 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   float q[3];
   this->PlanePicker->GetPickPosition(q);
 
-  float closestPt[3];
-  vtkIdType cellId;
-  int subId;
-  float dist2;
-  this->VoxelLocator->FindClosestPoint(q,closestPt,this->Voxel,cellId,subId,dist2);
+  // vtkImageData will find the nearest implicit point to q
+  //
+  vtkIdType ptId = this->ImageData->FindPoint(q);
 
-  if ( cellId == -1 )
+  if ( ptId == -1 )
     {
     this->CursorActor->VisibilityOff();
     return;
     }
 
-  float o[3];
-  this->PlaneSource->GetOrigin(o);
+  float closestPt[3];
+  this->ImageData->GetPoint(ptId,closestPt);
 
   float origin[3];
   this->ImageData->GetOrigin(origin);
@@ -1773,44 +1756,29 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   int extent[6];
   this->ImageData->GetExtent(extent);
 
-  // Now query the original unsliced data
-  //
-  float qi[3];
-  // Compute world to image coords
-  for (i = 0; i < 3; i++)
-    {
-    qi[i] = (closestPt[i]-origin[i])/spacing[i];
-    }
+  float o[3];
+  this->PlaneSource->GetOrigin(o);
 
   int iq[3];
-  iq[0] = vtkMath::Round(qi[0]);
-  iq[1] = vtkMath::Round(qi[1]);
-  iq[2] = vtkMath::Round(qi[2]);
-
-  if( iq[0] < extent[0] || iq[1] < extent[2] || iq[2] < extent[4] || \
-      iq[0] > extent[1] || iq[1] > extent[3] || iq[2] > extent[5])
-    {
-    this->CursorActor->VisibilityOff();
-    return;
-    }
-  else
-    {
-    memcpy(this->CurrentCursorPosition,iq,3*sizeof(int));
-    this->CurrentImageValue = 0.0;
-    }
-
-  // Compute image to world coords
+  int iqtemp;
+  float qro[3];
   for (i = 0; i < 3; i++)
     {
+  // compute world to image coords
+    iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
+
+  // we have a valid pick already, just enforce bounds check
+    iq[i] = (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
+
+  // compute image to world coords
     q[i] = iq[i]*spacing[i] + origin[i];
-    }
 
   // q relative to the plane origin
-  //
-  float qro[3];
-  qro[0]= q[0] - o[0];
-  qro[1]= q[1] - o[1];
-  qro[2]= q[2] - o[2];
+    qro[i]= q[i] - o[i];
+    }
+
+  memcpy(this->CurrentCursorPosition,iq,3*sizeof(int));
+  this->CurrentImageValue = 0.0;
 
   float p1o[3];
   float p2o[3];
@@ -1831,7 +1799,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   float c[3];
   float d[3];
 
-  for ( i = 0; i < 3; i++ )
+  for (i = 0; i < 3; i++)
     {
     a[i] = o[i]  + Lp2*p2o[i];   // left
     b[i] = p1[i] + Lp2*p2o[i];   // right
