@@ -95,10 +95,6 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6])
       this->Modified();
       }
     }
-  if (modified)
-    {
-    this->Modified();
-    }
   this->Initialized = 1;
 }
 
