@@ -49,9 +49,20 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Instantiate polygon.
 vtkPolygon::vtkPolygon()
 {
-  this->Tris.Allocate(VTK_CELL_SIZE);
-  this->TriScalars.Allocate(3);
-  this->TriScalars.ReferenceCountingOff();
+  this->Tris = vtkIdList::New();
+  this->Tris->Allocate(VTK_CELL_SIZE);
+  this->Triangle = vtkTriangle::New();
+  this->TriScalars = vtkScalars::New();
+  this->TriScalars->Allocate(3);
+  this->Line = vtkLine::New();
+}
+
+vtkPolygon::~vtkPolygon()
+{
+  this->Tris->Delete();
+  this->Triangle->Delete();
+  this->TriScalars->Delete();
+  this->Line->Delete();
 }
 
 vtkCell *vtkPolygon::MakeObject()
@@ -217,8 +228,8 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
 
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-       (this->PointInPolygon(closestPoint, this->Points.GetNumberOfPoints(), 
-			     ((vtkFloatArray *)this->Points.GetData())
+       (this->PointInPolygon(closestPoint, this->Points->GetNumberOfPoints(), 
+			     ((vtkFloatArray *)this->Points->GetData())
 			     ->GetPointer(0), this->GetBounds(),n)
 	== VTK_POLYGON_INSIDE) )
     {
@@ -234,11 +245,11 @@ int vtkPolygon::EvaluatePosition(float x[3], float closestPoint[3],
     int numPts;
     float closest[3];
 
-    numPts = this->Points.GetNumberOfPoints();
+    numPts = this->Points->GetNumberOfPoints();
     for (minDist2=VTK_LARGE_FLOAT,i=0; i<numPts; i++)
       {
-      dist2 = vtkLine::DistanceToLine(x,this->Points.GetPoint(i),
-                                  this->Points.GetPoint((i+1)%numPts),t,closest);
+      dist2 = vtkLine::DistanceToLine(x,this->Points->GetPoint(i),
+                                  this->Points->GetPoint((i+1)%numPts),t,closest);
       if ( dist2 < minDist2 )
         {
         closestPoint[0] = closest[0]; 
@@ -276,7 +287,7 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 {
   int i, j;
   float s, t, p[3], p1[3], p2[3], sbounds[2], tbounds[2];
-  int numPts=this->Points.GetNumberOfPoints();
+  int numPts=this->Points->GetNumberOfPoints();
   float *x1, *x2;
   //
   //  This is a two pass process: first create a p' coordinate system
@@ -284,9 +295,9 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
   //  the range 0<=s,t<=1.  The p' system is defined by the polygon normal, 
   //  first vertex and the first edge.
   //
-  this->ComputeNormal (&this->Points,n);
-  x1 = this->Points.GetPoint(0);
-  x2 = this->Points.GetPoint(1);
+  this->ComputeNormal (this->Points,n);
+  x1 = this->Points->GetPoint(0);
+  x2 = this->Points->GetPoint(1);
   for (i=0; i<3; i++) 
     {
     p0[i] = x1[i];
@@ -311,7 +322,7 @@ int vtkPolygon::ParameterizePolygon(float *p0, float *p10, float& l10,
 
   for(i=1; i<numPts; i++) 
     {
-    x1 = this->Points.GetPoint(i);
+    x1 = this->Points->GetPoint(i);
     for(j=0; j<3; j++)
       {
       p[j] = x1[j] - p0[j];
@@ -529,7 +540,7 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
 {
   int i, success;
   float *bounds, d;
-  int numVerts=this->PointIds.GetNumberOfIds();
+  int numVerts=this->PointIds->GetNumberOfIds();
   int *verts = new int[numVerts];
 
   bounds = this->GetBounds();
@@ -539,13 +550,13 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   this->Tolerance = VTK_POLYGON_TOLERANCE * d;
   this->SuccessfulTriangulation = 1;
-  this->ComputeNormal(&this->Points, this->Normal);
+  this->ComputeNormal(this->Points, this->Normal);
 
   for (i=0; i<numVerts; i++)
     {
     verts[i] = i;
     }
-  this->Tris.Reset();
+  this->Tris->Reset();
   outTris.Reset();
 
   success = this->RecursiveTriangulate(numVerts, verts);
@@ -553,9 +564,9 @@ int vtkPolygon::Triangulate(vtkIdList &outTris)
   
   if ( success )
     {
-    for (i=0; i<this->Tris.GetNumberOfIds(); i++)
+    for (i=0; i<this->Tris->GetNumberOfIds(); i++)
       {
-      outTris.InsertId(i,this->PointIds.GetId(this->Tris.GetId(i)));
+      outTris.InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
       }
     return 1;
     }
@@ -589,9 +600,9 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
 
     case 3:
       //  A loop of three vertices makes one triangle!
-      this->Tris.InsertNextId(verts[0]);
-      this->Tris.InsertNextId(verts[1]);
-      this->Tris.InsertNextId(verts[2]);
+      this->Tris->InsertNextId(verts[0]);
+      this->Tris->InsertNextId(verts[1]);
+      this->Tris->InsertNextId(verts[2]);
       return 1;
 
     default:
@@ -607,6 +618,9 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
       int id;
       float dist2, *p1, *p2;
 
+      // quick fix until constructors are changed
+      EdgeLengths.ReferenceCountingOff();
+      
       // find the minimum distance between points as candidates for the split line
       for (i=0; i<(numVerts-2); i++) 
         {
@@ -615,8 +629,9 @@ int vtkPolygon::RecursiveTriangulate (int numVerts, int *verts)
           if ( ((j+1) % numVerts) != i ) 
             {
             id = j*numVerts + i; //generated id
-            p1 = this->Points.GetPoint(verts[i]); //we depend on using vtkPoints of type float
-            p2 = this->Points.GetPoint(verts[j]);
+	    //we depend on using vtkPoints of type float
+            p1 = this->Points->GetPoint(verts[i]); 
+            p2 = this->Points->GetPoint(verts[j]);
             dist2 = vtkMath::Distance2BetweenPoints(p1,p2);
             EdgeLengths.Insert(dist2, id);
             }
@@ -666,8 +681,8 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
 
   // Create splitting plane.  Splitting plane is parallel to the loop
   // plane normal and contains the splitting vertices fedges[0] and fedges[1].
-  sPt = this->Points.GetPoint(fedges[0]);
-  s2Pt = this->Points.GetPoint(fedges[1]);
+  sPt = this->Points->GetPoint(fedges[0]);
+  s2Pt = this->Points->GetPoint(fedges[1]);
   for (i=0; i<3; i++)
     {
     v21[i] = s2Pt[i] - sPt[i];
@@ -693,7 +708,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
     {
     if ( !(l1[i] == fedges[0] || l1[i] == fedges[1]) ) 
       {
-      x = this->Points.GetPoint(l1[i]);
+      x = this->Points->GetPoint(l1[i]);
       val = vtkPlane::Evaluate(sN,sPt,x);
       if ( !sign1 )
 	{
@@ -711,7 +726,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
     {
     if ( !(l2[i] == fedges[0] || l2[i] == fedges[1]) ) 
       {
-      x = this->Points.GetPoint(l2[i]);
+      x = this->Points->GetPoint(l2[i]);
       val = vtkPlane::Evaluate(sN,sPt,x);
       if ( !sign2 )
 	{
@@ -760,7 +775,7 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
       otherLoop = l1; otherCount = n1;
       }
 
-    this->ComputeNormal(&this->Points, count, loop, n);
+    this->ComputeNormal(this->Points, count, loop, n);
     if ( vtkMath::Dot(n,this->Normal) < 0.0 )
       {
       return 0;
@@ -773,8 +788,8 @@ int vtkPolygon::CanSplitLoop (int fedges[2], int numVerts, int *verts,
       if ( id1 != fedges[0] && id1 != fedges[1] &&
       id2 != fedges[0] && id2 != fedges[1] )
         {
-        p1 = this->Points.GetPoint(id1);
-        p2 = this->Points.GetPoint(id2);
+        p1 = this->Points->GetPoint(id1);
+        p2 = this->Points->GetPoint(id2);
         if ( vtkLine::Intersection(sPt,s2Pt,p1,p2,u,v) != 0 )
 	  {
 	  return 0;
@@ -814,7 +829,7 @@ void vtkPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
 int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3], 
                              vtkIdList& pts)
 {
-  int i, numPts=this->PointIds.GetNumberOfIds();
+  int i, numPts=this->PointIds->GetNumberOfIds();
   float x[3], *weights, closest[3];
   int closestPoint=0, previousPoint, nextPoint;
   float largestWeight=0.0;
@@ -842,7 +857,7 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
       }
     }
 
-  pts.InsertId(0,this->PointIds.GetId(closestPoint));
+  pts.InsertId(0,this->PointIds->GetId(closestPoint));
 
   previousPoint = closestPoint - 1;
   nextPoint = closestPoint + 1;
@@ -857,19 +872,19 @@ int vtkPolygon::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 
   if ( weights[previousPoint] > weights[nextPoint] )
     {
-    pts.InsertId(1,this->PointIds.GetId(previousPoint));
+    pts.InsertId(1,this->PointIds->GetId(previousPoint));
     }
   else
     {
-    pts.InsertId(1,this->PointIds.GetId(nextPoint));
+    pts.InsertId(1,this->PointIds->GetId(nextPoint));
     }
   delete [] weights;
 
   // determine whether point is inside of polygon
   if ( pcoords[0] >= 0.0 && pcoords[0] <= 1.0 &&
        pcoords[1] >= 0.0 && pcoords[1] <= 1.0 &&
-       (this->PointInPolygon(closest, this->Points.GetNumberOfPoints(), 
-			     ((vtkFloatArray *)this->Points.GetData())
+       (this->PointInPolygon(closest, this->Points->GetNumberOfPoints(), 
+			     ((vtkFloatArray *)this->Points->GetData())
 			     ->GetPointer(0), this->GetBounds(),n)
 	== VTK_POLYGON_INSIDE) )
     {
@@ -889,11 +904,11 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
                         vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
   int i, success;
-  int numVerts=this->Points.GetNumberOfPoints();
+  int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
   int *polyVerts = new int[numVerts], p1, p2, p3;
 
-  this->TriScalars.SetNumberOfScalars(3);
+  this->TriScalars->SetNumberOfScalars(3);
 
   bounds = this->GetBounds();
   
@@ -902,13 +917,13 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   this->Tolerance = VTK_POLYGON_TOLERANCE * d;
   this->SuccessfulTriangulation = 1;
-  this->ComputeNormal(&this->Points, this->Normal);
+  this->ComputeNormal(this->Points, this->Normal);
 
   for (i=0; i<numVerts; i++)
     {
     polyVerts[i] = i;
     }
-  this->Tris.Reset();
+  this->Tris->Reset();
 
   success = this->RecursiveTriangulate(numVerts, polyVerts);
 
@@ -917,28 +932,28 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
     }
   else // Contour triangle
     {
-    for (i=0; i<this->Tris.GetNumberOfIds(); i += 3)
+    for (i=0; i<this->Tris->GetNumberOfIds(); i += 3)
       {
-      p1 = this->Tris.GetId(i);
-      p2 = this->Tris.GetId(i+1);
-      p3 = this->Tris.GetId(i+2);
+      p1 = this->Tris->GetId(i);
+      p2 = this->Tris->GetId(i+1);
+      p3 = this->Tris->GetId(i+2);
 
-      this->Triangle.Points.SetPoint(0,this->Points.GetPoint(p1));
-      this->Triangle.Points.SetPoint(1,this->Points.GetPoint(p2));
-      this->Triangle.Points.SetPoint(2,this->Points.GetPoint(p3));
+      this->Triangle->Points->SetPoint(0,this->Points->GetPoint(p1));
+      this->Triangle->Points->SetPoint(1,this->Points->GetPoint(p2));
+      this->Triangle->Points->SetPoint(2,this->Points->GetPoint(p3));
 
       if ( outPd )
         {
-        this->Triangle.PointIds.SetId(0,this->PointIds.GetId(p1));
-        this->Triangle.PointIds.SetId(1,this->PointIds.GetId(p2));
-        this->Triangle.PointIds.SetId(2,this->PointIds.GetId(p3));
+        this->Triangle->PointIds->SetId(0,this->PointIds->GetId(p1));
+        this->Triangle->PointIds->SetId(1,this->PointIds->GetId(p2));
+        this->Triangle->PointIds->SetId(2,this->PointIds->GetId(p3));
         }
 
-      this->TriScalars.SetScalar(0,cellScalars->GetScalar(p1));
-      this->TriScalars.SetScalar(1,cellScalars->GetScalar(p2));
-      this->TriScalars.SetScalar(2,cellScalars->GetScalar(p3));
+      this->TriScalars->SetScalar(0,cellScalars->GetScalar(p1));
+      this->TriScalars->SetScalar(1,cellScalars->GetScalar(p2));
+      this->TriScalars->SetScalar(2,cellScalars->GetScalar(p3));
 
-      this->Triangle.Contour(value, &this->TriScalars, locator, verts,
+      this->Triangle->Contour(value, this->TriScalars, locator, verts,
                    lines, polys, inPd, outPd, inCd, cellId, outCd);
       }
     }
@@ -947,17 +962,17 @@ void vtkPolygon::Contour(float value, vtkScalars *cellScalars,
 
 vtkCell *vtkPolygon::GetEdge(int edgeId)
 {
-  int numPts=this->Points.GetNumberOfPoints();
+  int numPts=this->Points->GetNumberOfPoints();
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId((edgeId+1) % numPts));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(edgeId));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId((edgeId+1) % numPts));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint((edgeId+1) % numPts));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(edgeId));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint((edgeId+1) % numPts));
 
-  return &this->Line;
+  return this->Line;
 }
 
 //
@@ -966,12 +981,12 @@ vtkCell *vtkPolygon::GetEdge(int edgeId)
 void vtkPolygon::ComputeWeights(float x[3], float *weights)
 {
   int i;
-  int numPts=this->Points.GetNumberOfPoints();
+  int numPts=this->Points->GetNumberOfPoints();
   float maxDist2, sum, *pt;
 
   for (sum=0.0, maxDist2=0.0, i=0; i<numPts; i++)
     {
-    pt = this->Points.GetPoint(i);
+    pt = this->Points->GetPoint(i);
     weights[i] = vtkMath::Distance2BetweenPoints(x,pt);
     if ( weights[i] == 0.0 ) //exact hit
       {
@@ -1013,11 +1028,11 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   //
   // Get normal for triangle
   //
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
+  pt3 = this->Points->GetPoint(0);
 
-  this->ComputeNormal (&this->Points,n);
+  this->ComputeNormal (this->Points,n);
   //
   // Intersect plane of triangle with line
   //
@@ -1033,11 +1048,11 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
     {
     if ( dist2 <= tol2 ) 
       {
-      delete weights;
+      delete [] weights;
       return 1;
       }
     }
-  delete weights;
+  delete [] weights;
   return 0;
 
 }
@@ -1047,7 +1062,7 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
 {
   int i, success;
   float *bounds, d;
-  int numVerts=this->PointIds.GetNumberOfIds();
+  int numVerts=this->PointIds->GetNumberOfIds();
   int *verts = new int[numVerts];
 
   pts.Reset();
@@ -1059,13 +1074,13 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
            (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
   this->Tolerance = VTK_POLYGON_TOLERANCE * d;
   this->SuccessfulTriangulation = 1;
-  this->ComputeNormal(&this->Points, this->Normal);
+  this->ComputeNormal(this->Points, this->Normal);
 
   for (i=0; i<numVerts; i++)
     {
     verts[i] = i;
     }
-  this->Tris.Reset();
+  this->Tris->Reset();
 
   success = this->RecursiveTriangulate(numVerts, verts);
 
@@ -1075,10 +1090,10 @@ int vtkPolygon::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
     }
   else // Copy the point id's into the supplied Id array
     {
-    for (i=0; i<this->Tris.GetNumberOfIds(); i++)
+    for (i=0; i<this->Tris->GetNumberOfIds(); i++)
       {
-      ptIds.InsertId(i,this->PointIds.GetId(this->Tris.GetId(i)));
-      pts.InsertPoint(i,this->Points.GetPoint(this->Tris.GetId(i)));
+      ptIds.InsertId(i,this->PointIds->GetId(this->Tris->GetId(i)));
+      pts.InsertPoint(i,this->Points->GetPoint(this->Tris->GetId(i)));
       }
     }
 
@@ -1095,7 +1110,7 @@ void vtkPolygon::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   int i, j, k, idx;
   float p0[3], p10[3], l10, p20[3], l20, n[3];
   float x[3][3], l1, l2, v1[3], v2[3];
-  int numVerts=this->PointIds.GetNumberOfIds();
+  int numVerts=this->PointIds->GetNumberOfIds();
   float *weights = new float[numVerts];
   float *sample = new float[dim*3];
 
@@ -1166,11 +1181,11 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
                       int insideOut)
 {
   int i, success;
-  int numVerts=this->Points.GetNumberOfPoints();
+  int numVerts=this->Points->GetNumberOfPoints();
   float *bounds, d;
   int *polyVerts = new int[numVerts], p1, p2, p3;
 
-  this->TriScalars.SetNumberOfScalars(3);
+  this->TriScalars->SetNumberOfScalars(3);
 
   bounds = this->GetBounds();
   d = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -1179,37 +1194,37 @@ void vtkPolygon::Clip(float value, vtkScalars *cellScalars,
   this->Tolerance = VTK_POLYGON_TOLERANCE * d;
 
   this->SuccessfulTriangulation = 1;
-  this->ComputeNormal(&this->Points, this->Normal);
+  this->ComputeNormal(this->Points, this->Normal);
 
   for (i=0; i<numVerts; i++)
     {
     polyVerts[i] = i;
     }
-  this->Tris.Reset();
+  this->Tris->Reset();
 
   success = this->RecursiveTriangulate(numVerts, polyVerts);
 
   if ( success ) // clip triangles
     {
-    for (i=0; i<this->Tris.GetNumberOfIds(); i += 3)
+    for (i=0; i<this->Tris->GetNumberOfIds(); i += 3)
       {
-      p1 = this->Tris.GetId(i);
-      p2 = this->Tris.GetId(i+1);
-      p3 = this->Tris.GetId(i+2);
+      p1 = this->Tris->GetId(i);
+      p2 = this->Tris->GetId(i+1);
+      p3 = this->Tris->GetId(i+2);
 
-      this->Triangle.Points.SetPoint(0,this->Points.GetPoint(p1));
-      this->Triangle.Points.SetPoint(1,this->Points.GetPoint(p2));
-      this->Triangle.Points.SetPoint(2,this->Points.GetPoint(p3));
+      this->Triangle->Points->SetPoint(0,this->Points->GetPoint(p1));
+      this->Triangle->Points->SetPoint(1,this->Points->GetPoint(p2));
+      this->Triangle->Points->SetPoint(2,this->Points->GetPoint(p3));
 
-      this->Triangle.PointIds.SetId(0,this->PointIds.GetId(p1));
-      this->Triangle.PointIds.SetId(1,this->PointIds.GetId(p2));
-      this->Triangle.PointIds.SetId(2,this->PointIds.GetId(p3));
+      this->Triangle->PointIds->SetId(0,this->PointIds->GetId(p1));
+      this->Triangle->PointIds->SetId(1,this->PointIds->GetId(p2));
+      this->Triangle->PointIds->SetId(2,this->PointIds->GetId(p3));
 
-      this->TriScalars.SetScalar(0,cellScalars->GetScalar(p1));
-      this->TriScalars.SetScalar(1,cellScalars->GetScalar(p2));
-      this->TriScalars.SetScalar(2,cellScalars->GetScalar(p3));
+      this->TriScalars->SetScalar(0,cellScalars->GetScalar(p1));
+      this->TriScalars->SetScalar(1,cellScalars->GetScalar(p2));
+      this->TriScalars->SetScalar(2,cellScalars->GetScalar(p3));
 
-      this->Triangle.Clip(value, &this->TriScalars, locator, tris, 
+      this->Triangle->Clip(value, this->TriScalars, locator, tris, 
                           inPD, outPD, inCD, cellId, outCD, insideOut);
       }
     }

@@ -63,11 +63,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataArray_h
 #define __vtkDataArray_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 
 class vtkFloatArray;
 
-class VTK_EXPORT vtkDataArray : public vtkReferenceCount 
+class VTK_EXPORT vtkDataArray : public vtkObject 
 {
 public:
   // Description:

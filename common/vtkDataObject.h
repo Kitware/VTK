@@ -125,11 +125,11 @@ public:
   // Assign or retrieve field data to this data object.
   void SetFieldData(vtkFieldData *fd);
   void SetFieldData(vtkFieldData &fd) {this->SetFieldData(&fd);}
-  vtkFieldData *GetFieldData() {return &this->FieldData;};
+  vtkFieldData *GetFieldData() {return this->FieldData;};
 
 protected:
   vtkSource *Source;
-  vtkFieldData FieldData; //General field data associated with data object
+  vtkFieldData *FieldData; //General field data associated with data object
   
   int DataReleased; //keep track of data release during network execution
   int ReleaseDataFlag; //data will release after use by a filter

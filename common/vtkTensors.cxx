@@ -44,22 +44,29 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkTensors::vtkTensors(int dataType) : vtkAttributeData(dataType)
 {
   this->Data->SetNumberOfComponents(9);
+  this->T = vtkTensor::New();
 }
 
-void vtkTensors::GetTensor(int id, vtkTensor &ft)
+vtkTensors::~vtkTensors()
+{
+  this->T->Delete();
+}
+
+
+void vtkTensors::GetTensor(int id, vtkTensor *ft)
 {
   vtkTensor *t = this->GetTensor(id);
-  ft.DeepCopy(*t);
+  ft->DeepCopy(*t);
 }
 
 void vtkTensors::SetTensor(int id, vtkTensor *t)
 {
-  this->Data->SetTuple(id,t->T);
+  this->Data->SetTuple(id, t->T);
 }
 
 void vtkTensors::InsertTensor(int id, vtkTensor *t)
 {
-  this->Data->InsertTuple(id,t->T);
+  this->Data->InsertTuple(id, t->T);
 }
 
 void vtkTensors::InsertTensor(int id, float t11, float t12, float t13, 
@@ -104,14 +111,14 @@ int vtkTensors::InsertNextTensor(float t11, float t12, float t13,
 }
 
 // Given a list of pt ids, return an array of tensors.
-void vtkTensors::GetTensors(vtkIdList& ptIds, vtkTensors& t)
+void vtkTensors::GetTensors(vtkIdList *ptIds, vtkTensors *t)
 {
-  int num=ptIds.GetNumberOfIds();
+  int num=ptIds->GetNumberOfIds();
 
-  t.SetNumberOfTensors(num);
+  t->SetNumberOfTensors(num);
   for (int i=0; i<num; i++)
     {
-    t.SetTensor(i,this->GetTensor(ptIds.GetId(i)));
+    t->SetTensor(i,this->GetTensor(ptIds->GetId(i)));
     }
 }
 

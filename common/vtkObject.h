@@ -44,6 +44,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // toolkit. vtkObject provides methods for tracking modification times, 
 // debugging, and printing. Most objects created within the vtk 
 // framework should be a subclass of vtkObject or one of its children.
+// The few exceptions tend to be very small helper classes that usually
+// never get instantiated or situations where multiple inheritance
+// gets in the way. 
+// vtkObject also performs reference counting:
+// Objects that are reference counted exist as long as another object
+// uses them. Once the last reference to a reference counted object is 
+// removed, the object will spontaneously destruct. Typically only data
+// objects that are passed between objects are reference counted.
+
+// .SECTION Caveats
+// Note: in vtk objects are generally created with combinations of 
+// new/Delete() methods. This works great until you want to allocate
+// objects off the stack (i.e., automatic objects). Automatic objects,
+// when automatically deleted (by exiting scope), will cause warnings to
+// occur. You can avoid this by turing reference counting off (i.e., use
+// the method ReferenceCountingOff()).
+
 
 #ifndef __vtkObject_h
 #define __vtkObject_h
@@ -65,14 +82,15 @@ public:
   virtual const char *GetClassName() {return "vtkObject";};
 
   // Description:
-  // Delete a vtk object. This method should always be used to delete an object 
+  // Delete a vtk object. 
+  // This method should always be used to delete an object 
   // when the new operator was used to create it. Using the C++ delete method
   // will not work with reference counting.
-  virtual void Delete(); 
+  virtual void Delete(); //delete a vtk object.
 
   // Description:
-  // Create an object with Debug turned off and modified time initialized 
-  // to zero.
+  // Create an object with Debug turned off, modified time initialized 
+  // to zero, and reference counting on.
   static vtkObject *New() {return new vtkObject;};
 
 #ifdef _WIN32
@@ -89,15 +107,21 @@ public:
   // Description:
   // Turn debugging output off.
   virtual void DebugOff();
-
+  
   // Description:
   // Get the value of the debug flag.
   unsigned char GetDebug();
-
+  
+  
   // Description:
   // Set the value of the debug flag. A non-zero value turns debugging on.
   void SetDebug(unsigned char debugFlag);
-
+  
+  // Description:
+  // This method is called when vtkErrorMacro executes. It allows 
+  // the debugger to break on error.
+  static void BreakOnError();
+  
   // Description: 
   // Return this objects modified time.
   virtual unsigned long GetMTime();
@@ -123,21 +147,40 @@ public:
   virtual void PrintTrailer(ostream& os, vtkIndent indent);
 
   // Description:
-  // This method is called when vtkErrorMacro executes. It allows 
-  // the debugger to break on error.
-  static void BreakOnError();
-
-  // Description:
   // This is a global flag that controls whether any debug, warning
   // or error messages are displayed.
   static void SetGlobalWarningDisplay(int val);
-  static void GlobalWarningDisplayOn() {vtkObject::SetGlobalWarningDisplay(1);};
-  static void GlobalWarningDisplayOff() {vtkObject::SetGlobalWarningDisplay(0);};
+  static void GlobalWarningDisplayOn(){vtkObject::SetGlobalWarningDisplay(1);};
+  static void GlobalWarningDisplayOff() 
+    {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
   
+  // Reference Counting
+
+  // Description:
+  // Increase the reference count (mark as used by another object).
+  void Register(vtkObject* o);
+
+
+  // Description:
+  // Decrease the reference count (release by another object).
+  virtual void UnRegister(vtkObject* o);
+
+  int  GetReferenceCount() {return this->ReferenceCount;};
+  void ReferenceCountingOff();
+
+  // Description:
+  // Sets the reference count (use with care)
+  void SetReferenceCount(int);
+
+
+
+
 protected:
   unsigned char Debug;         // Enable debug messages
   vtkTimeStamp MTime; // Keep track of modification time
+  int ReferenceCount;      // Number of uses of this object by other objects
+  int ReferenceCounting; // Turn on/off reference counting mechanism
 
 private:
   //BTX
@@ -149,6 +192,18 @@ inline void vtkObject::Modified()
 {
   this->MTime.Modified();
 }
+
+
+// Description:
+// Turn off reference counting for this object. This allows you to create
+// automatic reference counted objects and avoid warning messages when scope
+// is existed. (Note: It is preferable to use the combination new/Delete() 
+// to create and delete vtk objects.)
+inline void vtkObject::ReferenceCountingOff()
+{
+  this->ReferenceCounting = 0;
+}
+
 
 #endif
 

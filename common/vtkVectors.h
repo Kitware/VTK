@@ -113,10 +113,12 @@ public:
   // Description:
   // Return the maximum norm for these vectors.
   float GetMaxNorm();
-  
+
   // Description:
   // Given a list of pt ids, return an array of vectors.
-  void GetVectors(vtkIdList& ptId, vtkVectors& fv);
+  void GetVectors(vtkIdList *ptId, vtkVectors *fv);
+  void GetVectors(vtkIdList& ptId, vtkVectors& fv)
+    {this->GetVectors(&ptId, &fv);}
 
 protected:
   float MaxNorm;

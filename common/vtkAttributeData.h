@@ -54,7 +54,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkDataArray.h"
 
-class VTK_EXPORT vtkAttributeData : public vtkReferenceCount 
+class VTK_EXPORT vtkAttributeData : public vtkObject 
 {
 public:
   // Description:

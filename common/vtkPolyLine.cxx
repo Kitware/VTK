@@ -42,6 +42,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkMath.h"
 #include "vtkCellArray.h"
 
+vtkPolyLine::vtkPolyLine()
+{
+  this->Line = vtkLine::New();
+}
+
+vtkPolyLine::~vtkPolyLine()
+{
+  this->Line->Delete();
+}
+
 vtkCell *vtkPolyLine::MakeObject()
 {
   vtkCell *cell = vtkPolyLine::New();
@@ -262,11 +272,11 @@ int vtkPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
 
   return_status = 0;
   weights[0] = 0.0;
-  for (minDist2=VTK_LARGE_FLOAT,i=0; i<this->Points.GetNumberOfPoints()-1; i++)
+  for (minDist2=VTK_LARGE_FLOAT,i=0; i<this->Points->GetNumberOfPoints()-1; i++)
     {
-    this->Line.Points.SetPoint(0,this->Points.GetPoint(i));
-    this->Line.Points.SetPoint(1,this->Points.GetPoint(i+1));
-    status = this->Line.EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
+    this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
+    this->Line->Points->SetPoint(1,this->Points->GetPoint(i+1));
+    status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,dist2,lineWeights);
     if ( status != -1 && dist2 < minDist2 )
       {
       return_status = status;
@@ -290,8 +300,8 @@ void vtkPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                                    float *weights)
 {
   int i;
-  float *a1 = this->Points.GetPoint(subId);
-  float *a2 = this->Points.GetPoint(subId+1);
+  float *a1 = this->Points->GetPoint(subId);
+  float *a2 = this->Points->GetPoint(subId+1);
 
   for (i=0; i<3; i++) 
     {
@@ -309,7 +319,7 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 
   if ( pcoords[0] >= 0.5 )
     {
-    pts.SetId(0,this->PointIds.GetId(subId+1));
+    pts.SetId(0,this->PointIds->GetId(subId+1));
     if ( pcoords[0] > 1.0 )
       {
       return 0;
@@ -321,7 +331,7 @@ int vtkPolyLine::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
     }
   else
     {
-    pts.SetId(0,this->PointIds.GetId(subId));
+    pts.SetId(0,this->PointIds->GetId(subId));
     if ( pcoords[0] < 0.0 )
       {
       return 0;
@@ -339,25 +349,25 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
                          vtkPointData *inPd, vtkPointData *outPd,
                          vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
-  int i, numLines=this->Points.GetNumberOfPoints() - 1;
+  int i, numLines=this->Points->GetNumberOfPoints() - 1;
   vtkScalars *lineScalars=vtkScalars::New();
   lineScalars->SetNumberOfScalars(2);
 
   for ( i=0; i < numLines; i++)
     {
-    this->Line.Points.SetPoint(0,this->Points.GetPoint(i));
-    this->Line.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
+    this->Line->Points->SetPoint(1,this->Points->GetPoint(i+1));
 
     if ( outPd )
       {
-      this->Line.PointIds.SetId(0,this->PointIds.GetId(i));
-      this->Line.PointIds.SetId(1,this->PointIds.GetId(i+1));
+      this->Line->PointIds->SetId(0,this->PointIds->GetId(i));
+      this->Line->PointIds->SetId(1,this->PointIds->GetId(i+1));
       }
 
     lineScalars->SetScalar(0,cellScalars->GetScalar(i));
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
-    this->Line.Contour(value, lineScalars, locator, verts,
+    this->Line->Contour(value, lineScalars, locator, verts,
 		       lines, polys, inPd, outPd, inCd, cellId, outCd);
     }
   lineScalars->Delete();
@@ -369,14 +379,14 @@ void vtkPolyLine::Contour(float value, vtkScalars *cellScalars,
 int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
                                   float x[3], float pcoords[3], int& subId)
 {
-  int subTest, numLines=this->Points.GetNumberOfPoints() - 1;
+  int subTest, numLines=this->Points->GetNumberOfPoints() - 1;
 
   for (subId=0; subId < numLines; subId++)
     {
-    this->Line.Points.SetPoint(0,this->Points.GetPoint(subId));
-    this->Line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+    this->Line->Points->SetPoint(0,this->Points->GetPoint(subId));
+    this->Line->Points->SetPoint(1,this->Points->GetPoint(subId+1));
 
-    if ( this->Line.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+    if ( this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       {
       return 1;
       }
@@ -388,17 +398,17 @@ int vtkPolyLine::IntersectWithLine(float p1[3], float p2[3],float tol,float& t,
 int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
                              vtkPoints &pts)
 {
-  int numLines=this->Points.GetNumberOfPoints() - 1;
+  int numLines=this->Points->GetNumberOfPoints() - 1;
   pts.Reset();
   ptIds.Reset();
 
   for (int subId=0; subId < numLines; subId++)
     {
-    pts.InsertNextPoint(this->Points.GetPoint(subId));
-    ptIds.InsertNextId(this->PointIds.GetId(subId));
+    pts.InsertNextPoint(this->Points->GetPoint(subId));
+    ptIds.InsertNextId(this->PointIds->GetId(subId));
 
-    pts.InsertNextPoint(this->Points.GetPoint(subId+1));
-    ptIds.InsertNextId(this->PointIds.GetId(subId+1));
+    pts.InsertNextPoint(this->Points->GetPoint(subId+1));
+    ptIds.InsertNextId(this->PointIds->GetId(subId+1));
     }
 
   return 1;
@@ -407,12 +417,12 @@ int vtkPolyLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
 void vtkPolyLine::Derivatives(int subId, float pcoords[3], float *values, 
                               int dim, float *derivs)
 {
-  this->Line.PointIds.SetNumberOfIds(2);
+  this->Line->PointIds->SetNumberOfIds(2);
 
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(subId));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(subId+1));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(subId));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(subId+1));
 
-  this->Line.Derivatives(0, pcoords, values, dim, derivs);
+  this->Line->Derivatives(0, pcoords, values, dim, derivs);
 }
 
 void vtkPolyLine::Clip(float value, vtkScalars *cellScalars, 
@@ -421,22 +431,22 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
                        vtkCellData *inCd, int cellId, vtkCellData *outCd,
                        int insideOut)
 {
-  int i, numLines=this->Points.GetNumberOfPoints() - 1;
+  int i, numLines=this->Points->GetNumberOfPoints() - 1;
   vtkScalars *lineScalars=vtkScalars::New();
   lineScalars->SetNumberOfScalars(2);
 
   for ( i=0; i < numLines; i++)
     {
-    this->Line.Points.SetPoint(0,this->Points.GetPoint(i));
-    this->Line.Points.SetPoint(1,this->Points.GetPoint(i+1));
+    this->Line->Points->SetPoint(0,this->Points->GetPoint(i));
+    this->Line->Points->SetPoint(1,this->Points->GetPoint(i+1));
 
-    this->Line.PointIds.SetId(0,this->PointIds.GetId(i));
-    this->Line.PointIds.SetId(1,this->PointIds.GetId(i+1));
+    this->Line->PointIds->SetId(0,this->PointIds->GetId(i));
+    this->Line->PointIds->SetId(1,this->PointIds->GetId(i+1));
 
     lineScalars->SetScalar(0,cellScalars->GetScalar(i));
     lineScalars->SetScalar(1,cellScalars->GetScalar(i+1));
 
-    this->Line.Clip(value, lineScalars, locator, lines, inPd, outPd, 
+    this->Line->Clip(value, lineScalars, locator, lines, inPd, outPd, 
 		    inCd, cellId, outCd, insideOut);
     }
   
@@ -447,5 +457,5 @@ void vtkPolyLine::Clip(float value, vtkScalars *cellScalars,
 inline int vtkPolyLine::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = 0.5; pcoords[1] = pcoords[2] = 0.0;
-  return ((this->Points.GetNumberOfPoints() - 1) / 2);
+  return ((this->Points->GetNumberOfPoints() - 1) / 2);
 }

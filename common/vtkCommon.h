@@ -87,7 +87,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPolygon.h"
 #include "vtkQuad.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkScalars.h"
 #include "vtkShortArray.h"
 #include "vtkSource.h"

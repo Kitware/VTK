@@ -58,13 +58,14 @@ class VTK_EXPORT vtkWindowToImageFilter : public vtkImageSource
 {
 public:
   vtkWindowToImageFilter();
+  ~vtkWindowToImageFilter();
   static vtkWindowToImageFilter *New() {return new vtkWindowToImageFilter;};
   const char *GetClassName() {return "vtkWindowToImageFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
   // Indicates what renderer to get the pixel data from.
-  vtkSetObjectMacro(Input,vtkWindow);
+  void SetInput(vtkWindow *input);
 
   // Description:
   // Returns which renderer is being used as the source for the pixel data.

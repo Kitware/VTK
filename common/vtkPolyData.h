@@ -319,7 +319,6 @@ protected:
   // built only when necessary
   vtkCellTypes *Cells;
   vtkCellLinks *Links;
-
 };
 
 inline void vtkPolyData::GetPointCells(int ptId, unsigned short& ncells, 

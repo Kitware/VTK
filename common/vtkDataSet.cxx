@@ -54,6 +54,20 @@ vtkDataSet::vtkDataSet ()
   this->Bounds[3] = 1.0;
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 1.0;
+
+  this->PointData = vtkPointData::New();
+  this->CellData = vtkCellData::New();
+  this->Cell = NULL;
+}
+
+vtkDataSet::~vtkDataSet ()
+{
+  if (this->Cell)
+    {
+    this->Cell->UnRegister(this);
+    }
+  this->PointData->Delete();
+  this->CellData->Delete();
 }
 
 // Copy constructor.
@@ -74,8 +88,8 @@ void vtkDataSet::Initialize()
   // no modification when initialized.
   vtkDataObject::Initialize();
 
-  this->CellData.Initialize();
-  this->PointData.Initialize();
+  this->CellData->Initialize();
+  this->PointData->Initialize();
 }
 
 // Compute the data bounding box from data points.
@@ -111,8 +125,8 @@ void vtkDataSet::ComputeBounds()
 void vtkDataSet::GetScalarRange(float range[2])
 {
   vtkScalars *ptScalars, *cellScalars;
-  ptScalars = this->PointData.GetScalars();
-  cellScalars = this->CellData.GetScalars();
+  ptScalars = this->PointData->GetScalars();
+  cellScalars = this->CellData->GetScalars();
   
   if ( ptScalars && cellScalars)
     {
@@ -213,10 +227,10 @@ unsigned long int vtkDataSet::GetMTime()
     result = this->MTime;
     }
   
-  pointDataMTime = this->PointData.GetMTime();
+  pointDataMTime = this->PointData->GetMTime();
   result = ( pointDataMTime > result ? pointDataMTime : result );
 
-  cellDataMTime = this->CellData.GetMTime();
+  cellDataMTime = this->CellData->GetMTime();
   return ( cellDataMTime > result ? cellDataMTime : result );
 }
 
@@ -236,25 +250,29 @@ vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId,
   return cell;
 }
 
-void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList &ptIds,
-                                  vtkIdList &cellIds)
+void vtkDataSet::GetCellNeighbors(int cellId, vtkIdList *ptIds,
+                                  vtkIdList *cellIds)
 {
   int i, numPts;
-  vtkIdList otherCells(VTK_CELL_SIZE);
+  vtkIdList *otherCells;
+
+  otherCells = vtkIdList::New();
+  otherCells->Allocate(VTK_CELL_SIZE);
 
   // load list with candidate cells, remove current cell
-  this->GetPointCells(ptIds.GetId(0),cellIds);
-  cellIds.DeleteId(cellId);
+  this->GetPointCells(ptIds->GetId(0),*cellIds);
+  cellIds->DeleteId(cellId);
 
   // now perform multiple intersections on list
-  if ( cellIds.GetNumberOfIds() > 0 )
+  if ( cellIds->GetNumberOfIds() > 0 )
     {
-    for ( numPts=ptIds.GetNumberOfIds(), i=1; i < numPts; i++)
+    for ( numPts=ptIds->GetNumberOfIds(), i=1; i < numPts; i++)
       {
-      this->GetPointCells(ptIds.GetId(i), otherCells);
-      cellIds.IntersectWith(otherCells);
+      this->GetPointCells(ptIds->GetId(i), *otherCells);
+      cellIds->IntersectWith(*otherCells);
       }
     }
+  otherCells->Delete();
 }
 
 void vtkDataSet::GetCellTypes(vtkCellTypes *types)
@@ -275,8 +293,8 @@ void vtkDataSet::GetCellTypes(vtkCellTypes *types)
 
 void vtkDataSet::Squeeze()
 {
-  this->CellData.Squeeze();
-  this->PointData.Squeeze();
+  this->CellData->Squeeze();
+  this->PointData->Squeeze();
 }
 
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
@@ -289,10 +307,10 @@ void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Cells: " << this->GetNumberOfCells() << "\n";
 
   os << indent << "Cell Data:\n";
-  this->CellData.PrintSelf(os,indent.GetNextIndent());
+  this->CellData->PrintSelf(os,indent.GetNextIndent());
 
   os << indent << "Point Data:\n";
-  this->PointData.PrintSelf(os,indent.GetNextIndent());
+  this->PointData->PrintSelf(os,indent.GetNextIndent());
 
   bounds = this->GetBounds();
   os << indent << "Bounds: \n";

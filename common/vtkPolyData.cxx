@@ -57,19 +57,22 @@ vtkCellArray *vtkPolyData::Dummy = NULL;
 
 vtkPolyData::vtkPolyData ()
 {
-  static vtkCellArray StaticDummyObject;
-  StaticDummyObject.ReferenceCountingOff();
-  
+  this->Cell = NULL;
   this->Verts = NULL;
   this->Lines = NULL;
   this->Polys = NULL;
   this->Strips = NULL;
 
   // static variable, initialized only once.
-  if (!this->Dummy) 
+  if (this->Dummy == NULL) 
     {
-    this->Dummy = &StaticDummyObject;
-    this->Dummy->ReferenceCountingOff();
+    this->Dummy = vtkCellArray::New();
+    this->Dummy->Register(this);
+    this->Dummy->Delete();
+    }
+  else
+    {
+    this->Dummy->Register(this);
     }
 
   this->Cells = NULL;
@@ -120,6 +123,17 @@ vtkPointSet(pd)
 vtkPolyData::~vtkPolyData()
 {
   vtkPolyData::Initialize();
+  // Reference to static dummy persists. 
+  // Keep destructed dummy from being used again.
+  if (this->Dummy->GetReferenceCount() == 1)
+    {
+    this->Dummy->UnRegister(this);
+    this->Dummy = NULL;
+    }
+  else
+    {
+    this->Dummy->UnRegister(this);
+    }
 }
 
 // Copy the geometric and topological structure of an input poly data object.
@@ -164,15 +178,6 @@ int vtkPolyData::GetCellType(int cellId)
 
 vtkCell *vtkPolyData::GetCell(int cellId)
 {
-  static vtkVertex vertex;
-  static vtkPolyVertex pvertex;
-  static vtkLine line;
-  static vtkPolyLine pline;
-  static vtkTriangle triangle;
-  static vtkTriangleStrip strip;
-  static vtkPolygon poly;
-  static vtkQuad quad;
-  static vtkEmptyCell EmptyCell;
   int i, loc, numPts, *pts;
   vtkCell *cell = NULL;
   unsigned char type;
@@ -182,77 +187,89 @@ vtkCell *vtkPolyData::GetCell(int cellId)
     this->BuildCells();
     }
 
+  if (this->Cell)
+    {
+    this->Cell->UnRegister(this);
+    this->Cell = NULL;
+    }
+
   type = this->Cells->GetCellType(cellId);
   loc = this->Cells->GetCellLocation(cellId);
 
   switch (type)
     {
     case VTK_VERTEX:
-      cell = &vertex;
+      cell = vtkVertex::New();
       this->Verts->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLY_VERTEX:
-      cell = &pvertex;
+      cell = vtkPolyVertex::New();
       this->Verts->GetCell(loc,numPts,pts);
-      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
-      cell->Points.SetNumberOfPoints(numPts);
+      cell->PointIds->SetNumberOfIds(numPts); //reset number of points
+      cell->Points->SetNumberOfPoints(numPts);
       break;
 
     case VTK_LINE: 
-      cell = &line;
+      cell = vtkLine::New();
       this->Lines->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLY_LINE:
-      cell = &pline;
+      cell = vtkPolyLine::New();
       this->Lines->GetCell(loc,numPts,pts);
-      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
-      cell->Points.SetNumberOfPoints(numPts);
+      cell->PointIds->SetNumberOfIds(numPts); //reset number of points
+      cell->Points->SetNumberOfPoints(numPts);
       break;
 
     case VTK_TRIANGLE:
-      cell = &triangle;
+      cell = vtkTriangle::New();
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
     case VTK_QUAD:
-      cell = &quad;
+      cell = vtkQuad::New();
       this->Polys->GetCell(loc,numPts,pts);
       break;
 
     case VTK_POLYGON:
-      cell = &poly;
+      cell = vtkPolygon::New();
       this->Polys->GetCell(loc,numPts,pts);
-      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
-      cell->Points.SetNumberOfPoints(numPts);
+      cell->PointIds->SetNumberOfIds(numPts); //reset number of points
+      cell->Points->SetNumberOfPoints(numPts);
       break;
 
     case VTK_TRIANGLE_STRIP:
-      cell = &strip;
+      cell = vtkTriangleStrip::New();
       this->Strips->GetCell(loc,numPts,pts);
-      cell->PointIds.SetNumberOfIds(numPts); //reset number of points
-      cell->Points.SetNumberOfPoints(numPts);
+      cell->PointIds->SetNumberOfIds(numPts); //reset number of points
+      cell->Points->SetNumberOfPoints(numPts);
       break;
 
     default:
-      return &EmptyCell;
+      cell = vtkEmptyCell::New();
+      this->Cell = cell;
+      cell->Register(this);
+      cell->Delete();
+      return this->Cell;
     }
 
   for (i=0; i < numPts; i++)
     {
-    cell->PointIds.SetId(i,pts[i]);
-    cell->Points.SetPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds->SetId(i,pts[i]);
+    cell->Points->SetPoint(i,this->Points->GetPoint(pts[i]));
     }
 
-  return cell;
-
+  this->Cell = cell;
+  cell->Register(this);
+  cell->Delete();
+  return this->Cell;
 }
 
 // Set the cell array defining vertices.
 void vtkPolyData::SetVerts (vtkCellArray* v) 
 {
-  if ( v != this->Verts && v != this->Dummy )
+  if ( v != this->Verts && v != this->Dummy)
     {
     if (this->Verts)
       {
@@ -507,7 +524,8 @@ void vtkPolyData::BuildCells()
     numCells = 1000; //may be allocating empty list to begin with
     }
 
-  this->Cells = cells = new vtkCellTypes(numCells,3*numCells);
+  this->Cells = cells = vtkCellTypes::New();
+  this->Cells->Allocate(numCells,3*numCells);
   this->Cells->Register(this);
   cells->Delete();
 //

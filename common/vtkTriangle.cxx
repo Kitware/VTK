@@ -49,12 +49,19 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the triangle with three points.
 vtkTriangle::vtkTriangle()
 {
-  this->Points.SetNumberOfPoints(3);
-  this->PointIds.SetNumberOfIds(3);
+  this->Points->SetNumberOfPoints(3);
+  this->PointIds->SetNumberOfIds(3);
+  this->Line = vtkLine::New();
 }
 
-// Create a new cell and copy this triangle's information into the cell. Returns a 
-// poiner to the new cell created.
+vtkTriangle::~vtkTriangle()
+{
+  this->Line->Delete();
+}
+
+
+// Create a new cell and copy this triangle's information into the cell.
+// Returns a poiner to the new cell created.
 vtkCell *vtkTriangle::MakeObject()
 {
   vtkCell *cell = vtkTriangle::New();
@@ -80,9 +87,9 @@ int vtkTriangle::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Get normal for triangle
 //
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
+  pt3 = this->Points->GetPoint(0);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
@@ -241,9 +248,9 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   float *pt0, *pt1, *pt2;
   int i;
 
-  pt0 = this->Points.GetPoint(0);
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
+  pt0 = this->Points->GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
 
   u3 = 1.0 - pcoords[0] - pcoords[1];
 
@@ -270,20 +277,20 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // into three pieces
   if ( t1 >= 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
     }
 
   else if ( t2 < 0.0 && t3 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(2));
+    pts.SetId(0,this->PointIds->GetId(1));
+    pts.SetId(1,this->PointIds->GetId(2));
     }
 
   else //( t1 < 0.0 && t3 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(2));
-    pts.SetId(1,this->PointIds.GetId(0));
+    pts.SetId(0,this->PointIds->GetId(2));
+    pts.SetId(1,this->PointIds->GetId(0));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 ||
@@ -375,8 +382,8 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
 	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 	}
 
-      this->Points.GetPoint(e1, x1);
-      this->Points.GetPoint(e2, x2);
+      this->Points->GetPoint(e1, x1);
+      this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
 	{
@@ -387,8 +394,8 @@ void vtkTriangle::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(e1);
-          int p2 = this->PointIds.GetId(e2);
+          int p1 = this->PointIds->GetId(e1);
+          int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -413,14 +420,14 @@ vtkCell *vtkTriangle::GetEdge(int edgeId)
     }
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(edgeId));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(edgeIdPlus1));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(edgeId));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(edgeIdPlus1));
 
-  return &this->Line;
+  return this->Line;
 }
 
 // Plane intersection plus in/out test on triangle. The in/out test is 
@@ -439,9 +446,9 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   //
   // Get normal for triangle
   //
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
+  pt3 = this->Points->GetPoint(0);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   //
@@ -466,25 +473,25 @@ int vtkTriangle::IntersectWithLine(float p1[3], float p2[3], float tol,
   // so the easy test failed. The line is not intersecting the triangle.
   // Let's now do the 3d case check to see how close the line comes.
   // basically we just need to test against the three lines of the triangle
-  this->Line.Points.InsertPoint(0,pt1);
-  this->Line.Points.InsertPoint(1,pt2);
-  this->Line.PointIds.InsertId(0,0);
-  this->Line.PointIds.InsertId(1,1);
-  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line->Points->InsertPoint(0,pt1);
+  this->Line->Points->InsertPoint(1,pt2);
+  this->Line->PointIds->InsertId(0,0);
+  this->Line->PointIds->InsertId(1,1);
+  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
   
-  this->Line.Points.InsertPoint(0,pt2);
-  this->Line.Points.InsertPoint(1,pt3);
-  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line->Points->InsertPoint(0,pt2);
+  this->Line->Points->InsertPoint(1,pt3);
+  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
   
-  this->Line.Points.InsertPoint(0,pt3);
-  this->Line.Points.InsertPoint(1,pt1);
-  if (this->Line.IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
+  this->Line->Points->InsertPoint(0,pt3);
+  this->Line->Points->InsertPoint(1,pt1);
+  if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId)) 
     {
     return 1;
     }
@@ -501,8 +508,8 @@ int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
 
   for ( int i=0; i < 3; i++ )
     {
-    ptIds.InsertId(i,this->PointIds.GetId(i));
-    pts.InsertPoint(i,this->Points.GetPoint(i));
+    ptIds.InsertId(i,this->PointIds->GetId(i));
+    pts.InsertPoint(i,this->Points->GetPoint(i));
     }
 
   return 1;
@@ -521,9 +528,9 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), float vtkNotUsed(pcoords)[3
   int i, j;
 
   // Project points of triangle into 2D system
-  x0 = this->Points.GetPoint(0);
-  x1 = this->Points.GetPoint(1);
-  x2 = this->Points.GetPoint(2);
+  x0 = this->Points->GetPoint(0);
+  x1 = this->Points->GetPoint(1);
+  x2 = this->Points->GetPoint(2);
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
@@ -820,11 +827,11 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
       if (edge[i] >= 100)
         {
 	vertexId = edge[i] - 100;
-        this->Points.GetPoint(vertexId, x);
+        this->Points->GetPoint(vertexId, x);
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
           }
 	}
 
@@ -854,8 +861,8 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
 	  t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 	  }
 
-        this->Points.GetPoint(e1, x1);
-        this->Points.GetPoint(e2, x2);
+        this->Points->GetPoint(e1, x1);
+        this->Points->GetPoint(e2, x2);
 
         for (j=0; j<3; j++)
 	  {
@@ -864,8 +871,8 @@ void vtkTriangle::Clip(float value, vtkScalars *cellScalars,
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(e1);
-          int p2 = this->PointIds.GetId(e2);
+          int p1 = this->PointIds->GetId(e1);
+          int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

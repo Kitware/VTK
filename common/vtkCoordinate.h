@@ -46,7 +46,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCoordinate_h
 #define __vtkCoordinate_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 class vtkViewport;
 
 #define VTK_DISPLAY             0
@@ -56,7 +56,7 @@ class vtkViewport;
 #define VTK_VIEW                4
 #define VTK_WORLD               5
 
-class VTK_EXPORT vtkCoordinate : public vtkReferenceCount
+class VTK_EXPORT vtkCoordinate : public vtkObject
 {
 public:
   // Description:

@@ -48,8 +48,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the hexahedron with eight points.
 vtkHexahedron::vtkHexahedron()
 {
-  this->Points.SetNumberOfPoints(8);
-  this->PointIds.SetNumberOfIds(8);
+  this->Points->SetNumberOfPoints(8);
+  this->PointIds->SetNumberOfIds(8);
+  this->Line = vtkLine::New();
+  this->Quad = vtkQuad::New();
+}
+
+vtkHexahedron::~vtkHexahedron()
+{
+  this->Line->Delete();
+  this->Quad->Delete();
 }
 
 vtkCell *vtkHexahedron::MakeObject()
@@ -103,7 +111,7 @@ int vtkHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
       }
     for (i=0; i<8; i++)
       {
-      pt = this->Points.GetPoint(i);
+      pt = this->Points->GetPoint(i);
       for (j=0; j<3; j++)
         {
         fcol[j] += pt[j] * weights[i];
@@ -262,7 +270,7 @@ void vtkHexahedron::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
     {
-    pt = this->Points.GetPoint(i);
+    pt = this->Points->GetPoint(i);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -286,50 +294,50 @@ int vtkHexahedron::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // into six pieces.
   if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
-    pts.SetId(2,this->PointIds.GetId(2));
-    pts.SetId(3,this->PointIds.GetId(3));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
+    pts.SetId(2,this->PointIds->GetId(2));
+    pts.SetId(3,this->PointIds->GetId(3));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(2));
-    pts.SetId(2,this->PointIds.GetId(6));
-    pts.SetId(3,this->PointIds.GetId(5));
+    pts.SetId(0,this->PointIds->GetId(1));
+    pts.SetId(1,this->PointIds->GetId(2));
+    pts.SetId(2,this->PointIds->GetId(6));
+    pts.SetId(3,this->PointIds->GetId(5));
     }
 
   else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
-    pts.SetId(2,this->PointIds.GetId(5));
-    pts.SetId(3,this->PointIds.GetId(4));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
+    pts.SetId(2,this->PointIds->GetId(5));
+    pts.SetId(3,this->PointIds->GetId(4));
     }
 
   else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(4));
-    pts.SetId(1,this->PointIds.GetId(5));
-    pts.SetId(2,this->PointIds.GetId(6));
-    pts.SetId(3,this->PointIds.GetId(7));
+    pts.SetId(0,this->PointIds->GetId(4));
+    pts.SetId(1,this->PointIds->GetId(5));
+    pts.SetId(2,this->PointIds->GetId(6));
+    pts.SetId(3,this->PointIds->GetId(7));
     }
 
   else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(4));
-    pts.SetId(2,this->PointIds.GetId(7));
-    pts.SetId(3,this->PointIds.GetId(3));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(4));
+    pts.SetId(2,this->PointIds->GetId(7));
+    pts.SetId(3,this->PointIds->GetId(3));
     }
 
   else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(2));
-    pts.SetId(1,this->PointIds.GetId(3));
-    pts.SetId(2,this->PointIds.GetId(7));
-    pts.SetId(3,this->PointIds.GetId(6));
+    pts.SetId(0,this->PointIds->GetId(2));
+    pts.SetId(1,this->PointIds->GetId(3));
+    pts.SetId(2,this->PointIds->GetId(7));
+    pts.SetId(3,this->PointIds->GetId(6));
     }
 
 
@@ -411,8 +419,8 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
 	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 	}
 
-      this->Points.GetPoint(e1, x1);
-      this->Points.GetPoint(e2, x2);
+      this->Points->GetPoint(e1, x1);
+      this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
 	{
@@ -423,8 +431,8 @@ void vtkHexahedron::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(e1);
-          int p2 = this->PointIds.GetId(e2);
+          int p1 = this->PointIds->GetId(e1);
+          int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -447,31 +455,31 @@ vtkCell *vtkHexahedron::GetEdge(int edgeId)
   verts = edges[edgeId];
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(verts[0]));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(verts[1]));
 
-  return &this->Line;
+  return this->Line;
 }
 
 vtkCell *vtkHexahedron::GetFace(int faceId)
 {
   int *verts, i;
-  static vtkQuad theQuad; // using "quad" bothers IBM xlc compiler!
 
   verts = faces[faceId];
 
   for (i=0; i<4; i++)
     {
-    theQuad.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
-    theQuad.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    this->Quad->PointIds->SetId(i,this->PointIds->GetId(verts[i]));
+    this->Quad->Points->SetPoint(i,this->Points->GetPoint(verts[i]));
     }
 
-  return &theQuad;
+  return this->Quad;
 }
+
 // 
 // Intersect hexa faces against line. Each hexa face is a quadrilateral.
 //
@@ -488,17 +496,17 @@ int vtkHexahedron::IntersectWithLine(float p1[3], float p2[3], float tol,
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<6; faceNum++)
     {
-    pt1 = this->Points.GetPoint(faces[faceNum][0]);
-    pt2 = this->Points.GetPoint(faces[faceNum][1]);
-    pt3 = this->Points.GetPoint(faces[faceNum][2]);
-    pt4 = this->Points.GetPoint(faces[faceNum][3]);
+    pt1 = this->Points->GetPoint(faces[faceNum][0]);
+    pt2 = this->Points->GetPoint(faces[faceNum][1]);
+    pt3 = this->Points->GetPoint(faces[faceNum][2]);
+    pt4 = this->Points->GetPoint(faces[faceNum][3]);
 
-    this->Quad.Points.SetPoint(0,pt1);
-    this->Quad.Points.SetPoint(1,pt2);
-    this->Quad.Points.SetPoint(2,pt3);
-    this->Quad.Points.SetPoint(3,pt4);
+    this->Quad->Points->SetPoint(0,pt1);
+    this->Quad->Points->SetPoint(1,pt2);
+    this->Quad->Points->SetPoint(2,pt3);
+    this->Quad->Points->SetPoint(3,pt4);
 
-    if ( this->Quad.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+    if ( this->Quad->IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -552,36 +560,36 @@ int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 3;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 7; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 3; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 3; p[2] = 2; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 3; p[1] = 6; p[2] = 4; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
   else
@@ -589,36 +597,36 @@ int vtkHexahedron::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 2; p[1] = 1; p[2] = 0; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 2; p[2] = 7; p[3] = 3;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 2; p[1] = 5; p[2] = 7; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 7; p[2] = 5; p[3] = 4;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 2; p[2] = 5; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
 
@@ -679,7 +687,7 @@ void vtkHexahedron::JacobianInverse(float pcoords[3], double **inverse,
 
   for ( j=0; j < 8; j++ )
     {
-    x = this->Points.GetPoint(j);
+    x = this->Points->GetPoint(j);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];

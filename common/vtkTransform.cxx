@@ -161,14 +161,15 @@ void vtkTransform::PreMultiply ()
 // transformation stack.
 void vtkTransform::Push ()
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
 
-  ctm = **this->Stack;
+  *ctm = **this->Stack;
   this->Stack++;
   if ((this->Stack - this->StackBottom) > this->StackSize) 
     {
     this->Stack--;
     vtkErrorMacro(<<"Exceeded matrix stack size");
+    ctm->Delete();
     return;
     }
 
@@ -176,7 +177,8 @@ void vtkTransform::Push ()
   *this->Stack = vtkMatrix4x4::New();
 
   // set the new matrix to the previous top of stack matrix
-  **this->Stack = ctm;
+  **this->Stack = *ctm;
+  ctm->Delete();
 
   this->Modified ();
 }
@@ -186,7 +188,7 @@ void vtkTransform::Push ()
 // in degrees.
 void vtkTransform::RotateX ( float angle)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -195,16 +197,17 @@ void vtkTransform::RotateX ( float angle)
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm.Element[0][0] = 1.0;
-    ctm.Element[1][1] =  cosAngle;
-    ctm.Element[2][1] =  sinAngle;
-    ctm.Element[1][2] = -sinAngle;
-    ctm.Element[2][2] =  cosAngle;
-    ctm.Element[3][3] = 1.0;
+    ctm->Element[0][0] = 1.0;
+    ctm->Element[1][1] =  cosAngle;
+    ctm->Element[2][1] =  sinAngle;
+    ctm->Element[1][2] = -sinAngle;
+    ctm->Element[2][2] =  cosAngle;
+    ctm->Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
+  ctm->Delete();
 }
 
 // Creates a y rotation matrix and concatenates it with
@@ -212,7 +215,7 @@ void vtkTransform::RotateX ( float angle)
 // in degrees.
 void vtkTransform::RotateY ( float angle)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -221,16 +224,17 @@ void vtkTransform::RotateY ( float angle)
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm.Element[0][0] = cosAngle;
-    ctm.Element[1][1] = 1.0;
-    ctm.Element[2][0] = -sinAngle;
-    ctm.Element[0][2] = sinAngle;
-    ctm.Element[2][2] = cosAngle;
-    ctm.Element[3][3] = 1.0;
+    ctm->Element[0][0] = cosAngle;
+    ctm->Element[1][1] = 1.0;
+    ctm->Element[2][0] = -sinAngle;
+    ctm->Element[0][2] = sinAngle;
+    ctm->Element[2][2] = cosAngle;
+    ctm->Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
+  ctm->Delete();
 }
 
 // Creates a z rotation matrix and concatenates it with
@@ -238,7 +242,7 @@ void vtkTransform::RotateY ( float angle)
 // in degrees.
 void vtkTransform::RotateZ (float angle)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   float radians = angle * vtkMath::DegreesToRadians();
   float cosAngle, sinAngle;
 
@@ -247,16 +251,17 @@ void vtkTransform::RotateZ (float angle)
     cosAngle = cos (radians);
     sinAngle = sin (radians);
 
-    ctm.Element[0][0] =  cosAngle;
-    ctm.Element[1][0] =  sinAngle;
-    ctm.Element[0][1] = -sinAngle;
-    ctm.Element[1][1] =  cosAngle;
-    ctm.Element[2][2] = 1.0;
-    ctm.Element[3][3] = 1.0;
+    ctm->Element[0][0] =  cosAngle;
+    ctm->Element[1][0] =  sinAngle;
+    ctm->Element[0][1] = -sinAngle;
+    ctm->Element[1][1] =  cosAngle;
+    ctm->Element[2][2] = 1.0;
+    ctm->Element[3][3] = 1.0;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
+  ctm->Delete();
 }
 
 // Creates a matrix that rotates angle degrees about an axis
@@ -264,7 +269,7 @@ void vtkTransform::RotateZ (float angle)
 // this matrix with the current transformation matrix.
 void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   float   radians;
   float   w;
   float   quat[4];
@@ -299,67 +304,71 @@ void vtkTransform::RotateWXYZ ( float angle, float x, float y, float z)
   // "Animation Rotation with Quaternion Curves",
   // Comput. Graphics, vol. 19, No. 3 , p. 253
 
-  ctm.Element[0][0] = 1 - 2 * y * y - 2 * z * z;
-  ctm.Element[1][1] = 1 - 2 * x * x - 2 * z * z;
-  ctm.Element[2][2] = 1 - 2 * x * x - 2 * y * y;
-  ctm.Element[1][0] =  2 * x * y + 2 * w * z;
-  ctm.Element[2][0] =  2 * x * z - 2 * w * y;
-  ctm.Element[0][1] =  2 * x * y - 2 * w * z;
-  ctm.Element[2][1] =  2 * y * z + 2 * w * x;
-  ctm.Element[0][2] =  2 * x * z + 2 * w * y;
-  ctm.Element[1][2] =  2 * y * z - 2 * w * x;
+  ctm->Element[0][0] = 1 - 2 * y * y - 2 * z * z;
+  ctm->Element[1][1] = 1 - 2 * x * x - 2 * z * z;
+  ctm->Element[2][2] = 1 - 2 * x * x - 2 * y * y;
+  ctm->Element[1][0] =  2 * x * y + 2 * w * z;
+  ctm->Element[2][0] =  2 * x * z - 2 * w * y;
+  ctm->Element[0][1] =  2 * x * y - 2 * w * z;
+  ctm->Element[2][1] =  2 * y * z + 2 * w * x;
+  ctm->Element[0][2] =  2 * x * z + 2 * w * y;
+  ctm->Element[1][2] =  2 * y * z - 2 * w * x;
 
   // concatenate with current transformation matrix
   this->Concatenate (ctm);
+  ctm->Delete();
 }
 
 // Scales the current transformation matrix in the x, y and z directions.
 // A scale factor of zero will automatically be replaced with one.
 void vtkTransform::Scale ( float x, float y, float z)
 {
-  vtkMatrix4x4 ctm; //constructed as identity
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity
 
   if (x != 1.0 || y != 1.0 || z != 1.0) 
     {
-    ctm.Element[0][0] = x;
-    ctm.Element[1][1] = y;
-    ctm.Element[2][2] = z;
+    ctm->Element[0][0] = x;
+    ctm->Element[1][1] = y;
+    ctm->Element[2][2] = z;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
+  ctm->Delete();
 }
 
 // Translate the current transformation matrix by the vector {x, y, z}.
 void vtkTransform::Translate ( float x, float y, float z)
 {
-  vtkMatrix4x4 ctm; //constructed as identity matrix
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New(); //constructed as identity matrix
 
   if (x != 0.0 || y != 0.0 || z != 0.0) 
     {
-    ctm.Element[0][3] = x;
-    ctm.Element[1][3] = y;
-    ctm.Element[2][3] = z;
+    ctm->Element[0][3] = x;
+    ctm->Element[1][3] = y;
+    ctm->Element[2][3] = z;
 
     // concatenate with current transformation matrix
     this->Concatenate (ctm);
     }
+  ctm->Delete();
 }
 
 // Obtain the transpose of the current transformation matrix.
-void vtkTransform::GetTranspose (vtkMatrix4x4& (transpose))
+void vtkTransform::GetTranspose (vtkMatrix4x4 *transpose)
 {
-  vtkMatrix4x4 temp;
+  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
   int i, j;
 
   for (i = 0; i < 4; i++) 
     {
     for (j = 0; j < 4; j++) 
       {
-      temp.Element[j][i] = (**this->Stack).Element[i][j];
+      temp->Element[j][i] = (**this->Stack).Element[i][j];
       }
     }    
-  transpose = temp;
+  *transpose = *temp;
+  temp->Delete();
 }
 
 // Invert the current transformation matrix.
@@ -371,18 +380,18 @@ void vtkTransform::Inverse ()
 }
 
 // Return the inverse of the current transformation matrix.
-void vtkTransform::GetInverse ( vtkMatrix4x4& inverse)
+void vtkTransform::GetInverse ( vtkMatrix4x4 *inverse)
 {
-  inverse.Invert (**this->Stack, inverse);
+  inverse->Invert (**this->Stack, *inverse);
 }
 
 // Get the x, y, z orientation angles from the transformation matrix.
-void vtkTransform::GetOrientation(float& rx, float& ry, float &rz)
+void vtkTransform::GetOrientation(float *prx, float *pry, float *prz)
 {
   float *orientation=this->GetOrientation();
-  rx = orientation[0];
-  ry = orientation[1];
-  rz = orientation[2];
+  *prx = orientation[0];
+  *pry = orientation[1];
+  *prz = orientation[2];
 }
 
 // Get the x, y, z orientation angles from the transformation matrix as an
@@ -391,7 +400,7 @@ float *vtkTransform::GetOrientation ()
 {
 #define VTK_AXIS_EPSILON 0.001
   float	scaleX, scaleY, scaleZ;
-  vtkMatrix4x4  temp;
+  vtkMatrix4x4  *temp = vtkMatrix4x4::New();
   float   x,y,z;
   float   d;
   float   d1;
@@ -408,19 +417,19 @@ float *vtkTransform::GetOrientation ()
   float   x3p, y3p;
 
   // copy the matrix into local storage
-  temp = **this->Stack;
+  *temp = **this->Stack;
 
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
 
   // first rotate about y axis
-  x2 = temp.Element[2][0] / scaleX;
-  y2 = temp.Element[2][1] / scaleY;
-  z2 = temp.Element[2][2] / scaleZ;
+  x2 = temp->Element[2][0] / scaleX;
+  y2 = temp->Element[2][1] / scaleY;
+  z2 = temp->Element[2][2] / scaleZ;
 
-  x3 = temp.Element[1][0] / scaleX;
-  y3 = temp.Element[1][1] / scaleY;
-  z3 = temp.Element[1][2] / scaleZ;
+  x3 = temp->Element[1][0] / scaleX;
+  y3 = temp->Element[1][1] / scaleY;
+  z3 = temp->Element[1][2] / scaleZ;
 
   dot = x2 * x2 + z2 * z2;
   d1 = sqrt (dot);
@@ -489,16 +498,17 @@ float *vtkTransform::GetOrientation ()
   this->Orientation[1] = y;
   this->Orientation[2] = z;
 
+  temp->Delete();
   return this->Orientation;
 }
 
 // Return the x, y, z positions from the current transformation matrix.
 // This is simply returning the translation component of the 4x4 matrix.
-void vtkTransform::GetPosition (float & x,float & y,float & z)
+void vtkTransform::GetPosition (float *px, float *py, float *pz)
 {
-  x = (**this->Stack).Element[0][3];
-  y = (**this->Stack).Element[1][3];
-  z = (**this->Stack).Element[2][3];
+  *px = (**this->Stack).Element[0][3];
+  *py = (**this->Stack).Element[1][3];
+  *pz = (**this->Stack).Element[2][3];
 }
 
 // vtkTransform::GetOrientationWXYZ 
@@ -506,7 +516,7 @@ float *vtkTransform::GetOrientationWXYZ ()
 {
   float	scaleX, scaleY, scaleZ;
   vtkTransform *temp1 = vtkTransform::New();
-  vtkMatrix4x4 temp;
+  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
   float quat[4];
   static float WXYZ[4];
   float mag;
@@ -517,36 +527,36 @@ float *vtkTransform::GetOrientationWXYZ ()
   // get scale factors
   this->GetScale (scaleX, scaleY, scaleZ);
   temp1->Scale(1.0/scaleX,1.0/scaleY,1.0/scaleZ);
-  temp = **temp1->Stack;
-  temp1->Delete();
+  *temp = **temp1->Stack;
   
-  quat[0] = 0.25*(1.0 + temp[0][0] + temp[1][1] + temp[2][2]);
+  quat[0] = 0.25*(1.0 + temp->Element[0][0] + temp->Element[1][1] 
+		  + temp->Element[2][2]);
 
   if (quat[0] > 0.0001)
     {
     quat[0] = sqrt(quat[0]);
-    quat[1] = (temp[2][1] - temp[1][2])/(4.0*quat[0]);
-    quat[2] = (temp[0][2] - temp[2][0])/(4.0*quat[0]);
-    quat[3] = (temp[1][0] - temp[0][1])/(4.0*quat[0]);
+    quat[1] = (temp->Element[2][1] - temp->Element[1][2])/(4.0*quat[0]);
+    quat[2] = (temp->Element[0][2] - temp->Element[2][0])/(4.0*quat[0]);
+    quat[3] = (temp->Element[1][0] - temp->Element[0][1])/(4.0*quat[0]);
     }
   else
     {
     quat[0] = 0;
-    quat[1] = -0.5*(temp[1][1] + temp[2][2]);
+    quat[1] = -0.5*(temp->Element[1][1] + temp->Element[2][2]);
     if (quat[1] > 0.0001)
       {
       quat[1] = sqrt(quat[1]);
-      quat[2] = temp[1][0]/(2.0*quat[1]);
-      quat[3] = temp[2][0]/(2.0*quat[1]);
+      quat[2] = temp->Element[1][0]/(2.0*quat[1]);
+      quat[3] = temp->Element[2][0]/(2.0*quat[1]);
       }
     else
       {
       quat[1] = 0;
-      quat[2] = 0.5*(1.0 - temp[2][2]);
+      quat[2] = 0.5*(1.0 - temp->Element[2][2]);
       if (quat[2] > 0.0001)
 	{
 	quat[2] = sqrt(quat[2]);
-	quat[3] = temp[2][1]/(2.0*quat[2]);
+	quat[3] = temp->Element[2][1]/(2.0*quat[2]);
 	}
       else
 	{
@@ -574,6 +584,8 @@ float *vtkTransform::GetOrientationWXYZ ()
     WXYZ[3] = 1;
     }
   
+  temp1->Delete();
+  temp->Delete();
   return WXYZ;
 } // vtkTransform::GetOrientationWXYZ 
 
@@ -592,13 +604,13 @@ float *vtkTransform::GetPosition()
 }
 
 // Return the x, y, z scale factors of the current transformation matrix.
-void vtkTransform::GetScale (float& x, float& y, float& z)
+void vtkTransform::GetScale (float *px, float *py, float *pz)
 {
   float *scale=this->GetScale();
 
-  x = scale[0];
-  y = scale[1];
-  z = scale[2];
+  *px = scale[0];
+  *py = scale[1];
+  *pz = scale[2];
 }
 
 // Return the x, y, z scale factors of the current transformation matrix as 
@@ -607,21 +619,22 @@ float *vtkTransform::GetScale()
 {
   int	i;
   static float scale[3];
-  vtkMatrix4x4 temp;
+  vtkMatrix4x4 *temp = vtkMatrix4x4::New();
 
   // copy the matrix into local storage
 
-  temp = **this->Stack;
+  *temp = **this->Stack;
 
   // find scale factors
 
   for (i = 0; i < 3; i++) 
     {
-    scale[i] = sqrt (temp.Element[0][i] * temp.Element[0][i] +
-                     temp.Element[1][i] * temp.Element[1][i] +
-                     temp.Element[2][i] * temp.Element[2][i]);
+    scale[i] = sqrt (temp->Element[0][i] * temp->Element[0][i] +
+                     temp->Element[1][i] * temp->Element[1][i] +
+                     temp->Element[2][i] * temp->Element[2][i]);
     }
 
+  temp->Delete();
   return scale;
 }
 
@@ -632,25 +645,26 @@ vtkMatrix4x4 & vtkTransform::GetMatrix ()
 }
 
 // Set the current matrix directly.
-void vtkTransform::SetMatrix(vtkMatrix4x4& m)
+void vtkTransform::SetMatrix(vtkMatrix4x4 *m)
 {
-  **this->Stack = m;
+  **this->Stack = *m;
 }
 
 // Creates an identity matrix and makes it the current transformation matrix.
 void vtkTransform::Identity ()
 {
-  vtkMatrix4x4 ctm;
+  vtkMatrix4x4 *ctm = vtkMatrix4x4::New();
   int i;
 
-  ctm = 0.0;
+  *ctm = 0.0;
 
   for (i = 0; i < 4; i++) 
     {
-    ctm.Element[i][i] = 1.0;
+    ctm->Element[i][i] = 1.0;
     }
-  **this->Stack = ctm;
+  **this->Stack = *ctm;
 
+  ctm->Delete();
   this->Modified();
 }
 
@@ -658,37 +672,39 @@ void vtkTransform::Identity ()
 // The resulting matrix becomes the new current transformation matrix.
 // The setting of the PreMultiply flag determines whether the matrix
 // is PreConcatenated or PostConcatenated.
-void vtkTransform::Concatenate (vtkMatrix4x4 & matrix)
+void vtkTransform::Concatenate (vtkMatrix4x4 *matrix)
 {
   if (this->PreMultiplyFlag) 
     {
-    this->Multiply4x4 (**this->Stack, matrix, **this->Stack);
+    this->Multiply4x4 (*this->Stack, matrix, *this->Stack);
     }
   else 
     {
-    this->Multiply4x4 (matrix, **this->Stack, **this->Stack);
+    this->Multiply4x4 (matrix, *this->Stack, *this->Stack);
     }
   this->Modified ();
 }
 
 // Multiplies matrices a and b and stores the result in c.
-void vtkTransform::Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x4 & c)
+void vtkTransform::Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, 
+			       vtkMatrix4x4 *c)
 {
   int i, j, k;
-  vtkMatrix4x4 result;
+  vtkMatrix4x4 *result = vtkMatrix4x4::New();
 
-  result = 0.0;
+  *result = 0.0;
   for (i = 0; i < 4; i++) 
     {
     for (k = 0; k < 4; k++) 
       {
       for (j = 0; j < 4; j++) 
         {
-        result.Element[i][k] += a.Element[i][j] * b.Element[j][k];
+        result->Element[i][k] += a->Element[i][j] * b->Element[j][k];
         }
       }
     }
-  c = result;
+  *c = *result;
+  result->Delete();
 }
 
 // Transposes the current transformation matrix.
@@ -699,9 +715,9 @@ void vtkTransform::Transpose ()
 }
 
 // Returns the current transformation matrix.
-void vtkTransform::GetMatrix (vtkMatrix4x4 & ctm)
+void vtkTransform::GetMatrix (vtkMatrix4x4 *ctm)
 {
-  ctm = **this->Stack;
+  *ctm = **this->Stack;
 }
 
 vtkTransform::~vtkTransform ()
@@ -791,23 +807,25 @@ void vtkTransform::MultiplyVectors(vtkVectors *inVectors, vtkVectors *outVectors
   int ptId, i;
   int numVectors = inVectors->GetNumberOfVectors();
 
-  vtkMatrix4x4 aMatrix = **this->Stack;
+  vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
   
-  aMatrix.Invert ();
-  aMatrix.Transpose ();
+  *aMatrix = **this->Stack;
+  aMatrix->Invert ();
+  aMatrix->Transpose ();
 
   for (ptId=0; ptId < numVectors; ptId++)
     {
     v = inVectors->GetVector(ptId);
     for (i=0; i<3; i++)
       {
-      newV[i] = aMatrix.Element[i][0] * v[0] +
-                aMatrix.Element[i][1] * v[1] +
-                aMatrix.Element[i][2] * v[2];
+      newV[i] = aMatrix->Element[i][0] * v[0] +
+                aMatrix->Element[i][1] * v[1] +
+                aMatrix->Element[i][2] * v[2];
       }
 
     outVectors->InsertNextVector(newV);
     }
+  aMatrix->Delete();
 }
 
 
@@ -824,22 +842,24 @@ void vtkTransform::MultiplyNormals(vtkNormals *inNormals, vtkNormals *outNormals
   int ptId, i;
   int numNormals = inNormals->GetNumberOfNormals();
 
-  vtkMatrix4x4 aMatrix = **this->Stack;
+  vtkMatrix4x4 *aMatrix = vtkMatrix4x4::New();
   
-  aMatrix.Invert ();
-  aMatrix.Transpose ();
+  *aMatrix = **this->Stack;
+  aMatrix->Invert ();
+  aMatrix->Transpose ();
   
   for (ptId=0; ptId < numNormals; ptId++)
     {
     n = inNormals->GetNormal(ptId);
     for (i=0; i<3; i++)
       {
-      newN[i] = aMatrix.Element[i][0] * n[0] +
-                aMatrix.Element[i][1] * n[1] +
-                aMatrix.Element[i][2] * n[2];
+      newN[i] = aMatrix->Element[i][0] * n[0] +
+                aMatrix->Element[i][1] * n[1] +
+                aMatrix->Element[i][2] * n[2];
       }
 
     vtkMath::Normalize(newN);
     outNormals->InsertNextNormal(newN);
     }
+  aMatrix->Delete();
 }

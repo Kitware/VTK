@@ -133,14 +133,18 @@ public:
   vtkSetClampMacro(ActiveComponent,int,0,3);
   vtkGetMacro(ActiveComponent,int);
 
+  // Special computational methods.
+
   // Description:
   // Determine (rmin,rmax) range of scalar values.
   void ComputeRange();
+
 
   // Description:
   // Return the range of scalar values. Data returned as pointer to float array
   // of length 2.
   float *GetRange();
+
 
   // Description:
   // Return the range of scalar values. Range copied into array provided.
@@ -166,13 +170,17 @@ public:
 
   // Description:
   // Given a list of point ids, return an array of scalar values.
-  void GetScalars(vtkIdList& ptIds, vtkScalars& fv);
+  void GetScalars(vtkIdList *ptIds, vtkScalars *fv);
+  void GetScalars(vtkIdList& ptIds, vtkScalars& fv) 
+    {this->GetScalars(&ptIds, &fv);}
 
   // Description:
   // Get the scalar values for the range of points ids specified 
   // (i.e., p1->p2 inclusive). You must insure that the vtkScalars has 
   // been previously allocated with enough space to hold the data.
-  void GetScalars(int p1, int p2, vtkScalars& fs);
+  void GetScalars(int p1, int p2, vtkScalars *fs);
+  void GetScalars(int p1, int p2, vtkScalars& fs) 
+    {this->GetScalars(p1, p2, &fs);}
   
   // Description:
   // Initialize the traversal of the scalar data to generate colors 

@@ -149,7 +149,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     numberOfPoints = cell->GetNumberOfPoints();
     for (j=0; j < numberOfPoints; j++)
       {
-      this->IncrementLinkCount(cell->PointIds.GetId(j));      
+      this->IncrementLinkCount(cell->PointIds->GetId(j));      
       }      
     }
 
@@ -170,7 +170,7 @@ void vtkCellLinks::BuildLinks(vtkDataSet *data)
     numberOfPoints = cell->GetNumberOfPoints();
     for (j=0; j < numberOfPoints; j++)
       {
-      ptId = cell->PointIds.GetId(j);
+      ptId = cell->PointIds->GetId(j);
       this->InsertCellReference(ptId, (linkLoc[ptId])++, cellId);      
       }      
     }

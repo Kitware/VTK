@@ -56,6 +56,7 @@ class VTK_EXPORT vtkPolygon : public vtkCell
 {
 public:
   vtkPolygon();
+  ~vtkPolygon();
   static vtkPolygon *New() {return new vtkPolygon;};
   const char *GetClassName() {return "vtkPolygon";};
 
@@ -118,8 +119,8 @@ public:
   // to determine if point is inside polygon. Works for arbitrary polygon shape
   // (e.g., non-convex). Returns 0 if point is not in polygon; 1 if it is.
   // Can also return -1 to indicate degenerate polygon.
-  static int PointInPolygon(float x[3], int numPts, float *pts, float bounds[6],
-                            float n[3]);  
+  static int PointInPolygon(float x[3], int numPts, float *pts, 
+			    float bounds[6], float n[3]);  
 
   // Description:
   // Triangulate polygon. Tries to use the fast triangulation technique 
@@ -167,10 +168,10 @@ protected:
   float   Tolerance; // Intersection tolerance
   int     SuccessfulTriangulation; // Stops recursive tri. if necessary
   float   Normal[3]; //polygon normal
-  vtkIdList Tris;
-  vtkTriangle Triangle;
-  vtkScalars TriScalars;
-  vtkLine Line;
+  vtkIdList *Tris;
+  vtkTriangle *Triangle;
+  vtkScalars *TriScalars;
+  vtkLine *Line;
 
 };
 

@@ -50,6 +50,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkContourValues_h
 #define __vtkContourValues_h
 
+#include "vtkObject.h"
 #include "vtkIntArray.h"
 
 class vtkFloatArray;

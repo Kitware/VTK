@@ -61,10 +61,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkLookupTable_h
 #define __vtkLookupTable_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkUnsignedCharArray.h"
 
-class VTK_EXPORT vtkLookupTable : public vtkReferenceCount
+class VTK_EXPORT vtkLookupTable : public vtkObject
 {
 public:
   // Description:

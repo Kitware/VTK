@@ -49,8 +49,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the tetra with four points.
 vtkTetra::vtkTetra()
 {
-  this->Points.SetNumberOfPoints(4);
-  this->PointIds.SetNumberOfIds(4);
+  this->Points->SetNumberOfPoints(4);
+  this->PointIds->SetNumberOfIds(4);
+  this->Line = vtkLine::New();
+  this->Triangle = vtkTriangle::New();
+}
+
+vtkTetra::~vtkTetra()
+{
+  this->Triangle->Delete();
+  this->Line->Delete();
 }
 
 vtkCell *vtkTetra::MakeObject()
@@ -72,10 +80,10 @@ int vtkTetra::EvaluatePosition(float x[3], float closestPoint[3],
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(3);
-  pt4 = this->Points.GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
+  pt3 = this->Points->GetPoint(3);
+  pt4 = this->Points->GetPoint(0);
 
   for (i=0; i<3; i++)
     {  
@@ -140,10 +148,10 @@ void vtkTetra::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   float *pt1, *pt2, *pt3, *pt4;
   int i;
 
-  pt1 = this->Points.GetPoint(1);
-  pt2 = this->Points.GetPoint(2);
-  pt3 = this->Points.GetPoint(3);
-  pt4 = this->Points.GetPoint(0);
+  pt1 = this->Points->GetPoint(1);
+  pt2 = this->Points->GetPoint(2);
+  pt3 = this->Points->GetPoint(3);
+  pt4 = this->Points->GetPoint(0);
 
   u4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
 
@@ -181,27 +189,27 @@ int vtkTetra::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   switch (idx) //find the face closest to the point
     {
     case 0:
-      pts.SetId(0,this->PointIds.GetId(0));
-      pts.SetId(1,this->PointIds.GetId(2));
-      pts.SetId(2,this->PointIds.GetId(3));
+      pts.SetId(0,this->PointIds->GetId(0));
+      pts.SetId(1,this->PointIds->GetId(2));
+      pts.SetId(2,this->PointIds->GetId(3));
       break;
       
     case 1:
-      pts.SetId(0,this->PointIds.GetId(0));
-      pts.SetId(1,this->PointIds.GetId(1));
-      pts.SetId(2,this->PointIds.GetId(3));
+      pts.SetId(0,this->PointIds->GetId(0));
+      pts.SetId(1,this->PointIds->GetId(1));
+      pts.SetId(2,this->PointIds->GetId(3));
       break;
       
     case 2:
-      pts.SetId(0,this->PointIds.GetId(0));
-      pts.SetId(1,this->PointIds.GetId(1));
-      pts.SetId(2,this->PointIds.GetId(2));
+      pts.SetId(0,this->PointIds->GetId(0));
+      pts.SetId(1,this->PointIds->GetId(1));
+      pts.SetId(2,this->PointIds->GetId(2));
       break;
       
     case 3:
-      pts.SetId(0,this->PointIds.GetId(1));
-      pts.SetId(1,this->PointIds.GetId(2));
-      pts.SetId(2,this->PointIds.GetId(3));
+      pts.SetId(0,this->PointIds->GetId(1));
+      pts.SetId(1,this->PointIds->GetId(2));
+      pts.SetId(2,this->PointIds->GetId(3));
       break;
     }
 
@@ -282,8 +290,8 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetScalar(vert[0])) /
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-      x1 = this->Points.GetPoint(vert[0]);
-      x2 = this->Points.GetPoint(vert[1]);
+      x1 = this->Points->GetPoint(vert[0]);
+      x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
 	{
 	x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -293,8 +301,8 @@ void vtkTetra::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds->GetId(vert[0]);
+          int p2 = this->PointIds->GetId(vert[1]);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -317,14 +325,14 @@ vtkCell *vtkTetra::GetEdge(int edgeId)
   verts = edges[edgeId];
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(verts[0]));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(verts[1]));
 
-  return &this->Line;
+  return this->Line;
 }
 
 vtkCell *vtkTetra::GetFace(int faceId)
@@ -334,16 +342,16 @@ vtkCell *vtkTetra::GetFace(int faceId)
   verts = faces[faceId];
 
   // load point id's
-  this->Triangle.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  this->Triangle.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
-  this->Triangle.PointIds.SetId(2,this->PointIds.GetId(verts[2]));
+  this->Triangle->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
+  this->Triangle->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
+  this->Triangle->PointIds->SetId(2,this->PointIds->GetId(verts[2]));
 
   // load coordinates
-  this->Triangle.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  this->Triangle.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
-  this->Triangle.Points.SetPoint(2,this->Points.GetPoint(verts[2]));
+  this->Triangle->Points->SetPoint(0,this->Points->GetPoint(verts[0]));
+  this->Triangle->Points->SetPoint(1,this->Points->GetPoint(verts[1]));
+  this->Triangle->Points->SetPoint(2,this->Points->GetPoint(verts[2]));
 
-  return &this->Triangle;
+  return this->Triangle;
 }
 
 // 
@@ -361,15 +369,16 @@ int vtkTetra::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   t = VTK_LARGE_FLOAT;
   for (faceNum=0; faceNum<4; faceNum++)
     {
-    pt1 = this->Points.GetPoint(faces[faceNum][0]);
-    pt2 = this->Points.GetPoint(faces[faceNum][1]);
-    pt3 = this->Points.GetPoint(faces[faceNum][2]);
+    pt1 = this->Points->GetPoint(faces[faceNum][0]);
+    pt2 = this->Points->GetPoint(faces[faceNum][1]);
+    pt3 = this->Points->GetPoint(faces[faceNum][2]);
 
-    this->Triangle.Points.SetPoint(0,pt1);
-    this->Triangle.Points.SetPoint(1,pt2);
-    this->Triangle.Points.SetPoint(2,pt3);
+    this->Triangle->Points->SetPoint(0,pt1);
+    this->Triangle->Points->SetPoint(1,pt2);
+    this->Triangle->Points->SetPoint(2,pt3);
 
-    if ( this->Triangle.IntersectWithLine(p1, p2, tol, tTemp, xTemp, pc, subId) )
+    if ( this->Triangle->IntersectWithLine(p1, p2, tol, tTemp, 
+					   xTemp, pc, subId) )
       {
       intersection = 1;
       if ( tTemp < t )
@@ -407,8 +416,8 @@ int vtkTetra::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkPoints &pt
     
   for ( int i=0; i < 4; i++ )
     {
-    ptIds.InsertId(i,this->PointIds.GetId(i));
-    pts.InsertPoint(i,this->Points.GetPoint(i));
+    ptIds.InsertId(i,this->PointIds->GetId(i));
+    pts.InsertPoint(i,this->Points->GetPoint(i));
     }
 
   return 1;
@@ -626,7 +635,7 @@ int vtkTetra::JacobianInverse(double **inverse, float derivs[12])
 
   for ( j=0; j < 4; j++ )
     {
-    x = this->Points.GetPoint(j);
+    x = this->Points->GetPoint(j);
     for ( i=0; i < 3; i++ )
       {
       m0[i] += x[i] * derivs[j];
@@ -729,11 +738,11 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
       if (edge[i] >= 100)
         {
         vertexId = edge[i] - 100;
-        this->Points.GetPoint(vertexId, x);
+        this->Points->GetPoint(vertexId, x);
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
           }
         }
 
@@ -744,8 +753,8 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
         t = (value - cellScalars->GetScalar(vert[0])) /
             (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
 
-        this->Points.GetPoint(vert[0], x1);
-        this->Points.GetPoint(vert[1], x2);
+        this->Points->GetPoint(vert[0], x1);
+        this->Points->GetPoint(vert[1], x2);
         for (j=0; j<3; j++)
 	  {
 	  x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -754,8 +763,8 @@ void vtkTetra::Clip(float value, vtkScalars *cellScalars,
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds->GetId(vert[0]);
+          int p2 = this->PointIds->GetId(vert[1]);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

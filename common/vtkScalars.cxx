@@ -84,27 +84,27 @@ void vtkScalars::SetData(vtkDataArray *data)
 }
 
 // Given a list of point ids, return an array of scalar values.
-void vtkScalars::GetScalars(vtkIdList& ptIds, vtkScalars& s)
+void vtkScalars::GetScalars(vtkIdList *ptIds, vtkScalars *s)
 {
-  int num=ptIds.GetNumberOfIds();
+  int num=ptIds->GetNumberOfIds();
 
-  s.SetNumberOfScalars(num);
+  s->SetNumberOfScalars(num);
   for (int i=0; i<num; i++)
     {
-    s.SetScalar(i,this->GetScalar(ptIds.GetId(i)));
+    s->SetScalar(i,this->GetScalar(ptIds->GetId(i)));
     }
 }
 
 // Given a range of point ids [p1,p2], return an array of scalar values.
 // Make sure enough space has been allocated in the vtkScalars object
 // to hold all the values.
-void vtkScalars::GetScalars(int p1, int p2, vtkScalars& fs)
+void vtkScalars::GetScalars(int p1, int p2, vtkScalars *fs)
 {
   int i, id;
 
   for (i=0, id=p1; id <= p2; id++, i++)
     {
-    fs.SetScalar(i,this->GetScalar(id));
+    fs->SetScalar(i,this->GetScalar(id));
     }
 }
 

@@ -52,7 +52,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyVertex : public vtkCell
 {
 public:
-  vtkPolyVertex() {};
+  vtkPolyVertex();
+  ~vtkPolyVertex();
   static vtkPolyVertex *New() {return new vtkPolyVertex;};
   const char *GetClassName() {return "vtkPolyVertex";};
 
@@ -91,7 +92,7 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
 protected:
-  vtkVertex Vertex;
+  vtkVertex *Vertex;
 
 };
 

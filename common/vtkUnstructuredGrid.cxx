@@ -165,74 +165,70 @@ int vtkUnstructuredGrid::GetCellType(int cellId)
 
 vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 {
-  static vtkVertex vertex;
-  static vtkPolyVertex pvertex;
-  static vtkLine line;
-  static vtkPolyLine pline;
-  static vtkTriangle triangle;
-  static vtkTriangleStrip strip;
-  static vtkPolygon poly;
-  static vtkPixel pixel;
-  static vtkQuad quad;
-  static vtkTetra tetra;
-  static vtkVoxel voxel;
-  static vtkHexahedron hexa;
   int i, loc, numPts, *pts;
   vtkCell *cell = NULL;
+
+  // Get rid of the reference from the previous call
+  if (this->Cell != NULL)
+    {
+    this->Cell->UnRegister(this);
+    this->Cell = NULL;
+    }
+  cell = NULL;
 
   switch (this->Cells->GetCellType(cellId))
     {
     case VTK_VERTEX:
-     cell = &vertex;
+     cell = vtkVertex::New();
      break;
 
     case VTK_POLY_VERTEX:
-     pvertex.Points.Reset(); pvertex.PointIds.Reset(); //reset number of points
-     cell = &pvertex;
+     cell = vtkPolyVertex::New();
      break;
 
     case VTK_LINE: 
-      cell = &line;
+      cell = vtkLine::New();
       break;
 
     case VTK_POLY_LINE:
-      pline.Points.Reset(); pline.PointIds.Reset(); //reset number of points
-      cell = &pline;
+      cell = vtkPolyLine::New();
       break;
 
     case VTK_TRIANGLE:
-      cell = &triangle;
+      cell = vtkTriangle::New();
       break;
 
     case VTK_TRIANGLE_STRIP:
-      strip.Points.Reset(); strip.PointIds.Reset(); //reset number of points
-      cell = &strip;
+      cell = vtkTriangleStrip::New();
       break;
 
     case VTK_PIXEL:
-      cell = &pixel;
+      cell = vtkPixel::New();
       break;
 
     case VTK_QUAD:
-      cell = &quad;
+      cell = vtkQuad::New();
       break;
 
     case VTK_POLYGON:
-      poly.Points.Reset(); poly.PointIds.Reset(); //reset number of points
-      cell = &poly;
+      cell = vtkPolygon::New();
       break;
 
     case VTK_TETRA:
-      cell = &tetra;
+      cell = vtkTetra::New();
       break;
 
     case VTK_VOXEL:
-      cell = &voxel;
+      cell = vtkVoxel::New();
       break;
 
     case VTK_HEXAHEDRON:
-      cell = &hexa;
+      cell = vtkHexahedron::New();
       break;
+    }
+  if (cell == NULL)
+    {
+    return NULL;
     }
 
   loc = this->Cells->GetCellLocation(cellId);
@@ -240,11 +236,15 @@ vtkCell *vtkUnstructuredGrid::GetCell(int cellId)
 
   for (i=0; i<numPts; i++)
     {
-    cell->PointIds.InsertId(i,pts[i]);
-    cell->Points.InsertPoint(i,this->Points->GetPoint(pts[i]));
+    cell->PointIds->InsertId(i,pts[i]);
+    cell->Points->InsertPoint(i,this->Points->GetPoint(pts[i]));
     }
 
-  return cell;
+  this->Cell = cell;
+  this->Cell->Register(this);
+  cell->Delete();
+
+  return this->Cell;
 }
 
 int vtkUnstructuredGrid::GetMaxCellSize()

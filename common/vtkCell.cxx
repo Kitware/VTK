@@ -43,34 +43,42 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct cell.
 vtkCell::vtkCell()
 {
-  this->Points.ReferenceCountingOff();
+  this->Points = vtkPoints::New();
+  this->PointIds = vtkIdList::New();
 }  
+
+vtkCell::~vtkCell()
+{
+  this->Points->Delete();
+  this->PointIds->Delete();
+}
+
 
 //
 // Instantiate cell from outside
 //
 void vtkCell::Initialize(int npts, int *pts, vtkPoints *p)
 {
-  this->PointIds.Reset();
-  this->Points.Reset();
+  this->PointIds->Reset();
+  this->Points->Reset();
 
   for (int i=0; i<npts; i++)
     {
-    this->PointIds.InsertId(i,pts[i]);
-    this->Points.InsertPoint(i,p->GetPoint(pts[i]));
+    this->PointIds->InsertId(i,pts[i]);
+    this->Points->InsertPoint(i,p->GetPoint(pts[i]));
     }
 }
  
 void vtkCell::ShallowCopy(vtkCell& c)
 {
-  this->Points.ShallowCopy(c.Points);
-  this->PointIds.ShallowCopy(c.PointIds);
+  this->Points->ShallowCopy(*(c.Points));
+  this->PointIds->ShallowCopy(*(c.PointIds));
 }
 
 void vtkCell::DeepCopy(vtkCell& c)
 {
-  this->Points.DeepCopy(c.Points);
-  this->PointIds.DeepCopy(c.PointIds);
+  this->Points->DeepCopy(*(c.Points));
+  this->PointIds->DeepCopy(*(c.PointIds));
 }
 
 #define VTK_RIGHT 0
@@ -191,9 +199,9 @@ float *vtkCell::GetBounds ()
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] =  VTK_LARGE_FLOAT;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
 
-  for (i=0; i<this->Points.GetNumberOfPoints(); i++)
+  for (i=0; i<this->Points->GetNumberOfPoints(); i++)
     {
-    x = this->Points.GetPoint(i);
+    x = this->Points->GetPoint(i);
     for (j=0; j<3; j++)
       {
       if ( x[j] < this->Bounds[2*j] )
@@ -249,7 +257,7 @@ int vtkCell::GetParametricCenter(float pcoords[3])
 
 void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int numIds=this->PointIds.GetNumberOfIds();
+  int numIds=this->PointIds->GetNumberOfIds();
 
   vtkObject::PrintSelf(os,indent);
 
@@ -267,7 +275,7 @@ void vtkCell::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "  Point ids are: ";
     for (int i=0; i < numIds; i++)
       {
-      os << this->PointIds.GetId(i);
+      os << this->PointIds->GetId(i);
       if ( i && !(i % 12) )
 	{
 	os << "\n\t";

@@ -49,11 +49,12 @@ vtkDataObject::vtkDataObject()
   this->Source = NULL;
   this->DataReleased = 1;
   this->ReleaseDataFlag = 0;
-  this->FieldData.ReferenceCountingOff();//because it's always deleted with data object
+  this->FieldData = vtkFieldData::New();
 }
 
 vtkDataObject::~vtkDataObject()
 {
+  this->FieldData->Delete();
 }
 
 void vtkDataObject::Initialize()
@@ -62,7 +63,7 @@ void vtkDataObject::Initialize()
 // We don't modify ourselves because the "ReleaseData" methods depend upon
 // no modification when initialized.
 //
-  this->FieldData.Initialize();
+  this->FieldData->Initialize();
 };
 
 void vtkDataObject::SetGlobalReleaseDataFlag(int val)
@@ -116,7 +117,7 @@ void vtkDataObject::ForceUpdate()
 
 void vtkDataObject::SetFieldData(vtkFieldData *fd)
 {
-  this->FieldData.ShallowCopy(*fd);
+  this->FieldData->ShallowCopy(*fd);
 }
 
 void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
@@ -138,6 +139,6 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
      << (vtkDataObjectGlobalReleaseDataFlag ? "On\n" : "Off\n");
 
   os << indent << "Field Data:\n";
-  this->FieldData.PrintSelf(os,indent.GetNextIndent());
+  this->FieldData->PrintSelf(os,indent.GetNextIndent());
 }
 

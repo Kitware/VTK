@@ -51,10 +51,23 @@ vtkStructuredPointsToImage::vtkStructuredPointsToImage()
 //----------------------------------------------------------------------------
 vtkStructuredPointsToImage::~vtkStructuredPointsToImage()
 {
-  //if (this->Input)
-  //  {
-  //  this->Input->UnRegister(this);
-  //  }
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStructuredPointsToImage::SetInput(vtkStructuredPoints *input)
+{
+  if (input != this->Input)
+    {
+    if (this->Input) {this->Input->UnRegister(this);}
+    this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------

@@ -53,6 +53,7 @@ class VTK_EXPORT vtkQuad : public vtkCell
 {
 public:
   vtkQuad();
+  ~vtkQuad();
   static vtkQuad *New() {return new vtkQuad;};
   const char *GetClassName() {return "vtkQuad";};
 
@@ -96,7 +97,7 @@ public:
   static void InterpolationDerivs(float pcoords[3], float derivs[8]);
 
 protected:
-  vtkLine Line;
+  vtkLine *Line;
 
 };
 

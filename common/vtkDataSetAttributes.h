@@ -58,7 +58,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTensors.h"
 #include "vtkFieldData.h"
 
-class VTK_EXPORT vtkDataSetAttributes : public vtkObject 
+class VTK_EXPORT vtkDataSetAttributes : public vtkObject
 {
 public:
   // Description:
@@ -258,7 +258,7 @@ protected:
   // used to set null values
   float Null3Tuple[3];
   float Null4Tuple[4];
-  vtkTensor NullTensor;
+  vtkTensor *NullTensor;
   float *NullTuple;
   int TupleSize;
   float *Tuple;

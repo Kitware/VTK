@@ -49,12 +49,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkMapper2D_h
 #define __vtkMapper2D_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 #include "vtkActor2D.h"
 
-class VTK_EXPORT vtkMapper2D : public vtkReferenceCount
+class VTK_EXPORT vtkMapper2D : public vtkObject
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent);

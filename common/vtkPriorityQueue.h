@@ -61,6 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkPriorityQueue_h
 #define __vtkPriorityQueue_h
 
+#include "vtkObject.h"
 #include "vtkIntArray.h"
 
 typedef struct _vtkPriorityItem

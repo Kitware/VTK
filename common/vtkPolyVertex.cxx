@@ -43,6 +43,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkCellArray.h"
 #include "vtkPointLocator.h"
 
+
+vtkPolyVertex::vtkPolyVertex()
+{
+  this->Vertex = vtkVertex::New();
+}
+
+vtkPolyVertex::~vtkPolyVertex()
+{
+  this->Vertex->Delete();
+}
+
 vtkCell *vtkPolyVertex::MakeObject()
 {
   vtkCell *cell = vtkPolyVertex::New();
@@ -54,14 +65,14 @@ int vtkPolyVertex::EvaluatePosition(float x[3], float closestPoint[3],
                                    int& subId, float pcoords[3], 
                                    float& minDist2, float *weights)
 {
-  int numPts=this->Points.GetNumberOfPoints();
+  int numPts=this->Points->GetNumberOfPoints();
   float *X;
   float dist2;
   int i;
 
   for (minDist2=VTK_LARGE_FLOAT, i=0; i<numPts; i++)
     {
-    X = this->Points.GetPoint(i);
+    X = this->Points->GetPoint(i);
     dist2 = vtkMath::Distance2BetweenPoints(X,x);
     if (dist2 < minDist2)
       {
@@ -94,7 +105,7 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
                                      float x[3], float *weights)
 {
   int i;
-  float *X = this->Points.GetPoint(subId);
+  float *X = this->Points->GetPoint(subId);
   x[0] = X[0];
   x[1] = X[1];
   x[2] = X[2];
@@ -109,7 +120,7 @@ void vtkPolyVertex::EvaluateLocation(int& subId,
 int vtkPolyVertex::CellBoundary(int subId, float pcoords[3], vtkIdList& pts)
 {
   pts.SetNumberOfIds(1);
-  pts.SetId(0,this->PointIds.GetId(subId));
+  pts.SetId(0,this->PointIds->GetId(subId));
 
   if ( pcoords[0] != 0.0 )
     {
@@ -128,16 +139,16 @@ void vtkPolyVertex::Contour(float value, vtkScalars *cellScalars,
                             vtkPointData *inPd, vtkPointData *outPd,
                             vtkCellData *inCd, int cellId, vtkCellData *outCd)
 {
-  int i, pts[1], numPts=this->Points.GetNumberOfPoints(), newCellId;
+  int i, pts[1], numPts=this->Points->GetNumberOfPoints(), newCellId;
 
   for (i=0; i < numPts; i++)
     {
     if ( value == cellScalars->GetScalar(i) )
       {
-      pts[0] = locator->InsertNextPoint(this->Points.GetPoint(i));
+      pts[0] = locator->InsertNextPoint(this->Points->GetPoint(i));
       if ( outPd )
         {   
-        outPd->CopyData(inPd,this->PointIds.GetId(i),pts[0]);
+        outPd->CopyData(inPd,this->PointIds->GetId(i),pts[0]);
         }
       newCellId = verts->InsertNextCell(1,pts);
       outCd->CopyData(inCd,cellId,newCellId);
@@ -152,13 +163,13 @@ int vtkPolyVertex::IntersectWithLine(float p1[3], float p2[3],
                                     float tol, float& t, float x[3], 
                                     float pcoords[3], int& subId)
 {
-  int subTest, numPts=this->Points.GetNumberOfPoints();
+  int subTest, numPts=this->Points->GetNumberOfPoints();
 
   for (subId=0; subId < numPts; subId++)
     {
-    this->Vertex.Points.SetPoint(0,this->Points.GetPoint(subId));
+    this->Vertex->Points->SetPoint(0,this->Points->GetPoint(subId));
 
-    if ( this->Vertex.IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
+    if ( this->Vertex->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
       {
       return 1;
       }
@@ -174,10 +185,10 @@ int vtkPolyVertex::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
 
   pts.Reset();
   ptIds.Reset();
-  for (subId=0; subId<this->Points.GetNumberOfPoints(); subId++)
+  for (subId=0; subId<this->Points->GetNumberOfPoints(); subId++)
     {
-    pts.InsertPoint(subId,this->Points.GetPoint(subId));
-    ptIds.InsertId(subId,this->PointIds.GetId(subId));
+    pts.InsertPoint(subId,this->Points->GetPoint(subId));
+    ptIds.InsertId(subId,this->PointIds->GetId(subId));
     }
   return 1;
 }
@@ -205,7 +216,7 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
                          int insideOut)
 {
   float s, x[3];
-  int pts[1], i, newCellId, numPts=this->Points.GetNumberOfPoints();
+  int pts[1], i, newCellId, numPts=this->Points->GetNumberOfPoints();
 
   for ( i=0; i < numPts; i++ )
     {
@@ -213,11 +224,11 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
 
     if ( (!insideOut && s > value) || (insideOut && s <= value) )
       {
-      this->Points.GetPoint(i,x);
+      this->Points->GetPoint(i,x);
       if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
         {
         pts[0] = locator->InsertNextPoint(x);
-        outPd->CopyData(inPd,this->PointIds.GetId(i),pts[0]);
+        outPd->CopyData(inPd,this->PointIds->GetId(i),pts[0]);
         }
       newCellId = verts->InsertNextCell(1,pts);
       outCd->CopyData(inCd,cellId,newCellId);
@@ -229,6 +240,6 @@ void vtkPolyVertex::Clip(float value, vtkScalars *cellScalars,
 inline int vtkPolyVertex::GetParametricCenter(float pcoords[3])
 {
   pcoords[0] = pcoords[1] = pcoords[2] = 0.5;
-  return (this->Points.GetNumberOfPoints() / 2);
+  return (this->Points->GetNumberOfPoints() / 2);
 }
 

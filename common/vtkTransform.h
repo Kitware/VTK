@@ -148,7 +148,8 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Obtain the transpose of the current transformation matrix.
-  void GetTranspose (vtkMatrix4x4& transpose);
+  void GetTranspose (vtkMatrix4x4 *transpose);
+  void GetTranspose (vtkMatrix4x4 &transpose){this->GetTranspose(&transpose);}
 
   // Description:
   // Invert the current transformation matrix.
@@ -156,7 +157,8 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Return the inverse of the current transformation matrix.
-  void GetInverse(vtkMatrix4x4& inverse);
+  void GetInverse(vtkMatrix4x4 *inverse);
+  void GetInverse(vtkMatrix4x4& inverse){this->GetInverse(&inverse);}
 
   // Description:
   // Get the x, y, z orientation angles from the transformation matrix as an
@@ -165,7 +167,9 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Get the x, y, z orientation angles from the transformation matrix.
-  void GetOrientation(float& rx, float& ry, float& rz);
+  void GetOrientation(float *prx, float *pry, float *prz);
+  void GetOrientation(float& rx, float& ry, float& rz)
+    {this->GetOrientation(&rx,&ry,&rz);}
 
   // Description:
   // Return the wxyz quaternion representing the current orientation.
@@ -180,7 +184,9 @@ class VTK_EXPORT vtkTransform : public vtkObject
   // Description:
   // Return the x, y, z positions from the current transformation matrix.
   // This is simply returning the translation component of the 4x4 matrix.
-  void GetPosition (float& x, float& y, float& z);
+  void GetPosition (float *px, float *py, float *pz);
+  void GetPosition (float& x, float& y, float& z)
+    {this->GetPosition(&x, &y, &z);}
 
   // Description:
   // Return the x, y, z scale factors of the current transformation matrix as 
@@ -189,11 +195,14 @@ class VTK_EXPORT vtkTransform : public vtkObject
 
   // Description:
   // Return the x, y, z scale factors of the current transformation matrix.
-  void GetScale (float& sx, float& sy, float& sz);
+  void GetScale (float *psx, float *psy, float *psz);
+  void GetScale (float& sx, float& sy, float& sz)
+    {this->GetScale(&sx, &sy, &sz);}
 
   // Description:
   // Set the current matrix directly.
-  void SetMatrix(vtkMatrix4x4& m);
+  void SetMatrix(vtkMatrix4x4 *m);
+  void SetMatrix(vtkMatrix4x4& m){this->SetMatrix(&m);}
 
   // Description:
   // Returns the current transformation matrix.
@@ -201,18 +210,22 @@ class VTK_EXPORT vtkTransform : public vtkObject
   
   // Description:
   // Returns the current transformation matrix.
-  void GetMatrix (vtkMatrix4x4& m);
+  void GetMatrix (vtkMatrix4x4 *m);
+  void GetMatrix (vtkMatrix4x4 &m){this->GetMatrix(&m);}
 
   // Description:
   // Concatenates the input matrix with the current transformation matrix.
   // The resulting matrix becomes the new current transformation matrix.
   // The setting of the PreMultiply flag determines whether the matrix
   // is PreConcatenated or PostConcatenated.
-  void Concatenate (vtkMatrix4x4 & matrix);
+  void Concatenate(vtkMatrix4x4 *matrix);
+  void Concatenate(vtkMatrix4x4 &matrix){this->Concatenate(&matrix);}
 
   // Description:
   // Multiplies matrices a and b and stores the result in c.
-  void Multiply4x4 ( vtkMatrix4x4 & a, vtkMatrix4x4 & b, vtkMatrix4x4 & c);
+  void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c);
+  void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c)
+    {this->Multiply4x4(&a,&b,&c);}
 
   // Description:
   // Multiply a xyzw point by the transform and store the result in out.

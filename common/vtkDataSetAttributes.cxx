@@ -84,6 +84,8 @@ vtkDataSetAttributes::vtkDataSetAttributes()
   this->CopyTCoordsEnabled = 0;
   this->CopyTensorsEnabled = 0;
   this->CopyFieldDataEnabled = 0;
+
+  this->NullTensor = vtkTensor::New();
 }
 
 // Destructor for the vtkDataSetAttributes objects.
@@ -99,6 +101,8 @@ vtkDataSetAttributes::~vtkDataSetAttributes()
     {
     delete [] this->Tuple;
     }
+  this->NullTensor->Delete();
+  this->NullTensor = NULL;
 }
 
 // Deep copy of data (i.e., create new data arrays and

@@ -75,7 +75,7 @@ void vtkLocator::Update()
 
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   if ( this->DataSet )
     {

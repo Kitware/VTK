@@ -64,7 +64,7 @@ vtkCoordinate::~vtkCoordinate()
 
 void vtkCoordinate::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkReferenceCount::PrintSelf(os,indent);
+  this->vtkObject::PrintSelf(os,indent);
 
   char posString[64];
   switch (this->CoordinateSystem)

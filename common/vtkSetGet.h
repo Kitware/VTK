@@ -204,7 +204,7 @@ void Set##name (type& _arg) \
   } 
 
 //
-// Set pointer to object; uses vtkReferenceCount reference counting methodology.
+// Set pointer to object; uses vtkObject reference counting methodology.
 // Creates method Set"name"() (e.g., SetPoints()).
 //
 #define vtkSetReferenceCountedObjectMacro(name,type) \

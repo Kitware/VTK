@@ -68,7 +68,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
 
-class VTK_EXPORT vtkFieldData : public vtkReferenceCount
+class VTK_EXPORT vtkFieldData : public vtkObject
 {
 public:
   vtkFieldData();

@@ -49,8 +49,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the quad with four points.
 vtkQuad::vtkQuad()
 {
-  this->Points.SetNumberOfPoints(4);
-  this->PointIds.SetNumberOfIds(4);
+  this->Points->SetNumberOfPoints(4);
+  this->PointIds->SetNumberOfIds(4);
+  this->Line = vtkLine::New();
+}
+
+vtkQuad::~vtkQuad()
+{
+  this->Line->Delete();
 }
 
 vtkCell *vtkQuad::MakeObject()
@@ -82,9 +88,9 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   //
   // Get normal for quadrilateral
   //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   //
@@ -132,7 +138,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
       }
     for (i=0; i<4; i++)
       {
-      pt = this->Points.GetPoint(i);
+      pt = this->Points->GetPoint(i);
       for (j=0; j<2; j++)
         {
         fcol[j] += pt[indices[j]] * weights[i];
@@ -192,7 +198,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
   else
     {
     float t;
-    float *pt4 = this->Points.GetPoint(3);
+    float *pt4 = this->Points->GetPoint(3);
 
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
@@ -257,7 +263,7 @@ void vtkQuad::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
     {
-    pt = this->Points.GetPoint(i);
+    pt = this->Points->GetPoint(i);
     for (j=0; j<3; j++)
       {
       x[j] += pt[j] * weights[i];
@@ -310,26 +316,26 @@ int vtkQuad::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // into four pieces.
   if ( t1 >= 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(2));
+    pts.SetId(0,this->PointIds->GetId(1));
+    pts.SetId(1,this->PointIds->GetId(2));
     }
 
   else if ( t1 < 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(2));
-    pts.SetId(1,this->PointIds.GetId(3));
+    pts.SetId(0,this->PointIds->GetId(2));
+    pts.SetId(1,this->PointIds->GetId(3));
     }
 
   else //( t1 < 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(3));
-    pts.SetId(1,this->PointIds.GetId(0));
+    pts.SetId(0,this->PointIds->GetId(3));
+    pts.SetId(1,this->PointIds->GetId(0));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
@@ -427,8 +433,8 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
 	t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
 	}
 
-      this->Points.GetPoint(e1, x1);
-      this->Points.GetPoint(e2, x2);
+      this->Points->GetPoint(e1, x1);
+      this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
 	{
@@ -439,8 +445,8 @@ void vtkQuad::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(e1);
-          int p2 = this->PointIds.GetId(e2);
+          int p1 = this->PointIds->GetId(e1);
+          int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -464,14 +470,14 @@ vtkCell *vtkQuad::GetEdge(int edgeId)
     }
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(edgeId));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(edgeIdPlus1));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(edgeId));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(edgeIdPlus1));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(edgeId));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(edgeIdPlus1));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(edgeId));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(edgeIdPlus1));
 
-  return &this->Line;
+  return this->Line;
 }
 
 // 
@@ -490,9 +496,9 @@ int vtkQuad::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   //
   // Get normal for triangle
   //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   //
@@ -526,42 +532,42 @@ int vtkQuad::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds,
   ptIds.Reset();
 
   // use minimum diagonal (Delaunay triangles) - assumed convex
-  d1 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(0), 
-                                   this->Points.GetPoint(2));
-  d2 = vtkMath::Distance2BetweenPoints(this->Points.GetPoint(1), 
-                                   this->Points.GetPoint(3));
+  d1 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(0), 
+                                   this->Points->GetPoint(2));
+  d2 = vtkMath::Distance2BetweenPoints(this->Points->GetPoint(1), 
+                                   this->Points->GetPoint(3));
 
   if ( d1 < d2 )
     {
-    ptIds.InsertId(0,this->PointIds.GetId(0));
-    pts.InsertPoint(0,this->Points.GetPoint(0));
-    ptIds.InsertId(1,this->PointIds.GetId(1));
-    pts.InsertPoint(1,this->Points.GetPoint(1));
-    ptIds.InsertId(2,this->PointIds.GetId(2));
-    pts.InsertPoint(2,this->Points.GetPoint(2));
+    ptIds.InsertId(0,this->PointIds->GetId(0));
+    pts.InsertPoint(0,this->Points->GetPoint(0));
+    ptIds.InsertId(1,this->PointIds->GetId(1));
+    pts.InsertPoint(1,this->Points->GetPoint(1));
+    ptIds.InsertId(2,this->PointIds->GetId(2));
+    pts.InsertPoint(2,this->Points->GetPoint(2));
 
-    ptIds.InsertId(3,this->PointIds.GetId(0));
-    pts.InsertPoint(3,this->Points.GetPoint(0));
-    ptIds.InsertId(4,this->PointIds.GetId(2));
-    pts.InsertPoint(4,this->Points.GetPoint(2));
-    ptIds.InsertId(5,this->PointIds.GetId(3));
-    pts.InsertPoint(5,this->Points.GetPoint(3));
+    ptIds.InsertId(3,this->PointIds->GetId(0));
+    pts.InsertPoint(3,this->Points->GetPoint(0));
+    ptIds.InsertId(4,this->PointIds->GetId(2));
+    pts.InsertPoint(4,this->Points->GetPoint(2));
+    ptIds.InsertId(5,this->PointIds->GetId(3));
+    pts.InsertPoint(5,this->Points->GetPoint(3));
     }
   else
     {
-    ptIds.InsertId(0,this->PointIds.GetId(0));
-    pts.InsertPoint(0,this->Points.GetPoint(0));
-    ptIds.InsertId(1,this->PointIds.GetId(1));
-    pts.InsertPoint(1,this->Points.GetPoint(1));
-    ptIds.InsertId(2,this->PointIds.GetId(3));
-    pts.InsertPoint(2,this->Points.GetPoint(3));
+    ptIds.InsertId(0,this->PointIds->GetId(0));
+    pts.InsertPoint(0,this->Points->GetPoint(0));
+    ptIds.InsertId(1,this->PointIds->GetId(1));
+    pts.InsertPoint(1,this->Points->GetPoint(1));
+    ptIds.InsertId(2,this->PointIds->GetId(3));
+    pts.InsertPoint(2,this->Points->GetPoint(3));
 
-    ptIds.InsertId(3,this->PointIds.GetId(1));
-    pts.InsertPoint(3,this->Points.GetPoint(1));
-    ptIds.InsertId(4,this->PointIds.GetId(2));
-    pts.InsertPoint(4,this->Points.GetPoint(2));
-    ptIds.InsertId(5,this->PointIds.GetId(3));
-    pts.InsertPoint(5,this->Points.GetPoint(3));
+    ptIds.InsertId(3,this->PointIds->GetId(1));
+    pts.InsertPoint(3,this->Points->GetPoint(1));
+    ptIds.InsertId(4,this->PointIds->GetId(2));
+    pts.InsertPoint(4,this->Points->GetPoint(2));
+    ptIds.InsertId(5,this->PointIds->GetId(3));
+    pts.InsertPoint(5,this->Points->GetPoint(3));
     }
 
   return 1;
@@ -578,10 +584,10 @@ void vtkQuad::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   int i, j;
 
   // Project points of quad into 2D system
-  x0 = this->Points.GetPoint(0);
-  x1 = this->Points.GetPoint(1);
-  x2 = this->Points.GetPoint(2);
-  x3 = this->Points.GetPoint(3);
+  x0 = this->Points->GetPoint(0);
+  x1 = this->Points->GetPoint(1);
+  x2 = this->Points->GetPoint(2);
+  x3 = this->Points->GetPoint(3);
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++) 
@@ -751,11 +757,11 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
       if (edge[i+1] >= 100)
         {
 	vertexId = edge[i+1] - 100;
-        this->Points.GetPoint(vertexId, x);
+        this->Points->GetPoint(vertexId, x);
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
           }
 	}
 
@@ -790,8 +796,8 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
 	  t = (value - e1Scalar) / deltaScalar;
 	  }
 
-        this->Points.GetPoint(e1, x1);
-        this->Points.GetPoint(e2, x2);
+        this->Points->GetPoint(e1, x1);
+        this->Points->GetPoint(e2, x2);
 
         for (j=0; j<3; j++)
 	  {
@@ -801,8 +807,8 @@ void vtkQuad::Clip(float value, vtkScalars *cellScalars,
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(e1);
-          int p2 = this->PointIds.GetId(e2);
+          int p1 = this->PointIds->GetId(e1);
+          int p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

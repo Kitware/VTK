@@ -61,7 +61,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkIntArray.h"
 #include "vtkCell.h"
 
-class VTK_EXPORT vtkCellArray : public vtkReferenceCount
+class VTK_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkCellArray();
@@ -260,7 +260,7 @@ inline int vtkCellArray::InsertNextCell(vtkCell *cell)
   
   for ( *ptr++ = npts, i = 0; i < npts; i++)
     {
-    *ptr++ = cell->PointIds.GetId(i);
+    *ptr++ = cell->PointIds->GetId(i);
     }
 
   this->NumberOfCells++;

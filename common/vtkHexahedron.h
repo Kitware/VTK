@@ -54,6 +54,7 @@ class VTK_EXPORT vtkHexahedron : public vtkCell
 {
 public:
   vtkHexahedron();
+  ~vtkHexahedron();
   static vtkHexahedron *New() {return new vtkHexahedron;};
   const char *GetClassName() {return "vtkHexahedron";};
 
@@ -100,8 +101,8 @@ public:
 
 
 protected:
-  vtkLine Line;
-  vtkQuad Quad;
+  vtkLine *Line;
+  vtkQuad *Quad;
 
 };
 

@@ -44,6 +44,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkProcessStatistics_h
 #define __vtkProcessStatistics_h
 
+#include "vtkObject.h"
 #include "vtkLine.h"
 #include "vtkPixel.h"
 

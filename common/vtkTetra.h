@@ -56,6 +56,7 @@ class VTK_EXPORT vtkTetra : public vtkCell
 {
 public:
   vtkTetra();
+  ~vtkTetra();
   static vtkTetra *New() {return new vtkTetra;};
   const char *GetClassName() {return "vtkTetra";};
 
@@ -141,8 +142,8 @@ public:
   static void InterpolationDerivs(float derivs[12]);
 
 protected:
-  vtkLine Line;
-  vtkTriangle Triangle;
+  vtkLine *Line;
+  vtkTriangle *Triangle;
 
 };
 

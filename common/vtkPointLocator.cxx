@@ -47,7 +47,7 @@ class vtkNeighborPoints
 {
 public:
   vtkNeighborPoints(const int sz, const int ext=1000)
-    {this->P = new vtkIntArray; this->P->Allocate(3*sz,3*ext);};
+    {this->P = vtkIntArray::New(); this->P->Allocate(3*sz,3*ext);};
   ~vtkNeighborPoints(){this->P->Delete();}; 
   int GetNumberOfNeighbors() {return (this->P->GetMaxId()+1)/3;};
   void Reset() {this->P->Reset();};

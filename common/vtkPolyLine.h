@@ -55,7 +55,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkPolyLine : public vtkCell
 {
 public:
-  vtkPolyLine() {};
+  vtkPolyLine();
+  ~vtkPolyLine();
   static vtkPolyLine *New() {return new vtkPolyLine;};
   const char *GetClassName() {return "vtkPolyLine";};
 
@@ -101,7 +102,7 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
 protected:
-  vtkLine Line;
+  vtkLine *Line;
 
 };
 

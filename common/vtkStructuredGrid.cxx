@@ -146,11 +146,7 @@ int vtkStructuredGrid::GetCellType(int vtkNotUsed(cellId))
 
 vtkCell *vtkStructuredGrid::GetCell(int cellId)
 {
-  static vtkVertex vertex;
-  static vtkLine line;
-  static vtkQuad quad;
-  static vtkHexahedron hexa;
-  static vtkCell *cell;
+  vtkCell *cell;
   int idx;
   int i, j, k;
   int d01, offset1, offset2;
@@ -162,75 +158,83 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
     return NULL;
     }
  
+  // Get rid of the reference from the previous call
+  if (this->Cell != NULL)
+    {
+    this->Cell->UnRegister(this);
+    this->Cell = NULL;
+    }
+  cell = NULL;
+
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      cell = &vertex;
-      cell->PointIds.InsertId(0,0);
+      cell = vtkVertex::New();
+      cell->PointIds->InsertId(0,0);
       break;
 
     case VTK_X_LINE:
-      cell = &line;
-      cell->PointIds.InsertId(0,cellId);
-      cell->PointIds.InsertId(1,cellId+1);
+      cell = vtkLine::New();
+      cell->PointIds->InsertId(0,cellId);
+      cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_Y_LINE:
-      cell = &line;
-      cell->PointIds.InsertId(0,cellId);
-      cell->PointIds.InsertId(1,cellId+1);
+      cell = vtkLine::New();
+      cell->PointIds->InsertId(0,cellId);
+      cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_Z_LINE:
-      cell = &line;
-      cell->PointIds.InsertId(0,cellId);
-      cell->PointIds.InsertId(1,cellId+1);
+      cell = vtkLine::New();
+      cell->PointIds->InsertId(0,cellId);
+      cell->PointIds->InsertId(1,cellId+1);
       break;
 
     case VTK_XY_PLANE:
-      cell = &quad;
+      cell = vtkQuad::New();
       i = cellId % (this->Dimensions[0]-1);
       j = cellId / (this->Dimensions[0]-1);
       idx = i + j*this->Dimensions[0];
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds.InsertId(0,idx);
-      cell->PointIds.InsertId(1,idx+offset1);
-      cell->PointIds.InsertId(2,idx+offset1+offset2);
-      cell->PointIds.InsertId(3,idx+offset2);
+      cell->PointIds->InsertId(0,idx);
+      cell->PointIds->InsertId(1,idx+offset1);
+      cell->PointIds->InsertId(2,idx+offset1+offset2);
+      cell->PointIds->InsertId(3,idx+offset2);
       break;
 
     case VTK_YZ_PLANE:
-      cell = &quad;
+      cell = vtkQuad::New();
       j = cellId % (this->Dimensions[1]-1);
       k = cellId / (this->Dimensions[1]-1);
       idx = j + k*this->Dimensions[1];
       offset1 = 1;
       offset2 = this->Dimensions[1];
 
-      cell->PointIds.InsertId(0,idx);
-      cell->PointIds.InsertId(1,idx+offset1);
-      cell->PointIds.InsertId(2,idx+offset1+offset2);
-      cell->PointIds.InsertId(3,idx+offset2);
+      cell->PointIds->InsertId(0,idx);
+      cell->PointIds->InsertId(1,idx+offset1);
+      cell->PointIds->InsertId(2,idx+offset1+offset2);
+      cell->PointIds->InsertId(3,idx+offset2);
       break;
 
     case VTK_XZ_PLANE:
-      cell = &quad;
+      cell = vtkQuad::New();
       i = cellId % (this->Dimensions[0]-1);
       k = cellId / (this->Dimensions[0]-1);
       idx = i + k*this->Dimensions[0];
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds.InsertId(0,idx);
-      cell->PointIds.InsertId(1,idx+offset1);
-      cell->PointIds.InsertId(2,idx+offset1+offset2);
-      cell->PointIds.InsertId(3,idx+offset2);
+      cell->PointIds->InsertId(0,idx);
+      cell->PointIds->InsertId(1,idx+offset1);
+      cell->PointIds->InsertId(2,idx+offset1+offset2);
+      cell->PointIds->InsertId(3,idx+offset2);
       break;
 
     case VTK_XYZ_GRID:
-      cell = &hexa;
+      cell = vtkHexahedron::New();
       d01 = this->Dimensions[0]*this->Dimensions[1];
       i = cellId % (this->Dimensions[0] - 1);
       j = (cellId / (this->Dimensions[0] - 1)) % (this->Dimensions[1] - 1);
@@ -239,28 +243,37 @@ vtkCell *vtkStructuredGrid::GetCell(int cellId)
       offset1 = 1;
       offset2 = this->Dimensions[0];
 
-      cell->PointIds.InsertId(0,idx);
-      cell->PointIds.InsertId(1,idx+offset1);
-      cell->PointIds.InsertId(2,idx+offset1+offset2);
-      cell->PointIds.InsertId(3,idx+offset2);
+      cell->PointIds->InsertId(0,idx);
+      cell->PointIds->InsertId(1,idx+offset1);
+      cell->PointIds->InsertId(2,idx+offset1+offset2);
+      cell->PointIds->InsertId(3,idx+offset2);
       idx += d01;
-      cell->PointIds.InsertId(4,idx);
-      cell->PointIds.InsertId(5,idx+offset1);
-      cell->PointIds.InsertId(6,idx+offset1+offset2);
-      cell->PointIds.InsertId(7,idx+offset2);
+      cell->PointIds->InsertId(4,idx);
+      cell->PointIds->InsertId(5,idx+offset1);
+      cell->PointIds->InsertId(6,idx+offset1+offset2);
+      cell->PointIds->InsertId(7,idx+offset2);
       break;
+    }
+  // sanity check ?
+  if (cell == NULL)
+    {
+    return NULL;
     }
 
   // Extract point coordinates and point ids. NOTE: the ordering of the vtkQuad
   // and vtkHexahedron cells are tricky.
-  int NumberOfIds = cell->PointIds.GetNumberOfIds();
+  int NumberOfIds = cell->PointIds->GetNumberOfIds();
   for (i=0; i<NumberOfIds; i++)
     {
-    idx = cell->PointIds.GetId(i);
-    cell->Points.InsertPoint(i,this->Points->GetPoint(idx));
+    idx = cell->PointIds->GetId(i);
+    cell->Points->InsertPoint(i,this->Points->GetPoint(idx));
     }
 
-  return cell;
+  this->Cell = cell;
+  this->Cell->Register(this);
+  cell->Delete();
+
+  return this->Cell;
 }
 
 // Turn on data blanking. Data blanking is the ability to turn off

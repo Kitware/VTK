@@ -43,6 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 void vtkMapper2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-	this->vtkReferenceCount::PrintSelf(os, indent);
+	this->vtkObject::PrintSelf(os, indent);
 }
 

@@ -269,7 +269,7 @@ void vtkLookupTable::GetTableValue (int indx, float rgba[4])
 
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Build Time: " <<this->BuildTime.GetMTime() << "\n";
   os << indent << "Hue Range: (" << this->HueRange[0] << ", "

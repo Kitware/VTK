@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the vertex with a single point.
 vtkVertex::vtkVertex()
 {
-  this->Points.SetNumberOfPoints(1);
-  this->PointIds.SetNumberOfIds(1);
+  this->Points->SetNumberOfPoints(1);
+  this->PointIds->SetNumberOfIds(1);
 }
 
 // Make a new vtkVertex object with the same information as this object.
@@ -67,7 +67,7 @@ int vtkVertex::EvaluatePosition(float x[3], float closestPoint[3],
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  X = this->Points.GetPoint(0);
+  X = this->Points->GetPoint(0);
   closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
 
   dist2 = vtkMath::Distance2BetweenPoints(X,x);
@@ -89,7 +89,7 @@ void vtkVertex::EvaluateLocation(int& vtkNotUsed(subId),
 				 float vtkNotUsed(pcoords)[3], float x[3],
                                  float *weights)
 {
-  float *X = this->Points.GetPoint(0);
+  float *X = this->Points->GetPoint(0);
   x[0] = X[0];
   x[1] = X[1];
   x[2] = X[2];
@@ -106,7 +106,7 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 {
 
   pts.SetNumberOfIds(1);
-  pts.SetId(0,this->PointIds.GetId(0));
+  pts.SetId(0,this->PointIds->GetId(0));
 
   if ( pcoords[0] != 0.0 )  
     {
@@ -134,10 +134,10 @@ void vtkVertex::Contour(float value, vtkScalars *cellScalars,
   if ( value == cellScalars->GetScalar(0) )
     {
     int pts[1], newCellId;
-    pts[0] = locator->InsertNextPoint(this->Points.GetPoint(0));
+    pts[0] = locator->InsertNextPoint(this->Points->GetPoint(0));
     if ( outPd )
       {   
-      outPd->CopyData(inPd,this->PointIds.GetId(0),pts[0]);
+      outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
       }
     newCellId = verts->InsertNextCell(1,pts);
     outCd->CopyData(inCd,cellId,newCellId);
@@ -156,7 +156,7 @@ int vtkVertex::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  X = this->Points.GetPoint(0);
+  X = this->Points->GetPoint(0);
 
   for (i=0; i<3; i++)
     {
@@ -201,8 +201,8 @@ int vtkVertex::Triangulate(int vtkNotUsed(index),vtkIdList &ptIds, vtkPoints &pt
 {
   pts.Reset();
   ptIds.Reset();
-  pts.InsertPoint(0,this->Points.GetPoint(0));
-  ptIds.InsertId(0,this->PointIds.GetId(0));
+  pts.InsertPoint(0,this->Points->GetPoint(0));
+  ptIds.InsertId(0,this->PointIds->GetId(0));
 
   return 1;
 }
@@ -238,11 +238,11 @@ void vtkVertex::Clip(float value, vtkScalars *cellScalars,
 
   if ( ( !insideOut && s > value) || (insideOut && s <= value) )
     {
-    x = this->Points.GetPoint(0);
+    x = this->Points->GetPoint(0);
     if ( (pts[0] = locator->IsInsertedPoint(x)) < 0 )
       {
       pts[0] = locator->InsertNextPoint(x);
-      outPd->CopyData(inPd,this->PointIds.GetId(0),pts[0]);
+      outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
       }
     newCellId = verts->InsertNextCell(1,pts);
     outCd->CopyData(inCd,cellId,newCellId);

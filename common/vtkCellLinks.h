@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkCellLinks_h
 #define __vtkCellLinks_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 class vtkDataSet;
 
 struct _vtkLink_s {
@@ -59,7 +59,7 @@ struct _vtkLink_s {
     int *cells;
 };
 
-class VTK_EXPORT vtkCellLinks : public vtkReferenceCount 
+class VTK_EXPORT vtkCellLinks : public vtkObject 
 {
 public:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {};

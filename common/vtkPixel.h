@@ -55,6 +55,7 @@ class VTK_EXPORT vtkPixel : public vtkCell
 {
 public:
   vtkPixel();
+  ~vtkPixel();
   static vtkPixel *New() {return new vtkPixel;};
   const char *GetClassName() {return "vtkPixel";};
 
@@ -94,7 +95,7 @@ public:
   static void InterpolationDerivs(float pcoords[3], float derivs[8]);
 
 protected:
-  vtkLine Line;
+  vtkLine *Line;
 
 };
 

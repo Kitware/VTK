@@ -50,8 +50,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the pixel with four points.
 vtkPixel::vtkPixel()
 {
-  this->Points.SetNumberOfPoints(4);
-  this->PointIds.SetNumberOfIds(4);
+  this->Points->SetNumberOfPoints(4);
+  this->PointIds->SetNumberOfIds(4);
+  this->Line = vtkLine::New();
+}
+
+vtkPixel::~vtkPixel()
+{
+  this->Line->Delete();
 }
 
 vtkCell *vtkPixel::MakeObject()
@@ -75,9 +81,9 @@ int vtkPixel::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Get normal for pixel
 //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
 //
@@ -144,9 +150,9 @@ void vtkPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 
   subId = 0;
   
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
 
   for (i=0; i<3; i++)
     {
@@ -168,26 +174,26 @@ int vtkPixel::CellBoundary(int vtkNotUsed(subId), float pcoords[3], vtkIdList& p
   // into four pieces.
   if ( t1 >= 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(3));
+    pts.SetId(0,this->PointIds->GetId(1));
+    pts.SetId(1,this->PointIds->GetId(3));
     }
 
   else if ( t1 < 0.0 && t2 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(3));
-    pts.SetId(1,this->PointIds.GetId(2));
+    pts.SetId(0,this->PointIds->GetId(3));
+    pts.SetId(1,this->PointIds->GetId(2));
     }
 
   else //( t1 < 0.0 && t2 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(2));
-    pts.SetId(1,this->PointIds.GetId(0));
+    pts.SetId(0,this->PointIds->GetId(2));
+    pts.SetId(1,this->PointIds->GetId(0));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
@@ -242,8 +248,8 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetScalar(vert[0])) /
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-      x1 = this->Points.GetPoint(vert[0]);
-      x2 = this->Points.GetPoint(vert[1]);
+      x1 = this->Points->GetPoint(vert[0]);
+      x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
 	{
 	x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -253,8 +259,8 @@ void vtkPixel::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds->GetId(vert[0]);
+          int p2 = this->PointIds->GetId(vert[1]);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -275,14 +281,14 @@ vtkCell *vtkPixel::GetEdge(int edgeId)
   verts = edges[edgeId];
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(verts[0]));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(verts[1]));
 
-  return &this->Line;
+  return this->Line;
 }
 //
 // Compute interpolation functions (similar but different than Quad interpolation 
@@ -341,10 +347,10 @@ int vtkPixel::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
 //
 // Get normal for triangle
 //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
-  pt4 = this->Points.GetPoint(3);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
+  pt4 = this->Points->GetPoint(3);
 
   n[0] = n[1] = n[2] = 0.0;
   for (i=0; i<3; i++)
@@ -383,35 +389,35 @@ int vtkPixel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
 
   if ( (index % 2) )
     {
-    ptIds.InsertId(0,this->PointIds.GetId(0));
-    pts.InsertPoint(0,this->Points.GetPoint(0));
-    ptIds.InsertId(1,this->PointIds.GetId(1));
-    pts.InsertPoint(1,this->Points.GetPoint(1));
-    ptIds.InsertId(2,this->PointIds.GetId(2));
-    pts.InsertPoint(2,this->Points.GetPoint(2));
+    ptIds.InsertId(0,this->PointIds->GetId(0));
+    pts.InsertPoint(0,this->Points->GetPoint(0));
+    ptIds.InsertId(1,this->PointIds->GetId(1));
+    pts.InsertPoint(1,this->Points->GetPoint(1));
+    ptIds.InsertId(2,this->PointIds->GetId(2));
+    pts.InsertPoint(2,this->Points->GetPoint(2));
 
-    ptIds.InsertId(3,this->PointIds.GetId(1));
-    pts.InsertPoint(3,this->Points.GetPoint(1));
-    ptIds.InsertId(4,this->PointIds.GetId(3));
-    pts.InsertPoint(4,this->Points.GetPoint(3));
-    ptIds.InsertId(5,this->PointIds.GetId(2));
-    pts.InsertPoint(5,this->Points.GetPoint(2));
+    ptIds.InsertId(3,this->PointIds->GetId(1));
+    pts.InsertPoint(3,this->Points->GetPoint(1));
+    ptIds.InsertId(4,this->PointIds->GetId(3));
+    pts.InsertPoint(4,this->Points->GetPoint(3));
+    ptIds.InsertId(5,this->PointIds->GetId(2));
+    pts.InsertPoint(5,this->Points->GetPoint(2));
     }
   else
     {
-    ptIds.InsertId(0,this->PointIds.GetId(0));
-    pts.InsertPoint(0,this->Points.GetPoint(0));
-    ptIds.InsertId(1,this->PointIds.GetId(1));
-    pts.InsertPoint(1,this->Points.GetPoint(1));
-    ptIds.InsertId(2,this->PointIds.GetId(3));
-    pts.InsertPoint(2,this->Points.GetPoint(3));
+    ptIds.InsertId(0,this->PointIds->GetId(0));
+    pts.InsertPoint(0,this->Points->GetPoint(0));
+    ptIds.InsertId(1,this->PointIds->GetId(1));
+    pts.InsertPoint(1,this->Points->GetPoint(1));
+    ptIds.InsertId(2,this->PointIds->GetId(3));
+    pts.InsertPoint(2,this->Points->GetPoint(3));
 
-    ptIds.InsertId(3,this->PointIds.GetId(1));
-    pts.InsertPoint(3,this->Points.GetPoint(1));
-    ptIds.InsertId(4,this->PointIds.GetId(3));
-    pts.InsertPoint(4,this->Points.GetPoint(3));
-    ptIds.InsertId(5,this->PointIds.GetId(0));
-    pts.InsertPoint(5,this->Points.GetPoint(0));
+    ptIds.InsertId(3,this->PointIds->GetId(1));
+    pts.InsertPoint(3,this->Points->GetPoint(1));
+    ptIds.InsertId(4,this->PointIds->GetId(3));
+    pts.InsertPoint(4,this->Points->GetPoint(3));
+    ptIds.InsertId(5,this->PointIds->GetId(0));
+    pts.InsertPoint(5,this->Points->GetPoint(0));
     }
 
   return 1;
@@ -426,9 +432,9 @@ void vtkPixel::Derivatives(int vtkNotUsed(subId),
   int i, j, k, plane, idx[2], jj;
   float *x0, *x1, *x2, spacing[3];
 
-  x0 = this->Points.GetPoint(0);
-  x1 = this->Points.GetPoint(1);
-  x2 = this->Points.GetPoint(2);
+  x0 = this->Points->GetPoint(0);
+  x1 = this->Points->GetPoint(1);
+  x2 = this->Points->GetPoint(2);
 
   //figure which plane this pixel is in
   for (i=0; i < 3; i++)

@@ -104,7 +104,7 @@ unsigned long int vtkProp2D::GetMTime()
 
 void vtkProp2D::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkReferenceCount::PrintSelf(os,indent);
+  this->vtkObject::PrintSelf(os,indent);
 
   os << indent << "Layer Number: " << this->LayerNumber << "\n";
   os << indent << "Visibility: " << (this->Visibility ? "On\n" : "Off\n");

@@ -48,8 +48,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the voxel with eight points.
 vtkVoxel::vtkVoxel()
 {
-  this->Points.SetNumberOfPoints(8);
-  this->PointIds.SetNumberOfIds(8);
+  this->Points->SetNumberOfPoints(8);
+  this->PointIds->SetNumberOfIds(8);
+  this->Line = vtkLine::New();
+  this->Pixel = vtkPixel::New();
+}
+
+vtkVoxel::~vtkVoxel()
+{
+  this->Line->Delete();
+  this->Pixel->Delete();
 }
 
 vtkCell *vtkVoxel::MakeObject()
@@ -70,10 +78,10 @@ int vtkVoxel::EvaluatePosition(float x[3], float closestPoint[3],
 //
 // Get coordinate system
 //
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
-  pt4 = this->Points.GetPoint(4);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
+  pt4 = this->Points->GetPoint(4);
 //
 // Develop parametric coordinates
 //
@@ -120,10 +128,10 @@ void vtkVoxel::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
   float *pt1, *pt2, *pt3, *pt4;
   int i;
 
-  pt1 = this->Points.GetPoint(0);
-  pt2 = this->Points.GetPoint(1);
-  pt3 = this->Points.GetPoint(2);
-  pt4 = this->Points.GetPoint(4);
+  pt1 = this->Points->GetPoint(0);
+  pt2 = this->Points->GetPoint(1);
+  pt3 = this->Points->GetPoint(2);
+  pt4 = this->Points->GetPoint(4);
 
   for (i=0; i<3; i++)
     {
@@ -213,50 +221,50 @@ int vtkVoxel::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
   // into six pieces.
   if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
-    pts.SetId(2,this->PointIds.GetId(3));
-    pts.SetId(3,this->PointIds.GetId(2));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
+    pts.SetId(2,this->PointIds->GetId(3));
+    pts.SetId(3,this->PointIds->GetId(2));
     }
 
   else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
-    pts.SetId(1,this->PointIds.GetId(3));
-    pts.SetId(2,this->PointIds.GetId(7));
-    pts.SetId(3,this->PointIds.GetId(5));
+    pts.SetId(0,this->PointIds->GetId(1));
+    pts.SetId(1,this->PointIds->GetId(3));
+    pts.SetId(2,this->PointIds->GetId(7));
+    pts.SetId(3,this->PointIds->GetId(5));
     }
 
   else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(1));
-    pts.SetId(2,this->PointIds.GetId(5));
-    pts.SetId(3,this->PointIds.GetId(4));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(1));
+    pts.SetId(2,this->PointIds->GetId(5));
+    pts.SetId(3,this->PointIds->GetId(4));
     }
 
   else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(4));
-    pts.SetId(1,this->PointIds.GetId(5));
-    pts.SetId(2,this->PointIds.GetId(7));
-    pts.SetId(3,this->PointIds.GetId(6));
+    pts.SetId(0,this->PointIds->GetId(4));
+    pts.SetId(1,this->PointIds->GetId(5));
+    pts.SetId(2,this->PointIds->GetId(7));
+    pts.SetId(3,this->PointIds->GetId(6));
     }
 
   else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(0));
-    pts.SetId(1,this->PointIds.GetId(4));
-    pts.SetId(2,this->PointIds.GetId(6));
-    pts.SetId(3,this->PointIds.GetId(2));
+    pts.SetId(0,this->PointIds->GetId(0));
+    pts.SetId(1,this->PointIds->GetId(4));
+    pts.SetId(2,this->PointIds->GetId(6));
+    pts.SetId(3,this->PointIds->GetId(2));
     }
 
   else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
     {
-    pts.SetId(0,this->PointIds.GetId(3));
-    pts.SetId(1,this->PointIds.GetId(2));
-    pts.SetId(2,this->PointIds.GetId(6));
-    pts.SetId(3,this->PointIds.GetId(7));
+    pts.SetId(0,this->PointIds->GetId(3));
+    pts.SetId(1,this->PointIds->GetId(2));
+    pts.SetId(2,this->PointIds->GetId(6));
+    pts.SetId(3,this->PointIds->GetId(7));
     }
 
   if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
@@ -319,8 +327,8 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
       vert = edges[edge[i]];
       t = (value - cellScalars->GetScalar(vert[0])) /
           (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-      x1 = this->Points.GetPoint(vert[0]);
-      x2 = this->Points.GetPoint(vert[1]);
+      x1 = this->Points->GetPoint(vert[0]);
+      x2 = this->Points->GetPoint(vert[1]);
       for (j=0; j<3; j++)
 	{
 	x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -330,8 +338,8 @@ void vtkVoxel::Contour(float value, vtkScalars *cellScalars,
         pts[i] = locator->InsertNextPoint(x);
         if ( outPd ) 
           {
-          int p1 = this->PointIds.GetId(vert[0]);
-          int p2 = this->PointIds.GetId(vert[1]);
+          int p1 = this->PointIds->GetId(vert[0]);
+          int p2 = this->PointIds->GetId(vert[1]);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }
@@ -355,14 +363,14 @@ vtkCell *vtkVoxel::GetEdge(int edgeId)
   verts = edges[edgeId];
 
   // load point id's
-  this->Line.PointIds.SetId(0,this->PointIds.GetId(verts[0]));
-  this->Line.PointIds.SetId(1,this->PointIds.GetId(verts[1]));
+  this->Line->PointIds->SetId(0,this->PointIds->GetId(verts[0]));
+  this->Line->PointIds->SetId(1,this->PointIds->GetId(verts[1]));
 
   // load coordinates
-  this->Line.Points.SetPoint(0,this->Points.GetPoint(verts[0]));
-  this->Line.Points.SetPoint(1,this->Points.GetPoint(verts[1]));
+  this->Line->Points->SetPoint(0,this->Points->GetPoint(verts[0]));
+  this->Line->Points->SetPoint(1,this->Points->GetPoint(verts[1]));
 
-  return &this->Line;
+  return this->Line;
 }
 
 vtkCell *vtkVoxel::GetFace(int faceId)
@@ -373,11 +381,11 @@ vtkCell *vtkVoxel::GetFace(int faceId)
 
   for (i=0; i<4; i++)
     {
-    this->Pixel.PointIds.SetId(i,this->PointIds.GetId(verts[i]));
-    this->Pixel.Points.SetPoint(i,this->Points.GetPoint(verts[i]));
+    this->Pixel->PointIds->SetId(i,this->PointIds->GetId(verts[i]));
+    this->Pixel->Points->SetPoint(i,this->Points->GetPoint(verts[i]));
     }
 
-  return &this->Pixel;
+  return this->Pixel;
 }
 
 // 
@@ -392,8 +400,8 @@ int vtkVoxel::IntersectWithLine(float p1[3], float p2[3], float vtkNotUsed(tol),
 
   subId = 0;
 
-  minPt = this->Points.GetPoint(0);
-  maxPt = this->Points.GetPoint(7);
+  minPt = this->Points->GetPoint(0);
+  maxPt = this->Points->GetPoint(7);
 
   for (i=0; i<3; i++)
     {
@@ -432,36 +440,36 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 0; p[1] = 1; p[2] = 4; p[3] = 2;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 7; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 4; p[2] = 2; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 1; p[1] = 2; p[2] = 3; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 2; p[1] = 7; p[2] = 4; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
   else
@@ -469,36 +477,36 @@ int vtkVoxel::Triangulate(int index, vtkIdList &ptIds, vtkPoints &pts)
     p[0] = 3; p[1] = 1; p[2] = 0; p[3] = 5;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 3; p[2] = 6; p[3] = 2;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 3; p[1] = 5; p[2] = 6; p[3] = 7;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 6; p[2] = 5; p[3] = 4;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
 
     p[0] = 0; p[1] = 3; p[2] = 5; p[3] = 6;
     for ( i=0; i < 4; i++ )
       {
-      ptIds.InsertNextId(this->PointIds.GetId(p[i]));
-      pts.InsertNextPoint(this->Points.GetPoint(p[i]));
+      ptIds.InsertNextId(this->PointIds->GetId(p[i]));
+      pts.InsertNextPoint(this->Points->GetPoint(p[i]));
       }
     }
 
@@ -512,14 +520,14 @@ void vtkVoxel::Derivatives(int vtkNotUsed(subId), float pcoords[3],
   int i, j, k;
   float *x0, *x1, *x2, *x4, spacing[3];
 
-  x0 = this->Points.GetPoint(0);
-  x1 = this->Points.GetPoint(1);
+  x0 = this->Points->GetPoint(0);
+  x1 = this->Points->GetPoint(1);
   spacing[0] = x1[0] - x0[0];
 
-  x2 = this->Points.GetPoint(2);
+  x2 = this->Points->GetPoint(2);
   spacing[1] = x2[1] - x0[1];
 
-  x4 = this->Points.GetPoint(4);
+  x4 = this->Points->GetPoint(4);
   spacing[2] = x4[2] - x0[2];
 
   // get derivatives in r-s-t directions

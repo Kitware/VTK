@@ -158,41 +158,45 @@ void vtkRectilinearGrid::CopyStructure(vtkDataSet *ds)
 
 vtkCell *vtkRectilinearGrid::GetCell(int cellId)
 {
-  static vtkVertex vertex;
-  static vtkLine line;
-  static vtkPixel pixel;
-  static vtkVoxel voxel;
-  static vtkCell *cell;
+  vtkCell *cell;
   int idx, loc[3], npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
   int d01 = this->Dimensions[0]*this->Dimensions[1];
   float x[3];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
-  
+
+  // Get rid of the reference from the previous call
+  if (this->Cell != NULL)
+    {
+    this->Cell->UnRegister(this);
+    this->Cell = NULL;
+    }
+  cell = NULL;
+
   // 
   switch (this->DataDescription)
     {
     case VTK_SINGLE_POINT: // cellId can only be = 0
-      cell = &vertex;
+      cell = vtkVertex::New();
       break;
 
     case VTK_X_LINE:
       iMin = cellId;
       iMax = cellId + 1;
-      cell = &line;
+      cell = vtkLine::New();
       break;
 
     case VTK_Y_LINE:
       jMin = cellId;
       jMax = cellId + 1;
-      cell = &line;
+      cell = vtkLine::New();
       break;
 
     case VTK_Z_LINE:
       kMin = cellId;
       kMax = cellId + 1;
-      cell = &line;
+      cell = vtkLine::New();
       break;
 
     case VTK_XY_PLANE:
@@ -200,7 +204,7 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
       iMax = iMin + 1;
       jMin = cellId / (this->Dimensions[0]-1);
       jMax = jMin + 1;
-      cell = &pixel;
+      cell = vtkPixel::New();
       break;
 
     case VTK_YZ_PLANE:
@@ -208,7 +212,7 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
       jMax = jMin + 1;
       kMin = cellId / (this->Dimensions[1]-1);
       kMax = kMin + 1;
-      cell = &pixel;
+      cell = vtkPixel::New();
       break;
 
     case VTK_XZ_PLANE:
@@ -216,7 +220,7 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
       iMax = iMin + 1;
       kMin = cellId / (this->Dimensions[0]-1);
       kMax = kMin + 1;
-      cell = &pixel;
+      cell = vtkPixel::New();
       break;
 
     case VTK_XYZ_GRID:
@@ -226,9 +230,14 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
       jMax = jMin + 1;
       kMin = cellId / ((this->Dimensions[0] - 1) * (this->Dimensions[1] - 1));
       kMax = kMin + 1;
-      cell = &voxel;
+      cell = vtkVoxel::New();
       break;
     }
+  if (cell == NULL)
+    {
+    return NULL;
+    }
+
 
   // Extract point coordinates and point ids
   for (npts=0,loc[2]=kMin; loc[2]<=kMax; loc[2]++)
@@ -242,13 +251,17 @@ vtkCell *vtkRectilinearGrid::GetCell(int cellId)
         x[0] = this->XCoordinates->GetScalar(loc[0]);
 
         idx = loc[0] + loc[1]*this->Dimensions[0] + loc[2]*d01;
-        cell->PointIds.SetId(npts,idx);
-        cell->Points.SetPoint(npts++,x);
+        cell->PointIds->SetId(npts,idx);
+        cell->Points->SetPoint(npts++,x);
         }
       }
     }
 
-  return cell;
+  this->Cell = cell;
+  this->Cell->Register(this);
+  cell->Delete();
+
+  return this->Cell;
 }
 
 float *vtkRectilinearGrid::GetPoint(int ptId)

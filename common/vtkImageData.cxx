@@ -163,7 +163,7 @@ void vtkImageData::SetExtent(int *extent)
     this->ComputeIncrements();
     // if the extent has changed and we have scalars we should free them
     // because they are invalid
-    this->PointData.Initialize();
+    this->PointData->Initialize();
     }
 }
 
@@ -293,12 +293,12 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
   int idx;
     
   // Make sure the scalars have been allocated.
-  scalars = this->PointData.GetScalars();
+  scalars = this->PointData->GetScalars();
   if (scalars == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
-    scalars = this->PointData.GetScalars();
+    scalars = this->PointData->GetScalars();
     }
   
   // error checking: since most acceses will be from pointer arithmetic.
@@ -331,12 +331,12 @@ void *vtkImageData::GetScalarPointer(int coordinates[3])
 // This Method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
-  if (this->PointData.GetScalars() == NULL)
+  if (this->PointData->GetScalars() == NULL)
     {
     vtkDebugMacro("Allocating scalars in ImageData");
     this->AllocateScalars();
     }
-  return this->PointData.GetScalars()->GetVoidPointer(0);
+  return this->PointData->GetScalars()->GetVoidPointer(0);
 }
 
 int vtkImageData::GetScalarType()
@@ -362,7 +362,7 @@ void vtkImageData::SetScalarType(int t)
   if (tmp && tmp->GetDataType() != t)
     {
     // free old scalars
-    this->PointData.Initialize();
+    this->PointData->Initialize();
     }
   
   if (t != this->ScalarType)
@@ -387,10 +387,10 @@ void vtkImageData::AllocateScalars()
     }
   
   // if we currently have scalars then just adjust the size
-  if (this->PointData.GetScalars()) 
+  if (this->PointData->GetScalars()) 
     {
-    this->PointData.GetScalars()->SetNumberOfComponents(this->NumberOfScalarComponents);
-    this->PointData.GetScalars()->
+    this->PointData->GetScalars()->SetNumberOfComponents(this->NumberOfScalarComponents);
+    this->PointData->GetScalars()->
       SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
 			 (this->Extent[3] - this->Extent[2] + 1)*
 			 (this->Extent[5] - this->Extent[4] + 1));
@@ -398,20 +398,20 @@ void vtkImageData::AllocateScalars()
     }
   
   // otherwise delete the old data (if any) 
-  if (this->PointData.GetScalars())
+  if (this->PointData->GetScalars())
     {
-    this->PointData.SetScalars(NULL);
+    this->PointData->SetScalars(NULL);
     }
   
   // allocate the new scalars
   scalars = vtkScalars::New();
   scalars->SetDataType(this->ScalarType);
   scalars->SetNumberOfComponents(this->NumberOfScalarComponents);
-  this->PointData.SetScalars(scalars);
+  this->PointData->SetScalars(scalars);
   scalars->Delete();
   
   // allocate enough memory
-  this->PointData.GetScalars()->
+  this->PointData->GetScalars()->
     SetNumberOfScalars((this->Extent[1] - this->Extent[0] + 1)*
 		       (this->Extent[3] - this->Extent[2] + 1)*
 		       (this->Extent[5] - this->Extent[4] + 1));

@@ -120,7 +120,7 @@ int vtkFieldData::Allocate(const int sz, const int ext)
 // types of data arrays, but the arrays contain nothing.
 vtkFieldData *vtkFieldData::MakeObject()
 {
-  vtkFieldData *f=new vtkFieldData;
+  vtkFieldData *f= vtkFieldData::New();
   int i;
   vtkDataArray *data;
   
@@ -518,7 +518,7 @@ char *vtkFieldData::GetArrayName(int i)
 
 void vtkFieldData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Arrays: " << this->GetNumberOfArrays() << "\n";
   os << indent << "Number Of Components: " << this->GetNumberOfComponents() << "\n";

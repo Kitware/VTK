@@ -141,17 +141,17 @@ void vtkMatrix4x4::PointMultiply(float in[4],float result[4])
 
 // Matrix Inversion (adapted from Richard Carling in "Graphics Gems," 
 // Academic Press, 1990).
-void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
+void vtkMatrix4x4::Invert (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
 {
 
-// inverse( original_matrix, inverse_matrix )
-// calculate the inverse of a 4x4 matrix
-//
-//     -1     
-//     A  = ___1__ adjoint A
-//         det A
-//
-
+  // inverse( original_matrix, inverse_matrix )
+  // calculate the inverse of a 4x4 matrix
+  //
+  //     -1     
+  //     A  = ___1__ adjoint A
+  //         det A
+  //
+  
   int i, j;
   double det;
 
@@ -159,7 +159,7 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
   // if the determinent is zero, 
   // then the inverse matrix is not unique.
 
-  det = in.Determinant(in);
+  det = in->Determinant(in);
   if ( det == 0.0 ) 
     {
     vtkErrorMacro(<< "Singular matrix, no inverse!" );
@@ -174,30 +174,30 @@ void vtkMatrix4x4::Invert (vtkMatrix4x4 in,vtkMatrix4x4 & out)
     {
     for(j=0; j<4; j++)
       {
-      out.Element[i][j] = out.Element[i][j] / det;
+      out->Element[i][j] = out->Element[i][j] / det;
       }
     }
 }
 
 // Compute the determinant of the matrix and return it.
-float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
+float vtkMatrix4x4::Determinant (vtkMatrix4x4 *in)
 {
   double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
 
   // assign to individual variable names to aid selecting
   //  correct elements
 
-  a1 = in.Element[0][0]; b1 = in.Element[0][1]; 
-  c1 = in.Element[0][2]; d1 = in.Element[0][3];
+  a1 = in->Element[0][0]; b1 = in->Element[0][1]; 
+  c1 = in->Element[0][2]; d1 = in->Element[0][3];
 
-  a2 = in.Element[1][0]; b2 = in.Element[1][1]; 
-  c2 = in.Element[1][2]; d2 = in.Element[1][3];
+  a2 = in->Element[1][0]; b2 = in->Element[1][1]; 
+  c2 = in->Element[1][2]; d2 = in->Element[1][3];
 
-  a3 = in.Element[2][0]; b3 = in.Element[2][1]; 
-  c3 = in.Element[2][2]; d3 = in.Element[2][3];
+  a3 = in->Element[2][0]; b3 = in->Element[2][1]; 
+  c3 = in->Element[2][2]; d3 = in->Element[2][3];
 
-  a4 = in.Element[3][0]; b4 = in.Element[3][1]; 
-  c4 = in.Element[3][2]; d4 = in.Element[3][3];
+  a4 = in->Element[3][0]; b4 = in->Element[3][1]; 
+  c4 = in->Element[3][2]; d4 = in->Element[3][3];
 
   return a1 * vtkMath::Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4)
        - b1 * vtkMath::Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4)
@@ -206,80 +206,80 @@ float vtkMatrix4x4::Determinant (vtkMatrix4x4 & in)
 }
 
 // Compute adjoint of the matrix and put it into out.
-void vtkMatrix4x4::Adjoint (vtkMatrix4x4 & in,vtkMatrix4x4 & out)
+void vtkMatrix4x4::Adjoint (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
 {
-// 
-//   adjoint( original_matrix, inverse_matrix )
-// 
-//     calculate the adjoint of a 4x4 matrix
-//
-//      Let  a   denote the minor determinant of matrix A obtained by
-//           ij
-//
-//      deleting the ith row and jth column from A.
-//
-//                    i+j
-//     Let  b   = (-1)    a
-//          ij            ji
-//
-//    The matrix B = (b  ) is the adjoint of A
-//                     ij
-//
+  // 
+  //   adjoint( original_matrix, inverse_matrix )
+  // 
+  //     calculate the adjoint of a 4x4 matrix
+  //
+  //      Let  a   denote the minor determinant of matrix A obtained by
+  //           ij
+  //
+  //      deleting the ith row and jth column from A.
+  //
+  //                    i+j
+  //     Let  b   = (-1)    a
+  //          ij            ji
+  //
+  //    The matrix B = (b  ) is the adjoint of A
+  //                     ij
+  //
   double a1, a2, a3, a4, b1, b2, b3, b4;
   double c1, c2, c3, c4, d1, d2, d3, d4;
 
   // assign to individual variable names to aid
   // selecting correct values
 
-  a1 = in.Element[0][0]; b1 = in.Element[0][1]; 
-  c1 = in.Element[0][2]; d1 = in.Element[0][3];
+  a1 = in->Element[0][0]; b1 = in->Element[0][1]; 
+  c1 = in->Element[0][2]; d1 = in->Element[0][3];
 
-  a2 = in.Element[1][0]; b2 = in.Element[1][1]; 
-  c2 = in.Element[1][2]; d2 = in.Element[1][3];
+  a2 = in->Element[1][0]; b2 = in->Element[1][1]; 
+  c2 = in->Element[1][2]; d2 = in->Element[1][3];
 
-  a3 = in.Element[2][0]; b3 = in.Element[2][1];
-  c3 = in.Element[2][2]; d3 = in.Element[2][3];
+  a3 = in->Element[2][0]; b3 = in->Element[2][1];
+  c3 = in->Element[2][2]; d3 = in->Element[2][3];
 
-  a4 = in.Element[3][0]; b4 = in.Element[3][1]; 
-  c4 = in.Element[3][2]; d4 = in.Element[3][3];
+  a4 = in->Element[3][0]; b4 = in->Element[3][1]; 
+  c4 = in->Element[3][2]; d4 = in->Element[3][3];
 
 
   // row column labeling reversed since we transpose rows & columns
 
-  out.Element[0][0]  =   
+  out->Element[0][0]  =   
     vtkMath::Determinant3x3( b2, b3, b4, c2, c3, c4, d2, d3, d4);
-  out.Element[1][0]  = 
+  out->Element[1][0]  = 
     - vtkMath::Determinant3x3( a2, a3, a4, c2, c3, c4, d2, d3, d4);
-  out.Element[2][0]  =   
+  out->Element[2][0]  =   
     vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, d2, d3, d4);
-  out.Element[3][0]  = 
+  out->Element[3][0]  = 
     - vtkMath::Determinant3x3( a2, a3, a4, b2, b3, b4, c2, c3, c4);
 
-  out.Element[0][1]  = 
+  out->Element[0][1]  = 
     - vtkMath::Determinant3x3( b1, b3, b4, c1, c3, c4, d1, d3, d4);
-  out.Element[1][1]  =   
+  out->Element[1][1]  =   
     vtkMath::Determinant3x3( a1, a3, a4, c1, c3, c4, d1, d3, d4);
-  out.Element[2][1]  = 
+  out->Element[2][1]  = 
     - vtkMath::Determinant3x3( a1, a3, a4, b1, b3, b4, d1, d3, d4);
-  out.Element[3][1]  =   
+  out->Element[3][1]  =   
     vtkMath::Determinant3x3( a1, a3, a4, b1, b3, b4, c1, c3, c4);
         
-  out.Element[0][2]  =   
+  out->Element[0][2]  =   
     vtkMath::Determinant3x3( b1, b2, b4, c1, c2, c4, d1, d2, d4);
-  out.Element[1][2]  = 
+  out->Element[1][2]  = 
     - vtkMath::Determinant3x3( a1, a2, a4, c1, c2, c4, d1, d2, d4);
-  out.Element[2][2]  =   
+  out->Element[2][2]  =   
     vtkMath::Determinant3x3( a1, a2, a4, b1, b2, b4, d1, d2, d4);
-  out.Element[3][2]  = 
+  out->Element[3][2]  = 
     - vtkMath::Determinant3x3( a1, a2, a4, b1, b2, b4, c1, c2, c4);
         
-  out.Element[0][3]  = 
+  out->Element[0][3]  = 
     - vtkMath::Determinant3x3( b1, b2, b3, c1, c2, c3, d1, d2, d3);
-  out.Element[1][3]  =   
+  out->Element[1][3]  =   
     vtkMath::Determinant3x3( a1, a2, a3, c1, c2, c3, d1, d2, d3);
-  out.Element[2][3]  = 
+  out->Element[2][3]  = 
     - vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, d1, d2, d3);
-  out.Element[3][3]  =   
+  out->Element[3][3]  =   
     vtkMath::Determinant3x3( a1, a2, a3, b1, b2, b3, c1, c2, c3);
 }
 
@@ -301,7 +301,7 @@ vtkMatrix4x4& vtkMatrix4x4::operator= (const vtkMatrix4x4& source)
 }
 
 // Transpose the matrix and put it into out. 
-void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
+void vtkMatrix4x4::Transpose (vtkMatrix4x4 *in,vtkMatrix4x4 *out)
 {
   int i, j;
   float temp;
@@ -310,9 +310,9 @@ void vtkMatrix4x4::Transpose (vtkMatrix4x4 in,vtkMatrix4x4 & out)
     {
     for(j=i; j<4; j++)
       {
-      temp = in.Element[i][j];
-      out.Element[i][j] = in.Element[j][i];
-      out.Element[j][i] = temp;
+      temp = in->Element[i][j];
+      out->Element[i][j] = in->Element[j][i];
+      out->Element[j][i] = temp;
       }
     }
 }

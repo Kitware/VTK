@@ -67,7 +67,7 @@ vtkEdgeTable::~vtkEdgeTable()
       {
       if ( this->Table[i] )
         {
-        delete this->Table[i];
+        this->Table[i]->Delete();
         }
       }
     delete [] this->Table;

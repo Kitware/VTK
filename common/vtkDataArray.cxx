@@ -142,7 +142,7 @@ void vtkDataArray::GetData(int tupleMin, int tupleMax, int compMin, int compMax,
 
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Number Of Components: " << this->NumberOfComponents << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";

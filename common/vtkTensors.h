@@ -56,6 +56,7 @@ class VTK_EXPORT vtkTensors : public vtkAttributeData
 {
 public:
   vtkTensors(int dataType=VTK_FLOAT);
+  ~vtkTensors();
   static vtkTensors *New(int dataType=VTK_FLOAT) {
     return new vtkTensors(dataType);};
   const char *GetClassName() {return "vtkTensors";};
@@ -81,7 +82,8 @@ public:
 
   // Description:
   // Return the Tensor requested in the tensor passed.
-  void GetTensor(int id, vtkTensor& t);
+  void GetTensor(int id, vtkTensor *t);
+  void GetTensor(int id, vtkTensor& t) {this->GetTensor(id, &t);}
 
   // Description:
   // Insert a Tensor into an object. No range checking performed (fast!).
@@ -106,18 +108,20 @@ public:
 
   // Description:
   // Given a list of pt ids, return an array of tensors.
-  void GetTensors(vtkIdList& ptId, vtkTensors& fv);
+  void GetTensors(vtkIdList *ptId, vtkTensors *fv);
+  void GetTensors(vtkIdList& ptId, vtkTensors& fv)
+    {this->GetTensors(&ptId, &fv);}
 
 protected:
-  vtkTensor T;
+  vtkTensor *T;
 
 };
 
 
 inline vtkTensor *vtkTensors::GetTensor(int id)
 {
-  this->T.T = this->Data->GetTuple(id);
-  return &(this->T);
+  this->T->T = this->Data->GetTuple(id);
+  return this->T;
 }
 
 inline void vtkTensors::SetNumberOfTensors(int number)

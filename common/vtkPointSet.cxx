@@ -167,6 +167,11 @@ int vtkPointSet::FindCell(float x[3], vtkCell *cell, int cellId, float tol2,
   float dist2;
   static vtkIdList cellIds(8,100), ptIds(8,100);
 
+  // Ken will deal with the statics options: 
+  //  1: Instance variable, 2: allocate every call, 3: Static pointers.
+  cellIds.ReferenceCountingOff();
+  ptIds.ReferenceCountingOff();
+
   // make sure everything is up to snuff
   if ( !this->Points )
     {

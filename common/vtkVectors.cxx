@@ -49,14 +49,14 @@ vtkVectors::vtkVectors(int dataType) : vtkAttributeData(dataType)
 }
 
 // Given a list of pt ids, return an array of vectors.
-void vtkVectors::GetVectors(vtkIdList& ptIds, vtkVectors& v)
+void vtkVectors::GetVectors(vtkIdList *ptIds, vtkVectors *v)
 {
-  int num=ptIds.GetNumberOfIds();
+  int num=ptIds->GetNumberOfIds();
   
-  v.SetNumberOfVectors(num);
+  v->SetNumberOfVectors(num);
   for (int i=0; i<num; i++)
     {
-    v.SetVector(i,this->GetVector(ptIds.GetId(i)));
+    v->SetVector(i,this->GetVector(ptIds->GetId(i)));
     }
 }
 

@@ -62,6 +62,10 @@ vtkCollection::~vtkCollection()
 // protected function to delete an element. Internal use only.
 void vtkCollection::DeleteElement(vtkCollectionElement *e)
 {
+  if (e->Item != NULL)
+    {
+    e->Item->UnRegister(this); 
+    }
   delete e;
 }
 
@@ -82,6 +86,7 @@ void vtkCollection::AddItem(vtkObject *a)
     }
   this->Bottom = elem;
 
+  a->Register(this);
   elem->Item = a;
   elem->Next = NULL;
 
@@ -213,6 +218,13 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
   for (int j = 0; j < i; j++, elem = elem->Next ) 
     {}
 
+  // Take care of reference counting
+  if (elem->Item != NULL)
+    {
+    elem->Item->UnRegister(this);
+    }
+  a->Register(this);
+  
   // j == i
   elem->Item = a;
 }

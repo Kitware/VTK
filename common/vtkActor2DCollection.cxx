@@ -46,7 +46,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // protected function to delete an element. Internal use only.
 void vtkActor2DCollection::DeleteElement(vtkCollectionElement *e)
 {
-  ((vtkActor2D *)(e->Item))->UnRegister(this); 
   vtkCollection::DeleteElement(e);
 }
 

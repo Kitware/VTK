@@ -217,7 +217,7 @@ void vtkAttributeData::ShallowCopy(vtkAttributeData& da)
 
 void vtkAttributeData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "Data: " << this->Data << "\n";
 }

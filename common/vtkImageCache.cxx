@@ -115,7 +115,7 @@ void vtkImageCache::PrintSelf(ostream& os, vtkIndent indent)
 {
   int idx;
   
-  vtkReferenceCount::PrintSelf(os,indent);
+  vtkObject::PrintSelf(os,indent);
 
   os << indent << "MemoryLimit: " << this->MemoryLimit << endl;
   os << indent << "NumberOfScalarComponents: " << 
@@ -564,7 +564,7 @@ void vtkImageCache::UnRegister(vtkObject* o)
     temp->Delete();
     }
 
-  this->vtkReferenceCount::UnRegister(o);  
+  this->vtkObject::UnRegister(o);  
 }
 
 //----------------------------------------------------------------------------

@@ -79,6 +79,7 @@ class VTK_EXPORT vtkCell : public vtkObject
 {
 public:
   vtkCell();
+  ~vtkCell();
   void Initialize(int npts, int *pts, vtkPoints *p);
   const char *GetClassName() {return "vtkCell";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -113,11 +114,11 @@ public:
 
   // Description:
   // Get the point coordinates for the cell.
-  vtkPoints *GetPoints() {return &this->Points;};
+  vtkPoints *GetPoints() {return this->Points;};
 
   // Description:
   // Return the number of points in the cell.
-  int GetNumberOfPoints() {return this->PointIds.GetNumberOfIds();};
+  int GetNumberOfPoints() {return this->PointIds->GetNumberOfIds();};
 
   // Description:
   // Return the number of edges in the cell.
@@ -129,11 +130,11 @@ public:
 
   // Description:
   // Return the list of point ids defining the cell.
-  vtkIdList *GetPointIds() {return &this->PointIds;};
+  vtkIdList *GetPointIds() {return this->PointIds;};
 
   // Description:
   // For cell point i, return the actual point id.
-  int GetPointId(int ptId) {return this->PointIds.GetId(ptId);};
+  int GetPointId(int ptId) {return this->PointIds->GetId(ptId);};
 
   // Description:
   // Return the edge cell from the edgeId of the cell.
@@ -281,8 +282,8 @@ public:
 
   
   // left public for quick computational access
-  vtkPoints Points;
-  vtkIdList PointIds;
+  vtkPoints *Points;
+  vtkIdList *PointIds;
 
 protected:
   float Bounds[6];

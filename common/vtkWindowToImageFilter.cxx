@@ -50,6 +50,28 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
 }
 
 //----------------------------------------------------------------------------
+vtkWindowToImageFilter::~vtkWindowToImageFilter()
+{
+  if (this->Input)
+    {
+    this->Input->UnRegister(this);
+    this->Input = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkWindowToImageFilter::SetInput(vtkWindow *input)
+{
+  if (input != this->Input)
+    {
+    if (this->Input) {this->Input->UnRegister(this);}
+    this->Input = input;
+    if (this->Input) {this->Input->Register(this);}
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkImageSource::PrintSelf(os,indent);

@@ -64,7 +64,7 @@ void vtkPointData::NullPoint (int ptId)
 
   if ( this->Tensors )
     {
-    this->Tensors->InsertTensor(ptId,&this->NullTensor);
+    this->Tensors->InsertTensor(ptId,this->NullTensor);
     }
 
   if ( this->FieldData )

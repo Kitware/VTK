@@ -53,12 +53,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkProp2D_h
 #define __vtkProp2D_h
 
-#include "vtkReferenceCount.h"
+#include "vtkObject.h"
 #include "vtkCoordinate.h"
 
 class vtkProperty2D;
 
-class VTK_EXPORT vtkProp2D : public vtkReferenceCount
+class VTK_EXPORT vtkProp2D : public vtkObject
 {
 public:
   // Description:

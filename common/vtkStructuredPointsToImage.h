@@ -70,9 +70,8 @@ public:
   
   // Description:
   // Set/Get the input
-  vtkSetObjectMacro(Input,vtkStructuredPoints);
+  void SetInput(vtkStructuredPoints *input);
   vtkGetObjectMacro(Input,vtkStructuredPoints);
-  
   
 protected:
   vtkStructuredPoints *Input;

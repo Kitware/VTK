@@ -54,6 +54,7 @@ class VTK_EXPORT vtkTriangle : public vtkCell
 {
 public:
   vtkTriangle();
+  ~vtkTriangle();
   static vtkTriangle *New() {return new vtkTriangle;};
   const char *GetClassName() {return "vtkTriangle";};
 
@@ -165,7 +166,7 @@ public:
                              float tol2);
 
 protected:
-  vtkLine Line;
+  vtkLine *Line;
 
 };
 

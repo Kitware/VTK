@@ -46,8 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct the line with two points.
 vtkLine::vtkLine()
 {
-  this->Points.SetNumberOfPoints(2);
-  this->PointIds.SetNumberOfIds(2);
+  this->Points->SetNumberOfPoints(2);
+  this->PointIds->SetNumberOfIds(2);
 }
 
 vtkCell *vtkLine::MakeObject()
@@ -70,8 +70,8 @@ int vtkLine::EvaluatePosition(float x[3], float closestPoint[3],
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points.GetPoint(0);
-  a2 = this->Points.GetPoint(1);
+  a1 = this->Points->GetPoint(0);
+  a2 = this->Points->GetPoint(1);
 
   dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
 
@@ -92,8 +92,8 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), float pcoords[3],
 			       float x[3], float *weights)
 {
   int i;
-  float *a1 = this->Points.GetPoint(0);
-  float *a2 = this->Points.GetPoint(1);
+  float *a1 = this->Points->GetPoint(0);
+  float *a2 = this->Points->GetPoint(1);
 
   for (i=0; i<3; i++) 
     {
@@ -168,7 +168,7 @@ int vtkLine::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
 
   if ( pcoords[0] >= 0.5 )
     {
-    pts.SetId(0,this->PointIds.GetId(1));
+    pts.SetId(0,this->PointIds->GetId(1));
     if ( pcoords[0] > 1.0 )
       {
       return 0;
@@ -180,7 +180,7 @@ int vtkLine::CellBoundary(int vtkNotUsed(subId), float pcoords[3],
     }
   else
     {
-    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(0,this->PointIds->GetId(0));
     if ( pcoords[0] < 0.0 )
       {
       return 0;
@@ -239,8 +239,8 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
     {
     t = (value - cellScalars->GetScalar(vert[0])) /
         (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
-    x1 = this->Points.GetPoint(vert[0]);
-    x2 = this->Points.GetPoint(vert[1]);
+    x1 = this->Points->GetPoint(vert[0]);
+    x2 = this->Points->GetPoint(vert[1]);
     for (i=0; i<3; i++)
       {
       x[i] = x1[i] + t * (x2[i] - x1[i]);
@@ -251,8 +251,8 @@ void vtkLine::Contour(float value, vtkScalars *cellScalars,
       pts[0] = locator->InsertNextPoint(x);
       if ( outPd ) 
         {
-        int p1 = this->PointIds.GetId(vert[0]);
-        int p2 = this->PointIds.GetId(vert[1]);
+        int p1 = this->PointIds->GetId(vert[0]);
+        int p2 = this->PointIds->GetId(vert[1]);
         outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);
         }
       }
@@ -357,8 +357,8 @@ int vtkLine::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
   subId = 0;
   pcoords[1] = pcoords[2] = 0.0;
 
-  a1 = this->Points.GetPoint(0);
-  a2 = this->Points.GetPoint(1);
+  a1 = this->Points->GetPoint(0);
+  a2 = this->Points->GetPoint(1);
 
   if ( this->Intersection(p1, p2, a1, a2, t, pcoords[0]) == VTK_INTERSECTION )
     {
@@ -438,11 +438,11 @@ int vtkLine::Triangulate(int vtkNotUsed(index), vtkIdList &ptIds, vtkPoints &pts
   pts.Reset();
   ptIds.Reset();
 
-  ptIds.InsertId(0,this->PointIds.GetId(0));
-  pts.InsertPoint(0,this->Points.GetPoint(0));
+  ptIds.InsertId(0,this->PointIds->GetId(0));
+  pts.InsertPoint(0,this->Points->GetPoint(0));
 
-  ptIds.InsertId(1,this->PointIds.GetId(1));
-  pts.InsertPoint(1,this->Points.GetPoint(1));
+  ptIds.InsertId(1,this->PointIds->GetId(1));
+  pts.InsertPoint(1,this->Points->GetPoint(1));
 
   return 1;
 }
@@ -455,8 +455,8 @@ void vtkLine::Derivatives(int vtkNotUsed(subId),
   float *x0, *x1, deltaX[3];
   int i, j;
 
-  x0 = this->Points.GetPoint(0);
-  x1 = this->Points.GetPoint(1);
+  x0 = this->Points->GetPoint(0);
+  x1 = this->Points->GetPoint(1);
 
   for (i=0; i<3; i++)
     {
@@ -534,11 +534,11 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
       if (vert[i] >= 100)
         {
 	vertexId = vert[i] - 100;
-        this->Points.GetPoint(vertexId, x);
+        this->Points->GetPoint(vertexId, x);
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          outPd->CopyData(inPd,this->PointIds.GetId(vertexId),pts[i]);
+          outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
           }
 	}
 
@@ -547,8 +547,8 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
         t = (value - cellScalars->GetScalar(0)) /
             (cellScalars->GetScalar(1) - cellScalars->GetScalar(0));
 
-        this->Points.GetPoint(0, x1);
-        this->Points.GetPoint(1, x2);
+        this->Points->GetPoint(0, x1);
+        this->Points->GetPoint(1, x2);
         for (j=0; j<3; j++)
 	  {
 	  x[j] = x1[j] + t * (x2[j] - x1[j]);
@@ -557,8 +557,8 @@ void vtkLine::Clip(float value, vtkScalars *cellScalars,
         if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
           {
           pts[i] = locator->InsertNextPoint(x);
-          int p1 = this->PointIds.GetId(0);
-          int p2 = this->PointIds.GetId(1);
+          int p1 = this->PointIds->GetId(0);
+          int p2 = this->PointIds->GetId(1);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
           }
         }

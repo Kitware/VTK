@@ -75,7 +75,8 @@ public:
   // Description:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
-  
+
+  ~vtkDataSet();  
   vtkDataSet(const vtkDataSet& ds);
   const char *GetClassName() {return "vtkDataSet";};
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -136,7 +137,10 @@ public:
   // Description:
   // Topological inquiry to get all cells using list of points exclusive of
   // cell specified (e.g., cellId).
-  virtual void GetCellNeighbors(int cellId,vtkIdList& ptIds,vtkIdList& cellIds);
+  virtual void GetCellNeighbors(int cellId, vtkIdList *ptIds, 
+				vtkIdList *cellIds);
+  void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
 
   // Description:
   // Locate the closest point to the global coordinate x. Return the
@@ -172,11 +176,11 @@ public:
 
   // Description:
   // return pointer to this dataset's point data
-  vtkCellData *GetCellData() {return &this->CellData;};
+  vtkCellData *GetCellData() {return this->CellData;};
 
   // Description:
   // return pointer to this dataset's point data
-  vtkPointData *GetPointData() {return &this->PointData;};
+  vtkPointData *GetPointData() {return this->PointData;};
 
   // Description:
   // Reclaim any extra memory used to store data.
@@ -219,12 +223,15 @@ public:
   virtual int GetMaxCellSize() = 0;
 
 protected:
-  vtkCellData CellData;   // Scalars, vectors, etc. associated w/ each cell
-  vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point
+  vtkCellData *CellData;   // Scalars, vectors, etc. associated w/ each cell
+  vtkPointData *PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   float ScalarRange[2];
   float Center[3];
+
+  // Temporary reference to keep returned cell from destructing . 
+  vtkCell *Cell;
 };
 
 inline void vtkDataSet::GetPoint(int id, float x[3])
