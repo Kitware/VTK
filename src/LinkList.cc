@@ -18,10 +18,10 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 vlLinkList::vlLinkList(int sz, int ext)
 {
-  static vlLink linkInit = {0,0};
+  static _vlLink_s linkInit = {0,0};
 
   this->Size = sz;
-  this->Array = new vlLink[sz];
+  this->Array = new _vlLink_s[sz];
   this->Extend = ext;
   this->MaxId = -1;
 
@@ -58,17 +58,17 @@ void vlLinkList::Reset()
 //
 // Private function does "reallocate"
 //
-vlLink *vlLinkList::Resize(int sz)
+_vlLink_s *vlLinkList::Resize(int sz)
 {
   int i;
-  vlLink *newArray;
+  _vlLink_s *newArray;
   int newSize;
 
   if ( sz >= this->Size ) newSize = this->Size + 
     this->Extend*(((sz-this->Size)/this->Extend)+1);
   else newSize = sz;
 
-  newArray = new vlLink[newSize];
+  newArray = new _vlLink_s[newSize];
 
   for (i=0; i<sz && i<this->Size; i++)
     newArray[i] = this->Array[i];
