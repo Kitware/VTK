@@ -21,7 +21,7 @@
 #include "vtkCellArray.h"
 #include "vtkPointSet.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.12");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -532,7 +532,25 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
                   << " converted to a vtkIdTypeArray.");
     return 0;
     }
-  
+
+  // Check the contents of the cell offsets array.
+  vtkIdType* coffset = cellOffsets->GetPointer(0);
+  vtkIdType lastOffset = 0;
+  for(vtkIdType i=0; i < numberOfCells; ++i)
+    {
+    if(coffset[i] <= lastOffset)
+      {
+      vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
+                    << " in piece " << this->Piece
+                    << " because the \"offsets\" array is"
+                    << " not monotonically increasing or starts with a"
+                    << " value less than 1.");
+      cellOffsets->Delete();
+      return 0;
+      }
+    lastOffset = coffset[i];
+    }
+
   // Set range of progress for connectivity array.
   this->SetProgressRange(progressRange, 1, fractions);
   
