@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct vtkCompositeRenderWindowInfo 
 {
   int Size[2];
+  int ReductionFactor;
   int NumberOfRenderers;
   float DesiredUpdateRate;
 };
@@ -426,11 +427,14 @@ void vtkCompositeManager::RenderRMI()
         light->SetFocalPoint(renInfo.LightFocalPoint);
         }
       ren->SetBackground(renInfo.Background);
+      ren->SetViewport(0, 0, 1.0/(float)winInfo.ReductionFactor, 
+                       1.0/(float)winInfo.ReductionFactor);
       }
     }
   renWin->Render();
   
-  this->SetRendererSize(winInfo.Size[0], winInfo.Size[1]);
+  this->SetRendererSize(winInfo.Size[0]/winInfo.ReductionFactor, 
+                        winInfo.Size[1]/winInfo.ReductionFactor);
   
   if (this->CheckForAbortComposite())
     {
@@ -547,8 +551,9 @@ void vtkCompositeManager::StartRender()
   size = this->RenderWindow->GetSize();
   if (this->ReductionFactor > 0)
     {
-    winInfo.Size[0] = (int)((float)size[0] / this->ReductionFactor + 0.5);
-    winInfo.Size[1] = (int)((float)size[1] / this->ReductionFactor + 0.5);
+    winInfo.Size[0] = size[0];
+    winInfo.Size[1] = size[1];
+    winInfo.ReductionFactor = this->ReductionFactor;
     vtkRenderer* renderer =
       ((vtkRenderer*)this->RenderWindow->GetRenderers()->GetItemAsObject(0));
     renderer->SetViewport(0, 0, 1.0/this->ReductionFactor, 1.0/this->ReductionFactor);
@@ -557,11 +562,13 @@ void vtkCompositeManager::StartRender()
     {
     winInfo.Size[0] = size[0];
     winInfo.Size[1] = size[1];
+    winInfo.ReductionFactor = 1;
     }
   winInfo.NumberOfRenderers = rens->GetNumberOfItems();
   winInfo.DesiredUpdateRate = this->RenderWindow->GetDesiredUpdateRate();
   
-  this->SetRendererSize(winInfo.Size[0], winInfo.Size[1]);
+  this->SetRendererSize(winInfo.Size[0]/this->ReductionFactor, 
+                        winInfo.Size[1]/this->ReductionFactor);
   
   for (id = 1; id < numProcs; ++id)
     {
