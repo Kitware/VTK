@@ -23,15 +23,13 @@
 #ifndef __vtkImageWriter_h
 #define __vtkImageWriter_h
 
-#include "vtkProcessObject.h"
+#include "vtkImageAlgorithm.h"
 
-class vtkImageData;
-
-class VTK_IO_EXPORT vtkImageWriter : public vtkProcessObject
+class VTK_IO_EXPORT vtkImageWriter : public vtkImageAlgorithm
 {
 public:
   static vtkImageWriter *New();
-  vtkTypeRevisionMacro(vtkImageWriter,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkImageWriter,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -62,7 +60,6 @@ public:
   
   // Description:
   // Set/Get the input object from the image pipeline.
-  virtual void SetInput(vtkImageData *input);
   vtkImageData *GetInput();
 
   // Description:
@@ -90,6 +87,12 @@ protected:
   virtual void WriteFileHeader(ofstream *, vtkImageData *) {};
   virtual void WriteFileTrailer(ofstream *, vtkImageData *) {};
   
+  // This is called by the superclass.
+  // This is the method you should override.
+  virtual void RequestData(vtkInformation *request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector);
+
   int MinimumFileNumber;
   int MaximumFileNumber;
   int FilesDeleted;

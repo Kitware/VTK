@@ -14,13 +14,14 @@
 =========================================================================*/
 #include "vtkTexture.h"
 
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkExecutive.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkTexture, "1.52");
+vtkCxxRevisionMacro(vtkTexture, "1.53");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -39,6 +40,8 @@ vtkTexture::vtkTexture()
   this->MapColorScalarsThroughLookupTable = 0;
 
   this->SelfAdjustingTableRange = 0;
+
+  this->SetNumberOfOutputPorts(0);
 }
 
 vtkTexture::~vtkTexture()
@@ -64,17 +67,11 @@ vtkTexture *vtkTexture::New()
 
 vtkImageData *vtkTexture::GetInput()
 {
-   if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  
-  return vtkImageData::SafeDownCast(this->Inputs[0]); 
-}
-
-void vtkTexture::SetInput( vtkImageData *input )
-{
-  this->vtkProcessObject::SetNthInput(0, input);
+  return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(0, 0)); 
 }
 
 void vtkTexture::SetLookupTable(vtkLookupTable *lut)

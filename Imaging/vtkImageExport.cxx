@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkImageExport.h"
 
-#include "vtkImageData.h"
+#include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
 
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.28");
+vtkCxxRevisionMacro(vtkImageExport, "1.29");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------
@@ -31,6 +31,8 @@ vtkImageExport::vtkImageExport()
   this->DataDimensions[0] = this->DataDimensions[1] =
     this->DataDimensions[2] = 0;
   this->LastPipelineMTime = 0;
+
+  this->SetNumberOfOutputPorts(0);
 }
 
 //----------------------------------------------------------------------------
@@ -47,21 +49,14 @@ void vtkImageExport::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ImageLowerLeft ? "On\n" : "Off\n");
 }
 
-//----------------------------------------------------------------------------
-void vtkImageExport::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkImageData *vtkImageExport::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  
-  return (vtkImageData *)(this->Inputs[0]);
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
 
 //----------------------------------------------------------------------------

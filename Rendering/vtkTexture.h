@@ -41,7 +41,7 @@
 #ifndef __vtkTexture_h
 #define __vtkTexture_h
 
-#include "vtkProcessObject.h"
+#include "vtkImageAlgorithm.h"
 
 class vtkImageData;
 class vtkLookupTable;
@@ -54,11 +54,11 @@ class vtkDataArray;
 #define VTK_TEXTURE_QUALITY_16BIT   16
 #define VTK_TEXTURE_QUALITY_32BIT   32
 
-class VTK_RENDERING_EXPORT vtkTexture : public vtkProcessObject
+class VTK_RENDERING_EXPORT vtkTexture : public vtkImageAlgorithm
 {
 public:
   static vtkTexture *New();
-  vtkTypeRevisionMacro(vtkTexture,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkTexture,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -114,7 +114,6 @@ public:
 
   // Description:
   // This process object accepts image data as input.
-  void SetInput( vtkImageData *input );
   vtkImageData *GetInput();
   
   // Description:

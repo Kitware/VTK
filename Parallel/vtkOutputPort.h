@@ -29,15 +29,15 @@
 #ifndef __vtkOutputPort_h
 #define __vtkOutputPort_h
 
-#include "vtkProcessObject.h"
+#include "vtkAlgorithm.h"
 
 class vtkMultiProcessController;
 
-class VTK_PARALLEL_EXPORT vtkOutputPort : public vtkProcessObject
+class VTK_PARALLEL_EXPORT vtkOutputPort : public vtkAlgorithm
 {
 public:
   static vtkOutputPort *New();
-  vtkTypeRevisionMacro(vtkOutputPort,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkOutputPort,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

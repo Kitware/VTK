@@ -23,7 +23,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkOutputPort, "1.10");
+vtkCxxRevisionMacro(vtkOutputPort, "1.11");
 vtkStandardNewMacro(vtkOutputPort);
 
 vtkCxxSetObjectMacro(vtkOutputPort,Controller,vtkMultiProcessController);
@@ -42,7 +42,6 @@ vtkOutputPort::vtkOutputPort()
   this->ParameterMethodArgDelete = NULL;
   this->ParameterMethodArg = NULL;
 
-  this->NumberOfRequiredInputs = 1;
   this->SetNumberOfInputPorts(1);
 }
 
@@ -105,9 +104,9 @@ void vtkOutputPort::TriggerUpdateInformation(int remoteProcessId)
     ddp->UpdateInformation();
     unsigned long t2 = ddp->GetPipelineMTime();
     if (t2 > latestMTime)
-    {
+      {
       latestMTime = t2;
-    }
+      }
     }
   
   // Now just send the information downstream.
@@ -249,17 +248,27 @@ void vtkOutputPort::TriggerUpdate(int remoteProcessId)
 //----------------------------------------------------------------------------
 void vtkOutputPort::SetInput(vtkDataObject *input)
 {
-  this->vtkProcessObject::SetNthInput(0, input);
+  if(input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    input->GetPipelineInformation()->Set(
+      vtkDataObject::DATA_TYPE_NAME(), input->GetClassName());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
 }
 
 //----------------------------------------------------------------------------
 vtkDataObject *vtkOutputPort::GetInput()
 {
-  if (this->Inputs == NULL)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  return this->Inputs[0];
+  return this->GetExecutive()->GetInputData(0, 0);
 }
 
 
@@ -331,10 +340,6 @@ void vtkOutputPort::WaitForUpdate()
 int vtkOutputPort
 ::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
-    {
-    return 0;
-    }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }

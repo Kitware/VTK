@@ -16,9 +16,11 @@
 
 #include "vtkCommand.h"
 #include "vtkErrorCode.h"
-#include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -26,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.54");
+vtkCxxRevisionMacro(vtkImageWriter, "1.55");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -55,6 +57,7 @@ vtkImageWriter::vtkImageWriter()
   
   this->MinimumFileNumber = this->MaximumFileNumber = 0;
   this->FilesDeleted = 0;
+  this->SetNumberOfOutputPorts(0);
 }
 
 
@@ -98,22 +101,15 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-void vtkImageWriter::SetInput(vtkImageData *input)
-{
-  this->vtkProcessObject::SetNthInput(0, input);
-}
-
-//----------------------------------------------------------------------------
 vtkImageData *vtkImageWriter::GetInput()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->GetNumberOfInputConnections(0) < 1)
     {
-    return NULL;
+    return 0;
     }
-  
-  return (vtkImageData *)(this->Inputs[0]);
+  return vtkImageData::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
 }
-
 
 
 //----------------------------------------------------------------------------
@@ -198,19 +194,25 @@ void vtkImageWriter::SetFilePattern(const char *pattern)
   this->Modified();
 }
 
-//----------------------------------------------------------------------------
-// Writes all the data from the input.
-void vtkImageWriter::Write()
+void vtkImageWriter::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** inputVector,
+  vtkInformationVector* vtkNotUsed( outputVector) )
 {
   this->SetErrorCode(vtkErrorCode::NoError);
+
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *input = 
+    vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
   
   // Error checking
-  if ( this->GetInput() == NULL )
+  if (input == NULL )
     {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return;
     }
-  if ( ! this->FileName && !this->FilePattern)
+  if ( !this->FileName && !this->FilePattern)
     {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
@@ -224,17 +226,15 @@ void vtkImageWriter::Write()
             (this->FilePattern ? strlen(this->FilePattern) : 1) + 10];
   
   // Fill in image information.
-  this->GetInput()->UpdateInformation();
-  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
-  this->FileNumber = this->GetInput()->GetWholeExtent()[4];
+  int *wExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+  this->FileNumber = wExt[4];
   this->MinimumFileNumber = this->MaximumFileNumber = this->FileNumber;
   this->FilesDeleted = 0;
-
+  
   // Write
-
   this->InvokeEvent(vtkCommand::StartEvent);
   this->UpdateProgress(0.0);
-  this->RecursiveWrite(2, this->GetInput(), NULL);
+  this->RecursiveWrite(2, input, NULL);
 
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
@@ -246,6 +246,16 @@ void vtkImageWriter::Write()
 
   delete [] this->InternalFileName;
   this->InternalFileName = NULL;
+}
+
+
+//----------------------------------------------------------------------------
+// Writes all the data from the input.
+void vtkImageWriter::Write()
+{
+  // we always write, even if nothing has changed, so send a modified
+  this->Modified();
+  this->GetInput()->SetUpdateExtent(this->GetInput()->GetWholeExtent());
 }
 
 //----------------------------------------------------------------------------

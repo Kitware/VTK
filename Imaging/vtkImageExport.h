@@ -29,15 +29,13 @@
 #ifndef __vtkImageExport_h
 #define __vtkImageExport_h
 
-#include "vtkProcessObject.h"
+#include "vtkImageAlgorithm.h"
 
-class vtkImageData;
-
-class VTK_IMAGING_EXPORT vtkImageExport : public vtkProcessObject
+class VTK_IMAGING_EXPORT vtkImageExport : public vtkImageAlgorithm
 {
 public:
   static vtkImageExport *New();
-  vtkTypeRevisionMacro(vtkImageExport,vtkProcessObject);
+  vtkTypeRevisionMacro(vtkImageExport,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
   
   // Description:
@@ -75,8 +73,7 @@ public:
   void GetDataOrigin(double *ptr);
 
   // Description:
-  // Set/Get the input object from the image pipeline.
-  void SetInput(vtkImageData *input);
+  // Get the input object from the image pipeline.
   vtkImageData *GetInput();
 
   // Description:
