@@ -188,13 +188,13 @@ ELSE (WIN32)
                    vtkCocoaWindow.mm
                    vtkCocoaGLView.mm)
       SET_SOURCE_FILES_PROPERTIES(vtkCocoaGLView vtkCocoaWindow WRAP_EXCLUDE)
-      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} "-framework Cocoa")
     ENDIF(VTK_USE_COCOA)
     IF(VTK_USE_CARBON)
       SET(RenderingOpenGL_SRCS ${RenderingOpenGL_SRCS}
                    vtkCarbonRenderWindowInteractor.cxx
                    vtkCarbonRenderWindow.cxx)
-      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} )
+      SET (Rendering_LIBS ${Rendering_LIBS} ${OPENGL_LIBRARY} "-framework Carbon")
     ENDIF(VTK_USE_CARBON)
     IF(VTK_USE_X)
       IF (OPENGL_LIBRARY)
@@ -262,7 +262,7 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 
 IF (APPLE)
-  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initRen")
+  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initRen")
 ENDIF (APPLE)
 
 ADD_LIBRARY(vtkRendering 

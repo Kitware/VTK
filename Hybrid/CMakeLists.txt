@@ -78,7 +78,7 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 
 IF (APPLE)
-  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initHyb")
+  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initHyb")
 ENDIF (APPLE)
 
 ADD_LIBRARY(vtkHybrid ${Hybrid_SRCS} ${HybridInstantiator_SRCS})

@@ -112,7 +112,7 @@ ELSE (COMMAND VTK_MAKE_INSTANTIATOR2)
 ENDIF (COMMAND VTK_MAKE_INSTANTIATOR2)
 
 IF (APPLE)
-  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initFil")
+  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initFil")
 ENDIF (APPLE)
 
 ADD_LIBRARY(vtkFiltering ${Filtering_SRCS} ${FilteringInstantiator_SRCS})

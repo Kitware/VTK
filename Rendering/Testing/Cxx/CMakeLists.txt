@@ -6,6 +6,10 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
 TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
+IF (APPLE)
+  TARGET_LINK_LIBRARIES(${KIT}CxxTests "-framework Carbon -framework GLUT")
+ENDIF (APPLE)
+
 
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx TestRenderWindow.cxx)
@@ -34,6 +38,9 @@ FOREACH (exe
   )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)
   TARGET_LINK_LIBRARIES(${exe} vtkRendering vtkIO)
+  IF (APPLE)
+    TARGET_LINK_LIBRARIES(${exe} "-framework Carbon -framework GLUT")
+  ENDIF (APPLE)
 ENDFOREACH (exe)
 
 

@@ -235,7 +235,7 @@ IF (UNIX)
 ENDIF (UNIX)
 
 IF (APPLE)
-  SET (CMAKE_CXX_SHLIB_BUILD_FLAGS "-dynamiclib -init _oft_initCom")
+  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "-dynamiclib -init _oft_initCom -framework Carbon")
 ENDIF (APPLE)
 
 # Allow the user to customize their build with some local options

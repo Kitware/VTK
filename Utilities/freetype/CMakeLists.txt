@@ -90,9 +90,9 @@ ENDIF (UNIX)
 #
 IF (APPLE)
   SET (VTKFREETYPE_USE_CARBON 1)
-  SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
-  SET (CMAKE_SHLIB_LINK_FLAGS 
-   "${CMAKE_SHLIB_LINK_FLAGS} -multiply_defined suppress -framework Carbon")
+#  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-deprecated -fpascal-strings")
+  SET (CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS 
+   "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -framework AppKit")
   SET( FREETYPE_SRCS ${FREETYPE_SRCS} src/base/ftmac.c)
 ENDIF (APPLE)
 
