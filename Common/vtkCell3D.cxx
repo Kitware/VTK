@@ -24,7 +24,7 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkCell3D, "1.44");
+vtkCxxRevisionMacro(vtkCell3D, "1.45");
 
 vtkCell3D::vtkCell3D()
 {
@@ -51,12 +51,11 @@ vtkCell3D::~vtkCell3D()
 }
 
 void vtkCell3D::Contour(double value, vtkDataArray *cellScalars, 
-               vtkPointLocator *locator, vtkCellArray *verts, 
-               vtkCellArray *lines, vtkCellArray *polys,
-               vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
+                        vtkPointLocator *locator, vtkCellArray *verts, 
+                        vtkCellArray *lines, vtkCellArray *polys,
+                        vtkPointData *inPd, vtkPointData *outPd,
+                        vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
-  vtkCell3D *cell3D = (vtkCell3D *)this; //has to be to be in this method
   int numPts=this->GetNumberOfPoints();
   int numEdges=this->GetNumberOfEdges();
   int *tets, v1, v2;
@@ -93,11 +92,7 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
       {
       ptId = this->PointIds->GetId(i);
       this->Points->GetPoint(i, x);
-      if ( locator->InsertUniquePoint(x, id) )
-        {
-        outPd->CopyData(inPd,ptId, id);
-        }
-      this->Triangulator->InsertPoint(id, x, p, type);
+      this->Triangulator->InsertPoint(ptId, x, p, type);
       }//for all cell points of fixed topology
 
     this->Triangulator->TemplateTriangulate(this->GetCellType(),
@@ -109,11 +104,8 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
             this->Triangulator->GetNextTetra(0,this->ClipTetra,
                                              cellScalars,this->ClipScalars);)
         {
-        // VERY IMPORTANT: Notice that the outPD is used twice. This is because the
-        // tetra has been defined in terms of point ids that are defined in the
-        // output (because of the templates).
         this->ClipTetra->Contour(value, this->ClipScalars, locator, 
-                                 verts, lines, polys, outPd, outPd, inCd, 
+                                 verts, lines, polys, inPd, outPd, inCd, 
                                  cellId, outCd);
         }
     return;
@@ -148,13 +140,13 @@ void vtkCell3D::Contour(double value, vtkDataArray *cellScalars,
     }//for all points
   
   // For each edge intersection point, insert into triangulation. Edge
-  // intersections come from clipping value. Have to be careful of 
+  // intersections come from contouring value. Have to be careful of 
   // intersections near exisiting points (causes bad Delaunay behavior).
   // Intersections near existing points are collapsed to existing point.
   double pc[3], *pc1, *pc2;
   for (int edgeNum=0; edgeNum < numEdges; edgeNum++)
     {
-    cell3D->GetEdgePoints(edgeNum, tets);
+    this->GetEdgePoints(edgeNum, tets);
 
     // Calculate a preferred interpolation direction.
     // Has to be done in same direction to insure coincident points are
