@@ -21,7 +21,7 @@
 #include "vtkGenericDataSet.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.7");
+vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.8");
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -104,6 +104,7 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
     int i=ac->GetAttributeIndex(ac->GetActiveAttribute())+ac->GetActiveComponent()+ATTRIBUTE_OFFSET;
     double tmp=leftPoint[i]+alpha*(rightPoint[i]-leftPoint[i])-midPoint[i];
     ae=tmp*tmp;
+    assert("check: positive_ae" && ae>=0);
     }
   
   if(this->SquareAbsoluteAttributeTolerance==0)
@@ -144,6 +145,7 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
   ac=this->DataSet->GetAttributes();
   vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
   
+ 
   if(this->GenericCell->IsAttributeLinear(a))
     {
     //don't need to do anything:
@@ -156,14 +158,20 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
     ae=tmp*tmp;
     }
   
+  double result;
+  
   if(this->Range!=0)
     {
-    return sqrt(ae)/this->Range;
+    result=sqrt(ae)/this->Range;
     }
   else
     {
-    return 0;
+    result=0;
     }
+  
+  assert("post: positive_result" && result>=0);
+  
+  return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -171,6 +179,7 @@ void vtkAttributesErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "AttributeTolerance: "  << this->AttributeTolerance << endl;
+  os << indent << "AbsoluteAttributeTolerance: "  << this->AbsoluteAttributeTolerance << endl;
 }
 
 //-----------------------------------------------------------------------------
