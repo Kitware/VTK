@@ -36,6 +36,10 @@
 // triangles create at a subdivision step will have the cell data of
 // their parent cell.
 
+// .SECTION Thanks
+// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+// from the National Center for Research Resources.
+
 // .SECTION See Also
 // vtkApproximatingSubdivisionFilter
 

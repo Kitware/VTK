@@ -20,6 +20,10 @@
 // vtkApproximatingSubdivisionFilter is an abstract class that defines
 // the protocol for Approximating subdivision surface filters.
 
+// .SECTION Thanks
+// This work was supported by PHS Research Grant No. 1 P41 RR13218-01
+// from the National Center for Research Resources.
+
 #ifndef __vtkApproximatingSubdivisionFilter_h
 #define __vtkApproximatingSubdivisionFilter_h
 
