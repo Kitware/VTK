@@ -61,6 +61,11 @@ void vlSbrProperty::Render(vlSbrRenderer *ren)
   marker_color(fd,this->DiffuseColor[0], this->DiffuseColor[1], 
 	       this->DiffuseColor[2]);
 
+  bf_fill_color(fd, this->DiffuseColor[0], this->DiffuseColor[1], 
+		this->DiffuseColor[2]);
+  bf_perimeter_color(fd, EdgeColor[0], EdgeColor[1], 
+		     EdgeColor[2]);
+
   // Tell the geometry primitives about the default properties 
   vlSbrPrimitive::SetProperty(this);
 
@@ -81,7 +86,9 @@ void vlSbrProperty::Render(vlSbrRenderer *ren)
     }
 
   interior_style(fd, style, this->EdgeVisibility);
+  bf_interior_style(fd, style, this->EdgeVisibility);
   surface_coefficients(fd, this->Ambient, this->Diffuse, this->Specular);
+  bf_surface_coefficients(fd, this->Ambient, this->Diffuse, this->Specular);
 
   shininess = (int)this->SpecularPower;
   if (shininess < 1) shininess = 1;
@@ -90,6 +97,9 @@ void vlSbrProperty::Render(vlSbrRenderer *ren)
   surface_model(fd, TRUE, shininess, 
     this->SpecularColor[0],this->SpecularColor[1],
     this->SpecularColor[2]);
+  bf_surface_model(fd, TRUE, shininess, 
+		   this->SpecularColor[0],this->SpecularColor[1],
+		   this->SpecularColor[2]);
 
   trans_level = (int)(16.0*(1.0 - this->Transparency));
   esc_arg1.i[0] = 0x0000;
