@@ -24,7 +24,7 @@ vtkDecimate deci
     deci SetAspectRatio 20
 vtkPolyDataNormals normals
     normals SetInput [deci GetOutput]
-    normals SetMaximumRecursionDepth 100
+    normals SetMaxRecursionDepth 100
 vtkStripper stripper
     stripper SetInput [normals GetOutput]
 vtkMaskPolyData mask
