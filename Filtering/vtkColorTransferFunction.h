@@ -30,7 +30,6 @@ class vtkPiecewiseFunction;
 
 #define VTK_CTF_RGB           0
 #define VTK_CTF_HSV           1
-#define VTK_CTF_HSV_NO_WRAP   2
 
 class VTK_FILTERING_EXPORT vtkColorTransferFunction : public vtkScalarsToColors 
 {
@@ -112,11 +111,20 @@ public:
   // the shortest way around the hue circle) whereas HSVNoWrap
   // will not go through 0 (in order the match the current functionality
   // of vtkLookupTable)
-  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_HSV_NO_WRAP );
+  vtkSetClampMacro( ColorSpace, int, VTK_CTF_RGB, VTK_CTF_HSV );
   void SetColorSpaceToRGB(){this->SetColorSpace(VTK_CTF_RGB);};
-  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);};
-  void SetColorSpaceToHSVNoWrap(){this->SetColorSpace(VTK_CTF_HSV_NO_WRAP);};
+  void SetColorSpaceToHSV(){this->SetColorSpace(VTK_CTF_HSV);
+                            this->SetHSVWrap(1);};
   vtkGetMacro( ColorSpace, int );
+
+  // You can select it the HSV space is wrap or not
+  vtkSetMacro(HSVWrap, int);
+  vtkGetMacro(HSVWrap, int);
+  vtkBooleanMacro(HSVWrap, int);
+ 
+  // Should be deprecated at some point:
+  VTK_LEGACY(void SetColorSpaceToHSVNoWrap()){this->SetColorSpace(VTK_CTF_HSV);
+                                  this->SetHSVWrap(0);};
     
   // Description:
   // Returns a list of all nodes
@@ -142,6 +150,9 @@ protected:
 
   // The color space in which interpolation is performed
   int ColorSpace;
+
+  // Specify if HSW is warp or not
+  int HSVWrap;
   
   // The color function
   double     *Function;
@@ -176,5 +187,4 @@ private:
 };
 
 #endif
-
 

@@ -18,9 +18,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.52");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.53");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
+//----------------------------------------------------------------------------
 // Construct a new vtkColorTransferFunction with default values
 vtkColorTransferFunction::vtkColorTransferFunction()
 {
@@ -39,6 +40,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
 
   this->Clamping = 1;
   this->ColorSpace = VTK_CTF_RGB;
+  this->HSVWrap = 1; //By default HSV will be wrap
   
   this->Function = NULL;
   this->FunctionSize = 0;
@@ -48,6 +50,7 @@ vtkColorTransferFunction::vtkColorTransferFunction()
   this->TableSize = 0;
 }
 
+//----------------------------------------------------------------------------
 // Destruct a vtkColorTransferFunction
 vtkColorTransferFunction::~vtkColorTransferFunction()
 {
@@ -62,6 +65,7 @@ vtkColorTransferFunction::~vtkColorTransferFunction()
   delete [] this->Table;
 }
 
+//----------------------------------------------------------------------------
 // Add a point defined in RGB
 int vtkColorTransferFunction::AddRGBPoint( double x, double r,
                                            double g, double b )
@@ -149,6 +153,7 @@ int vtkColorTransferFunction::AddRGBPoint( double x, double r,
   return i;
 }
 
+//----------------------------------------------------------------------------
 // Add a point defined in HSV
 int vtkColorTransferFunction::AddHSVPoint( double x, double h,
                                             double s, double v )
@@ -159,6 +164,7 @@ int vtkColorTransferFunction::AddHSVPoint( double x, double h,
   return this->AddRGBPoint( x, r, g, b );
 }
 
+//----------------------------------------------------------------------------
 // Remove a point
 int vtkColorTransferFunction::RemovePoint( double x )
 {
@@ -207,6 +213,7 @@ int vtkColorTransferFunction::RemovePoint( double x )
 }
 
 
+//----------------------------------------------------------------------------
 // Remove all points
 void vtkColorTransferFunction::RemoveAllPoints()
 {
@@ -223,6 +230,7 @@ void vtkColorTransferFunction::RemoveAllPoints()
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 // Add a line defined in RGB 
 void vtkColorTransferFunction::AddRGBSegment( double x1, double r1, 
                                               double g1, double b1, 
@@ -282,6 +290,7 @@ void vtkColorTransferFunction::AddRGBSegment( double x1, double r1,
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 // Add a line defined in HSV
 void vtkColorTransferFunction::AddHSVSegment( double x1, double h1, 
                                               double s1, double v1, 
@@ -295,6 +304,7 @@ void vtkColorTransferFunction::AddHSVSegment( double x1, double h1,
   this->AddRGBSegment( x1, r1, g1, b1, x2, r2, g2, b2 );
 }
 
+//----------------------------------------------------------------------------
 // Returns the RGBA color evaluated at the specified location
 unsigned char *vtkColorTransferFunction::MapValue( double x )
 {
@@ -308,12 +318,14 @@ unsigned char *vtkColorTransferFunction::MapValue( double x )
   return this->UnsignedCharRGBAValue;
 }
 
+//----------------------------------------------------------------------------
 // Returns the RGB color evaluated at the specified location
 void vtkColorTransferFunction::GetColor(double x, double rgb[3])
 {
   this->GetTable( x, x, 1, rgb );
 }
 
+//----------------------------------------------------------------------------
 // Returns the red color evaluated at the specified location
 double vtkColorTransferFunction::GetRedValue( double x )
 {
@@ -323,6 +335,7 @@ double vtkColorTransferFunction::GetRedValue( double x )
   return rgb[0];
 }
 
+//----------------------------------------------------------------------------
 // Returns the green color evaluated at the specified location
 double vtkColorTransferFunction::GetGreenValue( double x )
 {
@@ -332,6 +345,7 @@ double vtkColorTransferFunction::GetGreenValue( double x )
   return rgb[1];
 }
 
+//----------------------------------------------------------------------------
 // Returns the blue color evaluated at the specified location
 double vtkColorTransferFunction::GetBlueValue( double x )
 {
@@ -341,6 +355,7 @@ double vtkColorTransferFunction::GetBlueValue( double x )
   return rgb[2];
 }
 
+//----------------------------------------------------------------------------
 // Returns a table of RGB colors at regular intervals along the function
 void vtkColorTransferFunction::GetTable( double x1, double x2, 
                                          int size, double* table )
@@ -436,7 +451,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV &&
+          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -454,7 +469,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
               h3 += 1.0;
               }
             }
-          else
+          else // HSV No Wrap
             {
             // No we are not crossing the boundary
             h3 = (1.0-weight)*h1 + weight*h2;
@@ -471,6 +486,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::GetTable( double x1, double x2, 
                                          int size, float* table )
 {
@@ -568,7 +584,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV &&
+          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -606,6 +622,7 @@ void vtkColorTransferFunction::GetTable( double x1, double x2,
     }
 }
 
+//----------------------------------------------------------------------------
 const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2, 
                                                          int size)
 {
@@ -715,7 +732,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2,
           s3 = (1.0-weight)*s1 + weight*s2;
           v3 = (1.0-weight)*v1 + weight*v2;
           // Do we need to cross the 0/1 boundary?
-          if ( this->ColorSpace == VTK_CTF_HSV &&
+          if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap &&
                (h1 - h2 > 0.5 || h2 - h1 > 0.5) )
             {
             //Yes, we are crossing the boundary
@@ -733,7 +750,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2,
               h3 += 1.0;
               }
             }
-          else
+          else // HSV No Wrap
             {
             // No we are not crossing the boundary
             h3 = (1.0-weight)*h1 + weight*h2;
@@ -754,6 +771,7 @@ const unsigned char *vtkColorTransferFunction::GetTable( double x1, double x2,
   return this->Table;
 }
 
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::BuildFunctionFromTable( double x1, double x2,
                                                        int size, double *table)
 {
@@ -792,6 +810,7 @@ void vtkColorTransferFunction::BuildFunctionFromTable( double x1, double x2,
 }
 
 
+//----------------------------------------------------------------------------
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -811,7 +830,7 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Color Space: RGB\n";
     }
-  else if ( this->ColorSpace == VTK_CTF_HSV )
+  else if ( this->ColorSpace == VTK_CTF_HSV && this->HSVWrap )
     {
     os << indent << "Color Space: HSV\n";
     }
@@ -847,6 +866,7 @@ void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 {
   delete [] this->Function;
@@ -873,6 +893,7 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template <class T>
@@ -921,6 +942,7 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
 
 
 
+//----------------------------------------------------------------------------
 void 
 vtkColorTransferFunctionMapUnsignedCharData(vtkColorTransferFunction *self, 
                                             unsigned char *input, 
@@ -983,6 +1005,7 @@ vtkColorTransferFunctionMapUnsignedCharData(vtkColorTransferFunction *self,
     }  
 }
 
+//----------------------------------------------------------------------------
 void 
 vtkColorTransferFunctionMapUnsignedShortData(vtkColorTransferFunction *self, 
                                              unsigned short *input, 
@@ -1046,6 +1069,7 @@ vtkColorTransferFunctionMapUnsignedShortData(vtkColorTransferFunction *self,
     }  
 }
 
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::MapScalarsThroughTable2(void *input, 
                                                        unsigned char *output,
                                                        int inputDataType, 
@@ -1123,6 +1147,7 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkColorTransferFunction::FillFromDataPointer(int nb, double *ptr)
 {
   if (nb <= 0 || !ptr)
