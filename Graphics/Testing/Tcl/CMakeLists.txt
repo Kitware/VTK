@@ -15,13 +15,18 @@ IF (VTK_USE_RENDERING)
     ENDIF (VTK_MANGLE_MESA)
 
     FOREACH ( tfile
+      3DMorph
+      blankGrid
       Canny
       capCow
       capSphere
+      cellCenters
+      CellDataToPointData
       clipArt
       clipHex
       clipPyramid
       clipTet
+      clipVolume
       clipWedge
       combColorIso
       combIso
@@ -67,6 +72,7 @@ IF (VTK_USE_RENDERING)
       socbal
       spatialRepAll
       spToPd
+      subdividePointData
       subDivideTetra
       teapotHulls
       TenEllip
