@@ -59,8 +59,8 @@ vtkImageDifference::vtkImageDifference()
   g1 = abs(((int)(c1)[1] - (int)(c2)[1])); \
   b1 = abs(((int)(c1)[2] - (int)(c2)[2]));\
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
-  if ((idx0 > inMinX) && (idx0 < inMaxX) && \
-      (idx1 > inMinY) && (idx1 < inMaxY)) \
+  if ((idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
+      (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
     {\
   ar1 = (int)(c1)[0]; \
   ag1 = (int)(c1)[1]; \
