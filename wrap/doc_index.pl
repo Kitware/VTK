@@ -1,12 +1,15 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-28 02:51:28 barre>
+# Time-stamp: <2001-06-30 02:22:54 barre>
 #
 # Build full-text index 
 #
-# barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+# barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.16 (barre) :
+#   - added 'parallel' to the default set of directories
 #
 # 0.15 (barre) :
-#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile
 #   - change default --stop to 'wrap/doc_index.stop' to comply with the source
 #     tree structure.
 #
@@ -34,21 +37,24 @@ use Fcntl;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.15, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.16, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
+print "$PROGNAME $VERSION, by $AUTHOR\n";
 
+# -------------------------------------------------------------------------
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
 
 my %default = 
   (
 #   debug => 1,
    limit => 10,
-   dirs => ["common", "contrib", "graphics", "imaging", "patented"],
+   dirs => ["common", "contrib", "graphics", "imaging", "parallel", "patented"],
    stop => "wrap/doc_index.stop",
    store => "doc_index.dox",
    to => "../vtk-doxygen"
   );
 
+# -------------------------------------------------------------------------
 # Parse options
 
 my %args;
@@ -80,13 +86,11 @@ $args{"store"} = $default{"store"} if ! exists $args{"store"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
 $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 
-print "$PROGNAME $VERSION, by $AUTHOR\n";
-
-my $start_time = time();
-
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
+my $start_time = time();
 
+# -------------------------------------------------------------------------
 # Read the stop-words
 
 print "Reading stop-words from $args{stop}...\n";
@@ -106,6 +110,7 @@ foreach my $stop_word (@stop_file) {
 
 print scalar keys %stop_words, " word(s) read.\n";
 
+# -------------------------------------------------------------------------
 # Collect all files and directories
 
 print "Collecting files...\n";
@@ -121,6 +126,7 @@ foreach my $file (@ARGV) {
     }
 }
 
+# -------------------------------------------------------------------------
 # Index files corresponding to headers
 
 print "Indexing...\n";
@@ -164,6 +170,7 @@ foreach my $source (@files) {
 my @words = keys %index;
 print scalar @words, " word(s) grabbed in $nb_files file(s).\n";
 
+# -------------------------------------------------------------------------
 # Remove some words
 
 print "Removing...\n";
@@ -183,6 +190,7 @@ foreach my $word (@words) {
 
 print "$nb_removed word(s) removed.\n";
 
+# -------------------------------------------------------------------------
 # Group some words
 
 print "Grouping...\n";
@@ -314,6 +322,7 @@ foreach my $word (@words) {
 
 print "$nb_grouped word(s) grouped.\n";
 
+# -------------------------------------------------------------------------
 # Normalize to lowercase except if all uppercase
 
 print "Normalizing...\n";
@@ -345,6 +354,7 @@ foreach my $word (@words) {
 
 print "normalized to lowercase.\n";
 
+# -------------------------------------------------------------------------
 # Build documentation
 
 my $destination_file = $args{"to"} . "/" . $args{"store"};
@@ -393,6 +403,7 @@ my @summary;
 push @summary, "$nb_files file(s) indexed by " . scalar @words . " word(s) on " . localtime();
 push @summary, "max limit is " . $args{"limit"} . " xref(s) per word";
 
+# -------------------------------------------------------------------------
 # Write documentation
 
 sysopen(DEST_FILE, $destination_file, O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)

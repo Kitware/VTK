@@ -1,13 +1,16 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-06-28 02:22:00 barre>
+# Time-stamp: <2001-06-30 02:22:45 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
-# barre : Sebastien Barre <barre@sic.sp2mi.univ-poitiers.fr>
+# barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.76 (barre) :
+#   - added 'parallel' to the default set of directories
 #
 # 0.75 (barre) :
-#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile.
+#   - change default --to to '../vtk-doxygen' to comply with Kitware's doxyfile
 #
 # 0.74 (barre) :
 #   - as doxygen now handles RCS/CVS tags of the form $word:text$, use them 
@@ -65,10 +68,6 @@
 #
 # 0.0 (roeim)
 #   - first release (thanks to V. Roeim !)
-#
-# Notes:
-#   contrib/vtk32OffscreenRenderWindow.h : needs a documentation block
-#   contrib/vtkSuperquadricSource.h : brief description span 2 lines :(
 
 
 use Carp;
@@ -80,18 +79,21 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.75, $0, "Sebastien Barre et al.");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.76, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
+print "$PROGNAME $VERSION, by $AUTHOR\n";
 
+# -------------------------------------------------------------------------
 # Defaults (add options as you want : "v" => 1 for default verbose mode)
 
 my %default = 
   (
    to => "../vtk-doxygen",
    tmp_file => "doc_header2doxygen.tmp",
-   dirs => ["common", "contrib", "graphics", "imaging", "patented"]
+   dirs => ["common", "contrib", "graphics", "imaging", "parallel", "patented"]
   );
 
+# -------------------------------------------------------------------------
 # Parse options
 
 my %args;
@@ -125,11 +127,11 @@ $args{"to"} =~ s/[\\\/]*$// if exists $args{"to"};
 croak "$PROGNAME: -u requires --to\n" 
   if exists $args{"u"} && ! exists $args{"to"};
 
-print "$PROGNAME $VERSION, by $AUTHOR\n";
-
 my $os_is_win = ($^O =~ m/(MSWin32|Cygwin)/i);
 my $open_file_as_text = $os_is_win ? O_TEXT : 0;
+my $start_time = time();
     
+# -------------------------------------------------------------------------
 # Collect all files and directories
 
 push @ARGV, @{$default{dirs}} if !@ARGV;
@@ -143,10 +145,11 @@ foreach my $file (@ARGV) {
     }
 }
 
+# -------------------------------------------------------------------------
 # Process files corresponding to headers
 
 print "Converting...\n";
-my ($start_time, $nb_file) = (time(), 0);
+my $nb_file = 0;
 
 foreach my $source (@files) {
     
