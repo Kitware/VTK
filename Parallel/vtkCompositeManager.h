@@ -73,6 +73,8 @@ public:
   void ExitInteractor();
   virtual void StartRender();
   virtual void EndRender();
+  virtual void SatelliteStartRender();
+  virtual void SatelliteEndRender();
   void RenderRMI();
   void ResetCamera(vtkRenderer *ren);
   void ResetCameraClippingRange(vtkRenderer *ren);

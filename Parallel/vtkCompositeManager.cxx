@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.41");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.42");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -266,6 +266,27 @@ void vtkCompositeManagerRenderRMI(void *arg, void *, int, int)
 }
 
 //----------------------------------------------------------------------------
+void vtkCompositeManagerSatelliteStartRender(vtkObject* vtkNotUsed(caller),
+                                             unsigned long vtkNotUsed(event), 
+                                             void *clientData, void *)
+{
+  vtkCompositeManager* self = (vtkCompositeManager*) clientData;
+  
+  self->SatelliteStartRender();
+}
+
+
+//----------------------------------------------------------------------------
+void vtkCompositeManagerSatelliteEndRender(vtkObject* vtkNotUsed(caller),
+                                           unsigned long vtkNotUsed(event), 
+                                           void *clientData, void *)
+{
+  vtkCompositeManager* self = (vtkCompositeManager*) clientData;
+  
+  self->SatelliteEndRender();
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeManagerComputeVisiblePropBoundsRMI(void *arg, void *, 
                                                     int, int)
 {
@@ -314,6 +335,11 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         ren->RemoveObserver(this->ResetCameraTag);
         ren->RemoveObserver(this->ResetCameraClippingRangeTag);
         }
+      }
+    if ( this->Controller && this->Controller->GetLocalProcessId() != 0 )
+      {
+      this->RenderWindow->RemoveObserver(this->StartTag);
+      this->RenderWindow->RemoveObserver(this->EndTag);
       }
     // Delete the reference.
     this->RenderWindow->UnRegister(this);
@@ -372,6 +398,24 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
           ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
           cbc->Delete();
           }
+        }
+      else if (this->Controller && this->Controller->GetLocalProcessId() != 0)
+        {
+        vtkCallbackCommand *cbc;
+        
+        cbc= vtkCallbackCommand::New();
+        cbc->SetCallback(vtkCompositeManagerSatelliteStartRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
+        cbc->Delete();
+        
+        cbc = vtkCallbackCommand::New();
+        cbc->SetCallback(vtkCompositeManagerSatelliteEndRender);
+        cbc->SetClientData((void*)this);
+        // renWin will delete the cbc when the observer is removed.
+        this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
+        cbc->Delete();
         }
       else
         {
@@ -468,7 +512,7 @@ void vtkCompositeManager::SetCompositer(vtkCompositer *c)
 
 
 //-------------------------------------------------------------------------
-// Only satelite processes process interactor loops specially.
+// Only satellite processes process interactor loops specially.
 // We only setup callbacks in those processes (not process 0).
 void 
 vtkCompositeManager::SetRenderWindowInteractor(
@@ -514,6 +558,15 @@ vtkCompositeManager::SetRenderWindowInteractor(
 //----------------------------------------------------------------------------
 void vtkCompositeManager::RenderRMI()
 {
+  // Start and end methods take care of synchronization and compositing
+  vtkRenderWindow* renWin = this->RenderWindow;
+  renWin->Render();
+}
+
+
+//-------------------------------------------------------------------------
+void vtkCompositeManager::SatelliteStartRender()
+{
   int i;
   vtkCompositeRenderWindowInfo winInfo;
   vtkCompositeRendererInfo renInfo;
@@ -525,7 +578,6 @@ void vtkCompositeManager::RenderRMI()
   vtkRenderWindow* renWin = this->RenderWindow;
   vtkMultiProcessController *controller = this->Controller;
   
-  vtkDebugMacro("RenderRMI");
   vtkInitializeCompositeRendererInfoMacro(renInfo);
   
   // Receive the window size.
@@ -587,11 +639,13 @@ void vtkCompositeManager::RenderRMI()
                        1.0/(float)winInfo.ReductionFactor);
       }
     }
-  renWin->Render();
-  
   this->SetRendererSize(winInfo.Size[0]/winInfo.ReductionFactor, 
                         winInfo.Size[1]/winInfo.ReductionFactor);
-  
+}
+
+//-------------------------------------------------------------------------
+void vtkCompositeManager::SatelliteEndRender()
+{
   if (this->CheckForAbortComposite())
     {
     return;
@@ -702,7 +756,7 @@ void vtkCompositeManager::StartRender()
   // Lock here, unlock at end render.
   this->Lock = 1;
   
-  // Trigger the satelite processes to start their render routine.
+  // Trigger the satellite processes to start their render routine.
   rens = this->RenderWindow->GetRenderers();
   numProcs = this->NumberOfProcesses;
   size = this->RenderWindow->GetSize();
