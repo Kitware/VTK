@@ -481,7 +481,7 @@ void vtkDataSetAttributes::CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
       newDA->SetName(da->GetName());
       if ( sze > 0 )
         {
-        newDA->Allocate(sze*da->GetNumberOfTuples(),ext);
+        newDA->Allocate(sze*da->GetNumberOfComponents(),ext);
         }
       else
         {
