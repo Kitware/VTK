@@ -69,6 +69,7 @@ vtkFileOutputWindow.cxx
 vtkFloatArray.cxx
 vtkFunctionParser.cxx
 vtkFunctionSet.cxx
+vtkGarbageCollector.cxx
 vtkGeneralTransform.cxx
 vtkGenericCell.cxx
 vtkHeap.cxx
@@ -228,6 +229,7 @@ vtkDataArray
 vtkDataSet
 vtkExplicitCell
 vtkFunctionSet
+vtkGarbageCollector
 vtkHierarchicalDataSet
 vtkHomogeneousTransform
 vtkImplicitFunction
@@ -266,6 +268,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
+  vtkGarbageCollector.cxx
   vtkIOStream.cxx
   vtkImageIterator.cxx
   vtkImageProgressIterator.cxx

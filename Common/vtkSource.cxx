@@ -18,9 +18,10 @@
 #include "vtkDataObject.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
+#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.106");
+vtkCxxRevisionMacro(vtkSource, "1.107");
 
 #ifndef NULL
 #define NULL 0
@@ -32,6 +33,7 @@ vtkSource::vtkSource()
   this->NumberOfOutputs = 0;
   this->Outputs = NULL;
   this->Updating = 0;
+  this->GarbageCollecting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -737,113 +739,44 @@ void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-int vtkSource::InRegisterLoop(vtkObject *o)
+//----------------------------------------------------------------------------
+void vtkSource::UnRegister(vtkObjectBase* o)
 {
-  int idx;
-  int num = 0;
-  int cnum = 0;
-  int match = 0;
-  
-  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+  int check = (this->GetReferenceCount() > 1);
+  this->Superclass::UnRegister(o);
+  if(check && !this->GarbageCollecting)
     {
-    if (this->Outputs[idx])
-      {
-      if (this->Outputs[idx] == o)
-        {
-        match = 1;
-        }
-      if (this->Outputs[idx]->GetSource() == this)
-        {
-        num++;
-        cnum += this->Outputs[idx]->GetNetReferenceCount();
-        }
-      }
+    vtkGarbageCollector::Check(this);
     }
-  
-  // if no one outside is using us
-  // and our data objects are down to one net reference
-  // and we are being asked by one of our data objects
-  if (this->ReferenceCount == num && cnum == (num + 1) && match)
-    {
-    return 1;
-    }
-  return 0;
 }
-                           
-void vtkSource::UnRegister(vtkObjectBase *o)
+
+//----------------------------------------------------------------------------
+void vtkSource::ReportReferences(vtkGarbageCollector* collector)
 {
-  int idx;
-  int done = 0;
-  int actualnumberofoutputs = 0;
+  this->Superclass::ReportReferences(collector);
+  for(int i=0; i < this->NumberOfOutputs; ++i)
+    {
+    collector->ReportReference(this->Outputs[i]);
+    }
+}
 
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
+//----------------------------------------------------------------------------
+void vtkSource::GarbageCollectionStarting()
+{
+  this->GarbageCollecting = 1;
+  this->Superclass::GarbageCollectionStarting();
+}
 
-  // The code here used to check
-  // if (this->ReferenceCount == (this->NumberOfOutputs+1))
-  // but this caused a problem if we were a vtkDataSetToDataSetFilter and
-  // the output hadn't been setup yet (which is not uncommon as the output
-  // changes depending on the input type. Instead we will count how many
-  // outputs are actually present, rather than how many we are supposed to have
-  for (idx = 0; idx < this->NumberOfOutputs; idx++)
+//----------------------------------------------------------------------------
+void vtkSource::RemoveReferences()
+{
+  for(int i=0; i < this->NumberOfOutputs; ++i)
     {
-    if (this->Outputs[idx])
+    if(this->Outputs[i])
       {
-      actualnumberofoutputs++;
+      this->Outputs[i]->UnRegister(this);
+      this->Outputs[i] = 0;
       }
     }
-  //
-  if (this->ReferenceCount == (actualnumberofoutputs+1))
-    {
-    done = 1;
-    for (idx = 0; idx < this->NumberOfOutputs; idx++)
-      {
-      if (this->Outputs[idx])
-        {
-        if (this->Outputs[idx] == o)
-          {
-          done = 0;
-          }
-        if (this->Outputs[idx]->GetNetReferenceCount() != 1)
-          {
-          done = 0;
-          }
-        }
-      }
-    }
-  
-  if (this->ReferenceCount == actualnumberofoutputs)
-    {
-    int match = 0;
-    int total = 0;
-    for (idx = 0; idx < this->NumberOfOutputs; idx++)
-      {
-      if (this->Outputs[idx])
-        {
-        if (this->Outputs[idx] == o)
-          {
-          match = 1;
-          }
-        total += this->Outputs[idx]->GetNetReferenceCount();
-        }
-      }
-    if (total == (this->NumberOfOutputs + 1) && match)
-      {
-      done = 1;
-      }
-    }
-    
-  if (done)
-    {
-    for (idx = 0; idx < this->NumberOfOutputs; idx++)
-      {
-      if (this->Outputs[idx])
-        {
-        this->Outputs[idx]->SetSource(NULL);
-        }
-      }
-    }
-  
-  this->vtkObject::UnRegister(o);
+  this->Superclass::RemoveReferences();
 }

@@ -16,10 +16,11 @@
 
 #include "vtkExtentTranslator.h"
 #include "vtkFieldData.h"
+#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.95");
+vtkCxxRevisionMacro(vtkDataObject, "1.96");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,FieldData,vtkFieldData);
@@ -83,6 +84,7 @@ vtkDataObject::vtkDataObject()
 
   this->NumberOfConsumers = 0;
   this->Consumers = 0;
+  this->GarbageCollecting = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -439,16 +441,12 @@ void vtkDataObject::SetSource(vtkSource *arg)
 //----------------------------------------------------------------------------
 void vtkDataObject::UnRegister(vtkObjectBase *o)
 {
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this))
+  int check = (this->GetReferenceCount() > 1);
+  this->Superclass::UnRegister(o);
+  if(check && !this->GarbageCollecting)
     {
-    this->SetSource(NULL);
+    vtkGarbageCollector::Check(this);
     }
-  
-  this->vtkObject::UnRegister(o);
 }
 
 //----------------------------------------------------------------------------
@@ -720,6 +718,27 @@ vtkExtentTranslator *vtkDataObject::GetExtentTranslator()
 // This should be a pure virutal method.
 void vtkDataObject::Crop()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  collector->ReportReference(this->GetSource());
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::GarbageCollectionStarting()
+{
+  this->GarbageCollecting = 1;
+  this->Superclass::GarbageCollectionStarting();
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::RemoveReferences()
+{
+  this->SetSource(0);
+  this->Superclass::RemoveReferences();
 }
 
 //----------------------------------------------------------------------------

@@ -160,7 +160,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.6\n";
+  os << "vtkObjectBase 1.7\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -207,4 +207,30 @@ void vtkObjectBase::PrintRevisions(ostream& os)
       }
     }
   revisions.rdbuf()->freeze(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::ReportReferences(vtkGarbageCollector*)
+{
+  // vtkObjectBase has no references to report.
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::RemoveReferences()
+{
+  // vtkObjectBase has no references to remove.
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::GarbageCollectionStarting()
+{
+  // Do not delete this object until garbage collection is finishing.
+  this->Register(0);
+}
+
+//----------------------------------------------------------------------------
+void vtkObjectBase::GarbageCollectionFinishing()
+{
+  // Delete this object now.
+  this->UnRegister(0);
 }

@@ -104,12 +104,6 @@ public:
   virtual void UnRegister(vtkObjectBase *o);
 
   // Description:
-  // Get the net reference count. That is the count minus
-  // any self created loops. This is used in the Source/Data
-  // registration to properly free the objects.
-  virtual int GetNetReferenceCount() {return this->ReferenceCount;};
-
-  // Description:
   // Provides opportunity for the data object to insure internal 
   // consistency before access. Also causes owning source/filter 
   // (if any) to update itself. The Update() method is composed of 
@@ -395,6 +389,10 @@ protected:
   // 0.5 : the next upstream filter is a port ...
   double Locality;  
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  int GarbageCollecting;
 private:
   // Helper method for the ShallowCopy and DeepCopy methods.
   void InternalDataObjectCopy(vtkDataObject *src);

@@ -15,8 +15,9 @@
 #include "vtkLocator.h"
 
 #include "vtkDataSet.h"
+#include "vtkGarbageCollector.h"
 
-vtkCxxRevisionMacro(vtkLocator, "1.44");
+vtkCxxRevisionMacro(vtkLocator, "1.45");
 
 vtkCxxSetObjectMacro(vtkLocator,DataSet,vtkDataSet);
 
@@ -30,6 +31,7 @@ vtkLocator::vtkLocator()
   this->Tolerance = 0.001;
   this->Automatic = 1;
   this->RetainCellLists = 1;
+  this->GarbageCollecting = 0;
 }
 
 vtkLocator::~vtkLocator()
@@ -80,3 +82,34 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
 }
 
+//----------------------------------------------------------------------------
+void vtkLocator::UnRegister(vtkObjectBase* o)
+{
+  int check = (this->GetReferenceCount() > 1);
+  this->Superclass::UnRegister(o);
+  if(check && !this->GarbageCollecting)
+    {
+    vtkGarbageCollector::Check(this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkLocator::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  collector->ReportReference(this->GetDataSet());
+}
+
+//----------------------------------------------------------------------------
+void vtkLocator::GarbageCollectionStarting()
+{
+  this->GarbageCollecting = 1;
+  this->Superclass::GarbageCollectionStarting();
+}
+
+//----------------------------------------------------------------------------
+void vtkLocator::RemoveReferences()
+{
+  this->SetDataSet(0);
+  this->Superclass::RemoveReferences();
+}

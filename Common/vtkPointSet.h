@@ -77,16 +77,6 @@ public:
   vtkGetObjectMacro(Points,vtkPoints);
 
   // Description:
-  // Detect reference loop PointSet <-> locator.
-  virtual void UnRegister(vtkObjectBase *o);
-  
-  // Description:
-  // Get the net reference count. That is the count minus
-  // any self created loops. This is used in the Source/Data
-  // registration to properly free the objects.
-  virtual int GetNetReferenceCount();
-
-  // Description:
   // Return the actual size of the data in kilobytes. This number
   // is valid only after the pipeline has updated. The memory size
   // returned is guaranteed to be greater than or equal to the
@@ -107,6 +97,8 @@ protected:
   vtkPoints *Points;
   vtkPointLocator *Locator;
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
 private:
   vtkPointSet(const vtkPointSet&);  // Not implemented.
   void operator=(const vtkPointSet&);  // Not implemented.

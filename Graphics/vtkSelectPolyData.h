@@ -151,14 +151,6 @@ public:
   // Overload GetMTime() because we depend on Loop
   unsigned long int GetMTime();
 
-  // Description:
-  // Handle the source/data loop.
-  virtual void UnRegister(vtkObjectBase *o);
-
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
 protected:
   vtkSelectPolyData();
   ~vtkSelectPolyData();
@@ -174,6 +166,8 @@ protected:
   vtkPolyData *UnselectedOutput;
   vtkPolyData *SelectionEdges;
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
 private:
   vtkPolyData *Mesh;
   void GetPointNeighbors (vtkIdType ptId, vtkIdList *nei);

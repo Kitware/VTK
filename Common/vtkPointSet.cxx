@@ -15,11 +15,12 @@
 #include "vtkPointSet.h"
 
 #include "vtkCell.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkPointLocator.h"
 #include "vtkSource.h"
 
-vtkCxxRevisionMacro(vtkPointSet, "1.79");
+vtkCxxRevisionMacro(vtkPointSet, "1.80");
 
 vtkCxxSetObjectMacro(vtkPointSet,Points,vtkPoints);
 
@@ -309,53 +310,22 @@ void vtkPointSet::Squeeze()
 }
 
 //----------------------------------------------------------------------------
-void vtkPointSet::UnRegister(vtkObjectBase *o)
+void vtkPointSet::ReportReferences(vtkGarbageCollector* collector)
 {
-  // detect the circular loop source <-> data
-  // If we have two references and one of them is my data
-  // and I am not being unregistered by my data, break the loop.
-  if (this->ReferenceCount == 2 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this))
-    {
-    this->SetSource(NULL);
-    }
-  // detect the circular loop PointSet <-> Locator
-  // If we have two references and one of them is my locator
-  // and I am not being unregistered by my locator, break the loop.
-  if (this->ReferenceCount == 2 && this->Locator &&
-      this->Locator->GetDataSet() == this && 
-      this->Locator != o)
-    {
-    this->Locator->SetDataSet(NULL);
-    }
-  // catch the case when both of the above are true
-  if (this->ReferenceCount == 3 && this->Source != NULL &&
-      o != this->Source && this->Source->InRegisterLoop(this) &&
-      this->Locator &&
-      this->Locator->GetDataSet() == this && 
-      this->Locator != o)
-    {
-    this->SetSource(NULL);
-    if (this->Locator)
-      {
-      this->Locator->SetDataSet(NULL);
-      }
-    }  
-  
-  this->vtkObject::UnRegister(o);
+  this->Superclass::ReportReferences(collector);
+  collector->ReportReference(this->Locator);
 }
-
 
 //----------------------------------------------------------------------------
-int vtkPointSet::GetNetReferenceCount()
+void vtkPointSet::RemoveReferences()
 {
-  if (this->Locator && this->Locator->GetDataSet() == this)
-    {    
-    return this->ReferenceCount - 1;
+  if(this->Locator)
+    {
+    this->Locator->UnRegister(this);
+    this->Locator = 0;
     }
-  return this->ReferenceCount;
+  this->Superclass::RemoveReferences();
 }
-
 
 //----------------------------------------------------------------------------
 unsigned long vtkPointSet::GetActualMemorySize()

@@ -93,11 +93,7 @@ public:
   // Handle the source/data loop.
   virtual void UnRegister(vtkObjectBase *o);
   
-  // Description:
-  // Test to see if this object is in a reference counting loop.
-  virtual int InRegisterLoop(vtkObject *);
-
-  // Description:
+// Description:
   // Return an array with all the inputs of this process object.
   // This is useful for tracing back in the pipeline to construct
   // graphs etc.
@@ -156,6 +152,10 @@ protected:
   // Time when ExecuteInformation was last called.
   vtkTimeStamp InformationTime;
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  int GarbageCollecting;
 private:
   vtkSource(const vtkSource&);  // Not implemented.
   void operator=(const vtkSource&);  // Not implemented.

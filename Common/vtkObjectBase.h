@@ -43,6 +43,8 @@
 #include "vtkIndent.h"
 #include "vtkSystemIncludes.h"
 
+class vtkGarbageCollector;
+
 class VTK_COMMON_EXPORT vtkObjectBase 
 {
 public:
@@ -132,11 +134,16 @@ protected:
   
   int ReferenceCount;      // Number of uses of this object by other objects
 
+  // See vtkGarbageCollector.h:
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void RemoveReferences();
+  virtual void GarbageCollectionStarting();
+  virtual void GarbageCollectionFinishing();
 private:
   //BTX
   friend VTK_COMMON_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
+  friend class vtkGarbageCollector;
   //ETX
-
 protected:
 //BTX
   vtkObjectBase(const vtkObjectBase&) {}

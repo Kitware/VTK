@@ -128,6 +128,9 @@ public:
   // Return the time of the last data structure build.
   vtkGetMacro(BuildTime, unsigned long);
 
+  // Description:
+  // Handle the PointSet <-> Locator loop.
+  virtual void UnRegister(vtkObjectBase *o);
 protected:
   vtkLocator();
   ~vtkLocator();
@@ -141,6 +144,10 @@ protected:
 
   vtkTimeStamp BuildTime;  // time at which locator was built
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+  virtual void GarbageCollectionStarting();
+  virtual void RemoveReferences();
+  int GarbageCollecting;
 private:
   vtkLocator(const vtkLocator&);  // Not implemented.
   void operator=(const vtkLocator&);  // Not implemented.
