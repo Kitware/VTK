@@ -104,36 +104,34 @@ public:
   //BTX
   virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
+  virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual AGLContext GetContextId()   {return this->ContextId;};
   virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
   virtual void SetDisplayId(void *) {};
-  virtual void SetParentId(void *) 
-    {
-      vtkWarningMacro("Method not implemented.");
-    }
-  virtual void* GetGenericParentId()
-    {
-      vtkWarningMacro("Method not implemented.");
-      return 0;
-    }
+
   virtual void* GetGenericDrawable()
     {
-      vtkWarningMacro("Method not implemented.");
+      vtkWarningMacro("GetGenericDrawable Method not implemented.");
       return 0;
     }
   void SetWindowInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+      vtkWarningMacro("SetWindowInfo Method not implemented.");
     }
   void SetParentInfo(char*)
     {
-      vtkWarningMacro("Method not implemented.");
+      vtkWarningMacro("SetParentInfo Method not implemented.");
     }
 
   // Description:
   // Get the window id.
   virtual WindowPtr GetWindowId();
   void  SetWindowId(void *foo) {this->SetWindowId((WindowPtr)foo);};
+
+  // Description:
+  // Get the window id.
+  virtual void SetParentId(WindowPtr);
+  void  SetParentId(void *foo) {this->SetParentId((WindowPtr)foo);};
   
   // Description:
   // Set the window id to a pre-existing window.
@@ -216,6 +214,7 @@ protected:
   AGLContext ContextId;
   AGLDrawable DeviceContext;  // the drawable attached to a rendering context
   WindowPtr WindowId;
+  WindowPtr ParentId;
   int OwnWindow;
   int ScreenSize[2];
 
