@@ -16,6 +16,7 @@ vtkMesaCamera \
 vtkMesaLight \
 vtkMesaPolyDataMapper \
 vtkMesaProperty \
+vtkMesaProjectedPolyDataRayBounder \
 vtkMesaRenderWindow \
 vtkMesaRenderer \
 vtkMesaTexture  \
@@ -46,6 +47,7 @@ vtkApproximatingSubdivisionFilter \
 vtkDicer \
 vtkEncodedGradientEstimator \
 vtkExporter \
+vtkGraphicsFactory \
 vtkImporter \
 vtkInterpolatingSubdivisionFilter \
 vtkMapper \
