@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.30");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.31");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -114,7 +114,7 @@ void vtkExtractUnstructuredGrid::Execute()
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType *pointMap = NULL;
   
-  vtkDebugMacro(<<"Executing geometry filter");
+  vtkDebugMacro(<<"Executing extraction filter");
 
   if ( numPts < 1 || numCells < 1 || !inPts )
     {
@@ -240,12 +240,12 @@ void vtkExtractUnstructuredGrid::Execute()
       } //if cell is visible
     } //for all cells
 
-  vtkDebugMacro(<<"Extracted " << output->GetNumberOfPoints() << " points,"
-                << output->GetNumberOfCells() << " cells.");
-
   // Update ourselves and release memory
   output->SetPoints(newPts);
   newPts->Delete();
+
+  vtkDebugMacro(<<"Extracted " << output->GetNumberOfPoints() << " points,"
+                << output->GetNumberOfCells() << " cells.");
 
   if ( this->Merging && this->Locator )
     {
