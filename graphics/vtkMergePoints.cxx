@@ -117,20 +117,22 @@ int *vtkMergePoints::MergePoints()
 // -1.
 int vtkMergePoints::IsInsertedPoint(float x[3])
 {
-  int i, ijk[3];
+  int i, ijk0, ijk1, ijk2;
   int idx;
   vtkIdList *bucket;
 //
 //  Locate bucket that point is in.
 //
-  for (i=0; i<3; i++) 
-    {
-    ijk[i] = (int) ((float) ((x[i] - this->Bounds[2*i]) / 
-             (this->Bounds[2*i+1] - this->Bounds[2*i])) * (this->Divisions[i] - 1));
-    }
+  ijk0 = (int) ((float) ((x[0] - this->Bounds[0]) / 
+           (this->Bounds[1] - this->Bounds[0])) * (this->Divisions[0] - 1));
+  ijk1 = (int) ((float) ((x[1] - this->Bounds[2]) / 
+           (this->Bounds[3] - this->Bounds[2])) * (this->Divisions[1] - 1));
+  ijk2 = (int) ((float) ((x[2] - this->Bounds[4]) / 
+           (this->Bounds[5] - this->Bounds[4])) * (this->Divisions[2] - 1));
 
-  idx = ijk[0] + ijk[1]*this->Divisions[0] + 
-        ijk[2]*this->Divisions[0]*this->Divisions[1];
+
+  idx = ijk0 + ijk1*this->Divisions[0] + 
+        ijk2*this->Divisions[0]*this->Divisions[1];
 
   bucket = this->HashTable[idx];
 
@@ -145,8 +147,9 @@ int vtkMergePoints::IsInsertedPoint(float x[3])
 //
     int ptId;
     float *pt;
+    int NumberOfIds = bucket->GetNumberOfIds ();
 
-    for (i=0; i < bucket->GetNumberOfIds(); i++) 
+    for (i=0; i < NumberOfIds; i++) 
       {
       ptId = bucket->GetId(i);
       pt = this->Points->GetPoint(ptId);
