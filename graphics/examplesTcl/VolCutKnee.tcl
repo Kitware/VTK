@@ -47,8 +47,13 @@ vol SetVolumeMapper volmap
 
 ren1 AddVolume vol
 
+vtkImageShrink3D shrink
+  shrink SetInput [reader GetOutput]
+  shrink SetShrinkFactors 4 4 2
+  shrink AveragingOn
+
 vtkContourFilter contour
-  contour SetInput [reader GetOutput]
+  contour SetInput [shrink GetOutput]
   contour SetValue 0 30.0
 
 vtkPoints points
