@@ -1065,6 +1065,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       }
     }
 
+  self->RenderWindow->SetPosition(winPtr->privatePtr->xOff,
+                                  winPtr->privatePtr->yOff);
   self->RenderWindow->SetSize(self->Width, self->Height);
 
   // Set the parent correctly and get the actual OSX window on the screen
