@@ -256,12 +256,15 @@ void vtkInteractorStyleJoystickCamera::OnLeftButtonDown(int ctrl, int shift,
 						int x, int y) 
 {
   this->FindPokedRenderer(x, y);
+
   if (this->CurrentRenderer == NULL)
     {
+    vtkErrorMacro("CurrentRenderer is NULL");
     return;
     }
 
   this->UpdateInternalState(ctrl, shift, x, y);
+  
   if (this->CtrlKey)
     {
     this->StartSpin();
@@ -337,5 +340,5 @@ void vtkInteractorStyleJoystickCamera::OnRightButtonUp(int ctrl, int shift,
 void vtkInteractorStyleJoystickCamera::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkInteractorStyle::PrintSelf(os,indent);
-
 }
+

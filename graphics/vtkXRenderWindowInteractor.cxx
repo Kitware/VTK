@@ -192,6 +192,7 @@ void vtkXRenderWindowInteractor::Initialize()
   int *position;
   int argc = 0;
 
+  
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
     {
@@ -203,6 +204,9 @@ void vtkXRenderWindowInteractor::Initialize()
   ren = (vtkXRenderWindow *)(this->RenderWindow);
 
   // do initialization stuff if not initialized yet
+  
+  
+  
   if (this->App)
     {
     any_initialized = 1;
@@ -216,6 +220,7 @@ void vtkXRenderWindowInteractor::Initialize()
     vtkDebugMacro("app ctx " << app);
     any_initialized = 1;
     }
+  
   this->App = app;
 
   this->DisplayId = ren->GetDisplayId();

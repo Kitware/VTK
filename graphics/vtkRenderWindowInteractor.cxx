@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPropPicker.h"
-#include "vtkInteractorStyleTrackball.h"
+#include "vtkInteractorStyleSwitch.h"
 #include "vtkGraphicsFactory.h"
 
 
@@ -50,7 +50,7 @@ vtkRenderWindowInteractor::vtkRenderWindowInteractor()
 {
   this->RenderWindow    = NULL;
   this->InteractorStyle = NULL;
-  this->SetInteractorStyle(vtkInteractorStyleTrackball::New()); 
+  this->SetInteractorStyle(vtkInteractorStyleSwitch::New()); 
   this->InteractorStyle->Delete();
   
   this->LightFollowCamera = 1;

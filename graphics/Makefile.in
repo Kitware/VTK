@@ -170,6 +170,7 @@ vtkInteractorStyle \
 vtkInteractorStyleFlight \
 vtkInteractorStyleJoystickActor \
 vtkInteractorStyleJoystickCamera \
+vtkInteractorStyleSwitch \
 vtkInteractorStyleTrackball \
 vtkInteractorStyleTrackballActor \
 vtkInteractorStyleTrackballCamera \

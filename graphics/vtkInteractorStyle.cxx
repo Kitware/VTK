@@ -333,17 +333,19 @@ void vtkInteractorStyle::FindPokedRenderer(int x,int y)
   vtkRenderer *aren;
   int numRens, i;
   this->CurrentRenderer = NULL;
-  
+
   rc = this->Interactor->GetRenderWindow()->GetRenderers();
   numRens = rc->GetNumberOfItems();
+  
   for (i = numRens -1; (i >= 0) && !this->CurrentRenderer; i--) 
     {
     aren = (vtkRenderer *)rc->GetItemAsObject(i);
-    if (aren->IsInViewport(x,y) && aren->GetInteractive()) 
+    if (aren->IsInViewport(x,y)) 
       {
       this->CurrentRenderer = aren;
       }
     }
+  
   // we must have a value
   if (this->CurrentRenderer == NULL) 
     {
@@ -1119,6 +1121,9 @@ void vtkInteractorStyle::ComputeWorldToDisplay(double x, double y,
 //----------------------------------------------------------------------------
 // Implementations of Joystick Camera/Actor motions follow
 //----------------------------------------------------------------------------
+
+// This functionality of RotateCamera, SpinCamera, PanCamera, and DollyCamera
+// is now handled by vtkInteractorStyleJoystickCamera.
 void vtkInteractorStyle::RotateCamera(int x, int y)
 {
   vtkRenderWindowInteractor *rwi = this->Interactor;

@@ -112,6 +112,7 @@ static int vtkTclEventProc(XtPointer clientData,XEvent *event)
 static void vtkXTclTimerProc(ClientData clientData)
 {
   XtIntervalId id;
+  
   vtkXRenderWindowTclInteractorTimer((XtPointer)clientData,&id);
 }
 

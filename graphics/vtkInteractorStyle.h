@@ -136,7 +136,7 @@ public:
 
   // Description:
   // Set/Get the Interactor wrapper being controlled by this object.
-  void SetInteractor(vtkRenderWindowInteractor *interactor);
+  virtual void SetInteractor(vtkRenderWindowInteractor *interactor);
   vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
 
   // Description:
