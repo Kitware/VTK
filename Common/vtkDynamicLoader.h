@@ -59,8 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif defined(_WIN32)
 # include "windows.h"
   typedef HMODULE vtkLibHandle;
-#elif defined(__powerpc)
-  typedef ConnectionID vtkLibHandle;
 #else
   typedef void* vtkLibHandle;
 #endif
