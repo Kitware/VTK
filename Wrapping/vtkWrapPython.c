@@ -969,15 +969,15 @@ static void create_class_doc(FILE *fp, FileInfo *data)
     n = (strlen(data->Description) + 400-1)/400;
     for (i = 0; i < n; i++)
       {
-      strncpy(text, &data->Description[400*i], 400);
-      text[400] = '\0';
+      strncpy(temp, &data->Description[400*i], 400);
+      temp[400] = '\0';
       if (i < n-1)
         {
-        fprintf(fp,"  \"%s\",\n",quote_string(text,500));
+        fprintf(fp,"  \"%s\",\n",quote_string(temp,500));
         }
       else
         { // just for the last time
-        fprintf(fp,"  \"%s\\n\",\n",quote_string(text,500));
+        fprintf(fp,"  \"%s\\n\",\n",quote_string(temp,500));
         }
       }
     }
