@@ -21,7 +21,7 @@
 #include "vtkGenericDataSet.h"
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.3");
+vtkCxxRevisionMacro(vtkAttributesErrorMetric,"1.4");
 vtkStandardNewMacro(vtkAttributesErrorMetric);
 
 //-----------------------------------------------------------------------------
@@ -33,6 +33,21 @@ vtkAttributesErrorMetric::vtkAttributesErrorMetric()
 //-----------------------------------------------------------------------------
 vtkAttributesErrorMetric::~vtkAttributesErrorMetric()
 {
+}
+
+//-----------------------------------------------------------------------------
+// Description:
+// Set the relative attribute accuracy to `value'. See
+// GetAttributeTolerance() for details.
+// \pre valid_range_value: value>0 && value<1
+void vtkAttributesErrorMetric::SetAttributeTolerance(double value)
+{
+  assert("pre: valid_range_value" && value>0 && value<1);
+  if(this->AttributeTolerance!=value)
+    {
+    this->AttributeTolerance=value;
+    this->Modified();
+    }
 }
 
 //-----------------------------------------------------------------------------
