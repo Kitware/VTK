@@ -343,8 +343,9 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
   TRIANGLE_CASES *triCase;
   EDGE_LIST  *edge;
   int i, j, index, *vert;
+  int e1, e2;
   int pts[3];
-  float t, *x1, *x2, x[3];
+  float t, x1[3], x2[3], x[3], deltaScalar;
   float *hexaScalars = cellScalars->GetPtr (0);
 
   // Build the case table
@@ -360,10 +361,25 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
-      t = (value - hexaScalars[vert[0]]) /
-          (hexaScalars[vert[1]] - hexaScalars[vert[0]]);
-      x1 = this->Points.GetPoint(vert[0]);
-      x2 = this->Points.GetPoint(vert[1]);
+      // calculate a preferred interpolation direction
+      deltaScalar = (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      if (deltaScalar > 0)
+        {
+	e1 = vert[0]; e2 = vert[1];
+        }
+      else
+        {
+	e1 = vert[1]; e2 = vert[0];
+        deltaScalar = -deltaScalar;
+        }
+
+      // linear interpolation
+      if (deltaScalar == 0.0) t = 0.0;
+      else t = (value - cellScalars->GetScalar(e1)) / deltaScalar;
+
+      this->Points.GetPoint(e1, x1);
+      this->Points.GetPoint(e2, x2);
+
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
       if ( (pts[i] = locator->IsInsertedPoint(x)) < 0 )
         {
