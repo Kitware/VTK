@@ -16,7 +16,6 @@
 
 =========================================================================*/
 #include "vtkActor.h"
-#include "vtkActor2D.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
@@ -31,32 +30,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTextMapper.h"
 #include "vtkVolume16Reader.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
-
-// Callback for the interaction
-class vtkMyCallback : public vtkCommand
-{
-public:
-  static vtkMyCallback *New()
-    { return new vtkMyCallback; }
-  void Delete()
-    { delete this; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
-    {
-      vtkImagePlaneWidget *planeWidget = reinterpret_cast<vtkImagePlaneWidget*>(caller);
-
-      sprintf(this->buffer,"%.2f, %d",planeWidget->GetSlicePosition(),planeWidget->GetSliceIndex());
-      this->Mapper->SetInput(buffer);
-      this->Mapper->Modified();
-    }
-  vtkMyCallback():Mapper(0){};
-  vtkTextMapper* Mapper;
-  char buffer[128];
-};
 
 int main( int argc, char *argv[] )
 {
@@ -135,26 +112,6 @@ int main( int argc, char *argv[] )
     planeWidgetZ->SetLookupTable( planeWidgetX->GetLookupTable());
     planeWidgetZ->On();
 
-  // add text display of planeWidgetZ's slice position and slice index to ren2
-  vtkTextMapper* textMapper = vtkTextMapper::New();
-    textMapper->SetInput("NA");
-    textMapper->SetFontSize(18);
-    textMapper->SetFontFamilyToArial();
-    textMapper->SetJustificationToLeft();
-    textMapper->BoldOn();
-    textMapper->ItalicOff();
-    textMapper->ShadowOff();
-
-  vtkActor2D* textActor = vtkActor2D::New();
-    textActor->SetMapper(textMapper);
-    textActor->GetProperty()->SetColor(0,1,1);
-
-  // link the widget to the text by callback
-  vtkMyCallback *myCallback = vtkMyCallback::New();
-    myCallback->Mapper = textMapper;
-
-  planeWidgetZ->AddObserver(vtkCommand::InteractionEvent,myCallback);
-
   // add a 2D image to test the GetReslice method
   vtkImageMapToColors* colorMap = vtkImageMapToColors::New();
     colorMap->PassAlphaToOutputOff();
@@ -170,7 +127,6 @@ int main( int argc, char *argv[] )
   // add the actors
   ren1->AddActor( outlineActor);
   ren2->AddActor( imageActor);
-  ren2->AddActor( textActor);
 
   ren1->SetBackground( 0.1, 0.1, 0.2);
   ren2->SetBackground( 0.2, 0.1, 0.2);
@@ -188,8 +144,6 @@ int main( int argc, char *argv[] )
   iren->SetEventPosition( 475,175);
   iren->SetKeyCode('r');
   iren->InvokeEvent(vtkCommand::CharEvent,NULL);
-  int *o = ren2->GetOrigin();
-  textActor->SetDisplayPosition(o[0] + 5, o[1] + 5);
   renWin->Render();
 
   // test SetKeyPressActivationValue for one of the widgets
@@ -212,6 +166,28 @@ int main( int argc, char *argv[] )
   iren->SetEventPosition(pos2);
   iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
   iren->InvokeEvent(vtkCommand::RightButtonReleaseEvent, NULL);
+  
+  // make the plane pushing work by left button
+  int pos3[2] = { 244,225};
+  iren->SetEventPosition(pos3);
+  iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, NULL);
+  int pos4[2] = { 196,200};
+  iren->SetEventPosition(pos4);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  iren->SetEventPosition(pos3);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, NULL);
+ 
+  // make the plane pushing work by middle button
+  int pos5[2] = { 140,219};
+  iren->SetEventPosition(pos5);
+  iren->InvokeEvent(vtkCommand::MiddleButtonPressEvent, NULL);
+  int pos6[2] = { 202,196};
+  iren->SetEventPosition(pos6);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  iren->SetEventPosition(pos5);
+  iren->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+  iren->InvokeEvent(vtkCommand::MiddleButtonReleaseEvent, NULL);
 
   int retVal = vtkRegressionTestImage( renWin );
 
@@ -234,9 +210,6 @@ int main( int argc, char *argv[] )
   ren1->Delete();
   ren2->Delete();
   v16->Delete();
-  textMapper->Delete();
-  textActor->Delete();
-  myCallback->Delete();
 
   return !retVal;
 }
