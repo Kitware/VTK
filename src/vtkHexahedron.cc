@@ -336,10 +336,11 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
   int i, j, index, *vert;
   int pts[3];
   float t, *x1, *x2, x[3];
+  float *hexaScalars = cellScalars->GetPtr (0);
 
   // Build the case table
   for ( i=0, index = 0; i < 8; i++)
-      if (cellScalars->GetScalar(i) >= value)
+      if (hexaScalars[i] >= value)
           index |= CASE_MASK[i];
 
   triCase = triCases + index;
@@ -350,8 +351,8 @@ void vtkHexahedron::Contour(float value, vtkFloatScalars *cellScalars,
     for (i=0; i<3; i++) // insert triangle
       {
       vert = edges[edge[i]];
-      t = (value - cellScalars->GetScalar(vert[0])) /
-          (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
+      t = (value - hexaScalars[vert[0]]) /
+          (hexaScalars[vert[1]] - hexaScalars[vert[0]]);
       x1 = this->Points.GetPoint(vert[0]);
       x2 = this->Points.GetPoint(vert[1]);
       for (j=0; j<3; j++) x[j] = x1[j] + t * (x2[j] - x1[j]);
