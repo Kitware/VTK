@@ -39,12 +39,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 // .NAME vtkWriter - abstract class to write data to file(s)
 // .SECTION Description
-// vtkMassProperties is used estimate the volume, the surface area, and the
-// normalized shape index of a model.  The algorithm implemented here is based
-// on the discrete form of the divergence theorem.  The general assumption here
-// is that the model is of closed surface.  For more details see the following
-// reference (Alyassin A.M. et al, "Evaluation of new algorithms for the 
-// interactive measurement of surface area and volume", Med Phys 21(6) 1994.)
+// vtkMassProperties estimates the volume, the surface area, and the
+// normalized shape index of a model.  The algorithm implemented here is
+// based on the discrete form of the divergence theorem.  The general
+// assumption here is that the model is of closed surface.  For more
+// details see the following reference (Alyassin A.M. et al, "Evaluation
+// of new algorithms for the interactive measurement of surface area and
+// volume", Med Phys 21(6) 1994.).
+// NOTE: currently only triangles are processed. Use vtkTriangleFilter
+// to convert any strips or polygons to triangles.
 
 
 #ifndef __vtkMassProperties_h
@@ -60,16 +63,34 @@ public:
   const char *GetClassName() {return "vtkMassProperties";};
   static vtkMassProperties *New() {return new  vtkMassProperties;};
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Compute and return the volume.
   double GetVolume() { this->Update();return this->Volume;}
+
+  // Description:
+  // Compute and return the volume projected on to each axis aligned plane.
   double GetVolumeX() { this->Update();return this->VolumeX;}
   double GetVolumeY() { this->Update();return this->VolumeY;}
   double GetVolumeZ() { this->Update();return this->VolumeZ;}
+
+  // Description:
+  // Compute and return the weighting factors for the maximum unit
+  // normal component (MUNC).
   double GetKx() { this->Update();return this->Kx;}
   double GetKy() { this->Update();return this->Ky;}
   double GetKz() { this->Update();return this->Kz;}
+
+  // Description:
+  // Compute and return the area.
   double GetSurfaceArea() { this->Update();return this->SurfaceArea;}
+
+  // Description:
+  // Compute and return the normalized shape index. This characterizes the
+  // deviation of the shape of an object from a sphere. A sphere's NSI
+  // is one. This number is always >= 1.0.
   double GetNormalizedShapeIndex() { this->Update();return this->NormalizedShapeIndex;}
-  int GetNumberOfVertices() { this->Update();return this->NumberOfVertices;}
+
   void Execute();
   void Update();
 
@@ -86,7 +107,6 @@ protected:
   double  Ky;
   double  Kz;
   double  NormalizedShapeIndex;
-  int     NumberOfVertices;
   vtkPolyData *Input;
   vtkTimeStamp ExecuteTime;
 
