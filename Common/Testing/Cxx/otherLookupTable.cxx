@@ -20,7 +20,6 @@ void Test(ostream& strm, vtkLookupTable *lut1)
 {
   // actual test
  
-  float range[2] = {0, 1023};
   lut1->SetRange(0,1023);
   lut1->SetScaleToLinear();
   
