@@ -106,6 +106,7 @@ void vtkTriangleFilter::Execute()
   // Update output
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());
+  output->Squeeze();
 
   vtkDebugMacro(<<"Converted " << input->GetNumberOfCells()
                 << "input cells to "
