@@ -128,9 +128,9 @@ public:
   // define the field component to use you specify an array name and the
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
-  void SetScalarComponent(int comp, char *arrayName, int arrayComp,
+  void SetScalarComponent(int comp, const char *arrayName, int arrayComp,
 			  int min, int max, int normalize);
-  void SetScalarComponent(int comp, char *arrayName, int arrayComp)
+  void SetScalarComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetScalarComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetScalarComponentArrayName(int comp);
   int GetScalarComponentArrayComponent(int comp);
@@ -144,9 +144,9 @@ public:
   // define the field component to use you specify an array name and the
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
-  void SetVectorComponent(int comp, char *arrayName, int arrayComp,
+  void SetVectorComponent(int comp, const char *arrayName, int arrayComp,
 			  int min, int max, int normalize);
-  void SetVectorComponent(int comp, char *arrayName, int arrayComp)
+  void SetVectorComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetVectorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetVectorComponentArrayName(int comp);
   int GetVectorComponentArrayComponent(int comp);
@@ -160,9 +160,9 @@ public:
   // comp parameter. To define the field component to use you specify an array 
   // name and the component in that array. The (min,max) values are the range
   // of data in the component you wish to extract.
-  void SetGhostLevelComponent(char *arrayName, int arrayComp,
+  void SetGhostLevelComponent(const char *arrayName, int arrayComp,
 			      int min, int max, int normalize);
-  void SetGhostLevelComponent(char *arrayName, int arrayComp)
+  void SetGhostLevelComponent(const char *arrayName, int arrayComp)
     {this->SetGhostLevelComponent(arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetGhostLevelComponentArrayName();
   int GetGhostLevelComponentArrayComponent();
@@ -176,9 +176,9 @@ public:
   // define the field component to use you specify an array name and the
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
-  void SetNormalComponent(int comp, char *arrayName, int arrayComp,
+  void SetNormalComponent(int comp, const char *arrayName, int arrayComp,
 			  int min, int max, int normalize);
-  void SetNormalComponent(int comp, char *arrayName, int arrayComp)
+  void SetNormalComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetNormalComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetNormalComponentArrayName(int comp);
   int GetNormalComponentArrayComponent(int comp);
@@ -192,9 +192,9 @@ public:
   // define the field component to use you specify an array name and the
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
-  void SetTensorComponent(int comp, char *arrayName, int arrayComp,
+  void SetTensorComponent(int comp, const char *arrayName, int arrayComp,
 			  int min, int max, int normalize);
-  void SetTensorComponent(int comp, char *arrayName, int arrayComp)
+  void SetTensorComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetTensorComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetTensorComponentArrayName(int comp);
   int GetTensorComponentArrayComponent(int comp);
@@ -208,9 +208,9 @@ public:
   // define the field component to use you specify an array name and the
   // component in that array. The (min,max) values are the range of data in
   // the component you wish to extract.
-  void SetTCoordComponent(int comp, char *arrayName, int arrayComp,
+  void SetTCoordComponent(int comp, const char *arrayName, int arrayComp,
 			  int min, int max, int normalize);
-  void SetTCoordComponent(int comp, char *arrayName, int arrayComp)
+  void SetTCoordComponent(int comp, const char *arrayName, int arrayComp)
     {this->SetTCoordComponent(comp, arrayName, arrayComp, -1, -1, this->DefaultNormalize);};
   const char *GetTCoordComponentArrayName(int comp);
   int GetTCoordComponentArrayComponent(int comp);
@@ -247,7 +247,7 @@ public:
   
   // Description:
   // Specify an array name for one of the components.
-  static void SetArrayName(vtkObject *self, char* &name, char *newName);
+  static void SetArrayName(vtkObject *self, char* &name, const char *newName);
   
   // Description:
   // Update the maximum and minimum component range values. Returns a flag

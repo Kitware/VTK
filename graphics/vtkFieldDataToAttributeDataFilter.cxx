@@ -279,7 +279,7 @@ void vtkFieldDataToAttributeDataFilter::PrintSelf(ostream& os,
 
 // Stuff related to scalars --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetScalarComponent(int comp, char *arrayName, 
+void vtkFieldDataToAttributeDataFilter::SetScalarComponent(int comp, const char *arrayName, 
                               int arrayComp, int min, int max, int normalize)
 {
   if ( comp < 0 || comp > 3 )
@@ -434,7 +434,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructScalars(int num, vtkFieldData *
 
 // Stuff related to vectors --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetVectorComponent(int comp, char *arrayName, 
+void vtkFieldDataToAttributeDataFilter::SetVectorComponent(int comp, const char *arrayName, 
                               int arrayComp, int min, int max, int normalize)
 {
   if ( comp < 0 || comp > 2 )
@@ -574,7 +574,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructVectors(int num, vtkFieldData *
 
 // Stuff related to ghost levels --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetGhostLevelComponent(char *arrayName,
+void vtkFieldDataToAttributeDataFilter::SetGhostLevelComponent(const char *arrayName,
                                                                int arrayComp,
                                                                int min,
                                                                int max,
@@ -692,7 +692,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructGhostLevels(int num,
 
 // Stuff related to normals --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetNormalComponent(int comp, char *arrayName, 
+void vtkFieldDataToAttributeDataFilter::SetNormalComponent(int comp, const char *arrayName, 
                               int arrayComp, int min, int max, int normalize)
 {
   if ( comp < 0 || comp > 2 )
@@ -832,7 +832,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructNormals(int num, vtkFieldData *
 
 // Stuff related to texture coords --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetTCoordComponent(int comp, char *arrayName, 
+void vtkFieldDataToAttributeDataFilter::SetTCoordComponent(int comp, const char *arrayName, 
                               int arrayComp, int min, int max, int normalize)
 {
   if ( comp < 0 || comp > 2 )
@@ -987,7 +987,7 @@ void vtkFieldDataToAttributeDataFilter::ConstructTCoords(int num, vtkFieldData *
 
 // Stuff related to tensors --------------------------------------------
 //
-void vtkFieldDataToAttributeDataFilter::SetTensorComponent(int comp, char *arrayName, 
+void vtkFieldDataToAttributeDataFilter::SetTensorComponent(int comp, const char *arrayName, 
                               int arrayComp, int min, int max, int normalize)
 {
   if ( comp < 0 || comp > 8 )
@@ -1229,7 +1229,7 @@ vtkDataArray *vtkFieldDataToAttributeDataFilter::GetFieldArray(vtkFieldData *fd,
   return NULL;
 }
 
-void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &name, char *newName)
+void vtkFieldDataToAttributeDataFilter::SetArrayName(vtkObject *self, char* &name, const char *newName)
 {
   if ( name && newName && (!strcmp(name,newName)))
     {
