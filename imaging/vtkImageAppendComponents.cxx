@@ -68,7 +68,7 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 					    int outExt[6], int id)
 {
   int idxC, idxX, idxY, idxZ;
-  int maxC, maxX, maxY, maxZ;
+  int outMaxC, maxC, maxX, maxY, maxZ;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
   unsigned long count = 0;
@@ -87,6 +87,7 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
   in1Data->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
   outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
   
+  outMaxC = outData->GetNumberOfScalarComponents();
   // Loop through image 1
   maxC = in1Data->GetNumberOfScalarComponents();
   for (idxC = 0; idxC < maxC; idxC++)
@@ -106,8 +107,8 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 	  {
 	  // Pixel operation
 	  *outPtr = *inPtr;
-	  outPtr += outIncX;
-	  inPtr += inIncX;
+	  outPtr += outMaxC;
+	  inPtr += maxC;
 	  }
 	outPtr += outIncY;
 	inPtr += inIncY;
@@ -138,8 +139,8 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 	  {
 	  // Pixel operation
 	  *outPtr = *inPtr;
-	  outPtr += outIncX;
-	  inPtr += inIncX;
+	  outPtr += outMaxC;
+	  inPtr += maxC;
 	  }
 	outPtr += outIncY;
 	inPtr += inIncY;
@@ -157,15 +158,12 @@ static void vtkImageAppendComponentsExecute(vtkImageAppendComponents *self,
 // It just executes a switch statement to call the correct function for
 // the regions data types.
 void vtkImageAppendComponents::ThreadedExecute(vtkImageData **inData, 
-						    vtkImageData *outData,
-						    int outExt[6], int id)
+					       vtkImageData *outData,
+					       int outExt[6], int id)
 {
   void *in1Ptr = inData[0]->GetScalarPointerForExtent(outExt);
   void *in2Ptr = inData[1]->GetScalarPointerForExtent(outExt);
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  vtkDebugMacro(<< "Execute: inData = " << inData 
-		<< ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
   if (inData[0]->GetScalarType() != outData->GetScalarType() ||

@@ -30,6 +30,7 @@ vtkImageFourierFilter
 
 CONCRETE = \
 vtkBMPWriter \
+vtkImageAccumulate \
 vtkImageAnisotropicDiffusion2D \
 vtkImageAnisotropicDiffusion3D \
 vtkImageAppendComponents \
@@ -37,6 +38,7 @@ vtkImageButterworthHighPass \
 vtkImageButterworthLowPass \
 vtkImageCanvasSource2D \
 vtkImageCast \
+vtkImageCityBlockDistance \
 vtkImageClip \
 vtkImageConnector \
 vtkImageConstantPad \
@@ -75,9 +77,6 @@ vtkTIFFWriter
 
 
 
-#vtkImageAccumulate \
-#vtkImageCityBlockDistance \
-#vtkImageCityBlockDistance1D \
 #vtkImageContinuousDilate3D \
 #vtkImageContinuousErode3D \
 #vtkImageConvolution1D \

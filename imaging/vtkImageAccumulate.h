@@ -59,30 +59,33 @@ public:
   static vtkImageAccumulate *New() {return new vtkImageAccumulate;};
   const char *GetClassName() {return "vtkImageAccumulate";};
 
-  // Always get the whole dataset.
+  // Always generate the whole data set.
   void InterceptCacheUpdate();
 
   // Description:
   // Set/Get - The component spacing is the dimension of each cell.
-  void SetComponentSpacing(int num, float *spacing);
-  vtkImageSetMacro(ComponentSpacing, float);
+  vtkSetVector3Macro(ComponentSpacing, float);
+  vtkGetVector3Macro(ComponentSpacing, float);
   // Description:
-  // Set/Get - The component origin is the location of bin (0, 0, 0, 0).
-  void SetComponentOrigin(int num, float *origin);
-  vtkImageSetMacro(ComponentOrigin, float);
+  // Set/Get - The component origin is the location of bin (0, 0, 0).
+  vtkSetVector3Macro(ComponentOrigin, float);
+  vtkGetVector3Macro(ComponentOrigin, float);
   // Description:
   // Set/Get - The component extent is the number/extent of the bins.  
-  void SetComponentExtent(int dim, int *extent);
-  vtkImageSetExtentMacro(ComponentExtent);
+  void SetComponentExtent(int extent[6]);
+  void SetComponentExtent(int minX, int maxX, int minY, int maxY, 
+			    int minZ, int maxZ);
+  void GetComponentExtent(int extent[6]);
+  int *GetComponentExtent() {return this->ComponentExtent;}
   
 protected:
-  float ComponentSpacing[4];
-  float ComponentOrigin[4];
-  int ComponentExtent[8];
+  float ComponentSpacing[3];
+  float ComponentOrigin[3];
+  int ComponentExtent[6];
 
   void ExecuteImageInformation();
-  void ComputeRequiredInputUpdateExtent();
-  void Execute(vtkImageRegion *inRegion, vtkImageRegion *outRegion);
+  void ComputeRequiredInputUpdateExtent(int inExt[6], int outExt[6]);
+  void Execute(vtkImageData *inData, vtkImageData *outData);
 };
 
 #endif
