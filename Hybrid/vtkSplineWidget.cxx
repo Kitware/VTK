@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.4");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.5");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkSplineWidget::vtkSplineWidget()
@@ -1172,6 +1172,16 @@ void vtkSplineWidget::SetResolution(int resolution)
     return;
     }
 
+  if ( this->Interactor )
+    {
+    this->CurrentRenderer = this->Interactor->FindPokedRenderer(this->Interactor->GetLastEventPosition()[0],
+    this->Interactor->GetLastEventPosition()[1]);
+    if ( this->CurrentRenderer != NULL)
+      {
+      this->CurrentRenderer->RemoveProp(this->LineActor);
+      }
+    }
+
   this->NumberOfSplinePoints = resolution + 1;
 
   if(resolution > this->Resolution)  //only delete when necessary
@@ -1189,8 +1199,10 @@ void vtkSplineWidget::SetResolution(int resolution)
   this->LinePicker->DeletePickList(this->LineActor);
 
   vtkPoints* points = this->LineData->GetPoints();
+  points->Initialize();
   points->Allocate(this->NumberOfSplinePoints);
   vtkCellArray* lines = this->LineData->GetLines();
+  lines->Initialize();
   lines->Allocate(lines->EstimateSize(this->Resolution,2));
   lines->InsertNextCell(this->NumberOfSplinePoints);
 
@@ -1206,12 +1218,16 @@ void vtkSplineWidget::SetResolution(int resolution)
     lines->InsertCellPoint(i);
     }
 
+  this->LineData->Initialize();
   this->LineData->SetPoints(points);
   this->LineData->SetLines(lines);
-  this->LineData->Update();
   this->LineMapper->Update();
-  this->LineActor->Modified();
   this->LinePicker->AddPickList(this->LineActor);
+
+  if(this->CurrentRenderer != NULL)
+    {
+    this->CurrentRenderer->AddActor(this->LineActor);
+    }
 }
 
 void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
