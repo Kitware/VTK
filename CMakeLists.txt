@@ -106,6 +106,16 @@ ENDIF(VTK_USE_CARBON AND VTK_USE_COCOA)
 # VTK requires special compiler flags on some platforms.
 SET(VTK_REQUIRED_C_FLAGS)
 SET(VTK_REQUIRED_CXX_FLAGS)
+
+# make sure Crun is linked in with the native compiler, it is
+# not used by default for shared libraries and is required for
+# things like java to work.
+IF(CMAKE_SYSTEM MATCHES "SunOS.*")
+  IF(NOT CMAKE_COMPILER_IS_GNUCXX)
+     LINK_LIBRARIES(Crun)
+  ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
+ENDIF(CMAKE_SYSTEM MATCHES "SunOS.*")
+
 IF(CMAKE_COMPILER_IS_GNUCXX)
   # A GCC compiler.  Quiet warning about strstream deprecation.
   SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -Wno-deprecated")
