@@ -111,7 +111,6 @@ void vtkConeSource::Execute()
     }
   else
     {
-    vtkErrorMacro (<<"Resolution is zero!");
     angle = 0.0;
     }
   //
