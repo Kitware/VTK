@@ -87,10 +87,10 @@ void vtkUGFacetReader::Execute()
     }
 
   // allocate memory
-  newPoints = new vtkFloatPoints(7500,10000);
-  newNormals = new vtkFloatNormals(7500,10000);
+  newPoints = new vtkFloatPoints(25000,25000);
+  newNormals = new vtkFloatNormals(25000,25000);
   newPolys = new vtkCellArray;
-  newPolys->Allocate(newPolys->EstimateSize(2500,3),10000);
+  newPolys->Allocate(newPolys->EstimateSize(25000,3),25000);
 
   // loop over all facet sets, extracting triangles
   for (setNumber=0; setNumber < numFacetSets; setNumber++) 
