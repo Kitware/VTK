@@ -66,11 +66,7 @@ void vtkPointSet::CopyStructure(vtkDataSet *ds)
   vtkPointSet *ps=(vtkPointSet *)ds;
   this->Initialize();
 
-  this->Points = ps->Points;
-  if (this->Points)
-    {
-    this->Points->Register(this);
-    }
+  this->SetPoints(ps->Points);
 }
 
 
