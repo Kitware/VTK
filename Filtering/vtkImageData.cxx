@@ -41,7 +41,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.5");
+vtkCxxRevisionMacro(vtkImageData, "1.6");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -132,45 +132,57 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
     // current settings.
     vtkInformation* output = this->PipelineInformation;
 
-    // Set origin.
-    if(input && input->Has(ORIGIN()))
+    // Set origin (only if it is not set).
+    if (!output->Has(ORIGIN()))
       {
-      output->CopyEntry(input, ORIGIN());
-      }
-    else
-      {
-      output->Set(ORIGIN(), this->GetOrigin(), 3);
-      }
-
-    // Set spacing.
-    if(input && input->Has(SPACING()))
-      {
-      output->CopyEntry(input, SPACING());
-      }
-    else
-      {
-      output->Set(SPACING(), this->GetSpacing(), 3);
+      if(input && input->Has(ORIGIN()))
+        {
+        output->CopyEntry(input, ORIGIN());
+        }
+      else
+        {
+        output->Set(ORIGIN(), this->GetOrigin(), 3);
+        }
       }
 
-    // Set scalar type.
-    if(input && input->Has(SCALAR_TYPE()))
+    // Set spacing (only if it is not set).
+    if (!output->Has(SPACING()))
       {
-      output->CopyEntry(input, SCALAR_TYPE());
-      }
-    else
-      {
-      output->Set(SCALAR_TYPE(), this->GetScalarType());
+      if(input && input->Has(SPACING()))
+        {
+        output->CopyEntry(input, SPACING());
+        }
+      else
+        {
+        output->Set(SPACING(), this->GetSpacing(), 3);
+        }
       }
 
-    // Set scalar number of components.
-    if(input && input->Has(SCALAR_NUMBER_OF_COMPONENTS()))
+    // Set scalar type (only if it is not set).
+    if (!output->Has(SCALAR_TYPE()))
       {
-      output->CopyEntry(input, SCALAR_NUMBER_OF_COMPONENTS());
+      if(input && input->Has(SCALAR_TYPE()))
+        {
+        output->CopyEntry(input, SCALAR_TYPE());
+        }
+      else
+        {
+        output->Set(SCALAR_TYPE(), this->GetScalarType());
+        }
       }
-    else
+
+    // Set scalar number of components (only if it is not set).
+    if (!output->Has(SCALAR_NUMBER_OF_COMPONENTS()))
       {
-      output->Set(SCALAR_NUMBER_OF_COMPONENTS(),
-                  this->GetNumberOfScalarComponents());
+      if(input && input->Has(SCALAR_NUMBER_OF_COMPONENTS()))
+        {
+        output->CopyEntry(input, SCALAR_NUMBER_OF_COMPONENTS());
+        }
+      else
+        {
+        output->Set(SCALAR_NUMBER_OF_COMPONENTS(),
+                    this->GetNumberOfScalarComponents());
+        }
       }
     }
 }
