@@ -3,6 +3,7 @@ suppress umr vtkLongArray::GetTuple; vtkDataArray::InsertComponent; vtkDataArray
 suppress umr stdiobuf::overflow; ostream::operator<<
 suppress umc vtkDataSet::InternalDataSetCopy
 suppress umc vtkDataObject::InternalDataObjectCopy
+suppress umc vtkDecimate::BuildLoop
 suppress umc memcpy; SetupStacks
 suppress umc memcpy; vtkIntArray::DeepCopy
 suppress umc memcpy; __glXFillImage
