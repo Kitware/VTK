@@ -51,6 +51,11 @@ vtkTubeFilter::vtkTubeFilter()
   this->VaryRadius = VTK_VARY_RADIUS_OFF;
   this->NumberOfSides = 3;
   this->RadiusFactor = 10;
+
+  this->DefaultNormal[0] = this->DefaultNormal[1] = 0.0;
+  this->DefaultNormal[2] = 1.0;
+  
+  this->UseDefaultNormal = 0;
 }
 
 void vtkTubeFilter::Execute()
@@ -99,16 +104,27 @@ void vtkTubeFilter::Execute()
   outPD->CopyNormalsOff();
   outPD->CopyAllocate(pd,numNewPts);
 
-  if ( !(inNormals=pd->GetNormals()) )
+  if ( !(inNormals=pd->GetNormals()) || this->UseDefaultNormal )
     {
     vtkPolyLine lineNormalGenerator;
     deleteNormals = 1;
     inNormals = new vtkFloatNormals(numNewPts);
-    if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
+
+    if ( this->UseDefaultNormal )
       {
-      vtkErrorMacro(<< "No normals for line!\n");
-      inNormals->Delete();
-      return;
+      for ( i=0; i < numPts; i++)
+	{
+	inNormals->SetNormal(i,this->DefaultNormal);
+	}
+      }
+    else
+      {
+      if ( !lineNormalGenerator.GenerateSlidingNormals(inPts,inLines,(vtkFloatNormals*)inNormals) )
+        {
+        vtkErrorMacro(<< "No normals for line!\n");
+        inNormals->Delete();
+        return;
+        }
       }
     }
 //
@@ -194,7 +210,7 @@ void vtkTubeFilter::Execute()
       math.Cross(s,n,w);
       if ( math.Normalize(w) == 0.0)
         {
-        vtkErrorMacro(<<"Bad normal!");
+        vtkErrorMacro(<<"Bad normal s = " << s[0] << " " << s[1] << " " << s[2] << " n = " << n[0] << " " << n[1] << " " << n[2]);
         return;
         }
       
