@@ -251,20 +251,16 @@ void vtkHashMap<KeyType,DataType>::RehashItems(vtkIdType newNumberOfBuckets)
     }
   
   // Re-hash the items.
+  ItemType item = { KeyType(), DataType() };
   vtkIdType bucket;
-  ItemType item;
-  IteratorType::BucketIterator *it = this->Buckets[0]->NewIterator();
-  for(i=0; i < this->NumberOfBuckets; ++i)
+  IteratorType* it = this->NewIterator();
+  while(!it->IsDoneWithTraversal())
     {
-    it->SetContainer(this->Buckets[i]);
-    it->GoToFirstItem();
-    while(!it->IsDoneWithTraversal())
-      {
-      it->GetData(item);
-      bucket = this->HashKey(item.Key, newNumberOfBuckets);
-      newBuckets[bucket]->AppendItem(item);
-      it->GoToNextItem();
-      }
+    //it->GetKeyAndData(item.Key, item.Data);
+    it->Iterator->GetData(item); // more efficient than GetKeyAndData()
+    bucket = this->HashKey(item.Key, newNumberOfBuckets);
+    newBuckets[bucket]->AppendItem(item);
+    it->GoToNextItem();
     }
   it->Delete();
 
