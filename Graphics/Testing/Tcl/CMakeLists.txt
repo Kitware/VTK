@@ -66,6 +66,7 @@ IF (VTK_USE_RENDERING)
       nacaBinary
       OBBTree
       OBBCylinder
+      officeStreamPoints
       polyConn
       PolyDataMapperAllPolygons
       PolyDataMapperAllWireframe
