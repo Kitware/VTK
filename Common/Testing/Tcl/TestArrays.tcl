@@ -37,8 +37,8 @@ foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt Uns
     b${array}Array InsertComponent 2001 0 1
     b${array}Array DeepCopy a${array}Array
     
-    # MakeObject
-    set m${array} [b${array}Array MakeObject]
+    # NewInstance
+    set m${array} [b${array}Array NewInstance]
     eval [set m${array}] UnRegister b${array}Array
 
     # confirm the deep copy
