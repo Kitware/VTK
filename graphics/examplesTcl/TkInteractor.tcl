@@ -81,6 +81,7 @@ proc EndMotion {widget x y} {
 proc Rotate {widget x y} {
     global CurrentCamera 
     global LastX LastY
+    if { ![info exists LastX] } {return}
 
     $CurrentCamera Azimuth [expr ($LastX - $x)]
     $CurrentCamera Elevation [expr ($y - $LastY)]
