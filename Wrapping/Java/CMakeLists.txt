@@ -56,7 +56,7 @@ IF(JAVA_COMPILE)
 
     ADD_CUSTOM_COMMAND(SOURCE ${VTK_JAVA_HOME}/vtkObject.class
                        COMMAND ${JAVA_ARCHIVE}
-                       ARGS -cvf  "\"${LIBRARY_OUTPUT_PATH}/vtk.jar\""
+                       ARGS -cvf  "${LIBRARY_OUTPUT_PATH}/vtk.jar"
                             -C ${VTK_BINARY_DIR}/java
                             vtk
                        TARGET VTKJavaJar
