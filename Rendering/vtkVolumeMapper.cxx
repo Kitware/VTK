@@ -20,7 +20,7 @@
 #include "vtkImageClip.h"
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.43");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.44");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
@@ -106,9 +106,8 @@ float *vtkVolumeMapper::GetBounds()
 
 void vtkVolumeMapper::SetInput( vtkImageData *input )
 {
-  //this->ImageClipper->SetInput( input );
-  //this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput() );
-  this->vtkProcessObject::SetNthInput(0, input );
+  this->ImageClipper->SetInput( input );
+  this->vtkProcessObject::SetNthInput(0, this->ImageClipper->GetOutput() );
 }
 
 vtkImageData *vtkVolumeMapper::GetInput()
