@@ -214,7 +214,8 @@ int TestIfScopeHelper(int i)
       result = 0;
       }
     }
-  return result;
+  int x = result;
+  return x;
 }
 
 int TestIfScope()
