@@ -17,7 +17,7 @@
 #include "vtkMutexLock.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMultiThreader, "1.45");
+vtkCxxRevisionMacro(vtkMultiThreader, "1.46");
 vtkStandardNewMacro(vtkMultiThreader);
 
 // These are the includes necessary for multithreaded rendering on an SGI
@@ -256,7 +256,7 @@ void vtkMultiThreader::SingleMethodExecute()
     process_id[thread_loop] = 
       CreateThread(NULL, 0, this->SingleMethod, 
              ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
-    if (process_id == NULL)
+    if (process_id[thread_loop] == NULL)
       {
       vtkErrorMacro("Error in thread creation !!!");
       } 
@@ -446,7 +446,7 @@ void vtkMultiThreader::MultipleMethodExecute()
     process_id[thread_loop] = 
       CreateThread(NULL, 0, this->MultipleMethod[thread_loop], 
              ((void *)(&this->ThreadInfoArray[thread_loop])), 0, &threadId);
-    if (process_id == NULL)
+    if (process_id[thread_loop] == NULL)
       {
       vtkErrorMacro("Error in thread creation !!!");
       } 
