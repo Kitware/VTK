@@ -43,9 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkUnstructuredGridReader* vtkUnstructuredGridReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,9 +55,6 @@ vtkUnstructuredGridReader* vtkUnstructuredGridReader::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkUnstructuredGridReader;
 }
-
-
-
 
 #ifdef read
 #undef read
@@ -238,9 +233,9 @@ void vtkUnstructuredGridReader::Execute()
     while (!done)
       {
       if (!this->Reader->ReadString(line))
-	{
-	break;
-	}
+        {
+        break;
+        }
 
       if ( ! strncmp(this->Reader->LowerCase(line),"points",6) )
         {
@@ -260,7 +255,7 @@ void vtkUnstructuredGridReader::Execute()
 
       else if ( !strncmp(line,"cells",5))
         {
-	output->GetUpdateExtent(piece, numPieces);
+        output->GetUpdateExtent(piece, numPieces);
         if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read cells!");
@@ -268,62 +263,62 @@ void vtkUnstructuredGridReader::Execute()
           return;
           }
 
-	// the number of ints to read befor we get to the piece.
-	skip1 = piece * ncells / numPieces;
-	// the number of ints to read as part of piece.
-	read2 = ((piece+1) * ncells / numPieces) - skip1;
-	// the number of ints after the piece
-	skip3 = ncells - skip1 - read2;
+        // the number of ints to read befor we get to the piece.
+        skip1 = piece * ncells / numPieces;
+        // the number of ints to read as part of piece.
+        read2 = ((piece+1) * ncells / numPieces) - skip1;
+        // the number of ints after the piece
+        skip3 = ncells - skip1 - read2;
 
         cells = vtkCellArray::New();
         if (!this->Reader->ReadCells(size, cells->WritePointer(read2,size),
-				     skip1, read2, skip3) )
+                                     skip1, read2, skip3) )
           {
           this->Reader->CloseVTKFile ();
           return;
           }
         if (cells && types)
-	  {
-	  output->SetCells(types, cells);
-	  }
+          {
+          output->SetCells(types, cells);
+          }
         }
 
       else if (!strncmp(line,"cell_types",10))
         {
-	output->GetUpdateExtent(piece, numPieces);
+        output->GetUpdateExtent(piece, numPieces);
         if (!this->Reader->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell types!");
           this->Reader->CloseVTKFile ();
           return;
           }
-	// the number of ints to read befor we get to the piece.
-	skip1 = piece * ncells / numPieces;
-	// the number of ints to read as part of piece.
-	read2 = ((piece+1) * ncells / numPieces) - skip1;
-	// the number of ints after the piece
-	skip3 = ncells - skip1 - read2;
+        // the number of ints to read befor we get to the piece.
+        skip1 = piece * ncells / numPieces;
+        // the number of ints to read as part of piece.
+        read2 = ((piece+1) * ncells / numPieces) - skip1;
+        // the number of ints after the piece
+        skip3 = ncells - skip1 - read2;
 
-	//cerr << skip1 << " --- " << read2 << " --- " << skip3 << endl;
-	// allocate array for piece cell types
+        //cerr << skip1 << " --- " << read2 << " --- " << skip3 << endl;
+        // allocate array for piece cell types
         types = new int[read2];
         if (this->Reader->GetFileType() == VTK_BINARY)
           {
           // suck up newline
           this->Reader->GetIStream()->getline(line,256);
-	  // skip
-	  if (skip1 != 0)
-	    {
-	    this->Reader->GetIStream()
-	      ->seekg((long)sizeof(int)*skip1, ios::cur);
-	    }
+          // skip
+          if (skip1 != 0)
+            {
+            this->Reader->GetIStream()
+              ->seekg((long)sizeof(int)*skip1, ios::cur);
+            }
           this->Reader->GetIStream()->read((char *)types,sizeof(int)*read2);
-	  // skip
-	  if (skip3 != 0)
-	    {
-	    this->Reader->GetIStream()
-	      ->seekg((long)sizeof(int)*skip3, ios::cur);
-	    }
+          // skip
+          if (skip3 != 0)
+            {
+            this->Reader->GetIStream()
+              ->seekg((long)sizeof(int)*skip3, ios::cur);
+            }
 
           if (this->Reader->GetIStream()->eof())
             {
@@ -335,7 +330,7 @@ void vtkUnstructuredGridReader::Execute()
           }
         else //ascii
           {
-	  // skip types before piece
+          // skip types before piece
           for (i=0; i<skip1; i++)
             {
             if (!this->Reader->Read(&tmp))
@@ -345,7 +340,7 @@ void vtkUnstructuredGridReader::Execute()
               return;
               }
             }
-	  // read types for piece
+          // read types for piece
           for (i=0; i<read2; i++)
             {
             if (!this->Reader->Read(types+i))
@@ -355,7 +350,7 @@ void vtkUnstructuredGridReader::Execute()
               return;
               }
             }
-	  // skip types after piece
+          // skip types after piece
           for (i=0; i<skip3; i++)
             {
             if (!this->Reader->Read(&tmp))
@@ -367,9 +362,9 @@ void vtkUnstructuredGridReader::Execute()
             }
           }
         if ( cells && types )
-	  {
-	  output->SetCells(types, cells);
-	  }
+          {
+          output->SetCells(types, cells);
+          }
         }
 
       else if ( ! strncmp(line, "cell_data", 9) )
