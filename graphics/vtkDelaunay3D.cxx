@@ -258,15 +258,12 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
 {
   vtkTetra *tetraCell=NULL;
   int ptIds[4];
-  float bcoords[4];
   float p[4][3];
   int tetraId=(-1), verts[4], onCount, i, j, numTetras;
   vtkIdList boundaryPts(3), checkedTetras(25), neiTetras(2);
   int p1, p2, p3, insertFace;
-  int npts, *tetraPts, nei, numNeiPts, *neiPts;
+  int npts, *tetraPts, nei;
   int closestPoint;
-  float closest[3], pcoords[3], dist2, weights[4];
-  int subId;
 
   tetras.Reset();
   faces.Reset();
@@ -391,7 +388,7 @@ int vtkDelaunay3D::FindEnclosingFaces(float x[3], int tetra,
 void vtkDelaunay3D::Execute()
 {
   int numPoints, numTetras, i;
-  int tetraNum, tetraId;
+  int tetraId;
   int ptId;
   vtkPoints *inPoints;
   vtkPoints *points;
@@ -399,11 +396,10 @@ void vtkDelaunay3D::Execute()
   vtkPointSet *input=(vtkPointSet *)this->Input;
   vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
   float x[3];
-  int nodes[4], pts[4], npts, *tetraPts;
+  int pts[4], npts, *tetraPts;
   vtkIdList neighbors(2), cells(64), holeTetras(12);
-  float center[3], length, tol;
+  float center[3], tol;
   char *tetraUse;
-  float bounds[6];
   
   vtkDebugMacro(<<"Generating 3D Delaunay triangulation");
 //
@@ -697,6 +693,12 @@ vtkUnstructuredGrid *vtkDelaunay3D::InitPointInsertion(float center[3],
   this->Locator->InsertPoint(numPtsToInsert+5,x);
 
   Mesh->Allocate(5*numPtsToInsert);
+
+  if (this->Spheres)
+    {
+    delete this->Spheres;
+    }
+  
   this->Spheres = new vtkSphereArray(5*numPtsToInsert,numPtsToInsert);
 
   //create bounding tetras (there are four)
