@@ -18,10 +18,13 @@ public:
   virtual void Render(vlRenderer *) = 0;
   void SetStartRender(void (*f)());
   void SetEndRender(void (*f)());
-  void SetLookupTable(vlLookupTable *lt);
-  vlLookupTable *GetLookupTable() {return this->Lut;};
-  void SetScalarsVisible(int flag);
-  int GetScalarsVisible();
+
+  vlSetObjectMacro(Lut,vlLookupTable);
+  vlGetObjectMacro(Lut,vlLookupTable);
+
+  vlSetMacro(ScalarsVisible,int);
+  vlGetMacro(ScalarsVisible,int);
+  vlBooleanMacro(ScalarsVisible,int);
 
 protected:
   void (*StartRender)();

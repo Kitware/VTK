@@ -28,29 +28,6 @@ void vlMapper::SetEndRender(void (*f)())
     this->Modified();
     }
 }
-void vlMapper::SetLookupTable(vlLookupTable *lt) 
-{
-  if ( lt != this->Lut )
-    {
-    this->Lut = lt;
-    this->Lut->Register((void *)this);
-    this->Modified();
-    }
-}
-
-void vlMapper::SetScalarsVisible(int flag)
-{
-  if ( flag != this->ScalarsVisible )
-    {
-    this->ScalarsVisible = flag;
-    this->Modified();
-    }
-}
-
-int vlMapper::GetScalarsVisible()
-{
-  return this->ScalarsVisible;
-}
 
 
 
