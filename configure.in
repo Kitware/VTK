@@ -151,13 +151,6 @@ then
     cp $srcdir/Config.mk  Config.mk || exit 1
 fi
 
-if test -r Kits.make
-then
-    echo "Removing Kits.make prior to copying it over (normal)."
-    /bin/rm -f Kits.make
-fi
-cp $srcdir/Kits.make Kits.make || exit 1
-
 AC_OUTPUT(Makefile)
 
 
