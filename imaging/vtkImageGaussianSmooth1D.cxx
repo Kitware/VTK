@@ -81,6 +81,7 @@ void vtkImageGaussianSmooth1D::ComputeKernel()
   
   // set the kernel
   this->SetKernel(kernel, Radius * 2 + 1);
+  this->ComputeBoundaryFactors();
 
   // free kernel
   delete [] kernel;

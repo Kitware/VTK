@@ -65,26 +65,34 @@ vtkImageMedian::~vtkImageMedian()
 
 //----------------------------------------------------------------------------
 // Description:
-// This method sets the size of the 3d neighborhood.  It also sets the 
+// This method sets the size of the neighborhood.  It also sets the 
 // default middle of the neighborhood 
-void vtkImageMedian::SetKernelSize(int size0, int size1, int size2)
+void vtkImageMedian::SetKernelSize(int num, int *size)
 {
-  // Call the superclass to set the kernel size
-  // Call the superclass to set the kernel size
-  this->KernelSize[0] = size0;
-  this->KernelSize[1] = size1;
-  this->KernelSize[2] = size2;
-  this->KernelMiddle[0] = size0 / 2;
-  this->KernelMiddle[1] = size1 / 2;
-  this->KernelMiddle[2] = size2 / 2;
+  int idx, volume;
+  
+  // Limit dimensionality to be 3 or less.
+  if (num > 3)
+    {
+    vtkWarningMacro(<< "SetKernelSize: Neighborhood can't have dimensionality "
+                    << num);
+    num = 3;
+    }
+
+  // Set the kernel size and middle
+  volume = 1;
+  for (idx = 0; idx < num; ++idx)
+    {
+    this->KernelSize[idx] = size[idx];
+    this->KernelMiddle[idx] = size[idx] / 2;
+    volume *= size[idx];
+    }
+  this->NumNeighborhood = volume;
   
   // free old sort memeory
   if (this->Sort)
     delete [] this->Sort;
   this->Sort = NULL;
-
-  // compute the numbe4r of pixels in the neighborhood 
-  this->NumNeighborhood = size0 * size1 * size2;
 
   // allocate new sort memory
   if (this->NumNeighborhood > 0)
@@ -100,8 +108,8 @@ void vtkImageMedian::SetKernelSize(int size0, int size1, int size2)
 // templated function for the mask types.
 template <class T>
 void vtkImageMedianExecute(vtkImageMedian *self,
-				 vtkImageRegion *inRegion, T *inPtr, 
-				 vtkImageRegion *outRegion, T *outPtr)
+			   vtkImageRegion *inRegion, T *inPtr, 
+			   vtkImageRegion *outRegion, T *outPtr)
 {
   int *kernelMiddle, *kernelSize;
   // For looping though output (and input) pixels.
@@ -244,7 +252,7 @@ void vtkImageMedianExecute(vtkImageMedian *self,
 // This method contains the first switch statement that calls the correct
 // templated function for the input and output region types.
 void vtkImageMedian::Execute(vtkImageRegion *inRegion, 
-				     vtkImageRegion *outRegion)
+			     vtkImageRegion *outRegion)
 {
   void *inPtr = inRegion->GetScalarPointer();
   void *outPtr = outRegion->GetScalarPointer();
@@ -256,7 +264,7 @@ void vtkImageMedian::Execute(vtkImageRegion *inRegion,
   if (inRegion->GetScalarType() != outRegion->GetScalarType())
     {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inRegion->GetScalarType()
-                  << ", must match out ScalarType " << outRegion->GetScalarType());
+             << ", must match out ScalarType " << outRegion->GetScalarType());
     return;
     }
   

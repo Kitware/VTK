@@ -61,6 +61,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   
   void SetKernel(float *kernel, int size);
+  void ComputeBoundaryFactors();
+  
   // Description:
   // Set/Get whether to rescale boundary-truncated kernel
   vtkSetMacro(BoundaryRescale,int);

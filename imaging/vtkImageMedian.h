@@ -42,6 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Description
 // vtkImageMedian a Median filter that replaces each pixel with the 
 // median value from a square neighborhood around that pixel.
+// Neighborhoods can be no more than 3 dimensional.
 
 
 #ifndef __vtkImageMedian_h
@@ -57,7 +58,10 @@ public:
   ~vtkImageMedian();
   char *GetClassName() {return "vtkImageMedian";};
 
-  void SetKernelSize(int size0, int size1, int size2);
+  // Set/Get the size of the neighood.
+  void SetKernelSize(int num, int *size);
+  vtkImageSetMacro(KernelSize,int);
+  
   void ClearMedian();
   void AccumulateMedian(double val);
   double GetMedian();

@@ -51,6 +51,7 @@ vtkImageMagnify1D::vtkImageMagnify1D()
   this->SetAxes(VTK_IMAGE_X_AXIS);
   this->SetMagnificationFactor(1);
   this->InterpolateOff();
+  this->NumberOfAxes = 2;
 }
 
 
@@ -124,8 +125,8 @@ void vtkImageMagnify1D::ComputeOutputImageInformation(
 // Note: Slight misalignment (pixel replication is not nearest neighbor).
 template <class T>
 void vtkImageMagnify1DExecute(vtkImageMagnify1D *self,
-				    vtkImageRegion *inRegion, T *inPtr,
-				    vtkImageRegion *outRegion, T *outPtr)
+			      vtkImageRegion *inRegion, T *inPtr,
+			      vtkImageRegion *outRegion, T *outPtr)
 {
   int outMin0, outMax0, outMin1, outMax1, inMin0, inMax0;
   int outIdx0, outIdx1; 
@@ -162,7 +163,7 @@ void vtkImageMagnify1DExecute(vtkImageMagnify1D *self,
       }
     for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
       {
-
+      
       // Treat first pixel as special case
       if (magIdx == 0)
 	{

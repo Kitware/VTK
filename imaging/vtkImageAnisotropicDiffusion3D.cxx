@@ -151,7 +151,6 @@ void vtkImageAnisotropicDiffusion3D::Execute(vtkImageRegion *inRegion,
   vtkImageRegion *temp;
 
 
-  inRegion->GetExtent(3, extent);
   inRegion->GetAspectRatio(ar0, ar1, ar2);
 
   // make the temporary regions to iterate over.
@@ -159,10 +158,10 @@ void vtkImageAnisotropicDiffusion3D::Execute(vtkImageRegion *inRegion,
   out = new vtkImageRegion;
   
   // might as well make these floats
-  in->SetExtent(3, extent);
+  in->SetExtent(VTK_IMAGE_DIMENSIONS, inRegion->GetExtent());
   in->SetScalarType(VTK_FLOAT);
   in->CopyRegionData(inRegion);
-  out->SetExtent(3, extent);
+  out->SetExtent(VTK_IMAGE_DIMENSIONS, inRegion->GetExtent());
   out->SetScalarType(VTK_FLOAT);
   out->AllocateScalars();
   

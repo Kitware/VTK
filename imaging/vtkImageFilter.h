@@ -77,10 +77,6 @@ public:
   void UpdateImageInformation(vtkImageRegion *region);
   unsigned long int GetPipelineMTime();
   
-  vtkSetMacro(UseExecuteMethod,int);
-  vtkGetMacro(UseExecuteMethod,int);
-  vtkBooleanMacro(UseExecuteMethod,int);
-  
   // Description:
   // Get input to this filter.
   vtkGetObjectMacro(Input,vtkImageSource);
@@ -91,10 +87,30 @@ public:
   vtkGetMacro(InputMemoryLimit,long);
   
 protected:
-  vtkImageSource *Input;     // the input to the filter
-  int UseExecuteMethod;      // Use UpdateRegion or Execute method?
-
+  vtkImageSource *Input;     
+  int UseExecuteMethod;      
+  int ReferenceScalars;
+  int ReferenceVectors;
+  
   long InputMemoryLimit;
+
+  // Description:
+  // Specify whether if subclass will use an execute method or an update method
+  vtkSetMacro(UseExecuteMethod,int);
+  vtkGetMacro(UseExecuteMethod,int);
+  vtkBooleanMacro(UseExecuteMethod,int);
+   
+  // Description:
+  // Specify if superclass should copy scalars by reference
+  vtkSetMacro(ReferenceScalars,int);
+  vtkGetMacro(ReferenceScalars,int);
+  vtkBooleanMacro(ReferenceScalars,int);
+  
+  // Description:
+  // Specify if superclass should copy vectors by reference
+  vtkSetMacro(ReferenceVectors,int);
+  vtkGetMacro(ReferenceVectors,int);
+  vtkBooleanMacro(ReferenceVectors,int);
   
   // Description:
   // These are conveniance functions for writing filters that have their

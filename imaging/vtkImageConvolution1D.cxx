@@ -152,6 +152,54 @@ void vtkImageConvolution1D::SetKernel(float *kernel, int size)
 }
   
 
+//****************************************************************************
+// Note backward coding BoundaryFactors[0] has the most pixels cut,
+// BoundaryFactors[center] has no pixels cut.
+void vtkImageConvolution1D::ComputeBoundaryFactors()
+{
+  int idx;
+  int size = this->KernelSize[0];
+  int center = this->KernelMiddle[0];
+  float totalArea, partialArea;
+
+  if ( ! this->BoundaryFactors)
+    {
+    vtkErrorMacro(<< "ComputeBoundaryFactors: Kernel not set.");
+    return;
+    }
+  
+  // Compute the total area of the kernel
+  totalArea = 0.0;
+  for (idx = 0; idx < size; ++idx)
+    {
+    totalArea += this->Kernel[idx];
+    }
+  
+  // middle is always one (no pixels excluded
+  this->BoundaryFactors[center] = 1;
+  
+  // left boundary factors
+  partialArea = 0.0;
+  for (idx = 0; idx < center; ++idx)
+    {
+    partialArea += this->Kernel[idx];
+    this->BoundaryFactors[center - idx - 1]
+      = totalArea / (totalArea - partialArea);
+    }
+
+  
+  // right boundary factors
+  partialArea = 0.0;
+  for (idx = size - 1; idx > center; --idx)
+    {
+    partialArea += this->Kernel[idx];
+    this->BoundaryFactors[size-idx+center]
+      = totalArea / (totalArea - partialArea);
+    }
+
+  this->Modified();
+}
+
 
 
 
@@ -227,7 +275,7 @@ void vtkImageConvolution1DExecute(vtkImageConvolution1D *self,
       ++kernelPtr;
       tmpPtr += inInc;
       }
-    // Rescale
+     // Rescale
     if (self->BoundaryRescale)
       {
       sum *= self->BoundaryFactors[self->KernelMiddle[0] - cut];
