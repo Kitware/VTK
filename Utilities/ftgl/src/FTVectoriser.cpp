@@ -9,7 +9,9 @@
 #define CALLBACK
 #endif
 
+extern "C" {
 
+typedef void (CALLBACK*ftglCallback)();
 
 void CALLBACK ftglError( GLenum errCode, FTMesh* mesh)
 {
@@ -43,6 +45,7 @@ void CALLBACK ftglCombine( FTGL_DOUBLE coords[3], void* , GLfloat*, void** outDa
   *outData = &mesh->tempPool[ mesh->tempPool.size() - 1].x;
 }
 
+} // End of extern C
 
 //=============================================================================
 
@@ -321,13 +324,13 @@ void FTVectoriser::GetOutline( FTGL_DOUBLE* data)
   
   for( size_t c= 0; c < contours(); ++c)
   {
-    const FTContour* contour = contourList[c];
+    const FTContour* acontour = contourList[c];
     
-    for( size_t p = 0; p < contour->size(); ++p)
+    for( size_t p = 0; p < acontour->size(); ++p)
     {
-      data[i] = static_cast<FTGL_DOUBLE>(contour->pointList[p].x / 64.0f); // is 64 correct?
-      data[i + 1] = static_cast<FTGL_DOUBLE>(contour->pointList[p].y / 64.0f);
-      data[i + 2] = 0.0; // static_cast<FTGL_DOUBLE>(contour->pointList[p].z / 64.0f);
+      data[i] = static_cast<FTGL_DOUBLE>(acontour->pointList[p].x / 64.0f); // is 64 correct?
+      data[i + 1] = static_cast<FTGL_DOUBLE>(acontour->pointList[p].y / 64.0f);
+      data[i + 2] = 0.0; // static_cast<FTGL_DOUBLE>(acontour->pointList[p].z / 64.0f);
       i += 3;
     }
   }
@@ -345,11 +348,11 @@ void FTVectoriser::MakeMesh( FTGL_DOUBLE zNormal)
   
   GLUtesselator* tobj = gluNewTess();
   
-  gluTessCallback( tobj, GLU_TESS_BEGIN_DATA,    (void (CALLBACK*)())ftglBegin);
-  gluTessCallback( tobj, GLU_TESS_VERTEX_DATA,  (void (CALLBACK*)())ftglVertex);
-  gluTessCallback( tobj, GLU_TESS_COMBINE_DATA,  (void (CALLBACK*)())ftglCombine);
-  gluTessCallback( tobj, GLU_TESS_END_DATA,    (void (CALLBACK*)())ftglEnd);
-  gluTessCallback( tobj, GLU_TESS_ERROR_DATA,    (void (CALLBACK*)())ftglError);
+  gluTessCallback( tobj, GLU_TESS_BEGIN_DATA,    (ftglCallback)ftglBegin);
+  gluTessCallback( tobj, GLU_TESS_VERTEX_DATA,  (ftglCallback)ftglVertex);
+  gluTessCallback( tobj, GLU_TESS_COMBINE_DATA,  (ftglCallback)ftglCombine);
+  gluTessCallback( tobj, GLU_TESS_END_DATA,    (ftglCallback)ftglEnd);
+  gluTessCallback( tobj, GLU_TESS_ERROR_DATA,    (ftglCallback)ftglError);
   
   
   if( contourFlag & ft_outline_even_odd_fill) // ft_outline_reverse_fill
@@ -368,12 +371,12 @@ void FTVectoriser::MakeMesh( FTGL_DOUBLE zNormal)
   
     for( size_t c = 0; c < contours(); ++c)
     {
-      const FTContour* contour = contourList[c];
+      const FTContour* acontour = contourList[c];
       gluTessBeginContour( tobj);
       
-        for( size_t p = 0; p < contour->size(); ++p)
+        for( size_t p = 0; p < acontour->size(); ++p)
         {
-          FTGL_DOUBLE* d = const_cast<FTGL_DOUBLE*>(&contour->pointList[p].x);
+          FTGL_DOUBLE* d = const_cast<FTGL_DOUBLE*>(&acontour->pointList[p].x);
           gluTessVertex( tobj, d, d);
         }
       gluTessEndContour( tobj);

@@ -12,7 +12,7 @@ FTPixmapGlyph::FTPixmapGlyph( FT_Glyph glyph)
   data(0)
 {
   // This function will always fail if the glyph's format isn't scalable????
-  FT_Error err = FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1);
+  err = FT_Glyph_To_Bitmap( &glyph, ft_render_mode_normal, 0, 1);
   if( err || ft_glyph_format_bitmap != glyph->format)
   {
     return;

@@ -255,7 +255,7 @@ class FTGL_EXPORT FTVectoriser
      *
      * @param glyph The freetype glyph to be processed
      */
-    FTVectoriser( FT_Glyph glyph);
+    FTVectoriser( const FT_Glyph glyph);
 
     /**
      *  Destructor
