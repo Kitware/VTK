@@ -47,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // Construct with s,t range=(0,1) and automatic plane generation turned on.
 vtkTextureMapToPlane::vtkTextureMapToPlane()
 {
-  // all zero - indicates that using normal is preferred
+  // all zero - indicates that using normal is preferred is automatic is off
   this->Origin[0] = this->Origin[1] = this->Origin[2] = 0.0;
   this->Point1[0] = this->Point1[1] = this->Point1[2] = 0.0;
   this->Point2[0] = this->Point2[1] = this->Point2[2] = 0.0;
