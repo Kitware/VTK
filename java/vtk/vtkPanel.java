@@ -49,6 +49,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
     }
 
   private native void RenderCreate(vtkRenderWindow id0);
+  private native void RenderInternal(vtkRenderWindow id0);
   
   public synchronized void Render() 
     {
@@ -68,7 +69,7 @@ public class vtkPanel extends Canvas implements MouseListener, MouseMotionListen
             lgt.SetFocalPoint(cam.GetFocalPoint());
             windowset = 1;
             }
-          rw.Render();
+          RenderInternal(rw);
           rendering = false;
           }
         }
