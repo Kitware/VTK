@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Specify the (row,column) tensor component to extract as a scalar.
-  vtkSetVectorMacro(ScalarComponents,int,2);
+  vtkSetVector2Macro(ScalarComponents,int);
   vtkGetVectorMacro(ScalarComponents,int,2);
 
   // Description:
