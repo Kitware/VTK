@@ -30,18 +30,9 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4100)
-#endif
-
-#include <vector>
-#include <set>
-#include <algorithm>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+#include <vtkstd/vector>
+#include <vtkstd/set>
+#include <vtkstd/algorithm>
 
 #include <math.h>
 
@@ -202,7 +193,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
