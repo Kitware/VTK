@@ -809,7 +809,8 @@ output_function()
   if (((arg_types[10]%1000)/100 != 3)&&
       (arg_types[10]%1000 != 109)&&
       ((arg_types[10]%1000)/100)) args_ok = 0;
-  if ((arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+  if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+
 
   /* eliminate unsigned char * and unsigned short * */
   if (arg_types[10] == 313) args_ok = 0;

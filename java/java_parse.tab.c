@@ -323,7 +323,9 @@ output_function()
   if (((arg_types[10]%1000)/100 != 3)&&
       (arg_types[10]%1000 != 109)&&
       ((arg_types[10]%1000)/100)) args_ok = 0;
-  if ((arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+  if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+  fprintf(stderr,"made it to the big time %d\n",args_ok);
+
 
   /* eliminate unsigned char * and unsigned short * */
   if (arg_types[10] == 313) args_ok = 0;
@@ -347,6 +349,7 @@ output_function()
 	(arg_types[i] != 303)) args_ok = 0;
     }
 
+  fprintf(stderr,"made it to the big time %d\n",args_ok);
   /* if we need a return type hint make sure we have one */
   if (!have_hint)
     {
@@ -383,6 +386,7 @@ output_function()
     args_ok = 0;
     }
 
+  fprintf(stderr,"made it to the big time %d\n",args_ok);
   if (in_public && args_ok)
     {
     /* make sure it's not a constructor */

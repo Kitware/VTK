@@ -1076,8 +1076,8 @@ int done_one()
 	{
 	if (arg_types[j] != funcArgTypes[i][j])
 	  {
-	  if (((arg_types[j] != 309)&&(funcArgTypes[i][j] != 109))&&
-	      ((arg_types[j] != 109)&&(funcArgTypes[i][j] != 309)))
+	  if (!(((arg_types[j] == 309)&&(funcArgTypes[i][j] == 109)) ||
+	      ((arg_types[j] == 109)&&(funcArgTypes[i][j] == 309))))
 	    {
 	    match = 0;
 	    }
@@ -1085,8 +1085,8 @@ int done_one()
 	}
       if (arg_types[10] != funcArgTypes[i][10])
 	{
-	if (((arg_types[10] != 309)&&(funcArgTypes[i][10] != 109))&&
-	    ((arg_types[10] != 109)&&(funcArgTypes[i][10] != 309)))
+	if (!(((arg_types[10] == 309)&&(funcArgTypes[i][10] == 109)) ||
+	    ((arg_types[10] == 109)&&(funcArgTypes[i][10] == 309))))
 	  {
 	  match = 0;
 	  }
@@ -1128,7 +1128,7 @@ output_function()
  
   if (is_virtual) return;
   if (arg_failure) return;
-
+  
   /* check to see if we can handle the args */
   if (arg_types[0]%1000 == 2) 
     {
@@ -1149,7 +1149,7 @@ output_function()
   if (((arg_types[10]%1000)/100 != 3)&&
       (arg_types[10]%1000 != 109)&&
       ((arg_types[10]%1000)/100)) args_ok = 0;
-  if ((arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+  if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
 
   /* eliminate unsigned char * */
   if (arg_types[10] == 313) args_ok = 0;
