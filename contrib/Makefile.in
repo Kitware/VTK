@@ -29,7 +29,6 @@ vtkIVWriter \
 vtkMassProperties \
 vtkOBJReader \
 vtkProjectedTexture \
-vtkQuaternionTransform \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
