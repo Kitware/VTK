@@ -73,6 +73,7 @@ public:
   static vtkDynamicLoader *New() {return new vtkDynamicLoader;};
   const char *GetClassName() {return "vtkDynamicLoader";};
 
+  //BTX
   // Description:
   // Load a dynamic library into the current process.
   // The returned vtkLibHandle can be used to access the symbols in the 
@@ -83,7 +84,8 @@ public:
   // Attempt to detach a dynamic library from the
   // process.  A value of true is returned if it is sucessful.
   static int CloseLibrary(vtkLibHandle);
-
+  //ETX
+  
   // Description:
   // Find the address of the symbol in the given library
   static void* GetSymbolAddress(vtkLibHandle, const char*);
