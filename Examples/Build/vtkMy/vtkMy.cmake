@@ -7,7 +7,7 @@ INCLUDE (${CMAKE_ROOT}/Modules/FindVTK.cmake)
 IF (USE_VTK_FILE)
   INCLUDE (${USE_VTK_FILE})
 ELSE (USE_VTK_FILE)
-  MESSAGE("Error. Unable to find VTK, please edit your CMakeCache.txt file to specify the correct location of your VTK build.")
+  MESSAGE("Warning. This project is supposed to work with VTK, which might be found on your system as different flavours: installed VTK, or (multiple) built VTK. Please, make sure that the VTK_INSTALL_PATH or VTK_BINARY_PATH setting reflect which VTK you are planning to use, then set one of the USE_INSTALLED_VTK or USE_BUILT_VTK to ON.")
   SET (VTKMY_CAN_BUILD 0)
 ENDIF (USE_VTK_FILE)
 
@@ -32,9 +32,13 @@ MARK_AS_ADVANCED(
 # Defaults to the same VTK setting.
 #
 
-OPTION(BUILD_SHARED_LIBS 
-       "Build with shared libraries." 
-       ${VTK_BUILD_SHARED_LIBS})
+IF (VTKMY_CAN_BUILD)
+
+  OPTION(BUILD_SHARED_LIBS 
+         "Build with shared libraries." 
+         ${VTK_BUILD_SHARED_LIBS})
+
+ENDIF (VTKMY_CAN_BUILD)
 
 #
 # Wrap Tcl, Java, Python
