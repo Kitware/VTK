@@ -13,6 +13,8 @@ vtkImageButterworthLowPass
 vtkImageCacheFilter
 vtkImageCanvasSource2D
 vtkImageCast
+vtkImageCheckerboard
+vtkImageChangeInformation
 vtkImageCityBlockDistance
 vtkImageClip
 vtkImageConnector
