@@ -158,11 +158,14 @@ class TestVTKFiles:
         lines = []
         oldlines = []
         typere = "^\s*vtkType(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*;"
+        typesplitre = "^\s*vtkType(Revision)*Macro\s*\("
+        
         regx = re.compile(typere)
+        regxs = re.compile(typesplitre)
         cc = 0
         found = 0
-        for a in self.FileLines:
-            line = string.strip(a)
+        for a in range(len(self.FileLines)):
+            line = string.strip(self.FileLines[a])
             rm = regx.match(line)
             if rm:
                 found = 1
@@ -172,6 +175,21 @@ class TestVTKFiles:
                 pname = rm.group(3)
                 if cname != self.ClassName or pname != self.ParentName:
                     lines.append(" %4d: %s" % (cc, line))
+            else:
+                # Maybe it is in two lines
+                rm = regxs.match(line)
+                if rm:
+                    nline = line + " " + string.strip(self.FileLines[a+1])
+                    line = string.strip(nline)
+                    rm = regx.match(line)
+                    if rm:
+                        found = 1
+                        if rm.group(1) != "Revision":
+                            oldlines.append(" %4d: %s" % (cc, line))
+                        cname = rm.group(2)
+                        pname = rm.group(3)
+                        if cname != self.ClassName or pname != self.ParentName:
+                            lines.append(" %4d: %s" % (cc, line))
             cc = cc + 1
         if len(lines) > 0:
             self.Print( "File: %s has broken type macro(s):" % self.FileName )
