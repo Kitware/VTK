@@ -17,6 +17,7 @@
 #include "vtkAlgorithmOutput.h"
 #include "vtkDistributedExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
@@ -24,7 +25,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.3");
 vtkStandardNewMacro(vtkAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -33,10 +34,6 @@ class vtkAlgorithmInternals
 public:
   // The executive currently managing this algorithm.
   vtkSmartPointer<vtkExecutive> Executive;
-
-  // Port information for this algorithm.
-  vtkSmartPointer<vtkInformationVector> InputPortInformation;
-  vtkSmartPointer<vtkInformationVector> OutputPortInformation;
 
   // Connections are stored at each end by pointing at the algorithm
   // and input/output port index of the other end of the connection.
@@ -74,6 +71,8 @@ public:
       {
       this->erase(this->Find(algorithm, portIndex));
       }
+
+    vtkSmartPointer<vtkInformation> Information;
   };
 
   // Each algorithm has zero or more input ports and zero or more
@@ -294,8 +293,6 @@ void vtkAlgorithm::SetNumberOfInputPorts(int n)
     vtkAlgorithm::ConnectionRemoveAllInput(this, i);
     }
   this->AlgorithmInternal->InputPorts.resize(n);
-  this->AlgorithmInternal->InputPortInformation
-    ->SetNumberOfInformationObjects(n);
 }
 
 //----------------------------------------------------------------------------
@@ -321,8 +318,6 @@ void vtkAlgorithm::SetNumberOfOutputPorts(int n)
     }
   this->AlgorithmInternal->OutputPorts.resize(n);
   this->AlgorithmInternal->Outputs.resize(n);
-  this->AlgorithmInternal->OutputPortInformation
-    ->SetNumberOfInformationObjects(n);
 }
 
 //----------------------------------------------------------------------------
@@ -453,41 +448,59 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int index)
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVector* vtkAlgorithm::GetInputPortInformation()
+vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
 {
-  if(!this->AlgorithmInternal->InputPortInformation.GetPointer())
+  if(!this->InputPortIndexInRange(port, "get information object for"))
     {
-    vtkInformationVector* infoVector = vtkInformationVector::New();
-    this->AlgorithmInternal->InputPortInformation = infoVector;
-    this->FillInputPortInformation(infoVector);
-    infoVector->Delete();
+    return 0;
     }
-  return this->AlgorithmInternal->InputPortInformation.GetPointer();
+  if(!this->AlgorithmInternal->InputPorts[port].Information.GetPointer())
+    {
+    vtkInformation* info = vtkInformation::New();
+    if(!this->FillInputPortInformation(port, info))
+      {
+      info->Delete();
+      return 0;
+      }
+    this->AlgorithmInternal->InputPorts[port].Information = info;
+    info->Delete();
+    }
+  return this->AlgorithmInternal->InputPorts[port].Information.GetPointer();
 }
 
 //----------------------------------------------------------------------------
-vtkInformationVector* vtkAlgorithm::GetOutputPortInformation()
+vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
 {
-  if(!this->AlgorithmInternal->OutputPortInformation.GetPointer())
+  if(!this->OutputPortIndexInRange(port, "get information object for"))
     {
-    vtkInformationVector* infoVector = vtkInformationVector::New();
-    this->AlgorithmInternal->OutputPortInformation = infoVector;
-    this->FillOutputPortInformation(infoVector);
-    infoVector->Delete();
+    return 0;
     }
-  return this->AlgorithmInternal->OutputPortInformation.GetPointer();
+  if(!this->AlgorithmInternal->OutputPorts[port].Information.GetPointer())
+    {
+    vtkInformation* info = vtkInformation::New();
+    if(!this->FillOutputPortInformation(port, info))
+      {
+      info->Delete();
+      return 0;
+      }
+    this->AlgorithmInternal->OutputPorts[port].Information = info;
+    info->Delete();
+    }
+  return this->AlgorithmInternal->OutputPorts[port].Information.GetPointer();
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::FillInputPortInformation(vtkInformationVector*)
+int vtkAlgorithm::FillInputPortInformation(int, vtkInformation*)
 {
   vtkErrorMacro("vtkAlgorithm subclasses must have FillInputPortInformation.");
+  return 0;
 }
 
 //----------------------------------------------------------------------------
-void vtkAlgorithm::FillOutputPortInformation(vtkInformationVector*)
+int vtkAlgorithm::FillOutputPortInformation(int, vtkInformation*)
 {
   vtkErrorMacro("vtkAlgorithm subclasses must have FillOutputPortInformation.");
+  return 0;
 }
 
 //----------------------------------------------------------------------------

@@ -32,6 +32,7 @@
 class vtkAlgorithmInternals;
 class vtkData;
 class vtkExecutive;
+class vtkInformation;
 class vtkInformationVector;
 class vtkAlgorithmOutput;
 
@@ -86,18 +87,18 @@ public:
                                        vtkInformationVector* outInfo);
 
   // Description:
-  // Get the information objects associated with this algorithm's
-  // input ports.  There is one input port per input to the algorithm.
-  // Each input port tells executives what kind of data and downstream
-  // requests this algorithm can handle for that input.
-  vtkInformationVector* GetInputPortInformation();
+  // Get the information object associated with an input port.  There
+  // is one input port per kind of input to the algorithm.  Each input
+  // port tells executives what kind of data and downstream requests
+  // this algorithm can handle for that input.
+  vtkInformation* GetInputPortInformation(int port);
 
   // Description:
-  // Get the information objects associated with this algorithm's
-  // output ports.  There is one output port per output from the
-  // algorithm.  Each output port tells executives what kind of
-  // upstream requests this algorithm can handle for that output.
-  vtkInformationVector* GetOutputPortInformation();
+  // Get the information object associated with an output port.  There
+  // is one output port per output from the algorithm.  Each output
+  // port tells executives what kind of upstream requests this
+  // algorithm can handle for that output.
+  vtkInformation* GetOutputPortInformation(int port);
 
   // Description:
   // Set an input of this algorithm.  The input must correspond to the
@@ -167,15 +168,15 @@ protected:
 
   // Description:
   // Fill the input port information objects for this algorithm.  This
-  // is invoked by the first call to GetInputPortInformation so
-  // subclasses can specify what they can handle.
-  virtual void FillInputPortInformation(vtkInformationVector* portInfo);
+  // is invoked by the first call to GetInputPortInformation for each
+  // port so subclasses can specify what they can handle.
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   // Description:
   // Fill the output port information objects for this algorithm.
-  // This is invoked by the first call to GetOutputPortInformation so
-  // subclasses can specify what they can handle.
-  virtual void FillOutputPortInformation(vtkInformationVector* portInfo);
+  // This is invoked by the first call to GetOutputPortInformation for
+  // each port so subclasses can specify what they can handle.
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
   // Description:
   // Set the number of input ports used by the algorithm.
