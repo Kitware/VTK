@@ -25,6 +25,12 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkFloatNormals"} {
 	    continue
 	}
+	if {$a == "vtkXMLFileOutputWindow"} {
+	    continue
+	}
+	if {$a == "vtkFileOutputWindow"} {
+	    continue
+	}
 	if {$a == "vtkFloatPoints"} {
 	    continue
 	}

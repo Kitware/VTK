@@ -20,6 +20,12 @@ proc rtOtherTest { fileid } {
 	if {$a == "vtkIndent"} {
 	    continue
 	}
+	if {$a == "vtkXMLFileOutputWindow"} {
+	    continue
+	}
+	if {$a == "vtkFileOutputWindow"} {
+	    continue
+	}
 	if {$a == "vtkOutputPort"} {
 	    continue
 	}
