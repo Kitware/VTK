@@ -132,31 +132,6 @@ public:
 //ETX - end tcl exclude
 //
 
-//
-//  Static variables used by object
-//
-static vlPlane plane; // eliminate constructor overhead
-static vlLine line;
-static vlTriangle triangle;
-static vlMath math;
-
-static vlPolyData *Mesh; // operate on this data structure
-static float Pt[3], Normal[3]; // least squares plane point & normal
-static float Angle, Distance; // current feature angle and distance 
-static float CosAngle; // Cosine of dihedral angle
-
-static float Tolerance; // Intersection tolerance
-static float AspectRatio2; // Allowable aspect ratio 
-static int ContinueTriangulating; // Stops recursive tri. if necessary 
-static int Squawks; // Control output 
-
-static float X[3]; //coordinates of current point
-static float *VertexError, Error, MinEdgeError; //support error omputation
-
-// temporary working arrays
-static vlVertexArray V(MAX_TRIS_PER_VERTEX+1);//cycle of vertices around point
-static vlTriArray T(MAX_TRIS_PER_VERTEX+1); //cycle of triangles around point
-
 
 class vlDecimate : public vlPolyToPolyFilter
 {
