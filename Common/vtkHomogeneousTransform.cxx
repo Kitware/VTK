@@ -18,7 +18,7 @@
 #include "vtkHomogeneousTransform.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.6");
+vtkCxxRevisionMacro(vtkHomogeneousTransform, "1.7");
 
 //----------------------------------------------------------------------------
 vtkHomogeneousTransform::vtkHomogeneousTransform()
@@ -145,7 +145,7 @@ void vtkHomogeneousTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
                                                             vtkDataArray *inVrs, 
                                                             vtkDataArray *outVrs)
 {
-  int n = inNms->GetNumberOfTuples();
+  int n = inPts->GetNumberOfPoints();
   double (*M)[4] = this->Matrix->Element;
   double L[4][4];
   double inPnt[3],outPnt[3],inNrm[3],outNrm[3],inVec[3],outVec[3];
