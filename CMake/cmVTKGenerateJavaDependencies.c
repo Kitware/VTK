@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define SINGLE_FILE_BUILD
+
 /* do almost everything in the initial pass */
 static int InitialPass(void *inf, void *mf, int argc, char *argv[])
 {
@@ -27,11 +29,17 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
   const char *javac = info->CAPI->GetDefinition(mf,"JAVA_COMPILE");
   const char *jar = info->CAPI->GetDefinition(mf,"JAVA_ARCHIVE");
   void *cfile = 0;
-  char *args[3];
+  char *args[5];
   char *jargs[5];
   int depends = 0;
+  char **sargs = 0;
+  int sargsCnt = 0;
+  char **srcList = 0;
+  int srcCnt = 0;
   const char *libpath = info->CAPI->GetDefinition(mf,"LIBRARY_OUTPUT_PATH");
   const char *vtkpath = info->CAPI->GetDefinition(mf,"VTK_BINARY_DIR");
+  const char *startTempFile;
+  const char *endTempFile;
 
   if(argc < 3 )
     {
@@ -47,10 +55,6 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     return 1;
     }
 
-  args[0] = strdup("-classpath");
-  args[1] = (char *)malloc(strlen(vtkpath) + 20);
-  sprintf(args[1], "%s/java", vtkpath);
-  
   info->CAPI->ExpandSourceListArguments(mf, argc, (const char**)argv, 
                                         &newArgc, &newArgv, 2);
   
@@ -67,6 +71,16 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     dependencies[numDep++] = strdup(jarFile);
     }
 
+  startTempFile = info->CAPI->GetDefinition(mf,"CMAKE_START_TEMP_FILE");
+  endTempFile = info->CAPI->GetDefinition(mf,"CMAKE_END_TEMP_FILE");
+
+#ifdef SINGLE_FILE_BUILD
+  args[0] = strdup(startTempFile?startTempFile:"");
+  args[1] = strdup("-classpath");
+  args[2] = (char *)malloc(strlen(vtkpath) + 20);
+  sprintf(args[2], "%s/java", vtkpath);
+  args[4] = strdup(endTempFile?endTempFile:"");
+  
   /* get the classes for this lib */
   for(i = 2; i < newArgc; ++i)
     {   
@@ -92,17 +106,70 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
       className = (char *)malloc(strlen(srcPath) + strlen(srcNameWe) + 20);
       sprintf(className,"%s/%s.class",srcPath,srcNameWe);
       
-      args[2] = strdup(srcName);
-      info->CAPI->AddCustomCommand(mf, srcName, javac, 3, (const char**)args, 
+      args[3] = strdup(srcName);
+      info->CAPI->AddCustomCommand(mf, srcName, javac, 5, (const char**)args, 
                                    0, 0, 1, (const char**)&className, target);
       
-      free(args[2]);
+      free(args[3]);
       info->CAPI->Free(srcNameWe);
       info->CAPI->Free(srcPath);
       classes[numClasses++] = strdup(className);
       free(className);
       }
     }
+  free(args[0]);
+  free(args[1]);
+  free(args[2]);
+  free(args[4]);
+  
+#else
+  srcList = (char **)malloc((newArgc +4) * sizeof(char*));
+  sargs = (char **)malloc((newArgc +4) * sizeof(char*));
+  sargs[0] = strdup(startTempFile?startTempFile:"");
+  sargs[1] = strdup("-classpath");
+  sargs[2] = (char *)malloc(strlen(vtkpath) + 20);
+  sprintf(sargs[2], "%s/java", vtkpath);
+  sargsCnt = 3;
+  
+  /* get the classes for this lib */
+  for(i = 2; i < newArgc; ++i)
+    {   
+    const char *srcName = newArgv[i];
+    char *className = 0;
+    char *srcNameWe;
+    char *srcPath;
+
+    if ( strcmp(srcName, "DEPENDS") == 0 )
+      {
+      depends = 1;
+      continue;
+      }
+    if ( depends )
+      {
+      dependencies[numDep++] = strdup(srcName);
+      }
+    else
+      {
+      sargs[sargsCnt] = strdup(srcName);
+      srcList[srcCnt++] = sargs[sargsCnt];
+      sargsCnt++;
+
+      srcNameWe = info->CAPI->GetFilenameWithoutExtension(srcName);
+      srcPath   = info->CAPI->GetFilenamePath(srcName);
+      
+      className = (char *)malloc(strlen(srcPath) + strlen(srcNameWe) + 20);
+      sprintf(className,"%s/%s.class",srcPath,srcNameWe);
+      
+      
+      info->CAPI->Free(srcNameWe);
+      info->CAPI->Free(srcPath);
+      classes[numClasses++] = strdup(className);
+      free(className);
+      }
+    }
+  info->CAPI->AddCustomCommand(mf, javac, javac, sargsCnt, (const char**)sargs, 
+                               srcCnt, srcList, numClasses, (const char**)classes, target);
+#endif
 
   jargs[0] = strdup("cvf");
   jargs[1] = jarFile;
@@ -153,9 +220,6 @@ static int InitialPass(void *inf, void *mf, int argc, char *argv[])
     free(dependencies);
     }
 
-  free(args[0]);
-  free(args[1]);
-  
   free(jargs[0]);
   free(jargs[2]);
   free(jargs[4]);
