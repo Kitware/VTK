@@ -43,11 +43,6 @@ public:
   static vtkXTextMapper *New();
 
   // Description:
-  // Set the font size used by the mapper.  If the font size is 
-  // available, the code will use the nearest available size.
-  void SetFontSize(int size);
-
-  // Description:
   // What is the size of the rectangle required to draw this
   // mapper ?
   void GetSize(vtkViewport* viewport, int size[2]);
@@ -55,6 +50,10 @@ public:
 protected:
   vtkXTextMapper();
   ~vtkXTextMapper() {};
+
+  // Description:
+  // Get the font size that matches an available X font size.
+  int GetMatchingFontSize();
 
   // Description:
   // Actually get the size of the rectangle.

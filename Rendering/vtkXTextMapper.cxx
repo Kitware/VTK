@@ -16,13 +16,16 @@
 
 =========================================================================*/
 #include "vtkXTextMapper.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
 
 #ifndef VTK_REMOVE_LEGACY_CODE
 //mark this class for future legacy-related changes
 #endif
 
-vtkCxxRevisionMacro(vtkXTextMapper, "1.32");
+vtkCxxRevisionMacro(vtkXTextMapper, "1.33");
 
 //-------------------------------------------------------------------------
 vtkXTextMapper* vtkXTextMapper::New()
@@ -46,9 +49,10 @@ vtkXTextMapper::vtkXTextMapper()
   this->ViewportSize[0] = this->ViewportSize[1] = 0;
 }
 
-void vtkXTextMapper::SetFontSize(int size)
+int vtkXTextMapper::GetMatchingFontSize()
 {
   int newSize;
+  int size = this->TextProperty->GetSize();
 
   // Make sure that the font size matches an available X font size.
   // This routine assumes that some standard X fonts are installed.
@@ -95,20 +99,17 @@ void vtkXTextMapper::SetFontSize(int size)
       break;
     }
   
-  if (this->FontSize != newSize)
-    {
-      this->FontSize = newSize;
-      this->FontMTime.Modified();
-    }
-  return;
+  return newSize;
 }
 
 void vtkXTextMapper::GetSize(vtkViewport* viewport, int *s)
 {
   int *vSize = viewport->GetSize();
   
-  if (this->SizeMTime < this->MTime || this->SizeMTime < this->FontMTime ||
-      vSize[0] != this->ViewportSize[0] || vSize[1] != this->ViewportSize[1])
+  if (this->SizeMTime < this->MTime || 
+      this->SizeMTime < this->TextProperty->GetMTime() ||
+      vSize[0] != this->ViewportSize[0] || 
+      vSize[1] != this->ViewportSize[1])
     {
     this->ViewportSize[0] = vSize[0];
     this->ViewportSize[1] = vSize[1];    
@@ -149,7 +150,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
   char fontname[256]= "*";
  
   // Family
-  switch (this->FontFamily)
+  switch (this->TextProperty->GetFontFamily())
     {
     case VTK_ARIAL:
       strcat(fontname, "helvetica-");
@@ -165,7 +166,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
     }
 
   // Weight
-  if (this->Bold == 1)
+  if (this->TextProperty->GetBold() == 1)
     {
     strcat(fontname, "bold-");
     }
@@ -175,9 +176,9 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
     }
 
   // Slant
-  if (this->Italic == 1)
+  if (this->TextProperty->GetItalic() == 1)
     {
-    if (this->FontFamily == VTK_TIMES) strcat(fontname, "i-");
+    if (this->TextProperty->GetFontFamily() == VTK_TIMES) strcat(fontname, "i-");
     else strcat(fontname, "o-");
     }
   else
@@ -188,7 +189,7 @@ void vtkXTextMapper::DetermineSize(vtkViewport *viewport, int *size)
   char tempString[100];
  
   // Set width, pixels, point size
-  sprintf(tempString, "*-%d-*", 10*this->FontSize);
+  sprintf(tempString, "*-%d-*", 10 * this->GetMatchingFontSize());
 
   strcat(fontname, tempString);
 
