@@ -124,7 +124,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
     this->SetClippingRange(a[0], a[1]); };
   vtkGetVector2Macro(ClippingRange,double);
   void GetClippingRange(float a[2]) {
-    double tmp[2]; this->GetFocalPoint(tmp); 
+    double tmp[2]; this->GetClippingRange(tmp); 
     a[0] = tmp[0]; a[1] = tmp[1]; }; 
 
   // Description:
