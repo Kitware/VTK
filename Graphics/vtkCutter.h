@@ -30,6 +30,11 @@
 // multiple cut surfaces (usually planes) which are ordered (and rendered)
 // from back-to-front. The surfaces are set translucent to give a 
 // volumetric rendering effect.
+//
+// Note that data can be cut using either 1) the scalar values associated
+// with the dataset or 2) an implicit function associated with this class.
+// By default, if an implicit function is set it is used to clip the data
+// set, otherwise the dataset scalars are used to perform the clipping.
 
 // .SECTION See Also
 // vtkImplicitFunction vtkClipPolyData
