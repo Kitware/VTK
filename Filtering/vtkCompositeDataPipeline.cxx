@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.11");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.12");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -1073,6 +1073,9 @@ void vtkCompositeDataPipeline::CheckUpdateBlocks()
   for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
     {
     vtkInformation* info = this->GetOutputInformation(j);
+    // If the output is composite and no UPDATE_BLOCKS() was
+    // provided by the algorithm, create one and mark all
+    // blocks to be updated
     if (info->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()) &&
         !info->Has(vtkCompositeDataPipeline::UPDATE_BLOCKS()))
       {
@@ -1086,13 +1089,13 @@ void vtkCompositeDataPipeline::CheckUpdateBlocks()
         vtkHierarchicalDataInformation::New();
       unsigned int numLevels = hds->GetNumberOfLevels();
       updateInfo->SetNumberOfLevels(numLevels);
-      for (unsigned int i=0; i<numLevels; i++)
+      for (unsigned int k=0; k<numLevels; k++)
         {
-        unsigned int numDataSets = hds->GetNumberOfDataSets(i);
-        updateInfo->SetNumberOfDataSets(i, numDataSets);
-        for (unsigned int j=0; j<numDataSets; j++)
+        unsigned int numDataSets = hds->GetNumberOfDataSets(k);
+        updateInfo->SetNumberOfDataSets(k, numDataSets);
+        for (unsigned int l=0; l<numDataSets; l++)
           {
-          vtkInformation* blockInf = updateInfo->GetInformation(i, j);
+          vtkInformation* blockInf = updateInfo->GetInformation(k, l);
           blockInf->Set(MARKED_FOR_UPDATE(), 1);
           }
         }
