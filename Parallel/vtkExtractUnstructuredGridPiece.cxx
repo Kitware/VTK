@@ -25,7 +25,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.16");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.17");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -241,7 +241,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   vtkIdType idx;
   for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
     {
-    if (pointOwnership->GetId(idx) == -1)
+    if (pointMap->GetId(idx) == -1)
       {
       ++count;
       }
@@ -249,7 +249,7 @@ void vtkExtractUnstructuredGridPiece::Execute()
   vtkIdType count2 = 0;
   for (idx = 0; idx < input->GetNumberOfPoints(); ++idx)
     {
-    if (pointOwnership->GetId(idx) == -1)
+    if (pointMap->GetId(idx) == -1)
       {
       if ((count2 * numPieces / count) == piece)
         {
