@@ -15,10 +15,10 @@ iren Initialize
 
 # Switch to Joystick+Actor mode
 
-iren SetEventInformation 0 0 0 0 j 0 0
+iren SetKeyEventInformation 0 0 j 0 0
 iren InvokeEvent "CharEvent"
 
-iren SetEventInformation 0 0 0 0 a 0 0
+iren SetKeyEventInformation 0 0 a 0 0
 iren InvokeEvent "CharEvent"
 
 # Test style

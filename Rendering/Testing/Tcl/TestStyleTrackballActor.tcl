@@ -15,10 +15,10 @@ iren Initialize
 
 # Switch to Trackball+Actor mode
 
-iren SetEventInformation 0 0 0 0 t 0 0
+iren SetKeyEventInformation 0 0 t 0 0
 iren InvokeEvent "CharEvent"
 
-iren SetEventInformation 0 0 0 0 a 0 0
+iren SetKeyEventInformation 0 0 a 0 0
 iren InvokeEvent "CharEvent"
 
 # Test style
