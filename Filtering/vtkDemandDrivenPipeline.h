@@ -63,7 +63,6 @@ public:
   virtual void SetOutputData(vtkAlgorithm* algorithm, int port, vtkDataObject*);
 
   static vtkInformationKeyVectorKey* DOWNSTREAM_KEYS_TO_COPY();
-  static vtkInformationKeyVectorKey* UPSTREAM_KEYS_TO_COPY();
   static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
   static vtkInformationIntegerKey* REQUEST_INFORMATION();
   static vtkInformationIntegerKey* REQUEST_DATA();
@@ -80,11 +79,8 @@ protected:
   virtual int ExecuteInformation();
   virtual int ExecuteData(int outputPort);
 
-  // By default what keys should be copied from input to output
-  virtual void FillDownstreamKeysToCopy(vtkInformation *);
-
-  // By default what keys should be copied from output to input
-  virtual void FillUpstreamKeysToCopy(vtkInformation *) {};
+  // Put default information in output information objects.
+  virtual void FillDefaultOutputInformation(vtkInformation*);
 
   vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
   vtkInformation* GetConnectedInputInformation(int port, int index);
@@ -97,8 +93,7 @@ protected:
   vtkDataObject* GetInputData(int port, int index);
   void PrepareDownstreamRequest(vtkInformationIntegerKey* rkey);
   void PrepareUpstreamRequest(vtkInformationIntegerKey* rkey);
-  virtual void CopyDefaultInformation();
-  virtual void CopyDefaultUpstreamInformation();
+  virtual void CopyDefaultDownstreamInformation();
   virtual int CheckDataObject(int port);
 
   // Input connection validity checkers.

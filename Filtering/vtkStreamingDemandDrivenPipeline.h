@@ -74,15 +74,13 @@ protected:
   ~vtkStreamingDemandDrivenPipeline();
 
   virtual int ExecuteInformation();
-  virtual void CopyDefaultInformation();
+  virtual void CopyDefaultDownstreamInformation();
+  virtual void CopyDefaultUpstreamInformation();
   int VerifyOutputInformation(int outputPort);
   virtual int NeedToExecuteData(int outputPort);
 
-  // By default what keys should be copied from input to output
-  virtual void FillDownstreamKeysToCopy(vtkInformation *);
-
-  // By default what keys should be copied from output to input
-  virtual void FillUpstreamKeysToCopy(vtkInformation *);
+  // Put default information in output information objects.
+  virtual void FillDefaultOutputInformation(vtkInformation*);
 
 private:
   vtkStreamingDemandDrivenPipelineInternals* StreamingDemandDrivenInternal;

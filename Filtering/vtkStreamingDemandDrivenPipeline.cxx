@@ -24,8 +24,18 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.3");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.1.2.4");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
+
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, WHOLE_EXTENT, IntegerVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, MAXIMUM_NUMBER_OF_PIECES, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZED, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT, IntegerVector);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_PIECE_NUMBER, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_PIECES, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
 
 //----------------------------------------------------------------------------
 class vtkStreamingDemandDrivenPipelineInternals
@@ -162,35 +172,23 @@ int vtkStreamingDemandDrivenPipeline::ExecuteInformation()
     }
 }
 
-void vtkStreamingDemandDrivenPipeline::
-FillDownstreamKeysToCopy(vtkInformation *info)
+//----------------------------------------------------------------------------
+void
+vtkStreamingDemandDrivenPipeline
+::FillDefaultOutputInformation(vtkInformation* info)
 {
-  this->Superclass::FillDownstreamKeysToCopy(info);
+  this->Superclass::FillDefaultOutputInformation(info);
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                WHOLE_EXTENT());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                MAXIMUM_NUMBER_OF_PIECES());
 }
 
-void vtkStreamingDemandDrivenPipeline::
-FillUpstreamKeysToCopy(vtkInformation *info)
-{
-  this->Superclass::FillUpstreamKeysToCopy(info);
-  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
-               UPDATE_EXTENT());
-  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
-               UPDATE_PIECE_NUMBER());
-  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
-               UPDATE_NUMBER_OF_PIECES());
-  info->Append(vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY(),
-               UPDATE_NUMBER_OF_GHOST_LEVELS());
-}
-
 //----------------------------------------------------------------------------
-void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
-{ 
-  this->Superclass::CopyDefaultInformation();
-  
+void vtkStreamingDemandDrivenPipeline::CopyDefaultDownstreamInformation()
+{
+  this->Superclass::CopyDefaultDownstreamInformation();
+
   // Setup default information.
   for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
     {
@@ -206,6 +204,44 @@ void vtkStreamingDemandDrivenPipeline::CopyDefaultInformation()
           // Since most unstructured filters in VTK generate all their
           // data once, set the default maximum number of pieces to 1.
           outInfo->Set(MAXIMUM_NUMBER_OF_PIECES(), 1);
+          }
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkStreamingDemandDrivenPipeline::CopyDefaultUpstreamInformation()
+{
+  // Setup default information for the inputs.
+  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
+    {
+    // Copy information from the first output.
+    vtkInformation* outInfo = this->GetOutputInformation(0);
+    if(outInfo)
+      {
+      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+        {
+        vtkInformationVector* inVec =
+          this->GetInputInformation(i)->Get(
+            vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
+        int numInConnections = inVec->GetNumberOfInformationObjects();
+        for (int j=0; j<numInConnections; j++)
+          {
+          vtkInformation* inInfo = inVec->GetInformationObject(j);
+          vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
+          if(inData && inData->GetExtentType() == VTK_PIECES_EXTENT)
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
+            inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
+            inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
+            inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
+            }
+          else if(inData && inData->GetExtentType() == VTK_3D_EXTENT)
+            {
+            inInfo->CopyEntry(outInfo, UPDATE_EXTENT());
+            inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
+            }
           }
         }
       }
@@ -729,23 +765,3 @@ int vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(int port)
     }
   return info->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
 }
-
-//----------------------------------------------------------------------------
-// Define information keys for this pipeline object.
-#define VTK_SDDP_DEFINE_KEY_METHOD(NAME, type)                              \
-  vtkInformation##type##Key* vtkStreamingDemandDrivenPipeline::NAME()       \
-    {                                                                       \
-    static vtkInformation##type##Key instance(                              \
-           #NAME, "vtkStreamingDemandDrivenPipeline");                      \
-    return &instance;                                                       \
-    }
-VTK_SDDP_DEFINE_KEY_METHOD(CONTINUE_EXECUTING, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(REQUEST_UPDATE_EXTENT, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(WHOLE_EXTENT, IntegerVector);
-VTK_SDDP_DEFINE_KEY_METHOD(MAXIMUM_NUMBER_OF_PIECES, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_EXTENT_INITIALIZED, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_EXTENT, IntegerVector);
-VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_PIECE_NUMBER, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_NUMBER_OF_PIECES, Integer);
-VTK_SDDP_DEFINE_KEY_METHOD(UPDATE_NUMBER_OF_GHOST_LEVELS, Integer);
-#undef VTK_SDDP_DEFINE_KEY_METHOD

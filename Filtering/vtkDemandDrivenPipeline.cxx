@@ -38,8 +38,14 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.4");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.1.2.5");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
+
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, DOWNSTREAM_KEYS_TO_COPY, KeyVector);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, FROM_OUTPUT_PORT, Integer);
 
 //----------------------------------------------------------------------------
 class vtkDemandDrivenPipelineInternals
@@ -75,54 +81,6 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
-}
-
-//----------------------------------------------------------------------------
-vtkInformationKeyVectorKey* vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY()
-{
-  static vtkInformationKeyVectorKey instance("UPSTREAM_KEYS_TO_COPY",
-                                             "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationKeyVectorKey* vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY()
-{
-  static vtkInformationKeyVectorKey instance("DOWNSTREAM_KEYS_TO_COPY",
-                                             "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()
-{
-  static vtkInformationIntegerKey instance("REQUEST_DATA_OBJECT",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_INFORMATION()
-{
-  static vtkInformationIntegerKey instance("REQUEST_INFORMATION",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_DATA()
-{
-  static vtkInformationIntegerKey instance("REQUEST_DATA",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
-}
-
-//----------------------------------------------------------------------------
-vtkInformationIntegerKey* vtkDemandDrivenPipeline::FROM_OUTPUT_PORT()
-{
-  static vtkInformationIntegerKey instance("FROM_OUTPUT_PORT",
-                                           "vtkDemandDrivenPipeline");
-  return &instance;
 }
 
 //----------------------------------------------------------------------------
@@ -198,14 +156,14 @@ vtkInformation* vtkDemandDrivenPipeline::GetInputInformation(int port)
   return this->GetInputInformation()->GetInformationObject(port);
 }
 
-void vtkDemandDrivenPipeline::FillDownstreamKeysToCopy(vtkInformation *info)
+//----------------------------------------------------------------------------
+void vtkDemandDrivenPipeline::FillDefaultOutputInformation(vtkInformation* info)
 {
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_TYPE());
   info->Append(vtkDemandDrivenPipeline::DOWNSTREAM_KEYS_TO_COPY(),
                vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS());
 }
-
 
 //----------------------------------------------------------------------------
 vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
@@ -221,14 +179,11 @@ vtkInformationVector* vtkDemandDrivenPipeline::GetOutputInformation()
   this->DemandDrivenInternal->OutputInformation
     ->SetNumberOfInformationObjects(this->Algorithm->GetNumberOfOutputPorts());
 
-  // then set the keys to always copy the default values for any new
-  // informaiton objects
+  // For any new information obects, fill in default information values.
   for (int i = numberOfInfoObjs; 
        i < this->Algorithm->GetNumberOfOutputPorts();++i)
     {
-    this->FillDownstreamKeysToCopy(
-      this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
-    this->FillUpstreamKeysToCopy(
+    this->FillDefaultOutputInformation(
       this->DemandDrivenInternal->OutputInformation->GetInformationObject(i));
     }
 
@@ -502,34 +457,7 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::CopyDefaultUpstreamInformation()
-{ 
-  // Setup default information for the inputs.
-  if(this->Algorithm->GetNumberOfOutputPorts() > 0)
-    {
-    // Copy information from the first input.
-    vtkInformation* outInfo = 
-      this->GetOutputInformation(0);
-    if (outInfo)
-      {
-      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-        {
-        vtkInformationVector* inInfo = 
-          this->GetInputInformation(i)->Get(
-            vtkAlgorithm::INPUT_CONNECTION_INFORMATION());
-        int numInConnections = inInfo->GetNumberOfInformationObjects();
-        for (int j=0; j<numInConnections; j++)
-          {
-          inInfo->GetInformationObject(j)->CopyEntries(
-            outInfo, vtkDemandDrivenPipeline::UPSTREAM_KEYS_TO_COPY());
-          }
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkDemandDrivenPipeline::CopyDefaultInformation()
+void vtkDemandDrivenPipeline::CopyDefaultDownstreamInformation()
 { 
   // Setup default information for the outputs.
   if(this->Algorithm->GetNumberOfInputPorts() > 0)
@@ -580,7 +508,7 @@ int vtkDemandDrivenPipeline::ExecuteInformation()
   this->PrepareDownstreamRequest(REQUEST_INFORMATION());
 
   // Setup default information for the outputs.
-  this->CopyDefaultInformation();
+  this->CopyDefaultDownstreamInformation();
 
   this->InProcessDownstreamRequest = 1;
   int result = this->Algorithm->ProcessDownstreamRequest(
