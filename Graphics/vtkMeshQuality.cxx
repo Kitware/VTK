@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.14");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.15");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -350,31 +350,52 @@ void vtkMeshQuality::Execute()
     qhexm = Eqhex = qhexM = Eqhex2 = 0.;
     }
 
+  double tuple[5];
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Triangle Quality" );
-  quality->SetNumberOfComponents(4);
-  quality->InsertNextTuple4( qtrim, Eqtri, qtriM, Eqtri2 );
+  quality->SetNumberOfComponents(5);
+  tuple[0] = qtrim;
+  tuple[1] = Eqtri;
+  tuple[2] = qtriM;
+  tuple[3] = Eqtri2;
+  tuple[4] = ntri;
+  quality->InsertNextTuple( tuple );
   out->GetFieldData()->AddArray( quality );
   quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Quadrilateral Quality" );
-  quality->SetNumberOfComponents(4);
-  quality->InsertNextTuple4( qquam, Eqqua, qquaM, Eqqua2 );
+  quality->SetNumberOfComponents(5);
+  tuple[0] = qquam;
+  tuple[1] = Eqqua;
+  tuple[2] = qquaM;
+  tuple[3] = Eqqua2;
+  tuple[4] = nqua;
+  quality->InsertNextTuple( tuple );
   out->GetFieldData()->AddArray( quality );
   quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Tetrahedron Quality" );
-  quality->SetNumberOfComponents(4);
-  quality->InsertNextTuple4( qtetm, Eqtet, qtetM, Eqtet2 );
+  quality->SetNumberOfComponents(5);
+  tuple[0] = qtetm;
+  tuple[1] = Eqtet;
+  tuple[2] = qtetM;
+  tuple[3] = Eqtet2;
+  tuple[4] = ntet;
+  quality->InsertNextTuple( tuple );
   out->GetFieldData()->AddArray( quality );
   quality->Delete();
 
   quality = vtkDoubleArray::New();
   quality->SetName( "Mesh Hexahedron Quality" );
-  quality->SetNumberOfComponents(4);
-  quality->InsertNextTuple4( qhexm, Eqhex, qhexM, Eqhex2 );
+  quality->SetNumberOfComponents(5);
+  tuple[0] = qhexm;
+  tuple[1] = Eqhex;
+  tuple[2] = qhexM;
+  tuple[3] = Eqhex2;
+  tuple[4] = nhex;
+  quality->InsertNextTuple( tuple );
   out->GetFieldData()->AddArray( quality );
   quality->Delete();
 }

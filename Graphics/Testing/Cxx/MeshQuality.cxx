@@ -154,9 +154,9 @@ int MeshQuality( int argc, char* argv[] )
       {
       const char* tname = summaryTests[tst].name;
       double* tvals = summaryTests[tst].valuesExpected;
-      double actual[4];
+      double actual[5];
       vtkDataArray* d = iq->GetOutput()->GetFieldData()->GetArray( tname );
-      if ( d && d->GetNumberOfComponents() == 4 && d->GetNumberOfTuples() == 1 )
+      if ( d && d->GetNumberOfComponents() == 5 && d->GetNumberOfTuples() == 1 )
         {
         d->GetTuple( 0, actual );
         int result = CompareNumbers( tvals, actual, 4, summaryTests[tst].significantDigits );
@@ -189,6 +189,8 @@ int MeshQuality( int argc, char* argv[] )
     status = 1;
     }
 
+  iq->Delete();
+  mr->Delete();
   delete [] fname;
   return status;
 }

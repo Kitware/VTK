@@ -22,8 +22,20 @@
 // vtkMeshQuality computes one or more measures of (geometric)
 // quality for each 2-D and 3-D cell (triangle, quadrilateral, tetrahedron,
 // or hexahedron) of a mesh. These measures of quality are then averaged
-// over the entire mesh. If desired, the per-cell quality may be added to
-// the mesh's cell data.
+// over the entire mesh. The minimum, average, maximum, and variance
+// of quality for each type of cell is stored in the output mesh's FieldData.
+// The FieldData arrays are named &ldquo;Mesh Triangle Quality,&rdquo
+// &ldquo;Mesh Quadrilateral Quality,&rdquo &ldquo;Mesh Tetrahedron Quality,&rdquo
+// and &ldquo;Mesh Hexahedron Quality,&rdquo. Each array has a single tuple
+// with 5 components. The first 4 components are the quality statistics
+// mentioned above; the final value is the number of cells of the given type.
+// This final component makes aggregation of statistics for distributed
+// mesh data possible.
+//
+// By default, the per-cell quality is added to the mesh's cell data, in
+// an array named &ldquo;Quality.&rdquo; Cell types not supported by
+// this filter will have an entry of 0. Use SaveCellQualityOff() to
+// store only the final statistics.
 //
 // This version of the filter overtakes an older version written by
 // Leila Baghdadi, Hanif Ladak, and David Steinman at the Imaging Research
@@ -82,7 +94,6 @@ public:
   // Scope: Except for VTK_QUALITY_EDGE_RATIO, these estimators are intended for planar
   // quadrilaterals only; use at your own risk if you really want to assess non-planar
   // quadrilateral quality with those.
-  
   vtkSetMacro(QuadQualityMeasure,int);
   vtkGetMacro(QuadQualityMeasure,int);
   void SetQuadQualityMeasureToRadiusRatio() { this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO ); }
@@ -147,14 +158,14 @@ public:
   // (The previous implementation only worked for tetrahedra.)
   //
   // For now, turning on the volume computation will put this
-  // filter into "compatability mode," where tetrahedral cell
+  // filter into "compatibility mode," where tetrahedral cell
   // volume is stored in first component of each output tuple and
   // the radius ratio is stored in the second component. You may
   // also use CompatibilityModeOn()/Off() to enter this mode.
   // In this mode, cells other than tetrahedra will have report
   // a volume of 0.0 (if volume computation is enabled).
   //
-  // By default, volume computation is disabled and compatability
+  // By default, volume computation is disabled and compatibility
   // mode is off, since it does not make a lot of sense for
   // meshes with non-tetrahedral cells.
   virtual void SetVolume( int cv )
@@ -179,10 +190,10 @@ public:
   // Description:
   // CompatibilityMode governs whether, when both a quality measure
   // and cell volume are to be stored as cell data, the two values
-  // are stored in a single array. When compatability mode is off
+  // are stored in a single array. When compatibility mode is off
   // (the default), two separate arrays are used -- one labeled
   // "Quality" and the other labeled "Volume".
-  // When compatability mode is on, both values are stored in a
+  // When compatibility mode is on, both values are stored in a
   // single array, with volume as the first component and quality
   // as the second component.
   //
@@ -191,9 +202,9 @@ public:
   // computation on. (This matches the default behavior of the
   // initial implementation of vtkMeshQuality.) You may change
   // quality measure and volume computation without leaving
-  // compatability mode.
+  // compatibility mode.
   //
-  // Disabling compatability mode does not affect the current
+  // Disabling compatibility mode does not affect the current
   // volume computation or tetrahedral quality measure settings. 
   //
   // The final caveat to CompatibilityMode is that regardless of
