@@ -19,10 +19,10 @@ public class vtkPanel extends Canvas {
 	int InteractionMode = 1;
 
 	static { System.loadLibrary("vtkJava"); }
-        rw.DebugOn();
         public vtkPanel()
       	  {
 	  ren.SetRenderWindow(rw);
+          rw.DebugOn();
 	  }
 
         public int getWindowID() 
@@ -62,7 +62,7 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              //rw.SetWindowInfo(this.GetWindowInfo());
+              rw.SetWindowInfo(this.GetWindowInfo());
               cam = ren.GetActiveCamera();
 	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
@@ -82,7 +82,7 @@ public class vtkPanel extends Canvas {
 	    if (windowSet == 0)
               { 
 	      // set the window id and the active camera
-              //rw.SetWindowInfo(this.GetWindowInfo());
+              rw.SetWindowInfo(this.GetWindowInfo());
               cam = ren.GetActiveCamera();
 	      ren.AddLight(lgt);
               lgt.SetPosition(cam.GetPosition());
