@@ -129,6 +129,7 @@ void proc1( vtkMultiProcessController *controller, void *arg )
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
   ren->UnRegister(0);
+  renWin->SetPosition(0, 360 * myid);
 
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
