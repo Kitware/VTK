@@ -37,6 +37,7 @@ protected:
 
 public:
   vtkOglrRenderWindow();
+  ~vtkOglrRenderWindow();
   char *GetClassName() {return "vtkOglrRenderWindow";};
   void PrintSelf(ostream& os, vtkIndent indent);
   
