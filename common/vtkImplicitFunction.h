@@ -98,6 +98,7 @@ public:
   // Evaluate function at position x-y-z and return value. Must be implemented
   // by derived class.
   virtual float EvaluateFunction(float x[3]) = 0;
+  float EvaluateFunction(float x, float y, float z);
 
   // Description:
   // Evaluate function gradient at position x-y-z and pass back vector. Must
