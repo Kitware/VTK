@@ -23,9 +23,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.23");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.24");
 
-vtkCxxSetObjectMacro(vtkInteractorObserver,CurrentRenderer,vtkRenderer);
+vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
 vtkInteractorObserver::vtkInteractorObserver()
 {
@@ -43,6 +43,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->KeyPressCallbackCommand->SetCallback(vtkInteractorObserver::ProcessEvents);
  
   this->CurrentRenderer = NULL;
+  this->DefaultRenderer = NULL;
 
   this->Priority = 0.0;
 
@@ -55,6 +56,52 @@ vtkInteractorObserver::~vtkInteractorObserver()
   this->EventCallbackCommand->Delete();
   this->KeyPressCallbackCommand->Delete();
 }
+
+//----------------------------------------------------------------------------
+void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
+{ 
+  if (this->CurrentRenderer == _arg) 
+    {
+    return;
+    }
+
+  if (this->CurrentRenderer != NULL) 
+    { 
+    this->CurrentRenderer->UnRegister(this); 
+    }
+
+  // WARNING: see .h, if the DefaultRenderer is set, whatever the value
+  // of _arg (except NULL), we are going to use DefaultRenderer
+  // Normally when the widget is activated (SetEnabled(1) or when 
+  // keypress activation takes place), the renderer over which the mouse
+  // pointer is positioned is used to call SetCurrentRenderer(). 
+  // Alternatively, we may want to specify a user-defined renderer to bind the 
+  // interactor to when the interactor observer is activated.
+  // The problem is that in many 3D widgets, when SetEnabled(0) is called,
+  // the CurrentRender is set to NULL. In that case, the next time
+  // SetEnabled(1) is called, the widget will try to set CurrentRenderer
+  // to the renderer over which the mouse pointer is positioned, and we 
+  // will use our user-defined renderer. To solve that, we made
+  // SetCurrentRenderer() protected, and introduced the DefaultRenderer
+  // ivar, which will be used to force the value of CurrentRenderer each
+  // time SetCurrentRenderer is called (i.e., no matter if SetCurrentRenderer
+  // is called with the renderer that was poked at the mouse coords, the
+  // DefaultRenderer will be used).
+
+  if (_arg && this->DefaultRenderer)
+    {
+    _arg = this->DefaultRenderer;
+    }
+
+  this->CurrentRenderer = _arg;
+
+  if (this->CurrentRenderer != NULL) 
+    { 
+    this->CurrentRenderer->Register(this); 
+    }
+
+  this->Modified();
+} 
 
 // This adds the keypress event observer and the delete event observer
 void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
@@ -230,6 +277,7 @@ void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "Current Renderer: " << this->CurrentRenderer << "\n";
+  os << indent << "Default Renderer: " << this->DefaultRenderer << "\n";
   os << indent << "Enabled: " << this->Enabled << "\n";
   os << indent << "Priority: " << this->Priority << "\n";
   os << indent << "Interactor: " << this->Interactor << "\n";
