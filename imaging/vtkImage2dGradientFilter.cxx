@@ -127,77 +127,11 @@ void vtkImage2dGradientFilter::ComputeOutputImageInformation(
 
 //----------------------------------------------------------------------------
 // Description:
-// This method executes the filter for the postion of the image which
-// is not affected by boundaries.  Component axis is axis2.  Gradient
-// is performed over axis0 and axis1.
-template <class T>
-void vtkImage2dGradientFilterExecuteCenter(vtkImage2dGradientFilter *self,
-				     vtkImageRegion *inRegion, T *inPtr, 
-				     vtkImageRegion *outRegion, float *outPtr)
-{
-  double d0, d1, temp;
-  float r0, r1;
-  // For looping though output (and input) pixels.
-  int outMin0, outMax0, outMin1, outMax1;
-  int outIdx0, outIdx1;
-  int outInc0, outInc1, outInc2;
-  float *outPtr0, *outPtr1, *outPtr2;
-  int inInc0, inInc1;
-  T *inPtr0, *inPtr1;
-  
-  self = self;
-  // Get information to march through data
-  inRegion->GetIncrements2d(inInc0, inInc1); 
-  outRegion->GetIncrements3d(outInc0, outInc1, outInc2); 
-  outRegion->GetBounds2d(outMin0, outMax0, outMin1, outMax1);
-  
-  // We want the input pixel to correspond to output
-  inPtr = (T *)(inRegion->GetVoidPointer2d(outMin0, outMin1));
-
-  // The aspect ratio is important for computing the gradient.
-  inRegion->GetAspectRatio2d(r0, r1);
-  r0 = 1.0 / r0;
-  r1 = 1.0 / r1;
-  
-  // loop through pixels of output
-  outPtr1 = outPtr;
-  inPtr1 = inPtr;
-  for (outIdx1 = outMin1; outIdx1 <= outMax1; ++outIdx1)
-    {
-    outPtr0 = outPtr1;
-    inPtr0 = inPtr1;
-    for (outIdx0 = outMin0; outIdx0 <= outMax0; ++outIdx0)
-      {
-	
-      // Compute gradient using central differences.
-      d0 = (inPtr0[inInc0] - inPtr0[-inInc0]) * r0;
-      d1 = (inPtr0[inInc1] - inPtr0[-inInc1]) * r1;
-      
-      // Set the magnitude
-      outPtr2 = outPtr0;
-      *outPtr2 = (float)(hypot(d0, d1));
-      temp = 1.0 / *outPtr2;
-      // Set the vector
-      outPtr2 += outInc2;
-      *outPtr2 = d0 / temp;
-      outPtr2 += outInc2;
-      *outPtr2 = d1 / temp;
-      
-      outPtr0 += outInc0;
-      inPtr0 += inInc0;
-      }
-    outPtr1 += outInc1;
-    inPtr1 += inInc1;
-    }
-}
-
-//----------------------------------------------------------------------------
-// Description:
-// This method behaves just like "vtkImage2dGradientFilterExecute" but
+// This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values 
 // out of bounds.
 template <class T>
-void vtkImage2dGradientFilterExecuteBoundary(vtkImage2dGradientFilter *self,
+void vtkImage2dGradientFilterExecute(vtkImage2dGradientFilter *self,
 				     vtkImageRegion *inRegion, T *inPtr, 
 				     vtkImageRegion *outRegion, float *outPtr)
 {
@@ -255,9 +189,9 @@ void vtkImage2dGradientFilterExecuteBoundary(vtkImage2dGradientFilter *self,
       temp = 1.0 / *outPtr2;
       // Set the vector
       outPtr2 += outInc2;
-      *outPtr2 = d0 / temp;
+      *outPtr2 = d0 * temp;
       outPtr2 += outInc2;
-      *outPtr2 = d1 / temp;
+      *outPtr2 = d1 * temp;
       
       outPtr0 += outInc0;
       inPtr0 += inInc0;
@@ -292,27 +226,27 @@ void vtkImage2dGradientFilter::ExecuteCenter3d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage2dGradientFilterExecuteCenter(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage2dGradientFilterExecuteCenter(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage2dGradientFilterExecuteCenter(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage2dGradientFilterExecuteCenter(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage2dGradientFilterExecuteCenter(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
@@ -347,27 +281,27 @@ void vtkImage2dGradientFilter::ExecuteBoundary3d(vtkImageRegion *inRegion,
   switch (inRegion->GetDataType())
     {
     case VTK_IMAGE_FLOAT:
-      vtkImage2dGradientFilterExecuteBoundary(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (float *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_INT:
-      vtkImage2dGradientFilterExecuteBoundary(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (int *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_SHORT:
-      vtkImage2dGradientFilterExecuteBoundary(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_SHORT:
-      vtkImage2dGradientFilterExecuteBoundary(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (unsigned short *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
     case VTK_IMAGE_UNSIGNED_CHAR:
-      vtkImage2dGradientFilterExecuteBoundary(this, 
+      vtkImage2dGradientFilterExecute(this, 
 			  inRegion, (unsigned char *)(inPtr), 
 			  outRegion, (float *)(outPtr));
       break;
