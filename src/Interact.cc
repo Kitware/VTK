@@ -35,6 +35,11 @@ vlRenderWindowInteractor::vlRenderWindowInteractor()
   this->OutlineMapper.SetInput(this->Outline);
   this->PickedRenderer = NULL;
   this->CurrentActor = NULL;
+
+  this->StartPickMethod = NULL;
+  this->StartPickMethodArg = NULL;
+  this->EndPickMethod = NULL;
+  this->EndPickMethodArg = NULL;
 }
 
 vlRenderWindowInteractor::~vlRenderWindowInteractor()

@@ -35,6 +35,11 @@ vlRenderer::vlRenderer()
   this->Background[1] = 0;
   this->Background[2] = 0;
 
+  this->WorldPoint[0] = 0;
+  this->WorldPoint[1] = 0;
+  this->WorldPoint[2] = 0;
+  this->WorldPoint[3] = 0;
+
   this->DisplayPoint[0] = 0;
   this->DisplayPoint[1] = 0;
   this->DisplayPoint[2] = 0;
