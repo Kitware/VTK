@@ -71,8 +71,8 @@ vtkMPIController::~vtkMPIController()
   if (this->Initialized)
     {
     cerr << "Controller " << this->LocalProcessId << " destructing\n";
-    //MPI_Barrier (MPI_COMM_WORLD);
-    //MPI_Finalize();
+    MPI_Barrier (MPI_COMM_WORLD);
+    MPI_Finalize();
     }
 }
 
