@@ -14,6 +14,8 @@
  #endif
 #endif
 
+#cmakedefine VTK_OPENGL_HAS_OSMESA
+
 #cmakedefine VTK_MANGLE_MESA 
 #ifdef VTK_MANGLE_MESA
  #ifndef _WIN32

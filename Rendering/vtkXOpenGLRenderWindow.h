@@ -54,9 +54,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <X11/Xutil.h>
 #include "vtkOpenGLRenderWindow.h"
 #include "GL/glx.h"
+#include "vtkToolkits.h"
 
 
-
+#ifdef VTK_OPENGL_HAS_OSMESA
+#include "GL/osmesa.h"
+#endif
 
 class vtkIdList;
 

@@ -53,9 +53,6 @@ IF (VTK_MANGLE_MESA)
   FIND_LIBRARY(MESA_LIBRARY MesaGL
      /usr/local/lib 
   )
-  FIND_LIBRARY(MESA_OS_LIBRARY MesaOS
-     /usr/local/lib 
-  )
   IF(MESA_MANGLE_PATH)
     USE_MANGLED_MESA(${MESA_MANGLE_PATH} ${VTK_BINARY_DIR}/MangleMesaInclude)
   ENDIF(MESA_MANGLE_PATH)
@@ -132,6 +129,28 @@ IF (VTK_USE_RENDERING)
         )
   ENDIF (VTK_USE_VOLUMEPRO)
   INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
+
+  FIND_PATH(OSMESA_INCLUDE_PATH GL/osmesa.h 
+  /usr/include 
+  /usr/local/include 
+  /usr/openwin/share/include 
+  /opt/graphics/OpenGL/include 
+  /usr/X11R6/include 
+  )
+
+  FIND_LIBRARY(MESA_OS_LIBRARY OSMesa
+  /usr/lib 
+  /usr/local/lib 
+  /opt/graphics/OpenGL/lib 
+  /usr/openwin/lib 
+  /usr/X11R6/lib
+  )
+
+  IF(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
+    OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." ON)
+  ELSE(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
+    OPTION(VTK_OPENGL_HAS_OSMESA "The opengl library being used supports off screen Mesa calls." OFF)
+  ENDIF(MESA_OS_LIBRARY AND OSMESA_INCLUDE_PATH)
   SUBDIRS(Rendering)
   SUBDIR_DEPENDS(Rendering Imaging Graphics IO)
 ENDIF (VTK_USE_RENDERING)
