@@ -34,15 +34,6 @@
 #ifndef __vtkSocketCommunicator_h
 #define __vtkSocketCommunicator_h
 
-#if !defined(_WIN32) || defined(__CYGWIN__)
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
- #include <arpa/inet.h>
- #include <netdb.h>
- #include <unistd.h>
-#endif
-
 #include "vtkByteSwap.h"
 #include "vtkCommunicator.h"
 

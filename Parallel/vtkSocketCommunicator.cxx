@@ -19,6 +19,15 @@
 #include "vtkSocketController.h"
 #include "vtkObjectFactory.h"
 
+#if !defined(_WIN32) || defined(__CYGWIN__)
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <netdb.h>
+ #include <unistd.h>
+#endif
+
 #if defined(_WIN32) && !defined(__CYGWIN__)
 #define WSA_VERSION MAKEWORD(1,1)
 #define vtkCloseSocketMacro(sock) (closesocket(sock))
@@ -48,7 +57,7 @@
     return 0; \
     }
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.35");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.36");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------

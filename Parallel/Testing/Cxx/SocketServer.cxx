@@ -24,6 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
 #include "vtkRegressionTestImage.h"
+#include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"

@@ -43,7 +43,6 @@
 #ifndef __vtkMPIController_h
 #define __vtkMPIController_h
 
-#include "mpi.h"
 #include "vtkMultiProcessController.h"
 // Do not remove this header file. This class contains methods
 // which take arguments defined in  vtkMPICommunicator.h by
@@ -178,7 +177,6 @@ public:
   static const char* GetProcessorName();
 
 protected:
-
   vtkMPIController();
   ~vtkMPIController();
 

@@ -16,7 +16,18 @@
 
 =========================================================================*/
 #include "vtkSocketController.h"
+
 #include "vtkObjectFactory.h"
+#include "vtkSocketCommunicator.h"
+
+#if !defined(_WIN32) || defined(__CYGWIN__)
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <netinet/in.h>
+ #include <arpa/inet.h>
+ #include <netdb.h>
+ #include <unistd.h>
+#endif
 
 #ifdef _WIN32
 #define WSA_VERSION MAKEWORD(1,1)
@@ -27,7 +38,7 @@
 
 int vtkSocketController::Initialized = 0;
 
-vtkCxxRevisionMacro(vtkSocketController, "1.6");
+vtkCxxRevisionMacro(vtkSocketController, "1.7");
 vtkStandardNewMacro(vtkSocketController);
 
 //----------------------------------------------------------------------------
@@ -95,3 +106,26 @@ void vtkSocketController::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
+int vtkSocketController::WaitForConnection(int port)
+{ 
+  return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+    WaitForConnection(port); 
+}
+
+void vtkSocketController::CloseConnection()
+{ 
+  vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+    CloseConnection(); 
+}
+
+int vtkSocketController::ConnectTo( char* hostName, int port )
+{ 
+  return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+    ConnectTo(hostName, port); 
+}
+
+int vtkSocketController::GetSwapBytesInReceivedData()
+{
+  return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
+    GetSwapBytesInReceivedData();
+}

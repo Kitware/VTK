@@ -28,17 +28,9 @@
 #ifndef __vtkSocketController_h
 #define __vtkSocketController_h
 
-#if !defined(_WIN32) || defined(__CYGWIN__)
- #include <sys/types.h>
- #include <sys/socket.h>
- #include <netinet/in.h>
- #include <arpa/inet.h>
- #include <netdb.h>
- #include <unistd.h>
-#endif
-
 #include "vtkMultiProcessController.h"
-#include "vtkSocketCommunicator.h"
+
+class vtkSocketCommunicator;
 
 class VTK_PARALLEL_EXPORT vtkSocketController : public vtkMultiProcessController
 {
@@ -84,35 +76,19 @@ public:
   // Description:
   // Wait for connection on a given port, forwarded
   // to the communicator
-  virtual int WaitForConnection(int port)
-    { 
-    return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-      WaitForConnection(port); 
-    }
+  virtual int WaitForConnection(int port);
 
   // Description:
   // Close a connection, forwarded
   // to the communicator
-  virtual void CloseConnection()
-    { 
-    vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-      CloseConnection(); 
-    }
+  virtual void CloseConnection();
 
   // Description:
   // Open a connection to a give machine, forwarded
   // to the communicator
-  virtual int ConnectTo( char* hostName, int port )
-    { 
-    return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-      ConnectTo(hostName, port); 
-    }
+  virtual int ConnectTo( char* hostName, int port );
 
-  int GetSwapBytesInReceivedData()
-    {
-    return vtkSocketCommunicator::SafeDownCast(this->Communicator)->
-      GetSwapBytesInReceivedData();
-    }
+  int GetSwapBytesInReceivedData();
 
   // Description:
   // Set the communicator used in normal and rmi communications.
