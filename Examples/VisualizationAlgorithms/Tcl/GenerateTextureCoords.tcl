@@ -30,7 +30,7 @@ vtkTransformTextureCoords xform
   xform SetScale 4 4 1
 
 # vtkDataSetMapper internally uses a vtkGeometryFilter to extract the
-# surface from the trinagulation. The output (which is vtkPolyData) is
+# surface from the triangulation. The output (which is vtkPolyData) is
 # then passed to an internal vtkPolyDataMapper which does the
 # rendering.
 vtkDataSetMapper mapper
