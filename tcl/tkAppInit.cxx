@@ -143,6 +143,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
   vtkTkRenderWindowInteractorFactory* tkFactory = vtkTkRenderWindowInteractorFactory::New();
   vtkObjectFactory::RegisterFactory(tkFactory);
+  tkFactory->Delete();
 #endif
 #endif
 
