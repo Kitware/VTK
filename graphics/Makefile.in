@@ -239,7 +239,6 @@ vtkSubPixelPositionEdgels \
 vtkTensorGlyph \
 vtkTextSource \
 vtkTexture \
-vtkTextureMapToBox \
 vtkTextureMapToCylinder \
 vtkTextureMapToPlane \
 vtkTextureMapToSphere \

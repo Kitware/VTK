@@ -242,7 +242,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkTensorGlyph.h"
 #include "vtkTextSource.h"
 #include "vtkTexture.h"
-#include "vtkTextureMapToBox.h"
 #include "vtkTextureMapToCylinder.h"
 #include "vtkTextureMapToPlane.h"
 #include "vtkTextureMapToSphere.h"
