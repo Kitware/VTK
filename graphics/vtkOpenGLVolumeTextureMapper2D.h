@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkOpenGLVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
 {
 public:
-  vtkOpenGLVolumeTextureMapper2D();
-  ~vtkOpenGLVolumeTextureMapper2D();
   const char *GetClassName() {return "vtkOpenGLVolumeTextureMapper2D";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -75,8 +73,9 @@ public:
 
 //ETX
 
-
 protected:
+  vtkOpenGLVolumeTextureMapper2D();
+  ~vtkOpenGLVolumeTextureMapper2D();
 
 };
 

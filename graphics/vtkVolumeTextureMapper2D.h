@@ -55,8 +55,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class VTK_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextureMapper
 {
 public:
-  vtkVolumeTextureMapper2D();
-  ~vtkVolumeTextureMapper2D();
   const char *GetClassName() {return "vtkVolumeTextureMapper2D";};
   void PrintSelf( ostream& os, vtkIndent index );
 
@@ -80,6 +78,8 @@ public:
 
 
 protected:
+  vtkVolumeTextureMapper2D();
+  ~vtkVolumeTextureMapper2D();
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
