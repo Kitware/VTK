@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 #include "vtkLookupTable.h"
 #include "vtkScalars.h"
+#include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
@@ -672,6 +673,25 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
 {
   switch (inputDataType)
     {
+    case VTK_BIT:
+      {
+      vtkIdType i, id;
+      vtkBitArray *bitArray = vtkBitArray::New();
+      bitArray->SetVoidArray(input,numberOfValues,1);
+      vtkUnsignedCharArray *newInput = vtkUnsignedCharArray::New();
+      newInput->SetNumberOfValues(numberOfValues);
+      for (id=i=0; i<numberOfValues; i++, id+=inputIncrement)
+        {
+        newInput->SetValue(i, bitArray->GetValue(id));
+        }
+      vtkLookupTableMapData(this,(unsigned char *)newInput->GetPointer(0),
+                            output,numberOfValues,
+			    inputIncrement,outputFormat);
+      newInput->Delete();
+      bitArray->Delete();
+      }
+      break;
+      
     case VTK_CHAR:
       vtkLookupTableMapData(this,(char *)input,output,numberOfValues,
 			    inputIncrement,outputFormat);
