@@ -44,11 +44,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkRectilinearGridGeometryFilter::vtkRectilinearGridGeometryFilter()
 {
   this->Extent[0] = 0;
-  this->Extent[1] = 100;
+  this->Extent[1] = VTK_LARGE_INTEGER;
   this->Extent[2] = 0;
-  this->Extent[3] = 100;
+  this->Extent[3] = VTK_LARGE_INTEGER;
   this->Extent[4] = 0;
-  this->Extent[5] = 0;
+  this->Extent[5] = VTK_LARGE_INTEGER;
 }
 
 void vtkRectilinearGridGeometryFilter::Execute()
@@ -56,6 +56,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   int ptIds[4], idx, startIdx;
+  int cellId;
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
@@ -64,6 +65,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
   int offset[3], pos;
   float *x;
   vtkPointData *pd, *outPD;
+  vtkCellData *cd, *outCD;
   vtkRectilinearGrid *input=(vtkRectilinearGrid *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -72,6 +74,8 @@ void vtkRectilinearGridGeometryFilter::Execute()
   pd = input->GetPointData();
   outPD = output->GetPointData();
   outPD->CopyNormalsOff();
+  cd = input->GetCellData();
+  outCD = output->GetCellData();
   dims = input->GetDimensions();
 //
 // Based on the dimensions of the rectilinear data, and the extent of the geometry,
@@ -102,10 +106,13 @@ void vtkRectilinearGridGeometryFilter::Execute()
       newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(1,1));
       outPD->CopyAllocate(pd,1);
+      outCD->CopyAllocate(cd,1);
 
       ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
       outPD->CopyData(pd,startIdx,ptIds[0]);
-      newVerts->InsertNextCell(1,ptIds);
+
+      cellId = newVerts->InsertNextCell(1,ptIds);
+      outCD->CopyData(cd,startIdx,cellId);
       break;
 
     case 1: // --------------------- build line -----------------------
@@ -124,6 +131,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       newLines = vtkCellArray::New();
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,totPoints - 1);
 //
 //  Load data
 //
@@ -142,11 +150,20 @@ void vtkRectilinearGridGeometryFilter::Execute()
         outPD->CopyData(pd,idx,ptIds[0]);
         }
 
-      for (idx=0,i=0; i<(totPoints-1); i++) 
+      if ( dir[0] == 0 ) 
+        offset[0] = 1;
+      else if (dir[0] == 1)
+        offset[0] = dims[0] - 1;
+      else
+        offset[0] = (dims[0] - 1) * (dims[1] - 1);
+
+      for (i=0; i<(totPoints-1); i++) 
         {
+        idx = startIdx + i*offset[0];
         ptIds[0] = i;
         ptIds[1] = i + 1;
-        newLines->InsertNextCell(2,ptIds);
+        cellId = newLines->InsertNextCell(2,ptIds);
+        outCD->CopyData(cd,idx,cellId);
         }
       break;
 
@@ -170,6 +187,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       newPolys = vtkCellArray::New();
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,numPolys);
 //
 //  Create polygons
 //
@@ -199,15 +217,27 @@ void vtkRectilinearGridGeometryFilter::Execute()
 
       // create any polygon who has a visible vertex.  To turn off a polygon, all 
       // vertices have to be blanked.
+      for (i=0; i<2; i++) 
+        {
+        if ( dir[i] == 0 )
+          offset[i] = 1;
+        else if ( dir[i] == 1 )
+          offset[i] = (dims[0] - 1);
+        else if ( dir[i] == 2 )
+          offset[i] = (dims[0] - 1) * (dims[1] - 1);
+        }
+
       for (pos=startIdx, j=0; j < diff[dir[1]]; j++) 
         {
         for (i=0; i < diff[dir[0]]; i++) 
           {
+          idx = pos + i*offset[0];
           ptIds[0] = i + j*(diff[dir[0]]+1);
           ptIds[1] = ptIds[0] + 1;
           ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
           ptIds[3] = ptIds[2] - 1;
-          newPolys->InsertNextCell(4,ptIds);
+          cellId = newPolys->InsertNextCell(4,ptIds);
+          outCD->CopyData(cd,idx,cellId);
           }
         pos += offset[1];
         }
@@ -227,6 +257,7 @@ void vtkRectilinearGridGeometryFilter::Execute()
       newVerts = vtkCellArray::New();
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
       outPD->CopyAllocate(pd,totPoints);
+      outCD->CopyAllocate(cd,totPoints);
 //
 // Create vertices
 //
@@ -243,7 +274,8 @@ void vtkRectilinearGridGeometryFilter::Execute()
             x = input->GetPoint(pos+i);
             ptIds[0] = newPts->InsertNextPoint(x);
             outPD->CopyData(pd,pos+i,ptIds[0]);
-            newVerts->InsertNextCell(1,ptIds);
+            cellId = newVerts->InsertNextCell(1,ptIds);
+            outCD->CopyData(cd,pos+i,cellId);
             }
           }
         }
