@@ -37,6 +37,10 @@
 #include <X11/StringDefs.h> // Needed for X types in public interface
 #include <X11/Intrinsic.h> // Needed for X types in public interface
 
+extern void vtkXRenderWindowTclInteractorCallback(Widget,XtPointer,
+                                                  XEvent *,Boolean *);
+extern void vtkXRenderWindowTclInteractorTimer(XtPointer,XtIntervalId *);
+
 class VTK_RENDERING_EXPORT vtkXRenderWindowTclInteractor : public vtkRenderWindowInteractor
 {
 public:
