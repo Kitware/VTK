@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.26");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.27");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -232,15 +232,14 @@ void vtkClipDataSet::Execute()
     tmpScalars->SetName("ClipDataSetScalars");
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());//copies original
-    inPD->AddArray(tmpScalars);
     if ( this->GenerateClipScalars )
       {
-      inPD->SetActiveScalars(tmpScalars->GetName());
+      inPD->SetScalars(tmpScalars);
       }
     for ( i=0; i < numPts; i++ )
       {
       s = this->ClipFunction->FunctionValue(input->GetPoint(i));
-      tmpScalars->SetTuple(i,&s);
+      tmpScalars->SetTuple1(i,s);
       }
     clipScalars = tmpScalars;
     }
@@ -336,8 +335,8 @@ void vtkClipDataSet::Execute()
                         (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             break;
 
-          case 3: //tetrahedra are generated------------------------------
-            cellType = VTK_TETRA;
+          case 3: //tetrahedra or wedges are generated------------------------------
+            cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
             break;
           } //switch
 
