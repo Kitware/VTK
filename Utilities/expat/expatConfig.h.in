@@ -1,0 +1,25 @@
+#if defined(_WIN32) || defined(WIN32)
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef WIN32_LEAN_AND_MEAN
+#include <memory.h>
+#include <string.h>
+#define XML_BYTE_ORDER 12
+
+#else
+
+#cmakedefine CMAKE_WORDS_BIGENDIAN
+#ifdef CMAKE_WORDS_BIGENDIAN
+#  define XML_BYTE_ORDER 21
+#else
+#  define XML_BYTE_ORDER 12
+#endif
+
+#endif
+
+#define XML_NS
+#define XML_DTD
+#define XML_CONTEXT_BYTES 1024
+
+#define VERSION "1.95.2"
