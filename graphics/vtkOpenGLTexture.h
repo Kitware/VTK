@@ -50,11 +50,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 class vtkWindow;
 class vtkOpenGLRenderer;
+class vtkRenderWindow;
 
 class VTK_EXPORT vtkOpenGLTexture : public vtkTexture
 {
 public:
   vtkOpenGLTexture();
+  ~vtkOpenGLTexture();
   static vtkOpenGLTexture *New() {return new vtkOpenGLTexture;};
   const char *GetClassName() {return "vtkOpenGLTexture";};
 
@@ -65,7 +67,8 @@ public:
   // Description:
   // Release any graphics resources that are being consumed by this texture.
   // The parameter window could be used to determine which graphic
-  // resources to release.
+  // resources to release. Using the same texture object in multiple
+  // render windows is NOT currently supported. 
   void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
@@ -75,6 +78,7 @@ protected:
   vtkTimeStamp   LoadTime;
   long          Index;
   static   long GlobalIndex;
+  vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
 };
 
 #endif
