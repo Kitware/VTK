@@ -1095,10 +1095,12 @@ void vtkRIBExporter::WriteTexture (vtkTexture *aTexture)
 
   vtkStructuredPoints *anImage = vtkStructuredPoints::New();
   anImage->SetDimensions (xsize, ysize, 1);
-  anImage->SetWholeExtent(0,xsize-1,0,ysize-1, 0, 0);
+  anImage->SetUpdateExtent(0,xsize-1,0,ysize-1, 0, 0);
   anImage->SetScalarType(mappedScalars->GetDataType());
   anImage->GetPointData()->SetScalars (mappedScalars);
   int bpp = mappedScalars->GetNumberOfComponents();
+  anImage->SetNumberOfScalarComponents (bpp);
+
   // renderman and bmrt seem to require r,g,b and alpha in all their
   // texture maps. So if our tmap doesn't have the right components
   // we add them
