@@ -87,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef struct {
   int VertexId;
-  float Quadric[4][4];
+  float Quadric[9];
 } VTK_POINT_QUADRIC;
 
 class VTK_EXPORT vtkQuadricClustering : public vtkPolyDataToPolyDataFilter
@@ -126,7 +126,7 @@ protected:
   
   // Description:
   // Determine the representative point for this bin.
-  void ComputeRepresentativePoint(float quadric[4][4], int binId,
+  void ComputeRepresentativePoint(float quadric[9], int binId,
 				  float point[3]);
 
   // Description:
@@ -137,11 +137,11 @@ protected:
 
   // Description:
   // Initialize the quadric matrix to 0's.
-  void InitializeQuadric(float quadric[4][4]);
+  void InitializeQuadric(float quadric[9]);
   
   // Description:
   // Add this quadric to the quadric already associated with this bin.
-  void AddQuadric(int binId, float quadric[4][4]);
+  void AddQuadric(int binId, float quadric[9]);
 
   // Description:
   // Set the bounds for the input poly data.
@@ -156,9 +156,9 @@ protected:
   float YBinSize;
   float ZBinSize;
   VTK_POINT_QUADRIC* QuadricArray;
-  vtkIdList *BinIds;
+  int NumberOfBinsUsed;
 
-  vtkTimerLog* log;
+  vtkTimerLog* Log;
 };
 
 #endif

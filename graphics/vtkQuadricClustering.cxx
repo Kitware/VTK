@@ -66,15 +66,14 @@ vtkQuadricClustering::vtkQuadricClustering()
   this->NumberOfYDivisions = 50;
   this->NumberOfZDivisions = 50;
   this->QuadricArray = NULL;
-  this->BinIds = vtkIdList::New();
-  this->log = vtkTimerLog::New();
+  this->NumberOfBinsUsed = 0;
+  this->Log = vtkTimerLog::New();
 }
 
 //----------------------------------------------------------------------------
 vtkQuadricClustering::~vtkQuadricClustering()
 {
-  this->BinIds->Delete();
-  this->log->Delete();
+  this->Log->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -82,7 +81,7 @@ void vtkQuadricClustering::Execute()
 {
   if (Debug)
     {
-    this->log->StartTimer();
+    this->Log->StartTimer();
     }
 
   vtkPolyData *input = this->GetInput();
@@ -94,7 +93,7 @@ void vtkQuadricClustering::Execute()
   int *cellPtIds;
   vtkPoints *inputPoints = input->GetPoints();
   vtkPoints *outputPoints = vtkPoints::New();
-  float triPts[3][3], quadric[4][4];
+  float triPts[3][3], quadric[9], quadric4x4[4][4];
   vtkIdList *triPtIds = vtkIdList::New();
   float newPt[3];
   int vertexId;
@@ -109,6 +108,12 @@ void vtkQuadricClustering::Execute()
   this->QuadricArray = new VTK_POINT_QUADRIC[this->NumberOfXDivisions *
                                             this->NumberOfYDivisions *
                                             this->NumberOfZDivisions];
+  for (i = 0; i < this->NumberOfXDivisions * 
+         this->NumberOfYDivisions * this->NumberOfZDivisions; i++)
+    {
+    this->QuadricArray[i].VertexId = -1;
+    }
+  
   this->SetBounds(input->GetBounds());
   this->SetXBinSize((this->Bounds[1] - this->Bounds[0]) /
 		    this->NumberOfXDivisions);
@@ -145,39 +150,55 @@ void vtkQuadricClustering::Execute()
       }
     else
       {
-      vtkTriangle::ComputeQuadric(triPts[0], triPts[1], triPts[2], quadric);
+      vtkTriangle::ComputeQuadric(triPts[0], triPts[1], triPts[2], quadric4x4);
       for (j = 0; j < 3; j++)
         {
-        if ((vertexId = this->BinIds->IsId(binIds[j])) == -1)
+        if (this->QuadricArray[binIds[j]].VertexId == -1)
           {
           this->InitializeQuadric(this->QuadricArray[binIds[j]].Quadric);
-          vertexId = this->BinIds->InsertNextId(binIds[j]);
+          vertexId = this->NumberOfBinsUsed;
+          this->QuadricArray[binIds[j]].VertexId = vertexId;
+          this->NumberOfBinsUsed++;
+          }
+        else
+          {
+          vertexId = this->QuadricArray[binIds[j]].VertexId;
           }
 	triPtIds->InsertId(j, vertexId);
-	this->QuadricArray[binIds[j]].VertexId = vertexId;
+        quadric[0] = quadric4x4[0][0];
+        quadric[1] = quadric4x4[0][1];
+        quadric[2] = quadric4x4[0][2];
+        quadric[3] = quadric4x4[0][3];
+        quadric[4] = quadric4x4[1][1];
+        quadric[5] = quadric4x4[1][2];
+        quadric[6] = quadric4x4[1][3];
+        quadric[7] = quadric4x4[2][2];
+        quadric[8] = quadric4x4[2][3];
         this->AddQuadric(binIds[j], quadric);
         }
       outputTris->InsertNextCell(triPtIds);
       }
     }
-  for (i = 0; i < this->BinIds->GetNumberOfIds() && !abortExecute ; i++)
+  for (i = 0; i < this->NumberOfXDivisions *
+         this->NumberOfYDivisions * this->NumberOfZDivisions; i++)
     {
-
     if ( ! (i % 1000) ) 
       {
       vtkDebugMacro(<<"Finding point in bin #" << i);
-      this->UpdateProgress (0.5*i/this->BinIds->GetNumberOfIds());
+      this->UpdateProgress (0.5*i/this->NumberOfBinsUsed);
       if (this->GetAbortExecute())
         {
         abortExecute = 1;
         break;
         }
       }
-    this->ComputeRepresentativePoint(
-      this->QuadricArray[this->BinIds->GetId(i)].Quadric,
-      this->BinIds->GetId(i), newPt);
-    outputPoints->InsertPoint(
-      this->QuadricArray[this->BinIds->GetId(i)].VertexId, newPt);
+    
+    if (this->QuadricArray[i].VertexId != -1)
+      {
+      this->ComputeRepresentativePoint(this->QuadricArray[i].Quadric, i,
+                                       newPt);
+      outputPoints->InsertPoint(this->QuadricArray[i].VertexId, newPt);
+      }
     }
   
   output->SetPolys(outputTris);
@@ -190,36 +211,30 @@ void vtkQuadricClustering::Execute()
 
   if ( Debug )
     {
-    this->log->StopTimer();
-    vtkDebugMacro(<<"Execution took: "<<this->log->GetElapsedTime()<<" seconds.");
+    this->Log->StopTimer();
+    vtkDebugMacro(<<"Execution took: "<<this->Log->GetElapsedTime()<<" seconds.");
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::InitializeQuadric(float quadric[4][4])
+void vtkQuadricClustering::InitializeQuadric(float quadric[9])
 {
-  int i, j;
+  int i;
   
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 9; i++)
     {
-    for (j = 0; j < 4; j++)
-      {
-      quadric[i][j] = 0;
-      }
+    quadric[i] = 0.0;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::AddQuadric(int binId, float quadric[4][4])
+void vtkQuadricClustering::AddQuadric(int binId, float quadric[9])
 {
-  int i, j;
+  int i;
   
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < 9; i++)
     {
-    for (j = 0; j < 4; j++)
-      {
-      this->QuadricArray[binId].Quadric[i][j] += quadric[i][j];
-      }
+    this->QuadricArray[binId].Quadric[i] += quadric[i];
     }
 }
 
@@ -259,9 +274,8 @@ int vtkQuadricClustering::HashPoint(float point[3])
   return binId;
 }
 
-
 //----------------------------------------------------------------------------
-void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
+void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[9],
 						      int binId,
 						      float point[3])
 {
@@ -272,7 +286,19 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
   float cellCenter[3], tempVector[3];
   float cellBounds[6];
   int x, y, z;
-
+  float quadric4x4[4][4];
+  
+  quadric4x4[0][0] = quadric[0];
+  quadric4x4[0][1] = quadric4x4[1][0] = quadric[1];
+  quadric4x4[0][2] = quadric4x4[2][0] = quadric[2];
+  quadric4x4[0][3] = quadric4x4[3][0] = quadric[3];
+  quadric4x4[1][1] = quadric[4];
+  quadric4x4[1][2] = quadric4x4[2][1] = quadric[5];
+  quadric4x4[1][3] = quadric4x4[3][1] = quadric[6];
+  quadric4x4[2][2] = quadric[7];
+  quadric4x4[2][3] = quadric4x4[3][2] = quadric[8];
+  quadric4x4[3][3] = 1;  // arbitrary value
+  
   x = binId / (this->NumberOfYDivisions * this->NumberOfZDivisions);
   y = (binId - x * this->NumberOfYDivisions * this->NumberOfZDivisions) /
     this->NumberOfZDivisions;
@@ -287,11 +313,11 @@ void vtkQuadricClustering::ComputeRepresentativePoint(float quadric[4][4],
   
   for (i = 0; i < 3; i++)
     {
-    b[i] = -quadric[3][i];
+    b[i] = -quadric4x4[3][i];
     cellCenter[i] = cellBounds[i*2] + (cellBounds[i*2+1] - cellBounds[i*2]) / 2.0;
     for (j = 0; j < 3; j++)
       {
-      A[i][j] = quadric[i][j];
+      A[i][j] = quadric4x4[i][j];
       }
     }
   
