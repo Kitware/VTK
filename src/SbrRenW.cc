@@ -34,6 +34,7 @@ vlSbrRenderWindow::vlSbrRenderWindow()
   this->Fd = -1;
   this->StereoType = VL_STEREO_CRYSTAL_EYES;
   strcpy(this->Name,"Visualization Library - Starbase");
+  this->Buffer = 0;
 }
 
 // Description:
@@ -1339,7 +1340,7 @@ void vlSbrRenderWindow::CopyResultFrame(void)
     size = this->GetSize();
 
     this->SetPixelData(0,0,size[0]-1,size[1]-1,this->ResultFrame);
-    delete this->ResultFrame;
+    delete [] this->ResultFrame;
     this->ResultFrame = NULL;
     }
 
