@@ -104,10 +104,35 @@ public:
   virtual int Send(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Send(data, remoteProcessId, tag); }
 
+//BTX
+
+  class Request
+  {
+  public:
+    int Test();
+    MPI_Request Req;
+  };
+
+//ETX
+
+  // Description:
+  // This method sends data to another process (non-blocking).  
+  // Tag eliminates ambiguity when multiple sends or receives 
+  // exist in the same process. The last argument,
+  // vtkMPICommunicator::Request& req can later be used (with
+  // req.Test() ) to test the success of the message.
+  int NoBlockSend(int* data, int length, int remoteProcessId, int tag,
+		  Request& req);
+  int NoBlockSend(unsigned long* data, int length, int remoteProcessId,
+		  int tag, Request& req);
+  int NoBlockSend(char* data, int length, int remoteProcessId, 
+		  int tag, Request& req);
+  int NoBlockSend(float* data, int length, int remoteProcessId, 
+		  int tag, Request& req);
+
   // Description:
   // This method receives data from a corresponding send. It blocks
-  // until the receive is finished.  It calls methods in "data"
-  // to communicate the sending data.
+  // until the receive is finished.
   virtual int Receive(int* data, int length, int remoteProcessId, 
 		      int tag);
   virtual int Receive(unsigned long* data, int length, 
@@ -118,6 +143,20 @@ public:
 		      int tag);
   virtual int Receive(vtkDataObject* data, int remoteProcessId, int tag)
     { return this->vtkCommunicator::Receive(data, remoteProcessId, tag); }
+
+  // Description:
+  // This method receives data from a corresponding send (non-blocking). 
+  // The last argument,
+  // vtkMPICommunicator::Request& req can later be used (with
+  // req.Test() ) to test the success of the message.
+  int NoBlockReceive(int* data, int length, int remoteProcessId, 
+		     int tag, Request& req);
+  int NoBlockReceive(unsigned long* data, int length, 
+		     int remoteProcessId, int tag, Request& req);
+  int NoBlockReceive(char* data, int length, int remoteProcessId, 
+		     int tag, Request& req);
+  int NoBlockReceive(float* data, int length, int remoteProcessId, 
+		     int tag, Request& req);
 
 //BTX
 

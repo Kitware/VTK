@@ -112,18 +112,7 @@ public:
   // Description:
   // This method can be used to synchronize MPI processes in the
   // current communicator. This uses the user communicator.
-  void Barrier()
-    {
-      vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
-      int err;
-      if ( (err = MPI_Barrier(*(comm->Handle)) ) 
-	   != MPI_SUCCESS ) 
-	{
-	char *msg = vtkMPIController::ErrorString(err);
-	vtkErrorMacro("MPI error occured: " << msg);
-	delete[] msg;
-	}
-    }
+  void Barrier();
 
   // Description:
   // This method can be used to tell the controller to create
@@ -146,6 +135,58 @@ public:
   // ANY OTHER PROCESS WILL CAUSE AN MPI ERROR AND POSSIBLY
   // LEAD TO A CRASH.
   void SetCommunicator(vtkMPICommunicator* comm);
+
+//BTX
+
+  // Description:
+  // This method sends data to another process (non-blocking).  
+  // Tag eliminates ambiguity when multiple sends or receives 
+  // exist in the same process. The last argument,
+  // vtkMPICommunicator::Request& req can later be used (with
+  // req.Test() ) to test the success of the message.
+  // Note: These methods delegate to the communicator
+  int NoBlockSend(int* data, int length, int remoteProcessId, int tag,
+		  vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+	(data ,length, remoteProcessId, tag, req); }
+  int NoBlockSend(unsigned long* data, int length, int remoteProcessId,
+		  int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+	(data, length, remoteProcessId, tag, req); }
+  int NoBlockSend(char* data, int length, int remoteProcessId, 
+		  int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+	(data, length, remoteProcessId, tag, req); }
+  int NoBlockSend(float* data, int length, int remoteProcessId, 
+		  int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockSend
+	(data, length, remoteProcessId, tag, req); }
+
+  // Description:
+  // This method receives data from a corresponding send (non-blocking). 
+  // The last argument,
+  // vtkMPICommunicator::Request& req can later be used (with
+  // req.Test() ) to test the success of the message.
+  // Note: These methods delegate to the communicator
+  int NoBlockReceive(int* data, int length, int remoteProcessId, 
+		     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+	(data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(unsigned long* data, int length, 
+		     int remoteProcessId, int tag, 
+		     vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+	(data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(char* data, int length, int remoteProcessId, 
+		     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+	(data, length, remoteProcessId, tag, req); }
+  int NoBlockReceive(float* data, int length, int remoteProcessId, 
+		     int tag, vtkMPICommunicator::Request& req)
+    { return ((vtkMPICommunicator*)this->Communicator)->NoBlockReceive
+	(data, length, remoteProcessId, tag, req); }
+
+//ETX
 
 protected:
 

@@ -30,7 +30,8 @@ EXAMPLES = TestPolyDataPort \
 	TestStructuredGridPort \
 	ParallelIso \
 	FayShow \
-	DataParallelism
+	DataParallelism \
+	NonBlockingMPI
 
 CXX_FLAGS = ${CPPFLAGS} ${USER_CXXFLAGS} ${CXXFLAGS} -I${srcdir} \
 	${KIT_FLAGS} -I. ${GRAPHICS_API_FLAGS} ${CONTROLLER_API_FLAGS} \
@@ -54,6 +55,11 @@ all: ${EXAMPLES}
 
 DataParallelism: DataParallelism.o composite.o
 	${CXX} -o DataParallelism ${CXX_FLAGS} DataParallelism.o composite.o \
+	${XLDFLAGS} ${LDLIBS} \
+	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
+
+NonBlockingMPI: NonBlockingMPI.o
+	${CXX} -o NonBlockingMPI ${CXX_FLAGS}  NonBlockingMPI.o\
 	${XLDFLAGS} ${LDLIBS} \
 	${XLIBS} -lXext -lXt ${X_PRE_LIBS} -lX11 ${X_EXTRA_LIBS} -lm
 

@@ -268,6 +268,19 @@ void vtkMPIController::SetCommunicator(vtkMPICommunicator* comm)
 }
 
   
+void vtkMPIController::Barrier()
+{
+  vtkMPICommunicator* comm = (vtkMPICommunicator*)this->Communicator;
+  int err;
+  if ( (err = MPI_Barrier(*(comm->Handle)) ) 
+       != MPI_SUCCESS ) 
+    {
+    char *msg = vtkMPIController::ErrorString(err);
+    vtkErrorMacro("MPI error occured: " << msg);
+    delete[] msg;
+    }
+}
+
 //----------------------------------------------------------------------------
 // Execute the method set as the SingleMethod.
 void vtkMPIController::SingleMethodExecute()
