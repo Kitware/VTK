@@ -13,12 +13,15 @@
 
 =========================================================================*/
 // .NAME vtkCompressCompositer - Implements compressed tree based compositing.
+//
 // .SECTION Description
 // vtkCompressCompositer operates in multiple processes.  Each compositer has 
-// a render window.  They use vtkMultiProcessControllers to comunicate 
+// a render window.  They use vtkMultiProcessController to communicate 
 // the color and depth buffer to process 0's render window.
 // It will not handle transparency.  Compositing is run length encoding
-// of back ground pixels.
+// of background pixels.
+//
+// SECTION See Also
 // vtkCompositeManager.
 
 #ifndef __vtkCompressCompositer_h
