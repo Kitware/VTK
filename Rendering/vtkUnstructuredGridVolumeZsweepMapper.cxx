@@ -14,11 +14,6 @@
 =========================================================================*/
 #include "vtkUnstructuredGridVolumeZsweepMapper.h"
 
-#include <assert.h>
-#include <string.h> // memset()
-#include <vtkstd/vector>
-#include <vtkstd/list>
-
 #include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkTimerLog.h"
@@ -44,6 +39,11 @@
 #include "vtkCellArray.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkPointData.h"
+
+#include <assert.h>
+#include <string.h> // memset()
+#include <vtkstd/vector>
+#include <vtkstd/list>
 
 // do not remove the following line:
 //#define BACK_TO_FRONT
@@ -1922,7 +1922,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZsweepMapper, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZsweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZsweepMapper, RayIntegrator,
