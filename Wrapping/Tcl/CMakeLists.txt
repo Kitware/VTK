@@ -48,6 +48,18 @@ INSTALL_TARGETS(/bin vtk)
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(pvtk vtkParaTkAppInit.cxx)
+    IF(VTK_USE_CARBON)
+      FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+      IF(VTK_APPLE_RESOURCE)
+        ADD_CUSTOM_COMMAND(
+          SOURCE pvtk
+          COMMAND ${VTK_APPLE_RESOURCE}
+          ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/pvtk
+          TARGET pvtk
+          )
+      ENDIF(VTK_APPLE_RESOURCE)
+    ENDIF(VTK_USE_CARBON)
+
     TARGET_LINK_LIBRARIES (pvtk
       vtkCommonTCL
       vtkFilteringTCL

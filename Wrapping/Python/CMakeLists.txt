@@ -6,6 +6,17 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
 ADD_EXECUTABLE(vtkpython vtkPythonAppInit.cxx)
+IF(VTK_USE_CARBON)
+  FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+  IF(VTK_APPLE_RESOURCE)
+    ADD_CUSTOM_COMMAND(
+      SOURCE vtkpython
+      COMMAND ${VTK_APPLE_RESOURCE}
+      ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/vtkpython
+      TARGET vtkpython
+      )
+  ENDIF(VTK_APPLE_RESOURCE)
+ENDIF(VTK_USE_CARBON)
 
 FIND_LIBRARY(UTIL_LIBRARY
   NAMES util
@@ -54,6 +65,17 @@ ENDIF (VTK_USE_PARALLEL)
 IF (VTK_USE_PARALLEL)
   IF (VTK_USE_MPI)
     ADD_EXECUTABLE(pvtkpython vtkParaPythonAppInit.cxx)
+    IF(VTK_USE_CARBON)
+      FIND_PROGRAM(VTK_APPLE_RESOURCE Rez /Developer/Tools)
+      IF(VTK_APPLE_RESOURCE)
+        ADD_CUSTOM_COMMAND(
+          SOURCE pvtkpython
+          COMMAND ${VTK_APPLE_RESOURCE}
+          ARGS Carbon.r -o ${EXECUTABLE_OUTPUT_PATH}/pvtkpython
+          TARGET pvtkpython
+          )
+      ENDIF(VTK_APPLE_RESOURCE)
+    ENDIF(VTK_USE_CARBON)
 
     TARGET_LINK_LIBRARIES (pvtkpython
       ${PYTHON_LIBRARY}
