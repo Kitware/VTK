@@ -813,8 +813,14 @@ void vtkInteractorStyle::OnMiddleButtonDown(int ctrl, int shift,
     }
   else 
     {
-    if (this->CtrlKey) this->StartDolly();
-    else         this->StartPan();
+    if (this->CtrlKey)
+      {
+      this->StartDolly();
+      }
+    else
+      {
+      this->StartPan();
+      }
     }
 }
 //----------------------------------------------------------------------------

@@ -254,7 +254,7 @@ float vtkLODProp3D::GetLODEstimatedRenderTime( int id )
 
   if ( index != VTK_INVALID_LOD_INDEX )
     {
-    return GetLODIndexEstimatedRenderTime( index );
+    return this->GetLODIndexEstimatedRenderTime( index );
     }
   else
     {
