@@ -30,19 +30,28 @@
 // lies. Another important parameter is the IndependentVariables ivar, which
 // tells the instance how to interpret the field data (independent variables
 // as the rows or columns of the field). There are also many other instance
-// variables that control the look of the plot includes its title, font 
+// variables that control the look of the plot includes its title, 
 // attributes, number of ticks on the axes, etc.
+//
+// Set the text property/attributes of the title and the labels through the 
+// vtkTextProperty objects associated to this actor.
 
 // .SECTION Caveats
 // Field data is not necessarily "rectangular" in shape. In these cases, some
 // of the data may not be plotted.
 //
-// The early implementation lacks many features that could be added in the future.
+// The early implementation lacks many features that could be added in the 
+// future.
 // This includes the ability to "brush" data (choose regions along an axis and
 // highlight any points/lines passing through the region); efficiency is really
 // bad; more control over the properties of the plot (separate properties for
 // each axes,title,etc.; and using the labels found in the field to label each
 // of the axes.
+//
+// .SECTION See Also
+// vtkAxisActor3D can be used to create axes in world coordinate space.
+// vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
+// vtkCoordinate vtkTextProperty
 
 #ifndef __vtkParallelCoordinatesActor_h
 #define __vtkParallelCoordinatesActor_h
@@ -50,6 +59,7 @@
 #include "vtkAxisActor2D.h"
 
 class vtkDataObject;
+class vtkTextProperty;
 
 #define VTK_IV_COLUMN 0
 #define VTK_IV_ROW    1
@@ -61,9 +71,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Instantiate object with autorange computation; bold, italic, and shadows
-  // on; arial font family; the number of labels set to 5 for the x and y
-  // axes; a label format of "%-#6.3g"; and x coordinates computed from point
+  // Instantiate object with autorange computation; 
+  // the number of labels set to 5 for the x and y axes; 
+  // a label format of "%-#6.3g"; and x coordinates computed from point
   // ids.
   static vtkParallelCoordinatesActor *New();
 
@@ -91,38 +101,54 @@ public:
   vtkGetMacro(NumberOfLabels, int);
   
   // Description:
-  // Enable/Disable bolding annotation text.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
-  vtkBooleanMacro(Bold, int);
-
-  // Description:
-  // Enable/Disable italicizing annotation text.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
-  vtkBooleanMacro(Italic, int);
-
-  // Description:
-  // Enable/Disable creating shadows on the annotation text. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
-  vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
-  // Description:
   // Set/Get the format with which to print the labels on the axes.
   vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
+
+  // Description:
+  // Set/Get the title text property.
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the labels text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+      
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
+  vtkBooleanMacro(Bold, int);
+
+  // Description:
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
+  vtkBooleanMacro(Italic, int);
+
+  // Description:
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
+  vtkBooleanMacro(Shadow, int);
 
   // Description:
   // Draw the parallel coordinates plot.
@@ -149,37 +175,38 @@ protected:
   ~vtkParallelCoordinatesActor();
 
 private:
-  vtkDataObject *Input; //list of data sets to plot
+  vtkDataObject *Input;        // List of data sets to plot
 
-  int IndependentVariables; //use column or row
-  vtkIdType N; //the number of independent variables
-  vtkAxisActor2D **Axes; //an array of axes
-  float *Mins; //minimum data value along this row/column
-  float *Maxs; //maximum data value along this row/column
-  int   *Xs; //axes x-values (in viewport coordinates)
-  int   YMin; //axes y-min-value (in viewport coordinates)
-  int   YMax; //axes y-max-value (in viewport coordinates)
+  int IndependentVariables;    // Use column or row
+  vtkIdType N;                 // The number of independent variables
+  float *Mins;                 // Minimum data value along this row/column
+  float *Maxs;                 // Maximum data value along this row/column
+  int   *Xs;                   // Axes x-values (in viewport coordinates)
+  int   YMin;                  // Axes y-min-value (in viewport coordinates)
+  int   YMax;                  // Axes y-max-value (in viewport coordinates)
+  int   NumberOfLabels;        // Along each axis
+  char  *LabelFormat;
+  char  *Title;
 
-  char *Title;
-  vtkTextMapper *TitleMapper;
-  vtkActor2D    *TitleActor;
+  vtkAxisActor2D **Axes;       
+  vtkTextMapper  *TitleMapper;
+  vtkActor2D     *TitleActor;
 
-  vtkPolyData         *PlotData; //the lines drawn within the axes
+  vtkTextProperty *TitleTextProperty;
+  vtkTextProperty *LabelTextProperty;
+
+  vtkPolyData         *PlotData;    // The lines drawn within the axes
   vtkPolyDataMapper2D *PlotMapper;
   vtkActor2D          *PlotActor;
   
-  // font characteristics
-  int   NumberOfLabels; //along each axis
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
-  char  *LabelFormat;
-
   vtkTimeStamp  BuildTime;
+
+  int   LastPosition[2];
+  int   LastPosition2[2];
 
   void Initialize();
   int PlaceAxes(vtkViewport *viewport, int *size);
+
 private:
   vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&);  // Not implemented.
   void operator=(const vtkParallelCoordinatesActor&);  // Not implemented.

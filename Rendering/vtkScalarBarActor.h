@@ -33,19 +33,21 @@
 //
 // Other optional capabilities include specifying the fraction of the
 // viewport size (both x and y directions) which will control the size
-// of the scalar bar, the number of annotation labels, and the font
-// attributes of the annotation text. The actual position of the
-// scalar bar on the screen is controlled by using the
+// of the scalar bar and the number of annotation labels. The actual position
+// of the scalar bar on the screen is controlled by using the
 // vtkActor2D::SetPosition() method (by default the scalar bar is
 // centered in the viewport).  Other features include the ability to
 // orient the scalar bar horizontally of vertically and controlling
 // the format (printf style) with which to print the labels on the
 // scalar bar. Also, the vtkScalarBarActor's property is applied to
-// the scalar bar and annotation (including color, layer, and
+// the scalar bar and annotation (including layer, and
 // compositing operator).
-
+//
+// Set the text property/attributes of the title and the labels through the 
+// vtkTextProperty objects associated to this actor.
+//
 // .SECTION See Also
-// vtkActor2D vtkTextMapper vtkPolyDataMapper2D
+// vtkActor2D vtkTextProperty vtkTextMapper vtkPolyDataMapper2D
 
 #ifndef __vtkScalarBarActor_h
 #define __vtkScalarBarActor_h
@@ -56,6 +58,7 @@ class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkScalarsToColors;
 class vtkTextMapper;
+class vtkTextProperty;
 
 #define VTK_ORIENT_HORIZONTAL 0
 #define VTK_ORIENT_VERTICAL 1
@@ -67,12 +70,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Instantiate object with 64 maximum colors; 5 labels; font size 12
-  // of font Arial (bolding, italic, shadows on); %%-#6.3g label
+  // Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
   // format, no title, and vertical orientation. The initial scalar bar
   // size is (0.05 x 0.8) of the viewport size.
   static vtkScalarBarActor *New();
-
 
   // Description:
   // Draw the scalar bar and annotation text to the screen.
@@ -114,34 +115,50 @@ public:
   void SetOrientationToVertical() {this->SetOrientation(VTK_ORIENT_VERTICAL);};
 
   // Description:
-  // Enable/Disable bolding annotation text.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Set/Get the title text property.
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the labels text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+    
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing annotation text.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the annotation text. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
+  
   // Description:
   // Set/Get the format with which to print the labels on the scalar
   // bar.
@@ -162,16 +179,14 @@ protected:
   ~vtkScalarBarActor();
 
   vtkScalarsToColors *LookupTable;
+  vtkTextProperty *TitleTextProperty;
+  vtkTextProperty *LabelTextProperty;
+
   int   MaximumNumberOfColors;
   int   NumberOfLabels;
   int   NumberOfLabelsBuilt;
   int   Orientation;
   char  *Title;
-
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
   char  *LabelFormat;
 
   vtkTextMapper **TextMappers;

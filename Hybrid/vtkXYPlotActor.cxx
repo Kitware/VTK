@@ -18,6 +18,7 @@
 #include "vtkXYPlotActor.h"
 
 #include "vtkAppendPolyData.h"
+#include "vtkAxisActor2D.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetCollection.h"
 #include "vtkFloatArray.h"
@@ -30,13 +31,21 @@
 #include "vtkPlane.h"
 #include "vtkPlanes.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
 
 #define VTK_MAX_PLOTS 50
 
-vtkCxxRevisionMacro(vtkXYPlotActor, "1.36");
+vtkCxxRevisionMacro(vtkXYPlotActor, "1.37");
 vtkStandardNewMacro(vtkXYPlotActor);
 
+vtkCxxSetObjectMacro(vtkXYPlotActor,TitleTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkXYPlotActor,AxisLabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkXYPlotActor,AxisTitleTextProperty,vtkTextProperty);
+
+//----------------------------------------------------------------------------
 // Instantiate object
 vtkXYPlotActor::vtkXYPlotActor()
 {
@@ -60,13 +69,22 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->NumberOfXLabels = 5;
   this->NumberOfYLabels = 5;
 
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->Logx = 0;
-  this->FontFamily = VTK_ARIAL;
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->SetBold(1);
+  this->TitleTextProperty->SetItalic(1);
+  this->TitleTextProperty->SetShadow(1);
+  this->TitleTextProperty->SetFontFamilyToArial();
+
+  this->AxisLabelTextProperty = vtkTextProperty::New();
+  this->AxisLabelTextProperty->ShallowCopy(this->TitleTextProperty);
+
+  this->AxisTitleTextProperty = vtkTextProperty::New();
+  this->AxisTitleTextProperty->ShallowCopy(this->AxisLabelTextProperty);
+
   this->LabelFormat = new char[8]; 
   sprintf(this->LabelFormat,"%s","%-#6.3g");
+
+  this->Logx = 0;
   
   this->XRange[0] = 0.0;
   this->XRange[1] = 0.0;
@@ -86,11 +104,12 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
-  
+
   this->XAxis = vtkAxisActor2D::New();
   this->XAxis->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
   this->XAxis->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
   this->XAxis->SetProperty(this->GetProperty());
+
   this->YAxis = vtkAxisActor2D::New();
   this->YAxis->GetPoint1Coordinate()->SetCoordinateSystemToViewport();
   this->YAxis->GetPoint2Coordinate()->SetCoordinateSystemToViewport();
@@ -158,6 +177,7 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->CachedSize[1] = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkXYPlotActor::~vtkXYPlotActor()
 {
   // Get rid of the list of array names.
@@ -228,8 +248,13 @@ vtkXYPlotActor::~vtkXYPlotActor()
 
   this->LinesOn->Delete();
   this->PointsOn->Delete();
+
+  this->SetTitleTextProperty(NULL);
+  this->SetAxisLabelTextProperty(NULL);
+  this->SetAxisTitleTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::InitializeEntries()
 {
   if ( this->NumberOfInputs > 0 )
@@ -251,6 +276,7 @@ void vtkXYPlotActor::InitializeEntries()
     }//if entries have been defined
 }
   
+//----------------------------------------------------------------------------
 // Add a dataset and array to the list of data to plot.
 void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int component)
 {
@@ -309,7 +335,7 @@ void vtkXYPlotActor::AddInput(vtkDataSet *ds, const char *arrayName, int compone
   this->Modified();
 }
 
-
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::RemoveAllInputs()
 {
   int idx, num;
@@ -328,7 +354,7 @@ void vtkXYPlotActor::RemoveAllInputs()
   this->SelectedInputScalarsComponent->Reset();
 }
 
-
+//----------------------------------------------------------------------------
 // Remove a dataset from the list of data to plot.
 void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int component)
 {
@@ -386,6 +412,7 @@ void vtkXYPlotActor::RemoveInput(vtkDataSet *ds, const char *arrayName, int comp
   this->SelectedInputScalars[num-1] = NULL;
 }
 
+//----------------------------------------------------------------------------
 // Add a data object to the list of data to plot.
 void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
 {
@@ -396,6 +423,7 @@ void vtkXYPlotActor::AddDataObjectInput(vtkDataObject *in)
     }
 }
 
+//----------------------------------------------------------------------------
 // Remove a data object from the list of data to plot.
 void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
 {
@@ -406,6 +434,7 @@ void vtkXYPlotActor::RemoveDataObjectInput(vtkDataObject *in)
     }
 }
 
+//----------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
 {
@@ -437,6 +466,7 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
@@ -484,38 +514,24 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check modified time to see whether we have to rebuild.
+  // Pay attention that GetMTime() has been redefined (see below)
+
   int *size=viewport->GetSize();
-  if ( mtime > this->BuildTime || 
-       size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
-       this->GetMTime() > this->BuildTime )
+  if (mtime > this->BuildTime || 
+      size[0] != this->CachedSize[0] || size[1] != this->CachedSize[1] ||
+      this->GetMTime() > this->BuildTime ||
+      this->TitleTextProperty->GetMTime() > this->BuildTime ||
+      this->AxisLabelTextProperty->GetMTime() > this->BuildTime ||
+      this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
     {
     float range[2], yrange[2], xRange[2], yRange[2], interval, *lengths=NULL;
     int pos[2], pos2[2], numTicks;
-    int stringWidth, stringHeight;
+    int stringSize[2];
     int num = ( numDS > 0 ? numDS : numDO );
 
     vtkDebugMacro(<<"Rebuilding plot");
     this->CachedSize[0] = size[0];
     this->CachedSize[1] = size[1];
-
-    this->PlaceAxes(viewport, size, pos, pos2);
-    
-    // manage title
-    if ( this->Title != NULL )
-      {
-      this->TitleMapper->SetInput(this->Title);
-      this->TitleMapper->SetBold(this->Bold);
-      this->TitleMapper->SetItalic(this->Italic);
-      this->TitleMapper->SetShadow(this->Shadow);
-      this->TitleMapper->SetFontFamily(this->FontFamily);
-      vtkAxisActor2D::SetFontSize(viewport, this->TitleMapper, size, 1.0,
-                                  stringWidth, stringHeight);
-      this->TitleActor->GetPositionCoordinate()->SetValue(pos[0]+
-                                                          0.5*(pos2[0]-pos[0])-
-                                                          stringWidth/2.0,pos2[1]-
-                                                          stringHeight/2.0);
-      this->TitleActor->SetProperty(this->GetProperty());
-      }
 
     // manage legend
     vtkDebugMacro(<<"Rebuilding legend");
@@ -551,15 +567,30 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->LegendActor->ScalarVisibilityOff();
       }
 
+    // rebuid text props
+    if (this->AxisLabelTextProperty &&
+        this->AxisLabelTextProperty->GetMTime() > this->BuildTime)
+      {
+      this->XAxis->GetLabelTextProperty()->ShallowCopy(
+        this->AxisLabelTextProperty);
+      this->YAxis->GetLabelTextProperty()->ShallowCopy(
+        this->AxisLabelTextProperty);
+      }
+
+  if (this->AxisTitleTextProperty &&
+      this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
+    {
+    this->XAxis->GetTitleTextProperty()->ShallowCopy(
+      this->AxisTitleTextProperty);
+    this->YAxis->GetTitleTextProperty()->ShallowCopy(
+      this->AxisTitleTextProperty);
+    }
+
     // setup x-axis
     vtkDebugMacro(<<"Rebuilding x-axis");
 
     this->XAxis->SetTitle(this->XTitle);
     this->XAxis->SetNumberOfLabels(this->NumberOfXLabels);
-    this->XAxis->SetBold(this->Bold);
-    this->XAxis->SetItalic(this->Italic);
-    this->XAxis->SetShadow(this->Shadow);
-    this->XAxis->SetFontFamily(this->FontFamily);
     this->XAxis->SetLabelFormat(this->LabelFormat);
     this->XAxis->SetProperty(this->GetProperty());
 
@@ -607,16 +638,10 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
     
-    this->XAxis->Modified();
-
     // setup y-axis
     vtkDebugMacro(<<"Rebuilding y-axis");
     this->YAxis->SetTitle(this->YTitle);
     this->YAxis->SetNumberOfLabels(this->NumberOfYLabels);
-    this->YAxis->SetBold(this->Bold);
-    this->YAxis->SetItalic(this->Italic);
-    this->YAxis->SetShadow(this->Shadow);
-    this->YAxis->SetFontFamily(this->FontFamily);
     this->YAxis->SetLabelFormat(this->LabelFormat);
 
     if ( this->YRange[0] >= this->YRange[1] )
@@ -661,14 +686,38 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
         }
       }
 
-    this->YAxis->Modified();
+    this->PlaceAxes(viewport, size, pos, pos2);
     
+    // manage title
+    if ( this->Title != NULL )
+      {
+      this->TitleMapper->SetInput(this->Title);
+      if (this->TitleTextProperty->GetMTime() > this->BuildTime)
+        {
+        this->TitleMapper->GetTextProperty()->ShallowCopy(
+          this->TitleTextProperty);
+        }
+
+      vtkAxisActor2D::SetFontSize(viewport, 
+                                  this->TitleMapper, 
+                                  size, 
+                                  1.0,
+                                  stringSize);
+
+      this->TitleActor->GetPositionCoordinate()->SetValue(
+        pos[0] + 0.5 * (pos2[0] - pos[0]) - stringSize[0] / 2.0, 
+        pos2[1] - stringSize[1] / 2.0);
+
+      this->TitleActor->SetProperty(this->GetProperty());
+      }
+
     vtkDebugMacro(<<"Creating Plot Data");
     // Okay, now create the plot data and set up the pipeline
     this->CreatePlotData(pos, pos2, xRange, yRange, lengths, numDS, numDO);
     delete [] lengths;
     
     this->BuildTime.Modified();
+
     }//if need to rebuild the plot
 
   vtkDebugMacro(<<"Rendering Axes");
@@ -693,6 +742,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetXValuesAsString()
 {
   switch (this->XValues)
@@ -708,6 +758,7 @@ const char *vtkXYPlotActor::GetXValuesAsString()
     }
 }
 
+//----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
 {
   if ( this->XValues == VTK_XYPLOT_ROW ) 
@@ -720,6 +771,7 @@ const char *vtkXYPlotActor::GetDataObjectPlotModeAsString()
     }
 }
 
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -735,13 +787,25 @@ void vtkXYPlotActor::ReleaseGraphicsResources(vtkWindow *win)
   this->LegendActor->ReleaseGraphicsResources(win);
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkXYPlotActor::GetMTime()
 {
-  unsigned long mtime=this->LegendActor->GetMTime();
-  unsigned long mtime2=this->vtkActor2D::GetMTime();
-  return (mtime2 > mtime ? mtime2 : mtime);
+  unsigned long mtime, mtime2;
+  mtime = this->vtkActor2D::GetMTime();
+
+  if (this->Legend)
+    {
+    mtime2 = this->LegendActor->GetMTime();
+    if (mtime2 > mtime)
+      {
+      mtime = mtime2;
+      }
+    }
+
+  return mtime;
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkIndent i2 = indent.GetNextIndent();
@@ -773,6 +837,36 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Input DataObjects:\n";
   this->DataObjectInputList->PrintSelf(os,indent.GetNextIndent());
   
+  if (this->TitleTextProperty)
+    {
+    os << indent << "Title Text Property:\n";
+    this->TitleTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Title Text Property: (none)\n";
+    }
+
+  if (this->AxisTitleTextProperty)
+    {
+    os << indent << "Axis Title Text Property:\n";
+    this->AxisTitleTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Axis Title Text Property: (none)\n";
+    }
+
+  if (this->AxisLabelTextProperty)
+    {
+    os << indent << "Axis Label Text Property:\n";
+    this->AxisLabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Axis Label Text Property: (none)\n";
+    }
+
   os << indent << "Data Object Plot Mode: " << this->GetDataObjectPlotModeAsString() << endl;
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
@@ -795,23 +889,6 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of X Labels: " << this->NumberOfXLabels << "\n";
   os << indent << "Number Of Y Labels: " << this->NumberOfYLabels << "\n";
 
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Border: " << this->Border << "\n";
   
@@ -854,6 +931,7 @@ void vtkXYPlotActor::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Glyph Size: " << this->GlyphSize << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
 {
   int dsNum;
@@ -959,6 +1037,7 @@ void vtkXYPlotActor::ComputeXRange(float range[2], float *lengths)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ComputeYRange(float range[2])
 {
   vtkDataSet *ds;
@@ -998,6 +1077,7 @@ void vtkXYPlotActor::ComputeYRange(float range[2])
     }//over all datasets
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2], 
                                     float *lengths)
 {
@@ -1143,6 +1223,7 @@ void vtkXYPlotActor::ComputeDORange(float xrange[2], float yrange[2],
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2], 
                                     float yRange[2], float *lengths,
                                     int numDS, int numDO)
@@ -1472,6 +1553,7 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
     }
 }
 
+//----------------------------------------------------------------------------
 // Position the axes taking into account the expected padding due to labels
 // and titles. We want the result to fit in the box specified. This method
 // knows something about how the vtkAxisActor2D functions, so it may have 
@@ -1480,18 +1562,17 @@ void vtkXYPlotActor::CreatePlotData(int *pos, int *pos2, float xRange[2],
 void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
                                int pos[2], int pos2[2])
 {
-  int titleWidth, titleHeight, labelWidth, labelHeight;
+  int titleSize[2], labelSize[2];
+
   float labelFactor=this->XAxis->GetLabelFactor();
   float tickOffset=this->XAxis->GetTickOffset();
   float tickLength=this->XAxis->GetTickLength();
+
   char string[512];
 
   // Create a dummy text mapper for getting font sizes
   vtkTextMapper *textMapper = vtkTextMapper::New();
-  textMapper->SetItalic(this->Italic);
-  textMapper->SetBold(this->Bold);
-  textMapper->SetShadow(this->Shadow);
-  textMapper->SetFontFamily(this->FontFamily);
+  vtkTextProperty *tprop = textMapper->GetTextProperty();
 
   // Get the location of the corners of the box
   int *p1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
@@ -1500,26 +1581,40 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   // Estimate the padding around the x and y axes
   if ( !this->ExchangeAxes )
     {
+    tprop->ShallowCopy(this->YAxis->GetTitleTextProperty());
     textMapper->SetInput(this->YTitle);
     }
   else
     {
+    tprop->ShallowCopy(this->XAxis->GetTitleTextProperty());
     textMapper->SetInput(this->XTitle);
     }
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, 1.0,
-                              titleWidth, titleHeight);
+
+  vtkAxisActor2D::SetFontSize(viewport, 
+                              textMapper, 
+                              size, 
+                              1.0,
+                              titleSize);
+
   sprintf(string, this->LabelFormat, 0.0);
+
+  tprop->ShallowCopy(this->XAxis->GetLabelTextProperty());
+
   textMapper->SetInput(string);
-  vtkAxisActor2D::SetFontSize(viewport, textMapper, size, labelFactor,
-                              labelWidth, labelHeight);
-  
+
+  vtkAxisActor2D::SetFontSize(viewport, 
+                              textMapper, 
+                              size, 
+                              labelFactor,
+                              labelSize);
+
   // Okay, estimate the size
-  pos[0] = (int)(p1[0] + titleWidth + 2.0*tickOffset + tickLength + 
-                 labelWidth + this->Border);
-  pos2[0] = (int)(p2[0] - labelWidth/2 - tickOffset - this->Border);
-  pos[1] = (int)(p1[1] + titleHeight + 2.0*tickOffset + tickLength + 
-                 labelHeight + this->Border);
-  pos2[1] = (int)(p2[1] - labelHeight/2 - tickOffset - this->Border);
+  pos[0] = (int)(p1[0] + titleSize[0] + 2.0*tickOffset + tickLength + 
+                 labelSize[0] + this->Border);
+  pos2[0] = (int)(p2[0] - labelSize[0]/2 - tickOffset - this->Border);
+  pos[1] = (int)(p1[1] + titleSize[1] + 2.0*tickOffset + tickLength + 
+                 labelSize[1] + this->Border);
+  pos2[1] = (int)(p2[1] - labelSize[1]/2 - tickOffset - this->Border);
 
   // Now specify the location of the axes
   if ( !this->ExchangeAxes )
@@ -1540,6 +1635,7 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport *viewport, int *size,
   textMapper->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, float &v)
 {
   int *p0, *p1, *p2;
@@ -1557,6 +1653,7 @@ void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport, float &u, f
     + this->YComputedRange[0];
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
                                               float &u, float &v)
 {
@@ -1575,6 +1672,7 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport,
        * (float)(p2[1] - p0[1])) + p0[1];
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport)
 {
   this->ViewportToPlotCoordinate(viewport, 
@@ -1582,6 +1680,7 @@ void vtkXYPlotActor::ViewportToPlotCoordinate(vtkViewport *viewport)
                                  this->ViewportCoordinate[1]);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport)
 {
   this->PlotToViewportCoordinate(viewport, 
@@ -1589,6 +1688,7 @@ void vtkXYPlotActor::PlotToViewportCoordinate(vtkViewport *viewport)
                                  this->PlotCoordinate[1]);
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
 {
   int *p0, *p1, *p2;
@@ -1606,6 +1706,7 @@ int vtkXYPlotActor::IsInPlot(vtkViewport *viewport, float u, float v)
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotLines(int i, int isOn)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
@@ -1617,12 +1718,14 @@ void vtkXYPlotActor::SetPlotLines(int i, int isOn)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::GetPlotLines(int i)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
   return this->LinesOn->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotPoints(int i, int isOn)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
@@ -1634,42 +1737,50 @@ void vtkXYPlotActor::SetPlotPoints(int i, int isOn)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::GetPlotPoints(int i)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
   return this->PointsOn->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotColor(int i, float r, float g, float b)
 {
   this->LegendActor->SetEntryColor(i, r, g, b);
 }
 
+//----------------------------------------------------------------------------
 float *vtkXYPlotActor::GetPlotColor(int i)
 {
   return this->LegendActor->GetEntryColor(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotSymbol(int i,vtkPolyData *input)
 {
   this->LegendActor->SetEntrySymbol(i, input);
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData *vtkXYPlotActor::GetPlotSymbol(int i)
 {
   return this->LegendActor->GetEntrySymbol(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetPlotLabel(int i, const char *label)
 {
   this->LegendActor->SetEntryString(i, label);
 }
 
+//----------------------------------------------------------------------------
 const char *vtkXYPlotActor::GetPlotLabel(int i)
 {
   return this->LegendActor->GetEntryString(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
 {
   float n[3], x[3];
@@ -1711,6 +1822,7 @@ void vtkXYPlotActor::GenerateClipPlanes(int *pos, int *pos2)
   pts->SetPoint(3,x);
 }
 
+//----------------------------------------------------------------------------
 float vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
 {
   vtkPolyData *pd=this->LegendActor->GetEntrySymbol(i);
@@ -1722,6 +1834,7 @@ float vtkXYPlotActor::ComputeGlyphScale(int i, int *pos, int *pos2)
   return sf;
 }
 
+//----------------------------------------------------------------------------
 //This assumes that there are multiple polylines
 void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
 {
@@ -1830,6 +1943,7 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetDataObjectXComponent(int i, int comp)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
@@ -1841,12 +1955,14 @@ void vtkXYPlotActor::SetDataObjectXComponent(int i, int comp)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::GetDataObjectXComponent(int i)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
   return this->XComponent->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 void vtkXYPlotActor::SetDataObjectYComponent(int i, int comp)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
@@ -1858,6 +1974,7 @@ void vtkXYPlotActor::SetDataObjectYComponent(int i, int comp)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::GetDataObjectYComponent(int i)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
@@ -1875,12 +1992,14 @@ void vtkXYPlotActor::SetPointComponent(int i, int comp)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXYPlotActor::GetPointComponent(int i)
 {
   i = ( i < 0 ? 0 : (i >=VTK_MAX_PLOTS ? VTK_MAX_PLOTS-1 : i));
   return this->XComponent->GetValue(i);
 }
 
+//----------------------------------------------------------------------------
 float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float xNew[3])
 {
   // First worry about exchanging axes
@@ -1910,4 +2029,55 @@ float *vtkXYPlotActor::TransformPoint(int pos[2], int pos2[2], float x[3], float
     }
 
   return xNew;
+}
+    
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+void vtkXYPlotActor::SetFontFamily(int val) 
+{ 
+  this->AxisLabelTextProperty->SetFontFamily(val); 
+  this->AxisTitleTextProperty->SetFontFamily(val); 
+  this->TitleTextProperty->SetFontFamily(val); 
+}
+
+int vtkXYPlotActor::GetFontFamily()
+{ 
+  return this->TitleTextProperty->GetFontFamily(); 
+}
+
+void vtkXYPlotActor::SetBold(int val)
+{ 
+  this->AxisLabelTextProperty->SetBold(val); 
+  this->AxisTitleTextProperty->SetBold(val); 
+  this->TitleTextProperty->SetBold(val); 
+}
+
+int vtkXYPlotActor::GetBold()
+{ 
+  return this->TitleTextProperty->GetBold(); 
+}
+
+void vtkXYPlotActor::SetItalic(int val)
+{ 
+  this->AxisLabelTextProperty->SetItalic(val); 
+  this->AxisTitleTextProperty->SetItalic(val); 
+  this->TitleTextProperty->SetItalic(val); 
+}
+
+int vtkXYPlotActor::GetItalic()
+{ 
+  return this->TitleTextProperty->GetItalic(); 
+}
+
+void vtkXYPlotActor::SetShadow(int val)
+{ 
+  this->AxisLabelTextProperty->SetShadow(val); 
+  this->AxisTitleTextProperty->SetShadow(val); 
+  this->TitleTextProperty->SetShadow(val); 
+}
+
+int vtkXYPlotActor::GetShadow()
+{ 
+  return this->TitleTextProperty->GetShadow(); 
 }

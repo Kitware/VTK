@@ -29,9 +29,9 @@
 #include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.79");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.80");
 
 //----------------------------------------------------------------------------
 vtkInteractorStyle *vtkInteractorStyle::New() 
@@ -966,7 +966,7 @@ void vtkInteractorStyle::OnChar()
     case 'l' :
     case 'L' :
       {
-      int val = vtkTextMapper::GetGlobalAntiAliasing();
+      int val = vtkTextProperty::GetGlobalAntiAliasing();
       // Cycle through global anti-aliasing control
       if (val == VTK_TEXT_GLOBAL_ANTIALIASING_ALL)
         {
@@ -976,7 +976,7 @@ void vtkInteractorStyle::OnChar()
         {
         val++;
         }
-      vtkTextMapper::SetGlobalAntiAliasing(val);
+      vtkTextProperty::SetGlobalAntiAliasing(val);
       rwi->Render();
       }
       break;

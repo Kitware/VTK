@@ -28,13 +28,17 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty.h"
+#include "vtkProperty2D.h"
 #include "vtkTextActor.h"
+#include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.17");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.18");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
+vtkCxxSetObjectMacro(vtkCaptionActor2D,CaptionTextProperty,vtkTextProperty);
 
+//----------------------------------------------------------------------------
 vtkCaptionActor2D::vtkCaptionActor2D()
 {
   // Positioning information
@@ -61,12 +65,14 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   
   // Control font properties
   this->Padding = 3;
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
-  this->Justification = VTK_TEXT_LEFT;
-  this->VerticalJustification = VTK_TEXT_BOTTOM;
+
+  this->CaptionTextProperty = vtkTextProperty::New();
+  this->CaptionTextProperty->SetBold(1);
+  this->CaptionTextProperty->SetItalic(1);
+  this->CaptionTextProperty->SetShadow(1);
+  this->CaptionTextProperty->SetFontFamily(VTK_ARIAL);
+  this->CaptionTextProperty->SetJustification(VTK_TEXT_LEFT);
+  this->CaptionTextProperty->SetVerticalJustification(VTK_TEXT_BOTTOM);
 
   // What is actually drawn
   this->CaptionActor = vtkTextActor::New();
@@ -151,6 +157,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->LeaderActor3D->SetMapper(this->LeaderMapper3D);
 }
 
+//----------------------------------------------------------------------------
 vtkCaptionActor2D::~vtkCaptionActor2D()
 {
   if ( this->Caption )
@@ -183,8 +190,11 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
 
   this->LeaderMapper3D->Delete();
   this->LeaderActor3D->Delete();
+
+  this->SetCaptionTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -222,6 +232,7 @@ int vtkCaptionActor2D::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   // Build the caption (almost always needed so we don't check mtime)
@@ -240,6 +251,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   p3[0] = (float)x3[0]; p3[1] = (float)x3[1]; p3[2] = p1[2];
 
   // Set up the scaled text - take into account the padding
+  this->CaptionActor->SetTextProperty(this->CaptionTextProperty);
   this->CaptionActor->GetPositionCoordinate()->SetValue(
     p2[0]+this->Padding,p2[1]+this->Padding,0.0);
   this->CaptionActor->GetPosition2Coordinate()->SetValue(
@@ -396,12 +408,6 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   // assign properties
   //
   this->CaptionActor->SetInput(this->Caption);
-  this->CaptionActor->SetBold(this->Bold);
-  this->CaptionActor->SetItalic(this->Italic);
-  this->CaptionActor->SetShadow(this->Shadow);
-  this->CaptionActor->SetFontFamily(this->FontFamily);
-  this->CaptionActor->SetJustification(this->Justification);
-  this->CaptionActor->SetVerticalJustificationToCentered();
 
   this->CaptionActor->SetProperty(this->GetProperty());
   this->BorderActor->SetProperty(this->GetProperty());
@@ -432,9 +438,20 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->CaptionTextProperty)
+    {
+    os << indent << "Caption Text Property:\n";
+    this->CaptionTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Caption Text Property: (none)\n";
+    }
 
   os << indent << "Caption: ";
   if ( this->Caption )
@@ -461,42 +478,9 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Leader Glyph: (" << this->LeaderGlyph << ")\n";
     }
-
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
-  os << indent << "Padding: " << this->Padding << "\n";
-  os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
-  os << indent << "Justification: ";
-  switch (this->Justification)
-    {
-    case 0: os << "Left  (0)" << endl; break;
-    case 1: os << "Centered  (1)" << endl; break;
-    case 2: os << "Right  (2)" << endl; break;
-    }
-  os << indent << "VerticalJustification: ";
-  switch (this->VerticalJustification)
-    {
-    case VTK_TEXT_TOP: os << "Top" << endl; break;
-    case VTK_TEXT_CENTERED: os << "Centered" << endl; break;
-    case VTK_TEXT_BOTTOM: os << "Bottom" << endl; break;
-    }
 }
 
-
+//----------------------------------------------------------------------------
 void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
 {
   vtkCaptionActor2D *a = vtkCaptionActor2D::SafeDownCast(prop);
@@ -511,17 +495,72 @@ void vtkCaptionActor2D::ShallowCopy(vtkProp *prop)
     this->SetLeaderGlyphSize(a->GetLeaderGlyphSize());
     this->SetMaximumLeaderGlyphSize(a->GetMaximumLeaderGlyphSize());
     this->SetPadding(a->GetPadding());
-    this->SetBold(a->GetBold());
-    this->SetItalic(a->GetItalic());
-    this->SetShadow(a->GetShadow());
-    this->SetFontFamily(a->GetFontFamily());
-    this->SetJustification(a->GetJustification());
-    this->SetVerticalJustification(a->GetVerticalJustification());
+    this->SetCaptionTextProperty(a->GetCaptionTextProperty());
     }
 
   // Now do superclass
   this->vtkActor2D::ShallowCopy(prop);
 }
   
+//----------------------------------------------------------------------------
+// Backward compatibility calls
 
+void vtkCaptionActor2D::SetFontFamily(int val) 
+{ 
+  this->CaptionTextProperty->SetFontFamily(val); 
+}
 
+int vtkCaptionActor2D::GetFontFamily()
+{ 
+  return this->CaptionTextProperty->GetFontFamily(); 
+}
+
+void vtkCaptionActor2D::SetBold(int val)
+{ 
+  this->CaptionTextProperty->SetBold(val); 
+}
+
+int vtkCaptionActor2D::GetBold()
+{ 
+  return this->CaptionTextProperty->GetBold(); 
+}
+
+void vtkCaptionActor2D::SetItalic(int val)
+{ 
+  this->CaptionTextProperty->SetItalic(val); 
+}
+
+int vtkCaptionActor2D::GetItalic()
+{ 
+  return this->CaptionTextProperty->GetItalic(); 
+}
+
+void vtkCaptionActor2D::SetShadow(int val)
+{ 
+  this->CaptionTextProperty->SetShadow(val); 
+}
+
+int vtkCaptionActor2D::GetShadow()
+{ 
+  return this->CaptionTextProperty->GetShadow(); 
+}
+  
+void vtkCaptionActor2D::SetJustification(int val)
+{ 
+  this->CaptionTextProperty->SetJustification(val); 
+}
+
+int vtkCaptionActor2D::GetJustification()
+{ 
+  return this->CaptionTextProperty->GetJustification(); 
+}
+    
+void vtkCaptionActor2D::SetVerticalJustification(int val)
+{ 
+  this->CaptionTextProperty->SetVerticalJustification(val); 
+}
+
+int vtkCaptionActor2D::GetVerticalJustification()
+{ 
+  return this->CaptionTextProperty->GetVerticalJustification(); 
+}

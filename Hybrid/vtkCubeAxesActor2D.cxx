@@ -17,20 +17,24 @@
 =========================================================================*/
 #include "vtkCubeAxesActor2D.h"
 
+#include "vtkAxisActor2D.h"
 #include "vtkCamera.h"
+#include "vtkDataSet.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkDataSet.h"
-#include "vtkAxisActor2D.h"
+#include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.33");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.34");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Prop, vtkProp);
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Camera,vtkCamera);
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisLabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkCubeAxesActor2D,AxisTitleTextProperty,vtkTextProperty);
 
+//----------------------------------------------------------------------------
 // Instantiate this object.
 vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 {
@@ -65,10 +69,16 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->ZAxis->AdjustLabelsOff();
 
   this->NumberOfLabels = 3;
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
+
+  this->AxisLabelTextProperty = vtkTextProperty::New();
+  this->AxisLabelTextProperty->SetBold(1);
+  this->AxisLabelTextProperty->SetItalic(1);
+  this->AxisLabelTextProperty->SetShadow(1);
+  this->AxisLabelTextProperty->SetFontFamilyToArial();
+
+  this->AxisTitleTextProperty = vtkTextProperty::New();
+  this->AxisTitleTextProperty->ShallowCopy(this->AxisLabelTextProperty);
+
   this->LabelFormat = new char[8]; 
   sprintf(this->LabelFormat,"%s","%-#6.3g");
   this->FontFactor = 1.0;
@@ -88,14 +98,13 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   sprintf(this->ZLabel,"%s","Z");
 }
 
+//----------------------------------------------------------------------------
 // Shallow copy of an actor.
 void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
 {
   this->vtkActor2D::ShallowCopy(actor);
-  this->SetBold(actor->GetBold());
-  this->SetItalic(actor->GetItalic());
-  this->SetShadow(actor->GetShadow());
-  this->SetFontFamily(actor->GetFontFamily());
+  this->SetAxisLabelTextProperty(actor->GetAxisLabelTextProperty());
+  this->SetAxisTitleTextProperty(actor->GetAxisTitleTextProperty());
   this->SetLabelFormat(actor->GetLabelFormat());
   this->SetFontFactor(actor->GetFontFactor());
   this->SetCornerOffset(actor->GetCornerOffset());
@@ -109,6 +118,7 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
   this->SetCamera(actor->GetCamera());
 }
 
+//----------------------------------------------------------------------------
 vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
 {
   if ( this->Input )
@@ -148,12 +158,17 @@ vtkCubeAxesActor2D::~vtkCubeAxesActor2D()
     {
     delete [] this->ZLabel;
     }
+
+  this->SetAxisLabelTextProperty(NULL);
+  this->SetAxisTitleTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Static variable describes connections in cube.
 static int Conn[8][3] = {{1,2,4}, {0,3,5}, {3,0,6}, {2,1,7},
                          {5,6,0}, {4,7,1}, {7,4,2}, {6,5,3}};
 
+//----------------------------------------------------------------------------
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection 
 // with the boundary of the viewport (minus borders).
@@ -184,6 +199,7 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection 
 // with the boundary of the viewport (minus borders).
@@ -356,10 +372,6 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->XAxis->SetRange(xRange[0], xRange[1]);
   this->XAxis->SetTitle(this->Labels[xAxes]);
   this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->XAxis->SetBold(this->Bold);
-  this->XAxis->SetItalic(this->Italic);
-  this->XAxis->SetShadow(this->Shadow);
-  this->XAxis->SetFontFamily(this->FontFamily);
   this->XAxis->SetLabelFormat(this->LabelFormat);
   this->XAxis->SetFontFactor(this->FontFactor);
   this->XAxis->SetProperty(this->GetProperty());
@@ -369,10 +381,6 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->YAxis->SetRange(yRange[1], yRange[0]);
   this->YAxis->SetTitle(this->Labels[yAxes]);
   this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->YAxis->SetBold(this->Bold);
-  this->YAxis->SetItalic(this->Italic);
-  this->YAxis->SetShadow(this->Shadow);
-  this->YAxis->SetFontFamily(this->FontFamily);
   this->YAxis->SetLabelFormat(this->LabelFormat);
   this->YAxis->SetFontFactor(this->FontFactor);
   this->YAxis->SetProperty(this->GetProperty());
@@ -382,13 +390,33 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->ZAxis->SetRange(zRange[0], zRange[1]);
   this->ZAxis->SetTitle(this->Labels[zAxes]);
   this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->ZAxis->SetBold(this->Bold);
-  this->ZAxis->SetItalic(this->Italic);
-  this->ZAxis->SetShadow(this->Shadow);
-  this->ZAxis->SetFontFamily(this->FontFamily);
   this->ZAxis->SetLabelFormat(this->LabelFormat);
   this->ZAxis->SetFontFactor(this->FontFactor);
   this->ZAxis->SetProperty(this->GetProperty());
+
+  if (this->AxisLabelTextProperty &&
+      this->AxisLabelTextProperty->GetMTime() > this->BuildTime)
+    {
+    this->XAxis->GetLabelTextProperty()->ShallowCopy(
+      this->AxisLabelTextProperty);
+    this->YAxis->GetLabelTextProperty()->ShallowCopy(
+      this->AxisLabelTextProperty);
+    this->ZAxis->GetLabelTextProperty()->ShallowCopy(
+      this->AxisLabelTextProperty);
+    }
+
+  if (this->AxisTitleTextProperty &&
+      this->AxisTitleTextProperty->GetMTime() > this->BuildTime)
+    {
+    this->XAxis->GetTitleTextProperty()->ShallowCopy(
+      this->AxisTitleTextProperty);
+    this->YAxis->GetTitleTextProperty()->ShallowCopy(
+      this->AxisTitleTextProperty);
+    this->ZAxis->GetTitleTextProperty()->ShallowCopy(
+      this->AxisTitleTextProperty);
+    }
+
+  this->BuildTime.Modified();
 
   //Render the axes
   if ( this->XAxisVisibility )
@@ -407,6 +435,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 // Do final adjustment of axes to control offset, etc.
 void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
                       int idx, int xIdx, int yIdx, int zIdx, int zIdx2,
@@ -524,6 +553,7 @@ void vtkCubeAxesActor2D::AdjustAxes(float pts[8][3], float bounds[6],
     }
 }
 
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -534,6 +564,7 @@ void vtkCubeAxesActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->ZAxis->ReleaseGraphicsResources(win);
 }
 
+//----------------------------------------------------------------------------
 // Return the ranges
 void vtkCubeAxesActor2D::GetRanges(float ranges[6])
 {
@@ -544,6 +575,7 @@ void vtkCubeAxesActor2D::GetRanges(float ranges[6])
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute the ranges
 void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax, 
                                      float& ymin, float& ymax,
@@ -559,6 +591,7 @@ void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax,
   zmax = ranges[5];
 }
 
+//----------------------------------------------------------------------------
 // Compute the bounds
 float *vtkCubeAxesActor2D::GetRanges()
 {
@@ -567,6 +600,7 @@ float *vtkCubeAxesActor2D::GetRanges()
   return this->Ranges;
 }
 
+//----------------------------------------------------------------------------
 // Compute the bounds
 void vtkCubeAxesActor2D::GetBounds(float bounds[6])
 {
@@ -600,6 +634,7 @@ void vtkCubeAxesActor2D::GetBounds(float bounds[6])
     }
 }
 
+//----------------------------------------------------------------------------
 // Compute the bounds
 void vtkCubeAxesActor2D::GetBounds(float& xmin, float& xmax, 
                                    float& ymin, float& ymax,
@@ -615,6 +650,7 @@ void vtkCubeAxesActor2D::GetBounds(float& xmin, float& xmax,
   zmax = bounds[5];
 }
 
+//----------------------------------------------------------------------------
 // Compute the bounds
 float *vtkCubeAxesActor2D::GetBounds()
 {
@@ -623,7 +659,7 @@ float *vtkCubeAxesActor2D::GetBounds()
   return this->Bounds;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -664,6 +700,26 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Camera: (none)\n";
     }
 
+  if (this->AxisTitleTextProperty)
+    {
+    os << indent << "Axis Title Text Property:\n";
+    this->AxisTitleTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Axis Title Text Property: (none)\n";
+    }
+
+  if (this->AxisLabelTextProperty)
+    {
+    os << indent << "Axis Label Text Property:\n";
+    this->AxisLabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Axis Label Text Property: (none)\n";
+    }
+
   if ( this->FlyMode == VTK_FLY_CLOSEST_TRIAD )
     {
     os << indent << "Fly Mode: CLOSEST_TRIAD\n";
@@ -692,23 +748,6 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Y Axis Visibility: " << (this->YAxisVisibility ? "On\n" : "Off\n");
   os << indent << "Z Axis Visibility: " << (this->ZAxisVisibility ? "On\n" : "Off\n");
 
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
   os << indent << "Font Factor: " << this->FontFactor << "\n";
   os << indent << "Inertia: " << this->Inertia << "\n";
@@ -720,6 +759,7 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
      << this->Ranges[4] << ", " << this->Ranges[5] << "\n";
 }
 
+//----------------------------------------------------------------------------
 static int IsInBounds(float x[3], float bounds[6]);
 
 // Clip the axes to fit into the viewport. Do this clipping each of the three
@@ -846,6 +886,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, float pts[8][3],
 }
 #undef VTK_DIVS
 
+//----------------------------------------------------------------------------
 void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport, 
                                          float bounds[6], float pts[8][3])
 {
@@ -871,6 +912,7 @@ void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport,
     }
 }
 
+//----------------------------------------------------------------------------
 // Return smallest value of point evaluated against frustum planes. Also
 // sets the closest point coordinates in xyz.
 float vtkCubeAxesActor2D::EvaluatePoint(float planes[24], float x[3])
@@ -893,6 +935,7 @@ float vtkCubeAxesActor2D::EvaluatePoint(float planes[24], float x[3])
   return minPlanesValue;
 }
   
+//----------------------------------------------------------------------------
 // Return the smallest point of the bounding box evaluated against the
 // frustum planes.
 float vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
@@ -921,6 +964,7 @@ float vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
   return minVal;
 }
 
+//----------------------------------------------------------------------------
 static int IsInBounds(float x[3], float bounds[6])
 {
   if ( x[0] < bounds[0] || x[0] > bounds[1] ||
@@ -935,3 +979,50 @@ static int IsInBounds(float x[3], float bounds[6])
     }
 }
 
+    
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+void vtkCubeAxesActor2D::SetFontFamily(int val) 
+{ 
+  this->AxisLabelTextProperty->SetFontFamily(val); 
+  this->AxisTitleTextProperty->SetFontFamily(val); 
+}
+
+int vtkCubeAxesActor2D::GetFontFamily()
+{ 
+  return this->AxisLabelTextProperty->GetFontFamily(); 
+}
+
+void vtkCubeAxesActor2D::SetBold(int val)
+{ 
+  this->AxisLabelTextProperty->SetBold(val); 
+  this->AxisTitleTextProperty->SetBold(val); 
+}
+
+int vtkCubeAxesActor2D::GetBold()
+{ 
+  return this->AxisLabelTextProperty->GetBold(); 
+}
+
+void vtkCubeAxesActor2D::SetItalic(int val)
+{ 
+  this->AxisLabelTextProperty->SetItalic(val); 
+  this->AxisTitleTextProperty->SetItalic(val); 
+}
+
+int vtkCubeAxesActor2D::GetItalic()
+{ 
+  return this->AxisLabelTextProperty->GetItalic(); 
+}
+
+void vtkCubeAxesActor2D::SetShadow(int val)
+{ 
+  this->AxisLabelTextProperty->SetShadow(val); 
+  this->AxisTitleTextProperty->SetShadow(val); 
+}
+
+int vtkCubeAxesActor2D::GetShadow()
+{ 
+  return this->AxisLabelTextProperty->GetShadow(); 
+}

@@ -18,18 +18,23 @@
 #include "vtkLegendBoxActor.h"
 
 #include "vtkActor.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkPolyDataMapper.h"
 #include "vtkFloatArray.h"
-#include "vtkTransformPolyDataFilter.h"
-#include "vtkTransform.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkPolyDataMapper2D.h"
+#include "vtkProperty2D.h"
 #include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
+#include "vtkTransform.h"
+#include "vtkTransformPolyDataFilter.h"
 
-vtkCxxRevisionMacro(vtkLegendBoxActor, "1.20");
+vtkCxxRevisionMacro(vtkLegendBoxActor, "1.21");
 vtkStandardNewMacro(vtkLegendBoxActor);
 
+vtkCxxSetObjectMacro(vtkLegendBoxActor,EntryTextProperty,vtkTextProperty);
+
+//----------------------------------------------------------------------------
 vtkLegendBoxActor::vtkLegendBoxActor()
 {
   // Positioning information
@@ -42,11 +47,16 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   this->ScalarVisibility = 1;
   
   // Control font properties
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
+  this->EntryTextProperty = vtkTextProperty::New();
+  this->EntryTextProperty->SetBold(0);
+  this->EntryTextProperty->SetItalic(0);
+  this->EntryTextProperty->SetShadow(0);
+  this->EntryTextProperty->SetFontFamily(VTK_ARIAL);
+  this->EntryTextProperty->SetJustification(VTK_TEXT_LEFT);
+  this->EntryTextProperty->SetVerticalJustification(VTK_TEXT_CENTERED);
+
   this->Border = 1;
+  this->Box = 0;
   this->Padding = 3;
   
   // Symbols and text strings
@@ -80,8 +90,26 @@ vtkLegendBoxActor::vtkLegendBoxActor()
   
   this->BorderActor = vtkActor2D::New();
   this->BorderActor->SetMapper(this->BorderMapper);
+
+  // Construct the box
+  this->BoxPolyData = vtkPolyData::New();
+  this->BoxPolyData->SetPoints(this->BorderPolyData->GetPoints());
+  vtkCellArray *polys = vtkCellArray::New();
+  polys->InsertNextCell(4);
+  polys->InsertCellPoint(0);
+  polys->InsertCellPoint(1);
+  polys->InsertCellPoint(2);
+  polys->InsertCellPoint(3);
+  this->BoxPolyData->SetPolys(polys); polys->Delete();
+
+  this->BoxMapper = vtkPolyDataMapper2D::New();
+  this->BoxMapper->SetInput(this->BoxPolyData);
+  
+  this->BoxActor = vtkActor2D::New();
+  this->BoxActor->SetMapper(this->BoxMapper);
 }
 
+//----------------------------------------------------------------------------
 vtkLegendBoxActor::~vtkLegendBoxActor()
 {
   this->InitializeEntries();
@@ -92,8 +120,18 @@ vtkLegendBoxActor::~vtkLegendBoxActor()
     this->BorderMapper->Delete();
     this->BorderPolyData->Delete();
     }
+
+  if ( this->BoxActor )
+    {
+    this->BoxActor->Delete();
+    this->BoxMapper->Delete();
+    this->BoxPolyData->Delete();
+    }
+
+  this->SetEntryTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::InitializeEntries()
 {
   int i;
@@ -127,6 +165,7 @@ void vtkLegendBoxActor::InitializeEntries()
     }//if entries have been defined
 }
   
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetNumberOfEntries(int num)
 {
   if ( num == this->NumberOfEntries )
@@ -183,8 +222,6 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
       {
       colors->SetTuple(i,color);
       textMapper[i] = vtkTextMapper::New();
-      textMapper[i]->SetJustificationToLeft();
-      textMapper[i]->SetVerticalJustificationToCentered();
       textActor[i] = vtkActor2D::New();
       textActor[i]->SetMapper(textMapper[i]);
       symbol[i] = NULL;
@@ -216,6 +253,7 @@ void vtkLegendBoxActor::SetNumberOfEntries(int num)
   return;
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
                                  float color[3])
 {
@@ -229,6 +267,7 @@ void vtkLegendBoxActor::SetEntry(int i, vtkPolyData *symbol, const char* string,
   return;
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntrySymbol(int i, vtkPolyData *symbol)
 {
   if ( i >= 0 && i < this->NumberOfEntries )
@@ -250,6 +289,7 @@ void vtkLegendBoxActor::SetEntrySymbol(int i, vtkPolyData *symbol)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntryString(int i, const char* string)
 {
   if ( i >= 0 && i < this->NumberOfEntries )
@@ -264,6 +304,7 @@ void vtkLegendBoxActor::SetEntryString(int i, const char* string)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
 {
   if ( i >= 0 && i < this->NumberOfEntries )
@@ -279,6 +320,7 @@ void vtkLegendBoxActor::SetEntryColor(int i, float color[3])
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::SetEntryColor(int i, float r, float g, float b)
 {
   float rgb[3];
@@ -286,6 +328,7 @@ void vtkLegendBoxActor::SetEntryColor(int i, float r, float g, float b)
   this->SetEntryColor(i,rgb);
 }
 
+//----------------------------------------------------------------------------
 vtkPolyData *vtkLegendBoxActor::GetEntrySymbol(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
@@ -298,6 +341,7 @@ vtkPolyData *vtkLegendBoxActor::GetEntrySymbol(int i)
     }
 }
 
+//----------------------------------------------------------------------------
 const char* vtkLegendBoxActor::GetEntryString(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
@@ -310,6 +354,7 @@ const char* vtkLegendBoxActor::GetEntryString(int i)
     }
 }
 
+//----------------------------------------------------------------------------
 float* vtkLegendBoxActor::GetEntryColor(int i)
 {
   if ( i < 0 || i >= this->NumberOfEntries )
@@ -322,6 +367,7 @@ float* vtkLegendBoxActor::GetEntryColor(int i)
     }
 }
 
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -332,6 +378,11 @@ void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
      this->BorderActor->ReleaseGraphicsResources(win); 
      } 
 
+  if ( this->BoxActor ) 
+     { 
+     this->BoxActor->ReleaseGraphicsResources(win); 
+     } 
+
   for (int i=0; i < this->Size; i++) 
     { 
     this->TextActor[i]->ReleaseGraphicsResources(win); 
@@ -339,6 +390,7 @@ void vtkLegendBoxActor::ReleaseGraphicsResources(vtkWindow *win)
     } 
 }
 
+//----------------------------------------------------------------------------
 int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
 {
   if ( this->NumberOfEntries <= 0 )
@@ -350,6 +402,11 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
   if ( this->Border )
     {
     renderedSomething += this->BorderActor->RenderOverlay(viewport);
+    }
+
+  if ( this->Box )
+    {
+    renderedSomething += this->BoxActor->RenderOverlay(viewport);
     }
 
   if ( this->LegendEntriesVisible )
@@ -367,6 +424,7 @@ int vtkLegendBoxActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int i;
@@ -379,12 +437,26 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Check to see whether we have to rebuild everything
   int *vsize = viewport->GetSize();
-  if ( this->GetMTime() > this->BuildTime ||
-       vsize[0] != this->CachedSize[0] || vsize[1] != this->CachedSize[1] )
+  if (this->GetMTime() > this->BuildTime ||
+      this->EntryTextProperty->GetMTime()  > this->BuildTime ||
+      vsize[0] != this->CachedSize[0] || vsize[1] != this->CachedSize[1] )
     {
     vtkDebugMacro(<<"Rebuilding text");
     this->CachedSize[0] = vsize[0];
     this->CachedSize[1] = vsize[1];
+
+    // If text prop has changed, recopy it to all mappers
+    // We have to use shallow copy since the color of each text prop
+    // can be overriden
+
+    if (this->EntryTextProperty->GetMTime()  > this->BuildTime)
+      {
+      for (i = 0; i < this->NumberOfEntries; i++)
+        {
+        this->TextMapper[i]->GetTextProperty()->ShallowCopy(
+          this->EntryTextProperty);
+        }
+      }
 
     //Get position information
     int *x1, *x2;
@@ -436,7 +508,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
 
     //Compute the final proportion (symbol width to text width)
     fontSize = 12;
-        this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
+    this->TextMapper[maxTextMapper]->GetTextProperty()->SetFontSize(fontSize);
     this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
     twr = (float)tempi[0]/tempi[1];
     symbolSize = swr / (swr + twr);
@@ -447,20 +519,9 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[0] = (int)((1.0-symbolSize)*(p2[0] - p1[0] - 2.0*this->Padding));
     size[1] = (int)((p2[1] - p1[1] - 2.0*this->Padding)/this->NumberOfEntries);
 
-    // while the size is too small increase it
-    while ( tempi[0] < size[0] && tempi[1] < size[1] && fontSize < 100)
-      {
-      fontSize++;
-      this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
-      this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
-      }
-    // while the size is too large decrease it
-    while ((tempi[0] > size[0] || tempi[1] > size[1]) && fontSize > 0)
-      {
-      fontSize--;
-      this->TextMapper[maxTextMapper]->SetFontSize(fontSize);
-      this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
-      }
+    fontSize =  this->TextMapper[maxTextMapper]->SetConstrainedFontSize(
+      viewport, size[0], size[1]);
+    this->TextMapper[maxTextMapper]->GetSize(viewport,tempi);
 
     // don't draw anything if it's too small
     if ( size[1] > 0 && fontSize > 0)
@@ -472,25 +533,29 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       this->LegendEntriesVisible = 0;
       }
     
-    //Border - may adjust spacing based on font size relationship
+    //Border and box - may adjust spacing based on font size relationship
     //to the proportions relative to the border
     //
-    if ( this->Border )
+    if (this->Border || this->Box)
       {
-      //adjust the border placement if too much whitespace
+      //adjust the border/box placement if too much whitespace
       if ( !this->LockBorder && tempi[0] < size[0] )
         {
         p2[0] = p1[0] + 2.0*this->Padding + 
                 symbolSize*(p2[0] - p1[0] - 2.0*this->Padding) + tempi[0];
         }
-      this->BorderActor->SetProperty(this->GetProperty());
       vtkPoints *pts = this->BorderPolyData->GetPoints();
       pts->SetPoint(0, p1);
       pts->SetPoint(1, p2[0],p1[1],0.0);
       pts->SetPoint(2, p2[0],p2[1],0.0);
       pts->SetPoint(3, p1[0],p2[1],0.0);
       }
-    
+
+    if (this->Border)
+      {
+      this->BorderActor->SetProperty(this->GetProperty());
+      }
+
     //Place text strings
     float *color;
     float posY;
@@ -500,12 +565,12 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
       {
       posY = p2[1] - this->Padding - (float)i*size[1] - 0.5*size[1];
       this->TextActor[i]->SetPosition(posX,posY);
-      this->TextMapper[i]->SetFontSize(fontSize);
+      this->TextMapper[i]->GetTextProperty()->SetFontSize(fontSize);
       this->TextActor[i]->GetProperty()->DeepCopy(this->GetProperty());
       color = this->Colors->GetTuple(i);
       if ( color[0] >= 0.0 && color[1] >= 0.0 && color[2] >= 0.0 )
         {
-        this->TextActor[i]->GetProperty()->SetColor(color);
+        this->TextMapper[i]->GetTextProperty()->SetColor(color);
         }
       }
     
@@ -569,6 +634,11 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
     renderedSomething += this->BorderActor->RenderOpaqueGeometry(viewport);
     }
 
+  if ( this->Box )
+    {
+    renderedSomething += this->BoxActor->RenderOpaqueGeometry(viewport);
+    }
+
   if ( this->LegendEntriesVisible )
     {
     for (i=0; i<this->NumberOfEntries; i++)
@@ -584,46 +654,39 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Number Of Entries: " << this->NumberOfEntries << "\n";
-
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
+  if (this->EntryTextProperty)
     {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
+    os << indent << "Entry Text Property:\n";
+    this->EntryTextProperty->PrintSelf(os,indent.GetNextIndent());
     }
   else
     {
-    os << "Times\n";
+    os << indent << "Entry Text Property: (none)\n";
     }
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
+
+  os << indent << "Number Of Entries: " << this->NumberOfEntries << "\n";
 
   os << indent << "Scalar Visibility: " 
      << (this->ScalarVisibility ? "On\n" : "Off\n");
   os << indent << "Padding: " << this->Padding << "\n";
   os << indent << "Border: " << (this->Border ? "On\n" : "Off\n");
+  os << indent << "Box: " << (this->Box ? "On\n" : "Off\n");
   os << indent << "LockBorder: " << (this->LockBorder ? "On\n" : "Off\n");
 }
 
+//----------------------------------------------------------------------------
 void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)
 {
   vtkLegendBoxActor *a = vtkLegendBoxActor::SafeDownCast(prop);
   if ( a != NULL )
     {
     this->SetPosition2(a->GetPosition2());
-    this->SetBold(a->GetBold());
-    this->SetItalic(a->GetItalic());
-    this->SetShadow(a->GetShadow());
-    this->SetFontFamily(a->GetFontFamily());
+    this->SetEntryTextProperty(a->GetEntryTextProperty());
     this->SetBorder(a->GetBorder());
     this->SetLockBorder(a->GetLockBorder());
     this->SetPadding(a->GetPadding());
@@ -641,4 +704,45 @@ void vtkLegendBoxActor::ShallowCopy(vtkProp *prop)
   this->vtkActor2D::ShallowCopy(prop);
 }
 
+//----------------------------------------------------------------------------
+// Backward compatibility calls
 
+void vtkLegendBoxActor::SetFontFamily(int val) 
+{ 
+  this->EntryTextProperty->SetFontFamily(val); 
+}
+
+int vtkLegendBoxActor::GetFontFamily()
+{ 
+  return this->EntryTextProperty->GetFontFamily(); 
+}
+
+void vtkLegendBoxActor::SetBold(int val)
+{ 
+  this->EntryTextProperty->SetBold(val); 
+}
+
+int vtkLegendBoxActor::GetBold()
+{ 
+  return this->EntryTextProperty->GetBold(); 
+}
+
+void vtkLegendBoxActor::SetItalic(int val)
+{ 
+  this->EntryTextProperty->SetItalic(val); 
+}
+
+int vtkLegendBoxActor::GetItalic()
+{ 
+  return this->EntryTextProperty->GetItalic(); 
+}
+
+void vtkLegendBoxActor::SetShadow(int val)
+{ 
+  this->EntryTextProperty->SetShadow(val); 
+}
+
+int vtkLegendBoxActor::GetShadow()
+{ 
+  return this->EntryTextProperty->GetShadow(); 
+}

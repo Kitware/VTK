@@ -28,10 +28,11 @@
 // that Position2 can be set using vtkActor2D's SetWidth() and SetHeight()
 // methods.)  Position and Position2 define the size of the caption, and a
 // third point, the AttachmentPoint, defines a point that the caption is
-// associated with.  You must also define the caption text, font attributes,
+// associated with.  You must also define the caption text, 
 // whether you want a border around the caption, and whether you want a
-// leader from the caption to the attachment point. The color of the text is
-// controlled with vtkActor2D's property. You also indicate whether you want
+// leader from the caption to the attachment point. The font attributes of 
+// the text can be set through the vtkTextProperty associated to this actor.
+// You also indicate whether you want
 // the leader to be 2D or 3D. (2D leaders are always drawn over the
 // underlying geometry. 3D leaders may be occluded by the geometry.) The
 // leader may also be terminated by an optional glyph (e.g., arrow).
@@ -48,7 +49,7 @@
 // with the leader moving with the AttachmentPoint.
 
 // .SECTION See Also
-// vtkLegendBoxActor vtkTextMapper vtkTextActor vtkTextMapper
+// vtkLegendBoxActor vtkTextMapper vtkTextActor vtkTextProperty
 // vtkCoordinate
 
 #ifndef __vtkCaptionActor2D_h
@@ -56,15 +57,16 @@
 
 #include "vtkActor2D.h"
 
+class vtkActor;
+class vtkAppendPolyData;
+class vtkGlyph2D;
+class vtkGlyph3D;
+class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
 class vtkTextActor;
-class vtkGlyph2D;
-class vtkGlyph3D;
-class vtkAppendPolyData;
-class vtkActor;
 class vtkTextMapper;
-class vtkPolyData;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkCaptionActor2D : public vtkActor2D
 {
@@ -134,57 +136,72 @@ public:
   vtkGetMacro(Padding, int);
 
   // Description:
-  // Enable/Disable bolding the caption.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Set/Get the text property.
+  virtual void SetCaptionTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(CaptionTextProperty,vtkTextProperty);
+
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing the caption.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the caption. Shadows make
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the caption. Three font types
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
+    
   // Description:
   // Set/Get the horizontal justification to left (default), centered,
   // or right.
-  vtkSetClampMacro(Justification,int,VTK_TEXT_LEFT,VTK_TEXT_RIGHT);
-  vtkGetMacro(Justification,int);
-  void SetJustificationToLeft() 
-    {this->SetJustification(VTK_TEXT_LEFT);}
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetJustification(int val);
+  virtual int GetJustification();
+  void SetJustificationToLeft()     
+    { this->SetJustification(VTK_TEXT_LEFT);};
   void SetJustificationToCentered() 
-    {this->SetJustification(VTK_TEXT_CENTERED);}
-  void SetJustificationToRight() 
-    {this->SetJustification(VTK_TEXT_RIGHT);}
+    { this->SetJustification(VTK_TEXT_CENTERED);};
+  void SetJustificationToRight()    
+    { this->SetJustification(VTK_TEXT_RIGHT);};
     
   // Description:
   // Set/Get the vertical justification to bottom (default), middle,
   // or top.
-  vtkSetClampMacro(VerticalJustification,int,VTK_TEXT_BOTTOM,VTK_TEXT_TOP);
-  vtkGetMacro(VerticalJustification,int);
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)CaptionTextProperty() methods.
+  virtual void SetVerticalJustification(int val);
+  virtual int GetVerticalJustification();
   void SetVerticalJustificationToBottom() 
-    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);}
+    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
   void SetVerticalJustificationToCentered() 
-    {this->SetVerticalJustification(VTK_TEXT_CENTERED);}
+    {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
   void SetVerticalJustificationToTop() 
-    {this->SetVerticalJustification(VTK_TEXT_TOP);}
+    {this->SetVerticalJustification(VTK_TEXT_TOP);};
     
   // Description:
   // Shallow copy of this scaled text actor. Overloads the virtual
@@ -221,36 +238,32 @@ protected:
   int   ThreeDimensionalLeader;
   float LeaderGlyphSize;
   int   MaximumLeaderGlyphSize;
+
   vtkPolyData *LeaderGlyph; //what to put on the end of the leader
   
   int   Padding;
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
-  int   Justification;
-  int   VerticalJustification;
 
 private:
-  vtkTextActor       *CaptionActor;
+  vtkTextActor        *CaptionActor;
+  vtkTextProperty     *CaptionTextProperty;
 
   vtkPolyData         *BorderPolyData;
   vtkPolyDataMapper2D *BorderMapper;
   vtkActor2D          *BorderActor;
 
-  vtkPolyData   *HeadPolyData; //single attachment point for glyphing
-  vtkGlyph3D    *HeadGlyph;  //for 3D leader
-  vtkPolyData   *LeaderPolyData; //line represents the leader
-  vtkAppendPolyData *AppendLeader; //append head and leader
+  vtkPolyData         *HeadPolyData;    // single attachment point for glyphing
+  vtkGlyph3D          *HeadGlyph;       // for 3D leader
+  vtkPolyData         *LeaderPolyData;  // line represents the leader
+  vtkAppendPolyData   *AppendLeader;    // append head and leader
   
-  //for 2D leader
+  // for 2D leader
   vtkCoordinate       *MapperCoordinate2D;
   vtkPolyDataMapper2D *LeaderMapper2D;
   vtkActor2D          *LeaderActor2D;
 
-  //for 3D leader
-  vtkPolyDataMapper *LeaderMapper3D;
-  vtkActor          *LeaderActor3D;
+  // for 3D leader
+  vtkPolyDataMapper   *LeaderMapper3D;
+  vtkActor            *LeaderActor3D;
 
 private:
   vtkCaptionActor2D(const vtkCaptionActor2D&);  // Not implemented.

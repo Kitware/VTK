@@ -71,6 +71,7 @@ vtkScaledTextActor.cxx
 vtkSelectVisiblePoints.cxx
 vtkTextActor.cxx
 vtkTextMapper.cxx
+vtkTextProperty.cxx
 vtkTexture.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
@@ -88,7 +89,6 @@ vtkVolumeTextureMapper2D.cxx
 vtkWindowToImageFilter.cxx
 vtkWorldPointPicker.cxx
 )
-
 
 IF (VTK_HAVE_VG500)
   SOURCE_FILES ( Rendering_SRCS

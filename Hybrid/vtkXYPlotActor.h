@@ -46,11 +46,20 @@
 // two position coordinates specifies a rectangle in which the plot will lie.
 //
 // Optional features include the ability to specify axes labels, label
-// format, plot title, and control font properties and type. You can also
+// format and plot title. You can also
 // manually specify the x and y plot ranges (by default they are computed
 // automatically). The Border instance variable is used to create space 
 // between the boundary of the plot window (specified by PositionCoordinate
 // and Position2Coordinate) and the plot itself.
+//
+// The font property of the plot title can be modified through the 
+// TitleTextProperty attribute.
+// The font property of the axes titles and labels can be modified through the
+// AxisTitleTextProperty and AxisLabelTextProperty attributes. You may also
+// use the GetXAxisActor2D or GetYAxisActor2D methods 
+// to access each individual axis actor to modify their font properties.
+// In the same way, the GetLegendBoxActor method can be used to access
+// the legend box actor to modify its font properties.
 //
 // There are several advanced features as well. You can assign per curve 
 // properties (such as color and a plot symbol). (Note that each input 
@@ -67,7 +76,8 @@
 
 // .SECTION See Also
 // vtkActor2D vtkTextMapper vtkScalarBarActor vtkAxisActor2D vtkCubeAxesActor
-// vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter
+// vtkAttributeDataToFieldDataFilter vtkFieldDataToAttributeDataFilter 
+// vtkTextProperty
 
 #ifndef __vtkXYPlotActor_h
 #define __vtkXYPlotActor_h
@@ -80,18 +90,23 @@
 #define VTK_XYPLOT_ROW 0
 #define VTK_XYPLOT_COLUMN 1
 
-#include "vtkAxisActor2D.h"
+#include "vtkActor2D.h"
 
-class vtkDataSetCollection;
-class vtkDataObjectCollection;
-class vtkGlyphSource2D;
-class vtkGlyph2D;
-class vtkLegendBoxActor;
 class vtkAppendPolyData;
-class vtkPlanes;
-class vtkIntArray;
-class vtkDataSet;
+class vtkAxisActor2D;
 class vtkDataObject;
+class vtkDataObjectCollection;
+class vtkDataSet;
+class vtkDataSetCollection;
+class vtkGlyph2D;
+class vtkGlyphSource2D;
+class vtkIntArray;
+class vtkLegendBoxActor;
+class vtkPlanes;
+class vtkPolyData;
+class vtkPolyDataMapper2D;
+class vtkTextMapper;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkXYPlotActor : public vtkActor2D
 {
@@ -285,6 +300,14 @@ public:
   vtkGetStringMacro(YTitle);
 
   // Description:
+  // Retrieve handles to the X and Y axis (so that you can set their text
+  // properties for example)
+  vtkAxisActor2D *GetXAxisActor2D()
+    {return this->XAxis;}
+  vtkAxisActor2D *GetYAxisActor2D()
+    {return this->YAxis;}
+
+  // Description:
   // Set the plot range (range of independent and dependent variables)
   // to plot. Data outside of the range will be clipped. If the plot
   // range of either the x or y variables is set to (v1,v2), where
@@ -331,22 +354,55 @@ public:
   vtkGetVector2Macro(LegendPosition2,float);
   
   // Description:
-  // Enable/Disable bolding annotation text.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Set/Get the title text property.
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the title text property of all axes. Note that each axis can
+  // be controlled individually through the GetX/YAxisActor2D() methods.
+  virtual void SetAxisTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(AxisTitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the labels text property of all axes. Note that each axis can
+  // be controlled individually through the GetX/YAxisActor2D() methods.
+  virtual void SetAxisLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(AxisLabelTextProperty,vtkTextProperty);
+      
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)TitleTextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)TitleTextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing annotation text.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)TitleTextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the annotation text. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)TitleTextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
 
   // Description:
@@ -354,16 +410,6 @@ public:
   vtkSetMacro(Logx, int);
   vtkGetMacro(Logx, int);
   vtkBooleanMacro(Logx, int);
-
-  // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
 
   // Description:
   // Set/Get the format with which to print the labels on the scalar
@@ -464,10 +510,6 @@ protected:
   int   XValues;
   int   NumberOfXLabels;
   int   NumberOfYLabels;
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
   int   Logx;
   char  *LabelFormat;
   float XRange[2];
@@ -483,11 +525,15 @@ protected:
   int ReverseXAxis;
   int ReverseYAxis;
   
-  vtkTextMapper *TitleMapper;
-  vtkActor2D    *TitleActor;
+  vtkTextMapper   *TitleMapper;
+  vtkActor2D      *TitleActor;
+  vtkTextProperty *TitleTextProperty;
 
   vtkAxisActor2D      *XAxis;
   vtkAxisActor2D      *YAxis;
+
+  vtkTextProperty *AxisTitleTextProperty;
+  vtkTextProperty *AxisLabelTextProperty;
 
   float ViewportCoordinate[2];
   float PlotCoordinate[2];

@@ -23,9 +23,7 @@
 //
 // The format with which the label is drawn is specified using a
 // printf style format string. The font attributes of the text can
-// also be set (font style, size, bold, italic, shadow). The color of
-// the text is controlled by the actor2D's color property (i.e., the
-// actor associated with this mapper). 
+// be set through the vtkTextProperty associated to this mapper. 
 //
 // By default, all the components of multi-component data such as
 // vectors, normals, texture coordinates, tensors, and multi-component
@@ -42,7 +40,7 @@
 // generate ids as scalars or field data, which can then be labeled.
 
 // .SECTION See Also
-// vtkMapper2D vtkActor2D vtkTextMapper vtkSelectVisiblePoints 
+// vtkMapper2D vtkActor2D vtkTextMapper vtkTextProperty vtkSelectVisiblePoints 
 // vtkIdFilter vtkCellCenters
 
 #ifndef __vtkLabeledDataMapper_h
@@ -52,6 +50,7 @@
 
 class vtkDataSet;
 class vtkTextMapper;
+class vtkTextProperty;
 
 #define VTK_LABEL_IDS        0
 #define VTK_LABEL_SCALARS    1
@@ -65,81 +64,13 @@ class VTK_RENDERING_EXPORT vtkLabeledDataMapper : public vtkMapper2D
 {
 public:
   // Description:
-  // Instantiate object with font size 12 of font Arial (bolding,
-  // italic, shadows on) and %%-#6.3g label format. By default, point ids
+  // Instantiate object with %%-#6.3g label format. By default, point ids
   // are labeled.
   static vtkLabeledDataMapper *New();
 
   vtkTypeRevisionMacro(vtkLabeledDataMapper,vtkMapper2D);
   void PrintSelf(ostream& os, vtkIndent indent);
   
-  // Description:
-  // Draw the text to the screen at each input point.
-  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
-  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
-
-  // Description:
-  // Set the input dataset to the mapper.  
-  virtual void SetInput(vtkDataSet*);
-  vtkGetObjectMacro(Input, vtkDataSet);
-
-  // Description:
-  // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *);
-
-  // Description:
-  // Specify which data to plot: scalars, vectors, normals, texture coords,
-  // tensors, or field data. If the data has more than one component, use
-  // the method SetLabeledComponent to control which components to plot.
-  vtkSetMacro(LabelMode, int);
-  vtkGetMacro(LabelMode, int);
-  void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
-  void SetLabelModeToLabelScalars() {this->SetLabelMode(VTK_LABEL_SCALARS);};
-  void SetLabelModeToLabelVectors() {this->SetLabelMode(VTK_LABEL_VECTORS);};
-  void SetLabelModeToLabelNormals() {this->SetLabelMode(VTK_LABEL_NORMALS);};
-  void SetLabelModeToLabelTCoords() {this->SetLabelMode(VTK_LABEL_TCOORDS);};
-  void SetLabelModeToLabelTensors() {this->SetLabelMode(VTK_LABEL_TENSORS);};
-  void SetLabelModeToLabelFieldData()
-            {this->SetLabelMode(VTK_LABEL_FIELD_DATA);};
-
-  // Description:
-  // Set/Get the suggested font size used to label the data.
-  // (Suggested because not all font sizes may be available.)
-  // The value is expressed in points.
-  vtkSetClampMacro(FontSize,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(FontSize,int);
-
-  // Description:
-  // Enable/Disable bolding labels.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
-  vtkBooleanMacro(Bold, int);
-
-  // Description:
-  // Enable/Disable italicizing labels.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
-  vtkBooleanMacro(Italic, int);
-
-  // Description:
-  // Enable/Disable creating shadows on the labels. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
-  vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the labels. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
   // Description:
   // Set/Get the format with which to print the labels. The format needs
   // to change depending on what you're trying to print. For example, if
@@ -165,20 +96,93 @@ public:
   vtkSetClampMacro(FieldDataArray,int,0,VTK_LARGE_INTEGER);
   vtkGetMacro(FieldDataArray,int);
 
+  // Description:
+  // Set the input dataset to the mapper.  
+  virtual void SetInput(vtkDataSet*);
+  vtkGetObjectMacro(Input, vtkDataSet);
+
+  // Description:
+  // Specify which data to plot: scalars, vectors, normals, texture coords,
+  // tensors, or field data. If the data has more than one component, use
+  // the method SetLabeledComponent to control which components to plot.
+  vtkSetMacro(LabelMode, int);
+  vtkGetMacro(LabelMode, int);
+  void SetLabelModeToLabelIds() {this->SetLabelMode(VTK_LABEL_IDS);};
+  void SetLabelModeToLabelScalars() {this->SetLabelMode(VTK_LABEL_SCALARS);};
+  void SetLabelModeToLabelVectors() {this->SetLabelMode(VTK_LABEL_VECTORS);};
+  void SetLabelModeToLabelNormals() {this->SetLabelMode(VTK_LABEL_NORMALS);};
+  void SetLabelModeToLabelTCoords() {this->SetLabelMode(VTK_LABEL_TCOORDS);};
+  void SetLabelModeToLabelTensors() {this->SetLabelMode(VTK_LABEL_TENSORS);};
+  void SetLabelModeToLabelFieldData()
+            {this->SetLabelMode(VTK_LABEL_FIELD_DATA);};
+
+  // Description:
+  // Set/Get the text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)LabelTextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Set/Get the font size.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)LabelTextProperty() methods.
+  virtual void SetFontSize(int size);
+  virtual int GetFontSize();
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)LabelTextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
+  vtkBooleanMacro(Bold, int);
+
+  // Description:
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)LabelTextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
+  vtkBooleanMacro(Italic, int);
+
+  // Description:
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)LabelTextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
+  vtkBooleanMacro(Shadow, int);
+
+  // Description:
+  // Draw the text to the screen at each input point.
+  void RenderOpaqueGeometry(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
+
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkLabeledDataMapper();
   ~vtkLabeledDataMapper();
 
   vtkDataSet *Input;
-  int LabelMode;
-
-  int   FontSize;
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
+  vtkTextProperty *LabelTextProperty;
 
   char  *LabelFormat;
+  int   LabelMode;
   int   LabeledComponent;
   int   FieldDataArray;
 

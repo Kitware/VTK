@@ -24,18 +24,23 @@
 // box defined by the position 1 & 2 coordinates. This class replaces the
 // deprecated vtkScaledTextActor and acts as a convenient wrapper for
 // a vtkTextMapper/vtkActor2D pair.
+// Set the text property/attributes through the vtkTextProperty associated to
+// this actor.
 //
 // .SECTION See Also
-// vtkActor2D vtkTextMapper
+// vtkActor2D vtkTextMapper vtkTextProperty
 
 #ifndef __vtkTextActor_h
 #define __vtkTextActor_h
 
 #include "vtkActor2D.h"
+
 // We need to include vtkTextMapper here otherwise we have an ambiguous
 // case of vtkMapper2D or vtkTextMapper in SetMapper(vtkTextMapper *mapper);
 // - two members with identical prototypes!
 #include "vtkTextMapper.h"
+
+class vtkTextProperty;
 
 class VTK_RENDERING_EXPORT vtkTextActor : public vtkActor2D
 {
@@ -54,94 +59,16 @@ public:
   void ShallowCopy(vtkProp *prop);
 
   // Description:
-  // Get the vtkTextMapper that defines the text to be drawn.
+  // Override the vtkTextMapper that defines the text to be drawn.
   // One will be created by default if none is supplied
   void SetMapper(vtkTextMapper *mapper);
 
   // Description:
   // Set the text string to be displayed. "\n" is recognized
   // as a carriage return/linefeed (line separator).
+  // Convenience method to the underlying mapper
   void SetInput(const char *inputString);
-  char *GetInput(void);
-
-  // Description:
-  // Set the font size. Not used when ScaledText = true
-  void SetFontSize(int size);
-
-  // Description:
-  // Return the font size actually in use.  This value may
-  // not match the value specified in the last SetFontSize if the last size
-  // was unavailable or scaled is true and the font was changed
-  int GetFontSize(void);
-
-  // Description:
-  // Enable/disable text bolding.
-  void SetBold(int val);
-  int  GetBold(void);
-  void BoldOn(void)  { this->SetBold(1); }
-  void BoldOff(void) { this->SetBold(0); }
-
-  // Description:
-  // Enable/disable text italic.
-  void SetItalic(int val);
-  int  GetItalic(void);
-  void ItalicOn(void)  { this->SetItalic(1); }
-  void ItalicOff(void) { this->SetItalic(0); }
-
-  // Description:
-  // Enable/disable text shadows.
-  void SetShadow(int val);
-  int  GetShadow(void);
-  void ShadowOn(void)  { this->SetShadow(1); }
-  void ShadowOff(void) { this->SetShadow(0); }
-
-  // Description:
-  // Set/Get the font family.  Three font types are allowed: Arial (VTK_ARIAL),
-  // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  void SetFontFamily(int val);
-  int  GetFontFamily(void);
-  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
-  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
-
-  // Description:
-  // Set/Get the horizontal justification to left (default), centered,
-  // or right.
-  void SetJustification(int val);
-  int  GetJustification(void);
-  void SetJustificationToLeft()     { this->SetJustification(VTK_TEXT_LEFT);    };
-  void SetJustificationToCentered() { this->SetJustification(VTK_TEXT_CENTERED);};
-  void SetJustificationToRight()    { this->SetJustification(VTK_TEXT_RIGHT);   };
-
-  // Description:
-  // Set/Get the vertical justification to bottom (default), middle,
-  // or top.
-  void SetVerticalJustification(int val);
-  int  GetVerticalJustification(void);
-  void SetVerticalJustificationToBottom()
-    {this->SetVerticalJustification(VTK_TEXT_BOTTOM);};
-  void SetVerticalJustificationToCentered()
-    {this->SetVerticalJustification(VTK_TEXT_CENTERED);};
-  void SetVerticalJustificationToTop()
-    {this->SetVerticalJustification(VTK_TEXT_TOP);};
-
-  // Description:
-  // These methods can be used to control the spacing and placement of
-  // text (in the vertical direction). LineOffset is a vertical offset
-  // (measured in lines); LineSpacing is the spacing between lines.
-  // These members are used internally when Rendering Multi-line texct.
-  void  SetLineOffset(float val);
-  float GetLineOffset(void);
-  void  SetLineSpacing(float val);
-  float GetLineSpacing(void);
-
-  // Description:
-  // Determine the number of lines in the string (delimited by "\n").
-  int  GetNumberOfLines(const char *input);
-
-  // Description:
-  // Determine the number of lines in the Input string (delimited by "\n").
-  int  GetNumberOfLines(void);
+  char *GetInput();
 
   // Description:
   // Set/Get the minimum size in pixels for this actor.
@@ -178,20 +105,17 @@ public:
   vtkGetMacro(AlignmentPoint,int);
 
   // Description:
-  // Return the size[2]/width/height of the rectangle required to draw this
-  // text (in pixels). These functions are provided for convenience and
-  // are implemented by the Mapper.
-  void GetSize(vtkViewport*, int size[2]);
-  int GetWidth(vtkViewport*);
-  int GetHeight(vtkViewport*);
-
-  // Description:
   // Return the actual vtkCoordinate reference that the mapper should use
   // to position the actor. This is used internally by the mappers and should
   // be overridden in specialized subclasses and otherwise ignored.
   vtkCoordinate *GetActualPositionCoordinate(void)
     { return this->AdjustedPositionCoordinate; }
 
+  // Description:
+  // Set/Get the text property.
+  virtual void SetTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TextProperty,vtkTextProperty);
+  
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -224,6 +148,7 @@ protected:
   int   AlignmentPoint;
 
   vtkCoordinate *AdjustedPositionCoordinate;
+  vtkTextProperty *TextProperty;
 
   vtkTimeStamp  BuildTime;
   int LastSize[2];

@@ -22,16 +22,19 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkScalarsToColors.h"
 #include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkScalarBarActor, "1.41");
+vtkCxxRevisionMacro(vtkScalarBarActor, "1.42");
 vtkStandardNewMacro(vtkScalarBarActor);
 
 vtkCxxSetObjectMacro(vtkScalarBarActor,LookupTable,vtkScalarsToColors);
+vtkCxxSetObjectMacro(vtkScalarBarActor,LabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkScalarBarActor,TitleTextProperty,vtkTextProperty);
 
-// Instantiate object with 64 maximum colors; 5 labels; font size 12
-// of font Arial (bolding, italic, shadows on); %%-#6.3g label
+//----------------------------------------------------------------------------
+// Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
 // format, no title, and vertical orientation. The initial scalar bar
 // size is (0.05 x 0.8) of the viewport size.
 vtkScalarBarActor::vtkScalarBarActor()
@@ -48,15 +51,20 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->Orientation = VTK_ORIENT_VERTICAL;
   this->Title = NULL;
 
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
+  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty->SetFontSize(12);
+  this->LabelTextProperty->SetBold(1);
+  this->LabelTextProperty->SetItalic(1);
+  this->LabelTextProperty->SetShadow(1);
+  this->LabelTextProperty->SetFontFamilyToArial();
+
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
+
   this->LabelFormat = new char[8]; 
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 
   this->TitleMapper = vtkTextMapper::New();
-  this->TitleMapper->SetJustificationToCentered();
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->
@@ -78,6 +86,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastSize[1] = 0;
 }
 
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -94,7 +103,7 @@ void vtkScalarBarActor::ReleaseGraphicsResources(vtkWindow *win)
   this->ScalarBarActor->ReleaseGraphicsResources(win);
 }
 
-
+//----------------------------------------------------------------------------
 vtkScalarBarActor::~vtkScalarBarActor()
 {
   if (this->LabelFormat) 
@@ -128,8 +137,11 @@ vtkScalarBarActor::~vtkScalarBarActor()
     }
   
   this->SetLookupTable(NULL);
+  this->SetLabelTextProperty(NULL);
+  this->SetTitleTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
 {
   int renderedSomething = 0;
@@ -157,6 +169,7 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   int renderedSomething = 0;
@@ -170,9 +183,9 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
 
   // Check to see whether we have to rebuild everything
-  if ( viewport->GetMTime() > this->BuildTime || 
-       ( viewport->GetVTKWindow() && 
-         viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
+  if (viewport->GetMTime() > this->BuildTime || 
+      (viewport->GetVTKWindow() && 
+       viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
     // if the viewport has changed we may - or may not need
     // to rebuild, it depends on if the projected coords chage
@@ -184,7 +197,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     size[1] = 
       this->Position2Coordinate->GetComputedViewportValue(viewport)[1] -
       barOrigin[1];
-    if (this->LastSize[0] != size[0] || this->LastSize[1] != size[1] ||
+    if (this->LastSize[0] != size[0] || 
+        this->LastSize[1] != size[1] ||
         this->LastOrigin[0] != barOrigin[0] || 
         this->LastOrigin[1] != barOrigin[1])
       {
@@ -193,8 +207,10 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     }
   
   // Check to see whether we have to rebuild everything
-  if ( this->GetMTime() > this->BuildTime || 
-       this->LookupTable->GetMTime() > this->BuildTime )
+  if (this->GetMTime() > this->BuildTime || 
+      this->LookupTable->GetMTime() > this->BuildTime ||
+      this->LabelTextProperty->GetMTime() > this->BuildTime ||
+      this->TitleTextProperty->GetMTime() > this->BuildTime)
     {
     vtkDebugMacro(<<"Rebuilding subobjects");
 
@@ -249,19 +265,20 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
     this->LastSize[1] = size[1];
     
     // Update all the composing objects
-    //
-    if (this->Title == NULL )
-      {
-      this->TitleActor->VisibilityOff();
-      }
-    this->TitleActor->VisibilityOn();
+    
     this->TitleActor->SetProperty(this->GetProperty());
     this->TitleMapper->SetInput(this->Title);
-    this->TitleMapper->SetBold(this->Bold);
-    this->TitleMapper->SetItalic(this->Italic);
-    this->TitleMapper->SetShadow(this->Shadow);
-    this->TitleMapper->SetFontFamily(this->FontFamily);
-
+    if (this->TitleTextProperty->GetMTime() > this->BuildTime)
+      {
+      // Shallow copy here so that the size of the title prop is not affected
+      // by the automatic adjustment of its text mapper's size (i.e. its
+      // mapper's text property is identical except for the font size
+      // which will be modified later). This allows text actors to
+      // share the same text property, and in that case specifically allows
+      // the title and label text prop to be the same.
+      this->TitleMapper->GetTextProperty()->ShallowCopy(this->TitleTextProperty);
+      this->TitleMapper->GetTextProperty()->SetJustificationToCentered();
+      }
     
     // find the best size for the title font
     int titleSize[2];
@@ -336,8 +353,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
       for (i=0; i < this->NumberOfLabels; i++)
         {
         val = (float)i/(this->NumberOfLabels-1) *barHeight;
-        this->TextMappers[i]->SetJustificationToLeft();
         this->TextMappers[i]->GetSize(viewport,sizeTextData);
+        this->TextMappers[i]->GetTextProperty()->SetJustificationToLeft();
         this->TextActors[i]->SetPosition(barWidth+3,
                                          val - sizeTextData[1]/2);
         }
@@ -348,8 +365,8 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
                                     barHeight + labelSize[1] + 0.1*size[1]);
       for (i=0; i < this->NumberOfLabels; i++)
         {
+        this->TextMappers[i]->GetTextProperty()->SetJustificationToCentered();
         val = (float)i/(this->NumberOfLabels-1) * barWidth;
-        this->TextMappers[i]->SetJustificationToCentered();
         this->TextActors[i]->SetPosition(val, barHeight + 0.05*size[1]);
         }
       }
@@ -373,6 +390,7 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -385,6 +403,26 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Lookup Table: (none)\n";
+    }
+
+  if (this->TitleTextProperty)
+    {
+    os << indent << "Title Text Property:\n";
+    this->TitleTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Title Text Property: (none)\n";
+    }
+
+  if (this->LabelTextProperty)
+    {
+    os << indent << "Label Text Property:\n";
+    this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Label Text Property: (none)\n";
     }
 
   os << indent << "Title: " << (this->Title ? this->Title : "(none)") << "\n";
@@ -403,26 +441,10 @@ void vtkScalarBarActor::PrintSelf(ostream& os, vtkIndent indent)
     os << "Vertical\n";
     }
 
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
 {
   vtkScalarBarActor *a = vtkScalarBarActor::SafeDownCast(prop);
@@ -432,13 +454,10 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
     this->SetLookupTable(a->GetLookupTable());
     this->SetMaximumNumberOfColors(a->GetMaximumNumberOfColors());
     this->SetOrientation(a->GetOrientation());
-    this->SetBold(a->GetBold());
-    this->SetItalic(a->GetItalic());
-    this->SetShadow(a->GetShadow());
-    this->SetFontFamily(a->GetFontFamily());
+    this->SetLabelTextProperty(a->GetLabelTextProperty());
+    this->SetTitleTextProperty(a->GetTitleTextProperty());
     this->SetLabelFormat(a->GetLabelFormat());
     this->SetTitle(a->GetTitle());
-
     this->GetPositionCoordinate()->SetCoordinateSystem(
       a->GetPositionCoordinate()->GetCoordinateSystem());    
     this->GetPositionCoordinate()->SetValue(
@@ -453,41 +472,56 @@ void vtkScalarBarActor::ShallowCopy(vtkProp *prop)
   this->vtkActor2D::ShallowCopy(prop);
 }
 
-
-void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, int *size,
+//----------------------------------------------------------------------------
+void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, 
+                                              int *size,
                                               vtkViewport *viewport,
                                               float *range)
 {
-  labelSize[0] = 0;
-  labelSize[1] = 0;
-  int fontSize;
-  int tempi[2];
-  
+  labelSize[0] = labelSize[1] = 0;
+
   this->TextMappers = new vtkTextMapper * [this->NumberOfLabels];
   this->TextActors = new vtkActor2D * [this->NumberOfLabels];
+
   char string[512];
+
   float val;
-  int targetWidth, targetHeight;
   int i;
+  
+  // TODO: this should be optimized, maybe by keeping a list of
+  // allocated mappers, in order to avoid creation/destruction of
+  // their underlying text properties (i.e. each time a mapper is
+  // created, text properties are created and shallow-assigned a font size
+  // which value might be "far" from the target font size).
   
   for (i=0; i < this->NumberOfLabels; i++)
     {
     this->TextMappers[i] = vtkTextMapper::New();
+
     val = range[0] + (float)i/(this->NumberOfLabels-1) * (range[1]-range[0]);
     sprintf(string, this->LabelFormat, val);
     this->TextMappers[i]->SetInput(string);
-    this->TextMappers[i]->SetBold(this->Bold);
-    this->TextMappers[i]->SetItalic(this->Italic);
-    this->TextMappers[i]->SetShadow(this->Shadow);
-    this->TextMappers[i]->SetFontFamily(this->FontFamily);
+
+    // Shallow copy here so that the size of the label prop is not affected
+    // by the automatic adjustment of its text mapper's size (i.e. its
+    // mapper's text property is identical except for the font size
+    // which will be modified later). This allows text actors to
+    // share the same text property, and in that case specifically allows
+    // the title and label text prop to be the same.
+    this->TextMappers[i]->GetTextProperty()->ShallowCopy(
+      this->LabelTextProperty);
+
     this->TextActors[i] = vtkActor2D::New();
     this->TextActors[i]->SetMapper(this->TextMappers[i]);
     this->TextActors[i]->SetProperty(this->GetProperty());
     this->TextActors[i]->GetPositionCoordinate()->
       SetReferenceCoordinate(this->PositionCoordinate);
     }
+
   if (this->NumberOfLabels)
     {
+    int targetWidth, targetHeight;
+
     if ( this->Orientation == VTK_ORIENT_VERTICAL )
       {
       targetWidth = (int)(0.6*size[0]);
@@ -498,108 +532,89 @@ void vtkScalarBarActor::AllocateAndSizeLabels(int *labelSize, int *size,
       targetWidth = (int)(size[0]*0.8/this->NumberOfLabels);
       targetHeight = (int)(0.25*size[1]);
       }
-    fontSize = targetWidth;
-    for (i=0; i < this->NumberOfLabels; i++)
-      {
-      this->TextMappers[i]->SetFontSize(fontSize);
-      this->TextMappers[i]->GetSize(viewport,tempi);
-      if (labelSize[0] < tempi[0])
-        {
-        labelSize[0] = tempi[0];
-        }
-      if (labelSize[1] < tempi[1])
-        {
-        labelSize[1] = tempi[1];
-        }
-      }
-    
-    while (labelSize[0] < targetWidth && labelSize[1] < targetHeight && 
-           fontSize < 100 ) 
-      {
-      fontSize++;
-      labelSize[0] = 0;
-      labelSize[1] = 0;
-      for (i=0; i < this->NumberOfLabels; i++)
-        {
-        this->TextMappers[i]->SetFontSize(fontSize);
-        this->TextMappers[i]->GetSize(viewport,tempi);
-        if (labelSize[0] < tempi[0])
-          {
-          labelSize[0] = tempi[0];
-          }
-        if (labelSize[1] < tempi[1])
-          {
-          labelSize[1] = tempi[1];
-          }
-        }
-      }
-    
-    while ((labelSize[0] > targetWidth || 
-            labelSize[1] > targetHeight) && fontSize > 0 )
-      {
-      fontSize--;
-      labelSize[0] = 0;
-      labelSize[1] = 0;
-      for (i=0; i < this->NumberOfLabels; i++)
-        {
-        this->TextMappers[i]->SetFontSize(fontSize);
-        this->TextMappers[i]->GetSize(viewport,tempi);
-        if (labelSize[0] < tempi[0])
-          {
-          labelSize[0] = tempi[0];
-          }
-        if (labelSize[1] < tempi[1])
-          {
-          labelSize[1] = tempi[1];
-          }
-        }
-      }
+
+    vtkTextMapper::SetMultipleConstrainedFontSize(viewport, 
+                                                  targetWidth, 
+                                                  targetHeight,
+                                                  this->TextMappers,
+                                                  this->NumberOfLabels,
+                                                  labelSize);
     }
 }
 
-
-void vtkScalarBarActor::SizeTitle(int *titleSize, int *size, 
+//----------------------------------------------------------------------------
+void vtkScalarBarActor::SizeTitle(int *titleSize, 
+                                  int *size, 
                                   vtkViewport *viewport)
 {
-  int targetWidth, targetHeight;
-  titleSize[0] = 0;    
-  titleSize[1] = 0;
-  int fontSize;
-  int tempi[2];
-  
-  if (this->Title != NULL && (strlen(this->Title) != 0))
+  titleSize[0] = titleSize[1] = 0;
+
+  if (this->Title == NULL || !strlen(this->Title))
     {
-    if ( this->Orientation == VTK_ORIENT_VERTICAL )
-      {
-      targetWidth = size[0];
-      targetHeight = (int)(0.1*size[1]);
-      }
-    else
-      {
-      targetWidth = size[0];
-      targetHeight = (int)(0.25*size[1]);
-      }
-    fontSize = targetWidth;
-    this->TitleMapper->SetFontSize(fontSize);
-    this->TitleMapper->GetSize(viewport,tempi);
-    
-    while (tempi[1] < targetHeight && tempi[0] < targetWidth 
-           && fontSize < 100 ) 
-      {
-      fontSize++;
-      this->TitleMapper->SetFontSize(fontSize);
-      this->TitleMapper->GetSize(viewport,tempi);
-      }
-    
-    while ((tempi[1] > targetHeight || tempi[0] > targetWidth )
-           && fontSize > 0 )
-      {
-      fontSize--;
-      this->TitleMapper->SetFontSize(fontSize);
-      this->TitleMapper->GetSize(viewport,tempi);
-      }
-    titleSize[0] = tempi[0];
-    titleSize[1] = tempi[1];
+    return;
     }
+
+  int targetWidth, targetHeight;
+  
+  targetWidth = size[0];
+  if ( this->Orientation == VTK_ORIENT_VERTICAL )
+    {
+    targetHeight = (int)(0.1*size[1]);
+    }
+  else
+    {
+    targetHeight = (int)(0.25*size[1]);
+    }
+
+  this->TitleMapper->SetConstrainedFontSize(
+    viewport, targetWidth, targetHeight);
+
+  this->TitleMapper->GetSize(viewport, titleSize);
 }
 
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+void vtkScalarBarActor::SetFontFamily(int val) 
+{ 
+  this->LabelTextProperty->SetFontFamily(val); 
+  this->TitleTextProperty->SetFontFamily(val); 
+}
+
+int vtkScalarBarActor::GetFontFamily()
+{ 
+  return this->LabelTextProperty->GetFontFamily(); 
+}
+
+void vtkScalarBarActor::SetBold(int val)
+{ 
+  this->LabelTextProperty->SetBold(val); 
+  this->TitleTextProperty->SetBold(val); 
+}
+
+int vtkScalarBarActor::GetBold()
+{ 
+  return this->LabelTextProperty->GetBold(); 
+}
+
+void vtkScalarBarActor::SetItalic(int val)
+{ 
+  this->LabelTextProperty->SetItalic(val); 
+  this->TitleTextProperty->SetItalic(val); 
+}
+
+int vtkScalarBarActor::GetItalic()
+{ 
+  return this->LabelTextProperty->GetItalic(); 
+}
+
+void vtkScalarBarActor::SetShadow(int val)
+{ 
+  this->LabelTextProperty->SetShadow(val); 
+  this->TitleTextProperty->SetShadow(val); 
+}
+
+int vtkScalarBarActor::GetShadow()
+{ 
+  return this->LabelTextProperty->GetShadow(); 
+}

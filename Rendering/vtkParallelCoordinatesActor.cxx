@@ -20,14 +20,19 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkTextMapper.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
+#include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.21");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.22");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
+vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,LabelTextProperty,vtkTextProperty);
+vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,TitleTextProperty,vtkTextProperty);
 
+//----------------------------------------------------------------------------
 // Instantiate object
 vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
 {
@@ -36,36 +41,52 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   
   this->Position2Coordinate->SetValue(0.9, 0.8);
   
-  this->Input = NULL;
   this->IndependentVariables = VTK_IV_COLUMN;
   this->N = 0;
+
+  this->Input = NULL;
   this->Axes = NULL; 
   this->Mins = NULL;
   this->Maxs = NULL;
   this->Xs = NULL;
 
   this->Title = NULL;
+
   this->TitleMapper = vtkTextMapper::New();
-  this->TitleMapper->SetJustificationToCentered();
+
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
   this->PlotData = vtkPolyData::New();
+
   this->PlotMapper = vtkPolyDataMapper2D::New();
   this->PlotMapper->SetInput(this->PlotData);
+
   this->PlotActor = vtkActor2D::New();
   this->PlotActor->SetMapper(this->PlotMapper);
 
   this->NumberOfLabels = 2;
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
+
+  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty->SetBold(1);
+  this->LabelTextProperty->SetItalic(1);
+  this->LabelTextProperty->SetShadow(1);
+  this->LabelTextProperty->SetFontFamilyToArial();
+
+  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
+
   this->LabelFormat = new char[8]; 
   sprintf(this->LabelFormat,"%s","%-#6.3g");
+
+  this->LastPosition[0] = 
+    this->LastPosition[1] = 
+    this->LastPosition2[0] = 
+    this->LastPosition2[1] = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 {
   this->TitleMapper->Delete();
@@ -96,8 +117,12 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
     delete [] this->LabelFormat;
     this->LabelFormat = NULL;
     }
+
+  this->SetLabelTextProperty(NULL);
+  this->SetTitleTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
 // Free-up axes and related stuff
 void vtkParallelCoordinatesActor::Initialize()
 {
@@ -119,6 +144,7 @@ void vtkParallelCoordinatesActor::Initialize()
   this->N = 0;
 }
 
+//----------------------------------------------------------------------------
 // Plot scalar data for each input dataset.
 int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
 {
@@ -147,53 +173,97 @@ int vtkParallelCoordinatesActor::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+//----------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  int renderedSomething=0;
-  unsigned long mtime;
+  int renderedSomething = 0;
 
   // Initialize
-  vtkDebugMacro(<<"Plotting parallel coordinates");
 
+  vtkDebugMacro(<<"Plotting parallel coordinates");
+  
   // Make sure input is up to date, and that the data is the correct shape to
   // plot.
-  if ( !this->Input  )
+
+  if (!this->Input)
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return renderedSomething;
     }
 
-  // Check modified time to see whether we have to rebuild.
-  this->Input->Update();
-  mtime = this->Input->GetMTime();
+  // Viewport change may not require rebuild
 
-  if ( mtime > this->BuildTime || 
-       viewport->GetMTime() > this->BuildTime ||
-       this->GetMTime() > this->BuildTime )
+  if (viewport->GetMTime() > this->BuildTime || 
+      (viewport->GetVTKWindow() && 
+       viewport->GetVTKWindow()->GetMTime() > this->BuildTime))
     {
-    int *size=viewport->GetSize();
-    int stringWidth, stringHeight;
+    int *lastPosition = 
+      this->PositionCoordinate->GetComputedViewportValue(viewport);
+    int *lastPosition2 =
+      this->Position2Coordinate->GetComputedViewportValue(viewport);
+    if (lastPosition[0] != this->LastPosition[0] ||
+        lastPosition[1] != this->LastPosition[1] ||
+        lastPosition2[0] != this->LastPosition2[0] ||
+        lastPosition2[1] != this->LastPosition2[1] )
+      {
+      this->LastPosition[0] = lastPosition[0];
+      this->LastPosition[1] = lastPosition[1];
+      this->LastPosition2[0] = lastPosition2[0];
+      this->LastPosition2[1] = lastPosition2[1];
+      this->Modified();
+      }
+    }
+  
+  // Check modified time to see whether we have to rebuild.
+
+  this->Input->Update();
+
+  if (this->GetMTime() > this->BuildTime ||
+      this->Input->GetMTime() > this->BuildTime ||
+      this->LabelTextProperty->GetMTime() > this->BuildTime ||
+      this->TitleTextProperty->GetMTime() > this->BuildTime)
+    {
+    int *size = viewport->GetSize();
+    int stringSize[2];
 
     vtkDebugMacro(<<"Rebuilding plot");
 
-    if ( !this->PlaceAxes(viewport, size) )
+    // Build axes
+
+    if (!this->PlaceAxes(viewport, size))
       {
       return renderedSomething;
       }
 
+    // Build title
+
     this->TitleMapper->SetInput(this->Title);
-    this->TitleMapper->SetBold(this->Bold);
-    this->TitleMapper->SetItalic(this->Italic);
-    this->TitleMapper->SetShadow(this->Shadow);
-    this->TitleMapper->SetFontFamily(this->FontFamily);
-    vtkAxisActor2D::SetFontSize(viewport, this->TitleMapper, size, 1.0,
-                                stringWidth, stringHeight);
+
+    if (this->TitleTextProperty->GetMTime() > this->BuildTime)
+      {
+      // Shallow copy here since the justification is changed but we still
+      // want to allow actors to share the same text property, and in that case
+      // specifically allow the title and label text prop to be the same.
+      this->TitleMapper->GetTextProperty()->ShallowCopy(
+        this->TitleTextProperty);
+      this->TitleMapper->GetTextProperty()->SetJustificationToCentered();
+      }
+
+    // We could do some caching here, but hey, that's just the title
+
+    vtkAxisActor2D::SetFontSize(viewport, 
+                                this->TitleMapper, 
+                                size, 
+                                1.0,
+                                stringSize);
+
     this->TitleActor->GetPositionCoordinate()->
-      SetValue((this->Xs[0]+this->Xs[this->N-1])/2.0,this->YMax+stringHeight/2.0);
+      SetValue((this->Xs[0]+this->Xs[this->N-1])/2.0,this->YMax+stringSize[1]/2.0);
     this->TitleActor->SetProperty(this->GetProperty());
 
     this->BuildTime.Modified();
-    }//if need to rebuild the plot
+
+    } // If need to rebuild the plot
 
   if ( this->Title != NULL )
     {
@@ -211,7 +281,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
   return renderedSomething;
 }
 
-
+//----------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
 {
   vtkIdType i, j, id;
@@ -306,6 +376,13 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     }
 
   // Allocate space and create axes
+
+  // TODO: this should be optimized, maybe by keeping a list of allocated
+  // objects, in order to avoid creation/destruction of axis actors
+  // and their underlying text properties (i.e. each time an axis is 
+  // created, text properties are created and shallow-assigned a
+  // font size which value might be "far" from the target font size).
+  
   this->Axes = new vtkAxisActor2D* [this->N];
   for (i=0; i<this->N; i++)
     {
@@ -315,12 +392,13 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
     this->Axes[i]->SetRange(this->Mins[i],this->Maxs[i]);
     this->Axes[i]->AdjustLabelsOff();
     this->Axes[i]->SetNumberOfLabels(this->NumberOfLabels);
-    this->Axes[i]->SetBold(this->Bold);
-    this->Axes[i]->SetItalic(this->Italic);
-    this->Axes[i]->SetShadow(this->Shadow);
-    this->Axes[i]->SetFontFamily(this->FontFamily);
     this->Axes[i]->SetLabelFormat(this->LabelFormat);
     this->Axes[i]->SetProperty(this->GetProperty());
+    // We do not need shallow copy here since we do not modify any attributes
+    // in that class and we know that vtkAxisActor2D use ShallowCopy internally
+    // so that the size of the text prop is not affected by the automatic
+    // adjustment of its text mapper's size.
+    this->Axes[i]->SetLabelTextProperty(this->LabelTextProperty);
     }
   this->Xs = new int [this->N];
 
@@ -404,7 +482,7 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
   return 1;
 }
 
-
+//----------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -417,9 +495,30 @@ void vtkParallelCoordinatesActor::ReleaseGraphicsResources(vtkWindow *win)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  if (this->TitleTextProperty)
+    {
+    os << indent << "Title Text Property:\n";
+    this->TitleTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Title Text Property: (none)\n";
+    }
+
+  if (this->LabelTextProperty)
+    {
+    os << indent << "Label Text Property:\n";
+    this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Label Text Property: (none)\n";
+    }
 
   os << indent << "Input: " << this->Input << "\n";
   os << indent << "Position2 Coordinate: " 
@@ -440,22 +539,52 @@ void vtkParallelCoordinatesActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Number Of Labels: " << this->NumberOfLabels << "\n";
 
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
+}
+
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+void vtkParallelCoordinatesActor::SetFontFamily(int val) 
+{ 
+  this->LabelTextProperty->SetFontFamily(val); 
+  this->TitleTextProperty->SetFontFamily(val); 
+}
+
+int vtkParallelCoordinatesActor::GetFontFamily()
+{ 
+  return this->TitleTextProperty->GetFontFamily(); 
+}
+
+void vtkParallelCoordinatesActor::SetBold(int val)
+{ 
+  this->LabelTextProperty->SetBold(val); 
+  this->TitleTextProperty->SetBold(val); 
+}
+
+int vtkParallelCoordinatesActor::GetBold()
+{ 
+  return this->TitleTextProperty->GetBold(); 
+}
+
+void vtkParallelCoordinatesActor::SetItalic(int val)
+{ 
+  this->LabelTextProperty->SetItalic(val); 
+  this->TitleTextProperty->SetItalic(val); 
+}
+
+int vtkParallelCoordinatesActor::GetItalic()
+{ 
+  return this->TitleTextProperty->GetItalic(); 
+}
+
+void vtkParallelCoordinatesActor::SetShadow(int val)
+{ 
+  this->LabelTextProperty->SetShadow(val); 
+  this->TitleTextProperty->SetShadow(val); 
+}
+
+int vtkParallelCoordinatesActor::GetShadow()
+{ 
+  return this->TitleTextProperty->GetShadow(); 
 }

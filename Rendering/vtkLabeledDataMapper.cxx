@@ -17,31 +17,29 @@
 =========================================================================*/
 #include "vtkLabeledDataMapper.h"
 
+#include "vtkActor2D.h"
 #include "vtkDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkTextMapper.h"
+#include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.29");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.30");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
+vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
 
+//----------------------------------------------------------------------------
+// Creates a new label mapper
 
-// Instantiate object with font size 12 of font Arial (bolding,
-// italic, shadows on) and %%-#6.3g label format. By default, point ids
-// are labeled.
 vtkLabeledDataMapper::vtkLabeledDataMapper()
 {
   this->Input = NULL;
   this->LabelMode = VTK_LABEL_IDS;
 
-  this->FontSize = 12;
-  this->Bold = 1;
-  this->Italic = 1;
-  this->Shadow = 1;
-  this->FontFamily = VTK_ARIAL;
   this->LabelFormat = new char[8]; 
   strcpy(this->LabelFormat,"%g");
+
   this->LabeledComponent = (-1);
   this->FieldDataArray = 0;
  
@@ -53,22 +51,16 @@ vtkLabeledDataMapper::vtkLabeledDataMapper()
     {
     this->TextMappers[i] = vtkTextMapper::New();
     }
+
+  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty->SetFontSize(12);
+  this->LabelTextProperty->SetBold(1);
+  this->LabelTextProperty->SetItalic(1);
+  this->LabelTextProperty->SetShadow(1);
+  this->LabelTextProperty->SetFontFamilyToArial();
 }
 
-// Release any graphics resources that are being consumed by this actor.
-// The parameter window could be used to determine which graphic
-// resources to release.
-void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
-{
-  if (this->TextMappers != NULL )
-    {
-    for (int i=0; i < this->NumberOfLabelsAllocated; i++)
-      {
-      this->TextMappers[i]->ReleaseGraphicsResources(win);
-      }
-    }
-}
-
+//----------------------------------------------------------------------------
 vtkLabeledDataMapper::~vtkLabeledDataMapper()
 {
   if (this->LabelFormat)
@@ -86,8 +78,26 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
     }
   
   this->SetInput(NULL);
+  this->SetLabelTextProperty(NULL);
 }
 
+//----------------------------------------------------------------------------
+// Release any graphics resources that are being consumed by this actor.
+// The parameter window could be used to determine which graphic
+// resources to release.
+
+void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
+{
+  if (this->TextMappers != NULL )
+    {
+    for (int i=0; i < this->NumberOfLabelsAllocated; i++)
+      {
+      this->TextMappers[i]->ReleaseGraphicsResources(win);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport, 
                                          vtkActor2D *actor)
 {
@@ -109,6 +119,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport, 
                                                 vtkActor2D *actor)
 {
@@ -129,9 +140,12 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   input->Update();
 
+  vtkTextProperty *tprop = this->LabelTextProperty;
+
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
-       input->GetMTime() > this->BuildTime ) 
+       input->GetMTime() > this->BuildTime ||
+       tprop->GetMTime() > this->BuildTime)
     {
     vtkDebugMacro(<<"Rebuilding labels");
 
@@ -250,11 +264,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         }
 
       this->TextMappers[i]->SetInput(string);
-      this->TextMappers[i]->SetFontSize(this->FontSize);
-      this->TextMappers[i]->SetBold(this->Bold);
-      this->TextMappers[i]->SetItalic(this->Italic);
-      this->TextMappers[i]->SetShadow(this->Shadow);
-      this->TextMappers[i]->SetFontFamily(this->FontFamily);
+      this->TextMappers[i]->SetTextProperty(tprop);
       }
 
     if ( data )
@@ -274,6 +284,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -285,6 +296,16 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Input: (none)\n";
+    }
+
+  if (this->LabelTextProperty)
+    {
+    os << indent << "Label Text Property:\n";
+    this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Label Text Property: (none)\n";
     }
 
   os << indent << "Label Mode: ";
@@ -317,24 +338,6 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     os << "Label Field Data\n";
     }
 
-  os << indent << "Font Family: ";
-  if ( this->FontFamily == VTK_ARIAL )
-    {
-    os << "Arial\n";
-    }
-  else if ( this->FontFamily == VTK_COURIER )
-    {
-    os << "Courier\n";
-    }
-  else
-    {
-    os << "Times\n";
-    }
-
-  os << indent << "Font Size: " << this->FontSize << "\n";
-  os << indent << "Bold: " << (this->Bold ? "On\n" : "Off\n");
-  os << indent << "Italic: " << (this->Italic ? "On\n" : "Off\n");
-  os << indent << "Shadow: " << (this->Shadow ? "On\n" : "Off\n");
   os << indent << "Label Format: " << this->LabelFormat << "\n";
 
   os << indent << "Labeled Component: ";
@@ -348,4 +351,57 @@ void vtkLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   os << indent << "Field Data Array: " << this->FieldDataArray << "\n";
+}
+
+//----------------------------------------------------------------------------
+// Backward compatibility calls
+
+void vtkLabeledDataMapper::SetFontFamily(int val) 
+{ 
+  this->LabelTextProperty->SetFontFamily(val); 
+}
+
+int vtkLabeledDataMapper::GetFontFamily()
+{ 
+  return this->LabelTextProperty->GetFontFamily(); 
+}
+
+void vtkLabeledDataMapper::SetFontSize(int size) 
+{ 
+  this->LabelTextProperty->SetFontSize(size); 
+}
+
+int vtkLabeledDataMapper::GetFontSize()
+{ 
+  return this->LabelTextProperty->GetFontSize(); 
+}
+
+void vtkLabeledDataMapper::SetBold(int val)
+{ 
+  this->LabelTextProperty->SetBold(val); 
+}
+
+int vtkLabeledDataMapper::GetBold()
+{ 
+  return this->LabelTextProperty->GetBold(); 
+}
+
+void vtkLabeledDataMapper::SetItalic(int val)
+{ 
+  this->LabelTextProperty->SetItalic(val); 
+}
+
+int vtkLabeledDataMapper::GetItalic()
+{ 
+  return this->LabelTextProperty->GetItalic(); 
+}
+
+void vtkLabeledDataMapper::SetShadow(int val)
+{ 
+  this->LabelTextProperty->SetShadow(val); 
+}
+
+int vtkLabeledDataMapper::GetShadow()
+{ 
+  return this->LabelTextProperty->GetShadow(); 
 }

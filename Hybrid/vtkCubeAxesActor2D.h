@@ -25,11 +25,14 @@
 // the edges closest to the viewer (i.e., camera position) can be drawn.
 // 
 // To use this object you must define a bounding box and the camera used
-// to render the vtkCubeAxesActor2D. You may optionally define font family,
-// font size, bolding on/off, italics on/off, and text shadows on/off. (The
-// camera is used to control the scaling and position of the
-// vtkCubeAxesActor2D so that it fits in the viewport and always remains
-// visible.)
+// to render the vtkCubeAxesActor2D. The camera is used to control the 
+// scaling and position of the vtkCubeAxesActor2D so that it fits in the
+// viewport and always remains visible.)
+//
+// The font property of the axes titles and labels can be modified through the
+// AxisTitleTextProperty and AxisLabelTextProperty attributes. You may also
+// use the GetXAxisActor2D, GetYAxisActor2D or GetZAxisActor2D methods 
+// to access each individual axis actor to modify their font properties.
 //
 // The bounding box to use is defined in one of three ways. First, if the Input
 // ivar is defined, then the input dataset's bounds is used. If the Input is 
@@ -38,7 +41,7 @@
 // Bounds instance variable (an array of six floats) is used.
 // 
 // .SECTION See Also
-// vtkActor2D vtkAxis2DActor vtkXYPlotActor
+// vtkActor2D vtkAxis2DActor vtkXYPlotActor vtkTextProperty
 
 #ifndef __vtkCubeAxesActor2D_h
 #define __vtkCubeAxesActor2D_h
@@ -48,9 +51,10 @@
 #define VTK_FLY_OUTER_EDGES 0
 #define VTK_FLY_CLOSEST_TRIAD 1
 
+class vtkAxisActor2D;
 class vtkCamera;
 class vtkDataSet;
-class vtkAxisActor2D;
+class vtkTextProperty;
 
 class VTK_HYBRID_EXPORT vtkCubeAxesActor2D : public vtkActor2D
 {
@@ -155,34 +159,62 @@ public:
   vtkGetStringMacro(ZLabel);
 
   // Description:
-  // Enable/Disable bolding annotation text.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Retrieve handles to the X, Y and Z axis (so that you can set their text
+  // properties for example)
+  vtkAxisActor2D *GetXAxisActor2D()
+    {return this->XAxis;}
+  vtkAxisActor2D *GetYAxisActor2D()
+    {return this->YAxis;}
+  vtkAxisActor2D *GetZAxisActor2D()
+    {return this->ZAxis;}
+
+  // Description:
+  // Set/Get the title text property of all axes. Note that each axis can
+  // be controlled individually through the GetX/Y/ZAxisActor2D() methods.
+  virtual void SetAxisTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(AxisTitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the labels text property of all axes. Note that each axis can
+  // be controlled individually through the GetX/Y/ZAxisActor2D() methods.
+  virtual void SetAxisLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(AxisLabelTextProperty,vtkTextProperty);
+      
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing annotation text.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the annotation text. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
+  
   // Description:
   // Set/Get the format with which to print the labels on each of the
   // x-y-z axes.
@@ -205,7 +237,7 @@ public:
   // Description:
   // Specify an offset value to "pull back" the axes from the corner at
   // which they are joined to avoid overlap of axes labels. The 
-  // "COrnerOffset" is the fraction of the axis length to pull back.
+  // "CornerOffset" is the fraction of the axis length to pull back.
   vtkSetMacro(CornerOffset, float);
   vtkGetMacro(CornerOffset, float);
 
@@ -249,6 +281,11 @@ protected:
   vtkAxisActor2D *YAxis;
   vtkAxisActor2D *ZAxis;
   
+  vtkTextProperty *AxisTitleTextProperty;
+  vtkTextProperty *AxisLabelTextProperty;
+
+  vtkTimeStamp  BuildTime;
+
   int   NumberOfLabels;
   char *XLabel;
   char *YLabel;

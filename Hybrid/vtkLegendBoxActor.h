@@ -25,7 +25,8 @@
 // To use this class, you must define the position of the legend box by using
 // the superclasses' vtkActor2D::Position coordinate and
 // Position2 coordinate. Then define the set of symbols and text strings that
-// make up the menu box (as well as properties such as font). The class will
+// make up the menu box. The font attributes of the entries can be set through
+// the vtkTextProperty associated to this actor. The class will
 // scale the symbols and text to fit in the legend box defined by
 // (Position,Position2). Optional features like turning on a border line and
 // setting the spacing between the border and the symbols/text can also be
@@ -45,8 +46,10 @@ class vtkPolyData;
 class vtkPolyDataMapper2D;
 class vtkPolyDataMapper;
 class vtkTextMapper;
+class vtkTextProperty;
 class vtkTransform;
 class vtkTransformPolyDataFilter;
+class vtkProperty2D;
 
 class VTK_HYBRID_EXPORT vtkLegendBoxActor : public vtkActor2D
 {
@@ -84,33 +87,44 @@ public:
   float *GetEntryColor(int i);
 
   // Description:
-  // Enable/Disable bolding legend entries.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Set/Get the text property.
+  virtual void SetEntryTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(EntryTextProperty,vtkTextProperty);
+
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)EntryTextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)EntryTextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing legend entries.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)EntryTextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the legend entries. Shadows make
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)EntryTextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the legend entries. Three font types
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
 
   // Description:
   // Set/Get the flag that controls whether a border will be drawn
@@ -129,6 +143,17 @@ public:
   vtkSetMacro(LockBorder, int);
   vtkGetMacro(LockBorder, int);
   vtkBooleanMacro(LockBorder, int);
+
+  // Description:
+  // Set/Get the flag that controls whether a box will be drawn/filled
+  // corresponding to the legend box.
+  vtkSetMacro(Box, int);
+  vtkGetMacro(Box, int);
+  vtkBooleanMacro(Box, int);
+
+  // Description:
+  // Get the box vtkProperty2D.
+  vtkProperty2D* GetBoxProperty() { return this->BoxActor->GetProperty(); };
 
   // Description:
   // Set/Get the padding between the legend entries and the border. The value
@@ -173,14 +198,13 @@ protected:
 
   void InitializeEntries();
 
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
+
   int   Border;
+  int   Box;
   int   Padding;
   int   LockBorder;
   int   ScalarVisibility;
+  float BoxOpacity;
 
   // Internal actors, mappers, data to represent the legend
   int                        NumberOfEntries;
@@ -196,6 +220,10 @@ protected:
   vtkPolyData                *BorderPolyData;
   vtkPolyDataMapper2D        *BorderMapper;
   vtkActor2D                 *BorderActor;
+  vtkPolyData                *BoxPolyData;
+  vtkPolyDataMapper2D        *BoxMapper;
+  vtkActor2D                 *BoxActor;
+  vtkTextProperty            *EntryTextProperty;
 
   // Used to control whether the stuff is recomputed
   int           LegendEntriesVisible;

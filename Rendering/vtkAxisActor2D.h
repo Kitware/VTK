@@ -24,10 +24,8 @@
 // points defining the start and end points of the line (x-y definition using
 // vtkCoordinate class), the number of labels, and the data range
 // (min,max). You can also control what parts of the axis are visible
-// including the line, the tick marks, the labels, and the title. It is also
-// possible to control the font family, the font style (bold and/or italic),
-// and whether font shadows are drawn. You can also specify the label format
-// (a printf style format).
+// including the line, the tick marks, the labels, and the title.  You can 
+// also specify the label format (a printf style format).
 //
 // This class decides what font size to use and how to locate the labels. It
 // also decides how to create reasonable tick marks and labels. The number
@@ -43,11 +41,14 @@
 // What this means is that you can specify the axis in a variety of coordinate
 // systems. Also, the axis does not have to be either horizontal or vertical.
 // The tick marks are created so that they are perpendicular to the axis.
-
+//
+// Set the text property/attributes of the title and the labels through the 
+// vtkTextProperty objects associated to this actor.
+//
 // .SECTION See Also
 // vtkAxisActor3D can be used to create axes in world coordinate space.
 // vtkActor2D vtkTextMapper vtkPolyDataMapper2D vtkScalarBarActor
-// vtkCoordinate
+// vtkCoordinate vtkTextProperty
 
 #ifndef __vtkAxisActor2D_h
 #define __vtkAxisActor2D_h
@@ -57,6 +58,7 @@
 class vtkPolyDataMapper2D;
 class vtkPolyData;
 class vtkTextMapper;
+class vtkTextProperty;
 
 #define VTK_MAX_LABELS 25
 
@@ -111,34 +113,50 @@ public:
   vtkGetStringMacro(Title);
 
   // Description:
-  // Enable/Disable bolding annotation text.
-  vtkSetMacro(Bold, int);
-  vtkGetMacro(Bold, int);
+  // Set/Get the title text property.
+  virtual void SetTitleTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  
+  // Description:
+  // Set/Get the labels text property.
+  virtual void SetLabelTextProperty(vtkTextProperty *p);
+  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+      
+  // Description:
+  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
+  // Courier (VTK_COURIER), and Times (VTK_TIMES).
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetFontFamily(int val);
+  virtual int GetFontFamily();
+  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
+  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
+  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
+
+  // Description:
+  // Enable/disable text bolding.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetBold(int val);
+  virtual int GetBold();
   vtkBooleanMacro(Bold, int);
 
   // Description:
-  // Enable/Disable italicizing annotation text.
-  vtkSetMacro(Italic, int);
-  vtkGetMacro(Italic, int);
+  // Enable/disable text italic.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetItalic(int val);
+  virtual int GetItalic();
   vtkBooleanMacro(Italic, int);
 
   // Description:
-  // Enable/Disable creating shadows on the annotation text. Shadows make 
-  // the text easier to read.
-  vtkSetMacro(Shadow, int);
-  vtkGetMacro(Shadow, int);
+  // Enable/disable text shadows.
+  // Warning: these functions remain for backward compatibility. Use the
+  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
+  virtual void SetShadow(int val);
+  virtual int GetShadow();
   vtkBooleanMacro(Shadow, int);
-
-  // Description:
-  // Set/Get the font family for the annotation text. Three font types 
-  // are available: Arial (VTK_ARIAL), Courier (VTK_COURIER), and 
-  // Times (VTK_TIMES).
-  vtkSetMacro(FontFamily, int);
-  vtkGetMacro(FontFamily, int);
-  void SetFontFamilyToArial() {this->SetFontFamily(VTK_ARIAL);};
-  void SetFontFamilyToCourier() {this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes() {this->SetFontFamily(VTK_TIMES);};
-
+  
   // Description:
   // Set/Get the length of the tick marks (expressed in pixels or display
   // coordinates). 
@@ -210,19 +228,30 @@ public:
   // is (0.25,96.7) and the number of ticks requested is 10, the output range
   // will be (0,100) with the number of computed ticks to 11 to yield tick
   // values of (0,10,20,...,100).
-  static void ComputeRange(float inRange[2], float outRange[2],
-                           int inNumTicks, int &outNumTicks, float &interval);
+  static void ComputeRange(float inRange[2], 
+                           float outRange[2],
+                           int inNumTicks, 
+                           int &outNumTicks, 
+                           float &interval);
 
   // Description:
-  // General method computes font size from a representative size on the 
+  // General method to computes font size from a representative size on the 
   // viewport (given by size[2]). The method returns the font size (in points)
   // and the string height/width (in pixels). It also sets the font size of the
   // instance of vtkTextMapper provided. The factor is used when you're trying
-  // to create text of different size-factor is usually =1 but you can
-  // adjust the font size by making factor larger or smaller.
-  static int SetFontSize(vtkViewport *viewport, vtkTextMapper *textMapper, 
-                         int *size, float factor, 
-                         int &stringWidth, int &stringHeight);
+  // to create text of different size-factor (it is usually = 1 but you can
+  // adjust the font size by making factor larger or smaller).
+  static int SetFontSize(vtkViewport *viewport, 
+                         vtkTextMapper *textMapper, 
+                         int *targetSize, 
+                         float factor, 
+                         int *stringSize);
+  static int SetMultipleFontSize(vtkViewport *viewport, 
+                                 vtkTextMapper **textMappers, 
+                                 int nbOfMappers, 
+                                 int *targetSize,
+                                 float factor, 
+                                 int *stringSize);
 
   // Description:
   // Shallow copy of an axis actor. Overloads the virtual vtkProp method.
@@ -234,6 +263,10 @@ protected:
 
   vtkCoordinate *Point1Coordinate;
   vtkCoordinate *Point2Coordinate;
+
+  vtkTextProperty *TitleTextProperty;
+  vtkTextProperty *LabelTextProperty;
+
   char  *Title;
   float Range[2];
   int   NumberOfLabels;
@@ -245,11 +278,6 @@ protected:
   int   TickLength;
   int   TickOffset;
 
-  int   Bold;
-  int   Italic;
-  int   Shadow;
-  int   FontFamily;
-  
   int   AxisVisibility;
   int   TickVisibility;
   int   LabelVisibility;
@@ -278,6 +306,7 @@ protected:
   vtkActor2D          *AxisActor;
 
   vtkTimeStamp  BuildTime;
+
 private:
   vtkAxisActor2D(const vtkAxisActor2D&);  // Not implemented.
   void operator=(const vtkAxisActor2D&);  // Not implemented.
