@@ -18,7 +18,8 @@ ABSTRACT =
 
 CONCRETE = \
 vtkEarthSource \
-vtkIVWriter
+vtkIVWriter \
+vtkOBJReader
 
 #------------------------------------------------------------------------------
 # Include the generated targets
