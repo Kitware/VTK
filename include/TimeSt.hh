@@ -10,6 +10,7 @@ class vlTimeStamp
 public:
   vlTimeStamp() {this->ModifiedTime = ++vlTime;};
   void Modified() {this->ModifiedTime = ++vlTime;};
+  unsigned long int GetMtime() {return ModifiedTime;};
   int operator>(vlTimeStamp& ts) 
     {return (this->ModifiedTime > ts.ModifiedTime);};
   int operator<(vlTimeStamp& ts) 
