@@ -39,8 +39,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
 #include <iostream.h>
-#include <unistd.h>
 #include "vtkVideoSource.h"
 #include "vtkObjectFactory.h"
 
@@ -528,12 +528,13 @@ static void *vtkVideoSourceGrabThread(struct ThreadInfoStruct *data)
 #ifdef _WIN32
       Sleep((int)(1000*remaining));
 #else
-      usleep((int)(1000000*remaining));
+      struct timespec sleep_time, dummy;
+      sleep_time.tv_sec = (int)remaining;
+      sleep_time.tv_nsec = (int)(1000000000*(remaining-sleep_time.tv_sec));
+      nanosleep(&sleep_time,&dummy);
 #endif
       }
     }
-
-  return NULL;
 }
 
 //----------------------------------------------------------------------------
