@@ -26,6 +26,11 @@ shrink SetNumberOfThreads 1
 
 vtkImageViewer viewer
 #viewer DebugOn
+<<<<<<< TestShrink3D.tcl
+viewer SetAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS $VTK_IMAGE_Z_AXIS
+puts "[[shrink GetOutput] Print]"
+=======
+>>>>>>> 1.17
 viewer SetInput [shrink GetOutput]
 viewer SetZSlice 11
 viewer SetColorWindow 2000

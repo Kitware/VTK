@@ -14,13 +14,13 @@ reader SetDataExtent 0 255 0 255 1 93
 reader SetFilePrefix "../../../vtkdata/fullHead/headsq"
 reader SetDataMask 0x7fff
 
-vtkImageElipsoidSource elipsoid
-elipsoid SetWholeExtent 0 255 0 255 0 44
-elipsoid SetCenter 127 127 22
-elipsoid SetRadius 100 100 100
-elipsoid SetOutValue 0
-elipsoid SetInValue 200
-elipsoid SetOutputScalarTypeToFloat
+vtkImageEllipsoidSource ellipsoid
+ellipsoid SetWholeExtent 0 255 0 255 0 44
+ellipsoid SetCenter 127 127 22
+ellipsoid SetRadius 100 100 100
+ellipsoid SetOutValue 0
+ellipsoid SetInValue 200
+ellipsoid SetOutputScalarTypeToFloat
 
 vtkImageGaussianSource gauss
 gauss SetWholeExtent 0 255 0 255 0 44 0 0
@@ -30,7 +30,7 @@ gauss SetMaximum 8000.0
 
 vtkImageGradient gradient
 gradient SetInput [reader GetOutput]
-#gradient SetInput [elipsoid GetOutput]
+#gradient SetInput [ellipsoid GetOutput]
 #gradient SetInput [gauss GetOutput]
 gradient SetFilteredAxes $VTK_IMAGE_X_AXIS $VTK_IMAGE_Y_AXIS
 gradient ReleaseDataFlagOff

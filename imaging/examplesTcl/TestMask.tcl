@@ -14,7 +14,7 @@ reader SetDataMask 0x7fff
 reader SetOutputScalarType $VTK_SHORT
 reader DebugOn
 
-vtkImageElipsoidSource sphere
+vtkImageEllipsoidSource sphere
 sphere SetWholeExtent 0 255 0 255 1 94
 sphere SetCenter 128 128 46
 sphere SetRadius 80 80 80

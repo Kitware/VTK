@@ -1,5 +1,5 @@
 catch {load vtktcl}
-# A script to test the ElipsoidSource
+# A script to test the SinusoidSource
 
 source vtkImageInclude.tcl
 
