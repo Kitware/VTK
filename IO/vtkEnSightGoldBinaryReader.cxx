@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.57.2.1");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.57.2.2");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -209,15 +209,19 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
     {
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing at 1.
-    realId = this->InsertNewPartId(partId);
     if (partId < 0 || partId >= MAXIMUM_PART_ID)
       {
       vtkErrorMacro("Invalid part id; check that ByteOrder is set correctly.");
       return 0;
       }
+    realId = this->InsertNewPartId(partId);
     
     this->ReadLine(line); // part description line
     char *name = strdup(line);
+    if (strncmp(line, "interface", 9) == 0)
+      {
+      return 1; // ignore it and move on
+      }
     this->ReadLine(line);
     
     if (strncmp(line, "block", 5) == 0)
@@ -2893,6 +2897,12 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
       }
     else if (strncmp(line, "END TIME STEP", 13) == 0)
       {
+      return 1;
+      }
+    else if (this->IS->fail())
+      {
+      //May want consistency check here?
+      //vtkWarningMacro("EOF on geometry file");
       return 1;
       }
     else

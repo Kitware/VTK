@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.64.2.3");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.64.2.4");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -286,6 +286,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   char line[256], subLine[256], subLine1[256], subLine2[256], binaryLine[81];
   int stringRead;
   int timeSet = 1, fileSet = 1;
+  int xtimeSet= 1, xfileSet= 1;
   char *fileName = NULL;
   
   if (!this->CaseFileName)
@@ -344,13 +345,15 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             this->ReadNextDataLine(line);
             if (strncmp(line, "model:", 6) == 0)
               {
-              if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet,
-                         subLine) == 3)
+              if (sscanf(line, " %*s %d %d %s", &xtimeSet, &fileSet, subLine) == 3)
                 {
+                timeSet = xtimeSet;
+                fileSet = xfileSet;
                 this->SetGeometryFileName(subLine);
                 }
-              else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
+              else if (sscanf(line, " %*s %d%*[ ]%s", &xtimeSet, subLine) == 2)
                 {
+                timeSet = xtimeSet;
                 this->SetGeometryFileName(subLine);
                 }
               else if (sscanf(line, " %*s %s", subLine) == 1)
@@ -443,12 +446,15 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
         this->ReadNextDataLine(line);
         if (strncmp(line, "model:", 6) == 0)
           {
-          if (sscanf(line, " %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+          if (sscanf(line, " %*s %d %d %s", &xtimeSet, &fileSet, subLine) == 3)
             {
+            timeSet = xtimeSet;
+            fileSet = xfileSet;
             this->SetGeometryFileName(subLine);
             }
-          else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
+          else if (sscanf(line, " %*s %d%*[ ]%s", &xtimeSet, subLine) == 2)
             {
+            timeSet = xtimeSet;
             this->SetGeometryFileName(subLine);
             }
           else if (sscanf(line, " %*s %s", subLine) == 1)
