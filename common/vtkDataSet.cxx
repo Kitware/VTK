@@ -220,13 +220,14 @@ unsigned long int vtkDataSet::GetMTime()
   else return result;
 }
 
-vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, float tol2, int& subId,
-  			   float pcoords[3], float *weights)
+vtkCell *vtkDataSet::FindAndGetCell (float x[3], vtkCell *cell, int cellId, 
+                                     float tol2, int& subId,
+                                     float pcoords[3], float *weights)
 {
-  int cellId = this->FindCell(x,cell,tol2,subId,pcoords,weights);
-  if (cellId >= 0 )
+  int newCell = this->FindCell(x,cell,cellId,tol2,subId,pcoords,weights);
+  if (newCell >= 0 )
     {
-    cell = this->GetCell (cellId);
+    cell = this->GetCell (newCell);
     }
   else
     {

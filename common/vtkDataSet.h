@@ -130,21 +130,22 @@ public:
   virtual void GetCellNeighbors(int cellId, vtkIdList& ptIds, vtkIdList& cellIds);
 
   // Description:
-  // Locate the closest point to the global coordinate x. Return the point
-  // id and distance squared. If point id < 0; then no point found. (This
-  // may arise when point is outside of dataset.)
+  // Locate the closest point to the global coordinate x. Return the
+  // point id. If point id < 0; then no point found. (This may arise
+  // when point is outside of dataset.)
   virtual int FindPoint(float x[3]) = 0;
 
   // Description:
-  // Locate cell based on global coordinate x and tolerance squared. If
-  // cell is non-NULL, then search starts from this cell and looks at 
-  // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.
-  // The parametric coordinates are provided in pcoords[3]. The interpolation
-  // weights are returned in weights[]. (The number of weights is equal to the 
-  // number of points in the found cell). Tolerance is used to control how
-  // close the point is to be considered "in" the cell.
-  virtual int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
-                       float pcoords[3], float *weights) = 0;
+  // Locate cell based on global coordinate x and tolerance
+  // squared. If cell and cellId is non-NULL, then search starts from
+  // this cell and looks at immediate neighbors.  Returns cellId >= 0
+  // if inside, < 0 otherwise.  The parametric coordinates are
+  // provided in pcoords[3]. The interpolation weights are returned in
+  // weights[]. (The number of weights is equal to the number of
+  // points in the found cell). Tolerance is used to control how close
+  // the point is to be considered "in" the cell.
+  virtual int FindCell(float x[3], vtkCell *cell, int cellId, float tol2, 
+                       int& subId, float pcoords[3], float *weights) = 0;
 
   // Description:
   // Locate the cell that contains a point and return the cell. Also returns
@@ -152,8 +153,8 @@ public:
   // interpolation. This method combines the derived class methods
   // int FindCell and vtkCell *GetCell. Derived classes may provide a more 
   // efficient implementation. See for example vtkStructuredPoints.
-  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, float tol2, 
-                                 int& subId, float pcoords[3], float *weights);
+  virtual vtkCell *FindAndGetCell(float x[3], vtkCell *cell, int cellId, float tol2,
+                                  int& subId, float pcoords[3], float *weights);
 
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
