@@ -76,17 +76,19 @@ class VTK_FILTERING_EXPORT vtkGenericAttribute : public vtkObject
   virtual unsigned long GetActualMemorySize() = 0;
 
   // Description:
-  // Range of the attribute component `component'. It returns double, even if
-  // GetType()==VTK_INT.
+  // Range of the attribute component `component'. If `component'==-1, it
+  // returns the range of the magnitude (euclidean norm).
+  // It returns double, even if GetType()==VTK_INT.
   // NOT THREAD SAFE
-  // \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
+  // \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
   // \post result_exists: result!=0
   virtual double *GetRange(int component=0) = 0;
   
   // Description:
-  // Range of the attribute component `component'.
+  // Range of the attribute component `component'. If `component'==-1, it
+  // returns the range of the magnitude (euclidean norm).
   // THREAD SAFE
-  // \pre valid_component: (component>=0)&&(component<GetNumberOfComponents())
+  // \pre valid_component: (component>=-1)&&(component<GetNumberOfComponents())
   virtual void GetRange(int component,
                         double range[2]) = 0;
   
