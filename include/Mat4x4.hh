@@ -39,7 +39,7 @@ class vlMatrix4x4 : public vlObject
   void Transpose (vlMatrix4x4 in,vlMatrix4x4 & out);
   void Transpose (void) { Transpose(*this,*this);};
 
-  void VectorMultiply(float in[4], float out[4]);
+  void PointMultiply(float in[4], float out[4]);
   void Adjoint (vlMatrix4x4 & in,vlMatrix4x4 & out);
   float Determinant (vlMatrix4x4 & in);
   char *GetClassName () {return "vlMatrix4x4";};
