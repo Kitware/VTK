@@ -23,7 +23,8 @@ vtkActor sphereActor
 # Generate ids for labeling
 vtkIdFilter ids
     ids SetInput [sphere GetOutput]
-    ids CellIdsOff
+    ids PointIdsOn
+    ids CellIdsOn
     ids FieldDataOn
 
 # Create labels for points
