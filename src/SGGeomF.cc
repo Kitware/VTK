@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "StrGeomF.hh"
 
+// Description:
+// Construct with initial extent (0,100, 0,100, 0,0) (i.e., a plane).
 vlStructuredGeometryFilter::vlStructuredGeometryFilter()
 {
   this->Extent[0] = 0;
@@ -43,9 +43,6 @@ void vlStructuredGeometryFilter::Execute()
   float *x;
 
   vlDebugMacro(<< "Creating structured geometry");
-//
-// Initialize
-//
   this->Initialize();
 
   pd = this->Input->GetPointData();
@@ -262,6 +259,8 @@ void vlStructuredGeometryFilter::SetExtent(int iMin, int iMax, int jMin, int jMa
   this->SetExtent(extent);
 }
 
+// Description:
+// Specify (imin,imax, jmin,jmax, kmin,kmax) indices.
 void vlStructuredGeometryFilter::SetExtent(int *extent)
 {
   int i;

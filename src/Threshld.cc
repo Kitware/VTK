@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,15 +15,18 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "Threshld.hh"
 
-
+// Construct with lower threshold=0, upper threshold=1, and threshold 
+// function=upper.
 vlThreshold::vlThreshold()
 {
   this->LowerThreshold = 0.0;
   this->UpperThreshold = 1.0;
 
- // this->ThresholdFunction = this->Upper;
+  this->ThresholdFunction = this->Upper;
 }
 
+// Description:
+// Criterion is cells whose scalars are less than lower threshold.
 void vlThreshold::ThresholdByLower(float lower) 
 {
   if ( this->LowerThreshold != lower )
@@ -36,6 +37,8 @@ void vlThreshold::ThresholdByLower(float lower)
     }
 }
                            
+// Description:
+// Criterion is cells whose scalars are less than upper threshold.
 void vlThreshold::ThresholdByUpper(float upper)
 {
   if ( this->UpperThreshold != upper )
@@ -46,6 +49,8 @@ void vlThreshold::ThresholdByUpper(float upper)
     }
 }
                            
+// Description:
+// Criterion is cells whose scalars are between lower and upper thresholds.
 void vlThreshold::ThresholdBetween(float lower, float upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
@@ -71,8 +76,6 @@ void vlThreshold::Execute()
   float *x;
 
   vlDebugMacro(<< "Executing threshold filter");
-
-  // check input
   this->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )

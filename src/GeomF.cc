@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -17,6 +15,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 =========================================================================*/
 #include "GeomF.hh"
 
+// Description:
+// Construct with all types of clipping turned off.
 vlGeometryFilter::vlGeometryFilter()
 {
   this->PointMinimum = 0;
@@ -52,6 +52,8 @@ void vlGeometryFilter::SetExtent(float xMin, float xMax, float yMin,
   this->SetExtent(extent);
 }
 
+// Description:
+// Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vlGeometryFilter::SetExtent(float *extent)
 {
   int i;

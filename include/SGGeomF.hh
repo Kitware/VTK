@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,9 +13,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Create geometry for structured data
-//
+// .NAME vlStructuredGeometryFilter - extract geometry for structured data
+// .SECTION Description
+// vlStructuredGeometryFilter is a filter that extracts geometry from 
+// structured data. By specifying appropriate i-j-k indices, it is possible
+// to extract a point, a curve, a surface, or a "volume". Depending upon the
+// type of data, the curve and surface may be curved or planar. The volume
+// is actually a (n x m x o) region of points.
+
 #ifndef __vlStructuredGeometryFilter_h
 #define __vlStructuredGeometryFilter_h
 

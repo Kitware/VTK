@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,10 +13,14 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-//
-// Extracts cells where scalar value of every point in cell satisfies 
-// threshold criterion. 
-//
+// .NAME vlThreshold - extracts cells where scalar value of every point in cell satisfies threshold criterion
+// .SECTION Description
+// vlThreshold is a filter that extracts cells from a dataset that satisfy a
+// threshold criterion. A cell satisfies the criterion if the scalar value
+// of every point satisfies the criterion. The criterion can take three forms:
+// greater than a particular value, less than a particular value, between a
+// particular value.
+
 #ifndef __vlThreshold_h
 #define __vlThreshold_h
 

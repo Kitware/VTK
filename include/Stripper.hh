@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -36,13 +34,19 @@ public:
   char *GetClassName() {return "vlStripper";};
   void PrintSelf(ostream& os, vlIndent indent);
 
+  // Description:
+  // Specify the maximum number of triangles in a triangle strip.
   vlSetClampMacro(MaximumStripLength,int,4,MAX_CELL_SIZE);
   vlGetMacro(MaximumStripLength,int);
 
+  // Description:
+  // Turn on/off passing of vertices through to output.
   vlBooleanMacro(PassVerts,int);
   vlSetMacro(PassVerts,int);
   vlGetMacro(PassVerts,int);
 
+  // Description:
+  // Turn on/off passing of lines through to output.
   vlBooleanMacro(PassLines,int);
   vlSetMacro(PassLines,int);
   vlGetMacro(PassLines,int);

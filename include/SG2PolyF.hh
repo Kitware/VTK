@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -16,8 +14,12 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 //
-// DataSetToPolyFilter are filters that take DataSets in and generate PolyData
-//
+// .NAME vlStructuredDataSetToPolyFilter - abstract filter class
+// .SECTION Description
+// vlStructuredDataSetToPolyFilter are filters whose subclasses take as input
+// structured data (e.g., structured points, structured grid) and generate
+// polygonal data on output.
+
 #ifndef __vlStructuredDataSetToPolyFilter_h
 #define __vlStructuredDataSetToPolyFilter_h
 
