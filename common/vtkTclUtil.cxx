@@ -227,6 +227,44 @@ VTKTCL_EXPORT void vtkTclGetObjectFromPointer(Tcl_Interp *interp,void *temp,
   sprintf(temps,"%p",temp);
   if ((entry = Tcl_FindHashEntry(&vtkPointerLookup,temps))) 
     {
+    /* if it already exists then are the command functions the same ? */
+    int (*command2)(ClientData, Tcl_Interp *,int, char *[]);
+    char *args[3];
+    Tcl_HashEntry *entry2;
+  
+    entry2 = Tcl_FindHashEntry(&vtkCommandLookup,
+                               (char *)(Tcl_GetHashValue(entry)));
+    command2 = 
+      (int (*)(ClientData,Tcl_Interp *,int,char *[]))Tcl_GetHashValue(entry2);
+    
+    /* if the commands are not the same try to pick the best one */
+    /* the best one is the one that is lowest in the tree */
+    if (command2 != command)
+      {
+      /* to find the best one we call GetClassName and see if one of the */
+      /* commands can typeconvert to that class while the other can't    */
+      /* if that is the case then we use the one that can. Otherwise we  */
+      /* just let the original command function stay */
+      /* set up the args for the GetClassName call */
+      args[0] = "Dummy";
+      args[1] = "GetClassName";
+      args[2] = NULL;
+      command2((ClientData)temp,interp,2,args);
+      args[0] = "DoTypecasting";
+      args[1] = interp->result;
+      args[2] = NULL;
+      if (command2((ClientData)temp,(Tcl_Interp *)NULL,3,args) != TCL_OK)
+	{
+	/* the original function couldn't handle the type conversion so try the new one */
+	if (command((ClientData)temp,(Tcl_Interp *)NULL,3,args) == TCL_OK)
+	  {
+	  /* the new one can handle the conversion so lets use it instead */
+	  Tcl_SetHashValue(entry2,(ClientData)command);
+	  }
+	}
+      }
+    
+    /* while we are at it store the name since it is required anyhow */
     sprintf(interp->result,"%s",(char *)(Tcl_GetHashValue(entry)));
     return;
     }
