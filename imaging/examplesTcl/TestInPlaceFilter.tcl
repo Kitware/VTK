@@ -42,6 +42,8 @@ cursor2 SetCursorPosition [expr $CURSOR_X * $IMAGE_MAG_X] \
     [expr $CURSOR_Y * $IMAGE_MAG_Y] [expr $CURSOR_Z * $IMAGE_MAG_Z]
 cursor2 SetCursorValue 255
 cursor2 SetCursorRadius [expr 50 * $IMAGE_MAG_X]
+# stream to increase coverage of in place filter.
+[cursor2 GetInput] SetMemoryLimit 1
 
 # put thge two together in one image
 vtkImageAppend append
