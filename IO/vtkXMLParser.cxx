@@ -27,7 +27,7 @@
 #define VTK_IOS_NOCREATE | ios::nocreate
 #endif
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.5");
+vtkCxxRevisionMacro(vtkXMLParser, "1.6");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -59,6 +59,8 @@ void vtkXMLParser::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Stream: (none)\n";
     }
+  os << indent << "FileName: " << (this->FileName? this->FileName : "(none)")
+     << "\n";
 }
 
 //----------------------------------------------------------------------------
