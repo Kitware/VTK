@@ -153,17 +153,27 @@ void vtkPDataSetWriter::Write()
       delete fptr;
       return;
       }
-    // We should indicate the type of data that is being saved.
-    *fptr << "      datatype=\"" << input->GetClassName() << "\"" << endl;
-    // This is making the assumption that all the files will be written out by
-    // some processes.
-    *fptr << "      numberofpieces=" << this->NumberOfPieces << " >" << endl;
-    for (i = 0; i < this->NumberOfPieces; ++i)
+
+    input->UpdateInformation();
+    switch (input->GetDataObjectType())
       {
-      sprintf(fileName, this->FilePattern, fileRoot, i);
-      *fptr << "  <Piece filename=\"" << fileName << "\" />" << endl;
+      case VTK_POLY_DATA:
+      case VTK_UNSTRUCTURED_GRID:
+        this->WriteUnstructuredMetaData(input, fileRoot, fileName, fptr);
+        break;
+      case VTK_IMAGE_DATA:
+        this->WriteImageMetaData((vtkImageData*)input, fileRoot, fileName, fptr);
+        break;
+      case VTK_RECTILINEAR_GRID:
+        this->WriteRectilinearGridMetaData((vtkRectilinearGrid*)input, 
+                                           fileRoot, fileName, fptr);
+        break;
+      case VTK_STRUCTURED_GRID:
+        this->WriteStructuredGridMetaData((vtkStructuredGrid*)input, 
+                                          fileRoot, fileName, fptr);
+        break;
       }
-    *fptr << "</File>" << endl;
+  
     //fptr->close();
     delete fptr;
     }
@@ -173,9 +183,7 @@ void vtkPDataSetWriter::Write()
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
-    input->SetUpdatePiece(i);
-    input->SetUpdateNumberOfPieces(this->NumberOfPieces);
-    input->SetUpdateGhostLevel(this->GhostLevel);
+    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
     this->FileName = fileName;
     this->vtkDataSetWriter::Write();
     }
@@ -184,6 +192,124 @@ void vtkPDataSetWriter::Write()
   delete [] fileName;
   delete [] fileRoot;
 }
+
+
+//----------------------------------------------------------------------------
+void vtkPDataSetWriter::WriteUnstructuredMetaData(vtkDataSet *input,
+                                         char *root, char *str, ostream *fptr)
+{
+  int i;
+
+  // We should indicate the type of data that is being saved.
+  *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
+  // This is making the assumption that all the files will be written out by
+  // some processes.
+  *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    sprintf(str, this->FilePattern, root, i);
+    *fptr << "  <Piece fileName=\"" << str << "\" />" << endl;
+    }
+  *fptr << "</File>" << endl;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkPDataSetWriter::WriteImageMetaData(vtkImageData *input, 
+                                         char *root, char *str, ostream *fptr)
+{
+  int i;
+  int *pi;
+  float *pf;
+
+  // We should indicate the type of data that is being saved.
+  *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
+  // Image data has a buch of meta data.
+  *fptr << "      scalarType=\"" << input->GetScalarType() << "\"" << endl;
+  pf = input->GetOrigin();
+  *fptr << "      origin=\"" << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
+  pf = input->GetSpacing();
+  *fptr << "      spacing=\"" << pf[0] << " " << pf[1] << " " << pf[2] << "\"" << endl;
+  pi = input->GetWholeExtent();
+  *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+        << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
+
+  // This is making the assumption that all the files will be written out by
+  // some processes.
+  *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
+
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    pi = input->GetUpdateExtent();
+    sprintf(str, this->FilePattern, root, i);
+    *fptr << "  <Piece fileName=\"" << str << "\"" << endl
+          << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+          << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
+    }
+  *fptr << "</File>" << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkPDataSetWriter::WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
+                                         char *root, char *str, ostream *fptr)
+{
+  int i;
+  int *pi;
+
+  // We should indicate the type of data that is being saved.
+  *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
+
+  pi = input->GetWholeExtent();
+  *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+        << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
+
+
+  // This is making the assumption that all the files will be written out by
+  // some processes.
+  *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    pi = input->GetUpdateExtent();
+    sprintf(str, this->FilePattern, root, i);
+    *fptr << "  <Piece fileName=\"" << str << "\"" << endl
+          << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+          << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
+    }
+  *fptr << "</File>" << endl;
+}
+
+//----------------------------------------------------------------------------
+void vtkPDataSetWriter::WriteStructuredGridMetaData(vtkStructuredGrid *input,
+                                         char *root, char *str, ostream *fptr)
+{
+  int i;
+  int *pi;
+
+  // We should indicate the type of data that is being saved.
+  *fptr << "      dataType=\"" << input->GetClassName() << "\"" << endl;
+
+  pi = input->GetWholeExtent();
+  *fptr << "      wholeExtent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+        << pi[3] << " " << pi[4] << " " << pi[5] << "\"" << endl;
+
+
+  // This is making the assumption that all the files will be written out by
+  // some processes.
+  *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
+  for (i = 0; i < this->NumberOfPieces; ++i)
+    {
+    input->SetUpdateExtent(i, this->NumberOfPieces, this->GhostLevel);
+    pi = input->GetUpdateExtent();
+    sprintf(str, this->FilePattern, root, i);
+    *fptr << "  <Piece fileName=\"" << str << "\"" << endl
+          << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " "
+          << pi[3] << " " << pi[4] << " " << pi[5] << "\" />" << endl;
+    }
+  *fptr << "</File>" << endl;
+}
+
 
 //----------------------------------------------------------------------------
 // Open a vtk data file. Returns NULL if error.

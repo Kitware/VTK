@@ -49,7 +49,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define __vtkPDataSetWriter_h
 
 #include "vtkDataSetWriter.h"
-
+#include "vtkImageData.h"
+#include "vtkStructuredGrid.h"
+#include "vtkRectilinearGrid.h"
 
 class VTK_EXPORT vtkPDataSetWriter : public vtkDataSetWriter
 {
@@ -97,6 +99,14 @@ protected:
 
 //BTX
   ostream *vtkPDataSetWriter::OpenFile();
+  void WriteUnstructuredMetaData(vtkDataSet *input, 
+                          char *root, char *str, ostream *fptr);
+  void WriteImageMetaData(vtkImageData *input, 
+                          char *root, char *str, ostream *fptr);
+  void WriteRectilinearGridMetaData(vtkRectilinearGrid *input,
+                          char *root, char *str, ostream *fptr);
+  void WriteStructuredGridMetaData(vtkStructuredGrid *input,
+                          char *root, char *str, ostream *fptr);
 //ETX
 
   int StartPiece;

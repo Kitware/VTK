@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkSource.h"
 #include "vtkDataSet.h"
+#include "vtkImageData.h"
 
 
 class VTK_EXPORT vtkPDataSetReader : public vtkSource
@@ -86,9 +87,16 @@ protected:
   void operator=(const vtkPDataSetReader&);
 
   virtual void ExecuteInformation();
+  void ReadImageInformation(vtkImageData *output, char *str, ifstream *fp);
+  void ReadWholeExtent(vtkDataSet *output, char *str, ifstream *fp);
+  void ReadVTKFileInformation(char *str, ifstream *fp);
+
   virtual void Execute();
   void PolyDataExecute();
   void UnstructuredGridExecute();
+  void ImageDataExecute();
+
+  void CoverExtent(int ext[6], int *pieceMask);
 
   vtkDataSet *CheckOutput();
   void SetNumberOfPieces(int num);
@@ -98,10 +106,12 @@ protected:
 //ETX
 
   int VTKFileFlag;
+  int StructuredFlag;
   char *FileName;
   int DataType;
   int NumberOfPieces;
   char **PieceFileNames;
+  int **PieceExtents;
 };
 
 #endif
