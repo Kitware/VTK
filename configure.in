@@ -79,6 +79,11 @@ for i in $dirs; do
     OPENGLSW="-L$i"
     break
   fi
+  if test -r $i/libGL.sl; then
+    AC_MSG_RESULT($i)
+    OPENGLSW="-L$i"
+    break
+  fi
 done
 GRAPHICS_API_LIBS="$GRAPHICS_API_LIBS $OPENGLSW"
 
