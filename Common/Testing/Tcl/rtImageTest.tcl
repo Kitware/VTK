@@ -123,9 +123,12 @@ if {$validImageFound != 0} {
    rt_id SetImage [rt_png GetOutput]
    rt_id Update
    set imageError [rt_id GetThresholdedError]
-   rt_w2if Delete 
    set minError [rt_id GetThresholdedError]
+   set bestImage $validImage
+   rt_w2if Delete 
 
+   set count 0
+   set errIndex 0
    if {$minError > $threshold} {
        set count 1
        set testFailed 1
@@ -139,28 +142,29 @@ if {$validImageFound != 0} {
 	   rt_png SetFileName $newFileName
 	   rt_png Update
 	   rt_id Update
-	   set error [rt_id GetThresholdedError]
-	   if { $error <= $threshold } { 
+	   set altError [rt_id GetThresholdedError]
+	   if { $altError <= $threshold } { 
+	       # Test passed with the alternate image
+	       set errIndex $count
 	       set testFailed 0
-	       set imageError $error
+	       set minError $altError
+	       set imageError $altError
+	       set bestImage $newFileName
 	       break
 	   } else {
-	       if { $error < $minError } {
-		   set errIndex $count;
-		   set minError $error;
-		   set imageError $error
+	       # Test failed but is it better than any image we saw so far?
+	       if { $altError < $minError } {
+		   set errIndex $count
+		   set minError $altError
+		   set imageError $altError
+		   set bestImage $newFileName
 	       }
 	   }
 	   incr count 1
        }
 
        if { $testFailed } {
-	   if { $errIndex >= 0 } {
-	       set newFileName [IncrementFileName $validImage $errIndex]
-	       rt_png SetFileName $newFileName
-	   } else {
-	       rt_png SetFileName $validImage
-	   }
+	   rt_png SetFileName $bestImage
 
 	   rt_png Update
 	   rt_id Update
@@ -199,15 +203,42 @@ if {$validImageFound != 0} {
                rt_pngw_dashboard SetFileName $validImage.diff.small.png
                rt_pngw_dashboard SetInput [rt_gamma GetOutput]
                rt_pngw_dashboard Write
+
+	       # write out the image that was generated
+	       rt_shrink SetInput [rt_id GetInput]
+	       rt_pngw_dashboard SetFileName $validImage.small.png
+	       rt_pngw_dashboard Write
+
+	       # write out the valid image that matched
+	       rt_shrink SetInput [rt_id GetImage]
+	       rt_pngw_dashboard SetFileName $validImage.test.small.png
+	       rt_pngw_dashboard Write
+
 	   }
 	   puts "Failed Image Test with error: $imageError"
 
 	   puts -nonewline "<DartMeasurement name=\"ImageError\" type=\"numeric/double\">"
 	   puts -nonewline "$imageError"
 	   puts "</DartMeasurement>"
+
+	   if { $errIndex <= 0} {
+	       puts -nonewline "<DartMeasurement name=\"BaselineImage\" type=\"text/string\">Standard</DartMeasurement>"
+	   } else {
+	       puts -nonewline "<DartMeasurement name=\"BaselineImage\" type=\"numeric/integer\">"
+	       puts -nonewline "$errIndex"
+	       puts "</DartMeasurement>"
+	   }
 	   
+	   puts -nonewline "<DartMeasurementFile name=\"TestImage\" type=\"image/png\">"
+	   puts -nonewline "$validImage.test.small.png"
+	   puts "</DartMeasurementFile>"
+
 	   puts -nonewline "<DartMeasurementFile name=\"DifferenceImage\" type=\"image/png\">"
 	   puts -nonewline "$validImage.diff.small.png"
+	   puts "</DartMeasurementFile>"
+
+	   puts -nonewline "<DartMeasurementFile name=\"ValidImage\" type=\"image/png\">"
+	   puts -nonewline "$validImage.small.png"
 	   puts "</DartMeasurementFile>"
 	   
 	   vtkCommand DeleteAllObjects
