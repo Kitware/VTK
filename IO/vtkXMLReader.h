@@ -80,14 +80,6 @@ public:
   void SetPointArrayStatus(const char* name, int status);  
   void SetCellArrayStatus(const char* name, int status);  
   
-  //BTX
-  // Description:
-  // Get/Set the input stream from which to read the data.  This
-  // overrides use of FileName.
-  vtkGetMacro(Stream, istream*);
-  vtkSetMacro(Stream, istream*);
-  //ETX
-  
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
