@@ -1,0 +1,111 @@
+#!/usr/bin/env python
+
+"""
+setup.py for installing the VTK-Python bindings using distutils.
+
+Created by Prabhu Ramachandran, June 2002.
+
+TODO:
+
+  1. Test under different OS's.
+
+"""
+
+import glob, sys, os
+from types import StringType
+from distutils.core import setup
+from distutils.util import change_root, convert_path
+from distutils.command.install_data import install_data
+
+version = "4.1.1.cvs"
+
+build_lib_dir = "${LIBRARY_OUTPUT_PATH}"
+
+build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
+
+# You can change this to suit your needs.  However you must make sure
+# that under *nix the libvtk*Python*.so in the specified directory.
+install_lib_dir = "${CMAKE_INSTALL_PREFIX}/lib/vtk"
+
+
+def get_libs():
+    """Returns a list of libraries to be installed.  """
+    libs = []
+    if os.name == 'posix':
+        libs = glob.glob(os.path.abspath(os.path.join(install_lib_dir,
+                                                      'libvtk*Python*.so')))
+    else:
+        libs = glob.glob(os.path.join(build_lib_dir, 'vtk*Python*.dll'))
+
+    return libs
+
+
+def get_vtkpython():
+    """Returns the appropriate vtkpython executable that is to be
+    installed."""
+    if os.name == 'posix':
+        return os.path.join(build_bin_dir, 'vtkpython')
+    else:
+        return os.path.join(build_bin_dir, 'vtkpython.exe')
+
+
+class my_install_data (install_data):
+    def finalize_options (self):
+        """Needed to make this thing work properly."""
+        self.set_undefined_options ('install',
+                                    ('install_lib', 'install_dir'),
+                                    ('root', 'root'),
+                                    ('force', 'force'),
+                                    )
+    def run (self):
+        """Slightly modified from original to make symlinks to the
+        libvtk*Python.so libraries"""
+        self.mkpath(self.install_dir)
+        for f in self.data_files:
+            if type(f) == StringType:
+                # it's a simple file, so copy it
+                f = convert_path(f)
+                if self.warn_dir:
+                    self.warn("setup script did not provide a directory for "
+                              "'%s' -- installing right in '%s'" %
+                              (f, self.install_dir))
+                (out, _) = self.copy_file(f, self.install_dir)
+                self.outfiles.append(out)
+            else:
+                # it's a tuple with path to install to and a list of files
+                dir = convert_path(f[0])
+                if not os.path.isabs(dir):
+                    dir = os.path.join(self.install_dir, dir)
+                elif self.root:
+                    dir = change_root(self.root, dir)
+                self.mkpath(dir)
+                for data in f[1]:
+                    data = convert_path(data)
+                    # do symlinking if ! posix and library.
+                    if (os.path.basename(data)[:6] == 'libvtk') and \
+                       (os.name == 'posix'):
+                        (out, _) = self.copy_file(data, dir, link='sym')
+                    else:
+                        (out, _) = self.copy_file(data, dir)
+                    self.outfiles.append(out)
+      
+        
+
+setup (name              = "VTK",
+       version           = version,
+       description       = "The Visualization Toolkit",
+       maintainer        = "VTK Developers",
+       maintainer_email  = "vtk-developers@public.kitware.com",
+       licence           = "BSD",
+       long_description  = "A high level visualization library",
+       url               = "http://public.kitware.com/VTK/",
+       platforms         = ['Any'],
+       cmdclass          = {'install_data': my_install_data},
+       packages          = ['vtk_python', 'vtk_python.vtk',
+                            'vtk_python.vtk.gtk', 'vtk_python.vtk.qt',
+                            'vtk_python.vtk.tk', 'vtk_python.vtk.util',
+                            'vtk_python.vtk.wx'],
+       scripts           = [get_vtkpython()],
+       package_dir       = {'vtk_python': '.'},
+       data_files        = [('vtk_python', get_libs()), ('', ['vtk.pth'])]
+       )
