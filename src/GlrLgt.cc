@@ -44,17 +44,17 @@ void vlGlrLight::Render(vlGlrRenderer *ren,int light_index)
   color[1] = this->Intensity * this->Color[1];
   color[2] = this->Intensity * this->Color[2];
   
-  dx = this->Position[0] - this->FocalPoint[0];
-  dy = this->Position[1] - this->FocalPoint[1];
-  dz = this->Position[2] - this->FocalPoint[2];
+  dx = this->FocalPoint[0] - this->Position[0];
+  dy = this->FocalPoint[1] - this->Position[1];
+  dz = this->FocalPoint[2] - this->Position[2];
   
   // define the light source
   light_info[1] = color[0];
   light_info[2] = color[1];
   light_info[3] = color[2];
-  light_info[5] = dx;
-  light_info[6] = dy;
-  light_info[7] = dz;
+  light_info[5] = -dx;
+  light_info[6] = -dy;
+  light_info[7] = -dz;
   
   vlDebugMacro(<< "Defining front light\n");
   lmdef(DEFLIGHT, light_index, 0, light_info);
@@ -62,9 +62,9 @@ void vlGlrLight::Render(vlGlrRenderer *ren,int light_index)
   // define another mirror light if backlit is on
   if (ren->GetBackLight()) 
     {
-    light_info[5] = -dx;
-    light_info[6] = -dy;
-    light_info[7] = -dz;
+    light_info[5] = dx;
+    light_info[6] = dy;
+    light_info[7] = dz;
     vlDebugMacro(<< "Defining back light\n");
     lmdef(DEFLIGHT, light_index + 1, 0, light_info);
     }
