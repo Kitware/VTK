@@ -64,12 +64,12 @@ public:
   // Description:
   // Get the next dataset in the list.
   vtkDataSet *GetNextItem() { 
-    return vtkDataSet::SafeDownCast(this->GetNextItemAsObject());};
+    return static_cast<vtkDataSet *>(this->GetNextItemAsObject());};
 
   // Description:
   // Get the ith dataset in the list.
   vtkDataSet *GetItem(int i) { 
-    return vtkDataSet::SafeDownCast(this->GetItemAsObject(i));};
+    return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
   
 protected:
   vtkDataSetCollection() {};

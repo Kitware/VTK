@@ -86,7 +86,7 @@ inline void vtkPlaneCollection::AddItem(vtkPlane *f)
 
 inline vtkPlane *vtkPlaneCollection::GetNextItem() 
 { 
-  return vtkPlane::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkPlane *>(this->GetNextItemAsObject());
 }
 
 #endif

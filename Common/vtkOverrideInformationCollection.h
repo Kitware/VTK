@@ -86,7 +86,7 @@ inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)
 
 inline vtkOverrideInformation *vtkOverrideInformationCollection::GetNextItem() 
 { 
-  return vtkOverrideInformation::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkOverrideInformation *>(this->GetNextItemAsObject());
 }
 
 #endif

@@ -89,7 +89,7 @@ inline void vtkTransformCollection::AddItem(vtkTransform *t)
 
 inline vtkTransform *vtkTransformCollection::GetNextItem() 
 { 
-  return vtkTransform::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkTransform *>(this->GetNextItemAsObject());
 }
 
 #endif

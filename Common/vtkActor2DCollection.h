@@ -118,7 +118,7 @@ inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)
 
 inline vtkActor2D *vtkActor2DCollection::GetNextActor2D() 
 { 
-  return vtkActor2D::SafeDownCast(this->GetNextItemAsObject());
+  return static_cast<vtkActor2D *>(this->GetNextItemAsObject());
 }
 
 inline vtkActor2D *vtkActor2DCollection::GetLastActor2D() 
@@ -129,7 +129,7 @@ inline vtkActor2D *vtkActor2DCollection::GetLastActor2D()
     }
   else
     {
-    return vtkActor2D::SafeDownCast(this->Bottom->Item);
+    return static_cast<vtkActor2D *>(this->Bottom->Item);
     }
 }
 
