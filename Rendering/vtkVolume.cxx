@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.68");
+vtkCxxRevisionMacro(vtkVolume, "1.69");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -140,7 +140,7 @@ float vtkVolume::GetGradientOpacityConstant(int index)
     {
     vtkErrorMacro("Index out of range [0-" << VTK_MAX_VRCOMP << 
                   "]: " << index );
-    return NULL;
+    return 0;
     }
   return this->GradientOpacityConstant[index];
 }

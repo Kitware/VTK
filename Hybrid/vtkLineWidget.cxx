@@ -28,7 +28,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.5");
+vtkCxxRevisionMacro(vtkLineWidget, "1.6");
 vtkStandardNewMacro(vtkLineWidget);
 
 vtkLineWidget::vtkLineWidget()
@@ -320,7 +320,7 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkLineWidget::PositionHandles()
 {
-  int res = this->LineSource->GetResolution();
+  //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
@@ -599,7 +599,7 @@ void vtkLineWidget::MovePoint1(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
-  int res = this->LineSource->GetResolution();
+  //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
@@ -643,7 +643,7 @@ void vtkLineWidget::MovePoint2(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
-  int res = this->LineSource->GetResolution();
+  //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
@@ -688,7 +688,7 @@ void vtkLineWidget::Translate(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
-  int res = this->LineSource->GetResolution();
+  //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
@@ -706,7 +706,7 @@ void vtkLineWidget::Translate(double *p1, double *p2)
   this->PositionHandles();
 }
 
-void vtkLineWidget::Scale(double *p1, double *p2, int X, int Y)
+void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
 {
   //Get the motion vector
   double v[3];
@@ -714,7 +714,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int X, int Y)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  int res = this->LineSource->GetResolution();
+  //int res = this->LineSource->GetResolution();
   float *pt1 = this->LineSource->GetPoint1();
   float *pt2 = this->LineSource->GetPoint2();
 
