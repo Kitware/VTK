@@ -8,7 +8,7 @@ def vtkLoadPythonTkWidgets(interp):
     the python path and the tcl path are searched.
     """
     name = 'vtkRenderingPythonTkWidgets'
-    pkgname = 'Vtkpythontkwidgets'
+    pkgname = string.capitalize(string.lower(name))
 
     # find out if the file is already loaded
     loaded = interp.call('info', 'loaded')
