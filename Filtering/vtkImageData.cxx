@@ -40,7 +40,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.1.2.2");
+vtkCxxRevisionMacro(vtkImageData, "1.1.2.3");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1117,7 +1117,6 @@ void vtkImageData::SetNumberOfScalarComponents(int num)
     {
     vtkErrorMacro("SetNumberOfScalarComponents called with no "
                   "executive producing this image data object.");
-    abort();
     }
   this->ComputeIncrements();
 }
@@ -1458,7 +1457,6 @@ void vtkImageData::SetScalarType(int type)
     {
     vtkErrorMacro("SetScalarType called with no "
                   "executive producing this image data object.");
-    abort();
     }
 }
 
