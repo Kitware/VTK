@@ -28,7 +28,7 @@
 // vtkQuadraticEdge vtkQuadraticTriangle vtkQuadraticTetra
 // vtkQuadraticHexahedron vtkQuadraticQuad vtkQuadraticWedge
 
-// SECTION Thanks 
+// .SECTION Thanks 
 // The shape functions and derivatives could be implemented thanks to
 // the report Pyramid Solid Elements Linear and Quadratic Iso-P Models
 // From Center For Aerospace Structures
