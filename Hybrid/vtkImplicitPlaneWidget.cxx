@@ -38,7 +38,7 @@
 #include "vtkTransform.h"
 #include "vtkTubeFilter.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.21");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.22");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -130,7 +130,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->Transform = vtkTransform::New();
 
   // Define the point coordinates
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -863,7 +863,7 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   double *o = this->Plane->GetOrigin();
 
   // Compute the scale factor
-  float sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
+  double sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
@@ -948,10 +948,10 @@ void vtkImplicitPlaneWidget::CreateDefaultProperties()
   this->EdgesProperty->SetAmbientColor(1.0,1.0,1.0);
 }
 
-void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])
+void vtkImplicitPlaneWidget::PlaceWidget(double bds[6])
 {
   int i;
-  float bounds[6], origin[3];
+  double bounds[6], origin[3];
 
   this->AdjustBounds(bds, bounds, origin);
 
@@ -1173,10 +1173,10 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
 
   double *origin = this->Plane->GetOrigin();
   double *normal = this->Plane->GetNormal();
-  float p2[3];
+  double p2[3];
 
   // Setup the plane normal
-  float d = this->Outline->GetOutput()->GetLength();
+  double d = this->Outline->GetOutput()->GetLength();
 
   p2[0] = origin[0] + 0.30 * d * normal[0];
   p2[1] = origin[1] + 0.30 * d * normal[1];
@@ -1213,7 +1213,7 @@ void vtkImplicitPlaneWidget::UpdateRepresentation()
 
 void vtkImplicitPlaneWidget::SizeHandles()
 {
-  float radius = this->vtk3DWidget::SizeHandles(1.35);
+  double radius = this->vtk3DWidget::SizeHandles(1.35);
 
   this->ConeSource->SetHeight(2.0*radius);
   this->ConeSource->SetRadius(radius);

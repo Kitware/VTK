@@ -43,7 +43,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.77");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.78");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -117,7 +117,7 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 
   // Define some default point coordinates
   //
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] =  0.5;
   bounds[2] = -0.5;
@@ -536,9 +536,9 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "ColorMap: (none)\n";
     }      
 
-  float *o = this->PlaneSource->GetOrigin();
-  float *pt1 = this->PlaneSource->GetPoint1();
-  float *pt2 = this->PlaneSource->GetPoint2();
+  double *o = this->PlaneSource->GetOrigin();
+  double *pt1 = this->PlaneSource->GetPoint1();
+  double *pt2 = this->PlaneSource->GetPoint2();
 
   os << indent << "Origin: (" << o[0] << ", "
      << o[1] << ", "
@@ -567,18 +567,21 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "LeftButtonAction: " << this->LeftButtonAction << endl;
   os << indent << "MiddleButtonAction: " << this->MiddleButtonAction << endl;
   os << indent << "RightButtonAction: " << this->RightButtonAction << endl;
-  os << indent << "LeftButtonAutoModifier: " << this->LeftButtonAutoModifier << endl;
-  os << indent << "MiddleButtonAutoModifier: " << this->MiddleButtonAutoModifier << endl;
-  os << indent << "RightButtonAutoModifier: " << this->RightButtonAutoModifier << endl;
+  os << indent << "LeftButtonAutoModifier: " << 
+    this->LeftButtonAutoModifier << endl;
+  os << indent << "MiddleButtonAutoModifier: " << 
+    this->MiddleButtonAutoModifier << endl;
+  os << indent << "RightButtonAutoModifier: " << 
+    this->RightButtonAutoModifier << endl;
 }
 
 void vtkImagePlaneWidget::BuildRepresentation()
 {
-  float *o = this->PlaneSource->GetOrigin();
-  float *pt1 = this->PlaneSource->GetPoint1();
-  float *pt2 = this->PlaneSource->GetPoint2();
+  double *o = this->PlaneSource->GetOrigin();
+  double *pt1 = this->PlaneSource->GetPoint1();
+  double *pt2 = this->PlaneSource->GetPoint2();
 
-  float x[3];
+  double x[3];
   x[0] = o[0] + (pt1[0]-o[0]) + (pt2[0]-o[0]);
   x[1] = o[1] + (pt1[1]-o[1]) + (pt2[1]-o[1]);
   x[2] = o[2] + (pt1[2]-o[2]) + (pt2[2]-o[2]);
@@ -958,13 +961,15 @@ void vtkImagePlaneWidget::OnMouseMove()
 
   // Compute the two points defining the motion vector
   //
-  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], 
+                              this->LastPickPosition[1],
                               this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
-                              double(this->Interactor->GetLastEventPosition()[1]),
-                              z, prevPickPoint);
+  
+  this->ComputeDisplayToWorld(
+    double(this->Interactor->GetLastEventPosition()[0]),
+    double(this->Interactor->GetLastEventPosition()[1]),
+    z, prevPickPoint);
 
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
@@ -1027,21 +1032,22 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
 {
   double range[2];
   this->LookupTable->GetTableRange(range);
-  float window = range[1] - range[0];
-  float level = 0.5*(range[0] + range[1]);
+  double window = range[1] - range[0];
+  double level = 0.5*(range[0] + range[1]);
 
-  float owin = this->OriginalWindow;
+  double owin = this->OriginalWindow;
 
   level = level + (X - this->Interactor->GetLastEventPosition()[0])*owin/500.0;
-  window = window + (this->Interactor->GetLastEventPosition()[1] - Y)*owin/250.0;
+  window = 
+    window + (this->Interactor->GetLastEventPosition()[1] - Y)*owin/250.0;
 
   if ( window == 0.0 )
     {
     window = 0.001;
     }
 
-  float rmin = level - window*0.5;
-  float rmax = level + window*0.5;
+  double rmin = level - window*0.5;
+  double rmax = level + window*0.5;
 
   if( rmin < rmax )
     {
@@ -1054,10 +1060,10 @@ void vtkImagePlaneWidget::WindowLevel(int X, int Y)
     }
 }
 
-void vtkImagePlaneWidget::SetWindowLevel(float window, float level)
+void vtkImagePlaneWidget::SetWindowLevel(double window, double level)
 {
-  float rmin = level - window*0.5;
-  float rmax = level + window*0.5;
+  double rmin = level - window*0.5;
+  double rmax = level + window*0.5;
   this->CurrentWindow = window;
   this->OriginalWindow  = window;
   this->CurrentLevel = level;
@@ -1070,7 +1076,7 @@ void vtkImagePlaneWidget::SetWindowLevel(float window, float level)
     }
 }
 
-void vtkImagePlaneWidget::GetWindowLevel(float wl[2])
+void vtkImagePlaneWidget::GetWindowLevel(double wl[2])
 {
   double range[2];
   this->LookupTable->GetTableRange(range);
@@ -1078,7 +1084,7 @@ void vtkImagePlaneWidget::GetWindowLevel(float wl[2])
   wl[1] = 0.5*(range[0]+range[1]);
 }
 
-int vtkImagePlaneWidget::GetCursorData(float xyzv[4])
+int vtkImagePlaneWidget::GetCursorData(double xyzv[4])
 {
   if ( this->State != vtkImagePlaneWidget::Cursoring  || \
     this->CurrentImageValue == VTK_FLOAT_MAX )
@@ -1116,7 +1122,7 @@ void vtkImagePlaneWidget::ManageTextDisplay()
       }
     else
       {
-      float val = this->ImageData->GetScalarComponentAsDouble( \
+      double val = this->ImageData->GetScalarComponentAsDouble( \
                    this->CurrentCursorPosition[0],
                    this->CurrentCursorPosition[1],
                    this->CurrentCursorPosition[2],0);
@@ -1135,7 +1141,7 @@ void vtkImagePlaneWidget::Push(double *p1, double *p2)
 {
   // Get the motion vector
   //
-  float v[3];
+  double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
@@ -1191,9 +1197,9 @@ void vtkImagePlaneWidget::CreateDefaultProperties()
     }
 }
 
-void vtkImagePlaneWidget::PlaceWidget(float bds[6])
+void vtkImagePlaneWidget::PlaceWidget(double bds[6])
 {
-  float bounds[6], center[3];
+  double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
 
@@ -1249,28 +1255,28 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
 
   // Prevent obscuring voxels by offsetting the plane geometry
   //
-  float xbounds[] = {origin[0] + spacing[0] * (extent[0] - 0.5),
+  double xbounds[] = {origin[0] + spacing[0] * (extent[0] - 0.5),
                      origin[0] + spacing[0] * (extent[1] + 0.5)};
-  float ybounds[] = {origin[1] + spacing[1] * (extent[2] - 0.5),
+  double ybounds[] = {origin[1] + spacing[1] * (extent[2] - 0.5),
                      origin[1] + spacing[1] * (extent[3] + 0.5)};
-  float zbounds[] = {origin[2] + spacing[2] * (extent[4] - 0.5),
+  double zbounds[] = {origin[2] + spacing[2] * (extent[4] - 0.5),
                      origin[2] + spacing[2] * (extent[5] + 0.5)};
 
   if ( spacing[0] < 0.0f )
     {
-    float t = xbounds[0];
+    double t = xbounds[0];
     xbounds[0] = xbounds[1];
     xbounds[1] = t;
     }
   if ( spacing[1] < 0.0f )
     {
-    float t = ybounds[0];
+    double t = ybounds[0];
     ybounds[0] = ybounds[1];
     ybounds[1] = t;
     }
   if ( spacing[2] < 0.0f )
     {
-    float t = zbounds[0];
+    double t = zbounds[0];
     zbounds[0] = zbounds[1];
     zbounds[1] = t;
     }
@@ -1359,7 +1365,7 @@ void vtkImagePlaneWidget::UpdateOrigin()
     this->ImageData->GetSpacing(spacing);
     int extent[6];
     this->ImageData->GetWholeExtent(extent);
-    float bounds[] = {origin[0] + spacing[0]*extent[0],
+    double bounds[] = {origin[0] + spacing[0]*extent[0],
                       origin[0] + spacing[0]*extent[1],
                       origin[1] + spacing[1]*extent[2],
                       origin[1] + spacing[1]*extent[3],
@@ -1370,17 +1376,17 @@ void vtkImagePlaneWidget::UpdateOrigin()
       {
       if ( bounds[i] > bounds[i+1] )
         {
-        float t = bounds[i+1];
+        double t = bounds[i+1];
         bounds[i+1] = bounds[i];
         bounds[i] = t;
         }
       }
 
-    float abs_normal[3];
+    double abs_normal[3];
     this->PlaneSource->GetNormal(abs_normal);
-    float planeCenter[3];
+    double planeCenter[3];
     this->PlaneSource->GetCenter(planeCenter);
-    float nmax = 0.0f;
+    double nmax = 0.0f;
     int k = 0;
     for ( i = 0; i < 3; i++ )
       {
@@ -1418,15 +1424,15 @@ void vtkImagePlaneWidget::UpdateOrigin()
   //
   this->ResliceAxes->Transpose();
 
-  float planeOrigin[4];
+  double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
   planeOrigin[3] = 1.0;
-  float originXYZW[4];
+  double originXYZW[4];
   this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
 
   this->ResliceAxes->Transpose();
-  float neworiginXYZW[4];
-  float point[] =  {0.0,0.0,originXYZW[2],1.0};
+  double neworiginXYZW[4];
+  double point[] =  {0.0,0.0,originXYZW[2],1.0};
   this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
 
   this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
@@ -1444,16 +1450,16 @@ void vtkImagePlaneWidget::UpdateOrigin()
 
 void vtkImagePlaneWidget::UpdateNormal()
 {
-  float planeAxis1[3];
-  float planeAxis2[3];
+  double planeAxis1[3];
+  double planeAxis2[3];
 
   this->GetVector1(planeAxis1);
   this->GetVector2(planeAxis2);
 
   // The x,y dimensions of the plane
   //
-  float planeSizeX = vtkMath::Normalize(planeAxis1);
-  float planeSizeY = vtkMath::Normalize(planeAxis2);
+  double planeSizeX = vtkMath::Normalize(planeAxis1);
+  double planeSizeY = vtkMath::Normalize(planeAxis2);
 
   this->PlaneSource->GetNormal(this->Normal);
 
@@ -1472,15 +1478,15 @@ void vtkImagePlaneWidget::UpdateNormal()
   //
   this->ResliceAxes->Transpose();
 
-  float planeOrigin[4];
+  double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
   planeOrigin[3] = 1.0;
-  float originXYZW[4];
+  double originXYZW[4];
   this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
 
   this->ResliceAxes->Transpose();
-  float neworiginXYZW[4];
-  float point[] =  {0.0,0.0,originXYZW[2],1.0};
+  double neworiginXYZW[4];
+  double point[] =  {0.0,0.0,originXYZW[2],1.0};
   this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
 
   this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
@@ -1501,11 +1507,11 @@ void vtkImagePlaneWidget::UpdateNormal()
   double spacing[3];
   this->ImageData->GetSpacing(spacing);
 
-  float spacingX = fabs(planeAxis1[0]*spacing[0])+\
+  double spacingX = fabs(planeAxis1[0]*spacing[0])+\
                    fabs(planeAxis1[1]*spacing[1])+\
                    fabs(planeAxis1[2]*spacing[2]);
 
-  float spacingY = fabs(planeAxis2[0]*spacing[0])+\
+  double spacingY = fabs(planeAxis2[0]*spacing[0])+\
                    fabs(planeAxis2[1]*spacing[1])+\
                    fabs(planeAxis2[2]*spacing[2]);
 
@@ -1513,7 +1519,7 @@ void vtkImagePlaneWidget::UpdateNormal()
   // Pad extent up to a power of two for efficient texture mapping
 
   // make sure we're working with valid values
-  float realExtentX;
+  double realExtentX;
   if (spacingX == 0)
     realExtentX = 0;
   else
@@ -1540,7 +1546,7 @@ void vtkImagePlaneWidget::UpdateNormal()
     }
 
   // make sure extentY doesn't wrap during padding
-  float realExtentY;
+  double realExtentY;
   if (spacingY == 0)
     realExtentY = 0;
   else
@@ -1571,8 +1577,8 @@ void vtkImagePlaneWidget::UpdateNormal()
   // Find expansion factor to account for increasing the extent
   // to a power of two
   //
-  float expand1 = extentX*spacingX;
-  float expand2 = extentY*spacingY;
+  double expand1 = extentX*spacingX;
+  double expand2 = extentY*spacingY;
 
   // Set the texture coordinates to map the image to the plane
   //
@@ -1696,10 +1702,10 @@ void vtkImagePlaneWidget::SetLookupTable(vtkLookupTable* table)
     }
 }
 
-void vtkImagePlaneWidget::SetSlicePosition(float position)
+void vtkImagePlaneWidget::SetSlicePosition(double position)
 {
-  float amount = 0.0f;
-  float planeOrigin[3];
+  double amount = 0.0f;
+  double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
   if ( this->PlaneOrientation == 2 ) // z axis
@@ -1726,9 +1732,9 @@ void vtkImagePlaneWidget::SetSlicePosition(float position)
   this->UpdateOrigin();
 }
 
-float vtkImagePlaneWidget::GetSlicePosition()
+double vtkImagePlaneWidget::GetSlicePosition()
 {
-  float planeOrigin[3];
+  double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
   if ( this->PlaneOrientation == 2 )
@@ -1767,11 +1773,11 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->ImageData->GetOrigin(origin);
   double spacing[3];
   this->ImageData->GetSpacing(spacing);
-  float planeOrigin[3];
+  double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
-  float pt1[3];
+  double pt1[3];
   this->PlaneSource->GetPoint1(pt1);
-  float pt2[3];
+  double pt2[3];
   this->PlaneSource->GetPoint2(pt2);
 
   if ( this->PlaneOrientation == 2 )
@@ -1822,7 +1828,7 @@ int vtkImagePlaneWidget::GetSliceIndex()
   this->ImageData->GetOrigin(origin);
   double spacing[3];
   this->ImageData->GetSpacing(spacing);
-  float planeOrigin[3];
+  double planeOrigin[3];
   this->PlaneSource->GetOrigin(planeOrigin);
 
   if ( this->PlaneOrientation == 2 )
@@ -1903,7 +1909,7 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   vtkAssemblyPath *path;
   this->PlanePicker->Pick(X,Y,0.0,this->CurrentRenderer);
   path = this->PlanePicker->GetPath();
-  this->CurrentImageValue = VTK_FLOAT_MAX;
+  this->CurrentImageValue = VTK_DOUBLE_MAX;
 
   int found = 0;
   int i;
@@ -1956,48 +1962,49 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   int extent[6];
   this->ImageData->GetExtent(extent);
 
-  float o[3];
+  double o[3];
   this->PlaneSource->GetOrigin(o);
 
   int iq[3];
   int iqtemp;
-  float qro[3];
+  double qro[3];
   for (i = 0; i < 3; i++)
     {
-  // compute world to image coords
+    // compute world to image coords
     iqtemp = vtkMath::Round((closestPt[i]-origin[i])/spacing[i]);
+    
+    // we have a valid pick already, just enforce bounds check
+    iq[i] = 
+      (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
 
-  // we have a valid pick already, just enforce bounds check
-    iq[i] = (iqtemp < extent[2*i])?extent[2*i]:((iqtemp > extent[2*i+1])?extent[2*i+1]:iqtemp);
-
-  // compute image to world coords
+    // compute image to world coords
     q[i] = iq[i]*spacing[i] + origin[i];
-
-  // q relative to the plane origin
+    
+    // q relative to the plane origin
     qro[i]= q[i] - o[i];
     }
 
   memcpy(this->CurrentCursorPosition,iq,3*sizeof(int));
   this->CurrentImageValue = 0.0;
 
-  float p1o[3];
-  float p2o[3];
+  double p1o[3];
+  double p2o[3];
 
   this->GetVector1(p1o);
   this->GetVector2(p2o);
 
-  float Lp1 = vtkMath::Dot(qro,p1o)/vtkMath::Dot(p1o,p1o);
-  float Lp2 = vtkMath::Dot(qro,p2o)/vtkMath::Dot(p2o,p2o);
+  double Lp1 = vtkMath::Dot(qro,p1o)/vtkMath::Dot(p1o,p1o);
+  double Lp2 = vtkMath::Dot(qro,p2o)/vtkMath::Dot(p2o,p2o);
 
-  float p1[3];
+  double p1[3];
   this->PlaneSource->GetPoint1(p1);
-  float p2[3];
+  double p2[3];
   this->PlaneSource->GetPoint2(p2);
 
-  float a[3];
-  float b[3];
-  float c[3];
-  float d[3];
+  double a[3];
+  double b[3];
+  double c[3];
+  double d[3];
 
   for (i = 0; i < 3; i++)
     {
@@ -2017,82 +2024,82 @@ void vtkImagePlaneWidget::UpdateCursor(int X, int Y )
   this->CursorPolyData->Modified();
 }
 
-void vtkImagePlaneWidget::SetOrigin(float x, float y, float z)
+void vtkImagePlaneWidget::SetOrigin(double x, double y, double z)
 {
   this->PlaneSource->SetOrigin(x,y,z);
 }
 
-void vtkImagePlaneWidget::SetOrigin(float xyz[3])
+void vtkImagePlaneWidget::SetOrigin(double xyz[3])
 {
   this->PlaneSource->SetOrigin(xyz);
 }
 
-float* vtkImagePlaneWidget::GetOrigin()
+double* vtkImagePlaneWidget::GetOrigin()
 {
   return this->PlaneSource->GetOrigin();
 }
 
-void vtkImagePlaneWidget::GetOrigin(float xyz[3])
+void vtkImagePlaneWidget::GetOrigin(double xyz[3])
 {
   this->PlaneSource->GetOrigin(xyz);
 }
 
-void vtkImagePlaneWidget::SetPoint1(float x, float y, float z)
+void vtkImagePlaneWidget::SetPoint1(double x, double y, double z)
 {
   this->PlaneSource->SetPoint1(x,y,z);
 }
 
-void vtkImagePlaneWidget::SetPoint1(float xyz[3])
+void vtkImagePlaneWidget::SetPoint1(double xyz[3])
 {
   this->PlaneSource->SetPoint1(xyz);
 }
 
-float* vtkImagePlaneWidget::GetPoint1()
+double* vtkImagePlaneWidget::GetPoint1()
 {
   return this->PlaneSource->GetPoint1();
 }
 
-void vtkImagePlaneWidget::GetPoint1(float xyz[3])
+void vtkImagePlaneWidget::GetPoint1(double xyz[3])
 {
   this->PlaneSource->GetPoint1(xyz);
 }
 
-void vtkImagePlaneWidget::SetPoint2(float x, float y, float z)
+void vtkImagePlaneWidget::SetPoint2(double x, double y, double z)
 {
   this->PlaneSource->SetPoint2(x,y,z);
 }
 
-void vtkImagePlaneWidget::SetPoint2(float xyz[3])
+void vtkImagePlaneWidget::SetPoint2(double xyz[3])
 {
   this->PlaneSource->SetPoint2(xyz);
 }
 
-float* vtkImagePlaneWidget::GetPoint2()
+double* vtkImagePlaneWidget::GetPoint2()
 {
   return this->PlaneSource->GetPoint2();
 }
 
-void vtkImagePlaneWidget::GetPoint2(float xyz[3])
+void vtkImagePlaneWidget::GetPoint2(double xyz[3])
 {
   this->PlaneSource->GetPoint2(xyz);
 }
 
-float* vtkImagePlaneWidget::GetCenter() 
+double* vtkImagePlaneWidget::GetCenter() 
 {
   return this->PlaneSource->GetCenter();
 }
 
-void vtkImagePlaneWidget::GetCenter(float xyz[3]) 
+void vtkImagePlaneWidget::GetCenter(double xyz[3]) 
 {
   this->PlaneSource->GetCenter(xyz);
 }
 
-float* vtkImagePlaneWidget::GetNormal() 
+double* vtkImagePlaneWidget::GetNormal() 
 {
   return this->PlaneSource->GetNormal();
 }
 
-void vtkImagePlaneWidget::GetNormal(float xyz[3])
+void vtkImagePlaneWidget::GetNormal(double xyz[3])
 {
   this->PlaneSource->GetNormal(xyz);
 }
@@ -2131,19 +2138,19 @@ vtkTexture* vtkImagePlaneWidget::GetTexture()
   return this->Texture;
 }
 
-void vtkImagePlaneWidget::GetVector1(float v1[3])
+void vtkImagePlaneWidget::GetVector1(double v1[3])
 {
-  float* p1 = this->PlaneSource->GetPoint1();
-  float* o =  this->PlaneSource->GetOrigin();
+  double* p1 = this->PlaneSource->GetPoint1();
+  double* o =  this->PlaneSource->GetOrigin();
   v1[0] = p1[0] - o[0];
   v1[1] = p1[1] - o[1];
   v1[2] = p1[2] - o[2];
 }
 
-void vtkImagePlaneWidget::GetVector2(float v2[3])
+void vtkImagePlaneWidget::GetVector2(double v2[3])
 {
-  float* p2 = this->PlaneSource->GetPoint2();
-  float* o =  this->PlaneSource->GetOrigin();
+  double* p2 = this->PlaneSource->GetPoint2();
+  double* o =  this->PlaneSource->GetOrigin();
   v2[0] = p2[0] - o[0];
   v2[1] = p2[1] - o[1];
   v2[2] = p2[2] - o[2];
@@ -2173,33 +2180,33 @@ void vtkImagePlaneWidget::AdjustState()
     return;
     }
 
-  float v1[3];
+  double v1[3];
   this->GetVector1(v1);
-  float v2[3];
+  double v2[3];
   this->GetVector2(v2);
-  float planeSize1 = vtkMath::Normalize(v1);
-  float planeSize2 = vtkMath::Normalize(v2);
-  float* planeOrigin = this->PlaneSource->GetOrigin();
+  double planeSize1 = vtkMath::Normalize(v1);
+  double planeSize2 = vtkMath::Normalize(v2);
+  double* planeOrigin = this->PlaneSource->GetOrigin();
 
-  float ppo[3] = {this->LastPickPosition[0] - planeOrigin[0],
+  double ppo[3] = {this->LastPickPosition[0] - planeOrigin[0],
                   this->LastPickPosition[1] - planeOrigin[1],
                   this->LastPickPosition[2] - planeOrigin[2] };
 
-  float x2D = vtkMath::Dot(ppo,v1);
-  float y2D = vtkMath::Dot(ppo,v2);
+  double x2D = vtkMath::Dot(ppo,v1);
+  double y2D = vtkMath::Dot(ppo,v2);
 
   // Divide plane into three zones for different user interactions:
   // four corners -- spin around the plane's normal at its center
   // four edges   -- rotate around one of the plane's axes at its center
   // center area  -- push
   //
-  float marginX = planeSize1 * 0.05;
-  float marginY = planeSize2 * 0.05;
+  double marginX = planeSize1 * 0.05;
+  double marginY = planeSize2 * 0.05;
 
-  float x0 = marginX;
-  float y0 = marginY;
-  float x1 = planeSize1 - marginX;
-  float y1 = planeSize2 - marginY;
+  double x0 = marginX;
+  double y0 = marginY;
+  double x1 = planeSize1 - marginX;
+  double y1 = planeSize2 - marginY;
 
   if ( x2D < x0  )       // left margin
     {
@@ -2271,10 +2278,10 @@ void vtkImagePlaneWidget::AdjustState()
       }
     }
 
-  float *raPtr = 0;
-  float *rvPtr = 0;
-  float rvfac = 1.0;
-  float rafac = 1.0;
+  double *raPtr = 0;
+  double *rvPtr = 0;
+  double rvfac = 1.0;
+  double rafac = 1.0;
 
   switch ( this->MarginSelectMode )
     {
@@ -2308,39 +2315,39 @@ void vtkImagePlaneWidget::Spin(double *p1, double *p2)
   
   // Get the motion vector, in world coords
   //
-  float v[3];
+  double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
   // Plane center and normal before transform
   //
-  float* wc = this->PlaneSource->GetCenter();
-  float* wn = this->Normal;
+  double* wc = this->PlaneSource->GetCenter();
+  double* wn = this->Normal;
 
   // Radius vector from center to cursor position
   //
-  float rv[3] = {p2[0]-wc[0], p2[1]-wc[1], p2[2]-wc[2]};
+  double rv[3] = {p2[0]-wc[0], p2[1]-wc[1], p2[2]-wc[2]};
 
   // Distance between center and cursor location
   //
-  float rs = vtkMath::Normalize(rv);
+  double rs = vtkMath::Normalize(rv);
 
   // Spin direction
   //
-  float wn_cross_rv[3];
+  double wn_cross_rv[3];
   vtkMath::Cross(wn,rv,wn_cross_rv);
 
   // Spin angle
   //
-  float dw = vtkMath::RadiansToDegrees() * vtkMath::Dot(v,wn_cross_rv) / rs;
+  double dw = vtkMath::RadiansToDegrees() * vtkMath::Dot(v,wn_cross_rv) / rs;
 
   this->Transform->Identity();
   this->Transform->Translate(wc[0],wc[1],wc[2]);
   this->Transform->RotateWXYZ(dw,wn);
   this->Transform->Translate(-wc[0],-wc[1],-wc[2]);
 
-  float newpt[3];
+  double newpt[3];
   this->Transform->TransformPoint(this->PlaneSource->GetPoint1(),newpt);
   this->PlaneSource->SetPoint1(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetPoint2(),newpt);
@@ -2360,41 +2367,41 @@ void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
 
   // Get the motion vector, in world coords
   //
-  float v[3];
+  double v[3];
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
   // Plane center and normal
   //
-  float* wc = this->PlaneSource->GetCenter();
+  double* wc = this->PlaneSource->GetCenter();
 
   // Radius of the rotating circle of the picked point
   //
-  float radius = fabs( this->RadiusVector[0]*(p2[0]-wc[0]) +
+  double radius = fabs( this->RadiusVector[0]*(p2[0]-wc[0]) +
                        this->RadiusVector[1]*(p2[1]-wc[1]) +
                        this->RadiusVector[2]*(p2[2]-wc[2]) );
 
   // Rotate direction ra_cross_rv
   //
-  float rd[3];
+  double rd[3];
   vtkMath::Cross(this->RotateAxis,this->RadiusVector,rd);
 
   // Direction cosin between rotating direction and view normal
   //
-  float rd_dot_vpn = rd[0]*vpn[0] + rd[1]*vpn[1] + rd[2]*vpn[2];
+  double rd_dot_vpn = rd[0]*vpn[0] + rd[1]*vpn[1] + rd[2]*vpn[2];
 
   // 'push' plane edge when mouse moves away from plane center
   // 'pull' plane edge when mouse moves toward plane center
   //
-  float dw = vtkMath::RadiansToDegrees() * (vtkMath::Dot(this->RadiusVector,v))/radius * (-rd_dot_vpn);
+  double dw = vtkMath::RadiansToDegrees() * (vtkMath::Dot(this->RadiusVector,v))/radius * (-rd_dot_vpn);
 
   this->Transform->Identity();
   this->Transform->Translate(wc[0],wc[1],wc[2]);
   this->Transform->RotateWXYZ(dw,this->RotateAxis);
   this->Transform->Translate(-wc[0],-wc[1],-wc[2]);
 
-  float newpt[3];
+  double newpt[3];
   this->Transform->TransformPoint(this->PlaneSource->GetPoint1(),newpt);
   this->PlaneSource->SetPoint1(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetPoint2(),newpt);
@@ -2558,24 +2565,24 @@ void vtkImagePlaneWidget::GenerateText()
 
 void vtkImagePlaneWidget::UpdateMargins()
 {
-  float v1[3];
+  double v1[3];
   this->GetVector1(v1);
-  float v2[3];
+  double v2[3];
   this->GetVector2(v2);
-  float o[3];
+  double o[3];
   this->PlaneSource->GetOrigin(o);
-  float p1[3];
+  double p1[3];
   this->PlaneSource->GetPoint1(p1);
-  float p2[3];
+  double p2[3];
   this->PlaneSource->GetPoint2(p2);
 
-  float a[3];
-  float b[3];
-  float c[3];
-  float d[3];
+  double a[3];
+  double b[3];
+  double c[3];
+  double d[3];
 
-  float s = 0.05;
-  float t = 0.05;
+  double s = 0.05;
+  double t = 0.05;
 
   int i;
   for ( i = 0; i < 3; i++)
@@ -2618,15 +2625,15 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float *o = this->PlaneSource->GetOrigin();
-  float *pt1 = this->PlaneSource->GetPoint1();
-  float *pt2 = this->PlaneSource->GetPoint2();
-  float origin[3], point1[3], point2[3];
+  double *o = this->PlaneSource->GetOrigin();
+  double *pt1 = this->PlaneSource->GetPoint1();
+  double *pt2 = this->PlaneSource->GetPoint2();
+  double origin[3], point1[3], point2[3];
 
-  float vdrv = this->RadiusVector[0]*v[0] + \
+  double vdrv = this->RadiusVector[0]*v[0] + \
                this->RadiusVector[1]*v[1] + \
                this->RadiusVector[2]*v[2];
-  float vdra = this->RotateAxis[0]*v[0] + \
+  double vdra = this->RotateAxis[0]*v[0] + \
                this->RotateAxis[1]*v[1] + \
                this->RotateAxis[2]*v[2];
 
@@ -2684,7 +2691,8 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     for (i=0; i<3; i++)
       {
       origin[i] = o[i]   + vdrv*this->RadiusVector[i];
-      point2[i] = pt2[i] + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      point2[i] = pt2[i] + vdrv*this->RadiusVector[i] + 
+        vdra*this->RotateAxis[i];
       }
     this->PlaneSource->SetOrigin(origin);
     this->PlaneSource->SetPoint2(point2);
@@ -2693,7 +2701,8 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     {
     for (i=0; i<3; i++)
       {
-      origin[i] = o[i]   + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      origin[i] = o[i]   + vdrv*this->RadiusVector[i] + 
+        vdra*this->RotateAxis[i];
       point1[i] = pt1[i] + vdra*this->RotateAxis[i];
       point2[i] = pt2[i] + vdrv*this->RadiusVector[i];
       }
@@ -2716,7 +2725,8 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     for (i=0; i<3; i++)
       {
       origin[i] = o[i]   + vdra*this->RotateAxis[i];
-      point1[i] = pt1[i] + vdrv*this->RadiusVector[i] + vdra*this->RotateAxis[i];
+      point1[i] = pt1[i] + vdrv*this->RadiusVector[i] + 
+        vdra*this->RotateAxis[i];
       }
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetOrigin(origin);
@@ -2726,7 +2736,8 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
   this->BuildRepresentation();
 }
 
-void vtkImagePlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
+void vtkImagePlaneWidget::Scale(double *p1, double *p2, 
+                                int vtkNotUsed(X), int Y)
 {
   // Get the motion vector
   //
@@ -2735,18 +2746,19 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float *o = this->PlaneSource->GetOrigin();
-  float *pt1 = this->PlaneSource->GetPoint1();
-  float *pt2 = this->PlaneSource->GetPoint2();
+  double *o = this->PlaneSource->GetOrigin();
+  double *pt1 = this->PlaneSource->GetPoint1();
+  double *pt2 = this->PlaneSource->GetPoint2();
 
-  float center[3];
+  double center[3];
   center[0] = o[0] + (pt1[0]-o[0])/2.0 + (pt2[0]-o[0])/2.0;
   center[1] = o[1] + (pt1[1]-o[1])/2.0 + (pt2[1]-o[1])/2.0;
   center[2] = o[2] + (pt1[2]-o[2])/2.0 + (pt2[2]-o[2])/2.0;
 
   // Compute the scale factor
   //
-  float sf = vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
+  double sf = vtkMath::Norm(v) / 
+    sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
@@ -2758,7 +2770,7 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y
 
   // Move the corner points
   //
-  float origin[3], point1[3], point2[3];
+  double origin[3], point1[3], point2[3];
 
   for (int i=0; i<3; i++)
     {

@@ -135,7 +135,7 @@ public:
 
   // Description:
   // Calculates the bounds by gathering information from all processes.
-  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, double bounds[6]);
 
   // Description:
   // Turns on/off parallel rendering.  When on (the default) the object
@@ -186,7 +186,7 @@ public:
   // the rendering metrics taken from the last time UpdateServerInfo was
   // called.  Note that if AutoReductionFactor is on, this function is called
   // with the desired update rate of the render window automatically.
-  virtual void SetImageReductionFactorForUpdateRate(float DesiredUpdateRate);
+  virtual void SetImageReductionFactorForUpdateRate(double DesiredUpdateRate);
 
   // Description:
   // If on, the ReductionFactor is automatically adjusted to best meet the
@@ -364,7 +364,7 @@ protected:
   // Called by ComputeVisiblePropBoundsRMI to get the bounds of a local
   // renderer.  Override this method if the true bounds are different than
   // those reported by the renderer.
-  virtual void LocalComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+  virtual void LocalComputeVisiblePropBounds(vtkRenderer *ren, double bounds[6]);
 
   // Description:
   // When called, fills FullImage.

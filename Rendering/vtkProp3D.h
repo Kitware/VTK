@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Set/Get/Add the position of the Prop3D in world coordinates.
-  virtual void SetPosition(float _arg1, float _arg2, float _arg3) 
+  virtual void SetPosition(double _arg1, double _arg2, double _arg3) 
     { 
       vtkDebugMacro(<< this->GetClassName() << " (" << this << 
       "): setting Position to (" << _arg1 << "," << _arg2 << "," << 
@@ -64,18 +64,18 @@ public:
         this->IsIdentity = 0;
         } 
     }; 
-  virtual void SetPosition (float _arg[3]) 
+  virtual void SetPosition (double _arg[3]) 
     { 
       this->SetPosition (_arg[0], _arg[1], _arg[2]);
     } 
-  vtkGetVectorMacro(Position,float,3);
-  void AddPosition(float deltaPosition[3]);
-  void AddPosition(float deltaX,float deltaY,float deltaZ);
+  vtkGetVectorMacro(Position,double,3);
+  void AddPosition(double deltaPosition[3]);
+  void AddPosition(double deltaX,double deltaY,double deltaZ);
 
   // Description:
   // Set/Get the origin of the Prop3D. This is the point about which all 
   // rotations take place.
-  virtual void SetOrigin(float _arg1, float _arg2, float _arg3) 
+  virtual void SetOrigin(double _arg1, double _arg2, double _arg3) 
     { 
       vtkDebugMacro(<< this->GetClassName() << " (" << this << 
       "): setting Origin to (" << _arg1 << "," << _arg2 << "," << 
@@ -91,16 +91,16 @@ public:
         this->IsIdentity = 0;
         } 
     }; 
-  virtual void SetOrigin(float _arg[3]) 
+  virtual void SetOrigin(double _arg[3]) 
     { 
       this->SetOrigin (_arg[0], _arg[1], _arg[2]);
     } 
-  vtkGetVectorMacro(Origin,float,3);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Set/Get the scale of the actor. Scaling in performed independently on the
   // X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
-  virtual void SetScale(float _arg1, float _arg2, float _arg3) 
+  virtual void SetScale(double _arg1, double _arg2, double _arg3) 
     { 
       vtkDebugMacro(<< this->GetClassName() << " (" << this << 
       "): setting Scale to (" << _arg1 << "," << _arg2 << "," << 
@@ -116,15 +116,15 @@ public:
         this->IsIdentity = 0;
         } 
     }; 
-  virtual void SetScale (float _arg[3]) 
+  virtual void SetScale (double _arg[3]) 
     { 
       this->SetScale (_arg[0], _arg[1], _arg[2]);
     } 
-  vtkGetVectorMacro(Scale,float,3);
+  vtkGetVectorMacro(Scale,double,3);
 
   // Description:
   // Method to set the scale isotropically
-  void SetScale(float s) {this->SetScale(s,s,s);};
+  void SetScale(double s) {this->SetScale(s,s,s);};
 
   // Description:
   // In addition to the instance variables such as position and orientation,
@@ -157,28 +157,28 @@ public:
 
   // Description:
   // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(float bounds[6]);
-  virtual float *GetBounds() = 0;
+  void GetBounds(double bounds[6]);
+  virtual double *GetBounds() = 0;
   
   // Description:
   // Get the center of the bounding box in world coordinates.
-  float *GetCenter();
+  double *GetCenter();
 
   // Description:
   // Get the Prop3D's x range in world coordinates.
-  float *GetXRange();
+  double *GetXRange();
 
   // Description:
   // Get the Prop3D's y range in world coordinates.
-  float *GetYRange();
+  double *GetYRange();
 
   // Description:
   // Get the Prop3D's z range in world coordinates.
-  float *GetZRange();
+  double *GetZRange();
 
   // Description:
   // Get the length of the diagonal of the bounding box.
-  float GetLength();
+  double GetLength();
 
   // Description:
   // Rotate the Prop3D in degrees about the X axis using the right hand
@@ -186,7 +186,7 @@ public:
   // rotations are performed.  To rotate about the world X axis use
   // RotateWXYZ (angle, 1, 0, 0). This rotation is applied before all
   // others in the current transformation matrix.
-  void RotateX(float);
+  void RotateX(double);
 
   // Description:
   // Rotate the Prop3D in degrees about the Y axis using the right hand
@@ -194,7 +194,7 @@ public:
   // rotations are performed.  To rotate about the world Y axis use
   // RotateWXYZ (angle, 0, 1, 0). This rotation is applied before all
   // others in the current transformation matrix.
-  void RotateY(float);
+  void RotateY(double);
 
   // Description:
   // Rotate the Prop3D in degrees about the Z axis using the right hand
@@ -202,52 +202,52 @@ public:
   // rotations are performed.  To rotate about the world Z axis use
   // RotateWXYZ (angle, 0, 0, 1). This rotation is applied before all
   // others in the current transformation matrix.
-  void RotateZ(float);
+  void RotateZ(double);
 
   // Description:
   // Rotate the Prop3D in degrees about an arbitrary axis specified by
   // the last three arguments. The axis is specified in world
   // coordinates. To rotate an about its model axes, use RotateX,
   // RotateY, RotateZ.
-  void RotateWXYZ(float,float,float,float);
+  void RotateWXYZ(double,double,double,double);
 
   // Description:
   // Sets the orientation of the Prop3D.  Orientation is specified as
   // X,Y and Z rotations in that order, but they are performed as
   // RotateZ, RotateX, and finally RotateY.
-  void SetOrientation(float,float,float);
+  void SetOrientation(double,double,double);
 
   // Description:
   // Sets the orientation of the Prop3D.  Orientation is specified as
   // X,Y and Z rotations in that order, but they are performed as
   // RotateZ, RotateX, and finally RotateY.
-  void SetOrientation(float a[3]);
+  void SetOrientation(double a[3]);
 
   // Description:
   // Returns the orientation of the Prop3D as s vector of X,Y and Z rotation.
   // The ordering in which these rotations must be done to generate the 
   // same matrix is RotateZ, RotateX, and finally RotateY. See also 
   // SetOrientation.
-  float *GetOrientation();
-  void GetOrientation(float o[3]);
+  double *GetOrientation();
+  void GetOrientation(double o[3]);
 
   // Description:
   // Returns the WXYZ orientation of the Prop3D. 
-  float *GetOrientationWXYZ();
+  double *GetOrientationWXYZ();
 
   // Description:
   // Add to the current orientation. See SetOrientation and
   // GetOrientation for more details. This basically does a
   // GetOrientation, adds the passed in arguments, and then calls
   // SetOrientation.
-  void AddOrientation(float,float,float);
+  void AddOrientation(double,double,double);
 
   // Description:
   // Add to the current orientation. See SetOrientation and
   // GetOrientation for more details. This basically does a
   // GetOrientation, adds the passed in arguments, and then calls
   // SetOrientation.
-  void AddOrientation(float a[3]);
+  void AddOrientation(double a[3]);
 
   // Description:
   // This method modifies the vtkProp3D so that its transformation
@@ -297,13 +297,13 @@ protected:
   vtkMatrix4x4  *UserMatrix;
   vtkMatrix4x4  *Matrix;
   vtkTimeStamp  MatrixMTime;
-  float         Origin[3];
-  float         Position[3];
-  float         Orientation[3];
-  float         Scale[3];
-  float         Center[3];
+  double         Origin[3];
+  double         Position[3];
+  double         Orientation[3];
+  double         Scale[3];
+  double         Center[3];
   vtkTransform  *Transform;
-  float         Bounds[6];
+  double         Bounds[6];
   vtkProp3D     *CachedProp3D; //support the PokeMatrix() method
   int           IsIdentity;
 private:

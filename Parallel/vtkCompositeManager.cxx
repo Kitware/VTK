@@ -21,6 +21,7 @@
 #include "vtkFloatArray.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
@@ -40,7 +41,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.52");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.53");
 vtkStandardNewMacro(vtkCompositeManager);
 
 
@@ -903,7 +904,7 @@ void vtkCompositeManager::EndRender()
 //-------------------------------------------------------------------------
 void vtkCompositeManager::ResetCamera(vtkRenderer *ren)
 {
-  float bounds[6];
+  double bounds[6];
 
   if (this->Controller == NULL || this->Lock)
     {
@@ -914,11 +915,11 @@ void vtkCompositeManager::ResetCamera(vtkRenderer *ren)
   
   this->ComputeVisiblePropBounds(ren, bounds);
   // Keep from setting camera from some outrageous value.
-  if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+  if (!vtkMath::AreBoundsInitialized(bounds))
     {
     // See if the not pickable values are better.
     ren->ComputeVisiblePropBounds(bounds);
-    if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+    if (!vtkMath::AreBoundsInitialized(bounds))
       {
       this->Lock = 0;
       return;
@@ -932,7 +933,7 @@ void vtkCompositeManager::ResetCamera(vtkRenderer *ren)
 //-------------------------------------------------------------------------
 void vtkCompositeManager::ResetCameraClippingRange(vtkRenderer *ren)
 {
-  float bounds[6];
+  double bounds[6];
 
   if (this->Controller == NULL || this->Lock)
     {
@@ -949,7 +950,7 @@ void vtkCompositeManager::ResetCameraClippingRange(vtkRenderer *ren)
 
 //----------------------------------------------------------------------------
 void vtkCompositeManager::ComputeVisiblePropBounds(vtkRenderer *ren, 
-                                                   float bounds[6])
+                                                   double bounds[6])
 {
   float tmp[6];
   int id, num;
@@ -979,7 +980,7 @@ void vtkCompositeManager::ComputeVisiblePropBoundsRMI()
 {
   vtkRendererCollection *rens;
   vtkRenderer* ren;
-  float bounds[6];
+  double bounds[6];
   
   rens = this->RenderWindow->GetRenderers();
   rens->InitTraversal();
@@ -1297,7 +1298,7 @@ void vtkCompositeManager::SetRendererSize(int x, int y)
 
 
 //-------------------------------------------------------------------------
-float vtkCompositeManager::GetZ(int x, int y)
+double vtkCompositeManager::GetZ(int x, int y)
 {
   int idx;
   

@@ -16,9 +16,10 @@
 
 #include "vtkRenderWindow.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkMath.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.33");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.34");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -103,9 +104,9 @@ void vtkPolyDataMapper::Update()
 
 // Get the bounds for the input of this mapper as 
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkPolyDataMapper::GetBounds()
+double *vtkPolyDataMapper::GetBounds()
 {
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
   if ( ! this->GetInput() ) 
     {
@@ -114,19 +115,11 @@ float *vtkPolyDataMapper::GetBounds()
   else
     {
     this->Update();
-    // TODO: cleanupo once Bounds is double
-    double *dbounds = this->GetInput()->GetBounds();
-    this->Bounds[0] = (float)dbounds[0];
-    this->Bounds[1] = (float)dbounds[1];
-    this->Bounds[2] = (float)dbounds[2];
-    this->Bounds[3] = (float)dbounds[3];
-    this->Bounds[4] = (float)dbounds[4];
-    this->Bounds[5] = (float)dbounds[5];
+    this->GetInput()->GetBounds(this->Bounds);
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
-    if (((this->Bounds[0] == -VTK_LARGE_FLOAT) || 
-         (this->Bounds[0] == VTK_LARGE_FLOAT)) &&
-        this->NumberOfSubPieces > 1)
+    if (!vtkMath::AreBoundsInitialized(this->Bounds)
+        && this->NumberOfSubPieces > 1)
       {
       return NULL;
       }

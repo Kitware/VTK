@@ -21,20 +21,21 @@
 #include "vtkParallelRenderManager.h"
 
 #include "vtkMultiProcessController.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkRendererCollection.h"
 #include "vtkCallbackCommand.h"
 #include "vtkActorCollection.h"
 #include "vtkActor.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
+#include "vtkDoubleArray.h"
 #include "vtkLightCollection.h"
 #include "vtkLight.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkMath.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
 #include "vtkTimerLog.h"
+#include "vtkUnsignedCharArray.h"
 
 static void AbortRenderCheck(vtkObject *caller, unsigned long vtkNotUsed(event),
                  void *clientData, void *);
@@ -104,7 +105,7 @@ const int VTK_REN_INFO_DOUBLE_SIZE =
 const int VTK_LIGHT_INFO_FLOAT_SIZE =
   sizeof(vtkParallelRenderManagerLightInfoFloat)/sizeof(float);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.10");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.11");
 
 vtkParallelRenderManager::vtkParallelRenderManager()
 {
@@ -748,7 +749,7 @@ void vtkParallelRenderManager::ResetCamera(vtkRenderer *ren)
 {
   vtkDebugMacro("ResetCamera");
 
-  float bounds[6];
+  double bounds[6];
 
   if (this->Lock)
     {
@@ -763,11 +764,11 @@ void vtkParallelRenderManager::ResetCamera(vtkRenderer *ren)
 
   this->ComputeVisiblePropBounds(ren, bounds);
   // Keep from setting camera from some outrageous value.
-  if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+  if (!vtkMath::AreBoundsInitialized(bounds))
     {
     // See if the not pickable values are better.
     ren->ComputeVisiblePropBounds(bounds);
-    if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+    if (!vtkMath::AreBoundsInitialized(bounds))
       {
       this->Lock = 0;
       return;
@@ -782,7 +783,7 @@ void vtkParallelRenderManager::ResetCameraClippingRange(vtkRenderer *ren)
 {
   vtkDebugMacro("ResetCameraClippingRange");
 
-  float bounds[6];
+  double bounds[6];
 
   if (this->Lock)
     {
@@ -830,7 +831,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
     ren = rens->GetNextItem();
     }
 
-  float bounds[6];
+  double bounds[6];
   this->LocalComputeVisiblePropBounds(ren, bounds);
 
   this->Controller->Send(bounds, 6, this->RootProcessId,
@@ -838,14 +839,14 @@ void vtkParallelRenderManager::ComputeVisiblePropBoundsRMI()
 }
 
 void vtkParallelRenderManager::LocalComputeVisiblePropBounds(vtkRenderer *ren,
-                                                             float bounds[6])
+                                                             double bounds[6])
 {
   ren->ComputeVisiblePropBounds(bounds);
 }
 
 
 void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
-                                                        float bounds[6])
+                                                        double bounds[6])
 {
   vtkDebugMacro("ComputeVisiblePropBounds");
 
@@ -906,7 +907,7 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer *ren,
     //Collect all the bounds.
     for (id = 0; id < numProcs; id++)
       {
-      float tmp[6];
+      double tmp[6];
 
       if (id == this->RootProcessId)
         {
@@ -1025,7 +1026,7 @@ void vtkParallelRenderManager::SetMagnifyImageMethod(int method)
   this->SetImageReductionFactor(this->ImageReductionFactor);
 }
 
-void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(float desiredUpdateRate)
+void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desiredUpdateRate)
 {
   vtkDebugMacro("Setting reduction factor for update rate of "
         << desiredUpdateRate);
@@ -1110,8 +1111,8 @@ static void MagnifyImageNearest(vtkUnsignedCharArray *fullImage,
   timer->StartTimer();
 
   // Inflate image.
-  float xstep = (float)reducedImageSize[0]/fullImageSize[0];
-  float ystep = (float)reducedImageSize[1]/fullImageSize[1];
+  double xstep = (double)reducedImageSize[0]/fullImageSize[0];
+  double ystep = (double)reducedImageSize[1]/fullImageSize[1];
   unsigned char *lastsrcline = NULL;
   for (int y = 0; y < fullImageSize[1]; y++)
     {

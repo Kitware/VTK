@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 
 #include <math.h>
-vtkCxxRevisionMacro(vtkLineSource, "1.43");
+vtkCxxRevisionMacro(vtkLineSource, "1.44");
 vtkStandardNewMacro(vtkLineSource);
 
 vtkLineSource::vtkLineSource(int res)
@@ -42,7 +42,7 @@ void vtkLineSource::Execute()
 {
   int numLines=this->Resolution;
   int numPts=this->Resolution+1;
-  float x[3], tc[3], v[3];
+  double x[3], tc[3], v[3];
   int i, j;
   vtkPoints *newPoints; 
   vtkFloatArray *newTCoords; 
@@ -71,7 +71,7 @@ void vtkLineSource::Execute()
   tc[2] = 0.0;
   for (i=0; i<numPts; i++) 
     {
-    tc[0] = ((float)i/this->Resolution);
+    tc[0] = ((double)i/this->Resolution);
     for (j=0; j<3; j++)
       {
       x[j] = this->Point1[j] + tc[0]*v[j];

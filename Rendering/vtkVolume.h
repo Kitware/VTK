@@ -72,14 +72,14 @@ public:
   // Description:
   // Get the bounds - either all six at once 
   // (xmin, xmax, ymin, ymax, zmin, zmax) or one at a time.
-  float *GetBounds();
-  void GetBounds(float bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
-  float GetMinXBound();
-  float GetMaxXBound();
-  float GetMinYBound();
-  float GetMaxYBound();
-  float GetMinZBound();
-  float GetMaxZBound();
+  double *GetBounds();
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  double GetMinXBound();
+  double GetMaxXBound();
+  double GetMinYBound();
+  double GetMaxYBound();
+  double GetMinZBound();
+  double GetMaxZBound();
 
   // Description:
   // Return the MTime also considering the property etc.

@@ -35,7 +35,7 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.32");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.33");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
@@ -167,12 +167,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown()
     {
     if (this->IsDot)
       {
-      // TODO cleanup
-      float centerTmp[3];
-      this->FocusSphere->GetPosition(centerTmp);
-      this->Center[0] = centerTmp[0];
-      this->Center[1] = centerTmp[1];
-      this->Center[2] = centerTmp[2];
+      this->FocusSphere->GetPosition(this->Center);
       }
     state = VTK_UNICAM_CAM_INT_ROT;
     }
@@ -373,8 +368,7 @@ inline int  Sign (double a)     { return a > 0 ? 1 : a < 0 ? -1 : 0; }
 void vtkInteractorStyleUnicam::RotateXY( int X, int Y )
 {
   double cpt[3];
-  // TODO convert to double
-  float center[3];
+  double center[3];
   this->FocusSphere->GetPosition(center);
   this->ComputeWorldToDisplay(center[0], center[1], center[2], cpt);
   this->NormalizeMouseXY(static_cast<int>(cpt[0]), static_cast<int>(cpt[1]), 

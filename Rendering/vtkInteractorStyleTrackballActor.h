@@ -72,19 +72,13 @@ protected:
 
   void FindPickedActor(int x, int y);
 
-  void Prop3DTransform(vtkProp3D *prop3D, 
-                       double *boxCenter,
-                       int numRotation, 
-                       double **rotate,
-                       double *scale);
-
   void Prop3DTransform(vtkProp3D *prop3D,
-                       float *boxCenter,
+                       double *boxCenter,
                        int NumRotation,
                        double **rotate,
                        double *scale);
   
-  float MotionFactor;
+  double MotionFactor;
 
   vtkProp3D *InteractionProp;
   vtkCellPicker *InteractionPicker;

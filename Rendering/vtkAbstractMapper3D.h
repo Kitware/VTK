@@ -41,21 +41,21 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return bounding box (array of six floats) of data expressed as
+  // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
-  virtual float *GetBounds()=0;
+  virtual double *GetBounds()=0;
 
   // Description:
   // Get the bounds for this mapper as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  virtual void GetBounds(float bounds[6]);
+  virtual void GetBounds(double bounds[6]);
   
   // Description:
   // Return the Center of this mapper's data.
-  float *GetCenter();
+  double *GetCenter();
   
   // Description:
   // Return the diagonal length of this mappers bounding box.
-  float GetLength();
+  double GetLength();
 
   // Description:
   // Is this a ray cast mapper? A subclass would return 1 if the
@@ -75,8 +75,8 @@ protected:
    vtkAbstractMapper3D();
   ~vtkAbstractMapper3D() {};
 
-  float Bounds[6];
-  float Center[3];
+  double Bounds[6];
+  double Center[3];
 
 private:
   vtkAbstractMapper3D(const vtkAbstractMapper3D&);  // Not implemented.

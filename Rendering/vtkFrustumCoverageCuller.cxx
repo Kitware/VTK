@@ -19,7 +19,7 @@
 #include "vtkProp.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.29");
+vtkCxxRevisionMacro(vtkFrustumCoverageCuller, "1.30");
 vtkStandardNewMacro(vtkFrustumCoverageCuller);
 
 // Create a frustum coverage culler with default values
@@ -42,7 +42,7 @@ float vtkFrustumCoverageCuller::Cull( vtkRenderer *ren,
 {
   vtkProp            *prop;
   float               total_time;
-  float               *bounds, center[3];
+  double             *bounds, center[3];
   float               radius = 0.0;
   float               planes[24], d;
   float               coverage, screen_bounds[4];

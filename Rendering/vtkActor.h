@@ -121,9 +121,9 @@ public:
 
   // Description:
   // Get the bounds for this Actor as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax). (The
-  // method GetBounds(float bounds[6]) is available from the superclass.)
-  void GetBounds(float bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
-  float *GetBounds();
+  // method GetBounds(double bounds[6]) is available from the superclass.)
+  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
+  double *GetBounds();
 
   // Description:
   // Apply the current properties to all parts that compose this actor.
@@ -168,7 +168,7 @@ protected:
   
   // Bounds are cached in an actor - the MapperBounds are also cache to
   // help know when the Bounds need to be recomputed.
-  float        MapperBounds[6];
+  double       MapperBounds[6];
   vtkTimeStamp BoundsMTime;
 
 private:

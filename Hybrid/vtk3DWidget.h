@@ -72,10 +72,10 @@ public:
   // bounds with the PlaceWidget(bounds) method. Note: PlaceWidget(bounds)
   // is required by all subclasses; the other methods are provided as
   // convenience methods.
-  virtual void PlaceWidget(float bounds[6]) = 0;
+  virtual void PlaceWidget(double bounds[6]) = 0;
   virtual void PlaceWidget();
-  virtual void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                           float zmin, float zmax);
+  virtual void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                           double zmin, double zmax);
 
   // Description:
   // Specify a vtkProp3D around which to place the widget. This 
@@ -97,16 +97,16 @@ public:
   // it just fits within the bounding box defined in PlaceWidget(bounds).
   // The PlaceFactor will make the widget larger (PlaceFactor > 1) or smaller
   // (PlaceFactor < 1). By default, PlaceFactor is set to 0.5.
-  vtkSetClampMacro(PlaceFactor,float,0.01,VTK_LARGE_FLOAT);
-  vtkGetMacro(PlaceFactor,float);
+  vtkSetClampMacro(PlaceFactor,double,0.01,VTK_FLOAT_MAX);
+  vtkGetMacro(PlaceFactor,double);
 
   // Description:
   // Set/Get the factor that controls the size of the handles that
   // appear as part of the widget. These handles (like spheres, etc.)
   // are used to manipulate the widget, and are sized as a fraction of
   // the screen diagonal.
-  vtkSetClampMacro(HandleSize,float,0.001,0.5);
-  vtkGetMacro(HandleSize,float);
+  vtkSetClampMacro(HandleSize,double,0.001,0.5);
+  vtkGetMacro(HandleSize,double);
 
 protected:
   vtk3DWidget();
@@ -117,15 +117,15 @@ protected:
   vtkDataSet *Input;
   
   //has the widget ever been placed
-  float PlaceFactor;
+  double PlaceFactor;
   int Placed; 
-  void AdjustBounds(float bounds[6], float newBounds[6], float center[3]);
+  void AdjustBounds(double bounds[6], double newBounds[6], double center[3]);
   
   //control the size of handles (if there are any)
-  float InitialBounds[6];
-  float InitialLength;
-  float HandleSize;
-  float SizeHandles(float factor);
+  double InitialBounds[6];
+  double InitialLength;
+  double HandleSize;
+  double SizeHandles(double factor);
   virtual void SizeHandles() {}//subclass in turn invokes parent's SizeHandles()
   
   //used to track the depth of the last pick; also interacts with handle sizing

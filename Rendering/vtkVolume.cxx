@@ -30,7 +30,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolume, "1.79");
+vtkCxxRevisionMacro(vtkVolume, "1.80");
 vtkStandardNewMacro(vtkVolume);
 
 // Creates a Volume with the following defaults: origin(0,0,0) 
@@ -205,7 +205,7 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
     double *aspect = ren->GetAspect();
     vtkMatrix4x4 *mat = cam->GetCompositePerspectiveTransformMatrix( 
       aspect[0]/aspect[1], 0.0, 1.0 );
-    float *bounds = this->GetBounds();
+    double *bounds = this->GetBounds();
     float minX =  1.0;
     float maxX = -1.0;
     float minY =  1.0;
@@ -248,10 +248,10 @@ float vtkVolume::ComputeScreenCoverage( vtkViewport *vp )
 }
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkVolume::GetBounds()
+double *vtkVolume::GetBounds()
 {
   int i,n;
-  float *bounds, bbox[24], *fptr;
+  double *bounds, bbox[24], *fptr;
   
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
@@ -260,6 +260,11 @@ float *vtkVolume::GetBounds()
     }
 
   bounds = this->Mapper->GetBounds();
+  // Check for the special case when the mapper's bounds are unknown
+  if (!bounds)
+    {
+    return bounds;
+    }
 
   // fill out vertices of a bounding box
   bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
@@ -286,8 +291,8 @@ float *vtkVolume::GetBounds()
   this->Transform->Pop();  
   
   // now calc the new bounds
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
   for (i = 0; i < 8; i++)
     {
     for (n = 0; n < 3; n++)
@@ -307,42 +312,42 @@ float *vtkVolume::GetBounds()
 }
 
 // Get the minimum X bound
-float vtkVolume::GetMinXBound( )
+double vtkVolume::GetMinXBound( )
 {
   this->GetBounds();
   return this->Bounds[0];
 }
 
 // Get the maximum X bound
-float vtkVolume::GetMaxXBound( )
+double vtkVolume::GetMaxXBound( )
 {
   this->GetBounds();
   return this->Bounds[1];
 }
 
 // Get the minimum Y bound
-float vtkVolume::GetMinYBound( )
+double vtkVolume::GetMinYBound( )
 {
   this->GetBounds();
   return this->Bounds[2];
 }
 
 // Get the maximum Y bound
-float vtkVolume::GetMaxYBound( )
+double vtkVolume::GetMaxYBound( )
 {
   this->GetBounds();
   return this->Bounds[3];
 }
 
 // Get the minimum Z bound
-float vtkVolume::GetMinZBound( )
+double vtkVolume::GetMinZBound( )
 {
   this->GetBounds();
   return this->Bounds[4];
 }
 
 // Get the maximum Z bound
-float vtkVolume::GetMaxZBound( )
+double vtkVolume::GetMaxZBound( )
 {
   this->GetBounds();
   return this->Bounds[5];

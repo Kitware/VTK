@@ -137,11 +137,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax,
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax,
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -150,42 +150,42 @@ public:
 
   // Description:
   // Set/Get the origin of the plane.
-  void SetOrigin(float x, float y, float z);
-  void SetOrigin(float xyz[3]);
-  float* GetOrigin();
-  void GetOrigin(float xyz[3]);
+  void SetOrigin(double x, double y, double z);
+  void SetOrigin(double xyz[3]);
+  double* GetOrigin();
+  void GetOrigin(double xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
-  void SetPoint1(float x, float y, float z);
-  void SetPoint1(float xyz[3]);
-  float* GetPoint1();
-  void GetPoint1(float xyz[3]);
+  void SetPoint1(double x, double y, double z);
+  void SetPoint1(double xyz[3]);
+  double* GetPoint1();
+  void GetPoint1(double xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the second axis of the plane.
-  void SetPoint2(float x, float y, float z);
-  void SetPoint2(float xyz[3]);
-  float* GetPoint2();
-  void GetPoint2(float xyz[3]);
+  void SetPoint2(double x, double y, double z);
+  void SetPoint2(double xyz[3]);
+  double* GetPoint2();
+  void GetPoint2(double xyz[3]);
 
   // Description:
   // Get the center of the plane.
-  float* GetCenter();
-  void GetCenter(float xyz[3]);
+  double* GetCenter();
+  void GetCenter(double xyz[3]);
 
   // Description:
   // Get the normal to the plane.
-  float* GetNormal();
-  void GetNormal(float xyz[3]);
+  double* GetNormal();
+  void GetNormal(double xyz[3]);
 
   // Description:
   // Get the vector from the plane origin to point1.
-  void GetVector1(float v1[3]);
+  void GetVector1(double v1[3]);
 
   // Description:
   // Get the vector from the plane origin to point2.
-  void GetVector2(float v2[3]);
+  void GetVector2(double v2[3]);
 
   // Description:
   // Get the slice position in terms of the data extent.
@@ -197,11 +197,11 @@ public:
 
   // Description:
   // Get the position of the slice along its normal.
-  float GetSlicePosition();
+  double GetSlicePosition();
 
   // Description:
   // Set the position of the slice along its normal.
-  void SetSlicePosition(float position);
+  void SetSlicePosition(double position);
 
   // Description:
   // Set the interpolation to use when texturing the plane.
@@ -349,13 +349,13 @@ public:
   // Description:
   // Set/Get the current window and level values.  Set should
   // only be called after SetInput.
-  void SetWindowLevel(float window, float level);
-  void GetWindowLevel(float wl[2]);
+  void SetWindowLevel(double window, double level);
+  void GetWindowLevel(double wl[2]);
 
   // Description:
   // Get the image coordinate position and voxel value.  Currently only
   // supports single component image data.
-  int GetCursorData(float xyzv[4]);
+  int GetCursorData(double xyzv[4]);
 
   // Description:
   // Enable/disable mouse interaction so the widget remains on display.
@@ -474,10 +474,10 @@ protected:
   int   Interaction; // Is the widget responsive to mouse events  
   int   PlaneOrientation;
   int   RestrictPlaneToVolume;
-  float OriginalWindow;
-  float OriginalLevel;
-  float CurrentWindow;
-  float CurrentLevel;
+  double OriginalWindow;
+  double OriginalLevel;
+  double CurrentWindow;
+  double CurrentLevel;
   int   ResliceInterpolate;
   int   TextureInterpolate;
   int   UserControlledLookupTable;
@@ -485,7 +485,7 @@ protected:
 
   // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
-  float              Normal[3]; // plane normal normalized
+  double              Normal[3]; // plane normal normalized
   vtkPolyData       *PlaneOutlinePolyData;
   vtkActor          *PlaneOutlineActor;
   vtkPolyDataMapper *PlaneOutlineMapper;
@@ -539,7 +539,7 @@ protected:
   vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
   int                CurrentCursorPosition[3];
-  float              CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
+  double             CurrentImageValue; // Set to VTK_FLOAT_MAX when invalid
   void               GenerateCursor();
   void               UpdateCursor(int,int);
   void               ActivateCursor(int);
@@ -552,8 +552,8 @@ protected:
   void          ActivateText(int);
 
   // Oblique reslice control
-  float RotateAxis[3];
-  float RadiusVector[3];
+  double RotateAxis[3];
+  double RadiusVector[3];
   void  AdjustState();
 
   // Visible margins to assist user interaction

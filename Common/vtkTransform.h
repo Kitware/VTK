@@ -181,7 +181,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
     orient[0] = static_cast<float>(temp[0]); 
     orient[1] = static_cast<float>(temp[1]); 
     orient[2] = static_cast<float>(temp[2]); };
-  float *GetOrientation() { 
+  double *GetOrientation() { 
     this->GetOrientation(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
@@ -193,7 +193,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
     wxyz[1]=static_cast<float>(temp[1]); 
     wxyz[2]=static_cast<float>(temp[2]); 
     wxyz[3]=static_cast<float>(temp[3]);};
-  float *GetOrientationWXYZ() { 
+  double *GetOrientationWXYZ() { 
     this->GetOrientationWXYZ(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
@@ -206,7 +206,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
     pos[0] = static_cast<float>(temp[0]); 
     pos[1] = static_cast<float>(temp[1]); 
     pos[2] = static_cast<float>(temp[2]); };
-  float *GetPosition() { 
+  double *GetPosition() { 
     this->GetPosition(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
@@ -220,7 +220,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
     scale[0] = static_cast<float>(temp[0]); 
     scale[1] = static_cast<float>(temp[1]); 
     scale[2] = static_cast<float>(temp[2]); };
-  float *GetScale() { 
+  double *GetScale() { 
     this->GetScale(this->ReturnValue); return this->ReturnValue; };
 
   // Description:
@@ -316,7 +316,7 @@ protected:
 
   float Point[4];
   double DoublePoint[4];
-  float ReturnValue[4];
+  double ReturnValue[4];
 private:
   vtkTransform (const vtkTransform&);  // Not implemented
   void operator=(const vtkTransform&);  // Not implemented

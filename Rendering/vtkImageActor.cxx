@@ -15,10 +15,11 @@
 #include "vtkImageActor.h"
 
 #include "vtkGraphicsFactory.h"
-#include "vtkRenderer.h"
 #include "vtkImageData.h"
+#include "vtkMath.h"
+#include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageActor, "1.15");
+vtkCxxRevisionMacro(vtkImageActor, "1.16");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -43,8 +44,7 @@ vtkImageActor::vtkImageActor()
   this->DisplayExtent[4] = 0;
   this->DisplayExtent[5] = 0;  
 
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
 }
 
 vtkImageActor::~vtkImageActor()
@@ -159,7 +159,7 @@ int vtkImageActor::RenderOpaqueGeometry(vtkViewport* viewport)
 }
 
 // Get the bounds for this Volume as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkImageActor::GetBounds()
+double *vtkImageActor::GetBounds()
 {
   if (!this->Input)
     {
@@ -191,7 +191,7 @@ float *vtkImageActor::GetBounds()
 }
 
 // Get the bounds for this Prop3D as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-void vtkImageActor::GetBounds(float bounds[6])
+void vtkImageActor::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i<6; i++)

@@ -34,7 +34,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkIVExporter, "1.53");
+vtkCxxRevisionMacro(vtkIVExporter, "1.54");
 vtkStandardNewMacro(vtkIVExporter);
 
 vtkIVExporter::vtkIVExporter()
@@ -68,7 +68,7 @@ void vtkIVExporter::WriteData()
   vtkLightCollection *lc;
   vtkLight *aLight;
   vtkCamera *cam;
-  float *tempf;
+  double *tempd;
   
   for (int i=0;i<256;i++)
     {
@@ -138,9 +138,9 @@ void vtkIVExporter::WriteData()
   fprintf(fp,"%sfocalDistance %f\n",indent, cam->GetDistance());
   fprintf(fp,"%sposition %f %f %f\n", indent, cam->GetPosition()[0],
           cam->GetPosition()[1], cam->GetPosition()[2]);
-  tempf = cam->GetOrientationWXYZ();
+  tempd = cam->GetOrientationWXYZ();
   fprintf(fp,"%sorientation %g %g %g %g\n%s}\n", indent,
-          tempf[1], tempf[2], tempf[3], tempf[0]*3.1415926/180.0, indent);
+          tempd[1], tempd[2], tempd[3], tempd[0]*3.1415926/180.0, indent);
   VTK_INDENT_LESS;
 
   // do the lights first the ambient then the others
@@ -249,6 +249,7 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   int i;
   vtkProperty *prop;
   float *tempf;
+  double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
@@ -274,13 +275,13 @@ void vtkIVExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   
   fprintf(fp,"%sTransform {\n", indent);
   VTK_INDENT_MORE;
-  tempf = trans->GetPosition();
-  fprintf(fp,"%stranslation %g %g %g\n", indent, tempf[0], tempf[1], tempf[2]);
-  tempf = trans->GetOrientationWXYZ();
-  fprintf(fp,"%srotation %g %g %g %g\n", indent, tempf[1], tempf[2], 
-          tempf[3], tempf[0]*3.1415926/180.0);
-  tempf = trans->GetScale();
-  fprintf(fp,"%sscaleFactor %g %g %g\n", indent, tempf[0], tempf[1], tempf[2]);
+  tempd = trans->GetPosition();
+  fprintf(fp,"%stranslation %g %g %g\n", indent, tempd[0], tempd[1], tempd[2]);
+  tempd = trans->GetOrientationWXYZ();
+  fprintf(fp,"%srotation %g %g %g %g\n", indent, tempd[1], tempd[2], 
+          tempd[3], tempd[0]*3.1415926/180.0);
+  tempd = trans->GetScale();
+  fprintf(fp,"%sscaleFactor %g %g %g\n", indent, tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"%s}\n", indent);
   VTK_INDENT_LESS;
   trans->Delete();

@@ -22,7 +22,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.28");
+vtkCxxRevisionMacro(vtkInteractorStyleFlight, "1.29");
 vtkStandardNewMacro(vtkInteractorStyleFlight);
 
 class CPIDControl
@@ -613,9 +613,9 @@ void vtkInteractorStyleFlight::SetupMotionVars(vtkCamera *cam)
   lYaw   = 0;
   cam->GetFocalPoint(IdealFocalPoint);
 
-  float bounds[6];
+  double bounds[6];
   this->CurrentRenderer->ComputeVisiblePropBounds( bounds );
-  if ( bounds[0] == VTK_LARGE_FLOAT ) 
+  if ( !vtkMath::AreBoundsInitialized(bounds) ) 
     {
     this->DiagonalLength = 1.0;
     }

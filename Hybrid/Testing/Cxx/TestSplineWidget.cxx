@@ -335,7 +335,7 @@ int TestSplineWidget( int argc, char *argv[] )
   spline->EnabledOn();
 
   // Test Set Get handle positions
-  float pos[3];
+  double pos[3];
   int i;
   for(i=0;i<spline->GetNumberOfHandles();i++)
     {

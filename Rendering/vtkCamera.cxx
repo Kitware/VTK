@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCamera, "1.107");
+vtkCxxRevisionMacro(vtkCamera, "1.108");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -986,8 +986,8 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
 vtkMatrix4x4 *vtkCamera::GetViewTransformMatrix() 
 { return this->ViewTransform->GetMatrix(); }
 
-float *vtkCamera::GetOrientation() 
+double *vtkCamera::GetOrientation() 
 { return this->ViewTransform->GetOrientation(); };
 
-float *vtkCamera::GetOrientationWXYZ() 
+double *vtkCamera::GetOrientationWXYZ() 
 { return this->ViewTransform->GetOrientationWXYZ(); };

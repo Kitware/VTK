@@ -96,11 +96,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -295,7 +295,7 @@ protected:
   vtkTransform *Transform;
   
   // Methods to manipulate the plane
-  void ConstrainOrigin(float x[3]);
+  void ConstrainOrigin(double x[3]);
   void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);

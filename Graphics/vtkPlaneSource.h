@@ -75,42 +75,42 @@ public:
 
   // Description:
   // Specify a point defining the origin of the plane.
-  vtkSetVector3Macro(Origin,float);
-  vtkGetVectorMacro(Origin,float,3);
+  vtkSetVector3Macro(Origin,double);
+  vtkGetVectorMacro(Origin,double,3);
 
   // Description:
   // Specify a point defining the first axis of the plane.
-  void SetPoint1(float x, float y, float z);
-  void SetPoint1(float pnt[3]);
-  vtkGetVectorMacro(Point1,float,3);
+  void SetPoint1(double x, double y, double z);
+  void SetPoint1(double pnt[3]);
+  vtkGetVectorMacro(Point1,double,3);
 
   // Description:
   // Specify a point defining the second axis of the plane.
-  void SetPoint2(float x, float y, float z);
-  void SetPoint2(float pnt[3]);
-  vtkGetVectorMacro(Point2,float,3);
+  void SetPoint2(double x, double y, double z);
+  void SetPoint2(double pnt[3]);
+  vtkGetVectorMacro(Point2,double,3);
 
   // Description:
   // Set/Get the center of the plane. Works in conjunction with the plane 
   // normal to position the plane. Don't use this method to define the plane.
   // Instead, use it to move the plane to a new center point.
-  void SetCenter(float x, float y, float z);
-  void SetCenter(float center[3]);
-  vtkGetVectorMacro(Center,float,3);
+  void SetCenter(double x, double y, double z);
+  void SetCenter(double center[3]);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set/Get the plane normal. Works in conjunction with the plane center to
   // orient the plane. Don't use this method to define the plane. Instead, use
   // it to rotate the plane around the current center point.
-  void SetNormal(float nx, float ny, float nz);
-  void SetNormal(float n[3]);
-  vtkGetVectorMacro(Normal,float,3);
+  void SetNormal(double nx, double ny, double nz);
+  void SetNormal(double n[3]);
+  vtkGetVectorMacro(Normal,double,3);
 
   // Description:
   // Translate the plane in the direction of the normal by the
   // distance specified.  Negative values move the plane in the
   // opposite direction.
-  void Push(float distance);
+  void Push(double distance);
 
 protected:
   vtkPlaneSource();
@@ -120,13 +120,13 @@ protected:
 
   int XResolution;
   int YResolution;
-  float Origin[3];
-  float Point1[3];
-  float Point2[3];
-  float Normal[3];
-  float Center[3];
+  double Origin[3];
+  double Point1[3];
+  double Point2[3];
+  double Normal[3];
+  double Center[3];
 
-  int UpdatePlane(float v1[3], float v2[3]);
+  int UpdatePlane(double v1[3], double v2[3]);
 private:
   vtkPlaneSource(const vtkPlaneSource&);  // Not implemented.
   void operator=(const vtkPlaneSource&);  // Not implemented.

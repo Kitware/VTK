@@ -33,7 +33,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkVRMLExporter, "1.70");
+vtkCxxRevisionMacro(vtkVRMLExporter, "1.71");
 vtkStandardNewMacro(vtkVRMLExporter);
 
 vtkVRMLExporter::vtkVRMLExporter()
@@ -69,7 +69,7 @@ void vtkVRMLExporter::WriteData()
   vtkLightCollection *lc;
   vtkLight *aLight;
   vtkCamera *cam;
-  float *tempf;
+  double *tempd;
   FILE *fp;
   
   // make sure the user specified a FileName or FilePointer
@@ -135,9 +135,9 @@ void vtkVRMLExporter::WriteData()
   fprintf(fp,"      position %f %f %f\n",cam->GetPosition()[0],
           cam->GetPosition()[1], cam->GetPosition()[2]);
   fprintf(fp,"      description \"Default View\"\n");
-  tempf = cam->GetOrientationWXYZ();
-  fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempf[1], tempf[2], 
-          tempf[3], tempf[0]*3.1415926/180.0);
+  tempd = cam->GetOrientationWXYZ();
+  fprintf(fp,"      orientation %g %g %g %g\n      }\n", tempd[1], tempd[2], 
+          tempd[3], tempd[0]*3.1415926/180.0);
 
   // do the lights first the ambient then the others
   fprintf(fp,"    NavigationInfo {\n      type [\"EXAMINE\",\"FLY\"]\n      speed %f\n", this->Speed);
@@ -182,7 +182,7 @@ void vtkVRMLExporter::WriteData()
 void vtkVRMLExporter::WriteALight(vtkLight *aLight, FILE *fp)
 {
   float *pos, *focus, *color;
-  float dir[3];
+  double dir[3];
   
   pos = aLight->GetPosition();
   focus = aLight->GetFocalPoint();
@@ -241,10 +241,11 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   int i, i1, i2;
   vtkProperty *prop;
   float *tempf;
+  double *tempd;
   vtkCellArray *cells;
   vtkIdType npts = 0;
   vtkIdType *indx = 0;
-  float tempf2;
+  double tempf2;
   int pointDataWritten = 0;
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
@@ -264,13 +265,13 @@ void vtkVRMLExporter::WriteAnActor(vtkActor *anActor, FILE *fp)
   trans->SetMatrix(anActor->vtkProp3D::GetMatrix());
   
   fprintf(fp,"    Transform {\n");
-  tempf = trans->GetPosition();
-  fprintf(fp,"      translation %g %g %g\n", tempf[0], tempf[1], tempf[2]);
-  tempf = trans->GetOrientationWXYZ();
-  fprintf(fp,"      rotation %g %g %g %g\n", tempf[1], tempf[2], 
+  tempd = trans->GetPosition();
+  fprintf(fp,"      translation %g %g %g\n", tempd[0], tempd[1], tempd[2]);
+  tempd = trans->GetOrientationWXYZ();
+  fprintf(fp,"      rotation %g %g %g %g\n", tempd[1], tempd[2], 
           tempf[3], tempf[0]*3.1415926/180.0);
-  tempf = trans->GetScale();
-  fprintf(fp,"      scale %g %g %g\n", tempf[0], tempf[1], tempf[2]);
+  tempd = trans->GetScale();
+  fprintf(fp,"      scale %g %g %g\n", tempd[0], tempd[1], tempd[2]);
   fprintf(fp,"      children [\n");
   trans->Delete();
   

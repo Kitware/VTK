@@ -78,13 +78,7 @@ protected:
                        double **rotate,
                        double *scale);
 
-  void Prop3DTransform(vtkProp3D *prop3D, 
-                       float *boxCenter,
-                       int numRotation, 
-                       double **rotate,
-                       double *scale);
-
-  float MotionFactor;
+  double MotionFactor;
 
   vtkProp3D *InteractionProp;
   vtkCellPicker *InteractionPicker;

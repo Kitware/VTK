@@ -429,7 +429,7 @@ int ImagePlaneWidget( int argc, char *argv[] )
     planeWidgetZ->DisplayTextOn();
     planeWidgetZ->On();
 
-  float wl[2];
+  double wl[2];
   planeWidgetZ->GetWindowLevel(wl);
 
   // Add a 2D image to test the GetReslice method

@@ -165,21 +165,21 @@ public:
 
   // Description:
   // Set the intensity of ambient lighting.
-  vtkSetVector3Macro(Ambient,float);
-  vtkGetVectorMacro(Ambient,float,3);
+  vtkSetVector3Macro(Ambient,double);
+  vtkGetVectorMacro(Ambient,double,3);
 
   // Description:
   // Set/Get the amount of time this renderer is allowed to spend
   // rendering its scene. This is used by vtkLODActor's.
-  vtkSetMacro(AllocatedRenderTime,float);
-  virtual float GetAllocatedRenderTime();
+  vtkSetMacro(AllocatedRenderTime,double);
+  virtual double GetAllocatedRenderTime();
 
   // Description:
   // Get the ratio between allocated time and actual render time.
   // TimeFactor has been taken out of the render process.  
   // It is still computed in case someone finds it useful.
   // It may be taken away in the future.
-  virtual float GetTimeFactor();
+  virtual double GetTimeFactor();
 
   // Description:
   // Create an image. This is a superclass method which will in turn 
@@ -205,11 +205,11 @@ public:
   // Description:
   // Compute the bounding box of all the visible props
   // Used in ResetCamera() and ResetCameraClippingRange() 
-  void ComputeVisiblePropBounds( float bounds[6] );
+  void ComputeVisiblePropBounds( double bounds[6] );
 
   // Description:
   // Wrapper-friendly version of ComputeVisiblePropBounds 
-  float *ComputeVisiblePropBounds();
+  double *ComputeVisiblePropBounds();
 
   // Description:
   // Reset the camera clipping range based on the bounds of the
@@ -219,16 +219,16 @@ public:
   // Description:
   // Reset the camera clipping range based on a bounding box.
   // This method is called from ResetCameraClippingRange()
-  void ResetCameraClippingRange( float bounds[6] );
-  void ResetCameraClippingRange( float xmin, float xmax, 
-                                 float ymin, float ymax, 
-                                 float zmin, float zmax);
+  void ResetCameraClippingRange( double bounds[6] );
+  void ResetCameraClippingRange( double xmin, double xmax, 
+                                 double ymin, double ymax, 
+                                 double zmin, double zmax);
 
   // Description:
   // Specify tolerance for near clipping plane distance to the camera
   // as a percentage of the far clipping plane distance.
-  vtkSetMacro(NearClippingPlaneTolerance,float);
-  vtkGetMacro(NearClippingPlaneTolerance,float);
+  vtkSetMacro(NearClippingPlaneTolerance,double);
+  vtkGetMacro(NearClippingPlaneTolerance,double);
 
   // Description:
   // Automatically set up the camera based on the visible actors.
@@ -245,12 +245,12 @@ public:
   // (i.e., vector defined from camera position to focal point). Note: is 
   // the view plane is parallel to the view up axis, the view up axis will
   // be reset to one of the three coordinate axes.
-  void ResetCamera(float bounds[6]);
+  void ResetCamera(double bounds[6]);
 
   // Description:
   // Alternative version of ResetCamera(bounds[6]);
-  void ResetCamera(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax);
+  void ResetCamera(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax);
 
   // Description:
   // Specify the rendering window in which to draw. This is automatically set
@@ -311,7 +311,7 @@ public:
 
   // Description:
   // Get the time required, in seconds, for the last Render call.
-  vtkGetMacro( LastRenderTimeInSeconds, float );
+  vtkGetMacro( LastRenderTimeInSeconds, double );
 
   // Description:
   // Should be used internally only during a render
@@ -345,17 +345,17 @@ protected:
   vtkActorCollection *Actors;
   vtkVolumeCollection *Volumes;
   
-  float              Ambient[3];  
+  double              Ambient[3];  
   vtkRenderWindow    *RenderWindow;
-  float              AllocatedRenderTime;
-  float              TimeFactor;
+  double              AllocatedRenderTime;
+  double              TimeFactor;
   int                TwoSidedLighting;
   int                AutomaticLightCreation;
   int                BackingStore;
   unsigned char      *BackingImage;
   vtkTimeStamp       RenderTime;
 
-  float              LastRenderTimeInSeconds;
+  double              LastRenderTimeInSeconds;
 
   int                LightFollowCamera;
 
@@ -383,8 +383,9 @@ protected:
   // there are layered renderers.
   int                Layer;
 
-  // Holds the result of ComputeVisiblePropBounds so that it is visible from wrapped languages
-  float              ComputedVisiblePropBounds[6];
+  // Holds the result of ComputeVisiblePropBounds so that it is visible from
+  // wrapped languages
+  double              ComputedVisiblePropBounds[6];
 
   // Description:
   // Specifies the minimum distance of the near clipping
@@ -392,7 +393,7 @@ protected:
   // this threshold are clipped to NearClippingPlaneTolerance*range[1].
   // Note that values which are too small may cause problems on systems
   // with low z-buffer resolution.
-  float              NearClippingPlaneTolerance;
+  double              NearClippingPlaneTolerance;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
@@ -406,8 +407,9 @@ protected:
   virtual int UpdateCamera(void);
 
   // Description:
-  // Update the geometry of the lights in the scene that are not in world space
-  // (for instance, Headlights or CameraLights that are attached to the camera).
+  // Update the geometry of the lights in the scene that are not in world
+  // space (for instance, Headlights or CameraLights that are attached to the
+  // camera).
   virtual int UpdateLightGeometry(void);
 
   // Description:

@@ -84,11 +84,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -119,7 +119,7 @@ public:
 
   // Description:
   // Set/Get the radius of sphere. Default is .5.
-  void SetRadius(float r)
+  void SetRadius(double r)
     {
     if ( r <= 0 )
       {
@@ -127,22 +127,22 @@ public:
       }
     this->SphereSource->SetRadius(r); 
     }
-  float GetRadius()
+  double GetRadius()
     { return this->SphereSource->GetRadius(); }
 
   // Description:
   // Set/Get the center of the sphere.
-  void SetCenter(float x, float y, float z) 
+  void SetCenter(double x, double y, double z) 
     {
     this->SphereSource->SetCenter(x,y,z); 
     }
-  void SetCenter(float x[3]) 
+  void SetCenter(double x[3]) 
     {
     this->SetCenter(x[0], x[1], x[2]);
     }
-  float* GetCenter() 
+  double* GetCenter() 
     {return this->SphereSource->GetCenter();}
-  void GetCenter(float xyz[3]) 
+  void GetCenter(double xyz[3]) 
     {this->SphereSource->GetCenter(xyz);}
 
   // Description:
@@ -167,12 +167,12 @@ public:
   // Description:
   // Set/Get the direction vector of the handle relative to the center of
   // the sphere.
-  vtkSetVector3Macro(HandleDirection,float);
-  vtkGetVector3Macro(HandleDirection,float);
+  vtkSetVector3Macro(HandleDirection,double);
+  vtkGetVector3Macro(HandleDirection,double);
 
   // Description:
   // Get the position of the handle.
-  vtkGetVector3Macro(HandlePosition,float);
+  vtkGetVector3Macro(HandlePosition,double);
   
   // Description:
   // Grab the polydata (including points) that defines the sphere.  The
@@ -250,7 +250,7 @@ protected:
   void Translate(double *p1, double *p2);
   void ScaleSphere(double *p1, double *p2, int X, int Y);
   void MoveHandle(double *p1, double *p2, int X, int Y);
-  void PlaceHandle(float *center, float radius);
+  void PlaceHandle(double *center, double radius);
   
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -266,8 +266,8 @@ protected:
   vtkSphereSource   *HandleSource;
   void HighlightHandle(int);
   int HandleVisibility;
-  float HandleDirection[3];
-  float HandlePosition[3];
+  double HandleDirection[3];
+  double HandlePosition[3];
   virtual void SizeHandles();
 
 private:

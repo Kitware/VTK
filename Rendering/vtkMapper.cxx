@@ -14,10 +14,11 @@
 =========================================================================*/
 #include "vtkMapper.h"
 
-#include "vtkLookupTable.h"
 #include "vtkDataSet.h"
+#include "vtkLookupTable.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.105");
+vtkCxxRevisionMacro(vtkMapper, "1.106");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -25,8 +26,8 @@ static int vtkMapperGlobalImmediateModeRendering = 0;
 // Initialize static member that controls global coincidence resolution
 static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
-static float vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
-static float vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 
 // Construct with initial range (0,1).
 vtkMapper::vtkMapper()
@@ -45,10 +46,9 @@ vtkMapper::vtkMapper()
   this->ScalarMode = VTK_SCALAR_MODE_DEFAULT;
   this->ScalarMaterialMode = VTK_MATERIALMODE_DEFAULT;
   
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
-
+  
   this->RenderTime = 0.0;
   
   strcpy(this->ArrayName, "");
@@ -71,9 +71,9 @@ vtkMapper::~vtkMapper()
 
 // Get the bounds for the input of this mapper as 
 // (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkMapper::GetBounds()
+double *vtkMapper::GetBounds()
 {
-  static float bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
+  static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
   if ( ! this->GetInput() ) 
     {
@@ -82,14 +82,7 @@ float *vtkMapper::GetBounds()
   else
     {
     this->Update();
-    // TODO: cleanup
-    double *dbounds = this->GetInput()->GetBounds();
-    this->Bounds[0] = (float)dbounds[0];
-    this->Bounds[1] = (float)dbounds[1];
-    this->Bounds[2] = (float)dbounds[2];
-    this->Bounds[3] = (float)dbounds[3];
-    this->Bounds[4] = (float)dbounds[4];
-    this->Bounds[5] = (float)dbounds[5];    
+    this->GetInput()->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
@@ -152,7 +145,7 @@ double vtkMapper::GetResolveCoincidentTopologyZShift()
 }
 
 void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
-                                            float factor, float units)
+                                            double factor, double units)
 {
   if (factor == vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor &&
       units == vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits )
@@ -164,7 +157,7 @@ void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(
 }
 
 void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
-                           float& factor, float& units)
+                           double& factor, double& units)
 {
   factor = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor;
   units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits;

@@ -46,13 +46,13 @@ public:
   // Description:
   // Set the height of the cone. This is the height along the cone in
   // its specified direction.
-  vtkSetClampMacro(Height,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(Height,float);
+  vtkSetClampMacro(Height,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(Height,double);
 
   // Description:
   // Set the base radius of the cone.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT)
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX)
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set the number of facets used to represent the cone.
@@ -61,21 +61,21 @@ public:
 
   // Description:
   // Set the center of the cone. The default is 0,0,0.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the orientation vector of the cone. The vector does not have
   // to be normalized. The cone will point in the Direction specified.
   // The default is (1,0,0).
-  vtkSetVector3Macro(Direction,float);
-  vtkGetVectorMacro(Direction,float,3);
+  vtkSetVector3Macro(Direction,double);
+  vtkGetVectorMacro(Direction,double,3);
 
   // Description:
   // Set the angle of the cone. As a side effect, the angle plus height sets 
   // the base radius of the cone.
-  void SetAngle (float angle);
-  float GetAngle ();
+  void SetAngle (double angle);
+  double GetAngle ();
 
   // Description:
   // Turn on/off whether to cap the base of the cone with a polygon.
@@ -90,12 +90,12 @@ protected:
   void Execute();
   void ExecuteInformation();
 
-  float Height;
-  float Radius;
+  double Height;
+  double Radius;
   int Resolution;
   int Capping;
-  float Center[3];
-  float Direction[3];
+  double Center[3];
+  double Direction[3];
   
 private:
   vtkConeSource(const vtkConeSource&);  // Not implemented.

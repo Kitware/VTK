@@ -17,20 +17,20 @@
 #include "vtkAssemblyNode.h"
 #include "vtkAssemblyPath.h"
 #include "vtkAssemblyPaths.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkProp.h"
 #include "vtkPropCollection.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkPropAssembly, "1.22");
+vtkCxxRevisionMacro(vtkPropAssembly, "1.23");
 vtkStandardNewMacro(vtkPropAssembly);
 
 // Construct object with no children.
 vtkPropAssembly::vtkPropAssembly()
 {
   this->Parts = vtkPropCollection::New();
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+  vtkMath::UninitializeBounds(this->Bounds);
 }
 
 vtkPropAssembly::~vtkPropAssembly()
@@ -70,11 +70,11 @@ int vtkPropAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
   vtkProp *prop;
   vtkAssemblyPath *path;
-  float fraction;
+  double fraction;
   int renderedSomething=0;
 
   fraction = this->AllocatedRenderTime / 
-             (float)this->Parts->GetNumberOfItems();
+             (double)this->Parts->GetNumberOfItems();
   
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
@@ -97,14 +97,14 @@ int vtkPropAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
   vtkProp *prop;
   vtkAssemblyPath *path;
-  float fraction;
+  double fraction;
   int   renderedSomething=0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
-             (float)this->Parts->GetNumberOfItems();
+             (double)this->Parts->GetNumberOfItems();
   
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
@@ -127,14 +127,14 @@ int vtkPropAssembly::RenderOverlay(vtkViewport *ren)
 {
   vtkProp *prop;
   vtkAssemblyPath *path;
-  float fraction;
+  double fraction;
   int   renderedSomething=0;
 
   // Make sure the paths are up-to-date
   this->UpdatePaths();
 
   fraction = this->AllocatedRenderTime / 
-             (float)this->Parts->GetNumberOfItems();
+             (double)this->Parts->GetNumberOfItems();
   
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
@@ -166,28 +166,32 @@ void vtkPropAssembly::ReleaseGraphicsResources(vtkWindow *renWin)
 }
 
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkPropAssembly::GetBounds()
+double *vtkPropAssembly::GetBounds()
 {
   vtkProp *part;
   int i, n;
-  float *bounds, bbox[24];
+  double *bounds, bbox[24];
   int partVisible=0;
 
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
-    
+  // carefully compute the bounds
   for ( this->Parts->InitTraversal(); (part=this->Parts->GetNextProp()); )
     {
     if ( part->GetVisibility() )
       {
       bounds = part->GetBounds();
-
+      
       if ( bounds != NULL )
         {
         //  For the purposes of GetBounds, an object is visisble only if
         //  its visibility is on and it has visible parts.
-        partVisible = 1;
-
+        if (!partVisible)
+          {
+          // initialize the bounds
+          this->Bounds[0] =this->Bounds[2] =this->Bounds[4] = VTK_DOUBLE_MAX;
+          this->Bounds[1] =this->Bounds[3] =this->Bounds[5] = -VTK_DOUBLE_MAX;
+          partVisible = 1;
+          }
+        
         // fill out vertices of a bounding box
         bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
         bbox[ 3] = bounds[1]; bbox[ 4] = bounds[2]; bbox[ 5] = bounds[5];
@@ -197,7 +201,7 @@ float *vtkPropAssembly::GetBounds()
         bbox[15] = bounds[1]; bbox[16] = bounds[2]; bbox[17] = bounds[4];
         bbox[18] = bounds[0]; bbox[19] = bounds[2]; bbox[20] = bounds[4];
         bbox[21] = bounds[0]; bbox[22] = bounds[3]; bbox[23] = bounds[4];
-
+        
         for (i = 0; i < 8; i++)
           {
           for (n = 0; n < 3; n++)
@@ -215,7 +219,7 @@ float *vtkPropAssembly::GetBounds()
         }//if bounds
       }//for each part
     }//for each part
-
+  
   if ( ! partVisible )
     {
     return NULL;

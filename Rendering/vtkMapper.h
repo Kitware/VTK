@@ -250,10 +250,10 @@ public:
   // Used to set the polygon offset scale factor and units.
   // Used when ResolveCoincidentTopology is set to PolygonOffset. 
   // These are global variables.
-  static void SetResolveCoincidentTopologyPolygonOffsetParameters(float factor,
-                                                                  float units);
-  static void GetResolveCoincidentTopologyPolygonOffsetParameters(float& factor,
-                                                                  float& units);
+  static void SetResolveCoincidentTopologyPolygonOffsetParameters(
+    double factor, double units);
+  static void GetResolveCoincidentTopologyPolygonOffsetParameters(
+    double& factor, double& units);
 
   // Description:
   // Used to set the z-shift if ResolveCoincidentTopology is set to
@@ -262,18 +262,18 @@ public:
   static double GetResolveCoincidentTopologyZShift();
 
   // Description:
-  // Return bounding box (array of six floats) of data expressed as
+  // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
-  virtual float *GetBounds();
-  virtual void GetBounds(float bounds[6]) 
+  virtual double *GetBounds();
+  virtual void GetBounds(double bounds[6]) 
     {this->vtkAbstractMapper3D::GetBounds(bounds);};
 
   // Description:
   // This instance variable is used by vtkLODActor to determine which
   // mapper to use.  It is an estimate of the time necessary to render.
   // Setting the render time does not modify the mapper.
-  void SetRenderTime(float time) {this->RenderTime = time;}
-  vtkGetMacro(RenderTime, float);
+  void SetRenderTime(double time) {this->RenderTime = time;}
+  vtkGetMacro(RenderTime, double);
 
   //BTX
   // Description:
@@ -335,7 +335,7 @@ protected:
   int ScalarMode;
   int ScalarMaterialMode;
 
-  float RenderTime;
+  double RenderTime;
 
   // for coloring by a component of a field data array
   int ArrayId;

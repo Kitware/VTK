@@ -54,12 +54,12 @@ class VTK_HYBRID_EXPORT vtkPolyDataSourceWidget : public vtk3DWidget
   // to override this in your concrete child classes.  If there's no Prop3D
   // and no Input, your PlaceWidget must make use of the underlying 
   // PolyDataSource to do its work.
-  virtual void PlaceWidget(float bounds[6]) = 0;
+  virtual void PlaceWidget(double bounds[6]) = 0;
 
   // Description:
   // Convenience method brought over from vtkPlaneWidget.
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:

@@ -23,7 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkPlaneSource, "1.60");
+vtkCxxRevisionMacro(vtkPlaneSource, "1.61");
 vtkStandardNewMacro(vtkPlaneSource);
 
 // Construct plane perpendicular to z-axis, resolution 1x1, width and height
@@ -67,7 +67,7 @@ void vtkPlaneSource::SetResolution(const int xR, const int yR)
 
 void vtkPlaneSource::Execute()
 {
-  float x[3], tc[2], v1[3], v2[3];
+  double x[3], tc[2], v1[3], v2[3];
   vtkIdType pts[4];
   int i, j, ii;
   int numPts;
@@ -110,10 +110,10 @@ void vtkPlaneSource::Execute()
   //
   for (numPts=0, i=0; i<(this->YResolution+1); i++)
     {
-    tc[1] = (float) i / this->YResolution;
+    tc[1] = (double) i / this->YResolution;
     for (j=0; j<(this->XResolution+1); j++)
       {
-      tc[0] = (float) j / this->XResolution;
+      tc[0] = (double) j / this->XResolution;
 
       for ( ii=0; ii < 3; ii++)
         {
@@ -157,9 +157,9 @@ void vtkPlaneSource::Execute()
 
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., rotate the plane around its center).
-void vtkPlaneSource::SetNormal(float N[3])
+void vtkPlaneSource::SetNormal(double N[3])
 {
-  float n[3], rotVector[3], theta;
+  double n[3], rotVector[3], theta;
 
   //make sure input is decent
   n[0] = N[0];
@@ -174,7 +174,7 @@ void vtkPlaneSource::SetNormal(float N[3])
   // Compute rotation vector using a transformation matrix.
   // Note that if normals are parallel then the rotation is either
   // 0 or 180 degrees.
-  float dp = vtkMath::Dot(this->Normal,n);
+  double dp = vtkMath::Dot(this->Normal,n);
   if ( dp >= 1.0 )
     {
     return; //zero rotation
@@ -213,9 +213,9 @@ void vtkPlaneSource::SetNormal(float N[3])
 
 // Set the normal to the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., rotate the plane around its center).
-void vtkPlaneSource::SetNormal(float nx, float ny, float nz)
+void vtkPlaneSource::SetNormal(double nx, double ny, double nz)
 {
-  float n[3];
+  double n[3];
 
   n[0] = nx; n[1] = ny; n[2] = nz;
   this->SetNormal(n);
@@ -223,7 +223,7 @@ void vtkPlaneSource::SetNormal(float nx, float ny, float nz)
 
 // Set the center of the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., translate the plane).
-void vtkPlaneSource::SetCenter(float center[3])
+void vtkPlaneSource::SetCenter(double center[3])
 {
   if ( this->Center[0] == center[0] && this->Center[1] == center[1] &&
   this->Center[2] == center[2] )
@@ -233,7 +233,7 @@ void vtkPlaneSource::SetCenter(float center[3])
   else
     {
     int i;
-    float v1[3], v2[3];
+    double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
       {
@@ -254,9 +254,9 @@ void vtkPlaneSource::SetCenter(float center[3])
 
 // Set the center of the plane. Will modify the Origin, Point1, and Point2
 // instance variables as necessary (i.e., translate the plane).
-void vtkPlaneSource::SetCenter(float x, float y, float z)
+void vtkPlaneSource::SetCenter(double x, double y, double z)
 {
-  float center[3];
+  double center[3];
 
   center[0] = x; center[1] = y; center[2] = z;
   this->SetCenter(center);
@@ -264,7 +264,7 @@ void vtkPlaneSource::SetCenter(float x, float y, float z)
 
 
 // modifies the normal and origin
-void vtkPlaneSource::SetPoint1(float pnt[3])
+void vtkPlaneSource::SetPoint1(double pnt[3])
 {
   if ( this->Point1[0] == pnt[0] && this->Point1[1] == pnt[1] &&
        this->Point1[2] == pnt[2] )
@@ -274,7 +274,7 @@ void vtkPlaneSource::SetPoint1(float pnt[3])
   else
     {
     int i;
-    float v1[3], v2[3];
+    double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
       {
@@ -290,7 +290,7 @@ void vtkPlaneSource::SetPoint1(float pnt[3])
 }
 
 // modifies the normal and origin
-void vtkPlaneSource::SetPoint2(float pnt[3])
+void vtkPlaneSource::SetPoint2(double pnt[3])
 {
   if ( this->Point2[0] == pnt[0] && this->Point2[1] == pnt[1] &&
        this->Point2[2] == pnt[2] )
@@ -300,7 +300,7 @@ void vtkPlaneSource::SetPoint2(float pnt[3])
   else
     {
     int i;
-    float v1[3], v2[3];
+    double v1[3], v2[3];
 
     for ( i=0; i < 3; i++ )
       {
@@ -314,16 +314,16 @@ void vtkPlaneSource::SetPoint2(float pnt[3])
     }
 }
 
-void vtkPlaneSource::SetPoint1(float x, float y, float z)
+void vtkPlaneSource::SetPoint1(double x, double y, double z)
 {
-  float pnt[3];
+  double pnt[3];
 
   pnt[0] = x; pnt[1] = y; pnt[2] = z;
   this->SetPoint1(pnt);
 }
-void vtkPlaneSource::SetPoint2(float x, float y, float z)
+void vtkPlaneSource::SetPoint2(double x, double y, double z)
 {
-  float pnt[3];
+  double pnt[3];
 
   pnt[0] = x; pnt[1] = y; pnt[2] = z;
   this->SetPoint2(pnt);
@@ -331,7 +331,7 @@ void vtkPlaneSource::SetPoint2(float x, float y, float z)
 
 // Translate the plane in the direction of the normal by the distance specified.
 // Negative values move the plane in the opposite direction.
-void vtkPlaneSource::Push(float distance)
+void vtkPlaneSource::Push(double distance)
 {
   int i;
 
@@ -355,7 +355,7 @@ void vtkPlaneSource::Push(float distance)
 }
 
 // Protected method updates normals and plane center from two axes.
-int vtkPlaneSource::UpdatePlane(float v1[3], float v2[3])
+int vtkPlaneSource::UpdatePlane(double v1[3], double v2[3])
 {
   // set plane center
   for ( int i=0; i < 3; i++ )

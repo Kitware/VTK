@@ -46,13 +46,13 @@ public:
 
   // Description:
   // Set radius of sphere. Default is .5.
-  vtkSetClampMacro(Radius,float,0.0,VTK_LARGE_FLOAT);
-  vtkGetMacro(Radius,float);
+  vtkSetClampMacro(Radius,double,0.0,VTK_DOUBLE_MAX);
+  vtkGetMacro(Radius,double);
 
   // Description:
   // Set the center of the sphere. Default is 0,0,0.
-  vtkSetVector3Macro(Center,float);
-  vtkGetVectorMacro(Center,float,3);
+  vtkSetVector3Macro(Center,double);
+  vtkGetVectorMacro(Center,double,3);
 
   // Description:
   // Set the number of points in the longitude direction (ranging from
@@ -68,24 +68,24 @@ public:
 
   // Description:
   // Set the starting longitude angle. By default StartTheta=0 degrees.
-  vtkSetClampMacro(StartTheta,float,0.0,360.0);
-  vtkGetMacro(StartTheta,float);
+  vtkSetClampMacro(StartTheta,double,0.0,360.0);
+  vtkGetMacro(StartTheta,double);
 
   // Description:
   // Set the ending longitude angle. By default EndTheta=360 degrees.
-  vtkSetClampMacro(EndTheta,float,0.0,360.0);
-  vtkGetMacro(EndTheta,float);
+  vtkSetClampMacro(EndTheta,double,0.0,360.0);
+  vtkGetMacro(EndTheta,double);
 
   // Description:
   // Set the starting latitude angle (0 is at north pole). By default
   // StartPhi=0 degrees.
-  vtkSetClampMacro(StartPhi,float,0.0,360.0);
-  vtkGetMacro(StartPhi,float);
+  vtkSetClampMacro(StartPhi,double,0.0,360.0);
+  vtkGetMacro(StartPhi,double);
 
   // Description:
   // Set the ending latitude angle. By default EndPhi=180 degrees.
-  vtkSetClampMacro(EndPhi,float,0.0,360.0);
-  vtkGetMacro(EndPhi,float);
+  vtkSetClampMacro(EndPhi,double,0.0,360.0);
+  vtkGetMacro(EndPhi,double);
 
   // Description:
   // Cause the sphere to be tessellated with edges along the latitude
@@ -105,14 +105,14 @@ protected:
   void Execute();
   void ExecuteInformation();
   
-  float Radius;
-  float Center[3];
+  double Radius;
+  double Center[3];
   int ThetaResolution;
   int PhiResolution;
-  float StartTheta;
-  float EndTheta;
-  float StartPhi;
-  float EndPhi;
+  double StartTheta;
+  double EndTheta;
+  double StartPhi;
+  double EndPhi;
   int LatLongTessellation;
   
 private:

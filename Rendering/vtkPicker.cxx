@@ -35,7 +35,7 @@
 #include "vtkVolumeMapper.h"
 #include "vtkBox.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.82");
+vtkCxxRevisionMacro(vtkPicker, "1.83");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -343,17 +343,12 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         //  Get the bounding box of the modeller.  Note that the tolerance is
         //  added to the bounding box to make sure things on the edge of the
         //  bounding box are picked correctly.
-        float *fbounds = mapper->GetBounds();
-        bounds[0] = fbounds[0];
-        bounds[1] = fbounds[1];
-        bounds[2] = fbounds[2];
-        bounds[3] = fbounds[3];
-        bounds[4] = fbounds[4];
-        bounds[5] = fbounds[5];
+        mapper->GetBounds(bounds);
         bounds[0] -= tol; bounds[1] += tol; 
         bounds[2] -= tol; bounds[3] += tol; 
         bounds[4] -= tol; bounds[5] += tol; 
-        if ( vtkBox::IntersectBox(bounds, (double *)p1Mapper, ray, hitPosition, t) )
+        if ( vtkBox::IntersectBox(bounds, (double *)p1Mapper, 
+                                  ray, hitPosition, t) )
           {
           t = this->IntersectWithLine((double *)p1Mapper, 
                                       (double *)p2Mapper, tol, path, 

@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.29");
+vtkCxxRevisionMacro(vtkInteractorStyleJoystickActor, "1.30");
 vtkStandardNewMacro(vtkInteractorStyleJoystickActor);
 
 //----------------------------------------------------------------------------
@@ -188,7 +188,7 @@ void vtkInteractorStyleJoystickActor::Rotate()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   // First get the origin of the assembly
-  float *obj_center = this->InteractionProp->GetCenter();
+  double *obj_center = this->InteractionProp->GetCenter();
   
   // GetLength gets the length of the diagonal of the bounding box
   double boundRadius = this->InteractionProp->GetLength() * 0.5;
@@ -301,7 +301,7 @@ void vtkInteractorStyleJoystickActor::Spin()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   
   // Get the axis to rotate around = vector from eye to origin
-  float *obj_center = this->InteractionProp->GetCenter();
+  double *obj_center = this->InteractionProp->GetCenter();
   
   double motion_vector[3];
   double view_point[3];
@@ -383,7 +383,7 @@ void vtkInteractorStyleJoystickActor::Pan()
   vtkRenderWindowInteractor *rwi = this->Interactor;
   
   // Use initial center as the origin from which to pan
-  float *obj_center = this->InteractionProp->GetCenter();
+  double *obj_center = this->InteractionProp->GetCenter();
 
   double disp_obj_center[3], new_pick_point[4], motion_vector[3];
   
@@ -433,7 +433,6 @@ void vtkInteractorStyleJoystickActor::Dolly()
 
   // Dolly is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
-  
   double view_point[3], view_focus[3];
   double motion_vector[3];
 
@@ -441,8 +440,7 @@ void vtkInteractorStyleJoystickActor::Dolly()
   cam->GetFocalPoint(view_focus);
   
   // Use initial center as the origin from which to pan
-
-  float *obj_center = this->InteractionProp->GetCenter();
+  double *obj_center = this->InteractionProp->GetCenter();
 
   double disp_obj_center[3];
 
@@ -497,8 +495,7 @@ void vtkInteractorStyleJoystickActor::UniformScale()
   // Uniform scale is based on distance from center of screen,
   // and the upper half is positive, lower half is negative
   // use bounding box center as the origin from which to pan
-
-  float *obj_center = this->InteractionProp->GetCenter();
+  double *obj_center = this->InteractionProp->GetCenter();
   
   double disp_obj_center[3];
 
@@ -561,7 +558,7 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
   vtkMatrix4x4 *oldMatrix = vtkMatrix4x4::New();
   prop3D->GetMatrix(oldMatrix);
   
-  float orig[3];
+  double orig[3];
   prop3D->GetOrigin(orig);
   
   vtkTransform *newTransform = vtkTransform::New();
@@ -607,18 +604,4 @@ void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
     }
   oldMatrix->Delete();
   newTransform->Delete();
-}
-
-//----------------------------------------------------------------------------
-void vtkInteractorStyleJoystickActor::Prop3DTransform(vtkProp3D *prop3D,
-                                                      float *boxCenter,
-                                                      int numRotation,
-                                                      double **rotate,
-                                                      double *scale)
-{
-  double boxCenter2[3];
-  boxCenter2[0] = boxCenter[0];
-  boxCenter2[1] = boxCenter[1];
-  boxCenter2[2] = boxCenter[2];
-  this->Prop3DTransform(prop3D,boxCenter2,numRotation,rotate,scale);
 }

@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkLODProp3D, "1.41");
+vtkCxxRevisionMacro(vtkLODProp3D, "1.42");
 vtkStandardNewMacro(vtkLODProp3D);
 
 #define VTK_INDEX_NOT_IN_USE    -1
@@ -177,9 +177,9 @@ int vtkLODProp3D::GetNextEntryIndex()
 }
 
 // Get the bounds of this prop. This is just the max bounds of all LODs
-float *vtkLODProp3D::GetBounds()
+double *vtkLODProp3D::GetBounds()
 {
-  float newBounds[6];
+  double newBounds[6];
   int   i;
   int   first = 1;
 
@@ -200,7 +200,7 @@ float *vtkLODProp3D::GetBounds()
       // If this is the first entry, this is the current bounds
       if ( first )
         {
-        memcpy( this->Bounds, newBounds, 6*sizeof(float) );
+        memcpy( this->Bounds, newBounds, 6*sizeof(double) );
         first = 0;
         }
       // If this is not the first entry, compare these bounds with the
@@ -265,7 +265,7 @@ int vtkLODProp3D::GetLastRenderedLODID( )
 
 // Convenience method to get the estimated render time for a given LOD
 // based on an ID (the number returned when the LOD was added)
-float vtkLODProp3D::GetLODEstimatedRenderTime( int id )
+double vtkLODProp3D::GetLODEstimatedRenderTime( int id )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -279,7 +279,7 @@ float vtkLODProp3D::GetLODEstimatedRenderTime( int id )
     }
 }
 
-float vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
+double vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
 {
   if ( this->SelectedLODIndex < 0 ||
        this->SelectedLODIndex >= this->NumberOfEntries )
@@ -293,7 +293,7 @@ float vtkLODProp3D::GetLODIndexEstimatedRenderTime( int index )
 // Convenience method to set an actor LOD without a texture, or a 
 // backface property.  Needed from tcl (for example) where null pointers 
 // are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, float time )
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, double time )
 {
   return this->AddLOD( m, p, (vtkProperty *) NULL, (vtkTexture *)NULL, time );
 }
@@ -301,7 +301,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, float time )
 // Convenience method to set an actor LOD without a texture.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
-                         vtkProperty *back, float time )
+                         vtkProperty *back, double time )
 {
   return this->AddLOD( m, p, back, (vtkTexture *)NULL, time );
 }
@@ -309,21 +309,21 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 // Convenience method to set an actor LOD without a backface property.
 // Needed from tcl (for example) where null pointers are not possible
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
-                         vtkTexture *t, float time )
+                         vtkTexture *t, double time )
 {
   return this->AddLOD( m, p, (vtkProperty *)NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, float time )
+int vtkLODProp3D::AddLOD( vtkMapper *m, vtkTexture *t, double time )
 {
   return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, t, time );
 }
 
 // Convenience method to set an actor LOD without a texture or a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkMapper *m, float time )
+int vtkLODProp3D::AddLOD( vtkMapper *m, double time )
 {
   return this->AddLOD( m, (vtkProperty *)NULL, (vtkProperty *)NULL, 
       (vtkTexture *)NULL, time );
@@ -331,7 +331,7 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, float time )
 
 // The real method for adding an actor LOD.
 int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p, 
-                          vtkProperty *back, vtkTexture *t, float time )
+                          vtkProperty *back, vtkTexture *t, double time )
 {
   int          index;
   vtkActor     *actor;
@@ -377,14 +377,14 @@ int vtkLODProp3D::AddLOD( vtkMapper *m, vtkProperty *p,
 
 // Convenience method to set a volume LOD without a property.
 // Needed from tcl (for example) where null pointers are not possible
-int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, float time )
+int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, double time )
 {
   return this->AddLOD( m, (vtkVolumeProperty *)NULL, time );
 }
 
 // The real method for adding a volume LOD.
 int vtkLODProp3D::AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, 
-                          float time )
+                          double time )
 {
   int           index;
   vtkVolume     *volume;
@@ -712,7 +712,7 @@ int vtkLODProp3D::IsLODEnabled( int id )
   return this->LODs[index].State;
 }
 
-void vtkLODProp3D::SetLODLevel( int id, float level )
+void vtkLODProp3D::SetLODLevel( int id, double level )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -724,7 +724,7 @@ void vtkLODProp3D::SetLODLevel( int id, float level )
   this->LODs[index].Level = level;
 }
 
-float vtkLODProp3D::GetLODLevel( int id )
+double vtkLODProp3D::GetLODLevel( int id )
 {
   int index = this->ConvertIDToIndex( id );
 
@@ -736,7 +736,7 @@ float vtkLODProp3D::GetLODLevel( int id )
   return this->LODs[index].Level;
 }
 
-float vtkLODProp3D::GetLODIndexLevel( int index )
+double vtkLODProp3D::GetLODIndexLevel( int index )
 {
 
   if ( index == VTK_INVALID_LOD_INDEX || index == VTK_INDEX_NOT_IN_USE )
@@ -826,7 +826,7 @@ int vtkLODProp3D::RenderTranslucentGeometry(vtkViewport *viewport)
 
 // Override the method from vtkProp - add to both this prop and the prop of
 // the selected LOD
-void vtkLODProp3D::AddEstimatedRenderTime( float t, vtkViewport *vp )
+void vtkLODProp3D::AddEstimatedRenderTime( double t, vtkViewport *vp )
 {
   // Add to this prop's estimated render time
   this->EstimatedRenderTime += t;
@@ -863,15 +863,15 @@ void vtkLODProp3D::RestoreEstimatedRenderTime()
 
 // Set the allocated render time - this is where the decision is made
 // as to which LOD to select
-void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
+void vtkLODProp3D::SetAllocatedRenderTime( double t, vtkViewport *vp )
 {
   int    i;
   int    index = -1;
-  float  bestTime;
-  float  bestLevel = 0;
-  float  targetTime;
-  float  estimatedTime;
-  float  newTime;
+  double  bestTime;
+  double  bestLevel = 0;
+  double  targetTime;
+  double  estimatedTime;
+  double  newTime;
 
   // update the EstimatedTime of the last LOD to be rendered
   if ( this->SelectedLODIndex >= 0 &&
@@ -940,7 +940,7 @@ void vtkLODProp3D::SetAllocatedRenderTime( float t, vtkViewport *vp )
     // If we aren't trying some level for the first time with 0.0 bestTime,
     // make sure there isn't a LOD that can be rendered faster and has a 
     // higher level 
-    float level;
+    double level;
     if ( bestTime != 0.0 )
       {
       for ( i = 0; i < this->NumberOfEntries; i++ )
@@ -1045,10 +1045,10 @@ void vtkLODProp3D::GetActors(vtkPropCollection *ac)
 
 int vtkLODProp3D::GetAutomaticPickPropIndex(void)
 {
-  float bestTime = -1.0;
+  double bestTime = -1.0;
   int index = 0;
-  float targetTime = 0;
-  float estimatedTime = 0.0;
+  double targetTime = 0;
+  double estimatedTime = 0.0;
 
     for (int i = 0; i < this->NumberOfEntries; i++ )
       {

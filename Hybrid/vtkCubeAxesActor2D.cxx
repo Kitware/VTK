@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.42");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.43");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -202,7 +202,7 @@ int vtkCubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
 // with the boundary of the viewport (minus borders).
 int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 {
-  float bounds[6];
+  double bounds[6];
   double slope = 0.0, minSlope, num, den;
   double pts[8][3], d2, d2Min, min;
   int i, idx = 0;
@@ -459,13 +459,13 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
 //----------------------------------------------------------------------------
 // Do final adjustment of axes to control offset, etc.
-void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], float bounds[6],
+void vtkCubeAxesActor2D::AdjustAxes(double pts[8][3], double bounds[6],
                       int idx, int xIdx, int yIdx, int zIdx, int zIdx2,
                       int xAxes, int yAxes, int zAxes,
                       double xCoords[4], double yCoords[4], double zCoords[4],
                       double xRange[2], double yRange[2], double zRange[2])
 {
-  float *internal_bounds;
+  double *internal_bounds;
   if ( this->UseRanges )
   {
     internal_bounds = this->Ranges;
@@ -588,7 +588,7 @@ void vtkCubeAxesActor2D::ReleaseGraphicsResources(vtkWindow *win)
 
 //----------------------------------------------------------------------------
 // Return the ranges
-void vtkCubeAxesActor2D::GetRanges(float ranges[6])
+void vtkCubeAxesActor2D::GetRanges(double ranges[6])
 {
   int i;
   for ( i=0; i<6; i++ )
@@ -599,11 +599,11 @@ void vtkCubeAxesActor2D::GetRanges(float ranges[6])
 
 //----------------------------------------------------------------------------
 // Compute the ranges
-void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax, 
-                                   float& ymin, float& ymax,
-                                   float& zmin, float& zmax)
+void vtkCubeAxesActor2D::GetRanges(double& xmin, double& xmax, 
+                                   double& ymin, double& ymax,
+                                   double& zmin, double& zmax)
 {
-  float ranges[6];
+  double ranges[6];
   this->GetRanges(ranges);
   xmin = ranges[0];
   xmax = ranges[1];
@@ -615,28 +615,26 @@ void vtkCubeAxesActor2D::GetRanges(float& xmin, float& xmax,
 
 //----------------------------------------------------------------------------
 // Compute the bounds
-float *vtkCubeAxesActor2D::GetRanges()
+double *vtkCubeAxesActor2D::GetRanges()
 {
-  float ranges[6];
+  double ranges[6];
   this->GetRanges(ranges);
   return this->Ranges;
 }
 
 //----------------------------------------------------------------------------
 // Compute the bounds
-void vtkCubeAxesActor2D::GetBounds(float bounds[6])
+void vtkCubeAxesActor2D::GetBounds(double bounds[6])
 {
-  float *propBounds;
+  double *propBounds;
   int i;
 
   if ( this->Input )
     {
     this->Input->Update();
-    // TODO clean
-    double *dbounds = this->Input->GetBounds();
+    this->Input->GetBounds(bounds);
     for (i=0; i< 6; i++)
       {
-      bounds[i] = static_cast<double>(dbounds[i]);
       this->Bounds[i] = bounds[i];
       }
     }
@@ -659,11 +657,11 @@ void vtkCubeAxesActor2D::GetBounds(float bounds[6])
 
 //----------------------------------------------------------------------------
 // Compute the bounds
-void vtkCubeAxesActor2D::GetBounds(float& xmin, float& xmax, 
-                                   float& ymin, float& ymax,
-                                   float& zmin, float& zmax)
+void vtkCubeAxesActor2D::GetBounds(double& xmin, double& xmax, 
+                                   double& ymin, double& ymax,
+                                   double& zmin, double& zmax)
 {
-  float bounds[6];
+  double bounds[6];
   this->GetBounds(bounds);
   xmin = bounds[0];
   xmax = bounds[1];
@@ -675,10 +673,9 @@ void vtkCubeAxesActor2D::GetBounds(float& xmin, float& xmax,
 
 //----------------------------------------------------------------------------
 // Compute the bounds
-float *vtkCubeAxesActor2D::GetBounds()
+double *vtkCubeAxesActor2D::GetBounds()
 {
-  float bounds[6];
-  this->GetBounds(bounds);
+  this->GetBounds(this->Bounds);
   return this->Bounds;
 }
 
@@ -783,21 +780,21 @@ void vtkCubeAxesActor2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-static int IsInBounds(double x[3], float bounds[6]);
+static int IsInBounds(double x[3], double bounds[6]);
 
 // Clip the axes to fit into the viewport. Do this clipping each of the three
 // axes to determine which part of the cube is in view. Returns 0 if
 // nothing should be drawn.
 #define VTK_DIVS 10
 int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, double pts[8][3], 
-                                   float bounds[6])
+                                   double bounds[6])
 {
   int i, j, k, numIters;
   float planes[24];
   double x[3];
   double val, maxVal=0, anchor[3], scale;
   double delX, delY, delZ;
-  float bounds2[6];
+  double bounds2[6];
   double scale2, newScale, origin[3];
   double aspect[2];
 
@@ -914,7 +911,7 @@ int vtkCubeAxesActor2D::ClipBounds(vtkViewport *viewport, double pts[8][3],
 
 //----------------------------------------------------------------------------
 void vtkCubeAxesActor2D::TransformBounds(vtkViewport *viewport, 
-                                         float bounds[6], double pts[8][3])
+                                         double bounds[6], double pts[8][3])
 {
   int i, j, k, idx;
   double x[3];
@@ -964,7 +961,7 @@ double vtkCubeAxesActor2D::EvaluatePoint(float planes[24], double x[3])
 //----------------------------------------------------------------------------
 // Return the smallest point of the bounding box evaluated against the
 // frustum planes.
-double vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
+double vtkCubeAxesActor2D::EvaluateBounds(float planes[24], double bounds[6])
 {
   double val, minVal, x[3];
   int i, j, k;
@@ -991,7 +988,7 @@ double vtkCubeAxesActor2D::EvaluateBounds(float planes[24], float bounds[6])
 }
 
 //----------------------------------------------------------------------------
-static int IsInBounds(double x[3], float bounds[6])
+static int IsInBounds(double x[3], double bounds[6])
 {
   if ( x[0] < bounds[0] || x[0] > bounds[1] ||
        x[1] < bounds[2] || x[1] > bounds[3] ||

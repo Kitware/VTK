@@ -82,7 +82,7 @@ public:
   // Description:
   // Get the bounds for this prop assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // May return NULL in some cases (meaning the bounds is undefined).
-  float *GetBounds();
+  double *GetBounds();
 
   // Description:
   // Shallow copy of this vtkPropAssembly.
@@ -119,7 +119,7 @@ protected:
   ~vtkPropAssembly();
 
   vtkPropCollection *Parts;
-  float Bounds[6];
+  double Bounds[6];
   
   // Support the BuildPaths() method,
   vtkTimeStamp PathTime;

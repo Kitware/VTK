@@ -86,7 +86,7 @@ public:
   // Description:
   // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
   // in world coordinates. NULL means that the bounds are not defined.
-  virtual float *GetBounds() {return NULL;}
+  virtual double *GetBounds() {return NULL;}
 
   // Description:
   // Shallow copy of this vtkProp.
@@ -150,9 +150,9 @@ public:
   // the time. We need the viewport for viewing parameters that affect timing.
   // The no-arguments version simply returns the value of the variable with
   // no estimation.
-  virtual float GetEstimatedRenderTime( vtkViewport * )
+  virtual double GetEstimatedRenderTime( vtkViewport * )
     { return this->EstimatedRenderTime; }
-  virtual float GetEstimatedRenderTime(){ return this->EstimatedRenderTime; }
+  virtual double GetEstimatedRenderTime(){ return this->EstimatedRenderTime; }
   
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -160,7 +160,7 @@ public:
   // This method is used by, for example, the vtkLODProp3D in order to
   // initialize the estimated render time at start-up to some user defined
   // value.
-  virtual void SetEstimatedRenderTime(float t) 
+  virtual void SetEstimatedRenderTime(double t) 
     {this->EstimatedRenderTime = t; this->SavedEstimatedRenderTime = t;}
     
   // Description:
@@ -186,7 +186,7 @@ public:
   // really a modification to the object. (For example, we don't want
   // to rebuild matrices at every render because the estimated render time
   // is changing)
-  virtual void AddEstimatedRenderTime(float t, vtkViewport *vtkNotUsed(vp))
+  virtual void AddEstimatedRenderTime(double t, vtkViewport *vtkNotUsed(vp))
     {this->EstimatedRenderTime+=t;}
 
   // Description:
@@ -198,7 +198,7 @@ public:
   // A side effect of this method is to reset the EstimatedRenderTime to
   // 0.0. This way, each of the ways that this prop may be rendered can
   // be timed and added together into this value.
-  virtual void SetAllocatedRenderTime(float t, vtkViewport *vtkNotUsed(v)) 
+  virtual void SetAllocatedRenderTime(double t, vtkViewport *vtkNotUsed(v)) 
     {
     this->AllocatedRenderTime = t;
     this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
@@ -208,7 +208,7 @@ public:
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
-  vtkGetMacro(AllocatedRenderTime, float);
+  vtkGetMacro(AllocatedRenderTime, double);
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -216,8 +216,8 @@ public:
   // Get/Set the multiplier for the render time. This is used
   // for culling and is a number between 0 and 1. It is used
   // to create the allocated render time value.
-  void SetRenderTimeMultiplier( float t ) { this->RenderTimeMultiplier = t; }
-  vtkGetMacro(RenderTimeMultiplier, float);
+  void SetRenderTimeMultiplier( double t ) { this->RenderTimeMultiplier = t; }
+  vtkGetMacro(RenderTimeMultiplier, double);
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -246,10 +246,10 @@ protected:
   int Pickable;
   int Dragable;
 
-  float AllocatedRenderTime;
-  float EstimatedRenderTime;
-  float SavedEstimatedRenderTime;
-  float RenderTimeMultiplier;
+  double AllocatedRenderTime;
+  double EstimatedRenderTime;
+  double SavedEstimatedRenderTime;
+  double RenderTimeMultiplier;
 
   // how many consumers does this object have
   int NumberOfConsumers;

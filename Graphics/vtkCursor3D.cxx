@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCursor3D, "1.42");
+vtkCxxRevisionMacro(vtkCursor3D, "1.43");
 vtkStandardNewMacro(vtkCursor3D);
 
 // Construct with model bounds = (-1,1,-1,1,-1,1), focal point = (0,0,0),
@@ -67,7 +67,7 @@ void vtkCursor3D::Execute()
   int numPts=0, numLines=0;
   vtkPoints *newPts;
   vtkCellArray *newLines;
-  float x[3];
+  double x[3];
   vtkIdType ptIds[2];
   vtkPolyData *output = this->GetOutput();
   
@@ -389,9 +389,9 @@ void vtkCursor3D::Execute()
 }
 
 // Set the boundary of the 3D cursor.
-void vtkCursor3D::SetModelBounds(float xmin, float xmax, 
-                                 float ymin, float ymax,
-                                 float zmin, float zmax)
+void vtkCursor3D::SetModelBounds(double xmin, double xmax, 
+                                 double ymin, double ymax,
+                                 double zmin, double zmax)
 {
   if ( xmin != this->ModelBounds[0] || xmax != this->ModelBounds[1] ||
        ymin != this->ModelBounds[2] || ymax != this->ModelBounds[3] ||
@@ -413,7 +413,7 @@ void vtkCursor3D::SetModelBounds(float xmin, float xmax,
     }
 }
 
-void vtkCursor3D::SetFocalPoint(float x[3])
+void vtkCursor3D::SetFocalPoint(double x[3])
 {
   if ( x[0] == this->FocalPoint[0] && x[1] == this->FocalPoint[1] && 
        x[2] == this->FocalPoint[2] )
@@ -423,7 +423,7 @@ void vtkCursor3D::SetFocalPoint(float x[3])
   
   this->Modified();
 
-  float v[3];
+  double v[3];
   for (int i=0; i<3; i++)
     {
     v[i] = x[i] - this->FocalPoint[i];
@@ -454,7 +454,7 @@ void vtkCursor3D::SetFocalPoint(float x[3])
     }
 }
 
-void vtkCursor3D::SetModelBounds(float bounds[6])
+void vtkCursor3D::SetModelBounds(double bounds[6])
 {
   this->SetModelBounds(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4],
                        bounds[5]);

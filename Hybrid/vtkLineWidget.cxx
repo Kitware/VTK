@@ -35,7 +35,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkLineWidget, "1.46");
+vtkCxxRevisionMacro(vtkLineWidget, "1.47");
 vtkStandardNewMacro(vtkLineWidget);
 
 // This class is used to coordinate the interaction between the point widget
@@ -49,7 +49,7 @@ public:
     { return new vtkPWCallback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
-      float x[3];
+      double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetLinePosition(x);
     }
@@ -67,7 +67,7 @@ public:
     { return new vtkPW1Callback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
-      float x[3];
+      double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetPoint1(x);
     }
@@ -85,7 +85,7 @@ public:
     { return new vtkPW2Callback; }
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
     {
-      float x[3];
+      double x[3];
       this->PointWidget->GetPosition(x);
       this->LineWidget->SetPoint2(x);
     }
@@ -129,7 +129,7 @@ vtkLineWidget::vtkLineWidget()
     }
   
   // Define the point coordinates
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -428,8 +428,8 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
       os << "None";
     }
   int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
-  float *pt2 = this->LineSource->GetPoint2();
+  double *pt1 = this->LineSource->GetPoint1();
+  double *pt2 = this->LineSource->GetPoint2();
 
   os << indent << "Resolution: " << res << "\n";
   os << indent << "Point 1: (" << pt1[0] << ", "
@@ -443,8 +443,8 @@ void vtkLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 void vtkLineWidget::BuildRepresentation()
 {
   //int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
-  float *pt2 = this->LineSource->GetPoint2();
+  double *pt1 = this->LineSource->GetPoint1();
+  double *pt2 = this->LineSource->GetPoint2();
 
   this->HandleGeometry[0]->SetCenter(pt1);
   this->HandleGeometry[1]->SetCenter(pt2);
@@ -452,7 +452,7 @@ void vtkLineWidget::BuildRepresentation()
 
 void vtkLineWidget::SizeHandles()
 {
-  float radius = this->vtk3DWidget::SizeHandles(1.0);
+  double radius = this->vtk3DWidget::SizeHandles(1.0);
   this->HandleGeometry[0]->SetRadius(radius);
   this->HandleGeometry[1]->SetRadius(radius);
 }
@@ -499,8 +499,7 @@ int vtkLineWidget::ForwardEvent(unsigned long event)
 void vtkLineWidget::EnablePointWidget()
 {
   // Set up the point widgets
-  float x[3];
-  double dx[3];
+  double x[3];
   if ( this->CurrentHandle ) //picking the handles
     {
     if ( this->CurrentHandle == this->Handle[0] )
@@ -516,18 +515,14 @@ void vtkLineWidget::EnablePointWidget()
     }
   else //picking the line
     {
-    // TODO: kill me now
     this->CurrentPointWidget = this->PointWidget;
-    this->LinePicker->GetPickPosition(dx);
-    this->LastPosition[0] = dx[0];
-    this->LastPosition[1] = dx[1];
-    this->LastPosition[2] = dx[2];
-    x[0] = (float)dx[0];
-    x[1] = (float)dx[1];
-    x[2] = (float)dx[2];    
+    this->LinePicker->GetPickPosition(x);
+    this->LastPosition[0] = x[0];
+    this->LastPosition[1] = x[1];
+    this->LastPosition[2] = x[2];
     }
   
-  float bounds[6];
+  double bounds[6];
   for (int i=0; i<3; i++)
     {
     bounds[2*i] = x[i] - 0.1*this->InitialLength;
@@ -845,12 +840,14 @@ void vtkLineWidget::OnMouseMove()
     }
 
   // Compute the two points defining the motion vector
-  this->ComputeWorldToDisplay(this->LastPickPosition[0], this->LastPickPosition[1],
+  this->ComputeWorldToDisplay(this->LastPickPosition[0], 
+                              this->LastPickPosition[1],
                               this->LastPickPosition[2], focalPoint);
   z = focalPoint[2];
-  this->ComputeDisplayToWorld(double(this->Interactor->GetLastEventPosition()[0]),
-                              double(this->Interactor->GetLastEventPosition()[1]),
-                              z, prevPickPoint);
+  this->ComputeDisplayToWorld(
+    double(this->Interactor->GetLastEventPosition()[0]),
+    double(this->Interactor->GetLastEventPosition()[1]),
+    z, prevPickPoint);
   this->ComputeDisplayToWorld(double(X), double(Y), z, pickPoint);
 
   // Process the motion
@@ -886,16 +883,17 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   v[2] = p2[2] - p1[2];
 
   //int res = this->LineSource->GetResolution();
-  float *pt1 = this->LineSource->GetPoint1();
-  float *pt2 = this->LineSource->GetPoint2();
+  double *pt1 = this->LineSource->GetPoint1();
+  double *pt2 = this->LineSource->GetPoint2();
 
-  float center[3];
+  double center[3];
   center[0] = (pt1[0]+pt2[0]) / 2.0;
   center[1] = (pt1[1]+pt2[1]) / 2.0;
   center[2] = (pt1[2]+pt2[2]) / 2.0;
 
   // Compute the scale factor
-  float sf = vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
+  double sf = 
+    vtkMath::Norm(v) / sqrt(vtkMath::Distance2BetweenPoints(pt1,pt2));
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
@@ -906,7 +904,7 @@ void vtkLineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
     }
   
   // Move the end points
-  float point1[3], point2[3];
+  double point1[3], point2[3];
   for (int i=0; i<3; i++)
     {
     point1[i] = sf * (pt1[i] - center[i]) + center[i];
@@ -943,10 +941,10 @@ void vtkLineWidget::CreateDefaultProperties()
   this->SelectedLineProperty->SetLineWidth(2.0);
 }
 
-void vtkLineWidget::PlaceWidget(float bds[6])
+void vtkLineWidget::PlaceWidget(double bds[6])
 {
   int i;
-  float bounds[6], center[3];
+  double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
   
@@ -980,9 +978,9 @@ void vtkLineWidget::PlaceWidget(float bds[6])
   this->SizeHandles();
 }
 
-void vtkLineWidget::SetPoint1(float x, float y, float z) 
+void vtkLineWidget::SetPoint1(double x, double y, double z) 
 {
-  float xyz[3];
+  double xyz[3];
   xyz[0] = x; xyz[1] = y; xyz[2] = z;
   
   if ( this->ClampToBounds )
@@ -994,9 +992,9 @@ void vtkLineWidget::SetPoint1(float x, float y, float z)
   this->BuildRepresentation();
 }
 
-void vtkLineWidget::SetPoint2(float x, float y, float z) 
+void vtkLineWidget::SetPoint2(double x, double y, double z) 
 {
-  float xyz[3];
+  double xyz[3];
   xyz[0] = x; xyz[1] = y; xyz[2] = z;
   
   if ( this->ClampToBounds )
@@ -1008,9 +1006,9 @@ void vtkLineWidget::SetPoint2(float x, float y, float z)
   this->BuildRepresentation();
 }
 
-void vtkLineWidget::SetLinePosition(float x[3]) 
+void vtkLineWidget::SetLinePosition(double x[3]) 
 {
-  float p1[3], p2[3], v[3];
+  double p1[3], p2[3], v[3];
 
   // vector of motion
   v[0] = x[0] - this->LastPosition[0];
@@ -1043,7 +1041,7 @@ void vtkLineWidget::SetLinePosition(float x[3])
 }
 
 
-void vtkLineWidget::ClampPosition(float x[3])
+void vtkLineWidget::ClampPosition(double x[3])
 {
   for (int i=0; i<3; i++)
     {
@@ -1058,7 +1056,7 @@ void vtkLineWidget::ClampPosition(float x[3])
     }
 }
 
-int vtkLineWidget::InBounds(float x[3])
+int vtkLineWidget::InBounds(double x[3])
 {
   for (int i=0; i<3; i++)
     {

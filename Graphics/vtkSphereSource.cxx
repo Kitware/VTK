@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSphereSource, "1.63");
+vtkCxxRevisionMacro(vtkSphereSource, "1.64");
 vtkStandardNewMacro(vtkSphereSource);
 
 //----------------------------------------------------------------------------
@@ -56,8 +56,8 @@ void vtkSphereSource::Execute()
   vtkPoints *newPoints; 
   vtkFloatArray *newNormals;
   vtkCellArray *newPolys;
-  float x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
-  float startTheta, endTheta, startPhi, endPhi;
+  double x[3], n[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
+  double startTheta, endTheta, startPhi, endPhi;
   int base, numPoles=0, thetaResolution, phiResolution;
   vtkIdType pts[4];
   vtkPolyData *output = this->GetOutput();
@@ -79,8 +79,8 @@ void vtkSphereSource::Execute()
   // so I will make local copies of them.  THese might be able to be merged 
   // with the other copies of them, ...
   int localThetaResolution = this->ThetaResolution;
-  float localStartTheta = this->StartTheta;
-  float localEndTheta = this->EndTheta;
+  double localStartTheta = this->StartTheta;
+  double localEndTheta = this->EndTheta;
 
   while (localEndTheta < localStartTheta)
     {
@@ -92,8 +92,8 @@ void vtkSphereSource::Execute()
   int start, end;
   start = piece * localThetaResolution / numPieces;
   end = (piece+1) * localThetaResolution / numPieces;
-  localEndTheta = localStartTheta + (float)(end) * deltaTheta;
-  localStartTheta = localStartTheta + (float)(start) * deltaTheta;
+  localEndTheta = localStartTheta + (double)(end) * deltaTheta;
+  localStartTheta = localStartTheta + (double)(start) * deltaTheta;
   localThetaResolution = end - start;
 
   // Set things up; allocate memory

@@ -89,21 +89,21 @@ public:
   // The bounds is used only when no Input or Prop is specified. The bounds
   // are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), making
   // sure that the min's are less than the max's.
-  vtkSetVector6Macro(Bounds,float);
-  float *GetBounds();
-  void GetBounds(float& xmin, float& xmax, float& ymin, float& ymax, 
-                 float& zmin, float& zmax);
-  void GetBounds(float bounds[6]);
+  vtkSetVector6Macro(Bounds,double);
+  double *GetBounds();
+  void GetBounds(double& xmin, double& xmax, double& ymin, double& ymax, 
+                 double& zmin, double& zmax);
+  void GetBounds(double bounds[6]);
 
   // Description:
   // Explicitly specify the range of values used on the bounds.
   // The ranges are specified according to (xmin,xmax, ymin,ymax, zmin,zmax), 
   // making sure that the min's are less than the max's.
-  vtkSetVector6Macro(Ranges,float);
-  float *GetRanges();
-  void GetRanges(float& xmin, float& xmax, float& ymin, float& ymax, 
-                 float& zmin, float& zmax);
-  void GetRanges(float ranges[6]);  
+  vtkSetVector6Macro(Ranges,double);
+  double *GetRanges();
+  void GetRanges(double& xmin, double& xmax, double& ymin, double& ymax, 
+                 double& zmin, double& zmax);
+  void GetRanges(double ranges[6]);  
 
   // Description:
   // Set/Get a flag that controls whether the axes use the data ranges
@@ -231,8 +231,8 @@ protected:
 
   vtkDataSet *Input;    //Define bounds from input data, or
   vtkProp    *Prop;     //Define bounds from actor/assembly, or
-  float      Bounds[6]; //Define bounds explicitly
-  float      Ranges[6]; //Define ranges explicitly
+  double      Bounds[6]; //Define bounds explicitly
+  double      Ranges[6]; //Define ranges explicitly
   int        UseRanges; //Flag to use ranges or not
 
   vtkCamera *Camera;
@@ -268,12 +268,12 @@ protected:
   int RenderSomething;
   
   // various helper methods
-  void TransformBounds(vtkViewport *viewport, float bounds[6], 
+  void TransformBounds(vtkViewport *viewport, double bounds[6], 
                        double pts[8][3]);
-  int ClipBounds(vtkViewport *viewport, double pts[8][3], float bounds[6]);
+  int ClipBounds(vtkViewport *viewport, double pts[8][3], double bounds[6]);
   double EvaluatePoint(float planes[24], double x[3]);
-  double EvaluateBounds(float planes[24], float bounds[6]);
-  void AdjustAxes(double pts[8][3], float bounds[6], 
+  double EvaluateBounds(float planes[24], double bounds[6]);
+  void AdjustAxes(double pts[8][3], double bounds[6], 
                   int idx, int xIdx, int yIdx, int zIdx, int zIdx2, 
                   int xAxes, int yAxes, int zAxes,
                   double xCoords[4], double yCoords[4], double zCoords[4],

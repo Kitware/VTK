@@ -40,6 +40,12 @@
 # include "vtkIOStream.h"    // Include the real C++ streams.
 #endif
 
+// define the type of floating point interface used for old and new versions
+// of VTK VTK42 and older use float and VTK 44 and newer use double for most
+// of the API calls
+#define vtkFloatingPointType vtkFloatingPointType 
+typedef double vtkFloatingPointType;
+
 #define __VTK_SYSTEM_INCLUDES__INSIDE
 #include "vtkIdType.h"            // Define vtkIdType and its stream operators.
 #include "vtkOStreamWrapper.h"    // Include the ostream wrapper.

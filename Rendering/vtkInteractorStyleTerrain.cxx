@@ -27,7 +27,7 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.8");
+vtkCxxRevisionMacro(vtkInteractorStyleTerrain, "1.9");
 vtkStandardNewMacro(vtkInteractorStyleTerrain);
 
 //----------------------------------------------------------------------------
@@ -331,11 +331,11 @@ void vtkInteractorStyleTerrain::OnChar()
         }
       else 
         {
-        float bounds[6];
+        double bounds[6];
         this->CurrentRenderer->ComputeVisiblePropBounds(bounds);
-        float radius = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
-                            (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
-                            (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) / 2.0;
+        double radius = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+                             (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
+                             (bounds[5]-bounds[4])*(bounds[5]-bounds[4])) /2.0;
         this->LatLongSphere->SetRadius(radius);
         this->LatLongSphere->SetCenter((bounds[0]+bounds[1])/2.0,
                                        (bounds[2]+bounds[3])/2.0,

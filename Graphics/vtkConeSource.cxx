@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.64");
+vtkCxxRevisionMacro(vtkConeSource, "1.65");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -49,9 +49,9 @@ vtkConeSource::vtkConeSource(int res)
 //----------------------------------------------------------------------------
 void vtkConeSource::Execute()
 {
-  float angle;
+  double angle;
   int numLines, numPolys, numPts;
-  float x[3], xbot;
+  double x[3], xbot;
   int i;
   vtkIdType pts[VTK_CELL_SIZE];
   vtkPoints *newPoints; 
@@ -230,8 +230,8 @@ void vtkConeSource::Execute()
     {
     vtkTransform *t = vtkTransform::New();
     t->Translate(this->Center[0], this->Center[1], this->Center[2]);
-    float vMag = vtkMath::Norm(this->Direction);
-    t->RotateWXYZ((float)180.0, (this->Direction[0]+vMag)/2.0,
+    double vMag = vtkMath::Norm(this->Direction);
+    t->RotateWXYZ((double)180.0, (this->Direction[0]+vMag)/2.0,
                   this->Direction[1]/2.0, this->Direction[2]/2.0);
     float *ipts = ((vtkFloatArray *)newPoints->GetData())->GetPointer(0);
     for (i=0; i<numPts; i++, ipts+=3)
@@ -268,13 +268,13 @@ void vtkConeSource::ExecuteInformation()
 
 
 //----------------------------------------------------------------------------
-void vtkConeSource::SetAngle(float angle)
+void vtkConeSource::SetAngle(double angle)
 {
   this->SetRadius (this->Height * tan ((double) angle*vtkMath::DegreesToRadians()));
 }
 
 //----------------------------------------------------------------------------
-float vtkConeSource::GetAngle()
+double vtkConeSource::GetAngle()
 {
   return atan2 (this->Radius, this->Height) / vtkMath::DegreesToRadians();
 }

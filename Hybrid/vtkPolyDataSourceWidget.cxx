@@ -19,7 +19,7 @@
 #include "vtkProp3D.h"
 
 
-vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.4");
+vtkCxxRevisionMacro(vtkPolyDataSourceWidget, "1.5");
 
 vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
 {
@@ -29,7 +29,7 @@ vtkPolyDataSourceWidget::vtkPolyDataSourceWidget() : vtk3DWidget()
 
 void vtkPolyDataSourceWidget::PlaceWidget()
 {
-  float bounds[6];
+  double bounds[6];
 
   if ( this->Prop3D )
     {
@@ -38,14 +38,7 @@ void vtkPolyDataSourceWidget::PlaceWidget()
   else if ( this->Input )
     {
     this->Input->Update();
-    // TODO: cleanup
-    double *dbounds = this->Input->GetBounds();
-    bounds[0] = (float)dbounds[0];
-    bounds[1] = (float)dbounds[1];
-    bounds[2] = (float)dbounds[2];
-    bounds[3] = (float)dbounds[3];
-    bounds[4] = (float)dbounds[4];
-    bounds[5] = (float)dbounds[5];
+    this->Input->GetBounds(bounds);
     }
   else
     {

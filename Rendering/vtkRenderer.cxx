@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.197");
+vtkCxxRevisionMacro(vtkRenderer, "1.198");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -274,7 +274,7 @@ void vtkRenderer::Render(void)
     {
     // Measure the actual RenderTime
     t2 = vtkTimerLog::GetCurrentTime();
-    this->LastRenderTimeInSeconds = (float) (t2 - t1);
+    this->LastRenderTimeInSeconds = (double) (t2 - t1);
 
     if (this->LastRenderTimeInSeconds == 0.0)
       {
@@ -284,12 +284,12 @@ void vtkRenderer::Render(void)
     }
 }
 
-float vtkRenderer::GetAllocatedRenderTime()
+double vtkRenderer::GetAllocatedRenderTime()
 {
   return this->AllocatedRenderTime;
 }
 
-float vtkRenderer::GetTimeFactor()
+double vtkRenderer::GetTimeFactor()
 {
   return this->TimeFactor;
 }
@@ -320,7 +320,6 @@ int vtkRenderer::UpdateLightsGeometryToFollowCamera()
   // only update the light's geometry if this Renderer is tracking
   // this lights.  That allows one renderer to view the lights that
   // another renderer is setting up.
-
   camera = this->GetActiveCamera();
   lightMatrix = camera->GetCameraLightTransformMatrix();
 
@@ -370,8 +369,8 @@ int vtkRenderer::UpdateLightGeometry()
 void vtkRenderer::AllocateTime()
 {
   int          initialized = 0;
-  float        renderTime;
-  float        totalTime;
+  double        renderTime;
+  double        totalTime;
   int          i;
   vtkCuller    *aCuller;
   vtkProp      *aProp;
@@ -595,7 +594,8 @@ void vtkRenderer::CreateLight(void)
     this->CreatedLight = NULL;
     }
 
-  // I do not see why UnRegister is used on CreatedLight, but lets be consistent. 
+  // I do not see why UnRegister is used on CreatedLight, but lets be
+  // consistent.
   vtkLight *l = this->MakeLight();
   this->CreatedLight = l;
   this->CreatedLight->Register(this);
@@ -612,14 +612,14 @@ void vtkRenderer::CreateLight(void)
 }
 
 // Compute the bounds of the visible props
-void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
+void vtkRenderer::ComputeVisiblePropBounds( double allBounds[6] )
 {
   vtkProp    *prop;
-  float      *bounds;
+  double      *bounds;
   int        nothingVisible=1;
 
-  allBounds[0] = allBounds[2] = allBounds[4] = VTK_LARGE_FLOAT;
-  allBounds[1] = allBounds[3] = allBounds[5] = -VTK_LARGE_FLOAT;
+  allBounds[0] = allBounds[2] = allBounds[4] = VTK_DOUBLE_MAX;
+  allBounds[1] = allBounds[3] = allBounds[5] = -VTK_DOUBLE_MAX;
   
   // loop through all props
   for (this->Props->InitTraversal(); (prop = this->Props->GetNextProp()); )
@@ -629,13 +629,10 @@ void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
       {
       bounds = prop->GetBounds();
       // make sure we haven't got bogus bounds
-      if ( bounds != NULL &&
-           bounds[0] > -VTK_LARGE_FLOAT && bounds[1] < VTK_LARGE_FLOAT &&
-           bounds[2] > -VTK_LARGE_FLOAT && bounds[3] < VTK_LARGE_FLOAT &&
-           bounds[4] > -VTK_LARGE_FLOAT && bounds[5] < VTK_LARGE_FLOAT )
+      if ( bounds != NULL && vtkMath::AreBoundsInitialized(bounds))
         {
         nothingVisible = 0;
-
+        
         if (bounds[0] < allBounds[0])
           {
           allBounds[0] = bounds[0]; 
@@ -666,12 +663,13 @@ void vtkRenderer::ComputeVisiblePropBounds( float allBounds[6] )
   
   if ( nothingVisible )
     {
+    vtkMath::UninitializeBounds(allBounds);
     vtkDebugMacro(<< "Can't compute bounds, no 3D props are visible");
     return;
     }
 }
 
-float *vtkRenderer::ComputeVisiblePropBounds()
+double *vtkRenderer::ComputeVisiblePropBounds()
   {
   this->ComputeVisiblePropBounds(this->ComputedVisiblePropBounds);
   return this->ComputedVisiblePropBounds;
@@ -683,11 +681,11 @@ float *vtkRenderer::ComputeVisiblePropBounds()
 // camera position to focal point) so that all of the actors can be seen.
 void vtkRenderer::ResetCamera()
 {
-  float      allBounds[6];
+  double      allBounds[6];
 
   this->ComputeVisiblePropBounds( allBounds );
 
-  if ( allBounds[0] == VTK_LARGE_FLOAT )
+  if (!vtkMath::AreBoundsInitialized(allBounds))
     {
     vtkDebugMacro( << "Cannot reset camera!" );
     }
@@ -705,11 +703,11 @@ void vtkRenderer::ResetCamera()
 // visible actors
 void vtkRenderer::ResetCameraClippingRange()
 {
-  float      allBounds[6];
+  double      allBounds[6];
 
   this->ComputeVisiblePropBounds( allBounds );
 
-  if ( allBounds[0] == VTK_LARGE_FLOAT )
+  if (!vtkMath::AreBoundsInitialized(allBounds))
     {
     vtkDebugMacro( << "Cannot reset camera clipping range!" );
     }
@@ -731,11 +729,11 @@ void vtkRenderer::ResetCameraClippingRange()
 // (i.e., vector defined from camera position to focal point). Note: is 
 // the view plane is parallel to the view up axis, the view up axis will
 // be reset to one of the three coordinate axes.
-void vtkRenderer::ResetCamera(float bounds[6])
+void vtkRenderer::ResetCamera(double bounds[6])
 {
-  float center[3];
-  float distance;
-  float width;
+  double center[3];
+  double distance;
+  double width;
   double vn[3], *vup;
   
   this->GetActiveCamera();
@@ -787,10 +785,10 @@ void vtkRenderer::ResetCamera(float bounds[6])
 }
   
 // Alternative version of ResetCamera(bounds[6]);
-void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax, 
-                              float zmin, float zmax)
+void vtkRenderer::ResetCamera(double xmin, double xmax, double ymin, double ymax, 
+                              double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
 
   bounds[0] = xmin;
   bounds[1] = xmax;
@@ -803,7 +801,7 @@ void vtkRenderer::ResetCamera(float xmin, float xmax, float ymin, float ymax,
 }
 
 // Reset the camera clipping range to include this entire bounding box
-void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
+void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
 {
   double  vn[3], position[3], a, b, c, d;
   double  range[2], dist;
@@ -887,11 +885,11 @@ void vtkRenderer::ResetCameraClippingRange( float bounds[6] )
 }
 
 // Alternative version of ResetCameraClippingRange(bounds[6]);
-void vtkRenderer::ResetCameraClippingRange(float xmin, float xmax, 
-                                           float ymin, float ymax, 
-                                           float zmin, float zmax)
+void vtkRenderer::ResetCameraClippingRange(double xmin, double xmax, 
+                                           double ymin, double ymax, 
+                                           double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
 
   bounds[0] = xmin;
   bounds[1] = xmax;

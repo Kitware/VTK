@@ -73,8 +73,8 @@ public:
   // into a user provided array or return a pointer to an array.
   // In either case the boudns is expressed as a 6-vector 
   // (xmin,xmax, ymin,ymax, zmin,zmax).
-  float *GetBounds();
-  void GetBounds(float bounds[6]);
+  double *GetBounds();
+  void GetBounds(double bounds[6]);
 
   // Description:
   // Return a slice number computed from the display extent.
@@ -114,7 +114,7 @@ protected:
   int           Interpolate;
   vtkImageData* Input;
   int           DisplayExtent[6];
-  float         Bounds[6];
+  double        Bounds[6];
 private:
   vtkImageActor(const vtkImageActor&);  // Not implemented.
   void operator=(const vtkImageActor&);  // Not implemented.

@@ -36,7 +36,7 @@
 #include "vtkTriangleStrip.h"
 #include "vtkVersion.h"
 
-vtkCxxRevisionMacro(vtkOOGLExporter, "1.22");
+vtkCxxRevisionMacro(vtkOOGLExporter, "1.23");
 vtkStandardNewMacro(vtkOOGLExporter);
 
 vtkOOGLExporter::vtkOOGLExporter()
@@ -283,7 +283,7 @@ void vtkOOGLExporter::WriteAnActor(vtkActor *anActor, FILE *fp, int count)
   vtkPolyDataMapper *pm;
   vtkUnsignedCharArray *colors;
    
-  float p[3];
+  double p[3];
   unsigned char *c;
   vtkTransform *trans;
    

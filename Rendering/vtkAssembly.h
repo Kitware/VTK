@@ -120,8 +120,8 @@ public:
 
   // Description:
   // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-  void GetBounds(float bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
-  float *GetBounds();
+  void GetBounds(double bounds[6]) {this->vtkProp3D::GetBounds( bounds );};
+  double *GetBounds();
 
   // Description:
   // Override default GetMTime method to also consider all of the

@@ -14,8 +14,9 @@
 =========================================================================*/
 #include "vtkAbstractMapper3D.h"
 #include "vtkDataSet.h"
+#include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper3D, "1.16");
+vtkCxxRevisionMacro(vtkAbstractMapper3D, "1.17");
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
 #ifdef __APPLE_CC__
@@ -32,13 +33,12 @@ extern "C"
 // Construct with initial range (0,1).
 vtkAbstractMapper3D::vtkAbstractMapper3D()
 {
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = 1.0;
+  vtkMath::UninitializeBounds(this->Bounds);
   this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
 }
 
 // Get the bounds for this Prop as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-void vtkAbstractMapper3D::GetBounds(float bounds[6])
+void vtkAbstractMapper3D::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i<6; i++)
@@ -47,7 +47,7 @@ void vtkAbstractMapper3D::GetBounds(float bounds[6])
     }
 }
 
-float *vtkAbstractMapper3D::GetCenter()
+double *vtkAbstractMapper3D::GetCenter()
 {
   this->GetBounds();
   for (int i=0; i<3; i++) 
@@ -57,7 +57,7 @@ float *vtkAbstractMapper3D::GetCenter()
   return this->Center;
 }
 
-float vtkAbstractMapper3D::GetLength()
+double vtkAbstractMapper3D::GetLength()
 {
   double diff, l=0.0;
   int i;
@@ -69,7 +69,7 @@ float vtkAbstractMapper3D::GetLength()
     l += diff * diff;
     }
  
-  return (float)sqrt(l);
+  return sqrt(l);
 }
 
 void vtkAbstractMapper3D::PrintSelf(ostream& os, vtkIndent indent)

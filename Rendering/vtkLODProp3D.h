@@ -43,9 +43,9 @@ typedef struct
   vtkProp3D   *Prop3D;
   int         Prop3DType;
   int         ID;
-  float       EstimatedTime;
+  double       EstimatedTime;
   int         State;
-  float       Level;
+  double       Level;
 } vtkLODProp3DEntry;
 
 class VTK_RENDERING_EXPORT vtkLODProp3D : public vtkProp3D
@@ -60,34 +60,35 @@ public:
 
   // Description:
   // Standard vtkProp method to get 3D bounds of a 3D prop
-  float *GetBounds();
-  void GetBounds(float bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
+  double *GetBounds();
+  void GetBounds(double bounds[6]) { this->vtkProp3D::GetBounds( bounds ); };
 
   // Description:
-  // Add a level of detail with a given mapper, property, backface property, 
-  // texture, and guess of rendering time.  The property and texture fields 
-  // can be set to NULL (the other methods are included for script access where null
-  // variables are not allowed). The time field can be set to 0.0 indicating
-  // that no initial guess for rendering time is being supplied.
+  // Add a level of detail with a given mapper, property, backface property,
+  // texture, and guess of rendering time.  The property and texture fields
+  // can be set to NULL (the other methods are included for script access
+  // where null variables are not allowed). The time field can be set to 0.0
+  // indicating that no initial guess for rendering time is being supplied.
   // The returned integer value is an ID that can be used later to delete
   // this LOD, or set it as the selected LOD.
-  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, vtkTexture *t, float time );
-  int AddLOD( vtkMapper *m, vtkProperty *p, vtkTexture *t, float time );
-  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, float time );
-  int AddLOD( vtkMapper *m, vtkProperty *p, float time );
-  int AddLOD( vtkMapper *m, vtkTexture *t, float time );
-  int AddLOD( vtkMapper *m, float time );
-  int AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, float time );
-  int AddLOD( vtkAbstractVolumeMapper *m, float time );
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, 
+              vtkTexture *t, double time );
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkTexture *t, double time );
+  int AddLOD( vtkMapper *m, vtkProperty *p, vtkProperty *back, double time );
+  int AddLOD( vtkMapper *m, vtkProperty *p, double time );
+  int AddLOD( vtkMapper *m, vtkTexture *t, double time );
+  int AddLOD( vtkMapper *m, double time );
+  int AddLOD( vtkAbstractVolumeMapper *m, vtkVolumeProperty *p, double time );
+  int AddLOD( vtkAbstractVolumeMapper *m, double time );
 
   // Description:
   // Get the current number of LODs.
   vtkGetMacro(NumberOfLODs, int);
  
   // Description:
-  // Get the current index, used to determine the ID of the next LOD that is added.
-  // Useful for guessing what IDs have been used (with NumberOfLODs, without 
-  // depending on the constructor initialization to 1000.
+  // Get the current index, used to determine the ID of the next LOD that is
+  // added.  Useful for guessing what IDs have been used (with NumberOfLODs,
+  // without depending on the constructor initialization to 1000.
   vtkGetMacro(CurrentIndex, int);
 
   // Description:
@@ -116,8 +117,9 @@ public:
   void GetLODMapper( int id, vtkAbstractVolumeMapper  **m );
 
   // Description:
-  // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's respondibility
-  // to safe down cast this to a vtkMapper or vtkVolumeMapper as appropriate.
+  // Get the LODMapper as an vtkAbstractMapper3D.  It is the user's
+  // respondibility to safe down cast this to a vtkMapper or vtkVolumeMapper
+  // as appropriate.
   vtkAbstractMapper3D *GetLODMapper(int id);
 
   // Description:
@@ -145,18 +147,18 @@ public:
   // rendering because it has the largest render time that fits within
   // the allocated time, all LOD are then checked to see if any one can
   // render faster but has a lower (more resolution/better) level.
-  // This quantity is a float to ensure that a level can be inserted 
+  // This quantity is a double to ensure that a level can be inserted 
   // between 2 and 3.
-  void SetLODLevel( int id, float level );
-  float GetLODLevel( int id );
-  float GetLODIndexLevel( int index );
+  void SetLODLevel( int id, double level );
+  double GetLODLevel( int id );
+  double GetLODIndexLevel( int index );
 
   // Description:
   // Access method that can be used to find out the estimated render time
   // (the thing used to select an LOD) for a given LOD ID or index. 
   // Value is returned in seconds.
-  float GetLODEstimatedRenderTime( int id );
-  float GetLODIndexEstimatedRenderTime( int index );
+  double GetLODEstimatedRenderTime( int id );
+  double GetLODIndexEstimatedRenderTime( int index );
 
   // Description:
   // Turn on / off automatic selection of LOD. 
@@ -221,7 +223,7 @@ public:
   // Used by the culler / renderer to set the allocated render time for this
   // prop. This is based on the desired update rate, and possibly some other
   // properties such as potential screen coverage of this prop.
-  void SetAllocatedRenderTime( float t, vtkViewport *vp );
+  void SetAllocatedRenderTime( double t, vtkViewport *vp );
 
   // Description:
   // Used when the render process is aborted to restore the previous 
@@ -233,7 +235,7 @@ public:
   // Description:
   // Override method from vtkProp in order to push this call down to the
   // selected LOD as well.
-  virtual void AddEstimatedRenderTime( float t, vtkViewport *vp );
+  virtual void AddEstimatedRenderTime( double t, vtkViewport *vp );
 
 //ETX
 

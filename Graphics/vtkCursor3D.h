@@ -42,10 +42,10 @@ public:
 
   // Description:
   // Set / get the boundary of the 3D cursor.
-  void SetModelBounds(float xmin, float xmax, float ymin, float ymax, 
-                      float zmin, float zmax);
-  void SetModelBounds(float bounds[6]);
-  vtkGetVectorMacro(ModelBounds,float,6);
+  void SetModelBounds(double xmin, double xmax, double ymin, double ymax, 
+                      double zmin, double zmax);
+  void SetModelBounds(double bounds[6]);
+  vtkGetVectorMacro(ModelBounds,double,6);
 
   // Description:
   // Set/Get the position of cursor focus. If translation mode is on,
@@ -53,14 +53,14 @@ public:
   // is translated. Otherwise, the focal point will either be clamped to the
   // bounding box, or wrapped, if Wrap is on. (Note: this behavior requires
   // that the bounding box is set prior to the focal point.)
-  void SetFocalPoint(float x[3]);
-  void SetFocalPoint(float x, float y, float z)
+  void SetFocalPoint(double x[3]);
+  void SetFocalPoint(double x, double y, double z)
     {
-      float xyz[3];
+      double xyz[3];
       xyz[0] = x; xyz[1] = y; xyz[2] = z;
       this->SetFocalPoint(xyz);
     }
-  vtkGetVectorMacro(FocalPoint,float,3);
+  vtkGetVectorMacro(FocalPoint,double,3);
 
   // Description:
   // Turn on/off the wireframe bounding box.
@@ -124,8 +124,8 @@ protected:
   void Execute();
 
   vtkPolyData *Focus;
-  float ModelBounds[6];
-  float FocalPoint[3];
+  double ModelBounds[6];
+  double FocalPoint[3];
   int Outline;
   int Axes;
   int XShadows;

@@ -110,11 +110,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -124,38 +124,38 @@ public:
 
   // Description:
   // Set/Get the origin of the plane.
-  void SetOrigin(float x, float y, float z);
-  void SetOrigin(float x[3]);
-  float* GetOrigin();
-  void GetOrigin(float xyz[3]);
+  void SetOrigin(double x, double y, double z);
+  void SetOrigin(double x[3]);
+  double* GetOrigin();
+  void GetOrigin(double xyz[3]);
 
   // Description:
   // Set/Get the position of the point defining the first axis of the plane.
-  void SetPoint1(float x, float y, float z);
-  void SetPoint1(float x[3]);
-  float* GetPoint1();
-  void GetPoint1(float xyz[3]);
+  void SetPoint1(double x, double y, double z);
+  void SetPoint1(double x[3]);
+  double* GetPoint1();
+  void GetPoint1(double xyz[3]);
   
   // Description:
   // Set/Get the position of the point defining the second axis of the plane.
-  void SetPoint2(float x, float y, float z);
-  void SetPoint2(float x[3]);
-  float* GetPoint2();
-  void GetPoint2(float xyz[3]);
+  void SetPoint2(double x, double y, double z);
+  void SetPoint2(double x[3]);
+  double* GetPoint2();
+  void GetPoint2(double xyz[3]);
 
   // Description:
   // Get the center of the plane.
-  void SetCenter(float x, float y, float z);
-  void SetCenter(float x[3]);
-  float* GetCenter();
-  void GetCenter(float xyz[3]);
+  void SetCenter(double x, double y, double z);
+  void SetCenter(double x[3]);
+  double* GetCenter();
+  void GetCenter(double xyz[3]);
 
   // Description:
   // Get the normal to the plane.
-  void SetNormal(float x, float y, float z);
-  void SetNormal(float x[3]);
-  float* GetNormal();
-  void GetNormal(float xyz[3]);
+  void SetNormal(double x, double y, double z);
+  void SetNormal(double x[3]);
+  double* GetNormal();
+  void GetNormal(double xyz[3]);
   
   // Description:
   // Control how the plane appears when GetPolyData() is invoked.
@@ -328,7 +328,7 @@ protected:
   void Push(double *p1, double *p2);
   
   // Plane normal, normalized
-  float Normal[3];
+  double Normal[3];
 
   // Transform the hexahedral points (used for rotations)
   vtkTransform *Transform;

@@ -109,11 +109,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -149,8 +149,8 @@ public:
   // values of the points are set to position. Any value can be passed (and is
   // ignored) to update the spline points when Projection normal is set to 3
   // for arbritrary plane orientations.
-  void SetProjectionPosition(float position);
-  vtkGetMacro(ProjectionPosition, float);
+  void SetProjectionPosition(double position);
+  vtkGetMacro(ProjectionPosition, double);
 
   // Description:
   // Grab the polydata (including points) that defines the spline.  The
@@ -199,10 +199,10 @@ public:
   // Description:
   // Set/Get the position of the spline handles. Call GetNumberOfHandles
   // to determine the valid range of handle indices.
-  void SetHandlePosition(int handle, float x, float y, float z);
-  void SetHandlePosition(int handle, float xyz[3]);
-  void GetHandlePosition(int handle, float xyz[3]);
-  float* GetHandlePosition(int handle);
+  void SetHandlePosition(int handle, double x, double y, double z);
+  void SetHandlePosition(int handle, double xyz[3]);
+  void GetHandlePosition(int handle, double xyz[3]);
+  double* GetHandlePosition(int handle);
 
   // Description:
   // Control whether the spline is open or closed. A closed spline forms
@@ -217,7 +217,7 @@ public:
   // Get the approximate vs. the true arc length of the spline. Calculated as
   // the summed lengths of the individual straight line segments. Use
   // SetResolution to control the accuracy.
-  float GetSummedLength();
+  double GetSummedLength();
 
 protected:
   vtkSplineWidget();
@@ -252,7 +252,7 @@ protected:
 
   // Controlling vars
   int   ProjectionNormal;
-  float ProjectionPosition;
+  double ProjectionPosition;
   int   ProjectToPlane;
   vtkPlaneSource* PlaneSource;
 
@@ -268,7 +268,7 @@ protected:
   int NumberOfHandles;
   vtkSpline* CreateDefaultSpline();// default is vtkCardinalSpline
   int Closed;
-  float Offset;
+  double Offset;
 
   // The line segments
   vtkActor          *LineActor;
@@ -277,7 +277,7 @@ protected:
   void HighlightLine(int highlight);
   int NumberOfSplinePoints;
   int Resolution;
-  float* SplinePositions;
+  double* SplinePositions;
 
   // Glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
@@ -312,7 +312,7 @@ protected:
   void CreateDefaultProperties();
 
   // For efficient spinning
-  float Centroid[3];
+  double Centroid[3];
   void CalculateCentroid();
 
 private:

@@ -13,15 +13,16 @@
 
 =========================================================================*/
 #include "vtkAssembly.h"
-#include "vtkRenderWindow.h"
-#include "vtkObjectFactory.h"
-#include "vtkAssemblyPaths.h"
-#include "vtkAssemblyNode.h"
-#include "vtkProp3DCollection.h"
 #include "vtkActor.h"
+#include "vtkAssemblyNode.h"
+#include "vtkAssemblyPaths.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkProp3DCollection.h"
+#include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAssembly, "1.53");
+vtkCxxRevisionMacro(vtkAssembly, "1.54");
 vtkStandardNewMacro(vtkAssembly);
 
 // Construct object with no children.
@@ -83,7 +84,7 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
 {
   vtkProp3D *prop3D;
   vtkAssemblyPath *path;
-  float fraction;
+  double fraction;
   int renderedSomething = 0;
 
   this->UpdatePaths();
@@ -91,7 +92,7 @@ int vtkAssembly::RenderTranslucentGeometry(vtkViewport *ren)
   // for allocating render time between components
   // simple equal allocation
   fraction = this->AllocatedRenderTime 
-    / (float)(this->Paths->GetNumberOfItems());
+    / (double)(this->Paths->GetNumberOfItems());
   
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
@@ -121,7 +122,7 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
 {
   vtkProp3D *prop3D;
   vtkAssemblyPath *path;
-  float fraction;
+  double fraction;
   int   renderedSomething = 0;
 
   this->UpdatePaths();
@@ -129,7 +130,7 @@ int vtkAssembly::RenderOpaqueGeometry(vtkViewport *ren)
   // for allocating render time between components
   // simple equal allocation
   fraction = this->AllocatedRenderTime 
-    / (float)(this->Paths->GetNumberOfItems());
+    / (double)(this->Paths->GetNumberOfItems());
   
   // render the Paths
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
@@ -282,19 +283,19 @@ void vtkAssembly::BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path)
 }
 
 // Get the bounds for the assembly as (Xmin,Xmax,Ymin,Ymax,Zmin,Zmax).
-float *vtkAssembly::GetBounds()
+double *vtkAssembly::GetBounds()
 {
   vtkProp3D *prop3D;
   vtkAssemblyPath *path;
   int i, n;
-  float *bounds, bbox[24];
+  double *bounds, bbox[24];
   int propVisible=0;
 
   this->UpdatePaths();
 
   // now calculate the new bounds
-  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_LARGE_FLOAT;
-  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_LARGE_FLOAT;
+  this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
+  this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
 
   for ( this->Paths->InitTraversal(); (path = this->Paths->GetNextItem()); )
     {
@@ -335,8 +336,7 @@ float *vtkAssembly::GetBounds()
 
   if ( ! propVisible )
     {
-    this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = -1.0;
-    this->Bounds[1] = this->Bounds[3] = this->Bounds[5] =  1.0;
+    vtkMath::UninitializeBounds(this->Bounds);
     }
 
   return this->Bounds;

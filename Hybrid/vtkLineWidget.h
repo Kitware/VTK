@@ -98,11 +98,11 @@ public:
   // Description:
   // Methods that satisfy the superclass' API.
   virtual void SetEnabled(int);
-  virtual void PlaceWidget(float bounds[6]);
+  virtual void PlaceWidget(double bounds[6]);
   void PlaceWidget()
     {this->Superclass::PlaceWidget();}
-  void PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                   float zmin, float zmax)
+  void PlaceWidget(double xmin, double xmax, double ymin, double ymax, 
+                   double zmin, double zmax)
     {this->Superclass::PlaceWidget(xmin,xmax,ymin,ymax,zmin,zmax);}
 
   // Description:
@@ -114,22 +114,22 @@ public:
 
   // Description:
   // Set/Get the position of first end point.
-  void SetPoint1(float x, float y, float z);
-  void SetPoint1(float x[3]) 
+  void SetPoint1(double x, double y, double z);
+  void SetPoint1(double x[3]) 
     {this->SetPoint1(x[0], x[1], x[2]); }
-  float* GetPoint1() 
+  double* GetPoint1() 
     {return this->LineSource->GetPoint1();}
-  void GetPoint1(float xyz[3]) 
+  void GetPoint1(double xyz[3]) 
     {this->LineSource->GetPoint1(xyz);}
 
   // Description:
   // Set position of other end point.
-  void SetPoint2(float x, float y, float z);
-  void SetPoint2(float x[3]) 
+  void SetPoint2(double x, double y, double z);
+  void SetPoint2(double x[3]) 
     {this->SetPoint2(x[0], x[1], x[2]);}
-  float* GetPoint2() 
+  double* GetPoint2() 
     {return this->LineSource->GetPoint2();}
-  void GetPoint2(float xyz[3]) 
+  void GetPoint2(double xyz[3]) 
     {this->LineSource->GetPoint2(xyz);}
 
   // Description:
@@ -241,16 +241,16 @@ protected:
   vtkCellPicker *HandlePicker;
   vtkCellPicker *LinePicker;
   vtkActor *CurrentHandle;
-  float LastPosition[3];
-  void  SetLinePosition(float x[3]);
+  double LastPosition[3];
+  void  SetLinePosition(double x[3]);
   
   // Methods to manipulate the hexahedron.
   void Scale(double *p1, double *p2, int X, int Y);
   
   // Initial bounds
   int   ClampToBounds;
-  void  ClampPosition(float x[3]);
-  int   InBounds(float x[3]);
+  void  ClampPosition(double x[3]);
+  int   InBounds(double x[3]);
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

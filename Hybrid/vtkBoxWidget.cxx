@@ -34,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkBoxWidget, "1.42");
+vtkCxxRevisionMacro(vtkBoxWidget, "1.43");
 vtkStandardNewMacro(vtkBoxWidget);
 
 vtkBoxWidget::vtkBoxWidget()
@@ -135,7 +135,7 @@ vtkBoxWidget::vtkBoxWidget()
     }
   
   // Define the point coordinates
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -343,7 +343,7 @@ void vtkBoxWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  float *bounds=this->InitialBounds;
+  double *bounds=this->InitialBounds;
   os << indent << "Initial Bounds: "
      << "(" << bounds[0] << "," << bounds[1] << ") "
      << "(" << bounds[2] << "," << bounds[3] << ") " 
@@ -478,7 +478,7 @@ void vtkBoxWidget::HandlesOff()
 
 void vtkBoxWidget::SizeHandles()
 {
-  float radius = this->vtk3DWidget::SizeHandles(1.5);
+  double radius = this->vtk3DWidget::SizeHandles(1.5);
   for(int i=0; i<7; i++)
     {
     this->HandleGeometry[i]->SetRadius(radius);
@@ -1062,7 +1062,7 @@ void vtkBoxWidget::GetPlanes(vtkPlanes *planes)
   normals->SetNumberOfTuples(6);
   
   // Set the normals and coordinate values
-  float factor = (this->InsideOut ? -1.0 : 1.0);
+  double factor = (this->InsideOut ? -1.0 : 1.0);
   for (int i=0; i<6; i++)
     {
     pts->SetPoint(i,this->Points->GetPoint(8+i));
@@ -1151,10 +1151,10 @@ void vtkBoxWidget::CreateDefaultProperties()
   this->SelectedOutlineProperty->SetLineWidth(2.0);
 }
 
-void vtkBoxWidget::PlaceWidget(float bds[6])
+void vtkBoxWidget::PlaceWidget(double bds[6])
 {
   int i;
-  float bounds[6], center[3];
+  double bounds[6], center[3];
   
   this->AdjustBounds(bds,bounds,center);
   
@@ -1249,7 +1249,7 @@ void vtkBoxWidget::SetTransform(vtkTransform* t)
 
   // Position the eight points of the box and then update the
   // position of the other handles.
-  float *bounds=this->InitialBounds;
+  double *bounds=this->InitialBounds;
 
   xIn[0] = bounds[0]; xIn[1] = bounds[2]; xIn[2] = bounds[4];
   t->InternalTransformPoint(xIn,pts);

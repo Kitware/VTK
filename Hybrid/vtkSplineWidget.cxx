@@ -34,7 +34,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.20");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.21");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -71,7 +71,7 @@ vtkSplineWidget::vtkSplineWidget()
   this->ZSpline->ClosedOff();
 
   // Default bounds to get started
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -85,16 +85,16 @@ vtkSplineWidget::vtkSplineWidget()
   this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
   int i;
-  float position;
-  float x0 = bounds[0];
-  float x1 = bounds[1];
-  float y0 = bounds[2];
-  float y1 = bounds[3];
-  float z0 = bounds[4];
-  float z1 = bounds[5];
-  float x;
-  float y;
-  float z;
+  double position;
+  double x0 = bounds[0];
+  double x1 = bounds[1];
+  double y0 = bounds[2];
+  double y1 = bounds[3];
+  double z0 = bounds[4];
+  double z1 = bounds[5];
+  double x;
+  double y;
+  double z;
   for (i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i] = vtkSphereSource::New();
@@ -121,14 +121,14 @@ vtkSplineWidget::vtkSplineWidget()
   // Define the points and line segments representing the spline
   this->Resolution = 499;
   this->NumberOfSplinePoints = this->Resolution + 1;
-  this->SplinePositions = new float [this->NumberOfSplinePoints];
+  this->SplinePositions = new double [this->NumberOfSplinePoints];
 
   vtkPoints* points = vtkPoints::New();
   points->Allocate(this->NumberOfSplinePoints);
 
   // Interpolate x, y and z by using the three spline filters and
   // create new points
-  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+  double factor = (this->NumberOfHandles + this->Offset - 1.0)/
                  (this->NumberOfSplinePoints - 1.0);
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
@@ -262,7 +262,7 @@ void vtkSplineWidget::SetClosed(int closed)
 
   this->Offset  = (this->Closed)? 1.0 : 0.0;
 
-  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+  double factor = (this->NumberOfHandles + this->Offset - 1.0)/
                  (this->NumberOfSplinePoints - 1.0);
   for (int i=0; i<this->NumberOfSplinePoints; i++)
     {
@@ -332,7 +332,8 @@ void vtkSplineWidget::SetZSpline(vtkSpline* spline)
     }
 }
 
-void vtkSplineWidget::SetHandlePosition(int handle, float x, float y, float z)
+void vtkSplineWidget::SetHandlePosition(int handle, double x, 
+                                        double y, double z)
 {
   if(handle < 0 || handle >= this->NumberOfHandles)
     {
@@ -348,12 +349,12 @@ void vtkSplineWidget::SetHandlePosition(int handle, float x, float y, float z)
   this->BuildRepresentation();
 }
 
-void vtkSplineWidget::SetHandlePosition(int handle, float xyz[3])
+void vtkSplineWidget::SetHandlePosition(int handle, double xyz[3])
 {
   this->SetHandlePosition(handle,xyz[0],xyz[1],xyz[2]);
 }
 
-void vtkSplineWidget::GetHandlePosition(int handle, float xyz[3])
+void vtkSplineWidget::GetHandlePosition(int handle, double xyz[3])
 {
   if(handle < 0 || handle >= this->NumberOfHandles)
     {
@@ -364,7 +365,7 @@ void vtkSplineWidget::GetHandlePosition(int handle, float xyz[3])
   this->HandleGeometry[handle]->GetCenter(xyz);
 }
 
-float* vtkSplineWidget::GetHandlePosition(int handle)
+double* vtkSplineWidget::GetHandlePosition(int handle)
 {
   if(handle < 0 || handle >= this->NumberOfHandles)
     {
@@ -600,9 +601,9 @@ void vtkSplineWidget::ProjectPointsToPlane()
 
 void vtkSplineWidget::ProjectPointsToObliquePlane()
 {
-  float o[3];
-  float u[3];
-  float v[3];
+  double o[3];
+  double u[3];
+  double v[3];
 
   this->PlaneSource->GetPoint1(u);
   this->PlaneSource->GetPoint2(v);
@@ -617,11 +618,11 @@ void vtkSplineWidget::ProjectPointsToObliquePlane()
   vtkMath::Normalize(u);
   vtkMath::Normalize(v);
 
-  float o_dot_u = vtkMath::Dot(o,u);
-  float o_dot_v = vtkMath::Dot(o,v);
-  float fac1;
-  float fac2;
-  float ctr[3];
+  double o_dot_u = vtkMath::Dot(o,u);
+  double o_dot_v = vtkMath::Dot(o,v);
+  double fac1;
+  double fac2;
+  double ctr[3];
   for (i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);
@@ -637,7 +638,7 @@ void vtkSplineWidget::ProjectPointsToObliquePlane()
 
 void vtkSplineWidget::ProjectPointsToOrthoPlane()
 {
-  float ctr[3];
+  double ctr[3];
   for (int i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);
@@ -654,7 +655,7 @@ void vtkSplineWidget::BuildRepresentation()
   this->YSpline->RemoveAllPoints();
   this->ZSpline->RemoveAllPoints();
 
-  float ctr[3];
+  double ctr[3];
   int i;
   for (i=0; i<this->NumberOfHandles; i++)
     {
@@ -669,7 +670,7 @@ void vtkSplineWidget::BuildRepresentation()
   this->ZSpline->Compute();
 
   vtkPoints* points = this->LineData->GetPoints();
-  float position;
+  double position;
   for (i = 0; i<this->NumberOfSplinePoints; i++)
     {
     position = this->SplinePositions[i];
@@ -1000,9 +1001,9 @@ void vtkSplineWidget::MovePoint(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float *ctr = this->HandleGeometry[ this->CurrentHandleIndex ]->GetCenter();
+  double *ctr = this->HandleGeometry[ this->CurrentHandleIndex ]->GetCenter();
 
-  float newCtr[3];
+  double newCtr[3];
   newCtr[0] = ctr[0] + v[0];
   newCtr[1] = ctr[1] + v[1];
   newCtr[2] = ctr[2] + v[2];
@@ -1019,10 +1020,10 @@ void vtkSplineWidget::Translate(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float newCtr[3];
+  double newCtr[3];
   for (int i = 0; i< this->NumberOfHandles; i++)
     {
-    float* ctr =  this->HandleGeometry[i]->GetCenter();
+    double* ctr =  this->HandleGeometry[i]->GetCenter();
     for (int j=0; j<3; j++)
       {
       newCtr[j] = ctr[j] + v[j];
@@ -1040,10 +1041,10 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float center[3] = {0.0,0.0,0.0};
-  float avgdist = 0.0;
-  float *prevctr = this->HandleGeometry[0]->GetCenter();
-  float *ctr;
+  double center[3] = {0.0,0.0,0.0};
+  double avgdist = 0.0;
+  double *prevctr = this->HandleGeometry[0]->GetCenter();
+  double *ctr;
 
   center[0] += prevctr[0];
   center[1] += prevctr[1];
@@ -1067,7 +1068,7 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   center[2] /= this->NumberOfHandles;
 
   // Compute the scale factor
-  float sf = vtkMath::Norm(v) / avgdist;
+  double sf = vtkMath::Norm(v) / avgdist;
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
@@ -1078,7 +1079,7 @@ void vtkSplineWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
     }
 
   // Move the handle points
-  float newCtr[3];
+  double newCtr[3];
   for (i = 0; i< this->NumberOfHandles; i++)
     {
     ctr = this->HandleGeometry[i]->GetCenter();
@@ -1106,7 +1107,7 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
     {
     if(this->ProjectionNormal == VTK_PROJECTION_OBLIQUE && this->PlaneSource != NULL)
       {
-      float* normal = this->PlaneSource->GetNormal();
+      double* normal = this->PlaneSource->GetNormal();
       axis[0] = normal[0];
       axis[1] = normal[1];
       axis[2] = normal[2];
@@ -1133,7 +1134,7 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
                   p2[2] - this->Centroid[2]};
 
   // Distance between center and cursor location
-  float rs = vtkMath::Normalize(rv);
+  double rs = vtkMath::Normalize(rv);
 
   // Spin direction
   double ax_cross_rv[3];
@@ -1149,8 +1150,8 @@ void vtkSplineWidget::Spin(double *p1, double *p2, double *vpn)
   this->Transform->Translate(-this->Centroid[0],-this->Centroid[1],-this->Centroid[2]);
 
   // Set the handle points
-  float newCtr[3];
-  float ctr[3];
+  double newCtr[3];
+  double ctr[3];
   for (int i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);
@@ -1191,10 +1192,10 @@ void vtkSplineWidget::CreateDefaultProperties()
     }
 }
 
-void vtkSplineWidget::PlaceWidget(float bds[6])
+void vtkSplineWidget::PlaceWidget(double bds[6])
 {
   int i;
-  float bounds[6], center[3];
+  double bounds[6], center[3];
   this->AdjustBounds(bds, bounds, center);
 
   if ( this->ProjectToPlane )
@@ -1204,16 +1205,16 @@ void vtkSplineWidget::PlaceWidget(float bds[6])
   else  //place the center
     {
     // Create a default straight line within the data bounds
-    float x0 = bounds[0];
-    float x1 = bounds[1];
-    float y0 = bounds[2];
-    float y1 = bounds[3];
-    float z0 = bounds[4];
-    float z1 = bounds[5];
-    float x;
-    float y;
-    float z;
-    float position;
+    double x0 = bounds[0];
+    double x1 = bounds[1];
+    double y0 = bounds[2];
+    double y1 = bounds[3];
+    double z0 = bounds[4];
+    double z1 = bounds[5];
+    double x;
+    double y;
+    double z;
+    double position;
     for (i=0; i<this->NumberOfHandles; i++)
       {
       position = i / (this->NumberOfHandles - 1.0);
@@ -1237,7 +1238,7 @@ void vtkSplineWidget::PlaceWidget(float bds[6])
   this->SizeHandles();
 }
 
-void vtkSplineWidget::SetProjectionPosition(float position)
+void vtkSplineWidget::SetProjectionPosition(double position)
 {
   this->ProjectionPosition = position; 
   if ( this->ProjectToPlane )
@@ -1268,8 +1269,8 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     return;
     }
       
-  float radius = this->HandleGeometry[0]->GetRadius();
-  float factor = (this->NumberOfHandles - 1.0)/(npts - 1.0);
+  double radius = this->HandleGeometry[0]->GetRadius();
+  double factor = (this->NumberOfHandles - 1.0)/(npts - 1.0);
   this->Initialize();
 
   this->NumberOfHandles = npts;
@@ -1279,7 +1280,7 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
   this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
 
-  float x,y,z;
+  double x,y,z;
   int i;
   for (i=0; i<this->NumberOfHandles; i++)
     {
@@ -1375,7 +1376,7 @@ void vtkSplineWidget::SetResolution(int resolution)
   if(resolution > this->Resolution)  //only delete when necessary
     {
     delete [] this->SplinePositions;
-    if ( (this->SplinePositions = new float[this->NumberOfSplinePoints]) == NULL )
+    if ( (this->SplinePositions = new double[this->NumberOfSplinePoints]) == NULL )
       {
       vtkErrorMacro(<<"vtkSplineWidget: failed to reallocate SplinePositions.");
       return;
@@ -1389,9 +1390,9 @@ void vtkSplineWidget::SetResolution(int resolution)
   vtkCellArray *newLines  = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(this->Resolution,2));
 
-  float factor = (this->NumberOfHandles + this->Offset - 1.0)/
+  double factor = (this->NumberOfHandles + this->Offset - 1.0)/
                  (this->NumberOfSplinePoints - 1.0);
-  float position;
+  double position;
   int i;
   for (i=0; i<this->NumberOfSplinePoints; i++)
     {
@@ -1421,14 +1422,14 @@ void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
 
 void vtkSplineWidget::SizeHandles()
 {
-  float radius = this->vtk3DWidget::SizeHandles(1.0);
+  double radius = this->vtk3DWidget::SizeHandles(1.0);
   for (int i=0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->SetRadius(radius);
     }
 }
 
-float vtkSplineWidget::GetSummedLength()
+double vtkSplineWidget::GetSummedLength()
 {
   vtkPoints* points = this->LineData->GetPoints();
   int npts = points->GetNumberOfPoints();
@@ -1466,7 +1467,7 @@ void vtkSplineWidget::CalculateCentroid()
   this->Centroid[1] = 0.0;
   this->Centroid[2] = 0.0;
 
-  float ctr[3];
+  double ctr[3];
   for (int i = 0; i<this->NumberOfHandles; i++)
     {
     this->HandleGeometry[i]->GetCenter(ctr);

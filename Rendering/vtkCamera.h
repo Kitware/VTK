@@ -340,8 +340,8 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
 
   // Description:
   // Get the orientation of the camera.
-  float *GetOrientation();
-  float *GetOrientationWXYZ();
+  double *GetOrientation();
+  double *GetOrientationWXYZ();
 
   // Description:
   // These methods have been deprecated.  The view plane normal is 

@@ -43,7 +43,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.80");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.81");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -2768,7 +2768,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     else
       {
 #ifdef GL_VERSION_1_1
-      float f, u;
+      double f, u;
       glEnable(GL_POLYGON_OFFSET_FILL);
       this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
       glPolygonOffset(f,u);

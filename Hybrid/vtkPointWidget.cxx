@@ -28,7 +28,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointWidget, "1.19");
+vtkCxxRevisionMacro(vtkPointWidget, "1.20");
 vtkStandardNewMacro(vtkPointWidget);
 
 vtkPointWidget::vtkPointWidget()
@@ -44,7 +44,7 @@ vtkPointWidget::vtkPointWidget()
   this->Actor->SetMapper(this->Mapper);
 
   // Define the point coordinates
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -221,7 +221,7 @@ void vtkPointWidget::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Selected Property: (none)\n";
     }
 
-  float *pos = this->Cursor3D->GetFocalPoint();
+  double *pos = this->Cursor3D->GetFocalPoint();
   os << indent << "Position: (" << pos[0] << ", "
                << pos[1] << ", " << pos[2] << ")\n";
 
@@ -284,7 +284,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double *x)
     }
   else if ( this->WaitingForMotion && x ) 
     {
-    float v[3];
+    double v[3];
     this->WaitingForMotion = 0;
     v[0] = fabs(x[0] - this->LastPickPosition[0]);
     v[1] = fabs(x[1] - this->LastPickPosition[1]);
@@ -536,7 +536,7 @@ void vtkPointWidget::MoveFocus(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float focus[3];
+  double focus[3];
   this->Cursor3D->GetFocalPoint(focus);
   if ( this->ConstraintAxis >= 0 )
     {
@@ -561,9 +561,9 @@ void vtkPointWidget::Translate(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
-  float *bounds = this->Cursor3D->GetModelBounds();
-  float *pos = this->Cursor3D->GetFocalPoint();
-  float newBounds[6], newFocus[3];
+  double *bounds = this->Cursor3D->GetModelBounds();
+  double *pos = this->Cursor3D->GetFocalPoint();
+  double newBounds[6], newFocus[3];
   int i;
 
   if ( this->ConstraintAxis >= 0 )
@@ -597,11 +597,11 @@ void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
   v[2] = p2[2] - p1[2];
 
   //int res = this->Cursor3D->GetResolution();
-  float *bounds = this->Cursor3D->GetModelBounds();
-  float *focus = this->Cursor3D->GetFocalPoint();
+  double *bounds = this->Cursor3D->GetModelBounds();
+  double *focus = this->Cursor3D->GetFocalPoint();
 
   // Compute the scale factor
-  float sf = vtkMath::Norm(v) / 
+  double sf = vtkMath::Norm(v) / 
     sqrt( (bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
           (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
           (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -616,7 +616,7 @@ void vtkPointWidget::Scale(double *p1, double *p2, int vtkNotUsed(X), int Y)
     }
   
   // Move the end points
-  float newBounds[6];
+  double newBounds[6];
   for (int i=0; i<3; i++)
     {
     newBounds[2*i] = sf * (bounds[2*i] - focus[i]) + focus[i];
@@ -640,10 +640,10 @@ void vtkPointWidget::CreateDefaultProperties()
   this->SelectedProperty->SetLineWidth(2.0);
 }
 
-void vtkPointWidget::PlaceWidget(float bds[6])
+void vtkPointWidget::PlaceWidget(double bds[6])
 {
   int i;
-  float bounds[6], center[3];
+  double bounds[6], center[3];
 
   this->AdjustBounds(bds, bounds, center);
   

@@ -129,7 +129,7 @@ public:
 
   // Description:
   // Get the value of the z buffer at a position. 
-  float GetZ(int x, int y);
+  double GetZ(int x, int y);
 
   // Description:
   // Set/Get the controller use in compositing (set to
@@ -158,7 +158,7 @@ public:
 
   // Description:
   // Calculate the bounds by gather information from all processes
-  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, float bounds[6]);
+  virtual void ComputeVisiblePropBounds(vtkRenderer *ren, double bounds[6]);
 
   // Description.
   // This is for manually compositing.  By default Manual is off.

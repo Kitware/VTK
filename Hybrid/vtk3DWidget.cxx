@@ -22,7 +22,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtk3DWidget, "1.18");
+vtkCxxRevisionMacro(vtk3DWidget, "1.19");
 
 vtkCxxSetObjectMacro(vtk3DWidget,Prop3D,vtkProp3D);
 vtkCxxSetObjectMacro(vtk3DWidget,Input,vtkDataSet);
@@ -55,7 +55,7 @@ vtk3DWidget::~vtk3DWidget()
 
 void vtk3DWidget::PlaceWidget()
 {
-  float bounds[6];
+  double bounds[6];
 
   if ( this->Prop3D )
     {
@@ -64,14 +64,7 @@ void vtk3DWidget::PlaceWidget()
   else if ( this->Input )
     {
     this->Input->Update();
-    // TODO cleanup
-    double *dbounds = this->Input->GetBounds();
-    bounds[0] = static_cast<float>(dbounds[0]);
-    bounds[1] = static_cast<float>(dbounds[1]);
-    bounds[2] = static_cast<float>(dbounds[2]);
-    bounds[3] = static_cast<float>(dbounds[3]);
-    bounds[4] = static_cast<float>(dbounds[4]);
-    bounds[5] = static_cast<float>(dbounds[5]);
+    this->Input->GetBounds(bounds);
     }
   else
     {
@@ -89,10 +82,11 @@ void vtk3DWidget::PlaceWidget()
   this->Placed = 1;
 }
 
-void vtk3DWidget::PlaceWidget(float xmin, float xmax, float ymin, float ymax, 
-                              float zmin, float zmax)
+void vtk3DWidget::PlaceWidget(double xmin, double xmax, 
+                              double ymin, double ymax, 
+                              double zmin, double zmax)
 {
-  float bounds[6];
+  double bounds[6];
 
   bounds[0] = xmin;
   bounds[1] = xmax;
@@ -104,7 +98,8 @@ void vtk3DWidget::PlaceWidget(float xmin, float xmax, float ymin, float ymax,
   this->PlaceWidget(bounds);
 }
 
-void vtk3DWidget::AdjustBounds(float bounds[6], float newBounds[6], float center[3])
+void vtk3DWidget::AdjustBounds(double bounds[6], 
+                               double newBounds[6], double center[3])
 {
   center[0] = (bounds[0] + bounds[1])/2.0;
   center[1] = (bounds[2] + bounds[3])/2.0;
@@ -118,7 +113,7 @@ void vtk3DWidget::AdjustBounds(float bounds[6], float newBounds[6], float center
   newBounds[5] = center[2] + this->PlaceFactor*(bounds[5]-center[2]);
 }
 
-float vtk3DWidget::SizeHandles(float factor)
+double vtk3DWidget::SizeHandles(double factor)
 {
   int i;
   vtkRenderer *renderer;
@@ -155,7 +150,7 @@ float vtk3DWidget::SizeHandles(float factor)
         (windowUpperRight[i] - windowLowerLeft[i]);
       }
 
-    return ((float)sqrt(radius) * factor * this->HandleSize);
+    return (sqrt(radius) * factor * this->HandleSize);
     }
 }
 

@@ -31,7 +31,7 @@
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
 
-vtkCxxRevisionMacro(vtkSphereWidget, "1.30");
+vtkCxxRevisionMacro(vtkSphereWidget, "1.31");
 vtkStandardNewMacro(vtkSphereWidget);
 
 vtkSphereWidget::vtkSphereWidget()
@@ -70,7 +70,7 @@ vtkSphereWidget::vtkSphereWidget()
   this->HandleActor->SetMapper(this->HandleMapper);
 
   // Define the point coordinates
-  float bounds[6];
+  double bounds[6];
   bounds[0] = -0.5;
   bounds[1] = 0.5;
   bounds[2] = -0.5;
@@ -303,8 +303,8 @@ void vtkSphereWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   int thetaRes = this->SphereSource->GetThetaResolution();
   int phiRes = this->SphereSource->GetPhiResolution();
-  float *center = this->SphereSource->GetCenter();
-  float r = this->SphereSource->GetRadius();
+  double *center = this->SphereSource->GetCenter();
+  double r = this->SphereSource->GetRadius();
 
   os << indent << "Theta Resolution: " << thetaRes << "\n";
   os << indent << "Phi Resolution: " << phiRes << "\n";
@@ -578,9 +578,9 @@ void vtkSphereWidget::Translate(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   //int res = this->SphereSource->GetResolution();
-  float *center = this->SphereSource->GetCenter();
+  double *center = this->SphereSource->GetCenter();
 
-  float center1[3];
+  double center1[3];
   for (int i=0; i<3; i++)
     {
     center1[i] = center[i] + v[i];
@@ -607,11 +607,11 @@ void vtkSphereWidget::ScaleSphere(double *p1, double *p2,
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
-  float radius = this->SphereSource->GetRadius();
-  float *c = this->SphereSource->GetCenter();
+  double radius = this->SphereSource->GetRadius();
+  double *c = this->SphereSource->GetCenter();
 
   // Compute the scale factor
-  float sf = vtkMath::Norm(v) / radius;
+  double sf = vtkMath::Norm(v) / radius;
   if ( Y > this->Interactor->GetLastEventPosition()[1] )
     {
     sf = 1.0 + sf;
@@ -640,11 +640,11 @@ void vtkSphereWidget::MoveHandle(double *p1, double *p2,
   v[2] = p2[2] - p1[2];
 
   // Compute the new location of the sphere
-  float *center = this->SphereSource->GetCenter();
-  float radius = this->SphereSource->GetRadius();
+  double *center = this->SphereSource->GetCenter();
+  double radius = this->SphereSource->GetRadius();
   
   // set the position of the sphere
-  float p[3];
+  double p[3];
   for (int i=0; i<3; i++)
     {
     p[i] = this->HandlePosition[i] + v[i];
@@ -679,9 +679,9 @@ void vtkSphereWidget::CreateDefaultProperties()
     }
 }
 
-void vtkSphereWidget::PlaceWidget(float bds[6])
+void vtkSphereWidget::PlaceWidget(double bds[6])
 {
-  float bounds[6], center[3], radius;
+  double bounds[6], center[3], radius;
 
   this->AdjustBounds(bds, bounds, center);
   
@@ -714,9 +714,9 @@ void vtkSphereWidget::PlaceWidget(float bds[6])
   this->SizeHandles();
 }
 
-void vtkSphereWidget::PlaceHandle(float *center, float radius)
+void vtkSphereWidget::PlaceHandle(double *center, double radius)
 {
-  float sf = radius / vtkMath::Norm(this->HandleDirection);
+  double sf = radius / vtkMath::Norm(this->HandleDirection);
 
   this->HandlePosition[0] = center[0] + sf*this->HandleDirection[0];
   this->HandlePosition[1] = center[1] + sf*this->HandleDirection[1];
@@ -726,7 +726,7 @@ void vtkSphereWidget::PlaceHandle(float *center, float radius)
 
 void vtkSphereWidget::SizeHandles()
 {
-  float radius = this->vtk3DWidget::SizeHandles(1.25);
+  double radius = this->vtk3DWidget::SizeHandles(1.25);
   this->HandleSource->SetRadius(radius);
 }
 

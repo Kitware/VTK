@@ -70,10 +70,10 @@ public:
   vtkGetMacro(GhostLevel, int);
 
   // Description:
-  // Return bounding box (array of six floats) of data expressed as
+  // Return bounding box (array of six doubles) of data expressed as
   // (xmin,xmax, ymin,ymax, zmin,zmax).
-  virtual float *GetBounds();
-  virtual void GetBounds(float bounds[6]) 
+  virtual double *GetBounds();
+  virtual void GetBounds(double bounds[6]) 
     {this->Superclass::GetBounds(bounds);};
   
   // Description:
