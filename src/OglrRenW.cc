@@ -175,6 +175,27 @@ vtkOglrRenderWindow::vtkOglrRenderWindow()
 }
 
 // Description:
+// free up memory & close the window
+vtkOglrRenderWindow::~vtkOglrRenderWindow()
+{
+  short cur_light;
+
+  /* first delete all the old lights */
+  for (cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
+    {
+    glDisable(cur_light);
+    }
+  
+  glXDestroyContext( this->DisplayId, this->ContextId);
+  // then close the old window 
+  if (this->OwnWindow)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  XSync(this->DisplayId,0);
+}
+
+// Description:
 // Create a OpenGL specific light.
 vtkLightDevice *vtkOglrRenderWindow::MakeLight()
 {

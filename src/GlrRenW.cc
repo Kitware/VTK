@@ -111,6 +111,27 @@ vtkGlrRenderWindow::vtkGlrRenderWindow()
 }
 
 // Description:
+// Resize the window.
+vtkGlrRenderWindow::~vtkGlrRenderWindow()
+{
+  short cur_light;
+
+  /* first delete all the old lights */
+  for (cur_light = LIGHT0; cur_light < LIGHT0+MAX_LIGHTS; cur_light++)
+    {
+    lmbind(cur_light,0);
+    }
+
+  // then close the old window 
+  if (this->OwnWindow)
+    {
+    XDestroyWindow(this->DisplayId,this->WindowId);
+    }
+  GLXunlink(this->DisplayId,this->WindowId);
+  XSync(this->DisplayId,0);
+}
+
+// Description:
 // Create a gl specific light.
 vtkLightDevice *vtkGlrRenderWindow::MakeLight()
 {
