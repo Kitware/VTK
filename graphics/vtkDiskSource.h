@@ -43,7 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // disk has zero height. The user can specify the inner and outer radius
 // of the disk, and the radial and circumferential resolution of the 
 // polygonal representation. 
-// .SECTION SEE ALSO
+// .SECTION See Also
 // vtkLinearExtrusionFilter
 
 #ifndef __vtkDiskSource_h
