@@ -209,3 +209,5 @@ suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); Vr
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkVRMLImporter::enterNode(const char*)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkVRMLImporter::exitField(void)
 suppress mlk _malloc; operator new(unsigned int); operator new(unsigned int); vtkFloatArray::Resize(const int); vtkFloatArray::InsertNextTuple(const float*); yylex(void)
+suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addExposedField(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addExposedField(const char*,const char*); yyparse(void)
+suppress mlk _malloc; _strdup; VrmlNodeType::add(VectorType<VrmlNodeType::NameTypeRec*>&,const char*,int); VrmlNodeType::addEventIn(const char*,int); add(void (VrmlNodeType::*)(const char*,int),const char*,const char*); addEventIn(const char*,const char*); yyparse(void)
