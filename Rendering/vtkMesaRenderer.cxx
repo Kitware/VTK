@@ -78,3 +78,13 @@ vtkMesaRenderer* vtkMesaRenderer::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkMesaRenderer;
 }
+
+vtkCamera *vtkMesaRenderer::MakeCamera()
+{
+  return vtkMesaCamera::New();
+}
+
+vtkLight *vtkMesaRenderer::MakeLight()
+{
+  return vtkMesaLight::New();
+}

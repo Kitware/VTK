@@ -270,11 +270,17 @@ void vtkActor::SetProperty(vtkProperty *lut)
   this->Modified();
 }
 
+vtkProperty* vtkActor::MakeProperty()
+{
+  return vtkProperty::New();
+}
+
+
 vtkProperty *vtkActor::GetProperty()
 {
   if ( this->Property == NULL )
     {
-    vtkProperty *p = vtkProperty::New();
+    vtkProperty *p = this->MakeProperty();
     this->SetProperty(p);
     p->Delete();
     }

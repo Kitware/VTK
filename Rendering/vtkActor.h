@@ -113,6 +113,12 @@ public:
   // property object.
   void SetProperty(vtkProperty *lut);
   vtkProperty *GetProperty();
+  
+  // Description:
+  // Create a new property sutible for use with this type of Actor.
+  // For example, a vtkMesaActor should create a vtkMesaProperty 
+  // in this function.   The default is to just call vtkProperty::New.
+  virtual vtkProperty* MakeProperty();
 
   // Description: 
   // Set/Get the property object that controls this actors backface surface

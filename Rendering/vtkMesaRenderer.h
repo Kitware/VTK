@@ -76,6 +76,16 @@ public:
   // Ask lights to load themselves into graphics pipeline.
   int UpdateLights(void);
   
+
+  
+  // Create a vtkMesaCamera, will be used by the super class
+  // to create the correct camera object.
+  virtual vtkCamera* MakeCamera();
+  
+  // Create a vtkMesaLight, will be used by the super class
+  // to create the correct light object.
+  virtual vtkLight* MakeLight();
+  
 protected:
   vtkMesaRenderer();
   ~vtkMesaRenderer();

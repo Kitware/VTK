@@ -78,3 +78,8 @@ vtkMesaActor* vtkMesaActor::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkMesaActor;
 }
+
+vtkProperty* MakeProperty()
+{
+  return vtkMesaProperty::New();
+}

@@ -63,6 +63,10 @@ public:
   // Actual actor render method.
   void Render(vtkRenderer *ren, vtkMapper *mapper);
   
+  // Description:
+  // Create a vtkMesaProperty, used by the super class to 
+  // create a compatible class with the vtkMesaActor.
+  vtkProperty* MakeProperty();
 protected:
   vtkMesaActor() {};
   ~vtkMesaActor() {};

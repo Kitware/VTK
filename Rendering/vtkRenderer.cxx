@@ -518,12 +518,18 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
   this->Modified();
 }
 
+
+vtkCamera* vtkRenderer::MakeCamera()
+{
+  return vtkCamera::New();
+}
+  
 // Get the current camera.
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
   if ( this->ActiveCamera == NULL )
     {
-    vtkCamera *cam = vtkCamera::New();
+    vtkCamera *cam = this->MakeCamera();
     this->SetActiveCamera(cam);
     cam->Delete();
     this->ResetCamera();
@@ -588,6 +594,11 @@ void vtkRenderer::RemoveCuller(vtkCuller *culler)
   this->Cullers->RemoveItem(culler);
 }
 
+vtkLight *vtkRenderer::MakeLight()
+{
+  return vtkLight::New();
+}
+
 void vtkRenderer::CreateLight(void)
 {
   if (this->CreatedLight)
@@ -597,7 +608,7 @@ void vtkRenderer::CreateLight(void)
     }
 
   // I do not see why UnRegister is used on CreatedLight, but lets be consistent. 
-  vtkLight *l = vtkLight::New();
+  vtkLight *l = this->MakeLight();
   this->CreatedLight = l;
   this->CreatedLight->Register(this);
   this->AddLight(this->CreatedLight);
