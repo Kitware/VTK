@@ -60,8 +60,8 @@ libvtkJava$(SHLIB_SUFFIX):
 
 install:
 	@echo "Installing libvtkJava$(SHLIB_SUFFIX)"
-	@${srcdir}/../${INSTALL} libvtkJava$(SHLIB_SUFFIX) $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
-	@chmod 555 $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
+	${INSTALL} libvtkJava$(SHLIB_SUFFIX) $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
+	@chmod 755 $(LIB_INSTALL_DIR)/libvtkJava$(SHLIB_SUFFIX)
 
 #------------------------------------------------------------------------------
 clean: 
