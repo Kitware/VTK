@@ -287,7 +287,7 @@ break;
 case 36:
 
 # line 74 "concrete.l"
-return(SetRefCountedObjectMacro);
+return(SetReferenceCountedObjectMacro);
 break;
 case 37:
 
