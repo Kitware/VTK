@@ -257,7 +257,7 @@ IF(VTK_MAKE_INSTANTIATOR)
                           Rendering_SRCS
                           EXPORT_MACRO VTK_RENDERING_EXPORT
                           HEADER_LOCATION ${VTK_BINARY_DIR})
-  ENDIF()
+  ENDIF(HAVE_OPENGL_SRCS)
 ENDIF(VTK_MAKE_INSTANTIATOR)
 
 IF (VTK_WRAP_TCL)
