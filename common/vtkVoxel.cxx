@@ -316,7 +316,13 @@ void vtkVoxel::Contour(float value, vtkFloatScalars *cellScalars,
           }
         }
       }
-    polys->InsertNextCell(3,pts);
+    // check for degenerate triangle
+    if ( pts[0] != pts[1] &&
+	 pts[0] != pts[2] &&
+	 pts[1] != pts[2] )
+      {
+      polys->InsertNextCell(3,pts);
+      }
     }
 }
 
