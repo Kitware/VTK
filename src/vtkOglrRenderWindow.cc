@@ -313,12 +313,14 @@ void vtkOglrRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_CRYSTAL_EYES:
 	{
+#ifdef HAVE_SETMON
 	glFlush();
 	system("/usr/gfx/setmon STR_RECT");
 	glFlush();
 	// make sure we are in full screen
-        this->StereoStatus = 1;
 	this->FullScreenOn();
+        this->StereoStatus = 1;
+#endif
 	}
 	break;
       case VTK_STEREO_RED_BLUE:
@@ -333,13 +335,15 @@ void vtkOglrRenderWindow::StereoUpdate(void)
       {
       case VTK_STEREO_CRYSTAL_EYES:
 	{
+#ifdef HAVE_SETMON
 	// restore the monitor 
 	glFlush();
 	system("/usr/gfx/setmon 72HZ");
 	glFlush();
-	// make sure we are in full screen
-        this->StereoStatus = 0;
+	// make sure we are out of full screen
 	this->FullScreenOff();
+#endif
+        this->StereoStatus = 0;
 	}
 	break;
       case VTK_STEREO_RED_BLUE:
