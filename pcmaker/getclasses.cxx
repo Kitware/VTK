@@ -52,6 +52,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // put extra cflag at the beginning of the options
 #define PUT_EXTRA_CFLAGS_AT_BEGINNING
 
+// build python widgets
+#define BUILD_PYTHON_WIDGETS
+
 // where to split the graphics library: A-O and P-Z
 #define LIB_SPLIT_STRING "vtkp" 
 
@@ -3343,39 +3346,81 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
 #endif
 
   fprintf(fp,"\n");
-
-  //fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) /D \"VTKDLL\"\n");
   fprintf(fp,"CPP_PROJ2=$(CPP_PROJ) \n");
-  
-  fprintf(fp,"LINK32=link.exe\n");
-  if (debugFlag)
+
+#ifdef BUILD_PYTHON_WIDGETS
+  fprintf(fp,"\n");
+  fprintf(fp,"CPP_PROJW=$(CPP_PROJ) /D VTK_PYTHON_BUILD ");
+  if (strlen(vals->adlg.m_WhereTcl) > 1)
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /debug /libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows %s",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler, 
-            vals->m_WhereCompiler, vals->adlg.m_EXTRA_LINK_FLAGS);
+    fprintf(fp," /I \"%s\\win\" /I \"%s\\xlib\" /I \"%s\\generic\" /I \"%s\\win\" /I \"%s\\generic\" /I \"%s\\include\"\n",
+            vals->TkRoot, vals->TkRoot, vals->TkRoot, vals->TclRoot, vals->TclRoot, vals->TclRoot);
     }
   else
     {
-    fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" /libpath:\"%s\\lib\" \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows %s",
-	    vals->m_WhereCompiler, vals->m_WhereCompiler, 
-            vals->m_WhereCompiler, vals->adlg.m_EXTRA_LINK_FLAGS);
+    fprintf(fp," /I \"%s\\pcmaker\\xlib\"\n", vals->m_WhereVTK);
+    }
+
+  fprintf(fp,"\nPYTHON_WIDGETS=");
+  if (vals->m_Graphics)
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkRenderWidget.dll\" ");
+    }
+
+  if (vals->m_Imaging)
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkImageWindowWidget.dll\" ");
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkImageViewerWidget.dll\" ");
+    }
+  fprintf(fp,"\n");
+#endif  
+  
+  fprintf(fp,"\n");
+  fprintf(fp,"LINK32=link.exe\n");
+  fprintf(fp,"LINK32_FLAGSB=/libpath:\"%s\\lib\"  \"%s\\lib\\gdi32.lib\" \"%s\\lib\\user32.lib\" /nologo /version:1.3 /subsystem:windows %s",
+          vals->m_WhereCompiler, vals->m_WhereCompiler, 
+          vals->m_WhereCompiler, vals->adlg.m_EXTRA_LINK_FLAGS);
+
+  if (debugFlag)
+    {
+    fprintf(fp," /debug");
     }
 
   fprintf(fp," /libpath:\"%s\\PCbuild\" /libpath:\"%s\\libs\" \n",
           vals->m_WherePy,vals->m_WherePy);
-  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%s.pdb\" /machine:I386\\\n",targetName);
-  fprintf(fp," /out:\"$(LIBDIR)/%s.dll\" /implib:\"$(LIBDIR)/%s.lib\" \n\n",targetName,targetName); 
-  fprintf(fp,"MORE_FLAGS2=/dll /incremental:no /pdb:%s.pdb /machine:I386\\\n", targetName);
-  fprintf(fp," /out:%s.dll /implib:%s.lib \n\n", targetName, targetName); 
-  fprintf(fp,"LIB_FLAGS=/machine:I386\n\n"); 
 
+  fprintf(fp,"\n");
+  fprintf(fp,"LINK32_FLAGS=\"$(OUTDIR)\\vtkpython.obj\" $(LINK32_FLAGSB)\n");
+
+#ifdef BUILD_PYTHON_WIDGETS
+  fprintf(fp,"\n");
+  fprintf(fp,"LINK32_FLAGSW=$(LINK32_FLAGSB)");
+  if (strlen(vals->adlg.m_WhereTcl) > 1)
+    {
+    fprintf(fp," \"%s\" \"%s\" \n",
+            vals->adlg.m_WhereTk, vals->adlg.m_WhereTcl);
+    }
+  else
+    {
+    fprintf(fp," \"%s\\pcmaker\\tk82.lib\" \"%s\\pcmaker\\tcl82.lib\" \n",
+	    vals->m_WhereVTK, vals->m_WhereVTK);
+    }
+#endif
+
+  fprintf(fp,"\n");
+  fprintf(fp,"MORE_FLAGS1=/dll /incremental:yes /pdb:\"$(LIBDIR)/%s.pdb\" /machine:I386\\\n",targetName);
+  fprintf(fp," /out:\"$(LIBDIR)/%s.dll\" /implib:\"$(LIBDIR)/%s.lib\" \n",targetName,targetName); 
+
+  fprintf(fp,"\n");
+  fprintf(fp,"NOINC_FLAGS=/dll /incremental:no /machine:I386\n");
+  fprintf(fp,"MORE_FLAGS2=$(NOINC_FLAGS) /pdb:%s.pdb /out:%s.dll /implib:%s.lib \n", 
+          targetName, targetName, targetName); 
+  fprintf(fp,"LIB_FLAGS=/machine:I386\n"); 
 
   fprintf(fp,"PYTHONOBJLIBS=vtkpythonotherobjs.lib vtkpythongraphicsobjs.lib\n\n");
 
-
   fprintf(fp,"VTKDLL_LIB=..\\vtkdll\\%sdll.lib \n\n",
 	  vals->adlg.m_LibPrefix);
-
 
   fprintf(fp,"VTK_LIBRARIES=..\\lib\\vtkCommon.lib ");
   if (vals->m_Graphics) 
@@ -3457,11 +3502,14 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"<<\n\n");
 
 
-  fprintf(fp,"\"$(LIBDIR)\\%s.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkpython.obj\" $(PYTHONOBJLIBS)\n", targetName);
+  fprintf(fp,"\"$(LIBDIR)\\%s.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkpython.obj\" $(PYTHONOBJLIBS)", targetName);
+#ifdef BUILD_PYTHON_WIDGETS
+  fprintf(fp," $(PYTHON_WIDGETS)");
+#endif
+  fprintf(fp,"\n");
   fprintf(fp,"    $(LINK32) @<<\n");
   fprintf(fp,"  $(LINK32_FLAGS) $(MORE_FLAGS1) $(PYTHONOBJLIBS) $(VTK_LIBRARIES)\n");
   fprintf(fp,"<<\n\n");
-
 
   if (vals->m_Graphics)
     {
@@ -3478,7 +3526,32 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
   fprintf(fp,"<<\n");
 
 
+#ifdef BUILD_PYTHON_WIDGETS
 
+  fprintf(fp,"\n# widgets\n\n");
+  
+  if (vals->m_Graphics)
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkRenderWidget.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkTkRenderWidget.obj\"\n");
+    fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  \"$(OUTDIR)\\vtkTkRenderWidget.obj\" $(LINK32_FLAGSW) $(NOINC_FLAGS) /pdb:\"$(LIBDIR)/vtkTkRenderWidget.pdb\" /out:\"$(LIBDIR)/vtkTkRenderWidget.dll\" /implib:\"$(LIBDIR)/vtkTkRenderWidget.lib\" $(VTK_LIBRARIES)\n");
+    fprintf(fp,"<<\n\n");
+    }
+
+  if (vals->m_Imaging)
+    {
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkImageWindowWidget.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\"\n");
+    fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  \"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" $(LINK32_FLAGSW) $(NOINC_FLAGS) /pdb:\"$(LIBDIR)/vtkTkImageWindowWidget.pdb\" /out:\"$(LIBDIR)/vtkTkImageWindowWidget.dll\" /implib:\"$(LIBDIR)/vtkTkImageWindowWidget.lib\" $(VTK_LIBRARIES)\n");
+    fprintf(fp,"<<\n\n");
+
+    fprintf(fp,"\"$(LIBDIR)\\vtkTkImageViewerWidget.dll\" : \"$(OUTDIR)\" $(DEF_FILE) \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\"\n");
+    fprintf(fp,"    $(LINK32) @<<\n");
+    fprintf(fp,"  \"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" $(LINK32_FLAGSW) $(NOINC_FLAGS) /pdb:\"$(LIBDIR)/vtkTkImageViewerWidget.pdb\" /out:\"$(LIBDIR)/vtkTkImageViewerWidget.dll\" /implib:\"$(LIBDIR)/vtkTkImageViewerWidget.lib\" $(VTK_LIBRARIES)\n");
+    fprintf(fp,"<<\n\n");
+    }
+
+#endif
 
   fprintf(fp,"\n");
   fprintf(fp,".c{$(CPP_OBJS)}.obj:\n");
@@ -3598,6 +3671,35 @@ void doMSCPythonHeader(FILE *fp,CPcmakerDlg *vals, int debugFlag)
     fprintf(fp,"  $(CPP) $(CPP_PROJ) src\\%sPython.cxx\n\n",concrete_h[i]);
     }
 
+
+#ifdef BUILD_PYTHON_WIDGETS
+
+  fprintf(fp,"\n# widgets\n\n");
+
+  if (vals->m_Graphics)
+    {
+    sprintf(file,"%s\\graphics\\vtkTkRenderWidget.cxx",vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkRenderWidget.obj\" : \"%s\\graphics\\vtkTkRenderWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJW) \"%s\\graphics\\vtkTkRenderWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+
+  if (vals->m_Imaging)
+    {
+    sprintf(file,"%s\\imaging\\vtkTkImageViewerWidget.cxx",vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageViewerWidget.obj\" : \"%s\\imaging\\vtkTkImageViewerWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJW) \"%s\\imaging\\vtkTkImageViewerWidget.cxx\"\n\n",vals->m_WhereVTK);
+
+    sprintf(file,"%s\\imaging\\vtkTkImageWindowWidget.cxx",vals->m_WhereVTK);
+    OutputPCDepends(file,fp,vals->m_WhereVTK, extraPtr, extra_num);
+    fprintf(fp,"\"$(OUTDIR)\\vtkTkImageWindowWidget.obj\" : \"%s\\imaging\\vtkTkImageWindowWidget.cxx\" $(DEPENDS) \"$(OUTDIR)\"\n",
+	    vals->m_WhereVTK);
+    fprintf(fp,"  $(CPP) $(CPP_PROJW) \"%s\\imaging\\vtkTkImageWindowWidget.cxx\"\n\n",vals->m_WhereVTK);
+    }
+#endif
 
   fprintf(fp,"################################################################################\n");
 }
