@@ -96,7 +96,9 @@ float vtkKochanekSpline::Evaluate (float t)
     {
     index = i - 1;
     if (t < intervals[i])
-xe      break;
+      {
+      break;
+      }
     }
 
   // calculate offset within interval
