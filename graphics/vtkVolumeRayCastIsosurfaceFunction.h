@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 // .NAME vtkVolumeRayCastIsosurfaceFunction - An isosurface ray caster for volumes
+//
 // .SECTION Description
 // vtkVolumeRayCastIsosurfaceFunction is a volume ray cast function that
 // intersects a ray with an analytic isosurface in a scalar field. The color
@@ -46,7 +47,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkVolume, as well as the interpolation type to use when locating the
 // surface (either a nearest neighbor approach or a trilinear interpolation
 // approach)
-
+//
 // .SECTION See Also
 // vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
