@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.40");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.41");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1121,31 +1121,34 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
 //----------------------------------------------------------------------------
 void vtkParallelRenderManager::SetRenderWindowSize()
 {
-  // Make sure we can support the requested image size.
-  int *screensize = this->RenderWindow->GetScreenSize();
-  if (this->FullImageSize[0] > screensize[0])
+  if (!this->RenderWindow->GetOffScreenRendering())
     {
-    // Reduce both dimensions to preserve aspect ratio.
-    this->FullImageSize[1]
-      = (this->FullImageSize[1]*screensize[0])/this->FullImageSize[0];
-    this->FullImageSize[0] = screensize[0];
-    }
-  if (this->FullImageSize[1] > screensize[1])
-    {
-    // Reduce both dimensions to preserve aspect ratio.
-    this->FullImageSize[0]
-      = (this->FullImageSize[0]*screensize[1])/this->FullImageSize[1];
-    this->FullImageSize[1] = screensize[1];
-    }
+    // Make sure we can support the requested image size.
+    int *screensize = this->RenderWindow->GetScreenSize();
+    if (this->FullImageSize[0] > screensize[0])
+      {
+      // Reduce both dimensions to preserve aspect ratio.
+      this->FullImageSize[1]
+        = (this->FullImageSize[1]*screensize[0])/this->FullImageSize[0];
+      this->FullImageSize[0] = screensize[0];
+      }
+    if (this->FullImageSize[1] > screensize[1])
+      {
+      // Reduce both dimensions to preserve aspect ratio.
+      this->FullImageSize[0]
+        = (this->FullImageSize[0]*screensize[1])/this->FullImageSize[1];
+      this->FullImageSize[1] = screensize[1];
+      }
 
-  // Make sure the reduced image is no bigger than the full image.
-  if (this->ReducedImageSize[0] > this->FullImageSize[0])
-    {
-    this->ReducedImageSize[0] = this->FullImageSize[0];
-    }
-  if (this->ReducedImageSize[1] > this->FullImageSize[1])
-    {
-    this->ReducedImageSize[1] = this->FullImageSize[1];
+    // Make sure the reduced image is no bigger than the full image.
+    if (this->ReducedImageSize[0] > this->FullImageSize[0])
+      {
+      this->ReducedImageSize[0] = this->FullImageSize[0];
+      }
+    if (this->ReducedImageSize[1] > this->FullImageSize[1])
+      {
+      this->ReducedImageSize[1] = this->FullImageSize[1];
+      }
     }
 
   // Correct image reduction factor.
