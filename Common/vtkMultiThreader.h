@@ -28,13 +28,13 @@
 #include "vtkObject.h"
 
 #ifdef VTK_USE_SPROC
-//#include <sys/types.h>
-//#include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 #ifdef VTK_USE_PTHREADS
-//#include <sys/types.h>
-//#include <unistd.h>
+#include <sys/types.h>
+#include <unistd.h>
 #endif
 
 // If VTK_USE_SPROC is defined, then sproc() will be used to create
