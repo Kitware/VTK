@@ -30,7 +30,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.45.2.1");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -1230,7 +1230,7 @@ void vtkGenericEnSightReader::SetDataArraySelectionSetsFromVariables()
                        this->NumberOfComplexVectorsPerElement);
   
   char** pointNames = this->CreateStringArray(numPointArrays);
-  char** cellNames = this->CreateStringArray(numPointArrays);
+  char** cellNames = this->CreateStringArray(numCellArrays);
   int pointArrayCount = 0;
   int cellArrayCount = 0;
   
