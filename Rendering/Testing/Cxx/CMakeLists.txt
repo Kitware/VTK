@@ -7,7 +7,7 @@ vtkIO
 vtkRendering
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib )
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
 
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)
