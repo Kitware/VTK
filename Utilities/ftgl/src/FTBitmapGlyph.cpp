@@ -22,7 +22,7 @@ void FTBitmapGlyph::ConvertGlyph()
   if( err || ft_glyph_format_bitmap != this->glyph->format)
   {return;}
 
-  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)this->glyph;
+  FT_BitmapGlyph  bitmap = reinterpret_cast<FT_BitmapGlyph>(this->glyph);
   FT_Bitmap*      source = &bitmap->bitmap;
 
   //check the pixel mode

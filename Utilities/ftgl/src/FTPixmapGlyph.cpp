@@ -25,7 +25,7 @@ void FTPixmapGlyph::ConvertGlyph(const FTGLRenderContext *context)
     return;
   }
 
-  FT_BitmapGlyph  bitmap = (FT_BitmapGlyph)this->glyph;
+  FT_BitmapGlyph  bitmap = reinterpret_cast<FT_BitmapGlyph>(this->glyph);
   FT_Bitmap*      source = &bitmap->bitmap;
 
   //check the pixel mode
