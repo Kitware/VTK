@@ -232,7 +232,7 @@ int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
   Tk_SetClass(tkwin, (char *) "vtkTkRenderWidget");
   
   // Create vtkTkRenderWidget data structure 
-  self = (struct vtkTkRenderWidget *)malloc(sizeof(struct vtkTkRenderWidget));
+  self = (struct vtkTkRenderWidget *)ckalloc(sizeof(struct vtkTkRenderWidget));
   self->TkWin = tkwin;
   self->Interp = interp;
   self->Width = 0;
