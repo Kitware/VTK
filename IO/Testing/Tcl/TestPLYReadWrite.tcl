@@ -3,7 +3,7 @@ package require vtktcl_interactor
 vtkSphereSource ss
    ss SetPhiResolution 10
    ss SetThetaResolution 20
-vtkElevationFilter ele
+vtkSimpleElevationFilter ele
    ele SetInput [ss GetOutput]
 vtkPointDataToCellData pd2cd
    pd2cd SetInput [ele GetPolyDataOutput]
