@@ -258,25 +258,26 @@ int vtkDataWriter::WriteHeader(ostream *fp)
 int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 {
   int numCells;
-  vtkScalars *scalars;
-  vtkVectors *vectors;
-  vtkNormals *normals;
-  vtkTCoords *tcoords;
-  vtkTensors *tensors;
+  vtkDataArray *scalars;
+  vtkDataArray *vectors;
+  vtkDataArray *normals;
+  vtkDataArray *tcoords;
+  vtkDataArray *tensors;
   vtkFieldData *field;
   vtkCellData *cd=ds->GetCellData();
 
   vtkDebugMacro(<<"Writing cell data...");
 
   numCells = ds->GetNumberOfCells();
-  scalars = cd->GetScalars();
-  vectors = cd->GetVectors();
-  normals = cd->GetNormals();
-  tcoords = cd->GetTCoords();
-  tensors = cd->GetTensors();
+  scalars = cd->GetActiveScalars();
+  vectors = cd->GetActiveVectors();
+  normals = cd->GetActiveNormals();
+  tcoords = cd->GetActiveTCoords();
+  tensors = cd->GetActiveTensors();
   field = cd->GetFieldData();
 
-  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || tensors || field))
+  if ( numCells <= 0 || !(scalars || vectors || normals || tcoords || 
+			  tensors || field))
     {
     vtkDebugMacro(<<"No cell data to write!");
     return 1;
@@ -286,7 +287,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write scalar data
   //
-  if ( scalars && scalars->GetNumberOfScalars() > 0 )
+  if ( scalars && scalars->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteScalarData(fp, scalars, numCells) )
       {
@@ -296,7 +297,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write vector data
   //
-  if ( vectors && vectors->GetNumberOfVectors() > 0 )
+  if ( vectors && vectors->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteVectorData(fp, vectors, numCells) )
       {
@@ -306,7 +307,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write normals
   //
-  if ( normals && normals->GetNumberOfNormals() > 0 )
+  if ( normals && normals->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteNormalData(fp, normals, numCells) )
       {
@@ -316,7 +317,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write texture coords
   //
-  if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
+  if ( tcoords && tcoords->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numCells) )
       {
@@ -326,7 +327,7 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
   //
   // Write tensors
   //
-  if ( tensors && tensors->GetNumberOfTensors() > 0 )
+  if ( tensors && tensors->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteTensorData(fp, tensors, numCells) )
       {
@@ -352,25 +353,26 @@ int vtkDataWriter::WriteCellData(ostream *fp, vtkDataSet *ds)
 int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
 {
   int numPts;
-  vtkScalars *scalars;
-  vtkVectors *vectors;
-  vtkNormals *normals;
-  vtkTCoords *tcoords;
-  vtkTensors *tensors;
+  vtkDataArray *scalars;
+  vtkDataArray *vectors;
+  vtkDataArray *normals;
+  vtkDataArray *tcoords;
+  vtkDataArray *tensors;
   vtkFieldData *field;
   vtkPointData *pd=ds->GetPointData();
 
   vtkDebugMacro(<<"Writing point data...");
 
   numPts = ds->GetNumberOfPoints();
-  scalars = pd->GetScalars();
-  vectors = pd->GetVectors();
-  normals = pd->GetNormals();
-  tcoords = pd->GetTCoords();
-  tensors = pd->GetTensors();
+  scalars = pd->GetActiveScalars();
+  vectors = pd->GetActiveVectors();
+  normals = pd->GetActiveNormals();
+  tcoords = pd->GetActiveTCoords();
+  tensors = pd->GetActiveTensors();
   field = pd->GetFieldData();
 
-  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || tensors || field))
+  if ( numPts <= 0 || !(scalars || vectors || normals || tcoords || 
+			tensors || field))
     {
     vtkDebugMacro(<<"No point data to write!");
     return 1;
@@ -380,7 +382,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write scalar data
   //
-  if ( scalars && scalars->GetNumberOfScalars() > 0 )
+  if ( scalars && scalars->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteScalarData(fp, scalars, numPts) )
       {
@@ -390,7 +392,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write vector data
   //
-  if ( vectors && vectors->GetNumberOfVectors() > 0 )
+  if ( vectors && vectors->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteVectorData(fp, vectors, numPts) )
       {
@@ -400,7 +402,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write normals
   //
-  if ( normals && normals->GetNumberOfNormals() > 0 )
+  if ( normals && normals->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteNormalData(fp, normals, numPts) )
       {
@@ -410,7 +412,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write texture coords
   //
-  if ( tcoords && tcoords->GetNumberOfTCoords() > 0 )
+  if ( tcoords && tcoords->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteTCoordData(fp, tcoords, numPts) )
       {
@@ -420,7 +422,7 @@ int vtkDataWriter::WritePointData(ostream *fp, vtkDataSet *ds)
   //
   // Write tensors
   //
-  if ( tensors && tensors->GetNumberOfTensors() > 0 )
+  if ( tensors && tensors->GetNumberOfTuples() > 0 )
     {
     if ( ! this->WriteTensorData(fp, tensors, numPts) )
       {
@@ -658,7 +660,7 @@ int vtkDataWriter::WriteCoordinates(ostream *fp, vtkDataArray *coords,
 }
 
 // Write out scalar data.
-int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
+int vtkDataWriter::WriteScalarData(ostream *fp, vtkDataArray *scalars, int num)
 {
   int i, j, size=0;
   char *name;
@@ -666,7 +668,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
   int dataType = scalars->GetDataType();
   int numComp = scalars->GetNumberOfComponents();
   
-  if ( (lut=scalars->GetLookupTable()) == NULL || (size = lut->GetNumberOfColors()) <= 0 )
+  if ( (lut=scalars->GetLookupTable()) == NULL || 
+       (size = lut->GetNumberOfColors()) <= 0 )
     {
     name = (char *) "default";
     }
@@ -688,7 +691,8 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
       sprintf(format,"%s %%s %d\nLOOKUP_TABLE %s\n",
               this->ScalarsName, numComp, name);
       }
-    if (this->WriteArray(fp, scalars->GetDataType(), scalars->GetData(), format, num, numComp) == 0)
+    if (this->WriteArray(fp, scalars->GetDataType(), scalars, format, 
+			 num, numComp) == 0)
       {
       return 0;
       }
@@ -697,7 +701,7 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
   else //color scalars
     {
     int nvs = scalars->GetNumberOfComponents();
-    unsigned char *data=((vtkUnsignedCharArray *)scalars->GetData())->GetPointer(0);
+    unsigned char *data=((vtkUnsignedCharArray *)scalars)->GetPointer(0);
     *fp << "COLOR_SCALARS " << this->ScalarsName << " " << nvs << "\n";
 
     if ( this->FileType == VTK_ASCII )
@@ -747,41 +751,42 @@ int vtkDataWriter::WriteScalarData(ostream *fp, vtkScalars *scalars, int num)
   return 1;
 }
 
-int vtkDataWriter::WriteVectorData(ostream *fp, vtkVectors *vectors, int num)
+int vtkDataWriter::WriteVectorData(ostream *fp, vtkDataArray *vectors, int num)
 {
   char format[1024];
 
   *fp << "VECTORS ";
   sprintf(format, "%s %s\n", this->VectorsName, "%s");
-  return this->WriteArray(fp, vectors->GetDataType(), vectors->GetData(), format, num, 3);
+  return this->WriteArray(fp, vectors->GetDataType(), vectors, format, num, 3);
 }
 
-int vtkDataWriter::WriteNormalData(ostream *fp, vtkNormals *normals, int num)
+int vtkDataWriter::WriteNormalData(ostream *fp, vtkDataArray *normals, int num)
 {
   char format[1024];
 
   *fp << "NORMALS ";
   sprintf(format, "%s %s\n", this->NormalsName, "%s");
-  return this->WriteArray(fp, normals->GetDataType(), normals->GetData(), format, num, 3);
+  return this->WriteArray(fp, normals->GetDataType(), normals, format, num, 3);
 }
 
-int vtkDataWriter::WriteTCoordData(ostream *fp, vtkTCoords *tcoords, int num)
+int vtkDataWriter::WriteTCoordData(ostream *fp, vtkDataArray *tcoords, int num)
 {
   int dim=tcoords->GetNumberOfComponents();
   char format[1024];
 
   *fp << "TEXTURE_COORDINATES ";
   sprintf(format, "%s %d %s\n", this->TCoordsName, dim, "%s");
-  return this->WriteArray(fp, tcoords->GetDataType(), tcoords->GetData(), format, num, dim);
+  return this->WriteArray(fp, tcoords->GetDataType(), tcoords, format, num, 
+			  dim);
 }
 
-int vtkDataWriter::WriteTensorData(ostream *fp, vtkTensors *tensors, int num)
+int vtkDataWriter::WriteTensorData(ostream *fp, vtkDataArray *tensors, int num)
 {
   char format[1024];
 
   *fp << "TENSORS "; 
   sprintf(format, "%s %s\n", this->TensorsName, "%s");
-  return this->WriteArray(fp, tensors->GetDataType(), tensors->GetData(), format, num, 9);
+  return this->WriteArray(fp, tensors->GetDataType(), tensors, format, num, 9);
 }
 
 static int vtkIsInTheList(int index, int* list, int numElem)

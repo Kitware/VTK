@@ -240,6 +240,33 @@ void vtkLinearTransform::TransformNormals(vtkNormals *inNms,
 }
 
 //----------------------------------------------------------------------------
+void vtkLinearTransform::TransformNormals(vtkDataArray *inNms, 
+					  vtkDataArray *outNms)
+{
+  int n = inNms->GetNumberOfTuples();
+  double norm[3];
+  double matrix[4][4];
+  
+  this->Update();
+
+  // to transform the normal, multiply by the transposed inverse matrix
+  vtkMatrix4x4::DeepCopy(*matrix,this->Matrix);  
+  vtkMatrix4x4::Invert(*matrix,*matrix);
+  vtkMatrix4x4::Transpose(*matrix,*matrix);
+
+  for (int i = 0; i < n; i++)
+    {
+    inNms->GetTuple(i,norm);
+
+    // use TransformVector because matrix is already transposed & inverted
+    vtkLinearTransformVector(matrix,norm,norm);
+    vtkMath::Normalize(norm);
+
+    outNms->InsertNextTuple(norm);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkLinearTransform::TransformVectors(vtkVectors *inNms, 
 					  vtkVectors *outNms)
 {

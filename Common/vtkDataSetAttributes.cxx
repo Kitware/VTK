@@ -1329,7 +1329,7 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
       return 1;
       }
     }
-  else
+  else if ( vtkDataSetAttributes::AttributeLimits[attributeType] == EXACT )
     {
     if ( numComp != 
 	 vtkDataSetAttributes::NumberOfAttributeComponents[attributeType] )
@@ -1340,6 +1340,14 @@ int vtkDataSetAttributes::CheckNumberOfComponents(vtkDataArray* da,
       {
       return 1;
       }
+    }
+  else if ( vtkDataSetAttributes::AttributeLimits[attributeType] == NOLIMIT )
+    {
+    return 1;
+    }
+  else
+    {
+    return 0;
     }
 }
 

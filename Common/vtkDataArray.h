@@ -74,6 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class vtkFloatArray;
 class vtkLookupTable;
+class vtkIdList;
 
 class VTK_EXPORT vtkDataArray : public vtkObject 
 {
@@ -128,6 +129,9 @@ public:
   virtual void GetTuple(const int i, double * tuple);
 
   // Description:
+  void GetTuples(vtkIdList *ptIds, vtkDataArray *da);
+
+  // Description:
   // Set the data tuple at ith location. Note that range checking or
   // memory allocation is not performed; use this method in conjunction
   // with SetNumberOfTuples() to allocate space.
@@ -154,21 +158,11 @@ public:
   virtual float GetComponent(const int i, const int j);
 
   // Description:
-  // Return the active data component at the ith tuple location
-  // by calling GetComponent(i, this->ActiveComponent).
-  virtual float GetComponent(const int i);
-
-  // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less than NumberOfTuples and j is less than
   //  NumberOfComponents. Make sure enough memory has been allocated 
   // (use SetNumberOfTuples() and SetNumberOfComponents()).
   virtual void SetComponent(const int i, const int j, const float c);
-
-  // Description:
-  // Set the active data component at the ith tuple location
-  // by calling SetComponent(i, this->ActiveComponent, c)
-  virtual void SetComponent(const int i, const float c);
 
   // Description:
   // Insert the data component at ith tuple and jth component location. 
@@ -253,20 +247,12 @@ public:
   const char* GetName();
 
   // Description:
-  // The active component is used when treating an array which
-  // has nComponents > 1 as a scalar. Used together with 
-  // Set(Get)Component
-  void SetActiveComponent(int i);
-  vtkGetMacro(ActiveComponent, int);
-
-  // Description:
   // Creates an array for dataType where dataType is one of
   // VTK_BIT, VTK_CHAR, VTK_UNSIGNED_CHAR, VTK_SHORT,
   // VTK_UNSIGNED_SHORT, VTK_INT, VTK_UNSIGNED_INT, VTK_LONG,
   // VTK_UNSIGNED_LONG, VTK_FLOAT, VTK_DOUBLE.
   // Note that the data array returned has be deleted by the
-  // user
-  
+  // user.
   static vtkDataArray* CreateDataArray(int dataType);
 
 protected:
@@ -281,8 +267,6 @@ protected:
   int Size;      // allocated size of data
   int MaxId;     // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
-
-  int ActiveComponent;
 
   static unsigned long ArrayNamePostfix;
   char* Name;

@@ -355,81 +355,80 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   vtkFiniteDifferenceGradientEstimator   *estimator;
   int                                    thread_count;
   int                                    thread_id;
-  vtkScalars                             *scalars;
+  vtkDataArray                           *scalars;
 
   thread_id = ((ThreadInfoStruct *)(arg))->ThreadID;
   thread_count = ((ThreadInfoStruct *)(arg))->NumberOfThreads;
   estimator = (vtkFiniteDifferenceGradientEstimator *)
     (((ThreadInfoStruct *)(arg))->UserData);
-  scalars = estimator->Input->GetPointData()->GetScalars();
+  scalars = estimator->Input->GetPointData()->GetActiveScalars();
 
   // Find the data type of the Input and call the correct 
   // templated function to actually compute the normals and magnitudes
 
-  switch ( estimator->GetInput()->GetPointData()->
-	   GetScalars()->GetDataType() )
+  switch ( scalars->GetDataType() )
     {
     case VTK_CHAR:
       {
-      char *ptr = ((vtkCharArray *) scalars->GetData())->GetPointer(0);
+      char *ptr = ((vtkCharArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_UNSIGNED_CHAR:
       {
       unsigned char *ptr = ((vtkUnsignedCharArray *) 
-			    scalars->GetData())->GetPointer(0);
+			    scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_SHORT:
       {
-      short *ptr = ((vtkShortArray *) scalars->GetData())->GetPointer(0);
+      short *ptr = ((vtkShortArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_UNSIGNED_SHORT:
       {
       unsigned short *ptr = ((vtkUnsignedShortArray *) 
-			     scalars->GetData())->GetPointer(0);
+			     scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_INT:
       {
-      int *ptr = ((vtkIntArray *) scalars->GetData())->GetPointer(0);
+      int *ptr = ((vtkIntArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_UNSIGNED_INT:
       {
       unsigned int *ptr = ((vtkUnsignedIntArray *) 
-			   scalars->GetData())->GetPointer(0);
+			   scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_LONG:
       {
-      long *ptr = ((vtkLongArray *) scalars->GetData())->GetPointer(0);
+      long *ptr = ((vtkLongArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_UNSIGNED_LONG:
       {
       unsigned long *ptr = ((vtkUnsignedLongArray *) 
-			    scalars->GetData())->GetPointer(0);
+			    scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_FLOAT:
       {
-      float *ptr = ((vtkFloatArray *) scalars->GetData())->GetPointer(0);
+      float *ptr = ((vtkFloatArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;
     case VTK_DOUBLE:
       {
-      double *ptr = ((vtkDoubleArray *) scalars->GetData())->GetPointer(0);
+      double *ptr = ((vtkDoubleArray *) scalars)->GetPointer(0);
       ComputeGradients( estimator, ptr, thread_id, thread_count );
       }
     break;

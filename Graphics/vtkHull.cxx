@@ -292,13 +292,13 @@ void  vtkHull::SetPlanes( vtkPlanes *planes )
     {
     int i, idx;
     vtkPoints *points = planes->GetPoints();
-    vtkNormals *normals = planes->GetNormals();
+    vtkDataArray *normals = planes->GetNormals();
     if ( points && normals )
       {
       for (i=0; i<planes->GetNumberOfPlanes(); i++)
         {
         float *point = points->GetPoint(i);
-        if ( (idx=this->AddPlane(normals->GetNormal(i))) >= 0)
+        if ( (idx=this->AddPlane(normals->GetTuple(i))) >= 0)
           { 
           idx *= 4;
           this->Planes[idx + 3] = -(this->Planes[idx]*point[0] +

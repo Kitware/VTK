@@ -87,8 +87,10 @@ public:
   // Description:
   // Specify a list of normal vectors for the planes. There is a one-to-one
   // correspondence between plane points and plane normals.
-  vtkSetObjectMacro(Normals,vtkNormals);
-  vtkGetObjectMacro(Normals,vtkNormals);
+  void SetNormals(vtkDataArray* normals);
+  vtkGetObjectMacro(Normals,vtkDataArray);
+  void SetNormals(vtkNormals* normals)
+    { this->SetNormals(normals->GetData()); }
 
   // Description:
   // Specify the planes - see camera Get frustum planes definition.
@@ -112,7 +114,7 @@ protected:
   void operator=(const vtkPlanes&) {};
 
   vtkPoints *Points;
-  vtkNormals *Normals;
+  vtkDataArray *Normals;
   vtkPlane *Plane;
 
 private:

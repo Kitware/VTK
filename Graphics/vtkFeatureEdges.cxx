@@ -42,11 +42,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFeatureEdges.h"
 #include "vtkMath.h"
 #include "vtkPolygon.h"
-#include "vtkNormals.h"
 #include "vtkMergePoints.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkTriangleStrip.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 //-------------------------------------------------------------------------
 vtkFeatureEdges* vtkFeatureEdges::New()
@@ -89,7 +89,7 @@ void vtkFeatureEdges::Execute()
   vtkPolyData *input= this->GetInput();
   vtkPoints *inPts;
   vtkPoints *newPts;
-  vtkScalars *newScalars = NULL;
+  vtkFloatArray *newScalars = NULL;
   vtkCellArray *newLines;
   vtkPolyData *Mesh;
   int i, j, numNei, cellId;
@@ -99,7 +99,7 @@ void vtkFeatureEdges::Execute()
   int lineIds[2];
   int npts, *pts;
   vtkCellArray *inPolys, *inStrips, *newPolys;
-  vtkNormals *polyNormals = NULL;
+  vtkFloatArray *polyNormals = NULL;
   int numPts, numCells, numPolys, numStrips, nei;
   vtkIdList *neighbors;
   int p1, p2, newId;
@@ -182,7 +182,7 @@ void vtkFeatureEdges::Execute()
   newLines->Allocate(numPts/10);
   if ( this->Coloring )
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(numCells/10,numCells);
     outCD->CopyScalarsOff();
     }
@@ -203,14 +203,15 @@ void vtkFeatureEdges::Execute()
   //
   if ( this->FeatureEdges ) 
     {    
-    polyNormals = vtkNormals::New();
-    polyNormals->Allocate(newPolys->GetNumberOfCells());
+    polyNormals = vtkFloatArray::New();
+    polyNormals->SetNumberOfComponents(3);
+    polyNormals->Allocate(3*newPolys->GetNumberOfCells());
 
     for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts,pts); 
     cellId++)
       {
       vtkPolygon::ComputeNormal(inPts,npts,pts,n);
-      polyNormals->InsertNormal(cellId,n);
+      polyNormals->InsertTuple(cellId,n);
       }
 
     cosAngle = cos ((double) vtkMath::DegreesToRadians() * this->FeatureAngle);
@@ -283,8 +284,8 @@ void vtkFeatureEdges::Execute()
       else if ( this->FeatureEdges && 
                 numNei == 1 && (nei=neighbors->GetId(0)) > cellId ) 
         {
-        if ( vtkMath::Dot(polyNormals->GetNormal(nei),
-                          polyNormals->GetNormal(cellId)) <= cosAngle ) 
+        if ( vtkMath::Dot(polyNormals->GetTuple(nei),
+                          polyNormals->GetTuple(cellId)) <= cosAngle ) 
           {
           if (ghostLevels && ghostLevels[cellId] > 0)
             {
@@ -336,7 +337,7 @@ void vtkFeatureEdges::Execute()
       outCD->CopyData (cd,cellId,newId);
       if ( this->Coloring )
         {
-        newScalars->InsertScalar(newId, scalar);
+        newScalars->InsertTuple(newId, &scalar);
         }
       }
     }

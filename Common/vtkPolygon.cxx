@@ -1129,7 +1129,7 @@ int vtkPolygon::IntersectWithLine(float p1[3], float p2[3], float tol,float& t,
   pt1 = this->Points->GetPoint(1);
   this->ComputeNormal (this->Points,n);
  
-  // Intersect plane of triangle with line
+  // Intersect plane of the polygon with line
   //
   if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
     {

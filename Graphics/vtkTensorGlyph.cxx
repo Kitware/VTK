@@ -41,10 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 #include "vtkTensorGlyph.h"
 #include "vtkTransform.h"
-#include "vtkVectors.h"
-#include "vtkNormals.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkFloatArray.h"
 
 
 //------------------------------------------------------------------------------
@@ -83,17 +82,17 @@ vtkTensorGlyph::~vtkTensorGlyph()
 
 void vtkTensorGlyph::Execute()
 {
-  vtkTensors *inTensors;
-  vtkTensor *tensor;
-  vtkScalars *inScalars;
+  vtkDataArray *inTensors;
+  float *tensor;
+  vtkDataArray *inScalars;
   int numPts, numSourcePts, numSourceCells;
   int inPtId, i, j;
   vtkPoints *sourcePts;
-  vtkNormals *sourceNormals;
+  vtkDataArray *sourceNormals;
   vtkCellArray *sourceCells, *cells;  
   vtkPoints *newPts;
-  vtkScalars *newScalars=NULL;
-  vtkNormals *newNormals=NULL;
+  vtkFloatArray *newScalars=NULL;
+  vtkFloatArray *newNormals=NULL;
   float *x, s;
   vtkTransform *trans = vtkTransform::New();
   vtkCell *cell;
@@ -118,8 +117,8 @@ void vtkTensorGlyph::Execute()
 
   pd = input->GetPointData();
   outPD = output->GetPointData();
-  inTensors = pd->GetTensors();
-  inScalars = pd->GetScalars();
+  inTensors = pd->GetActiveTensors();
+  inScalars = pd->GetActiveScalars();
   numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
@@ -171,7 +170,7 @@ void vtkTensorGlyph::Execute()
   pd = this->GetSource()->GetPointData();
   if ( inScalars &&  this->ColorGlyphs ) 
     {
-    newScalars = vtkScalars::New();
+    newScalars = vtkFloatArray::New();
     newScalars->Allocate(numPts*numSourcePts);
     }
   else
@@ -180,10 +179,11 @@ void vtkTensorGlyph::Execute()
     outPD->CopyScalarsOn();
     outPD->CopyAllocate(pd,numPts*numSourcePts);
     }
-  if ( (sourceNormals = pd->GetNormals()) )
+  if ( (sourceNormals = pd->GetActiveNormals()) )
     {
-    newNormals = vtkNormals::New();
-    newNormals->Allocate(numPts*numSourcePts);
+    newNormals = vtkFloatArray::New();
+    newNormals->SetNumberOfComponents(3);
+    newNormals->Allocate(3*numPts*numSourcePts);
     }
   //
   // First copy all topology (transformation independent)
@@ -218,7 +218,7 @@ void vtkTensorGlyph::Execute()
     x = input->GetPoint(inPtId);
     trans->Translate(x[0], x[1], x[2]);
 
-    tensor = inTensors->GetTensor(inPtId);
+    tensor = inTensors->GetTuple(inPtId);
 
     // compute orientation vectors and scale factors from tensor
     if ( this->ExtractEigenvalues ) // extract appropriate eigenfunctions
@@ -227,7 +227,7 @@ void vtkTensorGlyph::Execute()
 	{
         for (i=0; i<3; i++)
 	  {
-          m[i][j] = tensor->GetComponent(i,j);
+          m[i][j] = tensor[i+3*j];
 	  }
 	}
       vtkMath::Jacobi(m, w, v);
@@ -241,9 +241,9 @@ void vtkTensorGlyph::Execute()
       {
       for (i=0; i<3; i++)
         {
-        xv[i] = tensor->GetComponent(i,0);
-        yv[i] = tensor->GetComponent(i,1);
-        zv[i] = tensor->GetComponent(i,2);
+        xv[i] = tensor[i];
+        yv[i] = tensor[i+3]; 
+        zv[i] = tensor[i+6];
         }
       w[0] = vtkMath::Normalize(xv);
       w[1] = vtkMath::Normalize(yv);
@@ -317,10 +317,10 @@ void vtkTensorGlyph::Execute()
     // Copy point data from source
     if ( inScalars && this->ColorGlyphs ) 
       {
-      s = inScalars->GetScalar(inPtId);
+      s = inScalars->GetComponent(inPtId, 0);
       for (i=0; i < numSourcePts; i++) 
 	{
-        newScalars->InsertScalar(ptIncr+i, s);
+        newScalars->InsertTuple(ptIncr+i, &s);
 	}
       }
     else

@@ -70,6 +70,7 @@ public:
   // Apply the transformation to a series of normals, and append the
   // results to outNms.  
   void TransformNormals(vtkNormals *inNms, vtkNormals *outNms);
+  void TransformNormals(vtkDataArray *inNms, vtkDataArray *outNms);
 
   // Description:
   // Apply the transformation to a series of vectors, and append the

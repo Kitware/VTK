@@ -59,11 +59,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkDataSet;
 class vtkPoints;
 class vtkCellArray;
-class vtkScalars;
-class vtkVectors;
-class vtkNormals;
-class vtkTCoords;
-class vtkTensors;
 class vtkDataArray;
 
 class VTK_EXPORT vtkDataWriter : public vtkWriter
@@ -228,11 +223,11 @@ protected:
 
   int WriteArray(ostream *fp, int dataType, vtkDataArray *data, const char *format, 
 		 int num, int numComp);
-  int WriteScalarData(ostream *fp, vtkScalars *s, int num);
-  int WriteVectorData(ostream *fp, vtkVectors *v, int num);
-  int WriteNormalData(ostream *fp, vtkNormals *n, int num);
-  int WriteTCoordData(ostream *fp, vtkTCoords *tc, int num);
-  int WriteTensorData(ostream *fp, vtkTensors *t, int num);
+  int WriteScalarData(ostream *fp, vtkDataArray *s, int num);
+  int WriteVectorData(ostream *fp, vtkDataArray *v, int num);
+  int WriteNormalData(ostream *fp, vtkDataArray *n, int num);
+  int WriteTCoordData(ostream *fp, vtkDataArray *tc, int num);
+  int WriteTensorData(ostream *fp, vtkDataArray *t, int num);
 
 };
 
