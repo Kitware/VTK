@@ -95,7 +95,7 @@ protected:
   virtual void Execute(vtkImageData **inDatas, vtkImageData **outDatas);
 
   // this should never be called
-  virtual void Execute(vtkImageData **inDatas, vtkImageData *outDatas) {};
+  virtual void Execute(vtkImageData **, vtkImageData *) {};
   virtual void ThreadedExecute(vtkImageData **inDatas, 
 			       vtkImageData *outData,
 			       int extent[6], int threadId);
