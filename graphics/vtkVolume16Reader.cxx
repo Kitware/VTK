@@ -54,6 +54,25 @@ vtkVolume16Reader::vtkVolume16Reader()
   this->Transform = NULL;
 }
 
+void vtkVolume16Reader::SetFileTypeBigEndian()
+{
+#ifndef WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
+void vtkVolume16Reader::SetFileTypeLittleEndian()
+{
+#ifdef WORDS_BIGENDIAN
+  this->SwapBytesOn();
+#else
+  this->SwapBytesOff();
+#endif
+}
+
+
 void vtkVolume16Reader::Execute()
 {
   vtkScalars *newScalars;

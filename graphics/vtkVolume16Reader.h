@@ -97,6 +97,21 @@ public:
   vtkGetMacro(HeaderSize,int);
 
   // Description:
+  // These methods should be used instead of the SwapBytes methods.
+  // They indicate the byte ordering of the file you are trying
+  // to read in. These methods will then either swap or not swap
+  // the bytes depending on the byte ordering of the machine it is
+  // being run on. For example, reading in a BigEndian file on a
+  // BigEndian machine will result in no swapping. Trying to read
+  // the same file on a LittleEndian machine will result in swapping.
+  // As a quick note most UNIX machines are BigEndian while PC's
+  // and VAX tend to be LittleEndian. So if the file you are reading
+  // in was generated on a VAX or PC, SetFileTypeLittleEndian otherwise
+  // SetFileTypeBigEndian. 
+  void SetFileTypeBigEndian();
+  void SetFileTypeLittleEndian();
+
+  // Description:
   // Turn on/off byte swapping.
   vtkSetMacro(SwapBytes,int);
   vtkGetMacro(SwapBytes,int);
