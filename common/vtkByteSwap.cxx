@@ -116,26 +116,40 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, ostream *fp)
   char *pos;
   int i;
   char *cpy;
-  
-  cpy = new char [num*4];
-  memcpy(cpy, mem_ptr1,num*4);
-  
-  pos = cpy;
-  
-  for (i = 0; i < num; i++)
+  int chunkSize = 1000000;
+
+  if (num < chunkSize)
     {
-    one_byte = pos[0];
-    pos[0] = pos[3];
-    pos[3] = one_byte;
-    
-    one_byte = pos[1];
-    pos[1] = pos[2];
-    pos[2] = one_byte;
-    pos = pos + 4;
+    chunkSize = num;
     }
-  fp->write((char *)cpy, 4*num);
+  cpy = new char [chunkSize * 4];
+ 
+  while (num)
+    {
+    memcpy(cpy, mem_ptr1, chunkSize * 4);
+    
+    pos = cpy;   
+    for (i = 0; i < chunkSize; i++)
+      {
+      one_byte = pos[0];
+      pos[0] = pos[3];
+      pos[3] = one_byte;
+      
+      one_byte = pos[1];
+      pos[1] = pos[2];
+      pos[2] = one_byte;
+      pos = pos + 4;
+      }
+    fp->write((char *)cpy, 4*chunkSize);
+    mem_ptr1 += chunkSize*4;
+    num -= chunkSize;
+    if (num < chunkSize)
+      {
+      chunkSize = num;
+      }
+    }
+
   delete [] cpy;
-  
 #else
   fp->write((char *)mem_ptr1, 4*num);
 #endif
@@ -149,24 +163,38 @@ void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, FILE *fp)
   char *pos;
   int i;
   char *cpy;
-  
-  cpy = new char [num*4];
-  memcpy(cpy, mem_ptr1,num*4);
-  
-  pos = cpy;
-  
-  for (i = 0; i < num; i++)
+  int chunkSize = 1000000;
+
+  if (num < chunkSize)
     {
-    one_byte = pos[0];
-    pos[0] = pos[3];
-    pos[3] = one_byte;
-    
-    one_byte = pos[1];
-    pos[1] = pos[2];
-    pos[2] = one_byte;
-    pos = pos + 4;
+    chunkSize = num;
     }
-  fwrite(cpy,4,num,fp);
+  cpy = new char [chunkSize * 4];
+ 
+  while (num)
+    {
+    memcpy(cpy, mem_ptr1, chunkSize * 4);
+  
+    pos = cpy;    
+    for (i = 0; i < chunkSize; i++)
+      {
+      one_byte = pos[0];
+      pos[0] = pos[3];
+      pos[3] = one_byte;
+      
+      one_byte = pos[1];
+      pos[1] = pos[2];
+      pos[2] = one_byte;
+      pos = pos + 4;
+      }
+    fwrite(cpy,4,chunkSize,fp);
+    mem_ptr1 += chunkSize*4;
+    num -= chunkSize;
+    if (num < chunkSize)
+      {
+      chunkSize = num;
+      }
+    }
   delete [] cpy;
   
 #else
@@ -305,21 +333,35 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, ostream *fp)
   char *pos;
   int i;
   char *cpy;
-  
-  cpy = new char [num*2];
-  memcpy(cpy, mem_ptr1,num*2);
-  
-  pos = cpy;
-  
-  for (i = 0; i < num; i++)
-    {
-    one_byte = pos[0];
-    pos[0] = pos[1];
-    pos[1] = one_byte;
-    pos = pos + 2;
-    }
-  fp->write((char *)cpy, 2*num);
+  int chunkSize = 1000000;
 
+  if (num < chunkSize)
+    {
+    chunkSize = num;
+    }
+  cpy = new char [chunkSize * 2];
+ 
+  while (num)
+    {
+    memcpy(cpy, mem_ptr1, chunkSize * 2);
+ 
+    pos = cpy; 
+    for (i = 0; i < chunkSize; i++)
+      {
+      one_byte = pos[0];
+      pos[0] = pos[1];
+      pos[1] = one_byte;
+      pos = pos + 2;
+      }
+    fp->write((char *)cpy, 2*chunkSize);
+    mem_ptr1 += chunkSize * 2;
+    num -= chunkSize;
+    if (num < chunkSize)
+      {
+      chunkSize = num;
+      }
+    }
+    
   delete [] cpy;
   
 #else
@@ -335,20 +377,34 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, FILE *fp)
   char *pos;
   int i;
   char *cpy;
-  
-  cpy = new char [num*2];
-  memcpy(cpy, mem_ptr1,num*2);
-  
-  pos = cpy;
-  
-  for (i = 0; i < num; i++)
+  int chunkSize = 1000000;
+
+  if (num < chunkSize)
     {
-    one_byte = pos[0];
-    pos[0] = pos[1];
-    pos[1] = one_byte;
-    pos = pos + 2;
+    chunkSize = num;
     }
-  fwrite(cpy,2,num,fp);
+  cpy = new char [chunkSize * 2];
+ 
+  while (num)
+    {
+    memcpy(cpy, mem_ptr1, chunkSize * 2);
+  
+    pos = cpy; 
+    for (i = 0; i < chunkSize; i++)
+      {
+      one_byte = pos[0];
+      pos[0] = pos[1];
+      pos[1] = one_byte;
+      pos = pos + 2;
+      }
+    fwrite(cpy,2,chunkSize,fp);
+    mem_ptr1 += chunkSize*2;
+    num -= chunkSize;
+    if (num < chunkSize)
+      {
+      chunkSize = num;
+      }
+    }
   delete [] cpy;
   
 #else
