@@ -28,12 +28,21 @@
 #include "vtkIdList.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
-#include <vtkstd/set>
 #include <time.h>
+
+vtkCxxRevisionMacro(vtkModelMetadata, "1.6");
+vtkStandardNewMacro(vtkModelMetadata);
+
+#include <vtkstd/set>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.5");
-vtkStandardNewMacro(vtkModelMetadata);
+class vtkModelMetadataSTLCloak
+{
+public:
+  vtkstd::set<int> IntSet;
+  vtkstd::map<int, int> IntMap; 
+};
+
 
 #undef FREE
 #undef FREELIST
@@ -164,6 +173,8 @@ void vtkModelMetadata::InitializeAllIvars()
   this->SideSetDistributionFactorIndex = NULL;
 
   this->AllVariablesDefinedInAllBlocks = 0;
+
+  this->BlockIdIndex = NULL;
 }
 void vtkModelMetadata::FreeAllGlobalData()
 {
@@ -182,6 +193,12 @@ void vtkModelMetadata::FreeAllGlobalData()
   this->SetBlockElementType(NULL);
   this->SetBlockNodesPerElement(NULL);
   this->SetBlockNumberOfAttributesPerElement(NULL);
+
+  if (this->BlockIdIndex)
+    {
+    delete this->BlockIdIndex;
+    this->BlockIdIndex = NULL;
+    }
 
   this->SetNodeSetIds(NULL);
   this->SetSideSetIds(NULL);
@@ -458,19 +475,26 @@ void vtkModelMetadata::SetCoordinateNames(int dimension, char **n)
 //-------------------------------------------------
 int vtkModelMetadata::GetBlockLocalIndex(int id)
 {
-  if (this->BlockIdIndex.size() == 0)
+  if (this->BlockIdIndex == NULL)
+    {
+    this->BlockIdIndex = new vtkModelMetadataSTLCloak;
+    }
+
+  vtkstd::map<int, int> blockIdIndex = this->BlockIdIndex->IntMap;
+
+  if (blockIdIndex.size() == 0)
     {
     for (int i=0; i<this->NumberOfBlocks; i++)
       {
       int gid = this->BlockIds[i];
 
-      this->BlockIdIndex.insert(vtkstd::pair<int,int>(gid, i));
+      blockIdIndex.insert(vtkstd::pair<int,int>(gid, i));
       }
     }
 
-  vtkstd::map<int,int>::iterator mapit = this->BlockIdIndex.find(id);
+  vtkstd::map<int,int>::iterator mapit = blockIdIndex.find(id);
 
-  if (mapit == this->BlockIdIndex.end())
+  if (mapit == blockIdIndex.end())
     {
     return -1;
     }
@@ -3195,7 +3219,7 @@ char **vtkModelMetadata::CopyLines(char **lines, int num)
 
   return newlines;
 }
-void vtkModelMetadata::ExtractCellsFromBlockData(vtkstd::set<int> *idset,
+void vtkModelMetadata::ExtractCellsFromBlockData(vtkModelMetadataSTLCloak *idset,
                           vtkModelMetadata *mmd)
 {
   int i, j, k;
@@ -3226,9 +3250,9 @@ void vtkModelMetadata::ExtractCellsFromBlockData(vtkstd::set<int> *idset,
 
     for (j=0; j<blockSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->find(eltIds[ii]);
+      vtkstd::set<int>::iterator it = idset->IntSet.find(eltIds[ii]);
 
-      if (it == idset->end())
+      if (it == idset->IntSet.end())
         {
         extractElt[ii] = 0;
         }
@@ -3295,7 +3319,7 @@ void vtkModelMetadata::ExtractCellsFromBlockData(vtkstd::set<int> *idset,
   
   return;
 }
-void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkstd::set<int> *idset,
+void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkModelMetadataSTLCloak *idset,
                           vtkModelMetadata *mmd)
 {
   int i, j;
@@ -3327,9 +3351,9 @@ void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkstd::set<int> *idset,
 
     for (j=0; j<nsSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->find(nsIds[ii]);
+      vtkstd::set<int>::iterator it = idset->IntSet.find(nsIds[ii]);
 
-      if (it == idset->end())
+      if (it == idset->IntSet.end())
         {
         extractNodes[ii] = 0;
         }
@@ -3401,7 +3425,7 @@ void vtkModelMetadata::ExtractNodesFromNodeSetData(vtkstd::set<int> *idset,
   
   return;
 }
-void vtkModelMetadata::ExtractSidesFromSideSetData(vtkstd::set<int> *idset,
+void vtkModelMetadata::ExtractSidesFromSideSetData(vtkModelMetadataSTLCloak *idset,
                           vtkModelMetadata *mmd)
 {
   int i, j;
@@ -3437,9 +3461,9 @@ void vtkModelMetadata::ExtractSidesFromSideSetData(vtkstd::set<int> *idset,
 
     for (j=0; j<ssSize[i]; j++)
       {
-      vtkstd::set<int>::iterator it = idset->find(ssElts[ii]);
+      vtkstd::set<int>::iterator it = idset->IntSet.find(ssElts[ii]);
 
-      if (it == idset->end())
+      if (it == idset->IntSet.end())
         {
         extractSides[ii] = 0;
         }
@@ -3539,17 +3563,19 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
     return em;
     }
 
-  vtkstd::set<int> cellIds;     // cells we want to extract
-  vtkstd::set<int> nodeIds;     // the nodes they include
+  vtkModelMetadataSTLCloak *cellIds = 
+    new vtkModelMetadataSTLCloak;     // the cells we want to extract
+  vtkModelMetadataSTLCloak *nodeIds = 
+    new vtkModelMetadataSTLCloak;     // the nodes they include
 
   int *ids = globalCellIdList->GetPointer(0);
 
   for (i=0; i<ncells; i++)
     {
-    cellIds.insert(ids[i]);
+    cellIds->IntSet.insert(ids[i]);
     }
 
-  ncells = cellIds.size();
+  ncells = cellIds->IntSet.size();
 
   vtkDataArray *ca = grid->GetCellData()->GetArray(globalCellIdArrayName);
   vtkDataArray *pa = grid->GetPointData()->GetArray(globalNodeIdArrayName);
@@ -3579,9 +3605,9 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
 
   for (vtkIdType c = 0; c<gridCells; c++)
     {
-    vtkstd::set<int>::iterator it = cellIds.find(gcids[c]);
+    vtkstd::set<int>::iterator it = cellIds->IntSet.find(gcids[c]);
 
-    if (it != cellIds.end())
+    if (it != cellIds->IntSet.end())
       {
       grid->GetCellPoints(c, ptIds);
 
@@ -3589,7 +3615,7 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
 
       for (i=0; i<npoints; i++)
         {
-        nodeIds.insert(gpids[ptIds->GetId(i)]);
+        nodeIds->IntSet.insert(gpids[ptIds->GetId(i)]);
         }
       }
     }
@@ -3600,22 +3626,25 @@ vtkModelMetadata *vtkModelMetadata::ExtractModelMetadata(
 
   if (this->NumberOfBlocks)
     {
-    this->ExtractCellsFromBlockData(&cellIds, em);
+    this->ExtractCellsFromBlockData(cellIds, em);
     }
 
   // Node set information
 
   if (this->NumberOfNodeSets)
     {
-    this->ExtractNodesFromNodeSetData(&nodeIds, em);
+    this->ExtractNodesFromNodeSetData(nodeIds, em);
     }
 
   // Side set information
 
   if (this->NumberOfSideSets)
     {
-    this->ExtractSidesFromSideSetData(&cellIds, em);
+    this->ExtractSidesFromSideSetData(cellIds, em);
     }
+
+  delete cellIds;
+  delete nodeIds;
 
   return em;
 }

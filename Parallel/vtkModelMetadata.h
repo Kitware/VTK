@@ -72,9 +72,6 @@
 #ifndef __vtkModelMetadata_h
 #define __vtkModelMetadata_h
 
-#include <vtkstd/set>
-#include <vtkstd/map>
-
 #include "vtkObject.h"
 
 #define myVtkGetMacro(name, type) virtual type Get##name() const { return this->name; }
@@ -86,6 +83,7 @@ class vtkCharArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIntArray;
+class vtkModelMetadataSTLCloak;
 
 class VTK_EXPORT vtkModelMetadata : public vtkObject
 { 
@@ -743,11 +741,12 @@ private:
     int *id2, int *id2Idx, int id2Len,
     int **idNew, int **idNewIdx, int *idNewLen);
 
-//BTX
-  void ExtractCellsFromBlockData(vtkstd::set<int> *idset, vtkModelMetadata *mmd);
-  void ExtractNodesFromNodeSetData(vtkstd::set<int> *idset, vtkModelMetadata *mmd);
-  void ExtractSidesFromSideSetData(vtkstd::set<int> *idset, vtkModelMetadata *mmd);
-//ETX
+  void ExtractCellsFromBlockData(vtkModelMetadataSTLCloak *idset, 
+                                 vtkModelMetadata *mmd);
+  void ExtractNodesFromNodeSetData(vtkModelMetadataSTLCloak *idset, 
+                                   vtkModelMetadata *mmd);
+  void ExtractSidesFromSideSetData(vtkModelMetadataSTLCloak *idset, 
+                                   vtkModelMetadata *mmd);
 
   void ShowFloats(const char *what, int num, float *f);
   void ShowLines(const char *what, int num, char **l);
@@ -814,9 +813,7 @@ private:
   int *BlockElementIdListIndex;          // NumberOfBlocks         
   int *BlockAttributesIndex;             // NumberOfBlocks
 
-//BTX
-  vtkstd::map<int, int> BlockIdIndex;
-//ETX
+  vtkModelMetadataSTLCloak *BlockIdIndex;    // computed map
 
   // Node Sets - arrays that are input to the class with Set*
 
