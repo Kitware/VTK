@@ -68,9 +68,9 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
   this->Center[1] = 0.0;
   this->Center[2] = 0.0;
 
-  this->WholeExtent[0] = 0;  this->WholeExtent[1] = 255;
-  this->WholeExtent[2] = 0;  this->WholeExtent[3] = 255;
-  this->WholeExtent[4] = 0;  this->WholeExtent[5] = 0;
+  this->WholeExtent[0] = -10;  this->WholeExtent[1] = 10;
+  this->WholeExtent[2] = -10;  this->WholeExtent[3] = 10;
+  this->WholeExtent[4] = -10;  this->WholeExtent[5] = 10;
   this->StandardDeviation = 0.5;
 
   this->XFreq = 60;
@@ -84,8 +84,8 @@ vtkRTAnalyticSource::vtkRTAnalyticSource()
 
 //----------------------------------------------------------------------------
 void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax, 
-					    int yMin, int yMax,
-					    int zMin, int zMax)
+					 int yMin, int yMax,
+					 int zMin, int zMax)
 {
   int modified = 0;
   
