@@ -1,108 +1,50 @@
-/*=========================================================================
+// vtkSDIView.h : interface of the CvtkSDIView class
+//
 
-  Program:   Visualization Toolkit
-  Module:    vtkSDIView.h
 
-  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-  All rights reserved.
-  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
-
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notice for more information.
-
-=========================================================================*/
-
-#if !defined(AFX_VTKSDIVIEW_H__73D7D5BB_8FEB_4452_A5EB_964ECEEE2A83__INCLUDED_)
-#define AFX_VTKSDIVIEW_H__73D7D5BB_8FEB_4452_A5EB_964ECEEE2A83__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-// Include the required header files for the vtk classes we are using
-#include <vtkRenderer.h>
-#include <vtkWin32OpenGLRenderWindow.h>
-#include <vtkWin32RenderWindowInteractor.h>
-class vtkMFCWindow;
+#include "vtkMFCWindow.h"
 
-#include <vtkSphereSource.h>
-#include <vtkConeSource.h>
-#include <vtkGlyph3D.h>
-#include <vtkElevationFilter.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkCubeAxesActor2D.h>
-
-class CVtkSDIView : public CView
+class CvtkSDIView : public CView
 {
-protected: // create from serialization only
-  CVtkSDIView();
-  DECLARE_DYNCREATE(CVtkSDIView)
-
-// Attributes
 public:
-  CVtkSDIDoc* GetDocument();
-
-// Operations
-public:
-
-// Overrides
-  // ClassWizard generated virtual function overrides
-  //{{AFX_VIRTUAL(CVtkSDIView)
-  public:
-  virtual void OnDraw(CDC* pDC);  // overridden to draw this view
-  virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-  protected:
-  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-  virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-  virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
-  //}}AFX_VIRTUAL
-
-// Implementation
-private:
-  void Pipeline ( void );
-  virtual ~CVtkSDIView();
-
-  vtkMFCWindow* vtkWindow;
-  vtkRenderer *ren;
-  
-  vtkSphereSource *sphere;
-  vtkPolyDataMapper *sphereMapper;
-  vtkElevationFilter *sphereElevation;
-  vtkActor *sphereActor;
-  vtkConeSource *cone;
-  vtkGlyph3D *glyph;
-  vtkPolyDataMapper *spikeMapper;
-  vtkActor *spikeActor;
-  vtkCubeAxesActor2D *sphereAxis;
-
-
+  virtual ~CvtkSDIView();
 #ifdef _DEBUG
   virtual void AssertValid() const;
   virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
+  CvtkSDIDoc* GetDocument() const;
+  vtkRenderer* GetRenderer() { ASSERT(pvtkRenderer); return pvtkRenderer; }
 
-// Generated message map functions
-protected:
-  //{{AFX_MSG(CVtkSDIView)
-  afx_msg void OnSize(UINT nType, int cx, int cy);
+  virtual void OnDraw(CDC* pDC);  // overridden to draw this view
+
   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-  BOOL OnEraseBkgnd(CDC* pDC);
-  //}}AFX_MSG
+  afx_msg void OnDestroy();
+  afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+  afx_msg void OnSize(UINT nType, int cx, int cy);
+  afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+private:
+  vtkRenderer            *pvtkRenderer;
+  vtkMFCWindow          *pvtkMFCWindow;
+
+protected:
+  DECLARE_DYNCREATE(CvtkSDIView)
+  CvtkSDIView();
+
+  virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
+  virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
+  virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+
   DECLARE_MESSAGE_MAP()
+public:
+  virtual void OnInitialUpdate();
 };
 
 #ifndef _DEBUG  // debug version in vtkSDIView.cpp
-inline CVtkSDIDoc* CVtkSDIView::GetDocument()
-   { return (CVtkSDIDoc*)m_pDocument; }
+inline CvtkSDIDoc* CvtkSDIView::GetDocument() const
+   { return reinterpret_cast<CvtkSDIDoc*>(m_pDocument); }
 #endif
 
-/////////////////////////////////////////////////////////////////////////////
-
-//{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
-
-#endif // !defined(AFX_VTKSDIVIEW_H__73D7D5BB_8FEB_4452_A5EB_964ECEEE2A83__INCLUDED_)

@@ -40,3 +40,14 @@
 #include <afxcmn.h>      // MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
+// Include the required header files for the vtk classes we are using
+#include <vtkDataSetReader.h>
+#include <vtkDataSetMapper.h>
+#include <vtkActor.h>
+#include <vtkActor2D.h>
+#include <vtkTextMapper.h>
+#include <vtkRenderer.h>
+#include <vtkWin32OpenGLRenderWindow.h>
+#include <vtkWin32RenderWindowInteractor.h>
+#include <vtkTextProperty.h>
+
