@@ -174,6 +174,9 @@ void vtkSampleFunction::Execute()
       {
       p = output->GetPoint(ptId);
       this->ImplicitFunction->FunctionGradient(p, n);
+      n[0] *= -1;
+      n[1] *= -1;
+      n[2] *= -1;
       vtkMath::Normalize(n);
       newNormals->SetNormal(ptId,n);
       }
