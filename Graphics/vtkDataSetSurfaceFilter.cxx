@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.45");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.46");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -975,7 +975,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
             input->GetCellNeighbors(cellId, face->PointIds, cellIds);
             if ( cellIds->GetNumberOfIds() <= 0)
               {
-              // FIXME: Face could not be consistent. vtkOrderTriangulator is a better option
+              // FIXME: Face could not be consistent. vtkOrderedTriangulator is a better option
               face->Triangulate(0,pts,coords);
               for (i=0; i < pts->GetNumberOfIds(); i+=3)
                 {
