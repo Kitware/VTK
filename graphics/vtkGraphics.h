@@ -160,7 +160,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkShepardMethod.h"
 #include "vtkShrinkFilter.h"
 #include "vtkShrinkPolyData.h"
-#include "vtkSmoothPolyData.h"
+#include "vtkSmoothPolyDataFilter.h"
 #include "vtkSpatialRepresentationFilter.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
