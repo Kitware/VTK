@@ -29,13 +29,13 @@
 #ifndef __vtkTriangularTCoords_h
 #define __vtkTriangularTCoords_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkTriangularTCoords : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkTriangularTCoords : public vtkPolyDataAlgorithm
 {
 public:
   static vtkTriangularTCoords *New();
-  vtkTypeRevisionMacro(vtkTriangularTCoords,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkTriangularTCoords,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
@@ -43,12 +43,10 @@ protected:
   ~vtkTriangularTCoords() {};
 
   // Usual data generation method
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkTriangularTCoords(const vtkTriangularTCoords&);  // Not implemented.
   void operator=(const vtkTriangularTCoords&);  // Not implemented.
 };
 
 #endif
-
-
