@@ -198,9 +198,14 @@ void vtkTubeFilter::Execute()
           {
           inNormals->Delete();
           }
+        newPts->Delete();
+        newNormals->Delete();
+        newStrips->Delete();
+	single_polyline->Delete();
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
+	single_polyline->Delete();
         return;
         }
       }
@@ -257,13 +262,17 @@ void vtkTubeFilter::Execute()
       if ( vtkMath::Normalize(sNext) == 0.0 )
         {
         vtkErrorMacro(<<"Coincident points!");
-        inNormals->Delete();
+	if (this->DeleteNormals)
+	  {
+	  inNormals->Delete();
+	  }
         newPts->Delete();
         newNormals->Delete();
         newStrips->Delete();
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
+	single_polyline->Delete();
         return;
         }
 
@@ -312,6 +321,7 @@ void vtkTubeFilter::Execute()
         lineNormalGenerator->Delete();
         capPoints->Delete();
         capNormals->Delete();
+	single_polyline->Delete();
         return;
         }
       
