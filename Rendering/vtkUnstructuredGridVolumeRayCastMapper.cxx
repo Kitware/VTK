@@ -37,7 +37,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.13");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.14");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -567,8 +567,19 @@ void vtkUnstructuredGridVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent in
   
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
   
-  // Do not want to print this->ImageOrigin, this->ImageViewportSize or this->ImageInUseSize
-  // since these are just internal variables with Get methods for access
-  // from the ray cast function (not part of the public API)
+  if (this->RayCastFunction)
+    {
+    os << indent << "RayCastFunction: " << 
+      this->RayCastFunction->GetClassName() << "\n";
+    }
+  else
+    {
+    os << indent << "RayCastFunction: (none)\n";
+    }
+  
+  // Do not want to print this->ImageOrigin, this->ImageViewportSize or
+  // this->ImageInUseSize since these are just internal variables with Get
+  // methods for access from the ray cast function (not part of the public
+  // API)
 }
 
