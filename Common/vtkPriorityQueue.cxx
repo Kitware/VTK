@@ -15,7 +15,7 @@
 #include "vtkPriorityQueue.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPriorityQueue, "1.31");
+vtkCxxRevisionMacro(vtkPriorityQueue, "1.32");
 vtkStandardNewMacro(vtkPriorityQueue);
 
 // Instantiate priority queue with default size and extension size of 1000.
@@ -25,14 +25,13 @@ vtkPriorityQueue::vtkPriorityQueue()
   this->Extend = 1000;
   this->Array = NULL;
   this->MaxId = -1;
-  this->ItemLocation = NULL;
+  this->ItemLocation = vtkIdTypeArray::New();
 }
 
 // Allocate priority queue with specified size and amount to extend
 // queue (if reallocation required).
 void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
 {
-  this->ItemLocation = vtkIdTypeArray::New();
   this->ItemLocation->Allocate(sz,ext);
   for (vtkIdType i=0; i < sz; i++)
     {
@@ -52,10 +51,7 @@ void vtkPriorityQueue::Allocate(const vtkIdType sz, const vtkIdType ext)
 // Destructor for the vtkPriorityQueue class
 vtkPriorityQueue::~vtkPriorityQueue()
 {
-  if ( this->ItemLocation )
-    {
-    this->ItemLocation->Delete();
-    }
+  this->ItemLocation->Delete();
   if ( this->Array )
     {
     delete [] this->Array;
@@ -217,14 +213,12 @@ vtkPriorityQueue::Item *vtkPriorityQueue::Resize(const vtkIdType sz)
 void vtkPriorityQueue::Reset()
 {
   this->MaxId = -1;
-  if ( this->ItemLocation != NULL )
+ 
+  for (int i=0; i <= this->ItemLocation->GetMaxId(); i++)
     {
-    for (int i=0; i <= this->ItemLocation->GetMaxId(); i++)
-      {
-      this->ItemLocation->SetValue(i,-1);
-      }
-    this->ItemLocation->Reset();
+    this->ItemLocation->SetValue(i,-1);
     }
+  this->ItemLocation->Reset();
 }
 
 void vtkPriorityQueue::PrintSelf(ostream& os, vtkIndent indent)
