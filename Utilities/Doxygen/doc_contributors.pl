@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-29 18:40:22 barre>
+# Time-stamp: <2002-01-29 22:39:16 barre>
 #
 # Get author and contributors.
 #
@@ -9,7 +9,7 @@
 #   - first release
 
 use Carp;
-use Cwd 'abs_path';
+use Cwd 'abs_path', 'cwd';
 use Getopt::Long;
 use Fcntl;
 use File::Basename;
@@ -37,7 +37,6 @@ my %default =
             "../../Rendering"],
    authors => "authors.txt",
    cachedir => $ENV{TMP} . "/cache",
-   cvsdir => "../..",
    in => 1.0,
    out => 0.5,
    massive => 200,
@@ -55,18 +54,17 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "cvsdir=s", "in=f", "out=f", "massive=i", "max_class_nb=i", "min_class=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
+GetOptions (\%args, "help", "verbose|v", "authors=s", "cachedir=s", "in=f", "out=f", "massive=i", "max_class_nb=i", "min_class=f", "min_contrib=f", "min_gcontrib=f", "relativeto=s", "store=s", "to=s");
 
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 if (exists $args{"help"}) {
     print <<"EOT";
-Usage : $PROGNAME [--help] [--verbose|-v] [--authors file] [--cachedir path] [--cvsdir path] [--in number] [--out number] [--massive number] [--max_class_nb number] [--min_class number] [--min_contrib number] [--min_gcontrib number] [--store file] [--relativeto path] [--to path] [files|directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--authors file] [--cachedir path] [--in number] [--out number] [--massive number] [--max_class_nb number] [--min_class number] [--min_contrib number] [--min_gcontrib number] [--store file] [--relativeto path] [--to path] [files|directories...]
   --help           : this message
   --verbose|-v     : verbose (display filenames while processing)
   --authors file   : use 'file' to read authors list (default: $default{authors})
   --cachedir path  : use 'path' as cache directory for CVS logs (default: $default{cachedir})
-  --cvsdir path    : use 'path' as top CVS source directory (default: $default{cvsdir})
   --in n           : use 'n' as weight for added lines (default: $default{in})
   --out n          : use 'n' as weight for removed lines (default: $default{out})
   --massive n      : use 'n' as minimum threshold for massive commits removal (default: $default{massive})
@@ -89,8 +87,6 @@ $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"authors"} = $default{"authors"} if ! exists $args{"authors"};
 $args{"cachedir"} = $default{"cachedir"} if ! exists $args{"cachedir"};
 $args{"cachedir"} =~ s/[\\\/]*$// if exists $args{"cachedir"};
-$args{"cvsdir"} = $default{"cvsdir"} if ! exists $args{"cvsdir"};
-$args{"cvsdir"} =~ s/[\\\/]*$// if exists $args{"cvsdir"};
 $args{"in"} = $default{"in"} if ! exists $args{"in"};
 $args{"out"} = $default{"out"} if ! exists $args{"out"};
 $args{"massive"} = $default{"massive"} if ! exists $args{"massive"};
@@ -252,6 +248,7 @@ my %log_by_file_revision;
 my %log_revision_by_signature_file;
 
 mkpath($args{"cachedir"});
+mkdir($args{"to"});
 
 my @files_submitted = keys %files;
 my $nb_file_submitted = scalar @files_submitted;
@@ -308,12 +305,12 @@ foreach my $file_name (@files_submitted) {
             $output = <CACHE_FILE>;
             close(CACHE_FILE);
         } else {
-            if ($last_chdir ne $file_name_abs_dir) {
-                chdir($file_name_abs_dir);
-                $last_chdir = $file_name_abs_dir;
-            }
-            print " >> cvs log $base\n" if exists $args{"verbose"};
+            print " >> [$file_name_abs_dir] cvs log $base\n" 
+              if exists $args{"verbose"};
+            my $current = cwd;
+            chdir($file_name_abs_dir);
             $output = qx/cvs log $base/;
+            chdir($current);
             sysopen(CACHE_FILE, 
                     $cache_name, 
                     O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
@@ -531,10 +528,13 @@ while (@classes_names) {
     my $old_slurp = $/;
     undef $/; # slurp mode  
 
-    sysopen(HEADERFILE, 
-            $header, 
-            O_RDONLY|$open_file_as_text)
-      or croak "$PROGNAME: unable to open $header\n";
+    if (!sysopen(HEADERFILE, 
+                 $header, 
+                 O_RDONLY|$open_file_as_text)) {
+        carp "$PROGNAME: unable to open $header\n";
+        next;
+    }
+
     my $headerfile = <HEADERFILE>;
     close(HEADERFILE);
     
@@ -556,7 +556,7 @@ while (@classes_names) {
       join("\n                - ", 
            sort keys %{$classes{$class_name}{'authors'}}) . "\n";
 
-    $doc .= "\n    \@par      Contributed by:\n";
+    $doc .= "\n    \@par      Contributed by (if > " . int(100.0 * $args{"min_contrib"}) . "%):\n";
 
     foreach my $class_contributor (@class_contributors_sorted) {
         my $ratio = 
@@ -572,11 +572,16 @@ while (@classes_names) {
 
     # Write new header
 
-    sysopen(HEADERFILE, $header, 
-            O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)
-      or croak "$PROGNAME: unable to open $header\n";
+    if (!sysopen(HEADERFILE, $header, 
+                 O_WRONLY|O_TRUNC|O_CREAT|$open_file_as_text)) {
+        carp "$PROGNAME: unable to open $header\n";
+        next;
+    }
+
     print HEADERFILE $pre . $block . $post;
     close(HEADERFILE);
+
+    print " >> Updating $header\n" if exists $args{"verbose"};
 
     $nb_updated++;
 }
