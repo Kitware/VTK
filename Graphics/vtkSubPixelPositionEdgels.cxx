@@ -409,7 +409,7 @@ void vtkSubPixelPositionEdgels::SetGradMaps(vtkStructuredPoints *gm)
 
 vtkStructuredPoints *vtkSubPixelPositionEdgels::GetGradMaps()
 {
-  if (this->NumberOfInputs < 1)
+  if (this->NumberOfInputs < 2)
     {
     return NULL;
     }
