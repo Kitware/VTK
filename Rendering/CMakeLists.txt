@@ -358,9 +358,7 @@ IF (VTK_WRAP_TCL)
 
   IF (APPLE)
     ADD_LIBRARY(vtkRenderingTCL SHARED vtkOSXRenderingTclInit.c ${RenderingTCL_SRCS})
-    IF(VTK_APPLE_SHARED_FLAGS_NEEDED)
-      SET_TARGET_PROPERTIES(vtkRenderingTCL PROPERTIES LINK_FLAGS "-init _oft_initRen")
-    ENDIF(VTK_APPLE_SHARED_FLAGS_NEEDED)
+    SET_TARGET_PROPERTIES(vtkRenderingTCL PROPERTIES LINK_FLAGS "-init _oft_initRenOSXInit")
 
   ELSE (APPLE)
     ADD_LIBRARY(vtkRenderingTCL ${RenderingTCL_SRCS})
