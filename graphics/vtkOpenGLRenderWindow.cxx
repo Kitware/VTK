@@ -758,8 +758,9 @@ void vtkOpenGLRenderWindow::SetPixelData(int x1, int y1, int x2, int y2,
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                   2.0 * (GLfloat)(yloop) / this->Size[1] - 1);
+    glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
+                   (2.0 * (GLfloat)(yloop) / this->Size[1] - 1),
+		   -1.0 );
     glMatrixMode( GL_MODELVIEW );
     glPopMatrix();
     glMatrixMode( GL_PROJECTION );
@@ -873,8 +874,9 @@ void vtkOpenGLRenderWindow::SetRGBAPixelData(int x1, int y1, int x2, int y2,
   glMatrixMode( GL_PROJECTION );
   glPushMatrix();
   glLoadIdentity();
-  glRasterPos2f( 2.0 * (GLfloat)(x_low) / this->Size[0] - 1, 
-                 2.0 * (GLfloat)(y_low) / this->Size[1] - 1);
+  glRasterPos3f( (2.0 * (GLfloat)(x_low) / this->Size[0] - 1), 
+                 (2.0 * (GLfloat)(y_low) / this->Size[1] - 1),
+		 -1.0 );
   glMatrixMode( GL_MODELVIEW );
   glPopMatrix();
   glMatrixMode( GL_PROJECTION );
