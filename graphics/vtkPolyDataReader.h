@@ -42,97 +42,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkPolyDataReader - read vtk polygonal data file
 // .SECTION Description
 // vtkPolyDataReader is a source object that reads ASCII or binary 
-// polygonal data files in vtk format. See text for format details.
-
+// polygonal data files in vtk format (see text for format details).
+// The output of this reader is a single vtkPolyData data object.
+// The superclass of this class, vtkDataReader, provides many methods for
+// controlling the reading of the data file, see vtkDataReader for more
+// information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkPolyData vtkDataReader
 
 #ifndef __vtkPolyDataReader_h
 #define __vtkPolyDataReader_h
 
-#include "vtkPolyDataSource.h"
 #include "vtkDataReader.h"
+#include "vtkPolyData.h"
 
-class VTK_EXPORT vtkPolyDataReader : public vtkPolyDataSource
+class VTK_EXPORT vtkPolyDataReader : public vtkDataReader
 {
 public:
   static vtkPolyDataReader *New();
-  vtkTypeMacro(vtkPolyDataReader,vtkPolyDataSource);
+  vtkTypeMacro(vtkPolyDataReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return the MTime also considering the vtkDataReader ivar
-  unsigned long GetMTime();
-
-  // Description:
-  // Set / get the file name of vtk polygonal data file to read.
-  void SetFileName(const char *name);
-  char *GetFileName();
-
-  // Description:
-  // Get the header from the vtk data file.
-  char *GetHeader() {return this->Reader->GetHeader();};
-
-  // Description:
-  // Specify the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(const char *in, int len) {
-      this->Reader->SetBinaryInputString(in,len);};
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
-
-  // Description:
-  // Get the type of file (ASCII or BINARY)
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the scalar data to extract. If not specified, first 
-  // scalar data encountered is extracted.
-  void SetScalarsName(char *name);
-  char *GetScalarsName();
-
-  // Description:
-  // Set / get the name of the vector data to extract. If not specified, first 
-  // vector data encountered is extracted.
-  void SetVectorsName(char *name);
-  char *GetVectorsName();
-
-  // Description:
-  // Set / get the name of the tensor data to extract. If not specified, first 
-  // tensor data encountered is extracted.
-  void SetTensorsName(char *name);
-  char *GetTensorsName();
-
-  // Description:
-  // Set / get the name of the normal data to extract. If not specified, first 
-  // normal data encountered is extracted.
-  void SetNormalsName(char *name);
-  char *GetNormalsName();
-
-  // Description:
-  // Set / get the name of the texture coordinate data to extract. If not
-  // specified, first texture coordinate data encountered is extracted.
-  void SetTCoordsName(char *name);
-  char *GetTCoordsName();
-
-  // Description:
-  // Set / get the name of the lookup table data to extract. If not
-  // specified, uses lookup table named by scalar. Otherwise, this
-  // specification supersedes.
-  void SetLookupTableName(char *name);
-  char *GetLookupTableName();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(char *name);
-  char *GetFieldDataName();
+  // Get the output of this reader.
+  vtkPolyData *GetOutput();
+  void SetOutput(vtkPolyData *output);
 
 protected:
   vtkPolyDataReader();
@@ -141,7 +77,17 @@ protected:
   void operator=(const vtkPolyDataReader&) {};
 
   void Execute();
-  vtkDataReader *Reader;
+
+  // Update extent of PolyData is specified in pieces.  
+  // Since all DataObjects should be able to set UpdateExent as pieces,
+  // just copy output->UpdateExtent  all Inputs.
+  void ComputeInputUpdateExtents(vtkDataObject *output);
+  
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtents method.
+  int ExecutePiece;
+  int ExecuteNumberOfPieces;
+  int ExecuteGhostLevel;
 };
 
 #endif

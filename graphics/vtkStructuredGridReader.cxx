@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkStructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkStructuredGridReader* vtkStructuredGridReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,118 +55,37 @@ vtkStructuredGridReader* vtkStructuredGridReader::New()
   return new vtkStructuredGridReader;
 }
 
-
-
-
 vtkStructuredGridReader::vtkStructuredGridReader()
 {
-  this->Reader = vtkDataReader::New();
-  this->Reader->SetSource(this);
+  this->vtkSource::SetNthOutput(0, vtkStructuredGrid::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
+  this->Outputs[0]->Delete();
+  this->ExecuteExtent[0] = this->ExecuteExtent[2] = this->ExecuteExtent[4] = 0;
+  this->ExecuteExtent[1] = this->ExecuteExtent[3] = this->ExecuteExtent[5] = 0;
 }
 
 vtkStructuredGridReader::~vtkStructuredGridReader()
 {
-  this->Reader->Delete();
 }
 
-unsigned long int vtkStructuredGridReader::GetMTime()
+//----------------------------------------------------------------------------
+vtkStructuredGrid *vtkStructuredGridReader::GetOutput()
 {
-  unsigned long dtime = this->vtkSource::GetMTime();
-  unsigned long rtime = this->Reader->GetMTime();
-  return (dtime > rtime ? dtime : rtime);
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkStructuredGrid *)(this->Outputs[0]);
 }
 
-// Specify file name of vtk polygonal data file to read.
-void vtkStructuredGridReader::SetFileName(const char *name) 
-{
-  this->Reader->SetFileName(name);
-}
-const char *vtkStructuredGridReader::GetFileName() 
-{
-  return this->Reader->GetFileName();
-}
 
-// Get the type of file (VTK_ASCII or VTK_BINARY)
-int vtkStructuredGridReader::GetFileType() 
+//----------------------------------------------------------------------------
+void vtkStructuredGridReader::SetOutput(vtkStructuredGrid *output)
 {
-  return this->Reader->GetFileType();
-}
-
-// Set the name of the scalar data to extract. If not specified, first 
-// scalar data encountered is extracted.
-void vtkStructuredGridReader::SetScalarsName(const char *name) 
-{
-  this->Reader->SetScalarsName(name);
-}
-const char *vtkStructuredGridReader::GetScalarsName() 
-{
-  return this->Reader->GetScalarsName();
-}
-
-// Set the name of the vector data to extract. If not specified, first 
-// vector data encountered is extracted.
-void vtkStructuredGridReader::SetVectorsName(const char *name) 
-{
-  this->Reader->SetVectorsName(name);
-}
-const char *vtkStructuredGridReader::GetVectorsName() 
-{
-  return this->Reader->GetVectorsName();
-}
-
-// Set the name of the tensor data to extract. If not specified, first 
-// tensor data encountered is extracted.
-void vtkStructuredGridReader::SetTensorsName(const char *name) 
-{
-  this->Reader->SetTensorsName(name);
-}
-const char *vtkStructuredGridReader::GetTensorsName() 
-{
-  return this->Reader->GetTensorsName();
-}
-
-// Set the name of the normal data to extract. If not specified, first 
-// normal data encountered is extracted.
-void vtkStructuredGridReader::SetNormalsName(const char *name) 
-{
-  this->Reader->SetNormalsName(name);
-}
-const char *vtkStructuredGridReader::GetNormalsName() 
-{
-  return this->Reader->GetNormalsName();
-}
-
-// Set the name of the texture coordinate data to extract. If not specified,
-// first texture coordinate data encountered is extracted.
-void vtkStructuredGridReader::SetTCoordsName(const char *name) 
-{
-  this->Reader->SetTCoordsName(name);
-}
-const char *vtkStructuredGridReader::GetTCoordsName() 
-{
-  return this->Reader->GetTCoordsName();
-}
-
-// Set the name of the lookup table data to extract. If not specified, uses 
-// lookup table named by scalar. Otherwise, this specification supersedes.
-void vtkStructuredGridReader::SetLookupTableName(const char *name) 
-{
-  this->Reader->SetLookupTableName(name);
-}
-const char *vtkStructuredGridReader::GetLookupTableName() 
-{
-  return this->Reader->GetLookupTableName();
-}
-
-// Set the name of the field data to extract. If not specified, uses 
-// first field data encountered in file.
-void vtkStructuredGridReader::SetFieldDataName(const char *name) 
-{
-  this->Reader->SetFieldDataName(name);
-}
-const char *vtkStructuredGridReader::GetFieldDataName() 
-{
-  return this->Reader->GetFieldDataName();
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 // We just need to read the dimensions
@@ -178,75 +95,73 @@ void vtkStructuredGridReader::ExecuteInformation()
   int done=0;
   vtkStructuredGrid *output = this->GetOutput();
   
-  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+  if (!this->OpenVTKFile() || !this->ReadHeader())
     {
     return;
     }
 
-  //
   // Read structured grid specific stuff
   //
-  if (!this->Reader->ReadString(line))
+  if (!this->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader->CloseVTKFile ();
+    this->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
     {
-    //
     // Make sure we're reading right type of geometry
     //
-    if (!this->Reader->ReadString(line))
+    if (!this->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       } 
 
-    if ( strncmp(this->Reader->LowerCase(line),"structured_grid",15) )
+    if ( strncmp(this->LowerCase(line),"structured_grid",15) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
-    //
+
     // Read keyword and dimensions
     //
     while (!done)
       {
-      if (!this->Reader->ReadString(line))
-	{
-	break;
-	}
+      if (!this->ReadString(line))
+        {
+        break;
+        }
 
-      if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
+      if ( ! strncmp(this->LowerCase(line),"dimensions",10) )
         {
         int ext[6];
-        if (!(this->Reader->Read(ext+1) && 
-	      this->Reader->Read(ext+3) && 
-	      this->Reader->Read(ext+5)))
+        if (!(this->Read(ext+1) && 
+              this->Read(ext+3) && 
+              this->Read(ext+5)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
-	// read dimensions, change to extent;
-	ext[0] = ext[2] = ext[4] = 0;
-	--ext[1];
-	--ext[3];
-	--ext[5];
+        // read dimensions, change to extent;
+        ext[0] = ext[2] = ext[4] = 0;
+        --ext[1];
+        --ext[3];
+        --ext[5];
         output->SetWholeExtent(ext);
-	// That is all we wanted !!!!!!!!!!!!!!!
-	this->Reader->CloseVTKFile();
-	return;
+        // That is all we wanted !!!!!!!!!!!!!!!
+        this->CloseVTKFile();
+        return;
         }
       }
     }
 
   vtkErrorMacro("Could not read dimensions");
-  this->Reader->CloseVTKFile ();
+  this->CloseVTKFile ();
 }
 
 void vtkStructuredGridReader::Execute()
@@ -258,137 +173,128 @@ void vtkStructuredGridReader::Execute()
   vtkStructuredGrid *output = this->GetOutput();
   
   vtkDebugMacro(<<"Reading vtk structured grid file...");
-  if ( this->Debug )
-    {
-    this->Reader->DebugOn();
-    }
-  else
-    {
-    this->Reader->DebugOff();
-    }
 
-  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+  if (!this->OpenVTKFile() || !this->ReadHeader())
     {
     return;
     }
-  //
+
   // Read structured grid specific stuff
   //
-  if (!this->Reader->ReadString(line))
+  if (!this->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader->CloseVTKFile ();
+    this->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
     {
-    //
     // Make sure we're reading right type of geometry
     //
-    if (!this->Reader->ReadString(line))
+    if (!this->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       } 
 
-    if ( strncmp(this->Reader->LowerCase(line),"structured_grid",15) )
+    if ( strncmp(this->LowerCase(line),"structured_grid",15) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
-    //
+
     // Read keyword and number of points
     //
     while (!done)
       {
-      if (!this->Reader->ReadString(line))
-	{
-	break;
-	}
+      if (!this->ReadString(line))
+        {
+        break;
+        }
 
-      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
-	{
-	vtkFieldData* fd = this->Reader->ReadFieldData();
-	output->SetFieldData(fd);
-	fd->Delete(); // ?
-	}
+      if (! strncmp(this->LowerCase(line), "field", 5))
+        {
+        vtkFieldData* fd = this->ReadFieldData();
+        output->SetFieldData(fd);
+        fd->Delete(); // ?
+        }
       else if ( ! strncmp(line, "dimensions",10) )
         {
         int dim[3];
-        if (!(this->Reader->Read(dim) && 
-	      this->Reader->Read(dim+1) && 
-	      this->Reader->Read(dim+2)))
+        if (!(this->Read(dim) && 
+              this->Read(dim+1) && 
+              this->Read(dim+2)))
           {
           vtkErrorMacro(<<"Error reading dimensions!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
         numPts = dim[0] * dim[1] * dim[2];
         output->SetDimensions(dim);
-	numCells = output->GetNumberOfCells();
+        numCells = output->GetNumberOfCells();
         dimsRead = 1;
         }
 
       else if ( ! strncmp(line,"points",6) )
         {
-        if (!this->Reader->Read(&npts))
+        if (!this->Read(&npts))
           {
           vtkErrorMacro(<<"Error reading points!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadPoints(output, npts);
+        this->ReadPoints(output, npts);
         }
 
       else if ( ! strncmp(line, "cell_data", 9) )
         {
-        if (!this->Reader->Read(&ncells))
+        if (!this->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell data!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
         
         if ( ncells != numCells )
           {
           vtkErrorMacro(<<"Number of cells don't match!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadCellData(output, npts);
+        this->ReadCellData(output, npts);
         break; //out of this loop
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader->Read(&numPts))
+        if (!this->Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
         
         if ( npts != numPts )
           {
           vtkErrorMacro(<<"Number of points don't match!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadPointData(output, npts);
+        this->ReadPointData(output, npts);
         break; //out of this loop
         }
 
       else
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
-        this->Reader->CloseVTKFile ();
+        this->CloseVTKFile ();
         return;
         }
       }
@@ -400,45 +306,35 @@ void vtkStructuredGridReader::Execute()
   else if ( !strncmp(line, "cell_data", 9) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader->Read(&ncells))
+    if (!this->Read(&ncells))
       {
       vtkErrorMacro(<<"Cannot read cell data!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
-    this->Reader->ReadCellData(output, ncells);
+    this->ReadCellData(output, ncells);
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader->Read(&npts))
+    if (!this->Read(&npts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
-    this->Reader->ReadPointData(output, npts);
+    this->ReadPointData(output, npts);
     }
 
   else 
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
-    this->Reader->CloseVTKFile ();
+    this->CloseVTKFile ();
 }
 
-static int recursing = 0;
 void vtkStructuredGridReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // the reader ivar's source will be this reader. 
-  // We must do this to prevent infinite printing
-  if (!recursing)
-    { 
-    vtkStructuredGridSource::PrintSelf(os,indent);
-    recursing = 1;
-    os << indent << "Reader:\n";
-    this->Reader->PrintSelf(os,indent.GetNextIndent());
-    }
-  recursing = 0;
+  vtkDataReader::PrintSelf(os,indent);
 }

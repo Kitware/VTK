@@ -42,93 +42,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkRectilinearGridReader - read vtk rectilinear grid data file
 // .SECTION Description
 // vtkRectilinearGridReader is a source object that reads ASCII or binary 
-// rectilinear grid data files in vtk format. See text for format details.
-
+// rectilinear grid data files in vtk format (see text for format details).
+// The output of this reader is a single vtkRectilinearGrid data object.
+// The superclass of this class, vtkDataReader, provides many methods for
+// controlling the reading of the data file, see vtkDataReader for more
+// information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkRectilinearGrid vtkDataReader
 
 #ifndef __vtkRectilinearGridReader_h
 #define __vtkRectilinearGridReader_h
 
-#include "vtkRectilinearGridSource.h"
 #include "vtkDataReader.h"
+#include "vtkRectilinearGrid.h"
 
-class VTK_EXPORT vtkRectilinearGridReader : public vtkRectilinearGridSource
+class VTK_EXPORT vtkRectilinearGridReader : public vtkDataReader
 {
 public:
   static vtkRectilinearGridReader *New();
-  vtkTypeMacro(vtkRectilinearGridReader,vtkRectilinearGridSource);
+  vtkTypeMacro(vtkRectilinearGridReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return the MTime also considering the vtkDataReader ivar
-  unsigned long GetMTime();
-
-  // Description:
-  // Set / get file name of vtk polygonal data file to read.
-  void SetFileName(const char *name);
-  const char *GetFileName();
-
-  // Description:
-  // Specify the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(const char *in, int len) {
-      this->Reader->SetBinaryInputString(in,len);};
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
-
-  // Description:
-  // Get the type of file (VTK_ASCII or VTK_BINARY)
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the scalar data to extract. If not specified, first 
-  // scalar data encountered is extracted.
-  void SetScalarsName(char *name);
-  char *GetScalarsName();
-
-  // Description:
-  // Set / get the name of the vector data to extract. If not specified, first 
-  // vector data encountered is extracted.
-  void SetVectorsName(char *name);
-  char *GetVectorsName();
-
-  // Description:
-  // Set / get the name of the tensor data to extract. If not specified, first 
-  // tensor data encountered is extracted.
-  void SetTensorsName(char *name);
-  char *GetTensorsName();
-
-  // Description:
-  // Set / get the name of the normal data to extract. If not specified, first 
-  // normal data encountered is extracted.
-  void SetNormalsName(char *name);
-  char *GetNormalsName();
-
-  // Description:
-  // Set / get the name of the texture coordinate data to extract. If not
-  // specified, first texture coordinate data encountered is extracted.
-  void SetTCoordsName(char *name);
-  char *GetTCoordsName();
-
-  // Description:
-  // Set / get the name of the lookup table data to extract. If not
-  // specified, uses lookup table named by scalar. Otherwise, this
-  // specification supersedes.
-  void SetLookupTableName(char *name);
-  char *GetLookupTableName();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(char *name);
-  char *GetFieldDataName();
+  // Get and set the output of this reader.
+  vtkRectilinearGrid *GetOutput();
+  void SetOutput(vtkRectilinearGrid *output);
 
 protected:
   vtkRectilinearGridReader();
@@ -138,7 +78,10 @@ protected:
 
   void Execute();
   void ExecuteInformation();
-  vtkDataReader *Reader;
+
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtent method.
+  int ExecuteExtent[6];
 
 };
 

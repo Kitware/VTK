@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkDataObjectReader.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkDataObjectReader* vtkDataObjectReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,41 +55,34 @@ vtkDataObjectReader* vtkDataObjectReader::New()
   return new vtkDataObjectReader;
 }
 
-
-
-
 vtkDataObjectReader::vtkDataObjectReader()
 {
-  this->Reader = vtkDataReader::New();
-  this->Reader->SetSource(this);
+  this->SetOutput(vtkDataObject::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
+  this->Outputs[0]->Delete();
 }
 
 vtkDataObjectReader::~vtkDataObjectReader()
 {
-  this->Reader->Delete();
 }
 
-unsigned long int vtkDataObjectReader::GetMTime()
+//----------------------------------------------------------------------------
+vtkDataObject *vtkDataObjectReader::GetOutput()
 {
-  unsigned long dtime = this->vtkDataObjectSource::GetMTime();
-  unsigned long rtime = this->Reader->GetMTime();
-  return (dtime > rtime ? dtime : rtime);
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkDataObject *)(this->Outputs[0]);
 }
 
-// Specify file name of vtk field data file to read.
-void vtkDataObjectReader::SetFileName(const char *name) 
+//----------------------------------------------------------------------------
+void vtkDataObjectReader::SetOutput(vtkDataObject *output)
 {
-  this->Reader->SetFileName(name);
-}
-char *vtkDataObjectReader::GetFileName() 
-{
-  return this->Reader->GetFileName();
-}
-
-// Get the type of file (ASCII or BINARY)
-int vtkDataObjectReader::GetFileType() 
-{
-  return this->Reader->GetFileType();
+  this->vtkSource::SetNthOutput(0, output);
 }
 
 void vtkDataObjectReader::Execute()
@@ -101,27 +92,18 @@ void vtkDataObjectReader::Execute()
 
   vtkDebugMacro(<<"Reading vtk field data...");
 
-  if ( this->Debug )
-    {
-    this->Reader->DebugOn();
-    }
-  else
-    {
-    this->Reader->DebugOff();
-    }
-
-  if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
+  if ( !(this->OpenVTKFile()) || !this->ReadHeader())
     {
     return;
     }
 
   // Read field data until end-of-file
   //
-  while (this->Reader->ReadString(line) && !field )
+  while (this->ReadString(line) && !field )
     {
-    if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
+    if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
       {
-      field = this->Reader->ReadFieldData(); //reads named field (or first found)
+      field = this->ReadFieldData(); //reads named field (or first found)
       if ( field != NULL )
 	{
 	this->GetOutput()->SetFieldData(field);
@@ -129,58 +111,26 @@ void vtkDataObjectReader::Execute()
 	}
       }
 
-    else if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+    else if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
       {
       vtkErrorMacro(<<"Field reader cannot read datasets");
-      this->Reader->CloseVTKFile();
+      this->CloseVTKFile();
       return;
       }
 
     else 
       {
       vtkErrorMacro(<< "Unrecognized keyword: " << line);
-      this->Reader->CloseVTKFile();
+      this->CloseVTKFile();
       return;
       }
     }
   //while field not read
 
-  this->Reader->CloseVTKFile();
-}
-
-// Set the name of the field data to extract. If not specified, uses 
-// first field data encountered in file.
-void vtkDataObjectReader::SetFieldDataName(char *name) 
-{
-  this->Reader->SetFieldDataName(name);
-}
-char *vtkDataObjectReader::GetFieldDataName() 
-{
-  return this->Reader->GetFieldDataName();
+  this->CloseVTKFile();
 }
 
 void vtkDataObjectReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataObjectSource::PrintSelf(os,indent);
-
-  os << indent << "File Name: " 
-     << (this->Reader->GetFileName() ? this->Reader->GetFileName() : "(none)") << "\n";
-
-  if ( this->Reader->GetFileType() == VTK_BINARY )
-    {
-    os << indent << "File Type: BINARY\n";
-    }
-  else
-    {
-    os << indent << "File Type: ASCII\n";
-    }
-
-  if ( this->Reader->GetFieldDataName() )
-    {
-    os << indent << "Field Data Name: " << this->Reader->GetFieldDataName() << "\n";
-    }
-  else
-    {
-    os << indent << "Field Data Name: (None)\n";
-    }
+  vtkDataReader::PrintSelf(os,indent);
 }

@@ -41,16 +41,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkDataSetReader - class to read any type of vtk dataset
 // .SECTION Description
-// vtkDataSetReader is a class that provides instance variables 
-// and methods to read any type of dataset in Visualization Toolkit (vtk) format. 
-// The output type of this class will vary depending upon the type of data
+// vtkDataSetReader is a class that provides instance variables and methods
+// to read any type of dataset in Visualization Toolkit (vtk) format.  The
+// output type of this class will vary depending upon the type of data
 // file. Convenience methods are provided to keep the data as a particular
-// type.
+// type. (See text for format description details).
+// The superclass of this class, vtkDataReader, provides many methods for
+// controlling the reading of the data file, see vtkDataReader for more
+// information.
+// .SECTION Caveats
+// Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkDataReader vtkPolyDataReader vtkRectilinearGridReader 
+// vtkStructuredPointsReader vtkStructuredGridReader vtkUnstructuredGridReader
 
 #ifndef __vtkDataSetReader_h
 #define __vtkDataSetReader_h
 
-#include "vtkSource.h"
 #include "vtkDataReader.h"
 
 class vtkPolyData;
@@ -59,77 +66,12 @@ class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkDataSetReader : public vtkSource
+class VTK_EXPORT vtkDataSetReader : public vtkDataReader
 {
 public:
   static vtkDataSetReader *New();
   vtkTypeMacro(vtkDataSetReader,vtkSource);
   void PrintSelf(ostream& os, vtkIndent indent);
-  unsigned long int GetMTime();
-
-  // Description:
-  // Set / get the file name of vtk data file to read.
-  void SetFileName(const char *name);
-  const char *GetFileName();
-
-  // Description:
-  // Specify the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  const char *GetInputString() { return this->Reader->GetInputString();}
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i){this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
-
-  // Description:
-  // Get the type of file (VTK_ASCII or VTK_BINARY).
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the scalar data to extract. If not specified,
-  // first scalar data encountered is extracted.
-  void SetScalarsName(const char *name);
-  const char *GetScalarsName();
-
-  // Description:
-  // Set / get the name of the vector data to extract. If not specified,
-  // first vector data encountered is extracted.
-  void SetVectorsName(const char *name);
-  const char *GetVectorsName();
-
-  // Description:
-  // Set / get the name of the tensor data to extract. If not specified,
-  // first tensor data encountered is extracted.
-  void SetTensorsName(const char *name);
-  const char *GetTensorsName();
-
-  // Description:
-  // Set / get the name of the normal data to extract. If not specified,
-  // first normal data encountered is extracted.
-  void SetNormalsName(const char *name);
-  const char *GetNormalsName();
-
-  // Description:
-  // Set / get the name of the texture coordinate data to extract. If not
-  // specified, first texture coordinate data encountered is extracted.
-  void SetTCoordsName(const char *name);
-  const char *GetTCoordsName();
-
-  // Description:
-  // Set / get the name of the lookup table data to extract. If not
-  // specified, uses lookup table named by scalar. Otherwise, this
-  // specification supersedes.
-  void SetLookupTableName(const char *name);
-  const char *GetLookupTableName();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(const char *name);
-  const char *GetFieldDataName();
 
   // Description:
   // Get the output of this source as a general vtkDataSet. Since we need 
@@ -142,9 +84,9 @@ public:
   // Description:
   // Get the output as various concrete types. This method is typically used
   // when you know exactly what type of data is being read.  Otherwise, use
-  // the general GetOutput() method. If the wrong type is used NULL is returned.
-  // (You must also set the filename of the object prior
-  // to getting the output.)  
+  // the general GetOutput() method. If the wrong type is used NULL is
+  // returned.  (You must also set the filename of the object prior to
+  // getting the output.)
   vtkPolyData *GetPolyDataOutput();
   vtkStructuredPoints *GetStructuredPointsOutput();
   vtkStructuredGrid *GetStructuredGridOutput();

@@ -11,18 +11,15 @@ source $VTK_TCL/vtkInt.tcl
 
 # create pipeline
 #
-vtkDataReader infoReader
-    infoReader SetFileName "$VTK_DATA/polyEx.vtk"
-    set numScalars [infoReader GetNumberOfScalarsInFile]
-    set numVectors [infoReader GetNumberOfVectorsInFile]
-    set numNormals [infoReader GetNumberOfNormalsInFile]
-    infoReader Modified
-    set numScalars [infoReader GetNumberOfScalarsInFile]
-    set scalar0 [infoReader GetScalarsNameInFile 1]
-
 vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA/polyEx.vtk"
     reader SetScalarsName $scalar0
+    set numScalars [reader GetNumberOfScalarsInFile]
+    set numVectors [reader GetNumberOfVectorsInFile]
+    set numNormals [reader GetNumberOfNormalsInFile]
+    reader Modified
+    set numScalars [reader GetNumberOfScalarsInFile]
+    set scalar0 [reader GetScalarsNameInFile 1]
 
 vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]

@@ -42,96 +42,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkStructuredGridReader - read vtk structured grid data file
 // .SECTION Description
 // vtkStructuredGridReader is a source object that reads ASCII or binary 
-// structured grid data files in vtk format. See text for format details.
+// structured grid data files in vtk format. (see text for format details).
+// The output of this reader is a single vtkStructuredGrid data object.
+// The superclass of this class, vtkDataReader, provides many methods for
+// controlling the reading of the data file, see vtkDataReader for more
+// information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkStructuredGrid vtkDataReader
 
 #ifndef __vtkStructuredGridReader_h
 #define __vtkStructuredGridReader_h
 
-#include "vtkStructuredGridSource.h"
 #include "vtkDataReader.h"
+#include "vtkStructuredGrid.h"
 
-class VTK_EXPORT vtkStructuredGridReader : public vtkStructuredGridSource
+class VTK_EXPORT vtkStructuredGridReader : public vtkDataReader
 {
 public:
   static vtkStructuredGridReader *New();
-  vtkTypeMacro(vtkStructuredGridReader,vtkStructuredGridSource);
+  vtkTypeMacro(vtkStructuredGridReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return MTime also considering the vtkDataReader ivar
-  unsigned long GetMTime();
-
-  // Description:
-  // Set / get file name of vtk polygonal data file to read.
-  void SetFileName(const char *name);
-  const char *GetFileName();
-
-  // Description:
-  // Get the header from the vtk data file.
-  const char *GetHeader() {return this->Reader->GetHeader();};
-
-  // Description:
-  // Set / get the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  const char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(const char *in, int len) {
-      this->Reader->SetBinaryInputString(in,len);};
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
-
-  // Description:
-  // Get the type of file (VTK_ASCII or VTK_BINARY)
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the scalar data to extract. If not specified, first 
-  // scalar data encountered is extracted.
-  void SetScalarsName(const char *name);
-  const char *GetScalarsName();
-
-  // Description:
-  // Set / get the name of the vector data to extract. If not specified, first 
-  // vector data encountered is extracted.
-  void SetVectorsName(const char *name);
-  const char *GetVectorsName();
-
-  // Description:
-  // Set / get the name of the tensor data to extract. If not specified, first 
-  // tensor data encountered is extracted.
-  void SetTensorsName(const char *name);
-  const char *GetTensorsName();
-
-  // Description:
-  // Set / get the name of the normal data to extract. If not specified, first 
-  // normal data encountered is extracted.
-  void SetNormalsName(const char *name);
-  const char *GetNormalsName();
-
-  // Description:
-  // Set / get the name of the texture coordinate data to extract. If not
-  // specified, first texture coordinate data encountered is extracted.
-  void SetTCoordsName(const char *name);
-  const char *GetTCoordsName();
-
-  // Description:
-  // Set / get the name of the lookup table data to extract. If not
-  // specified, uses lookup table named by scalar. Otherwise, this
-  // specification supersedes.
-  void SetLookupTableName(const char *name);
-  const char *GetLookupTableName();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(const char *name);
-  const char *GetFieldDataName();
+  // Get the output of this reader.
+  vtkStructuredGrid *GetOutput();
+  void SetOutput(vtkStructuredGrid *output);  
 
 protected:
   vtkStructuredGridReader();
@@ -141,8 +78,11 @@ protected:
 
   void ExecuteInformation();
   void Execute();
-  vtkDataReader *Reader;
 
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtents method
+  // (in filter subclasses).
+  int ExecuteExtent[6];
 };
 
 #endif

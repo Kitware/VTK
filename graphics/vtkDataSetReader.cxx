@@ -47,9 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkUnstructuredGridReader.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//--------------------------------------------------------------------------
 vtkDataSetReader* vtkDataSetReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -62,20 +60,12 @@ vtkDataSetReader* vtkDataSetReader::New()
   return new vtkDataSetReader;
 }
 
-
-
-
-
 vtkDataSetReader::vtkDataSetReader()
 {
-  this->Reader = vtkDataReader::New();
-  this->Reader->SetSource(this);
 }
 
 vtkDataSetReader::~vtkDataSetReader()
 {
-  this->Reader->Delete();
-  this->Reader = NULL;
 }
 
 vtkDataSet * vtkDataSetReader::GetOutput() 
@@ -89,9 +79,9 @@ vtkDataSet * vtkDataSetReader::GetOutput()
   
   // The filename might have changed (changing the output).
   // We need to re execute.
-  if (this->Reader->GetFileName() == NULL && 
-      (this->Reader->GetReadFromInputString() == 0 || 
-       this->Reader->GetInputString() == NULL))
+  if (this->GetFileName() == NULL && 
+      (this->GetReadFromInputString() == 0 || 
+       this->GetInputString() == NULL))
     {
     vtkWarningMacro(<< "FileName must be set");
     return (vtkDataSet *) NULL;
@@ -108,113 +98,6 @@ vtkDataSet * vtkDataSetReader::GetOutput()
     }
 }
 
-unsigned long int vtkDataSetReader::GetMTime()
-{
-  unsigned long int t1, t2;
-  
-  t1 = this->vtkSource::GetMTime();
-  t2 = this->Reader->GetMTime();
-  if (t2 > t1)
-    {
-    t1 = t2;
-    }
-  return t1;
-}
-
-// Specify file name of vtk data file to read.
-void vtkDataSetReader::SetFileName(const char *name) 
-{
-  this->Reader->SetFileName(name);
-}
-
-const char *vtkDataSetReader::GetFileName() 
-{
-  return this->Reader->GetFileName();
-}
-
-// Get the type of file (VTK_ASCII or VTK_BINARY).
-int vtkDataSetReader::GetFileType() 
-{
-  return this->Reader->GetFileType();
-}
-
-// Set the name of the scalar data to extract. If not specified, first 
-// scalar data encountered is extracted.
-void vtkDataSetReader::SetScalarsName(const char *name) 
-{
-  this->Reader->SetScalarsName(name);
-}
-const char *vtkDataSetReader::GetScalarsName() 
-{
-  return this->Reader->GetScalarsName();
-}
-
-// Set the name of the vector data to extract. If not specified, first 
-// vector data encountered is extracted.
-void vtkDataSetReader::SetVectorsName(const char *name) 
-{
-  this->Reader->SetVectorsName(name);
-}
-const char *vtkDataSetReader::GetVectorsName() 
-{
-  return this->Reader->GetVectorsName();
-}
-
-// Set the name of the tensor data to extract. If not specified, first 
-// tensor data encountered is extracted.
-void vtkDataSetReader::SetTensorsName(const char *name) 
-{
-  this->Reader->SetTensorsName(name);
-}
-const char *vtkDataSetReader::GetTensorsName() 
-{
-  return this->Reader->GetTensorsName();
-}
-
-// Set the name of the normal data to extract. If not specified, first 
-// normal data encountered is extracted.
-void vtkDataSetReader::SetNormalsName(const char *name) 
-{
-  this->Reader->SetNormalsName(name);
-}
-const char *vtkDataSetReader::GetNormalsName() 
-{
-  return this->Reader->GetNormalsName();
-}
-
-// Set the name of the texture coordinate data to extract. If not specified,
-// first texture coordinate data encountered is extracted.
-void vtkDataSetReader::SetTCoordsName(const char *name) 
-{
-  this->Reader->SetTCoordsName(name);
-}
-const char *vtkDataSetReader::GetTCoordsName() 
-{
-  return this->Reader->GetTCoordsName();
-}
-
-// Set the name of the lookup table data to extract. If not specified, uses 
-// lookup table named by scalar. Otherwise, this specification supersedes.
-void vtkDataSetReader::SetLookupTableName(const char *name) 
-{
-  this->Reader->SetLookupTableName(name);
-}
-const char *vtkDataSetReader::GetLookupTableName() 
-{
-  return this->Reader->GetLookupTableName();
-}
-
-// Set the name of the field data to extract. If not specified, uses 
-// first field data encountered in file.
-void vtkDataSetReader::SetFieldDataName(const char *name) 
-{
-  this->Reader->SetFieldDataName(name);
-}
-const char *vtkDataSetReader::GetFieldDataName() 
-{
-  return this->Reader->GetFieldDataName();
-}
-
 void vtkDataSetReader::Execute()
 {
   char line[256];
@@ -222,41 +105,32 @@ void vtkDataSetReader::Execute()
   
   vtkDebugMacro(<<"Reading vtk dataset...");
 
-  if ( this->Debug ) 
-    {
-    this->Reader->DebugOn();
-    }
-  else 
-    {
-    this->Reader->DebugOff();
-    }
-  if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+  if (!this->OpenVTKFile() || !this->ReadHeader())
     {
     return;
     }
 
   // Determine dataset type
   //
-  if (!this->Reader->ReadString(line))
+  if (!this->ReadString(line))
     {
     vtkErrorMacro(<< "Premature EOF reading dataset keyword");
     return;
     }
 
-  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
     {
-
     // See if type is recognized.
     //
-    if (!this->Reader->ReadString(line))
+    if (!this->ReadString(line))
       {
       vtkErrorMacro(<< "Premature EOF reading type");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
 
-    this->Reader->CloseVTKFile();
-    if ( ! strncmp(this->Reader->LowerCase(line),"polydata",8) )
+    this->CloseVTKFile();
+    if ( ! strncmp(this->LowerCase(line),"polydata",8) )
       {
       vtkPolyDataReader *preader = vtkPolyDataReader::New();
       // Can we use the old output?
@@ -265,17 +139,17 @@ void vtkDataSetReader::Execute()
 	{
 	preader->SetOutput((vtkPolyData *)(output));
 	}
-      preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString(),
-			      this->Reader->GetInputStringLength());
-      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
-      preader->SetScalarsName(this->Reader->GetScalarsName());
-      preader->SetVectorsName(this->Reader->GetVectorsName());
-      preader->SetNormalsName(this->Reader->GetNormalsName());
-      preader->SetTensorsName(this->Reader->GetTensorsName());
-      preader->SetTCoordsName(this->Reader->GetTCoordsName());
-      preader->SetLookupTableName(this->Reader->GetLookupTableName());
-      preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->SetFileName(this->GetFileName());
+      preader->SetInputString(this->GetInputString(),
+			      this->GetInputStringLength());
+      preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetScalarsName(this->GetScalarsName());
+      preader->SetVectorsName(this->GetVectorsName());
+      preader->SetNormalsName(this->GetNormalsName());
+      preader->SetTensorsName(this->GetTensorsName());
+      preader->SetTCoordsName(this->GetTCoordsName());
+      preader->SetLookupTableName(this->GetLookupTableName());
+      preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetNthOutput(0, preader->GetOutput());
@@ -291,17 +165,17 @@ void vtkDataSetReader::Execute()
 	{
 	preader->SetOutput((vtkStructuredPoints *)(output));
 	}
-      preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString(),
-			      this->Reader->GetInputStringLength());
-      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
-      preader->SetScalarsName(this->Reader->GetScalarsName());
-      preader->SetVectorsName(this->Reader->GetVectorsName());
-      preader->SetNormalsName(this->Reader->GetNormalsName());
-      preader->SetTensorsName(this->Reader->GetTensorsName());
-      preader->SetTCoordsName(this->Reader->GetTCoordsName());
-      preader->SetLookupTableName(this->Reader->GetLookupTableName());
-      preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->SetFileName(this->GetFileName());
+      preader->SetInputString(this->GetInputString(),
+			      this->GetInputStringLength());
+      preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetScalarsName(this->GetScalarsName());
+      preader->SetVectorsName(this->GetVectorsName());
+      preader->SetNormalsName(this->GetNormalsName());
+      preader->SetTensorsName(this->GetTensorsName());
+      preader->SetTCoordsName(this->GetTCoordsName());
+      preader->SetLookupTableName(this->GetLookupTableName());
+      preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetNthOutput(0, preader->GetOutput());
@@ -317,17 +191,17 @@ void vtkDataSetReader::Execute()
 	{
 	preader->SetOutput((vtkStructuredGrid *)(output));
 	}
-      preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString(),
-			      this->Reader->GetInputStringLength());
-      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
-      preader->SetScalarsName(this->Reader->GetScalarsName());
-      preader->SetVectorsName(this->Reader->GetVectorsName());
-      preader->SetNormalsName(this->Reader->GetNormalsName());
-      preader->SetTensorsName(this->Reader->GetTensorsName());
-      preader->SetTCoordsName(this->Reader->GetTCoordsName());
-      preader->SetLookupTableName(this->Reader->GetLookupTableName());
-      preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->SetFileName(this->GetFileName());
+      preader->SetInputString(this->GetInputString(),
+			      this->GetInputStringLength());
+      preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetScalarsName(this->GetScalarsName());
+      preader->SetVectorsName(this->GetVectorsName());
+      preader->SetNormalsName(this->GetNormalsName());
+      preader->SetTensorsName(this->GetTensorsName());
+      preader->SetTCoordsName(this->GetTCoordsName());
+      preader->SetLookupTableName(this->GetLookupTableName());
+      preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetNthOutput(0, preader->GetOutput());
@@ -343,17 +217,17 @@ void vtkDataSetReader::Execute()
 	{
 	preader->SetOutput((vtkRectilinearGrid *)(output));
 	}
-      preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString(),
-			      this->Reader->GetInputStringLength());
-      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
-      preader->SetScalarsName(this->Reader->GetScalarsName());
-      preader->SetVectorsName(this->Reader->GetVectorsName());
-      preader->SetNormalsName(this->Reader->GetNormalsName());
-      preader->SetTensorsName(this->Reader->GetTensorsName());
-      preader->SetTCoordsName(this->Reader->GetTCoordsName());
-      preader->SetLookupTableName(this->Reader->GetLookupTableName());
-      preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->SetFileName(this->GetFileName());
+      preader->SetInputString(this->GetInputString(),
+			      this->GetInputStringLength());
+      preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetScalarsName(this->GetScalarsName());
+      preader->SetVectorsName(this->GetVectorsName());
+      preader->SetNormalsName(this->GetNormalsName());
+      preader->SetTensorsName(this->GetTensorsName());
+      preader->SetTCoordsName(this->GetTCoordsName());
+      preader->SetLookupTableName(this->GetLookupTableName());
+      preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetNthOutput(0, preader->GetOutput());
@@ -369,17 +243,17 @@ void vtkDataSetReader::Execute()
 	{
 	preader->SetOutput((vtkUnstructuredGrid *)(output));
 	}
-      preader->SetFileName(this->Reader->GetFileName());
-      preader->SetInputString(this->Reader->GetInputString(),
-			      this->Reader->GetInputStringLength());
-      preader->SetReadFromInputString(this->Reader->GetReadFromInputString());
-      preader->SetScalarsName(this->Reader->GetScalarsName());
-      preader->SetVectorsName(this->Reader->GetVectorsName());
-      preader->SetNormalsName(this->Reader->GetNormalsName());
-      preader->SetTensorsName(this->Reader->GetTensorsName());
-      preader->SetTCoordsName(this->Reader->GetTCoordsName());
-      preader->SetLookupTableName(this->Reader->GetLookupTableName());
-      preader->SetFieldDataName(this->Reader->GetFieldDataName());
+      preader->SetFileName(this->GetFileName());
+      preader->SetInputString(this->GetInputString(),
+			      this->GetInputStringLength());
+      preader->SetReadFromInputString(this->GetReadFromInputString());
+      preader->SetScalarsName(this->GetScalarsName());
+      preader->SetVectorsName(this->GetVectorsName());
+      preader->SetNormalsName(this->GetNormalsName());
+      preader->SetTensorsName(this->GetTensorsName());
+      preader->SetTCoordsName(this->GetTCoordsName());
+      preader->SetLookupTableName(this->GetLookupTableName());
+      preader->SetFieldDataName(this->GetFieldDataName());
       preader->Update();
       // whether we used the old output or not, we need to set the output.
       this->SetNthOutput(0, preader->GetOutput());
@@ -393,7 +267,7 @@ void vtkDataSetReader::Execute()
       }
     }
 
-  else if ( !strncmp(this->Reader->LowerCase(line),"field",(unsigned long)5) )
+  else if ( !strncmp(this->LowerCase(line),"field",(unsigned long)5) )
     {
     vtkErrorMacro(<<"This object can only read datasets, not fields");
     }
@@ -402,7 +276,6 @@ void vtkDataSetReader::Execute()
     {
     vtkErrorMacro(<<"Expecting DATASET keyword, got " << line << " instead");
     }
-  
 
   return;
 }
@@ -443,16 +316,7 @@ void vtkDataSetReader::Update()
     }
 }
 
-static int recursing = 0;
 void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
-  if (!recursing)
-    { 
-    vtkSource::PrintSelf(os,indent);
-    recursing = 1;
-    os << indent << "Reader:\n";
-    this->Reader->PrintSelf(os,indent.GetNextIndent());
-    }
-    recursing = 0;
+  vtkDataReader::PrintSelf(os,indent);
 }

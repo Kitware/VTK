@@ -98,7 +98,6 @@ vtkDataReader::vtkDataReader()
   this->InputStringPos = 0;
   this->ReadFromInputString = 0;
   this->IS = NULL;
-  this->Source = NULL;
   this->Header = NULL;
 
   this->NumberOfScalarsInFile = 0;
@@ -177,17 +176,6 @@ vtkDataReader::~vtkDataReader()
 
   this->InitializeCharacteristics();
 }
-
-// no reference counting
-void vtkDataReader::SetSource(vtkSource *source)
-{
-  if (this->Source != source)
-    {
-    this->Source = source;
-    this->Modified();
-    }
-}
-
 
 void vtkDataReader::SetInputString(const char *in)
 { 
@@ -496,11 +484,8 @@ int vtkDataReader::ReadHeader()
     this->ReadString(line);
     }
 
-  if (this->Source)
-    {
-    float progress=this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress=this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
   
   return 1;
 }
@@ -1103,11 +1088,8 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     }
 
   vtkDebugMacro(<<"Read " << ps->GetNumberOfPoints() << " points");
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1157,11 +1139,8 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
   coords->Delete();
 
   vtkDebugMacro(<<"Read " << coords->GetNumberOfScalars() << " coordinates");
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1244,11 +1223,8 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
   
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1292,11 +1268,8 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1341,11 +1314,8 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1388,11 +1358,8 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1436,11 +1403,8 @@ int vtkDataReader::ReadGhostLevelData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1525,11 +1489,8 @@ int vtkDataReader::ReadCoScalarData(vtkDataSetAttributes *a, int numPts)
       }
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1583,11 +1544,8 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     return 0;
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1653,12 +1611,8 @@ int vtkDataReader::ReadLutData(vtkDataSetAttributes *a)
     }
   lut->Delete();
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
-
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1696,11 +1650,8 @@ int vtkDataReader::ReadCells(int size, int *data)
       }
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -1807,11 +1758,8 @@ int vtkDataReader::ReadCells(int size, int *data,
       }
     }
 
-  if ( this->Source )
-    {
-    float progress = this->Source->GetProgress();
-    this->Source->UpdateProgress(progress + 0.5*(1.0 - progress));
-    }
+  float progress = this->GetProgress();
+  this->UpdateProgress(progress + 0.5*(1.0 - progress));
 
   return 1;
 }
@@ -2167,7 +2115,7 @@ const char *vtkDataReader::GetGhostLevelsNameInFile(int i)
 
 void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkObject::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
@@ -2189,15 +2137,6 @@ void vtkDataReader::PrintSelf(ostream& os, vtkIndent indent)
   else
     {
     os << indent << "Header: (None)\n";
-    }
-
-  if ( this->Source )
-    {
-    this->Source->PrintSelf(os,indent);
-    }
-  else
-    {
-      os << indent << "Source: (none)\n";
     }
 
   os << indent << "ReadFromInputString: " << (this->ReadFromInputString ? "On\n" : "Off\n");

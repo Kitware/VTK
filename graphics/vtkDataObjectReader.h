@@ -41,60 +41,35 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 // .NAME vtkDataObjectReader - read vtk field data file
 // .SECTION Description
-// vtkDataObjectReader is a source object that reads ASCII or binary 
-// field data files in vtk format. Fields are general matrix structures used
-// represent complex data.
-
+// vtkDataObjectReader is a source object that reads ASCII or binary field
+// data files in vtk format. Fields are general matrix structures used
+// represent complex data. (See text for format details).  The output of this
+// reader is a single vtkDataObject.  The superclass of this class,
+// vtkDataReader, provides many methods for controlling the reading of the
+// data file, see vtkDataReader for more information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
-
 // .SECTION See Also
-// vtkFieldData vtkFieldDataWriter
+// vtkFieldData vtkDataObjectWriter
 
 #ifndef __vtkDataObjectReader_h
 #define __vtkDataObjectReader_h
 
-#include "vtkDataObjectSource.h"
 #include "vtkDataReader.h"
+#include "vtkDataObject.h"
 
-class VTK_EXPORT vtkDataObjectReader : public vtkDataObjectSource
+class VTK_EXPORT vtkDataObjectReader : public vtkDataReader
 {
 public:
   static vtkDataObjectReader *New();
-  vtkTypeMacro(vtkDataObjectReader,vtkDataObjectSource);
+  vtkTypeMacro(vtkDataObjectReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return the MTime also considering the vtkDataReader ivar
-  unsigned long GetMTime();
-
-  // Description:
-  // Set / get file name of vtk field data file to read.
-  void SetFileName(const char *name);
-  char *GetFileName();
-
-  // Description:
-  // Set / get the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  char *GetInputString() { return this->Reader->GetInputString();}
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
-
-  // Description:
-  // Get the type of file (ASCII or BINARY)
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(char *name);
-  char *GetFieldDataName();
-
+  // Get the output field of this reader.
+  vtkDataObject *GetOutput();
+  void SetOutput(vtkDataObject *);
+  
 protected:
   vtkDataObjectReader();
   ~vtkDataObjectReader();
@@ -102,7 +77,6 @@ protected:
   void operator=(const vtkDataObjectReader&) {};
 
   void Execute();
-  vtkDataReader *Reader;
 };
 
 #endif

@@ -42,97 +42,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // .NAME vtkStructuredPointsReader - read vtk structured points data file
 // .SECTION Description
 // vtkStructuredPointsReader is a source object that reads ASCII or binary 
-// structured points data files in vtk format. See text for format details.
+// structured points data files in vtk format (see text for format details).
+// The output of this reader is a single vtkStructuredPoints data object.
+// The superclass of this class, vtkDataReader, provides many methods for
+// controlling the reading of the data file, see vtkDataReader for more
+// information.
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
+// .SECTION See Also
+// vtkStructuredPoints vtkDataReader
 
 #ifndef __vtkStructuredPointsReader_h
 #define __vtkStructuredPointsReader_h
 
-#include "vtkStructuredPointsSource.h"
 #include "vtkDataReader.h"
+#include "vtkStructuredPoints.h"
 
-class VTK_EXPORT vtkStructuredPointsReader : public vtkStructuredPointsSource
+class VTK_EXPORT vtkStructuredPointsReader : public vtkDataReader
 {
 public:
   static vtkStructuredPointsReader *New();
-  vtkTypeMacro(vtkStructuredPointsReader,vtkStructuredPointsSource);
+  vtkTypeMacro(vtkStructuredPointsReader,vtkDataReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Return the MTime also considering the vtkDataReader ivar.
-  unsigned long GetMTime();
-
-  // Description:
-  // Specify file name of vtk structured points data file to read.
-  void SetFileName(const char *name);
-  char *GetFileName();
-
-  // Description:
-  // Get the header from the vtk data file.
-  char *GetHeader() {return this->Reader->GetHeader();};
-
-  // Description:
-  // Specify the InputString for use when reading from a character array.
-  void SetInputString(const char *in) {this->Reader->SetInputString(in);}
-  void SetInputString(const char *in,int len) {this->Reader->SetInputString(in,len);}
-  char *GetInputString() { return this->Reader->GetInputString();}
-  void SetBinaryInputString(const char *in, int len) {
-      this->Reader->SetBinaryInputString(in,len);};
-
-  // Description:
-  // Set/Get reading from an InputString instead of the default, a file.
-  void SetReadFromInputString(int i) {this->Reader->SetReadFromInputString(i);}
-  int GetReadFromInputString() {return this->Reader->GetReadFromInputString();}
-  vtkBooleanMacro(ReadFromInputString,int);
+  // Set/Get the output of this reader.
+  void SetOutput(vtkStructuredPoints *output);
+  vtkStructuredPoints *GetOutput();
   
-  // Description:
-  // Get the type of file (VTK_ASCII or VTK_BINARY).
-  int GetFileType();
-
-  // Description:
-  // Set / get the name of the scalar data to extract. If not specified, first 
-  // scalar data encountered is extracted.
-  void SetScalarsName(char *name);
-  char *GetScalarsName();
-
-  // Description:
-  // Set / get the name of the vector data to extract. If not specified, first 
-  // vector data encountered is extracted.
-  void SetVectorsName(char *name);
-  char *GetVectorsName();
-  
-  // Description:
-  // Set / get the name of the tensor data to extract. If not specified, first 
-  // tensor data encountered is extracted.
-  void SetTensorsName(char *name);
-  char *GetTensorsName();
-  
-  // Description:
-  // Set / get the name of the normal data to extract. If not specified, first 
-  // normal data encountered is extracted.
-  void SetNormalsName(char *name);
-  char *GetNormalsName();
-
-  // Description:
-  // Set / get the name of the texture coordinate data to extract. If not
-  // specified, first texture coordinate data encountered is extracted.
-  void SetTCoordsName(char *name);
-  char *GetTCoordsName();
-
-  // Description:
-  // Set / get the name of the lookup table data to extract. If not
-  // specified, uses lookup table named by scalar. Otherwise, this
-  // specification supersedes.
-  void SetLookupTableName(char *name);
-  char *GetLookupTableName();
-
-  // Description:
-  // Set / get the name of the field data to extract. If not specified, uses 
-  // first field data encountered in file.
-  void SetFieldDataName(char *name);
-  char *GetFieldDataName();
-
 protected:
   vtkStructuredPointsReader();
   ~vtkStructuredPointsReader();
@@ -140,7 +77,15 @@ protected:
   void operator=(const vtkStructuredPointsReader&) {};
 
   void Execute();
-  vtkDataReader *Reader;
+
+  // Used by streaming: The extent of the output being processed
+  // by the execute method. Set in the ComputeInputUpdateExtent method.
+  int ExecuteExtent[6];
+  
+  // Default method performs Update to get information.  Not all the old
+  // structured points sources compute information
+  void ExecuteInformation();
+
 };
 
 #endif

@@ -39,17 +39,20 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
-// .NAME vtkDataReader - helper class for objects that read vtk data files
+// .NAME vtkDataReader - helper superclass for objects that read vtk data files
 // .SECTION Description
-// vtkDataReader is a helper class that reads the vtk data file header,
+// vtkDataReader is a helper superclass that reads the vtk data file header,
 // dataset type, and attribute data (point and cell attributes such as
 // scalars, vectors, normals, etc.) from a vtk data file.  See text for
-// format.
+// the format of the various vtk file types.
+//
+// .SECTION See Also
+// vtkPolyDataReader vtkStructuredPointsReader vtkStructuredGridReader
+// vtkUnsutructuredGridReader vtkRectilinearGridReader
 
 #ifndef __vtkDataReader_h
 #define __vtkDataReader_h
 
-#include "vtkObject.h"
 #include "vtkSource.h"
 #include "vtkDataSetAttributes.h"
 
@@ -60,7 +63,7 @@ class vtkDataSet;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
-class VTK_EXPORT vtkDataReader : public vtkObject
+class VTK_EXPORT vtkDataReader : public vtkSource
 {
 public:
   static vtkDataReader *New();
@@ -114,7 +117,9 @@ public:
   // Description:
   // How many attributes of various types are in this file? This 
   // requires reading the file, so the filename must be set prior 
-  // to invoking this operation.
+  // to invoking this operation. (Note: file characteristics are
+  // cached, so only a single read is necessary to return file
+  // characteristics.)
   int GetNumberOfScalarsInFile()
     {this->CharacterizeFile(); return this->NumberOfScalarsInFile;}
   int GetNumberOfVectorsInFile()
@@ -131,7 +136,7 @@ public:
     {this->CharacterizeFile(); return this->NumberOfGhostLevelsInFile;}
   
   // Description:
-  // What is the name of the ith attribute of a certain type are 
+  // What is the name of the ith attribute of a certain type
   // in this file? This requires reading the file, so the filename 
   // must be set prior to invoking this operation.
   const char *GetScalarsNameInFile(int i);
@@ -190,15 +195,6 @@ public:
   vtkSetStringMacro(FieldDataName);
   vtkGetStringMacro(FieldDataName);
 
-  //BTX
-  // Description:
-  // Set/Get the name of the source object that owns this helper instance.
-  // It is meant to be used by the source object, and does not reference
-  // count the source.
-  void SetSource(vtkSource *source);
-  vtkGetObjectMacro(Source,vtkSource);
-  //ETX
-  
   // Description:
   // Open a vtk data file. Returns zero if error.
   int OpenVTKFile();
@@ -236,6 +232,8 @@ public:
   // which coordinate axes (0,1,2) is being read.
   int ReadCoordinates(vtkRectilinearGrid *rg, int axes, int numCoords);
 
+  // Description:
+  // Helper functions for reading data.
   vtkDataArray *ReadArray(const char *dataType, int numTuples, int numComp);
   vtkFieldData *ReadFieldData();
 
@@ -254,7 +252,7 @@ public:
   int Read(double *);
 
   // Description:
-  // Close a vtk file.
+  // Close the vtk file.
   void CloseVTKFile();
 
   // Description:
@@ -303,7 +301,6 @@ protected:
   vtkSetStringMacro(ScalarLut);
   vtkGetStringMacro(ScalarLut);
 
-  vtkSource *Source;
   char *Header;
 
   int ReadScalarData(vtkDataSetAttributes *a, int num);

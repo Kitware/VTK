@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkPolyDataReader.h"
 #include "vtkObjectFactory.h"
 
-
-
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------
 vtkPolyDataReader* vtkPolyDataReader::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,119 +55,73 @@ vtkPolyDataReader* vtkPolyDataReader::New()
   return new vtkPolyDataReader;
 }
 
-
-
-
 vtkPolyDataReader::vtkPolyDataReader()
 {
-  this->Reader = vtkDataReader::New();
-  this->Reader->SetSource(this);
+  this->vtkSource::SetNthOutput(0, vtkPolyData::New());
+  // Releasing data for pipeline parallism.
+  // Filters will know it is empty. 
+  this->Outputs[0]->ReleaseData();
+  this->Outputs[0]->Delete();
+  this->ExecutePiece = this->ExecuteNumberOfPieces = 0;
+  this->ExecuteGhostLevel = 0;
 }
 
 vtkPolyDataReader::~vtkPolyDataReader()
 {
-  this->Reader->Delete();
-  this->Reader = NULL;
 }
 
-unsigned long int vtkPolyDataReader::GetMTime()
+//----------------------------------------------------------------------------
+vtkPolyData *vtkPolyDataReader::GetOutput()
 {
-  unsigned long dtime = this->vtkSource::GetMTime();
-  unsigned long rtime = this->Reader->GetMTime();
-  return (dtime > rtime ? dtime : rtime);
+  if (this->NumberOfOutputs < 1)
+    {
+    return NULL;
+    }
+  
+  return (vtkPolyData *)(this->Outputs[0]);
 }
 
-// Specify file name of vtk polygonal data file to read.
-void vtkPolyDataReader::SetFileName(const char *name) 
+//----------------------------------------------------------------------------
+void vtkPolyDataReader::SetOutput(vtkPolyData *output)
 {
-  this->Reader->SetFileName(name);
-}
-char *vtkPolyDataReader::GetFileName() 
-{
-  return this->Reader->GetFileName();
+  this->vtkSource::SetNthOutput(0, output);
 }
 
-// Get the type of file (ASCII or BINARY)
-int vtkPolyDataReader::GetFileType() 
-{
-  return this->Reader->GetFileType();
-}
 
-// Set the name of the scalar data to extract. If not specified, first 
-// scalar data encountered is extracted.
-void vtkPolyDataReader::SetScalarsName(char *name) 
+//----------------------------------------------------------------------------
+void vtkPolyDataReader::ComputeInputUpdateExtents(vtkDataObject *data)
 {
-  this->Reader->SetScalarsName(name);
-}
-char *vtkPolyDataReader::GetScalarsName() 
-{
-  return this->Reader->GetScalarsName();
-}
+  int piece, numPieces, ghostLevel;
+  vtkPolyData *output = (vtkPolyData *)data;
+  int idx;
 
-// Set the name of the vector data to extract. If not specified, first 
-// vector data encountered is extracted.
-void vtkPolyDataReader::SetVectorsName(char *name) 
-{
-  this->Reader->SetVectorsName(name);
-}
-char *vtkPolyDataReader::GetVectorsName() 
-{
-  return this->Reader->GetVectorsName();
-}
-
-// Set the name of the tensor data to extract. If not specified, first 
-// tensor data encountered is extracted.
-void vtkPolyDataReader::SetTensorsName(char *name) 
-{
-  this->Reader->SetTensorsName(name);
-}
-char *vtkPolyDataReader::GetTensorsName() 
-{
-  return this->Reader->GetTensorsName();
-}
-
-// Set the name of the normal data to extract. If not specified, first 
-// normal data encountered is extracted.
-void vtkPolyDataReader::SetNormalsName(char *name) 
-{
-  this->Reader->SetNormalsName(name);
-}
-char *vtkPolyDataReader::GetNormalsName() 
-{
-  return this->Reader->GetNormalsName();
-}
-
-// Set the name of the texture coordinate data to extract. If not specified,
-// first texture coordinate data encountered is extracted.
-void vtkPolyDataReader::SetTCoordsName(char *name) 
-{
-  this->Reader->SetTCoordsName(name);
-}
-char *vtkPolyDataReader::GetTCoordsName() 
-{
-  return this->Reader->GetTCoordsName();
-}
-
-// Set the name of the lookup table data to extract. If not specified, uses 
-// lookup table named by scalar. Otherwise, this specification supersedes.
-void vtkPolyDataReader::SetLookupTableName(char *name) 
-{
-  this->Reader->SetLookupTableName(name);
-}
-char *vtkPolyDataReader::GetLookupTableName() 
-{
-  return this->Reader->GetLookupTableName();
-}
-
-// Set the name of the field data to extract. If not specified, uses 
-// first field data encountered in file.
-void vtkPolyDataReader::SetFieldDataName(char *name) 
-{
-  this->Reader->SetFieldDataName(name);
-}
-char *vtkPolyDataReader::GetFieldDataName() 
-{
-  return this->Reader->GetFieldDataName();
+  output->GetUpdateExtent(piece, numPieces, ghostLevel);
+  
+  // make sure piece is valid
+  if (piece < 0 || piece >= numPieces)
+    {
+    return;
+    }
+  
+  if (ghostLevel < 0)
+    {
+    return;
+    }
+  
+  // just copy the Update extent as default behavior.
+  for (idx = 0; idx < this->NumberOfInputs; ++idx)
+    {
+    if (this->Inputs[idx])
+      {
+      this->Inputs[idx]->SetUpdateExtent(piece, numPieces, ghostLevel);
+      }
+    }
+  
+  // Save the piece so execute can use this information.
+  this->ExecutePiece = piece;
+  this->ExecuteNumberOfPieces = numPieces;
+  
+  this->ExecuteGhostLevel = ghostLevel;
 }
 
 void vtkPolyDataReader::Execute()
@@ -182,45 +134,36 @@ void vtkPolyDataReader::Execute()
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
 
-  if ( this->Debug )
-    {
-    this->Reader->DebugOn();
-    }
-  else
-    {
-    this->Reader->DebugOff();
-    }
-
-  if ( !(this->Reader->OpenVTKFile()) || !this->Reader->ReadHeader())
+  if ( !(this->OpenVTKFile()) || !this->ReadHeader())
     {
     return;
     }
 //
 // Read polygonal data specific stuff
 //
-  if (!this->Reader->ReadString(line))
+  if (!this->ReadString(line))
     {
     vtkErrorMacro(<<"Data file ends prematurely!");
-    this->Reader->CloseVTKFile ();
+    this->CloseVTKFile ();
     return;
     }
 
-  if ( !strncmp(this->Reader->LowerCase(line),"dataset",(unsigned long)7) )
+  if ( !strncmp(this->LowerCase(line),"dataset",(unsigned long)7) )
     {
 //
 // Make sure we're reading right type of geometry
 //
-    if (!this->Reader->ReadString(line))
+    if (!this->ReadString(line))
       {
       vtkErrorMacro(<<"Data file ends prematurely!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       } 
 
-    if ( strncmp(this->Reader->LowerCase(line),"polydata",8) )
+    if ( strncmp(this->LowerCase(line),"polydata",8) )
       {
       vtkErrorMacro(<< "Cannot read dataset type: " << line);
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
 //
@@ -228,40 +171,40 @@ void vtkPolyDataReader::Execute()
 //
     while (!done)
       {
-      if (!this->Reader->ReadString(line))
-	{
-	break;
-	}
+      if (!this->ReadString(line))
+        {
+        break;
+        }
 
-      if (! strncmp(this->Reader->LowerCase(line), "field", 5))
-	{
-	vtkFieldData* fd = this->Reader->ReadFieldData();
-	output->SetFieldData(fd);
-	fd->Delete(); // ?
-	}
+      if (! strncmp(this->LowerCase(line), "field", 5))
+        {
+        vtkFieldData* fd = this->ReadFieldData();
+        output->SetFieldData(fd);
+        fd->Delete(); // ?
+        }
       else if ( ! strncmp(line, "points",6) )
         {
-        if (!this->Reader->Read(&numPts))
+        if (!this->Read(&numPts))
           {
           vtkErrorMacro(<<"Cannot read number of points!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadPoints(output, numPts);
+        this->ReadPoints(output, numPts);
         }
 
       else if ( ! strncmp(line,"vertices",8) )
         {
         vtkCellArray *verts = vtkCellArray::New();
-        if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
+        if (!(this->Read(&ncells) && this->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read vertices!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadCells(size, verts->WritePointer(ncells,size));
+        this->ReadCells(size, verts->WritePointer(ncells,size));
         output->SetVerts(verts);
         verts->Delete();
         vtkDebugMacro(<<"Read " << ncells << " vertices");
@@ -270,14 +213,14 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"lines",5) )
         {
         vtkCellArray *lines = vtkCellArray::New();
-        if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
+        if (!(this->Read(&ncells) && this->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read lines!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadCells(size, lines->WritePointer(ncells,size));
+        this->ReadCells(size, lines->WritePointer(ncells,size));
         output->SetLines(lines);
         lines->Delete();
         vtkDebugMacro(<<"Read " << ncells << " lines");
@@ -286,14 +229,14 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"polygons",8) )
         {
         vtkCellArray *polys = vtkCellArray::New();
-        if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
+        if (!(this->Read(&ncells) && this->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read polygons!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadCells(size, polys->WritePointer(ncells,size));
+        this->ReadCells(size, polys->WritePointer(ncells,size));
         output->SetPolys(polys);
         polys->Delete();
         vtkDebugMacro(<<"Read " << ncells << " polygons");
@@ -302,14 +245,14 @@ void vtkPolyDataReader::Execute()
       else if ( ! strncmp(line,"triangle_strips",15) )
         {
         vtkCellArray *tris = vtkCellArray::New();
-        if (!(this->Reader->Read(&ncells) && this->Reader->Read(&size)))
+        if (!(this->Read(&ncells) && this->Read(&size)))
           {
           vtkErrorMacro(<<"Cannot read triangle strips!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
 
-        this->Reader->ReadCells(size, tris->WritePointer(ncells,size));
+        this->ReadCells(size, tris->WritePointer(ncells,size));
         output->SetStrips(tris);
         tris->Delete();
         vtkDebugMacro(<<"Read " << ncells << " triangle strips");
@@ -317,10 +260,10 @@ void vtkPolyDataReader::Execute()
 
       else if ( ! strncmp(line, "cell_data", 9) )
         {
-        if (!this->Reader->Read(&ncells))
+        if (!this->Read(&ncells))
           {
           vtkErrorMacro(<<"Cannot read cell data!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
         
@@ -330,16 +273,16 @@ void vtkPolyDataReader::Execute()
           return;
           }
 
-        this->Reader->ReadCellData(output, ncells);
+        this->ReadCellData(output, ncells);
         break; //out of this loop
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
         {
-        if (!this->Reader->Read(&npts))
+        if (!this->Read(&npts))
           {
           vtkErrorMacro(<<"Cannot read point data!");
-          this->Reader->CloseVTKFile ();
+          this->CloseVTKFile ();
           return;
           }
         
@@ -349,14 +292,14 @@ void vtkPolyDataReader::Execute()
           return;
           }
 
-        this->Reader->ReadPointData(output, npts);
+        this->ReadPointData(output, npts);
         break; //out of this loop
         }
 
       else
         {
         vtkErrorMacro(<< "Unrecognized keyword: " << line);
-        this->Reader->CloseVTKFile ();
+        this->CloseVTKFile ();
         return;
         }
       }
@@ -370,46 +313,37 @@ void vtkPolyDataReader::Execute()
   else if ( !strncmp(line, "cell_data", 9) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader->Read(&ncells))
+    if (!this->Read(&ncells))
       {
       vtkErrorMacro(<<"Cannot read cell data!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
 
-    this->Reader->ReadCellData(output, ncells);
+    this->ReadCellData(output, ncells);
     }
 
   else if ( !strncmp(line, "point_data", 10) )
     {
     vtkWarningMacro(<<"No geometry defined in data file!");
-    if (!this->Reader->Read(&numPts))
+    if (!this->Read(&numPts))
       {
       vtkErrorMacro(<<"Cannot read point data!");
-      this->Reader->CloseVTKFile ();
+      this->CloseVTKFile ();
       return;
       }
 
-    this->Reader->ReadPointData(output, numPts);
+    this->ReadPointData(output, numPts);
     }
 
   else 
     {
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
-  this->Reader->CloseVTKFile ();
+  this->CloseVTKFile ();
 }
 
-static int recursing = 0;
 void vtkPolyDataReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  // the reader ivar's source will be this reader. we must do this to prevent infinite printing
-  if (!recursing)
-    { 
-    vtkPolyDataSource::PrintSelf(os,indent);
-    recursing = 1;
-    os << indent << "Reader:\n";
-    this->Reader->PrintSelf(os,indent.GetNextIndent());
-    }
-  recursing = 0;
+  vtkDataReader::PrintSelf(os,indent);
 }
