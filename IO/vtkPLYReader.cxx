@@ -82,6 +82,10 @@ typedef struct _plyVertex {
 } plyVertex;
 
 typedef struct _plyFace {
+  unsigned char intensity; // optional face attributes
+  unsigned char red;
+  unsigned char green;
+  unsigned char blue;
   unsigned char nverts;   // number of vertex indices in list
   int *verts;             // vertex index list
 } plyFace;
@@ -96,6 +100,10 @@ void vtkPLYReader::Execute()
   PlyProperty faceProps[] = {
     {"vertex_indices", PLY_INT, PLY_INT, offsetof(plyFace,verts),
      1, PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,nverts)},
+    {"intensity", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,intensity), 0, 0, 0, 0},
+    {"red", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,red), 0, 0, 0, 0},
+    {"green", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,green), 0, 0, 0, 0},
+    {"blue", PLY_UCHAR, PLY_UCHAR, offsetof(plyFace,blue), 0, 0, 0, 0},
   };
 
   int i, j, k;
@@ -115,8 +123,12 @@ void vtkPLYReader::Execute()
   char **elist, *elemName;
   float version;
   
-  ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist, 
-                             &fileType, &version);
+  if ( !(ply = vtkPLY::ply_open_for_reading(this->FileName, &nelems, &elist, 
+                                            &fileType, &version)) )
+    {
+    vtkErrorMacro(<<"Could not open PLY file");
+    return;
+    }
 
   // Check to make sure that we can read geometry
   PlyElement *elem;
@@ -132,6 +144,36 @@ void vtkPLYReader::Execute()
     vtkPLY::ply_close (ply);
     }
 
+  // Check for optional attribute data. We can handle intensity; and the
+  // triplet red, green, blue.
+  bool intensityAvailable=false, RGBAvailable=false;
+  vtkUnsignedCharArray *intensity=NULL;
+  vtkUnsignedCharArray *RGB=NULL;
+  if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
+       vtkPLY::find_property (elem, "intensity", &index) != NULL )
+    {
+    intensity = vtkUnsignedCharArray::New();
+    intensity->SetName("intensity");
+    intensityAvailable = true;
+    output->GetCellData()->AddArray(intensity);
+    output->GetCellData()->SetActiveScalars("intensity");
+    intensity->Delete();
+    }
+
+  if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
+       vtkPLY::find_property (elem, "red", &index) != NULL &&
+       vtkPLY::find_property (elem, "green", &index) != NULL &&
+       vtkPLY::find_property (elem, "blue", &index) != NULL )
+    {
+    RGB = vtkUnsignedCharArray::New();
+    RGB->SetName("RGB");
+    RGBAvailable = true;
+    output->GetCellData()->AddArray(RGB);
+    output->GetCellData()->SetActiveScalars("RGB");
+    RGB->Delete();
+    }
+
+  // Okay, now we can grab the data
   for (i = 0; i < nelems; i++) 
     {
     //get the description of the first element */
@@ -173,6 +215,20 @@ void vtkPLYReader::Execute()
 
       // Get the face properties
       vtkPLY::ply_get_property (ply, elemName, &faceProps[0]);
+      if ( intensityAvailable )
+        {
+        vtkPLY::ply_get_property (ply, elemName, &faceProps[1]);
+        RGB->SetNumberOfComponents(1);
+        RGB->SetNumberOfTuples(numPolys);
+        }
+      if ( RGBAvailable )
+        {
+        vtkPLY::ply_get_property (ply, elemName, &faceProps[2]);
+        vtkPLY::ply_get_property (ply, elemName, &faceProps[3]);
+        vtkPLY::ply_get_property (ply, elemName, &faceProps[4]);
+        RGB->SetNumberOfComponents(3);
+        RGB->SetNumberOfTuples(numPolys);
+        }
       
       // grab all the face elements
       for (j=0; j < numPolys; j++) 
@@ -185,6 +241,16 @@ void vtkPLYReader::Execute()
           vtkVerts[k] = face.verts[k];
           }
         polys->InsertNextCell(face.nverts,vtkVerts);
+        if ( intensityAvailable )
+          {
+          intensity->SetValue(j,face.intensity);
+          }
+        if ( RGBAvailable )
+          {
+          RGB->SetValue(3*j,face.red);
+          RGB->SetValue(3*j+1,face.green);
+          RGB->SetValue(3*j+2,face.blue);
+          }
         }
       output->SetPolys(polys);
       polys->Delete();
