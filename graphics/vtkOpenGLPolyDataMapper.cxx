@@ -2691,6 +2691,12 @@ void vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     glEnable( GL_LIGHTING);
     }
 
+  // disable shading if we are rendering points, but have no normals
+  if (!n && rep == VTK_POINTS)
+    {
+    glDisable( GL_LIGHTING);
+    }
+  
   // do tstrips
   aPrim = prims[2];
   aGlFunction = glFunction[2];
