@@ -20,6 +20,7 @@ CONCRETE = \
 vtkEarthSource \
 vtkIVWriter \
 vtkOBJReader \
+vtkProjectedTexture \
 vtkRenderLargeImage \
 vtkRIBExporter \
 vtkRIBLight \
