@@ -124,11 +124,6 @@ int vtkXTextMapper::GetCompositingMode(vtkActor2D* actor)
 
 void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
 {
-  if (this->Input == NULL) 
-    {
-    vtkErrorMacro (<<"vtkXTextMapper::Render - No input");
-    }
-  
   // Get the window info
   vtkWindow*  window = viewport->GetVTKWindow();
   Display* displayId = (Display*) window->GetGenericDisplayId();
@@ -207,7 +202,7 @@ void vtkXTextMapper::GetSize(vtkViewport* viewport, int *size)
   this->CurrentFont = font;
 }
 
-void vtkXTextMapper::Render(vtkViewport* viewport, vtkActor2D* actor)
+void vtkXTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   if (this->Input == NULL) 
     {

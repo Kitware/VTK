@@ -76,7 +76,7 @@ int vtkXPolyDataMapper2D::GetCompositingMode(vtkActor2D* actor)
 }
 
 
-void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
+void vtkXPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
 {
   int numPts;
   vtkPolyData *input= (vtkPolyData *)this->Input;
@@ -94,7 +94,7 @@ void vtkXPolyDataMapper2D::Render(vtkViewport* viewport, vtkActor2D* actor)
   XPoint *points = new XPoint [1024];
   int currSize = 1024;
  
-  vtkDebugMacro (<< "vtkXPolyDataMapper2D::Render");
+  vtkDebugMacro (<< "vtkXPolyDataMapper2D::RenderOverlay");
 
   if ( input == NULL ) 
     {

@@ -828,17 +828,21 @@ void vtkXImageWindow::GetDefaultVisualInfo(XVisualInfo *info)
       {
       rate = 1;
       }
-    else if (v->depth == 24 && v->c_class == DirectColor)
+    else if (v->depth == 32 && v->c_class == TrueColor)
       {
       rate = 2;
       }
-    else if (v->depth == 16 && v->c_class == TrueColor)
+    else if (v->depth == 24 && v->c_class == DirectColor)
       {
       rate = 3;
       }
-    else if (v->depth == 8 && v->c_class == PseudoColor)
+    else if (v->depth == 16 && v->c_class == TrueColor)
       {
       rate = 4;
+      }
+    else if (v->depth == 8 && v->c_class == PseudoColor)
+      {
+      rate = 5;
       }
     else
       {

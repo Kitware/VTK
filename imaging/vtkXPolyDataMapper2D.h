@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Actually draw the poly data.
-  void Render(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
 protected:
   

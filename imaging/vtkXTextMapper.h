@@ -76,7 +76,7 @@ public:
 
   // Description:
   // Draw the text to the screen.
-  void Render(vtkViewport* viewport, vtkActor2D* actor);
+  void RenderOverlay(vtkViewport* viewport, vtkActor2D* actor);
 
   // Description:
   // What is the size of the rectangle required to draw this
