@@ -38,38 +38,29 @@
 
 #include "vtkInteractorStyle.h"
 
-
-#define VTK_INTERACTOR_STYLE_CAMERA_NONE    0
-#define VTK_INTERACTOR_STYLE_CAMERA_ROTATE  1
-#define VTK_INTERACTOR_STYLE_CAMERA_PAN     2
-#define VTK_INTERACTOR_STYLE_CAMERA_ZOOM    3
-#define VTK_INTERACTOR_STYLE_CAMERA_SPIN    4
-
 class VTK_RENDERING_EXPORT vtkInteractorStyleJoystickCamera : public vtkInteractorStyle
 {
 public:
   static vtkInteractorStyleJoystickCamera *New();
-  vtkTypeRevisionMacro(vtkInteractorStyleJoystickCamera, vtkObject);
+  vtkTypeRevisionMacro(vtkInteractorStyleJoystickCamera,vtkInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Event bindings controlling the effects of pressing mouse buttons
   // or moving the mouse.
-  void OnMouseMove  (int ctrl, int shift, int x, int y);
-  void OnLeftButtonDown(int ctrl, int shift, int x, int y);
-  void OnLeftButtonUp  (int ctrl, int shift, int x, int y);
-  void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
-  void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
-  void OnRightButtonDown(int ctrl, int shift, int x, int y);
-  void OnRightButtonUp  (int ctrl, int shift, int x, int y);
-  void OnTimer(void); 
+  virtual void OnLeftButtonDown  (int ctrl, int shift, int x, int y);
+  virtual void OnLeftButtonUp    (int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonDown(int ctrl, int shift, int x, int y);
+  virtual void OnMiddleButtonUp  (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonDown (int ctrl, int shift, int x, int y);
+  virtual void OnRightButtonUp   (int ctrl, int shift, int x, int y);
+
+  virtual void OnTimer(void); 
 
 protected:
   vtkInteractorStyleJoystickCamera();
   ~vtkInteractorStyleJoystickCamera();
-  
-  int State;
-  float MotionFactor;
+
 private:
   vtkInteractorStyleJoystickCamera(const vtkInteractorStyleJoystickCamera&);  // Not implemented.
   void operator=(const vtkInteractorStyleJoystickCamera&);  // Not implemented.
