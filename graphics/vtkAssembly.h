@@ -85,6 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class vtkAssemblyPaths;
 class vtkProp3DCollection;
 class vtkMapper;
+class vtkProperty;
 
 class VTK_EXPORT vtkAssembly : public vtkProp3D
 {
@@ -158,6 +159,20 @@ public:
   // Shallow copy of an assembly. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
+  // Description:
+  // For legacy compatibility. Do not use. Mapper's should no longer be assigned
+  // to a vtkAssembly. Create a vtkActor instead, assign the actor to it, and
+  // then add the actor as a part in the assembly.
+  void SetMapper(vtkMapper *mapper);
+  vtkMapper *GetMapper();
+
+  // Description:
+  // For legacy compatibility. Do not use. Mapper's should no longer be assigned
+  // to a vtkAssembly. Create a vtkActor instead, assign the actor to it, and
+  // then add the actor as a part in the assembly.
+  void SetProperty(vtkProperty *property);
+  vtkProperty *GetProperty();
+
 //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE DO NOT USE THIS
@@ -166,13 +181,6 @@ public:
   // with transformations properly concatenated.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
 //ETX  
-
-  // Description:
-  // For legacy compatibility. Do not use. Mapper's can no longer be assigned
-  // to a vtkAssembly. Create a vtkActor instead, assign the actor to it, and
-  // then add the actor as a part in the assembly.
-  void SetMapper(vtkMapper *mapper);
-  vtkMapper *GetMapper() {return NULL;};
 
 protected:
   vtkAssembly();
@@ -187,6 +195,10 @@ protected:
   // performance.
   vtkTimeStamp PathTime;
   void UpdatePaths(); //apply transformations and properties recursively
+  
+private:
+  vtkActor *CompatibilityActor;
+  void CreateCompatibilityActor();
   
 };
 

@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkAssemblyPaths.h"
 #include "vtkAssemblyNode.h"
 #include "vtkProp3DCollection.h"
+#include "vtkActor.h"
 #include "vtkVolume.h"
 
 //-----------------------------------------------------------------------------
@@ -64,12 +65,17 @@ vtkAssembly* vtkAssembly::New()
 vtkAssembly::vtkAssembly()
 {
   this->Parts = vtkProp3DCollection::New();
+  this->CompatibilityActor = NULL;
 }
 
 vtkAssembly::~vtkAssembly()
 {
   this->Parts->Delete();
   this->Parts = NULL;
+  if ( this->CompatibilityActor )
+    {
+    this->CompatibilityActor->Delete();
+    }
 }
 
 // Add a part to the list of Parts.
@@ -383,11 +389,45 @@ unsigned long int vtkAssembly::GetMTime()
   return mTime;
 }
 
-void vtkAssembly::SetMapper(vtkMapper *vtkNotUsed(mapper))
+void vtkAssembly::SetMapper(vtkMapper *mapper)
 {
-  vtkErrorMacro(<<"This method is obsolete, see the documentation\n"
+  vtkErrorMacro(<<"This method (SetMapper()) is obsolete, see the documentation\n"
                 <<"for vtkAssembly to use the correct alternative\n"
                 <<"(refer to SetMapper() documentation)\n");
+
+  this->CreateCompatibilityActor();
+  this->CompatibilityActor->SetMapper(mapper);
+}
+
+vtkMapper *vtkAssembly::GetMapper()
+{
+  this->CreateCompatibilityActor();
+  return this->CompatibilityActor->GetMapper();
+}
+
+void vtkAssembly::SetProperty(vtkProperty *property)
+{
+  vtkErrorMacro(<<"This method (SetProperty()) is obsolete, see the documentation\n"
+                <<"for vtkAssembly to use the correct alternative\n"
+                <<"(refer to SetProperty() documentation)\n");
+
+  this->CreateCompatibilityActor();
+  this->CompatibilityActor->SetProperty(property);
+}
+
+vtkProperty *vtkAssembly::GetProperty()
+{
+  this->CreateCompatibilityActor();
+  return this->CompatibilityActor->GetProperty();
+}
+
+void vtkAssembly::CreateCompatibilityActor()
+{
+  if ( ! this->CompatibilityActor )
+    {
+    this->CompatibilityActor = vtkActor::New();
+    this->AddPart(this->CompatibilityActor);
+    }
 }
 
 void vtkAssembly::PrintSelf(ostream& os, vtkIndent indent)
