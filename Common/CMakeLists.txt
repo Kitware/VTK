@@ -9,7 +9,9 @@ IF(WIN32)
   IF (NOT VTK_USE_X)
     ADD_EXECUTABLE(vtkWin32OutputWindowProcess WIN32
                    vtkWin32OutputWindowProcess.c)
-    TARGET_LINK_LIBRARIES(vtkWin32OutputWindowProcess gdi32)
+    IF(NOT BORLAND)
+      TARGET_LINK_LIBRARIES(vtkWin32OutputWindowProcess gdi32)
+    ENDIF(NOT BORLAND)
   ENDIF (NOT VTK_USE_X)
 ENDIF(WIN32)
 
