@@ -289,9 +289,20 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   cf->SetNumberOfContours(1);
   cf->SetValue(0, 220);
 
-  vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  pmapper->SetInput(cf->GetOutput());
+  cf->Update();
+  cf->Update();
+  cf->Update();
+  cf->Update();
+  cf->Update();
+
+  vtkPolyData* pd = cf->GetOutput();
+  pd->SetSource(0);
+  pd->Register(0);
   cf->Delete();
+
+  vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
+  pmapper->SetInput(pd);
+  pd->Delete();
 
   vtkActor* pactor = vtkActor::New();
   pactor->SetMapper(pmapper);
@@ -309,7 +320,6 @@ void Process2(vtkMultiProcessController *contr, void *arg)
   iren->SetRenderWindow(renWin);
   iren->Initialize();
 
-  renWin->Render();
   renWin->Render();
 
   *(args->retVal) = 
