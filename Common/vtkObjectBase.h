@@ -98,7 +98,7 @@ public:
 
   // Description:
   // Increase the reference count (mark as used by another object).
-  void Register(vtkObjectBase* o);
+  virtual void Register(vtkObjectBase* o);
 
   // Description:
   // Decrease the reference count (release by another object). This
