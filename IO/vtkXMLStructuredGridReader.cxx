@@ -22,7 +22,7 @@
 #include "vtkFloatArray.h"
 #include "vtkStructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.2");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -132,8 +132,9 @@ void vtkXMLStructuredGridReader::SetupOutputInformation()
   // Create the points array.
   vtkPoints* points = vtkPoints::New();
   
-  vtkDataArray* a = vtkFloatArray::New();
-  a->SetNumberOfComponents(3);
+  // Use the configuration of the first piece since all are the same.
+  vtkXMLDataElement* ePoints = this->PointElements[0];
+  vtkDataArray* a = this->CreateDataArray(ePoints->GetNestedElement(0));
   points->SetData(a);
   a->Delete();
   
@@ -158,7 +159,7 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   
   // Read the points array.
   vtkStructuredGrid* output = this->GetOutput();
-  vtkXMLDataElement* ePoints = this->PointElements[this->Piece];  
+  vtkXMLDataElement* ePoints = this->PointElements[this->Piece];
   return this->ReadArrayForPoints(ePoints->GetNestedElement(0),
                                   output->GetPoints()->GetData());
 }
