@@ -60,10 +60,6 @@ class VTK_IO_EXPORT vtkDICOMImageReader : public vtkImageReader2
   }
 
   // Description:
-  // Returns the filename.
-  vtkGetStringMacro(FileName);
-
-  // Description:
   // Set the directory name for the reader to look in for DICOM
   // files. If this method is used, the reader will try to find 
   // all the DICOM files in a directory. It will select the subset 
