@@ -36,14 +36,14 @@
 #ifndef __vtkExtractUnstructuredGrid_h
 #define __vtkExtractUnstructuredGrid_h
 
-#include "vtkUnstructuredGridToUnstructuredGridFilter.h"
+#include "vtkUnstructuredGridAlgorithm.h"
 
 class vtkPointLocator;
 
-class VTK_GRAPHICS_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridToUnstructuredGridFilter
+class VTK_GRAPHICS_EXPORT vtkExtractUnstructuredGrid : public vtkUnstructuredGridAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridToUnstructuredGridFilter);
+  vtkTypeRevisionMacro(vtkExtractUnstructuredGrid,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -124,7 +124,7 @@ protected:
   vtkExtractUnstructuredGrid();
   ~vtkExtractUnstructuredGrid() {};
 
-  void Execute();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   vtkIdType PointMinimum;
   vtkIdType PointMaximum;

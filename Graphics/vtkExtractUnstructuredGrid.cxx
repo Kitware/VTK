@@ -17,12 +17,14 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.35");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGrid, "1.36");
 vtkStandardNewMacro(vtkExtractUnstructuredGrid);
 
 // Construct with all types of clipping turned off.
@@ -89,11 +91,23 @@ void vtkExtractUnstructuredGrid::SetExtent(double extent[6])
 
 // Extract cells and pass points and point data through. Also handles
 // cell data.
-void vtkExtractUnstructuredGrid::Execute()
+int vtkExtractUnstructuredGrid::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType cellId, i, newCellId;
   vtkIdType newPtId;
-  vtkUnstructuredGrid *input=this->GetInput();
   vtkIdType numPts=input->GetNumberOfPoints();
   vtkIdType numCells=input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints(), *newPts;
@@ -106,7 +120,6 @@ void vtkExtractUnstructuredGrid::Execute()
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   int allVisible, numIds;
-  vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
   vtkIdType *pointMap = NULL;
@@ -116,12 +129,12 @@ void vtkExtractUnstructuredGrid::Execute()
   if ( numPts < 1 || numCells < 1 || !inPts )
     {
     vtkDebugMacro(<<"No data to extract!");
-    return;
+    return 1;
     }
   cellIds=vtkIdList::New();
 
   if ( (!this->CellClipping) && (!this->PointClipping) && 
-  (!this->ExtentClipping) )
+       (!this->ExtentClipping) )
     {
     allVisible = 1;
     cellVis = NULL;
@@ -259,12 +272,13 @@ void vtkExtractUnstructuredGrid::Execute()
     delete [] cellVis;
     }
   cellIds->Delete();
+
+  return 1;
 }
 
 unsigned long int vtkExtractUnstructuredGrid::GetMTime()
 {
-  unsigned long mTime=
-    this->vtkUnstructuredGridToUnstructuredGridFilter::GetMTime();
+  unsigned long mTime= this->Superclass::GetMTime();
   unsigned long time;
 
   if ( this->Locator != NULL )
