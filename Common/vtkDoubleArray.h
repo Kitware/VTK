@@ -138,6 +138,11 @@ public:
   vtkIdType InsertNextValue(const double f);
 
   // Description:
+  // Insert the data component at ith tuple and jth component location. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertComponent(const vtkIdType i, const int j, const float c);
+
+  // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.

@@ -130,6 +130,11 @@ public:
   vtkIdType InsertNextValue(const unsigned long);
 
   // Description:
+  // Insert the data component at ith tuple and jth component location. 
+  // Note that memory allocation is performed as necessary to hold the data.
+  virtual void InsertComponent(const vtkIdType i, const int j, const float c);
+
+  // Description:
   // Get the address of a particular data index. Performs no checks
   // to verify that the memory has been allocated etc.
   unsigned long *GetPointer(const vtkIdType id) {return this->Array + id;}

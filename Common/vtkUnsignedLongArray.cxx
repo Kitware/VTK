@@ -398,3 +398,9 @@ vtkIdType vtkUnsignedLongArray::InsertNextTuple(const double * tuple)
   return this->MaxId / this->NumberOfComponents;
 }
 
+void vtkUnsignedLongArray::InsertComponent(const vtkIdType i, const int j, 
+                                           const float c)
+{
+  this->InsertValue(i*this->NumberOfComponents + j, 
+                    static_cast<const unsigned long>(c));
+}
