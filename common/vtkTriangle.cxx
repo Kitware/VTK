@@ -991,3 +991,51 @@ int vtkTriangle::PointInTriangle(float x[3], float p1[3], float p2[3],
     }
 }
 
+//----------------------------------------------------------------------------
+void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
+				 float quadric[4][4])
+{
+  float crossX1X2[3], crossX2X3[3], crossX3X1[3];
+  float determinantABC;
+  float ABC[3][3];
+  float n[4];
+  int i, j;
+  
+  for (i = 0; i < 3; i++)
+    {
+    ABC[0][i] = x1[i];
+    ABC[1][i] = x2[i];
+    ABC[2][i] = x3[i];
+    }
+  
+  vtkMath::Cross(x1, x2, crossX1X2);
+  vtkMath::Cross(x2, x3, crossX2X3);
+  vtkMath::Cross(x3, x1, crossX3X1);
+  determinantABC = vtkMath::Determinant3x3(ABC);
+  
+  n[0] = crossX1X2[0] + crossX2X3[0] + crossX3X1[0];
+  n[1] = crossX1X2[1] + crossX2X3[1] + crossX3X1[1];
+  n[2] = crossX1X2[2] + crossX2X3[2] + crossX3X1[2];
+  n[3] = -determinantABC;
+  
+  for (i = 0; i < 4; i++)
+    {
+    for (j = 0; j < 4; j++)
+      {
+      quadric[i][j] = n[i] * n[j];
+      }
+    }
+}
+
+void vtkTriangle::ComputeQuadric(float x1[3], float x2[3], float x3[3],
+				 vtkQuadric *quadric)
+{
+  float quadricMatrix[4][4];
+  
+  ComputeQuadric(x1, x2, x3, quadricMatrix);
+  quadric->SetCoefficients(quadricMatrix[0][0], quadricMatrix[1][1],
+			   quadricMatrix[2][2], 2*quadricMatrix[0][1],
+			   2*quadricMatrix[1][2], 2*quadricMatrix[0][2],
+			   2*quadricMatrix[0][3], 2*quadricMatrix[1][3],
+			   2*quadricMatrix[2][3], quadricMatrix[3][3]);
+}
