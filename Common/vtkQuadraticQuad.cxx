@@ -24,7 +24,7 @@
 #include "vtkQuad.h"
 #include "vtkQuadraticEdge.h"
 
-vtkCxxRevisionMacro(vtkQuadraticQuad, "1.20");
+vtkCxxRevisionMacro(vtkQuadraticQuad, "1.21");
 vtkStandardNewMacro(vtkQuadraticQuad);
 
 // Construct the line with two points.
@@ -452,50 +452,51 @@ void vtkQuadraticQuad::InterpolationFunctions(double pcoords[3],
   //VTK needs parametric coordinates to be between (0,1). Isoparametric
   //shape functions are formulated between (-1,1). Here we do a 
   //coordinate system conversion from (0,1) to (-1,1).
-  double r = 2.0*(pcoords[0]-0.5);
-  double s = 2.0*(pcoords[1]-0.5);
+  double r = pcoords[0];
+  double s = pcoords[1];
 
   //midedge weights
-  weights[4] = 0.5 * (1.0 - r*r) * (1.0 - s);
-  weights[5] = 0.5 * (1.0 + r) * (1.0 - s*s);
-  weights[6] = 0.5 * (1.0 + r*r) * (1.0 + s);
-  weights[7] = 0.5 * (1.0 - r) * (1.0 - s*s);
+  weights[4] = 4 * r * (1.0 - r) * (1.0 - s);
+  weights[5] = 4 * r * (1.0 - s) * s;
+  weights[6] = 4 * r * (1.0 - r) * s;
+  weights[7] = 4 * (1.0 - r) * (1.0 - s) * s;
 
   //corner
-  weights[0] = 0.25 * (1.0 - r) * (1.0 - s) - 0.5*(weights[7]+weights[4]);
-  weights[1] = 0.25 * (1.0 + r) * (1.0 - s) - 0.5*(weights[4]+weights[5]);
-  weights[2] = 0.25 * (1.0 + r) * (1.0 + s) - 0.5*(weights[5]+weights[6]);
-  weights[3] = 0.25 * (1.0 - r) * (1.0 + s) - 0.5*(weights[6]+weights[7]);;
+  weights[0] = (1.0 - r) * (1.0 - s) - 0.5*(weights[4]+weights[7]);
+  weights[1] = r * (1.0 - s) - 0.5*(weights[4]+weights[5]);
+  weights[2] = r * s - 0.5*(weights[5]+weights[6]);
+  weights[3] = (1.0 - r) * s - 0.5*(weights[6]+weights[7]);;
+
 }
 
 // Derivatives in parametric space.
 void vtkQuadraticQuad::InterpolationDerivs(double pcoords[3], double derivs[16])
 {
   // Coordinate conversion
-  double r = 2.0*(pcoords[0]-0.5);
-  double s = 2.0*(pcoords[1]-0.5);
+  double r = pcoords[0];
+  double s = pcoords[1];
 
   // Derivatives in the r-direction
   // midedge
-  derivs[4] = -r * (1.0 - s);
-  derivs[5] = 0.5 * (1.0 - s*s);
-  derivs[6] = -r * (1.0 + s);
-  derivs[7] = -0.5 * (1.0 - s*s);
-  derivs[0] = -0.25 * (1.0 - s) - 0.5 * (derivs[7] + derivs[4]);
-  derivs[1] =  0.25 * (1.0 - s) - 0.5 * (derivs[4] + derivs[5]);
-  derivs[2] =  0.25 * (1.0 + s) - 0.5 * (derivs[5] + derivs[6]);
-  derivs[3] = -0.25 * (1.0 + s) - 0.5 * (derivs[6] + derivs[7]);
+  derivs[4] = 4 * (1.0 - s) * (1.0 - 2*r);
+  derivs[5] = 4 * (1.0 - s) * s;
+  derivs[6] = 4 * s * (1.0 - 2*r);
+  derivs[7] =-4 * (1.0 - s) * s;
+  derivs[0] =-(1.0 - s) - 0.5*(derivs[4]+derivs[7]);
+  derivs[1] = (1.0 - s) - 0.5 * (derivs[4] + derivs[5]);
+  derivs[2] =        s  - 0.5 * (derivs[5] + derivs[6]);
+  derivs[3] =       -s  - 0.5 * (derivs[6] + derivs[7]);
 
   // Derivatives in the s-direction
   // midedge
-  derivs[12] = -0.5 * (1.0 - r*r);
-  derivs[13] = -s * (1.0 + r);
-  derivs[14] = 0.5 * (1.0 - r*r);
-  derivs[15] = -s * (1.0 - r);
-  derivs[8] = -0.25 * (1.0 - r) - 0.5 * (derivs[15] + derivs[12]);
-  derivs[9] = -0.25 * (1.0 + r) - 0.5 * (derivs[12] + derivs[13]);
-  derivs[10] =  0.25 * (1.0 + r) - 0.5 * (derivs[13] + derivs[14]);
-  derivs[11] =  0.25 * (1.0 - r) - 0.5 * (derivs[14] + derivs[15]);
+  derivs[12] =-4 * r * (1.0 - r);
+  derivs[13] = 4 * r * (1.0 - 2*s);
+  derivs[14] = 4 * r * (1.0 - r);
+  derivs[15] = 4 * (1.0 - r) * (1.0 - 2*s);
+  derivs[8] = -(1.0 - r) - 0.5 * (derivs[15] + derivs[12]);
+  derivs[9] =       - r  - 0.5 * (derivs[12] + derivs[13]);
+  derivs[10] =        r  - 0.5 * (derivs[13] + derivs[14]);
+  derivs[11] = (1.0 - r) - 0.5 * (derivs[14] + derivs[15]);
 }
 
 static double vtkQQuadCellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
