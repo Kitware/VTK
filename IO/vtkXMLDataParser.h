@@ -132,6 +132,7 @@ protected:
   void AddElement(vtkXMLDataElement* element);
   void PushOpenElement(vtkXMLDataElement* element);
   vtkXMLDataElement* PopOpenElement();
+  void FreeAllElements();
   void PerformByteSwap(void* data, int numWords, int wordSize);
   
   // Data reading methods.

@@ -25,7 +25,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.14");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.15");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -64,16 +64,8 @@ vtkXMLDataParser::vtkXMLDataParser()
 //----------------------------------------------------------------------------
 vtkXMLDataParser::~vtkXMLDataParser()
 {
-  unsigned int i;
-  for(i=0;i < this->NumberOfOpenElements;++i)
-    {
-    this->OpenElements[i]->Delete();
-    }
+  this->FreeAllElements();
   delete [] this->OpenElements;
-  if(this->RootElement)
-    {
-    this->RootElement->Delete();
-    }
   this->InlineDataStream->Delete();
   this->AppendedDataStream->Delete();
   if(this->BlockCompressedSizes) { delete [] this->BlockCompressedSizes; }
@@ -107,6 +99,9 @@ void vtkXMLDataParser::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkXMLDataParser::Parse()
 {
+  // Delete any elements left from previous parsing.
+  this->FreeAllElements();
+  
   // Parse the input from the stream.
   int result = this->Superclass::Parse();
   
@@ -283,6 +278,22 @@ vtkXMLDataElement* vtkXMLDataParser::PopOpenElement()
     return this->OpenElements[this->NumberOfOpenElements];
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLDataParser::FreeAllElements()
+{
+  while(this->NumberOfOpenElements > 0)
+    {
+    --this->NumberOfOpenElements;
+    this->OpenElements[this->NumberOfOpenElements]->Delete();
+    this->OpenElements[this->NumberOfOpenElements] = 0;
+    }
+  if(this->RootElement)
+    {
+    this->RootElement->Delete();
+    this->RootElement = 0;
+    }
 }
 
 //----------------------------------------------------------------------------
