@@ -402,7 +402,7 @@ private:
          const char *globalCellIdArrayName);
 
   static void FreeIdLists(vtkIdList**lists, int nlists);
-  static int GetIdListSize(vtkIdList**lists, int nlists);
+  static vtkIdType GetIdListSize(vtkIdList**lists, int nlists);
   static int HasMetadata(vtkDataSet *s);
 
   vtkPKdTree *Kdtree;
