@@ -42,6 +42,7 @@ IF (VTK_USE_RENDERING)
       Delaunay2DAlpha
       Delaunay2DTransform
       dicer
+      eleState
       EnSight6Elements
       EnSightGoldElements
       extractPolyData
