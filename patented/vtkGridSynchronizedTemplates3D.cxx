@@ -654,6 +654,10 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     {
     estimatedSize = 1024;
     }
+
+  o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
+					 estimatedSize,estimatedSize/2);  
+  
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newPolys = vtkCellArray::New();
@@ -715,10 +719,7 @@ void vtkGridSynchronizedTemplates3D::InitializeOutput(int *ext,vtkPolyData *o)
     {
     o->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
-    }
-  
-  o->GetPointData()->InterpolateAllocate(this->GetInput()->GetPointData(),
-					 estimatedSize,estimatedSize/2);
+    }  
 }
 
 //----------------------------------------------------------------------------
