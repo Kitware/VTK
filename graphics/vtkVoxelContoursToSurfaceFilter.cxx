@@ -687,4 +687,7 @@ void vtkVoxelContoursToSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Memory Limit (in bytes): " << 
     this->MemoryLimitInBytes << endl;
+
+  os << indent << "Spacing: " << this->Spacing[0] << " " <<
+    this->Spacing[1] << " " << this->Spacing[2] << endl;
 }
