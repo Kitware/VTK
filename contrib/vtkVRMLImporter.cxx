@@ -724,6 +724,7 @@ static const short yycheck[] = {    66,
    in version 1.24 of Bison.  */
 
 #ifdef __GNUC__
+#undef alloca
 #define alloca __builtin_alloca
 #else /* not __GNUC__ */
 #if HAVE_ALLOCA_H
