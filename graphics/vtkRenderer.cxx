@@ -203,12 +203,17 @@ void vtkRenderer::Render(void)
     y2 = (int)(this->Viewport[3]*(this->RenderWindow->GetSize()[1] - 1));
     this->BackingImage = this->RenderWindow->GetPixelData(x1,y1,x2,y2,0);
     }
-  
+    
   if (this->EndRenderMethod) 
     {
     (*this->EndRenderMethod)(this->EndRenderMethodArg);
     }
   this->RenderTime.Modified();
+}
+
+void vtkRenderer::Render2D()
+{
+  this->Actors2D.Render(this);
 }
 
 vtkWindow *vtkRenderer::GetVTKWindow()

@@ -176,6 +176,8 @@ public:
   vtkGetObjectMacro(RayCaster,vtkRayCaster);
   float GetZ (int x, int y);
 
+  void Render2D();
+
 protected:
 
   vtkRayCaster *RayCaster;
