@@ -22,7 +22,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangleStrip.h"
 
-vtkCxxRevisionMacro(vtkTriangleFilter, "1.51");
+vtkCxxRevisionMacro(vtkTriangleFilter, "1.52");
 vtkStandardNewMacro(vtkTriangleFilter);
 
 void vtkTriangleFilter::Execute()
@@ -93,7 +93,7 @@ void vtkTriangleFilter::Execute()
   if ( !abort && input->GetLines()->GetNumberOfCells() > 0 )
     {
     cells = input->GetLines();
-    if ( this->PassVerts )
+    if ( this->PassLines )
       {
       newId = output->GetNumberOfCells();
       newCells = vtkCellArray::New();
