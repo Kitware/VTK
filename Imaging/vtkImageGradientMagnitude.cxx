@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.35");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.36");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -79,25 +79,28 @@ void vtkImageGradientMagnitude::ComputeInputUpdateExtent(int inExt[6],
   int *wholeExtent;
   int idx;
 
-  wholeExtent = this->GetInput()->GetWholeExtent();
-  
   memcpy(inExt,outExt,6*sizeof(int));
   
-  // grow input whole extent.
-  for (idx = 0; idx < this->Dimensionality; ++idx)
+  // grow input whole extent if input is available
+  if (this->GetInput())
     {
-    inExt[idx*2] -= 1;
-    inExt[idx*2+1] += 1;
-    if (this->HandleBoundaries)
+    wholeExtent = this->GetInput()->GetWholeExtent();
+
+    for (idx = 0; idx < this->Dimensionality; ++idx)
       {
-      // we must clip extent with whole extent is we hanlde boundaries.
-      if (inExt[idx*2] < wholeExtent[idx*2])
+      inExt[idx*2] -= 1;
+      inExt[idx*2+1] += 1;
+      if (this->HandleBoundaries)
         {
-        inExt[idx*2] = wholeExtent[idx*2];
-        }
-      if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-        {
-        inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+        // we must clip extent with whole extent is we hanlde boundaries.
+        if (inExt[idx*2] < wholeExtent[idx*2])
+          {
+          inExt[idx*2] = wholeExtent[idx*2];
+          }
+        if (inExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+          {
+          inExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+          }
         }
       }
     }
