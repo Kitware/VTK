@@ -76,6 +76,24 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Apply the transformation to a coordinate.  You can use the same 
+  // array to store both the input and output point.
+  virtual void TransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision coordinate.  
+  // You can use the same array to store both the input and output point.
+  virtual void TransformPoint(const double in[3], double out[3]);
+
+  // Description:
+  // Synonymous with TransformFloatPoint(x,y,z).
+  // Use this if you are programming in python, tcl or Java.
+  float *TransformPoint(float x, float y, float z) {
+    return this->TransformFloatPoint(x,y,z); }
+  float *TransformPoint(const float point[3]) {
+    return this->TransformPoint(point[0],point[1],point[2]); };
+
+  // Description:
   // Apply the transformation to an (x,y,z) coordinate.
   // Use this if you are programming in python, tcl or Java.
   float *TransformFloatPoint(float x, float y, float z);
@@ -88,16 +106,6 @@ public:
   double *TransformDoublePoint(double x, double y, double z);
   double *TransformDoublePoint(const double point[3]) {
     return this->TransformDoublePoint(point[0],point[1],point[2]); };
-
-  // Description:
-  // Apply the transformation to a coordinate.  You can use the same 
-  // array to store both the input and output point.
-  virtual void TransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // Apply the transformation to a double-precision coordinate.  
-  // You can use the same array to store both the input and output point.
-  virtual void TransformPoint(const double in[3], double out[3]);
 
   // Description:
   // Apply the transformation to a series of points, and append the

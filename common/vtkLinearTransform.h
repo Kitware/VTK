@@ -60,6 +60,42 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Apply the transformation to a coordinate.  You can use the same 
+  // array to store both the input and output point.
+  void TransformPoint(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision coordinate.  
+  // You can use the same array to store both the input and output point.
+  void TransformPoint(const double in[3], double out[3]);
+
+  // Description:
+  // Apply the transformation to an (x,y,z) coordinate.
+  // Use this if you are programming in python, tcl or Java.
+  float *TransformPoint(float x, float y, float z) {
+    return this->vtkGeneralTransform::TransformPoint(x,y,z); }
+  float *TransformPoint(const float point[3]) {
+    return this->TransformPoint(point[0],point[1],point[2]); };
+
+  // Description:
+  // Apply the transformation to a normal.
+  // You can use the same array to store both the input and output.
+  void TransformNormal(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision normal.
+  // You can use the same array to store both the input and output.
+  void TransformNormal(const double in[3], double out[3]);
+
+  // Description:
+  // Synonymous with TransformFloatNormal(x,y,z).
+  // Use this if you are programming in python, tcl or Java.
+  float *TransformNormal(float x, float y, float z) {
+    return this->TransformFloatNormal(x,y,z); }
+  float *TransformNormal(const float normal[3]) {
+    return this->TransformFloatNormal(normal[0],normal[1],normal[2]); };
+
+  // Description:
   // Apply the transformation to an (x,y,z) normal.
   // Use this if you are programming in python, tcl or Java.
   float *TransformFloatNormal(float x, float y, float z);
@@ -74,6 +110,24 @@ public:
     return this->TransformDoubleNormal(normal[0],normal[1],normal[2]); };
 
   // Description:
+  // Synonymous with TransformFloatVector(x,y,z).
+  // Use this if you are programming in python, tcl or Java.
+  float *TransformVector(float x, float y, float z) {
+    return this->TransformFloatVector(x,y,z); }
+  float *TransformVector(const float normal[3]) {
+    return this->TransformFloatVector(normal[0],normal[1],normal[2]); };
+
+  // Description:
+  // Apply the transformation to a vector.
+  // You can use the same array to store both the input and output.
+  void TransformVector(const float in[3], float out[3]);
+
+  // Description:
+  // Apply the transformation to a double-precision vector.
+  // You can use the same array to store both the input and output.
+  void TransformVector(const double in[3], double out[3]);
+
+  // Description:
   // Apply the transformation to an (x,y,z) vector.
   // Use this if you are programming in python, tcl or Java.
   float *TransformFloatVector(float x, float y, float z);
@@ -86,36 +140,6 @@ public:
   double *TransformDoubleVector(double x, double y, double z);
   double *TransformDoubleVector(const double vec[3]) {
     return this->TransformDoubleVector(vec[0],vec[1],vec[2]); };
-
-  // Description:
-  // Apply the transformation to a coordinate.  You can use the same 
-  // array to store both the input and output point.
-  void TransformPoint(const float in[3], float out[3]);
-
-  // Description:
-  // Apply the transformation to a double-precision coordinate.  
-  // You can use the same array to store both the input and output point.
-  void TransformPoint(const double in[3], double out[3]);
-
-  // Description:
-  // Apply the transformation to a normal.
-  // You can use the same array to store both the input and output.
-  void TransformNormal(const float in[3], float out[3]);
-
-  // Description:
-  // Apply the transformation to a double-precision normal.
-  // You can use the same array to store both the input and output.
-  void TransformNormal(const double in[3], double out[3]);
-
-  // Description:
-  // Apply the transformation to a vector.
-  // You can use the same array to store both the input and output.
-  void TransformVector(const float in[3], float out[3]);
-
-  // Description:
-  // Apply the transformation to a double-precision vector.
-  // You can use the same array to store both the input and output.
-  void TransformVector(const double in[3], double out[3]);
 
   // Description:
   // Apply the transformation to a series of points, and append the
