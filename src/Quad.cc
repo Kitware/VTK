@@ -159,18 +159,22 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
     if ( pcoords[0] < 0.0 && pcoords[1] < 0.0 )
       {
       dist2 = math.Distance2BetweenPoints(x,pt1);
+      for (i=0; i<3; i++) closestPoint[i] = pt1[i];
       }
-    else if ( pcoords[0] > 0.0 && pcoords[1] < 0.0 )
+    else if ( pcoords[0] > 1.0 && pcoords[1] < 0.0 )
       {
       dist2 = math.Distance2BetweenPoints(x,pt2);
+      for (i=0; i<3; i++) closestPoint[i] = pt2[i];
       }
-    else if ( pcoords[0] > 0.0 && pcoords[1] > 0.0 )
+    else if ( pcoords[0] > 1.0 && pcoords[1] > 1.0 )
       {
       dist2 = math.Distance2BetweenPoints(x,pt3);
+      for (i=0; i<3; i++) closestPoint[i] = pt3[i];
       }
-    else if ( pcoords[0] < 0.0 && pcoords[1] > 0.0 )
+    else if ( pcoords[0] < 0.0 && pcoords[1] > 1.0 )
       {
       dist2 = math.Distance2BetweenPoints(x,pt4);
+      for (i=0; i<3; i++) closestPoint[i] = pt4[i];
       }
     else if ( pcoords[0] < 0.0 )
       {
@@ -184,7 +188,7 @@ int vtkQuad::EvaluatePosition(float x[3], float closestPoint[3],
       {
       dist2 = line.DistanceToLine(x,pt1,pt2,t,closestPoint);
       }
-    else if ( pcoords[1] > 0.0 )
+    else if ( pcoords[1] > 1.0 )
       {
       dist2 = line.DistanceToLine(x,pt3,pt4,t,closestPoint);
       }
