@@ -230,28 +230,24 @@ int vtkCellLocator::IntersectWithLine(float a0[3], float a1[3], float tol,
   
   // convert the line into i,j,k coordinates
   tMax = 0.0;
-  for (i = 0; i < 3; i++) 
+  for (i=0; i < 3; i++) 
     {
-    direction1[i]   = a1[i] - a0[i];
-    if ((bounds[2*i+1] - bounds[2*i])!=0)
-    {
-      origin[i]      = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
-    }
-    else {
-      if ((a0[i] - bounds[2*i])>0)
+    direction1[i] = a1[i] - a0[i];
+    if ( (bounds[2*i+1] - bounds[2*i]) != 0.0)
       {
-        origin[i] = VTK_LARGE_FLOAT;
+      origin[i] = (a0[i] - bounds[2*i])/(bounds[2*i+1] - bounds[2*i]);
+      direction2[i] = (a1[i] - a0[i])/(bounds[2*i+1] - bounds[2*i]);
       }
-      else
+    else 
       {
-        origin[i] = -VTK_LARGE_FLOAT;
+      origin[i] = 0.0;
+      direction2[i] = 0.0;
       }
-    }
-    direction2[i]  = (a1[i] - a0[i])/(bounds[2*i+1] - bounds[2*i]);
-    bounds2[2*i]   = 0;
+    bounds2[2*i]   = 0.0;
     bounds2[2*i+1] = 1.0;
     tMax += direction2[i]*direction2[i];
     }
+  
   tMax = sqrt(tMax);
   stopDist = tMax*this->NumberOfDivisions;
   for (i = 0; i < 3; i++) 
