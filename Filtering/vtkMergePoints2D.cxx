@@ -21,11 +21,11 @@
 #include "vtkIdList.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkMergePoints2D, "1.12");
+vtkCxxRevisionMacro(vtkMergePoints2D, "1.12.12.1");
 
 vtkMergePoints2D* vtkMergePoints2D::New() 
 { 
-  vtkGenericWarningMacro("MergePoints2D is being deprecated in VTK 4.1. There is no replacement for it.");
+  vtkGenericWarningMacro("MergePoints2D is being deprecated in VTK 4.2. There is no replacement for it.");
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkMergePoints2D"); 
   if(ret) 
       { 
