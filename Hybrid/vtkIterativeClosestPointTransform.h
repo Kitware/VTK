@@ -67,6 +67,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vtkLinearTransform.h"
 
+#define VTK_ICP_MODE_RMS 0
+#define VTK_ICP_MODE_AV 1
+
 class vtkCellLocator;
 class vtkLandmarkTransform;
 class vtkDataSet;
@@ -105,6 +108,21 @@ public:
   vtkSetMacro(CheckMeanDistance, int);
   vtkGetMacro(CheckMeanDistance, int);
   vtkBooleanMacro(CheckMeanDistance, int);
+
+  // Description:
+  // Specify the mean distance mode. This mode expresses how the mean 
+  // distance is computed. The RMS mode is the square root of the average
+  // of the sum of squares of the closest point distances. The Absolute
+  // Value mode is the mean of the sum of absolute values of the closest
+  // point distances.
+  vtkSetClampMacro(MeanDistanceMode,int,
+                   VTK_ICP_MODE_RMS,VTK_ICP_MODE_AV);
+  vtkGetMacro(MeanDistanceMode,int);
+  void SetMeanDistanceModeToRMS()
+    {this->SetMeanDistanceMode(VTK_ICP_MODE_RMS);}
+  void SetMeanDistanceModeToAbsoluteValue()
+    {this->SetMeanDistanceMode(VTK_ICP_MODE_AV);}
+  const char *GetMeanDistanceModeAsString();
 
   // Description: 
   // Set/Get the maximum mean distance between two iteration. If the mean
@@ -176,6 +194,7 @@ protected:
   vtkCellLocator *Locator;
   int MaximumNumberOfIterations;
   int CheckMeanDistance;
+  int MeanDistanceMode;
   float MaximumMeanDistance;
   int MaximumNumberOfLandmarks;
   int StartByMatchingCentroids;

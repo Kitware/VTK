@@ -76,12 +76,27 @@ vtkIterativeClosestPointTransform::vtkIterativeClosestPointTransform()
   this->LandmarkTransform = vtkLandmarkTransform::New();
   this->MaximumNumberOfIterations = 50;
   this->CheckMeanDistance = 0;
+  this->MeanDistanceMode = VTK_ICP_MODE_RMS;
   this->MaximumMeanDistance = 0.01;
   this->MaximumNumberOfLandmarks = 200;
   this->StartByMatchingCentroids = 0;
 
   this->NumberOfIterations = 0;
   this->MeanDistance = 0.0;
+}
+
+//----------------------------------------------------------------------------
+
+const char *vtkIterativeClosestPointTransform::GetMeanDistanceModeAsString()
+{
+  if ( this->MeanDistanceMode == VTK_ICP_MODE_RMS )
+    {
+    return "RMS";
+    }
+  else
+    {
+    return "AbsoluteValue";
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -278,6 +293,7 @@ void vtkIterativeClosestPointTransform::InternalDeepCopy(vtkAbstractTransform *t
   this->SetLocator(t->GetLocator());
   this->SetMaximumNumberOfIterations(t->GetMaximumNumberOfIterations());
   this->SetCheckMeanDistance(t->GetCheckMeanDistance());
+  this->SetMeanDistanceMode(t->GetMeanDistanceMode());
   this->SetMaximumMeanDistance(t->GetMaximumMeanDistance());
   this->SetMaximumNumberOfLandmarks(t->GetMaximumNumberOfLandmarks());
 
@@ -395,7 +411,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
   
   vtkIdType cell_id;
   int sub_id;
-  float dist2, totaldist2 = 0;
+  float dist2, totaldist = 0;
 
   vtkPoints *temp, *a = points1, *b = points2;
 
@@ -435,7 +451,7 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
 
     if (this->CheckMeanDistance)
       {
-      totaldist2 = 0.0;
+      totaldist = 0.0;
       }
 
     for(i = 0; i < nb_points; i++)
@@ -445,13 +461,23 @@ void vtkIterativeClosestPointTransform::InternalUpdate()
       this->LandmarkTransform->InternalTransformPoint(p1, p2);
       if (this->CheckMeanDistance)
         {
-        totaldist2 += vtkMath::Distance2BetweenPoints(p1, p2);
+        if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 
+          {
+          totaldist += vtkMath::Distance2BetweenPoints(p1, p2);
+          } else {
+          totaldist += sqrt(vtkMath::Distance2BetweenPoints(p1, p2));
+          }
         }
       }
-
+    
     if (this->CheckMeanDistance)
       {
-      this->MeanDistance = sqrt(totaldist2 / (float)nb_points);
+      if (this->MeanDistanceMode == VTK_ICP_MODE_RMS) 
+        {
+        this->MeanDistance = sqrt(totaldist / (float)nb_points);
+        } else {
+        this->MeanDistance = totaldist / (float)nb_points;
+        }
       vtkDebugMacro("Mean distance: " << this->MeanDistance);
       if (this->MeanDistance <= this->MaximumMeanDistance)
         {
@@ -511,6 +537,7 @@ void vtkIterativeClosestPointTransform::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaximumNumberOfIterations: " << this->MaximumNumberOfIterations << "\n";
   os << indent << "CheckMeanDistance: " << this->CheckMeanDistance << "\n";
+  os << indent << "MeanDistanceMode: " << this->GetMeanDistanceModeAsString() << "\n";
   os << indent << "MaximumMeanDistance: " << this->MaximumMeanDistance << "\n";
   os << indent << "MaximumNumberOfLandmarks: " << this->MaximumNumberOfLandmarks << "\n";
   os << indent << "StartByMatchingCentroids: " << this->StartByMatchingCentroids << "\n";
