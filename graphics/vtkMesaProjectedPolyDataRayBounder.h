@@ -71,8 +71,7 @@ class vtkWindow;
 class VTK_EXPORT vtkMesaProjectedPolyDataRayBounder : public vtkProjectedPolyDataRayBounder
 {
 public:
-    vtkTypeMacro(vtkMesaProjectedPolyDataRayBounder,methods);
-    return "vtkMesaProjectedPolyDataRayBounder";};  
+  vtkTypeMacro(vtkMesaProjectedPolyDataRayBounder,vtkProjectedPolyDataRayBounder);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
