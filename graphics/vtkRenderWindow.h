@@ -93,7 +93,6 @@ public:
 
   virtual void SetDisplayId(void *) = 0;
   virtual void SetWindowId(void *) = 0;
-  virtual void SetWindowName(char *) = 0;
 
   // Description:
   // Performed at the end of the rendering process to generate image.
@@ -217,7 +216,8 @@ public:
   
   // Description:
   // Get name of rendering window
-  vtkGetStringMacro(Name);
+  vtkGetStringMacro(WindowName);
+  virtual void SetWindowName( char * );
 
   // Description:
   // Set/Get the filename used for saving images. See the SaveImageAsPPM 
@@ -299,7 +299,7 @@ protected:
   virtual void DoAARender();
 
   vtkRendererCollection Renderers;
-  char Name[80];
+  char *WindowName;
   int Size[2];
   int Position[2];
   int Borders;
