@@ -38,6 +38,7 @@ backgroundLuminance SetInput [backgroundColor GetOutput]
 vtkLookupTable table
 table SetTableRange 220 255
 table SetValueRange 1 0
+table SetSaturationRange 0 0
 table Build
 
 vtkImageMapToColors alpha
