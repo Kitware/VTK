@@ -29,12 +29,13 @@ public:
   int  GetRefCount() {return this->RefCount;};
   void DebugOn();
   void DebugOff();
+  virtual unsigned long int GetMtime() {return this->Mtime.GetMtime();};
   int GetDebug();
-  vlTimeStamp Mtime; // Keep track of modification time
   void Modified() {Mtime.Modified();};
   virtual char *GetClassName() {return "vlObject";};
 
 protected:
+  vlTimeStamp Mtime; // Keep track of modification time
   int Debug;       // Enable debug messages
 
 private:
