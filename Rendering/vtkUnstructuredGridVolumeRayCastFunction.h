@@ -38,15 +38,6 @@ public:
   vtkTypeRevisionMacro(vtkUnstructuredGridVolumeRayCastFunction,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
-  virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
-  
-  virtual void Finalize( )=0;
-
-  virtual void CastRay( int x, int y, double bounds[2], float color[4] )=0;
-//ETX
-
-
 protected:
   vtkUnstructuredGridVolumeRayCastFunction() {};
   ~vtkUnstructuredGridVolumeRayCastFunction() {};

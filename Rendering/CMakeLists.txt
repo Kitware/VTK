@@ -97,10 +97,6 @@ vtkTextActor.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
-vtkUnstructuredGridBunykRayCastFunction.cxx
-vtkUnstructuredGridVolumeMapper.cxx
-vtkUnstructuredGridVolumeRayCastFunction.cxx
-vtkUnstructuredGridVolumeRayCastMapper.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
