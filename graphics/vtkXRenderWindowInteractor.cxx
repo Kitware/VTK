@@ -435,14 +435,20 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
 	// just getting the last configure event
 	event = &result;
 	}
-	// only render if we are currently accepting events
+      if ((((XConfigureEvent *)event)->width != me->Size[0]) ||
+	  (((XConfigureEvent *)event)->height != me->Size[1]))
+	{
+	me->UpdateSize(((XConfigureEvent *)event)->width,
+		       ((XConfigureEvent *)event)->height); 
+	}
+      // only render if we are currently accepting events
       if (me->GetEnabled())
 	{
 	me->GetRenderWindow()->Render();
 	}
       }
       break;
-      
+            
     case ButtonPress: 
       {
       if (!me->Enabled) return;
