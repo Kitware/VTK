@@ -18,7 +18,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.9");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.10");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -438,14 +438,3 @@ void vtkImageStencilData::InsertNextExtent(int r1, int r2, int yIdx, int zIdx)
   clist[clistlen++] = r1;
   clist[clistlen++] = r2 + 1;
 }
-
-//----------------------------------------------------------------------------
-#ifndef VTK_REMOVE_LEGACY_CODE
-vtkDataObject* vtkImageStencilData::MakeObject()
-{
-  VTK_LEGACY_METHOD(MakeObject, "4.2");  
-  vtkImageStencilData* o = vtkImageStencilData::New();
-  o->DeepCopy(this);
-  return o;
-}
-#endif
