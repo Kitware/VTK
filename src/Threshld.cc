@@ -141,6 +141,15 @@ void vlThreshold::PrintSelf(ostream& os, vlIndent indent)
 {
   vlDataSetToUnstructuredGridFilter::PrintSelf(os,indent);
 
+  if ( this->ThresholdFunction == &vlThreshold::Upper )
+    os << indent << "Threshold By Upper\n";
+
+  else if ( this->ThresholdFunction == &vlThreshold::Lower )
+    os << indent << "Threshold By Lower\n";
+
+  else if ( this->ThresholdFunction == &vlThreshold::Between )
+    os << indent << "Threshold Between\n";
+
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;
 }
