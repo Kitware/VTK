@@ -12,6 +12,7 @@ IF (VTK_USE_RENDERING)
       TestJPEGReader
       Plot3DScalars
       Plot3DVectors
+      ParticleReader
       )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
