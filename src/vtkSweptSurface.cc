@@ -63,6 +63,8 @@ vtkSweptSurface::vtkSweptSurface()
   this->FillValue = LARGE_FLOAT;
   this->Transforms = NULL;
   this->Capping = 1;
+
+  this->Output = new vtkStructuredPoints;
 }
 
 void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin, 
@@ -83,9 +85,8 @@ void vtkSweptSurface::SetModelBounds(float xmin, float xmax, float ymin,
 void vtkSweptSurface::Execute()
 {
   int i, numPts, numOutPts;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkScalars *inScalars, *newScalars;
-  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   float inAr[3], inOrigin[3];
   int inDim[3];
   int numSteps, stepNum;
@@ -95,12 +96,17 @@ void vtkSweptSurface::Execute()
   float time;
   float position[3], position1[3], position2[3];
   float orient[3], orient1[3], orient2[3];
+  float origin[3], ar[3];
+  vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<<"Creating swept surface");
-  this->Initialize();
+  output->Initialize();
 
   // make sure there is input
   pd = this->Input->GetPointData();
+  outPD = output->GetPointData();
+  
   inScalars = pd->GetScalars();
   if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
   inScalars == NULL )
@@ -122,8 +128,8 @@ void vtkSweptSurface::Execute()
     return;
     }
 
-  this->SetDimensions(this->SampleDimensions);
-  this->ComputeBounds();
+  output->SetDimensions(this->SampleDimensions);
+  this->ComputeBounds(origin, ar);
 
   input->GetDimensions(inDim);
   input->GetAspectRatio(inAr);
@@ -131,7 +137,8 @@ void vtkSweptSurface::Execute()
 //
 // Allocate data.  Scalar "type" is same as input.
 //
-  numOutPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
+  numOutPts = this->SampleDimensions[0] * this->SampleDimensions[1] * 
+              this->SampleDimensions[2];
   newScalars = inScalars->MakeObject(numOutPts);
   for (i = 0; i < numOutPts; i++) newScalars->SetScalar(i,this->FillValue);
 //
@@ -195,7 +202,7 @@ void vtkSweptSurface::Execute()
                     inScalars, newScalars);
 
   // Update ourselves and release memory
-  this->PointData.SetScalars(newScalars);
+  outPD->SetScalars(newScalars);
   newScalars->Delete();
 }
 
@@ -213,6 +220,10 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   int kOffset, jOffset, dim[3], idx;
   float xTrans[4], weights[8];
   static vtkTransform t;
+  float *origin, *ar;
+
+  origin = ((vtkStructuredPoints *)this->Output)->GetOrigin();
+  ar = ((vtkStructuredPoints *)this->Output)->GetAspectRatio();
 
   t.SetMatrix(m); //we need to do this to pre-multiply
   t.Transpose();
@@ -221,14 +232,14 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
   for (k=0; k<this->SampleDimensions[2]; k++)
     {
     kOffset = k*sliceSize;
-    x[2] = this->Origin[2] + k * this->AspectRatio[2];
+    x[2] = origin[2] + k * ar[2];
     for (j=0; j<this->SampleDimensions[1]; j++)
       {
       jOffset = j*this->SampleDimensions[0];
-      x[1] = this->Origin[1] + j * this->AspectRatio[1];
+      x[1] = origin[1] + j * ar[1];
       for (i=0; i<this->SampleDimensions[0]; i++)
         {
-        x[0] = this->Origin[0] + i * this->AspectRatio[0];
+        x[0] = origin[0] + i * ar[0];
 
         // transform into local space
         t.PointMultiply(x,xTrans);
@@ -276,7 +287,7 @@ void vtkSweptSurface::SampleInput(vtkMatrix4x4& m, int inDim[3],
 
 unsigned long int vtkSweptSurface::GetMTime()
 {
-  unsigned long mtime=vtkStructuredPointsToStructuredPointsFilter::GetMTime();
+  unsigned long mtime=vtkStructuredPointsFilter::GetMTime();
   unsigned long int transMtime;
   vtkTransform *t;
 
@@ -291,7 +302,7 @@ unsigned long int vtkSweptSurface::GetMTime()
 
 
 // compute model bounds from geometry and path
-void vtkSweptSurface::ComputeBounds()
+void vtkSweptSurface::ComputeBounds(float origin[3], float ar[3])
 {
   int i, dim;
 
@@ -305,14 +316,16 @@ void vtkSweptSurface::ComputeBounds()
     {
     for (i=0; i<3; i++)
       {
-      this->Origin[i] = this->ModelBounds[2*i];
+      origin[i] = this->ModelBounds[2*i];
       if ( (dim=this->SampleDimensions[i]) <= 1 )
         {
         vtkWarningMacro(<<"Dimensions don't specify volume");
         }
-      this->AspectRatio[i] =(this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      ar[i] =(this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
                              / (dim - 1);
       }
+    ((vtkStructuredPoints *)(this->Output))->SetOrigin(origin);
+    ((vtkStructuredPoints *)(this->Output))->SetAspectRatio(ar);
     }
 }
 
@@ -368,7 +381,7 @@ void vtkSweptSurface::Cap(vtkFloatScalars *s)
 
 void vtkSweptSurface::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPointsToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkStructuredPointsFilter::PrintSelf(os,indent);
 
   os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
                << this->SampleDimensions[1] << ", "

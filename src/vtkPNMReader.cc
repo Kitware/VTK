@@ -101,8 +101,9 @@ void vtkPNMSource::Execute()
 {
   vtkColorScalars *newScalars;
   int dim[3];
-
-  this->Initialize();
+  vtkStructuredPoints *output = this->GetOutput();
+  
+  output->Initialize();
 
   if ( this->Filename == NULL )
     {
@@ -119,10 +120,10 @@ void vtkPNMSource::Execute()
     newScalars = this->ReadVolume(dim);
     }
 
-  this->SetDimensions(dim);
-  this->SetAspectRatio(this->DataAspectRatio);
-  this->SetOrigin(this->DataOrigin);
-  this->PointData.SetScalars(newScalars);
+  output->SetDimensions(dim);
+  output->SetAspectRatio(this->DataAspectRatio);
+  output->SetOrigin(this->DataOrigin);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 

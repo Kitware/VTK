@@ -66,22 +66,24 @@ void vtkConnectivityFilter::Execute()
   vtkPointData *pd;
   int id;
   int maxCellsInRegion, largestRegionId;
-   
+  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
   vtkDebugMacro(<<"Executing connectivity filter.");
-  this->Initialize();
-//
-//  Check input/allocate storage
-//
+  output->Initialize();
+  //
+  //  Check input/allocate storage
+  //
   if ( (numPts=this->Input->GetNumberOfPoints()) < 1 ||
   (numCells=this->Input->GetNumberOfCells()) < 1 )
     {
     vtkDebugMacro(<<"No data to connect!");
     return;
     }
-  this->Allocate(numCells,numCells);
-//
-// Initialize.  Keep track of points and cells visited.
-//
+  output->Allocate(numCells,numCells);
+  //
+  // Initialize.  Keep track of points and cells visited.
+  //
   this->RegionSizes.Reset();
   Visited = new int[numCells];
   for ( i=0; i < numCells; i++ ) Visited[i] = -1;
@@ -90,11 +92,11 @@ void vtkConnectivityFilter::Execute()
 
   NewScalars = new vtkFloatScalars(numPts);
   newPts = new vtkFloatPoints(numPts);
-//
-// Traverse all cells marking those visited.  Each new search
-// starts a new connected region.  Note: have to truncate recursion
-// and keep track of seeds to start up again.
-//
+  //
+  // Traverse all cells marking those visited.  Each new search
+  // starts a new connected region.  Note: have to truncate recursion
+  // and keep track of seeds to start up again.
+  //
   RecursionSeeds = new vtkIdList(1000,10000);
 
   NumExceededMaxDepth = 0;
@@ -176,23 +178,23 @@ void vtkConnectivityFilter::Execute()
 //
   //Pass through point data that has been visited
   pd = this->Input->GetPointData();
-  if ( this->ColorRegions ) this->PointData.CopyScalarsOff();
-  this->PointData.CopyAllocate(pd);
+  if ( this->ColorRegions ) outputPD->CopyScalarsOff();
+  outputPD->CopyAllocate(pd);
 
   for (i=0; i < numPts; i++)
     {
     if ( PointMap[i] > -1 )
       {
       newPts->SetPoint(PointMap[i],this->Input->GetPoint(i));
-      this->PointData.CopyData(pd,i,PointMap[i]);
+      outputPD->CopyData(pd,i,PointMap[i]);
       }
     }
 
   // if coloring regions; send down new scalar data
-  if ( this->ColorRegions ) this->PointData.SetScalars(NewScalars);
+  if ( this->ColorRegions ) outputPD->SetScalars(NewScalars);
   NewScalars->Delete();
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 //
 // Create output cells
@@ -210,7 +212,7 @@ void vtkConnectivityFilter::Execute()
           id = PointMap[ptIds.GetId(i)];
           ptIds.SetId(i,id);
           }
-        this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+        output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
         }
       }
     }
@@ -237,7 +239,7 @@ void vtkConnectivityFilter::Execute()
             id = PointMap[ptIds.GetId(i)];
             ptIds.SetId(i,id);
             }
-          this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+          output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
           }
         }
       }
@@ -254,7 +256,7 @@ void vtkConnectivityFilter::Execute()
           id = PointMap[ptIds.GetId(i)];
           ptIds.SetId(i,id);
           }
-        this->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
+        output->InsertNextCell(this->Input->GetCellType(cellId),ptIds);
         }
       }
    }

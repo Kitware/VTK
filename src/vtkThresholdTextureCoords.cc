@@ -90,15 +90,16 @@ void vtkThresholdTextureCoords::ThresholdBetween(float lower, float upper)
   
 void vtkThresholdTextureCoords::Execute()
 {
-  vtkDataSet *input=this->Input;
   int numPts;
   vtkFloatTCoords *newTCoords;
   int ptId;
   float inTC[3], outTC[3];
   vtkScalars *inScalars;
+  vtkDataSet *input=this->Input;
+  vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<< "Executing texture threshold filter");
-  this->Initialize();
+  output->Initialize();
 
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
     {
@@ -125,7 +126,7 @@ void vtkThresholdTextureCoords::Execute()
 
     } //for all points
 
-  this->GetPointData()->SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 

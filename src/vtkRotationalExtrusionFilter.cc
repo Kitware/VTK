@@ -72,11 +72,13 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkIdList cellIds(MAX_CELL_SIZE), *cellPts;
   vtkMath math;
   int i, j, k, p1, p2;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPointData *outPD=output->GetPointData();
 //
 // Initialize / check input
 //
   vtkDebugMacro(<<"Rotationally extruding data");
-  this->Initialize();
+  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numCells=input->GetNumberOfCells()) < 1 )
@@ -102,8 +104,8 @@ void vtkRotationalExtrusionFilter::Execute()
 // Allocate memory for output. We don't copy normals because surface geometry
 // is modified.
 //
-  this->PointData.CopyNormalsOff();
-  this->PointData.CopyAllocate(pd,(this->Resolution+1)*numPts);
+  outPD->CopyNormalsOff();
+  outPD->CopyAllocate(pd,(this->Resolution+1)*numPts);
   newPts = new vtkFloatPoints((this->Resolution+1)*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
@@ -121,7 +123,7 @@ void vtkRotationalExtrusionFilter::Execute()
   for (ptId=0; ptId < numPts; ptId++) //base level
     {
     newPts->SetPoint(ptId,inPts->GetPoint(ptId));
-    this->PointData.CopyData(pd,ptId,ptId);
+    outPD->CopyData(pd,ptId,ptId);
     }
 
   radIncr = this->DeltaRadius / this->Resolution;
@@ -138,7 +140,7 @@ void vtkRotationalExtrusionFilter::Execute()
       newX[2] = x[2] + i * transIncr;
 
       newPts->SetPoint(ptId+i*numPts,newX);
-      this->PointData.CopyData(pd,ptId,ptId+i*numPts);
+      outPD->CopyData(pd,ptId,ptId+i*numPts);
       }
     }
 //
@@ -234,25 +236,25 @@ void vtkRotationalExtrusionFilter::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if ( newLines ) 
     {
-    this->SetLines(newLines);
+    output->SetLines(newLines);
     newLines->Delete();
     }
 
   if ( newPolys ) 
     {
-    this->SetPolys(newPolys);
+    output->SetPolys(newPolys);
     newPolys->Delete();
     }
 
-  this->SetStrips(newStrips);
+  output->SetStrips(newStrips);
   newStrips->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 

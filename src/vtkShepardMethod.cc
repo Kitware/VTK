@@ -61,6 +61,7 @@ vtkShepardMethod::vtkShepardMethod()
   this->SampleDimensions[2] = 50;
 
   this->NullValue = 0.0;
+  this->Output = new vtkStructuredPoints;
 }
 
 void vtkShepardMethod::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
@@ -79,7 +80,7 @@ void vtkShepardMethod::SetModelBounds(float xmin, float xmax, float ymin, float 
 
 // Description:
 // Compute ModelBounds from input geometry.
-float vtkShepardMethod::ComputeModelBounds()
+float vtkShepardMethod::ComputeModelBounds(float origin[3], float ar[3])
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -116,10 +117,13 @@ float vtkShepardMethod::ComputeModelBounds()
   // Set volume origin and aspect ratio
   for (i=0; i<3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                           / (this->SampleDimensions[i] - 1);
+    origin[i] = this->ModelBounds[2*i];
+    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+            / (this->SampleDimensions[i] - 1);
     }
+
+  ((vtkStructuredPoints *)this->Output)->SetOrigin(origin);
+  ((vtkStructuredPoints *)this->Output)->SetAspectRatio(ar);
 
   return maxDist;  
 }
@@ -127,7 +131,8 @@ float vtkShepardMethod::ComputeModelBounds()
 void vtkShepardMethod::Execute()
 {
   int ptId, i, j, k;
-  float *px, x[3], s, *sum;
+  float *px, x[3], s, *sum, ar[3], origin[3];
+  
   float maxDistance, distance2, inScalar;
   vtkScalars *inScalars;
   vtkFloatScalars *newScalars;
@@ -135,9 +140,10 @@ void vtkShepardMethod::Execute()
   int min[3], max[3];
   int jkFactor;
   vtkMath math;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Executing Shepard method");
-  this->Initialize();
+  output->Initialize();
 //
 // Check input
 //
@@ -165,8 +171,8 @@ void vtkShepardMethod::Execute()
     sum[i] = 0.0;
     }
 
-  this->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds();
+  output->SetDimensions(this->GetSampleDimensions());
+  maxDistance = this->ComputeModelBounds(origin,ar);
 //
 // Traverse all input points. Each input point affects voxels within maxDistance.
 //
@@ -177,24 +183,23 @@ void vtkShepardMethod::Execute()
     
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
-      min[i] = (int) ((float)((x[i] - maxDistance) - this->Origin[i]) / 
-                      this->AspectRatio[i]);
-      max[i] = (int) ((float)((x[i] + maxDistance) - this->Origin[i]) / 
-                      this->AspectRatio[i]);
+      min[i] = (int) ((float)((x[i] - maxDistance) - origin[i]) / ar[i]);
+      max[i] = (int) ((float)((x[i] + maxDistance) - origin[i]) / ar[i]);
       if (min[i] < 0) min[i] = 0;
-      if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
+      if (max[i] >= this->SampleDimensions[i]) 
+	max[i] = this->SampleDimensions[i] - 1;
       }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = this->AspectRatio[2] * k + this->Origin[2];
+      x[2] = ar[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = this->AspectRatio[1] * j + this->Origin[1];
+        x[1] = ar[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
-          x[0] = this->AspectRatio[0] * i + this->Origin[0];
+          x[0] = ar[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
 
           distance2 = math.Distance2BetweenPoints(x,px);
@@ -227,7 +232,7 @@ void vtkShepardMethod::Execute()
 // Update self
 //
   delete [] sum;
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 
@@ -273,7 +278,7 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
 void vtkShepardMethod::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+  vtkDataSetFilter::PrintSelf(os,indent);
 
   os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
 

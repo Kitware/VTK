@@ -62,8 +62,10 @@ void vtkAxes::Execute()
   vtkFloatNormals *newNormals;
   float x[3], n[3];
   int ptIds[2];
-
-  this->Initialize();
+  vtkPolyData *output = (vtkPolyData *)this->Output;
+  
+  // clear the output data
+  this->Output->Initialize();
 
   newPts = new vtkFloatPoints(numPts);
   newLines = new vtkCellArray();
@@ -113,29 +115,28 @@ void vtkAxes::Execute()
   newScalars->InsertNextScalar(0.5);
   newNormals->InsertNextNormal(n);
   newLines->InsertNextCell(2,ptIds);
-//
-// Update self and release memory
-// 
-  this->SetPoints(newPts);
+
+  //
+  // Update our output and release memory
+  // 
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }
 
 void vtkAxes::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolySource::PrintSelf(os,indent);
-
   os << indent << "Origin: (" << this->Origin[0] << ", "
                << this->Origin[1] << ", "
                << this->Origin[2] << ")\n";
-
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

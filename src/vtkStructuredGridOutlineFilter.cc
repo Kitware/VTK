@@ -50,9 +50,10 @@ void vtkStructuredGridOutlineFilter::Execute()
   int *dim, pts[2];
   vtkFloatPoints *newPts;
   vtkCellArray *newLines;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
-  vtkDebugMacro(<< "Creating structured outline");
-  this->Initialize();
+  vtkDebugMacro(<< "Creating structured grid outline");
+  output->Initialize();
 
   if ( (inPts=input->GetPoints()) == NULL )
     {
@@ -144,9 +145,9 @@ void vtkStructuredGridOutlineFilter::Execute()
 //
 // Update selves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }

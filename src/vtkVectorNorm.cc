@@ -49,27 +49,22 @@ vtkVectorNorm::vtkVectorNorm()
   this->Normalize = 0;
 }
 
-void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
-
-  os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
-}
-
 void vtkVectorNorm::Execute()
 {
   int i, numVectors;
   vtkFloatScalars *newScalars;
   float *v, s, maxScalar;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
+  vtkDataSet *output;
 //
 // Initialize
 //
   vtkDebugMacro(<<"Normalizing vectors!");
-  this->Initialize();
+  output->Initialize();
 
   pd = this->Input->GetPointData();
+  outPD = output->GetPointData();
   inVectors = pd->GetVectors();
 
   if ( (numVectors=inVectors->GetNumberOfVectors()) < 1 )
@@ -104,10 +99,17 @@ void vtkVectorNorm::Execute()
 //
 // Update self and release memory
 //
-  this->PointData.CopyScalarsOff();
-  this->PointData.PassData(pd);
+  outPD->CopyScalarsOff();
+  outPD->PassData(pd);
 
-  this->PointData.SetScalars(newScalars);
+  outPD->SetScalars(newScalars);
   newScalars->Delete();
+}
+
+void vtkVectorNorm::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataSetToDataSetFilter::PrintSelf(os,indent);
+
+  os << indent << "Normalize: " << (this->Normalize ? "On\n" : "Off\n");
 }
 

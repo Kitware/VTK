@@ -73,12 +73,13 @@ void vtkCursor3D::Execute()
   vtkCellArray *newLines;
   float x[3];
   int ptIds[2];
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<<"Generating cursor");
-  this->Initialize();
-//
-// Check bounding box and origin
-//
+  output->Initialize();
+  //
+  // Check bounding box and origin
+  //
   if ( this->Wrap ) 
     {
     for (i=0; i<3; i++)
@@ -318,10 +319,10 @@ void vtkCursor3D::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }
 

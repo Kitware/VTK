@@ -46,16 +46,17 @@ void vtkTransformFilter::Execute()
 {
   vtkPoints *inPts;
   vtkFloatPoints *newPts;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
   vtkFloatVectors *newVectors=NULL;
   vtkNormals *inNormals;
   vtkFloatNormals *newNormals=NULL;
   int numPts;
   vtkPointSet *input=(vtkPointSet *)this->Input;
+  vtkPointSet *output=(vtkPointSet *)this->Output;
 
   vtkDebugMacro(<<"Executing transformation");
-  this->Initialize();
+  output->Initialize();
 //
 // Check input
 //
@@ -99,22 +100,22 @@ void vtkTransformFilter::Execute()
 //
 // Update ourselves
 //
-  this->PointData.CopyVectorsOff();
-  this->PointData.CopyNormalsOff();
-  this->PointData.PassData(input->GetPointData());
+  outPD->CopyVectorsOff();
+  outPD->CopyNormalsOff();
+  outPD->PassData(input->GetPointData());
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if (newNormals)
     {
-    this->PointData.SetNormals(newNormals);
+    outPD->SetNormals(newNormals);
     newNormals->Delete();
     }
 
   if (newVectors)
     {
-    this->PointData.SetVectors(newVectors);
+    outPD->SetVectors(newVectors);
     newVectors->Delete();
     }
 }

@@ -40,48 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetToPolyFilter.hh"
 
-void vtkDataSetToPolyFilter::Modified()
+vtkDataSetToPolyFilter::vtkDataSetToPolyFilter()
 {
-  this->vtkPolyData::Modified();
-  this->vtkDataSetFilter::_Modified();
+  this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
 
-unsigned long int vtkDataSetToPolyFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkPolyData::GetMTime();
-  unsigned long ftime = this->vtkDataSetFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
 
-void vtkDataSetToPolyFilter::DebugOn()
-{
-  vtkPolyData::DebugOn();
-  vtkDataSetFilter::_DebugOn();
-}
-
-void vtkDataSetToPolyFilter::DebugOff()
-{
-  vtkPolyData::DebugOff();
-  vtkDataSetFilter::_DebugOff();
-}
-
-void vtkDataSetToPolyFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-int vtkDataSetToPolyFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkDataSetToPolyFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkDataSetToPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyData::PrintSelf(os,indent);
-  vtkDataSetFilter::_PrintSelf(os,indent);
-}

@@ -43,10 +43,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkDataSetToStructuredGridFilter::vtkDataSetToStructuredGridFilter()
 {
   this->Output = new vtkStructuredGrid;
+  this->Output->SetSource(this);
 }
 
-void vtkDataSetToStructuredGridFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkDataSetFilter::PrintSelf(os,indent);
-  os << indent << "Output: " << *((vtkStructuredPoints *)this->Output) << "\n";
-}

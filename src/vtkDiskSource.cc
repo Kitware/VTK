@@ -60,10 +60,12 @@ void vtkDiskSource::Execute()
   vtkFloatPoints *newPoints; 
   vtkCellArray *newPolys;
   vtkMath math;
-//
-// Set things up; allocate memory
-//
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  
+  //
+  // Set things up; allocate memory
+  //
+  output->Initialize();
 
   numPts = (this->RadialResolution + 1) * 
            (this->CircumferentialResolution + 1);
@@ -107,10 +109,10 @@ void vtkDiskSource::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 }
 

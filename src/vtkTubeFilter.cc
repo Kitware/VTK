@@ -55,7 +55,6 @@ void vtkTubeFilter::Execute()
   int i, j, k;
   vtkPoints *inPts;
   vtkNormals *inNormals;
-  vtkPointData *pd;
   vtkCellArray *inLines;
   int numPts, numNewPts;
   vtkFloatPoints *newPts;
@@ -69,14 +68,16 @@ void vtkTubeFilter::Execute()
   double BevelAngle;
   float theta=2.0*math.Pi()/this->NumberOfSides;
   int deleteNormals=0, ptId;
-  vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
+  vtkPointData *pd, *outPD;
+  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 //
 // Initialize
 //
   vtkDebugMacro(<<"Creating ribbon");
-  this->Initialize();
+  output->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numPts = inPts->GetNumberOfPoints()) < 1 ||
@@ -89,8 +90,8 @@ void vtkTubeFilter::Execute()
 
   // copy scalars, vectors, tcoords. Normals may be computed here.
   pd = input->GetPointData();
-  this->PointData.CopyNormalsOff();
-  this->PointData.CopyAllocate(pd,numNewPts);
+  outPD->CopyNormalsOff();
+  outPD->CopyAllocate(pd,numNewPts);
 
   if ( !(inNormals=pd->GetNormals()) )
     {
@@ -213,7 +214,7 @@ void vtkTubeFilter::Execute()
           }
         ptId = newPts->InsertNextPoint(s);
         newNormals->InsertNormal(ptId,normal);
-        this->PointData.CopyData(pd,pts[j],ptId);
+        outPD->CopyData(pd,pts[j],ptId);
         }
       }
 //
@@ -238,16 +239,16 @@ void vtkTubeFilter::Execute()
 //
   if ( deleteNormals ) inNormals->Delete();
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetStrips(newStrips);
+  output->SetStrips(newStrips);
   newStrips->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  outPD->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkTubeFilter::PrintSelf(ostream& os, vtkIndent indent)

@@ -40,17 +40,23 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkShrinkFilter.hh"
 
+vtkShrinkFilter::vtkShrinkFilter(float sf)
+{
+  this->ShrinkFactor = sf;
+}
+
 void vtkShrinkFilter::Execute()
 {
   vtkFloatPoints *newPts;
   int i, j, cellId, numCells, numPts;
   int oldId, newId;
   float center[3], *p, pt[3];
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;;
   vtkIdList ptIds(MAX_CELL_SIZE), newPtIds(MAX_CELL_SIZE);
+  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
   vtkDebugMacro(<<"Shrinking cells");
-  this->Initialize();
+  output->Initialize();
 
   if ( (numCells=this->Input->GetNumberOfCells()) < 1 ||
   (numPts = this->Input->GetNumberOfPoints()) < 1 )
@@ -59,10 +65,11 @@ void vtkShrinkFilter::Execute()
     return;
     }
 
-  this->Allocate(numCells);
+  output->Allocate(numCells);
   newPts = new vtkFloatPoints(numPts*8,numPts);
   pd = this->Input->GetPointData();
-  this->PointData.CopyAllocate(pd,numPts*8,numPts);
+  outPD = output->GetPointData();
+  outPD->CopyAllocate(pd,numPts*8,numPts);
 //
 // Traverse all cells, obtaining node coordinates.  Compute "center" of cell,
 // then create new vertices shrunk towards center.
@@ -91,15 +98,15 @@ void vtkShrinkFilter::Execute()
       newId = newPts->InsertNextPoint(pt);
       newPtIds.SetId(i,newId);
 
-      this->PointData.CopyData(pd, oldId, newId);
+      outPD->CopyData(pd, oldId, newId);
       }
-    this->InsertNextCell(this->Input->GetCellType(cellId), newPtIds);
+    output->InsertNextCell(this->Input->GetCellType(cellId), newPtIds);
     }
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
-  this->Squeeze();
+  output->SetPoints(newPts);
+  output->Squeeze();
 
   newPts->Delete();
 }

@@ -53,9 +53,11 @@ void vtkRendererSource::Execute()
   vtkPixmap *outScalars;
   float x1,y1,x2,y2;
   unsigned char *pixels;
+  int dims[3];
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<<"Converting points");
-  this->Initialize();
+  output->Initialize();
 
   if (this->Input == NULL )
     {
@@ -85,12 +87,13 @@ void vtkRendererSource::Execute()
     }
 
   // Get origin, aspect ratio and dimensions from this->Input
-  this->SetDimensions((int)(x2 - x1 + 1),(int)(y2 -y1 + 1),1);
-  this->SetAspectRatio(1,1,1);
-  this->SetOrigin(0,0,0);
+  dims[0] = (int)(x2 - x1 + 1); dims[1] = (int)(y2 -y1 + 1); dims[2] = 1;
+  output->SetDimensions(dims);
+  output->SetAspectRatio(1,1,1);
+  output->SetOrigin(0,0,0);
 
   // Allocate data.  Scalar type is FloatScalars.
-  numOutPts = this->Dimensions[0] * this->Dimensions[1];
+  numOutPts = dims[0] * dims[1];
   outScalars = new vtkPixmap;
 
   pixels = (this->Input->GetRenderWindow())->GetPixelData((int)x1,(int)y1,
@@ -100,7 +103,7 @@ void vtkRendererSource::Execute()
   memcpy(outScalars->WritePtr(0,numOutPts),pixels,3*numOutPts);
 
   // Update ourselves
-  this->PointData.SetScalars(outScalars);
+  output->GetPointData()->SetScalars(outScalars);
   outScalars->Delete();
 
   // free the memory

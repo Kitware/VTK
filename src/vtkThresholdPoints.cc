@@ -91,13 +91,14 @@ void vtkThresholdPoints::Execute()
 {
   vtkScalars *inScalars;
   vtkFloatPoints *newPoints;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkCellArray *verts;
   int ptId, pts[1], numPts;
   float *x;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<< "Executing threshold points filter");
-  this->Initialize();
+  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
@@ -108,7 +109,8 @@ void vtkThresholdPoints::Execute()
   numPts = this->Input->GetNumberOfPoints();
   newPoints = new vtkFloatPoints(numPts);
   pd = this->Input->GetPointData();
-  this->PointData.CopyAllocate(pd);
+  outPD = output->GetPointData();
+  outPD->CopyAllocate(pd);
   verts = new vtkCellArray();
   verts->Allocate(verts->EstimateSize(numPts,1));
 
@@ -119,23 +121,23 @@ void vtkThresholdPoints::Execute()
       {
       x = this->Input->GetPoint(ptId);
       pts[0] = newPoints->InsertNextPoint(x);
-      this->PointData.CopyData(pd,ptId,pts[0]);
+      outPD->CopyData(pd,ptId,pts[0]);
       verts->InsertNextCell(1,pts);
       } // satisfied thresholding
     } // for all points
 
-  vtkDebugMacro(<< "Extracted " << this->GetNumberOfPoints() << " points.");
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfPoints() << " points.");
 
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->SetVerts(verts);
+  output->SetVerts(verts);
   verts->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkThresholdPoints::PrintSelf(ostream& os, vtkIndent indent)

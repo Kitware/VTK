@@ -16,12 +16,13 @@ void vtkOutlineSource::Execute()
   int pts[2];
   vtkFloatPoints *newPts;
   vtkCellArray *newLines;
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<< "Generating outline");
 //
 // Initialize
 //
-  this->Initialize();
+  output->Initialize();
   bounds = this->Bounds;
 //
 // Allocate storage and create outline
@@ -74,10 +75,10 @@ void vtkOutlineSource::Execute()
 //
 // Update selves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }
 

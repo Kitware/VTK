@@ -60,7 +60,7 @@ void vtkRibbonFilter::Execute()
   int i, j;
   vtkPoints *inPts;
   vtkNormals *inNormals;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkCellArray *inLines;
   int numNewPts;
   vtkFloatPoints *newPts;
@@ -75,6 +75,7 @@ void vtkRibbonFilter::Execute()
   float theta;
   int deleteNormals=0, ptId;
   vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
   vtkScalars *inScalars=NULL;
   float sFactor=1.0, range[2];
   int ptOffset=0;
@@ -82,7 +83,7 @@ void vtkRibbonFilter::Execute()
 // Initialize
 //
   vtkDebugMacro(<<"Creating ribbon");
-  this->Initialize();
+  output->Initialize();
 
   if ( !(inPts=input->GetPoints()) || 
   (numNewPts=inPts->GetNumberOfPoints()*2) < 1 ||
@@ -94,8 +95,11 @@ void vtkRibbonFilter::Execute()
 
   // copy scalars, vectors, tcoords. Normals may be computed here.
   pd = input->GetPointData();
-  this->PointData.CopyNormalsOff();
-  this->PointData.CopyAllocate(pd,numNewPts);
+  outPD = output->GetPointData();
+  outPD->CopyNormalsOff();
+  outPD->CopyAllocate(pd,numNewPts);
+
+  output->GetPointData()->CopyAllocate(pd,numNewPts);
 
   if ( !(inNormals=pd->GetNormals()) )
     {
@@ -198,12 +202,12 @@ void vtkRibbonFilter::Execute()
       for (i=0; i<3; i++) s[i] = p[i] + w[i] * BevelAngle * sFactor;
       ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
-      this->PointData.CopyData(pd,pts[j],ptId);
+      outPD->CopyData(pd,pts[j],ptId);
 
       for (i=0; i<3; i++) s[i] = p[i] - w[i] * BevelAngle * sFactor;
       ptId = newPts->InsertNextPoint(s);
       newNormals->InsertNormal(ptId,n);
-      this->PointData.CopyData(pd,pts[j],ptId);
+      outPD->CopyData(pd,pts[j],ptId);
       }
 //
 // Generate the strip topology
@@ -222,16 +226,16 @@ void vtkRibbonFilter::Execute()
 //
   if ( deleteNormals ) inNormals->Delete();
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetStrips(newStrips);
+  output->SetStrips(newStrips);
   newStrips->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  outPD->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkRibbonFilter::PrintSelf(ostream& os, vtkIndent indent)

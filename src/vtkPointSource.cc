@@ -59,9 +59,10 @@ void vtkPointSource::Execute()
   vtkFloatPoints *newPoints;
   vtkCellArray *newVerts;
   vtkMath math;
-
-  vtkDebugMacro(<< "Executing Brownian filter");
-  this->Initialize();
+  vtkPolyData *output = (vtkPolyData *)this->Output;
+  
+  vtkDebugMacro(<< "Generating random cloud of points...");
+  output->Initialize();
 
   newPoints = new vtkFloatPoints(this->NumberOfPoints);
   newVerts = new vtkCellArray;
@@ -82,10 +83,10 @@ void vtkPointSource::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->SetVerts(newVerts);
+  output->SetVerts(newVerts);
   newVerts->Delete();
 }
 

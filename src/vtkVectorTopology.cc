@@ -46,23 +46,19 @@ vtkVectorTopology::vtkVectorTopology()
   this->Distance = 0.1;
 }
 
-vtkVectorTopology::~vtkVectorTopology()
-{
-  this->Distance = 0.1;
-}
-
 void vtkVectorTopology::Execute()
 {
-  vtkDataSet *input=this->Input;
   vtkVectors *inVectors;
   vtkFloatPoints *newPts;
   vtkCellArray *newVerts;
+  vtkDataSet *input=this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
-  vtkDebugMacro(<< "Executing vector topology...");
 //
 // Initialize self; check input; create output objects
 //
-  this->Initialize();
+  vtkDebugMacro(<< "Executing vector topology...");
+  output->Initialize();
 
   // make sure we have vector data
   if ( ! (inVectors = input->GetPointData()->GetVectors()) )
@@ -75,9 +71,9 @@ void vtkVectorTopology::Execute()
 //
 // Update ourselves
 //
-  this->SetPoints(newPts);
-  this->SetVerts(newVerts);
-  this->Squeeze();
+  output->SetPoints(newPts);
+  output->SetVerts(newVerts);
+  output->Squeeze();
 }
 
 void vtkVectorTopology::PrintSelf(ostream& os, vtkIndent indent)

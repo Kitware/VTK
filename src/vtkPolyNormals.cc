@@ -81,15 +81,16 @@ void vtkPolyNormals::Execute()
   vtkMath math;
   vtkFloatPoints *newPts;
   vtkFloatNormals *newNormals;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   float n[3];
   vtkCellArray *newPolys;
   int ptId, oldId;
   vtkIdList cellIds(MAX_CELL_SIZE);
   vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Generating surface normals");
-  this->Initialize();
+  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numPolys=input->GetNumberOfPolys()) < 1 )
@@ -215,15 +216,16 @@ void vtkPolyNormals::Execute()
 //
 //  Now need to map values of old points into new points.
 //
-    this->PointData.CopyNormalsOff();
-    this->PointData.CopyAllocate(pd,numNewPts);
+    outPD = output->GetPointData();
+    outPD->CopyNormalsOff();
+    outPD->CopyAllocate(pd,numNewPts);
 
     newPts = new vtkFloatPoints(numNewPts);
     for (ptId=0; ptId < numNewPts; ptId++)
       {
       oldId = Map->GetId(ptId);
       newPts->SetPoint(ptId,inPts->GetPoint(oldId));
-      this->PointData.CopyData(pd,oldId,ptId);
+      outPD->CopyData(pd,oldId,ptId);
       }
     Map->Delete();
     } 
@@ -273,21 +275,21 @@ void vtkPolyNormals::Execute()
 //
   if ( ! this->Splitting ) 
     {
-    this->SetPoints(inPts);
+    output->SetPoints(inPts);
     }
 //
 //  If there is splitting, then have to send down the new data.
 //
   else
     {
-    this->SetPoints(newPts);
+    output->SetPoints(newPts);
     newPts->Delete();
     }
 
-  this->PointData.SetNormals(newNormals);
+  outPD->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 
   OldMesh->Delete();

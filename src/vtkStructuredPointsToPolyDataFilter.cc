@@ -40,48 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsToPolyDataFilter.hh"
 
-void vtkStructuredPointsToPolyDataFilter::Modified()
+vtkStructuredPointsToPolyDataFilter::vtkStructuredPointsToPolyDataFilter()
 {
-  this->vtkPolyData::Modified();
-  this->vtkStructuredPointsFilter::_Modified();
+  this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
 
-unsigned long int vtkStructuredPointsToPolyDataFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkPolyData::GetMTime();
-  unsigned long ftime = this->vtkStructuredPointsFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vtkStructuredPointsToPolyDataFilter::DebugOn()
-{
-  vtkPolyData::DebugOn();
-  vtkStructuredPointsFilter::_DebugOn();
-}
-
-void vtkStructuredPointsToPolyDataFilter::DebugOff()
-{
-  vtkPolyData::DebugOff();
-  vtkStructuredPointsFilter::_DebugOff();
-}
-
-void vtkStructuredPointsToPolyDataFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-int vtkStructuredPointsToPolyDataFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkStructuredPointsToPolyDataFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkStructuredPointsToPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyData::PrintSelf(os,indent);
-  vtkStructuredPointsFilter::_PrintSelf(os,indent);
-}

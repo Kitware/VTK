@@ -101,29 +101,22 @@ void vtkTransformStructuredPoints::SetModelBounds(float xmin, float xmax, float 
     this->ModelBounds[3] = ymax;
     this->ModelBounds[4] = zmin;
     this->ModelBounds[5] = zmax;
-
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
-
-    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
     }
 }
 
 void vtkTransformStructuredPoints::Execute()
 {
   int i, numPts, numOutPts;
-  int *dimIn;
+  int *dimIn, *dim;
   float *originIn, *aspectIn, ar[3];
   vtkPointData *pd;
   vtkScalars *inScalars, *outScalars;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+
 
   vtkDebugMacro(<<"Transforming points");
-  this->Initialize();
+  output->Initialize();
 
   // make sure there is input
   pd = this->Input->GetPointData();
@@ -144,13 +137,16 @@ void vtkTransformStructuredPoints::Execute()
   if (this->SampleDimensions[0] <= 1 || this->SampleDimensions[1] <= 1 || 
   this->SampleDimensions[2] <= 1)
     {
-    this->SetDimensions(dimIn);
+    output->SetDimensions(dimIn);
+    dim = dimIn;
+    
     }
-	
   // otherwise use the specified dimensions
   else 
     {
-    this->SetDimensions(this->SampleDimensions);
+    output->SetDimensions(this->SampleDimensions);
+    dim = this->SampleDimensions;
+    
     }
 
   // if bounds are not specified, use input's aspect ratio and origin
@@ -158,23 +154,23 @@ void vtkTransformStructuredPoints::Execute()
   this->ModelBounds[2] >= this->ModelBounds[3] ||
   this->ModelBounds[4] >= this->ModelBounds[5])
     {
-    this->SetAspectRatio(aspectIn);
-    this->SetOrigin(originIn);
+    output->SetAspectRatio(aspectIn);
+    output->SetOrigin(originIn);
     }
   // otherwise, calculate them from bounds
   else 
     {
-    this->SetOrigin(this->ModelBounds[0], this->ModelBounds[1], 
+    output->SetOrigin(this->ModelBounds[0], this->ModelBounds[1], 
                     this->ModelBounds[2]);
     for (i=0; i<3; i++) 
       ar[i] = (this->ModelBounds[2*i+1]-this->ModelBounds[2*i]) /
-              (this->Dimensions[i] - 1);
+              (dim[i] - 1);
 
-    this->SetAspectRatio(ar);
+    output->SetAspectRatio(ar);
     }
 
   // Allocate data.  Scalar type is same as input.
-  numOutPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
+  numOutPts = dim[0] * dim[1] * dim[2];
   outScalars = inScalars->MakeObject(numOutPts);
   for (i = 0; i < numOutPts; i++) outScalars->SetScalar(i,this->FillValue);
 
@@ -187,7 +183,7 @@ void vtkTransformStructuredPoints::Execute()
 
 
   // Update ourselves
-  this->PointData.SetScalars(outScalars);
+  output->GetPointData()->SetScalars(outScalars);
 
   outScalars->Delete();
 }

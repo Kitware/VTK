@@ -50,13 +50,13 @@ void vtkPointSetFilter::SetInput(vtkPointSet *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vtkDataSet *) input;
-    this->_Modified();
+    this->Modified();
     }
 }
 
-void vtkPointSetFilter::_PrintSelf(ostream& os, vtkIndent indent)
+void vtkPointSetFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::_PrintSelf(os,indent);
+  vtkFilter::PrintSelf(os,indent);
 }

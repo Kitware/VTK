@@ -44,13 +44,9 @@ vtkPolyReader::vtkPolyReader()
 {
 }
 
-vtkPolyReader::~vtkPolyReader()
-{
-}
-
 unsigned long int vtkPolyReader::GetMTime()
 {
-  unsigned long dtime = this->vtkPolySource::GetMTime();
+  unsigned long dtime = this->vtkSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
@@ -152,9 +148,11 @@ void vtkPolyReader::Execute()
   int retStat;
   char line[257];
   int npts, size, ncells;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Reading vtk polygonal data...");
-  this->Initialize();
+  output->Initialize();
+
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
@@ -215,7 +213,7 @@ void vtkPolyReader::Execute()
 
         this->Reader.ReadCells(fp, size, verts->WritePtr(ncells,size));
         verts->WrotePtr();
-        this->SetVerts(verts);
+        output->SetVerts(verts);
         verts->Delete();
         vtkDebugMacro(<<"Read " << ncells << " vertices");
         }
@@ -231,7 +229,7 @@ void vtkPolyReader::Execute()
 
         this->Reader.ReadCells(fp, size, lines->WritePtr(ncells,size));
         lines->WrotePtr();
-        this->SetLines(lines);
+        output->SetLines(lines);
         lines->Delete();
         vtkDebugMacro(<<"Read " << ncells << " lines");
         }
@@ -247,7 +245,7 @@ void vtkPolyReader::Execute()
 
         this->Reader.ReadCells(fp, size, polys->WritePtr(ncells,size));
         polys->WrotePtr();
-        this->SetPolys(polys);
+        output->SetPolys(polys);
         polys->Delete();
         vtkDebugMacro(<<"Read " << ncells << " polygons");
         }
@@ -263,7 +261,7 @@ void vtkPolyReader::Execute()
 
         this->Reader.ReadCells(fp, size, tris->WritePtr(ncells,size));
         tris->WrotePtr();
-        this->SetStrips(tris);
+        output->SetStrips(tris);
         tris->Delete();
         vtkDebugMacro(<<"Read " << ncells << " triangle strips");
         }
@@ -293,9 +291,9 @@ void vtkPolyReader::Execute()
         }
       }
 
-      if ( ! this->GetPoints() ) vtkWarningMacro(<<"No points read!");
-      if ( !(this->GetVerts() || this->GetLines() || 
-      this->GetPolys() || this->GetStrips()) ) 
+      if ( ! output->GetPoints() ) vtkWarningMacro(<<"No points read!");
+      if ( !(output->GetVerts() || output->GetLines() || 
+      output->GetPolys() || output->GetStrips()) ) 
         vtkWarningMacro(<<"No topology read!");
     }
 

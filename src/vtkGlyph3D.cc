@@ -86,9 +86,11 @@ void vtkGlyph3D::Execute()
   int orient, scaleSource, ptIncr, cellId;
   float scale, den;
   vtkMath math;
-
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
   vtkDebugMacro(<<"Generating glyphs");
-  this->Initialize();
+  output->Initialize();
 
   pd = this->Input->GetPointData();
   inScalars = pd->GetScalars();
@@ -116,25 +118,25 @@ void vtkGlyph3D::Execute()
   if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetVerts(cells);
+    output->SetVerts(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetLines(cells);
+    output->SetLines(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetPolys(cells);
+    output->SetPolys(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetStrips(cells);
+    output->SetStrips(cells);
     cells->Delete();
     }
 //
@@ -143,10 +145,10 @@ void vtkGlyph3D::Execute()
 // from Source.
 //
   pd = this->Source->GetPointData();
-  this->PointData.CopyScalarsOff();
-  this->PointData.CopyVectorsOff();
-  this->PointData.CopyNormalsOff();
-  this->PointData.CopyAllocate(pd,numPts*numSourcePts);
+  outputPD->CopyScalarsOff();
+  outputPD->CopyVectorsOff();
+  outputPD->CopyNormalsOff();
+  outputPD->CopyAllocate(pd,numPts*numSourcePts);
 //
 // First copy all topology (transformation independent)
 //
@@ -159,7 +161,7 @@ void vtkGlyph3D::Execute()
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (i=0; i < npts; i++) pts[i] = cellPts->GetId(i) + ptIncr;
-      this->InsertNextCell(cell->GetCellType(),npts,pts);
+      output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
 //
@@ -244,33 +246,33 @@ void vtkGlyph3D::Execute()
 
     // Copy point data from source
     for (i=0; i < numSourcePts; i++) 
-      this->PointData.CopyData(pd,i,ptIncr+i);
+      outputPD->CopyData(pd,i,ptIncr+i);
     }
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if (newScalars)
     {
-    this->PointData.SetScalars(newScalars);
+    outputPD->SetScalars(newScalars);
     newScalars->Delete();
     }
 
   if (newVectors)
     {
-    this->PointData.SetVectors(newVectors);
+    outputPD->SetVectors(newVectors);
     newVectors->Delete();
     }
 
   if (newNormals)
     {
-    this->PointData.SetNormals(newNormals);
+    outputPD->SetNormals(newNormals);
     newNormals->Delete();
     }
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 // Description:

@@ -57,11 +57,14 @@ void vtkMaskPoints::Execute()
   int numNewPts;
   float *x;
   int ptId, id;
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
   //
   // Check input
   //
   vtkDebugMacro(<<"Masking points");
-  this->Initialize();
+  output->Initialize();
 
   if ( numPts < 1 )
     {
@@ -81,7 +84,7 @@ void vtkMaskPoints::Execute()
     numNewPts = this->MaximumNumberOfPoints;
     }
   newPts = new vtkFloatPoints(numNewPts);
-  this->PointData.CopyAllocate(pd);
+  outputPD->CopyAllocate(pd);
   //
   // Traverse points and copy
   //
@@ -105,7 +108,7 @@ void vtkMaskPoints::Execute()
       {
       x =  this->Input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
-      this->PointData.CopyData(pd,ptId,id);
+      outputPD->CopyData(pd,ptId,id);
       }
     }
   else // a.r. mode
@@ -116,14 +119,14 @@ void vtkMaskPoints::Execute()
       {
       x =  this->Input->GetPoint(ptId);
       id = newPts->InsertNextPoint(x);
-      this->PointData.CopyData(pd,ptId,id);
+      outputPD->CopyData(pd,ptId,id);
       }
     }
 //
 // Update ourselves
 //
-  this->SetPoints(newPts);
-  this->Squeeze();
+  output->SetPoints(newPts);
+  output->Squeeze();
 
   vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 }

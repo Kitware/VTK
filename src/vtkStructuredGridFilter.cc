@@ -40,28 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridFilter.hh"
 
-vtkStructuredGridFilter::vtkStructuredGridFilter()
-{
-}
-
-vtkStructuredGridFilter::~vtkStructuredGridFilter()
-{
-}
-
 // Description:
 // Specify the input Grid or filter.
 void vtkStructuredGridFilter::SetInput(vtkStructuredGrid *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vtkDataSet *) input;
-    this->_Modified();
+    this->Modified();
     }
 }
 
-void vtkStructuredGridFilter::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkFilter::_PrintSelf(os,indent);
-
-}

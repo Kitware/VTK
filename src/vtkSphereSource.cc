@@ -65,10 +65,11 @@ void vtkSphereSource::Execute()
   float x[3], deltaPhi, deltaTheta, phi, theta, radius, norm;
   int pts[3], base;
   vtkMath math;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 //
 // Set things up; allocate memory
 //
-  this->Initialize();
+  output->Initialize();
 
   numPts = (this->PhiResolution - 1) * this->ThetaResolution + 2;
   // creating triangles
@@ -150,13 +151,13 @@ void vtkSphereSource::Execute()
 //
 // Update ourselves and release memeory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 }
 

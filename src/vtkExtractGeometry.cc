@@ -78,9 +78,12 @@ void vtkExtractGeometry::Execute()
   float multiplier;
   vtkFloatPoints *newPts;
   vtkIdList newCellPts(MAX_CELL_SIZE);
-
+  vtkUnstructuredGrid *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
+  
   vtkDebugMacro(<< "Extracting geometry");
-  this->Initialize();
+  output->Initialize();
 
   if ( ! this->ImplicitFunction )
     {
@@ -99,10 +102,10 @@ void vtkExtractGeometry::Execute()
   pointMap = new int[numPts]; // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap[i] = -1;
 
-  this->Allocate(numCells/4); //allocate storage for geometry/topology
+  output->Allocate(numCells/4); //allocate storage for geometry/topology
   newPts = new vtkFloatPoints(numPts/4,numPts);
   pd = this->Input->GetPointData();
-  this->PointData.CopyAllocate(pd);
+  outputPD->CopyAllocate(pd);
   
   for ( ptId=0; ptId < numPts; ptId++ )
     {
@@ -111,7 +114,7 @@ void vtkExtractGeometry::Execute()
       {
       newId = newPts->InsertNextPoint(x);
       pointMap[ptId] = newId;
-      this->PointData.CopyData(pd,ptId,newId);
+      outputPD->CopyData(pd,ptId,newId);
       }
     }
 //
@@ -133,7 +136,7 @@ void vtkExtractGeometry::Execute()
 
     if ( i >= numCellPts )
       {
-      this->InsertNextCell(cell->GetCellType(),newCellPts);
+      output->InsertNextCell(cell->GetCellType(),newCellPts);
       }
     }
 //
@@ -141,10 +144,10 @@ void vtkExtractGeometry::Execute()
 //
   delete [] pointMap;
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkExtractGeometry::PrintSelf(ostream& os, vtkIndent indent)

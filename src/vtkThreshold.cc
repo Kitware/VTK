@@ -96,12 +96,13 @@ void vtkThreshold::Execute()
   vtkFloatScalars cellScalars(MAX_CELL_SIZE);
   vtkCell *cell;
   vtkFloatPoints *newPoints;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   int i, ptId, newId, numPts, numCellPts;
   float *x;
+  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
 
   vtkDebugMacro(<< "Executing threshold filter");
-  this->Initialize();
+  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
@@ -111,10 +112,10 @@ void vtkThreshold::Execute()
      
   numPts = this->Input->GetNumberOfPoints();
 
-  this->Allocate(this->Input->GetNumberOfCells());
+  output->Allocate(this->Input->GetNumberOfCells());
   newPoints = new vtkFloatPoints(numPts);
   pd = this->Input->GetPointData();
-  this->PointData.CopyAllocate(pd);
+  outPD->CopyAllocate(pd);
 
   pointMap = new vtkIdList(numPts); // maps old point ids into new
   for (i=0; i < numPts; i++) pointMap->SetId(i,-1);
@@ -143,24 +144,24 @@ void vtkThreshold::Execute()
           x = this->Input->GetPoint(ptId);
           newId = newPoints->InsertNextPoint(x);
           pointMap->SetId(ptId,newId);
-          this->PointData.CopyData(pd,ptId,newId);
+          outPD->CopyData(pd,ptId,newId);
           }
         newCellPts.SetId(i,newId);
         }
-      this->InsertNextCell(cell->GetCellType(),newCellPts);
+      output->InsertNextCell(cell->GetCellType(),newCellPts);
       } // satisfied thresholding
     } // for all cells
 
-  vtkDebugMacro(<< "Extracted " << this->GetNumberOfCells() 
+  vtkDebugMacro(<< "Extracted " << output->GetNumberOfCells() 
                << " number of cells.");
 
   // now clean up / update ourselves
   pointMap->Delete();
 
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)

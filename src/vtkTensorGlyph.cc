@@ -59,13 +59,8 @@ vtkTensorGlyph::vtkTensorGlyph()
   this->MaxScaleFactor = 100;
 }
 
-vtkTensorGlyph::~vtkTensorGlyph()
-{
-}
-
 void vtkTensorGlyph::Execute()
 {
-  vtkPointData *pd;
   vtkTensors *inTensors;
   vtkTensor *tensor;
   vtkScalars *inScalars;
@@ -91,15 +86,18 @@ void vtkTensorGlyph::Execute()
   float xv[3], yv[3], zv[3];
   float maxScale;
   int nrot;
-
+  vtkPointData *pd, *outPD;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
+  
   // set up working matrices
   m[0] = m0; m[1] = m1; m[2] = m2; 
   v[0] = v0; v[1] = v1; v[2] = v2; 
 
   vtkDebugMacro(<<"Generating tensor glyphs");
-  this->Initialize();
+  output->Initialize();
 
   pd = this->Input->GetPointData();
+  outPD = output->GetPointData();
   inTensors = pd->GetTensors();
   inScalars = pd->GetScalars();
   numPts = this->Input->GetNumberOfPoints();
@@ -122,25 +120,25 @@ void vtkTensorGlyph::Execute()
   if ( (sourceCells=this->Source->GetVerts())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetVerts(cells);
+    output->SetVerts(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetLines())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetLines(cells);
+    output->SetLines(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetPolys())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetPolys(cells);
+    output->SetPolys(cells);
     cells->Delete();
     }
   if ( (sourceCells=this->Source->GetStrips())->GetNumberOfCells() > 0 )
     {
     cells = new vtkCellArray(numPts*sourceCells->GetSize());
-    this->SetStrips(cells);
+    output->SetStrips(cells);
     cells->Delete();
     }
 
@@ -150,9 +148,9 @@ void vtkTensorGlyph::Execute()
     newScalars = new vtkFloatScalars(numPts*numSourcePts);
   else
     {
-    this->PointData.CopyAllOff();
-    this->PointData.CopyScalarsOn();
-    this->PointData.CopyAllocate(pd,numPts*numSourcePts);
+    outPD->CopyAllOff();
+    outPD->CopyScalarsOn();
+    outPD->CopyAllocate(pd,numPts*numSourcePts);
     }
   if ( sourceNormals = pd->GetNormals() )
     newNormals = new vtkFloatNormals(numPts*numSourcePts);
@@ -168,7 +166,7 @@ void vtkTensorGlyph::Execute()
       cellPts = cell->GetPointIds();
       npts = cellPts->GetNumberOfIds();
       for (i=0; i < npts; i++) pts[i] = cellPts->GetId(i) + ptIncr;
-      this->InsertNextCell(cell->GetCellType(),npts,pts);
+      output->InsertNextCell(cell->GetCellType(),npts,pts);
       }
     }
 //
@@ -267,29 +265,29 @@ void vtkTensorGlyph::Execute()
     else
       {
       for (i=0; i < numSourcePts; i++) 
-        this->PointData.CopyData(pd,i,ptIncr+i);
+        outPD->CopyData(pd,i,ptIncr+i);
       }
     }
   vtkDebugMacro(<<"Generated " << numPts <<" tensor glyphs");
 //
-// Update ourselves
+// Update output
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if ( newScalars )
     {
-    this->PointData.SetScalars(newScalars);
+    outPD->SetScalars(newScalars);
     newScalars->Delete();
     }
 
   if ( newNormals )
     {
-    this->PointData.SetNormals(newNormals);
+    outPD->SetNormals(newNormals);
     newNormals->Delete();
     }
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 // Description:

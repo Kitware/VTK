@@ -65,20 +65,6 @@ vtkVoxelModeller::vtkVoxelModeller()
   this->SampleDimensions[2] = 50;
 }
 
-void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
-
-  os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
-  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
-               << this->SampleDimensions[1] << ", "
-               << this->SampleDimensions[2] << ")\n";
-  os << indent << "Model Bounds: \n";
-  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
-  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
-  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
-}
-
 // Description:
 // Specify the position in space to perform the voxelization.
 void vtkVoxelModeller::SetModelBounds(float *bounds)
@@ -101,15 +87,6 @@ void vtkVoxelModeller::SetModelBounds(float xmin, float xmax, float ymin, float 
     this->ModelBounds[3] = ymax;
     this->ModelBounds[4] = zmin;
     this->ModelBounds[5] = zmax;
-
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
-
-    if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
     }
 }
 
@@ -127,24 +104,24 @@ void vtkVoxelModeller::Execute()
   int jkFactor;
   float weights[MAX_CELL_SIZE];
   float closestPoint[3];
-  float voxelHalfWidth[3];
-
-  vtkDebugMacro(<< "Executing Voxel model");
+  float voxelHalfWidth[3], origin[3], ar[3];
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 //
 // Initialize self; create output objects
 //
-  this->Initialize();
+  vtkDebugMacro(<< "Executing Voxel model");
+  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
   newScalars = new vtkBitScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,0);
 
-  this->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds();
+  output->SetDimensions(this->GetSampleDimensions());
+  maxDistance = this->ComputeModelBounds(origin,ar);
 //
 // Voxel widths are 1/2 the height, width, length of a voxel
 //
-  for (i=0; i < 3; i++) voxelHalfWidth[i] = this->AspectRatio[i] / 2.0;
+  for (i=0; i < 3; i++) voxelHalfWidth[i] = ar[i] / 2.0;
 //
 // Traverse all cells; computing distance function on volume points.
 //
@@ -161,10 +138,10 @@ void vtkVoxelModeller::Execute()
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
-      min[i] = (int) ((float)(adjBounds[2*i] - this->Origin[i]) / 
-                      this->AspectRatio[i]);
-      max[i] = (int) ((float)(adjBounds[2*i+1] - this->Origin[i]) / 
-                      this->AspectRatio[i]);
+      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+                      ar[i]);
+      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+                      ar[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
@@ -172,16 +149,16 @@ void vtkVoxelModeller::Execute()
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = this->AspectRatio[2] * k + this->Origin[2];
+      x[2] = ar[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = this->AspectRatio[1] * j + this->Origin[1];
+        x[1] = ar[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
 	  idx = jkFactor*k + this->SampleDimensions[0]*j + i;
 	  if (!(newScalars->GetScalar(idx)))
 	    {
-	    x[0] = this->AspectRatio[0] * i + this->Origin[0];
+	    x[0] = ar[0] * i + origin[0];
 
 	    if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords, distance2, weights) != -1 &&
 	    ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
@@ -198,13 +175,13 @@ void vtkVoxelModeller::Execute()
 //
 // Update self
 //
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 
 // Description:
 // Compute the ModelBounds based on the input geometry.
-float vtkVoxelModeller::ComputeModelBounds()
+float vtkVoxelModeller::ComputeModelBounds(float origin[3], float ar[3])
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
@@ -241,8 +218,8 @@ float vtkVoxelModeller::ComputeModelBounds()
   // Set volume origin and aspect ratio
   for (i=0; i<3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])/
+    origin[i] = this->ModelBounds[2*i];
+    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])/
       (this->SampleDimensions[i] - 1);
     }
 
@@ -293,7 +270,8 @@ void vtkVoxelModeller::Write(char *fname)
 {
   FILE *fp;
   int i, j, k;
-  float maxDistance;
+  float maxDistance, origin[3], ar[3];
+  
   vtkBitScalars *newScalars;
   int numPts, idx;
   int bitcount;
@@ -302,15 +280,14 @@ void vtkVoxelModeller::Write(char *fname)
   vtkDebugMacro(<< "Writing Voxel model");
 
   // update the data
-  this->Execute();
+  this->Update();
   
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] * this->SampleDimensions[2];
 
-  newScalars = (vtkBitScalars *)this->PointData.GetScalars();
-  
+  newScalars = (vtkBitScalars *)this->Output->GetPointData()->GetScalars();
 
-  this->SetDimensions(this->GetSampleDimensions());
-  maxDistance = this->ComputeModelBounds();
+  ((vtkStructuredPoints *)(this->Output))->SetDimensions(this->GetSampleDimensions());
+  maxDistance = this->ComputeModelBounds(origin,ar);
 
   fp = fopen(fname,"w");
   if (!fp) 
@@ -320,10 +297,8 @@ void vtkVoxelModeller::Write(char *fname)
     }
 
   fprintf(fp,"Voxel Data File\n");
-  fprintf(fp,"Origin: %f %f %f\n",this->Origin[0],
-	  this->Origin[1],this->Origin[2]);
-  fprintf(fp,"Aspect: %f %f %f\n",this->AspectRatio[0],
-	  this->AspectRatio[1],this->AspectRatio[2]);
+  fprintf(fp,"Origin: %f %f %f\n",origin[0],origin[1],origin[2]);
+  fprintf(fp,"Aspect: %f %f %f\n",ar[0],ar[1],ar[2]);
   fprintf(fp,"Dimensions: %i %i %i\n",this->SampleDimensions[0],
 	  this->SampleDimensions[1],this->SampleDimensions[2]);
 
@@ -356,3 +331,18 @@ void vtkVoxelModeller::Write(char *fname)
 
   fclose(fp);
 }
+
+void vtkVoxelModeller::PrintSelf(ostream& os, vtkIndent indent)
+{
+  vtkDataSetToStructuredPointsFilter::PrintSelf(os,indent);
+
+  os << indent << "Maximum Distance: " << this->MaximumDistance << "\n";
+  os << indent << "Sample Dimensions: (" << this->SampleDimensions[0] << ", "
+               << this->SampleDimensions[1] << ", "
+               << this->SampleDimensions[2] << ")\n";
+  os << indent << "Model Bounds: \n";
+  os << indent << "  Xmin,Xmax: (" << this->ModelBounds[0] << ", " << this->ModelBounds[1] << ")\n";
+  os << indent << "  Ymin,Ymax: (" << this->ModelBounds[2] << ", " << this->ModelBounds[3] << ")\n";
+  os << indent << "  Zmin,Zmax: (" << this->ModelBounds[4] << ", " << this->ModelBounds[5] << ")\n";
+}
+

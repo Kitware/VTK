@@ -66,9 +66,10 @@ void vtkLineSource::Execute()
   vtkFloatPoints *newPoints; 
   vtkFloatTCoords *newTCoords; 
   vtkCellArray *newLines;
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<<"Creating line");
-  this->Initialize();
+  output->Initialize();
 
   newPoints = new vtkFloatPoints(numPts);
   newTCoords = new vtkFloatTCoords(numPts,2);
@@ -100,13 +101,13 @@ void vtkLineSource::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }
 

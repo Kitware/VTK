@@ -42,10 +42,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAppendPolyData::vtkAppendPolyData()
 {
-}
-
-vtkAppendPolyData::~vtkAppendPolyData()
-{
+  this->Output = new vtkPolyData;
 }
 
 // Description:
@@ -86,7 +83,8 @@ void vtkAppendPolyData::Update()
   if (this->Updating) return;
 
   this->Updating = 1;
-  for (mtime=0, this->InputList.InitTraversal(); pd = this->InputList.GetNextItem(); )
+  for (mtime=0, this->InputList.InitTraversal(); 
+       pd = this->InputList.GetNextItem();)
     {
     pd->Update();
     pdMtime = pd->GetMTime();
@@ -124,9 +122,11 @@ void vtkAppendPolyData::Execute()
   int numPts, numCells;
   vtkPointData *pd;
   int npts, *pts;
-
+  vtkPolyData *output = (vtkPolyData *)this->Output;
+  vtkPointData *outputPD = output->GetPointData();
+  
   vtkDebugMacro(<<"Appending data together");
-  this->Initialize();
+  output->Initialize();
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
@@ -158,13 +158,13 @@ void vtkAppendPolyData::Execute()
     }
 
 // Now can allocate memory
-  if ( !scalarsPresent ) this->PointData.CopyScalarsOff();
-  if ( !vectorsPresent ) this->PointData.CopyVectorsOff();
-  if ( !normalsPresent ) this->PointData.CopyNormalsOff();
-  if ( !tcoordsPresent ) this->PointData.CopyTCoordsOff();
-  if ( !tensorsPresent ) this->PointData.CopyTensorsOff();
-  if ( !userDefinedPresent ) this->PointData.CopyUserDefinedOff();
-  this->PointData.CopyAllocate(pd,numPts);
+  if ( !scalarsPresent ) outputPD->CopyScalarsOff();
+  if ( !vectorsPresent ) outputPD->CopyVectorsOff();
+  if ( !normalsPresent ) outputPD->CopyNormalsOff();
+  if ( !tcoordsPresent ) outputPD->CopyTCoordsOff();
+  if ( !tensorsPresent ) outputPD->CopyTensorsOff();
+  if ( !userDefinedPresent ) outputPD->CopyUserDefinedOff();
+  outputPD->CopyAllocate(pd,numPts);
 
   newPts = new vtkFloatPoints(numPts);
 
@@ -196,7 +196,7 @@ void vtkAppendPolyData::Execute()
     for (ptId=0; ptId < numPts; ptId++)
       {
       newPts->SetPoint(ptId+ptOffset,inPts->GetPoint(ptId));
-      this->PointData.CopyData(pd,ptId,ptId+ptOffset);
+      outputPD->CopyData(pd,ptId,ptId+ptOffset);
       }
 
     for (inVerts->InitTraversal(); inVerts->GetNextCell(npts,pts); )
@@ -226,38 +226,27 @@ void vtkAppendPolyData::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  if ( newVerts->GetNumberOfCells() > 0 ) this->SetVerts(newVerts);
+  if ( newVerts->GetNumberOfCells() > 0 ) output->SetVerts(newVerts);
   newVerts->Delete();
 
-  if ( newLines->GetNumberOfCells() > 0 ) this->SetLines(newLines);
+  if ( newLines->GetNumberOfCells() > 0 ) output->SetLines(newLines);
   newLines->Delete();
 
-  if ( newPolys->GetNumberOfCells() > 0 ) this->SetPolys(newPolys);
+  if ( newPolys->GetNumberOfCells() > 0 ) output->SetPolys(newPolys);
   newPolys->Delete();
 
-  if ( newStrips->GetNumberOfCells() > 0 ) this->SetStrips(newStrips);
+  if ( newStrips->GetNumberOfCells() > 0 ) output->SetStrips(newStrips);
   newStrips->Delete();
 
-  this->Squeeze();
-}
-
-int vtkAppendPolyData::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkAppendPolyData::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
+  output->Squeeze();
 }
 
 void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolyData::PrintSelf(os,indent);
-  vtkFilter::_PrintSelf(os,indent);
+  vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());

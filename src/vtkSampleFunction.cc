@@ -118,14 +118,15 @@ void vtkSampleFunction::Execute()
   vtkFloatScalars *newScalars;
   vtkFloatNormals *newNormals=NULL;
   int numPts;
-  float *p, s;
+  float *p, s, ar[3], origin[3];
   vtkMath math;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Sampling implicit function");
 //
 // Initialize self; create output objects
 //
-  this->Initialize();
+  output->Initialize();
 
   if ( !this->ImplicitFunction )
     {
@@ -138,19 +139,21 @@ void vtkSampleFunction::Execute()
   newScalars = new vtkFloatScalars(numPts);
 
   // Compute origin and aspect ratio
-  this->SetDimensions(this->GetSampleDimensions());
+  output->SetDimensions(this->GetSampleDimensions());
   for (i=0; i < 3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                           / (this->SampleDimensions[i] - 1);
+    origin[i] = this->ModelBounds[2*i];
+    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+            / (this->SampleDimensions[i] - 1);
     }
+  output->SetOrigin(origin);
+  output->SetAspectRatio(ar);
 //
 // Traverse all points evaluating implicit function at each point
 //
   for (ptId=0; ptId < numPts; ptId++ )
     {
-    p = this->GetPoint(ptId);
+    p = output->GetPoint(ptId);
     s = this->ImplicitFunction->FunctionValue(p);
     newScalars->SetScalar(ptId,s);
     }
@@ -163,7 +166,7 @@ void vtkSampleFunction::Execute()
     newNormals = new vtkFloatNormals(numPts);
     for (ptId=0; ptId < numPts; ptId++ )
       {
-      p = this->GetPoint(ptId);
+      p = output->GetPoint(ptId);
       this->ImplicitFunction->FunctionGradient(p, n);
       math.Normalize(n);
       newNormals->SetNormal(ptId,n);
@@ -180,12 +183,12 @@ void vtkSampleFunction::Execute()
 //
 // Update self
 //
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
   if (newNormals)
     {
-    this->PointData.SetNormals(newNormals);
+    output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
 }
@@ -193,7 +196,7 @@ void vtkSampleFunction::Execute()
 
 unsigned long vtkSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->vtkStructuredPointsSource::GetMTime();
+  unsigned long mTime=this->vtkSource::GetMTime();
   unsigned long impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )

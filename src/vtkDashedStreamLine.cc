@@ -55,7 +55,8 @@ void vtkDashedStreamLine::Execute()
   int i, ptId, j, pts[2];
   float tOffset, x[3], v[3], s, r, xPrev[3], vPrev[3], scalarPrev;
   float xEnd[3], vEnd[3], sEnd;
-
+  vtkPolyData *output = this->GetOutput();
+  
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
 //
@@ -157,22 +158,22 @@ void vtkDashedStreamLine::Execute()
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->PointData.SetVectors(newVectors);
+  output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 
   if ( newScalars )
     {
-    this->PointData.SetScalars(newScalars);
+    output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     }
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkDashedStreamLine::PrintSelf(ostream& os, vtkIndent indent)

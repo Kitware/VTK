@@ -41,102 +41,24 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointSetToPointSetFilter.hh"
 #include "vtkPolyData.hh"
 
-vtkPointSetToPointSetFilter::vtkPointSetToPointSetFilter()
+// Description:
+// Specify the input data or filter.
+void vtkPointSetToPointSetFilter::SetInput(vtkPointSet *input)
 {
-  // prevents dangling reference to PointSet
-  this->PointSet = new vtkPolyData;
-}
-
-vtkPointSetToPointSetFilter::~vtkPointSetToPointSetFilter()
-{
-  this->PointSet->Delete();
-}
-
-vtkDataSet* vtkPointSetToPointSetFilter::MakeObject()
-{
-  vtkPointSetToPointSetFilter *o = new vtkPointSetToPointSetFilter();
-  o->PointSet = this->PointSet;
-  o->SetPoints(this->GetPoints());
-  return o;
-}
-
-void vtkPointSetToPointSetFilter::Modified()
-{
-  this->vtkPointSet::Modified();
-  this->vtkPointSetFilter::_Modified();
-}
-
-unsigned long int vtkPointSetToPointSetFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkPointSet::GetMTime();
-  unsigned long ftime = this->vtkPointSetFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vtkPointSetToPointSetFilter::DebugOn()
-{
-  vtkPointSet::DebugOn();
-  vtkPointSetFilter::_DebugOn();
-}
-
-void vtkPointSetToPointSetFilter::DebugOff()
-{
-  vtkPointSet::DebugOff();
-  vtkPointSetFilter::_DebugOff();
-}
-
-int vtkPointSetToPointSetFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkPointSetToPointSetFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkPointSetToPointSetFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-void vtkPointSetToPointSetFilter::Initialize()
-{
-  if ( this->Input != NULL )
+  if ( this->Input != input )
     {
-    // copies input geometry to internal data set
-    vtkDataSet *ds=this->Input->MakeObject();
-    this->PointSet->Delete();
-    this->PointSet = ds;
-    }
-  else
-    {
-    return;
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = input;
+    this->Modified();
+
+    // since the input has changed we might need to create a new output
+    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+      {
+      this->Output->Delete();
+      this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
+      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      }
     }
 }
 
-void vtkPointSetToPointSetFilter::ComputeBounds()
-{
-  if ( this->Points != NULL )
-    {
-    this->Points->ComputeBounds();
-    float *bounds=this->Points->GetBounds();
-    for (int i=0; i < 6; i++) this->Bounds[i] = bounds[i];
-    }
-};
-
-void vtkPointSetToPointSetFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPointSet::PrintSelf(os,indent);
-  vtkPointSetFilter::_PrintSelf(os,indent);
-
-  if ( this->PointSet )
-    {
-    os << indent << "PointSet: (" << this->PointSet << ")\n";
-    os << indent << "PointSet type: " << this->PointSet->GetClassName() <<"\n";
-    }
-  else
-    {
-    os << indent << "PointSet: (none)\n";
-    }
-}

@@ -54,10 +54,54 @@ vtkSource::vtkSource()
   this->EndMethodArg = NULL;
 }
 
-void vtkSource::UpdateFilter()
+int vtkSource::GetDataReleased()
+{
+  if (this->Output)
+    {
+    return this->Output->GetDataReleased();
+    }
+  vtkWarningMacro(<<"Output doesn't exist!");
+  return 1;
+}
+
+void vtkSource::SetDataReleased(int i)
+{
+  if (this->Output)
+    {
+    this->Output->SetDataReleased(i);
+    }
+  else
+    {
+    vtkWarningMacro(<<"Output doesn't exist!");
+    }
+}
+
+int vtkSource::GetReleaseDataFlag()
+{
+  if (this->Output)
+    {
+    return this->Output->GetReleaseDataFlag();
+    }
+  vtkWarningMacro(<<"Output doesn't exist!");
+  return 1;
+}
+
+void vtkSource::SetReleaseDataFlag(int i)
+{
+  if (this->Output)
+    {
+    this->Output->SetReleaseDataFlag(i);
+    }
+  else
+    {
+    vtkWarningMacro(<<"Output doesn't exist!");
+    }
+}
+
+void vtkSource::Update()
 {
   // Make sure virtual getMTime method is called since subclasses will overload
-  if ( this->_GetMTime() > this->ExecuteTime || this->GetDataReleased() )
+  if (this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
@@ -80,7 +124,7 @@ void vtkSource::SetStartMethod(void (*f)(void *), void *arg)
       }
     this->StartMethod = f;
     this->StartMethodArg = arg;
-    this->_Modified();
+    this->Modified();
     }
 }
 
@@ -97,7 +141,7 @@ void vtkSource::SetEndMethod(void (*f)(void *), void *arg)
       }
     this->EndMethod = f;
     this->EndMethodArg = arg;
-    this->_Modified();
+    this->Modified();
     }
 }
 
@@ -109,7 +153,7 @@ void vtkSource::SetStartMethodArgDelete(void (*f)(void *))
   if ( f != this->StartMethodArgDelete)
     {
     this->StartMethodArgDelete = f;
-    this->_Modified();
+    this->Modified();
     }
 }
 
@@ -120,29 +164,21 @@ void vtkSource::SetEndMethodArgDelete(void (*f)(void *))
   if ( f != this->EndMethodArgDelete)
     {
     this->EndMethodArgDelete = f;
-    this->_Modified();
+    this->Modified();
     }
 }
 
 void vtkSource::Execute()
 {
-  vtk_ErrorMacro(<< "Execution of filter should be in derived class");
+  vtkErrorMacro(<< "Execution of source should be in derived class");
 }
 
-int vtkSource::GetDataReleased()
-{
-  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
-  return 1;
-}
 
-void vtkSource::SetDataReleased(int flag)
+void vtkSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
-}
-
-void vtkSource::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkLWObject::_PrintSelf(os,indent);
-
+  vtkObject::PrintSelf(os,indent);
   os << indent << "Execute Time: " << this->ExecuteTime.GetMTime() << "\n";
+  os << indent << "Output:\n";
+  this->Output->PrintSelf(os,indent.GetNextIndent());
 }
+

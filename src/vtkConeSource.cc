@@ -63,10 +63,12 @@ void vtkConeSource::Execute()
   vtkFloatPoints *newPoints; 
   vtkCellArray *newLines=0;
   vtkCellArray *newPolys=0;
-//
-// Set things up; allocate memory
-//
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  
+  //
+  // Set things up; allocate memory
+  //
+  output->Initialize();
 
   switch ( this->Resolution )
   {
@@ -160,25 +162,25 @@ void vtkConeSource::Execute()
 //
 // Update ourselves
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
   if ( newPolys )
     {
     newPolys->Squeeze(); // we may have estimated size; reclaim some space
-    this->SetPolys(newPolys);
+    output->SetPolys(newPolys);
     newPolys->Delete();
     }
   else
     {
-    this->SetLines(newLines);
+    output->SetLines(newLines);
     newLines->Delete();
     }
 }
 
 void vtkConeSource::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkPolySource::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
 
   os << indent << "Resolution: " << this->Resolution << "\n";
   os << indent << "Height: " << this->Height << "\n";

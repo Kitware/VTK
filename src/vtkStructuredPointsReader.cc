@@ -44,13 +44,9 @@ vtkStructuredPointsReader::vtkStructuredPointsReader()
 {
 }
 
-vtkStructuredPointsReader::~vtkStructuredPointsReader()
-{
-}
-
 unsigned long int vtkStructuredPointsReader::GetMTime()
 {
-  unsigned long dtime = this->vtkStructuredPointsSource::GetMTime();
+  unsigned long dtime = this->vtkSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
@@ -153,9 +149,11 @@ void vtkStructuredPointsReader::Execute()
   char line[257];
   int npts;
   int dimsRead=0, arRead=0, originRead=0;
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
+  
 
   vtkDebugMacro(<<"Reading vtk structured points file...");
-  this->Initialize();
+  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
@@ -189,7 +187,7 @@ void vtkStructuredPointsReader::Execute()
 //
 // Read keyword and number of points
 //
-    numPts = this->GetNumberOfPoints(); // get default
+    numPts = output->GetNumberOfPoints(); // get default
     while (1)
       {
       if ( (retStat=fscanf(fp,"%256s",line)) == EOF || retStat < 1 ) break;
@@ -205,7 +203,7 @@ void vtkStructuredPointsReader::Execute()
           }
 
         numPts = dim[0] * dim[1] * dim[2];
-        this->SetDimensions(dim);
+        output->SetDimensions(dim);
         dimsRead = 1;
         }
 
@@ -219,7 +217,7 @@ void vtkStructuredPointsReader::Execute()
           return;
           }
 
-        this->SetAspectRatio(ar);
+        output->SetAspectRatio(ar);
         arRead = 1;
         }
 
@@ -233,7 +231,7 @@ void vtkStructuredPointsReader::Execute()
           return;
           }
 
-        this->SetOrigin(origin);
+        output->SetOrigin(origin);
         originRead = 1;
         }
 
@@ -283,7 +281,6 @@ void vtkStructuredPointsReader::Execute()
     vtkErrorMacro(<< "Unrecognized keyord: " << line);
     }
 }
-
 
 void vtkStructuredPointsReader::PrintSelf(ostream& os, vtkIndent indent)
 {

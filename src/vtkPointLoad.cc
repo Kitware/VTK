@@ -122,13 +122,14 @@ void vtkPointLoad::Execute()
   vtkMath math;
   float P, twoPi, xP[3], rho, rho2, rho3, rho5, nu;
   float x, x2, y, y2, z, z2, rhoPlusz2, zPlus2rho, txy, txz, tyz;
-  float sx, sy, sz, seff;
+  float sx, sy, sz, seff, ar[3], origin[3];
+  vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
 
   vtkDebugMacro(<< "Computing point load stress tensors");
 //
 // Initialize self; create output objects
 //
-  this->Initialize();
+  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
@@ -136,13 +137,15 @@ void vtkPointLoad::Execute()
   if ( this->ComputeEffectiveStress ) newScalars = new vtkFloatScalars(numPts);
 
   // Compute origin and aspect ratio
-  this->SetDimensions(this->GetSampleDimensions());
+  output->SetDimensions(this->GetSampleDimensions());
   for (i=0; i < 3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                           / (this->SampleDimensions[i] - 1);
+    origin[i] = this->ModelBounds[2*i];
+    ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+            / (this->SampleDimensions[i] - 1);
     }
+  output->SetOrigin(origin);
+  output->SetAspectRatio(ar);
 //
 // Compute the location of the load
 //
@@ -156,15 +159,15 @@ void vtkPointLoad::Execute()
   twoPi = 2.0*math.Pi();
   P = -this->LoadValue;
 
-  for (k=0; k<this->Dimensions[2]; k++)
+  for (k=0; k<this->SampleDimensions[2]; k++)
     {
-    z = xP[2] - (this->Origin[2] + k*this->AspectRatio[2]);
-    for (j=0; j<this->Dimensions[1]; j++)
+    z = xP[2] - (origin[2] + k*ar[2]);
+    for (j=0; j<this->SampleDimensions[1]; j++)
       {
-      y = xP[1] - (this->Origin[1] + j*this->AspectRatio[1]);
-      for (i=0; i<this->Dimensions[0]; i++)
+      y = xP[1] - (origin[1] + j*ar[1]);
+      for (i=0; i<this->SampleDimensions[0]; i++)
         {
-        x = (this->Origin[0] + i*this->AspectRatio[0]) - xP[0];
+        x = (origin[0] + i*ar[0]) - xP[0];
         rho = sqrt(x*x + y*y + z*z);//in local coordinates
         if ( rho < 1.0e-10 )
           {
@@ -230,12 +233,12 @@ void vtkPointLoad::Execute()
 //
 // Update self and free memory
 //
-  this->PointData.SetTensors(newTensors);
+  output->GetPointData()->SetTensors(newTensors);
   newTensors->Delete();
 
   if ( this->ComputeEffectiveStress)
     {
-    this->PointData.SetScalars(newScalars);
+    output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     }
 }

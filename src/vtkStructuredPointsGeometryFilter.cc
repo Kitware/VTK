@@ -54,7 +54,6 @@ vtkStructuredPointsGeometryFilter::vtkStructuredPointsGeometryFilter()
 
 void vtkStructuredPointsGeometryFilter::Execute()
 {
-  vtkPointData *pd;
   int *dims, dimension, dir[3], diff[3];
   int i, j, k, extent[6];
   int ptIds[4], idx, startIdx;
@@ -65,12 +64,15 @@ void vtkStructuredPointsGeometryFilter::Execute()
   int totPoints, numPolys;
   int offset[3], pos;
   float *x;
+  vtkPointData *pd, *outPD;
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<< "Extracting structured points geometry");
-  this->Initialize();
+  output->Initialize();
 
   pd = input->GetPointData();
+  outPD = output->GetPointData();
 //  this->PointData.CopyNormalsOff();
   dims = input->GetDimensions();
 //
@@ -102,10 +104,10 @@ void vtkStructuredPointsGeometryFilter::Execute()
         newPts = new vtkFloatPoints(1);
         newVerts = new vtkCellArray;
         newVerts->Allocate(newVerts->EstimateSize(1,1));
-        this->PointData.CopyAllocate(pd,1);
+        outPD->CopyAllocate(pd,1);
 
         ptIds[0] = newPts->InsertNextPoint(input->GetPoint(startIdx));
-        this->PointData.CopyData(pd,startIdx,ptIds[0]);
+        outPD->CopyData(pd,startIdx,ptIds[0]);
         newVerts->InsertNextCell(1,ptIds);
         }
       break;
@@ -124,7 +126,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newPts = new vtkFloatPoints(totPoints);
       newLines = new vtkCellArray;
       newLines->Allocate(newLines->EstimateSize(totPoints-1,2));
-      this->PointData.CopyAllocate(pd,totPoints);
+      outPD->CopyAllocate(pd,totPoints);
 //
 //  Load data
 //
@@ -140,7 +142,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
         idx = startIdx + i*offset[0];
         x = input->GetPoint(idx);
         ptIds[0] = newPts->InsertNextPoint(x);
-        this->PointData.CopyData(pd,idx,ptIds[0]);
+        outPD->CopyData(pd,idx,ptIds[0]);
         }
 
       for (idx=0,i=0; i<(totPoints-1); i++) 
@@ -172,7 +174,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newPts = new vtkFloatPoints(totPoints);
       newPolys = new vtkCellArray;
       newPolys->Allocate(newLines->EstimateSize(numPolys,4));
-      this->PointData.CopyAllocate(pd,totPoints);
+      outPD->CopyAllocate(pd,totPoints);
 //
 //  Create polygons
 //
@@ -195,7 +197,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
           idx = pos + i*offset[0];
           x = input->GetPoint(idx);
           ptIds[0] = newPts->InsertNextPoint(x);
-          this->PointData.CopyData(pd,idx,ptIds[0]);
+          outPD->CopyData(pd,idx,ptIds[0]);
           }
         pos += offset[1];
         }
@@ -234,7 +236,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
       newPts = new vtkFloatPoints(totPoints);
       newVerts = new vtkCellArray;
       newVerts->Allocate(newVerts->EstimateSize(totPoints,1));
-      this->PointData.CopyAllocate(pd,totPoints);
+      outPD->CopyAllocate(pd,totPoints);
 //
 // Create vertices
 //
@@ -252,7 +254,7 @@ void vtkStructuredPointsGeometryFilter::Execute()
               {
               x = input->GetPoint(pos+i);
               ptIds[0] = newPts->InsertNextPoint(x);
-              this->PointData.CopyData(pd,idx,ptIds[0]);
+              outPD->CopyData(pd,idx,ptIds[0]);
               newVerts->InsertNextCell(1,ptIds);
               }
             }
@@ -266,25 +268,25 @@ void vtkStructuredPointsGeometryFilter::Execute()
 //
   if (newPts)
     {
-    this->SetPoints(newPts);
+    output->SetPoints(newPts);
     newPts->Delete();
     }
 
   if (newVerts)
     {
-    this->SetVerts(newVerts);
+    output->SetVerts(newVerts);
     newVerts->Delete();
     }
 
   if (newLines)
     {
-    this->SetLines(newLines);
+    output->SetLines(newLines);
     newLines->Delete();
     }
 
   if (newPolys)
     {
-    this->SetPolys(newPolys);
+    output->SetPolys(newPolys);
     newPolys->Delete();
     }
 }

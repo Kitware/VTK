@@ -40,48 +40,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridSource.hh"
 
-void vtkUnstructuredGridSource::Modified()
+vtkUnstructuredGridSource::vtkUnstructuredGridSource()
 {
-  this->vtkUnstructuredGrid::Modified();
-  this->vtkSource::_Modified();
+  this->Output = new vtkUnstructuredGrid;
+  this->Output->SetSource(this);
 }
 
-unsigned long int vtkUnstructuredGridSource::GetMTime()
-{
-  unsigned long dtime = this->vtkUnstructuredGrid::GetMTime();
-  unsigned long ftime = this->vtkSource::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
 
-void vtkUnstructuredGridSource::Update()
-{
-  this->UpdateFilter();
-}
-
-void vtkUnstructuredGridSource::DebugOn()
-{
-  vtkUnstructuredGrid::DebugOn();
-  vtkSource::_DebugOn();
-}
-
-void vtkUnstructuredGridSource::DebugOff()
-{
-  vtkUnstructuredGrid::DebugOff();
-  vtkSource::_DebugOff();
-}
-
-int vtkUnstructuredGridSource::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkUnstructuredGridSource::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkUnstructuredGridSource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkUnstructuredGrid::PrintSelf(os,indent);
-  vtkSource::_PrintSelf(os,indent);
-}

@@ -58,17 +58,7 @@ vtkBooleanStructuredPoints::vtkBooleanStructuredPoints()
 
   this->OperationType = UNION_OPERATOR;
   // this->Operator = this->Union;
-}
-
-vtkBooleanStructuredPoints::~vtkBooleanStructuredPoints()
-{
-}
-
-unsigned long int vtkBooleanStructuredPoints::GetMTime()
-{
-  unsigned long dtime = this->vtkStructuredPoints::GetMTime();
-  unsigned long ftime = this->vtkFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
+  this->Output = new vtkStructuredPoints;
 }
 
 // Description:
@@ -136,10 +126,12 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
   float *bounds;
   int numPts;
   int i, j;
-
-  this->Initialize();
-  this->SetDimensions(this->SampleDimensions);
-  numPts = this->GetNumberOfPoints();
+  vtkStructuredPoints *output = this->GetOutput();
+  float tempf[3];
+  
+  output->Initialize();
+  output->SetDimensions(this->SampleDimensions);
+  numPts = output->GetNumberOfPoints();
 
   // If ModelBounds unset, use input, else punt
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
@@ -173,11 +165,16 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
   // Update origin and aspect ratio
   for (i=0; i<3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                           / (this->SampleDimensions[i] - 1);
+    tempf[i] = this->ModelBounds[2*i];
     }
-
+  output->SetOrigin(tempf);
+  for (i=0; i<3; i++)
+    {
+    tempf[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      / (this->SampleDimensions[i] - 1);
+    }
+  output->SetAspectRatio(tempf);
+  
   // Create output scalar (same type as input)
   if ( this->InputList.GetNumberOfItems() > 0 )
     {
@@ -193,9 +190,8 @@ void vtkBooleanStructuredPoints::InitializeBoolean()
     {
     newScalars = new vtkFloatScalars(numPts);
     }
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
-
 }
 
 // Perform Boolean operations on input volumes
@@ -225,11 +221,13 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
   int inKval,inJval;
   int destKval,destJval;
   int *inDimensions;
-
-  if ( (currentScalars = this->PointData.GetScalars()) == NULL )
+  vtkStructuredPoints *output = (vtkStructuredPoints *)this->Output;
+  float *aspectRatio = output->GetAspectRatio();
+  
+  if ((currentScalars = this->Output->GetPointData()->GetScalars()) == NULL )
     {
     this->InitializeBoolean();
-    currentScalars = this->PointData.GetScalars();
+    currentScalars = this->Output->GetPointData()->GetScalars();
     }
 
   inScalars = sp->GetPointData()->GetScalars();
@@ -247,7 +245,7 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
       // for each cell
       for (k = 0; k < this->SampleDimensions[2]; k++)
 	{
-	inZ = destBounds[4] + k*this->AspectRatio[2];
+	inZ = destBounds[4] + k*aspectRatio[2];
 	inK = int ((float)(inZ - inBounds[4])/in_aspect[2]);
 	if ((inK >= 0)&&(inK < inDimensions[2]))
 	  {
@@ -255,7 +253,7 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 	  destKval = k*this->SampleDimensions[0]*this->SampleDimensions[1];
 	  for (j = 0; j < this->SampleDimensions[1]; j++)
 	    {
-	    inY = destBounds[2] + j*this->AspectRatio[1];
+	    inY = destBounds[2] + j*aspectRatio[1];
 	    inJ = (int) ((float)(inY - inBounds[2])/in_aspect[1]);
 	    if ((inJ >= 0)&&(inJ < inDimensions[1]))
 	      {
@@ -263,7 +261,7 @@ void vtkBooleanStructuredPoints::Append(vtkStructuredPoints *sp)
 	      destJval = j*this->SampleDimensions[0];
 	      for (i = 0; i < this->SampleDimensions[0]; i++)
 		{
-		inX = destBounds[0] + i*this->AspectRatio[0];
+		inX = destBounds[0] + i*aspectRatio[0];
 		inI = (int) ((float)(inX - inBounds[0])/in_aspect[0]);
 		if ((inI >= 0)&&(inI < inDimensions[0]))
 		  {
@@ -325,6 +323,8 @@ void vtkBooleanStructuredPoints::SetModelBounds(float *bounds)
 
 void vtkBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
 {
+  vtkStructuredPoints *output = this->GetOutput();
+  
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
   this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
   this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
@@ -339,32 +339,16 @@ void vtkBooleanStructuredPoints::SetModelBounds(float xmin, float xmax, float ym
     this->ModelBounds[4] = zmin;
     this->ModelBounds[5] = zmax;
 
-    this->Origin[0] = xmin;
-    this->Origin[1] = ymin;
-    this->Origin[2] = zmin;
+    output->SetOrigin(xmin,ymin,zmin);
 
     if ( (length = xmax - xmin) == 0.0 ) length = 1.0;
-    this->AspectRatio[0] = 1.0;
-    this->AspectRatio[1] = (ymax - ymin) / length;
-    this->AspectRatio[2] = (zmax - zmin) / length;
+    output->SetAspectRatio(1.0,(ymax - ymin) / length,(zmax - zmin) / length);
     }
-}
-
-
-int vtkBooleanStructuredPoints::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkBooleanStructuredPoints::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
 }
 
 void vtkBooleanStructuredPoints::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkStructuredPoints::PrintSelf(os,indent);
-  vtkFilter::_PrintSelf(os,indent);
+  vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());

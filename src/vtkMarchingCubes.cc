@@ -55,9 +55,6 @@ vtkMarchingCubes::vtkMarchingCubes()
   this->Range[1] = 1.0;
 }
 
-vtkMarchingCubes::~vtkMarchingCubes()
-{
-}
 
 // Description:
 // Set a particular contour value at contour number i.
@@ -199,9 +196,10 @@ void vtkMarchingCubes::Execute()
   static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},
                               {4,5}, {5,6}, {6,7}, {7,4},
                               {0,4}, {1,5}, {3,7}, {2,6}};
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<< "Executing marching cubes");
-  this->Initialize();
+  output->Initialize();
 //
 // Initialize and check input
 //
@@ -348,22 +346,22 @@ void vtkMarchingCubes::Execute()
 // Update ourselves.  Because we don't know up front how many triangles
 // we've created, take care to reclaim memory. 
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  this->PointData.SetVectors(newGradients);
+  output->GetPointData()->SetVectors(newGradients);
   newGradients->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkMarchingCubes::PrintSelf(ostream& os, vtkIndent indent)

@@ -49,11 +49,6 @@ vtkDataSetReader::vtkDataSetReader()
 {
 }
 
-vtkDataSetReader::~vtkDataSetReader()
-{
-  if ( this->DataSet ) this->DataSet->Delete();
-}
-
 // Description:
 // Specify file name of vtk data file to read.
 void vtkDataSetReader::SetFilename(char *name) 
@@ -150,10 +145,10 @@ void vtkDataSetReader::Execute()
   FILE *fp;
   int retStat;
   char line[257];
-  vtkDataSet *reader;
-
+  vtkDataSet *output;
+  
   vtkDebugMacro(<<"Reading vtk dataset...");
-  this->Initialize();
+  this->Output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
@@ -191,7 +186,7 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
-      reader = (vtkDataSet *)preader;
+      output = preader->GetOutput();
       }
 
     else if ( ! strncmp(line,"structured_points",17) )
@@ -205,7 +200,7 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
-      reader = (vtkDataSet *)preader;
+      output = preader->GetOutput();
       }
 
     else if ( ! strncmp(line,"structured_grid",15) )
@@ -219,7 +214,7 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
-      reader = (vtkDataSet *)preader;
+      output = preader->GetOutput();
       }
 
     else if ( ! strncmp(line,"unstructured_grid",17) )
@@ -233,7 +228,7 @@ void vtkDataSetReader::Execute()
       preader->SetTCoordsName(this->Reader.GetTCoordsName());
       preader->SetLookupTableName(this->Reader.GetLookupTableName());
       preader->Update();
-      reader = (vtkDataSet *)preader;
+      output = preader->GetOutput();
       }
 
     else
@@ -242,18 +237,17 @@ void vtkDataSetReader::Execute()
       return;
       }
     }
-//
-// Create appropriate dataset
-//
-  if ( this->DataSet ) this->DataSet->Delete();
-  this->DataSet = reader;
-  this->PointData = *(reader->GetPointData());
+  //
+  // Create appropriate dataset
+  //
+  if ( this->Output ) this->Output->Delete();
+  this->Output = output;
 
   return;
 }
 
 void vtkDataSetReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkDataSetSource::PrintSelf(os,indent);
+  vtkSource::PrintSelf(os,indent);
   this->Reader.PrintSelf(os,indent);
 }

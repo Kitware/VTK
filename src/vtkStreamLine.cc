@@ -54,6 +54,7 @@ void vtkStreamLine::Execute()
   vtkCellArray *newLines;
   int i, ptId, j, npts, pts[MAX_CELL_SIZE];
   float tOffset, x[3], v[3], s, r;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   this->vtkStreamer::Integrate();
   if ( this->NumberOfStreamers <= 0 ) return;
@@ -141,22 +142,22 @@ void vtkStreamLine::Execute()
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->PointData.SetVectors(newVectors);
+  output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 
   if ( newScalars ) 
     {
-    this->PointData.SetScalars(newScalars);
+    output->GetPointData()->SetScalars(newScalars);
     newScalars->Delete();
     }
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkStreamLine::PrintSelf(ostream& os, vtkIndent indent)

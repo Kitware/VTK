@@ -44,13 +44,9 @@ vtkStructuredGridReader::vtkStructuredGridReader()
 {
 }
 
-vtkStructuredGridReader::~vtkStructuredGridReader()
-{
-}
-
 unsigned long int vtkStructuredGridReader::GetMTime()
 {
-  unsigned long dtime = this->vtkStructuredGridSource::GetMTime();
+  unsigned long dtime = this->vtkSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
@@ -152,9 +148,10 @@ void vtkStructuredGridReader::Execute()
   int retStat;
   char line[257];
   int dimsRead=0;
-
+  vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
+  
   vtkDebugMacro(<<"Reading vtk structured grid file...");
-  this->Initialize();
+  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
@@ -203,7 +200,7 @@ void vtkStructuredGridReader::Execute()
           }
 
         numPts = dim[0] * dim[1] * dim[2];
-        this->SetDimensions(dim);
+        output->SetDimensions(dim);
         dimsRead = 1;
         }
 
@@ -244,7 +241,7 @@ void vtkStructuredGridReader::Execute()
       }
 
       if ( !dimsRead ) vtkWarningMacro(<<"No dimensions read.");
-      if ( !this->GetPoints() ) vtkWarningMacro(<<"No points read.");
+      if ( !output->GetPoints() ) vtkWarningMacro(<<"No points read.");
     }
 
   else if ( !strncmp(line, "point_data", 10) )

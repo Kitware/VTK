@@ -61,10 +61,12 @@ void vtkMaskPolyData::Execute()
   vtkPointData *pd;
   int npts, *pts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
-//
-// Check input / pass data through
-//
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  
+  //
+  // Check input / pass data through
+  //
+  output->Initialize();
 
   inVerts = input->GetVerts();
   numVerts = inVerts->GetNumberOfCells();
@@ -158,39 +160,39 @@ void vtkMaskPolyData::Execute()
         }
       }
     }
-//
-// Update ourselves and release memory
-//
-  // pass through points and point data
-  this->SetPoints(input->GetPoints());
-  pd = input->GetPointData();
-  this->PointData = *pd;
+  //
+  // Update ourselves and release memory
+  //
+  // pass through points and point data -- done by ToPoly filter now
+  //output->SetPoints(input->GetPoints());
+  //pd = input->GetPointData();
+  //output->PointData = *pd;
 
   if (newVerts)
     {
-    this->SetVerts(newVerts);
+    output->SetVerts(newVerts);
     newVerts->Delete();
     }
 
   if (newLines)
     {
-    this->SetLines(newLines);
+    output->SetLines(newLines);
     newLines->Delete();
     } 
 
   if (newPolys)
     {
-    this->SetPolys(newPolys);
+    output->SetPolys(newPolys);
     newPolys->Delete();
     }
 
   if (newStrips)
     {
-    this->SetStrips(newStrips);
+    output->SetStrips(newStrips);
     newStrips->Delete();
     }
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkMaskPolyData::PrintSelf(ostream& os, vtkIndent indent)

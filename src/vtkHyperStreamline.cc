@@ -85,6 +85,7 @@ vtkHyperStreamline::vtkHyperStreamline()
   this->IntegrationDirection = INTEGRATE_FORWARD;
   this->IntegrationStepLength = 0.2;
   this->TerminalSpeed = 0.0;
+  this->Output = new vtkPolyData;
 }
 
 // Description:
@@ -185,9 +186,10 @@ void vtkHyperStreamline::Execute()
   float d, step, dir, vNext[3], tol2, p[3];
   float w[MAX_CELL_SIZE], dist2;
   float closestPoint[3];
-  
+  vtkPolyData *output = this->GetOutput();
+
   vtkDebugMacro(<<"Generating streamers");
-  this->Initialize();
+  output->Initialize();
   this->NumberOfStreamers = 0;
 
   if ( ! (inVectors=pd->GetVectors()) )

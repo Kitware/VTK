@@ -78,12 +78,13 @@ void vtkMCubesReader::Execute()
   pointType point;
   int nodes[3];
   float direction, n[3], dummy[2];
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<<"Reading marching cubes file");
-//
-// Initialize
-//
-  this->Initialize();
+  //
+  // Initialize
+  //
+  output->Initialize();
 
   if ( this->Filename == NULL )
     {
@@ -175,18 +176,18 @@ void vtkMCubesReader::Execute()
 //
 // Update ourselves
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 
   if (this->Normals) 
     {
-    this->GetPointData()->SetNormals(newNormals);
+    output->GetPointData()->SetNormals(newNormals);
     newNormals->Delete();
     }
-  this->Squeeze(); // might have merged stuff
+  output->Squeeze(); // might have merged stuff
 
   if (this->Locator) this->Locator->Initialize(); //free storage
 }

@@ -43,6 +43,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //
 #include <math.h>
 #include "vtkDataSet.hh"
+#include "vtkSource.hh"
 
 // Initialize static member that controls global data release after use by filter
 int vtkDataSet::GlobalReleaseDataFlag = 0;
@@ -57,8 +58,9 @@ vtkDataSet::vtkDataSet ()
   this->Bounds[3] = 1.0;
   this->Bounds[4] = 0.0;
   this->Bounds[5] = 1.0;
-  this->DataReleased = 0;
+  this->DataReleased = 1;
   this->ReleaseDataFlag = 0;
+  this->Source = NULL;
 }
 
 // Description:
@@ -92,6 +94,10 @@ int vtkDataSet::ShouldIReleaseData()
 
 void vtkDataSet::Update()
 {
+  if (this->Source)
+    {
+    this->Source->Update();
+    }
 }
 
 // Description:
@@ -171,8 +177,23 @@ float vtkDataSet::GetLength()
 
 unsigned long int vtkDataSet::GetMTime()
 {
-  if ( this->PointData.GetMTime() > this->MTime ) return this->PointData.GetMTime();
-  else return this->MTime;
+  unsigned long result;
+  
+  if (this->Source)
+    {
+    result = this->Source->GetMTime();
+    if (result <  this->MTime)
+      {
+      result = this->MTime;
+      }
+    }
+  else
+    {
+    result = this->MTime;
+    }
+  
+  if ( this->PointData.GetMTime() > result) return this->PointData.GetMTime();
+  else return result;
 }
 
 void vtkDataSet::PrintSelf(ostream& os, vtkIndent indent)

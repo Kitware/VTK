@@ -42,11 +42,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 vtkAppendFilter::vtkAppendFilter()
 {
-
-}
-
-vtkAppendFilter::~vtkAppendFilter()
-{
 }
 
 // Description:
@@ -96,7 +91,7 @@ void vtkAppendFilter::Update()
   this->Updating = 0;
 
   if (mtime > this->GetMTime() || this->GetMTime() > this->ExecuteTime ||
-  this->GetDataReleased() )
+      this->GetDataReleased() )
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
@@ -121,9 +116,11 @@ void vtkAppendFilter::Execute()
   int i;
   vtkDataSet *ds;
   int ptId, cellId;
-
+  vtkUnstructuredGrid *output = (vtkUnstructuredGrid *)this->Output;
+  vtkPointData *outputPD = output->GetPointData();
+  
   vtkDebugMacro(<<"Appending data together");
-  this->Initialize();
+  output->Initialize();
 
   // loop over all data sets, checking to see what point data is available.
   numPts = 0;
@@ -153,16 +150,16 @@ void vtkAppendFilter::Execute()
     vtkErrorMacro(<<"No data to append!");
     return;
     }
-
-// Now can allocate memory
-  this->Allocate(numCells); //allocate storage for geometry/topology
-  if ( !scalarsPresent ) this->PointData.CopyScalarsOff();
-  if ( !vectorsPresent ) this->PointData.CopyVectorsOff();
-  if ( !normalsPresent ) this->PointData.CopyNormalsOff();
-  if ( !tcoordsPresent ) this->PointData.CopyTCoordsOff();
-  if ( !tensorsPresent ) this->PointData.CopyTensorsOff();
-  if ( !userDefinedPresent ) this->PointData.CopyUserDefinedOff();
-  this->PointData.CopyAllocate(pd,numPts);
+  
+  // Now can allocate memory
+  output->Allocate(numCells); //allocate storage for geometry/topology
+  if ( !scalarsPresent ) outputPD->CopyScalarsOff();
+  if ( !vectorsPresent ) outputPD->CopyVectorsOff();
+  if ( !normalsPresent ) outputPD->CopyNormalsOff();
+  if ( !tcoordsPresent ) outputPD->CopyTCoordsOff();
+  if ( !tensorsPresent ) outputPD->CopyTensorsOff();
+  if ( !userDefinedPresent ) outputPD->CopyUserDefinedOff();
+  outputPD->CopyAllocate(pd,numPts);
 
   newPts = new vtkFloatPoints(numPts);
 
@@ -176,7 +173,7 @@ void vtkAppendFilter::Execute()
     for (ptId=0; ptId < numPts; ptId++)
       {
       newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
-      this->PointData.CopyData(pd,ptId,ptId+ptOffset);
+      outputPD->CopyData(pd,ptId,ptId+ptOffset);
       }
 
     // copy cells
@@ -185,32 +182,23 @@ void vtkAppendFilter::Execute()
       ds->GetCellPoints(cellId,ptIds);
       for (i=0; i < ptIds.GetNumberOfIds(); i++)
         newPtIds.SetId(i,ptIds.GetId(i)+ptOffset);
-      this->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+      output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
       }
     }
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 }
 
 void vtkAppendFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkUnstructuredGrid::PrintSelf(os,indent);
-  vtkFilter::_PrintSelf(os,indent);
+  vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Input DataSets:\n";
   this->InputList.PrintSelf(os,indent.GetNextIndent());
 }
 
-int vtkAppendFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
 
-void vtkAppendFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
 

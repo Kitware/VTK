@@ -76,9 +76,10 @@ void vtkFeatureEdges::Execute()
   int numPts, nei;
   vtkIdList neighbors(MAX_CELL_SIZE);
   int p1, p2;
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<<"Executing feature edges");
-  this->Initialize();
+  output->Initialize();
 //
 //  Check input
 //
@@ -191,13 +192,13 @@ void vtkFeatureEdges::Execute()
 //
   if ( this->FeatureEdges ) polyNormals->Delete();
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 
-  if ( this->Coloring ) this->PointData.SetScalars(newScalars);
+  if ( this->Coloring ) output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 

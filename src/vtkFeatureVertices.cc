@@ -71,9 +71,10 @@ void vtkFeatureVertices::Execute()
   int npts, *pts;
   vtkCellArray *inLines;
   vtkIdList cells(MAX_CELL_SIZE);
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<<"Executing feature vertices");
-  this->Initialize();
+  output->Initialize();
 //
 //  Check input
 //
@@ -177,16 +178,16 @@ void vtkFeatureVertices::Execute()
 //
 //  Update ourselves.
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetVerts(newVerts);
+  output->SetVerts(newVerts);
   newVerts->Delete();
 
-  if ( this->Coloring ) this->PointData.SetScalars(newScalars);
+  if ( this->Coloring ) output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkFeatureVertices::PrintSelf(ostream& os, vtkIndent indent)

@@ -40,23 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyFilter.hh"
 
-vtkPolyFilter::~vtkPolyFilter()
-{
-}
-
 // Description:
 // Specify the input data or filter.
 void vtkPolyFilter::SetInput(vtkPolyData *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
-    this->Input = (vtkDataSet *) input;
-    this->_Modified();
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = input;
+    this->Modified();
     }
 }
 
-void vtkPolyFilter::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkFilter::_PrintSelf(os,indent);
-}

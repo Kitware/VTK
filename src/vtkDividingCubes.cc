@@ -69,12 +69,13 @@ void vtkDividingCubes::Execute()
   vtkStructuredPoints *input=(vtkStructuredPoints *)this->Input;
   vtkMath math;
   voxelScalars.ReferenceCountingOff();
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<< "Executing dividing cubes...");
 //
 // Initialize self; check input; create output objects
 //
-  this->Initialize();
+  output->Initialize();
   this->Count = 0;
 
   // make sure we have scalar data
@@ -161,16 +162,16 @@ void vtkDividingCubes::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(NewPts);
+  output->SetPoints(NewPts);
   NewPts->Delete();
 
-  this->SetVerts(NewVerts);
+  output->SetVerts(NewVerts);
   NewVerts->Delete();
 
-  this->GetPointData()->SetNormals(NewNormals);
+  output->GetPointData()->SetNormals(NewNormals);
   NewNormals->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 static int ScalarInterp[8][8] = {{0,8,12,24,16,22,20,26},

@@ -51,10 +51,13 @@ void vtkHedgeHog::Execute()
   vtkCellArray *newLines;
   float *x, *v;
   float newX[3];
-//
-// Initialize
-//
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
+  //
+  // Initialize
+  //
+  output->Initialize();
 
   numPts = input->GetNumberOfPoints();
   pd = input->GetPointData();
@@ -64,7 +67,7 @@ void vtkHedgeHog::Execute()
     vtkErrorMacro(<<"No input data");
     return;
     }
-  this->PointData.CopyAllocate(pd, 2*numPts);
+  outputPD->CopyAllocate(pd, 2*numPts);
 
   newPts = new vtkFloatPoints(2*numPts);
   newLines = new vtkCellArray;
@@ -89,16 +92,16 @@ void vtkHedgeHog::Execute()
 
     newLines->InsertNextCell(2,pts);
 
-    this->PointData.CopyData(pd,ptId,pts[0]);
-    this->PointData.CopyData(pd,ptId,pts[1]);
+    outputPD->CopyData(pd,ptId,pts[0]);
+    outputPD->CopyData(pd,ptId,pts[1]);
     }
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
 }
 

@@ -39,95 +39,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkDataSetToDataSetFilter.hh"
-#include "vtkPolyData.hh"
-
-vtkDataSetToDataSetFilter::vtkDataSetToDataSetFilter()
-{
-  // prevents dangling reference to DataSet
-  this->DataSet = new vtkPolyData;
-}
-
-vtkDataSetToDataSetFilter::~vtkDataSetToDataSetFilter()
-{
-  this->DataSet->Delete();
-}
 
 // Description:
-// Initialize method is fancy: creates an internal dataset that holds
-// geometry representation. All methods directed at geometry are 
-// forwarded to internal dataset.
-void vtkDataSetToDataSetFilter::Initialize()
+// Specify the input data or filter.
+void vtkDataSetToDataSetFilter::SetInput(vtkDataSet *input)
 {
-  if ( this->Input )
+  if ( this->Input != input )
     {
-    // copies input geometry to internal data set
-    this->DataSet->Delete();
-    this->DataSet = this->Input->MakeObject(); 
-    }
-  else
-    {
-    return;
-    }
-}
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = input;
+    this->Modified();
 
-void vtkDataSetToDataSetFilter::ComputeBounds()
-{
-  float *bounds = this->DataSet->GetBounds();
-  for (int i=0; i<6; i++) this->Bounds[i] = bounds[i];
-}
-
-void vtkDataSetToDataSetFilter::Modified()
-{
-  this->vtkDataSet::Modified();
-  this->vtkDataSetFilter::_Modified();
-}
-
-void vtkDataSetToDataSetFilter::DebugOn()
-{
-  vtkDataSet::DebugOn();
-  vtkDataSetFilter::_DebugOn();
-}
-
-void vtkDataSetToDataSetFilter::DebugOff()
-{
-  vtkDataSet::DebugOff();
-  vtkDataSetFilter::_DebugOff();
-}
-
-unsigned long int vtkDataSetToDataSetFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkDataSet::GetMTime();
-  unsigned long ftime = this->vtkDataSetFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-int vtkDataSetToDataSetFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkDataSetToDataSetFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkDataSetToDataSetFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-void vtkDataSetToDataSetFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkDataSet::PrintSelf(os,indent);
-  vtkDataSetFilter::_PrintSelf(os,indent);
-
-  if ( this->DataSet )
-    {
-    os << indent << "DataSet: (" << this->DataSet << ")\n";
-    os << indent << "DataSet type: " << this->DataSet->GetClassName() << "\n";
-    }
-  else
-    {
-    os << indent << "DataSet: (none)\n";
+    // since the input has changed we might need to create a new output
+    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+      {
+      this->Output->Delete();
+      this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
+      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      }
     }
 }
+
+  
+

@@ -40,48 +40,9 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredGridToPolyFilter.hh"
 
-void vtkStructuredGridToPolyFilter::Modified()
+vtkStructuredGridToPolyFilter::vtkStructuredGridToPolyFilter()
 {
-  this->vtkPolyData::Modified();
-  this->vtkStructuredGridFilter::_Modified();
+  this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
 
-unsigned long int vtkStructuredGridToPolyFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkPolyData::GetMTime();
-  unsigned long ftime = this->vtkStructuredGridFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vtkStructuredGridToPolyFilter::DebugOn()
-{
-  vtkPolyData::DebugOn();
-  vtkStructuredGridFilter::_DebugOn();
-}
-
-void vtkStructuredGridToPolyFilter::DebugOff()
-{
-  vtkPolyData::DebugOff();
-  vtkStructuredGridFilter::_DebugOff();
-}
-
-void vtkStructuredGridToPolyFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-int vtkStructuredGridToPolyFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkStructuredGridToPolyFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkStructuredGridToPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyData::PrintSelf(os,indent);
-  vtkStructuredGridFilter::_PrintSelf(os,indent);
-}

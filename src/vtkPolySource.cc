@@ -38,51 +38,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-
 #include "vtkPolySource.hh"
 
-void vtkPolySource::Modified()
+vtkPolySource::vtkPolySource()
 {
-  this->vtkPolyData::Modified();
-  this->vtkSource::_Modified();
+  this->Output = new vtkPolyData;
+  this->Output->SetSource(this);
 }
 
-unsigned long int vtkPolySource::GetMTime()
-{
-  unsigned long dtime = this->vtkPolyData::GetMTime();
-  unsigned long ftime = this->vtkSource::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
 
-void vtkPolySource::Update()
-{
-  this->UpdateFilter();
-}
-
-void vtkPolySource::DebugOn()
-{
-  vtkPolyData::DebugOn();
-  vtkSource::_DebugOn();
-}
-
-void vtkPolySource::DebugOff()
-{
-  vtkPolyData::DebugOff();
-  vtkSource::_DebugOff();
-}
-
-int vtkPolySource::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkPolySource::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkPolySource::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyData::PrintSelf(os,indent);
-  vtkSource::_PrintSelf(os,indent);
-}

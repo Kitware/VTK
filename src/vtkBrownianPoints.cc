@@ -57,7 +57,7 @@ void vtkBrownianPoints::Execute()
 
   vtkDebugMacro(<< "Executing Brownian filter");
 
-  this->Initialize();
+  this->Output->Initialize();
 
   if ( ((numPts=this->Input->GetNumberOfPoints()) < 1) )
     {
@@ -95,10 +95,10 @@ void vtkBrownianPoints::Execute()
 //
 // Update ourselves
 //
-  this->PointData.CopyVectorsOff();
-  this->PointData.PassData(this->Input->GetPointData());
+  this->Output->GetPointData()->CopyVectorsOff();
+  this->Output->GetPointData()->PassData(this->Input->GetPointData());
 
-  this->GetPointData()->SetVectors(newVectors);
+  this->Output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 }
 

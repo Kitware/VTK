@@ -63,10 +63,6 @@ vtkLODActor::vtkLODActor()
   this->Timings[2] = -2; // lowest LOD
 }
 
-vtkLODActor::~vtkLODActor()
-{
-}
-
 // Description:
 // This causes the actor to be rendered. It in turn will render the actor's
 // property and then mapper.  
@@ -93,15 +89,15 @@ void vtkLODActor::Render(vtkRenderer *ren)
     // make sure the filters are connected
     this->PointSource.SetRadius(0);
     this->PointSource.SetNumberOfPoints(1);
-    this->MediumMapper.SetInput(&this->Glyph3D);
+    this->MediumMapper.SetInput(this->Glyph3D.GetOutput());
     this->MediumMapper.SetScalarRange(this->Mapper->GetScalarRange());
     this->MediumMapper.SetScalarsVisible(this->Mapper->GetScalarsVisible());
     this->MaskPoints.SetInput(this->Mapper->GetInput());
     this->MaskPoints.SetMaximumNumberOfPoints(this->NumberOfCloudPoints);
     this->MaskPoints.SetRandomMode(1);
-    this->Glyph3D.SetInput(&this->MaskPoints);
-    this->Glyph3D.SetSource(&this->PointSource);
-    this->LowMapper.SetInput(&this->OutlineFilter);
+    this->Glyph3D.SetInput(this->MaskPoints.GetOutput());
+    this->Glyph3D.SetSource(this->PointSource.GetOutput());
+    this->LowMapper.SetInput(this->OutlineFilter.GetOutput());
     this->OutlineFilter.SetInput(this->Mapper->GetInput());
     
     this->Timings[0] = -2;

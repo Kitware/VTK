@@ -54,8 +54,22 @@ vtkMergeFilter::vtkMergeFilter()
   this->UserDefined = NULL;
 }
 
-vtkMergeFilter::~vtkMergeFilter()
+void vtkMergeFilter::SetGeometry(vtkDataSet *input)
 {
+  if ( this->Geometry != input )
+    {
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Geometry = input;
+    this->Modified();
+
+    // since the input has changed we might need to create a new output
+    if (strcmp(this->Output->GetClassName(),this->Geometry->GetClassName()))
+      {
+      this->Output->Delete();
+      this->Output = this->Geometry->MakeObject();
+      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      }
+    }
 }
 
 void vtkMergeFilter::Update()
@@ -136,30 +150,6 @@ void vtkMergeFilter::Update()
     this->UserDefined->ReleaseData();
 }
 
-void vtkMergeFilter::Initialize()
-{
-  if ( this->Geometry )
-    {
-    // copies input geometry to internal data set
-    this->Geometry->Delete();
-    this->Geometry = this->Geometry->MakeObject(); 
-    }
-  else
-    {
-    return;
-    }
-}
-
-int vtkMergeFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkMergeFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
 // Merge it all together
 void vtkMergeFilter::Execute()
 {
@@ -172,11 +162,12 @@ void vtkMergeFilter::Execute()
   vtkTCoords *tcoords;
   vtkTensors *tensors;
   vtkUserDefined *ud;
-
+  vtkPointData *outputPD = this->Output->GetPointData();
+  
   vtkDebugMacro(<<"Merging data!");
 
   // geometry is created
-  this->Initialize();
+  this->Output->Initialize();
 
   if ( (numPts = this->Geometry->GetNumberOfPoints()) < 1 )
     {
@@ -228,28 +219,27 @@ void vtkMergeFilter::Execute()
 
   // merge data only if it is consistent
   if ( numPts == numScalars )
-    this->PointData.SetScalars(scalars);
+    outputPD->SetScalars(scalars);
 
   if ( numPts == numVectors )
-    this->PointData.SetVectors(vectors);
+    outputPD->SetVectors(vectors);
     
   if ( numPts == numNormals )
-    this->PointData.SetNormals(normals);
+    outputPD->SetNormals(normals);
 
   if ( numPts == numTCoords )
-    this->PointData.SetTCoords(tcoords);
+    outputPD->SetTCoords(tcoords);
 
   if ( numPts == numTensors )
-    this->PointData.SetTensors(tensors);
+    outputPD->SetTensors(tensors);
 
   if ( numPts == numUserDefined )
-    this->PointData.SetUserDefined(ud);
+    outputPD->SetUserDefined(ud);
 }
 
 void vtkMergeFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkFilter::_PrintSelf(os,indent);
-  vtkDataSet::PrintSelf(os,indent);
+  vtkFilter::PrintSelf(os,indent);
 
   os << indent << "Geometry: (" << this->Geometry << ")\n";
   os << indent << "Geometry type: " << this->Geometry->GetClassName() << "\n";

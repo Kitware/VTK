@@ -103,7 +103,7 @@ void vtkDataSetMapper::Render(vtkRenderer *ren)
     {
     vtkGeometryFilter *gf = new vtkGeometryFilter();
     vtkPolyMapper *pm = new vtkPolyMapper;
-    pm->SetInput(gf);
+    pm->SetInput(gf->GetOutput());
 
     this->GeometryExtractor = gf;
     this->PolyMapper = pm;

@@ -45,36 +45,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkFilter::vtkFilter()
 {
   this->Input = NULL;
-
-  this->StartMethod = NULL;
-  this->StartMethodArgDelete = NULL;
-  this->StartMethodArg = NULL;
-  this->EndMethod = NULL;
-  this->EndMethodArgDelete = NULL;
-  this->EndMethodArg = NULL;
-
   this->Updating = 0;
-}
-
-int vtkFilter::GetDataReleased()
-{
-  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
-  return 1;
-}
-
-void vtkFilter::SetDataReleased(int)
-{
-  vtk_ErrorMacro(<<"Method should be implemented by subclass!");
 }
 
 // Description:
 // Update input to this filter and the filter itself.
-void vtkFilter::UpdateFilter()
+void vtkFilter::Update()
 {
   // make sure input is available
   if ( !this->Input )
     {
-    vtk_ErrorMacro(<< "No input!");
+    vtkErrorMacro(<< "No input!");
     return;
     }
 
@@ -85,9 +66,7 @@ void vtkFilter::UpdateFilter()
   this->Input->Update();
   this->Updating = 0;
 
-  if (this->Input->GetMTime() > this->_GetMTime() || 
-  this->_GetMTime() > this->ExecuteTime ||
-  this->GetDataReleased() )
+  if (this->GetMTime() > this->ExecuteTime || this->GetDataReleased())
     {
     if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
     this->Execute();
@@ -99,90 +78,14 @@ void vtkFilter::UpdateFilter()
   if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
 }
 
-// Description:
-// Set the filter start method. The start method is invoked before the 
-// filter executes.
-void vtkFilter::SetStartMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->StartMethod || arg != this->StartMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->StartMethodArg)&&(this->StartMethodArgDelete))
-      {
-      (*this->StartMethodArgDelete)(this->StartMethodArg);
-      }
-    this->StartMethod = f;
-    this->StartMethodArg = arg;
-    this->_Modified();
-    }
-}
-
-// Description:
-// Set the filter end method. The end method is invoked after the 
-// filter executes.
-void vtkFilter::SetEndMethod(void (*f)(void *), void *arg)
-{
-  if ( f != this->EndMethod || arg != this->EndMethodArg )
-    {
-    // delete the current arg if there is one and a delete meth
-    if ((this->EndMethodArg)&&(this->EndMethodArgDelete))
-      {
-      (*this->EndMethodArgDelete)(this->EndMethodArg);
-      }
-    this->EndMethod = f;
-    this->EndMethodArg = arg;
-    this->_Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkFilter::SetStartMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->StartMethodArgDelete)
-    {
-    this->StartMethodArgDelete = f;
-    this->_Modified();
-    }
-}
-
-// Description:
-// Set the arg delete method. This is used to free user memory.
-void vtkFilter::SetEndMethodArgDelete(void (*f)(void *))
-{
-  if ( f != this->EndMethodArgDelete)
-    {
-    this->EndMethodArgDelete = f;
-    this->_Modified();
-    }
-}
-
 void vtkFilter::Execute()
 {
-  vtk_ErrorMacro(<< "Execution of filter should be in derived class");
+  vtkErrorMacro(<< "Execution of filter should be in derived class");
 }
 
-void vtkFilter::_PrintSelf(ostream& os, vtkIndent indent)
+void vtkFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
-  vtkLWObject::_PrintSelf(os,indent);
-
-  if ( this->StartMethod )
-    {
-    os << indent << "Start Method: (" << (void *)this->StartMethod << ")\n";
-    }
-  else
-    {
-    os << indent << "Start Method: (none)\n";
-    }
-
-  if ( this->EndMethod )
-    {
-    os << indent << "End Method: (" << (void *)this->EndMethod << ")\n";
-    }
-  else
-    {
-    os << indent << "End Method: (none)\n";
-    }
+  vtkSource::PrintSelf(os,indent);
 
   os << indent << "Execute Time: " <<this->ExecuteTime.GetMTime() << "\n";
 

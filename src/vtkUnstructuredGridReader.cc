@@ -44,13 +44,9 @@ vtkUnstructuredGridReader::vtkUnstructuredGridReader()
 {
 }
 
-vtkUnstructuredGridReader::~vtkUnstructuredGridReader()
-{
-}
-
 unsigned long int vtkUnstructuredGridReader::GetMTime()
 {
-  unsigned long dtime = this->vtkUnstructuredGridSource::GetMTime();
+  unsigned long dtime = this->vtkSource::GetMTime();
   unsigned long rtime = this->Reader.GetMTime();
   return (dtime > rtime ? dtime : rtime);
 }
@@ -154,9 +150,11 @@ void vtkUnstructuredGridReader::Execute()
   int npts, size, ncells;
   vtkCellArray *cells=NULL;
   int *types=NULL;
+  vtkUnstructuredGrid *output=(vtkUnstructuredGrid *)this->Output;
+  
 
   vtkDebugMacro(<<"Reading vtk unstructured grid...");
-  this->Initialize();
+  output->Initialize();
   if ( this->Debug ) this->Reader.DebugOn();
   else this->Reader.DebugOff();
 
@@ -216,7 +214,7 @@ void vtkUnstructuredGridReader::Execute()
         cells = new vtkCellArray;
         if ( !this->Reader.ReadCells(fp, size, cells->WritePtr(ncells,size)) ) return;
         cells->WrotePtr();
-        if ( cells && types ) this->SetCells(types, cells);
+        if ( cells && types ) output->SetCells(types, cells);
         cells->Delete();
         }
 
@@ -249,7 +247,7 @@ void vtkUnstructuredGridReader::Execute()
               }
             }
           }
-        if ( cells && types ) this->SetCells(types, cells);
+        if ( cells && types ) output->SetCells(types, cells);
         }
 
       else if ( ! strncmp(line, "point_data", 10) )
@@ -276,7 +274,7 @@ void vtkUnstructuredGridReader::Execute()
         return;
         }
       }
-      if ( ! this->GetPoints() ) vtkWarningMacro(<<"No points read!");
+      if ( ! output->GetPoints() ) vtkWarningMacro(<<"No points read!");
       if ( ! (cells && types) )  vtkWarningMacro(<<"No topology read!");
     }
 
@@ -301,7 +299,7 @@ void vtkUnstructuredGridReader::Execute()
 //
   if ( types ) delete [] types;
 
-  vtkDebugMacro(<<"Read " <<this->GetNumberOfPoints() <<" points," <<this->GetNumberOfCells() <<" cells.\n");
+  vtkDebugMacro(<<"Read " <<output->GetNumberOfPoints() <<" points," <<output->GetNumberOfCells() <<" cells.\n");
   return;
 }
 

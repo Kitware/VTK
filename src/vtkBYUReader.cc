@@ -73,7 +73,7 @@ void vtkBYUReader::Execute()
 //
 // Initialize
 //
-  this->Initialize();
+  this->Output->Initialize();
 
   if ((geomFp = fopen(this->GeometryFilename, "r")) == NULL)
     {
@@ -100,9 +100,11 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   float x[3];
   int npts, pts[MAX_CELL_SIZE];
   int id, polyId;
-//
-// Read header (not using fixed format! - potential problem in some files.)
-//
+  vtkPolyData *output = this->GetOutput();
+  
+  //
+  // Read header (not using fixed format! - potential problem in some files.)
+  //
   fscanf (geomFile, "%d %d %d %d", &numParts, &numPts, &numPolys, &numEdges);
 
   if ( this->PartNumber > numParts )
@@ -177,10 +179,10 @@ void vtkBYUReader::ReadGeometryFile(FILE *geomFile, int &numPts)
   vtkDebugMacro(<<"Reading:" << numPts << " points, "
                  << numPolys << " polygons.");
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 }
 
@@ -190,7 +192,8 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
   int i;
   float v[3];
   vtkFloatVectors *newVectors;
-
+  vtkPolyData *output = this->GetOutput();
+  
   if ( this->ReadDisplacement && this->DisplacementFilename )
     {
     if ( !(dispFp = fopen(this->DisplacementFilename, "r")) )
@@ -213,7 +216,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts)
 
   vtkDebugMacro(<<"Read " << numPts << " displacements");
 
-  this->PointData.SetVectors(newVectors);
+  output->GetPointData()->SetVectors(newVectors);
   newVectors->Delete();
 }
 
@@ -223,7 +226,8 @@ void vtkBYUReader::ReadScalarFile(int numPts)
   int i;
   float s;
   vtkFloatScalars *newScalars;
-
+  vtkPolyData *output = this->GetOutput();
+  
   if ( this->ReadScalar && this->ScalarFilename )
     {
     if ( !(scalarFp = fopen(this->ScalarFilename, "r")) )
@@ -246,7 +250,7 @@ void vtkBYUReader::ReadScalarFile(int numPts)
 
   vtkDebugMacro(<<"Read " << numPts << " scalars");
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 
@@ -256,6 +260,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
   int i;
   float t[2];
   vtkFloatTCoords *newTCoords;
+  vtkPolyData *output = this->GetOutput();
 
   if ( this->ReadTexture && this->TextureFilename )
     {
@@ -279,7 +284,7 @@ void vtkBYUReader::ReadTextureFile(int numPts)
 
   vtkDebugMacro(<<"Read " << numPts << " texture coordinates");
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 

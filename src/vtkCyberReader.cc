@@ -295,8 +295,9 @@ void vtkCyberReader::Execute()
   float x[3], tc[2];
   int voidLoc;
   int pts[3];
-
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  
+  output->Initialize();
 
   if ( this->Filename == NULL )
     {
@@ -407,16 +408,16 @@ void vtkCyberReader::Execute()
 //
 //  Update output and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->SetPolys(newTris);
+  output->SetPolys(newTris);
   newTris->Delete();
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 //
 //  Free resources
 //

@@ -88,6 +88,7 @@ vtkStreamer::vtkStreamer()
   this->Vorticity = 0;
   this->TerminalSpeed = 0.0;
   this->SpeedScalars = 0;
+  this->Output = new vtkPolyData;
 }
 
 // Description:
@@ -230,7 +231,7 @@ void vtkStreamer::Integrate()
   cellScalars.ReferenceCountingOff();
   
   vtkDebugMacro(<<"Generating streamers");
-  this->Initialize();
+  this->Output->Initialize();
   this->NumberOfStreamers = 0;
 
   if ( ! (inVectors=pd->GetVectors()) )

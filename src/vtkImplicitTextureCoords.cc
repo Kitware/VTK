@@ -57,11 +57,11 @@ void vtkImplicitTextureCoords::Execute()
   float tCoord[3], *tc, *x;
   int i;
   vtkDataSet *input=this->Input;
-//
-// Initialize
-//
+  //
+  // Initialize
+  //
   vtkDebugMacro(<<"Generating texture coordinates from implicit functions...");
-  this->Initialize();
+  this->Output->Initialize();
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
     {
@@ -147,10 +147,10 @@ void vtkImplicitTextureCoords::Execute()
 //
 // Update self
 //
-  this->PointData.CopyTCoordsOff();
-  this->PointData.PassData(input->GetPointData());
+  this->Output->GetPointData()->CopyTCoordsOff();
+  this->Output->GetPointData()->PassData(input->GetPointData());
 
-  this->PointData.SetTCoords(newTCoords);
+  this->Output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 

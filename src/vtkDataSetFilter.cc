@@ -40,23 +40,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkDataSetFilter.hh"
 
-vtkDataSetFilter::~vtkDataSetFilter()
-{
-}
-
 // Description:
 // Specify the input data or filter.
 void vtkDataSetFilter::SetInput(vtkDataSet *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = input;
-    this->_Modified();
+    this->Modified();
     }
 }
 
-void vtkDataSetFilter::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkFilter::_PrintSelf(os,indent);
-}

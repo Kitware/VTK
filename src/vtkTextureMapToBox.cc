@@ -70,9 +70,11 @@ void vtkTextureMapToBox::Execute()
   int i, j;
   float *box, *p;
   float min[3], max[3];
+  vtkDataSet *output=this->Output;
+  
 
   vtkDebugMacro(<<"Generating 3D texture coordinates!");
-  this->Initialize();
+  output->Initialize();
 //
 //  Allocate texture data
 //
@@ -96,7 +98,7 @@ void vtkTextureMapToBox::Execute()
 
   for (i=0; i<numPts; i++) 
     {
-    p = this->GetPoint(i);
+    p = output->GetPoint(i);
     for (j=0; j<3; j++) 
       {
       tc[j] = min[j] + (max[j]-min[j]) * (p[j] - box[2*j]) / (box[2*j+1] - box[2*j]);
@@ -108,10 +110,10 @@ void vtkTextureMapToBox::Execute()
 //
 // Update ourselves
 //
-  this->PointData.CopyTCoordsOff();
-  this->PointData.PassData(this->Input->GetPointData());
+  output->GetPointData()->CopyTCoordsOff();
+  output->GetPointData()->PassData(this->Input->GetPointData());
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 

@@ -94,20 +94,26 @@ void vtkImplicitModeller::Execute()
   int jkFactor;
   float weights[MAX_CELL_SIZE];
   float closestPoint[3];
-
+  vtkStructuredPoints *output = this->GetOutput();
+  float *aspectRatio;
+  float *origin;
+  
   vtkDebugMacro(<< "Executing implicit model");
-  this->Initialize();
+  output->Initialize();
 
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] 
            * this->SampleDimensions[2];
   newScalars = new vtkFloatScalars(numPts);
   for (i=0; i<numPts; i++) newScalars->SetScalar(i,LARGE_FLOAT);
 
-  this->SetDimensions(this->GetSampleDimensions());
+  output->SetDimensions(this->GetSampleDimensions());
   maxDistance = this->ComputeModelBounds();
-//
-// Traverse all cells; computing distance function on volume points.
-//
+  aspectRatio = output->GetAspectRatio();
+  origin = output->GetOrigin();
+  
+  //
+  // Traverse all cells; computing distance function on volume points.
+  //
   for (cellNum=0; cellNum < this->Input->GetNumberOfCells(); cellNum++)
     {
     cell = this->Input->GetCell(cellNum);
@@ -121,10 +127,10 @@ void vtkImplicitModeller::Execute()
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
       {
-      min[i] = (int) ((float)(adjBounds[2*i] - this->Origin[i]) / 
-                      this->AspectRatio[i]);
-      max[i] = (int) ((float)(adjBounds[2*i+1] - this->Origin[i]) / 
-                      this->AspectRatio[i]);
+      min[i] = (int) ((float)(adjBounds[2*i] - origin[i]) / 
+                      aspectRatio[i]);
+      max[i] = (int) ((float)(adjBounds[2*i+1] - origin[i]) / 
+                      aspectRatio[i]);
       if (min[i] < 0) min[i] = 0;
       if (max[i] >= this->SampleDimensions[i]) max[i] = this->SampleDimensions[i] - 1;
       }
@@ -132,13 +138,13 @@ void vtkImplicitModeller::Execute()
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++) 
       {
-      x[2] = this->AspectRatio[2] * k + this->Origin[2];
+      x[2] = aspectRatio[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
         {
-        x[1] = this->AspectRatio[1] * j + this->Origin[1];
+        x[1] = aspectRatio[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++) 
           {
-          x[0] = this->AspectRatio[0] * i + this->Origin[0];
+          x[0] = aspectRatio[0] * i + origin[0];
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           prevDistance2 = newScalars->GetScalar(idx);
 
@@ -169,7 +175,7 @@ void vtkImplicitModeller::Execute()
 //
 // Update self and release memory
 //
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 }
 
@@ -179,7 +185,9 @@ float vtkImplicitModeller::ComputeModelBounds()
 {
   float *bounds, maxDist;
   int i, adjustBounds=0;
-
+  vtkStructuredPoints *output = this->GetOutput();
+  float tempf[3];
+  
   // compute model bounds if not set previously
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
   this->ModelBounds[2] >= this->ModelBounds[3] ||
@@ -210,12 +218,15 @@ float vtkImplicitModeller::ComputeModelBounds()
     }
 
   // Set volume origin and aspect ratio
+  output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
+		    this->ModelBounds[4]);
+  
   for (i=0; i<3; i++)
     {
-    this->Origin[i] = this->ModelBounds[2*i];
-    this->AspectRatio[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
-                           / (this->SampleDimensions[i] - 1);
+    tempf[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
+      / (this->SampleDimensions[i] - 1);
     }
+  output->SetAspectRatio(tempf);
 
   return maxDist;  
 }

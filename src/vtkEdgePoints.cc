@@ -47,10 +47,6 @@ vtkEdgePoints::vtkEdgePoints()
   this->Value = 0.0;
 }
 
-vtkEdgePoints::~vtkEdgePoints()
-{
-}
-
 //
 // General filter: handles arbitrary input.
 //
@@ -66,12 +62,13 @@ void vtkEdgePoints::Execute()
   vtkFloatScalars *newScalars, cellScalars(MAX_CELL_SIZE);
   vtkIdList neighbors(MAX_CELL_SIZE);
   int visitedNei, pts[1];
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<< "Generating edge points");
-//
-// Initialize and check input
-//
-  this->Initialize();
+  //
+  // Initialize and check input
+  //
+  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
@@ -160,16 +157,16 @@ void vtkEdgePoints::Execute()
 // Update ourselves.  Because we don't know up front how many verts we've 
 // created, take care to reclaim memory. 
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->SetVerts(newVerts);
+  output->SetVerts(newVerts);
   newVerts->Delete();
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkEdgePoints::PrintSelf(ostream& os, vtkIndent indent)

@@ -46,16 +46,17 @@ void vtkTransformPolyFilter::Execute()
 {
   vtkPoints *inPts;
   vtkFloatPoints *newPts;
-  vtkPointData *pd;
+  vtkPointData *pd, *outPD;
   vtkVectors *inVectors;
   vtkFloatVectors *newVectors=NULL;
   vtkNormals *inNormals;
   vtkFloatNormals *newNormals=NULL;
   int numPts;
   vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
 
   vtkDebugMacro(<<"Executing polygonal transformation");
-  this->Initialize();
+  output->Initialize();
 //
 // Check input
 //
@@ -99,29 +100,29 @@ void vtkTransformPolyFilter::Execute()
 //
 // Update ourselves and release memory
 //
-  this->PointData.CopyVectorsOff();
-  this->PointData.CopyNormalsOff();
-  this->PointData.PassData(input->GetPointData());
+  outPD->CopyVectorsOff();
+  outPD->CopyNormalsOff();
+  outPD->PassData(input->GetPointData());
 
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if (newNormals)
     {
-    this->PointData.SetNormals(newNormals);
+    outPD->SetNormals(newNormals);
     newNormals->Delete();
     }
 
   if (newVectors)
     {
-    this->PointData.SetVectors(newVectors);
+    outPD->SetVectors(newVectors);
     newVectors->Delete();
     }
 
-  this->SetVerts(input->GetVerts());
-  this->SetLines(input->GetLines());
-  this->SetPolys(input->GetPolys());
-  this->SetStrips(input->GetStrips());
+  output->SetVerts(input->GetVerts());
+  output->SetLines(input->GetLines());
+  output->SetPolys(input->GetPolys());
+  output->SetStrips(input->GetStrips());
 }
 
 unsigned long vtkTransformPolyFilter::GetMTime()

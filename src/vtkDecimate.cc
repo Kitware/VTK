@@ -120,13 +120,14 @@ void vtkDecimate::Execute()
   int totalEliminated=0;
   int size;
   vtkPolyData *input=(vtkPolyData *)this->Input;
+
   // do it this way because some compilers can't handle construction of
   // static objects in file scope.
   static vtkVertexArray VertexArray(MAX_TRIS_PER_VERTEX+1);
   static vtkTriArray TriangleArray(MAX_TRIS_PER_VERTEX+1);
 
   vtkDebugMacro(<<"Decimating mesh...");
-  this->Initialize();
+  this->Output->Initialize();
   V = &VertexArray;
   T = &TriangleArray;
 //
@@ -346,7 +347,9 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
   vtkFloatPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatScalars *newScalars;
-
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
   vtkDebugMacro (<<"Creating output...");
 
   if ( ! this->GenerateErrorScalars )
@@ -361,8 +364,11 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     if ( ncells > 0 ) map[ptId] = numNewPts++;
     }
 
-  if ( this->GenerateErrorScalars ) this->PointData.CopyScalarsOff();
-  this->PointData.CopyAllocate(pd,numNewPts);
+  if ( this->GenerateErrorScalars ) 
+    {
+    outputPD->CopyScalarsOff();
+    }
+  outputPD->CopyAllocate(pd,numNewPts);
   newPts = new vtkFloatPoints(numNewPts);
 
   for (ptId=0; ptId < numPts; ptId++)
@@ -370,7 +376,7 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
     if ( map[ptId] > -1 )
       {
       newPts->SetPoint(map[ptId],inPts->GetPoint(ptId));
-      this->PointData.CopyData(pd,ptId,map[ptId]);
+      outputPD->CopyData(pd,ptId,map[ptId]);
       }
     }
 
@@ -398,14 +404,14 @@ void vtkDecimate::CreateOutput(int numPts, int numTris, int numEliminated,
 
   delete [] map;
   Mesh->Delete();
-  this->SetPoints(newPts);
-  this->SetPolys(newPolys);
+  output->SetPoints(newPts);
+  output->SetPolys(newPolys);
 
   newPts->Delete();
   newPolys->Delete();
   if ( this->GenerateErrorScalars )
     {
-    this->PointData.SetScalars(newScalars);
+    outputPD->SetScalars(newScalars);
     newScalars->Delete();
     delete [] VertexError;
     }

@@ -40,23 +40,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkUnstructuredGridFilter.hh"
 
-vtkUnstructuredGridFilter::~vtkUnstructuredGridFilter()
-{
-}
-
 // Description:
 // Specify the input data or filter.
 void vtkUnstructuredGridFilter::SetInput(vtkUnstructuredGrid *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vtkDataSet *) input;
-    this->_Modified();
+    this->Modified();
     }
-}
-
-void vtkUnstructuredGridFilter::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkFilter::_PrintSelf(os,indent);
 }

@@ -40,6 +40,12 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkShrinkPolyData.hh"
 
+
+vtkShrinkPolyData::vtkShrinkPolyData(float sf)
+{
+  this->ShrinkFactor = sf;
+}
+
 void vtkShrinkPolyData::Execute()
 {
   int j, k;
@@ -52,12 +58,14 @@ void vtkShrinkPolyData::Execute()
   vtkFloatPoints *newPoints;
   vtkCellArray *newVerts, *newLines, *newPolys;
   float *p1, *p2, *p3, pt[3];
-  vtkPolyData *input=(vtkPolyData *)this->Input;
+  vtkPolyData *input =(vtkPolyData *)this->Input;
+  vtkPolyData *output=(vtkPolyData *)this->Output;
+  vtkPointData *pointData = output->GetPointData(); 
 //
 // Initialize
 //
   vtkDebugMacro(<<"Shrinking polygonal data");
-  this->Initialize();
+  output->Initialize();
 
   inPts = input->GetPoints();
   pd = input->GetPointData();
@@ -104,7 +112,7 @@ void vtkShrinkPolyData::Execute()
   newPolys = new vtkCellArray;
   newPolys->Allocate(poly_alloc_size);
 
-  this->PointData.CopyAllocate(pd);
+  pointData->CopyAllocate(pd);
 //
 // Copy vertices (no shrinking necessary)
 //
@@ -115,7 +123,7 @@ void vtkShrinkPolyData::Execute()
       {
       newId = newPoints->InsertNextPoint(inPts->GetPoint(pts[j]));
       newVerts->InsertCellPoint(newId);
-      this->PointData.CopyData(pd,pts[j],newId);
+      pointData->CopyData(pd,pts[j],newId);
       }    
     }
 //
@@ -132,12 +140,12 @@ void vtkShrinkPolyData::Execute()
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
       newIds[0] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j],newIds[0]);
+      pointData->CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
       newIds[1] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j+1],newIds[1]);
+      pointData->CopyData(pd,pts[j+1],newIds[1]);
 
       newLines->InsertNextCell(2,newIds);
       }
@@ -164,7 +172,7 @@ void vtkShrinkPolyData::Execute()
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
       newId = newPoints->InsertNextPoint(pt);
       newPolys->InsertCellPoint(newId);
-      this->PointData.CopyData(pd,pts[j],newId);
+      pointData->CopyData(pd,pts[j],newId);
       }
     }
 //
@@ -182,17 +190,17 @@ void vtkShrinkPolyData::Execute()
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
       newIds[0] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j],newIds[0]);
+      pointData->CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
       newIds[1] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j+1],newIds[1]);
+      pointData->CopyData(pd,pts[j+1],newIds[1]);
 
       for (k=0; k<3; k++)
         pt[k] = center[k] + this->ShrinkFactor*(p3[k] - center[k]);
       newIds[2] = newPoints->InsertNextPoint(pt);
-      this->PointData.CopyData(pd,pts[j+2],newIds[2]);
+      pointData->CopyData(pd,pts[j+2],newIds[2]);
 
       newPolys->InsertNextCell(3,newIds);
       }
@@ -200,16 +208,16 @@ void vtkShrinkPolyData::Execute()
 //
 // Update self and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->SetVerts(newVerts);
+  output->SetVerts(newVerts);
   newVerts->Delete();
 
-  this->SetLines(newLines);
+  output->SetLines(newLines);
   newLines->Delete();
  
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 }
 
@@ -217,6 +225,5 @@ void vtkShrinkPolyData::Execute()
 void vtkShrinkPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkPolyToPolyFilter::PrintSelf(os,indent);
-
   os << indent << "Shrink Factor: " << this->ShrinkFactor << "\n";
 }

@@ -113,8 +113,10 @@ void vtkGeometryFilter::Execute()
   int npts, pts[MAX_CELL_SIZE];
   vtkPointData *pd = this->Input->GetPointData();
   int allVisible;
-
-  this->Initialize();
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
+  output->Initialize();
 
   if ( (!this->CellClipping) && (!this->PointClipping) && 
   (!this->ExtentClipping) )
@@ -167,8 +169,8 @@ void vtkGeometryFilter::Execute()
 // Allocate
 //
   newPts = new vtkFloatPoints(numPts,numPts/2);
-  this->Allocate(4*numCells,numCells/2);
-  this->PointData.CopyAllocate(pd,numPts,numPts/2);
+  output->Allocate(4*numCells,numCells/2);
+  outputPD->CopyAllocate(pd,numPts,numPts/2);
 //
 // Traverse cells to extract geometry
 //
@@ -188,9 +190,9 @@ void vtkGeometryFilter::Execute()
             ptId = cell->GetPointId(i);
             x = this->Input->GetPoint(ptId);
             pts[i] = newPts->InsertNextPoint(x);
-            this->PointData.CopyData(pd,ptId,pts[i]);
+            outputPD->CopyData(pd,ptId,pts[i]);
             }
-          this->InsertNextCell(cell->GetCellType(), npts, pts);
+          output->InsertNextCell(cell->GetCellType(), npts, pts);
           break;
 
         case 3:
@@ -208,9 +210,9 @@ void vtkGeometryFilter::Execute()
                 ptId = face->GetPointId(i);
                 x = this->Input->GetPoint(ptId);
                 pts[i] = newPts->InsertNextPoint(x);
-                this->PointData.CopyData(pd,ptId,pts[i]);
+                outputPD->CopyData(pd,ptId,pts[i]);
                 }
-              this->InsertNextCell(face->GetCellType(), npts, pts);
+              output->InsertNextCell(face->GetCellType(), npts, pts);
               }
             }
             cellCopy->Delete();
@@ -222,10 +224,10 @@ void vtkGeometryFilter::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 
   if ( cellVis ) delete [] cellVis;
 }

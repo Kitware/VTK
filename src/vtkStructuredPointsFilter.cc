@@ -40,9 +40,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkStructuredPointsFilter.hh"
 
-vtkStructuredPointsFilter::~vtkStructuredPointsFilter()
-{
-}
 
 // Description:
 // Specify the input data or filter.
@@ -50,14 +47,9 @@ void vtkStructuredPointsFilter::SetInput(vtkStructuredPoints *input)
 {
   if ( this->Input != input )
     {
-    vtk_DebugMacro(<<" setting Input to " << (void *)input);
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
     this->Input = (vtkDataSet *) input;
-    this->_Modified();
+    this->Modified();
     }
 }
 
-void vtkStructuredPointsFilter::_PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkFilter::_PrintSelf(os,indent);
-
-}

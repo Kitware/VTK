@@ -41,6 +41,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <ctype.h>
 #include "vtkVoxelReader.hh"
 
+vtkVoxelReader::vtkVoxelReader()
+{
+  this->Filename = NULL;
+}
+
 void vtkVoxelReader::Execute()
 {
   FILE *fp;
@@ -50,9 +55,10 @@ void vtkVoxelReader::Execute()
   unsigned char uc;
   float f[3];
   int ti[3];
+  vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
 
   // Initialize
-  this->Initialize();
+  output->Initialize();
 
   if ((fp = fopen(this->Filename, "r")) == NULL)
     {
@@ -65,15 +71,15 @@ void vtkVoxelReader::Execute()
 
   // read in the 
   fscanf(fp,"Origin: %f %f %f\n",f,f+1,f+2);
-  this->SetOrigin(f);
+  output->SetOrigin(f);
 
   fscanf(fp,"Aspect: %f %f %f\n",f,f+1,f+2);
-  this->SetAspectRatio(f);
+  output->SetAspectRatio(f);
 
   fscanf(fp,"Dimensions: %i %i %i\n",ti,ti+1,ti+2);
-  this->SetDimensions(ti);
+  output->SetDimensions(ti);
 
-  numPts = this->Dimensions[0] * this->Dimensions[1] * this->Dimensions[2];
+  numPts = ti[0] * ti[1] * ti[2];
   newScalars = new vtkBitScalars(numPts);
 
   bitcount = 0;
@@ -92,7 +98,7 @@ void vtkVoxelReader::Execute()
 
   vtkDebugMacro(<< "Read " << numPts<< " points");
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
 }
 
 void vtkVoxelReader::PrintSelf(ostream& os, vtkIndent indent)

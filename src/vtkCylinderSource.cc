@@ -64,10 +64,12 @@ void vtkCylinderSource::Execute()
   vtkFloatNormals *newNormals;
   vtkFloatTCoords *newTCoords;
   vtkCellArray *newPolys;
+  vtkPolyData *output = this->GetOutput();
+  
 //
 // Set things up; allocate memory
 //
-  this->Initialize();
+  output->Initialize();
 
   if ( this->Capping )
     {
@@ -174,17 +176,17 @@ void vtkCylinderSource::Execute()
 //
 // Update ourselves and release memory
 //
-  this->SetPoints(newPoints);
+  output->SetPoints(newPoints);
   newPoints->Delete();
 
-  this->PointData.SetNormals(newNormals);
+  output->GetPointData()->SetNormals(newNormals);
   newNormals->Delete();
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 
   newPolys->Squeeze(); // since we've estimated size; reclaim some space
-  this->SetPolys(newPolys);
+  output->SetPolys(newPolys);
   newPolys->Delete();
 }
 

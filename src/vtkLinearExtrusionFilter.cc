@@ -102,11 +102,14 @@ void vtkLinearExtrusionFilter::Execute()
   vtkCellArray *newLines=NULL, *newPolys=NULL, *newStrips=NULL;
   vtkCell *cell, *edge;
   vtkIdList cellIds(MAX_CELL_SIZE), *cellPts;
-//
-// Initialize / check input
-//
+  vtkPolyData *output = this->GetOutput();
+  vtkPointData *outputPD = output->GetPointData();
+  
+  //
+  // Initialize / check input
+  //
   vtkDebugMacro(<<"Linearly extruding data");
-  this->Initialize();
+  output->Initialize();
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 || 
   (numCells=input->GetNumberOfCells()) < 1 )
@@ -150,8 +153,8 @@ void vtkLinearExtrusionFilter::Execute()
 // is modified. Copy all points - this is the usual requirement and it makes
 // creation of skirt much easier.
 //
-  this->PointData.CopyNormalsOff();
-  this->PointData.CopyAllocate(pd,2*numPts);
+  outputPD->CopyNormalsOff();
+  outputPD->CopyAllocate(pd,2*numPts);
   newPts = new vtkFloatPoints(2*numPts);
   if ( (ncells=inVerts->GetNumberOfCells()) > 0 ) 
     {
@@ -171,8 +174,8 @@ void vtkLinearExtrusionFilter::Execute()
     x = inPts->GetPoint(ptId);
     newPts->SetPoint(ptId,x);
     newPts->SetPoint(ptId+numPts,(this->*(ExtrudePoint))(x,ptId,inNormals));
-    this->PointData.CopyData(pd,ptId,ptId);
-    this->PointData.CopyData(pd,ptId,ptId+numPts);
+    outputPD->CopyData(pd,ptId,ptId);
+    outputPD->CopyData(pd,ptId,ptId+numPts);
     }
 //
 // If capping is on, copy 2D cells to output (plus create cap)
@@ -263,25 +266,25 @@ void vtkLinearExtrusionFilter::Execute()
 //
 // Send data to output and release memory
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
   if ( newLines ) 
     {
-    this->SetLines(newLines);
+    output->SetLines(newLines);
     newLines->Delete();
     }
 
   if ( newPolys ) 
     {
-    this->SetPolys(newPolys);
+    output->SetPolys(newPolys);
     newPolys->Delete();
     }
 
-  this->SetStrips(newStrips);
+  output->SetStrips(newStrips);
   newStrips->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 

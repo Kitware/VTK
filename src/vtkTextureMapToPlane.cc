@@ -71,9 +71,10 @@ void vtkTextureMapToPlane::Execute()
   float proj, minProj, axis[3], sAxis[3], tAxis[3];
   int dir;
   float s, t, sSf, tSf, *p;
+  vtkDataSet *output=this->Output;
 
   vtkDebugMacro(<<"Generating texture coordinates!");
-  this->Initialize();
+  output->Initialize();
   if ( (numPts=this->Input->GetNumberOfPoints()) < 3 )
     {
     vtkErrorMacro(<< "Not enough points to map with\n");
@@ -123,7 +124,7 @@ void vtkTextureMapToPlane::Execute()
 //  between s_range and t_range.  Simplest to do by projecting maximum
 //  corner of bounding box unto plane and backing out scale factors.
 //
-  bounds = this->GetBounds();
+  bounds = output->GetBounds();
   for (i=0; i<3; i++) axis[i] = bounds[2*i+1] - bounds[2*i];
 
   s = math.Dot(sAxis,axis);
@@ -136,7 +137,7 @@ void vtkTextureMapToPlane::Execute()
 //
   for (i=0; i<numPts; i++) 
     {
-    p = this->GetPoint(i);
+    p = output->GetPoint(i);
     for (j=0; j<3; j++) axis[j] = p[j] - bounds[2*j];
 
     tcoords[0] = this->SRange[0] + math.Dot(sAxis,axis) * sSf;
@@ -147,10 +148,10 @@ void vtkTextureMapToPlane::Execute()
 //
 // Update ourselves
 //
-  this->PointData.CopyTCoordsOff();
-  this->PointData.PassData(this->Input->GetPointData());
+  output->GetPointData()->CopyTCoordsOff();
+  output->GetPointData()->PassData(this->Input->GetPointData());
 
-  this->PointData.SetTCoords(newTCoords);
+  output->GetPointData()->SetTCoords(newTCoords);
   newTCoords->Delete();
 }
 
@@ -158,7 +159,7 @@ void vtkTextureMapToPlane::Execute()
 
 void vtkTextureMapToPlane::ComputeNormal()
 {
-  int numPts=this->GetNumberOfPoints();
+  int numPts=this->Output->GetNumberOfPoints();
   float m[9], v[3], *x;
   int i, ptId, dir;
   float length, w, *c1, *c2, *c3, det;
@@ -171,8 +172,8 @@ void vtkTextureMapToPlane::ComputeNormal()
 //  fallback value.
 //
   //  Get minimum width of bounding box.
-  bounds = this->GetBounds();
-  length = this->GetLength();
+  bounds = this->Output->GetBounds();
+  length = this->Output->GetLength();
 
   for (w=length, i=0; i<3; i++)
     {
@@ -199,7 +200,7 @@ void vtkTextureMapToPlane::ComputeNormal()
 
   for (ptId=0; ptId < numPts; ptId++) 
     {
-    x = this->GetPoint(ptId);
+    x = this->Output->GetPoint(ptId);
 
     v[0] += x[0]*x[2];
     v[1] += x[1]*x[2];

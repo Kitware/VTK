@@ -40,50 +40,25 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 =========================================================================*/
 #include "vtkPolyToPolyFilter.hh"
 
-void vtkPolyToPolyFilter::Modified()
+// Description:
+// Specify the input data or filter.
+void vtkPolyToPolyFilter::SetInput(vtkPolyData *input)
 {
-  this->vtkPolyData::Modified();
-  this->vtkPolyFilter::_Modified();
-}
+  if ( this->Input != input )
+    {
+    vtkDebugMacro(<<" setting Input to " << (void *)input);
+    this->Input = input;
+    this->Modified();
 
-unsigned long int vtkPolyToPolyFilter::GetMTime()
-{
-  unsigned long dtime = this->vtkPolyData::GetMTime();
-  unsigned long ftime = this->vtkPolyFilter::_GetMTime();
-  return (dtime > ftime ? dtime : ftime);
-}
-
-void vtkPolyToPolyFilter::Update()
-{
-  this->UpdateFilter();
-}
-
-void vtkPolyToPolyFilter::DebugOn()
-{
-  vtkPolyData::DebugOn();
-  vtkPolyFilter::_DebugOn();
-}
-
-void vtkPolyToPolyFilter::DebugOff()
-{
-  vtkPolyData::DebugOff();
-  vtkPolyFilter::_DebugOff();
-}
-
-int vtkPolyToPolyFilter::GetDataReleased()
-{
-  return this->DataReleased;
-}
-
-void vtkPolyToPolyFilter::SetDataReleased(int flag)
-{
-  this->DataReleased = flag;
-}
-
-void vtkPolyToPolyFilter::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkPolyData::PrintSelf(os,indent);
-  vtkPolyFilter::_PrintSelf(os,indent);
+    // since the input has changed we might need to create a new output
+    if (strcmp(this->Output->GetClassName(),this->Input->GetClassName()))
+      {
+      this->Output->Delete();
+      this->Output = this->Input->MakeObject();
+      this->Output->SetSource(this);
+      vtkWarningMacro(<<" a new output had to be created since the input type changed.");
+      }
+    }
 }
 
 

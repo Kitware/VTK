@@ -54,10 +54,6 @@ vtkContourFilter::vtkContourFilter()
   this->Range[1] = 1.0;
 }
 
-vtkContourFilter::~vtkContourFilter()
-{
-}
-
 // Description:
 // Set a particular contour value at contour number i. The index i ranges 
 // between 0<=i<NumberOfContours.
@@ -118,12 +114,13 @@ void vtkContourFilter::Execute()
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkFloatPoints *newPts;
   cellScalars.ReferenceCountingOff();
-
+  vtkPolyData *output = this->GetOutput();
+  
   vtkDebugMacro(<< "Executing contour filter");
-//
-// Initialize and check input
-//
-  this->Initialize();
+  //
+  // Initialize and check input
+  //
+  output->Initialize();
 
   if ( ! (inScalars = this->Input->GetPointData()->GetScalars()) )
     {
@@ -166,22 +163,22 @@ void vtkContourFilter::Execute()
 // Update ourselves.  Because we don't know up front how many verts, lines,
 // polys we've created, take care to reclaim memory. 
 //
-  this->SetPoints(newPts);
+  output->SetPoints(newPts);
   newPts->Delete();
 
-  this->PointData.SetScalars(newScalars);
+  output->GetPointData()->SetScalars(newScalars);
   newScalars->Delete();
 
-  if (newVerts->GetNumberOfCells()) this->SetVerts(newVerts);
+  if (newVerts->GetNumberOfCells()) output->SetVerts(newVerts);
   newVerts->Delete();
 
-  if (newLines->GetNumberOfCells()) this->SetLines(newLines);
+  if (newLines->GetNumberOfCells()) output->SetLines(newLines);
   newLines->Delete();
 
-  if (newPolys->GetNumberOfCells()) this->SetPolys(newPolys);
+  if (newPolys->GetNumberOfCells()) output->SetPolys(newPolys);
   newPolys->Delete();
 
-  this->Squeeze();
+  output->Squeeze();
 }
 
 void vtkContourFilter::PrintSelf(ostream& os, vtkIndent indent)
