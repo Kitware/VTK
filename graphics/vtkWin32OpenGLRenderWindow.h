@@ -49,6 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdlib.h>
 #include "vtkRenderWindow.h"
+#include "vtkMutexLock.h"
 
 class VTK_EXPORT vtkWin32OpenGLRenderWindow : public vtkRenderWindow
 {
@@ -70,15 +71,15 @@ public:
 
   // Description:
   // Specify various window parameters.
-  void WindowConfigure(void);
+  virtual void WindowConfigure(void);
 
   // Description:
   // Initialize the window for rendering.
-  void WindowInitialize(void);
+  virtual void WindowInitialize(void);
 
   // Description:
   // Initialize the rendering window.
-  void Initialize(void);
+  virtual void Initialize(void);
 
   // Description:
   // Change the window to fill the entire screen.
@@ -86,31 +87,31 @@ public:
 
   // Description:
   // Remap the window.
-  void WindowRemap(void);
+  virtual void WindowRemap(void);
 
   // Description:
   // Set the preferred window size to full screen.
-  void PrefFullScreen(void);
+  virtual void PrefFullScreen(void);
 
   // Description:
   // Set the size of the window.
-  void SetSize(int,int);
+  virtual void SetSize(int,int);
 
   // Description:
   // Get the current size of the window.
-  int *GetSize();
+  virtual int *GetSize();
 
   // Description:
   // Set the position of the window.
-  void SetPosition(int,int);
+  virtual void SetPosition(int,int);
   
   // Description:
   // Return the scrren size.
-  int *GetScreenSize();
+  virtual int *GetScreenSize();
 
   // Description:
   // Get the position in screen coordinates of the window.
-  int *GetPosition();
+  virtual int *GetPosition();
 
   // Description:
   // Set the name of the window. This appears at the top of the window
@@ -130,16 +131,16 @@ public:
 
   // Description:
   // Get the window id.
-  HWND  GetWindowId();
+  virtual HWND  GetWindowId();
   void  SetWindowId(void *foo) {this->SetWindowId((HWND)foo);};
 
   // Description:
   // Set the window id to a pre-existing window.
-  void  SetWindowId(HWND);
+  virtual void  SetWindowId(HWND);
   
   // Description:
   // Set the window's parent id to a pre-existing window.
-  void  SetParentId(HWND);
+  virtual void  SetParentId(HWND);
   void  SetParentId(void *foo) {this->SetParentId((HWND)foo);};
 
   void  SetContextId(HGLRC);	// hsr
@@ -147,7 +148,7 @@ public:
 
   // Description:
   // Set the window id of the new window once a WindowRemap is done.
-  void  SetNextWindowId(HWND);
+  virtual void  SetNextWindowId(HWND);
   //ETX
 
   // supply base class virtual function
@@ -185,11 +186,31 @@ public:
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
 
+  // Description:
+  // These methods can be used by MFC applications 
+  // to support print preview and printing, or more
+  // general rendering into memory. 
+  void SetupMemoryRendering(int x, int y, HDC prn);
+  void ResumeScreenRendering();
+  HDC GetMemoryDC();
+  
+  // Description:
+  // Initialize OpenGL for this window.
+  virtual void OpenGLInit();
+  virtual void SetupPalette(HDC hDC);
+  virtual void SetupPixelFormat(HDC hDC, DWORD dwFlags, int debug, 
+				int bpp=16, int zbpp=16);
+  
+  // Description:
+  // Clean up device contexts, rendering contexts, etc.
+  void Clean();
+  
   HINSTANCE ApplicationInstance;
   HPALETTE  Palette;
+  HPALETTE  OldPalette;
   HGLRC     ContextId;
-  HDC	      DeviceContext;			//	hsr	
-  BOOL      MFChandledWindow;		//  hsr
+  HDC       DeviceContext;
+  BOOL      MFChandledWindow;
   HWND      WindowId;
   HWND      ParentId;
   HWND      NextWindowId;
@@ -197,6 +218,30 @@ public:
   int       ScreenSize[2];
   int       MultiSamples;
 
+  // the following is used to support rendering into memory
+  BITMAPINFO MemoryDataHeader;
+  HBITMAP MemoryBuffer;
+  unsigned char *MemoryData;	// the data in the DIBSection
+  HDC MemoryHdc;
+
+  int ScreenMapped;
+  int ScreenWindowSize[2];
+  HDC ScreenDeviceContext;
+  int ScreenDoubleBuffer;
+  HGLRC ScreenContextId;
+
+  //BTX
+  // message handler
+  virtual LRESULT MessageProc(HWND hWnd, UINT message, 
+			      WPARAM wParam, LPARAM lParam);
+
+  static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, 
+				  WPARAM wParam, LPARAM lParam);
+  //ETX
+  
+  // these are used int he window creation code
+  static vtkWin32OpenGLRenderWindow *TempPointerToThis;
+  static vtkMutexLock *WindowMutex;
 };
 
 

@@ -1119,8 +1119,11 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam, LPARAM lPa
         }
       break;
     default:
-      return me->OldProc(hWnd,uMsg,wParam,lParam);
-    }
+      if (me)
+	{
+	return me->OldProc(hWnd,uMsg,wParam,lParam);
+	}
+    };
   return 0;
 }
 

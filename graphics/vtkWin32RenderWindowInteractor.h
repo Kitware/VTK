@@ -111,7 +111,7 @@ public:
   virtual void EndAnimation();
 
   //BTX
-  friend LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
+  friend VTK_EXPORT LRESULT CALLBACK vtkHandleMessage(HWND hwnd,UINT uMsg,
 					   WPARAM w, LPARAM l);
   //ETX
 
