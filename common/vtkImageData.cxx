@@ -171,7 +171,7 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   unsigned long   lsize;
 
   // Start with the number of scalar components
-  size = (float)(this->GetNumberOfScalarComponents());
+  size = (unsigned long)(this->GetNumberOfScalarComponents());
 
   // Multiply by the number of bytes per scalar
   switch (this->GetScalarType())
@@ -1077,7 +1077,6 @@ void vtkImageData::UpdateData()
       return;
       }
     this->Crop();
-    return;
     }
   
   if (this->UpdateNumberOfPieces == 1)
