@@ -153,6 +153,7 @@ class vtkCamera : public vtkObject
   float GetRoll();
 
   void Zoom(float);
+  void Dolly(float);
   void Azimuth(float);
   void Yaw(float);
   void Elevation(float);
