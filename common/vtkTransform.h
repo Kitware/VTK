@@ -269,7 +269,7 @@ class VTK_EXPORT vtkTransform : public vtkLinearTransform
   // For legacy compatibility. Do not use.
   void Multiply4x4(vtkMatrix4x4 *a, vtkMatrix4x4 *b, vtkMatrix4x4 *c) {
     vtkMatrix4x4::Multiply4x4(a,b,c); }; 
-  void Multiply4x4(double a[16], double b[16], double c[16]) {
+  void Multiply4x4(const double a[16], const double b[16], double c[16]) {
     vtkMatrix4x4::Multiply4x4(a,b,c); }; 
   void Multiply4x4(vtkMatrix4x4 &a, vtkMatrix4x4 &b, vtkMatrix4x4 &c) {
     vtkMatrix4x4::Multiply4x4(&a,&b,&c); }; 
