@@ -198,9 +198,6 @@ protected:
 				  WPARAM wParam, LPARAM lParam);
   //ETX
   
-  // these are used in the window creation code
-  static vtkWin32OpenGLImageWindow *TempPointerToThis;
-  static vtkMutexLock *WindowMutex;
 };
 
 

@@ -63,9 +63,6 @@ vtkWin32OpenGLImageWindow* vtkWin32OpenGLImageWindow::New()
 
 
 
-vtkWin32OpenGLImageWindow *vtkWin32OpenGLImageWindow::TempPointerToThis;
-vtkMutexLock *vtkWin32OpenGLImageWindow::WindowMutex = vtkMutexLock::New();
-
 vtkWin32OpenGLImageWindow::vtkWin32OpenGLImageWindow()
 {
   this->ApplicationInstance = NULL;
@@ -123,13 +120,6 @@ LRESULT APIENTRY vtkWin32OpenGLImageWindow::WndProc(HWND hWnd, UINT message,
   vtkWin32OpenGLImageWindow *me = 
     (vtkWin32OpenGLImageWindow *)GetWindowLong(hWnd,GWL_USERDATA);
 
-  if (message == WM_CREATE && !me)
-    {
-    // set up window ptr
-    me = vtkWin32OpenGLImageWindow::TempPointerToThis;
-    SetWindowLong(hWnd, GWL_USERDATA, (LONG) me);
-    }
-      
   // forward to actual object
   if (me)
     {
@@ -330,18 +320,10 @@ LRESULT vtkWin32OpenGLImageWindow::MessageProc(HWND hWnd, UINT message,
   switch (message) 
     {
     case WM_CREATE:
-      {
-        /* initialize OpenGL rendering */
-        this->DeviceContext = GetDC(hWnd);
-        this->SetupPixelFormat(this->DeviceContext,
-			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
-			       (this->DoubleBuffer*PFD_DOUBLEBUFFER), 
-			       this->GetDebug(), 32, 32);
-        this->SetupPalette(this->DeviceContext);
-	this->ContextId = wglCreateContext(this->DeviceContext);
-        wglMakeCurrent(this->DeviceContext, this->ContextId);
-        this->OpenGLInit();
-        return 0;
+      { 
+      // nothing to be done here, opengl is initilized after the call to
+      // create now
+      return 0;
       }
     case WM_DESTROY:
         this->Clean();
@@ -459,13 +441,7 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
       RegisterClass(&wndClass);
       }
     
-    // use real mutex
-    vtkWin32OpenGLImageWindow::WindowMutex->Lock();
-    if (vtkWin32OpenGLImageWindow::TempPointerToThis)
-      {
-      vtkErrorMacro("Two windows being created at the same time");
-      }
-    vtkWin32OpenGLImageWindow::TempPointerToThis = this;
+
     /* create window */
     if (this->ParentId)
       {
@@ -484,8 +460,6 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
 	height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
 	NULL, NULL, this->ApplicationInstance, NULL);
       }
-    vtkWin32OpenGLImageWindow::TempPointerToThis = NULL;
-    vtkWin32OpenGLImageWindow::WindowMutex->Unlock();
     if (!this->WindowId)
       {
       vtkErrorMacro("Could not create window, error:  " << GetLastError());
@@ -498,19 +472,16 @@ void vtkWin32OpenGLImageWindow::MakeDefaultWindow()
     //UpdateWindow(this->WindowId);
     this->OwnWindow = 1;
     }
-  else
-    {
-    SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
-    this->DeviceContext = GetDC(this->WindowId);
-    this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-			   PFD_DRAW_TO_WINDOW | 
-			   (this->DoubleBuffer*PFD_DOUBLEBUFFER), 
-			   this->GetDebug(), 32, 32);
-    this->SetupPalette(this->DeviceContext);
-    this->ContextId = wglCreateContext(this->DeviceContext);
-    wglMakeCurrent(this->DeviceContext, this->ContextId);
-    this->OpenGLInit();
-    }
+  SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
+  this->DeviceContext = GetDC(this->WindowId);
+  this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+			 PFD_DRAW_TO_WINDOW | 
+			 (this->DoubleBuffer*PFD_DOUBLEBUFFER), 
+			 this->GetDebug(), 32, 32);
+  this->SetupPalette(this->DeviceContext);
+  this->ContextId = wglCreateContext(this->DeviceContext);
+  wglMakeCurrent(this->DeviceContext, this->ContextId);
+  this->OpenGLInit();
   this->Mapped = 1;
 
   // set the DPI

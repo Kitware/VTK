@@ -74,9 +74,6 @@ vtkWin32OpenGLRenderWindow* vtkWin32OpenGLRenderWindow::New()
 
 #define VTK_MAX_LIGHTS 8
 
-// statics
-vtkWin32OpenGLRenderWindow *vtkWin32OpenGLRenderWindow::TempPointerToThis;
-vtkMutexLock *vtkWin32OpenGLRenderWindow::WindowMutex = vtkMutexLock::New();
 
 vtkWin32OpenGLRenderWindow::vtkWin32OpenGLRenderWindow()
 {
@@ -166,13 +163,6 @@ LRESULT APIENTRY vtkWin32OpenGLRenderWindow::WndProc(HWND hWnd, UINT message,
   vtkWin32OpenGLRenderWindow *me = 
     (vtkWin32OpenGLRenderWindow *)GetWindowLong(hWnd,GWL_USERDATA);
 
-  if (message == WM_CREATE && !me)
-    {
-    // set up window ptr
-    me = vtkWin32OpenGLRenderWindow::TempPointerToThis;
-    SetWindowLong(hWnd, GWL_USERDATA, (LONG) me);
-    }
-      
   // forward to actual object
   if (me)
     {
@@ -477,27 +467,9 @@ LRESULT vtkWin32OpenGLRenderWindow::MessageProc(HWND hWnd, UINT message,
     {
     case WM_CREATE:
       {
-      /* initialize OpenGL rendering */
-      this->DeviceContext = GetDC(hWnd);
-      if (this->StereoCapableWindow)
-	{
-	this->SetupPixelFormat(this->DeviceContext,
-			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
-			       PFD_STEREO | PFD_DOUBLEBUFFER, 
-			       this->GetDebug(), 32, 32);
-	}
-      else
-	{
-	this->SetupPixelFormat(this->DeviceContext,
-			       PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW |
-			       PFD_DOUBLEBUFFER, 
-			       this->GetDebug(), 32, 32);
-	}
-        this->SetupPalette(this->DeviceContext);
-	this->ContextId = wglCreateContext(this->DeviceContext);
-	wglMakeCurrent(this->DeviceContext, this->ContextId);
-	this->OpenGLInit();
-        return 0;
+      // nothing to be done here, opengl is initilized after the call to
+      // create now
+      return 0;
       }
     case WM_DESTROY:
       this->Clean();
@@ -622,13 +594,6 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
         RegisterClass(&wndClass);
         }
       
-      // use real mutex
-      vtkWin32OpenGLRenderWindow::WindowMutex->Lock();
-      if (vtkWin32OpenGLRenderWindow::TempPointerToThis)
-        {
-        vtkErrorMacro("Two windows being created at the same time");
-        }
-      vtkWin32OpenGLRenderWindow::TempPointerToThis = this;
       /* create window */
       if (this->ParentId)
         {
@@ -647,8 +612,6 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
 	  height+2*GetSystemMetrics(SM_CYFRAME) +GetSystemMetrics(SM_CYCAPTION),
 	  NULL, NULL, this->ApplicationInstance, NULL);
         }
-      vtkWin32OpenGLRenderWindow::TempPointerToThis = NULL;
-      vtkWin32OpenGLRenderWindow::WindowMutex->Unlock();
       if (!this->WindowId)
         {
         vtkErrorMacro("Could not create window, error:  " << GetLastError());
@@ -661,27 +624,24 @@ void vtkWin32OpenGLRenderWindow::WindowInitialize (void)
       //UpdateWindow(this->WindowId);
       this->OwnWindow = 1;
       }
+    SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
+    this->DeviceContext = GetDC(this->WindowId);
+    if (this->StereoCapableWindow)
+      {
+      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+			     PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
+			     PFD_STEREO, this->GetDebug(), 32, 32);
+      }
     else
       {
-      SetWindowLong(this->WindowId,GWL_USERDATA,(LONG)this);
-      this->DeviceContext = GetDC(this->WindowId);
-      if (this->StereoCapableWindow)
-	{
-	this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-			       PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER |
-			       PFD_STEREO, this->GetDebug(), 32, 32);
-	}
-      else
-	{
-	this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
-			       PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
-			       this->GetDebug(), 32, 32);
-	}
-      this->SetupPalette(this->DeviceContext);
-      this->ContextId = wglCreateContext(this->DeviceContext);
-      wglMakeCurrent(this->DeviceContext, this->ContextId);
-      this->OpenGLInit();
+      this->SetupPixelFormat(this->DeviceContext, PFD_SUPPORT_OPENGL |
+			     PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER,
+			     this->GetDebug(), 32, 32);
       }
+    this->SetupPalette(this->DeviceContext);
+    this->ContextId = wglCreateContext(this->DeviceContext);
+    wglMakeCurrent(this->DeviceContext, this->ContextId);
+    this->OpenGLInit();
     this->Mapped = 1;
     }	
   else 
