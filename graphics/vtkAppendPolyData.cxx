@@ -255,7 +255,7 @@ void vtkAppendPolyData::Execute()
     }
 
   // Now can allocate memory
-  output->Allocate(numCells); //allocate storage for geometry/topology
+
   if ( !scalarsPresentInPD )
     {
     outputPD->CopyScalarsOff();
