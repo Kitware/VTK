@@ -378,6 +378,7 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageRegion *image,
     temp = a1;  a1 = c1;  c1 = temp;
     }
   
+  image->GetExtent(min0, max0, min1, max1);
   
   // for all rows: compute 2 points, intersection of triangle edges and row
   longStep = (float)(c0 - a0) / (float)(c1 - a1 + 1);
@@ -430,17 +431,20 @@ static void vtkImageCanvasSource2DFillTriangle(vtkImageRegion *image,
       }
     for (idx0 = left; idx0 <= right; ++idx0)
       {
-      ptr = (T *)(image->GetScalarPointer(idx0, idx1));
-      if (ptr)
+      if (idx0 >= min0 && idx0 <= max0 && idx1 >= min1 && idx1 <= max1)
 	{
-	pf = drawColor;
-	// Assign color to pixel.
-	for (idxV = minV; idxV <= maxV; ++idxV)
+	ptr = (T *)(image->GetScalarPointer(idx0, idx1));
+	if (ptr)
 	  {
-	  *ptr = (T)(*pf++);
-	  ptr += incV;
+	  pf = drawColor;
+	  // Assign color to pixel.
+	  for (idxV = minV; idxV <= maxV; ++idxV)
+	    {
+	    *ptr = (T)(*pf++);
+	    ptr += incV;
+	    }
+	  
 	  }
-	
 	}
       }
 
