@@ -194,6 +194,7 @@ void vtkImageAnisotropicDiffusion3D::Execute(vtkImageRegion *inRegion,
     }
   
   // copy results into output.
+  outRegion->GetScalarPointer ();
   outRegion->CopyRegionData(in);
   in->Delete ();
   out->Delete ();

@@ -269,6 +269,7 @@ void vtkImageInPlaceFilter::InternalUpdate()
     {
     // we have to copy the data
     vtkDebugMacro(<< "Update: Cannot copy by reference.");
+    outRegion->GetScalarPointer ();
     outRegion->CopyRegionData(inRegion);
     }
   else
