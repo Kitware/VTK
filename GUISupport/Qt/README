@@ -1,0 +1,12 @@
+
+There are no restrictions for using this Qt code in any project.
+To make changes to this code requires a commercial license of Qt
+to keep it free for everyone.  Using a free version of Qt causes
+this Qt code to become GPL'd.  We don't want that.  If you want to
+make changes with a free version of Qt, you can copy it and 
+make your own changes for yourself.
+
+Changes to the following files are restricted, but not limited to 
+any new ones added after this writing:
+  QVTKWidget.h QVTKWidget.cxx QVTKWidgetPlugin.cxx QVTKWidget.xpm
+

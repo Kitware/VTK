@@ -41,7 +41,7 @@ ADD_EXECUTABLE( qtevents ${SRCS} ${UI_SRCS} ${MOC_SRCS})
 
 
 TARGET_LINK_LIBRARIES( qtevents
-  vtkGUISupport
+  QVTK
   ${QT_QT_LIBRARY}
   vtkRendering
   vtkGraphics

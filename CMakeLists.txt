@@ -64,7 +64,7 @@ VTK_DEPENDENT_OPTION(VTK_USE_PARALLEL "Build the vtkParallel kit." OFF
                      "VTK_USE_RENDERING" OFF)
 
 # Determine GUI Support.
-VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build GUI Support" OFF
+VTK_DEPENDENT_OPTION(VTK_USE_GUISUPPORT "Build VTK with GUI Support" OFF
                      "VTK_USE_RENDERING" OFF)
 
 
@@ -81,9 +81,10 @@ ENDIF(VTK_USE_PARALLEL)
 IF(VTK_USE_PATENTED)
   SET(VTK_KITS ${VTK_KITS} PATENTED)
 ENDIF(VTK_USE_PATENTED)
-IF(VTK_USE_GUISUPPORT)
-  SET(VTK_KITS ${VTK_KITS} GUISUPPORT)
-ENDIF(VTK_USE_GUISUPPORT)
+# from GUISupport
+IF(VTK_USE_QVTK)
+  SET(VTK_KITS ${VTK_KITS} QVTK)
+ENDIF(VTK_USE_QVTK)
 
 #-----------------------------------------------------------------------------
 # Determine GUI.

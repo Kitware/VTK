@@ -90,7 +90,7 @@ bool vtkQtConnection::IsConnection(vtkObject* vtk_obj, unsigned long event,
   if(qt_obj && qt_obj != mQtObject)
     return false;
 
-  if(slot && (*mQtSlot) != slot)
+  if(slot && strcmp(mQtSlot->c_str(), slot) == 0 )
     return false;
 
   return true;

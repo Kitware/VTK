@@ -40,7 +40,7 @@ ADD_EXECUTABLE( qtsimpleview ${SimpleViewSrcs} ${UISrcs} ${MOCSrcs})
 #       dlopen the GL library, or configure Qt without OpenGL support.
 
 TARGET_LINK_LIBRARIES( qtsimpleview
-  vtkGUISupport
+  QVTK
   ${QT_QT_LIBRARY}
   vtkRendering
   vtkGraphics

@@ -20,7 +20,7 @@ ADD_EXECUTABLE( qtimageviewer ${SRCS})
 #       dlopen the GL library, or configure Qt without OpenGL support.
 
 TARGET_LINK_LIBRARIES( qtimageviewer
-  vtkGUISupport
+  QVTK
   ${QT_QT_LIBRARY}
   vtkRendering
   vtkGraphics
