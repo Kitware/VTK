@@ -240,7 +240,6 @@ vtkDataObject *vtkDataObjectToDataSetFilter::GetInput()
 //----------------------------------------------------------------------------
 void vtkDataObjectToDataSetFilter::ExecuteInformation()
 {
-  int npts;
   vtkDataObject *input = this->GetInput();
 
   switch (this->DataSetType)
