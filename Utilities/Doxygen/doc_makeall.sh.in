@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # Doxygen documentation batch
-# modified by S. Barre (Time-stamp: <2002-01-30 09:28:26 barre>
+# modified by S. Barre (Time-stamp: <2002-01-31 16:11:50 barre>
 # -------------------------------------------------------------------------
 
 # Path to several tools (_PROG to avoid the typical GZIP env var pb)
@@ -239,25 +239,22 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
     $PERL_PROG $PATH_TO_VTK_DOX_SCRIPTS/doc_contributors.pl \
         --authors  "$PATH_TO_VTK_DOX_SCRIPTS/authors.txt" \
         --cachedir "$DOXTEMP/cache" \
-        --in 1.0 \
-        --out 0.5 \
+        --class_group '^(vtk[A-Z0-9][A-Za-z0-9]+)\.(?:c|cpp|cxx|h|mm)$' \
+        --files_in '(?:^hints|^README|\.(?:c|cmake|cpp|cxx|doc|h|html|in|java|mm|pl|py|tcl|txt))$' \
+        --files_out '(?:^vtkVersion\.\w+|^pkgIndex\.tcl|^vtkParse\.tab\.c|\.yy\.c)$' \
+        --lines_add 1.0 \
+        --lines_rem 0.5 \
         --massive 200 \
         --max_class_nb 10 \
+        --max_file_nb 5 \
         --min_class 0.02 \
+        --min_file 0.01 \
         --min_contrib 0.05 \
         --min_gcontrib 0.0001 \
         --store "doc_""$PROJECT_NAME""_contributors.dox" \
         --relativeto "$SOURCE_DIR/$REL_PATH_TO_TOP" \
         --to "$INTERMEDIATE_DOX_DIR" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Common" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Filtering" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Graphics" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Hybrid" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering"
+        "$SOURCE_DIR/$REL_PATH_TO_TOP"
 fi
 
 # ----------------------------------------------------------------------------
