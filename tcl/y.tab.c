@@ -416,7 +416,7 @@ output_function()
   if (((arg_types[10]%1000)/100 != 3)&&
       ((arg_types[10]%1000)/100 != 1)&&
       ((arg_types[10]%1000)/100)) args_ok = 0;
-  if ((arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
+  if (num_args && (arg_types[0] == 5000)&&(num_args != 2)) args_ok = 0;
 
   /* look for VAR FUNCTIONS */
   if ((arg_types[0] == 5000)&&(num_args == 2)) 
@@ -924,6 +924,7 @@ char * yyreds[] =
 	"brackets : '[' maybe_other ']'",
 };
 #endif /* YYDEBUG */
+# line	1 "/usr/ccs/bin/yaccpar"
 /*
  * Copyright (c) 1993 by Sun Microsystems, Inc.
  */
@@ -2337,6 +2338,7 @@ case 97:
     numFuncs++;
     }
    } break;
+# line	532 "/usr/ccs/bin/yaccpar"
 	}
 	goto yystack;		/* reset registers in driver code */
 }
