@@ -1,5 +1,5 @@
 OGLR_LIBS = -lGL
-OGLR_FLAGS = -DUSE_OGLR
+OGLR_FLAGS = -DUSE_OGLR ${OGLR_INCLUDE}
 OGLR_OBJ = \
 vtkOglrActor.o \
 vtkOglrCamera.o \
