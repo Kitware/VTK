@@ -25,6 +25,7 @@ island SetInput [thresh GetOutput]
 island SetIslandValue 255
 island SetReplaceValue 128
 island SetAreaThreshold 100
+island SquareNeighborhoodOn
 
 vtkImageViewer viewer
 viewer SetInput [island GetOutput]
