@@ -124,6 +124,8 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 //
   if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
   this->LUSolveLinearSystem(A,index,x,size);
+
+  return 1;
 }
 
 // Description:
@@ -134,14 +136,14 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 {
   static int *index = NULL, maxSize=0;
   static double *column = NULL;
-  int i;
+  int i, j;
 //
 // Check on allocation of working vectors
 //
   if ( index == NULL ) 
     {
-    column = new double[size];
     index = new int[size];
+    column = new double[size];
     maxSize = size;
     } 
   else if ( size > maxSize ) 
@@ -156,9 +158,17 @@ int vtkMath::InvertMatrix(double **A, double **AI, int size)
 //
   if ( this->LUFactorLinearSystem(A, index, size) == 0 ) return 0;
   
-  //initialize column matrix
-  for (column[0]=1.0, i=1; i < size; i++) column[i] = 0.0;
-  this->LUSolveLinearSystem(A,index,column,size);
+  for ( i=0; i < size; i++ )
+    {
+    for ( j=0; j < size; j++ ) column[j] = 0.0;
+    column[i] = 1.0;
+
+    this->LUSolveLinearSystem(A,index,column,size);
+
+    for ( j=0; j < size; j++ ) AI[i][j] = column[j];
+    }
+
+  return 1;
 }
 
 // Description:
