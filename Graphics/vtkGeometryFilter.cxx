@@ -27,7 +27,7 @@
 #include "vtkPyramid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGeometryFilter, "1.87");
+vtkCxxRevisionMacro(vtkGeometryFilter, "1.88");
 vtkStandardNewMacro(vtkGeometryFilter);
 
 // Construct with all types of clipping turned off.
@@ -691,20 +691,25 @@ void vtkGeometryFilter::UnstructuredGridExecute()
     
     if (allVisible || cellVis[cellId])  //now if visible extract geometry
       {
+      //special code for nonlinear cells - rarely occurs, so right now it
+      //is slow.
       switch (input->GetCellType(cellId))
         {
+        case VTK_EMPTY_CELL:
+          break;
+
         case VTK_VERTEX:
         case VTK_POLY_VERTEX:
           newCellId = Verts->InsertNextCell(npts,pts);
           outputCD->CopyData(cd,cellId,newCellId);
           break;
-          
+
         case VTK_LINE: 
         case VTK_POLY_LINE:
           newCellId = Lines->InsertNextCell(npts,pts);
           outputCD->CopyData(cd,cellId,newCellId);
           break;
-          
+
         case VTK_TRIANGLE:
         case VTK_QUAD:
         case VTK_POLYGON:
@@ -716,7 +721,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
           newCellId = Strips->InsertNextCell(npts,pts);
           outputCD->CopyData(cd,cellId,newCellId);
           break;
-          
+
         case VTK_PIXEL:
           newCellId = Polys->InsertNextCell(npts);
           for ( i=0; i < npts; i++)
@@ -725,7 +730,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
             }
           outputCD->CopyData(cd,cellId,newCellId);
           break;
-          
+
         case VTK_TETRA:
           for (faceId = 0; faceId < 4; faceId++)
             {
@@ -748,7 +753,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               }
             }
           break;
-          
+
         case VTK_VOXEL:
           for (faceId = 0; faceId < 6; faceId++)
             {
@@ -796,7 +801,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               }
             }
           break;
-          
+
         case VTK_WEDGE:
           for (faceId = 0; faceId < 5; faceId++)
             {
@@ -824,7 +829,7 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               }
             }
           break;
-          
+
         case VTK_PYRAMID:
           for (faceId = 0; faceId < 5; faceId++)
             {
@@ -852,6 +857,72 @@ void vtkGeometryFilter::UnstructuredGridExecute()
               }
             }
           break;
+
+        //Quadratic cells
+        case VTK_QUADRATIC_EDGE:
+        case VTK_QUADRATIC_TRIANGLE:
+        case VTK_QUADRATIC_QUAD:
+        case VTK_QUADRATIC_TETRA:
+        case VTK_QUADRATIC_HEXAHEDRON:
+          {
+          vtkGenericCell *cell = vtkGenericCell::New();
+          input->GetCell(cellId,cell);
+          vtkIdList *pts = vtkIdList::New();  
+          vtkPoints *coords = vtkPoints::New();
+          vtkIdList *cellIds = vtkIdList::New();
+          vtkIdType newCellId;
+
+          if ( cell->GetCellDimension() == 1 )
+            {
+            cell->Triangulate(0,pts,coords);
+            for (i=0; i < pts->GetNumberOfIds(); i+=2)
+              {
+              newCellId = Lines->InsertNextCell(2);
+              Lines->InsertCellPoint(pts->GetId(i));
+              Lines->InsertCellPoint(pts->GetId(i+1));
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            }
+          else if ( cell->GetCellDimension() == 2 )
+            {
+            cell->Triangulate(0,pts,coords);
+            for (i=0; i < pts->GetNumberOfIds(); i+=3)
+              {
+              newCellId = Lines->InsertNextCell(2);
+              Polys->InsertCellPoint(pts->GetId(i));
+              Polys->InsertCellPoint(pts->GetId(i+1));
+              Polys->InsertCellPoint(pts->GetId(i+2));
+              outputCD->CopyData(cd,cellId,newCellId);
+              }
+            } 
+          else //3D nonlinear cell
+            {
+            vtkCell *face;
+            for (int j=0; j < cell->GetNumberOfFaces(); j++)
+              {
+              face = cell->GetFace(j);
+              input->GetCellNeighbors(cellId, face->PointIds, cellIds);
+              if ( cellIds->GetNumberOfIds() <= 0)
+                {
+                face->Triangulate(0,pts,coords);
+                for (i=0; i < pts->GetNumberOfIds(); i+=3)
+                  {
+                  newCellId = Lines->InsertNextCell(2);
+                  Polys->InsertCellPoint(pts->GetId(i));
+                  Polys->InsertCellPoint(pts->GetId(i+1));
+                  Polys->InsertCellPoint(pts->GetId(i+2));
+                  outputCD->CopyData(cd,cellId,newCellId);
+                  }
+                }
+              }
+            } //3d cell
+          cellIds->Delete();
+          coords->Delete();
+          pts->Delete();
+          cell->Delete();
+          }
+          break; //done with quadratic cells
+          
         } //switch
       } //if visible
     } //for all cells
