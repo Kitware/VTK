@@ -335,7 +335,7 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
      << this->GradientMagnitudeBias << endl;
 
   os << indent << "Zero Pad: " 
-     << ((this->ZeroPad)?"On":"Off") << vtkEndl;
+     << ((this->ZeroPad)?"On":"Off") << endl;
   
   os << indent << "Bounds Clip: " 
      << ((this->BoundsClip)?"On":"Off") << endl;
