@@ -19,6 +19,7 @@ vtkFieldDataToAttributeDataFilter
 vtkGeometryFilter
 vtkImageInPlaceFilter
 vtkImageMultipleInputFilter
+vtkImageSource 
 vtkImageToImageFilter
 vtkImageTwoInputFilter
 vtkInterpolatingSubdivisionFilter
