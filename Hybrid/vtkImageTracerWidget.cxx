@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.7");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.8");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -864,7 +864,7 @@ void vtkImageTracerWidget::OnRightButtonUp()
   else if (this->State == vtkImageTracerWidget::Moving)
     {
     this->CurrentHandleIndex = this->HighlightHandle(NULL);
-    if (this->AutoClose  && !this->IsClosed)
+    if (this->AutoClose)
       {
       this->ClosePath();
       }
@@ -957,7 +957,7 @@ void vtkImageTracerWidget::InitializeHandles(vtkPoints* points)
   if (npts > 1)
     {
     this->BuildLinesFromHandles();
-    if (this->AutoClose && !this->IsClosed)
+    if (this->AutoClose)
       {
       this->ClosePath();
       }
@@ -967,6 +967,7 @@ void vtkImageTracerWidget::InitializeHandles(vtkPoints* points)
 void vtkImageTracerWidget::EraseHandle(int index)
 {
   if (this->NumberOfHandles == 1){ return; }
+  if (this->NumberOfHandles == 3 && this->IsClosed){ this->IsClosed = 0; }
 
   this->TemporaryHandlePoints->Reset();
   this->TemporaryHandlePoints->SetNumberOfTuples(this->NumberOfHandles-1);
@@ -1253,8 +1254,9 @@ void vtkImageTracerWidget::Trace(int X, int Y)
 
 void vtkImageTracerWidget::ClosePath()
 {
+  if (this->IsClosed){ return; }
   int npts = this->LinePoints->GetNumberOfPoints();
-  if (npts < 3){ return; }
+  if (npts < 4){ return; }
 
   double firstPoint[3];
   this->LinePoints->GetPoint(0,firstPoint);
