@@ -76,10 +76,10 @@ void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
     xgl_object_set(*context, XGL_3D_CTX_SURF_FACE_CULL, XGL_CULL_FRONT, 0);
     }
 
-  // set property according to backface and two-sided lighting flags
+  // set property according to two-sided lighting flags
   twoSidedLighting = ren->GetTwoSidedLighting();
 
-  if ( ! this->Backface && twoSidedLighting ) 
+  if ( twoSidedLighting ) 
     {
     xgl_object_set(*context,
                XGL_3D_CTX_SURF_FRONT_AMBIENT, this->Ambient,
@@ -99,7 +99,7 @@ void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
                XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-this->Opacity,
                NULL);
     }
-  else if ( ! this->Backface && ! twoSidedLighting )
+  else
     {
     static float bfaceAmbient=0.0;
     static float bfaceDiffuse=0.0;
@@ -124,11 +124,6 @@ void vtkXGLProperty::Render(vtkActor *vtkNotUsed(anAct),
                XGL_3D_CTX_SURF_BACK_TRANSP, 1.0-this->Opacity,
                NULL);
     }
-  else 
-    {
-    vtkErrorMacro(<<"Backface properties not implemented yet");
-    return;
-    }		 
 
   switch (this->Representation) 
     {

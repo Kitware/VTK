@@ -79,7 +79,6 @@ vtkProperty::vtkProperty()
   this->Interpolation = VTK_GOURAUD;
   this->Representation = VTK_SURFACE;
   this->EdgeVisibility = 0;
-  this->Backface = 0;
   this->BackfaceCulling = 0;
   this->FrontfaceCulling = 0;
 }
@@ -116,7 +115,6 @@ vtkProperty& vtkProperty::operator=(const vtkProperty& p)
   this->Interpolation = p.Interpolation;
   this->Representation = p.Representation;
   this->EdgeVisibility = p.EdgeVisibility;
-  this->Backface = p.Backface;
 
   return *this;
 }
@@ -188,7 +186,6 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ambient: " << this->Ambient << "\n";
   os << indent << "Ambient Color: (" << this->AmbientColor[0] << ", " 
     << this->AmbientColor[1] << ", " << this->AmbientColor[2] << ")\n";
-  os << indent << "Backface: " << (this->Backface ? "On\n" : "Off\n");
   os << indent << "Color: (" << this->Color[0] << ", " 
     << this->Color[1] << ", " << this->Color[2] << ")\n";
   os << indent << "Diffuse: " << this->Diffuse << "\n";

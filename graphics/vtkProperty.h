@@ -169,12 +169,6 @@ public:
   vtkGetVectorMacro(EdgeColor,float,3);
 
   // Description:
-  // Turn backface properties on and off (not implemented yet).
-  vtkGetMacro(Backface,int);
-  vtkSetMacro(Backface,int);
-  vtkBooleanMacro(Backface,int);
-
-  // Description:
   // Turn on/off fast culling of polygons based on orientation of normal 
   // with respect to camera. If backface culling is on, polygons facing
   // away from camera are not drawn.
@@ -204,7 +198,6 @@ protected:
   int   Interpolation; 
   int   Representation;
   int   EdgeVisibility;
-  int   Backface;
   int   BackfaceCulling;
   int   FrontfaceCulling;
 };
