@@ -418,11 +418,11 @@ char eventLog[] =
 // This does the actual work: updates the vtkPlane implicit function.
 // This in turn causes the pipeline to update and clip the object.
 // Callback for the interaction
-class vtkMyCallback : public vtkCommand
+class vtkTIPWCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New() 
-    { return new vtkMyCallback; }
+  static vtkTIPWCallback *New() 
+    { return new vtkTIPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkImplicitPlaneWidget *planeWidget = 
@@ -430,7 +430,7 @@ public:
       planeWidget->GetPlane(this->Plane);
       this->Actor->VisibilityOn();
     }
-  vtkMyCallback():Plane(0),Actor(0) {}
+  vtkTIPWCallback():Plane(0),Actor(0) {}
   vtkPlane *Plane;
   vtkActor *Actor;
 
@@ -491,7 +491,7 @@ int TestImplicitPlaneWidget( int argc, char *argv[] )
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
-  vtkMyCallback *myCallback = vtkMyCallback::New();
+  vtkTIPWCallback *myCallback = vtkTIPWCallback::New();
   myCallback->Plane = plane;
   myCallback->Actor = selectActor;
 

@@ -34,7 +34,7 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkDebugLeaks.h"
 
-char eventLog[] =
+char PointWidgetEventLog[] =
 "# StreamVersion 1\n"
 "CharEvent 204 169 0 0 105 1 i\n"
 "KeyReleaseEvent 204 169 0 0 105 1 i\n"
@@ -523,11 +523,11 @@ char eventLog[] =
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
-class vtkMyCallback : public vtkCommand
+class vtkPWCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New() 
-    { return new vtkMyCallback; }
+  static vtkPWCallback *New() 
+    { return new vtkPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
@@ -535,12 +535,12 @@ public:
       pointWidget->GetPolyData(this->PolyData);
       this->Actor->VisibilityOn();
     }
-  vtkMyCallback():PolyData(0),Actor(0) {}
+  vtkPWCallback():PolyData(0),Actor(0) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };
 
-int main( int argc, char *argv[] )
+int TestPointWidget( int argc, char *argv[] )
 {
   char* fname = 
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
@@ -606,7 +606,7 @@ int main( int argc, char *argv[] )
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
-  vtkMyCallback *myCallback = vtkMyCallback::New();
+  vtkPWCallback *myCallback = vtkPWCallback::New();
   myCallback->PolyData = point;
   myCallback->Actor = glyphActor;
 
@@ -633,7 +633,7 @@ int main( int argc, char *argv[] )
 //  recorder->SetFileName("c:/record.log");
 //  recorder->Record();
   recorder->ReadFromInputStringOn();
-  recorder->SetInputString(eventLog);
+  recorder->SetInputString(PointWidgetEventLog);
 
   // render the image
   //

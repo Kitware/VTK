@@ -2,14 +2,16 @@ SET(KIT Hybrid)
 # add tests that do not require data
 SET(MyTests     
   BoxWidget.cxx
-  ImagePlaneWidget.cxx
   AmoebaMinimizer.cxx  
   TestImplicitPlaneWidget.cxx
-  TestPlaneWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}     
+  ImagePlaneWidget.cxx
+  TestLineWidget.cxx
+  TestPlaneWidget.cxx
+  TestPointWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests})

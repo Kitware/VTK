@@ -390,18 +390,18 @@ char TPWeventLog[] =
 
 // This does the actual work: updates the probe.
 // Callback for the interaction
-class vtkMyCallback : public vtkCommand
+class vtkTPWCallback : public vtkCommand
 {
 public:
-  static vtkMyCallback *New() 
-    { return new vtkMyCallback; }
+  static vtkTPWCallback *New() 
+    { return new vtkTPWCallback; }
   virtual void Execute(vtkObject *caller, unsigned long, void*)
     {
       vtkPlaneWidget *planeWidget = reinterpret_cast<vtkPlaneWidget*>(caller);
       planeWidget->GetPolyData(this->PolyData);
       this->Actor->VisibilityOn();
     }
-  vtkMyCallback():PolyData(0),Actor(0) {}
+  vtkTPWCallback():PolyData(0),Actor(0) {}
   vtkPolyData *PolyData;
   vtkActor *Actor;
 };
@@ -462,7 +462,7 @@ int TestPlaneWidget( int argc, char *argv[] )
   // The SetInteractor method is how 3D widgets are associated with the render
   // window interactor. Internally, SetInteractor sets up a bunch of callbacks
   // using the Command/Observer mechanism (AddObserver()).
-  vtkMyCallback *myCallback = vtkMyCallback::New();
+  vtkTPWCallback *myCallback = vtkTPWCallback::New();
   myCallback->PolyData = plane;
   myCallback->Actor = probeActor;
 
