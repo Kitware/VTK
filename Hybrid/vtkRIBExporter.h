@@ -129,6 +129,11 @@ protected:
 
   void WriteData();
   void WriteActor(vtkActor *anActor);
+  
+  // Description:
+  // Modify array name so that you can use it in shader.
+  void ModifyArrayName(char *newname, const char* name);
+
   char *GetTextureName (vtkTexture *aTexture);
   char *GetTIFFName (vtkTexture *aTexture);
   char *FilePrefix;
