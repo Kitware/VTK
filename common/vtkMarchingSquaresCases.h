@@ -39,6 +39,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#ifndef __vtkMarchingSquaresCases_h
+#define __vtkMarchingSquaresCases_h
 //
 // marching squares cases for generating isolines
 //
@@ -66,3 +68,5 @@ static LINE_CASES lineCases[] = {
   {{3, 0, -1, -1, -1}},
   {{-1, -1, -1, -1, -1}}
 };
+
+#endif

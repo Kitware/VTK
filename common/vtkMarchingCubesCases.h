@@ -39,6 +39,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
+#ifndef __vtkMarchingCubesCases_h
+#define __vtkMarchingCubesCases_h
 //
 // marching cubes case table for generating isosurfaces
 //
@@ -308,3 +310,5 @@ static TRIANGLE_CASES triCases[] = {
 {{ 0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 253 1 */
 {{ 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}, /* 254 1 */
 {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}}}; /* 255 0 */
+
+#endif
