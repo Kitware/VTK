@@ -21,7 +21,7 @@
 #include "vtkEdgeTable.h"
 #include "vtkAppendPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.17");
+vtkCxxRevisionMacro(vtkImageToPolyDataFilter, "1.18");
 
 vtkImageToPolyDataFilter::vtkImageToPolyDataFilter()
 {
@@ -690,9 +690,11 @@ int vtkImageToPolyDataFilter::ProcessImage(vtkUnsignedCharArray *scalars,
   
   // set up the connected traversal
   wave = vtkIdList::New();
-  wave->Allocate(numPixels/4.0, numPixels/4.0);
+  wave->Allocate(static_cast<int>(numPixels/4.0), 
+                 static_cast<int>(numPixels/4.0));
   wave2 = vtkIdList::New();
-  wave2->Allocate(numPixels/4.0, numPixels/4.0);
+  wave2->Allocate(static_cast<int>(numPixels/4.0), 
+                  static_cast<int>(numPixels/4.0));
 
   // visit connected pixels. Pixels are connected if they are topologically
   // adjacent and they have "equal" color values.

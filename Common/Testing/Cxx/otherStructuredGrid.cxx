@@ -474,7 +474,7 @@ void Test(ostream& strm)
   point3D[1] = 12.1;
   point3D[2] = 14.7;
 
-  strm << "FindAndGetCell(sg3D): " << *sg3D->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  strm << "FindAndGetCell(sg3D): " << *sg3D->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   strm << "pcoords: "
        << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << endl;
   strm << "weights: "
@@ -486,7 +486,7 @@ void Test(ostream& strm)
   point3D[0] = 10.5; point3D[1] = 12.1; point3D[2] = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   dummyCell = 0;
-  vtkCell *found = sg2Dxy->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  vtkCell *found = sg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dxy) not found!" << endl;
@@ -503,7 +503,7 @@ void Test(ostream& strm)
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
   dummyCell = 0;
-  found = sg2Dxz->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  found = sg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dxz) not found!" << endl;
@@ -520,7 +520,7 @@ void Test(ostream& strm)
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
   weights[0] = weights[1] = weights[2] = weights[3] = 0.0;
   dummyCell = 0;
-  found = sg2Dyz->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  found = sg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg2Dyz) not found!" << endl;
@@ -535,7 +535,7 @@ void Test(ostream& strm)
 
   point3D[0] = 10.5; point3D[1] = 0.0; point3D[2] = 0.0;
   dummyCell = 0;
-  found = sg1Dx->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  found = sg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dx) not found!" << endl;
@@ -551,7 +551,7 @@ void Test(ostream& strm)
 
   point3D[0] = 0.0; point3D[1] = 12.1; point3D[2] = 0.0;
   dummyCell = 0;
-  found = sg1Dy->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  found = sg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dy) not found!" << endl;
@@ -567,7 +567,7 @@ void Test(ostream& strm)
 
   point3D[0] = 0.0; point3D[1] = 0.0; point3D[2] = 14.7;
   dummyCell = 0;
-  found = sg1Dz->FindAndGetCell(point3D, dummyCell, 0.0, 0, subId, pcoords, weights);
+  found = sg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == NULL)
     {
     strm << "FindAndGetCell(sg1Dz) not found!" << endl;

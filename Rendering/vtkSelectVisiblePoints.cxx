@@ -20,7 +20,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.23");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.24");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -150,7 +150,8 @@ void vtkSelectVisiblePoints::Execute()
         }
       else
         {
-        z = this->Renderer->GetZ(dx[0], dx[1]);
+        z = this->Renderer->GetZ(static_cast<int>(dx[0]), 
+                                 static_cast<int>(dx[1]));
         }
       diff = fabs(z-dx[2]);
       if ( diff <= this->Tolerance )

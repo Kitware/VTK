@@ -30,7 +30,7 @@
 #include "vtkgluPickMatrix.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLCamera, "1.50");
+vtkCxxRevisionMacro(vtkOpenGLCamera, "1.51");
 vtkStandardNewMacro(vtkOpenGLCamera);
 #endif
 
@@ -67,7 +67,8 @@ void vtkOpenGLCamera::Render(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  int scale = ren->GetVTKWindow()->GetTileScale();
+  //int scale = 
+  ren->GetVTKWindow()->GetTileScale();
   
   float vpu, vpv;
   vpu = (vport[0] - tileViewPort[0]);
@@ -204,7 +205,8 @@ void vtkOpenGLCamera::UpdateViewport(vtkRenderer *ren)
   vport = ren->GetViewport();
 
   float *tileViewPort = ren->GetVTKWindow()->GetTileViewport();
-  int scale = ren->GetVTKWindow()->GetTileScale();
+  //int scale = 
+  ren->GetVTKWindow()->GetTileScale();
   
   float vpu, vpv;
   vpu = (vport[0] - tileViewPort[0]);

@@ -32,7 +32,7 @@
 #include "vtkSphereSource.h"
 #include "vtkPolyDataMapper.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.18");
+vtkCxxRevisionMacro(vtkInteractorStyleUnicam, "1.19");
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 vtkInteractorStyleUnicam::vtkInteractorStyleUnicam()
@@ -111,7 +111,7 @@ void vtkInteractorStyleUnicam::OnLeftButtonDown(int vtkNotUsed(ctrl),
 
   // cam manip init
   float curpt[2];
-  NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
+  this->NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
   this->LastPos[0] = curpt[0];
   this->LastPos[1] = curpt[1];
 
@@ -275,7 +275,7 @@ void vtkInteractorStyleUnicam::Choose( int X, int Y )
   te[1] = Y;
 
   float curpt[2];
-  NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
+  this->NormalizeMouseXY(X, Y, &curpt[0], &curpt[1]);
   
   float delta[2];
   delta[0] = curpt[0] - this->LastPos[0];
@@ -335,13 +335,15 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
   float center[3];
   this->FocusSphere->GetPosition(center);
   this->ComputeWorldToDisplay(center[0], center[1], center[2], cpt);
-  NormalizeMouseXY(cpt[0], cpt[1], &cpt[0], &cpt[1]);
+  this->NormalizeMouseXY(static_cast<int>(cpt[0]), static_cast<int>(cpt[1]), 
+                         &cpt[0], &cpt[1]);
 
   double      radsq = pow(1.0+fabs(cpt[0]),2.0); // squared rad of virtual cylinder
 
   float tp[2], te[2];
-  NormalizeMouseXY(this->LastPix[0], this->LastPix[1], &tp[0], &tp[1]);
-  NormalizeMouseXY(X, Y, &te[0], &te[1]);
+  this->NormalizeMouseXY(static_cast<int>(this->LastPix[0]), 
+                         static_cast<int>(this->LastPix[1]), &tp[0], &tp[1]);
+  this->NormalizeMouseXY(X, Y, &te[0], &te[1]);
   this->LastPix[0] = X;
   this->LastPix[1] = Y;
 
@@ -437,8 +439,9 @@ void vtkInteractorStyleUnicam::Dolly( int X, int Y )
 {
   int i;
   float cn[2], ln[2];
-  NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
-  NormalizeMouseXY(this->LastPix[0], this->LastPix[1], &ln[0], &ln[1]);
+  this->NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
+  this->NormalizeMouseXY(static_cast<int>(this->LastPix[0]), 
+                         static_cast<int>(this->LastPix[1]), &ln[0], &ln[1]);
 
   float delta[2];
   delta[0] = cn[0] - ln[0];
@@ -492,8 +495,9 @@ void vtkInteractorStyleUnicam::Pan( int X, int Y )
   float cn[2], ln[2];
   int i;
 
-  NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
-  NormalizeMouseXY(this->LastPix[0], this->LastPix[1], &ln[0], &ln[1]);
+  this->NormalizeMouseXY(X, Y, &cn[0], &cn[1]);
+  this->NormalizeMouseXY(static_cast<int>(this->LastPix[0]), 
+                         static_cast<int>(this->LastPix[1]), &ln[0], &ln[1]);
   delta[0] = cn[0] - ln[0];
   delta[1] = cn[1] - ln[1];
   this->LastPix[0] = X;

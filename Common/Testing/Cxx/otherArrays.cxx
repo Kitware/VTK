@@ -197,7 +197,7 @@ static int doArrayTest (ostream& strm, T *ptr, A *array, V value, int size)
     }
 
   strm << "\tInsertNextValue(value)...";
-  if (ptr->GetValue (ptr->InsertNextValue (22.0)) == 22.0) strm << "OK" << endl;
+  if (ptr->GetValue (ptr->InsertNextValue (static_cast<char>(22.0))) == 22.0) strm << "OK" << endl;
   else
     {
     errors++;

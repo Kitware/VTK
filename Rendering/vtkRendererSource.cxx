@@ -21,7 +21,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRendererSource, "1.41");
+vtkCxxRevisionMacro(vtkRendererSource, "1.42");
 vtkStandardNewMacro(vtkRendererSource);
 
 vtkRendererSource::vtkRendererSource()
@@ -199,7 +199,8 @@ void vtkRendererSource::UpdateInformation()
     x2 = (this->Input->GetRenderWindow())->GetSize()[0] - 1;
     y2 = (this->Input->GetRenderWindow())->GetSize()[1] - 1;
     }    
-  output->SetWholeExtent(0, x2-x1, 0, y2-y1, 0, 0);
+  output->SetWholeExtent(0, static_cast<int>(x2-x1), 
+                         0, static_cast<int>(y2-y1), 0, 0);
   output->SetScalarType(VTK_UNSIGNED_CHAR);
   output->SetNumberOfScalarComponents(3);
   

@@ -20,7 +20,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.29");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.30");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 // Instantiate this object.
@@ -91,7 +91,7 @@ void vtkCubeAxesActor2D::ShallowCopy(vtkCubeAxesActor2D *actor)
   this->SetLabelFormat(actor->GetLabelFormat());
   this->SetFontFactor(actor->GetFontFactor());
   this->SetCornerOffset(actor->GetCornerOffset());
-  this->SetInertia(actor->GetInertia());
+  this->SetInertia(static_cast<int>(actor->GetInertia()));
   this->SetXLabel(actor->GetXLabel());
   this->SetYLabel(actor->GetYLabel());
   this->SetZLabel(actor->GetZLabel());

@@ -23,13 +23,13 @@ vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,
                          vtkCamera* cam)
 {
   double extent = data;
-
+  int iextent = static_cast<int>(data);
   // The pipeline
 
   // Synthetic image source.
   vtkRTAnalyticSource* source1 = vtkRTAnalyticSource::New();
-  source1->SetWholeExtent (-1*extent, extent, -1*extent, extent, 
-          -1*extent ,extent );
+  source1->SetWholeExtent (-1*iextent, iextent, -1*iextent, iextent, 
+                           -1*iextent, iextent );
   source1->SetCenter(0, 0, 0);
   source1->SetStandardDeviation( 0.5 );
   source1->SetMaximum( 255.0 );
