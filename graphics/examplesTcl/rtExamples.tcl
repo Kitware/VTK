@@ -61,7 +61,7 @@ set noTest {
     TestHistogramEqualization.tcl TestMIPFilter.tcl
     TestSubsample3D.tcl
     TkImageViewerInteractor.tcl TkViewer.tcl TkViewer2.tcl
-    TestWriter.tcl Timing.tcl WindowLevelInterface.tcl
+    Timing.tcl WindowLevelInterface.tcl
     vtkImageInclude.tcl rtProcessCPUTimes.tcl CPUTimeTable.tcl}
 
 for {set i 0} {$i < [llength $noTest]} {incr i} {
