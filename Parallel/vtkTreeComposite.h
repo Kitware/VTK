@@ -164,7 +164,15 @@ public:
   // Description:
   // Get the value of the z buffer at a position. 
   float GetZ(int x, int y);
-  
+
+  // Description:
+  // Set/Get the controller use in compositing (set to
+  // the global controller by default)
+  // If not using the default, this must be called before any
+  // other methods.
+  vtkSetObjectMacro(Controller, vtkMultiProcessController);
+  vtkGetObjectMacro(Controller, vtkMultiProcessController);
+
 //BTX
 
   enum Tags {
