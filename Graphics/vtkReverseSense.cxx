@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkReverseSense, "1.26");
+vtkCxxRevisionMacro(vtkReverseSense, "1.27");
 vtkStandardNewMacro(vtkReverseSense);
 
 // Construct object so that behavior is to reverse cell ordering and
@@ -88,7 +88,7 @@ void vtkReverseSense::Execute()
     //first do point normals
     vtkIdType numPoints=input->GetNumberOfPoints();
     vtkDataArray *outNormals=normals->NewInstance();
-    outNormals->SetNumberOfComponents(outNormals->GetNumberOfComponents());
+    outNormals->SetNumberOfComponents(normals->GetNumberOfComponents());
     outNormals->SetNumberOfTuples(numPoints);
     float n[3];
 
