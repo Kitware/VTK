@@ -1,5 +1,8 @@
 catch {load vtktcl}
-# Demonstrates the 3D Studio Importer and all exporters
+# Demonstrates all cell types
+#
+# NOTE: the use of MakeObject is included to increase regression coverage.
+# It is not required in most applications.
 
 # get the interactor ui
 source ../../examplesTcl/vtkInt.tcl
@@ -34,6 +37,7 @@ vtkVoxel aVoxel
   [aVoxel GetPointIds] SetId 6 6
   [aVoxel GetPointIds] SetId 7 7
 
+set bVoxel [aVoxel MakeObject]
 
 vtkUnstructuredGrid aVoxelGrid
   aVoxelGrid Allocate 1 1
@@ -68,6 +72,7 @@ vtkHexahedron aHexahedron
   [aHexahedron GetPointIds] SetId 6 6
   [aHexahedron GetPointIds] SetId 7 7
   
+set bHexahedron [aHexahedron MakeObject]
   
 vtkUnstructuredGrid aHexahedronGrid
   aHexahedronGrid Allocate 1 1
@@ -96,6 +101,8 @@ vtkTetra aTetra
   [aTetra GetPointIds] SetId 2 2
   [aTetra GetPointIds] SetId 3 3
 
+set bTetra [aTetra MakeObject]
+
 vtkUnstructuredGrid aTetraGrid
   aTetraGrid Allocate 1 1
   aTetraGrid InsertNextCell [aTetra GetCellType] [aTetra GetPointIds]
@@ -123,6 +130,8 @@ vtkPixel aPixel
   [aPixel GetPointIds] SetId 2 2
   [aPixel GetPointIds] SetId 3 3
 
+set bPixel [aPixel MakeObject]
+
 vtkUnstructuredGrid aPixelGrid
   aPixelGrid Allocate 1 1
   aPixelGrid InsertNextCell [aPixel GetCellType] [aPixel GetPointIds]
@@ -149,6 +158,8 @@ vtkQuad aQuad
   [aQuad GetPointIds] SetId 1 1
   [aQuad GetPointIds] SetId 2 2
   [aQuad GetPointIds] SetId 3 3
+
+set bQuad [aQuad MakeObject]
 
 vtkUnstructuredGrid aQuadGrid
   aQuadGrid Allocate 1 1
@@ -181,6 +192,8 @@ vtkTriangle aTriangle
   [aTriangle GetPointIds] SetId 1 1
   [aTriangle GetPointIds] SetId 2 2
 
+set bTriangle [aTriangle MakeObject]
+
 vtkUnstructuredGrid aTriangleGrid
   aTriangleGrid Allocate 1 1
   aTriangleGrid InsertNextCell [aTriangle GetCellType] [aTriangle GetPointIds]
@@ -209,6 +222,8 @@ vtkPolygon aPolygon
   [aPolygon GetPointIds] SetId 1 1
   [aPolygon GetPointIds] SetId 2 2
   [aPolygon GetPointIds] SetId 3 3
+
+set bPolygon [aPolygon MakeObject]
 
 vtkUnstructuredGrid aPolygonGrid
   aPolygonGrid Allocate 1 1
@@ -248,6 +263,8 @@ vtkTriangleStrip aTriangleStrip
   [aTriangleStrip GetPointIds] SetId 3 3
   [aTriangleStrip GetPointIds] SetId 4 4
 
+set bTriangleStrip [aTriangleStrip MakeObject]
+
 vtkUnstructuredGrid aTriangleStripGrid
   aTriangleStripGrid Allocate 1 1
   aTriangleStripGrid InsertNextCell [aTriangleStrip GetCellType] [aTriangleStrip GetPointIds]
@@ -271,6 +288,8 @@ vtkFloatPoints linePoints
 vtkLine aLine
   [aLine GetPointIds] SetId 0 0
   [aLine GetPointIds] SetId 1 1
+
+set bLine [aLine MakeObject]
 
 vtkUnstructuredGrid aLineGrid
   aLineGrid Allocate 1 1
@@ -298,6 +317,8 @@ vtkPolyLine aPolyLine
   [aPolyLine GetPointIds] SetId 1 1
   [aPolyLine GetPointIds] SetId 2 2
 
+set bPolyLine [aPolyLine MakeObject]
+
 vtkUnstructuredGrid aPolyLineGrid
   aPolyLineGrid Allocate 1 1
   aPolyLineGrid InsertNextCell [aPolyLine GetCellType] [aPolyLine GetPointIds]
@@ -318,6 +339,8 @@ vtkFloatPoints vertexPoints
 
 vtkVertex aVertex
   [aVertex GetPointIds] SetId 0 0
+
+set bVertex [aVertex MakeObject]
 
 vtkUnstructuredGrid aVertexGrid
   aVertexGrid Allocate 1 1
@@ -344,6 +367,8 @@ vtkPolyVertex aPolyVertex
   [aPolyVertex GetPointIds] SetId 0 0
   [aPolyVertex GetPointIds] SetId 1 1
   [aPolyVertex GetPointIds] SetId 2 2
+
+set bPolyVertex [aPolyVertex MakeObject]
 
 vtkUnstructuredGrid aPolyVertexGrid
   aPolyVertexGrid Allocate 1 1
@@ -440,4 +465,24 @@ wm withdraw .
 
 #renWin SetFileName "cells.tcl.ppm"
 #renWin SaveImageAsPPM
+
+proc DeleteCopies {} {
+global bVoxel bHexahedron bTetra bPixel bQuad bTriangle bPolygon bTriangleStrip bLine bPolyLine bVertex bPolyVertex
+$bVoxel Delete
+$bHexahedron Delete
+$bTetra Delete
+$bPixel Delete
+$bQuad Delete
+$bTriangle Delete
+$bPolygon Delete
+$bTriangleStrip Delete
+$bLine Delete
+$bPolyLine Delete
+$bVertex Delete
+$bPolyVertex Delete
+
+}
+
+DeleteCopies
+
 
