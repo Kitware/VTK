@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =========================================================================*/
 
 #include "vtkCompositeManager.h"
-#include "vtkCommand.h"
+#include "vtkCallbackCommand.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkToolkits.h"
 
@@ -265,17 +265,19 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         {
         vtkCallbackCommand *cbc;
         
-        cbc= new vtkCallbackCommand;
+        cbc= vtkCallbackCommand::New();
         cbc->SetCallback(vtkCompositeManagerStartRender);
         cbc->SetClientData((void*)this);
         // renWin will delete the cbc when the observer is removed.
         this->StartTag = renWin->AddObserver(vtkCommand::StartEvent,cbc);
+        cbc->Delete();
         
-        cbc = new vtkCallbackCommand;
+        cbc = vtkCallbackCommand::New();
         cbc->SetCallback(vtkCompositeManagerEndRender);
         cbc->SetClientData((void*)this);
         // renWin will delete the cbc when the observer is removed.
         this->EndTag = renWin->AddObserver(vtkCommand::EndEvent,cbc);
+        cbc->Delete();
         
         // Will make do with first renderer. (Assumes renderer does not change.)
         rens = this->RenderWindow->GetRenderers();
@@ -283,19 +285,22 @@ void vtkCompositeManager::SetRenderWindow(vtkRenderWindow *renWin)
         ren = rens->GetNextItem();
         if (ren)
           {
-          cbc = new vtkCallbackCommand;
+          cbc = vtkCallbackCommand::New();
           cbc->SetCallback(vtkCompositeManagerResetCameraClippingRange);
           cbc->SetClientData((void*)this);
           // ren will delete the cbc when the observer is removed.
           this->ResetCameraClippingRangeTag = 
           ren->AddObserver(vtkCommand::ResetCameraClippingRangeEvent,cbc);
+          cbc->Delete();
           
-          cbc = new vtkCallbackCommand;
+          
+          cbc = vtkCallbackCommand::New();
           cbc->SetCallback(vtkCompositeManagerResetCamera);
           cbc->SetClientData((void*)this);
           // ren will delete the cbc when the observer is removed.
           this->ResetCameraTag = 
           ren->AddObserver(vtkCommand::ResetCameraEvent,cbc);
+          cbc->Delete();
           }
         }
       }
@@ -335,11 +340,12 @@ vtkCompositeManager::SetRenderWindowInteractor(vtkRenderWindowInteractor *iren)
     if (!this->Controller->GetLocalProcessId())
       {
       vtkCallbackCommand *cbc;
-      cbc= new vtkCallbackCommand;
+      cbc= vtkCallbackCommand::New();
       cbc->SetCallback(vtkCompositeManagerExitInteractor);
       cbc->SetClientData((void*)this);
       // IRen will delete the cbc when the observer is removed.
       this->EndInteractorTag = iren->AddObserver(vtkCommand::ExitEvent,cbc);
+      cbc->Delete();
       }
     }
 }
