@@ -32,7 +32,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.22");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.23");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -1257,7 +1257,7 @@ static vtkIdType TemplateCastRay(const T *scalars,
           B = *(scalars + numComponents*currentTriangle->PointIndex[1] + c);
           C = *(scalars + numComponents*currentTriangle->PointIndex[2] + c);
           nearIntersections[numComponents*numIntersections + c]
-            = a1 * A + b1 * B + c1 * C;
+            = static_cast<T>(a1 * A + b1 * B + c1 * C);
           }
         }
 
@@ -1270,7 +1270,7 @@ static vtkIdType TemplateCastRay(const T *scalars,
           B = *(scalars + numComponents*nextTriangle->PointIndex[1] + c);
           C = *(scalars + numComponents*nextTriangle->PointIndex[2] + c);
           farIntersections[numComponents*numIntersections + c]
-            = a1 * A + b1 * B + c1 * C;
+            = static_cast<T>(a1 * A + b1 * B + c1 * C);
           }
         }
 
