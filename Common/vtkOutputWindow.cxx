@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkOutputWindow, "1.30");
+vtkCxxRevisionMacro(vtkOutputWindow, "1.30.10.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -68,7 +68,7 @@ vtkOutputWindowCleanup::~vtkOutputWindowCleanup()
 
 vtkOutputWindow::vtkOutputWindow()
 {
-  this->PromptUser = 0;
+  this->PromptUser = 1;
 }
 
 vtkOutputWindow::~vtkOutputWindow()

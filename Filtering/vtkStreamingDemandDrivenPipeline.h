@@ -22,6 +22,7 @@
 #include "vtkDemandDrivenPipeline.h"
 
 class vtkExtentTranslator;
+class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
@@ -44,15 +45,16 @@ public:
   virtual int Update(vtkAlgorithm* algorithm, int port);
 
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
-  static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
-  static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
+  static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();
   static vtkInformationIntegerKey* MAXIMUM_NUMBER_OF_PIECES();
+  static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
   static vtkInformationIntegerKey* UPDATE_EXTENT_INITIALIZED();
   static vtkInformationIntegerVectorKey* UPDATE_EXTENT();
   static vtkInformationIntegerKey* UPDATE_PIECE_NUMBER();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* UPDATE_NUMBER_OF_GHOST_LEVELS();
-  static vtkInformationObjectBaseKey* EXTENT_TRANSLATOR();
+  static vtkInformationIntegerVectorKey* WHOLE_EXTENT();
+  static vtkInformationDoubleVectorKey* WHOLE_BOUNDING_BOX();
 
   int PropagateUpdateExtent(int outputPort);
 
@@ -74,6 +76,9 @@ public:
   int GetUpdateGhostLevel(int port);
   int SetExtentTranslator(int port, vtkExtentTranslator* translator);
   vtkExtentTranslator* GetExtentTranslator(int port);
+  int SetWholeBoundingBox(int port, double bb[6]);
+  void GetWholeBoundingBox(int port, double bb[6]);
+  double* GetWholeBoundingBox(int port);
 
 protected:
   vtkStreamingDemandDrivenPipeline();

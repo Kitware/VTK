@@ -96,6 +96,7 @@ vtkImplicitVolume.cxx
 vtkImplicitWindowFunction.cxx
 vtkInformation.cxx
 vtkInformationDataObjectKey.cxx
+vtkInformationDoubleVectorKey.cxx
 vtkInformationExecutiveKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
@@ -228,6 +229,7 @@ vtkImageSource
 vtkImageToImageFilter
 vtkImageTwoInputFilter
 vtkInformationDataObjectKey
+vtkInformationDoubleVectorKey
 vtkInformationExecutiveKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey

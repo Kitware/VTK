@@ -28,7 +28,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.2.2.8");
+vtkCxxRevisionMacro(vtkDataObject, "1.2.2.9");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -818,6 +818,63 @@ void vtkDataObject::GetWholeExtent(int extent[6])
   if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
     {
     sddp->GetWholeExtent(this->GetPortNumber(), extent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetWholeBoundingBox(double x0, double x1, double y0, 
+                                        double y1, double z0, double z1)
+{
+  double bb[6] = {x0, x1, y0, y1, z0, z1};
+  this->SetWholeBoundingBox(bb);
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::SetWholeBoundingBox(double bb[6])
+{
+  if(SDDP* sddp = this->TrySDDP("SetWholeBoundingBox"))
+    {
+    if(sddp->SetWholeBoundingBox(this->GetPortNumber(), bb))
+      {
+      this->Modified();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+double* vtkDataObject::GetWholeBoundingBox()
+{
+  if(SDDP* sddp = this->TrySDDP("GetWholeBoundingBox"))
+    {
+    return sddp->GetWholeBoundingBox(this->GetPortNumber());
+    }
+  else
+    {
+    static double bb[6] = {0,-1,0,-1,0,-1};
+    return bb;
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::GetWholeBoundingBox(double& x0, double& x1, double& y0, 
+                                        double& y1, double& z0, double& z1)
+{
+  double extent[6];
+  this->GetWholeBoundingBox(extent);
+  x0 = extent[0];
+  x1 = extent[1];
+  y0 = extent[2];
+  y1 = extent[3];
+  z0 = extent[4];
+  z1 = extent[5];
+}
+
+//----------------------------------------------------------------------------
+void vtkDataObject::GetWholeBoundingBox(double extent[6])
+{
+  if(SDDP* sddp = this->TrySDDP("GetWholeBoundingBox"))
+    {
+    sddp->GetWholeBoundingBox(this->GetPortNumber(), extent);
     }
 }
 

@@ -31,6 +31,7 @@
 class vtkDataObject;
 class vtkExecutive;
 class vtkInformationDataObjectKey;
+class vtkInformationDoubleVectorKey;
 class vtkInformationExecutiveKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
@@ -89,6 +90,16 @@ public:
   int Has(vtkInformationIntegerVectorKey* key);
 
   // Description:
+  // Get/Set an double-vector-valued entry.
+  void Append(vtkInformationDoubleVectorKey* key, double value);
+  void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
+  double* Get(vtkInformationDoubleVectorKey* key);
+  void Get(vtkInformationDoubleVectorKey* key, double* value);
+  int Length(vtkInformationDoubleVectorKey* key);
+  void Remove(vtkInformationDoubleVectorKey* key);
+  int Has(vtkInformationDoubleVectorKey* key);
+
+  // Description:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
@@ -143,6 +154,7 @@ public:
   // Description:
   // Upcast the given key instance.
   vtkInformationKey* GetKey(vtkInformationDataObjectKey* key);
+  vtkInformationKey* GetKey(vtkInformationDoubleVectorKey* key);
   vtkInformationKey* GetKey(vtkInformationExecutiveKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationKey* key);
   vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);

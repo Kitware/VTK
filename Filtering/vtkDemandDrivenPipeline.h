@@ -87,6 +87,10 @@ public:
   virtual int UpdateDataObject();
   virtual int UpdateInformation();
   virtual int UpdateData(int outputPort);
+
+  vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
+  vtkInformation* GetConnectedInputInformation(int port, int index);
+
 protected:
   vtkDemandDrivenPipeline();
   ~vtkDemandDrivenPipeline();
@@ -101,8 +105,6 @@ protected:
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
-  vtkDemandDrivenPipeline* GetConnectedInputExecutive(int port, int index);
-  vtkInformation* GetConnectedInputInformation(int port, int index);
 
   vtkInformation* GetRequestInformation();
   vtkInformationVector* GetInputInformation();

@@ -26,7 +26,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.4.2.5");
+vtkCxxRevisionMacro(vtkSource, "1.4.2.6");
 
 #ifndef NULL
 #define NULL 0
@@ -633,10 +633,61 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     vtkDebugMacro("ProcessDownstreamRequest(REQUEST_INFORMATION) "
                   "calling ExecuteInformation.");
 
-    // Ask the subclass to fill in the information for the outputs.
+    // for image data copy the wbb into origin and spacing
+    if(vtkStreamingDemandDrivenPipeline* sddp =
+       vtkStreamingDemandDrivenPipeline::SafeDownCast(this->GetExecutive()))
+      {
+      for(i=0; i < this->NumberOfInputs; ++i)
+        {
+        vtkInformation* info =
+          sddp->GetConnectedInputInformation(0, i);
+        vtkImageData *id = vtkImageData::SafeDownCast(
+          info->Get(vtkDataObject::DATA_OBJECT()));
+        if (id && 
+            info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX()))
+          {
+          double wBB[6];
+          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(), 
+                    wBB);
+          id->SetOrigin(wBB[0],wBB[2],wBB[4]);
+          int *wExt = id->GetWholeExtent();
+          id->SetSpacing((wBB[1]-wBB[0])/(wExt[1] - wExt[0]+1),
+                         (wBB[3]-wBB[2])/(wExt[3] - wExt[2]+1),
+                         (wBB[5]-wBB[4])/(wExt[5] - wExt[4]+1));
+          }
+        }
+      }
+    
+      // Ask the subclass to fill in the information for the outputs.
     this->InvokeEvent(vtkCommand::ExecuteInformationEvent, NULL);
     this->ExecuteInformation();
 
+    // for image data copy the origin and spacing into the bbox
+    for(i=0; i < this->NumberOfOutputs; ++i)
+      {
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkImageData *id = vtkImageData::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      if (id)
+        {
+        double wBB[6];
+        double *origin = id->GetOrigin();
+        double *spacing = id->GetSpacing();
+        int *wExt = id->GetWholeExtent();
+        int idx;
+        for (idx = 0; idx < 3; ++idx)
+          {
+          wBB[idx*2] = origin[idx];
+          wBB[idx*2+1] = origin[idx] + 
+            (wExt[idx*2+1] - wExt[idx*2] + 1)*spacing[idx];
+          }
+        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
+                  wBB, 6);
+        }
+      }
+    
+    
     // Copy the MTime into the data object for compatibility.
     outputVector->SetNumberOfInformationObjects(this->NumberOfOutputs);
     for(i=0; i < this->NumberOfOutputs; ++i)
@@ -720,6 +771,27 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     // Cleanup the outputs.
     for(i=0; i < this->NumberOfOutputs; ++i)
       {
+      // for image data copy the origin and spacing into the bbox
+      vtkInformation* info =
+        this->GetExecutive()->GetOutputInformation(this, i);
+      vtkImageData *id = vtkImageData::SafeDownCast(
+        info->Get(vtkDataObject::DATA_OBJECT()));
+      if (id)
+        {
+        double wBB[6];
+        double *origin = id->GetOrigin();
+        double *spacing = id->GetSpacing();
+        int *wExt = id->GetWholeExtent();
+        int idx;
+        for (idx = 0; idx < 3; ++idx)
+          {
+          wBB[idx*2] = origin[idx];
+          wBB[idx*2+1] = origin[idx] + 
+            (wExt[idx*2+1] - wExt[idx*2] + 1)*spacing[idx];
+          }
+        info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
+                  wBB, 6);
+        }
       if(this->Outputs[i] && this->Outputs[i]->GetRequestExactExtent())
         {
         vtkSourceToDataObjectFriendship::Crop(this->Outputs[i]);

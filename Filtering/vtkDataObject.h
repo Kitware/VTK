@@ -279,6 +279,18 @@ public:
   virtual void GetWholeExtent(int extent[6]);
   
   // Description:
+  // Set/Get the whole bounding box of this data object.  
+  // The whole whole bounding box is meta data for data sets
+  // It gets set by the source during the update information call.
+  virtual void SetWholeBoundingBox(double x0, double x1, double y0, 
+                                   double y1, double z0, double z1);
+  virtual void SetWholeBoundingBox(double bb[6]);
+  virtual double* GetWholeBoundingBox();
+  virtual void GetWholeBoundingBox(double& x0, double& x1, double& y0, 
+                                   double& y1, double& z0, double& z1);
+  virtual void GetWholeBoundingBox(double extent[6]);
+
+  // Description:
   // Set/Get the maximum number of pieces that can be requested.  
   // The maximum number of pieces is meta data for unstructured data sets.
   // It gets set by the source during the update information call.

@@ -10,7 +10,9 @@ reader SetDataSpacing 2 2 1
 reader SetDataScalarTypeToUnsignedShort
 reader Update
 
-[reader GetOutput] SetOrigin -63 -63 -46
+set readerOutput [reader GetOutput]
+$readerOutput SetOrigin -63 -63 -46
+$readerOutput SetSource {}
 
 # Create transfer functions for opacity and color
 vtkPiecewiseFunction opacityTransferFunction
@@ -30,7 +32,7 @@ vtkVolumeProperty volumeProperty
     volumeProperty SetScalarOpacity opacityTransferFunction
 
 vtkVolumeTextureMapper2D volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInput $readerOutput
     volumeMapper SetMaximumStorageSize 10000000
 
 vtkVolume volume

@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.5");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.1.2.6");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -84,12 +84,19 @@ int vtkImageAlgorithm::ProcessDownstreamRequest(
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
-    // get the output data object
-    vtkInformation* info = outputVector->GetInformationObject(0);
-    vtkImageData *output = 
-      vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+    // for each output
+    int i;
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        output->PrepareForNewData();
+        }
+      }
     
-    output->PrepareForNewData();
     this->InvokeEvent(vtkCommand::StartEvent,NULL);
     this->AbortExecute = 0;
     this->Progress = 0.0;
@@ -103,7 +110,29 @@ int vtkImageAlgorithm::ProcessDownstreamRequest(
     this->InvokeEvent(vtkCommand::EndEvent,NULL);
 
     // Mark the data as up-to-date.
-    output->DataHasBeenGenerated();
+    for (i = 0; i < this->GetNumberOfOutputPorts(); ++i)
+      {
+      vtkInformation* info = outputVector->GetInformationObject(i);
+      vtkImageData *output = 
+        vtkImageData::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
+      if (output)
+        {
+        // after executing set the origin and spacing from the
+        // WHOLE_BOUNDING_BOX
+        if (info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX()))
+          {
+          double wBB[6];
+          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_BOUNDING_BOX(),
+                    wBB);
+          output->SetOrigin(wBB[0],wBB[2],wBB[4]);
+          int *wExt = output->GetWholeExtent();
+          output->SetSpacing((wBB[1]-wBB[0])/(wExt[1] - wExt[0]+1),
+                             (wBB[3]-wBB[2])/(wExt[3] - wExt[2]+1),
+                             (wBB[5]-wBB[4])/(wExt[5] - wExt[4]+1));
+          }
+        output->DataHasBeenGenerated();
+        }
+      }
     return 1;
     }
 
