@@ -25,12 +25,6 @@ static int vtkObjectGlobalWarningDisplay = 1;
 
 // avoid dll boundary problems
 #ifdef _WIN32
-void* vtkObject::operator new(size_t nSize, const char *, int)
-{
-  void* p=malloc(nSize);
-  return p;
-}
-
 void* vtkObject::operator new(size_t nSize)
 {
   void* p=malloc(nSize);
@@ -280,7 +274,7 @@ vtkObject *vtkObject::SafeDownCast(vtkObject *o)
 
 void vtkObject::CollectRevisions(ostream& os)
 {
-  os << "vtkObject 1.68\n";
+  os << "vtkObject 1.69\n";
 }
 
 //----------------------------------Command/Observer stuff-------------------
