@@ -301,8 +301,6 @@ float vtkImplicitModeller::ComputeModelBounds()
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
       maxDist = bounds[2*i+1] - bounds[2*i];
 
-  maxDist *= this->MaximumDistance;
-
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( this->AdjustBounds )
     {
@@ -312,6 +310,8 @@ float vtkImplicitModeller::ComputeModelBounds()
       this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist*this->AdjustDistance;
       }
     }
+
+  maxDist *= this->MaximumDistance;
 
   // Set volume origin and data spacing
   output->SetOrigin(this->ModelBounds[0],this->ModelBounds[2],
