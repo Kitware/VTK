@@ -160,7 +160,7 @@ void vtkImageConnector::MarkRegion(vtkImageRegion *region, int numberOfAxes)
       // check pixel below
       if (*pExtent < *pIndex)
         {
-        ptr = seed->Pointer - pIncs[idx];
+        ptr = (unsigned char *)(seed->Pointer) - pIncs[idx];
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           --pIndex;
@@ -172,7 +172,7 @@ void vtkImageConnector::MarkRegion(vtkImageRegion *region, int numberOfAxes)
       // check above pixel
       if (*pExtent > *pIndex)
         {
-        ptr = seed->Pointer + pIncs[idx];
+        ptr = (unsigned char *)(seed->Pointer) + pIncs[idx];
         if (*ptr == this->UnconnectedValue)
           { // add a new seed
           ++pIndex;
