@@ -131,6 +131,6 @@ for { set i 0 } { $i < 5 } { incr i } {
    volume RotateZ 13
    sphereActor RotateX 13
    sphereActor RotateY 17
-   renWin Render
 }
+renWin Render
 
