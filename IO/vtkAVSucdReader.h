@@ -31,12 +31,12 @@
 #define __vtkAVSucdReader_h
 
 #include "vtkUnstructuredGridSource.h"
-#include "vtkDataArraySelection.h"
 
 class vtkCellArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIdTypeArray;
+class vtkDataArraySelection;
 
 struct DataInfo {
   long foffset; // offset in binary file

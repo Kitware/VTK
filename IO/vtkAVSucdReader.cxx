@@ -27,6 +27,7 @@
 #include <ctype.h>
 
 #include "vtkAVSucdReader.h"
+#include "vtkDataArraySelection.h"
 #include "vtkErrorCode.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkObjectFactory.h"
@@ -40,7 +41,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.3");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.4");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
