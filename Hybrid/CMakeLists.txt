@@ -1,5 +1,4 @@
 SOURCE_FILES ( Hybrid_SRCS
-vtkCellDerivatives 
 vtkCubeAxesActor2D 
 vtkDepthSortPolyData 
 vtkEarthSource 
@@ -10,18 +9,12 @@ vtkIterativeClosestPointTransform
 vtkLandmarkTransform 
 vtkLegendBoxActor 
 vtkLightKit 
-vtkMassProperties 
-vtkOutlineCornerFilter 
-vtkOutlineCornerSource 
-vtkProjectedTexture 
 vtkRenderLargeImage 
 vtkRIBExporter 
 vtkRIBLight 
 vtkRIBProperty 
 vtkSuperquadric 
-vtkSurfaceReconstructionFilter 
 vtkSuperquadricSource 
-vtkSubdivideTetra 
 vtkThinPlateSplineTransform 
 vtkTransformToGrid 
 vtkVideoSource 

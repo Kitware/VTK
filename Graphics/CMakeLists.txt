@@ -11,6 +11,7 @@ vtkButterflySubdivisionFilter
 vtkCardinalSpline
 vtkCellCenters
 vtkCellDataToPointData
+vtkCellDerivatives 
 vtkCleanPolyData
 vtkClipDataSet
 vtkClipPolyData
@@ -60,12 +61,15 @@ vtkLinkEdgels
 vtkLoopSubdivisionFilter
 vtkMaskPoints
 vtkMaskPolyData
+vtkMassProperties 
 vtkMergeDataObjectFilter
 vtkMergeFilter
 vtkMergePoints
 vtkMergePoints2D 
 vtkOBBDicer
 vtkOBBTree
+vtkOutlineCornerFilter 
+vtkOutlineCornerSource 
 vtkOutlineFilter
 vtkOutlineSource
 vtkPlaneSource
@@ -80,6 +84,7 @@ vtkProgrammableDataObjectSource
 vtkProgrammableFilter
 vtkProgrammableGlyphFilter
 vtkProgrammableSource
+vtkProjectedTexture 
 vtkQuadricClustering
 vtkQuadricDecimation
 vtkQuantizePolyDataPoints
@@ -105,6 +110,8 @@ vtkStructuredGridGeometryFilter
 vtkStructuredGridOutlineFilter
 vtkStructuredPointsGeometryFilter
 vtkSubPixelPositionEdgels
+vtkSubdivideTetra 
+vtkSurfaceReconstructionFilter 
 vtkTensorGlyph
 vtkTextSource
 vtkTextureMapToCylinder
