@@ -80,7 +80,7 @@ public:
   void SetDataScalarTypeToUnsignedChar()
     {this->SetDataScalarType(VTK_UNSIGNED_CHAR);}
   vtkGetMacro(DataScalarType, int);
-  char *GetDataScalarTypeAsString() { 
+  const char *GetDataScalarTypeAsString() { 
     return vtkImageScalarTypeNameMacro(this->DataScalarType); }
 
   // Description:

@@ -108,7 +108,7 @@ public:
   int GetDataScalarType() {
     this->Input->UpdateImageInformation();
     return this->Input->GetScalarType(); };
-  char *GetDataScalarTypeAsString() { 
+  const char *GetDataScalarTypeAsString() { 
     this->Input->UpdateImageInformation();
     return this->Input->GetScalarTypeAsString(); };
 
