@@ -31,17 +31,17 @@
 #ifndef __vtkApplyFilterCommand_h
 #define __vtkApplyFilterCommand_h
 
-#include "vtkCompositeDataVisitorCommand.h"
+#include "vtkCompositeDataCommand.h"
 
 class vtkApplyFilterCommandInternal;
 class vtkMultiBlockDataSet;
 class vtkSource;
 class vtkDataObject;
 
-class VTK_FILTERING_EXPORT vtkApplyFilterCommand : public vtkCompositeDataVisitorCommand
+class VTK_FILTERING_EXPORT vtkApplyFilterCommand : public vtkCompositeDataCommand
 {
 public:
-  vtkTypeRevisionMacro(vtkApplyFilterCommand, vtkCompositeDataVisitorCommand);
+  vtkTypeRevisionMacro(vtkApplyFilterCommand, vtkCompositeDataCommand);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

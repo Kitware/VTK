@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include "vtkApplyFilterCommandInternal.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxApplyFilterCommand, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalBoxApplyFilterCommand, "1.2");
 vtkStandardNewMacro(vtkHierarchicalBoxApplyFilterCommand);
 
 vtkCxxSetObjectMacro(vtkHierarchicalBoxApplyFilterCommand,
@@ -62,7 +62,7 @@ void vtkHierarchicalBoxApplyFilterCommand::Initialize()
 
 //----------------------------------------------------------------
 void vtkHierarchicalBoxApplyFilterCommand::Execute(
-  vtkCompositeDataVisitor *caller, vtkDataObject *input, void* callData)
+  vtkCompositeDataVisitor *, vtkDataObject *input, void* callData)
 {
   if (!this->Output)
     {

@@ -19,12 +19,12 @@
 
 #include "vtkAMRBox.h"
 #include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataVisitorCommand.h"
+#include "vtkCompositeDataCommand.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxVisitor, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalBoxVisitor, "1.2");
 vtkStandardNewMacro(vtkHierarchicalBoxVisitor);
 
 vtkCxxSetObjectMacro(vtkHierarchicalBoxVisitor, 

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositeDataVisitorCommand.cxx
+  Module:    vtkCompositeDataCommand.cxx
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,22 +15,22 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkCompositeDataVisitorCommand.h"
+#include "vtkCompositeDataCommand.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataVisitorCommand, "1.1");
+vtkCxxRevisionMacro(vtkCompositeDataCommand, "1.1");
 
 //----------------------------------------------------------------------------
-vtkCompositeDataVisitorCommand::vtkCompositeDataVisitorCommand()
+vtkCompositeDataCommand::vtkCompositeDataCommand()
 {
 }
 
 //----------------------------------------------------------------------------
-vtkCompositeDataVisitorCommand::~vtkCompositeDataVisitorCommand()
+vtkCompositeDataCommand::~vtkCompositeDataCommand()
 {
 }
 
 //----------------------------------------------------------------------------
-void vtkCompositeDataVisitorCommand::PrintSelf(ostream& os, vtkIndent indent)
+void vtkCompositeDataCommand::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }

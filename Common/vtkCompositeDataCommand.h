@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkCompositeDataVisitorCommand.h
+  Module:    vtkCompositeDataCommand.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -15,27 +15,27 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCompositeDataVisitorCommand - abstract superclass for commands
+// .NAME vtkCompositeDataCommand - abstract superclass for commands
 // .SECTION Description
-// vtkCompositeDataVisitorCommand and it's subclasses are used by
+// vtkCompositeDataCommand and it's subclasses are used by
 // the visitor classes. Visitors apply the command on each item
 // of a collection by calling Execute and passing the appropriate
 // arguments
 // .SECTION See Also
 // vtkCompositeDataVisitor
 
-#ifndef __vtkCompositeDataVisitorCommand_h
-#define __vtkCompositeDataVisitorCommand_h
+#ifndef __vtkCompositeDataCommand_h
+#define __vtkCompositeDataCommand_h
 
 #include "vtkObject.h"
 
 class vtkCompositeDataVisitor;
 class vtkDataObject;
 
-class VTK_COMMON_EXPORT vtkCompositeDataVisitorCommand : public vtkObject
+class VTK_COMMON_EXPORT vtkCompositeDataCommand : public vtkObject
 {
 public:
-  vtkTypeRevisionMacro(vtkCompositeDataVisitorCommand, vtkObject);
+  vtkTypeRevisionMacro(vtkCompositeDataCommand, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -52,13 +52,13 @@ public:
   virtual void Initialize() {};
 
 protected:
-  vtkCompositeDataVisitorCommand(); 
-  virtual ~vtkCompositeDataVisitorCommand(); 
+  vtkCompositeDataCommand(); 
+  virtual ~vtkCompositeDataCommand(); 
 
 private:
-  vtkCompositeDataVisitorCommand(const vtkCompositeDataVisitorCommand&);  // Not implemented.
-  void operator=(const vtkCompositeDataVisitorCommand&);  // Not implemented.
+  vtkCompositeDataCommand(const vtkCompositeDataCommand&);  // Not implemented.
+  void operator=(const vtkCompositeDataCommand&);  // Not implemented.
 };
 
-#endif /* __vtkCompositeDataVisitorCommand_h */
+#endif /* __vtkCompositeDataCommand_h */
  

@@ -38,7 +38,7 @@ vtkCommand.cxx
 vtkCompositeDataIterator.cxx
 vtkCompositeDataSet.cxx
 vtkCompositeDataVisitor.cxx
-vtkCompositeDataVisitorCommand.cxx
+vtkCompositeDataCommand.cxx
 vtkContourValues.cxx
 vtkConvexPointSet.cxx
 vtkCoordinate.cxx
@@ -208,7 +208,7 @@ vtkCommand
 vtkCompositeDataIterator
 vtkCompositeDataSet
 vtkCompositeDataVisitor
-vtkCompositeDataVisitorCommand
+vtkCompositeDataCommand
 vtkDataArray
 vtkDataSet
 vtkExplicitCell

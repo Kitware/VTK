@@ -28,7 +28,7 @@
 
 
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxCellDataToPointData, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalBoxCellDataToPointData, "1.2");
 vtkStandardNewMacro(vtkHierarchicalBoxCellDataToPointData);
 
 //----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ void vtkHierarchicalBoxCellDataToPointData::ExecuteData(vtkDataObject* dooutput)
 
   vtkHierarchicalBoxDataSet* output = comm->GetOutput();
 
-  this->GetOutput()->ShallowCopy(output);
+  dooutput->ShallowCopy(output);
 
   comm->Delete();
   visitor->Delete();

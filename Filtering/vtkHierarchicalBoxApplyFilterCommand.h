@@ -1,7 +1,8 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkHierarchicalBoxApplyFilterCommand.h
+  Module:    $RCSfile: vtkHierarchicalBoxApplyFilterCommand#include "vtkCompositeDataCommand.h"
+.h,v $
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
