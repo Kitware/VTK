@@ -546,6 +546,13 @@ void vtkMultiProcessController::CopyImageData(vtkImageData *src,
   dest->SetNumberOfScalarComponents(src->GetNumberOfScalarComponents());
   dest->SetScalarType(src->GetScalarType());
   dest->GetPointData()->SetScalars(src->GetPointData()->GetScalars());
+  dest->SetOrigin(src->GetOrigin());
+  dest->SetSpacing(src->GetSpacing());
+  // here is a hack: we want to be able to send images (not through ports).
+  dest->SetWholeExtent(src->GetExtent());
+  dest->SetScalarType(src->GetPointData()->GetScalars()->GetDataType());
+  dest->SetNumberOfScalarComponents(
+    src->GetPointData()->GetScalars()->GetNumberOfComponents());
 }
 
 
@@ -573,7 +580,7 @@ int vtkMultiProcessController::WriteDataSet(vtkDataSet *data)
   this->DeleteAndSetMarshalString(writer->RegisterAndGetOutputString(), size);
   this->MarshalDataLength = size;
   writer->Delete();
-  
+
   log->StopTimer();
   this->WriteTime = log->GetElapsedTime();
   log->Delete();
