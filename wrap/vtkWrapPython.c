@@ -463,10 +463,15 @@ void get_python_signature()
 /* convert special characters in a string into their escape codes,
    so that the string can be quoted in a source file (the maximum
    converted length is around 1000 chars) */
-static const char *quote_string(const char *comment)
+static const char *quote_string(const char *comment, int maxlen)
 {
-  static char result[1050];
+  static char result[4096];
   int i, j, n;
+
+  if (maxlen > 4096)
+    {
+    maxlen = 4096;
+    }
 
   if (comment == NULL)
     {
@@ -503,7 +508,7 @@ static const char *quote_string(const char *comment)
       sprintf(&result[j],"\\%3.3o",comment[i]);
       j += 4;
       }
-    if (j >= 1000)
+    if (j >= maxlen - 30)
       {
       sprintf(&result[j],"...\\n [Truncated]\\n");
       j += strlen("...\\n [Truncated]\\n");
@@ -794,7 +799,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
       fprintf(fp,"  {\"%s\",		(PyCFunction)Py%s_%s, 1,\n   \"%s\\n\\n%s\"},\n",
 	      wrappedFunctions[fnum]->Name, data->ClassName, 
 	      wrappedFunctions[fnum]->Name, wrappedFunctions[fnum]->Signature,
-	      quote_string(wrappedFunctions[fnum]->Comment));
+	      quote_string(wrappedFunctions[fnum]->Comment,1000));
       }
     }
   if (!strcmp("vtkObject",data->ClassName))
@@ -906,29 +911,29 @@ static void create_class_doc(FILE *fp, FileInfo *data)
       {
       text++;
       }
-    fprintf(fp,"%s\\n\\n",quote_string(text));
+    fprintf(fp,"%s\\n\\n",quote_string(text,120));
     }
   else
     {
     fprintf(fp,"%s - no description provided.\\n\\n",
-	    quote_string(data->ClassName));
+	    quote_string(data->ClassName,120));
     }
 
   if (data->NumberOfSuperClasses > 0)
     {
     fprintf(fp,"Super Class:\\n\\n %s\\n\\n",
-	    quote_string(data->SuperClasses[0]));
+	    quote_string(data->SuperClasses[0],120));
     }
 
   fprintf(fp,"Description:\\n\\n");
   fprintf(fp,"%s\\n",  
-	  data->Description ? quote_string(data->Description) : 
+	  data->Description ? quote_string(data->Description,1000) : 
 	                      "None provided.\\n");
 
   if (data->Caveats)
     {
     fprintf(fp,"Caveats:\\n\\n");
-    fprintf(fp,"%s\\n", quote_string(data->Caveats));
+    fprintf(fp,"%s\\n", quote_string(data->Caveats,500));
     }
 
   if (data->SeeAlso)
@@ -940,7 +945,7 @@ static void create_class_doc(FILE *fp, FileInfo *data)
     tok = strtok(dup," ");
     while (tok)
       {
-      fprintf(fp," %s",quote_string(tok));
+      fprintf(fp," %s",quote_string(tok,120));
       tok = strtok(NULL," ");
       }
     free(dup);
