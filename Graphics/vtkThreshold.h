@@ -24,6 +24,9 @@
 // Note that scalar values are available from the point and cell attribute
 // data.  By default, point data is used to obtain scalars, but you can
 // control this behavior. See the AttributeMode ivar below.
+//
+// By default only the first scalar value is used in the decision. Use the ComponentMode
+// and SelectedComponent ivars to control this behavior.
 
 // .SECTION See Also
 // vtkThresholdPoints vtkThresholdTextureCoords
@@ -33,9 +36,16 @@
 
 #include "vtkDataSetToUnstructuredGridFilter.h"
 
-#define VTK_ATTRIBUTE_MODE_DEFAULT 0
-#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
-#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA 2
+#define VTK_ATTRIBUTE_MODE_DEFAULT         0
+#define VTK_ATTRIBUTE_MODE_USE_POINT_DATA  1
+#define VTK_ATTRIBUTE_MODE_USE_CELL_DATA   2
+
+// order / values are important because of the SetClampMacro
+#define VTK_COMPONENT_MODE_USE_SELECTED    0
+#define VTK_COMPONENT_MODE_USE_ALL         1
+#define VTK_COMPONENT_MODE_USE_ANY         2
+
+class vtkDataArray;
 
 class VTK_GRAPHICS_EXPORT vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
@@ -79,6 +89,31 @@ public:
   const char *GetAttributeModeAsString();
 
   // Description:
+  // Control how the decision of in / out is made with multi-component data.
+  // The choices are to use the selected component (specified in the
+  // SelectedComponent ivar), or to look at all components. When looking at
+  // all components, the evaluation can pass if all the components satisfy
+  // the rule (UseAll) or if any satisfy is (UseAny). The default value is
+  // UseSelected.
+  vtkSetClampMacro(ComponentMode,int,
+                   VTK_COMPONENT_MODE_USE_SELECTED,
+                   VTK_COMPONENT_MODE_USE_ANY);
+  vtkGetMacro(ComponentMode,int);
+  void SetComponentModeToUseSelected() 
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_SELECTED);};
+  void SetComponentModeToUseAll() 
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ALL);};
+  void SetComponentModeToUseAny() 
+    {this->SetComponentMode(VTK_COMPONENT_MODE_USE_ANY);};
+  const char *GetComponentModeAsString();
+  
+  // Description:
+  // When the component mode is UseSelected, this ivar indicated the selected
+  // component. The default value is 0.
+  vtkSetClampMacro(SelectedComponent,int,0,VTK_INT_MAX);
+  vtkGetMacro(SelectedComponent,int);
+  
+  // Description:
   // If using scalars from point data, all scalars for all points in a cell 
   // must satisfy the threshold criterion if AllScalars is set. Otherwise, 
   // just a single scalar value satisfying the threshold criterion enables
@@ -101,11 +136,13 @@ protected:
   // Usual data generation method
   void Execute();
 
-  int   AllScalars;
+  int    AllScalars;
   double LowerThreshold;
   double UpperThreshold;
-  int   AttributeMode;
-
+  int    AttributeMode;
+  int    ComponentMode;
+  int    SelectedComponent;
+  
   //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);
   //ETX
@@ -118,6 +155,8 @@ protected:
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
+  int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
+  
 private:
   vtkThreshold(const vtkThreshold&);  // Not implemented.
   void operator=(const vtkThreshold&);  // Not implemented.

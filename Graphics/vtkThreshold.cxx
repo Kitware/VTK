@@ -21,19 +21,21 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.64");
+vtkCxxRevisionMacro(vtkThreshold, "1.65");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
 // function=upper AllScalars=1.
 vtkThreshold::vtkThreshold()
 {
-  this->LowerThreshold = 0.0;
-  this->UpperThreshold = 1.0;
-  this->AllScalars = 1;
-  this->AttributeMode = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
-  this->ThresholdFunction = &vtkThreshold::Upper;
-  this->InputScalarsSelection = NULL;
+  this->LowerThreshold         = 0.0;
+  this->UpperThreshold         = 1.0;
+  this->AllScalars             = 1;
+  this->AttributeMode          = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
+  this->ThresholdFunction      = &vtkThreshold::Upper;
+  this->InputScalarsSelection  = NULL;
+  this->ComponentMode          = VTK_COMPONENT_MODE_USE_SELECTED;
+  this->SelectedComponent      = 0;
 }
 
 vtkThreshold::~vtkThreshold()
@@ -187,8 +189,7 @@ void vtkThreshold::Execute()
         for ( i=0; keepCell && (i < numCellPts); i++)
           {
           ptId = cellPts->GetId(i);
-          keepCell = 
-            (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
+          keepCell = this->EvaluateComponents( pointScalars, ptId );
           }
         }
       else
@@ -197,14 +198,13 @@ void vtkThreshold::Execute()
         for ( i=0; (!keepCell) && (i < numCellPts); i++)
           {
           ptId = cellPts->GetId(i);
-          keepCell = 
-            (this->*(this->ThresholdFunction))(pointScalars->GetComponent(ptId,0));
+          keepCell = this->EvaluateComponents( pointScalars, ptId );
           }
         }
       }
     else //use cell scalars
       {
-      keepCell = (this->*(this->ThresholdFunction))(cellScalars->GetComponent(cellId,0));
+      keepCell = this->EvaluateComponents( cellScalars, cellId );
       }
     
     if (  numCellPts > 0 && keepCell )
@@ -241,6 +241,39 @@ void vtkThreshold::Execute()
   output->Squeeze();
 }
 
+int vtkThreshold::EvaluateComponents( vtkDataArray *scalars, vtkIdType id )
+{
+  int keepCell = 0;
+  int numComp = scalars->GetNumberOfComponents();
+  int c;
+  
+  switch ( this->ComponentMode )
+    {
+    case VTK_COMPONENT_MODE_USE_SELECTED:
+      c = (this->SelectedComponent < numComp)?(this->SelectedComponent):(0);
+      keepCell = 
+        (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
+      break;
+    case VTK_COMPONENT_MODE_USE_ANY:
+      keepCell = 0;
+      for ( c = 0; (!keepCell) && (c < numComp); c++ )
+        {
+        keepCell = 
+          (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
+        }
+      break;
+    case VTK_COMPONENT_MODE_USE_ALL:
+      keepCell = 1;
+      for ( c = 0; keepCell && (c < numComp); c++ )
+        {
+        keepCell = 
+          (this->*(this->ThresholdFunction))(scalars->GetComponent(id,c));
+        }
+      break;
+    }
+  return keepCell;
+}
+
 // Return the method for manipulating scalar data as a string.
 const char *vtkThreshold::GetAttributeModeAsString(void)
 {
@@ -258,11 +291,31 @@ const char *vtkThreshold::GetAttributeModeAsString(void)
     }
 }
 
+// Return a string representation of the component mode
+const char *vtkThreshold::GetComponentModeAsString(void)
+{
+  if ( this->ComponentMode == VTK_COMPONENT_MODE_USE_SELECTED )
+    {
+    return "UseSelected";
+    }
+  else if ( this->ComponentMode == VTK_COMPONENT_MODE_USE_ANY )
+    {
+    return "UseAny";
+    }
+  else 
+    {
+    return "UseAll";
+    }
+}
+
 void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Attribute Mode: " << this->GetAttributeModeAsString() << endl;
+  os << indent << "Component Mode: " << this->GetComponentModeAsString() << endl;
+  os << indent << "Selected Component: " << this->SelectedComponent << endl;
+  
   if (this->InputScalarsSelection)
     {
     os << indent << "InputScalarsSelection: " << this->InputScalarsSelection;
