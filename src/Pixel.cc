@@ -74,7 +74,7 @@ int vlPixel::EvaluatePosition(float x[3], float closestPoint[3],
   pcoords[1] >= 0.0 && pcoords[1] <= 1.0 )
     {
     dist2 = math.Distance2BetweenPoints(closestPoint,x); //projection distance
-    this->ShapeFunctions(pcoords, weights);
+    this->InterpolationFunctions(pcoords, weights);
     return 1;
     }
   else
@@ -106,7 +106,47 @@ void vlPixel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                     pcoords[1]*(pt3[i] - pt1[i]);
     }
 
-  this->ShapeFunctions(pcoords, weights);
+  this->InterpolationFunctions(pcoords, weights);
+}
+
+int vlPixel::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  float t1=pcoords[0]-pcoords[1];
+  float t2=1.0-pcoords[0]-pcoords[1];
+
+  pts.Reset();
+
+  // compare against two lines in parametric space that divide element
+  // into four pieces.
+  if ( t1 >= 0.0 && t2 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    }
+
+  else if ( t1 >= 0.0 && t2 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(1));
+    pts.SetId(1,this->PointIds.GetId(3));
+    }
+
+  else if ( t1 < 0.0 && t2 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(3));
+    pts.SetId(1,this->PointIds.GetId(2));
+    }
+
+  else //( t1 < 0.0 && t2 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(2));
+    pts.SetId(1,this->PointIds.GetId(0));
+    }
+
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
+  pcoords[1] < 0.0 || pcoords[1] > 1.0 )
+    return 0;
+  else
+    return 1;
 }
 
 void vlPixel::Contour(float value, vlFloatScalars *cellScalars,
@@ -146,9 +186,9 @@ vlCell *vlPixel::GetEdge(int edgeId)
   return &line;
 }
 //
-// Compute shape functions (similar but different than Quad shape functions)
+// Compute interpolation functions (similar but different than Quad interpolation functions)
 //
-void vlPixel::ShapeFunctions(float pcoords[3], float sf[4])
+void vlPixel::InterpolationFunctions(float pcoords[3], float sf[4])
 {
   float rm, sm;
 

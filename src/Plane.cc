@@ -96,3 +96,14 @@ int vlPlane::IntersectWithLine(float p1[3], float p2[3], float n[3],
   if ( t >= 0.0 && t <= 1.0 ) return 1;
   else return 0;
 }
+
+void vlPlane::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlImplicitFunction::PrintSelf(os,indent);
+
+  os << indent << "Normal: (" << this->Normal[0] << ", " 
+    << this->Normal[1] << ", " << this->Normal[2] << ")\n";
+
+  os << indent << "Origin: (" << this->Origin[0] << ", " 
+    << this->Origin[1] << ", " << this->Origin[2] << ")\n";
+}

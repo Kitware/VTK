@@ -46,7 +46,8 @@ public:
   int GetCellType(int cellId);
   float *GetPoint(int ptId);
   void GetPoint(int ptId, float p[3]);
-  int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) { return this->vlPointSet::FindCell(x,cell,tol2,subId,pcoords);}
+  int FindCell(float x[3], vlCell *cell, float tol2, int& subId, 
+               float pcoords[3],float weights[MAX_CELL_SIZE]);
   int GetNumberOfCells();
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);
@@ -84,4 +85,15 @@ inline void vlStructuredGrid::GetPointCells(int ptId, vlIdList& cellIds)
   this->vlStructuredData::_GetPointCells(ptId,cellIds);
 }
 
+inline int vlStructuredGrid::FindCell(float x[3], vlCell *cell, float tol2, 
+                                      int& subId, float pcoords[3],
+                                      float weights[MAX_CELL_SIZE])
+{
+  return this->vlPointSet::FindCell(x,cell,tol2,subId,pcoords,weights);
+}
+
 #endif
+
+
+
+

@@ -29,6 +29,7 @@ class vlQuadric : public vlImplicitFunction
 public:
   vlQuadric();
   char *GetClassName() {return "vlQuadric";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);

@@ -83,7 +83,7 @@ int vlLine::EvaluatePosition(float x[3], float closestPoint[3],
     return_status = 1;
     }
 
-  dist2 = math.Distance2BetweenPoints(closestPoint,x);
+  dist2 = math.Distance2BetweenPoints(closest,x);
   closestPoint[0] = closest[0]; closestPoint[1] = closest[1]; closestPoint[2] = closest[2]; 
   weights[0] = pcoords[0];
   weights[1] = 1.0 - pcoords[0];
@@ -163,6 +163,24 @@ int vlLine::Intersection (float a1[3], float a2[3], float b1[3], float b2[3],
   else
     {
     return NO_INTERSECTION;
+    }
+}
+
+int vlLine::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  pts.Reset();
+
+  if ( pcoords[0] >= 0.5 )
+    {
+    pts.SetId(0,this->PointIds.GetId(1));
+    if ( pcoords[0] > 1.0 ) return 0;
+    else return 1;
+    }
+  else
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    if ( pcoords[0] < 0.0 ) return 0;
+    else return 1;
     }
 }
 

@@ -6,8 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
 This file is part of the Visualization Library. No part of this file
 or its contents may be copied, reproduced or altered in any way
 without the express written consent of the authors.
@@ -15,7 +13,6 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-
 #include <math.h>
 #include "Quadric.hh"
 
@@ -86,4 +83,20 @@ void vlQuadric::SetCoefficients(float a0,float a1,float a2,float a3, float a4,
   a[5] = a5; a[6] = a6; a[7] = a7; a[8] = a8; a[9] = a9; 
 
   vlQuadric::SetCoefficients(a);
+}
+void vlQuadric::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlImplicitFunction::PrintSelf(os,indent);
+
+  os << indent << "Coefficients: " 
+     << "\n\ta0: " << this->Coefficients[0]
+     << "\n\ta1: " << this->Coefficients[1]
+     << "\n\ta2: " << this->Coefficients[2]
+     << "\n\ta3: " << this->Coefficients[3]
+     << "\n\ta4: " << this->Coefficients[4]
+     << "\n\ta5: " << this->Coefficients[5]
+     << "\n\ta6: " << this->Coefficients[6]
+     << "\n\ta7: " << this->Coefficients[7]
+     << "\n\ta8: " << this->Coefficients[8]
+     << "\n\ta9: " << this->Coefficients[9] << "\n";
 }

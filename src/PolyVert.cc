@@ -79,6 +79,18 @@ void vlPolyVertex::EvaluateLocation(int& subId, float pcoords[3],
   weights[subId] = 1.0;
 }
 
+int vlPolyVertex::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  pts.Reset();
+  pts.SetId(subId,this->PointIds.GetId(subId));
+
+  if ( pcoords[0] != 0.0 )  
+    return 0;
+  else
+    return 1;
+
+}
+
 void vlPolyVertex::Contour(float value, vlFloatScalars *cellScalars, 
                            vlFloatPoints *points, vlCellArray *verts,
                            vlCellArray *lines, vlCellArray *polys, 

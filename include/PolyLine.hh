@@ -34,6 +34,7 @@ public:
   char *GetClassName() {return "vlPolyLine";};
 
   int GenerateNormals(vlPoints *, vlCellArray *, vlFloatNormals *);
+  int GenerateSlidingNormals(vlPoints *, vlCellArray *, vlFloatNormals *);
 
   vlCell *MakeObject() {return new vlPolyLine(*this);};
   int GetCellType() {return vlPOLY_LINE;};
@@ -43,6 +44,7 @@ public:
   vlCell *GetEdge(int edgeId) {return 0;};
   vlCell *GetFace(int faceId) {return 0;};
 
+  int CellBoundary(int subId, float pcoords[3], vlIdList& pts);
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points, vlCellArray *verts, 
                vlCellArray *lines, vlCellArray *polys, 

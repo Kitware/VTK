@@ -18,8 +18,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 // vlStructuredPointsFilter is a filter that takes a single vlStructuredPoints 
 // data object as input.
 
-#ifndef __vlStructuredPointsFilter_h
-#define __vlStructuredPointsFilter_h
+#ifndef __vlStructuredPointsFilter_hh
+#define __vlStructuredPointsFilter_hh
 
 #include "Filter.hh"
 #include "StrPts.hh"

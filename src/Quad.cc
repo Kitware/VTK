@@ -88,10 +88,10 @@ int vlQuad::EvaluatePosition(float x[3], float closestPoint[3],
   iteration++) 
     {
 //
-//  calculate element shape functions and derivatives
+//  calculate element interpolation functions and derivatives
 //
-    this->ShapeFunctions(pcoords, weights);
-    this->ShapeDerivs(pcoords, derivs);
+    this->InterpolationFunctions(pcoords, weights);
+    this->InterpolationDerivs(pcoords, derivs);
 //
 //  calculate newton functions
 //
@@ -180,7 +180,7 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   float *pt, pc[3];
 
   for (i=0; i<2; i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
-  this->ShapeFunctions(pc, weights);
+  this->InterpolationFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<4; i++)
@@ -194,9 +194,9 @@ void vlQuad::EvaluateLocation(int& subId, float pcoords[3], float x[3],
 }
 
 //
-// Compute iso-parametrix shape functions
+// Compute iso-parametrix interpolation functions
 //
-void vlQuad::ShapeFunctions(float pcoords[3], float sf[4])
+void vlQuad::InterpolationFunctions(float pcoords[3], float sf[4])
 {
   double rm, rp, sm, sp;
 
@@ -211,7 +211,7 @@ void vlQuad::ShapeFunctions(float pcoords[3], float sf[4])
   sf[3] = 0.25 * rm * sp;
 }
 
-void vlQuad::ShapeDerivs(float pcoords[3], float derivs[8])
+void vlQuad::InterpolationDerivs(float pcoords[3], float derivs[8])
 {
   double rm, rp, sm, sp;
 
@@ -228,6 +228,46 @@ void vlQuad::ShapeDerivs(float pcoords[3], float derivs[8])
   derivs[5] = -0.25*rp;
   derivs[6] = 0.25*rp;
   derivs[7] = 0.25*rm;
+}
+
+int vlQuad::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  float t1=pcoords[0]-pcoords[1];
+  float t2=1.0-pcoords[0]-pcoords[1];
+
+  pts.Reset();
+
+  // compare against two lines in parametric space that divide element
+  // into four pieces.
+  if ( t1 >= 0.0 && t2 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    }
+
+  else if ( t1 >= 0.0 && t2 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(1));
+    pts.SetId(1,this->PointIds.GetId(2));
+    }
+
+  else if ( t1 < 0.0 && t2 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(2));
+    pts.SetId(1,this->PointIds.GetId(3));
+    }
+
+  else //( t1 < 0.0 && t2 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(3));
+    pts.SetId(1,this->PointIds.GetId(0));
+    }
+
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
+  pcoords[1] < 0.0 || pcoords[1] > 1.0 )
+    return 0;
+  else
+    return 1;
 }
 
 //

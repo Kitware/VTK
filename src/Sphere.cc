@@ -16,31 +16,40 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 #include "Sphere.hh"
 
 // Description
-// Construct sphere with center at (0,0,0) and radius=1.0.
+// Construct sphere with center at (0,0,0) and radius=0.5.
 vlSphere::vlSphere()
 {
-  this->Radius = 1.0;
+  this->Radius = 0.5;
 
-  this->Origin[0] = 0.0;
-  this->Origin[1] = 0.0;
-  this->Origin[2] = 0.0;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
+  this->Center[2] = 0.0;
 }
 
 // Description
-// Evaluate sphere equation R^2 - ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) = 0.
+// Evaluate sphere equation ((x-x0)^2 + (y-y0)^2 + (z-z0)^2) - R^2.
 float vlSphere::Evaluate(float x, float y, float z)
 {
-  return ( this->Radius*this->Radius -
-          ((x - this->Origin[0]) * (x - this->Origin[0]) + 
-           (y - this->Origin[1]) * (y - this->Origin[1]) + 
-           (z - this->Origin[2]) * (z - this->Origin[2])) );
+  return ( ((x - this->Center[0]) * (x - this->Center[0]) + 
+           (y - this->Center[1]) * (y - this->Center[1]) + 
+           (z - this->Center[2]) * (z - this->Center[2])) - 
+           this->Radius*this->Radius );
 }
 
 // Description
 // Evaluate sphere normal.
 void vlSphere::EvaluateNormal(float x, float y, float z, float n[3])
 {
-  n[0] = 2.0 * (x - this->Origin[0]);
-  n[1] = 2.0 * (y - this->Origin[1]);
-  n[2] = 2.0 * (z - this->Origin[2]);
+  n[0] = 2.0 * (x - this->Center[0]);
+  n[1] = 2.0 * (y - this->Center[1]);
+  n[2] = 2.0 * (z - this->Center[2]);
+}
+
+void vlSphere::PrintSelf(ostream& os, vlIndent indent)
+{
+  vlImplicitFunction::PrintSelf(os,indent);
+
+  os << indent << "Radius: " << this->Radius << "\n";
+  os << indent << "Center: (" << this->Center[0] << ", " 
+    << this->Center[1] << ", " << this->Center[2] << ")\n";
 }

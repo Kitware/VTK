@@ -36,6 +36,7 @@ public:
   int GetNumberOfFaces() {return 0;};
   vlCell *GetEdge(int edgeId) {return 0;};
   vlCell *GetFace(int faceId) {return 0;};
+  int CellBoundary(int subId, float pcoords[3], vlIdList& pts);
 
   void Contour(float value, vlFloatScalars *cellScalars, 
                vlFloatPoints *points, vlCellArray *verts, 

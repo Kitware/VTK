@@ -88,6 +88,14 @@ public:
   virtual vlCell *GetFace(int faceId) = 0;
 
   // Description:
+  // Given parametric coordinates of a point, return the closest cell boundary,
+  // and whether the point is inside or outside of the cell. The cell boundary 
+  // is defined by a list of points (pts) that specify a face (3D cell), edge 
+  // (2D cell), or vertex (1D cell). If the return value of the method is != 0, 
+  // then the point is inside the cell.
+  virtual int CellBoundary(int subId, float pcoords[3], vlIdList& pts) = 0;
+
+  // Description:
   // Given a point x[3] return inside(=1) or outside(=0) cell; evaluate 
   // parametric coordinates, sub-cell id (!=0 only if cell is composite),
   // distance squared  of point x[3] to cell (in particular, the sub-cell 

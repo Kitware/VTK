@@ -65,6 +65,19 @@ void vlVertex::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[0] = 1.0;
 }
 
+int vlVertex::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+
+  pts.Reset();
+  pts.SetId(0,this->PointIds.GetId(0));
+
+  if ( pcoords[0] != 0.0 )  
+    return 0;
+  else
+    return 1;
+
+}
+
 void vlVertex::Contour(float value, vlFloatScalars *cellScalars, 
                       vlFloatPoints *points,                      
                       vlCellArray *verts, vlCellArray *lines, 

@@ -93,6 +93,11 @@ void vlTriangleStrip::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   weights[2] = pcoords[1];
 }
 
+int vlTriangleStrip::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  return 0;
+}
+
 void vlTriangleStrip::Contour(float value, vlFloatScalars *cellScalars, 
                               vlFloatPoints *points, vlCellArray *verts, 
                               vlCellArray *lines, vlCellArray *polys, 

@@ -59,7 +59,7 @@ int vlVoxel::EvaluatePosition(float x[3], float closestPoint[3],
     {
     closestPoint[0] = x[0]; closestPoint[1] = x[1]; closestPoint[2] = x[2];
     dist2 = 0.0; // inside voxel
-    this->ShapeFunctions(pcoords,weights);
+    this->InterpolationFunctions(pcoords,weights);
     return 1;
     }
   else
@@ -93,13 +93,13 @@ void vlVoxel::EvaluateLocation(int& subId, float pcoords[3], float x[3],
                     pcoords[2]*(pt4[i] - pt1[i]);
     }
   
-  this->ShapeFunctions(pcoords,weights);
+  this->InterpolationFunctions(pcoords,weights);
 }
 
 //
-// Compute shape functions
+// Compute Interpolation functions
 //
-void vlVoxel::ShapeFunctions(float pcoords[3], float sf[8])
+void vlVoxel::InterpolationFunctions(float pcoords[3], float sf[8])
 {
   float rm, sm, tm;
 
@@ -115,6 +115,74 @@ void vlVoxel::ShapeFunctions(float pcoords[3], float sf[8])
   sf[5] = pcoords[0] * sm * pcoords[2];
   sf[6] = rm * pcoords[1] * pcoords[2];
   sf[7] = pcoords[0] * pcoords[1] * pcoords[2];
+}
+
+int vlVoxel::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  float t1=pcoords[0]-pcoords[1];
+  float t2=1.0-pcoords[0]-pcoords[1];
+  float t3=pcoords[1]-pcoords[2];
+  float t4=1.0-pcoords[1]-pcoords[2];
+  float t5=pcoords[2]-pcoords[0];
+  float t6=1.0-pcoords[2]-pcoords[0];
+
+  pts.Reset();
+
+  // compare against six planes in parametric space that divide element
+  // into six pieces.
+  if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(2,this->PointIds.GetId(3));
+    pts.SetId(3,this->PointIds.GetId(2));
+    }
+
+  else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(1));
+    pts.SetId(1,this->PointIds.GetId(3));
+    pts.SetId(2,this->PointIds.GetId(7));
+    pts.SetId(3,this->PointIds.GetId(5));
+    }
+
+  else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(2,this->PointIds.GetId(5));
+    pts.SetId(3,this->PointIds.GetId(4));
+    }
+
+  else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(4));
+    pts.SetId(1,this->PointIds.GetId(5));
+    pts.SetId(2,this->PointIds.GetId(7));
+    pts.SetId(3,this->PointIds.GetId(6));
+    }
+
+  else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(4));
+    pts.SetId(2,this->PointIds.GetId(6));
+    pts.SetId(3,this->PointIds.GetId(2));
+    }
+
+  else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(3));
+    pts.SetId(1,this->PointIds.GetId(2));
+    pts.SetId(2,this->PointIds.GetId(6));
+    pts.SetId(3,this->PointIds.GetId(7));
+    }
+
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
+  pcoords[1] < 0.0 || pcoords[1] > 1.0 || pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+    return 0;
+  else
+    return 1;
 }
 
 static int edges[12][2] = { {0,1}, {1,3}, {3,2}, {2,0},

@@ -47,9 +47,6 @@ void vlUnstructuredGrid::Allocate (int numCells, int extSize)
 
   this->Cells = new vlCellList(numCells,extSize);
   this->Cells->Register(this);
-  
-  this->Links = new vlLinkList(numCells,extSize);
-  this->Links->Register(this);
 }
 
 // Description:

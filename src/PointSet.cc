@@ -84,15 +84,15 @@ void vlPointSet::PrintSelf(ostream& os, vlIndent indent)
 }
 
 int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
-                         float pcoords[3])
+                         float pcoords[3], float weights[MAX_CELL_SIZE])
 {
-  int i;
+  int i, j;
   int closestCell = -1;
   int ptId, cellId;
-  float dist2;
+  float dist2, minDist2=LARGE_FLOAT;
   static vlIdList cellIds(MAX_CELL_SIZE);
   int sId;
-  float pc[3], weights[MAX_CELL_SIZE];
+  float pc[3], w[MAX_CELL_SIZE];
   float closestPoint[3];
 
   if ( !this->Points ) return -1;
@@ -118,12 +118,14 @@ int vlPointSet::FindCell(float x[3], vlCell *cell, float tol2, int& subId,
       {
       cellId = cellIds.GetId(i);
       cell = this->GetCell(cellId);
-      cell->EvaluatePosition(x,closestPoint,sId,pc,dist2,weights);
-      if ( dist2 <= tol2 )
+      cell->EvaluatePosition(x,closestPoint,sId,pc,dist2,w);
+      if ( dist2 <= tol2 && dist2 < minDist2 )
         {
+        minDist2 = dist2;
         closestCell = cellId;
         subId = sId;
         pcoords[0] = pc[0]; pcoords[1] = pc[1]; pcoords[2] = pc[2]; 
+        for (j=0; j < cell->GetNumberOfPoints(); j++) weights[j] = w[j];
         }
       }
     }

@@ -45,7 +45,8 @@ public:
   float *GetPoint(int ptId);
   void GetPoint(int id, float x[3]);
   vlCell *GetCell(int cellId);
-  int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]);
+  int FindCell(float x[3], vlCell *cell, float tol2, int& subId, 
+               float pcoords[3], float weights[MAX_CELL_SIZE]);
   int GetCellType(int cellId);
   void GetCellPoints(int cellId, vlIdList& ptIds);
   void GetPointCells(int ptId, vlIdList& cellIds);

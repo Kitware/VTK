@@ -218,10 +218,12 @@ void vlStructuredPoints::Initialize()
 }
 
 int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2, 
-                                 int& subId, float pcoords[3])
+                                 int& subId, float pcoords[3],
+                                 float weights[MAX_CELL_SIZE])
 {
   int i, loc[3];
   float d, floatLoc[3];
+  static vlVoxel voxel;
 //
 //  Compute the ijk location
 //
@@ -239,6 +241,7 @@ int vlStructuredPoints::FindCell(float x[3], vlCell *cell, float tol2,
       pcoords[i] = floatLoc[i] - (float)loc[i];
       }
     }
+  voxel.InterpolationFunctions(pcoords,weights);
 //
 //  From this location get the cell number
 //

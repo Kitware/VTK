@@ -33,13 +33,195 @@ vlPolyLine::vlPolyLine(const vlPolyLine& pl)
   this->PointIds = pl.PointIds;
 }
 
+// Description:
+// Given points and lines, compute normals to lines.
 int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
 {
   int npts, *linePts;
-  float s[3], q[3], norm[3], *n;
-  float *p1, *p2;
-  float s_norm, n_norm, q_norm;
-  int i, j;
+  float s[3], sPrev[3], sNext[3], norm[3], *n, *nPrev;
+  float *p, *pPrev, *pNext;
+  float n_norm;
+  int i, j, fillIn;
+  int aNormalComputed, normalComputed[MAX_CELL_SIZE];
+//
+//  Loop over all lines. 
+// 
+  for (lines->InitTraversal(); lines->GetNextCell(npts,linePts); )
+    {
+
+    // check input
+    if ( npts < 1 )
+      {
+      vlErrorMacro(<<"Line with no points!");
+      return 0;
+      }
+
+    else if ( npts == 1 ) //return arbitrary normal
+      {
+      norm[0] = norm[1] = 0.0;
+      norm[2] = 1.0;
+      normals->InsertNormal(linePts[0],norm);
+      return 1;
+      }
+
+    else if ( npts == 2 ) //simple line; directly compute
+      {
+      pPrev = pts->GetPoint(linePts[0]);
+      p = pts->GetPoint(linePts[1]);
+
+      for (i=0; i<3; i++) s[i] = p[i] - pPrev[i];
+
+      if ( (n_norm = math.Norm(s)) == 0.0 ) //use arbitrary normal
+        {
+        norm[0] = norm[1] = 0.0;
+        norm[2] = 1.0;
+        }
+
+      else //else compute normal
+        {
+        for (i=0; i<3; i++) 
+          {
+          if ( s[i] != 0.0 ) 
+            {
+            norm[(i+2)%3] = 0.0;
+            norm[(i+1)%3] = 1.0;
+            norm[i] = -s[(i+1)%3]/s[i];
+            break;
+            }
+          }
+        n_norm = math.Norm(norm);
+        for (i=0; i<3; i++) norm[i] /= n_norm;
+        }
+
+      normals->InsertNormal(linePts[0],norm);
+      normals->InsertNormal(linePts[1],norm);
+      return 1;
+      }
+//
+//  Else have polyline. Initialize normal computation.
+//
+    for (i=0; i<npts && i<MAX_CELL_SIZE; i++) normalComputed[i] = 0;
+    p = pts->GetPoint(linePts[0]);
+    pNext = pts->GetPoint(linePts[1]);
+
+    // perform cross products along line
+    for (aNormalComputed=0, j=1; j < (npts-1); j++) 
+      {
+      pPrev = p;
+      p = pNext;
+      pNext = pts->GetPoint(linePts[j+1]);
+
+      for (i=0; i<3; i++) 
+        {
+        sPrev[i] = p[i] - pPrev[i];
+        sNext[i] = pNext[i] - p[i];
+        }
+
+      math.Cross(sPrev,sNext,norm);
+      if ( (n_norm = math.Norm(norm)) != 0.0 ) //okay to use
+        {
+        for (i=0; i<3; i++) norm[i] /= n_norm;
+        normalComputed[j] = aNormalComputed = 1;
+        normals->InsertNormal(linePts[j],norm);
+        }
+      }
+//
+//  If no normal computed, must be straight line of points. Find one normal.
+//
+    if ( ! aNormalComputed )
+      {
+      for (j=1; j < npts; j++) 
+        {
+        pPrev = pts->GetPoint(linePts[j-1]);
+        p = pts->GetPoint(linePts[j]);
+
+        for (i=0; i<3; i++) s[i] = p[i] - pPrev[i];
+
+        if ( (n_norm = math.Norm(s)) != 0.0 ) //okay to use
+          {
+          aNormalComputed = 1;
+
+          for (i=0; i<3; i++) 
+            {
+            if ( s[i] != 0.0 ) 
+              {
+              norm[(i+2)%3] = 0.0;
+              norm[(i+1)%3] = 1.0;
+              norm[i] = -s[(i+1)%3]/s[i];
+              break;
+              }
+            }
+          n_norm = math.Norm(norm);
+          for (i=0; i<3; i++) norm[i] /= n_norm;
+
+          break;
+          }
+        }
+
+      if ( ! aNormalComputed ) // must be a bunch of coincident points
+        {
+        norm[0] = norm[1] = 0.0;
+        norm[2] = 1.0;
+        }
+
+      for (j=0; j<npts; j++) normals->InsertNormal(linePts[j],norm);
+      return 1;
+      }
+//
+//  Fill in normals (from neighbors)
+//
+    for (fillIn=1; fillIn ; )
+      {
+      for (fillIn=0, j=0; j<npts; j++)
+        {
+        if ( ! normalComputed[j] )
+          {
+          if ( (j+1) < npts && normalComputed[j+1] )
+            {
+            fillIn = 1;
+            normals->InsertNormal(linePts[j],normals->GetNormal(j+1));
+            normalComputed[j] = 1;
+            }
+          else if ( (j-1) >= 0 && normalComputed[j-1] )
+            {
+            fillIn = 1;
+            normals->InsertNormal(linePts[j],normals->GetNormal(j-1));
+            normalComputed[j] = 1;
+            }
+          }
+        }
+      }
+//
+//  Check that normals don't flip around wildly.
+//
+    n = normals->GetNormal(linePts[0]);
+    for (j=1; j<npts; j++)
+      {
+      nPrev = n;
+      n = normals->GetNormal(linePts[j]);
+
+      if ( math.Dot(n,nPrev) < 0.0 ) //reversed sense
+        {
+        for(i=0; i<3; i++) norm[i] = -n[i];
+        normals->InsertNormal(linePts[j],norm);
+        }
+      }
+    }
+
+  return 1;
+}
+
+// Description:
+// Given points and lines, compute normals to lines. These are not true 
+// normals, they are "orientation" normals used by classes like vlTubeFilter
+// that control the rotation around the line. The normals try to stay pointing
+// in the same direction as much as possible (i.e., minimal rotation).
+int vlPolyLine::GenerateSlidingNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormals *normals)
+{
+  int npts, *linePts;
+  float sPrev[3], sNext[3], q[3], w[3], normal[3], theta;
+  float p[3], pPrev[3], pNext[3];
+  int i, j, largeRotation;
 //
 //  Loop over all lines
 // 
@@ -48,54 +230,112 @@ int vlPolyLine::GenerateNormals(vlPoints *pts, vlCellArray *lines, vlFloatNormal
 //
 //  Determine initial starting normal
 // 
-    if ( npts < 2 ) return 0;
+    if ( npts <= 0 ) continue;
 
-    p1 = pts->GetPoint(linePts[0]);
-    p2 = pts->GetPoint(linePts[1]);
-    for (i=0; i<3; i++) s[i] = p2[i] - p1[i];
-
-    if ( (s_norm = math.Norm(s)) == 0.0 ) return 0;
-    for (i=0; i<3; i++) s[i] /= s_norm;
-
-    for (i=0; i<3; i++) 
+    else if ( npts == 1 ) //return arbitrary
       {
-      if ( s[i] != 0.0 ) 
-        {
-        norm[(i+2)%3] = 0.0;
-        norm[(i+1)%3] = 1.0;
-        norm[i] = -s[(i+1)%3]/s[i];
-        break;
-        }
+      normal[0] = normal[1] = 0.0;
+      normal[2] = 1.0;
+      normals->InsertNormal(linePts[0],normal);
       }
-    n_norm = math.Norm(norm);
-    for (i=0; i<3; i++) norm[i] /= n_norm;
-    normals->InsertNormal(0,norm);
+
+    else
+      {
+//
+//  Compute first normal. All "new" normals try to point in the same 
+//  direction.
+//
+      for (j=0; j<npts; j++) 
+        {
+
+        if ( j == 0 ) //first point
+          {
+          pts->GetPoint(linePts[0],p);
+          pts->GetPoint(linePts[1],pNext);
+
+          for (i=0; i<3; i++) 
+            {
+            sPrev[i] = pNext[i] - p[i];
+            sNext[i] = sPrev[i];
+            }
+
+          if ( math.Normalize(sNext) == 0.0 ) return 0;
+
+          for (i=0; i<3; i++) 
+            {
+            if ( sNext[i] != 0.0 ) 
+              {
+              normal[(i+2)%3] = 0.0;
+              normal[(i+1)%3] = 1.0;
+              normal[i] = -sNext[(i+1)%3]/sNext[i];
+              break;
+              }
+            }
+          math.Normalize(normal);
+          normals->InsertNormal(linePts[0],normal);
+          }
+
+        else if ( j == (npts-1) ) //last point; just insert previous
+          {
+          normals->InsertNormal(linePts[j],normal);
+          }
+
+        else
+          {
 //
 //  Generate normals for new point by projecting previous normal
 // 
-    for (j=1; j<npts; j++) 
-      {
-      p1 = pts->GetPoint(linePts[j-1]);
-      p2 = pts->GetPoint(linePts[j]);
-      for (i=0; i<3; i++) s[i] = p2[i] - p1[i];
+          for (i=0; i<3; i++)
+            {
+            pPrev[i] = p[i];
+            p[i] = pNext[i];
+            }
+          pts->GetPoint(linePts[j+1],pNext);
 
-      if ( (s_norm = math.Norm(s)) == 0.0 ) return 0;
-      for (i=0; i<3; i++) s[i] /= s_norm;
+          for (i=0; i<3; i++) 
+            {
+            sPrev[i] = sNext[i];
+            sNext[i] = pNext[i] - p[i];
+            }
 
-      n = normals->GetNormal(j-1);
+          if ( math.Normalize(sNext) == 0.0 ) return 0;
 
-      math.Cross(s,n,q);
+          //compute rotation vector
+          math.Cross(sPrev,normal,w);
+          if ( math.Normalize(w) == 0.0 ) return 0;
 
-      if ( (q_norm = math.Norm(q)) == 0.0 ) return 0;
-      for (i=0; i<3; i++) q[i] /= q_norm;
+          //see whether we rotate greater than 90 degrees.
+          if ( math.Dot(sPrev,sNext) < 0.0 ) largeRotation = 1;
+          else largeRotation = 0;
 
-      math.Cross (q, s, norm);
-      n_norm = math.Norm(norm);
-      for (i=0; i<3; i++) norm[i] /= n_norm;
-      normals->InsertNormal(j,norm);
-      }
-    }
+          //compute rotation of line segment
+          math.Cross (sNext, sPrev, q);
+          if ( (theta=asin((double)math.Normalize(q))) == 0.0 ) 
+            { //no rotation, use previous normal
+            normals->InsertNormal(linePts[j],normal);
+            continue;
+            }
+          if ( largeRotation )
+            {
+            if ( theta > 0.0 ) theta = math.Pi() - theta;
+            else theta = -math.Pi() - theta;
+            }
+
+          //compute projection of rotation of line segment onto rotation vector
+          theta *= math.Dot(q,w) / 2.0;
+
+          //compute new normal
+          for (i=0; i<3; i++) normal[i] = normal[i]*cos((double)theta) + 
+                                          sPrev[i]*sin((double)theta);
+          math.Normalize(normal);
+          normals->InsertNormal(linePts[j],normal);
+
+          }//for this point
+        }//else
+      }//else if
+    }//for this line
   return 1;
+
 }
 
 int vlPolyLine::EvaluatePosition(float x[3], float closestPoint[3],
@@ -146,6 +386,25 @@ void vlPolyLine::EvaluateLocation(int& subId, float pcoords[3], float x[3],
     {
     x[i] = a1[i] + pcoords[0]*(a2[i] - a1[i]);
     }
+}
+
+int vlPolyLine::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  pts.Reset();
+
+  if ( pcoords[0] >= 0.5 )
+    {
+    pts.SetId(0,this->PointIds.GetId(subId+1));
+    if ( pcoords[0] > 1.0 ) return 0;
+    else return 1;
+    }
+  else
+    {
+    pts.SetId(0,this->PointIds.GetId(subId));
+    if ( pcoords[0] < 0.0 ) return 0;
+    else return 1;
+    }
+
 }
 
 void vlPolyLine::Contour(float value, vlFloatScalars *cellScalars,

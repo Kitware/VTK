@@ -63,10 +63,10 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
   iteration++) 
     {
 //
-//  calculate element shape functions and derivatives
+//  calculate element interpolation functions and derivatives
 //
-    this->ShapeFunctions(pcoords, weights);
-    this->ShapeDerivs(pcoords, derivs);
+    this->InterpolationFunctions(pcoords, weights);
+    this->InterpolationDerivs(pcoords, derivs);
 //
 //  calculate newton functions
 //
@@ -155,9 +155,9 @@ int vlHexahedron::EvaluatePosition(float x[3], float closestPoint[3],
     }
 }
 //
-// Compute iso-parametrix shape functions
+// Compute iso-parametrix interpolation functions
 //
-void vlHexahedron::ShapeFunctions(float pcoords[3], float sf[8])
+void vlHexahedron::InterpolationFunctions(float pcoords[3], float sf[8])
 {
   double rm, rp, sm, sp, tm, tp;
 
@@ -178,7 +178,7 @@ void vlHexahedron::ShapeFunctions(float pcoords[3], float sf[8])
   sf[7] = 0.125*rm*sp*tp;
 }
 
-void vlHexahedron::ShapeDerivs(float pcoords[3], float derivs[24])
+void vlHexahedron::InterpolationDerivs(float pcoords[3], float derivs[24])
 {
   double rm, rp, sm, sp, tm, tp;
 
@@ -222,7 +222,7 @@ void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
   float *pt, pc[3];
 
   for (i=0;i<3;i++) pc[i] = 2.0*pcoords[i] - 1.0; //shift to -1<=r,s,t<=1
-  this->ShapeFunctions(pc, weights);
+  this->InterpolationFunctions(pc, weights);
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
@@ -233,6 +233,75 @@ void vlHexahedron::EvaluateLocation(int& subId, float pcoords[3], float x[3],
       x[j] += pt[j] * weights[i];
       }
     }
+}
+
+int vlHexahedron::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  float t1=pcoords[0]-pcoords[1];
+  float t2=1.0-pcoords[0]-pcoords[1];
+  float t3=pcoords[1]-pcoords[2];
+  float t4=1.0-pcoords[1]-pcoords[2];
+  float t5=pcoords[2]-pcoords[0];
+  float t6=1.0-pcoords[2]-pcoords[0];
+
+  pts.Reset();
+
+  // compare against six planes in parametric space that divide element
+  // into six pieces.
+  if ( t3 >= 0.0 && t4 >= 0.0 && t5 < 0.0 && t6 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(2,this->PointIds.GetId(2));
+    pts.SetId(3,this->PointIds.GetId(3));
+    }
+
+  else if ( t1 >= 0.0 && t2 < 0.0 && t5 < 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(1));
+    pts.SetId(1,this->PointIds.GetId(2));
+    pts.SetId(2,this->PointIds.GetId(6));
+    pts.SetId(3,this->PointIds.GetId(5));
+    }
+
+  else if ( t1 >= 0.0 && t2 >= 0.0 && t3 < 0.0 && t4 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(1));
+    pts.SetId(2,this->PointIds.GetId(5));
+    pts.SetId(3,this->PointIds.GetId(4));
+    }
+
+  else if ( t3 < 0.0 && t4 < 0.0 && t5 >= 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(4));
+    pts.SetId(1,this->PointIds.GetId(5));
+    pts.SetId(2,this->PointIds.GetId(6));
+    pts.SetId(3,this->PointIds.GetId(7));
+    }
+
+  else if ( t1 < 0.0 && t2 >= 0.0 && t5 >= 0.0 && t6 >= 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(0));
+    pts.SetId(1,this->PointIds.GetId(4));
+    pts.SetId(2,this->PointIds.GetId(7));
+    pts.SetId(3,this->PointIds.GetId(3));
+    }
+
+  else // if ( t1 < 0.0 && t2 < 0.0 && t3 >= 0.0 && t6 < 0.0 )
+    {
+    pts.SetId(0,this->PointIds.GetId(2));
+    pts.SetId(1,this->PointIds.GetId(3));
+    pts.SetId(2,this->PointIds.GetId(7));
+    pts.SetId(3,this->PointIds.GetId(6));
+    }
+
+
+  if ( pcoords[0] < 0.0 || pcoords[0] > 1.0 ||
+  pcoords[1] < 0.0 || pcoords[1] > 1.0 || pcoords[2] < 0.0 || pcoords[2] > 1.0 )
+    return 0;
+  else
+    return 1;
 }
 
 static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {3,0},

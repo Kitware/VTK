@@ -659,6 +659,11 @@ void vlPolygon::SplitLoop (int fedges[2], int numVerts, int *verts,
   return;
 }
 
+int vlPolygon::CellBoundary(int subId, float pcoords[3], vlIdList& pts)
+{
+  return 0;
+}
+
 void vlPolygon::Contour(float value, vlFloatScalars *cellScalars, 
                         vlFloatPoints *points,
                         vlCellArray *verts, vlCellArray *lines, 

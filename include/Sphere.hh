@@ -13,7 +13,7 @@ without the express written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-// .NAME vlSphere - implicit function of a sphere
+// .NAME vlSphere - implicit function for a sphere
 // .SECTION Description
 // vlSphere computes the implicit function and surface normal for a sphere.
 // vlSphere is a concrete implementation of vlImplicitFunction.
@@ -28,6 +28,7 @@ class vlSphere : public vlImplicitFunction
 public:
   vlSphere();
   char *GetClassName() {return "vlSphere";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   // ImplicitFunction interface
   float Evaluate(float x, float y, float z);
@@ -36,12 +37,12 @@ public:
   vlSetMacro(Radius,float);
   vlGetMacro(Radius,float);
 
-  vlSetVector3Macro(Origin,float);
-  vlGetVectorMacro(Origin,float,3);
+  vlSetVector3Macro(Center,float);
+  vlGetVectorMacro(Center,float,3);
 
 protected:
   float Radius;
-  float Origin[3];
+  float Center[3];
 
 };
 

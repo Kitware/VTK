@@ -31,6 +31,7 @@ class vlPlane : public vlImplicitFunction
 public:
   vlPlane();
   char *GetClassName() {return "vlPlane";};
+  void PrintSelf(ostream& os, vlIndent indent);
 
   // project point onto plane, returning coordinates
   void ProjectPoint(float x[3], float origin[3], float normal[3], float xproj[3]);

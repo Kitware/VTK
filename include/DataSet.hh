@@ -92,8 +92,10 @@ public:
   // Locate cell based on global coordinate x and tolerance squared. If
   // cell is non-NULL, then search starts from this cell and looks at 
   // immediate neighbors. Returns cellId >= 0 if inside, < 0 otherwise.
-  // The parametric coordinates are provided in pcoords[3].
-  virtual int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3]) = 0;
+  // The parametric coordinates are provided in pcoords[3]. The interpolation
+  // weights are returned in weights[]. Tolerance is used to control how close
+  // the point is to be considered "in" the cell.
+  virtual int FindCell(float x[3], vlCell *cell, float tol2, int& subId, float pcoords[3], float weights[MAX_CELL_SIZE]) = 0;
 
   // Datasets are composite objects and need to check each part for MTime
   unsigned long int GetMTime();
