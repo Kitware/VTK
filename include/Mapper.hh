@@ -39,6 +39,9 @@ public:
   char *GetClassName() {return "vlMapper";};
   void PrintSelf(ostream& os, vlIndent indent);
   void operator=(const vlMapper& m);
+
+  unsigned long int GetMTime();
+
   void SetStartRender(void (*f)(void *), void *arg);
   void SetEndRender(void (*f)(void *), void *arg);
 
@@ -59,7 +62,7 @@ public:
   vlGetObjectMacro(LookupTable,vlLookupTable);
 
   // Description:
-  // Set flag to control whether scalar data is used to color objects.
+  // Turn on/off flag to control whether scalar data is used to color objects.
   vlSetMacro(ScalarsVisible,int);
   vlGetMacro(ScalarsVisible,int);
   vlBooleanMacro(ScalarsVisible,int);

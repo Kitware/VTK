@@ -30,6 +30,9 @@ vlCutter::~vlCutter()
   if ( this->CutFunction ) this->CutFunction->UnRegister(this);
 }
 
+// Description:
+// Overload standard modified time function. If cut functions is modified,
+// then we are modified as well.
 unsigned long vlCutter::GetMTime()
 {
   unsigned long mTime=this->MTime.GetMTime();

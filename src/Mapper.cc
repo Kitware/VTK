@@ -38,6 +38,23 @@ vlMapper::~vlMapper()
     }
 }
 
+// Description:
+// Overload standard modified time function. If cut functions is modified,
+// then we are modified as well.
+unsigned long vlMapper::GetMTime()
+{
+  unsigned long mTime=this->MTime.GetMTime();
+  unsigned long lutMTime;
+
+  if ( this->LookupTable != NULL )
+    {
+    lutMTime = this->LookupTable->GetMTime();
+    mTime = ( lutMTime > mTime ? lutMTime : mTime );
+    }
+
+  return mTime;
+}
+
 void vlMapper::operator=(const vlMapper& m)
 {
   this->SetLookupTable(m.LookupTable);
