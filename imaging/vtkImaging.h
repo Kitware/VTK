@@ -105,3 +105,4 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPNMReader.h"
 #include "vtkPNMWriter.h"
 #include "vtkTIFFWriter.h"
+#include "vtkScalarBarActor.h"
