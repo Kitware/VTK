@@ -88,14 +88,14 @@ vtkLargeInteger::vtkLargeInteger(void)
 {
     number = new char[BIT_INCREMENT];
     number[0] = 0;
-    negative = false;
+    negative = 0;
     max = BIT_INCREMENT - 1;
     sig = 0;
 }
 
 vtkLargeInteger::vtkLargeInteger(long n)
 {
-    negative = n < 0 ? true : false;
+    negative = n < 0 ? 1 : 0;
     n = n < 0 ? -n : n; // strip of sign
     number = new char[BIT_INCREMENT];
     for (int i = 0; i < BIT_INCREMENT; i++)
@@ -177,7 +177,7 @@ int vtkLargeInteger::bit(unsigned int p) const
     if (p <= sig) // check if within current size
         return number[p];
     else
-        return false;
+        return 0;
 }
 
 int vtkLargeInteger::zero(void) const
@@ -196,7 +196,7 @@ void vtkLargeInteger::truncate(unsigned int n)
         {
         sig = 0;
         number[0] = 0;
-        negative = false;
+        negative = 0;
         }
     else if (sig > n - 1) // or chop down
         {
@@ -214,13 +214,13 @@ void vtkLargeInteger::complement(void)
 int vtkLargeInteger::operator==(const vtkLargeInteger& n) const
 {
     if (sig != n.sig) // check size
-        return false;
+        return 0;
     if (negative != n.negative) // check sign
-        return false;
+        return 0;
     for (int i = sig; i >= 0; i--)
         if (number[i] != n.number[i]) // check bits
-            return false;
-    return true;
+            return 0;
+    return 1;
 }
 
 int vtkLargeInteger::operator!=(const vtkLargeInteger& n) const
@@ -231,37 +231,37 @@ int vtkLargeInteger::operator!=(const vtkLargeInteger& n) const
 int vtkLargeInteger::smaller(const vtkLargeInteger& n) const
 {
     if (sig < n.sig) // check size
-        return true;
+        return 1;
     else if (sig > n.sig) // check sign
-        return false;
+        return 0;
     for (int i = sig; i >= 0; i--)
         if (number[i] < n.number[i]) // check bits
-            return true;
+            return 1;
         else if (number[i] > n.number[i])
-            return false;
-    return false;
+            return 0;
+    return 0;
 }
 
 int vtkLargeInteger::greater(const vtkLargeInteger& n) const
 {
     if (sig > n.sig) // check size
-        return true;
+        return 1;
     else if (sig < n.sig) // check sign
-        return false;
+        return 0;
     for (int i = sig; i >= 0; i--)
         if (number[i] > n.number[i]) // check bits
-            return true;
+            return 1;
         else if (number[i] < n.number[i])
-            return false;
-    return false;
+            return 0;
+    return 0;
 }
 
 int vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
     if (negative & !n.negative) // try to make judgement using signs
-        return true;
+        return 1;
     else if (!negative & n.negative)
-        return false;
+        return 0;
     else if (negative)
         return !smaller(n);
     else
@@ -357,7 +357,7 @@ void vtkLargeInteger::minus(const vtkLargeInteger& n)
 
 vtkLargeInteger& vtkLargeInteger::operator+=(const vtkLargeInteger& n)
 {
-    if ((negative ^ n.negative) == false) // cope with negatives
+    if ((negative ^ n.negative) == 0) // cope with negatives
         this->plus(n);
     else
         {
@@ -370,14 +370,14 @@ vtkLargeInteger& vtkLargeInteger::operator+=(const vtkLargeInteger& n)
         else
             this->minus(n);
         if (zero())
-            negative = false;
+            negative = 0;
         }
     return *this;
 }
 
 vtkLargeInteger& vtkLargeInteger::operator-=(const vtkLargeInteger& n)
 {
-    if ((negative ^ n.negative) == true) // cope with negatives
+    if ((negative ^ n.negative) == 1) // cope with negatives
         this->plus(n);
     else
         {
@@ -391,7 +391,7 @@ vtkLargeInteger& vtkLargeInteger::operator-=(const vtkLargeInteger& n)
         else
             this->minus(n);
         if (zero())
-            negative = false;
+            negative = 0;
         }
     return *this;
 }
@@ -431,7 +431,7 @@ vtkLargeInteger& vtkLargeInteger::operator>>=(int n)
         number[0] = 0;
         }
     if (zero())
-        negative = false;
+        negative = 0;
     return *this;
 }
 
@@ -484,7 +484,7 @@ vtkLargeInteger& vtkLargeInteger::operator*=(const vtkLargeInteger& n)
             }
         }
     if (c.zero()) // check negatives
-        c.negative = false;
+        c.negative = 0;
     else
         c.negative = negative ^ n.negative;
     *this = c;
@@ -509,7 +509,7 @@ vtkLargeInteger& vtkLargeInteger::operator/=(const vtkLargeInteger& n)
         m >>= 1; // shrink chunk down
         }
     if (c.zero()) // check negatives
-        c.negative = false;
+        c.negative = 0;
     else
         c.negative = negative ^ n.negative;
     *this = c;
@@ -529,7 +529,7 @@ vtkLargeInteger& vtkLargeInteger::operator%=(const vtkLargeInteger& n)
         m >>= 1; // shrink chunk down
         }
     if (zero())
-        negative = false;
+        negative = 0;
     return *this;
 }
 
