@@ -122,9 +122,9 @@ public:
 
   // Description:
   // Called when the scene reaches the end.
-  // Default implementation does nothing.
-  // However, the derrved classes can override, if necessary.
-  virtual void Finalize() { }
+  // If the cue state is ACTIVE when this method is called, this will
+  // trigger a EndAnimationCueEvent.
+  virtual void Finalize();
 
 protected:
   vtkAnimationCue();

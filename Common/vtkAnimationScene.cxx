@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.3");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.4");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -97,9 +97,8 @@ void vtkAnimationScene::SetTimeMode(int mode)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnimationScene::Initialize()
+void vtkAnimationScene::InitializeChildren()
 {
-  this->Superclass::Initialize();
   // run thr all the cues and init them.
   vtkCollectionIterator *it = this->AnimationCuesIterator;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
@@ -114,9 +113,8 @@ void vtkAnimationScene::Initialize()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnimationScene::Finalize()
+void vtkAnimationScene::FinalizeChildren()
 {
-  this->Superclass::Finalize();
   vtkCollectionIterator *it = this->AnimationCuesIterator;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
     {
@@ -132,6 +130,7 @@ void vtkAnimationScene::Finalize()
 //----------------------------------------------------------------------------
 void vtkAnimationScene::Play()
 {
+  cout << "LOOP: " << this->Loop << endl;
   if (this->InPlay)
     {
     return;
@@ -165,7 +164,7 @@ void vtkAnimationScene::Play()
   this->AnimationTimer->StartTimer();
   do
     {
-    this->Initialize();
+    this->Initialize(); // Set the Scene in unintialized mode.
     do
       {
       currenttime = clocktime - time_adjustment;
@@ -191,7 +190,6 @@ void vtkAnimationScene::Play()
       deltatime = (deltatime < 0)? -1*deltatime : deltatime;
       }
     while (!this->StopPlay && this->CueState != vtkAnimationCue::INACTIVE);
-    this->Finalize();
     time_adjustment += span;
     }
   while (this->Loop && !this->StopPlay);
@@ -236,6 +234,20 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime)
       }
     }
   this->Superclass::TickInternal(currenttime, deltatime);
+}
+
+//----------------------------------------------------------------------------
+void vtkAnimationScene::StartCueInternal()
+{
+  this->Superclass::StartCueInternal();
+  this->InitializeChildren();
+}
+
+//----------------------------------------------------------------------------
+void vtkAnimationScene::EndCueInternal()
+{
+  this->FinalizeChildren();
+  this->Superclass::EndCueInternal();
 }
 
 //----------------------------------------------------------------------------

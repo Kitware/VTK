@@ -91,17 +91,6 @@ public:
   virtual void SetTimeMode(int mode);
 
   // Description:
-  // Called when the playing of the scene begins.
-  // Triggers Initialize on all contained cues.
-  virtual void Initialize();
-
-  
-  // Description:
-  // Called when the scene reaches the end.
-  // Triggers Finalize on all contained cues.
-  virtual void Finalize();
-
-  // Description:
   // Returns if the animation is being played.
   int IsInPlay() { return this->InPlay; } 
 protected:
@@ -112,7 +101,11 @@ protected:
   // Called on every valid tick.
   // Calls ticks on all the contained cues.
   virtual void TickInternal(double currenttime, double deltatime);
+  virtual void StartCueInternal();
+  virtual void EndCueInternal();
 
+  void InitializeChildren();
+  void FinalizeChildren();
   
   int PlayMode;
   double FrameRate;
