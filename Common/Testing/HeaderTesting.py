@@ -153,8 +153,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*implemented(\.)*" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*void\s*operator=\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*implemented(\.)*" % self.ClassName
+        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % ( self.ClassName, self.ClassName)
+        asgnoperator = "^\s*void\s*operator=\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % self.ClassName
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
@@ -172,7 +172,7 @@ class TestVTKFiles:
                         self.FileName )
             self.Print( "Should be:\n%s(const %s&); // Not implemented" %
                         (self.ClassName, self.ClassName) )
-            self.Error("No copy constructor")
+            self.Error("No private copy constructor")
         if foundcopy > 1:
             self.Print( "File: %s defines multiple copy constructors" %
                         self.FileName )
@@ -182,7 +182,7 @@ class TestVTKFiles:
                         self.FileName )
             self.Print( "Should be:\nvoid operator=(const %s&); // Not implemented"
                         % self.ClassName )
-            self.Error("No assignment operator")
+            self.Error("No private assignment operator")
         if foundcopy > 1:
             self.Print( "File: %s defines multiple assignment operators" %
                         self.FileName )
