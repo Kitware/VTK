@@ -68,6 +68,14 @@ public:
   void SetDimensionality(int dim);
   vtkGetMacro(Dimensionality,int);
 
+#ifndef VTK_REMOVE_LEGACY_CODE
+  // Description:
+  // Obsolete legacy methods.
+  void SetFilteredAxes(int axis0);
+  void SetFilteredAxes(int axis0, int axis2);
+  void SetFilteredAxes(int axis0, int axis2, int axis3);
+#endif
+
   // Description:
   // Private methods kept public for template execute functions.
   void PermuteIncrements(int *increments, int &inc0, int &inc1, int &inc2);
