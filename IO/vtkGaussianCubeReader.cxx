@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.8");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.9");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -170,6 +170,50 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
   os << "Filename: " << (this->FileName?this->FileName:"<null>") << "\n";
   os << indent << "Xform: ";
   //os << indent << this->Transform->PrintSelf(os, indent);
+}
+
+// Default implementation - copy information from first input to all outputs
+void vtkGaussianCubeReader::ExecuteInformation()
+{
+  // first invoke default supoerclass method
+  this->Superclass::ExecuteInformation();
+
+  // the set the information for the imagedat output
+  vtkImageData *grid = this->GetGridOutput();
+  FILE *fp;
+  char Title[256];
+  
+  if (!this->FileName)
+    {
+    return;
+    }
+  
+  if ((fp = fopen(this->FileName, "r")) == NULL)
+    {
+    vtkErrorMacro(<< "File " << this->FileName << " not found");
+    return;
+    }
+  
+  fgets(Title, 256, fp);
+  fgets(Title, 256, fp);
+
+  // Read in number of atoms, x-origin, y-origin z-origin
+  double tmpd;
+  int n1, n2, n3;
+  fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
+  
+  fscanf(fp, "%d %lf %lf %lf", &n1, &tmpd, &tmpd, &tmpd);
+  fscanf(fp, "%d %lf %lf %lf", &n2, &tmpd, &tmpd, &tmpd);
+  fscanf(fp, "%d %lf %lf %lf", &n3, &tmpd, &tmpd, &tmpd);
+  
+  vtkDebugMacro(<< "Grid Size " << n1 << " " << n2 << " " << n3);
+  grid->SetWholeExtent(0, n1-1, 0, n2-1, 0, n3-1);
+
+  grid->SetOrigin(0, 0, 0);
+  grid->SetSpacing(1, 1, 1);
+  grid->SetScalarTypeToFloat();
+
+  fclose(fp);
 }
 
 //----------------------------------------------------------------------------

@@ -49,6 +49,7 @@ protected:
   vtkTransform *Transform;
 
   void Execute();
+  void ExecuteInformation();
   
   void ReadSpecificMolecule(FILE* fp);
 
