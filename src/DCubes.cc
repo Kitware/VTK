@@ -14,6 +14,8 @@ Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994
 
 =========================================================================*/
 #include "DCubes.hh"
+#include "vlMath.hh"
+#include "Voxel.hh"
 
 vlDividingCubes::vlDividingCubes()
 {
@@ -23,16 +25,24 @@ vlDividingCubes::vlDividingCubes()
   this->Count = 0;
 }
 
+static float X[3]; //origin of current voxel
+static float Ar[3]; //aspect ratio of current voxel
+static float Normals[8][3]; //voxel normals
+static vlFloatPoints *NewPts; //points being generated
+static vlFloatNormals *NewNormals; //points being generated
+static vlCellArray *NewVerts; //verts being generated
+
 void vlDividingCubes::Execute()
 {
-  int i, j, k, idx;
+  int i, j, k, idx, ii;
   vlScalars *inScalars;
   vlIdList voxelPts(8);
   vlFloatScalars voxelScalars(8);
-  float ar[3], origin[3], x[3];
+  float origin[3];
   int dim[3], jOffset, kOffset, sliceSize;
   int above, below, vertNum;
   vlStructuredPoints *input=(vlStructuredPoints *)this->Input;
+  vlMath math;
 
   vlDebugMacro(<< "Executing dividing cubes...");
 //
@@ -55,12 +65,13 @@ void vlDividingCubes::Execute()
     return;
     }
   input->GetDimensions(dim);
-  input->GetAspectRatio(ar);
+  input->GetAspectRatio(Ar);
   input->GetOrigin(origin);
 
   // creating points
-  this->NewPts = new vlFloatPoints(25000,50000);
-  this->NewVerts = new vlCellArray(25000,50000);
+  NewPts = new vlFloatPoints(500000,1000000);
+  NewNormals = new vlFloatNormals(500000,1000000);
+  NewVerts = new vlCellArray(500000,1000000);
 //
 // Loop over all cells checking to see which straddle the specified value. Since
 // we know that we are working with a volume, can create appropriate data directly.
@@ -69,17 +80,17 @@ void vlDividingCubes::Execute()
   for ( k=0; k < (dim[2]-1); k++)
     {
     kOffset = k*sliceSize;
-    x[2] = origin[2] + k*ar[2];
+    X[2] = origin[2] + k*Ar[2];
 
     for ( j=0; j < (dim[1]-1); j++)
       {
       jOffset = j*dim[0];
-      x[1] = origin[1] + j*ar[1];
+      X[1] = origin[1] + j*Ar[1];
 
       for ( i=0; i < (dim[0]-1); i++)
         {
         idx  = i + jOffset + kOffset;
-        x[0] = origin[0] + i*ar[0];
+        X[0] = origin[0] + i*Ar[0];
 
         // get point ids of this voxel
         voxelPts.SetId(0, idx);
@@ -103,18 +114,30 @@ void vlDividingCubes::Execute()
             below = 1;
 
           if ( above && below ) // recursively generate points
-            {
-            this->SubDivide(x, ar, voxelScalars.GetPtr(0));
+            { //compute voxel normals and subdivide
+            input->GetPointGradient(i,j,k, inScalars, Normals[0]);
+            input->GetPointGradient(i+1,j,k, inScalars, Normals[1]);
+            input->GetPointGradient(i,j+1,k, inScalars, Normals[2]);
+            input->GetPointGradient(i+1,j+1,k, inScalars, Normals[3]);
+            input->GetPointGradient(i,j,k+1, inScalars, Normals[4]);
+            input->GetPointGradient(i+1,j,k+1, inScalars, Normals[5]);
+            input->GetPointGradient(i,j+1,k+1, inScalars, Normals[6]);
+            input->GetPointGradient(i+1,j+1,k+1, inScalars, Normals[7]);
+	    for (ii=0; ii<8; ii++) math.Normalize(Normals[ii]);
+
+            this->SubDivide(X, Ar, voxelScalars.GetPtr(0));
             }
           }
         }
       }
     }
+  vlDebugMacro(<< "Created " << NewPts->GetNumberOfPoints() << "points");
 //
 // Update ourselves
 //
-  this->SetPoints(this->NewPts);
-  this->SetVerts(this->NewVerts);
+  this->SetPoints(NewPts);
+  this->SetVerts(NewVerts);
+  this->GetPointData()->SetNormals(NewNormals);
   this->Squeeze();
 }
 
@@ -138,16 +161,27 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
   if ( h[0] < this->Distance && h[1] < this->Distance && h[2] < this->Distance )
     {
     int i, pts[1];
-    float x[3];
+    float x[3], n[3];
+    float p[3], w[8];
+    static vlVoxel voxel;
 
     for (i=0; i <3; i++) x[i] = origin[i] + hNew[i];
 
     if ( ! (this->Count++ % this->Increment) ) //add a point
       {
-      pts[0] = this->NewPts->InsertNextPoint(x);
-      this->NewVerts->InsertNextCell(1,pts);
+      pts[0] = NewPts->InsertNextPoint(x);
+      NewVerts->InsertNextCell(1,pts);
+      for (i=0; i<3; i++) p[i] = (x[i] - X[i]) / Ar[i];
+      voxel.InterpolationFunctions(p,w);
+      for (n[0]=n[1]=n[2]=0.0, i=0; i<8; i++)
+	{
+	n[0] += Normals[i][0]*w[i];
+	n[1] += Normals[i][1]*w[i];
+	n[2] += Normals[i][2]*w[i];
+	}
+      NewNormals->InsertNormal(pts[0],n);
       }
-
+    
     return;
     }
 
@@ -155,7 +189,7 @@ void vlDividingCubes::SubDivide(float origin[3], float h[3], float values[8])
   else
     {
     int j, k, idx, above, below, ii;
-    float x[2];
+    float x[3];
     float newValues[8];
     float s[27], scalar;
 

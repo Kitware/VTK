@@ -62,8 +62,6 @@ protected:
 
   // wworking variables
   int Count;
-  vlFloatPoints *NewPts;
-  vlCellArray *NewVerts;
 };
 
 #endif
