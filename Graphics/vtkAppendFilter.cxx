@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.64");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.65");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //-----  This hack needed to compile using gcc3 on OSX until new stdc++.dylib
@@ -171,9 +171,9 @@ void vtkAppendFilter::Execute()
       }//if non-empty dataset
     }//for all inputs
 
-  if ( numPts < 1 || numCells < 1 )
+  if ( numPts < 1)
     {
-    vtkErrorMacro(<<"No data to append!");
+    //vtkErrorMacro(<<"No data to append!");
     return;
     }
   
@@ -192,55 +192,60 @@ void vtkAppendFilter::Execute()
   tenth = (numPts + numCells)/10 + 1;
   ptOffset=0;
   cellOffset=0;
+  int inputCount = 0; // Since empty inputs are not in the list.
   for (idx = 0; idx < this->NumberOfInputs && !abort; ++idx)
     {
     ds = (vtkDataSet *)(this->Inputs[idx]);
-    if (ds != NULL)
+    if ( ds->GetNumberOfPoints() > 0 && ds->GetNumberOfCells() > 0 )
       {
-      numPts = ds->GetNumberOfPoints();
-      numCells = ds->GetNumberOfCells();
-      pd = ds->GetPointData();
-      
-      // copy points and point data
-      for (ptId=0; ptId < numPts && !abort; ptId++)
+      if (ds != NULL)
         {
-        newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
-        outputPD->CopyData(ptList,pd,idx,ptId,ptId+ptOffset);
-
-        // Update progress
-        count++;
-        if ( !(count % tenth) ) 
-          {
-          decimal += 0.1;
-          this->UpdateProgress (decimal);
-          abort = this->GetAbortExecute();
-          }
-        }
+        numPts = ds->GetNumberOfPoints();
+        numCells = ds->GetNumberOfCells();
+        pd = ds->GetPointData();
       
-      cd = ds->GetCellData();
-      // copy cell and cell data
-      for (cellId=0; cellId < numCells && !abort; cellId++)
-        {
-        ds->GetCellPoints(cellId, ptIds);
-        newPtIds->Reset ();
-        for (i=0; i < ptIds->GetNumberOfIds(); i++)
+        // copy points and point data
+        for (ptId=0; ptId < numPts && !abort; ptId++)
           {
-          newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
-          }
-        newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
-        outputCD->CopyData(cellList,cd,idx,cellId,newCellId);
+          newPts->SetPoint(ptId+ptOffset,ds->GetPoint(ptId));
+          outputPD->CopyData(ptList,pd,inputCount,ptId,ptId+ptOffset);
 
-        // Update progress
-        count++;
-        if ( !(count % tenth) ) 
-          {
-          decimal += 0.1;
-          this->UpdateProgress (decimal);
-          abort = this->GetAbortExecute();
+         // Update progress
+          count++;
+          if ( !(count % tenth) ) 
+            {
+            decimal += 0.1;
+            this->UpdateProgress (decimal);
+            abort = this->GetAbortExecute();
+            }
           }
+      
+        cd = ds->GetCellData();
+        // copy cell and cell data
+        for (cellId=0; cellId < numCells && !abort; cellId++)
+          {
+          ds->GetCellPoints(cellId, ptIds);
+          newPtIds->Reset ();
+          for (i=0; i < ptIds->GetNumberOfIds(); i++)
+            {
+            newPtIds->InsertId(i,ptIds->GetId(i)+ptOffset);
+            }
+          newCellId = output->InsertNextCell(ds->GetCellType(cellId),newPtIds);
+          outputCD->CopyData(cellList,cd,inputCount,cellId,newCellId);
+
+          // Update progress
+          count++;
+          if ( !(count % tenth) ) 
+            {
+            decimal += 0.1;
+            this->UpdateProgress (decimal);
+            abort = this->GetAbortExecute();
+            }
+          }
+        ptOffset+=numPts;
+        cellOffset+=numCells;
         }
-      ptOffset+=numPts;
-      cellOffset+=numCells;
+      ++inputCount;
       }
     }
   
