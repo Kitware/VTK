@@ -141,6 +141,11 @@ public:
   vtkGetMacro(OffScreenRendering,int);
   vtkBooleanMacro(OffScreenRendering,int);
 
+  // Description:
+  // Make the window current. May be overridden in subclasses to do
+  // for example a glXMakeCurrent or a wglMakeCurrent.
+  virtual void MakeCurrent() {};
+
 protected:
   int OffScreenRendering;
   vtkWindow();

@@ -157,6 +157,11 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
+  // Description:
+  // Make this window current. Overridden in subclasses to do, for
+  // example, glXMakeCurrent or wglMakeCurrent
+  virtual void MakeCurrent() {};
+
 protected:
   vtkImageWindow();
   ~vtkImageWindow();

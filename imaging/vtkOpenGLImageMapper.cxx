@@ -489,6 +489,10 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     return;
     }
 
+  // Make this window current. May have become not current due to
+  // data updates since the render started.
+  window->MakeCurrent();
+
   // Determine the size of the displayed data.
   int* extent = this->Input->GetUpdateExtent();
   
