@@ -35,7 +35,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.28");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.29");
 vtkStandardNewMacro(vtkCompositeManager);
 
 // Structures to communicate render info.
@@ -763,6 +763,7 @@ void vtkCompositeManager::EndRender()
 void vtkCompositeManager::ResetCamera(vtkRenderer *ren)
 {
   float bounds[6];
+  vtkCamera *cam;
 
   if (this->Controller == NULL || this->Lock)
     {
@@ -772,6 +773,17 @@ void vtkCompositeManager::ResetCamera(vtkRenderer *ren)
   this->Lock = 1;
   
   this->ComputeVisiblePropBounds(ren, bounds);
+  // Keep from setting camera from some outrageous value.
+  if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+    {
+    // See if the not pickable values are better.
+    ren->ComputeVisiblePropBounds(bounds);
+    if (bounds[0]>bounds[1] || bounds[2]>bounds[3] || bounds[4]>bounds[5])
+      {
+      this->Lock = 0;
+      return;
+      }
+    }
   ren->ResetCamera(bounds);
   
   this->Lock = 0;
