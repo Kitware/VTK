@@ -51,7 +51,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // The operators work as follows. The VTK_UNION operator takes the minimum
 // value of all implicit functions. The VTK_INTERSECTION operator takes the
 // maximum value of all implicit functions. The VTK_DIFFERENCE operator
-// substracts the 2cnd through last implicit functions from the first.
+// subtracts the 2nd through last implicit functions from the first.
 
 
 #ifndef __vtkImplicitBoolean_h
