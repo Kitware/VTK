@@ -135,11 +135,9 @@ int vtkEnSight6Reader::ReadGeometryFile()
                   << "vtkEnSight6BinaryReader.");
     return 0;
     }
-  //this->ReadNextDataLine(line);
   this->ReadLine(line);
   
   // Read the node id and element id lines.
-  //this->ReadNextDataLine(line);
   this->ReadLine(line);
   sscanf(line, " %*s %*s %s", subLine);
   if (strcmp(subLine, "given") == 0)
@@ -161,8 +159,6 @@ int vtkEnSight6Reader::ReadGeometryFile()
   for (i = 0; i < this->NumberOfUnstructuredPoints; i++)
     {
     this->ReadNextDataLine(line);
-//    if (sscanf(line, " %d %f %f %f", &pointId, &point[0], &point[1],
-//               &point[2]) == 4)
     if (sscanf(line, " %s %s %s %s", tempLine1, tempLine2, tempLine3, tempLine4) == 4)
       {
       pointId = atoi(tempLine1);
@@ -190,7 +186,6 @@ int vtkEnSight6Reader::ReadGeometryFile()
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing at 1.
     
-    //this->ReadNextDataLine(line);
     this->ReadLine(line); // part description line
     lineRead = this->ReadNextDataLine(line);
     
@@ -422,7 +417,6 @@ int vtkEnSight6Reader::ReadVectorsPerNode(char* fileName, char* description)
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
 
   this->ReadNextDataLine(line); // 1st data line or part #
@@ -570,7 +564,6 @@ int vtkEnSight6Reader::ReadTensorsPerNode(char* fileName, char* description)
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
 
   lineRead = this->ReadNextDataLine(line); // 1st data line or part #
@@ -874,7 +867,6 @@ int vtkEnSight6Reader::ReadVectorsPerElement(char* fileName,
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadNextDataLine(line); // "part"
   
@@ -1027,7 +1019,6 @@ int vtkEnSight6Reader::ReadTensorsPerElement(char* fileName,
     return 0;
     }
 
-  //this->ReadNextDataLine(line);
   this->ReadLine(line); // skip the description line
   lineRead = this->ReadNextDataLine(line); // "part"
   

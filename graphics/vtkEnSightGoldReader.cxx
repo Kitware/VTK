@@ -807,19 +807,19 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
       for (i = 0; i < numPts; i++)
         {
         this->ReadNextDataLine(line);
-        points->InsertNextPoint(atoi(line), 0, 0);
+        points->InsertNextPoint(atof(line), 0, 0);
         }
       for (i = 0; i < numPts; i++)
         {
         this->ReadNextDataLine(line);
         points->GetPoint(i, point);
-        points->SetPoint(i, point[0], atoi(line), 0);
+        points->SetPoint(i, point[0], atof(line), 0);
         }
       for (i = 0; i < numPts; i++)
         {
         this->ReadNextDataLine(line);
         points->GetPoint(i, point);
-        points->SetPoint(i, point[0], point[1], atoi(line));
+        points->SetPoint(i, point[0], point[1], atof(line));
         }
       
       lineRead = this->ReadNextDataLine(line);
@@ -830,7 +830,7 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         for (i = 0; i < numPts; i++)
           {
           points->GetPoint(i, point);
-          points->SetPoint(i, point[1], point[2], atoi(line));
+          points->SetPoint(i, point[1], point[2], atof(line));
           lineRead = this->ReadNextDataLine(line);
           }
         }
@@ -952,8 +952,11 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
         this->ReadNextDataLine(newLines[i]);
         }
       lineRead = this->ReadNextDataLine(line);
-      sscanf(line, " %s", subLine);
-      if (isdigit(subLine[0]))
+      if (lineRead)
+        {
+        sscanf(line, " %s", subLine);
+        }
+      if (lineRead && isdigit(subLine[0]))
         {
         // We still need to read in the node ids for each element.
         for (i = 0; i < numElements; i++)
@@ -987,10 +990,11 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
           strcpy(tempLine, "");
           for (j = 0; j < numNodes; j++)
             {
-            strcat(formatLine, " %s");
+            strcat(formatLine, " %d");
             sscanf(newLines[numElements+i], formatLine,
-                   nodeIds[numNodes-j]);
-            strcat(tempLine, " %*s");
+                   &nodeIds[numNodes-j-1]);
+            nodeIds[numNodes-j-1]--;
+            strcat(tempLine, " %*d");
             strcpy(formatLine, tempLine);
             }
           cellId = ((vtkUnstructuredGrid*)this->GetOutput(partId))->

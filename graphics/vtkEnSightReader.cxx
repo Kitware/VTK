@@ -1065,7 +1065,8 @@ void vtkEnSightReader::AddVariableType()
 int vtkEnSightReader::ReadLine(char result[256])
 {
   this->IS->getline(result,256);
-  if (this->IS->eof()) 
+//  if (this->IS->eof()) 
+  if (this->IS->fail())
     {
     return 0;
     }
