@@ -44,7 +44,7 @@
  #include <mpi.h>
 #endif
 
-vtkCxxRevisionMacro(vtkCompositeManager, "1.34");
+vtkCxxRevisionMacro(vtkCompositeManager, "1.35");
 vtkStandardNewMacro(vtkCompositeManager);
 
 vtkCxxSetObjectMacro(vtkCompositeManager,Compositer, vtkCompositer);
@@ -523,6 +523,10 @@ void vtkCompositeManager::RenderRMI()
         cam->ParallelProjectionOn();
         cam->SetParallelScale(renInfo.ParallelScale);
         }
+      else
+        {
+        cam->ParallelProjectionOff();   
+        }
       if (light)
         {
         light->SetPosition(renInfo.LightPosition);
@@ -708,6 +712,10 @@ void vtkCompositeManager::StartRender()
     if (cam->GetParallelProjection())
       {
       renInfo.ParallelScale = cam->GetParallelScale();
+      }
+    else
+      {
+      renInfo.ParallelScale = 0.0;
       }
     if (light)
       {
