@@ -211,8 +211,8 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
 				     vtkImageData *outData)
 {
   int *outExt = this->Output->GetUpdateExtent();
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  char *inPtr = (char *) inData->GetScalarPointerForExtent(outExt);
+  char *outPtr = (char *) outData->GetScalarPointerForExtent(outExt);
   int rowLength, size;
   int inIncX, inIncY, inIncZ;
   int outIncX, outIncY, outIncZ;
