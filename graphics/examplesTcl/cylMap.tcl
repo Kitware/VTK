@@ -30,10 +30,10 @@ vtkDataSetMapper mapper
 
 # load in the texture map and assign to actor
 #
-vtkPNMReader pnmReader
-  pnmReader SetFileName "../../../vtkdata/masonry.ppm"
+vtkBMPReader bmpReader
+  bmpReader SetFileName "../../../vtkdata/masonry.bmp"
 vtkTexture atext
-  atext SetInput [pnmReader GetOutput]
+  atext SetInput [bmpReader GetOutput]
   atext InterpolateOn
 vtkActor triangulation
   triangulation SetMapper mapper
