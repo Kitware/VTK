@@ -148,7 +148,7 @@ void vtkDecimate::Execute()
   float ar, error;
   int totalEliminated=0;
   int size;
-  int abort = 0;
+  int abortFlag = 0;
   vtkPolyData *input=(vtkPolyData *)this->Input;
   vtkPolyData *output=(vtkPolyData *)this->Output;
 
@@ -232,14 +232,14 @@ void vtkDecimate::Execute()
 //
 //************************************ Outer Loop ***************************
 
-  while ( reduction < this->TargetReduction && iteration < this->MaximumIterations && !abort) 
+  while ( reduction < this->TargetReduction && iteration < this->MaximumIterations && !abortFlag) 
     {
     trisEliminated = 1;
 
 //******************************** Subiterations ****************************
 
     for (sub=0; sub < this->MaximumSubIterations && trisEliminated &&
-    reduction < this->TargetReduction && !abort; sub++) 
+    reduction < this->TargetReduction && !abortFlag; sub++) 
       {
       for (i=0; i < VTK_NUMBER_STATISTICS; i++)
 	{
@@ -250,14 +250,14 @@ void vtkDecimate::Execute()
 //  For every vertex that is used by two or more elements and has a loop
 //  of simple enough complexity...
 //
-      for (ptId=0; ptId < numPts && !abort; ptId++)
+      for (ptId=0; ptId < numPts && !abortFlag; ptId++)
         {
         if ( ! (ptId % 5000) )
 	  {
           this->UpdateProgress (reduction / this->TargetReduction);
           if (this->GetAbortExecute())
             {
-            abort = 1;
+            abortFlag = 1;
             break;
             }
 
