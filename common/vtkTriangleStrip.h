@@ -97,9 +97,9 @@ public:
   int GetParametricCenter(float pcoords[3]);
 
   // Description:
-  // Given a list of triangle strips, decompose into a list of (triangle) 
-  // polygons. The polygons are appended to the end of the list of polygons.
-  void DecomposeStrips(vtkCellArray *strips, vtkCellArray *tris);
+  // Given a triangle strip, decompose it into a list of (triangle) 
+  // polygons. The polygons are appended to the end of the list of triangles.
+  void DecomposeStrip(int npts, int *pts, vtkCellArray *tris);
   
   // Description:
   // For legacy compatibility. Do not use.

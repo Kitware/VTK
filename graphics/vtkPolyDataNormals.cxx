@@ -119,7 +119,10 @@ void vtkPolyDataNormals::Execute()
       polys = vtkCellArray::New();
       polys->Allocate(polys->EstimateSize(numStrips,5));
       }
-    strip->DecomposeStrips(inStrips,polys);
+    for ( inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
+      {
+      strip->DecomposeStrip(npts, pts, polys);
+      }
     OldMesh->SetPolys(polys);
     polys->Delete();
     numPolys = polys->GetNumberOfCells();//added some new triangles

@@ -257,15 +257,20 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
                                   vtkPoints *pts)
 {
   int numTris = this->Points->GetNumberOfPoints()-2;
+  int i, order;
+  static int idx[2][3]={{1,0,2},{0,1,2}};
+
   pts->Reset();
   ptIds->Reset();
 
   for (int subId=0; subId < numTris; subId++)
     {
-    for ( int i=0; i < 3; i++ )
+    order = i % 2;
+
+    for ( i=0; i < 3; i++ )
       {
-      ptIds->InsertNextId(this->PointIds->GetId(subId+i));
-      pts->InsertNextPoint(this->Points->GetPoint(subId+i));
+      ptIds->InsertNextId(this->PointIds->GetId(subId+idx[order][i]));
+      pts->InsertNextPoint(this->Points->GetPoint(subId+idx[order][i]));
       }
     }
 
@@ -275,7 +280,6 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values, 
                                    int dim, float *derivs)
 {
-
   this->Triangle->Points->SetPoint(0,this->Points->GetPoint(subId));
   this->Triangle->Points->SetPoint(1,this->Points->GetPoint(subId+1));
   this->Triangle->Points->SetPoint(2,this->Points->GetPoint(subId+2));
@@ -283,35 +287,32 @@ void vtkTriangleStrip::Derivatives(int subId, float pcoords[3], float *values,
   this->Triangle->Derivatives(0, pcoords, values, dim, derivs);
 }
 
-// Given a list of triangle strips, decompose into a list of (triangle) 
-// polygons. The polygons are appended to the end of the list of polygons.
-void vtkTriangleStrip::DecomposeStrips(vtkCellArray *strips, vtkCellArray *polys)
+// Given a triangle strip, decompose it into (triangle) polygons. The 
+// polygons are appended to the end of the list of polygons.
+void vtkTriangleStrip::DecomposeStrip(int npts, int *pts, vtkCellArray *polys)
 {
-  int npts, *pts, p1, p2, p3, i;
+  int p1, p2, p3, i;
 
-  for (strips->InitTraversal(); strips->GetNextCell(npts,pts); )
+  p1 = pts[0];
+  p2 = pts[1];
+  for (i=0; i<(npts-2); i++)
     {
-    p1 = pts[0];
-    p2 = pts[1];
-    for (i=0; i<(npts-2); i++)
+    p3 = pts[i+2];
+    polys->InsertNextCell(3);
+    if ( (i % 2) ) // flip ordering to preserve consistency
       {
-      p3 = pts[i+2];
-      polys->InsertNextCell(3);
-      if ( (i % 2) ) // flip ordering to preserve consistency
-        {
-        polys->InsertCellPoint(p2);
-        polys->InsertCellPoint(p1);
-        polys->InsertCellPoint(p3);
-        }
-      else
-        {
-        polys->InsertCellPoint(p1);
-        polys->InsertCellPoint(p2);
-        polys->InsertCellPoint(p3);
-        }
-      p1 = p2;
-      p2 = p3;
+      polys->InsertCellPoint(p2);
+      polys->InsertCellPoint(p1);
+      polys->InsertCellPoint(p3);
       }
+    else
+      {
+      polys->InsertCellPoint(p1);
+      polys->InsertCellPoint(p2);
+      polys->InsertCellPoint(p3);
+      }
+    p1 = p2;
+    p2 = p3;
     }
 }
 

@@ -45,86 +45,64 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 void vtkTriangleFilter::Execute()
 {
   vtkPolyData *input=(vtkPolyData *)this->Input;
-  vtkCellArray *inPolys=input->GetPolys();
-  vtkCellArray *inStrips=input->GetStrips();;
-  int npts, *pts;
-  vtkCellArray *newPolys;
-  int numCells, cellNum;
-  
-  vtkPolygon *poly;
-  int i, j;
-  vtkIdList *outVerts;
-  vtkPoints *inPoints=input->GetPoints();
-  vtkPointData *pd;
-  vtkPolyData *output=(vtkPolyData *)this->Output;
+  int numCells=input->GetNumberOfCells();
+  int dim, i, j, pts[3], cellNum, numPts, numSimplices, newId, type;
+  vtkIdList *ptIds=vtkIdList::New();
+  vtkPoints *spts=vtkPoints::New();
+  vtkPolyData *output=this->GetOutput();
+  vtkCellData *inCD=input->GetCellData();
+  vtkCellData *outCD=output->GetCellData();
+  vtkCell *cell;
 
-  vtkDebugMacro(<<"Executing triangle filter");
+  output->Allocate(3*numCells, numCells);
 
-  poly = vtkPolygon::New();
-  outVerts = vtkIdList::New();
-  outVerts->Allocate(3*VTK_CELL_SIZE);
-
-  newPolys = vtkCellArray::New();
-  // approximation
-  numCells = input->GetNumberOfPolys() + input->GetNumberOfStrips();
-  newPolys->Allocate(newPolys->EstimateSize(numCells,3),3*numCells);
-
-  // pass through triangles; triangulate polygons if necessary
-  for (cellNum=0, inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts);
-  cellNum++)
+  for (cellNum=0; cellNum < numCells; cellNum++)
     {
-    if ( npts == 3 )
-      {
-      newPolys->InsertNextCell(npts,pts);
-      }
-    else if ( npts > 3 ) // triangulate poly
-      {
-      poly->Initialize(npts,pts,inPoints);
-      poly->Triangulate(outVerts);
-      for (i=0; i<outVerts->GetNumberOfIds()/3; i++)
-        {
-        newPolys->InsertNextCell(3);
-        for (j=0; j<3; j++)
-          newPolys->InsertCellPoint(outVerts->GetId(3*i+j));
-        }
-      }
-
     if ( ! (cellNum % 5000) ) //manage progress reports / early abort
       {
       this->UpdateProgress ((float)cellNum / numCells);
-      if ( this->GetAbortExecute() ) break;
+      if ( this->GetAbortExecute() ) 
+        {
+        break;
+        }
       }
-    }//for each polygon
 
-  if ( inStrips->GetNumberOfCells() > 0 )
-    {
-    vtkTriangleStrip *strip = vtkTriangleStrip::New();
-    strip->DecomposeStrips(inStrips,newPolys);
-    strip->Delete();
-    }
-  //
-  // Update ourselves
-  //
-  newPolys->Squeeze();
-  output->SetPolys(newPolys);
-  newPolys->Delete();
+    cell = input->GetCell(cellNum);
+    dim = cell->GetCellDimension() + 1;
+    
+    cell->Triangulate(cellNum, ptIds, spts);
+    numPts = ptIds->GetNumberOfIds();
+    numSimplices = numPts / dim;
+    
+    if ( dim == 3 || (this->PassVerts && dim == 1) ||
+    (this->PassLines && dim == 2) )
+      {
+      type = (dim == 3 ? VTK_TRIANGLE : (dim == 2 ? VTK_LINE : VTK_VERTEX ));
+      for ( i=0; i < numSimplices; i++ )
+        {
+        for (j=0; j<dim; j++)
+          {
+          pts[j] = ptIds->GetId(dim*i+j);
+          }
+        // copy cell data
+        newId = output->InsertNextCell(type, dim, pts);
+        outCD->CopyData(inCD, cellNum, newId);
+        
+        }//for each simplex
+      }//if polygon or strip or (line or verts and passed on)
+    }//for all cells
 
-  // pass through points and point data
+  ptIds->Delete();
+  spts->Delete();
+  
+  // Update output
   output->SetPoints(input->GetPoints());
-  pd = input->GetPointData();
   output->GetPointData()->PassData(input->GetPointData());
 
-  // pass through other stuff if requested
-  if ( this->PassVerts ) output->SetVerts(input->GetVerts());
-  if ( this->PassLines ) output->SetLines(input->GetLines());
-
-  outVerts->Delete();
-  poly->Delete();
-
-  vtkDebugMacro(<<"Converted " << inPolys->GetNumberOfCells() <<
-               " polygons and " << inStrips->GetNumberOfCells() <<
-               " strips to " << newPolys->GetNumberOfCells() <<
-               " triangles");
+  vtkDebugMacro(<<"Converted " << input->GetNumberOfCells()
+                << "input cells to "
+                << output->GetNumberOfCells()
+                <<" output cells");
 }
 
 void vtkTriangleFilter::PrintSelf(ostream& os, vtkIndent indent)
