@@ -427,6 +427,7 @@ protected:
   {
     double Position[3];
     double FocalPoint[3];
+    double Type;
   };
 
   static const int WIN_INFO_INT_SIZE;
