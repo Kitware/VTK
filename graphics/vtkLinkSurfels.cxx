@@ -39,6 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 =========================================================================*/
 #include "vtkMath.h"
+#include "vtkMergePoints.h"
 #include "vtkLinkSurfels.h"
 
 
@@ -49,8 +50,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkLinkSurfels::vtkLinkSurfels()
 {
   this->GradientThreshold = 0.1;
-  this->PhiThreshold = 90;
-  this->LinkThreshold = 90;
 }
 
 void vtkLinkSurfels::Execute()
@@ -67,12 +66,14 @@ void vtkLinkSurfels::Execute()
   int *dimensions;
   float *inDataPtr;
   vtkVectors *inVectors;
-  int ptId;
+  float *aspect, *origin;
   
   vtkDebugMacro(<< "Extracting structured points geometry");
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
+  aspect = input->GetAspectRatio();
+  origin = input->GetOrigin();
   inScalars = (vtkFloatScalars *)pd->GetScalars();
   inVectors = pd->GetVectors();
   if ((numPts=this->Input->GetNumberOfPoints()) < 2 || inScalars == NULL)
@@ -93,11 +94,11 @@ void vtkLinkSurfels::Execute()
   vtkDebugMacro("doing surfel linking\n");
 
   this->LinkSurfels(dimensions[0], dimensions[1], dimensions[2],
-		    inDataPtr, inVectors, 
-		    newLines, newPts, outScalars, outVectors);
+		    inDataPtr, inVectors, newLines, newPts, 
+		    outScalars, outVectors, aspect, origin);
   
   output->SetPoints(newPts);
-  output->SetLines(newLines);
+  output->SetPolys(newLines);
 
   // Update ourselves
   outScalars->ComputeRange();
@@ -110,84 +111,21 @@ void vtkLinkSurfels::Execute()
   outVectors->Delete();
 }
 
-  
 
-#define vtkLinkSurfelsTryPixel() \
-/* make sure it passes the linkThresh test */\
-if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh)) \
-    { \
-  pos2 = x + xoffset[i] + ypos + yoffset[i]*xdim + zpos + zoffset[i]*xdim*ydim; \
-  /* make sure we dont go off the edge and are >= GradientThresh */\
-     /* and it hasn't already been set */\
-  if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&& \
-      (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&& \
-      (z + zoffset[i] >= 0)&&(z + zoffset[i] < zdim)&& \
-      ((!PrimaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]]) || \
-       (!SecondaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]])) && \
-      (image[pos2] >= this->GradientThreshold))  \
-    { \
-	/* satisfied the first test, now check second */\
-	  inVectors->GetVector(pos2,vec2); \
-	  vtkMath::Normalize(vec2); \
-    if (vtkMath::Dot(vec1,vec2) >= phiThresh) \
-      { \
-	  /* pased phi - phi test does the forward neighbor */\
-	     /* pass the link test */\
-      if (fabs(vtkMath::Dot(directions[i],vec2)) <= linkThresh) \
-	{ \
-	    /* check against the current best solution */\
-	error = 2.0 - fabs(vtkMath::Dot(directions[i],vec2)) -  \
-	  fabs(vtkMath::Dot(directions[i],vec1)) + \
-	  vtkMath::Dot(vec1,vec2); \
-	if (error > bestError) \
-	  { \
-	  bestDirection = i; \
-	  bestError = error; \
-	  } \
-	} \
-      } \
-    } \
-}
-
-#define vtkLinkSurfelsSecondaryTryPixel() \
-/* make sure it is far enough from forward link */\
-if ((fabs(vtkMath::Dot(directions[i],vec1)) <= linkThresh) && \
-    (fabs(vtkMath::Dot(directions[i],directions[PrimaryF[z][y][x]-1])) \
-     <=linkThresh)) \
-{ \
-  pos2 = x + xoffset[i] + ypos + yoffset[i]*xdim + zpos + zoffset[i]*xdim*ydim; \
-  /* make sure we dont go off the edge and are >= GradientThresh */\
-  /* and it hasn't already been set */\
-  if ((x + xoffset[i] >= 0)&&(x + xoffset[i] < xdim)&& \
-      (y + yoffset[i] >= 0)&&(y + yoffset[i] < ydim)&& \
-      (z + zoffset[i] >= 0)&&(z + zoffset[i] < zdim)&& \
-      ((!PrimaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]]) || \
-       (!SecondaryB[z+zoffset[i]][y+yoffset[i]][x+xoffset[i]])) && \
-      (image[pos2] >= this->GradientThreshold))  \
-    { \
-	/*satisfied the first test, now check second */\
-	  inVectors->GetVector(pos2,vec2); \
-	  vtkMath::Normalize(vec2); \
-    if (vtkMath::Dot(vec1,vec2) >= phiThresh) \
-					   { \
-	  /* pased phi - phi test does the forward neighbor */\
-	  /* pass the link test */\
-      if (fabs(vtkMath::Dot(directions[i],vec2)) <= linkThresh) \
-	{ \
-	    /* check against the current best solution */\
-	error = 3.0 - fabs(vtkMath::Dot(directions[i],vec2)) -  \
-	  fabs(vtkMath::Dot(directions[i],directions[PrimaryF[z][y][x] -1])) \
-	    - fabs(vtkMath::Dot(directions[i],vec1)) + \
-	    vtkMath::Dot(vec1,vec2); \
-	if (error > bestError) \
-	  { \
-	  bestSecondaryDirection = i; \
-	  bestError = error; \
-	  } \
-	} \
-      } \
-    } \
-}
+//
+// vertex indicies:
+// (xyz): index
+// ------------
+// (000): 0
+// (100): 1
+// (010): 2
+// (110): 3
+// (001): 4
+// (101): 5
+// (011): 6
+// (111): 7
+//  none: 8
+//
 
 // Description:
 // This method links the edges for one image. 
@@ -197,596 +135,397 @@ void vtkLinkSurfels::LinkSurfels(int xdim, int ydim, int zdim,
 				 vtkCellArray *newLines, 
 				 vtkFloatPoints *newPts,
 				 vtkFloatScalars *outScalars, 
-				 vtkFloatVectors *outVectors)
+				 vtkFloatVectors *outVectors,
+				 float *aspect, float *origin)
 {
-  static float directions[26][3] = {
-    // face neighbors
-    { 0, 0, 1},
-    { 0, 1, 0},
-    { 1, 0, 0},
-    {-1, 0, 0},
-    { 0,-1, 0},
-    { 0, 0,-1},
+
+//  at most 3 polygons (each 4 numbers make a polygon.)
+//  fourth index for triangles is 8, 9 indicates end of list.
+  static char polygonCases[256*13] = { 
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0010*/ 
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1110*/
+    4, 5, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0000 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0101*/
+    3, 5, 6, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1101*/
+    3, 4, 5, 8, 3, 4, 6, 8, 9, 9, 9, 9, 9, /*0001 1110*/
+    4, 5, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0001 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1000*/
+    2, 4, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1100*/
+    2, 4, 5, 8, 2, 5, 7, 8, 9, 9, 9, 9, 9, /*0010 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1110*/
+    4, 5, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0010 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0010*/
+    2, 3, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0101*/
+    2, 3, 5, 8, 2, 5, 6, 8, 9, 9, 9, 9, 9, /*0011 0110*/
+    2, 3, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1000*/
+    2, 3, 4, 8, 3, 4, 7, 8, 9, 9, 9, 9, 9, /*0011 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1010*/
+    2, 3, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1011*/
+    4, 5, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0011 1110*/
+    2, 3, 7, 6, 4, 5, 7, 6, 9, 9, 9, 9, 9, /*0011 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1000*/
+    1, 4, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1010*/
+    1, 4, 6, 8, 1, 6, 7, 8, 9, 9, 9, 9, 9, /*0100 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1110*/
+    4, 5, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0100 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0100*/
+    1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0101*/
+    1, 3, 6, 8, 1, 5, 6, 8, 9, 9, 9, 9, 9, /*0101 0110*/
+    1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1000*/
+    1, 3, 4, 8, 3, 4, 7, 8, 9, 9, 9, 9, 9, /*0101 1001*/
+    1, 3, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1100*/
+    1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0101 1110*/
+    1, 3, 7, 5, 4, 6, 7, 5, 9, 9, 9, 9, 9, /*0101 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0000*/
+    1, 2, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0010*/
+    1, 2, 6, 8, 1, 6, 7, 8, 9, 9, 9, 9, 9, /*0110 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0100*/
+    1, 2, 5, 8, 2, 5, 7, 8, 9, 9, 9, 9, 9, /*0110 0101*/
+    1, 2, 6, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 0111*/
+    1, 2, 4, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1001*/
+    1, 2, 6, 8, 1, 4, 6, 8, 9, 9, 9, 9, 9, /*0110 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1011*/
+    1, 2, 5, 8, 2, 4, 5, 8, 9, 9, 9, 9, 9, /*0110 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0110 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0010*/
+    2, 3, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0100*/
+    1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 0110*/
+    1, 3, 7, 5, 2, 3, 7, 6, 9, 9, 9, 9, 9, /*0111 0111*/
+    2, 3, 4, 8, 1, 3, 4, 8, 9, 9, 9, 9, 9, /*0111 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*0111 1101*/
+    1, 2, 3, 8, 4, 5, 6, 8, 1, 2, 6, 5, 9, /*0111 1110*/
+    2, 3, 7, 6, 4, 5, 7, 6, 1, 3, 7, 5, 9, /*0111 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0101*/
+    0, 5, 6, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 0110*/
+    0, 5, 7, 8, 0, 6, 7, 8, 9, 9, 9, 9, 9, /*1000 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1110*/
+    4, 5, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1000 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0001*/
+    0, 3, 6, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0010*/
+    0, 3, 7, 8, 0, 6, 7, 8, 9, 9, 9, 9, 9, /*1001 0011*/
+    0, 3, 5, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0100*/
+    0, 3, 7, 8, 0, 5, 7, 8, 9, 9, 9, 9, 9, /*1001 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1000*/
+    0, 4, 7, 3, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1001*/
+    0, 3, 4, 8, 3, 4, 6, 8, 9, 9, 9, 9, 9, /*1001 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1011*/
+    0, 3, 4, 8, 3, 4, 5, 8, 9, 9, 9, 9, 9, /*1001 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1001 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0100*/
+    0, 2, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0101*/
+    0, 2, 5, 8, 2, 5, 6, 8, 9, 9, 9, 9, 9, /*1010 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1000*/
+    0, 2, 7, 8, 0, 4, 7, 8, 9, 9, 9, 9, 9, /*1010 1001*/
+    64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1010*/
+    64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1101*/
+    64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1010 1110*/
+    64,2, 6, 4, 4, 5, 7, 6, 9, 9, 9, 9, 9, /*1010 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0010*/
+    2, 3, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0011*/
+    0, 2, 5, 8, 2, 3, 5, 8, 9, 9, 9, 9, 9, /*1011 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 1001*/
+    64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 1010*/
+    64,2, 6, 4, 2, 3, 7, 6, 9, 9, 9, 9, 9, /*1011 1011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 1100*/
+    0, 2, 3, 8, 4, 5, 7, 8, 0, 3, 7, 4, 9, /*1011 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1011 1110*/
+    64,2, 6, 4, 2, 3, 7, 6, 4, 5, 7, 6, 9, /*1011 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0010*/
+    0, 1, 7, 6, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0101*/
+    0, 1, 6, 8, 1, 5, 6, 8, 9, 9, 9, 9, 9, /*1100 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1000*/
+    0, 1, 7, 8, 0, 4, 7, 8, 9, 9, 9, 9, 9, /*1100 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1011*/
+    32,1, 5, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1100*/
+    32,1, 5, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1101*/
+    32,1, 5, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1100 1110*/
+    32,1, 5, 4, 4, 5, 7, 6, 9, 9, 9, 9, 9, /*1100 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0001*/
+    0, 1, 6, 8, 1, 3, 6, 8, 9, 9, 9, 9, 9, /*1101 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0100*/
+    1, 3, 7, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 1001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 1010*/
+    0, 1, 3, 8, 4, 6, 7, 8, 0, 3, 7, 4, 9, /*1101 1011*/
+    32,1, 5, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 1100*/
+    32,1, 5, 4, 1, 3, 7, 5, 9, 9, 9, 9, 9, /*1101 1101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1101 1110*/
+    32,1, 5, 4, 1, 3, 7, 5, 4, 5, 7, 6, 9, /*1101 1111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0000*/
+    0, 1, 7, 8, 0, 2, 7, 8, 9, 9, 9, 9, 9, /*1110 0001*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0011*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 0110*/
+    0, 1, 2, 8, 5, 6, 7, 8, 1, 2, 6, 5, 9, /*1110 0111*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1001*/
+    64,2, 6, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1010*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1011*/
+    32,1, 5, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1100*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1110 1101*/
+    32,1, 5, 4, 64,2, 6, 4, 9, 9, 9, 9, 9, /*1110 1110*/
+    32,1, 5, 4, 64,2, 6, 4, 4, 5, 7, 6, 9, /*1110 1111*/
+    16,1, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 0000*/
+    16,1, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 0001*/
+    16,1, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 0010*/
+    16,1, 3, 2, 2, 3, 7, 6, 9, 9, 9, 9, 9, /*1111 0011*/
+    16,1, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 0100*/
+    16,1, 3, 2, 1, 3, 7, 5, 9, 9, 9, 9, 9, /*1111 0101*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 0110*/
+    16,1, 3, 2, 1, 3, 7, 5, 2, 3, 7, 6, 9, /*1111 0111*/
+    16,1, 3, 2, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 1000*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, /*1111 1001*/
+    16,1, 3, 2, 64,2, 6, 4, 9, 9, 9, 9, 9, /*1111 1010*/
+    16,1, 3, 2, 64,2, 6, 4, 2, 3, 7, 6, 9, /*1111 1011*/
+    16,1, 3, 2, 32,1, 5, 4, 9, 9, 9, 9, 9, /*1111 1100*/
+    16,1, 3, 2, 32,1, 5, 4, 1, 3, 7, 5, 9, /*1111 1101*/
+    16,1, 3, 2, 32,1, 5, 4, 64,2, 6, 4, 9, /*1111 1110*/
+    9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9  /*1111 1111*/
+  };
+
+  int offset[8];
+  unsigned char *Primary;
+  int x,y,z,index;
+  int xo,yo,zo;
+  int ypos, zpos;
+  int pointNum;
+  vtkMergePoints *locator;
+  float vec[3], bounds[6];
+  int Id[4];
+  
+  offset[0] = 0;
+  offset[1] = 1;
+  offset[2] = xdim;
+  offset[3] = xdim + 1;
+  offset[4] = xdim*ydim;
+  offset[5] = xdim*ydim + 1;
+  offset[6] = xdim*ydim + xdim;
+  offset[7] = xdim*ydim + xdim + 1;
+
+  // first allocate memory
+  Primary = new unsigned char [zdim*ydim*xdim];
+  memset(Primary,0,xdim*ydim*zdim);
+  
+  // allocate the locator
+  locator = new vtkMergePoints;
+  bounds[0] = origin[0]; bounds[1] = xdim*aspect[0] + origin[0]; 
+  bounds[2] = origin[1]; bounds[3] = ydim*aspect[1] + origin[1]; 
+  bounds[4] = origin[2]; bounds[5] = zdim*aspect[2] + origin[2]; 
+  locator->InitPointInsertion(newPts, bounds);
+
+  // then do the threshold
+  for (z = 0; z < zdim; z++)
+    {
+    zpos = z*ydim*xdim;
+    for (y = 0; y < ydim; y++)
+      {
+      ypos = y*xdim;
+      for (x = 0; x < xdim; x++)
+	{
+	// if its value is less than threshold then ignore it
+	if (image[zpos + ypos + x] >= this->GradientThreshold)
+	  {
+	  Primary[zpos + ypos + x] = 128;
+	  }
+	}
+      }
+    }
     
-    // edge neighbors
-    { 0,  0.707,  0.707}, 
-    { 0.707,  0,  0.707},
-    {-0.707,  0,  0.707},
-    { 0, -0.707,  0.707},
-    { 0.707,  0.707, 0}, 
-    {-0.707,  0.707, 0},
-    { 0.707, -0.707, 0},
-    {-0.707, -0.707, 0},
-    { 0,  0.707, -0.707},
-    { 0.707, 0, -0.707},
-    {-0.707, 0, -0.707},
-    { 0, -0.707, -0.707},
-
-    // vertex neighbors
-    { 0.577, 0.577, 0.577},
-    {-0.577, 0.577, 0.577},
-    { 0.577,-0.577, 0.577},
-    {-0.577,-0.577, 0.577},
-    { 0.577, 0.577,-0.577},
-    {-0.577, 0.577,-0.577},
-    { 0.577,-0.577,-0.577},
-    {-0.577,-0.577,-0.577}};
-
-  static int xoffset[26] = {0,0,1,-1,0,0, 
-			    0,1,-1,0,1,-1,1,-1,0,1,-1,0, 
-			    1,-1,1,-1,1,-1,1,-1};
-  static int yoffset[26] = {0,1,0,0,-1,0, 
-			    1,0,0,-1,1,1,-1,-1,1,0,0,-1,
-			    1,1,-1,-1,1,1,-1,-1};
-  static int zoffset[26] = {1,0,0,0,0,-1, 
-			    1,1,1,1,0,0,0,0,-1,-1,-1,-1,
-			    1,1,1,1,-1,-1,-1,-1};
-  static int opposite[26] = {5,4,3,2,1,0, 
-			     17,16,15,14,13,12,11,10,9,8,7,6, 
-			     25,24,23,22,21,20,19,18};
-  
-  char ***SecondaryF;
-  char ***SecondaryB;
-  char ***PrimaryF;
-  char ***PrimaryB;
-  unsigned int ***Id;
-  int x,y,z;
-  int ypos, zpos, pos2;
-  int currX, currY, i;
-  int newX, newY;
-  int startX, startY;
-  float vec[3], vec1[3], vec2[3];
-  float linkThresh, phiThresh;
-  int length, start;
-  int bestDirection = 0;
-  int bestSecondaryDirection = 0;
-  float error, bestError;
-  
-  linkThresh = cos(this->LinkThreshold*3.1415926/180.0);
-  phiThresh = cos(this->PhiThreshold*3.1415926/180.0);
-
-  PrimaryF  = new char **[zdim];
-  PrimaryB  = new char **[zdim];
-  SecondaryF  = new char **[zdim];
-  SecondaryB  = new char **[zdim];
-  Id = new unsigned int **[zdim];
-  for (z = 0; z < zdim; z++)
-    {
-    PrimaryF[z]  = new char *[ydim];
-    PrimaryB[z]  = new char *[ydim];
-    SecondaryF[z]  = new char *[ydim];
-    SecondaryB[z]  = new char *[ydim];
-    Id[z] = new unsigned int *[ydim];
-    for (y = 0; y < ydim; y++)
-      {
-      PrimaryF[z][y]  = new char [xdim];
-      PrimaryB[z][y]  = new char [xdim];
-      SecondaryF[z][y]  = new char [xdim];
-      SecondaryB[z][y]  = new char [xdim];
-      Id[z][y] = new unsigned int [xdim];
-      memset(PrimaryF[z][y],0,xdim);
-      memset(PrimaryB[z][y],0,xdim);
-      memset(SecondaryF[z][y],0,xdim);
-      memset(SecondaryB[z][y],0,xdim);
-      }
-    }
-  
-  // first find all PrimaryF face links
-  for (z = 0; z < zdim; z++)
+  // now extract the polygons
+  for (z = 0; z < (zdim-1); z++)
     {
     zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
+    for (y = 0; y < (ydim-1); y++)
       {
       ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
+      for (x = 0; x < (xdim-1); x++)
 	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if (image[zpos + ypos + x] < this->GradientThreshold)
+	// compute the index
+	if (Primary[zpos +ypos +x]) index = 128;
+	else index = 0;
+	if (Primary[zpos +ypos +x + offset[1]]) index += 64;
+	if (Primary[zpos +ypos +x + offset[2]]) index += 32;
+	if (Primary[zpos +ypos +x + offset[3]]) index += 16;
+	if (Primary[zpos +ypos +x + offset[4]]) index +=  8;
+	if (Primary[zpos +ypos +x + offset[5]]) index +=  4;
+	if (Primary[zpos +ypos +x + offset[6]]) index +=  2;
+	if (Primary[zpos +ypos +x + offset[7]]) index +=  1;
+
+	index = index*13;
+	while (polygonCases[index] != 9)
 	  {
-	  PrimaryF[z][y][x] = -1;
-	  PrimaryB[z][y][x] = -1;
-	  SecondaryF[z][y][x] = -1;
-	  SecondaryB[z][y][x] = -1;
-	  }
-	else
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 0; i < 3; i ++)
+	  // add the points if necc
+	  if ((polygonCases[index] < 16)||
+	      ((polygonCases[index]/64) && (x == 0)) ||
+	      (((polygonCases[index]/32)%2) && (y == 0)) ||
+	      (((polygonCases[index]/16)%2) && (z == 0)))
 	    {
-	    vtkLinkSurfelsTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    PrimaryF[z][y][x] = bestDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-		[x+xoffset[bestDirection]])
+	    for (pointNum = 0; pointNum < 4; pointNum++)
 	      {
-	      PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
+	      if (polygonCases[index + pointNum] < 8)
+		{
+		xo = x + polygonCases[index + pointNum]%2;
+		yo = y + (polygonCases[index + pointNum]/2)%2;
+		zo = z + (polygonCases[index + pointNum]/4)%2;
+		vec[0] = xo*aspect[0] + origin[0];
+		vec[1] = yo*aspect[1] + origin[1];
+		vec[2] = zo*aspect[2] + origin[2];
+		if ((Id[pointNum] = locator->IsInsertedPoint(vec)) 
+		    < 0)
+		  {
+		  Id[pointNum] = locator->InsertNextPoint(vec);
+		  outScalars->InsertNextScalar(image[xo +
+						    xdim*(yo + zo*ydim)]);
+		  inVectors->GetVector(xo+xdim*(yo+zo*ydim),vec);
+		  vtkMath::Normalize(vec);
+		  outVectors->InsertNextVector(vec);
+		  }
+		}
+	      }
+	    // add the polygon
+	    if (polygonCases[index + 3] < 8)
+	      {
+	      newLines->InsertNextCell(4);
+	      newLines->InsertCellPoint(Id[0]);
+	      newLines->InsertCellPoint(Id[1]);
+	      newLines->InsertCellPoint(Id[2]);
+	      newLines->InsertCellPoint(Id[3]);
 	      }
 	    else
-	      {
-	      SecondaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-    
-  // now find all Secondary face links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] > 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 0; i < 3; i ++)
-	    {
-	    vtkLinkSurfelsSecondaryTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    SecondaryF[z][y][x] = bestSecondaryDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]])
-	      {
-	      PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-  // now look for reverse Primary face links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] == 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 3; i < 6; i ++)
-	    {
-	    vtkLinkSurfelsTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    PrimaryF[z][y][x] = bestDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-		[x+xoffset[bestDirection]])
-	      {
-	      PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-  // now find all Secondary reverse face links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] > 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 3; i < 6; i ++)
-	    {
-	    vtkLinkSurfelsSecondaryTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    SecondaryF[z][y][x] = bestSecondaryDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]])
-	      {
-	      PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-  /*
-  // now find all Primary edge links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] == 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 6; i < 12; i++)
-	    {
-	    vtkLinkSurfelsTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    PrimaryF[z][y][x] = bestDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-		[x+xoffset[bestDirection]])
-	      {
-	      PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  
-  // now find all Secondary edge links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] > 0) && (SecondaryF[z][y][x] == 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 6; i < 12; i++)
-	    {
-	    vtkLinkSurfelsSecondaryTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    SecondaryF[z][y][x] = bestSecondaryDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]])
-	      {
-	      PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-
-  // now find all Primary vertex links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] == 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 18; i < 22; i++)
-	    {
-	    vtkLinkSurfelsTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    PrimaryF[z][y][x] = bestDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-		[x+xoffset[bestDirection]])
-	      {
-	      PrimaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z + zoffset[bestDirection]][y+yoffset[bestDirection]]
-	        [x+xoffset[bestDirection]] = opposite[bestDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  
-  // now find all Secondary vertex links
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// find PrimaryF and PrimaryB neighbor for this pixel
-	// if its value is less than threshold then ignore it
-	if ((image[zpos + ypos + x] >= this->GradientThreshold)&&
-	    (PrimaryF[z][y][x] > 0) && (SecondaryF[z][y][x] == 0))
-	  {
-	  // try all neighbors as PrimaryF, first try face neighbors
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  bestError = 0;
-	  for (i = 18; i < 22; i++)
-	    {
-	    vtkLinkSurfelsSecondaryTryPixel();
-	    }
-	  // record the match if any
-	  if (bestError > 0)
-	    {
-	    SecondaryF[z][y][x] = bestSecondaryDirection+1;
-	    // was it primary or secondary for link
-	    if (!PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]])
-	      {
-	      PrimaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    else
-	      {
-	      SecondaryB[z +zoffset[bestSecondaryDirection]]
-		[y+yoffset[bestSecondaryDirection]]
-		[x+xoffset[bestSecondaryDirection]] = 
-		opposite[bestSecondaryDirection]+1;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-    */
-  
-  // now construct the chains
-  length = 0;
-  for (z = 0; z < zdim; z++)
-    {
-    zpos = z*ydim*xdim;
-    for (y = 0; y < ydim; y++)
-      {
-      ypos = y*xdim;
-      for (x = 0; x < xdim; x++)
-	{
-	// do we have part of a surfel chain ?
-	// isolated surfels do not qualify
-	if (PrimaryF[z][y][x] > 0)
-	  {
-	  outScalars->InsertNextScalar(image[x+ypos+zpos]);
-	  inVectors->GetVector(x+ypos+zpos,vec1);
-	  vtkMath::Normalize(vec1);
-	  outVectors->InsertNextVector(vec1);
-	  vec[0] = x;
-	  vec[1] = y;
-	  vec[2] = z;
-	  newPts->InsertNextPoint(vec);
-	  Id[z][y][x] = length;
-	  length++;
-	  }
-	else
-	  {
-	  if (PrimaryB[z][y][x] > 0)
-	    {
-	    outScalars->InsertNextScalar(image[x+ypos+zpos]);
-	    inVectors->GetVector(x+ypos+zpos,vec1);
-	    vtkMath::Normalize(vec1);
-	    outVectors->InsertNextVector(vec1);
-	    vec[0] = x;
-	    vec[1] = y;
-	    vec[2] = z;
-	    newPts->InsertNextPoint(vec);
-	    Id[z][y][x] = length;
-	    length++;
-	    }
-	  }
-	}
-      }
-    }
-
-  for (z = 0; z < zdim; z++)
-    {
-    for (y = 0; y < ydim; y++)
-      {
-      for (x = 0; x < xdim; x++)
-	{
-	// do we have part of a surfel chain ?
-	// isolated surfels do not qualify
-	if (PrimaryF[z][y][x] > 0)
-	  {
-	  // is it a patch or a line
-	  if (SecondaryF[z][y][x] > 0)
-	    {
-	    // do the forward triangle
-	    newLines->InsertNextCell(3);
-	    newLines->InsertCellPoint(Id[z+zoffset[PrimaryF[z][y][x]-1]]
-				      [y+yoffset[PrimaryF[z][y][x]-1]]
-				      [x+xoffset[PrimaryF[z][y][x]-1]]);
-	    newLines->InsertCellPoint(Id[z][y][x]);
-	    newLines->InsertCellPoint(Id[z+zoffset[SecondaryF[z][y][x]-1]]
-				      [y+yoffset[SecondaryF[z][y][x]-1]]
-				      [x+xoffset[SecondaryF[z][y][x]-1]]);
-	    // backward triangle
-	    if ((PrimaryB[z][y][x] > 0)&&(SecondaryB[z][y][x] > 0))
 	      {
 	      newLines->InsertNextCell(3);
-	      newLines->InsertCellPoint(Id[z+zoffset[PrimaryB[z][y][x]-1]]
-					[y+yoffset[PrimaryB[z][y][x]-1]]
-					[x+xoffset[PrimaryB[z][y][x]-1]]);
-	      newLines->InsertCellPoint(Id[z][y][x]);
-	      newLines->InsertCellPoint(Id[z+zoffset[SecondaryB[z][y][x]-1]]
-					[y+yoffset[SecondaryB[z][y][x]-1]]
-					[x+xoffset[SecondaryB[z][y][x]-1]]);
+	      newLines->InsertCellPoint(Id[0]);
+	      newLines->InsertCellPoint(Id[1]);
+	      newLines->InsertCellPoint(Id[2]);
 	      }
 	    }
-	  else
-	    {
-	    // do the forward line
-	    newLines->InsertNextCell(2);
-	    newLines->InsertCellPoint(Id[z+zoffset[PrimaryF[z][y][x]-1]]
-				      [y+yoffset[PrimaryF[z][y][x]-1]]
-				      [x+xoffset[PrimaryF[z][y][x]-1]]);
-	    newLines->InsertCellPoint(Id[z][y][x]);
-	    }
+	  index += 4;
 	  }
-	}
-      }
-    }
-
+	
+	} // end of for x loop
+      } // end of for y loop
+    } // end of for z loop
+  
   // free memory
-  for (z = 0; z < zdim; z++)
-    {
-    for (y = 0; y < ydim; y++)
-      {
-      delete [] PrimaryF[z][y];
-      delete [] PrimaryB[z][y];
-      delete [] SecondaryF[z][y];
-      delete [] SecondaryB[z][y];
-      delete [] Id[z][y];
-      }
-    delete [] PrimaryF[z];
-    delete [] PrimaryB[z];
-    delete [] SecondaryF[z];
-    delete [] SecondaryB[z];
-    delete [] Id[z];
-    }
-  delete [] PrimaryF;
-  delete [] PrimaryB;
-  delete [] SecondaryF;
-  delete [] SecondaryB;
-  delete [] Id;
+  delete [] Primary;
+  locator->Delete();
 }
 
 void vtkLinkSurfels::PrintSelf(ostream& os, vtkIndent indent)
@@ -794,7 +533,5 @@ void vtkLinkSurfels::PrintSelf(ostream& os, vtkIndent indent)
   vtkStructuredPointsToPolyDataFilter::PrintSelf(os,indent);
 
   os << indent << "GradientThreshold:" << this->GradientThreshold << "\n";
-  os << indent << "LinkThreshold:" << this->LinkThreshold << "\n";
-  os << indent << "PhiThreshold:" << this->PhiThreshold << "\n";
 }
 

@@ -99,7 +99,8 @@ protected:
   void LinkSurfels(int xdim, int ydim, int zdim,
 		   float *image, vtkVectors *inVectors,
 		   vtkCellArray *newLines, vtkFloatPoints *newPts,
-		   vtkFloatScalars *outScalars, vtkFloatVectors *outVectors);
+		   vtkFloatScalars *outScalars, vtkFloatVectors *outVectors,
+		   float *aspect, float *origin);
   float GradientThreshold;
   float PhiThreshold;
   float LinkThreshold;
