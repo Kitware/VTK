@@ -15,12 +15,15 @@
 #include "vtkVolume16Reader.h"
 
 #include "vtkImageData.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.53");
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.54");
 vtkStandardNewMacro(vtkVolume16Reader);
 
 vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
@@ -119,24 +122,30 @@ const char *vtkVolume16Reader::GetDataByteOrderAsString()
 }
 
 
-void vtkVolume16Reader::ExecuteInformation()
+void vtkVolume16Reader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
   int dim[3];
-  vtkImageData *output = this->GetOutput();
   
   this->ComputeTransformedDimensions(dim);
-  output->SetWholeExtent(0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
 
-  output->SetScalarType(VTK_UNSIGNED_SHORT);
-  output->SetNumberOfScalarComponents(1);
-  
-  output->SetSpacing(this->DataSpacing);
-  output->SetOrigin(this->DataOrigin);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               0, dim[0]-1, 0, dim[1]-1, 0, dim[2]-1);
+  outInfo->Set(vtkDataObject::SCALAR_TYPE(), VTK_UNSIGNED_SHORT);
+  outInfo->Set(vtkDataObject::SCALAR_NUMBER_OF_COMPONENTS(), 1);
+  outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
   // spacing and origin ?
 }
     
     
-void vtkVolume16Reader::ExecuteData(vtkDataObject *outp)
+void vtkVolume16Reader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   int first, last;
   int *dim;
@@ -144,7 +153,7 @@ void vtkVolume16Reader::ExecuteData(vtkDataObject *outp)
   double Spacing[3];
   double origin[3];
 
-  vtkImageData *output = this->AllocateOutputData(outp);
+  vtkImageData *output = this->AllocateOutputData(this->GetOutput());
   vtkUnsignedShortArray *newScalars = 
     vtkUnsignedShortArray::SafeDownCast(output->GetPointData()->GetScalars());
 
@@ -186,13 +195,13 @@ void vtkVolume16Reader::ExecuteData(vtkDataObject *outp)
   output->SetDimensions(dimensions);
 
   // calculate spacing of output from data spacing and transform
-  this->ComputeTransformedSpacing (Spacing);
+  this->ComputeTransformedSpacing(Spacing);
 
   // calculate origin of output from data origin and transform
-  this->ComputeTransformedOrigin (origin);
+  this->ComputeTransformedOrigin(origin);
 
   // adjust spacing and origin if spacing is negative
-  this->AdjustSpacingAndOrigin (dimensions, Spacing, origin);
+  this->AdjustSpacingAndOrigin(dimensions, Spacing, origin);
 
   output->SetSpacing(Spacing);
   output->SetOrigin(origin);

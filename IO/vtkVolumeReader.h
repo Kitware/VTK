@@ -42,12 +42,12 @@
 #ifndef __vtkVolumeReader_h
 #define __vtkVolumeReader_h
 
-#include "vtkImageSource.h"
+#include "vtkImageAlgorithm.h"
 
-class VTK_IO_EXPORT vtkVolumeReader : public vtkImageSource
+class VTK_IO_EXPORT vtkVolumeReader : public vtkImageAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkVolumeReader,vtkImageSource);
+  vtkTypeRevisionMacro(vtkVolumeReader,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:

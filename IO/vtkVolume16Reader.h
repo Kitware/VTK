@@ -121,8 +121,8 @@ protected:
   vtkVolume16Reader();
   ~vtkVolume16Reader();
 
-  virtual void ExecuteData(vtkDataObject *);
-  virtual void ExecuteInformation();
+  virtual void RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  virtual void RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int   DataDimensions[2];
   unsigned short DataMask;
   int   SwapBytes;

@@ -14,7 +14,7 @@
 =========================================================================*/
 #include "vtkVolumeReader.h"
 
-vtkCxxRevisionMacro(vtkVolumeReader, "1.21");
+vtkCxxRevisionMacro(vtkVolumeReader, "1.22");
 
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
 // set to (1,1); 
@@ -26,6 +26,7 @@ vtkVolumeReader::vtkVolumeReader()
   this->ImageRange[0] = this->ImageRange[1] = 1;
   this->DataOrigin[0] = this->DataOrigin[1] = this->DataOrigin[2] = 0.0;
   this->DataSpacing[0] = this->DataSpacing[1] = this->DataSpacing[2] = 1.0;
+  this->SetNumberOfInputPorts(0);
 }
 
 vtkVolumeReader::~vtkVolumeReader ()
