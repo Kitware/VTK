@@ -43,8 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-
-//------------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 vtkMassProperties* vtkMassProperties::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -57,10 +56,8 @@ vtkMassProperties* vtkMassProperties::New()
   return new vtkMassProperties;
 }
 
-
-
-
-#define  VTK_CUBE_ROOT(x) ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
+#define  VTK_CUBE_ROOT(x) \
+  ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
 
 // Constructs with initial 0 values.
 vtkMassProperties::vtkMassProperties()
@@ -76,7 +73,7 @@ vtkMassProperties::vtkMassProperties()
   this->NormalizedShapeIndex = 0.0;
 }
 
-// Constructs with initial 0 values.
+// Destroy any allocated memory.
 vtkMassProperties::~vtkMassProperties()
 {
 }
@@ -98,8 +95,6 @@ vtkPolyData *vtkMassProperties::GetInput()
   
   return (vtkPolyData *)(this->Inputs[0]);
 }
-
-
 
 // Description:
 // Make sure input is available then call up execute method...
@@ -158,14 +153,13 @@ void vtkMassProperties::Execute()
   numPts = input->GetNumberOfPoints();
   if (numCells < 1 || numPts < 1)
     {
-      vtkErrorMacro(<<"No data to measure...!");
-      return;
+    vtkErrorMacro(<<"No data to measure...!");
+    return;
     }
   
   ptIds = vtkIdList::New();
   ptIds->Allocate(VTK_CELL_SIZE);
   
-  //
   // Traverse all cells, obtaining node coordinates.
   //
   double   vol[3],kxyz[3];
@@ -178,7 +172,6 @@ void vtkMassProperties::Execute()
   float    xavg,yavg,zavg;
   int      idx;
 
-  //
   // Initialize variables ...
   //
   surfacearea = 0.0;
@@ -194,32 +187,33 @@ void vtkMassProperties::Execute()
     {
     if ( input->GetCellType(cellId) != VTK_TRIANGLE)
       {
-      vtkErrorMacro(<<"Sorry Data type has to be VTK_TRIANGLE not " << input->GetCellType(cellId));
-      return;
+      vtkWarningMacro(<<"Input data type must be VTK_TRIANGLE not " 
+                      << input->GetCellType(cellId));
+      continue;
       }
     input->GetCellPoints(cellId,ptIds);
     numIds = ptIds->GetNumberOfIds();
-    //
-    // store current vertix (x,y,z) corrdinates ...
+
+    // store current vertix (x,y,z) coordinates ...
     //
     for (idx=0; idx < numIds; idx++)
       {
       p = input->GetPoint(ptIds->GetId(idx));
       x[idx] = p[0]; y[idx] = p[1]; z[idx] = p[2];
       }
-    //
+
     // get i j k vectors ... 
     //
     i[0] = ( x[1] - x[0]); j[0] = (y[1] - y[0]); k[0] = (z[1] - z[0]);
     i[1] = ( x[2] - x[0]); j[1] = (y[2] - y[0]); k[1] = (z[2] - z[0]);
     i[2] = ( x[2] - x[1]); j[2] = (y[2] - y[1]); k[2] = (z[2] - z[1]);
-    //
+
     // cross product between two vectors, to determine normal vector
     //
     u[0] = ( j[0] * k[1] - k[0] * j[1]);
     u[1] = ( k[0] * i[1] - i[0] * k[1]);
     u[2] = ( i[0] * j[1] - j[0] * i[1]);
-    //
+
     // normalize normal vector to 1
     //
     length = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2]);
@@ -234,7 +228,6 @@ void vtkMassProperties::Execute()
       u[0] = u[1] = u[2] = 0.0;
       }
 
-    //	
     // determine max unit normal component...
     //
     absu[0] = fabs(u[0]); absu[1] = fabs(u[1]); absu[2] = fabs(u[2]);	
@@ -272,24 +265,22 @@ void vtkMassProperties::Execute()
       vtkErrorMacro(<<"Unpredicted situation...!");
       return; 
       }
-    //
+
     // This is reduced to ...
     //
     ii[0] = i[0] * i[0]; ii[1] = i[1] * i[1]; ii[2] = i[2] * i[2];
     jj[0] = j[0] * j[0]; jj[1] = j[1] * j[1]; jj[2] = j[2] * j[2];
     kk[0] = k[0] * k[0]; kk[1] = k[1] * k[1]; kk[2] = k[2] * k[2];
 
-    //
     // area of a triangle...
     //
     a = sqrt(ii[1] + jj[1] + kk[1]);
     b = sqrt(ii[0] + jj[0] + kk[0]);
     c = sqrt(ii[2] + jj[2] + kk[2]);
     s = 0.5 * (a + b + c);
-    area = sqrt( s*(s-a)*(s-b)*(s-c));
+    area = sqrt( fabs(s*(s-a)*(s-b)*(s-c)));
     surfacearea += area;
 
-    // 
     // volume elements ... 
     //
     zavg = (z[0] + z[1] + z[2]) / 3.0;
@@ -300,13 +291,12 @@ void vtkMassProperties::Execute()
     vol[1] += (area * (double)u[1] * (double)yavg);
     vol[0] += (area * (double)u[0] * (double)xavg);
     }
-  //
-  //  Surface Area ...
+
+  // Surface Area ...
   //
   this->SurfaceArea = (double)surfacearea;
 
-  //
-  //  Weighting factors in Discrete Divergence theorem for volume calculation...
+  // Weighting factors in Discrete Divergence theorem for volume calculation...
   //      
   kxyz[0] = (munc[0] + (wxyz/3.0) + ((wxy+wxz)/2.0)) /(double)(numCells);
   kxyz[1] = (munc[1] + (wxyz/3.0) + ((wxy+wyz)/2.0)) /(double)(numCells);
@@ -319,7 +309,8 @@ void vtkMassProperties::Execute()
   this->Kz = kxyz[2];
   this->Volume =  (kxyz[0] * vol[0] + kxyz[1] * vol[1] + kxyz[2]  * vol[2]);
   this->Volume =  fabs(this->Volume);
-  this->NormalizedShapeIndex = (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
+  this->NormalizedShapeIndex = 
+    (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
   ptIds->Delete();
 }
 
@@ -339,5 +330,6 @@ void vtkMassProperties::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Kz: " << this->GetKz () << "\n";
   os << indent << "Volume:  " << this->GetVolume  () << "\n";
   os << indent << "Surface Area: " << this->GetSurfaceArea () << "\n";
-  os << indent << "Normalized Shape Index: " << this->GetNormalizedShapeIndex () << "\n";
+  os << indent << "Normalized Shape Index: " 
+     << this->GetNormalizedShapeIndex () << "\n";
 }
