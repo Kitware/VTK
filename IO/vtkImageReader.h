@@ -28,7 +28,8 @@
 #define __vtkImageReader_h
 
 #include "vtkImageReader2.h"
-#include "vtkTransform.h"
+
+class vtkTransform;
 
 #define VTK_FILE_BYTE_ORDER_BIG_ENDIAN 0
 #define VTK_FILE_BYTE_ORDER_LITTLE_ENDIAN 1
@@ -57,7 +58,7 @@ public:
   // Set/Get transformation matrix to transform the data from slice space
   // into world space. This matrix must be a permutation matrix. To qualify,
   // the sums of the rows must be + or - 1.
-  vtkSetObjectMacro(Transform,vtkTransform);
+  virtual void SetTransform(vtkTransform*);
   vtkGetObjectMacro(Transform,vtkTransform);
 
   // Warning !!!

@@ -48,7 +48,7 @@ public:
   // Description:
   // When writing to memory this is the result, it will be NULL until the 
   // data is written the first time
-  vtkSetObjectMacro(Result, vtkUnsignedCharArray);
+  virtual void SetResult(vtkUnsignedCharArray*);
   vtkGetObjectMacro(Result, vtkUnsignedCharArray);
 
 protected:

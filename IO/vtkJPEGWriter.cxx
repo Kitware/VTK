@@ -22,8 +22,10 @@ extern "C" {
 #include <jpeglib.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.10");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.11");
 vtkStandardNewMacro(vtkJPEGWriter);
+
+vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
 
 vtkJPEGWriter::vtkJPEGWriter()
 {

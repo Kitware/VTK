@@ -16,11 +16,15 @@
 
 =========================================================================*/
 #include "vtkPLYWriter.h"
+
 #include "vtkPLY.h"
 #include "vtkObjectFactory.h"
+#include "vtkScalarsToColors.h"
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.12");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.13");
 vtkStandardNewMacro(vtkPLYWriter);
+
+vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);
 
 vtkPLYWriter::vtkPLYWriter()
 {

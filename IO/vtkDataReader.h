@@ -30,13 +30,13 @@
 #define __vtkDataReader_h
 
 #include "vtkSource.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkCharArray.h"
 
 #define VTK_ASCII 1
 #define VTK_BINARY 2
 
+class vtkCharArray;
 class vtkDataSet;
+class vtkDataSetAttributes;
 class vtkPointSet;
 class vtkRectilinearGrid;
 
@@ -85,7 +85,7 @@ public:
   // It should be noted that if the underlying char* is owned by the
   // user ( vtkCharArray::SetArray(array, 1); ) and is deleted before
   // the reader, bad things will happen during a pipeline update.
-  vtkSetObjectMacro(InputArray, vtkCharArray);
+  virtual void SetInputArray(vtkCharArray*);
   vtkGetObjectMacro(InputArray, vtkCharArray);
     
   // Description:

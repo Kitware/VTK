@@ -20,8 +20,10 @@
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.11");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.12");
 vtkStandardNewMacro(vtkPNGWriter);
+
+vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
 
 vtkPNGWriter::vtkPNGWriter()
 {

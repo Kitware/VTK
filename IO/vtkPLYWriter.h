@@ -33,8 +33,8 @@
 #define __vtkPLYWriter_h
 
 #include "vtkPolyDataWriter.h"
-#include "vtkPolyData.h"
-#include "vtkScalarsToColors.h"
+
+class vtkScalarsToColors;
 
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1
@@ -103,7 +103,7 @@ public:
   // Description:
   // A lookup table can be specified in order to convert data arrays to
   // RGBA colors.
-  vtkSetObjectMacro(LookupTable,vtkScalarsToColors);
+  virtual void SetLookupTable(vtkScalarsToColors*);
   vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
   
   // Description:

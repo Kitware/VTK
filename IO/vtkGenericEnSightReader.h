@@ -188,7 +188,7 @@ protected:
   float MaximumTimeValue;
   
   vtkCollection *TimeSetTimeValuesCollection;
-  vtkSetObjectMacro(TimeSetTimeValuesCollection, vtkCollection);
+  virtual void SetTimeSetTimeValuesCollection(vtkCollection*);
   
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.

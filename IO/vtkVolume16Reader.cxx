@@ -16,11 +16,15 @@
 
 =========================================================================*/
 #include "vtkVolume16Reader.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkVolume16Reader, "1.44");
+#include "vtkObjectFactory.h"
+#include "vtkTransform.h"
+#include "vtkUnsignedShortArray.h"
+
+vtkCxxRevisionMacro(vtkVolume16Reader, "1.45");
 vtkStandardNewMacro(vtkVolume16Reader);
+
+vtkCxxSetObjectMacro(vtkVolume16Reader,Transform,vtkTransform);
 
 // Construct object with NULL file prefix; file pattern "%s.%d"; image range 
 // set to (1,1); data origin (0,0,0); data spacing (1,1,1); no data mask;

@@ -48,9 +48,9 @@
 #ifndef __vtkVolume16Reader_h
 #define __vtkVolume16Reader_h
 
-#include <stdio.h>
 #include "vtkVolumeReader.h"
-#include "vtkTransform.h"
+
+class vtkTransform;
 class vtkUnsignedCharArray;
 class vtkUnsignedShortArray;
 
@@ -113,7 +113,7 @@ public:
   // Set/Get transformation matrix to transform the data from slice space
   // into world space. This matrix must be a permutation matrix. To qualify,
   // the sums of the rows must be + or - 1.
-  vtkSetObjectMacro(Transform,vtkTransform);
+  virtual void SetTransform(vtkTransform*);
   vtkGetObjectMacro(Transform,vtkTransform);
 
   // Description:
