@@ -270,7 +270,6 @@ vtkCell *vtkImageData::GetCell(vtkIdType cellId)
     case VTK_EMPTY: 
       //cell = this->EmptyCell;
       return NULL;
-      break;
 
     case VTK_SINGLE_POINT: // cellId can only be = 0
       cell = this->Vertex;
