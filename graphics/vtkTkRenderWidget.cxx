@@ -661,9 +661,6 @@ static int
 vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self) 
 {
   Display *dpy;
-  TkWindow *winPtr = (TkWindow *) self->TkWin;
-  TkWindow *winPtr2;
-  Tcl_HashEntry *hPtr;
   int new_flag;
   vtkXRenderWindow *renderWindow;
   
@@ -674,9 +671,9 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   
   dpy = Tk_Display(self->TkWin);
   
-  if (winPtr->window != None) 
+  if (Tk_WindowId(self->TkWin) != None) 
     {
-    XDestroyWindow(dpy, winPtr->window);
+    XDestroyWindow(dpy, Tk_WindowId(self->TkWin));
     }
 
   if (self->RW[0] == '\0')
@@ -718,23 +715,29 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
       if (self->RenderWindow != NULL) {self->RenderWindow->Register(NULL);}
       }
     }
+		
+	// If the imageviewer has already created it's window, throw up our hands and quit...
+	if ( renderWindow->GetWindowId() != (Window)NULL )
+	{
+		return TCL_ERROR;
+	}
+	
+  // Make this window exist, then use that information to make the vtkImageViewer in sync
+  Tk_MakeWindowExist ( self->TkWin );
+  renderWindow->SetWindowId ( (void*)Tk_WindowId ( self->TkWin ) );
   
   // Set the size
   self->RenderWindow->SetSize(self->Width, self->Height);
   
   // Set the parent correctly
   // Possibly X dependent
-  if ((winPtr->parentPtr == NULL) || (winPtr->flags & TK_TOP_LEVEL)) 
+  if ((Tk_Parent(self->TkWin) == NULL) || (Tk_IsTopLevel(self->TkWin))) 
     {
-    renderWindow->SetParentId(XRootWindow(winPtr->display, winPtr->screenNum));
+    renderWindow->SetParentId(XRootWindow(Tk_Display(self->TkWin), Tk_ScreenNumber(self->TkWin)));
     }
   else 
     {
-    if (winPtr->parentPtr->window == None) 
-      {
-      Tk_MakeWindowExist((Tk_Window) winPtr->parentPtr);
-      }
-    renderWindow->SetParentId(winPtr->parentPtr->window);
+    renderWindow->SetParentId(Tk_WindowId(Tk_Parent(self->TkWin) ));
     }
 
   // Use the same display
@@ -748,93 +751,8 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 		     renderWindow->GetDesiredColormap());
   
   self->RenderWindow->Render();  
-  winPtr->window = renderWindow->GetWindowId();
-  XSelectInput(dpy, winPtr->window, VTK_ALL_EVENTS_MASK);
+  XSelectInput(dpy, Tk_WindowId(self->TkWin), VTK_ALL_EVENTS_MASK);
   
-  hPtr = Tcl_CreateHashEntry(&winPtr->dispPtr->winTable,
-			     (char *) winPtr->window, &new_flag);
-  Tcl_SetHashValue(hPtr, winPtr);
-  
-  winPtr->dirtyAtts = 0;
-  winPtr->dirtyChanges = 0;
-#ifdef TK_USE_INPUT_METHODS
-  winPtr->inputContext = NULL;
-#endif // TK_USE_INPUT_METHODS 
-
-  if (!(winPtr->flags & TK_TOP_LEVEL)) 
-    {
-    /*
-     * If any siblings higher up in the stacking order have already
-     * been created then move this window to its rightful position
-     * in the stacking order.
-     *
-     * NOTE: this code ignores any changes anyone might have made
-     * to the sibling and stack_mode field of the window's attributes,
-     * so it really isn't safe for these to be manipulated except
-     * by calling Tk_RestackWindow.
-     */
-
-    for (winPtr2 = winPtr->nextPtr; winPtr2 != NULL;
-	 winPtr2 = winPtr2->nextPtr) 
-      {
-      if ((winPtr2->window != None) && !(winPtr2->flags & TK_TOP_LEVEL)) 
-	{
-	XWindowChanges changes;
-	changes.sibling = winPtr2->window;
-	changes.stack_mode = Below;
-	XConfigureWindow(winPtr->display, winPtr->window,
-			 CWSibling|CWStackMode, &changes);
-	break;
-	}
-      }
-    
-    /*
-     * If this window has a different colormap than its parent, add
-     * the window to the WM_COLORMAP_WINDOWS property for its top-level.
-     */
-    if ((winPtr->parentPtr != NULL) &&
-	(winPtr->atts.colormap != winPtr->parentPtr->atts.colormap)) 
-      {
-      TkWmAddToColormapWindows(winPtr);
-      }
-    } 
-
-  /*
-   * Issue a ConfigureNotify event if there were deferred configuration
-   * changes (but skip it if the window is being deleted;  the
-   * ConfigureNotify event could cause problems if we're being called
-   * from Tk_DestroyWindow under some conditions).
-   */
-  if ((winPtr->flags & TK_NEED_CONFIG_NOTIFY)
-      && !(winPtr->flags & TK_ALREADY_DEAD))
-    {
-    XEvent event;
-    
-    winPtr->flags &= ~TK_NEED_CONFIG_NOTIFY;
-    
-    event.type = ConfigureNotify;
-    event.xconfigure.serial = LastKnownRequestProcessed(winPtr->display);
-    event.xconfigure.send_event = False;
-    event.xconfigure.display = winPtr->display;
-    event.xconfigure.event = winPtr->window;
-    event.xconfigure.window = winPtr->window;
-    event.xconfigure.x = winPtr->changes.x;
-    event.xconfigure.y = winPtr->changes.y;
-    event.xconfigure.width = winPtr->changes.width;
-    event.xconfigure.height = winPtr->changes.height;
-    event.xconfigure.border_width = winPtr->changes.border_width;
-    if (winPtr->changes.stack_mode == Above) 
-      {
-      event.xconfigure.above = winPtr->changes.sibling;
-      }
-    else 
-      {
-      event.xconfigure.above = None;
-      }
-    event.xconfigure.override_redirect = winPtr->atts.override_redirect;
-    Tk_HandleEvent(&event);
-    }
-
   return TCL_OK;
 }
 #endif
