@@ -32,7 +32,7 @@
 #define __vtkAbstractIterator_h
 
 template<class KeyType, class DataType>
-class VTK_COMMON_EXPORT vtkAbstractIterator 
+class  vtkAbstractIterator 
 {
   friend class vtkContainer;
 
