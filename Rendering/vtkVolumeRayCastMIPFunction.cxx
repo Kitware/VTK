@@ -524,6 +524,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         break;
       case VTK_UNSIGNED_SHORT:
         CastMaxScalarValueRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        break;
+      default:
+        vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+        break;
       }  
     }
   else
@@ -535,6 +539,10 @@ void vtkVolumeRayCastMIPFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
         break;
       case VTK_UNSIGNED_SHORT:
         CastMaxOpacityRay( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
+        break;
+      default:
+        vtkWarningMacro ( << "Unsigned char and unsigned short are the only supported datatypes for rendering" );
+        break;
       }  
     }
 }
