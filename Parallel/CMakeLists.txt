@@ -15,11 +15,13 @@ vtkPDataSetWriter
 vtkPieceScalars 
 vtkPipelineSize 
 vtkPImageWriter 
+vtkPCellDataToPointData
 vtkPLinearExtrusionFilter
 vtkPPolyDataNormals 
 vtkPOPReader 
 vtkPSphereSource 
 vtkPVGeometryFilter
+vtkRectilinearGridOutlineFilter
 vtkRTAnalyticSource 
 vtkSharedMemoryCommunicator 
 vtkThreadedController 
