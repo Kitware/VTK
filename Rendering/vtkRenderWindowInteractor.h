@@ -21,7 +21,7 @@
 // vtkRenderWindowInteractor provides a platform-independent interaction
 // mechanism for mouse/key/time events. It serves as a base class for
 // platform-dependent implementations that handle routing of mouse/key/timer
-// messages to vtkInterActorStyle and its subclasses. 
+// messages to vtkInteractorStyle and its subclasses. 
 // vtkRenderWindowInteractor also provides controls for picking,
 // rendering frame rate, and headlights.
 //
