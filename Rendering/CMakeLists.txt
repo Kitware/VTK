@@ -370,15 +370,12 @@ IF (VTK_WRAP_PYTHON)
                  RenderingPython_SRCS
                  ${Rendering_SRCS}
                  ${RenderingOpenGL_SRCS})
-  IF (APPLE) 
-    ADD_LIBRARY(vtkRenderingPython MODULE ${RenderingPython_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkRenderingPython SHARED ${RenderingPython_SRCS})
+  ADD_LIBRARY(vtkRenderingPython MODULE ${RenderingPython_SRCS})
+  IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkRenderingPython
                            vtkGraphicsPython
                            vtkImagingPython)
-  ENDIF (APPLE)
-
+  ENDIF(NOT APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkRenderingPython
                            debug ${PYTHON_DEBUG_LIBRARY}

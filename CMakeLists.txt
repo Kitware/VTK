@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 1.4)
+CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
 PROJECT(VTK)
 INCLUDE_REGULAR_EXPRESSION("^(lex|vtk|png|j).*$")
 
@@ -19,27 +19,9 @@ SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 
 #-----------------------------------------------------------------------------
-# Load the VTK CMake extension module.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  # test for some required system info
-  INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
-  INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
-
-  # Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
-  INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
-
-  # Compile the extensions into the build tree and load them.
-  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake)
-
-  # Install cmake extension directory so user projects can build the commands.
-  INSTALL_FILES(/lib/vtk/CMake FILES
-                ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
-                ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake
-                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
-                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
-                ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
-                ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+# Platform configuration tests.
+INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
+INCLUDE (${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityCXX.cmake)
 
 SET(VTK_SIZEOF_CHAR   ${CMAKE_SIZEOF_CHAR})
 SET(VTK_SIZEOF_DOUBLE ${CMAKE_SIZEOF_DOUBLE})
@@ -48,6 +30,42 @@ SET(VTK_SIZEOF_INT    ${CMAKE_SIZEOF_INT})
 SET(VTK_SIZEOF_LONG   ${CMAKE_SIZEOF_LONG})
 SET(VTK_SIZEOF_SHORT  ${CMAKE_SIZEOF_SHORT})
 
+IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
+  MESSAGE(STATUS "Checking support for C++ type bool")
+  TRY_COMPILE(VTK_COMPILER_HAS_BOOL
+              ${VTK_BINARY_DIR}
+              ${VTK_SOURCE_DIR}/CMake/vtkTestBoolType.cxx
+              OUTPUT_VARIABLE OUTPUT)
+  IF(VTK_COMPILER_HAS_BOOL)
+    MESSAGE(STATUS "Checking support for C++ type bool -- yes")
+    SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
+  ELSE(VTK_COMPILER_HAS_BOOL)
+    MESSAGE(STATUS "Checking support for C++ type bool -- no")
+    SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log 
+      "Determining if the C++ compiler supports type bool "
+      "failed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
+  ENDIF(VTK_COMPILER_HAS_BOOL)
+ENDIF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
+
+#-----------------------------------------------------------------------------
+# Load the VTK CMake extension module.
+
+# Import the VTK_LOAD_CMAKE_EXTENSIONS macro.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+
+# Compile the extensions into the build tree and load them.
+VTK_LOAD_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake)
+
+# Install cmake extension directory so user projects can build the commands.
+INSTALL_FILES(/lib/vtk/CMake FILES
+              ${VTK_SOURCE_DIR}/CMake/CMakeLists.txt
+              ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake
+              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapTcl2Command.c
+              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapPython2Command.c
+              ${VTK_SOURCE_DIR}/CMake/cmVTKWrapJava2Command.c
+              ${VTK_SOURCE_DIR}/CMake/cmVTKMakeInstantiator2Command.c)
 
 #-----------------------------------------------------------------------------
 # Determine the set of VTK kits that should be built.
@@ -111,11 +129,9 @@ IF(APPLE)
   IF (VTK_USE_CARBON)
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -fpascal-strings")
   ENDIF (VTK_USE_CARBON)
-  IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-    IF(BUILD_SHARED_LIBS)
-      SET(VTK_APPLE_SHARED_FLAGS_NEEDED 1)
-    ENDIF(BUILD_SHARED_LIBS)
-  ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+  IF(BUILD_SHARED_LIBS)
+    SET(VTK_APPLE_SHARED_FLAGS_NEEDED 1)
+  ENDIF(BUILD_SHARED_LIBS)
 ENDIF(APPLE)
 
 IF(VTK_USE_X)
@@ -588,21 +604,16 @@ LINK_DIRECTORIES(.)
 # Help other projects use VTK.
 
 # Save the compiler settings so another project can import them.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
-  CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-  INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
+CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
+INSTALL_FILES(/lib/vtk .cmake VTKBuildSettings)
 
 # Create the VTKConfig.cmake file containing the VTK configuration.
 INCLUDE (${VTK_SOURCE_DIR}/vtkGenerateVTKConfig.cmake)
 
 # Install some files.
 INSTALL_FILES(/include/vtk .h vtkConfigure vtkToolkits)
-INSTALL_FILES(/lib/vtk .cmake UseVTK VTKLibraryDepends)
-
-# Hack for cmake 1.4 module.  It needs the file here.
-INSTALL_FILES(/include/vtk .cmake UseVTK)
+INSTALL_FILES(/lib/vtk .cmake UseVTK)
 
 #-----------------------------------------------------------------------------
 # Add compiler flags VTK needs to work on this platform.  This must be

@@ -82,3 +82,6 @@
 #cmakedefine VTK_SIZEOF_INT    ${VTK_SIZEOF_INT}
 #cmakedefine VTK_SIZEOF_LONG   ${VTK_SIZEOF_LONG}
 #cmakedefine VTK_SIZEOF_SHORT  ${VTK_SIZEOF_SHORT}
+
+/* Whether type "bool" is supported by the compiler.  */
+#cmakedefine VTK_COMPILER_HAS_BOOL

@@ -25,11 +25,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 # Create the vtkmyCommon Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
   VTK_WRAP_PYTHON (vtkmyCommonPython CommonPython_SRCS ${Common_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY (vtkmyCommonPython MODULE ${CommonPython_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY (vtkmyCommonPython SHARED ${CommonPython_SRCS})
-  ENDIF (APPLE)
+  ADD_LIBRARY (vtkmyCommonPython MODULE ${CommonPython_SRCS})
   TARGET_LINK_LIBRARIES (vtkmyCommonPython vtkmyCommon vtkCommonPython)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 

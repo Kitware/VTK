@@ -55,14 +55,12 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkPatentedPython PatentedPython_SRCS ${Patented_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkPatentedPython SHARED ${PatentedPython_SRCS})
+  ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
+  IF(NOT APPLE)
     TARGET_LINK_LIBRARIES (vtkPatentedPython
                            vtkGraphicsPython
                            vtkImagingPython)
-  ENDIF (APPLE)
+  ENDIF(NOT APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkPatentedPython
                            debug ${PYTHON_DEBUG_LIBRARY}

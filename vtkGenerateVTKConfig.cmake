@@ -23,13 +23,8 @@ ENDIF(VTK_USE_MPI)
 # The "use" file.
 SET(VTK_USE_FILE ${VTK_BINARY_DIR}/UseVTK.cmake)
 
-# The library dependencies file.
-SET(VTK_LIBRARY_DEPENDS_FILE ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
-
 # The build settings file.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_BUILD_SETTINGS_FILE ${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+SET(VTK_BUILD_SETTINGS_FILE ${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 
 # Library directory.
 SET(VTK_LIBRARY_DIRS_CONFIG ${LIBRARY_OUTPUT_PATH})
@@ -82,9 +77,7 @@ ELSE(VTK_RENDERING_NEED_TK_INTERNAL)
 ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
 
 # CMake extension module directory.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_SOURCE_DIR}/CMake)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_SOURCE_DIR}/CMake)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the build tree.
@@ -92,23 +85,21 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/VTKConfig.cmake @ONLY IMMEDIATE)
 
 # Hack to give source tree access for a build tree configuration.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  STRING(ASCII 35 VTK_STRING_POUND)
-  STRING(ASCII 64 VTK_STRING_AT)
-  WRITE_FILE(${VTK_BINARY_DIR}/VTKConfig.cmake
-    "\n"
-    "${VTK_STRING_POUND} For backward compatability.  DO NOT USE.\n"
-    "SET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\n"
-    "IF(NOT TCL_LIBRARY)\n"
-    "  SET(TCL_LIBRARY \"${TCL_LIBRARY}\" CACHE FILEPATH \"Location of Tcl library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
-    "ENDIF(NOT TCL_LIBRARY)\n"
-    "IF(NOT TK_LIBRARY)\n"
-    "  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
-    "ENDIF(NOT TK_LIBRARY)\n"
-    "MARK_AS_ADVANCED(TCL_LIBRARY TK_LIBRARY)\n"
-    APPEND
-  )
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+STRING(ASCII 35 VTK_STRING_POUND)
+STRING(ASCII 64 VTK_STRING_AT)
+WRITE_FILE(${VTK_BINARY_DIR}/VTKConfig.cmake
+  "\n"
+  "${VTK_STRING_POUND} For backward compatability.  DO NOT USE.\n"
+  "SET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\n"
+  "IF(NOT TCL_LIBRARY)\n"
+  "  SET(TCL_LIBRARY \"${TCL_LIBRARY}\" CACHE FILEPATH \"Location of Tcl library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
+  "ENDIF(NOT TCL_LIBRARY)\n"
+  "IF(NOT TK_LIBRARY)\n"
+  "  SET(TK_LIBRARY \"${TK_LIBRARY}\" CACHE FILEPATH \"Location of Tk library imported from VTK.  This may mean your project is depending on VTK to get this setting.  Consider using FindTCL.cmake.\")\n"
+  "ENDIF(NOT TK_LIBRARY)\n"
+  "MARK_AS_ADVANCED(TCL_LIBRARY TK_LIBRARY)\n"
+  APPEND
+)
 
 #-----------------------------------------------------------------------------
 # Settings specific to the install tree.
@@ -116,13 +107,8 @@ ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
 # The "use" file.
 SET(VTK_USE_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/UseVTK.cmake)
 
-# The library dependencies file.
-SET(VTK_LIBRARY_DEPENDS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKLibraryDepends.cmake)
-
 # The build settings file.
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cmake)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+SET(VTK_BUILD_SETTINGS_FILE ${CMAKE_INSTALL_PREFIX}/lib/vtk/VTKBuildSettings.cmake)
 
 # Include directories.
 SET(VTK_INCLUDE_DIRS_CONFIG
@@ -198,40 +184,6 @@ CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
                ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
 
 #-----------------------------------------------------------------------------
-# Configure VTKLibraryDependencies.cmake for both trees.
-
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  SET(VTK_LIBS
-    vtkCommon vtkCommonJava vtkCommonPython vtkCommonTCL
-    vtkFiltering vtkFilteringJava vtkFilteringPython vtkFilteringTCL
-    vtkGraphics vtkGraphicsJava vtkGraphicsPython vtkGraphicsTCL
-    vtkHybrid vtkHybridJava vtkHybridPython vtkHybridTCL
-    vtkIO vtkIOJava vtkIOPython vtkIOTCL
-    vtkImaging vtkImagingJava vtkImagingPython vtkImagingTCL
-    vtkParallel vtkParallelJava vtkParallelPython vtkParallelTCL
-    vtkPatented vtkPatentedJava vtkPatentedPython vtkPatentedTCL
-    vtkRendering vtkRenderingJava vtkRenderingPython vtkRenderingTCL
-    vtkRenderingPythonTkWidgets
-    vtkexpat vtkfreetype vtkftgl vtkjpeg vtkpng vtktiff vtkzlib
-    )
-
-  # Write an input file that will be configured.
-  STRING(ASCII 35 VTK_STRING_POUND)
-  STRING(ASCII 64 VTK_STRING_AT)
-  WRITE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
-             "${VTK_STRING_POUND} VTK Library Dependencies (for external projects)")
-  FOREACH(lib ${VTK_LIBS})
-    WRITE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
-     "SET(${lib}_LIB_DEPENDS \"${VTK_STRING_AT}${lib}_LIB_DEPENDS${VTK_STRING_AT}\")"
-      APPEND
-    )
-  ENDFOREACH(lib)
-
-  # Configure the file during the final pass so that the latest settings
-  # for the *_LIB_DEPENDS cache entries will be available.
-  CONFIGURE_FILE(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake.in
-                 ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake @ONLY)
-ELSE(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKLibraryDepends.cmake14.in
-                 ${VTK_BINARY_DIR}/VTKLibraryDepends.cmake @ONLY)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+# Append library dependencies to VTKConfig.cmake for both trees.
+EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKConfig.cmake APPEND)
+EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake APPEND)

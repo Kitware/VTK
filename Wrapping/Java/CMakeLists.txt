@@ -41,7 +41,7 @@ IF(JAVA_COMPILE)
       ELSE(WIN32)
         SET(SEPARATOR ":")
       ENDIF(WIN32)
-      
+
       ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
                -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
                Regression -D ${VTK_DATA_ROOT}
@@ -56,9 +56,7 @@ IF(JAVA_COMPILE)
       DEPENDS   ${LIBRARY_OUTPUT_PATH}/vtk.jar ${JAVA_TESTS}
     )   
 
-    IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
-      INSTALL_FILES(/lib/vtk/java FILES ${LIBRARY_OUTPUT_PATH}/vtk.jar)
-    ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+    INSTALL_FILES(/lib/vtk/java FILES ${LIBRARY_OUTPUT_PATH}/vtk.jar)
   ENDIF(JAVA_ARCHIVE)
 
   TARGET_LINK_LIBRARIES (VTKJava vtkIO vtkGraphics vtkImaging)

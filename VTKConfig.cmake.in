@@ -81,8 +81,4 @@ SET(VTK_PRINT_SELF_CHECK_TCL "@VTK_PRINT_SELF_CHECK_TCL_CONFIG@")
 SET(VTK_RT_IMAGE_TEST_TCL "@VTK_RT_IMAGE_TEST_TCL_CONFIG@")
 SET(VTK_PRT_IMAGE_TEST_TCL "@VTK_PRT_IMAGE_TEST_TCL_CONFIG@")
 
-# Load library dependencies used by CMake for automatic chainging of
-# dependent libraries.
-IF(EXISTS "@VTK_LIBRARY_DEPENDS_FILE@")
-  INCLUDE("@VTK_LIBRARY_DEPENDS_FILE@")
-ENDIF(EXISTS "@VTK_LIBRARY_DEPENDS_FILE@")
+# Library dependencies are appended below here.

@@ -267,11 +267,7 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON(vtkCommonPython CommonPython_SRCS ${Common_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY(vtkCommonPython MODULE ${CommonPython_SRCS} vtkPythonUtil.cxx)
-  ELSE (APPLE)
-    ADD_LIBRARY(vtkCommonPython SHARED ${CommonPython_SRCS} vtkPythonUtil.cxx)
-  ENDIF(APPLE)
+  ADD_LIBRARY(vtkCommonPython MODULE ${CommonPython_SRCS} vtkPythonUtil.cxx)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkCommonPython
                            debug ${PYTHON_DEBUG_LIBRARY}
@@ -325,16 +321,14 @@ INSTALL_FILES(/include/vtk .txx
   vtkImageProgressIterator
 )
 
-IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+INSTALL_FILES(/lib/vtk/testing FILES
+              ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
+              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
+              ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
+INSTALL_FILES(/include/vtk FILES
+              ${VTK_SOURCE_DIR}/Common/Testing/Cxx/vtkRegressionTestImage.h)
+IF(VTK_USE_PARALLEL)
   INSTALL_FILES(/lib/vtk/testing FILES
-                ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
-                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl
-                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
-  INSTALL_FILES(/include/vtk FILES
-                ${VTK_SOURCE_DIR}/Common/Testing/Cxx/vtkRegressionTestImage.h)
-  IF(VTK_USE_PARALLEL)
-    INSTALL_FILES(/lib/vtk/testing FILES
-                  ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
-  ENDIF(VTK_USE_PARALLEL)
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 1.4)
+                ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl)
+ENDIF(VTK_USE_PARALLEL)

@@ -41,11 +41,7 @@ ENDIF (VTK_WRAP_TCL AND VTKMY_WRAP_TCL)
 # Create the vtkmyUnsorted Python library.
 IF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
   VTK_WRAP_PYTHON (vtkmyUnsortedPython UnsortedPython_SRCS ${Unsorted_SRCS})
-  IF (APPLE)
-    ADD_LIBRARY (vtkmyUnsortedPython MODULE ${UnsortedPython_SRCS})
-  ELSE (APPLE)
-    ADD_LIBRARY (vtkmyUnsortedPython SHARED ${UnsortedPython_SRCS})
-  ENDIF (APPLE)
+  ADD_LIBRARY (vtkmyUnsortedPython MODULE ${UnsortedPython_SRCS})
   TARGET_LINK_LIBRARIES(vtkmyUnsortedPython vtkmyCommonPython vtkmyUnsorted)
 ENDIF (VTK_WRAP_PYTHON AND VTKMY_WRAP_PYTHON)
 

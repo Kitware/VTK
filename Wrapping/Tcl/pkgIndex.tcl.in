@@ -6,20 +6,8 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
       set libExt [info sharedlibextension]
       set currentDirectory [pwd]
       set libFile [file join $libPath "$libPrefix$libName$libExt"]
-      if {$::vtk::init::checkClass} {
-        if {[info commands $::vtk::init::classTable($libName)] != ""} {
-          package provide $libName {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
-        } else {
-          if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
-            puts $errorMessage
-          } else {
-          package provide $libName {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
-          }
-        }
-      } else {
-        if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
-          puts $errorMessage
-        }
+      if {[catch "cd {$libPath}; load {$libFile}" errorMessage]} {
+        puts $errorMessage
       }
       cd $currentDirectory
     }
@@ -30,18 +18,6 @@ package ifneeded vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@} {
       } else {
         return 1
       }
-    }
-    set checkClass {@VTK_TCL_NEED_CHECK_CLASS@}
-    if {$checkClass} {
-      set classTable(vtkCommonTCL) vtkObject
-      set classTable(vtkFilteringTCL) vtkCardinalSpline
-      set classTable(vtkIOTCL) vtkBMPReader
-      set classTable(vtkGraphicsTCL) vtkAxes
-      set classTable(vtkImagingTCL) vtkImageFFT
-      set classTable(vtkRenderingTCL) vtkAxisActor2D
-      set classTable(vtkHybridTCL) vtkEarthSource
-      set classTable(vtkParallelTCL) vtkParallelFactory
-      set classTable(vtkPatentedTCL) vtkKitwareContourFilter
     }
   }
   package provide vtkinit {@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@}
