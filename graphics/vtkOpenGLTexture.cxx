@@ -45,15 +45,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkOpenGLTexture.h"
 #include <GL/gl.h>
 
-// shared increasing counter
-long vtkOpenGLTexture::GlobalIndex = 0;
-
 // Description:
 // Initializes an instance, generates a unique index.
 vtkOpenGLTexture::vtkOpenGLTexture()
 {
-  this->GlobalIndex++;
-  this->Index = this->GlobalIndex;
+  this->Index = 0;
 }
 
 // Description:
@@ -173,6 +169,14 @@ void vtkOpenGLTexture::Load(vtkRenderer *vtkNotUsed(ren))
       }
 
     // define a display list for this texture
+    // free any old display lists
+    if (this->Index)
+      {
+      glDeleteLists(this->Index,1);
+      this->Index = 0;
+      }
+    // get a unique display list id
+    this->Index = glGenLists(1);
     glDeleteLists ((GLuint) this->Index, (GLsizei) 0);
     glNewList ((GLuint) this->Index, GL_COMPILE);
     if (this->Interpolate)
