@@ -17,7 +17,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeMapper, "1.4");
 
 // Construct a vtkUnstructuredGridVolumeMapper with empty scalar input and clipping off.
 vtkUnstructuredGridVolumeMapper::vtkUnstructuredGridVolumeMapper()
@@ -40,7 +40,7 @@ void vtkUnstructuredGridVolumeMapper::SetInput( vtkDataSet *genericInput )
     }
   else
     {
-    vtkErrorMacro("The SetInput method of this mapper requires vtkImageData as input");
+    vtkErrorMacro("The SetInput method of this mapper requires vtkUnstructuredGrid as input");
     }
 }
 
