@@ -31,7 +31,7 @@
 #include "vtkCellData.h"
 #include "vtkGenericCellTessellator.h"
 
-vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.8");
+vtkCxxRevisionMacro(vtkGenericDataSetTessellator, "1.9");
 vtkStandardNewMacro(vtkGenericDataSetTessellator);
 
 //----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ void vtkGenericDataSetTessellator::Execute()
     ++i;
     }
   
-  vtkIdTypeArray *cellIdArray;
+  vtkIdTypeArray *cellIdArray=0;
   
   if(this->KeepCellIds)
     {

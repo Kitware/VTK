@@ -364,7 +364,7 @@ static signed char vtkTessellatorTetraCasesLeft[65][8][4] = {
 };
 
 
-vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.4");
+vtkCxxRevisionMacro(vtkSimpleCellTessellator, "1.5");
 vtkStandardNewMacro(vtkSimpleCellTessellator);
 //-----------------------------------------------------------------------------
 //
@@ -1169,7 +1169,7 @@ void vtkSimpleCellTessellator::InsertPointsIntoEdgeTable(vtkTetraTile &tetra )
 // 
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 {
-  double *local;
+  double *local=0;
   vtkIdType tmp;
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
@@ -1352,7 +1352,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile &tri )
 // 
 void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable( vtkTetraTile &tetra )
 {
-  double *local;
+  double *local=0;
   
   vtkIdType tmp;
   vtkIdType l, r;
