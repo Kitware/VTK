@@ -157,6 +157,7 @@ XVisualInfo *vtkMesaRenderWindow::GetDesiredVisualInfo()
 vtkMesaRenderWindow::vtkMesaRenderWindow()
 {
   this->OffScreenContextId = NULL;
+  this->OffScreenWindow = NULL;
   this->ContextId = NULL;
   this->DisplayId = (Display *)NULL;
   this->WindowId = (Window)NULL;
