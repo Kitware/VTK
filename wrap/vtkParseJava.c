@@ -336,7 +336,9 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   if (!data->NumberOfSuperClasses)
     {
     fprintf(fp,"\n  public %s() { this.VTKInit();};\n",data->ClassName);
+    fprintf(fp,"\n  protected %s(int dmy) { super(); };\n",data->ClassName);
     fprintf(fp,"  protected int vtkId = 0;\n");
+
     
     /* if we are a base class and have a delete method */
     if (data->HasDelete)
@@ -345,6 +347,12 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
       fprintf(fp,"  protected void finalize() { this.VTKDelete();};\n");
       }
     }
+  else
+    {
+    fprintf(fp,"\n  public %s() { super(); };\n",data->ClassName);
+    fprintf(fp,"\n  protected %s(int dmy) { super(dmy); };\n",data->ClassName);
+    }
+
   if ((!data->IsAbstract)&&
       strcmp(data->ClassName,"vtkDataWriter") &&
       strcmp(data->ClassName,"vtkPointSet") &&
@@ -354,7 +362,7 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"  public native void   VTKInit();\n");
     }
 
-  fprintf(fp,"  public native void   VTKCastInit();\n");
+  fprintf(fp,"  protected native void   VTKCastInit();\n");
 
   if (!strcmp("vtkObject",data->ClassName))
     {
