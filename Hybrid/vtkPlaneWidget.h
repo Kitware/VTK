@@ -21,7 +21,8 @@
 // placed in a scene. The plane has four handles (at its corner vertices), a
 // normal vector, and the plane itself. The handles are used to resize the
 // plane; the normal vector to rotate it, and the plane can be picked and
-// translated. A nice feature of the object is that the vtkPlaneWidget, like
+// translated. Selecting the plane while pressing CTRL makes it spin around 
+// the normal. A nice feature of the object is that the vtkPlaneWidget, like
 // any 3D widget, will work with the current interactor style. That is, if
 // vtkPlaneWidget does not handle an event, then all other registered
 // observers (including the interactor style) have an opportunity to process
@@ -35,7 +36,8 @@
 // documentation for information about changing this behavior.) By grabbing
 // the one of the four handles (use the left mouse button), the plane can be
 // resized.  By grabbing the plane itself, the entire plane can be
-// arbitrarily translated. If you select the normal vector, the plane can be
+// arbitrarily translated. Pressing CTRL while grabbing the plane will spin
+// the plane around the normal. If you select the normal vector, the plane can be
 // arbitrarily rotated. Selecting any part of the widget with the middle
 // mouse button enables translation of the plane along its normal. (Once
 // selected using middle mouse, moving the mouse in the direction of the
@@ -244,6 +246,7 @@ protected:
     Scaling,
     Pushing,
     Rotating,
+    Spinning,
     Outside
   };
 //ETX
@@ -319,6 +322,7 @@ protected:
   void MovePoint2(double *p1, double *p2);
   void MovePoint3(double *p1, double *p2);
   void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
+  void Spin(int X, int Y, double *p1, double *p2, double *vpn);
   void Scale(double *p1, double *p2, int X, int Y);
   void Translate(double *p1, double *p2);
   void Push(double *p1, double *p2);
