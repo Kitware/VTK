@@ -22,6 +22,7 @@ vtkMPICommunicator-GetWorldCommunicator
 proc TestOne {cname} {
    global exceptions
    $cname b 
+   puts "Testing Class $cname"
    set methods [b ListMethods]
    # look for a Get Set pair
    set len [llength $methods]
@@ -70,6 +71,7 @@ set classExceptions {
    vtkImageDataToTkPhoto
    vtkViewRays
    vtkWin32OutputWindow
+   vtkWin32ProcessOutputWindow
    vtkXMLFileOutputWindow
 }
 
