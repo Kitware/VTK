@@ -60,7 +60,7 @@
 // Finally, when Execute() is reading from the FrameBuffer it must do
 // so from within a mutex lock.  Otherwise tearing artifacts might result.
 
-vtkCxxRevisionMacro(vtkVideoSource, "1.28");
+vtkCxxRevisionMacro(vtkVideoSource, "1.29");
 vtkStandardNewMacro(vtkVideoSource);
 
 #if ( _MSC_VER >= 1300 ) // Visual studio .NET
@@ -76,18 +76,21 @@ static vtkVideoSource **vtkVideoSources = NULL;
 static int vtkVideoSourceExitFuncRegistered = 0;
 
 // this function is called at exit
-static void vtkVideoSourceExitFunc()
+extern "C"
 {
-  int i = 0;
-  
-  for (i = 0; i < vtkVideoSourcesLen; i++)
-    {
-    vtkVideoSources[i]->ReleaseSystemResources();
-    }
-
-  free((void *)vtkVideoSources);
-  vtkVideoSources = 0;
-  vtkVideoSourcesLen = 0;
+  void vtkVideoSourceExitFunc()
+  {
+    int i = 0;
+    
+    for (i = 0; i < vtkVideoSourcesLen; i++)
+      {
+      vtkVideoSources[i]->ReleaseSystemResources();
+      }
+    
+    free((void *)vtkVideoSources);
+    vtkVideoSources = 0;
+    vtkVideoSourcesLen = 0;
+  }
 }
 
 // this function is called to add a source to the list

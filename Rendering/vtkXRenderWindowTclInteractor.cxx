@@ -31,7 +31,7 @@
 #include "vtkOldStyleCallbackCommand.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.41");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.42");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -562,7 +562,9 @@ void vtkXRenderWindowTclInteractor::TerminateApp(void)
 #endif
 
 #if TCL_MAJOR_VERSION == 8 && TCL_MINOR_VERSION <= 2
-  Tcl_GlobalEval(interp, "exit");
+  char es[12];
+  strcpy(es,"exit");
+  Tcl_GlobalEval(interp, es);
 #else
   Tcl_EvalEx(interp, "exit", -1, TCL_EVAL_GLOBAL);
 #endif
