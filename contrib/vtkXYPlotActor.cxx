@@ -176,6 +176,9 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->InputList->Delete();
   this->InputList = NULL;
 
+  this->DataObjectInputList->Delete();
+  this->DataObjectInputList = NULL;
+
   this->TitleMapper->Delete();
   this->TitleMapper = NULL;
   this->TitleActor->Delete();
@@ -213,6 +216,8 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->LegendActor->Delete();
   this->GlyphSource->Delete();
   this->ClipPlanes->Delete();
+  
+  this->InitializeEntries();
 }
 
 void vtkXYPlotActor::InitializeEntries()
@@ -309,7 +314,8 @@ int vtkXYPlotActor::RenderOverlay(vtkViewport *viewport)
   int renderedSomething=0;
 
   // Make sure input is up to date.
-  if ( this->InputList->GetNumberOfItems() < 1 )
+  if ( this->InputList->GetNumberOfItems() < 1 && 
+    this->DataObjectInputList->GetNumberOfItems() < 1 )
     {
     vtkErrorMacro(<< "Nothing to plot!");
     return 0;
@@ -1445,5 +1451,10 @@ void vtkXYPlotActor::ClipPlotData(int *pos, int *pos2, vtkPolyData *pd)
   pd->SetPoints(newPoints);
   pd->SetVerts(newVerts);
   pd->SetLines(newLines);
+  
+  newPoints->Delete();
+  newVerts->Delete();
+  newLines->Delete();
+  
 }
 
