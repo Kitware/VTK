@@ -71,11 +71,6 @@ vtkOpenGLTexture* vtkOpenGLTexture::New()
 }
 
 
-
-
-// shared increasing counter
-long vtkOpenGLTexture::GlobalIndex = 0;
-
 // Initializes an instance, generates a unique index.
 vtkOpenGLTexture::vtkOpenGLTexture()
 {

@@ -81,7 +81,6 @@ protected:
 
   vtkTimeStamp   LoadTime;
   long          Index;
-  static   long GlobalIndex;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
 };
 

@@ -80,7 +80,6 @@ protected:
 
   vtkTimeStamp   LoadTime;
   long          Index;
-  static   long GlobalIndex;
   vtkRenderWindow *RenderWindow;   // RenderWindow used for previous render
   float Coords[12];
   float TCoords[8];
