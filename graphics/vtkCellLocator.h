@@ -105,6 +105,17 @@ public:
 			int &subId, float& dist2);
   
   // Description:
+  // Return the closest point and the cell which is closest to the point x.
+  // The closest point is somewhere on a cell, it need not be one of the
+  // vertices of the cell.  This version takes in a vtkGenericCell
+  // to avoid allocating and deallocating the cell.  This is much faster than
+  // the version which does not take a *cell, especially when this function is
+  // called many times in a row such as by a for loop, where the allocation and
+  // dellaoction can be done only once outside the for loop.
+  void FindClosestPoint(float x[3], float closestPoint[3], vtkGenericCell *cell, 
+	        int &cellId, int &subId, float& dist2);
+  
+  // Description:
   // Return the closest point within a specified radius and the cell which is
   // closest to the point x. The closest point is somewhere on a cell, it
   // need not be one of the vertices of the cell. This method returns 1 if
@@ -113,6 +124,21 @@ public:
   // cellId, subId, and dist2 are undefined.
   int FindClosestPointWithinRadius(float x[3], float radius,
 				   float closestPoint[3], int &cellId,
+				   int &subId, float& dist2);
+ 
+  // Description:
+  // Return the closest point within a specified radius and the cell which is
+  // closest to the point x. The closest point is somewhere on a cell, it
+  // need not be one of the vertices of the cell. This method returns 1 if
+  // a point is found within the specified radius. If there are no cells within
+  // the specified radius, the method returns 0 and the values of closestPoint,
+  // cellId, subId, and dist2 are undefined. This version takes in a vtkGenericCell
+  // to avoid allocating and deallocating the cell.  This is much faster than
+  // the version which does not take a *cell, especially when this function is
+  // called many times in a row such as by a for loop, where the allocation and
+  // dellaoction can be done only once outside the for loop.
+  int FindClosestPointWithinRadius(float x[3], float radius,
+				   float closestPoint[3], vtkGenericCell *cell, int &cellId,
 				   int &subId, float& dist2);
   
   // Description:
@@ -139,7 +165,7 @@ protected:
   int NumberOfOctants; // number of octants in tree
   float Bounds[6]; // bounding box root octant
   int NumberOfParents; // number of parent octants
-  float H[3]; // width of root octant in x-y-z directions
+  float H[3]; // width of leaf octant in x-y-z directions
   int NumberOfDivisions; // number of "leaf" octant sub-divisions
   vtkIdList **Tree; // octree
 
