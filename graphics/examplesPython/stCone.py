@@ -35,7 +35,7 @@ w2if.SetInput(renWin)
 imgDiff = vtkImageDifference()
     
 rtpnm = vtkPNMReader()
-rtpnm.SetFileName("valid/Cone.ppm");
+rtpnm.SetFileName("valid/Cone.tcl.ppm");
 
 imgDiff.SetInput(w2if.GetOutput());
 imgDiff.SetImage(rtpnm.GetOutput());
