@@ -135,10 +135,9 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkParallelPython MODULE ${ParallelPython_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkParallelPython SHARED ${ParallelPython_SRCS})
-  TARGET_LINK_LIBRARIES (vtkParallelPython vtkParallel vtkIOPython
-                         vtkRenderingPython)
-  TARGET_LINK_LIBRARIES (vtkParallelPython ${OPENGL_LIBRARY})
   ENDIF (APPLE)
+  TARGET_LINK_LIBRARIES (vtkParallelPython vtkIOPython vtkRenderingPython)
+  TARGET_LINK_LIBRARIES (vtkParallelPython ${OPENGL_LIBRARY})
 
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtkParallelPython

@@ -50,7 +50,7 @@ IF (VTK_WRAP_PYTHON)
     ADD_LIBRARY(vtkPatentedPython MODULE ${PatentedPython_SRCS})
   ELSE (APPLE)
     ADD_LIBRARY(vtkPatentedPython SHARED ${PatentedPython_SRCS})
-    TARGET_LINK_LIBRARIES (vtkPatentedPython vtkPatented
+    TARGET_LINK_LIBRARIES (vtkPatentedPython
                            vtkGraphicsPython
                            vtkImagingPython)
   ENDIF (APPLE)
