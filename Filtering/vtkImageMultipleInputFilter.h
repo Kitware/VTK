@@ -98,6 +98,7 @@ protected:
 
 
   void ExecuteData(vtkDataObject *output);
+  void MultiThread(vtkImageData **indatas, vtkImageData *outdata);
 
   // This one gets called by the superclass.
   void ExecuteInformation();

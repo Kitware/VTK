@@ -21,7 +21,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.61");
+vtkCxxRevisionMacro(vtkImageMultipleInputFilter, "1.62");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputFilter::vtkImageMultipleInputFilter()
@@ -195,28 +195,17 @@ VTK_THREAD_RETURN_TYPE vtkImageMultiThreadedExecute( void *arg )
 // The execute method created by the subclass.
 void vtkImageMultipleInputFilter::ExecuteData(vtkDataObject *out)
 {
-  vtkImageData *output = vtkImageData::SafeDownCast(out);
-  if (!output)
-    {
-    vtkWarningMacro("ExecuteData called without ImageData output");
-    return;
-    }
+  vtkImageData *outdata = this->AllocateOutputData(out);
+  this->MultiThread((vtkImageData**)this->GetInputs(), outdata);
+}
 
-  // Too many filters have floating point exceptions to execute
-  // with empty input/ no request.
-  if (this->UpdateExtentIsEmpty(output))
-    {
-    return;
-    }
-
-
-  output->SetExtent(output->GetUpdateExtent());
-  output->AllocateScalars();
-
+//----------------------------------------------------------------------------
+void vtkImageMultipleInputFilter::MultiThread(vtkImageData **inputs, vtkImageData *output)
+{
   vtkImageMultiThreadStruct str;
   
   str.Filter = this;
-  str.Inputs = (vtkImageData **)this->GetInputs();
+  str.Inputs = inputs;
   str.Output = output;
   
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);
