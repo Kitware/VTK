@@ -34,6 +34,13 @@ vtkFloatVectors.o \
 vtkGraymap.o \
 vtkHexahedron.o \
 vtkIdList.o \
+vtkImageCache.o \
+vtkImageCachedSource.o \
+vtkImageData.o \
+vtkImagePanCache.o \
+vtkImageRegion.o \
+vtkImageSimpleCache.o \
+vtkImageSource.o \
 vtkImplicitFunction.o \
 vtkIndent.o \
 vtkIntArray.o \
@@ -114,6 +121,13 @@ tcl/vtkFloatVectorsTcl.o \
 tcl/vtkGraymapTcl.o \
 tcl/vtkHexahedronTcl.o \
 tcl/vtkIdListTcl.o \
+tcl/vtkImageCacheTcl.o \
+tcl/vtkImageCachedSourceTcl.o \
+tcl/vtkImageDataTcl.o \
+tcl/vtkImagePanCacheTcl.o \
+tcl/vtkImageRegionTcl.o \
+tcl/vtkImageSimpleCacheTcl.o \
+tcl/vtkImageSourceTcl.o \
 tcl/vtkImplicitFunctionTcl.o \
 tcl/vtkImplicitFunctionCollectionTcl.o \
 tcl/vtkIndentTcl.o \
@@ -194,6 +208,13 @@ vtkFloatVectors.h \
 vtkGraymap.h \
 vtkHexahedron.h \
 vtkIdList.h \
+vtkImageCache.h \
+vtkImageCachedSource.h \
+vtkImageData.h \
+vtkImagePanCache.h \
+vtkImageRegion.h \
+vtkImageSimpleCache.h \
+vtkImageSource.h \
 vtkImplicitFunctionCollection.h \
 vtkIndent.h \
 vtkIntArray.h \
@@ -378,6 +399,27 @@ tcl/vtkImplicitFunctionCollectionTcl.cxx: vtkImplicitFunctionCollection.h ../tcl
 
 tcl/vtkIdListTcl.cxx: vtkIdList.h ../tcl/cpp_parse
 	 rm -f tcl/vtkIdListTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIdList.h ${srcdir}/../tcl/hints 1 > tcl/vtkIdListTcl.cxx
+
+tcl/vtkImageCacheTcl.cxx: vtkImageCache.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageCacheTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageCache.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageCacheTcl.cxx
+
+tcl/vtkImageCachedSourceTcl.cxx: vtkImageCachedSource.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageCachedSourceTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageCachedSource.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageCachedSourceTcl.cxx
+
+tcl/vtkImageDataTcl.cxx: vtkImageData.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageDataTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageData.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageDataTcl.cxx
+
+tcl/vtkImagePanCacheTcl.cxx: vtkImagePanCache.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImagePanCacheTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImagePanCache.h ${srcdir}/../tcl/hints 1 > tcl/vtkImagePanCacheTcl.cxx
+
+tcl/vtkImageRegionTcl.cxx: vtkImageRegion.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageRegionTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageRegion.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageRegionTcl.cxx
+
+tcl/vtkImageSimpleCacheTcl.cxx: vtkImageSimpleCache.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageSimpleCacheTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSimpleCache.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSimpleCacheTcl.cxx
+
+tcl/vtkImageSourceTcl.cxx: vtkImageSource.h ../tcl/cpp_parse
+	 rm -f tcl/vtkImageSourceTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkImageSource.h ${srcdir}/../tcl/hints 1 > tcl/vtkImageSourceTcl.cxx
 
 tcl/vtkIndentTcl.cxx: vtkIndent.h ../tcl/cpp_parse
 	 rm -f tcl/vtkIndentTcl.cxx; ../tcl/cpp_parse ${srcdir}/vtkIndent.h ${srcdir}/../tcl/hints 1 > tcl/vtkIndentTcl.cxx
