@@ -160,7 +160,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.7\n";
+  os << "vtkObjectBase 1.8\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -225,12 +225,12 @@ void vtkObjectBase::RemoveReferences()
 void vtkObjectBase::GarbageCollectionStarting()
 {
   // Do not delete this object until garbage collection is finishing.
-  this->Register(0);
+  this->Register(this);
 }
 
 //----------------------------------------------------------------------------
 void vtkObjectBase::GarbageCollectionFinishing()
 {
   // Delete this object now.
-  this->UnRegister(0);
+  this->UnRegister(this);
 }
