@@ -227,9 +227,15 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
 //----------------------------------------------------------------------------
 void vtkSpherePuzzleArrows::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int idx;
+  int i;
   vtkPolyDataSource::PrintSelf(os,indent);
 
-  //os << indent << "State: " << this->State[0];
+  os << indent << "Permutation: ";
+  for (i = 0; i < 32; ++i)
+    {
+    os << this->Permutation[i] << " ";
+    }
+  os << endl;
+
 }
 
