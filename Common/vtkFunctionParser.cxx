@@ -17,7 +17,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkFunctionParser, "1.26");
+vtkCxxRevisionMacro(vtkFunctionParser, "1.27");
 vtkStandardNewMacro(vtkFunctionParser);
 
 static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT, 
@@ -1270,7 +1270,7 @@ int vtkFunctionParser::BuildInternalFunctionStructure()
 void vtkFunctionParser::BuildInternalSubstringStructure(int beginIndex,
                                                         int endIndex)
 {
-  int mathFunctionNum, mathConstantNum, beginIndex2;
+  int mathFunctionNum, beginIndex2;
   int opNum, parenthesisCount, i;
   static const char* const elementaryMathOps = "+-.*/^";
   
