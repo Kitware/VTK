@@ -77,7 +77,7 @@ static vtkFontStruct *cache[30] = {
   NULL,NULL,NULL,NULL,NULL,
   NULL,NULL,NULL,NULL,NULL,
   NULL,NULL,NULL,NULL,NULL};
-static numCached = 0;
+static int numCached = 0;
 
 int vtkWin32OpenGLTextMapper::GetListBaseForFont(vtkTextMapper *tm, 
                                                  vtkViewport *vp)

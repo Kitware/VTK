@@ -77,7 +77,7 @@ void (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void
 // Construct object so that light follows camera motion.
 vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor() 
 {
-  static timerId           = 1;
+  static int timerId           = 1;
   this->WindowId           = 0;
   this->TimerId            = timerId++;
   this->InstallMessageProc = 1;
