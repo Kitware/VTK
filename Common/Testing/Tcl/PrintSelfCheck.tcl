@@ -674,7 +674,7 @@ proc measure_vtk {kits} {
   global total_ivar_miss_count
   global total_super_miss_count
 
-  set path "./"
+  set path ""
 
   open_files
 
