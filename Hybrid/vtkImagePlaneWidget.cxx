@@ -40,7 +40,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.30");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.31");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1788,7 +1788,6 @@ void vtkImagePlaneWidget::GetPolyData(vtkPolyData *pd)
 void vtkImagePlaneWidget::SetTextProperty(vtkTextProperty* tprop)
 {
   this->TextActor->SetTextProperty(tprop);
-  this->TextActor->Modified();
 }
 
 vtkTextProperty* vtkImagePlaneWidget::GetTextProperty()
