@@ -150,7 +150,7 @@ void vtkGeometryFilter::Execute()
           x = this->Input->GetPoint(ptId);
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
-          ptId > this->PointMaximum) ) &&
+          ptId > this->PointMaximum) ) ||
           (this->ExtentClipping && 
           (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
           x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
