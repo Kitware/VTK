@@ -16,11 +16,13 @@
 
 #include "vtkCellArray.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlanes.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkHull, "1.36");
+vtkCxxRevisionMacro(vtkHull, "1.37");
 vtkStandardNewMacro(vtkHull);
 
 // Construct an the hull object with no planes
@@ -474,10 +476,21 @@ void vtkHull::AddRecursiveSpherePlanes( int level )
 
 // Create the n-sided convex hull from the input geometry according to the
 // set of planes.
-void vtkHull::Execute()
+int vtkHull::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
-  vtkPolyData    *input       = this->GetInput();
-  vtkPolyData    *output      = this->GetOutput();
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType      numPoints;
   vtkPoints      *outPoints;
   vtkCellArray   *outPolys;
@@ -490,7 +503,7 @@ void vtkHull::Execute()
   if ( numPoints < 3 )
     {
     vtkErrorMacro( << "There must be >= 3 points in the input data!!!\n" );
-    return;
+    return 0;
     }
 
   // There should be at least four planes for this to work. There will need
@@ -498,7 +511,7 @@ void vtkHull::Execute()
   if ( this->NumberOfPlanes < 4 )
     {
     vtkErrorMacro( << "There must be >= 4 planes!!!\n" );
-    return;
+    return 0;
     }
 
   // Create a new set of points and polygons into which the results will
@@ -508,7 +521,7 @@ void vtkHull::Execute()
 
   // Compute the D value for each plane according to the vertices in the
   // geometry
-  this->ComputePlaneDistances();
+  this->ComputePlaneDistances(input);
   this->UpdateProgress(0.25);
 
   // Create a large polygon representing each plane, and clip that polygon
@@ -524,15 +537,15 @@ void vtkHull::Execute()
   outPoints->Delete();
   outPolys->Delete();
 
+  return 1;
 }
 
 // Compute the D value for each plane. This is the largest D value obtained 
 // by passing a plane with the specified normal through each vertex in the
 // geometry. This plane will have a normal pointing in towards the center of
 // the hull.
-void vtkHull::ComputePlaneDistances()
+void vtkHull::ComputePlaneDistances(vtkPolyData *input)
 {
-  vtkPolyData    *input       = this->GetInput();
   vtkIdType      i;
   int            j;
   double          coord[3];

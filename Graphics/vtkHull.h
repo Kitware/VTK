@@ -38,18 +38,18 @@
 #ifndef __vtkHull_h
 #define __vtkHull_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
 class vtkCellArray;
 class vtkPlanes;
 class vtkPoints;
 class vtkPolyData;
 
-class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataToPolyDataFilter
+class VTK_GRAPHICS_EXPORT vtkHull : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHull *New();
-  vtkTypeRevisionMacro(vtkHull,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkHull,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -154,7 +154,7 @@ protected:
   int       NumberOfPlanes;
 
   // Internal method used to find the position of each plane
-  void      ComputePlaneDistances();
+  void      ComputePlaneDistances(vtkPolyData *input);
 
   // Internal method used to create the actual polygons from the set 
   // of planes
@@ -167,7 +167,7 @@ protected:
   void      CreateInitialPolygon( double *, int, double * );
 
   // The method that does it all...
-  void      Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkHull(const vtkHull&);  // Not implemented.
   void operator=(const vtkHull&);  // Not implemented.
