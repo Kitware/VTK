@@ -47,6 +47,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkIndent_h
 #define __vtkIndent_h
 
+#ifdef _WIN32
+#include "vtkWin32Header.h"
+#endif
+
 #include <iostream.h>
 
 class vtkIndent

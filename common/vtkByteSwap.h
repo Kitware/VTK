@@ -49,6 +49,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkByteSwap_h
 #include <stdio.h>
 
+#ifdef _WIN32
+#include "vtkWin32Header.h"
+#endif
+
 class vtkByteSwap
 {
 public:
