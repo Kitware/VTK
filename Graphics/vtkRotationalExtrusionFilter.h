@@ -54,12 +54,12 @@
 #ifndef __vtkRotationalExtrusionFilter_h
 #define __vtkRotationalExtrusionFilter_h
 
-#include "vtkPolyDataToPolyDataFilter.h"
+#include "vtkPolyDataAlgorithm.h"
 
-class VTK_GRAPHICS_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataToPolyDataFilter 
+class VTK_GRAPHICS_EXPORT vtkRotationalExtrusionFilter : public vtkPolyDataAlgorithm 
 {
 public:
-  vtkTypeRevisionMacro(vtkRotationalExtrusionFilter,vtkPolyDataToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkRotationalExtrusionFilter,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -99,7 +99,7 @@ protected:
   vtkRotationalExtrusionFilter();
   ~vtkRotationalExtrusionFilter() {};
 
-  void Execute();
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int Resolution;
   int Capping;
   double Angle;

@@ -18,12 +18,14 @@
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.54");
+vtkCxxRevisionMacro(vtkRotationalExtrusionFilter, "1.55");
 vtkStandardNewMacro(vtkRotationalExtrusionFilter);
 
 // Create object with capping on, angle of 360 degrees, resolution = 12, and
@@ -38,10 +40,22 @@ vtkRotationalExtrusionFilter::vtkRotationalExtrusionFilter()
   this->Resolution = 12; // 30 degree increments
 }
 
-void vtkRotationalExtrusionFilter::Execute()
+int vtkRotationalExtrusionFilter::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
+  // get the info objects
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  // get the input and ouptut
+  vtkPolyData *input = vtkPolyData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkPolyData *output = vtkPolyData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   vtkIdType numPts, numCells;
-  vtkPolyData *input= this->GetInput();
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();
   vtkPolyData *mesh;
@@ -59,7 +73,6 @@ void vtkRotationalExtrusionFilter::Execute()
   vtkIdList *cellIds;
   int i, j, k;
   vtkIdType p1, p2;
-  vtkPolyData *output= this->GetOutput();
   vtkPointData *outPD=output->GetPointData();
   vtkCellData *outCD=output->GetCellData();
   double tempd;
@@ -74,7 +87,7 @@ void vtkRotationalExtrusionFilter::Execute()
   if (numPts < 1 || numCells < 1)
     {
     vtkErrorMacro(<<"No data to extrude!");
-    return;
+    return 0;
     }
 
   // Build cell data structure.
@@ -348,9 +361,9 @@ void vtkRotationalExtrusionFilter::Execute()
   newStrips->Delete();
 
   output->Squeeze();
+
+  return 1;
 }
-
-
 
 void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -362,4 +375,3 @@ void vtkRotationalExtrusionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Translation: " << this->Translation << "\n";
   os << indent << "Delta Radius: " << this->DeltaRadius << "\n";
 }
-
