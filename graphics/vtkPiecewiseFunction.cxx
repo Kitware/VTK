@@ -276,7 +276,7 @@ void vtkPiecewiseFunction::MovePoints( int index, int down )
 
   i = index;
 
-  if( down )
+  if( down && ((i+1) < this->FunctionSize))
     {
     // Move points down (i+1) = i
     swap1_x = this->Function[(2*i)];
@@ -510,7 +510,7 @@ void vtkPiecewiseFunction::IncreaseArraySize()
       this->Function[(2*i)+1] = old_function[(2*i)+1];
     }
 
-  delete old_function;
+  delete [] old_function;
 }
 
 // Description:
