@@ -256,7 +256,7 @@ void vtkDataSetAttributes::DeepCopy(vtkFieldData *fd)
       newData->Delete();
       }
     // Copy the copy flags
-    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+    for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       this->CopyAttributeFlags[attributeType] = 
 	dsa->CopyAttributeFlags[attributeType];
@@ -305,7 +305,7 @@ void vtkDataSetAttributes::ShallowCopy(vtkFieldData *fd)
 	}
       }
     // Copy the copy flags
-    for(int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+    for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
       {
       this->CopyAttributeFlags[attributeType] = 
 	dsa->CopyAttributeFlags[attributeType];
