@@ -55,7 +55,11 @@
 // each triangle in the input poly data it was called on, hashes its vertices
 // to the appropriate bins, determines whether to keep this triangle, and
 // updates the appropriate quadric matrices.  EndAppend determines the spatial
-// location of each of the representative vertices for the visited bins.
+// location of each of the representative vertices for the visited bins. While
+// this approach does not fit into the visualization architecture and requires
+// manual control, it has the advantage that extremely large data can be 
+// processed in pieces and appended to the filter piece-by-piece.
+
 
 // .SECTION Caveats
 // This filter can drastically affect topology, i.e., topology is not 
@@ -104,7 +108,8 @@ public:
   // Description:
   // This is an alternative way to set up the bins.  If you are trying to match
   // boundaries between pieces, then you should use these methods rather than
-  // SetNumberOfDivisions.
+  // SetNumberOfDivisions. To use these methods, specify the origin and spacing
+  // of the spatial binning.
   void SetDivisionOrigin(float x, float y, float z);
   void SetDivisionOrigin(float o[3]) 
     {this->SetDivisionOrigin(o[0],o[1],o[2]);}
@@ -113,6 +118,17 @@ public:
   void SetDivisionSpacing(float s[3]) 
     {this->SetDivisionSpacing(s[0],s[1],s[2]);}
   vtkGetVector3Macro(DivisionSpacing, float);
+
+  // Description:
+  // Normally the point that minimizes the quadric error function is used as
+  // the output of the bin.  When this flag is on, the bin point is forced to
+  // be one of the points from the input (the one with the smallest
+  // error). This option does not work (i.e., input points cannot be used)
+  // when the append methods (StartAppend(), Append(), EndAppend()) are being
+  // called directly.
+  vtkSetMacro(UseInputPoints, int);
+  vtkGetMacro(UseInputPoints, int);
+  vtkBooleanMacro(UseInputPoints, int);
 
   // Description:
   // By default, this flag is off.  When "UseFeatureEdges" is on, then
@@ -150,16 +166,6 @@ public:
   vtkBooleanMacro(UseInternalTriangles, int);
 
   // Description:
-  // Normally the point that minimizes the quadric error function 
-  // is used as the output of the bin.  When this flag is on,
-  // the bin point is forced to be one of the points from the input
-  // (the one with the smallest error). This option does not work when
-  // the append methods are being called directly.
-  vtkSetMacro(UseInputPoints, int);
-  vtkGetMacro(UseInputPoints, int);
-  vtkBooleanMacro(UseInputPoints, int);
-
-  // Description:
   // These methods provide an alternative way of executing the filter.
   // PolyData can be added to the result in pieces (append).
   // In this mode, the user must specify the bounds of the entire model
@@ -175,7 +181,7 @@ public:
   // This flag makes the filter copy cell data from input to output 
   // (the best it can).  It uses input cells that trigger the addition
   // of output cells (no averaging).  This is off by default, and does
-  // not work when append is being called explicitely (non pipeline usage).
+  // not work when append is being called explicitely (non-pipeline usage).
   vtkSetMacro(CopyCellData, int); 
   vtkGetMacro(CopyCellData, int); 
   vtkBooleanMacro(CopyCellData, int); 
@@ -270,13 +276,14 @@ protected:
   float ZBinSize;
 
   //BTX
-  class PointQuadric 
+  struct PointQuadric 
   {
-  public:
+    PointQuadric():Dimension(255),VertexId(-1) {}
+    
     vtkIdType VertexId;
-    // Dimension is supposed to be a flag representing the dimension of the cells
-    // contributing to the quadric. 
-    // Lines: 1, Triangles: 2 (and points 0 in the future?)
+    // Dimension is supposed to be a flag representing the dimension of the
+    // cells contributing to the quadric.  Lines: 1, Triangles: 2 (and points
+    // 0 in the future?)
     unsigned char Dimension;
     float Quadric[9];
   };
