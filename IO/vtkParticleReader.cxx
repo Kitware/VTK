@@ -82,6 +82,7 @@ vtkParticleReader::vtkParticleReader()
 {
   this->FileName = NULL;
   this->File = NULL;
+  this->SwapBytes = 0;
 
   this->NumberOfPoints = 0;
 }
