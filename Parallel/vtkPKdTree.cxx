@@ -75,7 +75,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.4");
+vtkCxxRevisionMacro(vtkPKdTree, "1.5");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -1034,7 +1034,7 @@ void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
 
 int vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
 {
-  int TLocation;
+  int TLocation = 0;
 
   int rootrank = this->SubGroup->getLocalRank(p1);
 
