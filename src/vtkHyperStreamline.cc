@@ -63,6 +63,8 @@ vtkHyperPoint& vtkHyperPoint::operator=(const vtkHyperPoint& hp)
   this->subId = hp.subId;
   this->s = hp.s;
   this->d = hp.d;
+
+  return *this;
 }
 
 vtkHyperArray::vtkHyperArray()
@@ -308,15 +310,14 @@ void vtkHyperStreamline::Execute()
   vtkHyperPoint *sNext, *sPtr;
   int i, j, k, ptId, offset, subId, iv, ix, iy;
   vtkCell *cell;
-  float ev[3], xNext[3], stepLength;
+  float ev[3], xNext[3];
   vtkMath math;
-  float d, step, dir, vNext[3], tol2, p[3];
+  float d, step, dir, tol2, p[3];
   float *w=new float[input->GetMaxCellSize()], dist2;
   float closestPoint[3];
   float *m[3], *v[3];
   float m0[3], m1[3], m2[3];
   float v0[3], v1[3], v2[3];
-  vtkPolyData *output = this->GetOutput();
   vtkFloatTensors cellTensors(VTK_CELL_SIZE);
   vtkFloatScalars cellScalars(VTK_CELL_SIZE);
   cellTensors.ReferenceCountingOff();
