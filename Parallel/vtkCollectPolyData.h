@@ -18,8 +18,7 @@
 // .NAME vtkCollectPolyData - Collect distributed polydata.
 // .DESCRIPTION
 // This filter has code to collect polydat from across processes onto node 0.
-// This collection can be controlled by the size of the data.  If the
-// final data size will be above the threshold, then it will not be collected.
+// Collection can be turned on or off using the "PassThrough" flag.
 
 
 #ifndef __vtkCollectPolyData_h
@@ -51,32 +50,21 @@ public:
   vtkGetObjectMacro(SocketController, vtkSocketController);
 
   // Description:
-  // Threshold that determines whether data will be collected.
-  // If the total size of the data in kilobytes is less than this threshold, 
-  // then the data remains distributed.
-  vtkSetMacro(Threshold, unsigned long);
-  vtkGetMacro(Threshold, unsigned long);
-  
-  // Description:
-  // This flag is set based on whether the data was collected to process 0 or not.
-  vtkGetMacro(Collected, int);
-
-  // Description:
-  // Gets the total memory size in kBytes.  This is the sum from all processes.
-  vtkGetMacro(MemorySize, unsigned long);
+  // To collect or just copy input to output. Off (collect) by default.
+  vtkSetMacro(PassThrough, int);
+  vtkGetMacro(PassThrough, int);
+  vtkBooleanMacro(PassThrough, int);
 
 protected:
   vtkCollectPolyData();
   ~vtkCollectPolyData();
 
+  int PassThrough;
+
   // Data generation method
   void ComputeInputUpdateExtents(vtkDataObject *output);
   void ExecuteData(vtkDataObject*);
   void ExecuteInformation();
-
-  unsigned long Threshold;
-  unsigned long MemorySize;
-  int Collected;
 
   vtkMultiProcessController *Controller;
   vtkSocketController *SocketController;
