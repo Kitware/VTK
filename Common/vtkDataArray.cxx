@@ -40,7 +40,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =========================================================================*/
 #include "vtkDataArray.h"
+#include "vtkBitArray.h"
+#include "vtkCharArray.h"
+#include "vtkUnsignedCharArray.h"
+#include "vtkShortArray.h"
+#include "vtkUnsignedShortArray.h"
+#include "vtkIntArray.h"
+#include "vtkUnsignedIntArray.h"
+#include "vtkLongArray.h"
+#include "vtkUnsignedLongArray.h"
 #include "vtkFloatArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkLookupTable.h"
 #include "vtkCriticalSection.h"
 
@@ -352,6 +362,61 @@ unsigned long vtkDataArray::GetActualMemorySize()
     }
 
   return (unsigned long)ceil((size * numPrims)/1000.0); //kilobytes
+}
+
+vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
+{
+  switch (dataType)
+    {
+    case VTK_BIT:
+      return vtkBitArray::New();
+      break;
+
+    case VTK_CHAR:
+      return vtkCharArray::New();
+      break;
+
+    case VTK_UNSIGNED_CHAR:
+      return vtkUnsignedCharArray::New();
+      break;
+
+    case VTK_SHORT:
+      return vtkShortArray::New();
+      break;
+
+    case VTK_UNSIGNED_SHORT:
+      return vtkUnsignedShortArray::New();
+      break;
+
+    case VTK_INT:
+      return vtkIntArray::New();
+      break;
+
+    case VTK_UNSIGNED_INT:
+      return vtkUnsignedIntArray::New();
+      break;
+
+    case VTK_LONG:
+      return vtkLongArray::New();
+      break;
+
+    case VTK_UNSIGNED_LONG:
+      return vtkUnsignedLongArray::New();
+      break;
+
+    case VTK_FLOAT:
+      return vtkFloatArray::New();
+      break;
+
+    case VTK_DOUBLE:
+      return vtkDoubleArray::New();
+      break;
+
+    default:
+      vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_FLOAT");
+      return vtkFloatArray::New();
+      break;
+    }
 }
 
 void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
