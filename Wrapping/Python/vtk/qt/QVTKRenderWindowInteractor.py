@@ -12,8 +12,10 @@ Created by Prabhu Ramachandran, May 2002
 Based on David Gobbi's QVTKRenderWidget.py
 
 Changes by Gerard Vermeulen Feb. 2003
- Win32 support
+ Win32 support.
 
+Changes by Gerard Vermeulen, May 2003
+ Bug fixes and better integration with the Qt framework.
 """
 
 """
@@ -31,7 +33,6 @@ In short, this class is experimental.
 # 1. More testing to assure that the widget is always cleaned up
 #    properly and does not crash the application.
 
-import math, os, sys
 import qt
 import vtk
 
@@ -49,49 +50,62 @@ class QVTKRenderWindowInteractor(qt.QWidget):
     style, motion occurs continuously as long as a mouse button is
     pressed. In trackball style, motion occurs when the mouse button
     is pressed and the mouse pointer moves.
+
     - Keypress c / Keypress o: toggle between camera and object
     (actor) modes. In camera mode, mouse events affect the camera
     position and focal point. In object mode, mouse events affect
     the actor that is under the mouse pointer.
+
     - Button 1: rotate the camera around its focal point (if camera
     mode) or rotate the actor around its origin (if actor mode). The
     rotation is in the direction defined from the center of the
     renderer's viewport towards the mouse position. In joystick mode,
     the magnitude of the rotation is determined by the distance the
     mouse is from the center of the render window.
+
     - Button 2: pan the camera (if camera mode) or translate the actor
     (if object mode). In joystick mode, the direction of pan or
     translation is from the center of the viewport towards the mouse
     position. In trackball mode, the direction of motion is the
     direction the mouse moves. (Note: with 2-button mice, pan is
     defined as <Shift>-Button 1.)
+
     - Button 3: zoom the camera (if camera mode) or scale the actor
     (if object mode). Zoom in/increase scale if the mouse position is
     in the top half of the viewport; zoom out/decrease scale if the
     mouse position is in the bottom half. In joystick mode, the amount
     of zoom is controlled by the distance of the mouse pointer from
     the horizontal centerline of the window.
-    - Keypress 3: toggle the render window into and out of stereo mode.
-    By default, red-blue stereo pairs are created. Some systems support
-    Crystal Eyes LCD stereo glasses; you have to invoke
-    SetStereoTypeToCrystalEyes() on the rendering window.
+
+    - Keypress 3: toggle the render window into and out of stereo
+    mode.  By default, red-blue stereo pairs are created. Some systems
+    support Crystal Eyes LCD stereo glasses; you have to invoke
+    SetStereoTypeToCrystalEyes() on the rendering window.  Note: to
+    use stereo you also need to pass a stereo=1 keyword argument to
+    the constructor.
+
     - Keypress e: exit the application.
+
     - Keypress f: fly to the picked point
+
     - Keypress p: perform a pick operation. The render window interactor
     has an internal instance of vtkCellPicker that it uses to pick. 
+
     - Keypress r: reset the camera view along the current view
     direction. Centers the actors and moves the camera so that all actors
     are visible.
+
     - Keypress s: modify the representation of all actors so that they
     are surfaces. 
+
     - Keypress u: invoke the user-defined function. Typically, this
     keypress will bring up an interactor that you can type commands in.
+
     - Keypress w: modify the representation of all actors so that they
     are wireframe.
     """
     
     def __init__(self, parent=None, name=None, *args, **kw):
-
         # the current button
         self._ActiveButton = 0
 
@@ -140,13 +154,6 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         if parent == None:
             self.show()
         
-        if self.isVisible():
-            if self.__connected == 0:
-                size = self.size()
-                self._RenderWindow.SetSize(size.width(),size.height())
-                self._RenderWindow.SetWindowInfo(str(int(self.winId())))
-                self.__connected = 1
-
         self._Timer = qt.QTimer(self, 'timer handler')
         self.connect(self._Timer, qt.SIGNAL('timeout()'),
                      self.TimerEvent)
@@ -154,7 +161,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
         self._Iren.AddObserver('CreateTimerEvent', self.CreateTimer)
         self._Iren.AddObserver('DestroyTimerEvent', self.DestroyTimer)
         
-    def __getattr__(self, attr):        
+    def __getattr__(self, attr):
         """Makes the object behave like a
         vtkGenericRenderWindowInteractor"""
         if attr == '__vtk__':
@@ -177,26 +184,27 @@ class QVTKRenderWindowInteractor(qt.QWidget):
     def TimerEvent(self):
         self._Iren.TimerEvent()
 
+    def polish(self):
+        """Final initialization just before the widget is displayed."""
+        size = self.size()
+        self._Iren.SetSize(size.width(), size.height())
+        self._RenderWindow.SetWindowInfo(str(int(self.winId())))
+        self._Iren.ConfigureEvent()
+        self.__connected = 1
+        
     def show(self):
         qt.QWidget.show(self)
-        self.repaint() # needed for initial contents display on Win32
+        self.update() # needed for initial contents display on Win32
 
     def paintEvent(self,ev):
-        if self.isVisible():
-            if self.__connected == 0:
-                size = self.size()
-                self._Iren.SetSize(size.width(),size.height())
-                self._RenderWindow.SetWindowInfo(str(int(self.winId())))
-                self._Iren.ConfigureEvent()
-                self.__connected = 1
         if self.__connected:
             self.Render()
 
     def resizeEvent(self,ev):
         size = self.size()
-        self._Iren.SetSize(size.width(),size.height())
+        self._Iren.SetSize(size.width(), size.height())
         self._Iren.ConfigureEvent()
-        self.repaint()
+        self.update()
 
     def _GetCtrlShift(self, ev):
         ctrl, shift = 0, 0
@@ -274,8 +282,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
             key = chr(ev.key())
 
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            ctrl, shift, key, 0,
-                                            None)
+                                            ctrl, shift, key, 0, None)
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
         
@@ -286,8 +293,7 @@ class QVTKRenderWindowInteractor(qt.QWidget):
             key = chr(ev.key())
 
         self._Iren.SetEventInformationFlipY(self.__saveX, self.__saveY,
-                                            ctrl, shift, key, 0,
-                                            None)
+                                            ctrl, shift, key, 0, None)
         self._Iren.KeyReleaseEvent()
 
     def GetRenderWindow(self):
@@ -296,10 +302,12 @@ class QVTKRenderWindowInteractor(qt.QWidget):
     def Render(self):
         self._RenderWindow.Render()
 
-#----------------------------------------------------------------------------  
-def QVTKRenderWidgetConeExample():
-    """Like it says, just a simple example
-    """
+
+#-----------------------------------------------------------------------  
+def QVTKRenderWidgetConeExample():    
+    """A simple example that uses the QVTKRenderWindowInteractor
+    class.  """
+    
     # every QT app needs an app
     app = qt.QApplication(['QVTKRenderWindowInteractor'])
 
@@ -326,8 +334,6 @@ def QVTKRenderWidgetConeExample():
 
     # show the widget
     widget.show()
-    # to make the widget display its contents on Win32 
-    widget.resize(widget.size())
     # close the application when window is closed
     app.setMainWidget(widget)
     # start event processing
