@@ -23,10 +23,10 @@
 #include "vtkCellArray.h"
 #include "vtkPolyData.h"
 
-#include <cmath>
+#include <math.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.3");
+vtkCxxRevisionMacro(vtkParametricFunctionSource, "1.4");
 
 vtkParametricFunctionSource::vtkParametricFunctionSource() :
   NumberOfUPoints(0)
