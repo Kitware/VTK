@@ -82,7 +82,6 @@ proc fit {} {
       points InsertPoint $i [aSplineX Evaluate $t] [aSplineY Evaluate $t] [aSplineZ Evaluate $t]
   }
   profileData Modified
-  update
 }
 fit
 
