@@ -188,6 +188,11 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   this->CaptionMapper->Delete();
   this->CaptionActor->Delete();
   
+  if ( this->LeaderGlyph )
+    {
+    this->LeaderGlyph->Delete();
+    }
+
   this->BorderPolyData->Delete();
   this->BorderMapper->Delete();
   this->BorderActor->Delete();
