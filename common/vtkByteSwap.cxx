@@ -261,3 +261,33 @@ void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, FILE *fp)
 #endif
 }
 
+//----------------------------------------------------------------------------
+// Description:
+// Swaps the bytes of a buffer.  Uses an arbitrary word size, but
+// assumes the word size is divisible by two.
+void vtkByteSwap::SwapVoidRange(void *buffer, int numWords, int wordSize)
+{
+  unsigned char temp, *out, *buf;
+  int idx1, idx2, inc, half;
+  
+  half = wordSize / 2;
+  inc = wordSize - 1;
+  buf = (unsigned char *)(buffer);
+  
+  for (idx1 = 0; idx1 < numWords; ++idx1)
+    {
+    out = buf + inc;
+    for (idx2 = 0; idx2 < half; ++idx2)
+      {
+      temp = *out;
+      *out = *buf;
+      *buf = temp;
+      ++buf;
+      --out;
+      }
+    buf += half;
+    }
+}
+
+  
+    

@@ -103,6 +103,8 @@ public:
   static void SwapWrite2BERange(char *c,int num,FILE *fp);
   static void SwapWrite2BERange(short *i,int num, FILE *fp) 
   {vtkByteSwap::SwapWrite2BERange((char *)i,num,fp);};
+
+  static void SwapVoidRange(void *buffer, int numWords, int wordSize);
 };
 
 #endif
