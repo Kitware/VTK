@@ -21,6 +21,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
+#include "vtkSphereSource.h"
 #include "vtkConeSource.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
@@ -34,8 +35,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkPlane.h"
 #include "vtkFeatureEdges.h"
+#include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.1");
+vtkCxxRevisionMacro(vtkImplicitPlaneWidget, "1.2");
 vtkStandardNewMacro(vtkImplicitPlaneWidget);
 
 vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
@@ -81,7 +83,7 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->EdgesActor->SetMapper(this->EdgesMapper);
   this->Tubing = 1; //control whether tubing is on
 
-  // Create the plane normal
+  // Create the + plane normal
   this->LineSource = vtkLineSource::New();
   this->LineSource->SetResolution(1);
   this->LineMapper = vtkPolyDataMapper::New();
@@ -96,6 +98,33 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->ConeMapper->SetInput(this->ConeSource->GetOutput());
   this->ConeActor = vtkActor::New();
   this->ConeActor->SetMapper(this->ConeMapper);
+
+  // Create the - plane normal
+  this->LineSource2 = vtkLineSource::New();
+  this->LineSource2->SetResolution(1);
+  this->LineMapper2 = vtkPolyDataMapper::New();
+  this->LineMapper2->SetInput(this->LineSource2->GetOutput());
+  this->LineActor2 = vtkActor::New();
+  this->LineActor2->SetMapper(this->LineMapper2);
+
+  this->ConeSource2 = vtkConeSource::New();
+  this->ConeSource2->SetResolution(12);
+  this->ConeSource2->SetAngle(25.0);
+  this->ConeMapper2 = vtkPolyDataMapper::New();
+  this->ConeMapper2->SetInput(this->ConeSource2->GetOutput());
+  this->ConeActor2 = vtkActor::New();
+  this->ConeActor2->SetMapper(this->ConeMapper2);
+
+  // Create the center handle
+  this->Sphere = vtkSphereSource::New();
+  this->Sphere->SetThetaResolution(16);
+  this->Sphere->SetPhiResolution(8);
+  this->SphereMapper = vtkPolyDataMapper::New();
+  this->SphereMapper->SetInput(this->Sphere->GetOutput());
+  this->SphereActor = vtkActor::New();
+  this->SphereActor->SetMapper(this->SphereMapper);
+
+  this->Transform = vtkTransform::New();
 
   // Define the point coordinates
   float bounds[6];
@@ -115,6 +144,9 @@ vtkImplicitPlaneWidget::vtkImplicitPlaneWidget() : vtkPolyDataSourceWidget()
   this->Picker->AddPickList(this->CutActor);
   this->Picker->AddPickList(this->LineActor);
   this->Picker->AddPickList(this->ConeActor);
+  this->Picker->AddPickList(this->LineActor2);
+  this->Picker->AddPickList(this->ConeActor2);
+  this->Picker->AddPickList(this->SphereActor);
   this->Picker->AddPickList(this->OutlineActor);
   this->Picker->PickFromListOn();
   
@@ -155,7 +187,22 @@ vtkImplicitPlaneWidget::~vtkImplicitPlaneWidget()
   this->ConeMapper->Delete();
   this->ConeActor->Delete();
 
+  this->LineSource2->Delete();
+  this->LineMapper2->Delete();
+  this->LineActor2->Delete();
+
+  this->ConeSource2->Delete();
+  this->ConeMapper2->Delete();
+  this->ConeActor2->Delete();
+
+  this->Sphere->Delete();
+  this->SphereMapper->Delete();
+  this->SphereActor->Delete();
+
+  this->Transform->Delete();
+
   this->Picker->Delete();
+    this->SphereActor->SetProperty(this->SelectedNormalProperty);
 
   if ( this->NormalProperty )
     {
@@ -243,12 +290,21 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->LineActor->SetProperty(this->NormalProperty);
     this->CurrentRenderer->AddActor(this->ConeActor);
     this->ConeActor->SetProperty(this->NormalProperty);
+
+    this->CurrentRenderer->AddActor(this->LineActor2);
+    this->LineActor2->SetProperty(this->NormalProperty);
+    this->CurrentRenderer->AddActor(this->ConeActor2);
+    this->ConeActor2->SetProperty(this->NormalProperty);
     
+    // add the center handle
+    this->CurrentRenderer->AddActor(this->SphereActor);
+    this->SphereActor->SetProperty(this->NormalProperty);
+
     // add the plane
     this->CurrentRenderer->AddActor(this->CutActor);
     this->ConeActor->SetProperty(this->PlaneProperty);
 
-    this->SelectRepresentation();
+    this->UpdateRepresentation();
     this->InvokeEvent(vtkCommand::EnableEvent,NULL);
     }
   
@@ -271,6 +327,9 @@ void vtkImplicitPlaneWidget::SetEnabled(int enabling)
     this->CurrentRenderer->RemoveActor(this->EdgesActor);
     this->CurrentRenderer->RemoveActor(this->LineActor);
     this->CurrentRenderer->RemoveActor(this->ConeActor);
+    this->CurrentRenderer->RemoveActor(this->LineActor2);
+    this->CurrentRenderer->RemoveActor(this->ConeActor2);
+    this->CurrentRenderer->RemoveActor(this->SphereActor);
     this->CurrentRenderer->RemoveActor(this->CutActor);
 
     this->InvokeEvent(vtkCommand::DisableEvent,NULL);
@@ -387,11 +446,17 @@ void vtkImplicitPlaneWidget::HighlightNormal(int highlight)
     {
     this->LineActor->SetProperty(this->SelectedNormalProperty);
     this->ConeActor->SetProperty(this->SelectedNormalProperty);
+    this->LineActor2->SetProperty(this->SelectedNormalProperty);
+    this->ConeActor2->SetProperty(this->SelectedNormalProperty);
+    this->SphereActor->SetProperty(this->SelectedNormalProperty);
     }
   else
     {
     this->LineActor->SetProperty(this->NormalProperty);
     this->ConeActor->SetProperty(this->NormalProperty);
+    this->LineActor2->SetProperty(this->NormalProperty);
+    this->ConeActor2->SetProperty(this->NormalProperty);
+    this->SphereActor->SetProperty(this->NormalProperty);
     }
 }
 
@@ -444,7 +509,8 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     }
 
   vtkProp *prop = path->GetFirstNode()->GetProp();
-  if ( prop == this->ConeActor || prop == this->LineActor )
+  if ( prop == this->ConeActor || prop == this->LineActor ||
+       prop == this->ConeActor2 || prop == this->LineActor2 )
     {
     this->HighlightNormal(1);
     this->State = vtkImplicitPlaneWidget::Rotating;
@@ -453,6 +519,11 @@ void vtkImplicitPlaneWidget::OnLeftButtonDown()
     {
     this->HighlightPlane(1);
     this->State = vtkImplicitPlaneWidget::MovingPlane;
+    }
+  else if ( prop == this->SphereActor )
+    {
+    this->HighlightNormal(1);
+    this->State = vtkImplicitPlaneWidget::MovingOrigin;
     }
   else
     {
@@ -505,6 +576,7 @@ void vtkImplicitPlaneWidget::OnMiddleButtonDown()
     }
 
   this->HighlightNormal(1);
+  this->HighlightPlane(1);
   
   this->EventCallbackCommand->SetAbortFlag(1);
   this->StartInteraction();
@@ -615,9 +687,21 @@ void vtkImplicitPlaneWidget::OnMouseMove()
     {
     this->TranslatePlane(prevPickPoint, pickPoint);
     }
+  else if ( this->State == vtkImplicitPlaneWidget::MovingOutline )
+    {
+    this->TranslateOutline(prevPickPoint, pickPoint);
+    }
+  else if ( this->State == vtkImplicitPlaneWidget::MovingOrigin )
+    {
+    this->TranslateOrigin(prevPickPoint, pickPoint);
+    }
   else if ( this->State == vtkImplicitPlaneWidget::Pushing )
     {
     this->Push(prevPickPoint, pickPoint);
+    }
+  else if ( this->State == vtkImplicitPlaneWidget::Scaling )
+    {
+    this->Scale(prevPickPoint, pickPoint, X, Y);
     }
   else if ( this->State == vtkImplicitPlaneWidget::Rotating )
     {
@@ -636,12 +720,39 @@ void vtkImplicitPlaneWidget::OnMouseMove()
 void vtkImplicitPlaneWidget::Rotate(int X, int Y, double *p1, double *p2, double *vpn)
 {
   double v[3]; //vector of motion
+  double axis[3]; //axis of rotation
+  double theta; //rotation angle
 
   // mouse motion vector in world space
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
+  float *center = this->Plane->GetOrigin();
+  float *normal = this->Plane->GetNormal();
+
+  // Create axis of rotation and angle of rotation
+  vtkMath::Cross(vpn,v,axis);
+  if ( vtkMath::Normalize(axis) == 0.0 )
+    {
+    return;
+    }
+  int *size = this->CurrentRenderer->GetSize();
+  double l2 = (X-this->Interactor->GetLastEventPosition()[0])*(X-this->Interactor->GetLastEventPosition()[0]) + (Y-this->Interactor->GetLastEventPosition()[1])*(Y-this->Interactor->GetLastEventPosition()[1]);
+  theta = 360.0 * sqrt(l2/((double)size[0]*size[0]+size[1]*size[1]));
+
+  //Manipulate the transform to reflect the rotation
+  this->Transform->Identity();
+  this->Transform->Translate(center[0],center[1],center[2]);
+  this->Transform->RotateWXYZ(theta,axis);
+  this->Transform->Translate(-center[0],-center[1],-center[2]);
+
+  //Set the new normal
+  float nNew[3];
+  this->Transform->TransformNormal(normal,nNew);
+  this->Plane->SetNormal(nNew);
+  
+  this->UpdateRepresentation();
 }
 
 // Loop through all points and translate them
@@ -666,6 +777,29 @@ void vtkImplicitPlaneWidget::TranslateOutline(double *p1, double *p2)
   
 }
 
+// Loop through all points and translate them
+void vtkImplicitPlaneWidget::TranslateOrigin(double *p1, double *p2)
+{
+  //Get the motion vector
+  double v[3];
+  v[0] = p2[0] - p1[0];
+  v[1] = p2[1] - p1[1];
+  v[2] = p2[2] - p1[2];
+  
+  //Add to the current point, project back down onto plane
+  float *o = this->Plane->GetOrigin();
+  float *n = this->Plane->GetNormal();
+  float newOrigin[3];
+
+  newOrigin[0] = o[0] + v[0];
+  newOrigin[1] = o[1] + v[1];
+  newOrigin[2] = o[2] + v[2];
+  
+  vtkPlane::ProjectPoint(newOrigin,o,n,newOrigin);
+  this->Plane->SetOrigin(newOrigin);
+  this->UpdateRepresentation();
+}
+
 void vtkImplicitPlaneWidget::Scale(double *p1, double *p2, 
                                    int vtkNotUsed(X), int Y)
 {
@@ -675,6 +809,39 @@ void vtkImplicitPlaneWidget::Scale(double *p1, double *p2,
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
 
+  //int res = this->PlaneSource->GetXResolution();
+  float *o = this->Plane->GetOrigin();
+
+  // Compute the scale factor
+  float sf = vtkMath::Norm(v) / this->Outline->GetOutput()->GetLength();
+  if ( Y > this->Interactor->GetLastEventPosition()[1] )
+    {
+    sf = 1.0 + sf;
+    }
+  else
+    {
+    sf = 1.0 - sf;
+    }
+  
+  this->Transform->Identity();
+  this->Transform->Translate(o[0],o[1],o[2]);
+  this->Transform->Scale(sf,sf,sf);
+  this->Transform->Translate(-o[0],-o[1],-o[2]);
+
+  float *origin = this->Box->GetOrigin();
+  float *spacing = this->Box->GetSpacing();
+  float oNew[3], p[3], pNew[3];
+  p[0] = origin[0] + spacing[0];
+  p[1] = origin[1] + spacing[1];
+  p[2] = origin[2] + spacing[2];
+
+  this->Transform->TransformPoint(origin,oNew);
+  this->Transform->TransformPoint(p,pNew);
+
+  this->Box->SetOrigin(oNew);
+  this->Box->SetSpacing( (pNew[0]-oNew[0]), (pNew[1]-oNew[1]), (pNew[2]-oNew[2]) );
+
+  this->UpdateRepresentation();
 }
 
 void vtkImplicitPlaneWidget::Push(double *p1, double *p2)
@@ -685,6 +852,8 @@ void vtkImplicitPlaneWidget::Push(double *p1, double *p2)
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
   
+  this->Plane->Push( vtkMath::Dot(v,this->Plane->GetNormal()) );
+  this->UpdateRepresentation();
 }
 
 void vtkImplicitPlaneWidget::CreateDefaultProperties()
@@ -776,12 +945,7 @@ void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
 
-
-  // Set the height and radius of the cone
-  this->ConeSource->SetHeight(0.060*this->InitialLength);
-  this->ConeSource->SetRadius(0.025*this->InitialLength);  
-  
-  this->SelectRepresentation();
+  this->UpdateRepresentation();
 }
 
 // Description:
@@ -789,6 +953,7 @@ void vtkImplicitPlaneWidget::PlaceWidget(float bds[6])
 void vtkImplicitPlaneWidget::SetCenter(float x, float y, float z) 
 {
   this->Plane->SetOrigin(x, y, z);
+  this->UpdateRepresentation();
 }
 
 // Description:
@@ -814,7 +979,13 @@ void vtkImplicitPlaneWidget::GetCenter(float xyz[3])
 // Set the normal to the plane.
 void vtkImplicitPlaneWidget::SetNormal(float x, float y, float z) 
 {
-  this->Plane->SetNormal(x, y, z);
+  float n[3];
+  n[0] = x;
+  n[1] = y;
+  n[2] = z;
+  vtkMath::Normalize(n);
+  this->Plane->SetNormal(n);
+  this->UpdateRepresentation();
 }
 
 // Description:
@@ -864,7 +1035,7 @@ void vtkImplicitPlaneWidget::UpdatePlacement(void)
   this->Edges->Update();
 }
 
-void vtkImplicitPlaneWidget::SelectRepresentation()
+void vtkImplicitPlaneWidget::UpdateRepresentation()
 {
   if ( ! this->CurrentRenderer )
     {
@@ -875,17 +1046,37 @@ void vtkImplicitPlaneWidget::SelectRepresentation()
   float *normal = this->Plane->GetNormal();
   float p2[3];
 
+  // Setup the plane normal
   float d = this->Outline->GetOutput()->GetLength();
 
-  p2[0] = center[0] + 0.35 * d * normal[0];
-  p2[1] = center[1] + 0.35 * d * normal[1];
-  p2[2] = center[2] + 0.35 * d * normal[2];
+  p2[0] = center[0] + 0.30 * d * normal[0];
+  p2[1] = center[1] + 0.30 * d * normal[1];
+  p2[2] = center[2] + 0.30 * d * normal[2];
 
   this->LineSource->SetPoint1(center);
   this->LineSource->SetPoint2(p2);
   this->ConeSource->SetCenter(p2);
   this->ConeSource->SetDirection(normal);
 
+  p2[0] = center[0] - 0.30 * d * normal[0];
+  p2[1] = center[1] - 0.30 * d * normal[1];
+  p2[2] = center[2] - 0.30 * d * normal[2];
+
+  this->LineSource2->SetPoint1(center);
+  this->LineSource2->SetPoint2(p2);
+  this->ConeSource2->SetCenter(p2);
+  this->ConeSource2->SetDirection(normal);
+
+  this->ConeSource->SetHeight(0.060*this->InitialLength);
+  this->ConeSource->SetRadius(0.025*this->InitialLength);  
+  this->ConeSource2->SetHeight(0.060*this->InitialLength);
+  this->ConeSource2->SetRadius(0.025*this->InitialLength);  
+  
+  // Set up the position handle
+  this->Sphere->SetRadius(0.025*this->InitialLength);
+  this->Sphere->SetCenter(center);
+
+  // Control the look of the edges
   if ( this->Tubing )
     {
     this->EdgesMapper->SetInput(this->EdgesTuber->GetOutput());

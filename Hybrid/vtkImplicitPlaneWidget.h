@@ -76,6 +76,7 @@ class vtkPolyDataMapper;
 class vtkCellPicker;
 class vtkConeSource;
 class vtkLineSource;
+class vtkSphereSource;
 class vtkTubeFilter;
 class vtkPlane;
 class vtkCutter;
@@ -84,6 +85,7 @@ class vtkImageData;
 class vtkOutlineFilter;
 class vtkFeatureEdges;
 class vtkPolyData;
+class vtkTransform;
 
 class VTK_HYBRID_EXPORT vtkImplicitPlaneWidget : public vtkPolyDataSourceWidget
 {
@@ -192,6 +194,7 @@ protected:
     Start=0,
     MovingPlane,
     MovingOutline,
+    MovingOrigin,
     Scaling,
     Pushing,
     Rotating,
@@ -216,7 +219,7 @@ protected:
   int NormalToXAxis;
   int NormalToYAxis;
   int NormalToZAxis;
-  void SelectRepresentation();
+  void UpdateRepresentation();
 
   // The actual plane which is being manipulated
   vtkPlane *Plane;
@@ -241,24 +244,43 @@ protected:
   vtkActor          *EdgesActor;
   int               Tubing; //control whether tubing is on
 
-  // The normal cone
+  // The + normal cone
   vtkConeSource     *ConeSource;
   vtkPolyDataMapper *ConeMapper;
   vtkActor          *ConeActor;
   void HighlightNormal(int highlight);
 
-  // The normal line
+  // The + normal line
   vtkLineSource     *LineSource;
   vtkPolyDataMapper *LineMapper;
   vtkActor          *LineActor;
 
+  // The - normal cone
+  vtkConeSource     *ConeSource2;
+  vtkPolyDataMapper *ConeMapper2;
+  vtkActor          *ConeActor2;
+
+  // The - normal line
+  vtkLineSource     *LineSource2;
+  vtkPolyDataMapper *LineMapper2;
+  vtkActor          *LineActor2;
+
+  // The center positioning handle
+  vtkSphereSource   *Sphere;
+  vtkPolyDataMapper *SphereMapper;
+  vtkActor          *SphereActor;
+
   // Do the picking
   vtkCellPicker *Picker;
+  
+  // Transform the normal (used for rotation)
+  vtkTransform *Transform;
   
   // Methods to manipulate the plane
   void Rotate(int X, int Y, double *p1, double *p2, double *vpn);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);
+  void TranslateOrigin(double *p1, double *p2);
   void Push(double *p1, double *p2);
   void Scale(double *p1, double *p2, int X, int Y);
   
