@@ -139,6 +139,23 @@ void vtkImageData::CopyStructure(vtkDataSet *ds)
   this->CopyInformation(sPts);
 }
 
+void vtkImageData::PrepareForNewData()
+{
+  // free everything but the scalars
+  vtkScalars *scalars = this->GetPointData()->GetScalars();
+  if (scalars)
+    {
+    scalars->Register(this);
+    }
+  this->Initialize();
+  if (scalars)
+    {
+    this->GetPointData()->SetScalars(scalars);
+    scalars->UnRegister(this);
+    }
+}
+
+
 //----------------------------------------------------------------------------
 
 // The input data object must be of type vtkImageData or a subclass!
