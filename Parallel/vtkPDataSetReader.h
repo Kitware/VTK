@@ -87,9 +87,8 @@ protected:
   void operator=(const vtkPDataSetReader&);
 
   virtual void ExecuteInformation();
-  void ReadImageInformation(vtkImageData *output, char *str, ifstream *fp);
-  void ReadWholeExtent(vtkDataSet *output, char *str, ifstream *fp);
-  void ReadVTKFileInformation(char *str, ifstream *fp);
+  void ReadPVTKFileInformation(ifstream *fp);
+  void ReadVTKFileInformation(ifstream *fp);
 
   virtual void Execute();
   void PolyDataExecute();
@@ -105,6 +104,7 @@ protected:
 //BTX
   ifstream *vtkPDataSetReader::OpenFile();
 //ETX
+  int ReadXML(ifstream *file, char **block, char **param, char **value);
 
   int VTKFileFlag;
   int StructuredFlag;
