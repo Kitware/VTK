@@ -113,15 +113,17 @@ void vtkShrinkFilter::Execute()
     numIds = ptIds->GetNumberOfIds();
 
     //abort/progress methods
-    if (cellId % tenth == 0) 
-      {
-      decimal += 0.1;
-      this->UpdateProgress (decimal);
-      if (this->GetAbortExecute())
-        {
-        break; //out of cell loop
-        }
-      }
+    if (tenth != 0) {
+      if (cellId % tenth == 0) 
+	{
+	  decimal += 0.1;
+	  this->UpdateProgress (decimal);
+	  if (this->GetAbortExecute())
+	    {
+	      break; //out of cell loop
+	    }
+	}
+    }
 
     // get the center of the cell
     center[0] = center[1] = center[2] = 0.0;
