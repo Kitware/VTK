@@ -242,11 +242,11 @@ void removeExtraFiles(CPcmakerDlg *vals)
   
   // does a reqlist exist ?
   FILE *fp = fopen("C:/reqlist.txt","r");
-  fclose(fp);
   if (!fp)
     {
     return;
     }
+  fclose(fp);
   
   // first load the list of required files
   IS = new ifstream("C:/reqlist.txt");
