@@ -38,17 +38,17 @@ foreach dim $dims {
   catch {set deltaRad [expr ($rMax-$rMin) / ([lindex $dimensions($dim) 1]-1)]}
 
   for {set k 0} {$k<[lindex $dimensions($dim) 2]} {incr k} {
-    set x(2) [expr -1.0 + $k*$deltaZ]
+    set xyz(2) [expr -1.0 + $k*$deltaZ]
     set kOffset [expr $k * [lindex $dimensions($dim) 0] * [lindex $dimensions($dim) 1]]
     for {set j 0} { $j < [lindex $dimensions($dim) 1] } {incr j} {
       set radius [expr $rMin + $j*$deltaRad]
       set jOffset [expr $j * [lindex $dimensions($dim) 0]]
       for {set i 0} {$i < [lindex $dimensions($dim) 0]} {incr i} {
         set theta [expr $i * 15.0 * [math DegreesToRadians]]
-        set x(0) [expr $radius * cos($theta)]
-        set x(1) [expr $radius * sin($theta)]
+        set xyz(0) [expr $radius * cos($theta)]
+        set xyz(1) [expr $radius * sin($theta)]
         set offset [expr $i + $jOffset + $kOffset]
-        points$dim InsertPoint $offset $x(0) $x(1) $x(2)
+        points$dim InsertPoint $offset $xyz(0) $xyz(1) $xyz(2)
       }
     }
   }
