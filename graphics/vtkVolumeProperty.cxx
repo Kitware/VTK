@@ -348,30 +348,29 @@ void vtkVolumeProperty::PrintSelf(ostream& os, vtkIndent indent)
 
   if( this->ColorChannels == 1 )
     {
-      os << indent << "Gray Color Transfer Function: " \
+      os << indent << "Gray Color Transfer Function: "
 	 << this->GrayTransferFunction << "\n";
     }
   else if( this->ColorChannels == 3 )
     {
-      os << indent << "RGB Color Transfer Function: " \
+      os << indent << "RGB Color Transfer Function: "
 	 << this->RGBTransferFunction << "\n";
     }
 
-  os << indent << "Scalar Opacity Transfer Function: " \
+  os << indent << "Scalar Opacity Transfer Function: "
      << this->ScalarOpacity << "\n";
 
-  os << indent << "Gradient Opacity Transfer Function: " \
+  os << indent << "Gradient Opacity Transfer Function: "
      << this->GradientOpacity << "\n";
 
-  os << indent << "Shade: " << this->Shade << "\n";
+  os << indent << "RGB Texture Coefficient: " 
+     << this->RGBTextureCoefficient << endl;
 
-  if( this->Shade )
-    {
-    os << indent << indent << "Ambient: " << this->Ambient << "\n";
-    os << indent << indent << "Diffuse: " << this->Diffuse << "\n";
-    os << indent << indent << "Specular: " << this->Specular << "\n";
-    os << indent << indent << "SpecularPower: " << this->SpecularPower << "\n";
-    }
+  os << indent << "Shade: " << this->Shade << "\n";
+  os << indent << indent << "Ambient: " << this->Ambient << "\n";
+  os << indent << indent << "Diffuse: " << this->Diffuse << "\n";
+  os << indent << indent << "Specular: " << this->Specular << "\n";
+  os << indent << indent << "SpecularPower: " << this->SpecularPower << "\n";
 
   // These variables should not be printed to the user:
   // this->GradientOpacityMTime
