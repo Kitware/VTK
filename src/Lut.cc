@@ -121,7 +121,7 @@ float *vlLookupTable::MapValue(float v)
 {
   int indx;
 
-  indx = (int) (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumColors;
+  indx = (v-this->TableRange[0])/(this->TableRange[1]-this->TableRange[0]) * this->NumColors;
   indx = (indx < 0 ? 0 : (indx >= this->NumColors ? this->NumColors-1 : indx));
 
   return this->Table.GetColor(indx);

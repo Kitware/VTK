@@ -50,10 +50,14 @@ void vlDataSetMapper::Render(vlRenderer *ren)
     cerr << this->GetClassName() << ": No input!\n";
     return;
     }
+  else
+    {
+    this->Input->Update();
+    }
 //
 // Now can create appropriate mapper
 //
-  if ( !(mapper = this->Input->MakeMapper(this->Input)) )
+  if ( !(mapper = this->Input->MakeMapper()) )
     {
     cerr << this->GetClassName() << ": Cannot map type: " 
          << this->Input->GetClassName() <<"\n";

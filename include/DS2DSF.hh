@@ -25,10 +25,10 @@ public:
   void GetPoints(vlIdList& ptId, vlFloatPoints& fp)
     {this->DataSet->GetPoints(ptId,fp);}
   void ComputeBounds() {this->DataSet->ComputeBounds();};
-  vlMapper *MakeMapper(vlDataSet *ds);
+  vlMapper *MakeMapper();
   void Update();
 
-private:
+protected:
   vlDataSet *DataSet;
 
 };

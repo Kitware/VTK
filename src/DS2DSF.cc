@@ -13,6 +13,13 @@ vlDataSetToDataSetFilter::~vlDataSetToDataSetFilter()
   this->DataSet->UnRegister((void *)this);
 }
 
+void vlDataSetToDataSetFilter::Update()
+{
+  vlDataSetFilter::Update();
+  // Following moves data from filter to internal dataset
+  this->DataSet->PointData = this->PointData;
+}
+
 void vlDataSetToDataSetFilter::Initialize()
 {
   if ( this->Input )
@@ -27,12 +34,7 @@ void vlDataSetToDataSetFilter::Initialize()
     }
 }
 
-void vlDataSetToDataSetFilter::Update()
-{
-  vlDataSetFilter::Update();
-}
-
-vlMapper *vlDataSetToDataSetFilter::MakeMapper(vlDataSet *ds)
+vlMapper *vlDataSetToDataSetFilter::MakeMapper()
 {
 //
 // A little tricky because mappers must be of concrete type, but this class 
@@ -42,8 +44,7 @@ vlMapper *vlDataSetToDataSetFilter::MakeMapper(vlDataSet *ds)
 //
   vlMapper *mapper;
 
-  this->Update(); // Create DataSet of proper type
-  mapper = this->DataSet->MakeMapper(this->DataSet);
+  mapper = this->DataSet->MakeMapper();
   if ( !this->Mapper || mapper != this->Mapper )
     {
     if (this->Mapper) this->Mapper->UnRegister((void *)this);
