@@ -60,7 +60,6 @@ vtkVRMLImporter \
 vtkXYPlotActor \
 ${CONTROLLER_API_OBJ}
 
-#vtkPolyDataCollector \
 
 WIN32_OBJ = \
 vtkWin32OffscreenRenderWindow
