@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.29");
+vtkCxxRevisionMacro(vtkTimerLog, "1.30");
 vtkStandardNewMacro(vtkTimerLog);
 
 // initialze the class variables
@@ -118,7 +118,7 @@ void vtkTimerLog::MarkEvent(char *event)
   int ticks_diff;
 
   strsize = (strlen(event)) > VTK_LOG_EVENT_LENGTH - 1
-    ? VTK_LOG_EVENT_LENGTH-1 : strlen(event);
+    ? VTK_LOG_EVENT_LENGTH-1 : static_cast<int>(strlen(event));
 
   // If this the first event we're recording, allocate the
   // internal timing table and initialize WallTime and CpuTicks

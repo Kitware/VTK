@@ -22,7 +22,7 @@
 #include "vtkLine.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkQuadraticEdge, "1.5");
+vtkCxxRevisionMacro(vtkQuadraticEdge, "1.6");
 vtkStandardNewMacro(vtkQuadraticEdge);
 
 // Construct the line with two points.
@@ -163,13 +163,23 @@ void vtkQuadraticEdge::Contour(float vtkNotUsed(value),
 
 // Line-line intersection. Intersection has to occur within [0,1] parametric
 // coordinates and with specified tolerance.
-int vtkQuadraticEdge::IntersectWithLine(float p1[3], float p2[3], float tol, float& t,
-                                        float x[3], float pcoords[3], int& subId)
+
+// The following arguments were modified to avoid warnings:
+// float p1[3], float p2[3], float x[3], float pcoords[3], 
+
+int vtkQuadraticEdge::IntersectWithLine(float* vtkNotUsed(p1), 
+                                        float* vtkNotUsed(p2), 
+                                        float vtkNotUsed(tol), 
+                                        float& vtkNotUsed(t),
+                                        float* vtkNotUsed(x), 
+                                        float* vtkNotUsed(pcoords), 
+                                        int& vtkNotUsed(subId))
 {
   return 0;
 }
 
-int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
+int vtkQuadraticEdge::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, 
+                                  vtkPoints *pts)
 {
   pts->Reset();
   ptIds->Reset();
@@ -220,11 +230,16 @@ void vtkQuadraticEdge::Derivatives(int vtkNotUsed(subId),
 
 // Clip this line using scalar value provided. Like contouring, except
 // that it cuts the line to produce other lines.
-void vtkQuadraticEdge::Clip(float value, vtkDataArray *cellScalars, 
-                            vtkPointLocator *locator, vtkCellArray *lines,
-                            vtkPointData *inPd, vtkPointData *outPd,
-                            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-                            int insideOut)
+void vtkQuadraticEdge::Clip(float vtkNotUsed(value), 
+                            vtkDataArray* vtkNotUsed(cellScalars), 
+                            vtkPointLocator* vtkNotUsed(locator),
+                            vtkCellArray* vtkNotUsed(lines),
+                            vtkPointData* vtkNotUsed(inPd), 
+                            vtkPointData* vtkNotUsed(outPd),
+                            vtkCellData* vtkNotUsed(inCd), 
+                            vtkIdType vtkNotUsed(cellId), 
+                            vtkCellData* vtkNotUsed(outCd),
+                            int vtkNotUsed(insideOut))
 {
 }
 

@@ -26,7 +26,7 @@
 #include "vtkOverrideInformation.h"
 #include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkObjectFactory, "1.33");
+vtkCxxRevisionMacro(vtkObjectFactory, "1.34");
 
 vtkObjectFactoryCollection* vtkObjectFactory::RegisteredFactories = 0;
 
@@ -127,19 +127,19 @@ void vtkObjectFactory::LoadDynamicFactories()
   char* CurrentPath = new char[strlen(LoadPath)+1];
   char* SeparatorPosition = LoadPath; // initialize to env variable
   while(SeparatorPosition)
-  {
+    {
     int PathLength =0;
     // find PathSeparator in LoadPath
     SeparatorPosition = strchr(LoadPath, PathSeparator);
     // if not found then use the whole string
     if(SeparatorPosition == 0)
-    {
-      PathLength = strlen(LoadPath);
-    }
+      {
+      PathLength = static_cast<int>(strlen(LoadPath));
+      }
     else
-    {
+      {
       PathLength = SeparatorPosition - LoadPath;
-    }
+      }
     // copy the path out of LoadPath into CurrentPath
     strncpy(CurrentPath, LoadPath, PathLength);
     // add a null terminator
@@ -148,7 +148,7 @@ void vtkObjectFactory::LoadDynamicFactories()
     LoadPath = SeparatorPosition+1;
     // Load the libraries in the current path
     vtkObjectFactory::LoadLibrariesInPath(CurrentPath);
-  }
+    }
   // clean up memory
   delete [] CurrentPath;
 }
@@ -157,7 +157,7 @@ void vtkObjectFactory::LoadDynamicFactories()
 // a full path
 static char* CreateFullPath(const char* path, const char* file)
 {
-  int lenpath = strlen(path);
+  int lenpath = static_cast<int>(strlen(path));
   char* ret = new char[lenpath + strlen(file)+2];
 #ifdef _WIN32
   const char sep = '\\';
@@ -189,7 +189,7 @@ typedef const char* (* VTK_COMPILER_FUNCTION)();
 
 inline int vtkNameIsSharedLibrary(const char* name)
 {
-  int len = strlen(name);
+  int len = static_cast<int>(strlen(name));
   char* copy = new char[len+1];
   
   for(int i = 0; i < len; i++)

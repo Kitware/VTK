@@ -44,7 +44,7 @@ long vtkpow(long a, long b)
   
   while (b1 >= 1)
     {
-    while (b & 1 == 0)
+    while ( ( b & 1 ) == 0)
       {
       b1 = b1 / 2;
       a1 = a1 * a1;
