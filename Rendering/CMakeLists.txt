@@ -281,6 +281,7 @@ IF (VTK_WRAP_PYTHON)
   INSTALL_TARGETS(/lib vtkRenderingPython)
   IF (TK_LIBRARY)
      SOURCE_FILES(RenderingPythonTkWidgets_SRCS 
+        vtkTkWidgetsInit
         vtkTkRenderWidgetPython
         vtkTkImageViewerWidgetPython
         vtkTkImageWindowWidgetPython)
