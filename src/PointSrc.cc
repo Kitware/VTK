@@ -13,7 +13,6 @@ written consent of the authors.
 Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen 1993, 1994 
 
 =========================================================================*/
-#include <math.h>
 #include "PointSrc.hh"
 #include "vlMath.hh"
 
@@ -37,6 +36,7 @@ void vlPointSource::Execute()
   vlMath math;
   int pts[1];
 
+  vlDebugMacro(<< "Executing Brownian filter");
   this->Initialize();
 
   newPoints = new vlFloatPoints(this->NumberOfPoints);
@@ -71,8 +71,8 @@ void vlPointSource::PrintSelf(ostream& os, vlIndent indent)
     os << indent << "Number Of Points: " << this->NumberOfPoints << "\n";
     os << indent << "Radius: " << this->Radius << "\n";
     os << indent << "Center: (" << this->Center[0] << ", "
-                                  << this->Center[1] << ", "
-                                  << this->Center[2] << ")\n";
+                                << this->Center[1] << ", "
+                                << this->Center[2] << ")\n";
 
     }
 }

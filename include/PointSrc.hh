@@ -28,6 +28,7 @@ class vlPointSource : public vlPolySource
 {
 public:
   vlPointSource(int numPts=10);
+  ~vlPointSource() {};
   char *GetClassName() {return "vlPointSource";};
   void PrintSelf(ostream& os, vlIndent indent);
 
