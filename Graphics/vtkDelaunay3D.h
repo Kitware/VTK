@@ -214,7 +214,8 @@ protected:
   vtkIdType FindEnclosingFaces(double x[3], vtkUnstructuredGrid *Mesh,
                                vtkIdList *tetras, vtkIdList *faces, 
                                vtkPointLocator *Locator);
-  
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
   vtkIdList *Faces;  //used in InsertPoint

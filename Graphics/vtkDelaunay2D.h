@@ -237,6 +237,8 @@ private:
   void CheckEdge(vtkIdType ptId, double x[3], vtkIdType p1, vtkIdType p2,
                  vtkIdType tri);
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkDelaunay2D(const vtkDelaunay2D&);  // Not implemented.
   void operator=(const vtkDelaunay2D&);  // Not implemented.

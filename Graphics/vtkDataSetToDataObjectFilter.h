@@ -99,6 +99,8 @@ protected:
 
   void Execute(); //generate output data
   void ComputeInputUpdateExtents(vtkDataObject *output);
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
   
   int Geometry;
   int Topology;

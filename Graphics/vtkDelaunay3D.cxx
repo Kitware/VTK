@@ -15,6 +15,7 @@
 #include "vtkDelaunay3D.h"
 
 #include "vtkEdgeTable.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -24,7 +25,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDelaunay3D, "1.69");
+vtkCxxRevisionMacro(vtkDelaunay3D, "1.70");
 vtkStandardNewMacro(vtkDelaunay3D);
 
 //----------------------------------------------------------------------------
@@ -149,6 +150,7 @@ vtkDelaunayTetra *vtkTetraArray::Resize(vtkIdType sz)
 vtkDelaunay3D::vtkDelaunay3D()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->Alpha = 0.0;
   this->Tolerance = 0.001;
   this->BoundingTriangulation = 0;
@@ -1048,4 +1050,15 @@ static int GetTetraFaceNeighbor(vtkUnstructuredGrid *Mesh, vtkIdType tetraId,
     {
     return 0; //there is no neighbor
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkDelaunay3D::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  return 1;
 }

@@ -16,16 +16,19 @@
 
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.6");
+vtkCxxRevisionMacro(vtkExtractRectilinearGrid, "1.7");
 vtkStandardNewMacro(vtkExtractRectilinearGrid);
 
 // Construct object to extract all of the input data.
 vtkExtractRectilinearGrid::vtkExtractRectilinearGrid()
 {
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->VOI[0] = this->VOI[2] = this->VOI[4] = 0;
   this->VOI[1] = this->VOI[3] = this->VOI[5] = VTK_LARGE_INTEGER;
 
@@ -453,6 +456,17 @@ void vtkExtractRectilinearGrid::Execute()
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkExtractRectilinearGrid::FillInputPortInformation(int port,
+                                                        vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 void vtkExtractRectilinearGrid::PrintSelf(ostream& os, vtkIndent indent)

@@ -17,6 +17,7 @@
 #include "vtkAbstractTransform.h"
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
@@ -25,7 +26,7 @@
 #include "vtkPolygon.h"
 #include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkDelaunay2D, "1.58");
+vtkCxxRevisionMacro(vtkDelaunay2D, "1.59");
 vtkStandardNewMacro(vtkDelaunay2D);
 vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 
@@ -34,6 +35,7 @@ vtkCxxSetObjectMacro(vtkDelaunay2D,Transform,vtkAbstractTransform);
 vtkDelaunay2D::vtkDelaunay2D()
 {
   this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->Alpha = 0.0;
   this->Tolerance = 0.00001;
   this->BoundingTriangulation = 0;
@@ -1109,6 +1111,17 @@ void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)
   currentFront->Delete();
   nextFront->Delete();
   neis->Delete();
+}
+
+//----------------------------------------------------------------------------
+int vtkDelaunay2D::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkInformation::INPUT_REQUIRED_DATA_TYPE(), "vtkPointSet");
+  return 1;
 }
 
 void vtkDelaunay2D::PrintSelf(ostream& os, vtkIndent indent)

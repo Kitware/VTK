@@ -78,6 +78,7 @@ protected:
   int SampleRate[3];
   int IncludeBoundary;
   
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
   void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.

@@ -104,6 +104,8 @@ protected:
   int TerminalNodesRequested;
 
   vtkLocator *SpatialRepresentation;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 private:
   vtkSpatialRepresentationFilter(const vtkSpatialRepresentationFilter&);  // Not implemented.
   void operator=(const vtkSpatialRepresentationFilter&);  // Not implemented.
