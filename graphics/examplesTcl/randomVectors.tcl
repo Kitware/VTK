@@ -24,7 +24,6 @@ vtkProgrammablePointDataFilter randomF
    randomF SetExecuteMethod randomVectors
 
 proc randomVectors {} {
-   puts "here"
    set input [randomF GetInput]
    set numPts [$input GetNumberOfPoints]
    vtkMath math
