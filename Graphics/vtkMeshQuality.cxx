@@ -35,7 +35,7 @@
 #include "vtkMath.h"
 #include "vtkTetra.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.25");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.26");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -818,7 +818,7 @@ double vtkMeshQuality::QuadMaxFrobeniusNorm( vtkCell* cell )
   double p0[3],p1[3],p2[3],p3[3];
   double a[3],b[3],c[3],d[3],ab[3],bc[3],cd[3],da[3];
   double a2,b2,c2,d2;
-  double kmax,kcur,k1,k2,k3,k4;
+  double kmax,kcur;
  
   vtkPoints *p = cell->GetPoints();
   p->GetPoint(0, p0);
