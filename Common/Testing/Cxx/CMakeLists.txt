@@ -44,3 +44,11 @@ ADD_EXECUTABLE(TestCxxFeatures TestCxxFeatures.cxx)
 TARGET_LINK_LIBRARIES(TestCxxFeatures vtkCommon)
 ADD_TEST(TestCxxFeatures ${CXX_TEST_PATH}/TestCxxFeatures)
 
+#
+# Add the TestInstantiator test by itself because it is designed to
+# test pulling in all class's symbols.  We don't want the other tests
+# to draw in symbols.
+#
+ADD_EXECUTABLE(TestInstantiator TestInstantiator.cxx)
+TARGET_LINK_LIBRARIES(TestInstantiator vtkCommon)
+ADD_TEST(TestInstantiator ${CXX_TEST_PATH}/TestInstantiator)
