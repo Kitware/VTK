@@ -50,6 +50,13 @@ vtkImplicitFunction::~vtkImplicitFunction()
   this->SetTransform(NULL);
 }
 
+float vtkImplicitFunction::EvaluateFunction(float x, float y, float z)
+{
+  float xyz[3];
+  xyz[0] = x; xyz[1] = y; xyz[2] = z;
+  return this->EvaluateFunction (xyz);
+}
+
 // Evaluate function at position x-y-z and return value. Point x[3] is
 // transformed through transform (if provided).
 float vtkImplicitFunction::FunctionValue(float x[3])
