@@ -84,6 +84,11 @@ SOFTWARE.
 #define XK_End			0xFF57	/* EOL */
 #define XK_Begin		0xFF58	/* BOL */
 
+/* Special Windows keyboard keys */
+
+#define XK_Win_L		0xFF5B	/* Left-hand Windows */
+#define XK_Win_R		0xFF5C	/* Right-hand Windows */
+#define XK_App			0xFF5D	/* Menu key */
 
 /* Misc Functions */
 

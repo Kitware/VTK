@@ -448,14 +448,6 @@ extern Status XGetTextProperty(
 #endif
 );
 
-extern XVisualInfo *XGetVisualInfo(
-#if NeedFunctionPrototypes
-    Display*		/* display */,
-    long		/* vinfo_mask */,
-    XVisualInfo*	/* vinfo_template */,
-    int*		/* nitems_return */
-#endif
-);
 
 extern Status XGetWMClientMachine(
 #if NeedFunctionPrototypes
@@ -652,14 +644,6 @@ extern void XSetTextProperty(
 #endif
 );
 
-extern void XSetWMClientMachine(
-#if NeedFunctionPrototypes
-    Display*		/* display */,
-    Window		/* w */,
-    XTextProperty*	/* text_prop */
-#endif
-);
-
 extern void XSetWMHints(
 #if NeedFunctionPrototypes
     Display*		/* display */,
@@ -759,14 +743,6 @@ extern void XShrinkRegion(
     Region		/* r */,
     int			/* dx */,
     int			/* dy */
-#endif
-);
-
-extern Status XStringListToTextProperty(
-#if NeedFunctionPrototypes
-    char**		/* list */,
-    int			/* count */,
-    XTextProperty*	/* text_prop_return */
 #endif
 );
 

@@ -5,12 +5,12 @@
  *	Windows-specific parts of Tk, but aren't used by the rest of
  *	Tk.
  *
- * Copyright (c) 1995 Sun Microsystems, Inc.
+ * Copyright (c) 1995-1997 Sun Microsystems, Inc.
  *
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tkWinInt.h 1.34 97/09/02 13:06:20
+ * RCS: @(#) Id
  */
 
 #ifndef _TKWININT
@@ -27,6 +27,11 @@
 #ifndef _TKWIN
 #include "tkWin.h"
 #endif
+
+#ifndef _TKPORT
+#include "tkPort.h"
+#endif
+
 
 /*
  * Define constants missing from older Win32 SDK header files.
@@ -146,49 +151,10 @@ extern int tkpWinRopModes[];
  * Internal procedures used by more than one source file.
  */
 
+#include "tkIntPlatDecls.h"
+
 extern LRESULT CALLBACK	TkWinChildProc _ANSI_ARGS_((HWND hwnd, UINT message,
 			    WPARAM wParam, LPARAM lParam));
-extern void		TkWinClipboardRender _ANSI_ARGS_((TkDisplay *dispPtr,
-			    UINT format));
-extern LRESULT		TkWinEmbeddedEventProc _ANSI_ARGS_((HWND hwnd,
-			    UINT message, WPARAM wParam, LPARAM lParam));
-extern void		TkWinFillRect _ANSI_ARGS_((HDC dc, int x, int y,
-			    int width, int height, int pixel));
-extern COLORREF		TkWinGetBorderPixels _ANSI_ARGS_((Tk_Window tkwin,
-			    Tk_3DBorder border, int which));
-extern HDC		TkWinGetDrawableDC _ANSI_ARGS_((Display *display,
-			    Drawable d, TkWinDCState* state));
-extern int		TkWinGetModifierState _ANSI_ARGS_((void));
-extern HPALETTE		TkWinGetSystemPalette _ANSI_ARGS_((void));
-extern HWND		TkWinGetWrapperWindow _ANSI_ARGS_((Tk_Window tkwin));
-extern int		TkWinHandleMenuEvent _ANSI_ARGS_((HWND *phwnd,
-			    UINT *pMessage, WPARAM *pwParam, LPARAM *plParam,
-			    LRESULT *plResult));
-extern int		TkWinIndexOfColor _ANSI_ARGS_((XColor *colorPtr));
-extern void		TkWinPointerDeadWindow _ANSI_ARGS_((TkWindow *winPtr));
-extern void		TkWinPointerEvent _ANSI_ARGS_((HWND hwnd, int x,
-			    int y));
-extern void		TkWinPointerInit _ANSI_ARGS_((void));
-extern LRESULT 		TkWinReflectMessage _ANSI_ARGS_((HWND hwnd,
-			    UINT message, WPARAM wParam, LPARAM lParam));
-extern void		TkWinReleaseDrawableDC _ANSI_ARGS_((Drawable d,
-			    HDC hdc, TkWinDCState* state));
-extern LRESULT		TkWinResendEvent _ANSI_ARGS_((WNDPROC wndproc,
-			    HWND hwnd, XEvent *eventPtr));
-extern HPALETTE		TkWinSelectPalette _ANSI_ARGS_((HDC dc,
-			    Colormap colormap));
-extern void		TkWinSetMenu _ANSI_ARGS_((Tk_Window tkwin,
-			    HMENU hMenu));
-extern void		TkWinSetWindowPos _ANSI_ARGS_((HWND hwnd,
-			    HWND siblingHwnd, int pos));
-extern void		TkWinUpdateCursor _ANSI_ARGS_((TkWindow *winPtr));
-extern void		TkWinWmCleanup _ANSI_ARGS_((HINSTANCE hInstance));
-extern HWND		TkWinWmFindEmbedAssociation _ANSI_ARGS_((
-			    TkWindow *winPtr));
-extern void		TkWinWmStoreEmbedAssociation _ANSI_ARGS_((
-			    TkWindow *winPtr, HWND hwnd));
-extern void		TkWinXCleanup _ANSI_ARGS_((HINSTANCE hInstance));
-extern void 		TkWinXInit _ANSI_ARGS_((HINSTANCE hInstance));
 
 #endif /* _TKWININT */
 

@@ -10,7 +10,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) tkWinPort.h 1.25 97/04/21 17:08:42
+ * RCS: @(#) Id
  */
 
 #ifndef _WINPORT
@@ -31,8 +31,18 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <io.h>
+
+/*
+ * Need to block out this include for building extensions with MetroWerks
+ * compiler for Win32.
+ */
+
+#ifndef __MWERKS__
 #include <sys/stat.h>
+#endif
+
 #include <time.h>
+#include <tchar.h>
 
 #ifdef _MSC_VER
 #    define hypot _hypot
@@ -89,7 +99,6 @@
  * The following Tk functions are implemented as macros under Windows.
  */
 
-#define TkGetNativeProlog(interp) TkGetProlog(interp)
 #define TkpGetPixel(p) (((((p)->red >> 8) & 0xff) \
 	| ((p)->green & 0xff00) | (((p)->blue << 8) & 0xff0000)) | 0x20000000)
 
@@ -111,7 +120,8 @@ struct timezone {
     int tz_dsttime;
 };
 
-extern int gettimeofday(struct timeval *, struct timezone *);
-EXTERN void		panic _ANSI_ARGS_(TCL_VARARGS(char *,format));
+#ifndef _TCLINT
+#include <tclInt.h>
+#endif
 
 #endif /* _WINPORT */

@@ -8,7 +8,7 @@
  * See the file "license.terms" for information on usage and redistribution
  * of this file, and for a DISCLAIMER OF ALL WARRANTIES.
  *
- * SCCS: @(#) xbytes.h 1.1 95/05/09 17:32:51
+ * RCS: @(#) Id
  */
 
 #ifndef _XBYTES
