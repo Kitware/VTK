@@ -14,6 +14,7 @@ vtkDirectory::~vtkDirectory()
     delete [] this->Files[i];
     }
   delete [] this->Files;
+  delete [] this->Path;
 }
 
 
@@ -72,6 +73,7 @@ int vtkDirectory::Open(const char* name)
     {
     cerr << "can't open directory " << buf << endl;
     this->NumberOfFiles = 0;
+    _findclose(srchHandle);
     return 0;
     }
   
@@ -81,7 +83,8 @@ int vtkDirectory::Open(const char* name)
     this->NumberOfFiles++;
     }
   this->Files = new char*[this->NumberOfFiles];
-
+  // close the handle 
+  _findclose(srchHandle);
   // Now put them into the file array
   srchHandle = _findfirst(buf, &data);
   delete [] buf;
@@ -89,6 +92,7 @@ int vtkDirectory::Open(const char* name)
   if (srchHandle == -1)
     {
     this->NumberOfFiles = 0;
+    _findclose(srchHandle);
     return 0;
     }
   

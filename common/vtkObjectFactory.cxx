@@ -146,6 +146,7 @@ inline int vtkNameIsSharedLibrary(const char* name)
     {
     copy[i] = tolower(name[i]);
     }
+  copy[len] = 0;
   char* ret = strstr(copy, vtkDynamicLoader::LibExtension());
   delete [] copy;
   return (ret != NULL);
@@ -156,6 +157,7 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
   vtkDirectory* dir = vtkDirectory::New();
   if(!dir->Open(path))
     {
+    dir->Delete();
     return;
     }
   
@@ -184,11 +186,13 @@ void vtkObjectFactory::LoadLibrariesInPath(const char* path)
 	  newfactory->LibraryPath = strcpy(new char[strlen(fullpath)+1], fullpath);
 	  newfactory->LibraryDate = 0; // unused for now...
 	  vtkObjectFactory::RegisterFactory(newfactory);
+	  newfactory->Delete();
 	  }
 	}
       delete [] fullpath;
       }
     }
+  dir->Delete();
 }
 
 
@@ -218,7 +222,6 @@ vtkObjectFactory::~vtkObjectFactory()
 {
   delete [] this->LibraryPath;
   this->LibraryPath = 0;
-  vtkDynamicLoader::CloseLibrary((vtkLibHandle)this->LibraryHandle);
   
   for(int i =0; i < this->OverrideArrayLength; i++)
     {
@@ -275,7 +278,12 @@ void vtkObjectFactory::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkObjectFactory::UnRegisterFactory(vtkObjectFactory* factory)
 { 
+  void* lib = factory->LibraryHandle;
   vtkObjectFactory::RegisteredFactories->RemoveItem(factory);
+  if(lib)
+    {
+    vtkDynamicLoader::CloseLibrary((vtkLibHandle)lib);
+    }
 }
 
 // unregister all factories and delete the RegisteredFactories list
@@ -283,7 +291,13 @@ void vtkObjectFactory::UnRegisterAllFactories()
 {
   vtkObjectFactory* factory = 0;
   
-  vtkObjectFactory::RegisteredFactories->RemoveAllItems();
+  vtkObjectFactory::RegisteredFactories->InitTraversal();
+  while((factory =
+	 vtkObjectFactory::RegisteredFactories->GetNextItem()))
+    {
+    vtkObjectFactory::UnRegisterFactory(factory);
+    vtkObjectFactory::RegisteredFactories->InitTraversal();
+    }
   vtkObjectFactory::RegisteredFactories->Delete();
   vtkObjectFactory::RegisteredFactories = 0;
 }

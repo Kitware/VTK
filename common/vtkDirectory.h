@@ -87,7 +87,7 @@ protected:
   vtkDirectory(const vtkDirectory&) {};
   void operator=(const vtkDirectory&) {};
 private:
-  const char* Path;		// Path to Open'ed directory
+  char* Path;		// Path to Open'ed directory
   char** Files;			// Array of Files
   int NumberOfFiles;		// Number if files in open directory
   
