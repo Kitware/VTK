@@ -35,7 +35,7 @@
 #include "vtkPoints.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.3");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.4");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -691,7 +691,7 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
   return intersection;
 }
 //----------------------------------------------------------------------------
-int vtkHexagonalPrism::Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts)
+int vtkHexagonalPrism::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds, vtkPoints *pts)
 {
   ptIds->Reset();
   pts->Reset();
