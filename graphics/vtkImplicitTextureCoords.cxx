@@ -106,9 +106,9 @@ void vtkImplicitTextureCoords::Execute()
   for (ptId=0; ptId<numPts; ptId++) //compute texture coordinates
     {
     x = input->GetPoint(ptId);
-    tCoord[0] = this->RFunction->EvaluateFunction(x);
-    if ( this->SFunction ) tCoord[1] = this->SFunction->EvaluateFunction(x);
-    if ( this->TFunction ) tCoord[2] = this->TFunction->EvaluateFunction(x);
+    tCoord[0] = this->RFunction->FunctionValue(x);
+    if ( this->SFunction ) tCoord[1] = this->SFunction->FunctionValue(x);
+    if ( this->TFunction ) tCoord[2] = this->TFunction->FunctionValue(x);
 
     for (i=0; i<tcoordDim; i++)
       {
