@@ -252,8 +252,43 @@ int main( int argc, char *argv[] )
   iren->SetStillUpdateRate(0.001);
 
   // Clean up
-
-  iren->Start();
+  reader->Delete();
+  oTFun->Delete();
+  oTFun2->Delete();
+  gTFun->Delete();
+  cTFun->Delete();
+  goTFun->Delete();
+  for ( i = 0; i < 16; i++ )
+    {
+    prop[i]->Delete();
+    }
+  for ( i = 0; i < 4; i++ )
+    {
+    mipprop[i]->Delete();
+    }
+  compositeFunction1->Delete();
+  compositeFunction2->Delete();
+  isosurfaceFunction->Delete();
+  MIPFunction1->Delete();
+  MIPFunction2->Delete();
+  for ( i = 0; i < 56; i++ )
+    {
+    volume[i]->Delete();
+    }
+  gradest->Delete();
+  for ( i = 0; i < 48; i++ )
+    {
+    raycastMapper[i]->Delete();
+    }
+  for ( i = 0; i < 8; i++ )
+    {
+    textureMapper[i]->Delete();
+    }
+  ren->Delete();
+  iren->Delete();
+  renWin->Delete();
+  
+  
   return !retVal;
 }
 
