@@ -28,7 +28,7 @@
 #include "vtkVertex.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.73");
+vtkCxxRevisionMacro(vtkPicker, "1.74");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -102,7 +102,7 @@ void vtkPicker::MarkPicked(vtkAssemblyPath *path, vtkProp3D *prop3D,
 // first two values for the selection point are x-y pixel coordinate, and
 // the third value is =0. Return non-zero if something was successfully picked.
 int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
-                   vtkRenderer *renderer)
+                    vtkRenderer *renderer)
 {
   int i;
   vtkProp *prop;
@@ -235,7 +235,7 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
   for (tol=0.0,i=0; i<3; i++) 
     {
     tol += (windowUpperRight[i] - windowLowerLeft[i]) *
-              (windowUpperRight[i] - windowLowerLeft[i]);
+      (windowUpperRight[i] - windowLowerLeft[i]);
     }
   
   tol = sqrt (tol) * this->Tolerance;
@@ -282,16 +282,16 @@ int vtkPicker::Pick(float selectionX, float selectionY, float selectionZ,
           }
         else if ( (prop3D=vtkLODProp3D::SafeDownCast(propCandidate)) != NULL )
           {
-                  LODId = prop3D->GetPickLODID();
+          LODId = prop3D->GetPickLODID();
           mapper = prop3D->GetLODMapper(LODId);
 
-          // if the mapper is a vtkMapper (as opposed to a vtkVolumeMapper), then
-          // check the transparency to see if the object is pickable
-                  if ( vtkMapper::SafeDownCast(mapper) != NULL)
-                    {
-                    prop3D->GetLODProperty(LODId, &tempProperty);
+          // if the mapper is a vtkMapper (as opposed to a vtkVolumeMapper), 
+          // then check the transparency to see if the object is pickable
+          if ( vtkMapper::SafeDownCast(mapper) != NULL)
+            {
+            prop3D->GetLODProperty(LODId, &tempProperty);
             if ( tempProperty->GetOpacity() <= 0.0 )
-                          {
+              {
               pickable = 0;
               }
             }
@@ -394,11 +394,11 @@ float vtkPicker::IntersectWithLine(float p1[3], float p2[3],
     {
     return 2.0;
     }
-  //
+
   // Project the center point onto the ray and determine its parametric value
   //
   t = (ray[0]*(center[0]-p1[0]) + ray[1]*(center[1]-p1[1])
-          + ray[2]*(center[2]-p1[2])) / rayFactor;
+       + ray[2]*(center[2]-p1[2])) / rayFactor;
 
   if ( t >= 0.0 && t <= 1.0 && t < this->GlobalTMin ) 
     {
