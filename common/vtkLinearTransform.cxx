@@ -48,8 +48,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void vtkLinearTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkGeneralTransform::PrintSelf(os, indent);
-  os << indent << "Matrix: " << this->Matrix << "\n";
-  this->Matrix->PrintSelf(os, indent.GetNextIndent());
+  if (this->Matrix)
+    {
+    os << indent << "Matrix: " << this->Matrix << "\n";
+    this->Matrix->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Matrix: (none)" << "\n";
+    }
 }
 
 //------------------------------------------------------------------------
