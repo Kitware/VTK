@@ -186,6 +186,19 @@ public:
   int *WritePointer(const int ncells, const int size);
 
   // Description:
+  // Define multiple cells by providing a connectivity list. The list is in the
+  // form (npts,p0,p1,...p(npts-1), repeated for each cell). Be careful using this
+  // method because it discards the old cells, and anything refering these cells
+  // becomes invalid (for example, if BuildCells() has been called see vtkPolyData).
+  // The traversal location is reset to the beginning of the list; the insertion
+  // location is set to the end of the list.
+  void SetCells(int ncells, vtkIntArray *cells);
+  
+  // Description:
+  // Return the underlying data as a data array.
+  vtkDataArray *GetData() {return this->Ia;};
+
+  // Description:
   // Reuse list. Reset to initial condition.
   void Reset();
 

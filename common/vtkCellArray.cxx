@@ -93,3 +93,19 @@ int vtkCellArray::InsertNextCell(vtkIdList &pts)
   return this->InsertNextCell(&pts);
 }
 
+// Specify a group of cells.
+void vtkCellArray::SetCells(int ncells, vtkIntArray *cells)
+{
+  if ( cells != this->Ia )
+    {
+    this->Modified();
+    this->Ia->Delete();
+    this->Ia = cells;
+    this->Ia->Register(this);
+
+    this->NumberOfCells = ncells;
+    this->InsertLocation = cells->GetMaxId() + 1;
+    this->TraversalLocation = 0;
+    }
+}
+
