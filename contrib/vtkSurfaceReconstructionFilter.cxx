@@ -163,11 +163,10 @@ void vtkSurfaceReconstructionFilter::Execute()
     ~SurfacePoint() { delete []costs; neighbors->Delete(); }
   };
 
-  const unsigned long COUNT = input->GetNumberOfPoints();
+  const int COUNT = input->GetNumberOfPoints();
   SurfacePoint *surfacePoints = new SurfacePoint[COUNT];
 
-  unsigned int i;
-  int j,k;
+  int i,j,k;
 
   if ( COUNT < 1 )
     {
