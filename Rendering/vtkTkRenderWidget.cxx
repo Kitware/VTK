@@ -363,7 +363,7 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
                          vtkTkRenderWidgetConfigSpecs,
                          argc, 
 #if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
-                         const_cast<const char **>(argv), 
+                         const_cast<CONST84 char **>(argv), 
 #else
                          argv, 
 #endif
