@@ -5,6 +5,13 @@ IF (HAVE_PNG)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
+    ADD_TEST(schwarz-image ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/schwarz.tcl
+      -D ${VTK_DATA_ROOT}
+      -V Baseline/Graphics/schwarz.png
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(Canny-image ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/Canny.tcl
@@ -113,6 +120,11 @@ IF (HAVE_PNG)
   # If we do not have the data, still run the tests that we can
   #
   ELSE (VTK_DATA_ROOT)
+    ADD_TEST(schwarz ${VTK_EXECUTABLE}
+      ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
+      ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/schwarz.tcl
+      -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+
     ADD_TEST(Delaunay2D ${VTK_EXECUTABLE}
       ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
       ${VTK_SOURCE_DIR}/Graphics/Testing/Tcl/Delaunay2D.tcl
