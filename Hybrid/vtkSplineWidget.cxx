@@ -34,7 +34,7 @@
 #include "vtkSpline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.21");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.22");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -1317,12 +1317,12 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if (this->CurrentRenderer != NULL)
+      }
+    if (this->CurrentRenderer != NULL)
+      {
+      for (i=0; i<this->NumberOfHandles; i++)
         {
-        for (i=0; i<this->NumberOfHandles; i++)
-          {
-          this->CurrentRenderer->AddProp(this->Handle[i]);
-          }
+        this->CurrentRenderer->AddProp(this->Handle[i]);
         }
       }
       this->Interactor->Render();
@@ -1339,12 +1339,12 @@ void vtkSplineWidget::Initialize(void)
       this->SetCurrentRenderer(this->Interactor->FindPokedRenderer(
         this->Interactor->GetLastEventPosition()[0],
         this->Interactor->GetLastEventPosition()[1]));
-      if ( this->CurrentRenderer != NULL)
+      }
+    if ( this->CurrentRenderer != NULL)
+      {
+      for (i=0; i<this->NumberOfHandles; i++)
         {
-        for (i=0; i<this->NumberOfHandles; i++)
-          {
-          this->CurrentRenderer->RemoveProp(this->Handle[i]);
-          }
+        this->CurrentRenderer->RemoveProp(this->Handle[i]);
         }
       }
     }
