@@ -237,7 +237,7 @@ int vtkEnSight6BinaryReader::ReadGeometryFile()
 int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile()
 {
   char line[80], subLine[80];
-  int i, lineRead;
+  int i;
   int *pointIds;
   float *xCoords, *yCoords, *zCoords;
   vtkPoints *points = vtkPoints::New();
@@ -286,7 +286,7 @@ int vtkEnSight6BinaryReader::ReadMeasuredGeometryFile()
 
   this->ReadLine(line); // "particle coordinates"
   
-  lineRead = this->ReadInt(&this->NumberOfMeasuredPoints);
+  this->ReadInt(&this->NumberOfMeasuredPoints);
   
   this->MeasuredNodeIds->Allocate(this->NumberOfMeasuredPoints);
 

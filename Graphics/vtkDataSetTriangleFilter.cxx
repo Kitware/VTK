@@ -195,7 +195,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute()
   vtkCellData *outCD=output->GetCellData();
   vtkPoints *cellPts = vtkPoints::New();
   vtkIdList *cellPtIds = vtkIdList::New();
-  int numPts, type, ptId, ncells, numTets;
+  int type, ptId, ncells, numTets;
   int npts, numSimplices, dim;
   int pts[4];
   float *xPtr;
