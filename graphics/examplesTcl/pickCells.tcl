@@ -369,6 +369,8 @@ vtkWorldPointPicker worldPicker
 
 set cellCount 0
 set pointCount 0
+ren1 IsInViewport 0 0
+
 for {set x 0} { $x <= 265} {incr x 4} {
     for {set y 100} {$y <= 200} {incr y 4} {
 	cellPicker Pick $x $y 0 ren1
