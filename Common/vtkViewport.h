@@ -83,6 +83,10 @@ public:
   void RemoveProp(vtkProp *);
 
   // Description:
+  // Remove all actors from the list of actors.
+  void RemoveAllProps(void);
+
+  // Description:
   // Add/Remove different types of props to the renderer.
   // These methods are all synonyms to AddProp and RemoveProp.
   // They are here for convenience and backwards compatibility.
