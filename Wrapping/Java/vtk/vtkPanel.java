@@ -2,6 +2,7 @@ package vtk;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import javax.swing.SwingUtilities;
 
 public class vtkPanel extends Canvas implements 
   MouseListener, 
