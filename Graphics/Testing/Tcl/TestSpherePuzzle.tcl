@@ -76,11 +76,14 @@ proc ButtonCallback {x y} {
     set y [lindex $pt 1]
     set z [lindex $pt 2]
 
+    # Had to move away from mose events (sgi RT problems)
     for { set i 0} {$i <= 100} {set i [expr $i + 5]} {
-	puzzle SetPoint $x $y $z
-	puzzle MovePoint $i
-	renWin Render
+        puzzle SetPoint $x $y $z
+        puzzle MovePoint $i
+        renWin Render
     }
+
+
 }
 
 renWin Render
@@ -89,11 +92,14 @@ set cam [ren1 GetActiveCamera]
 $cam Elevation -40
 update
 
+
+
+
 puzzle MoveHorizontal 0 100 0
-ButtonCallback 261 272
-ButtonCallback 213 293
-ButtonCallback 203 238
-ButtonCallback 134 214
+puzzle MoveHorizontal 1 100 1
+puzzle MoveHorizontal 2 100 0
+puzzle MoveVertical 2 100 0
+puzzle MoveVertical 1 100 0
 
 
 
