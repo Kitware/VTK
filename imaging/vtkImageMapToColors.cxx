@@ -62,6 +62,8 @@ vtkImageMapToColors* vtkImageMapToColors::New()
 vtkImageMapToColors::vtkImageMapToColors()
 {
   this->OutputFormat = 4;
+  this->ActiveComponent = 0;
+  this->PassAlphaToOutput = 0;
   this->LookupTable = NULL;
   this->DataWasPassed = 0;
 }
@@ -215,11 +217,11 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
   numberOfComponents = inData->GetNumberOfScalarComponents();
   numberOfOutputComponents = outData->GetNumberOfScalarComponents();
   outputFormat = self->GetOutputFormat();
-  rowLength = extX*scalarSize;
+  rowLength = extX*scalarSize*numberOfComponents;
 
   // Loop through output pixels
   outPtr1 = outPtr;
-  inPtr1 = inPtr;
+  inPtr1 = (void *) ((char *) inPtr + self->GetActiveComponent()*scalarSize);
   for (idxZ = 0; idxZ < extZ; idxZ++)
     {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
@@ -232,12 +234,26 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors *self,
 	  }
 	count++;
 	}
-      lookupTable->MapScalarsThroughTable2(inPtr1,(unsigned char *)outPtr1,
+      lookupTable->MapScalarsThroughTable2(inPtr1,outPtr1,
 					   dataType,extX,numberOfComponents,
 					   outputFormat);
+      if (self->GetPassAlphaToOutput() && 
+	  dataType == VTK_UNSIGNED_CHAR && numberOfComponents > 1 &&
+	  (outputFormat == VTK_RGBA || outputFormat == VTK_LUMINANCE_ALPHA))
+	{
+	unsigned char *outPtr2 = outPtr1 + numberOfOutputComponents - 1;
+	unsigned char *inPtr2 = (unsigned char *)inPtr1
+	                              - self->GetActiveComponent()*scalarSize
+	                              + numberOfComponents - 1;
+	for (int i = 0; i < extX; i++)
+	  {
+	  *outPtr2 = (*outPtr2 * *inPtr2)/255;
+	  outPtr2 += numberOfOutputComponents;
+	  inPtr2 += numberOfComponents;
+	  }
+	}
       outPtr1 += outIncY + extX*numberOfOutputComponents;
-      inPtr1 = (void *) ((char *) inPtr1 + inIncY + \
-			 rowLength*numberOfComponents);
+      inPtr1 = (void *) ((char *) inPtr1 + inIncY + rowLength);
       }
     outPtr1 += outIncZ;
     inPtr1 = (void *) ((char *) inPtr1 + inIncZ);
@@ -269,6 +285,8 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
       (this->OutputFormat == VTK_LUMINANCE_ALPHA ? "LuminanceAlpha" :
        (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
      << "\n";
+  os << indent << "ActiveComponent: " << this->ActiveComponent << "\n";
+  os << indent << "PassAlphaToOutput: " << this->PassAlphaToOutput << "\n";
   os << indent << "LookupTable: " << this->LookupTable << "\n";
   if (this->LookupTable)
     {
