@@ -98,8 +98,6 @@ public:
   // Interpolate data set attributes from other data set attributes
   // given cell or point ids and associated interpolation weights.
   void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 
-                        vtkIdList *ids, float *weights);
-  void InterpolatePoint(vtkDataSetAttributes *fromPd, vtkIdType toId, 
                         vtkIdList *ids, double *weights);
   
   // Description:
@@ -108,7 +106,7 @@ public:
   // with t=0 located at p1. Make sure that the method InterpolateAllocate() 
   // has been invoked before using this method.
   void InterpolateEdge(vtkDataSetAttributes *fromPd, vtkIdType toId,
-                       vtkIdType p1, vtkIdType p2, float t);
+                       vtkIdType p1, vtkIdType p2, double t);
 
   // Description:
   // Interpolate data from the same id (point or cell) at different points
@@ -120,7 +118,7 @@ public:
   // using this method.
   void InterpolateTime(vtkDataSetAttributes *from1, 
                        vtkDataSetAttributes *from2,
-                       vtkIdType id, float t);
+                       vtkIdType id, double t);
 
   // Description:
   // Deep copy of data (i.e., create new data arrays and
@@ -361,14 +359,6 @@ public:
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
-
-  // TODO: remove as double conversion progresses
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
-                        vtkIdType toId, vtkIdList *ptIds, float *weights);
-  void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,
-                        vtkIdType toId, vtkIdType id1, vtkIdType id2, float t);
-  void InterpolateTuple(vtkDataArray *fromData1, vtkDataArray *fromData2, 
-                        vtkDataArray *toData, vtkIdType id, float t);
 
   // special methods to support managing data
   void InterpolateTuple(vtkDataArray *fromData, vtkDataArray *toData,

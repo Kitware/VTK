@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkPointDataToCellData, "1.24");
+vtkCxxRevisionMacro(vtkPointDataToCellData, "1.25");
 vtkStandardNewMacro(vtkPointDataToCellData);
 
 // Instantiate object so that point data is not passed to output.
@@ -39,8 +39,8 @@ void vtkPointDataToCellData::Execute()
   vtkCellData *outCD=output->GetCellData();
   int maxCellSize=input->GetMaxCellSize();
   vtkIdList *cellPts;
-  float weight;
-  float *weights;
+  double weight;
+  double *weights;
 
   vtkDebugMacro(<<"Mapping point data to cell data");
 
@@ -52,7 +52,7 @@ void vtkPointDataToCellData::Execute()
     vtkDebugMacro(<<"No input cells!");
     return;
     }
-  weights=new float[maxCellSize];
+  weights=new double[maxCellSize];
   
   cellPts = vtkIdList::New();
   cellPts->Allocate(maxCellSize);
@@ -72,7 +72,7 @@ void vtkPointDataToCellData::Execute()
     {
     if ( !(cellId % progressInterval) )
       {
-      this->UpdateProgress((float)cellId/numCells);
+      this->UpdateProgress((double)cellId/numCells);
       abort = GetAbortExecute();
       }
 
