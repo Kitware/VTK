@@ -24,7 +24,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.41");
+vtkCxxRevisionMacro(vtkImageReslice, "1.42");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -1571,6 +1571,62 @@ int vtkResliceGetNextExtent(vtkImageStencilData *stencil,
 }
 
 //----------------------------------------------------------------------------
+// This function simply clears the entire output to the background color,
+// for cases where the transformation places the output extent completely
+// outside of the input extent.
+void vtkImageResliceClearExecute(vtkImageReslice *self,
+                                 vtkImageData *inData, void *inPtr,
+                                 vtkImageData *outData, void *outPtr,
+                                 int outExt[6], int id)
+{
+  int numscalars;
+  int idX, idY, idZ;
+  int outIncX, outIncY, outIncZ, scalarSize;
+  int inExt[6], inInc[3];
+  unsigned long count = 0;
+  unsigned long target;
+  void *background;
+  void (*setpixels)(void *&out, const void *in, int numscalars, int n);
+
+  // for the progress meter
+  target = (unsigned long)
+    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
+  target++;
+  
+  // Get Increments to march through data 
+  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  scalarSize = outData->GetScalarSize();
+  numscalars = outData->GetNumberOfScalarComponents();
+
+  // allocate a voxel to copy into the background (out-of-bounds) regions
+  vtkAllocBackgroundPixel(self, &background, numscalars);
+  // get the appropriate function for pixel copying
+  vtkGetSetPixelsFunc(self, &setpixels);
+
+  // Loop through output voxels
+  for (idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+    {
+    for (idY = outExt[2]; idY <= outExt[3]; idY++)
+      {
+      if (id == 0) 
+        { // update the progress if this is the main thread
+        if (!(count%target)) 
+          {
+          self->UpdateProgress(count/(50.0*target));
+          }
+        count++;
+        }
+      // clear the pixels to background color and go to next row
+      setpixels(outPtr, background, numscalars, outExt[1]-outExt[0]+1);
+      outPtr = (void *)((char *)outPtr + outIncY*scalarSize);
+      }
+    outPtr = (void *)((char *)outPtr + outIncZ*scalarSize);
+    }
+
+  vtkFreeBackgroundPixel(self, &background);
+}
+
+//----------------------------------------------------------------------------
 // This function executes the filter for any type of data.  It is much simpler
 // in structure than vtkImageResliceOptimizedExecute.
 void vtkImageResliceExecute(vtkImageReslice *self,
@@ -1738,8 +1794,14 @@ void vtkImageReslice::ThreadedExecute(vtkImageData *inData,
             << ", must match out ScalarType " << outData->GetScalarType());
     return;
     }
-
-  vtkImageResliceExecute(this, inData, inPtr, outData, outPtr, outExt, id);
+  if (inPtr == 0)
+    {
+    vtkImageResliceClearExecute(this, inData, 0, outData, outPtr, outExt, id);
+    }
+  else
+    {
+    vtkImageResliceExecute(this, inData, inPtr, outData, outPtr, outExt, id);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -3502,7 +3564,11 @@ void vtkImageReslice::OptimizedThreadedExecute(vtkImageData *inData,
     newmat[i][3] = matrix->GetElement(i,3);
     }
   
-  if (vtkIsPermutationMatrix(newmat) && newtrans == NULL)
+  if (inPtr == 0)
+    {
+    vtkImageResliceClearExecute(this, inData, 0, outData, outPtr, outExt, id);
+    }
+  else if (vtkIsPermutationMatrix(newmat) && newtrans == NULL)
     {
     vtkReslicePermuteExecute(this, inData, inPtr, outData, outPtr,
                              outExt, id, newmat);
