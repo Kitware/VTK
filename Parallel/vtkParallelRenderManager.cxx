@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.37");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.38");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1162,12 +1162,8 @@ int vtkParallelRenderManager::LastRenderInFrontBuffer()
 //----------------------------------------------------------------------------
 int vtkParallelRenderManager::ChooseBuffer()
 {
-  int myId = this->Controller->GetLocalProcessId();
-  if (myId == 0)
-    {
-    return 0;
-    }
-  return 1;
+  // Choose the back buffer if double buffering is on.
+  return (this->RenderWindow->GetDoubleBuffer() == 0);
 }
 
 //----------------------------------------------------------------------------
