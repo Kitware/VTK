@@ -41,7 +41,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkAVSucdReader, "1.5");
+vtkCxxRevisionMacro(vtkAVSucdReader, "1.6");
 vtkStandardNewMacro(vtkAVSucdReader);
 
 vtkAVSucdReader::vtkAVSucdReader()
@@ -391,7 +391,7 @@ void vtkAVSucdReader::ReadGeometry()
 
   if (this->BinaryFile)
     {
-    vtkIdType *types = new vtkIdType[this->NumberOfCells];
+    int *types = new int[this->NumberOfCells];
     if(types == NULL)
       {
       vtkErrorMacro(<< "Error allocating types memory\n");
@@ -437,12 +437,14 @@ void vtkAVSucdReader::ReadGeometry()
 }
 
 
-void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials, int *types, vtkIdTypeArray *listcells)
+void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials, 
+                                             int *types, 
+                                             vtkIdTypeArray *listcells)
 {
   int i, j, k1, k2;
-  vtkIdType *mat = materials->GetPointer(0);
+  int *mat = materials->GetPointer(0);
   vtkIdType *list = listcells->GetPointer(0);
-  vtkIdType *Ctype = new int[4 * this->NumberOfCells];
+  int *Ctype = new int[4 * this->NumberOfCells];
   if(Ctype == NULL)
     {
     vtkErrorMacro(<< "Error allocating Ctype memory");
@@ -497,7 +499,8 @@ void vtkAVSucdReader::ReadBinaryCellTopology(vtkIntArray *materials, int *types,
 }
 
 
-void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials, vtkUnstructuredGrid *output)
+void vtkAVSucdReader::ReadASCIICellTopology(vtkIntArray *materials, 
+                                            vtkUnstructuredGrid *output)
 {
   int i, k;
   vtkIdType list[8];
