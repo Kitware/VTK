@@ -347,7 +347,21 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
   LRESULT rval;
   struct vtkTkRenderWidget *self = 
     (struct vtkTkRenderWidget *)GetWindowLong(hWnd,GWL_USERDATA);
-  
+
+  // watch for WM_USER + 12  this is a special message
+  // from the vtkRenderWIndowInteractor letting us 
+  // know it wants to get events also
+  if ((message == WM_USER+12)&&(wParam == 24))
+    {
+    WNDPROC tmp = (WNDPROC)lParam;
+    // we need to tell it what the original vtk event handler was 
+    SetWindowLong(hWnd,GWL_USERDATA,(LONG)self->RenderWindow);
+    tmp(hWnd, WM_USER+13,26,(LONG)self->OldProc);
+    SetWindowLong(hWnd,GWL_USERDATA,(LONG)self);
+    self->OldProc = tmp;
+    return 1;
+    }
+
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
