@@ -486,7 +486,7 @@ void vtkTIFFWriter::WriteFile(ofstream *file, vtkImageData *data,
       rowLength = sizeof(unsigned char); 
       break;
     default:
-      vtkErrorMacro("PNMWriter only accepts unsigned char scalars!");
+      vtkErrorMacro("TIFFWriter only accepts unsigned char scalars!");
       return; 
     }
   rowLength *= data->GetNumberOfScalarComponents();
