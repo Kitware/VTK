@@ -47,7 +47,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.28.2.1");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.28.2.2");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -392,7 +392,7 @@ void vtkSynchronizedTemplates2D::Execute()
   vtkPolyData   *output = this->GetOutput();
   int           *ext;
   int           dims[3];
-  int           dataSize, estimatedSize;
+  int           estimatedSize;
   
 
   vtkDebugMacro(<< "Executing 2D structured contour");
@@ -426,11 +426,6 @@ void vtkSynchronizedTemplates2D::Execute()
   dims[1] = ext[3]-ext[2]+1;
   dims[2] = ext[5]-ext[4]+1;
   
-  //
-  // Check dimensionality of data and get appropriate form
-  //
-  dataSize = dims[0] * dims[1] * dims[2];
-
   //
   // Allocate necessary objects
   //
