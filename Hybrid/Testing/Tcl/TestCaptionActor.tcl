@@ -34,6 +34,8 @@ vtkCaptionActor2D caption
     caption SetHeight 0.15
     caption ThreeDimensionalLeaderOn
     caption SetLeaderGlyph [coneGlyph GetOutput]
+    caption SetMaximumLeaderGlyphSize 10
+    caption SetLeaderGlyphSize 0.025
 
 vtkCaptionActor2D caption2
     caption2 SetCaption "Santa lives here"
@@ -43,10 +45,11 @@ vtkCaptionActor2D caption2
     caption2 BorderOff
     caption2 SetPosition 25 10
     caption2 ThreeDimensionalLeaderOff
-    caption2 SetMaximumLeaderGlyphSize 5
     caption2 SetLeaderGlyph [coneGlyph GetOutput]
-    caption2 SetWidth .35
-    caption2 SetHeight .1
+    caption2 SetWidth 0.35
+    caption2 SetHeight 0.10
+    caption2 SetMaximumLeaderGlyphSize 10
+    caption2 SetLeaderGlyphSize 0.025
 
 ren1 AddActor2D caption2
 ren1 AddActor2D caption

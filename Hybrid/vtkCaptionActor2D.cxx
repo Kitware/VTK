@@ -86,7 +86,7 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->Border = 1;
   this->Leader = 1;
   this->ThreeDimensionalLeader = 1;
-  this->LeaderGlyphSize = 0.01;
+  this->LeaderGlyphSize = 0.025;
   this->MaximumLeaderGlyphSize = 20;
   this->LeaderGlyph = NULL;
   
@@ -394,16 +394,21 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
     numPixels = (numPixels > this->MaximumLeaderGlyphSize ?
                  this->MaximumLeaderGlyphSize : numPixels );
 
-    this->MapperCoordinate2D->SetValue(sze[0]/2,0,0);
-    w1 = this->MapperCoordinate2D->GetComputedWorldValue(viewport);
-    p1[0] = w1[0]; p1[1] = w1[1]; p1[2] = w1[2];
+    // determine the number of units length per pixel
+    viewport->SetDisplayPoint(sze[0]/2,sze[1]/2,0);
+    viewport->DisplayToWorld();
+    viewport->GetWorldPoint(p1);
+    if ( p1[3] != 0.0 ) {p1[0] /= p1[3]; p1[1] /= p1[3]; p1[2] /= p1[3];}
 
-    this->MapperCoordinate2D->SetValue((sze[0]/2)+1,0,0);
-    w1 = this->MapperCoordinate2D->GetComputedWorldValue(viewport);
-    p2[0] = w1[0]; p2[1] = w1[1]; p2[2] = w1[2];
-    
-    float sf = 0.01 * numPixels / 
-               (length * sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) );
+    viewport->SetDisplayPoint(sze[0]/2+1,sze[1]/2+1,0);
+    viewport->DisplayToWorld();
+    viewport->GetWorldPoint(p2);
+    if ( p2[3] != 0.0 ) {p2[0] /= p2[3]; p2[1] /= p2[3]; p2[2] /= p2[3];}
+
+    // Arbitrary 1.5 factor makes up for the use of "diagonals" in length
+    // calculations; otherwise the scale factor tends to be too small
+    float sf = 1.5 * numPixels * sqrt(vtkMath::Distance2BetweenPoints(p1,p2)) /
+               length;
 
     vtkDebugMacro(<<"Scale factor: " << sf);
 
