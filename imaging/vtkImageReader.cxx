@@ -187,7 +187,7 @@ void vtkImageReader::ComputeInternalFileName(int slice)
 
 //----------------------------------------------------------------------------
 // This function sets the name of the file. 
-void vtkImageReader::SetFileName(char *name)
+void vtkImageReader::SetFileName(const char *name)
 {
   if ( this->FileName && name && (!strcmp(this->FileName,name)))
     {
