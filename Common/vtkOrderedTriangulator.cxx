@@ -865,7 +865,7 @@ void vtkOrderedTriangulator::Triangulate()
   if ( ! this->PreSorted )
     {
     qsort((void *)this->Mesh->Points.GetPointer(0), this->NumberOfPoints, 
-          sizeof(vtkOTPoint), SortOnPointIds);
+          sizeof(vtkOTPoint), vtkSortOnPointIds);
     }
 
   // Insert each point into the triangulation. Assign internal ids 
