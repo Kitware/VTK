@@ -488,15 +488,16 @@ void vtkEncodedGradientShader::BuildShadingTable( int index,
 	  *(ssb_ptr) += specular_value * light_color[2];
 	  }      
 	}
-      // Increment all the pointers      
-      nptr += 3;
-      sdr_ptr++;
-      sdg_ptr++;
-      sdb_ptr++;
-      ssr_ptr++;
-      ssg_ptr++;
-      ssb_ptr++;
       }
+
+    // Increment all the pointers      
+    nptr += 3;
+    sdr_ptr++;
+    sdg_ptr++;
+    sdb_ptr++;
+    ssr_ptr++;
+    ssg_ptr++;
+    ssb_ptr++;
     }
 }
 
