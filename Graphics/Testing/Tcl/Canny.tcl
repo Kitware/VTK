@@ -36,8 +36,8 @@ imgMagnitude SetInput [imgGradient GetOutput]
 
 # non maximum suppression
 vtkImageNonMaximumSuppression nonMax;
-nonMax SetVectorInput [imgGradient GetOutput];
 nonMax SetMagnitudeInput [imgMagnitude GetOutput];
+nonMax SetVectorInput [imgGradient GetOutput];
 nonMax SetDimensionality 2
 
 vtkImageConstantPad pad
