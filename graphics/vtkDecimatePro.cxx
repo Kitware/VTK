@@ -985,6 +985,10 @@ int vtkDecimatePro::FindSplit (int type, int fedges[2], int& pt1, int& pt2,
           pt2 = V->Array[V->MaxId].id;
           }
         }
+      else
+	{
+	CollapseTris.SetNumberOfIds(1);
+	}
 
       return V->Array[0].id;
 
