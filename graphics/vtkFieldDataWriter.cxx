@@ -73,6 +73,8 @@ void vtkFieldDataWriter::WriteData()
   // Write FieldData data specific stuff
   //
   this->Writer.WriteFieldData(fp, f, numTuples);
+  
+  this->Writer.CloseVTKFile(fp);  
 }
 
 void vtkFieldDataWriter::PrintSelf(ostream& os, vtkIndent indent)

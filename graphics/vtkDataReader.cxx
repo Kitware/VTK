@@ -1262,7 +1262,53 @@ int vtkDataReader::ReadCells(int size, int *data)
 
 vtkFieldData *vtkDataReader::ReadFieldData(int num)
 {
-  return vtkFieldData::New();
+  int numArrays, i, skipField=0;
+  vtkFieldData *f;
+  char name[256], type[256];
+  int numComp, numTuples;
+  vtkDataArray *data;
+
+  if ( !(this->ReadString(name) && this->Read(&numArrays)) )
+    {
+    vtkErrorMacro(<<"Cannot read field header!" << " for file: " 
+                  << this->FileName);
+    return NULL;
+    }
+  
+  // See whether field data name (if specified) 
+  if ( (this->FieldDataName && strcmp(name,this->FieldDataName)) )
+    {
+    skipField = 1;
+    }
+
+  f = vtkFieldData::New();
+  f->SetNumberOfArrays(numArrays);
+  
+  // Read the number of arrays specified
+  for (i=0; i<numArrays; i++)
+    {
+    this->ReadString(name);
+    this->Read(&numComp);
+    this->Read(&numTuples);
+    this->ReadString(type);
+    data = this->ReadArray(type, numTuples, numComp);
+    if ( data != NULL )
+      {
+      if ( ! skipField )
+	{
+	f->SetArray(i,data);
+	f->SetArrayName(i,name);
+	}
+      data->Delete();
+      }
+    else
+      {
+      f->Delete();
+      return NULL;
+      }
+    }
+
+  return f;
 }
 
 

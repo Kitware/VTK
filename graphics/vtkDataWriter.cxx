@@ -578,11 +578,11 @@ int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f, int num)
 {
   char format[1024];
   int i, numArrays=f->GetNumberOfArrays();
-  int numComp, numFieldComp=f->GetNumberOfComponents();
+  int numComp, numTuples, numFieldComp=f->GetNumberOfComponents();
   vtkDataArray *array;
 
   if ( numArrays < 1 ) return 1;
-  fprintf (fp, "FIELD %s %d %d %d\n", this->FieldDataName, num, numArrays, numFieldComp);
+  fprintf (fp, "FIELD %s %d\n", this->FieldDataName, numArrays);
   
   for (i=0; i < numArrays; i++)
     {
@@ -590,8 +590,9 @@ int vtkDataWriter::WriteFieldData(FILE *fp, vtkFieldData *f, int num)
     if ( array != NULL )
       {
       numComp = array->GetNumberOfComponents();
-      sprintf(format, "%s %d\n", "%s", numComp);
-      this->WriteArray(fp, array->GetDataType(), array, format, num, numComp);
+      numTuples = array->GetNumberOfTuples();
+      sprintf(format, "%s %d %d %s\n", f->GetArrayName(i), numComp, numTuples, "%s");
+      this->WriteArray(fp, array->GetDataType(), array, format, numTuples, numComp);
       }
     else
       {
