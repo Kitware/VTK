@@ -1088,7 +1088,7 @@ int front)
       bank_switch( this->Fd, 0, 0 );
       dcblock_read( this->Fd, x_low, yloop,(x_hi - x_low + 1),1,buff3,FALSE );
 
-      if (this->Buffer)
+      if ((this->Buffer && (!front)) || ((!this->Buffer) && front))
 	{
 	for (xloop = 0; xloop <= (abs(x2-x1)); xloop++)
 	  {
@@ -1344,21 +1344,4 @@ void vtkSbrRenderWindow::CopyResultFrame(void)
     }
 
   this->Frame();
-}
-
-void vtkSbrRenderWindow::SaveImageAsPPM()
-{
-  // flush and display the buffer
-  if (this->DoubleBuffer) 
-    {
-    dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
-    }
-
-  this->vtkRenderWindow::SaveImageAsPPM();
-
-  // flush and display the buffer
-  if (this->DoubleBuffer) 
-    {
-    dbuffer_switch(this->Fd, this->Buffer = !(this->Buffer));
-    }
 }
