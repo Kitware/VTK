@@ -10,6 +10,10 @@ vtkCommon
 
 LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
 
+IF (VTK_USE_FREETYPE)
+  LINK_LIBRARIES(vtkftgl vtkfreetype)
+ENDIF (VTK_USE_FREETYPE)
+
 IF (VTK_USE_HYBRID)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
     TARGET_LINK_LIBRARIES(ParallelIsoTest  vtkHybrid)

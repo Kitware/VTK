@@ -7,7 +7,11 @@ vtkIO
 vtkRendering
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
+
+IF (VTK_USE_FREETYPE)
+  LINK_LIBRARIES(vtkftgl vtkfreetype)
+ENDIF (VTK_USE_FREETYPE)
 
 LINK_LIBRARIES ( ${OPENGL_LIBRARY} )
 IF (VTK_MANGLE_MESA)

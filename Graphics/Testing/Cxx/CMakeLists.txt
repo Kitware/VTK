@@ -18,6 +18,10 @@ IF (VTK_USE_RENDERING)
     LINK_LIBRARIES(${CMAKE_X_LIBS})
   ENDIF (VTK_USE_X)
 
+  IF (VTK_USE_FREETYPE)
+    LINK_LIBRARIES(vtkftgl vtkfreetype)
+  ENDIF (VTK_USE_FREETYPE)
+
   #
   # Add all the executables that require rendering
   #
@@ -73,4 +77,4 @@ vtkFiltering
 vtkCommon 
 )
 
-LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff )
+LINK_LIBRARIES( vtkpng vtkzlib vtkjpeg vtktiff)
