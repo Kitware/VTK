@@ -27,7 +27,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.52");
+vtkCxxRevisionMacro(vtkImageReslice, "1.53");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -108,6 +108,7 @@ vtkImageReslice::vtkImageReslice()
 
   this->Wrap = 0; // don't wrap
   this->Mirror = 0; // don't mirror
+  this->Border = 1; // apply a border
   this->InterpolationMode = VTK_RESLICE_NEAREST; // no interpolation
   this->Optimization = 1; // turn off when you're paranoid 
 
@@ -210,6 +211,7 @@ void vtkImageReslice::PrintSelf(ostream& os, vtkIndent indent)
     this->OutputDimensionality << "\n";
   os << indent << "Wrap: " << (this->Wrap ? "On\n":"Off\n");
   os << indent << "Mirror: " << (this->Mirror ? "On\n":"Off\n");
+  os << indent << "Border: " << (this->Border ? "On\n":"Off\n");
   os << indent << "InterpolationMode: " 
      << this->GetInterpolationModeAsString() << "\n";
   os << indent << "Optimization: " << (this->Optimization ? "On\n":"Off\n");
@@ -792,7 +794,8 @@ void vtkImageReslice::RequestInformation(
 #define VTK_RESLICE_BACKGROUND 0   // use background if out-of-bounds
 #define VTK_RESLICE_WRAP       1   // wrap to opposite side of image
 #define VTK_RESLICE_MIRROR     2   // mirror off of the boundary 
-#define VTK_RESLICE_NULL       3   // do nothing to *outPtr if out-of-bounds
+#define VTK_RESLICE_BORDER     3   // use a half-voxel border
+#define VTK_RESLICE_NULL       4   // do nothing to *outPtr if out-of-bounds
 
 //--------------------------------------------------------------------------
 // a macro to evaluate an expression for all scalar types 
@@ -1040,6 +1043,44 @@ inline int vtkInterpolateMirror(int num, int range)
 }
 
 //----------------------------------------------------------------------------
+// If the value is within one half voxel of the range [0,inExtX), then
+// set it to "0" or "inExtX-1" as appropriate.
+
+inline  int vtkInterpolateBorder(int &inIdX0, int &inIdX1, int inExtX,
+                                 double fx)
+{
+  if (inIdX0 >= 0 && inIdX1 < inExtX)
+    {
+    return 0;
+    }
+  if (inIdX0 == -1 && fx >= 0.5)
+    {
+    inIdX0 = inIdX1 = 0;
+    return 0;
+    }
+  if (inIdX1 == inExtX && fx < 0.5)
+    {
+    inIdX0 = inIdX1 = inExtX - 1;
+    return 0;
+    }
+
+  return 1;
+}
+
+inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX,
+                                      double fx)
+{
+  if ((inIdX0 >= 0 && inIdX1 < inExtX) ||
+      (inIdX0 == -1 && fx >= 0.5) ||
+      (inIdX1 == inExtX && fx < 0.5))
+    {
+    return 0;
+    }
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 // Do nearest-neighbor interpolation of the input data 'inPtr' of extent 
 // 'inExt' at the 'point'.  The result is placed at 'outPtr'.  
 // If the lookup data is beyond the extent 'inExt', set 'outPtr' to
@@ -1075,7 +1116,8 @@ int vtkNearestNeighborInterpolation(T *&outPtr, const T *inPtr,
       inIdY0 = vtkInterpolateMirror(inIdY0, inExtY);
       inIdZ0 = vtkInterpolateMirror(inIdZ0, inExtZ);
       }
-    else if (mode == VTK_RESLICE_BACKGROUND)
+    else if (mode == VTK_RESLICE_BACKGROUND ||
+             mode == VTK_RESLICE_BORDER)
       {
       do
         {
@@ -1133,7 +1175,21 @@ int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
       inIdY0 < 0 || inIdY1 >= inExtY ||
       inIdZ0 < 0 || inIdZ1 >= inExtZ)
     {
-    if (mode == VTK_RESLICE_WRAP)
+    if (mode == VTK_RESLICE_BORDER)
+      {
+      if (vtkInterpolateBorder(inIdX0, inIdX1, inExtX, fx) ||
+          vtkInterpolateBorder(inIdY0, inIdY1, inExtY, fy) ||
+          vtkInterpolateBorder(inIdZ0, inIdZ1, inExtZ, fz))
+        {
+        do
+          {
+          *outPtr++ = *background++;
+          }
+        while (--numscalars);
+        return 0;
+        }
+      }
+    else if (mode == VTK_RESLICE_WRAP)
       {
       inIdX0 = vtkInterpolateWrap(inIdX0, inExtX);
       inIdY0 = vtkInterpolateWrap(inIdY0, inExtY);
@@ -1299,6 +1355,10 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
   int inIdY0 = floorY - inExt[2];
   int inIdZ0 = floorZ - inExt[4];
 
+  int inIdX1 = inIdX0 + fxIsNotZero;
+  int inIdY1 = inIdY0 + fyIsNotZero;
+  int inIdZ1 = inIdZ0 + fzIsNotZero;
+
   int inExtX = inExt[1] - inExt[0] + 1;
   int inExtY = inExt[3] - inExt[2] + 1;
   int inExtZ = inExt[5] - inExt[4] + 1;
@@ -1309,11 +1369,25 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
 
   int factX[4], factY[4], factZ[4];
 
-  if (inIdX0 < 0 || (inIdX0 + fxIsNotZero) >= inExtX ||
-      inIdY0 < 0 || (inIdY0 + fyIsNotZero) >= inExtY ||
-      inIdZ0 < 0 || (inIdZ0 + fzIsNotZero) >= inExtZ)
+  if (inIdX0 < 0 || inIdX1 >= inExtX ||
+      inIdY0 < 0 || inIdY1 >= inExtY ||
+      inIdZ0 < 0 || inIdZ1 >= inExtZ)
     {
-    if (mode != VTK_RESLICE_WRAP && mode != VTK_RESLICE_MIRROR)
+    if (mode == VTK_RESLICE_BORDER)
+      {
+      if (vtkInterpolateBorderCheck(inIdX0, inIdX1, inExtX, fx) ||
+          vtkInterpolateBorderCheck(inIdY0, inIdY1, inExtY, fy) ||
+          vtkInterpolateBorderCheck(inIdZ0, inIdZ1, inExtZ, fz))
+        {
+        do
+          {
+          *outPtr++ = *background++;
+          }
+        while (--numscalars);
+        return 0;
+        }
+      }
+    else if (mode != VTK_RESLICE_WRAP && mode != VTK_RESLICE_MIRROR)
       {
       if (mode == VTK_RESLICE_BACKGROUND)
         {
@@ -1366,6 +1440,43 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
         factZ[i] = vtkInterpolateMirror(inIdZ0 + i - 1, inExtZ)*inIncZ;
         }
       }
+    }
+  else if (mode == VTK_RESLICE_BORDER)
+    {
+    // clamp to the border of the input extent
+   
+    i1 = 1 - fxIsNotZero;
+    j1 = 1 - fyIsNotZero;
+    k1 = 1 - fzIsNotZero;
+
+    i2 = 1 + 2*fxIsNotZero;
+    j2 = 1 + 2*fyIsNotZero;
+    k2 = 1 + 2*fzIsNotZero;
+    
+    vtkTricubicInterpCoeffs(fX, i1, i2, fx);
+    vtkTricubicInterpCoeffs(fY, j1, j2, fy);
+    vtkTricubicInterpCoeffs(fZ, k1, k2, fz);
+
+    int tmpExt = inExtX - 1;
+    int tmpId = tmpExt - inIdX0 - 1;
+    factX[0] = (inIdX0 - 1)*(inIdX0 - 1 >= 0)*inIncX;
+    factX[1] = (inIdX0)*(inIdX0 >= 0)*inIncX;
+    factX[2] = (tmpExt - (tmpId)*(tmpId >= 0))*inIncX;
+    factX[3] = (tmpExt - (tmpId - 1)*(tmpId - 1 >= 0))*inIncX;
+
+    tmpExt = inExtY - 1;
+    tmpId = tmpExt - inIdY0 - 1;
+    factY[0] = (inIdY0 - 1)*(inIdY0 - 1 >= 0)*inIncY;
+    factY[1] = (inIdY0)*(inIdY0 >= 0)*inIncY;
+    factY[2] = (tmpExt - (tmpId)*(tmpId >= 0))*inIncY;
+    factY[3] = (tmpExt - (tmpId - 1)*(tmpId - 1 >= 0))*inIncY;
+
+    tmpExt = inExtZ - 1;
+    tmpId = tmpExt - inIdZ0 - 1;
+    factZ[0] = (inIdZ0 - 1)*(inIdZ0 - 1 >= 0)*inIncZ;
+    factZ[1] = (inIdZ0)*(inIdZ0 >= 0)*inIncZ;
+    factZ[2] = (tmpExt - (tmpId)*(tmpId >= 0))*inIncZ;
+    factZ[3] = (tmpExt - (tmpId - 1)*(tmpId - 1 >= 0))*inIncZ;
     }
   else
     {
@@ -1752,6 +1863,10 @@ void vtkImageResliceExecute(vtkImageReslice *self,
     {
     mode = VTK_RESLICE_WRAP;
     }
+  else if (self->GetBorder())
+    {
+    mode = VTK_RESLICE_BORDER;
+    }
 
   // the transformation to apply to the data
   vtkAbstractTransform *transform = self->GetResliceTransform();
@@ -2066,436 +2181,6 @@ void vtkImageReslice::OptimizedComputeInputUpdateExtent(
   vtkResliceOptimizedComputeInputUpdateExtent(this, inExt, outExt, newmat);
 }
 
-template<class F>
-inline
-int intersectionHelper(F *point, F *axis, int *limit, int ai, int *outExt)
-{
-  F rd = (limit[ai]*point[3]-point[ai])
-      /(axis[ai]-limit[ai]*axis[3]) + 0.5; 
-    
-  if (rd < outExt[0])
-    { 
-    return outExt[0];
-    }
-  else if (rd > outExt[1])
-    {
-    return outExt[1];
-    }
-  else
-    {
-    return int(rd);
-    }
-}
-
-template <class F>
-int intersectionLow(F *point, F *axis, int *sign,
-                    int *limit, int ai, int *outExt)
-{
-  // approximate value of r
-  int r = intersectionHelper(point,axis,limit,ai,outExt);
-
-  F f,p;
-  // move back and forth to find the point just inside the extent
-  for (;;)
-    {
-    f = point[3]+r*axis[3];
-    p = point[ai]+r*axis[ai];
-    f = 1/f;
-    p *= f;
-    
-    if ((sign[ai] < 0 && r > outExt[0] ||
-         sign[ai] > 0 && r < outExt[1])
-        && vtkResliceRound(p) < limit[ai])
-      {
-      r += sign[ai];
-      }
-    else
-      {
-      break;
-      }
-    }
-
-  for (;;)
-    {
-    f = point[3]+(r-sign[ai])*axis[3];
-    p = point[ai]+(r-sign[ai])*axis[ai];
-    f = 1/f;
-    p *= f;
-    
-    if ((sign[ai] > 0 && r > outExt[0] ||
-         sign[ai] < 0 && r < outExt[1])
-        && vtkResliceRound(p) >= limit[ai])
-      {
-      r -= sign[ai];
-      }
-    else
-      {
-      break;
-      }
-    }
-
-  return r;
-}
-
-// same as above, but for x = x_max
-template <class F>
-int intersectionHigh(F *point, F *axis, int *sign, 
-                     int *limit, int ai, int *outExt)
-{
-  int r = intersectionHelper(point,axis,limit,ai,outExt);
-
-  F f,p;
-  // move back and forth to find the point just inside the extent
-  for (;;)
-    {
-    f = point[3]+r*axis[3];
-    p = point[ai]+r*axis[ai];
-    f = 1/f;
-    p *= f;
-    
-    if ((sign[ai] > 0 && r > outExt[0] ||
-         sign[ai] < 0 && r < outExt[1])
-        && vtkResliceRound(p) > limit[ai])
-      {
-      r -= sign[ai];
-      }
-    else
-      {
-      break;
-      }
-    }
-
-  for (;;)
-    {
-    f = point[3]+(r+sign[ai])*axis[3];
-    p = point[ai]+(r+sign[ai])*axis[ai];
-    f = 1/f;
-    p *= f;
-    
-    if ((sign[ai] < 0 && r > outExt[0] ||
-         sign[ai] > 0 && r < outExt[1])
-        && vtkResliceRound(p) <= limit[ai])
-      {
-      r += sign[ai];
-      }
-    else
-      {
-      break;
-      }
-    }
-
-  return r;
-}
-
-template <class F>
-int isBounded(F *point, F *xAxis, int *inMin, int *inMax, int ai, int r)
-{
-  int bi = ai+1; 
-  int ci = ai+2;
-  if (bi > 2) 
-    { 
-    bi -= 3; // coordinate index must be 0, 1 or 2 
-    } 
-  if (ci > 2)
-    { 
-    ci -= 3;
-    }
-  F f = point[3]+r*xAxis[3];
-  f = 1/f;
-  F fbp = point[bi]+r*xAxis[bi];
-  F fcp = point[ci]+r*xAxis[ci];
-  fbp *= f;
-  fcp *= f;
-
-  int bp = vtkResliceRound(fbp);
-  int cp = vtkResliceRound(fcp);
-  
-  return (bp >= inMin[bi] && bp <= inMax[bi] &&
-          cp >= inMin[ci] && cp <= inMax[ci]);
-}
-
-// this huge mess finds out where the current output raster
-// line intersects the input volume
-void vtkResliceFindExtentHelper(int &r1, int &r2, int sign, int *outExt)
-{
-  if (sign < 0)
-    {
-    int i = r1;
-    r1 = r2;
-    r2 = i;
-    }
-  
-  // bound r1,r2 within reasonable limits
-  if (r1 < outExt[0]) 
-    {
-    r1 = outExt[0];
-    }
-  if (r2 > outExt[1]) 
-    {
-    r2 = outExt[1];
-    }
-  if (r1 > r2) 
-    {
-    r1 = outExt[0];
-    r2 = outExt[0]-1;
-    }
-}  
-
-template <class F>
-void vtkResliceFindExtent(int& r1, int& r2, F *point, F *xAxis, 
-                          int *inMin, int *inMax, int *outExt)
-{
-  int i, ix, iy, iz;
-  int sign[3];
-  int indx1[4],indx2[4];
-  F f1,f2,p1,p2;
-
-  // find signs of components of x axis 
-  // (this is complicated due to the homogeneous coordinate)
-  for (i = 0; i < 3; i++)
-    {
-    f1 = point[3];
-    p1 = point[i];
-    f1 = 1/f1;
-    p1 *= f1;
-
-    f2 = point[3]+xAxis[3];
-    p2 = point[i]+xAxis[i];
-    f2 = 1/f2;
-    p2 *= f2;
-
-    if (p1 <= p2)
-      {
-      sign[i] = 1;
-      }
-    else 
-      {
-      sign[i] = -1;
-      }
-    } 
-  
-  // order components of xAxis from largest to smallest
-  
-  ix = 0;
-  for (i = 1; i < 3; i++)
-    {
-    if (((xAxis[i] < 0) ? (-xAxis[i]) : (xAxis[i])) >
-        ((xAxis[ix] < 0) ? (-xAxis[ix]) : (xAxis[ix])))
-      {
-      ix = i;
-      }
-    }
-  
-  iy = ((ix > 1) ? ix-2 : ix+1);
-  iz = ((ix > 0) ? ix-1 : ix+2);
-
-  if (((xAxis[iy] < 0) ? (-xAxis[iy]) : (xAxis[iy])) >
-      ((xAxis[iz] < 0) ? (-xAxis[iz]) : (xAxis[iz])))
-    {
-    i = iy;
-    iy = iz;
-    iz = i;
-    }
-
-  r1 = intersectionLow(point,xAxis,sign,inMin,ix,outExt);
-  r2 = intersectionHigh(point,xAxis,sign,inMax,ix,outExt);
-  
-  // find points of intersections
-  // first, find w-value for perspective (will usually be 1)
-  f1 = point[3]+r1*xAxis[3];
-  f2 = point[3]+r2*xAxis[3];
-  f1 = 1/f1;
-  f2 = 1/f2;
-  
-  for (i = 0; i < 3; i++)
-    {
-    p1 = point[i]+r1*xAxis[i];
-    p2 = point[i]+r2*xAxis[i];
-    p1 *= f1;
-    p2 *= f2;
-
-    indx1[i] = vtkResliceRound(p1);
-    indx2[i] = vtkResliceRound(p2);
-    }
-  if (isBounded(point,xAxis,inMin,inMax,ix,r1))
-    { // passed through x face, check opposing face
-    if (isBounded(point,xAxis,inMin,inMax,ix,r2))
-      {
-      vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-      return;
-      }
-    
-    if (indx2[iy] < inMin[iy])
-      { // check y face
-      r2 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iy,r2))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    else if (indx2[iy] > inMax[iy])
-      { // check other y face
-      r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iy,r2))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    
-    if (indx2[iz] < inMin[iz])
-      { // check z face
-      r2 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iz,r2))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    else if (indx2[iz] > inMax[iz])
-      { // check other z face
-      r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iz,r2))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    }
-  
-  if (isBounded(point,xAxis,inMin,inMax,ix,r2))
-    { // passed through the opposite x face
-    if (indx1[iy] < inMin[iy])
-      { // check y face
-      r1 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iy,r1))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    else if (indx1[iy] > inMax[iy])
-      { // check other y face
-      r1 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iy,r1))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    
-    if (indx1[iz] < inMin[iz])
-      { // check z face
-      r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iz,r1))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    else if (indx1[iz] > inMax[iz])
-      { // check other z face
-      r1 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
-      if (isBounded(point,xAxis,inMin,inMax,iz,r1))
-        {
-        vtkResliceFindExtentHelper(r1,r2,sign[ix],outExt);
-        return;
-        }
-      }
-    }
-  
-  if ((indx1[iy] >= inMin[iy] && indx2[iy] < inMin[iy]) ||
-      (indx1[iy] < inMin[iy] && indx2[iy] >= inMin[iy]))
-    { // line might pass through bottom face
-    r1 = intersectionLow(point,xAxis,sign,inMin,iy,outExt);
-    if (isBounded(point,xAxis,inMin,inMax,iy,r1))
-      {
-      if ((indx1[iy] <= inMax[iy] && indx2[iy] > inMax[iy]) ||
-          (indx1[iy] > inMax[iy] && indx2[iy] <= inMax[iy]))
-        { // line might pass through top face
-        r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iy,r2))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iy],outExt);
-          return;
-          }
-        }
-      
-      if (indx1[iz] < inMin[iz] && indx2[iy] < inMin[iy] ||
-          indx2[iz] < inMin[iz] && indx1[iy] < inMin[iy])
-        { // line might pass through in-to-screen face
-        r2 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iz,r2))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iy],outExt);
-          return;
-          }
-        }
-      else if (indx1[iz] > inMax[iz] && indx2[iy] < inMin[iy] ||
-               indx2[iz] > inMax[iz] && indx1[iy] < inMin[iy])
-        { // line might pass through out-of-screen face
-        r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iz,r2))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iy],outExt);
-          return;
-          }
-        } 
-      }
-    }
-  
-  if ((indx1[iy] <= inMax[iy] && indx2[iy] > inMax[iy]) ||
-      (indx1[iy] > inMax[iy] && indx2[iy] <= inMax[iy]))
-    { // line might pass through top face
-    r2 = intersectionHigh(point,xAxis,sign,inMax,iy,outExt);
-    if (isBounded(point,xAxis,inMin,inMax,iy,r2))
-      {
-      if (indx1[iz] < inMin[iz] && indx2[iy] > inMax[iy] ||
-          indx2[iz] < inMin[iz] && indx1[iy] > inMax[iy])
-        { // line might pass through in-to-screen face
-        r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iz,r1))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iy],outExt);
-          return;
-          }
-        }
-      else if (indx1[iz] > inMax[iz] && indx2[iy] > inMax[iy] || 
-               indx2[iz] > inMax[iz] && indx1[iy] > inMax[iy])
-        { // line might pass through out-of-screen face
-        r1 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iz,r1))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iy],outExt);
-          return;
-          }
-        }
-      } 
-    }
-  
-  if ((indx1[iz] >= inMin[iz] && indx2[iz] < inMin[iz]) ||
-      (indx1[iz] < inMin[iz] && indx2[iz] >= inMin[iz]))
-    { // line might pass through in-to-screen face
-    r1 = intersectionLow(point,xAxis,sign,inMin,iz,outExt);
-    if (isBounded(point,xAxis,inMin,inMax,iz,r1))
-      {
-      if (indx1[iz] > inMax[iz] || indx2[iz] > inMax[iz])
-        { // line might pass through out-of-screen face
-        r2 = intersectionHigh(point,xAxis,sign,inMax,iz,outExt);
-        if (isBounded(point,xAxis,inMin,inMax,iz,r2))
-          {
-          vtkResliceFindExtentHelper(r1,r2,sign[iz],outExt);
-          return;
-          }
-        }
-      }
-    }
-  
-  r1 = outExt[0];
-  r2 = outExt[0] - 1;
-}
-
 // application of the transform has different forms for fixed-point
 // vs. floating-point
 template<class F>
@@ -2513,22 +2198,13 @@ void vtkResliceApplyTransform(vtkAbstractTransform *newtrans,
   inPoint[2] *= inInvSpacing[2];
 }
 
-// The vtkOptimizedExecute() function uses an optimization which
-// is conceptually simple, but complicated to implement.
-
-// In the un-optimized version, each output voxel
-// is converted into a set of look-up indices for the input data;
-// then, the indices are checked to ensure they lie within the
-// input data extent.
-
-// In the optimized version below, the check is done in reverse:
-// it is first determined which output voxels map to look-up indices
-// within the input data extent.  Then, further calculations are
-// done only for those voxels.  This means that 1) minimal work
-// is done for voxels which map to regions outside fo the input
-// extent (they are just set to the background color) and 2)
-// the inner loops of the look-up and interpolation are
-// tightened relative to the un-uptimized version. 
+// The vtkOptimizedExecute() is like vtkImageResliceExecute, except that
+// it provides a few optimizations:
+// 1) the ResliceAxes and ResliceTransform are joined to create a 
+// single 4x4 matrix if possible
+// 2) the transformation is calculated incrementally to increase efficiency
+// 3) nearest-neighbor interpolation is treated specially in order to
+// increase efficiency
 
 template <class F>
 void vtkOptimizedExecute(vtkImageReslice *self,
@@ -2572,6 +2248,10 @@ void vtkOptimizedExecute(vtkImageReslice *self,
     {
     mode = VTK_RESLICE_WRAP;
     wrap = 1;
+    }
+  else if (self->GetBorder())
+    {
+    mode = VTK_RESLICE_BORDER;
     }
   
   int perspective = 0;
@@ -2659,22 +2339,9 @@ void vtkOptimizedExecute(vtkImageReslice *self,
         count++;
         }
       
-      if (newtrans == 0 && !wrap)
-        {  // find intersections of x raster line with the input extent
-        vtkResliceFindExtent(r1, r2, inPoint1, xAxis, inMin, inMax, outExt);
-        }
-      else
-        { // there is an AbstractTransform, go through whole extent
-        r1 = outExt[0];
-        r2 = outExt[1];
-        }
-
-      // clear pixels to left of input extent
-      setpixels(outPtr, background, numscalars, r1 - outExt[0]);
-        
       iter = 0;
       while (vtkResliceGetNextExtent(self->GetStencil(), idXmin, idXmax,
-                                     r1, r2, idY, idZ,
+                                     outExt[0], outExt[1], idY, idZ,
                                      outPtr, background, numscalars, 
                                      setpixels, iter))
         {
@@ -2705,6 +2372,10 @@ void vtkOptimizedExecute(vtkImageReslice *self,
           }
         else // optimize for nearest-neighbor interpolation
           {
+          int inExtX = inExt[1] - inExt[0] + 1;
+          int inExtY = inExt[3] - inExt[2] + 1;
+          int inExtZ = inExt[5] - inExt[4] + 1;
+
           for (int iidX = idXmin; iidX <= idXmax; iidX++)
             {
             inPoint[0] = inPoint1[0] + iidX*xAxis[0];
@@ -2714,19 +2385,25 @@ void vtkOptimizedExecute(vtkImageReslice *self,
             int inIdX = vtkResliceRound(inPoint[0]) - inExt[0];
             int inIdY = vtkResliceRound(inPoint[1]) - inExt[2];
             int inIdZ = vtkResliceRound(inPoint[2]) - inExt[4];
-    
-            void *inPtr1 = (void *)((char *)inPtr + \
-                                    (inIdX*inInc[0] + 
-                                     inIdY*inInc[1] +
-                                     inIdZ*inInc[2])*scalarSize);
 
-            setpixels(outPtr, inPtr1, numscalars, 1);
+            if (inIdX < 0 || inIdX >= inExtX ||
+                inIdY < 0 || inIdY >= inExtY ||
+                inIdZ < 0 || inIdZ >= inExtZ)
+              {
+              setpixels(outPtr, background, numscalars, 1);
+              }
+            else
+              {
+              void *inPtr1 = (void *)((char *)inPtr + \
+                                        (inIdX*inInc[0] + 
+                                         inIdY*inInc[1] +
+                                         inIdZ*inInc[2])*scalarSize);
+
+              setpixels(outPtr, inPtr1, numscalars, 1);
+              }
             }
           }
         }
-      // clear pixels to right of input extent
-      setpixels(outPtr, background, numscalars, outExt[1] - r2);
-
       outPtr = (void *)((char *)outPtr + outIncY*scalarSize);
       }
     outPtr = (void *)((char *)outPtr + outIncZ*scalarSize);
@@ -3155,20 +2832,42 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
         inId1 = vtkInterpolateWrap(inId1, inExtK);
         region = 1;
         }
-      else if (inId0 < 0 || inId1 >= inExtK)
+      else if (self->GetBorder())
         {
-        if (region == 1)
-          { // leaving the input extent
-          region = 2;
-          clipExt[2*j+1] = i - 1;
+        if (vtkInterpolateBorder(inId0, inId1, inExtK, f))
+          {
+          if (region == 1)
+            { // leaving the input extent
+            region = 2;
+            clipExt[2*j+1] = i - 1;
+            }
+          }
+        else 
+          {
+          if (region == 0)
+            { // entering the input extent
+            region = 1;
+            clipExt[2*j] = i;           
+            }
           }
         }
-      else 
+      else // not self->GetBorder()
         {
-        if (region == 0)
-          { // entering the input extent
-          region = 1;
-          clipExt[2*j] = i;           
+        if (inId0 < 0 || inId1 >= inExtK)
+          {
+          if (region == 1)
+            { // leaving the input extent
+            region = 2;
+            clipExt[2*j+1] = i - 1;
+            }
+          }
+        else 
+          {
+          if (region == 0)
+            { // entering the input extent
+            region = 1;
+            clipExt[2*j] = i;           
+            }
           }
         }
       traversal[j][2*i] = inId0*inInc[k];
@@ -3239,7 +2938,33 @@ void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
         inId[3] = vtkInterpolateWrap(inId[3], inExtK);
         region = 1;
         }      
-      else
+      else if (self->GetBorder())
+        {
+        if (vtkInterpolateBorderCheck(inId[1], inId[2], inExtK, f))
+          {
+          if (region == 1)
+            { // leaving the input extent
+            region = 2;
+            clipExt[2*j+1] = i - 1;
+            }
+          }
+        else 
+          {
+          if (region == 0)
+            { // entering the input extent
+            region = 1;
+            clipExt[2*j] = i;           
+            }
+          }
+        int tmpExt = inExtK - 1;
+        inId[0] = (inId[0])*(inId[0] >= 0);
+        inId[1] = (inId[1])*(inId[1] >= 0);
+        inId[2] = tmpExt - (tmpExt - inId[2])*(tmpExt - inId[2] >= 0);
+        inId[3] = tmpExt - (tmpExt - inId[3])*(tmpExt - inId[3] >= 0);
+        low  = 1 - fIsNotZero;
+        high = 1 + 2*fIsNotZero;
+        }
+      else // not self->GetBorder()
         {
         if (inId[1] < 0 || inId[1] + fIsNotZero >= inExtK)
           {

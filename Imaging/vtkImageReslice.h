@@ -180,6 +180,13 @@ public:
   vtkBooleanMacro(Mirror, int);
 
   // Description:
+  // Turn on half-pixel interpolation border for input (default: on).
+  // This has no effect if Mirror or Wrap are on.
+  vtkSetMacro(Border, int);
+  vtkGetMacro(Border, int);
+  vtkBooleanMacro(Border, int);
+
+  // Description:
   // Set interpolation mode (default: nearest neighbor). 
   vtkSetMacro(InterpolationMode, int);
   vtkGetMacro(InterpolationMode, int);
@@ -288,6 +295,7 @@ protected:
   vtkImageData *InformationInput;
   int Wrap;
   int Mirror;
+  int Border;
   int InterpolationMode;
   int Optimization;
   double BackgroundColor[4];
