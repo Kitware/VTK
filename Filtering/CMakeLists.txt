@@ -153,6 +153,7 @@ vtkQuadraticTetra.cxx
 vtkQuadraticTriangle.cxx
 vtkQuadraticWedge.cxx
 vtkRectilinearGrid.cxx
+vtkRectilinearGridAlgorithm.cxx
 vtkRectilinearGridSource.cxx
 vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
