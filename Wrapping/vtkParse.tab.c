@@ -840,8 +840,8 @@ int main(int argc,char *argv[])
   if (ret)
     {
     fprintf(stdout,
-            "*** SYNTAX ERROR found in parsing the header file %s ***\n", 
-            argv[1]);
+            "*** SYNTAX ERROR found in parsing the header file %s before line %d***\n", 
+            argv[1], yylineno);
     return ret;
     }
 
@@ -1943,7 +1943,7 @@ case 131:
    currentFunction->Signature = (char *)malloc(2048);
    sigAllocatedLength = 2048;
    sprintf(currentFunction->Signature, "%s *NewInstance ();",
-	   yyvsp[-3].str);
+           yyvsp[-3].str);
    sprintf(temps,"NewInstance"); 
    currentFunction->Name = vtkstrdup(temps);
    currentFunction->NumberOfArguments = 0;
