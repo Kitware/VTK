@@ -409,7 +409,7 @@ do_return()
       fprintf(yyout,"  tempH = vtkJavaGetObjectFromPointer((void *)temp10);\n");
       fprintf(yyout,"  if (!tempH)\n    {\n");
       fprintf(yyout,"    vtk_%s_NoCPP();\n",arg_ids[10]);
-      fprintf(yyout,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"void(V)\"));\n",arg_ids[10],arg_ids[10]);
+      fprintf(yyout,"    tempH = env->NewObject(env->FindClass(\"vtk/%s\"),env->GetMethodID(env->FindClass(\"vtk/%s\"),\"<init>\",\"()V\"));\n",arg_ids[10],arg_ids[10]);
       fprintf(yyout,"    vtkJavaAddObjectToHash(env, tempH,(void *)temp10,(void *)%s_Typecast,0);\n    }\n",arg_ids[10]);
       fprintf(yyout,"  return tempH;\n",arg_ids[10]);
       break;
