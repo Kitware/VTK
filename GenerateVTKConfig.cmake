@@ -102,6 +102,8 @@ SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS}
 SET(VTK_INCLUDE_DIRS ${VTK_INCLUDE_DIRS}
   ${VTK_BINARY_DIR}/Utilities/png
   ${VTK_SOURCE_DIR}/Utilities/png
+  ${VTK_BINARY_DIR}/Utilities/expat
+  ${VTK_SOURCE_DIR}/Utilities/expat
   ${VTK_BINARY_DIR}/Utilities/zlib
   ${VTK_SOURCE_DIR}/Utilities/zlib)
 

@@ -30,3 +30,4 @@ CONFIGURE_FILE(${VTKEXPAT_SOURCE_DIR}/.NoDartCoverage
 ADD_LIBRARY(vtkexpat ${expat_SRCS})
 
 INSTALL_TARGETS(/lib/vtk vtkexpat)
+INSTALL_FILES(/include/vtk .h expat expatDllConfig)
