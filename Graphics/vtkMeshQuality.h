@@ -131,15 +131,15 @@ public:
   // Description:
   // These methods are deprecated. Use Get/SetSaveCellQuality() instead.
   //
-  // Formerly, SetRadiusRation could be used to disable computation
+  // Formerly, SetRatio could be used to disable computation
   // of the tetrahedral radius ratio so that volume alone could be computed.
   // Now, cell quality is always computed, but you may decide not
   // to store the result for each cell.
   // This allows average cell quality of a mesh to be
   // calculated without requiring per-cell storage.
-  virtual void SetRadiusRatio( int r ) { this->SetSaveCellQuality( r ); }
-  int GetRadiusRatio() { return this->GetSaveCellQuality(); }
-  vtkBooleanMacro(RadiusRatio,int);
+  virtual void SetRatio( int r ) { this->SetSaveCellQuality( r ); }
+  int GetRatio() { return this->GetSaveCellQuality(); }
+  vtkBooleanMacro(Ratio,int);
 
   // Description:
   // These methods are deprecated. The functionality of computing cell

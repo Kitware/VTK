@@ -34,7 +34,7 @@
 #include "vtkCell.h"
 #include "vtkCellTypes.h"
 
-vtkCxxRevisionMacro(vtkMeshQuality,"1.10");
+vtkCxxRevisionMacro(vtkMeshQuality,"1.11");
 vtkStandardNewMacro(vtkMeshQuality);
 
 typedef double (*CellQualityType)( vtkCell* );
@@ -72,6 +72,8 @@ vtkMeshQuality::vtkMeshQuality()
   this->QuadQualityMeasure = VTK_QUALITY_EDGE_RATIO;
   this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
   this->HexQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
+  this->Volume = 0;
+  this->CompatibilityMode = 0;
 }
 
 vtkMeshQuality::~vtkMeshQuality()
@@ -166,6 +168,11 @@ void vtkMeshQuality::Execute()
   if ( this->SaveCellQuality )
     {
     quality = vtkDoubleArray::New();
+    quality->SetNumberOfTuples( N );
+    quality->SetName( "Quality" );
+    out->GetCellData()->AddArray( quality );
+    out->GetCellData()->SetActiveAttribute( "Quality", vtkDataSetAttributes::SCALARS );
+    quality->Delete();
     if ( this->CompatibilityMode )
       {
       if ( this->Volume )
@@ -189,11 +196,6 @@ void vtkMeshQuality::Execute()
         out->GetCellData()->AddArray( volume );
         }
       }
-    quality->SetNumberOfTuples( N );
-    quality->SetName( "Quality" );
-    out->GetCellData()->AddArray( quality );
-    out->GetCellData()->SetActiveAttribute( "Quality", vtkDataSetAttributes::SCALARS );
-    quality->Delete();
     }
 
   for ( c = 0; c < N; ++c )
