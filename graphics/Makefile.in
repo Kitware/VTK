@@ -185,6 +185,9 @@ vtkPolyDataSource \
 vtkPolyDataToPolyDataFilter \
 vtkPolyDataWriter \
 vtkProbeFilter \
+vtkProgrammableSource \
+vtkProgrammableFilter \
+vtkProgrammablePointDataFilter
 vtkProjectedPolyDataRayBounder \
 vtkProperty \
 vtkQuadric \
