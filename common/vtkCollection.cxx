@@ -110,6 +110,8 @@ void vtkCollection::AddItem(vtkObject *a)
   elem->Item = a;
   elem->Next = NULL;
 
+  this->Modified();
+
   this->NumberOfItems++;
 }
 
@@ -132,6 +134,7 @@ void vtkCollection::RemoveItem(vtkObject *a)
     if (elem->Item == a)
       {
       this->RemoveItem(i);
+      this->Modified();
       return;
       }
     else
@@ -247,6 +250,8 @@ void vtkCollection::ReplaceItem(int i, vtkObject *a)
   
   // j == i
   elem->Item = a;
+
+  this->Modified();
 }
 
 
@@ -264,6 +269,8 @@ void vtkCollection::RemoveItem(int i)
     return;
     }
   
+  this->Modified();
+
   elem = this->Top;
   prev = NULL;
   for (int j = 0; j < i; j++)
