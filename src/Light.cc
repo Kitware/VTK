@@ -14,6 +14,7 @@ This file is part of the vis library
 
 =========================================================================*/
 #include <stdlib.h>
+#include <iostream.h>
 #include "Light.h"
 
 Light::Light()
@@ -115,7 +116,7 @@ Light *LightCollection::GetMember(int num)
 
   if (num > this->NumberOfItems)
     {
-    fprintf(stderr,"Light.cc Requesting illegal index\n");
+    cerr << "Light: Requesting illegal index\n";
     return this->Top->Light;
     }
 

@@ -14,6 +14,7 @@ This file is part of the vis library
 
 =========================================================================*/
 #include <stdlib.h>
+#include <iostream.h>
 #include <math.h>
 #include "Actor.h"
 #include <kgl.h>
@@ -44,41 +45,14 @@ int Actor::GetVisibility()
   return this->Visibility;
 }
 
-drawcyl()
-{
-  double dy = .2;
-  double theta, dtheta = 2*M_PI/20;
-  double x, y, z;
-  float n[3], v[3];
-  int i, j;
-
-  for (i = 0, y = -1;  i < 10;  i++, y += dy)  {
-    kgl_StartPrimitive(KGL_TMESH);
-    for (j = 0, theta = 0;  j <= 20;  j++, theta += dtheta)  {
-      if (j == 20)  theta = 0;
-      x = cos(theta);
-      z = sin(theta);
-      n[0] = x;  n[1] = 0;  n[2] = z;
-      kgl_SetNormal3(n);
-      v[0] = x;  v[1] = y;  v[2] = z;
-      kgl_SetVertex3(v);
-      v[1] = y + dy;
-      kgl_SetVertex3(v);
-      }
-    kgl_EndPrimitive();
-    }
-  return 0;
-}
-
 void Actor::Render(Renderer *ren)
 {
   /* render my property */
   this->MyProperty->Render(ren);
 
   /* send a render to the modeller */
-  
-  /* some test junk */
-  drawcyl();
+  this->mapper->Render(ren);
+
 }
   
 void Actor::GetCompositeMatrix(float mat[4][4])
@@ -131,7 +105,7 @@ Actor *ActorCollection::GetMember(int num)
 
   if (num > this->NumberOfItems)
     {
-    fprintf(stderr,"Actor.cc Requesting illegal index\n");
+    cerr << "Actor: Requesting illegal index\n";
     return this->Top->Actor;
     }
 
