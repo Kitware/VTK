@@ -817,9 +817,9 @@ ENDIF(VTK_RENDERING_NEED_TK_INTERNAL AND TK_LIBRARY)
 # Python executable is used by some tests whether VTK_WRAP_PYTHON is
 # on or not.  do not add a VTK_WRAP_PYTHON to this if.
 SET(VTK_NEED_PYTHON_EXECUTABLE 0)
-IF(BUILD_TESTING AND DART_ROOT)
+IF(BUILD_TESTING)
   SET(VTK_NEED_PYTHON_EXECUTABLE 1)
-ENDIF(BUILD_TESTING AND DART_ROOT)
+ENDIF(BUILD_TESTING)
 
 # If VTK_WRAP_PYTHON is on, then we need python executable to compile
 # scripts.
