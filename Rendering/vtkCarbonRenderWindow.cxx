@@ -32,7 +32,7 @@ Thanks:    to Yves Starreveld for developing this class
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.10");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.11");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -388,14 +388,14 @@ void vtkCarbonRenderWindow::Clean()
       id = (GLuint) this->TextureResourceIds->GetId(i);
 #ifdef GL_VERSION_1_1
       if (glIsTexture(id))
- {
- glDeleteTextures(1, &id);
- }
+        {
+        glDeleteTextures(1, &id);
+        }
 #else
       if (glIsList(id))
- {
- glDeleteLists(id,1);
- }
+        {
+        glDeleteLists(id,1);
+        }
 #endif
       }
 
@@ -404,8 +404,8 @@ void vtkCarbonRenderWindow::Clean()
     // destructor)
     this->Renderers->InitTraversal();
     for (ren=(vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject();
-  ren != NULL;
-  ren = (vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject())
+         ren != NULL;
+         ren = (vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject())
       {
       ren->SetRenderWindow(NULL);
       }
@@ -561,43 +561,6 @@ void vtkCarbonRenderWindow::Frame(void)
 }
 
 //--------------------------------------------------------------------------
-// Update system if needed due to stereo rendering.
-void vtkCarbonRenderWindow::StereoUpdate(void)
-{
-  // if stereo is on and it wasn't before
-  if (this->StereoRender && (!this->StereoStatus))
-    {
-    switch (this->StereoType)
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-        {
-        this->StereoStatus = 1;
-        }
-        break;
-      case VTK_STEREO_RED_BLUE:
-        {
-        this->StereoStatus = 1;
-        }
-      }
-    }
-  else if ((!this->StereoRender) && this->StereoStatus)
-    {
-    switch (this->StereoType)
-      {
-      case VTK_STEREO_CRYSTAL_EYES:
-        {
-        this->StereoStatus = 0;
-        }
-        break;
-      case VTK_STEREO_RED_BLUE:
-        {
-        this->StereoStatus = 0;
-        }
-      }
-    }
-}
-
-//--------------------------------------------------------------------------
 // Specify various window parameters.
 void vtkCarbonRenderWindow::WindowConfigure()
 {
@@ -697,10 +660,11 @@ void vtkCarbonRenderWindow::CreateAWindow(int x, int y, int width, int height)
   i = 0;
   this->aglAttributes [i++] = AGL_RGBA;
   this->aglAttributes [i++] = AGL_DOUBLEBUFFER;
-  this->aglAttributes [i++] = AGL_ACCELERATED;
-  this->aglAttributes [i++] = AGL_NO_RECOVERY;
   this->aglAttributes [i++] = AGL_DEPTH_SIZE;
-  this->aglAttributes [i++] = 16;
+  this->aglAttributes [i++] = 32;
+  this->aglAttributes [i++] = AGL_PIXEL_SIZE;
+  this->aglAttributes [i++] = 32;
+  this->aglAttributes [i++] = AGL_ACCELERATED;
   this->aglAttributes [i++] = AGL_NONE;
   this->draggable = true;
 

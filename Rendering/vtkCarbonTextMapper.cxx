@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkgluPickMatrix.h"
 
-vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.8");
+vtkCxxRevisionMacro(vtkCarbonTextMapper, "1.9");
 vtkStandardNewMacro(vtkCarbonTextMapper);
 
 struct vtkFontStruct
@@ -497,7 +497,7 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
     glBitmap(0, 0, 0, 0, xoff + 1, yoff - 1, NULL);
     
     // Draw the shadow text
-    glCallLists (vtkString::Length(this->Input), GL_UNSIGNED_BYTE, 
+    glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, 
                  this->Input);  
     }
   
@@ -509,10 +509,9 @@ void vtkCarbonTextMapper::RenderOverlay(vtkViewport* viewport,
   glBitmap(0, 0, 0, 0, xoff, yoff, NULL);
 
   // display a string: // indicate start of glyph display lists 
-  glCallLists (vtkString::Length(this->Input), GL_UNSIGNED_BYTE, 
+  glCallLists (strlen(this->Input), GL_UNSIGNED_BYTE, 
                this->Input);
 
-  glFlush();
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();
   glMatrixMode( GL_MODELVIEW);

@@ -147,10 +147,6 @@ public:
   vtkGetMacro(MultiSamples,int);
 
   // Description:
-  // Update system if needed due to stereo rendering.
-  virtual void StereoUpdate();
-  
-  // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
   // overrrides the superclass method since this class can actually check
