@@ -26,12 +26,21 @@
 #include "vtkObjectFactory.h"
 
 #include <vtkstd/string>
+#include <vtkstd/map>
+#include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.64");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.64.2.1");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
                      vtkDataArrayCollection);
+
+class TranslationTableType
+{
+public:
+  vtkstd::map<int,int> PartIdMap;
+};
+
 
 //----------------------------------------------------------------------------
 vtkGenericEnSightReader::vtkGenericEnSightReader()
@@ -94,6 +103,7 @@ vtkGenericEnSightReader::vtkGenericEnSightReader()
   this->CellDataArraySelection->AddObserver(vtkCommand::ModifiedEvent,
                                             this->SelectionObserver);
   this->SelectionModifiedDoNotCallModified = 0;
+  this->TranslationTable = new TranslationTableType;
 }
 
 //----------------------------------------------------------------------------
@@ -155,6 +165,7 @@ vtkGenericEnSightReader::~vtkGenericEnSightReader()
   this->SelectionObserver->Delete();
   this->CellDataArraySelection->Delete();
   this->PointDataArraySelection->Delete();
+  delete this->TranslationTable;
 }
 
 //----------------------------------------------------------------------------
@@ -521,6 +532,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
   return -1;
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
 {
   char *endingSlash;
@@ -1169,6 +1181,7 @@ void vtkGenericEnSightReader::ReplaceWildcardsHelper(char* fileName, int num)
         // This case should never be reached.
         return;
       }
+    assert( newChar == ('0' + newNum) );
     
     fileName[i + wildcardPos] = newChar;
     tmpNum -= multTen * newNum;
@@ -1201,6 +1214,7 @@ const char *vtkGenericEnSightReader::GetByteOrderAsString()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1454,4 +1468,15 @@ void vtkGenericEnSightReader::SetCellArrayStatus(const char* name, int status)
     {
     this->CellDataArraySelection->DisableArray(name);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkGenericEnSightReader::InsertNewPartId(int partId)
+{
+  int lastId = this->TranslationTable->PartIdMap.size();
+  this->TranslationTable->PartIdMap.insert( 
+    vtkstd::map<int,int>::value_type(partId, lastId));
+  lastId = this->TranslationTable->PartIdMap[partId];
+  //assert( lastId == this->PartIdTranslationTable[partId] );
+  return lastId;
 }
