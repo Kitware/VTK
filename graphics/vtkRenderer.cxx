@@ -572,10 +572,9 @@ void vtkRenderer::ResetCamera()
       }
     }
 
-
   if ( nothingVisible )
     {
-    vtkErrorMacro(<< "Can't reset camera if no actors or volumes are visible");
+    vtkDebugMacro(<< "Can't reset camera, no actors or volumes are visible");
     return;
     }
 
