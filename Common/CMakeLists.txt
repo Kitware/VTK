@@ -280,17 +280,20 @@ ENDIF (VTK_WRAP_TCL)
 #
 IF (VTK_WRAP_PYTHON)
   VTK_WRAP_PYTHON2(vtk${KIT}Python KitPython_SRCS ${Kit_SRCS})
-  ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
-  IF(NOT APPLE)
-    TARGET_LINK_LIBRARIES (vtk${KIT}Python ${KIT_PYTHON_LIBS})
-  ENDIF(NOT APPLE)
+  IF (APPLE)
+    ADD_LIBRARY(vtk${KIT}PythonD ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
+    ADD_LIBRARY(vtk${KIT}Python MODULE vtk${KIT}PythonInit.cxx)
+    TARGET_LINK_LIBRARIES(vtk${KIT}PythonD vtk${KIT} ${KIT_PYTHON_LIBS} ${PYTHON_LIBRARY})
+    TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
+  ELSE (APPLE)
+    ADD_LIBRARY(vtk${KIT}Python MODULE ${KitPython_SRCS} ${Kit_PYTHON_EXTRA_SRCS})
+    TARGET_LINK_LIBRARIES (vtk${KIT}Python vtk${KIT} ${KIT_PYTHON_LIBS})
+  ENDIF(APPLE)
   IF(WIN32)
     TARGET_LINK_LIBRARIES (vtk${KIT}Python
                            debug ${PYTHON_DEBUG_LIBRARY}
                            optimized ${PYTHON_LIBRARY})
   ENDIF(WIN32)
-  TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT})
-
   INSTALL_TARGETS(/lib/vtk vtk${KIT}Python)
 ENDIF (VTK_WRAP_PYTHON)
 
