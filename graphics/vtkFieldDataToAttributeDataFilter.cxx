@@ -299,7 +299,7 @@ int vtkFieldDataToAttributeDataFilter::GetScalarComponentMaxRange(int comp)
   return this->ScalarComponentRange[comp][1];
 }
 
-int vtkFieldDataToAttributeDataFilter::GetScalarComponentNormailzeFlag(int comp)
+int vtkFieldDataToAttributeDataFilter::GetScalarComponentNormalizeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
   return this->ScalarNormalize[comp];
@@ -431,7 +431,7 @@ int vtkFieldDataToAttributeDataFilter::GetVectorComponentMaxRange(int comp)
   return this->VectorComponentRange[comp][1];
 }
 
-int vtkFieldDataToAttributeDataFilter::GetVectorComponentNormailzeFlag(int comp)
+int vtkFieldDataToAttributeDataFilter::GetVectorComponentNormalizeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->VectorNormalize[comp];
@@ -558,7 +558,7 @@ int vtkFieldDataToAttributeDataFilter::GetNormalComponentMaxRange(int comp)
   return this->NormalComponentRange[comp][1];
 }
 
-int vtkFieldDataToAttributeDataFilter::GetNormalComponentNormailzeFlag(int comp)
+int vtkFieldDataToAttributeDataFilter::GetNormalComponentNormalizeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->NormalNormalize[comp];
@@ -689,7 +689,7 @@ int vtkFieldDataToAttributeDataFilter::GetTCoordComponentMaxRange(int comp)
   return this->TCoordComponentRange[comp][1];
 }
 
-int vtkFieldDataToAttributeDataFilter::GetTCoordComponentNormailzeFlag(int comp)
+int vtkFieldDataToAttributeDataFilter::GetTCoordComponentNormalizeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
   return this->TCoordNormalize[comp];
@@ -821,7 +821,7 @@ int vtkFieldDataToAttributeDataFilter::GetTensorComponentMaxRange(int comp)
   return this->TensorComponentRange[comp][1];
 }
 
-int vtkFieldDataToAttributeDataFilter::GetTensorComponentNormailzeFlag(int comp)
+int vtkFieldDataToAttributeDataFilter::GetTensorComponentNormalizeFlag(int comp)
 {
   comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
   return this->TensorNormalize[comp];
