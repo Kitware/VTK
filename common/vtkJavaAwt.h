@@ -1,5 +1,5 @@
-// only do this for jni 1.2 compatible versions
-#ifdef JNI_VERSION_1_2
+// only do this when JAWT is to be used
+#ifdef VTK_USE_JAWT
 #include "jawt_md.h"
 #endif
 
@@ -7,7 +7,7 @@ extern "C" JNIEXPORT void  JNICALL Java_vtk_vtkPanel_RenderCreate(JNIEnv *env,
                                                                   jobject canvas,
                                                                   jobject id0)
 {
-#ifdef JNI_VERSION_1_2
+#ifdef VTK_USE_JAWT
   JAWT awt;
   JAWT_DrawingSurface* ds;
   JAWT_DrawingSurfaceInfo* dsi;
