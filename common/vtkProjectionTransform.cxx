@@ -112,6 +112,49 @@ void vtkProjectionTransform::DeepCopy(vtkGeneralTransform *transform)
 }
 
 //----------------------------------------------------------------------------
+// Creates an identity matrix.
+void vtkProjectionTransform::Identity()
+{
+  this->Matrix->Identity();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::Inverse()
+{ 
+  this->Matrix->Invert();
+  this->Modified(); 
+}
+
+//----------------------------------------------------------------------------
+// Set the current matrix directly.
+void vtkProjectionTransform::SetMatrix(const double Elements[16])
+{
+  this->Matrix->DeepCopy(Elements);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+// Concatenates the input matrix with the current matrix.
+// The setting of the PreMultiply flag determines whether the matrix
+// is PreConcatenated or PostConcatenated.
+void vtkProjectionTransform::Concatenate(const double Elements[16])
+{
+  if (this->PreMultiplyFlag) 
+    {
+    vtkMatrix4x4::Multiply4x4(*this->Matrix->Element, Elements, 
+			      *this->Matrix->Element);
+    }
+  else 
+    {
+    vtkMatrix4x4::Multiply4x4(Elements, *this->Matrix->Element, 
+			      *this->Matrix->Element);
+    }
+  this->Matrix->Modified();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 // Sets the internal state of the ProjectionTransform to
 // post multiply. All subsequent matrix
 // operations will occur after those already represented
@@ -140,69 +183,246 @@ void vtkProjectionTransform::PreMultiply()
 }
 
 //----------------------------------------------------------------------------
-// Set the current matrix directly.
-void vtkProjectionTransform::SetMatrix(vtkMatrix4x4 *m)
+// Utility for adjusting the min/max range of the Z buffer.  Usually
+// the oldZMin, oldZMax are [-1,+1] as per Ortho and Frustum, and
+// you are mapping the Z buffer to a new range.
+void vtkProjectionTransform::AdjustZBuffer(double oldZMin, double oldZMax,
+					   double newZMin, double newZMax)
 {
-  this->Matrix->DeepCopy(m);
-  this->Modified();
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[2][2] = (newZMax - newZMin)/(oldZMax - oldZMin);
+  matrix[2][3] = (newZMin*oldZMax - newZMax*oldZMin)/(oldZMax - oldZMin);
+
+  this->Concatenate(*matrix);
 }
 
 //----------------------------------------------------------------------------
-// Set the current matrix directly.
-void vtkProjectionTransform::SetMatrix(double Elements[16])
+// Utility for adjusting the window range to a new one.  Usually the
+// previous range was ([-1,+1],[-1,+1]) as per Ortho and Frustum, and you
+// are mapping them to display coordinates.
+void vtkProjectionTransform::AdjustViewport(double oldXMin, double oldXMax, 
+					    double oldYMin, double oldYMax,
+					    double newXMin, double newXMax, 
+					    double newYMin, double newYMax)
 {
-  this->Matrix->DeepCopy(Elements);
-  this->Modified();
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[0][0] = (newXMax - newXMin)/(oldXMax - oldXMin);
+  matrix[1][1] = (newYMax - newYMin)/(oldYMax - oldYMin);
+
+  matrix[0][3] = (newXMin*oldXMax - newXMax*oldXMin)/(oldXMax - oldXMin);
+  matrix[1][3] = (newYMin*oldYMax - newYMax*oldYMin)/(oldYMax - oldYMin);
+
+  this->Concatenate(*matrix);
+}  
+
+//----------------------------------------------------------------------------
+// The orthographic projection maps [xmin,xmax], [ymin,ymax], [-znear,-zfar]
+// to [-1,+1], [-1,+1], [-1,+1].
+// From the OpenGL Programmer's guide, 2nd Ed.
+void vtkProjectionTransform::Ortho(double xmin, double xmax,
+				   double ymin, double ymax,
+				   double znear, double zfar)
+{
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[0][0] = 2/(xmax - xmin);
+  matrix[1][1] = 2/(ymax - ymin);
+  matrix[2][2] = -2/(zfar - znear);
+  
+  matrix[0][3] = -(xmin + xmax)/(xmax - xmin);
+  matrix[1][3] = -(ymin + ymax)/(ymax - ymin);
+  matrix[2][3] = -(znear + zfar)/(zfar - znear);
+
+  this->Concatenate(*matrix);
 }
 
 //----------------------------------------------------------------------------
-// Creates an identity matrix.
-void vtkProjectionTransform::Identity()
+// The frustrum projection maps a frustum with the front plane at -znear
+// which has extent [xmin,xmax],[ymin,ymax] and a back plane at -zfar
+// to [-1,+1], [-1,+1], [-1,+1].
+// From the OpenGL Programmer's guide, 2nd Ed.
+void vtkProjectionTransform::Frustum(double xmin, double xmax,
+				     double ymin, double ymax,
+				     double znear, double zfar)
 {
-  this->Matrix->Identity();
-  this->Modified();
+  double matrix[4][4];
+
+  matrix[0][0] =  2*znear/(xmax - xmin);
+  matrix[1][0] =  0;
+  matrix[2][0] =  0;
+  matrix[3][0] =  0;
+
+  matrix[0][1] =  0;
+  matrix[1][1] =  2*znear/(ymax - ymin);
+  matrix[2][1] =  0;
+  matrix[3][1] =  0;
+
+  matrix[0][2] =  (xmin + xmax)/(xmax - xmin);
+  matrix[1][2] =  (ymin + ymax)/(ymax - ymin);
+  matrix[2][2] = -(znear + zfar)/(zfar - znear);
+  matrix[3][2] = -1;
+
+  matrix[0][3] =  0;
+  matrix[1][3] =  0;
+  matrix[2][3] = -2*znear*zfar/(zfar - znear);
+  matrix[3][3] =  0;
+
+  this->Concatenate(*matrix);
 }
 
 //----------------------------------------------------------------------------
-// Creates an identity matrix.
-void vtkProjectionTransform::Inverse()
+void vtkProjectionTransform::Perspective(double angle, double aspect,
+					 double znear, double zfar)
 {
-  this->Matrix->Invert();
-  this->Modified();
+  double ymax =  tan(angle*vtkMath::DoubleDegreesToRadians()/2)*znear;
+  double ymin = -ymax; 
+
+  double xmax =  ymax*aspect;
+  double xmin = -xmax;
+
+  this->Frustum(xmin, xmax, ymin, ymax, znear, zfar);
 }
 
 //----------------------------------------------------------------------------
-// Concatenates the input matrix with the current matrix.
-// The setting of the PreMultiply flag determines whether the matrix
-// is PreConcatenated or PostConcatenated.
-void vtkProjectionTransform::Concatenate(vtkMatrix4x4 *matrix)
+void vtkProjectionTransform::SetupCamera(const double position[3],
+					 const double focalPoint[3],
+					 const double viewUp[3])
 {
-  if (this->PreMultiplyFlag) 
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  // the view directions correspond to the rows of the rotation matrix,
+  // so we'll make the connection explicit
+  double *viewSideways =    matrix[0];
+  double *orthoViewUp =     matrix[1];
+  double *viewPlaneNormal = matrix[2]; 
+
+  // set the view plane normal from the view vector
+  viewPlaneNormal[0] = position[0] - focalPoint[0];
+  viewPlaneNormal[1] = position[1] - focalPoint[1];
+  viewPlaneNormal[2] = position[2] - focalPoint[2];
+  vtkMath::Normalize(viewPlaneNormal);
+
+  // orthogonalize viewUp and compute viewSideways
+  vtkMath::Cross((double *)viewUp,viewPlaneNormal,viewSideways);
+  vtkMath::Normalize(viewSideways);
+  vtkMath::Cross(viewPlaneNormal,viewSideways,orthoViewUp);
+
+  // translate by the vector from the position to the origin
+  double delta[4];
+  delta[0] = -position[0];
+  delta[1] = -position[1];
+  delta[2] = -position[2];
+  delta[3] = 0.0; // yes, this should be zero, not one
+
+  vtkMatrix4x4::MultiplyPoint(*matrix,delta,delta);
+
+  matrix[0][3] = delta[0]; 
+  matrix[1][3] = delta[1]; 
+  matrix[2][3] = delta[2]; 
+
+  // apply the transformation
+  this->Concatenate(*matrix);
+}
+
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::Translate(double x, double y, double z)
+{
+  if (x == 0.0 && y == 0.0 && z == 0.0) 
     {
-    vtkMatrix4x4::Multiply4x4(this->Matrix, matrix, this->Matrix);
+    return;
     }
-  else 
-    {
-    vtkMatrix4x4::Multiply4x4(matrix, this->Matrix, this->Matrix);
-    }
-  this->Modified();
+
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[0][3] = x;
+  matrix[1][3] = y;
+  matrix[2][3] = z;
+
+  this->Concatenate(*matrix);
 }
 
 //----------------------------------------------------------------------------
-void vtkProjectionTransform::Concatenate(double Elements[16])
+void vtkProjectionTransform::RotateWXYZ(double angle, 
+					double x, double y, double z)
 {
-  if (this->PreMultiplyFlag) 
+  if (x == 0.0 && y == 0.0 && z == 0.0) 
     {
-    vtkMatrix4x4::Multiply4x4(*this->Matrix->Element, Elements, 
-			      *this->Matrix->Element);
+    vtkErrorMacro(<<"Trying to rotate around zero-length axis");
+    return;
     }
-  else 
+
+  if (angle == 0)
     {
-    vtkMatrix4x4::Multiply4x4(Elements, *this->Matrix->Element, 
-			      *this->Matrix->Element);
+    return;
     }
-  this->Matrix->Modified();
-  this->Modified();
+
+  // convert to radians
+  angle = angle*vtkMath::DoubleDegreesToRadians();
+
+  // make a normalized quaternion
+  double w = cos(0.5*angle);
+  double f = sin(0.5*angle)/sqrt(x*x+y*y+z*z);
+  x *= f;
+  y *= f;
+  z *= f;
+
+  // convert the quaternion to a matrix
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  double ww = w*w;
+  double wx = w*x;
+  double wy = w*y;
+  double wz = w*z;
+
+  double xx = x*x;
+  double yy = y*y;
+  double zz = z*z;
+
+  double xy = x*y;
+  double xz = x*z;
+  double yz = y*z;
+
+  double ss = (ww - xx - yy - zz)/2;
+
+  matrix[0][0] = ( ss + xx)*2;
+  matrix[1][0] = ( wz + xy)*2;
+  matrix[2][0] = (-wy + xz)*2;
+
+  matrix[0][1] = (-wz + xy)*2;
+  matrix[1][1] = ( ss + yy)*2;
+  matrix[2][1] = ( wx + yz)*2;
+
+  matrix[0][2] = ( wy + xz)*2;
+  matrix[1][2] = (-wx + yz)*2;
+  matrix[2][2] = ( ss + zz)*2;
+
+  this->Concatenate(*matrix);
 }
 
+//----------------------------------------------------------------------------
+void vtkProjectionTransform::Scale(double x, double y, double z)
+{
+  if (x == 0.0 && y == 0.0 && z == 0.0) 
+    {
+    return;
+    }
 
+  double matrix[4][4];
+  vtkMatrix4x4::Identity(*matrix);
+
+  matrix[0][0] = x;
+  matrix[1][1] = y;
+  matrix[2][2] = z;
+
+  this->Concatenate(*matrix);
+}
+
+  
