@@ -99,15 +99,14 @@ int vtkTkRenderWidget_Configure(Tcl_Interp *interp,
 {
   // Let Tk handle generic configure options.
   if (Tk_ConfigureWidget(interp, self->TkWin, vtkTkRenderWidgetConfigSpecs,
-			 argc, argv, (char *)self, flags) 
-      == TCL_ERROR) 
+			 argc, argv, (char *)self, flags) == TCL_ERROR) 
     {
     return(TCL_ERROR);
     }
-
+  
   // Get the new  width and height of the widget
   Tk_GeometryRequest(self->TkWin, self->Width, self->Height);
-		     
+  
   // Make sure the render window has been set.  If not, create one.
   if (vtkTkRenderWidget_MakeRenderWindow(self) == TCL_ERROR) 
     {
@@ -159,7 +158,7 @@ int vtkTkRenderWidget_Widget(ClientData clientData, Tcl_Interp *interp,
       {
       /* Execute a configuration change */
       result = vtkTkRenderWidget_Configure(interp, self, argc-2, 
-					 argv+2, TK_CONFIG_ARGV_ONLY);
+					   argv+2, TK_CONFIG_ARGV_ONLY);
       }
     }
   else if (!strcmp(argv[1], "GetRenderWindow"))
@@ -237,10 +236,8 @@ static int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp,
   // Create command event handler
   Tcl_CreateCommand(interp, Tk_PathName(tkwin), vtkTkRenderWidget_Widget, 
 		    (ClientData)self, (void (*)(ClientData)) NULL);
-  Tk_CreateEventHandler(tkwin, 
-			ExposureMask | StructureNotifyMask,
-			vtkTkRenderWidget_EventProc, 
-			(ClientData)self);
+  Tk_CreateEventHandler(tkwin, ExposureMask | StructureNotifyMask,
+			vtkTkRenderWidget_EventProc, (ClientData)self);
   
   // Configure vtkTkRenderWidget widget
   if (vtkTkRenderWidget_Configure(interp, self, argc-2, argv+2, 0) 
@@ -281,42 +278,41 @@ int vtkTkRenderWidget_Height( const struct vtkTkRenderWidget *self)
 //----------------------------------------------------------------------------
 // This gets called to handle vtkTkRenderWidget window configuration events
 // Possibly X dependent
-static void vtkTkRenderWidget_EventProc(ClientData clientData, XEvent *eventPtr) 
+static void vtkTkRenderWidget_EventProc(ClientData clientData, 
+					XEvent *eventPtr) 
 {
-   struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
-
-   switch (eventPtr->type) 
-     {
-     case Expose:
-       if ((eventPtr->xexpose.count == 0)
-	   /* && !self->UpdatePending*/) 
-	 {
-	 self->RenderWindow->Render();
-         }
-       break;
-     case ConfigureNotify:
-       if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
-	 {
-	 self->Width = Tk_Width(self->TkWin);
-	 self->Height = Tk_Height(self->TkWin);
-	 //XResizeWindow(Tk_Display(self->TkWin), Tk_WindowId(self->TkWin), 
-	 //	       self->Width, self->Height);
-	 if (self->RenderWindow)
-	   {
-	   self->RenderWindow->SetSize(self->Width, self->Height);
-	   }
-	 //vtkTkRenderWidget_PostRedisplay(self);
-         }
-       break;
-     case MapNotify:
-       break;
-     case DestroyNotify:
-       // Tcl_EventuallyFree( (ClientData) self, vtkTkRenderWidget_Destroy );
-       break;
-     default:
-       // nothing
-       ;
-     }
+  struct vtkTkRenderWidget *self = (struct vtkTkRenderWidget *)clientData;
+  
+  switch (eventPtr->type) 
+    {
+    case Expose:
+      if ((eventPtr->xexpose.count == 0)
+	  /* && !self->UpdatePending*/) 
+	{
+	self->RenderWindow->Render();
+	}
+      break;
+    case ConfigureNotify:
+      if ( 1 /*Tk_IsMapped(self->TkWin)*/ ) 
+	{
+	self->Width = Tk_Width(self->TkWin);
+	self->Height = Tk_Height(self->TkWin);
+	if (self->RenderWindow)
+	  {
+	  self->RenderWindow->SetSize(self->Width, self->Height);
+	  }
+	//vtkTkRenderWidget_PostRedisplay(self);
+	}
+      break;
+    case MapNotify:
+      break;
+    case DestroyNotify:
+      // Tcl_EventuallyFree( (ClientData) self, vtkTkRenderWidget_Destroy );
+      break;
+    default:
+      // nothing
+      ;
+    }
 }
 
 
@@ -339,14 +335,9 @@ int Vtktkrenderwidget_Init(Tcl_Interp *interp)
 }
 
 
+// Here is the windows specific code for creating the window
+// The Xwindows version follows after this
 #ifdef _WIN32
-
-//extern "C" {
-//  LRESULT CALLBACK	TkWinChildProc(HWND hwnd, UINT message,
-//			                                 WPARAM wParam, LPARAM lParam);
-//extern LRESULT CALLBACK	TkWinTopLevelProc(HWND hwnd, UINT message,
-//			                                    WPARAM wParam, LPARAM lParam);
-//  }
 
 LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message, 
                                        WPARAM wParam, LPARAM lParam)
@@ -354,7 +345,7 @@ LRESULT APIENTRY vtkTkRenderWidgetProc(HWND hWnd, UINT message,
   LRESULT rval;
   struct vtkTkRenderWidget *self = 
     (struct vtkTkRenderWidget *)GetWindowLong(hWnd,GWL_USERDATA);
-
+  
   // forward message to Tk handler
   SetWindowLong(hWnd,GWL_USERDATA,(LONG)((TkWindow *)self->TkWin)->window);
   if (((TkWindow *)self->TkWin)->parentPtr)
@@ -477,31 +468,6 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
   if (!(winPtr->flags & TK_TOP_LEVEL)) 
     {
     /*
-     * If any siblings higher up in the stacking order have already
-     * been created then move this window to its rightful position
-     * in the stacking order.
-     *
-     * NOTE: this code ignores any changes anyone might have made
-     * to the sibling and stack_mode field of the window's attributes,
-     * so it really isn't safe for these to be manipulated except
-     * by calling Tk_RestackWindow.
-     */
-
-    for (winPtr2 = winPtr->nextPtr; winPtr2 != NULL;
-	       winPtr2 = winPtr2->nextPtr) 
-      {
-      if ((winPtr2->window != None) && !(winPtr2->flags & TK_TOP_LEVEL)) 
-        {
-        //XWindowChanges changes;
-        //changes.sibling = winPtr2->window;
-        //changes.stack_mode = Below;
-        //XConfigureWindow(winPtr->display, winPtr->window,
-      	//	 CWSibling|CWStackMode, &changes);
-        break;
-        }
-      }
-    
-    /*
      * If this window has a different colormap than its parent, add
      * the window to the WM_COLORMAP_WINDOWS property for its top-level.
      */
@@ -550,7 +516,10 @@ static int vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
 
   return TCL_OK;
 }
+
+// now the Xwindows version
 #else
+
 //----------------------------------------------------------------------------
 // Creates a render window and forces Tk to use the window.
 static int
