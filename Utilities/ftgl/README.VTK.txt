@@ -7,3 +7,4 @@ http://homepages.paradise.net.nz/henryj/
 
 Modifications
 -------------
+A lot (including new code in src/NoSTL, speedups, portability issues).

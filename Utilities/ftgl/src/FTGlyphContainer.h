@@ -10,12 +10,12 @@
 
 class FTFace;
 
-#ifndef FTGL_DO_NOT_USE_STL
+
 #include <vector>
 #ifdef USE_STD_NAMESPACE
 using namespace std;
 #endif
-#endif
+
 
 /**
  * FTGlyphContainer holds the post processed FTGlyph objects.

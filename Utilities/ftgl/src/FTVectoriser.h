@@ -8,12 +8,12 @@
 #include "FTGL.h"
 #include "FTGlyph.h"
 
-#ifndef FTGL_DO_NOT_USE_STL
+
 #include <vector>
 #ifdef USE_STD_NAMESPACE
 using namespace std;
 #endif
-#endif
+
 
 #ifndef CALLBACK
 #define CALLBACK

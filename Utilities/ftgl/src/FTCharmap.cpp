@@ -88,6 +88,20 @@ bool FTCharmap::CharMap( FT_UShort platform, FT_UShort encoding)
 
 unsigned int FTCharmap::CharIndex( unsigned int index )
 {
+#ifdef FTGL_DO_NOT_USE_STL
+  const CharacterMap::GlyphIndex *result = charMap.find(index);
+    
+  if (!result)
+    {
+    unsigned int glyph = FT_Get_Char_Index(ftFace, index);
+    charMap.insert(index, glyph);
+    return glyph;
+    }
+  else
+    {
+    return *result;
+    }
+#else
   CharacterMap::const_iterator result = charMap.find( index);
     
   if( result == charMap.end())
@@ -100,5 +114,5 @@ unsigned int FTCharmap::CharIndex( unsigned int index )
   {
     return result->second;
   }
-
+#endif
 }
