@@ -393,6 +393,27 @@ void vtkInteractorStyleUnicam::Rotate( int X, int Y )
     vtkMath::Cross(upV, atV, rightV);
     vtkMath::Normalize(rightV);
 
+    // 
+    // The following two tests try to prevent chaotic camera movement
+    // that results from rotating over the poles defined by the
+    // "WorldUpVector".  The problem is the constraint to keep the
+    // camera's up vector in line w/ the WorldUpVector is at odds with
+    // the action of rotating tover the top of the virtual sphere used
+    // for rotation.  The solution here is to prevent the user from
+    // rotating the last bit required to "go over the top"-- as a
+    // consequence, you can never look directly down on the poles.
+    // 
+    // The "0.99" value is somewhat arbitrary, but seems to produce
+    // reasonable results.  (Theoretically, some sort of clamping
+    // function could probably be used rather than a hard cutoff, but
+    // time constraints prevent figuring that out right now.)
+    // 
+    const double OVER_THE_TOP_THRESHOLD = 0.99;
+    if (vtkMath::Dot(UPvec, atV) >  OVER_THE_TOP_THRESHOLD && rdist < 0)
+      rdist = 0;
+    if (vtkMath::Dot(UPvec, atV) < -OVER_THE_TOP_THRESHOLD && rdist > 0)
+      rdist = 0;
+
     MyRotateCamera(center[0], center[1], center[2],
                    rightV[0], rightV[1], rightV[2],
                    rdist);
@@ -604,3 +625,4 @@ void vtkInteractorStyleUnicam::MyTranslateCamera(float v[3])
 
   this->CurrentRenderer->ResetCameraClippingRange();
 }
+
