@@ -30,7 +30,8 @@
 #define __vtkPointSet_h
 
 #include "vtkDataSet.h"
-#include "vtkPointLocator.h"
+
+class vtkPointLocator;
 
 class VTK_COMMON_EXPORT vtkPointSet : public vtkDataSet
 {
@@ -73,7 +74,7 @@ public:
 
   // Description:
   // Specify point array to define point coordinates.
-  vtkSetObjectMacro(Points,vtkPoints);
+  virtual void SetPoints(vtkPoints*);
   vtkGetObjectMacro(Points,vtkPoints);
 
   // Description:
