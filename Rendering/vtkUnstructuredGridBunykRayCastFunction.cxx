@@ -31,7 +31,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.18");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.19");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -354,7 +354,14 @@ int vtkUnstructuredGridBunykRayCastFunction::CheckValidity( vtkRenderer *ren,
     vtkErrorMacro("No input to mapper");
     return 0;
     }
-  
+
+  // The input must have scalars
+  if ( !mapper->GetInput()->GetPointData()->GetScalars() )
+    {
+    vtkErrorMacro("No scalars to render");
+    return 0;
+    }
+
   // The input must have some points. This is a silent
   // error - just render nothing if it occurs.
   int numPoints = input->GetNumberOfPoints(); 
