@@ -24,7 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkSource, "1.114");
+vtkCxxRevisionMacro(vtkSource, "1.115");
 
 #ifndef NULL
 #define NULL 0
@@ -1111,18 +1111,21 @@ int vtkSource::ProcessDownstreamRequest(vtkInformation* request,
     // backward compatibility.
     for(i=0; i < this->NumberOfInputs; ++i)
       {
-      vtkInformation* info = inputVector->GetInformationObject(0)
-        ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
-        ->GetInformationObject(i);
-      if(info->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
+      if(this->Inputs[i])
         {
-        this->Inputs[i]->SetMaximumNumberOfPieces(
-          info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
-        }
-      if(info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-        {
-        this->Inputs[i]->SetWholeExtent(
-          info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+        vtkInformation* info = inputVector->GetInformationObject(0)
+          ->Get(vtkInformation::INPUT_CONNECTION_INFORMATION())
+          ->GetInformationObject(i);
+        if(info->Has(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()))
+          {
+          this->Inputs[i]->SetMaximumNumberOfPieces(
+            info->Get(vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()));
+          }
+        if(info->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+          {
+          this->Inputs[i]->SetWholeExtent(
+            info->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
+          }
         }
       }
 
