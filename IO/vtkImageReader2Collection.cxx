@@ -16,7 +16,19 @@
 
 =========================================================================*/
 #include "vtkImageReader2Collection.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageReader2Collection, "1.3");
+#include "vtkObjectFactory.h"
+#include "vtkImageReader2.h"
+
+vtkCxxRevisionMacro(vtkImageReader2Collection, "1.4");
 vtkStandardNewMacro(vtkImageReader2Collection);
+
+void vtkImageReader2Collection::AddItem(vtkImageReader2 *f) 
+{
+  this->vtkCollection::AddItem((vtkObject *)f);
+}
+
+vtkImageReader2 *vtkImageReader2Collection::GetNextItem() 
+{ 
+  return static_cast<vtkImageReader2*>(this->GetNextItemAsObject());
+}

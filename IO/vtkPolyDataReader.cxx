@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkPolyDataReader.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPolyDataReader, "1.22");
+#include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+
+vtkCxxRevisionMacro(vtkPolyDataReader, "1.23");
 vtkStandardNewMacro(vtkPolyDataReader);
 
 vtkPolyDataReader::vtkPolyDataReader()

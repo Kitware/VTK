@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkTIFFWriter.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.20");
+#include "vtkObjectFactory.h"
+#include "vtkImageData.h"
+
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.21");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 #if (_MIPS_SZLONG == 64)

@@ -15,15 +15,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#include "vtkDataSet.h"
 #include "vtkDataSetWriter.h"
-#include "vtkPolyDataWriter.h"
-#include "vtkStructuredPointsWriter.h"
-#include "vtkStructuredGridWriter.h"
-#include "vtkUnstructuredGridWriter.h"
-#include "vtkRectilinearGridWriter.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyDataWriter.h"
+#include "vtkRectilinearGridWriter.h"
+#include "vtkStructuredGridWriter.h"
+#include "vtkStructuredPointsWriter.h"
+#include "vtkUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkDataSetWriter, "1.33");
+vtkCxxRevisionMacro(vtkDataSetWriter, "1.34");
 vtkStandardNewMacro(vtkDataSetWriter);
 
 //----------------------------------------------------------------------------

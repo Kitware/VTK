@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkRectilinearGridReader.h"
-#include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.27");
+#include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
+
+vtkCxxRevisionMacro(vtkRectilinearGridReader, "1.28");
 vtkStandardNewMacro(vtkRectilinearGridReader);
 
 //----------------------------------------------------------------------------

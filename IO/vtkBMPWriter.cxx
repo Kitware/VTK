@@ -16,9 +16,11 @@
 
 =========================================================================*/
 #include "vtkBMPWriter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBMPWriter, "1.18");
+vtkCxxRevisionMacro(vtkBMPWriter, "1.19");
 vtkStandardNewMacro(vtkBMPWriter);
 
 vtkBMPWriter::vtkBMPWriter()

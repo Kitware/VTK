@@ -16,11 +16,13 @@
 
 =========================================================================*/
 #include "vtkSTLWriter.h"
-#include "vtkTriangle.h"
+
 #include "vtkByteSwap.h"
 #include "vtkObjectFactory.h"
+#include "vtkPolyData.h"
+#include "vtkTriangle.h"
 
-vtkCxxRevisionMacro(vtkSTLWriter, "1.44");
+vtkCxxRevisionMacro(vtkSTLWriter, "1.45");
 vtkStandardNewMacro(vtkSTLWriter);
 
 vtkSTLWriter::vtkSTLWriter()

@@ -17,11 +17,12 @@
 =========================================================================*/
 #include "vtkPLYWriter.h"
 
-#include "vtkPLY.h"
 #include "vtkObjectFactory.h"
+#include "vtkPLY.h"
+#include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
 
-vtkCxxRevisionMacro(vtkPLYWriter, "1.13");
+vtkCxxRevisionMacro(vtkPLYWriter, "1.14");
 vtkStandardNewMacro(vtkPLYWriter);
 
 vtkCxxSetObjectMacro(vtkPLYWriter,LookupTable,vtkScalarsToColors);

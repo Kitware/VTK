@@ -16,16 +16,16 @@
 
 =========================================================================*/
 #include "vtkEnSightReader.h"
-#include "vtkObjectFactory.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkStructuredGrid.h"
-#include "vtkRectilinearGrid.h"
-#include "vtkStructuredPoints.h"
+
+#include "vtkCollection.h"
 #include "vtkFloatArray.h"
+#include "vtkObjectFactory.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkStructuredGrid.h"
+#include "vtkStructuredPoints.h"
+#include "vtkUnstructuredGrid.h"
 
-#include <ctype.h>
-
-vtkCxxRevisionMacro(vtkEnSightReader, "1.31");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.32");
 
 //----------------------------------------------------------------------------
 vtkEnSightReader::vtkEnSightReader()

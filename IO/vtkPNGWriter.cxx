@@ -16,11 +16,14 @@
 
 =========================================================================*/
 #include "vtkPNGWriter.h"
+
+#include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkUnsignedCharArray.h"
 
 #include <png.h>
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.12");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.13");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);

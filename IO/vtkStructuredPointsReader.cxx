@@ -16,10 +16,12 @@
 
 =========================================================================*/
 #include "vtkStructuredPointsReader.h"
+
 #include "vtkObjectFactory.h"
 #include "vtkErrorCode.h"
+#include "vtkStructuredPoints.h"
 
-vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.52");
+vtkCxxRevisionMacro(vtkStructuredPointsReader, "1.53");
 vtkStandardNewMacro(vtkStructuredPointsReader);
 
 vtkStructuredPointsReader::vtkStructuredPointsReader()

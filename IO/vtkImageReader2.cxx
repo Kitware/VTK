@@ -19,12 +19,9 @@
 #include "vtkObjectFactory.h"
 #include "vtkByteSwap.h"
 
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.15");
+vtkCxxRevisionMacro(vtkImageReader2, "1.16");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
