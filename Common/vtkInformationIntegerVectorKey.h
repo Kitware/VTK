@@ -28,7 +28,7 @@ public:
   vtkTypeRevisionMacro(vtkInformationIntegerVectorKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkInformationIntegerVectorKey();
+  vtkInformationIntegerVectorKey(const char* name, const char* location);
   ~vtkInformationIntegerVectorKey();
 
 private:

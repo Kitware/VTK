@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.4");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.5");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -55,7 +55,8 @@ void vtkStreamingDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 vtkInformationIntegerKey*
 vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()
 {
-  static vtkInformationIntegerKey instance;
+  static vtkInformationIntegerKey instance("REQUEST_UPDATE_EXTENT",
+                                           "vtkStreamingDemandDrivenPipeline");
   return &instance;
 }
 
@@ -63,7 +64,8 @@ vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()
 vtkInformationIntegerVectorKey*
 vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()
 {
-  static vtkInformationIntegerVectorKey instance;
+  static vtkInformationIntegerVectorKey instance("WHOLE_EXTENT",
+                                           "vtkStreamingDemandDrivenPipeline");
   return &instance;
 }
 
@@ -71,7 +73,8 @@ vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()
 vtkInformationIntegerKey*
 vtkStreamingDemandDrivenPipeline::MAXIMUM_NUMBER_OF_PIECES()
 {
-  static vtkInformationIntegerKey instance;
+  static vtkInformationIntegerKey instance("MAXIMUM_NUMBER_OF_PIECES",
+                                           "vtkStreamingDemandDrivenPipeline");
   return &instance;
 }
 

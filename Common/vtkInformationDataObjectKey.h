@@ -28,7 +28,7 @@ public:
   vtkTypeRevisionMacro(vtkInformationDataObjectKey,vtkInformationKey);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkInformationDataObjectKey();
+  vtkInformationDataObjectKey(const char* name, const char* location);
   ~vtkInformationDataObjectKey();
 
 private:

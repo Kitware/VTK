@@ -43,9 +43,28 @@ public:
   // Prevent normal vtkObject reference counting behavior.
   virtual void UnRegister(vtkObjectBase*);
 
-  vtkInformationKey();
+  // Description:
+  // Get the name of the key.  This is not the type of the key, but
+  // the name of the key instance.
+  const char* GetName();
+
+  // Description:
+  // Get the location of the key.  This is the name of the class in
+  // which the key is defined.
+  const char* GetLocation();
+
+  // Description:
+  // Key instances are static data that need to be created and
+  // destroyed.  The constructor and destructor must be public.  The
+  // name of the static instance and the class in which it is defined
+  // should be passed to the constructor.  They must be string
+  // literals because the strings are not copied.
+  vtkInformationKey(const char* name, const char* location);
   ~vtkInformationKey();
 
+protected:
+  const char* Name;
+  const char* Location;
 private:
   vtkInformationKey(const vtkInformationKey&);  // Not implemented.
   void operator=(const vtkInformationKey&);  // Not implemented.

@@ -37,7 +37,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.5");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.6");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 //----------------------------------------------------------------------------
@@ -78,21 +78,24 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_INFORMATION()
 {
-  static vtkInformationIntegerKey instance;
+  static vtkInformationIntegerKey instance("REQUEST_INFORMATION",
+                                           "vtkDemandDrivenPipeline");
   return &instance;
 }
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey* vtkDemandDrivenPipeline::REQUEST_DATA()
 {
-  static vtkInformationIntegerKey instance;
+  static vtkInformationIntegerKey instance("REQUEST_DATA",
+                                           "vtkDemandDrivenPipeline");
   return &instance;
 }
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey* vtkDemandDrivenPipeline::FROM_OUTPUT_PORT()
 {
-  static vtkInformationIntegerKey instance;
+  static vtkInformationIntegerKey instance("FROM_OUTPUT_PORT",
+                                           "vtkDemandDrivenPipeline");
   return &instance;
 }
 

@@ -32,7 +32,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.12");
+vtkCxxRevisionMacro(vtkInformation, "1.13");
 vtkStandardNewMacro(vtkInformation);
 
 #ifdef VTK_DEBUG_LEAKS
@@ -248,7 +248,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Integer, int);
 #define VTK_INFORMATION_DEFINE_KEY_METHOD(NAME, type)                       \
   vtkInformation##type##Key* vtkInformation::NAME()                         \
     {                                                                       \
-    static vtkInformation##type##Key instance;                              \
+    static vtkInformation##type##Key instance(#NAME, "vtkInformation");     \
     return &instance;                                                       \
     }
 

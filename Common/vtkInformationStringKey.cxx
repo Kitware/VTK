@@ -14,10 +14,11 @@
 =========================================================================*/
 #include "vtkInformationStringKey.h"
 
-vtkCxxRevisionMacro(vtkInformationStringKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationStringKey, "1.2");
 
 //----------------------------------------------------------------------------
-vtkInformationStringKey::vtkInformationStringKey()
+vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location):
+  vtkInformationKey(name, location)
 {
 }
 
