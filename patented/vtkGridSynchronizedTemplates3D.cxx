@@ -65,6 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkFloatArray.h"
 #include "vtkGridSynchronizedTemplates3D.h"
 #include "vtkSynchronizedTemplates3D.h"
+#include "vtkExtentTranslator.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
@@ -795,7 +796,8 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
   int piece, numPieces, ghostLevel;
   int *wholeExt;
   int ext[6];
-
+  vtkExtentTranslator *translator = input->GetExtentTranslator();
+  
   if (!input)
     {
     vtkErrorMacro(<< "Input not set.");
@@ -811,8 +813,21 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
   input->GetWholeExtent(ext);  
 
   // get the extent associated with the piece.
-  this->SplitExtent(piece, numPieces, ext);
-
+  if (translator == NULL)
+    {
+    // Default behavior
+    if (piece != 0)
+      {
+      ext[0] = ext[2] = ext[4] = 0;
+      ext[1] = ext[3] = ext[5] = -1;
+      }
+    }
+  else
+    {    
+    translator->PieceToExtentThreadSafe(piece, numPieces, 0, wholeExt, ext, 
+                                        translator->GetSplitMode(),0);
+    }
+  
   // As a side product of this call, ExecuteExtent is set.
   // This is the region that we are really updating, although
   // we may require a larger input region in order to generate
@@ -866,83 +881,6 @@ void vtkGridSynchronizedTemplates3D::ComputeInputUpdateExtents( vtkDataObject *o
   input->SetUpdateExtent(ext);
 }
 
-//----------------------------------------------------------------------------
-
-// Assumes UpdateInformation was called first.
-int vtkGridSynchronizedTemplates3D::SplitExtent(int piece, int numPieces,
-                                                int *ext)
-{
-  int numPiecesInFirstHalf;
-  int size[3], mid, splitAxis;
-
-  // keep splitting until we have only one piece.
-  // piece and numPieces will always be relative to the current ext. 
-  while (numPieces > 1)
-    {
-    size[0] = ext[1]-ext[0];
-    size[1] = ext[3]-ext[2];
-    size[2] = ext[5]-ext[4];
-    if (size[2] > size[1] && size[2] > size[0] && 
-	size[2]/2 > this->MinimumPieceSize[2])
-      {
-      splitAxis = 2;
-      }
-    else if (size[1] > size[0] && size[1]/2 > this->MinimumPieceSize[1])
-      {
-      splitAxis = 1;
-      }
-    else if (size[0]/2 > this->MinimumPieceSize[0])
-      {
-      splitAxis = 0;
-      }
-    else
-      {
-      // signal no more splits possible
-      splitAxis = -1;
-      }
-
-    if (splitAxis == -1)
-      {
-      // can not split any more.
-      if (piece == 0)
-        {
-        // just return the remaining piece
-        numPieces = 1;
-        }
-      else
-        {
-        // the rest must be empty
-        return 0;
-        }
-      }
-    else
-      {
-      // split the chosen axis into two pieces.
-      numPiecesInFirstHalf = (numPieces / 2);
-      mid = (size[splitAxis] * numPiecesInFirstHalf / numPieces) 
-	+ ext[splitAxis*2];
-      if (piece < numPiecesInFirstHalf)
-        {
-        // piece is in the first half
-        // set extent to the first half of the previous value.
-        ext[splitAxis*2+1] = mid;
-        // piece must adjust.
-        numPieces = numPiecesInFirstHalf;
-        }
-      else
-        {
-        // piece is in the second half.
-        // set the extent to be the second half. (two halves share points)
-        ext[splitAxis*2] = mid;
-        // piece must adjust
-        numPieces = numPieces - numPiecesInFirstHalf;
-        piece -= numPiecesInFirstHalf;
-        }
-      }
-    } // end of while
-
-  return 1;
-}
 
 //----------------------------------------------------------------------------
 void vtkGridSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -978,9 +916,23 @@ VTK_THREAD_RETURN_TYPE vtkGridSyncTempThreadedExecute( void *arg )
   ext[3] = tmp[3];
   ext[4] = tmp[4];
   ext[5] = tmp[5];
-  if (self->SplitExtent(threadId, threadCount, ext))
+  
+  vtkExtentTranslator *translator = self->GetInput()->GetExtentTranslator();
+  if (translator == NULL)
     {
-    self->ThreadedExecute(ext, threadId);
+    // No translator means only do one thread.
+    if (threadId == 0)
+      {
+      self->ThreadedExecute(ext, threadId);
+      }
+    }
+  else
+    {
+    if (translator->PieceToExtentThreadSafe(threadId, threadCount,0,tmp, ext, 
+                                            translator->GetSplitMode(),0))
+      {
+      self->ThreadedExecute(ext, threadId);
+      }
     }
   
   return VTK_THREAD_RETURN_VALUE;

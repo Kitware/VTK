@@ -117,6 +117,9 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 	 vtkSynchronizedTemplates3D::New();
        syncTemp3D->SetInput((vtkImageData *)input);
        syncTemp3D->SetDebug(this->Debug);
+       syncTemp3D->SetComputeNormals (this->ComputeNormals);
+       syncTemp3D->SetComputeGradients (this->ComputeGradients);
+       syncTemp3D->SetComputeScalars (this->ComputeScalars);
        syncTemp3D->ComputeInputUpdateExtents(data);
        syncTemp3D->Delete();
        return;
@@ -140,6 +143,9 @@ void vtkKitwareContourFilter::ComputeInputUpdateExtents(vtkDataObject *data)
 	 vtkGridSynchronizedTemplates3D *gridTemp3D =
 	   vtkGridSynchronizedTemplates3D::New();
 	 gridTemp3D->SetInput((vtkStructuredGrid *)input);
+	 gridTemp3D->SetComputeNormals (this->ComputeNormals);
+	 gridTemp3D->SetComputeGradients (this->ComputeGradients);
+	 gridTemp3D->SetComputeScalars (this->ComputeScalars);
 	 gridTemp3D->SetDebug(this->Debug);
 	 gridTemp3D->ComputeInputUpdateExtents(data);
 	 gridTemp3D->Delete();

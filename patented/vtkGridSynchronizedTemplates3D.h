@@ -156,7 +156,6 @@ public:
   // Description:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
-  int SplitExtent(int piece, int numPieces, int *ext);
   void ThreadedExecute(int *exExt, int threadId);
 
   // Description:
