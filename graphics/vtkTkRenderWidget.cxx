@@ -307,7 +307,7 @@ static void vtkTkRenderWidget_Destroy(char *memPtr)
     {
     self->RenderWindow->UnRegister(NULL);
     self->RenderWindow = NULL;
-    free (self->RW);
+    ckfree (self->RW);
     }
   ckfree((char *) memPtr);
 }
