@@ -48,26 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.hh"
 #include "vtkStructuredGrid.hh"
 
-class vtkStructuredGridSource : public vtkSource, public vtkStructuredGrid 
+class vtkStructuredGridSource : public vtkSource
 {
 public:
+  vtkStructuredGridSource();
   char *GetClassName() {return "vtkStructuredGridSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Source interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
+  // Description:
+  // Get the output of this source.
+  vtkStructuredGrid *GetOutput() {return (vtkStructuredGrid *)this->Output;};
 };
 
 #endif

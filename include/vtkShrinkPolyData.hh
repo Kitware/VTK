@@ -57,8 +57,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkShrinkPolyData : public vtkPolyToPolyFilter 
 {
 public:
-  vtkShrinkPolyData(float sf=0.5) {this->ShrinkFactor = sf;};
-  ~vtkShrinkPolyData() {};
+  vtkShrinkPolyData(float sf=0.5);
   char *GetClassName() {return "vtkShrinkPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

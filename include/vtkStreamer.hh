@@ -44,22 +44,26 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // field. The integration is performed using 2cnd order Runge-Kutta method. 
 // vtkStreamer often serves as a base class for other classes that perform 
 // numerical integration through a vector field (e.g., vtkStreamLine).
-//    Note that vtkStreamer can integrate both forward and backward in time,
+//
+// Note that vtkStreamer can integrate both forward and backward in time,
 // or in both directions. The length of the streamer time) is controlled by 
 // specifying an elapsed time. (The elapsed time is the time each particle 
 // travels). Otherwise, the integration terminates after exiting the dataset or
 // if the particle speed is reduced to a value less than the terminal speed.
-//    vtkStreamer integrates through any type of dataset. Thus if the dataset
+//
+// vtkStreamer integrates through any type of dataset. Thus if the dataset
 // contains 2D cells such as polygons or triangles, the integration is
 // constrained to lie on the surface defined by the 2D cells.
-//    The starting point of streamers may be defined in three different ways.
+//
+// The starting point of streamers may be defined in three different ways.
 // Starting from global x-y-z "position" allows you to start a single streamer
 // at a specified x-y-z coordinate. Starting from "location" allows you to 
 // start at a specified cell, subId, and parametric coordinate. Finally, you 
 // may specify a source object to start multiple streamers. If you start 
 // streamers using a source object, for each point in the source that is 
 // inside the dataset a streamer is created.
-//    vtkStreamer implements the integration process in the Integrate() method.
+//
+// vtkStreamer implements the integration process in the Integrate() method.
 // Because vtkStreamer does not implement the Execute() method that its 
 // superclass (i.e., Filter) requires, it is an abstract class. Its subclasses
 // implement the execute method and use the Integrate() method and then build
@@ -126,7 +130,6 @@ class vtkStreamer : public vtkDataSetToPolyFilter
 {
 public:
   vtkStreamer();
-  ~vtkStreamer() {};
   char *GetClassName() {return "vtkStreamer";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -53,7 +53,6 @@ class vtkPointSource : public vtkPolySource
 {
 public:
   vtkPointSource(int numPts=10);
-  ~vtkPointSource() {};
   char *GetClassName() {return "vtkPointSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

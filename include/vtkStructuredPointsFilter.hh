@@ -52,15 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkStructuredPointsFilter : public vtkFilter 
 {
 public:
-  vtkStructuredPointsFilter() {};
-  ~vtkStructuredPointsFilter();
-  char *_GetClassName() {return "vtkStructuredPointsFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkStructuredPointsFilter";};
 
   void SetInput(vtkStructuredPoints *input);
   void SetInput(vtkStructuredPoints &input) {this->SetInput(&input);};
   vtkStructuredPoints *GetInput() {return (vtkStructuredPoints *)this->Input;};
-
 };
 
 #endif

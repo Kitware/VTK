@@ -6,9 +6,6 @@
   Date:      $Date$
   Version:   $Revision$
 
-Description:
----------------------------------------------------------------------------
-
 Copyright (c) 1993-1995 Ken Martin, Will Schroeder, Bill Lorensen.
 
 This software is copyrighted by Ken Martin, Will Schroeder and Bill Lorensen.
@@ -51,6 +48,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define __vtkDiskSource_h
 
 #include "vtkPolySource.hh"
+#include "vtkPolyData.hh"
 
 class vtkDiskSource : public vtkPolySource 
 {

@@ -50,26 +50,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.hh"
 #include "vtkUnstructuredGrid.hh"
 
-class vtkDataSetToUnstructuredGridFilter : public vtkUnstructuredGrid, public vtkDataSetFilter
+class vtkDataSetToUnstructuredGridFilter : public vtkDataSetFilter
 {
 public:
+  vtkDataSetToUnstructuredGridFilter();
   char *GetClassName() {return "vtkDataSetToUnstructuredGridFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
+  // Description:
+  // Get the output of this filter.
+  vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
 
-  //DataSet interface
-  void Update();
-
-protected:
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
 };
 
 #endif

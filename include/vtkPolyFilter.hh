@@ -52,15 +52,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkPolyFilter : public vtkFilter 
 {
 public:
-  vtkPolyFilter() {};
-  ~vtkPolyFilter();
-  char *_GetClassName() {return "vtkPolyFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkPolyFilter";};
 
-  void SetInput(vtkPolyData *input);
+  virtual void SetInput(vtkPolyData *input);
   void SetInput(vtkPolyData &input) {this->SetInput(&input);};
   vtkPolyData *GetInput() {return (vtkPolyData *)this->Input;};
-                               
 };
 
 #endif

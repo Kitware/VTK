@@ -57,7 +57,6 @@ class vtkFeatureEdges : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureEdges();
-  ~vtkFeatureEdges() {};
   char *GetClassName() {return "vtkFeatureEdges";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

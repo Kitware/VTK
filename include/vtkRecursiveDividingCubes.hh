@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // clouds (i.e., at screen resolution) will appear as a surface. Less dense 
 // clouds can be used as a source to generate streamlines or to generate 
 // "transparent" surfaces.
-//    This implementation differs from vtkDividingCubes in that it uses a 
+//
+//  This implementation differs from vtkDividingCubes in that it uses a 
 // recursive procedure. For non-cubical voxels, this can result in generating 
 // more points than the procedural implementation of vtkDividingCubes. This is
 // because the recursive procedure divides voxels by multiples of powers of 
@@ -64,7 +65,6 @@ class vtkRecursiveDividingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkRecursiveDividingCubes();
-  ~vtkRecursiveDividingCubes() {};
   char *GetClassName() {return "vtkRecursiveDividingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

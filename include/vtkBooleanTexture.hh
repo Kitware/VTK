@@ -46,7 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // coordinates are normally generated using a filter like 
 // vtkImplicitTextureCoords which generates the texture coordinates for 
 // any implicit function.
-//   vtkBooleanTexture generates the map according to the s-t texture
+//
+// vtkBooleanTexture generates the map according to the s-t texture
 // coordinates plus the notion of being in, on, or outside of a
 // region. An in region is when the texture coordinate is between
 // (0,0.5-thickness/2).  An out region is where the texture coordinate

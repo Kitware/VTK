@@ -53,11 +53,9 @@ class vtkDataSetFilter : public vtkFilter
 {
 public:
   vtkDataSetFilter() {};
-  ~vtkDataSetFilter();
-  char *_GetClassName() {return "vtkDataSetFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkDataSetFilter";};
 
-  void SetInput(vtkDataSet *input);
+  virtual void SetInput(vtkDataSet *input);
   void SetInput(vtkDataSet &input) {this->SetInput(&input);};
   vtkDataSet *GetInput() {return this->Input;};
 };

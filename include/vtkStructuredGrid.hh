@@ -77,9 +77,9 @@ public:
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
 
-protected:
   void Initialize();
 
+protected:
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   // blanking information inherited

@@ -52,8 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkStructuredGridOutlineFilter : public vtkStructuredGridToPolyFilter
 {
 public:
-  vtkStructuredGridOutlineFilter() {};
-  ~vtkStructuredGridOutlineFilter() {};
   char *GetClassName() {return "vtkStructuredGridOutlineFilter";};
 
 protected:

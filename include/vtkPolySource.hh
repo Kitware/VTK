@@ -48,26 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.hh"
 #include "vtkPolyData.hh"
 
-class vtkPolySource : public vtkSource, public vtkPolyData 
+class vtkPolySource : public vtkSource
 {
 public:
+  vtkPolySource();
   char *GetClassName() {return "vtkPolySource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Source interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
+  // Description:
+  // Get the output of this source.
+  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
 };
 
 #endif

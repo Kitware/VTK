@@ -58,7 +58,6 @@ class vtkThreshold : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkThreshold();
-  ~vtkThreshold() {};
   char *GetClassName() {return "vtkThreshold";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

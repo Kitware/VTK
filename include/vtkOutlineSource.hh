@@ -52,7 +52,6 @@ class vtkOutlineSource : public vtkPolySource
 {
 public:
   vtkOutlineSource();
-  ~vtkOutlineSource() {};
   char *GetClassName() {return "vtkOutlineSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -52,10 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkStructuredGridFilter : public vtkFilter 
 {
 public:
-  vtkStructuredGridFilter();
-  ~vtkStructuredGridFilter();
-  char *_GetClassName() {return "vtkStructuredGridFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkStructuredGridFilter";};
 
   void SetInput(vtkStructuredGrid *input);
   void SetInput(vtkStructuredGrid &input) {this->SetInput(&input);};

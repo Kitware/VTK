@@ -43,11 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // vtkWarpScalar is a filter that modifies point coordinates by moving
 // points along point normals by the scalar amount times the scale factor.
 // Useful for creating carpet or x-y-z plots.
-//    If normals are not present in data, the Normal instance variable will
+//
+// If normals are not present in data, the Normal instance variable will
 // be used as the direction along which to warp the geometry. If normals are
 // present but you would like to use the Normals instance variable, set the 
 // UseNormals boolean to true.
-//    If XYPlane boolean is set true, then the z-value is considered to be 
+//
+// If XYPlane boolean is set true, then the z-value is considered to be 
 // a scalar value (still scaled by scale factor) and the displacement is
 // along the z-axis. If scalars are also present, these are copied through
 // and can be used to color the surface.
@@ -61,7 +63,6 @@ class vtkWarpScalar : public vtkPointSetToPointSetFilter
 {
 public:
   vtkWarpScalar();
-  ~vtkWarpScalar() {};
   char *GetClassName() {return "vtkWarpScalar";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

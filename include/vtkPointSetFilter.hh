@@ -54,10 +54,10 @@ class vtkPointSetFilter : public vtkFilter
 public:
   vtkPointSetFilter() {};
   ~vtkPointSetFilter();
-  char *_GetClassName() {return "vtkPointSetFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkPointSetFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
-  void SetInput(vtkPointSet *input);
+  virtual void SetInput(vtkPointSet *input);
   void SetInput(vtkPointSet &input) {this->SetInput(&input);};
   vtkPointSet *GetInput() {return (vtkPointSet *)this->Input;};
 };

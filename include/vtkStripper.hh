@@ -55,7 +55,6 @@ class vtkStripper : public vtkPolyToPolyFilter
 {
 public:
   vtkStripper();
-  ~vtkStripper() {};
   char *GetClassName() {return "vtkStripper";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

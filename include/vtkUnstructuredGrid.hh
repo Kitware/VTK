@@ -78,9 +78,9 @@ public:
   void GetPointCells(int ptId, vtkIdList& cellIds);
   int GetCellType(int cellId);
   void Squeeze();
+  void Initialize();
 
 protected:
-  void Initialize();
 
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited

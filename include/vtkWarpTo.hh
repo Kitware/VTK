@@ -52,7 +52,6 @@ class vtkWarpTo : public vtkPointSetToPointSetFilter
 {
 public:
   vtkWarpTo() : ScaleFactor(1.0) {};
-  ~vtkWarpTo() {};
   char *GetClassName() {return "vtkWarpTo";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

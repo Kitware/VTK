@@ -48,46 +48,27 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkFilter_h
 #define __vtkFilter_h
 
-#include "vtkLWObject.hh"
-#include "vtkDataSet.hh"
+#include "vtkSource.hh"
+class vtkDataSet;
 
-class vtkFilter : public vtkLWObject
+class vtkFilter : public vtkSource
 {
 public:
   vtkFilter();
-  virtual ~vtkFilter() {};
-  void _PrintSelf(ostream& os, vtkIndent indent);
-  char *_GetClassName() {return "vtkFilter";};
+  void PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkFilter";};
 
   // Description:
   // All filters must provide a method to update the visualization 
   // pipeline.
-  virtual void UpdateFilter();
-
-  void SetStartMethod(void (*f)(void *), void *arg);
-  void SetEndMethod(void (*f)(void *), void *arg);
-  void SetStartMethodArgDelete(void (*f)(void *));
-  void SetEndMethodArgDelete(void (*f)(void *));
+  virtual void Update();
 
 protected:
   vtkDataSet *Input;
   char Updating;
-  void (*StartMethod)(void *);
-  void (*StartMethodArgDelete)(void *);
-  void *StartMethodArg;
-  void (*EndMethod)(void *);
-  void (*EndMethodArgDelete)(void *);
-  void *EndMethodArg;
-  vtkTimeStamp ExecuteTime;
 
   // Every filter must have execute method.
   virtual void Execute();
-
-  // Get flag indicating whether data has been released since last execution.
-  // Used during update method to determin whether to execute or not.
-  virtual int GetDataReleased();
-  virtual void SetDataReleased(int flag);
-
 };
 
 #endif

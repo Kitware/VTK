@@ -54,11 +54,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkFilter.hh"
 #include "vtkPolyDataCollection.hh"
 
-class vtkAppendPolyData : public vtkPolyData, public vtkFilter
+class vtkAppendPolyData : public vtkFilter
 {
 public:
   vtkAppendPolyData();
-  ~vtkAppendPolyData();
   char *GetClassName() {return "vtkAppendPolyData";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -71,16 +70,16 @@ public:
   // filter interface
   void Update();
 
+  // Description:
+  // Get the output of this filter.
+  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
+
 protected:
   // Usual data generation method
   void Execute();
-
+  
   // list of data sets to append together
   vtkPolyDataCollection InputList;
-
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
 };
 
 #endif

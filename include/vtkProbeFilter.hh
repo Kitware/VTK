@@ -53,12 +53,10 @@ class vtkProbeFilter : public vtkDataSetToDataSetFilter
 {
 public:
   vtkProbeFilter();
-  ~vtkProbeFilter() {};
   char *GetClassName() {return "vtkProbeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   void Update();
-  void Initialize();
 
   // Description:
   // Specify the point locations used to probe input. Any geometry

@@ -66,7 +66,6 @@ class vtkMarchingCubes : public vtkStructuredPointsToPolyDataFilter
 {
 public:
   vtkMarchingCubes();
-  ~vtkMarchingCubes();
   char *GetClassName() {return "vtkMarchingCubes";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

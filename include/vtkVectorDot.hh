@@ -61,6 +61,7 @@ public:
   // Description:
   // Specify range to map scalars into.
   vtkSetVector2Macro(ScalarRange,float);
+
   // Description:
   // Get the range that scalars map into.
   vtkGetVectorMacro(ScalarRange,float,2);

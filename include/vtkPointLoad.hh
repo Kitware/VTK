@@ -54,11 +54,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "vtkStructuredPointsSource.hh"
 
-class vtkPointLoad : public vtkStructuredPointsSource
+class vtkPointLoad :  public vtkStructuredPointsSource
 {
 public:
   vtkPointLoad();
-  ~vtkPointLoad() {};
   char *GetClassName() {return "vtkPointLoad";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -121,9 +121,10 @@ public:
   void RemoveCellReference(int cellId);
   void ResizeCellList(int ptId, int size);
 
-protected:
-  void Initialize();
+  // Restore data object to initial state,
+  virtual void Initialize();
 
+protected:
   // points inherited
   // point data (i.e., scalars, vectors, normals, tcoords) inherited
   vtkCellArray *Verts;

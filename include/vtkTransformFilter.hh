@@ -63,7 +63,6 @@ class vtkTransformFilter : public vtkPointSetToPointSetFilter
 {
 public:
   vtkTransformFilter() : Transform(NULL) {};
-  ~vtkTransformFilter() {};
   char *GetClassName() {return "vtkTransformFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

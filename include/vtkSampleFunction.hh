@@ -57,7 +57,6 @@ class vtkSampleFunction : public vtkStructuredPointsSource
 {
 public:
   vtkSampleFunction();
-  ~vtkSampleFunction() {};
   char *GetClassName() {return "vtkSampleFunction";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

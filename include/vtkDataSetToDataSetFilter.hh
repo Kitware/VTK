@@ -51,51 +51,17 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.hh"
 #include "vtkDataSet.hh"
 
-class vtkDataSetToDataSetFilter : public vtkDataSet, public vtkDataSetFilter
+class vtkDataSetToDataSetFilter : public vtkDataSetFilter
 {
+
 public:
-  vtkDataSetToDataSetFilter();
-  ~vtkDataSetToDataSetFilter();
   char *GetClassName() {return "vtkDataSetToDataSetFilter";};
-  char *GetDataType() {return this->DataSet->GetDataType();};
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkDataSetToDataSetFilter() {this->Output = NULL;};
+  void SetInput(vtkDataSet *input);
 
-  // dataset interface
-  vtkDataSet *MakeObject() {return this->DataSet->MakeObject();};
-  int GetNumberOfCells() {return this->DataSet->GetNumberOfCells();}
-  int GetNumberOfPoints() {return this->DataSet->GetNumberOfPoints();}
-  float *GetPoint(int i) {return this->DataSet->GetPoint(i);}
-  void GetPoint(int i, float p[3]) {this->DataSet->GetPoint(i,p);}
-  vtkCell *GetCell(int cellId) {return this->DataSet->GetCell(cellId);}
-  int GetCellType(int cellId) {return this->DataSet->GetCellType(cellId);}
-  void Initialize();
-  void GetCellPoints(int cellId, vtkIdList& ptIds) {this->DataSet->GetCellPoints(cellId, ptIds);};
-  void GetPointCells(int ptId, vtkIdList& cellIds) {this->DataSet->GetPointCells(ptId, cellIds);};
-  int FindCell(float x[3], vtkCell *cell, float tol2, int& subId, 
-               float pc[3], float weights[MAX_CELL_SIZE])
-    {return this->DataSet->FindCell(x,cell,tol2,subId,pc,weights);};
-  void ComputeBounds();
-
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  vtkDataSet *DataSet;
-
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
+  // Description:
+  // Get the output of this filter.
+  vtkDataSet *GetOutput() {return this->Output;};
 };
 
-
-
 #endif
-
-

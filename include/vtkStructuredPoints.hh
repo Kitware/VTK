@@ -76,6 +76,7 @@ public:
   void GetCellPoints(int cellId, vtkIdList& ptIds);
   void GetPointCells(int ptId, vtkIdList& cellIds);
   void ComputeBounds();
+  void Initialize();
 
   void GetVoxelGradient(int i, int j, int k, vtkScalars *s, vtkFloatVectors& g);
   void GetPointGradient(int i, int j, int k, vtkScalars *s, float g[3]);
@@ -93,8 +94,6 @@ public:
   vtkGetVectorMacro(Origin,float,3);
 
 protected:
-  void Initialize();
-
   float Origin[3];
   float AspectRatio[3];
 };

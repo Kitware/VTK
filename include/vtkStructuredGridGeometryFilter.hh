@@ -65,7 +65,6 @@ class vtkStructuredGridGeometryFilter : public vtkStructuredGridToPolyFilter
 {
 public:
   vtkStructuredGridGeometryFilter();
-  ~vtkStructuredGridGeometryFilter() {};
   char *GetClassName() {return "vtkStructuredGridGeometryFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

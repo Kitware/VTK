@@ -50,27 +50,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredGridFilter.hh"
 #include "vtkPolyData.hh"
 
-class vtkStructuredGridToPolyFilter : public vtkPolyData, public vtkStructuredGridFilter
+class vtkStructuredGridToPolyFilter : public vtkStructuredGridFilter
 {
 public:
+  vtkStructuredGridToPolyFilter();
   char *GetClassName() {return "vtkStructuredGridToPolyFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
-
+  // Description:
+  // Get the output of this filter.
+  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
 };
 
 #endif

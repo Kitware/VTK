@@ -54,7 +54,6 @@ class vtkCutter : public vtkDataSetToPolyFilter
 {
 public:
   vtkCutter(vtkImplicitFunction *cf=NULL);
-  ~vtkCutter();
   char *GetClassName() {return "vtkCutter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

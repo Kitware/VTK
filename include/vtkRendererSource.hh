@@ -59,13 +59,13 @@ class vtkRendererSource : public vtkStructuredPointsSource
 {
 public:
   vtkRendererSource();
-  ~vtkRendererSource() {};
   char *GetClassName() {return "vtkRendererSource";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Indicates what renderer to get the pixel data from.
   vtkSetObjectMacro(Input,vtkRenderer);
+
   // Description:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkRenderer);

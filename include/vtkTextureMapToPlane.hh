@@ -54,7 +54,6 @@ class vtkTextureMapToPlane : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTextureMapToPlane();
-  ~vtkTextureMapToPlane() {};
   char *GetClassName() {return "vtkTextureMapToPlane";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

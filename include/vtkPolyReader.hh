@@ -55,7 +55,6 @@ class vtkPolyReader : public vtkPolySource
 {
 public:
   vtkPolyReader();
-  ~vtkPolyReader();
   char *GetClassName() {return "vtkPolyReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

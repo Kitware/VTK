@@ -53,7 +53,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkVoxelReader : public vtkStructuredPointsSource 
 {
 public:
-  vtkVoxelReader():Filename(NULL) {};
+  vtkVoxelReader();
   ~vtkVoxelReader() {if (this->Filename) delete [] this->Filename;};
   char *GetClassName() {return "vtkVoxelReader";};
   void PrintSelf(ostream& os, vtkIndent indent);

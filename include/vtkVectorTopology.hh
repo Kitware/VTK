@@ -45,12 +45,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // including regions of circulation, separation, etc. The region around these
 // areas are good places to start streamlines. (The vector field vanishes in 
 // cells where the x-y-z vector components each pass through zero).
-//    The output of this filter is a set of vertices. These vertices mark the 
+//
+// The output of this filter is a set of vertices. These vertices mark the 
 // vector field singularities. You can use an object like vtkGlyph3D to place
 // markers at these points, or use the vertices to initiate streamlines.
-//    The Distance instance variable controls the accuracy of placement of the
+//
+// The Distance instance variable controls the accuracy of placement of the
 // vertices. Smaller values result in greater execution times.
-//    The input to this filter is any dataset type. The position of the 
+//
+// The input to this filter is any dataset type. The position of the 
 // vertices is found by sampling the cell in parametric space. Sampling is
 // repeated until the Distance criterion is satisfied.
 // .SECTION See Also
@@ -67,7 +70,6 @@ class vtkVectorTopology : public vtkDataSetToPolyFilter
 {
 public:
   vtkVectorTopology();
-  ~vtkVectorTopology();
   char *GetClassName() {return "vtkVectorTopology";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -78,7 +80,6 @@ public:
 
 protected:
   void Execute();
-
   float Distance;
 };
 

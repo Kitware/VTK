@@ -70,7 +70,7 @@ public:
 protected:
   void Execute();
   char *Text;
-  int   Backing;
+  int  Backing;
 };
 
 #endif

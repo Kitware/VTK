@@ -165,7 +165,6 @@ class vtkDecimate : public vtkPolyToPolyFilter
 {
 public:
   vtkDecimate();
-  ~vtkDecimate() {};
   char *GetClassName() {return "vtkDecimate";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

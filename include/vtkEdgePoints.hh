@@ -59,7 +59,6 @@ class vtkEdgePoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkEdgePoints();
-  ~vtkEdgePoints();
   char *GetClassName() {return "vtkEdgePoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -67,7 +67,6 @@ class vtkSweptSurface : public vtkStructuredPointsToStructuredPointsFilter
 {
 public:
   vtkSweptSurface();
-  ~vtkSweptSurface() {};
   char *GetClassName() {return "vtkSweptSurface";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -129,7 +128,7 @@ public:
 
 protected:
   void Execute();
-  void ComputeBounds();
+  void ComputeBounds(float origin[3], float ar[3]);
   int ComputeNumberOfSteps(vtkTransform *t1, vtkTransform *t2);
   void SampleInput(vtkMatrix4x4& m, int inDim[3], float inOrigin[3],
                    float inAr[3], vtkScalars *in, vtkScalars *out);

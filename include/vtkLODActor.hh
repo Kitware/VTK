@@ -70,7 +70,6 @@ class vtkLODActor : public vtkActor
 {
  public:
   vtkLODActor();
-  ~vtkLODActor();
   char *GetClassName() {return "vtkLODActor";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

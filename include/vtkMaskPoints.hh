@@ -54,7 +54,6 @@ class vtkMaskPoints : public vtkDataSetToPolyFilter
 {
 public:
   vtkMaskPoints();
-  ~vtkMaskPoints() {};
   char *GetClassName() {return "vtkMaskPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

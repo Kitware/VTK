@@ -55,7 +55,6 @@ class vtkUnstructuredGridReader : public vtkUnstructuredGridSource
 {
 public:
   vtkUnstructuredGridReader();
-  ~vtkUnstructuredGridReader();
   char *GetClassName() {return "vtkUnstructuredGridReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

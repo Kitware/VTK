@@ -45,14 +45,16 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // to visualize the grids and solutions of computational fluid dynamics.
 // Please see the "PLOT3D User's Manual" available from NASA Ames Research 
 // Center, Moffett Field CA.
-//    PLOT3D files consist of a grid file (also known as XYZ file), an 
+//
+// PLOT3D files consist of a grid file (also known as XYZ file), an 
 // optional solution file (also known as a Q file), and an optional function 
 // file that contains user created data. The Q file contains solution 
 // information as follows: the four parameters free stream mach number 
 // (Fsmach), angle of attack (Alpha), Reynolds number (Re), and total 
 // integration time (Time). In addition, the solution file contains 
 // the flow density (scalar), flow momentum (vector), and flow energy (scalar).
-//    The reader can generate additional scalars and vectors (or "functions")
+//
+// The reader can generate additional scalars and vectors (or "functions")
 // from this information. To use vtkPLOT3DReader, you must specify the 
 // particular function number for the scalar and vector you want to visualize.
 // This implementation of the reader provides the following functions. The
@@ -68,6 +70,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 //    163 - stagnation energy
 //    170 - entropy
 //    184 - swirl
+//
 // The vector functions are:
 //    -1  - don't read or compute any vectors
 //    200 - velocity
@@ -80,6 +83,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // from the solution file). Please note that the validity of computation is
 // a function of this class's gas constants (R, Gamma) and the equations used.
 // They may not be suitable for your computational domain.
+//
 //    The format of the function file is as follows. An integer indicating 
 // number of grids, then an integer specifying number of functions per each 
 // grid. This is followed by the (integer) dimensions of each grid in the 
@@ -128,7 +132,6 @@ public:
   vtkSetStringMacro(FunctionFilename);
   vtkGetStringMacro(FunctionFilename);
 
-
   // Description:
   // Specify the grid to read.
   vtkSetMacro(GridNumber,int);
@@ -151,7 +154,6 @@ public:
   // then no function is extracted.
   vtkSetMacro(FunctionFileFunctionNumber,int);
   vtkGetMacro(FunctionFileFunctionNumber,int);
-
 
   // these are read from PLOT3D file
   // Description:
@@ -210,7 +212,7 @@ protected:
   int ScalarFunctionNumber;
   int VectorFunctionNumber;
   int FunctionFileFunctionNumber;
-  void MapFunction(int fNumber);
+  void MapFunction(int fNumber,vtkPointData *outputPD);
 
   //temporary variables used during read
   float *TempStorage;
@@ -234,8 +236,8 @@ protected:
   int ReadASCIIGrid(FILE *fp);
   int ReadASCIISolution(FILE *fp);
   int ReadASCIIFunctionFile(FILE *fp);
-  int ReadBinaryGrid(FILE *fp);
-  int ReadBinarySolution(FILE *fp);
+  int ReadBinaryGrid(FILE *fp,vtkStructuredGrid *output);
+  int ReadBinarySolution(FILE *fp, vtkStructuredGrid *output);
   int ReadBinaryFunctionFile(FILE *fp);
   vtkFloatPoints *Grid;
   vtkFloatScalars *Density;
@@ -243,21 +245,21 @@ protected:
   vtkFloatVectors *Momentum;
 
   // derived functions from data in PLOT3D files
-  void ComputeDensity();
-  void ComputePressure();
-  void ComputeTemperature();
-  void ComputeEnthalpy();
-  void ComputeInternalEnergy();
-  void ComputeKineticEnergy();
-  void ComputeVelocityMagnitude();
-  void ComputeStagnationEnergy();
-  void ComputeEntropy();
-  void ComputeSwirl();
+  void ComputeDensity(vtkPointData *outputPD);
+  void ComputePressure(vtkPointData *outputPD);
+  void ComputeTemperature(vtkPointData *outputPD);
+  void ComputeEnthalpy(vtkPointData *outputPD);
+  void ComputeInternalEnergy(vtkPointData *outputPD);
+  void ComputeKineticEnergy(vtkPointData *outputPD);
+  void ComputeVelocityMagnitude(vtkPointData *outputPD);
+  void ComputeStagnationEnergy(vtkPointData *outputPD);
+  void ComputeEntropy(vtkPointData *outputPD);
+  void ComputeSwirl(vtkPointData *outputPD);
 
-  void ComputeVelocity();
-  void ComputeVorticity();
-  void ComputeMomentum();
-  void ComputePressureGradient();
+  void ComputeVelocity(vtkPointData *outputPD);
+  void ComputeVorticity(vtkPointData *outputPD);
+  void ComputeMomentum(vtkPointData *outputPD);
+  void ComputePressureGradient(vtkPointData *outputPD);
 };
 
 #endif

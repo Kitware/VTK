@@ -51,13 +51,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // z-direction. Then, the glyph is rotated so that the glyph's local x-axis 
 // lies along the major eigenvector, y-axis along the medium eigenvector, and
 // z-axis along the minor.
-//    A scale factor is provided to control the amount of scaling. Also, you 
+//
+//  A scale factor is provided to control the amount of scaling. Also, you 
 // can turn off scaling completely if desired. The boolean variable ClampScaling
 // controls whether the scaling is performed logarithmically. That is, the
 // log base 10 of the scale factors (i.e., absolute values of eigenvalues)
 // are used. This is useful in certain applications where singularities or 
 // large order of magnitude differences exist in the eigenvalues.
-//    Another instance variable, ExtractEigenvalues, has been provided to 
+//
+// Another instance variable, ExtractEigenvalues, has been provided to 
 // control extraction of eigenvalues/eigenvectors. If this boolean is false,
 // then eigenvalues/eigenvectors are not extracted, and the columns of the
 // matrix are taken as the eigenvectors (norm of column is eigenvalue). 
@@ -75,7 +77,6 @@ class vtkTensorGlyph : public vtkDataSetToPolyFilter
 {
 public:
   vtkTensorGlyph();
-  ~vtkTensorGlyph();
   char *GetClassName() {return "vtkTensorGlyph";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

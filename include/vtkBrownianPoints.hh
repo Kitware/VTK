@@ -53,7 +53,6 @@ class vtkBrownianPoints : public vtkDataSetToDataSetFilter
 {
 public:
   vtkBrownianPoints();
-  ~vtkBrownianPoints() {};
   char *GetClassName() {return "vtkBrownianPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

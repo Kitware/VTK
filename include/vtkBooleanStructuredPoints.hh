@@ -56,11 +56,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #define INTERSECTION_OPERATOR 1
 #define DIFFERENCE_OPERATOR 2
 
-class vtkBooleanStructuredPoints : public vtkStructuredPoints, public vtkFilter
+class vtkBooleanStructuredPoints : public vtkFilter
 {
 public:
   vtkBooleanStructuredPoints();
-  ~vtkBooleanStructuredPoints();
   char *GetClassName() {return "vtkBooleanStructuredPoints";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -71,7 +70,6 @@ public:
   vtkStructuredPointsCollection *GetInput() {return &(this->InputList);};
 
   // filter interface
-  unsigned long int GetMTime();
   void Update();
 
   // alternative method to boolean data
@@ -90,14 +88,13 @@ public:
   void SetModelBounds(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
   vtkGetVectorMacro(ModelBounds,float,6);
 
+  // Description:
+  // Get the output of this filter.
+  vtkStructuredPoints *GetOutput() {return (vtkStructuredPoints *)this->Output;};
+
 protected:
   // Usual data generation method
   void Execute();
-
-  // Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
-
   void InitializeBoolean();
 
   // list of data sets to append together

@@ -60,7 +60,6 @@ class vtkConnectivityFilter : public vtkDataSetToUnstructuredGridFilter
 {
 public:
   vtkConnectivityFilter();
-  ~vtkConnectivityFilter() {};
   char *GetClassName() {return "vtkConnectivityFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -96,7 +95,7 @@ protected:
   // Usual data generation method
   void Execute();
 
-  int ColorRegions; //boolean turns on/off scalar generation for separate regions
+  int ColorRegions; //boolean turns on/off scalar gen for separate regions
   int ExtractionMode; //how to extract regions
   vtkIdList Seeds; //id's of points or cells used to seed regions
   int MaxRecursionDepth; //prevent excessive recursion

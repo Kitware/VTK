@@ -53,7 +53,6 @@ class vtkTriangleFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTriangleFilter() : PassVerts(1), PassLines(1) {};
-  ~vtkTriangleFilter() {};
   char *GetClassName() {return "vtkTriangleFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

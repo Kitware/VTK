@@ -52,8 +52,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkOutlineFilter : public vtkDataSetToPolyFilter
 {
 public:
-  vtkOutlineFilter() {};
-  ~vtkOutlineFilter() {};
   char *GetClassName() {return "vtkOutlineFilter";};
 
 protected:

@@ -84,7 +84,6 @@ class vtkRotationalExtrusionFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkRotationalExtrusionFilter();
-  ~vtkRotationalExtrusionFilter() {};
   char *GetClassName() {return "vtkRotationalExtrusionFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

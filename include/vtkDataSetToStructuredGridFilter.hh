@@ -55,7 +55,6 @@ class vtkDataSetToStructuredGridFilter : public vtkDataSetFilter
 public:
   vtkDataSetToStructuredGridFilter();
   char *GetClassName() {return "vtkDataSetToStructuredGridFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the output of this filter.

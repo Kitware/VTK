@@ -49,27 +49,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkDataSetFilter.hh"
 #include "vtkPolyData.hh"
 
-class vtkDataSetToPolyFilter : public vtkPolyData, public vtkDataSetFilter
+class vtkDataSetToPolyFilter : public vtkDataSetFilter
 {
 public:
+  vtkDataSetToPolyFilter();
   char *GetClassName() {return "vtkDataSetToPolyFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
-
+  // Description:
+  // Get the output of this filter.
+  vtkPolyData *GetOutput() {return (vtkPolyData *)this->Output;};
 };
 
 #endif

@@ -47,7 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // consisting of 2D cells will generate iso-lines, and data with 1D 
 // or 0D cells will generate iso-points. Combinations of output type 
 // is possible if the input dimension is mixed.
-//    If the input type is volume (e.g., 3D structured point dataset), 
+//
+// If the input type is volume (e.g., 3D structured point dataset), 
 // you may wish to use vtkMarchingCubes. This class is specifically tailored
 // for volumes and is therefore much faster.
 // .SECTION Caveats
@@ -69,7 +70,6 @@ class vtkContourFilter : public vtkDataSetToPolyFilter
 {
 public:
   vtkContourFilter();
-  ~vtkContourFilter();
   char *GetClassName() {return "vtkContourFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

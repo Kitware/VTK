@@ -50,28 +50,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkStructuredPointsFilter.hh"
 #include "vtkStructuredPoints.hh"
 
-class vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPoints, 
-                                              public vtkStructuredPointsFilter
+class vtkStructuredPointsToStructuredPointsFilter : public vtkStructuredPointsFilter
 {
 public:
+  vtkStructuredPointsToStructuredPointsFilter();
   char *GetClassName() {return "vtkStructuredPointsToStructuredPointsFilter";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Filter interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
-
+  // Description:
+  // Get the output of this filter.
+  vtkStructuredPoints *GetOutput() {return (vtkStructuredPoints *)this->Output;};
 };
 
 #endif

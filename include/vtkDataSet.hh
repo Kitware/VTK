@@ -54,6 +54,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkPointData.hh"
 #include "vtkCell.hh"
 
+class vtkSource;
+
 class vtkDataSet : public vtkObject 
 {
 public:
@@ -137,6 +139,11 @@ public:
   int ShouldIReleaseData();
 
   // Description:
+  // Set/Get the DataReleased ivar.
+  vtkSetMacro(DataReleased,int);
+  vtkGetMacro(DataReleased,int);
+
+  // Description:
   // Turn on/off flag to control whether this object's data is released
   // after being used by a filter.
   vtkSetMacro(ReleaseDataFlag,int);
@@ -157,6 +164,10 @@ public:
   // Reclaim any extra memory used to store data.
   virtual void Squeeze();
 
+  // Description:
+  // Set the owner of this data object for Sources.
+  vtkSetObjectMacro(Source,vtkSource);
+  
   // compute geometric bounds, center, longest side
   virtual void ComputeBounds();
   float *GetBounds();
@@ -165,10 +176,11 @@ public:
   void GetCenter(float center[3]);
   float GetLength();
 
-protected:
   // Restore data object to initial state,
   virtual void Initialize();
 
+protected:
+  vtkSource *Source; // if I am the output of a Source this is a pntr to it
   vtkPointData PointData;   // Scalars, vectors, etc. associated w/ each point
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
   float Bounds[6];  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds

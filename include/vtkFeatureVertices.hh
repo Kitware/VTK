@@ -66,7 +66,6 @@ class vtkFeatureVertices : public vtkPolyToPolyFilter
 {
 public:
   vtkFeatureVertices();
-  ~vtkFeatureVertices() {};
   char *GetClassName() {return "vtkFeatureVertices";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

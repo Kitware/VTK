@@ -51,7 +51,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // .SECTION Caveats
 // The number of tube sides must be greater than 3. If you wish to use fewer
 // sides (i.e., a ribbon), use vtkRibbonFilter.
-//    The input line must not have duplicate points, or normals at points that
+//
+// The input line must not have duplicate points, or normals at points that
 // are parallel to the incoming/outgoing line segments. (Duplicate points
 // can be removed with vtkCleanPolyData).
 
@@ -64,7 +65,6 @@ class vtkTubeFilter : public vtkPolyToPolyFilter
 {
 public:
   vtkTubeFilter();
-  ~vtkTubeFilter() {};
   char *GetClassName() {return "vtkTubeFilter";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

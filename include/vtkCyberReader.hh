@@ -48,8 +48,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <stdio.h>
 #include "vtkPolySource.hh"
-#include "vtkFloatPoints.hh"
-#include "vtkCellArray.hh"
 
 class vtkCyberReader : public vtkPolySource 
 {
@@ -65,9 +63,8 @@ public:
   vtkGetStringMacro(Filename);
 
 protected:
-  char *Filename;
-
   void Execute();
+  char *Filename;
 };
 
 #endif

@@ -57,11 +57,10 @@ class vtkVoxelModeller : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkVoxelModeller();
-  ~vtkVoxelModeller() {};
   char *GetClassName() {return "vtkVoxelModeller";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  float ComputeModelBounds();
+  float ComputeModelBounds(float origin[3], float ar[3]);
 
   void SetSampleDimensions(int i, int j, int k);
   void SetSampleDimensions(int dim[3]);

@@ -46,7 +46,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // can be used to highlight (via color or intensity) or cut (via 
 // transparency) dataset geometry without any complex geometric processing. 
 // (Note: the texture coordinates are refered to as r-s-t coordinates).
-//    The texture coordinates are automatically normalized to lie between (0,1). 
+//
+// The texture coordinates are automatically normalized to lie between (0,1). 
 // Thus, no matter what the implicit functions evaluate to, the resulting texture 
 // coordinates lie between (0,1), with the zero implicit function value mapped 
 // to the 0.5 texture coordinates value. Depending upon the maximum 

@@ -57,7 +57,6 @@ class vtkThresholdTextureCoords : public vtkDataSetToDataSetFilter
 {
 public:
   vtkThresholdTextureCoords();
-  ~vtkThresholdTextureCoords() {};
   char *GetClassName() {return "vtkThresholdTextureCoords";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

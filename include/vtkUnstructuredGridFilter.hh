@@ -38,10 +38,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkUnstructuredGridFilter - filter that takes vtkPolyData as input
+// .NAME vtkUnstructuredGridFilter - filter that takes unstructured grid as input
 // .SECTION Description
-// vtkUnstructuredGridFilter is a filter that takes a single vtkPolyData data object
-// as input.
+// vtkUnstructuredGridFilter is a filter that takes a single unstructured grid
+// data object as input.
 
 #ifndef __vtkUnstructuredGridFilter_hh
 #define __vtkUnstructuredGridFilter_hh
@@ -52,10 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 class vtkUnstructuredGridFilter : public vtkFilter 
 {
 public:
-  vtkUnstructuredGridFilter() {};
-  ~vtkUnstructuredGridFilter();
-  char *_GetClassName() {return "vtkUnstructuredGridFilter";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  char *GetClassName() {return "vtkUnstructuredGridFilter";};
 
   void SetInput(vtkUnstructuredGrid *input);
   void SetInput(vtkUnstructuredGrid &input) {this->SetInput(&input);};

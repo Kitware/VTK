@@ -98,7 +98,6 @@ class vtkHyperStreamline : public vtkDataSetToPolyFilter
 {
 public:
   vtkHyperStreamline();
-  ~vtkHyperStreamline() {};
   char *GetClassName() {return "vtkHyperStreamline";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -44,7 +44,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // lithography files (.stl files). The filename must be specified to
 // vtkSTLReader. The object automatically detects whether the file is
 // ASCII or binary.
-//     .stl files are quite inefficient and duplicate vertex definitions. 
+//
+// .stl files are quite inefficient and duplicate vertex definitions. 
 // By setting the Merging boolean you can control wether the point data
 // is merged after reading. Merging is performed by default, however,
 // merging requires a large amount of temporary storage since a 3D hash

@@ -46,12 +46,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // "inverse distance weighted". Once the structured points are computed, the 
 // usual visualization techniques can be used visualize the structured points.
 // .SECTION Caveats
-//    The input to this filter is any dataset type. This filter can be used 
+//
+// The input to this filter is any dataset type. This filter can be used 
 // to resample any form of data, i.e., the input data need not be 
 // unstructured. 
-//    The bounds of the data (i.e., the sample space) is automatically computed
+//
+// The bounds of the data (i.e., the sample space) is automatically computed
 // if not set by the user.
-//    If you use a maximum distance less than 1.0, some output points may
+//
+// If you use a maximum distance less than 1.0, some output points may
 // never receive a contribution. The final value of these points can be 
 // specified with the "NullValue" instance variable.
 
@@ -64,11 +67,10 @@ class vtkShepardMethod : public vtkDataSetToStructuredPointsFilter
 {
 public:
   vtkShepardMethod();
-  ~vtkShepardMethod() {};
   char *GetClassName() {return "vtkShepardMethod";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  float ComputeModelBounds();
+  float ComputeModelBounds(float origin[3], float ar[3]);
 
   // Description:
   // Specify i-j-k dimensions on which to sample input points.

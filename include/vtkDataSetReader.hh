@@ -49,14 +49,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkDataSetReader_h
 #define __vtkDataSetReader_h
 
-#include "vtkDataSetSource.hh"
+#include "vtkSource.hh"
 #include "vtkDataReader.hh"
 
-class vtkDataSetReader : public vtkDataSetSource
+class vtkDataSetReader : public vtkSource
 {
 public:
   vtkDataSetReader();
-  ~vtkDataSetReader();
   char *GetClassName() {return "vtkDataSetReader";};
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -82,6 +81,10 @@ public:
 
   void SetLookupTableName(char *name);
   char *GetLookupTableName();
+
+  // Description:
+  // Get the output of this source.
+  vtkDataSet *GetOutput() {return this->Output;};
 
 protected:
   void Execute();

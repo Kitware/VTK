@@ -45,7 +45,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // points (within specified tolerance) and transforms degenerate 
 // topology into appropriate form (for example, triangle is converted
 // into line if two points of triangle are merged).
-//    If tolerance is specified precisely=0.0, then this object will use
+//
+// If tolerance is specified precisely=0.0, then this object will use
 // the vtkMergePoints object to merge points (very fast). Otherwise the 
 // slower vtkLocator is used.
 // .SECTION Caveats

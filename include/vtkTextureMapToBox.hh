@@ -57,7 +57,6 @@ class vtkTextureMapToBox : public vtkDataSetToDataSetFilter
 {
 public:
   vtkTextureMapToBox();
-  ~vtkTextureMapToBox() {};
   char *GetClassName() {return "vtkTextureMapToBox";};
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -48,25 +48,40 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #ifndef __vtkSource_h
 #define __vtkSource_h
 
-#include "vtkLWObject.hh"
+#include "vtkObject.hh"
+#include "vtkDataSet.hh"
 
-class vtkSource : public vtkLWObject
+class vtkSource : public vtkObject
 {
 public:
   vtkSource();
-  virtual ~vtkSource() {};
-  char *_GetClassName() {return "vtkSource";};
-  void _PrintSelf(ostream& os, vtkIndent indent);
+  virtual ~vtkSource() { if (this->Output) this->Output->Delete();};
+  char *GetClassName() {return "vtkSource";};
+  void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Bring object up-to-date before execution. Update() checks modified
   // time against last execution time, and re-executes object if necessary.
-  virtual void UpdateFilter();
+  virtual void Update();
 
   void SetStartMethod(void (*f)(void *), void *arg);
   void SetEndMethod(void (*f)(void *), void *arg);
   void SetStartMethodArgDelete(void (*f)(void *));
   void SetEndMethodArgDelete(void (*f)(void *));
+
+  // Description:
+  // Turn on/off flag to control whether this object's data is released
+  // after being used by a source.
+  virtual void SetReleaseDataFlag(int);
+  virtual int GetReleaseDataFlag();
+  vtkBooleanMacro(ReleaseDataFlag,int);
+
+  // Description:
+  // Set/Get flag indicating whether data has been released since last 
+  // execution. Used during update method to determin whether to execute 
+  // or not.
+  virtual int GetDataReleased();
+  virtual void SetDataReleased(int flag);
 
 protected:
   virtual void Execute();
@@ -77,14 +92,8 @@ protected:
   void (*EndMethodArgDelete)(void *);
   void *EndMethodArg;
   vtkTimeStamp ExecuteTime;
-
-  // Get flag indicating whether data has been released since last execution.
-  // Used during update method to determin whether to execute or not.
-  virtual int GetDataReleased();
-  virtual void SetDataReleased(int flag);
-
+  vtkDataSet *Output;
 };
 
 #endif
-
 

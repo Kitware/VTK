@@ -48,26 +48,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "vtkSource.hh"
 #include "vtkUnstructuredGrid.hh"
 
-class vtkUnstructuredGridSource : public vtkSource, public vtkUnstructuredGrid 
+class vtkUnstructuredGridSource : public vtkSource
 {
 public:
+  vtkUnstructuredGridSource();
   char *GetClassName() {return "vtkUnstructuredGridSource";};
-  void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Object interface
-  void Modified();
-  unsigned long int GetMTime();
-  unsigned long int _GetMTime() {return this->GetMTime();};
-  void DebugOn();
-  void DebugOff();
-
-  //DataSet interface
-  void Update();
-
-protected:
-  //Source interface
-  int GetDataReleased();
-  void SetDataReleased(int flag);
+  // Description:
+  // Get the output of this source.
+  vtkUnstructuredGrid *GetOutput() {return (vtkUnstructuredGrid *)this->Output;};
 };
 
 #endif
