@@ -65,7 +65,8 @@ public:
   // Description:
   // Set the pointer from which the image data is imported.
   void SetImportVoidPointer(void *ptr);
-  void *GetImportVoidPointer(); 
+  void *GetImportVoidPointer() {return this->ImportVoidPointer;};
+  
   
   // Description:
   // Set/Get the data type of pixels in the imported data.
@@ -104,17 +105,15 @@ public:
   vtkGetVector3Macro(DataOrigin,float);
 
   // Description:
-  // Set/Get whether the data comes from the imported data starting in the 
-  // lower left corner or upper left corner.
-  vtkBooleanMacro(ImageLowerLeft, int);
-  vtkGetMacro(ImageLowerLeft, int);
-  vtkSetMacro(ImageLowerLeft, int);
-  
-  // Description:
   // This method returns the largest data that can be generated.
-  void UpdateInformation();
+  void ExecuteInformation();
   
 protected:
+  // Description:
+  // Generate more than requested.  Called by the superclass before
+  // an execute, and before output memory is allocated.
+  void ModifyOutputUpdateExtent();
+
   void *ImportVoidPointer;
 
   int NumberOfScalarComponents;
@@ -124,24 +123,10 @@ protected:
   float DataSpacing[3];
   float DataOrigin[3];
   
-  int ImageLowerLeft;
-
   void Execute(vtkImageData *data);
 };
 
-inline void vtkImageImport::SetImportVoidPointer(void *ptr)
-{
-  if (ptr != this->ImportVoidPointer)
-    {
-    this->Modified();
-    }
-  this->ImportVoidPointer = ptr;
-}
 
-inline void *vtkImageImport::GetImportVoidPointer()
-{
-  return this->ImportVoidPointer;
-}
 
 #endif
 

@@ -59,8 +59,6 @@ vtkImageImport::vtkImageImport()
     this->DataSpacing[idx] = 1.0;
     this->DataOrigin[idx] = 0.0;
     }
-  
-  this->ImageLowerLeft = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -103,16 +101,12 @@ void vtkImageImport::PrintSelf(ostream& os, vtkIndent indent)
     os << ", " << this->DataOrigin[idx];
     }
   os << ")\n";
-
-  os << indent << "ImageLowerLeft: " << 
-    (this->ImageLowerLeft ? "On\n" : "Off\n");
-
 }
 
 
 //----------------------------------------------------------------------------
 // This method returns the largest data that can be generated.
-void vtkImageImport::UpdateInformation()
+void vtkImageImport::ExecuteInformation()
 {
   // set the extent
   this->GetOutput()->SetWholeExtent(this->DataExtent);
@@ -129,99 +123,42 @@ void vtkImageImport::UpdateInformation()
     SetNumberOfScalarComponents(this->NumberOfScalarComponents);
 }
 
-// A templated function to import the data and copy it into the output.
-template<class T>
-static void vtkImageImportExecute(vtkImageImport *self, vtkImageData *data, T *inPtr)
-{
-  int i,j;
-
-  int outputExtent[6];
-  int inputExtent[6];
-  data->GetExtent(outputExtent);
-  self->GetDataExtent(inputExtent);
-
-  int inExtX = inputExtent[1]-inputExtent[0]+1;
-  int inExtY = inputExtent[3]-inputExtent[2]+1;
-
-  int outExtX = outputExtent[1]-outputExtent[0]+1;
-  int outExtY = outputExtent[3]-outputExtent[2]+1;
-  int outExtZ = outputExtent[5]-outputExtent[4]+1;
-
-  T *outPtr = (T *)data->GetScalarPointer();
-  T *inPtrTmp,*outPtrTmp;
-
-  int inIncX = self->GetNumberOfScalarComponents();
-  int inIncY = inIncX*inExtX;
-  int inIncZ = inIncY*inExtY;
-
-  int outIncX, outIncY, outIncZ;
-  data->GetIncrements(outIncX, outIncY, outIncZ);
-
-  if (!self->GetImageLowerLeft())
-    { // apply a vertical flip while copying to output
-    for (i = 0; i < outExtZ; i++)
-      {
-      inPtrTmp = inPtr;
-      outPtrTmp = outPtr + outIncY*outExtY;
-      for (j = 0; j < outExtY; j++)
-	{
-	outPtrTmp -= outIncY;
-	memcpy(outPtrTmp,inPtrTmp,outExtX*outIncX*sizeof(T));
-	inPtrTmp += inIncY;
-	}
-      outPtr += outIncZ;
-      inPtr += inIncZ;
-      }
-    }
-  else
-    { // don't apply a vertical flip
-    for (i = 0; i < outExtZ; i++)
-      {
-      inPtrTmp = inPtr;
-      outPtrTmp = outPtr;
-      for (j = 0; j < outExtY; j++)
-	{
-	memcpy(outPtrTmp,inPtrTmp,outExtX*outIncX*sizeof(T));
-	outPtrTmp += outIncY;
-	inPtrTmp += inIncY;
-	}
-      outPtr += outIncZ;
-      inPtr += inIncZ;
-      }
-    }
-}
-
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
 void vtkImageImport::Execute(vtkImageData *data)
 {
   void *ptr = this->GetImportVoidPointer();
-  
-  // Call the correct templated function for the output
-  switch (this->GetDataScalarType())
-    {
-    case VTK_DOUBLE:
-      vtkImageImportExecute(this, data, (double *)(ptr));
-      break;
-    case VTK_FLOAT:
-      vtkImageImportExecute(this, data, (float *)(ptr));
-      break;
-    case VTK_INT:
-      vtkImageImportExecute(this, data, (int *)(ptr));
-      break;
-    case VTK_SHORT:
-      vtkImageImportExecute(this, data, (short *)(ptr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageImportExecute(this, data, (unsigned short *)(ptr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageImportExecute(this, data, (unsigned char *)(ptr));
-      break;
-    default:
-      vtkErrorMacro(<< "Execute: Unknown data type");
-    }   
+  int size = 
+    (this->DataExtent[1] - this->DataExtent[0]+1) *
+    (this->DataExtent[3] - this->DataExtent[2]+1) *
+    (this->DataExtent[5] - this->DataExtent[4]+1) *
+    this->NumberOfScalarComponents;    
+  data->GetPointData()->GetScalars()->GetData()->SetVoidArray(ptr,size,1);
 }
 
 
+void vtkImageImport::SetImportVoidPointer(void *ptr)
+{
+  if (ptr != this->ImportVoidPointer)
+    {
+    this->Modified();
+    }
+  this->ImportVoidPointer = ptr;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageImport::ModifyOutputUpdateExtent()
+{
+  int *wholeExtent, updateExtent[6], idx;
+  
+  this->GetOutput()->GetUpdateExtent(updateExtent);
+  wholeExtent = this->GetOutput()->GetWholeExtent();
+  for (idx = 0; idx < 3; ++idx)
+    {
+    updateExtent[idx*2] = wholeExtent[idx*2];
+    updateExtent[idx*2+1] = wholeExtent[idx*2+1];
+    }
+  this->GetOutput()->SetUpdateExtent(updateExtent);
+  this->Modified();
+}
