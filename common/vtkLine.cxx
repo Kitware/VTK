@@ -208,7 +208,7 @@ void vtkLine::Contour(float value, vtkFloatScalars *cellScalars,
   lineCase = lineCases + index;
   vert = lineCase->verts;
 
-  while ( vert[0] > -1 )
+  if ( vert[0] > -1 )
     {
     t = (value - cellScalars->GetScalar(vert[0])) /
         (cellScalars->GetScalar(vert[1]) - cellScalars->GetScalar(vert[0]));
