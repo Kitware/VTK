@@ -48,6 +48,7 @@ public class vtkPanel extends Canvas implements
     addKeyListener(this);
     super.setSize(200,200);
     rw.SetSize(200,200);
+    addWindowSetObserver(new WindowSetObserver());
   }
 
   public void Report() {
@@ -129,6 +130,9 @@ public class vtkPanel extends Canvas implements
                   lightingset = 1;
                 }
                 RenderCreate(rw);
+                Lock();
+                rw.SetSize(getWidth(), getHeight());
+                UnLock();
                 windowset = 1;
                 // notify observers that we have a renderwindow created
                 windowSetObservable.notifyObservers();
@@ -435,6 +439,17 @@ public class vtkPanel extends Canvas implements
     public boolean hasObservers() {
       return 0 < super.countObservers();
     }
+  }
+
+  private class WindowSetObserver implements Observer {
+    
+    public void update(Observable o, Object arg) {
+      // we know the window is set, so changes to the render window size
+      // will actually take place
+//       if (getWidth() > 0 && getHeight() > 0)
+//         rw.SetSize(getWidth(), getHeight());
+    }
+    
   }
 
 }

@@ -38,6 +38,7 @@ public class TestVTKCanvas extends JPanel {
     frame.getContentPane().add(panel);
     frame.getContentPane().add(panel2);
     frame.pack();
+    frame.setBounds(100, 100, 500, 500);
     frame.setVisible(true);
   }
 }
