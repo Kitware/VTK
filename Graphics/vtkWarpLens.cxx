@@ -67,7 +67,7 @@ void vtkWarpLens::SetKappa(float kappa)
   this->SetK1(kappa);
 }
 
-float vtkWarpLens::GetKappa(float kappa)
+float vtkWarpLens::GetKappa()
 {
   return this->GetK1();
 }

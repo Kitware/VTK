@@ -158,7 +158,7 @@ class VrmlNodeType {
       return vrmlPointerList::AllocateMemory(n);
     }
 
-  void operator delete(void *ptr) {}
+  void operator delete(void *vtkNotUsed(ptr)) {}
 
   typedef struct {
     char *name;
@@ -169,7 +169,7 @@ class VrmlNodeType {
 	return vrmlPointerList::AllocateMemory(n);
       }
     
-    void operator delete(void *ptr) {}
+    void operator delete(void *vtkNotUsed(ptr)) {}
 
   } NameTypeRec;
         
@@ -5334,7 +5334,7 @@ class vtkVRMLUseStruct {
       return vrmlPointerList::AllocateMemory(n);
     }
 
-  void operator delete(void *ptr) {}
+  void operator delete(void *vtkNotUsed(ptr)) {}
 };
 
 VectorType<vtkVRMLUseStruct *> useList;

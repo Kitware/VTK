@@ -271,7 +271,7 @@ public:
       return vrmlPointerList::AllocateMemory(n);
     }
 
-  void operator delete(void *ptr)
+  void operator delete(void *)
     {
     }
 
