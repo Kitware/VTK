@@ -64,6 +64,10 @@ volumeMapper_1_1 SetCroppingRegionFlagsToInvertedFence
 volumeMapper_1_2 SetCroppingRegionFlags 1
 volumeMapper_1_3 SetCroppingRegionFlags 67117057
 
+[ren1 GetCullers] InitTraversal
+set culler [[ren1 GetCullers] GetNextItem]
+$culler SetSortingStyleToBackToFront
+
 ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 3.0
 renWin Render
@@ -80,7 +84,6 @@ iren SetUserMethod {wm deiconify .vtkInteract}
 iren Initialize
 
 wm withdraw .
-
 
 
 
