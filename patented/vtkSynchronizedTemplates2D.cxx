@@ -89,6 +89,7 @@ vtkSynchronizedTemplates2D* vtkSynchronizedTemplates2D::New()
 vtkSynchronizedTemplates2D::vtkSynchronizedTemplates2D()
 {
   this->ContourValues = vtkContourValues::New();
+  this->ComputeScalars = 1;
 }
 
 vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
@@ -313,7 +314,10 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	  x[axis0] = origin[axis0] + spacing[axis0]*(i+t);
 	  x[axis1] = y;
 	  *isect2Ptr = newPts->InsertNextPoint(x);
-	  newScalars->InsertNextScalar(value);
+	  if (newScalars)
+	    {
+	    newScalars->InsertNextScalar(value);
+	    }
 	  }
 	else
 	  {
@@ -329,7 +333,10 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	    x[axis0] = origin[axis0] + spacing[axis0]*i;
 	    x[axis1] = y + spacing[axis1]*t;
 	    *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-	    newScalars->InsertNextScalar(value);
+	    if (newScalars)
+	      {
+	      newScalars->InsertNextScalar(value);
+	      }
 	    }
 	  else
 	    {
@@ -337,7 +344,7 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	    }
 	  }
 	
-	if (j > 0)
+	if (j > min1)
 	  {	  
 	  // now add any lines that need to be added
 	  // basically look at the isect values, 
@@ -383,7 +390,10 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 	  x[axis0] = origin[axis0] + spacing[axis0]*max0;
 	  x[axis1] = y + spacing[axis1]*t;
 	  *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-	  newScalars->InsertNextScalar(value);
+	  if (newScalars)
+	    {
+	    newScalars->InsertNextScalar(value);
+	    }
 	  }
 	else
 	  {
@@ -402,15 +412,16 @@ static void ContourImage(vtkSynchronizedTemplates2D *self,
 //
 void vtkSynchronizedTemplates2D::Execute()
 {
-  vtkImageData *input= this->GetInput();
-  vtkPointData *pd = input->GetPointData();
-  vtkPoints *newPts;
-  vtkCellArray *newLines;
-  vtkScalars *inScalars = pd->GetScalars(), *newScalars;
-  vtkPolyData *output = this->GetOutput();
-  int *ext = input->GetUpdateExtent();
-  int dims[3];
-  int dataSize, estimatedSize;
+  vtkImageData  *input= this->GetInput();
+  vtkPointData  *pd = input->GetPointData();
+  vtkPoints     *newPts;
+  vtkCellArray  *newLines;
+  vtkScalars    *inScalars = pd->GetScalars();
+  vtkScalars    *newScalars = NULL;
+  vtkPolyData   *output = this->GetOutput();
+  int           *ext = input->GetUpdateExtent();
+  int           dims[3];
+  int           dataSize, estimatedSize;
   
 
   vtkDebugMacro(<< "Executing 2D structured contour");
@@ -451,8 +462,11 @@ void vtkSynchronizedTemplates2D::Execute()
   if (inScalars->GetNumberOfComponents() == 1 )
     {
     void *scalars = inScalars->GetVoidPointer(0);
-    newScalars = vtkScalars::SafeDownCast(inScalars->MakeObject());
-    newScalars->Allocate(5000,25000);
+    if (this->ComputeScalars)
+      {
+      newScalars = vtkScalars::SafeDownCast(inScalars->MakeObject());
+      newScalars->Allocate(5000,25000);
+      }
     switch (inScalars->GetDataType())
       {
       vtkTemplateMacro5(ContourImage,this,(VTK_TT *)scalars, newPts,
@@ -464,8 +478,11 @@ void vtkSynchronizedTemplates2D::Execute()
     vtkScalars *image = vtkScalars::New();
     image->Allocate(dataSize);
     inScalars->GetScalars(0,dataSize,image);
-    newScalars = vtkScalars::New(VTK_FLOAT);
-    newScalars->Allocate(5000,25000);
+    if (this->ComputeScalars)
+      {
+      newScalars = vtkScalars::New(VTK_FLOAT);
+      newScalars->Allocate(5000,25000);
+      }
     float *scalars = ((vtkFloatArray *)image->GetData())->GetPointer(0);
     ContourImage(this, scalars, newPts, newScalars, newLines);
     image->Delete();
@@ -484,8 +501,11 @@ void vtkSynchronizedTemplates2D::Execute()
   output->SetLines(newLines);
   newLines->Delete();
 
-  output->GetPointData()->SetScalars(newScalars);
-  newScalars->Delete();
+  if (newScalars)
+    {
+    output->GetPointData()->SetScalars(newScalars);
+    newScalars->Delete();
+    }
 
   output->Squeeze();
 }
@@ -496,6 +516,14 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
   vtkPolyDataSource::PrintSelf(os,indent);
 
   this->ContourValues->PrintSelf(os,indent);
+  if (this->ComputeScalars)
+    {
+    os << indent << "ComputeScalarsOn\n";
+    }
+  else
+    {
+    os << indent << "ComputeScalarsOff\n";  
+    }
 }
 
 

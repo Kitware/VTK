@@ -133,6 +133,13 @@ public:
   void GenerateValues(int numContours, float rangeStart, float rangeEnd)
     {this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);}
 
+  // Description:
+  // Option to set the point scalars of the output.  The scalars will be the 
+  // iso value of course.  By default this flag is on.
+  vtkSetMacro(ComputeScalars,int);
+  vtkGetMacro(ComputeScalars,int);
+  vtkBooleanMacro(ComputeScalars,int);
+
 protected:
   vtkSynchronizedTemplates2D();
   ~vtkSynchronizedTemplates2D();
@@ -141,6 +148,8 @@ protected:
 
   void Execute();
   vtkContourValues *ContourValues;
+
+  int ComputeScalars;
 
 private:
   //BTX
