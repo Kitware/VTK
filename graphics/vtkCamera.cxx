@@ -83,8 +83,9 @@ vtkCamera::vtkCamera()
   this->WindowCenter[0] = 0.0;
   this->WindowCenter[1] = 0.0;
   
-  this->ObliqueAngles[0] = 45.0;
-  this->ObliqueAngles[1] = 90.0;
+  this->ViewShear[0] = 0.0;
+  this->ViewShear[1] = 0.0;
+  this->ViewShear[2] = 1.0;
 
   this->FocalDisk = 1.0;
 
@@ -631,15 +632,43 @@ void vtkCamera::SetWindowCenter(double x, double y)
 //----------------------------------------------------------------------------
 void vtkCamera::SetObliqueAngles(double alpha, double beta)
 {
-  if (this->ObliqueAngles[0] != alpha || this->ObliqueAngles[1] != beta)
-    {
-    this->Modified();
-    this->ViewingRaysModified();
-    this->ObliqueAngles[0] = alpha;
-    this->ObliqueAngles[1] = beta;
+  alpha *= vtkMath::DoubleDegreesToRadians();
+  beta *= vtkMath::DoubleDegreesToRadians();
 
-    this->ComputeViewPlaneNormal();
+  double cotbeta = cos(beta) / sin(beta);
+  double dxdz = cos(alpha) * cotbeta;
+  double dydz = sin(alpha) * cotbeta;
+
+  this->SetViewShear(dxdz, dydz, 1.0);
+}
+
+//----------------------------------------------------------------------------
+// Set the shear transform of the viewing frustum.  Parameters are
+// dx/dz, dy/dz, and center.  center is a factor that describes where
+// to shear around. The distance dshear from the camera where
+// no shear occurs is given by (dshear = center * FocalDistance).
+//
+void vtkCamera::SetViewShear(double dxdz, double dydz, double center)
+{
+  if(dxdz != this->ViewShear[0] || 
+     dydz != this->ViewShear[1] ||
+     center != this->ViewShear[2])
+    {
+      this->Modified();
+      this->ViewingRaysModified();
+
+      this->ViewShear[0] = dxdz;
+      this->ViewShear[1] = dydz;
+      this->ViewShear[2] = center;
+      
+      this->ComputeViewPlaneNormal();
     }
+}
+//----------------------------------------------------------------------------
+
+void vtkCamera::SetViewShear(double d[3]) 
+{
+  this->SetViewShear(d[0], d[1], d[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -703,17 +732,12 @@ void vtkCamera::ComputePerspectiveTransform(double aspect,
       }
     }
 
-  if (this->ObliqueAngles[1] != 90.0)
-    {
-    // apply shear for oblique projections
+  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0) {
+    this->PerspectiveTransform->Shear(this->ViewShear[0],
+				      this->ViewShear[1],
+				      this->ViewShear[2]*this->Distance);
+  }
 
-    double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
-    double beta = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
-
-    this->PerspectiveTransform->Shear(cos(alpha)/tan(beta),
-				      sin(alpha)/tan(beta),
-				      this->Distance);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -763,13 +787,11 @@ vtkMatrix4x4 *vtkCamera::GetCameraLightTransformMatrix()
 //----------------------------------------------------------------------------
 void vtkCamera::ComputeViewPlaneNormal()
 {
-  if (this->ObliqueAngles[1] != 90.0)
+  if (this->ViewShear[0] != 0.0 || this->ViewShear[1] != 0.0)
     {
-    double alpha = this->ObliqueAngles[0]*vtkMath::DoubleDegreesToRadians();
-    double beta = this->ObliqueAngles[1]*vtkMath::DoubleDegreesToRadians();
     // set the VPN in camera coordinates
-    this->ViewPlaneNormal[0] = cos(alpha)/tan(beta);
-    this->ViewPlaneNormal[1] = sin(alpha)/tan(beta);
+    this->ViewPlaneNormal[0] = this->ViewShear[0];
+    this->ViewPlaneNormal[1] = this->ViewShear[1];
     this->ViewPlaneNormal[2] = 1.0;
     // transform the VPN to world coordinates using inverse of view transform
     this->ViewTransform->GetLinearInverse()->TransformNormal(
@@ -862,8 +884,9 @@ void vtkCamera::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FocalDisk: " << this->FocalDisk << "\n";
   os << indent << "FocalPoint: (" << this->FocalPoint[0] << ", " 
      << this->FocalPoint[1] << ", " << this->FocalPoint[2] << ")\n";
-  os << indent << "ObliqueAngles: (" << this->ObliqueAngles[0] << ", " 
-     << this->ObliqueAngles[1] << ")\n";
+  os << indent << "ViewShear: (" << this->ViewShear[0]
+     << ", " << this->ViewShear[1] 
+     << ", " << this->ViewShear[2] << ")\n";
   os << indent << "ParallelProjection: " << 
     (this->ParallelProjection ? "On\n" : "Off\n");
   os << indent << "ParallelScale: " << this->ParallelScale << "\n";

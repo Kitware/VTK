@@ -189,6 +189,8 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // Set/Get the scaling used for a parallel projection, i.e. the height
   // of the viewport in world-coordinate distances. The default is 1.
+  // Note that the "scale" parameter works as an "inverse scale" ---
+  // larger numbers produce smaller images.
   // This method has no effect in perspective projection mode.
   void SetParallelScale(double scale);
   vtkGetMacro(ParallelScale,double);
@@ -239,21 +241,30 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // of projection will follow once projected onto the 2D screen.  
   // The second angle, beta, is the angle between the view plane and
   // the direction of projection.  This creates a shear transform
-  // x' = x + dz*cos(phi)/tan(alpha), y' = dz*sin(phi)/tan(alpha)
+  // x' = x + dz*cos(alpha)/tan(beta), y' = dz*sin(alpha)/tan(beta)
   // where dz is the distance of the point from the focal plane.
-  // The angles are (90,45) by default.  Oblique projections 
-  // commonly use (63.435,30).
+  // The angles are (45,90) by default.  Oblique projections 
+  // commonly use (30,63.435).
   void SetObliqueAngles(double alpha, double beta);
-  vtkGetVector2Macro(ObliqueAngles,double);
 
   // Description:
   // Get the ViewPlaneNormal.  This vector will point opposite to
-  // the direction of projection, unless you have created an oblique
-  // view using SetObliqueAngles.
+  // the direction of projection, unless you have created an sheared output
+  // view using SetViewShear/SetObliqueAngles.
   vtkGetVector3Macro(ViewPlaneNormal,double);
   void GetViewPlaneNormal(float a[3]) {
     double tmp[3]; this->GetViewPlaneNormal(tmp); 
     a[0] = tmp[0]; a[1] = tmp[1]; a[2] = tmp[2]; }; 
+
+
+  // Description:
+  // Set/get the shear transform of the viewing frustum.  Parameters are
+  // dx/dz, dy/dz, and center.  center is a factor that describes where
+  // to shear around. The distance dshear from the camera where
+  // no shear occurs is given by (dshear = center * FocalDistance).
+  void SetViewShear(double dxdz, double dydz, double center);
+  void SetViewShear(double d[3]);
+  vtkGetVector3Macro(ViewShear, double);
 
   // Description:
   // Set/Get the separation between eyes (in degrees). This is used
@@ -328,7 +339,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // Description:
   // These methods have been deprecated.  The view plane normal is 
   // automatically set from the DirectionOfProjection according to
-  // the ObliqueAngles.
+  // the ViewShear.
   void SetViewPlaneNormal(double x, double y, double z);
   void SetViewPlaneNormal(const double a[3]) {
     this->SetViewPlaneNormal(a[0], a[1], a[2]); };
@@ -345,6 +356,7 @@ class VTK_EXPORT vtkCamera : public vtkObject
   // the camera, where the camera is located at (0, 0, 1) looking at the
   // focal point at (0, 0, 0), with up being (0, 1, 0).
   vtkMatrix4x4 *GetCameraLightTransformMatrix();  
+
 
 #ifndef VTK_REMOVE_LEGACY_CODE
   // Description:
@@ -372,8 +384,6 @@ protected:
 					    double nearz, double farz);
   void ComputeCameraLightTransform();
 
-
-
   double WindowCenter[2];
   double ObliqueAngles[2];
   double FocalPoint[3];
@@ -390,6 +400,7 @@ protected:
   double Distance;
   double DirectionOfProjection[3];
   double ViewPlaneNormal[3];
+  double ViewShear[3];
 
   vtkTransform *ViewTransform;
   vtkPerspectiveTransform *PerspectiveTransform;
