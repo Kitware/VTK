@@ -34,7 +34,7 @@ vtkImageWindow imgWin
   imgWin Render
 
 vtkWindowToImageFilter windowToImage
-  windowToImage SetInput imgwin
+  windowToImage SetInput imgWin
 vtkTIFFWriter tiffimage
   tiffimage SetInput [windowToImage GetOutput]
   tiffimage SetFileName TestRenderRectangle.tcl.tif
