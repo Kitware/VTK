@@ -30,11 +30,14 @@
 #include "vtkRenderer.h"
 #include "vtkToolkits.h"
 #include "vtkVolume.h"
+#include "vtkVolumeProperty.h"
+#include "vtkImageData.h"
+#include "vtkTransform.h"
 
 #include <stdio.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.20");
+vtkCxxRevisionMacro(vtkVolumeProVP1000Mapper, "1.21");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.

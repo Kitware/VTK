@@ -53,8 +53,8 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
 protected:
-  vtkOpenGLVolumeProVP1000Mapper();
-  ~vtkOpenGLVolumeProVP1000Mapper();
+  vtkOpenGLVolumeProVP1000Mapper() {}
+  ~vtkOpenGLVolumeProVP1000Mapper() {}
 
   // Render the hexagon returned by the hardware to the screen.
   void RenderImageBuffer( vtkRenderer  *ren,
