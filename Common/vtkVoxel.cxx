@@ -27,7 +27,7 @@
 #include "vtkPointLocator.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkVoxel, "1.76");
+vtkCxxRevisionMacro(vtkVoxel, "1.77");
 vtkStandardNewMacro(vtkVoxel);
 
 // Construct the voxel with eight points.
@@ -559,4 +559,14 @@ void vtkVoxel::GetEdgePoints(int edgeId, int* &pts)
 void vtkVoxel::GetFacePoints(int faceId, int* &pts)
 {
   pts = this->GetFaceArray(faceId);
+}
+
+static float CellPCoords[24] = {0.0,0.0,0.0, 1.0,0.0,0.0,
+                                0.0,1.0,0.0, 1.0,1.0,0.0, 
+                                0.0,0.0,1.0, 1.0,0.0,1.0,
+                                0.0,1.0,1.0, 1.0,1.0,1.0};
+
+float *vtkVoxel::GetParametricCoords()
+{
+  return CellPCoords;
 }
