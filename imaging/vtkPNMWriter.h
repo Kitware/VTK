@@ -39,7 +39,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 =========================================================================*/
-// .NAME vtkPNMWriter - Writes no PNM (portable any map)  files.
+// .NAME vtkPNMWriter - Writes PNM (portable any map)  files.
 // .SECTION Description
 // vtkPNMWriter writes PNM file. The data type
 // of the file is unsigned char regardless of the input type.
