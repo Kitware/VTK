@@ -101,6 +101,7 @@ void vtkImageGradient::ExecuteInformation(vtkImageData *inData,
     }
 
   outData->SetWholeExtent(extent);
+  outData->SetScalarType(VTK_FLOAT);
   outData->SetNumberOfScalarComponents(this->Dimensionality);
 }
 
@@ -145,7 +146,7 @@ void vtkImageGradient::ComputeInputUpdateExtent(int inExt[6],
 template <class T>
 static void vtkImageGradientExecute(vtkImageGradient *self,
 				    vtkImageData *inData, T *inPtr,
-				    vtkImageData *outData, T *outPtr,
+				    vtkImageData *outData, float *outPtr,
 				    int outExt[6], int id)
 {
   int idxX, idxY, idxZ;
@@ -249,16 +250,16 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
 				       int outExt[6], int id)
 {
   void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  void *outPtr = outData->GetScalarPointerForExtent(outExt);
+  float *outPtr = (float *)(outData->GetScalarPointerForExtent(outExt));
   
   vtkDebugMacro(<< "Execute: inData = " << inData 
 		<< ", outData = " << outData);
   
   // this filter expects that input is the same type as output.
-  if (inData->GetScalarType() != outData->GetScalarType())
+  if (outData->GetScalarType() != VTK_FLOAT)
     {
-    vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
-    << ", must match out ScalarType " << outData->GetScalarType());
+    vtkErrorMacro(<< "Execute: output ScalarType, " << outData->GetScalarType()
+                  << ", must be float\n");
     return;
     }
   
@@ -271,7 +272,7 @@ void vtkImageGradient::ThreadedExecute(vtkImageData *inData,
   switch (inData->GetScalarType())
     {
     vtkTemplateMacro7(vtkImageGradientExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
+                      (VTK_TT *)(inPtr), outData, outPtr, 
                       outExt, id);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
