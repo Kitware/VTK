@@ -85,15 +85,17 @@ IF (UNIX)
 ENDIF (UNIX)
 
 #
-# Look for the PNG, zlib, and jpeg libraries and header files
+# Look for the PNG, zlib, jpeg, and tiff libraries and header files
 #
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/zlib)
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/png)
 INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/jpeg)
+INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Utilities/tiff)
 IF (NOT VTK_LIBRARY_PATH)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/png)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/zlib)
   LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/jpeg)
+  LINK_DIRECTORIES(${VTK_BINARY_DIR}/Utilities/tiff)
 ENDIF (NOT VTK_LIBRARY_PATH)
 
 #
