@@ -177,49 +177,6 @@ public:
   virtual void SetAxisLabelTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(AxisLabelTextProperty,vtkTextProperty);
       
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Set/Get the font family. Three font types are allowed: Arial (VTK_ARIAL),
-  // Courier (VTK_COURIER), and Times (VTK_TIMES).
-  // Warning: these functions remain for backward compatibility. Use the
-  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
-  virtual void SetFontFamily(int val);
-  virtual int GetFontFamily();
-  void SetFontFamilyToArial()   { this->SetFontFamily(VTK_ARIAL);  };
-  void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
-  void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
-#endif
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Enable/disable text bolding.
-  // Warning: these functions remain for backward compatibility. Use the
-  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
-  virtual void SetBold(int val);
-  virtual int GetBold();
-  vtkBooleanMacro(Bold, int);
-#endif
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Enable/disable text italic.
-  // Warning: these functions remain for backward compatibility. Use the
-  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
-  virtual void SetItalic(int val);
-  virtual int GetItalic();
-  vtkBooleanMacro(Italic, int);
-#endif
-
-#ifndef VTK_REMOVE_LEGACY_CODE
-  // Description:
-  // Enable/disable text shadows.
-  // Warning: these functions remain for backward compatibility. Use the
-  // vtkTextProperty through the (Set/Get)(Title/Label)TextProperty() methods.
-  virtual void SetShadow(int val);
-  virtual int GetShadow();
-  vtkBooleanMacro(Shadow, int);
-#endif
-  
   // Description:
   // Set/Get the format with which to print the labels on each of the
   // x-y-z axes.
