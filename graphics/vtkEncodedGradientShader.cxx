@@ -348,6 +348,17 @@ void vtkEncodedGradientShader::UpdateShadingTable( vtkRenderer *ren,
 			     material, gradest, update_flag );
       
     update_flag = 1;
+
+    if ( ren->GetTwoSidedLighting() )
+      {
+      light_direction[0] = -light_direction[0];
+      light_direction[1] = -light_direction[1];
+      light_direction[2] = -light_direction[2];
+
+      this->BuildShadingTable( index, light_direction, light_color, 
+			       light_intensity, view_direction,
+			       material, gradest, update_flag );
+      }
     }
 
   transform->Delete();
