@@ -91,11 +91,7 @@ public:
   // Override superclass input methods
   virtual void SetInput(vtkDataObject *) 
     { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
-  virtual void SetInput(vtkDataSet*)
-    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
   virtual void SetInput(int, vtkDataObject*)
-    { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
-  virtual void SetInput(int, vtkDataSet*)
     { vtkErrorMacro( "Bad input for WindowToImageFilter"); };
 
 protected:

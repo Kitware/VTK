@@ -44,6 +44,13 @@ public:
   // Returns which renderer is being used as the source for the pixel data.
   vtkGetObjectMacro(Input,vtkRenderer);
 
+  // Description
+  // Override superclass input methods
+  virtual void SetInput(vtkDataObject *) 
+    { vtkErrorMacro( "Bad input for RenderLargeImage"); };
+  virtual void SetInput(int, vtkDataObject*)
+    { vtkErrorMacro( "Bad input for RenderLargeImage"); };
+
 protected:
   vtkRenderLargeImage();
   ~vtkRenderLargeImage();
