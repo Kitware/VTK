@@ -385,7 +385,7 @@ int vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
   this->Types->InsertNextValue((unsigned char) type);
   //return the number of cells
-  return this->GetNumberOfCells();
+  return this->GetNumberOfCells()-1;
 
 }
 
@@ -400,7 +400,7 @@ int vtkUnstructuredGrid::InsertNextCell(int type, int npts, int *pts)
   this->Locations->InsertNextValue(this->Connectivity->GetInsertLocation(npts));
   this->Types->InsertNextValue((unsigned char) type);
   //return the number of cells
-  return this->GetNumberOfCells();
+  return this->GetNumberOfCells()-1;
 
 }
 
@@ -518,6 +518,7 @@ void vtkUnstructuredGrid::GetCellPoints(int cellId, int& npts, int* &pts)
   int loc;
 
   loc = this->Locations->GetValue(cellId);
+
   this->Connectivity->GetCell(loc,npts,pts);
 }
 
