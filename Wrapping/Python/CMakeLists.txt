@@ -57,6 +57,13 @@ IF (CMAKE_MAJOR_VERSION MATCHES [1-9][0-9]*)
         ENDIF (VTK_USE_PARALLEL)
       ENDIF (VTK_WRAP_TCL)
     
+      FIND_LIBRARY(UTIL_LIBRARY
+        NAMES util
+        PATHS /usr/lib
+      )
+      IF (VTK_USE_PARALLEL)
+        TARGET_LINK_LIBRARIES(vtkpython ${UTIL_LIBRARY})
+      ENDIF (VTK_USE_PARALLEL) 
       INSTALL_TARGETS(/bin vtkpython)
     
     ENDIF (VTK_BUILD_PYTHON_EXECUTABLE)
