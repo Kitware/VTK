@@ -92,8 +92,9 @@ void vtkFeatureEdges::Execute()
   vtkFloatArray *newScalars = NULL;
   vtkCellArray *newLines;
   vtkPolyData *Mesh;
-  int i, j, numNei, cellId;
-  int numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
+  int i;
+  vtkIdType j, numNei, cellId;
+  vtkIdType numBEdges, numNonManifoldEdges, numFedges, numManifoldEdges;
   float scalar, n[3], x1[3], x2[3];
   float cosAngle = 0;
   vtkIdType lineIds[2];
@@ -101,9 +102,9 @@ void vtkFeatureEdges::Execute()
   vtkIdType *pts;
   vtkCellArray *inPolys, *inStrips, *newPolys;
   vtkFloatArray *polyNormals = NULL;
-  int numPts, numCells, numPolys, numStrips, nei;
+  vtkIdType numPts, numCells, numPolys, numStrips, nei;
   vtkIdList *neighbors;
-  int p1, p2, newId;
+  vtkIdType p1, p2, newId;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
@@ -222,7 +223,7 @@ void vtkFeatureEdges::Execute()
   neighbors->Allocate(VTK_CELL_SIZE);
 
   int abort=0;
-  int progressInterval=numCells/20+1;
+  vtkIdType progressInterval=numCells/20+1;
 
   numBEdges = numNonManifoldEdges = numFedges = numManifoldEdges = 0;
   for (cellId=0, newPolys->InitTraversal(); 

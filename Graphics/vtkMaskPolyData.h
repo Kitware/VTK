@@ -63,8 +63,8 @@ public:
 
   // Description:
   // Start with this entity (cell).
-  vtkSetClampMacro(Offset,int,0,VTK_LARGE_INTEGER);
-  vtkGetMacro(Offset,int);
+  vtkSetClampMacro(Offset,vtkIdType,0,VTK_LARGE_ID);
+  vtkGetMacro(Offset,vtkIdType);
 
 protected:
   vtkMaskPolyData();
@@ -74,7 +74,7 @@ protected:
 
   void Execute();
   int OnRatio; // every OnRatio entity is on; all others are off.
-  int Offset;  // offset (or starting point id)
+  vtkIdType Offset;  // offset (or starting point id)
 };
 
 #endif

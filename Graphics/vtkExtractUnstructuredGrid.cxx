@@ -61,10 +61,10 @@ vtkExtractUnstructuredGrid* vtkExtractUnstructuredGrid::New()
 vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
 {
   this->PointMinimum = 0;
-  this->PointMaximum = VTK_LARGE_INTEGER;
+  this->PointMaximum = VTK_LARGE_ID;
 
   this->CellMinimum = 0;
-  this->CellMaximum = VTK_LARGE_INTEGER;
+  this->CellMaximum = VTK_LARGE_ID;
 
   this->Extent[0] = -VTK_LARGE_FLOAT;
   this->Extent[1] = VTK_LARGE_FLOAT;
@@ -83,7 +83,7 @@ vtkExtractUnstructuredGrid::vtkExtractUnstructuredGrid()
 
 // Specify a (xmin,xmax, ymin,ymax, zmin,zmax) bounding box to clip data.
 void vtkExtractUnstructuredGrid::SetExtent(float xMin,float xMax, float yMin,
-                                     float yMax, float zMin, float zMax)
+                                           float yMax, float zMin, float zMax)
 {
   float extent[6];
 
@@ -103,8 +103,8 @@ void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
   int i;
 
   if ( extent[0] != this->Extent[0] || extent[1] != this->Extent[1] ||
-  extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
-  extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
+       extent[2] != this->Extent[2] || extent[3] != this->Extent[3] ||
+       extent[4] != this->Extent[4] || extent[5] != this->Extent[5] )
     {
     this->Modified();
     for (i=0; i<3; i++)
@@ -123,24 +123,24 @@ void vtkExtractUnstructuredGrid::SetExtent(float extent[6])
 // cell data.
 void vtkExtractUnstructuredGrid::Execute()
 {
-  int cellId, i, newCellId;
+  vtkIdType cellId, i, newCellId;
   vtkIdType newPtId;
   vtkUnstructuredGrid *input=this->GetInput();
-  int numPts=input->GetNumberOfPoints();
-  int numCells=input->GetNumberOfCells();
+  vtkIdType numPts=input->GetNumberOfPoints();
+  vtkIdType numCells=input->GetNumberOfCells();
   vtkPoints *inPts=input->GetPoints(), *newPts;
   char *cellVis;
   vtkCell *cell;
   float *x;
   vtkIdList *ptIds, *cellIds=vtkIdList::New();
-  int ptId;
+  vtkIdType ptId;
   vtkPointData *pd = input->GetPointData();
   vtkCellData *cd = input->GetCellData();
   int allVisible, numIds;
   vtkUnstructuredGrid *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int *pointMap = NULL;
+  vtkIdType *pointMap = NULL;
   
   vtkDebugMacro(<<"Executing geometry filter");
 
@@ -218,7 +218,7 @@ void vtkExtractUnstructuredGrid::Execute()
     }
   else
     {
-    pointMap = new int[numPts];
+    pointMap = new vtkIdType[numPts];
     for (i=0; i<numPts; i++)
       {
       pointMap[i] = (-1); //initialize as unused
@@ -363,4 +363,3 @@ void vtkExtractUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Locator: (none)\n";
     }
 }
-

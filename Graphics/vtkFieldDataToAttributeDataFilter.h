@@ -223,7 +223,8 @@ public:
   // the data to use from the other data array; normalize is a flag that when
   // set will normalize the data between (0,1).
   static int ConstructArray(vtkDataArray *da, int comp, vtkDataArray *frray,
-		     int fieldComp, int min, int max, int normalize);
+                            int fieldComp, vtkIdType min, vtkIdType max,
+                            int normalize);
 
   // Description:
   // Return an array of a particular name from field data and do error checking.

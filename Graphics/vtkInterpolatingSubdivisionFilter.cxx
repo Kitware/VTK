@@ -52,7 +52,7 @@ vtkInterpolatingSubdivisionFilter::vtkInterpolatingSubdivisionFilter()
 
 void vtkInterpolatingSubdivisionFilter::Execute()
 {
-  int numPts, numCells;
+  vtkIdType numPts, numCells;
   int level;
   vtkPoints *outputPts;
   vtkCellArray *outputPolys;
@@ -85,13 +85,12 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   //
 
   vtkPolyData *inputDS = vtkPolyData::New();
-    inputDS->CopyStructure (input);
-    inputDS->GetPointData()->PassData(input->GetPointData());
-    inputDS->GetCellData()->PassData(input->GetCellData());
+  inputDS->CopyStructure (input);
+  inputDS->GetPointData()->PassData(input->GetPointData());
+  inputDS->GetCellData()->PassData(input->GetCellData());
 
   for (level = 0; level < this->NumberOfSubdivisions; level++)
     {
-
     // Generate topology  for the input dataset
     inputDS->BuildLinks();
     numCells = inputDS->GetNumberOfCells ();
@@ -103,7 +102,8 @@ void vtkInterpolatingSubdivisionFilter::Execute()
 
     // Copy pointdata structure from input
     outputPD = vtkPointData::New();
-    outputPD->CopyAllocate(inputDS->GetPointData(),2*inputDS->GetNumberOfPoints());
+    outputPD->CopyAllocate(inputDS->GetPointData(),
+                           2*inputDS->GetNumberOfPoints());
 
     // Copy celldata structure from input
     outputCD = vtkCellData::New();
@@ -139,14 +139,17 @@ void vtkInterpolatingSubdivisionFilter::Execute()
   inputDS->Delete();
 }
 
-int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh, int cellId, int p1, int p2, vtkIntArray *edgeData, vtkIdList *cellIds)
+int vtkInterpolatingSubdivisionFilter::FindEdge (vtkPolyData *mesh,
+                                                 vtkIdType cellId,
+                                                 vtkIdType p1, vtkIdType p2,
+                                                 vtkIntArray *edgeData,
+                                                 vtkIdList *cellIds)
 {
- 
   int edgeId = 0;
   int currentCellId = 0;
   int i;
   int numEdges;
-  int tp1, tp2;
+  vtkIdType tp1, tp2;
   vtkCell *cell;
 
   // get all the cells that use the edge (except for cellId)
@@ -201,8 +204,9 @@ vtkIdType vtkInterpolatingSubdivisionFilter::InterpolatePosition (
 
 void vtkInterpolatingSubdivisionFilter::GenerateSubdivisionCells (vtkPolyData *inputDS, vtkIntArray *edgeData, vtkCellArray *outputPolys, vtkCellData *outputCD)
 {
-  int numCells = inputDS->GetNumberOfCells();
-  int cellId, newId, id;
+  vtkIdType numCells = inputDS->GetNumberOfCells();
+  vtkIdType cellId, newId;
+  int id;
   vtkIdType npts;
   vtkIdType *pts;
   float edgePts[3];

@@ -66,8 +66,8 @@ void vtkGlyph2D::Execute()
   vtkDataArray *inVectors;
   unsigned char* inGhostLevels = 0;
   vtkDataArray *inNormals, *sourceNormals = NULL;
-  int numPts, numSourcePts, numSourceCells;
-  int inPtId, i, index;
+  vtkIdType numPts, numSourcePts, numSourceCells, inPtId, i;
+  int index;
   vtkPoints *sourcePts = NULL;
   vtkPoints *newPts;
   vtkDataArray *newScalars=NULL;
@@ -79,7 +79,8 @@ void vtkGlyph2D::Execute()
   vtkIdList *cellPts;
   int npts;
   vtkIdList *pts;
-  int haveVectors, haveNormals, ptIncr, cellId;
+  vtkIdType ptIncr, cellId;
+  int haveVectors, haveNormals;
   float scalex,scaley, den;
   vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();

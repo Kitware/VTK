@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-//------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkExtractTensorComponents* vtkExtractTensorComponents::New()
 {
   // First try to create the object from the vtkObjectFactory
@@ -58,9 +58,6 @@ vtkExtractTensorComponents* vtkExtractTensorComponents::New()
   // If the factory was unable to create the object, then create it here.
   return new vtkExtractTensorComponents;
 }
-
-
-
 
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.
@@ -106,7 +103,7 @@ void vtkExtractTensorComponents::Execute()
   vtkFloatArray *newVectors=NULL;
   vtkFloatArray *newNormals=NULL;
   vtkFloatArray *newTCoords=NULL;
-  int ptId, numPts;
+  vtkIdType ptId, numPts;
   float sx, sy, sz, txy, tyz, txz;
 
   // Initialize
@@ -182,7 +179,8 @@ void vtkExtractTensorComponents::Execute()
         tyz = tensor[7];
         txz = tensor[6];
 
-        s = sqrt (0.16666667 * ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) + (sz-sx)*(sz-sx) + 
+        s = sqrt (0.16666667 * ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
+                                (sz-sx)*(sz-sx) +
                                 6.0*(txy*txy + tyz*tyz + txz*txz)));
         }
 
@@ -217,7 +215,8 @@ void vtkExtractTensorComponents::Execute()
       {
       for ( int i=0; i < this->NumberOfTCoords; i++ )
         {
-        v[i] = tensor[this->TCoordComponents[2*i]+3*this->TCoordComponents[2*i+1]];
+        v[i] = tensor[this->TCoordComponents[2*i]+3*
+                     this->TCoordComponents[2*i+1]];
         }
       newTCoords->SetTuple(ptId, v);
       }
