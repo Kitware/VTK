@@ -43,7 +43,13 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include <fcntl.h>
 #include <stdlib.h>
 #include <errno.h>
