@@ -85,6 +85,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkWin32OpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
+#include "vtkOpenGLVolumeRayCastMapper.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkWin32RenderWindowInteractor.h"
 #else
@@ -99,6 +100,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vtkQuartzRenderWindow.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVolumeTextureMapper2D.h"
+#include "vtkOpenGLVolumeRayCastMapper.h"
 #include "vtkOpenGLProjectedPolyDataRayBounder.h"
 #include "vtkQuartzRenderWindowInteractor.h"
 #else
@@ -266,6 +268,10 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       {
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
+    if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
+      {
+      return vtkOpenGLVolumeRayCastMapper::New();
+      }
     }
 #endif
 	
@@ -315,6 +321,10 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
       return vtkMesaVolumeTextureMapper2D::New();
+      }
+    if(strcmp(vtkclassname, "vtkVolumeRayCastMapper") == 0)
+      {
+      return vtkMesaVolumeRayCastMapper::New();
       }
     }
 #endif

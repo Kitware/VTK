@@ -305,8 +305,8 @@ void trilin_line_intersection( float start[3], float vec[3],
 template <class T>
 static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
 			 T *data_ptr,
-			 VTKRayCastRayInfo *rayInfo,
-			 VTKRayCastVolumeInfo *volumeInfo )
+			 VTKVRCDynamicInfo *dynamicInfo,
+			 VTKVRCStaticInfo *staticInfo )
 {
 
   unsigned short  *encoded_normals;
@@ -335,20 +335,20 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   float     texcoord[3];
 
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
 
-  rayInfo->Color[0] = 0.0;
-  rayInfo->Color[1] = 0.0;
-  rayInfo->Color[2] = 0.0;
-  rayInfo->Color[3] = 0.0;
-  rayInfo->NumberOfStepsTaken = 0;
+  dynamicInfo->Color[0] = 0.0;
+  dynamicInfo->Color[1] = 0.0;
+  dynamicInfo->Color[2] = 0.0;
+  dynamicInfo->Color[3] = 0.0;
+  dynamicInfo->NumberOfStepsTaken = 0;
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position_x = ray_start[0];
@@ -367,9 +367,9 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_direction_y = ray_increment[1];
   ray_direction_z = ray_increment[2];
 
-  x_voxels = volumeInfo->DataSize[0];
-  y_voxels = volumeInfo->DataSize[1];
-  z_voxels = volumeInfo->DataSize[2];
+  x_voxels = staticInfo->DataSize[0];
+  y_voxels = staticInfo->DataSize[1];
+  z_voxels = staticInfo->DataSize[2];
       
   if ( voxel_x >= x_voxels - 1 ||
        voxel_y >= y_voxels - 1 ||
@@ -447,68 +447,68 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  // Store the color in volumeRed, volumeGreen, volumeBlue
 	  // This may come from the color value for this isosurface,
 	  // or from the texture (or a blend of these two)
-	  if ( volumeInfo->RGBDataPointer )
+	  if ( staticInfo->RGBDataPointer )
 	    {
 	    texcoord[0] = 
-	      ( voxel_x * volumeInfo->DataSpacing[0] + volumeInfo->DataOrigin[0] -
-		volumeInfo->RGBDataOrigin[0] ) / volumeInfo->RGBDataSpacing[0];
+	      ( voxel_x * staticInfo->DataSpacing[0] + staticInfo->DataOrigin[0] -
+		staticInfo->RGBDataOrigin[0] ) / staticInfo->RGBDataSpacing[0];
 	    texcoord[1] = 
-	      ( voxel_y * volumeInfo->DataSpacing[1] + volumeInfo->DataOrigin[1] -
-		volumeInfo->RGBDataOrigin[1] ) / volumeInfo->RGBDataSpacing[1];
+	      ( voxel_y * staticInfo->DataSpacing[1] + staticInfo->DataOrigin[1] -
+		staticInfo->RGBDataOrigin[1] ) / staticInfo->RGBDataSpacing[1];
 	    texcoord[2] = 
-	      ( voxel_z * volumeInfo->DataSpacing[2] + volumeInfo->DataOrigin[2] -
-		volumeInfo->RGBDataOrigin[2] ) / volumeInfo->RGBDataSpacing[2];
-	    if ( texcoord[0] >= 0 && texcoord[0] < volumeInfo->RGBDataSize[0] &&
-		 texcoord[1] >= 0 && texcoord[1] < volumeInfo->RGBDataSize[1] &&
-		 texcoord[2] >= 0 && texcoord[2] < volumeInfo->RGBDataSize[2] )
+	      ( voxel_z * staticInfo->DataSpacing[2] + staticInfo->DataOrigin[2] -
+		staticInfo->RGBDataOrigin[2] ) / staticInfo->RGBDataSpacing[2];
+	    if ( texcoord[0] >= 0 && texcoord[0] < staticInfo->RGBDataSize[0] &&
+		 texcoord[1] >= 0 && texcoord[1] < staticInfo->RGBDataSize[1] &&
+		 texcoord[2] >= 0 && texcoord[2] < staticInfo->RGBDataSize[2] )
 	      {
 	      offset =
-		( (int)texcoord[0] * volumeInfo->RGBDataIncrement[0] + 
-		  (int)texcoord[1] * volumeInfo->RGBDataIncrement[1] +
-		  (int)texcoord[2] * volumeInfo->RGBDataIncrement[2] );
+		( (int)texcoord[0] * staticInfo->RGBDataIncrement[0] + 
+		  (int)texcoord[1] * staticInfo->RGBDataIncrement[1] +
+		  (int)texcoord[2] * staticInfo->RGBDataIncrement[2] );
 	      volumeRed   = 
-		volumeInfo->RGBTextureCoefficient * 
-		(float)*(volumeInfo->RGBDataPointer + offset   ) / 255.0 + 
-		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[0];
+		staticInfo->RGBTextureCoefficient * 
+		(float)*(staticInfo->RGBDataPointer + offset   ) / 255.0 + 
+		( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[0];
 	      volumeGreen   = 
-		volumeInfo->RGBTextureCoefficient * 
-		(float)*(volumeInfo->RGBDataPointer + offset + 1) / 255.0 + 
-		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[1];
+		staticInfo->RGBTextureCoefficient * 
+		(float)*(staticInfo->RGBDataPointer + offset + 1) / 255.0 + 
+		( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[1];
 	      volumeBlue   = 
-		volumeInfo->RGBTextureCoefficient * 
-		(float)*(volumeInfo->RGBDataPointer + offset + 2) / 255.0 + 
-		( 1.0 - volumeInfo->RGBTextureCoefficient ) * volumeInfo->Color[2];
+		staticInfo->RGBTextureCoefficient * 
+		(float)*(staticInfo->RGBDataPointer + offset + 2) / 255.0 + 
+		( 1.0 - staticInfo->RGBTextureCoefficient ) * staticInfo->Color[2];
 	      
 	      }
 	    else
 	      {
-	      volumeRed   = volumeInfo->Color[0];
-	      volumeGreen = volumeInfo->Color[1];
-	      volumeBlue  = volumeInfo->Color[2];
+	      volumeRed   = staticInfo->Color[0];
+	      volumeGreen = staticInfo->Color[1];
+	      volumeBlue  = staticInfo->Color[2];
 	      }
 	    }
 	  else
 	    {
-	    volumeRed   = volumeInfo->Color[0];
-	    volumeGreen = volumeInfo->Color[1];
-	    volumeBlue  = volumeInfo->Color[2];
+	    volumeRed   = staticInfo->Color[0];
+	    volumeGreen = staticInfo->Color[1];
+	    volumeBlue  = staticInfo->Color[2];
 	    }
 
 
-	  if ( volumeInfo->Shading )
+	  if ( staticInfo->Shading )
 	    {
 	      // Get diffuse shading table pointers
-	      red_d_shade = volumeInfo->RedDiffuseShadingTable;
-	      green_d_shade = volumeInfo->GreenDiffuseShadingTable;
-	      blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+	      red_d_shade = staticInfo->RedDiffuseShadingTable;
+	      green_d_shade = staticInfo->GreenDiffuseShadingTable;
+	      blue_d_shade = staticInfo->BlueDiffuseShadingTable;
 	  
 	      // Get specular shading table pointers
-	      red_s_shade = volumeInfo->RedSpecularShadingTable;
-	      green_s_shade = volumeInfo->GreenSpecularShadingTable;
-	      blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+	      red_s_shade = staticInfo->RedSpecularShadingTable;
+	      green_s_shade = staticInfo->GreenSpecularShadingTable;
+	      blue_s_shade = staticInfo->BlueSpecularShadingTable;
 	      
 	      // Get a pointer to the encoded normals for this volume
-	      encoded_normals = volumeInfo->EncodedNormals;
+	      encoded_normals = staticInfo->EncodedNormals;
 	      
 
 	      // Set up the offset into the normal array
@@ -523,18 +523,18 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      b = blue_d_shade[*(encoded_normals + offset)] 
 		* volumeBlue + blue_s_shade[*(encoded_normals + offset)];
 
-	      rayInfo->Color[0] = ( r > 1.0 ) ? 1.0 : r;
-	      rayInfo->Color[1] = ( g > 1.0 ) ? 1.0 : g;
-	      rayInfo->Color[2] = ( b > 1.0 ) ? 1.0 : b;
-	      rayInfo->Color[3] = 1.0;
+	      dynamicInfo->Color[0] = ( r > 1.0 ) ? 1.0 : r;
+	      dynamicInfo->Color[1] = ( g > 1.0 ) ? 1.0 : g;
+	      dynamicInfo->Color[2] = ( b > 1.0 ) ? 1.0 : b;
+	      dynamicInfo->Color[3] = 1.0;
 	    }
 	  else 
 	    {
 	      // No shading
-	      rayInfo->Color[0] = volumeRed;
-	      rayInfo->Color[1] = volumeGreen;
-	      rayInfo->Color[2] = volumeBlue;
-	      rayInfo->Color[3] = 1.0;
+	      dynamicInfo->Color[0] = volumeRed;
+	      dynamicInfo->Color[1] = volumeGreen;
+	      dynamicInfo->Color[2] = volumeBlue;
+	      dynamicInfo->Color[3] = 1.0;
 	    }
 	}
       
@@ -613,7 +613,7 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	}
     }
 
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
 }
 // This is the templated function that actually casts a ray and computes
@@ -622,8 +622,8 @@ static void CastRay_NN ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 template <class T>
 static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function, 
 			     T *data_ptr, 
-			     VTKRayCastRayInfo *rayInfo,
-			     VTKRayCastVolumeInfo *volumeInfo )
+			     VTKVRCDynamicInfo *dynamicInfo,
+			     VTKVRCStaticInfo *staticInfo )
 {
   LineIntersectInfo  line_info;
   unsigned short  *encoded_normals, *nptr;
@@ -659,20 +659,20 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   int       rgbBinc, rgbCinc, rgbDinc, rgbEinc, rgbFinc, rgbGinc, rgbHinc;
   unsigned char *rgbptr;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
 
-  rayInfo->Color[0] = 0.0;
-  rayInfo->Color[1] = 0.0;
-  rayInfo->Color[2] = 0.0;
-  rayInfo->Color[3] = 0.0;
-  rayInfo->NumberOfStepsTaken = 0;
+  dynamicInfo->Color[0] = 0.0;
+  dynamicInfo->Color[1] = 0.0;
+  dynamicInfo->Color[2] = 0.0;
+  dynamicInfo->Color[3] = 0.0;
+  dynamicInfo->NumberOfStepsTaken = 0;
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position_x = ray_start[0];
@@ -691,9 +691,9 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
   ray_direction_y = ray_increment[1];
   ray_direction_z = ray_increment[2];
 
-  x_voxels = volumeInfo->DataSize[0];
-  y_voxels = volumeInfo->DataSize[1];
-  z_voxels = volumeInfo->DataSize[2];
+  x_voxels = staticInfo->DataSize[0];
+  y_voxels = staticInfo->DataSize[1];
+  z_voxels = staticInfo->DataSize[2];
       
   if ( voxel_x >= x_voxels - 1 ||
        voxel_y >= y_voxels - 1 ||
@@ -823,25 +823,25 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	  // Store the color in volumeRed, volumeGreen, volumeBlue
 	  // This may come from the color value for this isosurface,
 	  // or from the texture (or a blend of these two)
-	  if ( volumeInfo->RGBDataPointer )
+	  if ( staticInfo->RGBDataPointer )
 	    {
 	    texcoord[0] = 
-	      ( point_x * volumeInfo->DataSpacing[0] + volumeInfo->DataOrigin[0] -
-		volumeInfo->RGBDataOrigin[0] ) / volumeInfo->RGBDataSpacing[0];
+	      ( point_x * staticInfo->DataSpacing[0] + staticInfo->DataOrigin[0] -
+		staticInfo->RGBDataOrigin[0] ) / staticInfo->RGBDataSpacing[0];
 	    texcoord[1] = 
-	      ( point_y * volumeInfo->DataSpacing[1] + volumeInfo->DataOrigin[1] -
-		volumeInfo->RGBDataOrigin[1] ) / volumeInfo->RGBDataSpacing[1];
+	      ( point_y * staticInfo->DataSpacing[1] + staticInfo->DataOrigin[1] -
+		staticInfo->RGBDataOrigin[1] ) / staticInfo->RGBDataSpacing[1];
 	    texcoord[2] = 
-	      ( point_z * volumeInfo->DataSpacing[2] + volumeInfo->DataOrigin[2] -
-		volumeInfo->RGBDataOrigin[2] ) / volumeInfo->RGBDataSpacing[2];
-	    if ( texcoord[0] >= 0 && texcoord[0] < volumeInfo->RGBDataSize[0] &&
-		 texcoord[1] >= 0 && texcoord[1] < volumeInfo->RGBDataSize[1] &&
-		 texcoord[2] >= 0 && texcoord[2] < volumeInfo->RGBDataSize[2] )
+	      ( point_z * staticInfo->DataSpacing[2] + staticInfo->DataOrigin[2] -
+		staticInfo->RGBDataOrigin[2] ) / staticInfo->RGBDataSpacing[2];
+	    if ( texcoord[0] >= 0 && texcoord[0] < staticInfo->RGBDataSize[0] &&
+		 texcoord[1] >= 0 && texcoord[1] < staticInfo->RGBDataSize[1] &&
+		 texcoord[2] >= 0 && texcoord[2] < staticInfo->RGBDataSize[2] )
 	      {
 	      offset = 
-		( (int)texcoord[0] * volumeInfo->RGBDataIncrement[0] + 
-		  (int)texcoord[1] * volumeInfo->RGBDataIncrement[1] +
-		  (int)texcoord[2] * volumeInfo->RGBDataIncrement[2] );
+		( (int)texcoord[0] * staticInfo->RGBDataIncrement[0] + 
+		  (int)texcoord[1] * staticInfo->RGBDataIncrement[1] +
+		  (int)texcoord[2] * staticInfo->RGBDataIncrement[2] );
 
 	      // Compute our offset in the texel, and use that to trilinearly
 	      // interpolate a color value
@@ -861,16 +861,16 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      tG = t1*y*z;
 	      tH = x*z*y;
 	      
-	      rgbBinc = volumeInfo->RGBDataIncrement[0];
-	      rgbCinc = volumeInfo->RGBDataIncrement[1];
-	      rgbDinc = volumeInfo->RGBDataIncrement[0] + volumeInfo->RGBDataIncrement[1];
-	      rgbEinc = volumeInfo->RGBDataIncrement[2];
-	      rgbFinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[0];
-	      rgbGinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[1];
-	      rgbHinc = volumeInfo->RGBDataIncrement[2] + volumeInfo->RGBDataIncrement[1] +
-		        volumeInfo->RGBDataIncrement[0];
+	      rgbBinc = staticInfo->RGBDataIncrement[0];
+	      rgbCinc = staticInfo->RGBDataIncrement[1];
+	      rgbDinc = staticInfo->RGBDataIncrement[0] + staticInfo->RGBDataIncrement[1];
+	      rgbEinc = staticInfo->RGBDataIncrement[2];
+	      rgbFinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[0];
+	      rgbGinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[1];
+	      rgbHinc = staticInfo->RGBDataIncrement[2] + staticInfo->RGBDataIncrement[1] +
+		        staticInfo->RGBDataIncrement[0];
 
-	      rgbptr = volumeInfo->RGBDataPointer + offset;
+	      rgbptr = staticInfo->RGBDataPointer + offset;
 	      volumeRed   = 
 		tA * (float)*(rgbptr           ) / 255.0 +
 		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
@@ -881,7 +881,7 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
 		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
 
-	      rgbptr = volumeInfo->RGBDataPointer + offset + 1;
+	      rgbptr = staticInfo->RGBDataPointer + offset + 1;
 	      volumeGreen   = 
 		tA * (float)*(rgbptr           ) / 255.0 +
 		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
@@ -892,7 +892,7 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
 		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
 
-	      rgbptr = volumeInfo->RGBDataPointer + offset + 2;
+	      rgbptr = staticInfo->RGBDataPointer + offset + 2;
 	      volumeBlue   = 
 		tA * (float)*(rgbptr           ) / 255.0 +
 		tB * (float)*(rgbptr + rgbBinc ) / 255.0 +
@@ -903,44 +903,44 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 		tG * (float)*(rgbptr + rgbGinc ) / 255.0 +
 		tH * (float)*(rgbptr + rgbHinc ) / 255.0;
 
-	      volumeRed = volumeRed * volumeInfo->RGBTextureCoefficient +
-		volumeInfo->Color[0] * (1.0 - volumeInfo->RGBTextureCoefficient);
+	      volumeRed = volumeRed * staticInfo->RGBTextureCoefficient +
+		staticInfo->Color[0] * (1.0 - staticInfo->RGBTextureCoefficient);
 
-	      volumeGreen = volumeGreen * volumeInfo->RGBTextureCoefficient +
-		volumeInfo->Color[1] * (1.0 - volumeInfo->RGBTextureCoefficient);
+	      volumeGreen = volumeGreen * staticInfo->RGBTextureCoefficient +
+		staticInfo->Color[1] * (1.0 - staticInfo->RGBTextureCoefficient);
 
-	      volumeBlue = volumeBlue * volumeInfo->RGBTextureCoefficient +
-		volumeInfo->Color[2] * (1.0 - volumeInfo->RGBTextureCoefficient);
+	      volumeBlue = volumeBlue * staticInfo->RGBTextureCoefficient +
+		staticInfo->Color[2] * (1.0 - staticInfo->RGBTextureCoefficient);
 	      }
 	    else
 	      {
-	      volumeRed   = volumeInfo->Color[0];
-	      volumeGreen = volumeInfo->Color[1];
-	      volumeBlue  = volumeInfo->Color[2];
+	      volumeRed   = staticInfo->Color[0];
+	      volumeGreen = staticInfo->Color[1];
+	      volumeBlue  = staticInfo->Color[2];
 	      }
 	    }
 	  else
 	    {
-	    volumeRed   = volumeInfo->Color[0];
-	    volumeGreen = volumeInfo->Color[1];
-	    volumeBlue  = volumeInfo->Color[2];
+	    volumeRed   = staticInfo->Color[0];
+	    volumeGreen = staticInfo->Color[1];
+	    volumeBlue  = staticInfo->Color[2];
 	    }
 
-	  if ( volumeInfo->Shading )
+	  if ( staticInfo->Shading )
 	    {
 	    // Get diffuse shading table pointers
-	    red_d_shade = volumeInfo->RedDiffuseShadingTable;
-	    green_d_shade = volumeInfo->GreenDiffuseShadingTable;
-	    blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+	    red_d_shade = staticInfo->RedDiffuseShadingTable;
+	    green_d_shade = staticInfo->GreenDiffuseShadingTable;
+	    blue_d_shade = staticInfo->BlueDiffuseShadingTable;
 	    
 	    
 	    // Get diffuse shading table pointers
-	    red_s_shade = volumeInfo->RedSpecularShadingTable;
-	    green_s_shade = volumeInfo->GreenSpecularShadingTable;
-	    blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+	    red_s_shade = staticInfo->RedSpecularShadingTable;
+	    green_s_shade = staticInfo->GreenSpecularShadingTable;
+	    blue_s_shade = staticInfo->BlueSpecularShadingTable;
 	    
 	    // Get a pointer to the encoded normals for this volume
-	    encoded_normals = volumeInfo->EncodedNormals;
+	    encoded_normals = staticInfo->EncodedNormals;
 	    
 	    // Get the opacity transfer function which maps scalar input values
 	    
@@ -1046,21 +1046,21 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 	      tH * ( blue_d_shade[ *(nptr + Hinc) ] * volumeBlue 
 		     + blue_s_shade[ *(nptr + Hinc) ] );
 	    
-	    rayInfo->Color[0] = 
+	    dynamicInfo->Color[0] = 
 	      ( red_shaded_value > 1.0 ) ? 1.0 : red_shaded_value;
-	    rayInfo->Color[1] = 
+	    dynamicInfo->Color[1] = 
 	      ( green_shaded_value > 1.0 ) ? 1.0 : green_shaded_value;
-	    rayInfo->Color[2] = 
+	    dynamicInfo->Color[2] = 
 	      ( blue_shaded_value > 1.0 ) ? 1.0 : blue_shaded_value;
-	    rayInfo->Color[3] = 1.0;
+	    dynamicInfo->Color[3] = 1.0;
 	    }
 	  else
 	    {
 	      // No shading
-	      rayInfo->Color[0] = volumeRed;
-	      rayInfo->Color[1] = volumeGreen;
-	      rayInfo->Color[2] = volumeBlue;
-	      rayInfo->Color[3] = 1.0;
+	      dynamicInfo->Color[0] = volumeRed;
+	      dynamicInfo->Color[1] = volumeGreen;
+	      dynamicInfo->Color[2] = volumeBlue;
+	      dynamicInfo->Color[3] = 1.0;
 	    }
 	  }
 	}
@@ -1224,7 +1224,7 @@ static void CastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
       }
     }
 
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 }
 
 // Construct a new vtkVolumeRayCastIsosurfaceFunction with a default ramp.
@@ -1246,41 +1246,42 @@ vtkVolumeRayCastIsosurfaceFunction::~vtkVolumeRayCastIsosurfaceFunction()
 // It uses the integer data type flag that is passed in to
 // determine what type of ray needs to be cast (which is handled
 // by a templated function. 
-void vtkVolumeRayCastIsosurfaceFunction::CastRay( VTKRayCastRayInfo *rayInfo,
-						  VTKRayCastVolumeInfo *volumeInfo )
+void vtkVolumeRayCastIsosurfaceFunction::CastRay( 
+                                   VTKVRCDynamicInfo *dynamicInfo,
+                                   VTKVRCStaticInfo *staticInfo )
 {
   void *data_ptr;
 
-  data_ptr = volumeInfo->ScalarDataPointer;
+  data_ptr = staticInfo->ScalarDataPointer;
   
   // Cast the ray for the data type and shading/interpolation type
-  if ( volumeInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
+  if ( staticInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
     {
       // Nearest neighbor
-      switch ( volumeInfo->ScalarDataType )
+      switch ( staticInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
 	  CastRay_NN 
-	    ( this, (unsigned char *)data_ptr, rayInfo, volumeInfo ); 
+	    ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo ); 
 	  break;
 	case VTK_UNSIGNED_SHORT:
 	  CastRay_NN
-	    ( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	    ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	}
     }
-  else if ( volumeInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
+  else if ( staticInfo->InterpolationType == VTK_LINEAR_INTERPOLATION )
     {
       // Trilinear interpolation
-      switch ( volumeInfo->ScalarDataType )
+      switch ( staticInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
 	  CastRay_Trilin
-	    ( this, (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	    ( this, (unsigned char *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
 	  CastRay_Trilin
-	    ( this, (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	    ( this, (unsigned short *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	}
     }
@@ -1294,7 +1295,7 @@ float vtkVolumeRayCastIsosurfaceFunction::GetZeroOpacityThreshold(vtkVolume *)
 void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize( 
 				  vtkRenderer *vtkNotUsed(ren), 
 				  vtkVolume *vol,
-				  VTKRayCastVolumeInfo *volumeInfo,
+				  VTKVRCStaticInfo *staticInfo,
 				  vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
   vtkVolumeProperty  *volume_property;
@@ -1303,18 +1304,18 @@ void vtkVolumeRayCastIsosurfaceFunction::SpecificFunctionInitialize(
 
   if ( volume_property->GetColorChannels() == 1 )
     {
-    volumeInfo->Color[0] = 
+    staticInfo->Color[0] = 
       volume_property->GetGrayTransferFunction()->GetValue( this->IsoValue );
-    volumeInfo->Color[1] = volumeInfo->Color[0];
-    volumeInfo->Color[2] = volumeInfo->Color[0];
+    staticInfo->Color[1] = staticInfo->Color[0];
+    staticInfo->Color[2] = staticInfo->Color[0];
     }
   else if ( volume_property->GetColorChannels() == 3 )
     {
-    volumeInfo->Color[0] = 
+    staticInfo->Color[0] = 
       volume_property->GetRGBTransferFunction()->GetRedValue( this->IsoValue );
-    volumeInfo->Color[1] = 
+    staticInfo->Color[1] = 
       volume_property->GetRGBTransferFunction()->GetGreenValue( this->IsoValue );
-    volumeInfo->Color[2] = 
+    staticInfo->Color[2] = 
       volume_property->GetRGBTransferFunction()->GetBlueValue( this->IsoValue );
     }
 }

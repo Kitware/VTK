@@ -52,51 +52,62 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void vtkVolumeRayCastFunction::FunctionInitialize( 
 				vtkRenderer *ren, 
 				vtkVolume *vol,
-				VTKRayCastVolumeInfo *volumeInfo,
-				vtkVolumeRayCastMapper *mapper )
+				VTKVRCStaticInfo *staticInfo )
 {
+  vtkVolumeRayCastMapper *mapper = 
+    vtkVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
+  
+  if ( !mapper )
+    {
+    vtkErrorMacro(
+    "Function initialized called with a volume that does not use ray casting");
+    return;
+    }
+  
   // Is shading on?
-  volumeInfo->Shading = vol->GetProperty()->GetShade();
+  staticInfo->Shading = vol->GetProperty()->GetShade();
 
   // How many color channels? Either 1 or 3. 1 means we have
   // to use the GrayTransferFunction, 3 means we use the
   // RGBTransferFunction
-  volumeInfo->ColorChannels = vol->GetProperty()->GetColorChannels();
+  staticInfo->ColorChannels = vol->GetProperty()->GetColorChannels();
 
   // What is the interpolation type? Nearest or linear.
-  volumeInfo->InterpolationType = vol->GetProperty()->GetInterpolationType();
+  staticInfo->InterpolationType = vol->GetProperty()->GetInterpolationType();
 
   // Get the size, spacing and origin of the scalar data
-  mapper->GetInput()->GetDimensions( volumeInfo->DataSize );
-  mapper->GetInput()->GetSpacing( volumeInfo->DataSpacing );
-  mapper->GetInput()->GetOrigin( volumeInfo->DataOrigin );
+  mapper->GetInput()->GetDimensions( staticInfo->DataSize );
+  mapper->GetInput()->GetSpacing( staticInfo->DataSpacing );
+  mapper->GetInput()->GetOrigin( staticInfo->DataOrigin );
 
   // What are the data increments? 
   // (One voxel, one row, and one slice offsets)
-  volumeInfo->DataIncrement[0] = 1;
-  volumeInfo->DataIncrement[1] = volumeInfo->DataSize[0];
-  volumeInfo->DataIncrement[2] = volumeInfo->DataSize[0] * volumeInfo->DataSize[1];
+  staticInfo->DataIncrement[0] = 1;
+  staticInfo->DataIncrement[1] = staticInfo->DataSize[0];
+  staticInfo->DataIncrement[2] = staticInfo->DataSize[0] * staticInfo->DataSize[1];
 
 
   // If there is rgbTexture, then get the info about this
   if ( mapper->GetRGBTextureInput() )
     {
-    mapper->GetRGBTextureInput()->GetDimensions( volumeInfo->RGBDataSize );
-    mapper->GetRGBTextureInput()->GetSpacing( volumeInfo->RGBDataSpacing );
-    mapper->GetRGBTextureInput()->GetOrigin( volumeInfo->RGBDataOrigin );
-    volumeInfo->RGBDataIncrement[0] = 3;
-    volumeInfo->RGBDataIncrement[1] = 3*volumeInfo->RGBDataSize[0];
-    volumeInfo->RGBDataIncrement[2] = 3*( volumeInfo->RGBDataSize[0] * 
-					  volumeInfo->RGBDataSize[1] );
+    mapper->GetRGBTextureInput()->GetDimensions( staticInfo->RGBDataSize );
+    mapper->GetRGBTextureInput()->GetSpacing( staticInfo->RGBDataSpacing );
+    mapper->GetRGBTextureInput()->GetOrigin( staticInfo->RGBDataOrigin );
+    staticInfo->RGBDataIncrement[0] = 3;
+    staticInfo->RGBDataIncrement[1] = 3*staticInfo->RGBDataSize[0];
+    staticInfo->RGBDataIncrement[2] = 3*( staticInfo->RGBDataSize[0] * 
+					  staticInfo->RGBDataSize[1] );
 
-    volumeInfo->RGBDataPointer = (unsigned char *)
-      mapper->GetRGBTextureInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
+    staticInfo->RGBDataPointer = (unsigned char *)
+      mapper->GetRGBTextureInput()->GetPointData()->
+      GetScalars()->GetVoidPointer(0);
 
-    volumeInfo->RGBTextureCoefficient = vol->GetProperty()->GetRGBTextureCoefficient();
+    staticInfo->RGBTextureCoefficient = 
+      vol->GetProperty()->GetRGBTextureCoefficient();
     }
   else
     {
-    volumeInfo->RGBDataPointer = NULL;
+    staticInfo->RGBDataPointer = NULL;
     }
   // Get the encoded normals from the normal encoder in the
   // volume ray cast mapper. We need to do this if shading is on
@@ -104,38 +115,38 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // on the magnitude of the gradient (since if we need to
   // calculate the magnitude we might as well just keep the
   // direction as well.
-  if ( volumeInfo->Shading )
+  if ( staticInfo->Shading )
     {
-    volumeInfo->EncodedNormals = 
+    staticInfo->EncodedNormals = 
       mapper->GetGradientEstimator()->GetEncodedNormals();
 
     // Get the diffuse shading tables from the normal encoder
     // in the volume ray cast mapper
-    volumeInfo->RedDiffuseShadingTable = 
+    staticInfo->RedDiffuseShadingTable = 
       mapper->GetGradientShader()->GetRedDiffuseShadingTable(vol);
-    volumeInfo->GreenDiffuseShadingTable = 
+    staticInfo->GreenDiffuseShadingTable = 
       mapper->GetGradientShader()->GetGreenDiffuseShadingTable(vol);
-    volumeInfo->BlueDiffuseShadingTable = 
+    staticInfo->BlueDiffuseShadingTable = 
       mapper->GetGradientShader()->GetBlueDiffuseShadingTable(vol);
     
     // Get the specular shading tables from the normal encoder
     // in the volume ray cast mapper
-    volumeInfo->RedSpecularShadingTable = 
+    staticInfo->RedSpecularShadingTable = 
       mapper->GetGradientShader()->GetRedSpecularShadingTable(vol);
-    volumeInfo->GreenSpecularShadingTable = 
+    staticInfo->GreenSpecularShadingTable = 
       mapper->GetGradientShader()->GetGreenSpecularShadingTable(vol);
-    volumeInfo->BlueSpecularShadingTable = 
+    staticInfo->BlueSpecularShadingTable = 
       mapper->GetGradientShader()->GetBlueSpecularShadingTable(vol);
     }
   else
     {
-    volumeInfo->EncodedNormals            = NULL;
-    volumeInfo->RedDiffuseShadingTable    = NULL;
-    volumeInfo->GreenDiffuseShadingTable  = NULL;
-    volumeInfo->BlueDiffuseShadingTable   = NULL;
-    volumeInfo->RedSpecularShadingTable   = NULL;
-    volumeInfo->GreenSpecularShadingTable = NULL;
-    volumeInfo->BlueSpecularShadingTable  = NULL;
+    staticInfo->EncodedNormals            = NULL;
+    staticInfo->RedDiffuseShadingTable    = NULL;
+    staticInfo->GreenDiffuseShadingTable  = NULL;
+    staticInfo->BlueDiffuseShadingTable   = NULL;
+    staticInfo->RedSpecularShadingTable   = NULL;
+    staticInfo->GreenSpecularShadingTable = NULL;
+    staticInfo->BlueSpecularShadingTable  = NULL;
     }
 
   // We need the gradient magnitudes only if we are classifying opacity
@@ -143,17 +154,21 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   if ( vol->GetGradientOpacityArray() && 
        vol->GetGradientOpacityConstant() == -1.0 )
     {
-    volumeInfo->GradientMagnitudes = 
+    staticInfo->GradientMagnitudes = 
       mapper->GetGradientEstimator()->GetGradientMagnitudes();
     }
   else
     {
-    volumeInfo->GradientMagnitudes = NULL;
+    staticInfo->GradientMagnitudes = NULL;
     }
 
+  // By default the blending is not MIP - the MIP function will turn this
+  // on
+  staticInfo->MIPFunction = 0;
+  
   // Give the subclass a chance to do any initialization it needs
   // to do
-  this->SpecificFunctionInitialize( ren, vol, volumeInfo, mapper );
+  this->SpecificFunctionInitialize( ren, vol, staticInfo, mapper );
 }
 
 

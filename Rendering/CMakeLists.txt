@@ -102,6 +102,7 @@ SOURCE_FILES ( RenderingOpenGL_SRCS
                vtkOpenGLRenderer
                vtkOpenGLRenderWindow
                vtkOpenGLTexture
+               vtkOpenGLVolumeRayCastMapper
                vtkOpenGLVolumeTextureMapper2D
               )
 

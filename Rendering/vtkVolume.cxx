@@ -464,7 +464,6 @@ int vtkVolume::InitializeRayCasting( vtkViewport *vp )
   float        interactionScale;
   float        sampleDistance;
   vtkRenderer  *ren;
-  float        cameraPosition[3], *volumePosition;
 
   this->Update();
 
@@ -478,22 +477,6 @@ int vtkVolume::InitializeRayCasting( vtkViewport *vp )
     GetSampleDistance() * interactionScale;
   this->UpdateScalarOpacityforSampleSize( ren, sampleDistance );
 
-  // Get the position of the camera for use in determining the
-  // distance to the center of the volume
-  ren->GetActiveCamera()->GetPosition( cameraPosition );
-  volumePosition = this->GetCenter();
-  this->VolumeInfo->CenterDistance = 
-    sqrt( (double) 
-	  ( ( cameraPosition[0] - volumePosition[0] ) *   
-	    ( cameraPosition[0] - volumePosition[0] ) +
-	    ( cameraPosition[1] - volumePosition[1] ) *
-	    ( cameraPosition[1] - volumePosition[1] ) +
-	    ( cameraPosition[2] - volumePosition[2] ) *
-	    ( cameraPosition[2] - volumePosition[2] ) ) );
-
-
-  ((vtkVolumeRayCastMapper *)this->Mapper)->
-    InitializeRender( ren, this, this->VolumeInfo );
 
   return 1;
 }
@@ -514,8 +497,6 @@ void vtkVolume::InitializeTextureMapping( vtkViewport *vp,
 
 int vtkVolume::CastViewRay( VTKRayCastRayInfo *rayInfo )
 {
-  ((vtkVolumeRayCastMapper *)this->Mapper)->
-    CastViewRay( rayInfo, this->VolumeInfo );
 
   return 1;
 }

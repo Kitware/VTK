@@ -72,8 +72,8 @@ vtkVolumeRayCastCompositeFunction* vtkVolumeRayCastCompositeFunction::New()
 // and does not perform shading.
 template <class T>
 static void CastRay_NN_Unshaded( T *data_ptr,
-				 VTKRayCastRayInfo *rayInfo,
-				 VTKRayCastVolumeInfo *volumeInfo )
+				 VTKVRCDynamicInfo *dynamicInfo,
+				 VTKVRCStaticInfo *staticInfo )
 {
   int             value=0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -99,25 +99,25 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
  
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
-  CTF  =  volumeInfo->Volume->GetRGBArray();
-  GTF  =  volumeInfo->Volume->GetGrayArray();
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
+  CTF  =  staticInfo->Volume->GetRGBArray();
+  GTF  =  staticInfo->Volume->GetGrayArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -136,7 +136,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   
@@ -149,7 +149,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
   
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 ) 
+  if ( staticInfo->ColorChannels == 1 ) 
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -202,7 +202,7 @@ static void CastRay_NN_Unshaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -280,20 +280,11 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
-
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
   
 }
 
@@ -303,8 +294,8 @@ static void CastRay_NN_Unshaded( T *data_ptr,
 // perform shading.
 template <class T>
 static void CastRay_NN_Shaded( T *data_ptr,
-			       VTKRayCastRayInfo *rayInfo,
-			       VTKRayCastVolumeInfo *volumeInfo )
+			       VTKVRCDynamicInfo *dynamicInfo,
+			       VTKVRCStaticInfo *staticInfo )
 {
   int             value = 0;
   unsigned char   *grad_mag_ptr = NULL;
@@ -336,52 +327,52 @@ static void CastRay_NN_Shaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
  
   // Get diffuse shading table pointers
-  red_d_shade = volumeInfo->RedDiffuseShadingTable;
-  green_d_shade = volumeInfo->GreenDiffuseShadingTable;
-  blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+  red_d_shade = staticInfo->RedDiffuseShadingTable;
+  green_d_shade = staticInfo->GreenDiffuseShadingTable;
+  blue_d_shade = staticInfo->BlueDiffuseShadingTable;
 
   // Get specular shading table pointers
-  red_s_shade = volumeInfo->RedSpecularShadingTable;
-  green_s_shade = volumeInfo->GreenSpecularShadingTable;
-  blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+  red_s_shade = staticInfo->RedSpecularShadingTable;
+  green_s_shade = staticInfo->GreenSpecularShadingTable;
+  blue_s_shade = staticInfo->BlueSpecularShadingTable;
 
   // Get a pointer to the encoded normals for this volume
-  encoded_normals = volumeInfo->EncodedNormals;
+  encoded_normals = staticInfo->EncodedNormals;
 
   // Get the scalar opacity transfer function for this volume (which maps
   // scalar input values to opacities)
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
 
   // Get the color transfer function for this volume (which maps
   // scalar input values to RGB values)
-  CTF =  volumeInfo->Volume->GetRGBArray();
-  GTF =  volumeInfo->Volume->GetGrayArray();
+  CTF =  staticInfo->Volume->GetRGBArray();
+  GTF =  staticInfo->Volume->GetGrayArray();
 
   // Get the gradient opacity transfer function for this volume (which maps
   // gradient magnitudes to opacities)
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -405,7 +396,7 @@ static void CastRay_NN_Shaded( T *data_ptr,
   
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 ) 
+  if ( staticInfo->ColorChannels == 1 ) 
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -478,7 +469,7 @@ static void CastRay_NN_Shaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -579,20 +570,12 @@ static void CastRay_NN_Shaded( T *data_ptr,
   
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
   
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
 }
 
 // This is the templated function that actually casts a ray and computes
@@ -600,8 +583,8 @@ static void CastRay_NN_Shaded( T *data_ptr,
 // does not compute shading
 template <class T>
 static void CastRay_TrilinSample_Unshaded( T *data_ptr,
-					   VTKRayCastRayInfo *rayInfo,
-					   VTKRayCastVolumeInfo *volumeInfo )
+					   VTKVRCDynamicInfo *dynamicInfo,
+					   VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -632,39 +615,39 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
   int             num_steps;
   float           *ray_start, *ray_increment;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
 
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
 
   // Get the color transfer function which maps scalar input values
   // to RGB colors
-  CTF =  volumeInfo->Volume->GetRGBArray();
-  GTF =  volumeInfo->Volume->GetGrayArray();
+  CTF =  staticInfo->Volume->GetRGBArray();
+  GTF =  staticInfo->Volume->GetGrayArray();
 
   // Get the gradient opacity transfer function for this volume (which maps
   // gradient magnitudes to opacities)
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -691,7 +674,7 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
   
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 ) 
+  if ( staticInfo->ColorChannels == 1 ) 
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -737,9 +720,9 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 	{
 	scalar_value = 0.0;
 	}
-      else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+      else if ( scalar_value > staticInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	scalar_value = staticInfo->Volume->GetArraySize() - 1;
 	}
       
       opacity = SOTF[(int)scalar_value];
@@ -802,7 +785,7 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -848,9 +831,9 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 	{
 	scalar_value = 0.0;
 	}
-      else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+      else if ( scalar_value > staticInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = volumeInfo->Volume->GetArraySize() - 1;
+	scalar_value = staticInfo->Volume->GetArraySize() - 1;
 	}
       
       opacity = SOTF[(int)scalar_value];
@@ -938,20 +921,13 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
+
 }
 
 // This is the templated function that actually casts a ray and computes
@@ -959,8 +935,8 @@ static void CastRay_TrilinSample_Unshaded( T *data_ptr,
 // does perform shading.
 template <class T>
 static void CastRay_TrilinSample_Shaded( T *data_ptr,
-					 VTKRayCastRayInfo *rayInfo,
-					 VTKRayCastVolumeInfo *volumeInfo )
+					 VTKVRCDynamicInfo *dynamicInfo,
+					 VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *gmptr = NULL;
@@ -1000,53 +976,53 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
   float           *ray_start, *ray_increment;
 
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
 
   // Get diffuse shading table pointers
-  red_d_shade = volumeInfo->RedDiffuseShadingTable;
-  green_d_shade = volumeInfo->GreenDiffuseShadingTable;
-  blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+  red_d_shade = staticInfo->RedDiffuseShadingTable;
+  green_d_shade = staticInfo->GreenDiffuseShadingTable;
+  blue_d_shade = staticInfo->BlueDiffuseShadingTable;
 
 
   // Get diffuse shading table pointers
-  red_s_shade = volumeInfo->RedSpecularShadingTable;
-  green_s_shade = volumeInfo->GreenSpecularShadingTable;
-  blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+  red_s_shade = staticInfo->RedSpecularShadingTable;
+  green_s_shade = staticInfo->GreenSpecularShadingTable;
+  blue_s_shade = staticInfo->BlueSpecularShadingTable;
 
   // Get a pointer to the encoded normals for this volume
-  encoded_normals = volumeInfo->EncodedNormals;
+  encoded_normals = staticInfo->EncodedNormals;
 
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
 
   // Get the color transfer function which maps scalar input values
   // to RGB values
-  CTF =  volumeInfo->Volume->GetRGBArray();
-  GTF =  volumeInfo->Volume->GetGrayArray();
+  CTF =  staticInfo->Volume->GetRGBArray();
+  GTF =  staticInfo->Volume->GetGrayArray();
 
   // Get the gradient opacity transfer function for this volume (which maps
   // gradient magnitudes to opacities)
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -1073,7 +1049,7 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
   
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 ) 
+  if ( staticInfo->ColorChannels == 1 ) 
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -1123,9 +1099,9 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 	{
 	scalar_value = 0;
 	}
-      else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+      else if ( scalar_value > staticInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = (int)(volumeInfo->Volume->GetArraySize() - 1);
+	scalar_value = (int)(staticInfo->Volume->GetArraySize() - 1);
 	}
       
       opacity = SOTF[scalar_value];
@@ -1214,7 +1190,7 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -1264,9 +1240,9 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 	{
 	scalar_value = 0;
 	}
-      else if ( scalar_value > volumeInfo->Volume->GetArraySize() - 1 )
+      else if ( scalar_value > staticInfo->Volume->GetArraySize() - 1 )
 	{
-	scalar_value = (int)(volumeInfo->Volume->GetArraySize() - 1);
+	scalar_value = (int)(staticInfo->Volume->GetArraySize() - 1);
 	}
       
       opacity = SOTF[scalar_value];
@@ -1402,20 +1378,13 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
+ 
 }
 
 // Description:
@@ -1424,8 +1393,8 @@ static void CastRay_TrilinSample_Shaded( T *data_ptr,
 // does not compute shading
 template <class T>
 static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
-					   VTKRayCastRayInfo *rayInfo,
-					   VTKRayCastVolumeInfo *volumeInfo )
+					   VTKVRCDynamicInfo *dynamicInfo,
+					   VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1457,39 +1426,39 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
   int             grad_op_is_constant;
   float           gradient_opacity_constant;
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
  
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
 
   // Get the color transfer function which maps scalar input values
   // to RGB colors
-  CTF =  volumeInfo->Volume->GetRGBArray();
-  GTF =  volumeInfo->Volume->GetGrayArray();
+  CTF =  staticInfo->Volume->GetRGBArray();
+  GTF =  staticInfo->Volume->GetGrayArray();
 
   // Get the gradient opacity transfer function for this volume (which maps
   // gradient magnitudes to opacities)
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -1551,7 +1520,7 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 
   // Two cases - we are working with a gray or RGB transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 ) 
+  if ( staticInfo->ColorChannels == 1 ) 
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -1688,7 +1657,7 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -1865,20 +1834,13 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
+
 }
 
 
@@ -1888,8 +1850,8 @@ static void CastRay_TrilinVertices_Unshaded( T *data_ptr,
 // does perform shading.
 template <class T>
 static void CastRay_TrilinVertices_Shaded( T *data_ptr,
-					   VTKRayCastRayInfo *rayInfo,
-					   VTKRayCastVolumeInfo *volumeInfo )
+					   VTKVRCDynamicInfo *dynamicInfo,
+					   VTKVRCStaticInfo *staticInfo )
 {
   unsigned char   *grad_mag_ptr = NULL;
   unsigned char   *goptr;
@@ -1925,53 +1887,53 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
   float           *ray_start, *ray_increment;
 
 
-  num_steps = rayInfo->NumberOfStepsToTake;
-  ray_start = rayInfo->TransformedStart;
-  ray_increment = rayInfo->TransformedIncrement;
+  num_steps = dynamicInfo->NumberOfStepsToTake;
+  ray_start = dynamicInfo->TransformedStart;
+  ray_increment = dynamicInfo->TransformedIncrement;
 
   // Get diffuse shading table pointers
-  red_d_shade = volumeInfo->RedDiffuseShadingTable;
-  green_d_shade = volumeInfo->GreenDiffuseShadingTable;
-  blue_d_shade = volumeInfo->BlueDiffuseShadingTable;
+  red_d_shade = staticInfo->RedDiffuseShadingTable;
+  green_d_shade = staticInfo->GreenDiffuseShadingTable;
+  blue_d_shade = staticInfo->BlueDiffuseShadingTable;
 
 
   // Get diffuse shading table pointers
-  red_s_shade = volumeInfo->RedSpecularShadingTable;
-  green_s_shade = volumeInfo->GreenSpecularShadingTable;
-  blue_s_shade = volumeInfo->BlueSpecularShadingTable;
+  red_s_shade = staticInfo->RedSpecularShadingTable;
+  green_s_shade = staticInfo->GreenSpecularShadingTable;
+  blue_s_shade = staticInfo->BlueSpecularShadingTable;
 
   // Get a pointer to the encoded normals for this volume
-  encoded_normals = volumeInfo->EncodedNormals;
+  encoded_normals = staticInfo->EncodedNormals;
 
   // Get the scalar opacity transfer function which maps scalar input values
   // to opacities
-  SOTF =  volumeInfo->Volume->GetCorrectedScalarOpacityArray();
+  SOTF =  staticInfo->Volume->GetCorrectedScalarOpacityArray();
 
   // Get the color transfer function which maps scalar input values
   // to RGB values
-  CTF =  volumeInfo->Volume->GetRGBArray();
-  GTF =  volumeInfo->Volume->GetGrayArray();
+  CTF =  staticInfo->Volume->GetRGBArray();
+  GTF =  staticInfo->Volume->GetGrayArray();
 
   // Get the gradient opacity transfer function for this volume (which maps
   // gradient magnitudes to opacities)
-  GOTF =  volumeInfo->Volume->GetGradientOpacityArray();
+  GOTF =  staticInfo->Volume->GetGradientOpacityArray();
 
   // Get the gradient opacity constant. If this number is greater than
   // or equal to 0.0, then the gradient opacity transfer function is
   // a constant at that value, otherwise it is not a constant function
-  gradient_opacity_constant = volumeInfo->Volume->GetGradientOpacityConstant();
+  gradient_opacity_constant = staticInfo->Volume->GetGradientOpacityConstant();
   grad_op_is_constant = ( gradient_opacity_constant >= 0.0 );
 
   // Get a pointer to the gradient magnitudes for this volume
   if ( !grad_op_is_constant )
     {
-    grad_mag_ptr = volumeInfo->GradientMagnitudes;
+    grad_mag_ptr = staticInfo->GradientMagnitudes;
     }
 
   // Move the increments into local variables
-  xinc = volumeInfo->DataIncrement[0];
-  yinc = volumeInfo->DataIncrement[1];
-  zinc = volumeInfo->DataIncrement[2];
+  xinc = staticInfo->DataIncrement[0];
+  yinc = staticInfo->DataIncrement[1];
+  zinc = staticInfo->DataIncrement[2];
 
   // Initialize the ray position and voxel location
   ray_position[0] = ray_start[0];
@@ -2035,7 +1997,7 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
 
   // Two cases - we are working with a single color or a color transfer
   // function - break them up to make it more efficient
-  if ( volumeInfo->ColorChannels == 1 )
+  if ( staticInfo->ColorChannels == 1 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -2191,7 +2153,7 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
     accum_green_intensity = accum_red_intensity;
     accum_blue_intensity = accum_red_intensity;
     }
-  else if ( volumeInfo->ColorChannels == 3 )
+  else if ( staticInfo->ColorChannels == 3 )
     {
     // For each step along the ray
     for ( loop = 0; 
@@ -2419,20 +2381,12 @@ static void CastRay_TrilinVertices_Shaded( T *data_ptr,
 
   // Set the return pixel value.  The depth value is the distance to the
   // center of the volume.
-  rayInfo->Color[0] = accum_red_intensity;
-  rayInfo->Color[1] = accum_green_intensity;
-  rayInfo->Color[2] = accum_blue_intensity;
-  rayInfo->Color[3] = 1.0 - remaining_opacity;
-  rayInfo->NumberOfStepsTaken = steps_this_ray;
+  dynamicInfo->Color[0] = accum_red_intensity;
+  dynamicInfo->Color[1] = accum_green_intensity;
+  dynamicInfo->Color[2] = accum_blue_intensity;
+  dynamicInfo->Color[3] = 1.0 - remaining_opacity;
+  dynamicInfo->NumberOfStepsTaken = steps_this_ray;
 
-  if ( remaining_opacity < 1.0 )
-    {
-    rayInfo->Depth = volumeInfo->CenterDistance;
-    }
-  else 
-    {
-    rayInfo->Depth = VTK_LARGE_FLOAT;
-    }
 
 }
 
@@ -2453,39 +2407,39 @@ vtkVolumeRayCastCompositeFunction::~vtkVolumeRayCastCompositeFunction()
 // by a templated function.  It also uses the shading and
 // interpolation types to determine which templated function
 // to call.
-void vtkVolumeRayCastCompositeFunction::CastRay( VTKRayCastRayInfo *rayInfo,
-						 VTKRayCastVolumeInfo *volumeInfo )
+void vtkVolumeRayCastCompositeFunction::CastRay( VTKVRCDynamicInfo *dynamicInfo,
+						 VTKVRCStaticInfo *staticInfo )
 {
   void *data_ptr;
 
-  data_ptr = volumeInfo->ScalarDataPointer;
+  data_ptr = staticInfo->ScalarDataPointer;
 
   // Cast the ray for the data type and shading/interpolation type
-  if ( volumeInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
+  if ( staticInfo->InterpolationType == VTK_NEAREST_INTERPOLATION )
     {
-    if ( volumeInfo->Shading == 0 )
+    if ( staticInfo->Shading == 0 )
       {
       // Nearest neighbor and no shading
-      switch ( volumeInfo->ScalarDataType )
+      switch ( staticInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_NN_Unshaded( (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Unshaded( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_NN_Unshaded( (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Unshaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	}
       }
     else
       {
       // Nearest neighbor and shading
-      switch ( volumeInfo->ScalarDataType )
+      switch ( staticInfo->ScalarDataType )
 	{
 	case VTK_UNSIGNED_CHAR:
-	  CastRay_NN_Shaded( (unsigned char *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Shaded( (unsigned char *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	case VTK_UNSIGNED_SHORT:
-	  CastRay_NN_Shaded( (unsigned short *)data_ptr, rayInfo, volumeInfo );
+	  CastRay_NN_Shaded( (unsigned short *)data_ptr, dynamicInfo, staticInfo );
 	  break;
 	}
       }
@@ -2493,33 +2447,33 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKRayCastRayInfo *rayInfo,
   else 
     {
     // Trilinear interpolation and no shading
-    if ( volumeInfo->Shading == 0 )
+    if ( staticInfo->Shading == 0 )
       {
       if ( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
 	{
-	switch ( volumeInfo->ScalarDataType )
+	switch ( staticInfo->ScalarDataType )
 	  {
 	  case VTK_UNSIGNED_CHAR:
 	    CastRay_TrilinSample_Unshaded( (unsigned char *)data_ptr,  
-					   rayInfo, volumeInfo );
+					   dynamicInfo, staticInfo );
 	    break;
 	  case VTK_UNSIGNED_SHORT:
 	    CastRay_TrilinSample_Unshaded( (unsigned short *)data_ptr, 
-					   rayInfo, volumeInfo );
+					   dynamicInfo, staticInfo );
 	    break;
 	  }
 	}
       else
 	{
-	switch ( volumeInfo->ScalarDataType )
+	switch ( staticInfo->ScalarDataType )
 	  {
 	  case VTK_UNSIGNED_CHAR:
 	    CastRay_TrilinVertices_Unshaded( (unsigned char *)data_ptr,  
-					   rayInfo, volumeInfo );
+					   dynamicInfo, staticInfo );
 	    break;
 	  case VTK_UNSIGNED_SHORT:
 	    CastRay_TrilinVertices_Unshaded( (unsigned short *)data_ptr, 
-					   rayInfo, volumeInfo );
+					   dynamicInfo, staticInfo );
 	    break;
 	  }
 	}
@@ -2529,29 +2483,29 @@ void vtkVolumeRayCastCompositeFunction::CastRay( VTKRayCastRayInfo *rayInfo,
       // Trilinear interpolation and shading
       if ( this->CompositeMethod == VTK_COMPOSITE_INTERPOLATE_FIRST )
 	{
-	switch ( volumeInfo->ScalarDataType )
+	switch ( staticInfo->ScalarDataType )
 	  {
 	  case VTK_UNSIGNED_CHAR:
 	    CastRay_TrilinSample_Shaded( (unsigned char *)data_ptr, 
-					 rayInfo, volumeInfo );
+					 dynamicInfo, staticInfo );
 	    break;
 	  case VTK_UNSIGNED_SHORT:
 	    CastRay_TrilinSample_Shaded( (unsigned short *)data_ptr, 
-					 rayInfo, volumeInfo );
+					 dynamicInfo, staticInfo );
 	    break;
 	  }
 	}	
       else
 	{
-	switch ( volumeInfo->ScalarDataType )
+	switch ( staticInfo->ScalarDataType )
 	  {
 	  case VTK_UNSIGNED_CHAR:
 	    CastRay_TrilinVertices_Shaded( (unsigned char *)data_ptr, 
-					 rayInfo, volumeInfo );
+					 dynamicInfo, staticInfo );
 	    break;
 	  case VTK_UNSIGNED_SHORT:
 	    CastRay_TrilinVertices_Shaded( (unsigned short *)data_ptr, 
-					 rayInfo, volumeInfo );
+					 dynamicInfo, staticInfo );
 	    break;
 	  }
 	}
@@ -2569,7 +2523,7 @@ float vtkVolumeRayCastCompositeFunction::GetZeroOpacityThreshold( vtkVolume
 void vtkVolumeRayCastCompositeFunction::SpecificFunctionInitialize( 
 				vtkRenderer *vtkNotUsed(ren), 
 				vtkVolume *vtkNotUsed(vol),
-				VTKRayCastVolumeInfo *vtkNotUsed(volumeInfo),
+				VTKVRCStaticInfo *vtkNotUsed(staticInfo),
 				vtkVolumeRayCastMapper *vtkNotUsed(mapper) )
 {
 }
