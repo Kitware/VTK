@@ -32,7 +32,6 @@
 
 #include "vtkUnstructuredGridSource.h"
 
-class vtkCellArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIdTypeArray;
