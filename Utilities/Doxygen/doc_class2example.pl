@@ -1,9 +1,18 @@
 #!/usr/bin/env perl
-# Time-stamp: <2001-11-21 20:24:00 barre>
+# Time-stamp: <2002-01-14 17:39:51 barre>
 #
 # Build cross-references between classes and examples
 #
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.81 (barre) :
+#   - add --baselinedir d : use 'd' as baseline directory
+#   - add --baselineicon f: use 'f' as icon file to report that file has 
+#     baseline picture
+#   - add --baselinelink l: use 'l' as baseline link to picture
+#   - add --baselinelinksuffix s : suffix string to append
+#     to --baselinelink + filename
+#   - add --datamatch s : use string s to match any usage of data files
 #
 # 0.8 (barre) :
 #   - more robust code: comments are removed from files before parsing
@@ -88,7 +97,7 @@ use File::Basename;
 use File::Find;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.8, $0, "Sebastien Barre");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.81, $0, "Sebastien Barre");
 $PROGNAME =~ s/^.*[\\\/]//;
 print "$PROGNAME $VERSION, by $AUTHOR\n";
 
@@ -97,6 +106,8 @@ print "$PROGNAME $VERSION, by $AUTHOR\n";
 
 my %default = 
   (
+   baselineicon => "pic.gif",
+   baselinelinksuffix => "",
    dataicon => "paper-clip.gif",
    dirmatch => "^Examples\$",
    dirs => ["../.."],
@@ -174,30 +185,34 @@ sub parse {
 
 my %args;
 # Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "datamatch=s", "dataicon=s", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@");
+GetOptions (\%args, "help", "verbose|v", "baselinedir=s", "baselineicon=s", "datamatch=s", "baselinelink=s", "baselinelinksuffix=s", "dataicon=s", "dirmatch=s", "label=s", "limit=i", "link=s", "linksuffix=s", "project=s", "store=s", "title=s", "to=s", "unique=s", "weight=i", "parser=s@");
 
 my $available_parser = join(", ", keys %parsers);
 
 if (exists $args{"help"}) {
     print <<"EOT";
 by $AUTHOR
-Usage : $PROGNAME [--help] [--verbose|-v] [--datamatch string] [--dataicon filename] [--dirmatch string] [--label string] [--limit n] [--link path] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
-  --help         : this message
-  --verbose|-v   : verbose (display filenames/classes while processing)
-  --datamatch s  : use string s to match any usage of data files
-  --dataicon f   : use f as icon file to report that file makes use of data files
-  --dirmatch str : use string to match the directory name holding files (default: $default{dirmatch})
-  --label str    : use string as label in class page (default: $default{label})
-  --limit n      : limit the number of examples per parser type (default: $default{limit})
-  --link path    : link to example files (and prepend path)
-  --linksuffix s : suffix string to append to --link + filename
-  --title str    : use string as title in "Related Pages" (default: $default{title})
-  --parser name  : use specific parser only (available : $available_parser)
-  --project name : project name, used to uniquify (default: $default{project})
-  --store file   : use 'file' to store xrefs (default: $default{store})
-  --to path      : use 'path' as destination directory (default : $default{to})
-  --unique str   : use string as a unique page identifier among "Class To..." pages (otherwise MD5) (default : $default{unique})
-  --weight n     : use 'n' as an approximation of the maximum page weight (default : $default{weight})
+Usage : $PROGNAME [--help] [--verbose|-v] [--baselinedir path] [--baselineicon filename] [--baselinelink url] [--baselinelinksuffix url] [--datamatch string] [--dataicon filename] [--dirmatch string] [--label string] [--limit n] [--link url] [--linksuffix string] [--parser name] [--store file] [--title string] [--to path] [--weight n] [directories...]
+  --help          : this message
+  --verbose|-v    : verbose (display filenames/classes while processing)
+  --baselinedir d : use 'd' as baseline directory
+  --baselineicon f: use 'f' as icon file to report that file has baseline picture
+  --baselinelink l: use 'l' as baseline link to picture
+  --baselinelinksuffix s : suffix string to append to --baselinelink + filename
+  --datamatch s   : use string s to match any usage of data files
+  --dataicon f    : use 'f  as icon file to report that file makes use of data files
+  --dirmatch str  : use string to match the directory name holding files (default: $default{dirmatch})
+  --label str     : use string as label in class page (default: $default{label})
+  --limit n       : limit the number of examples per parser type (default: $default{limit})
+  --link path     : link to example files (and prepend path)
+  --linksuffix s  : suffix string to append to --link + filename
+  --title str     : use string as title in "Related Pages" (default: $default{title})
+  --parser name   : use specific parser only (available : $available_parser)
+  --project name  : project name, used to uniquify (default: $default{project})
+  --store file    : use 'file' to store xrefs (default: $default{store})
+  --to path       : use 'path' as destination directory (default : $default{to})
+  --unique str    : use string as a unique page identifier among "Class To..." pages (otherwise MD5) (default : $default{unique})
+  --weight n      : use 'n' as an approximation of the maximum page weight (default : $default{weight})
 
 Example:
   $PROGNAME --verbose
@@ -207,6 +222,14 @@ EOT
 }
 
 $args{"verbose"} = 1 if exists $default{"verbose"};
+$args{"baselinedir"} =~ s/[\\\/]*$// if exists $args{"baselinedir"};
+$args{"baselineicon"} = $default{"baselineicon"} 
+  if ! exists $args{"baselineicon"};
+$args{"baselinelink"} = $default{"baselinelink"} 
+  if ! exists $args{"baselinelink"} && exists $default{"baselinelink"};
+$args{"baselinelink"} =~ s/[\\\/]*$// if exists $args{"baselinelink"};
+$args{"baselinelinksuffix"} = $default{"baselinelinksuffix"} 
+  if ! exists $args{"baselinelinksuffix"};
 $args{"dataicon"} = $default{"dataicon"} if ! exists $args{"dataicon"};
 $args{"dirmatch"} = $default{"dirmatch"} if ! exists $args{"dirmatch"};
 $args{"label"} = $default{"label"} if ! exists $args{"label"};
@@ -318,6 +341,11 @@ my %shorter_filename;
 
 my %use_data;
 
+# %baseline_picture is a hash associating a filename to the relative path
+# to its baseline picture (relative to --baselinedir). 
+
+my %baseline_picture;
+
 print "Parsing files...\n";
 
 my $intermediate_time = time();
@@ -355,6 +383,25 @@ foreach my $filename (@parsable) {
         }
     }
     print "=> ", $filename, "\n" if exists $args{"verbose"};
+
+    # Shorten filename if it has been added
+
+    if (exists $shorter_filename{$filename}) {
+        foreach my $dir (@ARGV) {
+            last if $shorter_filename{$filename} =~ s/$dir//;
+        }
+
+        # Check for baseline picture
+
+        if (exists $args{"baselinedir"}) {
+            my ($name, $dir, $ext) = 
+              fileparse($shorter_filename{$filename}, '\..*');
+            my @dirs = split('/', $dir);
+            my $pic = $dirs[1] . "/$name.png";
+            $baseline_picture{$filename} = $pic 
+              if -e $args{"baselinedir"} . "/$pic";
+        }
+    }
     
     # Check for data
     
@@ -363,12 +410,6 @@ foreach my $filename (@parsable) {
 }
 
 $/ = $oldslurp;
-
-foreach my $filename (keys %shorter_filename) {
-    foreach my $dir (@ARGV) {
-        last if $shorter_filename{$filename} =~ s/$dir//;
-    }
-}
 
 print " => ", scalar @parsable, " file(s) parsed in ", time() - $intermediate_time, " s.\n";
 
@@ -483,9 +524,16 @@ my $footer;
 
 if (exists $args{"datamatch"}) {
     push @legend,
-    "<img src='" . $args{"dataicon"} . "' align='top'> : the corresponding file uses data files (i.e. its contents matches \@c " . $args{"datamatch"} . ")";
+    "- <img src='" . $args{"dataicon"} . "' align='top'> : the corresponding file most probably uses data files.";
     # hack so that the image is automatically copied to the doc dir
-    $footer .= "\@image html " . $args{"dataicon"};
+    $footer .= " \@image html " . $args{"dataicon"} . "\n";
+}
+
+if (exists $args{"baselinedir"}) {
+    push @legend,
+    "- <img src='" . $args{"baselineicon"} . "' align='top'> : the corresponding file has a baseline picture (click to display)";
+    # hack so that the image is automatically copied to the doc dir
+    $footer .= " \@image html " . $args{"baselineicon"} . "\n";
 }
 
 if (scalar @legend) {
@@ -528,14 +576,17 @@ sub word_section_doc {
         foreach my $file (@files) {
             my $has_data;
             $has_data = " <img src='" . $args{"dataicon"} . "' align='top'>" if exists $use_data{$file};
+            my $has_baseline_picture;
+            $has_baseline_picture = " <a href='" . $args{"baselinelink"} . "/" . $baseline_picture{$file} . $args{"baselinelinksuffix"} . "'><img src='" . $args{"baselineicon"} . "' align='top'></a>" if exists $baseline_picture{$file};
             last if ++$count > $args{"limit"};
             if (exists $args{"link"}) {
                 push @temp, 
                 '    - @htmlonly <TT><A href="' . $args{"link"} .  
                   $shorter_filename{$file} . $args{"linksuffix"} . '">@endhtmlonly ' . $shorter_filename{$file} . 
-                    '@htmlonly</A></TT> @endhtmlonly ' . $has_data;
+                    '@htmlonly</A></TT> @endhtmlonly ' . 
+                      $has_data . $has_baseline_picture;
             } else {
-                push @temp, "    - \@c $shorter_filename{$file} $has_data";
+                push @temp, "    - \@c $shorter_filename{$file} $has_data $has_baseline_picture";
             }
         }
     }
