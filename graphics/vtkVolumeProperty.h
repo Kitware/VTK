@@ -98,6 +98,11 @@ public:
   char *GetInterpolationTypeAsString(void);
 
   // Description:
+  // Get the modified time for this object (or the properties registered
+  // with this object).
+  unsigned long int GetMTime();
+  
+  // Description:
   // Set the color of a volume to a gray level transfer function. This 
   // will also set the ColorChannels to 1.
   void SetColor( vtkPiecewiseFunction *function );
