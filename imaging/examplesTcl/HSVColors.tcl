@@ -23,6 +23,7 @@ proc ramp {} {
       newScalars SetScalar $idx $idx
    }
 
+   [rampSource GetStructuredPointsOutput] SetWholeExtent 0 255 0 0 0 0
    [rampSource GetStructuredPointsOutput] SetDimensions 256 1 1
    [[rampSource GetStructuredPointsOutput] GetPointData] SetScalars newScalars
 
@@ -68,6 +69,7 @@ append1 ReleaseDataFlagOn
 vtkImageAppendComponents append2
 append2 SetInput1 [append1 GetOutput]
 append2 SetInput2 [perm2 GetOutput]
+
 
 
 vtkImageHSVToRGB rgb
