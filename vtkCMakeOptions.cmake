@@ -178,5 +178,9 @@ IF (VTK_WRAP_JAVA)
   ENDIF (JAVA_AWT_INCLUDE_PATH) 
 ENDIF (VTK_WRAP_JAVA)
 
-# The doxygen helper perl script location.
+# VTK style script locations.
 SET(VTK_DOXYGEN_HOME ${VTK_SOURCE_DIR}/Utilities/Doxygen)
+SET(VTK_HEADER_TESTING_PY ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py)
+SET(VTK_FIND_STRING_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl)
+SET(VTK_PRINT_SELF_CHECK_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl)
+SET(VTK_RT_IMAGE_TEST_TCL ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl)
