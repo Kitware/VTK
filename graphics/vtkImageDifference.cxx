@@ -47,6 +47,8 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 vtkImageDifference::vtkImageDifference()
 {
   this->Image = NULL;
+  this->Threshold = 51;
+  this->AllowShift = 1;
 }
 
 // simple macro for calculating error
@@ -66,7 +68,6 @@ void vtkImageDifference::Execute()
   vtkColorScalars *s1, *s2;
   unsigned char *color1, color2[4], outColor[4];
   int tr, tg, tb, r1, g1, b1;
-  int threshold = 51;
   vtkPixmap *outScalars = vtkPixmap::New();
   
   vtkDebugMacro(<< "Comparing Images");
@@ -118,70 +119,78 @@ void vtkImageDifference::Execute()
       color1 = s1->GetColor(idx+col);
       vtkImageDifferenceComputeError(color1,color2);
 	
-      /* check the pixel to the left */
-      if (col)
-	{
-	color1 = s1->GetColor(idx + col - 1);
-	vtkImageDifferenceComputeError(color1,color2);
-	}
-	
-	/* check the pixel to the right */
-      if (col < (dims1[0] -1))
-	{
-	color1 = s1->GetColor(idx + col + 1);
-	vtkImageDifferenceComputeError(color1,color2);
-	}
-      
-      /* check the line above if there is one */
-      if (row)
-	{
-	/* check the exact match pixel */
-	color1 = s1->GetColor(idx - dims1[0] + col);
-	vtkImageDifferenceComputeError(color1,color2);
-	
+      /* If AllowShift, then we examine neighboring pixels to 
+         find the least difference.  This feature is used to 
+	 allow images to shift slightly between different graphics
+	 systems, like between opengl and starbase. */
+
+      if (this->AllowShift) 
+        {
 	/* check the pixel to the left */
 	if (col)
 	  {
-	  color1 = s1->GetColor(idx - dims1[0] + col - 1);
+	  color1 = s1->GetColor(idx + col - 1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	  
-	/* check the pixel to the right */
+	  /* check the pixel to the right */
 	if (col < (dims1[0] -1))
 	  {
-	  color1 = s1->GetColor(idx - dims1[0] + col + 1);
-	  vtkImageDifferenceComputeError(color1,color2);
-	  }
-	}
-      
-      /* check the line below if there is one */
-      if (row < (dims1[1] - 1))
-	{
-	/* check the exact match pixel */
-	color1 = s1->GetColor(idx + dims1[0] + col);
-	vtkImageDifferenceComputeError(color1,color2);
-	
-	/* check the pixel to the left */
-	if (col)
-	  {
-	  color1 = s1->GetColor(idx + dims1[0] + col - 1);
+	  color1 = s1->GetColor(idx + col + 1);
 	  vtkImageDifferenceComputeError(color1,color2);
 	  }
 	
-	/* check the pixel to the right */
-	if (col < (dims1[0] -1))
+	/* check the line above if there is one */
+	if (row)
 	  {
-	  color1 = s1->GetColor(idx + dims1[0] + col + 1);
+	  /* check the exact match pixel */
+	  color1 = s1->GetColor(idx - dims1[0] + col);
 	  vtkImageDifferenceComputeError(color1,color2);
+	  
+	  /* check the pixel to the left */
+	  if (col)
+	    {
+	    color1 = s1->GetColor(idx - dims1[0] + col - 1);
+	    vtkImageDifferenceComputeError(color1,color2);
+	    }
+	    
+	  /* check the pixel to the right */
+	  if (col < (dims1[0] -1))
+	    {
+	    color1 = s1->GetColor(idx - dims1[0] + col + 1);
+	    vtkImageDifferenceComputeError(color1,color2);
+	    }
+	  }
+	
+	/* check the line below if there is one */
+	if (row < (dims1[1] - 1))
+	  {
+	  /* check the exact match pixel */
+	  color1 = s1->GetColor(idx + dims1[0] + col);
+	  vtkImageDifferenceComputeError(color1,color2);
+	  
+	  /* check the pixel to the left */
+	  if (col)
+	    {
+	    color1 = s1->GetColor(idx + dims1[0] + col - 1);
+	    vtkImageDifferenceComputeError(color1,color2);
+	    }
+	  
+	  /* check the pixel to the right */
+	  if (col < (dims1[0] -1))
+	    {
+	    color1 = s1->GetColor(idx + dims1[0] + col + 1);
+	    vtkImageDifferenceComputeError(color1,color2);
+	    }
 	  }
 	}
       
       this->Error = this->Error + (tr + tg + tb)/(3.0*255);
-      tr -= threshold;
+      tr -= this->Threshold;
       if (tr < 0) tr = 0;
-      tg -= threshold;
+      tg -= this->Threshold;
       if (tg < 0) tg = 0;
-      tb -= threshold;
+      tb -= this->Threshold;
       if (tb < 0) tb = 0;
       outColor[0] = tr;
       outColor[1] = tg;
@@ -203,6 +212,8 @@ void vtkImageDifference::PrintSelf(ostream& os, vtkIndent indent)
   
   os << indent << "Error: " << this->Error << "\n";
   os << indent << "ThresholdedError: " << this->ThresholdedError << "\n";
+  os << indent << "Threshold: " << this->Threshold << "\n";
+  os << indent << "AllowShift: " << this->AllowShift << "\n";
 }
 
 

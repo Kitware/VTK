@@ -86,12 +86,31 @@ public:
   // Description:
   // Return the thresholded error in comparing the two images.
   vtkGetMacro(ThresholdedError,float);
+
+  // Description:
+  // Specify a threshold tolorance for pixel differences.
+  vtkSetMacro(Threshold,int);
+  vtkGetMacro(Threshold,int);
+
+  // Description:
+  // Specify whether the comparison will allow a shift of one
+  // pixel between the images.  If set, then the minimum difference
+  // between input images will be used to determine the difference.
+  // Otherwise, the difference is computed directly between pixels
+  // of identical row/column values.
+
+  vtkSetMacro(AllowShift,int);
+  vtkGetMacro(AllowShift,int);
+  vtkBooleanMacro(AllowShift,int);
+
   
 protected:
   void Execute();
   vtkStructuredPoints *Image;
   float Error;
   float ThresholdedError;
+  int AllowShift;
+  int Threshold;
 };
 
 #endif
