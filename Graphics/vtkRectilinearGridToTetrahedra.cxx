@@ -13,18 +13,20 @@
 
 =========================================================================*/
 #include "vtkRectilinearGridToTetrahedra.h"
+
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkCharArray.h"
+#include "vtkFloatArray.h"
+#include "vtkIdList.h"
+#include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkCellData.h"
 #include "vtkVoxel.h"
-#include "vtkFloatArray.h"
-#include "vtkCharArray.h"
-#include "vtkIntArray.h"
-#include "vtkIdList.h"
-#include "vtkCellArray.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.9");
+vtkCxxRevisionMacro(vtkRectilinearGridToTetrahedra, "1.10");
 vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 // ways to convert to a voxel to tetrahedra.
@@ -41,6 +43,8 @@ vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 
 vtkRectilinearGridToTetrahedra::vtkRectilinearGridToTetrahedra()
 {
+  this->NumberOfRequiredInputs = 1;
+  this->SetNumberOfInputPorts(1);
   this->TetraPerCell  = VTK_VOXEL_TO_5_TET;
   this->RememberVoxelId = 0;
 }
@@ -584,6 +588,19 @@ void vtkRectilinearGridToTetrahedra::Execute()
 
   // Clean Up
   VoxelSubdivisionType->Delete();
+}
+
+//----------------------------------------------------------------------------
+int
+vtkRectilinearGridToTetrahedra
+::FillInputPortInformation(int port, vtkInformation* info)
+{
+  if(!this->Superclass::FillInputPortInformation(port, info))
+    {
+    return 0;
+    }
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkRectilinearGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------

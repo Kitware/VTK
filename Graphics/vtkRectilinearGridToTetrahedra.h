@@ -118,6 +118,8 @@ protected:
   int RememberVoxelId;
   int TetraPerCell;
 
+  virtual int FillInputPortInformation(int, vtkInformation*);
+
  private:
   vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&); // Not implemented.
 
