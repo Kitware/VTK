@@ -31,7 +31,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.17");
+vtkCxxRevisionMacro(vtkUnstructuredGridBunykRayCastFunction, "1.18");
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastFunction);
 
 #define VTK_BUNYKRCF_NUMLISTS 100000
@@ -387,7 +387,9 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
   // but it turns off stereo so we do not want to use that one
   vtkCamera *cam = ren->GetActiveCamera();
   perspectiveTransform->Identity();
-  perspectiveTransform->Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/aspect[1], 0.0, 1.0 ));
+  perspectiveTransform->
+    Concatenate(cam->GetPerspectiveTransformMatrix(aspect[0]/
+                                                   aspect[1], 0.0, 1.0 ));
   perspectiveTransform->Concatenate(cam->GetViewTransformMatrix());
   perspectiveTransform->Concatenate(vol->GetMatrix());
   perspectiveMatrix->DeepCopy(perspectiveTransform->GetMatrix());
@@ -411,8 +413,10 @@ void vtkUnstructuredGridBunykRayCastFunction::TransformPoints()
     in[1] = origPtr[1];
     in[2] = origPtr[2];
     perspectiveMatrix->MultiplyPoint( in, out );
-    transformedPtr[0] = (out[0]/out[3] + 1.0)/2.0 * (double)this->ImageViewportSize[0] - this->ImageOrigin[0];
-    transformedPtr[1] = (out[1]/out[3] + 1.0)/2.0 * (double)this->ImageViewportSize[1] - this->ImageOrigin[1];
+    transformedPtr[0] = (out[0]/out[3] + 1.0)/2.0 * 
+      (double)this->ImageViewportSize[0] - this->ImageOrigin[0];
+    transformedPtr[1] = (out[1]/out[3] + 1.0)/2.0 * 
+      (double)this->ImageViewportSize[1] - this->ImageOrigin[1];
     transformedPtr[2] =  out[2]/out[3];
   
     transformedPtr += 3;
