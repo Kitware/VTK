@@ -237,7 +237,12 @@ void GetIncludes(DEPENDS_STRUCT *dependsEntry, const char *vtkHome,
               // Get the full name
               if (!GetFullPath(name, vtkHome, fullPath, extraPtr, extra_num))
                 {
+#ifdef WIN32
+                sprintf(line,"ERROR:  Dependency %s not found!!!", name);
+                AfxMessageBox(line);
+#else
                 fprintf(stderr,"ERROR:  Dependency %s not found!!!", name);
+#endif
                 exit(-1);
                 }
 
