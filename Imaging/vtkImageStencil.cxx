@@ -17,11 +17,13 @@
 #include "vtkImageData.h"
 #include "vtkImageStencilData.h"
 #include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.14");
+vtkCxxRevisionMacro(vtkImageStencil, "1.15");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -33,6 +35,7 @@ vtkImageStencil::vtkImageStencil()
   this->BackgroundColor[1] = 1;
   this->BackgroundColor[2] = 1;
   this->BackgroundColor[3] = 1;
+  this->SetNumberOfInputPorts(3);
 }
 
 //----------------------------------------------------------------------------
@@ -43,45 +46,54 @@ vtkImageStencil::~vtkImageStencil()
 //----------------------------------------------------------------------------
 void vtkImageStencil::SetStencil(vtkImageStencilData *stencil)
 {
-  this->vtkProcessObject::SetNthInput(2, stencil); 
+  this->SetInput(2, stencil); 
 }
 
 //----------------------------------------------------------------------------
 vtkImageStencilData *vtkImageStencil::GetStencil()
 {
-  if (this->NumberOfInputs < 3) 
-    { 
+  if (this->GetNumberOfInputConnections(2) < 1)
+    {
     return NULL;
     }
   else
     {
-    return (vtkImageStencilData *)(this->Inputs[2]); 
+    return vtkImageStencilData::SafeDownCast(
+      this->GetExecutive()->GetInputData(2, 0));
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageStencil::SetBackgroundInput(vtkImageData *data)
 {
-  this->vtkProcessObject::SetNthInput(1, data); 
+  this->SetInput(1, data); 
 }
 
 //----------------------------------------------------------------------------
 vtkImageData *vtkImageStencil::GetBackgroundInput()
 {
-  if (this->NumberOfInputs < 2) 
-    { 
+  if (this->GetNumberOfInputConnections(1) < 1)
+    {
     return NULL;
     }
   else
     {
-    return (vtkImageData *)(this->Inputs[1]); 
+    return vtkImageData::SafeDownCast(
+      this->GetExecutive()->GetInputData(1, 0));
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageStencil::ExecuteInformation(vtkImageData *input, 
-                                         vtkImageData *vtkNotUsed(output))
+void vtkImageStencil::ExecuteInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
+  // get the info object
+  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkImageData *input = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   // need to set the spacing and origin of the stencil to match the output
   vtkImageStencilData *stencil = this->GetStencil();
   if (stencil)
@@ -92,7 +104,7 @@ void vtkImageStencil::ExecuteInformation(vtkImageData *input,
 }
 
 //----------------------------------------------------------------------------
-// Some helper functions for 'Execute'
+// Some helper functions for 'ThreadedRequestData'
 //----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
@@ -114,8 +126,11 @@ inline void vtkCopyPixel(T *&out, const T *in, int numscalars)
 template <class T>
 void vtkAllocBackground(vtkImageStencil *self, T *&background)
 {
-  int numComponents = self->GetOutput()->GetNumberOfScalarComponents();
-  int scalarType = self->GetOutput()->GetScalarType();
+  vtkInformation *outInfo = self->GetExecutive()->GetOutputInformation(0);
+  vtkImageData *output = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int numComponents = output->GetNumberOfScalarComponents();
+  int scalarType = output->GetScalarType();
 
   background = new T[numComponents];
 
@@ -269,50 +284,55 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   vtkFreeBackground(self, background);
 }
 
-
 //----------------------------------------------------------------------------
-void vtkImageStencil::ThreadedExecute(vtkImageData *inData, 
-                                      vtkImageData *outData,
-                                      int outExt[6], int id)
+void vtkImageStencil::ThreadedRequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **inputVector,
+  vtkInformationVector *vtkNotUsed(outputVector),
+  vtkImageData ***inData,
+  vtkImageData **outData,
+  int outExt[6], int id)
 {
   void *inPtr, *inPtr2;
   void *outPtr;
   vtkImageData *inData2 = this->GetBackgroundInput();
   
-  vtkDebugMacro("Execute: inData = " << inData << ", outData = " << outData);
-  
-  inPtr = inData->GetScalarPointer();
-  outPtr = outData->GetScalarPointerForExtent(outExt);
+  inPtr = inData[0][0]->GetScalarPointer();
+  outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   inPtr2 = NULL;
   if (inData2)
     {
     inPtr2 = inData2->GetScalarPointer();
-    if (inData2->GetScalarType() != inData->GetScalarType())
+    if (inData2->GetScalarType() != inData[0][0]->GetScalarType())
       {
       if (id == 0)
         {
         vtkErrorMacro("Execute: BackgroundInput ScalarType " 
                       << inData2->GetScalarType()
                       << ", must match Input ScalarType "
-                      << inData->GetScalarType());
+                      << inData[0][0]->GetScalarType());
         }
       return;
       }
     else if (inData2->GetNumberOfScalarComponents() 
-             != inData->GetNumberOfScalarComponents())
+             != inData[0][0]->GetNumberOfScalarComponents())
       {
       if (id == 0)
         {
         vtkErrorMacro("Execute: BackgroundInput NumberOfScalarComponents " 
                       << inData2->GetNumberOfScalarComponents()
                       << ", must match Input NumberOfScalarComponents "
-                      << inData->GetNumberOfScalarComponents());
+                      << inData[0][0]->GetNumberOfScalarComponents());
         }
       return;
       }
-    int *wholeExt1 = inData->GetWholeExtent();
-    int *wholeExt2 = inData2->GetWholeExtent();
+    int wholeExt1[6], wholeExt2[6];
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *inInfo2 = inputVector[1]->GetInformationObject(0);
+    inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt1);
+    inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),wholeExt2);
+
     for (int i = 0; i < 6; i++)
       {
       if (wholeExt1[i] != wholeExt2[i])
@@ -327,11 +347,11 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
       }
     }
   
-  switch (inData->GetScalarType())
+  switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageStencilExecute, this, inData, 
+    vtkTemplateMacro9(vtkImageStencilExecute, this, inData[0][0],
                       (VTK_TT *)(inPtr), inData2, (VTK_TT *)(inPtr2), 
-                      outData, (VTK_TT *)(outPtr), outExt, id);
+                      outData[0], (VTK_TT *)(outPtr), outExt, id);
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;
@@ -341,11 +361,19 @@ void vtkImageStencil::ThreadedExecute(vtkImageData *inData,
 //----------------------------------------------------------------------------
 int vtkImageStencil::FillInputPortInformation(int port, vtkInformation* info)
 {
-  if(!this->Superclass::FillInputPortInformation(port, info))
+  if (port == 2)
     {
-    return 0;
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageStencilData");
+    info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
     }
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
+  else
+    {
+    info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
+    if (port == 1)
+      {
+      info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
+      }
+    }
   return 1;
 }
 
@@ -365,4 +393,3 @@ void vtkImageStencil::PrintSelf(ostream& os, vtkIndent indent)
                                     << this->BackgroundColor[2] << ", "
                                     << this->BackgroundColor[3] << ")\n";
 }
-

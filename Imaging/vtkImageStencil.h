@@ -21,15 +21,15 @@
 #ifndef __vtkImageStencil_h
 #define __vtkImageStencil_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 
 class vtkImageStencilData;
 
-class VTK_IMAGING_EXPORT vtkImageStencil : public vtkImageToImageFilter
+class VTK_IMAGING_EXPORT vtkImageStencil : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageStencil *New();
-  vtkTypeRevisionMacro(vtkImageStencil, vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageStencil, vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,34 +68,23 @@ public:
 protected:
   vtkImageStencil();
   ~vtkImageStencil();
+  
+  void ExecuteInformation (vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-  void ExecuteInformation() {
-    this->vtkImageToImageFilter::ExecuteInformation(); };
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  void ThreadedRequestData(vtkInformation *request,
+                           vtkInformationVector **inputVector,
+                           vtkInformationVector *outputVector,
+                           vtkImageData ***inData, vtkImageData **outData,
+                           int extent[6], int id);
   
   int ReverseStencil;
   double BackgroundColor[4];
 
   virtual int FillInputPortInformation(int, vtkInformation*);
+
 private:
   vtkImageStencil(const vtkImageStencil&);  // Not implemented.
   void operator=(const vtkImageStencil&);  // Not implemented.
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
