@@ -107,7 +107,8 @@ protected:
 
   void Execute();
   void ExecuteInformation();
-
+  void ComputeInputUpdateExtents(vtkDataObject *out);
+  
   int VOI[6];
   int SampleRate[3];
   int IncludeBoundary;
