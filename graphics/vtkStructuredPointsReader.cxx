@@ -161,11 +161,19 @@ void vtkStructuredPointsReader::Execute()
   vtkStructuredPoints *output=(vtkStructuredPoints *)this->Output;
   
   vtkDebugMacro(<<"Reading vtk structured points file...");
-  if ( this->Debug ) this->Reader->DebugOn();
-  else this->Reader->DebugOff();
+  if ( this->Debug )
+    {
+    this->Reader->DebugOn();
+    }
+  else
+    {
+    this->Reader->DebugOff();
+    }
 
   if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
+    {
       return;
+    }
 //
 // Read structured points specific stuff
 //
@@ -200,7 +208,10 @@ void vtkStructuredPointsReader::Execute()
     numPts = output->GetNumberOfPoints(); // get default
     while (1)
       {
-      if (!this->Reader->ReadString(line)) break;
+      if (!this->Reader->ReadString(line))
+	{
+	break;
+	}
 
       if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
         {

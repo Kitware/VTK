@@ -58,9 +58,15 @@ vtkStreamPoint *vtkStreamArray::Resize(int sz)
   vtkStreamPoint *newArray;
   int newSize;
 
-  if (sz >= this->Size) newSize = this->Size + 
-    this->Extend*(((sz-this->Size)/this->Extend)+1);
-  else newSize = sz;
+  if (sz >= this->Size)
+    {
+    newSize = this->Size + 
+      this->Extend*(((sz-this->Size)/this->Extend)+1);
+    }
+  else
+    {
+    newSize = sz;
+    }
 
   newArray = new vtkStreamPoint[newSize];
 
@@ -97,7 +103,10 @@ vtkStreamer::vtkStreamer()
 
 vtkStreamer::~vtkStreamer()
 {
-  if ( this->Streamers ) delete [] this->Streamers;
+  if ( this->Streamers )
+    {
+    delete [] this->Streamers;
+    }
   this->SetSource(NULL);
 }
 
@@ -190,36 +199,61 @@ void vtkStreamer::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
-  if ( this->Source ) this->Source->Update();
+  if ( this->Source )
+    {
+    this->Source->Update();
+    }
   this->Updating = 0;
 
   if (this->Input->GetMTime() > this->ExecuteTime || 
   (this->Source && this->Source->GetMTime() > this->ExecuteTime) || 
   this->GetMTime() > this->ExecuteTime )
     {
-    if ( this->Input->GetDataReleased() ) this->Input->ForceUpdate();
+    if ( this->Input->GetDataReleased() )
+      {
+      this->Input->ForceUpdate();
+      }
     if ( this->Source && this->Source->GetDataReleased() ) 
+      {
       this->Source->ForceUpdate();
+      }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
   if ( this->Source && this->Source->ShouldIReleaseData() ) 
+    {
     this->Source->ReleaseData();
+    }
 }
 
 void vtkStreamer::Integrate()
@@ -266,7 +300,9 @@ void vtkStreamer::Integrate()
   //
   this->NumberOfStreamers = numSourcePts = offset = 1;
   if ( this->Source )
+    {
     this->NumberOfStreamers = numSourcePts = source->GetNumberOfPoints();
+    }
  
   if ( this->IntegrationDirection == VTK_INTEGRATE_BOTH_DIRECTIONS )
     {
@@ -279,7 +315,10 @@ void vtkStreamer::Integrate()
   if ( this->StartFrom == VTK_START_FROM_POSITION && !this->Source )
     {
     sPtr = this->Streamers[0].InsertNextStreamPoint();
-    for (i=0; i<3; i++) sPtr->x[i] = this->StartPosition[i];
+    for (i=0; i<3; i++)
+      {
+      sPtr->x[i] = this->StartPosition[i];
+      }
     sPtr->cellId = input->FindCell(this->StartPosition, NULL, -1, 0.0, 
                                    sPtr->subId, sPtr->p, w);
     }
@@ -320,7 +359,10 @@ void vtkStreamer::Integrate()
       for (i=0; i < cell->GetNumberOfPoints(); i++)
         {
         v =  cellVectors->GetVector(i);
-        for (j=0; j<3; j++) sPtr->v[j] += v[j] * w[i];
+        for (j=0; j<3; j++)
+	  {
+	  sPtr->v[j] += v[j] * w[i];
+	  }
         }
       sPtr->speed = vtkMath::Norm(sPtr->v);
 
@@ -328,7 +370,9 @@ void vtkStreamer::Integrate()
         {
         inScalars->GetScalars(cell->PointIds, cellScalars);
         for (sPtr->s=0, i=0; i < cell->GetNumberOfPoints(); i++)
+	  {
           sPtr->s += cellScalars->GetScalar(i) * w[i];
+	  }
         }
       }
 
@@ -350,14 +394,20 @@ void vtkStreamer::Integrate()
     {
     //get starting step
     sPtr = this->Streamers[ptId].GetStreamPoint(0);
-    if ( sPtr->cellId < 0 ) continue;
+    if ( sPtr->cellId < 0 )
+      {
+      continue;
+      }
 
     dir = this->Streamers[ptId].Direction;
     cell = input->GetCell(sPtr->cellId);
     cell->EvaluateLocation(sPtr->subId, sPtr->p, xNext, w);
     step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
     inVectors->GetVectors(cell->PointIds, cellVectors);
-    if ( inScalars ) inScalars->GetScalars(cell->PointIds, cellScalars);
+    if ( inScalars )
+      {
+      inScalars->GetScalars(cell->PointIds, cellScalars);
+      }
 
     //integrate until time has been exceeded
     while ( sPtr->cellId >= 0 && sPtr->speed > this->TerminalSpeed &&
@@ -367,7 +417,9 @@ void vtkStreamer::Integrate()
       //compute updated position using this step (Euler integration)
       //use normalized velocity vector (to keep integration in cell)
       for (i=0; i<3; i++)
+	{
         xNext[i] = sPtr->x[i] + dir * step * sPtr->v[i] / sPtr->speed;
+	}
 
       //compute updated position using updated step
       cell->EvaluatePosition(xNext, closestPoint, subId, p, dist2, w);
@@ -377,20 +429,27 @@ void vtkStreamer::Integrate()
       for (i=0; i < cell->GetNumberOfPoints(); i++)
         {
         v = cellVectors->GetVector(i);
-        for (j=0; j < 3; j++) vNext[j] += v[j] * w[i];
+        for (j=0; j < 3; j++)
+	  {
+	  vNext[j] += v[j] * w[i];
+	  }
         }
 
       //now compute final position
       for (i=0; i<3; i++)
+	{
         xNext[i] = sPtr->x[i] +   
                    dir * (step/2.0) * (sPtr->v[i] + vNext[i]) / sPtr->speed;
-
+	}
       sNext = this->Streamers[ptId].InsertNextStreamPoint();
 
       if ( cell->EvaluatePosition(xNext, closestPoint, sNext->subId, 
       sNext->p, dist2, w) == 1)
         { //integration still in cell
-        for (i=0; i<3; i++) sNext->x[i] = closestPoint[i];
+        for (i=0; i<3; i++)
+	  {
+	  sNext->x[i] = closestPoint[i];
+	  }
         sNext->cellId = sPtr->cellId;
         sNext->subId = sPtr->subId;
         }
@@ -400,10 +459,16 @@ void vtkStreamer::Integrate()
                                         sNext->subId, sNext->p, w);
         if ( sNext->cellId >= 0 ) //make sure not out of dataset
           {
-          for (i=0; i<3; i++) sNext->x[i] = xNext[i];
+          for (i=0; i<3; i++)
+	    {
+	    sNext->x[i] = xNext[i];
+	    }
           cell = input->GetCell(sNext->cellId);
           inVectors->GetVectors(cell->PointIds, cellVectors);
-          if ( inScalars ) inScalars->GetScalars(cell->PointIds, cellScalars);
+          if ( inScalars )
+	    {
+	    inScalars->GetScalars(cell->PointIds, cellScalars);
+	    }
           step = this->IntegrationStepLength * sqrt((double)cell->GetLength2());
           }
         }
@@ -415,13 +480,19 @@ void vtkStreamer::Integrate()
         for (i=0; i < cell->GetNumberOfPoints(); i++)
           {
           v = cellVectors->GetVector(i);
-          for (j=0; j < 3; j++) sNext->v[j] += v[j] * w[i];
+          for (j=0; j < 3; j++)
+	    {
+	    sNext->v[j] += v[j] * w[i];
+	    }
           }
         sNext->speed = vtkMath::Norm(sNext->v);
         if ( inScalars )
+	  {
           for (sNext->s=0.0, i=0; i < cell->GetNumberOfPoints(); i++)
+	    {
             sNext->s += cellScalars->GetScalar(i) * w[i];
-
+	    }
+	  }
         d = sqrt((double)vtkMath::Distance2BetweenPoints(sPtr->x,sNext->x));
         sNext->d = sPtr->d + d;
         sNext->t = sPtr->t + (2.0 * d / (sPtr->speed + sNext->speed));
@@ -435,7 +506,10 @@ void vtkStreamer::Integrate()
   //
   // Compute vorticity if desired.
   //
-  if ( this->Vorticity ) this->ComputeVorticity();
+  if ( this->Vorticity )
+    {
+    this->ComputeVorticity();
+    }
   //
   // Now create appropriate representation
   //
@@ -486,11 +560,17 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumPropagationTime << "\n";
 
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
+    {
     os << indent << "Integration Direction: FORWARD\n";
+    }
   else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
+    {
     os << indent << "Integration Direction: BACKWARD\n";
+    }
   else
+    {
     os << indent << "Integration Direction: FORWARD & BACKWARD\n";
+    }
 
   os << indent << "Integration Step Length: " << this->IntegrationStepLength << "\n";
 

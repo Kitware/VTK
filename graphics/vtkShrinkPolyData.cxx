@@ -136,15 +136,22 @@ void vtkShrinkPolyData::Execute()
       {
       p1 = inPts->GetPoint(pts[j]);
       p2 = inPts->GetPoint(pts[j+1]);
-      for (k=0; k<3; k++) center[k] = (p1[k] + p2[k]) / 2.0;
+      for (k=0; k<3; k++)
+	{
+	center[k] = (p1[k] + p2[k]) / 2.0;
+	}
 
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+	}
       newIds[0] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
+	}
       newIds[1] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j+1],newIds[1]);
 
@@ -159,10 +166,16 @@ void vtkShrinkPolyData::Execute()
     for (center[0]=center[1]=center[2]=0.0, j=0; j<npts; j++)
       {
       p1 = inPts->GetPoint(pts[j]);
-      for (k=0; k<3; k++) center[k] += p1[k];
+      for (k=0; k<3; k++)
+	{
+	center[k] += p1[k];
+	}
       }
 
-    for (k=0; k<3; k++) center[k] /= npts;
+    for (k=0; k<3; k++)
+      {
+      center[k] /= npts;
+      }
 
     
     newPolys->InsertNextCell(npts);
@@ -170,7 +183,9 @@ void vtkShrinkPolyData::Execute()
       {
       p1 = inPts->GetPoint(pts[j]);
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+	}
       newId = newPoints->InsertNextPoint(pt);
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
@@ -187,20 +202,29 @@ void vtkShrinkPolyData::Execute()
       p1 = inPts->GetPoint(pts[j]);
       p2 = inPts->GetPoint(pts[j+1]);
       p3 = inPts->GetPoint(pts[j+2]);
-      for (k=0; k<3; k++) center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
+      for (k=0; k<3; k++)
+	{
+	center[k] = (p1[k] + p2[k] + p3[k]) / 3.0;
+	}
 
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p1[k] - center[k]);
+	}
       newIds[0] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j],newIds[0]);
 
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p2[k] - center[k]);
+	}
       newIds[1] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j+1],newIds[1]);
 
       for (k=0; k<3; k++)
+	{
         pt[k] = center[k] + this->ShrinkFactor*(p3[k] - center[k]);
+	}
       newIds[2] = newPoints->InsertNextPoint(pt);
       pointData->CopyData(pd,pts[j+2],newIds[2]);
 

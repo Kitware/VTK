@@ -59,9 +59,18 @@ vtkSpline::vtkSpline ()
 
 vtkSpline::~vtkSpline ()
 {
-  if (this->PiecewiseFunction) this->PiecewiseFunction->Delete();
-  if (this->Coefficients) delete [] this->Coefficients;
-  if (this->Intervals) delete [] this->Intervals;
+  if (this->PiecewiseFunction)
+    {
+    this->PiecewiseFunction->Delete();
+    }
+  if (this->Coefficients)
+    {
+    delete [] this->Coefficients;
+    }
+  if (this->Intervals)
+    {
+    delete [] this->Intervals;
+    }
 }
 
 // Add a point to the Piecewise Functions containing the data

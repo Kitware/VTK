@@ -351,8 +351,10 @@ void vtkTensorGlyph::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
-
+  if (this->Updating)
+      {
+      return;
+      }
   this->Updating = 1;
   this->Input->Update();
   this->Source->Update();

@@ -148,7 +148,10 @@ void vtkSphereSource::Execute()
       x[2] = n[2] + this->Center[2];
       newPoints->InsertNextPoint(x);
 
-      if ( (norm = vtkMath::Norm(n)) == 0.0 ) norm = 1.0;
+      if ( (norm = vtkMath::Norm(n)) == 0.0 )
+	{
+	norm = 1.0;
+	}
       n[0] /= norm; n[1] /= norm; n[2] /= norm; 
       newNormals->InsertNextNormal(n);
       }

@@ -63,7 +63,10 @@ vtkSelectPolyData::vtkSelectPolyData()
 
 vtkSelectPolyData::~vtkSelectPolyData()
 {
-  if (this->Loop) this->Loop->Delete();
+  if (this->Loop)
+    {
+    this->Loop->Delete();
+    }
   this->UnselectedOutput->Delete();
   this->SelectionEdges->Delete();
 }
@@ -181,7 +184,10 @@ void vtkSelectPolyData::Execute()
     inPts->GetPoint(currentId, x);
     inPts->GetPoint(currentId, x0);
     inPts->GetPoint(nextId, x1);
-    for (j=0; j<3; j++) vec[j] = x1[j] - x0[j];
+    for (j=0; j<3; j++)
+      {
+      vec[j] = x1[j] - x0[j];
+      }
 
     // track edge
     for (id=currentId; id != nextId; )
@@ -194,7 +200,10 @@ void vtkSelectPolyData::Execute()
         {
         neiId = neighbors->GetId(j);
         inPts->GetPoint(neiId, neiX);
-        for (k=0; k<3; k++) dir[k] = neiX[k] - x[k];
+        for (k=0; k<3; k++)
+	  {
+	  dir[k] = neiX[k] - x[k];
+	  }
         if ( neiId != prevId && vtkMath::Dot(dir,vec) > 0.0 ) //candidate
           {
           dist2 = vtkLine::DistanceToLine(neiX, x0, x1);
@@ -282,7 +291,10 @@ void vtkSelectPolyData::Execute()
         id = cells[j];
         if ( cellMarks->GetValue(id) == VTK_LARGE_INTEGER )
           {
-          if ( currentFrontNumber > maxFront ) maxFrontCell = id;
+          if ( currentFrontNumber > maxFront )
+	    {
+	    maxFrontCell = id;
+	    }
           cellMarks->SetValue(id, currentFrontNumber);
           this->Mesh->GetCellPoints(id,npts,pts);
           for (k=0; k<npts; k++)

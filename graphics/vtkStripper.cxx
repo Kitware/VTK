@@ -113,7 +113,10 @@ void vtkStripper::Execute()
 
   // array keeps track of data that's been visited
   visited = new char[numCells];
-  for (i=0; i < numCells; i++) visited[i] = 0;
+  for (i=0; i < numCells; i++)
+    {
+    visited[i] = 0;
+    }
   //
   // Loop over all cells and find one that hasn't been visited.
   // Start a triangle strip (or poly-line) and mark as visited, and 
@@ -182,10 +185,14 @@ void vtkStripper::Execute()
             Mesh->GetCellPoints(neighbor,numTriPts, triPts);
 
             for (i=0; i<3; i++)
+	      {
               if ( triPts[i] != pts[numPts-2] && 
               triPts[i] != pts[numPts-1] )
+		{
                 break;
-	    
+		}
+	      }
+
 	    // only add the triangle to the strip if it isn't degenerate.
 	    if (i < 3)
 	      {
@@ -195,7 +202,10 @@ void vtkStripper::Execute()
 	      numPts++;
 	      }
 	    
-	    if ( numPts > longestStrip ) longestStrip = numPts;
+	    if ( numPts > longestStrip )
+	      {
+	      longestStrip = numPts;
+	      }
 	    
 	    // note: if updates value of neighbor
 	    // Note2: for a degenerate triangle this test will
@@ -258,12 +268,18 @@ void vtkStripper::Execute()
             Mesh->GetCellPoints(neighbor, numLinePts, linePts);
 
             for (i=0; i<2; i++)
+	      {
               if ( linePts[i] != pts[numPts-1] )
+		{
                 break;
-
+		}
+	      }
             pts[numPts] = linePts[i];
             Mesh->GetPointCells(pts[numPts], cellIds);
-            if ( ++numPts > longestLine ) longestLine = numPts;
+            if ( ++numPts > longestLine )
+	      {
+	      longestLine = numPts;
+	      }
 
             // get new neighbor
             for ( j=0; j < cellIds->GetNumberOfIds(); j++ )

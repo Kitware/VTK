@@ -159,11 +159,19 @@ void vtkStructuredGridReader::Execute()
   vtkStructuredGrid *output=(vtkStructuredGrid *)this->Output;
   
   vtkDebugMacro(<<"Reading vtk structured grid file...");
-  if ( this->Debug ) this->Reader->DebugOn();
-  else this->Reader->DebugOff();
+  if ( this->Debug )
+    {
+    this->Reader->DebugOn();
+    }
+  else
+    {
+    this->Reader->DebugOff();
+    }
 
   if (!this->Reader->OpenVTKFile() || !this->Reader->ReadHeader())
-      return;
+    {
+    return;
+    }
   //
   // Read structured grid specific stuff
   //
@@ -197,7 +205,10 @@ void vtkStructuredGridReader::Execute()
     //
     while (1)
       {
-      if (!this->Reader->ReadString(line)) break;
+      if (!this->Reader->ReadString(line))
+	{
+	break;
+	}
 
       if ( ! strncmp(this->Reader->LowerCase(line),"dimensions",10) )
         {

@@ -63,7 +63,9 @@ void vtkStructuredPointsWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk structured points...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+      {
       return;
+      }
 //
 // Write structured points specific stuff
 //

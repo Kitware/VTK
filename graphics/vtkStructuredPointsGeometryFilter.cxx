@@ -86,8 +86,14 @@ void vtkStructuredPointsGeometryFilter::Execute()
     extent[2*i] = this->Extent[2*i] < 0 ? 0 : this->Extent[2*i];
     extent[2*i] = this->Extent[2*i] >= dims[i] ? dims[i]-1 : this->Extent[2*i];
     extent[2*i+1] = this->Extent[2*i+1] >= dims[i] ? dims[i]-1 : this->Extent[2*i+1];
-    if ( extent[2*i+1] < extent[2*i] ) extent[2*i+1] = extent[2*i];
-    if ( (extent[2*i+1] - extent[2*i]) == 0 ) dimension--;
+    if ( extent[2*i+1] < extent[2*i] )
+      {
+      extent[2*i+1] = extent[2*i];
+      }
+    if ( (extent[2*i+1] - extent[2*i]) == 0 )
+      {
+      dimension--;
+      }
     }
 //
 // Now create polygonal data based on dimension of data
@@ -136,11 +142,17 @@ void vtkStructuredPointsGeometryFilter::Execute()
 //  Load data
 //
       if ( dir[0] == 0 ) 
+	{
         offset[0] = 1;
+	}
       else if (dir[0] == 1)
+	{
         offset[0] = dims[0];
+	}
       else
+	{
         offset[0] = dims[0]*dims[1];
+	}
 
       for (i=0; i<totPoints; i++) 
         {
@@ -151,11 +163,17 @@ void vtkStructuredPointsGeometryFilter::Execute()
         }
 
       if ( dir[0] == 0 ) 
+	{
         offset[0] = 1;
+	}
       else if (dir[0] == 1)
+	{
         offset[0] = dims[0] - 1;
+	}
       else
+	{
         offset[0] = (dims[0] - 1) * (dims[1] - 1);
+	}
 
       for (i=0; i<(totPoints-1); i++) 
         {
@@ -174,9 +192,13 @@ void vtkStructuredPointsGeometryFilter::Execute()
       for (dir[0]=dir[1]=dir[2]=idx=0,i=0; i<3; i++)
         {
         if ( (diff[i] = extent[2*i+1] - extent[2*i]) != 0 )
+	  {
           dir[idx++] = i;
+	  }
         else
+	  {
           dir[2] = i;
+	  }
         }
 
       totPoints = (diff[dir[0]]+1) * (diff[dir[1]]+1);
@@ -194,11 +216,17 @@ void vtkStructuredPointsGeometryFilter::Execute()
       for (i=0; i<2; i++) 
         {
         if ( dir[i] == 0 )
+	  {
           offset[i] = 1;
+	  }
         else if ( dir[i] == 1 )
+	  {
           offset[i] = dims[0];
+	  }
         else if ( dir[i] == 2 )
+	  {
           offset[i] = dims[0]*dims[1];
+	  }
         }
 
       for (pos=startIdx, j=0; j < (diff[dir[1]]+1); j++) 
@@ -219,11 +247,17 @@ void vtkStructuredPointsGeometryFilter::Execute()
       for (i=0; i<2; i++) 
         {
         if ( dir[i] == 0 )
+	  {
           offset[i] = 1;
+	  }
         else if ( dir[i] == 1 )
+	  {
           offset[i] = (dims[0] - 1);
+	  }
         else if ( dir[i] == 2 )
+	  {
           offset[i] = (dims[0] - 1) * (dims[1] - 1);
+	  }
         }
 
       for (pos=startIdx, j=0; j < diff[dir[1]]; j++) 
@@ -247,8 +281,10 @@ void vtkStructuredPointsGeometryFilter::Execute()
 //
 // Create data objects
 //
-      for (i=0; i<3; i++) diff[i] = extent[2*i+1] - extent[2*i];
-
+      for (i=0; i<3; i++)
+	{
+	  diff[i] = extent[2*i+1] - extent[2*i];
+	}
       totPoints = (diff[0]+1) * (diff[1]+1) * (diff[2]+1);
 
       newPts = vtkPoints::New();
@@ -337,8 +373,14 @@ void vtkStructuredPointsGeometryFilter::SetExtent(int *extent)
     this->Modified();
     for (i=0; i<3; i++)
       {
-      if ( extent[2*i] < 0 ) extent[2*i] = 0;
-      if ( extent[2*i+1] < extent[2*i] ) extent[2*i+1] = extent[2*i];
+      if ( extent[2*i] < 0 )
+	{
+	extent[2*i] = 0;
+	}
+      if ( extent[2*i+1] < extent[2*i] )
+	{
+	extent[2*i+1] = extent[2*i];
+	}
       this->Extent[2*i] = extent[2*i];
       this->Extent[2*i+1] = extent[2*i+1];
       }

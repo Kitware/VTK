@@ -61,7 +61,7 @@ vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
     this->Output->Delete();
     this->Output = NULL;
     }
-  for (int i=0; i <= Level; i++) //superclass deletes OutputList[0]
+  for (int i=0; i <= this->Level; i++) //superclass deletes OutputList[0]
     {
     if ( this->OutputList[i] != NULL ) {this->OutputList[i]->Delete();}
     }
@@ -106,7 +106,10 @@ void vtkSpatialRepresentationFilter::ResetOutput()
   this->TerminalNodesRequested = 0;
   for ( int i=0; i <= VTK_MAX_SPATIAL_REP_LEVEL; i++)
     {
-    if ( this->OutputList[i] != NULL ) this->OutputList[i]->Delete();
+    if ( this->OutputList[i] != NULL )
+      {
+      this->OutputList[i]->Delete();
+      }
     }
 }
 
@@ -122,7 +125,10 @@ void vtkSpatialRepresentationFilter::Update()
     }
 
   // prevent chasing our tail
-  if (this->Updating) return;
+  if (this->Updating)
+    {
+    return;
+    }
 
   this->Updating = 1;
   this->Input->Update();
@@ -137,19 +143,31 @@ void vtkSpatialRepresentationFilter::Update()
       this->Input->ForceUpdate();
       }
 
-    if ( this->StartMethod ) (*this->StartMethod)(this->StartMethodArg);
+    if ( this->StartMethod )
+      {
+      (*this->StartMethod)(this->StartMethodArg);
+      }
     this->Output->Initialize(); //clear output
     // reset AbortExecute flag and Progress
     this->AbortExecute = 0;
     this->Progress = 0.0;
     this->Execute();
     this->ExecuteTime.Modified();
-    if ( !this->AbortExecute ) this->UpdateProgress(1.0);
+    if ( !this->AbortExecute )
+      {
+      this->UpdateProgress(1.0);
+      }
     this->SetDataReleased(0);
-    if ( this->EndMethod ) (*this->EndMethod)(this->EndMethodArg);
+    if ( this->EndMethod )
+      {
+      (*this->EndMethod)(this->EndMethodArg);
+      }
     }
 
-  if ( this->Input->ShouldIReleaseData() ) this->Input->ReleaseData();
+  if ( this->Input->ShouldIReleaseData() )
+    {
+    this->Input->ReleaseData();
+    }
 }
 
 
@@ -179,14 +197,17 @@ void vtkSpatialRepresentationFilter::GenerateOutput()
     {
     for ( i=0; i <= this->Level; i++ )
       {
-      if ( this->OutputList[i] != NULL ) this->OutputList[i]->Initialize();
+      if ( this->OutputList[i] != NULL )
+	{
+	this->OutputList[i]->Initialize();
+	}
       }
     }
 
   //
   // Loop over all requested levels generating new levels as necessary
   //
-  for ( i=0; i <= Level; i++ )
+  for ( i=0; i <= this->Level; i++ )
     {
     if ( this->OutputList[i] != NULL &&
     this->OutputList[i]->GetNumberOfPoints() < 1 ) //compute OBB

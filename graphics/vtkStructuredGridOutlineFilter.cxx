@@ -73,16 +73,26 @@ void vtkStructuredGridOutlineFilter::Execute()
   for (idx=j=0; j<4; j++) 
     {
     if ( j == 0 )
+      {
       gridIdx = 0;
+      }
     else if ( j == 1)
+      {
       gridIdx = (dim[1] - 1)*dim[0];
+      }
     else if ( j == 2)
+      {
       gridIdx = (dim[1] - 1)*dim[0] + (dim[2] - 1)*dim[0]*dim[1];
+      }
     else
+      {
       gridIdx = (dim[2] - 1)*dim[0]*dim[1];
+      }
 
     for (i=0; i<dim[0]; i++)
+      {
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i));
+      }
 
     }
 
@@ -91,16 +101,26 @@ void vtkStructuredGridOutlineFilter::Execute()
   for (j=0; j<4; j++) 
     {
     if ( j == 0 )
+      {
       gridIdx = 0;
+      }
     else if ( j == 1)
+      {
       gridIdx = dim[0] - 1;
+      }
     else if ( j == 2)
+      {
       gridIdx = (dim[0] - 1) + (dim[2]-1)*dim[0]*dim[1];
+      }
     else
+      {
       gridIdx = (dim[2] - 1)*dim[0]*dim[1];
+      }
 
     for (i=0; i<dim[1]; i++)
+      {
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*dim[0]));
+      }
 
     }
 
@@ -110,16 +130,26 @@ void vtkStructuredGridOutlineFilter::Execute()
   for (j=0; j<4; j++) 
     {
     if ( j == 0 )
+      {
       gridIdx = 0;
+      }
     else if ( j == 1)
+      {
       gridIdx = (dim[0] - 1);
+      }
     else if ( j == 2)
+      {
       gridIdx = (dim[0] - 1) + (dim[1]-1)*dim[0];
+      }
     else
+      {
       gridIdx = (dim[1] - 1)*dim[0];
+      }
         
     for (i=0; i<dim[2]; i++)
+      {
       newPts->InsertNextPoint(inPts->GetPoint(gridIdx+i*idx));
+      }
 
     }
 

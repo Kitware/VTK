@@ -86,7 +86,7 @@ void vtkSmoothPolyDataFilter::Execute()
   float x1[3], x2[3], x3[3], l1[3], l2[3], lenl1, lenl2;
   float CosFeatureAngle; //Cosine of angle between adjacent polys
   float CosEdgeAngle; // Cosine of angle between adjacent edges
-  int iterationNumber, abort;
+  int iterationNumber, abortExecute;
   int numSimple=0, numBEdges=0, numFixed=0, numFEdges=0;
   vtkPolyData *inMesh, *Mesh;
   vtkPoints *inPts;
@@ -262,8 +262,12 @@ void vtkSmoothPolyDataFilter::Execute()
           {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
+	    {
             if ( neighbors->GetId(j) < cellId )
+	      {
               break;
+	      }
+	    }
           if ( j >= numNei )
             {
             edge = VTK_FEATURE_EDGE_VERTEX;
@@ -299,7 +303,9 @@ void vtkSmoothPolyDataFilter::Execute()
           {
           Verts[p1].edges->InsertNextId(p2);
           if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+	    {
             Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    }
           }
 
         if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
@@ -314,7 +320,9 @@ void vtkSmoothPolyDataFilter::Execute()
           {
           Verts[p2].edges->InsertNextId(p1);
           if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+	    {
             Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+	    }
           }
         }
       }
@@ -377,8 +385,14 @@ void vtkSmoothPolyDataFilter::Execute()
           }
         else
           {
-          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ) numFEdges++;
-          else numBEdges++;
+          if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
+	    {
+	    numFEdges++;
+	    }
+          else
+	    {
+	    numBEdges++;
+	    }
           }
         }//if along edge
       }//if edge vertex
@@ -401,8 +415,8 @@ void vtkSmoothPolyDataFilter::Execute()
     }
 
   factor = this->RelaxationFactor;
-  for ( maxDist=VTK_LARGE_FLOAT, iterationNumber=0, abort=0; 
-  maxDist > conv && iterationNumber < this->NumberOfIterations && !abort;
+  for ( maxDist=VTK_LARGE_FLOAT, iterationNumber=0, abortExecute=0; 
+  maxDist > conv && iterationNumber < this->NumberOfIterations && !abortExecute;
   iterationNumber++ )
     {
 
@@ -411,7 +425,7 @@ void vtkSmoothPolyDataFilter::Execute()
       this->UpdateProgress (0.5 + 0.5*iterationNumber/this->NumberOfIterations);
       if (this->GetAbortExecute())
 	{
-	abort = 1;
+	abortExecute = 1;
 	break;
 	}
       }
@@ -427,7 +441,10 @@ void vtkSmoothPolyDataFilter::Execute()
         for (j=0; j<npts; j++)
           {
           y = newPts->GetPoint(Verts[i].edges->GetId(j));
-          for (k=0; k<3; k++) deltaX[k] += (y[k] - x[k]) / npts;
+          for (k=0; k<3; k++)
+	    {
+	    deltaX[k] += (y[k] - x[k]) / npts;
+	    }
           }//for all connected points
 
         for (k=0;k<3;k++) 
@@ -471,7 +488,10 @@ void vtkSmoothPolyDataFilter::Execute()
       {
       inPts->GetPoint(i,x1);
       newPts->GetPoint(i,x2);
-      for (j=0; j<3; j++) x3[j] = x2[j] - x1[j];
+      for (j=0; j<3; j++)
+	{
+	x3[j] = x2[j] - x1[j];
+	}
       newVectors->SetVector(i,x3);
       }
     output->GetPointData()->SetVectors(newVectors);

@@ -83,9 +83,12 @@ float vtkShepardMethod::ComputeModelBounds(float origin[3], float spacing[3])
     }
 
   for (maxDist=0.0, i=0; i<3; i++)
+    {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
+      {
       maxDist = bounds[2*i+1] - bounds[2*i];
-
+      }
+    }
   maxDist *= this->MaximumDistance;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
@@ -174,21 +177,37 @@ void vtkShepardMethod::Execute()
       min[i] = (int) amin;
       max[i] = (int) amax;
       
-      if (min[i] < amin) min[i]++; // round upward to nearest integer to get min[i]
-      if (max[i] > amax) max[i]--; // round downward to nearest integer to get max[i]
+      if (min[i] < amin)
+	{
+	min[i]++; // round upward to nearest integer to get min[i]
+	}
+      if (max[i] > amax)
+	{
+	max[i]--; // round downward to nearest integer to get max[i]
+	}
 
-      if (min[i] < 0) min[i] = 0; // valid range check
+      if (min[i] < 0)
+	{
+	min[i] = 0; // valid range check
+	}
       if (max[i] >= this->SampleDimensions[i]) 
-      max[i] = this->SampleDimensions[i] - 1;
+	{
+        max[i] = this->SampleDimensions[i] - 1;
+	}
       }
 
     for (i=0; i<3; i++) //compute dimensional bounds in data set
       {
       min[i] = (int) ((float)((px[i] - maxDistance) - origin[i]) / spacing[i]);
       max[i] = (int) ((float)((px[i] + maxDistance) - origin[i]) / spacing[i]);
-      if (min[i] < 0) min[i] = 0;
+      if (min[i] < 0)
+	{
+	min[i] = 0;
+	}
       if (max[i] >= this->SampleDimensions[i]) 
+	{
 	max[i] = this->SampleDimensions[i] - 1;
+	}
       }
 
 
@@ -228,8 +247,14 @@ void vtkShepardMethod::Execute()
   for (ptId=0; ptId<numNewPts; ptId++)
     {
     s = newScalars->GetScalar(ptId);
-    if ( sum[ptId] != 0.0 ) newScalars->SetScalar(ptId,s/sum[ptId]);
-    else newScalars->SetScalar(ptId,this->NullValue);
+    if ( sum[ptId] != 0.0 )
+      {
+      newScalars->SetScalar(ptId,s/sum[ptId]);
+      }
+    else
+      {
+      newScalars->SetScalar(ptId,this->NullValue);
+      }
     }
 //
 // Update self
@@ -258,8 +283,9 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
 
   vtkDebugMacro(<< " setting SampleDimensions to (" << dim[0] << "," << dim[1] << "," << dim[2] << ")");
 
-  if ( dim[0] != this->SampleDimensions[0] || dim[1] != SampleDimensions[1] ||
-  dim[2] != SampleDimensions[2] )
+  if ( dim[0] != this->SampleDimensions[0] ||
+       dim[1] != this->SampleDimensions[1] ||
+       dim[2] != this->SampleDimensions[2] )
     {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
       {
@@ -267,7 +293,13 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for (dataDim=0, i=0; i<3 ; i++) if (dim[i] > 1) dataDim++;
+    for (dataDim=0, i=0; i<3 ; i++)
+      {
+      if (dim[i] > 1)
+	{
+	dataDim++;
+	}
+      }
 
     if ( dataDim  < 3 )
       {
@@ -275,7 +307,10 @@ void vtkShepardMethod::SetSampleDimensions(int dim[3])
       return;
       }
 
-    for ( i=0; i<3; i++) this->SampleDimensions[i] = dim[i];
+    for ( i=0; i<3; i++)
+      {
+      this->SampleDimensions[i] = dim[i];
+      }
 
     this->Modified();
     }

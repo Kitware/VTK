@@ -62,7 +62,9 @@ void vtkStructuredGridWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk structured grid...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
+    {
       return;
+    }
 //
 // Write structured grid specific stuff
 //

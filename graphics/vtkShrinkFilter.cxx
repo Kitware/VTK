@@ -91,9 +91,15 @@ void vtkShrinkFilter::Execute()
     for (i=0; i < numIds; i++)
       {
       p = input->GetPoint(ptIds->GetId(i));
-      for (j=0; j < 3; j++) center[j] += p[j];
+      for (j=0; j < 3; j++)
+	{
+	center[j] += p[j];
+	}
       }
-    for (j=0; j<3; j++) center[j] /= numIds;
+    for (j=0; j<3; j++)
+      {
+      center[j] /= numIds;
+      }
 
     // Create new points and cells
     newPtIds->Reset();
@@ -101,7 +107,9 @@ void vtkShrinkFilter::Execute()
       {
       p = input->GetPoint(ptIds->GetId(i));
       for (j=0; j < 3; j++)
+	{
         pt[j] = center[j] + this->ShrinkFactor*(p[j] - center[j]);
+	}
 
       oldId = ptIds->GetId(i);
       newId = newPts->InsertNextPoint(pt);
