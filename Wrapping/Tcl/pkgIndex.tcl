@@ -43,31 +43,32 @@ package ifneeded vtktcl 3.3 {
             puts $errormsg
             set ok 0
         } else {
-            # Try to load the other components
-            __temp_try_to_load_vtk_lib vtkFilteringTCL
-            __temp_try_to_load_vtk_lib vtkGraphicsTCL
-            __temp_try_to_load_vtk_lib vtkImagingTCL
-            __temp_try_to_load_vtk_lib vtkHybridTCL
-            __temp_try_to_load_vtk_lib vtkIOTCL
-            __temp_try_to_load_vtk_lib vtkParallelTCL
-            __temp_try_to_load_vtk_lib vtkPatentedTCL
-            # Try to set the exit method of the interactor (needs Rendering)
-            if {[__temp_try_to_load_vtk_lib vtkRenderingTCL] == ""} {
-                if {$tcl_platform(platform) == "windows" && 
-                [catch {
-                    vtkWin32RenderWindowInteractor __temp_vtkwin32iren__
-                    __temp_vtkwin32iren__ SetClassExitMethod exit
-                    __temp_vtkwin32iren__ Delete
-                } errormsg ]} {
-                    # warn the user, but do not prevent to provide the package
-                    puts $errormsg
-                }
-            }
+           # Try to load the other components
+           __temp_try_to_load_vtk_lib vtkFilteringTCL
+           __temp_try_to_load_vtk_lib vtkGraphicsTCL
+           __temp_try_to_load_vtk_lib vtkImagingTCL
+           __temp_try_to_load_vtk_lib vtkHybridTCL
+           __temp_try_to_load_vtk_lib vtkIOTCL
+           __temp_try_to_load_vtk_lib vtkParallelTCL
+           __temp_try_to_load_vtk_lib vtkPatentedTCL
+           __temp_try_to_load_vtk_lib vtkRenderingTCL
         }
-    }
-        
-    # set VTK_DATA if we can, first look at environment vars
-    if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} { 
+     }
+     
+     # Try to set the exit method of the interactor (needs Rendering)
+     if {[info commands vtkWin32RenderWindowInteractor] != ""} {
+        if {[catch {
+           vtkWin32RenderWindowInteractor __temp_vtkwin32iren__
+           __temp_vtkwin32iren__ SetClassExitMethod exit
+           __temp_vtkwin32iren__ Delete
+        } errormsg ]} {
+           # warn the user
+           puts $errormsg
+        }
+     }
+  
+     # set VTK_DATA if we can, first look at environment vars
+     if { [catch {set VTK_DATA_ROOT $env(VTK_DATA_ROOT)}] != 0} { 
        # then look at command line args
        set vtkDataFound 0
        for {set i 0} {$i < [expr $argc - 1]} {incr i} {
