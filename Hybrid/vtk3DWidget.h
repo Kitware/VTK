@@ -50,7 +50,8 @@
 // priority than the usual interactor styles.
 //
 // .SECTION See Also
-// vtkBoxWidget vtkLineWidget vtkPlaneWidget vtkSphereWidget
+// vtkBoxWidget vtkPlaneWidget vtkLineWidget vtkPointWidget 
+// vtkSphereWidget vtkImplicitPlaneWidget
 
 #ifndef __vtk3DWidget_h
 #define __vtk3DWidget_h
