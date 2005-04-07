@@ -6,13 +6,12 @@ IF(NOT VTK_DIR)
 ENDIF(NOT VTK_DIR)
 INCLUDE(${VTK_USE_FILE})
 
-INCLUDE (${CMAKE_ROOT}/Modules/FindQt.cmake)
-
 SET (SRCS
   main.cxx
 )
 
-INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
+# Use the include path and library for Qt that is used by VTK.
+INCLUDE_DIRECTORIES( ${VTK_QT_INCLUDE_DIR} )
 
 ADD_EXECUTABLE( qtimageviewer ${SRCS})
 
@@ -22,7 +21,7 @@ ADD_EXECUTABLE( qtimageviewer ${SRCS})
 
 TARGET_LINK_LIBRARIES( qtimageviewer
   QVTK
-  ${QT_QT_LIBRARY}
+  ${VTK_QT_QT_LIBRARY}
   vtkRendering
   vtkGraphics
   vtkIO

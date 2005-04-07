@@ -69,6 +69,11 @@ TARGET_LINK_LIBRARIES( QVTKWidgetPlugin
   vtkCommon
 )
 
+
+# Configure the VTKConfigQt.cmake support file.
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
+               ${VTK_BINARY_DIR}/VTKConfigQt.cmake @ONLY IMMEDIATE)
+
 # install rules
 
 # install at /plugins/designer allows one to set their designer plugin path
@@ -88,8 +93,8 @@ ENDIF ( UNIX )
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES( ${VTK_INSTALL_INCLUDE_DIR} .h ${QVTKLibSrcs})
+  INSTALL_FILES( ${VTK_INSTALL_LIB_DIR} FILES ${VTK_BINARY_DIR}/VTKConfigQt.cmake )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-
