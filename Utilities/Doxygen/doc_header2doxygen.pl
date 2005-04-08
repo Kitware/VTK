@@ -118,7 +118,8 @@ my %default =
             "../../IO",
             "../../Parallel",
             "../../Patented",
-            "../../Rendering"],
+            "../../Rendering",
+            "../../VolumeRendering"],
    relativeto => "",
    temp => "doc_header2doxygen.tmp",
    to => "../../../VTK-doxygen"
