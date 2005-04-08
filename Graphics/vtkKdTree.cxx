@@ -45,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.1");
+vtkCxxRevisionMacro(vtkKdTree, "1.2");
 
 // Timing data ---------------------------------------------
 
@@ -1516,6 +1516,7 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 {
   int N, I, J, S, SD, LL, RR;
   float Z, T;
+  int manyTValues=0;
 
   while (R > L)
     {
@@ -1530,9 +1531,9 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
       I = K - L + 1;
       Z = static_cast<float>(log((float)N));
       S = static_cast<int>(.5 * exp(2*Z/3));
-      SD = static_cast<int>(.5 * sqrt(Z*S*(N-S)/N) * sign(1 - N/2));
-      LL = max(L, K - (I*S/N) + SD);
-      RR = min(R, K + (N-1) * S/N + SD);
+      SD = static_cast<int>(.5 * sqrt(Z*S*((float)(N-S)/N)) * sign(I - N/2));
+      LL = max(L, K - static_cast<int>(I*((float)S/N)) + SD);
+      RR = min(R, K + static_cast<int>((N-I) * ((float)S/N)) + SD);
       _Select(dim, X, ids, LL, RR, K);
       }
 
@@ -1549,16 +1550,22 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
 
     if (Xcomponent[R*3] >= T) 
       {
+      if (Xcomponent[R*3] == T) manyTValues++;
       Exchange(X, ids, R, L);
       }
-
     while (I < J)
       {
       Exchange(X, ids, I, J);
 
       while (Xcomponent[(++I)*3] < T);
 
-      while ((J>L) && Xcomponent[(--J)*3] >= T);
+      while ((J>L) && (Xcomponent[(--J)*3] >= T))
+        {
+        if (!manyTValues && (J>L) && (Xcomponent[J*3] == T))
+          {
+          manyTValues = 1;
+          }
+        }
       }
 
     if (Xcomponent[L*3] == T)
@@ -1569,6 +1576,43 @@ void vtkKdTree::_Select(int dim, float *X, int *ids,
       {
       J++;
       Exchange(X, ids, J, R);
+      }
+
+    if ((J < K) && manyTValues)
+      {
+      // Select has a worst case - when many of the same values
+      // are repeated in an array.  It is bad enough that it is
+      // worth detecting and optimizing for.  Here we're taking the
+      // interval of values that are >= T, and rearranging it into
+      // an interval of values = T followed by those > T.
+
+      I = J;
+      J = R+1;
+
+      while (I < J)
+        {
+        while ((++I < J) && (Xcomponent[I*3] == T));
+        if (I == J) break;
+
+        while ((--J > I) && (Xcomponent[J*3] > T));
+        if (J == I) break;
+
+        Exchange(X, ids, I, J);
+        }
+
+      // I and J are at the first array element that is > T
+      // If K is within the sequence of T's, we're done, else
+      // move the new [L,R] interval to the sequence of values
+      // that are strictly greater than T.
+
+      if (K < J)
+        {
+        J = K;
+        }
+      else
+        {
+        J = J-1;
+        }
       }
 
     // "now adjust L,R so they surround the subset containing
