@@ -41,7 +41,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.1");
+vtkCxxRevisionMacro(vtkMergeCells, "1.2");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -209,6 +209,12 @@ int vtkMergeCells::MergeDataSet(vtkDataSet *set)
     {
     if (this->GlobalIdArrayName)   // faster by far
       {
+      // Note:  It has been observed that an input dataset may
+      // have an invalid global ID array.  Using the array to
+      // merge points results in bad geometry.  It may be
+      // worthwhile to do a quick sanity check when merging
+      // points.  Downside is that will slow down this filter.
+
       idMap = this->MapPointsToIdsUsingGlobalIds(set);
       }
     else
