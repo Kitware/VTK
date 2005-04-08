@@ -24,6 +24,18 @@
  !!! license.
 =========================================================================*/
 
+// .NAME vtkEventQtSlotConnect - Manage connections between VTK events and Qt slots.
+// .SECTION Description
+// vtkEventQtSlotConnect provides a way to manage connections between VTK events
+// and Qt slots.
+// Qt slots to connect with must have one of the following signatures:
+// - MySlot()
+// - MySlot(vtkObject* caller)
+// - MySlot(vtkObject* caller, unsigned long vtk_event)
+// - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data)
+// - MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, vtkCommand*)
+
+
 #ifndef VTK_EVENT_QT_SLOT_CONNECT
 #define VTK_EVENT_QT_SLOT_CONNECT
 
@@ -44,31 +56,28 @@ class vtkQtConnections;
 #define QVTK_EXPORT
 #endif
 
-//! manage connections between VTK object events and Qt slots
+// manage connections between VTK object events and Qt slots
 class QVTK_EXPORT vtkEventQtSlotConnect : public vtkObject
 {
   public:
-    //! standard new
     static vtkEventQtSlotConnect* New();
     vtkTypeMacro(vtkEventQtSlotConnect, vtkObject)
-    //! print connections
+    
+    // Description:
+    // Print the current connections between VTK and Qt
     void PrintSelf(ostream& os, vtkIndent indent);
     
-    //! connect a vtk object's event with a Qt object's slot
-    //! multiple connections which are identical are treated as separate connections
-    //! allowable slot to connect to have the following signatures
-    //!   MySlot()
-    //!   MySlot(vtkObject* caller)
-    //!   MySlot(vtkObject* caller, unsigned long vtk_event)
-    //!   MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data)
-    //!   MySlot(vtkObject* caller, unsigned long vtk_event, void* client_data, vtkCommand*)
+    // Description:
+    // Connect a vtk object's event with a Qt object's slot.
+    // Multiple connections which are identical are treated as separate connections.
     virtual void Connect(vtkObject* vtk_obj, unsigned long event, 
                  QObject* qt_obj, const char* slot, void* client_data=NULL, float priority=0.0);
     
-    //! disconnect a vtk object from a qt object
-    //! passing in only a vtk object will disconnect all slots from it
-    //! passing only a vtk object and event, will disconnect all slots matching the vtk object and event
-    //! passing all information in will match all information
+    // Description:
+    // Disconnect a vtk object from a qt object.
+    // Passing in only a vtk object will disconnect all slots from it.
+    // Passing only a vtk object and event, will disconnect all slots matching the vtk object and event.
+    // Passing all information in will match all information.
     virtual void Disconnect(vtkObject* vtk_obj, unsigned long event=vtkCommand::NoEvent, 
                  QObject* qt_obj=NULL, const char* slot = 0);
 
