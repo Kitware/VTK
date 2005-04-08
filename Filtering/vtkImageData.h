@@ -91,6 +91,7 @@ public:
 
   // Description:
   // Get dimensions of this structured points dataset.
+  // It is the number of points on each axis.
   // Dimensions are computed from Extents during this call.
   int *GetDimensions();
   void GetDimensions(int dims[3]);
@@ -145,8 +146,10 @@ public:
   virtual void UpdateInformation();
 
   // Description:
-  // Different ways to set the extent of the data array.  The extent
-  // should be set before the "Scalars" are set or allocated.
+  // Different ways to set the extent of the data array. On each axis,
+  // the extent is defined by the index of the first point and the index of
+  // the last point.
+  // The extent should be set before the "Scalars" are set or allocated.
   // The Extent is stored  in the order (X, Y, Z).
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
