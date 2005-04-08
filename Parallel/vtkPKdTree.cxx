@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.12");
+vtkCxxRevisionMacro(vtkPKdTree, "1.13");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -815,30 +815,49 @@ void vtkPKdTree::_select(int L, int R, int K, int dim)
 
       N = R - L + 1;
       I = K - L + 1;
-      Z = log(float(N)); 
+      Z = static_cast<float>(log(float(N))); 
       S = static_cast<int>(.5 * exp(2*Z/3));
-      SD = static_cast<int>(.5 * sqrt(Z*S*((N-S)/N)) * sign(1 - N/2));
-      LL = max(L, K - (I*(S/N)) + SD);
-      RR = min(R, K + (N-1) * (S/N) + SD);
+      SD = static_cast<int>(.5 * sqrt(Z*S*((float)(N-S)/N)) * sign(I - N/2));
+      LL = max(L, K - static_cast<int>((I*((float)S/N)) + SD));
+      RR = min(R, K + static_cast<int>((N-I) * ((float)S/N) + SD));
       this->_select(LL, RR, K, dim);
       }
 
     int p1 = this->WhoHas(L);
     int p2 = this->WhoHas(R);
 
-    // Processes p1 through p2 will rearrange array elements L through R
-    // so they are partitioned by the value at K.  The value at K will
-    // appear in array element J, all values less than X[K] will appear
-    // between L and J-1, all values greater or equal to X[K] will appear
-    // between J+1 and R.
-
-    J = this->PartitionSubArray(L, R, K, dim, p1, p2);
-
     // "now adjust L,R so they surround the subset containing
     // the (K-L+1)-th smallest element"
 
-    if (J <= K) L = J + 1;
-    if (K <= J) R = J - 1;
+    // Due to very severe worst case behavior when the
+    // value at K (call it "T") is repeated many times in the array, we 
+    // rearrange the array into three intervals: the leftmost being values
+    // less than T, the center being values equal to T, and the rightmost
+    // being values greater than T.  Two integers are returned.  This first
+    // is the global index of the start of the second interval.  The second
+    // is the global index of the start of the third interval.  (If there
+    // are no values greater than "T", the second integer will be R+1.)
+    //
+    // The original Floyd&Rivest arranged the array into two intervals,
+    // one less than "T", one greater than (or equal to) "T".
+
+    int *idx = this->PartitionSubArray(L, R, K, dim, p1, p2);
+
+    I = idx[0]; 
+    J = idx[1];
+
+    if (K >= J)
+      {
+      L = J;
+      }
+    else if (K >= I)
+      {
+      L = R;  // partitioning is done, K is in the interval of T's
+      }
+    else
+      {
+      R = I-1;
+      }
     }
 }
 int vtkPKdTree::Select(int dim, int L, int R)
@@ -1011,238 +1030,6 @@ void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
   return;
 }
 
-// Global array [L:R] spans the contiguous processes p1 through p2.  In
-// parallel, rearrange the array interval [L:R] so that there is a J
-// satisfying all elements in [L:J-1] are < T, element J is T, and all
-// elements [J+1:R] are >= T.
-
-int vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
-{
-  int TLocation = 0;
-
-  int rootrank = this->SubGroup->getLocalRank(p1);
-
-  int me     = this->MyId;
-
-  if ( (me < p1) || (me > p2))
-    {
-    this->SubGroup->Broadcast(&TLocation, 1, rootrank);
-
-    return TLocation;
-    }
-
-  if (p1 == p2)
-    {
-    TLocation = this->PartitionAboutMyValue(L, R, K, dim);
-
-    this->SubGroup->Broadcast(&TLocation, 1, rootrank);
-
-    return TLocation;
-    }
-
-  // Each process will rearrange their subarray into a left region of values
-  // less than X[K] and a right region of values greater or equal to X[K].
-  // J will be the index of the first value greater or equal to X[K].  If
-  // all values are less, J will be the one index past the last element.
-  // In the case of the process holding the Kth array value, X[K] will be
-  // found at location J.
-
-  int tag = this->SubGroup->tag;
-
-  vtkSubGroup *sg = vtkSubGroup::New();
-  sg->Initialize(p1, p2, me, tag, this->Controller->GetCommunicator());
-
-  int hasK   = this->WhoHas(K);
-
-  int Krank    = sg->getLocalRank(hasK);
-
-  int myL = this->StartVal[me];
-  int myR = this->EndVal[me];
-
-  if (myL < L) myL = L;
-  if (myR > R) myR = R;
-
-  // Get Kth element
-    
-  float T;
-
-  if (hasK == me)
-    {
-    T = this->GetLocalVal(K)[dim];
-    }
-
-  sg->Broadcast(&T, 1, Krank);
-
-  int J;   // dividing point in rearranged sub array
-    
-  if (hasK == me)
-    {
-    J = this->PartitionAboutMyValue(myL, myR, K, dim);
-    }
-  else
-    {
-    J = this->PartitionAboutOtherValue(myL, myR, T, dim);
-    }
-
-
-  // Now the ugly part.  The processes redistribute the array so that
-  // globally the interval [L:R] is partitioned by the value formerly
-  // at X[K].
-
-  int nprocs = p2 - p1 + 1;
-
-  int *buf  = this->SelectBuffer;
-
-  int *left       = buf; buf += nprocs; // global index of my leftmost
-  int *right      = buf; buf += nprocs; // global index of my rightmost
-  int *Jval       = buf; buf += nprocs; // global index of my first val >= T
-
-  int *leftArray  = buf; buf += nprocs; // number of my vals < T
-  int *leftUsed   = buf; buf += nprocs; // how many scheduled to be sent so far
-
-  int *rightArray = buf; buf += nprocs; // number of my vals >= T
-  int *rightUsed  = buf; buf += nprocs; // how many scheduled to be sent so far
-
-
-  rootrank = sg->getLocalRank(p1);
-
-  sg->Gather(&myL, left, 1, rootrank);
-  sg->Broadcast(left, nprocs, rootrank);
-  
-  sg->Gather(&myR, right, 1, rootrank);
-  sg->Broadcast(right, nprocs, rootrank); 
-
-  sg->Gather(&J, Jval, 1, rootrank);
-  sg->Broadcast(Jval, nprocs, rootrank);
-
-  sg->Delete();;
-
-  int leftRemaining = 0;
-
-  int p, sndr, recvr;
-
-  for (p = 0; p < nprocs; p++)
-    {
-    leftArray[p]  = Jval[p] - left[p];
-    rightArray[p] = right[p] - Jval[p] + 1;
-
-    leftRemaining += leftArray[p];
-                      
-    leftUsed[p] = 0;
-    rightUsed[p] = 0;
-    }
-
-  int nextLeftProc = 0;
-  int nextRightProc = 0;
-
-  int need, have, take;
-
-  int FirstRightArrayElementLocation = 0;
-  int FirstRight = 1;
-
-  if ( (myL > this->StartVal[me]) || (myR < this->EndVal[me]))
-    {
-    memcpy(this->NextPtArray, this->CurrentPtArray, this->PtArraySize * sizeof(float));
-    }
-
-  for (recvr = 0; recvr < nprocs; recvr++)
-    {
-    need = leftArray[recvr] + rightArray[recvr];
-    have = 0;
-
-    if (leftRemaining >= 0)
-      {
-      for (sndr = nextLeftProc; sndr < nprocs; sndr++)
-        {
-        take = leftArray[sndr] - leftUsed[sndr];
-
-        if (take == 0) continue;
-
-        take = (take > need) ? need : take;
-
-        this->DoTransfer(sndr + p1, recvr + p1, 
-                         left[sndr] + leftUsed[sndr], left[recvr] + have, take);
-
-        have += take;
-        need -= take;
-
-        leftUsed[sndr] += take;
-
-        if (need == 0) break;
-        }
-
-      if (leftUsed[sndr] == leftArray[sndr])
-        {
-        nextLeftProc = sndr+1;
-        }
-      else
-        {
-        nextLeftProc = sndr;
-        }
-
-      leftRemaining -= have;
-      }
-
-    if (need == 0) continue;
-
-    for (sndr = nextRightProc; sndr < nprocs; sndr++)
-      {
-        take = rightArray[sndr] - rightUsed[sndr];
-
-        if (take == 0) continue;
-  
-        take = (take > need) ? need : take;
-  
-        if ((sndr == Krank) && (rightUsed[sndr] == 0))
-          {
-          TLocation = left[recvr] + have;
-          }
-
-        if (FirstRight)
-          {
-          FirstRightArrayElementLocation = left[recvr] + have;
-          FirstRight = 0;
-          }
-
-        this->DoTransfer(sndr + p1, recvr + p1, 
-                         left[sndr] + leftArray[sndr] + rightUsed[sndr], 
-                         left[recvr] + have, take);
-
-        have += take; 
-        need -= take;
-          
-        rightUsed[sndr] += take;
-          
-        if (need == 0) break;
-      }   
-
-    if (rightUsed[sndr] == rightArray[sndr])
-      {
-      nextRightProc = sndr+1;
-      }
-    else
-      {
-      nextRightProc = sndr;
-      }   
-    }   
-
-  this->SwitchDoubleBuffer();
-
-
-  if (FirstRightArrayElementLocation != TLocation)
-    {
-    this->ExchangeVals(FirstRightArrayElementLocation, TLocation);
-
-    TLocation = FirstRightArrayElementLocation;
-    }
-
-  rootrank = this->SubGroup->getLocalRank(p1);
-
-  this->SubGroup->Broadcast(&TLocation, 1, rootrank);
-
-  return TLocation;
-}
-
 void vtkPKdTree::DoTransfer(int from, int to, int fromIndex, int toIndex, int count)
 {
 float *fromPt, *toPt;
@@ -1274,47 +1061,339 @@ float *fromPt, *toPt;
 
     comm->Receive(toPt, nitems, from, tag);
     }
-
-  return;
 }
 
-// Rearrange array elements [L:R] such that there is a J where all elements
-// [L:J-1] are < T and all elements [J:R] are >= T.  If all elements are
-// < T, let J = R+1.
+// Partition global array into three intervals, the first all values < T,
+// the second all values = T, the third all values > T.  Return two
+// global indices: The index to the begining of the second interval, and
+// the index to the beginning of the third interval.  "T" is the value
+// at array index K.
+//
+// If there is no third interval, the second index returned will be R+1. 
 
-int vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
+int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
 {
-  float *pt, Lval, Rval;
+  int rootrank = this->SubGroup->getLocalRank(p1);
 
-  pt = this->GetLocalVal(L);
-  Lval = pt[dim];
+  int me     = this->MyId;
 
-  pt = this->GetLocalVal(R);
-  Rval = pt[dim];
+  if ( (me < p1) || (me > p2))
+    {
+    this->SubGroup->Broadcast(this->SelectBuffer, 2, rootrank);
+    return this->SelectBuffer;
+    }
+
+  if (p1 == p2)
+    {
+    int *idx = this->PartitionAboutMyValue(L, R, K, dim);
+
+    this->SubGroup->Broadcast(idx, 2, rootrank);
+
+    return idx;
+    }
+
+  // Each process will rearrange their subarray myL-myR into a left region 
+  // of values less than X[K], a center region of values equal to X[K], and 
+  // a right region of values greater than X[K].  "I" will be the index
+  // of the first value in the center region, or it will equal "J" if there
+  // is no center region.  "J" will be the index to the start of the
+  // right region, or it will be R+1 if there is no right region.
+
+  int tag = this->SubGroup->tag;
+
+  vtkSubGroup *sg = vtkSubGroup::New();
+  sg->Initialize(p1, p2, me, tag, this->Controller->GetCommunicator());
+
+  int hasK   = this->WhoHas(K);
+
+  int Krank    = sg->getLocalRank(hasK);
+
+  int myL = this->StartVal[me];
+  int myR = this->EndVal[me];
+
+  if (myL < L) myL = L;
+  if (myR > R) myR = R;
+
+  // Get Kth element
+    
+  float T;
+
+  if (hasK == me)
+    {
+    T = this->GetLocalVal(K)[dim];
+    }
+
+  sg->Broadcast(&T, 1, Krank);
+
+  int *idx;   // dividing points in rearranged sub array
+    
+  if (hasK == me)
+    {
+    idx = this->PartitionAboutMyValue(myL, myR, K, dim);
+    }
+  else
+    {
+    idx = this->PartitionAboutOtherValue(myL, myR, T, dim);
+    }
+
+  // Copy these right away.  Implementation uses SelectBuffer
+  // which is about to be overwritten.
+
+  int I = idx[0]; 
+  int J = idx[1];
+
+  // Now the ugly part.  The processes redistribute the array so that
+  // globally the interval [L:R] is partitioned into an interval of values
+  // less than T, and interval of values equal to T, and an interval of
+  // values greater than T.
+
+  int nprocs = p2 - p1 + 1;
+
+  int *buf  = this->SelectBuffer;
+
+  int *left       = buf; buf += nprocs; // global index of my leftmost
+  int *right      = buf; buf += nprocs; // global index of my rightmost
+  int *Ival       = buf; buf += nprocs; // global index of my first val = T
+  int *Jval       = buf; buf += nprocs; // global index of my first val > T
+
+  int *leftArray  = buf; buf += nprocs; // number of my vals < T
+  int *leftUsed   = buf; buf += nprocs; // how many scheduled to be sent so far
+
+  int *centerArray  = buf; buf += nprocs; // number of my vals = T
+  int *centerUsed   = buf; buf += nprocs; // how many scheduled to be sent so far
+
+  int *rightArray = buf; buf += nprocs; // number of my vals > T
+  int *rightUsed  = buf; buf += nprocs; // how many scheduled to be sent so far
+
+  rootrank = sg->getLocalRank(p1);
+
+  sg->Gather(&myL, left, 1, rootrank);
+  sg->Broadcast(left, nprocs, rootrank);
+  
+  sg->Gather(&myR, right, 1, rootrank);
+  sg->Broadcast(right, nprocs, rootrank); 
+
+  sg->Gather(&I, Ival, 1, rootrank);
+  sg->Broadcast(Ival, nprocs, rootrank);
+
+  sg->Gather(&J, Jval, 1, rootrank);
+  sg->Broadcast(Jval, nprocs, rootrank);
+
+  sg->Delete();
+
+  int leftRemaining = 0;
+  int centerRemaining = 0;
+
+  int p, sndr, recvr;
+
+  for (p = 0; p < nprocs; p++)
+    {
+    leftArray[p]  = Ival[p] - left[p];
+    centerArray[p]  = Jval[p] - Ival[p];
+    rightArray[p] = right[p] - Jval[p] + 1;
+
+    leftRemaining += leftArray[p];
+    centerRemaining += centerArray[p];
+                      
+    leftUsed[p] = 0;
+    centerUsed[p] = 0;
+    rightUsed[p] = 0;
+    }
+
+  int FirstCenter = left[0] + leftRemaining;
+  int FirstRight = FirstCenter + centerRemaining;
+
+  int nextLeftProc = 0;
+  int nextCenterProc = 0;
+  int nextRightProc = 0;
+
+  int need, have, take;
+
+  if ( (myL > this->StartVal[me]) || (myR < this->EndVal[me]))
+    {
+    memcpy(this->NextPtArray, this->CurrentPtArray, this->PtArraySize * sizeof(float));
+    }
+
+  for (recvr = 0; recvr < nprocs; recvr++)
+    {
+    need = leftArray[recvr] + centerArray[recvr] + rightArray[recvr];
+    have = 0;
+
+    if (leftRemaining >= 0)
+      {
+      for (sndr = nextLeftProc; sndr < nprocs; sndr++)
+        {
+        take = leftArray[sndr] - leftUsed[sndr];
+
+        if (take == 0) continue;
+
+        take = (take > need) ? need : take;
+
+        this->DoTransfer(sndr + p1, recvr + p1, 
+                         left[sndr] + leftUsed[sndr], left[recvr] + have, take);
+
+        have += take;
+        need -= take;
+        leftRemaining -= take;
+
+        leftUsed[sndr] += take;
+
+        if (need == 0) break;
+        }
+
+      if (leftUsed[sndr] == leftArray[sndr])
+        {
+        nextLeftProc = sndr+1;
+        }
+      else
+        {
+        nextLeftProc = sndr;
+        }
+      }
+
+    if (need == 0) continue;
+
+    if (centerRemaining >= 0)
+      {
+      for (sndr = nextCenterProc; sndr < nprocs; sndr++)
+        {
+        take = centerArray[sndr] - centerUsed[sndr];
+
+        if (take == 0) continue;
+
+        take = (take > need) ? need : take;
+
+        // Just copy the values, since we know what they are
+        this->DoTransfer(sndr + p1, recvr + p1, 
+                         left[sndr] + leftArray[sndr] + centerUsed[sndr], 
+                         left[recvr] + have, take);
+
+        have += take;
+        need -= take;
+        centerRemaining -= take;
+
+        centerUsed[sndr] += take;
+
+        if (need == 0) break;
+        }
+
+      if (centerUsed[sndr] == centerArray[sndr])
+        {
+        nextCenterProc = sndr+1;
+        }
+      else
+        {
+        nextCenterProc = sndr;
+        }
+      }
+
+    if (need == 0) continue;
+
+    for (sndr = nextRightProc; sndr < nprocs; sndr++)
+      {
+        take = rightArray[sndr] - rightUsed[sndr];
+
+        if (take == 0) continue;
+  
+        take = (take > need) ? need : take;
+  
+        this->DoTransfer(sndr + p1, recvr + p1, 
+                left[sndr] + leftArray[sndr] + centerArray[sndr] + rightUsed[sndr], 
+                left[recvr] + have, take);
+
+        have += take; 
+        need -= take;
+          
+        rightUsed[sndr] += take;
+          
+        if (need == 0) break;
+      }   
+
+    if (rightUsed[sndr] == rightArray[sndr])
+      {
+      nextRightProc = sndr+1;
+      }
+    else
+      {
+      nextRightProc = sndr;
+      }   
+    }   
+
+  this->SwitchDoubleBuffer();
+
+  this->SelectBuffer[0] = FirstCenter;
+  this->SelectBuffer[1] = FirstRight;
+
+  rootrank = this->SubGroup->getLocalRank(p1);
+
+  this->SubGroup->Broadcast(this->SelectBuffer, 2, rootrank);
+
+  return this->SelectBuffer;
+}
+
+// This routine partitions the array from element L through element
+// R into three segments.  This first contains values less than T, the 
+// next contains values equal to T, the last has values greater than T.
+//
+// This routine returns two values.  The first is the index of the 
+// first value equal to T, the second is the index of the first value 
+// greater than T.  If there is no value equal to T, the first value 
+// will equal the second value.  If there is no value greater than T, 
+// the second value returned will be R+1.
+//
+// This function is different than PartitionAboutMyValue, because in
+// that functin we know that "T" appears in the array.  In this
+// function, "T" may or may not appear in the array.
+
+int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
+{
+  float *Ipt, *Jpt, Lval, Rval;
+  int *vals = this->SelectBuffer;
+  int numTValues = 0;
+  int numGreater = 0;
+  int numLess = 0;
+  int totalVals = R - L + 1;
+
+  Ipt = this->GetLocalVal(L) + dim;
+  Lval = *Ipt;
+
+  if (Lval == T) numTValues++;
+  else if (Lval > T) numGreater++;
+  else numLess++;
+
+  Jpt = this->GetLocalVal(R) + dim;
+  Rval = *Jpt;
+
+  if (Rval == T) numTValues++;
+  else if (Rval > T) numGreater++;
+  else numLess++;
 
   int I = L;
   int J = R;
 
   if ((Lval >= T) && (Rval >= T))
     {
-    pt = this->GetLocalVal(J) + dim;
-
-    while (J > I)
+    while (--J > I)
       {
-         J--;
-         pt -= 3;
-         if (*pt < T) break;
+      Jpt -= 3;
+      if (*Jpt < T) break;
+      if (*Jpt == T) numTValues++;
+      else numGreater++;
       }
     }
   else if ((Lval < T) && (Rval < T))
     {
-    pt = this->GetLocalVal(I) + dim;
+    Ipt = this->GetLocalVal(I) + dim;
 
-    while (I < J)
+    while (++I < J)
       {
-      I++;
-      pt += 3;
-      if (*pt >= T) break;
+      Ipt += 3;
+      if (*Ipt >= T)
+        {
+        if (*Ipt == T) numTValues++;
+        break;
+        }
+      numLess++;
       }
     }
   else if ((Lval < T) && (Rval >= T))
@@ -1326,45 +1405,116 @@ int vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
     // first loop will fix this
     }
 
+  if (numLess == totalVals)
+    {
+    vals[0] = vals[1] = R+1;  // special case - all less than T
+    return vals;
+    }
+  else if (numTValues == totalVals)
+    {
+    vals[0] = L;             // special case - all equal to T
+    vals[1] = R+1;
+    return vals;
+    }
+  else if (numGreater == totalVals)
+    {
+    vals[0] = vals[1] = L;   // special case - all greater than T
+    return vals;
+    }
+
   while (I < J)
     {
+    // By design, I < J and value at I is >= T, and value
+    // at J is < T, hence the exchange.
+
     this->ExchangeLocalVals(I, J);
 
-    pt = this->GetLocalVal(I) + dim;
-
-    while (I < J)
+    while (++I < J)
       {
-      I++;
-      pt += 3;
-      if (*pt >= T) break;
+      Ipt += 3;
+      if (*Ipt >= T)
+        {
+        if (*Ipt == T) numTValues++;
+        break;
+        }
       }
+    if (I == J) break;
 
-    pt = this->GetLocalVal(J) + dim;
-
-    while (I < J)
+    while (--J > I)
       {
-      J--;
-      pt -= 3;
-      if (*pt < T) break;
+      Jpt -= 3;
+      if (*Jpt < T) break;
+      if (*Jpt == T) numTValues++;
       }
     }
 
-  pt = this->GetLocalVal(R);
+  // I and J are at the first value that is >= T. 
 
-  if (pt[dim] < T) J = R + 1;
+  if (numTValues == 0)
+    {
+    vals[0] = I; 
+    vals[1] = I;
+    return vals;
+    }
 
-  return J;
+  // Move all T's to the center interval
+
+  vals[0] = I;   // the first T will be here when we're done
+
+  Ipt = this->GetLocalVal(I) + dim;
+  I = I-1;
+  Ipt -= 3;
+
+  J = R+1;
+  Jpt = this->GetLocalVal(R) + dim;
+  Jpt += 3;
+
+  while (I < J)
+    {
+    while (++I < J)
+      {
+      Ipt += 3;
+      if (*Ipt != T) break;
+      }
+    if (I == J) break;
+
+    while (--J > I)
+      {
+      Jpt -= 3;
+      if (*Jpt == T) break;
+      }
+
+    if (I < J)
+      {
+      this->ExchangeLocalVals(I, J);
+      }
+    }
+
+  // Now I and J are at the first value that is > T, and the T's are
+  // to the left.
+
+  vals[1] = I;   // the first > T 
+
+  return vals;
 } 
 
-// My local array is [L:R] and L <= K <= R, and element K is T.  
-// Rearrange the array so that there is a J satisfying all elements
-// [L:J-1] are < T, all elements [J+1:R] >= T, and element J is T.
+// This routine partitions the array from element L through element
+// R into three segments.  This first contains values less than T, the 
+// next contains values equal to T, the last has values greater than T.
+// T is the element at K, where L <= K <= R.  
+//
+// This routine returns two integers.  The first is the index of the 
+// first value equal to T, the second is the index of the first value 
+// greater than T.  If there is no value greater than T, the second
+// value returned will be R+1.
 
-int vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
+int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
 { 
-  float *pt;
+  float *Ipt, *Jpt;
   float T;
   int I, J;
+  int manyTValues = 0;
+  int *vals = this->SelectBuffer;
   
   // Set up so after first exchange in the loop, we have either
   //   X[L] = T and X[R] >= T
@@ -1372,7 +1522,7 @@ int vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   //   X[L] < T and X[R] = T
   //
 
-  pt = this->GetLocalVal(K);
+  float *pt = this->GetLocalVal(K);
   
   T = pt[dim];
     
@@ -1380,44 +1530,53 @@ int vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
     
   pt = this->GetLocalVal(R);
          
-  if (pt[dim] >= T) this->ExchangeLocalVals(R, L);
+  if (pt[dim] >= T)
+    {
+    if (pt[dim] == T)
+      {
+      manyTValues = 1;
+      }
+    else
+      {
+      this->ExchangeLocalVals(R, L);
+      }
+    }
     
   I = L;
   J = R;
+
+  Ipt = this->GetLocalVal(I) + dim;
+  Jpt = this->GetLocalVal(J) + dim;
 
   while (I < J)
     {
     this->ExchangeLocalVals(I, J);
 
-    pt = this->GetLocalVal(--J) + dim;
-  
-    while (J >= L)
-    {
-      if (*pt < T) break;
-    
-      J--;
-      pt -= 3;
-      }
-      
-    pt = this->GetLocalVal(++I) + dim;
-      
-    while (I < J)
-    {
-      if (*pt >= T) break;
+    while (--J > I)
+      {
+      Jpt -= 3;
+      if (*Jpt < T) break;
 
-      I++;
-      pt += 3;
+      if (!manyTValues && (J > L) && (*Jpt == T)) manyTValues = 1;
       }
 
+    if (I == J) break;
+
+    while (++I < J)
+      {
+      Ipt += 3;
+
+      if (*Ipt >= T)
+        {
+        if (!manyTValues && (*Ipt == T)) manyTValues = 1;
+        break;
+        }
+      }
     } 
 
-  if (J < L)
-    {
-    return L;    // X[L]=T , X[j] >=T for j > L
-    }
+  // I and J are at the rightmost value < T ( or at L if all values
+  // are >= T)
 
-  // J is location of the first value < T
-      
   pt = this->GetLocalVal(L);
       
   float Lval = pt[dim];
@@ -1431,7 +1590,48 @@ int vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
     this->ExchangeLocalVals(++J, R);
     }
 
-  return J;
+  // Now J is at the leftmost value >= T.  (It is at a T value.)
+
+  vals[0] = J; 
+  vals[1] = J+1;
+
+  // Arrange array so all values equal to T are together
+
+  if (manyTValues)
+    {
+    I = J;
+    Ipt = this->GetLocalVal(I) + dim;
+
+    J = R+1;
+    Jpt = this->GetLocalVal(R) + dim;
+    Jpt += 3;
+
+    while (I < J)
+      {
+      while (++I < J)
+        {
+        Ipt += 3;
+        if (*Ipt != T) break;
+        }
+      if (I == J) break;
+
+      while (--J > I)
+        {
+        Jpt -= 3;
+        if (*Jpt == T) break;
+        }
+
+      if (I < J)
+        {
+        this->ExchangeLocalVals(I, J);
+        }
+      }
+    // I and J are at the first value that is > T
+
+    vals[1] = I;
+    }
+
+  return vals;
 }
 
 //--------------------------------------------------------------------
@@ -1935,7 +2135,7 @@ int vtkPKdTree::AllocateSelectBuffer()
 {
   this->FreeSelectBuffer();
 
-  this->SelectBuffer = new int [this->NumProcesses * 7];
+  this->SelectBuffer = new int [this->NumProcesses * 10];
 
   return (this->SelectBuffer == NULL);
 }
@@ -3440,3 +3640,4 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NextPtArray: " << this->NextPtArray << endl;
   os << indent << "SelectBuffer: " << this->SelectBuffer << endl;
 }
+

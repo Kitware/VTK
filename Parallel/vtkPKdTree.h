@@ -366,9 +366,10 @@ private:
   int Select(int dim, int L, int R);
   void _select(int L, int R, int K, int dim);
   void DoTransfer(int from, int to, int fromIndex, int toIndex, int count);
-  int PartitionAboutMyValue(int L, int R, int K, int dim);
-  int PartitionAboutOtherValue(int L, int R, float T, int dim);
-  int PartitionSubArray(int L, int R, int K, int dim, int p1, int p2);
+
+  int *PartitionAboutMyValue(int L, int R, int K, int dim);
+  int *PartitionAboutOtherValue(int L, int R, float T, int dim);
+  int *PartitionSubArray(int L, int R, int K, int dim, int p1, int p2);
 
   int CompleteTree();
 #ifdef YIELDS_INCONSISTENT_REGION_BOUNDARIES
