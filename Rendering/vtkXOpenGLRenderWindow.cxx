@@ -84,7 +84,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.51");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.52");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -416,17 +416,20 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
         }
       }
     this->MakeCurrent();
-    
-    vtkDebugMacro(" Mapping the xwindow\n");
-    XMapWindow(this->DisplayId, this->WindowId);
-    XSync(this->DisplayId,False);
-    XGetWindowAttributes(this->DisplayId,
-                         this->WindowId,&winattr);
-    while (winattr.map_state == IsUnmapped)
+
+    if(this->OwnWindow)
       {
+      vtkDebugMacro(" Mapping the xwindow\n");
+      XMapWindow(this->DisplayId, this->WindowId);
+      XSync(this->DisplayId,False);
       XGetWindowAttributes(this->DisplayId,
                            this->WindowId,&winattr);
-      };
+      while (winattr.map_state == IsUnmapped)
+        {
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId,&winattr);
+        };
+      }
     // free the visual info
     if (v)
       {
