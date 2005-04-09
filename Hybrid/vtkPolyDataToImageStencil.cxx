@@ -262,6 +262,7 @@ int vtkPolyDataToImageStencil::RequestData(
   // for cell traversal
   vtkIdType npts = 0;
   vtkIdType *pts;
+  int firstStrip = 1;
 
   // integer points
   int ymin, ymax, y;
@@ -314,14 +315,12 @@ int vtkPolyDataToImageStencil::RequestData(
         {
         coords.push_back( Point3D(newpoints->GetPoint(pts[j])) );
         }
-      // set npts to zero so that it will be zero when we start
-      // processing the triangle strips
-      npts = 0;
       }
     else // handle the triangle strips
       {
-      if (npts < 3) //move on to the next strip
+      if (firstStrip || npts < 3) //move on to the next strip
         {
+        firstStrip = 0;
         if (stripIdx < numStrips)
           {
           strips->GetNextCell(npts, pts);
