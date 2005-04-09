@@ -12,10 +12,16 @@ vtkSphereSource sphere
 sphere SetPhiResolution 12
 sphere SetThetaResolution 12
 sphere SetCenter 102 102 0
-sphere SetRadius 60 
+sphere SetRadius 60
+
+vtkTriangleFilter triangle
+triangle SetInput [sphere GetOutput]
+
+vtkStripper stripper
+stripper SetInput [triangle GetOutput]
 
 vtkPolyDataToImageStencil dataToStencil
-dataToStencil SetInput [sphere GetOutput]
+dataToStencil SetInput [stripper GetOutput]
 
 vtkImageStencil stencil
 stencil SetInput [reader GetOutput]
