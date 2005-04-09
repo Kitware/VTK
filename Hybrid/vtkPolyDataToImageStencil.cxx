@@ -174,7 +174,7 @@ void vtkPolyDataToImageStencil::PrintSelf(ostream& os,
 }
 
 // used by an STL sort
-static bool vtkComparePoints2D(const Point2D a, const Point2D b)
+static vtkstd_bool vtkComparePoints2D(const Point2D a, const Point2D b)
 {
   // sort xy points by ascending y value, then x
   if (a[1] == b[1])
@@ -188,7 +188,7 @@ static bool vtkComparePoints2D(const Point2D a, const Point2D b)
 }
 
 // used by an STL sort
-static bool vtkComparePoints1D(const Point1D a, const Point1D b)
+static vtkstd_bool vtkComparePoints1D(const Point1D a, const Point1D b)
 {
   return (a.x < b.x);
 }
@@ -238,7 +238,7 @@ int vtkPolyDataToImageStencil::RequestData(
     }
 
   // quit if no polys or strips
-  if (numPolys == 0 and numStrips == 0)
+  if (numPolys == 0 && numStrips == 0)
     {
     return 1;
     }
@@ -484,8 +484,9 @@ int vtkPolyDataToImageStencil::RequestData(
   vtkstd::vector<Point1D>::iterator xIter;
   vtkstd::vector<double> nlist;
 
-  double x, lastx, signproduct;
-  int lastsign;
+  // at this stage, y,z are ints but x is not
+  double x, lastx;
+  int signproduct, lastsign;
   
   int x1, x2, minx1;
   
@@ -527,7 +528,8 @@ int vtkPolyDataToImageStencil::RequestData(
         x = thisPoint1D.x;
         sign = thisPoint1D.sign;
         
-        if (vtkstd::abs(x-lastx) > this->Tolerance)
+        // check absolute distance from lastx to x
+        if (((x < lastx) ? (lastx - x) : (x - lastx)) > this->Tolerance)
           {
           if (signproduct > 0)
             {
@@ -567,8 +569,8 @@ int vtkPolyDataToImageStencil::RequestData(
           continue;
           }
 
-        x1 = vtkstd::max(x1, minx1);
-        x2 = vtkstd::min(x2, extent[1]);
+        x1 = (x1 > minx1) ? (x1) : (minx1); // max(x1,minx1)
+        x2 = (x2 < extent[1]) ? (x2) : (extent[1]); //min(x2,extent[1])
 
         if (x2 >= x1)
           {
