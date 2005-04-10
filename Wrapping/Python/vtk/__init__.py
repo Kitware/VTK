@@ -40,31 +40,32 @@ try:
     from rendering import *
     kits.append('rendering')
 except ImportError, exc:
-    __helper.refine_import_err('rendering', exc)
+    __helper.refine_import_err('rendering', 'vtkRenderingPython', exc)
 
 try:
     from volumerendering import *
     kits.append('volumerendering')
 except ImportError, exc:
-    __helper.refine_import_err('volumerendering', exc)
+    __helper.refine_import_err('volumerendering',
+                               'vtkVolumeRenderingPython', exc)
 
 try:
     from hybrid import *
     kits.append('hybrid')
 except ImportError, exc:
-    __helper.refine_import_err('hybrid', exc)
+    __helper.refine_import_err('hybrid', 'vtkHybridPython', exc)
 
 try:
     from patented import *
     kits.append('patented')
 except ImportError, exc:
-    __helper.refine_import_err('patented', exc)
+    __helper.refine_import_err('patented', 'vtkPatentedPython', exc)
 
 try:
     from parallel import *
     kits.append('parallel')
 except ImportError, exc:
-    __helper.refine_import_err('parallel', exc)
+    __helper.refine_import_err('parallel', 'vtkParallelPython', exc)
 
 # import useful VTK related constants.
 from util.vtkConstants import *
