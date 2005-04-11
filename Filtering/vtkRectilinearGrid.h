@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkRectilinearGrid - a datset that is topologically regular with variable spacing in the three coordinate directions
+// .NAME vtkRectilinearGrid - a dataset that is topologically regular with variable spacing in the three coordinate directions
 // .SECTION Description
 // vtkRectilinearGrid is a data object that is a concrete implementation of
 // vtkDataSet. vtkRectilinearGrid represents a geometric structure that is 
