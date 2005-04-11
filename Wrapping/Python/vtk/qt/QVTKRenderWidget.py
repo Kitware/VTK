@@ -209,6 +209,9 @@ class QVTKRenderWidget(QWidget):
             self.Surface()
         if ev.key() == ord('P'):
             self.PickActor(self.__saveX,self.__saveY)
+    
+    def contextMenuEvent(self,ev):
+        ev.accept();
 
     def SetDesiredUpdateRate(self, rate):
         """Mirrors the method with the same name in
