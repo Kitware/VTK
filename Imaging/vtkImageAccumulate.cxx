@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.59");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.60");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -294,7 +294,8 @@ int vtkImageAccumulate::RequestData(
   outData->SetExtent(outData->GetWholeExtent());
   outData->AllocateScalars();
   
-  inPtr = inData->GetScalarPointerForExtent(inData->GetUpdateExtent());
+  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
+  inPtr = inData->GetArrayPointerForExtent(inArray, inData->GetUpdateExtent());
   outPtr = outData->GetScalarPointer();
   
   // Components turned into x, y and z

@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.31");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.32");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -55,11 +55,6 @@ vtkImageContinuousErode3D::~vtkImageContinuousErode3D()
 void vtkImageContinuousErode3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -122,7 +117,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
                                       vtkImageData *inData, T *inPtr, 
                                       vtkImageData *outData, 
                                       int *outExt, T *outPtr, int id,
-                                      const char* inputScalars,
+                                      vtkDataArray *inArray,
                                       vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
@@ -149,10 +144,7 @@ void vtkImageContinuousErode3DExecute(vtkImageContinuousErode3D *self,
   T pixelMin;
   unsigned long count = 0;
   unsigned long target;
-  vtkDataArray *inArray;
   int *inExt = inData->GetExtent();
-
-  inArray = inData->GetPointData()->GetScalars(inputScalars);
 
   // Get information to march through data
   inData->GetIncrements(inInc0, inInc1, inInc2); 
@@ -305,10 +297,9 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   void *inPtr;
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
-  vtkDataArray *inArray;
 
-  inArray =
-    inData[0][0]->GetPointData()->GetScalars(this->InputScalarsSelection);
+  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
+
   // The inPtr is reset anyway, so just get the id 0 pointer.
   inPtr = inArray->GetVoidPointer(0);
 
@@ -333,7 +324,7 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
     {
     vtkTemplateMacro10(vtkImageContinuousErode3DExecute, this, mask, 
                        inData[0][0], (VTK_TT *)(inPtr), outData[0], outExt, 
-                       (VTK_TT *)(outPtr),id, this->InputScalarsSelection,
+                       (VTK_TT *)(outPtr),id, inArray,
                        inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

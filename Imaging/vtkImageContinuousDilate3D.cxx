@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.31");
+vtkCxxRevisionMacro(vtkImageContinuousDilate3D, "1.32");
 vtkStandardNewMacro(vtkImageContinuousDilate3D);
 
 //----------------------------------------------------------------------------
@@ -55,11 +55,6 @@ vtkImageContinuousDilate3D::~vtkImageContinuousDilate3D()
 void vtkImageContinuousDilate3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -123,7 +118,7 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
                                        vtkImageData *inData, T *inPtr, 
                                        vtkImageData *outData, 
                                        int *outExt, T *outPtr, int id,
-                                       const char* inputScalars,
+                                       vtkDataArray *inArray,
                                        vtkInformation *inInfo)
 {
   int *kernelMiddle, *kernelSize;
@@ -150,10 +145,8 @@ void vtkImageContinuousDilate3DExecute(vtkImageContinuousDilate3D *self,
   T pixelMax;
   unsigned long count = 0;
   unsigned long target;
-  vtkDataArray *inArray;
   int *inExt;
 
-  inArray=inData->GetPointData()->GetScalars(inputScalars);
   inExt = inData->GetExtent();
 
   // Get information to march through data
@@ -307,10 +300,8 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
   void *inPtr;
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   vtkImageData *mask;
-  vtkDataArray *inArray;
 
-  inArray =
-    inData[0][0]->GetPointData()->GetScalars(this->InputScalarsSelection);
+  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   // Reset later.
   inPtr = inArray->GetVoidPointer(0);
 
@@ -336,7 +327,7 @@ void vtkImageContinuousDilate3D::ThreadedRequestData(
     vtkTemplateMacro10(vtkImageContinuousDilate3DExecute, this, 
                        mask, inData[0][0], (VTK_TT *)(inPtr), 
                        outData[0], outExt, (VTK_TT *)(outPtr), id,
-                       this->InputScalarsSelection, inInfo);
+                       inArray, inInfo);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

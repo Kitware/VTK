@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.51");
+vtkCxxRevisionMacro(vtkImageGradient, "1.52");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -45,11 +45,6 @@ void vtkImageGradient::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "HandleBoundaries: " << this->HandleBoundaries << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }
 
 

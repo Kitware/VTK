@@ -102,7 +102,6 @@ vtkImageSkeleton2D.cxx
 vtkImageSobel2D.cxx
 vtkImageSobel3D.cxx
 vtkImageSpatialAlgorithm.cxx
-vtkImageSpatialFilter.cxx
 vtkImageStencil.cxx
 vtkImageStencilData.cxx
 vtkImageStencilSource.cxx
@@ -130,6 +129,17 @@ vtkImageSpatialAlgorithm
 vtkImageSpatialFilter
   ABSTRACT
 )
+
+# conditionally compile legacy classes
+IF (NOT VTK_LEGACY_REMOVE)
+  SET (Kit_SRCS ${Kit_SRCS} 
+    vtkImageSpatialFilter.cxx
+    )
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkImageSpatialFilter
+    ABSTRACT
+    )
+ENDIF (NOT VTK_LEGACY_REMOVE)
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)

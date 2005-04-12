@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.41");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.42");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
                              vtkImageData *inData, T *inPtr, 
                              vtkImageData *outData, T *outPtr,
                              int outExt[6], int id,
-                             const char* inputScalars)
+                             vtkDataArray *inArray)
 {
   int *kernelMiddle, *kernelSize;
   int NumberOfElements;
@@ -211,9 +211,6 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   int *inExt;
   unsigned long count = 0;
   unsigned long target;
-  vtkDataArray *inArray;
-
-  inArray = inData->GetPointData()->GetScalars(inputScalars);
 
   if (!inArray)
     {
@@ -367,19 +364,17 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
 // templated function for the input and output region types.
 void vtkImageMedian3D::ThreadedRequestData(
   vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector **inputVector,
   vtkInformationVector *vtkNotUsed(outputVector),
   vtkImageData ***inData,
   vtkImageData **outData,
   int outExt[6], int id)
 {
-  vtkDataArray *inArray;
   void *inPtr;
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
   int *inIncs;
 
-  inArray =
-    inData[0][0]->GetPointData()->GetScalars(this->InputScalarsSelection);
+  vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   if (id == 0)
     {
     outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
@@ -404,7 +399,7 @@ void vtkImageMedian3D::ThreadedRequestData(
     vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData[0][0],
                       (VTK_TT *)(inPtr), 
                       outData[0], (VTK_TT *)(outPtr),outExt, id,
-                      this->InputScalarsSelection);
+                      inArray);
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
