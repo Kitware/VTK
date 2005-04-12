@@ -17,6 +17,8 @@
 
 #include "vtkDataArrayTemplate.h"
 
+#include <vtkstd/exception>
+
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
 #ifdef _MSC_VER
@@ -92,7 +94,17 @@ int vtkDataArrayTemplate<T>::Allocate(vtkIdType sz, vtkIdType)
     this->SaveUserArray = 0;
 
     int newSize = (sz > 0 ? sz : 1);
-    this->Array = new T[newSize];
+    try
+      {
+      this->Array = new T[newSize];
+      }
+    catch (vtkstd::exception& e)
+      {
+      vtkErrorMacro("Unable to allocate " << newSize
+                    << " elements of size " << sizeof(T)
+                    << ": " << e.what());
+      this->Array = 0;
+      }
     if(!this->Array)
       {
       return 0;
@@ -153,7 +165,20 @@ void vtkDataArrayTemplate<T>::DeepCopy(vtkDataArray* fa)
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
   this->SaveUserArray = 0;
-  this->Array = new T[this->Size];
+  try
+    {
+    this->Array = new T[this->Size];
+    }
+  catch (vtkstd::exception& e)
+    {
+    vtkErrorMacro("Unable to allocate " <<  this->Size << " bytes: "
+                  << e.what());
+    this->Size = 0;
+    this->NumberOfComponents = 0;
+    this->MaxId = -1;
+    this->Array = 0;
+    return;
+    }
   memcpy(this->Array, fa->GetVoidPointer(0), this->Size*sizeof(T));
 }
 
@@ -205,8 +230,17 @@ T* vtkDataArrayTemplate<T>::ResizeAndExtend(vtkIdType sz)
     this->Initialize();
     return 0;
     }
-
-  newArray = new T[newSize];
+  try
+    {
+    newArray = new T[newSize];
+    }
+  catch (vtkstd::exception& e)
+    {
+    vtkErrorMacro("Unable to allocate " << newSize
+                  << " elements of size " << sizeof(T)
+                  << ": " << e.what());
+    return 0;
+    }
   if(!newArray)
     {
     vtkErrorMacro("Cannot allocate memory\n");
@@ -252,7 +286,17 @@ void vtkDataArrayTemplate<T>::Resize(vtkIdType sz)
     return;
     }
 
-  newArray = new T[newSize];
+  try
+    {
+    newArray = new T[newSize];
+    }
+  catch (vtkstd::exception& e)
+    {
+    vtkErrorMacro("Unable to allocate " << newSize
+                  << " elements of size " << sizeof(T)
+                  << ": " << e.what());
+    return;
+    }
   if(!newArray)
     {
     vtkErrorMacro(<< "Cannot allocate memory\n");
@@ -488,8 +532,10 @@ void vtkDataArrayTemplate<T>::InsertComponent(vtkIdType i, int j,
 template <class T>
 void vtkDataArrayTemplate<T>::SetNumberOfValues(vtkIdType number)
 {
-  this->Allocate(number);
-  this->MaxId = number - 1;
+  if(this->Allocate(number))
+    {
+    this->MaxId = number - 1;
+    }
 }
 
 //----------------------------------------------------------------------------
