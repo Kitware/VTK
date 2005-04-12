@@ -28,8 +28,13 @@ SET_SOURCE_FILES_PROPERTIES(QVTKWidgetPlugin.cxx PROPERTIES
 SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
 
+
 # assuming a Qt dll, otherwise plugins aren't possible
-ADD_DEFINITIONS(-DQT_DLL -DQT_PLUGIN)
+ADD_DEFINITIONS(-DQT_DLL)
+
+IF(BUILD_SHARED_LIBS)
+  ADD_DEFINITIONS(-DQT_PLUGIN)
+ENDIF(BUILD_SHARED_LIBS)
 
 # check for a multithreaded Qt dll
 IF(QT_QT_LIBRARY MATCHES "mt")
@@ -52,22 +57,27 @@ TARGET_LINK_LIBRARIES( QVTK ${QT_QT_LIBRARY}
   vtkImaging 
   vtkCommon)
 
+# build plugin only if VTK is built as shared libraries
+IF(BUILD_SHARED_LIBS)
 # add QVTK plugin from sources 
 # stand-alone as it doesn't depend on QVTK library
-ADD_LIBRARY ( QVTKWidgetPlugin
-  SHARED
-  ${PluginLibSrcs}
-  ${PluginMocSrcs}
-)
+  ADD_LIBRARY ( QVTKWidgetPlugin
+    SHARED
+    ${PluginLibSrcs}
+    ${PluginMocSrcs}
+  )
 
-TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
-  ${QT_QT_LIBRARY}
-  vtkRendering
-  vtkImaging
-  vtkGraphics
-  vtkFiltering
-  vtkCommon
-)
+  TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
+    ${QT_QT_LIBRARY}
+    vtkRendering
+    vtkImaging
+    vtkGraphics
+    vtkFiltering
+    vtkCommon
+  )
+ELSE(BUILD_SHARED_LIBS)
+  MESSAGE(STATUS "Will not build QVTK plugin because VTK isn't build as shared libraries")
+ENDIF(BUILD_SHARED_LIBS)
 
 
 # Configure the VTKConfigQt.cmake support file.
@@ -76,20 +86,22 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
 
 # install rules
 
+IF(BUILD_SHARED_LIBS)
 # install at /plugins/designer allows one to set their designer plugin path
 # in the designer preferences to the vtk-install/plugins directory.
-IF(NOT VTK_INSTALL_QT_DIR)
-  SET(VTK_INSTALL_QT_DIR /plugins/designer)
-ENDIF(NOT VTK_INSTALL_QT_DIR)
-IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_TARGETS( ${VTK_INSTALL_QT_DIR} QVTKWidgetPlugin )
-ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
+  IF(NOT VTK_INSTALL_QT_DIR)
+    SET(VTK_INSTALL_QT_DIR /plugins/designer)
+  ENDIF(NOT VTK_INSTALL_QT_DIR)
+  IF(NOT VTK_INSTALL_NO_RUNTIME)
+    INSTALL_TARGETS( ${VTK_INSTALL_QT_DIR} QVTKWidgetPlugin )
+  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 
-IF ( UNIX )
-  ADD_CUSTOM_TARGET( install-qtplugin
-                     install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/${VTK_INSTALL_QT_DIR}
-                     DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
-ENDIF ( UNIX )
+  IF ( UNIX )
+    ADD_CUSTOM_TARGET( install-qtplugin
+                       install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/${VTK_INSTALL_QT_DIR}
+                       DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
+  ENDIF ( UNIX )
+ENDIF(BUILD_SHARED_LIBS)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES( ${VTK_INSTALL_INCLUDE_DIR} .h ${QVTKLibSrcs})
@@ -98,3 +110,6 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+
+
+
