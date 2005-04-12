@@ -16,6 +16,7 @@
 
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -23,7 +24,7 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpScalar, "1.48");
+vtkCxxRevisionMacro(vtkWarpScalar, "1.49");
 vtkStandardNewMacro(vtkWarpScalar);
 
 vtkWarpScalar::vtkWarpScalar()
@@ -35,14 +36,31 @@ vtkWarpScalar::vtkWarpScalar()
   this->Normal[2] = 1.0;
   this->XYPlane = 0;
 
-  this->InputScalarsSelection = NULL;
-  // Accept the memory leak for now.
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 vtkWarpScalar::~vtkWarpScalar()
 {
-  this->SetInputScalarsSelection(NULL);
 }
+
+void vtkWarpScalar::SelectInputScalars(const char *fieldName)
+{
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,fieldName);
+}
+
+const char *vtkWarpScalar::GetInputScalarsSelection()
+{
+  vtkInformation *info = this->GetInputArrayInformation(0);
+  if (info->Has(vtkDataObject::FIELD_NAME()))
+    {
+    return info->Get(vtkDataObject::FIELD_NAME());
+    }
+  
+  return NULL;
+}
+
 
 double *vtkWarpScalar::DataNormal(vtkIdType id, vtkDataArray *normals)
 {
@@ -94,8 +112,8 @@ int vtkWarpScalar::RequestData(
   inPts = input->GetPoints();
   pd = input->GetPointData();
   inNormals = pd->GetNormals();
-
-  inScalars = pd->GetScalars(this->InputScalarsSelection);
+  
+  inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( !inPts || !inScalars )
     {
     vtkDebugMacro(<<"No data to warp");
@@ -170,10 +188,6 @@ void vtkWarpScalar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " << this->InputScalarsSelection;
-    } 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
   os << indent << "Use Normal: " << (this->UseNormal ? "On\n" : "Off\n");
   os << indent << "Normal: (" << this->Normal[0] << ", " 

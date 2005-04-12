@@ -76,9 +76,8 @@ public:
   // Description:
   // If you want to warp by an arbitrary scalar array, then set its name here.
   // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
+  const char *GetInputScalarsSelection();
+  void SelectInputScalars(const char *fieldName);
   
 protected:
   vtkWarpScalar();
@@ -97,9 +96,6 @@ protected:
   double *InstanceNormal(vtkIdType id, vtkDataArray *normals=NULL);
   double *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
   //ETX
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
 private:
   vtkWarpScalar(const vtkWarpScalar&);  // Not implemented.
