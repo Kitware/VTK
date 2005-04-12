@@ -88,6 +88,17 @@ public:
   int AddArray(const char* name);
 
   // Description:
+  // Remove an array from its index in the list.
+  // \pre valid_index: index>=0 && index<GetNumberOfArrays()
+  // \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
+  void RemoveArrayFromIndex(int index);
+ 
+  // Description:
+  // Remove an array from its name.
+  // \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
+  void RemoveArrayFromName(const char *name);
+  
+  // Description:
   // Set the list of arrays that have entries.  For arrays that
   // already have entries, the settings are copied.  For arrays that
   // don't already have an entry, they are assigned the given default
