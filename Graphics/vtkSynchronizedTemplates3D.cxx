@@ -25,7 +25,6 @@
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMath.h"
-#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -39,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.4");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.5");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -59,13 +58,6 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
     = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
-  this->Threader = vtkMultiThreader::New();
-  this->NumberOfThreads = this->Threader->GetNumberOfThreads();
-  
-  for (idx = 0; idx < VTK_MAX_THREADS; ++idx)
-    {
-    this->Threads[idx] = NULL;
-    }
   this->InputScalarsSelection = NULL;
   
   this->ArrayComponent = 0;
@@ -75,17 +67,8 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
 vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
-  this->Threader->Delete();
   this->SetInputScalarsSelection(NULL);
 }
-
-struct vtkSynchronizedTemplates3DThreadStruct
-{
-  vtkSynchronizedTemplates3D *Filter;
-  vtkInformationVector **InputVector;
-  vtkInformationVector *OutputVector;
-  vtkImageData *Input;
-};
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
@@ -704,16 +687,7 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 
   vtkDebugMacro(<< "Executing 3D structured contour");
   
-  if (this->NumberOfThreads <= 1)
-    { // Special case when only one thread (fast, no copy).
-    output = vtkPolyData::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
-  else
-    { // For thread saftey, each writes into a separate output which are merged later.
-    output = vtkPolyData::New();
-    this->Threads[threadId] = output;
-    }
+  output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
   
   if ( exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5] )
     {
@@ -749,58 +723,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
 }
 
 //----------------------------------------------------------------------------
-VTK_THREAD_RETURN_TYPE vtkSyncTempThreadedExecute( void *arg )
-{
-  vtkSynchronizedTemplates3DThreadStruct *str;
-  vtkSynchronizedTemplates3D *self;
-  vtkInformation *inInfo, *outInfo;
-  int threadId, threadCount;
-  int ext[6], *tmp;
-
-  threadId = ((vtkMultiThreader::ThreadInfo *)(arg))->ThreadID;
-  threadCount = ((vtkMultiThreader::ThreadInfo *)(arg))->NumberOfThreads;
-
-  str = (vtkSynchronizedTemplates3DThreadStruct *)
-    (((vtkMultiThreader::ThreadInfo *)(arg))->UserData);
-  self = str->Filter;
-  inInfo = str->InputVector[0]->GetInformationObject(0);
-  outInfo = str->OutputVector->GetInformationObject(0);
-
-  // we need to breakup the ExecuteExtent based on the threadId/Count
-  tmp = self->GetExecuteExtent();
-  ext[0] = tmp[0];
-  ext[1] = tmp[1];
-  ext[2] = tmp[2];
-  ext[3] = tmp[3];
-  ext[4] = tmp[4];
-  ext[5] = tmp[5];
-  
-  vtkExtentTranslator *translator = vtkExtentTranslator::SafeDownCast(
-    inInfo->Get(vtkStreamingDemandDrivenPipeline::EXTENT_TRANSLATOR()));
-  vtkImageData *input = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  if (translator == NULL)
-    {
-    // No translator means only do one thread.
-    if (threadId == 0)
-      {
-      self->ThreadedExecute(input, inInfo, outInfo, ext, threadId);
-      }
-    }
-  else
-    {
-    if (translator->PieceToExtentThreadSafe(threadId, threadCount,0,tmp, ext, 
-                                            translator->GetSplitMode(),0))
-      {
-      self->ThreadedExecute(input, inInfo, outInfo, ext, threadId);
-      }
-    }
-  
-  return VTK_THREAD_RETURN_VALUE;
-}
-
-//----------------------------------------------------------------------------
 int vtkSynchronizedTemplates3D::RequestData(
   vtkInformation *request,
   vtkInformationVector **inputVector,
@@ -829,150 +751,8 @@ int vtkSynchronizedTemplates3D::RequestData(
   // to be safe recompute the 
   this->RequestUpdateExtent(request,inputVector,outputVector);
 
-  // Just in case some one changed the maximum number of threads.
-  if (this->NumberOfThreads <= 1)
-    {
-    // Just call the threaded execute directly.
-    this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
-    }
-  else
-    {
-    int totalCells, totalPoints;
-    vtkPoints *newPts;
-    vtkCellArray *newPolys;
-    
-    this->Threader->SetNumberOfThreads(this->NumberOfThreads);
-    // Setup threading and the invoke threadedExecute
-    vtkSynchronizedTemplates3DThreadStruct str;
-    str.Filter = this;
-    str.InputVector = inputVector;
-    str.OutputVector = outputVector;
-    str.Input = input;
-    this->Threader->SetSingleMethod(vtkSyncTempThreadedExecute, &str);
-    this->Threader->SingleMethodExecute();
-
-    // Collect all the data into the output.  Now I cannot use append filter
-    // because this filter might be streaming.  (Maybe I could if thread
-    // 0 wrote to output, and I copied output to a temp polyData...)
-    
-    // Determine the total number of points.
-    totalCells = totalPoints = 0;
-    for (idx = 0; idx < this->NumberOfThreads; ++idx)
-      {
-      threadOut = this->Threads[idx];
-      if (threadOut != NULL)
-        {
-        totalPoints += threadOut->GetNumberOfPoints();
-        totalCells += threadOut->GetNumberOfCells();
-        }
-      }
-    // Allocate the necessary points and polys
-    newPts = vtkPoints::New();
-    newPts->Allocate(totalPoints, 1000);
-    newPolys = vtkCellArray::New();
-    newPolys->Allocate(newPolys->EstimateSize(totalCells, 3));
-    output->SetPoints(newPts);
-    output->SetPolys(newPolys);
-  
-    // Allocate point data for copying.
-    // Could anything bad happen if the piece happens to be empty?
-    vtkDataSetAttributes::FieldList ptList(this->NumberOfThreads);
-    int firstPD=1;
-    for (idx = 0; idx < this->NumberOfThreads; ++idx)
-      {
-        if ( !this->Threads[idx])
-        {
-        continue; //no input, just skip
-        }
-
-      threadPD = this->Threads[idx]->GetPointData();
-      
-      if ( firstPD )
-        {
-        ptList.InitializeFieldList(threadPD);
-        firstPD = 0;
-        }
-      else
-        {
-        ptList.IntersectFieldList(threadPD);
-        }
-      }
-
-    vtkDataSetAttributes::FieldList clList(this->NumberOfThreads);
-    int firstCD=1;
-
-    for (idx = 0; idx < this->NumberOfThreads; ++idx)
-      {
-      if ( !this->Threads[idx])
-        {
-        continue; //no input, just skip
-        }
-
-      threadCD = this->Threads[idx]->GetCellData();
-      
-      if ( firstCD )
-        {
-        clList.InitializeFieldList(threadCD);
-        firstCD = 0;
-        }
-      else
-        {
-        clList.IntersectFieldList(threadCD);
-        }
-      }
-
-
-    outPD = output->GetPointData();
-    outPD->CopyAllocate(ptList, totalPoints);
-    outCD = output->GetCellData();
-    outCD->CopyAllocate(clList, totalCells);
-
-    // Now copy all.
-    for (idx = 0; idx < this->NumberOfThreads; ++idx)
-      {
-      threadOut = this->Threads[idx];
-      // Sanity check? We should never have a null thread output.
-      if (threadOut != NULL)
-        { 
-        offset = output->GetNumberOfPoints();
-        threadPD = threadOut->GetPointData();
-        threadCD = threadOut->GetCellData();
-        num = threadOut->GetNumberOfPoints();
-        for (ptIdx = 0; ptIdx < num; ++ptIdx)
-          {
-          newIdx = ptIdx + offset;
-          newPts->InsertPoint(newIdx, threadOut->GetPoint(ptIdx));
-          outPD->CopyData(ptList,threadPD,idx,ptIdx,newIdx);
-          }
-        // copy the triangles.
-        threadTris = threadOut->GetPolys();
-        threadTris->InitTraversal();
-        inId = 0;
-        while (threadTris->GetNextCell(numCellPts, cellPts))
-          {
-          // copy and translate
-          if (numCellPts == 3)
-            {
-            newCellPts[0] = cellPts[0] + offset;
-            newCellPts[1] = cellPts[1] + offset;
-            newCellPts[2] = cellPts[2] + offset;
-            if (newCellPts[0] != newCellPts[1] &&
-                newCellPts[0] != newCellPts[2] &&
-                newCellPts[1] != newCellPts[2])
-              {
-              outId = newPolys->InsertNextCell(3, newCellPts); 
-              outCD->CopyData(clList,threadCD, idx, inId, outId);
-              }
-            }
-          ++inId;
-          }
-        threadOut->Delete();
-        threadOut = this->Threads[idx] = NULL;         
-        }
-      }
-    newPolys->Delete();
-    newPts->Delete();
-    }
+  // Just call the threaded execute directly.
+  this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
 
   output->Squeeze();
 
@@ -1095,7 +875,6 @@ void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
-  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
   if (this->InputScalarsSelection)
     {
     os << indent << "InputScalarsSelection: " 

@@ -32,7 +32,6 @@
 #include "vtkContourValues.h" // Passes calls through
 
 class vtkImageData;
-class vtkMultiThreader;
 
 class VTK_GRAPHICS_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataAlgorithm
 {
@@ -125,11 +124,6 @@ public:
                        int *exExt, int threadId);
 
   // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
-
-  // Description:
   // Determines the chunk size fro streaming.  This filter will act like a
   // collector: ask for many input pieces, but generate one output.  Limit is
   // in KBytes
@@ -163,11 +157,6 @@ protected:
   
   int ExecuteExtent[6];
 
-  int NumberOfThreads;
-  vtkMultiThreader *Threader;
-  // temporary outputs
-  vtkPolyData *Threads[VTK_MAX_THREADS];
-
   char *InputScalarsSelection;
   vtkSetStringMacro(InputScalarsSelection);
 
@@ -177,11 +166,6 @@ private:
   vtkSynchronizedTemplates3D(const vtkSynchronizedTemplates3D&);  // Not implemented.
   void operator=(const vtkSynchronizedTemplates3D&);  // Not implemented.
 };
-
-
-
-
-
 
 
 // template table.
