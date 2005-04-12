@@ -330,6 +330,12 @@ public:
   // (FIELD_ASSOCIATION_POINTS or FIELD_ASSOCIATION_CELLS) and name.
   static vtkInformation *GetNamedFieldInformation(vtkInformation *info, 
     int fieldAssociation, const char *name);
+
+  // Description:
+  // Remove the info associated with an array
+  static void RemoveNamedFieldInformation(vtkInformation *info, 
+                                          int fieldAssociation, 
+                                          const char *name);
   
   // Description:
   // Set the named array to be the active field for the specified type
