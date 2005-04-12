@@ -24,20 +24,22 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.21");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.22");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
 {
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
-  this->InputScalarsSelection = NULL;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::~vtkImageAlgorithm()
 {
-  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -126,12 +128,42 @@ void vtkImageAlgorithm::Execute()
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
 }
 
-int vtkImageAlgorithm::RequestInformation(
-  vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** vtkNotUsed(inputVector),
-  vtkInformationVector* vtkNotUsed(outputVector))
+void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
+(vtkInformation* vtkNotUsed( request ),
+ vtkInformationVector** inputVector,
+ vtkInformationVector* outputVector)
 {
-  // do nothing let subclasses handle it
+  // for image data to image data
+  if (this->GetNumberOfInputPorts())
+    {
+    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    // if the input is image data
+    if (vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
+      {
+      vtkInformation *info = this->GetInputArrayFieldInformation(0, inputVector);
+      int scalarType = info->Get( vtkDataObject::FIELD_ARRAY_TYPE());
+      int numComp = info->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+      for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+        {
+        vtkInformation* outInfo = outputVector->GetInformationObject(i);
+        // if the output is image data
+        if (vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())))
+          {
+          // copy scalar type and scalar number of components
+          vtkDataObject::SetPointDataActiveScalarInfo(outInfo, scalarType, numComp);
+          }
+        }
+      }
+    }
+}  
+
+int vtkImageAlgorithm::RequestInformation(
+  vtkInformation* request,
+  vtkInformationVector** inputVector,
+  vtkInformationVector* outputVector)
+{
+  // do nothing except copy scalar type info
+  this->CopyInputArrayAttributesToOutput(request,inputVector,outputVector);
   return 1;
 }
 
@@ -176,7 +208,8 @@ vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output)
 
 // by default copy the attr from the first input to the first output
 void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
-                                          vtkImageData *output)
+                                          vtkImageData *output,
+                                          vtkInformationVector **inputVector)
 {
   if (!input || !output)
     {
@@ -192,7 +225,7 @@ void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
   output->GetExtent(outExt);
 
   // Do not copy the array we will be generating.
-  inArray = input->GetPointData()->GetScalars();
+  inArray = this->GetInputArrayToProcess(0,inputVector);
 
   // Conditionally copy point and cell data.  Only copy if corresponding
   // indexes refer to identical points.

@@ -74,6 +74,13 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
+  // convienience method to copy the selected scalars type and num components
+  // to the output info. Call this from inside your RequestInformation
+  virtual void CopyInputArrayAttributesToOutput(vtkInformation* request,
+                                                vtkInformationVector** inputVector,
+                                                vtkInformationVector* outputVector);
+  
+  
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -92,15 +99,13 @@ protected:
   virtual vtkImageData *AllocateOutputData(vtkDataObject *out);
 
   // copy the other point and cell data
-  virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out);
+  virtual void CopyAttributeData(vtkImageData *in, vtkImageData *out,
+                                 vtkInformationVector** inputVector);
   
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
   virtual int FillInputPortInformation(int port, vtkInformation* info);
   
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
-
 private:
   vtkImageAlgorithm(const vtkImageAlgorithm&);  // Not implemented.
   void operator=(const vtkImageAlgorithm&);  // Not implemented.

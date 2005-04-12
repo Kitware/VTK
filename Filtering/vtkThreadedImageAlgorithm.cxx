@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.7");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.8");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -38,7 +38,6 @@ vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::~vtkThreadedImageAlgorithm()
 {
-  this->SetInputScalarsSelection(NULL);
   this->Threader->Delete();
 }
 
@@ -279,7 +278,7 @@ int vtkThreadedImageAlgorithm::RequestData(
   // copy other arrays
   if (str.Inputs && str.Inputs[0] && str.Outputs)
     {
-    this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0]);
+    this->CopyAttributeData(str.Inputs[0][0],str.Outputs[0],inputVector);
     }
     
   this->Threader->SetNumberOfThreads(this->NumberOfThreads);
