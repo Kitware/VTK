@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.5");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.6");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -47,8 +47,6 @@ vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 // of 0.0. The ImageRange are set to extract the first k-plane.
 vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
 {
-  int idx;
-
   this->ContourValues = vtkContourValues::New();
   this->ComputeNormals = 1;
   this->ComputeGradients = 0;
@@ -737,16 +735,6 @@ int vtkSynchronizedTemplates3D::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
-
-  int idx, inId, outId, offset, num, ptIdx, newIdx;
-  vtkIdType numCellPts=0;
-  vtkIdType newCellPts[3], *cellPts=0;
-  vtkPointData *outPD;
-  vtkCellData *outCD;
-  vtkPolyData *threadOut = 0;
-  vtkPointData *threadPD;
-  vtkCellData *threadCD;
-  vtkCellArray *threadTris;
 
   // to be safe recompute the 
   this->RequestUpdateExtent(request,inputVector,outputVector);
