@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.55");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.56");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -769,7 +769,33 @@ int vtkEnSightReader::ReadCaseFile()
         }
       else if (strncmp(line, "tensor", 6) == 0)
         {
-        sscanf(line, " %*s %*s %*s %s", subLine);
+        // According to EnSight documentation tensor entry should be of the form:
+        // tensor symm per node/element
+        // but it seems like you can also find:
+        // tensor per node/element
+        // Let handle this case here:
+        char symm[10];
+        char per[10];
+        if( sscanf(line, " %*s %s %s %s", symm, per, subLine) != 3 )
+          {
+          vtkErrorMacro( "Error while reading: " << line );
+          }
+        if (!(strcmp(symm, "symm") == 0 && strcmp(per, "per") == 0))
+          {
+          if( sscanf(line, " %*s %s %s", per, subLine) != 2 )
+            {
+            vtkErrorMacro( "Error while reading: " << line );
+            }
+          if (strcmp(per, "per") == 0)
+            {
+            //Not valid file but seems alright, only 'symm' is missing
+            vtkWarningMacro( "Looks almost like a valid case file, continuing" );
+            }
+          else
+            {
+            vtkErrorMacro("Trouble reading: " << line );
+            }
+          }
         if (strcmp(subLine, "node:") == 0)
           {
           vtkDebugMacro("tensor symm per node");
@@ -825,6 +851,10 @@ int vtkEnSightReader::ReadCaseFile()
             }
           this->AddVariableType();
           this->NumberOfTensorsSymmPerElement++;
+          }
+        else
+          {
+          vtkErrorMacro("Unknow type, faulty line was:" << line );
           }
         this->AddVariableFileName(subLine);
         this->NumberOfVariables++;

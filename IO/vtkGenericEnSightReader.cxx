@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.70");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.71");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -593,6 +593,7 @@ void vtkGenericEnSightReader::SetCaseFileName(const char* fileName)
       
 }
 
+//----------------------------------------------------------------------------
 // Internal function to read in a line up to 256 characters.
 // Returns zero if there was an error.
 int vtkGenericEnSightReader::ReadLine(char result[256])
@@ -607,6 +608,7 @@ int vtkGenericEnSightReader::ReadLine(char result[256])
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Internal function to read in a line (from a binary file) up
 // to 80 characters.  Returns zero if there was an error.
 int vtkGenericEnSightReader::ReadBinaryLine(char result[80])
@@ -621,6 +623,7 @@ int vtkGenericEnSightReader::ReadBinaryLine(char result[80])
   return 1;
 }
 
+//----------------------------------------------------------------------------
 // Internal function that skips blank lines and comment lines
 // and reads the next line it finds (up to 256 characters).
 // Returns 0 is there was an error.
