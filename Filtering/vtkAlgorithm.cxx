@@ -15,9 +15,12 @@
 #include "vtkAlgorithm.h"
 
 #include "vtkAlgorithmOutput.h"
+#include "vtkCellData.h"
 #include "vtkCommand.h"
 #include "vtkDataObject.h"
+#include "vtkDataSet.h"
 #include "vtkErrorCode.h"
+#include "vtkFieldData.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationInformationVectorKey.h"
@@ -25,13 +28,14 @@
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.15");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.16");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -41,7 +45,10 @@ vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_OPTIONAL, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_IS_REPEATABLE, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_REQUIRED_FIELDS, InformationVector);
 vtkInformationKeyMacro(vtkAlgorithm, PORT_REQUIREMENTS_FILLED, Integer);
-
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_PORT, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION, Integer);
+vtkInformationKeyMacro(vtkAlgorithm, INPUT_ARRAYS_TO_PROCESS, InformationVector);
+  
 //----------------------------------------------------------------------------
 class vtkAlgorithmInternals
 {
@@ -100,6 +107,146 @@ void vtkAlgorithm::UpdateProgress(double amount)
 {
   this->Progress = amount;
   this->InvokeEvent(vtkCommand::ProgressEvent,(void *)&amount);
+}
+
+
+vtkInformation *vtkAlgorithm
+::GetInputArrayFieldInformation(int idx, vtkInformationVector **inputVector)
+{
+  // first get out association
+  vtkInformation *info = this->GetInputArrayInformation(idx);
+  
+  // then get the actual info object from the pinfo
+  int port = info->Get(INPUT_PORT());
+  int connection = info->Get(INPUT_CONNECTION());
+  int fieldAssoc = info->Get(vtkDataObject::FIELD_ASSOCIATION());
+  vtkInformation *inInfo = inputVector[port]->GetInformationObject(connection);
+  
+  if (info->Has(vtkDataObject::FIELD_NAME()))
+    {
+    const char *name = info->Get(vtkDataObject::FIELD_NAME());
+    return vtkDataObject::GetNamedFieldInformation(inInfo, fieldAssoc, name);
+    }
+  int fType = info->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
+  return vtkDataObject::GetActiveFieldInformation(inInfo, fieldAssoc, fType);
+}
+
+vtkInformation *vtkAlgorithm::GetInputArrayInformation(int idx)
+{
+  // add this info into the algorithms info object
+  vtkInformationVector *inArrayVec = 
+    this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+    {
+    inArrayVec = vtkInformationVector::New();
+    this->Information->Set(INPUT_ARRAYS_TO_PROCESS(),inArrayVec);
+    inArrayVec->Delete();
+    }
+  vtkInformation *inArrayInfo = inArrayVec->GetInformationObject(idx);
+  if (!inArrayInfo)
+    {
+    inArrayInfo = vtkInformation::New();
+    inArrayVec->SetInformationObject(idx,inArrayInfo);
+    inArrayInfo->Delete();
+    }
+  return inArrayInfo;
+}
+
+void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection, 
+                                          int fieldAssociation, 
+                                          int attributeType)
+{
+  vtkInformation *info = this->GetInputArrayInformation(idx);
+
+  info->Set(INPUT_PORT(), port);
+  info->Set(INPUT_CONNECTION(), connection);
+  info->Set(vtkDataObject::FIELD_ASSOCIATION(),fieldAssociation);
+  info->Set(vtkDataObject::FIELD_ATTRIBUTE_TYPE(), attributeType);
+
+  // remove name if there is one
+  info->Remove(vtkDataObject::FIELD_NAME());  
+}
+
+void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection, 
+                                          int fieldAssociation, 
+                                          const char *name)
+{
+  vtkInformation *info = this->GetInputArrayInformation(idx);
+  
+  info->Set(INPUT_PORT(), port);
+  info->Set(INPUT_CONNECTION(), connection);
+  info->Set(vtkDataObject::FIELD_ASSOCIATION(),fieldAssociation);
+  info->Set(vtkDataObject::FIELD_NAME(),name);
+
+  // remove fieldAttr if there is one
+  info->Remove(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
+}
+
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(int idx, 
+                                                   vtkInformationVector **inputVector)
+{
+  vtkInformationVector *inArrayVec = 
+    this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+  vtkInformation *inArrayInfo = inArrayVec->GetInformationObject(idx);
+  if (!inArrayInfo)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+
+  int port = inArrayInfo->Get(INPUT_PORT());
+  int connection = inArrayInfo->Get(INPUT_CONNECTION());
+  int fieldAssoc = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
+  vtkInformation *inInfo = inputVector[port]->GetInformationObject(connection);
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  
+  if (inArrayInfo->Has(vtkDataObject::FIELD_NAME()))
+    {
+    const char *name = inArrayInfo->Get(vtkDataObject::FIELD_NAME());
+  
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE)
+      {
+      vtkFieldData *fd = input->GetFieldData();
+      return fd->GetArray(name);
+      }
+    
+    vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
+    if (!inputDS)
+      {
+      vtkErrorMacro("Attempt to get point or cell data from a data object");
+      return NULL;
+      }
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+      {
+      return inputDS->GetPointData()->GetArray(name);
+      }
+    
+    return inputDS->GetCellData()->GetArray(name);
+    }
+  else
+    {
+    int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
+    // must have a data set 
+    vtkDataSet *inputDS = vtkDataSet::SafeDownCast(input);
+    if (!inputDS)
+      {
+      vtkErrorMacro("Attempt to get point or cell data from a data object");
+      return NULL;
+      }
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+      {
+      return inputDS->GetPointData()->GetAttribute(fType);
+      }
+    
+    return inputDS->GetCellData()->GetAttribute(fType);
+    }
 }
 
 
