@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.96");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.97");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -364,10 +364,8 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
   double maxDistance;
   int i;
   double *bounds, adjBounds[6];
-  vtkDataArray *newScalars;
   double *spacing;
   double *origin;
-  double maxDistance2;
   int slabSize, slabMin, slabMax;
   int outExt[6];
 
@@ -382,14 +380,13 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
     }
 
   maxDistance = userData->MaximumDistance;
-  maxDistance2 = maxDistance * maxDistance;
 
   output = userData->Modeller->GetOutput();
   spacing = output->GetSpacing();
   origin = output->GetOrigin();
 
   int *sampleDimensions = userData->Modeller->GetSampleDimensions();
-  if (!(newScalars = output->GetPointData()->GetScalars()))
+  if (!output->GetPointData()->GetScalars())
     {
     vtkGenericWarningMacro("Sanity check failed.");
     return VTK_THREAD_RETURN_VALUE;
