@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.5");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.6");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -63,6 +63,8 @@ vtkUniformGrid::vtkUniformGrid()
   int extent[6] = {0, -1, 0, -1, 0, -1};
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+
+  memcpy(this->ExtentBuffer, extent, 6*sizeof(int));
 
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
@@ -130,13 +132,17 @@ vtkCell *vtkUniformGrid::GetCell(vtkIdType cellId)
   int loc[3];
   vtkIdType idx, npts;
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int *dims = this->GetDimensions();
-  int d01 = dims[0]*dims[1];
   double x[3];
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+  int d01 = dims[0]*dims[1];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -245,13 +251,17 @@ void vtkUniformGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
   vtkIdType npts, idx;
   int loc[3];
   int iMin, iMax, jMin, jMax, kMin, kMax;
-  int *dims = this->GetDimensions();
-  int d01 = dims[0]*dims[1];
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
   double x[3];
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+  int d01 = dims[0]*dims[1];
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -363,9 +373,13 @@ void vtkUniformGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
   double x[3];
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
-  int *dims = this->GetDimensions();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   iMin = iMax = jMin = jMax = kMin = kMax = 0;
   
@@ -471,9 +485,13 @@ double *vtkUniformGrid::GetPoint(vtkIdType ptId)
   int i, loc[3];
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
-  int *dims = this->GetDimensions();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   x[0] = x[1] = x[2] = 0.0;
   if (dims[0] == 0 || dims[1] == 0 || dims[2] == 0)
@@ -546,9 +564,13 @@ vtkIdType vtkUniformGrid::FindPoint(double x[3])
   double d;
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
-  int *dims = this->GetDimensions();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
 
   //
   //  Compute the ijk location
@@ -628,8 +650,6 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
 {
   int i, j, k, loc[3];
   vtkIdType npts, idx;
-  int *dims = this->GetDimensions();
-  vtkIdType d01 = dims[0]*dims[1];
   double xOut[3];
   int iMax = 0;
   int jMax = 0;
@@ -639,6 +659,12 @@ vtkCell *vtkUniformGrid::FindAndGetCell(double x[3],
   double *spacing = this->GetSpacing();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
+  vtkIdType d01 = dims[0]*dims[1];
 
   if ( this->ComputeStructuredCoordinates(x, loc, pcoords) == 0 )
     {
@@ -838,9 +864,13 @@ int vtkUniformGrid::ComputeStructuredCoordinates(double x[3], int ijk[3],
   double d, doubleLoc;
   double *origin = this->GetOrigin();
   double *spacing = this->GetSpacing();
-  int *dims = this->GetDimensions();
   int extent[6];
   this->GetExtent(extent);
+
+  int dims[3];
+  dims[0] = extent[1] - extent[0] + 1;
+  dims[1] = extent[3] - extent[2] + 1;
+  dims[2] = extent[5] - extent[4] + 1;
   
   //
   //  Compute the ijk location
@@ -922,7 +952,15 @@ void vtkUniformGrid::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 //----------------------------------------------------------------------------
 int* vtkUniformGrid::GetExtent()
 {
-  return this->Information->Get(vtkDataObject::DATA_EXTENT());
+  if (ExtentComputeTime < this->Information->GetMTime())
+    {
+    return this->ExtentBuffer;
+    }
+  memcpy(this->ExtentBuffer, 
+         this->Information->Get(vtkDataObject::DATA_EXTENT()),
+         6*sizeof(int));
+  this->ExtentComputeTime.Modified();
+  return this->ExtentBuffer;
 }
 
 //----------------------------------------------------------------------------

@@ -33,7 +33,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.13");
+vtkCxxRevisionMacro(vtkInformation, "1.14");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -94,6 +94,7 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
       {
       this->Internal->Map[key] = value;
       }
+    this->Modified();
     }
 }
 

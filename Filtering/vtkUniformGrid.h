@@ -242,6 +242,9 @@ protected:
   void SetCellVisibility(vtkStructuredVisibilityConstraint *cellVisibility);
   vtkGetObjectMacro(CellVisibility, vtkStructuredVisibilityConstraint);
 
+  vtkTimeStamp ExtentComputeTime;
+  int ExtentBuffer[6];
+
 private:
   void InternalUniformGridCopy(vtkUniformGrid *src);
   void InternalUniformGridCopy(vtkImageData *src);
