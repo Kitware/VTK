@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.6");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.7");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -952,14 +952,13 @@ void vtkUniformGrid::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 //----------------------------------------------------------------------------
 int* vtkUniformGrid::GetExtent()
 {
-  if (ExtentComputeTime < this->Information->GetMTime())
+  if (this->ExtentComputeTime < this->Information->GetMTime())
     {
-    return this->ExtentBuffer;
+    memcpy(this->ExtentBuffer, 
+           this->Information->Get(vtkDataObject::DATA_EXTENT()),
+           6*sizeof(int));
+    this->ExtentComputeTime.Modified();
     }
-  memcpy(this->ExtentBuffer, 
-         this->Information->Get(vtkDataObject::DATA_EXTENT()),
-         6*sizeof(int));
-  this->ExtentComputeTime.Modified();
   return this->ExtentBuffer;
 }
 
@@ -981,7 +980,14 @@ void vtkUniformGrid::GetExtent(int& x1, int& x2,
 //----------------------------------------------------------------------------
 void vtkUniformGrid::GetExtent(int* extent)
 {
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
+  if (this->ExtentComputeTime < this->Information->GetMTime())
+    {
+    memcpy(this->ExtentBuffer, 
+           this->Information->Get(vtkDataObject::DATA_EXTENT()),
+           6*sizeof(int));
+    this->ExtentComputeTime.Modified();
+    }
+  memcpy(extent, this->ExtentBuffer, 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
