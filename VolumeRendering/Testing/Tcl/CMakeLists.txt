@@ -12,7 +12,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VOLUMERENDERING)
       TestLODProp3D
       TestPartialPreIntegration
       TestPreIntegration
-      TestZsweep
+      TestZSweep
       volRCClipPlanes
       volRCCropRegions
       volRCRotateClip
