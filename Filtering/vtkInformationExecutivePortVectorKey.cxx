@@ -16,11 +16,12 @@
 
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkInformation.h"
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.3");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.4");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -149,6 +150,10 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
       oldv->UnRegisterAllExecutives();
       vtkstd::copy(executives, executives+length, oldv->Executives.begin());
       vtkstd::copy(ports, ports+length, oldv->Ports.begin());
+      // Since this sets a value without call SetAsObjectBase(),
+      // the info has to be modified here (instead of 
+      // vtkInformation::SetAsObjectBase()
+      info->Modified();
       }
     else
       {

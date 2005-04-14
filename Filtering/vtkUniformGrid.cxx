@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.7");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.8");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -952,7 +952,7 @@ void vtkUniformGrid::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 //----------------------------------------------------------------------------
 int* vtkUniformGrid::GetExtent()
 {
-  if (this->ExtentComputeTime < this->Information->GetMTime())
+  if (this->ExtentComputeTime <= this->Information->GetMTime())
     {
     memcpy(this->ExtentBuffer, 
            this->Information->Get(vtkDataObject::DATA_EXTENT()),
@@ -964,23 +964,28 @@ int* vtkUniformGrid::GetExtent()
 
 //----------------------------------------------------------------------------
 void vtkUniformGrid::GetExtent(int& x1, int& x2,
-                             int& y1, int& y2,
-                             int& z1, int& z2)
+                               int& y1, int& y2,
+                               int& z1, int& z2)
 {
-  int extent[6];
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
-  x1 = extent[0];
-  x2 = extent[1];
-  y1 = extent[2];
-  y2 = extent[3];
-  z1 = extent[4];
-  z2 = extent[5];
+  if (this->ExtentComputeTime <= this->Information->GetMTime())
+    {
+    memcpy(this->ExtentBuffer, 
+           this->Information->Get(vtkDataObject::DATA_EXTENT()),
+           6*sizeof(int));
+    this->ExtentComputeTime.Modified();
+    }
+  x1 = this->ExtentBuffer[0];
+  x2 = this->ExtentBuffer[1];
+  y1 = this->ExtentBuffer[2];
+  y2 = this->ExtentBuffer[3];
+  z1 = this->ExtentBuffer[4];
+  z2 = this->ExtentBuffer[5];
 }
 
 //----------------------------------------------------------------------------
 void vtkUniformGrid::GetExtent(int* extent)
 {
-  if (this->ExtentComputeTime < this->Information->GetMTime())
+  if (this->ExtentComputeTime <= this->Information->GetMTime())
     {
     memcpy(this->ExtentBuffer, 
            this->Information->Get(vtkDataObject::DATA_EXTENT()),

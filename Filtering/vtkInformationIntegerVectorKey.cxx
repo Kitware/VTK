@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.8");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.9");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -90,6 +90,10 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
       {
       // Replace the existing value.
       vtkstd::copy(value, value+length, oldv->Value.begin());
+      // Since this sets a value without call SetAsObjectBase(),
+      // the info has to be modified here (instead of 
+      // vtkInformation::SetAsObjectBase()
+      info->Modified();
       }
     else
       {
