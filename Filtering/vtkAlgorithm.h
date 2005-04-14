@@ -237,6 +237,22 @@ public:
   void ReleaseDataFlagOn();
   void ReleaseDataFlagOff();
 
+  // Description:
+  // Set the input data arrays that this algorithm will process. Specifically
+  // the idx array that this algorithm will process (starting from 0) is the
+  // array on port, connection with the specified association and name or
+  // attribute type (such as SCALARS)
+  void SetInputArrayToProcess(int idx, int port, int connection, 
+                              int fieldAssociation, 
+                              const char *name);
+  void SetInputArrayToProcess(int idx, int port, int connection, 
+                              int fieldAssociation, 
+                              int fieldAttributeType);
+
+  // Description:
+  // Get the info object for the specified input array to this algorithm
+  vtkInformation *GetInputArrayInformation(int idx);
+  
   //========================================================================
   
   // Description:
@@ -298,26 +314,10 @@ protected:
   virtual void SetNumberOfInputConnections(int port, int n);
 
   // Description:
-  // Set the input data arrays that this algorithm will process. Specifically
-  // the idx array that this algorithm will process (starting from 0) is the
-  // array on port, connection with the specified association and name or
-  // attribute type (such as SCALARS)
-  void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
-                              const char *name);
-  void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
-                              int fieldAttributeType);
-
-  // Description:
   // Get the actual data array for the input array sepcified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkDataArray *GetInputArrayToProcess(int idx,vtkInformationVector **inputVector);
 
-  // Description:
-  // Get the info object for the specified input array to this algorithm
-  vtkInformation *GetInputArrayInformation(int idx);
-  
   // Description:
   // This method takes in an index (as specified in SetInputArrayToProcess)
   // and a pipeline information vector. It then finds the information about
