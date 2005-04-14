@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.16");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.17");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -165,6 +165,8 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
 
   // remove name if there is one
   info->Remove(vtkDataObject::FIELD_NAME());  
+
+  this->Modified();
 }
 
 void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection, 
@@ -180,6 +182,8 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
 
   // remove fieldAttr if there is one
   info->Remove(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
+
+  this->Modified();
 }
 
 vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(int idx, 
