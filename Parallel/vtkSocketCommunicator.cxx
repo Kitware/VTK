@@ -39,7 +39,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.54");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.55");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -519,9 +519,22 @@ int vtkSocketCommunicator::ReceiveInternal(int socket, void* data, int length)
   int total = 0;
   do
     {
+#ifdef _WIN32
+    int trys = 0;
+#endif
     int n = recv(socket, buffer+total, length-total, 0);
     if(n < 1)
       {
+#ifdef _WIN32
+      // On long messages, Windows recv sometimes fails with WSAENOBUFS, but
+      // will work if you try again.
+      int error = WSAGetLastError();
+      if ((error == WSAENOBUFS) && (trys++ < 1000))
+        {
+        Sleep(1);
+        continue;
+        }
+#endif
       return 0;
       }
     total += n;
