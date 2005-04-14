@@ -728,11 +728,6 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", NULL);\n");
   fprintf(fp,"    return TCL_ERROR;\n");
   fprintf(fp,"    }\n");
-  fprintf(fp,"  catch (...)\n");
-  fprintf(fp,"    {\n");
-  fprintf(fp,"    Tcl_AppendResult(interp, \"nUncaught unknown exception\\n\", NULL);\n");
-  fprintf(fp,"    return TCL_ERROR;\n");
-  fprintf(fp,"    }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");
 
 }
