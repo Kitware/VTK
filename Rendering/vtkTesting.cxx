@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.23");
+vtkCxxRevisionMacro(vtkTesting, "1.24");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -377,7 +377,7 @@ int vtkTesting::RegressionTest(vtkImageData* image, double thresh, ostream& os)
     char* vImage = new char[strlen(tmpDir) + validName.size() + 30];
     sprintf(vImage, "%s/%s", tmpDir, validName.c_str());
     vtkPNGWriter *rt_pngw = vtkPNGWriter::New();
-    rt_pngw->SetFileName(this->ValidImageFileName);
+    rt_pngw->SetFileName(vImage);
     rt_pngw->SetInput(image);
     rt_pngw->Write();
     rt_pngw->Delete();
