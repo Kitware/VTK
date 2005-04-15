@@ -15,7 +15,7 @@
 // .NAME vtkWindow - window superclass for vtkRenderWindow
 // .SECTION Description
 // vtkWindow is an abstract object to specify the behavior of a
-// rendering window. It contains vtkViewports.
+// rendering window.  It contains vtkViewports.
 
 // .SECTION see also
 // vtkRenderWindow vtkViewport
