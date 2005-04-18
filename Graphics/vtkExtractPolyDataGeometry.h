@@ -23,7 +23,7 @@
 // To use this filter you must specify an implicit function. You must also
 // specify whether to extract cells lying inside or outside of the implicit 
 // function. (The inside of an implicit function is the negative values 
-// region.) An option exists to extract cells that are neither inside or
+// region.) An option exists to extract cells that are neither inside nor
 // outside (i.e., boundary).
 //
 // A more general version of this filter is available for arbitrary
