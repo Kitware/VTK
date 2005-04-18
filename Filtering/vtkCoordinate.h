@@ -41,7 +41,7 @@
 // vtkCoordinate object may be specified in different coordinate systems!
 
 // .SECTION See Also
-// vtkProp2D vtkActor2D vtkScalarBarActor
+// vtkActor2D vtkScalarBarActor
 
 #ifndef __vtkCoordinate_h
 #define __vtkCoordinate_h
