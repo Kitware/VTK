@@ -22,10 +22,11 @@
 #include "vtkPoints.h"
 #include "vtkPolygon.h"
 
-vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.18");
+vtkCxxRevisionMacro(vtkImplicitSelectionLoop, "1.19");
 vtkStandardNewMacro(vtkImplicitSelectionLoop);
 vtkCxxSetObjectMacro(vtkImplicitSelectionLoop, Loop,vtkPoints);
 
+//----------------------------------------------------------------------------
 // Instantiate object with no initial loop.
 vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
 {
@@ -37,6 +38,7 @@ vtkImplicitSelectionLoop::vtkImplicitSelectionLoop()
   this->Polygon = vtkPolygon::New();
 }
 
+//----------------------------------------------------------------------------
 vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
 {
   if (this->Loop)
@@ -47,6 +49,7 @@ vtkImplicitSelectionLoop::~vtkImplicitSelectionLoop()
   this->Polygon = NULL;
 }
 
+//----------------------------------------------------------------------------
 #define VTK_DELTA 0.0001
 // Generate plane equations only once to avoid a lot of extra work
 void vtkImplicitSelectionLoop::Initialize()
@@ -94,8 +97,8 @@ void vtkImplicitSelectionLoop::Initialize()
   this->DeltaZ = VTK_DELTA*(this->Bounds[5]-this->Bounds[4]);
   this->InitializationTime.Modified();
 }
-#undef VTK_DELTA
 
+//----------------------------------------------------------------------------
 // Evaluate plane equations. Return smallest absolute value.
 double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
 {
@@ -142,6 +145,7 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
   return (inside ? -minDist2 : minDist2);
 }
 
+//----------------------------------------------------------------------------
 // Evaluate gradient of the implicit function. Use a numerical scheme: evaluate 
 // the function at four points (O,O+dx,O+dy,O+dz) and approximate the gradient.
 // It's damn slow.
@@ -169,6 +173,7 @@ void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
   n[2] = (gz - g0) / this->DeltaZ;
 }
 
+//----------------------------------------------------------------------------
 unsigned long int vtkImplicitSelectionLoop::GetMTime()
 {
   unsigned long mTime=this->vtkImplicitFunction::GetMTime();
@@ -183,6 +188,7 @@ unsigned long int vtkImplicitSelectionLoop::GetMTime()
   return mTime;
 }
 
+//----------------------------------------------------------------------------
 void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -190,7 +196,7 @@ void vtkImplicitSelectionLoop::PrintSelf(ostream& os, vtkIndent indent)
   if ( this->Loop )
     {
     os << indent << "Loop of " << this->Loop->GetNumberOfPoints()
-       << "points defined\n";
+       << " points defined\n";
     }
   else
     {
