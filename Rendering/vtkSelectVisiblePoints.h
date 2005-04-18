@@ -36,7 +36,7 @@
 // filter refers to a renderer, which is modified every time a render
 // occurs. Therefore, the filter is always out of date, and always
 // executes. You may have to perform two rendering passes, or if you
-// are using this filter in conjunction with vtkLabeledPointMapper,
+// are using this filter in conjunction with vtkLabeledDataMapper,
 // things work out because 2D rendering occurs after the 3D rendering.
 
 #ifndef __vtkSelectVisiblePoints_h
