@@ -27,8 +27,8 @@
 class Tokenizer
 {
 public:
-  Tokenizer(const char *s, const char *delim = " \t\n");
-  Tokenizer(const vtkstd::string &s, const char *delim = " \t\n");
+  Tokenizer(const char *s, const char *delim = " \t\n\r");
+  Tokenizer(const vtkstd::string &s, const char *delim = " \t\n\r");
 
   vtkstd::string GetNextToken();
   vtkstd::string GetRemainingString() const;
