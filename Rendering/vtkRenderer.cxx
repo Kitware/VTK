@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.215");
+vtkCxxRevisionMacro(vtkRenderer, "1.216");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -75,8 +75,20 @@ vtkRenderer::vtkRenderer()
   this->NumberOfPropsRendered = 0;
 
   this->PropArray                = NULL;
+  this->PropArrayCount = 0;
+
+  this->PathArray = NULL;
+  this->PathArrayCount = 0;
 
   this->Layer                    = 0;
+
+  this->ComputedVisiblePropBounds[0] = VTK_DOUBLE_MAX;
+  this->ComputedVisiblePropBounds[1] = -VTK_DOUBLE_MAX;
+  this->ComputedVisiblePropBounds[2] = VTK_DOUBLE_MAX;
+  this->ComputedVisiblePropBounds[3] = -VTK_DOUBLE_MAX;
+  this->ComputedVisiblePropBounds[4] = VTK_DOUBLE_MAX;
+  this->ComputedVisiblePropBounds[5] = -VTK_DOUBLE_MAX;
+
   this->Interactive              = 1;
   this->Cullers = vtkCullerCollection::New();  
   vtkFrustumCoverageCuller *cull = vtkFrustumCoverageCuller::New();

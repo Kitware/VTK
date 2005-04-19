@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.3");
+vtkCxxRevisionMacro(vtkViewport, "1.4");
 
 // Create a vtkViewport with a black background, a white ambient light, 
 // two-sided lighting turned on, a viewport of (0,0,1,1), and backface culling
@@ -53,13 +53,15 @@ vtkViewport::vtkViewport()
 
   this->Aspect[0] = this->Aspect[1] = 1.0;
   this->PixelAspect[0] = this->PixelAspect[1] = 1.0;
+  this->Center[0] = 0.0;
+  this->Center[1] = 0.0;
 
   this->Size[0] = 0;
   this->Size[1] = 0;
 
   this->Origin[0] = 0;
   this->Origin[1] = 0;
-  
+
   this->PickedProp = NULL;
   this->PickFromProps = NULL;
   this->IsPicking = 0;
