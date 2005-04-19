@@ -173,8 +173,13 @@ void vtkQtConnection::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << 
         this->VTKObject->GetClassName() << ":" <<
-        vtkCommand::GetStringFromEventId(this->VTKEvent) << 
-        "  <---->  " << this->QtObject->className() << "::" << this->QtSlot << "\n";
+        vtkCommand::GetStringFromEventId(this->VTKEvent) << "  <---->  " <<
+        this->QtObject->metaObject()->className() << "::" <<
+#if QT_VERSION < 0x040000
+        this->QtSlot << "\n";
+#else
+        this->QtSlot.toAscii().data() << "\n";
+#endif
 }
       
 

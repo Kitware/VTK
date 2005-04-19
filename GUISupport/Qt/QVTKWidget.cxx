@@ -89,7 +89,7 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 #if QT_VERSION >= 0x040000
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
-    : QWidget(parent, f | Qt::WWinOwnDC), mRenWin(NULL),
+    : QWidget(parent, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
           cachedImageCleanFlag(false),
           automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
@@ -525,7 +525,11 @@ void QVTKWidget::keyPressEvent(QKeyEvent* event)
     return;
   
   // get key and keysym information
+#if QT_VERSION < 0x040000
   int ascii_key = event->text().length() ? event->text().unicode()->latin1() : 0;
+#else
+  int ascii_key = event->text().length() ? event->text().unicode()->toLatin1() : 0;
+#endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
   {
@@ -572,7 +576,11 @@ void QVTKWidget::keyReleaseEvent(QKeyEvent* event)
     return;
   
   // get key and keysym info
+#if QT_VERSION < 0x040000
   int ascii_key = event->text().length() ? event->text().unicode()->latin1() : 0;
+#else
+  int ascii_key = event->text().length() ? event->text().unicode()->toLatin1() : 0;
+#endif
   const char* keysym = ascii_to_key_sym(ascii_key);
   if(!keysym)
   {
@@ -1113,7 +1121,7 @@ void QVTKWidget::x11_setup_window()
   // create the X window based on information VTK gave us
   XSetWindowAttributes attrib;
   attrib.colormap = cmap;
-  attrib.border_pixel = black.pixel();
+  attrib.border_pixel = BlackPixel(display, DefaultScreen(display));
 
   Window parent = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
