@@ -29,7 +29,7 @@
 #include "vtkQuad.h"
 #include "vtkVertex.h"
 
-vtkCxxRevisionMacro(vtkStructuredGrid, "1.4");
+vtkCxxRevisionMacro(vtkStructuredGrid, "1.5");
 vtkStandardNewMacro(vtkStructuredGrid);
 
 vtkCxxSetObjectMacro(vtkStructuredGrid,
@@ -60,9 +60,11 @@ vtkStructuredGrid::vtkStructuredGrid()
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
 
-  int extent[6] = {0, -1, 0, -1, 0, -1};
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
+
+  int extent[6] = {0, -1, 0, -1, 0, -1};
+  memcpy(this->Extent, extent, 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
@@ -91,9 +93,7 @@ void vtkStructuredGrid::CopyStructure(vtkDataSet *ds)
     {
     this->Dimensions[i] = sg->Dimensions[i];
     }
-  this->Information->Set(vtkDataObject::DATA_EXTENT(),
-                         sg->Information->Get(vtkDataObject::DATA_EXTENT()),
-                         6);
+  this->SetExtent(sg->GetExtent());
 
   this->DataDescription = sg->DataDescription;
 
@@ -854,10 +854,7 @@ void vtkStructuredGrid::SetExtent(int extent[6])
 {
   int description;
 
-  int newExtent[6];
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), newExtent);
-  description = vtkStructuredData::SetExtent(extent, newExtent);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), newExtent, 6);
+  description = vtkStructuredData::SetExtent(extent, this->Extent);
 
   if ( description < 0 ) //improperly specified
     {
@@ -891,33 +888,6 @@ void vtkStructuredGrid::SetExtent(int xMin, int xMax,
   this->SetExtent(extent);
 }
 
-//----------------------------------------------------------------------------
-int* vtkStructuredGrid::GetExtent()
-{
-  return this->Information->Get(vtkDataObject::DATA_EXTENT());
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::GetExtent(int& x1, int& x2,
-                                  int& y1, int& y2,
-                                  int& z1, int& z2)
-{
-  int extent[6];
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
-  x1 = extent[0];
-  x2 = extent[1];
-  y1 = extent[2];
-  y2 = extent[3];
-  z1 = extent[4];
-  z2 = extent[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkStructuredGrid::GetExtent(int* extent)
-{
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
-}
-
 int *vtkStructuredGrid::GetDimensions () 
 {
   this->GetDimensions(this->Dimensions);
@@ -926,8 +896,7 @@ int *vtkStructuredGrid::GetDimensions ()
 
 void vtkStructuredGrid::GetDimensions (int dim[3]) 
 {
-  int extent[6];
-  this->GetExtent(extent);
+  const int* extent = this->Extent;
   dim[0] = extent[1] - extent[0] + 1;
   dim[1] = extent[3] - extent[2] + 1;
   dim[2] = extent[5] - extent[4] + 1;
@@ -1024,6 +993,7 @@ void vtkStructuredGrid::InternalStructuredGridCopy(vtkStructuredGrid *src)
     {
     this->Dimensions[idx] = src->Dimensions[idx];
     }
+  memcpy(this->Extent, src->GetExtent(), 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
@@ -1093,8 +1063,7 @@ void vtkStructuredGrid::Crop()
 {
   int i, j, k;
   int uExt[6];
-  int extent[6];
-  this->GetExtent(extent);
+  const int* extent = this->Extent;
   int updateExtent[6] = {0,-1,0,-1,0,-1};
   this->GetUpdateExtent(updateExtent);
 
@@ -1214,8 +1183,7 @@ void vtkStructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
                                   << dim[1] << ", "
                                   << dim[2] << ")\n";
 
-  int extent[6];
-  this->GetExtent(extent);
+  const int* extent = this->Extent;
   os << indent << "Extent: " << extent[0] << ", "
      << extent[1] << ", " << extent[2] << ", "
      << extent[3] << ", " << extent[4] << ", "

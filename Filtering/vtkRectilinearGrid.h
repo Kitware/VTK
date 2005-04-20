@@ -143,9 +143,7 @@ public:
   // The Extent is stored  in the order (X, Y, Z).
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  int* GetExtent();
-  void GetExtent(int& x1, int& x2, int& y1, int& y2, int& z1, int& z2);
-  void GetExtent(int* extent);
+  vtkGetVector6Macro(Extent, int);
 
   // Description:
   // Return the actual size of the data in kilobytes. This number
@@ -183,6 +181,8 @@ protected:
 
   int Dimensions[3];
   int DataDescription;
+
+  int Extent[6];
 
   vtkDataArray *XCoordinates;
   vtkDataArray *YCoordinates;

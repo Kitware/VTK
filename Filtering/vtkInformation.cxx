@@ -23,6 +23,7 @@
 #include "vtkInformationInformationKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
@@ -33,7 +34,7 @@
 
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkInformation, "1.14");
+vtkCxxRevisionMacro(vtkInformation, "1.15");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -285,8 +286,6 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(ObjectBase, vtkObjectBase*);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
-#undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
-
 #define VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(name, type)            \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
                            type value1, type value2, type value3,           \
@@ -313,6 +312,39 @@ VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY(Double, double);
 #undef VTK_INFORMATION_DEFINE_VECTOR_VALUE_PROPERTY
+
+#undef VTK_INFORMATION_DEFINE_VECTOR_PROPERTY
+
+//----------------------------------------------------------------------------
+#define VTK_INFORMATION_DEFINE_POINTER_PROPERTY(name, type)                  \
+  void vtkInformation::Set(vtkInformation##name##PointerKey* key,            \
+                           type* value, int length)                         \
+    {                                                                       \
+    key->Set(this, value, length);                                          \
+    }                                                                       \
+  type* vtkInformation::Get(vtkInformation##name##PointerKey* key)           \
+    {                                                                       \
+    return key->Get(this);                                                  \
+    }                                                                       \
+  void vtkInformation::Get(vtkInformation##name##PointerKey* key,            \
+                           type* value)                                     \
+    {                                                                       \
+    key->Get(this, value);                                                  \
+    }                                                                       \
+  int vtkInformation::Length(vtkInformation##name##PointerKey* key)          \
+    {                                                                       \
+    return key->Length(this);                                               \
+    }                                                                       \
+  void vtkInformation::Remove(vtkInformation##name##PointerKey* key)         \
+    {                                                                       \
+    key->Remove(this);                                                      \
+    }                                                                       \
+  int vtkInformation::Has(vtkInformation##name##PointerKey* key)             \
+    {                                                                       \
+    return key->Has(this);                                                  \
+    }
+VTK_INFORMATION_DEFINE_POINTER_PROPERTY(Integer, int);
+#undef VTK_INFORMATION_DEFINE_POINTER_PROPERTY
 
 //----------------------------------------------------------------------------
 void vtkInformation::Append(vtkInformationKeyVectorKey* key, 

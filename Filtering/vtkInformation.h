@@ -37,6 +37,7 @@ class vtkInformationExecutivePortVectorKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
+class vtkInformationIntegerPointerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationInternals;
 class vtkInformationKey;
@@ -117,6 +118,15 @@ public:
   int Length(vtkInformationIntegerVectorKey* key);
   void Remove(vtkInformationIntegerVectorKey* key);
   int Has(vtkInformationIntegerVectorKey* key);
+
+  // Description:
+  // Get/Set an integer-pointer-valued entry.
+  void Set(vtkInformationIntegerPointerKey* key, int* value, int length);
+  int* Get(vtkInformationIntegerPointerKey* key);
+  void Get(vtkInformationIntegerPointerKey* key, int* value);
+  int Length(vtkInformationIntegerPointerKey* key);
+  void Remove(vtkInformationIntegerPointerKey* key);
+  int Has(vtkInformationIntegerPointerKey* key);
 
   // Description:
   // Get/Set an unsigned-long-valued entry.

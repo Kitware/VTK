@@ -46,6 +46,7 @@ class vtkInformationDataObjectKey;
 class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
+class vtkInformationIntegerPointerKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationStringKey;
 class vtkStreamingDemandDrivenPipeline;
@@ -426,7 +427,7 @@ public:
   static vtkInformationStringKey* DATA_TYPE_NAME();
   static vtkInformationDataObjectKey* DATA_OBJECT();
   static vtkInformationIntegerKey* DATA_EXTENT_TYPE();
-  static vtkInformationIntegerVectorKey* DATA_EXTENT();
+  static vtkInformationIntegerPointerKey* DATA_EXTENT();
   static vtkInformationIntegerKey* DATA_PIECE_NUMBER();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_PIECES();
   static vtkInformationIntegerKey* DATA_NUMBER_OF_GHOST_LEVELS();

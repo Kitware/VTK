@@ -31,7 +31,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkUniformGrid, "1.8");
+vtkCxxRevisionMacro(vtkUniformGrid, "1.9");
 vtkStandardNewMacro(vtkUniformGrid);
 
 vtkCxxSetObjectMacro(vtkUniformGrid,
@@ -61,10 +61,9 @@ vtkUniformGrid::vtkUniformGrid()
     this->Spacing[idx] = 1.0;
     }
   int extent[6] = {0, -1, 0, -1, 0, -1};
+  memcpy(this->Extent, extent, 6*sizeof(int));
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
-
-  memcpy(this->ExtentBuffer, extent, 6*sizeof(int));
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 
   this->PointVisibility = vtkStructuredVisibilityConstraint::New();
   this->CellVisibility = vtkStructuredVisibilityConstraint::New();
@@ -103,11 +102,9 @@ void vtkUniformGrid::CopyStructure(vtkDataSet *ds)
     this->Spacing[i] = sPts->Spacing[i];
     this->Origin[i] = sPts->Origin[i];
     }
-  this->Information->Set(vtkDataObject::DATA_EXTENT(),
-                         sPts->Information->Get(vtkDataObject::DATA_EXTENT()),
-                         6);
   this->DataDescription = sPts->DataDescription;
   this->CopyInformation(sPts);
+  memcpy(this->Extent, sPts->GetExtent(), 6*sizeof(int));
 
   this->PointVisibility->ShallowCopy(sPts->PointVisibility);
   this->CellVisibility->ShallowCopy(sPts->CellVisibility);
@@ -950,50 +947,26 @@ void vtkUniformGrid::SetExtent(int x1, int x2, int y1, int y2, int z1, int z2)
 }
 
 //----------------------------------------------------------------------------
-int* vtkUniformGrid::GetExtent()
+void vtkUniformGrid::SetExtent(int *extent)
 {
-  if (this->ExtentComputeTime <= this->Information->GetMTime())
+  int description;
+
+  description = vtkStructuredData::SetExtent(extent, this->Extent);
+  if ( description < 0 ) //improperly specified
     {
-    memcpy(this->ExtentBuffer, 
-           this->Information->Get(vtkDataObject::DATA_EXTENT()),
-           6*sizeof(int));
-    this->ExtentComputeTime.Modified();
+    vtkErrorMacro (<< "Bad Extent, retaining previous values");
     }
-  return this->ExtentBuffer;
+  
+  if (description == VTK_UNCHANGED)
+    {
+    return;
+    }
+
+  this->DataDescription = description;
+  
+  this->Modified();
 }
 
-//----------------------------------------------------------------------------
-void vtkUniformGrid::GetExtent(int& x1, int& x2,
-                               int& y1, int& y2,
-                               int& z1, int& z2)
-{
-  if (this->ExtentComputeTime <= this->Information->GetMTime())
-    {
-    memcpy(this->ExtentBuffer, 
-           this->Information->Get(vtkDataObject::DATA_EXTENT()),
-           6*sizeof(int));
-    this->ExtentComputeTime.Modified();
-    }
-  x1 = this->ExtentBuffer[0];
-  x2 = this->ExtentBuffer[1];
-  y1 = this->ExtentBuffer[2];
-  y2 = this->ExtentBuffer[3];
-  z1 = this->ExtentBuffer[4];
-  z2 = this->ExtentBuffer[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkUniformGrid::GetExtent(int* extent)
-{
-  if (this->ExtentComputeTime <= this->Information->GetMTime())
-    {
-    memcpy(this->ExtentBuffer, 
-           this->Information->Get(vtkDataObject::DATA_EXTENT()),
-           6*sizeof(int));
-    this->ExtentComputeTime.Modified();
-    }
-  memcpy(extent, this->ExtentBuffer, 6*sizeof(int));
-}
 
 //----------------------------------------------------------------------------
 int *vtkUniformGrid::GetDimensions()
@@ -1014,30 +987,6 @@ void vtkUniformGrid::GetDimensions(int *dOut)
   dOut[0] = dims[0];
   dOut[1] = dims[1];
   dOut[2] = dims[2];  
-}
-
-//----------------------------------------------------------------------------
-void vtkUniformGrid::SetExtent(int *extent)
-{
-  int description;
-
-  int newExtent[6];
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), newExtent);
-  description = vtkStructuredData::SetExtent(extent, newExtent);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), newExtent, 6);
-  if ( description < 0 ) //improperly specified
-    {
-    vtkErrorMacro (<< "Bad Extent, retaining previous values");
-    }
-  
-  if (description == VTK_UNCHANGED)
-    {
-    return;
-    }
-
-  this->DataDescription = description;
-  
-  this->Modified();
 }
 
 
@@ -1129,6 +1078,7 @@ void vtkUniformGrid::InternalUniformGridCopy(vtkUniformGrid *src)
     this->Origin[idx] = src->Origin[idx];
     this->Spacing[idx] = src->Spacing[idx];
     }
+  memcpy(this->Extent, src->GetExtent(), 6*sizeof(int));
 }
 
 void vtkUniformGrid::InternalUniformGridCopy(vtkImageData *src)
@@ -1145,6 +1095,7 @@ void vtkUniformGrid::InternalUniformGridCopy(vtkImageData *src)
     this->Origin[idx] = origin[idx];
     this->Spacing[idx] = spacing[idx];
     }
+  memcpy(this->Extent, src->GetExtent(), 6*sizeof(int));
 }
 
 

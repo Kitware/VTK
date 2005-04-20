@@ -27,13 +27,14 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerPointerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.21");
+vtkCxxRevisionMacro(vtkDataObject, "1.22");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -57,7 +58,7 @@ vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_COMPONENTS, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NUMBER_OF_TUPLES, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_OPERATION, Integer);
-vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerVector, 6);
+vtkInformationKeyRestrictedMacro(vtkDataObject, DATA_EXTENT, IntegerPointer, 6);
 vtkInformationKeyRestrictedMacro(vtkDataObject, ORIGIN, DoubleVector, 3);
 vtkInformationKeyRestrictedMacro(vtkDataObject, SPACING, DoubleVector, 3);
 
@@ -861,12 +862,6 @@ void vtkDataObject::InternalDataObjectCopy(vtkDataObject *src)
     }
 
   this->DataReleased = src->DataReleased;
-  if(src->Information->Has(DATA_EXTENT()))
-    {
-    this->Information->Set(DATA_EXTENT(),
-                           src->Information->Get(DATA_EXTENT()),
-                           6);
-    }
   if(src->Information->Has(DATA_PIECE_NUMBER()))
     {
     this->Information->Set(DATA_PIECE_NUMBER(),

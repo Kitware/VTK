@@ -146,16 +146,13 @@ public:
   virtual void UpdateInformation();
 
   // Description:
-  // Different ways to set the extent of the data array. On each axis,
-  // the extent is defined by the index of the first point and the index of
-  // the last point.
-  // The extent should be set before the "Scalars" are set or allocated.
-  // The Extent is stored  in the order (X, Y, Z).
+  // Set/Get the extent. On each axis, the extent is defined by the index
+  // of the first point and the index of the last point.  The extent should
+  // be set before the "Scalars" are set or allocated.  The Extent is
+  // stored in the order (X, Y, Z).
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  int* GetExtent();
-  void GetExtent(int& x1, int& x2, int& y1, int& y2, int& z1, int& z2);
-  void GetExtent(int* extent);
+  vtkGetVector6Macro(Extent, int);
 
   // Description:
   // Get the estimated size of this data object itself. Should be called
@@ -350,8 +347,12 @@ protected:
   double Origin[3];
   double Spacing[3];
 
+  int Extent[6];
+
   void ComputeIncrements();
   void CopyOriginAndSpacingFromPipeline();
+
+  vtkTimeStamp ExtentComputeTime;
 
 private:
   void InternalImageDataCopy(vtkImageData *src);
