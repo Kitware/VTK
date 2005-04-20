@@ -14,7 +14,7 @@ set max [lindex $range 1]
 set value [expr ($min + $max) / 2.0]
 
 #vtkGridSynchronizedTemplates3D cf
-vtkKitwareContourFilter cf
+vtkContourFilter cf
     cf SetInput [pl3d GetOutput]
     cf SetValue 0 $value
 	#cf ComputeNormalsOff

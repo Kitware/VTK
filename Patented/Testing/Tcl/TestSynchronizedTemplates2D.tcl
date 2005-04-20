@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 vtkPNGReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
-vtkKitwareContourFilter iso
+vtkContourFilter iso
     iso SetInput [reader GetOutput]
     iso GenerateValues 12 500 1150
 vtkPolyDataMapper isoMapper

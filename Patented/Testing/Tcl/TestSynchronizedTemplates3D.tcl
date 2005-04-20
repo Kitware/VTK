@@ -10,7 +10,7 @@ reader SetDataMask 0x7fff
 
 # write isosurface to file
 #vtkSynchronizedTemplates3D stemp
-vtkKitwareContourFilter stemp
+vtkContourFilter stemp
     stemp SetInput [reader GetOutput]
     stemp SetValue 0 1150
     stemp Update
