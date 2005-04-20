@@ -89,9 +89,7 @@ public:
   // functionality.
   void SetExtent(int extent[6]);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
-  int* GetExtent();
-  void GetExtent(int& x1, int& x2, int& y1, int& y2, int& z1, int& z2);
-  void GetExtent(int* extent);
+  vtkGetVector6Macro(Extent, int);
 
   // Description:
   // Save the previous data spacing.  This should be called only by
@@ -156,6 +154,8 @@ protected:
   double Spacing[3];
   double Origin[3];
   
+  int Extent[6];
+
   // Description:
   // The actual 'data' is stored here.
   int NumberOfExtentEntries;

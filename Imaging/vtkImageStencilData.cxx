@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilData, "1.14");
+vtkCxxRevisionMacro(vtkImageStencilData, "1.15");
 vtkStandardNewMacro(vtkImageStencilData);
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,9 @@ vtkImageStencilData::vtkImageStencilData()
   this->ExtentListLengths = NULL;
 
   int extent[6] = {0, -1, 0, -1, 0, -1};
+  memcpy(this->Extent, extent, 6*sizeof(int));
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+  this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -109,14 +110,14 @@ void vtkImageStencilData::Initialize()
   if(this->Information)
     {
     int extent[6] = {0, -1, 0, -1, 0, -1};
-    this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+    memcpy(this->Extent, extent, 6*sizeof(int));
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageStencilData::SetExtent(int* extent)
 {
-  this->Information->Set(vtkDataObject::DATA_EXTENT(), extent, 6);
+  memcpy(this->Extent, extent, 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
@@ -130,33 +131,6 @@ void vtkImageStencilData::SetExtent(int x1, int x2, int y1, int y2, int z1, int 
   ext[4] = z1;
   ext[5] = z2;
   this->SetExtent(ext);
-}
-
-//----------------------------------------------------------------------------
-int* vtkImageStencilData::GetExtent()
-{
-  return this->Information->Get(vtkDataObject::DATA_EXTENT());
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencilData::GetExtent(int& x1, int& x2,
-                             int& y1, int& y2,
-                             int& z1, int& z2)
-{
-  int extent[6];
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
-  x1 = extent[0];
-  x2 = extent[1];
-  y1 = extent[2];
-  y2 = extent[3];
-  z1 = extent[4];
-  z2 = extent[5];
-}
-
-//----------------------------------------------------------------------------
-void vtkImageStencilData::GetExtent(int* extent)
-{
-  this->Information->Get(vtkDataObject::DATA_EXTENT(), extent);
 }
 
 //----------------------------------------------------------------------------
@@ -229,6 +203,7 @@ void vtkImageStencilData::InternalImageStencilDataCopy(vtkImageStencilData *s)
         }
       }
     }
+  memcpy(this->Extent, s->GetExtent(), 6*sizeof(int));
 }
 
 //----------------------------------------------------------------------------
