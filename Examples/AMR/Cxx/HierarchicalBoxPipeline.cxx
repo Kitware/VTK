@@ -164,7 +164,6 @@ int main(int argc, char* argv[])
   // contour
   vtkContourFilter* contour = vtkContourFilter::New();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));
-  contour->SelectInputScalars("phi");
   contour->SetValue(0, -0.013);
 
   // geometry filter
