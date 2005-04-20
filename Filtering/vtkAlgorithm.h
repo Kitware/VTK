@@ -248,6 +248,7 @@ public:
   void SetInputArrayToProcess(int idx, int port, int connection, 
                               int fieldAssociation, 
                               int fieldAttributeType);
+  void SetInputArrayToProcess(int idx, vtkInformation *info);
 
   // Description:
   // Get the info object for the specified input array to this algorithm
