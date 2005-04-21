@@ -121,7 +121,7 @@ public:
   int *GetExecuteExtent() {return this->ExecuteExtent;}
   void ThreadedExecute(vtkImageData *data, vtkInformation *inInfo,
                        vtkInformation *outInfo,
-                       int *exExt, int threadId);
+                       int *exExt, vtkDataArray *inScalars);
 
   // Description:
   // Determines the chunk size fro streaming.  This filter will act like a
@@ -129,13 +129,6 @@ public:
   // in KBytes
   void SetInputMemoryLimit(unsigned long limit);
   unsigned long GetInputMemoryLimit();  
-
-  // Description:
-  // If you want to contour by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
 
   // Description:
   // Set/get which component of the scalar array to contour on; defaults to 0.
@@ -156,9 +149,6 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   
   int ExecuteExtent[6];
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
   int ArrayComponent;
 

@@ -120,7 +120,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
   Stream0->SetInput(Plot3D0->GetOutput());
-  Stream0->SelectInputVectors("Momentum");
   Stream0->SetSource(LineSourceWidget0->GetOutput());
   Stream0->SetMaximumPropagationUnit(0);
   Stream0->SetMaximumPropagation(0.05);

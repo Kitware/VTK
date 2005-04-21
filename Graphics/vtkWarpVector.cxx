@@ -22,18 +22,20 @@
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkWarpVector, "1.45");
+vtkCxxRevisionMacro(vtkWarpVector, "1.46");
 vtkStandardNewMacro(vtkWarpVector);
 
 vtkWarpVector::vtkWarpVector()
 {
   this->ScaleFactor = 1.0;
-  this->InputVectorsSelection = NULL;
+
+  // by default process active point vectors
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::VECTORS);
 }
 
 vtkWarpVector::~vtkWarpVector()
 {
-  this->SetInputVectorsSelection(NULL);
 }
 
 template <class T1, class T2>
@@ -66,20 +68,12 @@ void vtkWarpVectorExecute2(vtkWarpVector *self, T1 *inPts,
           
 template <class T>
 void vtkWarpVectorExecute(vtkWarpVector *self, 
-                          vtkPointSet *input,
                           T *inPts, 
                           T *outPts, 
                           vtkIdType max,
-                          const char* vectorsSelection)
+                          vtkDataArray *vectors)
 {
   void *inVec;
-  vtkDataArray *vectors = input->GetPointData()->
-                            GetVectors(vectorsSelection);
-
-  if (vectors == NULL)
-    {
-    return;
-    }
   inVec = vectors->GetVoidPointer(0);
 
   // call templated function
@@ -119,8 +113,10 @@ int vtkWarpVector::RequestData(
     return 1;
     }
   numPts = input->GetPoints()->GetNumberOfPoints();
-  if ( !input->GetPointData()->GetVectors(this->InputVectorsSelection) 
-          || !numPts)
+
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
+
+  if ( !vectors || !numPts)
     {
     vtkDebugMacro(<<"No input data");
     return 1;
@@ -141,8 +137,8 @@ int vtkWarpVector::RequestData(
   // call templated function
   switch (input->GetPoints()->GetDataType())
     {
-    vtkTemplateMacro6(vtkWarpVectorExecute, this, input,
-                      (VTK_TT *)(inPtr), (VTK_TT *)(outPtr), numPts, this->InputVectorsSelection);
+    vtkTemplateMacro5(vtkWarpVectorExecute, this, (VTK_TT *)(inPtr), 
+                      (VTK_TT *)(outPtr), numPts, vectors);
     default:
       break;
     }
@@ -158,10 +154,5 @@ int vtkWarpVector::RequestData(
 void vtkWarpVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
-  if (this->InputVectorsSelection)
-    {
-    os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
-    } 
   os << indent << "Scale Factor: " << this->ScaleFactor << "\n";
 }

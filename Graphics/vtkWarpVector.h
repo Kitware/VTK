@@ -37,22 +37,12 @@ public:
   vtkSetMacro(ScaleFactor,double);
   vtkGetMacro(ScaleFactor,double);
 
-  // Description:
-  // If you want to warp by an arbitrary vector array, then set its name here.
-  // By default this in NULL and the filter will use the active vector array.
-  vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName) 
-    {this->SetInputVectorsSelection(fieldName);}
-  
 protected:
   vtkWarpVector();
   ~vtkWarpVector();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ScaleFactor;
-
-  char *InputVectorsSelection;
-  vtkSetStringMacro(InputVectorsSelection);
 
 private:
   vtkWarpVector(const vtkWarpVector&);  // Not implemented.

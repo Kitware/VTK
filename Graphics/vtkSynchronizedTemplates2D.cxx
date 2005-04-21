@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.3");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.4");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -47,14 +47,16 @@ vtkSynchronizedTemplates2D::vtkSynchronizedTemplates2D()
 {
   this->ContourValues = vtkContourValues::New();
   this->ComputeScalars = 1;
-  this->InputScalarsSelection = NULL;
   this->ArrayComponent = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 vtkSynchronizedTemplates2D::~vtkSynchronizedTemplates2D()
 {
   this->ContourValues->Delete();
-  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -423,7 +425,7 @@ int vtkSynchronizedTemplates2D::RequestData(
   ext =
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   pd = input->GetPointData();
-  inScalars = pd->GetScalars(this->InputScalarsSelection);
+  inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( inScalars == NULL )
     {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
@@ -531,10 +533,5 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "ComputeScalarsOff\n";  
     }
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }  
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }

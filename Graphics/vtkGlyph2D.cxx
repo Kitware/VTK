@@ -25,7 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph2D, "1.24");
+vtkCxxRevisionMacro(vtkGlyph2D, "1.25");
 vtkStandardNewMacro(vtkGlyph2D);
 
 int vtkGlyph2D::RequestData(
@@ -72,9 +72,9 @@ int vtkGlyph2D::RequestData(
 
   pd = input->GetPointData();
 
-  inScalars = pd->GetScalars(this->InputScalarsSelection);
-  inVectors = pd->GetVectors(this->InputVectorsSelection);
-  inNormals = pd->GetNormals(this->InputNormalsSelection);
+  inScalars = this->GetInputArrayToProcess(0,inputVector);
+  inVectors = this->GetInputArrayToProcess(1,inputVector);
+  inNormals = this->GetInputArrayToProcess(2,inputVector);
 
   vtkDataArray* temp = 0;
   if (pd)

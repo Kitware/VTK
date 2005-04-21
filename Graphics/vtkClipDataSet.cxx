@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.40");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.41");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -56,7 +56,9 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
   this->GetExecutive()->SetOutputData(1, output2);
   output2->Delete();
 
-  this->InputScalarsSelection = NULL;
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -68,7 +70,6 @@ vtkClipDataSet::~vtkClipDataSet()
     this->Locator = NULL;
     }
   this->SetClipFunction(NULL);
-  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -246,7 +247,7 @@ int vtkClipDataSet::RequestData(
     }
   else //using input scalars
     {
-    clipScalars = inPD->GetScalars(this->InputScalarsSelection);
+    clipScalars = this->GetInputArrayToProcess(0,inputVector);
     if ( !clipScalars )
       {
       for ( i=0; i<2; i++ )
@@ -271,8 +272,7 @@ int vtkClipDataSet::RequestData(
       }
     }
     
-  if ( !this->GenerateClipScalars && 
-       !input->GetPointData()->GetScalars(this->InputScalarsSelection))
+  if ( !this->GenerateClipScalars && !this->GetInputArrayToProcess(0,inputVector))
     {
     outPD->CopyScalarsOff();
     }
@@ -495,10 +495,4 @@ void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Generate Clipped Output: " 
      << (this->GenerateClippedOutput ? "On\n" : "Off\n");
-
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }
 }

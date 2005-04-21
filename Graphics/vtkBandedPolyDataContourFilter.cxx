@@ -29,7 +29,7 @@
 
 #include <float.h>
 
-vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.52");
+vtkCxxRevisionMacro(vtkBandedPolyDataContourFilter, "1.53");
 vtkStandardNewMacro(vtkBandedPolyDataContourFilter);
 
 // Construct object.
@@ -46,13 +46,11 @@ vtkBandedPolyDataContourFilter::vtkBandedPolyDataContourFilter()
   output2->Delete();
   this->ClipTolerance = FLT_EPSILON;
   this->GenerateContourEdges = 0;
-  this->InputScalarsSelection = NULL;
 }
 
 vtkBandedPolyDataContourFilter::~vtkBandedPolyDataContourFilter()
 {
   this->ContourValues->Delete();
-  this->SetInputScalarsSelection(NULL);
 }
 
 int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
@@ -209,7 +207,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   vtkPointData *outPD = output->GetPointData();
   vtkCellData *outCD = output->GetCellData();
   vtkPoints *inPts = input->GetPoints();
-  vtkDataArray *inScalars = pd->GetScalars(this->InputScalarsSelection);
+  vtkDataArray *inScalars = pd->GetScalars();
   int abort=0;
   vtkPoints *newPts;
   int i, j, idx=0;
@@ -308,11 +306,6 @@ int vtkBandedPolyDataContourFilter::RequestData(
   outPD->InterpolateAllocate(pd,3*numPts,numPts);
   vtkDoubleArray *outScalars = vtkDoubleArray::New();
   outScalars->Allocate(3*numPts,numPts);
-  if ( this->InputScalarsSelection != NULL && 
-       this->InputScalarsSelection[0] != '\0' )
-    {
-    outScalars->SetName(this->InputScalarsSelection);
-    }
   outPD->SetScalars(outScalars);
   
   for (i=0; i<numPts; i++)
@@ -820,6 +813,4 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "VALUE\n";
     }
-  os << indent << "InputScalarsSelection: " 
-     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
 }

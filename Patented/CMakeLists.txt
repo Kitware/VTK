@@ -14,7 +14,6 @@ vtkDecimate.cxx
 vtkDiscreteMarchingCubes.cxx
 vtkDividingCubes.cxx
 vtkImageMarchingCubes.cxx
-vtkKitwareContourFilter.cxx
 vtkKitwareCutter.cxx
 vtkMarchingContourFilter.cxx
 vtkMarchingCubes.cxx

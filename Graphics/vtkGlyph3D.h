@@ -60,6 +60,11 @@
 // You can turn off scaling of the glyphs completely by using the Scaling
 // ivar. You can also turn off scaling due to data (either vector or scalar)
 // by using the SetScaleModeToDataScalingOff() method.
+//
+// You can set what arrays to use for the scalars, vectors, normals, and
+// color scalars by using the SetInputArrayToProcess methods in
+// vtkAlgorithm. The first array is scalars, the next vectors, the next
+// normals and finally color scalars.
 
 // .SECTION See Also
 // vtkTensorGlyph
@@ -204,39 +209,6 @@ public:
   vtkSetStringMacro(PointIdsName);
   vtkGetStringMacro(PointIdsName);
 
-  // Description:
-  // If you want to use an arbitrary scalars array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName)
-    {this->SetInputScalarsSelection(fieldName);}
-
-  // Description:
-  // If you want to use an arbitrary scalar array for coloring of the output
-  // glyphs, then set its name here. When InputScalarsSelection and
-  // InputColorScalarsSelection are both set, and different scalar arrays are
-  // specified, then glyphs can be scaled using the ScalarSelection
-  // and Colored using the InputColorScalarsSelection
-  // By default this in NULL and the filter will use the active scalar array
-  // or the InputScalarsSelection if set.
-  vtkGetStringMacro(InputColorScalarsSelection);
-  void SelectInputColorScalars(const char *fieldName)
-    {this->SetInputColorScalarsSelection(fieldName);}
-
-  // Description:
-  // If you want to use an arbitrary vectors array, then set its name here.
-  // By default this in NULL and the filter will use the active vector array.
-  vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName) 
-    {this->SetInputVectorsSelection(fieldName);}
-
-  // Description:
-  // If you want to use an arbitrary normals array, then set its name here.
-  // By default this in NULL and the filter will use the active normal array.
-  vtkGetStringMacro(InputNormalsSelection);
-  void SelectInputNormals(const char *fieldName) 
-    {this->SetInputNormalsSelection(fieldName);}
-
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
@@ -259,15 +231,6 @@ protected:
   int IndexMode; // what to use to index into glyph table
   int GeneratePointIds; // produce input points ids for each output point
   char *PointIdsName;
-
-  char *InputScalarsSelection;
-  char *InputVectorsSelection;
-  char *InputNormalsSelection;
-  char *InputColorScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
-  vtkSetStringMacro(InputVectorsSelection);
-  vtkSetStringMacro(InputNormalsSelection);
-  vtkSetStringMacro(InputColorScalarsSelection);
 
 private:
   vtkGlyph3D(const vtkGlyph3D&);  // Not implemented.

@@ -123,13 +123,6 @@ public:
   int *GetExecuteExtent() {return this->ExecuteExtent;}
 
   // Description:
-  // If you want to contour by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-
-  // Description:
   // Set/get which component of the scalar array to contour on; defaults to 0.
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
@@ -154,9 +147,6 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
   int ExecuteExtent[6];
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
   int ArrayComponent;
 

@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.1");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.2");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -57,16 +57,17 @@ vtkRectilinearSynchronizedTemplates::vtkRectilinearSynchronizedTemplates()
     = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
     = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
-  this->InputScalarsSelection = NULL;
-  
   this->ArrayComponent = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
 vtkRectilinearSynchronizedTemplates::~vtkRectilinearSynchronizedTemplates()
 {
   this->ContourValues->Delete();
-  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -83,9 +84,8 @@ unsigned long vtkRectilinearSynchronizedTemplates::GetMTime()
 
 //----------------------------------------------------------------------------
 void vtkRectilinearSynchronizedTemplatesInitializeOutput(
-  vtkRectilinearSynchronizedTemplates *self,
   int *ext, vtkRectilinearGrid *input, vtkPolyData *o, vtkFloatArray *scalars,
-  vtkFloatArray *normals, vtkFloatArray *gradients)
+  vtkFloatArray *normals, vtkFloatArray *gradients, vtkDataArray *inScalars)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
@@ -105,13 +105,13 @@ void vtkRectilinearSynchronizedTemplatesInitializeOutput(
   o->GetPointData()->CopyAllOn();
   // It is more efficient to just create the scalar array 
   // rather than redundantly interpolate the scalars.
-  if (self->GetInputScalarsSelection())
+  if (input->GetPointData()->GetScalars() == inScalars)
     {
-    o->GetPointData()->CopyFieldOff(self->GetInputScalarsSelection());
+    o->GetPointData()->CopyScalarsOff();
     }
   else
     {
-    o->GetPointData()->CopyScalarsOff();
+    o->GetPointData()->CopyFieldOff(inScalars->GetName());
     }
 
   if (normals)
@@ -252,8 +252,8 @@ if (ComputeScalars) \
 //
 template <class T>
 void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exExt,
-                  vtkRectilinearGrid *data, vtkPolyData *output, T *ptr, 
-                  const char* inputScalars)
+                            vtkRectilinearGrid *data, vtkPolyData *output, T *ptr, 
+                            vtkDataArray *inScalars)
 {
   int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
@@ -312,8 +312,8 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkRectilinearSynchronizedTemplatesInitializeOutput(self, exExt, data, output, 
-                                         newScalars, newNormals, newGradients);
+  vtkRectilinearSynchronizedTemplatesInitializeOutput(exExt, data, output, 
+                                         newScalars, newNormals, newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
   
@@ -328,7 +328,7 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   // increments to move through scalars Compute these ourself because
   // we may be contouring an array other than scalars.
 
-  xInc = data->GetPointData()->GetScalars(inputScalars)->GetNumberOfComponents();
+  xInc = inScalars->GetNumberOfComponents();
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
@@ -620,7 +620,6 @@ void ContourRectilinearGrid(vtkRectilinearSynchronizedTemplates *self, int *exEx
   if (newScalars)
     {
     // Lets set the name of the scalars here.
-    vtkDataArray *inScalars = inPD->GetArray(inputScalars);
     if (inScalars)
       {
       newScalars->SetName(inScalars->GetName());
@@ -679,7 +678,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   //
   // Check data type and execute appropriate function
   //
-  inScalars = data->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inScalars = this->GetInputArrayToProcess(0,inputVector);
   if (inScalars == NULL)
     {
     vtkErrorMacro("No scalars for contouring.");
@@ -697,7 +696,7 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   switch (inScalars->GetDataType())
     {
     vtkTemplateMacro6(ContourRectilinearGrid, this, this->ExecuteExtent, data,
-                      output, (VTK_TT *)ptr, this->GetInputScalarsSelection());
+                      output, (VTK_TT *)ptr, inScalars);
     }
 
   return 1;
@@ -908,11 +907,6 @@ void vtkRectilinearSynchronizedTemplates::PrintSelf(ostream& os, vtkIndent inden
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }  
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
 

@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.6");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.7");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -56,16 +56,17 @@ vtkSynchronizedTemplates3D::vtkSynchronizedTemplates3D()
     = this->ExecuteExtent[2] = this->ExecuteExtent[3] 
     = this->ExecuteExtent[4] = this->ExecuteExtent[5] = 0;
 
-  this->InputScalarsSelection = NULL;
-  
   this->ArrayComponent = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
 vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 {
   this->ContourValues->Delete();
-  this->SetInputScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -83,9 +84,9 @@ unsigned long vtkSynchronizedTemplates3D::GetMTime()
 
 //----------------------------------------------------------------------------
 void vtkSynchronizedTemplates3DInitializeOutput(
-  vtkSynchronizedTemplates3D *self, int *ext,vtkImageData *input,
+  int *ext,vtkImageData *input,
   vtkPolyData *o, vtkFloatArray *scalars, vtkFloatArray *normals,
-  vtkFloatArray *gradients)
+  vtkFloatArray *gradients, vtkDataArray *inScalars)
 {
   vtkPoints *newPts;
   vtkCellArray *newPolys;
@@ -105,13 +106,13 @@ void vtkSynchronizedTemplates3DInitializeOutput(
   o->GetPointData()->CopyAllOn();
   // It is more efficient to just create the scalar array 
   // rather than redundantly interpolate the scalars.
-  if (self->GetInputScalarsSelection())
+  if (input->GetPointData()->GetScalars() == inScalars)
     {
-    o->GetPointData()->CopyFieldOff(self->GetInputScalarsSelection());
+    o->GetPointData()->CopyScalarsOff();
     }
   else
     {
-    o->GetPointData()->CopyScalarsOff();
+    o->GetPointData()->CopyFieldOff(inScalars->GetName());
     }
 
   if (normals)
@@ -254,7 +255,7 @@ template <class T>
 void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
                   vtkInformation *inInfo,
                   vtkImageData *data, vtkPolyData *output, T *ptr, 
-                  int threadId, const char* inputScalars)
+                  vtkDataArray *inScalars)
 {
   int *inExt = data->GetExtent();
   int xdim = exExt[1] - exExt[0] + 1;
@@ -311,10 +312,10 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     newGradients = vtkFloatArray::New();
     }
-  vtkSynchronizedTemplates3DInitializeOutput(self, exExt, 
+  vtkSynchronizedTemplates3DInitializeOutput(exExt, 
                                              data, output, 
                                              newScalars, newNormals, 
-                                             newGradients);
+                                             newGradients, inScalars);
   newPts = output->GetPoints();
   newPolys = output->GetPolys();
   
@@ -328,14 +329,7 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   
   // increments to move through scalars. Compute these ourself because
   // we may be contouring an array other than scalars.
-  if (inputScalars)
-    {
-    xInc = inPD->GetArray(inputScalars)->GetNumberOfComponents();
-    }
-  else
-    {
-    xInc = data->GetNumberOfScalarComponents();
-    }
+  xInc = inScalars->GetNumberOfComponents();
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
 
@@ -377,17 +371,12 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
     {
     value = values[vidx];
     inPtrZ = ptr;
-    s2 = inPtrZ;
-    v2 = (*s2 < value ? 0 : 1);
 
     //==================================================================
     for (k = zMin; k <= zMax; k++)
       {
-      if (!threadId)
-        {
-        self->UpdateProgress((double)vidx/numContours + 
-                             (k-zMin)/((zMax - zMin+1.0)*numContours));
-        }
+      self->UpdateProgress((double)vidx/numContours + 
+                           (k-zMin)/((zMax - zMin+1.0)*numContours));
       z = origin[2] + spacing[2]*k;
       x[2] = z;
 
@@ -621,7 +610,6 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
   if (newScalars)
     {
     // Lets set the name of the scalars here.
-    vtkDataArray *inScalars = inPD->GetArray(inputScalars);
     if (inScalars)
       {
       newScalars->SetName(inScalars->GetName());
@@ -677,11 +665,10 @@ unsigned long vtkSynchronizedTemplates3D::GetInputMemoryLimit()
 void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
                                                  vtkInformation *inInfo,
                                                  vtkInformation *outInfo,
-                                                 int *exExt, int threadId)
+                                                 int *exExt, vtkDataArray *inScalars)
 {
   void *ptr;
   vtkPolyData *output;
-  vtkDataArray *inScalars;
 
   vtkDebugMacro(<< "Executing 3D structured contour");
   
@@ -696,7 +683,6 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   //
   // Check data type and execute appropriate function
   //
-  inScalars = data->GetPointData()->GetScalars(this->InputScalarsSelection);
   if (inScalars == NULL)
     {
     vtkDebugMacro("No scalars for contouring.");
@@ -714,9 +700,8 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   ptr = data->GetArrayPointerForExtent(inScalars, exExt);
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro8(ContourImage, this, exExt, inInfo, data, output, 
-                      (VTK_TT *)ptr, threadId, 
-                      this->GetInputScalarsSelection());
+    vtkTemplateMacro7(ContourImage, this, exExt, inInfo, data, output, 
+                      (VTK_TT *)ptr, inScalars);
     }
 }
 
@@ -739,8 +724,10 @@ int vtkSynchronizedTemplates3D::RequestData(
   // to be safe recompute the 
   this->RequestUpdateExtent(request,inputVector,outputVector);
 
+  vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
+
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
+  this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, inScalars);
 
   output->Squeeze();
 
@@ -863,11 +850,6 @@ void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
   os << indent << "Compute Gradients: " << (this->ComputeGradients ? "On\n" : "Off\n");
   os << indent << "Compute Scalars: " << (this->ComputeScalars ? "On\n" : "Off\n");
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " 
-       << this->InputScalarsSelection << endl;
-    }  
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }
 

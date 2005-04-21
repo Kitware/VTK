@@ -66,8 +66,8 @@ vtkGlyph3D glyphs
   glyphs SetScaleFactor 1
   glyphs SetInput aPolyVertexGrid
   glyphs SetSource [sphere GetOutput]
-  glyphs SelectInputScalars "Sizes"
-  glyphs SelectInputColorScalars "Colors"
+  glyphs SetInputArrayToProcess 0 0 0 0 "Sizes"
+  glyphs SetInputArrayToProcess 3 0 0 0 "Colors"
 
 puts [ glyphs GetScaleModeAsString]
 

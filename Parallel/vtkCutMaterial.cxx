@@ -27,7 +27,7 @@
 #include "vtkThreshold.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkCutMaterial, "1.17");
+vtkCxxRevisionMacro(vtkCutMaterial, "1.18");
 vtkStandardNewMacro(vtkCutMaterial);
 
 // Instantiate object with no input and no defined output.
@@ -106,8 +106,8 @@ int vtkCutMaterial::RequestData(
   // It would be nice to get rid of this in the future.
   thresh = vtkThreshold::New();
   thresh->SetInput(input);
-  thresh->SelectInputScalars(this->MaterialArrayName);
-  thresh->SetAttributeModeToUseCellData();
+  thresh->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_CELLS,
+                                 this->MaterialArrayName);
   thresh->ThresholdBetween(this->Material-0.5, this->Material+0.5);
   thresh->Update();
   

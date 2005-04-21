@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRungeKutta4.h"
 #include "vtkRungeKutta45.h"
 
-vtkCxxRevisionMacro(vtkStreamTracer, "1.34");
+vtkCxxRevisionMacro(vtkStreamTracer, "1.35");
 vtkStandardNewMacro(vtkStreamTracer);
 vtkCxxSetObjectMacro(vtkStreamTracer,Integrator,vtkInitialValueProblemSolver);
 vtkCxxSetObjectMacro(vtkStreamTracer,InterpolatorPrototype,vtkInterpolatedVelocityField);
@@ -71,8 +71,6 @@ vtkStreamTracer::vtkStreamTracer()
   this->ComputeVorticity = 1;
   this->RotationScale = 1.0;
 
-  this->InputVectorsSelection = 0;
-
   this->LastUsedTimeStep = 0.0;
 
   this->GenerateNormalsInIntegrate = 1;
@@ -80,12 +78,15 @@ vtkStreamTracer::vtkStreamTracer()
   this->InterpolatorPrototype = 0;
 
   this->SetNumberOfInputPorts(2);
+
+  // by default process active point vectors
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::VECTORS);
 }
 
 vtkStreamTracer::~vtkStreamTracer()
 {
   this->SetIntegrator(0);
-  this->SetInputVectorsSelection(0);
   this->SetInterpolatorPrototype(0);
 }
 
@@ -547,14 +548,16 @@ int vtkStreamTracer::RequestData(
       seedIds->Delete();
       return 1;
       }
-    this->Integrate(input,
-                    output,
-                    seeds, 
-                    seedIds, 
+    vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
+    if (vectors)
+      {
+      const char *vecName = vectors->GetName();
+      this->Integrate(input, output,
+                    seeds, seedIds, 
                     integrationDirections, 
-                    lastPoint,
-                    func,
-                    maxCellSize);
+                    lastPoint, func,
+                    maxCellSize, vecName);
+      }
     func->Delete();
     seeds->Delete();
     }
@@ -579,7 +582,13 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
     func = this->InterpolatorPrototype->NewInstance();
     func->CopyParameters(this->InterpolatorPrototype);
     }
-  func->SelectVectors(this->InputVectorsSelection);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
+  if (!vectors)
+    {
+    return 1;
+    }
+  const char *vecName = vectors->GetName();
+  func->SelectVectors(vecName);
  
   // Add all the inputs ( except source, of course ) which
   // have the appropriate vectors and compute the maximum
@@ -597,7 +606,7 @@ int vtkStreamTracer::CheckInputs(vtkInterpolatedVelocityField*& func,
       }
     if (inp)
       {
-      if (!inp->GetPointData()->GetVectors(this->InputVectorsSelection))
+      if (!inp->GetPointData()->GetVectors(vecName))
         {
         vtkDebugMacro("Input " << i << "does not contain a velocity vector.");
         continue;
@@ -626,7 +635,8 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
                                 vtkIntArray* integrationDirections,
                                 double lastPoint[3],
                                 vtkInterpolatedVelocityField* func,
-                                int maxCellSize)
+                                int maxCellSize,
+                                const char *vecName)
 {
   int i;
   vtkIdType numLines = seedIds->GetNumberOfIds();
@@ -765,7 +775,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
     // Make sure we use the dataset found by the vtkInterpolatedVelocityField
     input = func->GetLastDataSet();
     inputPD = input->GetPointData();
-    inVectors = inputPD->GetVectors(this->InputVectorsSelection);
+    inVectors = inputPD->GetVectors(vecName);
 
     // Convert intervals to time unit
     input->GetCell(func->GetLastCellId(), cell);
@@ -914,7 +924,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       // Make sure we use the dataset found by the vtkInterpolatedVelocityField
       input = func->GetLastDataSet();
       inputPD = input->GetPointData();
-      inVectors = inputPD->GetVectors(this->InputVectorsSelection);
+      inVectors = inputPD->GetVectors(vecName);
 
       // Point is valid. Insert it.
       numPts++;
@@ -1022,7 +1032,7 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
       output->SetLines(outputLines);
       if (this->GenerateNormalsInIntegrate)
         {
-        this->GenerateNormals(output, 0);
+        this->GenerateNormals(output, 0, vecName);
         }
 
       outputCD->AddArray(retVals);
@@ -1057,7 +1067,8 @@ void vtkStreamTracer::Integrate(vtkDataSet *input0,
   return;
 }
 
-void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal)
+void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal, 
+                                      const char *vecName)
 {
   // Useful pointers
   vtkDataSetAttributes* outputPD = output->GetPointData();
@@ -1096,7 +1107,7 @@ void vtkStreamTracer::GenerateNormals(vtkPolyData* output, double* firstNormal)
       double velocity[3];
       normals->SetName("Normals");
       vtkDataArray* newVectors = 
-        outputPD->GetVectors(this->InputVectorsSelection);
+        outputPD->GetVectors(vecName);
       for(i=0; i<numPts; i++)
         {
         normals->GetTuple(i, normal);
@@ -1309,9 +1320,4 @@ void vtkStreamTracer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Vorticity computation: " 
      << (this->ComputeVorticity ? " On" : " Off") << endl;
   os << indent << "Rotation scale: " << this->RotationScale << endl;
-
-  if (this->InputVectorsSelection)
-    {
-    os << indent << "InputVectorsSelection: " << this->InputVectorsSelection;
-    } 
 }

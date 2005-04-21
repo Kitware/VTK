@@ -28,7 +28,7 @@
 #include "vtkPolyData.h"
 #include "vtkRungeKutta2.h"
 
-vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.7");
+vtkCxxRevisionMacro(vtkDistributedStreamTracer, "1.8");
 vtkStandardNewMacro(vtkDistributedStreamTracer);
 
 vtkDistributedStreamTracer::vtkDistributedStreamTracer()
@@ -221,6 +221,8 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
   this->CheckInputs(func, &maxCellSize, inputVector);
 
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
+  const char *vecName = vectors->GetName();
   this->Integrate(vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())),
                   tmpOutput,
                   seeds,
@@ -228,8 +230,8 @@ int vtkDistributedStreamTracer::ProcessTask(double seed[3],
                   integrationDirections,
                   lastPoint,
                   func,
-                  maxCellSize);
-  this->GenerateNormals(tmpOutput, firstNormal);
+                  maxCellSize, vecName);
+  this->GenerateNormals(tmpOutput, firstNormal, vecName);
 
   // These are used to keep track of where the seed came from
   // and where it will go. Used later to fill the gaps between

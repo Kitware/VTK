@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkThreshold, "1.67");
+vtkCxxRevisionMacro(vtkThreshold, "1.68");
 vtkStandardNewMacro(vtkThreshold);
 
 // Construct with lower threshold=0, upper threshold=1, and threshold 
@@ -33,17 +33,18 @@ vtkThreshold::vtkThreshold()
   this->LowerThreshold         = 0.0;
   this->UpperThreshold         = 1.0;
   this->AllScalars             = 1;
-  this->AttributeMode          = VTK_ATTRIBUTE_MODE_USE_POINT_DATA;
+  this->AttributeMode          = -1;
   this->ThresholdFunction      = &vtkThreshold::Upper;
-  this->InputScalarsSelection  = NULL;
   this->ComponentMode          = VTK_COMPONENT_MODE_USE_SELECTED;
   this->SelectedComponent      = 0;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 vtkThreshold::~vtkThreshold()
 {
-  // This frees the string
-  this->SetInputScalarsSelection(NULL);
 }
 
 // Criterion is cells whose scalars are less or equal to lower threshold.
@@ -108,16 +109,19 @@ int vtkThreshold::RequestData(
   double x[3];
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  vtkDataArray *pointScalars;
-  vtkDataArray *cellScalars;
   int keepCell, usePointScalars;
 
   vtkDebugMacro(<< "Executing threshold filter");
   
-  pointScalars=pd->GetScalars(this->InputScalarsSelection);
-  cellScalars=cd->GetScalars(this->InputScalarsSelection);
+  if (this->AttributeMode != -1)
+    {
+    vtkErrorMacro(<<"You have set the attribute mode on vtkThreshold. This method is deprecated, please use SetInputArrayToProcess instead.");
+    return 1;
+    }
 
-  if ( !(pointScalars || cellScalars) )
+  vtkDataArray *inScalars = this->GetInputArrayToProcess(0,inputVector);
+  
+  if (!inScalars)
     {
     vtkDebugMacro(<<"No scalar data to threshold");
     return 1;
@@ -138,41 +142,11 @@ int vtkThreshold::RequestData(
     pointMap->SetId(i,-1);
     }
 
-  // Determine which scalar data to use for thresholding
-  if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
-    {
-    if ( pointScalars != NULL)
-      {
-      usePointScalars = 1;
-      }
-    else
-      {
-      usePointScalars = 0;
-      }
-    }
-  else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
-    {
-    usePointScalars = 1;
-    }
-  else
-    {
-    usePointScalars = 0;
-    }
-
-  // Check on scalar consistency
-  if ( usePointScalars && !pointScalars )
-    {
-    vtkErrorMacro(<<"Can't use point scalars because there are none");
-    return 1;
-    }
-  else if ( !usePointScalars && !cellScalars )
-    {
-    vtkErrorMacro(<<"Can't use cell scalars because there are none");
-    return 1;
-    }
-
   newCellPts = vtkIdList::New();     
 
+  // are we using pointScalars?
+  usePointScalars = (inScalars->GetNumberOfTuples() == numPts);
+  
   // Check that the scalars of each cell satisfy the threshold criterion
   for (cellId=0; cellId < input->GetNumberOfCells(); cellId++)
     {
@@ -188,7 +162,7 @@ int vtkThreshold::RequestData(
         for ( i=0; keepCell && (i < numCellPts); i++)
           {
           ptId = cellPts->GetId(i);
-          keepCell = this->EvaluateComponents( pointScalars, ptId );
+          keepCell = this->EvaluateComponents( inScalars, ptId );
           }
         }
       else
@@ -197,13 +171,13 @@ int vtkThreshold::RequestData(
         for ( i=0; (!keepCell) && (i < numCellPts); i++)
           {
           ptId = cellPts->GetId(i);
-          keepCell = this->EvaluateComponents( pointScalars, ptId );
+          keepCell = this->EvaluateComponents( inScalars, ptId );
           }
         }
       }
     else //use cell scalars
       {
-      keepCell = this->EvaluateComponents( cellScalars, cellId );
+      keepCell = this->EvaluateComponents( inScalars, cellId );
       }
     
     if (  numCellPts > 0 && keepCell )
@@ -323,11 +297,6 @@ void vtkThreshold::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Component Mode: " << this->GetComponentModeAsString() << endl;
   os << indent << "Selected Component: " << this->SelectedComponent << endl;
   
-  if (this->InputScalarsSelection)
-    {
-    os << indent << "InputScalarsSelection: " << this->InputScalarsSelection;
-    } 
-
   os << indent << "All Scalars: " << this->AllScalars << "\n";
   if ( this->ThresholdFunction == &vtkThreshold::Upper )
     {

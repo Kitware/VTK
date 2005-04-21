@@ -101,7 +101,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   vtkContourFilter* contour = vtkContourFilter::New();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));
   contour->SetValue(0, -0.013);
-  contour->SelectInputScalars("phi");
+  contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
 
   // geometry filter
   vtkHierarchicalDataSetGeometryFilter* geom3 = 

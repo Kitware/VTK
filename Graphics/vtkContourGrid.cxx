@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.30");
+vtkCxxRevisionMacro(vtkContourGrid, "1.31");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -48,7 +48,10 @@ vtkContourGrid::vtkContourGrid()
 
   this->UseScalarTree = 0;
   this->ScalarTree = NULL;
-  this->InputScalarsSelection = NULL;
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 vtkContourGrid::~vtkContourGrid()
@@ -63,7 +66,6 @@ vtkContourGrid::~vtkContourGrid()
     {
     this->ScalarTree->Delete();
     }
-  this->SetInputScalarsSelection(NULL);
 }
 
 // Overload standard modified time function. If contour values are modified,
@@ -350,7 +352,7 @@ int vtkContourGrid::RequestData(
     }
 
   numCells = input->GetNumberOfCells();
-  inScalars = input->GetPointData()->GetScalars(this->InputScalarsSelection);
+  inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( ! inScalars || numCells < 1 )
     {
     vtkDebugMacro(<<"No data to contour");
@@ -433,7 +435,4 @@ void vtkContourGrid::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Locator: (none)\n";
     }
-  os << indent << "InputScalarsSelection: " 
-     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
-  
 }

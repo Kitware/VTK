@@ -278,14 +278,6 @@ public:
   vtkGetMacro(RotationScale, double);
 
   // Description:
-  // If you want to generate traces using an arbitrary vector array, 
-  // then set its name here. By default this in NULL and the filter will 
-  // use the active vector array.
-  vtkGetStringMacro(InputVectorsSelection);
-  void SelectInputVectors(const char *fieldName) 
-    {this->SetInputVectorsSelection(fieldName);}
-  
-  // Description:
   // Add a dataset to the list inputs
   void AddInput(vtkDataSet *in);
 
@@ -313,7 +305,8 @@ protected:
                  vtkIntArray* integrationDirections,
                  double lastPoint[3],
                  vtkInterpolatedVelocityField* func,
-                 int maxCellSize);
+                 int maxCellSize,
+                 const char *vecFieldName);
   void SimpleIntegrate(double seed[3], 
                        double lastPoint[3], 
                        double delt,
@@ -321,13 +314,9 @@ protected:
   int CheckInputs(vtkInterpolatedVelocityField*& func,
                   int* maxCellSize,
                   vtkInformationVector **inputVector);
-  void GenerateNormals(vtkPolyData* output, double* firstNormal);
+  void GenerateNormals(vtkPolyData* output, double* firstNormal, const char *vecName);
 
   int GenerateNormalsInIntegrate;
-
-  vtkSetStringMacro(InputVectorsSelection);
-  char *InputVectorsSelection;
-
 
   // starting from global x-y-z position
   double StartPosition[3];

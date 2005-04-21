@@ -31,7 +31,7 @@
 #include "vtkImageData.h"
 #include "vtkSynchronizedTemplates3D.h"
 
-vtkCxxRevisionMacro(vtkKitwareCutter, "1.10");
+vtkCxxRevisionMacro(vtkKitwareCutter, "1.11");
 vtkStandardNewMacro(vtkKitwareCutter);
 
 vtkKitwareCutter::vtkKitwareCutter()
@@ -131,18 +131,33 @@ void vtkKitwareCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
     contourData->GetPointData()->AddArray(cutScalars);
     }
   
-  int i;
+  int i,j,k;
   double scalar;
-  for (i = 0; i < numPts; i++)
+  double x[3];
+  int *ext = input->GetExtent();
+  double *origin = input->GetOrigin();
+  double *spacing = input->GetSpacing();
+  int count = 0;
+  for (k = ext[4]; k <= ext[5]; ++k)
     {
-    scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
-    cutScalars->SetComponent(i, 0, scalar);
+    x[2] = origin[2] + spacing[2]*k;
+    for (j = ext[2]; j <= ext[3]; ++j)
+      {
+      x[1] = origin[1] + spacing[1]*j;
+      for (i = ext[0]; i <= ext[1]; i++)
+        {
+        x[0] = origin[0] + spacing[0]*i;
+        scalar = this->CutFunction->FunctionValue(x);
+        cutScalars->SetComponent(count, 0, scalar);
+        count++;
+        }
+      }
     }
   int numContours = this->GetNumberOfContours();
 
   vtkSynchronizedTemplates3D *contour = vtkSynchronizedTemplates3D::New();
   contour->SetInput(contourData);
-  contour->SelectInputScalars("cutScalars");
+  contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
   for (i = 0; i < numContours; i++)
     {
     contour->SetValue(i, this->GetValue(i));
@@ -202,7 +217,7 @@ void vtkKitwareCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   vtkGridSynchronizedTemplates3D *contour =
     vtkGridSynchronizedTemplates3D::New();
   contour->SetInput(contourData);
-  contour->SelectInputScalars("cutScalars");
+  contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
   for (i = 0; i < numContours; i++)
     {
     contour->SetValue(i, this->GetValue(i));
@@ -261,7 +276,7 @@ void vtkKitwareCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   vtkRectilinearSynchronizedTemplates *contour =
     vtkRectilinearSynchronizedTemplates::New();
   contour->SetInput(contourData);
-  contour->SelectInputScalars("cutScalars");
+  contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
   for (i = 0; i < numContours; i++)
     {
     contour->SetValue(i, this->GetValue(i));

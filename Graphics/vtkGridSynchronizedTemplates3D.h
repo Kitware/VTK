@@ -31,7 +31,6 @@
 #include "vtkContourValues.h" // Because it passes all the calls to it
 
 class vtkKitwareContourFilter;
-class vtkMultiThreader;
 class vtkStructuredGrid;
 
 class VTK_GRAPHICS_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlgorithm
@@ -120,25 +119,14 @@ public:
   // Needed by templated functions.
   int *GetExecuteExtent() {return this->ExecuteExtent;}
   void ThreadedExecute(int *exExt, int threadId, vtkStructuredGrid *input,
+                       vtkInformationVector **inVec,
                        vtkInformation *outInfo);
-
-  // Description:
-  // Get/Set the number of threads to create when rendering
-  vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
-  vtkGetMacro( NumberOfThreads, int );
 
   // Description:
   // This filter will initiate streaming so that no piece requested
   // from the input will be larger than this value (KiloBytes).
   void SetInputMemoryLimit(long limit);
 
-  // Description:
-  // If you want to contour by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-  
 protected:
   vtkGridSynchronizedTemplates3D();
   ~vtkGridSynchronizedTemplates3D();
@@ -152,15 +140,8 @@ protected:
   int ComputeScalars;
   vtkContourValues *ContourValues;
 
-  int NumberOfThreads;
-  vtkMultiThreader *Threader;
   int MinimumPieceSize[3];
   int ExecuteExtent[6];
-
-  vtkPolyData *Threads[VTK_MAX_THREADS];
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
 private:
   //BTX

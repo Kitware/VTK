@@ -117,13 +117,6 @@ public:
   // Return the mtime also considering the locator.
   unsigned long GetMTime();
 
-  // Description:
-  // If you want to clip by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  void SelectInputScalars(const char *fieldName) 
-    { this->SetInputScalarsSelection(fieldName); };
-
   vtkGetMacro(Orientation,unsigned int);
   vtkSetMacro(Orientation,unsigned int);
   
@@ -179,9 +172,6 @@ protected:
   int GenerateClippedOutput;
 
   //double MergeTolerance;
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
   double BoundBoxClip[3][2];
   unsigned int Orientation;

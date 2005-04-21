@@ -122,13 +122,6 @@ public:
   vtkGetMacro(AllScalars,int);
   vtkBooleanMacro(AllScalars,int);
   
-  // Description:
-  // If you want to threshold by an arbitrary array, then set its name here.
-  // By default this in NULL and the filter will use the active scalar array.
-  vtkGetStringMacro(InputScalarsSelection);
-  virtual void SelectInputScalars(const char *fieldName) 
-    {this->SetInputScalarsSelection(fieldName);}
-
 protected:
   vtkThreshold();
   ~vtkThreshold();
@@ -153,9 +146,6 @@ protected:
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(double s) {return ( s >= this->LowerThreshold ? 
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
-
-  char *InputScalarsSelection;
-  vtkSetStringMacro(InputScalarsSelection);
 
   int EvaluateComponents( vtkDataArray *scalars, vtkIdType id );
   

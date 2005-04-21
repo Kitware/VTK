@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.119");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.120");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -52,11 +52,20 @@ vtkGlyph3D::vtkGlyph3D()
   this->GeneratePointIds = 0;
   this->PointIdsName = NULL;
   this->SetPointIdsName("InputPointIds");
-  this->InputScalarsSelection = NULL;
-  this->InputVectorsSelection = NULL;
-  this->InputNormalsSelection = NULL;
-  this->InputColorScalarsSelection = NULL;
   this->SetNumberOfInputPorts(2);
+
+  // by default process active point scalars
+  this->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
+  // by default process active point vectors
+  this->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::VECTORS);
+  // by default process active point normals
+  this->SetInputArrayToProcess(2,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::NORMALS);
+  // by default process active point scalars
+  this->SetInputArrayToProcess(3,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
+                               vtkDataSetAttributes::SCALARS);
 }
 
 //----------------------------------------------------------------------------
@@ -66,10 +75,6 @@ vtkGlyph3D::~vtkGlyph3D()
     {
     delete []PointIdsName;
     }
-  this->SetInputScalarsSelection(NULL);
-  this->SetInputVectorsSelection(NULL);
-  this->SetInputNormalsSelection(NULL);
-  this->SetInputColorScalarsSelection(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -125,15 +130,15 @@ int vtkGlyph3D::RequestData(
   pts->Allocate(VTK_CELL_SIZE);
 
   pd = input->GetPointData();
-  inSScalars = pd->GetScalars(this->InputScalarsSelection);
-  inVectors  = pd->GetVectors(this->InputVectorsSelection);
-  inNormals  = pd->GetNormals(this->InputNormalsSelection);
-  inCScalars = pd->GetScalars(this->InputColorScalarsSelection);
+  inSScalars = this->GetInputArrayToProcess(0,inputVector);
+  inVectors = this->GetInputArrayToProcess(1,inputVector);
+  inNormals = this->GetInputArrayToProcess(2,inputVector);
+  inCScalars = this->GetInputArrayToProcess(3,inputVector);
   if (inCScalars == NULL)
     {
     inCScalars = inSScalars;
     }
-
+  
   vtkDataArray* temp = 0;
   if (pd)
     {
@@ -746,14 +751,6 @@ void vtkGlyph3D::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Indexing off\n";
     }
-  os << indent << "InputScalarsSelection: " 
-     << (this->InputScalarsSelection ? this->InputScalarsSelection : "(none)") << "\n";
-  os << indent << "InputVectorsSelection: " 
-     << (this->InputVectorsSelection ? this->InputVectorsSelection : "(none)") << "\n";
-  os << indent << "InputNormalsSelection: " 
-     << (this->InputNormalsSelection ? this->InputNormalsSelection : "(none)") << "\n";
-  os << indent << "InputColorScalarsSelection: " 
-     << (this->InputColorScalarsSelection ? this->InputColorScalarsSelection : "(none)") << "\n";
 }
 
 int vtkGlyph3D::RequestUpdateExtent(
