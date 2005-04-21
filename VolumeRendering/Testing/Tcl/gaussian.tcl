@@ -102,11 +102,9 @@ vtkSphereSource Sphere
 
 vtkGlyph3D Glyph
   Glyph SetInput [reader GetOutput]
-  Glyph SelectInputVectors {}
   Glyph SetOrient 1
   Glyph SetColorMode 1
   #Glyph ScalingOn
-  Glyph SelectInputScalars {}
   Glyph SetScaleMode 2
   Glyph SetScaleFactor .6
   Glyph SetSource [Sphere GetOutput]

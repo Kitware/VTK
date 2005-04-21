@@ -33,7 +33,6 @@ vtkLookupTable pvTemp109
 
 vtkContourFilter pvTemp110
 	pvTemp110 SetInput [pvTemp90 GetOutput 0]
-	pvTemp110 SelectInputScalars {ImageFile}
 	pvTemp110 SetValue 0 1150
 	pvTemp110 SetComputeNormals 1
 	pvTemp110 SetComputeGradients 0
