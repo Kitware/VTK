@@ -32,10 +32,6 @@ SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES
 # assuming a Qt dll, otherwise plugins aren't possible
 ADD_DEFINITIONS(-DQT_DLL)
 
-IF(BUILD_SHARED_LIBS)
-  ADD_DEFINITIONS(-DQT_PLUGIN)
-ENDIF(BUILD_SHARED_LIBS)
-
 # check for a multithreaded Qt dll
 IF(QT_QT_LIBRARY MATCHES "mt")
   ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
@@ -57,8 +53,22 @@ TARGET_LINK_LIBRARIES( QVTK ${QT_QT_LIBRARY}
   vtkImaging 
   vtkCommon)
 
-# build plugin only if VTK is built as shared libraries
-IF(BUILD_SHARED_LIBS)
+# build plugin by default
+# even if VTK is built as static libraries (for convenience)
+SET(BUILD_QVTK_PLUGIN ON)
+
+# don't build plugin on systems that require dependents to be shared (PIC actually)
+IF(NOT BUILD_SHARED_LIBS)
+  IF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+    SET(BUILD_QVTK_PLUGIN OFF)
+  ENDIF(CMAKE_SYSTEM MATCHES "HP-UX.*")
+ENDIF(NOT BUILD_SHARED_LIBS)
+
+
+IF(BUILD_QVTK_PLUGIN)
+  
+  ADD_DEFINITIONS(-DQT_PLUGIN)
+
 # add QVTK plugin from sources 
 # stand-alone as it doesn't depend on QVTK library
   ADD_LIBRARY ( QVTKWidgetPlugin
@@ -75,18 +85,19 @@ IF(BUILD_SHARED_LIBS)
     vtkFiltering
     vtkCommon
   )
-ELSE(BUILD_SHARED_LIBS)
+ELSE(BUILD_QVTK_PLUGIN)
   MESSAGE(STATUS "Will not build QVTK plugin because VTK isn't build as shared libraries")
-ENDIF(BUILD_SHARED_LIBS)
+ENDIF(BUILD_QVTK_PLUGIN)
 
 
 # Configure the VTKConfigQt.cmake support file.
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
                ${VTK_BINARY_DIR}/VTKConfigQt.cmake @ONLY IMMEDIATE)
 
+
 # install rules
 
-IF(BUILD_SHARED_LIBS)
+IF(BUILD_QVTK_PLUGIN)
 # install at /plugins/designer allows one to set their designer plugin path
 # in the designer preferences to the vtk-install/plugins directory.
   IF(NOT VTK_INSTALL_QT_DIR)
@@ -101,7 +112,7 @@ IF(BUILD_SHARED_LIBS)
                        install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/${VTK_INSTALL_QT_DIR}
                        DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
   ENDIF ( UNIX )
-ENDIF(BUILD_SHARED_LIBS)
+ENDIF(BUILD_QVTK_PLUGIN)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES( ${VTK_INSTALL_INCLUDE_DIR} .h ${QVTKLibSrcs})
