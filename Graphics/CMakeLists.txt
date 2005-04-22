@@ -165,6 +165,7 @@ vtkSubdivideTetra.cxx
 vtkSuperquadricSource.cxx
 vtkSynchronizedTemplates2D.cxx
 vtkSynchronizedTemplates3D.cxx
+vtkSynchronizedTemplatesCutter3D.cxx
 vtkTensorGlyph.cxx
 vtkTextSource.cxx
 vtkTextureMapToCylinder.cxx
