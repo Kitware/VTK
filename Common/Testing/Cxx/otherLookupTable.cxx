@@ -31,7 +31,7 @@ void TestOLT(vtkLookupTable *lut1)
   lut1->SetRampToLinear();
   lut1->Build();
 
-  double rgb[3];
+  double rgb[4];
   lut1->GetColor(0, rgb);
 
   lut1->GetOpacity(0);
