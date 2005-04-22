@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.7");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.8");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -575,8 +575,8 @@ void ContourImage(vtkSynchronizedTemplates3D *self, int *exExt,
             idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
             idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
             
-            tablePtr = VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2 
-              + VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[idx];
+            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2 
+              + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
             while (*tablePtr != -1)
               {
               ptIds[0] = *(isect1Ptr + offsets[*tablePtr]);
@@ -856,7 +856,7 @@ void vtkSynchronizedTemplates3D::PrintSelf(ostream& os, vtkIndent indent)
 
 // template table.
 
-int VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[] = {
+int VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[] = {
    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, 
    0,    0,    0,    0,    0,    0,    0,    0,    0,  592, 
    0,    0,    0,    0,    0,    0,    0,    0,    0,    0, 
@@ -1679,7 +1679,7 @@ int VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[] = {
    0, 1698 };
 
 
-int VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2[] = {
+int VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2[] = {
  -1,   0,   1,   2,  -1,   0,   4,   3,  -1,   3,   1,   2, 
   4,   3,   2,  -1,   3,   7,   5,  -1,   0,   1,   2,   3, 
   7,   5,  -1,   4,   7,   5,   0,   4,   5,  -1,   5,   1, 

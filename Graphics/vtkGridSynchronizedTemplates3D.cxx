@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.3");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.4");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -675,8 +675,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
             idx = idx + (*(isect2Ptr -yisectstep +4) > -1 ? 2 : 0);
             idx = idx + (*(isect2Ptr) > -1 ? 1 : 0);
             
-            tablePtr = VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_2 
-              + VTK_SYNCHONIZED_TEMPLATES_3D_TABLE_1[idx];
+            tablePtr = VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_2 
+              + VTK_SYNCHRONIZED_TEMPLATES_3D_TABLE_1[idx];
             // to protect data against multiple threads
             if (  input->IsCellVisible(inCellId) )
               {
