@@ -37,15 +37,11 @@
 #include "vtkHierarchicalDataSet.h"
 #include "vtkUniformGrid.h"
 
-#ifdef VTK_USE_PATENTED
-#include "vtkKitwareCutter.h"
-#endif
-
 #include <math.h>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.5");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.6");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -460,11 +456,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(const char *arrayName,
     clip1->SetClipFunction(this->ClipPlane);
     append2->AddInput(clip1->GetOutput());
     // We need to create a capping surface.
-#ifdef VTK_USE_PATENTED
-    vtkCutter *cut = vtkKitwareCutter::New();
-#else
     vtkCutter *cut = vtkCutter::New();
-#endif
     cut->SetInput(data);
     cut->SetCutFunction(this->ClipPlane);
     cut->SetValue(0, 0.0);
@@ -612,11 +604,7 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(const char *arrayName,
     clip1->SetClipFunction(this->ClipPlane);
     append2->AddInput(clip1->GetOutput());
     // We need to create a capping surface.
-#ifdef VTK_USE_PATENTED
-    vtkCutter *cut = vtkKitwareCutter::New();
-#else
     vtkCutter *cut = vtkCutter::New();
-#endif
     cut->SetInput(data);
     cut->SetCutFunction(this->ClipPlane);
     cut->SetValue(0, 0.0);
