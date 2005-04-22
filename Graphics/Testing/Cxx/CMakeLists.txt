@@ -3,6 +3,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(KIT Graphics)
   # add tests that do not require data
   SET(MyTests     
+    Mace.cxx
     expCos.cxx
     CellLocator.cxx
     PointLocator.cxx
@@ -12,7 +13,6 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests ${MyTests}     
-      Mace.cxx
       MeshQuality.cxx
       TestHierarchicalBoxPipeline.cxx
       TestMultiBlock.cxx
