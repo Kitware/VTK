@@ -19,7 +19,10 @@
 #include "vtkContourValues.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
+#include "vtkGridSynchronizedTemplates3D.h"
+#include "vtkImageData.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -27,12 +30,17 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkRectilinearSynchronizedTemplates.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStructuredGrid.h"
+#include "vtkSynchronizedTemplates3D.h"
+#include "vtkSynchronizedTemplatesCutter3D.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.82");
+vtkCxxRevisionMacro(vtkCutter, "1.83");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -45,6 +53,11 @@ vtkCutter::vtkCutter(vtkImplicitFunction *cf)
   this->CutFunction = cf;
   this->GenerateCutScalars = 0;
   this->Locator = NULL;
+
+  this->SynchronizedTemplates3D = vtkSynchronizedTemplates3D::New();
+  this->SynchronizedTemplatesCutter3D = vtkSynchronizedTemplatesCutter3D::New();
+  this->GridSynchronizedTemplates = vtkGridSynchronizedTemplates3D::New();
+  this->RectilinearSynchronizedTemplates = vtkRectilinearSynchronizedTemplates::New();
 }
 
 vtkCutter::~vtkCutter()
@@ -56,6 +69,11 @@ vtkCutter::~vtkCutter()
     this->Locator->UnRegister(this);
     this->Locator = NULL;
     }
+
+  this->SynchronizedTemplates3D->Delete();
+  this->SynchronizedTemplatesCutter3D->Delete();
+  this->GridSynchronizedTemplates->Delete();
+  this->RectilinearSynchronizedTemplates->Delete();
 }
 
 // Overload standard modified time function. If cut functions is modified,
@@ -83,10 +101,217 @@ unsigned long vtkCutter::GetMTime()
   return mTime;
 }
 
+void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
+                                       vtkPolyData *thisOutput,
+                                       vtkInformation *request,
+                                       vtkInformationVector **inputVector,
+                                       vtkInformationVector *outputVector)
+{
+  vtkImageData *input = vtkImageData::SafeDownCast(dataSetInput);
+  vtkPolyData *output;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  
+  if (numPts < 1)
+    {
+    return;
+    }
+
+  int numContours = this->GetNumberOfContours();
+
+  // for one contour we use the SyncTempCutter which is faster and has a
+  // smaller memory footprint
+  if (numContours == 1)
+    {
+    this->SynchronizedTemplatesCutter3D->SetCutFunction(this->CutFunction);
+    this->SynchronizedTemplatesCutter3D->SetValue(0, this->GetValue(0));
+    this->SynchronizedTemplatesCutter3D->ProcessRequest(request,inputVector,outputVector);
+    return;
+    }
+  
+  // otherwise compute scalar data then contour
+  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  cutScalars->SetNumberOfTuples(numPts);
+  cutScalars->SetName("cutScalars");
+  
+  vtkImageData *contourData = vtkImageData::New();
+  contourData->ShallowCopy(input);
+  if (this->GenerateCutScalars)
+    {
+    contourData->GetPointData()->SetScalars(cutScalars);
+    }
+  else
+    {
+    contourData->GetPointData()->AddArray(cutScalars);
+    }
+  
+  int i,j,k;
+  double scalar;
+  double x[3];
+  int *ext = input->GetExtent();
+  double *origin = input->GetOrigin();
+  double *spacing = input->GetSpacing();
+  int count = 0;
+  for (k = ext[4]; k <= ext[5]; ++k)
+    {
+    x[2] = origin[2] + spacing[2]*k;
+    for (j = ext[2]; j <= ext[3]; ++j)
+      {
+      x[1] = origin[1] + spacing[1]*j;
+      for (i = ext[0]; i <= ext[1]; i++)
+        {
+        x[0] = origin[0] + spacing[0]*i;
+        scalar = this->CutFunction->FunctionValue(x);
+        cutScalars->SetComponent(count, 0, scalar);
+        count++;
+        }
+      }
+    }
+  
+  this->SynchronizedTemplates3D->SetInput(contourData);
+  this->SynchronizedTemplates3D->
+    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  for (i = 0; i < numContours; i++)
+    {
+    this->SynchronizedTemplates3D->SetValue(i, this->GetValue(i));
+    }
+  this->SynchronizedTemplates3D->ComputeScalarsOff();
+  this->SynchronizedTemplates3D->ComputeNormalsOff();
+  output = this->SynchronizedTemplates3D->GetOutput();
+  this->SynchronizedTemplates3D->Update();
+  output->Register(this);  
+  
+  thisOutput->CopyStructure(output);
+  thisOutput->GetPointData()->ShallowCopy(output->GetPointData());
+  thisOutput->GetCellData()->ShallowCopy(output->GetCellData());
+  output->UnRegister(this);
+  
+  cutScalars->Delete();
+  contourData->Delete();
+}
+
+void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
+                                     vtkPolyData *thisOutput)
+{
+  vtkStructuredGrid *input = vtkStructuredGrid::SafeDownCast(dataSetInput);
+  vtkPolyData *output;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  
+  if (numPts < 1)
+    {
+    return;
+    }
+  
+  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  cutScalars->SetNumberOfTuples(numPts);
+  cutScalars->SetName("cutScalars");
+
+  vtkStructuredGrid *contourData = vtkStructuredGrid::New();
+  contourData->ShallowCopy(input);
+  if (this->GenerateCutScalars)
+    {
+    contourData->GetPointData()->SetScalars(cutScalars);
+    }
+  else
+    {
+    contourData->GetPointData()->AddArray(cutScalars);
+    }
+  
+  int i;
+  double scalar;
+  for (i = 0; i < numPts; i++)
+    {
+    scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
+    cutScalars->SetComponent(i, 0, scalar);
+    }
+  int numContours = this->GetNumberOfContours();
+  
+  this->GridSynchronizedTemplates->SetInput(contourData);
+  this->GridSynchronizedTemplates->
+    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  for (i = 0; i < numContours; i++)
+    {
+    this->GridSynchronizedTemplates->SetValue(i, this->GetValue(i));
+    }
+  this->GridSynchronizedTemplates->ComputeScalarsOff();
+  this->GridSynchronizedTemplates->ComputeNormalsOff();
+  output = this->GridSynchronizedTemplates->GetOutput();
+  this->GridSynchronizedTemplates->Update();
+  output->Register(this);
+  
+  thisOutput->ShallowCopy(output);
+  output->UnRegister(this);
+  
+  cutScalars->Delete();
+  contourData->Delete();
+}
+
+void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
+                                      vtkPolyData *thisOutput,
+                                      vtkInformation *outInfo)
+{
+  vtkRectilinearGrid *input = vtkRectilinearGrid::SafeDownCast(dataSetInput);
+  vtkPolyData *output;
+  vtkIdType numPts = input->GetNumberOfPoints();
+  
+  if (numPts < 1)
+    {
+    return;
+    }
+  
+  vtkFloatArray *cutScalars = vtkFloatArray::New();
+  cutScalars->SetNumberOfTuples(numPts);
+  cutScalars->SetName("cutScalars");
+
+  vtkRectilinearGrid *contourData = vtkRectilinearGrid::New();
+  contourData->ShallowCopy(input);
+  if (this->GenerateCutScalars)
+    {
+    contourData->GetPointData()->SetScalars(cutScalars);
+    }
+  else
+    {
+    contourData->GetPointData()->AddArray(cutScalars);
+    }
+  
+  int i;
+  double scalar;
+  for (i = 0; i < numPts; i++)
+    {
+    scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
+    cutScalars->SetComponent(i, 0, scalar);
+    }
+  int numContours = this->GetNumberOfContours();
+  
+  this->RectilinearSynchronizedTemplates->SetInput(contourData);
+  this->RectilinearSynchronizedTemplates->
+    SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
+  for (i = 0; i < numContours; i++)
+    {
+    this->RectilinearSynchronizedTemplates->SetValue(i, this->GetValue(i));
+    }
+  this->RectilinearSynchronizedTemplates->ComputeScalarsOff();
+  this->RectilinearSynchronizedTemplates->ComputeNormalsOff();
+  output = this->RectilinearSynchronizedTemplates->GetOutput();
+  output->SetUpdateNumberOfPieces(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  output->SetUpdatePiece(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  output->SetUpdateGhostLevel(
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  this->RectilinearSynchronizedTemplates->Update();
+  output->Register(this);
+  
+  thisOutput->ShallowCopy(output);
+  output->UnRegister(this);
+  
+  cutScalars->Delete();
+  contourData->Delete();
+}
+
 // Cut through data generating surface.
 //
 int vtkCutter::RequestData(
-  vtkInformation *vtkNotUsed(request),
+  vtkInformation *request,
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
@@ -112,7 +337,39 @@ int vtkCutter::RequestData(
     {
     return 1;
     }
-  
+
+  if (input->GetDataObjectType() == VTK_STRUCTURED_POINTS ||
+      input->GetDataObjectType() == VTK_IMAGE_DATA)
+    {    
+    if ( input->GetCell(0) && input->GetCell(0)->GetCellDimension() >= 3 )
+      {
+      this->StructuredPointsCutter(input, output, request, inputVector, outputVector);
+      return 1;
+      }
+    }
+  if (input->GetDataObjectType() == VTK_STRUCTURED_GRID)
+    {
+    if (input->GetCell(0))
+      {
+      int dim = input->GetCell(0)->GetCellDimension();
+      // only do 3D structured grids (to be extended in the future)
+      if (dim >= 3)
+        {
+        this->StructuredGridCutter(input, output);
+        return 1;
+        }
+      }
+    }
+  if (input->GetDataObjectType() == VTK_RECTILINEAR_GRID)
+    {
+    int dim = ((vtkRectilinearGrid*)input)->GetDataDimension();
+    if ( dim == 3 ) 
+      {
+      this->RectilinearGridCutter(input, output, outInfo);
+      return 1;
+      }
+    }
+
   if (input->GetDataObjectType() == VTK_UNSTRUCTURED_GRID)
     { 
     vtkDebugMacro(<< "Executing Unstructured Grid Cutter");   

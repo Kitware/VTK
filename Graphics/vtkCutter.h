@@ -54,6 +54,10 @@
 
 class vtkImplicitFunction;
 class vtkPointLocator;
+class vtkSynchronizedTemplates3D;
+class vtkSynchronizedTemplatesCutter3D;
+class vtkGridSynchronizedTemplates3D;
+class vtkRectilinearSynchronizedTemplates;
 
 class VTK_GRAPHICS_EXPORT vtkCutter : public vtkPolyDataAlgorithm
 {
@@ -180,8 +184,18 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
   void UnstructuredGridCutter(vtkDataSet *input, vtkPolyData *output);
   void DataSetCutter(vtkDataSet *input, vtkPolyData *output);
+  void StructuredPointsCutter(vtkDataSet *, vtkPolyData *,
+                              vtkInformation *, vtkInformationVector **, 
+                              vtkInformationVector *);
+  void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
+  void RectilinearGridCutter(vtkDataSet *, vtkPolyData *, vtkInformation *);
   vtkImplicitFunction *CutFunction;
-  
+
+  vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
+  vtkSynchronizedTemplatesCutter3D *SynchronizedTemplatesCutter3D;
+  vtkGridSynchronizedTemplates3D *GridSynchronizedTemplates;
+  vtkRectilinearSynchronizedTemplates *RectilinearSynchronizedTemplates;
+
   vtkPointLocator *Locator;
   int SortBy;
   vtkContourValues *ContourValues;
