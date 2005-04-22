@@ -152,17 +152,17 @@ public:
   vtkGetMacro(ActiveAttribute, int);
   
   // Description:
-  // Component of the active attribute to be processed.
+  // Component of the active attribute to be processed. -1 means module.
   // \pre not_empty: GetNumberOfAttributes()>0
-  // \post valid_result: result>=0 &&
+  // \post valid_result: result>=-1 &&
   //       result<GetAttribute(GetActiveAttribute())->GetNumberOfComponents()
   vtkGetMacro(ActiveComponent, int);
 
   // Description:
-  // Set the scalar attribute to be processed.
+  // Set the scalar attribute to be processed. -1 means module.
   // \pre not_empty: !IsEmpty()
   // \pre valid_attribute: attribute>=0 && attribute<GetNumberOfAttributes()
-  // \pre valid_component: component>=0 &&
+  // \pre valid_component: component>=-1 &&
   //              component<GetAttribute(attribute)->GetNumberOfComponents()
   // \post is_set: GetActiveAttribute()==attribute &&
   //               GetActiveComponent()==component

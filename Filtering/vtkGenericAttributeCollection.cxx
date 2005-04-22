@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.6");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.7");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -414,13 +414,13 @@ void vtkGenericAttributeCollection::ComputeNumbers()
 // *** BEGIN
 
 // Description:
-// Set the scalar attribute to be processed.
+// Set the scalar attribute to be processed. -1 means module.
 void vtkGenericAttributeCollection::SetActiveAttribute(int attribute,
                                                        int component)
 {
   assert("pre: not_empty" && !IsEmpty());
   assert("pre: valid_attribute" && (attribute>=0)&&(attribute<this->GetNumberOfAttributes()));
-  assert("pre: valid_component" && (component>=0)&&(component<this->GetAttribute(attribute)->GetNumberOfComponents()));
+  assert("pre: valid_component" && (component>=-1)&&(component<this->GetAttribute(attribute)->GetNumberOfComponents()));
 
   this->ActiveAttribute = attribute;
   this->ActiveComponent = component;
