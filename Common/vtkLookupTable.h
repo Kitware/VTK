@@ -130,7 +130,6 @@ public:
   // Description:
   // Map one value through the lookup table and return the color as
   // an RGB array of doubles between 0 and 1.
-  double *GetColor(double x) { return vtkScalarsToColors::GetColor(x); }
   void GetColor(double x, double rgb[3]);
 
   // Description:

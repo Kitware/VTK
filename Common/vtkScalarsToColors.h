@@ -62,12 +62,6 @@ public:
   virtual void GetColor(double v, double rgb[3]) = 0;
 
   // Description:
-  // Map one value through the lookup table and return the color as
-  // an RGB array of doubles between 0 and 1.
-  double *GetColor(double v) 
-    {this->GetColor(v,this->RGB); return this->RGB;}
-
-  // Description:
   // Map one value through the lookup table and return the alpha value
   // (the opacity) as a double between 0 and 1.
   virtual double GetOpacity(double vtkNotUsed(v)) 
@@ -165,8 +159,6 @@ protected:
   int UseMagnitude;
   int VectorComponent;
 
-private:
-  double RGB[3];
 private:
   vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
   void operator=(const vtkScalarsToColors&);  // Not implemented.

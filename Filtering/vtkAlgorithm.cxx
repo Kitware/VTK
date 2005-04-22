@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.19");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.20");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -100,6 +100,7 @@ vtkAlgorithm::~vtkAlgorithm()
   this->ProgressText = NULL;
 }
 
+//----------------------------------------------------------------------------
 // Update the progress of the process object. If a ProgressMethod exists,
 // executes it. Then set the Progress ivar to amount. The parameter amount
 // should range between (0,1).
@@ -110,6 +111,7 @@ void vtkAlgorithm::UpdateProgress(double amount)
 }
 
 
+//----------------------------------------------------------------------------
 vtkInformation *vtkAlgorithm
 ::GetInputArrayFieldInformation(int idx, vtkInformationVector **inputVector)
 {
@@ -131,6 +133,7 @@ vtkInformation *vtkAlgorithm
   return vtkDataObject::GetActiveFieldInformation(inInfo, fieldAssoc, fType);
 }
 
+//----------------------------------------------------------------------------
 vtkInformation *vtkAlgorithm::GetInputArrayInformation(int idx)
 {
   // add this info into the algorithms info object
@@ -152,6 +155,7 @@ vtkInformation *vtkAlgorithm::GetInputArrayInformation(int idx)
   return inArrayInfo;
 }
 
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputArrayToProcess(int idx, vtkInformation *inInfo)
 {
   vtkInformation *info = this->GetInputArrayInformation(idx);
@@ -159,6 +163,7 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, vtkInformation *inInfo)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection, 
                                           int fieldAssociation, 
                                           int attributeType)
@@ -176,6 +181,7 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection, 
                                           int fieldAssociation, 
                                           const char *name)
@@ -199,6 +205,7 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(int idx, 
                                                    vtkInformationVector **inputVector)
 {
@@ -317,7 +324,7 @@ void vtkAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 int vtkAlgorithm::HasExecutive()
 {
-  return this->Executive? 1:0;
+  return this->Executive ? 1 : 0;
 }
 
 //----------------------------------------------------------------------------

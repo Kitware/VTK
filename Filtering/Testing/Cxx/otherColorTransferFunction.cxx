@@ -34,10 +34,10 @@ int Test(ostream& strm)
   ctf1->AddHSVSegment (11.0, 1, 1, 6, 15.0, .1, .2, .3);
   strm << *ctf1;
 
-  strm << "GetColor(.5) = "
-       << ctf1->GetColor(.5)[0] << ", "
-       << ctf1->GetColor(.5)[1] << ", "
-       << ctf1->GetColor(.5)[2] << endl;
+  double rgb[3];
+  ctf1->GetColor(.5, rgb);
+  strm << "GetColor(.5) = " 
+    << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << endl;
 
   strm << "GetRedValue(.5) = " << ctf1->GetRedValue(.5) << endl;
   strm << "GetGreenValue(.5) = " << ctf1->GetGreenValue(.5) << endl;

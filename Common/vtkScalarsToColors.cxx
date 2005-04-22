@@ -18,8 +18,9 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkScalarsToColors, "1.24");
+vtkCxxRevisionMacro(vtkScalarsToColors, "1.25");
 
+//----------------------------------------------------------------------------
 vtkScalarsToColors::vtkScalarsToColors()
 {
   this->Alpha = 1.0;
@@ -28,22 +29,26 @@ vtkScalarsToColors::vtkScalarsToColors()
   this->UseMagnitude = 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColors::SetVectorModeToComponent()
 {
   this->SetVectorMode(vtkScalarsToColors::COMPONENT);
 }
 
+//----------------------------------------------------------------------------
 void vtkScalarsToColors::SetVectorModeToMagnitude()
 {
   this->SetVectorMode(vtkScalarsToColors::MAGNITUDE);
 }
 
-// do not use SetMacro() because we do not the table to rebuild.
+//----------------------------------------------------------------------------
+// do not use SetMacro() because we do not want the table to rebuild.
 void vtkScalarsToColors::SetAlpha(double alpha)
 {
   this->Alpha = (alpha < 0.0 ? 0.0 : (alpha > 1.0 ? 1.0 : alpha));
 }
 
+//----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
                                                      int colorMode, int comp)
 {
@@ -122,6 +127,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkDataArray *scalars,
   return newColors;
 }
 
+//----------------------------------------------------------------------------
 // Map a set of scalar values through the table
 void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars, 
                                                 unsigned char *output,
@@ -147,6 +153,7 @@ void vtkScalarsToColors::MapScalarsThroughTable(vtkDataArray *scalars,
                                 outputFormat);
 }
 
+//----------------------------------------------------------------------------
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
   vtkUnsignedCharArray *colors, int numComp, int numTuples)
 {
@@ -258,7 +265,7 @@ vtkUnsignedCharArray *vtkScalarsToColors::ConvertUnsignedCharToRGBA(
   return newColors;
 }
 
-
+//----------------------------------------------------------------------------
 void vtkScalarsToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
