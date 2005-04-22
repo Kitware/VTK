@@ -129,6 +129,7 @@ protected:
   // AttributeTolerance and active attribute/component
   
   double AbsoluteAttributeTolerance;
+  int DefinedByAbsolute;
   
   vtkTimeStamp SquareAbsoluteAttributeToleranceComputeTime;
   
