@@ -23,17 +23,23 @@
 #ifndef __vtkExtractCTHPart_h
 #define __vtkExtractCTHPart_h
 
-#include "vtkRectilinearGridToPolyDataFilter.h"
+//#include "vtkPolyDataAlgorithm.h"
+#include "vtkHierarchicalDataSetAlgorithm.h"
 class vtkPlane;
 class vtkDataArray;
-class vtkFloatArray;
+class vtkDoubleArray;
+class vtkRectilinearGrid;
 
 class vtkExtractCTHPartInternal;
+class vtkHierarchicalDataSet;
+class vtkPolyData;
+class vtkUniformGrid;
+class vtkDataSet;
 
-class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkRectilinearGridToPolyDataFilter
+class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkHierarchicalDataSetAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkRectilinearGridToPolyDataFilter);
+  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkHierarchicalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -49,13 +55,6 @@ public:
   const char* GetVolumeArrayName(int idx);
 
   // Description:
-  int GetNumberOfOutputs();
-  vtkPolyData* GetOutput(int idx);
-  vtkPolyData* GetOutput() { return this->GetOutput(0); }
-  void SetOutput(int idx, vtkPolyData* d);
-  void SetOutput(vtkPolyData* d) { this->SetOutput(0, d); }
-
-  // Description:
   // Set, get or maninpulate the implicit clipping plane.
   void SetClipPlane(vtkPlane *clipPlane);
   vtkGetObjectMacro(ClipPlane, vtkPlane);
@@ -68,19 +67,45 @@ protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();
 
-  void ComputeInputUpdateExtents(vtkDataObject *output);
-  void Execute();
-  void ExecutePart(const char* arrayName, vtkPolyData* output);
+  void SetOutputData(int idx, vtkHierarchicalDataSet* d);
+  
+  int RequestInformation(vtkInformation *request,
+                         vtkInformationVector **inputVector,
+                         vtkInformationVector *outputVector);
+  
+  int RequestData(vtkInformation *, vtkInformationVector **,
+                  vtkInformationVector *);
+  
+  // Description:
+  // the input is a hierarchy of vtkUniformGrid or one level of
+  // vtkRectilinearGrid. The output is a hierarchy of vtkPolyData.
+  
+  
+  void ExecutePart(const char *arrayName,
+                   int partIndex,
+                   vtkHierarchicalDataSet *input,
+                   vtkHierarchicalDataSet *output,
+                   int needPartIndex);
+  
+  void ExecutePartOnUniformGrid(const char *arrayName,
+                                vtkUniformGrid *input,
+                                vtkPolyData *output);
+  
+  void ExecutePartOnRectilinearGrid(const char *arrayName,
+                                    vtkRectilinearGrid *input,
+                                    vtkPolyData *output);
+  
   void ExecuteCellDataToPointData(vtkDataArray *cellVolumeFraction, 
-                       vtkFloatArray *pointVolumeFraction, int *dims);
-
+                                  vtkDoubleArray *pointVolumeFraction,
+                                  int *dims);
+  
+  int FillInputPortInformation(int port,
+                               vtkInformation *info);
+  
   vtkPlane *ClipPlane;
-
   vtkExtractCTHPartInternal* Internals;
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.
   void operator=(const vtkExtractCTHPart&);  // Not implemented.
 };
-
 #endif
-
