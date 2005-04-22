@@ -156,7 +156,7 @@ vtkRectilinearGridToPolyDataFilter.cxx
 vtkScalarTree.cxx
 vtkSimpleImageToImageFilter.cxx
 vtkSimpleScalarTree.cxx
-#vtkSmoothErrorMetric.cxx
+vtkSmoothErrorMetric.cxx
 vtkSphere.cxx
 vtkSource.cxx
 vtkSpline.cxx

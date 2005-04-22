@@ -62,6 +62,7 @@ IF (VTK_DATA_ROOT)
   TestGenericClip.cxx
   TestGenericCutter.cxx
   TestGenericStreamTracer.cxx
+  TestSmoothErrorMetric.cxx
   TestViewDependentErrorMetric.cxx
  )
 ENDIF (VTK_DATA_ROOT)
