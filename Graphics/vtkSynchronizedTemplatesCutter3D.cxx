@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.1");
+vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.2");
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFunction);
 
@@ -542,6 +542,6 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(
 void vtkSynchronizedTemplatesCutter3D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
+  os << indent << "Cut Function: " << this->CutFunction << "\n";
 }
 
