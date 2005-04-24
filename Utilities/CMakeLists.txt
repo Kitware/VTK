@@ -16,10 +16,11 @@ IF(VTK_USE_RENDERING)
   SUBDIRS(freetype ftgl ParseOGLExt)
 ENDIF(VTK_USE_RENDERING)
 
+# DISABLING UNTIL A TRY-COMPILE CAN DETERMINE IF IT IS SAFE
 # See internal_stdio_core.h.in for explanation.
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/internal_stdio_core.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h
-               @ONLY IMMEDIATE)
+#CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/internal_stdio_core.h.in
+#               ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h
+#               @ONLY IMMEDIATE)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   # This is the installed VTKConfig.cmake file configured at the top
