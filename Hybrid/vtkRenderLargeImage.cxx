@@ -22,12 +22,43 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
-
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.30");
+#include "vtkRendererCollection.h"
+#include "vtkActor2DCollection.h"
+#include "vtkActor2D.h"
+#include "vtkProp.h"
+#include <vtkstd/vector>
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.31");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
-
+//----------------------------------------------------------------------------
+// 2D Actors need to be rescaled and shifted about for each tile
+// use this helper class to make life easier.
+class vtkRenderLargeImage2DHelperClass {
+public:
+  // maintain a list of 2D actors
+  vtkActor2DCollection *storedActors;
+  // maintain lists of their vtkCoordinate objects
+  vtkCollection        *coord1s;
+  vtkCollection        *coord2s;
+  // Store the display coords for adjustment during tiling
+  vtkstd::vector< vtkstd::pair<int, int> > coords1;
+  vtkstd::vector< vtkstd::pair<int, int> > coords2;
+  //
+  vtkRenderLargeImage2DHelperClass() 
+  {
+    storedActors = vtkActor2DCollection::New();
+    coord1s = vtkCollection::New();
+    coord2s = vtkCollection::New();
+  }
+  ~vtkRenderLargeImage2DHelperClass() 
+  {
+    coord1s->RemoveAllItems();
+    coord2s->RemoveAllItems();
+    storedActors->RemoveAllItems();
+  }
+};
 //----------------------------------------------------------------------------
 vtkRenderLargeImage::vtkRenderLargeImage()
 {
@@ -35,6 +66,7 @@ vtkRenderLargeImage::vtkRenderLargeImage()
   this->Magnification = 3;
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+  this->storedData = new vtkRenderLargeImage2DHelperClass();
 }
 
 //----------------------------------------------------------------------------
@@ -45,6 +77,7 @@ vtkRenderLargeImage::~vtkRenderLargeImage()
     this->Input->UnRegister(this);
     this->Input = NULL;
     }
+  delete this->storedData;
 }
 
 //----------------------------------------------------------------------------
@@ -131,8 +164,6 @@ void vtkRenderLargeImage::RequestInformation (
   vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
 }
 
-
-
 //----------------------------------------------------------------------------
 // Description:
 // This function reads a region from a file.  The regions extent/axes
@@ -180,6 +211,8 @@ void vtkRenderLargeImage::RequestData(
   inWindowExtent[2] = inExtent[2]/size[1];
   inWindowExtent[3] = inExtent[3]/size[1];
 
+  this->Rescale2DActors();
+
   // store the old view angle & set the new
   cam = this->Input->GetActiveCamera();
   cam->GetWindowCenter(windowCenter);
@@ -205,6 +238,9 @@ void vtkRenderLargeImage::RequestData(
       {
       cam->SetWindowCenter(x*2 - this->Magnification*(1-windowCenter[0]) + 1, 
                            y*2 - this->Magnification*(1-windowCenter[1]) + 1);
+      // shift 2D actors to correct origin for this tile
+      this->Shift2DActors(size[0]*x, size[1]*y);
+      // Render
       this->Input->GetRenderWindow()->Render();
       pixels = this->Input->GetRenderWindow()->GetPixelData(0,0,size[0] - 1,
                                                             size[1] - 1,
@@ -258,8 +294,9 @@ void vtkRenderLargeImage::RequestData(
   cam->SetViewAngle(viewAngle);
   cam->SetParallelScale(parallelScale);
   cam->SetWindowCenter(windowCenter[0],windowCenter[1]);
+  this->Restore2DActors();
 }
-
+//----------------------------------------------------------------------------
 int vtkRenderLargeImage::FillOutputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -267,3 +304,129 @@ int vtkRenderLargeImage::FillOutputPortInformation(
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
   return 1;
 }
+//----------------------------------------------------------------------------
+// This code is designed to handle multiple renders even though 
+// RenderLargeImage currently only handles one explicitly.
+//----------------------------------------------------------------------------
+void vtkRenderLargeImage::Rescale2DActors()
+{
+    vtkActor2D            *actor;
+    vtkProp               *aProp;
+    vtkRenderer           *aren;
+    vtkPropCollection     *pc;
+    vtkRendererCollection *rc;
+    vtkCoordinate         *c1, *c2;
+    vtkCoordinate         *n1, *n2;
+    int                   *p1, *p2;
+    double                d1[3], d2[3];
+    //
+    rc = this->Input->GetRenderWindow()->GetRenderers();
+    for (rc->InitTraversal(); (aren = rc->GetNextItem()); ) 
+    {
+        pc = aren->GetProps();
+        if (pc) 
+        {
+            for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); ) 
+            {
+              actor = vtkActor2D::SafeDownCast((aProp));
+              if (actor)
+              {
+                // put the actor in our list for retrieval later
+                this->storedData->storedActors->AddItem(actor);
+                // Copy all existing coordinate stuff
+                n1 = actor->GetPositionCoordinate();
+                n2 = actor->GetPosition2Coordinate();
+                c1 = vtkCoordinate::New();
+                c2 = vtkCoordinate::New();
+                c1->SetCoordinateSystem(n1->GetCoordinateSystem());
+                c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+                c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+                c1->SetValue(n1->GetValue());
+                c2->SetCoordinateSystem(n2->GetCoordinateSystem());
+                c2->SetReferenceCoordinate(n2->GetReferenceCoordinate());
+                c2->SetValue(n2->GetValue());
+                this->storedData->coord1s->AddItem(c1);
+                this->storedData->coord2s->AddItem(c2);
+                c1->Delete();
+                c2->Delete();
+                // work out the position in new magnified pixels
+                p1 = n1->GetComputedDisplayValue(aren);
+                p2 = n2->GetComputedDisplayValue(aren);
+                d1[0] = p1[0]*this->Magnification;
+                d1[1] = p1[1]*this->Magnification;
+                d1[2] = 0.0;
+                d2[0] = p2[0]*this->Magnification;
+                d2[1] = p2[1]*this->Magnification;
+                d2[2] = 0.0;
+                this->storedData->coords1.push_back( 
+                  vtkstd::pair<int, int>(d1[0], d1[1]) );
+                this->storedData->coords2.push_back( 
+                  vtkstd::pair<int, int>(d2[0], d2[1]) );
+                // Make sure they have no dodgy offsets
+                n1->SetCoordinateSystemToDisplay();
+                n2->SetCoordinateSystemToDisplay();
+                n1->SetReferenceCoordinate(NULL);
+                n2->SetReferenceCoordinate(NULL);
+                n1->SetValue(d1[0], d1[1]);
+                n2->SetValue(d2[0], d2[1]);
+                //
+              }
+            }
+        }
+    }
+    return;
+}
+//----------------------------------------------------------------------------
+// On each tile we must subtract the origin of each actor to ensure
+// it appears in the correct relative location
+void vtkRenderLargeImage::Shift2DActors(int x, int y)
+{
+    vtkActor2D    *actor;
+    vtkCoordinate *c1, *c2;
+    double        d1[3], d2[3];
+    int           i;
+    //
+    for (this->storedData->storedActors->InitTraversal(), i=0; (actor = this->storedData->storedActors->GetNextItem()); i++) 
+    {
+      c1 = actor->GetPositionCoordinate();
+      c2 = actor->GetPosition2Coordinate();
+      c1->GetValue(d1);
+      c2->GetValue(d2);
+      d1[0] = this->storedData->coords1[i].first  - x;
+      d1[1] = this->storedData->coords1[i].second - y;
+      d2[0] = this->storedData->coords2[i].first  - x;
+      d2[1] = this->storedData->coords2[i].second - y;
+      c1->SetValue(d1);
+      c2->SetValue(d2);
+    }
+    return;
+}
+//----------------------------------------------------------------------------
+// On each tile we must subtract the origin of each actor to ensure
+// it appears in the corrrect relative location
+void vtkRenderLargeImage::Restore2DActors()
+{
+    vtkActor2D            *actor;
+    vtkCoordinate         *c1, *c2;
+    vtkCoordinate         *n1, *n2;
+    int i;
+    //
+    for (this->storedData->storedActors->InitTraversal(), i=0; (actor = this->storedData->storedActors->GetNextItem()); i++) 
+    {
+      c1 = actor->GetPositionCoordinate();
+      c2 = actor->GetPosition2Coordinate();
+      n1 = vtkCoordinate::SafeDownCast(this->storedData->coord1s->GetItemAsObject(i));
+      n2 = vtkCoordinate::SafeDownCast(this->storedData->coord2s->GetItemAsObject(i));
+      c1->SetCoordinateSystem(n1->GetCoordinateSystem());
+      c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+      c1->SetReferenceCoordinate(n1->GetReferenceCoordinate());
+      c1->SetValue(n1->GetValue());
+      c2->SetCoordinateSystem(n2->GetCoordinateSystem());
+      c2->SetReferenceCoordinate(n2->GetReferenceCoordinate());
+      c2->SetValue(n2->GetValue());
+    }
+    this->storedData->coord1s->RemoveAllItems();
+    this->storedData->coord2s->RemoveAllItems();
+    this->storedData->storedActors->RemoveAllItems();
+}
+//----------------------------------------------------------------------------

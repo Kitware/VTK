@@ -24,6 +24,9 @@
 #include "vtkImageData.h" // makes things a bit easier
 
 class vtkRenderer;
+class vtkActor2DCollection;
+class vtkCollection;
+class vtkRenderLargeImage2DHelperClass;
 
 class VTK_HYBRID_EXPORT vtkRenderLargeImage : public vtkAlgorithm
 {
@@ -68,6 +71,16 @@ protected:
 
   // see algorithm for more info
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
+
+  // Adjust the coordinates of all 2D actors to fit new window size
+  void Rescale2DActors();
+  // Shift each actor according to the tile we are rendering
+  void Shift2DActors(int x, int y);
+  // put them all back to their previous state when finished.
+  void Restore2DActors();
+  // 2D Actors need to be rescaled and shifted about for each tile
+  // use this helper class to make life easier.
+  vtkRenderLargeImage2DHelperClass *storedData;
 
 private:
   vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
