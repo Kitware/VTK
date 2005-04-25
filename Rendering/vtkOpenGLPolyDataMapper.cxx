@@ -41,7 +41,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.102");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.103");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -1831,11 +1831,11 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     }
   
   // do polys
-  if (rep == VTK_POINTS)
+  if (rep == VTK_POINTS && !prop->GetBackfaceCulling() && !prop->GetFrontfaceCulling() )
     {
     this->DrawPoints(idx,p,n,c,t,cellNum, noAbort, input->GetPolys(), ren);
     }
-  else if (rep == VTK_WIREFRAME)
+  else if (rep == VTK_WIREFRAME && !prop->GetBackfaceCulling() && !prop->GetFrontfaceCulling())
     {
     this->DrawPolygons(idx,p,n,c,t,cellNum, noAbort,
                        GL_LINE_LOOP, input->GetPolys(), ren);
@@ -1852,11 +1852,11 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     {
     glDepthRange(2*zRes, 1.);
     }
-  if (rep == VTK_POINTS)
+  if (rep == VTK_POINTS && !prop->GetBackfaceCulling() && !prop->GetFrontfaceCulling() )
     {
     this->DrawPoints(idx,p,n,c,t,cellNum, noAbort, input->GetStrips(), ren);
     }
-  else if (rep == VTK_WIREFRAME)
+  else if (rep == VTK_WIREFRAME && !prop->GetBackfaceCulling() && !prop->GetFrontfaceCulling())
     {
     vtkIdType oldCellNum = cellNum;
     this->DrawTStrips(idx,p,n,c,t,cellNum, noAbort,
