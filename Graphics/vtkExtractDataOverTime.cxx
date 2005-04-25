@@ -23,7 +23,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.2");
+vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.3");
 vtkStandardNewMacro(vtkExtractDataOverTime);
 
 //----------------------------------------------------------------------------
@@ -174,7 +174,7 @@ int vtkExtractDataOverTime::AllocateOutputData(vtkPointSet *input, vtkPointSet *
   timeArray->SetNumberOfTuples(this->NumberOfTimeSteps);
   if (input->GetPointData()->GetArray("Time"))
     {
-    timeArray->SetName("TimeSteps");
+    timeArray->SetName("TimeData");
     }
   else
     {
