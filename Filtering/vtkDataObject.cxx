@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.22");
+vtkCxxRevisionMacro(vtkDataObject, "1.23");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -231,11 +231,14 @@ void vtkDataObject::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
     {
-    if(sddp->SetUpdateExtent(this->GetPortNumber(), piece,
-                             numPieces, ghostLevel))
-      {
-      this->Modified();
-      }
+    // this code used to check the return value of the
+    // SetUpdateExtent method which would indicate if the
+    // UpdatePiece, UpdateNumberOfPieces, or UpdateGhostLevel
+    // had changed, and call Modified(). We actually don't want
+    // to do this - just a change in the update extent does not
+    // make this object modified!
+    sddp->SetUpdateExtent(this->GetPortNumber(), piece,
+                          numPieces, ghostLevel);
     }
 }
 
@@ -973,10 +976,13 @@ void vtkDataObject::SetUpdateExtentToWholeExtent()
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtentToWholeExtent"))
     {
-    if(sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber()))
-      {
-      this->Modified();
-      }
+    // this code used to check the return value of the
+    // SetUpdateExtentToWholeExtent method which would 
+    // indicate if the update extent had changed, and call 
+    // Modified(). We actually don't want to do this - just 
+    // a change in the update extent does not make this object 
+    // modified!
+    sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber());
     }
 }
 
@@ -1129,10 +1135,12 @@ void vtkDataObject::SetUpdateExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateExtent"))
     {
-    if(sddp->SetUpdateExtent(this->GetPortNumber(), extent))
-      {
-      this->Modified();
-      }
+    // this code used to check the return value of the
+    // SetUpdateExtent method which would indicate if the 
+    // update extent had changed, and call Modified(). We 
+    // actually don't want to do this - just a change in 
+    // the update extent does not make this object modified!
+    sddp->SetUpdateExtent(this->GetPortNumber(), extent);
     }
 }
 
