@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.16");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.17");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -475,7 +475,10 @@ void vtkImageDataGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Extent: \n";
-  os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
   os << indent << "  Jmin,Jmax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
   os << indent << "  Kmin,Kmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
+  os << indent << "  Imin,Imax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
+  os << indent << "OutputTriangles " << this->OutputTriangles << "\n";
+  os << indent << "ThresholdValue " << this->ThresholdValue << "\n";
+  os << indent << "ThresholdCells " << this->ThresholdCells << "\n";
 }
