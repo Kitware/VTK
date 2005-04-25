@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.3");
+vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.4");
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFunction);
 
@@ -122,7 +122,6 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   int v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
-  int *wholeExt;
   // We need to know the edgePointId's for interpolating attributes.
   int edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
@@ -157,8 +156,6 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
   yInc = xInc*(inExt[1]-inExt[0]+1);
   zInc = yInc*(inExt[3]-inExt[2]+1);
   scalarZInc = zInc;
-  
-  wholeExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
   
   // Kens increments, probably to do with edge array
   zstep = xdim*ydim;
