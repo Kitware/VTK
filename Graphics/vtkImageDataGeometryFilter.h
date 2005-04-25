@@ -46,13 +46,35 @@ public:
   // Description:
   // Construct with initial extent of all the data
   static vtkImageDataGeometryFilter *New();
-
-  
+ 
   // Description:
   // Set / get the extent (imin,imax, jmin,jmax, kmin,kmax) indices.
   void SetExtent(int extent[6]);
   void SetExtent(int iMin, int iMax, int jMin, int jMax, int kMin, int kMax);
   int *GetExtent() { return this->Extent;};
+
+  // Description:
+  // Set ThresholdCells to true if you wish to skip any voxel/pixels which have scalar
+  // values less than the specified threshold.
+  // Currently this functionality is only implemented for 2D imagedata
+  vtkSetMacro(ThresholdCells,int);
+  vtkGetMacro(ThresholdCells,int);
+  vtkBooleanMacro(ThresholdCells,int);
+
+  // Description:
+  // Set ThresholdValue to the scalar value by which to threshhold cells when extracting geometry
+  // when ThresholdCells is true. Cells with scalar values greater than the threshold will be output.
+  vtkSetMacro(ThresholdValue,double);
+  vtkGetMacro(ThresholdValue,double);
+  vtkBooleanMacro(ThresholdValue,double);
+
+  // Description:
+  // Set OutputTriangles to true if you wish to generate triangles instead of quads
+  // when extracting cells from 2D imagedata
+  // Currently this functionality is only implemented for 2D imagedata
+  vtkSetMacro(OutputTriangles,int);
+  vtkGetMacro(OutputTriangles,int);
+  vtkBooleanMacro(OutputTriangles,int);
 
 protected:
   vtkImageDataGeometryFilter();
@@ -61,7 +83,11 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
-  int Extent[6];
+  int    Extent[6];
+  int    ThresholdCells;
+  double ThresholdValue;
+  int    OutputTriangles;
+
 private:
   vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&);  // Not implemented.
   void operator=(const vtkImageDataGeometryFilter&);  // Not implemented.

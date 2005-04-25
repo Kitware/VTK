@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.15");
+vtkCxxRevisionMacro(vtkImageDataGeometryFilter, "1.16");
 vtkStandardNewMacro(vtkImageDataGeometryFilter);
 
 // Construct with initial extent of all the data
@@ -35,6 +35,9 @@ vtkImageDataGeometryFilter::vtkImageDataGeometryFilter()
   this->Extent[3] = VTK_LARGE_INTEGER;
   this->Extent[4] = 0;
   this->Extent[5] = VTK_LARGE_INTEGER;
+  this->ThresholdCells  = 0;
+  this->ThresholdValue  = 0.0;
+  this->OutputTriangles = 0;
 }
 
 int vtkImageDataGeometryFilter::RequestData(
@@ -53,9 +56,9 @@ int vtkImageDataGeometryFilter::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   int *dims, dimension, dir[3], diff[3];
-  int i, j, k, extent[6];
+  int i, j, k, extent[6], s, threshok;
   vtkIdType idx, startIdx, startCellIdx;
-  vtkIdType ptIds[4], cellId;
+  vtkIdType ptIds[4], cellId, triIds[3];
   vtkPoints *newPts=0;
   vtkCellArray *newVerts=0;
   vtkCellArray *newLines=0;
@@ -64,6 +67,7 @@ int vtkImageDataGeometryFilter::RequestData(
   int offset[3], numPolys;
   double x[3];
   vtkPointData *pd, *outPD;
+  vtkDataArray *pointScalars;
   vtkCellData *cd, *outCD;
   vtkDebugMacro(<< "Extracting structured points geometry");
 
@@ -71,6 +75,7 @@ int vtkImageDataGeometryFilter::RequestData(
   outPD = output->GetPointData();
   cd = input->GetCellData();
   outCD = output->GetCellData();
+  pointScalars=pd->GetScalars();
 //  this->PointData.CopyNormalsOff();
   dims = input->GetDimensions();
 
@@ -237,7 +242,14 @@ int vtkImageDataGeometryFilter::RequestData(
       newPts = vtkPoints::New();
       newPts->Allocate(totPoints);
       newPolys = vtkCellArray::New();
-      newPolys->Allocate(newLines->EstimateSize(numPolys,4));
+      if (this->OutputTriangles)
+        {
+        newPolys->Allocate(2*newLines->EstimateSize(numPolys,3));
+        }
+      else
+        {
+        newPolys->Allocate(newLines->EstimateSize(numPolys,4));
+        }
       outPD->CopyAllocate(pd,totPoints);
       outCD->CopyAllocate(cd,numPolys);
 //
@@ -299,8 +311,41 @@ int vtkImageDataGeometryFilter::RequestData(
           ptIds[1] = ptIds[0] + 1;
           ptIds[2] = ptIds[1] + diff[dir[0]] + 1;
           ptIds[3] = ptIds[2] - 1;
-          cellId = newPolys->InsertNextCell(4,ptIds);
-          outCD->CopyData(cd,idx,cellId);
+          if (this->ThresholdCells)
+            {
+            threshok = false;
+            for (s=0; !threshok && s<4; s++)
+              {
+              if (pointScalars->GetComponent(ptIds[s],0)>this->ThresholdValue)
+                {
+                  threshok = true;
+                  break;
+                }
+              }
+            if (threshok)
+              {
+              if (this->OutputTriangles)
+                {
+                triIds[0] = ptIds[0];
+                triIds[1] = ptIds[2];
+                triIds[2] = ptIds[3];
+                cellId = newPolys->InsertNextCell(3,ptIds);
+                outCD->CopyData(cd,idx,cellId);
+                cellId = newPolys->InsertNextCell(3,triIds);
+                outCD->CopyData(cd,idx,cellId);
+                }
+              else
+                {
+                cellId = newPolys->InsertNextCell(4,ptIds);
+                outCD->CopyData(cd,idx,cellId);
+                }
+              }
+            }
+          else
+            {
+            cellId = newPolys->InsertNextCell(4,ptIds);
+            outCD->CopyData(cd,idx,cellId);
+            }
           }
         pos += offset[1];
         }
