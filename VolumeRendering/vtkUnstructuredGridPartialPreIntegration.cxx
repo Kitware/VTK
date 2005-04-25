@@ -153,7 +153,7 @@ void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(
           minh = hue2;  maxh = hue1;
           }
         while (huebends[j] < minh) j++;
-        for (j = 0; huebends[j] < maxh; j++)
+        for ( ; huebends[j] < maxh; j++)
           {
           double interp = (huebends[j]-hue1)/(hue2-hue1);
           cpset.insert((x2-x1)*interp + x1);
@@ -272,7 +272,7 @@ inline void vtkPartialPreIntegrationTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridPartialPreIntegration, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridPartialPreIntegration);
 
 float vtkUnstructuredGridPartialPreIntegration::PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
