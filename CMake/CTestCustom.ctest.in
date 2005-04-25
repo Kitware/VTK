@@ -1,0 +1,27 @@
+SET(CTEST_CUSTOM_WARNING_MATCH
+  ${CTEST_CUSTOM_WARNING_MATCH}
+  "{standard input}:[0-9][0-9]*: Warning: "
+  )
+
+IF("@CMAKE_SYSTEM@" MATCHES "OSF")
+  SET(CTEST_CUSTOM_WARNING_EXCEPTION
+    ${CTEST_CUSTOM_WARNING_EXCEPTION}
+    "vtkKWApplication"
+    "vtkKWObject"
+    )
+ENDIF("@CMAKE_SYSTEM@" MATCHES "OSF")
+
+SET(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  "Utilities/vtktiff/"      
+  "xtree.[0-9]+. : warning C4702: unreachable code"
+  "warning LNK4221"
+  "variable .var_args[2]*. is used before its value is set"
+  "jobserver unavailable"
+  "warning: \\(Long double usage is reported only once for each file"
+  "warning: To disable this warning use"
+  "ranlib: file: .+ has no symbols"
+  "could not be inlined"
+  )
+
+
