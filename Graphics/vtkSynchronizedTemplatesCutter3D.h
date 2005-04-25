@@ -39,8 +39,7 @@ public:
   
   // Description:
   // Needed by templated functions.
-  void ThreadedExecute(vtkImageData *data, vtkInformation *inInfo,
-                       vtkInformation *outInfo,
+  void ThreadedExecute(vtkImageData *data, vtkInformation *outInfo,
                        int *exExt, int);
 
   // Description

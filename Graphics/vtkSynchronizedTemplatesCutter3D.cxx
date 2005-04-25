@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.4");
+vtkCxxRevisionMacro(vtkSynchronizedTemplatesCutter3D, "1.5");
 vtkStandardNewMacro(vtkSynchronizedTemplatesCutter3D);
 vtkCxxSetObjectMacro(vtkSynchronizedTemplatesCutter3D,CutFunction,vtkImplicitFunction);
 
@@ -97,7 +97,6 @@ void vtkSynchronizedTemplatesCutter3DInitializeOutput(
 //
 template <class T>
 void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
-                  vtkInformation *inInfo,
                   vtkImageData *data, vtkPolyData *output, T *ptr)
 {
   int *inExt = data->GetExtent();
@@ -486,7 +485,6 @@ void ContourImage(vtkSynchronizedTemplatesCutter3D *self, int *exExt,
 // Contouring filter specialized for images (or slices from images)
 //
 void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
-                                                 vtkInformation *inInfo,
                                                  vtkInformation *outInfo,
                                                  int *exExt, int)
 {
@@ -504,7 +502,7 @@ void vtkSynchronizedTemplatesCutter3D::ThreadedExecute(vtkImageData *data,
   
   
   // Check data type and execute appropriate function
-  ContourImage(this, exExt, inInfo, data, output, (double *)0);
+  ContourImage(this, exExt, data, output, (double *)0);
 }
 
 //----------------------------------------------------------------------------
@@ -527,7 +525,7 @@ int vtkSynchronizedTemplatesCutter3D::RequestData(
   this->RequestUpdateExtent(request,inputVector,outputVector);
 
   // Just call the threaded execute directly.
-  this->ThreadedExecute(input, inInfo, outInfo, this->ExecuteExtent, 0);
+  this->ThreadedExecute(input, outInfo, this->ExecuteExtent, 0);
 
   output->Squeeze();
 
