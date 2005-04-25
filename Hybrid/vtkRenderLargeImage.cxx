@@ -28,7 +28,7 @@
 #include "vtkProp.h"
 #include <vtkstd/vector>
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.31");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.32");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -57,6 +57,9 @@ public:
     coord1s->RemoveAllItems();
     coord2s->RemoveAllItems();
     storedActors->RemoveAllItems();
+    coord1s->Delete();
+    coord2s->Delete();
+    storedActors->Delete();
   }
 };
 //----------------------------------------------------------------------------
@@ -68,7 +71,6 @@ vtkRenderLargeImage::vtkRenderLargeImage()
   this->SetNumberOfOutputPorts(1);
   this->storedData = new vtkRenderLargeImage2DHelperClass();
 }
-
 //----------------------------------------------------------------------------
 vtkRenderLargeImage::~vtkRenderLargeImage()
 {
