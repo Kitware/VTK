@@ -74,13 +74,13 @@ public:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the point id.
   static vtkIdType ComputePointId(int dim[3], int ijk[3]) {
-    return ijk[2]*dim[0]*dim[1] + ijk[1]*dim[0] + ijk[0];}
+    return (ijk[2]*dim[1] + ijk[1])*dim[0] + ijk[0];}
 
   // Description:
   // Given a location in structured coordinates (i-j-k), and the dimensions
   // of the structured dataset, return the cell id.
   static vtkIdType ComputeCellId(int dim[3], int ijk[3]) {
-    return ijk[2]*(dim[0]-1)*(dim[1]-1) + ijk[1]*(dim[0]-1) + ijk[0];};
+    return (ijk[2]*(dim[1]-1) + ijk[1])*(dim[0]-1) + ijk[0];}
 
 protected:
   vtkStructuredData() {};
