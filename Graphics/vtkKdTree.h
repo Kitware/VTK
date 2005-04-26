@@ -62,7 +62,6 @@ class vtkIntArray;
 class vtkPoints;
 class vtkCellArray;
 class vtkCell;
-class vtkCamera;
 class vtkKdNode;
 class vtkBSPCuts;
 class vtkBSPIntersections;
@@ -340,24 +339,26 @@ public:
                                       double **convexRegionBounds);
 
   // Description:
-  //    Given a vtkCamera, this function creates a list of the k-d tree
-  //    region IDs in order from front to back with respect to the
-  //    camera's direction of projection.  The number of regions in
+  //    Given a direction of projection (typically obtained with
+  //    vtkCamera::GetDirectionOfProjection()), this function
+  //    creates a list of the k-d tree region IDs in order from 
+  //    front to back with respect to the that direction.
+  //    The number of regions in
   //    the ordered list is returned.  (This is not actually sorting
   //    the regions on their distance from the view plane, but there
   //    is no region on the list which blocks a region that appears
   //    earlier on the list.)
 
-  int DepthOrderAllRegions(vtkCamera *camera, vtkIntArray *orderedList);
+  int DepthOrderAllRegions(double *dop, vtkIntArray *orderedList);
 
   // Description:
-  //    Given a vtkCamera, and a list of k-d tree region IDs, this
-  //    function creates an ordered list of those IDs
+  //    Given a direction of projection, and a list of k-d tree region 
+  //    IDs, this function creates an ordered list of those IDs
   //    in front to back order with respect to the
   //    camera's direction of projection.  The number of regions in
   //    the ordered list is returned.
 
-  int DepthOrderRegions(vtkIntArray *regionIds, vtkCamera *camera,
+  int DepthOrderRegions(vtkIntArray *regionIds, double *dop,
                         vtkIntArray *orderedList);
 
   // Description:
@@ -611,8 +612,8 @@ private:
   int FindClosestPointInSphere(double x, double y, double z, double radius,
                                int skipRegion, double &dist2);
 
-  int _DepthOrderRegions(vtkIntArray *IdsOfInterest,
-                                vtkCamera *camera, vtkIntArray *orderedList);
+  int _DepthOrderRegions(vtkIntArray *IdsOfInterest, double *dop,
+                                vtkIntArray *orderedList);
 
   static int __DepthOrderRegions(vtkKdNode *node, vtkIntArray *list, 
                           vtkIntArray *IdsOfInterest, double *dir, int nextId);

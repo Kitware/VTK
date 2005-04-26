@@ -24,7 +24,6 @@
 #include "vtkBSPIntersections.h"
 #include "vtkObjectFactory.h"
 #include "vtkDataSet.h"
-#include "vtkCamera.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkCell.h"
@@ -45,7 +44,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.2");
+vtkCxxRevisionMacro(vtkKdTree, "1.3");
 
 // Timing data ---------------------------------------------
 
@@ -3988,7 +3987,7 @@ int vtkKdTree::__ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode 
   
 //----------------------------------------------------------------------------
 int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
-                       vtkCamera *camera, vtkIntArray *orderedList)
+                       double *directionOfProjection, vtkIntArray *orderedList)
 {   
   int i;
         
@@ -4019,7 +4018,8 @@ int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
       }
     }
 
-  int size = this->_DepthOrderRegions(IdsOfInterest, camera, orderedList);
+  int size = this->_DepthOrderRegions(IdsOfInterest, 
+                         directionOfProjection, orderedList);
 
   if (IdsOfInterest)
     {
@@ -4030,14 +4030,15 @@ int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
 }
 
 //----------------------------------------------------------------------------
-int vtkKdTree::DepthOrderAllRegions(vtkCamera *camera, vtkIntArray *orderedList)
+int vtkKdTree::DepthOrderAllRegions(double *directionOfProjection, 
+                                    vtkIntArray *orderedList)
 {
-  return this->_DepthOrderRegions(NULL, camera, orderedList);
+  return this->_DepthOrderRegions(NULL, directionOfProjection, orderedList);
 }     
       
 //----------------------------------------------------------------------------
 int vtkKdTree::_DepthOrderRegions(vtkIntArray *IdsOfInterest,
-                                 vtkCamera *camera, vtkIntArray *orderedList)
+                        double *dir, vtkIntArray *orderedList)
 {
   int nextId = 0;
       
@@ -4046,10 +4047,6 @@ int vtkKdTree::_DepthOrderRegions(vtkIntArray *IdsOfInterest,
     
   orderedList->Initialize();
   orderedList->SetNumberOfValues(numValues);
-
-  double dir[3];
-
-  camera->GetDirectionOfProjection(dir);
 
   int size =
     vtkKdTree::__DepthOrderRegions(this->Top, orderedList, IdsOfInterest, dir, nextId);                                      
