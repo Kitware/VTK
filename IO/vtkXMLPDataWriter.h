@@ -25,7 +25,6 @@
 #include "vtkXMLWriter.h"
 
 class vtkCallbackCommand;
-class vtkDataSet;
 
 class VTK_IO_EXPORT vtkXMLPDataWriter : public vtkXMLWriter
 {

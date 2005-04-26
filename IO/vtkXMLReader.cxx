@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.23");
+vtkCxxRevisionMacro(vtkXMLReader, "1.24");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -241,6 +241,7 @@ void vtkXMLReader::SetupCompressor(const char* type)
 
 
 
+//----------------------------------------------------------------------------
 int vtkXMLReader::ReadXMLInformation()
 {
   // only Parse if something has changed
@@ -299,7 +300,8 @@ int vtkXMLReader::ReadXMLInformation()
 
 //----------------------------------------------------------------------------
 int vtkXMLReader::RequestInformation(vtkInformation *request,
-  vtkInformationVector **vtkNotUsed(inputVector), vtkInformationVector *outputVector)
+                                     vtkInformationVector **vtkNotUsed(inputVector),
+                                     vtkInformationVector *outputVector)
 {
   if (this->ReadXMLInformation())
     {
@@ -319,8 +321,8 @@ int vtkXMLReader::RequestInformation(vtkInformation *request,
 
 //----------------------------------------------------------------------------
 int vtkXMLReader::RequestData(vtkInformation *request, 
-                               vtkInformationVector **vtkNotUsed(inputVector),
-                               vtkInformationVector *vtkNotUsed(outputVector))
+                              vtkInformationVector **vtkNotUsed(inputVector),
+                              vtkInformationVector *vtkNotUsed(outputVector))
 {
   // Set which output we are updating.  If the given object is not one
   // of our outputs, just initialize it to empty and return.
@@ -397,7 +399,10 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 {
   // Setup the compressor if there is one.
   const char* compressor = eVTKFile->GetAttribute("compressor");
-  if(compressor) { this->SetupCompressor(compressor); }
+  if(compressor)
+    {
+    this->SetupCompressor(compressor);
+    }
   
   // Get the primary element.
   const char* name = this->GetDataSetName();
@@ -648,7 +653,7 @@ void vtkXMLReader::DestroyStringArray(int numStrings, char** strings)
 
 //----------------------------------------------------------------------------
 void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
-                                               vtkDataArraySelection* sel)
+                                          vtkDataArraySelection* sel)
 {
   if(!eDSA)
     {
@@ -685,10 +690,11 @@ void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
 }
 
 
+//----------------------------------------------------------------------------
 int vtkXMLReader::SetFieldDataInfo(vtkXMLDataElement *eDSA, 
-                                    int association, int numTuples,
-                                    vtkInformationVector *(&infoVector))
-  {
+                                   int association, int numTuples,
+                                   vtkInformationVector *(&infoVector))
+{
   if (!eDSA)
     {
     return 1;
@@ -913,9 +919,10 @@ void vtkXMLReader::UpdateProgressDiscrete(float progress)
 }
 
 
+//----------------------------------------------------------------------------
 int vtkXMLReader::ProcessRequest(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector)
+                                 vtkInformationVector** inputVector,
+                                 vtkInformationVector* outputVector)
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))

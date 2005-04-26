@@ -54,7 +54,6 @@ protected:
   virtual int WriteInternal();
   
   // Dummies to satisfy pure virtuals from superclass.
-  int WriteData();
   const char* GetDataSetName();
   const char* GetDefaultFileExtension();
   

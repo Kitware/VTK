@@ -23,7 +23,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.10");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.11");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -221,6 +221,7 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[2] = 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

@@ -29,7 +29,7 @@
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLDataSetWriter, "1.10");
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
 //----------------------------------------------------------------------------
@@ -129,12 +129,6 @@ int vtkXMLDataSetWriter::WriteInternal()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataSetWriter::WriteData()
-{
-  return 0;
-}
-
-//----------------------------------------------------------------------------
 const char* vtkXMLDataSetWriter::GetDataSetName()
 {
   return "DataSet";
@@ -171,6 +165,7 @@ void vtkXMLDataSetWriter::ProgressCallback(vtkAlgorithm* w)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLDataSetWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

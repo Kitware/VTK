@@ -45,6 +45,9 @@ protected:
   vtkXMLPDataSetWriter();
   ~vtkXMLPDataSetWriter();
   
+  // see algorithm for more info
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   // Override writing method from superclass.
   virtual int WriteInternal();
   

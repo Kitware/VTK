@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.24");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.25");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -559,7 +559,10 @@ unsigned long vtkXMLDataParser::ReadUncompressedData(unsigned char* data,
   length = end-offset;
 
   // Read the data.
-  if(!this->DataStream->Seek(offset+len)) { return 0; }
+  if(!this->DataStream->Seek(offset+len))
+    {
+    return 0;
+    }
 
   // Read data in 32KB blocks and report progress.
   const long blockSize = 32768;
@@ -620,8 +623,14 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
   totalSize = (totalSize/wordSize)*wordSize;
 
   // Make sure the begin/end offsets fall within the total size.
-  if(beginOffset > totalSize) { return 0; }
-  if(endOffset > totalSize) { endOffset = totalSize; }
+  if(beginOffset > totalSize)
+    {
+    return 0;
+    }
+  if(endOffset > totalSize)
+    {
+    endOffset = totalSize;
+    }
 
   // Find the range of compression blocks to read.
   unsigned int firstBlock = beginOffset / this->BlockUncompressedSize;
@@ -658,7 +667,10 @@ unsigned long vtkXMLDataParser::ReadCompressedData(unsigned char* data,
 
     // Read the first block.
     unsigned char* blockBuffer = this->ReadBlock(firstBlock);
-    if(!blockBuffer) { return 0; }
+    if(!blockBuffer)
+      {
+      return 0;
+      }
     long n = blockSize-beginBlockOffset;
     memcpy(outputPointer, blockBuffer+beginBlockOffset, n);
     delete [] blockBuffer;

@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.40");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.41");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ vtkXMLWriter::vtkXMLWriter()
 #endif
 
   // Initialize compression data.
-  this->BlockSize = 32768;
+  this->BlockSize = 32768; //2^15
   this->Compressor = vtkZLibDataCompressor::New();
   this->CompressionHeader = 0;
   this->Int32IdTypeBuffer = 0;
@@ -572,7 +572,10 @@ unsigned long vtkXMLWriter::ReserveAttributeSpace(const char* attr)
   // the double quotes and value.
   ostream& os = *(this->Stream);
   unsigned long startPosition = os.tellp();
-  if(attr) { os << " " << attr; }
+  if(attr)
+    {
+    os << " " << attr;
+    }
   os << "               ";
 
   os.flush();
