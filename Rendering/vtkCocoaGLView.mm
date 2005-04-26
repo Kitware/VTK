@@ -203,10 +203,11 @@
   NSPoint mouseLoc;
   int shiftDown = ([theEvent modifierFlags] & NSShiftKeyMask);
   int controlDown = ([theEvent modifierFlags] & NSControlKeyMask);
+  int repeat = [theEvent clickCount];
 
   mouseLoc = [self convertPoint:[[self window] convertScreenToBase:[theEvent locationInWindow]] fromView:nil];
   myVTKRenderWindowInteractor->SetEventInformation(
-    (int)mouseLoc.x, (int)mouseLoc.y, controlDown, shiftDown);
+    (int)mouseLoc.x, (int)mouseLoc.y, controlDown, shiftDown, 0, repeat-1);
 
   myVTKRenderWindowInteractor->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
     
