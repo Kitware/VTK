@@ -28,6 +28,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKConfig)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
                 vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/internal FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h)
+#  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/internal FILES
+#                ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
