@@ -16,18 +16,51 @@ IF(VTK_USE_RENDERING)
   SUBDIRS(freetype ftgl ParseOGLExt)
 ENDIF(VTK_USE_RENDERING)
 
-# DISABLING UNTIL A TRY-COMPILE CAN DETERMINE IF IT IS SAFE
-# See internal_stdio_core.h.in for explanation.
-#CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/internal_stdio_core.h.in
-#               ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h
-#               @ONLY IMMEDIATE)
-
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   # This is the installed VTKConfig.cmake file configured at the top
   # level.
   INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKConfig)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h
                 vtk_expat vtk_jpeg vtk_png vtk_zlib vtk_tiff)
-#  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/internal FILES
-#                ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+#-----------------------------------------------------------------------------
+# Check for stdarg problem on SGI.
+IF(NOT CMAKE_COMPILER_IS_GNUCXX)
+  IF(CMAKE_SYSTEM MATCHES "IRIX.*")
+    IF("VTK_COMPILER_NO_SGI_STDARG_WORKAROUND" MATCHES "^VTK_COMPILER_NO_SGI_STDARG_WORKAROUND$")
+      MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed")
+      TRY_COMPILE(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND
+        ${VTK_BINARY_DIR}/CMakeTmp
+        ${VTK_SOURCE_DIR}/CMake/vtkTestSGIstdarg.cxx
+        OUTPUT_VARIABLE OUTPUT)
+      IF(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
+        MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed -- no")
+        SET(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND 1 CACHE INTERNAL "Support for C++ type bool")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "Determining whether SGI MIPSpro does not have stdarg problems "
+          "passed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ELSE(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
+        MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed -- yes")
+        SET(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND 0 CACHE INTERNAL "")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+          "Determining whether SGI MIPSpro does not have stdarg problems "
+          "failed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ENDIF(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
+    ENDIF("VTK_COMPILER_NO_SGI_STDARG_WORKAROUND" MATCHES "^VTK_COMPILER_NO_SGI_STDARG_WORKAROUND$")
+  ENDIF(CMAKE_SYSTEM MATCHES "IRIX.*")
+ENDIF(NOT CMAKE_COMPILER_IS_GNUCXX)
+IF(NOT VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
+  # See internal_stdio_core.h.in for explanation.
+  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/internal_stdio_core.h.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h
+                 @ONLY IMMEDIATE)
+
+  # Install the work-around header.
+  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/internal FILES
+                  ${CMAKE_CURRENT_BINARY_DIR}/internal/stdio_core.h)
+  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF(NOT VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
