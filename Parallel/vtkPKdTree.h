@@ -253,9 +253,10 @@ public:
 
   // Description:
   //    Return a list of all processes in order from front to
-  //    back, given a vtkCamera
+  //    back, given a vector direction of projection.
 
-  int DepthOrderAllProcesses(vtkCamera *camera, vtkIntArray *orderedList);
+  int DepthOrderAllProcesses(double *directionOfProjection, 
+                                 vtkIntArray *orderedList);
 
   // Description:
   //    An added feature of vtkPKdTree is that it will calculate the

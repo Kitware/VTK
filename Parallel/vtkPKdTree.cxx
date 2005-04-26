@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.14");
+vtkCxxRevisionMacro(vtkPKdTree, "1.15");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -3178,11 +3178,11 @@ int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, double range[2])
 
   return 0;
 }
-int vtkPKdTree::DepthOrderAllProcesses(vtkCamera *camera, vtkIntArray *orderedList)
+int vtkPKdTree::DepthOrderAllProcesses(double *dop, vtkIntArray *orderedList)
 { 
   vtkIntArray *regionList = vtkIntArray::New();
   
-  this->DepthOrderAllRegions(camera, regionList);
+  this->DepthOrderAllRegions(dop, regionList);
   
   orderedList->SetNumberOfValues(this->NumProcesses);
   
