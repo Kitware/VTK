@@ -28,7 +28,7 @@
 #include "vtkProp.h"
 #include <vtkstd/vector>
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.32");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.33");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -361,9 +361,9 @@ void vtkRenderLargeImage::Rescale2DActors()
                 d2[1] = p2[1]*this->Magnification;
                 d2[2] = 0.0;
                 this->storedData->coords1.push_back( 
-                  vtkstd::pair<int, int>(d1[0], d1[1]) );
+                  vtkstd::pair<int, int>(static_cast<int>(d1[0]), static_cast<int>(d1[1])) );
                 this->storedData->coords2.push_back( 
-                  vtkstd::pair<int, int>(d2[0], d2[1]) );
+                  vtkstd::pair<int, int>(static_cast<int>(d2[0]), static_cast<int>(d2[1])) );
                 // Make sure they have no dodgy offsets
                 n1->SetCoordinateSystemToDisplay();
                 n2->SetCoordinateSystemToDisplay();
