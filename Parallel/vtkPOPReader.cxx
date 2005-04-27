@@ -31,7 +31,7 @@
 #include <ctype.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkPOPReader, "1.20");
+vtkCxxRevisionMacro(vtkPOPReader, "1.21");
 vtkStandardNewMacro(vtkPOPReader);
 
 //----------------------------------------------------------------------------
@@ -251,9 +251,12 @@ int vtkPOPReader::RequestData(
   int ext[6];
   int i;
 
-  cout << "Reading POP file\n";
-  cout.flush();
-
+  // the input file is not set then return
+  if (!this->GridFileName || this->GridFileName[0] == '\0')
+    {
+    return 0;
+    }
+  
   // Set up the extent of the grid image.
   ext[0] = ext[2] = ext[4] = 0;
   ext[1] = this->Dimensions[0]-1;
