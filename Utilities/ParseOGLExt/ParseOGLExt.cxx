@@ -751,6 +751,8 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
     cxxfile << "    }" << endl;
     iextension->WriteSupportWrapperEnd(cxxfile);
     }
+  cxxfile << "  vtkGenericWarningMacro(<< \"Nothing known about extension \" << name" << endl
+          << "                         << \".  vtkgl may need to be updated.\");" << endl;
   cxxfile << "  return 0;" << endl
           << "}" << endl;
 }
