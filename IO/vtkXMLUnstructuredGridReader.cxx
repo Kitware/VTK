@@ -23,7 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.9");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -38,13 +38,16 @@ vtkXMLUnstructuredGridReader::vtkXMLUnstructuredGridReader()
   output->Delete();
   
   this->CellElements = 0;
-  this->TotalNumberOfCells = 0;
+  this->NumberOfCells = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredGridReader::~vtkXMLUnstructuredGridReader()
 {
-  if(this->NumberOfPieces) { this->DestroyPieces(); }
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -153,7 +156,10 @@ void vtkXMLUnstructuredGridReader::SetupOutputData()
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
-  if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
+  if(!this->Superclass::ReadPiece(ePiece))
+    {
+    return 0;
+    }
   int i;
   
   if(!ePiece->GetScalarAttribute("NumberOfCells",
@@ -232,7 +238,10 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   this->SetProgressRange(progressRange, 0, fractions);
   
   // Let the superclass read its data.
-  if(!this->Superclass::ReadPieceData()) { return 0; }
+  if(!this->Superclass::ReadPieceData())
+    {
+    return 0;
+    }
   
   vtkUnstructuredGrid* output = this->GetOutput();
   
@@ -271,7 +280,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   // Set the range of progress for the cell types.
   this->SetProgressRange(progressRange, 2, fractions);
   
-  // Read the cooresponding cell types.
+  // Read the corresponding cell types.
   vtkIdType numberOfCells = this->NumberOfCells[this->Piece];
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
   vtkXMLDataElement* eTypes = this->FindDataArrayWithName(eCells, "types");
@@ -331,8 +340,9 @@ int vtkXMLUnstructuredGridReader::ReadArrayForCells(vtkXMLDataElement* da,
 }
 
 
+//----------------------------------------------------------------------------
 int vtkXMLUnstructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
-  {
+{
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkUnstructuredGrid");
   return 1;
-  }
+}

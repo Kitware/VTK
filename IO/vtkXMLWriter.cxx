@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.41");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.42");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -568,7 +568,7 @@ unsigned long vtkXMLWriter::ReserveAttributeSpace(const char* attr)
   // Write enough space to go back and write the given attribute with
   // an appended data offset value.  Returns the stream position at
   // which attribute should be later written with
-  // WriteAppendedDataOffset().  If attr is 0, writes space only for
+  // WriteAppendedDataOffset(). If attr is 0, writes space only for
   // the double quotes and value.
   ostream& os = *(this->Stream);
   unsigned long startPosition = os.tellp();
@@ -606,7 +606,10 @@ unsigned long vtkXMLWriter::WriteAppendedDataOffset(unsigned long streamPos,
   unsigned long returnPos = os.tellp();
   unsigned long offset = returnPos - this->AppendedDataPosition;
   os.seekp(streamPos);
-  if(attr) { os << " " << attr << "="; }
+  if(attr)
+    {
+    os << " " << attr << "=";
+    }
   os << "\"" << offset << "\"";
   unsigned long endPos = os.tellp();
   os.seekp(returnPos);
@@ -1412,7 +1415,10 @@ unsigned long vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
   else
     {
     const char* arrayName = a->GetName();
-    if(arrayName) { this->WriteStringAttribute("Name", arrayName); }
+    if(arrayName)
+      {
+      this->WriteStringAttribute("Name", arrayName);
+      }
     }
   if(a->GetNumberOfComponents() > 1)
     {
@@ -1458,7 +1464,10 @@ void vtkXMLWriter::WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
   else
     {
     const char* arrayName = a->GetName();
-    if(arrayName) { this->WriteStringAttribute("Name", arrayName); }
+    if(arrayName)
+      {
+      this->WriteStringAttribute("Name", arrayName);
+      }
     }
   if(a->GetNumberOfComponents() > 1)
     {
@@ -2133,7 +2142,10 @@ void vtkXMLWriter::WritePDataArray(vtkDataArray* a, vtkIndent indent,
   else
     {
     const char* arrayName = a->GetName();
-    if(arrayName) { this->WriteStringAttribute("Name", arrayName); }
+    if(arrayName)
+      {
+      this->WriteStringAttribute("Name", arrayName);
+      }
     }
   if(a->GetNumberOfComponents() > 1)
     {
