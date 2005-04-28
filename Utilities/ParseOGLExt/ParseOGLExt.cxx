@@ -720,10 +720,12 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   WriteFunctionPointerDeclarations(cxxfile, Extension::GLX);
   WriteFunctionPointerDeclarations(cxxfile, Extension::WGL);
 
+  vtkstd::list<Extension>::iterator iextension;
+
   // Write function to load function pointers.
   cxxfile << "int vtkgl::LoadExtension(const char *name, vtkOpenGLExtensionManager *manager)" << endl
           << "{" << endl;
-  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+  for (iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     iextension->WriteSupportWrapperBegin(cxxfile);
@@ -763,12 +765,12 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   cxxfile << endl << "const char *vtkgl::GLVersionExtensionsString()" << endl
           << "{" << endl
           << "  return \"";
-  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+  for (iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     if (strncmp("GL_VERSION_", iextension->name.c_str(), 11) == 0)
       {
-      cxxfile << iextension->name << " ";
+      cxxfile << iextension->name.c_str() << " ";
       }
     }
   cxxfile << "\";" << endl
@@ -777,12 +779,12 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   cxxfile << endl << "const char *vtkgl::GLXVersionExtensionsString()" << endl
           << "{" << endl
           << "  return \"";
-  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+  for (iextension = extensions.begin();
        iextension != extensions.end(); iextension++)
     {
     if (strncmp("GLX_VERSION_", iextension->name.c_str(), 12) == 0)
       {
-      cxxfile << iextension->name << " ";
+      cxxfile << iextension->name.c_str() << " ";
       }
     }
   cxxfile << "\";" << endl
