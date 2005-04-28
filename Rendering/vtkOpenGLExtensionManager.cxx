@@ -50,7 +50,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.4");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -258,44 +258,6 @@ void vtkOpenGLExtensionManager::LoadExtension(const char *name)
     }
 }
 
-static vtkstd::string VersionNumToExtensionsString(const char *ver_string,
-                                                const char *type,
-                                                vtkOpenGLExtensionManager *self)
-{
-  vtkstd::string extensions_string("");
-
-  char *ver_string_copy = new char[strlen(ver_string)+1];
-  strcpy(ver_string_copy, ver_string);
-
-  char *num = strtok(ver_string_copy, ". ");
-  int major_num = atoi(num);
-
-  num = strtok(NULL, ". ");
-  int minor_num = atoi(num);
-
-  delete[] ver_string_copy;
-
-  for (int major = 1; major <= major_num; major++)
-    {
-    // I can't think of a really good way to ensure we get exactly all minor
-    // versions, but I doubt we'll ever need to deal with more than 10 minor
-    // revisions.
-    for (int minor = 0;
-         (minor < 10) && ((major < major_num) || (minor <= minor_num)); minor++)
-      {
-      char extension_name[20];
-      sprintf(extension_name, "%s_VERSION_%d_%d", type, major, minor);
-      if (vtkgl::LoadExtension(extension_name, self))
-        {
-        extensions_string += " ";
-        extensions_string += extension_name;
-        }
-      }
-    }
-
-  return extensions_string;
-}
-
 void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 {
   vtkDebugMacro("ReadOpenGLExtensions");
@@ -378,19 +340,43 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     extensions_string += win_extensions;
     }
 
-  extensions_string
-    += VersionNumToExtensionsString((const char *)glGetString(GL_VERSION),
-                                    "GL", this);
-#if GLU_SUPPORTED
-  extensions_string
-    += VersionNumToExtensionsString((const char *)gluGetString(GLU_VERSION),
-                                    "GLU", this);
-#endif
-#if !defined(WIN32) && !defined(__APPLE__)
-  extensions_string
-    += VersionNumToExtensionsString(glXGetClientString(glXGetCurrentDisplay(),
-                                                       GLX_VERSION),
-                                    "GLX", this);
+  // We build special extension identifiers for OpenGL versions.  Check to
+  // see which are supported.
+  vtkstd::string version_extensions;
+  vtkstd::string::size_type beginpos, endpos;
+
+  version_extensions = vtkgl::GLVersionExtensionsString();
+  endpos = 0;
+  while (endpos != vtkstd::string::npos)
+    {
+    beginpos = version_extensions.find_first_not_of(' ', endpos);
+    if (beginpos == vtkstd::string::npos) break;
+    endpos = version_extensions.find_first_of(' ', beginpos);
+
+    vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
+    if (vtkgl::LoadExtension(ve.c_str(), this))
+      {
+      extensions_string += " ";
+      extensions_string += ve;
+      }
+    }
+
+#ifdef VTK_USE_X
+  version_extensions = vtkgl::GLXVersionExtensionsString();
+  endpos = 0;
+  while (endpos != vtkstd::string::npos)
+    {
+    beginpos = version_extensions.find_first_not_of(' ', endpos);
+    if (beginpos == vtkstd::string::npos) break;
+    endpos = version_extensions.find_first_of(' ', beginpos);
+
+    vtkstd::string ve = version_extensions.substr(beginpos, endpos-beginpos);
+    if (vtkgl::LoadExtension(ve.c_str(), this))
+      {
+      extensions_string += " ";
+      extensions_string += ve;
+      }
+    }
 #endif
 
   // Store extensions string.

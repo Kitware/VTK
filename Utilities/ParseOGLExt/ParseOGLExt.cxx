@@ -672,6 +672,9 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   hfile << endl << "  // Method to load functions for a particular extension.";
   hfile << endl << "  int LoadExtension(const char *name, "
         << "vtkOpenGLExtensionManager *manager);" << endl;
+  hfile << endl << "  // Strings containing special version extensions.";
+  hfile << endl << "  const char *GLVersionExtensionsString();" << endl;
+  hfile << endl << "  const char *GLXVersionExtensionsString();" << endl;
   hfile << "}" << endl;
   Extension::WriteSupportWrapperEnd(hfile, Extension::GL);
 
@@ -754,6 +757,35 @@ static void WriteCode(ostream &hfile, ostream &cxxfile)
   cxxfile << "  vtkGenericWarningMacro(<< \"Nothing known about extension \" << name" << endl
           << "                         << \".  vtkgl may need to be updated.\");" << endl;
   cxxfile << "  return 0;" << endl
+          << "}" << endl;
+
+  // Write functions to report special version extension strings.
+  cxxfile << endl << "const char *vtkgl::GLVersionExtensionsString()" << endl
+          << "{" << endl
+          << "  return \"";
+  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+       iextension != extensions.end(); iextension++)
+    {
+    if (strncmp("GL_VERSION_", iextension->name.c_str(), 11) == 0)
+      {
+      cxxfile << iextension->name << " ";
+      }
+    }
+  cxxfile << "\";" << endl
+          << "}" << endl;
+
+  cxxfile << endl << "const char *vtkgl::GLXVersionExtensionsString()" << endl
+          << "{" << endl
+          << "  return \"";
+  for (vtkstd::list<Extension>::iterator iextension = extensions.begin();
+       iextension != extensions.end(); iextension++)
+    {
+    if (strncmp("GLX_VERSION_", iextension->name.c_str(), 12) == 0)
+      {
+      cxxfile << iextension->name << " ";
+      }
+    }
+  cxxfile << "\";" << endl
           << "}" << endl;
 }
 
