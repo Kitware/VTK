@@ -34,7 +34,14 @@ class vtkExtractCTHPartInternal;
 class vtkHierarchicalDataSet;
 class vtkPolyData;
 class vtkUniformGrid;
+class vtkImageData;
 class vtkDataSet;
+
+class vtkContourFilter;
+class vtkAppendPolyData;
+class vtkDataSetSurfaceFilter;
+class vtkClipPolyData;
+class vtkCutter;
 
 class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkHierarchicalDataSetAlgorithm
 {
@@ -88,6 +95,7 @@ protected:
                    int needPartIndex);
   
   void ExecutePartOnUniformGrid(const char *arrayName,
+//                                vtkImageData *input,
                                 vtkUniformGrid *input,
                                 vtkPolyData *output);
   
@@ -102,8 +110,38 @@ protected:
   int FillInputPortInformation(int port,
                                vtkInformation *info);
   
+  void CreateInternalPipeline();
+  void DeleteInternalPipeline();
+  
   vtkPlane *ClipPlane;
   vtkExtractCTHPartInternal* Internals;
+  
+  // Internal Pipeline elements
+  vtkDoubleArray *PointVolumeFraction;
+  
+  
+  vtkUniformGrid *Data;
+//  vtkImageData *Data;
+  
+  vtkContourFilter *Contour;
+  vtkAppendPolyData *Append1;
+  vtkDataSetSurfaceFilter *Surface;
+  vtkClipPolyData *Clip0;
+  vtkAppendPolyData *Append2;
+  vtkClipPolyData *Clip1;
+  vtkCutter *Cut;
+  vtkClipPolyData *Clip2;
+  
+  vtkRectilinearGrid *RData;
+  vtkContourFilter *RContour;
+  vtkAppendPolyData *RAppend1;
+  vtkDataSetSurfaceFilter *RSurface;
+  vtkClipPolyData *RClip0;
+  vtkAppendPolyData *RAppend2;
+  vtkClipPolyData *RClip1;
+  vtkCutter *RCut;
+  vtkClipPolyData *RClip2;
+  
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.
   void operator=(const vtkExtractCTHPart&);  // Not implemented.
