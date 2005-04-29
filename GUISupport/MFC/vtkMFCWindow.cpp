@@ -34,6 +34,21 @@ BEGIN_MESSAGE_MAP(vtkMFCWindow, CWnd)
   ON_WM_PAINT()
   ON_WM_DESTROY()
   ON_WM_ERASEBKGND()
+
+  ON_WM_LBUTTONDBLCLK()
+  ON_WM_LBUTTONDOWN()
+  ON_WM_MBUTTONDOWN()
+  ON_WM_RBUTTONDOWN()
+  ON_WM_LBUTTONUP()
+  ON_WM_MBUTTONUP()
+  ON_WM_RBUTTONUP()
+  ON_WM_MOUSEMOVE()
+  ON_WM_MOUSEWHEEL()
+  ON_WM_CHAR()
+  ON_WM_KEYUP()
+  ON_WM_KEYDOWN()
+  ON_WM_TIMER()
+
 END_MESSAGE_MAP()
 
 #ifdef _DEBUG
@@ -176,40 +191,89 @@ BOOL vtkMFCWindow::OnEraseBkgnd(CDC*)
   return TRUE;
 }
 
-
-LRESULT vtkMFCWindow::WindowProc(UINT message, WPARAM wParam, LPARAM lParam) 
+void vtkMFCWindow::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-  switch (message)
-  {
-  case WM_LBUTTONDBLCLK:
-  case WM_MBUTTONDBLCLK:
-  case WM_RBUTTONDBLCLK:
-  case WM_LBUTTONDOWN: 
-  case WM_MBUTTONDOWN: 
-  case WM_RBUTTONDOWN: 
-    // grab focus on mouse downs
-    this->SetFocus();
-    // follow through
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnLButtonDown(this->GetSafeHwnd(), nFlags, point.x, point.y, 1);
+}
 
-  case WM_MBUTTONUP: 
-  case WM_RBUTTONUP: 
-  case WM_LBUTTONUP: 
-  case WM_MOUSEMOVE:
-  case WM_MOUSEWHEEL:
-  case WM_CHAR:
-  case WM_KEYDOWN:
-  case WM_KEYUP:
-  case WM_TIMER:
+void vtkMFCWindow::OnLButtonDown(UINT nFlags, CPoint point)
+{
+  this->SetFocus();
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnLButtonDown(this->GetSafeHwnd(), nFlags, point.x, point.y, 0);
+}
 
-    if (this->GetInteractor()->GetInitialized())
-      {
-      return vtkHandleMessage2(this->m_hWnd, message, wParam, lParam, 
-        static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor()));
-      }
-    break;
+void vtkMFCWindow::OnMButtonDown(UINT nFlags, CPoint point)
+{
+  this->SetFocus();
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnMButtonDown(this->GetSafeHwnd(), nFlags, point.x, point.y, 0);
+}
 
-  }
+void vtkMFCWindow::OnRButtonDown(UINT nFlags, CPoint point)
+{
+  this->SetFocus();
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnRButtonDown(this->GetSafeHwnd(), nFlags, point.x, point.y, 0);
+}
 
-  return CWnd::WindowProc(message, wParam, lParam);
+void vtkMFCWindow::OnLButtonUp(UINT nFlags, CPoint point)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnLButtonUp(this->GetSafeHwnd(), nFlags, point.x, point.y);
+}
+
+void vtkMFCWindow::OnMButtonUp(UINT nFlags, CPoint point)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnMButtonUp(this->GetSafeHwnd(), nFlags, point.x, point.y);
+}
+
+void vtkMFCWindow::OnRButtonUp(UINT nFlags, CPoint point)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnRButtonUp(this->GetSafeHwnd(), nFlags, point.x, point.y);
+}
+
+void vtkMFCWindow::OnMouseMove(UINT nFlags, CPoint point)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnMouseMove(this->GetSafeHwnd(), nFlags, point.x, point.y);
+}
+
+BOOL vtkMFCWindow::OnMouseWheel(UINT nFlags, short zDelta, CPoint point)
+{
+  if(zDelta > 0)
+    static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+      OnMouseWheelForward(this->GetSafeHwnd(), nFlags, point.x, point.y);
+  else
+    static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+      OnMouseWheelBackward(this->GetSafeHwnd(), nFlags, point.x, point.y);
+  return TRUE;
+}
+
+void vtkMFCWindow::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnChar(this->GetSafeHwnd(), nChar, nRepCnt, nFlags);
+}
+
+void vtkMFCWindow::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnKeyUp(this->GetSafeHwnd(), nChar, nRepCnt, nFlags);
+}
+
+void vtkMFCWindow::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnKeyDown(this->GetSafeHwnd(), nChar, nRepCnt, nFlags);
+}
+
+void vtkMFCWindow::OnTimer(UINT nIDEvent)
+{
+  static_cast<vtkWin32RenderWindowInteractor*>(this->GetInteractor())->
+    OnTimer(this->GetSafeHwnd(), nIDEvent);
 }
 

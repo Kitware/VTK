@@ -59,18 +59,28 @@ public:
 
 protected:
 
-  //! windows procedure for this class
-  virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
-
   //! handle size events
   afx_msg void OnSize(UINT nType, int cx, int cy);
   //! handle paint events
   afx_msg void OnPaint();
   //! handle destroy events
   afx_msg void OnDestroy();
-
   //! don't clear background
   BOOL OnEraseBkgnd(CDC* pDC);
+
+  afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+  afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+  afx_msg void OnMButtonDown(UINT nFlags, CPoint point);
+  afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+  afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+  afx_msg void OnMButtonUp(UINT nFlags, CPoint point);
+  afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+  afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+  afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+  afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+  afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+  afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+  afx_msg void OnTimer(UINT nIDEvent);
 
   //! the vtk window
   vtkWin32OpenGLRenderWindow* pvtkWin32OpenGLRW;
