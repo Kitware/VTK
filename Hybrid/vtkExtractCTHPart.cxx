@@ -43,7 +43,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.7");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.8");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -259,6 +259,9 @@ int vtkExtractCTHPart::RequestData(
     int num = this->GetNumberOfVolumeArrayNames();
     int needPartIndex=num>1;
     
+    vtkGarbageCollector::DeferredCollectionPush();
+    this->CreateInternalPipeline();
+    
     for (idx = 0; idx < num; ++idx)
       {
       arrayName = this->GetVolumeArrayName(idx);
@@ -289,109 +292,12 @@ int vtkExtractCTHPart::RequestData(
         partArray->FastDelete();
         }
       }
+    this->DeleteInternalPipeline();
+    vtkGarbageCollector::DeferredCollectionPop();
     }
   
   return 1;
 }
-#if 0
-void vtkExtractCTHPart::ExecuteBlock(vtkHierarchicalDataSet *input)
-{
-  int num = this->GetNumberOfVolumeArrayNames();
-  int needPartIndex=num>1;
-  
-  int numberOfLevels=input->GetNumberOfLevels();
-  
-  output->SetNumberOfLevels(numberOfLevels);
-  
-  vtkPolyData *pd;
-  int level=0;
-  while(level<numberOfLevels)
-    {
-    int numberOfDataSets=input->GetNumberOfDataSets(level);
-    output->SetNumberOfDataSets(level,numberOfDataSets);
-    
-    int dataset=0;
-    while(dataset<numberOfDataSets)
-      {
-      cout<<"level="<<level<<" dataset="<<dataset<<endl;
-      vtkDataObject *dataObj=input->GetDataSet(level,dataset);
-      if(dataObj!=0)// can be null if on another processor
-        {
-        pd=0;
-        if(level==0)
-          {
-          vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
-          if(rg!=0)
-            {
-            pd=vtkPolyData::New();
-            output->SetDataSet(level,dataset,pd);
-            pd->FastDelete();
-//            this->ExecutePartOnRectilinearGrid(arrayName,rg,pd);
-            }
-          else
-            {
-//            vtkUniformGrid *ug=vtkUniformGrid::SafeDownCast(dataObj);
-            vtkImageData *ug=vtkImageData::SafeDownCast(dataObj);
-            if(ug!=0)
-              {
-              pd=vtkPolyData::New();
-              output->SetDataSet(level,dataset,pd);
-              pd->FastDelete();
-//              this->ExecutePartOnUniformGrid(arrayName,ug,pd);
-              }
-            else
-              {
-              vtkErrorMacro(<<" cannot handle a block of this type.");
-              }
-            }
-          }
-        else
-          {
-//          vtkUniformGrid *ug=vtkUniformGrid::SafeDownCast(dataObj);
-          vtkImageUniformGrid *ug=vtkUniformGrid::SafeDownCast(dataObj);
-          if(ug!=0)
-            {
-            pd=vtkPolyData::New();
-            output->SetDataSet(level,dataset,pd);
-            pd->FastDelete();
-//            this->ExecutePartOnUniformGrid(arrayName,ug,pd);
-            }
-          else
-            {
-            vtkErrorMacro(<<" cannot handle a block of this type.");
-            }
-          }
-        if(pd!=0)
-          {
-          for (int idx = 0; idx < num; ++idx)
-            {
-            const char *arrayName = this->GetVolumeArrayName(idx);
-            
-            
-            
-            }
-          }
-        if(pd!=0 && needPartIndex) // no error
-          {
-          // Add scalars to color this part.
-          int numPts = pd->GetNumberOfPoints();
-          vtkDoubleArray *partArray = vtkDoubleArray::New();
-          partArray->SetName("Part Index");
-          double *p = partArray->WritePointer(0, numPts);
-          for (int idx2 = 0; idx2 < numPts; ++idx2)
-            {
-            p[idx2] = static_cast<double>(partIndex);
-            }
-          pd->GetPointData()->SetScalars(partArray);
-          partArray->FastDelete();
-          }
-        }
-      ++dataset;
-      }
-    ++level;
-    }
-}
-#endif
 
 //-----------------------------------------------------------------------------
 // the input is a hierarchy of vtkUniformGrid or one level of
