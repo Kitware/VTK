@@ -50,7 +50,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.5");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -240,6 +240,10 @@ vtkOpenGLExtensionManagerFunctionPointer
   // Could not find the function.
   return NULL;
 #endif //VTK_USE_VTK_DYNAMIC_LOADER
+
+#ifdef VTK_NO_EXTENSION_LOADING
+  return NULL;
+#endif //VTK_NO_EXTENSION_LOADING
 }
 
 void vtkOpenGLExtensionManager::LoadExtension(const char *name)
@@ -261,6 +265,14 @@ void vtkOpenGLExtensionManager::LoadExtension(const char *name)
 void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 {
   vtkDebugMacro("ReadOpenGLExtensions");
+
+#ifdef VTK_NO_EXTENSION_LOADING
+
+  this->ExtensionsString = new char[1];
+  this->ExtensionsString = '\0';
+  return;
+
+#else //!VTK_NO_EXTENSION_LOADING
 
   if (this->RenderWindow)
     {
@@ -377,9 +389,11 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       extensions_string += ve;
       }
     }
-#endif
+#endif //VTK_USE_X
 
   // Store extensions string.
   this->ExtensionsString = new char[extensions_string.length()+1];
   strcpy(this->ExtensionsString, extensions_string.c_str());
+
+#endif //!VTK_NO_EXTENSION_LOADING
 }
