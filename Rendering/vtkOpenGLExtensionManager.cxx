@@ -50,7 +50,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.6");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.7");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()
@@ -171,7 +171,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     }
   else
     {
-    vtkWarningMacro("Could not load " << mangled_fname);
+    vtkDebugMacro("Could not load " << mangled_fname);
     }
   delete[] mangled_fname;
   if (symbol)
@@ -180,7 +180,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     }
   else
     {
-    vtkWarningMacro("Could not load " << mangled_fname);
+    vtkDebugMacro("Could not load " << mangled_fname);
     return NULL;
     }
 #endif //VTK_USE_APPLE_LOADER
