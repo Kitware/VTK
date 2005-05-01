@@ -53,6 +53,14 @@ GLfloat laplacian[3][3] = {
 
 static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
 {
+  static int inImageCallback = 0;
+  if (inImageCallback)
+    {
+    cout << "*********ImageCallback called recursively?" << endl;
+    return;
+    }
+  inImageCallback = 1;
+
   cout << "In ImageCallback" << endl;
 
   vtkRenderWindow *renwin = static_cast<vtkRenderWindow *>(__renwin);
@@ -74,6 +82,8 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
   renwin->SwapBuffersOn();
   renwin->Frame();
   renwin->SwapBuffersOff();
+
+  inImageCallback = 0;
 }
 
 int LoadOpenGLExtension(int argc, char *argv[])
