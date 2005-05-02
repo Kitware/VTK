@@ -1,5 +1,4 @@
-# No Cxx tests right now...
-# SUBDIRS(Cxx)
+SUBDIRS(Cxx)
 
 IF (VTK_WRAP_TCL)
   SUBDIRS(Tcl)
