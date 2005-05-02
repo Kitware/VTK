@@ -19,7 +19,6 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkXMLImageDataWriter.h"
 #include "vtkDataSetAttributes.h"
 
 #include <vtkstd/string>
@@ -27,7 +26,7 @@
 #include <sys/stat.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMetaImageWriter, "1.11");
+vtkCxxRevisionMacro(vtkMetaImageWriter, "1.12");
 vtkStandardNewMacro(vtkMetaImageWriter);
 
 //----------------------------------------------------------------------------
@@ -60,6 +59,7 @@ char* vtkMetaImageWriter::GetRAWFileName()
   return this->Superclass::GetFileName();
 }
 
+//----------------------------------------------------------------------------
 int vtkMetaImageWriter::RequestData(
   vtkInformation* request,
   vtkInformationVector** inputVector,
