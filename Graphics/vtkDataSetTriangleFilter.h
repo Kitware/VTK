@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkDataSetTriangleFilter - triangulate any type of dataset
 // .SECTION Description
-// vtkTriangulateDataSet generates n-dimensional simplices from any input
+// vtkDataSetTriangleFilter generates n-dimensional simplices from any input
 // dataset. That is, 3D cells are converted to tetrahedral meshes, 2D cells
 // to triangles, and so on. The triangulation is guaranteed to be compatible.
 //
