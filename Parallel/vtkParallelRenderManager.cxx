@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.49");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.50");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -734,11 +734,13 @@ void vtkParallelRenderManager::SatelliteEndRender()
     {
     return;
     }
-
-  if (!this->ParallelRendering)
-    {
-    return;
-    }
+// It's a mistake to check ParallelRendering on the Satellites.
+// The Root node decides if the render calls are to be propagated to the
+// satellites...the satellites always reply to the Root nodes requests.
+//  if (!this->ParallelRendering)
+//    {
+//    return;
+//    }
   if (!this->UseCompositing)
     {
     return;
@@ -1740,10 +1742,10 @@ void vtkParallelRenderManager::SatelliteStartRender()
     this->ReducedImage->Initialize();
     }
 
-  if (!this->ParallelRendering)
-    {
-    return;
-    }
+//if (!this->ParallelRendering)
+//  {
+//  return;
+//  }
 
   this->InvokeEvent(vtkCommand::StartEvent, NULL);
 
