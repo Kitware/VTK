@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.119");
+vtkCxxRevisionMacro(vtkContourFilter, "1.120");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -591,6 +591,18 @@ void vtkContourFilter::CreateDefaultLocator()
     this->Locator->Register(this);
     this->Locator->Delete();
     }
+}
+
+void vtkContourFilter::SetArrayComponent( int comp )
+{
+  this->SynchronizedTemplates2D->SetArrayComponent( comp );
+  this->SynchronizedTemplates3D->SetArrayComponent( comp );
+  this->RectilinearSynchronizedTemplates->SetArrayComponent( comp );
+}
+
+int vtkContourFilter::GetArrayComponent()
+{
+  return( this->SynchronizedTemplates2D->GetArrayComponent() );
 }
 
 int vtkContourFilter::FillInputPortInformation(int, vtkInformation *info)

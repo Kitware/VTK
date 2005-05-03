@@ -97,6 +97,7 @@ IF (VTK_USE_RENDERING)
       mergeFilter
       MultidimensionalSolution
       multipleIso
+      multipleComponentContour
       nacaBinary
       NoLightGeneration
       OBBCylinder

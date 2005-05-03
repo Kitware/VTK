@@ -130,6 +130,12 @@ public:
   // specified. The locator is used to merge coincident points.
   void CreateDefaultLocator();
 
+  // Description:
+  // Set/get which component of the scalar array to contour on; defaults to 0.
+  // Currently this feature only works if the input is a vtkImageData.
+  void SetArrayComponent( int );
+  int  GetArrayComponent();
+
 protected:
   vtkContourFilter();
   ~vtkContourFilter();
