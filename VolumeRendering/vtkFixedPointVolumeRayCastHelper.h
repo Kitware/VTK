@@ -383,14 +383,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] = static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                      \
     _totalAlpha += _alpha[_idx];                                                                                                \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -399,7 +399,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
@@ -416,7 +416,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
@@ -424,10 +424,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -436,7 +436,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*SCALAR[_idx]+2])*_alpha[_idx] + 0x7fff)>>(VTKKW_FP_SHIFT));   \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;};                                                                                                  \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
@@ -454,14 +454,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] = static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                      \
     _totalAlpha += _alpha[_idx];                                                                                                \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -479,7 +479,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                           \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
                                                                                                                                 \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
@@ -498,14 +498,14 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] = static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                      \
     _totalAlpha += _alpha[_idx];                                                                                                \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -519,7 +519,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
   if (!_tmp[3]) {continue;}                                                                                                     \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
@@ -549,7 +549,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
@@ -557,11 +557,11 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -579,7 +579,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
@@ -597,7 +597,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   unsigned short _alpha[4] = {0,0,0,0};                                                                                         \
   unsigned int _totalAlpha = 0;                                                                                                 \
                                                                                                                                 \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     _alpha[_idx] =  static_cast<unsigned short>(SOTABLE[_idx][SCALAR[_idx]]*WEIGHTS[_idx]);                                     \
     if ( _alpha[_idx] )                                                                                                         \
@@ -605,10 +605,10 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _alpha[_idx] = static_cast<unsigned short>((_alpha[_idx]*GOTABLE[_idx][MAG[_idx]] + 0x7fff)>>(VTKKW_FP_SHIFT));           \
       _totalAlpha += _alpha[_idx];                                                                                              \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                          \
                                                                                                                                 \
   if ( !_totalAlpha ) {continue;}                                                                                               \
-  for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                               \
+  {for ( int _idx = 0; _idx < COMPONENTS; _idx++ )                                                                              \
     {                                                                                                                           \
     if ( _alpha[_idx] )                                                                                                         \
       {                                                                                                                         \
@@ -622,7 +622,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
       _tmp[2] += _tmpC[2];                                                                                                      \
       _tmp[3] += ((_alpha[_idx]*_alpha[_idx])/_totalAlpha);                                                                     \
       }                                                                                                                         \
-    }                                                                                                                           \
+    }}                                                                                                                           \
   if ( !_tmp[3] ) {continue;}                                                                                                   \
   COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                                 \
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
