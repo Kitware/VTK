@@ -20,6 +20,7 @@ IF (UNIX)
 ENDIF (UNIX)
 
 SET( Kit_SRCS
+vtkAbstractArray.cxx
 vtkAbstractTransform.cxx
 vtkAmoebaMinimizer.cxx
 vtkAnimationCue.cxx
@@ -151,6 +152,7 @@ vtkXMLFileOutputWindow.cxx
 
 SET_SOURCE_FILES_PROPERTIES(
 # vtkObjectBase is marked ABSTRACT so that instantiators are happy.
+vtkAbstractArray
 vtkAbstractTransform
 vtkCallbackCommand
 vtkCommand
