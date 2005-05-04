@@ -53,7 +53,9 @@ public:
   // Set/Get the input to the viewer.
   void SetInput(vtkImageData *in) {this->ImageMapper->SetInput(in);};
   vtkImageData *GetInput() { return this->ImageMapper->GetInput();};
-  
+  virtual void SetInputConnection(vtkAlgorithmOutput* input) {
+    this->ImageMapper->SetInputConnection(input);};
+
   // Description:
   // What is the possible Min/ Max z slices available.
   int GetWholeZMin() {return this->ImageMapper->GetWholeZMin();};

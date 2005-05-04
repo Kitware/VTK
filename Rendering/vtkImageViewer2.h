@@ -80,6 +80,8 @@ public:
   void SetInput(vtkImageData *in) {this->WindowLevel->SetInput(in);}
   vtkImageData *GetInput()
     { return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());}
+  virtual void SetInputConnection(vtkAlgorithmOutput* input) {
+    this->WindowLevel->SetInputConnection(input);};
   
   // Description:
   // Return the minimum and maximum z-slice values.
