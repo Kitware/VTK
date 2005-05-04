@@ -34,7 +34,7 @@
 #include <vtkstd/string>
 using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.2");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.3");
 
 // Construct object with sane defaults.
 
@@ -148,7 +148,6 @@ unsigned long vtkAbstractArray::GetDataTypeSize(int type)
       return sizeof(vtkIdType);
       break;
 
-    case VTK_CELL:
     case VTK_STRING:
       return 0;
       break;
@@ -162,7 +161,7 @@ unsigned long vtkAbstractArray::GetDataTypeSize(int type)
 
 // ----------------------------------------------------------------------
 
-
+#if 0
 vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 {
   switch (dataType)
@@ -208,3 +207,4 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
       return vtkDoubleArray::New();
     }
 }
+#endif

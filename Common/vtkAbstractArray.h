@@ -177,7 +177,12 @@ public:
   // XXX FIXME Find this macro and move it into vtkTypeNames.h or
   // something.
   virtual const char *GetDataTypeAsString( void )
-  { return vtkTypeNameMacro( this->GetDataType() ); }
+  { return vtkImageScalarTypeNameMacro( this->GetDataType() ); }
+
+
+  // This function will only make sense once vtkDataArray is
+  // re-parented to be a subclass of vtkAbstractArray.  It is
+  // commented out for now.
 
   // Description:
   // Creates an array for dataType where dataType is one of
@@ -187,7 +192,8 @@ public:
   // VTK_STRING, VTK_CELL.
   // Note that the data array returned has be deleted by the
   // user.
-  static vtkAbstractArray* CreateArray(int dataType);
+
+//  static vtkAbstractArray* CreateArray(int dataType);
 
   // Description:
   // This method is here to make backward compatibility easier.  It
