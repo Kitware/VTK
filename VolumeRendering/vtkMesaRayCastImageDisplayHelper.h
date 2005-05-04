@@ -29,7 +29,7 @@
 class vtkVolume;
 class vtkRenderer;
 
-class VTK_RENDERING_EXPORT vtkMesaRayCastImageDisplayHelper : public vtkRayCastImageDisplayHelper
+class VTK_VOLUMERENDERING_EXPORT vtkMesaRayCastImageDisplayHelper : public vtkRayCastImageDisplayHelper
 {
 public:
   static vtkMesaRayCastImageDisplayHelper *New();

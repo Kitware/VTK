@@ -46,7 +46,7 @@
 
 #include "vtkVolumeShearWarpMapper.h"
 
-class VTK_RENDERING_EXPORT vtkOpenGLVolumeShearWarpMapper : public vtkVolumeShearWarpMapper
+class VTK_VOLUMERENDERING_EXPORT vtkOpenGLVolumeShearWarpMapper : public vtkVolumeShearWarpMapper
 {
 public:
 //  vtkTypeMacro(vtkOpenGLVolumeShearWarpMapper,vtkVolumeShearWarpMapper);

@@ -26,7 +26,7 @@
 
 #include "vtkVolumeTextureMapper2D.h"
 
-class VTK_RENDERING_EXPORT vtkMesaVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
+class VTK_VOLUMERENDERING_EXPORT vtkMesaVolumeTextureMapper2D : public vtkVolumeTextureMapper2D
 {
 public:
   vtkTypeRevisionMacro(vtkMesaVolumeTextureMapper2D,vtkVolumeTextureMapper2D);
