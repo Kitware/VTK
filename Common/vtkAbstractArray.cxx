@@ -32,9 +32,8 @@
 
 // we need this for GetSize()
 #include <vtkstd/string>
-using vtkstd::string;
 
-vtkCxxRevisionMacro(vtkAbstractArray, "1.3");
+vtkCxxRevisionMacro(vtkAbstractArray, "1.4");
 
 // Construct object with sane defaults.
 
