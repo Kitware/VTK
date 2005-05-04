@@ -47,14 +47,4 @@ FIND_FILE(VTK_WGLEXT_FILE "wglext.h"
   )
 MARK_AS_ADVANCED(VTK_GLEXT_FILE VTK_GLXEXT_FILE VTK_WGLEXT_FILE)
 
-# Parse the extensions into vtkgl.h/vtkgl.cxx.  They will be compiled with
-# the Rendering kit.
-ADD_CUSTOM_COMMAND(
-  OUTPUT ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
-  COMMAND ${VTK_PARSEOGLEXT_EXE}
-  ARGS ${VTK_BINARY_DIR}/Rendering ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE}
-  DEPENDS ${VTK_GLEXT_FILE} ${VTK_GLXEXT_FILE} ${VTK_WGLEXT_FILE} ${VTK_PARSEOGLEXT_EXE}
-  )
-ADD_CUSTOM_TARGET(vtkgl ALL
-  DEPENDS ${VTK_BINARY_DIR}/Rendering/vtkgl.cxx
-  )
+
