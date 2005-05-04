@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.46");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.47");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
     }
   outPoints = vtkPoints::New();
   outPoints->Allocate(numPoints);
-  this->GetOutput()->SetPoints(outPoints);
+  output->SetPoints(outPoints);
   outPoints->Delete();
 
   // Allocate attributes for copying.
