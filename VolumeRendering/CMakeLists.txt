@@ -26,8 +26,16 @@ vtkDirectionEncoder.cxx
 vtkEncodedGradientEstimator.cxx
 vtkEncodedGradientShader.cxx
 vtkFiniteDifferenceGradientEstimator.cxx
+vtkFixedPointVolumeRayCastCompositeGOHelper.cxx
+vtkFixedPointVolumeRayCastCompositeGOShadeHelper.cxx
+vtkFixedPointVolumeRayCastCompositeHelper.cxx
+vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
+vtkFixedPointVolumeRayCastHelper.cxx
+vtkFixedPointVolumeRayCastMIPHelper.cxx
+vtkFixedPointVolumeRayCastMapper.cxx
 vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
+vtkSphericalDirectionEncoder.cxx
 vtkVolumeMapper.cxx
 vtkVolumeRayCastCompositeFunction.cxx
 vtkVolumeRayCastFunction.cxx
@@ -58,6 +66,7 @@ SET( KitOpenGL_SRCS
 SET_SOURCE_FILES_PROPERTIES(
 vtkDirectionEncoder
 vtkEncodedGradientEstimator
+vtkFixedPointVolumeRayCastHelper
 vtkRayCastImageDisplayHelper
 vtkVolumeMapper
 vtkVolumeRayCastFunction

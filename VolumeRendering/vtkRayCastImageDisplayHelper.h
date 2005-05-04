@@ -44,11 +44,18 @@ public:
                               int imageOrigin[2],
                               float requestedDepth,
                               unsigned char *image ) = 0;
-
+  
+  vtkSetClampMacro( PreMultipliedColors, int, 0, 1 );
+  vtkGetMacro( PreMultipliedColors, int );
+  vtkBooleanMacro( PreMultipliedColors, int )
+    
 protected:
   vtkRayCastImageDisplayHelper();
   ~vtkRayCastImageDisplayHelper();
-
+  
+  // Have the colors already been multiplied by alpha?
+  int PreMultipliedColors;
+  
 private:
   vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&);  // Not implemented.
   void operator=(const vtkRayCastImageDisplayHelper&);  // Not implemented.

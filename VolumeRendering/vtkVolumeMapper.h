@@ -52,6 +52,19 @@ public:
   vtkImageData *GetInput();
 
   // Description:
+  // Set/Get the blend mode. Currently this is only supported
+  // by the vtkFixedPointVolumeRayCastMapper - other mappers
+  // have different ways to set this (supplying a function
+  // to a vtkVolumeRayCastMapper) or don't have any options
+  // (vtkVolumeTextureMapper2D supports only compositing)
+  vtkSetMacro( BlendMode, int );
+  void SetBlendModeToComposite()
+    { this->SetBlendMode( vtkVolumeMapper::COMPOSITE_BLEND ); }
+  void SetBlendModeToMaximumIntensity()
+    { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
+  vtkGetMacro( BlendMode, int );
+  
+  // Description:
   // Turn On/Off orthogonal cropping. (Clipping planes are
   // perpendicular to the coordinate axes.)
   vtkSetClampMacro(Cropping,int,0,1);
@@ -108,11 +121,18 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {};
   
+  enum 
+  {
+    COMPOSITE_BLEND,
+    MAXIMUM_INTENSITY_BLEND
+  };
 //ETX
 
 protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
+
+  int   BlendMode;
 
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates

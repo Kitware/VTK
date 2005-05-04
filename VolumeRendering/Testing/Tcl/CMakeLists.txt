@@ -7,6 +7,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_VOLUMERENDERING)
     FOREACH ( tfile
       gaussian
       TestBunykRayCastFunction
+      TestFixedPointRayCasterLinear
+      TestFixedPointRayCasterNearest
+      TestFixedPointRayCasterLinearCropped
+      TestFixedPointRayCasterNearestCropped
       TestHomogeneousRayIntegration
       TestLinearRayIntegration
       TestLODProp3D

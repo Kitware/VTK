@@ -20,13 +20,15 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkVolumeMapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeMapper, "1.2");
 
 // Construct a vtkVolumeMapper with empty scalar input and clipping off.
 vtkVolumeMapper::vtkVolumeMapper()
 {
   int i;
 
+  this->BlendMode = vtkVolumeMapper::COMPOSITE_BLEND;
+  
   this->Cropping = 0;
   for ( i = 0; i < 3; i++ )
     {
@@ -124,6 +126,8 @@ void vtkVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cropping Region Flags: " 
      << this->CroppingRegionFlags << endl;
 
+  os << indent << "BlendMode: " << this->BlendMode << endl;
+  
   // Don't print this->VoxelCroppingRegionPlanes
 }
 

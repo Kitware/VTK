@@ -43,11 +43,11 @@ public:
                       int imageOrigin[2],
                       float requestedDepth,
                       unsigned char *image );
-
+  
 protected:
   vtkOpenGLRayCastImageDisplayHelper();
   ~vtkOpenGLRayCastImageDisplayHelper();
-
+  
 private:
   vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
   void operator=(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.

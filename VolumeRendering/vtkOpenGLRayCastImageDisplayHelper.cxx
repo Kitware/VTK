@@ -28,7 +28,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.2");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 
@@ -144,6 +144,25 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
   
   viewToWorldMatrix->Delete();
 
+  // Save state
+  glPushAttrib(GL_ENABLE_BIT   | 
+               GL_COLOR_BUFFER_BIT   |
+               GL_STENCIL_BUFFER_BIT |
+               GL_DEPTH_BUFFER_BIT   | 
+               GL_POLYGON_BIT        | 
+               GL_TEXTURE_BIT);
+  
+  if ( this->PreMultipliedColors )
+    {
+    // Values in the texture map have already been pre-multiplied by alpha
+    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+    }
+  else
+    {
+    // Values in the texture map have not been pre-multiplied by alpha
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    }
+  
   // Turn lighting off - the texture already has illumination in it
   glDisable( GL_LIGHTING );
 
@@ -345,18 +364,12 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
       delete [] newTexture;
       }
     
-    
-    glDisable( GL_TEXTURE_2D );
-    
-    glDisable( GL_ALPHA_TEST );
-    glDepthMask( 1 );
-    
-    // Turn lighting back on
-    glEnable( GL_LIGHTING );  
-
     glFlush();
     glDeleteTextures(1, &tempIndex);  
-    
+
+    // Restore state
+    glPopAttrib();
+
     return;
     }
   
@@ -391,17 +404,14 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol,
     }
   glEnd();
 
-  glDisable( GL_ALPHA_TEST );
-  glDisable( GL_TEXTURE_2D );
-  glDepthMask( 1 );
-
-  // Turn lighting back on
-  glEnable( GL_LIGHTING ); 
   
 #ifdef GL_VERSION_1_1
   glFlush();
   glDeleteTextures(1, &tempIndex);
 #endif
+  
+  // Restore state
+  glPopAttrib();
 }
 
 void vtkOpenGLRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
