@@ -74,12 +74,20 @@ public:
   virtual vtkInformation* GetOutputInformation(int port);
 
   // Description:
+  // Get the pipeline information object for all output ports.
+  vtkInformationVector* GetOutputInformation();
+
+  // Description:
   // Get the pipeline information for the given input connection.
   vtkInformation* GetInputInformation(int port, int connection);
 
   // Description:
   // Get the pipeline information vectors for the given input port.
-  vtkInformationVector* GetInputInformation(int port);
+  vtkInformationVector* GetInputInformation(int port);  
+  
+  // Description:
+  // Get the pipeline information vectors for all inputs
+  vtkInformationVector** GetInputInformation();
 
   // Description:
   // Get the executive managing the given input connection.
@@ -138,9 +146,6 @@ protected:
   int InputPortIndexInRange(int port, const char* action);
   int OutputPortIndexInRange(int port, const char* action);
 
-  // Access methods to arguments passed to vtkAlgorithm::ProcessRequest.
-  vtkInformationVector** GetInputInformation();
-  vtkInformationVector* GetOutputInformation();
 
   int CheckAlgorithm(const char* method);
 
