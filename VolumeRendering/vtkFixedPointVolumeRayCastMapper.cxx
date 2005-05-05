@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.1");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.2");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -114,13 +114,13 @@ void vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume( T *dataPtr, unsigned sh
           unsigned short val;
           if ( independent )
             {
-            val = (*dptr + shift[c]) * scale[c];
+            val = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
             dptr++;
             }
           else
             {
-            val = (*(dptr+components-1) + 
-                   shift[components-1]) * scale[components-1];
+            val = static_cast<unsigned short>((*(dptr+components-1) + 
+                   shift[components-1]) * scale[components-1]);
             dptr += components;
             }
           
@@ -159,7 +159,6 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
                                                vtkFixedPointVolumeRayCastMapper *me )
 {
   int                 x, y, z, c;
-  int                 offset;
   int                 x_start, x_limit;
   int                 y_start, y_limit;
   int                 z_start, z_limit;
@@ -244,7 +243,6 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
       {
       xlow = x_start;
       xhigh = x_limit;
-      offset = z * dim[0] * dim[1] + y * dim[0] + xlow;
       
       dptr = dataPtr + components*(z * dim[0] * dim[1] + y * dim[0] + xlow);
       
