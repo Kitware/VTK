@@ -29,7 +29,7 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkHexagonalPrism, "1.3");
+vtkCxxRevisionMacro(vtkHexagonalPrism, "1.4");
 vtkStandardNewMacro(vtkHexagonalPrism);
 
 static const double VTK_DIVERGED = 1.e6;
@@ -583,7 +583,7 @@ int vtkHexagonalPrism::IntersectWithLine(double p1[3], double p2[3], double tol,
     }
 
   //now intersect the quad faces
-  for (faceNum=2; faceNum<6; faceNum++)
+  for (faceNum=2; faceNum<8; faceNum++)
     {
     this->Points->GetPoint(faces[faceNum][0], pt1);
     this->Points->GetPoint(faces[faceNum][1], pt2);
