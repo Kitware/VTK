@@ -31,7 +31,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.1");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.2");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -54,7 +54,7 @@ void vtkFixedPointMIPHelperGenerateImageOneNN( T *data,
                                        int threadID,
                                        int threadCount,
                                        vtkFixedPointVolumeRayCastMapper *mapper,
-                                       vtkVolume *vol)
+                                       vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeMIPOneNN();
@@ -133,7 +133,7 @@ void vtkFixedPointMIPHelperGenerateImageDependentNN( T *data,
                                              int threadID,
                                              int threadCount,
                                              vtkFixedPointVolumeRayCastMapper *mapper,
-                                             vtkVolume *vol)
+                                             vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeMIPMultiNN();
@@ -196,6 +196,7 @@ void vtkFixedPointMIPHelperGenerateImageIndependentNN( T *data,
                                                           vtkFixedPointVolumeRayCastMapper *mapper,
                                                           vtkVolume *vol)
 {
+  VTKKWRCHelper_InitializeWeights();
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeMIPMultiNN();
   VTKKWRCHelper_SpaceLeapSetupMulti();
@@ -264,7 +265,7 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
                                                  int threadID,
                                                  int threadCount,
                                                  vtkFixedPointVolumeRayCastMapper *mapper,
-                                                 vtkVolume *vol)
+                                                 vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeMIPOneTrilin();
@@ -345,7 +346,7 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin( T *dataPtr,
                                                    int threadID,
                                                    int threadCount,
                                                    vtkFixedPointVolumeRayCastMapper *mapper,
-                                                   vtkVolume *vol)
+                                                   vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeMIPOneTrilin();
@@ -419,7 +420,7 @@ void vtkFixedPointMIPHelperGenerateImageDependentTrilin( T *dataPtr,
                                                  int threadID,
                                                  int threadCount,
                                                  vtkFixedPointVolumeRayCastMapper *mapper,
-                                                 vtkVolume *vol)
+                                                 vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeMIPMultiTrilin();
@@ -497,6 +498,7 @@ void vtkFixedPointMIPHelperGenerateImageIndependentTrilin( T *dataPtr,
                                                    vtkFixedPointVolumeRayCastMapper *mapper,
                                                    vtkVolume *vol)
 {
+  VTKKWRCHelper_InitializeWeights();
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeMIPMultiTrilin();
 

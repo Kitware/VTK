@@ -694,7 +694,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   int imageViewportSize[2];                                                                     \
   int imageOrigin[2];                                                                           \
   int dim[3];                                                                                   \
-  float weights[4];                                                                             \
   float shift[4];                                                                               \
   float scale[4];                                                                               \
                                                                                                 \
@@ -703,10 +702,6 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   mapper->GetImageViewportSize(imageViewportSize);                                              \
   mapper->GetImageOrigin(imageOrigin);                                                          \
   mapper->GetInput()->GetDimensions(dim);                                                       \
-  weights[0] = vol->GetProperty()->GetComponentWeight(0);                                       \
-  weights[1] = vol->GetProperty()->GetComponentWeight(1);                                       \
-  weights[2] = vol->GetProperty()->GetComponentWeight(2);                                       \
-  weights[3] = vol->GetProperty()->GetComponentWeight(3);                                       \
   mapper->GetTableShift( shift );                                                               \
   mapper->GetTableScale( scale );                                                               \
                                                                                                 \
@@ -731,6 +726,15 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
   inc[0] = components;                                                                          \
   inc[1] = dim[0]*components;                                                                   \
   inc[2] = dim[0]*dim[1]*components;
+//ETX
+
+//BTX
+#define VTKKWRCHelper_InitializeWeights()                       \
+  float weights[4];                                             \
+  weights[0] = vol->GetProperty()->GetComponentWeight(0);       \
+  weights[1] = vol->GetProperty()->GetComponentWeight(1);       \
+  weights[2] = vol->GetProperty()->GetComponentWeight(2);       \
+  weights[3] = vol->GetProperty()->GetComponentWeight(3);
 //ETX
 
 //BTX

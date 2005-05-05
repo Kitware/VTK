@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.1");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.2");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeHelper with default values
@@ -53,7 +53,7 @@ void vtkFixedPointCompositeHelperGenerateImageOneSimpleNN( T *data,
                                                    int threadID,
                                                    int threadCount,
                                                    vtkFixedPointVolumeRayCastMapper *mapper,
-                                                   vtkVolume *vol)
+                                                   vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeCompositeOneNN();  
@@ -96,7 +96,7 @@ void vtkFixedPointCompositeHelperGenerateImageOneNN( T *data,
                                              int threadID,
                                              int threadCount,
                                              vtkFixedPointVolumeRayCastMapper *mapper,
-                                             vtkVolume *vol)
+                                             vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeCompositeOneNN();
@@ -140,7 +140,7 @@ void vtkFixedPointCompositeHelperGenerateImageTwoDependentNN( T *data,
                                                       int threadID,
                                                       int threadCount,
                                                       vtkFixedPointVolumeRayCastMapper *mapper,
-                                                      vtkVolume *vol)
+                                                      vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeCompositeOneNN();
@@ -197,7 +197,7 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentNN( T *data,
                                                        int threadID,
                                                        int threadCount,
                                                        vtkFixedPointVolumeRayCastMapper *mapper,
-                                                       vtkVolume *vol)
+                                                       vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeCompositeOneNN();
@@ -253,6 +253,7 @@ void vtkFixedPointCompositeHelperGenerateImageIndependentNN( T *data,
                                                      vtkFixedPointVolumeRayCastMapper *mapper,
                                                      vtkVolume *vol)
 {
+  VTKKWRCHelper_InitializeWeights();
   VTKKWRCHelper_InitializationAndLoopStartNN();
   VTKKWRCHelper_InitializeCompositeMultiNN();
   VTKKWRCHelper_SpaceLeapSetup();
@@ -301,7 +302,7 @@ void vtkFixedPointCompositeHelperGenerateImageOneSimpleTrilin( T *data,
                                                        int threadID,
                                                        int threadCount,
                                                        vtkFixedPointVolumeRayCastMapper *mapper,
-                                                       vtkVolume *vol)
+                                                       vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeCompositeOneTrilin();
@@ -357,7 +358,7 @@ void vtkFixedPointCompositeHelperGenerateImageOneTrilin( T *data,
                                                  int threadID,
                                                  int threadCount,
                                                  vtkFixedPointVolumeRayCastMapper *mapper,
-                                                 vtkVolume *vol)
+                                                 vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeCompositeOneTrilin();
@@ -416,7 +417,7 @@ void vtkFixedPointCompositeHelperGenerateImageTwoDependentTrilin( T *data,
                                                           int threadID,
                                                           int threadCount,
                                                           vtkFixedPointVolumeRayCastMapper *mapper,
-                                                          vtkVolume *vol)
+                                                          vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeCompositeMultiTrilin();
@@ -493,7 +494,7 @@ void vtkFixedPointCompositeHelperGenerateImageFourDependentTrilin( T *data,
                                                            int threadID,
                                                            int threadCount,
                                                            vtkFixedPointVolumeRayCastMapper *mapper,
-                                                           vtkVolume *vol)
+                                                           vtkVolume *vtkNotUsed(vol))
 {
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeCompositeMultiTrilin();
@@ -571,6 +572,7 @@ void vtkFixedPointCompositeHelperGenerateImageIndependentTrilin( T *data,
                                                          vtkFixedPointVolumeRayCastMapper *mapper,
                                                          vtkVolume *vol)
 {
+  VTKKWRCHelper_InitializeWeights();
   VTKKWRCHelper_InitializationAndLoopStartTrilin();
   VTKKWRCHelper_InitializeCompositeMultiTrilin();
   VTKKWRCHelper_SpaceLeapSetup();
