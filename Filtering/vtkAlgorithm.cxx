@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.20");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.21");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -440,12 +440,141 @@ void vtkAlgorithm::SetNumberOfOutputPorts(int n)
 }
 
 //----------------------------------------------------------------------------
-vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
+vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
 {
-  if(!this->OutputPortIndexInRange(port, "get the data object for"))
+  if(!this->InputPortIndexInRange(port, "get information object for"))
     {
     return 0;
     }
+
+  // Get the input port information object.
+  vtkInformation* info =
+    this->InputPortInformation->GetInformationObject(port);
+
+  // Fill it if it has not yet been filled.
+  if(!info->Has(PORT_REQUIREMENTS_FILLED()))
+    {
+    if(this->FillInputPortInformation(port, info))
+      {
+      info->Set(PORT_REQUIREMENTS_FILLED(), 1);
+      }
+    else
+      {
+      info->Clear();
+      }
+    }
+
+  // Return ths information object.
+  return info;
+}
+
+//----------------------------------------------------------------------------
+vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
+{
+  if(!this->OutputPortIndexInRange(port, "get information object for"))
+    {
+    return 0;
+    }
+
+  // Get the output port information object.
+  vtkInformation* info =
+    this->OutputPortInformation->GetInformationObject(port);
+
+  // Fill it if it has not yet been filled.
+  if(!info->Has(PORT_REQUIREMENTS_FILLED()))
+    {
+    if(this->FillOutputPortInformation(port, info))
+      {
+      info->Set(PORT_REQUIREMENTS_FILLED(), 1);
+      }
+    else
+      {
+      info->Clear();
+      }
+    }
+
+  // Return ths information object.
+  return info;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::FillInputPortInformation(int, vtkInformation*)
+{
+  vtkErrorMacro("FillInputPortInformation is not implemented.");
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::FillOutputPortInformation(int, vtkInformation*)
+{
+  vtkErrorMacro("FillOutputPortInformation is not implemented.");
+  return 0;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::InputPortIndexInRange(int index, const char* action)
+{
+  // Make sure the index of the input port is in range.
+  if(index < 0 || index >= this->GetNumberOfInputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " input port index " << index
+                  << " for an algorithm with "
+                  << this->GetNumberOfInputPorts() << " input ports.");
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
+{
+  // Make sure the index of the output port is in range.
+  if(index < 0 || index >= this->GetNumberOfOutputPorts())
+    {
+    vtkErrorMacro("Attempt to " << (action?action:"access")
+                  << " output port index " << index
+                  << " for an algorithm with "
+                  << this->GetNumberOfOutputPorts() << " output ports.");
+    return 0;
+    }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
+{
+  return vtkStreamingDemandDrivenPipeline::New();
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::Register(vtkObjectBase* o)
+{
+  this->RegisterInternal(o, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::UnRegister(vtkObjectBase* o)
+{
+  this->UnRegisterInternal(o, 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
+{
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->Executive, "Executive");
+}
+
+
+
+/// These are convenience methods to forward to the executive
+
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkAlgorithm::GetOutputDataObject(int port)
+{
   return this->GetExecutive()->GetOutputData(port);
 }
 
@@ -729,77 +858,6 @@ vtkAlgorithmOutput* vtkAlgorithm::GetOutputPort(int port)
   return this->AlgorithmInternal->Outputs[port];
 }
 
-//----------------------------------------------------------------------------
-vtkInformation* vtkAlgorithm::GetInputPortInformation(int port)
-{
-  if(!this->InputPortIndexInRange(port, "get information object for"))
-    {
-    return 0;
-    }
-
-  // Get the input port information object.
-  vtkInformation* info =
-    this->InputPortInformation->GetInformationObject(port);
-
-  // Fill it if it has not yet been filled.
-  if(!info->Has(PORT_REQUIREMENTS_FILLED()))
-    {
-    if(this->FillInputPortInformation(port, info))
-      {
-      info->Set(PORT_REQUIREMENTS_FILLED(), 1);
-      }
-    else
-      {
-      info->Clear();
-      }
-    }
-
-  // Return ths information object.
-  return info;
-}
-
-//----------------------------------------------------------------------------
-vtkInformation* vtkAlgorithm::GetOutputPortInformation(int port)
-{
-  if(!this->OutputPortIndexInRange(port, "get information object for"))
-    {
-    return 0;
-    }
-
-  // Get the output port information object.
-  vtkInformation* info =
-    this->OutputPortInformation->GetInformationObject(port);
-
-  // Fill it if it has not yet been filled.
-  if(!info->Has(PORT_REQUIREMENTS_FILLED()))
-    {
-    if(this->FillOutputPortInformation(port, info))
-      {
-      info->Set(PORT_REQUIREMENTS_FILLED(), 1);
-      }
-    else
-      {
-      info->Clear();
-      }
-    }
-
-  // Return ths information object.
-  return info;
-}
-
-//----------------------------------------------------------------------------
-int vtkAlgorithm::FillInputPortInformation(int, vtkInformation*)
-{
-  vtkErrorMacro("FillInputPortInformation is not implemented.");
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-int vtkAlgorithm::FillOutputPortInformation(int, vtkInformation*)
-{
-  vtkErrorMacro("FillOutputPortInformation is not implemented.");
-  return 0;
-}
 
 //----------------------------------------------------------------------------
 int vtkAlgorithm::GetNumberOfInputConnections(int port)
@@ -854,36 +912,6 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::InputPortIndexInRange(int index, const char* action)
-{
-  // Make sure the index of the input port is in range.
-  if(index < 0 || index >= this->GetNumberOfInputPorts())
-    {
-    vtkErrorMacro("Attempt to " << (action?action:"access")
-                  << " input port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfInputPorts() << " input ports.");
-    return 0;
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
-{
-  // Make sure the index of the output port is in range.
-  if(index < 0 || index >= this->GetNumberOfOutputPorts())
-    {
-    vtkErrorMacro("Attempt to " << (action?action:"access")
-                  << " output port index " << index
-                  << " for an algorithm with "
-                  << this->GetNumberOfOutputPorts() << " output ports.");
-    return 0;
-    }
-  return 1;
-}
-
-//----------------------------------------------------------------------------
 void vtkAlgorithm::Update()
 {
   this->GetExecutive()->Update();
@@ -915,30 +943,6 @@ void vtkAlgorithm::UpdateWholeExtent()
     }
 }
 
-//----------------------------------------------------------------------------
-vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
-{
-  return vtkStreamingDemandDrivenPipeline::New();
-}
-
-//----------------------------------------------------------------------------
-void vtkAlgorithm::Register(vtkObjectBase* o)
-{
-  this->RegisterInternal(o, 1);
-}
-
-//----------------------------------------------------------------------------
-void vtkAlgorithm::UnRegister(vtkObjectBase* o)
-{
-  this->UnRegisterInternal(o, 1);
-}
-
-//----------------------------------------------------------------------------
-void vtkAlgorithm::ReportReferences(vtkGarbageCollector* collector)
-{
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->Executive, "Executive");
-}
 
 //----------------------------------------------------------------------------
 void vtkAlgorithm::ConvertTotalInputToPortConnection(

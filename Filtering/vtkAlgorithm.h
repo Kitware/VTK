@@ -109,68 +109,13 @@ public:
   virtual void SetInformation(vtkInformation*);
 
   // Description:
-  // Remove all the input data.
-  void RemoveAllInputs();
-
-  // Description:
-  // Get the data object that will contain the algorithm output for
-  // the given port.
-  vtkDataObject* GetOutputDataObject(int port);
-
-  // Description:
-  // Set the connection for the given input port index.  Removes
-  // any other connections.
-  virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
-  virtual void SetInputConnection(vtkAlgorithmOutput* input);
-
-  // Description:
-  // Add a connection to the given input port index.
-  virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
-
-  // Description:
-  // Remove a connection from the given input port index.
-  virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
-
-  // Description:
-  // Get a proxy object corresponding to the given output port of this
-  // algorithm.  The proxy object can be passed to another algorithm's
-  // InputConnection methods to modify pipeline connectivity.
-  vtkAlgorithmOutput* GetOutputPort(int index);
-  vtkAlgorithmOutput* GetOutputPort() {
-    return this->GetOutputPort(0); }
-
-  // Description:
   // Get the number of input ports used by the algorithm.
   int GetNumberOfInputPorts();
 
   // Description:
   // Get the number of output ports provided by the algorithm.
   int GetNumberOfOutputPorts();
-
-  // Description:
-  // Get the number of input currently connected to a port.
-  int GetNumberOfInputConnections(int port);
-
-  // Description:
-  // Get the total number of inputs for this algorithm
-  int GetTotalNumberOfInputConnections();
-
-  // Description:
-  // Get the algorithm output port connected to an input port.
-  vtkAlgorithmOutput* GetInputConnection(int port, int index);
-
-  // Description:
-  // Bring this algorithm's outputs up-to-date.
-  virtual void Update();
-
-  // Description:
-  // Backward compatibility method to invoke UpdateInformation on executive.
-  virtual void UpdateInformation();
-
-  // Description:
-  // Bring this algorithm's outputs up-to-date.
-  virtual void UpdateWholeExtent();
-
+  
   // Description:
   // Participate in garbage collection.
   virtual void Register(vtkObjectBase* o);
@@ -218,6 +163,83 @@ public:
   static vtkInformationIntegerKey* INPUT_PORT();
   static vtkInformationIntegerKey* INPUT_CONNECTION();
 
+  
+  // Description:
+  // Set the input data arrays that this algorithm will process. Specifically
+  // the idx array that this algorithm will process (starting from 0) is the
+  // array on port, connection with the specified association and name or
+  // attribute type (such as SCALARS)
+  void SetInputArrayToProcess(int idx, int port, int connection, 
+                              int fieldAssociation, 
+                              const char *name);
+  void SetInputArrayToProcess(int idx, int port, int connection, 
+                              int fieldAssociation, 
+                              int fieldAttributeType);
+  void SetInputArrayToProcess(int idx, vtkInformation *info);
+
+  // Description:
+  // Get the info object for the specified input array to this algorithm
+  vtkInformation *GetInputArrayInformation(int idx);
+  
+  // from here down are convenience methods that really ar executive methods
+  
+  
+  
+  // Description:
+  // Remove all the input data.
+  void RemoveAllInputs();
+
+  // Description:
+  // Get the data object that will contain the algorithm output for
+  // the given port.
+  vtkDataObject* GetOutputDataObject(int port);
+
+  // Description:
+  // Set the connection for the given input port index.  Removes
+  // any other connections.
+  virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
+  virtual void SetInputConnection(vtkAlgorithmOutput* input);
+
+  // Description:
+  // Add a connection to the given input port index.
+  virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
+
+  // Description:
+  // Remove a connection from the given input port index.
+  virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
+
+  // Description:
+  // Get a proxy object corresponding to the given output port of this
+  // algorithm.  The proxy object can be passed to another algorithm's
+  // InputConnection methods to modify pipeline connectivity.
+  vtkAlgorithmOutput* GetOutputPort(int index);
+  vtkAlgorithmOutput* GetOutputPort() {
+    return this->GetOutputPort(0); }
+
+  // Description:
+  // Get the number of input currently connected to a port.
+  int GetNumberOfInputConnections(int port);
+
+  // Description:
+  // Get the total number of inputs for this algorithm
+  int GetTotalNumberOfInputConnections();
+
+  // Description:
+  // Get the algorithm output port connected to an input port.
+  vtkAlgorithmOutput* GetInputConnection(int port, int index);
+
+  // Description:
+  // Bring this algorithm's outputs up-to-date.
+  virtual void Update();
+
+  // Description:
+  // Backward compatibility method to invoke UpdateInformation on executive.
+  virtual void UpdateInformation();
+
+  // Description:
+  // Bring this algorithm's outputs up-to-date.
+  virtual void UpdateWholeExtent();
+
   // Description:
   // Conviniance routine to convert from a linrar ordering of input
   // connections to a port, connecction pair
@@ -237,23 +259,6 @@ public:
   void ReleaseDataFlagOn();
   void ReleaseDataFlagOff();
 
-  // Description:
-  // Set the input data arrays that this algorithm will process. Specifically
-  // the idx array that this algorithm will process (starting from 0) is the
-  // array on port, connection with the specified association and name or
-  // attribute type (such as SCALARS)
-  void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
-                              const char *name);
-  void SetInputArrayToProcess(int idx, int port, int connection, 
-                              int fieldAssociation, 
-                              int fieldAttributeType);
-  void SetInputArrayToProcess(int idx, vtkInformation *info);
-
-  // Description:
-  // Get the info object for the specified input array to this algorithm
-  vtkInformation *GetInputArrayInformation(int idx);
-  
   //========================================================================
   
   // Description:
@@ -300,21 +305,6 @@ protected:
   int OutputPortIndexInRange(int index, const char* action);
 
   // Description:
-  // Replace the Nth connection on the given input port.  For use only
-  // by this class and subclasses.  If this is used to store a NULL
-  // input then the subclass must be able to handle NULL inputs in its
-  // ProcessRequest method.
-  virtual void SetNthInputConnection(int port, int index,
-                                     vtkAlgorithmOutput* input);
-
-  // Description:
-  // Set the number of input connections on the given input port.  For
-  // use only by this class and subclasses.  If this is used to store
-  // a NULL input then the subclass must be able to handle NULL inputs
-  // in its ProcessRequest method.
-  virtual void SetNumberOfInputConnections(int port, int n);
-
-  // Description:
   // Get the actual data array for the input array sepcified by idx, this is
   // only reasonable during the REQUEST_DATA pass
   vtkDataArray *GetInputArrayToProcess(int idx,vtkInformationVector **inputVector);
@@ -344,6 +334,24 @@ protected:
 
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
+
+  // executive methods below
+  
+  // Description:
+  // Replace the Nth connection on the given input port.  For use only
+  // by this class and subclasses.  If this is used to store a NULL
+  // input then the subclass must be able to handle NULL inputs in its
+  // ProcessRequest method.
+  virtual void SetNthInputConnection(int port, int index,
+                                     vtkAlgorithmOutput* input);
+
+  // Description:
+  // Set the number of input connections on the given input port.  For
+  // use only by this class and subclasses.  If this is used to store
+  // a NULL input then the subclass must be able to handle NULL inputs
+  // in its ProcessRequest method.
+  virtual void SetNumberOfInputConnections(int port, int n);
+
 private:
   vtkExecutive* Executive;
   vtkInformationVector* InputPortInformation;
