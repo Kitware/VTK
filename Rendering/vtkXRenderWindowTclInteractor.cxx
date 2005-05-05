@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.48");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.49");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -420,10 +420,27 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         (reinterpret_cast<XButtonEvent *>(event))->state & ShiftMask ? 1 : 0;
       xp = (reinterpret_cast<XButtonEvent*>(event))->x;
       yp = (reinterpret_cast<XButtonEvent*>(event))->y; 
+      
+      // check for double click
+      static int MousePressTime = 0;
+      int repeat = 0;
+      // 400 ms threshold by default is probably good to start
+      if((reinterpret_cast<XButtonEvent*>(event)->time - MousePressTime) < 400)
+        {
+        MousePressTime -= 2000;  // no double click next time
+        repeat = 1;
+        }
+      else
+        {
+          MousePressTime = reinterpret_cast<XButtonEvent*>(event)->time;
+        }
+      
       me->SetEventInformationFlipY(xp, 
                                    yp,
                                    ctrl, 
-                                   shift);
+                                   shift,
+                                   0,
+                                   repeat);
       switch ((reinterpret_cast<XButtonEvent *>(event))->button)
         {
         case Button1: 

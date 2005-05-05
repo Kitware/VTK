@@ -13,6 +13,7 @@ namespace eval ::vtk {
     #    ctrl:   1 if the Control key modifier was pressed, 0 otherwise
     #    shift:  1 if the Control key modifier was pressed, 0 otherwise
     #    delta:  delta field for the MouseWheel event.
+    #    repeat: 1 if a mouse button is double clicked, 0 if single clicked
 
     # Called when a Tk mouse motion event is triggered.
     # Helper binding: propagate the event as a VTK event.
@@ -28,12 +29,13 @@ namespace eval ::vtk {
     #    event:  button state, Press or Release
     #    pos:    position of the button, Left, Middle or Right
 
-    proc cb_vtkw_button_binding {vtkw renwin x y ctrl shift event pos} {
+    proc cb_vtkw_button_binding {vtkw renwin x y ctrl shift event pos repeat} {
         set iren [$renwin GetInteractor]
         $iren SetEventPositionFlipY $x $y
         $iren SetControlKey $ctrl
         $iren SetShiftKey $shift
         $iren ${pos}Button${event}Event
+        $iren SetRepeatCount $repeat
     }
 
     # Called when a Tk wheel motion event is triggered.
@@ -60,8 +62,10 @@ namespace eval ::vtk {
         # $keycode is %k, which is a number
         $iren SetEventInformationFlipY $x $y $ctrl $shift $keysym 0 $keysym
         $iren Key${event}Event
-        $iren SetEventInformationFlipY $x $y $ctrl $shift $keysym 0 $keysym
-        $iren CharEvent
+        if {$event == "Press"} {
+          $iren SetEventInformationFlipY $x $y $ctrl $shift $keysym 0 $keysym
+          $iren CharEvent
+        }
     }
 
     # Called when a Tk Expose/Configure event is triggered.
@@ -125,11 +129,15 @@ namespace eval ::vtk {
 
         # Mouse buttons and key events
 
-        foreach {modifier ctrl shift} {
-            ""               0 0
-            "Control-"       1 0
-            "Shift-"         0 1
-            "Control-Shift-" 1 1
+        foreach {modifier ctrl shift repeat} {
+            ""               0 0 0
+            "Control-"       1 0 0
+            "Shift-"         0 1 0
+            "Control-Shift-" 1 1 0
+            "Double-" 0 0 1
+            "Double-Control-" 1 0 1
+            "Double-Shift-" 0 1 1
+            "Double-Control-Shift-" 1 1 1 
         } {
             foreach event {
                 Press
@@ -141,7 +149,7 @@ namespace eval ::vtk {
                     Right 3
                 } {
                     bind $vtkw <${modifier}Button${event}-${number}> \
-                   "::vtk::cb_vtkw_button_binding $vtkw $renwin %x %y $ctrl $shift $event $pos"
+                   "::vtk::cb_vtkw_button_binding $vtkw $renwin %x %y $ctrl $shift $event $pos $repeat"
                 }
 
                 bind $vtkw <${modifier}Key${event}> \
