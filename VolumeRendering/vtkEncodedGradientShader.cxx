@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.1");
+vtkCxxRevisionMacro(vtkEncodedGradientShader, "1.2");
 vtkStandardNewMacro(vtkEncodedGradientShader);
 
 vtkEncodedGradientShader::vtkEncodedGradientShader()
@@ -287,8 +287,8 @@ void vtkEncodedGradientShader::UpdateShadingTable(
   in[2] = 0.0;
   transform->MultiplyPoint( in, zero );
   zero[0] /= zero[3];
+  zero[1] /= zero[3];
   zero[2] /= zero[3];
-  zero[3] /= zero[3];
   viewDirection[0] -= zero[0];
   viewDirection[1] -= zero[1];
   viewDirection[2] -= zero[2];
