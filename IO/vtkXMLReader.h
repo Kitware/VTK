@@ -160,7 +160,10 @@ protected:
   
   // The vtkXMLDataParser instance used to hide XML reading details.
   vtkXMLDataParser* XMLParser;
-  
+
+  // The FieldData element representation.
+  vtkXMLDataElement* FieldDataElement;
+
   // The input file's name.
   char* FileName;
   

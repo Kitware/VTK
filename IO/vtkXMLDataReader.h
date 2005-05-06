@@ -68,6 +68,8 @@ protected:
   int ReadPieceData(int piece);
   virtual int ReadPieceData();
   
+  virtual void ReadXMLData();
+
   // Read a data array whose tuples coorrespond to points or cells.
   virtual int ReadArrayForPoints(vtkXMLDataElement* da,
                                  vtkDataArray* outArray);

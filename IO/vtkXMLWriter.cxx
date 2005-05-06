@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.42");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.43");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -80,6 +80,7 @@ vtkXMLWriter::vtkXMLWriter()
   this->SetNumberOfInputPorts(1);
 
   this->OutFile = 0;
+  this->FieldDataOffsets = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -1403,7 +1404,8 @@ int vtkXMLWriter::WriteAsciiData(void* data, int numWords, int wordType,
 //----------------------------------------------------------------------------
 unsigned long vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
                                                    vtkIndent indent,
-                                                   const char* alternateName)
+                                                   const char* alternateName,
+                                                   int writeNumTuples)
 {
   ostream& os = *(this->Stream);
   os << indent << "<DataArray";
@@ -1424,6 +1426,11 @@ unsigned long vtkXMLWriter::WriteDataArrayAppended(vtkDataArray* a,
     {
     this->WriteScalarAttribute("NumberOfComponents",
                                a->GetNumberOfComponents());
+    }
+  if(writeNumTuples)
+    {
+    this->WriteScalarAttribute("NumberOfTuples",
+                               a->GetNumberOfTuples());
     }
   this->WriteDataModeAttribute("format");
   unsigned long pos = this->ReserveAttributeSpace("offset");
@@ -1452,7 +1459,8 @@ void vtkXMLWriter::WriteDataArrayAppendedData(vtkDataArray* a,
 
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
-                                        const char* alternateName)
+                                        const char* alternateName,
+                                        int writeNumTuples)
 {
   ostream& os = *(this->Stream);
   os << indent << "<DataArray";
@@ -1473,6 +1481,11 @@ void vtkXMLWriter::WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
     {
     this->WriteScalarAttribute("NumberOfComponents",
                                a->GetNumberOfComponents());
+    }
+  if(writeNumTuples)
+    {
+    this->WriteScalarAttribute("NumberOfTuples",
+                               a->GetNumberOfTuples());
     }
   this->WriteDataModeAttribute("format");
   os << ">\n";
@@ -1503,6 +1516,62 @@ void vtkXMLWriter::WriteInlineData(void* data, int numWords, int wordType,
     {
     this->WriteAsciiData(data, numWords, wordType, indent);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::WriteFieldData(vtkIndent indent)
+{
+  vtkFieldData *fieldData = this->GetInput()->GetFieldData();
+  if (!fieldData || !fieldData->GetNumberOfArrays())
+    {
+    return;
+    }
+
+  if(this->DataMode == vtkXMLWriter::Appended)
+    {
+    this->FieldDataOffsets = this->WriteFieldDataAppended(fieldData, indent);
+    }
+  else
+    {
+    // Write the point data arrays.
+    this->WriteFieldDataInline(fieldData, indent);
+    }
+  return;
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::WriteFieldDataInline(vtkFieldData* fd, vtkIndent indent)
+{
+  ostream& os = *(this->Stream);
+  char** names = this->CreateStringArray(fd->GetNumberOfArrays());
+
+  os << indent << "<FieldData>\n";
+
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  int i;
+  for(i=0; i < fd->GetNumberOfArrays(); ++i)
+    {
+    this->SetProgressRange(progressRange, i, fd->GetNumberOfArrays());
+    this->WriteDataArrayInline(fd->GetArray(i), indent.GetNextIndent(),
+      names[i], 1);
+    if (this->ErrorCode != vtkErrorCode::NoError)
+      {
+      this->DestroyStringArray(fd->GetNumberOfArrays(), names);
+      return;
+      }
+    }
+
+  os << indent << "</FieldData>\n";
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+    this->DestroyStringArray(fd->GetNumberOfArrays(), names);
+    return;
+    }
+
+  this->DestroyStringArray(fd->GetNumberOfArrays(), names);
 }
 
 //----------------------------------------------------------------------------
@@ -1594,6 +1663,66 @@ void vtkXMLWriter::WriteCellDataInline(vtkCellData* cd, vtkIndent indent)
 
   this->DestroyStringArray(cd->GetNumberOfArrays(), names);
 }
+
+
+unsigned long* vtkXMLWriter::WriteFieldDataAppended(vtkFieldData* fd,
+                                                    vtkIndent indent)
+{
+  ostream& os = *(this->Stream);
+  unsigned long* fdPositions = new unsigned long [fd->GetNumberOfArrays()];
+  char** names = this->CreateStringArray(fd->GetNumberOfArrays());
+
+  os << indent << "<FieldData>\n";
+
+  int i;
+  for(i=0; i < fd->GetNumberOfArrays(); ++i)
+    {
+    fdPositions[i] = this->WriteDataArrayAppended(fd->GetArray(i),
+                                                  indent.GetNextIndent(),
+                                                  names[i], 1);
+    if (this->ErrorCode != vtkErrorCode::NoError)
+      {
+      delete [] fdPositions;
+      this->DestroyStringArray(fd->GetNumberOfArrays(), names);
+      return NULL;
+      }
+    }
+
+  os << indent << "</FieldData>\n";
+
+  os.flush();
+  if (os.fail())
+    {
+    this->SetErrorCode(vtkErrorCode::GetLastSystemError());
+    delete [] fdPositions;
+    this->DestroyStringArray(fd->GetNumberOfArrays(), names);
+    return NULL;
+    }
+  this->DestroyStringArray(fd->GetNumberOfArrays(), names);
+
+  return fdPositions;
+}
+
+
+
+//----------------------------------------------------------------------------
+void vtkXMLWriter::WriteFieldDataAppendedData(vtkFieldData* fd,
+                                              unsigned long* fdPositions)
+{
+  float progressRange[2] = {0,0};
+  this->GetProgressRange(progressRange);
+  int i;
+  for(i=0; i < fd->GetNumberOfArrays(); ++i)
+    {
+    this->SetProgressRange(progressRange, i, fd->GetNumberOfArrays());
+    this->WriteDataArrayAppendedData(fd->GetArray(i), fdPositions[i]);
+    if (this->ErrorCode != vtkErrorCode::NoError)
+      {
+      return;
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 unsigned long* vtkXMLWriter::WritePointDataAppended(vtkPointData* pd,

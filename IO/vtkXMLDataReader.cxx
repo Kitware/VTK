@@ -25,7 +25,7 @@
 #include "vtkInformation.h"
 #include "vtkExecutive.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -383,6 +383,44 @@ int vtkXMLDataReader::ReadPieceData()
   
   return 1;
 }
+
+//----------------------------------------------------------------------------
+void vtkXMLDataReader::ReadXMLData()
+{
+  // Let superclasses read data.  This also allocates output data.
+  this->Superclass::ReadXMLData();
+
+  if (this->FieldDataElement) // read the field data information
+    {
+    int i, numTuples;
+    vtkFieldData *fieldData = this->GetOutputDataObject(0)->GetFieldData();
+    for(i=0; i < this->FieldDataElement->GetNumberOfNestedElements() &&
+             !this->AbortExecute; i++)
+      {
+      vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
+      vtkDataArray* array = this->CreateDataArray(eNested);
+      if (array)
+        {
+        if(eNested->GetScalarAttribute("NumberOfTuples", numTuples))
+          {
+          array->SetNumberOfTuples(numTuples);
+          }
+        else
+          {
+          numTuples = 0;
+          }
+        fieldData->AddArray(array);
+        array->Delete();  
+        if (!this->ReadData(eNested, array->GetVoidPointer(0),
+          array->GetDataType(), 0, numTuples*array->GetNumberOfComponents()))
+          {
+          this->DataError = 1;
+          }
+        }
+      }
+    }
+}
+
 
 //----------------------------------------------------------------------------
 int vtkXMLDataReader::ReadArrayForPoints(vtkXMLDataElement* da,

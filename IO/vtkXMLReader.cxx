@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.24");
+vtkCxxRevisionMacro(vtkXMLReader, "1.25");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -41,6 +41,7 @@ vtkXMLReader::vtkXMLReader()
   this->Stream = 0;
   this->FileStream = 0;
   this->XMLParser = 0;
+  this->FieldDataElement = 0;
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->InformationError = 0;
@@ -362,7 +363,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
     // We are just starting to execute.  No errors have yet occurred.
     this->XMLParser->SetAbort(0);
     this->DataError = 0;
-    
+
     // Let the subclasses read the data they want.
     this->ReadXMLData();
     
@@ -390,7 +391,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
 //----------------------------------------------------------------------------
 void vtkXMLReader::ReadXMLData()
 {
-  // Allocate the output's data.
+  // Initialize the output's data.
   this->SetupOutputData();
 }
 
@@ -428,9 +429,22 @@ int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement*)
+int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement *ePrimary)
 {
-  // We don't need any information from the primary element here.
+  // See if there is a FieldData element
+  int numNested = ePrimary->GetNumberOfNestedElements();
+  int i;
+  for(i=0; i < numNested; ++i)
+    {
+    vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
+    if(strcmp(eNested->GetName(), "FieldData") == 0) 
+      {
+      this->FieldDataElement = eNested;
+      return 1;
+      }
+    }
+  
+  this->FieldDataElement = 0;
   return 1;
 }
 

@@ -32,6 +32,7 @@ class vtkDataSetAttributes;
 class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
+class vtkFieldData;
 
 class VTK_IO_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
@@ -168,6 +169,9 @@ protected:
   // The stream position at which appended data starts.
   unsigned long AppendedDataPosition;
 
+  // appended data offsets for field data
+  unsigned long* FieldDataOffsets;
+
   //BTX
   // We need a 32 bit unsigned integer type for platform-independent
   // binary headers.  Note that this is duplicated in
@@ -302,16 +306,20 @@ protected:
   int WriteStringAttribute(const char* name, const char* value);
   
   unsigned long WriteDataArrayAppended(vtkDataArray* a, vtkIndent indent,
-                                       const char* alternateName=0);
+                            const char* alternateName=0, int writeNumTuples=0);
   void WriteDataArrayAppendedData(vtkDataArray* a, unsigned long pos);
   void WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
-                            const char* alternateName=0);
+                            const char* alternateName=0, int writeNumTuples=0);
   void WriteInlineData(void* data, int numWords, int wordType,
                        vtkIndent indent);
   
   // Methods for writing points, point data, and cell data.
+  void WriteFieldData(vtkIndent indent);
+  void WriteFieldDataInline(vtkFieldData* fd, vtkIndent indent);
   void WritePointDataInline(vtkPointData* pd, vtkIndent indent);
   void WriteCellDataInline(vtkCellData* cd, vtkIndent indent);
+  unsigned long* WriteFieldDataAppended(vtkFieldData* fd, vtkIndent indent);
+  void WriteFieldDataAppendedData(vtkFieldData* pd, unsigned long* fdPositions);
   unsigned long* WritePointDataAppended(vtkPointData* pd, vtkIndent indent);
   void WritePointDataAppendedData(vtkPointData* pd, unsigned long* pdPositions);
   unsigned long* WriteCellDataAppended(vtkCellData* cd, vtkIndent indent);

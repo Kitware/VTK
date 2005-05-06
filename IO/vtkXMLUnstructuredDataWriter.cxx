@@ -30,7 +30,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.11");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.12");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -155,6 +155,18 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
         this->NumberOfPieces = numPieces;
         return 0;
         }
+
+      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOffsets)
+        {
+        // Write the field data arrays.
+        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
+          this->FieldDataOffsets);
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          this->DeletePositionArrays();
+          return 0;
+          }
+        }
       }
 
     result = this->WriteAPiece();
@@ -213,8 +225,14 @@ void vtkXMLUnstructuredDataWriter::DeletePositionArrays()
   delete [] this->PointsPositions;
   delete [] this->PointDataPositions;
   delete [] this->CellDataPositions;
+  if (this->FieldDataOffsets)
+    {
+    delete [] this->FieldDataOffsets;
+    this->FieldDataOffsets = NULL;
+    }
 }
- 
+
+
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredDataWriter::WriteHeader()
 {
@@ -224,6 +242,8 @@ int vtkXMLUnstructuredDataWriter::WriteHeader()
   
   // Open the primary element.
   os << indent << "<" << this->GetDataSetName() << ">\n";
+
+  this->WriteFieldData(indent.GetNextIndent());
 
   if(this->DataMode == vtkXMLWriter::Appended)
     {

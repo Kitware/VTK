@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.10");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.11");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -137,6 +137,18 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         {
         return 0;
         }
+
+      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOffsets)
+        {
+        // Write the field data arrays.
+        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
+          this->FieldDataOffsets);
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          this->DeletePositionArrays();
+          return 0;
+          }
+        }
       }
 
     result = this->WriteAPiece();
@@ -188,6 +200,11 @@ void vtkXMLStructuredDataWriter::DeletePositionArrays()
 {
   delete [] this->PointDataOffsets;
   delete [] this->CellDataOffsets;
+  if (this->FieldDataOffsets)
+    {
+    delete [] this->FieldDataOffsets;
+    this->FieldDataOffsets = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -207,6 +224,8 @@ int vtkXMLStructuredDataWriter::WriteHeader()
     }
   
   os << ">\n";
+
+  this->WriteFieldData(indent.GetNextIndent());
 
   if(this->DataMode == vtkXMLWriter::Appended)
     {
