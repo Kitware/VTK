@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.21");
+vtkCxxRevisionMacro(vtkExecutive, "1.22");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -223,6 +223,10 @@ vtkInformationVector* vtkExecutive::GetInputInformation(int port)
 //----------------------------------------------------------------------------
 vtkInformationVector* vtkExecutive::GetOutputInformation()
 {
+  if (!this->Algorithm)
+    {
+    return 0;
+    }
   // Set the length of the vector to match the number of ports.
   int oldNumberOfPorts =
     this->OutputInformation->GetNumberOfInformationObjects();
