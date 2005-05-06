@@ -35,7 +35,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Methods to set/get the patient information data.
+  // Methods to set/get the patient and acquisition information data.
   vtkSetStringMacro(PatientName);
   vtkGetStringMacro(PatientName);
   vtkSetStringMacro(PatientID);
@@ -48,6 +48,8 @@ public:
   vtkGetStringMacro(Study);
   vtkSetStringMacro(ImageNumber);
   vtkGetStringMacro(ImageNumber);
+  vtkSetStringMacro(Modality);
+  vtkGetStringMacro(Modality);
   
 protected:
   vtkMedicalImageReader2();
@@ -60,6 +62,7 @@ protected:
   char *ImageNumber;
   char *Study;
   char *Series;
+  char *Modality;
   
 private:
   vtkMedicalImageReader2(const vtkMedicalImageReader2&); // Not implemented.

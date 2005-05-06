@@ -15,7 +15,7 @@
 #include "vtkMedicalImageReader2.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.3");
+vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.4");
 vtkStandardNewMacro(vtkMedicalImageReader2);
 
 vtkMedicalImageReader2::vtkMedicalImageReader2()
@@ -26,6 +26,7 @@ vtkMedicalImageReader2::vtkMedicalImageReader2()
   this->ImageNumber = 0;
   this->Series = 0;
   this->Study = 0;
+  this->Modality = 0;
 }
 
 vtkMedicalImageReader2::~vtkMedicalImageReader2()
@@ -42,6 +43,8 @@ vtkMedicalImageReader2::~vtkMedicalImageReader2()
   this->Series = NULL;
   delete [] this->Study;
   this->Study = NULL;
+  delete [] this->Modality;
+  this->Modality = NULL;
 }
 
 void vtkMedicalImageReader2::PrintSelf(ostream& os, vtkIndent indent)
@@ -77,5 +80,10 @@ void vtkMedicalImageReader2::PrintSelf(ostream& os, vtkIndent indent)
   if (this->Study)
     {
     os << this->Study;
+    }
+  os << "\n" << indent << "Modality: ";
+  if (this->Modality)
+    {
+    os << this->Modality;
     }
 }
