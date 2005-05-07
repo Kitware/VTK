@@ -32,7 +32,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.24");
+vtkCxxRevisionMacro(vtkParticleReader, "1.25");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -657,15 +657,15 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   verts->Allocate((int)((float)length * 1.002));
   // Keep adding cells until we run out of points.
   ptIdx = 0;
-  int count = 1;
+  int cnt = 1;
   double len = length;
   while (length > 0)
     {
-    if ( count % 10 == 0 )
+    if ( cnt % 10 == 0 )
       {
-     this->UpdateProgress(0.5+((count * 1000.0)/len)/2.0);
+     this->UpdateProgress(0.5+((cnt * 1000.0)/len)/2.0);
       }
-    count++;
+    cnt++;
     cellLength = 1000;
     if (cellLength > length)
       {
@@ -854,15 +854,15 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   verts->Allocate((int)((float)length * 1.002));
   // Keep adding cells until we run out of points.
   ptIdx = 0;
-  int count = 1;
+  int cnt = 1;
   double len = length;
   while (length > 0)
     {
-    if ( count % 10 == 0 )
+    if ( cnt % 10 == 0 )
       {
-     this->UpdateProgress(0.5+((count * 1000.0)/len)/2.0);
+     this->UpdateProgress(0.5+((cnt * 1000.0)/len)/2.0);
       }
-    count++;
+    cnt++;
     cellLength = 1000;
     if (cellLength > length)
       {
