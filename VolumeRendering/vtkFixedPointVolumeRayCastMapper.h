@@ -88,6 +88,9 @@ class vtkEncodedGradientShader;
 class vtkFiniteDifferenceGradientEstimator;
 class vtkRayCastImageDisplayHelper;
 
+// Forward declaration needed for use by friend declaration below.
+VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
+
 class VTK_VOLUMERENDERING_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
@@ -254,9 +257,7 @@ protected:
   
   int ComputeRowBounds( vtkVolume *vol, vtkRenderer *ren );
   
-//BTX
   friend VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
-//ETX
   
   vtkMultiThreader  *Threader;
   int                NumberOfThreads;

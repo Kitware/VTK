@@ -49,7 +49,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.2");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.3");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -1187,7 +1187,8 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
   this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays, (void *)this);
+  this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays,
+                                  (void *)this);
   this->Threader->SingleMethodExecute();
   
   if ( !ren->GetRenderWindow()->GetAbortRender() )
