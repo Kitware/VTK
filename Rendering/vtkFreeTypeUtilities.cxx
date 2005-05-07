@@ -19,6 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
+#include "vtkDebugLeaks.h"
 
 // FTGL
 
@@ -38,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.8");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.9");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -546,6 +547,7 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
 
   // Map the id of a text property in the cache to a FTC_FaceID
 
+#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   FTC_FaceID face_id = reinterpret_cast<FTC_FaceID>(tprop_cache_id);
 
   FTC_ScalerRec scaler_rec;
@@ -561,6 +563,9 @@ int vtkFreeTypeUtilities::GetSize(unsigned long tprop_cache_id,
     }
 
   return error ? 0 : 1;
+#else
+  return 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -661,9 +666,13 @@ int vtkFreeTypeUtilities::GetGlyphIndex(unsigned long tprop_cache_id,
 
   // Lookup the glyph index
 
+#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   *gindex = FTC_CMapCache_Lookup(*cmap_cache, face_id, 0, c);
 
   return *gindex ? 1 : 0;
+#else
+  return 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -715,6 +724,7 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
 
   // Which font are we looking for
 
+#if (FREETYPE_MAJOR >=2 && FREETYPE_MINOR >= 1 && FREETYPE_PATCH >= 9)
   FTC_ImageTypeRec image_type_rec;
   image_type_rec.face_id = face_id;
   image_type_rec.width = font_size;
@@ -735,6 +745,9 @@ int vtkFreeTypeUtilities::GetGlyph(unsigned long tprop_cache_id,
     *image_cache, &image_type_rec, gindex, glyph, NULL);
 
   return error ? 0 : 1;
+#else
+  return 0;
+#endif
 }
 
 //----------------------------------------------------------------------------
