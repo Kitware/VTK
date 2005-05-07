@@ -30,8 +30,9 @@
 
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
+#include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.23");
+vtkCxxRevisionMacro(vtkParticleReader, "1.24");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -119,6 +120,8 @@ vtkParticleReader::vtkParticleReader() :
   , DataType(VTK_FLOAT)
   , Alliquot(0)
   , Count(0)
+  , SwapBytes(0)
+  , NumberOfPoints(0)
 {
   this->SetNumberOfInputPorts(0);
 }

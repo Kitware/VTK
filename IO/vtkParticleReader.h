@@ -151,7 +151,6 @@ private:
   // Update of the progress.
   void DoProgressUpdate( size_t & bytesRead, size_t & fileLength );
 
-private:
   //BTX
   // Description:
   // Enumerate the supported file types.
