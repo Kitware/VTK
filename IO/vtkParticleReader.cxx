@@ -14,29 +14,24 @@
 =========================================================================*/
 #include "vtkParticleReader.h"
 
-#include <sstream>
-#include <algorithm>
-#include <vector>
-
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-
 #include "vtkByteSwap.h"
-
-
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkCellArray.h"
-
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.22");
+#include <vtkstd/algorithm>
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkParticleReader, "1.23");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -51,7 +46,7 @@ namespace {
     class ParseLine
   {
   public:
-    ParseLine (): lookForEndString(false) {};
+    ParseLine (): LookForEndString(false) {};
     int operator () (vtkstd::string &s, T val[4])
     {
       // Skip over comment lines.
@@ -60,15 +55,17 @@ namespace {
       itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
         {
-        lookForEndString = true;
+        LookForEndString = true;
         //continue;
         }
-      if ( lookForEndString )
+      if ( LookForEndString )
         {
         tgt = "*/";
         itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
         if ( itr != s.end() )
-          lookForEndString = false;
+          {
+          LookForEndString = false;
+          }
         //continue;
         return 0;
         }
@@ -76,28 +73,34 @@ namespace {
       tgt = "//";
       itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
+        {
         return 0;
+        }
       tgt = "%";
       itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
+        {
         return 0;
+        }
       tgt = "#";
       itr = vtkstd::search(s.begin(),s.end(),tgt.begin(),tgt.end());
       if ( itr != s.end() )
+        {
         return 0;
+        }
       // If comma delimited, replace with tab
       vtkstd::replace(s.begin(),s.end(),',','\t');
 
       // We have data.
-      vtkstd::istringstream is(s);//      is.str(s);
+      strstream is;
+      is << s.c_str() << ends;// no istringstream in VTK
       is >> val[0] >> val[1] >> val[2] >> val[3];
-      is.clear();
 
       return 1;
     }
 
   private:
-    bool lookForEndString;
+    bool LookForEndString;
     
   };
   
@@ -114,8 +117,8 @@ vtkParticleReader::vtkParticleReader() :
   , HasScalar(1)
   , FileType(FILE_TYPE_IS_UNKNOWN)
   , DataType(VTK_FLOAT)
-  , alliquot(0)
-  , count(0)
+  , Alliquot(0)
+  , Count(0)
 {
   this->SetNumberOfInputPorts(0);
 }
@@ -278,69 +281,75 @@ int vtkParticleReader::DetermineFileType()
   vtkstd::vector <unsigned char> s;
   for ( size_t i = 0; i < sampleSize; ++i )
     {
-      char c;
-      this->File->read(&c,sizeof(char));
-      s.push_back(c);
+    char c;
+    this->File->read(&c,sizeof(char));
+    s.push_back(c);
     }
-    // If read terminated prematurely then it may have detected
-    // a premature EOF character in the data.
-    // Assume that the file type is undetermined in this case.
-    if ( s.size() != sampleSize )
-      {
-      // cout << "Premature termination" << endl;
-      return FILE_TYPE_IS_UNKNOWN;
-      }
-
-    size_t charsCounted = 0;
-    size_t zero = 0;
-    size_t conventionalASCII = 0;
-    size_t extendedASCII = 0;
-    size_t controlASCII = 0;
-    size_t otherASCII = 0;
-    for ( size_t j = 0; j < s.size(); ++j )
+  // If read terminated prematurely then it may have detected
+  // a premature EOF character in the data.
+  // Assume that the file type is undetermined in this case.
+  if ( s.size() != sampleSize )
     {
-      if ( s[j] == '\0' )
-        {
-        zero++;
-        charsCounted++;
-        continue;
-        }
-      // Conventional ASCII characters.
-      if ( s[j] > 0x1f && s[j] < 0x80 )
-       {
-       conventionalASCII++;
-       charsCounted++;
-       continue;
-       }
-      // Extended ASCII characters may have been used.
-      if ( s[j] > 0x7f )
-        {
-        extendedASCII++;
-        charsCounted++;
-        continue;
-        }
-      // Control characters.
-      if ( s[j] == '\n' || s[j] == '\r' || s[j] == '\t' || s[j] == '\f' )
-        {
-          controlASCII++;
-          charsCounted++;
-          continue;
-        }
-      otherASCII++;
-      charsCounted++;
+    // cout << "Premature termination" << endl;
+    return FILE_TYPE_IS_UNKNOWN;
     }
+
+  size_t charsCounted = 0;
+  size_t zero = 0;
+  size_t conventionalASCII = 0;
+  size_t extendedASCII = 0;
+  size_t controlASCII = 0;
+  size_t otherASCII = 0;
+  for ( size_t j = 0; j < s.size(); ++j )
+  {
+    if ( s[j] == '\0' )
+      {
+      zero++;
+      charsCounted++;
+      continue;
+      }
+    // Conventional ASCII characters.
+    if ( s[j] > 0x1f && s[j] < 0x80 )
+     {
+     conventionalASCII++;
+     charsCounted++;
+     continue;
+     }
+    // Extended ASCII characters may have been used.
+    if ( s[j] > 0x7f )
+      {
+      extendedASCII++;
+      charsCounted++;
+      continue;
+      }
+    // Control characters.
+    if ( s[j] == '\n' || s[j] == '\r' || s[j] == '\t' || s[j] == '\f' )
+      {
+      controlASCII++;
+      charsCounted++;
+      continue;
+      }
+    otherASCII++;
+    charsCounted++;
+  }
 //    cout << "Zero: " << zero << " Conventional ASCII:" << conventionalASCII <<
 //       " Extended ASCII: " << extendedASCII << " Control ASCII: " << controlASCII << 
 //       " Other characters: " << otherASCII << 
 //       " Total counted: " << charsCounted << endl;
 
-    // NULL shouldn't ever appear in a text file.
-    if ( zero != 0 || otherASCII > 0 || conventionalASCII == 0 )
-      return FILE_TYPE_IS_BINARY;
-    if ( (double)extendedASCII / (double) conventionalASCII < hiToLowASCII )
-      return FILE_TYPE_IS_TEXT;
-    else
-      return FILE_TYPE_IS_BINARY;
+  // NULL shouldn't ever appear in a text file.
+  if ( zero != 0 || otherASCII > 0 || conventionalASCII == 0 )
+    {
+    return FILE_TYPE_IS_BINARY;
+    }
+  if ( (double)extendedASCII / (double) conventionalASCII < hiToLowASCII )
+    {
+    return FILE_TYPE_IS_TEXT;
+    }
+  else
+    {
+    return FILE_TYPE_IS_BINARY;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -369,31 +378,33 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
 
   this->File->seekg(0,ios::beg);
   
-  this->alliquot = fileLength / quantum;
-  this->count = 1;
+  this->Alliquot = fileLength / quantum;
+  this->Count = 1;
   ParseLine<double> pl;
   while ( vtkstd::getline(*this->File,s,'\n') )
-  {
+    {
     if ( s.size() != 0 )
       {
       bytesRead += s.size();
-      DoProgressUpdate( bytesRead, fileLength );
+      this->DoProgressUpdate( bytesRead, fileLength );
       double val[4];
       val[0]=val[1]=val[2]=val[3]=0;
       if ( pl(s,val) )
         {
         points->InsertNextPoint(val[0], val[1], val[2]);
         if ( this->HasScalar)
+          {
           scalars->InsertNextValue(val[3]);
+          }
         }
+      }
     }
-  }
 
   vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
   vertices->Reset();
 
-  this->numberOfPoints = points->GetNumberOfPoints();
-  for( vtkIdType j = 0; j < (vtkIdType)this->numberOfPoints; ++j )
+  this->NumberOfPoints = points->GetNumberOfPoints();
+  for( vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j )
     {
     vertices->InsertNextCell( 1 );
     vertices->InsertCellPoint( j );
@@ -442,15 +453,15 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
 
   this->File->seekg(0,ios::beg);
   
-  this->alliquot = fileLength / quantum;
-  this->count = 1;
+  this->Alliquot = fileLength / quantum;
+  this->Count = 1;
   ParseLine<float> pl;
   while ( vtkstd::getline(*this->File,s,'\n') )
   {
     if ( s.size() != 0 )
       {
       bytesRead += s.size();
-      DoProgressUpdate( bytesRead, fileLength );
+      this->DoProgressUpdate( bytesRead, fileLength );
       
       float val[4];
       val[0]=val[1]=val[2]=val[3]=0;
@@ -458,7 +469,9 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
         {
         points->InsertNextPoint(val[0], val[1], val[2]);
         if ( this->HasScalar)
+          {
           scalars->InsertNextValue(val[3]);
+          }
         }
     }
   }
@@ -466,8 +479,8 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
   vertices->Reset();
   
-  this->numberOfPoints = points->GetNumberOfPoints();
-  for( vtkIdType j = 0; j < (vtkIdType)this->numberOfPoints; ++j )
+  this->NumberOfPoints = points->GetNumberOfPoints();
+  for( vtkIdType j = 0; j < (vtkIdType)this->NumberOfPoints; ++j )
     {
     vertices->InsertNextCell( 1 );
     vertices->InsertCellPoint( j );
@@ -483,7 +496,9 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   output->SetPoints(points);
   output->SetVerts(vertices);
   if ( this->HasScalar )
+    {
     output->GetPointData()->SetScalars(scalars);
+    }
 
   output->Modified();
 
@@ -519,9 +534,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
 
   fileLength = (unsigned long)this->File->tellg();
   if ( this->HasScalar )
-    this->numberOfPoints = fileLength / (4 * sizeof(double));
+    {
+    this->NumberOfPoints = fileLength / (4 * sizeof(double));
+    }
   else
-    this->numberOfPoints = fileLength / (3 * sizeof(double));
+    {
+    this->NumberOfPoints = fileLength / (3 * sizeof(double));
+    }
 
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -531,31 +550,38 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  if ((unsigned long)numPieces > this->numberOfPoints)
+  if ((unsigned long)numPieces > this->NumberOfPoints)
     {
-    numPieces = (int)(this->numberOfPoints);
+    numPieces = (int)(this->NumberOfPoints);
     }
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)
     {
     return 0;
     }
 
-  start = piece * this->numberOfPoints / numPieces;
-  next = (piece+1) * this->numberOfPoints / numPieces;
+  start = piece * this->NumberOfPoints / numPieces;
+  next = (piece+1) * this->NumberOfPoints / numPieces;
 
   length = next - start;
 
   if ( this->HasScalar )
+    {
     data = new double[length * 4];
+    }
   else
+    {
     data = new double[length * 3];
-  
+    }
 
   // Seek to the first point in the file.
   if ( this->HasScalar )
+    {
     this->File->seekg(start*4*sizeof(double), ios::beg);
+    }
   else
+    {
     this->File->seekg(start*3*sizeof(double), ios::beg);
+    }
   if (this->File->fail())
     {
     vtkErrorMacro(<< "File operation failed: Seeking to " << start*4);
@@ -603,10 +629,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   if (this->GetSwapBytes())
     {
     if ( this->HasScalar )
+      {
       vtkByteSwap::SwapVoidRange(data, length*4, sizeof(double));
+      }
     else
+      {
       vtkByteSwap::SwapVoidRange(data, length*3, sizeof(double));
-    
+      }
     }
 
   this->UpdateProgress(0.5);
@@ -630,7 +659,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   while (length > 0)
     {
     if ( count % 10 == 0 )
+      {
      this->UpdateProgress(0.5+((count * 1000.0)/len)/2.0);
+      }
     count++;
     cellLength = 1000;
     if (cellLength > length)
@@ -648,7 +679,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
         ptr += 4;
         }
       else
+        {
         ptr += 3;
+        }
       verts->InsertCellPoint(ptIdx);
       ++ptIdx;
       }
@@ -662,7 +695,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileDouble(vtkInformationVector *o
   output->SetPoints(points);
   output->SetVerts(verts);
   if ( this->HasScalar )
+    {
     output->GetPointData()->SetScalars(array);
+    }
 
   return 1;
 }
@@ -694,9 +729,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
 
   fileLength = (unsigned long)this->File->tellg();
   if ( this->HasScalar )
-    this->numberOfPoints = fileLength / (4 * sizeof(float));
+    {
+    this->NumberOfPoints = fileLength / (4 * sizeof(float));
+    }
   else
-    this->numberOfPoints = fileLength / (3 * sizeof(float));
+    {
+    this->NumberOfPoints = fileLength / (3 * sizeof(float));
+    }
 
 
   // get the info object
@@ -707,31 +746,39 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   numPieces =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
-  if ((unsigned long)numPieces > this->numberOfPoints)
+  if ((unsigned long)numPieces > this->NumberOfPoints)
     {
-    numPieces = (int)(this->numberOfPoints);
+    numPieces = (int)(this->NumberOfPoints);
     }
   if (numPieces <= 0 || piece < 0 || piece >= numPieces)
     {
     return 0;
     }
 
-  start = piece * this->numberOfPoints / numPieces;
-  next = (piece+1) * this->numberOfPoints / numPieces;
+  start = piece * this->NumberOfPoints / numPieces;
+  next = (piece+1) * this->NumberOfPoints / numPieces;
 
   length = next - start;
 
   if ( this->HasScalar )
+    {
     data = new float[length * 4];
+    }
   else
+    {
     data = new float[length * 3];
+    }
   
 
   // Seek to the first point in the file.
   if ( this->HasScalar )
+    {
     this->File->seekg(start*4*sizeof(float), ios::beg);
+    }
   else
+    {
     this->File->seekg(start*3*sizeof(float), ios::beg);
+    }
   if (this->File->fail())
     {
     vtkErrorMacro(<< "File operation failed: Seeking to " << start*4);
@@ -779,10 +826,13 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   if (this->GetSwapBytes())
     {
     if ( this->HasScalar )
+      {
       vtkByteSwap::SwapVoidRange(data, length*4, sizeof(float));
+      }
     else
+      {
       vtkByteSwap::SwapVoidRange(data, length*3, sizeof(float));
-    
+      }
     }
 
   this->UpdateProgress(0.5);
@@ -806,7 +856,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   while (length > 0)
     {
     if ( count % 10 == 0 )
+      {
      this->UpdateProgress(0.5+((count * 1000.0)/len)/2.0);
+      }
     count++;
     cellLength = 1000;
     if (cellLength > length)
@@ -824,7 +876,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
         ptr += 4;
         }
       else
+        {
         ptr += 3;
+        }
       verts->InsertCellPoint(ptIdx);
       ++ptIdx;
       }
@@ -838,7 +892,9 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
   output->SetPoints(points);
   output->SetVerts(verts);
   if ( this->HasScalar )
+    {
     output->GetPointData()->SetScalars(array);
+    }
 
   return 1;
 }
@@ -846,11 +902,11 @@ int vtkParticleReader::ProduceOutputFromBinaryFileFloat(vtkInformationVector *ou
 //----------------------------------------------------------------------------
 void vtkParticleReader::DoProgressUpdate( size_t & bytesRead, size_t & fileLength )
 {
-  if ( bytesRead > this->alliquot )
+  if ( bytesRead > this->Alliquot )
     {
     this->UpdateProgress( bytesRead/(double)fileLength );
-    this->count++;
-    this->alliquot = fileLength / quantum * this->count;
+    this->Count++;
+    this->Alliquot = fileLength / quantum * this->Count;
     }
 }
 
@@ -874,6 +930,7 @@ void vtkParticleReader::SetDataByteOrderToLittleEndian()
 #endif
 }
 
+//----------------------------------------------------------------------------
 void vtkParticleReader::SetDataByteOrder(int byteOrder)
 {
   if ( byteOrder == VTK_FILE_BYTE_ORDER_BIG_ENDIAN )
@@ -970,8 +1027,8 @@ void vtkParticleReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Data type should never have this value: " << this->DataType << "\n";
     break;
   }
-  os << indent << "NumberOfPoints: " << this->numberOfPoints << "\n";
-  os << indent << "Alliquot: " << (unsigned int)this->alliquot << "\n";
-  os << indent << "Count: " << (unsigned int)this->count << "\n";
+  os << indent << "NumberOfPoints: " << this->NumberOfPoints << "\n";
+  os << indent << "Alliquot: " << (unsigned int)this->Alliquot << "\n";
+  os << indent << "Count: " << (unsigned int)this->Count << "\n";
 
 }

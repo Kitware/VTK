@@ -110,7 +110,6 @@ protected:
   ~vtkParticleReader();
 
 private:
-
   void OpenFile();
 
   char *FileName;
@@ -172,12 +171,12 @@ private:
   int DataType;
 
   // Set an alliquot of bytes.  
-  size_t alliquot;
+  size_t Alliquot;
   // Count of the number of alliquots processed.
-  size_t count;
+  size_t Count;
 
   int SwapBytes;
-  size_t numberOfPoints;
+  size_t NumberOfPoints;
 
 private:
   vtkParticleReader(const vtkParticleReader&);  // Not implemented.
