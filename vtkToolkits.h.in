@@ -57,6 +57,7 @@
 #cmakedefine VTK_USE_SYSTEM_JPEG
 #cmakedefine VTK_USE_SYSTEM_TIFF
 #cmakedefine VTK_USE_SYSTEM_EXPAT
+#cmakedefine VTK_USE_SYSTEM_FREETYPE
 
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE

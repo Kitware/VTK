@@ -667,6 +667,7 @@ VTK_THIRD_PARTY_OPTION(JPEG jpeg)
 VTK_THIRD_PARTY_OPTION(PNG  png)
 VTK_THIRD_PARTY_OPTION(TIFF tiff)
 VTK_THIRD_PARTY_OPTION(EXPAT expat)
+VTK_THIRD_PARTY_OPTION(FREETYPE freetype)
 
 #-----------------------------------------------------------------------------
 # Configure OpenGL support.

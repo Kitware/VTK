@@ -12,7 +12,7 @@ IF (JAVA_AWT_LIBRARY)
 ENDIF (JAVA_AWT_LIBRARY)
 SET(KIT_LIBS vtkGraphics vtkImaging vtkIO
   vtkftgl
-  vtkfreetype
+  ${VTK_FREETYPE_LIBRARIES}
 )
 
 SET( Kit_SRCS

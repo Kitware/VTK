@@ -23,7 +23,6 @@
 #include "vtkToolkits.h"  // for VTK_USE_GL2PS
 
 #include "vtkFreeTypeUtilities.h"
-#include "vtkFreeTypeConfig.h"
 #include "vtkftglConfig.h"
 
 #include "vtkgluPickMatrix.h"
@@ -91,7 +90,7 @@ vtkOpenGLFreeTypeTextMapper_GetGL2PSFontName(vtkTextProperty *tprop,
 
 //----------------------------------------------------------------------------
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.43");
+vtkCxxRevisionMacro(vtkOpenGLFreeTypeTextMapper, "1.44");
 vtkStandardNewMacro(vtkOpenGLFreeTypeTextMapper);
 #endif
 

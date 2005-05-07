@@ -11,8 +11,6 @@ INCLUDE_REGULAR_EXPRESSION(".*")
 INCLUDE_DIRECTORIES (
   ${VTKFTGL_SOURCE_DIR}/src
   ${VTKFTGL_BINARY_DIR}
-  ${VTKFREETYPE_SOURCE_DIR}/include
-  ${VTKFREETYPE_BINARY_DIR}
 )
 
 #
@@ -129,7 +127,7 @@ ENDIF (APPLE)
 # Use GL library provided by parent VTK if possible.
 #
 IF(NOT OPENGL_FOUND)
-  INCLUDE (${CMAKE_ROOT}/Modules/FindOpenGL.cmake)
+  FIND_PACKAGE(OpenGL)
   IF (OPENGL_INCLUDE_PATH)
     INCLUDE_DIRECTORIES (${OPENGL_INCLUDE_PATH})
   ENDIF (OPENGL_INCLUDE_PATH)
@@ -139,7 +137,7 @@ SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${OPENGL_gl_LIBRARY}")
 #
 # We obviously need FreeType
 #
-SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};vtkfreetype")
+SET (VTKFTGL_LIBS "${VTKFTGL_LIBS};${VTK_FREETYPE_LIBRARIES}")
 
 #
 # Define the library (and install it)
@@ -176,8 +174,8 @@ IF (FTGL_BUILD_EXAMPLES)
   #
   # Need GLU and GLUT
   #
-  INCLUDE (${CMAKE_ROOT}/Modules/FindGLU.cmake)
-  INCLUDE (${CMAKE_ROOT}/Modules/FindGLUT.cmake)
+  FIND_PACKAGE(GLU)
+  FIND_PACKAGE(GLUT)
 
   IF (GLU_LIBRARY AND GLUT_LIBRARY)
 
@@ -234,7 +232,7 @@ IF (FTGL_BUILD_EXAMPLES)
     #
     # Link examples to FTGL and Freetype
     #
-    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};vtkftgl;vtkfreetype")
+    SET (VTKFTGL_EXAMPLES_LIBS "${VTKFTGL_EXAMPLES_LIBS};vtkftgl;${VTK_FREETYPE_LIBRARIES}")
 
     #
     # Example 1
