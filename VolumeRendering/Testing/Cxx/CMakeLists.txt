@@ -1,6 +1,8 @@
 # if we are using the display add the tests
-IF (VTK_USE_DISPLAY)
+IF (VTK_USE_VOLUMERENDERING AND VTK_USE_DISPLAY)
   SET(KIT VolumeRendering)
+  # add tests that do not require data
+  SET(MyTests)
   IF (VTK_DATA_ROOT)
     # add tests that require data
     SET(MyTests 
@@ -28,4 +30,4 @@ IF (VTK_USE_DISPLAY)
       ADD_TEST(${TName} ${CXX_TEST_PATH}/${KIT}CxxTests ${TName}) 
     ENDIF (VTK_DATA_ROOT)
   ENDFOREACH (test) 
-ENDIF (VTK_USE_DISPLAY)
+ENDIF (VTK_USE_VOLUMERENDERING AND VTK_USE_DISPLAY)
