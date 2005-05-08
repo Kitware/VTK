@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 #include "vtkImageData.h"
-#include "vtkDebugLeaks.h"
+//#include "vtkDebugLeaks.h"
 
 // FTGL
 
@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.9");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.10");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------

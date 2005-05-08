@@ -16,7 +16,7 @@
 #define __vtk_freetype_h
 
 /* Use the freetype library configured for VTK.  */
-#include "vtkToolkits.h"
+//#include "vtkToolkits.h"
 #ifdef VTK_USE_SYSTEM_FREETYPE
 #ifndef FTC_Manager_LookupFace
 #define FTC_Manager_LookupFace FTC_Manager_Lookup_Face
