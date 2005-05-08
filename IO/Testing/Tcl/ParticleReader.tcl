@@ -13,6 +13,7 @@ vtkRenderWindowInteractor iren
 
 vtkParticleReader reader
   reader SetFileName "$VTK_DATA_ROOT/Data/Particles.raw"
+  reader SetDataByteOrderToBigEndian
 
 vtkPolyDataMapper mapper
     mapper SetInput [reader GetOutput]
@@ -35,9 +36,6 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize
 renWin Render
 
-
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-
 
