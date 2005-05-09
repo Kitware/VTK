@@ -18,8 +18,11 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.2");
+vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.3");
 vtkStandardNewMacro(vtkSphericalDirectionEncoder);
+
+float vtkSphericalDirectionEncoder::DecodedGradientTable[65536*3];
+int   vtkSphericalDirectionEncoder::DecodedGradientTableInitialized = 0;
 
 // Construct the object. Initialize the index table which will be
 // used to map the normal into a patch on the recursively subdivided
@@ -70,13 +73,18 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
   
 float *vtkSphericalDirectionEncoder::GetDecodedGradient( int value )
 {
-  return &(this->DecodedGradientTable[value*3]);
+  return &(vtkSphericalDirectionEncoder::DecodedGradientTable[value*3]);
 }
 
 // This is the table that maps the encoded gradient back into
 // a float triple. 
 void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
 {
+  if ( vtkSphericalDirectionEncoder::DecodedGradientTableInitialized )
+    {
+    return;
+    }
+  
   float theta, phi;
   int   i, j;
   
@@ -86,7 +94,7 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
   float v1[3] = {1,0,0};
   float v2[3], v3[3];
 
-  float *ptr = this->DecodedGradientTable;
+  float *ptr = vtkSphericalDirectionEncoder::DecodedGradientTable;
   
   for ( j = 0; j < 256; j++ )
     {
@@ -121,6 +129,8 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
   
   transformPhi->Delete();
   transformTheta->Delete();
+  
+  vtkSphericalDirectionEncoder::DecodedGradientTableInitialized = 1;
 }
 
 // Print the vtkSphericalDirectionEncoder

@@ -65,12 +65,13 @@ protected:
   vtkSphericalDirectionEncoder();
   ~vtkSphericalDirectionEncoder();
 
-  float DecodedGradientTable[65536*3];
+  static float DecodedGradientTable[65536*3];
 
   // Description:
   // Initialize the table at startup
-  void InitializeDecodedGradientTable();
-
+  static void InitializeDecodedGradientTable();
+  static int DecodedGradientTableInitialized;
+  
 private:
   vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&);  // Not implemented.
   void operator=(const vtkSphericalDirectionEncoder&);  // Not implemented.
