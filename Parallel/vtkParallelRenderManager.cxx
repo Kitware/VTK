@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.50");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.51");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -114,6 +114,8 @@ vtkParallelRenderManager::vtkParallelRenderManager()
 
   this->Viewports = vtkDoubleArray::New();
   this->Viewports->SetNumberOfComponents(4);
+
+  this->UseRGBA = 1;
 
   this->AddedRMIs = 0;
   this->Timer = vtkTimerLog::New();
@@ -189,6 +191,7 @@ void vtkParallelRenderManager::PrintSelf(ostream &os, vtkIndent indent)
 
   os << indent << "Last image processing time: "
      << this->ImageProcessingTime << endl;
+  os << indent << "UseRGBA: " << this->UseRGBA << endl;
 }
 
 //----------------------------------------------------------------------------
@@ -1474,17 +1477,37 @@ void vtkParallelRenderManager::ReadReducedImage()
 
   if (this->ImageReductionFactor > 1)
     {
-    this->RenderWindow->GetRGBACharPixelData(0, 0, this->ReducedImageSize[0]-1,
+    if (this->UseRGBA)
+      {
+      this->RenderWindow->GetRGBACharPixelData(0, 0, this->ReducedImageSize[0]-1,
                                              this->ReducedImageSize[1]-1,
                                              this->ChooseBuffer(),
                                              this->ReducedImage);
+      }
+    else
+      {
+      this->RenderWindow->GetPixelData(0, 0, this->ReducedImageSize[0]-1,
+                                             this->ReducedImageSize[1]-1,
+                                             this->ChooseBuffer(),
+                                             this->ReducedImage);
+      }
     }
   else
     {
-    this->RenderWindow->GetRGBACharPixelData(0, 0, this->FullImageSize[0]-1,
+    if (this->UseRGBA)
+      {
+      this->RenderWindow->GetRGBACharPixelData(0, 0, this->FullImageSize[0]-1,
                                              this->FullImageSize[1]-1,
                                              this->ChooseBuffer(),
                                              this->FullImage);
+      }
+    else
+      {
+      this->RenderWindow->GetPixelData(0, 0, this->FullImageSize[0]-1,
+                                             this->FullImageSize[1]-1,
+                                             this->ChooseBuffer(),
+                                             this->FullImage);
+      }
     this->FullImageUpToDate = 1;
     this->ReducedImage
       ->SetNumberOfComponents(this->FullImage->GetNumberOfComponents());

@@ -270,6 +270,12 @@ public:
   // in a tile of n columns.
   void TileWindows(int xsize, int ysize, int nColumns);
 
+  // Description:
+  // Get/Set if all Images must use RGBA instead of RGB. By default,
+  // this flag is on.
+  vtkSetMacro(UseRGBA, int);
+  vtkGetMacro(UseRGBA, int);
+
 //BTX
   enum Tags {
     RENDER_RMI_TAG=34532,
@@ -356,6 +362,8 @@ protected:
   int WriteBackImages;
   int MagnifyImages;
   int MagnifyImageMethod;
+
+  int UseRGBA;
 
   int FullImageSize[2];
   int ReducedImageSize[2];
