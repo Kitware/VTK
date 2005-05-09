@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.5");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.6");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -960,7 +960,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
           // We definite have 0 opacity because our maximum scalar value in
           // this region is below the minimum scalar value with non-zero opacity
           // for this component
-          if ( 0 && tmpPtr[1] < minNonZeroScalarIndex[c] )
+          if ( tmpPtr[1] < minNonZeroScalarIndex[c] )
             {
             tmpPtr[2] &= 0xff00;
             zero++;
@@ -968,7 +968,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
           // We have 0 opacity because we are using gradient magnitudes and
           // the maximum gradient magnitude in this area is below the minimum
           // gradient magnitude with non-zero opacity for this component
-          else if ( 0 && this->GradientOpacityRequired &&
+          else if ( this->GradientOpacityRequired &&
                     (tmpPtr[2]>>8) < minNonZeroGradientMagnitudeIndex[c] )
             {
             tmpPtr[2] &= 0xff00;
@@ -978,7 +978,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
           // value is lower than our first scalar with non-zero opacity, and
           // the maximum scalar value is greater than this threshold - so
           // we must encounter scalars with opacity in between
-          else if ( 1 && tmpPtr[0] < minNonZeroScalarIndex[c] )
+          else if ( tmpPtr[0] < minNonZeroScalarIndex[c] )
             {
             tmpPtr[2] &= 0xff00;
             tmpPtr[2] |= 0x0001;
