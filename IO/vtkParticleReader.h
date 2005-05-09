@@ -18,7 +18,7 @@
 // .SECTION Description
 // vtkParticleReader reads either a binary or a text file of 
 //  particles. Each particle can have associated with it an optional
-//  scalar value. So the format is format is: x, y, z, scalar 
+//  scalar value. So the format is: x, y, z, scalar 
 //  (all floats or doubles). The text file can consist of a comma 
 //  delimited set of values. In most cases vtkParticleReader can 
 //  automatically determine whether the file is text or binary. 
@@ -124,9 +124,9 @@ private:
   // Each line corresponding to a particle is terminated with a line feed. 
   // If y, z, or s is missing, zero is substituted for them.
   // Comment lines in the file are handled as follows: 
-  // 1) Any line containing "//" "#" "%" anywhere in the line is discarded.
-  // 2) Lines containing "/*" are discarded until a "*/" is found. The line
-  // following the "*/" will be read.
+  // 1) Any line containing "\/\/" "\#" "\%" anywhere in the line is discarded.
+  // 2) Lines containing "\/\*" are discarded until a "\*\/" is found. The line
+  // following the "\*\/" will be read.
   int ProduceOutputFromTextFileDouble(vtkInformationVector *outputVector);
   int ProduceOutputFromTextFileFloat(vtkInformationVector *outputVector);
 
@@ -143,7 +143,7 @@ private:
   // various classifications. The classification of the file is not infallible
   // but should work correctly most of the time. If it fails, use SetFileTypeToText()
   // or SetFileTypeToBinary() to set the file type.
-  // This algorithm probaably only identifies ASCII text correctly and will not 
+  // This algorithm probably only identifies ASCII text correctly and will not 
   // work for UTF-8 UCS-2 (or UTF-16) or UCS-4 or EBCIDIC.
   int DetermineFileType();
   
@@ -164,13 +164,17 @@ private:
   //ETX
   
   int HasScalar;
+  // Description:
   // Used to decide which reader should be used.
   int FileType;
+  // Description:
   // Used to specify the data type.
   int DataType;
 
+  // Description:
   // Set an alliquot of bytes.  
   size_t Alliquot;
+  // Description:
   // Count of the number of alliquots processed.
   size_t Count;
 
