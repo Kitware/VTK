@@ -23,8 +23,7 @@
 #ifndef __vtkExtractCTHPart_h
 #define __vtkExtractCTHPart_h
 
-//#include "vtkPolyDataAlgorithm.h"
-#include "vtkHierarchicalDataSetAlgorithm.h"
+#include "vtkPolyDataAlgorithm.h"
 class vtkPlane;
 class vtkDataArray;
 class vtkDoubleArray;
@@ -43,12 +42,18 @@ class vtkDataSetSurfaceFilter;
 class vtkClipPolyData;
 class vtkCutter;
 
-class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkHierarchicalDataSetAlgorithm
+//#define EXTRACT_USE_IMAGE_DATA 1
+
+class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkPolyDataAlgorithm
 {
 public:
-  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkHierarchicalDataSetAlgorithm);
+  vtkTypeRevisionMacro(vtkExtractCTHPart,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // key to record the bounds of the hierarchical dataset.
+  static vtkInformationDoubleVectorKey *BOUNDS();
+  
   // Description:
   // Construct object with initial range (0,1) and single contour value
   // of 0.0.
@@ -74,7 +79,7 @@ protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();
 
-  void SetOutputData(int idx, vtkHierarchicalDataSet* d);
+  void SetOutputData(int idx, vtkPolyData* d);
   
   int RequestInformation(vtkInformation *request,
                          vtkInformationVector **inputVector,
@@ -89,19 +94,23 @@ protected:
   
   
   void ExecutePart(const char *arrayName,
-                   int partIndex,
                    vtkHierarchicalDataSet *input,
-                   vtkHierarchicalDataSet *output,
-                   int needPartIndex);
+                   vtkAppendPolyData *appendSurface,
+                   vtkAppendPolyData *append);
   
   void ExecutePartOnUniformGrid(const char *arrayName,
-//                                vtkImageData *input,
+#ifdef EXTRACT_USE_IMAGE_DATA
+                                vtkImageData *input,
+#else
                                 vtkUniformGrid *input,
-                                vtkPolyData *output);
+#endif
+                                vtkAppendPolyData *appendSurface,
+                                vtkAppendPolyData *append);
   
-  void ExecutePartOnRectilinearGrid(const char *arrayName,
-                                    vtkRectilinearGrid *input,
-                                    vtkPolyData *output);
+  void ExecutePartOnRectilinearGrid( const char *arrayName,
+                                     vtkRectilinearGrid *input,
+                                     vtkAppendPolyData *appendSurface,
+                                     vtkAppendPolyData *append);
   
   void ExecuteCellDataToPointData(vtkDataArray *cellVolumeFraction, 
                                   vtkDoubleArray *pointVolumeFraction,
@@ -113,34 +122,73 @@ protected:
   void CreateInternalPipeline();
   void DeleteInternalPipeline();
   
+  // Description:
+  // Append quads for faces of the block that actually on the bounds
+  // of the hierarchical dataset. Deals with ghost cells.
+  // Return true if the output is not empty.
+  int ExtractUniformGridSurface(
+#ifdef EXTRACT_USE_IMAGE_DATA
+    vtkImageData *input,
+#else
+    vtkUniformGrid *input,
+#endif
+    vtkPolyData *output);
+  
+  // Description:
+  // Append quads for faces of the block that actually on the bounds
+  // of the hierarchical dataset. Deals with ghost cells.
+  // Return true if the output is not empty.
+  int ExtractRectilinearGridSurface(vtkRectilinearGrid *input,
+                                    vtkPolyData *output);
+  
+  void ExecuteFaceQuads(vtkDataSet *input,
+                        vtkPolyData *output,
+                        int maxFlag,
+                        int originExtents[3],
+                        int ext[6],
+                        int aAxis,
+                        int bAxis,
+                        int cAxis);
+  
+  // Description:
+  // Is block face on axis0 (either min or max depending on the maxFlag)
+  // composed of only ghost cells?
+  // \pre valid_axis0: axis0>=0 && axis0<=2
+  int IsGhostFace(int axis0,
+                  int maxFlag,
+                  int dims[3],
+                  vtkUnsignedCharArray *ghostArray);
+  
   vtkPlane *ClipPlane;
   vtkExtractCTHPartInternal* Internals;
   
   // Internal Pipeline elements
   vtkDoubleArray *PointVolumeFraction;
   
-  
+#ifdef EXTRACT_USE_IMAGE_DATA
+  vtkImageData *Data;
+#else
   vtkUniformGrid *Data;
-//  vtkImageData *Data;
+#endif
   
   vtkContourFilter *Contour;
-  vtkAppendPolyData *Append1;
-  vtkDataSetSurfaceFilter *Surface;
-  vtkClipPolyData *Clip0;
   vtkAppendPolyData *Append2;
   vtkClipPolyData *Clip1;
   vtkCutter *Cut;
   vtkClipPolyData *Clip2;
   
+  vtkPolyData *PolyData;
+  vtkPolyData *RPolyData;
+  vtkPolyData *SurfacePolyData;
+  
   vtkRectilinearGrid *RData;
   vtkContourFilter *RContour;
-  vtkAppendPolyData *RAppend1;
-  vtkDataSetSurfaceFilter *RSurface;
-  vtkClipPolyData *RClip0;
   vtkAppendPolyData *RAppend2;
   vtkClipPolyData *RClip1;
   vtkCutter *RCut;
   vtkClipPolyData *RClip2;
+  
+  double Bounds[6]; // Whole bounds (dataset over all the processors)
   
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.

@@ -34,12 +34,8 @@ vtkLookupTable pvTemp104
   pvTemp104 SetTableRange 0 1
   pvTemp104 SetVectorComponent 0
   pvTemp104 Build
-
-vtkHierarchicalDataSetGeometryFilter geom
- geom SetInput [pvTemp79 GetOutput 0]
-
 vtkPolyDataMapper pvTemp87
-  pvTemp87 SetInput [geom GetOutput 0]
+  pvTemp87 SetInput [pvTemp79 GetOutput 0]
   pvTemp87 SetImmediateModeRendering 1
   pvTemp87 SetScalarRange 0 1
   pvTemp87 UseLookupTableScalarRangeOn
@@ -57,13 +53,8 @@ vtkActor pvTemp88
   [pvTemp88 GetProperty] SetSpecularPower 1
   [pvTemp88 GetProperty] SetSpecularColor 1 1 1
 Ren1 AddActor pvTemp88
-
-vtkHierarchicalDataSetGeometryFilter geom2
- geom2 SetInput [pvTemp79 GetOutput 1]
-
-
 vtkPolyDataMapper pvTemp96
-  pvTemp96 SetInput [geom2 GetOutput 0]
+  pvTemp96 SetInput [pvTemp79 GetOutput 1]
   pvTemp96 SetImmediateModeRendering 1
   pvTemp96 SetScalarRange 0 1
   pvTemp96 UseLookupTableScalarRangeOn
