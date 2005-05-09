@@ -33,13 +33,14 @@
 
 #include <qwidget.h>
 #include <qtimer.h>
-#include <qpixmap.h>
+class QPaintEngine;
 
 class vtkRenderWindow;
 class QVTKInteractor;
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCommand.h>
 #include <vtkConfigure.h>
+class vtkUnsignedCharArray;
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 #if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
@@ -118,7 +119,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     // Description:
     // Returns the current image in the window.  If the image cache is up
     // to date, that is returned to avoid grabbing other windows.
-    virtual QPixmap &cachedImagePixmap();
+    virtual vtkUnsignedCharArray* cachedImage();
     
 #if QT_VERSION < 0x040000
     // Description:
@@ -133,6 +134,8 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     // Description:
     // Handle showing of the Widget
     virtual void showEvent(QShowEvent*);
+
+    virtual QPaintEngine* paintEngine() const;
 
   signals:
     // Description:
@@ -225,7 +228,7 @@ class QVTK_EXPORT QVTKWidget : public QWidget
 
   protected:
     
-    QPixmap cachedImage;
+    vtkUnsignedCharArray* mCachedImage;
     bool cachedImageCleanFlag;
     bool automaticImageCache;
     double maxImageCacheRenderRate;

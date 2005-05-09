@@ -39,6 +39,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkConfigure.h"
 #include "vtkToolkits.h"
+#include "vtkUnsignedCharArray.h"
 
 
 // VTK 4.5 added some major functionality, so we'll make a short define to use
@@ -65,7 +66,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 #else
     : QWidget(parent, name, f | Qt::WWinOwnDC )
 #endif
-     , mRenWin(NULL), cachedImageCleanFlag(false),
+     , mRenWin(NULL), 
+     mCachedImage(NULL), cachedImageCleanFlag(false),
      automaticImageCache(false), maxImageCacheRenderRate(1.0)
 {
   // no background
@@ -90,13 +92,14 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
     : QWidget(parent, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
-          cachedImageCleanFlag(false),
+          mCachedImage(NULL), cachedImageCleanFlag(false),
           automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
 {
   // no background
+  this->setAttribute(Qt::WA_NoBackground);
+  // no double buffering
   this->setAttribute(Qt::WA_PaintOnScreen);
-  this->setAttribute(Qt::WA_NoSystemBackground);
 
    // default to strong focus
   this->setFocusPolicy(Qt::StrongFocus);
@@ -119,6 +122,9 @@ QVTKWidget::~QVTKWidget()
 {
   // get rid of the VTK window
   this->SetRenderWindow(NULL);
+  
+  if(mCachedImage)
+    mCachedImage->Delete();
 }
 
 /*! get the render window
@@ -155,10 +161,10 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
     //clean up window as one could remap it
     if(this->mRenWin->GetMapped())
       this->mRenWin->Finalize();
-#ifdef Q_WS_X11
+#endif
     this->mRenWin->SetDisplayId(NULL);
-#endif
-#endif
+    this->mRenWin->SetParentId(NULL);
+    this->mRenWin->SetWindowId(NULL);
     this->mRenWin->UnRegister(NULL);
   }
 
@@ -169,6 +175,10 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
   {
     // register new window
     this->mRenWin->Register(NULL);
+     
+    // if it is mapped somewhere else, unmap it
+    if(this->mRenWin->GetMapped())
+      this->mRenWin->Finalize();
 
 #ifdef Q_WS_X11
     // give the qt display id to the vtk window
@@ -259,7 +269,7 @@ void QVTKWidget::saveImageToCache()
 {
   if (this->cachedImageCleanFlag) return;
 
-  this->cachedImage = QPixmap::grabWindow(this->winId());
+  this->mRenWin->GetPixelData(0,0,width(), height(), 1, this->mCachedImage);
   this->cachedImageCleanFlag = true;
   emit cachedImageClean();
 }
@@ -267,6 +277,15 @@ void QVTKWidget::saveImageToCache()
 void QVTKWidget::setAutomaticImageCacheEnabled(bool flag)
 {
   this->automaticImageCache = flag;
+  if(flag && !mCachedImage)
+    {
+    mCachedImage = vtkUnsignedCharArray::New();
+    }
+  else if(mCachedImage)
+    {
+    mCachedImage->Delete();
+    mCachedImage = NULL;
+    }
 }
 bool QVTKWidget::isAutomaticImageCacheEnabled() const
 {
@@ -282,13 +301,13 @@ double QVTKWidget::maxRenderRateForImageCache() const
   return this->maxImageCacheRenderRate;
 }
 
-QPixmap &QVTKWidget::cachedImagePixmap()
+vtkUnsignedCharArray* QVTKWidget::cachedImage()
 {
   // Make sure image is up to date.
   this->paintEvent(NULL);
   this->saveImageToCache();
 
-  return this->cachedImage;
+  return this->mCachedImage;
 }
 
 /*! overloaded Qt's event handler to capture additional keys that Qt has
@@ -349,19 +368,26 @@ void QVTKWidget::moveEvent(QMoveEvent* event)
  */
 void QVTKWidget::paintEvent(QPaintEvent* )
 {
-  if (this->cachedImageCleanFlag)
-    {
-    QPainter painter(this);
-    painter.drawPixmap(0, 0, this->cachedImage);
-    return;
-    }
-
   vtkRenderWindowInteractor* iren = NULL;
   if(this->mRenWin)
     iren = this->mRenWin->GetInteractor();
 
   if(!iren || !iren->GetEnabled())
     return;
+
+  
+  // if we have a saved image, use it
+  if (this->cachedImageCleanFlag)
+    {
+    // put cached image into back buffer if we can
+    this->mRenWin->SetPixelData(0,0,width(), height(), this->mCachedImage, 
+                                !this->mRenWin->GetDoubleBuffer());
+    // swap buffers, if double buffering
+    this->mRenWin->Frame();
+    // or should we just put it on the front buffer?
+    return;
+    }
+
 
   iren->Render();
 }
@@ -828,6 +854,11 @@ void QVTKWidget::showEvent(QShowEvent* event)
   QWidget::showEvent(event);
 }
 
+QPaintEngine* QVTKWidget::paintEngine() const
+{
+  return NULL;
+}
+
 /*! allocation method for Qt/VTK interactor
 */
 vtkStandardNewMacro(QVTKInteractor);
@@ -1174,8 +1205,8 @@ void QVTKWidget::x11_setup_window()
 #if QT_VERSION < 0x040000
   setBackgroundMode( Qt::NoBackground );
 #else
+  this->setAttribute(Qt::WA_NoBackground);
   this->setAttribute(Qt::WA_PaintOnScreen);
-  this->setAttribute(Qt::WA_NoSystemBackground);
 #endif
   setFocusPolicy(focus_policy);
   if(visible)
