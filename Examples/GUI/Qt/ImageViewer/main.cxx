@@ -29,6 +29,7 @@
 
 #include "vtkImageViewer.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkPNGReader.h"
 #include "vtkTestUtilities.h"
 
@@ -40,8 +41,10 @@ int main(int argc, char** argv)
 
   QVTKWidget widget;
   widget.resize(256,256);
-  
+ 
+#if QT_VERSION < 0x040000
   app.setMainWidget(&widget);
+#endif
 
   vtkPNGReader* reader = vtkPNGReader::New();
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vtk.png");
@@ -54,9 +57,13 @@ int main(int argc, char** argv)
   widget.SetRenderWindow(image_view->GetRenderWindow());
   image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());
 
+  image_view->SetColorLevel(138.5);
+  image_view->SetColorWindow(233);
+
   widget.show();
 
   app.exec();
+  
 
   image_view->Delete();
   reader->Delete();
