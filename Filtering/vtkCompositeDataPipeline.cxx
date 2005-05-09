@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.12");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.13");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -65,37 +65,8 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
 
   if(this->Algorithm && request->Has(BEGIN_LOOP()))
     {
-    int appendKey = 1;
-    vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
-    if (keys)
-      {
-      int len = request->Length(vtkExecutive::KEYS_TO_COPY());
-      for (int i=0; i<len; i++)
-        {
-        if (keys[i] == vtkCompositeDataPipeline::UPDATE_BLOCKS())
-          {
-          appendKey = 0;
-          break;
-          }
-        }
-      }
-    if (appendKey)
-      {
-      request->Append(vtkExecutive::KEYS_TO_COPY(), 
-                      vtkCompositeDataPipeline::UPDATE_BLOCKS());
-      }
-
-    // Invoke the request on the algorithm.
-    int retVal = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
-
-    this->CheckUpdateBlocks();
-
-    if (retVal)
-      {
-      this->InSubPass = 1;
-      }
-
-    return retVal;
+    this->InSubPass = 1;
+    return 1;
     }
 
   if(this->Algorithm && request->Has(END_LOOP()))
@@ -194,6 +165,26 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
     if(request->Has(FROM_OUTPUT_PORT()))
       {
       outputPort = request->Get(FROM_OUTPUT_PORT());
+      }
+
+    int appendKey = 1;
+    vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
+    if (keys)
+      {
+      int len = request->Length(vtkExecutive::KEYS_TO_COPY());
+      for (int i=0; i<len; i++)
+        {
+        if (keys[i] == vtkCompositeDataPipeline::UPDATE_BLOCKS())
+          {
+          appendKey = 0;
+          break;
+          }
+        }
+      }
+    if (appendKey)
+      {
+      request->Append(vtkExecutive::KEYS_TO_COPY(), 
+                      vtkCompositeDataPipeline::UPDATE_BLOCKS());
       }
 
     if(this->NeedToExecuteData(outputPort))
@@ -399,6 +390,12 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
 
   int i, j;
 
+  for(i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+    {
+    vtkInformation* info = this->GetOutputInformation(i);
+    info->Remove(UPDATE_BLOCKS());
+    }
+
   // Loop over all input ports.
   for(i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
     {
@@ -424,8 +421,8 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         }
 
       vtkInformation* inInfo = this->GetInputInformation(i, j);
-      vtkHierarchicalDataInformation* updateInfo = 
-        vtkHierarchicalDataInformation::SafeDownCast(
+      vtkHierarchicalDataSet* updateInfo = 
+        vtkHierarchicalDataSet::SafeDownCast(
           inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
       if (!updateInfo)
@@ -501,14 +498,10 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
         unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
         for (unsigned l=0; l<numDataSets; l++)
           {
-          if (updateInfo)
+          if (!updateInfo->GetDataSet(k,l))
             {
-            vtkInformation* partInf = updateInfo->GetInformation(k, l);
-            if (!partInf->Has(MARKED_FOR_UPDATE()))
-              {
-              vtkDebugMacro(<< k << "," << l << "  not marked for update");
-              continue;
-              }
+            vtkDebugMacro(<< k << "," << l << "  not marked for update");
+            continue;
             }
           // First pipeline mtime
               
@@ -661,38 +654,6 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
 
   if (result)
     {
-    // If none of the outputs ports has UPDATE_BLOCKS(), we
-    // need to call BEGIN_LOOP(). RequestData() might require
-    // UPDATE_BLOCKS(). This happens when Update() is called
-    // directly on the algorithm.
-    for(int jj=0; jj < this->Algorithm->GetNumberOfOutputPorts(); ++jj)
-      {
-      vtkInformation* info = this->GetOutputInformation(jj);
-      vtkInformation* outPortInfo = 
-        this->Algorithm->GetOutputPortInformation(jj);
-      if (outPortInfo->Has(COMPOSITE_DATA_TYPE_NAME()) &&
-          !info->Has(UPDATE_BLOCKS()))
-        {
-        vtkSmartPointer<vtkInformation> rb = 
-          vtkSmartPointer<vtkInformation>::New();
-        rb->Set(BEGIN_LOOP(), 1);
-        
-        // The request is forwarded upstream through the pipeline.
-        rb->Set(vtkExecutive::FORWARD_DIRECTION(), 
-                vtkExecutive::RequestUpstream);
-
-        rb->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
-        
-        // Send the request.
-        if (!this->CallAlgorithm(rb, vtkExecutive::RequestDownstream))
-          {
-          return 0;
-          }
-
-        break;
-        }
-      }
-
     int inputPortComposite = 0;
     int inputComposite = 0;
     int compositePort = -1;
@@ -749,8 +710,8 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
       vtkCompositeDataSet* input = vtkCompositeDataSet::SafeDownCast(
         inInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
 
-      vtkHierarchicalDataInformation* updateInfo = 
-        vtkHierarchicalDataInformation::SafeDownCast(
+      vtkHierarchicalDataSet* updateInfo = 
+        vtkHierarchicalDataSet::SafeDownCast(
           inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
 
       if (input && updateInfo)
@@ -781,8 +742,7 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
           unsigned int numDataSets = updateInfo->GetNumberOfDataSets(k);
           for (unsigned l=0; l<numDataSets; l++)
             {
-            vtkInformation* partInf = updateInfo->GetInformation(k, l);
-            if (partInf->Has(MARKED_FOR_UPDATE()))
+            if (updateInfo->GetDataSet(k,l))
               {
               r->Set(vtkHierarchicalDataSet::LEVEL(), k);
               r->Set(vtkCompositeDataSet::INDEX(),    l);
@@ -853,6 +813,16 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
     else
       {
       result = this->Superclass::ExecuteData(request);
+      }
+    }
+
+  for(int jj=0; jj < this->Algorithm->GetNumberOfOutputPorts(); ++jj)
+    {
+    vtkInformation* info = this->GetOutputInformation(jj);
+    vtkObject* dobj= info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    if (dobj)
+      {
+      info->Set(UPDATE_BLOCKS(), dobj);
       }
     }
 
@@ -1065,44 +1035,6 @@ int vtkCompositeDataPipeline::CheckCompositeData(int port)
     }
 
   return 1;
-}
-
-//----------------------------------------------------------------------------
-void vtkCompositeDataPipeline::CheckUpdateBlocks()
-{
-  for(int j=0; j < this->Algorithm->GetNumberOfOutputPorts(); ++j)
-    {
-    vtkInformation* info = this->GetOutputInformation(j);
-    // If the output is composite and no UPDATE_BLOCKS() was
-    // provided by the algorithm, create one and mark all
-    // blocks to be updated
-    if (info->Has(vtkCompositeDataSet::COMPOSITE_DATA_SET()) &&
-        !info->Has(vtkCompositeDataPipeline::UPDATE_BLOCKS()))
-      {
-      vtkHierarchicalDataSet* hds = vtkHierarchicalDataSet::SafeDownCast(
-        info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
-      if (!hds)
-        {
-        return;
-        }
-      vtkHierarchicalDataInformation* updateInfo = 
-        vtkHierarchicalDataInformation::New();
-      unsigned int numLevels = hds->GetNumberOfLevels();
-      updateInfo->SetNumberOfLevels(numLevels);
-      for (unsigned int k=0; k<numLevels; k++)
-        {
-        unsigned int numDataSets = hds->GetNumberOfDataSets(k);
-        updateInfo->SetNumberOfDataSets(k, numDataSets);
-        for (unsigned int l=0; l<numDataSets; l++)
-          {
-          vtkInformation* blockInf = updateInfo->GetInformation(k, l);
-          blockInf->Set(MARKED_FOR_UPDATE(), 1);
-          }
-        }
-      info->Set(UPDATE_BLOCKS(), updateInfo);
-      updateInfo->Delete();
-      }
-    }
 }
 
 //----------------------------------------------------------------------------

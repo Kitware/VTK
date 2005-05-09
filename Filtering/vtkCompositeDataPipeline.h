@@ -110,8 +110,6 @@ protected:
   // output port exists and has a valid type.
   virtual int CheckDataObject(int port);
 
-  virtual void CheckUpdateBlocks();
-
   virtual int ForwardUpstream(vtkInformation* request);
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
 

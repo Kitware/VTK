@@ -68,9 +68,6 @@ protected:
   virtual int RequestDataObject(vtkInformation* request, 
                                 vtkInformationVector** inputVector, 
                                 vtkInformationVector* outputVector);
-  virtual int SetUpdateBlocks(vtkInformation*, 
-                              vtkInformationVector**, 
-                              vtkInformationVector*);
   virtual int RequestInformation(vtkInformation *, 
                                  vtkInformationVector **, 
                                  vtkInformationVector *);

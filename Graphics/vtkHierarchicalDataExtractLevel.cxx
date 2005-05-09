@@ -24,7 +24,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.6");
 vtkStandardNewMacro(vtkHierarchicalDataExtractLevel);
 
 // Construct object with PointIds and CellIds on; and ids being generated
@@ -144,50 +144,6 @@ int vtkHierarchicalDataExtractLevel::RequestInformation(
     vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION(), compInfo);
   compInfo->Delete();
 
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkHierarchicalDataExtractLevel::SetUpdateBlocks(
-  vtkInformation*, 
-  vtkInformationVector** inputVector, 
-  vtkInformationVector* outputVector)
-{
-  vtkInformation* info = outputVector->GetInformationObject(0);
-
-  vtkHierarchicalDataInformation* updateInfo = 
-    vtkHierarchicalDataInformation::New();
-  info->Set(
-    vtkCompositeDataPipeline::UPDATE_BLOCKS(), updateInfo);
-
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-
-  vtkHierarchicalDataInformation* inUpdateInfo = 
-    vtkHierarchicalDataInformation::SafeDownCast(
-      inInfo->Get(vtkCompositeDataPipeline::UPDATE_BLOCKS()));
-
-  updateInfo->SetNumberOfLevels(this->MaxLevel+1);
-  unsigned int numLevels = updateInfo->GetNumberOfLevels();
-  for (unsigned int j=0; j<numLevels; j++)
-    {
-    if (j < this->MinLevel || j > this->MaxLevel)
-      {
-      updateInfo->SetNumberOfDataSets(j, 0);
-      continue;
-      }
-    updateInfo->SetNumberOfDataSets(j, inUpdateInfo->GetNumberOfDataSets(j));
-    unsigned int numBlocks = updateInfo->GetNumberOfDataSets(j);
-    for (unsigned int i=0; i<numBlocks; i++)
-      {
-      vtkInformation* inBInfo = inUpdateInfo->GetInformation(j, i);
-      if (inBInfo->Get(vtkCompositeDataPipeline::MARKED_FOR_UPDATE()))
-        {
-        vtkInformation* blockInfo = updateInfo->GetInformation(j, i);
-        blockInfo->Set(vtkCompositeDataPipeline::MARKED_FOR_UPDATE(), 1);
-        }
-      }
-    }
-  updateInfo->Delete();
   return 1;
 }
 
