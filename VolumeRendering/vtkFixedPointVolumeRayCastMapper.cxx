@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.4");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.5");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -472,6 +472,10 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->MinMaxVolumeSize[2] = 0;
   this->MinMaxVolumeSize[3] = 0;
   this->SavedMinMaxInput = NULL;
+  
+  this->Volume = NULL;
+  
+  
 }
 
 // Destruct a vtkFixedPointVolumeRayCastMapper - clean up any memory used
