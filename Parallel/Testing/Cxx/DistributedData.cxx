@@ -157,7 +157,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
     }
   else
     {
-    prm->StartService();
+    prm->StartServices();
     contr->Receive(args->retVal, 1, 0, 0x11);
     }
 
@@ -192,7 +192,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
       }
     else
       {
-      prm->StartService();
+      prm->StartServices();
       contr->Receive(args->retVal, 1, 0, 0x11);
       }
     }
