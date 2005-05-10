@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.9");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.10");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -375,8 +375,6 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
                                     vtkAppendPolyData *append)
 {
   int numberOfLevels=input->GetNumberOfLevels();
-  
-  vtkPolyData *pd;
   int level=0;
   while(level<numberOfLevels)
     {
@@ -388,7 +386,6 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
       vtkDataObject *dataObj=input->GetDataSet(level,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
-        pd=0;
         if(level==0)
           {
           vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
