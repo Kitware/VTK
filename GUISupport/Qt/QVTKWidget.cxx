@@ -272,7 +272,8 @@ void QVTKWidget::saveImageToCache()
 {
   if (this->cachedImageCleanFlag) return;
 
-  this->mRenWin->GetPixelData(0,0,width(), height(), 1, this->mCachedImage);
+  this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1, 1,
+                              this->mCachedImage);
   this->cachedImageCleanFlag = true;
   emit cachedImageClean();
 }
@@ -378,7 +379,8 @@ void QVTKWidget::paintEvent(QPaintEvent* )
   if (this->cachedImageCleanFlag)
     {
     // put cached image into back buffer if we can
-    this->mRenWin->SetPixelData(0,0,width(), height(), this->mCachedImage, 
+    this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,
+                                this->mCachedImage, 
                                 !this->mRenWin->GetDoubleBuffer());
     // swap buffers, if double buffering
     this->mRenWin->Frame();
