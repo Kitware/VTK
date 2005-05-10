@@ -67,7 +67,7 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
     : QWidget(parent, name, f | Qt::WWinOwnDC )
 #endif
      , mRenWin(NULL), 
-     mCachedImage(NULL), cachedImageCleanFlag(false),
+     cachedImageCleanFlag(false),
      automaticImageCache(false), maxImageCacheRenderRate(1.0)
 {
   // no background
@@ -84,6 +84,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
   this->setSizePolicy( 
        QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
        );
+
+  this->mCachedImage = vtkUnsignedCharArray::New();
 }
 #endif
 
@@ -92,7 +94,7 @@ QVTKWidget::QVTKWidget(QWidget* parent, const char* name, Qt::WFlags f)
 /*! constructor */
 QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
     : QWidget(parent, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
-          mCachedImage(NULL), cachedImageCleanFlag(false),
+          cachedImageCleanFlag(false),
           automaticImageCache(false), maxImageCacheRenderRate(1.0)
 
 {
@@ -112,6 +114,8 @@ QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
   this->setSizePolicy( 
        QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding )
        );
+
+  this->mCachedImage = vtkUnsignedCharArray::New();
 }
 #endif
 
@@ -123,8 +127,7 @@ QVTKWidget::~QVTKWidget()
   // get rid of the VTK window
   this->SetRenderWindow(NULL);
   
-  if(mCachedImage)
-    mCachedImage->Delete();
+  this->mCachedImage->Delete();
 }
 
 /*! get the render window
@@ -277,14 +280,9 @@ void QVTKWidget::saveImageToCache()
 void QVTKWidget::setAutomaticImageCacheEnabled(bool flag)
 {
   this->automaticImageCache = flag;
-  if(flag && !mCachedImage)
+  if (!flag)
     {
-    mCachedImage = vtkUnsignedCharArray::New();
-    }
-  else if(mCachedImage)
-    {
-    mCachedImage->Delete();
-    mCachedImage = NULL;
+    this->mCachedImage->Initialize();
     }
 }
 bool QVTKWidget::isAutomaticImageCacheEnabled() const
