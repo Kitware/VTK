@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.6");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.7");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -956,6 +956,9 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
             {
             c = components - 1;
             }
+          tmpPtr[2] &= 0xff00;
+          tmpPtr[2] |= 0x0001;
+/***
           
           // We definite have 0 opacity because our maximum scalar value in
           // this region is below the minimum scalar value with non-zero opacity
@@ -1010,6 +1013,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
               zero++;
               }
             }
+***/
           tmpPtr += 3;
           }
         }
