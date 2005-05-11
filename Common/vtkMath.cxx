@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.93");
+vtkCxxRevisionMacro(vtkMath, "1.94");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2707,7 +2707,7 @@ int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 
 //----------------------------------------------------------------------------
 
-int vtkMath::BoundsIsWinthinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
+int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
 {
   if(!bounds1 || !bounds2)
     {
@@ -2722,7 +2722,21 @@ int vtkMath::BoundsIsWinthinOtherBounds(double bounds1[6], double bounds2[6], do
     }
   return 1;
 }
+
+//----------------------------------------------------------------------------
+int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
+{
+  if(!point || !bounds || !delta)
+    {
+    return 0;
+    }
+  for(int i=0;i<3;i++)
+    if(point[i]+delta[i] < bounds[2*i] || point[i]-delta[i] > bounds[2*i+1])
+      return 0;
+  return 1;
   
+} 
+
 //----------------------------------------------------------------------------
 void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 {
