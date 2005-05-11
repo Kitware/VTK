@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.7");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.8");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -91,16 +91,16 @@ void vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume( T *dataPtr, unsigned sh
   
   for ( k = 0; k < fullDim[2]; k++ )
     {
-    sz1 = (k < 2)?(0):(static_cast<int>((k-2)/4));
-    sz2 = (k < 1)?(0):(static_cast<int>((k-1)/4));
+    sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
+    sz2 =              static_cast<int>((k  )/4);
     for ( j = 0; j < fullDim[1]; j++ )
       {      
-      sy1 = (j < 2)?(0):(static_cast<int>((j-2)/4));
-      sy2 = (j < 1)?(0):(static_cast<int>((j-1)/4));
+      sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
+      sy2 =              static_cast<int>((j  )/4);
       for ( i = 0; i < fullDim[0]; i++ )
         {
-        sx1 = (i < 2)?(0):(static_cast<int>((i-2)/4));
-        sx2 = (i < 1)?(0):(static_cast<int>((i-1)/4));
+        sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
+        sx2 =              static_cast<int>((i  )/4);
         
         for ( c = 0; c < smallDim[3]; c++ )
           {
@@ -705,9 +705,7 @@ void vtkFixedPointVolumeRayCastMapper::SetNumberOfThreads( int num )
 }
 
 void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[3],
-                                                                    int smallDim[4],
-                                                                    int independent,
-                                                                    int components )
+                                                                    int smallDim[4] )
 {
   int i, j, k, c;
   int sx1, sx2, sy1, sy2, sz1, sz2;
@@ -716,33 +714,25 @@ void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[
   
   for ( k = 0; k < fullDim[2]; k++ )
     {
-    sz1 = (k < 2)?(0):(static_cast<int>((k-2)/4));
-    sz2 = (k < 1)?(0):(static_cast<int>((k-1)/4));
+    sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
+    sz2 =              static_cast<int>((k  )/4);
     
     unsigned char *dptr = this->GradientMagnitude[k];
     
     for ( j = 0; j < fullDim[1]; j++ )
       {      
-      sy1 = (j < 2)?(0):(static_cast<int>((j-2)/4));
-      sy2 = (j < 1)?(0):(static_cast<int>((j-1)/4));
+      sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
+      sy2 =              static_cast<int>((j  )/4);
       for ( i = 0; i < fullDim[0]; i++ )
         {
-        sx1 = (i < 2)?(0):(static_cast<int>((i-2)/4));
-        sx2 = (i < 1)?(0):(static_cast<int>((i-1)/4));
+        sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
+        sx2 =              static_cast<int>((i  )/4);
         
         for ( c = 0; c < smallDim[3]; c++ )
           {
           unsigned char val;
-          if ( independent )
-            {
-            val = *dptr;
-            dptr++;
-            }
-          else
-            {
-            val = *(dptr+components-1);
-            dptr += components;
-            }
+          val = *dptr;
+          dptr++;
           
           for ( z = sz1; z <= sz2; z++ )
             {
@@ -825,7 +815,6 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
     return;
     }
   
-  
   // Regenerate the min max values if necessary
   if ( needToUpdate&0x02 )
     {
@@ -904,7 +893,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   if ( needToUpdate&0x04 )
     {
     // Now put the gradient magnitude values into the structure
-    this->FillInMaxGradientMagnitudes( dim, this->MinMaxVolumeSize, independent, components );
+    this->FillInMaxGradientMagnitudes( dim, this->MinMaxVolumeSize );
     
     // It is OK to use this same variable for scalars and gradient magnitudes - either
     // we just rebuilt the min max volume from the scalars, or the MTime on the input
@@ -952,14 +941,6 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
         {
         for ( c = 0; c < this->MinMaxVolumeSize[3]; c++ )
           {
-          if ( !independent )
-            {
-            c = components - 1;
-            }
-          tmpPtr[2] &= 0xff00;
-          tmpPtr[2] |= 0x0001;
-/***
-          
           // We definite have 0 opacity because our maximum scalar value in
           // this region is below the minimum scalar value with non-zero opacity
           // for this component
@@ -1013,10 +994,9 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
               zero++;
               }
             }
-***/
           tmpPtr += 3;
           }
-        }
+        }      
       }
     }
   

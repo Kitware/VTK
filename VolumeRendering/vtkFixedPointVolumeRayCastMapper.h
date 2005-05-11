@@ -411,9 +411,7 @@ protected:
 
   void            UpdateMinMaxVolume( vtkVolume *vol );
   void            FillInMaxGradientMagnitudes( int fullDim[3],
-                                               int smallDim[3],
-                                               int independent,
-                                               int components );
+                                               int smallDim[3] );
   
 private:
   vtkFixedPointVolumeRayCastMapper(const vtkFixedPointVolumeRayCastMapper&);  // Not implemented.
@@ -515,7 +513,7 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMinMaxVolumeFlag( unsigned int
       mmpos[1]*this->MinMaxVolumeSize[0] +
       mmpos[0] ) + c;
   
-  return (*(this->MinMaxVolume + 3*offset + 2)&0x00ff);
+  return ((*(this->MinMaxVolume + 3*offset + 2))&0x00ff);
 }
 
 inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned int mmpos[3], int c, 

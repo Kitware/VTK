@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper, "1.2");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper, "1.3");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeGOShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeGOShadeHelper with default values
@@ -279,7 +279,6 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN( T *data,
   VTKKWRCHelper_InitializeCompositeMultiNN();
   VTKKWRCHelper_InitializeCompositeShadeNN();
   VTKKWRCHelper_InitializeCompositeGONN();
-  VTKKWRCHelper_SpaceLeapSetup();
       
   for ( k = 0; k < numSteps; k++ )
     {
@@ -288,7 +287,6 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentNN( T *data,
       VTKKWRCHelper_MoveToNextSampleGOShadeNN();
       }
     
-    VTKKWRCHelper_SpaceLeapCheck();
     VTKKWRCHelper_CroppingCheckNN( pos );
     unsigned short normal[4];
     unsigned char  mag[4];
@@ -753,7 +751,6 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentTrilin( T *data,
   VTKKWRCHelper_InitializeCompositeMultiTrilin();
   VTKKWRCHelper_InitializeCompositeMultiShadeTrilin();
   VTKKWRCHelper_InitializeCompositeMultiGOTrilin();
-  VTKKWRCHelper_SpaceLeapSetup();
 
   for ( k = 0; k < numSteps; k++ )
     {
@@ -762,7 +759,6 @@ void vtkFixedPointCompositeGOShadeHelperGenerateImageIndependentTrilin( T *data,
       mapper->FixedPointIncrement( pos, dir );
       } 
    
-    VTKKWRCHelper_SpaceLeapCheck();
     VTKKWRCHelper_CroppingCheckTrilin( pos );
     
     mapper->ShiftVectorDown( pos, spos );
