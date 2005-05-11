@@ -88,6 +88,10 @@ public:
   virtual double Evaluate (double t) = 0;
 
   // Description:
+  // Return the number of points inserted thus far.
+  int GetNumberOfPoints();
+
+  // Description:
   // Add a pair of points to be fit with the spline.
   void AddPoint (double t, double x);
 
