@@ -550,7 +550,15 @@ public:
   // Return true if first 3D extent is within second 3D extent
   // Extent is x-min, x-max, y-min, y-max, z-min, z-max
   static int ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
+  
+  // Description:
+  // Return true if first 3D bounds is within the second 3D bounds
+  // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
+  // Delta is the error margin along each axis (usually a small number)
+  static int BoundsIsWinthinOtherBounds(double bounds1[6], double bounds2[6], double delta[3]);
+  
 
+  
 protected:
   vtkMath() {};
   ~vtkMath() {};
