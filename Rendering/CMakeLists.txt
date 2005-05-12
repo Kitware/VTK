@@ -91,6 +91,7 @@ vtkTextActor3D.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
+vtkTupleInterpolator.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx
 vtkVolumeCollection.cxx
