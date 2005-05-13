@@ -80,9 +80,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Collect immediately and include the given object in the reference
-  // graph walk.  This also accounts for any deferred collection
-  // checks.  Strongly connected components in the reference graph are
+  // Collect immediately using any objects whose collection was
+  // previously deferred as a root for the reference graph walk.
+  // Strongly connected components in the reference graph are
   // identified.  Those with a net reference count of zero are
   // deleted.  When a component is deleted it may remove references to
   // other components that are not part of the same reference loop but
@@ -93,16 +93,15 @@ public:
   static void Collect();
 
   // Description:
-  // Collect immediately and include the given object in the reference
-  // graph walk.  This also accounts for any deferred collection
-  // checks.  Strongly connected components in the reference graph are
-  // identified.  Those with a net reference count of zero are
-  // deleted.  When a component is deleted it may remove references to
-  // other components that are not part of the same reference loop but
-  // are held by objects in the original component.  These removed
-  // references are handled as any other and their corresponding
-  // checks may be deferred.  This method does continue collecting in
-  // this case.
+  // Collect immediately using the given object as the root for a
+  // reference graph walk.  Strongly connected components in the
+  // reference graph are identified.  Those with a net reference count
+  // of zero are deleted.  When a component is deleted it may remove
+  // references to other components that are not part of the same
+  // reference loop but are held by objects in the original component.
+  // These removed references are handled as any other and their
+  // corresponding checks may be deferred.  This method does continue
+  // collecting in this case.
   static void Collect(vtkObjectBase* root);
 
   // Description:

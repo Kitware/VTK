@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.22");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.23");
 
 class vtkGarbageCollectorSingleton;
 
@@ -294,8 +294,7 @@ public:
   // Internal implementation methods.
 
   // Walk the reference graph using Tarjan's algorithm to identify
-  // strongly connected components.  This also takes references from
-  // the singleton and stores them in the entries.
+  // strongly connected components.
   void FindComponents(vtkObjectBase* root);
 
   // Get the entry for the given object.  This may visit the object.
@@ -437,18 +436,6 @@ void vtkGarbageCollectorImpl::FindComponents(vtkObjectBase* root)
   if(root)
     {
     this->MaybeVisit(root);
-    }
-
-  if(this->Singleton)
-    {
-    // Walk the reference graph from every object the singleton references.
-    while(!this->Singleton->References.empty())
-      {
-      this->MaybeVisit(this->Singleton->References.begin()->first);
-      }
-
-    // The singleton should not have any more references.
-    assert(this->Singleton->TotalNumberOfReferences == 0);
     }
 }
 
@@ -773,6 +760,9 @@ void vtkGarbageCollectorImpl::PassReferencesToEntry(Entry* e)
       e->GarbageCount = i->second;
       this->Singleton->References.erase(i);
       this->Singleton->TotalNumberOfReferences -= e->GarbageCount;
+      cout << "Flushing " << e->GarbageCount << " references to "
+           << e->Object->GetClassName() << "(" << e->Object << ")"
+           << endl;
       }
     }
 
@@ -830,7 +820,12 @@ void vtkGarbageCollector::Collect()
   while(vtkGarbageCollectorSingletonInstance &&
         vtkGarbageCollectorSingletonInstance->TotalNumberOfReferences > 0)
     {
-    vtkGarbageCollector::Collect(0);
+    // Collect starting from one deferred object at a time.  Each
+    // check will remove at least the starting object and possibly
+    // other objects from the singleton's references.
+    vtkObjectBase* root =
+      vtkGarbageCollectorSingletonInstance->References.begin()->first;
+    vtkGarbageCollector::Collect(root);
     }
 }
 
@@ -940,6 +935,9 @@ int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
       ++i->second;
       }
     ++this->TotalNumberOfReferences;
+    cout << "Accepting reference to "
+         << obj->GetClassName() << "(" << obj << ")"
+         << endl;
     return 1;
     }
 
@@ -962,6 +960,9 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
       // entry.
       this->References.erase(i);
       }
+    cout << "Returning reference to "
+         << obj->GetClassName() << "(" << obj << ")"
+         << endl;
     return 1;
     }
 
