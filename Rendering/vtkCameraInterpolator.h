@@ -25,7 +25,10 @@
 // function InterpolateCamera(t,camera) where "camera" is the camera to be
 // updated with interpolated values. Note that "t" should be in the range
 // (min,max) times specified with the AddCamera() method. If outside this
-// range, the interpolation is clamped.
+// range, the interpolation is clamped. This class copies the camera information
+// (as compared to referencing the cameras) so you do not need to keep separate
+// instances of the camera around for each camera added to the list of cameras
+// to interpolate.
 //
 // .SECTION Caveats
 // The interpolator classes are initialized the first time InterpolateCamera()
@@ -35,7 +38,7 @@
 // best performance is obtained by 1) configuring the interpolators, 2) adding 
 // all the cameras, and 3) finally performing interpolation.
 //
-// Currently position, focal point and view up are interpolated, which defines
+// Currently position, focal point and view up are interpolated to define
 // the orientation of the camera. Quaternion interpolation may be added in the
 // future as an alternative interpolation method for camera orientation.
 
