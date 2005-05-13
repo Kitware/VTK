@@ -35,6 +35,7 @@ vtkFollower.cxx
 vtkFrustumCoverageCuller.cxx
 vtkGenericRenderWindowInteractor.cxx
 vtkGraphicsFactory.cxx
+vtkHierarchicalPolyDataMapper.cxx
 vtkIVExporter.cxx
 vtkImageActor.cxx
 vtkImageMapper.cxx
