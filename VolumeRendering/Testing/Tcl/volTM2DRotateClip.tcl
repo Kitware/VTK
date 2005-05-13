@@ -76,8 +76,10 @@ proc colorCells {} {
     randomColorGenerator Delete
 }
 
-vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput  [randomColors GetPolyDataOutput]
+# This does not need a hierarchical mapper, but hierarchical
+# mapper could use a test that has clipping so we use it here
+vtkHierarchicalPolyDataMapper sphereMapper
+    sphereMapper SetInputConnection  [randomColors GetOutputPort 0]
     
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
