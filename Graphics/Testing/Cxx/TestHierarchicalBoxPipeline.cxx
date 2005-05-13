@@ -26,7 +26,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkOutlineCornerFilter.h"
-#include "vtkPolyDataMapper.h"
+#include "vtkHierarchicalPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -70,7 +70,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   shrink->SetInputConnection(0, geom->GetOutputPort(0));
 
   // Rendering objects
-  vtkPolyDataMapper* shMapper = vtkPolyDataMapper::New();
+  vtkHierarchicalPolyDataMapper* shMapper = vtkHierarchicalPolyDataMapper::New();
   shMapper->SetInputConnection(0, shrink->GetOutputPort(0));
   vtkActor* shActor = vtkActor::New();
   shActor->SetMapper(shMapper);
@@ -81,14 +81,11 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   vtkOutlineCornerFilter* ocf = vtkOutlineCornerFilter::New();
   ocf->SetInputConnection(0, reader->GetOutputPort(0));
 
-  // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom2 = 
-    vtkHierarchicalDataSetGeometryFilter::New();
-  geom2->SetInputConnection(0, ocf->GetOutputPort(0));
-
   // Rendering objects
-  vtkPolyDataMapper* ocMapper = vtkPolyDataMapper::New();
-  ocMapper->SetInputConnection(0, geom2->GetOutputPort(0));
+  // This one is actually just a vtkPolyData so it doesn't need a hierarchical
+  // mapper, but we use this one to test hierarchical mapper with polydata input
+  vtkHierarchicalPolyDataMapper* ocMapper = vtkHierarchicalPolyDataMapper::New();
+  ocMapper->SetInputConnection(0, ocf->GetOutputPort(0));
   vtkActor* ocActor = vtkActor::New();
   ocActor->SetMapper(ocMapper);
   ocActor->GetProperty()->SetColor(1, 0, 0);
@@ -103,14 +100,9 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   contour->SetValue(0, -0.013);
   contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
 
-  // geometry filter
-  vtkHierarchicalDataSetGeometryFilter* geom3 = 
-    vtkHierarchicalDataSetGeometryFilter::New();
-  geom3->SetInputConnection(0, contour->GetOutputPort(0));
-
   // Rendering objects
-  vtkPolyDataMapper* contMapper = vtkPolyDataMapper::New();
-  contMapper->SetInputConnection(0, geom3->GetOutputPort(0));
+  vtkHierarchicalPolyDataMapper* contMapper = vtkHierarchicalPolyDataMapper::New();
+  contMapper->SetInputConnection(0, contour->GetOutputPort(0));
   vtkActor* contActor = vtkActor::New();
   contActor->SetMapper(contMapper);
   contActor->GetProperty()->SetColor(1, 0, 0);
@@ -118,12 +110,10 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   
   // Standard testing code.
   ocf->Delete();
-  geom2->Delete();
   ocMapper->Delete();
   ocActor->Delete();
   c2p->Delete();
   contour->Delete();
-  geom3->Delete();
   contMapper->Delete();
   contActor->Delete();
   ren->SetBackground(1,1,1);
