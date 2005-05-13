@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.120");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.121");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -293,6 +293,7 @@ int vtkGlyph3D::RequestData(
     pointIds->SetName(this->PointIdsName);
     pointIds->Allocate(numPts*numSourcePts);
     outputPD->AddArray(pointIds);
+    pointIds->Delete();
     }
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR && inCScalars )
     {

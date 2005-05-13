@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.96");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.97");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ vtkAppendPolyData::~vtkAppendPolyData()
 // Add a dataset to the list of data to append.
 void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 {
-  if (UserManagedInputs)
+  if (this->UserManagedInputs)
     {
     vtkErrorMacro(<<
       "AddInput is not supported if UserManagedInputs is true");
@@ -57,7 +57,7 @@ void vtkAppendPolyData::AddInput(vtkPolyData *ds)
 // Remove a dataset from the list of data to append.
 void vtkAppendPolyData::RemoveInput(vtkPolyData *ds)
 {
-  if (UserManagedInputs)
+  if (this->UserManagedInputs)
     {
     vtkErrorMacro(<<
       "RemoveInput is not supported if UserManagedInputs is true");
@@ -107,10 +107,9 @@ void vtkAppendPolyData::SetInputByNumber(int num, vtkPolyData *input)
 //----------------------------------------------------------------------------
 // This method is much too long, and has to be broken up!
 // Append data sets into single polygonal data set.
-int vtkAppendPolyData::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkAppendPolyData::RequestData(vtkInformation *vtkNotUsed(request),
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector)
 {
   // get the info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -512,10 +511,9 @@ int vtkAppendPolyData::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkAppendPolyData::RequestUpdateExtent(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkAppendPolyData::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
+                                           vtkInformationVector **inputVector,
+                                           vtkInformationVector *outputVector)
 {
   // get the output info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -583,19 +581,11 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if ( this->ParallelStreaming )
-    {
-    os << indent << "ParallelStreamingOn\n";
-    }
-  else
-    {
-    os << indent << "ParallelStreamingOff\n";
-    }
-  //
-  os << indent << "UserManagedInputs: "
-     << this->UserManagedInputs << endl;
+  os << "ParallelStreaming:" << (this->ParallelStreaming?"On":"Off") << endl;
+  os << "UserManagedInputs:" << (this->UserManagedInputs?"On":"Off") << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
                                    vtkIdType offset)
 {
@@ -665,6 +655,7 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
   memcpy(pDest, pSrc, length);
 }
 
+//----------------------------------------------------------------------------
 void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest,
                                               vtkDataArray *src,
                                               vtkIdType offset)
@@ -722,6 +713,7 @@ void vtkAppendPolyData::AppendDifferentPoints(vtkDataArray *dest,
 }
 
 
+//----------------------------------------------------------------------------
 // returns the next pointer in dest
 vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
                                           vtkIdType offset)
@@ -756,6 +748,7 @@ vtkIdType *vtkAppendPolyData::AppendCells(vtkIdType *pDest, vtkCellArray *src,
   return pDest;
 }
 
+//----------------------------------------------------------------------------
 int vtkAppendPolyData::FillInputPortInformation(int port, vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
