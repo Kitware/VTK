@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.23");
+vtkCxxRevisionMacro(vtkDataObject, "1.24");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -673,14 +673,7 @@ void vtkDataObject::ReleaseData()
 //----------------------------------------------------------------------------
 int vtkDataObject::ShouldIReleaseData()
 {
-  if ( vtkDataObjectGlobalReleaseDataFlag || this->GetReleaseDataFlag() )
-    {
-    return 1;
-    }
-  else
-    {
-    return 0;
-    }
+  return vtkDataObjectGlobalReleaseDataFlag || this->GetReleaseDataFlag();
 }
 
 //----------------------------------------------------------------------------
