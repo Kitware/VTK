@@ -27,12 +27,12 @@
 #define __vtkHierarchicalPolyDataMapper_h
 
 #include "vtkMapper.h"
-#include <vtkstd/vector>
 
 class vtkPolyDataMapper;
 class vtkInformation;
 class vtkRenderer;
 class vtkActor;
+class vtkHierarchicalPolyDataMapperInternals;
 
 class VTK_RENDERING_EXPORT vtkHierarchicalPolyDataMapper : public vtkMapper 
 {
@@ -79,13 +79,11 @@ protected:
   // Time stamp for computation of bounds.
   vtkTimeStamp BoundsMTime;
 
-//BTX  
   // Description:
   // These are the internal polydata mapper that do the
   // rendering. We save then so that they can keep their
   // display lists.
-  vtkstd::vector<vtkPolyDataMapper*> InternalMappers;
-//ETX
+  vtkHierarchicalPolyDataMapperInternals *Internal;
   
   // Description:
   // Time stamp for when we need to update the 

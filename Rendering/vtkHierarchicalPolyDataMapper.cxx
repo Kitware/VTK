@@ -26,19 +26,35 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.1");
+#include <vtkstd/vector>
+
+vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.2");
 vtkStandardNewMacro(vtkHierarchicalPolyDataMapper);
+
+class vtkHierarchicalPolyDataMapperInternals
+{
+public:
+  vtkstd::vector<vtkPolyDataMapper*> Mappers;
+};
 
 vtkHierarchicalPolyDataMapper::vtkHierarchicalPolyDataMapper()
 {
+  this->Internal = new vtkHierarchicalPolyDataMapperInternals;
 }
+
 vtkHierarchicalPolyDataMapper::~vtkHierarchicalPolyDataMapper()
 {
-  for(unsigned int i=0;i<this->InternalMappers.size();i++)
+  cout << "There are " << this->Internal->Mappers.size() << " mappers " << endl;
+  
+  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->InternalMappers[i]->Delete();
+    cout << "ref count is " << this->Internal->Mappers[i]->GetReferenceCount() << endl;
+    
+    this->Internal->Mappers[i]->Delete();
     }
-  this->InternalMappers.clear();
+  this->Internal->Mappers.clear();
+  
+  delete this->Internal;
 }
 
 // Specify the type of data this mapper can handle. If we are
@@ -63,11 +79,11 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
   int warnOnce = 0;
   
   //Delete pdmappers if they already exist.
-  for(unsigned int i=0;i<this->InternalMappers.size();i++)
+  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->InternalMappers[i]->Delete();
+    this->Internal->Mappers[i]->Delete();
     }
-  this->InternalMappers.clear();
+  this->Internal->Mappers.clear();
   
   //Get the HierarchicalDataSet from the input
   vtkInformation* inInfo = this->GetExecutive()->GetInputInformation(0,0);
@@ -83,7 +99,7 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
       {
       vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
       pdmapper->SetInput(pd);
-      this->InternalMappers.push_back(pdmapper);
+      this->Internal->Mappers.push_back(pdmapper);
       }
     }
   else
@@ -98,7 +114,7 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
         {
         vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
         pdmapper->SetInput(pd);
-        this->InternalMappers.push_back(pdmapper);
+        this->Internal->Mappers.push_back(pdmapper);
         }
       // This is not polydata - warn the user that there are non-polydata
       // parts to this data set which will not be rendered by this mapper
@@ -130,10 +146,10 @@ void vtkHierarchicalPolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
     }
   
   //Call Render() on each of the PolyDataMappers
-  for(unsigned int i=0;i<this->InternalMappers.size();i++)
+  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->InternalMappers[i]->SetClippingPlanes( this->GetClippingPlanes() );
-    this->InternalMappers[i]->Render(ren,a);    
+    this->Internal->Mappers[i]->SetClippingPlanes( this->GetClippingPlanes() );
+    this->Internal->Mappers[i]->Render(ren,a);    
     }
 }
 vtkExecutive* vtkHierarchicalPolyDataMapper::CreateDefaultExecutive()
