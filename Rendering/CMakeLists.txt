@@ -25,6 +25,7 @@ vtkActorCollection.cxx
 vtkAssembly.cxx
 vtkAxisActor2D.cxx
 vtkCamera.cxx
+vtkCameraInterpolator.cxx
 vtkCellPicker.cxx
 vtkCuller.cxx
 vtkCullerCollection.cxx
