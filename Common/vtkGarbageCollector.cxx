@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.23");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.24");
 
 class vtkGarbageCollectorSingleton;
 
@@ -760,9 +760,6 @@ void vtkGarbageCollectorImpl::PassReferencesToEntry(Entry* e)
       e->GarbageCount = i->second;
       this->Singleton->References.erase(i);
       this->Singleton->TotalNumberOfReferences -= e->GarbageCount;
-      cout << "Flushing " << e->GarbageCount << " references to "
-           << e->Object->GetClassName() << "(" << e->Object << ")"
-           << endl;
       }
     }
 
@@ -935,9 +932,6 @@ int vtkGarbageCollectorSingleton::GiveReference(vtkObjectBase* obj)
       ++i->second;
       }
     ++this->TotalNumberOfReferences;
-    cout << "Accepting reference to "
-         << obj->GetClassName() << "(" << obj << ")"
-         << endl;
     return 1;
     }
 
@@ -960,9 +954,6 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
       // entry.
       this->References.erase(i);
       }
-    cout << "Returning reference to "
-         << obj->GetClassName() << "(" << obj << ")"
-         << endl;
     return 1;
     }
 
