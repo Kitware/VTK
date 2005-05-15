@@ -25,42 +25,43 @@ extern FunctionInfo *currentFunction;
 void output_temp(FILE *fp,int i)
 {
   /* ignore void */
-  if (((currentFunction->ArgTypes[i] % 10) == 2)&&
-      (!((currentFunction->ArgTypes[i]%1000)/100)))
+  if (((currentFunction->ArgTypes[i] % 0x10) == 0x2)&&
+      (!((currentFunction->ArgTypes[i] % 0x1000)/0x100)))
     {
     return;
     }
   
-  if (currentFunction->ArgTypes[i] == 5000)
+  if (currentFunction->ArgTypes[i] == 0x5000)
     {
     fprintf(fp,"Object id0, String id1");  
     return;
     }
   
-  if (currentFunction->ArgTypes[i]%1000 == 303)
+  if (currentFunction->ArgTypes[i] % 0x1000 == 0x303)
     {
     fprintf(fp,"String ");
     }
   else
     {
-    switch (currentFunction->ArgTypes[i]%10)
+    switch (currentFunction->ArgTypes[i] % 0x10)
       {
-      case 1:   fprintf(fp,"double "); break;
-      case 7:   fprintf(fp,"double "); break;
-      case 4:   fprintf(fp,"int "); break;
-      case 5:   fprintf(fp,"int "); break;
-      case 6:   fprintf(fp,"int "); break;
-      case 2:     fprintf(fp,"void "); break;
-      case 3:     fprintf(fp,"char "); break;
-      case 9:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
-      case 8: return;
+      case 0x1:   fprintf(fp,"double "); break;
+      case 0x7:   fprintf(fp,"double "); break;
+      case 0x4:   fprintf(fp,"int "); break;
+      case 0x5:   fprintf(fp,"int "); break;
+      case 0x6:   fprintf(fp,"int "); break;
+      case 0xA:   fprintf(fp,"int "); break;
+      case 0x2:     fprintf(fp,"void "); break;
+      case 0x3:     fprintf(fp,"char "); break;
+      case 0x9:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
+      case 0x8: return;
       }
     }
 
   fprintf(fp,"id%i",i);
-  if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
-      (currentFunction->ArgTypes[i]%1000 != 303)&&
-      (currentFunction->ArgTypes[i]%1000 != 309))
+  if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 == 0x3)&&
+      (currentFunction->ArgTypes[i] % 0x1000 != 0x303)&&
+      (currentFunction->ArgTypes[i] % 0x1000 != 0x309))
     {
     fprintf(fp,"[]");
     }
@@ -68,30 +69,30 @@ void output_temp(FILE *fp,int i)
 
 void return_result(FILE *fp)
 {
-  switch (currentFunction->ReturnType%1000)
+  switch (currentFunction->ReturnType % 0x1000)
     {
-    case 1: fprintf(fp,"double "); break;
-    case 2: fprintf(fp,"void "); break;
-    case 3: fprintf(fp,"char "); break;
-    case 7: fprintf(fp,"double "); break;
-    case 4: case 5: case 6: case 13: case 14: case 15: case 16:
+    case 0x1: fprintf(fp,"double "); break;
+    case 0x2: fprintf(fp,"void "); break;
+    case 0x3: fprintf(fp,"char "); break;
+    case 0x7: fprintf(fp,"double "); break;
+    case 0x4: case 0x5: case 0x6: case 0xA: case 0x13: case 0x14: case 0x15: case 0x16: case 0x1A:
       fprintf(fp,"int "); 
       break;
-    case 303: fprintf(fp,"String "); break;
-    case 109:  
-    case 309:  
+    case 0x303: fprintf(fp,"String "); break;
+    case 0x109:  
+    case 0x309:  
       fprintf(fp,"%s ",currentFunction->ReturnClass);
       break;
       
       /* handle functions returning vectors */
       /* this is done by looking them up in a hint file */
-    case 301: case 307:
+    case 0x301: case 0x307:
       fprintf(fp,"double[] "); 
       break;
-    case 313:
+    case 0x313:
         fprintf(fp,"byte[] ");
         break;
-    case 304: case 305: case 306: case 314: case 315: case 316:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x314: case 0x315: case 0x316: case 0x31A:
       fprintf(fp,"int[]  "); break;
     }
 }
@@ -113,32 +114,48 @@ int DoneOne()
       for (j = 0; j < fi->NumberOfArguments; j++)
         {
         if ((fi->ArgTypes[j] != currentFunction->ArgTypes[j]) &&
-            !(((fi->ArgTypes[j]%1000 == 309)&&
-               (currentFunction->ArgTypes[j]%1000 == 109)) ||
-              ((fi->ArgTypes[j]%1000 == 109)&&
-               (currentFunction->ArgTypes[j]%1000 == 309)) ||
-              ((fi->ArgTypes[j]%1000 == 301)&&
-               (currentFunction->ArgTypes[j]%1000 == 307)) ||
-              ((fi->ArgTypes[j]%1000 == 307)&&
-               (currentFunction->ArgTypes[j]%1000 == 301)) ||
-              ((fi->ArgTypes[j]%1000 == 304)&&
-               (currentFunction->ArgTypes[j]%1000 == 306)) ||
-              ((fi->ArgTypes[j]%1000 == 306)&&
-               (currentFunction->ArgTypes[j]%1000 == 304)) ||
-              ((fi->ArgTypes[j]%1000 == 1)&&
-               (currentFunction->ArgTypes[j]%1000 == 7)) ||
-              ((fi->ArgTypes[j]%1000 == 7)&&
-               (currentFunction->ArgTypes[j]%1000 == 1)) ||
-              ((fi->ArgTypes[j]%1000 == 4)&&
-               (currentFunction->ArgTypes[j]%1000 == 6)) ||
-              ((fi->ArgTypes[j]%1000 == 6)&&
-               (currentFunction->ArgTypes[j]%1000 == 4))))
+            !(((fi->ArgTypes[j] % 0x1000 == 0x309)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x109)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x109)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x309)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x301)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x307)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x307)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x301)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x304)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x30A)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x30A)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x304)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x30A)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x306)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x306)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x30A)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x1)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x7)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x7)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x1)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x4)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0xA)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0xA)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x4)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0xA)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0x6)) ||
+              ((fi->ArgTypes[j] % 0x1000 == 0x6)&&
+               (currentFunction->ArgTypes[j] % 0x1000 == 0xA))))
           {
           match = 0;
           }
         else
           {
-          if (fi->ArgTypes[j]%1000 == 309 || fi->ArgTypes[j]%1000 == 109)
+          if (fi->ArgTypes[j] % 0x1000 == 0x309 || fi->ArgTypes[j] % 0x1000 == 0x109)
             {
             if (strcmp(fi->ArgClasses[j],currentFunction->ArgClasses[j]))
               {
@@ -148,32 +165,48 @@ int DoneOne()
           }
         }
       if ((fi->ReturnType != currentFunction->ReturnType) &&
-          !(((fi->ReturnType%1000 == 309)&&
-             (currentFunction->ReturnType%1000 == 109)) ||
-            ((fi->ReturnType%1000 == 109)&&
-             (currentFunction->ReturnType%1000 == 309)) ||
-            ((fi->ReturnType%1000 == 301)&&
-             (currentFunction->ReturnType%1000 == 307)) ||
-            ((fi->ReturnType%1000 == 307)&&
-             (currentFunction->ReturnType%1000 == 301)) ||
-            ((fi->ReturnType%1000 == 304)&&
-             (currentFunction->ReturnType%1000 == 306)) ||
-            ((fi->ReturnType%1000 == 306)&&
-             (currentFunction->ReturnType%1000 == 304)) ||
-            ((fi->ReturnType%1000 == 1)&&
-             (currentFunction->ReturnType%1000 == 7)) ||
-            ((fi->ReturnType%1000 == 7)&&
-             (currentFunction->ReturnType%1000 == 1)) ||
-            ((fi->ReturnType%1000 == 4)&&
-             (currentFunction->ReturnType%1000 == 6)) ||
-            ((fi->ReturnType%1000 == 6)&&
-             (currentFunction->ReturnType%1000 == 4))))
+          !(((fi->ReturnType % 0x1000 == 0x309)&&
+             (currentFunction->ReturnType % 0x1000 == 0x109)) ||
+            ((fi->ReturnType % 0x1000 == 0x109)&&
+             (currentFunction->ReturnType % 0x1000 == 0x309)) ||
+            ((fi->ReturnType % 0x1000 == 0x301)&&
+             (currentFunction->ReturnType % 0x1000 == 0x307)) ||
+            ((fi->ReturnType % 0x1000 == 0x307)&&
+             (currentFunction->ReturnType % 0x1000 == 0x301)) ||
+            ((fi->ReturnType % 0x1000 == 0x304)&&
+             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
+            ((fi->ReturnType % 0x1000 == 0x306)&&
+             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
+            ((fi->ReturnType % 0x1000 == 0x30A)&&
+             (currentFunction->ReturnType % 0x1000 == 0x306)) ||
+            ((fi->ReturnType % 0x1000 == 0x306)&&
+             (currentFunction->ReturnType % 0x1000 == 0x30A)) ||
+            ((fi->ReturnType % 0x1000 == 0x304)&&
+             (currentFunction->ReturnType % 0x1000 == 0x30A)) ||
+            ((fi->ReturnType % 0x1000 == 0x30A)&&
+             (currentFunction->ReturnType % 0x1000 == 0x304)) ||
+            ((fi->ReturnType % 0x1000 == 0x1)&&
+             (currentFunction->ReturnType % 0x1000 == 0x7)) ||
+            ((fi->ReturnType % 0x1000 == 0x7)&&
+             (currentFunction->ReturnType % 0x1000 == 0x1)) ||
+            ((fi->ReturnType % 0x1000 == 0x4)&&
+             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
+            ((fi->ReturnType % 0x1000 == 0x6)&&
+             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
+            ((fi->ReturnType % 0x1000 == 0x4)&&
+             (currentFunction->ReturnType % 0x1000 == 0xA)) ||
+            ((fi->ReturnType % 0x1000 == 0xA)&&
+             (currentFunction->ReturnType % 0x1000 == 0x4)) ||
+            ((fi->ReturnType % 0x1000 == 0xA)&&
+             (currentFunction->ReturnType % 0x1000 == 0x6)) ||
+            ((fi->ReturnType % 0x1000 == 0x6)&&
+             (currentFunction->ReturnType % 0x1000 == 0xA))))
         {
         match = 0;
         }
       else
         {
-        if (fi->ReturnType%1000 == 309 || fi->ReturnType%1000 == 109)
+        if (fi->ReturnType % 0x1000 == 0x309 || fi->ReturnType % 0x1000 == 0x109)
           {
           if (strcmp(fi->ReturnClass,currentFunction->ReturnClass))
             {
@@ -289,46 +322,48 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
-    if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
-    if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-        (currentFunction->ArgTypes[i]%1000 != 109)&&
-        ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 316) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x9) args_ok = 0;
+    if ((currentFunction->ArgTypes[i] % 0x10) == 0x8) args_ok = 0;
+    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 != 0x3)&&
+        (currentFunction->ArgTypes[i] % 0x1000 != 0x109)&&
+        ((currentFunction->ArgTypes[i] % 0x1000)/0x100)) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x313) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x314) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x315) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x316) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31A) args_ok = 0;
     }
-  if ((currentFunction->ReturnType%10) == 8) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 9) args_ok = 0;
-  if (((currentFunction->ReturnType%1000)/100 != 3)&&
-      (currentFunction->ReturnType%1000 != 109)&&
-      ((currentFunction->ReturnType%1000)/100)) args_ok = 0;
+  if ((currentFunction->ReturnType % 0x10) == 0x8) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x9) args_ok = 0;
+  if (((currentFunction->ReturnType % 0x1000)/0x100 != 0x3)&&
+      (currentFunction->ReturnType % 0x1000 != 0x109)&&
+      ((currentFunction->ReturnType % 0x1000)/0x100)) args_ok = 0;
 
 
   /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType%1000 == 314) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 315) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 316) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x314) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x315) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x316) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x31A) args_ok = 0;
 
   if (currentFunction->NumberOfArguments && 
-      (currentFunction->ArgTypes[0] == 5000)
+      (currentFunction->ArgTypes[0] == 0x5000)
       &&(currentFunction->NumberOfArguments != 1)) args_ok = 0;
 
   /* make sure we have all the info we need for array arguments in */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
+    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 == 0x3)&&
   (currentFunction->ArgCounts[i] <= 0)&&
-  (currentFunction->ArgTypes[i]%1000 != 309)&&
-  (currentFunction->ArgTypes[i]%1000 != 303)) args_ok = 0;
+  (currentFunction->ArgTypes[i] % 0x1000 != 0x309)&&
+  (currentFunction->ArgTypes[i] % 0x1000 != 0x303)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
-  switch (currentFunction->ReturnType%1000)
+  switch (currentFunction->ReturnType % 0x1000)
     {
-    case 301: case 302: case 307:
-    case 304: case 305: case 306: case 313:
+    case 0x301: case 0x302: case 0x307:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x313:
       args_ok = currentFunction->HaveHint;
       break;
     }
@@ -387,7 +422,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         output_temp(fp,i);
         }
       /* if not void then need return otherwise none */
-      if (currentFunction->ReturnType%1000 == 2)
+      if (currentFunction->ReturnType % 0x1000 == 0x2)
         {
         fprintf(fp,")\n    { %s_%i(",currentFunction->Name,
                 numberOfWrappedFunctions);
@@ -406,7 +441,7 @@ void outputFunction(FILE *fp, FileInfo *data)
         fprintf(fp,"id%i",i);
         }
       if ((currentFunction->NumberOfArguments == 1) && 
-          (currentFunction->ArgTypes[0] == 5000)) fprintf(fp,",id1");
+          (currentFunction->ArgTypes[0] == 0x5000)) fprintf(fp,",id1");
       fprintf(fp,"); }\n");
       
       wrappedFunctions[numberOfWrappedFunctions] = currentFunction;

@@ -176,7 +176,7 @@ Modify lex.yy.c:
 "static"        return(STATIC);
 
 "vtkFloatingPointType" return(DOUBLE);
-"vtkIdType"            return(LONG);
+"vtkIdType"            return(IdType);
 "vtkSetMacro"          return(SetMacro);
 "vtkGetMacro"          return(GetMacro);
 "vtkSetStringMacro"    return(SetStringMacro);

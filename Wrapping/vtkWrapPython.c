@@ -13,11 +13,13 @@
 
 =========================================================================*/
 
+#include "Python.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include "vtkParse.h"
+#include "vtkConfigure.h"
 
 int numberOfWrappedFunctions = 0;
 FunctionInfo *wrappedFunctions[1000];
@@ -30,9 +32,9 @@ void use_hints(FILE *fp)
 {
   int  i;
   
-  switch (currentFunction->ReturnType%1000)
+  switch (currentFunction->ReturnType % 0x1000)
     {
-    case 301:
+    case 0x301:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"f");
       fprintf(fp,"\"");
@@ -42,7 +44,7 @@ void use_hints(FILE *fp)
         }
       fprintf(fp,");\n");
       break;
-    case 307:  
+    case 0x307:  
       fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"d");
       fprintf(fp,"\"");
@@ -52,7 +54,7 @@ void use_hints(FILE *fp)
         }
       fprintf(fp,");\n");
       break;
-    case 304: 
+    case 0x304:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
       fprintf(fp,"\"");
@@ -62,7 +64,24 @@ void use_hints(FILE *fp)
         }
       fprintf(fp,");\n");
       break;
-    case 305: case 306: case 313: case 314: case 315: case 316:
+    case 0x30A:
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
+#ifdef VTK_USE_64BIT_IDS
+#ifdef LONG_LONG
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"L");
+#else
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"l");
+#endif
+#else
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
+#endif
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++) 
+        {
+        fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+    case 0x305: case 0x306: case 0x313: case 0x314: case 0x31A: case 0x315: case 0x316:
       break;
     }
   return;
@@ -72,19 +91,19 @@ void use_hints(FILE *fp)
 void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
 {
   /* handle VAR FUNCTIONS */
-  if (aType == 5000)
+  if (aType == 0x5000)
     {
     fprintf(fp,"  PyObject *temp%i;\n",i); 
     return;
     }
   
-  if (((aType % 10) == 2)&&(!((aType%1000)/100)))
+  if (((aType % 0x10) == 0x2)&&(!((aType % 0x1000)/0x100)))
     {
     return;
     }
 
   /* for const * return types prototype with const */
-  if ((i == MAX_ARGS)&&(aType%2000 >= 1000))
+  if ((i == MAX_ARGS)&&(aType % 0x2000 >= 0x1000))
     {
     fprintf(fp,"  const ");
     }
@@ -93,57 +112,67 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     fprintf(fp,"  ");
     }
   
-  if ((aType%100)/10 == 1)
+  if ((aType % 0x100)/0x10 == 0x1)
     {
     fprintf(fp,"unsigned ");
     }
   
-  switch (aType%10)
+  switch (aType % 0x10)
     {
-    case 1:   fprintf(fp,"float  "); break;
-    case 7:   fprintf(fp,"double "); break;
-    case 4:   fprintf(fp,"int    "); break;
-    case 5:   fprintf(fp,"short  "); break;
-    case 6:   fprintf(fp,"long   "); break;
-    case 2:     fprintf(fp,"void   "); break;
-    case 3:     fprintf(fp,"char   "); break;
-    case 9:     
+    case 0x1:   fprintf(fp,"float  "); break;
+    case 0x7:   fprintf(fp,"double "); break;
+    case 0x4:   fprintf(fp,"int    "); break;
+    case 0x5:   fprintf(fp,"short  "); break;
+    case 0x6:   fprintf(fp,"long   "); break;
+    case 0x2:     fprintf(fp,"void   "); break;
+    case 0x3:     fprintf(fp,"char   "); break;
+    case 0x9:     
       fprintf(fp,"%s ",Id); break;
-    case 8: return;
+    case 0xA:
+#ifdef VTK_USE_64BIT_IDS
+#ifdef LONG_LONG
+      fprintf(fp,"LONG_LONG "); break;
+#else
+      fprintf(fp,"long "); break;
+#endif
+#else
+      fprintf(fp,"int    "); break;
+#endif
+    case 0x8: return;
     }
   
-  switch ((aType%1000)/100)
+  switch ((aType % 0x1000)/0x100)
     {
-    case 1: fprintf(fp, " *"); break; /* act " &" */
-    case 2: fprintf(fp, "&&"); break;
-    case 3: 
-      if ((i == MAX_ARGS)||(aType%10 == 9)||(aType%1000 == 303)
-          ||(aType%1000 == 302))
+    case 0x1: fprintf(fp, " *"); break; /* act " &" */
+    case 0x2: fprintf(fp, "&&"); break;
+    case 0x3: 
+      if ((i == MAX_ARGS)||(aType % 0x10 == 0x9)||(aType % 0x1000 == 0x303)
+          ||(aType % 0x1000 == 0x302))
         {
         fprintf(fp, " *"); 
         }
       break;
-    case 4: fprintf(fp, "&*"); break;
-    case 5: fprintf(fp, "*&"); break;
-    case 7: fprintf(fp, "**"); break;
+    case 0x4: fprintf(fp, "&*"); break;
+    case 0x5: fprintf(fp, "*&"); break;
+    case 0x7: fprintf(fp, "**"); break;
     default: fprintf(fp,"  "); break;
     }
   fprintf(fp,"temp%i",i);
   
   /* handle arrays */
-  if ((aType%1000/100 == 3)&&
-      (i != MAX_ARGS)&&(aType%10 != 9)&&(aType%1000 != 303)
-      &&(aType%1000 != 302))
+  if ((aType % 0x1000/0x100 == 0x3)&&
+      (i != MAX_ARGS)&&(aType % 0x10 != 0x9)&&(aType % 0x1000 != 0x303)
+      &&(aType % 0x1000 != 0x302))
     {
     fprintf(fp,"[%i]",aCount);
     }
 
   fprintf(fp,";\n");
-  if (aType%1000 == 302 && i != MAX_ARGS)
+  if (aType % 0x1000 == 0x302 && i != MAX_ARGS)
     {
     fprintf(fp,"  int      size%d;\n",i);
     }
-  if ((i != MAX_ARGS) && ((aType%1000 == 309)||(aType%1000 == 109)))
+  if ((i != MAX_ARGS) && ((aType % 0x1000 == 0x309)||(aType % 0x1000 == 0x109)))
     {
     fprintf(fp,"  PyObject *tempH%d;\n",i);
     }
@@ -152,25 +181,25 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
 void do_return(FILE *fp)
 {
   /* ignore void */
-  if (((currentFunction->ReturnType % 10) == 2)&&
-      (!((currentFunction->ReturnType%1000)/100)))
+  if (((currentFunction->ReturnType % 0x10) == 0x2)&&
+      (!((currentFunction->ReturnType % 0x1000)/0x100)))
     {
     fprintf(fp,"    Py_INCREF(Py_None);\n");
     fprintf(fp,"    return Py_None;\n");
     return;
     }
   
-  switch (currentFunction->ReturnType%1000)
+  switch (currentFunction->ReturnType % 0x1000)
     {
-    case 303:
+    case 0x303:
       fprintf(fp,"    if (temp%i == NULL) {\n",MAX_ARGS);
       fprintf(fp,"      Py_INCREF(Py_None);\n");
       fprintf(fp,"      return Py_None;\n      }\n");
       fprintf(fp,"    else {\n");
       fprintf(fp,"      return PyString_FromString(temp%i);\n      }\n",MAX_ARGS);
     break;
-    case 109:
-    case 309:  
+    case 0x109:
+    case 0x309:  
       {
       fprintf(fp,"    return vtkPythonGetObjectFromPointer((vtkObjectBase *)temp%i);\n",
               MAX_ARGS);
@@ -179,11 +208,11 @@ void do_return(FILE *fp)
       
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
-    case 301: case 307:
-    case 304: case 305: case 306:
+    case 0x301: case 0x307: case 0x30A:
+    case 0x304: case 0x305: case 0x306:
       use_hints(fp);
       break;
-    case 302:
+    case 0x302:
       {
       fprintf(fp,"    if (temp%i == NULL)\n        {\n",MAX_ARGS);
       fprintf(fp,"      Py_INCREF(Py_None);\n");
@@ -193,30 +222,65 @@ void do_return(FILE *fp)
               MAX_ARGS);
       break;
       }
-    case 1:
-    case 7:
+    case 0x1:
+    case 0x7:
       {
       fprintf(fp,"    return PyFloat_FromDouble(temp%i);\n",
                       MAX_ARGS);
       break;
       }
-    case 13:
-    case 14:
-    case 15:
-    case 4:
-    case 5:
-    case 6:
+    case 0x13:
+    case 0x14:
+    case 0x15:
+    case 0x4:
+    case 0x5:
+    case 0x6:
       {
       fprintf(fp,"    return PyInt_FromLong(temp%i);\n", MAX_ARGS); 
       break;
       }
-    case 16:   
+    case 0x16:   
       {
+#if (PY_VERSION_HEX >= 0x02020000)
+      fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
+              MAX_ARGS);
+#else
       fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n",
-              MAX_ARGS); 
+              MAX_ARGS);
+#endif
       break;
       }
-    case 3:   
+#if defined(VTK_USE_64BIT_IDS) && defined(LONG_LONG) 
+    case 0xA:
+      {
+      fprintf(fp,"    return PyLong_FromLongLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1A:
+      {
+      fprintf(fp,"    return PyLong_FromUnsignedLongLong(temp%i);\n",
+              MAX_ARGS);
+      break;
+      }
+#else
+    case 0xA:
+      {
+      fprintf(fp,"    return PyInt_FromLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1A:
+      {
+#if (PY_VERSION_HEX >= 0x02020000)
+      fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
+              MAX_ARGS);
+#else
+      fprintf(fp,"    return PyInt_FromLong((int)temp%i);\n",
+              MAX_ARGS);
+#endif
+      break;
+      }
+#endif
+    case 0x3:   
       {
       fprintf(fp,"    return PyString_FromStringAndSize((char *)&temp%i,1);\n",
               MAX_ARGS);
@@ -232,7 +296,7 @@ char *get_format_string()
   int argtype;
   int i, j;
   
-  if (currentFunction->ArgTypes[0] == 5000)
+  if (currentFunction->ArgTypes[0] == 0x5000)
     {
     result[currPos] = 'O'; currPos++; 
     result[currPos] = '\0';
@@ -241,11 +305,11 @@ char *get_format_string()
   
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    argtype = currentFunction->ArgTypes[i]%1000;
+    argtype = currentFunction->ArgTypes[i] % 0x1000;
 
     switch (argtype)
       {
-      case 301:
+      case 0x301:
         result[currPos] = '('; currPos++;
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
@@ -253,7 +317,7 @@ char *get_format_string()
           }
         result[currPos] = ')'; currPos++;
         break;
-      case 307:  
+      case 0x307:  
         result[currPos] = '('; currPos++;
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
@@ -261,7 +325,7 @@ char *get_format_string()
           }
         result[currPos] = ')'; currPos++;
         break;
-      case 304: 
+      case 0x304:
         result[currPos] = '('; currPos++;
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
@@ -269,21 +333,48 @@ char *get_format_string()
           }
         result[currPos] = ')'; currPos++;
         break;
-      case 109:
-      case 309: result[currPos] = 'O'; currPos++; break;
-      case 303: result[currPos] = 'z'; currPos++; break;
-      case 302: result[currPos] = 's'; currPos++; 
+      case 0x30A:
+        result[currPos] = '('; currPos++;
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+#ifdef VTK_USE_64BIT_IDS
+#ifdef LONG_LONG
+          result[currPos] = 'L'; currPos++;
+#else
+          result[currPos] = 'l'; currPos++;
+#endif
+#else
+          result[currPos] = 'i'; currPos++;
+#endif
+          }
+        result[currPos] = ')'; currPos++;
+        break;
+      case 0x109:
+      case 0x309: result[currPos] = 'O'; currPos++; break;
+      case 0x303: result[currPos] = 'z'; currPos++; break;
+      case 0x302: result[currPos] = 's'; currPos++; 
                 result[currPos] = '#'; currPos++; break; 
-      case 1:   result[currPos] = 'f'; currPos++; break;
-      case 7:   result[currPos] = 'd'; currPos++; break;
-      case 14:
-      case 4:   result[currPos] = 'i'; currPos++; break;
-      case 15:
-      case 5:   result[currPos] = 'h'; currPos++; break;
-      case 16:
-      case 6:   result[currPos] = 'l'; currPos++; break;
-      case 3:   result[currPos] = 'c'; currPos++; break;
-      case 13:   result[currPos] = 'b'; currPos++; break;
+      case 0x1:   result[currPos] = 'f'; currPos++; break;
+      case 0x7:   result[currPos] = 'd'; currPos++; break;
+      case 0x14:
+      case 0x4:   result[currPos] = 'i'; currPos++; break;
+      case 0x15:
+      case 0x5:   result[currPos] = 'h'; currPos++; break;
+      case 0x16:
+      case 0x6:   result[currPos] = 'l'; currPos++; break;
+      case 0x1A:
+      case 0xA:
+#ifdef VTK_USE_64BIT_IDS
+#ifdef LONG_LONG
+        result[currPos] = 'L'; currPos++; break;
+#else
+        result[currPos] = 'l'; currPos++; break;
+#endif
+#else
+        result[currPos] = 'i'; currPos++; break;
+#endif
+      case 0x3:   result[currPos] = 'c'; currPos++; break;
+      case 0x13:   result[currPos] = 'b'; currPos++; break;
       }
     }
 
@@ -313,12 +404,12 @@ void get_python_signature()
   
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (currentFunction->ArgTypes[i] == 5000)
+    if (currentFunction->ArgTypes[i] == 0x5000)
       {
       add_to_sig(result,"function",&currPos); 
       }
     
-    argtype = currentFunction->ArgTypes[i]%1000;
+    argtype = currentFunction->ArgTypes[i] % 0x1000;
 
     if (i != 0)
       {
@@ -327,8 +418,8 @@ void get_python_signature()
 
     switch (argtype)
       {
-      case 301:
-      case 307:
+      case 0x301:
+      case 0x307:
         add_to_sig(result,"(",&currPos);
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
@@ -340,7 +431,7 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
-      case 304: 
+      case 0x304:
         add_to_sig(result,"(",&currPos);
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
@@ -352,20 +443,37 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
-      case 109:
-      case 309: add_to_sig(result,currentFunction->ArgClasses[i],&currPos); break;
-      case 302:
-      case 303: add_to_sig(result,"string",&currPos); break;
-      case 1:
-      case 7:   add_to_sig(result,"float",&currPos); break;
-      case 14:
-      case 4:
-      case 15:
-      case 5:
-      case 16:
-      case 6:   add_to_sig(result,"int",&currPos); break;
-      case 3:   add_to_sig(result,"char",&currPos); break;
-      case 13:  add_to_sig(result,"int",&currPos); break;
+      case 0x30A:
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+#ifdef VTK_USE_64BIT_IDS
+          add_to_sig(result,"long",&currPos);
+#else
+          add_to_sig(result,"int",&currPos);
+#endif
+          }
+        add_to_sig(result,")",&currPos);
+        break;
+      case 0x109:
+      case 0x309: add_to_sig(result,currentFunction->ArgClasses[i],&currPos); break;
+      case 0x302:
+      case 0x303: add_to_sig(result,"string",&currPos); break;
+      case 0x1:
+      case 0x7:   add_to_sig(result,"float",&currPos); break;
+      case 0xA:
+      case 0x14:
+      case 0x4:
+      case 0x15:
+      case 0x5:
+      case 0x16:
+      case 0x6:   add_to_sig(result,"int",&currPos); break;
+      case 0x3:   add_to_sig(result,"char",&currPos); break;
+      case 0x13:  add_to_sig(result,"int",&currPos); break;
       }
     }
 
@@ -373,19 +481,19 @@ void get_python_signature()
 
   /* if this is a void method, we are finished */
   /* otherwise, print "->" and the return type */
-  if ((!((currentFunction->ReturnType % 10) == 2)) ||
-      ((currentFunction->ReturnType%1000)/100))
+  if ((!((currentFunction->ReturnType % 0x10) == 0x2)) ||
+      ((currentFunction->ReturnType % 0x1000)/0x100))
     {
     add_to_sig(result," -> ",&currPos);
 
-    switch (currentFunction->ReturnType%1000)
+    switch (currentFunction->ReturnType % 0x1000)
       {
-      case 302:
-      case 303: add_to_sig(result,"string",&currPos); break;
-      case 109:
-      case 309: add_to_sig(result,currentFunction->ReturnClass,&currPos); break;
-      case 301:
-      case 307:
+      case 0x302:
+      case 0x303: add_to_sig(result,"string",&currPos); break;
+      case 0x109:
+      case 0x309: add_to_sig(result,currentFunction->ReturnClass,&currPos); break;
+      case 0x301:
+      case 0x307:
         add_to_sig(result,"(",&currPos);
         for (j = 0; j < currentFunction->HintSize; j++) 
           {
@@ -397,7 +505,7 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
-      case 304: 
+      case 0x304:
         add_to_sig(result,"(",&currPos);
         for (j = 0; j < currentFunction->HintSize; j++) 
           {
@@ -409,16 +517,33 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
-      case 1:
-      case 7: add_to_sig(result,"float",&currPos); break;
-      case 13:
-      case 14:
-      case 15:
-      case 16:
-      case 4:
-      case 5:
-      case 6: add_to_sig(result,"int",&currPos); break;
-      case 3: add_to_sig(result,"char",&currPos); break;
+      case 0x30A:
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+#ifdef VTK_USE_64BIT_IDS
+          add_to_sig(result,"long",&currPos);
+#else
+          add_to_sig(result,"int",&currPos);
+#endif
+          }
+        add_to_sig(result,")",&currPos);
+        break;
+      case 0x1:
+      case 0x7: add_to_sig(result,"float",&currPos); break;
+      case 0xA:
+      case 0x13:
+      case 0x14:
+      case 0x15:
+      case 0x16:
+      case 0x4:
+      case 0x5:
+      case 0x6: add_to_sig(result,"int",&currPos); break;
+      case 0x3: add_to_sig(result,"char",&currPos); break;
       }
     }
   
@@ -525,15 +650,15 @@ void outputFunction2(FILE *fp, FileInfo *data)
     currentFunction = theFunc;
 
     /* check for object return types */
-    if ((theFunc->ReturnType%1000 == 309)||
-        (theFunc->ReturnType%1000 == 109))
+    if ((theFunc->ReturnType % 0x1000 == 0x309)||
+        (theFunc->ReturnType % 0x1000 == 0x109))
       {
       /* check that we haven't done this type (no duplicate declarations) */
       for (backnum = fnum-1; backnum >= 0; backnum--) 
         {
         backFunc = wrappedFunctions[backnum];
-        if (((backFunc->ReturnType%1000 == 309)||
-             (backFunc->ReturnType%1000 == 109)) &&
+        if (((backFunc->ReturnType % 0x1000 == 0x309)||
+             (backFunc->ReturnType % 0x1000 == 0x109)) &&
             (strcmp(theFunc->ReturnClass,backFunc->ReturnClass) == 0))
           {
           break;
@@ -562,7 +687,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
           /* check for static methods */
-          if (((wrappedFunctions[occ]->ReturnType/1000) & 2) != 2)
+          if (((wrappedFunctions[occ]->ReturnType/0x1000) & 0x2) != 0x2)
             {
             is_static = 0;
             }
@@ -589,7 +714,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
             !strcmp(theFunc->Name,wrappedFunctions[occ]->Name))
           {
           /* check for static methods */
-          if (((wrappedFunctions[occ]->ReturnType/1000) & 2) == 2)
+          if (((wrappedFunctions[occ]->ReturnType/0x1000) & 0x2) == 0x2)
             {
             is_static = 1;
             }
@@ -635,12 +760,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
             }
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
             {
-            if ((currentFunction->ArgTypes[i]%1000 == 309)||
-                (currentFunction->ArgTypes[i]%1000 == 109))
+            if ((currentFunction->ArgTypes[i] % 0x1000 == 0x309)||
+                (currentFunction->ArgTypes[i] % 0x1000 == 0x109))
               {
               fprintf(fp,", &tempH%d",i);
               }
-            else if (currentFunction->ArgTypes[i]%1000 == 302)
+            else if (currentFunction->ArgTypes[i] % 0x1000 == 0x302)
               {
               fprintf(fp,", &temp%d, &size%d",i,i);
               }
@@ -664,8 +789,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
           /* lookup and required objects */
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
             {
-            if ((currentFunction->ArgTypes[i]%1000 == 309)||
-                (currentFunction->ArgTypes[i]%1000 == 109))
+            if ((currentFunction->ArgTypes[i] % 0x1000 == 0x309)||
+                (currentFunction->ArgTypes[i] % 0x1000 == 0x109))
               {
               fprintf(fp,"    temp%d = (%s *)vtkPythonGetPointerFromObject(tempH%d,(char*)\"%s\");\n",
                       i, currentFunction->ArgClasses[i], i, 
@@ -676,8 +801,8 @@ void outputFunction2(FILE *fp, FileInfo *data)
             }
           
           /* make sure passed method is callable  for VAR functions */
-          if (currentFunction->NumberOfArguments == 1 &&
-              currentFunction->ArgTypes[0] == 5000)
+          if (currentFunction->NumberOfArguments == 0x1 &&
+              currentFunction->ArgTypes[0] == 0x5000)
             {
             fprintf(fp,"    if (!PyCallable_Check(temp0) && temp0 != Py_None)\n");
             fprintf(fp,"      {\n      PyErr_SetString(PyExc_ValueError,\"vtk callback method passed to %s in %s was not callable.\");\n",
@@ -689,7 +814,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
           /* check for void pointers and pass appropriate info*/
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
             {
-            if (currentFunction->ArgTypes[i]%1000 == 302)
+            if (currentFunction->ArgTypes[i] % 0x1000 == 0x302)
               {
               fprintf(fp,"    temp%i = vtkPythonUnmanglePointer((char *)temp%i,&size%i,(char*)\"%s\");\n",i,i,i,"void_p");
               fprintf(fp,"    if (size%i == -1) {\n      PyErr_SetString(PyExc_ValueError,\"mangled pointer to %s in %s was of incorrect type.\");\n",
@@ -740,12 +865,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
               sprintf(methodname,"op->%s",currentFunction->Name);
               }
                 
-            switch (currentFunction->ReturnType%1000)
+            switch (currentFunction->ReturnType % 0x1000)
               {
-              case 2:
+              case 0x2:
                 fprintf(fp,"      %s(",methodname);
                 break;
-              case 109:
+              case 0x109:
                 fprintf(fp,"      temp%i = &%s(",MAX_ARGS,methodname);
                 break;
               default:
@@ -758,12 +883,12 @@ void outputFunction2(FILE *fp, FileInfo *data)
                 {
                 fprintf(fp,",");
                 }
-              if (currentFunction->ArgTypes[i]%1000 == 109)
+              if (currentFunction->ArgTypes[i] % 0x1000 == 0x109)
                 {
                 fprintf(fp,"*(temp%i)",i);
                 }
               else if (currentFunction->NumberOfArguments == 1 
-                       && currentFunction->ArgTypes[i] == 5000)
+                       && currentFunction->ArgTypes[i] == 0x5000)
                 {
                 fprintf(fp,"((temp0 != Py_None) ? vtkPythonVoidFunc : NULL),(void *)temp%i",i);
                 }
@@ -775,7 +900,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
             fprintf(fp,");\n");
           
             if (currentFunction->NumberOfArguments == 1 
-                && currentFunction->ArgTypes[0] == 5000)
+                && currentFunction->ArgTypes[0] == 0x5000)
               {
               fprintf(fp,"      %sArgDelete(vtkPythonVoidFuncArgDelete);\n",
                       methodname);
@@ -786,11 +911,11 @@ void outputFunction2(FILE *fp, FileInfo *data)
           for (i = 0; i < currentFunction->NumberOfArguments; i++)
             {
             if (currentFunction->ArgCounts[i] &&  /* array */
-                currentFunction->ArgTypes[i] % 10 != 0 && /* not a special type */
-                currentFunction->ArgTypes[i] % 10 != 9 && /* not class pointer */
-                currentFunction->ArgTypes[i] % 10 != 8 && 
-                currentFunction->ArgTypes[i] % 10 != 2 && /* not void pointer */
-                (currentFunction->ArgTypes[i] % 2000 < 1000)) /* not const */
+                currentFunction->ArgTypes[i] % 0x10 != 0 && /* not a special type */
+                currentFunction->ArgTypes[i] % 0x10 != 0x9 && /* not class pointer */
+                currentFunction->ArgTypes[i] % 0x10 != 0x8 && 
+                currentFunction->ArgTypes[i] % 0x10 != 0x2 && /* not void pointer */
+                (currentFunction->ArgTypes[i] % 0x2000 < 0x1000)) /* not const */
               {
               fprintf(fp,"    if (vtkPythonCheckArray(args,%d,temp%d,%d)) {\n"
                          "      return 0;\n"
@@ -890,48 +1015,50 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* check to see if we can handle the args */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (currentFunction->ArgTypes[i]%1000 == 9) args_ok = 0;
-    if ((currentFunction->ArgTypes[i]%10) == 8) args_ok = 0;
-    if (((currentFunction->ArgTypes[i]%1000)/100 != 3)&&
-        (currentFunction->ArgTypes[i]%1000 != 109)&&
-        ((currentFunction->ArgTypes[i]%1000)/100)) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 313) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 314) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 315) args_ok = 0;
-    if (currentFunction->ArgTypes[i]%1000 == 316) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 9) args_ok = 0;
+    if ((currentFunction->ArgTypes[i] % 0x10) == 8) args_ok = 0;
+    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 != 0x3)&&
+        (currentFunction->ArgTypes[i] % 0x1000 != 0x109)&&
+        ((currentFunction->ArgTypes[i] % 0x1000)/0x100)) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x313) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x314) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31A) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x315) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x316) args_ok = 0;
     }
-  if ((currentFunction->ReturnType%10) == 8) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 9) args_ok = 0;
-  if (((currentFunction->ReturnType%1000)/100 != 3)&&
-      (currentFunction->ReturnType%1000 != 109)&&
-      ((currentFunction->ReturnType%1000)/100)) args_ok = 0;
+  if ((currentFunction->ReturnType % 0x10) == 0x8) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x9) args_ok = 0;
+  if (((currentFunction->ReturnType % 0x1000)/0x100 != 0x3)&&
+      (currentFunction->ReturnType % 0x1000 != 0x109)&&
+      ((currentFunction->ReturnType % 0x1000)/0x100)) args_ok = 0;
 
 
   /* eliminate unsigned char * and unsigned short * */
-  if (currentFunction->ReturnType%1000 == 313) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 314) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 315) args_ok = 0;
-  if (currentFunction->ReturnType%1000 == 316) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x313) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x314) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x31A) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x315) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x316) args_ok = 0;
 
   if (currentFunction->NumberOfArguments && 
-      (currentFunction->ArgTypes[0] == 5000)
-      &&(currentFunction->NumberOfArguments != 1)) args_ok = 0;
+      (currentFunction->ArgTypes[0] == 0x5000)
+      &&(currentFunction->NumberOfArguments != 0x1)) args_ok = 0;
 
   /* make sure we have all the info we need for array arguments in */
   for (i = 0; i < currentFunction->NumberOfArguments; i++)
     {
-    if (((currentFunction->ArgTypes[i]%1000)/100 == 3)&&
+    if (((currentFunction->ArgTypes[i] % 0x1000)/0x100 == 0x3)&&
         (currentFunction->ArgCounts[i] <= 0)&&
-        (currentFunction->ArgTypes[i]%1000 != 309)&&
-        (currentFunction->ArgTypes[i]%1000 != 303)&&
-        (currentFunction->ArgTypes[i]%1000 != 302)) args_ok = 0;
+        (currentFunction->ArgTypes[i] % 0x1000 != 0x309)&&
+        (currentFunction->ArgTypes[i] % 0x1000 != 0x303)&&
+        (currentFunction->ArgTypes[i] % 0x1000 != 0x302)) args_ok = 0;
     }
 
   /* if we need a return type hint make sure we have one */
-  switch (currentFunction->ReturnType%1000)
+  switch (currentFunction->ReturnType % 0x1000)
     {
-    case 301: case 307:
-    case 304: case 305: case 306:
+    case 0x301: case 0x307: case 0x30A:
+    case 0x304: case 0x305: case 0x306:
       args_ok = currentFunction->HaveHint;
       break;
     }
