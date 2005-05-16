@@ -11,6 +11,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   otherLookupTable.cxx
   otherByteSwap.cxx
   otherCellArray.cxx
+  otherStringArray.cxx
   otherCellTypes.cxx
   otherFieldData.cxx
   quadraticEvaluation.cxx
