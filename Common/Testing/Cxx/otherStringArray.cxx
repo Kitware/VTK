@@ -176,6 +176,7 @@ int doStringArrayTest(ostream& strm, int size)
     }
 
   newValues->Delete();
+  indices->Delete();
 
   strm << "PrintSelf..." << endl;
   strm << *ptr;
@@ -236,6 +237,11 @@ int doStringArrayTest(ostream& strm, int size)
       }
     }
   
+
+  srcArray->Delete();
+  destArray->Delete();
+  data->Delete();
+  offsets->Delete();
 
   return errors;
 }
