@@ -15,7 +15,8 @@
 // .NAME vtkStdString - Wrapper around vtkstd::string to keep symbols short.
 // .SECTION Description
 // vtkStdString derives from vtkstd::string to provide shorter symbol
-// names than std::basic_string<...> given by the standard STL string.
+// names than basic_string<...> in namespace std given by the standard
+// STL string.
 
 #ifndef __vtkStdString_h
 #define __vtkStdString_h
@@ -46,6 +47,9 @@ public:
   vtkStdString(const value_type* s, size_type n): StdString(s, n) {}
   vtkStdString(const StdString& s, size_type pos=0, size_type n=npos):
     StdString(s, pos, n) {}
+
+  operator const char *() { return this->c_str(); };
+
 };
 
 #endif
