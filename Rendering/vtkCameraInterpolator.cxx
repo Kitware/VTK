@@ -19,14 +19,14 @@
 #include "vtkTupleInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkCameraInterpolator, "1.3");
+vtkCxxRevisionMacro(vtkCameraInterpolator, "1.4");
 vtkStandardNewMacro(vtkCameraInterpolator);
 
 // PIMPL STL encapsulation for list of cameras. This just keeps track of all
 // the data the user specifies, which is later dumped into the interpolators.
 struct vtkICamera
 {
-  double T;     //Parameter t
+  double Time;  //Parameter t
   double P[3];  //Position
   double FP[3]; //Focal point
   double VUP[3];//ViewUp 
@@ -36,7 +36,7 @@ struct vtkICamera
 
   vtkICamera()
     {
-      this->T = 0.0;
+      this->Time = 0.0;
       this->P[0] = this->P[1] = this->P[2] = 0.0;
       this->FP[0] = this->FP[1] = this->FP[2] = 0.0;
       this->VUP[0] = this->VUP[1] = this->VUP[2] = 0.0;
@@ -46,7 +46,7 @@ struct vtkICamera
     }
   vtkICamera(double t, vtkCamera *camera)
     {
-      this->T = t;
+      this->Time = t;
       if ( camera )
         {
         camera->GetPosition(this->P);
@@ -180,7 +180,7 @@ double vtkCameraInterpolator::GetMinimumT()
     }
   else
     {
-    return this->CameraList->front().T;
+    return this->CameraList->front().Time;
     }
 }
 
@@ -194,7 +194,7 @@ double vtkCameraInterpolator::GetMaximumT()
     }
   else
     {
-    return this->CameraList->back().T;
+    return this->CameraList->back().Time;
     }
 }
 
@@ -211,17 +211,17 @@ void vtkCameraInterpolator::AddCamera(double t, vtkCamera *camera)
   int size = this->CameraList->size();
 
   // Check special cases: t at beginning or end of list
-  if ( size <= 0 || t < this->CameraList->front().T )
+  if ( size <= 0 || t < this->CameraList->front().Time )
     {
     this->CameraList->push_front(vtkICamera(t,camera));
     return;
     }
-  else if ( t > this->CameraList->back().T )
+  else if ( t > this->CameraList->back().Time )
     {
     this->CameraList->push_back(vtkICamera(t,camera));
     return;
     }
-  else if ( size == 1 && t == this->CameraList->back().T )
+  else if ( size == 1 && t == this->CameraList->back().Time )
     {
     this->CameraList->front() = vtkICamera(t,camera);
     return;
@@ -232,11 +232,11 @@ void vtkCameraInterpolator::AddCamera(double t, vtkCamera *camera)
   CameraListIterator nextIter = ++(this->CameraList->begin());
   for (int i=0; i < (size-1); i++, ++iter, ++nextIter)
     {
-    if ( t == iter->T )
+    if ( t == iter->Time )
       {
       (*iter) = vtkICamera(t,camera);
       }
-    else if ( t > iter->T && t < nextIter->T )
+    else if ( t > iter->Time && t < nextIter->Time )
       {
       this->CameraList->insert(nextIter, vtkICamera(t,camera));
       }
@@ -248,14 +248,14 @@ void vtkCameraInterpolator::AddCamera(double t, vtkCamera *camera)
 //----------------------------------------------------------------------------
 void vtkCameraInterpolator::RemoveCamera(double t)
 {
-  if ( t < this->CameraList->front().T ||
-       t > this->CameraList->back().T )
+  if ( t < this->CameraList->front().Time ||
+       t > this->CameraList->back().Time )
     {
     return;
     }
   
   CameraListIterator iter = this->CameraList->begin();
-  for ( ; iter->T != t && iter != this->CameraList->end(); ++iter )
+  for ( ; iter->Time != t && iter != this->CameraList->end(); ++iter )
     {
     }
   if ( iter != this->CameraList->end() )
@@ -449,12 +449,12 @@ void vtkCameraInterpolator::InitializeInterpolation()
     CameraListIterator iter = this->CameraList->begin();
     for ( ; iter != this->CameraList->end(); ++iter)
       {
-      this->PositionInterpolator->AddTuple(iter->T,iter->P);
-      this->FocalPointInterpolator->AddTuple(iter->T,iter->FP);
-      this->ViewUpInterpolator->AddTuple(iter->T,iter->VUP);
-      this->ClippingRangeInterpolator->AddTuple(iter->T,iter->CR);
-      this->ViewAngleInterpolator->AddTuple(iter->T,iter->VA);
-      this->ParallelScaleInterpolator->AddTuple(iter->T,iter->PS);
+      this->PositionInterpolator->AddTuple(iter->Time,iter->P);
+      this->FocalPointInterpolator->AddTuple(iter->Time,iter->FP);
+      this->ViewUpInterpolator->AddTuple(iter->Time,iter->VUP);
+      this->ClippingRangeInterpolator->AddTuple(iter->Time,iter->CR);
+      this->ViewAngleInterpolator->AddTuple(iter->Time,iter->VA);
+      this->ParallelScaleInterpolator->AddTuple(iter->Time,iter->PS);
       }
     
     this->Initialized = 1;
@@ -474,14 +474,14 @@ void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera *camera)
   this->InitializeInterpolation();
   
   // Evaluate the interpolators 
-  if ( t < this->CameraList->front().T )
+  if ( t < this->CameraList->front().Time )
     {
-    t = this->CameraList->front().T;
+    t = this->CameraList->front().Time;
     }
 
-  else if ( t > this->CameraList->back().T )
+  else if ( t > this->CameraList->back().Time )
     {
-    t = this->CameraList->back().T;
+    t = this->CameraList->back().Time;
     }
 
   double P[3],FP[3],VUP[3],CR[2],VA[1],PS[1];
@@ -498,7 +498,6 @@ void vtkCameraInterpolator::InterpolateCamera(double t, vtkCamera *camera)
   camera->SetClippingRange(CR);
   camera->SetViewAngle(VA[0]);
   camera->SetParallelScale(PS[0]);
-  
 }
 
 //----------------------------------------------------------------------------
