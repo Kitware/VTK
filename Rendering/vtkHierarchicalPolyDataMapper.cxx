@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.3");
+vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.4");
 vtkStandardNewMacro(vtkHierarchicalPolyDataMapper);
 
 class vtkHierarchicalPolyDataMapperInternals
@@ -47,7 +47,10 @@ vtkHierarchicalPolyDataMapper::~vtkHierarchicalPolyDataMapper()
 {
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->Internal->Mappers[i]->Delete();
+    if ( this->Internal->Mappers[i] )
+      {
+      this->Internal->Mappers[i]->UnRegister(this);
+      }
     }
   this->Internal->Mappers.clear();
   
@@ -78,7 +81,7 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
   //Delete pdmappers if they already exist.
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->Internal->Mappers[i]->Delete();
+    this->Internal->Mappers[i]->UnRegister(this);
     }
   this->Internal->Mappers.clear();
   
@@ -95,8 +98,10 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
     if ( pd )
       {
       vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
+      pdmapper->Register( this );
       pdmapper->SetInput(pd);
       this->Internal->Mappers.push_back(pdmapper);
+      pdmapper->Delete();
       }
     }
   else
@@ -110,8 +115,10 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
       if (pd)
         {
         vtkPolyDataMapper *pdmapper = vtkPolyDataMapper::New();
+        pdmapper->Register(this);
         pdmapper->SetInput(pd);
         this->Internal->Mappers.push_back(pdmapper);
+        pdmapper->Delete();
         }
       // This is not polydata - warn the user that there are non-polydata
       // parts to this data set which will not be rendered by this mapper
@@ -125,6 +132,7 @@ void vtkHierarchicalPolyDataMapper::BuildPolyDataMapper()
         }
       iter->GoToNextItem();
       }
+    iter->Delete();
     }
   
   this->InternalMappersBuildTime.Modified();
@@ -145,8 +153,11 @@ void vtkHierarchicalPolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
   //Call Render() on each of the PolyDataMappers
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->Internal->Mappers[i]->SetClippingPlanes( this->GetClippingPlanes() );
-    this->Internal->Mappers[i]->Render(ren,a);    
+    if ( this->Internal->Mappers[i] )
+      {
+      this->Internal->Mappers[i]->SetClippingPlanes( this->GetClippingPlanes() );
+      this->Internal->Mappers[i]->Render(ren,a);    
+      }
     }
 }
 vtkExecutive* vtkHierarchicalPolyDataMapper::CreateDefaultExecutive()
@@ -214,7 +225,7 @@ void vtkHierarchicalPolyDataMapper::ComputeBounds()
       }
     iter->GoToNextItem();
     }
-  
+  iter->Delete();
   this->BoundsMTime.Modified();
 }
 
@@ -242,6 +253,17 @@ double* vtkHierarchicalPolyDataMapper::GetBounds()
     }
 }
 
+void vtkHierarchicalPolyDataMapper::ReleaseGraphicsResources( vtkWindow *win )
+{
+  for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
+    {
+    if ( this->Internal->Mappers[i] )
+      {
+      this->Internal->Mappers[i]->ReleaseGraphicsResources( win );
+      }
+    }
+}
+
 void vtkHierarchicalPolyDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -253,6 +275,9 @@ void vtkHierarchicalPolyDataMapper::ReportReferences(vtkGarbageCollector* collec
   
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    vtkGarbageCollectorReport( collector, this->Internal->Mappers[i], "vtkPolyDataMapper" );
+    if ( this->Internal->Mappers[i] )
+      {
+      vtkGarbageCollectorReport( collector, this->Internal->Mappers[i], "vtkPolyDataMapper" );
+      }
     }
 }

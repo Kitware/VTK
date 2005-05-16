@@ -51,7 +51,12 @@ public:
   // Standard vtkProp method to get 3D bounds of a 3D prop
   double *GetBounds();
   void GetBounds(double bounds[6]) { this->Superclass::GetBounds( bounds ); };  
-  
+
+  // Description:
+  // Release the underlying resources associated with this mapper  
+  void ReleaseGraphicsResources(vtkWindow *);
+
+
 protected:
   vtkHierarchicalPolyDataMapper();
   ~vtkHierarchicalPolyDataMapper();
