@@ -62,11 +62,6 @@ protected:
   ~vtkHierarchicalPolyDataMapper();
   
   // Description:
-  // Need to tell the garbage collector about all the
-  // internal mappers who hold onto the input
-  virtual void ReportReferences(vtkGarbageCollector*);
-
-  // Description:
   // We need to override this method because the standard streaming
   // demand driven pipeline is not what we want - we are expecting
   // hierarchical data as input
