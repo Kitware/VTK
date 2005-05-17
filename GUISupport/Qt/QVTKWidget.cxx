@@ -179,9 +179,11 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
     // register new window
     this->mRenWin->Register(NULL);
      
+#if defined(QVTK_HAVE_VTK_4_5)
     // if it is mapped somewhere else, unmap it
     if(this->mRenWin->GetMapped())
       this->mRenWin->Finalize();
+#endif
 
 #ifdef Q_WS_X11
     // give the qt display id to the vtk window
