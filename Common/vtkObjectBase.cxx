@@ -19,6 +19,19 @@
 
 #define vtkBaseDebugMacro(x)
 
+class vtkObjectBaseToGarbageCollectorFriendship
+{
+public:
+  static int GiveReference(vtkObjectBase* obj)
+    {
+    return vtkGarbageCollector::GiveReference(obj);
+    }
+  static int TakeReference(vtkObjectBase* obj)
+    {
+    return vtkGarbageCollector::TakeReference(obj);
+    }
+};
+
 // avoid dll boundary problems
 #ifdef _WIN32
 void* vtkObjectBase::operator new(size_t nSize)
@@ -159,7 +172,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 
 void vtkObjectBase::CollectRevisions(ostream& os)
 {
-  os << "vtkObjectBase 1.13\n";
+  os << "vtkObjectBase 1.14\n";
 }
 
 void vtkObjectBase::PrintRevisions(ostream& os)
@@ -214,7 +227,8 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
   // If a reference is available from the garbage collector, use it.
   // Otherwise create a new reference by incrementing the reference
   // count.
-  if(!(check && vtkGarbageCollector::TakeReference(this)))
+  if(!(check &&
+       vtkObjectBaseToGarbageCollectorFriendship::TakeReference(this)))
     {
     ++this->ReferenceCount;
     }
@@ -226,7 +240,7 @@ void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
   // If the garbage collector accepts a reference, do not decrement
   // the count.
   if(check && this->ReferenceCount > 1 &&
-     vtkGarbageCollector::GiveReference(this))
+     vtkObjectBaseToGarbageCollectorFriendship::GiveReference(this))
     {
     return;
     }

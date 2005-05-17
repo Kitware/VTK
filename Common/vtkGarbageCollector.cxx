@@ -15,6 +15,7 @@
 #include "vtkGarbageCollector.h"
 
 #include "vtkMultiThreader.h"
+#include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 
 #include <vtkstd/map>
@@ -25,7 +26,8 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.24");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.25");
+vtkStandardNewMacro(vtkGarbageCollector);
 
 class vtkGarbageCollectorSingleton;
 
@@ -805,6 +807,12 @@ void vtkGarbageCollector::ClassFinalize()
 {
   // We are done with the singleton.
   delete vtkGarbageCollectorSingletonInstance;
+}
+
+//----------------------------------------------------------------------------
+void vtkGarbageCollector::Report(vtkObjectBase*, void*, const char*)
+{
+  vtkErrorMacro("vtkGarbageCollector::Report should be overridden.");
 }
 
 //----------------------------------------------------------------------------

@@ -73,11 +73,15 @@ vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
                                   vtkObjectBase*, void*,
                                   const char*);
 
+// This allows vtkObjectBase to get at the methods it needs.
+class vtkObjectBaseToGarbageCollectorFriendship;
+
 class VTK_COMMON_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
   vtkTypeRevisionMacro(vtkGarbageCollector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  static vtkGarbageCollector* New();
 
   // Description:
   // Collect immediately using any objects whose collection was
@@ -113,26 +117,6 @@ public:
   static void DeferredCollectionPop();
 
   // Description:
-  // Called by UnRegister method of an object that supports garbage
-  // collection.  The UnRegister may not actually decrement the
-  // reference count, but instead hands the reference to the garbage
-  // collector.  If a reference can be given, this method accepts it
-  // from the caller by returning 1.  If the reference cannot be
-  // accepted then it returns 0.  This may be the case when delayed
-  // garbage collection is disabled, or when the collector has decided
-  // it is time to do a check.
-  static int GiveReference(vtkObjectBase* obj);
-
-  // Description:
-  // Called by Register method of an object that supports garbage
-  // collection.  The Register may not actually increment the
-  // reference count if it can take a reference previously handed to
-  // the garbage collector.  If a reference can be taken, this method
-  // hands it back to the caller by returning 1.  If no reference is
-  // available, returns 0.
-  static int TakeReference(vtkObjectBase* obj);
-
-  // Description:
   // Set/Get global garbage collection debugging flag.  When set to 1,
   // all garbage collection checks will produce debugging information.
   static void SetGlobalDebugFlag(int flag);
@@ -152,16 +136,37 @@ protected:
 
 private:
 
+  // Description:
+  // Called by UnRegister method of an object that supports garbage
+  // collection.  The UnRegister may not actually decrement the
+  // reference count, but instead hands the reference to the garbage
+  // collector.  If a reference can be given, this method accepts it
+  // from the caller by returning 1.  If the reference cannot be
+  // accepted then it returns 0.  This may be the case when delayed
+  // garbage collection is disabled, or when the collector has decided
+  // it is time to do a check.
+  static int GiveReference(vtkObjectBase* obj);
+
+  // Description:
+  // Called by Register method of an object that supports garbage
+  // collection.  The Register may not actually increment the
+  // reference count if it can take a reference previously handed to
+  // the garbage collector.  If a reference can be taken, this method
+  // hands it back to the caller by returning 1.  If no reference is
+  // available, returns 0.
+  static int TakeReference(vtkObjectBase* obj);
+
   // Singleton management functions.
   static void ClassInitialize();
   static void ClassFinalize();
 
   //BTX
   friend class vtkGarbageCollectorManager;
+  friend class vtkObjectBaseToGarbageCollectorFriendship;
   //ETX
 
   // Internal report callback and friend function that calls it.
-  virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc)=0;
+  virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
   friend void VTK_COMMON_EXPORT
   vtkGarbageCollectorReportInternal(vtkGarbageCollector*,
                                     vtkObjectBase*, void*,

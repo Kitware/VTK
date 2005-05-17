@@ -159,7 +159,6 @@ vtkCallbackCommand
 vtkCommand
 vtkDataArray
 vtkFunctionSet
-vtkGarbageCollector
 vtkHomogeneousTransform
 vtkImplicitFunction
 vtkInitialValueProblemSolver
