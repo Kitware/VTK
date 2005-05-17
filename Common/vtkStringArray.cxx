@@ -32,7 +32,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.2");
+vtkCxxRevisionMacro(vtkStringArray, "1.3");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -515,7 +515,7 @@ vtkStringArray::ConvertFromContiguous(vtkDataArray *Data,
          here < stringEnd;
          ++here)
       {
-      newString.push_back(static_cast<char>(Data->GetTuple1(here)));
+      newString += static_cast<char>(Data->GetTuple1(here));
       }
     this->InsertNextValue(newString);
     currentStringStart = stringEnd;
