@@ -45,6 +45,7 @@
 //     vtkGarbageCollectorReport(collector, this->OtherObject, "Other Object");
 //     }
 //
+// The implementations should be in the .cxx file in practice.
 // It is important that the reference be reported using the real
 // pointer or smart pointer instance that holds the reference.  When
 // collecting the garbage collector will actually set this pointer to
@@ -53,9 +54,16 @@
 // reference that is reported.  The variable holding the reference
 // must always either be NULL or refer to a fully constructed valid
 // object.  Therefore code like "this->Object->UnRegister(this)" must
-// be avoided if "this->Object" is a reported reference.
+// be avoided if "this->Object" is a reported reference because it
+// is possible that the object is deleted before UnRegister returns
+// but then "this->Object" will be left as a dangling pointer.  Instead
+// use code like
 //
-// The implementations should be in the .cxx file in practice.
+//   vtkObjectBase* obj = this->Object;
+//   this->Object = 0;
+//   obj->UnRegister(this);
+//
+// so that the reported reference maintains the invariant.
 //
 // If subclassing from a class that already supports garbage
 // collection, one need only provide the ReportReferences method.
