@@ -177,7 +177,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 0x6:   fprintf(fp,"long   "); break;
     case 0x2:     fprintf(fp,"void   "); break;
     case 0x3:     fprintf(fp,"char   "); break;
-    case 0xA:   fprintf(fp,"long   "); break;
+    case 0xA:   fprintf(fp,"vtkIdType "); break;
     case 0x9:     
       fprintf(fp,"%s ",Id); break;
     case 0x8: return;
