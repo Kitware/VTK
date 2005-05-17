@@ -67,7 +67,7 @@ void use_hints(FILE *fp)
     case 0x30A:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
 #ifdef VTK_USE_64BIT_IDS
-#ifdef LONG_LONG
+#ifdef PY_LONG_LONG
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"L");
 #else
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"l");
@@ -128,16 +128,7 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 0x3:     fprintf(fp,"char   "); break;
     case 0x9:     
       fprintf(fp,"%s ",Id); break;
-    case 0xA:
-#ifdef VTK_USE_64BIT_IDS
-#ifdef LONG_LONG
-      fprintf(fp,"LONG_LONG "); break;
-#else
-      fprintf(fp,"long "); break;
-#endif
-#else
-      fprintf(fp,"int    "); break;
-#endif
+    case 0xA:     fprintf(fp,"vtkIdType "); break;
     case 0x8: return;
     }
   
@@ -250,7 +241,7 @@ void do_return(FILE *fp)
 #endif
       break;
       }
-#if defined(VTK_USE_64BIT_IDS) && defined(LONG_LONG) 
+#if defined(VTK_USE_64BIT_IDS) && defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
     case 0xA:
       {
       fprintf(fp,"    return PyLong_FromLongLong(temp%i);\n", MAX_ARGS);
@@ -265,16 +256,16 @@ void do_return(FILE *fp)
 #else
     case 0xA:
       {
-      fprintf(fp,"    return PyInt_FromLong(temp%i);\n", MAX_ARGS);
+      fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n", MAX_ARGS);
       break;
       }
     case 0x1A:
       {
 #if (PY_VERSION_HEX >= 0x02020000)
-      fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
+      fprintf(fp,"    return PyLong_FromUnsignedLong((unsigned long)temp%i);\n",
               MAX_ARGS);
 #else
-      fprintf(fp,"    return PyInt_FromLong((int)temp%i);\n",
+      fprintf(fp,"    return PyInt_FromLong((long)temp%i);\n",
               MAX_ARGS);
 #endif
       break;
@@ -338,7 +329,7 @@ char *get_format_string()
         for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
           {
 #ifdef VTK_USE_64BIT_IDS
-#ifdef LONG_LONG
+#ifdef PY_LONG_LONG
           result[currPos] = 'L'; currPos++;
 #else
           result[currPos] = 'l'; currPos++;
@@ -365,7 +356,7 @@ char *get_format_string()
       case 0x1A:
       case 0xA:
 #ifdef VTK_USE_64BIT_IDS
-#ifdef LONG_LONG
+#ifdef PY_LONG_LONG
         result[currPos] = 'L'; currPos++; break;
 #else
         result[currPos] = 'l'; currPos++; break;
@@ -451,7 +442,7 @@ void get_python_signature()
             {
             add_to_sig(result,", ",&currPos);
             }
-#ifdef VTK_USE_64BIT_IDS
+#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
           add_to_sig(result,"long",&currPos);
 #else
           add_to_sig(result,"int",&currPos);
@@ -525,7 +516,7 @@ void get_python_signature()
             {
             add_to_sig(result,", ",&currPos);
             }
-#ifdef VTK_USE_64BIT_IDS
+#if defined(VTK_USE_64BIT_IDS) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
           add_to_sig(result,"long",&currPos);
 #else
           add_to_sig(result,"int",&currPos);

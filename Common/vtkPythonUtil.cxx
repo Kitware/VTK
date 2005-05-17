@@ -1643,6 +1643,55 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
   return 0;
 }
 
+#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
+static inline
+int vtkPythonCheckLongArray(PyObject *args, int i, vtkIdType *a, int n)
+{
+  int changed = 0;
+
+  PyObject *seq = PyTuple_GET_ITEM(args, i);
+  for (i = 0; i < n; i++)
+    {
+    PyObject *oldobj = PySequence_GetItem(seq, i);
+    vtkIdType oldval;
+    if (PyLong_Check(oldobj))
+      {
+#ifdef PY_LONG_LONG
+      oldval = PyLong_AsLongLong(oldobj);
+#else
+      oldval = PyLong_AsLong(oldobj);
+#endif
+      }
+    else
+      {
+      oldval = PyInt_AsLong(oldobj);
+      }
+    Py_DECREF(oldobj);
+    changed |= (a[i] != oldval);
+    }
+
+  if (changed)
+    {
+    for (i = 0; i < n; i++)
+      {
+#if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+      PyObject *newobj = PyLong_FromLongLong(a[i]);
+#else
+      PyObject *newobj = PyInt_FromLong((long)a[i]);
+#endif
+      int rval = PySequence_SetItem(seq, i, newobj);
+      Py_DECREF(newobj);
+      if (rval == -1)
+        {
+        return -1;
+        }
+      }
+    }
+
+  return 0;
+}
+#endif
+
 int vtkPythonCheckArray(PyObject *args, int i, char *a, int n)
 {
   return vtkPythonCheckIntArray(args, i, a, n);
@@ -1692,6 +1741,13 @@ int vtkPythonCheckArray(PyObject *args, int i, double *a, int n)
 {
   return vtkPythonCheckFloatArray(args, i, a, n);
 }
+
+#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
+int vtkPythonCheckArray(PyObject *args, int i, vtkIdType *a, int n)
+{
+  return vtkPythonCheckLongArray(args, i, a, n);
+}
+#endif
 
 //--------------------------------------------------------------------
 void vtkPythonVoidFunc(void *arg)

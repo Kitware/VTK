@@ -152,6 +152,9 @@ extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, float *a, int n);
 extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, double *a, int n);
+#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
+int vtkPythonCheckArray(PyObject *args, int i, vtkIdType *a, int n);
+#endif
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()
 extern VTK_PYTHON_EXPORT void vtkPythonVoidFunc(void *);
