@@ -92,10 +92,30 @@
   }
 
 
+  static FT_Error
+  sfnt_table_info( TT_Face    face,
+                   FT_UInt    idx,
+                   FT_ULong  *tag,
+                   FT_ULong  *length )
+  {
+    if ( !tag || !length )
+      return SFNT_Err_Invalid_Argument;
+
+    if ( idx >= face->num_tables )
+      return SFNT_Err_Table_Missing;
+
+    *tag    = face->dir_tables[idx].Tag;
+    *length = face->dir_tables[idx].Length;
+
+    return SFNT_Err_Ok;
+  }
+
+
   static const FT_Service_SFNT_TableRec  sfnt_service_sfnt_table =
   {
     (FT_SFNT_TableLoadFunc)tt_face_load_any,
-    (FT_SFNT_TableGetFunc) get_sfnt_table
+    (FT_SFNT_TableGetFunc) get_sfnt_table,
+    (FT_SFNT_TableInfoFunc)sfnt_table_info
   };
 
 

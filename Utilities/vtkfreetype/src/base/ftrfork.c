@@ -701,6 +701,10 @@
   {
     int  i;
 
+    FT_UNUSED( library );
+    FT_UNUSED( stream );
+    FT_UNUSED( base_name );
+
 
     for ( i = 0; i < FT_RACCESS_N_RULES; i++ )
     {
