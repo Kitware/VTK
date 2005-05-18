@@ -14,7 +14,6 @@
 =========================================================================*/
 #include "vtkExtractDataOverTime.h"
 
-#include "vtkCommand.h"
 #include "vtkPointSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -23,7 +22,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.3");
+vtkCxxRevisionMacro(vtkExtractDataOverTime, "1.4");
 vtkStandardNewMacro(vtkExtractDataOverTime);
 
 //----------------------------------------------------------------------------
@@ -68,8 +67,8 @@ int vtkExtractDataOverTime::RequestInformation(
 
 //----------------------------------------------------------------------------
 int vtkExtractDataOverTime::ProcessRequest(vtkInformation* request,
-                                         vtkInformationVector** inputVector,
-                                         vtkInformationVector* outputVector)
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
