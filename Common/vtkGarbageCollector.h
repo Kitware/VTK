@@ -134,14 +134,6 @@ protected:
   vtkGarbageCollector();
   ~vtkGarbageCollector();
 
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
-
-  // Description:
-  // Prevent normal vtkObject reference counting behavior.
-  virtual void UnRegister(vtkObjectBase*);
-
 private:
 
   // Description:
