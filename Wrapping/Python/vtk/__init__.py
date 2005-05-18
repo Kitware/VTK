@@ -9,6 +9,8 @@ try:
     import dl
 except ImportError:
     dl = None
+except SystemError:
+    dl = None
 
 import __helper
 
