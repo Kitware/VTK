@@ -377,6 +377,7 @@ void vtkDataArrayTemplate<T>::GetTuple(vtkIdType i, double* tuple)
     }
 }
 
+//----------------------------------------------------------------------------
 template <class T>
 void vtkDataArrayTemplate<T>::GetTupleValue(vtkIdType i, T* tuple)
 {

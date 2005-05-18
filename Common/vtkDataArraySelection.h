@@ -71,6 +71,10 @@ public:
   const char* GetArrayName(int index);
   
   // Description:
+  // Get the index of the array entry from a given name
+  int GetArrayIndex(const char *name);
+    
+  // Description:
   // Get whether the array at the given index is enabled.
   int GetArraySetting(int index);
   

@@ -19,7 +19,7 @@
 #include <vtkstd/string>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.17");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.18");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -182,6 +182,15 @@ const char* vtkDataArraySelection::GetArrayName(int index)
 }
 
 //----------------------------------------------------------------------------
+int vtkDataArraySelection::GetArrayIndex(const char *name)
+{
+  vtkstd::vector<vtkstd::string>::iterator i =
+    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
+  
+  return i - this->ArrayNames->begin();
+}
+
+//----------------------------------------------------------------------------
 int vtkDataArraySelection::GetArraySetting(int index)
 {
   vtkstd::vector<int>::iterator i = this->ArraySettings->begin()+index;
@@ -242,10 +251,7 @@ void vtkDataArraySelection::RemoveArrayFromIndex(int index)
 // \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
 void vtkDataArraySelection::RemoveArrayFromName(const char *name)
 {
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  
-  int index=i-this->ArrayNames->begin();
+  int index = this->GetArrayIndex(name);
   this->RemoveArrayFromIndex(index);
 }
 

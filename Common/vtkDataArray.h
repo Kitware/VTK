@@ -294,8 +294,8 @@ public:
   
   // Description:
   // Set/get array's name
-  void SetName(const char* name);
-  const char* GetName();
+  vtkSetStringMacro(Name);
+  vtkGetStringMacro(Name);
 
   // Description:
   // Return the range of the array values for the given component. 
@@ -305,13 +305,13 @@ public:
   // component 0).
   void GetRange(double range[2], int comp)
     {
-      this->ComputeRange(comp);
-      memcpy(range, this->Range, 2*sizeof(double));
+    this->ComputeRange(comp);
+    memcpy(range, this->Range, 2*sizeof(double));
     }
   double* GetRange(int comp)
     {
-      this->ComputeRange(comp);
-      return this->Range;
+    this->ComputeRange(comp);
+    return this->Range;
     }
 
   virtual void ComputeRange(int comp);
@@ -320,12 +320,12 @@ public:
   // Range is copied into the array provided.
   double* GetRange()
     {
-      this->ComputeRange(0);
-      return this->Range;
+    this->ComputeRange(0);
+    return this->Range;
     }
   void GetRange(double range[2])
     {
-      this->GetRange(range,0);
+    this->GetRange(range,0);
     }
 
   // Description:
