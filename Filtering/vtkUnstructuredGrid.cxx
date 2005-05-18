@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.7");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.8");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -1427,7 +1427,7 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
 
 //----------------------------------------------------------------------------
 #ifndef VTK_LEGACY_REMOVE
-void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
 {
   this->GetCellNeighbors(cellId, &ptIds, &cellIds);
 }
