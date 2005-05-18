@@ -59,8 +59,12 @@ public:
 
   // Description:
   // Get the number of cells in the array.
-  vtkIdType GetNumberOfCells() 
-    {return this->NumberOfCells;}
+  vtkGetMacro(NumberOfCells, vtkIdType);
+
+  // Description:
+  // Set the number of cells in the array.
+  // DO NOT do any kind of allocation, advanced use only.
+  vtkSetMacro(NumberOfCells, vtkIdType);
 
   // Description:
   // Utility routines help manage memory of cell array. EstimateSize()
@@ -220,12 +224,14 @@ protected:
   vtkIdType InsertLocation;     //keep track of current insertion point
   vtkIdType TraversalLocation;   //keep track of traversal position
   vtkIdTypeArray *Ia;
+
 private:
   vtkCellArray(const vtkCellArray&);  // Not implemented.
   void operator=(const vtkCellArray&);  // Not implemented.
 };
 
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, vtkIdType* pts)
 {
   vtkIdType i = this->Ia->GetMaxId() + 1;
@@ -242,6 +248,7 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, vtkIdType* pts)
   return this->NumberOfCells - 1;
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts)
 {
   vtkIdType npts = pts->GetNumberOfIds();
@@ -259,6 +266,7 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdList *pts)
   return this->NumberOfCells - 1;
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(int npts)
 {
   this->InsertLocation = this->Ia->InsertNextValue(npts) + 1;
@@ -267,16 +275,19 @@ inline vtkIdType vtkCellArray::InsertNextCell(int npts)
   return this->NumberOfCells - 1;
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellArray::InsertCellPoint(vtkIdType id) 
 {
   this->Ia->InsertValue(this->InsertLocation++, id);
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellArray::UpdateCellCount(int npts) 
 {
   this->Ia->SetValue(this->InsertLocation-npts-1, npts);
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType vtkCellArray::InsertNextCell(vtkCell *cell)
 {
   int npts = cell->GetNumberOfPoints();
@@ -294,7 +305,7 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkCell *cell)
   return this->NumberOfCells - 1;
 }
 
-
+//----------------------------------------------------------------------------
 inline void vtkCellArray::Reset() 
 {
   this->NumberOfCells = 0;
@@ -303,11 +314,11 @@ inline void vtkCellArray::Reset()
   this->Ia->Reset();
 }
 
-
+//----------------------------------------------------------------------------
 inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
 {
   if ( this->Ia->GetMaxId() >= 0 && 
-  this->TraversalLocation <= this->Ia->GetMaxId() ) 
+       this->TraversalLocation <= this->Ia->GetMaxId() ) 
     {
     npts = this->Ia->GetValue(this->TraversalLocation++);
     pts = this->Ia->GetPointer(this->TraversalLocation);
@@ -320,14 +331,15 @@ inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
     }
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellArray::GetCell(vtkIdType loc, vtkIdType &npts,
                                   vtkIdType* &pts)
 {
-  npts=this->Ia->GetValue(loc++);
-  pts=this->Ia->GetPointer(loc);
+  npts = this->Ia->GetValue(loc++);
+  pts  = this->Ia->GetPointer(loc);
 }
 
-
+//----------------------------------------------------------------------------
 inline void vtkCellArray::ReverseCell(vtkIdType loc)
 {
   int i;
@@ -342,6 +354,7 @@ inline void vtkCellArray::ReverseCell(vtkIdType loc)
     }
 }
 
+//----------------------------------------------------------------------------
 inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts, vtkIdType *pts)
 {
   vtkIdType *oldPts=this->Ia->GetPointer(loc+1);
@@ -351,6 +364,7 @@ inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts, vtkIdType *pts)
     }
 }
 
+//----------------------------------------------------------------------------
 inline vtkIdType *vtkCellArray::WritePointer(const vtkIdType ncells,
                                              const vtkIdType size)
 {

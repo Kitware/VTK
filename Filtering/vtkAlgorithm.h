@@ -181,7 +181,7 @@ public:
   // Get the info object for the specified input array to this algorithm
   vtkInformation *GetInputArrayInformation(int idx);
   
-  // from here down are convenience methods that really ar executive methods
+  // from here down are convenience methods that really are executive methods
   
   
   
@@ -247,7 +247,7 @@ public:
   
 
   //======================================================================
-  //The followling block of code is to support old style VTK applications. If
+  //The following block of code is to support old style VTK applications. If
   //you are using these calls there are better ways to do it in the new
   //pipeline
   //======================================================================

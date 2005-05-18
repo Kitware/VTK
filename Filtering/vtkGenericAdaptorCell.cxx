@@ -35,7 +35,7 @@
 #include "vtkQuad.h"
 #include "vtkHexahedron.h"
 
-vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.20");
+vtkCxxRevisionMacro(vtkGenericAdaptorCell, "1.21");
 
 vtkGenericAdaptorCell::vtkGenericAdaptorCell()
 {
@@ -263,14 +263,14 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     {
     if(attributes->GetAttribute(attrib)->GetCentering()==vtkCellCentered)
       {
-      vtkDataArray *array=secondaryCd->GetArray(attributes->GetAttribute(attrib)->GetName());
-      values=attributes->GetAttribute(attrib)->GetTuple(this);
+      vtkDataArray *array = secondaryCd->GetArray(attributes->GetAttribute(attrib)->GetName());
+      values = attributes->GetAttribute(attrib)->GetTuple(this);
       array->InsertNextTuple(values);
       }
     attrib++;
     }
   
-  int attribute=this->GetHighestOrderAttribute(attributes);
+  int attribute = this->GetHighestOrderAttribute(attributes);
   if(this->IsGeometryLinear() &&(attribute==-1 || this->IsAttributeLinear(attributes->GetAttribute(attribute))))
     {
     // linear case
@@ -307,12 +307,12 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     int count = attributes->GetNumberOfAttributes();
     int attribute_idx;
     
-    values  = contourValues->GetValues();
+    values = contourValues->GetValues();
     int numContours = contourValues->GetNumberOfContours();
     
     this->AllocateTuples(attributes->GetMaxNumberOfComponents());
     
-    int activeAttributeIdx=attributes->GetActiveAttribute();
+    int activeAttributeIdx = attributes->GetActiveAttribute();
     
     // build the cell
     i=0;
@@ -402,16 +402,15 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues *contourValues,
     }
     
   vtkIdType npts, *pts = 0;
-  double *point  = this->InternalPoints->GetPointer(0);
+  double *point = this->InternalPoints->GetPointer(0);
 
-  vtkDataArray *scalars=internalPd->GetArray(attributes->GetActiveAttribute());
-  int currComp=attributes->GetActiveComponent();
-  
-  
-  values  = contourValues->GetValues();
+  vtkDataArray *scalars = internalPd->GetArray(attributes->GetActiveAttribute());
+  int currComp = attributes->GetActiveComponent();
+ 
+  values = contourValues->GetValues();
   int numContours = contourValues->GetNumberOfContours();
-  
-  c=internalPd->GetNumberOfArrays();
+ 
+  c = internalPd->GetNumberOfArrays();
   int dataIndex=0;
   
   // for each linear sub-tetra, Build it and its pointdata

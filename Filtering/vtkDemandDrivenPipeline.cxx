@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.26");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.27");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -238,8 +238,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
 }
 
 //----------------------------------------------------------------------------
-void
-vtkDemandDrivenPipeline
+void vtkDemandDrivenPipeline
 ::CopyDefaultInformation(vtkInformation* request, int direction)
 {
   // Let the superclass copy first.

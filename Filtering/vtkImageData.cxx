@@ -42,7 +42,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.11");
+vtkCxxRevisionMacro(vtkImageData, "1.12");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1460,7 +1460,7 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
     }
       
   const int* extent = this->Extent;
-  // error checking: since most acceses will be from pointer arithmetic.
+  // error checking: since most access will be from pointer arithmetic.
   // this should not waste much time.
   for (int idx = 0; idx < 3; ++idx)
     {
@@ -1481,7 +1481,7 @@ void *vtkImageData::GetScalarPointer(int coordinate[3])
 }
 
 //----------------------------------------------------------------------------
-// This Method returns a pointer to the origin of the vtkImageData.
+// This method returns a pointer to the origin of the vtkImageData.
 void *vtkImageData::GetScalarPointer()
 {
   if (this->PointData->GetScalars() == NULL)
@@ -2224,6 +2224,7 @@ void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
 }
 
 
+//----------------------------------------------------------------------------
 void vtkImageData::ComputeInternalExtent(int *intExt, int *tgtExt, int *bnds)
 {
   int i;

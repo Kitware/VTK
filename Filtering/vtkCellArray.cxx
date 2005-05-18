@@ -15,9 +15,10 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkCellArray, "1.1");
+vtkCxxRevisionMacro(vtkCellArray, "1.2");
 vtkStandardNewMacro(vtkCellArray);
 
+//----------------------------------------------------------------------------
 vtkCellArray::vtkCellArray()
 {
   this->Ia = vtkIdTypeArray::New();
@@ -26,6 +27,7 @@ vtkCellArray::vtkCellArray()
   this->TraversalLocation = 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkCellArray::DeepCopy (vtkCellArray *ca)
 {
   // Do nothing on a NULL input.
@@ -40,12 +42,14 @@ void vtkCellArray::DeepCopy (vtkCellArray *ca)
   this->TraversalLocation = ca->TraversalLocation;
 }
 
+//----------------------------------------------------------------------------
 vtkCellArray::~vtkCellArray()
 {
   this->Ia->Delete();
 }
 
 
+//----------------------------------------------------------------------------
 // Returns the size of the largest cell. The size is the number of points
 // defining the cell.
 int vtkCellArray::GetMaxCellSize()
@@ -62,10 +66,11 @@ int vtkCellArray::GetMaxCellSize()
   return maxSize;
 }
 
+//----------------------------------------------------------------------------
 // Specify a group of cells.
 void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
 {
-  if ( cells != this->Ia )
+  if ( cells && cells != this->Ia )
     {
     this->Modified();
     this->Ia->Delete();
@@ -78,11 +83,13 @@ void vtkCellArray::SetCells(vtkIdType ncells, vtkIdTypeArray *cells)
     }
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkCellArray::GetActualMemorySize()
 {
   return this->Ia->GetActualMemorySize();
 }
 
+//----------------------------------------------------------------------------
 void vtkCellArray::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
