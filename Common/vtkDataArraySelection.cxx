@@ -19,7 +19,7 @@
 #include <vtkstd/string>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.18");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.19");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -168,6 +168,21 @@ void vtkDataArraySelection::DisableAllArrays()
 int vtkDataArraySelection::GetNumberOfArrays()
 {
   return static_cast<int>(this->ArrayNames->size());
+}
+
+//----------------------------------------------------------------------------
+int vtkDataArraySelection::GetNumberOfArraysEnabled()
+{
+  int numArrays = 0;
+  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
+      i != this->ArraySettings->end(); ++i)
+    {
+    if(*i)
+      {
+      numArrays++;
+      }
+    }
+  return numArrays;
 }
 
 //----------------------------------------------------------------------------

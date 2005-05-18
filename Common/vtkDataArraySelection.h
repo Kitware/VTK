@@ -67,6 +67,10 @@ public:
   int GetNumberOfArrays();
   
   // Description:
+  // Get the number of arrays that are enabled.
+  int GetNumberOfArraysEnabled();
+
+  // Description:
   // Get the name of the array entry at the given index.
   const char* GetArrayName(int index);
   
