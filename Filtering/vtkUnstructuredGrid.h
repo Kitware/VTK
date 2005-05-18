@@ -209,8 +209,7 @@ protected:
   
   // Description:
   // For legacy compatibility. Do not use.
-  void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
-    {this->GetCellNeighbors(cellId, &ptIds, &cellIds);}
+  VTK_LEGACY(void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds));
 
   vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
   void operator=(const vtkUnstructuredGrid&);  // Not implemented.

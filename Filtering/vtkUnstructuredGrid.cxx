@@ -49,7 +49,7 @@
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.6");
+vtkCxxRevisionMacro(vtkUnstructuredGrid, "1.7");
 vtkStandardNewMacro(vtkUnstructuredGrid);
 
 vtkUnstructuredGrid::vtkUnstructuredGrid ()
@@ -93,6 +93,7 @@ vtkUnstructuredGrid::vtkUnstructuredGrid ()
   this->Allocate(1000,1000);
 }
 
+//----------------------------------------------------------------------------
 // Allocate memory space for data insertion. Execute this method before
 // inserting any cells into object.
 void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
@@ -134,6 +135,7 @@ void vtkUnstructuredGrid::Allocate (vtkIdType numCells, int extSize)
   this->Locations->Delete();
 }
 
+//----------------------------------------------------------------------------
 vtkUnstructuredGrid::~vtkUnstructuredGrid()
 {
   vtkUnstructuredGrid::Initialize();
@@ -257,6 +259,7 @@ int vtkUnstructuredGrid::GetGhostLevel()
   return this->Information->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
 }
 
+//----------------------------------------------------------------------------
 // Copy the geometric and topological structure of an input unstructured grid.
 void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
 {
@@ -315,7 +318,7 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
       }
     }
 
-  // Reset this information to mantain the functionality that was present when
+  // Reset this information to maintain the functionality that was present when
   // CopyStructure called Initialize, which incorrectly wiped out attribute
   // data.  Someone MIGHT argue that this isn't the right thing to do.
   this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
@@ -323,6 +326,7 @@ void vtkUnstructuredGrid::CopyStructure(vtkDataSet *ds)
   this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::Initialize()
 {
   vtkPointSet::Initialize();
@@ -353,12 +357,13 @@ void vtkUnstructuredGrid::Initialize()
 
   if(this->Information)
     {
-  this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
-  this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
+    this->Information->Set(vtkDataObject::DATA_PIECE_NUMBER(), -1);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), 0);
+    this->Information->Set(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS(), 0);
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 {
 
@@ -366,6 +371,7 @@ int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
   return (int)this->Types->GetValue(cellId);
 }
 
+//----------------------------------------------------------------------------
 vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 {
   int i;
@@ -602,6 +608,7 @@ vtkCell *vtkUnstructuredGrid::GetCell(vtkIdType cellId)
   return cell;
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
 {
   int i;
@@ -630,6 +637,7 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell *cell)
     }
 }
 
+//----------------------------------------------------------------------------
 // Fast implementation of GetCellBounds().  Bounds are calculated without
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
@@ -670,6 +678,7 @@ void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 
 }
 
+//----------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetMaxCellSize()
 {
   if (this->Connectivity)
@@ -682,12 +691,14 @@ int vtkUnstructuredGrid::GetMaxCellSize()
     }
 }
 
+//----------------------------------------------------------------------------
 vtkIdType vtkUnstructuredGrid::GetNumberOfCells()
 {
   vtkDebugMacro(<< "NUMBER OF CELLS = " <<  (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0));
   return (this->Connectivity ? this->Connectivity->GetNumberOfCells() : 0);
 }
 
+//----------------------------------------------------------------------------
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
 vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
@@ -703,6 +714,7 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdList *ptIds)
 
 }
 
+//----------------------------------------------------------------------------
 // Insert/create cell in object by type and list of point ids defining
 // cell topology.
 vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
@@ -718,6 +730,7 @@ vtkIdType vtkUnstructuredGrid::InsertNextCell(int type, vtkIdType npts,
 
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
 {
   int i;
@@ -763,6 +776,7 @@ void vtkUnstructuredGrid::SetCells(int type, vtkCellArray *cells)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 {
   int i;
@@ -809,6 +823,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
                                    vtkIdTypeArray *cellLocations,
                                    vtkCellArray *cells)
@@ -848,6 +863,7 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray *cellTypes,
 
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::BuildLinks()
 {
   this->Links = vtkCellLinks::New();
@@ -857,6 +873,7 @@ void vtkUnstructuredGrid::BuildLinks()
   this->Links->Delete();
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 {
   int i;
@@ -873,6 +890,7 @@ void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
 
 }
 
+//----------------------------------------------------------------------------
 // Return a pointer to a list of point ids defining cell. (More efficient than alternative
 // method.)
 void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
@@ -885,6 +903,7 @@ void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdType& npts,
   this->Connectivity->GetCell(loc,npts,pts);
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
 {
   vtkIdType *cells;
@@ -907,6 +926,7 @@ void vtkUnstructuredGrid::GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::Reset()
 {
   if ( this->Connectivity )
@@ -927,6 +947,7 @@ void vtkUnstructuredGrid::Reset()
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::Squeeze()
 {
   if ( this->Connectivity )
@@ -949,6 +970,7 @@ void vtkUnstructuredGrid::Squeeze()
   vtkPointSet::Squeeze();
 }
 
+//----------------------------------------------------------------------------
 // Remove a reference to a cell in a particular point's link list. You may
 // also consider using RemoveCellReference() to remove the references from
 // all the cell's points to the cell. This operator does not reallocate
@@ -959,6 +981,7 @@ void vtkUnstructuredGrid::RemoveReferenceToCell(vtkIdType ptId,
   this->Links->RemoveCellReference(cellId, ptId);
 }
 
+//----------------------------------------------------------------------------
 // Add a reference to a cell in a particular point's link list. (You may also
 // consider using AddCellReference() to add the references from all the
 // cell's points to the cell.) This operator does not realloc memory; use the
@@ -968,6 +991,7 @@ void vtkUnstructuredGrid::AddReferenceToCell(vtkIdType ptId, vtkIdType cellId)
   this->Links->AddCellReference(cellId, ptId);
 }
 
+//----------------------------------------------------------------------------
 // Resize the list of cells using a particular point. (This operator assumes
 // that BuildLinks() has been called.)
 void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
@@ -975,6 +999,7 @@ void vtkUnstructuredGrid::ResizeCellList(vtkIdType ptId, int size)
   this->Links->ResizeCellList(ptId,size);
 }
 
+//----------------------------------------------------------------------------
 // Replace the points defining cell "cellId" with a new set of points. This
 // operator is (typically) used when links from points to cells have not been
 // built (i.e., BuildLinks() has not been executed). Use the operator
@@ -988,6 +1013,7 @@ void vtkUnstructuredGrid::ReplaceCell(vtkIdType cellId, int npts,
   this->Connectivity->ReplaceCell(loc,npts,pts);
 }
 
+//----------------------------------------------------------------------------
 // Add a new cell to the cell data structure (after cell links have been
 // built). This method adds the cell and then updates the links from the points
 // to the cells. (Memory is allocated as necessary.)
@@ -1181,6 +1207,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject *dataObject)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -1190,6 +1217,7 @@ void vtkUnstructuredGrid::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Ghost Level: " << this->GetGhostLevel() << endl;
 }
 
+//----------------------------------------------------------------------------
 // Determine neighbors as follows. Find the (shortest) list of cells that
 // uses one of the points in ptIds. For each cell, in the list, see whether
 // it contains the other points in the ptIds list. If so, it's a neighbor.
@@ -1262,6 +1290,7 @@ void vtkUnstructuredGrid::GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
 }
 
 
+//----------------------------------------------------------------------------
 int vtkUnstructuredGrid::IsHomogeneous()
 {
   unsigned char type;
@@ -1280,6 +1309,7 @@ int vtkUnstructuredGrid::IsHomogeneous()
   return 0;
 }
 
+//----------------------------------------------------------------------------
 // Fill container with indices of cells which match given type.
 void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 {
@@ -1293,6 +1323,7 @@ void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray *array)
 }
 
 
+//----------------------------------------------------------------------------
 void vtkUnstructuredGrid::RemoveGhostCells(int level)
 {
   vtkUnstructuredGrid* newGrid = vtkUnstructuredGrid::New();
@@ -1393,3 +1424,11 @@ void vtkUnstructuredGrid::RemoveGhostCells(int level)
 
   this->Squeeze();
 }
+
+//----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+void GetCellNeighbors(vtkIdType cellId, vtkIdList& ptIds, vtkIdList& cellIds)
+{
+  this->GetCellNeighbors(cellId, &ptIds, &cellIds);
+}
+#endif
