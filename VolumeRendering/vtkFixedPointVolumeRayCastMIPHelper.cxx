@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.3");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.4");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -82,7 +82,7 @@ void vtkFixedPointMIPHelperGenerateImageOneNN( T *data,
   
     if ( maxValueDefined )
       {
-      mapper->LookupColorUC( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
+      VTKKWRCHelper_LookupColorMax( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
       }
     else
       {
@@ -109,7 +109,7 @@ void vtkFixedPointMIPHelperGenerateImageOneNN( T *data,
       maxIdx = static_cast<unsigned short>((maxValue + shift[0])*scale[0]);        
       }
 
-    mapper->LookupColorUC( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
+    VTKKWRCHelper_LookupColorMax( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
     }
 
   VTKKWRCHelper_IncrementAndLoopEnd();
@@ -166,7 +166,8 @@ void vtkFixedPointMIPHelperGenerateImageDependentNN( T *data,
       {
       maxIdx[c] = (unsigned short)((maxValue[c] + shift[c])*scale[c]);
       }
-    mapper->LookupDependentColorUC( colorTable[0], scalarOpacityTable[0], maxIdx, components, imagePtr );
+    VTKKWRCHelper_LookupDependentColorUS( colorTable[0], scalarOpacityTable[0], 
+                                          maxIdx, components, imagePtr );
     }
   else
     {
@@ -232,14 +233,13 @@ void vtkFixedPointMIPHelperGenerateImageIndependentNN( T *data,
       }
     }
   
+  imagePtr[0] = imagePtr[1] = imagePtr[2] = imagePtr[3] = 0;
   if ( maxValueDefined )
     {
-    mapper->LookupAndCombineIndependentColorsUC( colorTable, scalarOpacityTable,
-                                                 maxIdx, weights, components, imagePtr );          
-    }
-  else
-    {
-    imagePtr[0] = imagePtr[1] = imagePtr[2] = imagePtr[3] = 0;
+    VTKKWRCHelper_LookupAndCombineIndependentColorsMax( colorTable, 
+                                                        scalarOpacityTable,
+                                                        maxIdx, weights, 
+                                                        components, imagePtr );          
     }
   
   VTKKWRCHelper_IncrementAndLoopEnd();
@@ -314,7 +314,7 @@ void vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin( T *dataPtr,
   
   if ( maxValueDefined )
     {
-    mapper->LookupColorUC( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
+    VTKKWRCHelper_LookupColorMax( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
     }
   else
     {
@@ -384,7 +384,7 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin( T *dataPtr,
 
   if ( maxValueDefined )
     {
-    mapper->LookupColorUC( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
+    VTKKWRCHelper_LookupColorMax( colorTable[0], scalarOpacityTable[0], maxIdx, imagePtr );
     }
   else
     {
@@ -396,7 +396,7 @@ void vtkFixedPointMIPHelperGenerateImageOneTrilin( T *dataPtr,
 
 // This method is used when the interpolation type is linear, the data has 
 // two or four components and the components are not considered independent. 
-// For four component data, the data must be unsigned char in type. In the
+// For four component d>>(VTKKW_FP_SHIFT - 8));ata, the data must be unsigned char in type. In the
 // inner loop we get the data value for the eight cell corners (if we have 
 // changed cells) for all components as unsigned shorts (we use the 
 // scale/shift to ensure the correct range). We compute our weights within 
@@ -464,7 +464,9 @@ void vtkFixedPointMIPHelperGenerateImageDependentTrilin( T *dataPtr,
   
   if ( maxValueDefined )
     {
-    mapper->LookupDependentColorUC( colorTable[0], scalarOpacityTable[0], maxValue, components, imagePtr );
+    VTKKWRCHelper_LookupDependentColorUS( colorTable[0], 
+                                          scalarOpacityTable[0], 
+                                          maxValue, components, imagePtr );
     }
   else
     {
@@ -544,14 +546,11 @@ void vtkFixedPointMIPHelperGenerateImageIndependentTrilin( T *dataPtr,
       }
     }
 
+  imagePtr[0] = imagePtr[1] = imagePtr[2] = imagePtr[3] = 0;
   if ( maxValueDefined )
     {
-    mapper->LookupAndCombineIndependentColorsUC( colorTable, scalarOpacityTable,
-                                                 maxValue, weights, components, imagePtr );
-    }
-  else
-    {
-    imagePtr[0] = imagePtr[1] = imagePtr[2] = imagePtr[3] = 0;
+    VTKKWRCHelper_LookupAndCombineIndependentColorsMax( colorTable, scalarOpacityTable,
+                                                        maxValue, weights, components, imagePtr );
     }
 
   VTKKWRCHelper_IncrementAndLoopEnd();

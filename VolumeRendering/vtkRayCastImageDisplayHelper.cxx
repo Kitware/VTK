@@ -15,7 +15,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkRayCastImageDisplayHelper, "1.2");
+vtkCxxRevisionMacro(vtkRayCastImageDisplayHelper, "1.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -34,6 +34,7 @@ vtkRayCastImageDisplayHelper* vtkRayCastImageDisplayHelper::New()
 vtkRayCastImageDisplayHelper::vtkRayCastImageDisplayHelper()
 {
   this->PreMultipliedColors = 0;
+  this->PixelScale = 1.0;
 }
 
 // Destruct a vtkRayCastImageDisplayHelper - clean up any memory used

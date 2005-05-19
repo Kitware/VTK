@@ -42,7 +42,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.8");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.9");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 
 // Macro for tri-linear interpolation - do four linear interpolations on
@@ -459,6 +459,7 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 
   this->ImageDisplayHelper  = vtkRayCastImageDisplayHelper::New();
   this->ImageDisplayHelper->PreMultipliedColorsOn();
+  this->ImageDisplayHelper->SetPixelScale( 2.0 );
   
   // This is the min max volume used for space leaping. Each 4x4x4 cell from
   // the original input volume has three values per component - a minimum scalar 
@@ -1575,7 +1576,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   float voxelPoint[3];
   float viewPoint[8][4];
   int i, j, k;
-  unsigned char *ucptr;
+  unsigned short *ucptr;
   float minX, minY, maxX, maxY, minZ, maxZ;
 
   minX =  1.0;
@@ -1770,7 +1771,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     delete [] this->RowBounds;
     delete [] this->OldRowBounds;
     
-    this->Image = new unsigned char[(this->ImageMemorySize[0] *
+    this->Image = new unsigned short[(this->ImageMemorySize[0] *
                                      this->ImageMemorySize[1] * 4)];
 
     // Create the row bounds array. This will store the start / stop pixel

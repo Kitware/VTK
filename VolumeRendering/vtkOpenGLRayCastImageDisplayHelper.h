@@ -43,11 +43,28 @@ public:
                       int imageOrigin[2],
                       float requestedDepth,
                       unsigned char *image );
-  
+
+  void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
+                      int imageMemorySize[2],
+                      int imageViewportSize[2],
+                      int imageInUseSize[2],
+                      int imageOrigin[2],
+                      float requestedDepth,
+                      unsigned short *image );
+
 protected:
   vtkOpenGLRayCastImageDisplayHelper();
   ~vtkOpenGLRayCastImageDisplayHelper();
   
+  void RenderTextureInternal( vtkVolume *vol, vtkRenderer *ren,
+                              int imageMemorySize[2],
+                              int imageViewportSize[2],
+                              int imageInUseSize[2],
+                              int imageOrigin[2],
+                              float requestedDepth,
+                              int imageScalarType,
+                              void *image );
+
 private:
   vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
   void operator=(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.

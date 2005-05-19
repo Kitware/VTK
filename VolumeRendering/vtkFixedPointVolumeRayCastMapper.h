@@ -207,7 +207,7 @@ public:
   vtkGetMacro( GradientOpacityRequired, int );
   
   int             *GetRowBounds()                 {return this->RowBounds;}
-  unsigned char   *GetImage()                     {return this->Image;}
+  unsigned short  *GetImage()                     {return this->Image;}
   unsigned short  *GetColorTable(int c)           {return this->ColorTable[c];}
   unsigned short  *GetScalarOpacityTable(int c)   {return this->ScalarOpacityTable[c];}
   unsigned short  *GetGradientOpacityTable(int c) {return this->GradientOpacityTable[c];}
@@ -287,7 +287,7 @@ protected:
   int             ImageOrigin[2];
   
   // This is the allocated image
-  unsigned char  *Image;
+  unsigned short  *Image;
   
   int             *RowBounds;
   int             *OldRowBounds;

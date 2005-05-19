@@ -345,6 +345,44 @@
 //ETX
 
 //BTX
+#define VTKKWRCHelper_LookupColorMax( COLORTABLE, SCALAROPACITYTABLE, IDX, COLOR )    \
+  COLOR[3] = SCALAROPACITYTABLE[IDX];                                                 \
+  COLOR[0] = static_cast<unsigned short>                                              \
+    ((COLORTABLE[3*IDX  ]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                      \
+  COLOR[1] = static_cast<unsigned short>                                              \
+    ((COLORTABLE[3*IDX+1]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                      \
+  COLOR[2] = static_cast<unsigned short>                                              \
+    ((COLORTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                     
+//ETX
+
+//BTX
+#define VTKKWRCHelper_LookupDependentColorUS( COLORTABLE, SCALAROPACITYTABLE, IDX, CMPS, COLOR )        \
+  {                                                                                                     \
+  unsigned short _alpha;                                                                                \
+  switch ( CMPS )                                                                                       \
+    {                                                                                                   \
+    case 2:                                                                                             \
+      _alpha = SCALAROPACITYTABLE[IDX[1]];                                                              \
+      COLOR[0] = static_cast<unsigned short>                                                            \
+        ((COLORTABLE[3*IDX[0]  ]*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));                                   \
+      COLOR[1] = static_cast<unsigned short>                                                            \
+        ((COLORTABLE[3*IDX[0]+1]*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));                                   \
+      COLOR[2] = static_cast<unsigned short>                                                            \
+        ((COLORTABLE[3*IDX[0]+2]*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));                                   \
+      COLOR[3] = _alpha;                                                                                \
+      break;                                                                                            \
+    case 4:                                                                                             \
+      _alpha = SCALAROPACITYTABLE[IDX[3]];                                                              \
+      COLOR[0] = static_cast<unsigned short>((IDX[0]*_alpha + 0x7f)>>8 );                               \
+      COLOR[1] = static_cast<unsigned short>((IDX[1]*_alpha + 0x7f)>>8 );                               \
+      COLOR[2] = static_cast<unsigned short>((IDX[2]*_alpha + 0x7f)>>8 );                               \
+      COLOR[3] = _alpha;                                                                                \
+      break;                                                                                            \
+    }                                                                                                   \
+  }
+//ETX
+
+//BTX
 #define VTKKWRCHelper_LookupColorGOUS( CTABLE, SOTABLE, GOTABLE, IDX, IDX2, COLOR )     \
   COLOR[3] = (SOTABLE[IDX] * GOTABLE[IDX2] + 0x7fff)>>VTKKW_FP_SHIFT;                   \
   if ( !COLOR[3] ) {continue;}                                                          \
@@ -397,6 +435,26 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
+//ETX
+
+//BTX
+#define VTKKWRCHelper_LookupAndCombineIndependentColorsMax( COLORTABLE, SCALAROPACITYTABLE,                             \
+                                                            IDX, WEIGHTS, CMPS, COLOR )                                 \
+  {                                                                                                                     \
+  unsigned int _tmp[4] = {0,0,0,0};                                                                                     \
+  for ( int _idx = 0; _idx < CMPS; _idx++ )                                                                             \
+    {                                                                                                                   \
+    unsigned short _alpha = static_cast<unsigned short>(SCALAROPACITYTABLE[_idx][IDX[_idx]]*WEIGHTS[_idx]);             \
+    _tmp[0] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]  ])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
+    _tmp[1] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]+1])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
+    _tmp[2] += static_cast<unsigned short>(((COLORTABLE[_idx][3*IDX[_idx]+2])*_alpha + 0x7fff)>>(VTKKW_FP_SHIFT));      \
+    _tmp[3] += _alpha;                                                                                                  \
+    }                                                                                                                   \
+  COLOR[0] = (_tmp[0]>32767)?(32767):(_tmp[0]);                                                                         \
+  COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                         \
+  COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                         \
+  COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);                                                                         \
+  }
 //ETX
 
 //BTX
@@ -625,11 +683,11 @@
 
 //BTX
 #define VTKKWRCHelper_SetPixelColor( IMAGEPTR, COLOR, REMAININGOPACITY )        \
-  IMAGEPTR[0] = (COLOR[0]>32640)?(255):((COLOR[0]+0x3f)>>(VTKKW_FP_SHIFT-8));   \
-  IMAGEPTR[1] = (COLOR[1]>32640)?(255):((COLOR[1]+0x3f)>>(VTKKW_FP_SHIFT-8));   \
-  IMAGEPTR[2] = (COLOR[2]>32640)?(255):((COLOR[2]+0x3f)>>(VTKKW_FP_SHIFT-8));   \
+  IMAGEPTR[0] = (COLOR[0]>32767)?(32767):(COLOR[0]);                            \
+  IMAGEPTR[1] = (COLOR[1]>32767)?(32767):(COLOR[1]);                            \
+  IMAGEPTR[2] = (COLOR[2]>32767)?(32767):(COLOR[2]);                           \
   unsigned int tmpAlpha = (~REMAININGOPACITY)&VTKKW_FP_MASK;                    \
-  IMAGEPTR[3] = (tmpAlpha>32640)?(255):((tmpAlpha+0x3f)>>(VTKKW_FP_SHIFT-8));
+  IMAGEPTR[3] = (tmpAlpha>32767)?(32767):(tmpAlpha);
 //ETX
 
 //BTX
@@ -679,7 +737,7 @@
 //BTX
 #define VTKKWRCHelper_InitializeVariables()                                                     \
   int i, j;                                                                                     \
-  unsigned char *imagePtr;                                                                      \
+  unsigned short *imagePtr;                                                                     \
                                                                                                 \
   int imageInUseSize[2];                                                                        \
   int imageMemorySize[2];                                                                       \
@@ -698,7 +756,7 @@
   mapper->GetTableScale( scale );                                                               \
                                                                                                 \
   int *rowBounds                     = mapper->GetRowBounds();                                  \
-  unsigned char *image               = mapper->GetImage();                                      \
+  unsigned short *image              = mapper->GetImage();                                      \
   vtkRenderWindow *renWin            = mapper->GetRenderWindow();                               \
   int components                     = mapper->GetInput()->GetNumberOfScalarComponents();       \
   int cropping                       = (mapper->GetCropping() &&                                \
@@ -713,6 +771,10 @@
     colorTable[c]         = mapper->GetColorTable(c);                                           \
     scalarOpacityTable[c] = mapper->GetScalarOpacityTable(c);                                   \
     }                                                                                           \
+                                                                                                \
+  /* Dumb code to stop compiler warning */                                                      \
+  /* No way for value to be bigger than 0xffff */                                               \
+  if ( colorTable[0][0] > 0xffff ) return;                                                      \
                                                                                                 \
   unsigned int inc[3];                                                                          \
   inc[0] = components;                                                                          \
