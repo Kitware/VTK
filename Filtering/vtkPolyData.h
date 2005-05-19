@@ -19,7 +19,7 @@
 // vertices, lines, polygons, and triangle strips. Point attribute values 
 // (e.g., scalars, vectors, etc.) also are represented.
 //
-// The actual cell types (CellType.h) supported by vtkPolyData are: 
+// The actual cell types (vtkCellType.h) supported by vtkPolyData are: 
 // vtkVertex, vtkPolyVertex, vtkLine, vtkPolyLine, vtkTriangle, 
 // vtkTriangleStrip, vtkPolygon, vtkPixel, and vtkQuad.
 //
