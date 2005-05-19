@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalPolyDataMapper, "1.6");
 vtkStandardNewMacro(vtkHierarchicalPolyDataMapper);
 
 class vtkHierarchicalPolyDataMapperInternals
@@ -155,11 +155,48 @@ void vtkHierarchicalPolyDataMapper::Render(vtkRenderer *ren, vtkActor *a)
     this->BuildPolyDataMapper();    
     }
   
+  this->TimeToDraw = 0;
   //Call Render() on each of the PolyDataMappers
   for(unsigned int i=0;i<this->Internal->Mappers.size();i++)
     {
-    this->Internal->Mappers[i]->SetClippingPlanes( this->GetClippingPlanes() );
+    if ( this->ClippingPlanes != 
+         this->Internal->Mappers[i]->GetClippingPlanes() )
+      {
+      this->Internal->Mappers[i]->SetClippingPlanes( this->ClippingPlanes );
+      }
+    
+    this->Internal->Mappers[i]->SetLookupTable(
+      this->GetLookupTable());
+    this->Internal->Mappers[i]->SetScalarVisibility(
+      this->GetScalarVisibility());
+    this->Internal->Mappers[i]->SetUseLookupTableScalarRange(
+      this->GetUseLookupTableScalarRange());
+    this->Internal->Mappers[i]->SetScalarRange(
+      this->GetScalarRange());
+    this->Internal->Mappers[i]->SetImmediateModeRendering(
+      this->GetImmediateModeRendering());
+    this->Internal->Mappers[i]->SetColorMode(this->GetColorMode());
+    this->Internal->Mappers[i]->SetInterpolateScalarsBeforeMapping(
+      this->GetInterpolateScalarsBeforeMapping());
+
+    this->Internal->Mappers[i]->SetScalarMode(this->GetScalarMode());
+    if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
+         this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
+      {
+      if ( this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID )
+        {
+        this->Internal->Mappers[i]->ColorByArrayComponent(
+          this->ArrayId,ArrayComponent);
+        }
+      else
+        {
+        this->Internal->Mappers[i]->ColorByArrayComponent(
+          this->ArrayName,ArrayComponent);
+        }
+      }
+  
     this->Internal->Mappers[i]->Render(ren,a);    
+    this->TimeToDraw += this->Internal->Mappers[i]->GetTimeToDraw();
     }
 }
 vtkExecutive* vtkHierarchicalPolyDataMapper::CreateDefaultExecutive()
