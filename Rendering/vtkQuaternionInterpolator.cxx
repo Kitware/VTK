@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.1");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.2");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 // PIMPL STL encapsulation for list of quaternions
@@ -191,6 +191,12 @@ void vtkQuaternionInterpolator::Squad(double t, double qm[4], double q0[4],
 {
 }
 
+//----------------------------------------------------------------------------
+void vtkQuaternionInterpolator::InnerPoint( double q0[4], double q1[4], 
+                                            double q2[4], double q[4] )
+{
+}
+
 
 //----------------------------------------------------------------------------
 void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
@@ -212,11 +218,11 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
 
   // Depending on the interpolation type we do the right thing.
   // The code above guarantees that there are at least two quaternions defined.
-  if ( this->InterpolationType == INTERPOLATION_TYPE_LINEAR ||
-       this->GetNumberOfQuaternions() < 4 )
+  int numQuats = this->GetNumberOfQuaternions();
+  if ( this->InterpolationType == INTERPOLATION_TYPE_LINEAR || numQuats < 3 )
     {
     QuaternionListIterator iter = this->QuaternionList->begin();
-    QuaternionListIterator nextIter = ++(this->QuaternionList->begin());
+    QuaternionListIterator nextIter = iter + 1;
     for ( ; nextIter != this->QuaternionList->end(); ++iter, ++nextIter)
       {
       if ( iter->Time <= t && t <= nextIter->Time )
@@ -230,6 +236,50 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
   
   else // this->InterpolationType == INTERPOLATION_TYPE_SPLINE
     {
+    QuaternionListIterator iter = this->QuaternionList->begin();
+    QuaternionListIterator nextIter = iter + 1;
+    QuaternionListIterator iter0, iter1, iter2, iter3;
+
+    //find the interval
+    double T;
+    int i;
+    for (i=0; nextIter != this->QuaternionList->end(); ++iter, ++nextIter, ++i)
+      {
+      if ( iter->Time <= t && t <= nextIter->Time )
+        {
+        T = (t - iter->Time) / (nextIter->Time - iter->Time); 
+        break;
+        }
+      }
+    
+    if ( i == 0 ) //initial interval
+      {
+      iter0 = iter;
+      iter1 = iter;
+      iter2 = nextIter;
+      iter3 = nextIter + 1;
+      }
+    else if ( i == (numQuats-2) ) //final interval
+      {
+      iter0 = iter - 1;
+      iter1 = iter;
+      iter2 = nextIter;
+      iter3 = nextIter;
+      }
+    else //in a middle interval somewhere
+      {
+      iter0 = iter - 1;
+      iter1 = iter;
+      iter2 = nextIter;
+      iter3 = nextIter + 1;
+      }
+    
+    double ai[4], bi[4], qc[4], qd[4];
+    this->InnerPoint(iter0->Q,iter1->Q,iter2->Q,ai);
+    this->InnerPoint(iter1->Q,iter2->Q,iter3->Q,bi);
+    this->Slerp(T,iter1->Q,iter2->Q,qc);
+    this->Slerp(T,ai,bi,qd);
+    this->Slerp(2.0*T*(1.0-T),qc,qd,q);
     }
 
   return;

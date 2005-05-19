@@ -118,7 +118,8 @@ protected:
   // Internal method for spherical, linear interpolation
   void Slerp(double t, double q0[4], double q1[4], double q[4]);
 
-  // Internal method for spherical, cubic interpolation
+  // Internal methods for spherical, cubic interpolation
+  void InnerPoint(double q0[4], double q1[4], double q2[4], double q[4]);
   void Squad(double t, double q0[4], double a[4], double b[4], double q1[4], 
              double q[4]);
 
