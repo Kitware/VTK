@@ -33,6 +33,9 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkRenderWindow.h"
+#if defined(Q_WS_MAC)
+#  include "vtkCarbonRenderWindow.h"
+#endif
 #include "vtkCommand.h"
 #include "vtkOStrStreamWrapper.h"
 #include "vtkObjectFactory.h"
@@ -47,6 +50,9 @@
 #define QVTK_HAVE_VTK_4_5
 #endif
 
+#if QT_VERSION >= 0x040000 && !defined(QVTK_HAVE_VTK_4_5)
+#error "Qt4 and VTK < 4.5 is not supported"
+#endif
 
 // function to get VTK keysyms from ascii characters
 static const char* ascii_to_key_sym(int);
@@ -197,14 +203,23 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
     // special x11 setup
     x11_setup_window();
     
+    // give the qt window id to the vtk window
+    this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
+    
+    // mac compatibility issues
 #ifdef Q_WS_MAC
+# ifdef QVTK_HAVE_VTK_4_5
+#  if QT_VERSION < 0x040000
+    this->mRenWin->SetWindowId( NULL );
+    static_cast<vtkCarbonRenderWindow*>(this->mRenWin)->SetRootWindow(
+                  reinterpret_cast<WindowPtr>(this->handle()));
+#  endif
+# else
     // give the Qt/Mac window handle to VTK and flag whether we have a parent
     this->mRenWin->SetWindowId(reinterpret_cast<void*>(this->handle()));
     this->mRenWin->SetParentId(reinterpret_cast<void*>(0x1));
-#else
-    // give the qt window id to the vtk window for Windows and X11
-    this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
-#endif
+# endif
+# endif
 
 
     // tell the vtk window what the size of this window is
