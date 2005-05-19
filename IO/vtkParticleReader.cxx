@@ -32,7 +32,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.25");
+vtkCxxRevisionMacro(vtkParticleReader, "1.26");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -384,8 +384,10 @@ int vtkParticleReader::ProduceOutputFromTextFileDouble(vtkInformationVector *out
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<double> pl;
-  while ( vtkstd::getline(*this->File,s,'\n') )
+  char buffer[256];
+  while ( this->File->getline(buffer,256,'\n') )
     {
+    s = buffer;
     if ( s.size() != 0 )
       {
       bytesRead += s.size();
@@ -459,8 +461,10 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
   this->Alliquot = fileLength / quantum;
   this->Count = 1;
   ParseLine<float> pl;
-  while ( vtkstd::getline(*this->File,s,'\n') )
-  {
+  char buffer[256];
+  while ( this->File->getline(buffer,256,'\n') )
+    {
+    s = buffer;
     if ( s.size() != 0 )
       {
       bytesRead += s.size();
@@ -476,8 +480,8 @@ int vtkParticleReader::ProduceOutputFromTextFileFloat(vtkInformationVector *outp
           scalars->InsertNextValue(val[3]);
           }
         }
+      }
     }
-  }
 
   vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
   vertices->Reset();
