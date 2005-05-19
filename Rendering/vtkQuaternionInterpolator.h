@@ -118,10 +118,15 @@ protected:
   // Internal method for spherical, linear interpolation
   void Slerp(double t, double q0[4], double q1[4], double q[4]);
 
-  // Internal methods for spherical, cubic interpolation
-  void InnerPoint(double q0[4], double q1[4], double q2[4], double q[4]);
-  void Squad(double t, double q0[4], double a[4], double b[4], double q1[4], 
-             double q[4]);
+  // Internal methods supporting spline interpolation
+  static void Add(double q0[4], double q1[4], double q[4]);
+  static void Product(double q0[4], double q1[4], double q[4]);
+  static void Inverse(double q[4], double qInv[4]);
+  static void Conjugate(double q[4], double qConj[4]);
+  static double Norm(double q[4]);
+  static void Exp(double q[4], double qExp[4]);
+  static void Log(double q[4], double qLog[4]);
+  static void InnerPoint(double q0[4], double q1[4], double q2[4], double q[4]);
 
 private:
   vtkQuaternionInterpolator(const vtkQuaternionInterpolator&);  // Not implemented.

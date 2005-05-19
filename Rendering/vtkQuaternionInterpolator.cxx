@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.3");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 // PIMPL STL encapsulation for list of quaternions
@@ -182,19 +182,121 @@ void vtkQuaternionInterpolator::Slerp(double t, double q0[4], double q1[4],
   q[3] = q0[3]*t1 + q1[3]*t2;
 }
 
+//----------------------------------------------------------------------------
+inline void vtkQuaternionInterpolator::Add(double q0[4], double q1[4], double q[4])
+{
+  q[0] = q0[0] + q1[0];
+  q[1] = q0[1] + q1[1];
+  q[2] = q0[2] + q1[2];
+  q[3] = q0[3] + q1[3];
+}
 
 //----------------------------------------------------------------------------
-//Interpolate using spherical cubic spline interpolation (using the method of
-//quadrilaters) between the quaternions 
-void vtkQuaternionInterpolator::Squad(double t, double qm[4], double q0[4], 
-                                      double q1[4], double qp[4], double q[4])
+inline void vtkQuaternionInterpolator::Product(double q0[4], double q1[4],
+                                               double q[4])
 {
+  q[0] = q0[0]*q1[0] - q0[1]*q1[1] - q0[2]*q1[2] - q0[3]*q1[3];
+  q[1] = q0[0]*q1[1] + q0[1]*q1[0] + q0[2]*q1[3] - q0[3]*q1[2];
+  q[2] = q0[0]*q1[2] - q0[1]*q1[3] + q0[2]*q1[0] + q0[3]*q1[1];
+  q[3] = q0[0]*q1[3] + q0[1]*q1[2] - q0[2]*q1[1] + q0[3]*q1[0];
+}
+
+//----------------------------------------------------------------------------
+inline void vtkQuaternionInterpolator::Conjugate(double q[4], double qConj[4])
+{
+  qConj[0] =  q[0];
+  qConj[1] = -q[1];
+  qConj[2] = -q[2];
+  qConj[3] = -q[3];
+}
+
+//----------------------------------------------------------------------------
+inline double vtkQuaternionInterpolator::Norm(double q[4])
+{
+  return (q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+}
+
+//----------------------------------------------------------------------------
+inline void vtkQuaternionInterpolator::Inverse(double q[4], double qInv[4])
+{
+  vtkQuaternionInterpolator::Conjugate(q,qInv);
+  double norm = vtkQuaternionInterpolator::Norm(q);
+  qInv[0] /= norm;
+  qInv[1] /= norm;
+  qInv[2] /= norm;
+  qInv[3] /= norm;
+}
+
+
+//----------------------------------------------------------------------------
+void vtkQuaternionInterpolator::Log(double q[4], double qLog[4])
+{
+  qLog[0] = qLog[1] = qLog[2] = qLog[3] = 0.0;
+  if ( q[1] == 0.0 && q[2] == 0.0 && q[3] == 0.0 ) //real valued
+    {
+    if (q[0] > 0)
+      {
+      qLog[0] = log(q[0]);
+      }
+    else if (q[0] < 0)
+      {
+      qLog[0] = log(-q[0]);
+      qLog[1] = 1.0; //arbitrary
+      }
+    else
+      {
+      ; //leave NULL
+      }
+    }
+
+  else //has complex part
+    {
+    double l = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+    double r = sqrt(l*l + q[0]*q[0]);
+    double theta = atan2(l, q[0]);
+    double t = theta / l;
+    qLog[0] = log(r);
+    qLog[1] = t * q[1];
+    qLog[2] = t * q[2];
+    qLog[3] = t * q[3];
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkQuaternionInterpolator::Exp(double q[4], double qExp[4])
+{
+  qExp[0] = qExp[1] = qExp[2] = qExp[3] = 0.0;
+  if ( q[1] == 0.0 && q[2] == 0.0 && q[3] == 0.0 ) //real valued
+    {
+    qExp[0] = exp(q[0]);
+    }
+  else
+    {
+    double l = sqrt(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+    double s = sin(l);
+    double c = cos(l);
+    double e = exp(q[0]);
+    double t = e * s / l;
+    qExp[0] = e * c;
+    qExp[1] = t * q[1];
+    qExp[2] = t * q[2];
+    qExp[3] = t * q[3];
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkQuaternionInterpolator::InnerPoint( double q0[4], double q1[4], 
                                             double q2[4], double q[4] )
 {
+  double qInv[4], qL[4], qR[4];
+  vtkQuaternionInterpolator::Inverse(q1,qInv);
+  vtkQuaternionInterpolator::Product(qInv,q2,qL);
+  vtkQuaternionInterpolator::Product(qInv,q0,qR);
+  
+  q[0] = q1[0] * exp(-(log(qL[0]) + log(qR[0])) / 4.0);
+  q[1] = q1[1] * exp(-(log(qL[1]) + log(qR[1])) / 4.0);
+  q[2] = q1[2] * exp(-(log(qL[2]) + log(qR[2])) / 4.0);
+  q[3] = q1[3] * exp(-(log(qL[3]) + log(qR[3])) / 4.0);
 }
 
 
@@ -241,7 +343,7 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
     QuaternionListIterator iter0, iter1, iter2, iter3;
 
     //find the interval
-    double T;
+    double T=0.0;
     int i;
     for (i=0; nextIter != this->QuaternionList->end(); ++iter, ++nextIter, ++i)
       {
@@ -277,6 +379,8 @@ void vtkQuaternionInterpolator::InterpolateQuaternion(double t, double q[4])
     double ai[4], bi[4], qc[4], qd[4];
     this->InnerPoint(iter0->Q,iter1->Q,iter2->Q,ai);
     this->InnerPoint(iter1->Q,iter2->Q,iter3->Q,bi);
+
+    // These three Slerp operations implement a Squad interpolation
     this->Slerp(T,iter1->Q,iter2->Q,qc);
     this->Slerp(T,ai,bi,qd);
     this->Slerp(2.0*T*(1.0-T),qc,qd,q);
