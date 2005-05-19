@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.31");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.32");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -307,7 +307,7 @@ short FindGDHandleFromWindow (WindowPtr pWindow, GDHandle * phgdOnThisDevice)
   hgdNthDevice = GetDeviceList ();
   greatestArea = 0;
   // check window against all gdRects in gDevice list and remember
-  // which gdRect contains largest area of window}
+  // which gdRect contains largest area of window
   while (hgdNthDevice)
     {
     if (TestDeviceAttribute (hgdNthDevice, screenDevice))
@@ -344,10 +344,14 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->MultiSamples = 8;
   this->WindowId = 0;
   this->ParentId = 0;
+  this->RootWindow = 0;
   this->StereoType = 0;
   this->SetWindowName("Visualization Toolkit - Carbon");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
+  this->RegionDirty = 0;
+  this->RegionEventHandlerUPP = 0;
+  this->RegionEventHandler = 0;
 }
 
 // --------------------------------------------------------------------------
@@ -409,9 +413,10 @@ void vtkCarbonRenderWindow::SetWindowName( const char * _arg )
   Str255 newTitle = "\p"; // SetWTitle takes a pascal string
 
   CStrToPStr (newTitle, _arg);
-  if (this->WindowId)
+  
+  if (this->OwnWindow)
     {
-    SetWTitle (this->WindowId, newTitle);
+    SetWTitle (this->RootWindow, newTitle);
     }
 }
 
@@ -423,7 +428,7 @@ int vtkCarbonRenderWindow::GetEventPending()
 
 //--------------------------------------------------------------------------
 // Set the window id to a pre-existing window.
-void vtkCarbonRenderWindow::SetParentId(WindowPtr arg)
+void vtkCarbonRenderWindow::SetParentId(HIViewRef arg)
 {
   vtkDebugMacro(<< "Setting ParentId to " << arg << "\n");
 
@@ -466,6 +471,114 @@ void vtkCarbonRenderWindow::SetSize(int a[2])
   this->SetSize(a[0], a[1]);
 }
 
+void vtkCarbonRenderWindow::UpdateGLRegion()
+{
+  if(!this->RegionDirty)
+    return;
+
+  this->RegionDirty = 0;
+
+  // if WindowId is a child window
+  if(this->WindowId)
+    {
+    // Determine the AGL_BUFFER_RECT for the view. The coordinate
+    // system for this rectangle is relative to the owning window, with
+    // the origin at the bottom left corner and the y-axis inverted.
+    HIRect viewBounds, winBounds;
+    HIViewGetBounds(this->WindowId, &viewBounds);
+    HIViewRef root = HIViewGetRoot(this->GetRootWindow());
+    HIViewRef content_root;
+    HIViewFindByID(root, kHIViewWindowContentID, &content_root);
+
+    HIViewGetBounds(content_root, &winBounds);
+    HIViewConvertRect(&viewBounds, this->WindowId, content_root);
+    GLint bufferRect[4] = { GLint(viewBounds.origin.x), 
+                            GLint((winBounds.size.height) - (viewBounds.origin.y + viewBounds.size.height)), 
+                            GLint(viewBounds.size.width), 
+                            GLint(viewBounds.size.height) };
+    
+    // Associate the OpenGL context with the control's window, and establish the buffer rect.
+    aglSetDrawable(this->ContextId, GetWindowPort(this->GetRootWindow()));
+    aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufferRect);
+    aglEnable(this->ContextId, AGL_BUFFER_RECT);
+  
+    // Establish the clipping region for the OpenGL context. To properly handle clipping
+    // within the view hierarchy, walk the hierarchy to determine the intersection
+    // of this view's bounds with its children, siblings, and parents also taking into 
+    // account z-ordering of the views
+    RgnHandle rgn = NewRgn();
+    RgnHandle tmp_rgn = NewRgn();
+
+    GetControlRegion(this->WindowId, kControlStructureMetaPart, rgn);
+    HIViewConvertRegion(rgn, this->WindowId, content_root);
+
+    HIViewRef current_view = NULL;
+    HIViewRef child = NULL;
+    HIViewRef last = NULL;
+
+    for(current_view = this->WindowId; 
+        (current_view != NULL); 
+        current_view = HIViewGetSuperview(current_view))
+      {
+      if(last)
+        {
+        // clip view within parent bounds
+        GetControlRegion(current_view, kControlStructureMetaPart, tmp_rgn);
+        HIViewConvertRegion(tmp_rgn, current_view, content_root);
+        DiffRgn(rgn, tmp_rgn, tmp_rgn);
+        DiffRgn(rgn, tmp_rgn, rgn);
+        }
+      for(child = HIViewGetFirstSubview(current_view); 
+          (child != last) && (child != NULL); 
+          child = HIViewGetNextView(child))
+        {
+        if(child != last && HIViewIsVisible(child))
+          {
+          GetControlRegion(child, kControlStructureMetaPart, tmp_rgn);
+          HIViewConvertRegion(tmp_rgn, child, content_root);
+          DiffRgn(rgn, tmp_rgn, rgn);
+          }
+        }
+        last = current_view;
+      }
+    
+    GetControlRegion(this->WindowId, kControlStructureMetaPart, tmp_rgn);
+    
+    if(EqualRgn(rgn,tmp_rgn))
+      {
+      if(aglIsEnabled(this->ContextId, AGL_CLIP_REGION))
+        aglDisable(this->ContextId, AGL_CLIP_REGION);
+      }
+    else
+      {
+      if(!aglIsEnabled(this->ContextId, AGL_CLIP_REGION))
+        aglEnable(this->ContextId, AGL_CLIP_REGION);
+      aglSetInteger(this->ContextId, AGL_CLIP_REGION, reinterpret_cast<const GLint*>(rgn));
+      }
+      
+    DisposeRgn(rgn);
+    DisposeRgn(tmp_rgn);
+
+    }
+  // this is provided for backwards compatibility
+  else if(this->WindowId == 0 && this->RootWindow && this->ParentId)
+    {
+    GLint bufRect[4];
+    Rect windowRect;
+    GetWindowBounds(this->RootWindow, kWindowContentRgn, &windowRect);
+    bufRect[0] = this->Position[0];
+    bufRect[1] = (int) (windowRect.bottom-windowRect.top)
+                 - (this->Position[1]+this->Size[1]);
+    bufRect[2] = this->Size[0];
+    bufRect[3] = this->Size[1];
+    aglEnable(this->ContextId, AGL_BUFFER_RECT);
+    aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufRect);
+    }
+
+  aglUpdateContext(this->ContextId);
+
+}
+
 // --------------------------------------------------------------------------
 void vtkCarbonRenderWindow::SetSize(int x, int y)
 {
@@ -481,25 +594,16 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
       if (!resizing)
         {
         resizing = 1;
-        if (this->ParentId)
+        
+        if(this->ParentId && this->RootWindow && !this->WindowId)
           {
-          GLint bufRect[4];
-          Rect windowRect;
-          GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
-
-          bufRect[0] = this->Position[0];
-          bufRect[1] = (int) (windowRect.bottom-windowRect.top)
-            - (this->Position[1]+this->Size[1]);
-          bufRect[2] = this->Size[0];
-          bufRect[3] = this->Size[1];
-          aglEnable(this->ContextId, AGL_BUFFER_RECT);
-          aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufRect);
+          // backwards compatiblity with Tk and who else?
+          UpdateGLRegion();
           }
-        else
+        else if(this->OwnWindow || !this->WindowId)
           {
-          SizeWindow(this->WindowId, x, y, TRUE);
+          SizeWindow(this->RootWindow, x, y, TRUE);
           }
-        aglUpdateContext(this->ContextId);
         resizing = 0;
         }
       }
@@ -527,24 +631,15 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
       if (!resizing)
         {
         resizing = 1;
-
-        if (this->ParentId)
+        
+        if(this->ParentId && this->RootWindow && !this->WindowId)
           {
-          GLint bufRect[4];
-          Rect windowRect;
-          GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
-
-          bufRect[0] = this->Position[0];
-          bufRect[1] = (int) (windowRect.bottom-windowRect.top) 
-            - (this->Position[1]+this->Size[1]);
-          bufRect[2] = this->Size[0];
-          bufRect[3] = this->Size[1];
-          aglEnable(this->ContextId, AGL_BUFFER_RECT);
-          aglSetInteger(this->ContextId, AGL_BUFFER_RECT, bufRect);
+          // backwards compatiblity with Tk and who else?
+          UpdateGLRegion();
           }
-        else
+        else if(this->OwnWindow || !this->WindowId)
           {
-          MoveWindow(this->WindowId, x, y, FALSE);
+          MoveWindow(this->RootWindow, x, y, FALSE);
           }
 
         resizing = 0;
@@ -589,7 +684,7 @@ void vtkCarbonRenderWindow::InitializeApplication()
 {
   if (!this->ApplicationInitialized)
     {
-    if (!this->ParentId)
+    if (this->OwnWindow)
       { // Initialize the Toolbox managers if we are running the show
       InitCursor();
       DrawMenuBar();
@@ -609,9 +704,6 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
   short i;
   char *windowName;
   short numDevices;     // number of graphics devices our window covers
-  WindowAttributes windowAttrs = (kWindowStandardDocumentAttributes | 
-      kWindowLiveResizeAttribute |
-      kWindowStandardHandlerAttribute);
 
   if ((this->Size[0]+this->Size[1])==0)
     {
@@ -629,21 +721,27 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
                   this->Position[1]+this->Size[1],
                   this->Position[0]+this->Size[0]};
   
-  if (!this->WindowId)
+  // if a Window and HIView wasn't given, make a Window and HIView
+  if (!this->WindowId && !this->RootWindow)
     {
-    if (this->ParentId)
-      {
-      // do nothing, since we already have a home
-      }
-    else
-      {
+      WindowAttributes windowAttrs = (kWindowStandardDocumentAttributes | 
+                                      kWindowLiveResizeAttribute |
+                                      kWindowStandardHandlerAttribute |
+                                      kWindowCompositingAttribute);
+
       if (noErr != CreateNewWindow (kDocumentWindowClass,
                                     windowAttrs,
-                                    &rectWin, &(this->WindowId)))
+                                    &rectWin, &(this->RootWindow)))
         {
         vtkErrorMacro("Could not create window, serious error!");
         return;
         }
+      
+      // get the content view
+      HIViewFindByID(HIViewGetRoot(this->RootWindow),
+                     kHIViewWindowContentID,
+                     &this->WindowId);
+
       int len = (strlen("vtkX - Carbon #")
                  + (int) ceil((double)log10((double)(count+1)))
                  + 1);
@@ -652,12 +750,31 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
       this->SetWindowName(windowName);
       delete [] windowName;
       this->OwnWindow = 1;
-      }
+
+      ShowWindow(this->RootWindow);
     }
 
-  SetWRefCon(this->WindowId, (long)this);
-  ShowWindow(this->WindowId);
-  SetPortWindowPort(this->WindowId);
+
+  // install event handler for updating gl region
+  // this works for a supplied HIView and an HIView made here
+  if(this->WindowId && !this->RegionEventHandler)
+    {
+    EventTypeSpec region_events [] = 
+      {
+        { kEventClassControl, kEventControlOwningWindowChanged},
+        { kEventClassControl, kEventControlVisibilityChanged },
+        { kEventClassControl, kEventControlBoundsChanged }
+      };
+    this->RegionEventHandlerUPP = NewEventHandlerUPP(vtkCarbonRenderWindow::RegionEventProcessor);
+    InstallControlEventHandler(this->WindowId, this->RegionEventHandlerUPP, 
+                               GetEventTypeCount(region_events), region_events,
+                               reinterpret_cast<void*>(this), &this->RegionEventHandler);
+    }
+  // mark region as dirty so the first time we render, we get a correct region
+  this->SetRegionDirty(1);
+  
+  
+  SetPortWindowPort(this->GetRootWindow());
   this->fAcceleratedMust = false;  //must renderer be accelerated?
   this->VRAM = 0 * 1048576;    // minimum VRAM
   this->textureRAM = 0 * 1048576;  // minimum texture RAM
@@ -678,7 +795,7 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
   this->aglAttributes [i++] = AGL_NONE;
   this->draggable = true;
 
-  numDevices = FindGDHandleFromWindow(this->WindowId, &hGD);
+  numDevices = FindGDHandleFromWindow(this->GetRootWindow(), &hGD);
   if (!this->draggable)
     {
     if ((numDevices > 1) || (numDevices == 0)) // multiple or no devices
@@ -733,9 +850,6 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
     return;
     }
   
-  //this->ContextId = aglCreateContext (this->fmt, aglShareContext);
-  // Create AGL context
-  //if (AGL_BAD_MATCH == aglGetError())
   this->ContextId = aglCreateContext (this->fmt, 0); // create without sharing
   aglReportError (); // cough up errors
   if (NULL == this->ContextId)
@@ -744,7 +858,7 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
     return;
     }
   // attach the CGrafPtr to the context
-  if (!aglSetDrawable (this->ContextId, GetWindowPort (this->WindowId)))
+  if (!aglSetDrawable (this->ContextId, GetWindowPort (this->GetRootWindow())))
     {
     aglReportError();
     return;
@@ -816,12 +930,19 @@ void vtkCarbonRenderWindow::Finalize(void)
     }
 
   this->Clean();
-  //ReleaseDC in Win32
-  this->DeviceContext = NULL;
-  if (this->WindowId && this->OwnWindow)
+
+  // remove event filters if we have them
+  if(this->RegionEventHandler)
     {
-      SetWRefCon(this->WindowId, (long)0);
-      DisposeWindow(this->WindowId);
+    RemoveEventHandler(this->RegionEventHandler);
+    DisposeEventHandlerUPP(this->RegionEventHandlerUPP);
+    this->RegionEventHandler = 0;
+    this->RegionEventHandlerUPP = 0;
+    }
+
+  if (this->RootWindow && this->OwnWindow)
+    {
+      DisposeWindow(this->RootWindow);
     }
 }
 
@@ -846,13 +967,12 @@ int *vtkCarbonRenderWindow::GetSize()
     return this->Superclass::GetSize();
     }
 
-  //  Find the current window size
-  if (!(this->ParentId))
-    { // if we are a child we'll need to do something smarter
-    Rect windowRect;
-    GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
-    this->Size[0] = (int) windowRect.right-windowRect.left;
-    this->Size[1] = (int) windowRect.bottom-windowRect.top;
+  if(this->WindowId)
+    {
+    HIRect viewBounds;
+    HIViewGetBounds(this->WindowId, &viewBounds);
+    this->Size[0] = (int)viewBounds.size.width;
+    this->Size[1] = (int)viewBounds.size.height;
     }
 
   return this->Superclass::GetSize();
@@ -879,11 +999,24 @@ int *vtkCarbonRenderWindow::GetPosition()
     return(this->Position);
     }
 
-  //  Find the current window position
-  Rect windowRect;
-  GetWindowBounds(this->WindowId, kWindowContentRgn, &windowRect);
-  this->Position[0] = windowRect.left;
-  this->Position[1] = windowRect.top;
+  if(!this->WindowId)
+    {
+    //  Find the current window position
+    Rect windowRect;
+    GetWindowBounds(this->GetRootWindow(), kWindowContentRgn, &windowRect);
+    this->Position[0] = windowRect.left;
+    this->Position[1] = windowRect.top;
+    }
+  else
+    {
+    HIRect viewBounds;
+    HIViewGetBounds(this->WindowId, &viewBounds);
+    Rect windowRect;
+    GetWindowBounds(this->GetRootWindow(), kWindowContentRgn, &windowRect);
+    this->Position[0] = ((int)viewBounds.origin.x) + windowRect.left;
+    this->Position[1] = ((int)viewBounds.origin.y) + windowRect.top;
+    }
+  
   return this->Position;
 }
 
@@ -993,7 +1126,7 @@ int vtkCarbonRenderWindow::GetDepthBufferSize()
 
 //--------------------------------------------------------------------------
 // Get the window id.
-WindowPtr vtkCarbonRenderWindow::GetWindowId()
+HIViewRef vtkCarbonRenderWindow::GetWindowId()
 {
   vtkDebugMacro(<< "Returning WindowId of " << this->WindowId << "\n");
   return this->WindowId;
@@ -1001,7 +1134,7 @@ WindowPtr vtkCarbonRenderWindow::GetWindowId()
 
 //--------------------------------------------------------------------------
 // Set the window id to a pre-existing window.
-void vtkCarbonRenderWindow::SetWindowId(WindowPtr theWindow)
+void vtkCarbonRenderWindow::SetWindowId(HIViewRef theWindow)
 {
   vtkDebugMacro(<< "Setting WindowId to " << theWindow << "\n");
   this->WindowId = theWindow;
@@ -1011,18 +1144,27 @@ void vtkCarbonRenderWindow::SetWindowId(WindowPtr theWindow)
 // Set this RenderWindow's Carbon window id to a pre-existing window.
 void vtkCarbonRenderWindow::SetWindowInfo(char *info)
 {
-  int tmp;
+  long tmp;
 
-  sscanf(info,"%i",&tmp);
+  sscanf(info,"%ld",&tmp);
 
-  this->WindowId = (WindowPtr)tmp;
+  this->WindowId = (HIViewRef)tmp;
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n");
 }
 
-
-void vtkCarbonRenderWindow::SetContextId(void *arg)
+void vtkCarbonRenderWindow::SetRootWindow(WindowPtr win)
 {
-  this->ContextId = (AGLContext)arg;
+  vtkDebugMacro(<< "Setting RootWindow to " << win << "\n");
+  this->RootWindow = win;
+}
+
+WindowPtr vtkCarbonRenderWindow::GetRootWindow()
+{
+  // take into account whether the user set the root window or not.
+  // if not, then WindowId is set and we're using HIViews.
+  // Instead of storing the RootWindow, we ask for it in case of a dynamic 
+  // GUI where the root window can change
+  return this->RootWindow ? this->RootWindow : HIViewGetWindow(this->WindowId);
 }
 
 //----------------------------------------------------------------------------
@@ -1045,5 +1187,57 @@ void vtkCarbonRenderWindow::ShowCursor()
     }
   this->CursorHidden = 0;
   ShowCursor();
+}
+
+OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef er, 
+                                                     EventRef event, void* win)
+{
+  vtkCarbonRenderWindow* vtk_win = reinterpret_cast<vtkCarbonRenderWindow*>(win);
+  UInt32 event_kind = GetEventKind(event);
+  UInt32 event_class = GetEventClass(event);
+
+  switch(event_class)
+    {
+    case kEventClassControl:
+      {
+      switch (event_kind)
+        {
+        case kEventControlVisibilityChanged:
+          vtk_win->SetRegionDirty(1);
+          vtk_win->UpdateGLRegion();
+          break;
+        case kEventControlOwningWindowChanged:
+        case kEventControlBoundsChanged:
+          vtk_win->SetRegionDirty(1);
+          break;
+        default:
+          break;
+        }
+      }
+      break;
+    default:
+      break;
+    }
+
+  return eventNotHandledErr;
+}
+
+
+void vtkCarbonRenderWindow::Render()
+{
+  UpdateGLRegion();
+  Superclass::Render();
+}
+
+int vtkCarbonRenderWindow::GetRegionDirty()
+{
+  return this->RegionDirty;
+}
+
+void vtkCarbonRenderWindow::SetRegionDirty(int val)
+{
+  this->RegionDirty = val;
+  if(this->WindowId)
+    HIViewSetNeedsDisplay(this->GetWindowId(), true);
 }
 

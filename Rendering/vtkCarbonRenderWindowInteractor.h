@@ -90,18 +90,14 @@ public:
   // callbacks. They allow for the Style to invoke them.
   virtual void ExitCallback();
   
-//  int GetButtonDown();
-//  void SetButtonDown(int button);
-
 protected:
   vtkCarbonRenderWindowInteractor();
   ~vtkCarbonRenderWindowInteractor();
 
-  WindowPtr         WindowId;
   EventLoopTimerRef TimerId;
-  EventHandlerUPP   OldProc;
+  EventHandlerUPP   ViewProcUPP;
+  EventHandlerUPP   WindowProcUPP;
   int               InstallMessageProc;
-
 
   //BTX
   // Description:

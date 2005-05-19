@@ -24,11 +24,9 @@
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 
-#include <OpenGL/gl.h>
 #import <Carbon/Carbon.h>
 
-
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.12");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.13");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -43,7 +41,6 @@ void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
 static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
                                      EventRef event, void* userData)
 {
-  WindowRef                        window = NULL;
   Rect                             bounds = {0,0,0,0};
   OSStatus                         result = eventNotHandledErr;
   Point                            mouseLoc;
@@ -52,7 +49,7 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
   UInt32                           eventClass = GetEventClass(event);
   UInt32                           eventKind = GetEventKind (event);
 
-  ren = (vtkCarbonRenderWindow *)GetWRefCon((WindowPtr)userData);
+  ren = (vtkCarbonRenderWindow *)userData;
 
   if (NULL == ren)
     {
@@ -73,33 +70,96 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
 
   switch (eventClass)
     {
-    case kEventClassWindow:
+    case kEventClassControl:
       {
-      GetEventParameter(event, kEventParamDirectObject,
-                        typeWindowRef, NULL, sizeof(WindowRef), NULL, &window);
       switch (eventKind)
         {
-        case kEventWindowCollapsing:
-          // This will require code to render the screen contents into the 
-          // collapsed window dock tile.
-          break;
-        case kEventWindowClickContentRgn:
+        case kEventControlDraw:
           {
-          GetEventParameter(event, kEventParamMouseLocation, typeQDPoint,
-                            NULL, sizeof(Point), NULL, &mouseLoc);
-          SetPortWindowPort(FrontWindow());
-          GlobalToLocal(&mouseLoc);
+          ren->Render();
+          result = noErr;
+          break;
+          }
+        case kEventControlBoundsChanged:
+          {
+          if(ren->GetWindowId())
+            {
+            HIRect viewBounds;
+            HIViewGetBounds(ren->GetWindowId(), &viewBounds);
+            me->UpdateSize((int)viewBounds.size.width, (int)viewBounds.size.height);
+            if (me->GetEnabled())
+              {
+              me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
+              }
+            result = noErr;
+            }
+          break;
+          }
+        }
+      break;
+      }
 
-          UInt16 buttonNumber;
-          GetEventParameter(event,kEventParamMouseButton,typeMouseButton,NULL,
-                            sizeof(buttonNumber),NULL,&buttonNumber);
+    case kEventClassKeyboard:
+      {
+      SInt8 charCode;
+      GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar,NULL,
+                        sizeof(charCode),NULL,&charCode);
+        switch (GetEventKind(event))
+          {
+          case kEventRawKeyDown:
+            {
+            me->SetKeyEventInformation(controlDown, shiftDown,
+                                       (int)charCode,1,(char*)&charCode);
+            me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+            me->InvokeEvent(vtkCommand::CharEvent, NULL);
+            result = noErr;
+            break;
+            }
+          case kEventRawKeyRepeat:
+            {
+            me->SetKeyEventInformation(controlDown, shiftDown,
+                                       (int)charCode,1,(char*)&charCode);
+            me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
+            me->InvokeEvent(vtkCommand::CharEvent, NULL);
+            result = noErr;
+            break;
+            }
+          case kEventRawKeyUp:
+            {
+            me->SetKeyEventInformation(controlDown, shiftDown,
+                                       (int)charCode,1,(char*)&charCode);
+            me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
+            result = noErr;
+            break;
+            }
+          }
+        break;
+      }
 
-          UInt32 repeat;
-          GetEventParameter(event, kEventParamClickCount, typeUInt32, NULL, sizeof(UInt32), NULL, &repeat);
-          repeat--;
+    case kEventClassMouse:
+      {
+      // see if the event is for this view
+      HIViewRef view_for_mouse;
+      HIViewGetViewForMouseEvent(HIViewGetRoot(ren->GetRootWindow()), event, &view_for_mouse);
+      if(view_for_mouse != ren->GetWindowId())
+        return eventNotHandledErr;
 
-          me->SetEventInformationFlipY(mouseLoc.h,mouseLoc.v,
-                                       controlDown,shiftDown,0,repeat);
+      GetEventParameter(event, kEventParamMouseLocation, typeQDPoint,
+                        NULL, sizeof(Point), NULL, &mouseLoc);
+      SetPortWindowPort(FrontWindow());
+      GlobalToLocal(&mouseLoc);
+      GetEventParameter(event, kEventParamKeyModifiers,typeUInt32, NULL,
+                        sizeof(modifierKeys), NULL, &modifierKeys);
+      UInt16 buttonNumber;
+      GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
+                        sizeof(buttonNumber), NULL, &buttonNumber);
+      me->SetEventInformationFlipY(mouseLoc.h, mouseLoc.v,
+                                   (modifierKeys & controlKey),
+                                   (modifierKeys & shiftKey));
+      switch (GetEventKind(event))
+        {
+        case kEventMouseDown:
+          {
           switch (buttonNumber)
             {
             case 1:
@@ -121,90 +181,6 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
           result = noErr;
           break;
           }
-        case kEventWindowDrawContent:
-          {
-          ren->Render();
-          result = noErr;
-          break;
-          }
-        case kEventWindowBoundsChanging:
-          {
-          InvalWindowRect(window, GetWindowPortBounds(window, &bounds));
-          GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle,
-                            NULL, sizeof(bounds), NULL, &bounds);
-          me->UpdateSize(bounds.right-bounds.left, bounds.bottom-bounds.top);
-          me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
-          ren->Render();
-          result = noErr;
-          break;
-          }
-        case kEventWindowActivated:
-          {
-          InvalWindowRect(window, GetWindowPortBounds(window, &bounds));
-          ren->MakeCurrent();
-          aglUpdateContext (ren->GetContextId());
-          result = noErr;
-          break;
-          }
-        case kEventWindowClose:
-          {
-          result = CallNextEventHandler(nextHandler, event);
-          break;
-          }
-        }
-      break;
-      }
-
-    case kEventClassKeyboard:
-      {
-      SInt8 charCode;
-      GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar,NULL,
-                        sizeof(charCode),NULL,&charCode);
-        switch (GetEventKind(event))
-          {
-          case kEventRawKeyDown:
-            {
-            me->SetKeyEventInformation(controlDown, shiftDown,
-                                       (int)charCode,1,(char*)&charCode);
-            me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-            me->InvokeEvent(vtkCommand::CharEvent, NULL);
-            break;
-            }
-          case kEventRawKeyRepeat:
-            {
-            me->SetKeyEventInformation(controlDown, shiftDown,
-                                       (int)charCode,1,(char*)&charCode);
-            me->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
-            me->InvokeEvent(vtkCommand::CharEvent, NULL);
-            break;
-            }
-          case kEventRawKeyUp:
-            {
-            me->SetKeyEventInformation(controlDown, shiftDown,
-                                       (int)charCode,1,(char*)&charCode);
-            me->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
-            break;
-            }
-          }
-        break;
-      }
-
-    case kEventClassMouse:
-      {
-      GetEventParameter(event, kEventParamMouseLocation, typeQDPoint,
-                        NULL, sizeof(Point), NULL, &mouseLoc);
-      SetPortWindowPort(FrontWindow());
-      GlobalToLocal(&mouseLoc);
-      GetEventParameter(event, kEventParamKeyModifiers,typeUInt32, NULL,
-                        sizeof(modifierKeys), NULL, &modifierKeys);
-      UInt16 buttonNumber;
-      GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
-                        sizeof(buttonNumber), NULL, &buttonNumber);
-      me->SetEventInformationFlipY(mouseLoc.h, mouseLoc.v,
-                                   (modifierKeys & controlKey),
-                                   (modifierKeys & shiftKey));
-      switch (GetEventKind(event))
-        {
         case kEventMouseUp:
           {
           switch (buttonNumber)
@@ -264,11 +240,11 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
           }
         default:
           {
-          result = noErr;
           }
         }
       }
     }
+    
   return result;
 }
 
@@ -276,10 +252,10 @@ static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
 // Construct object so that light follows camera motion.
 vtkCarbonRenderWindowInteractor::vtkCarbonRenderWindowInteractor()
 {
-  this->WindowId           = NULL;
   this->TimerId            = 0;
   this->InstallMessageProc = 1;
-  this->OldProc            = NULL;
+  this->ViewProcUPP        = NULL;
+  this->WindowProcUPP      = NULL;
 }
 
 //--------------------------------------------------------------------------
@@ -326,10 +302,10 @@ void vtkCarbonRenderWindowInteractor::Initialize()
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
   ren = (vtkCarbonRenderWindow *)(this->RenderWindow);
+
   ren->Start();
   size    = ren->GetSize();
   ren->GetPosition();
-  this->WindowId = ren->GetWindowId();
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
@@ -338,44 +314,41 @@ void vtkCarbonRenderWindowInteractor::Initialize()
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindowInteractor::Enable()
 {
-  vtkCarbonRenderWindow *ren;
   if (this->Enabled)
     {
     return;
     }
+
+  
   if (this->InstallMessageProc)
     {
-    // add our callback
-    ren = (vtkCarbonRenderWindow *)(this->RenderWindow);
     // set up the event handling
     // specify which events we want to hear about
     OSStatus   err = noErr;
-    EventTypeSpec list[] = {{ kEventClassWindow, kEventWindowClose },
-                            { kEventClassWindow, kEventWindowDrawContent },
-                            { kEventClassWindow, kEventWindowBoundsChanging },
-                            { kEventClassWindow, kEventWindowActivated },
-                            { kEventClassWindow, kEventWindowClickContentRgn },
-                            { kEventClassMouse, kEventMouseUp },
-                            { kEventClassMouse, kEventMouseMoved },
-                            { kEventClassMouse, kEventMouseDragged },
-                            { kEventClassMouse, kEventMouseWheelMoved },
-                            { kEventClassKeyboard, kEventRawKeyDown },
-                            { kEventClassKeyboard, kEventRawKeyRepeat },
-                            { kEventClassKeyboard, kEventRawKeyUp }};
-    // if we haven't already made our window event handler UPP then do so now
-    if(!this->OldProc)
-      {
-      this->OldProc = NewEventHandlerUPP(myWinEvtHndlr);
-      if(!this->OldProc)
-        err = memFullErr;
-      }
+    EventTypeSpec view_event_list[] = {{ kEventClassControl, kEventControlDraw },
+                                       { kEventClassControl, kEventControlBoundsChanged }};
+    
+    EventTypeSpec window_event_list[] ={{ kEventClassMouse, kEventMouseDown },
+                                        { kEventClassMouse, kEventMouseUp },
+                                        { kEventClassMouse, kEventMouseMoved },
+                                        { kEventClassMouse, kEventMouseDragged },
+                                        { kEventClassMouse, kEventMouseWheelMoved },
+                                        { kEventClassKeyboard, kEventRawKeyDown },
+                                        { kEventClassKeyboard, kEventRawKeyRepeat },
+                                        { kEventClassKeyboard, kEventRawKeyUp }};
+    
+    this->WindowProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
+    this->ViewProcUPP = NewEventHandlerUPP(myWinEvtHndlr);
+    if(!this->WindowProcUPP || !ViewProcUPP)
+      err = memFullErr;
 
     if(!err)
       {
-      EventHandlerRef  ref;
-      err = InstallWindowEventHandler(ren->GetWindowId(), this->OldProc,
-                                      sizeof(list)/sizeof(EventTypeSpec),
-                                      list, ren->GetWindowId(), &ref);
+      vtkCarbonRenderWindow* ren = static_cast<vtkCarbonRenderWindow*>(this->RenderWindow);
+      err = InstallControlEventHandler(ren->GetWindowId(), this->ViewProcUPP,
+                                       GetEventTypeCount(view_event_list), view_event_list, ren, NULL);
+      err = InstallWindowEventHandler(ren->GetRootWindow(), this->WindowProcUPP,
+                                       GetEventTypeCount(window_event_list), window_event_list, ren, NULL);
       }
     }
   this->Enabled = 1;

@@ -64,6 +64,10 @@ public:
   virtual void Finalize();
 
   // Description:
+  // Carbon related fixes if necessary before caling super classes render
+  virtual void Render();
+
+  // Description:
   // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
@@ -112,11 +116,11 @@ public:
      }
 
   //BTX
-  virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
+  virtual void *GetGenericDisplayId() {return NULL;};
   virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
   virtual void *GetGenericParentId()  {return (void *)this->ParentId;};
   virtual AGLContext GetContextId()   {return this->ContextId;};
-  virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
+  virtual void *GetGenericContext()   {return (void *)this->ContextId;};
   virtual void SetDisplayId(void *) {};
 
   virtual void* GetGenericDrawable()
@@ -131,25 +135,28 @@ public:
     }
 
   // Description:
-  // Get the window id.
-  virtual WindowPtr GetWindowId();
-  void  SetWindowId(void *foo) {this->SetWindowId((WindowPtr)foo);};
+  // Get the HIView window pointer.
+  virtual HIViewRef GetWindowId();
+  // Set the HIView window pointer.
+  void  SetWindowId(void *foo) {this->SetWindowId((HIViewRef)foo);};
   void SetNextWindowId(void*)
     {
        vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
   // Description:
-  // Get the window id.
-  virtual void SetParentId(WindowPtr);
-  void  SetParentId(void *foo) {this->SetParentId((WindowPtr)foo);};
+  // Set the parent HIView.
+  virtual void SetParentId(HIViewRef);
+  void  SetParentId(void *foo) {this->SetParentId((HIViewRef)foo);};
   
   // Description:
-  // Set the window id to a pre-existing window.
-  virtual void SetWindowId(WindowPtr);
+  // Set the HIVIew pointer to a pre-existing window.
+  virtual void SetWindowId(HIViewRef);
 
-  void  SetContextId(void *);   // hsr
-  void  SetDeviceContext(void *);       // hsr
+  // Description:
+  // Set the root window id.  Use this when using non-HIView GUIs.
+  void SetRootWindow(WindowPtr win);
+  WindowPtr GetRootWindow();
 
   //ETX
 
@@ -180,13 +187,6 @@ public:
   virtual  int GetEventPending();
 
   // Description:
-  // These methods can be used by MFC applications 
-  // to support print preview and printing, or more
-  // general rendering into memory. 
-//  void *GetMemoryDC();
-//  unsigned char *GetMemoryData(){return this->MemoryData;};  
-  
-  // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
@@ -208,6 +208,11 @@ public:
   
   void UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize);
 
+  // Description:
+  // Set the GL region dirty, the AGL_BUFFER_RECT and AGL_CLIP_REGION will be updated
+  void SetRegionDirty(int);
+  int GetRegionDirty();
+
   
 protected:
   vtkCarbonRenderWindow();
@@ -224,23 +229,26 @@ protected:
                               // output: same (used in allocation)
   AGLPixelFormat fmt;         // input: none; output pixel format...
   AGLContext ContextId;
-  AGLDrawable DeviceContext;  // the drawable attached to a rendering context
-  WindowPtr WindowId;
-  WindowPtr ParentId;
+  HIViewRef WindowId;
+  HIViewRef ParentId;
+  WindowPtr RootWindow;
   int OwnWindow;
   int ScreenSize[2];
-
-  int ScreenMapped;
-  int ScreenWindowSize[2];
-  void *ScreenDeviceContext;
-  int ScreenDoubleBuffer;
-  void *ScreenContextId;
 
   int CursorHidden;
   int ForceMakeCurrent;
 
+
+ // data and handlers to keep the GL view coincident with the HIView
+  int RegionDirty;
+  EventHandlerUPP RegionEventHandlerUPP;
+  EventHandlerRef RegionEventHandler;
+  static OSStatus RegionEventProcessor(EventHandlerCallRef er, EventRef event, void*);
+  void UpdateGLRegion();
+
   void CreateAWindow(int x, int y, int width, int height);
   void InitializeApplication();
+
 private:
   vtkCarbonRenderWindow(const vtkCarbonRenderWindow&);  // Not implemented.
   void operator=(const vtkCarbonRenderWindow&);  // Not implemented.

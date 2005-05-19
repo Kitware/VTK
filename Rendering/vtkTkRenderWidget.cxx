@@ -1106,7 +1106,7 @@ vtkTkRenderWidget_MakeRenderWindow(struct vtkTkRenderWidget *self)
     // as a flag to indicate that the renderwindow is being used as a sub-
     // view of its 'parent' window.
     renderWindow->SetParentId(parentWin);
-    renderWindow->SetWindowId(parentWin);
+    renderWindow->SetRootWindow(parentWin);
     }
 
   // Use the same display

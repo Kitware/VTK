@@ -784,7 +784,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
   // get the window
   imgWindow = static_cast<vtkCarbonRenderWindow *>(imgViewer->GetRenderWindow());
   // If the imageviewer has already created it's window, throw up our hands and quit...
-  if ( imgWindow->GetWindowId() != (Window)NULL )
+  if ( imgWindow->GetRootWindow() != (Window)NULL )
     {
     return TCL_ERROR;
     }
@@ -825,7 +825,7 @@ vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget *self)
       // as a flag to indicate that the renderwindow is being used as a sub-
       // view of its 'parent' window.
       imgWindow->SetParentId(parentWin);
-      imgWindow->SetWindowId(parentWin);
+      imgWindow->SetRootWindow(parentWin);
     }
 
 
