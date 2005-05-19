@@ -34,7 +34,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkFacetWriter, "1.3");
+vtkCxxRevisionMacro(vtkFacetWriter, "1.4");
 vtkStandardNewMacro(vtkFacetWriter);
 
 //----------------------------------------------------------------------------
@@ -160,8 +160,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       }
     ca = data->GetVerts();
     numCells = ca->GetNumberOfCells();
-    vtkIdType numPts;
-    vtkIdType *pts;
+    vtkIdType numPts = 0;
+    vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
       {
@@ -194,8 +194,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       }
     ca = data->GetLines();
     numCells = ca->GetNumberOfCells();
-    vtkIdType numPts;
-    vtkIdType *pts;
+    vtkIdType numPts = 0;
+    vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
       {
@@ -228,8 +228,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       }
     ca = data->GetPolys();
     numCells = ca->GetNumberOfCells();
-    vtkIdType numPts;
-    vtkIdType *pts;
+    vtkIdType numPts = 0;
+    vtkIdType *pts = NULL;
     ca->InitTraversal();
     ca->GetNextCell(numPts, pts);
     totalCells ++;
@@ -269,8 +269,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       }
     ca = data->GetStrips();
     numCells = ca->GetNumberOfCells();
-    vtkIdType numPts;
-    vtkIdType *pts;
+    vtkIdType numPts = 0;
+    vtkIdType *pts = NULL;
     ca->InitTraversal();
     while ( ca->GetNextCell( numPts, pts ) )
       {
