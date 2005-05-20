@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.32");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.33");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -598,6 +598,7 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
         if(this->ParentId && this->RootWindow && !this->WindowId)
           {
           // backwards compatiblity with Tk and who else?
+          this->RegionDirty = 1;
           UpdateGLRegion();
           }
         else if(this->OwnWindow || !this->WindowId)
@@ -635,6 +636,7 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
         if(this->ParentId && this->RootWindow && !this->WindowId)
           {
           // backwards compatiblity with Tk and who else?
+          this->RegionDirty = 1;
           UpdateGLRegion();
           }
         else if(this->OwnWindow || !this->WindowId)
@@ -999,7 +1001,7 @@ int *vtkCarbonRenderWindow::GetPosition()
     return(this->Position);
     }
 
-  if(!this->WindowId)
+  if(!this->WindowId && !this->ParentId)
     {
     //  Find the current window position
     Rect windowRect;
