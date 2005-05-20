@@ -772,10 +772,6 @@
     scalarOpacityTable[c] = mapper->GetScalarOpacityTable(c);                                   \
     }                                                                                           \
                                                                                                 \
-  /* Dumb code to stop compiler warning */                                                      \
-  /* No way for value to be bigger than 0xffff */                                               \
-  if ( colorTable[0][0] > 0xffff ) return;                                                      \
-                                                                                                \
   unsigned int inc[3];                                                                          \
   inc[0] = components;                                                                          \
   inc[1] = dim[0]*components;                                                                   \

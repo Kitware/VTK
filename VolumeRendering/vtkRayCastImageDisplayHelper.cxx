@@ -15,7 +15,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkVolumeRenderingFactory.h"
 
-vtkCxxRevisionMacro(vtkRayCastImageDisplayHelper, "1.3");
+vtkCxxRevisionMacro(vtkRayCastImageDisplayHelper, "1.4");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -47,6 +47,8 @@ void vtkRayCastImageDisplayHelper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   
   os << indent << "PreMultiplied Colors: "
-     << (this->PreMultipliedColors ? "On\n" : "Off\n");
+     << (this->PreMultipliedColors ? "On" : "Off") << endl;
+  
+  os << indent << "Pixel Scale: " << this->PixelScale << endl;
 }
 
