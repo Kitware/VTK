@@ -765,6 +765,8 @@
   unsigned short *colorTable[4];                                                                \
   unsigned short *scalarOpacityTable[4];                                                        \
                                                                                                 \
+  (void)colorTable;                                                                             \
+                                                                                                \
   int c;                                                                                        \
   for ( c = 0; c < 4; c++ )                                                                     \
     {                                                                                           \
