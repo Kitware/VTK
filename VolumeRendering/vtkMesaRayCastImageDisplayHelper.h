@@ -44,10 +44,26 @@ public:
                       float requestedDepth,
                       unsigned char *image );
 
+  void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
+                      int imageMemorySize[2],
+                      int imageViewportSize[2],
+                      int imageInUseSize[2],
+                      int imageOrigin[2],
+                      float requestedDepth,
+                      unsigned short *image );
+
 protected:
   vtkMesaRayCastImageDisplayHelper();
   ~vtkMesaRayCastImageDisplayHelper();
-
+  
+  void RenderTextureInternal( vtkVolume *vol, vtkRenderer *ren,
+                              int imageMemorySize[2],
+                              int imageViewportSize[2],
+                              int imageInUseSize[2],
+                              int imageOrigin[2],
+                              float requestedDepth,
+                              int imageScalarType,
+                              void *image );
 private:
   vtkMesaRayCastImageDisplayHelper(const vtkMesaRayCastImageDisplayHelper&);  // Not implemented.
   void operator=(const vtkMesaRayCastImageDisplayHelper&);  // Not implemented.
