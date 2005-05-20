@@ -52,7 +52,7 @@ vtkVolumeProperty volumeProperty
 vtkUnstructuredGridVolumeRayCastMapper volumeMapper
     volumeMapper SetInput [celldata GetOutput]
 
-vtkUnstructuredGridLinearRayIntegrator rayIntegrator
+vtkUnstructuredGridHomogeneousRayIntegrator rayIntegrator
     volumeMapper SetRayIntegrator rayIntegrator
 
 # The volume holds the mapper and the property and
@@ -62,7 +62,7 @@ vtkVolume volume
     volume SetProperty volumeProperty
 
 ren1 AddVolume volume
-renWin SetSize 300 300
+renWin SetSize 150 150
 
 [ren1 GetActiveCamera] Azimuth 20.0
 [ren1 GetActiveCamera] Elevation 15.0
