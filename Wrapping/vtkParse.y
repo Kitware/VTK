@@ -175,6 +175,7 @@ char *vtkstrdup(const char *in)
 
 /* macro tokens */
 %token IdType
+%token StdString
 %token SetMacro
 %token GetMacro
 %token SetStringMacro
@@ -368,8 +369,16 @@ type: const_mod type_red1 {$<integer>$ = 0x1000 + $<integer>2;}
 
 type_red1: type_red2 {$<integer>$ = $<integer>1;} 
          | type_red2 type_indirection 
-             {$<integer>$ = $<integer>1 + $<integer>2;};
+           {$<integer>$ = $<integer>1 + $<integer>2;}
+         | type_string1 {$<integer>$ = $<integer>1;};
 
+type_string1: type_string2 {$<integer>$ = $<integer>1;}
+         | type_string2 '&' {$<integer>$ = $<integer>1;}
+         | type_string2 '*' {$<integer>$ = 0x400 + $<integer>1;}
+
+type_string2: StdString { postSig("vtkStdString "); $<integer>$ = 0x1303; }; 
+
+ 
 /* 0x100 = &
    0x200 = &&
    0x300 = *
@@ -416,7 +425,7 @@ type_primitive:
         currentFunction->ReturnClass = vtkstrdup($1); 
         }
     } |
-  IdType { postSig("vtkIdType "); $<integer>$ = 0xA;}; 
+  IdType { postSig("vtkIdType "); $<integer>$ = 0xA;};
 
 optional_scope: | ':' scope_list;
 
@@ -959,8 +968,8 @@ maybe_other_no_semi : | other_stuff_no_semi maybe_other_no_semi;
 other_stuff : ';' | other_stuff_no_semi;
 
 other_stuff_no_semi : OTHER | braces | parens | '*' | '=' | ':' | ',' | '.'
-   | STRING | type_red2 | NUM | CLASS_REF | '&' | brackets | CONST 
-   | OPERATOR | '-' | '~' | STATIC | ARRAY_NUM;
+   | STRING | type_red2 | type_string2 | NUM | CLASS_REF | '&' | brackets
+   | CONST | OPERATOR | '-' | '~' | STATIC | ARRAY_NUM;
 
 braces: '{' maybe_other '}';
 parens: '(' maybe_other ')';

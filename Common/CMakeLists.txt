@@ -191,7 +191,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOldStyleCallbackCommand.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
-  vtkStringArray.cxx
   vtkTimeStamp.cxx
 
   WRAP_EXCLUDE

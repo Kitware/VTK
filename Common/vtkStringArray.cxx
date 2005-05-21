@@ -32,7 +32,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 
-vtkCxxRevisionMacro(vtkStringArray, "1.3");
+vtkCxxRevisionMacro(vtkStringArray, "1.4");
 vtkStandardNewMacro(vtkStringArray);
 
 //----------------------------------------------------------------------------
@@ -378,7 +378,7 @@ vtkStringArray::GetActualMemorySize( void )
 
 // ----------------------------------------------------------------------
 
-vtkStdString
+vtkStdString &
 vtkStringArray::GetValue( vtkIdType id )
 {
   return this->Array[id];

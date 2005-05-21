@@ -110,7 +110,7 @@ public:
 
   // Description:
   // Get the data at a particular index.
-  vtkStdString GetValue(vtkIdType id);
+  vtkStdString &GetValue(vtkIdType id);
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
