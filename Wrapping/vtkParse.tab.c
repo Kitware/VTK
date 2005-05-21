@@ -1880,12 +1880,12 @@ yyreduce:
 
   case 74:
 #line 376 "vtkParse.y"
-    {yyval.integer = yyvsp[-1].integer;;}
+    { postSig("&"); yyval.integer = yyvsp[-1].integer;;}
     break;
 
   case 75:
 #line 377 "vtkParse.y"
-    {yyval.integer = 0x400 + yyvsp[-1].integer;;}
+    { postSig("*"); yyval.integer = 0x400 + yyvsp[-1].integer;;}
     break;
 
   case 76:

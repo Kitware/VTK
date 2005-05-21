@@ -373,8 +373,8 @@ type_red1: type_red2 {$<integer>$ = $<integer>1;}
          | type_string1 {$<integer>$ = $<integer>1;};
 
 type_string1: type_string2 {$<integer>$ = $<integer>1;}
-         | type_string2 '&' {$<integer>$ = $<integer>1;}
-         | type_string2 '*' {$<integer>$ = 0x400 + $<integer>1;}
+         | type_string2 '&' { postSig("&"); $<integer>$ = $<integer>1;}
+         | type_string2 '*' { postSig("*"); $<integer>$ = 0x400 + $<integer>1;}
 
 type_string2: StdString { postSig("vtkStdString "); $<integer>$ = 0x1303; }; 
 
