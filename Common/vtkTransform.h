@@ -191,6 +191,7 @@ class VTK_COMMON_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Return the wxyz angle+axis representing the current orientation.
+  // The angle is in degrees and the axis is a unit vector.
   void GetOrientationWXYZ(double wxyz[4]);
   void GetOrientationWXYZ(float wxyz[3]) {
     double temp[4]; this->GetOrientationWXYZ(temp); 
