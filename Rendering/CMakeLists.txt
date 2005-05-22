@@ -77,6 +77,7 @@ vtkProp3D.cxx
 vtkProp3DCollection.cxx
 vtkPropPicker.cxx
 vtkProperty.cxx
+vtkQuaternionInterpolator.cxx
 vtkRenderWindow.cxx
 vtkRenderWindowCollection.cxx
 vtkRenderWindowInteractor.cxx
@@ -93,6 +94,7 @@ vtkTextActor3D.cxx
 vtkTextMapper.cxx
 vtkTextProperty.cxx
 vtkTexture.cxx
+vtkTransformInterpolator.cxx
 vtkTupleInterpolator.cxx
 vtkVRMLExporter.cxx
 vtkVolume.cxx

@@ -21,7 +21,7 @@
 #include "vtkQuaternionInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkTransformInterpolator, "1.1");
+vtkCxxRevisionMacro(vtkTransformInterpolator, "1.2");
 vtkStandardNewMacro(vtkTransformInterpolator);
 
 // PIMPL STL encapsulation for list of transforms, and list of
@@ -48,7 +48,7 @@ struct vtkQTransform
         {
         xform->GetPosition(this->P);
         xform->GetScale(this->S);
-        xform->GetOrientationWXYZ(this->Q);
+        xform->GetOrientationWXYZ(this->Q); //Rotation (in degrees) around unit vector
         }
       else
         {

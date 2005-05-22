@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkQuaternionInterpolator - interpolate a quaternion
 // .SECTION Description
-// This class is used to interpolate a series of quaternions (that represent
-// the rotations of a 3D object).  The interpolation may be linear in form
+// This class is used to interpolate a series of quaternions representing
+// the rotations of a 3D object.  The interpolation may be linear in form
 // (using spherical linear interpolation SLERP), or via spline interpolation
 // (using SQUAD). In either case the interpolation is specialized to
 // quaternions since the interpolation occurs on the surface of the unit
@@ -24,9 +24,26 @@
 // To use this class, specify at least two pairs of (t,q[4]) with the
 // AddQuaternion() method.  Next interpolate the tuples with the
 // InterpolateQuaternion(t,q[4]) method, where "t" must be in the range of
-// (t_min,t_max) parameter values specified by the AddQuaternion() method ( t
-// is clamped otherwise), and q[4] is filled in by the method.
+// (t_min,t_max) parameter values specified by the AddQuaternion() method (t
+// is clamped otherwise), and q[4] is filled in by the method. 
 //
+// There are several important background references. Ken Shoemake described
+// the practical application of quaternions for the interpolation of rotation
+// (K. Shoemake, "Animating rotation with quaternion curves", Computer
+// Graphics (Siggraph '85) 19(3):245--254, 1985). Another fine reference
+// (available on-line) is E. B. Dam, M. Koch, and M. Lillholm, Technical
+// Report DIKU-TR-98/5, Dept. of Computer Science, University of Copenhagen,
+// Denmark.
+//
+// .SECTION Caveats
+// Note that for two or less quaternions, Slerp (linear) interpolation is
+// performed even if spline interpolation is requested. Also, the tangents to
+// the first and last segments of spline interpolation are (arbitrarily)
+// defined by repeating the first and last quaternions.
+//
+// There are several methods particular to quaternions (norms, products,
+// etc.) implemented interior to this class. These may be moved to a separate
+// quaternion class at some point.
 
 
 #ifndef __vtkQuaternionInterpolator_h
@@ -34,6 +51,7 @@
 
 #include "vtkObject.h"
 
+struct vtkQuaternion;
 class vtkQuaternionList;
 
 
@@ -119,13 +137,6 @@ protected:
   void Slerp(double t, double q0[4], double q1[4], double q[4]);
 
   // Internal methods supporting spline interpolation
-  static void Add(double q0[4], double q1[4], double q[4]);
-  static void Product(double q0[4], double q1[4], double q[4]);
-  static void Inverse(double q[4], double qInv[4]);
-  static void Conjugate(double q[4], double qConj[4]);
-  static double Norm(double q[4]);
-  static void Exp(double q[4], double qExp[4]);
-  static void Log(double q[4], double qLog[4]);
   static void InnerPoint(double q0[4], double q1[4], double q2[4], double q[4]);
 
 private:

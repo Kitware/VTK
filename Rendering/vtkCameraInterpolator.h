@@ -106,7 +106,6 @@ public:
 //ETX
 
   // Description:
-
   // These are convenience methods to switch between linear and spline
   // interpolation. The methods simply forward the request for linear or
   // spline interpolation to the instance variable interpolators (i.e.,

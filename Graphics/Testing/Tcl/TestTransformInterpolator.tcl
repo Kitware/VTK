@@ -134,18 +134,19 @@ vtkActor cubeActor
 
 # Interpolate some transformations, test along the way
 vtkTransformInterpolator interpolator
-interpolator SetInterpolationTypeToLinear
+#interpolator SetInterpolationTypeToLinear
+interpolator SetInterpolationTypeToSpline
 interpolator AddTransform 0.0 cube1
 interpolator AddTransform 8.0 cube2
 interpolator AddTransform 18.2 cube3
 interpolator AddTransform 24.4 cube4
 interpolator Initialize
-puts [interpolator GetNumberOfTransforms]
+#puts [interpolator GetNumberOfTransforms]
 interpolator AddTransform 0.0 cube1
 interpolator AddTransform 8.0 cube2
 interpolator AddTransform 18.2 cube3
 interpolator AddTransform 24.4 cube4
-puts [interpolator GetNumberOfTransforms]
+#puts [interpolator GetNumberOfTransforms]
 
 # Create the RenderWindow, Renderer and both Actors
 #
