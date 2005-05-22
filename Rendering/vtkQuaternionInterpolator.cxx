@@ -17,7 +17,7 @@
 #include "vtkMath.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.4");
+vtkCxxRevisionMacro(vtkQuaternionInterpolator, "1.5");
 vtkStandardNewMacro(vtkQuaternionInterpolator);
 
 //----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ void vtkQuaternionInterpolator::AddQuaternion(double t, double q[4])
 
   // Okay, insert in sorted order
   QuaternionListIterator iter = this->QuaternionList->begin();
-  QuaternionListIterator nextIter = ++(this->QuaternionList->begin());
+  QuaternionListIterator nextIter = iter + 1;
   for (int i=0; i < (size-1); i++, ++iter, ++nextIter)
     {
     if ( t == iter->Time )
