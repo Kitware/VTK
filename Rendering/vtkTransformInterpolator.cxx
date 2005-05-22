@@ -21,7 +21,7 @@
 #include "vtkQuaternionInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkTransformInterpolator, "1.2");
+vtkCxxRevisionMacro(vtkTransformInterpolator, "1.3");
 vtkStandardNewMacro(vtkTransformInterpolator);
 
 // PIMPL STL encapsulation for list of transforms, and list of
@@ -29,21 +29,21 @@ vtkStandardNewMacro(vtkTransformInterpolator);
 // which is later dumped into the interpolators.
 struct vtkQTransform
 {
-  double T;
+  double Time;
   double P[3];
   double S[3];
   double Q[4];
 
   vtkQTransform()
     {
-      this->T = 0.0;
+      this->Time = 0.0;
       this->P[0] = this->P[1] = this->P[2] = 0.0;
       this->S[0] = this->S[1] = this->S[2] = 0.0;
       this->Q[0] = this->Q[1] = this->Q[2] = this->Q[3] = 0.0;
     }
   vtkQTransform(double t, vtkTransform *xform)
     {
-      this->T = t;
+      this->Time = t;
       if ( xform )
         {
         xform->GetPosition(this->P);
@@ -141,7 +141,7 @@ double vtkTransformInterpolator::GetMinimumT()
     }
   else
     {
-    return this->TransformList->front().T;
+    return this->TransformList->front().Time;
     }
 }
 
@@ -155,7 +155,7 @@ double vtkTransformInterpolator::GetMaximumT()
     }
   else
     {
-    return this->TransformList->back().T;
+    return this->TransformList->back().Time;
     }
 }
 
@@ -172,17 +172,17 @@ void vtkTransformInterpolator::AddTransform(double t, vtkTransform *xform)
   int size = this->TransformList->size();
 
   // Check special cases: t at beginning or end of list
-  if ( size <= 0 || t < this->TransformList->front().T )
+  if ( size <= 0 || t < this->TransformList->front().Time )
     {
     this->TransformList->push_front(vtkQTransform(t,xform));
     return;
     }
-  else if ( t > this->TransformList->back().T )
+  else if ( t > this->TransformList->back().Time )
     {
     this->TransformList->push_back(vtkQTransform(t,xform));
     return;
     }
-  else if ( size == 1 && t == this->TransformList->back().T )
+  else if ( size == 1 && t == this->TransformList->back().Time )
     {
     this->TransformList->front() = vtkQTransform(t,xform);
     return;
@@ -193,11 +193,11 @@ void vtkTransformInterpolator::AddTransform(double t, vtkTransform *xform)
   TransformListIterator nextIter = ++(this->TransformList->begin());
   for (int i=0; i < (size-1); i++, ++iter, ++nextIter)
     {
-    if ( t == iter->T )
+    if ( t == iter->Time )
       {
       (*iter) = vtkQTransform(t,xform);
       }
-    else if ( t > iter->T && t < nextIter->T )
+    else if ( t > iter->Time && t < nextIter->Time )
       {
       this->TransformList->insert(nextIter, vtkQTransform(t,xform));
       }
@@ -224,14 +224,14 @@ void vtkTransformInterpolator::AddTransform(double t, vtkProp3D *prop3D)
 //----------------------------------------------------------------------------
 void vtkTransformInterpolator::RemoveTransform(double t)
 {
-  if ( t < this->TransformList->front().T ||
-       t > this->TransformList->back().T )
+  if ( t < this->TransformList->front().Time ||
+       t > this->TransformList->back().Time )
     {
     return;
     }
   
   TransformListIterator iter = this->TransformList->begin();
-  for ( ; iter->T != t && iter != this->TransformList->end(); ++iter )
+  for ( ; iter->Time != t && iter != this->TransformList->end(); ++iter )
     {
     }
   if ( iter != this->TransformList->end() )
@@ -346,9 +346,9 @@ void vtkTransformInterpolator::InitializeInterpolation()
     TransformListIterator iter = this->TransformList->begin();
     for ( ; iter != this->TransformList->end(); ++iter)
       {
-      this->PositionInterpolator->AddTuple(iter->T,iter->P);
-      this->ScaleInterpolator->AddTuple(iter->T,iter->S);
-      this->RotationInterpolator->AddQuaternion(iter->T,iter->Q);
+      this->PositionInterpolator->AddTuple(iter->Time,iter->P);
+      this->ScaleInterpolator->AddTuple(iter->Time,iter->S);
+      this->RotationInterpolator->AddQuaternion(iter->Time,iter->Q);
       }
     
     this->Initialized = 1;
@@ -370,14 +370,14 @@ void vtkTransformInterpolator::InterpolateTransform(double t,
   this->InitializeInterpolation();
   
   // Evaluate the interpolators 
-  if ( t < this->TransformList->front().T )
+  if ( t < this->TransformList->front().Time )
     {
-    t = this->TransformList->front().T;
+    t = this->TransformList->front().Time;
     }
 
-  else if ( t > this->TransformList->back().T )
+  else if ( t > this->TransformList->back().Time )
     {
-    t = this->TransformList->back().T;
+    t = this->TransformList->back().Time;
     }
 
   double P[3],S[3],Q[4];
