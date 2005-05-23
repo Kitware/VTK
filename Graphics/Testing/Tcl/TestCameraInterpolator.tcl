@@ -116,4 +116,5 @@ proc animate {} {
         renWin Render
     }
 }
-animate
+interpolator InterpolateCamera 8.2 camera
+#animate
