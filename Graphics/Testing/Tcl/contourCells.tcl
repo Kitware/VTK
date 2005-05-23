@@ -2,7 +2,7 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-# Contour every linear cell type
+# Contour every cell type
 
 
 # Since some of our actors are a single vertex, we need to remove all

@@ -3,7 +3,6 @@ package require vtkinteraction
 
 # create a rendering window and renderer
 vtkRenderer ren1
-    ren1 AutomaticLightCreationOff
 vtkRenderWindow renWin
     renWin AddRenderer ren1
 vtkRenderWindowInteractor iren
@@ -18,8 +17,6 @@ vtkConeSource cone2
   cone2 SetResolution 2
 vtkConeSource cone8
   cone8 SetResolution 8
-  cone8 SetDirection 0 0 10
-  cone8 SetCenter 5 0 0
 
 vtkPolyDataMapper cone0Mapper
   cone0Mapper SetInputConnection [cone0 GetOutputPort]

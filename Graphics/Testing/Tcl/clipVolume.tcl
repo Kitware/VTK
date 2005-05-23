@@ -29,8 +29,8 @@ vtkActor clipActor
   [clipActor GetProperty] SetColor .8 .4 .4
 
 # Create outline
-vtkOutlineSource outline
-outline SetBoxTypeToOriented
+vtkOutlineFilter outline
+  outline SetInput [clip GetInput]
 
 vtkPolyDataMapper outlineMapper
   outlineMapper SetInputConnection [outline GetOutputPort]
