@@ -2183,7 +2183,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -3084,7 +3084,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CreateAndCleanPixelList()
 //-----------------------------------------------------------------------------
 void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
 {
-  double previousZTarget;
+  double previousZTarget=0.0;
   double zTarget;
   vtkIdType vertex;
   
