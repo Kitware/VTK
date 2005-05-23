@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.60");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.61");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -137,10 +137,11 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
 {
   int idX, idY, idZ, idxC;
   int iter, pmin0, pmax0, min0, max0, min1, max1, min2, max2;
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *tempPtr;
   int *outPtrC;
-  int numC, outIdx, *outExtent, *outIncs;
+  int numC, outIdx, *outExtent;
+  vtkIdType *outIncs;
   double *origin, *spacing;
   unsigned long count = 0;
   unsigned long target;

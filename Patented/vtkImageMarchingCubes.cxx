@@ -43,7 +43,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.62");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.63");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -531,7 +531,7 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
                                      vtkImageData *inData,
                                      T *ptr, int numContours, double *values)
 {
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   int valueIdx;
   double value;
   int cubeIndex, ii;
@@ -625,7 +625,7 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 {
   int idx0, idx1, idx2;
   int min0, max0, min1, max1, min2, max2;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   T *ptr0, *ptr1, *ptr2;
   unsigned long target, count;
   

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.26");
+vtkCxxRevisionMacro(vtkImageButterworthLowPass, "1.27");
 vtkStandardNewMacro(vtkImageButterworthLowPass);
 
 //----------------------------------------------------------------------------
@@ -79,8 +79,8 @@ void vtkImageButterworthLowPass::ThreadedRequestData(
   double *outPtr;
   int wholeExtent[6];
   double spacing[3];
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double temp0, temp1, temp2, mid0, mid1, mid2;
   // normalization factors
   double norm0, norm1, norm2;

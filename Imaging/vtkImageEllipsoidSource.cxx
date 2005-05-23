@@ -20,7 +20,7 @@
 
 #include "vtkImageData.h"
 
-vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.33");
+vtkCxxRevisionMacro(vtkImageEllipsoidSource, "1.34");
 vtkStandardNewMacro(vtkImageEllipsoidSource);
 
 //----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ void vtkImageEllipsoidSourceExecute(vtkImageEllipsoidSource *self,
 {
   int min0, max0;
   int idx0, idx1, idx2;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   double s0, s1, s2, temp;
   T outVal, inVal;
   double *center, *radius;

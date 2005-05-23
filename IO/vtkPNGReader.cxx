@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.23");
+vtkCxxRevisionMacro(vtkPNGReader, "1.24");
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
@@ -151,7 +151,7 @@ void vtkPNGReader::ExecuteInformation()
 
 template <class OT>
 void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
-                         int *outExt, int *outInc, long pixSize)
+                         int *outExt, vtkIdType *outInc, long pixSize)
 {
   unsigned int ui;
   int i;
@@ -276,7 +276,7 @@ void vtkPNGReaderUpdate2(vtkPNGReader *self, OT *outPtr,
 template <class OT>
 void vtkPNGReaderUpdate(vtkPNGReader *self, vtkImageData *data, OT *outPtr)
 {
-  int outIncr[3];
+  vtkIdType outIncr[3];
   int outExtent[6];
   OT *outPtr2;
 

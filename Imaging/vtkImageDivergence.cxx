@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.33");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.34");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -119,11 +119,12 @@ void vtkImageDivergenceExecute(vtkImageDivergence *self,
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
-  int *wholeExtent, *inIncs;
+  int *wholeExtent;
+  vtkIdType *inIncs;
   double r[3], d, sum;
   int useMin[3], useMax[3];
   

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageShrink3D, "1.67");
+vtkCxxRevisionMacro(vtkImageShrink3D, "1.68");
 vtkStandardNewMacro(vtkImageShrink3D);
 
 //----------------------------------------------------------------------------
@@ -245,10 +245,10 @@ void vtkImageShrink3DExecute(vtkImageShrink3D *self,
                              vtkInformation *inInfo)
 {
   int outIdx0, outIdx1, outIdx2, inIdx0, inIdx1, inIdx2;
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
-  int outInc0, outInc1, outInc2;
-  int tmpInc0, tmpInc1, tmpInc2;
+  vtkIdType outInc0, outInc1, outInc2;
+  vtkIdType tmpInc0, tmpInc1, tmpInc2;
   T *tmpPtr0, *tmpPtr1, *tmpPtr2;
   int factor0, factor1, factor2;
   double sum, norm;

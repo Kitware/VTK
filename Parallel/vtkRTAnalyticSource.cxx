@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.19");
+vtkCxxRevisionMacro(vtkRTAnalyticSource, "1.20");
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
 //----------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void vtkRTAnalyticSource::ExecuteData(vtkDataObject *output)
   float *outPtr;
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int *outExt, *whlExt;
   double sum;
   double yContrib, zContrib;

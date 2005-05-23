@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.35");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.36");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -71,12 +71,12 @@ void vtkImageSobel2DExecute(vtkImageSobel2D *self,
   // For looping though output (and input) pixels.
   int min0, max0, min1, max1, min2, max2;
   int outIdx0, outIdx1, outIdx2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2, *outPtrV;
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   // For sobel function convolution (Left Right incs for each axis)
-  int inInc0L, inInc0R, inInc1L, inInc1R;
+  vtkIdType inInc0L, inInc0R, inInc1L, inInc1R;
   T *inPtrL, *inPtrR;
   double sum;
   // Boundary of input image

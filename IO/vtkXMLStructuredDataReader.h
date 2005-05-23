@@ -64,9 +64,9 @@ protected:
   // from a streamed write.
   int* PieceExtents;
   int* PiecePointDimensions;
-  int* PiecePointIncrements;
+  vtkIdType* PiecePointIncrements;
   int* PieceCellDimensions;
-  int* PieceCellIncrements;
+  vtkIdType* PieceCellIncrements;
   
   // Whether to read in whole slices mode.
   int WholeSlices;
@@ -75,8 +75,8 @@ protected:
   int UpdateExtent[6];
   int PointDimensions[3];
   int CellDimensions[3];
-  int PointIncrements[3];
-  int CellIncrements[3];
+  vtkIdType PointIncrements[3];
+  vtkIdType CellIncrements[3];
   
   // The extent currently being read.
   int SubExtent[6];
@@ -92,8 +92,8 @@ protected:
   
   // Internal utility methods.
   int ReadPiece(vtkXMLDataElement* ePiece);
-  int ReadSubExtent(int* inExtent, int* inDimensions, int* inIncrements,
-                    int* outExtent, int* outDimensions, int* outIncrements,
+  int ReadSubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements,
+                    int* outExtent,int* outDimensions,vtkIdType* outIncrements,
                     int* subExtent, int* subDimensions, vtkXMLDataElement* da,
                     vtkDataArray* array);
   

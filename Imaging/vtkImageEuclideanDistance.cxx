@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.20");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.21");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -65,11 +65,11 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
                                        vtkImageData *outData, int outExt[6], 
                                        double *outPtr )
 {
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   TT *inPtr0, *inPtr1, *inPtr2;
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2;
   
   int idx0, idx1, idx2;
@@ -113,11 +113,11 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
                                          vtkImageData *outData, 
                                          int outExt[6], double *outPtr )
 {
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
 
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2;
   
   int idx0, idx1, idx2;
@@ -186,7 +186,7 @@ void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *self,
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2;
   int idx0, idx1, idx2, inSize0;
   double maxDist;
@@ -368,7 +368,7 @@ void vtkImageEuclideanDistanceExecuteSaitoCached(
 {
   
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2;
   //
   int idx0, idx1, idx2, inSize0;

@@ -133,9 +133,9 @@ protected:
   int Min(int a, int b);
   int Max(int a, int b);
   void ComputeDimensions(int* extent, int* dimensions, int isPoint);
-  void ComputeIncrements(int* extent, int* increments, int isPoint);
-  unsigned int GetStartTuple(int* extent, int* increments,
-                             int i, int j, int k);
+  void ComputeIncrements(int* extent, vtkIdType* increments, int isPoint);
+  vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
+                          int i, int j, int k);
   void ReadAttributeIndices(vtkXMLDataElement* eDSA,
                             vtkDataSetAttributes* dsa);
   char** CreateStringArray(int numStrings);
@@ -147,7 +147,7 @@ protected:
 
 //BTX
   int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,  
-    int numTuples, vtkInformationVector *(&infoVector));
+  int numTuples, vtkInformationVector *(&infoVector));
 //ETX
 
   // Check whether the given array element is an enabled array.

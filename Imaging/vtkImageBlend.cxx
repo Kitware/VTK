@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.36");
+vtkCxxRevisionMacro(vtkImageBlend, "1.37");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -287,8 +287,8 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
   int minX = 0;
   int maxX = 0;
   int iter;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
   double minA,maxA;
   double r,f;
@@ -458,8 +458,8 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
   int minX = 0;
   int maxX = 0;
   int iter;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int inC, outC;
   unsigned short r,f;
   unsigned long count = 0;
@@ -610,7 +610,8 @@ void vtkImageBlendCopyData(vtkImageData *inData, vtkImageData *outData,
                            int *ext)
 {
   int idxY, idxZ, maxY, maxZ;
-  int inIncX, inIncY, inIncZ, rowLength;
+  vtkIdType inIncX, inIncY, inIncZ;
+  int rowLength;
   unsigned char *inPtr, *inPtr1, *outPtr;
  
   inPtr = (unsigned char *) inData->GetScalarPointerForExtent(ext);
@@ -661,13 +662,13 @@ void vtkImageBlendCompoundExecute(vtkImageBlend *self,
   
   // Get increments to march through data 
 
-  int inIncX, inIncY, inIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
   int inC;
 
   inData->GetContinuousIncrements(extent, inIncX, inIncY, inIncZ);
   inC = inData->GetNumberOfScalarComponents();
 
-  int tmpIncX, tmpIncY, tmpIncZ;
+  vtkIdType tmpIncX, tmpIncY, tmpIncZ;
   int tmpC;
 
   tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);
@@ -827,13 +828,13 @@ void vtkImageBlendCompoundTransferExecute(vtkImageBlend *self,
 {
   // Get increments to march through data 
 
-  int outIncX, outIncY, outIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int outC;
 
   outData->GetContinuousIncrements(extent, outIncX, outIncY, outIncZ);
   outC = outData->GetNumberOfScalarComponents();
 
-  int tmpIncX, tmpIncY, tmpIncZ;
+  vtkIdType tmpIncX, tmpIncY, tmpIncZ;
   int tmpC;
 
   tmpData->GetContinuousIncrements(extent, tmpIncX, tmpIncY, tmpIncZ);

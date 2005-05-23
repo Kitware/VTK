@@ -30,7 +30,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-vtkCxxRevisionMacro(vtkJPEGWriter, "1.29");
+vtkCxxRevisionMacro(vtkJPEGWriter, "1.30");
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);
@@ -317,8 +317,8 @@ void vtkJPEGWriter::WriteSlice(vtkImageData *data)
   void *outPtr;
   outPtr = data->GetScalarPointer(uExtent[0], uExtent[2], uExtent[4]);
   JSAMPROW *row_pointers = new JSAMPROW [height];
-  int *outInc = data->GetIncrements();
-  int rowInc = outInc[1];
+  vtkIdType *outInc = data->GetIncrements();
+  vtkIdType rowInc = outInc[1];
   for (ui = 0; ui < height; ui++)
     {
     row_pointers[height - ui - 1] = (JSAMPROW) outPtr;

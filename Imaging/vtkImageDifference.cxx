@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDifference, "1.38");
+vtkCxxRevisionMacro(vtkImageDifference, "1.39");
 vtkStandardNewMacro(vtkImageDifference);
 
 // Construct object to extract all of the input data.
@@ -174,9 +174,9 @@ void vtkImageDifference::ThreadedRequestData(
   unsigned char *outPtr0, *outPtr1, *outPtr2;
   int min0, max0, min1, max1, min2, max2;
   int idx0, idx1, idx2;
-  int in1Inc0, in1Inc1, in1Inc2;
-  int in2Inc0, in2Inc1, in2Inc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType in1Inc0, in1Inc1, in1Inc2;
+  vtkIdType in2Inc0, in2Inc1, in2Inc2;
+  vtkIdType outInc0, outInc1, outInc2;
   int tr, tg, tb, r1, g1, b1;
   int ar1, ag1, ab1, ar2, ag2, ab2;
   int inMinX, inMaxX, inMinY, inMaxY;

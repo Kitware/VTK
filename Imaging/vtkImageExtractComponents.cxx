@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.34");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.35");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -126,8 +126,8 @@ void vtkImageExtractComponentsExecute(vtkImageExtractComponents *self,
 {
   int idxR, idxY, idxZ;
   int maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int cnt, inCnt;
   int offset1, offset2, offset3;
   unsigned long count = 0;

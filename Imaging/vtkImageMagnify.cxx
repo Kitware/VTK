@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMagnify, "1.48");
+vtkCxxRevisionMacro(vtkImageMagnify, "1.49");
 vtkStandardNewMacro(vtkImageMagnify);
 
 //----------------------------------------------------------------------------
@@ -120,8 +120,8 @@ void vtkImageMagnifyExecute(vtkImageMagnify *self,
   int inIdxX, inIdxY, inIdxZ;
   int inMaxX, inMaxY, inMaxZ;
   int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int interpolate;

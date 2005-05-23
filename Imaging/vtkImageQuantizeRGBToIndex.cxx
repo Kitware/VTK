@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.41");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.42");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -50,8 +50,8 @@ public:
   void SetImageExtent( int v[6] ) 
     { memcpy( this->ImageExtent, v, 6*sizeof(int) ); };
 
-  void SetImageIncrement( int v[3] )
-    { memcpy( this->ImageIncrement, v, 3*sizeof(int) ); };
+  void SetImageIncrement( vtkIdType v[3] )
+    { memcpy( this->ImageIncrement, v, 3*sizeof(vtkIdType) ); };
 
   void SetImageType( double type ) { this->ImageType = (int)type; };
 
@@ -125,7 +125,7 @@ protected:
   int                  Count;
   int                  AverageCount;
   double                AverageColor[3];
-  int                  ImageIncrement[3];
+  vtkIdType            ImageIncrement[3];
   int                  ImageExtent[6];
   int                  ImageType;
   void                 *Image;
@@ -135,7 +135,7 @@ protected:
 
 template <class T>
 void vtkImageQuantizeRGBToIndexHistogram( T *inPtr, int extent[6],
-                                          int inIncrement[3], int type,
+                                          vtkIdType inIncrement[3], int type,
                                           int bounds[6], int *histogram[3] )
 {
   T      *rgbPtr, v[3];
@@ -215,7 +215,7 @@ void vtkImageQuantizeRGBToIndexExecute(vtkImageQuantizeRGBToIndex *self,
                                        unsigned short *outPtr)
 {
   int                  extent[6];
-  int                  inIncrement[3], outIncrement[3];
+  vtkIdType            inIncrement[3], outIncrement[3];
   T                    *rgbPtr;
   unsigned short       *indexPtr;
   int                  x, y, z, c;

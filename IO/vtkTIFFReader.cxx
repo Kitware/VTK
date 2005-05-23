@@ -26,7 +26,7 @@ extern "C" {
 
 //-------------------------------------------------------------------------
 vtkStandardNewMacro(vtkTIFFReader);
-vtkCxxRevisionMacro(vtkTIFFReader, "1.49");
+vtkCxxRevisionMacro(vtkTIFFReader, "1.50");
 
 class vtkTIFFReaderInternal
 {
@@ -234,7 +234,7 @@ void vtkTIFFReader::ExecuteInformation()
 //-------------------------------------------------------------------------
 template <class OT>
 void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
-                          int *outExt, int* vtkNotUsed(outInc), long) 
+                          int *outExt, vtkIdType* vtkNotUsed(outInc), long) 
 {
   if ( !self->GetInternalImage()->Open(self->GetInternalFileName()) )
     {
@@ -254,7 +254,7 @@ void vtkTIFFReaderUpdate2(vtkTIFFReader *self, OT *outPtr,
 template <class OT>
 void vtkTIFFReaderUpdate(vtkTIFFReader *self, vtkImageData *data, OT *outPtr) 
 {
-  int outIncr[3];
+  vtkIdType outIncr[3];
   int outExtent[6];
   OT *outPtr2;
 

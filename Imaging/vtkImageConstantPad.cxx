@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.36");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.37");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -42,8 +42,8 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   T constant;
   int inMinX, inMaxX, inMaxC;
   constant = (T)(self->GetConstant());

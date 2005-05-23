@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.60");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.61");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -103,8 +103,8 @@ void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  int* tempIncs = data->GetIncrements();
-  int inInc1 = tempIncs[1];
+  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
   double range[2];
@@ -228,8 +228,8 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  int* tempIncs = data->GetIncrements();
-  int inInc1 = tempIncs[1];
+  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetNumberOfScalarComponents();
 
@@ -370,8 +370,8 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
   int width = inMax0 - inMin0 + 1;
   int height = inMax1 - inMin1 + 1;
 
-  int* tempIncs = data->GetIncrements();
-  int inInc1 = tempIncs[1];
+  vtkIdType* tempIncs = data->GetIncrements();
+  vtkIdType inInc1 = tempIncs[1];
 
   int bpp = data->GetPointData()->GetScalars()->GetNumberOfComponents();
 

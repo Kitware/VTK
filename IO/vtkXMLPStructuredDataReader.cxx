@@ -21,7 +21,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.17");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.18");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -309,8 +309,8 @@ void vtkXMLPStructuredDataReader::CopyArrayForCells(vtkDataArray* inArray,
 //----------------------------------------------------------------------------
 void
 vtkXMLPStructuredDataReader
-::CopySubExtent(int* inExtent, int* inDimensions, int* inIncrements,
-                int* outExtent, int* outDimensions, int* outIncrements,
+::CopySubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements,
+                int* outExtent, int* outDimensions, vtkIdType* outIncrements,
                 int* subExtent, int* subDimensions,
                 vtkDataArray* inArray, vtkDataArray* outArray)
 {
@@ -332,18 +332,18 @@ vtkXMLPStructuredDataReader
     else
       {
       // Copy an entire slice at a time.
-      unsigned int sliceTuples = inDimensions[0]*inDimensions[1];
+      vtkIdType sliceTuples = inDimensions[0]*inDimensions[1];
       int k;
       for(k=0;k < subDimensions[2];++k)
         {
-        unsigned int sourceTuple = this->GetStartTuple(inExtent, inIncrements,
-                                                       subExtent[0],
-                                                       subExtent[2],
-                                                       subExtent[4]+k);
-        unsigned int destTuple = this->GetStartTuple(outExtent, outIncrements,
-                                                     subExtent[0],
-                                                     subExtent[2],
-                                                     subExtent[4]+k);
+        vtkIdType sourceTuple = this->GetStartTuple(inExtent, inIncrements,
+                                                    subExtent[0],
+                                                    subExtent[2],
+                                                    subExtent[4]+k);
+        vtkIdType destTuple = this->GetStartTuple(outExtent, outIncrements,
+                                                  subExtent[0],
+                                                  subExtent[2],
+                                                  subExtent[4]+k);
         memcpy(outArray->GetVoidPointer(destTuple*components),
                inArray->GetVoidPointer(sourceTuple*components),
                sliceTuples*tupleSize);
@@ -353,20 +353,20 @@ vtkXMLPStructuredDataReader
   else
     {
     // Copy a row at a time.
-    unsigned int rowTuples = subDimensions[0];
+    vtkIdType rowTuples = subDimensions[0];
     int j,k;
     for(k=0;k < subDimensions[2];++k)
       {
       for(j=0;j < subDimensions[1];++j)
         {
-        unsigned int sourceTuple = this->GetStartTuple(inExtent, inIncrements,
-                                                       subExtent[0],
-                                                       subExtent[2]+j,
-                                                       subExtent[4]+k);
-        unsigned int destTuple = this->GetStartTuple(outExtent, outIncrements,
-                                                     subExtent[0],
-                                                     subExtent[2]+j,
-                                                     subExtent[4]+k);
+        vtkIdType sourceTuple = this->GetStartTuple(inExtent, inIncrements,
+                                                    subExtent[0],
+                                                    subExtent[2]+j,
+                                                    subExtent[4]+k);
+        vtkIdType destTuple = this->GetStartTuple(outExtent, outIncrements,
+                                                  subExtent[0],
+                                                  subExtent[2]+j,
+                                                  subExtent[4]+k);
         memcpy(outArray->GetVoidPointer(destTuple*components),
                inArray->GetVoidPointer(sourceTuple*components),
                rowTuples*tupleSize);

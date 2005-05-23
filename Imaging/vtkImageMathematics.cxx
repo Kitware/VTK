@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.51");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.52");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -109,8 +109,8 @@ void vtkImageMathematicsExecute1(vtkImageMathematics *self,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
@@ -241,9 +241,9 @@ void vtkImageMathematicsExecute2(vtkImageMathematics *self,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType in2IncX, in2IncY, in2IncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
   unsigned long count = 0;
   unsigned long target;

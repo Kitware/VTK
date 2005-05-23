@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.44");
+vtkCxxRevisionMacro(vtkImageDilateErode3D, "1.45");
 vtkStandardNewMacro(vtkImageDilateErode3D);
 
 //----------------------------------------------------------------------------
@@ -125,8 +125,8 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int outIdx0, outIdx1, outIdx2;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   T *outPtr0, *outPtr1, *outPtr2;
   int numComps, outIdxC;
@@ -136,7 +136,7 @@ void vtkImageDilateErode3DExecute(vtkImageDilateErode3D *self,
   T *hoodPtr0, *hoodPtr1, *hoodPtr2;
   // For looping through the mask.
   unsigned char *maskPtr, *maskPtr0, *maskPtr1, *maskPtr2;
-  int maskInc0, maskInc1, maskInc2;
+  vtkIdType maskInc0, maskInc1, maskInc2;
   // The extent of the whole input image
   int inImageMin0, inImageMin1, inImageMin2;
   int inImageMax0, inImageMax1, inImageMax2;

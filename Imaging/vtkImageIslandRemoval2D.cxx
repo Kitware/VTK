@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.46");
+vtkCxxRevisionMacro(vtkImageIslandRemoval2D, "1.47");
 vtkStandardNewMacro(vtkImageIslandRemoval2D);
 
 //----------------------------------------------------------------------------
@@ -72,9 +72,9 @@ void vtkImageIslandRemoval2DExecute(vtkImageIslandRemoval2D *self,
                                     int outExt[6])
 {
   int outIdx0, outIdx1, outIdx2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   T *outPtr0, *outPtr1, *outPtr2;
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   vtkImage2DIslandPixel *pixels;  // All the pixels visited so far.
   int numPixels;      // The number of pixels visited so far.

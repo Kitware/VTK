@@ -21,7 +21,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.21");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.22");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -254,8 +254,8 @@ void vtkImageMapToWindowLevelColorsExecute(
 {
   int idxX, idxY, idxZ;
   int extX, extY, extZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int dataType = inData->GetScalarType();

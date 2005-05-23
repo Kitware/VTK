@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFFT, "1.38");
+vtkCxxRevisionMacro(vtkImageFFT, "1.39");
 vtkStandardNewMacro(vtkImageFFT);
 
 //----------------------------------------------------------------------------
@@ -70,11 +70,11 @@ void vtkImageFFTExecute(vtkImageFFT *self,
   vtkImageComplex *pComplex;
   //
   int inMin0, inMax0;
-  int inInc0, inInc1, inInc2;
+  vtkIdType inInc0, inInc1, inInc2;
   T *inPtr0, *inPtr1, *inPtr2;
   //
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   double *outPtr0, *outPtr1, *outPtr2;
   //
   int idx0, idx1, idx2, inSize0, numberOfComponents;

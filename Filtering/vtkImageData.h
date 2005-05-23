@@ -175,9 +175,9 @@ public:
   // Different ways to get the increments for moving around the data.
   // GetIncrements() calls ComputeIncrements() to ensure the increments are
   // up to date.
-  int *GetIncrements();
-  void GetIncrements(int &incX, int &incY, int &incZ);
-  void GetIncrements(int inc[3]);
+  vtkIdType *GetIncrements();
+  void GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
+  void GetIncrements(vtkIdType inc[3]);
   
   // Description:
   // Different ways to get the increments for moving around the data.
@@ -189,7 +189,7 @@ public:
   // over Z, Y, X, C, incrementing the pointer by 1 after each
   // component.  When the end of the component is reached, the pointer
   // is set to the beginning of the next pixel, thus incX is properly set to 0.
-  void GetContinuousIncrements(int extent[6], int &incX, int &incY, int &incZ);
+  void GetContinuousIncrements(int extent[6], vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ);
   
   // Description:
   // Access the native pointer for the scalar data
@@ -314,7 +314,7 @@ public:
   // Description:
   // Since various arrays have different number of components,
   // the will have different increments.
-  void GetArrayIncrements(vtkDataArray *array, int increments[3]);
+  void GetArrayIncrements(vtkDataArray *array, vtkIdType increments[3]);
 
   // Description:
   // Given how many pixel are required on a side for bounrary conditions (in
@@ -342,7 +342,7 @@ protected:
   // Its contents are out of data until GetDimensions is called.
   int Dimensions[3];
   int DataDescription;
-  int Increments[3];
+  vtkIdType Increments[3];
 
   double Origin[3];
   double Spacing[3];

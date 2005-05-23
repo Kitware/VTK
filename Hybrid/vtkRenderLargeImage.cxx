@@ -28,7 +28,7 @@
 #include "vtkProp.h"
 #include <vtkstd/vector>
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.33");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.34");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -181,7 +181,7 @@ void vtkRenderLargeImage::RequestData(
   data->SetExtent(data->GetUpdateExtent());
   data->AllocateScalars();
   int inExtent[6];
-  int inIncr[3];
+  vtkIdType inIncr[3];
   int *size;
   int inWindowExtent[4];
   double viewAngle, parallelScale, windowCenter[2];

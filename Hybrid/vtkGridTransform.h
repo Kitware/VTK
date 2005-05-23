@@ -118,7 +118,7 @@ protected:
   void (*InterpolationFunction)(double point[3], double displacement[3],
                                 double derivatives[3][3],
                                 void *gridPtr, int gridType,
-                                int inExt[6], int inInc[3]);
+                                int inExt[6], vtkIdType inInc[3]);
 //ETX
   int InterpolationMode;
   vtkImageData *DisplacementGrid;
@@ -130,7 +130,7 @@ protected:
   double GridSpacing[3];
   double GridOrigin[3];
   int GridExtent[6];
-  int GridIncrements[3];
+  vtkIdType GridIncrements[3];
 
 private:
   vtkGridTransform(const vtkGridTransform&);  // Not implemented.

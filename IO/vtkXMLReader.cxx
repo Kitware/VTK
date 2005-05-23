@@ -32,7 +32,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.25");
+vtkCxxRevisionMacro(vtkXMLReader, "1.26");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -604,7 +604,8 @@ void vtkXMLReader::ComputeDimensions(int* extent, int* dimensions, int isPoint)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ComputeIncrements(int* extent, int* increments, int isPoint)
+void vtkXMLReader::ComputeIncrements(int* extent, vtkIdType* increments,
+                                     int isPoint)
 {
   int dimensions[3];
   this->ComputeDimensions(extent, dimensions, isPoint);
@@ -614,10 +615,10 @@ void vtkXMLReader::ComputeIncrements(int* extent, int* increments, int isPoint)
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkXMLReader::GetStartTuple(int* extent, int* increments,
-                                         int i, int j, int k)
+vtkIdType vtkXMLReader::GetStartTuple(int* extent, vtkIdType* increments,
+                                      int i, int j, int k)
 {
-  unsigned int offset = (i - extent[0]) * increments[0];
+  vtkIdType offset = (i - extent[0]) * increments[0];
   offset += (j - extent[2]) * increments[1];
   offset += (k - extent[4]) * increments[2];
   return offset;

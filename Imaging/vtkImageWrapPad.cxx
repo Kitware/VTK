@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.31");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.32");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -85,8 +85,8 @@ void vtkImageWrapPadExecute(vtkImageWrapPad *self,
   int outIdx0, outIdx1, outIdx2;
   int start0, start1, start2;
   int inIdx0, inIdx1, inIdx2;
-  int inInc0, inInc1, inInc2;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outIncX, outIncY, outIncZ;
   T *inPtr0, *inPtr1, *inPtr2;
   unsigned long count = 0;
   unsigned long target;

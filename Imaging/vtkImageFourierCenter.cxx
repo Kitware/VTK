@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageFourierCenter, "1.20");
+vtkCxxRevisionMacro(vtkImageFourierCenter, "1.21");
 vtkStandardNewMacro(vtkImageFourierCenter);
 
 //----------------------------------------------------------------------------
@@ -57,8 +57,8 @@ void vtkImageFourierCenter::ThreadedExecute(vtkImageData *inData,
 {
   double *inPtr0, *inPtr1, *inPtr2;
   double *outPtr0, *outPtr1, *outPtr2;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   int *wholeExtent, wholeMin0, wholeMax0, mid0;
   int inIdx0, outIdx0, idx1, idx2;
   int min0, max0, min1, max1, min2, max2;

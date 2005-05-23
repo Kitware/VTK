@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkGESignaReader, "1.18");
+vtkCxxRevisionMacro(vtkGESignaReader, "1.19");
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -302,7 +302,7 @@ void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
 
 
 void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr, 
-                             int *outExt, int *)
+                             int *outExt, vtkIdType *)
 {
   FILE *fp = fopen(self->GetInternalFileName(), "rb");
   if (!fp)
@@ -401,7 +401,7 @@ void vtkGESignaReaderUpdate2(vtkGESignaReader *self, unsigned short *outPtr,
 void vtkGESignaReaderUpdate(vtkGESignaReader *self, vtkImageData *data, 
                             unsigned short *outPtr)
 {
-  int outIncr[3];
+  vtkIdType outIncr[3];
   int outExtent[6];
   unsigned short *outPtr2;
 

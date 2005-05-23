@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.11");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.12");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -458,18 +458,18 @@ vtkXMLStructuredDataWriter
     return array;
     }
 
-  unsigned int tupleSize = (array->GetDataTypeSize() *
-                            array->GetNumberOfComponents());
-  unsigned int rowTuples = outDimensions[0];
-  unsigned int sliceTuples = rowTuples*outDimensions[1];
-  unsigned int volumeTuples = sliceTuples*outDimensions[2];
+  int tupleSize = (array->GetDataTypeSize() *
+                   array->GetNumberOfComponents());
+  vtkIdType rowTuples = outDimensions[0];
+  vtkIdType sliceTuples = rowTuples*outDimensions[1];
+  vtkIdType volumeTuples = sliceTuples*outDimensions[2];
   
-  int inIncrements[3];
+  vtkIdType inIncrements[3];
   inIncrements[0] = 1;
   inIncrements[1] = inDimensions[0]*inIncrements[0];
   inIncrements[2] = inDimensions[1]*inIncrements[1];
   
-  int outIncrements[3];
+  vtkIdType outIncrements[3];
   outIncrements[0] = 1;
   outIncrements[1] = outDimensions[0]*outIncrements[0];
   outIncrements[2] = outDimensions[1]*outIncrements[1];
@@ -487,10 +487,10 @@ vtkXMLStructuredDataWriter
     int k;
     for(k=0;k < outDimensions[2];++k)
       {
-      unsigned int sourceTuple =
+      vtkIdType sourceTuple =
         this->GetStartTuple(inExtent, inIncrements,
                             outExtent[0], outExtent[2], outExtent[4]+k);
-      unsigned int destTuple =
+      vtkIdType destTuple =
         this->GetStartTuple(outExtent, outIncrements,
                             outExtent[0], outExtent[2], outExtent[4]+k);
       memcpy(newArray->GetVoidPointer(destTuple*components),
@@ -506,10 +506,10 @@ vtkXMLStructuredDataWriter
       {
       for(j=0;j < outDimensions[1];++j)
         {
-        unsigned int sourceTuple =
+        vtkIdType sourceTuple =
           this->GetStartTuple(inExtent, inIncrements,
                               outExtent[0], outExtent[2]+j, outExtent[4]+k);
-        unsigned int destTuple =
+        vtkIdType destTuple =
           this->GetStartTuple(outExtent, outIncrements,
                               outExtent[0], outExtent[2]+j, outExtent[4]+k);
         memcpy(newArray->GetVoidPointer(destTuple*components),
@@ -615,9 +615,9 @@ void vtkXMLStructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned int vtkXMLStructuredDataWriter::GetStartTuple(int* extent,
-                                                       int* increments,
-                                                       int i, int j, int k)
+vtkIdType vtkXMLStructuredDataWriter::GetStartTuple(int* extent,
+                                                    vtkIdType* increments,
+                                                    int i, int j, int k)
 {
   return (((i - extent[0]) * increments[0]) +
           ((j - extent[2]) * increments[1]) +

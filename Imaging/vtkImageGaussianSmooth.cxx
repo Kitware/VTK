@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.44");
+vtkCxxRevisionMacro(vtkImageGaussianSmooth, "1.45");
 vtkStandardNewMacro(vtkImageGaussianSmooth);
 
 //----------------------------------------------------------------------------
@@ -156,8 +156,8 @@ vtkImageGaussianSmoothExecute(vtkImageGaussianSmooth *self, int axis,
 {
   int maxC, max0, max1;
   int idxC, idx0, idx1, idxK;
-  int *inIncs, *outIncs;
-  int inInc0, inInc1, inIncK, outInc0, outInc1;
+  vtkIdType *inIncs, *outIncs;
+  vtkIdType inInc0, inInc1, inIncK, outInc0, outInc1;
   T *outPtr1, *outPtr0;
   T *inPtr1, *inPtr0, *inPtrK;
   double *ptrK, sum;
@@ -260,7 +260,8 @@ void vtkImageGaussianSmooth::ExecuteAxis(int axis,
   int radius, size;
   void *inPtr;
   void *outPtr;
-  int coords[3], *outIncs, outIncA;
+  int coords[3];
+  vtkIdType *outIncs, outIncA;
   
   // Get the correct starting pointer of the output
   outPtr = outData->GetScalarPointerForExtent(outExt);

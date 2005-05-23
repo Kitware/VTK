@@ -22,7 +22,7 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.36");
+vtkCxxRevisionMacro(vtkImageSkeleton2D, "1.37");
 vtkStandardNewMacro(vtkImageSkeleton2D);
 
 //----------------------------------------------------------------------------
@@ -92,8 +92,8 @@ void vtkImageSkeleton2DExecute(vtkImageSkeleton2D *self,
   // For looping though output (and input) pixels.
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2, numComps;
   int idx0, idx1, idx2, idxC;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   T *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   T *outPtr0, *outPtr1, *outPtr2;
   int wholeMin0, wholeMax0, wholeMin1, wholeMax1, wholeMin2, wholeMax2;

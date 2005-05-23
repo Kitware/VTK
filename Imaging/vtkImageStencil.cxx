@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.19");
+vtkCxxRevisionMacro(vtkImageStencil, "1.20");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -174,9 +174,11 @@ void vtkImageStencilExecute(vtkImageStencil *self,
   int numscalars, inIncX;
   int idX, idY, idZ;
   int r1, r2, cr1, cr2, iter, rval;
-  int outIncX, outIncY, outIncZ;
-  int inExt[6], inInc[3];
-  int in2Ext[6], in2Inc[3];
+  vtkIdType outIncX, outIncY, outIncZ;
+  int inExt[6];
+  vtkIdType inInc[3];
+  int in2Ext[6];
+  vtkIdType in2Inc[3];
   unsigned long count = 0;
   unsigned long target;
   T *background, *tempPtr;

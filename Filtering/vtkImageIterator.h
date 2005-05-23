@@ -66,8 +66,8 @@ protected:
   DType *SpanEndPointer;
   DType *SliceEndPointer;
   DType *EndPointer;
-  int    Increments[3];
-  int    ContinuousIncrements[3];
+  vtkIdType    Increments[3];
+  vtkIdType    ContinuousIncrements[3];
 };
 
 #ifdef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION

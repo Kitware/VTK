@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMirrorPad, "1.34");
+vtkCxxRevisionMacro(vtkImageMirrorPad, "1.35");
 vtkStandardNewMacro(vtkImageMirrorPad);
 
 //----------------------------------------------------------------------------
@@ -59,10 +59,10 @@ void vtkImageMirrorPadExecute(vtkImageMirrorPad *self,
 {
   int idxC, idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
-  int inInc[3];
+  vtkIdType inInc[3];
   int inIncStart[3];
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int idx;

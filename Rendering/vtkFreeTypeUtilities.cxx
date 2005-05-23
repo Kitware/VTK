@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.10");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.11");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1001,7 +1001,7 @@ int vtkFreeTypeUtilitiesRenderString(
 
   int data_nb_comp = data->GetNumberOfScalarComponents();
 
-  int data_inc_x, data_inc_y, data_inc_z;
+  vtkIdType data_inc_x, data_inc_y, data_inc_z;
   data->GetIncrements(data_inc_x, data_inc_y, data_inc_z);
 
   double data_min, data_max;

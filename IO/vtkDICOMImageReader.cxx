@@ -27,7 +27,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDICOMImageReader, "1.31");
+vtkCxxRevisionMacro(vtkDICOMImageReader, "1.32");
 vtkStandardNewMacro(vtkDICOMImageReader);
 
 class vtkDICOMImageReaderVector : public vtkstd::vector<vtkstd::string>
@@ -286,7 +286,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
     // DICOM stores the upper left pixel as the first pixel in an
     // image. VTK stores the lower left pixel as the first pixel in
     // an image.  Need to flip the data.
-    unsigned long rowLength;
+    vtkIdType rowLength;
     rowLength = this->DataIncrements[1];
     unsigned char *b = (unsigned char *)buffer;
     unsigned char *iData = (unsigned char *)imgData;
@@ -336,7 +336,7 @@ void vtkDICOMImageReader::ExecuteData(vtkDataObject *output)
       // DICOM stores the upper left pixel as the first pixel in an
       // image. VTK stores the lower left pixel as the first pixel in
       // an image.  Need to flip the data.
-      unsigned long rowLength;
+      vtkIdType rowLength;
       rowLength = this->DataIncrements[1];
       unsigned char *b = (unsigned char *)buffer;
       unsigned char *iData = (unsigned char *)imgData;

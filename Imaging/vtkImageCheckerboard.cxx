@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCheckerboard, "1.12");
+vtkCxxRevisionMacro(vtkImageCheckerboard, "1.13");
 vtkStandardNewMacro(vtkImageCheckerboard);
 
 //----------------------------------------------------------------------------
@@ -48,9 +48,9 @@ void vtkImageCheckerboardExecute2(vtkImageCheckerboard *self,
   int nComp;
   int selectX, selectY, selectZ;
   int which;
-  int inIncX, inIncY, inIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType in2IncX, in2IncY, in2IncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int wholeExt[6];
   int rowLength;
   unsigned long count = 0;

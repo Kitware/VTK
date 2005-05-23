@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.40");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.41");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -114,8 +114,8 @@ void vtkImageCanvasSource2DDrawImage(vtkImageData *image, vtkImageData *simage,
   T *ptr0, *ptr1, *ptrV;
   T *sptr0, *sptr1, *sptrV;
   int idx0, idx1, idxV;
-  int inc0, inc1, inc2;
-  int sinc0, sinc1, sinc2;
+  vtkIdType inc0, inc1, inc2;
+  vtkIdType sinc0, sinc1, sinc2;
   int maxV, smaxV;
   int sinc;
   
@@ -271,7 +271,7 @@ void vtkImageCanvasSource2DFillBox(vtkImageData *image,
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   int maxV;
   double *pf;
   
@@ -360,7 +360,7 @@ void vtkImageCanvasSource2DFillTube(vtkImageData *image,
 {
   T *ptr0, *ptr1, *ptrV;
   int idx0, idx1, idxV;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   int min0, max0, min1, max1, min2, max2, maxV;
   double *pf;
   int n0, n1;
@@ -793,7 +793,7 @@ void vtkImageCanvasSource2DDrawSegment(vtkImageData *image,
   int numberOfSteps;
   int  maxV;
   int idx, idxV;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   double *pf;
   T *ptrV;
   
@@ -1050,7 +1050,7 @@ void vtkImageCanvasSource2DDrawSegment3D(vtkImageData *image,
   double s0, s1, s2;
   int numberOfSteps;
   int idx, idxV,  maxV;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   double *pf;
   T *ptrV;
   
@@ -1181,7 +1181,7 @@ void vtkImageCanvasSource2DFill(vtkImageData *image, double *color,
   vtkImageCanvasSource2DPixel *heap = NULL;
   int min0, max0, min1, max1, min2, max2, maxV;
   int idxV;
-  int inc0, inc1, inc2;
+  vtkIdType inc0, inc1, inc2;
   T fillColor[10];
   T drawColor[10];
   T *ptrV, *ptrC;

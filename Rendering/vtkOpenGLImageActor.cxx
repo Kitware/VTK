@@ -31,7 +31,7 @@
 #endif
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.30");
+vtkCxxRevisionMacro(vtkOpenGLImageActor, "1.31");
 vtkStandardNewMacro(vtkOpenGLImageActor);
 #endif
 
@@ -251,7 +251,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
   release = 1;
   
   // copy the input data to the memory
-  int inIncX, inIncY, inIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
   int idxZ, idxY, idxR;
   unsigned char *inPtr = (unsigned char *)
     this->Input->GetScalarPointerForExtent(this->DisplayExtent);
@@ -259,7 +259,7 @@ unsigned char *vtkOpenGLImageActor::MakeDataSuitable(int &xsize, int &ysize,
                                        inIncX, inIncY, inIncZ);
   int rowLength = numComp*(this->DisplayExtent[1] -this->DisplayExtent[0] +1);
   unsigned char *outPtr = res;
-  int outIncY, outIncZ;
+  vtkIdType outIncY, outIncZ;
   if (ydim == 2)
     {
     if (xdim == 0)

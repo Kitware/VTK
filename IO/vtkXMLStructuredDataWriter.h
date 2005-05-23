@@ -76,8 +76,8 @@ protected:
   vtkDataArray* CreateExactExtent(vtkDataArray* array, int* inExtent,
                                   int* outExtent, int isPoint);
   virtual int WriteInlineMode(vtkIndent indent);
-  unsigned int GetStartTuple(int* extent, int* increments,
-                             int i, int j, int k);
+  vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
+                          int i, int j, int k);
   void CalculatePieceFractions(float* fractions);
   
   // Define utility methods required by vtkXMLWriter.

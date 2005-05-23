@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.47");
+vtkCxxRevisionMacro(vtkImageAnisotropicDiffusion2D, "1.48");
 vtkStandardNewMacro(vtkImageAnisotropicDiffusion2D);
 
 //----------------------------------------------------------------------------
@@ -186,8 +186,8 @@ void vtkImageAnisotropicDiffusion2D::Iterate(vtkImageData *inData,
                                              int *coreExtent, int count)
 {
   int idx0, idx1, idx2;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
   int min0, max0, min1, max1, min2, max2;
   double *inPtr0, *inPtr1, *inPtr2;

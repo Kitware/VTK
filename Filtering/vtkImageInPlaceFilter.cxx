@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.44");
+vtkCxxRevisionMacro(vtkImageInPlaceFilter, "1.45");
 
 //----------------------------------------------------------------------------
 vtkImageInPlaceFilter::vtkImageInPlaceFilter()
@@ -87,8 +87,8 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
   char *inPtr = (char *) inData->GetScalarPointerForExtent(outExt);
   char *outPtr = (char *) outData->GetScalarPointerForExtent(outExt);
   int rowLength, size;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int idxY, idxZ, maxY, maxZ;
   
   rowLength = (outExt[1] - outExt[0]+1)*inData->GetNumberOfScalarComponents();

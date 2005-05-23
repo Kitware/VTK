@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransformToGrid, "1.20");
+vtkCxxRevisionMacro(vtkTransformToGrid, "1.21");
 vtkStandardNewMacro(vtkTransformToGrid);
 
 vtkCxxSetObjectMacro(vtkTransformToGrid,Input,vtkAbstractTransform);
@@ -293,7 +293,7 @@ void vtkTransformToGridExecute(vtkTransformToGrid *self,
 
   double *spacing = grid->GetSpacing();
   double *origin = grid->GetOrigin();
-  int *increments = grid->GetIncrements();
+  vtkIdType *increments = grid->GetIncrements();
 
   double invScale = 1.0/scale;
 

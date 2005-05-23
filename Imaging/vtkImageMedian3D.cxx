@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.42");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.43");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -193,8 +193,9 @@ void vtkImageMedian3DExecute(vtkImageMedian3D *self,
   int NumberOfElements;
   // For looping though output (and input) pixels.
   int outIdx0, outIdx1, outIdx2;
-  int inInc0, inInc1, inInc2;
-  int outIdxC, outIncX, outIncY, outIncZ;
+  vtkIdType inInc0, inInc1, inInc2;
+  int outIdxC;
+  vtkIdType outIncX, outIncY, outIncZ;
   T *inPtr0, *inPtr1, *inPtr2;
   // For looping through hood pixels
   int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
@@ -372,7 +373,7 @@ void vtkImageMedian3D::ThreadedRequestData(
 {
   void *inPtr;
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  int *inIncs;
+  vtkIdType *inIncs;
 
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   if (id == 0)

@@ -16,7 +16,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDecomposeFilter, "1.19");
+vtkCxxRevisionMacro(vtkImageDecomposeFilter, "1.20");
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageDecomposeFilter fitler.
@@ -56,8 +56,10 @@ void vtkImageDecomposeFilter::SetDimensionality(int dim)
 
 
 //----------------------------------------------------------------------------
-void vtkImageDecomposeFilter::PermuteIncrements(int *increments, int &inc0, 
-                                                int &inc1, int &inc2)
+void vtkImageDecomposeFilter::PermuteIncrements(vtkIdType *increments,
+                                                vtkIdType &inc0, 
+                                                vtkIdType &inc1,
+                                                vtkIdType &inc2)
 {
   switch (this->Iteration)
     {

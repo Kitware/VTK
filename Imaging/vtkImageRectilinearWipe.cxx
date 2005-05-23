@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageRectilinearWipe, "1.3");
+vtkCxxRevisionMacro(vtkImageRectilinearWipe, "1.4");
 vtkStandardNewMacro(vtkImageRectilinearWipe);
 
 //----------------------------------------------------------------------------
@@ -44,8 +44,8 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
   unsigned long count = 0;
   unsigned long target;

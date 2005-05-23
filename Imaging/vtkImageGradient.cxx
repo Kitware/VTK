@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradient, "1.52");
+vtkCxxRevisionMacro(vtkImageGradient, "1.53");
 vtkStandardNewMacro(vtkImageGradient);
 
 //----------------------------------------------------------------------------
@@ -137,13 +137,14 @@ void vtkImageGradientExecute(vtkImageGradient *self,
 {
   int idxX, idxY, idxZ;
   int maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int axesNum;
   int *inExt = inData->GetExtent();
-  int *wholeExtent, *inIncs;
+  int *wholeExtent;
+  vtkIdType *inIncs;
   double r[3], d;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   

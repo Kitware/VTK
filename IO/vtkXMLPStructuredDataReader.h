@@ -68,8 +68,8 @@ protected:
   void DestroyPieces();
   int ReadPiece(vtkXMLDataElement* ePiece);
   int ReadPieceData();
-  void CopySubExtent(int* inExtent, int* inDimensions, int* inIncrements,
-                     int* outExtent, int* outDimensions, int* outIncrements,
+  void CopySubExtent(int* inExtent, int* inDimensions, vtkIdType* inIncrements,
+                     int* outExtent,int* outDimensions,vtkIdType* outIncrements,
                      int* subExtent, int* subDimensions,
                      vtkDataArray* inArray, vtkDataArray* outArray);
   int ComputePieceSubExtents();
@@ -80,9 +80,9 @@ protected:
   // The extent to be updated in the output.
   int UpdateExtent[6];
   int PointDimensions[3];
-  int PointIncrements[3];
+  vtkIdType PointIncrements[3];
   int CellDimensions[3];
-  int CellIncrements[3];
+  vtkIdType CellIncrements[3];
   
   // The extent currently being read from a piece.
   int SubExtent[6];
@@ -90,9 +90,9 @@ protected:
   int SubCellDimensions[3];
   int SubPieceExtent[6];
   int SubPiecePointDimensions[3];
-  int SubPiecePointIncrements[3];
+  vtkIdType SubPiecePointIncrements[3];
   int SubPieceCellDimensions[3];
-  int SubPieceCellIncrements[3];
+  vtkIdType SubPieceCellIncrements[3];
   
   // Information per-piece.
   int* PieceExtents;

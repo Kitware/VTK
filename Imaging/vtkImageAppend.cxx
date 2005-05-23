@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.28");
+vtkCxxRevisionMacro(vtkImageAppend, "1.29");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -225,8 +225,8 @@ void vtkImageAppendExecute(vtkImageAppend *self, int id,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
   unsigned long count = 0;
   unsigned long target;
@@ -276,7 +276,7 @@ void vtkImageAppend::InitOutput(int outExt[6], vtkImageData *outData)
 {
   int idxY, idxZ;
   int maxY, maxZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
   int typeSize;
   unsigned char *outPtrZ, *outPtrY;

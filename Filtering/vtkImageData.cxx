@@ -42,7 +42,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.12");
+vtkCxxRevisionMacro(vtkImageData, "1.13");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1224,7 +1224,7 @@ int vtkImageData::GetNumberOfScalarComponents()
 }
 
 //----------------------------------------------------------------------------
-int *vtkImageData::GetIncrements()
+vtkIdType *vtkImageData::GetIncrements()
 {
   // Make sure the increments are up to date. The filter bypass and update
   // mechanism make it tricky to update the increments anywhere other than here
@@ -1233,7 +1233,7 @@ int *vtkImageData::GetIncrements()
   return this->Increments;
 }
 
-void vtkImageData::GetIncrements(int &incX, int &incY, int &incZ)
+void vtkImageData::GetIncrements(vtkIdType &incX, vtkIdType &incY, vtkIdType &incZ)
 {
   // Make sure the increments are up to date. The filter bypass and update
   // mechanism make it tricky to update the increments anywhere other than here
@@ -1244,7 +1244,7 @@ void vtkImageData::GetIncrements(int &incX, int &incY, int &incZ)
   incZ = this->Increments[2];
 }
 
-void vtkImageData::GetIncrements(int inc[3])
+void vtkImageData::GetIncrements(vtkIdType inc[3])
 {
   // Make sure the increments are up to date. The filter bypass and update
   // mechanism make it tricky to update the increments anywhere other than here
@@ -1257,8 +1257,8 @@ void vtkImageData::GetIncrements(int inc[3])
 
 
 //----------------------------------------------------------------------------
-void vtkImageData::GetContinuousIncrements(int extent[6], int &incX,
-                                           int &incY, int &incZ)
+void vtkImageData::GetContinuousIncrements(int extent[6], vtkIdType &incX,
+                                           vtkIdType &incY, vtkIdType &incZ)
 {
   int e0, e1, e2, e3;
   
@@ -1304,7 +1304,7 @@ void vtkImageData::ComputeIncrements()
     {
     return;
     }
-  int inc = this->GetPointData()->GetScalars()->GetNumberOfComponents();
+  vtkIdType inc = this->GetPointData()->GetScalars()->GetNumberOfComponents();
   const int* extent = this->Extent;
 
   for (idx = 0; idx < 3; ++idx)
@@ -1662,8 +1662,8 @@ void vtkImageDataCastExecute(vtkImageData *inData, IT *inPtr,
 {
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
 
   // find the region to loop over
@@ -2152,7 +2152,7 @@ vtkIdType vtkImageData::GetNumberOfCells()
 // This Method returns a pointer to a location in the vtkImageData.
 // Coordinates are in pixel units and are relative to the whole
 // image origin.
-void vtkImageData::GetArrayIncrements(vtkDataArray* array, int increments[3])
+void vtkImageData::GetArrayIncrements(vtkDataArray* array, vtkIdType increments[3])
 {
   const int* extent = this->Extent;
   // We could store tupple increments and just 
@@ -2179,7 +2179,7 @@ void *vtkImageData::GetArrayPointerForExtent(vtkDataArray* array,
 // image origin.
 void *vtkImageData::GetArrayPointer(vtkDataArray* array, int coordinate[3])
 {
-  int incs[3];
+  vtkIdType incs[3];
   int idx;
     
   if (array == NULL)

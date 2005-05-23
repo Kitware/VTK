@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.53");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.54");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -125,15 +125,16 @@ void vtkImageNonMaximumSuppressionExecute(vtkImageNonMaximumSuppression *self,
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType in2IncX, in2IncY, in2IncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
   double d, normalizeFactor, vector[3], *ratio;
   int neighborA, neighborB;
-  int *wholeExtent, *inIncs;
+  int *wholeExtent;
+  vtkIdType *inIncs;
   int axesNum;
   
   // find the region to loop over

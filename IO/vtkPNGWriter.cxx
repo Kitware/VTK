@@ -20,7 +20,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGWriter, "1.27");
+vtkCxxRevisionMacro(vtkPNGWriter, "1.28");
 vtkStandardNewMacro(vtkPNGWriter);
 
 vtkCxxSetObjectMacro(vtkPNGWriter,Result,vtkUnsignedCharArray);
@@ -273,8 +273,8 @@ void vtkPNGWriter::WriteSlice(vtkImageData *data)
 #endif
     }
   png_byte **row_pointers = new png_byte *[height];
-  int *outInc = data->GetIncrements();
-  int rowInc = outInc[1]*bit_depth/8;
+  vtkIdType *outInc = data->GetIncrements();
+  vtkIdType rowInc = outInc[1]*bit_depth/8;
   for (ui = 0; ui < height; ui++)
     {
     row_pointers[height - ui - 1] = (png_byte *)outPtr;

@@ -28,7 +28,7 @@
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.59");
+vtkCxxRevisionMacro(vtkImageReslice, "1.60");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -790,7 +790,7 @@ int vtkImageReslice::RequestInformation(
 //int interpolate(T *&outPtr,
 //                const T *inPtr,
 //                const int inExt[6],
-//                const int inInc[3],
+//                const vtkIdType inInc[3],
 //                int numscalars,
 //                const F point[3],
 //                int mode,
@@ -1101,7 +1101,8 @@ inline  int vtkInterpolateBorderCheck(int inIdX0, int inIdX1, int inExtX,
 // The number of scalar components in the data is 'numscalars'
 template <class F, class T>
 int vtkNearestNeighborInterpolation(T *&outPtr, const T *inPtr,
-                                    const int inExt[6], const int inInc[3],
+                                    const int inExt[6],
+                                    const vtkIdType inInc[3],
                                     int numscalars, const F point[3],
                                     int mode, const T *background)
 {
@@ -1163,7 +1164,7 @@ int vtkNearestNeighborInterpolation(T *&outPtr, const T *inPtr,
 // The number of scalar components in the data is 'numscalars'
 template <class F, class T>
 int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
-                              const int inExt[6], const int inInc[3],
+                              const int inExt[6], const vtkIdType inInc[3],
                               int numscalars, const F point[3],
                               int mode, const T *background)
 {
@@ -1237,17 +1238,17 @@ int vtkTrilinearInterpolation(T *&outPtr, const T *inPtr,
       }
     }
 
-  int factX0 = inIdX0*inInc[0];
-  int factX1 = inIdX1*inInc[0];
-  int factY0 = inIdY0*inInc[1];
-  int factY1 = inIdY1*inInc[1];
-  int factZ0 = inIdZ0*inInc[2];
-  int factZ1 = inIdZ1*inInc[2];
+  vtkIdType factX0 = inIdX0*inInc[0];
+  vtkIdType factX1 = inIdX1*inInc[0];
+  vtkIdType factY0 = inIdY0*inInc[1];
+  vtkIdType factY1 = inIdY1*inInc[1];
+  vtkIdType factZ0 = inIdZ0*inInc[2];
+  vtkIdType factZ1 = inIdZ1*inInc[2];
 
-  int i00 = factY0 + factZ0;
-  int i01 = factY0 + factZ1;
-  int i10 = factY1 + factZ0;
-  int i11 = factY1 + factZ1;
+  vtkIdType i00 = factY0 + factZ0;
+  vtkIdType i01 = factY0 + factZ1;
+  vtkIdType i10 = factY1 + factZ0;
+  vtkIdType i11 = factY1 + factZ1;
 
   F rx = 1 - fx;
   F ry = 1 - fy;
@@ -1351,7 +1352,7 @@ void vtkTricubicInterpCoeffs(T F[4], int l, int h, T f)
 // tricubic interpolation
 template <class F, class T>
 int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
-                             const int inExt[6], const int inInc[3],
+                             const int inExt[6], const vtkIdType inInc[3],
                              int numscalars, const F point[3],
                              int mode, const T *background)
 {
@@ -1376,11 +1377,11 @@ int vtkTricubicInterpolation(T *&outPtr, const T *inPtr,
   int inExtY = inExt[3] - inExt[2] + 1;
   int inExtZ = inExt[5] - inExt[4] + 1;
 
-  int inIncX = inInc[0];
-  int inIncY = inInc[1];
-  int inIncZ = inInc[2];
+  vtkIdType inIncX = inInc[0];
+  vtkIdType inIncY = inInc[1];
+  vtkIdType inIncZ = inInc[2];
 
-  int factX[4], factY[4], factZ[4];
+  vtkIdType factX[4], factY[4], factZ[4];
 
   if (inIdX0 < 0 || inIdX1 >= inExtX ||
       inIdY0 < 0 || inIdY1 >= inExtY ||
@@ -1580,7 +1581,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
                              int (**interpolate)(void *&outPtr,
                                                  const void *inPtr,
                                                  const int inExt[6],
-                                                 const int inInc[3],
+                                                 const vtkIdType inInc[3],
                                                  int numscalars,
                                                  const F point[3],
                                                  int mode,
@@ -1595,7 +1596,8 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
       switch (dataType)
         {
         vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-                                     const int inExt[6], const int inInc[3],
+                                     const int inExt[6],
+                                     const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
                                      int mode,
                                      const VTK_TT *background))interpolate) = \
@@ -1608,7 +1610,8 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
       switch (dataType)
         {
         vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-                                     const int inExt[6], const int inInc[3],
+                                     const int inExt[6],
+                                     const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
                                      int mode,
                                      const VTK_TT *background))interpolate) = \
@@ -1621,7 +1624,8 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
       switch (dataType)
         {
         vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
-                                     const int inExt[6], const int inInc[3],
+                                     const int inExt[6],
+                                     const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
                                      int mode,
                                      const VTK_TT *background))interpolate) = \
@@ -1797,7 +1801,8 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
 {
   int numscalars;
   int idY, idZ;
-  int outIncX, outIncY, outIncZ, scalarSize;
+  vtkIdType outIncX, outIncY, outIncZ;
+  int scalarSize;
   unsigned long count = 0;
   unsigned long target;
   void *background;
@@ -1852,8 +1857,10 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   int numscalars;
   int idX, idY, idZ;
   int idXmin, idXmax, iter;
-  int outIncX, outIncY, outIncZ, scalarSize;
-  int inExt[6], inInc[3];
+  vtkIdType outIncX, outIncY, outIncZ;
+  int scalarSize;
+  int inExt[6];
+  vtkIdType inInc[3];
   unsigned long count = 0;
   unsigned long target;
   double point[4];
@@ -1861,7 +1868,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   double *inSpacing, *inOrigin, *outSpacing, *outOrigin, inInvSpacing[3];
   void *background;
   int (*interpolate)(void *&outPtr, const void *inPtr,
-                     const int inExt[6], const int inInc[3],
+                     const int inExt[6], const vtkIdType inInc[3],
                      int numscalars, const double point[3],
                      int mode, const void *background);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
@@ -2236,9 +2243,10 @@ void vtkOptimizedExecute(vtkImageReslice *self,
 {
   int i, numscalars;
   int idX, idY, idZ;
-  int outIncX, outIncY, outIncZ, scalarSize;
+  vtkIdType outIncX, outIncY, outIncZ;
+  int scalarSize;
   int inExt[6];
-  int inInc[3];
+  vtkIdType inInc[3];
   unsigned long count = 0;
   unsigned long target;
   int iter, idXmin, idXmax;
@@ -2250,7 +2258,7 @@ void vtkOptimizedExecute(vtkImageReslice *self,
   F inPoint[4], f;
   void *background;
   int (*interpolate)(void *&outPtr, const void *inPtr,
-                     const int inExt[6], const int inInc[3],
+                     const int inExt[6], const vtkIdType inInc[3],
                      int numscalars, const F point[3],
                      int mode, const void *background);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
@@ -2437,9 +2445,9 @@ void vtkOptimizedExecute(vtkImageReslice *self,
 template<class F, class T>
 void vtkPermuteNearestSummation(T *&outPtr, const T *inPtr,
                                 int numscalars, int n,
-                                const int *iX, const F *,
-                                const int *iY, const F *,
-                                const int *iZ, const F *,
+                                const vtkIdType *iX, const F *,
+                                const vtkIdType *iY, const F *,
+                                const vtkIdType *iZ, const F *,
                                 const int [3])
 {
   const T *inPtr0 = inPtr + iY[0] + iZ[0];
@@ -2461,9 +2469,9 @@ void vtkPermuteNearestSummation(T *&outPtr, const T *inPtr,
 template<class F, class T>
 void vtkPermuteNearestSummation1(T *&outPtr, const T *inPtr,
                                  int, int n,
-                                 const int *iX, const F *,
-                                 const int *iY, const F *,
-                                 const int *iZ, const F *,
+                                 const vtkIdType *iX, const F *,
+                                 const vtkIdType *iY, const F *,
+                                 const vtkIdType *iZ, const F *,
                                  const int [3])
 {
   const T *inPtr0 = inPtr + iY[0] + iZ[0];
@@ -2480,15 +2488,15 @@ void vtkPermuteNearestSummation1(T *&outPtr, const T *inPtr,
 template<class F, class T>
 void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
                                   int numscalars, int n,
-                                  const int *iX, const F *fX,
-                                  const int *iY, const F *fY,
-                                  const int *iZ, const F *fZ,
+                                  const vtkIdType *iX, const F *fX,
+                                  const vtkIdType *iY, const F *fY,
+                                  const vtkIdType *iZ, const F *fZ,
                                   const int useNearestNeighbor[3])
 {
-  int i00 = iY[0] + iZ[0];
-  int i01 = iY[0] + iZ[1];
-  int i10 = iY[1] + iZ[0];
-  int i11 = iY[1] + iZ[1];
+  vtkIdType i00 = iY[0] + iZ[0];
+  vtkIdType i01 = iY[0] + iZ[1];
+  vtkIdType i10 = iY[1] + iZ[0];
+  vtkIdType i11 = iY[1] + iZ[1];
 
   F ry = fY[0];
   F fy = fY[1];
@@ -2504,7 +2512,7 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
     { // no interpolation needed at all
     for (int i = 0; i < n; i++)
       {
-      int t0 = iX[0];
+      vtkIdType t0 = iX[0];
       iX += 2;
 
       const T *inPtr0 = inPtr + i00 + t0;
@@ -2520,7 +2528,7 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
     { // only need linear z interpolation
     for (int i = 0; i < n; i++)
       {
-      int t0 = iX[0];
+      vtkIdType t0 = iX[0];
       iX += 2;
           
       const T *inPtr0 = inPtr + t0; 
@@ -2542,8 +2550,8 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
       F fx = fX[1];
       fX += 2;
 
-      int t0 = iX[0];
-      int t1 = iX[1];
+      vtkIdType t0 = iX[0];
+      vtkIdType t1 = iX[1];
       iX += 2;
 
       const T *inPtr0 = inPtr + t0;
@@ -2569,8 +2577,8 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
       F fx = fX[1];
       fX += 2;
        
-      int t0 = iX[0];
-      int t1 = iX[1];
+      vtkIdType t0 = iX[0];
+      vtkIdType t1 = iX[1];
       iX += 2;
 
       const T *inPtr0 = inPtr + t0;
@@ -2597,9 +2605,9 @@ void vtkPermuteTrilinearSummation(T *&outPtr, const T *inPtr,
 template<class F, class T>
 void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
                                  int numscalars, int n,
-                                 const int *iX, const F *fX,
-                                 const int *iY, const F *fY,
-                                 const int *iZ, const F *fZ,
+                                 const vtkIdType *iX, const F *fX,
+                                 const vtkIdType *iY, const F *fY,
+                                 const vtkIdType *iZ, const F *fZ,
                                  const int useNearestNeighbor[3])
 {
   // speed things up a bit for bicubic interpolation
@@ -2612,10 +2620,10 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
 
   for (int i = 0; i < n; i++)
     {
-    int iX0 = iX[0];
-    int iX1 = iX[1];
-    int iX2 = iX[2];
-    int iX3 = iX[3];
+    vtkIdType iX0 = iX[0];
+    vtkIdType iX1 = iX[1];
+    vtkIdType iX2 = iX[2];
+    vtkIdType iX3 = iX[3];
     iX += 4;
 
     F fX0 = fX[0];
@@ -2636,13 +2644,13 @@ void vtkPermuteTricubicSummation(T *&outPtr, const T *inPtr,
         F fz = fZ[k];
         if (fz != 0)
           {
-          int iz = iZ[k];
+          vtkIdType iz = iZ[k];
           int j = 0;
           do
             { // loop over y
             F fy = fY[j];
             F fzy = fz*fy;
-            int izy = iz + iY[j];
+            vtkIdType izy = iz + iY[j];
             const T *tmpPtr = inPtr0 + izy;
             // loop over x is unrolled (significant performance boost)
             result += fzy*(fX0*tmpPtr[iX0] +
@@ -2669,9 +2677,9 @@ template<class F>
 void vtkGetResliceSummationFunc(vtkImageReslice *self,
                                 void (**summation)(void *&out, const void *in,
                                                    int numscalars, int n,
-                                                   const int *iX, const F *fX,
-                                                   const int *iY, const F *fY,
-                                                   const int *iZ, const F *fZ,
+                                                   const vtkIdType *iX, const F *fX,
+                                                   const vtkIdType *iY, const F *fY,
+                                                   const vtkIdType *iZ, const F *fZ,
                                                    const int useNearest[3]),
                                 int interpolationMode)
 {
@@ -2684,9 +2692,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
         {
         vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
-                                      const int *iX, const F *fX,
-                                      const int *iY, const F *fY,
-                                      const int *iZ, const F *fZ,
+                                      const vtkIdType *iX, const F *fX,
+                                      const vtkIdType *iY, const F *fY,
+                                      const vtkIdType *iZ, const F *fZ,
                                       const int useNearest[3]))summation) = \
                          vtkPermuteNearestSummation);
         default:
@@ -2698,9 +2706,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
         {
         vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
-                                      const int *iX, const F *fX,
-                                      const int *iY, const F *fY,
-                                      const int *iZ, const F *fZ,
+                                      const vtkIdType *iX, const F *fX,
+                                      const vtkIdType *iY, const F *fY,
+                                      const vtkIdType *iZ, const F *fZ,
                                       const int useNearest[3]))summation) = \
                          vtkPermuteTrilinearSummation);
         default:
@@ -2712,9 +2720,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
         {
         vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
-                                      const int *iX, const F *fX,
-                                      const int *iY, const F *fY,
-                                      const int *iZ, const F *fZ,
+                                      const vtkIdType *iX, const F *fX,
+                                      const vtkIdType *iY, const F *fY,
+                                      const vtkIdType *iZ, const F *fZ,
                                       const int useNearest[3]))summation) = \
                          vtkPermuteTricubicSummation);
         default:
@@ -2729,8 +2737,9 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
 //----------------------------------------------------------------------------
 template <class F>
 void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
-                            const int inExt[6], const int inInc[3],
-                            int clipExt[6], int **traversal, F **vtkNotUsed(constants),
+                            const int inExt[6], const vtkIdType inInc[3],
+                            int clipExt[6], vtkIdType **traversal,
+                            F **vtkNotUsed(constants),
                             int useNearestNeighbor[3], F newmat[4][4])
 {
   // set up input traversal table for nearest-neighbor interpolation  
@@ -2769,7 +2778,7 @@ void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
         {
         if (inId < 0 || inId >= inExtK)
           {
-            if (region == 1)
+          if (region == 1)
             { // leaving the input extent
             region = 2;
             clipExt[2*j+1] = i - 1;
@@ -2796,8 +2805,9 @@ void vtkPermuteNearestTable(vtkImageReslice *self, const int outExt[6],
 //----------------------------------------------------------------------------
 template <class F>
 void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
-                           const int inExt[6], const int inInc[3],
-                           int clipExt[6], int **traversal, F **constants,
+                           const int inExt[6], const vtkIdType inInc[3],
+                           int clipExt[6], vtkIdType **traversal,
+                           F **constants,
                            int useNearestNeighbor[3], F newmat[4][4])
 {
   // set up input traversal table for linear interpolation  
@@ -2896,8 +2906,9 @@ void vtkPermuteLinearTable(vtkImageReslice *self, const int outExt[6],
 //----------------------------------------------------------------------------
 template <class F>
 void vtkPermuteCubicTable(vtkImageReslice *self, const int outExt[6],
-                          const int inExt[6], const int inInc[3],
-                          int clipExt[6], int **traversal, F **constants,
+                          const int inExt[6], const vtkIdType inInc[3],
+                          int clipExt[6], vtkIdType **traversal,
+                          F **constants,
                           int useNearestNeighbor[3], F newmat[4][4])
 {
   // set up input traversal table for cubic interpolation  
@@ -3062,9 +3073,11 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
                                      vtkImageData *outData, void *outPtr,
                                      int outExt[6], int id, F newmat[4][4])
 {
-  int outInc[3], scalarSize, numscalars;
-  int inExt[6], inInc[3], clipExt[6];
-  int *traversal[3];
+  vtkIdType outInc[3];
+  int scalarSize, numscalars;
+  vtkIdType inInc[3];
+  int inExt[6], clipExt[6];
+  vtkIdType *traversal[3];
   F *constants[3];
   int useNearestNeighbor[3];
   int i;
@@ -3110,7 +3123,7 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
     {
     int outExtI = outExt[2*i+1] - outExt[2*i] + 1; 
 
-    traversal[i] = new int[outExtI*step];
+    traversal[i] = new vtkIdType[outExtI*step];
     traversal[i] -= step*outExt[2*i];
     constants[i] = new F[outExtI*step];
     constants[i] -= step*outExt[2*i];
@@ -3138,9 +3151,9 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
 
   // get type-specific functions
   void (*summation)(void *&out, const void *in, int numscalars, int n,
-                    const int *iX, const F *fX,
-                    const int *iY, const F *fY,
-                    const int *iZ, const F *fZ,
+                    const vtkIdType *iX, const F *fX,
+                    const vtkIdType *iY, const F *fY,
+                    const vtkIdType *iZ, const F *fZ,
                     const int useNearestNeighbor[3]);
   void (*setpixels)(void *&out, const void *in, int numscalars, int n);
   vtkGetResliceSummationFunc(self, &summation, interpolationMode);

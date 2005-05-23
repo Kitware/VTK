@@ -57,7 +57,7 @@ vtkImageConvolve        GetKernel5x5            301 25
 vtkImageConvolve        GetKernel3x3x3          301 27
 vtkImageData            GetDimensions           304 3
 vtkImageData            GetExtent               304 6
-vtkImageData            GetIncrements           304 3
+vtkImageData            GetIncrements           30A 3
 vtkImageData            GetPoint                307 3
 vtkImageEllipsoidSource GetWholeExtent          304 6
 vtkImageExport          GetDataDimensions       304 3

@@ -23,7 +23,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/numeric>
 
-vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.26");
+vtkCxxRevisionMacro(vtkImageHybridMedian2D, "1.27");
 vtkStandardNewMacro(vtkImageHybridMedian2D);
 
 //----------------------------------------------------------------------------
@@ -46,8 +46,8 @@ void vtkImageHybridMedian2DExecute(vtkImageHybridMedian2D *self,
                                    vtkInformation *inInfo)
 {
   int idx0, idx1, idx2, idxC;
-  int inInc0, inInc1, inInc2;
-  int outInc0, outInc1, outInc2;
+  vtkIdType inInc0, inInc1, inInc2;
+  vtkIdType outInc0, outInc1, outInc2;
   int min0, max0, min1, max1, min2, max2, numComps;
   int wholeMin0, wholeMax0, wholeMin1, wholeMax1;
   int wholeExt[6];

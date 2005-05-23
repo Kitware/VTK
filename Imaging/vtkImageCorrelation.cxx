@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCorrelation, "1.32");
+vtkCxxRevisionMacro(vtkImageCorrelation, "1.33");
 vtkStandardNewMacro(vtkImageCorrelation);
 
 //----------------------------------------------------------------------------
@@ -100,10 +100,10 @@ void vtkImageCorrelationExecute(vtkImageCorrelation *self,
 {
   int idxC, idxX, idxY, idxZ;
   int maxC, maxX, maxY, maxZ;
-  int in1IncX, in1IncY, in1IncZ;
-  int in1CIncX, in1CIncY, in1CIncZ;
-  int in2IncX, in2IncY, in2IncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType in1IncX, in1IncY, in1IncZ;
+  vtkIdType in1CIncX, in1CIncY, in1CIncZ;
+  vtkIdType in2IncX, in2IncY, in2IncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   unsigned long count = 0;
   unsigned long target;
   int *in2Extent;
