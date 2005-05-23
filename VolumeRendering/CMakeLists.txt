@@ -26,6 +26,7 @@ vtkDirectionEncoder.cxx
 vtkEncodedGradientEstimator.cxx
 vtkEncodedGradientShader.cxx
 vtkFiniteDifferenceGradientEstimator.cxx
+vtkFixedPointRayCastImage.cxx
 vtkFixedPointVolumeRayCastCompositeGOHelper.cxx
 vtkFixedPointVolumeRayCastCompositeGOShadeHelper.cxx
 vtkFixedPointVolumeRayCastCompositeHelper.cxx

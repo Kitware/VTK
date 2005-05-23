@@ -29,6 +29,7 @@
 
 class vtkVolume;
 class vtkRenderer;
+class vtkFixedPointRayCastImage;
 
 class VTK_VOLUMERENDERING_EXPORT vtkRayCastImageDisplayHelper : public vtkObject
 {
@@ -52,7 +53,11 @@ public:
                               int imageOrigin[2],
                               float requestedDepth,
                               unsigned short *image ) = 0;
-  
+
+  virtual void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
+                              vtkFixedPointRayCastImage *image,
+                              float requestedDepth ) = 0;
+
   vtkSetClampMacro( PreMultipliedColors, int, 0, 1 );
   vtkGetMacro( PreMultipliedColors, int );
   vtkBooleanMacro( PreMultipliedColors, int );

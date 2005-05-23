@@ -24,10 +24,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+#include "vtkFixedPointRayCastImage.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.3");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.4");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeHelper with default values

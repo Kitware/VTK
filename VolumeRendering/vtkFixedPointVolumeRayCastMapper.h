@@ -79,6 +79,7 @@ class vtkDirectionEncoder;
 class vtkEncodedGradientShader;
 class vtkFiniteDifferenceGradientEstimator;
 class vtkRayCastImageDisplayHelper;
+class vtkFixedPointRayCastImage;
 
 // Forward declaration needed for use by friend declaration below.
 VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
@@ -191,10 +192,6 @@ public:
   
 //ETX
 
-  vtkGetVectorMacro( ImageInUseSize, int, 2 );
-  vtkGetVectorMacro( ImageMemorySize, int, 2 );
-  vtkGetVectorMacro( ImageViewportSize, int, 2 );
-  vtkGetVectorMacro( ImageOrigin, int, 2 );
   vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
   vtkGetObjectMacro( MIPHelper, vtkFixedPointVolumeRayCastMIPHelper );
   vtkGetObjectMacro( CompositeHelper, vtkFixedPointVolumeRayCastCompositeHelper );
@@ -207,7 +204,6 @@ public:
   vtkGetMacro( GradientOpacityRequired, int );
   
   int             *GetRowBounds()                 {return this->RowBounds;}
-  unsigned short  *GetImage()                     {return this->Image;}
   unsigned short  *GetColorTable(int c)           {return this->ColorTable[c];}
   unsigned short  *GetScalarOpacityTable(int c)   {return this->ScalarOpacityTable[c];}
   unsigned short  *GetGradientOpacityTable(int c) {return this->GradientOpacityTable[c];}
@@ -225,6 +221,14 @@ public:
   void InitializeRayInfo( vtkVolume *vol );
   
   int ShouldUseNearestNeighborInterpolation( vtkVolume *vol );
+  
+  // Description:
+  // Set / Get the underlying image object. One will be automatically
+  // created - only need to set it when using from an AMR mapper which
+  // renders multiple times into the same image.
+  void SetRayCastImage( vtkFixedPointRayCastImage * );
+  vtkGetObjectMacro( RayCastImage, vtkFixedPointRayCastImage  );
+  
   
 protected:
   vtkFixedPointVolumeRayCastMapper();
@@ -266,28 +270,9 @@ protected:
   vtkTransform   *PerspectiveTransform;
   vtkTransform   *VoxelsTransform;
   vtkTransform   *VoxelsToViewTransform;
-  
-  // This is how big the image would be if it covered the entire viewport
-  int             ImageViewportSize[2];
-  
-  // This is how big the allocated memory for image is. This may be bigger
-  // or smaller than ImageFullSize - it will be bigger if necessary to 
-  // ensure a power of 2, it will be smaller if the volume only covers a
-  // small region of the viewport
-  int             ImageMemorySize[2];
-  
-  // This is the size of subregion in ImageSize image that we are using for
-  // the current image. Since ImageSize is a power of 2, there is likely
-  // wasted space in it. This number will be used for things such as clearing
-  // the image if necessary.
-  int             ImageInUseSize[2];
-  
-  // This is the location in ImageFullSize image where our ImageSize image
-  // is located.
-  int             ImageOrigin[2];
-  
-  // This is the allocated image
-  unsigned short  *Image;
+
+  // This object encapsulated the image and all related information
+  vtkFixedPointRayCastImage *RayCastImage;
   
   int             *RowBounds;
   int             *OldRowBounds;

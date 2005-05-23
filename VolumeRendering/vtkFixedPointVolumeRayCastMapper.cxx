@@ -39,11 +39,13 @@
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkRayCastImageDisplayHelper.h"
+#include "vtkFixedPointRayCastImage.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.9");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.10");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
+vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
 // Macro for tri-linear interpolation - do four linear interpolations on
 // edges, two linear interpolations between pairs of edges, then a final
@@ -93,14 +95,17 @@ void vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume( T *dataPtr, unsigned sh
     {
     sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
     sz2 =              static_cast<int>((k  )/4);
+    sz2 = ( k == fullDim[2]-1 )?(sz1):(sz2);
     for ( j = 0; j < fullDim[1]; j++ )
       {      
       sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
       sy2 =              static_cast<int>((j  )/4);
+      sy2 = ( j == fullDim[1]-1 )?(sy1):(sy2);
       for ( i = 0; i < fullDim[0]; i++ )
         {
         sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
         sx2 =              static_cast<int>((i  )/4);
+        sx2 = ( i == fullDim[0]-1 )?(sx1):(sx2);
         
         for ( c = 0; c < smallDim[3]; c++ )
           {
@@ -383,14 +388,11 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->VoxelsTransform        = vtkTransform::New();
   this->VoxelsToViewTransform  = vtkTransform::New();
   
-  this->ImageViewportSize[0] = this->ImageViewportSize[1] = 0;
-  this->ImageMemorySize[0]   = this->ImageMemorySize[1]   = 0;
-  this->ImageInUseSize[0]    = this->ImageInUseSize[1]    = 0;
-
   this->Threader               = vtkMultiThreader::New();
   this->NumberOfThreads        = this->Threader->GetNumberOfThreads();
   
-  this->Image                  = NULL;
+  this->RayCastImage           = vtkFixedPointRayCastImage::New();
+  
   this->RowBounds              = NULL;
   this->OldRowBounds           = NULL;
   
@@ -503,8 +505,12 @@ vtkFixedPointVolumeRayCastMapper::~vtkFixedPointVolumeRayCastMapper()
   this->CompositeShadeHelper->Delete();
   this->CompositeGOShadeHelper->Delete();
   
-  delete [] this->Image;
-    
+  if ( this->RayCastImage )
+    {
+    this->RayCastImage->Delete();
+    this->RayCastImage = NULL;
+    }
+  
   delete [] this->RenderTimeTable;
   delete [] this->RenderVolumeTable;
   delete [] this->RenderRendererTable;
@@ -815,7 +821,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
     {
     return;
     }
-  
+
   // Regenerate the min max values if necessary
   if ( needToUpdate&0x02 )
     {
@@ -879,6 +885,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
       // Now put the scalar data values into the structure
       int scalarType   = input->GetScalarType();
       void *dataPtr = input->GetScalarPointer();
+      
       switch ( scalarType )
         {
         vtkTemplateMacro8( vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume,
@@ -890,7 +897,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
     this->SavedMinMaxInput = input;
     this->SavedMinMaxBuildTime.Modified();
     }
-  
+
   if ( needToUpdate&0x04 )
     {
     // Now put the gradient magnitude values into the structure
@@ -1105,10 +1112,9 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   // size in pixels
   int width, height;
   ren->GetTiledSize(&width, &height);
-  this->ImageViewportSize[0] = 
-    static_cast<int>(width/this->ImageSampleDistance);
-  this->ImageViewportSize[1] = 
-    static_cast<int>(height/this->ImageSampleDistance);
+  this->RayCastImage->SetImageViewportSize(
+    static_cast<int>(width/this->ImageSampleDistance),
+    static_cast<int>(height/this->ImageSampleDistance) );
   
   // Compute row bounds. This will also compute the size of the image to
   // render, allocate the space if necessary, and clear the image where
@@ -1128,20 +1134,25 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
     {
     int x1, x2, y1, y2;
       
-    // turn this->ImageOrigin into (x1,y1) in window (not viewport!)
-    // coordinates. 
+    // turn ImageOrigin into (x1,y1) in window (not viewport!)
+    // coordinates.
+    int imageOrigin[2];
+    int imageInUseSize[2];
+    this->RayCastImage->GetImageOrigin( imageOrigin );
+    this->RayCastImage->GetImageInUseSize( imageInUseSize );
+    
     x1 = static_cast<int> (
       viewport[0] * static_cast<float>(renWinSize[0]) +
-      static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance );
+      static_cast<float>(imageOrigin[0]) * this->ImageSampleDistance );
     y1 = static_cast<int> (
       viewport[1] * static_cast<float>(renWinSize[1]) +
-      static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
+      static_cast<float>(imageOrigin[1]) * this->ImageSampleDistance);
       
     // compute z buffer size
     this->ZBufferSize[0] = static_cast<int>(
-      static_cast<float>(this->ImageInUseSize[0]) * this->ImageSampleDistance);
+      static_cast<float>(imageInUseSize[0]) * this->ImageSampleDistance);
     this->ZBufferSize[1] = static_cast<int>(
-      static_cast<float>(this->ImageInUseSize[1]) * this->ImageSampleDistance);
+      static_cast<float>(imageInUseSize[1]) * this->ImageSampleDistance);
       
     // Use the size to compute (x2,y2) in window coordinates
     x2 = x1 + this->ZBufferSize[0] - 1;
@@ -1149,9 +1160,9 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
       
     // This is the z buffer origin (in viewport coordinates)
     this->ZBufferOrigin[0] = static_cast<int>(
-      static_cast<float>(this->ImageOrigin[0]) * this->ImageSampleDistance);
+      static_cast<float>(imageOrigin[0]) * this->ImageSampleDistance);
     this->ZBufferOrigin[1] = static_cast<int>(
-      static_cast<float>(this->ImageOrigin[1]) * this->ImageSampleDistance);
+      static_cast<float>(imageOrigin[1]) * this->ImageSampleDistance);
       
     // Capture the z buffer
     this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
@@ -1187,23 +1198,22 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
         }
     
       this->ImageDisplayHelper->
-        RenderTexture( vol, ren,
-                       this->ImageMemorySize,
-                       this->ImageViewportSize,
-                       this->ImageInUseSize,
-                       this->ImageOrigin,
-                       depth,
-                       this->Image );
+        RenderTexture( vol, ren, 
+                       this->RayCastImage,
+                       depth );
+      
     this->Timer->StopTimer();
     this->TimeToDraw = this->Timer->GetElapsedTime();
     // If we've increased the sample distance, account for that in the stored time. Since we
     // don't get linear performance improvement, use a factor of .66
     this->StoreRenderTime( ren, vol, 
-                           this->TimeToDraw * this->ImageSampleDistance * this->ImageSampleDistance *
-                           ( 1.0 + 0.66*(this->SampleDistance - oldSampleDistance) / oldSampleDistance ) );
+                           this->TimeToDraw * 
+                           this->ImageSampleDistance * 
+                           this->ImageSampleDistance *
+                           ( 1.0 + 0.66*
+                             (this->SampleDistance - oldSampleDistance) / 
+                             oldSampleDistance ) );
     
-//    cout << "Took " << this->TimeToDraw << " for " << this->ImageSampleDistance << " (" <<
-//      this->ImageInUseSize[0] << "," << this->ImageInUseSize[1] << ")" << endl;
     }
   // Restore the image sample distance so that automatic adjustment
   // will work correctly
@@ -1294,8 +1304,13 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
   float rayDirection[3];
   float rayStart[4], rayEnd[4];
   
-  float offsetX = 1.0 / static_cast<float>(this->ImageViewportSize[0]);
-  float offsetY = 1.0 / static_cast<float>(this->ImageViewportSize[1]);
+  int imageViewportSize[2];
+  int imageOrigin[2];
+  this->RayCastImage->GetImageViewportSize( imageViewportSize );
+  this->RayCastImage->GetImageOrigin( imageOrigin );
+  
+  float offsetX = 1.0 / static_cast<float>(imageViewportSize[0]);
+  float offsetY = 1.0 / static_cast<float>(imageViewportSize[1]);
 
 
   // compute the view point y value for this row. Do this by 
@@ -1305,8 +1320,8 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
   // -1 to 1 - 2/fullSize. Then add offsetX (which is 1/fullSize) to 
   // center it.
   viewRay[1] = ((static_cast<float>(y) + 
-                 static_cast<float>(this->ImageOrigin[1])) /
-                this->ImageViewportSize[1]) * 2.0 - 1.0 + offsetY;
+                 static_cast<float>(imageOrigin[1])) /
+                imageViewportSize[1]) * 2.0 - 1.0 + offsetY;
   
   // compute the view point x value for this pixel. Do this by 
   // taking our pixel position, adding the image origin then dividing
@@ -1315,8 +1330,8 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
   // -1 to 1 - 2/fullSize. Then add offsetX (which is 1/fullSize) to 
   // center it.
   viewRay[0] = ((static_cast<float>(x) + 
-                 static_cast<float>(this->ImageOrigin[0])) /
-                this->ImageViewportSize[0]) * 2.0 - 1.0 + offsetX;
+                 static_cast<float>(imageOrigin[0])) /
+                imageViewportSize[0]) * 2.0 - 1.0 + offsetX;
       
   // Now transform this point with a z value of 0 for the ray start, and
   // a z value of 1 for the ray end. This corresponds to the near and far
@@ -1684,29 +1699,37 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   this->MinimumViewDistance = 
     (minZ<0.001)?(0.001):((minZ>0.999)?(0.999):(minZ));
   
+  int imageViewportSize[2];
+  int imageOrigin[2];
+  int imageMemorySize[2];
+  int imageInUseSize[2];
+  this->RayCastImage->GetImageViewportSize( imageViewportSize );
+  this->RayCastImage->GetImageOrigin( imageOrigin );
+  this->RayCastImage->GetImageMemorySize( imageMemorySize );
+
   // We have min/max values from -1.0 to 1.0 now - we want to convert 
   // these to pixel locations. Give a couple of pixels of breathing room
   // on each side if possible
-  minX = ( minX + 1.0 ) * 0.5 * this->ImageViewportSize[0] - 2; 
-  minY = ( minY + 1.0 ) * 0.5 * this->ImageViewportSize[1] - 2; 
-  maxX = ( maxX + 1.0 ) * 0.5 * this->ImageViewportSize[0] + 2; 
-  maxY = ( maxY + 1.0 ) * 0.5 * this->ImageViewportSize[1] + 2;
+  minX = ( minX + 1.0 ) * 0.5 * imageViewportSize[0] - 2; 
+  minY = ( minY + 1.0 ) * 0.5 * imageViewportSize[1] - 2; 
+  maxX = ( maxX + 1.0 ) * 0.5 * imageViewportSize[0] + 2; 
+  maxY = ( maxY + 1.0 ) * 0.5 * imageViewportSize[1] + 2;
 
   // If we are outside the view frustum return 0 - there is no need
   // to render anything
   if ( ( minX < 0 && maxX < 0 ) ||
        ( minY < 0 && maxY < 0 ) ||
-       ( minX > this->ImageViewportSize[0]-1 &&
-         maxX > this->ImageViewportSize[0]-1 ) ||
-       ( minX > this->ImageViewportSize[0]-1 &&
-         maxX > this->ImageViewportSize[0]-1 ) )
+       ( minX > imageViewportSize[0]-1 &&
+         maxX > imageViewportSize[0]-1 ) ||
+       ( minX > imageViewportSize[0]-1 &&
+         maxX > imageViewportSize[0]-1 ) )
     {
     return 0;
     }
 
   int oldImageMemorySize[2];
-  oldImageMemorySize[0] = this->ImageMemorySize[0];
-  oldImageMemorySize[1] = this->ImageMemorySize[1];
+  oldImageMemorySize[0] = imageMemorySize[0];
+  oldImageMemorySize[1] = imageMemorySize[1];
   
   // Swap the row bounds
   int *tmpptr;
@@ -1718,35 +1741,35 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   // viewing box / frustum so clip it if necessary
   minX = (minX<0)?(0):(minX);
   minY = (minY<0)?(0):(minY);
-  maxX = (maxX>this->ImageViewportSize[0]-1)?
-    (this->ImageViewportSize[0]-1):(maxX);
-  maxY = (maxY>this->ImageViewportSize[1]-1)?
-    (this->ImageViewportSize[1]-1):(maxY);
+  maxX = (maxX>imageViewportSize[0]-1)?
+    (imageViewportSize[0]-1):(maxX);
+  maxY = (maxY>imageViewportSize[1]-1)?
+    (imageViewportSize[1]-1):(maxY);
 
   // Create the new image, and set its size and position
-  this->ImageInUseSize[0] = static_cast<int>(maxX - minX + 1.0);
-  this->ImageInUseSize[1] = static_cast<int>(maxY - minY + 1.0);
+  imageInUseSize[0] = static_cast<int>(maxX - minX + 1.0);
+  imageInUseSize[1] = static_cast<int>(maxY - minY + 1.0);
 
   // What is a power of 2 size big enough to fit this image?
-  this->ImageMemorySize[0] = 32;
-  this->ImageMemorySize[1] = 32;
-  while ( this->ImageMemorySize[0] < this->ImageInUseSize[0] )
+  imageMemorySize[0] = 32;
+  imageMemorySize[1] = 32;
+  while ( imageMemorySize[0] < imageInUseSize[0] )
     {
-    this->ImageMemorySize[0] *= 2;
+    imageMemorySize[0] *= 2;
     }
-  while ( this->ImageMemorySize[1] < this->ImageInUseSize[1] )
+  while ( imageMemorySize[1] < imageInUseSize[1] )
     {
-    this->ImageMemorySize[1] *= 2;
+    imageMemorySize[1] *= 2;
     }
   
-  this->ImageOrigin[0] = static_cast<int>(minX);
-  this->ImageOrigin[1] = static_cast<int>(minY);
+  imageOrigin[0] = static_cast<int>(minX);
+  imageOrigin[1] = static_cast<int>(minY);
 
   // If the old image size is much too big (more than twice in
   // either direction) then set the old width to 0 which will
   // cause the image to be recreated
-  if ( oldImageMemorySize[0] > 4*this->ImageMemorySize[0] ||
-       oldImageMemorySize[1] > 4*this->ImageMemorySize[1] )
+  if ( oldImageMemorySize[0] > 4*imageMemorySize[0] ||
+       oldImageMemorySize[1] > 4*imageMemorySize[1] )
     {
     oldImageMemorySize[0] = 0;
     }
@@ -1754,38 +1777,38 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   // If the old image is big enough (but not too big - we handled
   // that above) then we'll bump up our required size to the
   // previous one. This will keep us from thrashing.
-  if ( oldImageMemorySize[0] >= this->ImageMemorySize[0] &&
-       oldImageMemorySize[1] >= this->ImageMemorySize[1] )
+  if ( oldImageMemorySize[0] >= imageMemorySize[0] &&
+       oldImageMemorySize[1] >= imageMemorySize[1] )
     {
-    this->ImageMemorySize[0] = oldImageMemorySize[0];
-    this->ImageMemorySize[1] = oldImageMemorySize[1];
+    imageMemorySize[0] = oldImageMemorySize[0];
+    imageMemorySize[1] = oldImageMemorySize[1];
     }
+  
+  this->RayCastImage->SetImageOrigin( imageOrigin );
+  this->RayCastImage->SetImageMemorySize( imageMemorySize );
+  this->RayCastImage->SetImageInUseSize( imageInUseSize );
   
   // Do we already have a texture big enough? If not, create a new one and
   // clear it.
-  if ( !this->Image ||
-       this->ImageMemorySize[0] > oldImageMemorySize[0] ||
-       this->ImageMemorySize[1] > oldImageMemorySize[1] )
+  if ( imageMemorySize[0] > oldImageMemorySize[0] ||
+       imageMemorySize[1] > oldImageMemorySize[1] )
     {
-    delete [] this->Image;
+    this->RayCastImage->AllocateImage();
     delete [] this->RowBounds;
     delete [] this->OldRowBounds;
     
-    this->Image = new unsigned short[(this->ImageMemorySize[0] *
-                                     this->ImageMemorySize[1] * 4)];
-
     // Create the row bounds array. This will store the start / stop pixel
     // for each row. This helps eleminate work in areas outside the bounding
     // hexahedron since a bounding box is not very tight. We keep the old ones
     // too to help with only clearing where required
-    this->RowBounds = new int [2*this->ImageMemorySize[1]];
-    this->OldRowBounds = new int [2*this->ImageMemorySize[1]];
+    this->RowBounds = new int [2*imageMemorySize[1]];
+    this->OldRowBounds = new int [2*imageMemorySize[1]];
 
-    for ( i = 0; i < this->ImageMemorySize[1]; i++ )
+    for ( i = 0; i < imageMemorySize[1]; i++ )
       {
-      this->RowBounds[i*2]      = this->ImageMemorySize[0];
+      this->RowBounds[i*2]      = imageMemorySize[0];
       this->RowBounds[i*2+1]    = -1;
-      this->OldRowBounds[i*2]   = this->ImageMemorySize[0];
+      this->OldRowBounds[i*2]   = imageMemorySize[0];
       this->OldRowBounds[i*2+1] = -1;
       }
 
@@ -1793,16 +1816,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
       {
       return 0;
       }
-    
-    ucptr = this->Image;
-    
-    for ( i = 0; i < this->ImageMemorySize[0]*this->ImageMemorySize[1]; i++ )
-      {
-      *(ucptr++) = 0;
-      *(ucptr++) = 0;
-      *(ucptr++) = 0;
-      *(ucptr++) = 0;      
-      }
+
+    this->RayCastImage->ClearImage();
     }
 
   if ( this->RenderWindow->CheckAbortStatus() )
@@ -1814,10 +1829,10 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   // cast - we don't need to intersect with the 12 lines
   if ( insideFlag )
     {
-    for ( j = 0; j < this->ImageInUseSize[1]; j++ )
+    for ( j = 0; j < imageInUseSize[1]; j++ )
       {
       this->RowBounds[j*2] = 0;
-      this->RowBounds[j*2+1] = this->ImageInUseSize[0] - 1;
+      this->RowBounds[j*2+1] = imageInUseSize[0] - 1;
       }
     }
   else
@@ -1835,16 +1850,16 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     for ( i = 0; i < 12; i++ )
       {
       x1 = (viewPoint[lineIndex[i][0]][0]+1.0) * 
-        0.5*this->ImageViewportSize[0] - this->ImageOrigin[0];
+        0.5*imageViewportSize[0] - imageOrigin[0];
       
       y1 = (viewPoint[lineIndex[i][0]][1]+1.0) * 
-        0.5*this->ImageViewportSize[1] - this->ImageOrigin[1];
+        0.5*imageViewportSize[1] - imageOrigin[1];
       
       x2 = (viewPoint[lineIndex[i][1]][0]+1.0) * 
-        0.5*this->ImageViewportSize[0] - this->ImageOrigin[0];
+        0.5*imageViewportSize[0] - imageOrigin[0];
       
       y2 = (viewPoint[lineIndex[i][1]][1]+1.0) * 
-        0.5*this->ImageViewportSize[1] - this->ImageOrigin[1];
+        0.5*imageViewportSize[1] - imageOrigin[1];
       
       if ( y1 < y2 )
         {
@@ -1864,9 +1879,9 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
 
     // Now for each row in the image, find out the start / stop pixel
     // If min > max, then no intersection occurred
-    for ( j = 0; j < this->ImageInUseSize[1]; j++ )
+    for ( j = 0; j < imageInUseSize[1]; j++ )
       {
-      this->RowBounds[j*2] = this->ImageMemorySize[0];
+      this->RowBounds[j*2] = imageMemorySize[0];
       this->RowBounds[j*2+1] = -1;
       for ( i = 0; i < 12; i++ )
         {
@@ -1881,12 +1896,12 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
           xhigh = static_cast<int>(x1 - 1.0);
           
           xlow = (xlow<0)?(0):(xlow);
-          xlow = (xlow>this->ImageInUseSize[0]-1)?
-            (this->ImageInUseSize[0]-1):(xlow);
+          xlow = (xlow>imageInUseSize[0]-1)?
+            (imageInUseSize[0]-1):(xlow);
 
           xhigh = (xhigh<0)?(0):(xhigh);
-          xhigh = (xhigh>this->ImageInUseSize[0]-1)?(
-            this->ImageInUseSize[0]-1):(xhigh);
+          xhigh = (xhigh>imageInUseSize[0]-1)?(
+            imageInUseSize[0]-1):(xhigh);
 
           if ( xlow < this->RowBounds[j*2] )
             {
@@ -1905,19 +1920,21 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
       // must be ignored in the case where all lines are out of range
       if ( this->RowBounds[j*2] == this->RowBounds[j*2+1] )
         {
-        this->RowBounds[j*2] = this->ImageMemorySize[0];
+        this->RowBounds[j*2] = imageMemorySize[0];
         this->RowBounds[j*2+1] = -1;
         }
       }
     }
   
-  for ( j = this->ImageInUseSize[1]; j < this->ImageMemorySize[1]; j++ )
+  for ( j = imageInUseSize[1]; j < imageMemorySize[1]; j++ )
     {
-    this->RowBounds[j*2] = this->ImageMemorySize[0];
+    this->RowBounds[j*2] = imageMemorySize[0];
     this->RowBounds[j*2+1] = -1;
     }
 
-  for ( j = 0; j < this->ImageMemorySize[1]; j++ )
+  unsigned short *image = this->RayCastImage->GetImage();
+  
+  for ( j = 0; j < imageMemorySize[1]; j++ )
     {
     if ( j%64 == 1 && this->RenderWindow->CheckAbortStatus() )
       {
@@ -1929,7 +1946,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     if ( this->RowBounds[j*2+1] < this->OldRowBounds[j*2] ||
          this->RowBounds[j*2]   > this->OldRowBounds[j*2+1] )
       {
-      ucptr = this->Image + 4*( j*this->ImageMemorySize[0] + 
+      ucptr = image + 4*( j*imageMemorySize[0] + 
                                 this->OldRowBounds[j*2] );
       for ( i = 0; 
             i <= (this->OldRowBounds[j*2+1] - this->OldRowBounds[j*2]);
@@ -1945,8 +1962,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     else
       {
       // Clear from old min to new min
-      ucptr = this->Image + 4*( j*this->ImageMemorySize[0] + 
-                                this->OldRowBounds[j*2] );
+      ucptr = image + 4*( j*imageMemorySize[0] + 
+                          this->OldRowBounds[j*2] );
       for ( i = 0; 
             i < (this->RowBounds[j*2] - this->OldRowBounds[j*2]);
             i++ )
@@ -1958,8 +1975,8 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
         }
       
       // Clear from new max to old max
-      ucptr = this->Image + 4*( j*this->ImageMemorySize[0] + 
-                                this->RowBounds[j*2+1]+1 );
+      ucptr = image + 4*( j*imageMemorySize[0] + 
+                          this->RowBounds[j*2+1]+1 );
       for ( i = 0; 
             i < (this->OldRowBounds[j*2+1] - this->RowBounds[j*2+1]);
             i++ )
@@ -2856,14 +2873,15 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired
      << endl;
   
-  os << indent << "ImageInUseSize: " << this->ImageInUseSize[0] << " "
-     << this->ImageInUseSize[1] << endl;
-  os << indent << "ImageMemorySize: " << this->ImageMemorySize[0] << " "
-     << this->ImageMemorySize[1] << endl;
-  os << indent << "ImageViewportSize: " << this->ImageViewportSize[0] << " "
-     << this->ImageViewportSize[1] << endl;
-  os << indent << "ImageOrigin: " << this->ImageOrigin[0] << " "
-     << this->ImageOrigin[1] << endl;
+  if ( this->RayCastImage )
+    {
+    os << indent << "Ray Cast Image:\n";
+    this->RayCastImage->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << indent << "Ray Cast Image: (none)\n";
+    } 
   
   os << indent << "RenderWindow: " << this->RenderWindow << endl;
   

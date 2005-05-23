@@ -20,6 +20,7 @@
 #include "vtkRenderer.h"
 #include "vtkTransform.h"
 #include "vtkCamera.h"
+#include "vtkFixedPointRayCastImage.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 # include "vtkOpenGL.h"
@@ -28,7 +29,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLRayCastImageDisplayHelper, "1.4");
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 #endif
 
@@ -52,6 +53,16 @@ vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 // imageOrigin       is the starting pixel of the imageInUseSize image on the
 //                   the imageViewportSize viewport
 //
+void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol, 
+                                                        vtkRenderer *ren,
+                                                        vtkFixedPointRayCastImage *image,
+                                                        float requestedDepth )
+{
+  this->RenderTextureInternal( vol, ren, image->GetImageMemorySize(), image->GetImageViewportSize(),
+                       image->GetImageInUseSize(), image->GetImageOrigin(),
+                       requestedDepth, VTK_UNSIGNED_SHORT, image->GetImage() );
+}
+
 void vtkOpenGLRayCastImageDisplayHelper::RenderTexture( vtkVolume *vol, 
                                                         vtkRenderer *ren,
                                                         int imageMemorySize[2],

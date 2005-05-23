@@ -28,6 +28,7 @@
 
 class vtkVolume;
 class vtkRenderer;
+class vtkFixedPointRayCastImage;
 
 class VTK_VOLUMERENDERING_EXPORT vtkOpenGLRayCastImageDisplayHelper : public vtkRayCastImageDisplayHelper
 {
@@ -51,6 +52,10 @@ public:
                       int imageOrigin[2],
                       float requestedDepth,
                       unsigned short *image );
+
+  void RenderTexture( vtkVolume *vol, vtkRenderer *ren,
+                      vtkFixedPointRayCastImage *image,
+                      float requestedDepth );
 
 protected:
   vtkOpenGLRayCastImageDisplayHelper();

@@ -747,16 +747,16 @@
   float shift[4];                                                                               \
   float scale[4];                                                                               \
                                                                                                 \
-  mapper->GetImageInUseSize(imageInUseSize);                                                    \
-  mapper->GetImageMemorySize(imageMemorySize);                                                  \
-  mapper->GetImageViewportSize(imageViewportSize);                                              \
-  mapper->GetImageOrigin(imageOrigin);                                                          \
+  mapper->GetRayCastImage()->GetImageInUseSize(imageInUseSize);                                 \
+  mapper->GetRayCastImage()->GetImageMemorySize(imageMemorySize);                               \
+  mapper->GetRayCastImage()->GetImageViewportSize(imageViewportSize);                           \
+  mapper->GetRayCastImage()->GetImageOrigin(imageOrigin);                                       \
   mapper->GetInput()->GetDimensions(dim);                                                       \
   mapper->GetTableShift( shift );                                                               \
   mapper->GetTableScale( scale );                                                               \
                                                                                                 \
   int *rowBounds                     = mapper->GetRowBounds();                                  \
-  unsigned short *image              = mapper->GetImage();                                      \
+  unsigned short *image              = mapper->GetRayCastImage()->GetImage();                   \
   vtkRenderWindow *renWin            = mapper->GetRenderWindow();                               \
   int components                     = mapper->GetInput()->GetNumberOfScalarComponents();       \
   int cropping                       = (mapper->GetCropping() &&                                \
