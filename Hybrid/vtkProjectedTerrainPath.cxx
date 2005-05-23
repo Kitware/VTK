@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.9");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.10");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -189,7 +189,7 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   // in the list (i,i+1) form an edge; the next two (i+1,i+2) form the
   // next edge, and so on. The list contains point ids referring to
   // the this->Points array.
-  vtkIdType j, npts, *pts;
+  vtkIdType j, npts=0, *pts=NULL;
   this->EdgeList = new EdgeListType;
   this->PositiveLineError = vtkPriorityQueue::New();
   this->NegativeLineError = vtkPriorityQueue::New();
