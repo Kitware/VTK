@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.13");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.14");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -38,10 +38,9 @@ void (*vtkCarbonRenderWindowInteractor::ClassExitMethodArgDelete)(void *)
 //--------------------------------------------------------------------------
 // callback routine to handle all window-related events
 // The WindowPtr of the associated window is passed in userData
-static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef nextHandler,
+static pascal OSStatus myWinEvtHndlr(EventHandlerCallRef,
                                      EventRef event, void* userData)
 {
-  Rect                             bounds = {0,0,0,0};
   OSStatus                         result = eventNotHandledErr;
   Point                            mouseLoc;
   vtkCarbonRenderWindow            *ren;

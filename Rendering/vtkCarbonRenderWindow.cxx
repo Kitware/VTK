@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.33");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.34");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -1191,7 +1191,7 @@ void vtkCarbonRenderWindow::ShowCursor()
   ShowCursor();
 }
 
-OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef er, 
+OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef, 
                                                      EventRef event, void* win)
 {
   vtkCarbonRenderWindow* vtk_win = reinterpret_cast<vtkCarbonRenderWindow*>(win);
@@ -1238,8 +1238,10 @@ int vtkCarbonRenderWindow::GetRegionDirty()
 
 void vtkCarbonRenderWindow::SetRegionDirty(int val)
 {
-  this->RegionDirty = val;
   if(this->WindowId)
+    {
+    this->RegionDirty = val;
     HIViewSetNeedsDisplay(this->GetWindowId(), true);
+    }
 }
 
