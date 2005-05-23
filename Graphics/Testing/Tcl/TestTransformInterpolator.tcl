@@ -60,18 +60,12 @@ vtkMath math
 vtkLookupTable lut
 lut SetNumberOfColors 6
 lut Build
-lut SetTableValue 0 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
-lut SetTableValue 1 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
-lut SetTableValue 2 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
-lut SetTableValue 3 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
-lut SetTableValue 4 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
-lut SetTableValue 5 [math Random 0 1] [math Random 0 1] \
-  [math Random 0 1] 1
+lut SetTableValue 0 1 0 0 1
+lut SetTableValue 1 0 1 0 1
+lut SetTableValue 2 1 1 0 1
+lut SetTableValue 3 0 0 1 1
+lut SetTableValue 4 1 0 1 1
+lut SetTableValue 5 0 1 1 1
 
 vtkPolyDataMapper cube1Mapper
     cube1Mapper SetInput cube
@@ -195,9 +189,9 @@ proc animate {} {
         renWin Render
     }
 }
-#interpolator InterpolateTransform 10.0 xform
-#cubeActor SetUserMatrix [xform GetMatrix]
-#renWin Render
-animate
+interpolator InterpolateTransform 13.2 xform
+cubeActor SetUserMatrix [xform GetMatrix]
+renWin Render
+#animate
 
     

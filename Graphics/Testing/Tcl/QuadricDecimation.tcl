@@ -24,6 +24,7 @@ vtkQuadricDecimation mesh
   mesh SetInputConnection [tf GetOutputPort]
   mesh SetTargetReduction .90
   mesh AttributeErrorMetricOn
+  mesh AddObserver ProgressEvent {puts "Progress: "; puts [mesh GetProgress]}
 
 vtkPolyDataMapper mapper
   mapper SetInputConnection [mesh GetOutputPort]
@@ -36,6 +37,7 @@ vtkQuadricDecimation mesh2
   mesh2 SetInputConnection [tf GetOutputPort]
   mesh2 SetTargetReduction .90
   mesh2 AttributeErrorMetricOff
+  mesh2 AddObserver ProgressEvent {puts "Progress: "; puts [mesh2 GetProgress]}
 
 vtkPolyDataMapper mapper2
   mapper2 SetInputConnection [mesh2 GetOutputPort]

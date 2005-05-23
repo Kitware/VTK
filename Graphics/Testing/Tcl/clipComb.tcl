@@ -30,6 +30,8 @@ vtkClipDataSet clip
     clip SetInputConnection [pl3d GetOutputPort]
     clip SetClipFunction bool
     clip InsideOutOn
+    clip Update
+#exit
 
 vtkGeometryFilter gf
     gf SetInputConnection [clip GetOutputPort]
