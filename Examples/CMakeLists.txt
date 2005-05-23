@@ -75,10 +75,10 @@ IF(VTK_BINARY_DIR)
                          -DEXECUTABLE_OUTPUT_PATH:PATH=${EXECUTABLE_OUTPUT_PATH}
                          -DLIBRARY_OUTPUT_PATH:PATH=${LIBRARY_OUTPUT_PATH}
          )
-  ADD_CUSTOM_TARGET(VTKExamples ALL DEPENDS ${VTK_BINARY_DIR}/VTKExamples)
+  ADD_CUSTOM_TARGET(VTKExamplesTarget ALL DEPENDS ${VTK_BINARY_DIR}/VTKExamples)
 
   # Make sure the target builds after the rest of VTK.
-  ADD_DEPENDENCIES(VTKExamples
+  ADD_DEPENDENCIES(VTKExamplesTarget
     vtkCommon
     vtkFiltering
     vtkImaging
@@ -87,16 +87,16 @@ IF(VTK_BINARY_DIR)
     vtkIO
     )
   IF(VTK_USE_RENDERING)
-    ADD_DEPENDENCIES(VTKExamples vtkRendering)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkRendering)
   ENDIF(VTK_USE_RENDERING)
   IF(VTK_USE_PATENTED)
-    ADD_DEPENDENCIES(VTKExamples vtkPatented)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkPatented)
   ENDIF(VTK_USE_PATENTED)
   IF(VTK_USE_HYBRID)
-    ADD_DEPENDENCIES(VTKExamples vtkHybrid)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkHybrid)
   ENDIF(VTK_USE_HYBRID)
   IF(VTK_USE_PARALLEL)
-    ADD_DEPENDENCIES(VTKExamples vtkParallel)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkParallel)
   ENDIF(VTK_USE_PARALLEL)
 
 ELSE(VTK_BINARY_DIR)
