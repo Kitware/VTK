@@ -158,6 +158,8 @@ IF (VTK_USE_RENDERING)
       TestSpherePuzzleArrows
       TestSplineFilter
       TestStructuredGrid
+      TestCameraInterpolator
+      TestTransformInterpolator
       TestTriangleFilter
       TestRibbonAndTube
       textureThreshold
