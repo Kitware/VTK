@@ -225,10 +225,7 @@ bool Constant::isConstant(char *line)
     {
     return true;
     }
-  else
-    {
-    return false;
-    }
+  return false;
 }
 
 class Typedef {
