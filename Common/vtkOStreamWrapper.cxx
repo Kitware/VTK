@@ -71,11 +71,11 @@ VTKOSTREAM_OPERATOR(double);
 #ifdef VTK_COMPILER_HAS_BOOL
 VTKOSTREAM_OPERATOR(bool);
 #endif
-#if defined(VTK_SIZEOF_LONG_LONG)
+#if defined(VTK_TYPE_USE_LONG_LONG)
 VTKOSTREAM_OPERATOR(long long);
 VTKOSTREAM_OPERATOR(unsigned long long);
 #endif
-#if defined( VTK_SIZEOF___INT64 ) && !defined( VTK_SIZEOF_LONG_LONG )
+#if defined(VTK_TYPE_USE___INT64)
 VTKOSTREAM_OPERATOR(__int64);
 VTKOSTREAM_OPERATOR(unsigned __int64);
 #endif

@@ -40,10 +40,14 @@
 (((type) == VTK_UNSIGNED_INT) ? "unsigned int" : \
 (((type) == VTK_LONG) ? "long" : \
 (((type) == VTK_UNSIGNED_LONG) ? "unsigned long" : \
+(((type) == VTK_LONG_LONG) ? "long long" : \
+(((type) == VTK_UNSIGNED_LONG_LONG) ? "unsigned long long" : \
+(((type) == VTK___INT64) ? "__int64" : \
+(((type) == VTK_UNSIGNED___INT64) ? "unsigned __int64" : \
 (((type) == VTK_FLOAT) ? "float" : \
 (((type) == VTK_DOUBLE) ? "double" : \
 (((type) == VTK_ID_TYPE) ? "idtype" : \
-"Undefined")))))))))))))
+"Undefined")))))))))))))))))
   
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
@@ -634,17 +638,46 @@ virtual double *Get##name() \
 //   }
 #define vtkTemplateMacroCase(typeN, type, call)     \
   case typeN: { typedef type VTK_TT; call; }; break
-#define vtkTemplateMacro(call)                                    \
-  vtkTemplateMacroCase(VTK_DOUBLE, double, call);                 \
-  vtkTemplateMacroCase(VTK_FLOAT, float, call);                   \
-  vtkTemplateMacroCase(VTK_LONG, long, call);                     \
-  vtkTemplateMacroCase(VTK_UNSIGNED_LONG, unsigned long, call);   \
-  vtkTemplateMacroCase(VTK_INT, int, call);                       \
-  vtkTemplateMacroCase(VTK_UNSIGNED_INT, unsigned int, call);     \
-  vtkTemplateMacroCase(VTK_SHORT, short, call);                   \
-  vtkTemplateMacroCase(VTK_UNSIGNED_SHORT, unsigned short, call); \
-  vtkTemplateMacroCase(VTK_CHAR, char, call);                     \
+#define vtkTemplateMacro(call)                                              \
+  vtkTemplateMacroCase(VTK_DOUBLE, double, call);                           \
+  vtkTemplateMacroCase(VTK_FLOAT, float, call);                             \
+  vtkTemplateMacroCase_ll(VTK_LONG_LONG, long long, call)                   \
+  vtkTemplateMacroCase_ll(VTK_UNSIGNED_LONG_LONG, unsigned long long, call) \
+  vtkTemplateMacroCase_si64(VTK___INT64, __int64, call)                     \
+  vtkTemplateMacroCase_ui64(VTK_UNSIGNED___INT64, unsigned __int64, call)   \
+  vtkTemplateMacroCase(VTK_LONG, long, call);                               \
+  vtkTemplateMacroCase(VTK_UNSIGNED_LONG, unsigned long, call);             \
+  vtkTemplateMacroCase(VTK_INT, int, call);                                 \
+  vtkTemplateMacroCase(VTK_UNSIGNED_INT, unsigned int, call);               \
+  vtkTemplateMacroCase(VTK_SHORT, short, call);                             \
+  vtkTemplateMacroCase(VTK_UNSIGNED_SHORT, unsigned short, call);           \
+  vtkTemplateMacroCase(VTK_CHAR, char, call);                               \
   vtkTemplateMacroCase(VTK_UNSIGNED_CHAR, unsigned char, call)
+
+// Add "long long" to the template macro if it is enabled.
+#if defined(VTK_TYPE_USE_LONG_LONG)
+# define vtkTemplateMacroCase_ll(typeN, type, call) \
+            vtkTemplateMacroCase(typeN, type, call);
+#else
+# define vtkTemplateMacroCase_ll(typeN, type, call)
+#endif
+
+// Add "__int64" to the template macro if it is enabled.
+#if defined(VTK_TYPE_USE___INT64)
+# define vtkTemplateMacroCase_si64(typeN, type, call) \
+             vtkTemplateMacroCase(typeN, type, call);
+#else
+# define vtkTemplateMacroCase_si64(typeN, type, call)
+#endif
+
+// Add "unsigned __int64" to the template macro if it is enabled and
+// can be converted to double.
+#if defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+# define vtkTemplateMacroCase_ui64(typeN, type, call) \
+             vtkTemplateMacroCase(typeN, type, call);
+#else
+# define vtkTemplateMacroCase_ui64(typeN, type, call)
+#endif
 
 // Legacy versions of vtkTemplateMacro:
 #define vtkTemplateMacro3(func, a1, a2, a3) \

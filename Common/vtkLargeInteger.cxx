@@ -70,7 +70,7 @@ vtkLargeInteger::vtkLargeInteger(void)
     this->Sig = 0;
 }
 
-#ifdef VTK_SIZEOF_LONG_LONG
+#if defined(VTK_TYPE_USE_LONG_LONG)
 vtkLargeInteger::vtkLargeInteger(long long n)
 {
   this->Negative = n < 0 ? 1 : 0;
@@ -101,7 +101,7 @@ vtkLargeInteger::vtkLargeInteger(unsigned long long n)
 }
 #endif
 
-#if defined( VTK_SIZEOF___INT64 ) && (!defined( VTK_SIZEOF_LONG_LONG ) || VTK_SIZEOF_LONG_LONG != VTK_SIZEOF___INT64)
+#if defined(VTK_TYPE_USE___INT64)
 vtkLargeInteger::vtkLargeInteger(__int64 n)
 {
   this->Negative = n < 0 ? 1 : 0;

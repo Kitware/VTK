@@ -27,5 +27,13 @@ template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned long>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned short>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned char>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned int>;
+#if defined(VTK_TYPE_USE_LONG_LONG)
+template class VTK_FILTERING_EXPORT vtkImageIterator<long long>;
+template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned long long>;
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+template class VTK_FILTERING_EXPORT vtkImageIterator<__int64>;
+template class VTK_FILTERING_EXPORT vtkImageIterator<unsigned __int64>;
+#endif
 
 #endif

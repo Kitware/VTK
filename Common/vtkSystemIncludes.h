@@ -49,20 +49,35 @@ typedef double vtkFloatingPointType;
 // this should be removed at some point
 #define VTK_USE_EXECUTIVES
 
+// Some constants used throughout the code
+#define VTK_LARGE_INTEGER VTK_INT_MAX
+#define VTK_LARGE_FLOAT VTK_FLOAT_MAX
+
 // Choose an implementation for vtkIdType.
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
-# define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
-# define VTK_SIZEOF_ID_TYPE 8
-# ifdef _WIN32
-typedef __int64 vtkIdType;
-# else // _WIN32
+# if defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
+typedef long vtkIdType;
+#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
+#  define VTK_LARGE_ID VTK_LONG_MAX
+# elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
-# endif // _WIN32
-#else // VTK_USE_64BIT_IDS
-# define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
+#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
+#  define VTK_LARGE_ID VTK_LONG_LONG_MAX
+# elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
+typedef __int64 vtkIdType;
+#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
+#  define VTK_LARGE_ID VTK___INT64_MAX
+# else
+#  error "VTK_USE_64BIT_IDS is ON but no 64-bit integer type is available."
+# endif
+#else
 typedef int vtkIdType;
-#endif // VTK_USE_64BIT_IDS
+# define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_INT
+# define VTK_LARGE_ID VTK_INT_MAX
+#endif
 
 #define __VTK_SYSTEM_INCLUDES__INSIDE
 #include "vtkOStreamWrapper.h"    // Include the ostream wrapper.
@@ -88,20 +103,6 @@ typedef int vtkIdType;
 # include <search.h> /* search functions from stdlib.h */
 #endif
 
-// Some constants used throughout the code
-#define VTK_LARGE_FLOAT 1.0e+38F
-#ifdef VTK_USE_64BIT_IDS
-#  if defined(_WIN32) && !defined(__GNUC__)
-#    define VTK_LARGE_ID 9223372036854775807i64 // 2^63 - 1
-#  else
-#    define VTK_LARGE_ID 9223372036854775807LL // 2^63 - 1
-#  endif
-#else
-#  define VTK_LARGE_ID 2147483647 // 2^31 - 1
-#endif
-
-#define VTK_LARGE_INTEGER 2147483647 // 2^31 - 1
-
 // These types are returned by GetDataType to indicate pixel type.
 #define VTK_VOID            0
 #define VTK_BIT             1 
@@ -122,29 +123,52 @@ typedef int vtkIdType;
 #define VTK_STRING         13
 #define VTK_OPAQUE         14
 
+// These types are enabled if VTK_TYPE_USE_LONG_LONG is defined.
+#define VTK_LONG_LONG          15
+#define VTK_UNSIGNED_LONG_LONG 16
+
+// This type is enabled if VTK_TYPE_USE___INT64 is defined.
+#define VTK___INT64            17
+
+// This type is enabled if VTK_TYPE_USE___INT64 and
+// VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.
+#define VTK_UNSIGNED___INT64   18
+
 // Some constant required for correct template performance
-#define VTK_BIT_MIN            0
-#define VTK_BIT_MAX            1
-#define VTK_CHAR_MIN          -128
-#define VTK_CHAR_MAX           127
-#define VTK_UNSIGNED_CHAR_MIN  0
-#define VTK_UNSIGNED_CHAR_MAX  255
-#define VTK_SHORT_MIN         -32768
-#define VTK_SHORT_MAX          32767
-#define VTK_UNSIGNED_SHORT_MIN 0
-#define VTK_UNSIGNED_SHORT_MAX 65535
-#define VTK_INT_MIN          (-VTK_LARGE_INTEGER-1)
-#define VTK_INT_MAX            VTK_LARGE_INTEGER
-#define VTK_UNSIGNED_INT_MIN   0
-#define VTK_UNSIGNED_INT_MAX   4294967295U
-#define VTK_LONG_MIN         (-VTK_LARGE_INTEGER-1)
-#define VTK_LONG_MAX           VTK_LARGE_INTEGER
-#define VTK_UNSIGNED_LONG_MIN  0
-#define VTK_UNSIGNED_LONG_MAX  4294967295UL
-#define VTK_FLOAT_MIN         -VTK_LARGE_FLOAT
-#define VTK_FLOAT_MAX          VTK_LARGE_FLOAT
-#define VTK_DOUBLE_MIN        -1.0e+299
-#define VTK_DOUBLE_MAX         1.0e+299
+#define VTK_BIT_MIN                 0
+#define VTK_BIT_MAX                 1
+#define VTK_CHAR_MIN                static_cast<char>(0x80)
+#define VTK_CHAR_MAX                static_cast<char>(0x7f)
+#define VTK_UNSIGNED_CHAR_MIN       static_cast<unsigned char>(0u)
+#define VTK_UNSIGNED_CHAR_MAX       static_cast<unsigned char>(0xffu)
+#define VTK_SHORT_MIN               static_cast<short>(0x8000)
+#define VTK_SHORT_MAX               static_cast<short>(0x7fff)
+#define VTK_UNSIGNED_SHORT_MIN      static_cast<unsigned short>(0u)
+#define VTK_UNSIGNED_SHORT_MAX      static_cast<unsigned short>(0xffffu)
+#define VTK_INT_MIN                 static_cast<int>(~(~0u >> 1))
+#define VTK_INT_MAX                 static_cast<int>(~0u >> 1)
+#define VTK_UNSIGNED_INT_MIN        static_cast<unsigned int>(0)
+#define VTK_UNSIGNED_INT_MAX        static_cast<unsigned int>(~0u)
+#define VTK_LONG_MIN                static_cast<long>(~(~0ul >> 1))
+#define VTK_LONG_MAX                static_cast<long>(~0ul >> 1)
+#define VTK_UNSIGNED_LONG_MIN       static_cast<unsigned long>(0ul)
+#define VTK_UNSIGNED_LONG_MAX       static_cast<unsigned long>(~0ul)
+#define VTK_FLOAT_MIN               -1.0e+38f
+#define VTK_FLOAT_MAX                1.0e+38f
+#define VTK_DOUBLE_MIN              -1.0e+299
+#define VTK_DOUBLE_MAX               1.0e+299
+#if defined(VTK_SIZEOF_LONG_LONG)
+# define VTK_LONG_LONG_MIN          static_cast<long long>(~(~0ull >> 1))
+# define VTK_LONG_LONG_MAX          static_cast<long long>(~0ull >> 1)
+# define VTK_UNSIGNED_LONG_LONG_MIN static_cast<unsigned long long>(0ull)
+# define VTK_UNSIGNED_LONG_LONG_MAX static_cast<unsigned long long>(~0ull)
+#endif
+#if defined(VTK_SIZEOF___INT64)
+# define VTK___INT64_MIN            static_cast<__int64>(~(~0ui64 >> 1))
+# define VTK___INT64_MAX            static_cast<__int64>(~0ui64 >> 1)
+# define VTK_UNSIGNED___INT64_MIN   static_cast<unsigned __int64>(0ui64)
+# define VTK_UNSIGNED___INT64_MAX   static_cast<unsigned __int64>(~0ui64)
+#endif
 
 // These types are returned to distinguish data object types
 #define VTK_POLY_DATA                       0

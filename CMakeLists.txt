@@ -312,6 +312,82 @@ IF(VTK_SIZEOF___INT64)
         "${OUTPUT}\n" APPEND)
     ENDIF(VTK_TYPE_SAME_LONG_AND___INT64)
   ENDIF("VTK_TYPE_SAME_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_AND___INT64$")
+  IF(VTK_SIZEOF_LONG_LONG)
+    IF("VTK_TYPE_SAME_LONG_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_LONG_AND___INT64$")
+      MESSAGE(STATUS "Checking whether long long and __int64 are the same type")
+      TRY_COMPILE(VTK_TYPE_SAME_LONG_LONG_AND___INT64
+        ${VTK_BINARY_DIR}/CMakeTmp
+        ${VTK_SOURCE_DIR}/CMake/vtkTestCompareTypes.cxx
+        COMPILE_DEFINITIONS
+        -DVTK_TEST_COMPARE_TYPE_1=TYPE_LONG_LONG
+        -DVTK_TEST_COMPARE_TYPE_2=__int64
+        OUTPUT_VARIABLE OUTPUT)
+      IF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+        MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- yes")
+        SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 1 CACHE INTERNAL "Whether long long and __int64 are the same type")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+          "Determining whether long long and __int64 are the same type "
+          "passed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ELSE(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+        MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- no")
+        SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 0 CACHE INTERNAL "Whether long long and __int64 are the same type")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+          "Determining whether long long and __int64 are the same type "
+          "failed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ENDIF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+    ENDIF("VTK_TYPE_SAME_LONG_LONG_AND___INT64" MATCHES "^VTK_TYPE_SAME_LONG_LONG_AND___INT64$")
+  ENDIF(VTK_SIZEOF_LONG_LONG)
+  IF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
+    IF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+      #  VS 6 cannot convert unsigned __int64 to double unless the
+      # "Visual C++ Processor Pack" is installed.
+      IF("VTK_TYPE_CONVERT_UI64_TO_DOUBLE" MATCHES "^VTK_TYPE_CONVERT_UI64_TO_DOUBLE$")
+        MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double")
+        TRY_COMPILE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE
+          ${VTK_BINARY_DIR}/CMakeTmp
+          ${VTK_SOURCE_DIR}/CMake/vtkTestConvertTypes.cxx
+          COMPILE_DEFINITIONS
+          -DVTK_TEST_CONVERT_TYPE_FROM=TYPE_UNSIGNED___INT64
+          -DVTK_TEST_CONVERT_TYPE_TO=double
+          OUTPUT_VARIABLE OUTPUT)
+        IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+          MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- yes")
+          SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 1 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
+          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+            "Determining whether unsigned __int64 can convert to double "
+            "passed with the following output:\n"
+            "${OUTPUT}\n" APPEND)
+        ELSE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+          MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- no")
+          SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 0 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
+          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+            "Determining whether unsigned __int64 can convert to double "
+            "failed with the following output:\n"
+            "${OUTPUT}\n" APPEND)
+        ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+      ENDIF("VTK_TYPE_CONVERT_UI64_TO_DOUBLE" MATCHES "^VTK_TYPE_CONVERT_UI64_TO_DOUBLE$")
+    ENDIF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+  ENDIF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
+ENDIF(VTK_SIZEOF___INT64)
+
+# Enable the "long long" type if it is available.  It is standard in
+# C99 and C++03 but not in earlier standards.
+SET(VTK_TYPE_USE_LONG_LONG)
+IF(VTK_SIZEOF_LONG_LONG)
+  SET(VTK_TYPE_USE_LONG_LONG 1)
+ENDIF(VTK_SIZEOF_LONG_LONG)
+
+# Enable the "__int64" type if it is available and unique.  It is not
+# standard.
+SET(VTK_TYPE_USE___INT64)
+IF(VTK_SIZEOF___INT64)
+  IF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
+    IF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+      SET(VTK_TYPE_USE___INT64 1)
+    ENDIF(NOT VTK_TYPE_SAME_LONG_LONG_AND___INT64)
+  ENDIF(NOT VTK_TYPE_SAME_LONG_AND___INT64)
 ENDIF(VTK_SIZEOF___INT64)
 
 IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")

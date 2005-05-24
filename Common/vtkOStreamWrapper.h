@@ -69,11 +69,11 @@ public:
   vtkOStreamWrapper& operator << (unsigned long);
   vtkOStreamWrapper& operator << (float);
   vtkOStreamWrapper& operator << (double);
-#if defined(VTK_SIZEOF_LONG_LONG)
+#if defined(VTK_TYPE_USE_LONG_LONG)
   vtkOStreamWrapper& operator << (long long);
   vtkOStreamWrapper& operator << (unsigned long long);
 #endif
-#if defined( VTK_SIZEOF___INT64 ) && !defined( VTK_SIZEOF_LONG_LONG )
+#if defined(VTK_TYPE_USE___INT64)
   vtkOStreamWrapper& operator << (__int64);
   vtkOStreamWrapper& operator << (unsigned __int64);
 #endif

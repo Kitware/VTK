@@ -34,6 +34,14 @@ template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned long>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned short>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned char>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned int>;
+#if defined(VTK_TYPE_USE_LONG_LONG)
+template class VTK_FILTERING_EXPORT vtkImageProgressIterator<long long>;
+template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned long long>;
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+template class VTK_FILTERING_EXPORT vtkImageProgressIterator<__int64>;
+template class VTK_FILTERING_EXPORT vtkImageProgressIterator<unsigned __int64>;
+#endif
 
 #endif
 

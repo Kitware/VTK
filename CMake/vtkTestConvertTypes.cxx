@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkTestCompareTypes.cxx
+  Module:    vtkTestConvertTypes.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -13,16 +13,20 @@
 
 =========================================================================*/
 
-#define TYPE_LONG_LONG long long
+#define TYPE_UNSIGNED___INT64 unsigned __int64
 
-typedef VTK_TEST_COMPARE_TYPE_1 Type1;
-typedef VTK_TEST_COMPARE_TYPE_2 Type2;
+typedef VTK_TEST_CONVERT_TYPE_TO TypeTo;
+typedef VTK_TEST_CONVERT_TYPE_FROM TypeFrom;
 
-void function(Type1**) {}
+void function(TypeTo& l, TypeFrom const& r)
+{
+  l = static_cast<TypeTo>(r);
+}
 
 int main()
 {
-  Type2** p = 0;
-  function(p);
+  TypeTo tTo = TypeTo();
+  TypeFrom tFrom = TypeFrom();
+  function(tTo, tFrom);
   return 0;
 }
