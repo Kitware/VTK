@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.44");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.45");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1090,6 +1090,16 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
     case VTK_UNSIGNED_INT:   isSigned = 0; size = sizeof(unsigned int); break;
     case VTK_UNSIGNED_LONG:  isSigned = 0; size = sizeof(unsigned long); break;
     case VTK_UNSIGNED_SHORT: isSigned = 0; size = sizeof(unsigned short); break;
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    case VTK_LONG_LONG:          isSigned = 1; size = sizeof(long long); break;
+    case VTK_UNSIGNED_LONG_LONG: isSigned = 0; size = sizeof(unsigned long long); break;
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+    case VTK___INT64:            isSigned = 1; size = sizeof(__int64); break;
+# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+    case VTK_UNSIGNED___INT64:   isSigned = 0; size = sizeof(unsigned __int64); break;
+# endif
+#endif
     default:
     {
     vtkWarningMacro("Unsupported data type: " << dataType); } break;
