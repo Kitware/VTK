@@ -32,7 +32,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkParticleReader, "1.27");
+vtkCxxRevisionMacro(vtkParticleReader, "1.28");
 vtkStandardNewMacro(vtkParticleReader);
 
 namespace {
@@ -297,7 +297,6 @@ int vtkParticleReader::DetermineFileType()
     return FILE_TYPE_IS_UNKNOWN;
     }
 
-  size_t charsCounted = 0;
   size_t zero = 0;
   size_t conventionalASCII = 0;
   size_t extendedASCII = 0;
@@ -308,37 +307,28 @@ int vtkParticleReader::DetermineFileType()
     if ( s[j] == '\0' )
       {
       zero++;
-      charsCounted++;
       continue;
       }
     // Conventional ASCII characters.
     if ( s[j] > 0x1f && s[j] < 0x80 )
      {
      conventionalASCII++;
-     charsCounted++;
      continue;
      }
     // Extended ASCII characters may have been used.
     if ( s[j] > 0x7f )
       {
       extendedASCII++;
-      charsCounted++;
       continue;
       }
     // Control characters.
     if ( s[j] == '\n' || s[j] == '\r' || s[j] == '\t' || s[j] == '\f' )
       {
       controlASCII++;
-      charsCounted++;
       continue;
       }
     otherASCII++;
-    charsCounted++;
   }
-//    cout << "Zero: " << zero << " Conventional ASCII:" << conventionalASCII <<
-//       " Extended ASCII: " << extendedASCII << " Control ASCII: " << controlASCII << 
-//       " Other characters: " << otherASCII << 
-//       " Total counted: " << charsCounted << endl;
 
   // NULL shouldn't ever appear in a text file.
   if ( zero != 0 || otherASCII > 0 || conventionalASCII == 0 )
