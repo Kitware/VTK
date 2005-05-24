@@ -57,7 +57,7 @@
 #define vtkFloatingPointType float
 #endif
 
-vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.3");
+vtkCxxRevisionMacro(vtkDiscreteMarchingCubes, "1.4");
 vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
@@ -344,160 +344,16 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   if (inScalars->GetNumberOfComponents() == 1 )
     {
+    void* scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
       {
-      case VTK_CHAR:
-      {
-      char *scalars = static_cast<vtkCharArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_UNSIGNED_CHAR:
-      {
-      unsigned char *scalars = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_SHORT:
-      {
-      short *scalars = static_cast<vtkShortArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_UNSIGNED_SHORT:
-      {
-      unsigned short *scalars = static_cast<vtkUnsignedShortArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_INT:
-      {
-      int *scalars = static_cast<vtkIntArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_UNSIGNED_INT:
-      {
-      unsigned int *scalars = static_cast<vtkUnsignedIntArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_LONG:
-      {
-      long *scalars = static_cast<vtkLongArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_UNSIGNED_LONG:
-      {
-      unsigned long *scalars = static_cast<vtkUnsignedLongArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_FLOAT:
-      {
-      float *scalars = 
-        static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
-      case VTK_DOUBLE:
-      {
-      double *scalars = 
-        static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
-      vtkDiscreteMarchingCubesComputeGradient(this,
-                                              scalars,
-                                              dims,
-                                              origin,
-                                              Spacing,
-                                              this->Locator,
-                                              newCellScalars,
-                                              newPolys,
-                                              values,
-                                              numContours);
-      }
-      break;
+      vtkTemplateMacro(
+        vtkDiscreteMarchingCubesComputeGradient(this,
+                                                static_cast<VTK_TT*>(scalars),
+                                                dims, origin, Spacing,
+                                                this->Locator, newCellScalars,
+                                                newPolys, values, numContours)
+        );
       } //switch
     }
 

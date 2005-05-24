@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.118");
+vtkCxxRevisionMacro(vtkMapper, "1.119");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -627,49 +627,14 @@ void vtkMapper::MapScalarsToTexture(vtkDataArray* scalars, double alpha)
       }
     switch (scalars->GetDataType())
       {
+      vtkTemplateMacro(
+        vtkMapperCreateColorTextureCoordinates(static_cast<VTK_TT*>(input),
+                                               output, num, numComps,
+                                               scalarComponent, range)
+        );
       case VTK_BIT:
         vtkErrorMacro("Cannot color by bit array.");
         break;
-      case VTK_CHAR:
-        vtkMapperCreateColorTextureCoordinates(static_cast<char *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_UNSIGNED_CHAR:
-        vtkMapperCreateColorTextureCoordinates(static_cast<unsigned char *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_SHORT:
-        vtkMapperCreateColorTextureCoordinates(static_cast<short *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_UNSIGNED_SHORT:
-        vtkMapperCreateColorTextureCoordinates(static_cast<unsigned short *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_INT:
-        vtkMapperCreateColorTextureCoordinates(static_cast<int *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_UNSIGNED_INT:
-        vtkMapperCreateColorTextureCoordinates(static_cast<unsigned int *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_LONG:
-        vtkMapperCreateColorTextureCoordinates(static_cast<long *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_UNSIGNED_LONG:
-        vtkMapperCreateColorTextureCoordinates(static_cast<unsigned long *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_FLOAT:
-        vtkMapperCreateColorTextureCoordinates(static_cast<float *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
-      case VTK_DOUBLE:
-        vtkMapperCreateColorTextureCoordinates(static_cast<double *>(input), output,
-                                       num, numComps, scalarComponent, range); 
-        break; 
       default:
         vtkErrorMacro(<< "Unknown input ScalarType");
         return;

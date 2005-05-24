@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkAppendPolyData, "1.97");
+vtkCxxRevisionMacro(vtkAppendPolyData, "1.98");
 vtkStandardNewMacro(vtkAppendPolyData);
 
 //----------------------------------------------------------------------------
@@ -586,6 +586,13 @@ void vtkAppendPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+size_t vtkAppendPolyDataGetTypeSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
                                    vtkIdType offset)
 {
@@ -615,36 +622,9 @@ void vtkAppendPolyData::AppendData(vtkDataArray *dest, vtkDataArray *src,
 
   switch (src->GetDataType())
     {
-    case VTK_FLOAT:
-      length *= sizeof(float);
-      break;
-    case VTK_DOUBLE:
-      length *= sizeof(double);
-      break;
-    case VTK_INT:
-      length *= sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      length *= sizeof(unsigned int);
-      break;
-    case VTK_LONG:
-      length *= sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      length *= sizeof(unsigned long);
-      break;
-    case VTK_SHORT:
-      length *= sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      length *= sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      length *= sizeof(unsigned char);
-      break;
-    case VTK_CHAR:
-      length *= sizeof(char);
-      break;
+    vtkTemplateMacro(
+      length *= vtkAppendPolyDataGetTypeSize(static_cast<VTK_TT*>(0))
+      );
     default:
       vtkErrorMacro("Unknown data type " << src->GetDataType());
     }

@@ -51,7 +51,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkMarchingCubes, "1.91");
+vtkCxxRevisionMacro(vtkMarchingCubes, "1.92");
 vtkStandardNewMacro(vtkMarchingCubes);
 
 // Description:
@@ -488,94 +488,16 @@ int vtkMarchingCubes::RequestData(
 
   if (inScalars->GetNumberOfComponents() == 1 )
     {
+    void* scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
       {
-      case VTK_CHAR:
-        {
-        char *scalars = static_cast<vtkCharArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_UNSIGNED_CHAR:
-        {
-        unsigned char *scalars = static_cast<vtkUnsignedCharArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-        break;
-      case VTK_SHORT:
-        {
-        short *scalars = static_cast<vtkShortArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_UNSIGNED_SHORT:
-        {
-        unsigned short *scalars = static_cast<vtkUnsignedShortArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_INT:
-        {
-        int *scalars = static_cast<vtkIntArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_UNSIGNED_INT:
-        {
-        unsigned int *scalars = static_cast<vtkUnsignedIntArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_LONG:
-        {
-        long *scalars = static_cast<vtkLongArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_UNSIGNED_LONG:
-        {
-        unsigned long *scalars = static_cast<vtkUnsignedLongArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,Spacing,this->Locator,
-                      newScalars,newGradients,
-                      newNormals,newPolys,values,numContours);
-        }
-      break;
-      case VTK_FLOAT:
-        {
-        float *scalars = 
-          static_cast<vtkFloatArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,
-                                        Spacing,this->Locator,
+      vtkTemplateMacro(
+        vtkMarchingCubesComputeGradient(this, static_cast<VTK_TT*>(scalars),
+                                        dims,origin,Spacing,this->Locator,
                                         newScalars,newGradients,
-                                        newNormals,newPolys,
-                                        values,numContours);
-        }
-      break;
-      case VTK_DOUBLE:
-        {
-        double *scalars = 
-          static_cast<vtkDoubleArray *>(inScalars)->GetPointer(0);
-        vtkMarchingCubesComputeGradient(this,scalars,dims,origin,
-                                        Spacing,this->Locator,
-                                        newScalars,newGradients,
-                                        newNormals,newPolys,
-                                        values,numContours);
-        }
-      break;
+                                        newNormals,newPolys,values,
+                                        numContours)
+        );
       } //switch
     }
 

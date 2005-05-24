@@ -43,7 +43,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.63");
+vtkCxxRevisionMacro(vtkImageMarchingCubes, "1.64");
 vtkStandardNewMacro(vtkImageMarchingCubes);
 
 //----------------------------------------------------------------------------
@@ -77,6 +77,13 @@ unsigned long vtkImageMarchingCubes::GetMTime()
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   return mTime;
+}
+
+//----------------------------------------------------------------------------
+template <class T>
+int vtkImageMarchingCubesGetTypeSize(T*)
+{
+  return sizeof(T);
 }
 
 //----------------------------------------------------------------------------
@@ -121,36 +128,9 @@ int vtkImageMarchingCubes::RequestData(
   // Each data type requires a different amount of memory.
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      temp = sizeof(double);
-      break;
-    case VTK_FLOAT:
-      temp = sizeof(float);
-      break;
-    case VTK_INT:
-      temp = sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      temp = sizeof(unsigned int);
-      break;
-    case VTK_LONG:
-      temp = sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      temp = sizeof(long);
-      break;
-    case VTK_SHORT:
-      temp = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      temp = sizeof(unsigned short);
-      break;
-    case VTK_CHAR:
-      temp = sizeof(char);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      temp = sizeof(unsigned char);
-      break;
+    vtkTemplateMacro(
+      temp = vtkImageMarchingCubesGetTypeSize(static_cast<VTK_TT*>(0))
+      );
     default:
       vtkErrorMacro(<< "Could not determine input scalar type.");
       return 1;
@@ -687,46 +667,10 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkImageMarchingCubesMarch(this, inData, (double *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_FLOAT:
-      vtkImageMarchingCubesMarch(this, inData, (float *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_INT:
-      vtkImageMarchingCubesMarch(this, inData, (int *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkImageMarchingCubesMarch(this, inData, (unsigned int *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_SHORT:
-      vtkImageMarchingCubesMarch(this, inData, (short *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkImageMarchingCubesMarch(this, inData, (unsigned short *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_CHAR:
-      vtkImageMarchingCubesMarch(this, inData, (char *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkImageMarchingCubesMarch(this, inData, (unsigned char *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_LONG:
-      vtkImageMarchingCubesMarch(this, inData, (long *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkImageMarchingCubesMarch(this, inData, (unsigned long *)(ptr), 
-                                chunkMin, chunkMax, numContours, values);
-      break;
+    vtkTemplateMacro(
+      vtkImageMarchingCubesMarch(this, inData, static_cast<VTK_TT*>(ptr),
+                                 chunkMin, chunkMax, numContours, values)
+      );
     default:
       vtkErrorMacro(<< "Unknown output ScalarType");
       return;
