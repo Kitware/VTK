@@ -29,7 +29,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
-vtkCxxRevisionMacro(vtkPoints, "1.51");
+vtkCxxRevisionMacro(vtkPoints, "1.52");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -156,74 +156,9 @@ void vtkPoints::SetDataType(int dataType)
     }
   
   this->Modified();
-  
-  switch (dataType)
-    {
-    case VTK_BIT:
-      this->Data->Delete();
-      this->Data = vtkBitArray::New();
-      break;
 
-    case VTK_CHAR:
-      this->Data->Delete();
-      this->Data = vtkCharArray::New();
-      break;
-
-    case VTK_UNSIGNED_CHAR:
-      this->Data->Delete();
-      this->Data = vtkUnsignedCharArray::New();
-      break;
-
-    case VTK_SHORT:
-      this->Data->Delete();
-      this->Data = vtkShortArray::New();
-      break;
-
-    case VTK_UNSIGNED_SHORT:
-      this->Data->Delete();
-      this->Data = vtkUnsignedShortArray::New();
-      break;
-
-    case VTK_INT:
-      this->Data->Delete();
-      this->Data = vtkIntArray::New();
-      break;
-
-    case VTK_UNSIGNED_INT:
-      this->Data->Delete();
-      this->Data = vtkUnsignedIntArray::New();
-      break;
-
-    case VTK_LONG:
-      this->Data->Delete();
-      this->Data = vtkLongArray::New();
-      break;
-
-    case VTK_UNSIGNED_LONG:
-      this->Data->Delete();
-      this->Data = vtkUnsignedLongArray::New();
-      break;
-
-    case VTK_FLOAT:
-      this->Data->Delete();
-      this->Data = vtkFloatArray::New();
-      break;
-
-    case VTK_DOUBLE:
-      this->Data->Delete();
-      this->Data = vtkDoubleArray::New();
-      break;
-
-    case VTK_ID_TYPE:
-      this->Data->Delete();
-      this->Data = vtkIdTypeArray::New();
-      break;
-
-    default:
-      vtkErrorMacro(<<"Unsupported data type! Setting to VTK_FLOAT");
-      this->SetDataType(VTK_FLOAT);
-    }
-
+  this->Data->Delete();
+  this->Data = vtkDataArray::CreateDataArray(dataType);
   this->Data->SetNumberOfComponents(3);
 }
 
