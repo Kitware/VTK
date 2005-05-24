@@ -89,7 +89,7 @@ public:
   void SetVectorAttribute(const char* name, int length, const double* value);
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
 
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
   //BTX
   int  GetScalarAttribute(const char* name, vtkIdType& value);
   void SetIdTypeAttribute(const char* name, vtkIdType value);

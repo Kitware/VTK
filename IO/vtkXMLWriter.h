@@ -290,14 +290,14 @@ protected:
   
   int WriteScalarAttribute(const char* name, int data);
   int WriteScalarAttribute(const char* name, float data);
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
   int WriteScalarAttribute(const char* name, vtkIdType data);
 #endif
   
   int WriteVectorAttribute(const char* name, int length, int* data);
   int WriteVectorAttribute(const char* name, int length, float* data);
   int WriteVectorAttribute(const char* name, int length, double* data);
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
   int WriteVectorAttribute(const char* name, int length, vtkIdType* data);
 #endif
   

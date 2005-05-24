@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.21");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.22");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -505,7 +505,7 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
 int vtkXMLDataElement::GetScalarAttribute(const char* name, vtkIdType& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
@@ -561,7 +561,7 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           vtkIdType* data)
 {
@@ -765,7 +765,7 @@ void vtkXMLDataElement::SetUnsignedLongAttribute(const char* name,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
 void vtkXMLDataElement::SetIdTypeAttribute(const char* name, 
                                            vtkIdType value)
 {
@@ -821,7 +821,7 @@ void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
 }
 
 //----------------------------------------------------------------------------
-#ifdef VTK_ID_TYPE_IS_NOT_BASIC_TYPE
+#ifdef VTK_USE_64BIT_IDS
 void vtkXMLDataElement::SetVectorAttribute(const char* name, int length,
                                            const vtkIdType* data)
 {
