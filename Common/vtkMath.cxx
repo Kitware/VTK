@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.94");
+vtkCxxRevisionMacro(vtkMath, "1.95");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2603,6 +2603,7 @@ int vtkMath::GetScalarTypeFittingRange(
     {
       { VTK_BIT,            VTK_BIT_MIN,            VTK_BIT_MAX },
       { VTK_CHAR,           VTK_CHAR_MIN,           VTK_CHAR_MAX },
+      { VTK_SIGNED_CHAR,    VTK_SIGNED_CHAR_MIN,    VTK_SIGNED_CHAR_MAX },
       { VTK_UNSIGNED_CHAR,  VTK_UNSIGNED_CHAR_MIN,  VTK_UNSIGNED_CHAR_MAX },
       { VTK_SHORT,          VTK_SHORT_MIN,          VTK_SHORT_MAX },
       { VTK_UNSIGNED_SHORT, VTK_UNSIGNED_SHORT_MIN, VTK_UNSIGNED_SHORT_MAX },
@@ -2610,6 +2611,21 @@ int vtkMath::GetScalarTypeFittingRange(
       { VTK_UNSIGNED_INT,   VTK_UNSIGNED_INT_MIN,   VTK_UNSIGNED_INT_MAX },
       { VTK_LONG,           VTK_LONG_MIN,           VTK_LONG_MAX },
       { VTK_UNSIGNED_LONG,  VTK_UNSIGNED_LONG_MIN,  VTK_UNSIGNED_LONG_MAX }
+#if defined(VTK_TYPE_USE_LONG_LONG)
+      ,
+      { VTK_LONG_LONG,      VTK_LONG_LONG_MIN,      VTK_LONG_LONG_MAX },
+      { VTK_UNSIGNED_LONG_LONG,
+        VTK_UNSIGNED_LONG_LONG_MIN, VTK_UNSIGNED_LONG_LONG_MAX }
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+      ,
+      { VTK___INT64,      VTK___INT64_MIN,      VTK___INT64_MAX }
+# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+      ,
+      { VTK_UNSIGNED___INT64,
+        VTK_UNSIGNED___INT64_MIN, VTK_UNSIGNED___INT64_MAX }
+# endif
+#endif
     };
 
   // If the range, scale or shift are decimal number, just browse
