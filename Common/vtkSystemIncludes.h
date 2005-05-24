@@ -107,6 +107,7 @@ typedef int vtkIdType;
 #define VTK_VOID            0
 #define VTK_BIT             1 
 #define VTK_CHAR            2
+#define VTK_SIGNED_CHAR    15
 #define VTK_UNSIGNED_CHAR   3
 #define VTK_SHORT           4
 #define VTK_UNSIGNED_SHORT  5
@@ -124,21 +125,28 @@ typedef int vtkIdType;
 #define VTK_OPAQUE         14
 
 // These types are enabled if VTK_TYPE_USE_LONG_LONG is defined.
-#define VTK_LONG_LONG          15
-#define VTK_UNSIGNED_LONG_LONG 16
+#define VTK_LONG_LONG          16
+#define VTK_UNSIGNED_LONG_LONG 17
 
 // This type is enabled if VTK_TYPE_USE___INT64 is defined.
-#define VTK___INT64            17
+#define VTK___INT64            18
 
 // This type is enabled if VTK_TYPE_USE___INT64 and
 // VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.
-#define VTK_UNSIGNED___INT64   18
+#define VTK_UNSIGNED___INT64   19
 
 // Some constant required for correct template performance
 #define VTK_BIT_MIN                 0
 #define VTK_BIT_MAX                 1
-#define VTK_CHAR_MIN                static_cast<char>(0x80)
-#define VTK_CHAR_MAX                static_cast<char>(0x7f)
+#if VTK_TYPE_CHAR_IS_SIGNED
+# define VTK_CHAR_MIN VTK_SIGNED_CHAR_MIN
+# define VTK_CHAR_MAX VTK_SIGNED_CHAR_MAX
+#else
+# define VTK_CHAR_MIN VTK_UNSIGNED_CHAR_MIN
+# define VTK_CHAR_MAX VTK_UNSIGNED_CHAR_MAX
+#endif
+#define VTK_SIGNED_CHAR_MIN         static_cast<char>(0x80)
+#define VTK_SIGNED_CHAR_MAX         static_cast<char>(0x7f)
 #define VTK_UNSIGNED_CHAR_MIN       static_cast<unsigned char>(0u)
 #define VTK_UNSIGNED_CHAR_MAX       static_cast<unsigned char>(0xffu)
 #define VTK_SHORT_MIN               static_cast<short>(0x8000)

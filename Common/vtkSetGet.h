@@ -33,6 +33,7 @@
 (((type) == VTK_VOID) ? "void" : \
 (((type) == VTK_BIT) ? "bit" : \
 (((type) == VTK_CHAR) ? "char" : \
+(((type) == VTK_SIGNED_CHAR) ? "signed char" : \
 (((type) == VTK_UNSIGNED_CHAR) ? "unsigned char" : \
 (((type) == VTK_SHORT) ? "short" : \
 (((type) == VTK_UNSIGNED_SHORT) ? "unsigned short" : \
@@ -47,7 +48,7 @@
 (((type) == VTK_FLOAT) ? "float" : \
 (((type) == VTK_DOUBLE) ? "double" : \
 (((type) == VTK_ID_TYPE) ? "idtype" : \
-"Undefined")))))))))))))))))
+"Undefined"))))))))))))))))))
   
 //
 // Set built-in type.  Creates member Set"name"() (e.g., SetVisibility());
@@ -652,6 +653,7 @@ virtual double *Get##name() \
   vtkTemplateMacroCase(VTK_SHORT, short, call);                             \
   vtkTemplateMacroCase(VTK_UNSIGNED_SHORT, unsigned short, call);           \
   vtkTemplateMacroCase(VTK_CHAR, char, call);                               \
+  vtkTemplateMacroCase(VTK_SIGNED_CHAR, signed char, call);                 \
   vtkTemplateMacroCase(VTK_UNSIGNED_CHAR, unsigned char, call)
 
 // Add "long long" to the template macro if it is enabled.

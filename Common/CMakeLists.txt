@@ -126,6 +126,7 @@ vtkRungeKutta4.cxx
 vtkRungeKutta45.cxx
 vtkScalarsToColors.cxx
 vtkShortArray.cxx
+vtkSignedCharArray.cxx
 vtkSmartPointerBase.cxx
 vtkSphericalTransform.cxx
 vtkStdString.cxx
@@ -209,6 +210,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
+  vtkSignedCharArray.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
   vtkTimeStamp.cxx

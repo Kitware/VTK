@@ -25,6 +25,7 @@
 #include "vtkLongArray.h"
 #include "vtkMath.h"
 #include "vtkShortArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -42,7 +43,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkDataArray, "1.66");
+vtkCxxRevisionMacro(vtkDataArray, "1.67");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -548,84 +549,26 @@ void vtkDataArray::InsertNextTuple9(double val0, double val1,
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkDataArrayGetDataTypeSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkDataArray::GetDataTypeSize(int type)
 {
   switch (type)
     {
+    vtkTemplateMacro(
+      return vtkDataArrayGetDataTypeSize(static_cast<VTK_TT*>(0))
+      );
     case VTK_BIT:
       return 1;
       break;
-
-    case VTK_CHAR:
-      return sizeof(char);
-      break;
-
-    case VTK_UNSIGNED_CHAR:
-      return sizeof(unsigned char);
-      break;
-
-    case VTK_SHORT:
-      return sizeof(short);
-      break;
-
-    case VTK_UNSIGNED_SHORT:
-      return sizeof(unsigned short);
-      break;
-
-    case VTK_INT:
-      return sizeof(int);
-      break;
-
-    case VTK_UNSIGNED_INT:
-      return sizeof(unsigned int);
-      break;
-
-    case VTK_LONG:
-      return sizeof(long);
-      break;
-
-    case VTK_UNSIGNED_LONG:
-      return sizeof(unsigned long);
-      break;
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-    case VTK_LONG_LONG:
-      return sizeof(long long);
-      break;
-
-    case VTK_UNSIGNED_LONG_LONG:
-      return sizeof(unsigned long long);
-      break;
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:
-      return sizeof(__int64);
-      break;
-
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    case VTK_UNSIGNED___INT64:
-      return sizeof(unsigned __int64);
-      break;
-# endif
-#endif
-
-    case VTK_FLOAT:
-      return sizeof(float);
-      break;
-
-    case VTK_DOUBLE:
-      return sizeof(double);
-      break;
-
-    case VTK_ID_TYPE:
-      return sizeof(vtkIdType);
-      break;
-
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
     }
-  
   return 1;
 }
 
@@ -653,6 +596,9 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
 
     case VTK_CHAR:
       return vtkCharArray::New();
+
+    case VTK_SIGNED_CHAR:
+      return vtkSignedCharArray::New();
 
     case VTK_UNSIGNED_CHAR:
       return vtkUnsignedCharArray::New();
@@ -972,68 +918,86 @@ void vtkDataArray::ComputeRange(int comp)
 //----------------------------------------------------------------------------
 void vtkDataArray::GetDataTypeRange(double range[2])
 {
-  range[0] = this->GetDataTypeMin();
-  range[1] = this->GetDataTypeMax();
+  vtkDataArray::GetDataTypeRange(this->GetDataType(), range);
 }
 
 //----------------------------------------------------------------------------
 double vtkDataArray::GetDataTypeMin()
 {
-  int dataType=this->GetDataType();
-  switch (dataType)
-    {
-    case VTK_BIT:            return (double)VTK_BIT_MIN;
-    case VTK_UNSIGNED_CHAR:  return (double)VTK_UNSIGNED_CHAR_MIN;
-    case VTK_CHAR:           return (double)VTK_CHAR_MIN;
-    case VTK_UNSIGNED_SHORT: return (double)VTK_UNSIGNED_SHORT_MIN;
-    case VTK_SHORT:          return (double)VTK_SHORT_MIN;
-    case VTK_UNSIGNED_INT:   return (double)VTK_UNSIGNED_INT_MIN;
-    case VTK_INT:            return (double)VTK_INT_MIN;
-    case VTK_UNSIGNED_LONG:  return (double)VTK_UNSIGNED_LONG_MIN;
-    case VTK_LONG:           return (double)VTK_LONG_MIN;
-#if defined(VTK_TYPE_USE_LONG_LONG)
-    case VTK_UNSIGNED_LONG_LONG:  return (double)VTK_UNSIGNED_LONG_LONG_MIN;
-    case VTK_LONG_LONG:           return (double)VTK_LONG_LONG_MIN;
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:           return (double)VTK___INT64_MIN;
-# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    case VTK_UNSIGNED___INT64:  return (double)VTK_UNSIGNED___INT64_MIN;
-# endif
-#endif
-    case VTK_FLOAT:          return (double)VTK_FLOAT_MIN;
-    case VTK_DOUBLE:         return (double)VTK_DOUBLE_MIN;
-    default: return 0;
-    }
+  return vtkDataArray::GetDataTypeMin(this->GetDataType());
 }
 
 //----------------------------------------------------------------------------
 double vtkDataArray::GetDataTypeMax()
 {
-  int dataType=this->GetDataType();
-  switch (dataType)
+  return vtkDataArray::GetDataTypeMax(this->GetDataType());
+}
+
+//----------------------------------------------------------------------------
+void vtkDataArray::GetDataTypeRange(int type, double range[2])
+{
+  range[0] = vtkDataArray::GetDataTypeMin(type);
+  range[1] = vtkDataArray::GetDataTypeMax(type);
+}
+
+//----------------------------------------------------------------------------
+double vtkDataArray::GetDataTypeMin(int type)
+{
+  switch (type)
     {
-    case VTK_BIT:            return (double)VTK_BIT_MAX;
-    case VTK_UNSIGNED_CHAR:  return (double)VTK_UNSIGNED_CHAR_MAX;
-    case VTK_CHAR:           return (double)VTK_CHAR_MAX;
-    case VTK_UNSIGNED_SHORT: return (double)VTK_UNSIGNED_SHORT_MAX;
-    case VTK_SHORT:          return (double)VTK_SHORT_MAX;
-    case VTK_UNSIGNED_INT:   return (double)VTK_UNSIGNED_INT_MAX;
-    case VTK_INT:            return (double)VTK_INT_MAX;
-    case VTK_UNSIGNED_LONG:  return (double)VTK_UNSIGNED_LONG_MAX;
-    case VTK_LONG:           return (double)VTK_LONG_MAX;
+    case VTK_BIT:                return (double)VTK_BIT_MIN;
+    case VTK_SIGNED_CHAR:        return (double)VTK_SIGNED_CHAR_MIN;
+    case VTK_UNSIGNED_CHAR:      return (double)VTK_UNSIGNED_CHAR_MIN;
+    case VTK_CHAR:               return (double)VTK_CHAR_MIN;
+    case VTK_UNSIGNED_SHORT:     return (double)VTK_UNSIGNED_SHORT_MIN;
+    case VTK_SHORT:              return (double)VTK_SHORT_MIN;
+    case VTK_UNSIGNED_INT:       return (double)VTK_UNSIGNED_INT_MIN;
+    case VTK_INT:                return (double)VTK_INT_MIN;
+    case VTK_UNSIGNED_LONG:      return (double)VTK_UNSIGNED_LONG_MIN;
+    case VTK_LONG:               return (double)VTK_LONG_MIN;
 #if defined(VTK_TYPE_USE_LONG_LONG)
-    case VTK_UNSIGNED_LONG_LONG:  return (double)VTK_UNSIGNED_LONG_LONG_MAX;
-    case VTK_LONG_LONG:           return (double)VTK_LONG_LONG_MAX;
+    case VTK_UNSIGNED_LONG_LONG: return (double)VTK_UNSIGNED_LONG_LONG_MIN;
+    case VTK_LONG_LONG:          return (double)VTK_LONG_LONG_MIN;
 #endif
 #if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:           return (double)VTK___INT64_MAX;
+    case VTK___INT64:            return (double)VTK___INT64_MIN;
 # if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
-    case VTK_UNSIGNED___INT64:  return (double)VTK_UNSIGNED___INT64_MAX;
+    case VTK_UNSIGNED___INT64:   return (double)VTK_UNSIGNED___INT64_MIN;
 # endif
 #endif
-    case VTK_FLOAT:          return (double)VTK_FLOAT_MAX;
-    case VTK_DOUBLE:         return (double)VTK_DOUBLE_MAX;
+    case VTK_FLOAT:              return (double)VTK_FLOAT_MIN;
+    case VTK_DOUBLE:             return (double)VTK_DOUBLE_MIN;
+    default: return 0;
+    }
+}
+
+//----------------------------------------------------------------------------
+double vtkDataArray::GetDataTypeMax(int type)
+{
+  switch (type)
+    {
+    case VTK_BIT:                return (double)VTK_BIT_MAX;
+    case VTK_SIGNED_CHAR:        return (double)VTK_SIGNED_CHAR_MAX;
+    case VTK_UNSIGNED_CHAR:      return (double)VTK_UNSIGNED_CHAR_MAX;
+    case VTK_CHAR:               return (double)VTK_CHAR_MAX;
+    case VTK_UNSIGNED_SHORT:     return (double)VTK_UNSIGNED_SHORT_MAX;
+    case VTK_SHORT:              return (double)VTK_SHORT_MAX;
+    case VTK_UNSIGNED_INT:       return (double)VTK_UNSIGNED_INT_MAX;
+    case VTK_INT:                return (double)VTK_INT_MAX;
+    case VTK_UNSIGNED_LONG:      return (double)VTK_UNSIGNED_LONG_MAX;
+    case VTK_LONG:               return (double)VTK_LONG_MAX;
+#if defined(VTK_TYPE_USE_LONG_LONG)
+    case VTK_UNSIGNED_LONG_LONG: return (double)VTK_UNSIGNED_LONG_LONG_MAX;
+    case VTK_LONG_LONG:          return (double)VTK_LONG_LONG_MAX;
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+    case VTK___INT64:            return (double)VTK___INT64_MAX;
+# if defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
+    case VTK_UNSIGNED___INT64:   return (double)VTK_UNSIGNED___INT64_MAX;
+# endif
+#endif
+    case VTK_FLOAT:              return (double)VTK_FLOAT_MAX;
+    case VTK_DOUBLE:             return (double)VTK_DOUBLE_MAX;
     default: return 1;
     }
 }
