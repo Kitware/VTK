@@ -43,7 +43,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkDataArray, "1.67");
+vtkCxxRevisionMacro(vtkDataArray, "1.68");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -98,7 +98,8 @@ void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
                       numTuples,nComp);
 
     default:
-      vtkGenericWarningMacro(<<"Unsupported data type!");
+      vtkGenericWarningMacro("Unsupported data type " << da->GetDataType()
+                             <<"!");
     }
 }
 
@@ -136,7 +137,7 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
         }
 
       default:
-        vtkErrorMacro(<<"Unsupported data type!");
+        vtkErrorMacro("Unsupported data type " << da->GetDataType() << "!");
       }
 
     this->SetLookupTable(0);
@@ -567,7 +568,7 @@ unsigned long vtkDataArray::GetDataTypeSize(int type)
       return 1;
       break;
     default:
-      vtkGenericWarningMacro(<<"Unsupported data type!");
+      vtkGenericWarningMacro("Unsupported data type " << type << "!");
     }
   return 1;
 }
@@ -651,7 +652,8 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
       return vtkIdTypeArray::New();
 
     default:
-      vtkGenericWarningMacro(<<"Unsupported data type! Setting to VTK_DOUBLE");
+      vtkGenericWarningMacro("Unsupported data type " << dataType
+                             << "! Setting to VTK_DOUBLE");
       return vtkDoubleArray::New();
     }
 }
@@ -682,7 +684,8 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
                       output->GetNumberOfComponents(), ptIds );
 
     default:
-      vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
+      vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
+                             << output->GetDataType() << ".");
       return;
     }
 }
@@ -713,7 +716,8 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
       }
       break;
     default:
-      vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+      vtkErrorMacro("Sanity check failed: Unsupported data type "
+                    << this->GetDataType() << ".");
       return;
     }
 }
@@ -746,7 +750,8 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output,
                       output->GetNumberOfComponents(), p1, p2 );
 
     default:
-      vtkGenericWarningMacro(<<"Sanity check failed: Unsupported data type.");
+      vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
+                             << output->GetDataType() << ".");
       return;
     }
 }
@@ -778,7 +783,8 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
       }
       break;
     default:
-      vtkErrorMacro(<<"Sanity check failed: Unsupported data type.");
+      vtkErrorMacro("Sanity check failed: Unsupported data type "
+                    << this->GetDataType() << ".");
       return;
     }
 }
