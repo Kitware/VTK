@@ -646,6 +646,7 @@ virtual double *Get##name() \
   vtkTemplateMacroCase_ll(VTK_UNSIGNED_LONG_LONG, unsigned long long, call) \
   vtkTemplateMacroCase_si64(VTK___INT64, __int64, call)                     \
   vtkTemplateMacroCase_ui64(VTK_UNSIGNED___INT64, unsigned __int64, call)   \
+  vtkTemplateMacroCase(VTK_ID_TYPE, vtkIdType, call);                       \
   vtkTemplateMacroCase(VTK_LONG, long, call);                               \
   vtkTemplateMacroCase(VTK_UNSIGNED_LONG, unsigned long, call);             \
   vtkTemplateMacroCase(VTK_INT, int, call);                                 \
