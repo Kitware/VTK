@@ -14,35 +14,25 @@
 =========================================================================*/
 #include "vtkImageData.h"
 
-#include "vtkBitArray.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
+#include "vtkDataArray.h"
 #include "vtkExtentTranslator.h"
-#include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkIntArray.h"
 #include "vtkLargeInteger.h"
 #include "vtkLine.h"
-#include "vtkLongArray.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPixel.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.13");
+vtkCxxRevisionMacro(vtkImageData, "1.14");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -229,6 +219,13 @@ void vtkImageData::CopyTypeSpecificInformation( vtkDataObject *data )
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkImageDataGetTypeSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 
 unsigned long vtkImageData::GetEstimatedMemorySize()
 {
@@ -243,36 +240,9 @@ unsigned long vtkImageData::GetEstimatedMemorySize()
   // Multiply by the number of bytes per scalar
   switch (this->GetScalarType())
     {
-    case VTK_DOUBLE:
-      size *= sizeof(double);
-      break;
-    case VTK_FLOAT:
-      size *= sizeof(float);
-      break;
-    case VTK_INT:
-      size *= sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      size *= sizeof(unsigned int);
-      break;
-    case VTK_LONG:
-      size *= sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      size *= sizeof(unsigned long);
-      break;
-    case VTK_SHORT:
-      size *= sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      size *= sizeof(unsigned short);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      size *= sizeof(unsigned char);
-      break;
-    case VTK_CHAR:
-      size *= sizeof(char);
-      break;
+    vtkTemplateMacro(
+      size *= vtkImageDataGetTypeSize(static_cast<VTK_TT*>(0))
+      );
     case VTK_BIT:
       size = size / 8;
       break;
@@ -1572,46 +1542,7 @@ void vtkImageData::AllocateScalars()
     }
   
   // allocate the new scalars
-  switch (newType)
-    {
-    case VTK_BIT:
-      scalars = vtkBitArray::New();
-      break;
-    case VTK_UNSIGNED_CHAR:
-      scalars = vtkUnsignedCharArray::New();
-      break;
-    case VTK_CHAR:           
-      scalars = vtkCharArray::New();
-      break;
-    case VTK_UNSIGNED_SHORT: 
-      scalars = vtkUnsignedShortArray::New();
-      break;
-    case VTK_SHORT:          
-      scalars = vtkShortArray::New();
-      break;
-    case VTK_UNSIGNED_INT:   
-      scalars = vtkUnsignedIntArray::New();
-      break;
-    case VTK_INT:            
-      scalars = vtkIntArray::New();
-      break;
-    case VTK_UNSIGNED_LONG:  
-      scalars = vtkUnsignedLongArray::New();
-      break;
-    case VTK_LONG:           
-      scalars = vtkLongArray::New();
-      break;
-    case VTK_DOUBLE:          
-      scalars = vtkDoubleArray::New();
-      break;
-    case VTK_FLOAT:         
-      scalars = vtkFloatArray::New();
-      break;
-    default:
-      vtkErrorMacro("Could not allocate data type.");
-      return;
-    }
-  
+  scalars = vtkDataArray::CreateDataArray(newType);
   scalars->SetNumberOfComponents(newNumComp);
 
   // allocate enough memory
@@ -1628,29 +1559,7 @@ void vtkImageData::AllocateScalars()
 //----------------------------------------------------------------------------
 int vtkImageData::GetScalarSize()
 {
-  // allocate the new scalars
-  switch (this->GetScalarType())
-    {
-    case VTK_DOUBLE:
-      return sizeof(double);
-    case VTK_FLOAT:
-      return sizeof(float);
-    case VTK_INT:
-    case VTK_UNSIGNED_INT:
-      return sizeof(int);
-    case VTK_LONG:
-    case VTK_UNSIGNED_LONG:
-      return sizeof(long);
-    case VTK_SHORT:
-    case VTK_UNSIGNED_SHORT:
-      return 2;
-    case VTK_UNSIGNED_CHAR:
-      return 1;
-    case VTK_CHAR:
-      return 1;
-    }
-  
-  return 1;
+  return vtkDataArray::GetDataTypeSize(this->GetScalarType());
 }
 
 //----------------------------------------------------------------------------
@@ -1900,64 +1809,14 @@ void vtkImageData::Crop()
 //----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMin()
 {
-  switch (this->GetScalarType())
-    {
-    case VTK_DOUBLE:
-      return (double)(VTK_DOUBLE_MIN);
-    case VTK_FLOAT:
-      return (double)(VTK_FLOAT_MIN);
-    case VTK_LONG:
-      return (double)(VTK_LONG_MIN);
-    case VTK_UNSIGNED_LONG:
-      return (double)(VTK_UNSIGNED_LONG_MIN);
-    case VTK_INT:
-      return (double)(VTK_INT_MIN);
-    case VTK_UNSIGNED_INT:
-      return (double)(VTK_UNSIGNED_INT_MIN);
-    case VTK_SHORT:
-      return (double)(VTK_SHORT_MIN);
-    case VTK_UNSIGNED_SHORT:
-      return (double)(VTK_UNSIGNED_SHORT_MIN);
-    case VTK_CHAR:
-      return (double)(VTK_CHAR_MIN);
-    case VTK_UNSIGNED_CHAR:
-      return (double)(VTK_UNSIGNED_CHAR_MIN);
-    default:
-      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
-      return 0.0;
-    }
+  return vtkDataArray::GetDataTypeMin(this->GetScalarType());
 }
 
 
 //----------------------------------------------------------------------------
 double vtkImageData::GetScalarTypeMax()
 {
-  switch (this->GetScalarType())
-    {
-    case VTK_DOUBLE:
-      return (double)(VTK_DOUBLE_MAX);
-    case VTK_FLOAT:
-      return (double)(VTK_FLOAT_MAX);
-    case VTK_LONG:
-      return (double)(VTK_LONG_MAX);
-    case VTK_UNSIGNED_LONG:
-      return (double)(VTK_UNSIGNED_LONG_MAX);
-    case VTK_INT:
-      return (double)(VTK_INT_MAX);
-    case VTK_UNSIGNED_INT:
-      return (double)(VTK_UNSIGNED_INT_MAX);
-    case VTK_SHORT:
-      return (double)(VTK_SHORT_MAX);
-    case VTK_UNSIGNED_SHORT:
-      return (double)(VTK_UNSIGNED_SHORT_MAX);
-    case VTK_CHAR:
-      return (double)(VTK_CHAR_MAX);
-    case VTK_UNSIGNED_CHAR:
-      return (double)(VTK_UNSIGNED_CHAR_MAX);
-    default:
-      vtkErrorMacro("Cannot handle scalar type " << this->GetScalarType());
-      return 0.0;
-    }
+  return vtkDataArray::GetDataTypeMax(this->GetScalarType());
 }
 
 //----------------------------------------------------------------------------
