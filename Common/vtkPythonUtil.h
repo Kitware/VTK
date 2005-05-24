@@ -135,6 +135,8 @@ void *vtkPythonUnmanglePointer(char *ptrText, int *len, const char *type);
 extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, char *a, int n);
 extern VTK_PYTHON_EXPORT
+int vtkPythonCheckArray(PyObject *args, int i, signed char *a, int n);
+extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, unsigned char *a, int n);
 extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, short *a, int n);
@@ -152,8 +154,17 @@ extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, float *a, int n);
 extern VTK_PYTHON_EXPORT
 int vtkPythonCheckArray(PyObject *args, int i, double *a, int n);
-#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
-int vtkPythonCheckArray(PyObject *args, int i, vtkIdType *a, int n);
+#if defined(VTK_TYPE_USE_LONG_LONG)
+extern VTK_PYTHON_EXPORT
+int vtkPythonCheckArray(PyObject *args, int i, long long *a, int n);
+extern VTK_PYTHON_EXPORT
+int vtkPythonCheckArray(PyObject *args, int i, unsigned long long *a, int n);
+#endif
+#if defined(VTK_TYPE_USE___INT64)
+extern VTK_PYTHON_EXPORT
+int vtkPythonCheckArray(PyObject *args, int i, __int64 *a, int n);
+extern VTK_PYTHON_EXPORT
+int vtkPythonCheckArray(PyObject *args, int i, unsigned __int64 *a, int n);
 #endif
 
 // For use by SetXXMethod() , SetXXMethodArgDelete()

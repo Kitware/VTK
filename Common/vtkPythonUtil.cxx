@@ -1643,9 +1643,10 @@ int vtkPythonCheckIntArray(PyObject *args, int i, T *a, int n)
   return 0;
 }
 
-#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
+#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
+template<class T>
 static inline
-int vtkPythonCheckLongArray(PyObject *args, int i, vtkIdType *a, int n)
+int vtkPythonCheckLongArray(PyObject *args, int i, T *a, int n)
 {
   int changed = 0;
 
@@ -1653,7 +1654,7 @@ int vtkPythonCheckLongArray(PyObject *args, int i, vtkIdType *a, int n)
   for (i = 0; i < n; i++)
     {
     PyObject *oldobj = PySequence_GetItem(seq, i);
-    vtkIdType oldval;
+    T oldval;
     if (PyLong_Check(oldobj))
       {
 #ifdef PY_LONG_LONG
@@ -1674,10 +1675,18 @@ int vtkPythonCheckLongArray(PyObject *args, int i, vtkIdType *a, int n)
     {
     for (i = 0; i < n; i++)
       {
-#if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_ID_TYPE)
+#if defined(VTK_TYPE_USE_LONG_LONG)
+# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_LONG_LONG)
       PyObject *newobj = PyLong_FromLongLong(a[i]);
-#else
+# else
       PyObject *newobj = PyInt_FromLong((long)a[i]);
+# endif
+#else
+# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF___INT64)
+      PyObject *newobj = PyLong_FromLongLong(a[i]);
+# else
+      PyObject *newobj = PyInt_FromLong((long)a[i]);
+# endif
 #endif
       int rval = PySequence_SetItem(seq, i, newobj);
       Py_DECREF(newobj);
@@ -1693,6 +1702,11 @@ int vtkPythonCheckLongArray(PyObject *args, int i, vtkIdType *a, int n)
 #endif
 
 int vtkPythonCheckArray(PyObject *args, int i, char *a, int n)
+{
+  return vtkPythonCheckIntArray(args, i, a, n);
+}
+
+int vtkPythonCheckArray(PyObject *args, int i, signed char *a, int n)
 {
   return vtkPythonCheckIntArray(args, i, a, n);
 }
@@ -1742,8 +1756,23 @@ int vtkPythonCheckArray(PyObject *args, int i, double *a, int n)
   return vtkPythonCheckFloatArray(args, i, a, n);
 }
 
-#if defined(VTK_USE_64BIT_IDS) && defined(VTK_ID_TYPE_IS_NOT_BASIC_TYPE)
-int vtkPythonCheckArray(PyObject *args, int i, vtkIdType *a, int n)
+#if defined(VTK_TYPE_USE_LONG_LONG)
+int vtkPythonCheckArray(PyObject *args, int i, long long *a, int n)
+{
+  return vtkPythonCheckLongArray(args, i, a, n);
+}
+int vtkPythonCheckArray(PyObject *args, int i, unsigned long long *a, int n)
+{
+  return vtkPythonCheckLongArray(args, i, a, n);
+}
+#endif
+
+#if defined(VTK_TYPE_USE___INT64)
+int vtkPythonCheckArray(PyObject *args, int i, __int64 *a, int n)
+{
+  return vtkPythonCheckLongArray(args, i, a, n);
+}
+int vtkPythonCheckArray(PyObject *args, int i, unsigned __int64 *a, int n)
 {
   return vtkPythonCheckLongArray(args, i, a, n);
 }
