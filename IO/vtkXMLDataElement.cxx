@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.19");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.20");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -691,8 +691,11 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
 #elif VTK_SIZEOF_LONG == 8
     value = VTK_LONG;
     return 1;
-#elif VTK_SIZEOF_ID_TYPE == 8
-    value = VTK_ID_TYPE;
+#elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+    value = VTK_LONG_LONG;
+    return 1;
+#elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
+    value = VTK___INT64;
     return 1;
 #else
     vtkErrorMacro("Int64 support not compiled in VTK.");
@@ -709,6 +712,12 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
     return 1;
 #elif VTK_SIZEOF_LONG == 8
     value = VTK_UNSIGNED_LONG;
+    return 1;
+#elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+    value = VTK_UNSIGNED_LONG_LONG;
+    return 1;
+#elif defined(VTK_TYPE_USE___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE) && VTK_SIZEOF___INT64 == 8
+    value = VTK_UNSIGNED___INT64;
     return 1;
 #else
     vtkErrorMacro("UInt64 support not compiled in VTK.");
