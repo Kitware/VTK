@@ -110,7 +110,12 @@ void use_hints(FILE *fp)
               MAX_ARGS, currentFunction->HintSize);
       break;
       
-    case 0x305: case 0x306: case 0x30A: case 0x314: case 0x315: case 0x316: case 0x31A:
+    case 0x30A: 
+      fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromIdType(env,temp%i,%i);\n",
+              MAX_ARGS, currentFunction->HintSize);
+      break;
+      
+    case 0x305: case 0x306: case 0x314: case 0x315: case 0x316: case 0x31A:
       break;
     }
 }
