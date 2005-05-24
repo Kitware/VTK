@@ -21,7 +21,7 @@
 
 //----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkImageFoo, "1.8");
+vtkCxxRevisionMacro(vtkImageFoo, "1.9");
 vtkStandardNewMacro(vtkImageFoo);
 
 //----------------------------------------------------------------------------
@@ -71,8 +71,8 @@ void vtkImageFooExecute(vtkImageFoo *self,
 
   int idxR, idxY, idxZ;
   int maxY, maxZ;
-  int inIncX, inIncY, inIncZ;
-  int outIncX, outIncY, outIncZ;
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   int rowLength;
 
   unsigned long count = 0;
