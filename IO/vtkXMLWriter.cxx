@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.45");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.46");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1082,10 +1082,15 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
         default: return 0;
         }
       }
+#if VTK_TYPE_CHAR_IS_SIGNED
     case VTK_CHAR:           isSigned = 1; size = sizeof(char); break;
+#else
+    case VTK_CHAR:           isSigned = 0; size = sizeof(char); break;
+#endif
     case VTK_INT:            isSigned = 1; size = sizeof(int); break;
     case VTK_LONG:           isSigned = 1; size = sizeof(long); break;
     case VTK_SHORT:          isSigned = 1; size = sizeof(short); break;
+    case VTK_SIGNED_CHAR:    isSigned = 1; size = sizeof(signed char); break;
     case VTK_UNSIGNED_CHAR:  isSigned = 0; size = sizeof(unsigned char); break;
     case VTK_UNSIGNED_INT:   isSigned = 0; size = sizeof(unsigned int); break;
     case VTK_UNSIGNED_LONG:  isSigned = 0; size = sizeof(unsigned long); break;

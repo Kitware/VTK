@@ -20,7 +20,7 @@
 #include "vtkPointData.h"
 #include "vtk_tiff.h"
 
-vtkCxxRevisionMacro(vtkTIFFWriter, "1.38");
+vtkCxxRevisionMacro(vtkTIFFWriter, "1.39");
 vtkStandardNewMacro(vtkTIFFWriter);
 
 //----------------------------------------------------------------------------
@@ -96,6 +96,7 @@ void vtkTIFFWriter::WriteFileHeader(ofstream *file, vtkImageData *data)
   switch (stype)
     {
     case VTK_CHAR:
+    case VTK_SIGNED_CHAR:
     case VTK_UNSIGNED_CHAR:
       bps = 8;
       break;
