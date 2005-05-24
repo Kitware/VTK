@@ -235,6 +235,12 @@ public:
                              int fromComponent);
 
   // Description:
+  // Get the address of a particular data index. Make sure data is allocated
+  // for the number of items requested. Set MaxId according to the number of
+  // data values requested.
+  virtual void* WriteVoidPointer(vtkIdType id, vtkIdType number) = 0;
+
+  // Description:
   // Return a void pointer. For image pipeline interface and other 
   // special pointer manipulation.
   virtual void *GetVoidPointer(vtkIdType id) = 0;

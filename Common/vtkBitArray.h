@@ -124,6 +124,8 @@ public:
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
   unsigned char *WritePointer(vtkIdType id, vtkIdType number);
+  void* WriteVoidPointer(vtkIdType id, vtkIdType number)
+    { return this->WritePointer(id, number); }
   void *GetVoidPointer(vtkIdType id)
     {return (void *)this->GetPointer(id);};
 
