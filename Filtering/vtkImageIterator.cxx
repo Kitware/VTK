@@ -17,6 +17,7 @@
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
+template class VTK_FILTERING_EXPORT vtkImageIterator<signed char>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<char>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<int>;
 template class VTK_FILTERING_EXPORT vtkImageIterator<long>;

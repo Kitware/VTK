@@ -24,6 +24,7 @@
 
 #ifndef VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
 
+template class VTK_FILTERING_EXPORT vtkImageProgressIterator<signed char>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<char>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<int>;
 template class VTK_FILTERING_EXPORT vtkImageProgressIterator<long>;
