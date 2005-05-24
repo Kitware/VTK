@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.98");
+vtkCxxRevisionMacro(vtkLookupTable, "1.99");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -700,52 +700,16 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
     {
     switch (inputDataType)
       {
+      vtkTemplateMacro(
+        vtkLookupTableMapMag(this,static_cast<VTK_TT*>(input),output,
+                             numberOfValues,inputIncrement,outputFormat);
+        return
+        );
       case VTK_BIT:
         vtkErrorMacro("Cannot comput magnitude of bit array.");
         break;
-      case VTK_CHAR:
-        vtkLookupTableMapMag(this,static_cast<char *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return; 
-      case VTK_UNSIGNED_CHAR:
-        vtkLookupTableMapMag(this,static_cast<unsigned char *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_SHORT:
-        vtkLookupTableMapMag(this,static_cast<short *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_UNSIGNED_SHORT:
-        vtkLookupTableMapMag(this,static_cast<unsigned short *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_INT:
-        vtkLookupTableMapMag(this,static_cast<int *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_UNSIGNED_INT:
-        vtkLookupTableMapMag(this,static_cast<unsigned int *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_LONG:
-        vtkLookupTableMapMag(this,static_cast<long *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_UNSIGNED_LONG:
-        vtkLookupTableMapMag(this,static_cast<unsigned long *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_FLOAT:
-        vtkLookupTableMapMag(this,static_cast<float *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
-      case VTK_DOUBLE:
-        vtkLookupTableMapMag(this,static_cast<double *>(input),output,
-                             numberOfValues,inputIncrement,outputFormat);
-        return;
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
-        return;
       }
     }
 
@@ -770,62 +734,11 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
       bitArray->Delete();
       }
       break;
-      
-    case VTK_CHAR:
-      vtkLookupTableMapData(this,static_cast<char *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_CHAR:
-      vtkLookupTableMapData(this,static_cast<unsigned char *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_SHORT:
-      vtkLookupTableMapData(this,static_cast<short *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-    break;
-      
-    case VTK_UNSIGNED_SHORT:
-      vtkLookupTableMapData(this,static_cast<unsigned short *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_ID_TYPE:
-      vtkLookupTableMapData(this,static_cast<vtkIdType *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_INT:
-      vtkLookupTableMapData(this,static_cast<int *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_INT:
-      vtkLookupTableMapData(this,static_cast<unsigned int *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_LONG:
-      vtkLookupTableMapData(this,static_cast<long *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_LONG:
-      vtkLookupTableMapData(this,static_cast<unsigned long *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_FLOAT:
-      vtkLookupTableMapData(this,static_cast<float *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
-    case VTK_DOUBLE:
-      vtkLookupTableMapData(this,static_cast<double *>(input),output,
-                            numberOfValues,inputIncrement,outputFormat);
-      break;
-      
+
+    vtkTemplateMacro(
+      vtkLookupTableMapData(this,static_cast<VTK_TT*>(input),output,
+                            numberOfValues,inputIncrement,outputFormat)
+      );
     default:
       vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
       return;
