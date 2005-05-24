@@ -62,12 +62,10 @@ typedef long vtkIdType;
 #  define VTK_LARGE_ID VTK_LONG_MAX
 # elif defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
-#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_LARGE_ID VTK_LONG_LONG_MAX
 # elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
 typedef __int64 vtkIdType;
-#  define VTK_ID_TYPE_IS_NOT_BASIC_TYPE
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
 #  define VTK_LARGE_ID VTK___INT64_MAX
 # else
