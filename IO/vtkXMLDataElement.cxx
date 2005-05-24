@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.20");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.21");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -608,7 +608,12 @@ int vtkXMLDataElement::GetWordTypeAttribute(const char* name, int& value)
     }
   else if(strcmp(v, "Int8") == 0)
     {
+    // For compatibility, use char when it is signed.
+#if VTK_TYPE_CHAR_IS_SIGNED
     value = VTK_CHAR;
+#else
+    value = VTK_SIGNED_CHAR;
+#endif
     return 1;
     }
   else if(strcmp(v, "UInt8") == 0)
