@@ -1242,10 +1242,10 @@ void QVTKWidget::x11_setup_window()
 
 void QVTKWidget::macFixRect()
 {
+  AGLContext context = static_cast<vtkCarbonRenderWindow*>(this->GetRenderWindow())->GetContextId();
+  
   if(!this->isTopLevel())
   {
-    AGLContext context = (AGLContext)this->GetRenderWindow()->GetGenericDisplayId();
-    
     GLint bufRect[4];
 
     // always do AGL_BUFFER_RECT if we have a parent
@@ -1292,7 +1292,7 @@ void QVTKWidget::macFixRect()
   }
   
   // update the context
-  aglUpdateContext((AGLContext)this->GetRenderWindow()->GetGenericDisplayId());
+  aglUpdateContext(context);
 }
 
 void QVTKWidget::setRegionDirty(bool b)
