@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkBMPReader, "1.52");
+vtkCxxRevisionMacro(vtkBMPReader, "1.53");
 vtkStandardNewMacro(vtkBMPReader);
 
 #ifdef read
@@ -539,36 +539,9 @@ void vtkBMPReader::ExecuteData(vtkDataObject *output)
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    case VTK_DOUBLE:
-      vtkBMPReaderUpdate2(this, data, (double *)(outPtr));
-      break;
-    case VTK_FLOAT:
-      vtkBMPReaderUpdate2(this, data, (float *)(outPtr));
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkBMPReaderUpdate2(this, data, (unsigned long *)(outPtr));
-      break;
-    case VTK_LONG:
-      vtkBMPReaderUpdate2(this, data, (long *)(outPtr));
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkBMPReaderUpdate2(this, data, (unsigned int *)(outPtr));
-      break;
-    case VTK_INT:
-      vtkBMPReaderUpdate2(this, data, (int *)(outPtr));
-      break;
-    case VTK_SHORT:
-      vtkBMPReaderUpdate2(this, data, (short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkBMPReaderUpdate2(this, data, (unsigned short *)(outPtr));
-      break;
-    case VTK_UNSIGNED_CHAR:
-      vtkBMPReaderUpdate2(this, data, (unsigned char *)(outPtr));
-      break;
-    case VTK_CHAR:
-      vtkBMPReaderUpdate2(this, data, (char *)(outPtr));
-      break;
+    vtkTemplateMacro(
+      vtkBMPReaderUpdate2(this, data, static_cast<VTK_TT*>(outPtr))
+      );
     default:
       vtkErrorMacro(<< "Execute: Unknown data type");
     }  

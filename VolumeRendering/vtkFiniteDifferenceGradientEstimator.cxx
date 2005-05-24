@@ -32,7 +32,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.1");
+vtkCxxRevisionMacro(vtkFiniteDifferenceGradientEstimator, "1.2");
 vtkStandardNewMacro(vtkFiniteDifferenceGradientEstimator);
 
 // This is the templated function that actually computes the EncodedNormal
@@ -342,70 +342,11 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   
   switch ( scalars->GetDataType() )
     {
-    case VTK_CHAR:
-      {
-      char *ptr = ((vtkCharArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_UNSIGNED_CHAR:
-      {
-      unsigned char *ptr = ((vtkUnsignedCharArray *) 
-                            scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_SHORT:
-      {
-      short *ptr = ((vtkShortArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_UNSIGNED_SHORT:
-      {
-      unsigned short *ptr = ((vtkUnsignedShortArray *) 
-                             scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_INT:
-      {
-      int *ptr = ((vtkIntArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_UNSIGNED_INT:
-      {
-      unsigned int *ptr = ((vtkUnsignedIntArray *) 
-                           scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_LONG:
-      {
-      long *ptr = ((vtkLongArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_UNSIGNED_LONG:
-      {
-      unsigned long *ptr = ((vtkUnsignedLongArray *) 
-                            scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_FLOAT:
-      {
-      float *ptr = ((vtkFloatArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
-    case VTK_DOUBLE:
-      {
-      double *ptr = ((vtkDoubleArray *) scalars)->GetPointer(0);
-      vtkComputeGradients( estimator, ptr, thread_id, thread_count );
-      }
-    break;
+    vtkTemplateMacro(
+      vtkComputeGradients(estimator,
+                          static_cast<VTK_TT*>(scalars->GetVoidPointer(0)),
+                          thread_id, thread_count)
+      );
     default:
       vtkGenericWarningMacro("unable to encode scalar type!");
     }

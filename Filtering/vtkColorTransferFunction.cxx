@@ -18,7 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.55");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.56");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 //----------------------------------------------------------------------------
@@ -894,14 +894,16 @@ void vtkColorTransferFunction::DeepCopy( vtkColorTransferFunction *f )
 }
 
 //----------------------------------------------------------------------------
-// accelerate the mapping by copying the data in 32-bit chunks instead
-// of 8-bit chunks
+// Accelerate the mapping by copying the data in 32-bit chunks instead
+// of 8-bit chunks.  The extra "long" argument is to help broken
+// compilers select the non-templates below for unsigned char
+// and unsigned short.
 template <class T>
-void 
-vtkColorTransferFunctionMapData(vtkColorTransferFunction *self, 
-                                T *input, 
-                                unsigned char *output, 
-                                int length, int inIncr, int outFormat)
+void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+                                     T* input,
+                                     unsigned char* output,
+                                     int length, int inIncr,
+                                     int outFormat, long)
 {
   double          x;
   int            i = length;
@@ -943,12 +945,12 @@ vtkColorTransferFunctionMapData(vtkColorTransferFunction *self,
 
 
 //----------------------------------------------------------------------------
-void 
-vtkColorTransferFunctionMapUnsignedCharData(vtkColorTransferFunction *self, 
-                                            unsigned char *input, 
-                                            unsigned char *output, 
-                                            int length, int inIncr, 
-                                            int outFormat)
+// Special implementation for unsigned char input.
+void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+                                     unsigned char* input,
+                                     unsigned char* output,
+                                     int length, int inIncr,
+                                     int outFormat, int)
 {
   int            x;
   int            i = length;
@@ -1006,12 +1008,12 @@ vtkColorTransferFunctionMapUnsignedCharData(vtkColorTransferFunction *self,
 }
 
 //----------------------------------------------------------------------------
-void 
-vtkColorTransferFunctionMapUnsignedShortData(vtkColorTransferFunction *self, 
-                                             unsigned short *input, 
-                                             unsigned char *output, 
-                                             int length, int inIncr, 
-                                             int outFormat)
+// Special implementation for unsigned short input.
+void vtkColorTransferFunctionMapData(vtkColorTransferFunction* self,
+                                     unsigned short* input,
+                                     unsigned char* output,
+                                     int length, int inIncr,
+                                     int outFormat, int)
 {
   int            x;
   int            i = length;
@@ -1079,68 +1081,11 @@ void vtkColorTransferFunction::MapScalarsThroughTable2(void *input,
 {
   switch (inputDataType)
     {
-    case VTK_CHAR:
-      vtkColorTransferFunctionMapData(this,(char *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_CHAR:
-      vtkColorTransferFunctionMapUnsignedCharData(this,(unsigned char *)input,
-                                                  output,numberOfValues,
-                                                  inputIncrement,outputFormat);
-      break;
-      
-    case VTK_SHORT:
-      vtkColorTransferFunctionMapData(this,(short *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_SHORT:
-      vtkColorTransferFunctionMapUnsignedShortData(this,
-                                                   (unsigned short *)input,
-                                                   output,numberOfValues,
-                                                   inputIncrement,
-                                                   outputFormat);
-      break;
-      
-    case VTK_INT:
-      vtkColorTransferFunctionMapData(this,(int *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_INT:
-      vtkColorTransferFunctionMapData(this,(unsigned int *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_LONG:
-      vtkColorTransferFunctionMapData(this,(long *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_UNSIGNED_LONG:
-      vtkColorTransferFunctionMapData(this,(unsigned long *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_FLOAT:
-      vtkColorTransferFunctionMapData(this,(float *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
-    case VTK_DOUBLE:
-      vtkColorTransferFunctionMapData(this,(double *)input,output,
-                                      numberOfValues,inputIncrement,
-                                      outputFormat);
-      break;
-      
+    vtkTemplateMacro(
+      vtkColorTransferFunctionMapData(this, static_cast<VTK_TT*>(input),
+                                      output, numberOfValues, inputIncrement,
+                                      outputFormat, 1)
+      );
     default:
       vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
       return;

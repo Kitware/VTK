@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.35");
+vtkCxxRevisionMacro(vtkImageReader2, "1.36");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -460,6 +460,13 @@ void vtkImageReader2::SetHeaderSize(unsigned long size)
   
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkImageReader2GetSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 // This function opens a file to determine the file size, and to
 // automatically determine the header size.
 void vtkImageReader2::ComputeDataIncrements()
@@ -470,36 +477,9 @@ void vtkImageReader2::ComputeDataIncrements()
   // Determine the expected length of the data ...
   switch (this->DataScalarType)
     {
-    case VTK_FLOAT:
-      fileDataLength = sizeof(float);
-      break;
-    case VTK_DOUBLE:
-      fileDataLength = sizeof(double);
-      break;
-    case VTK_INT:
-      fileDataLength = sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      fileDataLength = sizeof(unsigned int);
-      break;
-    case VTK_LONG:
-      fileDataLength = sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      fileDataLength = sizeof(unsigned long);
-      break;
-    case VTK_SHORT:
-      fileDataLength = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      fileDataLength = sizeof(unsigned short);
-      break;
-    case VTK_CHAR:
-      fileDataLength = sizeof(char);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      fileDataLength = sizeof(unsigned char);
-      break;
+    vtkTemplateMacro(
+      fileDataLength = vtkImageReader2GetSize(static_cast<VTK_TT*>(0))
+      );
     default:
       vtkErrorMacro(<< "Unknown DataScalarType");
       return;

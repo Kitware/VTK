@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.26");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.27");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -364,22 +364,21 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkXMLDataParserGetWordTypeSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkXMLDataParser::GetWordTypeSize(int wordType)
 {
   unsigned long size = 1;
   switch (wordType)
     {
-    case VTK_ID_TYPE:        size = sizeof(vtkIdType); break;
-    case VTK_FLOAT:          size = sizeof(float); break;
-    case VTK_DOUBLE:         size = sizeof(double); break;
-    case VTK_INT:            size = sizeof(int); break;
-    case VTK_UNSIGNED_INT:   size = sizeof(unsigned int); break;
-    case VTK_LONG:           size = sizeof(long); break;
-    case VTK_UNSIGNED_LONG:  size = sizeof(unsigned long); break;
-    case VTK_SHORT:          size = sizeof(short); break;
-    case VTK_UNSIGNED_SHORT: size = sizeof(unsigned short); break;
-    case VTK_UNSIGNED_CHAR:  size = sizeof(unsigned char); break;
-    case VTK_CHAR:           size = sizeof(char); break;
+    vtkTemplateMacro(
+      size = vtkXMLDataParserGetWordTypeSize(static_cast<VTK_TT*>(0))
+      );
     default:
       { vtkWarningMacro("Unsupported data type: " << wordType); } break;
     }
@@ -846,8 +845,12 @@ unsigned long vtkXMLDataParser::ReadAppendedData(unsigned long offset,
 }
 
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// Define a parsing function template.  The extra "long" argument is used
+// to help broken compilers select the non-templates below for char and
+// unsigned char by making them a better conversion than the template.
 template <class T>
-T* vtkXMLParseAsciiData(istream& is, int* length, T* vtkNotUsed(dummy))
+T* vtkXMLParseAsciiData(istream& is, int* length, T*, long)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
@@ -878,7 +881,7 @@ T* vtkXMLParseAsciiData(istream& is, int* length, T* vtkNotUsed(dummy))
 }
 
 //----------------------------------------------------------------------------
-char* vtkXMLParseAsciiDataChar(istream& is, int* length)
+char* vtkXMLParseAsciiData(istream& is, int* length, char*, int)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
@@ -911,7 +914,8 @@ char* vtkXMLParseAsciiDataChar(istream& is, int* length)
 }
 
 //----------------------------------------------------------------------------
-unsigned char* vtkXMLParseAsciiDataUnsignedChar(istream& is, int* length)
+unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned char*,
+                                    int)
 {
   int dataLength = 0;
   int dataBufferSize = 64;
@@ -962,28 +966,9 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
   void* buffer = 0;
   switch (wordType)
     {
-    case VTK_ID_TYPE:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<vtkIdType*>(0)); break;
-    case VTK_DOUBLE:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<double*>(0)); break;
-    case VTK_FLOAT:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<float*>(0)); break;
-    case VTK_LONG:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<long*>(0)); break;
-    case VTK_UNSIGNED_LONG:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<unsigned long*>(0)); break;
-    case VTK_INT:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<int*>(0)); break;
-    case VTK_UNSIGNED_INT:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<unsigned int*>(0)); break;
-    case VTK_SHORT:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<short*>(0)); break;
-    case VTK_UNSIGNED_SHORT:
-      buffer = vtkXMLParseAsciiData(is, &length, static_cast<unsigned short*>(0)); break;
-    case VTK_CHAR:
-      buffer = vtkXMLParseAsciiDataChar(is, &length); break;
-    case VTK_UNSIGNED_CHAR:
-      buffer = vtkXMLParseAsciiDataUnsignedChar(is, &length); break;
+    vtkTemplateMacro(
+      buffer = vtkXMLParseAsciiData(is, &length, static_cast<VTK_TT*>(0), 1)
+      );
     }
 
   // Read terminated from failure.  Clear the fail bit so another read
@@ -998,33 +983,21 @@ int vtkXMLDataParser::ParseAsciiData(int wordType)
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+void vtkXMLDataParserFreeAsciiBuffer(T* buffer)
+{
+  delete [] buffer;
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLDataParser::FreeAsciiBuffer()
 {
   void* buffer = this->AsciiDataBuffer;
   switch (this->AsciiDataWordType)
     {
-    case VTK_ID_TYPE:
-      delete [] reinterpret_cast<vtkIdType*>(buffer); break;
-    case VTK_FLOAT:
-      delete [] reinterpret_cast<float*>(buffer); break;
-    case VTK_DOUBLE:
-      delete [] reinterpret_cast<double*>(buffer); break;
-    case VTK_INT:
-      delete [] reinterpret_cast<int*>(buffer); break;
-    case VTK_UNSIGNED_INT:
-      delete [] reinterpret_cast<unsigned int*>(buffer); break;
-    case VTK_LONG:
-      delete [] reinterpret_cast<long*>(buffer); break;
-    case VTK_UNSIGNED_LONG:
-      delete [] reinterpret_cast<unsigned long*>(buffer); break;
-    case VTK_SHORT:
-      delete [] reinterpret_cast<short*>(buffer); break;
-    case VTK_UNSIGNED_SHORT:
-      delete [] reinterpret_cast<unsigned short*>(buffer); break;
-    case VTK_UNSIGNED_CHAR:
-      delete [] reinterpret_cast<unsigned char*>(buffer); break;
-    case VTK_CHAR:
-      delete [] reinterpret_cast<char*>(buffer); break;
+    vtkTemplateMacro(
+      vtkXMLDataParserFreeAsciiBuffer(static_cast<VTK_TT*>(buffer))
+      );
     }
   this->AsciiDataBuffer = 0;
 }

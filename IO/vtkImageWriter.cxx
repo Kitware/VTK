@@ -28,7 +28,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.58");
+vtkCxxRevisionMacro(vtkImageWriter, "1.59");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
@@ -412,6 +412,13 @@ void vtkImageWriter::RecursiveWrite(int axis, vtkImageData *cache,
   
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkImageWriterGetSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 // Writes a region in a file.  Subclasses can override this method
 // to produce a header. This method only hanldes 3d data (plus components).
 void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
@@ -436,36 +443,9 @@ void vtkImageWriter::WriteFile(ofstream *file, vtkImageData *data,
   // take into consideration the scalar type
   switch (data->GetScalarType())
     {
-    case VTK_DOUBLE:
-      rowLength = sizeof(double);
-      break;
-    case VTK_FLOAT:
-      rowLength = sizeof(float);
-      break;
-    case VTK_LONG:
-      rowLength = sizeof(long);
-      break;
-    case VTK_UNSIGNED_LONG:
-      rowLength = sizeof(unsigned long); 
-      break;
-    case VTK_INT:
-      rowLength = sizeof(int);
-      break;
-    case VTK_UNSIGNED_INT:
-      rowLength = sizeof(unsigned int); 
-      break;
-    case VTK_SHORT:
-      rowLength = sizeof(short);
-      break;
-    case VTK_UNSIGNED_SHORT:
-      rowLength = sizeof(unsigned short); 
-      break;
-    case VTK_CHAR:
-      rowLength = sizeof(char);
-      break;
-    case VTK_UNSIGNED_CHAR:
-      rowLength = sizeof(unsigned char); 
-      break;
+    vtkTemplateMacro(
+      rowLength = vtkImageWriterGetSize(static_cast<VTK_TT*>(0))
+      );
     default:
       vtkErrorMacro(<< "Execute: Unknown output ScalarType");
       return; 

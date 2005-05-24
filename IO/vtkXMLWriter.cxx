@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.43");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.44");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1041,22 +1041,21 @@ unsigned long vtkXMLWriter::GetOutputWordTypeSize(int dataType)
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+unsigned long vtkXMLWriterGetWordTypeSize(T*)
+{
+  return sizeof(T);
+}
+
+//----------------------------------------------------------------------------
 unsigned long vtkXMLWriter::GetWordTypeSize(int dataType)
 {
   unsigned long size = 1;
   switch (dataType)
     {
-    case VTK_ID_TYPE:        size = sizeof(vtkIdType); break;
-    case VTK_FLOAT:          size = sizeof(float); break;
-    case VTK_DOUBLE:         size = sizeof(double); break;
-    case VTK_INT:            size = sizeof(int); break;
-    case VTK_UNSIGNED_INT:   size = sizeof(unsigned int); break;
-    case VTK_LONG:           size = sizeof(long); break;
-    case VTK_UNSIGNED_LONG:  size = sizeof(unsigned long); break;
-    case VTK_SHORT:          size = sizeof(short); break;
-    case VTK_UNSIGNED_SHORT: size = sizeof(unsigned short); break;
-    case VTK_UNSIGNED_CHAR:  size = sizeof(unsigned char); break;
-    case VTK_CHAR:           size = sizeof(char); break;
+    vtkTemplateMacro(
+      size = vtkXMLWriterGetWordTypeSize(static_cast<VTK_TT*>(0))
+      );
     default:
       { vtkWarningMacro("Unsupported data type: " << dataType); } break;
     }
@@ -1273,7 +1272,8 @@ int vtkXMLWriter::WriteStringAttribute(const char* name, const char* value)
 
 //----------------------------------------------------------------------------
 template <class T>
-int vtkXMLWriteAsciiData(ostream& os, T* data, int length, vtkIndent indent)
+int vtkXMLWriteAsciiData(ostream& os, T* data, int length, vtkIndent indent,
+                         long)
 {
   int columns = 6;
   int rows = length/columns;
@@ -1302,8 +1302,8 @@ int vtkXMLWriteAsciiData(ostream& os, T* data, int length, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriteAsciiDataChar(ostream& os, char* data, int length,
-                             vtkIndent indent)
+int vtkXMLWriteAsciiData(ostream& os, char* data, int length, vtkIndent indent,
+                         int)
 {
   int columns = 6;
   int rows = length/columns;
@@ -1332,8 +1332,8 @@ int vtkXMLWriteAsciiDataChar(ostream& os, char* data, int length,
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLWriteAsciiDataUnsignedChar(ostream& os, unsigned char* data,
-                                     unsigned long length, vtkIndent indent)
+int vtkXMLWriteAsciiData(ostream& os, unsigned char* data, int length,
+                         vtkIndent indent, int)
 {
   int columns = 6;
   int rows = length/columns;
@@ -1373,29 +1373,9 @@ int vtkXMLWriter::WriteAsciiData(void* data, int numWords, int wordType,
   ostream& os = *(this->Stream);
   switch(wordType)
     {
-    case VTK_ID_TYPE:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<vtkIdType*>(b), nw, i);
-    case VTK_DOUBLE:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<double*>(b), nw, i);
-    case VTK_FLOAT:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<float*>(b), nw, i);
-    case VTK_LONG:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<long*>(b), nw, i);
-    case VTK_UNSIGNED_LONG:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<unsigned long*>(b), nw, i);
-    case VTK_INT:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<int*>(b), nw, i);
-    case VTK_UNSIGNED_INT:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<unsigned int*>(b), nw, i);
-    case VTK_SHORT:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<short*>(b), nw, i);
-    case VTK_UNSIGNED_SHORT:
-      return vtkXMLWriteAsciiData(os, reinterpret_cast<unsigned short*>(b), nw, i);
-    case VTK_CHAR:
-      return vtkXMLWriteAsciiDataChar(os, reinterpret_cast<char*>(b), nw, i);
-    case VTK_UNSIGNED_CHAR:
-      return vtkXMLWriteAsciiDataUnsignedChar(
-        os, reinterpret_cast<unsigned char*>(b), nw, i);
+    vtkTemplateMacro(
+      return vtkXMLWriteAsciiData(os, static_cast<VTK_TT*>(b), nw, i, 1)
+      );
     default:
       return 0;
     }
