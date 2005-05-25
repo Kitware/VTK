@@ -167,20 +167,6 @@ private:
   void operator=(const vtkBitArray&);  // Not implemented.
 };
 
-unsigned char *vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
-{
-  vtkIdType newSize=id+number;
-  if ( newSize > this->Size )
-    {
-    this->ResizeAndExtend(newSize);
-    }
-  if ( (--newSize) > this->MaxId )
-    {
-    this->MaxId = newSize;
-    }
-  return this->Array + id/8;
-}
-
 inline void vtkBitArray::SetNumberOfValues(vtkIdType number) 
 {
   this->Allocate(number);
