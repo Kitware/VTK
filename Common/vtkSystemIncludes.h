@@ -56,7 +56,7 @@ typedef double vtkFloatingPointType;
 // Choose an implementation for vtkIdType.
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
-# if defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
+# if defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8 && 0
 typedef long vtkIdType;
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
 #  define VTK_LARGE_ID VTK_LONG_MAX
