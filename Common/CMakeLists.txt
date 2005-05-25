@@ -50,6 +50,7 @@ vtkDoubleArray.cxx
 vtkDynamicLoader.cxx
 vtkEdgeTable.cxx
 vtkErrorCode.cxx
+vtkEventForwarderCommand.cxx
 vtkExtentSplitter.cxx
 vtkExtentTranslator.cxx
 vtkFastNumericConversion.cxx
@@ -179,6 +180,7 @@ vtkAbstractTransform
 vtkCallbackCommand
 vtkCommand
 vtkDataArray
+vtkEventForwarderCommand
 vtkFunctionSet
 vtkHomogeneousTransform
 vtkImplicitFunction
@@ -203,6 +205,7 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkCommand.cxx
   vtkDebugLeaksManager.cxx
   vtkErrorCode.cxx
+  vtkEventForwarderCommand.cxx
   vtkGarbageCollectorManager.cxx
   vtkIOStream.cxx
   vtkIndent.cxx
