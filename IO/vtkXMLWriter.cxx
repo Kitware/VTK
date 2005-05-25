@@ -37,7 +37,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.47");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.48");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -1371,6 +1371,36 @@ int vtkXMLWriteAsciiData(ostream& os, unsigned char* data, int length,
     for(c=1;c < lastRowLength;++c)
       {
       os << " " << ushort(data[pos++]);
+      }
+    os << "\n";
+    }
+  return (os? 1:0);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLWriteAsciiData(ostream& os, signed char* data, int length,
+                         vtkIndent indent, int)
+{
+  int columns = 6;
+  int rows = length/columns;
+  int lastRowLength = length%columns;
+  int r,c;
+  int pos=0;
+  for(r=0;r < rows;++r)
+    {
+    os << indent << short(data[pos++]);
+    for(c=1;c < columns;++c)
+      {
+      os << " " << short(data[pos++]);
+      }
+    os << "\n";
+    }
+  if(lastRowLength > 0)
+    {
+    os << indent << short(data[pos++]);
+    for(c=1;c < lastRowLength;++c)
+      {
+      os << " " << short(data[pos++]);
       }
     os << "\n";
     }

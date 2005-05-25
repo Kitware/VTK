@@ -22,7 +22,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLDataParser, "1.27");
+vtkCxxRevisionMacro(vtkXMLDataParser, "1.28");
 vtkStandardNewMacro(vtkXMLDataParser);
 vtkCxxSetObjectMacro(vtkXMLDataParser, Compressor, vtkDataCompressor);
 
@@ -932,6 +932,40 @@ unsigned char* vtkXMLParseAsciiData(istream& is, int* length, unsigned char*,
       int newSize = dataBufferSize*2;
       unsigned char* newBuffer = new unsigned char[newSize];
       memcpy(newBuffer, dataBuffer, dataLength*sizeof(unsigned char));
+      delete [] dataBuffer;
+      dataBuffer = newBuffer;
+      dataBufferSize = newSize;
+      }
+    dataBuffer[dataLength++] = element;
+    }
+
+  if(length)
+    {
+    *length = dataLength;
+    }
+
+  return dataBuffer;
+}
+
+//----------------------------------------------------------------------------
+signed char* vtkXMLParseAsciiData(istream& is, int* length, signed char*,
+                                  int)
+{
+  int dataLength = 0;
+  int dataBufferSize = 64;
+
+  signed char* dataBuffer = new signed char[dataBufferSize];
+  signed char element;
+  short inElement;
+
+  while(is >> inElement)
+    {
+    element = inElement;
+    if(dataLength == dataBufferSize)
+      {
+      int newSize = dataBufferSize*2;
+      signed char* newBuffer = new signed char[newSize];
+      memcpy(newBuffer, dataBuffer, dataLength*sizeof(signed char));
       delete [] dataBuffer;
       dataBuffer = newBuffer;
       dataBufferSize = newSize;
