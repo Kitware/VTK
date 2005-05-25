@@ -27,6 +27,7 @@ IF(PYTHON_EXECUTABLE)
            vtkDebugLeaks.h
            vtkDebugLeaksManager.h
            vtkDynamicLoader.h
+           vtkEventForwarderCommand.h
            vtkErrorCode.h
            vtkGarbageCollector.h
            vtkGarbageCollectorManager.h
