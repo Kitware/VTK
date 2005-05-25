@@ -123,7 +123,7 @@ public:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
-  inline unsigned char *WritePointer(vtkIdType id, vtkIdType number);
+  unsigned char *WritePointer(vtkIdType id, vtkIdType number);
   void* WriteVoidPointer(vtkIdType id, vtkIdType number)
     { return this->WritePointer(id, number); }
   void *GetVoidPointer(vtkIdType id)
