@@ -7,7 +7,7 @@ This file must be translated to C and modified to build everywhere.
 
 Run flex like this:
 
-  flex vtkParse.l
+  flex -olex.yy.c vtkParse.l
 
 Modify lex.yy.c:
   - remove yyunput function
@@ -140,7 +140,7 @@ Modify lex.yy.c:
 
 "//".* ;
 
-"VTK_"[A-Za-z0-9_]*"EXPORT" ;
+[A-Za-z0-9_]*"_EXPORT" ;
 
 "vtkNotUsed"[ ]*"("[^)]*")" ;
 
