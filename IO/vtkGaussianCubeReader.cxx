@@ -27,9 +27,10 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.15");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.16");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
+//----------------------------------------------------------------------------
 // Construct object with merging set to true.
 vtkGaussianCubeReader::vtkGaussianCubeReader()
 {
@@ -45,6 +46,7 @@ vtkGaussianCubeReader::vtkGaussianCubeReader()
   grid->Delete();
 }
 
+//----------------------------------------------------------------------------
 vtkGaussianCubeReader::~vtkGaussianCubeReader()
 {
   if (this->FileName)
@@ -55,6 +57,7 @@ vtkGaussianCubeReader::~vtkGaussianCubeReader()
   // must delete the second output added
 }
 
+//----------------------------------------------------------------------------
 int vtkGaussianCubeReader::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **vtkNotUsed(inputVector),
@@ -65,11 +68,13 @@ int vtkGaussianCubeReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   FILE *fp;
-  char Title[256];
+  char title[256];
   char data_name[256];
   double elements[16];
   int JN1, N1N2, n1, n2, n3, i, j, k;
-  float tmp, *Cube_data;
+  float tmp, *cubedata;
+  bool orbitalCubeFile = false;
+  int numberOfOrbitals;
 
   // Output 0 (the default is the polydata)
   // Output 1 will be the gridded Image data
@@ -87,8 +92,8 @@ int vtkGaussianCubeReader::RequestData(
     return 0;
     }
 
-  fgets(Title, 256, fp);
-  if(strtok(Title, ":") != NULL)
+  fgets(title, 256, fp);
+  if(strtok(title, ":") != NULL)
     {
     if(strtok(NULL, ":") != NULL)
       {
@@ -96,7 +101,7 @@ int vtkGaussianCubeReader::RequestData(
       fprintf(stderr,"label = %s\n", data_name);
       }
     }
-  fgets(Title, 256, fp);
+  fgets(title, 256, fp);
 
   // Read in number of atoms, x-origin, y-origin z-origin
   //
@@ -105,6 +110,7 @@ int vtkGaussianCubeReader::RequestData(
   if(this->NumberOfAtoms < 0 )
     {
     this->NumberOfAtoms = -this->NumberOfAtoms;
+    orbitalCubeFile = true;
     }
 
   fscanf(fp, "%d %lf %lf %lf", &n1, &elements[0], &elements[4], &elements[8]);
@@ -122,6 +128,15 @@ int vtkGaussianCubeReader::RequestData(
 
   this->ReadMolecule(fp, output);
 
+  if(orbitalCubeFile)
+    {
+    fscanf(fp,"%d", &numberOfOrbitals);
+    for(k = 0; k < numberOfOrbitals; k++) 
+      {
+      fscanf(fp,"%f", &tmp);
+      }
+    }
+
   vtkInformation *gridInfo = this->GetExecutive()->GetOutputInformation(1);
   gridInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                 0, n1-1, 0, n2-1, 0, n3-1);
@@ -136,9 +151,9 @@ int vtkGaussianCubeReader::RequestData(
   grid->SetScalarTypeToFloat();
   grid->AllocateScalars();
 
-  grid->GetPointData()->GetScalars()->SetName("Gaussian Cube density");
+  grid->GetPointData()->GetScalars()->SetName(title);
 
-  Cube_data = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
+  cubedata = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
   N1N2 = n1*n2;
 
   for(i = 0; i < n1; i++) 
@@ -149,7 +164,7 @@ int vtkGaussianCubeReader::RequestData(
       for(k = 0; k < n3; k++) 
         {
         fscanf(fp,"%f", &tmp);
-        Cube_data[k*N1N2 + JN1 + i] = tmp;
+        cubedata[k*N1N2 + JN1 + i] = tmp;
         }
       JN1 += n1;
       }
@@ -159,6 +174,7 @@ int vtkGaussianCubeReader::RequestData(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
 {
   int i, j;
@@ -168,11 +184,13 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   for(i = 0; i < this->NumberOfAtoms; i++) 
     {
     fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2);
+    this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
     }
 }
 
+//----------------------------------------------------------------------------
 vtkImageData *vtkGaussianCubeReader::GetGridOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
@@ -183,6 +201,7 @@ vtkImageData *vtkGaussianCubeReader::GetGridOutput()
     this->GetExecutive()->GetOutputData(1));
 }
 
+//----------------------------------------------------------------------------
 void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -201,6 +220,7 @@ void vtkGaussianCubeReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
+//----------------------------------------------------------------------------
 // Default implementation - copy information from first input to all outputs
 int vtkGaussianCubeReader::RequestInformation(
   vtkInformation *vtkNotUsed(request),
@@ -211,7 +231,7 @@ int vtkGaussianCubeReader::RequestInformation(
   vtkInformation *gridInfo = this->GetExecutive()->GetOutputInformation(1);
 
   FILE *fp;
-  char Title[256];
+  char title[256];
   
   if (!this->FileName)
     {
@@ -224,8 +244,8 @@ int vtkGaussianCubeReader::RequestInformation(
     return 0;
     }
   
-  fgets(Title, 256, fp);
-  fgets(Title, 256, fp);
+  fgets(title, 256, fp);
+  fgets(title, 256, fp);
 
   // Read in number of atoms, x-origin, y-origin z-origin
   double tmpd;

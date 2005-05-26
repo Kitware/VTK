@@ -7,20 +7,25 @@ vtkRenderWindow renWin
     renWin SetSize 300 300
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
-
+vtkCamera camera
+  camera ParallelProjectionOn
+  camera SetViewUp 0 1 0
+  camera SetFocalPoint 12 10.5 15
+  camera SetPosition -70 15 34
+  camera ComputeViewPlaneNormal
+  ren1 SetActiveCamera camera
+  
 # Create the reader for the data
 #vtkStructuredPointsReader reader
 vtkGaussianCubeReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/m4_TotalDensity.cube"
     reader SetHBScale 1.1
-    reader SetBScale 1.9
+    reader SetBScale 10
     reader Update
 
 set range [[[[reader GetGridOutput] GetPointData] GetScalars] GetRange]
 set min [lindex $range 0]
 set max [lindex $range 1]
-
-set xform [reader GetTransform]
 
 vtkImageShiftScale readerSS
   readerSS SetInput [reader GetGridOutput]
@@ -102,9 +107,11 @@ vtkSphereSource Sphere
 
 vtkGlyph3D Glyph
   Glyph SetInput [reader GetOutput]
+  Glyph SelectInputVectors {}
   Glyph SetOrient 1
   Glyph SetColorMode 1
   #Glyph ScalingOn
+  Glyph SelectInputScalars {}
   Glyph SetScaleMode 2
   Glyph SetScaleFactor .6
   Glyph SetSource [Sphere GetOutput]
@@ -118,7 +125,6 @@ vtkPolyDataMapper AtomsMapper
 
 vtkActor Atoms
   Atoms SetMapper AtomsMapper
-  Atoms SetUserTransform $xform
   [Atoms GetProperty] SetRepresentationToSurface
   [Atoms GetProperty] SetInterpolationToGouraud
   [Atoms GetProperty] SetAmbient 0.15
@@ -144,7 +150,6 @@ vtkPolyDataMapper BondsMapper
   BondsMapper SetScalarModeToDefault
 vtkActor Bonds
   Bonds SetMapper BondsMapper
-  Bonds SetUserTransform $xform
   [Bonds GetProperty] SetRepresentationToSurface
   [Bonds GetProperty] SetInterpolationToGouraud
   [Bonds GetProperty] SetAmbient 0.15
@@ -159,9 +164,10 @@ ren1 AddActor Atoms
 ####################################################
 
 ren1 SetBackground 1 1 1
-
+ren1 ResetCamera
 renWin Render
 
+  
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
