@@ -44,32 +44,21 @@ vtkCellArray faces
   faces InsertCellPoint 0 
   faces InsertCellPoint 4 
   faces InsertCellPoint 7
-vtkIntArray faceColors
-  faceColors InsertNextTuple1 0
-  faceColors InsertNextTuple1 1
-  faceColors InsertNextTuple1 2
-  faceColors InsertNextTuple1 3
-  faceColors InsertNextTuple1 4
-  faceColors InsertNextTuple1 5
+vtkUnsignedCharArray faceColors
+  faceColors SetNumberOfComponents 3
+  faceColors InsertNextTuple3 255 0 0
+  faceColors InsertNextTuple3 0 255 0
+  faceColors InsertNextTuple3 255 255 0
+  faceColors InsertNextTuple3 0 0 255
+  faceColors InsertNextTuple3 255 0 255
+  faceColors InsertNextTuple3 0 255 255
 vtkPolyData cube
   cube SetPoints pts
   cube SetPolys faces
   [cube GetCellData] SetScalars faceColors
 
-vtkMath math
-vtkLookupTable lut
-lut SetNumberOfColors 6
-lut Build
-lut SetTableValue 0 1 0 0 1
-lut SetTableValue 1 0 1 0 1
-lut SetTableValue 2 1 1 0 1
-lut SetTableValue 3 0 0 1 1
-lut SetTableValue 4 1 0 1 1
-lut SetTableValue 5 0 1 1 1
-
 vtkPolyDataMapper cube1Mapper
     cube1Mapper SetInput cube
-    cube1Mapper SetLookupTable lut
     cube1Mapper SetScalarRange 0 5
 vtkActor cube1
     cube1 SetMapper cube1Mapper
@@ -80,7 +69,6 @@ vtkActor cube1
 
 vtkPolyDataMapper cube2Mapper
     cube2Mapper SetInput cube
-    cube2Mapper SetLookupTable lut
     cube2Mapper SetScalarRange 0 5
 vtkActor cube2
     cube2 SetMapper cube2Mapper
@@ -93,7 +81,6 @@ vtkActor cube2
 
 vtkPolyDataMapper cube3Mapper
     cube3Mapper SetInput cube
-    cube3Mapper SetLookupTable lut
     cube3Mapper SetScalarRange 0 5
 vtkActor cube3
     cube3 SetMapper cube3Mapper
@@ -106,7 +93,6 @@ vtkActor cube3
 
 vtkPolyDataMapper cube4Mapper
     cube4Mapper SetInput cube
-    cube4Mapper SetLookupTable lut
     cube4Mapper SetScalarRange 0 5
 vtkActor cube4
     cube4 SetMapper cube4Mapper
@@ -120,7 +106,6 @@ vtkActor cube4
 # Interpolate the transformation
 vtkPolyDataMapper cubeMapper
     cubeMapper SetInput cube
-    cubeMapper SetLookupTable lut
     cubeMapper SetScalarRange 0 6
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
