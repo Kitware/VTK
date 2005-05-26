@@ -132,6 +132,7 @@ int main (int argc, char **argv)
     bwLut->SetSaturationRange (0, 0);
     bwLut->SetHueRange (0, 0);
     bwLut->SetValueRange (0, 1);
+    bwLut->Build(); //effective built
 
   // Now create a lookup table that consists of the full hue circle
   // (from HSV).
@@ -140,6 +141,7 @@ int main (int argc, char **argv)
     hueLut->SetHueRange (0, 1);
     hueLut->SetSaturationRange (1, 1);
     hueLut->SetValueRange (1, 1);
+    hueLut->Build(); //effective built
 
   // Finally, create a lookup table with a single hue but having a range
   // in the saturation of the hue.
@@ -148,6 +150,7 @@ int main (int argc, char **argv)
     satLut->SetHueRange (.6, .6);
     satLut->SetSaturationRange (0, 1);
     satLut->SetValueRange (1, 1);
+    satLut->Build(); //effective built
 
   // Create the first of the three planes. The filter vtkImageMapToColors
   // maps the data through the corresponding lookup table created above.  The
@@ -211,6 +214,7 @@ int main (int argc, char **argv)
   // An initial camera view is created.  The Dolly() method moves 
   // the camera towards the FocalPoint, thereby enlarging the image.
   aRenderer->SetActiveCamera(aCamera);
+  aRenderer->Render();
   aRenderer->ResetCamera ();
   aCamera->Dolly(1.5);
 
