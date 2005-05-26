@@ -14,9 +14,10 @@
 =========================================================================*/
 #include "vtkBase64Utilities.h"
 #include "vtkObjectFactory.h"
+#include <assert.h>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkBase64Utilities, "1.2");
+vtkCxxRevisionMacro(vtkBase64Utilities, "1.3");
 vtkStandardNewMacro(vtkBase64Utilities);
 
 //----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ static const unsigned char vtkBase64UtilitiesEncodeTable[65] =
 //----------------------------------------------------------------------------
 inline static unsigned char vtkBase64UtilitiesEncodeChar(unsigned char c)
 {
+  assert( c < 65 );
   return vtkBase64UtilitiesEncodeTable[c];
 }
 

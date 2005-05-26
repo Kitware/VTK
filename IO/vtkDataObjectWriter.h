@@ -41,13 +41,13 @@ public:
   // Methods delegated to vtkDataWriter, see vtkDataWriter.
   void SetFileName(const char *filename) {this->Writer->SetFileName(filename);};
   char *GetFileName() {return this->Writer->GetFileName();};
-  void SetHeader(char *header) {this->Writer->SetHeader(header);};
+  void SetHeader(const char *header) {this->Writer->SetHeader(header);};
   char *GetHeader() {return this->Writer->GetHeader();};
   void SetFileType(int type) {this->Writer->SetFileType(type);};
   int GetFileType() {return this->Writer->GetFileType();};
   void SetFileTypeToASCII() {this->Writer->SetFileType(VTK_ASCII);};
   void SetFileTypeToBinary() {this->Writer->SetFileType(VTK_BINARY);};
-  void SetFieldDataName(char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
+  void SetFieldDataName(const char *fieldname) {this->Writer->SetFieldDataName(fieldname);};
   char *GetFieldDataName() {return this->Writer->GetFieldDataName();};
 
 protected:
