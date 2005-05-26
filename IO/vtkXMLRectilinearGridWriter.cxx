@@ -22,18 +22,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.10");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.11");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridWriter::vtkXMLRectilinearGridWriter()
 {
+  this->CoordinateOM = new OffsetsManagerArray;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridWriter::~vtkXMLRectilinearGridWriter()
 {
+  delete this->CoordinateOM;
 }
 
 //----------------------------------------------------------------------------
@@ -110,25 +113,13 @@ void vtkXMLRectilinearGridWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
 
-  int i;
-  this->CoordinatePositions = new unsigned long*[this->NumberOfPieces];
-  for(i=0;i < this->NumberOfPieces;++i) { this->CoordinatePositions[i] = 0; }
+  this->CoordinateOM->Allocate(this->NumberOfPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLRectilinearGridWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
-
-  int i;
-  for(i=0;i < this->NumberOfPieces;++i)
-    {
-    if(this->CoordinatePositions[i])
-      {
-      delete [] this->CoordinatePositions[i];
-      }
-    }
-  delete [] this->CoordinatePositions;
 }
 
 //----------------------------------------------------------------------------
@@ -141,12 +132,10 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPiece(int index,
     return;
     }
   
-  this->CoordinatePositions[index] =
-    this->WriteCoordinatesAppended(this->GetInput()->GetXCoordinates(),
-                                   this->GetInput()->GetYCoordinates(),
-                                   this->GetInput()->GetZCoordinates(),
-                                   indent);
-  
+  this->WriteCoordinatesAppended(this->GetInput()->GetXCoordinates(),
+                                 this->GetInput()->GetYCoordinates(),
+                                 this->GetInput()->GetZCoordinates(),
+                                 indent, &this->CoordinateOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -176,8 +165,9 @@ void vtkXMLRectilinearGridWriter::WriteAppendedPieceData(int index)
   this->WriteCoordinatesAppendedData(this->GetInput()->GetXCoordinates(),
                                      this->GetInput()->GetYCoordinates(),
                                      this->GetInput()->GetZCoordinates(),
-                                     this->CoordinatePositions[index]);
-  this->CoordinatePositions[index] = 0;
+                                     this->CurrentTimeIndex,
+                                     &this->CoordinateOM->GetPiece(index));
+  this->CoordinateOM->GetPiece(index).Allocate(0); //mark it invalid
 }
 
 //----------------------------------------------------------------------------
@@ -237,6 +227,7 @@ void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[2] = 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLRectilinearGridWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

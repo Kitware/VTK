@@ -83,6 +83,17 @@ public:
   virtual void CopyOutputInformation(vtkInformation *vtkNotUsed(outInfo),
                                    int vtkNotUsed(port)) {}
 
+  // Description:
+  // Which TimeStep to read.    
+  vtkSetMacro(TimeStep, int);
+  vtkGetMacro(TimeStep, int);
+ 
+  vtkGetMacro(NumberOfTimeSteps, int);
+  // Description:
+  // Which TimeStepRange to read
+  vtkGetVector2Macro(TimeStepRange, int);
+  vtkSetVector2Macro(TimeStepRange, int);
+
 protected:
   vtkXMLReader();
   ~vtkXMLReader();
@@ -215,9 +226,29 @@ protected:
   // Whether there was an error reading the XML.
   int ReadError;
 
+  // The timestep currently being read.
+  int TimeStep;
+  int CurrentTimeStep;
+  int NumberOfTimeSteps;
+  void SetNumberOfTimeSteps(int num);
+  // buffer for reading timestep from the XML file the lenght is of 
+  // NumberOfTimeSteps and therefore is always long enough
+  int *TimeSteps; 
+  // Store the range of time steps
+  int TimeStepRange[2];
+
+  // Now we need to save what was the last time read for each kind of 
+  // data to avoid rereading it that is to say we need a var for 
+  // e.g. PointData/CellData/Points/Cells...
+  // See SubClass for details with member vars like PointsTimeStep/PointsOffset
+
+  // Helper function usefull to know if a timestep is found in an array of timestep
+  static int IsTimeStepInArray(int timestep, int* timesteps, int length);
+
 private:
   // The stream used to read the input if it is in a file.
   ifstream* FileStream;  
+  int FileWasReadOnce;
   
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.

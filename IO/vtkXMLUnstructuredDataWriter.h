@@ -62,7 +62,7 @@ protected:
   vtkPointSet* GetInputAsPointSet();
   virtual const char* GetDataSetName()=0;
   virtual void SetInputUpdateExtent(int piece, int numPieces,
-                                    int ghostLevel);
+                                    int ghostLevel, int timestep);
   
   virtual int WriteHeader();
   virtual int WriteAPiece();
@@ -81,12 +81,12 @@ protected:
   
   void WriteCellsInline(const char* name, vtkCellArray* cells,
                         vtkDataArray* types, vtkIndent indent);
-  unsigned long* WriteCellsAppended(const char* name, vtkDataArray* types,
-                                    vtkIndent indent);
+  void WriteCellsAppended(const char* name, vtkDataArray* types,
+                          vtkIndent indent, OffsetsManagerGroup *cellsManager);
   void WriteCellsAppendedData(vtkCellArray* cells, vtkDataArray* types,
-                              unsigned long* positions);
+                              int timestep, OffsetsManagerGroup *cellsManager);
   void ConvertCells(vtkCellArray* cells);
-  
+
   // Get the number of points/cells.  Valid after Update has been
   // invoked on the input.
   virtual vtkIdType GetNumberOfInputPoints();
@@ -104,10 +104,12 @@ protected:
   int GhostLevel;
   
   // Positions of attributes for each piece.
-  unsigned long* PointsPositions;
   unsigned long* NumberOfPointsPositions;
-  unsigned long** PointDataPositions;
-  unsigned long** CellDataPositions;
+
+  // For TimeStep support
+  OffsetsManagerGroup *PointsOM;
+  OffsetsManagerArray *PointDataOM;
+  OffsetsManagerArray *CellDataOM;
   
   // Hold the new cell representation arrays while writing a piece.
   vtkIdTypeArray* CellPoints;

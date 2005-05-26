@@ -29,6 +29,7 @@
 
 #include "vtkXMLUnstructuredDataWriter.h"
 
+
 class vtkUnstructuredGrid;
 
 class VTK_IO_EXPORT vtkXMLUnstructuredGridWriter : public vtkXMLUnstructuredDataWriter
@@ -72,7 +73,7 @@ protected:
   
   // Positions of attributes for each piece.
   unsigned long* NumberOfCellsPositions;
-  unsigned long** CellsPositions;
+  OffsetsManagerArray *CellsOM; //one per piece
   
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&);  // Not implemented.

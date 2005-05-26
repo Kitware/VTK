@@ -29,8 +29,11 @@
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.12");
+#include <assert.h>
+
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.13");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -44,6 +47,10 @@ vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
   this->CellOffsets->SetName("offsets");
 
   this->CurrentPiece = 0;
+  this->FieldDataOM->Allocate(0);
+  this->PointsOM    = new OffsetsManagerGroup;
+  this->PointDataOM = new OffsetsManagerArray;
+  this->CellDataOM  = new OffsetsManagerArray;
 }
 
 //----------------------------------------------------------------------------
@@ -51,6 +58,9 @@ vtkXMLUnstructuredDataWriter::~vtkXMLUnstructuredDataWriter()
 {
   this->CellPoints->Delete();
   this->CellOffsets->Delete();
+  delete this->PointsOM;
+  delete this->PointDataOM;
+  delete this->CellDataOM;
 }
 
 //----------------------------------------------------------------------------
@@ -69,10 +79,9 @@ vtkPointSet* vtkXMLUnstructuredDataWriter::GetInputAsPointSet()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLUnstructuredDataWriter::ProcessRequest(
-  vtkInformation* request,
-  vtkInformationVector** inputVector,
-  vtkInformationVector* outputVector)
+int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
+                                                 vtkInformationVector** inputVector,
+                                                 vtkInformationVector* outputVector)
 {
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
@@ -80,12 +89,12 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
     if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
       {
       this->SetInputUpdateExtent(
-        this->CurrentPiece, this->NumberOfPieces, this->GhostLevel);
+        this->CurrentPiece, this->NumberOfPieces, this->GhostLevel, this->CurrentTimeIndex);
       }
     else
       {
       this->SetInputUpdateExtent(
-        this->WritePiece, this->NumberOfPieces, this->GhostLevel);
+        this->WritePiece, this->NumberOfPieces, this->GhostLevel, this->CurrentTimeIndex);
       }
     return 1;
     }
@@ -127,7 +136,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
       }
 
     int result = 1;
-    if (this->CurrentPiece == 0 || this->WritePiece >= 0)
+    if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0 || this->WritePiece >= 0)
       {
       // We are just starting to write.  Do not call
       // UpdateProgressDiscrete because we want a 0 progress callback the
@@ -156,11 +165,13 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
         return 0;
         }
 
-      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOffsets)
+      this->CurrentTimeIndex = 0; 
+
+      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
-        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
-          this->FieldDataOffsets);
+        this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(), 
+          this->CurrentTimeIndex, this->FieldDataOM);
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
           {
           this->DeletePositionArrays();
@@ -174,6 +185,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
     if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
       {
       // Tell the pipeline to start looping.
+      //if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0)
       if (this->CurrentPiece == 0)
         {
         request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
@@ -185,22 +197,34 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
       {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentPiece = 0;
+      // We are done writting all the pieces, lets loop over time now:
+      this->CurrentTimeIndex++;
+
+  if( !(this->UserContinueExecuting == 1))
+    {
+      //if (this->CurrentTimeIndex == this->NumberOfTimeSteps )
+        {
+        //request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
+        //this->CurrentTimeIndex = 0;
   
-      if (!this->WriteFooter())
-        {
-        this->NumberOfPieces = numPieces;
-        return 0;
-        }
+        if (!this->WriteFooter())
+          {
+          this->NumberOfPieces = numPieces;
+          return 0;
+          }
 
-      if (!this->EndFile())
-        {
-        this->NumberOfPieces = numPieces;
-        return 0;
-        }
+        if (!this->EndFile())
+          {
+          this->NumberOfPieces = numPieces;
+          return 0;
+          }
 
-      this->CloseFile();
+        this->CloseFile();
+        }
+    }
       }
     this->NumberOfPieces = numPieces;
+    //this->NumberOfTimeSteps = numTimeStep;
 
     // We have finished writing.
     this->UpdateProgressDiscrete(1);
@@ -213,25 +237,17 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(
 void vtkXMLUnstructuredDataWriter::AllocatePositionArrays()
 {
   this->NumberOfPointsPositions = new unsigned long[this->NumberOfPieces];
-  this->PointsPositions = new unsigned long[this->NumberOfPieces];
-  this->PointDataPositions = new unsigned long*[this->NumberOfPieces];
-  this->CellDataPositions = new unsigned long*[this->NumberOfPieces];
+
+  this->PointsOM->Allocate(this->NumberOfPieces, this->NumberOfTimeSteps);
+  this->PointDataOM->Allocate(this->NumberOfPieces);
+  this->CellDataOM->Allocate(this->NumberOfPieces);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::DeletePositionArrays()
 {
   delete [] this->NumberOfPointsPositions;
-  delete [] this->PointsPositions;
-  delete [] this->PointDataPositions;
-  delete [] this->CellDataPositions;
-  if (this->FieldDataOffsets)
-    {
-    delete [] this->FieldDataOffsets;
-    this->FieldDataOffsets = NULL;
-    }
 }
-
 
 //----------------------------------------------------------------------------
 int vtkXMLUnstructuredDataWriter::WriteHeader()
@@ -240,8 +256,10 @@ int vtkXMLUnstructuredDataWriter::WriteHeader()
 
   ostream& os = *(this->Stream);
   
-  // Open the primary element.
-  os << indent << "<" << this->GetDataSetName() << ">\n";
+  if(!this->WritePrimaryElement(os, indent))
+    {
+    return 0;
+    }
 
   this->WriteFieldData(indent.GetNextIndent());
 
@@ -460,22 +478,22 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPiece(int index,
 {
   vtkPointSet* input = this->GetInputAsPointSet();
   
-  this->PointDataPositions[index] =
-    this->WritePointDataAppended(input->GetPointData(), indent);
+  this->WritePointDataAppended(input->GetPointData(), indent, 
+    &this->PointDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   
-  this->CellDataPositions[index] =
-    this->WriteCellDataAppended(input->GetCellData(), indent);
+  this->WriteCellDataAppended(input->GetCellData(), indent, 
+    &this->CellDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   
-  this->PointsPositions[index] =
-    this->WritePointsAppended(input->GetPoints(), indent);
+  this->WritePointsAppended(input->GetPoints(), indent, 
+    &this->PointsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -505,8 +523,8 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 0, fractions);
   
   // Write the point data arrays.
-  this->WritePointDataAppendedData(input->GetPointData(),
-                                   this->PointDataPositions[index]);
+  this->WritePointDataAppendedData(input->GetPointData(), this->CurrentTimeIndex,
+                                  &this->PointDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -516,8 +534,8 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Write the cell data arrays.  
-  this->WriteCellDataAppendedData(input->GetCellData(),
-                                  this->CellDataPositions[index]);
+  this->WriteCellDataAppendedData(input->GetCellData(), this->CurrentTimeIndex,
+                                  &this->CellDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -527,8 +545,9 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 2, fractions);
   
   // Write the point specification array.
-  this->WritePointsAppendedData(input->GetPoints(),
-                                this->PointsPositions[index]);
+  // Since we are writting the point let save the Modified Time of vtkPoints:
+  this->WritePointsAppendedData(input->GetPoints(), this->CurrentTimeIndex,
+                                &this->PointsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -589,38 +608,34 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
 }
 
 //----------------------------------------------------------------------------
-unsigned long*
-vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
-                                                 vtkDataArray* types,
-                                                 vtkIndent indent)
+void vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
+                                                      vtkDataArray* types,
+                                                      vtkIndent indent,
+                                                      OffsetsManagerGroup *cellsManager)
 {
-  unsigned long* positions = new unsigned long[3];
   ostream& os = *(this->Stream);
   os << indent << "<" << name << ">\n";
-  positions[0] = this->WriteDataArrayAppended(this->CellPoints,
-                                              indent.GetNextIndent());
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+
+  // Helper for the 'for' loop
+  vtkDataArray *allcells[3];
+  allcells[0] = this->CellPoints;
+  allcells[1] = this->CellOffsets;
+  allcells[2] = types;
+  const char *names[] = {NULL, NULL, "types"};
+
+  for(int t=0; t<this->NumberOfTimeSteps; t++)
     {
-    delete [] positions;
-    return NULL;
-    }
-  
-  positions[1] = this->WriteDataArrayAppended(this->CellOffsets,
-                                              indent.GetNextIndent());
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    delete [] positions;
-    return NULL;
-    }
-  
-  if(types)
-    {
-    positions[2] = this->WriteDataArrayAppended(types, indent.GetNextIndent(),
-                                                "types");
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    for(int i=0; i<3; i++)
       {
-      delete [] positions;
-      return NULL;
+      if(allcells[i])
+        {
+        cellsManager->GetElement(i).GetPosition(t) =
+          this->WriteDataArrayAppended(allcells[i], indent.GetNextIndent(),names[i],0,t);
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          return;
+          }
+        }
       }
     }
   os << indent << "</" << name << ">\n";
@@ -628,18 +643,17 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppended(const char* name,
   if (os.fail())
     {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-    delete [] positions;
-    return NULL;
+    return;
     }
-  
-  return positions;
+
 }
 
 //----------------------------------------------------------------------------
 void
 vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
                                                      vtkDataArray* types,
-                                                     unsigned long* positions)
+                                                     int timestep,
+                                                     OffsetsManagerGroup *cellsManager)
 {
   this->ConvertCells(cells);
   
@@ -649,42 +663,45 @@ vtkXMLUnstructuredDataWriter::WriteCellsAppendedData(vtkCellArray* cells,
   float fractions[4];
   this->CalculateCellFractions(fractions, types?types->GetNumberOfTuples():0);
   
-  // Set the range of progress for the connectivity array.
-  this->SetProgressRange(progressRange, 0, fractions);
-  
-  // Write the connectivity array.
-  this->WriteDataArrayAppendedData(this->CellPoints, positions[0]);
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+  // Helper for the 'for' loop
+  vtkDataArray *allcells[3];
+  allcells[0] = this->CellPoints;
+  allcells[1] = this->CellOffsets;
+  allcells[2] = types;
+
+  for(int i=0; i<3; i++)
     {
-    delete [] positions;
-    return;
-    }
-  
-  // Set the range of progress for the offsets array.
-  this->SetProgressRange(progressRange, 1, fractions);
-  
-  // Write the offsets array.
-  this->WriteDataArrayAppendedData(this->CellOffsets, positions[1]);
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
-    delete [] positions;
-    return;
-    }
-  
-  if(types)
-    {
-    // Set the range of progress for the types array.
-    this->SetProgressRange(progressRange, 2, fractions);
-    
-    // Write the types array.
-    this->WriteDataArrayAppendedData(types, positions[2]);
-    if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+    if(allcells[i])
       {
-      delete [] positions;
-      return;
+      // Set the range of progress for the connectivity array.
+      this->SetProgressRange(progressRange, i, fractions);
+      
+      unsigned long mtime = allcells[i]->GetMTime();
+      unsigned long &cellsMTime = cellsManager->GetElement(i).GetLastMTime();
+      // Only write cells if MTime has changed
+      if( cellsMTime != mtime )
+        {
+        cellsMTime = mtime;
+        // Write the connectivity array.
+        this->WriteDataArrayAppendedData(allcells[i], 
+          cellsManager->GetElement(i).GetPosition(timestep),
+          cellsManager->GetElement(i).GetOffsetValue(timestep));
+        if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+          {
+          return;
+          }
+        }
+      else
+        {
+        assert( timestep > 0 );
+        cellsManager->GetElement(i).GetOffsetValue(timestep) = 
+          cellsManager->GetElement(i).GetOffsetValue(timestep-1);
+        this->ForwardAppendedDataOffset(cellsManager->GetElement(i).GetPosition(timestep),
+                                        cellsManager->GetElement(i).GetOffsetValue(timestep),
+                                        "offset" );
+        }
       }
     }
-  delete [] positions;
 }
 
 //----------------------------------------------------------------------------
@@ -763,7 +780,7 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(
-  int piece, int numPieces, int ghostLevel)
+  int piece, int numPieces, int ghostLevel, int timestep)
 {
   vtkInformation* inInfo = 
     this->GetExecutive()->GetInputInformation(0, 0);
@@ -773,5 +790,7 @@ void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
   inInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
 }
 

@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.9");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
   
   // Get the image's origin.
-  if(ePrimary->GetVectorAttribute("Origin", 3, this->Origin) != 3)
+  if(ePrimary->GetVectorAttribute("Origin", this->Origin) != 3)
     {
     this->Origin[0] = 0;
     this->Origin[1] = 0;
@@ -92,7 +92,7 @@ int vtkXMLImageDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     }
   
   // Get the image's spacing.
-  if(ePrimary->GetVectorAttribute("Spacing", 3, this->Spacing) != 3)
+  if(ePrimary->GetVectorAttribute("Spacing", this->Spacing) != 3)
     {
     this->Spacing[0] = 1;
     this->Spacing[1] = 1;

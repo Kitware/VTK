@@ -21,19 +21,21 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.10");
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::vtkXMLStructuredGridWriter()
 {
-  this->PointsPosition = 0;
+  this->PointsOM = new OffsetsManagerGroup;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredGridWriter::~vtkXMLStructuredGridWriter()
 {
+  delete this->PointsOM;
 }
 
 //----------------------------------------------------------------------------
@@ -70,15 +72,13 @@ const char* vtkXMLStructuredGridWriter::GetDefaultFileExtension()
 void vtkXMLStructuredGridWriter::AllocatePositionArrays()
 {
   this->Superclass::AllocatePositionArrays();
-  this->PointsPosition = new unsigned long[this->NumberOfPieces];
+  this->PointsOM->Allocate(this->NumberOfPieces,this->NumberOfTimeSteps);
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLStructuredGridWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
-  delete [] this->PointsPosition;
-  this->PointsPosition = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -90,8 +90,8 @@ void vtkXMLStructuredGridWriter::WriteAppendedPiece(int index,
     {
     return;
     }
-  this->PointsPosition[index] =
-    this->WritePointsAppended(this->GetInput()->GetPoints(), indent);
+  this->WritePointsAppended(this->GetInput()->GetPoints(), indent, 
+    &this->PointsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -118,8 +118,9 @@ void vtkXMLStructuredGridWriter::WriteAppendedPieceData(int index)
   this->SetProgressRange(progressRange, 1, fractions);
   
   // Write the points array.
-  this->WritePointsAppendedData(this->GetInput()->GetPoints(),
-                                this->PointsPosition[index]);
+  this->WritePointsAppendedData(this->GetInput()->GetPoints(), 
+                                this->CurrentTimeIndex,
+                                &this->PointsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -176,8 +177,9 @@ void vtkXMLStructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   fractions[2] = 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLStructuredGridWriter::FillInputPortInformation(
-  int vtkNotUsed(port), vtkInformation* info)
+  int , vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkStructuredGrid");
   return 1;

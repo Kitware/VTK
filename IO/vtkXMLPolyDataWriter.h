@@ -75,10 +75,12 @@ protected:
   unsigned long* NumberOfLinesPositions;
   unsigned long* NumberOfStripsPositions;
   unsigned long* NumberOfPolysPositions;
-  unsigned long** VertsPositions;
-  unsigned long** LinesPositions;
-  unsigned long** StripsPositions;
-  unsigned long** PolysPositions;
+
+  OffsetsManagerArray *VertsOM;
+  OffsetsManagerArray *LinesOM;
+  OffsetsManagerArray *StripsOM;
+  OffsetsManagerArray *PolysOM;
+
 private:
   vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&);  // Not implemented.
   void operator=(const vtkXMLPolyDataWriter&);  // Not implemented.

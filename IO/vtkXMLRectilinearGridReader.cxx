@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridReader, "1.11");
 vtkStandardNewMacro(vtkXMLRectilinearGridReader);
 
 //----------------------------------------------------------------------------
@@ -41,7 +41,10 @@ vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 //----------------------------------------------------------------------------
 vtkXMLRectilinearGridReader::~vtkXMLRectilinearGridReader()
 {
-  if(this->NumberOfPieces) { this->DestroyPieces(); }
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -85,8 +88,7 @@ void vtkXMLRectilinearGridReader::SetupPieces(int numPieces)
 {
   this->Superclass::SetupPieces(numPieces);
   this->CoordinateElements = new vtkXMLDataElement*[numPieces];
-  int i;
-  for(i=0;i < numPieces; ++i)
+  for(int i=0;i < numPieces; ++i)
     {
     this->CoordinateElements[i] = 0;
     }
@@ -106,9 +108,8 @@ int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
   
   // Find the Coordinates element in the piece.
-  int i;
   this->CoordinateElements[this->Piece] = 0;
-  for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
+  for(int i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
     {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
     if((strcmp(eNested->GetName(), "Coordinates") == 0)
@@ -168,9 +169,18 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
     }
   else
     {
-    if (x) { x->Delete(); }
-    if (y) { y->Delete(); }
-    if (z) { z->Delete(); }
+    if (x)
+      { 
+      x->Delete(); 
+      }
+    if (y) 
+      { 
+      y->Delete(); 
+      }
+    if (z) 
+      { 
+      z->Delete(); 
+      }
     this->DataError = 1;
     }
 }
@@ -269,6 +279,7 @@ int vtkXMLRectilinearGridReader::ReadSubCoordinates(int* inBounds,
 }
 
 
+//----------------------------------------------------------------------------
 int vtkXMLRectilinearGridReader::FillOutputPortInformation(int, vtkInformation *info)
   {
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");

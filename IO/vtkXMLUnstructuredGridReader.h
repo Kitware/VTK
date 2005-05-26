@@ -42,7 +42,7 @@ public:
   void SetOutput(vtkUnstructuredGrid *output);
   vtkUnstructuredGrid *GetOutput();
   vtkUnstructuredGrid *GetOutput(int idx);
-  
+
 protected:
   vtkXMLUnstructuredGridReader();
   ~vtkXMLUnstructuredGridReader();
@@ -58,7 +58,7 @@ protected:
   void SetupNextPiece();
   int ReadPieceData();
   
-  // Read a data array whose tuples coorrespond to cells.
+  // Read a data array whose tuples correspond to cells.
   int ReadArrayForCells(vtkXMLDataElement* da, vtkDataArray* outArray);
   
   // Get the number of cells in the given piece.  Valid after
@@ -75,6 +75,9 @@ protected:
   vtkXMLDataElement** CellElements;
   vtkIdType* NumberOfCells;
   
+  int CellsTimeStep;
+  unsigned long CellsOffset;
+
 private:
   vtkXMLUnstructuredGridReader(const vtkXMLUnstructuredGridReader&);  // Not implemented.
   void operator=(const vtkXMLUnstructuredGridReader&);  // Not implemented.

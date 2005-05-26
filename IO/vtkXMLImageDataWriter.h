@@ -54,7 +54,7 @@ protected:
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-  void WritePrimaryElementAttributes();
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void GetInputExtent(int* extent);
   const char* GetDataSetName();
   

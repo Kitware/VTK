@@ -19,7 +19,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.14");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -59,7 +59,7 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   // Set the output's whole extent.
   int extent[6];
-  if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
+  if(ePrimary->GetVectorAttribute("WholeExtent", extent) == 6)
     {
     this->GetOutputAsDataSet(0)->SetWholeExtent(extent);
     }
@@ -144,13 +144,13 @@ int vtkXMLStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
       {
       vtkErrorMacro("Piece has no extent.");
       }
-    if(ePiece->GetVectorAttribute("Extent", 6, pieceExtent) < 6)
+    if(ePiece->GetVectorAttribute("Extent", pieceExtent) < 6)
       {
       vtkErrorMacro("Extent attribute is not 6 integers.");
       return 0;
       }
     }
-  else if(ePiece->GetVectorAttribute("WholeExtent", 6, pieceExtent) < 6)
+  else if(ePiece->GetVectorAttribute("WholeExtent", pieceExtent) < 6)
     {
     vtkErrorMacro("WholeExtent attribute is not 6 integers.");
     return 0;

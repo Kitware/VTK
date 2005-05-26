@@ -33,13 +33,18 @@ class vtkOutputStream;
 class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
+//BTX
+class OffsetsManager;      // one per piece/per time
+class OffsetsManagerGroup; // array of OffsetsManager
+class OffsetsManagerArray; // array of OffsetsManagerGroup
+//ETX
 
 class VTK_IO_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
   vtkTypeRevisionMacro(vtkXMLWriter,vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
+ 
   //BTX
   // Description:
   // Enumerate big and little endian byte order settings.
@@ -134,15 +139,40 @@ public:
   // Invoke the writer.  Returns 1 for success, 0 for failure.
   int Write();
 
-  // See the vtkAlgorithm for a desciption of what these do
+  // See the vtkAlgorithm for a description of what these do
   virtual int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
-  
+
+  // Description:
+  // Which TimeStep to write.
+  vtkSetMacro(TimeStep, int);
+  vtkGetMacro(TimeStep, int);
+
+  // Description:
+  // Which TimeStepRange to write.
+  vtkGetVector2Macro(TimeStepRange, int);
+  vtkSetVector2Macro(TimeStepRange, int);
+
+  // Description:
+  // Set the number of time steps
+  vtkGetMacro(NumberOfTimeSteps,int);
+  vtkSetMacro(NumberOfTimeSteps,int);
+
+  // Description:
+  // API to interface an outside the VTK pipeline control
+  void Start();
+  void Stop();
+  void WriteNextTime(double time);
+
 protected:
   vtkXMLWriter();
   ~vtkXMLWriter();
-  
+
+  virtual int RequestInformation(
+                          vtkInformation* request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
@@ -170,7 +200,7 @@ protected:
   unsigned long AppendedDataPosition;
 
   // appended data offsets for field data
-  unsigned long* FieldDataOffsets;
+  OffsetsManagerGroup *FieldDataOM;  //one per array
 
   //BTX
   // We need a 32 bit unsigned integer type for platform-independent
@@ -246,12 +276,18 @@ protected:
   void DeleteAFile();
   void DeleteAFile(const char* name);
 
+  virtual int WritePrimaryElement(ostream &os, vtkIndent indent);
+  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   void StartAppendedData();
   void EndAppendedData();
   unsigned long ReserveAttributeSpace(const char* attr=0);
   unsigned long GetAppendedDataOffset();
   unsigned long WriteAppendedDataOffset(unsigned long streamPos,
+                                        unsigned long &lastoffset,
                                         const char* attr=0);
+  unsigned long ForwardAppendedDataOffset(unsigned long streamPos,
+                                         unsigned long offset,
+                                         const char* attr=0);
   int WriteBinaryData(void* data, int numWords, int wordType);
   
   int WriteBinaryData(char* data)
@@ -306,35 +342,47 @@ protected:
   int WriteStringAttribute(const char* name, const char* value);
   
   unsigned long WriteDataArrayAppended(vtkDataArray* a, vtkIndent indent,
-                            const char* alternateName=0, int writeNumTuples=0);
-  void WriteDataArrayAppendedData(vtkDataArray* a, unsigned long pos);
+                                       const char* alternateName=0, 
+                                       int writeNumTuples=0, int timestep=-1);
+  void WriteDataArrayAppendedData(vtkDataArray* a, unsigned long pos, unsigned long &lastoffset);
   void WriteDataArrayInline(vtkDataArray* a, vtkIndent indent,
                             const char* alternateName=0, int writeNumTuples=0);
   void WriteInlineData(void* data, int numWords, int wordType,
                        vtkIndent indent);
+  
+  void WriteDataArrayHeader(vtkDataArray* a, vtkIndent indent,
+                            const char* alternateName, int writeNumTuples, int timestep);
+  void WriteDataArrayFooter(ostream &os, vtkIndent indent);
   
   // Methods for writing points, point data, and cell data.
   void WriteFieldData(vtkIndent indent);
   void WriteFieldDataInline(vtkFieldData* fd, vtkIndent indent);
   void WritePointDataInline(vtkPointData* pd, vtkIndent indent);
   void WriteCellDataInline(vtkCellData* cd, vtkIndent indent);
-  unsigned long* WriteFieldDataAppended(vtkFieldData* fd, vtkIndent indent);
-  void WriteFieldDataAppendedData(vtkFieldData* pd, unsigned long* fdPositions);
-  unsigned long* WritePointDataAppended(vtkPointData* pd, vtkIndent indent);
-  void WritePointDataAppendedData(vtkPointData* pd, unsigned long* pdPositions);
-  unsigned long* WriteCellDataAppended(vtkCellData* cd, vtkIndent indent);
-  void WriteCellDataAppendedData(vtkCellData* cd, unsigned long* cdPositions);
+  void WriteFieldDataAppended(vtkFieldData* fd, vtkIndent indent,
+                              OffsetsManagerGroup *fdManager);
+  void WriteFieldDataAppendedData(vtkFieldData* fd, int timestep,
+                                  OffsetsManagerGroup *fdManager);
+  void  WritePointDataAppended(vtkPointData* pd, vtkIndent indent, 
+                               OffsetsManagerGroup *pdManager);
+  void WritePointDataAppendedData(vtkPointData* pd, int timestep,
+                                  OffsetsManagerGroup *pdManager);
+  void WriteCellDataAppended(vtkCellData* cd, vtkIndent indent, 
+                             OffsetsManagerGroup *cdManager);
+  void WriteCellDataAppendedData(vtkCellData* cd, int timestep,
+                                 OffsetsManagerGroup *cdManager);
   void WriteAttributeIndices(vtkDataSetAttributes* dsa, char** names);
-  unsigned long WritePointsAppended(vtkPoints* points, vtkIndent indent);
-  void WritePointsAppendedData(vtkPoints* points, unsigned long pointsPosition);
+  void WritePointsAppended(vtkPoints* points, vtkIndent indent, OffsetsManager *manager);
+  void WritePointsAppendedData(vtkPoints* points, int timestep, OffsetsManager *pdManager);
   void WritePointsInline(vtkPoints* points, vtkIndent indent);
   void WriteCoordinatesInline(vtkDataArray* xc, vtkDataArray* yc,
                               vtkDataArray* zc, vtkIndent indent);
-  unsigned long* WriteCoordinatesAppended(vtkDataArray* xc, vtkDataArray* yc,
-                                          vtkDataArray* zc, vtkIndent indent);
+  void WriteCoordinatesAppended(vtkDataArray* xc, vtkDataArray* yc,
+                                vtkDataArray* zc, vtkIndent indent, 
+                                OffsetsManagerGroup *coordManager);
   void WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* yc,
-                                    vtkDataArray* zc,
-                                    unsigned long* cPositions);
+                                    vtkDataArray* zc, int timestep,
+                                    OffsetsManagerGroup *coordManager);
   virtual vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
   virtual vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
   virtual vtkDataArray* CreateExactCoordinates(vtkDataArray* inArray, int xyz);
@@ -373,6 +421,19 @@ protected:
 
   int OpenFile();
   void CloseFile();
+
+  // The timestep currently being written
+  int TimeStep;
+  int CurrentTimeIndex;
+  int NumberOfTimeSteps;
+  // Store the range of time steps
+  int TimeStepRange[2];
+
+  // Dummy boolean var to start/stop the continue executing:
+  // when using the Start/Stop/WriteNextTime API
+  int UserContinueExecuting; //can only be -1 = invalid, 0 = stop, 1 = start
+
+  unsigned long *NumberOfTimeValues; //one per piece / per timestep
 
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.

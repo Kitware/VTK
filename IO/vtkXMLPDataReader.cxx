@@ -26,7 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPDataReader, "1.16");
+vtkCxxRevisionMacro(vtkXMLPDataReader, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::vtkXMLPDataReader()
@@ -51,8 +51,14 @@ vtkXMLPDataReader::vtkXMLPDataReader()
 //----------------------------------------------------------------------------
 vtkXMLPDataReader::~vtkXMLPDataReader()
 {
-  if(this->NumberOfPieces) { this->DestroyPieces(); }  
-  if(this->PathName) { delete [] this->PathName; }
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
+    }
+  if(this->PathName)
+    {
+    delete [] this->PathName;
+    }
   this->PieceProgressObserver->Delete();
 }
 
@@ -67,8 +73,14 @@ void vtkXMLPDataReader::PrintSelf(ostream& os, vtkIndent indent)
 vtkDataSet* vtkXMLPDataReader::GetPieceInputAsDataSet(int piece)
 {
   vtkXMLDataReader* reader = this->PieceReaders[piece];
-  if(!reader) { return 0; }
-  if(reader->GetNumberOfOutputPorts() < 1) { return 0; }
+  if(!reader)
+    {
+    return 0;
+    }
+  if(reader->GetNumberOfOutputPorts() < 1)
+    {
+    return 0;
+    }
   return static_cast<vtkDataSet*>(reader->GetExecutive()->GetOutputData(0));
 }
 
@@ -214,7 +226,10 @@ void vtkXMLPDataReader::CopyOutputInformation(vtkInformation *outInfo, int port)
 //----------------------------------------------------------------------------
 int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
-  if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
+  if(!this->Superclass::ReadPrimaryElement(ePrimary))
+    {
+    return 0;
+    }
   // Read information about the data.
   if(!ePrimary->GetScalarAttribute("GhostLevel", this->GhostLevel))
     {
@@ -230,7 +245,10 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   for(i=0;i < numNested; ++i)
     {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
-    if(strcmp(eNested->GetName(), "Piece") == 0) { ++numPieces; }
+    if(strcmp(eNested->GetName(), "Piece") == 0)
+      {
+      ++numPieces;
+      }
     else if(strcmp(eNested->GetName(), "PPointData") == 0)
       {
       this->PPointDataElement = eNested;
@@ -247,7 +265,10 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if(strcmp(eNested->GetName(), "Piece") == 0)
       {
-      if(!this->ReadPiece(eNested, piece++)) { return 0; }
+      if(!this->ReadPiece(eNested, piece++))
+        {
+        return 0;
+        }
       }
     }
   
@@ -257,7 +278,10 @@ int vtkXMLPDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 //----------------------------------------------------------------------------
 void vtkXMLPDataReader::SetupPieces(int numPieces)
 {
-  if(this->NumberOfPieces) { this->DestroyPieces(); }
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
+    }
   this->NumberOfPieces = numPieces;
   this->PieceElements = new vtkXMLDataElement*[this->NumberOfPieces];
   this->PieceReaders = new vtkXMLDataReader*[this->NumberOfPieces];
@@ -409,7 +433,10 @@ int vtkXMLPDataReader::CanReadPiece(int index)
 char* vtkXMLPDataReader::CreatePieceFileName(const char* fileName)
 {
   ostrstream fn_with_warning_C4701;
-  if(this->PathName) { fn_with_warning_C4701 << this->PathName; }
+  if(this->PathName)
+    {
+    fn_with_warning_C4701 << this->PathName;
+    }
   fn_with_warning_C4701 << fileName << ends;
   return fn_with_warning_C4701.str();
 }

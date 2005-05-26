@@ -52,7 +52,7 @@ protected:
   ~vtkXMLPImageDataWriter();
   
   const char* GetDataSetName();
-  void WritePrimaryElementAttributes();
+  void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   vtkXMLStructuredDataWriter* CreateStructuredPieceWriter(); 
   
   // see algorithm for more info

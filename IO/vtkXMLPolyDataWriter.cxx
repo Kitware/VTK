@@ -1,15 +1,15 @@
 /*=========================================================================
 
-Program:   Visualization Toolkit
-Module:    vtkXMLPolyDataWriter.cxx
+  Program:   Visualization Toolkit
+  Module:    vtkXMLPolyDataWriter.cxx
 
-Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-All rights reserved.
-See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-This software is distributed WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the above copyright notice for more information.
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
 #include "vtkXMLPolyDataWriter.h"
@@ -23,18 +23,27 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.9");
+vtkCxxRevisionMacro(vtkXMLPolyDataWriter, "1.10");
 vtkStandardNewMacro(vtkXMLPolyDataWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLPolyDataWriter::vtkXMLPolyDataWriter()
 {
+  this->VertsOM = new OffsetsManagerArray;
+  this->LinesOM = new OffsetsManagerArray;
+  this->StripsOM = new OffsetsManagerArray;
+  this->PolysOM = new OffsetsManagerArray;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLPolyDataWriter::~vtkXMLPolyDataWriter()
 {
+  delete this->VertsOM;
+  delete this->LinesOM;
+  delete this->StripsOM;
+  delete this->PolysOM;
 }
 
 //----------------------------------------------------------------------------
@@ -72,10 +81,10 @@ void vtkXMLPolyDataWriter::AllocatePositionArrays()
   this->NumberOfStripsPositions = new unsigned long[this->NumberOfPieces];
   this->NumberOfPolysPositions = new unsigned long[this->NumberOfPieces];
 
-  this->VertsPositions = new unsigned long*[this->NumberOfPieces];
-  this->LinesPositions = new unsigned long*[this->NumberOfPieces];
-  this->StripsPositions = new unsigned long*[this->NumberOfPieces];
-  this->PolysPositions = new unsigned long*[this->NumberOfPieces];
+  this->VertsOM->Allocate(this->NumberOfPieces, 2, this->NumberOfTimeSteps);
+  this->LinesOM->Allocate(this->NumberOfPieces, 2, this->NumberOfTimeSteps);
+  this->StripsOM->Allocate(this->NumberOfPieces, 2, this->NumberOfTimeSteps);
+  this->PolysOM->Allocate(this->NumberOfPieces, 2, this->NumberOfTimeSteps);
 }
 
 //----------------------------------------------------------------------------
@@ -87,11 +96,6 @@ void vtkXMLPolyDataWriter::DeletePositionArrays()
   delete[] this->NumberOfLinesPositions;
   delete[] this->NumberOfStripsPositions;
   delete[] this->NumberOfPolysPositions;
-
-  delete[] this->VertsPositions;
-  delete[] this->LinesPositions;
-  delete[] this->StripsPositions;
-  delete[] this->PolysPositions;
 }
 
 //----------------------------------------------------------------------------
@@ -224,29 +228,25 @@ void vtkXMLPolyDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
     return;
     }
   
-  this->VertsPositions[index] =
-    this->WriteCellsAppended("Verts", 0, indent);
+  this->WriteCellsAppended("Verts", 0, indent, &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   
-  this->LinesPositions[index] =
-    this->WriteCellsAppended("Lines", 0, indent);
+  this->WriteCellsAppended("Lines", 0, indent , &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   
-  this->StripsPositions[index] =
-    this->WriteCellsAppended("Strips", 0, indent);
+  this->WriteCellsAppended("Strips", 0, indent, &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   
-  this->PolysPositions[index] =
-    this->WriteCellsAppended("Polys", 0, indent);
+  this->WriteCellsAppended("Polys", 0, indent, &this->PolysOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -263,6 +263,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
     {
     return;
     }
+
   os.seekp(this->NumberOfLinesPositions[index]);
   this->WriteScalarAttribute("NumberOfLines",
                              input->GetLines()->GetNumberOfCells());
@@ -270,6 +271,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
     {
     return;
     }
+
   os.seekp(this->NumberOfStripsPositions[index]);
   this->WriteScalarAttribute("NumberOfStrips",
                              input->GetStrips()->GetNumberOfCells());
@@ -277,6 +279,7 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
     {
     return;
     }
+
   os.seekp(this->NumberOfPolysPositions[index]);
   this->WriteScalarAttribute("NumberOfPolys",
                              input->GetPolys()->GetNumberOfCells());
@@ -308,7 +311,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   
   // Write the Verts.
   this->WriteCellsAppendedData(input->GetVerts(), 0,
-                               this->VertsPositions[index]);
+                               this->CurrentTimeIndex,
+                               &this->VertsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -319,7 +323,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   
   // Write the Lines.
   this->WriteCellsAppendedData(input->GetLines(), 0,
-                               this->LinesPositions[index]);
+                               this->CurrentTimeIndex,
+                               &this->LinesOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -330,7 +335,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   
   // Write the Strips.
   this->WriteCellsAppendedData(input->GetStrips(), 0,
-                               this->StripsPositions[index]);
+                               this->CurrentTimeIndex,
+                               &this->StripsOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -341,7 +347,8 @@ void vtkXMLPolyDataWriter::WriteAppendedPieceData(int index)
   
   // Write the Polys.
   this->WriteCellsAppendedData(input->GetPolys(), 0,
-                               this->PolysPositions[index]);
+                               this->CurrentTimeIndex,
+                               &this->PolysOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
@@ -395,6 +402,7 @@ void vtkXMLPolyDataWriter::CalculateSuperclassFraction(float* fractions)
     }
 }
 
+//----------------------------------------------------------------------------
 int vtkXMLPolyDataWriter::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {

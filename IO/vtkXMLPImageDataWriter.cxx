@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkXMLImageDataWriter.h"
 
-vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.7");
+vtkCxxRevisionMacro(vtkXMLPImageDataWriter, "1.8");
 vtkStandardNewMacro(vtkXMLPImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -58,9 +58,9 @@ const char* vtkXMLPImageDataWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPImageDataWriter::WritePrimaryElementAttributes()
+void vtkXMLPImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
 {
-  this->Superclass::WritePrimaryElementAttributes();
+  this->Superclass::WritePrimaryElementAttributes(os, indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;

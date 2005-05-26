@@ -63,7 +63,7 @@ protected:
   
   // The position of the appended data offset attribute for the points
   // array.
-  unsigned long* PointsPosition;
+  OffsetsManagerGroup *PointsOM;  //one per piece
 
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();

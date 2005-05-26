@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkXMLDataElement, "1.22");
+vtkCxxRevisionMacro(vtkXMLDataElement, "1.23");
 vtkStandardNewMacro(vtkXMLDataElement);
 
 //----------------------------------------------------------------------------
@@ -482,91 +482,88 @@ vtkXMLDataElement* vtkXMLDataElement::LookupElementUpScope(const char* id)
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, int& value)
 {
-  return this->GetVectorAttribute(name, 1, &value);
+  return this->GetVectorAttribute(name, &value);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, float& value)
 {
-  return this->GetVectorAttribute(name, 1, &value);
+  return this->GetVectorAttribute(name, &value);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name, double& value)
 {
-  return this->GetVectorAttribute(name, 1, &value);
+  return this->GetVectorAttribute(name, &value);
 }
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name,
                                           unsigned long& value)
 {
-  return this->GetVectorAttribute(name, 1, &value);
+  return this->GetVectorAttribute(name, &value);
 }
 
 //----------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
 int vtkXMLDataElement::GetScalarAttribute(const char* name, vtkIdType& value)
 {
-  return this->GetVectorAttribute(name, 1, &value);
+  return this->GetVectorAttribute(name, &value);
 }
 #endif
 
 //----------------------------------------------------------------------------
 template <class T>
-int vtkXMLDataElementVectorAttributeParse(const char* str, int length, T* data)
+int vtkXMLDataElementVectorAttributeParse(const char* str, T* data)
 {
-  if(!str || !length || !data) { return 0; }
+  if(!str || !data)
+    {
+    return 0;
+    }
   strstream vstr;
   vstr << str << ends;  
-  int i;
-  for(i=0;i < length;++i)
+  int i=0;
+  while(vstr >> data[i])
     {
-    vstr >> data[i];
-    if(!vstr) { return i; }
+    ++i;
     }
-  return length;
+  return i;
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          int* data)
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
-                                               length, data);
+                                               data);
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          float* data)
+int vtkXMLDataElement::GetVectorAttribute(const char* name, float* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
-                                               length, data);
+                                               data);
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          double* data)
+int vtkXMLDataElement::GetVectorAttribute(const char* name, double* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
-                                               length, data);
+                                               data);
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          unsigned long* data)
+int vtkXMLDataElement::GetVectorAttribute(const char* name, unsigned long* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
-                                               length, data);
+                                               data);
 }
 
 //----------------------------------------------------------------------------
 #ifdef VTK_USE_64BIT_IDS
-int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
-                                          vtkIdType* data)
+int vtkXMLDataElement::GetVectorAttribute(const char* name, vtkIdType* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
-                                               length, data);
+                                               data);
 }
 #endif
 

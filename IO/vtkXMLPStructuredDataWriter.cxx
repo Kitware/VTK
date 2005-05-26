@@ -18,7 +18,7 @@
 #include "vtkErrorCode.h"
 #include "vtkDataSet.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.3");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataWriter, "1.4");
 vtkCxxSetObjectMacro(vtkXMLPStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -49,11 +49,11 @@ void vtkXMLPStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes()
+void vtkXMLPStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
 {
   vtkDataSet* input = this->GetInputAsDataSet();  
   this->WriteVectorAttribute("WholeExtent", 6, input->GetWholeExtent());
-  this->Superclass::WritePrimaryElementAttributes();
+  this->Superclass::WritePrimaryElementAttributes(os, indent);
 }
 
 //----------------------------------------------------------------------------

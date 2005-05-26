@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.9");
+vtkCxxRevisionMacro(vtkXMLPStructuredGridReader, "1.10");
 vtkStandardNewMacro(vtkXMLPStructuredGridReader);
 
 //----------------------------------------------------------------------------

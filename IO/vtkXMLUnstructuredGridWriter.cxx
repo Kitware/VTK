@@ -22,18 +22,23 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.11");
+#include <assert.h>
+
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.12");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredGridWriter::vtkXMLUnstructuredGridWriter()
 {
+  this->CellsOM = new OffsetsManagerArray;
 }
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredGridWriter::~vtkXMLUnstructuredGridWriter()
 {
+  delete this->CellsOM;
 }
 
 //----------------------------------------------------------------------------
@@ -109,7 +114,7 @@ void vtkXMLUnstructuredGridWriter::AllocatePositionArrays()
   this->Superclass::AllocatePositionArrays();
 
   this->NumberOfCellsPositions = new unsigned long[this->NumberOfPieces];
-  this->CellsPositions = new unsigned long*[this->NumberOfPieces];
+  this->CellsOM->Allocate(this->NumberOfPieces,3,this->NumberOfTimeSteps);
 }
 
 //----------------------------------------------------------------------------
@@ -117,8 +122,8 @@ void vtkXMLUnstructuredGridWriter::DeletePositionArrays()
 {
   this->Superclass::DeletePositionArrays();
 
-  delete [] this->CellsPositions;
   delete [] this->NumberOfCellsPositions;
+  this->NumberOfCellsPositions = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -145,15 +150,16 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index,
     return;
     }
   
-  this->CellsPositions[index] =
-    this->WriteCellsAppended("Cells", input->GetCellTypesArray(), indent);  
+  this->WriteCellsAppended("Cells", input->GetCellTypesArray(), indent, 
+    &this->CellsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
 {
   ostream& os = *(this->Stream);
-  vtkUnstructuredGrid* input = this->GetInput();  
+  vtkUnstructuredGrid* input = this->GetInput();
+
   unsigned long returnPosition = os.tellp();
   os.seekp(this->NumberOfCellsPositions[index]);
   this->WriteScalarAttribute("NumberOfCells", input->GetNumberOfCells());
@@ -183,9 +189,10 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   // Set range of progress for the cell specifications.
   this->SetProgressRange(progressRange, 1, fractions);
   
-  // Write the cell specifications.
-  this->WriteCellsAppendedData(input->GetCells(), input->GetCellTypesArray(),
-                               this->CellsPositions[index]);
+  // Write the cell specification arrays.
+  this->WriteCellsAppendedData( input->GetCells(), 
+    input->GetCellTypesArray(), this->CurrentTimeIndex,
+    &this->CellsOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------

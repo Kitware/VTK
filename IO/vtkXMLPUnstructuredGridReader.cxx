@@ -24,7 +24,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredGridReader, "1.9");
 vtkStandardNewMacro(vtkXMLPUnstructuredGridReader);
 
 //----------------------------------------------------------------------------

@@ -19,7 +19,7 @@
 // the StartElement method.  Each element end tag is sent to the
 // EndElement method.  Subclasses should replace these methods to actually
 // use the tags.
-// ToDo: Add commands for parsing in Tcl.
+// .SECTION ToDo: Add commands for parsing in Tcl.
 
 #ifndef __vtkXMLParser_h
 #define __vtkXMLParser_h
@@ -46,6 +46,7 @@ public:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
+  //ETX
 
   // Description:
   // Used by subclasses and their supporting classes.  These methods
@@ -53,7 +54,6 @@ public:
   // work-around stream bugs on various platforms.
   long TellG();
   void SeekG(long position);
-  //ETX
 
   // Description:
   // Parse the XML input.

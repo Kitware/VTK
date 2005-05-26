@@ -22,11 +22,8 @@
 
 #include "vtkXMLWriter.h"
 
-class vtkDataSet;
-class vtkPointData;
 class vtkExtentTranslator;
 class vtkDataArray;
-class vtkDataSetAttributes;
 class vtkInformation;
 class vtkInformationVector;
 
@@ -59,7 +56,7 @@ protected:
   ~vtkXMLStructuredDataWriter();  
   
   // Writing drivers defined by subclasses.
-  virtual void WritePrimaryElementAttributes();
+  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   virtual void WriteAppendedPiece(int index, vtkIndent indent);
   virtual void WriteAppendedPieceData(int index);
   virtual void WriteInlinePiece(vtkIndent indent);
@@ -105,7 +102,11 @@ protected:
   float* ProgressFractions;
 
   int CurrentPiece;
-  
+
+  // Store offset position (add TimeStep support)
+  OffsetsManagerArray *PointDataOM;
+  OffsetsManagerArray *CellDataOM;
+ 
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&);  // Not implemented.
   void operator=(const vtkXMLStructuredDataWriter&);  // Not implemented.

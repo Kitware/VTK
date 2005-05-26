@@ -107,7 +107,18 @@ protected:
   
   // The observer to report progress from reading data from XMLParser.
   vtkCallbackCommand* DataProgressObserver;  
-  
+
+  // Specify the last time step read, usefull to know if we need to rearead data
+  // //PointData
+  int *PointDataTimeStep;
+  unsigned long *PointDataOffset;
+  int PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
+
+  //CellData
+  int *CellDataTimeStep;
+  unsigned long *CellDataOffset;
+  int CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested);
+ 
 private:
   vtkXMLDataReader(const vtkXMLDataReader&);  // Not implemented.
   void operator=(const vtkXMLDataReader&);  // Not implemented.

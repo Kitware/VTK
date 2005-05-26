@@ -66,7 +66,7 @@ protected:
   
   virtual vtkXMLWriter* CreatePieceWriter(int index)=0;
   
-  virtual void WritePrimaryElementAttributes();
+  virtual void WritePrimaryElementAttributes(ostream &os, vtkIndent indent);
   int WriteData();
   virtual void WritePData(vtkIndent indent);
   virtual void WritePPieceAttributes(int index);

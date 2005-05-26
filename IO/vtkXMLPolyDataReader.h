@@ -93,7 +93,17 @@ protected:
   vtkIdType* NumberOfLines;
   vtkIdType* NumberOfStrips;
   vtkIdType* NumberOfPolys;
-  
+
+  // For TimeStep support
+  int VertsTimeStep;
+  unsigned long VertsOffset;
+  int LinesTimeStep;
+  unsigned long LinesOffset;
+  int StripsTimeStep;
+  unsigned long StripsOffset;
+  int PolysTimeStep;
+  unsigned long PolysOffset;
+
 private:
   vtkXMLPolyDataReader(const vtkXMLPolyDataReader&);  // Not implemented.
   void operator=(const vtkXMLPolyDataReader&);  // Not implemented.

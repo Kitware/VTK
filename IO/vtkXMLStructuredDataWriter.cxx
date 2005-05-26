@@ -25,8 +25,9 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkOffsetsManagerArray.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.12");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.13");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -41,6 +42,9 @@ vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
 
   this->CurrentPiece = 0;
   this->ProgressFractions = 0;
+  this->FieldDataOM->Allocate(0);
+  this->PointDataOM = new OffsetsManagerArray;
+  this->CellDataOM  = new OffsetsManagerArray;
 }
 
 //----------------------------------------------------------------------------
@@ -48,6 +52,8 @@ vtkXMLStructuredDataWriter::~vtkXMLStructuredDataWriter()
 {
   this->SetExtentTranslator(0);
   delete[] this->ProgressFractions;
+  delete this->PointDataOM;
+  delete this->CellDataOM;
 }
 
 //----------------------------------------------------------------------------
@@ -138,11 +144,11 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         return 0;
         }
 
-      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOffsets)
+      if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
         this->WriteFieldDataAppendedData(this->GetInput()->GetFieldData(),
-          this->FieldDataOffsets);
+          this->CurrentTimeIndex, this->FieldDataOM);
         if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
           {
           this->DeletePositionArrays();
@@ -193,6 +199,9 @@ void vtkXMLStructuredDataWriter::AllocatePositionArrays()
   // offsets for each piece.
   this->PointDataOffsets = new unsigned long*[this->NumberOfPieces];
   this->CellDataOffsets = new unsigned long*[this->NumberOfPieces];
+
+  this->PointDataOM->Allocate(this->NumberOfPieces);
+  this->CellDataOM->Allocate(this->NumberOfPieces);
 }
 
 //----------------------------------------------------------------------------
@@ -200,11 +209,6 @@ void vtkXMLStructuredDataWriter::DeletePositionArrays()
 {
   delete [] this->PointDataOffsets;
   delete [] this->CellDataOffsets;
-  if (this->FieldDataOffsets)
-    {
-    delete [] this->FieldDataOffsets;
-    this->FieldDataOffsets = NULL;
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -214,16 +218,10 @@ int vtkXMLStructuredDataWriter::WriteHeader()
 
   ostream& os = *(this->Stream);
   
-  // Open the primary element.
-  os << indent << "<" << this->GetDataSetName();
-  this->WritePrimaryElementAttributes();
-  
-  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
+  if(!this->WritePrimaryElement(os, indent))
     {
     return 0;
     }
-  
-  os << ">\n";
 
   this->WriteFieldData(indent.GetNextIndent());
 
@@ -523,8 +521,11 @@ vtkXMLStructuredDataWriter
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes()
+void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes(ostream &os, 
+                                                               vtkIndent indent)
 {
+  this->Superclass::WritePrimaryElementAttributes(os, indent);
+
   this->WriteVectorAttribute("WholeExtent", 6, this->WriteExtent);
 }
 
@@ -534,14 +535,14 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
 {
   // Write the point data and cell data arrays.
   vtkDataSet* input = this->GetInputAsDataSet();
-  this->PointDataOffsets[index] =
-    this->WritePointDataAppended(input->GetPointData(), indent);
+  this->WritePointDataAppended(input->GetPointData(), indent, 
+    &this->PointDataOM->GetPiece(index));
   if (!this->PointDataOffsets[index])
     {
     return;
     }
-  this->CellDataOffsets[index] =
-    this->WriteCellDataAppended(input->GetCellData(), indent);
+  this->WriteCellDataAppended(input->GetCellData(), indent, 
+    &this->CellDataOM->GetPiece(index));
   if (!this->CellDataOffsets[index])
     {
     return;
@@ -569,8 +570,8 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
   
   // Set the range of progress for the point data arrays.
   this->SetProgressRange(progressRange, 0, fractions);
-  this->WritePointDataAppendedData(input->GetPointData(),
-                                   this->PointDataOffsets[index]);
+  this->WritePointDataAppendedData(input->GetPointData(), this->CurrentTimeIndex,
+                                   &this->PointDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
@@ -578,8 +579,8 @@ void vtkXMLStructuredDataWriter::WriteAppendedPieceData(int index)
   
   // Set the range of progress for the cell data arrays.
   this->SetProgressRange(progressRange, 1, fractions);
-  this->WriteCellDataAppendedData(input->GetCellData(),
-                                  this->CellDataOffsets[index]);
+  this->WriteCellDataAppendedData(input->GetCellData(), this->CurrentTimeIndex,
+                                  &this->CellDataOM->GetPiece(index));
 }
 
 //----------------------------------------------------------------------------

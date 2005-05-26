@@ -55,6 +55,7 @@ public:
   // SetupOutputInformation to outInfo
   virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
 
+
 protected:
   vtkXMLUnstructuredDataReader();
   ~vtkXMLUnstructuredDataReader();
@@ -109,6 +110,13 @@ protected:
   vtkXMLDataElement** PointElements;
   vtkIdType* NumberOfPoints;
   
+  int PointsTimeStep;
+  unsigned long PointsOffset;
+  int PointsNeedToReadTimeStep(vtkXMLDataElement *eNested);
+  int CellsNeedToReadTimeStep(vtkXMLDataElement *eNested, int &cellstimestep, 
+    unsigned long &cellsoffset);
+
+
 private:
   vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&);  // Not implemented.
   void operator=(const vtkXMLUnstructuredDataReader&);  // Not implemented.

@@ -64,7 +64,7 @@ protected:
   void CalculateSuperclassFraction(float* fractions);
   
   // Coordinate array appended data positions.
-  unsigned long** CoordinatePositions;
+  OffsetsManagerArray *CoordinateOM;
 
   virtual void AllocatePositionArrays();
   virtual void DeletePositionArrays();

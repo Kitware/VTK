@@ -19,7 +19,7 @@
 #include "vtkPolyData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLPPolyDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLPPolyDataWriter, "1.7");
 vtkStandardNewMacro(vtkXMLPPolyDataWriter);
 
 //----------------------------------------------------------------------------

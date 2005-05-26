@@ -17,7 +17,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataWriter, "1.6");
+vtkCxxRevisionMacro(vtkXMLImageDataWriter, "1.7");
 vtkStandardNewMacro(vtkXMLImageDataWriter);
 
 //----------------------------------------------------------------------------
@@ -61,9 +61,9 @@ const char* vtkXMLImageDataWriter::GetDefaultFileExtension()
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLImageDataWriter::WritePrimaryElementAttributes()
+void vtkXMLImageDataWriter::WritePrimaryElementAttributes(ostream &os, vtkIndent indent)
 {
-  this->Superclass::WritePrimaryElementAttributes();
+  this->Superclass::WritePrimaryElementAttributes(os, indent);
   vtkImageData* input = this->GetInput();
   this->WriteVectorAttribute("Origin", 3, input->GetOrigin());
   this->WriteVectorAttribute("Spacing", 3, input->GetSpacing());

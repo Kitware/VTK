@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.24");
+vtkCxxRevisionMacro(vtkXMLParser, "1.25");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
