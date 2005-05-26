@@ -57,4 +57,4 @@ protected:
 };
 
 #endif /* __vtkEventForwarderCommand_h */
- 
+
