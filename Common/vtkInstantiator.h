@@ -33,15 +33,16 @@
 // class from that kit will be linked into your executable whether or
 // not the class is used.  The headers are:
 //
-//   vtkCommon    - vtkCommonInstantiator.h
-//   vtkFiltering - vtkFilteringInstantiator.h
-//   vtkIO        - vtkIOInstantiator.h
-//   vtkImaging   - vtkImagingInstantiator.h
-//   vtkGraphics  - vtkGraphicsInstantiator.h
-//   vtkRendering - vtkRenderingInstantiator.h
-//   vtkHybrid    - vtkHybridInstantiator.h
-//   vtkParallel  - vtkParallelInstantiator.h
-//   vtkPatented  - vtkPatentedInstantiator.h
+//   vtkCommon          - vtkCommonInstantiator.h
+//   vtkFiltering       - vtkFilteringInstantiator.h
+//   vtkIO              - vtkIOInstantiator.h
+//   vtkImaging         - vtkImagingInstantiator.h
+//   vtkGraphics        - vtkGraphicsInstantiator.h
+//   vtkRendering       - vtkRenderingInstantiator.h
+//   vtkVolumeRendering - vtkVolumeRenderingInstantiator.h
+//   vtkHybrid          - vtkHybridInstantiator.h
+//   vtkParallel        - vtkParallelInstantiator.h
+//   vtkPatented        - vtkPatentedInstantiator.h
 //
 // The VTK_MAKE_INSTANTIATOR() command in CMake is used to automatically
 // generate the creator registration for each VTK library.  It can also
