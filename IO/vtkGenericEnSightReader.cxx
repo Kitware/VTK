@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.71");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.72");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -789,7 +789,6 @@ void vtkGenericEnSightReader::AddVariableDescription(const char* description)
   int size = this->NumberOfVariables;
   int i;
   
-
   char ** newDescriptionList = new char *[size]; // temporary array    
   
   // copy descriptions to temporary array
@@ -824,6 +823,7 @@ void vtkGenericEnSightReader::AddVariableDescription(const char* description)
   vtkDebugMacro("description: " << this->VariableDescriptions[size]);
 }
 
+//----------------------------------------------------------------------------
 void vtkGenericEnSightReader::AddComplexVariableDescription(const char* description)
 {
   int i;
@@ -861,6 +861,7 @@ void vtkGenericEnSightReader::AddComplexVariableDescription(const char* descript
                 << this->ComplexVariableDescriptions[size]);
 }
 
+//----------------------------------------------------------------------------
 int vtkGenericEnSightReader::GetNumberOfVariables(int type)
 {
   switch (type)
@@ -895,6 +896,7 @@ int vtkGenericEnSightReader::GetNumberOfVariables(int type)
     }
 }
 
+//----------------------------------------------------------------------------
 const char* vtkGenericEnSightReader::GetDescription(int n)
 {
   if (n < this->NumberOfVariables)
@@ -904,6 +906,7 @@ const char* vtkGenericEnSightReader::GetDescription(int n)
   return NULL;
 }
 
+//----------------------------------------------------------------------------
 const char* vtkGenericEnSightReader::GetComplexDescription(int n)
 {
   if (n < this->NumberOfComplexVariables)
@@ -913,6 +916,7 @@ const char* vtkGenericEnSightReader::GetComplexDescription(int n)
   return NULL;
 }
 
+//----------------------------------------------------------------------------
 const char* vtkGenericEnSightReader::GetDescription(int n, int type)
 {
   int i, numMatches = 0;

@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.36");
+vtkCxxRevisionMacro(vtkImageReader2, "1.37");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -535,11 +535,13 @@ int vtkImageReader2::OpenFile()
 }
 
 
+//----------------------------------------------------------------------------
 unsigned long vtkImageReader2::GetHeaderSize()
 {
   return this->GetHeaderSize(this->DataExtent[4]);
 }
 
+//----------------------------------------------------------------------------
 unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
 {
   if (!this->FileName && !this->FilePattern)
@@ -565,6 +567,7 @@ unsigned long vtkImageReader2::GetHeaderSize(unsigned long idx)
   return this->HeaderSize;
 }
 
+//----------------------------------------------------------------------------
 void vtkImageReader2::SeekFile(int i, int j, int k)
 {
   unsigned long streamStart;
