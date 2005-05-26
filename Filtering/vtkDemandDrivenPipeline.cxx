@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.27");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.28");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -925,16 +925,29 @@ vtkDataObject* vtkDemandDrivenPipeline::NewDataObject(const char* type)
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 {
-  // If the data are out of date, we need to execute.
+  // If the filter parameters or input have been modified since the
+  // last execution then we must execute.  This is a shortcut for most
+  // filters since all outputs will have the same UpdateTime.  This
+  // also handles the case in which there are no outputs.
   if(this->PipelineMTime > this->DataTime.GetMTime())
     {
     return 1;
     }
 
-  // If no port is specified, check all ports.  Subclass
-  // implementations might use the port number.
-  if(outputPort < 0)
+  if(outputPort >= 0)
     {
+    // If the output on the port making the request is out-of-date
+    // then we must execute.
+    vtkInformation* info = this->GetOutputInformation(outputPort);
+    vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
+    if(!data || this->PipelineMTime > data->GetUpdateTime())
+      {
+      return 1;
+      }
+    }
+  else
+    {
+    // No port is specified.  Check all ports.
     for(int i=0; i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
       {
       if(this->NeedToExecuteData(i))
