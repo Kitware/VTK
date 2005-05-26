@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.28");
+vtkCxxRevisionMacro(vtkXMLReader, "1.29");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -456,7 +456,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
 void vtkXMLReader::ReadXMLData()
 {
   // Initialize the output's data.
-  if( !this->FileWasReadOnce )
+  //if( !this->FileWasReadOnce )
     {
     this->SetupOutputData();
     }
