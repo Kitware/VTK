@@ -186,7 +186,6 @@ protected:
   virtual int NeedToExecuteData(int outputPort);
 
   // Override these to handle the continue-executing option.
-  virtual int ExecuteData(vtkInformation* request);
   virtual void ExecuteDataStart(vtkInformation* request);
   virtual void ExecuteDataEnd(vtkInformation* request);
 

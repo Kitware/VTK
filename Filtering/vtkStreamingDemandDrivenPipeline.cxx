@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.28");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.29");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -626,10 +626,12 @@ int vtkStreamingDemandDrivenPipeline::VerifyOutputInformation(int outputPort)
 }
 
 //----------------------------------------------------------------------------
-int vtkStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
+void
+vtkStreamingDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
 {
   // Preserve the execution continuation flag in the request across
-  // iterations of the algorithm.
+  // iterations of the algorithm.  Perform start operations only if
+  // not in an execute continuation.
   if(this->ContinueExecuting)
     {
     request->Set(CONTINUE_EXECUTING(), 1);
@@ -637,32 +639,6 @@ int vtkStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
   else
     {
     request->Remove(CONTINUE_EXECUTING());
-    }
-
-  // Let the superclass execute the filter.
-  int result = this->Superclass::ExecuteData(request);
-
-  // Preserve the execution continuation flag in the request across
-  // iterations of the algorithm.
-  if(request->Get(CONTINUE_EXECUTING()))
-    {
-    this->ContinueExecuting = 1;
-    }
-  else
-    {
-    this->ContinueExecuting = 0;
-    }
-
-  return result;
-}
-
-//----------------------------------------------------------------------------
-void
-vtkStreamingDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
-{
-  // Perform start operations only if not in an execute continuation.
-  if(!this->ContinueExecuting)
-    {
     this->Superclass::ExecuteDataStart(request);
     }
 }
@@ -671,9 +647,16 @@ vtkStreamingDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request)
 void
 vtkStreamingDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
 {
-  // Perform end operations only if not in an execute continuation.
-  if(!this->ContinueExecuting)
+  // Preserve the execution continuation flag in the request across
+  // iterations of the algorithm.  Perform start operations only if
+  // not in an execute continuation.
+  if(request->Get(CONTINUE_EXECUTING()))
     {
+    this->ContinueExecuting = 1;
+    }
+  else
+    {
+    this->ContinueExecuting = 0;
     this->Superclass::ExecuteDataEnd(request);
     }
 }
