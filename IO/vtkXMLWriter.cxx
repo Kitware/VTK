@@ -40,7 +40,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.49");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.50");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -159,6 +159,10 @@ void vtkXMLWriter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Stream: (none)\n";
     }
+  os << indent << "TimeStep:" << this->TimeStep << "\n";
+  os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
+  os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << "," 
+                                    << this->TimeStepRange[1] << ")\n";
 }
 
 //----------------------------------------------------------------------------

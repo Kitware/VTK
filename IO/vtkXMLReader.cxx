@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.27");
+vtkCxxRevisionMacro(vtkXMLReader, "1.28");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -108,6 +108,10 @@ void vtkXMLReader::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Stream: (none)\n";
     }
+  os << indent << "TimeStep:" << this->TimeStep << "\n";
+  os << indent << "NumberOfTimeSteps:" << this->NumberOfTimeSteps << "\n";
+  os << indent << "TimeStepRange:(" << this->TimeStepRange[0] << "," 
+                                    << this->TimeStepRange[1] << ")\n";
 }
 
 //----------------------------------------------------------------------------
