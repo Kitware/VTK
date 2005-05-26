@@ -14,9 +14,9 @@
 =========================================================================*/
 // Instantiate superclass first to give the template a DLL interface.
 #include "vtkDataArrayTemplate.txx"
-#if defined(VTK_USE_64BIT_IDS) // Only need this if vtkIdType is not int.
-VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(vtkIdType);
-#endif
+// We never need to instantiate vtkDataArrayTemplate<vtkIdType>
+// because it is instantiated by the corresponding array for its
+// native type: VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(vtkIdType);
 
 #define __vtkIdTypeArray_cxx
 #include "vtkIdTypeArray.h"
@@ -24,7 +24,7 @@ VTK_DATA_ARRAY_TEMPLATE_INSTANTIATE(vtkIdType);
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkIdTypeArray, "1.10");
+vtkCxxRevisionMacro(vtkIdTypeArray, "1.11");
 vtkStandardNewMacro(vtkIdTypeArray);
 
 //----------------------------------------------------------------------------
