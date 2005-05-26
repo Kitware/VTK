@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridReader, "1.11");
 vtkStandardNewMacro(vtkXMLUnstructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -114,8 +114,7 @@ void vtkXMLUnstructuredGridReader::SetupPieces(int numPieces)
   this->Superclass::SetupPieces(numPieces);
   this->NumberOfCells = new vtkIdType[numPieces];
   this->CellElements = new vtkXMLDataElement*[numPieces];
-  int i;
-  for(i=0;i < numPieces; ++i)
+  for(int i=0;i < numPieces; ++i)
     {
     this->CellElements[i] = 0;
     }
@@ -264,10 +263,10 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   vtkXMLDataElement* eCells = this->CellElements[this->Piece];
   if(eCells)
     {
-    for(int i=0;(i < eCells->GetNumberOfNestedElements() &&
-             !this->AbortExecute);++i)
+//    for(int i=0;(i < eCells->GetNumberOfNestedElements() &&
+//             !this->AbortExecute);++i)
       {
-      vtkXMLDataElement* eNested = eCells->GetNestedElement(i);
+      vtkXMLDataElement* eNested = eCells->GetNestedElement(0);
       assert( strcmp(eNested->GetName(), "DataArray") == 0 );
       int needToRead = this->CellsNeedToReadTimeStep(eNested, 
         this->CellsTimeStep, this->CellsOffset);

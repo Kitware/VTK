@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.20");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.21");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -684,9 +684,9 @@ int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eN
 {
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
-  if (!numTimeSteps && this->NumberOfTimeSteps && this->PointsTimeStep != -1)
+  if (!numTimeSteps && !this->NumberOfTimeSteps && this->PointsTimeStep == -1)
     {
-    return 0;
+    return 1;
     }
   else if(!this->NumberOfTimeSteps && numTimeSteps)
     {
@@ -741,9 +741,9 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
 {
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
-  if (!numTimeSteps && this->NumberOfTimeSteps && cellstimestep != -1 )
+  if (!numTimeSteps && !this->NumberOfTimeSteps && cellstimestep == -1 )
     {
-    return 0;
+    return 1;
     }
   else if(!this->NumberOfTimeSteps && numTimeSteps)
     {
