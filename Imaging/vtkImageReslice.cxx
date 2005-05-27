@@ -24,13 +24,11 @@
 #include "vtkTransform.h"
 #include "vtkDataSetAttributes.h"
 
-#include "vtkSizedTypes.h"
-
 #include <limits.h>
 #include <float.h>
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageReslice, "1.61");
+vtkCxxRevisionMacro(vtkImageReslice, "1.62");
 vtkStandardNewMacro(vtkImageReslice);
 vtkCxxSetObjectMacro(vtkImageReslice, InformationInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkImageReslice,ResliceAxes,vtkMatrix4x4);
@@ -812,235 +810,219 @@ int vtkImageReslice::RequestInformation(
 #define VTK_RESLICE_BORDER     3   // use a half-voxel border
 #define VTK_RESLICE_NULL       4   // do nothing to *outPtr if out-of-bounds
 
+//--------------------------------------------------------------------------
+// a macro to evaluate an expression for all scalar types 
+#define vtkTypeCaseMacro(expression) \
+      case VTK_DOUBLE: { typedef double VTK_TT; expression; } \
+        break; \
+      case VTK_FLOAT: { typedef float VTK_TT; expression; } \
+        break; \
+      case VTK_LONG: { typedef long VTK_TT; expression; } \
+        break; \
+      case VTK_UNSIGNED_LONG: { typedef unsigned long VTK_TT; expression; } \
+        break; \
+      case VTK_INT: { typedef int VTK_TT; expression; } \
+        break; \
+      case VTK_UNSIGNED_INT: { typedef unsigned int VTK_TT; expression; } \
+        break; \
+      case VTK_SHORT: { typedef short VTK_TT; expression; } \
+        break; \
+      case VTK_UNSIGNED_SHORT: { typedef unsigned short VTK_TT; expression; } \
+        break; \
+      case VTK_CHAR: { typedef char VTK_TT; expression; } \
+        break; \
+      case VTK_UNSIGNED_CHAR: { typedef unsigned char VTK_TT; expression; } \
+        break
+
 //----------------------------------------------------------------------------
 // rounding functions for each type, where 'F' is a floating-point type
 
-#if defined(VTK_USE_INT8)
 template <class F>
-inline void vtkResliceRound(F val, vtkInt8Type& rnd)
+inline void vtkResliceRound(F val, char& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_UINT8)
 template <class F>
-inline void vtkResliceRound(F val, vtkUInt8Type& rnd)
+inline void vtkResliceRound(F val, unsigned char& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_INT16)
 template <class F>
-inline void vtkResliceRound(F val, vtkInt16Type& rnd)
+inline void vtkResliceRound(F val, short& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_UINT16)
 template <class F>
-inline void vtkResliceRound(F val, vtkUInt16Type& rnd)
+inline void vtkResliceRound(F val, unsigned short& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_INT32)
 template <class F>
-inline void vtkResliceRound(F val, vtkInt32Type& rnd)
+inline void vtkResliceRound(F val, int& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_UINT32)
 template <class F>
-inline void vtkResliceRound(F val, vtkUInt32Type& rnd)
+inline void vtkResliceRound(F val, unsigned int& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_INT64)
 template <class F>
-inline void vtkResliceRound(F val, vtkInt64Type& rnd)
+inline void vtkResliceRound(F val, long& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif 
 
-#if defined(VTK_USE_UINT64)
 template <class F>
-inline void vtkResliceRound(F val, vtkUInt64Type& rnd)
+inline void vtkResliceRound(F val, unsigned long& rnd)
 {
   rnd = vtkResliceRound(val);
 }
-#endif
 
-#if defined(VTK_USE_FLOAT32)
 template <class F>
-inline void vtkResliceRound(F val, vtkFloat32Type& rnd)
+inline void vtkResliceRound(F val, float& rnd)
 {
   rnd = val;
 }
-#endif
 
-#if defined(VTK_USE_FLOAT64)
 template <class F>
-inline void vtkResliceRound(F val, vtkFloat64Type& rnd)
+inline void vtkResliceRound(F val, double& rnd)
 {
   rnd = val;
 }
-#endif
 
 //----------------------------------------------------------------------------
 // clamping functions for each type
 
-#if defined(VTK_USE_INT8)
 template <class F>
-inline void vtkResliceClamp(F val, vtkInt8Type& clamp)
+inline void vtkResliceClamp(F val, char& clamp)
 {
-  if (val < -128.0)
+  if (val < VTK_CHAR_MIN)
     { 
-    val = -128.0;
+    val = VTK_CHAR_MIN;
     }
-  if (val > 127.0)
+  if (val > VTK_CHAR_MAX)
     { 
-    val = 127.0;
+    val = VTK_CHAR_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_UINT8)
 template <class F>
-inline void vtkResliceClamp(F val, vtkUInt8Type& clamp)
+inline void vtkResliceClamp(F val, unsigned char& clamp)
 {
-  if (val < 0)
+  if (val < VTK_UNSIGNED_CHAR_MIN)
     { 
-    val = 0;
+    val = VTK_UNSIGNED_CHAR_MIN;
     }
-  if (val > 255.0)
+  if (val > VTK_UNSIGNED_CHAR_MAX)
     { 
-    val = 255.0;
+    val = VTK_UNSIGNED_CHAR_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_INT16)
 template <class F>
-inline void vtkResliceClamp(F val, vtkInt16Type& clamp)
+inline void vtkResliceClamp(F val, short& clamp)
 {
-  if (val < -32768.0)
+  if (val < VTK_SHORT_MIN)
     { 
-    val = -32768.0;
+    val = VTK_SHORT_MIN;
     }
-  if (val > 32767.0)
+  if (val > VTK_SHORT_MAX)
     { 
-    val = 32767.0;
+    val = VTK_SHORT_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_UINT16)
 template <class F>
-inline void vtkResliceClamp(F val, vtkUInt16Type& clamp)
+inline void vtkResliceClamp(F val, unsigned short& clamp)
 {
-  if (val < 0)
+  if (val < VTK_UNSIGNED_SHORT_MIN)
     { 
-    val = 0;
+    val = VTK_UNSIGNED_SHORT_MIN;
     }
-  if (val > 65535.0)
+  if (val > VTK_UNSIGNED_SHORT_MAX)
     { 
-    val = 65535.0;
+    val = VTK_UNSIGNED_SHORT_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_INT32)
 template <class F>
-inline void vtkResliceClamp(F val, vtkInt32Type& clamp)
+inline void vtkResliceClamp(F val, int& clamp)
 {
-  if (val < -2147483648.0) 
+  if (val < VTK_INT_MIN) 
     {
-    val = -2147483648.0;
+    val = VTK_INT_MIN;
     }
-  if (val > 2147483647.0) 
+  if (val > VTK_INT_MAX) 
     {
-    val = 2147483647.0;
+    val = VTK_INT_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_UINT32)
 template <class F>
-inline void vtkResliceClamp(F val, vtkUInt32Type& clamp)
+inline void vtkResliceClamp(F val, unsigned int& clamp)
 {
-  if (val < 0)
+  if (val < VTK_UNSIGNED_INT_MIN)
     { 
-    val = 0;
+    val = VTK_UNSIGNED_INT_MIN;
     }
-  if (val > 4294967295.0)
+  if (val > VTK_UNSIGNED_INT_MAX)
     { 
-    val = 4294967295.0;
+    val = VTK_UNSIGNED_INT_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_INT64)
 template <class F>
-inline void vtkResliceClamp(F val, vtkInt64Type& clamp)
+inline void vtkResliceClamp(F val, long& clamp)
 {
-  if (val < -9223372036854775808.0) 
+  if (val < VTK_LONG_MIN) 
     {
-    val = -9223372036854775808.0;
+    val = VTK_LONG_MIN;
     }
-  if (val > 9223372036854775807.0) 
+  if (val > VTK_LONG_MAX) 
     {
-    val = 9223372036854775807.0;
+    val = VTK_LONG_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif 
 
-#if defined(VTK_USE_UINT64)
 template <class F>
-inline void vtkResliceClamp(F val, vtkUInt64Type& clamp)
+inline void vtkResliceClamp(F val, unsigned long& clamp)
 {
-  if (val < 0)
+  if (val < VTK_UNSIGNED_LONG_MIN)
     { 
-    val = 0;
+    val = VTK_UNSIGNED_LONG_MIN;
     }
-  if (val > 18446744073709551615.0)
+  if (val > VTK_UNSIGNED_LONG_MAX)
     { 
-    val = 18446744073709551615.0;
+    val = VTK_UNSIGNED_LONG_MAX;
     }
   vtkResliceRound(val,clamp);
 }
-#endif
 
-#if defined(VTK_USE_FLOAT32)
 template <class F>
-inline void vtkResliceClamp(F val, vtkFloat32Type& clamp)
+inline void vtkResliceClamp(F val, float& clamp)
 {
   clamp = val;
 }
-#endif
 
-#if defined(VTK_USE_FLOAT64)
 template <class F>
-inline void vtkResliceClamp(F val, vtkFloat64Type& clamp)
+inline void vtkResliceClamp(F val, double& clamp)
 {
   clamp = val;
 }
-#endif
 
 //----------------------------------------------------------------------------
 // Perform a wrap to limit an index to [0,range).
@@ -1613,7 +1595,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
     case VTK_RESLICE_NEAREST:
       switch (dataType)
         {
-        vtkSizedTemplateMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
                                      const int inExt[6],
                                      const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
@@ -1627,7 +1609,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
     case VTK_RESLICE_LINEAR:
       switch (dataType)
         {
-        vtkSizedTemplateMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
                                      const int inExt[6],
                                      const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
@@ -1641,7 +1623,7 @@ void vtkGetResliceInterpFunc(vtkImageReslice *self,
     case VTK_RESLICE_CUBIC:
       switch (dataType)
         {
-        vtkSizedTemplateMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
+        vtkTypeCaseMacro(*((int (**)(VTK_TT *&outPtr, const VTK_TT *inPtr,
                                      const int inExt[6],
                                      const vtkIdType inInc[3],
                                      int numscalars, const F point[3],
@@ -1704,7 +1686,7 @@ void vtkGetSetPixelsFunc(vtkImageReslice *self,
     case 1:
       switch (dataType)
         {
-        vtkSizedTemplateMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n))setpixels) = \
                          vtkSetPixels1);
         default:
@@ -1713,7 +1695,7 @@ void vtkGetSetPixelsFunc(vtkImageReslice *self,
     default:
       switch (dataType)
         {
-        vtkSizedTemplateMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n))setpixels) = \
                          vtkSetPixels);
         default:
@@ -1749,7 +1731,7 @@ void vtkAllocBackgroundPixel(vtkImageReslice *self, void **rval,
 {
   switch (self->GetOutput()->GetScalarType())
     {
-    vtkSizedTemplateMacro(vtkAllocBackgroundPixelT(self, (VTK_TT **)rval,
+    vtkTypeCaseMacro(vtkAllocBackgroundPixelT(self, (VTK_TT **)rval,
                                               numComponents));
     }
 }      
@@ -1758,7 +1740,7 @@ void vtkFreeBackgroundPixel(vtkImageReslice *self, void **rval)
 {
   switch (self->GetOutput()->GetScalarType())
     {
-    vtkSizedTemplateMacro(delete [] *((VTK_TT **)rval));
+    vtkTypeCaseMacro(delete [] *((VTK_TT **)rval));
     }
 
   *rval = 0;
@@ -2708,7 +2690,7 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
     case VTK_RESLICE_NEAREST:
       switch (scalarType)
         {
-        vtkSizedTemplateMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
                                       const vtkIdType *iX, const F *fX,
                                       const vtkIdType *iY, const F *fY,
@@ -2722,7 +2704,7 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
     case VTK_RESLICE_LINEAR:
       switch (scalarType)
         {
-        vtkSizedTemplateMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
                                       const vtkIdType *iX, const F *fX,
                                       const vtkIdType *iY, const F *fY,
@@ -2736,7 +2718,7 @@ void vtkGetResliceSummationFunc(vtkImageReslice *self,
     case VTK_RESLICE_CUBIC:
       switch (scalarType)
         {
-        vtkSizedTemplateMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
+        vtkTypeCaseMacro(*((void (**)(VTK_TT *&out, const VTK_TT *in,
                                       int numscalars, int n,
                                       const vtkIdType *iX, const F *fX,
                                       const vtkIdType *iY, const F *fY,
