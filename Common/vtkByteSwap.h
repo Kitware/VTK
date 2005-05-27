@@ -33,15 +33,15 @@ public:
   // Type-safe swap signatures to swap for storage in either Little
   // Endian or Big Endian format.  Swapping is performed according to
   // the true size of the type given.
-#define VTK_BYTE_SWAP_DECL(T) \
-  static void SwapLE(T* p); \
-  static void SwapBE(T* p); \
-  static void SwapLERange(T* p, vtkIdType num); \
-  static void SwapBERange(T* p, vtkIdType num); \
-  static void SwapLERangeWrite(T* p, vtkIdType num, FILE* file); \
-  static void SwapBERangeWrite(T* p, vtkIdType num, FILE* file); \
-  static void SwapLERangeWrite(T* p, vtkIdType num, ostream* os); \
-  static void SwapBERangeWrite(T* p, vtkIdType num, ostream* os)
+#define VTK_BYTE_SWAP_DECL(T)                                                   \
+  static void SwapLE(T* p);                                                     \
+  static void SwapBE(T* p);                                                     \
+  static void SwapLERange(T* p, vtkIdType num);                                 \
+  static void SwapBERange(T* p, vtkIdType num);                                 \
+  static void SwapLERangeWrite(const T* p, vtkIdType num, FILE* file);          \
+  static void SwapBERangeWrite(const T* p, vtkIdType num, FILE* file);          \
+  static void SwapLERangeWrite(const T* p, vtkIdType num, ostream* os);         \
+  static void SwapBERangeWrite(const T* p, vtkIdType num, ostream* os)
   VTK_BYTE_SWAP_DECL(float);
   VTK_BYTE_SWAP_DECL(double);
   VTK_BYTE_SWAP_DECL(char);

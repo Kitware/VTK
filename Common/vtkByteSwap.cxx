@@ -16,7 +16,7 @@
 #include <memory.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkByteSwap, "1.46");
+vtkCxxRevisionMacro(vtkByteSwap, "1.47");
 vtkStandardNewMacro(vtkByteSwap);
 
 //----------------------------------------------------------------------------
@@ -200,20 +200,20 @@ inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, ostream* os)
 #endif
 
 //----------------------------------------------------------------------------
-#define VTK_BYTE_SWAP_IMPL(T)                                                 \
-  void vtkByteSwap::SwapLE(T* p) { vtkByteSwapLE(p); }                        \
-  void vtkByteSwap::SwapBE(T* p) { vtkByteSwapBE(p); }                        \
-  void vtkByteSwap::SwapLERange(T* p, vtkIdType num)                          \
-    { vtkByteSwapLERange(p, num); }                                           \
-  void vtkByteSwap::SwapBERange(T* p, vtkIdType num)                          \
-    { vtkByteSwapBERange(p, num); }                                           \
-  void vtkByteSwap::SwapLERangeWrite(T* p, vtkIdType num, FILE* file)         \
-    { vtkByteSwapLERangeWrite(p, num, file); }                                \
-  void vtkByteSwap::SwapBERangeWrite(T* p, vtkIdType num, FILE* file)         \
-    { vtkByteSwapBERangeWrite(p, num, file); }                                \
-  void vtkByteSwap::SwapLERangeWrite(T* p, vtkIdType num, ostream* os)        \
-    { vtkByteSwapLERangeWrite(p, num, os); }                                  \
-  void vtkByteSwap::SwapBERangeWrite(T* p, vtkIdType num, ostream* os)        \
+#define VTK_BYTE_SWAP_IMPL(T)                                                   \
+  void vtkByteSwap::SwapLE(T* p) { vtkByteSwapLE(p); }                          \
+  void vtkByteSwap::SwapBE(T* p) { vtkByteSwapBE(p); }                          \
+  void vtkByteSwap::SwapLERange(T* p, vtkIdType num)                            \
+    { vtkByteSwapLERange(p, num); }                                             \
+  void vtkByteSwap::SwapBERange(T* p, vtkIdType num)                            \
+    { vtkByteSwapBERange(p, num); }                                             \
+  void vtkByteSwap::SwapLERangeWrite(const T* p, vtkIdType num, FILE* file)     \
+    { vtkByteSwapLERangeWrite(p, num, file); }                                  \
+  void vtkByteSwap::SwapBERangeWrite(const T* p, vtkIdType num, FILE* file)     \
+    { vtkByteSwapBERangeWrite(p, num, file); }                                  \
+  void vtkByteSwap::SwapLERangeWrite(const T* p, vtkIdType num, ostream* os)    \
+    { vtkByteSwapLERangeWrite(p, num, os); }                                    \
+  void vtkByteSwap::SwapBERangeWrite(const T* p, vtkIdType num, ostream* os)    \
     { vtkByteSwapBERangeWrite(p, num, os); }
 VTK_BYTE_SWAP_IMPL(float)
 VTK_BYTE_SWAP_IMPL(double)
@@ -255,26 +255,26 @@ typedef double vtkByteSwapType8;
 #endif
 
 //----------------------------------------------------------------------------
-#define VTK_BYTE_SWAP_SIZE(S)                                                 \
-  void vtkByteSwap::Swap##S##LE(void* p)                                      \
-    { vtkByteSwap::SwapLE(static_cast<vtkByteSwapType##S*>(p)); }             \
-  void vtkByteSwap::Swap##S##BE(void* p)                                      \
-    { vtkByteSwap::SwapBE(static_cast<vtkByteSwapType##S*>(p)); }             \
-  void vtkByteSwap::Swap##S##LERange(void* p, int n)                          \
-    { vtkByteSwap::SwapLERange(static_cast<vtkByteSwapType##S*>(p), n); }     \
-  void vtkByteSwap::Swap##S##BERange(void* p, int n)                          \
-    { vtkByteSwap::SwapBERange(static_cast<vtkByteSwapType##S*>(p), n); }     \
-  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, FILE* f)      \
-    { vtkByteSwap::SwapLERangeWrite(static_cast<vtkByteSwapType##S*>(p),      \
-                                    n, f); }                                  \
-  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, FILE* f)      \
-    { vtkByteSwap::SwapBERangeWrite(static_cast<vtkByteSwapType##S*>(p),      \
-                                    n, f); }                                  \
-  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, ostream* os)  \
-    { vtkByteSwap::SwapLERangeWrite(static_cast<vtkByteSwapType##S*>(p),      \
-                                    n, os); }                                 \
-  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, ostream* os)  \
-    { vtkByteSwap::SwapBERangeWrite(static_cast<vtkByteSwapType##S*>(p),      \
+#define VTK_BYTE_SWAP_SIZE(S)                                                   \
+  void vtkByteSwap::Swap##S##LE(void* p)                                        \
+    { vtkByteSwap::SwapLE(static_cast<vtkByteSwapType##S*>(p)); }               \
+  void vtkByteSwap::Swap##S##BE(void* p)                                        \
+    { vtkByteSwap::SwapBE(static_cast<vtkByteSwapType##S*>(p)); }               \
+  void vtkByteSwap::Swap##S##LERange(void* p, int n)                            \
+    { vtkByteSwap::SwapLERange(static_cast<vtkByteSwapType##S*>(p), n); }       \
+  void vtkByteSwap::Swap##S##BERange(void* p, int n)                            \
+    { vtkByteSwap::SwapBERange(static_cast<vtkByteSwapType##S*>(p), n); }       \
+  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, FILE* f)        \
+    { vtkByteSwap::SwapLERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, f); }                                    \
+  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, FILE* f)        \
+    { vtkByteSwap::SwapBERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, f); }                                    \
+  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, ostream* os)    \
+    { vtkByteSwap::SwapLERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, os); }                                   \
+  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, ostream* os)    \
+    { vtkByteSwap::SwapBERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
                                     n, os); }
 VTK_BYTE_SWAP_SIZE(2)
 VTK_BYTE_SWAP_SIZE(4)
