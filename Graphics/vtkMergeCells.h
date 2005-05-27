@@ -168,20 +168,12 @@ private:
   vtkIdType NumberOfPoints;
 
   char *GlobalIdArrayName;       // point, or node, IDs
-
-  vtkIdType *GlobalIdArrayIdType;
-  long *GlobalIdArrayLong;
-  int *GlobalIdArrayInt;
-  short *GlobalIdArrayShort;
-  char *GlobalIdArrayChar;
+  int GlobalIdArrayType;
+  void* GlobalIdArray;
 
   char *GlobalCellIdArrayName;   // cell IDs
-
-  vtkIdType *GlobalCellIdArrayIdType;
-  long *GlobalCellIdArrayLong;
-  int *GlobalCellIdArrayInt;
-  short *GlobalCellIdArrayShort;
-  char *GlobalCellIdArrayChar;
+  int GlobalCellIdArrayType;
+  void* GlobalCellIdArray;
 
   float PointMergeTolerance;
   int MergeDuplicatePoints;

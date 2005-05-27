@@ -41,7 +41,7 @@
 #include <vtkstd/map>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkMergeCells, "1.2");
+vtkCxxRevisionMacro(vtkMergeCells, "1.3");
 vtkStandardNewMacro(vtkMergeCells);
 
 vtkCxxSetObjectMacro(vtkMergeCells, UnstructuredGrid, vtkUnstructuredGrid);
@@ -871,138 +871,61 @@ vtkIdType *vtkMergeCells::MapPointsToIdsUsingLocator(vtkDataSet *set)
 
 vtkIdType vtkMergeCells::GlobalCellIdAccessGetId(vtkIdType idx)
 {
-  if (this->GlobalCellIdArrayIdType)
-    return this->GlobalCellIdArrayIdType[idx];
-  else if (this->GlobalCellIdArrayLong)
-    return (vtkIdType)this->GlobalCellIdArrayLong[idx];
-  else if (this->GlobalCellIdArrayInt)
-    return (vtkIdType)this->GlobalCellIdArrayInt[idx];
-  else if (this->GlobalCellIdArrayShort)
-    return (vtkIdType)this->GlobalCellIdArrayShort[idx];
-  else if (this->GlobalCellIdArrayChar)
-    return (vtkIdType)this->GlobalCellIdArrayChar[idx];
-  else
-    return 0;
+  if(this->GlobalCellIdArray)
+    {
+    switch (this->GlobalCellIdArrayType)
+      {
+      vtkTemplateMacro(
+        VTK_TT* ids = static_cast<VTK_TT*>(this->GlobalCellIdArray);
+        return static_cast<vtkIdType>(ids[idx])
+        );
+      }
+    }
+  return 0;
 }
 int vtkMergeCells::GlobalCellIdAccessStart(vtkDataSet *set)
 {
-  this->GlobalCellIdArrayChar = NULL;
-  this->GlobalCellIdArrayShort = NULL;
-  this->GlobalCellIdArrayInt = NULL;
-  this->GlobalCellIdArrayLong = NULL;
-  this->GlobalCellIdArrayIdType = NULL;
-
-  vtkDataArray *da = set->GetPointData()->GetArray(this->GlobalCellIdArrayName);
-
-  if (da == NULL) return 0;
-
-  int type = da->GetDataType();
-
-  switch (type)
-  {
-    case VTK_ID_TYPE:
-
-      this->GlobalCellIdArrayIdType = ((vtkIdTypeArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_CHAR:
-    case VTK_UNSIGNED_CHAR:
-
-      this->GlobalCellIdArrayChar = ((vtkCharArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_SHORT:
-    case VTK_UNSIGNED_SHORT:
-
-      this->GlobalCellIdArrayShort = ((vtkShortArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_INT:
-    case VTK_UNSIGNED_INT:
-
-      this->GlobalCellIdArrayInt = ((vtkIntArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_LONG:
-    case VTK_UNSIGNED_LONG:
-
-      this->GlobalCellIdArrayLong = ((vtkLongArray *)da)->GetPointer(0);
-      break;
-
-    default:
-
-      return 0;
-  }
-
-  return 1;
+  if(vtkDataArray* da =
+     set->GetPointData()->GetArray(this->GlobalCellIdArrayName))
+    {
+    this->GlobalCellIdArray = da->GetVoidPointer(0);
+    this->GlobalCellIdArrayType = da->GetDataType();
+    return 1;
+    }
+  else
+    {
+    this->GlobalCellIdArray = 0;
+    return 0;
+    }
 }
 
 vtkIdType vtkMergeCells::GlobalNodeIdAccessGetId(vtkIdType idx)
 {
-  if (this->GlobalIdArrayIdType)
-    return this->GlobalIdArrayIdType[idx];
-  else if (this->GlobalIdArrayLong)
-    return (vtkIdType)this->GlobalIdArrayLong[idx];
-  else if (this->GlobalIdArrayInt)
-    return (vtkIdType)this->GlobalIdArrayInt[idx];
-  else if (this->GlobalIdArrayShort)
-    return (vtkIdType)this->GlobalIdArrayShort[idx];
-  else if (this->GlobalIdArrayChar)
-    return (vtkIdType)this->GlobalIdArrayChar[idx];
-  else
-    return 0;
+  if(this->GlobalIdArray)
+    {
+    switch (this->GlobalIdArrayType)
+      {
+      vtkTemplateMacro(
+        VTK_TT* ids = static_cast<VTK_TT*>(this->GlobalIdArray);
+        return static_cast<vtkIdType>(ids[idx])
+        );
+      }
+    }
+  return 0;
 }
 int vtkMergeCells::GlobalNodeIdAccessStart(vtkDataSet *set)
 {
-  this->GlobalIdArrayChar = NULL;
-  this->GlobalIdArrayShort = NULL;
-  this->GlobalIdArrayInt = NULL;
-  this->GlobalIdArrayLong = NULL;
-  this->GlobalIdArrayIdType = NULL;
-
-  vtkDataArray *da = set->GetPointData()->GetArray(this->GlobalIdArrayName);
-
-  if (da == NULL) return 0;
-
-  int type = da->GetDataType();
-
-  switch (type)
-  {
-    case VTK_ID_TYPE:
-
-      this->GlobalIdArrayIdType = ((vtkIdTypeArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_CHAR:
-    case VTK_UNSIGNED_CHAR:
-
-      this->GlobalIdArrayChar = ((vtkCharArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_SHORT:
-    case VTK_UNSIGNED_SHORT:
-
-      this->GlobalIdArrayShort = ((vtkShortArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_INT:
-    case VTK_UNSIGNED_INT:
-
-      this->GlobalIdArrayInt = ((vtkIntArray *)da)->GetPointer(0);
-      break;
-
-    case VTK_LONG:
-    case VTK_UNSIGNED_LONG:
-
-      this->GlobalIdArrayLong = ((vtkLongArray *)da)->GetPointer(0);
-      break;
-
-    default:
-
-      return 0;
-  }
-
-  return 1;
+  if(vtkDataArray* da = set->GetPointData()->GetArray(this->GlobalIdArrayName))
+    {
+    this->GlobalIdArray = da->GetVoidPointer(0);
+    this->GlobalIdArrayType = da->GetDataType();
+    return 1;
+    }
+  else
+    {
+    this->GlobalIdArray = 0;
+    return 0;
+    }
 }
 
 
