@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.30");
+vtkCxxRevisionMacro(vtkXMLReader, "1.31");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -1010,17 +1010,6 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
-  // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
-    {
-    //abort();
-    //return this->RequestData(request, inputVector, outputVector);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if ( this->CurrentOutput == 0)
-    {
-    outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
-    }
-    }
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
