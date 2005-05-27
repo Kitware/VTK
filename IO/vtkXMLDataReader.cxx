@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.20");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.21");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -589,7 +589,9 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   int idx = this->PointDataArraySelection->GetArrayIndex(name);
 
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+    this->NumberOfTimeSteps, this->TimeSteps);
+  assert( numTimeSteps == this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps) // && this->PointDataTimeStep[idx] == -1)
     {
     return 1;
@@ -648,7 +650,9 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   int idx = this->CellDataArraySelection->GetArrayIndex(name);
 
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+    this->NumberOfTimeSteps, this->TimeSteps);
+  assert( numTimeSteps == this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps ) //&& this->CellDataTimeStep[idx] == -1)
     {
     return 1;

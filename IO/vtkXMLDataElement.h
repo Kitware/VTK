@@ -77,10 +77,10 @@ public:
   // Description:
   // Get the attribute with the given name and converted to a scalar
   // value.  Returns length of vector read.
-  int GetVectorAttribute(const char* name, int* value);
-  int GetVectorAttribute(const char* name, float* value);
-  int GetVectorAttribute(const char* name, double* value);
-  int GetVectorAttribute(const char* name, unsigned long* value);
+  int GetVectorAttribute(const char* name, int length, int* value);
+  int GetVectorAttribute(const char* name, int length, float* value);
+  int GetVectorAttribute(const char* name, int length, double* value);
+  int GetVectorAttribute(const char* name, int length, unsigned long* value);
   
   // Description:
   // Set the attribute with the given name.
@@ -93,7 +93,7 @@ public:
   //BTX
   int  GetScalarAttribute(const char* name, vtkIdType& value);
   void SetIdTypeAttribute(const char* name, vtkIdType value);
-  int  GetVectorAttribute(const char* name, vtkIdType* value);
+  int  GetVectorAttribute(const char* name, int length, vtkIdType* value);
   void SetVectorAttribute(const char* name, int length, const vtkIdType* value);
   //ETX
 #endif

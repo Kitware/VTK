@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -76,7 +76,9 @@ vtkXMLUnstructuredDataReader
       const char* aName = eNested->GetAttribute("Name");
       if(aName && (strcmp(aName, name) == 0))
         {
-        int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
+        int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+          this->NumberOfTimeSteps, this->TimeSteps);
+        assert( numTimeSteps == this->NumberOfTimeSteps );
         // Check if CurrentTimeStep is in the array and particular field is also:
         int isCurrentTimeInArray = 
           vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
@@ -683,7 +685,9 @@ int vtkXMLUnstructuredDataReader::ReadArrayForPoints(vtkXMLDataElement* da,
 int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+    this->NumberOfTimeSteps, this->TimeSteps);
+  assert( numTimeSteps == this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps && this->PointsTimeStep == -1)
     {
     return 1;
@@ -740,7 +744,9 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
   int &cellstimestep, unsigned long &cellsoffset)
 {
   // Easy case no timestep:
-  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
+  int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
+    this->NumberOfTimeSteps, this->TimeSteps);
+  assert( numTimeSteps == this->NumberOfTimeSteps );
   if (!numTimeSteps && !this->NumberOfTimeSteps && cellstimestep == -1 )
     {
     return 1;

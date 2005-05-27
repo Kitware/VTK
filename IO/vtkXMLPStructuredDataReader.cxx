@@ -21,7 +21,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.19");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.20");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -169,7 +169,7 @@ vtkXMLPStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   
   // Read information about the structured data.
   int extent[6];
-  if(ePrimary->GetVectorAttribute("WholeExtent", extent) < 6)
+  if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) < 6)
     {
     vtkErrorMacro(<< this->GetDataSetName()
                   << " element has no WholeExtent.");
@@ -231,7 +231,7 @@ int vtkXMLPStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
   
   // Get the extent of the piece.
   int* pieceExtent = this->PieceExtents+this->Piece*6;
-  if(ePiece->GetVectorAttribute("Extent", pieceExtent) < 6)
+  if(ePiece->GetVectorAttribute("Extent", 6, pieceExtent) < 6)
     {
     vtkErrorMacro("Piece " << this->Piece << " has invalid Extent.");
     return 0;
