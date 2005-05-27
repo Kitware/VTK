@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.19");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.20");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -266,9 +266,9 @@ void vtkXMLDataReader::SetupOutputData()
     for (i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
-      int idx = 
-        this->PointDataArraySelection->GetArrayIndex(eNested->GetAttribute("Name"));
-      if (this->PointDataArrayIsEnabled(eNested) && pointData->GetNumberOfArrays() == idx)
+      //int idx = 
+      //  this->PointDataArraySelection->GetArrayIndex(eNested->GetAttribute("Name"));
+      if (this->PointDataArrayIsEnabled(eNested)) // && pointData->GetNumberOfArrays() == idx)
         {
         this->NumberOfPointArrays++;
         vtkDataArray* array = this->CreateDataArray(eNested);
@@ -293,9 +293,9 @@ void vtkXMLDataReader::SetupOutputData()
     for (i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
-      int idx = 
-        this->CellDataArraySelection->GetArrayIndex(eNested->GetAttribute("Name"));
-      if (this->CellDataArrayIsEnabled(eNested) && cellData->GetNumberOfArrays() == idx)
+      //int idx = 
+      //  this->CellDataArraySelection->GetArrayIndex(eNested->GetAttribute("Name"));
+      if (this->CellDataArrayIsEnabled(eNested)) // && cellData->GetNumberOfArrays() == idx)
         {
         this->NumberOfCellArrays++;
         vtkDataArray* array = this->CreateDataArray(eNested);
@@ -590,7 +590,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
-  if (!numTimeSteps && !this->NumberOfTimeSteps && this->PointDataTimeStep[idx] == -1)
+  if (!numTimeSteps && !this->NumberOfTimeSteps) // && this->PointDataTimeStep[idx] == -1)
     {
     return 1;
     }
@@ -649,7 +649,7 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", this->TimeSteps);
-  if (!numTimeSteps && !this->NumberOfTimeSteps && this->CellDataTimeStep[idx] == -1)
+  if (!numTimeSteps && !this->NumberOfTimeSteps ) //&& this->CellDataTimeStep[idx] == -1)
     {
     return 1;
     }
