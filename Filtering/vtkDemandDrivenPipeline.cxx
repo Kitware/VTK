@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.28");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.29");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -208,26 +208,18 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
       // Request data from the algorithm.
       result = this->ExecuteData(request);
 
-      // Release input data if requested.
-      for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-        {
-        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
-          {
-          vtkInformation* inInfo = this->GetInputInformation(i, j);
-          vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
-          if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
-                            inInfo->Get(RELEASE_DATA())))
-            {
-            dataObject->ReleaseData();
-            }
-          }
-        }
-
       // Data are now up to date.
       this->DataTime.Modified();
-      // Information is now up to date.
+
+      // Some filters may modify themselves while processing
+      // REQUEST_DATA.  Since we mark the filter execution end time
+      // here this behavior does not cause re-execution, so it should
+      // be allowed.  The filter is now considered up-to-date.
+      // However, we must prevent the REQUEST_DATA_OBJECT and
+      // REQUEST_INFORMATION passes from re-running, so mark them
+      // up-do-date also.  It is up to the filter to not modify itself
+      // in a way that would change the result of any pass.
       this->InformationTime.Modified();
-      // Data object is now up to date.
       this->DataObjectTime.Modified();
       }
     return result;
@@ -492,6 +484,21 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
     {
     vtkInformation* outInfo = outputs->GetInformationObject(i);
     outInfo->Remove(DATA_NOT_GENERATED());
+    }
+
+  // Release input data if requested.
+  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+    {
+    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+      {
+      vtkInformation* inInfo = this->GetInputInformation(i, j);
+      vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
+      if(dataObject && (dataObject->GetGlobalReleaseDataFlag() ||
+                        inInfo->Get(RELEASE_DATA())))
+        {
+        dataObject->ReleaseData();
+        }
+      }
     }
 }
 
