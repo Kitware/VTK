@@ -74,6 +74,9 @@
 #define vtkTypeMacroCase(typeN, type, call)     \
   case typeN: { typedef type VTK_TT; call; }; break
 
+#define vtkMissingTypeWarningMacro(typeN, x) \
+  case typeN: vtkGenericWarningMacro(x); break
+
 //--------------------------------------------------------------------------
 // make the typedefs for all the sized types
 
@@ -235,10 +238,10 @@ typedef vtkInt8Type vtkCharAliasType;
 # endif
 #else
 # define vtkTypeMacroCase_sc(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_SIGNED_CHAR not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_SIGNED_CHAR not compiled") 
 # if VTK_TYPE_CHAR_IS_SIGNED
 #  define vtkTypeMacroCase_c(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_CHAR not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_CHAR not compiled") 
 # endif
 #endif
 
@@ -253,10 +256,10 @@ typedef vtkUInt8Type vtkCharAliasType;
 # endif
 #else
 # define vtkTypeMacroCase_uc(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED_CHAR not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED_CHAR not compiled") 
 # if !VTK_TYPE_CHAR_IS_SIGNED
 #  define vtkTypeMacroCase_c(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_CHAR not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_CHAR not compiled") 
 # endif
 #endif
 
@@ -266,7 +269,7 @@ typedef vtkInt16Type vtkShortAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_s(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_SHORT not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_SHORT not compiled");
 #endif
 
 #if defined(VTK_USE_UINT16) && (VTK_SIZEOF_SHORT == 2)
@@ -275,7 +278,7 @@ typedef vtkUInt16Type vtkUnsignedShortAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_us(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED_SHORT not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED_SHORT not compiled");
 #endif
 
 #if defined(VTK_USE_INT32) && (VTK_SIZEOF_INT == 4)
@@ -284,7 +287,7 @@ typedef vtkInt32Type vtkIntAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_i(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_INT not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_INT not compiled");
 #endif
 
 #if defined(VTK_USE_UINT32) && (VTK_SIZEOF_INT == 4)
@@ -293,7 +296,7 @@ typedef vtkUInt32Type vtkUnsignedIntAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_ui(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED_INT not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED_INT not compiled");
 #endif
 
 #if defined(VTK_USE_INT64) && (VTK_SIZEOF_LONG == 8)
@@ -306,7 +309,7 @@ typedef vtkInt32Type vtkLongAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_l(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_LONG not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_LONG not compiled");
 #endif
 
 #if defined(VTK_USE_UINT64) && (VTK_SIZEOF_LONG == 8)
@@ -319,7 +322,7 @@ typedef vtkUInt32Type vtkUnsignedLongAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_ul(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED_LONG not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED_LONG not compiled");
 #endif
 
 #if defined(VTK_USE_INT64) && (VTK_SIZEOF_ID_TYPE == 8)
@@ -332,7 +335,7 @@ typedef vtkInt32Type vtkIdTypeAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_id(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_ID_TYPE not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_ID_TYPE not compiled");
 #endif
 
 #if defined(VTK_USE_INT64) && defined(VTK_SIZEOF_LONG_LONG)
@@ -342,11 +345,11 @@ typedef vtkInt64Type vtkLongLongAliasType;
             vtkTypeMacroCase(typeN, type, call);
 # else
 #  define vtkTypeMacroCase_ll(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_LONG_LONG not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_LONG_LONG not compiled");
 # endif
 #else
 # define vtkTypeMacroCase_ll(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_LONG_LONG not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_LONG_LONG not compiled");
 #endif
 
 #if defined(VTK_USE_UINT64) && defined(VTK_SIZEOF_LONG_LONG)
@@ -356,11 +359,11 @@ typedef vtkUInt64Type vtkUnsignedLongLongAliasType;
             vtkTypeMacroCase(typeN, type, call);
 # else
 #  define vtkTypeMacroCase_ull(typeN, type, call)\
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED_LONG_LONG not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED_LONG_LONG not compiled");
 # endif
 #else
 # define vtkTypeMacroCase_ull(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_ not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_ not compiled");
 #endif
 
 #if defined(VTK_USE_INT64) && defined(VTK_SIZEOF___INT64)
@@ -369,7 +372,7 @@ typedef vtkInt64Type vtk__int64AliasType;
               vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_i64(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK___INT64 not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK___INT64 not compiled");
 #endif
 
 #if defined(VTK_USE_UINT64) && defined(VTK_SIZEOF___INT64) && defined(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
@@ -378,7 +381,7 @@ typedef vtkUInt64Type vtkUnsigned__int64AliasType;
               vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_ui64(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_UNSIGNED___INT64 not compiled") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_UNSIGNED___INT64 not compiled");
 #endif
 
 #if defined(VTK_USE_FLOAT32) && (VTK_SIZEOF_FLOAT == 4)
@@ -387,7 +390,7 @@ typedef vtkFloat32Type vtkFloatAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_f(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_FLOAT not compiled.") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_FLOAT not compiled.");
 #endif
 
 #if defined(VTK_USE_FLOAT64) && (VTK_SIZEOF_DOUBLE == 8)
@@ -396,7 +399,7 @@ typedef vtkFloat64Type vtkDoubleAliasType;
             vtkTypeMacroCase(typeN, type, call);
 #else
 # define vtkTypeMacroCase_d(typeN, type, call) \
-            vtkGenericWarningMacro("Support for VTK_DOUBLE not compiled.") 
+            vtkMissingTypeWarningMacro(typeN, "Support for VTK_DOUBLE not compiled.");
 #endif
 
 #endif
