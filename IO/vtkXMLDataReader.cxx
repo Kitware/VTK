@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -259,11 +259,10 @@ void vtkXMLDataReader::SetupOutputData()
   // from one piece because all pieces have the same set of arrays.
   vtkXMLDataElement* ePointData = this->PointDataElements[0];
   vtkXMLDataElement* eCellData = this->CellDataElements[0];
-  int i;
   this->NumberOfPointArrays = 0;
   if (ePointData)
     {
-    for (i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
+    for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       //int idx = 
@@ -290,7 +289,7 @@ void vtkXMLDataReader::SetupOutputData()
   this->NumberOfCellArrays = 0;
   if (eCellData)
     {
-    for (i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
+    for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
       {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       //int idx = 
@@ -622,8 +621,6 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   else
     {
     // Check if CurrentTimeStep is in the array and particular field is also:
-    int isCurrentTimeInArray = 
-      vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
     if( !numTimeSteps && this->NumberOfTimeSteps && this->PointDataTimeStep[idx] == -1)
       {
       return 1;
@@ -662,6 +659,12 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
     vtkErrorMacro( << "TimeStep was specified but no TimeValues associated was found");
     return 0;
     }
+  int isCurrentTimeInArray = 
+    vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
+  if( numTimeSteps && !isCurrentTimeInArray)
+    {
+    return 0;
+    }
   // let's check our own fields
   // Need to check the current 'offset'
   unsigned long offset;
@@ -677,8 +680,6 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
   else
     {
     // Check if CurrentTimeStep is in the array and particular field is also:
-    int isCurrentTimeInArray = 
-      vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
     if( !numTimeSteps && this->NumberOfTimeSteps && this->CellDataTimeStep[idx] == -1)
       {
       return 1;

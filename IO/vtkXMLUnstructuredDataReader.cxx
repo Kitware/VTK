@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.22");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.23");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -78,7 +78,7 @@ vtkXMLUnstructuredDataReader
         {
         int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
           this->NumberOfTimeSteps, this->TimeSteps);
-        assert( numTimeSteps == this->NumberOfTimeSteps );
+        assert( numTimeSteps <= this->NumberOfTimeSteps );
         // Check if CurrentTimeStep is in the array and particular field is also:
         int isCurrentTimeInArray = 
           vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
@@ -718,8 +718,6 @@ int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eN
   else
     {
     // Check if CurrentTimeStep is in the array and particular field is also:
-    int isCurrentTimeInArray = 
-      vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
     if( !numTimeSteps && this->NumberOfTimeSteps && this->PointsTimeStep == -1)
       {
       return 1;
@@ -756,6 +754,12 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
     vtkErrorMacro( << "TimeStep was specified but no TimeValues associated was found");
     return 0;
     }
+  int isCurrentTimeInArray = 
+    vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
+  if( numTimeSteps && !isCurrentTimeInArray)
+    {
+    return 0;
+    }
   // let's check our own fields
   // Need to check the current 'offset'
   unsigned long offset;
@@ -771,8 +775,6 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
   else
     {
     // Check if CurrentTimeStep is in the array and particular field is also:
-    int isCurrentTimeInArray = 
-      vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
     if( !numTimeSteps && this->NumberOfTimeSteps && cellstimestep == -1 )
       {
       return 1;

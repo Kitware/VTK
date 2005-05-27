@@ -24,7 +24,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.8");
+vtkCxxRevisionMacro(vtkXMLPolyDataReader, "1.9");
 vtkStandardNewMacro(vtkXMLPolyDataReader);
 
 //----------------------------------------------------------------------------
@@ -354,23 +354,17 @@ int vtkXMLPolyDataReader::ReadPieceData()
   vtkXMLDataElement* eVerts = this->VertElements[this->Piece];
   if(eVerts)
     {
-//    for(int i=0;(i < eVerts->GetNumberOfNestedElements() &&
-//             !this->AbortExecute);++i)
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//      this->VertsTimeStep, this->VertsOffset);
+//    if( needToRead )
       {
-      vtkXMLDataElement* eNested = eVerts->GetNestedElement(0);
-      assert( strcmp(eNested->GetName(), "DataArray") == 0 );
-      int needToRead = this->CellsNeedToReadTimeStep(eNested, 
-        this->VertsTimeStep, this->VertsOffset);
-      if( needToRead )
+      // Read the array.
+      if(!this->ReadCellArray(this->NumberOfVerts[this->Piece],
+                              this->TotalNumberOfVerts,
+                              eVerts,
+                              output->GetVerts()))
         {
-        // Read the array.
-        if(!this->ReadCellArray(this->NumberOfVerts[this->Piece],
-                                this->TotalNumberOfVerts,
-                                eVerts,
-                                output->GetVerts()))
-          {
-          return 0;
-          }
+        return 0;
         }
       }
     }
@@ -382,23 +376,17 @@ int vtkXMLPolyDataReader::ReadPieceData()
   vtkXMLDataElement* eLines = this->LineElements[this->Piece];
   if(eLines)
     {
-//    for(int i=0;(i < eLines->GetNumberOfNestedElements() &&
-//             !this->AbortExecute);++i)
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//      this->LinesTimeStep, this->LinesOffset);
+//    if( needToRead )
       {
-      vtkXMLDataElement* eNested = eLines->GetNestedElement(0);
-      assert( strcmp(eNested->GetName(), "DataArray") == 0 );
-      int needToRead = this->CellsNeedToReadTimeStep(eNested, 
-        this->LinesTimeStep, this->LinesOffset);
-      if( needToRead )
+      // Read the array.
+      if(!this->ReadCellArray(this->NumberOfLines[this->Piece],
+                              this->TotalNumberOfLines,
+                              eLines,
+                              output->GetLines()))
         {
-        // Read the array.
-        if(!this->ReadCellArray(this->NumberOfLines[this->Piece],
-                                this->TotalNumberOfLines,
-                                eLines,
-                                output->GetLines()))
-          {
-          return 0;
-          }
+        return 0;
         }
       }
     }
@@ -410,23 +398,17 @@ int vtkXMLPolyDataReader::ReadPieceData()
   vtkXMLDataElement* eStrips = this->StripElements[this->Piece];
   if(eStrips)
     {
-//    for(int i=0;(i < eStrips->GetNumberOfNestedElements() &&
-//             !this->AbortExecute);++i)
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//      this->StripsTimeStep, this->StripsOffset);
+//    if( needToRead )
       {
-      vtkXMLDataElement* eNested = eStrips->GetNestedElement(0);
-      assert( strcmp(eNested->GetName(), "DataArray") == 0 );
-      int needToRead = this->CellsNeedToReadTimeStep(eNested, 
-        this->StripsTimeStep, this->StripsOffset);
-      if( needToRead )
+      // Read the array.
+      if(!this->ReadCellArray(this->NumberOfStrips[this->Piece],
+                              this->TotalNumberOfStrips,
+                              eStrips,
+                              output->GetStrips()))
         {
-        // Read the array.
-        if(!this->ReadCellArray(this->NumberOfStrips[this->Piece],
-                                this->TotalNumberOfStrips,
-                                eStrips,
-                                output->GetStrips()))
-          {
-          return 0;
-          }
+        return 0;
         }
       }
     }
@@ -438,24 +420,18 @@ int vtkXMLPolyDataReader::ReadPieceData()
   vtkXMLDataElement* ePolys = this->PolyElements[this->Piece];
   if(ePolys)
     {
-//    for(int i=0;(i < ePolys->GetNumberOfNestedElements() &&
-//             !this->AbortExecute);++i)
+//    int needToRead = this->CellsNeedToReadTimeStep(eNested, 
+//      this->PolysTimeStep, this->PolysOffset);
+//    if( needToRead )
       {
-      vtkXMLDataElement* eNested = ePolys->GetNestedElement(0);
-      assert( strcmp(eNested->GetName(), "DataArray") == 0 );
-      int needToRead = this->CellsNeedToReadTimeStep(eNested, 
-        this->PolysTimeStep, this->PolysOffset);
-      if( needToRead )
+      // Read the array.
+      if(!this->ReadCellArray(this->NumberOfPolys[this->Piece],
+                              this->TotalNumberOfPolys,
+                              ePolys,
+                              output->GetPolys()))
         {
-        // Read the array.
-        if(!this->ReadCellArray(this->NumberOfPolys[this->Piece],
-                                this->TotalNumberOfPolys,
-                                ePolys,
-                                output->GetPolys()))
-          {
-          return 0;
-          }  
-        }
+        return 0;
+        }  
       }
     }
  
