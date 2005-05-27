@@ -58,7 +58,7 @@ except NameError:
         WX_USE_GLCANVAS = 0
     else:
         WX_USE_GLCANVAS = 1
-        
+
 # Keep capturing mouse after mouse is dragged out of window
 # (in wxGTK 2.3.2 there is a bug that keeps this from working,
 # but it is only relevant in wxGTK if there are multiple windows)
@@ -93,6 +93,15 @@ class wxVTKRenderWindowInteractor(baseClass):
     Create with the keyword stereo=1 in order to
     generate a stereo-capable window.
     """
+
+    # class variable that can also be used to request instances that use
+    # stereo; this is overridden by the stereo=1/0 parameter.  If you set
+    # it to True, the NEXT instantiated object will attempt to allocate a
+    # stereo visual.  E.g.:
+    # wxVTKRenderWindowInteractor.USE_STEREO = True
+    # myRWI = wxVTKRenderWindowInteractor(parent, -1)
+    USE_STEREO = False
+    
     def __init__(self, parent, ID, *args, **kw):
 
         # private attributes
@@ -107,6 +116,9 @@ class wxVTKRenderWindowInteractor(baseClass):
             if kw['stereo']:
                 stereo = 1
             del kw['stereo']
+
+        elif self.USE_STEREO:
+            stereo = 1
 
         position = wxDefaultPosition
 
@@ -144,8 +156,28 @@ class wxVTKRenderWindowInteractor(baseClass):
         for p in l:
             p.Show(1)
 
-        # initialize the wxWindow
-        baseClass.__init__(self, parent, ID, position, size, style)
+        # code added by cpbotha to enable stereo correctly where the user
+        # requests this; remember that the glXContext in this case is NOT
+        # allocated by VTK, but by WX, hence all of this.
+        if stereo and baseClass.__name__ == 'wxGLCanvas':
+            # initialize GLCanvas with correct attriblist for stereo
+            attribList = [WX_GL_RGBA, 
+                          WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
+                          WX_GL_MIN_BLUE, 1, 
+                          WX_GL_DEPTH_SIZE, 1, WX_GL_DOUBLEBUFFER,
+                          WX_GL_STEREO]
+            try:
+                baseClass.__init__(self, parent, ID, position, size, style, 
+                                   attribList=attribList)
+                
+            except wxPyAssertionError:
+                # stereo visual couldn't be allocated, so we go back to default
+                baseClass.__init__(self, parent, ID, position, size, style)
+                # and make sure everyone knows about it
+                stereo = 0
+
+        else:
+            baseClass.__init__(self, parent, ID, position, size, style)
 
         # create the RenderWindow and initialize it
         self._Iren = vtk.vtkGenericRenderWindowInteractor()
@@ -157,6 +189,7 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.GetRenderWindow().SetSize(size.width, size.height)
         except AttributeError:
             self._Iren.GetRenderWindow().SetSize(size[0], size[1])
+            
         if stereo:
             self._Iren.GetRenderWindow().StereoCapableWindowOn()
             self._Iren.GetRenderWindow().SetStereoTypeToCrystalEyes()
