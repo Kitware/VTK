@@ -126,7 +126,7 @@ public:
   // This instance variable can be used to limit the total number of line
   // segments created during subdivision. Note that the number of input line
   // segments will be the minimum number that cab be output.
-  vtkSetClampMacro(MaximumNumberOfLines,vtkIdType,1,VTK_LONG_MAX);
+  vtkSetClampMacro(MaximumNumberOfLines,vtkIdType,1,VTK_LARGE_ID);
   vtkGetMacro(MaximumNumberOfLines,vtkIdType);
 
 protected:

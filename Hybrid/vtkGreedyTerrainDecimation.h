@@ -112,7 +112,7 @@ public:
   // good idea to make sure this is less than a tessellated mesh
   // at full resolution.) You need to set this value only when
   // the error measure is set to NumberOfTriangles.
-  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_LONG_MAX);
+  vtkSetClampMacro(NumberOfTriangles,vtkIdType,2,VTK_LARGE_ID);
   vtkGetMacro(NumberOfTriangles,vtkIdType);
 
   // Description:
@@ -164,9 +164,9 @@ protected:
   //ivars that the API addresses
   int       ErrorMeasure;
   vtkIdType NumberOfTriangles;
-  double     Reduction;
-  double     AbsoluteError;
-  double     RelativeError;
+  double    Reduction;
+  double    AbsoluteError;
+  double    RelativeError;
   int       BoundaryVertexDeletion; //Can we delete boundary vertices?
 
   //Used for convenience
@@ -182,7 +182,7 @@ protected:
   double         Origin[3];
   double         Spacing[3];
   vtkIdType      MaximumNumberOfTriangles;
-  double          Length;
+  double         Length;
 
   //Bookeeping arrays
   vtkPriorityQueue                          *TerrainError; //errors for each pt in height field
