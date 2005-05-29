@@ -16,458 +16,280 @@
 #include <memory.h>
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkByteSwap, "1.48");
+vtkCxxRevisionMacro(vtkByteSwap, "1.49");
 vtkStandardNewMacro(vtkByteSwap);
 
-// Swap 2 byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2BE(short *) {}
-#else
-void vtkByteSwap::Swap2BE(short *mem_ptr)
+//----------------------------------------------------------------------------
+vtkByteSwap::vtkByteSwap()
 {
-  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
 }
-#endif
 
-// Swap 2 byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2BE(unsigned short *) {}
-#else
-void vtkByteSwap::Swap2BE(unsigned short *mem_ptr)
+//----------------------------------------------------------------------------
+vtkByteSwap::~vtkByteSwap()
 {
-  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
 }
-#endif
 
-// Swap four byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap4BE(char *){}
-#else
-void vtkByteSwap::Swap4BE(char *mem_ptr1)
+//----------------------------------------------------------------------------
+// Define swap functions for each type size.
+template <size_t> struct vtkByteSwapper;
+VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<1>
 {
-
-  Swap4Bytes(mem_ptr1);
-
-}
-#endif
-
-// Swap eight byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap8BE(char *){}
-#else
-void vtkByteSwap::Swap8BE(char *mem_ptr1)
+  static inline void Swap(void*) {}
+};
+VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<2>
 {
-  Swap8Bytes(mem_ptr1);
-}
-#endif
-
-// Swap bunch of bytes. Num is the number of two byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2BERange(char *,int) {}
-#else
-void vtkByteSwap::Swap2BERange(char *mem_ptr1,int num)
-{
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
+  static inline void Swap(void* p)
     {
-
-      Swap2Bytes(pos);
-      pos += 2;
-
+    char one_byte;
+    char* data = static_cast<char*>(p);
+    one_byte = data[0]; data[0] = data[1]; data[1] = one_byte;
     }
-  
-}
-#endif
-
-// Swap bunch of bytes. Num is the number of four byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap4BERange(char *, int){}
-#else
-void vtkByteSwap::Swap4BERange(char *mem_ptr1, int num)
+};
+VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<4>
 {
-
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
+  static inline void Swap(void* p)
     {
-      Swap4Bytes(pos);
-      pos += 4;
+    char one_byte;
+    char* data = static_cast<char*>(p);
+    one_byte = data[0]; data[0] = data[3]; data[3] = one_byte;
+    one_byte = data[1]; data[1] = data[2]; data[2] = one_byte;
     }
-  
-}
-#endif
-
-// Swap bunch of bytes. Num is the number of eight byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap8BERange(char *,int){}
-#else
-void vtkByteSwap::Swap8BERange(char *mem_ptr1, int num)
+};
+VTK_TEMPLATE_SPECIALIZE struct vtkByteSwapper<8>
 {
-
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
+  static inline void Swap(void* p)
     {
-      Swap8Bytes(pos);
-      pos += 8;
+    char one_byte;
+    char* data = static_cast<char*>(p);
+    one_byte = data[0]; data[0] = data[7]; data[7] = one_byte;
+    one_byte = data[1]; data[1] = data[6]; data[6] = one_byte;
+    one_byte = data[2]; data[2] = data[5]; data[5] = one_byte;
+    one_byte = data[3]; data[3] = data[4]; data[4] = one_byte;
     }
-  
-}
-#endif
+};
 
-// Swap bunch of bytes. Num is the number of two byte words to swap.
-void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, ostream *fp)
+//----------------------------------------------------------------------------
+// Define range swap functions.
+template <class T> inline void vtkByteSwapRange(T* first, vtkIdType num)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
+  // Swap one value at a time.
+  T* last = first + num;
+  for(T* p=first; p != last; ++p)
     {
-      chunkSize = num;
+    vtkByteSwapper<sizeof(T)>::Swap(p);
     }
-  cpy = new char [chunkSize * 2];
- 
-  while (num)
-    {
-      memcpy(cpy, mem_ptr1, chunkSize * 2);
- 
-      pos = cpy; 
-      for (i = 0; i < chunkSize; i++)
-        {
-          Swap2Bytes(pos);
-          pos += 2;
-        }
-      fp->write((char *)cpy, 2*chunkSize);
-      mem_ptr1 += chunkSize * 2;
-      num -= chunkSize;
-      if (num < chunkSize)
-        {
-          chunkSize = num;
-        }
-    }
-    
-  delete [] cpy;
-  
-#else
-  fp->write((char *)mem_ptr1, 2*num);
-#endif
 }
-
-// Swap bunch of bytes. Num is the number of four byte words to swap.
-void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, ostream *fp)
+inline void vtkByteSwapRangeWrite(const char* first, vtkIdType num,
+                                  FILE* f, int)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
+  // No need to swap segments of 1 byte.
+  fwrite(first, sizeof(char), num, f);
+}
+inline void vtkByteSwapRangeWrite(const signed char* first, vtkIdType num,
+                                  FILE* f, int)
+{
+  // No need to swap segments of 1 byte.
+  fwrite(first, sizeof(signed char), num, f);
+}
+inline void vtkByteSwapRangeWrite(const unsigned char* first, vtkIdType num,
+                                  FILE* f, int)
+{
+  // No need to swap segments of 1 byte.
+  fwrite(first, sizeof(unsigned char), num, f);
+}
+template <class T>
+inline void vtkByteSwapRangeWrite(const T* first, vtkIdType num, FILE* f, long)
+{
+  // Swap and write one value at a time.  We do not need to do this in
+  // blocks because the file stream is already buffered.
+  const T* last = first + num;
+  for(const T* p=first; p != last; ++p)
     {
-      chunkSize = num;
+    T temp = *p;
+    vtkByteSwapper<sizeof(T)>::Swap(&temp);
+    fwrite(&temp, sizeof(temp), 1, f);
     }
-  cpy = new char [chunkSize * 4];
- 
-  while (num)
+}
+inline void vtkByteSwapRangeWrite(const char* first, vtkIdType num,
+                                  ostream* os, int)
+{
+  // No need to swap segments of 1 byte.
+  os->write((char*)first, num*sizeof(char));
+}
+inline void vtkByteSwapRangeWrite(const signed char* first, vtkIdType num,
+                                  ostream* os, int)
+{
+  // No need to swap segments of 1 byte.
+  os->write((char*)first, num*sizeof(signed char));
+}
+inline void vtkByteSwapRangeWrite(const unsigned char* first, vtkIdType num,
+                                  ostream* os, int)
+{
+  // No need to swap segments of 1 byte.
+  os->write((char*)first, num*sizeof(unsigned char));
+}
+template <class T>
+inline void vtkByteSwapRangeWrite(const T* first, vtkIdType num,
+                                  ostream* os, long)
+{
+  // Swap and write one value at a time.  We do not need to do this in
+  // blocks because the file stream is already buffered.
+  const T* last = first + num;
+  for(const T* p=first; p != last; ++p)
     {
-    memcpy(cpy, mem_ptr1, chunkSize * 4);
-    pos = cpy;
-    for (i = 0; i < chunkSize; i++)
-      {
-      Swap4Bytes(pos);
-      pos += 4;
-      }
-    fp->write((char *)cpy, 4*chunkSize);
-    mem_ptr1 += chunkSize*4;
-    num -= chunkSize;
-    if (num < chunkSize)
-      {
-      chunkSize = num;
-      }
+    T temp = *p;
+    vtkByteSwapper<sizeof(T)>::Swap(&temp);
+    os->write((char*)&temp, sizeof(temp));
     }
-
-  delete [] cpy;
-#else
-  fp->write((char *)mem_ptr1, 4*num);
-#endif
 }
 
-// Swap bunch of bytes. Num is the number of eight byte words to swap.
-void vtkByteSwap::SwapWrite8BERange(char *mem_ptr1,int num, ostream *fp)
+//----------------------------------------------------------------------------
+// Define swap functions for each endian-ness.
+#if defined(VTK_WORDS_BIGENDIAN)
+template <class T> inline void vtkByteSwapBE(T*) {}
+template <class T> inline void vtkByteSwapBERange(T*, vtkIdType) {}
+template <class T>
+inline void vtkByteSwapBERangeWrite(const T* p, vtkIdType num, FILE* f)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
-    {
-    chunkSize = num;
-    }
-  cpy = new char [chunkSize * 8];
- 
-  while (num)
-    {
-    memcpy(cpy, mem_ptr1, chunkSize * 8);
-    pos = cpy;
-    for (i = 0; i < chunkSize; i++)
-      {
-      Swap8Bytes(pos);
-      pos += 8;
-      }
-    fp->write((char *)cpy, 8*chunkSize);
-    mem_ptr1 += chunkSize*8;
-    num -= chunkSize;
-    if (num < chunkSize)
-      {
-      chunkSize = num;
-      }
-    }
-  delete [] cpy;
-#else
-  fp->write((char *)mem_ptr1, 8*num);
-#endif
+  fwrite(p, sizeof(T), num, f);
 }
-
-// Swap bunch of bytes. Num is the number of four byte words to swap.
-void vtkByteSwap::SwapWrite2BERange(char *mem_ptr1,int num, FILE *fp)
+template <class T>
+inline void vtkByteSwapBERangeWrite(const T* p, vtkIdType num, ostream* os)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
-    {
-      chunkSize = num;
-    }
-  cpy = new char [chunkSize * 2];
- 
-  while (num)
-    {
-      memcpy(cpy, mem_ptr1, chunkSize * 2);
-  
-      pos = cpy;    
-      for (i = 0; i < chunkSize; i++)
-        {
-
-          Swap2Bytes(pos);
-
-          pos += 2;
-
-        }
-      fwrite(cpy,2,chunkSize,fp);
-      mem_ptr1 += chunkSize*2;
-      num -= chunkSize;
-      if (num < chunkSize)
-        {
-          chunkSize = num;
-        }
-    }
-  delete [] cpy;
-  
-#else
-  fwrite(mem_ptr1,2,num,fp);
-#endif
+  os->write((char*)p, sizeof(T)*num);
 }
-
-// Swap bunch of bytes. Num is the number of four byte words to swap.
-void vtkByteSwap::SwapWrite4BERange(char *mem_ptr1,int num, FILE *fp)
+template <class T> inline void vtkByteSwapLE(T* p)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
-    {
-      chunkSize = num;
-    }
-  cpy = new char [chunkSize * 4];
- 
-  while (num)
-    {
-    memcpy(cpy, mem_ptr1, chunkSize * 4);
-    pos = cpy;
-    for (i = 0; i < chunkSize; i++)
-      {
-      Swap4Bytes(pos);
-      pos += 4;
-      }
-    fwrite(cpy,4,chunkSize,fp);
-    mem_ptr1 += chunkSize*4;
-    num -= chunkSize;
-    if (num < chunkSize)
-      {
-      chunkSize = num;
-      }
-    }
-  delete [] cpy;
-  
-#else
-  fwrite(mem_ptr1,4,num,fp);
-#endif
+  vtkByteSwapper<sizeof(T)>::Swap(p);
 }
-
-// Swap bunch of bytes. Num is the number of eight byte words to swap.
-void vtkByteSwap::SwapWrite8BERange(char *mem_ptr1,int num, FILE *fp)
+template <class T> inline void vtkByteSwapLERange(T* p, vtkIdType num)
 {
-#ifndef VTK_WORDS_BIGENDIAN
-  char *pos;
-  int i;
-  char *cpy;
-  int chunkSize = 1000000;
-
-  if (num < chunkSize)
-    {
-    chunkSize = num;
-    }
-  cpy = new char [chunkSize * 8];
- 
-  while (num)
-    {
-
-      memcpy(cpy, mem_ptr1, chunkSize * 8);
-  
-      pos = cpy;    
-      for (i = 0; i < chunkSize; i++)
-        {
-
-          Swap8Bytes(pos);
-          pos += 8;
-
-        }
-      fwrite(cpy,8,chunkSize,fp);
-      mem_ptr1 += chunkSize*8;
-      num -= chunkSize;
-      if (num < chunkSize)
-        {
-          chunkSize = num;
-        }
-
-    }
-  delete [] cpy;
-#else
-  fwrite(mem_ptr1,8,num,fp);
-#endif
+  vtkByteSwapRange(p, num);
 }
-
-// Swap 2 byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2LE(short *mem_ptr)
+template <class T>
+inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, FILE* f)
 {
-  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
+  vtkByteSwapRangeWrite(p, num, f, 1);
+}
+template <class T>
+inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, ostream* os)
+{
+  vtkByteSwapRangeWrite(p, num, os, 1);
 }
 #else
-void vtkByteSwap::Swap2LE(short *) {}
-#endif
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2LE(unsigned short *mem_ptr)
+template <class T> inline void vtkByteSwapBE(T* p)
 {
-  *mem_ptr = (((*mem_ptr>>8)&0xff) | ((*mem_ptr&0xff)<<8));
+  vtkByteSwapper<sizeof(T)>::Swap(p);
 }
-#else
-void vtkByteSwap::Swap2LE(unsigned short *) {}
-#endif
-
-// Swap four byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap4LE(char *mem_ptr1)
+template <class T> inline void vtkByteSwapBERange(T* p, vtkIdType num)
 {
-
-  Swap4Bytes(mem_ptr1);
-
+  vtkByteSwapRange(p, num);
 }
-#else
-void vtkByteSwap::Swap4LE(char *){}
-#endif
-
-// Swap eight byte word.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap8LE(char *mem_ptr1)
+template <class T>
+inline void vtkByteSwapBERangeWrite(const T* p, vtkIdType num, FILE* f)
 {
-  Swap8Bytes(mem_ptr1);
+  vtkByteSwapRangeWrite(p, num, f, 1);
 }
-#else
-void vtkByteSwap::Swap8LE(char *){}
-#endif
-
-// Swap bunch of bytes. Num is the number of two byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap2LERange(char *mem_ptr1, int num)
+template <class T>
+inline void vtkByteSwapBERangeWrite(const T* p, vtkIdType num, ostream* os)
 {
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
-    {
-      Swap2Bytes(pos);
-      pos += 2;
-
-    }
-  
+  vtkByteSwapRangeWrite(p, num, os, 1);
 }
-#else
-void vtkByteSwap::Swap2LERange(char *,int ){}
-#endif
-
-// Swap bunch of bytes. Num is the number of four byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap4LERange(char *mem_ptr1, int num)
+template <class T> inline void vtkByteSwapLE(T*) {}
+template <class T> inline void vtkByteSwapLERange(T*, vtkIdType) {}
+template <class T>
+inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, FILE* f)
 {
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
-    {
-      Swap4Bytes(pos);
-      pos += 4;
-    }
-  
+  fwrite(p, sizeof(T), num, f);
 }
-#else
-void vtkByteSwap::Swap4LERange(char *, int) {}
+template <class T>
+inline void vtkByteSwapLERangeWrite(const T* p, vtkIdType num, ostream* os)
+{
+  os->write((char*)p, sizeof(T)*num);
+}
 #endif
 
-// Swap bunch of bytes. Num is the number of eight byte words to swap.
-#ifdef VTK_WORDS_BIGENDIAN
-void vtkByteSwap::Swap8LERange(char *mem_ptr1, int num)
-{
-  char *pos;
-  int i;
-  
-  pos = mem_ptr1;
-  
-  for (i = 0; i < num; i++)
-    {
-    Swap8Bytes(pos);
-    pos += 8;
-    }
-  
-}
-#else
-void vtkByteSwap::Swap8LERange(char *, int) {}
+//----------------------------------------------------------------------------
+#define VTK_BYTE_SWAP_IMPL(T)                                                   \
+  void vtkByteSwap::SwapLE(T* p) { vtkByteSwapLE(p); }                          \
+  void vtkByteSwap::SwapBE(T* p) { vtkByteSwapBE(p); }                          \
+  void vtkByteSwap::SwapLERange(T* p, vtkIdType num)                            \
+    { vtkByteSwapLERange(p, num); }                                             \
+  void vtkByteSwap::SwapBERange(T* p, vtkIdType num)                            \
+    { vtkByteSwapBERange(p, num); }                                             \
+  void vtkByteSwap::SwapLERangeWrite(const T* p, vtkIdType num, FILE* file)     \
+    { vtkByteSwapLERangeWrite(p, num, file); }                                  \
+  void vtkByteSwap::SwapBERangeWrite(const T* p, vtkIdType num, FILE* file)     \
+    { vtkByteSwapBERangeWrite(p, num, file); }                                  \
+  void vtkByteSwap::SwapLERangeWrite(const T* p, vtkIdType num, ostream* os)    \
+    { vtkByteSwapLERangeWrite(p, num, os); }                                    \
+  void vtkByteSwap::SwapBERangeWrite(const T* p, vtkIdType num, ostream* os)    \
+    { vtkByteSwapBERangeWrite(p, num, os); }
+VTK_BYTE_SWAP_IMPL(float)
+VTK_BYTE_SWAP_IMPL(double)
+VTK_BYTE_SWAP_IMPL(char)
+VTK_BYTE_SWAP_IMPL(short)
+VTK_BYTE_SWAP_IMPL(int)
+VTK_BYTE_SWAP_IMPL(long)
+VTK_BYTE_SWAP_IMPL(signed char)
+VTK_BYTE_SWAP_IMPL(unsigned char)
+VTK_BYTE_SWAP_IMPL(unsigned short)
+VTK_BYTE_SWAP_IMPL(unsigned int)
+VTK_BYTE_SWAP_IMPL(unsigned long)
+#if defined(VTK_IMPL_USE_LONG_LONG)
+VTK_BYTE_SWAP_IMPL(long long)
+VTK_BYTE_SWAP_IMPL(unsigned long long)
 #endif
+#if defined(VTK_IMPL_USE___INT64)
+VTK_BYTE_SWAP_IMPL(__int64)
+VTK_BYTE_SWAP_IMPL(unsigned __int64)
+#endif
+#undef VTK_BYTE_SWAP_IMPL
+
+#if VTK_SIZEOF_SHORT == 2
+typedef short vtkByteSwapType2;
+#else
+# error "..."
+#endif
+
+#if VTK_SIZEOF_INT == 4
+typedef int vtkByteSwapType4;
+#else
+# error "..."
+#endif
+
+#if VTK_SIZEOF_DOUBLE == 8
+typedef double vtkByteSwapType8;
+#else
+# error "..."
+#endif
+
+//----------------------------------------------------------------------------
+#define VTK_BYTE_SWAP_SIZE(S)                                                   \
+  void vtkByteSwap::Swap##S##LE(void* p)                                        \
+    { vtkByteSwap::SwapLE(static_cast<vtkByteSwapType##S*>(p)); }               \
+  void vtkByteSwap::Swap##S##BE(void* p)                                        \
+    { vtkByteSwap::SwapBE(static_cast<vtkByteSwapType##S*>(p)); }               \
+  void vtkByteSwap::Swap##S##LERange(void* p, int n)                            \
+    { vtkByteSwap::SwapLERange(static_cast<vtkByteSwapType##S*>(p), n); }       \
+  void vtkByteSwap::Swap##S##BERange(void* p, int n)                            \
+    { vtkByteSwap::SwapBERange(static_cast<vtkByteSwapType##S*>(p), n); }       \
+  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, FILE* f)        \
+    { vtkByteSwap::SwapLERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, f); }                                    \
+  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, FILE* f)        \
+    { vtkByteSwap::SwapBERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, f); }                                    \
+  void vtkByteSwap::SwapWrite##S##LERange(const void* p, int n, ostream* os)    \
+    { vtkByteSwap::SwapLERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, os); }                                   \
+  void vtkByteSwap::SwapWrite##S##BERange(const void* p, int n, ostream* os)    \
+    { vtkByteSwap::SwapBERangeWrite(static_cast<const vtkByteSwapType##S*>(p),  \
+                                    n, os); }
+VTK_BYTE_SWAP_SIZE(2)
+VTK_BYTE_SWAP_SIZE(4)
+VTK_BYTE_SWAP_SIZE(8)
+#undef VTK_BYTE_SWAP_SIZE
 
 //----------------------------------------------------------------------------
 // Swaps the bytes of a buffer.  Uses an arbitrary word size, but
