@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.29");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.30");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -479,17 +479,18 @@ void vtkDemandDrivenPipeline::ExecuteDataEnd(vtkInformation* request)
   this->MarkOutputsGenerated(request);
 
   // Remove any not-generated mark.
+  int i, j;
   vtkInformationVector* outputs = this->GetOutputInformation();
-  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+  for(i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
     {
     vtkInformation* outInfo = outputs->GetInformationObject(i);
     outInfo->Remove(DATA_NOT_GENERATED());
     }
 
   // Release input data if requested.
-  for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+  for(i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
     {
-    for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+    for(j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
       {
       vtkInformation* inInfo = this->GetInputInformation(i, j);
       vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
