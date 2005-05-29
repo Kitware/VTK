@@ -1286,7 +1286,7 @@ yy_match:
 yy_find_action:
     yy_current_state = *--yy_state_ptr;
     yy_lp = yy_accept[yy_current_state];
-find_rule: /* we branch to this label when backing up */
+/* find_rule:  unused label we branch to this label when backing up */
     for ( ; ; ) /* until we find what rule we matched */
       {
       if ( yy_lp && yy_lp < yy_accept[yy_current_state + 1] )
@@ -2637,7 +2637,7 @@ yy_size_t size;
   {
   return (void *) malloc( size );
   }
-
+#if 0
 #ifdef YY_USE_PROTOS
 static void *yy_flex_realloc( void *ptr, yy_size_t size )
 #else
@@ -2655,7 +2655,7 @@ yy_size_t size;
    */
   return (void *) realloc( (char *) ptr, size );
   }
-
+#endif
 #ifdef YY_USE_PROTOS
 static void yy_flex_free( void *ptr )
 #else
