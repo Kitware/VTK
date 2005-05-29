@@ -57,8 +57,10 @@
 
 /* Compiler features.  */
 #cmakedefine VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION
+#cmakedefine VTK_NO_FULL_TEMPLATE_SPECIALIZATION
 #cmakedefine VTK_NO_ANSI_STRING_STREAM
 #cmakedefine VTK_NO_STD_NAMESPACE
+#cmakedefine VTK_NO_FOR_SCOPE
 #cmakedefine VTK_COMPILER_HAS_BOOL
 #cmakedefine VTK_ISTREAM_SUPPORTS_LONG_LONG
 #cmakedefine VTK_OSTREAM_SUPPORTS_LONG_LONG
@@ -131,6 +133,23 @@
 typedef bool vtkstd_bool;
 #else
 typedef int vtkstd_bool;
+#endif
+
+/* Define a macro to help define template specializations.  */
+#if defined(VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
+# define VTK_TEMPLATE_SPECIALIZE
+#else
+# define VTK_TEMPLATE_SPECIALIZE template <>
+#endif
+
+/* Use the common for-scope work-around when compiling a source in VTK.  */
+#if defined(VTK_IN_VTK) && !defined(VTK_NO_WORKAROUND_FOR_SCOPE)
+# define VTK_WORKAROUND_FOR_SCOPE
+#endif
+#if defined(VTK_NO_FOR_SCOPE) && defined(VTK_WORKAROUND_FOR_SCOPE)
+# ifndef for
+#  define for if(0) {} else for
+# endif
 #endif
 
 /* Provide missing streaming operators.  */

@@ -413,6 +413,29 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   ENDIF(VTK_COMPILER_HAS_BOOL)
 ENDIF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
 
+IF("VTK_COMPILER_HAS_FULL_SPECIALIZATION" MATCHES "^VTK_COMPILER_HAS_FULL_SPECIALIZATION$")
+  MESSAGE(STATUS "Checking support for full template specialization syntax")
+  TRY_COMPILE(VTK_COMPILER_HAS_FULL_SPECIALIZATION
+              ${VTK_BINARY_DIR}/CMakeTmp
+              ${VTK_SOURCE_DIR}/CMake/vtkTestFullSpecialization.cxx
+              OUTPUT_VARIABLE OUTPUT)
+  IF(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
+    MESSAGE(STATUS "Checking support for full template specialization syntax -- yes")
+    SET(VTK_COMPILER_HAS_FULL_SPECIALIZATION 1 CACHE INTERNAL "Support for full template specialization syntax")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      "Determining if the C++ compiler supports full template specialization syntax "
+      "passed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
+  ELSE(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
+    MESSAGE(STATUS "Checking support for full template specialization syntax -- no")
+    SET(VTK_COMPILER_HAS_FULL_SPECIALIZATION 0 CACHE INTERNAL "Support for full template specialization syntax")
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+      "Determining if the C++ compiler supports full template specialization syntax "
+      "failed with the following output:\n"
+      "${OUTPUT}\n" APPEND)
+  ENDIF(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
+ENDIF("VTK_COMPILER_HAS_FULL_SPECIALIZATION" MATCHES "^VTK_COMPILER_HAS_FULL_SPECIALIZATION$")
+
 IF("VTK_TYPE_CHAR_IS_SIGNED" MATCHES "^VTK_TYPE_CHAR_IS_SIGNED$")
   MESSAGE(STATUS "Checking signedness of char")
   TRY_RUN(VTK_TYPE_CHAR_IS_SIGNED VTK_TYPE_CHAR_IS_SIGNED_COMPILED
@@ -449,8 +472,11 @@ VTK_PREPARE_CMAKEDEFINE("" CMAKE_HP_PTHREADS VTK_HP_PTHREADS)
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_USE_WIN32_THREADS VTK_USE_WIN32_THREADS)
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_ANSI_STRING_STREAM VTK_NO_ANSI_STRING_STREAM)
 VTK_PREPARE_CMAKEDEFINE("" CMAKE_NO_STD_NAMESPACE VTK_NO_STD_NAMESPACE)
+VTK_PREPARE_CMAKEDEFINE(NOT CMAKE_ANSI_FOR_SCOPE VTK_NO_FOR_SCOPE)
 VTK_PREPARE_CMAKEDEFINE(NOT VTK_EXPLICIT_TEMPLATES
                   VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
+VTK_PREPARE_CMAKEDEFINE(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
+                        VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
 
 #-----------------------------------------------------------------------------
 # Include file dependency tracking regular expression.
