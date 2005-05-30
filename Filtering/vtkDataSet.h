@@ -32,7 +32,7 @@
 // .SECTION See Also
 // vtkPointSet vtkStructuredPoints vtkStructuredGrid vtkUnstructuredGrid
 // vtkRectilinearGrid vtkPolyData vtkPointData vtkCellData
-// vtkDataObject vtkField
+// vtkDataObject vtkFieldData
 
 #ifndef __vtkDataSet_h
 #define __vtkDataSet_h
