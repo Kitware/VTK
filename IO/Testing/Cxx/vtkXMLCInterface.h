@@ -54,8 +54,14 @@ void vtkXML_SetPointData(int datatype, void* array, size_t size, int numComp);
 void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp);
 
 /*
+ * array is the cellarray. It is defined as number of point in the cell then 
+ * point ids:
+ * n p1 p2 p3 ... n p1 p2 p3
+ * ncells is the total number of cells
+ * size is the total length of 'array'
+ * element specify the type of cell (see vtkCellTypes.h for definition)
  */
-void vtkXML_SetCellArray(int* array, int ncells, size_t size);
+void vtkXML_SetCellArray(int* array, int ncells, size_t size, int type);
 
 /*
  * Set the maximum number of time steps the file will have, the program can quit

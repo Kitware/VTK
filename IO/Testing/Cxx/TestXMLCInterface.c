@@ -46,7 +46,8 @@ int main()
   vtkXML_Initialize();
   vtkXML_SetFileName( filename );
   vtkXML_SetPoints   (10, points,    NPOINTS);
-  vtkXML_SetCellArray(cellarray, 1, 9); /*1 cell and length is ncells+size(cell) */
+  /* #define VTK_HEXAHEDRON    12 */
+  vtkXML_SetCellArray(cellarray, 1, (1+NPOINTS), 12); /*1 cell, length = ncells+size(cell) */
 
   /* for all timesteps: */
   vtkXML_SetNumberOfTimeSteps(NTIMESTEPS);

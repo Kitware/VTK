@@ -166,18 +166,21 @@ void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp)
 }
 
 //----------------------------------------------------------------------------
-void VTK_FORTRAN_NAME(vtkxml_setcellarray, VTKXML_SETCELLARRAY)
-  (VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array), 
+void VTK_FORTRAN_NAME(vtkxml_setcellarray, VTKXML_SETCELLARRAY) (
+   VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array), 
    VTK_FORTRAN_ARG_INTEGER4(ncells), 
-   VTK_FORTRAN_ARG_INTEGER8(size))
+   VTK_FORTRAN_ARG_INTEGER8(size),
+   VTK_FORTRAN_ARG_INTEGER4(element)
+   )
 {
-  return vtkXML_SetCellArray( VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+  return vtkXML_SetCellArray(VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
                              VTK_FORTRAN_REF_INTEGER4(ncells),
-                             VTK_FORTRAN_REF_INTEGER8(size));
+                             VTK_FORTRAN_REF_INTEGER8(size),
+                             VTK_FORTRAN_REF_INTEGER4(element));
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetCellArray(int* array, int ncells, size_t size)
+void vtkXML_SetCellArray(int* array, int ncells, size_t size, int type)
 {
   if( !ug )
     {
@@ -187,13 +190,11 @@ void vtkXML_SetCellArray(int* array, int ncells, size_t size)
   vtkIdTypeArray *cells = vtkIdTypeArray::New();
   cells->SetArray( array, size, 1);
 
-  vtkCellArray *cellArray = ug->GetCells();
+  vtkCellArray *cellArray = vtkCellArray::New(); //ug->GetCells();
   cellArray->SetCells( ncells, cells);
+  ug->SetCells(type, cellArray);
   cells->Delete();
-
-//  vtkUnsignedCharArray *ua = ug->GetCellTypesArray();
-//  ua->InsertNextValue( 12 );
-  ug->BuildLinks();
+  cellArray->Delete();
 }
 
 //----------------------------------------------------------------------------
