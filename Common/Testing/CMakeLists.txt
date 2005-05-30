@@ -68,6 +68,7 @@ IF(PYTHON_EXECUTABLE)
            vtkTemplateAliasMacro.h
            vtkTimeStamp.h
            vtkTransformCollection.h
+           vtkType.h
            vtkTypeTraits.h
            vtkVector.h
            vtkVectorIterator.h
