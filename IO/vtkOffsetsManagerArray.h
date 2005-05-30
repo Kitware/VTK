@@ -34,6 +34,10 @@
 // .SECTION Warning
 // Do not include this file in a header file, it will break PIMPL convention
 
+#ifndef vtkOffsetsManager_DoNotInclude
+#error "do not include unless you know what you are doing"
+#endif
+
 #ifndef __vtkOffsetsManagerArray_h
 #define __vtkOffsetsManagerArray_h
 
