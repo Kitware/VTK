@@ -134,11 +134,15 @@ typedef bool vtkstd_bool;
 typedef int vtkstd_bool;
 #endif
 
-/* Define a macro to help define template specializations.  */
-#if defined(VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
-# define VTK_TEMPLATE_SPECIALIZE
-#else
-# define VTK_TEMPLATE_SPECIALIZE template <>
+/* Define a macro to help define template specializations.  Skip if
+   compiling a windows resource file because the resource compiler
+   warns about truncating the long symbol.  */
+#if !defined(RC_INVOKED)
+# if defined(VTK_NO_FULL_TEMPLATE_SPECIALIZATION)
+#  define VTK_TEMPLATE_SPECIALIZE
+# else
+#  define VTK_TEMPLATE_SPECIALIZE template <>
+# endif
 #endif
 
 /* Provide missing streaming operators.  */
