@@ -35,9 +35,6 @@
 #ifndef __vtkAnimationCue_h
 #define __vtkAnimationCue_h
 
-#define VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED 0
-#define VTK_ANIMATION_CUE_TIMEMODE_RELATIVE 1
-
 #include "vtkObject.h"
 
 class VTK_COMMON_EXPORT vtkAnimationCue: public vtkObject
@@ -71,9 +68,9 @@ public:
   virtual void SetTimeMode(int mode);
   vtkGetMacro(TimeMode, int);
   void SetTimeModeToRelative() 
-    { this->SetTimeMode(VTK_ANIMATION_CUE_TIMEMODE_RELATIVE); }
+    { this->SetTimeMode(TIMEMODE_RELATIVE); }
   void SetTimeModeToNormalized() 
-    { this->SetTimeMode(VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED); }
+    { this->SetTimeMode(TIMEMODE_NORMALIZED); }
 
   // Description:
   // Get/Set the Start time for this cue.
@@ -126,6 +123,13 @@ public:
   // trigger a EndAnimationCueEvent.
   virtual void Finalize();
 
+//BTX
+  enum TimeCodes
+  {
+    TIMEMODE_NORMALIZED=0,
+    TIMEMODE_RELATIVE=1
+  };
+//ETX
 protected:
   vtkAnimationCue();
   ~vtkAnimationCue();

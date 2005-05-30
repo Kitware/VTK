@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkAnimationCue, "1.2");
+vtkCxxRevisionMacro(vtkAnimationCue, "1.3");
 vtkStandardNewMacro(vtkAnimationCue);
 
 //----------------------------------------------------------------------------
@@ -25,7 +25,7 @@ vtkAnimationCue::vtkAnimationCue()
 {
   this->StartTime = this->EndTime = 0.0;
   this->CueState = vtkAnimationCue::UNINITIALIZED;
-  this->TimeMode = VTK_ANIMATION_CUE_TIMEMODE_RELATIVE;
+  this->TimeMode = TIMEMODE_RELATIVE;
 }
 
 //----------------------------------------------------------------------------

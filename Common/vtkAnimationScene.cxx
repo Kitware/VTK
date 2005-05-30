@@ -19,13 +19,13 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.5");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.6");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
 vtkAnimationScene::vtkAnimationScene()
 {
-  this->PlayMode = VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE;
+  this->PlayMode = PLAYMODE_SEQUENCE;
   this->FrameRate = 10.0;
   this->Loop = 0;
   this->InPlay = 0;
@@ -57,8 +57,8 @@ void vtkAnimationScene::AddCue(vtkAnimationCue* cue)
     vtkErrorMacro("Animation cue already present in the scene");
     return;
     }
-  if (this->TimeMode == VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED &&
-    cue->GetTimeMode() != VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED)
+  if (this->TimeMode == vtkAnimationCue::TIMEMODE_NORMALIZED &&
+    cue->GetTimeMode() != vtkAnimationCue::TIMEMODE_NORMALIZED)
     {
     vtkErrorMacro("A cue with relative time mode cannot be added to a scene "
       "with normalized time mode.");
@@ -76,7 +76,7 @@ void vtkAnimationScene::RemoveCue(vtkAnimationCue* cue)
 //----------------------------------------------------------------------------
 void vtkAnimationScene::SetTimeMode(int mode)
 {
-  if (mode == VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED)
+  if (mode == vtkAnimationCue::TIMEMODE_NORMALIZED)
     {
     // If noralized time mode is being set on the scene,
     // ensure that none of the contained cues need relative times.
@@ -85,7 +85,7 @@ void vtkAnimationScene::SetTimeMode(int mode)
       {
       vtkAnimationCue* cue = 
         vtkAnimationCue::SafeDownCast(it->GetCurrentObject());
-      if (cue && cue->GetTimeMode() != VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED)
+      if (cue && cue->GetTimeMode() != vtkAnimationCue::TIMEMODE_NORMALIZED)
         {
         vtkErrorMacro("Scene contains a cue in relative mode. It must be removed "
           "or chaged to normalized mode before changing the scene time mode");
@@ -135,7 +135,7 @@ void vtkAnimationScene::Play()
     return;
     }
   
-  if (this->TimeMode == VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED)
+  if (this->TimeMode == vtkAnimationCue::TIMEMODE_NORMALIZED)
     {
     vtkErrorMacro("Cannot play a scene with normalized time mode");
     return;
@@ -169,13 +169,13 @@ void vtkAnimationScene::Play()
       currenttime = clocktime - time_adjustment;
       this->Tick(currenttime, deltatime);
       oldclocktime = clocktime;
-      if (this->PlayMode == VTK_ANIMATION_SCENE_PLAYMODE_REALTIME)
+      if (this->PlayMode == PLAYMODE_REALTIME)
         {
         this->AnimationTimer->StopTimer();
         clocktime = this->AnimationTimer->GetElapsedTime() + 
           this->StartTime;
         }
-      else if (this->PlayMode == VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE)
+      else if (this->PlayMode == PLAYMODE_SEQUENCE)
         {
         clocktime += 1.0 / this->FrameRate;
         }
@@ -220,10 +220,10 @@ void vtkAnimationScene::TickInternal(double currenttime, double deltatime)
       {
       switch(cue->GetTimeMode())
         {
-      case VTK_ANIMATION_CUE_TIMEMODE_RELATIVE:
+      case vtkAnimationCue::TIMEMODE_RELATIVE:
         cue->Tick(currenttime - this->StartTime, deltatime);
         break;
-      case VTK_ANIMATION_CUE_TIMEMODE_NORMALIZED:
+      case vtkAnimationCue::TIMEMODE_NORMALIZED:
         cue->Tick( (currenttime - this->StartTime) / (this->EndTime - this->StartTime),
           deltatime / (this->EndTime - this->StartTime));
         break;

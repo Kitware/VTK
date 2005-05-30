@@ -34,9 +34,6 @@ class vtkCollection;
 class vtkCollectionIterator;
 class vtkTimerLog;
 
-#define VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE 0
-#define VTK_ANIMATION_SCENE_PLAYMODE_REALTIME 1
-
 class VTK_COMMON_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
@@ -51,8 +48,8 @@ public:
   // incremented by 1/frame rate, irrespective of the current time.
   // In the RealTime mode, time indicates the instance in time. 
   vtkSetMacro(PlayMode, int);
-  void SetModeToSequence() { this->SetPlayMode(VTK_ANIMATION_SCENE_PLAYMODE_SEQUENCE); }
-  void SetModeToRealTime() { this->SetPlayMode(VTK_ANIMATION_SCENE_PLAYMODE_REALTIME); }
+  void SetModeToSequence() { this->SetPlayMode(PLAYMODE_SEQUENCE); }
+  void SetModeToRealTime() { this->SetPlayMode(PLAYMODE_REALTIME); }
   vtkGetMacro(PlayMode, int);
 
   // Description:
@@ -93,6 +90,15 @@ public:
   // Description:
   // Returns if the animation is being played.
   int IsInPlay() { return this->InPlay; } 
+
+//BTX
+  enum PlayModes
+  {
+    PLAYMODE_SEQUENCE=0,
+    PLAYMODE_REALTIME=1
+  };
+//ETX
+
 protected:
   vtkAnimationScene();
   ~vtkAnimationScene();
