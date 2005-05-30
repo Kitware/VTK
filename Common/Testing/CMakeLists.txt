@@ -65,6 +65,7 @@ IF(PYTHON_EXECUTABLE)
            vtkStructuredData.h
            vtkSystemIncludes.h
            vtkTclUtil.h
+           vtkTemplateAliasMacro.h
            vtkTimeStamp.h
            vtkTransformCollection.h
            vtkTypeTraits.h
