@@ -92,7 +92,7 @@ void VTK_FORTRAN_NAME(vtkxml_setpoints, VTKXML_SETPOINTS)
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetPoints(int datatype, void* array, size_t size)
+void vtkXML_SetPoints(int datatype, void* array, vtkIdType size)
 {
   if( !ug )
     {
@@ -124,7 +124,7 @@ void VTK_FORTRAN_NAME(vtkxml_setpointdata, VTKXML_SETPOINTDATA) (
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetPointData(int datatype, void* array, size_t size, int numComp)
+void vtkXML_SetPointData(int datatype, void* array, vtkIdType size, int numComp)
 {
   if( !ug )
     {
@@ -151,7 +151,7 @@ void VTK_FORTRAN_NAME(vtkxml_setcelldata, VTKXML_SETPOINTDATA)
                             VTK_FORTRAN_REF_INTEGER4(numComp));
 }
 //----------------------------------------------------------------------------
-void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp)
+void vtkXML_SetCellData(int datatype, void* array, vtkIdType size, int numComp)
 {
   if( !ug )
     {
@@ -167,20 +167,20 @@ void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp)
 
 //----------------------------------------------------------------------------
 void VTK_FORTRAN_NAME(vtkxml_setcellarray, VTKXML_SETCELLARRAY) (
-   VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array), 
+   VTK_FORTRAN_ARG_INTEGER8_ARRAY_1D(array), 
    VTK_FORTRAN_ARG_INTEGER4(ncells), 
    VTK_FORTRAN_ARG_INTEGER8(size),
-   VTK_FORTRAN_ARG_INTEGER4(element)
+   VTK_FORTRAN_ARG_INTEGER8(element)
    )
 {
-  return vtkXML_SetCellArray(VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+  return vtkXML_SetCellArray(VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array),
                              VTK_FORTRAN_REF_INTEGER4(ncells),
                              VTK_FORTRAN_REF_INTEGER8(size),
-                             VTK_FORTRAN_REF_INTEGER4(element));
+                             VTK_FORTRAN_REF_INTEGER8(element));
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetCellArray(int* array, int ncells, size_t size, int type)
+void vtkXML_SetCellArray(vtkIdType* array, int ncells, vtkIdType size, int type)
 {
   if( !ug )
     {

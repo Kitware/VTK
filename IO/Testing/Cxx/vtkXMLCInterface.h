@@ -15,7 +15,7 @@
 #ifndef __vtkXMLCInterface_h
 #define __vtkXMLCInterface_h
 
-#include <stdio.h>  /* for size_t */
+#include "vtkType.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,21 +37,21 @@ void vtkXML_SetFileName(const char* filename);
  * array is a pointer to the memory containing the points
  * size is the number of points (array is of lenght := size*3)
  */
-void vtkXML_SetPoints   (int datatype, void* array, size_t size);
+void vtkXML_SetPoints   (int datatype, void* array, vtkIdType size);
 
 /*
  * datatype is defined in vtkSystemIncludes
  * array is a pointer to the memory containing the point data
  * size is the number of points (array is of lenght := size*numComp)
  */
-void vtkXML_SetPointData(int datatype, void* array, size_t size, int numComp);
+void vtkXML_SetPointData(int datatype, void* array, vtkIdType size, int numComp);
 
 /*
  * datatype is defined in vtkSystemIncludes
  * array is a pointer to the memory containing the cell data
  * size is the number of celldata (array is of lenght := size*numComp)
  */
-void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp);
+void vtkXML_SetCellData(int datatype, void* array, vtkIdType size, int numComp);
 
 /*
  * array is the cellarray. It is defined as number of point in the cell then 
@@ -61,7 +61,7 @@ void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp);
  * size is the total length of 'array'
  * element specify the type of cell (see vtkCellTypes.h for definition)
  */
-void vtkXML_SetCellArray(int* array, int ncells, size_t size, int type);
+void vtkXML_SetCellArray(vtkIdType* array, int ncells, vtkIdType size, int type);
 
 /*
  * Set the maximum number of time steps the file will have, the program can quit

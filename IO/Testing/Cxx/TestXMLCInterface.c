@@ -30,7 +30,7 @@ int main()
                        1, 0, 1,
                        1, 1, 1, 
                        0, 1, 1 };
-  int cellarray[] = {8, 0, 1, 2, 3, 4, 5, 6, 7};
+  vtkIdType cellarray[] = {8, 0, 1, 2, 3, 4, 5, 6, 7};
   float pointdata[NPOINTS][NTIMESTEPS];
   /* Give different values for the pointdata: */
   for(i=0;i<NTIMESTEPS;i++)

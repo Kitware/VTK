@@ -15,7 +15,7 @@
 
 /**
  * The whole pupose of this header file is to allow us to 'wrap' a c library
- * into Fortram. Here are the basic goal we should reach:
+ * into Fortran. Here are the basic goals we should reach:
  *
  * 1. The symbol mangling in fortan is different than is C. For example if 
  * you do this fortan:
@@ -44,46 +44,52 @@
   name##__
 
 #define VTK_FORTRAN_ARG_STRING(__arg) \
-  const char *__arg_string, unsigned int __arg_lenght
+  const char *__arg##_string, unsigned int __arg##_length
 
 #define VTK_FORTRAN_REF_STRING_POINTER(__arg) \
-  __arg_string
+  __arg##_string
 
 #define VTK_FORTRAN_REF_STRING_LENGTH(__arg) \
-  __arg_lenght
+  __arg##_length
 
 #define VTK_FORTRAN_ARG_INTEGER4(data) \
-  int data
+  int *data
   
 #define VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array) \
   float *array
   
 #define VTK_FORTRAN_ARG_INTEGER8(size) \
-  unsigned int size
+  vtkIdType *size
 
 #define VTK_FORTRAN_REF_REAL4_ARRAY_1D(array) \
   array
 
+#define VTK_FORTRAN_ARG_INTEGER8_ARRAY_1D(array) \
+  vtkIdType *array
+
+#define VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array) \
+  array
+
 #define VTK_FORTRAN_REF_INTEGER4(data) \
-  data
+  *data
 
 #define VTK_FORTRAN_REF_INTEGER8(data) \
-  data
+  *data
 
 #define VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array) \
   int *array
 
 #define VTK_FORTRAN_ARG_REAL8(t) \
-  double t
+  double *t
 
 #define VTK_FORTRAN_REF_REAL8(t) \
-  t
+  *t
 
 #define VTK_FORTRAN_ARG_INT4(n) \
-  int n
+  int *n
 
 #define VTK_FORTRAN_REF_INT4(n) \
-  n
+  *n
 
 #endif
 
