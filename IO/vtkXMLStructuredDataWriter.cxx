@@ -25,9 +25,11 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#define vtkOffsetsManager_DoNotInclude
 #include "vtkOffsetsManagerArray.h"
+#undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.13");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.14");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 

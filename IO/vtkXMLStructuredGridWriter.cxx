@@ -21,9 +21,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStructuredGrid.h"
+#define vtkOffsetsManager_DoNotInclude
 #include "vtkOffsetsManagerArray.h"
+#undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.10");
+vtkCxxRevisionMacro(vtkXMLStructuredGridWriter, "1.11");
 vtkStandardNewMacro(vtkXMLStructuredGridWriter);
 
 //----------------------------------------------------------------------------

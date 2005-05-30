@@ -22,11 +22,13 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+#define vtkOffsetsManager_DoNotInclude
 #include "vtkOffsetsManagerArray.h"
+#undef vtkOffsetsManager_DoNotInclude
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.12");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.13");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------

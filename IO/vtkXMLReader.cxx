@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.34");
+vtkCxxRevisionMacro(vtkXMLReader, "1.35");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -1016,6 +1016,11 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
+  // FIXME This piece of code should be rewritten to handle at the same
+  // time Pieces and TimeSteps. The REQUEST_DATA_NOT_GENERATED should
+  // ideally be changed during execution, so that allocation still
+  // happen when needed but can be skipped in demand (when doing
+  // timesteps)
   if(this->NumberOfTimeSteps &&
     request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
     {
@@ -1026,6 +1031,7 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
       }
     return 1;
     }
+  // END FIXME 
 
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
