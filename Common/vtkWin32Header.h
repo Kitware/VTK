@@ -41,6 +41,8 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 #endif
 #endif
 
+#endif
+
 // Never include the windows header here when building VTK itself.
 #if defined(VTK_IN_VTK)
 # undef VTK_INCLUDE_WINDOWS_H
@@ -69,25 +71,31 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # define VTK_WORKAROUND_WINDOWS_MANGLE
 #endif
 
-
-#ifdef _MSC_VER
-// Handle MSVC compiler warning messages, etc.
-#ifndef VTK_DISPLAY_WIN32_WARNINGS
-#pragma warning ( disable : 4127 )
-#pragma warning ( disable : 4244 )
-#pragma warning ( disable : 4251 )
-#pragma warning ( disable : 4305 )
-#pragma warning ( disable : 4309 )
-#pragma warning ( disable : 4710 )
-#pragma warning ( disable : 4706 )
-#pragma warning ( disable : 4786 )
-#pragma warning ( disable : 4097 )
-#pragma warning ( disable : 4514 ) /* Unreferenced inline function. */
-#endif //VTK_DISPLAY_WIN32_WARNINGS
+#if defined(_MSC_VER)
+  // Enable MSVC compiler warning messages that are useful but off by default.
+# pragma warning ( default : 4263 ) /* no override, call convention differs */
+  // Disable MSVC compiler warning messages that often occur in valid code.
+# if !defined(VTK_DISPLAY_WIN32_WARNINGS)
+#  pragma warning ( disable : 4097 ) /* typedef is synonym for class */
+#  pragma warning ( disable : 4127 ) /* conditional expression is constant */
+#  pragma warning ( disable : 4244 ) /* possible loss in conversion */
+#  pragma warning ( disable : 4251 ) /* missing DLL-interface */
+#  pragma warning ( disable : 4305 ) /* truncation from type1 to type2 */
+#  pragma warning ( disable : 4309 ) /* truncation of constant value */
+#  pragma warning ( disable : 4514 ) /* unreferenced inline function */
+#  pragma warning ( disable : 4706 ) /* assignment in conditional expression */
+#  pragma warning ( disable : 4710 ) /* function not inlined */
+#  pragma warning ( disable : 4786 ) /* identifier truncated in debug info */
+# endif
 #endif
 
-#pragma warning ( default : 4263 )
-
+// MSVC 6.0 in release mode will warn about code it produces with its
+// optimizer.  Disable the warnings specifically for this
+// configuration.  Real warnings will be revealed by a debug build or
+// by other compilers.
+#if defined(_MSC_VER) && (_MSC_VER < 1300) && defined(NDEBUG)
+# pragma warning ( disable : 4701 ) /* Variable may be used uninitialized.  */
+# pragma warning ( disable : 4702 ) /* Unreachable code.  */
 #endif
 
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
