@@ -27,6 +27,7 @@
 
 #include "vtkXMLCInterface.h"
 #include "vtkFortran.h"
+#include <vtkstd/string>
 
 static vtkXMLUnstructuredGridWriter *writer;
 static vtkUnstructuredGrid *ug;
