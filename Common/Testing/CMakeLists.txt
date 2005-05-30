@@ -67,6 +67,7 @@ IF(PYTHON_EXECUTABLE)
            vtkTclUtil.h
            vtkTimeStamp.h
            vtkTransformCollection.h
+           vtkTypeTraits.h
            vtkVector.h
            vtkVectorIterator.h
            vtkWin32Header.h

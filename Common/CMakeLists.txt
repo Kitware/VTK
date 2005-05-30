@@ -336,6 +336,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     vtkSetGet
     vtkSmartPointer
     vtkSystemIncludes
+    vtkTypeTraits
     vtkWin32Header
     vtkWindows
     )
