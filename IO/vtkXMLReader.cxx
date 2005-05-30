@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.31");
+vtkCxxRevisionMacro(vtkXMLReader, "1.32");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -71,7 +71,7 @@ vtkXMLReader::vtkXMLReader()
   this->NumberOfTimeSteps = 0;
   this->TimeSteps = 0;
   this->CurrentTimeStep = 0;
-  this->FileWasReadOnce = 0;
+  this->TimeStepWasReadOnce = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -385,16 +385,17 @@ int vtkXMLReader::RequestData(vtkInformation *request,
       vtkDataObject::DATA_TIME(), 
       outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS())[this->CurrentTimeStep]);
     output->GetInformation()->Set(vtkDataObject::DATA_TIME_INDEX(), this->CurrentTimeStep);
+
+    if ( this->CurrentTimeStep < this->TimeStepRange[0] )
+      {
+      this->CurrentTimeStep = this->TimeStepRange[0];
+      }
+    else if ( this->CurrentTimeStep > this->TimeStepRange[1] )
+      {
+      this->CurrentTimeStep = this->TimeStepRange[1];
+      }
     }
 
-  if ( this->CurrentTimeStep < this->TimeStepRange[0] )
-    {
-    this->CurrentTimeStep = this->TimeStepRange[0];
-    }
-  else if ( this->CurrentTimeStep > this->TimeStepRange[1] )
-    {
-    this->CurrentTimeStep = this->TimeStepRange[1];
-    }
 
   // Re-open the input file.  If it fails, the error was already
   // reported by OpenVTKFile.
@@ -446,7 +447,11 @@ int vtkXMLReader::RequestData(vtkInformation *request,
   
   // Close the file to prevent resource leaks.
   this->CloseVTKFile();
-  this->FileWasReadOnce = 1;
+  if( this->TimeSteps )
+    {
+    // The SetupOutput should not reallocate this should be done only in a TimeStep case
+    this->TimeStepWasReadOnce = 1; 
+    }
 
   return 1;
 }
@@ -456,7 +461,7 @@ int vtkXMLReader::RequestData(vtkInformation *request,
 void vtkXMLReader::ReadXMLData()
 {
   // Initialize the output's data.
-  //if( !this->FileWasReadOnce )
+  if( !this->TimeStepWasReadOnce )
     {
     this->SetupOutputData();
     }
@@ -502,9 +507,10 @@ int vtkXMLReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   //
   //
   // Let check the "TimeValues" here
-  double timevalues[512];
-  int numTimeSteps = ePrimary->GetVectorAttribute("TimeValues", 512, timevalues);
-  assert( numTimeSteps <= 512 );
+  const int tsMax = 4096;
+  double timevalues[tsMax];
+  int numTimeSteps = ePrimary->GetVectorAttribute("TimeValues", tsMax, timevalues);
+  assert( numTimeSteps <= tsMax);
   this->SetNumberOfTimeSteps( numTimeSteps );
 
   // See if there is a FieldData element
@@ -768,9 +774,10 @@ void vtkXMLReader::SetDataArraySelections(vtkXMLDataElement* eDSA,
       }
     else
       {
-      ostrstream ostr;
-      ostr << "Array " << i << ends;
-      sel->AddArray( ostr.str() );
+      ostrstream ostr_with_warning_C4701;
+      ostr_with_warning_C4701 << "Array " << i << ends;
+      sel->AddArray( ostr_with_warning_C4701.str() );
+      ostr_with_warning_C4701.rdbuf()->freeze(0);
       }
     }
 }
@@ -1010,8 +1017,17 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_NOT_GENERATED()))
+     {
+     vtkInformation* outInfo = outputVector->GetInformationObject(0);
+     if ( this->CurrentOutput == 0)
+       {
+       outInfo->Set(vtkDemandDrivenPipeline::DATA_NOT_GENERATED(), 1);
+       }
+     return 1;
+     }
   // generate the data
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     return this->RequestData(request, inputVector, outputVector);
     }
@@ -1034,7 +1050,7 @@ int vtkXMLReader::ProcessRequest(vtkInformation* request,
 //----------------------------------------------------------------------------
 void vtkXMLReader::SetNumberOfTimeSteps(int num)
 {
-  if( this->NumberOfTimeSteps != num )
+  if( num && (this->NumberOfTimeSteps != num) )
     {
     this->NumberOfTimeSteps = num;
     delete[] this->TimeSteps;

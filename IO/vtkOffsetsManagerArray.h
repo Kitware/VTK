@@ -97,7 +97,10 @@ public:
   // GetElement should be used when manipulating a OffsetsManagerArray
   OffsetsManager &GetElement(unsigned int index)
     {
-    assert( index < this->Internals.size());
+    // commenting the following out, this is an heisenbug which only appears on gcc
+    // when exporting GLIBCPP_NEW=1. If you try to print the value or run through gdb
+    // it desepears
+    //assert( index < this->Internals.size());
     OffsetsManager &e = this->Internals[index];
     return e;
     }

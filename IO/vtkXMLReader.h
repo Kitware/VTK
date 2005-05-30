@@ -248,7 +248,7 @@ protected:
 private:
   // The stream used to read the input if it is in a file.
   ifstream* FileStream;  
-  int FileWasReadOnce;
+  int TimeStepWasReadOnce;
   
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.

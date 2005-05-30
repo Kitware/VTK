@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.23");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.24");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -178,9 +178,8 @@ void vtkXMLUnstructuredDataReader::SetupEmptyOutput()
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataReader::SetupOutputTotals()
 {
-  int i;
   this->TotalNumberOfPoints = 0;
-  for(i=this->StartPiece; i < this->EndPiece; ++i)
+  for(int i=this->StartPiece; i < this->EndPiece; ++i)
     {
     this->TotalNumberOfPoints += this->NumberOfPoints[i];
     }  
@@ -417,9 +416,10 @@ int vtkXMLUnstructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
     {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
-    if((strcmp(eNested->GetName(), "Points") == 0)
-       && (eNested->GetNumberOfNestedElements() >= 1))
+    if(strcmp(eNested->GetName(), "Points") == 0)
       {
+      assert( (this->NumberOfTimeSteps > 0 && eNested->GetNumberOfNestedElements() >= 1) ||
+            (this->NumberOfTimeSteps == 0 && eNested->GetNumberOfNestedElements() == 1));
       this->PointElements[this->Piece] = eNested;
       }
     }
@@ -687,52 +687,58 @@ int vtkXMLUnstructuredDataReader::PointsNeedToReadTimeStep(vtkXMLDataElement *eN
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
     this->NumberOfTimeSteps, this->TimeSteps);
-  assert( numTimeSteps == this->NumberOfTimeSteps );
-  if (!numTimeSteps && !this->NumberOfTimeSteps && this->PointsTimeStep == -1)
+  assert( numTimeSteps <= this->NumberOfTimeSteps );
+  if (!numTimeSteps && !this->NumberOfTimeSteps)
     {
+    assert( this->PointsTimeStep == -1 ); //No timestep in this file
     return 1;
     }
-  else if(!this->NumberOfTimeSteps && numTimeSteps)
-    {
-    vtkErrorMacro( << "TimeStep was specified but no TimeValues associated was found");
-    return 0;
-    }
+  // else TimeStep was specified but no TimeValues associated were found
+  assert( this->NumberOfTimeSteps ); 
+
+  // case numTimeSteps > 1
   int isCurrentTimeInArray = 
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
-  if( numTimeSteps && !isCurrentTimeInArray)
+  if( !isCurrentTimeInArray && numTimeSteps)
     {
     return 0;
     }
-  // let's check our own fields
+  // we know that time steps are specified and that CurrentTimeStep is in the array
+  // we need to figure out if we need to read the array or if it was forwarded
   // Need to check the current 'offset'
   unsigned long offset;
   if( eNested->GetScalarAttribute("offset", offset) )
     {
     if( this->PointsOffset != offset )
       {
-      // save the pointsOffset
+      // save the pointsOffset we are about to read
+      assert( this->PointsTimeStep == -1 ); //cannot have mixture of binary and appended
       this->PointsOffset = offset;
       return 1;
       }
     }
   else
     {
-    // Check if CurrentTimeStep is in the array and particular field is also:
+    // No offset is specified this is a binary file
+    // First thing to check if numTimeSteps == 0:
     if( !numTimeSteps && this->NumberOfTimeSteps && this->PointsTimeStep == -1)
-      {
-      return 1;
-      }
-    int isLastTimeInArray = 
-      vtkXMLReader::IsTimeStepInArray(this->PointsTimeStep, this->TimeSteps, numTimeSteps);
-     // If no time is specified or if time is specified and match then read
-    if (isCurrentTimeInArray && !isLastTimeInArray) //CurrentTime is in Array but Last is not
       {
       // Update last PointsTimeStep read
       this->PointsTimeStep = this->CurrentTimeStep;
       return 1;
       }
+    int isLastTimeInArray = 
+      vtkXMLReader::IsTimeStepInArray(this->PointsTimeStep, this->TimeSteps, numTimeSteps);
+     // If no time is specified or if time is specified and match then read
+    if (isCurrentTimeInArray && !isLastTimeInArray) 
+      {
+      // CurrentTimeStep is in TimeSteps but Last is not := need to read
+      // Update last PointsTimeStep read
+      this->PointsTimeStep = this->CurrentTimeStep;
+      return 1;
+      }
     }
-  // we don't need to read:
+  // all other cases we don't need to read:
   return 0;
 }
 
@@ -744,52 +750,58 @@ int vtkXMLUnstructuredDataReader::CellsNeedToReadTimeStep(vtkXMLDataElement *eNe
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
     this->NumberOfTimeSteps, this->TimeSteps);
-  assert( numTimeSteps == this->NumberOfTimeSteps );
-  if (!numTimeSteps && !this->NumberOfTimeSteps && cellstimestep == -1 )
+  assert( numTimeSteps <= this->NumberOfTimeSteps );
+  if (!numTimeSteps && !this->NumberOfTimeSteps)
     {
+    assert( cellstimestep == -1 ); //No timestep in this file
     return 1;
     }
-  else if(!this->NumberOfTimeSteps && numTimeSteps)
-    {
-    vtkErrorMacro( << "TimeStep was specified but no TimeValues associated was found");
-    return 0;
-    }
+  // else TimeStep was specified but no TimeValues associated were found
+  assert( !this->NumberOfTimeSteps ); 
+
+  // case numTimeSteps > 1
   int isCurrentTimeInArray = 
     vtkXMLReader::IsTimeStepInArray(this->CurrentTimeStep, this->TimeSteps, numTimeSteps);
-  if( numTimeSteps && !isCurrentTimeInArray)
+  if( !isCurrentTimeInArray && numTimeSteps)
     {
     return 0;
     }
-  // let's check our own fields
+  // we know that time steps are specified and that CurrentTimeStep is in the array
+  // we need to figure out if we need to read the array or if it was forwarded
   // Need to check the current 'offset'
   unsigned long offset;
   if( eNested->GetScalarAttribute("offset", offset) )
     {
     if( cellsoffset != offset )
       {
-      // save the pointsOffset
+      // save the cellsOffset we are about to read
+      assert( cellstimestep == -1 ); //cannot have mixture of binary and appended
       cellsoffset = offset;
       return 1;
       }
     }
   else
     {
-    // Check if CurrentTimeStep is in the array and particular field is also:
-    if( !numTimeSteps && this->NumberOfTimeSteps && cellstimestep == -1 )
+    // No offset is specified this is a binary file
+    // First thing to check if numTimeSteps == 0:
+    if( !numTimeSteps && this->NumberOfTimeSteps && cellstimestep == -1)
       {
+      // Update last PointsTimeStep read
+      cellstimestep = this->CurrentTimeStep;
       return 1;
       }
     int isLastTimeInArray = 
       vtkXMLReader::IsTimeStepInArray(cellstimestep, this->TimeSteps, numTimeSteps);
      // If no time is specified or if time is specified and match then read
-    if (isCurrentTimeInArray && !isLastTimeInArray) //CurrentTime is in Array but Last is not
+    if (isCurrentTimeInArray && !isLastTimeInArray)
       {
+      // CurrentTimeStep is in TimeSteps but Last is not := need to read
       // Update last cellstimestep read
       cellstimestep = this->CurrentTimeStep;
       return 1;
       }
     }
-  // we don't need to read:
+  // all other cases we don't need to read:
   return 0;
 }
 
