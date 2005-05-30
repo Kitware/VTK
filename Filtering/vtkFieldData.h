@@ -85,7 +85,10 @@ public:
   // This does not include NULL array pointers therefore after
   // fd->AllocateArray(n); nArrays = GetNumberOfArrays()
   // nArrays is not necessarily equal to n.
-  int GetNumberOfArrays();
+  int GetNumberOfArrays()
+    {
+      return this->NumberOfActiveArrays;
+    }
 
   // Description:
   // Add an array to the array list. If an array with the same name
@@ -111,8 +114,23 @@ public:
   // Also returns index of array if found, -1 otherwise
   vtkDataArray *GetArray(const char *arrayName, int &index);
 
+  // Description:
   // Return the array with the name given. Returns NULL is array not found.
-  vtkDataArray *GetArray(const char *arrayName);
+  vtkDataArray *GetArray(const char *arrayName)
+    {
+      int i;
+      return this->GetArray(arrayName, i);
+    }
+
+  // Description:
+  // Return 1 if an array with the given name could be found. 0 otherwise.
+  int HasArray(const char *name)
+    {
+      int i;
+      vtkDataArray *array = this->GetArray(name, i);
+      // assert( i == -1);
+      return array ? 1 : 0;
+    }
 
   // Description:
   // Get the name of ith array.
@@ -121,14 +139,7 @@ public:
   const char* GetArrayName(int i)
     {
     vtkDataArray* da = this->GetArray(i);
-    if (da)
-      {
-      return da->GetName();
-      }
-    else
-      {
-      return 0;
-      }
+    return da ? da->GetName() : 0;
     }
 
   // Description:
