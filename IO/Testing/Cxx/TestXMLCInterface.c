@@ -45,15 +45,16 @@ int main()
 
   vtkXML_Initialize();
   vtkXML_SetFileName( filename );
-  vtkXML_SetPoints   (0, points,    NPOINTS);
-  vtkXML_SetCellArray(0, cellarray, 1, 9); /*1 cell and length is ncells+size(cell) */
+  vtkXML_SetPoints   (10, points,    NPOINTS);
+  vtkXML_SetCellArray(cellarray, 1, 9); /*1 cell and length is ncells+size(cell) */
 
   /* for all timesteps: */
   vtkXML_SetNumberOfTimeSteps(NTIMESTEPS);
   vtkXML_Start();
   for(i=0; i<NTIMESTEPS; i++)
     {
-    vtkXML_SetPointData(0, pointdata[i], NPOINTS);
+    /* #define VTK_FLOAT          10 */
+    vtkXML_SetPointData(10, pointdata[i], NPOINTS, 1);
     vtkXML_WriteNextTime(i);
     }
   vtkXML_Stop();

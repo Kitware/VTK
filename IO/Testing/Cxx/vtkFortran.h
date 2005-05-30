@@ -30,8 +30,12 @@
  *
  *  3. Passing STRING array from fortran to C is a bit more tricky.
  *
- *  For more info refer to:
- *
+ *  For more information refer to:
+ *  [ FORTRAN/C INTEROPERABILITY  ]
+ *  http://www.ibiblio.org/pub/languages/fortran/ch1-11.html
+ *  
+ *  [ Data Type Compatibility ]
+ *  http://www.ictp.trieste.it/~manuals/programming/sun/fortran/prog_guide/11_cfort.doc.html
  */
 #ifndef __vtkFortran_h
 #define __vtkFortran_h
@@ -80,29 +84,6 @@
 
 #define VTK_FORTRAN_REF_INT4(n) \
   n
-
-#if 0
-//#define F77_FUNC(vtkXML_Initialize, vtkxml_initialize, VTKXML_INITIALIZE)
-//#define F77_FUNC(Name, name, NAME)
-//#ifdef HAVE_NO_FORTRAN_UNDERSCORE
-//#else
-//#endif
-
-struct descriptor                       /* VMS fixed length string    */
-{                                  /* descriptor used in FORTRAN */
-  unsigned short  length;
-  unsigned char   data_type,         /* = 14      */
-                  dsc_class;         /* = 1       */
-  char            *string_ptr;
-}; 
-//
-//void vtkxml_setfilename__(const char *filename, unsigned int length_arg)
-//{
-//  vtkstd::string s(filename, length_arg);
-//  return vtkXML_SetFileName(s.c_str());
-//}
-
-#endif
 
 #endif
 

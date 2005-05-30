@@ -23,6 +23,7 @@
 #include "vtkCellArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkDataArray.h"
 
 #include "vtkXMLCInterface.h"
 #include "vtkFortran.h"
@@ -90,107 +91,108 @@ void VTK_FORTRAN_NAME(vtkxml_setpoints, VTKXML_SETPOINTS)
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetPoints(int datatype, float* array, size_t size)
+void vtkXML_SetPoints(int datatype, void* array, size_t size)
 {
   if( !ug )
     {
     vtkGenericWarningMacro( "You need to call vtkXML_Initialize first");
     return;
     }
-  (void)datatype;
+  vtkDataArray *dataarray = vtkDataArray::CreateDataArray( datatype );
+  dataarray->SetNumberOfComponents(3);
+  dataarray->SetVoidArray(array, 3*size, 1);
+
   vtkPoints *pts = ug->GetPoints();
   pts->SetNumberOfPoints( size );
-  vtkDataArray *dataarray = pts->GetData();
-  vtkFloatArray *floatarray = vtkFloatArray::SafeDownCast( dataarray );
-  floatarray->SetArray(array, 3*size, 1);
+  pts->SetData( dataarray );
+  dataarray->Delete();
 }
 
 //----------------------------------------------------------------------------
-void VTK_FORTRAN_NAME(vtkxml_setpointdata, VTKXML_SETPOINTDATA)
-  (VTK_FORTRAN_ARG_INTEGER4(data), 
+void VTK_FORTRAN_NAME(vtkxml_setpointdata, VTKXML_SETPOINTDATA) (
+   VTK_FORTRAN_ARG_INTEGER4(data), 
    VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array), 
-   VTK_FORTRAN_ARG_INTEGER8(size))
+   VTK_FORTRAN_ARG_INTEGER8(size),
+   VTK_FORTRAN_ARG_INTEGER4(numComp)
+   )
 {
   return vtkXML_SetPointData(VTK_FORTRAN_REF_INTEGER4(data),
                              VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
-                             VTK_FORTRAN_REF_INTEGER8(size));
+                             VTK_FORTRAN_REF_INTEGER8(size),
+                             VTK_FORTRAN_REF_INTEGER4(numComp));
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetPointData(int datatype, float* array, size_t size)
+void vtkXML_SetPointData(int datatype, void* array, size_t size, int numComp)
 {
   if( !ug )
     {
     vtkGenericWarningMacro( "You need to call vtkXML_Initialize first");
     return;
     }
-  (void)datatype;
-//  vtkDataArray *dataarray = ug->GetPointData()->GetArray();
-//  switch(datatype)
-//    {
-//    case VTK_FLOAT:
-//      ug->GetPointData()->
-//      break;
-//    case VTK_DOUBLE:
-//      break;
-//    default:
-//      vtkErrorMacro( "Unknown Type" );
-//    }
-//  vtkDataArray *dataarray = ug->GetPointData()->GetArray(0);
+  vtkDataArray *dataarray = vtkDataArray::CreateDataArray( datatype );
+  dataarray->SetNumberOfComponents (numComp);
+  dataarray->SetVoidArray(array, size*numComp, 1); //do not save
+  ug->GetPointData()->SetScalars(dataarray);
+  dataarray->Delete();
+}
 
-  vtkFloatArray *floatarray = NULL;
-  if( !ug->GetPointData()->GetScalars())
+//----------------------------------------------------------------------------
+void VTK_FORTRAN_NAME(vtkxml_setcelldata, VTKXML_SETPOINTDATA)
+  (VTK_FORTRAN_ARG_INTEGER4(data), 
+   VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array), 
+   VTK_FORTRAN_ARG_INTEGER8(size),
+   VTK_FORTRAN_ARG_INTEGER4(numComp))
+{
+  return vtkXML_SetCellData(VTK_FORTRAN_REF_INTEGER4(data),
+                            VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+                            VTK_FORTRAN_REF_INTEGER8(size),
+                            VTK_FORTRAN_REF_INTEGER4(numComp));
+}
+//----------------------------------------------------------------------------
+void vtkXML_SetCellData(int datatype, void* array, size_t size, int numComp)
+{
+  if( !ug )
     {
-    floatarray = vtkFloatArray::New();
-    ug->GetPointData()->SetScalars(floatarray);
-    floatarray->Delete();
+    vtkGenericWarningMacro( "You need to call vtkXML_Initialize first");
+    return;
     }
-  else
-    {
-    floatarray = 
-      vtkFloatArray::SafeDownCast( ug->GetPointData()->GetScalars());
-    }
-
-  floatarray->SetArray( array, size, 1); //do not save
-  floatarray->Modified(); //Need to change MTime outself
+  vtkDataArray *dataarray = vtkDataArray::CreateDataArray( datatype );
+  dataarray->SetNumberOfComponents (numComp);
+  dataarray->SetVoidArray(array, size*numComp, 1); //do not save
+  ug->GetCellData()->SetScalars(dataarray);
+  dataarray->Delete();
 }
 
 //----------------------------------------------------------------------------
 void VTK_FORTRAN_NAME(vtkxml_setcellarray, VTKXML_SETCELLARRAY)
-  (VTK_FORTRAN_ARG_INTEGER4(data), 
-   VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array), 
+  (VTK_FORTRAN_ARG_INTEGER4_ARRAY_1D(array), 
    VTK_FORTRAN_ARG_INTEGER4(ncells), 
    VTK_FORTRAN_ARG_INTEGER8(size))
 {
-  return vtkXML_SetCellArray(VTK_FORTRAN_REF_INTEGER4(data),
-                             VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+  return vtkXML_SetCellArray( VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
                              VTK_FORTRAN_REF_INTEGER4(ncells),
                              VTK_FORTRAN_REF_INTEGER8(size));
 }
 
 //----------------------------------------------------------------------------
-void vtkXML_SetCellArray(int datatype, int* array, int ncells, size_t size)
+void vtkXML_SetCellArray(int* array, int ncells, size_t size)
 {
   if( !ug )
     {
     vtkGenericWarningMacro( "You need to call vtkXML_Initialize first");
     return;
     }
-  (void)datatype;
-  vtkCellArray *cellArray = ug->GetCells();
-  //vtkIdTypeArray idTypes = cellArray
-  // Since there is no direct way of setting the number of cells:
-//  vtkIdType *idTypes = cellArray->WritePointer(size-8, size);
-//  (void)idTypes;
-//  vtkIdTypeArray *idTypeArray = cellArray->GetData();
-//  idTypeArray->SetArray(array, size, 0);
   vtkIdTypeArray *cells = vtkIdTypeArray::New();
   cells->SetArray( array, size, 1);
+
+  vtkCellArray *cellArray = ug->GetCells();
   cellArray->SetCells( ncells, cells);
   cells->Delete();
-  vtkUnsignedCharArray *ua = ug->GetCellTypesArray();
-  //ua->SetArray(
-  ua->InsertNextValue( 12 );
+
+//  vtkUnsignedCharArray *ua = ug->GetCellTypesArray();
+//  ua->InsertNextValue( 12 );
+  ug->BuildLinks();
 }
 
 //----------------------------------------------------------------------------
