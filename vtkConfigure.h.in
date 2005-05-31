@@ -153,6 +153,9 @@ typedef int vtkstd_bool;
 #if defined(VTK_NO_FOR_SCOPE) && defined(VTK_WORKAROUND_FOR_SCOPE)
 # ifndef for
 #  define for if(0) {} else for
+#  if defined(_MSC_VER)
+#   pragma warning (disable: 4127) /* conditional expression is constant */
+#  endif
 # endif
 #endif
 
