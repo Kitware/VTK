@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.23");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.24");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -268,8 +268,6 @@ void vtkXMLDataReader::SetupOutputData()
       if (this->PointDataArrayIsEnabled(eNested) && 
         !pointData->HasArray(eNested->GetAttribute("Name")))
         {
-        assert( this->PointDataArraySelection->GetArrayIndex(
-            eNested->GetAttribute("Name")) <= pointData->GetNumberOfArrays());
         this->NumberOfPointArrays++;
         vtkDataArray* array = this->CreateDataArray(eNested);
         if (array)
@@ -296,8 +294,6 @@ void vtkXMLDataReader::SetupOutputData()
       if (this->CellDataArrayIsEnabled(eNested) && 
         !cellData->HasArray(eNested->GetAttribute("Name")))
         {
-        assert( this->CellDataArraySelection->GetArrayIndex(
-            eNested->GetAttribute("Name")) <= cellData->GetNumberOfArrays());
         this->NumberOfCellArrays++;
         vtkDataArray* array = this->CreateDataArray(eNested);
         if (array)
