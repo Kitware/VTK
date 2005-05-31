@@ -46,7 +46,7 @@ typedef vtkEdgeList::iterator EdgeListIterator;
 
 // Begin vtkProjectedTerrainPath class implementation--------------------------
 //
-vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.10");
+vtkCxxRevisionMacro(vtkProjectedTerrainPath, "1.11");
 vtkStandardNewMacro(vtkProjectedTerrainPath);
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ vtkProjectedTerrainPath::vtkProjectedTerrainPath()
   this->ProjectionMode = SIMPLE_PROJECTION;
   this->HeightOffset = 10.0;
   this->HeightTolerance = 10.0;
-  this->MaximumNumberOfLines = VTK_LONG_MAX;
+  this->MaximumNumberOfLines = VTK_LARGE_ID;
   this->PositiveLineError = NULL;
   this->NegativeLineError = NULL;
 }
