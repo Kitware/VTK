@@ -433,6 +433,10 @@ int TestScalarBarWidget( int argc, char *argv[] )
   recorder->Play();
   //recorder->EnabledOn();
   
+  // Remove the observers so we can go interactive. Without this the "-I"
+  // testing option fails.
+  recorder->Off();
+
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
