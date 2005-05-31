@@ -8,6 +8,8 @@ Find wxPython info at http://wxPython.org
 
 Created by Prabhu Ramachandran, April 2002
 Based on wxVTKRenderWindow.py
+
+Fixes and updates by Charl P. Botha 2003-2005
 """
 
 """
@@ -199,6 +201,11 @@ class wxVTKRenderWindowInteractor(baseClass):
 
         self.BindEvents()
 
+        # with this, we can make sure that the reparenting logic in
+        # Render() isn't called before the first OnPaint() has
+        # successfully been run (and set up the VTK/WX display links)
+        self.__has_painted = False
+
     def BindEvents(self):
         # refresh window by doing a Render
         EVT_PAINT(self, self.OnPaint)
@@ -238,19 +245,67 @@ class wxVTKRenderWindowInteractor(baseClass):
                   " has no attribute named " + attr
 
     def CreateTimer(self, obj, evt):
-        t = EventTimer(self)
-        t.Start(10, True)
+        self._timer = EventTimer(self)
+        self._timer.Start(10, True)
 
     def DestroyTimer(self, obj, evt):
         """The timer is a one shot timer so will expire automatically."""
         return 1
+    
+    def GetDisplayId(self):
+        """Function to get X11 Display ID from WX and return it in a format
+        that can be used by VTK Python.
+
+        We query the X11 Display with a new call that was added in wxPython
+        2.6.0.1.  The call returns a SWIG object which we can query for the
+        address and subsequently turn into an old-style SWIG-mangled string
+        representation to pass to VTK.
+        """
+        
+        d = None
+
+        try:
+            d = wxGetXDisplay()
+            
+        except NameError:
+            # wxGetXDisplay was added by Robin Dunn in wxPython 2.6.0.1
+            # if it's not available, we can't pass it.  In general, 
+            # things will still work; on some setups, it'll break.
+            pass
+        
+        else:
+            # wx returns None on platforms where wxGetXDisplay is not relevant
+            if d:
+                d = hex(d)
+                # we now have 0xdeadbeef
+                # VTK wants it as: _deadbeef_void_p (pre-SWIG-1.3 style)
+                d = '_%s_%s' % (d[2:], 'void_p')
+
+        return d
 
     def OnPaint(self,event):
         dc = wxPaintDC(self)
+
+        # make sure the RenderWindow is sized correctly
+        self._Iren.GetRenderWindow().SetSize(self.GetSizeTuple())
+        
         # Tell the RenderWindow to render inside the wxWindow.
         if not self.__handle:
+
+            # on relevant platforms, set the X11 Display ID
+            d = self.GetDisplayId()
+            if d:
+                self._Iren.GetRenderWindow().SetDisplayId(d)
+
+            # store the handle
             self.__handle = self.GetHandle()
+            # and give it to VTK
             self._Iren.GetRenderWindow().SetWindowInfo(str(self.__handle))
+
+            # now that we've painted once, the Render() reparenting logic
+            # is safe
+            self.__has_painted = True
+            
         self.Render()
 
     def OnSize(self,event):
@@ -289,7 +344,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             ctrl, shift, chr(0), 0, None)
-
+                                            
         self._ActiveButton = 0
         if event.RightDown():
             self._Iren.RightButtonPressEvent()
@@ -300,7 +355,7 @@ class wxVTKRenderWindowInteractor(baseClass):
         elif event.MiddleDown():
             self._Iren.MiddleButtonPressEvent()
             self._ActiveButton = 'Middle'
-
+            
         # save the button and capture mouse until the button is released
         if self._ActiveButton and WX_USE_X_CAPTURE:
             self.CaptureMouse()
@@ -337,9 +392,13 @@ class wxVTKRenderWindowInteractor(baseClass):
         if keycode < 256:
             key = chr(keycode)
 
-        self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
-                                            ctrl, shift, key, 0,
-                                            keysym)
+        # wxPython 2.6.0.1 does not return a valid event.Get{X,Y}()
+        # for this event, so we use the cached position.
+        (x,y)= self._Iren.GetEventPosition()
+        self._Iren.SetEventInformation(x, y,
+                                       ctrl, shift, key, 0,
+                                       keysym)
+
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
@@ -374,11 +433,20 @@ class wxVTKRenderWindowInteractor(baseClass):
             if self.__handle and self.__handle == self.GetHandle():
                 self._Iren.GetRenderWindow().Render()
 
-            elif self.GetHandle():
+            elif self.GetHandle() and self.__has_painted:
                 # this means the user has reparented us; let's adapt to the
                 # new situation by doing the WindowRemap dance
-                self._Iren.GetRenderWindow().SetNextWindowInfo(str(self.GetHandle()))
+                self._Iren.GetRenderWindow().SetNextWindowInfo(
+                    str(self.GetHandle()))
+
+                # make sure the DisplayId is also set correctly
+                d = self.GetDisplayId()
+                if d:
+                    self._Iren.GetRenderWindow().SetDisplayId(d)
+                
+                # do the actual remap with the new parent information
                 self._Iren.GetRenderWindow().WindowRemap()
+
                 # store the new situation
                 self.__handle = self.GetHandle()
                 self._Iren.GetRenderWindow().Render()
