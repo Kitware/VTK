@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.91");
+vtkCxxRevisionMacro(vtkPicker, "1.92");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -272,6 +272,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
   vtkProperty *tempProperty;
   this->Transform->PostMultiply();
   vtkCollectionSimpleIterator pit;
+  double scale[3];
   for ( props->InitTraversal(pit); (prop=props->GetNextProp(pit)); )
     {
     for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
@@ -334,6 +335,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         this->Transform->SetMatrix(LastMatrix);
         this->Transform->Push();
         this->Transform->Inverse();
+        this->Transform->GetScale(scale); //need to scale the tolerance
 
         this->Transform->TransformPoint(p1World,p1Mapper);
         this->Transform->TransformPoint(p2World,p2Mapper);
@@ -358,8 +360,8 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
         if ( vtkBox::IntersectBox(bounds, (double *)p1Mapper, 
                                   ray, hitPosition, t) )
           {
-          t = this->IntersectWithLine((double *)p1Mapper, 
-                                      (double *)p2Mapper, tol, path, 
+          t = this->IntersectWithLine((double *)p1Mapper, (double *)p2Mapper, 
+                                      tol*0.333*(scale[0]+scale[1]+scale[2]), path, 
                                       (vtkProp3D *)propCandidate, mapper);
           if ( t < VTK_DOUBLE_MAX )
             {
