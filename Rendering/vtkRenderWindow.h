@@ -313,6 +313,7 @@ public:
   // Description:
   // Set/Get the zbuffer data from the frame buffer.
   virtual float *GetZbufferData(int, int, int, int ) = 0;
+  virtual int GetZbufferData( int, int, int, int, float*) = 0;
   virtual int GetZbufferData( int, int, int, int, vtkFloatArray*) = 0;
   virtual int SetZbufferData(int, int, int, int, float *) = 0;
   virtual int SetZbufferData( int, int, int, int, vtkFloatArray * ) = 0;

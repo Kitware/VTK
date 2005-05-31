@@ -85,6 +85,7 @@ public:
   // Description:
   // Set/Get the zbuffer data from an image
   virtual float *GetZbufferData( int x1, int y1, int x2, int y2 );
+  virtual int GetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
   virtual int GetZbufferData( int x1, int y1, int x2, int y2, 
                               vtkFloatArray* z );
   virtual int SetZbufferData( int x1, int y1, int x2, int y2, float *buffer );
