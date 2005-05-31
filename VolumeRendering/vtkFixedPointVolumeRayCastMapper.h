@@ -92,11 +92,21 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Set/Get the distance between samples. This value will be adjusted to
-  // meet a desired frame rate when AutoAdjustSampleDistance is On.
+  // Set/Get the distance between samples used for rendering 
+  // when AutoAdjustSampleDistances is off, or when this mapper
+  // has more than 1 second allocated to it for rendering.
   vtkSetMacro( SampleDistance, float );
   vtkGetMacro( SampleDistance, float );
 
+  // Description:
+  // Set/Get the distance between samples when interactive rendering is happening.
+  // In this case, interactive is defined as this volume mapper having less than 1
+  // second allocated for rendering. When AutoAdjustSampleDistance is On, and the
+  // allocated render time is less than 1 second, then this InteractiveSampleDistance
+  // will be used instead of the SampleDistance above.
+  vtkSetMacro( InteractiveSampleDistance, float );
+  vtkGetMacro( InteractiveSampleDistance, float );
+  
   // Description:
   // Sampling distance in the XY image dimensions. Default value of 1 meaning
   // 1 ray cast per pixel. If set to 0.5, 4 rays will be cast per pixel. If
@@ -228,6 +238,13 @@ public:
   // renders multiple times into the same image.
   void SetRayCastImage( vtkFixedPointRayCastImage * );
   vtkGetObjectMacro( RayCastImage, vtkFixedPointRayCastImage  );
+
+  void PerImageInitialization( vtkRenderer *, vtkVolume *, int );
+  void PerVolumeInitialization( vtkRenderer *, vtkVolume * );
+  void PerSubVolumeInitialization( vtkRenderer *, vtkVolume *, int );
+  void RenderSubVolume( vtkRenderer *, vtkVolume * );
+  void DisplayRenderedImage( vtkRenderer *, vtkVolume * );
+  void AbortRender();
   
   
 protected:
@@ -239,19 +256,31 @@ protected:
 
   // The distance between sample points along the ray
   float                        SampleDistance;
+  float                        InteractiveSampleDistance;
+  
+  // The distance between rays in the image
   float                        ImageSampleDistance;
   float                        MinimumImageSampleDistance;
   float                        MaximumImageSampleDistance;
   int                          AutoAdjustSampleDistances;
 
-  //int                          FastInteractiveRender;
-  int                          UseShortCuts;
+  // Saved values used to restore 
+  float                        OldSampleDistance;
+  float                        OldImageSampleDistance;
   
-  void ComputeMatrices( vtkImageData *data, 
+  // Internal method for computing matrices needed during
+  // ray casting
+  void ComputeMatrices( double volumeOrigin[3],
+                        double volumeSpacing[3],
+                        int volumeExtent[6], 
                         vtkRenderer  *ren,
                         vtkVolume    *vol );
   
-  int ComputeRowBounds( vtkVolume *vol, vtkRenderer *ren );
+  int ComputeRowBounds( vtkVolume *vol, vtkRenderer *ren,
+                        int imageFlag, int rowBoundsFlag,
+                        int volumeExtent[6]);
+
+  void CaptureZBuffer( vtkRenderer *ren );
   
   friend VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
   
@@ -289,10 +318,6 @@ protected:
 
   int              IntermixIntersectingGeometry;
 
-  float           *ZBuffer;
-  int              ZBufferSize[2];
-  int              ZBufferOrigin[2];
-
   float            MinimumViewDistance;
 
   vtkColorTransferFunction *SavedRGBFunction[4];
@@ -301,7 +326,6 @@ protected:
   vtkPiecewiseFunction     *SavedGradientOpacityFunction[4];
   int                       SavedColorChannels[4];
   float                     SavedScalarOpacityDistance[4];
-  float                     SavedSampleDistance;
   int                       SavedBlendMode;
   vtkImageData             *SavedParametersInput;
   vtkTimeStamp              SavedParametersMTime;
@@ -309,6 +333,9 @@ protected:
   vtkImageData             *SavedGradientsInput;
   vtkTimeStamp              SavedGradientsMTime;
  
+  float                     SavedSampleDistance;
+  
+  
   unsigned short            ColorTable[4][32768*3];
   unsigned short            ScalarOpacityTable[4][32768];
   unsigned short            GradientOpacityTable[4][256];

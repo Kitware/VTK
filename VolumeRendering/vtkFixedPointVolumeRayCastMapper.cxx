@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.10");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.11");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -370,10 +370,16 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
 vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
 {
   this->SampleDistance             =  1.0;
+  this->InteractiveSampleDistance  =  2.0;
   this->ImageSampleDistance        =  1.0;
   this->MinimumImageSampleDistance =  1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->AutoAdjustSampleDistances  =  1;
+  
+  // Should never be used without initialization, but
+  // set here to avoid compiler warnings
+  this->OldSampleDistance          =  1.0;
+  this->OldImageSampleDistance     =  1.0;
   
   this->PerspectiveMatrix      = vtkMatrix4x4::New();
   this->ViewToWorldMatrix      = vtkMatrix4x4::New();
@@ -402,12 +408,6 @@ vtkFixedPointVolumeRayCastMapper::vtkFixedPointVolumeRayCastMapper()
   this->RenderTableSize        = 0;  
   this->RenderTableEntries     = 0;
 
-  this->ZBuffer                = NULL;
-  this->ZBufferSize[0]         = 0;
-  this->ZBufferSize[1]         = 0;
-  this->ZBufferOrigin[0]       = 0;
-  this->ZBufferOrigin[1]       = 0;
-  
   this->RenderWindow           = NULL;
   
   this->MIPHelper              = vtkFixedPointVolumeRayCastMIPHelper::New();
@@ -1024,46 +1024,34 @@ void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
   
 }
 
-void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
+// This is the initialization that should be done once per image
+// The render has been broken into several parts to support AMR
+// volume rendering. Basically, this is done by having the AMR 
+// mapper call the PerImageInitialization once, then the 
+// PerVolumeInitialization once for each volume in the hierarchical
+// structure. Finally, the AMR mapper divides all the volumes
+// into subvolumes in order to render everything in a back-to-front
+// order. The PerSubVolumeInitialization is called for each subvolume,
+// then the RenderSubVolume is called. Finally, the DisplayImage method 
+// is called to map the image onto the screen. When this class is used
+// directly as the mapper, the Render method calls these initialization
+// methods and the RenderSubVolumeMethod. The AMR mapper will set the
+// multiRender flag to 1 indicating that the PerImageInitialization 
+// should fully polulate the RayCastImage class based on the
+// origin, spacing, and extent passed in. This will result in computing
+// some things twice - once for the "full" volume (the extent bounding
+// all volumes in the hierarchy), then once for each volume in the
+// hierarchy. This does not make sense when rendering just a single
+// volume so the multiRender flag indicates whether to do this
+// computation here or skip it for later.
+void vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren, 
+                                                               vtkVolume *vol,
+                                                               int muliRender )
 {
-  // make sure that we have scalar input and update the scalar input
-  if ( this->GetInput() == NULL ) 
-    {
-    vtkErrorMacro(<< "No Input!");
-    return;
-    }
-  else
-    {
-    this->GetInput()->UpdateInformation();
-    this->GetInput()->SetUpdateExtentToWholeExtent();
-    this->GetInput()->Update();
-    } 
-
-  // Start timing now. We didn't want to capture the update of the
-  // input data in the times
-  this->Timer->StartTimer();
-  
-  // This is the input of this mapper
-  vtkImageData *input = this->GetInput();
-  
-  this->ConvertCroppingRegionPlanesToVoxels();
-  
-  // Compute some matrices from voxels to view and vice versa based 
-  // on the whole input
-  this->ComputeMatrices( input, ren, vol );
-  
-  // How big is the viewport in pixels?
-  double *viewport   =  ren->GetViewport();
-  int *renWinSize   =  ren->GetRenderWindow()->GetSize();
-
   // Save this so that we can restore it if the image is cancelled
-  float oldImageSampleDistance = this->ImageSampleDistance;
-  float oldSampleDistance      = this->SampleDistance;
+  this->OldImageSampleDistance = this->ImageSampleDistance;
+  this->OldSampleDistance      = this->SampleDistance;  
   
-  this->UseShortCuts = 0;
-  
-  // If we are using the fast interactive method, set the UseShortCuts flag
-
   // If we are automatically adjusting the size to achieve a desired frame
   // rate, then do that adjustment here. Base the new image sample distance 
   // on the previous one and the previous render time. Don't let
@@ -1078,34 +1066,12 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
     // increase the sample distance along the ray to improve performance
     if ( vol->GetAllocatedRenderTime() < 1.0 )
       {
-      this->SampleDistance = 3 * oldSampleDistance;
-      this->UseShortCuts = 1;
+      this->SampleDistance = this->InteractiveSampleDistance;
       }
     }
-
   
-  this->RenderWindow = ren->GetRenderWindow();
-  this->Volume = vol;
-  
-  if ( this->RenderWindow->CheckAbortStatus() )
-    {
-    this->ImageSampleDistance = oldImageSampleDistance;
-    this->SampleDistance = oldSampleDistance;
-    return;
-    }
-  
-  this->UpdateColorTable( vol );
-  this->UpdateGradients( vol );
-  this->UpdateShadingTable( ren, vol );
-  this->UpdateCroppingRegions();
-  this->UpdateMinMaxVolume( vol );
-  
-  if ( this->RenderWindow->CheckAbortStatus() )
-    {
-    this->ImageSampleDistance = oldImageSampleDistance;
-    this->SampleDistance = oldSampleDistance;
-    return;
-    }
+  // Pass the ImageSampleDistance on the RayCastImage
+  this->RayCastImage->SetImageSampleDistance( this->ImageSampleDistance );
   
   // The full image fills the viewport. First, compute the actual viewport
   // size, then divide by the ImageSampleDistance to find the full image
@@ -1115,17 +1081,133 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
   this->RayCastImage->SetImageViewportSize(
     static_cast<int>(width/this->ImageSampleDistance),
     static_cast<int>(height/this->ImageSampleDistance) );
+}
+
+// This is the initialization that should be done once per volume
+void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren, vtkVolume *vol )
+{
+  // This is the input of this mapper
+  vtkImageData *input = this->GetInput();
+  
+  // make sure that we have scalar input and update the scalar input
+  if ( input == NULL ) 
+    {
+    vtkErrorMacro(<< "No Input!");
+    return;
+    }
+  else
+    {
+    input->UpdateInformation();
+    input->SetUpdateExtentToWholeExtent();
+    input->Update();
+    } 
+  
+  // Compute some matrices from voxels to view and vice versa based 
+  // on the whole input
+  double volumeSpacing[3];
+  double volumeOrigin[3];
+  int    volumeExtent[6];
+  input->GetSpacing( volumeSpacing );
+  input->GetOrigin( volumeOrigin );
+  input->GetExtent( volumeExtent );
+  
+  this->ComputeMatrices( volumeOrigin,
+                         volumeSpacing,
+                         volumeExtent, 
+                         ren, vol );
+  
+  this->RenderWindow = ren->GetRenderWindow();
+  this->Volume = vol;
+  
+  this->UpdateColorTable( vol );
+  this->UpdateGradients( vol );
+  this->UpdateShadingTable( ren, vol );
+  this->UpdateMinMaxVolume( vol );
+}
+
+// This is the initialization that should be done once per subvolume
+void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization( vtkRenderer *ren, vtkVolume *vol, int multiRender )
+{
+  this->ConvertCroppingRegionPlanesToVoxels();
+  this->UpdateCroppingRegions();
   
   // Compute row bounds. This will also compute the size of the image to
   // render, allocate the space if necessary, and clear the image where
   // required. If no rays need to be cast, restore the old image sample 
   // distance and return
-  if ( !this->ComputeRowBounds( vol, ren )  )
+  int volumeExtent[6];
+  vtkImageData *input = this->GetInput();
+  input->GetExtent( volumeExtent );
+
+  // If this is part of a multirender (AMR volume rendering) then
+  // the image parameters have already been computed and we can skip
+  // that. In all cases we need to compute the row bounds so pass in
+  // a 1 for that flag
+  int imageFlag = (multiRender)?(0):(1);
+  if ( !this->ComputeRowBounds( vol, ren, imageFlag, 1, volumeExtent )  )
     {
-    this->ImageSampleDistance = oldImageSampleDistance;
-    this->SampleDistance = oldSampleDistance;
+    this->AbortRender();
     return;
     }
+  
+  // If this is part of a multiRender, then we've already captured the z buffer,
+  // otherwise we need to do it here
+  if ( !multiRender )
+    {
+    this->CaptureZBuffer( ren );
+    }
+  
+  this->InitializeRayInfo( vol );
+}
+
+// This is the render method for the subvolume
+void vtkFixedPointVolumeRayCastMapper::RenderSubVolume( vtkRenderer *ren, vtkVolume *vol )
+{
+  // Set the number of threads to use for ray casting,
+  // then set the execution method and do it.
+  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
+  this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays,
+                                   (void *)this);
+  this->Threader->SingleMethodExecute();
+}
+
+// This method displays the image that has been created
+void vtkFixedPointVolumeRayCastMapper::DisplayRenderedImage( vtkRenderer *ren,
+                                                             vtkVolume   *vol )
+{ 
+  float depth;
+  if ( this->IntermixIntersectingGeometry )
+    {
+    depth = this->MinimumViewDistance;
+    }
+  else
+    {
+    depth = -1;
+    }
+  
+  this->ImageDisplayHelper->
+    RenderTexture( vol, ren, 
+                   this->RayCastImage,
+                   depth );
+}
+
+// This method should be called when the render is aborted to restore previous values.
+// Otherwise, the old time is still stored, with the newly computed sample distances,
+// and that will cause problems on the next render.
+void vtkFixedPointVolumeRayCastMapper::AbortRender()
+{
+  // Restore values
+  this->ImageSampleDistance = this->OldImageSampleDistance;
+  this->SampleDistance      = this->OldSampleDistance;  
+}
+
+// Capture the ZBuffer to use for intermixing with opaque geometry 
+// that has already been rendered
+void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
+{
+  // How big is the viewport in pixels?
+  double *viewport   =  ren->GetViewport();
+  int *renWinSize   =  ren->GetRenderWindow()->GetSize();  
   
   // Do we need to capture the z buffer to intermix intersecting
   // geometry? If so, do it here
@@ -1148,91 +1230,84 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
       viewport[1] * static_cast<float>(renWinSize[1]) +
       static_cast<float>(imageOrigin[1]) * this->ImageSampleDistance);
       
+    int zbufferSize[2];
+    int zbufferOrigin[2];
+    
     // compute z buffer size
-    this->ZBufferSize[0] = static_cast<int>(
+    zbufferSize[0] = static_cast<int>(
       static_cast<float>(imageInUseSize[0]) * this->ImageSampleDistance);
-    this->ZBufferSize[1] = static_cast<int>(
+    zbufferSize[1] = static_cast<int>(
       static_cast<float>(imageInUseSize[1]) * this->ImageSampleDistance);
       
     // Use the size to compute (x2,y2) in window coordinates
-    x2 = x1 + this->ZBufferSize[0] - 1;
-    y2 = y1 + this->ZBufferSize[1] - 1;
+    x2 = x1 + zbufferSize[0] - 1;
+    y2 = y1 + zbufferSize[1] - 1;
       
     // This is the z buffer origin (in viewport coordinates)
-    this->ZBufferOrigin[0] = static_cast<int>(
+    zbufferOrigin[0] = static_cast<int>(
       static_cast<float>(imageOrigin[0]) * this->ImageSampleDistance);
-    this->ZBufferOrigin[1] = static_cast<int>(
+    zbufferOrigin[1] = static_cast<int>(
       static_cast<float>(imageOrigin[1]) * this->ImageSampleDistance);
       
-    // Capture the z buffer
-    this->ZBuffer = ren->GetRenderWindow()->GetZbufferData(x1,y1,x2,y2);
-    }
+    this->RayCastImage->SetZBufferSize( zbufferSize );
+    this->RayCastImage->SetZBufferOrigin( zbufferOrigin );
+    this->RayCastImage->AllocateZBuffer();
     
-  
-  this->InitializeRayInfo( vol );
-  
-  if ( this->RenderWindow->GetAbortRender() )
+    // Capture the z buffer
+    ren->GetRenderWindow()->GetZbufferData( x1, y1, x2, y2, 
+                                            this->RayCastImage->GetZBuffer() );
+    
+    this->RayCastImage->UseZBufferOn();
+    }
+  else
     {
-    this->ImageSampleDistance = oldImageSampleDistance;
-    this->SampleDistance = oldSampleDistance;
+    this->RayCastImage->UseZBufferOff();
+    }    
+}
+
+
+void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
+{
+  this->Timer->StartTimer();
+  
+  this->PerImageInitialization( ren, vol, 0 );
+
+  this->PerVolumeInitialization( ren, vol );
+  if ( this->RenderWindow->CheckAbortStatus() )
+    {
+    this->AbortRender();
     return;
     }
 
-  // Set the number of threads to use for ray casting,
-  // then set the execution method and do it.
-  this->Threader->SetNumberOfThreads( this->NumberOfThreads );
-  this->Threader->SetSingleMethod( FixedPointVolumeRayCastMapper_CastRays,
-                                  (void *)this);
-  this->Threader->SingleMethodExecute();
-  
-  if ( !ren->GetRenderWindow()->GetAbortRender() )
+  this->PerSubVolumeInitialization( ren, vol, 0 );
+  if ( this->RenderWindow->CheckAbortStatus() )
     {
-      float depth;
-      if ( this->IntermixIntersectingGeometry )
-        {
-        depth = this->MinimumViewDistance;
-        }
-      else
-        {
-        depth = -1;
-        }
-    
-      this->ImageDisplayHelper->
-        RenderTexture( vol, ren, 
-                       this->RayCastImage,
-                       depth );
-      
-    this->Timer->StopTimer();
-    this->TimeToDraw = this->Timer->GetElapsedTime();
-    // If we've increased the sample distance, account for that in the stored time. Since we
-    // don't get linear performance improvement, use a factor of .66
-    this->StoreRenderTime( ren, vol, 
-                           this->TimeToDraw * 
-                           this->ImageSampleDistance * 
-                           this->ImageSampleDistance *
-                           ( 1.0 + 0.66*
-                             (this->SampleDistance - oldSampleDistance) / 
-                             oldSampleDistance ) );
-    
-    }
-  // Restore the image sample distance so that automatic adjustment
-  // will work correctly
-  else
-    {
-    this->ImageSampleDistance = oldImageSampleDistance;
-    }
-    
-  this->SampleDistance = oldSampleDistance;
-  if ( this->UseShortCuts )
-    {
-    this->ImageSampleDistance = oldImageSampleDistance;
+    this->AbortRender();
+    return;
     }
   
-  if ( this->ZBuffer )
+  this->RenderSubVolume( ren, vol );
+  if ( this->RenderWindow->CheckAbortStatus() )
     {
-    delete [] this->ZBuffer;
-    this->ZBuffer = NULL;
+    this->AbortRender();
+    return;
     }
+
+  this->DisplayRenderedImage( ren, vol );
+  
+  this->Timer->StopTimer();
+  this->TimeToDraw = this->Timer->GetElapsedTime();
+  // If we've increased the sample distance, account for that in the stored time. Since we
+  // don't get linear performance improvement, use a factor of .66
+  this->StoreRenderTime( ren, vol, 
+                         this->TimeToDraw * 
+                         this->ImageSampleDistance * 
+                         this->ImageSampleDistance *
+                         ( 1.0 + 0.66*
+                           (this->SampleDistance - this->OldSampleDistance) / 
+                           this->OldSampleDistance ) );
+  
+  this->SampleDistance = this->OldSampleDistance;
 }
 
 VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
@@ -1283,19 +1358,6 @@ VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg )
   return VTK_THREAD_RETURN_VALUE;
 }
 
-float vtkFixedPointVolumeRayCastMapper::GetZBufferValue(int x, int y)
-{
-  int xPos, yPos;
-  
-  xPos = static_cast<int>(static_cast<float>(x) * this->ImageSampleDistance);
-  yPos = static_cast<int>(static_cast<float>(y) * this->ImageSampleDistance);
-  
-  xPos = (xPos >= this->ZBufferSize[0])?(this->ZBufferSize[0]-1):(xPos);
-  yPos = (yPos >= this->ZBufferSize[1])?(this->ZBufferSize[1]-1):(yPos);
-  
-  return *(this->ZBuffer + yPos*this->ZBufferSize[0] + xPos);
-}
-
 void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned int pos[3],
                                                        unsigned int dir[3],
                                                        unsigned int *numSteps )
@@ -1341,8 +1403,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
   vtkVRCMultiplyPointMacro( viewRay, rayStart,
                             this->ViewToVoxelsArray );
 
-  viewRay[2] = 
-    (this->ZBuffer)?(this->GetZBufferValue(x,y)):(1.0);
+  viewRay[2] = this->RayCastImage->GetZBufferValue(x,y);
   
   vtkVRCMultiplyPointMacro( viewRay, rayEnd,
                             this->ViewToVoxelsArray );
@@ -1585,8 +1646,13 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
   this->GetInput()->GetSpacing(this->SavedSpacing);
 }
 
+// Return 0 if our volume is outside the view frustum, 1 if it
+// is in the view frustum.
 int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
-                                               vtkRenderer *ren)
+                                                       vtkRenderer *ren,
+                                                       int imageFlag,
+                                                       int rowBoundsFlag,
+                                                       int volumeExtent[6] )
 {
   float voxelPoint[3];
   float viewPoint[8][4];
@@ -1603,26 +1669,26 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   
   float bounds[6];
   int dim[3];
+  dim[0] = volumeExtent[1] - volumeExtent[0] + 1;
+  dim[1] = volumeExtent[3] - volumeExtent[2] + 1;
+  dim[2] = volumeExtent[5] - volumeExtent[4] + 1;
   
-  this->GetInput()->GetDimensions(dim);
+
   bounds[0] = bounds[2] = bounds[4] = 0.0;
   bounds[1] = static_cast<float>(dim[0]-1);
   bounds[3] = static_cast<float>(dim[1]-1);
   bounds[5] = static_cast<float>(dim[2]-1);
   
-  double camPos[3];
-  double worldBounds[6];
-  vol->GetBounds( worldBounds );
   int insideFlag = 0;
+  double camPos[4];
   ren->GetActiveCamera()->GetPosition( camPos );
-  if ( camPos[0] >= worldBounds[0] &&
-       camPos[0] <= worldBounds[1] &&
-       camPos[1] >= worldBounds[2] &&
-       camPos[1] <= worldBounds[3] &&
-       camPos[2] >= worldBounds[4] &&
-       camPos[2] <= worldBounds[5] )
+  camPos[3] = 1.0;
+  this->WorldToVoxelsMatrix->MultiplyPoint( camPos, camPos );
+  if ( camPos[3] )
     {
-    insideFlag = 1;
+    camPos[0] /= camPos[3];
+    camPos[1] /= camPos[3];
+    camPos[2] /= camPos[3];
     }
   
   
@@ -1637,6 +1703,16 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     bounds[5] = this->VoxelCroppingRegionPlanes[5];
     }
   
+  
+  if ( camPos[0] >= bounds[0] &&
+       camPos[0] <= bounds[1] &&
+       camPos[1] >= bounds[2] &&
+       camPos[1] <= bounds[3] &&
+       camPos[2] >= bounds[4] &&
+       camPos[2] <= bounds[5] )
+    {
+    insideFlag = 1;
+    }
   
   // Copy the voxelsToView matrix to 16 floats
   float voxelsToViewMatrix[16];
@@ -1673,7 +1749,7 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
           {
           voxelPoint[0] = bounds[i];
           vtkVRCMultiplyPointMacro( voxelPoint, viewPoint[idx],
-                                   voxelsToViewMatrix );
+                                    voxelsToViewMatrix );
           
           minX = (viewPoint[idx][0]<minX)?(viewPoint[idx][0]):(minX);
           minY = (viewPoint[idx][1]<minY)?(viewPoint[idx][1]):(minY);        
@@ -1731,12 +1807,6 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
   oldImageMemorySize[0] = imageMemorySize[0];
   oldImageMemorySize[1] = imageMemorySize[1];
   
-  // Swap the row bounds
-  int *tmpptr;
-  tmpptr = this->RowBounds;
-  this->RowBounds = this->OldRowBounds;
-  this->OldRowBounds = tmpptr;
-  
   // Check the bounds - the volume might project outside of the 
   // viewing box / frustum so clip it if necessary
   minX = (minX<0)?(0):(minX);
@@ -1783,48 +1853,56 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
     imageMemorySize[0] = oldImageMemorySize[0];
     imageMemorySize[1] = oldImageMemorySize[1];
     }
-  
-  this->RayCastImage->SetImageOrigin( imageOrigin );
-  this->RayCastImage->SetImageMemorySize( imageMemorySize );
-  this->RayCastImage->SetImageInUseSize( imageInUseSize );
-  
-  // Do we already have a texture big enough? If not, create a new one and
-  // clear it.
-  if ( imageMemorySize[0] > oldImageMemorySize[0] ||
-       imageMemorySize[1] > oldImageMemorySize[1] )
+
+  if ( imageFlag )
     {
-    this->RayCastImage->AllocateImage();
-    delete [] this->RowBounds;
-    delete [] this->OldRowBounds;
-    
-    // Create the row bounds array. This will store the start / stop pixel
-    // for each row. This helps eleminate work in areas outside the bounding
-    // hexahedron since a bounding box is not very tight. We keep the old ones
-    // too to help with only clearing where required
-    this->RowBounds = new int [2*imageMemorySize[1]];
-    this->OldRowBounds = new int [2*imageMemorySize[1]];
-
-    for ( i = 0; i < imageMemorySize[1]; i++ )
+    this->RayCastImage->SetImageOrigin( imageOrigin );
+    this->RayCastImage->SetImageMemorySize( imageMemorySize );
+    this->RayCastImage->SetImageInUseSize( imageInUseSize );
+  
+    // Do we already have a texture big enough? If not, create a new one and
+    // clear it.
+    if ( imageMemorySize[0] > oldImageMemorySize[0] ||
+         imageMemorySize[1] > oldImageMemorySize[1] )
       {
-      this->RowBounds[i*2]      = imageMemorySize[0];
-      this->RowBounds[i*2+1]    = -1;
-      this->OldRowBounds[i*2]   = imageMemorySize[0];
-      this->OldRowBounds[i*2+1] = -1;
-      }
+      this->RayCastImage->AllocateImage();
+      delete [] this->RowBounds;
+      delete [] this->OldRowBounds;
 
-    if ( this->RenderWindow->CheckAbortStatus() )
-      {
-      return 0;
+      this->RayCastImage->ClearImage();
+      
+      if ( rowBoundsFlag )
+        {
+        // Create the row bounds array. This will store the start / stop pixel
+        // for each row. This helps eleminate work in areas outside the bounding
+        // hexahedron since a bounding box is not very tight. We keep the old ones
+        // too to help with only clearing where required
+        this->RowBounds = new int [2*imageMemorySize[1]];
+        this->OldRowBounds = new int [2*imageMemorySize[1]];
+        
+        for ( i = 0; i < imageMemorySize[1]; i++ )
+          {
+          this->RowBounds[i*2]      = imageMemorySize[0];
+          this->RowBounds[i*2+1]    = -1;
+          this->OldRowBounds[i*2]   = imageMemorySize[0];
+          this->OldRowBounds[i*2+1] = -1;
+          }
+        }
       }
-
-    this->RayCastImage->ClearImage();
     }
-
-  if ( this->RenderWindow->CheckAbortStatus() )
+  
+  if ( !rowBoundsFlag )
     {
-    return 0;
+    return 1;
     }
-    
+  
+  
+  // Swap the row bounds
+  int *tmpptr;
+  tmpptr = this->RowBounds;
+  this->RowBounds = this->OldRowBounds;
+  this->OldRowBounds = tmpptr;
+  
   // If we are inside the volume our row bounds indicate every ray must be
   // cast - we don't need to intersect with the 12 lines
   if ( insideFlag )
@@ -1994,9 +2072,11 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
 }
 
 
-void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
-                                                vtkRenderer *ren,
-                                                vtkVolume *vol )
+void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double volumeOrigin[3],
+                                                        double volumeSpacing[3],
+                                                        int volumeExtent[6],
+                                                        vtkRenderer *ren,
+                                                        vtkVolume *vol )
 {
   // Get the camera from the renderer
   vtkCamera *cam = ren->GetActiveCamera();
@@ -2019,64 +2099,49 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( vtkImageData *data,
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
 
 
-  // Get the data spacing. This scaling is not accounted for in
-  // the volume's matrix, so we must add it in.
-  double volumeSpacing[3];
-  data->GetSpacing( volumeSpacing );
-  
-  // Get the origin of the data.  This translation is not accounted for in
-  // the volume's matrix, so we must add it in.
-  double volumeOrigin[3];
-  data->GetOrigin( volumeOrigin );
-
-  // Get the dimensions of the data.
-  int volumeDimensions[3];
-  data->GetDimensions( volumeDimensions );
-
-  int extent[6];
-  data->GetExtent( extent );
-  volumeOrigin[0] += extent[0]*volumeSpacing[0];
-  volumeOrigin[1] += extent[2]*volumeSpacing[1];
-  volumeOrigin[2] += extent[4]*volumeSpacing[2];
-  
-  vtkTransform *voxelsTransform = this->VoxelsTransform;
-  vtkTransform *voxelsToViewTransform = this->VoxelsToViewTransform;
+  // Compute the origin of the extent the volume origin is at voxel (0,0,0)
+  // but we want to consider (0,0,0) in voxels to be at
+  // (volumeExtent[0], volumeExtent[2], volumeExtent[4]).
+  double extentOrigin[3];
+  extentOrigin[0] = volumeOrigin[0] + volumeExtent[0]*volumeSpacing[0];
+  extentOrigin[1] = volumeOrigin[1] + volumeExtent[2]*volumeSpacing[1];
+  extentOrigin[2] = volumeOrigin[2] + volumeExtent[4]*volumeSpacing[2];
   
   // Get the volume matrix. This is a volume to world matrix right now. 
   // We'll need to invert it, translate by the origin and scale by the 
   // spacing to change it to a world to voxels matrix.
   this->VolumeMatrix->DeepCopy( vol->GetMatrix() );
   
-  voxelsToViewTransform->SetMatrix( this->VolumeMatrix );
+  this->VoxelsToViewTransform->SetMatrix( this->VolumeMatrix );
 
   // Create a transform that will account for the scaling and translation of
   // the scalar data. The is the volume to voxels matrix.
-  voxelsTransform->Identity();
-  voxelsTransform->Translate(volumeOrigin[0], 
-                             volumeOrigin[1], 
-                             volumeOrigin[2] );
+  this->VoxelsTransform->Identity();
+  this->VoxelsTransform->Translate(extentOrigin[0], 
+                                   extentOrigin[1], 
+                                   extentOrigin[2] );
   
-  voxelsTransform->Scale( volumeSpacing[0],
-                          volumeSpacing[1],
-                          volumeSpacing[2] );
+  this->VoxelsTransform->Scale( volumeSpacing[0],
+                                volumeSpacing[1],
+                                volumeSpacing[2] );
   
   // Now concatenate the volume's matrix with this scalar data matrix
-  voxelsToViewTransform->PreMultiply();
-  voxelsToViewTransform->Concatenate( voxelsTransform->GetMatrix() );
+  this->VoxelsToViewTransform->PreMultiply();
+  this->VoxelsToViewTransform->Concatenate( this->VoxelsTransform->GetMatrix() );
 
   // Now we actually have the world to voxels matrix - copy it out
-  this->WorldToVoxelsMatrix->DeepCopy( voxelsToViewTransform->GetMatrix() );
+  this->WorldToVoxelsMatrix->DeepCopy( this->VoxelsToViewTransform->GetMatrix() );
   this->WorldToVoxelsMatrix->Invert();
   
   // We also want to invert this to get voxels to world
-  this->VoxelsToWorldMatrix->DeepCopy( voxelsToViewTransform->GetMatrix() );
+  this->VoxelsToWorldMatrix->DeepCopy( this->VoxelsToViewTransform->GetMatrix() );
   
   // Compute the voxels to view transform by concatenating the
   // voxels to world matrix with the projection matrix (world to view)
-  voxelsToViewTransform->PostMultiply();
-  voxelsToViewTransform->Concatenate( this->PerspectiveMatrix );
+  this->VoxelsToViewTransform->PostMultiply();
+  this->VoxelsToViewTransform->Concatenate( this->PerspectiveMatrix );
   
-  this->VoxelsToViewMatrix->DeepCopy( voxelsToViewTransform->GetMatrix() );
+  this->VoxelsToViewMatrix->DeepCopy( this->VoxelsToViewTransform->GetMatrix() );
   
   this->ViewToVoxelsMatrix->DeepCopy( this->VoxelsToViewMatrix );
   this->ViewToVoxelsMatrix->Invert();  
