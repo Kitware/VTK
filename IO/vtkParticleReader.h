@@ -109,7 +109,6 @@ protected:
   vtkParticleReader();
   ~vtkParticleReader();
 
-private:
   void OpenFile();
 
   char *FileName;
