@@ -37,7 +37,7 @@ static vtkUnstructuredGrid *ug;
 extern "C" {
 void VTK_FORTRAN_NAME(vtkxml_initialize, VTKXML_INTIALIZE)()
 {
-  return vtkXML_Initialize();
+  vtkXML_Initialize();
 }
 
 //----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ void VTK_FORTRAN_NAME(vtkxml_setfilename, VTKXML_SETFILENAME)
 {
   vtkstd::string s( VTK_FORTRAN_REF_STRING_POINTER(filename),
     VTK_FORTRAN_REF_STRING_LENGTH(filename));
-  return vtkXML_SetFileName(s.c_str());
+  vtkXML_SetFileName(s.c_str());
 }
 
 //----------------------------------------------------------------------------
@@ -86,9 +86,9 @@ void VTK_FORTRAN_NAME(vtkxml_setpoints, VTKXML_SETPOINTS)
    VTK_FORTRAN_ARG_REAL4_ARRAY_1D(array), 
    VTK_FORTRAN_ARG_INTEGER8(size))
 {
-  return vtkXML_SetPoints(VTK_FORTRAN_REF_INTEGER4(data),
-                          VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
-                          VTK_FORTRAN_REF_INTEGER8(size));
+  vtkXML_SetPoints(VTK_FORTRAN_REF_INTEGER4(data),
+                   VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+                   VTK_FORTRAN_REF_INTEGER8(size));
 }
 
 //----------------------------------------------------------------------------
@@ -117,10 +117,10 @@ void VTK_FORTRAN_NAME(vtkxml_setpointdata, VTKXML_SETPOINTDATA) (
    VTK_FORTRAN_ARG_INTEGER4(numComp)
    )
 {
-  return vtkXML_SetPointData(VTK_FORTRAN_REF_INTEGER4(data),
-                             VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
-                             VTK_FORTRAN_REF_INTEGER8(size),
-                             VTK_FORTRAN_REF_INTEGER4(numComp));
+  vtkXML_SetPointData(VTK_FORTRAN_REF_INTEGER4(data),
+                      VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+                      VTK_FORTRAN_REF_INTEGER8(size),
+                      VTK_FORTRAN_REF_INTEGER4(numComp));
 }
 
 //----------------------------------------------------------------------------
@@ -145,10 +145,10 @@ void VTK_FORTRAN_NAME(vtkxml_setcelldata, VTKXML_SETPOINTDATA)
    VTK_FORTRAN_ARG_INTEGER8(size),
    VTK_FORTRAN_ARG_INTEGER4(numComp))
 {
-  return vtkXML_SetCellData(VTK_FORTRAN_REF_INTEGER4(data),
-                            VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
-                            VTK_FORTRAN_REF_INTEGER8(size),
-                            VTK_FORTRAN_REF_INTEGER4(numComp));
+  vtkXML_SetCellData(VTK_FORTRAN_REF_INTEGER4(data),
+                     VTK_FORTRAN_REF_REAL4_ARRAY_1D(array),
+                     VTK_FORTRAN_REF_INTEGER8(size),
+                     VTK_FORTRAN_REF_INTEGER4(numComp));
 }
 //----------------------------------------------------------------------------
 void vtkXML_SetCellData(int datatype, void* array, vtkIdType size, int numComp)
@@ -173,10 +173,10 @@ void VTK_FORTRAN_NAME(vtkxml_setcellarray, VTKXML_SETCELLARRAY) (
    VTK_FORTRAN_ARG_INTEGER8(element)
    )
 {
-  return vtkXML_SetCellArray(VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array),
-                             VTK_FORTRAN_REF_INTEGER4(ncells),
-                             VTK_FORTRAN_REF_INTEGER8(size),
-                             VTK_FORTRAN_REF_INTEGER8(element));
+  vtkXML_SetCellArray(VTK_FORTRAN_REF_INTEGER8_ARRAY_1D(array),
+                      VTK_FORTRAN_REF_INTEGER4(ncells),
+                      VTK_FORTRAN_REF_INTEGER8(size),
+                      VTK_FORTRAN_REF_INTEGER8(element));
 }
 
 //----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void vtkXML_SetCellArray(vtkIdType* array, int ncells, vtkIdType size, int type)
 void VTK_FORTRAN_NAME(vtkxml_writenexttime, VTKXML_WRITENEXTTIME)
   (VTK_FORTRAN_ARG_REAL8(t))
 {
-  return vtkXML_WriteNextTime(VTK_FORTRAN_REF_REAL8(t));
+  vtkXML_WriteNextTime(VTK_FORTRAN_REF_REAL8(t));
 }
 
 //----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void vtkXML_WriteNextTime(double t)
 void VTK_FORTRAN_NAME(vtkxml_setnumberoftimesteps, VTKXML_SETNUMBEROFTIMESTEPS)
   (VTK_FORTRAN_ARG_INT4(n))
 {
-  return vtkXML_SetNumberOfTimeSteps(VTK_FORTRAN_REF_INT4(n));
+  vtkXML_SetNumberOfTimeSteps(VTK_FORTRAN_REF_INT4(n));
 }
 
 //----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ void vtkXML_Start()
 //----------------------------------------------------------------------------
 void VTK_FORTRAN_NAME(vtkxml_stop, VTKXML_STOP)()
 {
-  return vtkXML_Stop();
+  vtkXML_Stop();
 }
 
 //----------------------------------------------------------------------------
