@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.35");
+vtkCxxRevisionMacro(vtkXMLReader, "1.36");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -1063,7 +1063,6 @@ void vtkXMLReader::SetNumberOfTimeSteps(int num)
     delete[] this->TimeSteps;
     // Reallocate a buffer large enough
     this->TimeSteps = new int[num];
-    assert(memset(this->TimeSteps, -1, num));
     this->Modified();
     }
 }
