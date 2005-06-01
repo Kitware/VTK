@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.36");
+vtkCxxRevisionMacro(vtkXMLReader, "1.37");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -371,21 +371,35 @@ int vtkXMLReader::RequestData(vtkInformation *request,
 
   this->CurrentTimeStep = this->TimeStep;
 
+  // Get the output pipeline information and data object.
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  // get the ouptut
-  vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX()))
+  // Check if a particular time was requested.
+  if(outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX()))
     {
-    this->CurrentTimeStep = outInfo->Get(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX());
+    // Get the requested time step.
+    this->CurrentTimeStep =
+      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX());
 
-    // save the time and time index in the data object's information
-    output->GetInformation()->Set(
-      vtkDataObject::DATA_TIME(), 
-      outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS())[this->CurrentTimeStep]);
-    output->GetInformation()->Set(vtkDataObject::DATA_TIME_INDEX(), this->CurrentTimeStep);
+    // Save the time value in the output data information.
+    int length =
+      outInfo->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+    if(this->CurrentTimeStep >= 0 && this->CurrentTimeStep < length)
+      {
+      double* steps =
+        outInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+      output->GetInformation()->Set(vtkDataObject::DATA_TIME(),
+                                    steps[this->CurrentTimeStep]);
+      }
+    else
+      {
+      vtkErrorMacro("Time index " << this->CurrentTimeStep
+                    << " requested but there are "
+                    << length << " time steps.");
+      }
 
+    // Clamp the requested time step to be in bounds.
     if ( this->CurrentTimeStep < this->TimeStepRange[0] )
       {
       this->CurrentTimeStep = this->TimeStepRange[0];
@@ -395,6 +409,10 @@ int vtkXMLReader::RequestData(vtkInformation *request,
       this->CurrentTimeStep = this->TimeStepRange[1];
       }
     }
+
+  // Set the time we will store in the output.
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_INDEX(),
+                                this->CurrentTimeStep);
 
   // Re-open the input file.  If it fails, the error was already
   // reported by OpenVTKFile.
