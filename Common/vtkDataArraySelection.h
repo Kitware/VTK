@@ -25,8 +25,7 @@
 
 #include "vtkObject.h"
 
-class vtkDataArraySelectionArrayNamesType;
-class vtkDataArraySelectionArraySettingsType;
+class vtkDataArraySelectionInternals;
 
 class VTK_COMMON_EXPORT vtkDataArraySelection : public vtkObject
 {
@@ -34,22 +33,22 @@ public:
   vtkTypeRevisionMacro(vtkDataArraySelection,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkDataArraySelection* New();
-  
+
   // Description:
   // Enable the array with the given name.  Creates a new entry if
   // none exists.
   void EnableArray(const char* name);
-  
+
   // Description:
   // Disable the array with the given name.  Creates a new entry if
   // none exists.
   void DisableArray(const char* name);
-  
+
   // Description:
   // Return whether the array with the given name is enabled.  If
   // there is no entry, the array is assumed to be disabled.
   int ArrayIsEnabled(const char* name);
-  
+
   // Description:
   // Return whether the array with the given name exists.
   int ArrayExists(const char* name);
@@ -57,15 +56,15 @@ public:
   // Description:
   // Enable all arrays that currently have an entry.
   void EnableAllArrays();
-  
+
   // Description:
   // Disable all arrays that currently have an entry.
   void DisableAllArrays();
-  
+
   // Description:
   // Get the number of arrays that currently have an entry.
   int GetNumberOfArrays();
-  
+
   // Description:
   // Get the number of arrays that are enabled.
   int GetNumberOfArraysEnabled();
@@ -73,23 +72,24 @@ public:
   // Description:
   // Get the name of the array entry at the given index.
   const char* GetArrayName(int index);
-  
-  // Description:
-  // Get the index of the array entry from a given name
-  int GetEnabledArrayIndex(const char *name);
 
   // Description:
   // Get an index of the array containing name within the enabled arrays
   int GetArrayIndex(const char *name);
-    
+
+  // Description:
+  // Get the index of an array with the given name among those
+  // that are enabled.  Returns -1 if the array is not enabled.
+  int GetEnabledArrayIndex(const char* name);
+
   // Description:
   // Get whether the array at the given index is enabled.
   int GetArraySetting(int index);
-  
+
   // Description:
   // Remove all array entries.
   void RemoveAllArrays();
-  
+
   //BTX
   // Description:
   // Add to the list of arrays that have entries.  For arrays that
@@ -100,16 +100,13 @@ public:
   int AddArray(const char* name);
 
   // Description:
-  // Remove an array from its index in the list.
-  // \pre valid_index: index>=0 && index<GetNumberOfArrays()
-  // \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
-  void RemoveArrayFromIndex(int index);
- 
+  // Remove an array setting given its index.
+  void RemoveArrayByIndex(int index);
+
   // Description:
-  // Remove an array from its name.
-  // \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
-  void RemoveArrayFromName(const char *name);
-  
+  // Remove an array setting given its name.
+  void RemoveArrayByName(const char* name);
+
   // Description:
   // Set the list of arrays that have entries.  For arrays that
   // already have entries, the settings are copied.  For arrays that
@@ -123,20 +120,17 @@ public:
   void SetArraysWithDefault(const char* const* names, int numArrays,
                             int defaultStatus);
   //ETX
-  
+
   // Description:
   // Copy the selections from the given vtkDataArraySelection instance.
   void CopySelections(vtkDataArraySelection* selections);
 protected:
   vtkDataArraySelection();
   ~vtkDataArraySelection();
-  
-  // The list of array names.
-  vtkDataArraySelectionArrayNamesType* ArrayNames;
-  
-  // The list of array settings.
-  vtkDataArraySelectionArraySettingsType* ArraySettings;
-  
+
+  // Internal implementation details.
+  vtkDataArraySelectionInternals* Internal;
+
 private:
   vtkDataArraySelection(const vtkDataArraySelection&);  // Not implemented.
   void operator=(const vtkDataArraySelection&);  // Not implemented.

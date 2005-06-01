@@ -17,26 +17,27 @@
 
 #include <vtkstd/vector>
 #include <vtkstd/string>
-#include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.20");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.21");
 vtkStandardNewMacro(vtkDataArraySelection);
 
-class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
-class vtkDataArraySelectionArraySettingsType: public vtkstd::vector<int> {};
+class vtkDataArraySelectionInternals
+{
+public:
+  vtkstd::vector<vtkstd::string> ArrayNames;
+  vtkstd::vector<int> ArraySettings;
+};
 
 //----------------------------------------------------------------------------
 vtkDataArraySelection::vtkDataArraySelection()
 {
-  this->ArrayNames = new vtkDataArraySelectionArrayNamesType;
-  this->ArraySettings = new vtkDataArraySelectionArraySettingsType;
+  this->Internal = new vtkDataArraySelectionInternals;
 }
 
 //----------------------------------------------------------------------------
 vtkDataArraySelection::~vtkDataArraySelection()
 {
-  delete this->ArraySettings;
-  delete this->ArrayNames;
+  delete this->Internal;
 }
 
 //----------------------------------------------------------------------------
@@ -48,8 +49,8 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
   int cc;
   for ( cc = 0; cc < this->GetNumberOfArrays(); cc ++ )
     {
-    os << nindent << "Array: " << this->GetArrayName(cc) << " is: " 
-      << (this->GetArraySetting(cc)?"enabled":"disabled") 
+    os << nindent << "Array: " << this->GetArrayName(cc) << " is: "
+      << (this->GetArraySetting(cc)?"enabled":"disabled")
       << " (" << this->ArrayIsEnabled(this->GetArrayName(cc)) << ")" <<  endl;
     }
 }
@@ -58,21 +59,19 @@ void vtkDataArraySelection::PrintSelf(ostream& os, vtkIndent indent)
 void vtkDataArraySelection::EnableArray(const char* name)
 {
   vtkDebugMacro("Enabling array \"" << name << "\".");
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  if(i != this->ArrayNames->end())
+  int index = this->GetArrayIndex(name);
+  if(index >= 0)
     {
-    int& setting = (*this->ArraySettings)[i-this->ArrayNames->begin()];
-    if(!setting)
+    if(!this->Internal->ArraySettings[index])
       {
-      setting = 1;
+      this->Internal->ArraySettings[index] = 1;
       this->Modified();
       }
     }
   else
     {
-    this->ArrayNames->push_back(name);
-    this->ArraySettings->push_back(1);
+    this->Internal->ArrayNames.push_back(name);
+    this->Internal->ArraySettings.push_back(1);
     this->Modified();
     }
 }
@@ -81,21 +80,19 @@ void vtkDataArraySelection::EnableArray(const char* name)
 void vtkDataArraySelection::DisableArray(const char* name)
 {
   vtkDebugMacro("Disabling array \"" << name << "\".");
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  if(i != this->ArrayNames->end())
+  int index = this->GetArrayIndex(name);
+  if(index >= 0)
     {
-    int& setting = (*this->ArraySettings)[i - this->ArrayNames->begin()];
-    if(setting)
+    if(this->Internal->ArraySettings[index])
       {
-      setting = 0;
+      this->Internal->ArraySettings[index] = 0;
       this->Modified();
       }
     }
   else
     {
-    this->ArrayNames->push_back(name);
-    this->ArraySettings->push_back(0);
+    this->Internal->ArrayNames.push_back(name);
+    this->Internal->ArraySettings.push_back(0);
     this->Modified();
     }
 }
@@ -104,13 +101,12 @@ void vtkDataArraySelection::DisableArray(const char* name)
 int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 {
   // Check if there is a specific entry for this array.
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  if(i != this->ArrayNames->end())
+  int index = this->GetArrayIndex(name);
+  if(index >= 0)
     {
-    return (*this->ArraySettings)[i - this->ArrayNames->begin()];
+    return this->Internal->ArraySettings[index];
     }
-  
+
   // The array does not have an entry.  Assume it is disabled.
   return 0;
 }
@@ -119,9 +115,7 @@ int vtkDataArraySelection::ArrayIsEnabled(const char* name)
 int vtkDataArraySelection::ArrayExists(const char* name)
 {
   // Check if there is a specific entry for this array.
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  return i != this->ArrayNames->end();
+  return (this->GetArrayIndex(name) >= 0)? 1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -129,8 +123,8 @@ void vtkDataArraySelection::EnableAllArrays()
 {
   vtkDebugMacro("Enabling all arrays.");
   int modified = 0;
-  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
-      i != this->ArraySettings->end(); ++i)
+  for(vtkstd::vector<int>::iterator i = this->Internal->ArraySettings.begin();
+      i != this->Internal->ArraySettings.end(); ++i)
     {
     if(!*i)
       {
@@ -149,8 +143,8 @@ void vtkDataArraySelection::DisableAllArrays()
 {
   vtkDebugMacro("Disabling all arrays.");
   int modified = 0;
-  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
-      i != this->ArraySettings->end(); ++i)
+  for(vtkstd::vector<int>::iterator i = this->Internal->ArraySettings.begin();
+      i != this->Internal->ArraySettings.end(); ++i)
     {
     if(*i)
       {
@@ -167,15 +161,15 @@ void vtkDataArraySelection::DisableAllArrays()
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetNumberOfArrays()
 {
-  return static_cast<int>(this->ArrayNames->size());
+  return static_cast<int>(this->Internal->ArrayNames.size());
 }
 
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetNumberOfArraysEnabled()
 {
   int numArrays = 0;
-  for(vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
-      i != this->ArraySettings->end(); ++i)
+  for(vtkstd::vector<int>::iterator i = this->Internal->ArraySettings.begin();
+      i != this->Internal->ArraySettings.end(); ++i)
     {
     if(*i)
       {
@@ -188,44 +182,50 @@ int vtkDataArraySelection::GetNumberOfArraysEnabled()
 //----------------------------------------------------------------------------
 const char* vtkDataArraySelection::GetArrayName(int index)
 {
-  vtkstd::vector<vtkstd::string>::iterator i = this->ArrayNames->begin()+index;
-  if(i >= this->ArrayNames->begin() && i < this->ArrayNames->end())
+  if(index >= 0 && index < this->GetNumberOfArrays())
     {
-    return i->c_str();
+    return this->Internal->ArrayNames[index].c_str();
     }
   return 0;
 }
 
 //----------------------------------------------------------------------------
-int vtkDataArraySelection::GetEnabledArrayIndex(const char *name)
+int vtkDataArraySelection::GetArrayIndex(const char* name)
+{
+  for(unsigned int i=0; i < this->Internal->ArrayNames.size(); ++i)
+    {
+    if(this->Internal->ArrayNames[i] == name)
+      {
+      return i;
+      }
+    }
+  return -1;
+}
+
+//----------------------------------------------------------------------------
+int vtkDataArraySelection::GetEnabledArrayIndex(const char* name)
 {
   int index = 0;
-  vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
-  vtkstd::vector<vtkstd::string>::iterator j = this->ArrayNames->begin();
-  while( *j != name && j != this->ArrayNames->end() )
+  for(unsigned int i=0; i < this->Internal->ArrayNames.size(); ++i)
     {
-    index += *i;
-    ++i; ++j;
+    if(this->Internal->ArrayNames[i] == name)
+      {
+      return index;
+      }
+    else if(this->Internal->ArraySettings[i])
+      {
+      ++index;
+      }
     }
-  //assert( i != this->ArraySettings->end() );
-  return index;
-}
-//----------------------------------------------------------------------------
-int vtkDataArraySelection::GetArrayIndex(const char *name)
-{
-  vtkstd::vector<vtkstd::string>::iterator i =
-    vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(), vtkstd::string(name));
-  
-  return i - this->ArrayNames->begin();
+  return -1;
 }
 
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetArraySetting(int index)
 {
-  vtkstd::vector<int>::iterator i = this->ArraySettings->begin()+index;
-  if(i >= this->ArraySettings->begin() && i < this->ArraySettings->end())
+  if(index >= 0 && index < this->GetNumberOfArrays())
     {
-    return *i;
+    return this->Internal->ArraySettings[index];
     }
   return 0;
 }
@@ -236,10 +236,10 @@ void vtkDataArraySelection::RemoveAllArrays()
   vtkDebugMacro("Removing all arrays.");
   if(this->GetNumberOfArrays() > 0)
     {
-    this->ArrayNames->erase(this->ArrayNames->begin(),
-                            this->ArrayNames->end());
-    this->ArraySettings->erase(this->ArraySettings->begin(),
-                               this->ArraySettings->end());
+    this->Internal->ArrayNames.erase(this->Internal->ArrayNames.begin(),
+                                     this->Internal->ArrayNames.end());
+    this->Internal->ArraySettings.erase(this->Internal->ArraySettings.begin(),
+                                        this->Internal->ArraySettings.end());
     this->Modified();
     }
 }
@@ -248,7 +248,6 @@ void vtkDataArraySelection::RemoveAllArrays()
 int vtkDataArraySelection::AddArray(const char* name)
 {
   vtkDebugMacro("Adding array \"" << name << "\".");
-  
   // This function is called only by the filter owning the selection.
   // It should not call Modified() because array settings are not
   // changed.
@@ -256,32 +255,29 @@ int vtkDataArraySelection::AddArray(const char* name)
     {
     return 0;
     }
-  this->ArrayNames->push_back(name);
-  this->ArraySettings->push_back(1);
+  this->Internal->ArrayNames.push_back(name);
+  this->Internal->ArraySettings.push_back(1);
   return 1;
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// Remove an array from its index in the list.
-// \pre valid_index: index>=0 && index<GetNumberOfArrays()
-// \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
-void vtkDataArraySelection::RemoveArrayFromIndex(int index)
+void vtkDataArraySelection::RemoveArrayByIndex(int index)
 {
-  vtkstd::vector<vtkstd::string>::iterator i = this->ArrayNames->begin()+index;
-  this->ArrayNames->erase(i);
-  vtkstd::vector<int>::iterator j = this->ArraySettings->begin()+index;
-  this->ArraySettings->erase(j);
+  if(index >= 0 && index < this->GetNumberOfArrays())
+    {
+    this->Internal->ArrayNames.erase(
+      this->Internal->ArrayNames.begin()+index
+      );
+    this->Internal->ArraySettings.erase(
+      this->Internal->ArraySettings.begin()+index
+      );
+    }
 }
 
 //----------------------------------------------------------------------------
-// Description:
-// Remove an array from its name.
-// \post size_decrease: GetNumberOfArray()=old GetNumberOfArray()-1
-void vtkDataArraySelection::RemoveArrayFromName(const char *name)
+void vtkDataArraySelection::RemoveArrayByName(const char *name)
 {
-  int index = this->GetArrayIndex(name);
-  this->RemoveArrayFromIndex(index);
+  this->RemoveArrayByIndex(this->GetArrayIndex(name));
 }
 
 //----------------------------------------------------------------------------
@@ -303,39 +299,33 @@ void vtkDataArraySelection::SetArraysWithDefault(const char* const* names,
                 << " arrays.");
 
   // Create a new map for this set of arrays.
-  vtkDataArraySelectionArrayNamesType* newNames =
-    new vtkDataArraySelectionArrayNamesType;
-  vtkDataArraySelectionArraySettingsType* newSettings =
-    new vtkDataArraySelectionArraySettingsType;
-  
-  newNames->reserve(numArrays);
-  newSettings->reserve(numArrays);
-  
+  vtkDataArraySelectionInternals* newInternal =
+    new vtkDataArraySelectionInternals;
+
+  newInternal->ArrayNames.reserve(numArrays);
+  newInternal->ArraySettings.reserve(numArrays);
+
   // Fill with settings for all arrays.
   int i;
   for(i=0;i < numArrays; ++i)
     {
     // Add this array.
-    newNames->push_back(names[i]);
-    
+    newInternal->ArrayNames.push_back(names[i]);
+
     // Fill in the setting.  Use the old value if available.
-    // Otherwise, default to on.
-    vtkstd::vector<vtkstd::string>::iterator it =
-      vtkstd::find(this->ArrayNames->begin(), this->ArrayNames->end(),
-                   vtkstd::string(names[i]));
+    // Otherwise, use the given default.
     int setting = defaultStatus?1:0;
-    if(it != this->ArrayNames->end())
+    int index = this->GetArrayIndex(names[i]);
+    if(index >= 0)
       {
-      setting = (*this->ArraySettings)[it - this->ArrayNames->begin()];
+      setting = this->Internal->ArraySettings[index];
       }
-    newSettings->push_back(setting);
+    newInternal->ArraySettings.push_back(setting);
     }
-  
+
   // Delete the old map and save the new one.
-  delete this->ArrayNames;
-  delete this->ArraySettings;
-  this->ArrayNames = newNames;
-  this->ArraySettings = newSettings;
+  delete this->Internal;
+  this->Internal = newInternal;
 }
 
 //----------------------------------------------------------------------------
@@ -380,12 +370,14 @@ void vtkDataArraySelection::CopySelections(vtkDataArraySelection* selections)
   vtkDebugMacro("Copying arrays and settings from " << selections << ".");
 
   this->RemoveAllArrays();
-  
-  this->ArrayNames->insert(this->ArrayNames->begin(),
-                           selections->ArrayNames->begin(),
-                           selections->ArrayNames->end());
-  this->ArraySettings->insert(this->ArraySettings->begin(),
-                              selections->ArraySettings->begin(),
-                              selections->ArraySettings->end());
+
+  this->Internal->ArrayNames.insert(this->Internal->ArrayNames.begin(),
+                                     selections->Internal->ArrayNames.begin(),
+                                     selections->Internal->ArrayNames.end());
+  this->Internal->ArraySettings.insert(
+    this->Internal->ArraySettings.begin(),
+    selections->Internal->ArraySettings.begin(),
+    selections->Internal->ArraySettings.end()
+    );
   this->Modified();
 }
