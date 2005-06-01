@@ -27,7 +27,7 @@
 
 #include "assert.h"
 
-vtkCxxRevisionMacro(vtkXMLDataReader, "1.24");
+vtkCxxRevisionMacro(vtkXMLDataReader, "1.25");
 
 //----------------------------------------------------------------------------
 vtkXMLDataReader::vtkXMLDataReader()
@@ -593,7 +593,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->PointDataArraySelection->GetArrayIndex(name);
+  int idx = this->PointDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
@@ -604,7 +604,7 @@ int vtkXMLDataReader::PointDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
     this->DataError = 1;
     return 0;
     }
-  if (!numTimeSteps && !this->NumberOfTimeSteps) // && this->PointDataTimeStep[idx] == -1)
+  if (!numTimeSteps && !this->NumberOfTimeSteps)
     {
     assert( this->PointDataTimeStep[idx] == -1 ); //No timestep in this file
     return 1;
@@ -663,14 +663,14 @@ int vtkXMLDataReader::CellDataNeedToReadTimeStep(vtkXMLDataElement *eNested)
 {
   // First thing need to find the id of this dataarray from its name:
   const char* name = eNested->GetAttribute("Name");
-  int idx = this->CellDataArraySelection->GetArrayIndex(name);
+  int idx = this->CellDataArraySelection->GetEnabledArrayIndex(name);
 
   // Easy case no timestep:
   int numTimeSteps = eNested->GetVectorAttribute("TimeStep", 
     this->NumberOfTimeSteps, this->TimeSteps);
   if( !(numTimeSteps <= this->NumberOfTimeSteps) )
     {
-    vtkErrorMacro( "Invalide TimeSteps specification");
+    vtkErrorMacro( "Invalid TimeSteps specification");
     this->DataError = 1;
     return 0;
     }

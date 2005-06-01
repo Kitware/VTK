@@ -19,7 +19,7 @@
 #include <vtkstd/string>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkDataArraySelection, "1.19");
+vtkCxxRevisionMacro(vtkDataArraySelection, "1.20");
 vtkStandardNewMacro(vtkDataArraySelection);
 
 class vtkDataArraySelectionArrayNamesType: public vtkstd::vector<vtkstd::string> {};
@@ -196,6 +196,20 @@ const char* vtkDataArraySelection::GetArrayName(int index)
   return 0;
 }
 
+//----------------------------------------------------------------------------
+int vtkDataArraySelection::GetEnabledArrayIndex(const char *name)
+{
+  int index = 0;
+  vtkstd::vector<int>::iterator i = this->ArraySettings->begin();
+  vtkstd::vector<vtkstd::string>::iterator j = this->ArrayNames->begin();
+  while( *j != name && j != this->ArrayNames->end() )
+    {
+    index += *i;
+    ++i; ++j;
+    }
+  //assert( i != this->ArraySettings->end() );
+  return index;
+}
 //----------------------------------------------------------------------------
 int vtkDataArraySelection::GetArrayIndex(const char *name)
 {

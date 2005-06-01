@@ -76,6 +76,10 @@ public:
   
   // Description:
   // Get the index of the array entry from a given name
+  int GetEnabledArrayIndex(const char *name);
+
+  // Description:
+  // Get an index of the array containing name within the enabled arrays
   int GetArrayIndex(const char *name);
     
   // Description:
