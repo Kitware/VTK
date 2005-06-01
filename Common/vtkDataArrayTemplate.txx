@@ -67,7 +67,7 @@ void vtkDataArrayTemplate<T>::SetArray(T* array, vtkIdType size, int save)
     vtkDebugMacro (<<"Warning, array not deleted, but will point to new array.");
     }
 
-  vtkDebugMacro(<<"Setting array to: " << array);
+  vtkDebugMacro(<<"Setting array to: " << static_cast<void*>(array));
 
   this->Array = array;
   this->Size = size;
