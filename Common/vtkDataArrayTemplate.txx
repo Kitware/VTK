@@ -190,7 +190,7 @@ void vtkDataArrayTemplate<T>::PrintSelf(ostream& os, vtkIndent indent)
   vtkOStreamWrapper osw(os);
   if(this->Array)
     {
-    osw << indent << "Array: " << this->Array << "\n";
+    osw << indent << "Array: " << static_cast<void*>(this->Array) << "\n";
     }
   else
     {
