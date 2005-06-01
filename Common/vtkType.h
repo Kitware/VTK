@@ -18,7 +18,7 @@
 #include "vtkConfigure.h"
 
 /*--------------------------------------------------------------------------*/
-/* Define a unique integer identifier to each native scalar type.  */
+/* Define a unique integer identifier for each native scalar type.  */
 
 /* These types are returned by GetDataType to indicate pixel type.  */
 #define VTK_VOID            0
@@ -51,6 +51,25 @@
 /* This type is enabled if VTK_TYPE_USE___INT64 and
    VTK_TYPE_CONVERT_UI64_TO_DOUBLE are both defined.  */
 #define VTK_UNSIGNED___INT64   19
+
+/*--------------------------------------------------------------------------*/
+/* Define a unique integer identifier for each vtkDataObject type.  */
+#define VTK_POLY_DATA                       0
+#define VTK_STRUCTURED_POINTS               1
+#define VTK_STRUCTURED_GRID                 2
+#define VTK_RECTILINEAR_GRID                3
+#define VTK_UNSTRUCTURED_GRID               4
+#define VTK_PIECEWISE_FUNCTION              5
+#define VTK_IMAGE_DATA                      6
+#define VTK_DATA_OBJECT                     7
+#define VTK_DATA_SET                        8
+#define VTK_POINT_SET                       9
+#define VTK_UNIFORM_GRID                   10
+#define VTK_COMPOSITE_DATA_SET             11
+#define VTK_HIERARCHICAL_DATA_SET          12
+#define VTK_MULTI_BLOCK_DATA_SET           13
+#define VTK_HIERARCHICAL_BOX_DATA_SET      14
+#define VTK_GENERIC_DATA_SET               15
 
 /*--------------------------------------------------------------------------*/
 /* Define a casting macro for use by the constants below.  */
