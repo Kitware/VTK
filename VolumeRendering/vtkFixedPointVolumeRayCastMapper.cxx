@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.11");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.12");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1046,7 +1046,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 // computation here or skip it for later.
 void vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren, 
                                                                vtkVolume *vol,
-                                                               int muliRender )
+                                                               int vtkNotUsed(muliRender) )
 {
   // Save this so that we can restore it if the image is cancelled
   this->OldImageSampleDistance = this->ImageSampleDistance;
@@ -1144,7 +1144,7 @@ void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization( vtkRenderer *
   // that. In all cases we need to compute the row bounds so pass in
   // a 1 for that flag
   int imageFlag = (multiRender)?(0):(1);
-  if ( !this->ComputeRowBounds( vol, ren, imageFlag, 1, volumeExtent )  )
+  if ( !this->ComputeRowBounds( ren, imageFlag, 1, volumeExtent )  )
     {
     this->AbortRender();
     return;
@@ -1161,7 +1161,7 @@ void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization( vtkRenderer *
 }
 
 // This is the render method for the subvolume
-void vtkFixedPointVolumeRayCastMapper::RenderSubVolume( vtkRenderer *ren, vtkVolume *vol )
+void vtkFixedPointVolumeRayCastMapper::RenderSubVolume()
 {
   // Set the number of threads to use for ray casting,
   // then set the execution method and do it.
@@ -1286,7 +1286,8 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
     return;
     }
   
-  this->RenderSubVolume( ren, vol );
+  this->RenderSubVolume();
+
   if ( this->RenderWindow->CheckAbortStatus() )
     {
     this->AbortRender();
@@ -1648,8 +1649,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
 
 // Return 0 if our volume is outside the view frustum, 1 if it
 // is in the view frustum.
-int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkVolume   *vol,
-                                                       vtkRenderer *ren,
+int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
                                                        int imageFlag,
                                                        int rowBoundsFlag,
                                                        int volumeExtent[6] )

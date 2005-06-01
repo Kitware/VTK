@@ -242,7 +242,7 @@ public:
   void PerImageInitialization( vtkRenderer *, vtkVolume *, int );
   void PerVolumeInitialization( vtkRenderer *, vtkVolume * );
   void PerSubVolumeInitialization( vtkRenderer *, vtkVolume *, int );
-  void RenderSubVolume( vtkRenderer *, vtkVolume * );
+  void RenderSubVolume();
   void DisplayRenderedImage( vtkRenderer *, vtkVolume * );
   void AbortRender();
   
@@ -276,7 +276,7 @@ protected:
                         vtkRenderer  *ren,
                         vtkVolume    *vol );
   
-  int ComputeRowBounds( vtkVolume *vol, vtkRenderer *ren,
+  int ComputeRowBounds( vtkRenderer *ren,
                         int imageFlag, int rowBoundsFlag,
                         int volumeExtent[6]);
 
