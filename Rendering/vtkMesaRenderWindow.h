@@ -115,7 +115,6 @@ protected:
   vtkIdList *TextureResourceIds;
 
   int GetPixelData(int x,int y,int x2,int y2,int front, unsigned char* data);
-  int GetZbufferData( int x1, int y1, int x2, int y2, float* z );
   int GetRGBAPixelData(int x,int y,int x2,int y2, int front, float* data);
   int GetRGBACharPixelData(int x,int y,int x2,int y2, int front,
                            unsigned char* data);
