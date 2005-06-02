@@ -154,6 +154,7 @@ public:
   // Get/Set an InformationKey-vector-valued entry.
   void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
+  void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   void Get(vtkInformationKeyVectorKey* key, vtkInformationKey** value);
   int Length(vtkInformationKeyVectorKey* key);
