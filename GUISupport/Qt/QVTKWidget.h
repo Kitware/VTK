@@ -42,6 +42,10 @@ class QVTKInteractor;
 #include <vtkConfigure.h>
 class vtkUnsignedCharArray;
 
+#if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
+#include <Carbon/Carbon.h>    // Event handling for dirty region
+#endif
+
 #if defined(WIN32) && defined(VTK_BUILD_SHARED_LIBS)
 #if defined(QVTK_EXPORTS) || defined(QVTKWidgetPlugin_EXPORTS)
 #define QVTK_EXPORT __declspec( dllexport )
@@ -125,10 +129,6 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     // Description:
     // Handle reparenting of this widget in Qt 3.x
     virtual void reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool showit);
-#else
-    // Description:
-    // Handle reparenting of this widget in Qt 4
-    virtual void setParent(QWidget* parent, Qt::WFlags f);
 #endif
     
     // Description:
@@ -223,6 +223,13 @@ class QVTK_EXPORT QVTKWidget : public QWidget
     virtual void setRegionDirty(bool);
     virtual void macWidgetChangedWindow();
 #endif    
+
+#if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
+    EventHandlerUPP DirtyRegionHandlerUPP;
+    EventHandlerRef DirtyRegionHandler;
+    static OSStatus DirtyRegionProcessor(EventHandlerCallRef er, EventRef event, void*);
+#endif
+
   private slots:
     void internalMacFixRect();
 

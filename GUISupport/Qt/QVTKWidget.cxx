@@ -122,6 +122,12 @@ QVTKWidget::QVTKWidget(QWidget* parent, Qt::WFlags f)
        );
 
   this->mCachedImage = vtkUnsignedCharArray::New();
+
+#if defined(Q_WS_MAC)
+  this->DirtyRegionHandler = 0;
+  this->DirtyRegionHandlerUPP = 0;
+#endif
+
 }
 #endif
 
@@ -264,6 +270,26 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* window)
     cbc->Delete();
   }
 
+#if defined(Q_WS_MAC) && QT_VERSION >= 0x040000
+  if(mRenWin && !this->DirtyRegionHandlerUPP)
+    {
+    this->DirtyRegionHandlerUPP = NewEventHandlerUPP(QVTKWidget::DirtyRegionProcessor);
+    static EventTypeSpec events[] = { {'cute', 20} };  
+       // kEventClassQt, kEventQtRequestWindowChange from qt_mac_p.h
+       // Suggested by Sam Magnuson at Trolltech as best portabile hack 
+       // around Apple's missing functionality in HI Toolbox.
+    InstallEventHandler(GetApplicationEventTarget(), this->DirtyRegionHandlerUPP, 
+                        GetEventTypeCount(events), events, 
+                        reinterpret_cast<void*>(this), &this->DirtyRegionHandler);
+    }
+  else if(!mRenWin && this->DirtyRegionHandlerUPP)
+    {
+    RemoveEventHandler(this->DirtyRegionHandler);
+    DisposeEventHandlerUPP(this->DirtyRegionHandlerUPP);
+    this->DirtyRegionHandler = 0;
+    this->DirtyRegionHandlerUPP = 0;
+    }
+#endif
 }
 
 
@@ -331,6 +357,30 @@ vtkUnsignedCharArray* QVTKWidget::cachedImage()
 */
 bool QVTKWidget::event(QEvent* e)
 {
+#if QT_VERSION >= 0x040000 && defined(QVTK_HAVE_VTK_4_5)
+  if(e->type() == QEvent::ParentAboutToChange)
+    {
+    this->markCachedImageAsDirty();
+    if (this->mRenWin)
+      {
+      // Finalize the window to remove graphics resources associated with
+      // this window
+      if(this->mRenWin->GetMapped())
+        this->mRenWin->Finalize();
+      }
+    }
+  else if(e->type() == QEvent::ParentChange)
+    {
+    x11_setup_window();
+    // connect to new window
+    this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
+
+    // start up the window to create graphics resources for this window
+    if(isVisible())
+      this->mRenWin->Start();
+    }
+#endif
+  
   if(QObject::event(e))
     return TRUE;
 
@@ -830,38 +880,6 @@ void QVTKWidget::reparent(QWidget* parent, Qt::WFlags f, const QPoint& p, bool s
     show();
 #endif
 }
-#else
-void QVTKWidget::setParent(QWidget* parent, Qt::WFlags f)
-{
-  this->markCachedImageAsDirty();
-
-#if defined(QVTK_HAVE_VTK_4_5)
-  if (this->mRenWin)
-    {
-    // Finalize the window to remove graphics resources associated with
-    // this window
-    if(this->mRenWin->GetMapped())
-      this->mRenWin->Finalize();
-
-    // have QWidget reparent as normal, but don't show
-    QWidget::setParent(parent, f);
-    
-    x11_setup_window();
- 
-    // connect to new window
-#if defined(Q_WS_MAC)
-    this->mRenWin->SetWindowId(reinterpret_cast<void*>(this->handle()));
-#else
-    this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
-#endif
-
-    // start up the window to create graphics resources for this window
-    if(isVisible())
-      this->mRenWin->Start();
-    }
-  
-#endif
-}
 #endif
 
 void QVTKWidget::showEvent(QShowEvent* event)
@@ -1232,6 +1250,18 @@ void QVTKWidget::x11_setup_window()
 #endif
 }
 
+#if defined (Q_WS_MAC) && QT_VERSION >= 0x040000
+OSStatus QVTKWidget::DirtyRegionProcessor(EventHandlerCallRef, EventRef event, void* wid)
+{
+  QVTKWidget* widget = reinterpret_cast<QVTKWidget*>(wid);
+  UInt32 event_kind = GetEventKind(event);
+  UInt32 event_class = GetEventClass(event);
+  if(event_class == 'cute' && event_kind == 20)
+    static_cast<vtkCarbonRenderWindow*>(widget->GetRenderWindow())->UpdateGLRegion();
+  return eventNotHandledErr;
+}
+
+#endif
 
 #if defined (Q_WS_MAC) && QT_VERSION < 0x040000
 

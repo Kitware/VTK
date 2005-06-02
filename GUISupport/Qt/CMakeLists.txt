@@ -15,13 +15,13 @@ SET ( QVTKExtraMoc
 
 SET ( PluginLibSrcs
     QVTKWidget.cxx
-    QVTKWidgetPlugin.cxx)
+    Q3VTKWidgetPlugin.cxx)
 
 SET ( PluginMocHeaders
     QVTKWidget.h)
 
 # CMake apparently doesn't do this automatically
-SET_SOURCE_FILES_PROPERTIES(QVTKWidgetPlugin.cxx PROPERTIES 
+SET_SOURCE_FILES_PROPERTIES(Q3VTKWidgetPlugin.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
 # help CMake with this generated moc file

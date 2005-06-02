@@ -23,10 +23,23 @@
 =========================================================================*/
 
 #include "qwidgetplugin.h"
-#include "qpixmap.h"
-#if QT_VERSION >= 0x040000
-#include "qplugin.h"
-#endif
+
+// derive from QWidgetPlugin and implement the plugin interface
+class QVTKWidgetPlugin : public QWidgetPlugin
+{
+  public:
+    QVTKWidgetPlugin();
+    ~QVTKWidgetPlugin();
+    
+    QStringList keys() const;
+    QWidget* create( const QString& key, QWidget* parent = 0, const char* name = 0);
+    QString group( const QString& ) const;
+    QIconSet iconSet( const QString& ) const;
+    QString includeFile( const QString& ) const;
+    QString toolTip( const QString& ) const;
+    QString whatsThis( const QString& ) const;
+    bool isContainer( const QString& ) const;
+};
 
 #include "QVTKWidget.h"
 #include "QVTKWidget.xpm"
@@ -39,39 +52,9 @@
 #include "vtkElevationFilter.h"
 #include "vtkActor.h"
 
-
 // macro for debug printing
 #define qDebug(a)
 //#define qDebug(a) printf(a)
-
-// derive from QWidgetPlugin and implement the plugin interface
-class QVTKWidgetPlugin : public QWidgetPlugin
-{
-  public:
-    QVTKWidgetPlugin();
-    ~QVTKWidgetPlugin();
-    
-    //! return a list of keys for what widgets this plugin makes
-    QStringList keys() const;
-    //! create a widget by key
-    QWidget* create( const QString& key, QWidget* parent = 0, const char* name = 0);
-    //! what group this plugin shows up in the designer
-    QString group( const QString& ) const;
-    //! the icons for the widgets
-#if QT_VERSION < 0x040000
-    QIconSet iconSet( const QString& ) const;
-#else
-    QIcon iconSet( const QString& ) const;
-#endif
-    //! the name of the include file for building an app with a widget
-    QString includeFile( const QString& ) const;
-    //! tool tip text
-    QString toolTip( const QString& ) const;
-    //! what's this text
-    QString whatsThis( const QString& ) const;
-    //! returns whether widget is a container
-    bool isContainer( const QString& ) const;
-};
 
 QVTKWidgetPlugin::QVTKWidgetPlugin()
 {
@@ -83,6 +66,7 @@ QVTKWidgetPlugin::~QVTKWidgetPlugin()
   qDebug("QVTKWidgetPlugin destructed\n");
 }
 
+//! return a list of keys for what widgets this plugin makes
 QStringList QVTKWidgetPlugin::keys() const
 {
   qDebug("QVTKWidgetPlugin::keys\n");
@@ -91,17 +75,13 @@ QStringList QVTKWidgetPlugin::keys() const
   return list;
 }
 
+//! create a widget by key
 QWidget* QVTKWidgetPlugin::create( const QString& key, QWidget* parent, const char* name)
 {
   qDebug("QVTKWidgetPlugin::create\n");
   if(key == "QVTKWidget")
   {
-#if QT_VERSION >= 0x040000
-    QVTKWidget* widget = new QVTKWidget(parent);
-    widget->setObjectName(name);
-#else
     QVTKWidget* widget = new QVTKWidget(parent, name);
-#endif
     // gotta make a renderer so we get a nice black background in the designer
     vtkRenderer* ren = vtkRenderer::New();
     widget->GetRenderWindow()->AddRenderer(ren);
@@ -134,29 +114,23 @@ QWidget* QVTKWidgetPlugin::create( const QString& key, QWidget* parent, const ch
   return 0;
 }
 
-QString QVTKWidgetPlugin::group( const QString& feature ) const
+//! what group this plugin shows up in the designer
+QString QVTKWidgetPlugin::group( const QString& feature) const
 {
   qDebug("QVTKWidgetPlugin::group\n");
   if(feature == "QVTKWidget")
     return "QVTK";
   return QString::null;
 }
-
-#if QT_VERSION < 0x040000
+//! the icons for the widgets
 QIconSet QVTKWidgetPlugin::iconSet( const QString& ) const
 {
   qDebug("QVTKWidgetPlugin::iconSet\n");
   return QIconSet( QPixmap( QVTKWidget_image ) );
 }
-#else
-QIcon QVTKWidgetPlugin::iconSet( const QString& ) const
-{
-  qDebug("QVTKWidgetPlugin::iconSet\n");
-  return QIcon( QPixmap( QVTKWidget_image ) );
-}
-#endif
 
-QString QVTKWidgetPlugin::includeFile( const QString& feature ) const
+//! the name of the include file for building an app with a widget
+QString QVTKWidgetPlugin::includeFile( const QString& feature) const
 {
   qDebug("QVTKWidgetPlugin::includeFile\n");
   if ( feature == "QVTKWidget" )
@@ -164,7 +138,8 @@ QString QVTKWidgetPlugin::includeFile( const QString& feature ) const
   return QString::null;
 }
 
-QString QVTKWidgetPlugin::toolTip( const QString& feature ) const
+//! tool tip text
+QString QVTKWidgetPlugin::toolTip( const QString& feature) const
 {
   qDebug("QVTKWidgetPlugin::toolTip\n");
   if(feature == "QVTKWidget")
@@ -172,7 +147,8 @@ QString QVTKWidgetPlugin::toolTip( const QString& feature ) const
   return QString::null;
 }
 
-QString QVTKWidgetPlugin::whatsThis( const QString& feature ) const
+//! what's this text
+QString QVTKWidgetPlugin::whatsThis( const QString& feature) const
 {
   qDebug("QVTKWidgetPlugin::whatsThis\n");
   if ( feature == "QVTKWidget" )
@@ -180,14 +156,12 @@ QString QVTKWidgetPlugin::whatsThis( const QString& feature ) const
   return QString::null;
 }
 
+//! returns whether widget is a container
 bool QVTKWidgetPlugin::isContainer( const QString& ) const
 {
   qDebug("QVTKWidgetPlugin::isContainer\n");
   return false;
 }
 
-
-Q_EXPORT_PLUGIN( QVTKWidgetPlugin )
-
-
+Q_EXPORT_PLUGIN(QVTKWidgetPlugin)
 
