@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.14");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.15");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -912,12 +912,34 @@ void
 vtkCompositeDataPipeline
 ::CopyDefaultInformation(vtkInformation* request, int direction)
 {
+  int hasUpdateBlocks = 0;
   if(direction == vtkExecutive::RequestDownstream)
     {
-    request->Remove(vtkExecutive::KEYS_TO_COPY(),vtkCompositeDataPipeline::UPDATE_BLOCKS());
+    vtkInformationKey** keys = request->Get(vtkExecutive::KEYS_TO_COPY());
+    if (keys)
+      {
+      int len = request->Length(vtkExecutive::KEYS_TO_COPY());
+      for (int i=0; i<len; i++)
+        {
+        if (keys[i] == vtkCompositeDataPipeline::UPDATE_BLOCKS())
+          {
+          hasUpdateBlocks = 1;
+          break;
+          }
+        }
+      if (hasUpdateBlocks)
+        {
+        request->Remove(vtkExecutive::KEYS_TO_COPY(),
+                        vtkCompositeDataPipeline::UPDATE_BLOCKS());
+        }
+      }
     }
-  
   this->Superclass::CopyDefaultInformation(request, direction);
+  if (hasUpdateBlocks)
+    {
+    request->Append(vtkExecutive::KEYS_TO_COPY(), 
+                    vtkCompositeDataPipeline::UPDATE_BLOCKS());
+    }
 }
 
 //----------------------------------------------------------------------------
