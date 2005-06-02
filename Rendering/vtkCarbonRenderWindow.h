@@ -64,10 +64,6 @@ public:
   virtual void Finalize();
 
   // Description:
-  // Carbon related fixes if necessary before caling super classes render
-  virtual void Render();
-
-  // Description:
   // Change the window to fill the entire screen.
   virtual void SetFullScreen(int);
 
@@ -209,9 +205,8 @@ public:
   void UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize);
 
   // Description:
-  // Set the GL region dirty, the AGL_BUFFER_RECT and AGL_CLIP_REGION will be updated
-  void SetRegionDirty(int);
-  int GetRegionDirty();
+  // Fix the GL region.  The AGL_BUFFER_RECT and AGL_CLIP_REGION will be updated
+  void UpdateGLRegion();
 
   
 protected:
@@ -240,11 +235,9 @@ protected:
 
 
  // data and handlers to keep the GL view coincident with the HIView
-  int RegionDirty;
   EventHandlerUPP RegionEventHandlerUPP;
   EventHandlerRef RegionEventHandler;
   static OSStatus RegionEventProcessor(EventHandlerCallRef er, EventRef event, void*);
-  void UpdateGLRegion();
 
   void CreateAWindow(int x, int y, int width, int height);
   void InitializeApplication();

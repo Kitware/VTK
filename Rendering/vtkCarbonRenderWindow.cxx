@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.34");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.35");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -349,7 +349,6 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->SetWindowName("Visualization Toolkit - Carbon");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
-  this->RegionDirty = 0;
   this->RegionEventHandlerUPP = 0;
   this->RegionEventHandler = 0;
 }
@@ -473,11 +472,6 @@ void vtkCarbonRenderWindow::SetSize(int a[2])
 
 void vtkCarbonRenderWindow::UpdateGLRegion()
 {
-  if(!this->RegionDirty)
-    return;
-
-  this->RegionDirty = 0;
-
   // if WindowId is a child window
   if(this->WindowId)
     {
@@ -496,6 +490,13 @@ void vtkCarbonRenderWindow::UpdateGLRegion()
                             GLint((winBounds.size.height) - (viewBounds.origin.y + viewBounds.size.height)), 
                             GLint(viewBounds.size.width), 
                             GLint(viewBounds.size.height) };
+    if(!HIViewIsVisible(this->WindowId))
+      {
+      bufferRect[0] = 0;
+      bufferRect[1] = 0;
+      bufferRect[2] = 0;
+      bufferRect[3] = 0;
+      }
     
     // Associate the OpenGL context with the control's window, and establish the buffer rect.
     aglSetDrawable(this->ContextId, GetWindowPort(this->GetRootWindow()));
@@ -598,7 +599,6 @@ void vtkCarbonRenderWindow::SetSize(int x, int y)
         if(this->ParentId && this->RootWindow && !this->WindowId)
           {
           // backwards compatiblity with Tk and who else?
-          this->RegionDirty = 1;
           UpdateGLRegion();
           }
         else if(this->OwnWindow || !this->WindowId)
@@ -636,7 +636,6 @@ void vtkCarbonRenderWindow::SetPosition(int x, int y)
         if(this->ParentId && this->RootWindow && !this->WindowId)
           {
           // backwards compatiblity with Tk and who else?
-          this->RegionDirty = 1;
           UpdateGLRegion();
           }
         else if(this->OwnWindow || !this->WindowId)
@@ -772,9 +771,6 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
                                GetEventTypeCount(region_events), region_events,
                                reinterpret_cast<void*>(this), &this->RegionEventHandler);
     }
-  // mark region as dirty so the first time we render, we get a correct region
-  this->SetRegionDirty(1);
-  
   
   SetPortWindowPort(this->GetRootWindow());
   this->fAcceleratedMust = false;  //must renderer be accelerated?
@@ -875,6 +871,7 @@ void vtkCarbonRenderWindow::CreateAWindow(int vtkNotUsed(x), int vtkNotUsed(y),
 
   this->OpenGLInit();
   this->Mapped = 1;
+  UpdateGLRegion();
 }
 
 //--------------------------------------------------------------------------
@@ -1205,12 +1202,9 @@ OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef,
       switch (event_kind)
         {
         case kEventControlVisibilityChanged:
-          vtk_win->SetRegionDirty(1);
-          vtk_win->UpdateGLRegion();
-          break;
         case kEventControlOwningWindowChanged:
         case kEventControlBoundsChanged:
-          vtk_win->SetRegionDirty(1);
+          vtk_win->UpdateGLRegion();
           break;
         default:
           break;
@@ -1222,26 +1216,5 @@ OSStatus vtkCarbonRenderWindow::RegionEventProcessor(EventHandlerCallRef,
     }
 
   return eventNotHandledErr;
-}
-
-
-void vtkCarbonRenderWindow::Render()
-{
-  UpdateGLRegion();
-  Superclass::Render();
-}
-
-int vtkCarbonRenderWindow::GetRegionDirty()
-{
-  return this->RegionDirty;
-}
-
-void vtkCarbonRenderWindow::SetRegionDirty(int val)
-{
-  if(this->WindowId)
-    {
-    this->RegionDirty = val;
-    HIViewSetNeedsDisplay(this->GetWindowId(), true);
-    }
 }
 
