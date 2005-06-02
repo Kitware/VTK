@@ -7,7 +7,6 @@ IF (VTK_USE_RENDERING)
     FOREACH ( tfile 
       dcubes
       deciBrain
-      deciBrainErrors
       financialField
       genHead
       headBone
