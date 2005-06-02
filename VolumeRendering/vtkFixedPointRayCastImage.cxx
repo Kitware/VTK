@@ -15,7 +15,7 @@
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkFixedPointRayCastImage, "1.2");
+vtkCxxRevisionMacro(vtkFixedPointRayCastImage, "1.3");
 vtkStandardNewMacro(vtkFixedPointRayCastImage);
 
 // Construct a new vtkFixedPointRayCastImage with default values
@@ -154,6 +154,21 @@ void vtkFixedPointRayCastImage::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Image Origin: "
      << this->ImageOrigin[0] << " " 
      << this->ImageOrigin[1] << endl;
+
+  os << indent << "Image Sample Distance: "
+     << this->ImageSampleDistance << endl;
+  
+  os << indent << "Use ZBuffer: "
+     << (this->UseZBuffer ? "On" : "Off") << endl;
+
+  os << indent << "ZBuffer Origin: "
+     << this->ZBufferOrigin[0] << " " 
+     << this->ZBufferOrigin[1] << endl;
+
+  os << indent << "ZBuffer Size: "
+     << this->ZBufferSize[0] << " " 
+     << this->ZBufferSize[1] << endl;
+
   
 }
 

@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.12");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.13");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1014,8 +1014,9 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
 
 void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 {
-  int i;
+  this->ConvertCroppingRegionPlanesToVoxels();
   
+  int i;
   for ( i = 0; i < 6; i++ )
     {
     this->FixedPointCroppingRegionPlanes[i] = 
@@ -1044,9 +1045,12 @@ void vtkFixedPointVolumeRayCastMapper::UpdateCroppingRegions()
 // hierarchy. This does not make sense when rendering just a single
 // volume so the multiRender flag indicates whether to do this
 // computation here or skip it for later.
-void vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren, 
-                                                               vtkVolume *vol,
-                                                               int vtkNotUsed(muliRender) )
+int vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren, 
+                                                              vtkVolume *vol,
+                                                              int multiRender,
+                                                              double inputOrigin[3],
+                                                              double inputSpacing[3],
+                                                              int    inputExtent[6] )
 {
   // Save this so that we can restore it if the image is cancelled
   this->OldImageSampleDistance = this->ImageSampleDistance;
@@ -1081,6 +1085,22 @@ void vtkFixedPointVolumeRayCastMapper::PerImageInitialization( vtkRenderer *ren,
   this->RayCastImage->SetImageViewportSize(
     static_cast<int>(width/this->ImageSampleDistance),
     static_cast<int>(height/this->ImageSampleDistance) );
+  
+  if ( multiRender )
+    {
+    this->UpdateCroppingRegions();
+    this->ComputeMatrices( inputOrigin,
+                           inputSpacing,
+                           inputExtent, 
+                           ren, vol );
+    
+    if ( !this->ComputeRowBounds( ren, 1, 0, inputExtent )  )
+      {
+      return 0;
+      }
+    }
+  
+  return 1;
 }
 
 // This is the initialization that should be done once per volume
@@ -1104,16 +1124,16 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
   
   // Compute some matrices from voxels to view and vice versa based 
   // on the whole input
-  double volumeSpacing[3];
-  double volumeOrigin[3];
-  int    volumeExtent[6];
-  input->GetSpacing( volumeSpacing );
-  input->GetOrigin( volumeOrigin );
-  input->GetExtent( volumeExtent );
+  double inputSpacing[3];
+  double inputOrigin[3];
+  int    inputExtent[6];
+  input->GetSpacing( inputSpacing );
+  input->GetOrigin( inputOrigin );
+  input->GetExtent( inputExtent );
   
-  this->ComputeMatrices( volumeOrigin,
-                         volumeSpacing,
-                         volumeExtent, 
+  this->ComputeMatrices( inputOrigin,
+                         inputSpacing,
+                         inputExtent, 
                          ren, vol );
   
   this->RenderWindow = ren->GetRenderWindow();
@@ -1128,23 +1148,22 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
 // This is the initialization that should be done once per subvolume
 void vtkFixedPointVolumeRayCastMapper::PerSubVolumeInitialization( vtkRenderer *ren, vtkVolume *vol, int multiRender )
 {
-  this->ConvertCroppingRegionPlanesToVoxels();
   this->UpdateCroppingRegions();
   
   // Compute row bounds. This will also compute the size of the image to
   // render, allocate the space if necessary, and clear the image where
   // required. If no rays need to be cast, restore the old image sample 
   // distance and return
-  int volumeExtent[6];
+  int inputExtent[6];
   vtkImageData *input = this->GetInput();
-  input->GetExtent( volumeExtent );
+  input->GetExtent( inputExtent );
 
   // If this is part of a multirender (AMR volume rendering) then
   // the image parameters have already been computed and we can skip
   // that. In all cases we need to compute the row bounds so pass in
   // a 1 for that flag
   int imageFlag = (multiRender)?(0):(1);
-  if ( !this->ComputeRowBounds( ren, imageFlag, 1, volumeExtent )  )
+  if ( !this->ComputeRowBounds( ren, imageFlag, 1, inputExtent )  )
     {
     this->AbortRender();
     return;
@@ -1270,7 +1289,19 @@ void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol 
 {
   this->Timer->StartTimer();
   
-  this->PerImageInitialization( ren, vol, 0 );
+  // Since we are passing in a value of 0 for the multiRender flag
+  // (this is a single render pass - not part of a multipass AMR render)
+  // then we know the origin, spacing, and extent values will not
+  // be used so just initialize everything to 0. No need to check
+  // the return value of the PerImageInitialization method - since this
+  // is not a multirender it will always return 1.
+  double dummyOrigin[3]  = {0.0, 0.0, 0.0};
+  double dummySpacing[3] = {0.0, 0.0, 0.0};
+  int dummyExtent[6] = {0, 0, 0, 0, 0, 0};
+  this->PerImageInitialization( ren, vol, 0,
+                                dummyOrigin,
+                                dummySpacing,
+                                dummyExtent );
 
   this->PerVolumeInitialization( ren, vol );
   if ( this->RenderWindow->CheckAbortStatus() )
@@ -1592,7 +1623,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
       {
       // Convert plane into voxel coordinate system
       double worldNormal[3], worldOrigin[3];
-      double volumeOrigin[4];
+      double inputOrigin[4];
       vtkPlane *onePlane = (vtkPlane *)this->ClippingPlanes->GetItemAsObject(i);
       onePlane->GetNormal(worldNormal);
       onePlane->GetOrigin(worldOrigin);
@@ -1600,7 +1631,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
       vtkVRCMultiplyNormalMacro( worldNormal, 
                                  planePtr,
                                  this->VoxelsToWorldArray );
-      vtkVRCMultiplyPointMacro( worldOrigin, volumeOrigin,
+      vtkVRCMultiplyPointMacro( worldOrigin, inputOrigin,
                                 this->WorldToVoxelsArray );
       
       float t = sqrt( planePtr[0]*planePtr[0] +
@@ -1613,9 +1644,9 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
         planePtr[2] /= t;
         }
       
-      planePtr[3] = -(planePtr[0]*volumeOrigin[0] + 
-                      planePtr[1]*volumeOrigin[1] + 
-                      planePtr[2]*volumeOrigin[2]);
+      planePtr[3] = -(planePtr[0]*inputOrigin[0] + 
+                      planePtr[1]*inputOrigin[1] + 
+                      planePtr[2]*inputOrigin[2]);
       }
     }
 
@@ -1652,7 +1683,7 @@ void vtkFixedPointVolumeRayCastMapper::InitializeRayInfo( vtkVolume   *vol )
 int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
                                                        int imageFlag,
                                                        int rowBoundsFlag,
-                                                       int volumeExtent[6] )
+                                                       int inputExtent[6] )
 {
   float voxelPoint[3];
   float viewPoint[8][4];
@@ -1669,9 +1700,9 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
   
   float bounds[6];
   int dim[3];
-  dim[0] = volumeExtent[1] - volumeExtent[0] + 1;
-  dim[1] = volumeExtent[3] - volumeExtent[2] + 1;
-  dim[2] = volumeExtent[5] - volumeExtent[4] + 1;
+  dim[0] = inputExtent[1] - inputExtent[0] + 1;
+  dim[1] = inputExtent[3] - inputExtent[2] + 1;
+  dim[2] = inputExtent[5] - inputExtent[4] + 1;
   
 
   bounds[0] = bounds[2] = bounds[4] = 0.0;
@@ -2072,9 +2103,9 @@ int vtkFixedPointVolumeRayCastMapper::ComputeRowBounds(vtkRenderer *ren,
 }
 
 
-void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double volumeOrigin[3],
-                                                        double volumeSpacing[3],
-                                                        int volumeExtent[6],
+void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double inputOrigin[3],
+                                                        double inputSpacing[3],
+                                                        int inputExtent[6],
                                                         vtkRenderer *ren,
                                                         vtkVolume *vol )
 {
@@ -2101,11 +2132,11 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double volumeOrigin[3],
 
   // Compute the origin of the extent the volume origin is at voxel (0,0,0)
   // but we want to consider (0,0,0) in voxels to be at
-  // (volumeExtent[0], volumeExtent[2], volumeExtent[4]).
+  // (inputExtent[0], inputExtent[2], inputExtent[4]).
   double extentOrigin[3];
-  extentOrigin[0] = volumeOrigin[0] + volumeExtent[0]*volumeSpacing[0];
-  extentOrigin[1] = volumeOrigin[1] + volumeExtent[2]*volumeSpacing[1];
-  extentOrigin[2] = volumeOrigin[2] + volumeExtent[4]*volumeSpacing[2];
+  extentOrigin[0] = inputOrigin[0] + inputExtent[0]*inputSpacing[0];
+  extentOrigin[1] = inputOrigin[1] + inputExtent[2]*inputSpacing[1];
+  extentOrigin[2] = inputOrigin[2] + inputExtent[4]*inputSpacing[2];
   
   // Get the volume matrix. This is a volume to world matrix right now. 
   // We'll need to invert it, translate by the origin and scale by the 
@@ -2121,9 +2152,9 @@ void vtkFixedPointVolumeRayCastMapper::ComputeMatrices( double volumeOrigin[3],
                                    extentOrigin[1], 
                                    extentOrigin[2] );
   
-  this->VoxelsTransform->Scale( volumeSpacing[0],
-                                volumeSpacing[1],
-                                volumeSpacing[2] );
+  this->VoxelsTransform->Scale( inputSpacing[0],
+                                inputSpacing[1],
+                                inputSpacing[2] );
   
   // Now concatenate the volume's matrix with this scalar data matrix
   this->VoxelsToViewTransform->PreMultiply();
@@ -2920,19 +2951,21 @@ void vtkFixedPointVolumeRayCastMapper::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Sample Distance: " << this->SampleDistance << "\n";
+  os << indent << "Sample Distance: " << this->SampleDistance << endl;
+  os << indent << "Interactive Sample Distance: " 
+     << this->InteractiveSampleDistance << endl;
   os << indent << "Image Sample Distance: " 
-     << this->ImageSampleDistance << "\n";
+     << this->ImageSampleDistance << endl;
   os << indent << "Minimum Image Sample Distance: " 
-     << this->MinimumImageSampleDistance << "\n";
+     << this->MinimumImageSampleDistance << endl;
   os << indent << "Maximum Image Sample Distance: " 
-     << this->MaximumImageSampleDistance << "\n";
+     << this->MaximumImageSampleDistance << endl;
   os << indent << "Auto Adjust Sample Distances: " 
-     << this->AutoAdjustSampleDistances << "\n";
+     << this->AutoAdjustSampleDistances << endl;
   os << indent << "Intermix Intersecting Geometry: "
     << (this->IntermixIntersectingGeometry ? "On\n" : "Off\n");
   
-  os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
+  os << indent << "Number Of Threads: " << this->NumberOfThreads << endl;
   
   os << indent << "ShadingRequired: " << this->ShadingRequired << endl;
   os << indent << "GradientOpacityRequired: " << this->GradientOpacityRequired

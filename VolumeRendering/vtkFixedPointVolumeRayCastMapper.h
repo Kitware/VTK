@@ -239,7 +239,8 @@ public:
   void SetRayCastImage( vtkFixedPointRayCastImage * );
   vtkGetObjectMacro( RayCastImage, vtkFixedPointRayCastImage  );
 
-  void PerImageInitialization( vtkRenderer *, vtkVolume *, int );
+  int PerImageInitialization( vtkRenderer *, vtkVolume *, int,
+                              double *, double *, int * );
   void PerVolumeInitialization( vtkRenderer *, vtkVolume * );
   void PerSubVolumeInitialization( vtkRenderer *, vtkVolume *, int );
   void RenderSubVolume();
