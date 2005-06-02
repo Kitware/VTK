@@ -20,7 +20,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.7");
+vtkCxxRevisionMacro(vtkInformationVector, "1.8");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -184,6 +184,30 @@ void vtkInformationVector::Remove(vtkInformation* info)
       this->Internal->Vector.erase(this->Internal->Vector.begin()+i);
       info->UnRegister(this);
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationVector::Copy(vtkInformationVector* from, int deep)
+{
+  // if deep we can reuse existing info objects
+  if (deep)
+    {
+    this->SetNumberOfInformationObjects(from->GetNumberOfInformationObjects());
+    for (int i = 0; i < from->GetNumberOfInformationObjects(); ++i)
+      {
+      this->Internal->Vector[i]->Copy(from->GetInformationObject(i),deep);
+      }
+     return;
+    }
+  
+  // otherwise it is a shallow copy and we must copy pointers
+  this->SetNumberOfInformationObjects(0);
+  // copy the data
+  for (int i = 0; i < from->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation *fromI = from->GetInformationObject(i);
+    this->SetInformationObject(i,fromI);
     }
 }
 

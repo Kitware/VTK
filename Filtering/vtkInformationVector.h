@@ -61,6 +61,14 @@ public:
   virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
+  // Description:
+  // Copy all information entries from the given vtkInformation
+  // instance.  Any previously existing entries are removed.  If 
+  // deep==1, a deep copy of the information structure is performed (new 
+  // instances of any contained vtkInformation and vtkInformationVector 
+  // objects are created).
+  void Copy(vtkInformationVector* from, int deep=0);
+
 protected:
   vtkInformationVector();
   ~vtkInformationVector();
