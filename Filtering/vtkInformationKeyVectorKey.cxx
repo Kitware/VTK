@@ -16,7 +16,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -90,7 +90,7 @@ void vtkInformationKeyVectorKey::RemoveItem(vtkInformation* info,
   
   if(v)
     {
-    vtkstd::vector<vtkInformationKey*>::iterator it=find(v->Value.begin(),v->Value.end(),value);
+    vtkstd::vector<vtkInformationKey*>::iterator it=vtkstd::find(v->Value.begin(),v->Value.end(),value);
     if(it!=v->Value.end())
       {
       v->Value.erase(it);
