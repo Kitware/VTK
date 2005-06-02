@@ -46,12 +46,26 @@ vtkCellArray faces
   faces InsertCellPoint 7
 vtkUnsignedCharArray faceColors
   faceColors SetNumberOfComponents 3
-  faceColors InsertNextTuple3 255 0 0
-  faceColors InsertNextTuple3 0 255 0
-  faceColors InsertNextTuple3 255 255 0
-  faceColors InsertNextTuple3 0 0 255
-  faceColors InsertNextTuple3 255 0 255
-  faceColors InsertNextTuple3 0 255 255
+  faceColors SetNumberOfTuples 3
+  faceColors InsertComponent 0 0 255
+  faceColors InsertComponent 0 1 0
+  faceColors InsertComponent 0 2 0
+  faceColors InsertComponent 1 0 0
+  faceColors InsertComponent 1 1 255
+  faceColors InsertComponent 1 2 0
+  faceColors InsertComponent 2 0 255
+  faceColors InsertComponent 2 1 255
+  faceColors InsertComponent 2 2 0
+  faceColors InsertComponent 3 0 0
+  faceColors InsertComponent 3 1 0
+  faceColors InsertComponent 3 2 255
+  faceColors InsertComponent 4 0 255
+  faceColors InsertComponent 4 1 0
+  faceColors InsertComponent 4 2 255
+  faceColors InsertComponent 5 0 0
+  faceColors InsertComponent 5 1 255
+  faceColors InsertComponent 5 2 255
+
 vtkPolyData cube
   cube SetPoints pts
   cube SetPolys faces
