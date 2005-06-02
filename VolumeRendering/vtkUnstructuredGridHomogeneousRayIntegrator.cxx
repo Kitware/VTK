@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridHomogeneousRayIntegrator, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridHomogeneousRayIntegrator);
 
 //-----------------------------------------------------------------------------
@@ -267,7 +267,7 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(
             newcolor[0] += c[0]*tau/(tau + newcolor[3]);
             newcolor[1] += c[1]*tau/(tau + newcolor[3]);
             newcolor[2] += c[2]*tau/(tau + newcolor[3]);
-            newcolor[3] += c[3]*tau/(tau + newcolor[3]);
+            newcolor[3] += tau;
             }
           }
         float alpha = 1 - (float)exp(-intersectionLengths->GetComponent(i,0)
