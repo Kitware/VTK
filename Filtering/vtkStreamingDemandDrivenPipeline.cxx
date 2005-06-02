@@ -28,7 +28,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.29");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.30");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -114,6 +114,8 @@ int vtkStreamingDemandDrivenPipeline::ProcessRequest(vtkInformation* request)
       vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
       r->Set(REQUEST_UPDATE_EXTENT(), 1);
       r->Set(FROM_OUTPUT_PORT(), outputPort);
+      // Algorithms process this request before it is forwarded.
+      r->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
       result = this->CallAlgorithm(r, vtkExecutive::RequestUpstream);
 
       // Propagate the update extent to all inputs.
