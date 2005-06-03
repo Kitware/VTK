@@ -18,7 +18,7 @@
 #include "vtkMath.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.3");
+vtkCxxRevisionMacro(vtkSphericalDirectionEncoder, "1.4");
 vtkStandardNewMacro(vtkSphericalDirectionEncoder);
 
 float vtkSphericalDirectionEncoder::DecodedGradientTable[65536*3];
@@ -50,9 +50,18 @@ int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
   
   float theta, phi;
   
-  theta = (vtkMath::RadiansToDegrees())*atan2( n[1], n[0] );
-  theta = (theta<0.0)?(theta+360.0):(theta);
-  theta = (theta>=360.0)?(theta-360.0):(theta);
+  // Need to handle this separately since some atan2 implementations
+  // don't handle a zero denominator
+  if ( n[0] == 0 )
+    {
+    theta = (n[1]>0)?(90.0):(270.0);
+    }
+  else
+    {
+    theta = (vtkMath::RadiansToDegrees())*atan2( n[1], n[0] );
+    theta = (theta<0.0)?(theta+360.0):(theta);
+    theta = (theta>=360.0)?(theta-360.0):(theta);
+    }
   
   phi = (vtkMath::RadiansToDegrees())*asin( n[2] );
   phi = (phi > 90.5)?(phi-360):(phi);
