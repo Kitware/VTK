@@ -82,7 +82,6 @@ vtkPolyDataMapper cube1Mapper
     cube1Mapper SetInput [tpdf1 GetOutput]
 vtkActor cube1
     cube1 SetMapper cube1Mapper
-    [cube1 GetProperty] SetAmbient 0.4
 
 vtkTransform t2
     t2 Translate 5 10 15
@@ -97,7 +96,6 @@ vtkPolyDataMapper cube2Mapper
     cube2Mapper SetInput [tpdf2 GetOutput]
 vtkActor cube2
     cube2 SetMapper cube2Mapper
-    [cube2 GetProperty] SetAmbient 0.4
 
 vtkTransform t3
     t3 Translate 5 -10 15
@@ -112,7 +110,6 @@ vtkPolyDataMapper cube3Mapper
     cube3Mapper SetInput [tpdf3 GetOutput]
 vtkActor cube3
     cube3 SetMapper cube3Mapper
-    [cube3 GetProperty] SetAmbient 0.4
 
 vtkTransform t4
     t4 Translate 10 -5 5
@@ -127,14 +124,12 @@ vtkPolyDataMapper cube4Mapper
     cube4Mapper SetInput [tpdf4 GetOutput]
 vtkActor cube4
     cube4 SetMapper cube4Mapper
-    [cube4 GetProperty] SetAmbient 0.4
 
 # Interpolate the transformation
 vtkPolyDataMapper cubeMapper
     cubeMapper SetInput cube
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
-    [cubeActor GetProperty] SetAmbient 0.4
 
 # Interpolate some transformations, test along the way
 vtkTransformInterpolator interpolator
