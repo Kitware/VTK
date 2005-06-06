@@ -606,9 +606,6 @@ IF(BUILD_TESTING)
   IF(VTK_USE_PARALLEL)
     SUBDIRS(Parallel/Testing)
   ENDIF(VTK_USE_PARALLEL)
-  IF(VTK_USE_PATENTED)
-    SUBDIRS(Patented/Testing)
-  ENDIF(VTK_USE_PATENTED)
 ENDIF(BUILD_TESTING)
 
 # Include the examples if they are enabled.  Note that the in-tree
