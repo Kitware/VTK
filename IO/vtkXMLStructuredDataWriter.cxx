@@ -29,7 +29,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.15");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.16");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -89,8 +89,11 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece, int timestep)
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
     this->ExtentTranslator->GetExtent(),
     6);
-  inInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
+  if(this->NumberOfTimeSteps > 1)
+    {
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -545,13 +548,13 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
   vtkDataSet* input = this->GetInputAsDataSet();
   this->WritePointDataAppended(input->GetPointData(), indent, 
     &this->PointDataOM->GetPiece(index));
-  if (!this->PointDataOM->GetPiece(index).GetNumberOfElements())
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
   this->WriteCellDataAppended(input->GetCellData(), indent, 
     &this->CellDataOM->GetPiece(index));
-  if (!this->CellDataOM->GetPiece(index).GetNumberOfElements())
+  if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
     {
     return;
     }
