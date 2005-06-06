@@ -170,7 +170,14 @@ camera SetFocalPoint 3.0991 -2.00445 9.78648
 camera SetPosition -44.8481 -25.871 10.0645
 camera SetViewAngle 30
 camera SetViewUp -0.0356378 0.0599728 -0.997564
+
+vtkLight light
+eval light SetPosition [camera GetPosition]
+eval light SetFocalPoint [camera GetFocalPoint]
+
 ren1 SetActiveCamera camera
+ren1 AddLight light
+
 renWin Render
 
 # prevent the tk window from showing up then start the event loop
