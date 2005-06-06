@@ -319,6 +319,9 @@ class wxVTKRenderWindowInteractor(baseClass):
         # this will check for __handle
         self.Render()
 
+        # event processing should continue
+        event.Skip()
+
     def OnMotion(self, event):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
@@ -326,19 +329,29 @@ class wxVTKRenderWindowInteractor(baseClass):
 					    chr(0), 0, None)
         self._Iren.MouseMoveEvent()
 
+        # event processing should continue
+        event.Skip()
+
     def OnEnter(self,event):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
 					    chr(0), 0, None)
         self._Iren.EnterEvent()
+
+        # event processing should continue
+        event.Skip()
         
     def OnLeave(self,event):
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
                                             event.ControlDown(), 
 					    event.ShiftDown(), 
 					    chr(0), 0, None)
-        self._Iren.LeaveEvent()        
+        self._Iren.LeaveEvent()
+
+        # event processing should continue
+        event.Skip()
+        
 
     def OnButtonDown(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
@@ -355,10 +368,16 @@ class wxVTKRenderWindowInteractor(baseClass):
         elif event.MiddleDown():
             self._Iren.MiddleButtonPressEvent()
             self._ActiveButton = 'Middle'
-            
+
         # save the button and capture mouse until the button is released
         if self._ActiveButton and WX_USE_X_CAPTURE:
             self.CaptureMouse()
+
+        # allow wx event processing to continue
+        # on wxPython 2.6.0.1, omitting this will cause problems with
+        # the initial focus, resulting in the wxVTKRWI ignoring keypresses
+        # until we focus elsewhere and then refocus the wxVTKRWI frame
+        event.Skip()
 
     def OnButtonUp(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
@@ -376,6 +395,10 @@ class wxVTKRenderWindowInteractor(baseClass):
         if self._ActiveButton and WX_USE_X_CAPTURE:
             self.ReleaseMouse()
 
+        # event processing should continue
+        event.Skip()
+            
+
     def OnMouseWheel(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         self._Iren.SetEventInformationFlipY(event.GetX(), event.GetY(),
@@ -384,6 +407,10 @@ class wxVTKRenderWindowInteractor(baseClass):
             self._Iren.MouseWheelForwardEvent()
         else:
             self._Iren.MouseWheelBackwardEvent()
+
+        # event processing should continue
+        event.Skip()
+            
         
     def OnKeyDown(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
@@ -402,6 +429,10 @@ class wxVTKRenderWindowInteractor(baseClass):
         self._Iren.KeyPressEvent()
         self._Iren.CharEvent()
 
+        # event processing should continue
+        event.Skip()
+        
+
     def OnKeyUp(self,event):
         ctrl, shift = event.ControlDown(), event.ShiftDown()
         keycode, keysym = event.GetKeyCode(), None
@@ -413,6 +444,10 @@ class wxVTKRenderWindowInteractor(baseClass):
                                             ctrl, shift, key, 0,
                                             keysym)
         self._Iren.KeyReleaseEvent()
+
+        # event processing should continue
+        event.Skip()
+        
 
     def GetRenderWindow(self):
         return self._Iren.GetRenderWindow()
@@ -479,9 +514,13 @@ def wxVTKRenderWindowInteractorConeExample():
     # every wx app needs an app
     app = wxPySimpleApp()
 
-    # create the widget
+    # create the top-level frame, sizer and wxVTKRWI
     frame = wxFrame(None, -1, "wxRenderWindow", size=wxSize(400,400))
     widget = wxVTKRenderWindowInteractor(frame, -1)
+    sizer = wxBoxSizer(wxVERTICAL)
+    sizer.Add(widget, 1, wxEXPAND)
+    frame.SetSizer(sizer)
+    frame.Layout()
 
     # It would be more correct (API-wise) to call widget.Initialize() and
     # widget.Start() here, but Initialize() calls RenderWindow.Render().
@@ -510,11 +549,6 @@ def wxVTKRenderWindowInteractorConeExample():
     ren.AddActor(coneActor)
 
     # show the window
-    
-    # on some platforms, this SetSize() is necessary to cause an OnPaint()
-    # when the event loop begins; else we get an empty window until we 
-    # force a redraw.
-    frame.SetSize((400,400))
     frame.Show(1)
 
     app.MainLoop()
