@@ -16,9 +16,9 @@ vtkPoints pts
 vtkCellArray faces
   faces InsertNextCell 4 
   faces InsertCellPoint 0 
-  faces InsertCellPoint 1 
+  faces InsertCellPoint 3 
   faces InsertCellPoint 2 
-  faces InsertCellPoint 3
+  faces InsertCellPoint 1
   faces InsertNextCell 4 
   faces InsertCellPoint 4 
   faces InsertCellPoint 5 
