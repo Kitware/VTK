@@ -71,56 +71,67 @@ vtkPolyData cube
   cube SetPolys faces
   [cube GetCellData] SetScalars faceColors
 
+vtkTransform t1
+    t1 Translate 1 2 3
+    t1 RotateX 15
+    t1 Scale 4 2 1
+vtkTransformPolyDataFilter tpdf1
+    tpdf1 SetInput cube
+    tpdf1 SetTransform t1
 vtkPolyDataMapper cube1Mapper
-    cube1Mapper SetInput cube
-    cube1Mapper SetScalarRange 0 5
+    cube1Mapper SetInput [tpdf1 GetOutput]
 vtkActor cube1
     cube1 SetMapper cube1Mapper
     [cube1 GetProperty] SetAmbient 0.4
-    cube1 SetPosition 1 2 3
-    cube1 SetScale 4 2 1
-    cube1 RotateX 15
 
+vtkTransform t2
+    t2 Translate 5 10 15
+    t2 RotateX 22.5
+    t2 RotateY 15
+    t2 RotateZ 85
+    t2 Scale 1 2 4
+vtkTransformPolyDataFilter tpdf2
+    tpdf2 SetInput cube
+    tpdf2 SetTransform t2
 vtkPolyDataMapper cube2Mapper
-    cube2Mapper SetInput cube
-    cube2Mapper SetScalarRange 0 5
+    cube2Mapper SetInput [tpdf2 GetOutput]
 vtkActor cube2
     cube2 SetMapper cube2Mapper
-    cube2 SetPosition 5 10 15
-    cube2 SetScale 1 2 4
-    cube2 RotateX 22.5
-    cube2 RotateY 15
-    cube2 RotateZ 85
     [cube2 GetProperty] SetAmbient 0.4
 
+vtkTransform t3
+    t3 Translate 5 -10 15
+    t3 RotateX 13
+    t3 RotateY 72
+    t3 RotateZ -15
+    t3 Scale 2 4 1
+vtkTransformPolyDataFilter tpdf3
+    tpdf3 SetInput cube
+    tpdf3 SetTransform t3
 vtkPolyDataMapper cube3Mapper
-    cube3Mapper SetInput cube
-    cube3Mapper SetScalarRange 0 5
+    cube3Mapper SetInput [tpdf3 GetOutput]
 vtkActor cube3
     cube3 SetMapper cube3Mapper
-    cube3 SetPosition 5 -10 15
-    cube3 SetScale 2 4 1
-    cube3 RotateX 13
-    cube3 RotateY 72
-    cube3 RotateZ -15
     [cube3 GetProperty] SetAmbient 0.4
 
+vtkTransform t4
+    t4 Translate 10 -5 5
+    t4 RotateX 66
+    t4 RotateY 19
+    t4 RotateZ 24
+    t4 Scale 2 .5 1
+vtkTransformPolyDataFilter tpdf4
+    tpdf4 SetInput cube
+    tpdf4 SetTransform t4
 vtkPolyDataMapper cube4Mapper
-    cube4Mapper SetInput cube
-    cube4Mapper SetScalarRange 0 5
+    cube4Mapper SetInput [tpdf4 GetOutput]
 vtkActor cube4
     cube4 SetMapper cube4Mapper
-    cube4 SetPosition 10 -5 5
-    cube4 SetScale 2 .5 1
-    cube4 RotateX 66
-    cube4 RotateY 19
-    cube4 RotateZ 24
     [cube4 GetProperty] SetAmbient 0.4
 
 # Interpolate the transformation
 vtkPolyDataMapper cubeMapper
     cubeMapper SetInput cube
-    cubeMapper SetScalarRange 0 6
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
     [cubeActor GetProperty] SetAmbient 0.4
@@ -135,10 +146,10 @@ interpolator AddTransform 18.2 cube3
 interpolator AddTransform 24.4 cube4
 interpolator Initialize
 #puts [interpolator GetNumberOfTransforms]
-interpolator AddTransform 0.0 cube1
-interpolator AddTransform 8.0 cube2
-interpolator AddTransform 18.2 cube3
-interpolator AddTransform 24.4 cube4
+interpolator AddTransform 0.0 t1
+interpolator AddTransform 8.0 t2
+interpolator AddTransform 18.2 t3
+interpolator AddTransform 24.4 t4
 #puts [interpolator GetNumberOfTransforms]
 
 # Create the RenderWindow, Renderer and both Actors
@@ -171,12 +182,7 @@ camera SetPosition -44.8481 -25.871 10.0645
 camera SetViewAngle 30
 camera SetViewUp -0.0356378 0.0599728 -0.997564
 
-vtkLight light
-eval light SetPosition [camera GetPosition]
-eval light SetFocalPoint [camera GetFocalPoint]
-
 ren1 SetActiveCamera camera
-ren1 AddLight light
 
 renWin Render
 
