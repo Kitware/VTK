@@ -29,7 +29,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.14");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.15");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -78,7 +78,7 @@ void vtkXMLStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
+void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece, int timestep)
 {
   this->ExtentTranslator->SetPiece(piece);
   this->ExtentTranslator->PieceToExtent();
@@ -89,6 +89,8 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
     this->ExtentTranslator->GetExtent(),
     6);
+  inInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +104,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     {
     // Prepare the extent translator to create the set of pieces.
     this->SetupExtentTranslator();
-    this->SetInputUpdateExtent(this->CurrentPiece);
+    this->SetInputUpdateExtent(this->CurrentPiece, this->CurrentTimeIndex);
 
     return 1;
     }
@@ -129,7 +131,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     this->SetProgressRange(wholeProgressRange, 0, 1);
     
     int result = 1;
-    if (this->CurrentPiece == 0)
+    if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0 )
       {
       if (!this->OpenFile())
         {
@@ -146,6 +148,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         return 0;
         }
 
+      this->CurrentTimeIndex = 0;
       if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
@@ -159,7 +162,10 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         }
       }
 
-    result = this->WriteAPiece();
+    if( !(this->UserContinueExecuting == 0)) //if user ask to stop do not try to write a piece
+      {
+      result = this->WriteAPiece();
+      }
 
     // Tell the pipeline to start looping.
     if (this->CurrentPiece == 0)
@@ -172,18 +178,23 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
       {
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
       this->CurrentPiece = 0;
-  
-      if (!this->WriteFooter())
+       // We are done writting all the pieces, lets loop over time now:
+      this->CurrentTimeIndex++;
+ 
+      if( this->UserContinueExecuting != 1)
         {
-        return 0;
-        }
+        if (!this->WriteFooter())
+          {
+          return 0;
+          }
 
-      if (!this->EndFile())
-        {
-        return 0;
-        }
+        if (!this->EndFile())
+          {
+          return 0;
+          }
 
-      this->CloseFile();
+        this->CloseFile();
+        }
       }
 
     // We have finished writing.
@@ -199,9 +210,6 @@ void vtkXMLStructuredDataWriter::AllocatePositionArrays()
 {
   // Prepare storage for the point and cell data array appended data
   // offsets for each piece.
-  this->PointDataOffsets = new unsigned long*[this->NumberOfPieces];
-  this->CellDataOffsets = new unsigned long*[this->NumberOfPieces];
-
   this->PointDataOM->Allocate(this->NumberOfPieces);
   this->CellDataOM->Allocate(this->NumberOfPieces);
 }
@@ -209,8 +217,6 @@ void vtkXMLStructuredDataWriter::AllocatePositionArrays()
 //----------------------------------------------------------------------------
 void vtkXMLStructuredDataWriter::DeletePositionArrays()
 {
-  delete [] this->PointDataOffsets;
-  delete [] this->CellDataOffsets;
 }
 
 //----------------------------------------------------------------------------
@@ -539,13 +545,13 @@ void vtkXMLStructuredDataWriter::WriteAppendedPiece(int index,
   vtkDataSet* input = this->GetInputAsDataSet();
   this->WritePointDataAppended(input->GetPointData(), indent, 
     &this->PointDataOM->GetPiece(index));
-  if (!this->PointDataOffsets[index])
+  if (!this->PointDataOM->GetPiece(index).GetNumberOfElements())
     {
     return;
     }
   this->WriteCellDataAppended(input->GetCellData(), indent, 
     &this->CellDataOM->GetPiece(index));
-  if (!this->CellDataOffsets[index])
+  if (!this->CellDataOM->GetPiece(index).GetNumberOfElements())
     {
     return;
     }

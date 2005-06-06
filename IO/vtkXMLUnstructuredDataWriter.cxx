@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.14");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.15");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -167,7 +167,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
         return 0;
         }
 
-      this->CurrentTimeIndex = 0; 
+      this->CurrentTimeIndex = 0;
 
       if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
@@ -182,12 +182,14 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
         }
       }
 
-    result = this->WriteAPiece();
+    if( !(this->UserContinueExecuting == 0)) //if user ask to stop do not try to write a piece
+      {
+      result = this->WriteAPiece();
+      }
 
     if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
       {
       // Tell the pipeline to start looping.
-      //if (this->CurrentPiece == 0 && this->CurrentTimeIndex == 0)
       if (this->CurrentPiece == 0)
         {
         request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
@@ -202,13 +204,8 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       // We are done writting all the pieces, lets loop over time now:
       this->CurrentTimeIndex++;
 
-  if( !(this->UserContinueExecuting == 1))
-    {
-      //if (this->CurrentTimeIndex == this->NumberOfTimeSteps )
+      if( this->UserContinueExecuting != 1 )
         {
-        //request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-        //this->CurrentTimeIndex = 0;
-  
         if (!this->WriteFooter())
           {
           this->NumberOfPieces = numPieces;
@@ -223,10 +220,8 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
 
         this->CloseFile();
         }
-    }
       }
     this->NumberOfPieces = numPieces;
-    //this->NumberOfTimeSteps = numTimeStep;
 
     // We have finished writing.
     this->UpdateProgressDiscrete(1);

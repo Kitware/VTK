@@ -42,7 +42,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.52");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.53");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -2598,14 +2598,22 @@ void vtkXMLWriter::Start()
 }
 
 //----------------------------------------------------------------------------
+// The function does not make sense in the general case but we need to handle
+// the case where the simulation stop before reaching the number of steps
+// specified by the user. Therefore the CurrentTimeIndex is never equal 
+// to NumberOfTimeStep and thus we need to force closing of the xml file
 void vtkXMLWriter::Stop()
 {
   this->UserContinueExecuting = 0;
+  this->Modified();
+  this->Update();
+  this->UserContinueExecuting = -1; //put back the writer in initial state
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLWriter::WriteNextTime(double time)
 {
+  this->Modified();
   this->Update();
 
   ostream& os = *(this->Stream);

@@ -19,7 +19,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.16");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -44,7 +44,10 @@ vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::~vtkXMLStructuredDataReader()
 {
-  if(this->NumberOfPieces) { this->DestroyPieces(); }
+  if(this->NumberOfPieces)
+    {
+    this->DestroyPieces();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -134,7 +137,10 @@ vtkIdType vtkXMLStructuredDataReader::GetNumberOfCells()
 //----------------------------------------------------------------------------
 int vtkXMLStructuredDataReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
-  if(!this->Superclass::ReadPiece(ePiece)) { return 0; }
+  if(!this->Superclass::ReadPiece(ePiece))
+    {
+    return 0;
+    }
   int* pieceExtent = this->PieceExtents + this->Piece*6;
   
   // Read the extent of the piece.

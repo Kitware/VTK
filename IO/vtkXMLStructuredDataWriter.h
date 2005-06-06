@@ -81,7 +81,7 @@ protected:
   vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
   vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
   
-  void SetInputUpdateExtent(int piece);
+  void SetInputUpdateExtent(int piece, int timestep);
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector);
@@ -94,15 +94,12 @@ protected:
   
   // Translate piece number to extent.
   vtkExtentTranslator* ExtentTranslator;
-  
-  // Appended data offsets of point and cell data arrays.
-  unsigned long** PointDataOffsets;
-  unsigned long** CellDataOffsets;
-  
+
   float* ProgressFractions;
 
   int CurrentPiece;
 
+  // Appended data offsets of point and cell data arrays.
   // Store offset position (add TimeStep support)
   OffsetsManagerArray *PointDataOM;
   OffsetsManagerArray *CellDataOM;
