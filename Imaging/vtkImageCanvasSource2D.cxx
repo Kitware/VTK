@@ -16,24 +16,44 @@
 
 #include "vtkImageCast.h"
 #include "vtkImageClip.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.41");
+//
+// Special classes for manipulating data
+//
+// For the fill functionality (use connector ??)
+class vtkImageCanvasSource2DPixel { //;prevent man page generation
+public:
+  static vtkImageCanvasSource2DPixel *New() 
+    { return new vtkImageCanvasSource2DPixel ;}
+  int X;
+  int Y;
+  void *Pointer;
+  vtkImageCanvasSource2DPixel *Next;
+};
+
+
+
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.42");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
 // Construct an instance of vtkImageCanvasSource2D with no data.
 vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 {
-  this->SetNumberOfScalarComponents(1);
-
+  this->SetNumberOfInputPorts(0);
+  
   this->DrawColor[0] = this->DrawColor[1] = 
   this->DrawColor[2] = this->DrawColor[3] = 0.0;
 
-  this->ImageData = this;
+  this->ImageData = vtkImageData::New();
+  this->ImageData->SetScalarType(VTK_DOUBLE);
   this->DefaultZ = 0;
 
   this->Ratio[0] = this->Ratio[1] = this->Ratio[2] = 1.0;
@@ -47,12 +67,7 @@ vtkImageCanvasSource2D::vtkImageCanvasSource2D()
 // actually be deleted.
 vtkImageCanvasSource2D::~vtkImageCanvasSource2D()
 {
-  if (this->ImageData != NULL && this->ImageData != this)
-    {
-    this->ImageData->UnRegister(this);
-    }
-  
-  this->ReleaseData();
+  this->ImageData->Delete();
 }
 
 
@@ -76,30 +91,6 @@ void vtkImageCanvasSource2D::PrintSelf(ostream& os, vtkIndent indent)
      << ")\n";
 }
 
-
-//----------------------------------------------------------------------------
-// Normal reference counting, but do not reference count "this".
-void vtkImageCanvasSource2D::SetImageData(vtkImageData *image)
-{
-  if (this->ImageData == image)
-    {
-    return;
-    }
-  
-  if (this->ImageData != NULL && this->ImageData != this)
-    {
-    this->ImageData->UnRegister(this);
-    }
-  
-  this->ImageData = image;
-  this->Modified();
-  
-  if (this->ImageData != NULL && this->ImageData != this)
-    {
-    this->ImageData->Register(this);
-    }
-  
-}
 
 #define vtkMAX(x, y) (((x)>(y))?(x):(y))
 #define vtkMIN(x, y) (((x)<(y))?(x):(y))
@@ -173,10 +164,8 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
 
   int *extent;
   int ext[6];
-//  int z = this->DefaultZ;
+  //  int z = this->DefaultZ;
   image->GetWholeExtent(ext);
-  int text[6];
-  this->GetOutput()->GetWholeExtent(text);
   if ( sx < 0 ) 
     {
     sx = ext[0];
@@ -208,8 +197,8 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   clip->SetOutputWholeExtent(ext);
 
   vtkImageCast* ic = vtkImageCast::New();
-  ic->SetInput(clip->GetOutput());
-  ic->SetOutputScalarType(this->GetScalarType());
+  ic->SetInputConnection(clip->GetOutputPort());
+  ic->SetOutputScalarType(this->ImageData->GetScalarType());
   ic->Update();
   int min0, max0, min1, max1;
   min0 = x0;
@@ -260,6 +249,7 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
     }
   ic->Delete();
   clip->Delete();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -346,6 +336,7 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -462,6 +453,7 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1,
     default:
       vtkErrorMacro(<< "FillTube: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -615,6 +607,7 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1,
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -685,6 +678,7 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -776,6 +770,7 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -920,6 +915,7 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
     default:
       vtkErrorMacro(<< "DrawSegment: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -1025,6 +1021,7 @@ int vtkImageCanvasSource2D::ClipSegment(int &a0, int &a1, int &b0, int &b1)
     b0 = a0 + (int)(fract * (double)(b0 - a0));
     }
   
+  this->Modified();
   return 1;
 }
 
@@ -1167,6 +1164,7 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
     default:
       vtkErrorMacro(<< "DrawSegment3D: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -1470,6 +1468,7 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
     default:
       vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
     }   
+  this->Modified();
 }
 
 
@@ -1483,10 +1482,104 @@ void vtkImageCanvasSource2D::SetExtent(int *extent)
 }
 
 //----------------------------------------------------------------------------
-void vtkImageCanvasSource2D::SetExtent(int x1, int x2, int y1, int y2, 
-                                        int z1, int z2)
+void vtkImageCanvasSource2D::SetExtent(int xMin, int xMax, 
+                                       int yMin, int yMax,
+                                       int zMin, int zMax)
+    {
+  int modified = 0;
+  
+  if (this->WholeExtent[0] != xMin)
+    {
+    modified = 1;
+    this->WholeExtent[0] = xMin ;
+    }
+  if (this->WholeExtent[1] != xMax)
+    {
+    modified = 1;
+    this->WholeExtent[1] = xMax ;
+    }
+  if (this->WholeExtent[2] != yMin)
+    {
+    modified = 1;
+    this->WholeExtent[2] = yMin ;
+    }
+  if (this->WholeExtent[3] != yMax)
+    {
+    modified = 1;
+    this->WholeExtent[3] = yMax ;
+    }
+  if (this->WholeExtent[4] != zMin)
+    {
+    modified = 1;
+    this->WholeExtent[4] = zMin ;
+    }
+  if (this->WholeExtent[5] != zMax)
+    {
+    modified = 1;
+    this->WholeExtent[5] = zMax ;
+    }
+  if (modified)
+    {
+    this->Modified();
+    this->ImageData->SetExtent(this->WholeExtent);
+    this->ImageData->AllocateScalars();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCanvasSource2D::SetScalarType(int t)
 {
-  this->ImageData->SetExtent(x1, x2, y1, y2, z1, z2);
-  this->ImageData->SetWholeExtent(x1, x2, y1, y2, z1, z2);
-  this->ImageData->GetPointData()->SetScalars(NULL);
+  if (this->ImageData->GetScalarType() != t)
+    {
+    this->Modified();
+    this->ImageData->SetScalarType(t);
+    this->ImageData->AllocateScalars();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageCanvasSource2D::SetNumberOfScalarComponents(int t)
+{
+  if (this->ImageData->GetNumberOfScalarComponents() != t)
+    {
+    this->Modified();
+    this->ImageData->SetNumberOfScalarComponents(t);
+    this->ImageData->AllocateScalars();
+    }
+}
+
+
+//----------------------------------------------------------------------------
+int vtkImageCanvasSource2D::RequestInformation (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
+{
+  // get the info objects
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+
+  outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+               this->WholeExtent,6);
+
+  vtkDataObject::SetPointDataActiveScalarInfo
+    (outInfo, this->ImageData->GetScalarType(),
+     this->ImageData->GetNumberOfScalarComponents());
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageCanvasSource2D::RequestData (
+  vtkInformation * vtkNotUsed(request),
+  vtkInformationVector** vtkNotUsed( inputVector ),
+  vtkInformationVector *outputVector)
+{
+  // get the data object
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+  vtkImageData *output = vtkImageData::SafeDownCast
+    (outInfo->Get(vtkDataObject::DATA_OBJECT()) );
+  
+  output->ShallowCopy(this->ImageData);
+
+  return 1;
 }

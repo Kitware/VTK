@@ -16,49 +16,24 @@
 // .SECTION Description
 // vtkImageCanvasSource2D is a source that starts as a blank image.
 // you may add to the image with two-dimensional drawing routines.
-// It can paint multi-spectral images.  This object is unusual because
-// it is a data object itself and not a source.
+// It can paint multi-spectral images.  
 
 
 #ifndef __vtkImageCanvasSource2D_h
 #define __vtkImageCanvasSource2D_h
 
-#include "vtkStructuredPoints.h"
+#include "vtkImageAlgorithm.h"
 
-//
-// Special classes for manipulating data
-//
-//BTX - begin tcl exclude
-//
-// For the fill functionality (use connector ??)
-class vtkImageCanvasSource2DPixel { //;prevent man page generation
-public:
-  static vtkImageCanvasSource2DPixel *New() 
-    { return new vtkImageCanvasSource2DPixel ;}
-  int X;
-  int Y;
-  void *Pointer;
-  vtkImageCanvasSource2DPixel *Next;
-};
-//ETX - end tcl exclude
-//
-
-
-class VTK_IMAGING_EXPORT vtkImageCanvasSource2D : public vtkStructuredPoints
+class VTK_IMAGING_EXPORT vtkImageCanvasSource2D : public vtkImageAlgorithm
 {
 public:
   // Description:
   // Construct an instance of vtkImageCanvasSource2D with no data.
   static vtkImageCanvasSource2D *New();
 
-  vtkTypeRevisionMacro(vtkImageCanvasSource2D,vtkStructuredPoints);
+  vtkTypeRevisionMacro(vtkImageCanvasSource2D,vtkImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // To draw into a different image, set it with this method.
-  void SetImageData(vtkImageData *image);
-  vtkGetObjectMacro(ImageData, vtkImageData);
-  
   // Description:
   // Set/Get DrawValue.  This is the value that is used when filling data
   // or drawing lines.
@@ -97,13 +72,8 @@ public:
   void FillPixel(int x, int y);
 
   // Description:
-  // To make Canvas source more like other sources, this get output
-  // method should be used.
-  vtkImageData *GetOutput() {return this;}
-  
-  // Description:
-  // These methods also set the WholeExtent of this "DataObject".
-  // This is just like vtkImageData.  It sets the size of the canvas.
+  // These methods set the WholeExtent of the output
+  // It sets the size of the canvas.
   // Extent is a min max 3D box.  Minimums and maximums are inclusive.
   void SetExtent(int *extent);
   void SetExtent(int x1, int x2, int y1, int y2, int z1, int z2);
@@ -121,6 +91,33 @@ public:
   vtkSetVector3Macro(Ratio, double);
   vtkGetVector3Macro(Ratio, double);
 
+  // Description:
+  // Set the number of scalar components
+  virtual void SetNumberOfScalarComponents(int i);
+  
+  // Description:
+  // Set/Get the data scalar type (i.e VTK_DOUBLE). Note that these methods
+  // are setting and getting the pipeline scalar type. i.e. they are setting
+  // the type that the image data will be once it has executed. Until the
+  // REQUEST_DATA pass the actual scalars may be of some other type. This is
+  // for backwards compatibility
+  void SetScalarTypeToFloat(){this->SetScalarType(VTK_FLOAT);};
+  void SetScalarTypeToDouble(){this->SetScalarType(VTK_DOUBLE);};
+  void SetScalarTypeToInt(){this->SetScalarType(VTK_INT);};
+  void SetScalarTypeToUnsignedInt()
+    {this->SetScalarType(VTK_UNSIGNED_INT);};
+  void SetScalarTypeToLong(){this->SetScalarType(VTK_LONG);};
+  void SetScalarTypeToUnsignedLong()
+    {this->SetScalarType(VTK_UNSIGNED_LONG);};
+  void SetScalarTypeToShort(){this->SetScalarType(VTK_SHORT);};
+  void SetScalarTypeToUnsignedShort()   
+    {this->SetScalarType(VTK_UNSIGNED_SHORT);};
+  void SetScalarTypeToUnsignedChar()
+    {this->SetScalarType(VTK_UNSIGNED_CHAR);};
+  void SetScalarTypeToChar()
+    {this->SetScalarType(VTK_CHAR);};
+  void SetScalarType(int);  
+  
 protected:
   vtkImageCanvasSource2D();
   // Destructor: Deleting a vtkImageCanvasSource2D automatically deletes the
@@ -129,11 +126,20 @@ protected:
   ~vtkImageCanvasSource2D();
 
   vtkImageData *ImageData;
+  int WholeExtent[6];
   double DrawColor[4];
   int DefaultZ;
   double Ratio[3];
   
   int ClipSegment(int &a0, int &a1, int &b0, int &b1);
+  
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector**, 
+                                  vtkInformationVector *);
+  virtual int RequestData (vtkInformation *, 
+                           vtkInformationVector**, 
+                           vtkInformationVector *);
+
 private:
   vtkImageCanvasSource2D(const vtkImageCanvasSource2D&);  // Not implemented.
   void operator=(const vtkImageCanvasSource2D&);  // Not implemented.
