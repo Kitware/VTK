@@ -11,13 +11,7 @@ SET(KIT_LIBS vtkGraphics vtkImaging vtkIO)
 
 SET( Kit_SRCS
 vtkDecimate.cxx
-vtkDiscreteMarchingCubes.cxx
 vtkDividingCubes.cxx
-vtkImageMarchingCubes.cxx
-vtkMarchingContourFilter.cxx
-vtkMarchingCubes.cxx
-vtkMarchingSquares.cxx
-vtkSliceCubes.cxx
 vtkSweptSurface.cxx
 )
 
