@@ -42,7 +42,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.53");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.54");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -453,10 +453,7 @@ int vtkXMLWriter::WriteInternal()
   // Tell the subclass to write the data.
   int result = this->WriteData();
 
-  if( this->UserContinueExecuting == 0 ) // can be -1,0,1
-    {
-    this->CloseFile();
-    }
+  this->CloseFile();
 
   return result;
 }
