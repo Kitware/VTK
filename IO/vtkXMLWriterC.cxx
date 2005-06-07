@@ -158,20 +158,20 @@ void vtkXMLWriterC_SetDataObjectType(vtkXMLWriterC* self, int objType)
 void vtkXMLWriterC_SetExtent(vtkXMLWriterC* self, int extent[6])
 {
   if(!self) { return; }
-  if(vtkImageData* dataObject =
+  if(vtkImageData* imData =
      vtkImageData::SafeDownCast(self->DataObject))
     {
-    dataObject->SetExtent(extent);
+    imData->SetExtent(extent);
     }
-  else if(vtkStructuredGrid* dataObject =
+  else if(vtkStructuredGrid* sGrid =
           vtkStructuredGrid::SafeDownCast(self->DataObject))
     {
-    dataObject->SetExtent(extent);
+    sGrid->SetExtent(extent);
     }
-  else if(vtkRectilinearGrid* dataObject =
+  else if(vtkRectilinearGrid* rGrid =
           vtkRectilinearGrid::SafeDownCast(self->DataObject))
     {
-    dataObject->SetExtent(extent);
+    rGrid->SetExtent(extent);
     }
   else if(self->DataObject)
     {
@@ -350,7 +350,7 @@ void vtkXMLWriterC_SetCellsWithType(vtkXMLWriterC* self,
         }
       }
     }
-  else if(vtkUnstructuredGrid* dataObject =
+  else if(vtkUnstructuredGrid* uGrid =
           vtkUnstructuredGrid::SafeDownCast(self->DataObject))
     {
     // Create a cell array to reference the cells.
@@ -359,7 +359,7 @@ void vtkXMLWriterC_SetCellsWithType(vtkXMLWriterC* self,
                                   cellsSize))
       {
       // Store the cell array in the data object.
-      dataObject->SetCells(cellType, cellArray);
+      uGrid->SetCells(cellType, cellArray);
       }
     }
   else if(self->DataObject)
