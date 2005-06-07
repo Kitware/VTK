@@ -107,7 +107,7 @@ IF(WIN32)
 ENDIF(WIN32)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
-               ${CMAKE_CURRENT_BUILD_DIR}/vtkVolumeRenderingToolkit.h )
+               ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h )
         
 
 
