@@ -651,8 +651,15 @@ void vtkXMLWriterC_SetDataInternal(vtkXMLWriterC* self, const char* name,
                                   numComponents))
       {
       // Store either in point data or cell data.
-      vtkDataSetAttributes* dsa =
-        isPoints? dataObject->GetPointData() : dataObject->GetCellData();
+      vtkDataSetAttributes* dsa;
+      if (isPoints)
+        {
+        dsa = dataObject->GetPointData();
+        }
+      else
+        {
+        dsa = dataObject->GetCellData();
+        }
 
       // Store the data array with the requested role.
       if(role && strcmp(role, "SCALARS") == 0)
