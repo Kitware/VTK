@@ -64,6 +64,53 @@ SET( KitOpenGL_SRCS
   vtkOpenGLVolumeTextureMapper2D.cxx
 )
 
+IF(WIN32)
+  ADD_EXECUTABLE(EncodeString EncodeString.cxx)
+
+  SET ( Kit_SRCS ${Kit_SRCS} vtkVolumeTextureMapper3D.cxx )
+
+  SET( KitOpenGL_SRCS ${KitOpenGL_SRCS}
+    vtkOpenGLVolumeTextureMapper3D.cxx )
+
+  SET_SOURCE_FILES_PROPERTIES(
+    vtkVolumeTextureMapper3D
+    ABSTRACT )
+
+  SET(asm_files
+    vtkVolumeTextureMapper3D_FourDependentNoShadeFP
+    vtkVolumeTextureMapper3D_FourDependentShadeFP
+    vtkVolumeTextureMapper3D_OneComponentNoShadeFP
+    vtkVolumeTextureMapper3D_OneComponentShadeFP
+    vtkVolumeTextureMapper3D_TwoDependentNoShadeFP
+    vtkVolumeTextureMapper3D_TwoDependentShadeFP
+    )
+
+  IF(asm_files)
+    SET(OBJ_DEPS)
+    FOREACH(file ${asm_files})
+      SET(src ${CMAKE_CURRENT_SOURCE_DIR}/${file}.asm)
+      SET(res ${CMAKE_CURRENT_BINARY_DIR}/${file}.h)
+      ADD_CUSTOM_COMMAND(
+        OUTPUT ${res}
+        DEPENDS ${src}
+        EncodeString
+        COMMAND ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/EncodeString
+        ARGS ${res} ${src} ${file}
+        )
+      SET(OBJ_DEPS ${OBJ_DEPS} ${res})
+    ENDFOREACH(file)
+    SET_SOURCE_FILES_PROPERTIES(vtkOpenGLVolumeTextureMapper3D.cxx 
+      PROPERTIES OBJECT_DEPENDS "${OBJ_DEPS}")
+  ENDIF(asm_files)
+
+  SET(VTK_USE_VOLUMETEXTUREMAPPER3D 1)
+ENDIF(WIN32)
+
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
+               ${CMAKE_CURRENT_BUILD_DIR}/vtkVolumeRenderingToolkit.h )
+        
+
+
 SET_SOURCE_FILES_PROPERTIES(
 vtkDirectionEncoder
 vtkEncodedGradientEstimator

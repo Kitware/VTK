@@ -22,6 +22,9 @@
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
+#ifdef VTK_USE_VOLUMETEXTUREMAPPER3D    
+#include "vtkOpenGLVolumeTextureMapper3D.h"
+#endif
 #endif
 
 #if defined(VTK_USE_MANGLED_MESA)
@@ -33,7 +36,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.2");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.3");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -57,6 +60,7 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
   if (!strcmp("OpenGL",rl) || !strcmp("Win32OpenGL",rl) || !strcmp("CarbonOpenGL",rl) || !strcmp("CocoaOpenGL",rl))
     {
+    // 2D Volume Texture Mapper
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper2D") == 0)
       {
 #if defined(VTK_USE_MANGLED_MESA)
@@ -67,6 +71,24 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #endif
       return vtkOpenGLVolumeTextureMapper2D::New();
       }
+    
+    // 3D Volume Texture Mapper
+    // Conditionally included based on platform (just win32 now)
+#ifdef VTK_USE_VOLUMETEXTUREMAPPER3D    
+    if(strcmp(vtkclassname, "vtkVolumeTextureMapper3D") == 0)
+      {
+#if defined(VTK_USE_MANGLED_MESA)
+      if ( vtkGraphicsFactory::GetUseMesaClasses() )
+        {
+        vtkErrorMacro("No support for mesa in vtkVolumeTextureMapper3D");
+        return 0;
+        }
+#endif
+      return vtkOpenGLVolumeTextureMapper3D::New();
+      }
+#endif
+    
+    // Ray Cast Image Display Helper
     if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)
       {
 #if defined(VTK_USE_MANGLED_MESA)

@@ -67,8 +67,8 @@ public:
   unsigned char *GetGradientMagnitudes(){return this->GradientMagnitudes;};
   vtkGetMacro( Shade, int );
   vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
-  vtkGetVectorMacro( DataOrigin, float, 3 );
-  vtkGetVectorMacro( DataSpacing, float, 3 );
+  vtkGetVectorMacro( DataOrigin, double, 3 );
+  vtkGetVectorMacro( DataSpacing, double, 3 );
 
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -101,11 +101,12 @@ protected:
   // Objects / variables  needed for shading / gradient magnitude opacity
   vtkEncodedGradientEstimator  *GradientEstimator;
   vtkEncodedGradientShader     *GradientShader;
-  int                          Shade;
+  int                           Shade;
 
   float          *GradientOpacityArray;
   unsigned char  *RGBAArray;
-  int            ArraySize;
+  int             ArraySize;
+  int             NumberOfComponents;
 
   float          *RedDiffuseShadingTable;
   float          *GreenDiffuseShadingTable;
@@ -114,13 +115,13 @@ protected:
   float          *GreenSpecularShadingTable;
   float          *BlueSpecularShadingTable;
 
-  float          DataOrigin[3];
-  float          DataSpacing[3];
+  double          DataOrigin[3];
+  double          DataSpacing[3];
 
   unsigned short *EncodedNormals;
   unsigned char  *GradientMagnitudes;
 
-  float          SampleDistance;
+  float           SampleDistance;
   
   vtkRenderWindow *RenderWindow;
 private:

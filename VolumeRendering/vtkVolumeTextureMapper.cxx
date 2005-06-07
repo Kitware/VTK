@@ -18,11 +18,12 @@
 #include "vtkFiniteDifferenceGradientEstimator.h"
 #include "vtkGarbageCollector.h"
 #include "vtkImageData.h"
+#include "vtkPointData.h"
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper, "1.2");
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -32,6 +33,7 @@ vtkVolumeTextureMapper::vtkVolumeTextureMapper()
   this->SampleDistance          = 1.0;
   this->GradientEstimator       = vtkFiniteDifferenceGradientEstimator::New();
   this->GradientShader          = vtkEncodedGradientShader::New();
+  this->NumberOfComponents      = 1;
 }
 
 vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
@@ -42,6 +44,11 @@ vtkVolumeTextureMapper::~vtkVolumeTextureMapper()
   if ( this->RGBAArray )
     {
     delete [] this->RGBAArray;
+    }
+  
+  if ( this->GradientOpacityArray )
+    {
+    delete [] this->GradientOpacityArray;
     }
 }
 
@@ -100,57 +107,86 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
 
   vol->UpdateScalarOpacityforSampleSize( ren, this->SampleDistance );
 
-  colorChannels = vol->GetProperty()->GetColorChannels();
-
   size = (int) vol->GetArraySize();
 
-  if ( this->ArraySize != size )
+  int numComponents = this->GetInput()->
+    GetPointData()->GetScalars()->GetNumberOfComponents();
+  
+  if ( this->ArraySize != size ||
+       this->NumberOfComponents != numComponents )
     {
     if ( this->RGBAArray )
       {
       delete [] this->RGBAArray;
       }
-
-    this->RGBAArray             = new unsigned char[4*size];    
-    this->ArraySize = size;
-    }
-
-  this->GradientOpacityArray = vol->GetGradientOpacityArray();
-
-  AArray = vol->GetCorrectedScalarOpacityArray();
-
-  // Being less than 0.0 implies a transfer function, so just multiply by
-  // 1.0 here since the transfer function will supply the true opacity
-  // modulation value
-  gradientOpacityConstant = vol->GetGradientOpacityConstant();
-  if ( gradientOpacityConstant <= 0.0 )
-    {
-    gradientOpacityConstant = 1.0;
-    }
-
-  if ( colorChannels == 3 )
-    {
-    RGBArray = vol->GetRGBArray();    
-    for ( i=0, j=0, k=0; i < size; i++ )
+    if ( this->GradientOpacityArray )
       {
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
+      delete [] this->GradientOpacityArray;
+      }
+    
+    this->RGBAArray            = new unsigned char [4*size*numComponents];    
+    this->GradientOpacityArray = new float [256*numComponents];    
+    this->ArraySize            = size;
+    this->NumberOfComponents   = numComponents;
+    }
+
+  float *goPtr;
+  float *goArray;
+  
+  for ( int c = 0; c < numComponents; c++ )
+    {
+    goPtr = vol->GetGradientOpacityArray(c);
+    goArray = this->GradientOpacityArray + c;
+    
+    for ( i = 0; i < 256; i++ )
+      {
+      *(goArray) = *(goPtr++);
+      goArray += numComponents;
+      }
+    
+    AArray = vol->GetCorrectedScalarOpacityArray(c);
+    colorChannels = vol->GetProperty()->GetColorChannels(c);
+
+    
+    // Being less than 0.0 implies a transfer function, so just multiply by
+    // 1.0 here since the transfer function will supply the true opacity
+    // modulation value
+    gradientOpacityConstant = vol->GetGradientOpacityConstant(c);
+    if ( gradientOpacityConstant <= 0.0 )
+      {
+      gradientOpacityConstant = 1.0;
+      }
+
+    if ( colorChannels == 3 )
+      {
+      RGBArray = vol->GetRGBArray(c);    
+      for ( i=0, j=(c*4), k=0; i < size; i++ )
+        {
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (RGBArray[k++]*255.0));
+        this->RGBAArray[j++] = 
+          (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
+        
+        j += 4*(numComponents-1);
+        }
+      }
+    else if ( colorChannels == 1 )
+      {
+      GArray = vol->GetGrayArray(c);
+      for ( i=0, j=(c*4); i < size; i++ )
+        {
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+        this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
+        this->RGBAArray[j++] = 
+          (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
+        
+        j += 4*(numComponents-1);
+        }
       }
     }
-  else if ( colorChannels == 1 )
-    {
-    GArray = vol->GetGrayArray();
-    for ( i=0, j=0; i < size; i++ )
-      {
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + (GArray[i]*255.0));
-      this->RGBAArray[j++] = (unsigned char) (0.5 + AArray[i]*255.0*gradientOpacityConstant);
-      }
-    }
-
+  
   this->Shade =  vol->GetProperty()->GetShade();  
 
   this->GradientEstimator->SetInput( this->GetInput() );
@@ -199,15 +235,8 @@ void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
     this->GradientMagnitudes = NULL;
     }
 
-  double *bds = this->GetInput()->GetBounds();
-  this->DataOrigin[0] = bds[0];
-  this->DataOrigin[1] = bds[2];
-  this->DataOrigin[2] = bds[4];
-  // TODO: cleanup
-  bds = this->GetInput()->GetSpacing();
-  this->DataSpacing[0] = (float)bds[0];
-  this->DataSpacing[1] = (float)bds[1];
-  this->DataSpacing[2] = (float)bds[2];
+  this->GetInput()->GetOrigin( this->DataOrigin );
+  this->GetInput()->GetSpacing( this->DataSpacing );
   
   this->ConvertCroppingRegionPlanesToVoxels();
 }

@@ -66,6 +66,14 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
+# Include directories from the build tree.
+SET(VTK_INCLUDE_DIRS_BUILD_TREE
+  ${VTK_BINARY_DIR}
+  ${VTK_BINARY_DIR}/Utilities
+  )
+
+
+#-----------------------------------------------------------------------------
 # Include directories from the source tree.
 SET(VTK_INCLUDE_DIRS_SOURCE_TREE "")
 IF(VTK_USE_PARALLEL)
@@ -79,9 +87,11 @@ IF(VTK_USE_PATENTED)
 ENDIF(VTK_USE_PATENTED)
 IF(VTK_USE_VOLUMERENDERING)
   SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE} ${VTK_SOURCE_DIR}/VolumeRendering)
+  SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_INCLUDE_DIRS_BUILD_TREE} ${VTK_BINARY_DIR}/VolumeRendering)
 ENDIF(VTK_USE_VOLUMERENDERING)
 IF(VTK_USE_RENDERING)
   SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE} ${VTK_SOURCE_DIR}/Rendering)
+  SET(VTK_INCLUDE_DIRS_BUILD_TREE ${VTK_INCLUDE_DIRS_BUILD_TREE} ${VTK_BINARY_DIR}/Rendering)
 # Access to vtkRegressionTestImage.h.
 SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
   ${VTK_SOURCE_DIR}/Rendering/Testing/Cxx
@@ -105,14 +115,6 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
 SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
   ${VTK_SOURCE_DIR}/Common/Testing/Cxx
 )
-
-#-----------------------------------------------------------------------------
-# Include directories from the build tree.
-SET(VTK_INCLUDE_DIRS_BUILD_TREE
-  ${VTK_BINARY_DIR}
-  ${VTK_BINARY_DIR}/Utilities
-  ${VTK_BINARY_DIR}/Rendering
-  )
 
 #-----------------------------------------------------------------------------
 # Include directories needed for .cxx files in VTK.  These include
