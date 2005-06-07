@@ -205,7 +205,7 @@ public:
   // Description:
   // Calling this method gives control to the controller to start
   // processing RMIs. Possible return values are:
-  // NO_ERROR,
+  // RMI_NO_ERROR,
   // RMI_TAG_ERROR : rmi tag could not be received,
   // RMI_ARG_ERROR : rmi arg could not be received.
   // If reportErrors is false, no vtkErrorMacro is called.
@@ -227,7 +227,7 @@ public:
 
   enum Errors 
   {
-    NO_ERROR,
+    RMI_NO_ERROR,
     RMI_TAG_ERROR,
     RMI_ARG_ERROR
   };

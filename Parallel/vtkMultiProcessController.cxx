@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.21");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.22");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.21");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.22");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -352,7 +352,7 @@ int vtkMultiProcessController::ProcessRMIs(int reportErrors)
 {
   int triggerMessage[3];
   unsigned char *arg = NULL;
-  int error = NO_ERROR;
+  int error = RMI_NO_ERROR;
   
   while (1)
     {
