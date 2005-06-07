@@ -1,7 +1,6 @@
 #include "vtkObject.h"
 
-#include <string>
-#include <vector>
+#include <vtkstd/string> 
 
 class Output
 {
