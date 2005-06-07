@@ -149,7 +149,12 @@ public:
   // the file failed to open, and 1 otherwise.
   virtual int LogToFile(const char* name);
   virtual int LogToFile(const char* name, int append);
-  
+
+  // Description:
+  // If ReportErrors if false, all vtkErrorMacros are suppressed.
+  vtkSetMacro(ReportErrors, int);
+  vtkGetMacro(ReportErrors, int);
+
 protected:
 
   int Socket;
@@ -158,6 +163,8 @@ protected:
   int SwapBytesInReceivedData;
   int PerformHandshake;
   
+  int ReportErrors;
+
   ofstream* LogFile;
   ostream* LogStream;
   

@@ -204,8 +204,14 @@ public:
 
   // Description:
   // Calling this method gives control to the controller to start
-  // processing RMIs.
-  void ProcessRMIs();
+  // processing RMIs. Possible return values are:
+  // NO_ERROR,
+  // RMI_TAG_ERROR : rmi tag could not be received,
+  // RMI_ARG_ERROR : rmi arg could not be received.
+  // If reportErrors is false, no vtkErrorMacro is called.
+  // ProcessRMIs() calls ProcessRMIs(int) with reportErrors = 0.
+  int ProcessRMIs(int reportErrors);
+  int ProcessRMIs();
 
   // Description:
   // Setting this flag to 1 will cause the ProcessRMIs loop to return.
@@ -219,7 +225,15 @@ public:
   
 //BTX
 
-  enum Consts {
+  enum Errors 
+  {
+    NO_ERROR,
+    RMI_TAG_ERROR,
+    RMI_ARG_ERROR
+  };
+
+  enum Consts 
+  {
     MAX_PROCESSES  = 8192,
     ANY_SOURCE     = -1,
     INVALID_SOURCE = -2,

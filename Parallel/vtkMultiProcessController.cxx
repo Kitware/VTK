@@ -51,10 +51,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.20");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.21");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.20");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.21");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -342,16 +342,27 @@ void vtkMultiProcessController::TriggerBreakRMIs()
 }
 
 //----------------------------------------------------------------------------
-void vtkMultiProcessController::ProcessRMIs()
+int vtkMultiProcessController::ProcessRMIs()
+{
+  return this->ProcessRMIs(1);
+}
+
+//----------------------------------------------------------------------------
+int vtkMultiProcessController::ProcessRMIs(int reportErrors)
 {
   int triggerMessage[3];
   unsigned char *arg = NULL;
+  int error = NO_ERROR;
   
   while (1)
     {
     if (!this->RMICommunicator->Receive(triggerMessage, 3, ANY_SOURCE, RMI_TAG))
       {
-      vtkErrorMacro("Could not receive RMI trigger message.");
+      if (reportErrors)
+        {
+        vtkErrorMacro("Could not receive RMI trigger message.");
+        }
+      error = RMI_TAG_ERROR;
       break;
       }
     if (triggerMessage[1] > 0)
@@ -360,7 +371,11 @@ void vtkMultiProcessController::ProcessRMIs()
       if (!this->RMICommunicator->Receive((char*)(arg), triggerMessage[1], 
                                           triggerMessage[2], RMI_ARG_TAG))
         {
-        vtkErrorMacro("Could not receive RMI argument.");
+        if (reportErrors)
+          {
+          vtkErrorMacro("Could not receive RMI argument.");
+          }
+        error = RMI_ARG_ERROR;
         break;
         }
       }
@@ -376,9 +391,11 @@ void vtkMultiProcessController::ProcessRMIs()
     if (this->BreakFlag)
       {
       this->BreakFlag = 0;
-      return;
+      return error;
       }
     }
+
+  return error;
 }
 
 

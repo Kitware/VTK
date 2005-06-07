@@ -39,7 +39,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.55");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.56");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -52,6 +52,8 @@ vtkSocketCommunicator::vtkSocketCommunicator()
   this->PerformHandshake = 1;
   this->LogStream = 0;
   this->LogFile = 0;
+
+  this->ReportErrors = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -297,7 +299,10 @@ int vtkSocketCommunicator::GetPort(int sock)
 #endif
   if(getsockname(sock, reinterpret_cast<sockaddr*>(&sockinfo), &sizebuf) != 0)
     {
-    vtkErrorMacro("No port found for socket " << sock);
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("No port found for socket " << sock);
+      }
     return 0;
     }
   return ntohs(sockinfo.sin_port);
@@ -308,7 +313,10 @@ int vtkSocketCommunicator::OpenSocket(int port, const char* )
 {
   if ( this->IsConnected )
     {
-    vtkErrorMacro("Port " << 1 << " is occupied.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Port " << 1 << " is occupied.");
+      }
     return 0;
     }
 
@@ -335,7 +343,10 @@ int vtkSocketCommunicator::OpenSocket(int port, const char* )
 
   if ( bind(sock, reinterpret_cast<sockaddr*>(&server), sizeof(server)) )
     {
-    vtkErrorMacro("Can not bind socket to port " << port);
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Can not bind socket to port " << port);
+      }
     return 0;
     }
   listen(sock,1);
@@ -348,7 +359,10 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
   this->Socket = accept(sock, 0, 0);
   if ( this->Socket == -1 )
     {
-    vtkErrorMacro("Error in accept.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Error in accept.");
+      }
     return 0;
     }
   vtkCloseSocketMacro(sock);
@@ -363,7 +377,10 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
     if(!this->ReceiveTagged(&clientIsBE, static_cast<int>(sizeof(char)),
                             1, vtkSocketController::ENDIAN_TAG, 0))
       {
-      vtkErrorMacro("Endian handshake failed.");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Endian handshake failed.");
+        }
       return 0;
       }
     vtkDebugMacro(<< "Client is " << ( clientIsBE ? "big" : "little" ) 
@@ -378,7 +395,10 @@ int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
     if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
                          1, vtkSocketController::ENDIAN_TAG, 0))
       {
-      vtkErrorMacro("Endian handshake failed.");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Endian handshake failed.");
+        }
       return 0;
       }
     
@@ -421,7 +441,10 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   if ( this->IsConnected )
     {
-    vtkErrorMacro("Communicator port " << 1 << " is occupied.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Communicator port " << 1 << " is occupied.");
+      }
     return 0;
     }
 
@@ -434,7 +457,10 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
     }
   if (!hp)
     {
-    vtkErrorMacro("Unknown host: " << hostName);
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Unknown host: " << hostName);
+      }
     return 0;
     }
 
@@ -453,7 +479,10 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
 
   if( connect(this->Socket, reinterpret_cast<sockaddr*>(&name), sizeof(name)) < 0)
     {
-    vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Can not connect to " << hostName << " on port " << port);
+      }
     return 0;
     }
 
@@ -470,7 +499,10 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   if(!this->SendTagged(&IAmBE, static_cast<int>(sizeof(char)),
                        1, vtkSocketController::ENDIAN_TAG, 0))
     {
-    vtkErrorMacro("Endian handshake failed.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Endian handshake failed.");
+      }
     return 0;
     }
 
@@ -478,7 +510,10 @@ int vtkSocketCommunicator::ConnectTo ( char* hostName, int port )
   if (!this->ReceiveTagged(&serverIsBE, static_cast<int>(sizeof(char)), 1,
                            vtkSocketController::ENDIAN_TAG, 0))
     {
-    vtkErrorMacro("Endian handshake failed.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Endian handshake failed.");
+      }
     return 0;
     }
   vtkDebugMacro(<< "Server is " << ( serverIsBE ? "big" : "little" ) << "-endian");
@@ -549,19 +584,28 @@ int vtkSocketCommunicator::SendTagged(void* data, int wordSize,
 {
   if(!this->SendInternal(this->Socket, &tag, static_cast<int>(sizeof(int))))
     {
-    vtkErrorMacro("Could not send tag.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Could not send tag.");
+      }
     return 0;
     }
   int length = wordSize * numWords;
   if(!this->SendInternal(this->Socket, &length, 
       static_cast<int>(sizeof(int))))
     {
-    vtkErrorMacro("Could not send length.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Could not send length.");
+      }
     return 0;
     }  
   if(!this->SendInternal(this->Socket, data, wordSize*numWords))
     {
-    vtkErrorMacro("Could not send message.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Could not send message.");
+      }
     return 0;
     }
   
@@ -585,7 +629,10 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
     if(!this->ReceiveInternal(this->Socket, &recvTag,
         static_cast<int>(sizeof(int))))
       {
-      vtkErrorMacro("Could not receive tag. " << tag);
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Could not receive tag. " << tag);
+        }
       return 0;
       }
     if(this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapOn)
@@ -595,7 +642,10 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
     if(!this->ReceiveInternal(this->Socket, &length,
         static_cast<int>(sizeof(int))))
       {
-      vtkErrorMacro("Could not receive length.");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Could not receive length.");
+        }
       return 0;
       }
     if(this->SwapBytesInReceivedData == vtkSocketCommunicator::SwapOn)
@@ -618,8 +668,11 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
         continue;
         }
 
-      vtkErrorMacro("Tag mismatch: got " << recvTag << ", expecting " << tag
-        << ".");
+      if (this->ReportErrors)
+        {
+        vtkErrorMacro("Tag mismatch: got " << recvTag << ", expecting " << tag
+                      << ".");
+        }
       return 0;
       }
     else
@@ -634,8 +687,11 @@ int vtkSocketCommunicator::ReceiveTagged(void* data, int wordSize,
   if ((wordSize * numWords) != length && 
       this->SwapBytesInReceivedData != vtkSocketCommunicator::SwapNotSet)
     {
-    vtkErrorMacro("Requested size (" << (wordSize * numWords) 
-      << ") is different than the size that was sent (" << length << ")");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Requested size (" << (wordSize * numWords) 
+                    << ") is different than the size that was sent (" << length << ")");
+      }
     return 0;
     }
   return this->ReceivePartialTagged(data, wordSize, numWords, tag, logName);
@@ -648,7 +704,10 @@ int vtkSocketCommunicator::ReceivePartialTagged(void* data, int wordSize,
 {
   if(!this->ReceiveInternal(this->Socket, data, wordSize*numWords))
     {
-    vtkErrorMacro("Could not receive message.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Could not receive message.");
+      }
     return 0;
     }
   // Unless we're dealing with chars, then check byte ordering.
@@ -796,12 +855,18 @@ int vtkSocketCommunicator::CheckForErrorInternal(int id)
 {
   if(id == 0)
     {
-    vtkErrorMacro("Can not connect to myself!");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("Can not connect to myself!");
+      }
     return 1;
     }
   else if(id >= this->NumberOfProcesses)
     {
-    vtkErrorMacro("No port for process " << id << " exists.");
+    if (this->ReportErrors)
+      {
+      vtkErrorMacro("No port for process " << id << " exists.");
+      }
     return 1;
     }
   return 0;
