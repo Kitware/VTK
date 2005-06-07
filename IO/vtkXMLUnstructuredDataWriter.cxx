@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.15");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.16");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -91,12 +91,12 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
     if((this->WritePiece < 0) || (this->WritePiece >= this->NumberOfPieces))
       {
       this->SetInputUpdateExtent(
-        this->CurrentPiece, this->NumberOfPieces, this->GhostLevel, this->CurrentTimeIndex);
+        this->CurrentPiece, this->NumberOfPieces, this->GhostLevel);
       }
     else
       {
       this->SetInputUpdateExtent(
-        this->WritePiece, this->NumberOfPieces, this->GhostLevel, this->CurrentTimeIndex);
+        this->WritePiece, this->NumberOfPieces, this->GhostLevel);
       }
     return 1;
     }
@@ -777,7 +777,7 @@ void vtkXMLUnstructuredDataWriter::CalculateCellFractions(float* fractions,
 
 //----------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(
-  int piece, int numPieces, int ghostLevel, int timestep)
+  int piece, int numPieces, int ghostLevel)
 {
   vtkInformation* inInfo = 
     this->GetExecutive()->GetInputInformation(0, 0);
@@ -787,7 +787,5 @@ void vtkXMLUnstructuredDataWriter::SetInputUpdateExtent(
     vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), piece);
   inInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(), ghostLevel);
-  inInfo->Set(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
 }
 

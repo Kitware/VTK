@@ -81,7 +81,7 @@ protected:
   vtkDataArray* CreateArrayForPoints(vtkDataArray* inArray);
   vtkDataArray* CreateArrayForCells(vtkDataArray* inArray);
   
-  void SetInputUpdateExtent(int piece, int timestep);
+  void SetInputUpdateExtent(int piece);
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector);

@@ -29,7 +29,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.16");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.17");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -78,7 +78,7 @@ void vtkXMLStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece, int timestep)
+void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
 {
   this->ExtentTranslator->SetPiece(piece);
   this->ExtentTranslator->PieceToExtent();
@@ -89,11 +89,6 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece, int timestep)
     vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
     this->ExtentTranslator->GetExtent(),
     6);
-  if(this->NumberOfTimeSteps > 1)
-    {
-    inInfo->Set(
-      vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(), timestep);
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -107,7 +102,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     {
     // Prepare the extent translator to create the set of pieces.
     this->SetupExtentTranslator();
-    this->SetInputUpdateExtent(this->CurrentPiece, this->CurrentTimeIndex);
+    this->SetInputUpdateExtent(this->CurrentPiece);
 
     return 1;
     }

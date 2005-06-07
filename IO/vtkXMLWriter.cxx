@@ -42,7 +42,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkXMLWriter, "1.54");
+vtkCxxRevisionMacro(vtkXMLWriter, "1.55");
 vtkCxxSetObjectMacro(vtkXMLWriter, Compressor, vtkDataCompressor);
 
 //----------------------------------------------------------------------------
@@ -295,25 +295,8 @@ int vtkXMLWriter::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector)
 {
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
-    return this->RequestInformation(request, inputVector, outputVector);
-    }
- else if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
-    // get the requested update extent
-    if(this->NumberOfTimeSteps > 1)
-      {
-      inputVector[0]->GetInformationObject(0)->Set(
-        vtkStreamingDemandDrivenPipeline::UPDATE_TIME_INDEX(),
-        this->CurrentTimeIndex
-        );
-      }
-
-     return 1;
-    }
   // generate the data
-  else if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
     {
     return this->RequestData(request, inputVector, outputVector);
     }

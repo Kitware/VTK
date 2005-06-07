@@ -62,7 +62,7 @@ protected:
   vtkPointSet* GetInputAsPointSet();
   virtual const char* GetDataSetName()=0;
   virtual void SetInputUpdateExtent(int piece, int numPieces,
-                                    int ghostLevel, int timestep);
+                                    int ghostLevel);
   
   virtual int WriteHeader();
   virtual int WriteAPiece();
