@@ -154,11 +154,6 @@ protected:
                             vtkRectilinearGrid *input);
 
 private:
-  //BTX
-  friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
-  //ETX
-  
-private:
   vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
   void operator=(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
 };

@@ -144,10 +144,6 @@ protected:
   int ExecuteExtent[6];
 
 private:
-  //BTX
-  friend class VTK_PATENTED_EXPORT vtkKitwareContourFilter;
-  //ETX
-private:
   vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
   void operator=(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
 };
