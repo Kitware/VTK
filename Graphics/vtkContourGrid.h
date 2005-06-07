@@ -32,9 +32,6 @@
 // contours are being extracted. If you want to use a scalar tree,
 // invoke the method UseScalarTreeOn().
 //
-// If the input data is structured, consider using a filter that is
-// optimized for structured data. These can be found in the patented
-// classes of vtk.
 
 // .SECTION Caveats
 // For unstructured data or structured grids, normals and gradients
