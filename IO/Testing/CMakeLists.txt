@@ -11,6 +11,7 @@ IF(PYTHON_EXECUTABLE)
            vtkPLY.h
            vtkBase64Utilities.h
            vtkXMLUtilities.h
+           vtkXMLWriterC.h
            vtkOffsetsManagerArray.h
            )
 ENDIF(PYTHON_EXECUTABLE)

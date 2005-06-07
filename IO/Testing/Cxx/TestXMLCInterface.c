@@ -13,7 +13,7 @@
 
 =========================================================================*/
 
-#include "vtkXMLCInterface.h"
+#include "vtkXMLWriterC.h"
 
 #define NPOINTS 8
 #define NTIMESTEPS 8
@@ -21,6 +21,7 @@
 int main()
 {
   int i,j;
+  vtkXMLWriterC* writer = vtkXMLWriterC_New();
   const char filename[] = "cube.vtu";
   float points[3*NPOINTS] = {0, 0, 0, 
                        1, 0, 0, 
@@ -31,35 +32,36 @@ int main()
                        1, 1, 1, 
                        0, 1, 1 };
   vtkIdType cellarray[] = {8, 0, 1, 2, 3, 4, 5, 6, 7};
-  float pointdata[NPOINTS][NTIMESTEPS];
+  float pointdata[NTIMESTEPS][NPOINTS];
   /* Give different values for the pointdata: */
   for(i=0;i<NTIMESTEPS;i++)
     {
-    float *pointdata_tmp = pointdata[i];
     for(j=0; j<NPOINTS;j++)
       {
-      pointdata_tmp[j] = (float)i;
+      pointdata[i][j] = (float)i;
       }
     }
 
-
-  vtkXML_Initialize();
-  vtkXML_SetFileName( filename );
-  vtkXML_SetPoints   (10, points,    NPOINTS);
+  /* #define VTK_UNSTRUCTURED_GRID               4 */
+  vtkXMLWriterC_SetDataObjectType(writer, 4);
+  vtkXMLWriterC_SetFileName(writer, filename);
+  /* #define VTK_FLOAT          10 */
+  vtkXMLWriterC_SetPoints(writer, 10, points, NPOINTS);
   /* #define VTK_HEXAHEDRON    12 */
-  vtkXML_SetCellArray(cellarray, 1, (1+NPOINTS), 12); /*1 cell, length = ncells+size(cell) */
+  vtkXMLWriterC_SetCellsWithType(writer, 12, 1, cellarray, 1+NPOINTS);
 
   /* for all timesteps: */
-  vtkXML_SetNumberOfTimeSteps(NTIMESTEPS);
-  vtkXML_Start();
+  vtkXMLWriterC_SetNumberOfTimeSteps(writer, NTIMESTEPS);
+  vtkXMLWriterC_Start(writer);
   for(i=0; i<NTIMESTEPS; i++)
     {
     /* #define VTK_FLOAT          10 */
-    vtkXML_SetPointData(10, pointdata[i], NPOINTS, 1);
-    vtkXML_WriteNextTime(i);
+    vtkXMLWriterC_SetPointData(writer, "example data", 10, pointdata[i],
+                               NPOINTS, 1, "SCALARS");
+    vtkXMLWriterC_WriteNextTimeStep(writer, i);
     }
-  vtkXML_Stop();
+  vtkXMLWriterC_Stop(writer);
+  vtkXMLWriterC_Delete(writer);
 
-  return 1;
+  return 0;
 }
-

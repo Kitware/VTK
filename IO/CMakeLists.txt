@@ -129,6 +129,7 @@ vtkXMLUnstructuredGridReader.cxx
 vtkXMLUnstructuredGridWriter.cxx
 vtkXMLUtilities.cxx
 vtkXMLWriter.cxx
+vtkXMLWriterC.cxx
 vtkXYZMolReader.cxx
 vtkZLibDataCompressor.cxx
 )
@@ -156,7 +157,8 @@ ABSTRACT
 )
 
 SET_SOURCE_FILES_PROPERTIES(
-  vtkPLY 
+  vtkPLY
+  vtkXMLWriterC
   WRAP_EXCLUDE
 )
 SET(Kit_EXTRA_SRCS)

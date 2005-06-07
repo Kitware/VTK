@@ -15,10 +15,3 @@ IF (VTK_DATA_ROOT)
   ADD_TEST(TestXML ${CXX_TEST_PATH}/${KIT}CxxTests TestXML ${VTK_DATA_ROOT}/Data/sample.xml)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress ${VTK_DATA_ROOT}/Data/sample.xml)
 ENDIF (VTK_DATA_ROOT)
-
-ADD_LIBRARY(vtkXMLCInterface vtkXMLCInterface.cxx)
-TARGET_LINK_LIBRARIES(vtkXMLCInterface vtkIO)
-
-#ADD_EXECUTABLE(TestXMLCInterface TestXMLCInterface.c)
-#TARGET_LINK_LIBRARIES(TestXMLCInterface vtkXMLCInterface)
-
