@@ -18,7 +18,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.40");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.41");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -191,9 +191,9 @@ void vtkVolumeProperty::SetColor( int index, vtkPiecewiseFunction *function )
     this->Modified();
     }
 
-  if (this->ColorChannels[index] != 1 )
+  if (this->ColorChannels[index] != 1)
     {
-    this->ColorChannels[index]         = 1;
+    this->ColorChannels[index] = 1;
     this->Modified();
     }
 }
@@ -208,6 +208,11 @@ vtkPiecewiseFunction *vtkVolumeProperty::GetGrayTransferFunction( int index )
     this->GrayTransferFunction[index]->Delete();
     this->GrayTransferFunction[index]->AddPoint(    0, 0.0 );
     this->GrayTransferFunction[index]->AddPoint( 1024, 1.0 );
+    if (this->ColorChannels[index] != 1)
+      {
+      this->ColorChannels[index] = 1;
+      }
+    this->Modified();
     }
 
   return this->GrayTransferFunction[index];
@@ -231,9 +236,9 @@ void vtkVolumeProperty::SetColor( int index, vtkColorTransferFunction *function 
     this->Modified();
     }
 
-  if (this->ColorChannels[index] != 3 )
+  if (this->ColorChannels[index] != 3)
     {
-    this->ColorChannels[index]         = 3;
+    this->ColorChannels[index] = 3;
     this->Modified();
     }
 }
@@ -248,6 +253,11 @@ vtkColorTransferFunction *vtkVolumeProperty::GetRGBTransferFunction( int index )
     this->RGBTransferFunction[index]->Delete();
     this->RGBTransferFunction[index]->AddRGBPoint(      0, 0.0, 0.0, 0.0 );
     this->RGBTransferFunction[index]->AddRGBPoint(   1024, 1.0, 1.0, 1.0 );
+    if (this->ColorChannels[index] != 3)
+      {
+      this->ColorChannels[index] = 3;
+      }
+    this->Modified();
     }
 
   return this->RGBTransferFunction[index];
