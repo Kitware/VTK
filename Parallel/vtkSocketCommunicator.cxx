@@ -39,7 +39,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.56");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.57");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -90,6 +90,8 @@ void vtkSocketCommunicator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "IsConnected: " << this->IsConnected << endl;
   os << indent << "Perform a handshake: " 
      << ( this->PerformHandshake ? "Yes" : "No" ) << endl;
+
+  os << indent << "ReportErrors: " << this->ReportErrors << endl;
 }
 
 //----------------------------------------------------------------------------
