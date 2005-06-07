@@ -9,6 +9,7 @@ ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 SET(KIT_LIBS vtkFiltering)
 
+
 SET( Kit_SRCS
 vtkAppendFilter.cxx
 vtkAppendPolyData.cxx
@@ -52,6 +53,7 @@ vtkDecimatePro.cxx
 vtkDelaunay2D.cxx
 vtkDelaunay3D.cxx
 vtkDicer.cxx
+vtkDiscreteMarchingCubes.cxx
 vtkDiskSource.cxx
 vtkEdgePoints.cxx
 vtkElevationFilter.cxx
@@ -82,6 +84,7 @@ vtkHull.cxx
 vtkHyperStreamline.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
+vtkImageMarchingCubes.cxx
 vtkImplicitTextureCoords.cxx
 vtkInterpolateDataSetAttributes.cxx
 vtkInterpolatingSubdivisionFilter.cxx
@@ -92,6 +95,9 @@ vtkLinearExtrusionFilter.cxx
 vtkLinearSubdivisionFilter.cxx
 vtkLinkEdgels.cxx
 vtkLoopSubdivisionFilter.cxx
+vtkMarchingContourFilter.cxx
+vtkMarchingCubes.cxx
+vtkMarchingSquares.cxx
 vtkMaskFields.cxx
 vtkMaskPoints.cxx
 vtkMaskPolyData.cxx
@@ -145,6 +151,7 @@ vtkSelectPolyData.cxx
 vtkShrinkFilter.cxx
 vtkShrinkPolyData.cxx
 vtkSimpleElevationFilter.cxx
+vtkSliceCubes.cxx
 vtkSmoothPolyDataFilter.cxx
 vtkSpatialRepresentationFilter.cxx
 vtkSpherePuzzle.cxx
