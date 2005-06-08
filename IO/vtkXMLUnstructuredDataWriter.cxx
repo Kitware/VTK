@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.16");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataWriter, "1.17");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataWriter::vtkXMLUnstructuredDataWriter()
@@ -167,8 +167,6 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
         return 0;
         }
 
-      this->CurrentTimeIndex = 0;
-
       if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
@@ -219,6 +217,7 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
           }
 
         this->CloseFile();
+        this->CurrentTimeIndex = 0; // Reset
         }
       }
     this->NumberOfPieces = numPieces;
