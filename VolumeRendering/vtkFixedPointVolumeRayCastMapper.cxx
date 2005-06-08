@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.13");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.14");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -2671,11 +2671,19 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
     {
-    rgbFunc[c]               = vol->GetProperty()->GetRGBTransferFunction(c);
-    grayFunc[c]              = vol->GetProperty()->GetGrayTransferFunction(c);
+    colorChannels[c]         = vol->GetProperty()->GetColorChannels(c);
+    if ( colorChannels[c] == 1 )
+      {
+      rgbFunc[c]               = NULL;
+      grayFunc[c]              = vol->GetProperty()->GetGrayTransferFunction(c);
+      }
+    else
+      {
+      rgbFunc[c]               = vol->GetProperty()->GetRGBTransferFunction(c);
+      grayFunc[c]              = NULL;
+      }
     scalarOpacityFunc[c]     = vol->GetProperty()->GetScalarOpacity(c);
     gradientOpacityFunc[c]   = vol->GetProperty()->GetGradientOpacity(c);
-    colorChannels[c]         = vol->GetProperty()->GetColorChannels(c);
     scalarOpacityDistance[c] = vol->GetProperty()->GetScalarOpacityUnitDistance(c);
     
     // Has the number of color channels changed?
