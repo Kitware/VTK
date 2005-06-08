@@ -17,11 +17,84 @@ IF (VTK_USE_RENDERING)
 
     FOREACH ( tfile
       AutomaticPlaneGeneration
-      blankGrid
       Canny
+      CellDataToPointData
+      Delaunay2D
+      Delaunay2DAlpha
+      Delaunay2DTransform
+      Delaunay3D
+      Disk
+      EnSight6Elements
+      EnSight6OfficeBin
+      EnSightBlow1ASCII
+      EnSightBlow1Bin
+      EnSightBlow2ASCII
+      EnSightBlow2Bin
+      EnSightBlow3Bin
+      EnSightBlow4Bin
+      EnSightBlow5ASCII
+      EnSightCompound
+      EnSightGoldElements
+      EnSightIronProtASCII
+      EnSightIronProtBin
+      EnSightMandelbrot
+      EnSightOfficeASCII
+      EnSightOfficeBin
+      EnSightRectGridASCII
+      EnSightRectGridBin
+      EnSightSelectArrays
+      ExtractEdgesQuadraticCells
+      ExtractTensors
+      Hyper
+      HyperScalarBar
+      KlineBottle
+      LineIntersectQuadraticCells
+      MatrixToTransform
+      MultidimensionalSolution
+      NoLightGeneration
+      OBBCylinder
+      OSCone
+      PolyDataMapperAllPolygons
+      PolyDataMapperAllWireframe
+      QuadricDecimation
+      StreamPolyData
+      TenEllip
+      TestBandedContourFilter
+      TestBoxFunction
+      TestButtonSource
+      TestCameraInterpolator
+      TestCellDerivs
+      TestCurvatures
+      TestDiscreteMarchingCubes
+      TestGraphLayoutFilter
+      TestGridSynchronizedTemplates3D
+      TestImageMarchingCubes
+      TestMarchingSquares
+      TestMultiBlockStreamer
+      TestParametricFunctions
+      TestPlatonicSolids
+      TestQuadricClustering
+      TestRectilinearGridToTetrahedra
+      TestRectilinearSynchronizedTemplates
+      TestRegularPolygonSource
+      TestRibbonAndTube
+      TestRotate
+      TestRuledSurface
+      TestRuledSurface2
+      TestSpherePuzzle
+      TestSpherePuzzleArrows
+      TestSplineFilter
+      TestStructuredGrid
+      TestSynchronizedTemplates2D
+      TestSynchronizedTemplates3D
+      TestTransformInterpolator
+      TestTriangleFilter
+      TransformConcatenation
+      TransformCoverage
+      TransformPolyData
+      blankGrid
       capCow
       capSphere
-      CellDataToPointData
       clipArt
       clipComb
       clipImage
@@ -33,84 +106,52 @@ IF (VTK_USE_RENDERING)
       combStreamers2
       coneResolution
       constrainedDelaunay
+      contour2DAll
+      contour3DAll
       contourCells
       contourQuadraticCells
       contoursToSurface
-      contour2DAll
-      contour3DAll
       cowHair
       cowHair2
       createBFont
       cursor3D
       cutLoop
-      cylindrical
       cylMap
+      cylindrical
       dataSetSurfaceFilter
       deciPlane
-      Delaunay2D
-      Delaunay2DAlpha
-      Delaunay2DTransform
-      Delaunay3D
       dicer
-      Disk
       dispPlot
       edgePoints
       eleState
-      EnSight6Elements
-      EnSight6OfficeBin
-      EnSightGoldElements
-      EnSightBlow1ASCII
-      EnSightBlow1Bin
-      EnSightBlow2ASCII
-      EnSightBlow2Bin
-      EnSightBlow3Bin
-      EnSightBlow4Bin
-      EnSightBlow5ASCII
-      EnSightIronProtASCII
-      EnSightIronProtBin
-      EnSightOfficeASCII
-      EnSightOfficeBin
-      EnSightRectGridASCII
-      EnSightRectGridBin
-      EnSightMandelbrot
-      EnSightSelectArrays
-      EnSightCompound
-      ExtractEdgesQuadraticCells
       extractPolyData
-      extractUGrid
       extractRectGrid
-      ExtractTensors
+      extractUGrid
       extractVectors
       fieldToPolyData
       fieldToRGrid
       fieldToSGrid
       fieldToUGrid
+      financialField
+      genHead
       geomFilter
       glyph2D
+      headBone
       hull
-      Hyper
-      HyperScalarBar
-      KlineBottle
-      LineIntersectQuadraticCells
-      motor
-      MatrixToTransform
+      iceCream
+      imageMCAll
+      mcubes
       mergeFilter
-      MultidimensionalSolution
-      multipleIso
+      motor
       multipleComponentContour
+      multipleIso
       nacaBinary
-      NoLightGeneration
-      OBBCylinder
       officeStreamPoints
-      OSCone
       polyConn
-      PolyDataMapperAllPolygons
-      PolyDataMapperAllWireframe
       probeComb
       progGlyphs
       progGlyphsBySource
       quadricCut
-      QuadricDecimation
       rectGrid
       recursiveDC
       reverseNormals
@@ -127,45 +168,18 @@ IF (VTK_USE_RENDERING)
       spherical
       splitVectors
       stereoDresdenMace
-      StreamPolyData
       streamTracer
       stripF
-      subdividePointData
       subDivideTetra
       subPixelPositionMin
+      subdividePointData
+      sync3dAll
       teapotHulls
-      TenEllip
-      TestBandedContourFilter
-      TestBoxFunction
-      TestButtonSource
-      TestCellDerivs
-      TestCurvatures
       testDataSetTriangleFilter
       testDataSetTriangleFilter2
-      TestGraphLayoutFilter
       testHexaPenta
-      TestMultiBlockStreamer
-      TestParametricFunctions
-      TestPlatonicSolids
-      TestQuadricClustering
-      TestRectilinearGridToTetrahedra
-      TestRegularPolygonSource
       testReflect
-      TestRotate
-      TestRuledSurface
-      TestRuledSurface2
-      TestSpherePuzzle
-      TestSpherePuzzleArrows
-      TestSplineFilter
-      TestStructuredGrid
-      TestCameraInterpolator
-      TestTransformInterpolator
-      TestTriangleFilter
-      TestRibbonAndTube
       textureThreshold
-      TransformConcatenation
-      TransformCoverage
-      TransformPolyData
       triangularTCoords
       triangularTexture
       warplens
