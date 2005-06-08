@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.15");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.16");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -235,14 +235,28 @@ int vtkCompositeDataPipeline::ProcessRequest(vtkInformation* request)
 // Handle REQUEST_DATA_OBJECT
 int vtkCompositeDataPipeline::ExecuteDataObject(vtkInformation* request)
 {
-  int result = this->ExecuteDataObjectForBlock(request);
-  
+  // Invoke the request on the algorithm.
+  int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream);
+
   if (!result)
     {
     return result;
     }
 
-  return this->Superclass::ExecuteDataObject(request);
+  result = this->ExecuteDataObjectForBlock(request);
+
+  if (!result)
+    {
+    return result;
+    }
+
+  // Make sure a valid data object exists for all output ports.
+  for(int i=0; result && i < this->Algorithm->GetNumberOfOutputPorts(); ++i)
+    {
+    result = this->CheckDataObject(i);
+    }
+
+  return result;
 }
 
 //----------------------------------------------------------------------------
@@ -908,9 +922,8 @@ int vtkCompositeDataPipeline::ForwardUpstream(
 }
 
 //----------------------------------------------------------------------------
-void
-vtkCompositeDataPipeline
-::CopyDefaultInformation(vtkInformation* request, int direction)
+void vtkCompositeDataPipeline::CopyDefaultInformation(
+  vtkInformation* request, int direction)
 {
   int hasUpdateBlocks = 0;
   if(direction == vtkExecutive::RequestDownstream)
