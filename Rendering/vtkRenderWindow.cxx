@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.143");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.143.4.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -45,7 +45,8 @@ vtkRenderWindow::vtkRenderWindow()
   this->LineSmoothing = 0;
   this->PolygonSmoothing = 0;
   this->StereoRender = 0;
-  this->StereoType = VTK_STEREO_RED_BLUE;
+//this->StereoType = VTK_STEREO_RED_BLUE;
+  this->StereoType = VTK_STEREO_CRYSTAL_EYES;
   this->StereoStatus = 0;
   this->StereoCapableWindow = 0;
   this->AlphaBitPlanes = 0;
