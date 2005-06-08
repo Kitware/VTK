@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.16");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.17");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -297,7 +297,7 @@ int vtkCompositeDataPipeline::ExecuteDataObjectForBlock(vtkInformation* request)
           r->Set(vtkCompositeDataSet::INDEX(),    0);
           dobj = output->GetDataSet(r);
           }
-
+        
         if (dobj)
           {
           this->DataObjectTime.Modified();
@@ -777,6 +777,39 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request)
               r->Set(REQUEST_INFORMATION(), 1);
               this->Superclass::ExecuteInformation(r);
               r->Remove(REQUEST_INFORMATION());
+
+              for(int m=0; m < this->Algorithm->GetNumberOfOutputPorts(); ++m)
+                {
+                vtkInformation* info = this->GetOutputInformation(m);
+
+                // Update the whole thing
+                // TODO: This might change
+                if (info->Has(
+                      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+                  {
+                  int extent[6] = {0,-1,0,-1,0,-1};
+                  info->Get(
+                    vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+                    extent);
+                  info->Set(
+                    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), 
+                    extent, 
+                    6);
+                  info->Set(
+                    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 
+                    1);
+                  info->Set(
+                    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(), 
+                    1);
+                  info->Set(
+                    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(), 0);
+                  }
+                }
+
+              r->Set(REQUEST_UPDATE_EXTENT(), 1);
+              this->CallAlgorithm(r, vtkExecutive::RequestUpstream);
+              this->ForwardUpstream(r);
+              r->Remove(REQUEST_UPDATE_EXTENT());
 
               r->Set(REQUEST_DATA(), 1);
               this->Superclass::ExecuteData(r);
