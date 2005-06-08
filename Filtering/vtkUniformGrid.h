@@ -12,24 +12,17 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkUniformGrid - topologically and geometrically regular array of data
+// .NAME vtkUniformGrid - image data with blanking
 // .SECTION Description
-// vtkUniformGrid is a data object that is a concrete implementation of
-// vtkDataSet. vtkUniformGrid represents a geometric structure that is 
-// a topological and geometrical regular array of points. vtkUniformGrid 
-// is essentially a simple vtkImageData that supports blanking.
+// vtkUniformGrid is a subclass of vtkImageData. In addition to all
+// the image data functionality, it supports blanking.
 
 #ifndef __vtkUniformGrid_h
 #define __vtkUniformGrid_h
 
 #include "vtkImageData.h"
 
-class vtkDataArray;
 class vtkEmptyCell;
-class vtkLine;
-class vtkPixel;
-class vtkVertex;
-class vtkVoxel;
 class vtkStructuredVisibilityConstraint;
 class vtkUnsignedCharArray;
 
