@@ -552,92 +552,6 @@ IF(VTK_WRAP_JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
 #-----------------------------------------------------------------------------
-# Dispatch the build into the proper subdirectories.
-
-# Utility libraries and executables.
-SUBDIRS(Wrapping Utilities)
-
-# Kits.
-SUBDIRS(Common Filtering Imaging Graphics GenericFiltering IO)
-IF(VTK_USE_RENDERING)
-  SUBDIRS(Rendering)
-ENDIF(VTK_USE_RENDERING)
-IF(VTK_USE_PATENTED)
-  SUBDIRS(Patented)
-ENDIF(VTK_USE_PATENTED)
-IF(VTK_USE_VOLUMERENDERING)
-  SUBDIRS(VolumeRendering)
-ENDIF(VTK_USE_VOLUMERENDERING)
-IF(VTK_USE_HYBRID)
-  SUBDIRS(Hybrid)
-ENDIF(VTK_USE_HYBRID)
-IF(VTK_USE_PARALLEL)
-  SUBDIRS(Parallel)
-ENDIF(VTK_USE_PARALLEL)
-IF(VTK_USE_GUISUPPORT)
-  SUBDIRS(GUISupport)
-ENDIF(VTK_USE_GUISUPPORT)
-
-# Wrapping.
-IF(VTK_WRAP_TCL)
-  SUBDIRS(Wrapping/Tcl)
-ENDIF(VTK_WRAP_TCL)
-IF(VTK_WRAP_PYTHON)
-  SUBDIRS(Wrapping/Python)
-ENDIF(VTK_WRAP_PYTHON)
-IF(VTK_WRAP_JAVA)
-  SUBDIRS(Wrapping/Java)
-ENDIF(VTK_WRAP_JAVA)
-
-# Testing.
-IF(BUILD_TESTING)
-  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
-  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
-          IO/Testing)
-  IF(VTK_USE_RENDERING)
-    SUBDIRS(Rendering/Testing)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_VOLUMERENDERING)
-    SUBDIRS(VolumeRendering/Testing)
-  ENDIF(VTK_USE_VOLUMERENDERING)
-  IF(VTK_USE_HYBRID)
-    SUBDIRS(Hybrid/Testing)
-  ENDIF(VTK_USE_HYBRID)
-  IF(VTK_USE_PARALLEL)
-    SUBDIRS(Parallel/Testing)
-  ENDIF(VTK_USE_PARALLEL)
-ENDIF(BUILD_TESTING)
-
-# Include the examples if they are enabled.  Note that the in-tree
-# build adds tests and a custom target to build the examples project
-# in a separate build tree.  The examples are not directly included in
-# the VTK build.  Doing so will not work because they are designed to
-# be built out-of-tree.
-IF(BUILD_EXAMPLES)
-  SET(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-  # The examples tree now requires CMake 2.0.4 or higher.
-  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-    IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-      # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
-      # file which was added in 2.0.4 (this is a nasty hack).
-      IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-        SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-      ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
-    ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-      # Have version 2.1 or higher.
-      SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
-    ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
-  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
-  IF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-    SUBDIRS(Examples)
-  ELSE(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-    MESSAGE(
-      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0.4 or higher "
-      "and is being ignored.")
-  ENDIF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
-ENDIF(BUILD_EXAMPLES)
-
-#-----------------------------------------------------------------------------
 # Select a streams library.
 
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectStreamsLibrary.cmake)
@@ -727,6 +641,114 @@ IF(VTK_SIZEOF_LONG_LONG)
     ENDIF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
   ENDIF("VTK_ISTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_ISTREAM_SUPPORTS_LONG_LONG$")
 ENDIF(VTK_SIZEOF_LONG_LONG)
+
+#-----------------------------------------------------------------------------
+# Configure KWSys to be named "vtksys".
+SET(KWSYS_NAMESPACE vtksys)
+SET(KWSYS_USE_Process 1)
+SET(KWSYS_USE_SystemTools 1)
+SET(KWSYS_USE_RegularExpression 1)
+SET(KWSYS_USE_CommandLineArguments 1)
+SET(KWSYS_USE_Base64 1)
+SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
+IF(NOT VTK_USE_ANSI_STDLIB)
+  SET(KWSYS_IOS_FORCE_OLD 1)
+ENDIF(NOT VTK_USE_ANSI_STDLIB)
+IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  SET(KWSYS_LIBRARY_INSTALL_DIR ${VTK_INSTALL_LIB_DIR})
+ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+  SET(KWSYS_HEADER_INSTALL_DIR ${VTK_INSTALL_INCLUDE_DIR})
+ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
+#-----------------------------------------------------------------------------
+# Dispatch the build into the proper subdirectories.
+
+# KWSys must come before directories that use it.
+SUBDIRS(Utilities/kwsys)
+
+# Utility libraries and executables.
+SUBDIRS(Wrapping Utilities)
+
+# Kits.
+SUBDIRS(Common Filtering Imaging Graphics GenericFiltering IO)
+IF(VTK_USE_RENDERING)
+  SUBDIRS(Rendering)
+ENDIF(VTK_USE_RENDERING)
+IF(VTK_USE_PATENTED)
+  SUBDIRS(Patented)
+ENDIF(VTK_USE_PATENTED)
+IF(VTK_USE_VOLUMERENDERING)
+  SUBDIRS(VolumeRendering)
+ENDIF(VTK_USE_VOLUMERENDERING)
+IF(VTK_USE_HYBRID)
+  SUBDIRS(Hybrid)
+ENDIF(VTK_USE_HYBRID)
+IF(VTK_USE_PARALLEL)
+  SUBDIRS(Parallel)
+ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_GUISUPPORT)
+  SUBDIRS(GUISupport)
+ENDIF(VTK_USE_GUISUPPORT)
+
+# Wrapping.
+IF(VTK_WRAP_TCL)
+  SUBDIRS(Wrapping/Tcl)
+ENDIF(VTK_WRAP_TCL)
+IF(VTK_WRAP_PYTHON)
+  SUBDIRS(Wrapping/Python)
+ENDIF(VTK_WRAP_PYTHON)
+IF(VTK_WRAP_JAVA)
+  SUBDIRS(Wrapping/Java)
+ENDIF(VTK_WRAP_JAVA)
+
+# Testing.
+IF(BUILD_TESTING)
+  MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
+  SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
+          IO/Testing)
+  IF(VTK_USE_RENDERING)
+    SUBDIRS(Rendering/Testing)
+  ENDIF(VTK_USE_RENDERING)
+  IF(VTK_USE_VOLUMERENDERING)
+    SUBDIRS(VolumeRendering/Testing)
+  ENDIF(VTK_USE_VOLUMERENDERING)
+  IF(VTK_USE_HYBRID)
+    SUBDIRS(Hybrid/Testing)
+  ENDIF(VTK_USE_HYBRID)
+  IF(VTK_USE_PARALLEL)
+    SUBDIRS(Parallel/Testing)
+  ENDIF(VTK_USE_PARALLEL)
+ENDIF(BUILD_TESTING)
+
+# Include the examples if they are enabled.  Note that the in-tree
+# build adds tests and a custom target to build the examples project
+# in a separate build tree.  The examples are not directly included in
+# the VTK build.  Doing so will not work because they are designed to
+# be built out-of-tree.
+IF(BUILD_EXAMPLES)
+  SET(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+  # The examples tree now requires CMake 2.0.4 or higher.
+  IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+    IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
+      # Have version 2.0.  Check for the Modules/CMakeTestForFreeVC.cxx
+      # file which was added in 2.0.4 (this is a nasty hack).
+      IF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
+        SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
+      ENDIF(EXISTS ${CMAKE_ROOT}/Modules/CMakeTestForFreeVC.cxx)
+    ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
+      # Have version 2.1 or higher.
+      SET(VTK_CMAKE_VERSION_FOR_EXAMPLES 1)
+    ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" MATCHES "^2.0$")
+  ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
+  IF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+    SUBDIRS(Examples)
+  ELSE(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+    MESSAGE(
+      "Warning: The BUILD_EXAMPLES option now requires CMake 2.0.4 or higher "
+      "and is being ignored.")
+  ENDIF(VTK_CMAKE_VERSION_FOR_EXAMPLES)
+ENDIF(BUILD_EXAMPLES)
 
 #-----------------------------------------------------------------------------
 # Provide a few configuration options.
