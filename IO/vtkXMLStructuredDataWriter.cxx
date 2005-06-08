@@ -29,7 +29,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.18");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.19");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -146,6 +146,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
         return 0;
         }
 
+      this->CurrentTimeIndex = 0;
       if( this->DataMode == vtkXMLWriter::Appended && this->FieldDataOM->GetNumberOfElements())
         {
         // Write the field data arrays.
@@ -191,7 +192,7 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
           }
 
         this->CloseFile();
-        this->CurrentTimeIndex = 0; //Reset
+        this->CurrentTimeIndex = 0; // Reset
         }
       }
 
