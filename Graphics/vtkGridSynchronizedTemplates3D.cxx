@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.4");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.5");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -945,6 +945,11 @@ int vtkGridSynchronizedTemplates3D::RequestData(
 
   // Make sure the attributes match the geometry.
   if (input->CheckAttributes())
+    {
+    return 1;
+    }
+
+  if (input->GetNumberOfPoints() == 0)
     {
     return 1;
     }
