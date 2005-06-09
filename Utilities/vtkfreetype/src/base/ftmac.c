@@ -838,8 +838,8 @@
     OSStatus              status = FMCreateFontFamilyIterator( NULL, NULL,
                                                                options,
                                                                &famIter );
-    FMFont                the_font = NULL;
-    FMFontFamily          family   = NULL;
+    FMFont                the_font = 0;
+    FMFontFamily          family   = 0;
 
 
     *face_index = 0;

@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.35");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.36");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -294,7 +294,7 @@ short FindGDHandleFromWindow (WindowPtr pWindow, GDHandle * phgdOnThisDevice)
   GDHandle hgdNthDevice;
 
   if (!pWindow || !phgdOnThisDevice)
-    return NULL;
+    return 0;
 
   *phgdOnThisDevice = NULL;
 

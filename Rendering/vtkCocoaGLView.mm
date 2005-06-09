@@ -25,7 +25,7 @@
 - (void)awakeFromNib
 {
     // Initialization
-    bitsPerPixel = depthSize = (enum NSOpenGLPixelFormatAttribute)32;
+    bitsPerPixel = depthSize = (NSOpenGLPixelFormatAttribute)32;
 }
 
 //----------------------------------------------------------------------------
@@ -38,8 +38,8 @@
     NSOpenGLPFANoRecovery,
     NSOpenGLPFADoubleBuffer,
     NSOpenGLPFADepthSize, 
-    (enum NSOpenGLPixelFormatAttribute)32,
-    (enum NSOpenGLPixelFormatAttribute)nil
+    (NSOpenGLPixelFormatAttribute)32,
+    (NSOpenGLPixelFormatAttribute)nil
     };
 
   NSOpenGLPixelFormat *fmt;

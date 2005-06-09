@@ -31,7 +31,7 @@
 
 @interface vtkCocoaGLView : NSOpenGLView
 {
-  enum NSOpenGLPixelFormatAttribute bitsPerPixel, depthSize;
+  NSOpenGLPixelFormatAttribute bitsPerPixel, depthSize;
 
   @private
     vtkCocoaRenderWindow *myVTKRenderWindow;

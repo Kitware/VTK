@@ -36,7 +36,7 @@
 // accessor and convenience
 
 - (vtkCocoaGLView *)getvtkCocoaGLView;
-- (void)setvtkCocoaGLView:vtkCocoaGLView;
+- (void)setvtkCocoaGLView:(vtkCocoaGLView *)thevtkCocoaGLView;
 
 - (void *)getVTKRenderWindow;
 - (void)setVTKRenderWindow:(void *)theVTKRenderWindow;

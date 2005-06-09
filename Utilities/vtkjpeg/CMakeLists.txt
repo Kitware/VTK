@@ -54,3 +54,4 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtkjpeg .h
                 jpegDllConfig jpeglib vtk_jpeg_mangle jconfig jmorecfg jerror)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+
