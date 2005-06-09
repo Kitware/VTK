@@ -1,5 +1,9 @@
 #
 # a cmake implementation of the Wrap Tcl command
+# it takes an optional VERSION parameter that will be output
+# to the .data file as VERSION ${VERSION}.
+# vtkWrapTclInit will then recognize the VERSION keyword, extract the version
+# and make sure the corresponding Tcl package is 'provided' with that version.
 #
 
 MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
@@ -14,7 +18,11 @@ MACRO(VTK_WRAP_TCL3 TARGET SRC_LIST_NAME SOURCES COMMANDS)
 
     # start writing the input file for the init file
     SET(VTK_WRAPPER_INIT_DATA "${TARGET}")
-    
+    IF (${ARGC} GREATER 4)
+      SET(VTK_WRAPPER_INIT_DATA
+        "${VTK_WRAPPER_INIT_DATA}\nVERSION ${ARGV4}")
+    ENDIF (${ARGC} GREATER 4)
+      
     # For each class
     FOREACH(FILE ${SOURCES})
       # should we wrap the file?

@@ -25,9 +25,10 @@ char *Capitalized(const char *input)
 
 /* this roputine creates the init file */
 static void CreateInitFile(const char *libName, 
-  int numConcrete, char **concrete, 
-  int numCommands, char **commands,
-  FILE *fout) 
+                           int numConcrete, char **concrete, 
+                           int numCommands, char **commands,
+                           const char *version,
+                           FILE *fout) 
 {
   /* we have to make sure that the name is the correct case */
   char *kitName = Capitalized(libName);
@@ -151,9 +152,16 @@ static void CreateInitFile(const char *libName,
     }
 
   fprintf(fout,"  char pkgName[]=\"%s\";\n", libName);
-  fprintf(fout,"  char pkgVers[]=VTK_TCL_TO_STRING(VTK_MAJOR_VERSION)"
-    " \".\" "
-    "VTK_TCL_TO_STRING(VTK_MINOR_VERSION);\n");
+  if (version && *version)
+    {
+    fprintf(fout,"  char pkgVers[]=VTK_TCL_TO_STRING(%s);\n", version);
+    }
+  else
+    {
+    fprintf(fout,"  char pkgVers[]=VTK_TCL_TO_STRING(VTK_MAJOR_VERSION)"
+            " \".\" "
+            "VTK_TCL_TO_STRING(VTK_MINOR_VERSION);\n");
+    }
   fprintf(fout,"  Tcl_PkgProvide(interp, pkgName, pkgVers);\n");
   fprintf(fout,"  return TCL_OK;\n}\n");
 
@@ -176,6 +184,7 @@ int main(int argc,char *argv[])
   char tmpVal[250];
   char *concrete[4000];
   char *commands[4000];
+  char version[4000] = {'\0'};
 
   if (argc < 3)
     {
@@ -202,24 +211,27 @@ int main(int argc,char *argv[])
   /* read in the classes and commands */
   while (fscanf(file,"%s",tmpVal) != EOF)
     {
-    if (strcmp(tmpVal,"COMMAND"))
-      {
-      concrete[numConcrete] = strdup(tmpVal);
-      numConcrete++;
-      }
-    else
+    if (!strcmp(tmpVal,"COMMAND"))
       {
       fscanf(file,"%s",tmpVal);
       commands[numCommands] = strdup(tmpVal);
       numCommands++;
       }
+    else if (!strcmp(tmpVal,"VERSION"))
+      {
+      fscanf(file,"%s",version);
+      }
+    else
+      {
+      concrete[numConcrete] = strdup(tmpVal);
+      numConcrete++;
+      }
     }
   /* close the file */
   fclose(file);
 
-  CreateInitFile(libName, numConcrete, concrete, numCommands, commands, fout);
+  CreateInitFile(libName, numConcrete, concrete, numCommands, commands, version, fout);
   fclose(fout);
 
   return 0;
 }
-
