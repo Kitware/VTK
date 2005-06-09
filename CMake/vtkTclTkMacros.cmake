@@ -102,15 +102,20 @@ ENDMACRO (VTK_GET_TK_SUPPORT_FILES)
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES
-# Copy Tcl/Tk support files to a different location.
+# Copy (or install) Tcl/Tk support files to a specific location.
 # See VTK_GET_TCL_SUPPORT_FILES for more info about support files.
-# Given the paths to the Tcl and Tk support lib dirs, this macro will copy
-# the appropriate support files to destination dirs, recreating the subdirs.
+# Given the paths to the Tcl and Tk support lib dirs, this macro will 
+# copy (or install) the appropriate support files to destination dirs, 
+# recreating the subdirs.
+# This macro takes an optional last parameter, if set to INSTALL the 
+# files will be scheduled for installation (using CMake's INSTALL_FILES)
+# instead of copied.
 #
 # in: tcl_support_lib_dir:  path to the Tcl support lib dir
 #     tcl_support_lib_dest: destination dir for the Tcl support lib files
 #     tk_support_lib_dir:   path to the Tk support lib dir
 #     tk_support_lib_dest:  destination dir for the Tk support lib files
+#     INSTALL:              optional parameter (install files instead of copy)
 #
 # ex: VTK_COPY_TCL_TK_SUPPORT_FILES (
 #       "c:/tcl/lib/tcl8.4" "d:/vtk-bin/TclTk/lib/tcl8.4"
@@ -132,7 +137,12 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
   FOREACH (file ${TCL_SUPPORT_FILES})
     IF (EXISTS ${file})
       STRING (REGEX REPLACE "${tcl_support_lib_dir}/" "" filebase ${file})
-      CONFIGURE_FILE (${file} "${tcl_support_lib_dest}/${filebase}" COPYONLY)
+      IF ("${ARGV4}" STREQUAL "INSTALL")
+        GET_FILENAME_COMPONENT(dir ${filebase} PATH)
+        INSTALL_FILES ("${tcl_support_lib_dest}/${dir}" FILES ${file})
+      ELSE ("${ARGV4}" STREQUAL "INSTALL")
+        CONFIGURE_FILE (${file} "${tcl_support_lib_dest}/${filebase}" COPYONLY)
+      ENDIF ("${ARGV4}" STREQUAL "INSTALL")
     ENDIF (EXISTS ${file})
   ENDFOREACH (file)
 
@@ -140,7 +150,12 @@ MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES tcl_support_lib_dir tcl_support_lib_dest tk
   FOREACH (file ${TK_SUPPORT_FILES})
     IF (EXISTS ${file})
       STRING (REGEX REPLACE "${tk_support_lib_dir}/" "" filebase ${file})
-      CONFIGURE_FILE (${file} "${tk_support_lib_dest}/${filebase}" COPYONLY)
+      IF ("${ARGV4}" STREQUAL "INSTALL")
+        GET_FILENAME_COMPONENT(dir ${filebase} PATH)
+        INSTALL_FILES ("${tk_support_lib_dest}/${dir}" FILES ${file})
+      ELSE ("${ARGV4}" STREQUAL "INSTALL")
+        CONFIGURE_FILE (${file} "${tk_support_lib_dest}/${filebase}" COPYONLY)
+      ENDIF ("${ARGV4}" STREQUAL "INSTALL")
     ENDIF (EXISTS ${file})
   ENDFOREACH (file)
 
@@ -148,14 +163,18 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 
 # ----------------------------------------------------------------------------
 # VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR
-# Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES, this macro will copy the
-# appropriate Tcl/Tk support files to a project directory.
+# Front-end to VTK_COPY_TCL_TK_SUPPORT_FILES, this macro will 
+# copy (or install) the appropriate Tcl/Tk support files to a directory.
 # The Tcl/Tk version is retrieved automatically and used to create
 # the subdirectories (see example below)
+# This macro takes an optional last parameter, if set to INSTALL the 
+# files will be scheduled for installation (using CMake's INSTALL_FILES)
+# instead of copied.
 #
 # in: tcl_support_lib_dir: path to the Tcl support lib dir
 #     tk_support_lib_dir:  path to the Tk support lib dir
-#     project_dir:         project dir
+#     target_dir:          target directory
+#     INSTALL:             optional parameter (install files instead of copy)
 #
 # ex: VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR (
 #        "c:/tcl/lib/tcl8.4" "c:/tcl/lib/tk8.4" "d:/vtk-bin/lib")
@@ -167,16 +186,16 @@ ENDMACRO (VTK_COPY_TCL_TK_SUPPORT_FILES)
 #       d:/vtk-bin/lib/tcl8.4
 #       d:/vtk-bin/lib/tk8.4
 
-MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR tcl_support_lib_dir tk_support_lib_dir project_dir)
-
+MACRO (VTK_COPY_TCL_TK_SUPPORT_FILES_TO_DIR tcl_support_lib_dir tk_support_lib_dir target_dir)
   VTK_GET_TCL_TK_VERSION ("TCL_TK_MAJOR_VERSION" "TCL_TK_MINOR_VERSION")
   IF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
     SET (TCL_TK_VERSION "${TCL_TK_MAJOR_VERSION}.${TCL_TK_MINOR_VERSION}")
     VTK_COPY_TCL_TK_SUPPORT_FILES (
       "${tcl_support_lib_dir}"
-      "${project_dir}/tcl${TCL_TK_VERSION}"
+      "${target_dir}/tcl${TCL_TK_VERSION}"
       "${tk_support_lib_dir}"
-      "${project_dir}/tk${TCL_TK_VERSION}"
+      "${target_dir}/tk${TCL_TK_VERSION}"
+      "${ARGV3}"
       )
   ENDIF (TCL_TK_MAJOR_VERSION AND TCL_TK_MINOR_VERSION)
 
