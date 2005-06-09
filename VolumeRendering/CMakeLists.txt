@@ -10,17 +10,6 @@ ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_LIBS vtkRendering vtkIO)
 
-IF(VTK_USE_PATENTED)
-  SET(KIT_TCL_LIBS ${KIT_TCL_LIBS} vtkPatentedTCL)
-  IF(APPLE)
-    SET(KIT_PYTHON_LIBS ${KIT_PYTHON_LIBS} vtkPatentedPythonD)
-  ELSE(APPLE)
-    SET(KIT_PYTHON_LIBS ${KIT_PYTHON_LIBS} vtkPatentedPython)
-  ENDIF(APPLE)
-  SET(KIT_JAVA_LIBS ${KIT_JAVA_LIBS} vtkPatentedJava)
-  SET(KIT_LIBS ${KIT_LIBS} vtkPatented)
-ENDIF(VTK_USE_PATENTED)
-
 SET ( Kit_SRCS
 vtkDirectionEncoder.cxx
 vtkEncodedGradientEstimator.cxx

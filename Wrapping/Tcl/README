@@ -17,7 +17,7 @@ invocation of a VTK command (typically at the top of your Tcl script):
 
 This will load all VTK components and the corresponding
 commands. Depending on how VTK was built, some components might not be
-available (since Hybrid, Parallel, Patented and Rendering can be
+available (since Hybrid, Parallel, and Rendering can be
 excluded).
 
 VTK may also be used on a component-by-component basis by requiring

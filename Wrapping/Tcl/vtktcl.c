@@ -39,10 +39,6 @@ extern int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 extern int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
 #endif
 
-#ifdef VTK_USE_PATENTED
-extern int Vtkpatentedtcl_Init(Tcl_Interp *interp);
-#endif
-
 #ifdef VTK_USE_HYBRID
 extern int Vtkhybridtcl_Init(Tcl_Interp *interp);
 #endif
@@ -74,13 +70,6 @@ int Vtktcl_Init(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-
-#ifdef VTK_USE_PATENTED
-  if (Vtkpatentedtcl_Init(interp) == TCL_ERROR) 
-    {
-    return TCL_ERROR;
-    }
-#endif
 
 #ifdef VTK_USE_RENDERING
   if (Vtkrenderingtcl_Init(interp) == TCL_ERROR) 

@@ -99,9 +99,6 @@ MARK_AS_ADVANCED(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 #-----------------------------------------------------------------------------
 # Determine the set of VTK kits that should be built.
 OPTION(VTK_USE_RENDERING "Build the vtkRendering kit.  Needed for displaying data." ON)
-OPTION(VTK_USE_PATENTED
-       "Build the vtkPatented kit.  These classes are patented and may require a license to use."
-       OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_VOLUMERENDERING "Build the vtkVolumeRendering kit." OFF
                      "VTK_USE_RENDERING" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_HYBRID "Build the vtkHybrid kit." OFF
@@ -127,9 +124,7 @@ ENDIF(VTK_USE_HYBRID)
 IF(VTK_USE_PARALLEL)
   SET(VTK_KITS ${VTK_KITS} PARALLEL)
 ENDIF(VTK_USE_PARALLEL)
-IF(VTK_USE_PATENTED)
-  SET(VTK_KITS ${VTK_KITS} PATENTED)
-ENDIF(VTK_USE_PATENTED)
+
 # from GUISupport
 IF(VTK_USE_QVTK)
   SET(VTK_KITS ${VTK_KITS} QVTK)
@@ -675,9 +670,6 @@ SUBDIRS(Common Filtering Imaging Graphics GenericFiltering IO)
 IF(VTK_USE_RENDERING)
   SUBDIRS(Rendering)
 ENDIF(VTK_USE_RENDERING)
-IF(VTK_USE_PATENTED)
-  SUBDIRS(Patented)
-ENDIF(VTK_USE_PATENTED)
 IF(VTK_USE_VOLUMERENDERING)
   SUBDIRS(VolumeRendering)
 ENDIF(VTK_USE_VOLUMERENDERING)
@@ -1158,9 +1150,6 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   IF(VTK_USE_HYBRID)
     INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkHybridInstantiator)
   ENDIF(VTK_USE_HYBRID)
-  IF(VTK_USE_PATENTED)
-    INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkPatentedInstantiator)
-  ENDIF(VTK_USE_PATENTED)
   IF(VTK_USE_PARALLEL)
     INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkParallelInstantiator)
   ENDIF(VTK_USE_PARALLEL)

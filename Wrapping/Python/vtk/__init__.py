@@ -58,12 +58,6 @@ except ImportError, exc:
     __helper.refine_import_err('hybrid', 'vtkHybridPython', exc)
 
 try:
-    from patented import *
-    kits.append('patented')
-except ImportError, exc:
-    __helper.refine_import_err('patented', 'vtkPatentedPython', exc)
-
-try:
     from parallel import *
     kits.append('parallel')
 except ImportError, exc:

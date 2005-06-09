@@ -8,7 +8,6 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   HeaderTesting-IO
   HeaderTesting-Imaging
   HeaderTesting-Parallel
-  HeaderTesting-Patented
   HeaderTesting-Rendering
   PrintSelf-Common
   PrintSelf-GenericFiltering
@@ -18,7 +17,6 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   PrintSelf-IO
   PrintSelf-Imaging
   PrintSelf-Parallel
-  PrintSelf-Patented
   PrintSelf-Rendering
   SystemInformation
   TestSetObjectMacro-Common
@@ -29,7 +27,6 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   TestSetObjectMacro-IO
   TestSetObjectMacro-Imaging
   TestSetObjectMacro-Parallel
-  TestSetObjectMacro-Patented
   TestSetObjectMacro-Rendering
   Install
   Example-vtkMy

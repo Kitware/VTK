@@ -161,11 +161,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_PARALLEL_EXPORT __declspec( dllimport ) 
  #endif
 
- #if defined(vtkPatented_EXPORTS)
-  #define VTK_PATENTED_EXPORT __declspec( dllexport ) 
- #else
-  #define VTK_PATENTED_EXPORT __declspec( dllimport ) 
- #endif
 #else
  #define VTK_COMMON_EXPORT
  #define VTK_FILTERING_EXPORT
@@ -177,7 +172,6 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_VOLUMERENDERING_EXPORT
  #define VTK_HYBRID_EXPORT
  #define VTK_PARALLEL_EXPORT
- #define VTK_PATENTED_EXPORT
  #define VTK_EXPORT
 #endif
 

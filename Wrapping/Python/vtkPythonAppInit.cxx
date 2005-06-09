@@ -50,10 +50,6 @@
 #include "vtkVolumeRenderingInstantiator.h"
 #endif
 
-#ifdef VTK_USE_PATENTED
-#include "vtkPatentedInstantiator.h"
-#endif
-
 #ifdef VTK_USE_HYBRID
 #include "vtkHybridInstantiator.h"
 #endif

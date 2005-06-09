@@ -63,9 +63,6 @@ IF(BORLAND)
   IF (VTK_USE_PARALLEL)
     SET(KITS ${KITS} Parallel)
   ENDIF(VTK_USE_PARALLEL)
-  IF (VTK_USE_PATENTED)
-    SET(KITS ${KITS} Patented)
-  ENDIF(VTK_USE_PATENTED)
   IF (VTK_USE_RENDERING)
     SET(KITS ${KITS} Rendering)
   ENDIF(VTK_USE_RENDERING)
@@ -86,10 +83,6 @@ ENDIF (VTK_USE_RENDERING)
 IF (VTK_USE_VOLUMERENDERING)
   TARGET_LINK_LIBRARIES(vtkpython vtkVolumeRendering)
 ENDIF (VTK_USE_VOLUMERENDERING)
-
-IF (VTK_USE_PATENTED)
-  TARGET_LINK_LIBRARIES(vtkpython vtkPatented)
-ENDIF (VTK_USE_PATENTED)
 
 IF (VTK_USE_HYBRID)
   TARGET_LINK_LIBRARIES(vtkpython vtkHybrid)
@@ -129,9 +122,6 @@ IF (VTK_USE_PARALLEL)
       vtkParallel
       ${PYTHON_UTIL_LIBRARY_LIB}
     )
-    IF (VTK_USE_PATENTED)
-      TARGET_LINK_LIBRARIES(pvtkpython vtkPatented)
-    ENDIF (VTK_USE_PATENTED)
     IF (VTK_USE_VOLUMERENDERING)
       TARGET_LINK_LIBRARIES(pvtkpython vtkVolumeRendering)
     ENDIF (VTK_USE_VOLUMERENDERING)
@@ -196,7 +186,6 @@ IF(PYTHON_EXECUTABLE)
     vtk/imaging
     vtk/io
     vtk/parallel
-    vtk/patented
     vtk/rendering
     vtk/required
     vtk/volumerendering

@@ -68,10 +68,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkVolumeRenderingInstantiator.h"
 #endif
 
-#ifdef VTK_USE_PATENTED
-#include "vtkPatentedInstantiator.h"
-#endif
-
 #ifdef VTK_USE_HYBRID
 #include "vtkHybridInstantiator.h"
 #endif
@@ -204,10 +200,6 @@ extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_VOLUMERENDERING
 extern "C" int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_PATENTED
-extern "C" int Vtkpatentedtcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_HYBRID
@@ -464,13 +456,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
     }
 #endif
 
-#ifdef VTK_USE_PATENTED
-  if (Vtkpatentedtcl_Init(interp) == TCL_ERROR)
-    {
-    return TCL_ERROR;
-    }
-#endif
-  
 #ifdef VTK_USE_HYBRID
   if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
     {

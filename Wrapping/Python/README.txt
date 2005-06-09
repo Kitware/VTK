@@ -189,7 +189,7 @@ Structure/Usage
   Optional Kits
   -------------
 
-    rendering, hybrid, patented and parallel:
+    rendering, hybrid, and parallel:
 
     These are the optional kits.  Unlike the Tcl packages importing
     these kits *will not* import all the required kits in as well.

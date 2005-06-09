@@ -42,7 +42,6 @@
 //   vtkVolumeRendering - vtkVolumeRenderingInstantiator.h
 //   vtkHybrid          - vtkHybridInstantiator.h
 //   vtkParallel        - vtkParallelInstantiator.h
-//   vtkPatented        - vtkPatentedInstantiator.h
 //
 // The VTK_MAKE_INSTANTIATOR() command in CMake is used to automatically
 // generate the creator registration for each VTK library.  It can also
