@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.10");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.11");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -513,8 +513,9 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
     {
     return;
     }
-  
+
   this->PolyData->Update();
+  
   tmp=vtkPolyData::New();
   tmp->ShallowCopy(this->PolyData);
   append->AddInput(tmp);
@@ -1345,9 +1346,13 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet *input,
       }
     }
 #endif
-  if (ext[aA2] == ext[aA2+1])
+  
+  if(!maxFlag)
     {
-    return;
+    if (ext[aA2] == ext[aA2+1])
+      {
+      return;
+      }
     }
   
   // Assuming no ghost cells ...
@@ -1405,6 +1410,7 @@ void vtkExtractCTHPart::ExecuteFaceQuads(vtkDataSet *input,
       outPolys->InsertCellPoint(outPtId+cOutInc);
       outPolys->InsertCellPoint(outPtId+cOutInc+1);
       outPolys->InsertCellPoint(outPtId+1);
+
       // Copy cell data.
       outCD->CopyData(inCD,inId,outId);
       }
@@ -1428,6 +1434,19 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   iEnd = dims[0]-1;
   jEnd = dims[1]-1;
   kEnd = dims[2]-1;
+  
+  // Deals with none 3D images, otherwise it will never enter into the loop.
+  // And then the data will be not initialized and the output of the contour
+  // will be empty.
+  
+  int dimensionality=3;
+  
+  if(kEnd==0)
+    {
+    --dimensionality;
+    kEnd=1;
+    }
+  
   // Increments are for the point array.
   jInc = dims[0];
   kInc = (dims[1]) * jInc;
@@ -1438,6 +1457,11 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   // Initialize the point data to 0.
   memset(pPoint, 0,  dims[0]*dims[1]*dims[2]*sizeof(double));
 
+#ifndef NDEBUG
+  // for debugging and check out of range.
+  double *endPtr=pPoint+dims[0]*dims[1]*dims[2];
+#endif
+  
   int index=0;
   // Loop thorugh the cells.
   for (k = 0; k < kEnd; ++k)
@@ -1448,14 +1472,29 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
         {
         // Add cell value to all points of cell.
         double value=cellVolumeFraction->GetTuple1(index);
+        
+        assert("check: valid_range" && pPoint<endPtr);
+        assert("check: valid_range" && pPoint+1<endPtr);
+        assert("check: valid_range" && pPoint+jInc<endPtr);
+        assert("check: valid_range" && pPoint+jInc+1<endPtr);
+        
         *pPoint += value;
         pPoint[1] += value;
         pPoint[jInc] += value;
         pPoint[1+jInc] += value;
-        pPoint[kInc] += value;
-        pPoint[kInc+1] += value;
-        pPoint[kInc+jInc] += value;
-        pPoint[kInc+jInc+1] += value;
+        
+        if(dimensionality==3)
+          {
+          assert("check: valid_range" && pPoint+kInc<endPtr);
+          assert("check: valid_range" && pPoint+kInc+1<endPtr);
+          assert("check: valid_range" && pPoint+kInc+jInc<endPtr);
+          assert("check: valid_range" && pPoint+kInc+jInc+1<endPtr);
+          
+          pPoint[kInc] += value;
+          pPoint[kInc+1] += value;
+          pPoint[kInc+jInc] += value;
+          pPoint[kInc+jInc+1] += value;
+          }
 
         // Increment pointers
         ++pPoint;
@@ -1472,6 +1511,14 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   // Loop through the points.
   count = 1;
   pPoint = pointVolumeFraction->GetPointer(0);
+  
+  // because we eventually modified iEnd, jEnd, kEnd to handle the
+  // 2D image case, we have to recompute them.
+  iEnd = dims[0]-1;
+  jEnd = dims[1]-1;
+  kEnd = dims[2]-1;
+  
+  
   for (k = 0; k <= kEnd; ++k)
     {
     // Just a fancy fast way to compute the number of cell neighbors of a
@@ -1508,6 +1555,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
           {
           count = count >> 1;
           }
+        assert("check: valid_range" && pPoint<endPtr);
         *pPoint = *pPoint / static_cast<double>(count);
         ++pPoint;
         }
