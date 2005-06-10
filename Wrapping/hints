@@ -105,9 +105,11 @@ vtkLODProp3D            GetBounds               307 6
 vtkLookupTable          GetColor                307 3
 vtkLookupTable          GetTableValue           307 4
 vtkMapper               GetBounds               307 6
-vtkMath                 SolveCubic              307 3
-vtkMath                 SolveLinear             307 1
-vtkMath                 SolveQuadratic          307 2
+vtkMath                 HSVToRGB               2307 3
+vtkMath                 RGBToHSV               2307 3
+vtkMath                 SolveCubic             2307 3
+vtkMath                 SolveLinear            2307 1
+vtkMath                 SolveQuadratic         2307 2
 vtkMatrix4x4            MultiplyDoublePoint     307 4
 vtkMatrix4x4            MultiplyFloatPoint      301 4
 vtkMatrix4x4            MultiplyPoint           301 4
