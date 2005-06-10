@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkTupleInterpolator, "1.1");
+vtkCxxRevisionMacro(vtkTupleInterpolator, "1.2");
 vtkStandardNewMacro(vtkTupleInterpolator);
 
 //----------------------------------------------------------------------------
@@ -140,6 +140,8 @@ void vtkTupleInterpolator::Initialize()
     delete [] this->Linear;
     this->Linear = NULL;
     }
+
+  this->NumberOfComponents = 0;
 }
 
 

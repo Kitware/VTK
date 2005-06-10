@@ -19,7 +19,7 @@
 #include "vtkTupleInterpolator.h"
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkCameraInterpolator, "1.4");
+vtkCxxRevisionMacro(vtkCameraInterpolator, "1.5");
 vtkStandardNewMacro(vtkCameraInterpolator);
 
 // PIMPL STL encapsulation for list of cameras. This just keeps track of all
@@ -97,30 +97,12 @@ vtkCameraInterpolator::~vtkCameraInterpolator()
 {
   delete this->CameraList;
 
-  if ( this->PositionInterpolator )
-    {
-    this->PositionInterpolator->Delete();
-    }
-  if ( this->FocalPointInterpolator )
-    {
-    this->FocalPointInterpolator->Delete();
-    }
-  if ( this->ViewUpInterpolator )
-    {
-    this->ViewUpInterpolator->Delete();
-    }
-  if ( this->ViewAngleInterpolator )
-    {
-    this->ViewAngleInterpolator->Delete();
-    }
-  if ( this->ParallelScaleInterpolator )
-    {
-    this->ParallelScaleInterpolator->Delete();
-    }
-  if ( this->ClippingRangeInterpolator )
-    {
-    this->ClippingRangeInterpolator->Delete();
-    }
+  this->SetPositionInterpolator(NULL);
+  this->SetFocalPointInterpolator(NULL);
+  this->SetViewUpInterpolator(NULL);
+  this->SetViewAngleInterpolator(NULL);
+  this->SetParallelScaleInterpolator(NULL);
+  this->SetClippingRangeInterpolator(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -203,6 +185,7 @@ double vtkCameraInterpolator::GetMaximumT()
 void vtkCameraInterpolator::Initialize()
 {
   this->CameraList->clear();
+  this->Initialized = 0;
 }
 
 //----------------------------------------------------------------------------
