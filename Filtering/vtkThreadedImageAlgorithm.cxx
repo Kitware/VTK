@@ -26,7 +26,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.8");
+vtkCxxRevisionMacro(vtkThreadedImageAlgorithm, "1.9");
 
 //----------------------------------------------------------------------------
 vtkThreadedImageAlgorithm::vtkThreadedImageAlgorithm()
@@ -260,14 +260,16 @@ int vtkThreadedImageAlgorithm::RequestData(
     for (i = 0; i < this->GetNumberOfInputPorts(); ++i)
       {
       str.Inputs[i] = 0;
-      if (this->GetNumberOfInputConnections(i))
+      vtkInformationVector* portInfo = inputVector[i];
+      
+      if (portInfo->GetNumberOfInformationObjects())
         {
         int j;
         str.Inputs[i] = 
-          new vtkImageData *[this->GetNumberOfInputConnections(i)];
-        for (j = 0; j < this->GetNumberOfInputConnections(i); ++j)
+          new vtkImageData *[portInfo->GetNumberOfInformationObjects()];
+        for (j = 0; j < portInfo->GetNumberOfInformationObjects(); ++j)
           {
-          vtkInformation* info = inputVector[i]->GetInformationObject(j);
+          vtkInformation* info = portInfo->GetInformationObject(j);
           str.Inputs[i][j] =
             static_cast<vtkImageData*>(info->Get(vtkDataObject::DATA_OBJECT()));
           }
