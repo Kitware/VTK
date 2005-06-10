@@ -461,33 +461,23 @@ public:
   // Convert color in RGB format (Red, Green, Blue) to HSV format
   // (Hue, Saturation, Value). The input color is not modified.
   static void RGBToHSV(float rgb[3], float hsv[3])
-    { 
-    RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
-    }
-  static void RGBToHSV(float r, float g, float b, 
-                       float *h, float *s, float *v);
+    { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
+  static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
+  static double* RGBToHSV(double rgb[3]);
   static void RGBToHSV(double rgb[3], double hsv[3])
-    { 
-    RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2);
-    }
-  static void RGBToHSV(double r, double g, double b, 
-                       double *h, double *s, double *v);
+    { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
+  static void RGBToHSV(double r, double g, double b, double *h, double *s, double *v);
 
   // Description:
   // Convert color in HSV format (Hue, Saturation, Value) to RGB
   // format (Red, Green, Blue). The input color is not modified.
   static void HSVToRGB(float hsv[3], float rgb[3])
-    { 
-    HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2);
-    }
-  static void HSVToRGB(float h, float s, float v, 
-                       float *r, float *g, float *b);
+    { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
+  static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
+  static double* HSVToRGB(double hsv[3]);
   static void HSVToRGB(double hsv[3], double rgb[3])
-    { 
-    HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2);
-    }
-  static void HSVToRGB(double h, double s, double v, 
-                       double *r, double *g, double *b);
+    { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
+  static void HSVToRGB(double h, double s, double v, double *r, double *g, double *b);
 
   // Description:
   // Convert color from Lab to XYZ system, and vice-versa

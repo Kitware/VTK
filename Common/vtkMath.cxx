@@ -16,7 +16,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkDataArray.h"
 
-vtkCxxRevisionMacro(vtkMath, "1.95");
+vtkCxxRevisionMacro(vtkMath, "1.96");
 vtkStandardNewMacro(vtkMath);
 
 long vtkMath::Seed = 1177; // One authors home address
@@ -2334,6 +2334,15 @@ void vtkMath::RGBToHSV(float r, float g, float b,
   *v = static_cast<float>(dv);
 }
 
+//----------------------------------------------------------------------------
+double* vtkMath::RGBToHSV(double rgb[3])
+{
+  static double hsv[3];
+  vtkMath::RGBToHSV(rgb, hsv);
+  return hsv;
+}
+
+//----------------------------------------------------------------------------
 void vtkMath::RGBToHSV(double r, double g, double b, 
                        double *h, double *s, double *v)
 {
@@ -2407,6 +2416,15 @@ void vtkMath::HSVToRGB(float h, float s, float v,
   *b = static_cast<float>(db);
 }
 
+//----------------------------------------------------------------------------
+double* vtkMath::HSVToRGB(double hsv[3])
+{
+  static double rgb[3];
+  vtkMath::HSVToRGB(hsv, rgb);
+  return rgb;
+}
+
+//----------------------------------------------------------------------------
 void vtkMath::HSVToRGB(double h, double s, double v, 
                        double *r, double *g, double *b)
 {
