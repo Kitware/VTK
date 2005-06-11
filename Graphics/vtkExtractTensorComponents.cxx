@@ -22,9 +22,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.29");
+vtkCxxRevisionMacro(vtkExtractTensorComponents, "1.30");
 vtkStandardNewMacro(vtkExtractTensorComponents);
 
+//---------------------------------------------------------------------------
 // Construct object to extract nothing and to not pass tensor data
 // through the pipeline.
 vtkExtractTensorComponents::vtkExtractTensorComponents()
@@ -54,6 +55,7 @@ vtkExtractTensorComponents::vtkExtractTensorComponents()
   this->TCoordComponents[4] = 2; this->TCoordComponents[5] = 2;
 }
 
+//---------------------------------------------------------------------------
 // Extract data from tensors.
 //
 int vtkExtractTensorComponents::RequestData(
@@ -169,6 +171,12 @@ int vtkExtractTensorComponents::RequestData(
 
       else //VTK_EXTRACT_EFFECTIVE_DETERMINANT
         {
+        s = tensor[0]*tensor[4]*tensor[8]-
+          tensor[0]*tensor[5]*tensor[7]-
+          tensor[1]*tensor[3]*tensor[8]+
+          tensor[1]*tensor[5]*tensor[6]+
+          tensor[2]*tensor[3]*tensor[7]-
+          tensor[2]*tensor[4]*tensor[6];
         }
       newScalars->SetTuple(ptId, &s);
       }//if extract scalars
@@ -228,6 +236,7 @@ int vtkExtractTensorComponents::RequestData(
   return 1;
 }
 
+//---------------------------------------------------------------------------
 void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
