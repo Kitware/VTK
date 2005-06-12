@@ -195,6 +195,12 @@ public:
   vtkGetVectorMacro(BackLightColor, double, 3);
 
   // Description:
+  // To maintain a deprecation API:
+  VTK_LEGACY(void SetHeadlightWarmth(double v));
+  VTK_LEGACY(double GetHeadlightWarmth());
+  VTK_LEGACY(void GetHeadlightColor(double *color));
+
+  // Description:
   // If MaintainLuminance is set, the LightKit will attempt to maintain
   // the apparent intensity of lights based on their perceptual brightnesses.
   // By default, MaintainLuminance is off.
