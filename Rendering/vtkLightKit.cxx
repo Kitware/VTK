@@ -19,7 +19,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkLightKit, "1.24");
+vtkCxxRevisionMacro(vtkLightKit, "1.25");
 vtkStandardNewMacro(vtkLightKit);
 
 static const char *vtkLightKitTypeStrings[] = {
@@ -94,6 +94,7 @@ vtkLightKit::vtkLightKit()
   this->KeyToHeadRatio = 3.0;
 
   this->MaintainLuminance = 0;
+  this->Update();
 }  
 
 //----------------------------------------------------------------------------
