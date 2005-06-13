@@ -1,3 +1,6 @@
+# Build kwsys
+SUBDIRS(kwsys)
+
 # Build third-party utilities.
 
 VTK_THIRD_PARTY_SUBDIR(ZLIB vtkzlib)

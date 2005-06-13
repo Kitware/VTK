@@ -659,9 +659,6 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 
-# KWSys must come before directories that use it.
-SUBDIRS(Utilities/kwsys)
-
 # Utility libraries and executables.
 SUBDIRS(Wrapping Utilities)
 
