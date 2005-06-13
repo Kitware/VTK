@@ -25,7 +25,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.13");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.13.2.1");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -123,7 +123,7 @@ void vtkGaussianCubeReader::Execute()
   grid->SetScalarTypeToFloat();
   grid->AllocateScalars();
 
-  grid->GetPointData()->GetScalars()->SetName("Gaussian Cube density");
+  grid->GetPointData()->GetScalars()->SetName(Title);
 
   Cube_data = (float *)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
   N1N2 = n1*n2;
@@ -153,6 +153,7 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   for(i = 0; i < this->NumberOfAtoms; i++) 
     {
     fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2);
+    this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
     }
