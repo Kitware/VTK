@@ -49,8 +49,12 @@ protected:
   vtkCachedStreamingDemandDrivenPipeline();
   ~vtkCachedStreamingDemandDrivenPipeline();
 
-  virtual int NeedToExecuteData(int outputPort);
-  virtual int ExecuteData(vtkInformation* request);
+  virtual int NeedToExecuteData(int outputPort,
+                                vtkInformationVector** inInfoVec,
+                                vtkInformationVector* outInfoVec);
+  virtual int ExecuteData(vtkInformation* request,
+                          vtkInformationVector** inInfoVec,
+                          vtkInformationVector* outInfoVec);
   
   int CacheSize;
   

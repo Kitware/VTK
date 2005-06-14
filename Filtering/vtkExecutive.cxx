@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.22");
+vtkCxxRevisionMacro(vtkExecutive, "1.23");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -438,7 +438,15 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
 //----------------------------------------------------------------------------
 void vtkExecutive::SetOutputData(int newPort, vtkDataObject* newOutput)
 {
-  if(vtkInformation* info = this->GetOutputInformation(newPort))
+  vtkInformation *info = this->GetOutputInformation(newPort);
+  this->SetOutputData(newPort, newOutput, info);
+}
+
+//----------------------------------------------------------------------------
+void vtkExecutive::SetOutputData(int newPort, vtkDataObject* newOutput,
+                                 vtkInformation* info)
+{
+  if(info)
     {
     if(!newOutput || newOutput->GetPipelineInformation() != info)
       {
@@ -479,14 +487,27 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::ProcessRequest(vtkInformation* request)
+vtkDataObject* vtkExecutive::GetInputData
+(int port, int index, vtkInformationVector **inInfoVec)
 {
-  // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("ProcessRequest"))
+  if (!inInfoVec[port])
     {
     return 0;
     }
+  vtkInformation *info = inInfoVec[port]->GetInformationObject(index);
+  if (!info)
+    {
+    return 0;
+    }
+  return info->Get(vtkDataObject::DATA_OBJECT());
+}
 
+//----------------------------------------------------------------------------
+int vtkExecutive::ProcessRequest(vtkInformation* request,
+                                 int forward,
+                                 vtkInformationVector** inInfo,
+                                 vtkInformationVector* outInfo)
+{
   if(request->Has(FORWARD_DIRECTION()))
     {
     // Request will be forwarded.
@@ -494,18 +515,20 @@ int vtkExecutive::ProcessRequest(vtkInformation* request)
       {
       if(this->Algorithm && request->Get(ALGORITHM_BEFORE_FORWARD()))
         {
-        if(!this->CallAlgorithm(request, vtkExecutive::RequestUpstream))
+        if(!this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
+                                inInfo, outInfo))
           {
           return 0;
           }
         }
-      if(!this->ForwardUpstream(request))
+      if(forward && !this->ForwardUpstream(request))
         {
         return 0;
         }
       if(this->Algorithm && request->Get(ALGORITHM_AFTER_FORWARD()))
         {
-        if(!this->CallAlgorithm(request, vtkExecutive::RequestDownstream))
+        if(!this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
+                                inInfo, outInfo))
           {
           return 0;
           }
@@ -546,7 +569,8 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
         vtkAlgorithmOutput* input = this->Algorithm->GetInputConnection(i, j);
         int port = request->Get(FROM_OUTPUT_PORT());
         request->Set(FROM_OUTPUT_PORT(), input->GetIndex());
-        if(!e->ProcessRequest(request))
+        if(!e->ProcessRequest(request,1,e->GetInputInformation(),
+                              e->GetOutputInformation()))
           {
           result = 0;
           }
@@ -559,25 +583,28 @@ int vtkExecutive::ForwardUpstream(vtkInformation* request)
 
 //----------------------------------------------------------------------------
 void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
-                                          int direction)
+                                          int direction,
+                                          vtkInformationVector** inInfoVec,
+                                          vtkInformationVector* outInfoVec)
+                                          
 {
   if(direction == vtkExecutive::RequestDownstream)
     {
     // Copy information from the first input to all outputs.
     if(this->GetNumberOfInputPorts() > 0 &&
-       this->Algorithm->GetNumberOfInputConnections(0) > 0)
+       inInfoVec[0]->GetNumberOfInformationObjects() > 0)
       {
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
       int length = request->Length(KEYS_TO_COPY());
-      vtkInformation* inInfo = this->GetInputInformation(0, 0);
-      for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
+      for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
         {
-        vtkInformation* outInfo = this->GetOutputInformation(i);
+        vtkInformation* outInfo = outInfoVec->GetInformationObject(i);
         for(int j=0; j < length; ++j)
           {
           // Copy the entry.
           outInfo->CopyEntry(inInfo, keys[j]);
-
+          
           // If the entry is a key vector, copy all the keys listed.
           if(vtkInformationKeyVectorKey* vkey =
              vtkInformationKeyVectorKey::SafeDownCast(keys[j]))
@@ -599,16 +626,17 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
       }
 
     // Copy information from the requesting output to all inputs.
-    if(outputPort >= 0 && outputPort < this->GetNumberOfOutputPorts())
+    if(outputPort >= 0 && 
+       outputPort < outInfoVec->GetNumberOfInformationObjects())
       {
       vtkInformationKey** keys = request->Get(KEYS_TO_COPY());
       int length = request->Length(KEYS_TO_COPY());
-      vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+      vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
       for(int i=0; i < this->GetNumberOfInputPorts(); ++i)
         {
-        for(int j=0; j < this->Algorithm->GetNumberOfInputConnections(i); ++j)
+        for(int j=0; j < inInfoVec[i]->GetNumberOfInformationObjects(); ++j)
           {
-          vtkInformation* inInfo = this->GetInputInformation(i, j);
+          vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
           for(int k=0; k < length; ++k)
             {
             // Copy the entry.
@@ -628,20 +656,18 @@ void vtkExecutive::CopyDefaultInformation(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction)
+int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction,
+                                vtkInformationVector** inInfo,
+                                vtkInformationVector* outInfo)
 {
-  // Add the direction of information flow to the request for the
-  // algorithm.
   request->Set(ALGORITHM_DIRECTION(), direction);
 
   // Copy default information in the direction of information flow.
-  this->CopyDefaultInformation(request, direction);
-
+  this->CopyDefaultInformation(request, direction, inInfo, outInfo);
+  
   // Invoke the request on the algorithm.
   this->InAlgorithm = 1;
-  int result = this->Algorithm->ProcessRequest(request,
-                                               this->GetInputInformation(),
-                                               this->GetOutputInformation());
+  int result = this->Algorithm->ProcessRequest(request, inInfo, outInfo);
   this->InAlgorithm = 0;
 
   // Remove the algorithm-specific information from the request.

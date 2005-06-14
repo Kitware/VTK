@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.24");
+vtkCxxRevisionMacro(vtkDataObject, "1.25");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -237,8 +237,9 @@ void vtkDataObject::SetUpdateExtent(int piece, int numPieces, int ghostLevel)
     // had changed, and call Modified(). We actually don't want
     // to do this - just a change in the update extent does not
     // make this object modified!
-    sddp->SetUpdateExtent(this->GetPortNumber(), piece,
-                          numPieces, ghostLevel);
+    sddp->SetUpdateExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()), piece, numPieces, ghostLevel);
     }
 }
 
@@ -975,7 +976,9 @@ void vtkDataObject::SetUpdateExtentToWholeExtent()
     // Modified(). We actually don't want to do this - just 
     // a change in the update extent does not make this object 
     // modified!
-    sddp->SetUpdateExtentToWholeExtent(this->GetPortNumber());
+    sddp->SetUpdateExtentToWholeExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()));
     }
 }
 
@@ -984,7 +987,9 @@ void vtkDataObject::SetMaximumNumberOfPieces(int n)
 {
   if(SDDP* sddp = this->TrySDDP("SetMaximumNumberOfPieces"))
     {
-    if(sddp->SetMaximumNumberOfPieces(this->GetPortNumber(), n))
+    if(sddp->SetMaximumNumberOfPieces
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), n))
       {
       this->Modified();
       }
@@ -996,7 +1001,9 @@ int vtkDataObject::GetMaximumNumberOfPieces()
 {
   if(SDDP* sddp = this->TrySDDP("GetMaximumNumberOfPieces"))
     {
-    return sddp->GetMaximumNumberOfPieces(this->GetPortNumber());
+    return sddp->GetMaximumNumberOfPieces
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()));
     }
   return -1;
 }
@@ -1014,7 +1021,9 @@ void vtkDataObject::SetWholeExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("SetWholeExtent"))
     {
-    if(sddp->SetWholeExtent(this->GetPortNumber(), extent))
+    if(sddp->SetWholeExtent
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), extent))
       {
       this->Modified();
       }
@@ -1026,7 +1035,9 @@ int* vtkDataObject::GetWholeExtent()
 {
   if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
     {
-    return sddp->GetWholeExtent(this->GetPortNumber());
+    return sddp->GetWholeExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()));
     }
   else
     {
@@ -1054,7 +1065,9 @@ void vtkDataObject::GetWholeExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("GetWholeExtent"))
     {
-    sddp->GetWholeExtent(this->GetPortNumber(), extent);
+    sddp->GetWholeExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()), extent);
     }
 }
 
@@ -1133,7 +1146,9 @@ void vtkDataObject::SetUpdateExtent(int extent[6])
     // update extent had changed, and call Modified(). We 
     // actually don't want to do this - just a change in 
     // the update extent does not make this object modified!
-    sddp->SetUpdateExtent(this->GetPortNumber(), extent);
+    sddp->SetUpdateExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()), extent);
     }
 }
 
@@ -1142,7 +1157,9 @@ int* vtkDataObject::GetUpdateExtent()
 {
   if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
     {
-    return sddp->GetUpdateExtent(this->GetPortNumber());
+    return sddp->GetUpdateExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()));
     }
   else
     {
@@ -1170,7 +1187,9 @@ void vtkDataObject::GetUpdateExtent(int extent[6])
 {
   if(SDDP* sddp = this->TrySDDP("GetUpdateExtent"))
     {
-    sddp->GetUpdateExtent(this->GetPortNumber(), extent);
+    sddp->GetUpdateExtent
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()), extent);
     }
 }
 
@@ -1179,7 +1198,9 @@ void vtkDataObject::SetUpdatePiece(int piece)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdatePiece"))
     {
-    if(sddp->SetUpdatePiece(this->GetPortNumber(), piece))
+    if(sddp->SetUpdatePiece
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), piece))
       {
       this->Modified();
       }
@@ -1191,7 +1212,9 @@ int vtkDataObject::GetUpdatePiece()
 {
   if(SDDP* sddp = this->TrySDDP("GetUpdatePiece"))
     {
-    return sddp->GetUpdatePiece(this->GetPortNumber());
+    return sddp->GetUpdatePiece
+      (sddp->GetOutputInformation()->GetInformationObject
+       (this->GetPortNumber()));
     }
   return 0;
 }
@@ -1201,7 +1224,9 @@ void vtkDataObject::SetUpdateNumberOfPieces(int n)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateNumberOfPieces"))
     {
-    if(sddp->SetUpdateNumberOfPieces(this->GetPortNumber(), n))
+    if(sddp->SetUpdateNumberOfPieces
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), n))
       {
       this->Modified();
       }
@@ -1213,7 +1238,9 @@ int vtkDataObject::GetUpdateNumberOfPieces()
 {
   if(SDDP* sddp = this->TrySDDP("GetUpdateNumberOfPieces"))
     {
-    return sddp->GetUpdateNumberOfPieces(this->GetPortNumber());
+    return sddp->GetUpdateNumberOfPieces
+      (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()));
     }
   return 1;
 }
@@ -1223,19 +1250,23 @@ void vtkDataObject::SetUpdateGhostLevel(int level)
 {
   if(SDDP* sddp = this->TrySDDP("SetUpdateGhostLevel"))
     {
-    if(sddp->SetUpdateGhostLevel(this->GetPortNumber(), level))
+    if(sddp->SetUpdateGhostLevel
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), level))
       {
       this->Modified();
       }
     }
 }
-  
+
 //----------------------------------------------------------------------------
 int vtkDataObject::GetUpdateGhostLevel()
 {
   if(SDDP* sddp = this->TrySDDP("GetUpdateGhostLevel"))
     {
-    return sddp->GetUpdateGhostLevel(this->GetPortNumber());
+    return sddp->GetUpdateGhostLevel
+      (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()));
     }
   return 0;
 }
@@ -1245,7 +1276,9 @@ void vtkDataObject::SetExtentTranslator(vtkExtentTranslator* translator)
 {
   if(SDDP* sddp = this->TrySDDP("SetExtentTranslator"))
     {
-    if(sddp->SetExtentTranslator(this->GetPortNumber(), translator))
+    if(sddp->SetExtentTranslator
+       (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()), translator))
       {
       this->Modified();
       }
@@ -1257,7 +1290,9 @@ vtkExtentTranslator* vtkDataObject::GetExtentTranslator()
 {
   if(SDDP* sddp = this->TrySDDP("GetExtentTranslator"))
     {
-    return sddp->GetExtentTranslator(this->GetPortNumber());
+    return sddp->GetExtentTranslator
+      (sddp->GetOutputInformation()->GetInformationObject
+        (this->GetPortNumber()));
     }
   return 0;
 }

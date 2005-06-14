@@ -32,7 +32,10 @@ public:
   // Description:
   // Generalized interface for asking the executive to fullfill update
   // requests.
-  virtual int ProcessRequest(vtkInformation* request);
+  virtual int ProcessRequest(vtkInformation* request,
+                             int forward,
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
 protected:
   vtkImageImportExecutive() {};

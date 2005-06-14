@@ -43,7 +43,9 @@ public:
   // Description:
   // Generalized interface for asking the executive to fullfill update
   // requests.
-  virtual int ProcessRequest(vtkInformation* request);
+  virtual int ProcessRequest(vtkInformation* request, int forward,
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
@@ -129,29 +131,34 @@ protected:
   ~vtkDemandDrivenPipeline();
 
   // Helper methods to send requests to the algorithm.
-  virtual int ExecuteDataObject(vtkInformation* request);
-  virtual int ExecuteInformation(vtkInformation* request);
-  virtual int ExecuteData(vtkInformation* request);
+  virtual int ExecuteDataObject(vtkInformation* request,
+                                vtkInformationVector** inInfo,
+                                vtkInformationVector* outInfo);
+  virtual int ExecuteInformation(vtkInformation* request,
+                                 vtkInformationVector** inInfo,
+                                 vtkInformationVector* outInfo);
+  virtual int ExecuteData(vtkInformation* request,
+                          vtkInformationVector** inInfo,
+                          vtkInformationVector* outInfo);
 
-  // Copy information for the given request.
-  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
 
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
-  virtual int CheckDataObject(int port);
+  virtual int CheckDataObject(int port, vtkInformationVector* outInfo);
+
 
   // Input connection validity checkers.
-  int InputCountIsValid();
-  int InputCountIsValid(int port);
-  int InputTypeIsValid();
-  int InputTypeIsValid(int port);
-  int InputTypeIsValid(int port, int index);
-  int InputFieldsAreValid();
-  int InputFieldsAreValid(int port);
-  int InputFieldsAreValid(int port, int index);
+  int InputCountIsValid(vtkInformationVector **);
+  int InputCountIsValid(int port,vtkInformationVector **);
+  int InputTypeIsValid(vtkInformationVector **);
+  int InputTypeIsValid(int port,vtkInformationVector **);
+  int InputTypeIsValid(int port, int index,vtkInformationVector **);
+  int InputFieldsAreValid(vtkInformationVector **);
+  int InputFieldsAreValid(int port,vtkInformationVector **);
+  int InputFieldsAreValid(int port, int index,vtkInformationVector **);
 
   // Field existence checkers.
   int DataSetAttributeExists(vtkDataSetAttributes* dsa, vtkInformation* field);
@@ -163,12 +170,20 @@ protected:
   int InputIsRepeatable(int port);
 
   // Decide whether the output data need to be generated.
-  virtual int NeedToExecuteData(int outputPort);
+  virtual int NeedToExecuteData(int outputPort,
+                                vtkInformationVector** inInfoVec,
+                                vtkInformationVector* outInfoVec);
 
   // Handle before/after operations for ExecuteData method.
-  virtual void ExecuteDataStart(vtkInformation* request);
-  virtual void ExecuteDataEnd(vtkInformation* request);
-  virtual void MarkOutputsGenerated(vtkInformation* request);
+  virtual void ExecuteDataStart(vtkInformation* request,
+                                vtkInformationVector** inInfoVec,
+                                vtkInformationVector* outInfoVec);
+  virtual void ExecuteDataEnd(vtkInformation* request,
+                              vtkInformationVector** inInfoVec,
+                              vtkInformationVector* outInfoVec);
+  virtual void MarkOutputsGenerated(vtkInformation* request,
+                                    vtkInformationVector** inInfoVec,
+                                    vtkInformationVector* outInfoVec);
 
   // Largest MTime of any algorithm on this executive or preceding
   // executives.

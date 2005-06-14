@@ -25,7 +25,7 @@
 #include "vtkInformationVector.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.5");
+vtkCxxRevisionMacro(vtkCachedStreamingDemandDrivenPipeline, "1.6");
 vtkStandardNewMacro(vtkCachedStreamingDemandDrivenPipeline);
 
 
@@ -136,18 +136,23 @@ int vtkCachedStreamingDemandDrivenPipeline::Update(int port)
 }
 
 //----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
+int vtkCachedStreamingDemandDrivenPipeline
+::NeedToExecuteData(int outputPort,
+                    vtkInformationVector** inInfoVec,
+                    vtkInformationVector* outInfoVec)
 {
   // If no port is specified, check all ports.  This behavior is
   // implemented by the superclass.
   if(outputPort < 0)
     {
-    return this->Superclass::NeedToExecuteData(outputPort);
+    return this->Superclass::NeedToExecuteData(outputPort,
+                                               inInfoVec, outInfoVec);
     }
 
   // Does the superclass want to execute? We must skip our direct superclass
   // because it looks at update extents but does not know about the cache
-  if(this->vtkDemandDrivenPipeline::NeedToExecuteData(outputPort))
+  if(this->vtkDemandDrivenPipeline::NeedToExecuteData(outputPort,
+                                                      inInfoVec, outInfoVec))
     {
     return 1;
     }
@@ -175,7 +180,7 @@ int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
   // port information and data information.  We do not need to check
   // existence of values because it has already been verified by
   // VerifyOutputInformation.
-  vtkInformation* outInfo = this->GetOutputInformation(outputPort);
+  vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkInformation* dataInfo = dataObject->GetInformation();
   if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_PIECES_EXTENT)
@@ -260,7 +265,10 @@ int vtkCachedStreamingDemandDrivenPipeline::NeedToExecuteData(int outputPort)
 
 
 //----------------------------------------------------------------------------
-int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
+int vtkCachedStreamingDemandDrivenPipeline
+::ExecuteData(vtkInformation* request,
+              vtkInformationVector** inInfoVec,
+              vtkInformationVector* outInfoVec)
 {
   // only works for one in one out algorithms
   if (request->Get(FROM_OUTPUT_PORT()) != 0)
@@ -270,7 +278,7 @@ int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
     }
   
   // first do the ususal thing
-  int result = this->Superclass::ExecuteData(request);
+  int result = this->Superclass::ExecuteData(request, inInfoVec, outInfoVec);
   
   // then save the newly generated data
   unsigned long bestTime = VTK_LARGE_INTEGER;
@@ -293,7 +301,7 @@ int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
       }
     }
 
-  vtkInformation* outInfo = this->GetOutputInformation(0);
+  vtkInformation* outInfo = outInfoVec->GetInformationObject(0);
   vtkDataObject* dataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (this->Data[bestIdx] == NULL)
     {
@@ -304,7 +312,7 @@ int vtkCachedStreamingDemandDrivenPipeline::ExecuteData(vtkInformation* request)
   vtkImageData *id = vtkImageData::SafeDownCast(dataObject);  
   if (id)
     {
-    vtkInformation* inInfo = this->GetInputInformation(0, 0);
+    vtkInformation* inInfo = inInfoVec[0]->GetInformationObject(0);
     vtkImageData *input = 
       vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
     id->SetExtent(input->GetExtent());

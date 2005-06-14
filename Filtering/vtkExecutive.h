@@ -50,8 +50,12 @@ public:
 
   // Description:
   // Generalized interface for asking the executive to fullfill update
-  // requests.
-  virtual int ProcessRequest(vtkInformation* request);
+  // requests. In this signature you inputs and outputs are provided and
+  // it does not chain up or down stream.
+  virtual int ProcessRequest(vtkInformation* request,
+                             int forward,
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
@@ -96,11 +100,14 @@ public:
   // Description:
   // Get/Set the data object for an output port of the algorithm.
   virtual vtkDataObject* GetOutputData(int port);
+  virtual void SetOutputData(int port, vtkDataObject*, vtkInformation *info);
   virtual void SetOutputData(int port, vtkDataObject*);
 
   // Description:
   // Get the data object for an output port of the algorithm.
   virtual vtkDataObject* GetInputData(int port, int connection);
+  virtual vtkDataObject* GetInputData(int port, int connection, 
+                                      vtkInformationVector **inInfoVec);
 
   // Description:
   // Get the output port that produces the given data object.
@@ -138,6 +145,13 @@ public:
   enum { RequestUpstream, RequestDownstream };
   //ETX
 
+  // Description:
+  // An API to CallAlgorithm that allows you to pass in the info objects to
+  // be used
+  virtual int CallAlgorithm(vtkInformation* request, int direction,
+                            vtkInformationVector** inInfo,
+                            vtkInformationVector* outInfo);
+
 protected:
   vtkExecutive();
   ~vtkExecutive();
@@ -151,8 +165,9 @@ protected:
 
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);
-  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
-  virtual int CallAlgorithm(vtkInformation* request, int direction);
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction,
+                                      vtkInformationVector** inInfo,
+                                      vtkInformationVector* outInfo);
 
   // Reset the pipeline update values in the given output information object.
   virtual void ResetPipelineInformation(int port, vtkInformation*)=0;

@@ -85,7 +85,9 @@ public:
   // Description:
   // Generalized interface for asking the executive to fullfill update
   // requests.
-  virtual int ProcessRequest(vtkInformation* request);
+  virtual int ProcessRequest(vtkInformation* request, int forward,
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Returns the data object stored with the COMPOSITE_DATA_SET() in the
@@ -108,13 +110,15 @@ protected:
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.
-  virtual int CheckDataObject(int port);
+  virtual int CheckDataObject(int port, vtkInformationVector *outInfo);
 
   virtual int ForwardUpstream(vtkInformation* request);
   virtual int ForwardUpstream(int i, int j, vtkInformation* request);
 
   // Copy information for the given request.
-  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction,
+                                      vtkInformationVector** inInfoVec,
+                                      vtkInformationVector* outInfoVec);
 
   virtual void CopyFromDataToInformation(
     vtkDataObject* dobj, vtkInformation* inInfo);
@@ -129,13 +133,21 @@ protected:
   int InSubPass;
 
   virtual int ExecuteDataObjectForBlock(vtkInformation* request);
-  virtual int ExecuteDataObject(vtkInformation* request);
+  virtual int ExecuteDataObject(vtkInformation* request,
+                                vtkInformationVector** inInfo,
+                                vtkInformationVector* outInfo);
 
   virtual int ExecuteInformationForBlock(vtkInformation* request);
-  virtual int ExecuteInformation(vtkInformation* request);
+  virtual int ExecuteInformation(vtkInformation* request,
+                                 vtkInformationVector** inInfoVec,
+                                 vtkInformationVector* outInfoVec);
+
 
   virtual int ExecuteDataForBlock(vtkInformation* request);
-  virtual int ExecuteData(vtkInformation* request);
+  virtual int ExecuteData(vtkInformation* request,
+                          vtkInformationVector** inInfoVec,
+                          vtkInformationVector* outInfoVec);
+
 
   int CheckCompositeData(int port);
   int SendEndLoop(int i, int j);

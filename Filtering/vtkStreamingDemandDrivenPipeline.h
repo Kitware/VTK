@@ -41,7 +41,9 @@ public:
   // Description:
   // Generalized interface for asking the executive to fullfill update
   // requests.
-  virtual int ProcessRequest(vtkInformation* request);
+  virtual int ProcessRequest(vtkInformation* request, int forward,
+                             vtkInformationVector** inInfo,
+                             vtkInformationVector* outInfo);
 
   // Description:
   // Bring the outputs up-to-date.
@@ -61,41 +63,42 @@ public:
   // unstructured data sets.  It gets set by the source during the
   // update information call.  A value of -1 indicates that there is
   // no maximum.
-  int SetMaximumNumberOfPieces(int port, int n);
-  int GetMaximumNumberOfPieces(int port);
+  int SetMaximumNumberOfPieces(vtkInformation *, int n);
+  int GetMaximumNumberOfPieces(vtkInformation *);
 
   // Description:
   // Set/Get the whole extent of an output port.  The whole extent is
   // meta data for structured data sets.  It gets set by the algorithm
   // during the update information pass.
-  int SetWholeExtent(int port, int extent[6]);
-  void GetWholeExtent(int port, int extent[6]);
-  int* GetWholeExtent(int port);
+  int SetWholeExtent(vtkInformation *, int extent[6]);
+  void GetWholeExtent(vtkInformation *, int extent[6]);
+  int* GetWholeExtent(vtkInformation *);
 
   // Description:
   // If the whole input extent is required to generate the requested output
   // extent, this method can be called to set the input update extent to the
   // whole input extent. This method assumes that the whole extent is known
   // (that UpdateInformation has been called)
-  int SetUpdateExtentToWholeExtent(int port);
-
+  int SetUpdateExtentToWholeExtent(vtkInformation *);
+  
   // Description:
   // Get/Set the update extent for output ports that use 3D extents.
-  int SetUpdateExtent(int port, int extent[6]);
-  void GetUpdateExtent(int port, int extent[6]);
-  int* GetUpdateExtent(int port);
+  int SetUpdateExtent(vtkInformation *, int extent[6]);
+  void GetUpdateExtent(vtkInformation *, int extent[6]);
+  int* GetUpdateExtent(vtkInformation *);
 
   // Description:
   // Set/Get the update piece, update number of pieces, and update
   // number of ghost levels for an output port.  Similar to update
   // extent in 3D.
-  int SetUpdateExtent(int port, int piece, int numPieces, int ghostLevel);
-  int SetUpdatePiece(int port, int piece);
-  int GetUpdatePiece(int port);
-  int SetUpdateNumberOfPieces(int port, int n);
-  int GetUpdateNumberOfPieces(int port);
-  int SetUpdateGhostLevel(int port, int n);
-  int GetUpdateGhostLevel(int port);
+  int SetUpdateExtent(vtkInformation *, 
+                      int piece, int numPieces, int ghostLevel);
+  int SetUpdatePiece(vtkInformation *, int piece);
+  int GetUpdatePiece(vtkInformation *);
+  int SetUpdateNumberOfPieces(vtkInformation *, int n);
+  int GetUpdateNumberOfPieces(vtkInformation *);
+  int SetUpdateGhostLevel(vtkInformation *, int n);
+  int GetUpdateGhostLevel(vtkInformation *);
 
   // Description:
   // This request flag indicates whether the requester can handle more
@@ -110,8 +113,8 @@ public:
   // Description:
   // Get/Set the object that will translate pieces into structured
   // extents for an output port.
-  int SetExtentTranslator(int port, vtkExtentTranslator* translator);
-  vtkExtentTranslator* GetExtentTranslator(int port);
+  int SetExtentTranslator(vtkInformation *, vtkExtentTranslator* translator);
+  vtkExtentTranslator* GetExtentTranslator(vtkInformation *info);
 
   // Description:
   // Set/Get the whole bounding box of an output port data object.
@@ -174,23 +177,39 @@ protected:
 
   // Setup default information on the output after the algorithm
   // executes information.
-  virtual int ExecuteInformation(vtkInformation* request);
+  virtual int ExecuteInformation(vtkInformation* request,
+                                 vtkInformationVector** inInfoVec,
+                                 vtkInformationVector* outInfoVec);
 
   // Copy information for the given request.
-  virtual void CopyDefaultInformation(vtkInformation* request, int direction);
+  virtual void CopyDefaultInformation(vtkInformation* request, int direction,
+                                      vtkInformationVector** inInfoVec,
+                                      vtkInformationVector* outInfoVec);
 
   // Helper to check output information before propagating it to inputs.
-  virtual int VerifyOutputInformation(int outputPort);
+  virtual int VerifyOutputInformation(int outputPort,
+                                      vtkInformationVector** inInfoVec,
+                                      vtkInformationVector* outInfoVec);
+
 
   // Override this check to account for update extent.
-  virtual int NeedToExecuteData(int outputPort);
+  virtual int NeedToExecuteData(int outputPort,
+                                vtkInformationVector** inInfoVec,
+                                vtkInformationVector* outInfoVec);
 
   // Override these to handle the continue-executing option.
-  virtual void ExecuteDataStart(vtkInformation* request);
-  virtual void ExecuteDataEnd(vtkInformation* request);
+  virtual void ExecuteDataStart(vtkInformation* request,
+                                vtkInformationVector** inInfoVec,
+                                vtkInformationVector* outInfoVec);
+  virtual void ExecuteDataEnd(vtkInformation* request,
+                              vtkInformationVector** inInfoVec,
+                              vtkInformationVector* outInfoVec);
 
   // Override this to handle cropping and ghost levels.
-  virtual void MarkOutputsGenerated(vtkInformation* request);
+  virtual void MarkOutputsGenerated(vtkInformation* request,
+                                    vtkInformationVector** inInfoVec,
+                                    vtkInformationVector* outInfoVec);
+
 
   // Remove update/whole extent when resetting pipeline information.
   virtual void ResetPipelineInformation(int port, vtkInformation*);
