@@ -27,7 +27,7 @@
 
 #include <ctype.h>
 
-vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.15.2.1");
+vtkCxxRevisionMacro(vtkGaussianCubeReader, "1.15.2.2");
 vtkStandardNewMacro(vtkGaussianCubeReader);
 
 // Construct object with merging set to true.
@@ -168,7 +168,7 @@ void vtkGaussianCubeReader::ReadSpecificMolecule(FILE* fp)
   for(i = 0; i < this->NumberOfAtoms; i++) 
     {
     fscanf(fp, "%d %f %f %f %f", &j, &dummy, x, x+1, x+2);
-    this->Transfom->TransformPoint(x, x);
+    this->Transform->TransformPoint(x, x);
     this->Points->InsertNextPoint(x);
     this->AtomType->InsertNextValue(j-1);
     }
