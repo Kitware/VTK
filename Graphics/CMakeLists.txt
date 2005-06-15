@@ -78,6 +78,7 @@ vtkGraphLayoutFilter.cxx
 vtkGridSynchronizedTemplates3D.cxx
 vtkHierarchicalDataSetGeometryFilter.cxx
 vtkHedgeHog.cxx
+vtkHierarchicalDataExtractDataSets.cxx
 vtkHierarchicalDataExtractLevel.cxx
 vtkHierarchicalDataLevelFilter.cxx
 vtkHull.cxx
