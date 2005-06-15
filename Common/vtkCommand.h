@@ -152,13 +152,13 @@ public:
     StartAnimationCueEvent, // used by vtkAnimationCue
     AnimationCueTickEvent,
     EndAnimationCueEvent,
-    ValueChangedEvent,
-    ActivateEvent,
     VolumeMapperRenderProgressEvent,
     VolumeMapperComputeGradientsEndEvent,
     VolumeMapperComputeGradientsProgressEvent,
     VolumeMapperComputeGradientsStartEvent,
     WidgetModifiedEvent,
+    WidgetValueChangedEvent,
+    WidgetActivateEvent,
     UserEvent = 1000
   };
 //ETX

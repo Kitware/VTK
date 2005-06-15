@@ -72,13 +72,13 @@ static const char *vtkCommandEventStrings[] = {
   "StartAnimationCueEvent",
   "AnimationCueTickEvent",
   "EndAnimationCueEvent",
-  "ValueChangedEvent",
-  "ActivateEvent",
   "VolumeMapperRenderProgressEvent",
   "VolumeMapperComputeGradientsEndEvent",
   "VolumeMapperComputeGradientsProgressEvent",
   "VolumeMapperComputeGradientsStartEvent",
   "WidgetModifiedEvent",
+  "WidgetValueChangedEvent",
+  "WidgetActivateEvent",
   NULL
 };
 
