@@ -106,7 +106,9 @@ public:
 
   // Description:
   // Specify a glyph to be used as the leader "head". This could be something
-  // like an arrow or sphere. If not specified, no glyph is drawn.
+  // like an arrow or sphere. If not specified, no glyph is drawn. Note that
+  // the glyph is assumed to be aligned along the x-axis and is rotated about
+  // the origin.
   virtual void SetLeaderGlyph(vtkPolyData*);
   vtkGetObjectMacro(LeaderGlyph,vtkPolyData);
 
@@ -135,7 +137,7 @@ public:
   // Description:
   // Get the text actor used by the caption. This is useful if you want to control
   // justification and other characteristics of the text actor.
-  vtkGetObjectMacro(CaptionTextActor,vtkTextActor);
+  vtkGetObjectMacro(TextActor,vtkTextActor);
 
   // Description:
   // Set/Get the text property.
@@ -183,7 +185,7 @@ protected:
   int   Padding;
 
 private:
-  vtkTextActor        *CaptionTextActor;
+  vtkTextActor        *TextActor;
   vtkTextProperty     *CaptionTextProperty;
 
   vtkPolyData         *BorderPolyData;

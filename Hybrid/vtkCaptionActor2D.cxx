@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.30");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.31");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -76,12 +76,13 @@ vtkCaptionActor2D::vtkCaptionActor2D()
   this->CaptionTextProperty->SetVerticalJustification(VTK_TEXT_CENTERED);
 
   // What is actually drawn
-  this->CaptionTextActor = vtkTextActor::New();
-  this->CaptionTextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionTextActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
-  this->CaptionTextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
-  this->CaptionTextActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
-  this->CaptionTextActor->SetScaledText(1);
+  this->TextActor = vtkTextActor::New();
+  this->TextActor->GetPositionCoordinate()->SetCoordinateSystemToDisplay();
+  this->TextActor->GetPositionCoordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->GetPosition2Coordinate()->SetCoordinateSystemToDisplay();
+  this->TextActor->GetPosition2Coordinate()->SetReferenceCoordinate(NULL);
+  this->TextActor->SetScaledText(1);
+  this->TextActor->SetTextProperty(this->CaptionTextProperty);
 
   this->BorderPolyData = vtkPolyData::New();
   vtkPoints *pts = vtkPoints::New();
@@ -174,7 +175,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
   
   this->AttachmentPointCoordinate->Delete();
 
-  this->CaptionTextActor->Delete();
+  this->TextActor->Delete();
   
   if ( this->LeaderGlyph )
     {
@@ -207,7 +208,7 @@ vtkCaptionActor2D::~vtkCaptionActor2D()
 // resources to release.
 void vtkCaptionActor2D::ReleaseGraphicsResources(vtkWindow *win)
 {
-  this->CaptionTextActor->ReleaseGraphicsResources(win); 
+  this->TextActor->ReleaseGraphicsResources(win); 
   this->BorderActor->ReleaseGraphicsResources(win); 
   this->LeaderActor2D->ReleaseGraphicsResources(win); 
   this->LeaderActor3D->ReleaseGraphicsResources(win); 
@@ -217,7 +218,7 @@ int vtkCaptionActor2D::RenderOverlay(vtkViewport *viewport)
 {
   int renderedSomething = 0;
 
-  renderedSomething += this->CaptionTextActor->RenderOverlay(viewport);
+  renderedSomething += this->TextActor->RenderOverlay(viewport);
 
   if ( this->Border )
     {
@@ -258,10 +259,10 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   p3[0] = (double)x3[0]; p3[1] = (double)x3[1]; p3[2] = p1[2];
 
   // Set up the scaled text - take into account the padding
-  this->CaptionTextActor->SetTextProperty(this->CaptionTextProperty);
-  this->CaptionTextActor->GetPositionCoordinate()->SetValue(
+  this->TextActor->SetTextProperty(this->CaptionTextProperty);
+  this->TextActor->GetPositionCoordinate()->SetValue(
     p2[0]+this->Padding,p2[1]+this->Padding,0.0);
-  this->CaptionTextActor->GetPosition2Coordinate()->SetValue(
+  this->TextActor->GetPosition2Coordinate()->SetValue(
     p3[0]-this->Padding,p3[1]-this->Padding,0.0);
 
   // Define the border
@@ -423,9 +424,9 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // assign properties
   //
-  this->CaptionTextActor->SetInput(this->Caption);
+  this->TextActor->SetInput(this->Caption);
 
-  this->CaptionTextActor->SetProperty(this->GetProperty());
+  this->TextActor->SetProperty(this->GetProperty());
   this->BorderActor->SetProperty(this->GetProperty());
   this->LeaderActor2D->SetProperty(this->GetProperty());
   this->LeaderActor3D->GetProperty()->SetColor(
@@ -433,7 +434,7 @@ int vtkCaptionActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   // Okay we are ready to render something
   int renderedSomething = 0;
-  renderedSomething += this->CaptionTextActor->RenderOpaqueGeometry(viewport);
+  renderedSomething += this->TextActor->RenderOpaqueGeometry(viewport);
   if ( this->Border )
     {
     renderedSomething += this->BorderActor->RenderOpaqueGeometry(viewport);
