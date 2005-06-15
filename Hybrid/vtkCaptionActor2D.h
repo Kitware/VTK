@@ -133,6 +133,11 @@ public:
   vtkGetMacro(Padding, int);
 
   // Description:
+  // Get the text actor used by the caption. This is useful if you want to control
+  // justification and other characteristics of the text actor.
+  vtkGetObjectMacro(CaptionTextActor,vtkTextActor);
+
+  // Description:
   // Set/Get the text property.
   virtual void SetCaptionTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(CaptionTextProperty,vtkTextProperty);
@@ -178,7 +183,7 @@ protected:
   int   Padding;
 
 private:
-  vtkTextActor        *CaptionActor;
+  vtkTextActor        *CaptionTextActor;
   vtkTextProperty     *CaptionTextProperty;
 
   vtkPolyData         *BorderPolyData;
