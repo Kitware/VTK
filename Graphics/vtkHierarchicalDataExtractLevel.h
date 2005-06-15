@@ -28,9 +28,6 @@ public:
   vtkTypeRevisionMacro(vtkHierarchicalDataExtractLevel,vtkHierarchicalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // Description:
-  // Construct object with PointIds and CellIds on; and ids being generated
-  // as scalars.
   static vtkHierarchicalDataExtractLevel *New();
 
   // Description:
@@ -54,12 +51,6 @@ public:
   // Description:
   // Returns input min (always 0) and max levels.
   vtkGetVector2Macro(InputLevels, int);
-
-  // Description:
-  // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation* request, 
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
 
 protected:
   vtkHierarchicalDataExtractLevel();
