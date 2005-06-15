@@ -23,7 +23,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkHierarchicalDataSetAlgorithm, "1.6");
 vtkStandardNewMacro(vtkHierarchicalDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -85,6 +85,12 @@ int vtkHierarchicalDataSetAlgorithm::ProcessRequest(
   vtkInformationVector** inputVector, 
   vtkInformationVector* outputVector)
 {
+  // create the output
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
+    {
+    return this->RequestDataObject(request, inputVector, outputVector);
+    }
+
   // generate the data
   if(request->Has(vtkCompositeDataPipeline::REQUEST_DATA()))
     {

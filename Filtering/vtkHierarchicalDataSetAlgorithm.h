@@ -56,6 +56,13 @@ protected:
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
+  virtual int RequestDataObject(vtkInformation*, 
+                                vtkInformationVector**, 
+                                vtkInformationVector*) {return 1;};
+
+  // Description:
+  // This is called by the superclass.
+  // This is the method you should override.
   virtual int RequestInformation(vtkInformation*, 
                                  vtkInformationVector**, 
                                  vtkInformationVector*) {return 1;};
