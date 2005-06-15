@@ -111,6 +111,12 @@ public:
   // Set the information about the datasets.
   void SetHierarchicalDataInformation(vtkHierarchicalDataInformation* info);
 
+  // Description:
+  // Returns the total number of points of all blocks. This will
+  // iterate over all blocks and call GetNumberOfPoints() so it
+  // might be expansive.
+  vtkIdType GetNumberOfPoints();
+
 //BTX
   friend class vtkHierarchicalDataIterator;
 //ETX
