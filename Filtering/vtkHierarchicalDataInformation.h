@@ -57,9 +57,14 @@ public:
 
   // Description:
   // Given a level and a dataset id, returns the corresponding information
-  // object
+  // object. If the information does not exist, one is created. Use
+  // HasInformation() to check whether the information already exists.
   vtkInformation* GetInformation(unsigned int level, unsigned int id);
 
+  // Description:
+  // Returns 1 if information exists, 0 otherwise.
+  int HasInformation(unsigned int level, unsigned int id);
+  
   // Description:
   // Creates a duplicate hierarchy and calls Copy() on each information
   // object.

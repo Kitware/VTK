@@ -19,7 +19,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataInformation, "1.2");
+vtkCxxRevisionMacro(vtkHierarchicalDataInformation, "1.3");
 vtkStandardNewMacro(vtkHierarchicalDataInformation);
 
 #include <vtkstd/vector>
@@ -123,6 +123,30 @@ void vtkHierarchicalDataInformation::SetNumberOfDataSets(
   this->Modified();
 }
 
+
+//----------------------------------------------------------------------------
+int vtkHierarchicalDataInformation::HasInformation(
+  unsigned int level, unsigned int id)
+{
+  if (this->Internal->DataInformation.size() <= level)
+    {
+    return 0;
+    }
+
+  vtkHierarchicalDataInformationInternal::LevelInformationType& linf = 
+    this->Internal->DataInformation[level];
+  if (linf.size() <= id)
+    {
+    return 0;
+    }
+
+  vtkInformation* inf = linf[id].GetPointer();
+  if (!inf)
+    {
+    return 0;
+    }
+  return 1;
+}
 
 //----------------------------------------------------------------------------
 vtkInformation* vtkHierarchicalDataInformation::GetInformation(
