@@ -16,6 +16,7 @@
 
 #include "vtkVolumeRenderingFactory.h"
 #include "vtkToolkits.h"
+#include "vtkVolumeRenderingToolkit.h"
 #include "vtkDebugLeaks.h"
 
 // if using some sort of opengl, then include these files
@@ -36,7 +37,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.3");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.4");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
