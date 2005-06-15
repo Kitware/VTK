@@ -62,22 +62,6 @@ public:
   // Foward Source messages to filter1
 
   // Description:
-  // This method returns the cache to make a connection
-  // It justs feeds the request to the sub filter.
-  vtkImageData *GetOutput();
-  vtkImageData *GetOutput(int idx)
-    {return this->Superclass::GetOutput(idx); };
-
-
-  // Foward filter messages
-
-  // Description:
-  // Set the Input of the filter.
-  void SetInput(vtkImageData *Input);
-
-  // Forward dilateErode messages to both filters.
-
-  // Description:
   // Selects the size of gaps or objects removed.
   void SetKernelSize(int size0, int size1, int size2);
 
@@ -97,6 +81,12 @@ public:
   // Needed for Progress functions
   vtkGetObjectMacro(Filter0, vtkImageDilateErode3D);
   vtkGetObjectMacro(Filter1, vtkImageDilateErode3D);
+
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
 
 protected:
   vtkImageOpenClose3D();

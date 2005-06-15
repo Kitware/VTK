@@ -20,9 +20,13 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkExecutive.h"
+
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.28");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.29");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -61,7 +65,7 @@ vtkImageOpenClose3D::vtkImageOpenClose3D()
   cb->Offset = 0;
   this->Filter0->AddObserver(vtkCommand::ProgressEvent, cb);
   cb->Delete();
-  
+
   this->Filter1 = vtkImageDilateErode3D::New();
   cb = vtkImageOpenClose3DProgress::New();
   cb->Self = this;
@@ -71,7 +75,8 @@ vtkImageOpenClose3D::vtkImageOpenClose3D()
   this->SetOpenValue(0.0);
   this->SetCloseValue(255.0);
 
-  // This dummy filter does not have an execute function.
+  // connect up the internal pipeline
+  this->Filter1->SetInputConnection(this->Filter0->GetOutputPort());
 }
 
 //----------------------------------------------------------------------------
@@ -144,25 +149,6 @@ void vtkImageOpenClose3D::Modified()
     }
 }
 
-//----------------------------------------------------------------------------
-// This method returns the cache to make a connection
-// It justs feeds the request to the sub filter.
-vtkImageData *vtkImageOpenClose3D::GetOutput()
-{
-  vtkImageData *source;
-
-  if ( ! this->Filter1)
-    {
-    vtkErrorMacro(<< "GetOutput: Sub filter not created yet.");
-    return NULL;
-    }
-  
-  source = this->Filter1->GetOutput();
-  vtkDebugMacro(<< "GetOutput: returning source "
-                << source->GetClassName() << " (" << source << ")");
-
-  return source;
-}
 
 //----------------------------------------------------------------------------
 // This method considers the sub filters MTimes when computing this objects
@@ -193,20 +179,30 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-// Set the Input of the filter.
-void vtkImageOpenClose3D::SetInput(vtkImageData *input)
+int vtkImageOpenClose3D::ProcessRequest(vtkInformation* request,
+                                        vtkInformationVector** inputVector,
+                                        vtkInformationVector* outputVector)
 {
-  this->Superclass::SetInput(0, input);
-
-  if ( ! this->Filter0 || ! this->Filter1)
+  if(request->Get(vtkExecutive::ALGORITHM_BEFORE_FORWARD()))
     {
-    vtkErrorMacro(<< "SetInput: Sub filter not created yet.");
-    return;
+    this->Filter1->GetExecutive()->ProcessRequest
+      (request, 0,
+       this->Filter1->GetExecutive()->GetInputInformation(), 
+       outputVector);
+    return this->Filter0->GetExecutive()->ProcessRequest
+      (request, 0,
+       inputVector, 
+       this->Filter0->GetExecutive()->GetOutputInformation());
     }
-  
-  // set the input of the first sub filter 
-  this->Filter0->SetInput(input);
-  this->Filter1->SetInput(this->Filter0->GetOutput());
+
+  this->Filter0->GetExecutive()->ProcessRequest
+    (request, 0,
+     inputVector, 
+     this->Filter0->GetExecutive()->GetOutputInformation());
+  return this->Filter1->GetExecutive()->ProcessRequest
+    (request, 0,
+     this->Filter1->GetExecutive()->GetInputInformation(), 
+     outputVector);
 }
 
 //----------------------------------------------------------------------------
