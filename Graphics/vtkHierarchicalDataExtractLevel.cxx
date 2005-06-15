@@ -24,11 +24,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.6");
+vtkCxxRevisionMacro(vtkHierarchicalDataExtractLevel, "1.7");
 vtkStandardNewMacro(vtkHierarchicalDataExtractLevel);
 
-// Construct object with PointIds and CellIds on; and ids being generated
-// as scalars.
+//----------------------------------------------------------------------------
 vtkHierarchicalDataExtractLevel::vtkHierarchicalDataExtractLevel()
 {
   this->MinLevel = 0;
@@ -38,22 +37,9 @@ vtkHierarchicalDataExtractLevel::vtkHierarchicalDataExtractLevel()
   this->InputLevels[1] = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkHierarchicalDataExtractLevel::~vtkHierarchicalDataExtractLevel()
 {
-}
-
-//----------------------------------------------------------------------------
-int vtkHierarchicalDataExtractLevel::ProcessRequest(
-  vtkInformation* request, 
-  vtkInformationVector** inputVector, 
-  vtkInformationVector* outputVector)
-{
-  // create the output
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
-    return this->RequestDataObject(request, inputVector, outputVector);
-    }
-  return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
@@ -99,9 +85,9 @@ int vtkHierarchicalDataExtractLevel::RequestInformation(
       inInfo->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
   if (!inCompInfo)
     {
-    vtkErrorMacro("Expected information not found. "
+    vtkDebugMacro("Expected information not found. "
                   "Cannot provide information.");
-    return 0;
+    return 1;
     }
 
   unsigned int numInputLevels = inCompInfo->GetNumberOfLevels();
@@ -133,14 +119,17 @@ int vtkHierarchicalDataExtractLevel::RequestInformation(
     unsigned int numDataSets = compInfo->GetNumberOfDataSets(i);
     for (unsigned int j=0; j<numDataSets; j++)
       {
-      vtkInformation* outInfo = compInfo->GetInformation(i, j);
-      inInfo = inCompInfo->GetInformation(i, j);
-      outInfo->Copy(inInfo);
+      if (inCompInfo->HasInformation(i, j))
+        {
+        vtkInformation* outdInfo = compInfo->GetInformation(i, j);
+        vtkInformation* indInfo = inCompInfo->GetInformation(i, j);
+        outdInfo->Copy(indInfo);
+        }
       }
     }
 
-  vtkInformation* info = outputVector->GetInformationObject(0);
-  info->Set(
+  vtkInformation* outInfo = outputVector->GetInformationObject(0);
+  outInfo->Set(
     vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION(), compInfo);
   compInfo->Delete();
 
