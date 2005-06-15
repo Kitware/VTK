@@ -24,8 +24,9 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkVolumeProperty.h"
+#include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.2");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.3");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -688,17 +689,48 @@ vtkVolumeTextureMapper3D *vtkVolumeTextureMapper3D::New()
 }
 
 void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren, 
-                                                  vtkVolume *vol,
-                                                  double inBounds[6] )
+                                                vtkVolume *vol,
+                                                double inBounds[6] )
 {
   // Get the camera position and focal point
-  double focalPoint[3], position[3];
+  double focalPoint[4], position[4];
   double plane[4];
   vtkCamera *camera = ren->GetActiveCamera();
 
   camera->GetPosition( position );
   camera->GetFocalPoint( focalPoint );
+ 
+  position[3]   = 1.0;
+  focalPoint[3] = 1.0;
   
+  // Pass the focal point and position through the inverse of the 
+  // volume's matrix to map back into the data coordinates. We
+  // are going to compute these polygons in the coordinate system
+  // of the input data - this is easiest since this data must be 
+  // axis aligned. Then we'll use OpenGL to transform these polygons
+  // into the world coordinate system through the use of the
+  // volume's matrix.
+  vtkMatrix4x4 *matrix = vtkMatrix4x4::New();
+  vol->GetMatrix( matrix );
+  matrix->Invert();
+  matrix->MultiplyPoint( position, position );
+  matrix->MultiplyPoint( focalPoint, focalPoint );
+  matrix->Delete();
+  
+  if ( position[3] )
+    {
+    position[0] /= position[3];
+    position[1] /= position[3];
+    position[2] /= position[3];
+    }
+
+  if ( focalPoint[3] )
+    {
+    focalPoint[0] /= focalPoint[3];
+    focalPoint[1] /= focalPoint[3];
+    focalPoint[2] /= focalPoint[3];
+    }
+
   // Create a plane equation using the direction and position of the camera
   plane[0] = (double)focalPoint[0] - (double)position[0];
   plane[1] = (double)focalPoint[1] - (double)position[1];
@@ -718,8 +750,8 @@ void vtkVolumeTextureMapper3D::ComputePolygons( vtkRenderer *ren,
   // texture planes against. First we need to clip these against the bounds
   // of the volume to make sure they don't exceed it.
   double volBounds[6];
-  vol->GetBounds( volBounds );
- 
+  this->GetInput()->GetBounds( volBounds );
+
   double bounds[6];
   bounds[0] = (inBounds[0]>volBounds[0])?(inBounds[0]):(volBounds[0]);
   bounds[1] = (inBounds[1]<volBounds[1])?(inBounds[1]):(volBounds[1]);
@@ -1199,13 +1231,11 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
       needToUpdate = 1;
       }
 
-    rgbFunc  = vol->GetProperty()->GetRGBTransferFunction(0);
-    grayFunc = vol->GetProperty()->GetGrayTransferFunction(0);
-  
     // Has the color transfer function changed in some way,
     // and we are using it?
     if ( colorChannels == 3 )
       {
+      rgbFunc  = vol->GetProperty()->GetRGBTransferFunction(0);
       if ( this->SavedRGBFunction != rgbFunc ||
            this->SavedParametersMTime.GetMTime() < rgbFunc->GetMTime() )
         {
@@ -1217,6 +1247,7 @@ int vtkVolumeTextureMapper3D::UpdateColorLookup( vtkVolume *vol )
     // and we are using it?
     if ( colorChannels == 1 )
       {
+      grayFunc = vol->GetProperty()->GetGrayTransferFunction(0);
       if ( this->SavedGrayFunction != grayFunc ||
            this->SavedParametersMTime.GetMTime() < grayFunc->GetMTime() )
         {

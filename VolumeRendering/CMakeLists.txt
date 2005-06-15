@@ -61,10 +61,6 @@ IF(WIN32)
   SET( KitOpenGL_SRCS ${KitOpenGL_SRCS}
     vtkOpenGLVolumeTextureMapper3D.cxx )
 
-  SET_SOURCE_FILES_PROPERTIES(
-    vtkVolumeTextureMapper3D
-    ABSTRACT )
-
   SET(asm_files
     vtkVolumeTextureMapper3D_FourDependentNoShadeFP
     vtkVolumeTextureMapper3D_FourDependentShadeFP

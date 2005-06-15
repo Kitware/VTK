@@ -22,6 +22,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_VOLUMERENDERING)
       volRCRotateClip
       volTM2DCropRegions
       volTM2DRotateClip
+      volTM3DCropRegions
+      volTM3DRotateClip
     )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 

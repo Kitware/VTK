@@ -64,7 +64,7 @@ extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.1");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.2");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -163,7 +163,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   matrix->Transpose();
 
   glPushAttrib(GL_ENABLE_BIT   | 
-         GL_COLOR_BUFFER_BIT   |
+               GL_COLOR_BUFFER_BIT   |
                GL_STENCIL_BUFFER_BIT |
                GL_DEPTH_BUFFER_BIT   | 
                GL_POLYGON_BIT        | 
@@ -401,7 +401,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
   // No cropping case - render the whole thing
   if ( !this->Cropping )
     {
-    vol->GetBounds(bounds[0]);
+    // Use the input data bounds - we'll take care of the volume's
+    // matrix during rendering
+    this->GetInput()->GetBounds(bounds[0]);
     numIterations = 1;
     }
   // Simple cropping case - render the subvolume
@@ -413,13 +415,27 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
   // Complex cropping case - render each region in back-to-front order
   else
     {
-    // Get the bounds of the volume
-    double volBounds[6];
-    vol->GetBounds( volBounds );
-    
     // Get the camera position
-    double camPos[3];
+    double camPos[4];
     ren->GetActiveCamera()->GetPosition(camPos);
+    
+    double volBounds[6];
+    this->GetInput()->GetBounds(volBounds);
+    
+    // Pass camera through inverse volume matrix
+    // so that we are in the same coordinate system
+    vtkMatrix4x4 *volMatrix = vtkMatrix4x4::New();
+    vol->GetMatrix( volMatrix );
+    camPos[3] = 1.0;
+    volMatrix->Invert();
+    volMatrix->MultiplyPoint( camPos, camPos );
+    volMatrix->Delete();
+    if ( camPos[3] )
+      {
+      camPos[0] /= camPos[3];
+      camPos[1] /= camPos[3];
+      camPos[2] /= camPos[3];
+      }
     
     // These are the region limits for x (first four), y (next four) and
     // z (last four). The first region limit is the lower bound for
@@ -1425,13 +1441,15 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
   
   double viewDirection[3];
   
+  volumeTransform->TransformPoint( cameraPosition, cameraPosition );
+  volumeTransform->TransformPoint( cameraFocalPoint, cameraFocalPoint );
+  
   viewDirection[0] = cameraFocalPoint[0] - cameraPosition[0];
   viewDirection[1] = cameraFocalPoint[1] - cameraPosition[1];
   viewDirection[2] = cameraFocalPoint[2] - cameraPosition[2];
   
   vtkMath::Normalize( viewDirection );
   
-  volumeTransform->TransformPoint( viewDirection, viewDirection );
 
   ambientColor[0] = 0.0;
   ambientColor[1] = 0.0;
@@ -1467,6 +1485,9 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
       double lightFocalPoint[3];
       light[lightIndex]->GetTransformedPosition( lightPosition );
       light[lightIndex]->GetTransformedFocalPoint( lightFocalPoint );
+
+      volumeTransform->TransformPoint( lightPosition, lightPosition );
+      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );      
       
       dir[0] = lightPosition[0] - lightFocalPoint[0];
       dir[1] = lightPosition[1] - lightFocalPoint[1];
@@ -1474,7 +1495,6 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
       
       vtkMath::Normalize( dir );
       
-      volumeTransform->TransformPoint( dir, dir );
       
       lightDiffuseColor[lightIndex][0] = lightColor[0]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][1] = lightColor[1]*diffuse*lightIntensity;

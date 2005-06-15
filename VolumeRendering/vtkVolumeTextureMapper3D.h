@@ -172,7 +172,7 @@ protected:
   float                     TempArray2[4096];
   int                       ColorTableSize;
   float                     ColorTableScale;
-  float                     ColorTableOffset;
+  float                     ColorTableOffset; 
 
   unsigned char             DiffuseLookup[65536*4];
   unsigned char             SpecularLookup[65536*4];
