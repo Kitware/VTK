@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.22");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.23");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -384,10 +384,18 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* newExecutive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessRequest(vtkInformation*,
+int vtkAlgorithm::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector**,
                                  vtkInformationVector*)
 {
+  // default handling of pipeline MTime
+  if(request->Has(vtkDemandDrivenPipeline::REQUEST_PIPELINE_MODIFIED_TIME()))
+    {
+    request->Set(vtkDemandDrivenPipeline::PIPELINE_MODIFIED_TIME(), 
+                 this->GetMTime());
+    return 1;
+    }
+
   return 1;
 }
 
