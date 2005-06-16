@@ -310,6 +310,17 @@ protected:
   vtkDataArray *GetInputArrayToProcess(int idx,vtkInformationVector **inputVector);
 
   // Description:
+  // Filters that have multiple connections on one port can use
+  // this signature. This will override the connection id that the
+  // user set in SetInputArrayToProcess() with the connection id
+  // passed. This way, the user specifies one array to process and
+  // that information is  used to obtain arrays for all the connection
+  // on the port with the appropriate connection id substituted.
+  vtkDataArray *GetInputArrayToProcess(int idx,
+                                       int connection,
+                                       vtkInformationVector **inputVector);
+
+  // Description:
   // This method takes in an index (as specified in SetInputArrayToProcess)
   // and a pipeline information vector. It then finds the information about
   // input array idx and then uses that information to find the field

@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.21");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.22");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -206,8 +206,32 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
 }
 
 //----------------------------------------------------------------------------
-vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(int idx, 
-                                                   vtkInformationVector **inputVector)
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, vtkInformationVector **inputVector)
+{
+  vtkInformationVector *inArrayVec = 
+    this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+  vtkInformation *inArrayInfo = inArrayVec->GetInformationObject(idx);
+  if (!inArrayInfo)
+    {
+    vtkErrorMacro
+      ("Attempt to get an input array for an index that has not been specified");
+    return NULL;
+    }
+
+  int connection = inArrayInfo->Get(INPUT_CONNECTION());
+  return this->GetInputArrayToProcess(idx, connection, inputVector);
+}
+
+//----------------------------------------------------------------------------
+vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
+  int idx, int connection, vtkInformationVector **inputVector)
 {
   vtkInformationVector *inArrayVec = 
     this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
@@ -226,7 +250,6 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(int idx,
     }
 
   int port = inArrayInfo->Get(INPUT_PORT());
-  int connection = inArrayInfo->Get(INPUT_CONNECTION());
   int fieldAssoc = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
   vtkInformation *inInfo = inputVector[port]->GetInformationObject(connection);
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
