@@ -54,7 +54,7 @@ SET( KitOpenGL_SRCS
 )
 
 IF(WIN32)
-  ADD_EXECUTABLE(EncodeString EncodeString.cxx)
+  ADD_EXECUTABLE(vtkVREncodeString vtkVREncodeString.cxx)
 
   SET ( Kit_SRCS ${Kit_SRCS} vtkVolumeTextureMapper3D.cxx )
 
@@ -78,8 +78,8 @@ IF(WIN32)
       ADD_CUSTOM_COMMAND(
         OUTPUT ${res}
         DEPENDS ${src}
-        EncodeString
-        COMMAND ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/EncodeString
+        vtkVREncodeString
+        COMMAND ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/vtkVREncodeString
         ARGS ${res} ${src} ${file}
         )
       SET(OBJ_DEPS ${OBJ_DEPS} ${res})
