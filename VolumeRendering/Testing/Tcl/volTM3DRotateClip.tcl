@@ -115,7 +115,6 @@ set culler [[ren1 GetCullers] GetNextItem]
 $culler SetSortingStyleToBackToFront
 
 ren1 AddViewProp sphereActor
-ren1 AddViewProp volume
 ren1 SetBackground 0.1 0.2 0.4
 renWin Render
 
@@ -123,6 +122,18 @@ renWin Render
 [ren1 GetActiveCamera] Elevation 15
 [ren1 GetActiveCamera] Roll 45
 [ren1 GetActiveCamera] Zoom 2.0
+
+set valid [volumeMapper IsRenderSupported volumeProperty]
+
+ren1 AddViewProp volume
+if {!$valid} {
+   ren1 RemoveAllProps
+   vtkTextActor t
+   t SetInput "Required Extensions Not Supported"
+   t SetDisplayPosition 128 128
+   [t GetTextProperty] SetJustificationToCentered
+   ren1 AddViewProp t
+}
 
 wm withdraw .
  

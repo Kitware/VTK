@@ -35,6 +35,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 ren1 SetBackground 0.1 0.2 0.4
+renWin Render
 
 for { set i 0 } { $i < 2 } { incr i } {
     for { set j 0 } { $j < 4 } { incr j } {
@@ -83,10 +84,20 @@ volumeMapper_1_3 SetCroppingRegionFlags 67117057
 set culler [[ren1 GetCullers] GetNextItem]
 $culler SetSortingStyleToBackToFront
 
+set valid [volumeMapper_0_0 IsRenderSupported volumeProperty]
+
+if {!$valid} {
+   ren1 RemoveAllProps
+   vtkTextActor t
+   t SetInput "Required Extensions Not Supported"
+   t SetDisplayPosition 300 150
+   [t GetTextProperty] SetJustificationToCentered
+   ren1 AddViewProp t
+}
+
 ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 3.0
 renWin Render
-
 
 proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
