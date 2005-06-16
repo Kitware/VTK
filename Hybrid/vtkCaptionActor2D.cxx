@@ -32,7 +32,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCaptionActor2D, "1.31");
+vtkCxxRevisionMacro(vtkCaptionActor2D, "1.32");
 vtkStandardNewMacro(vtkCaptionActor2D);
 
 vtkCxxSetObjectMacro(vtkCaptionActor2D,LeaderGlyph,vtkPolyData);
@@ -460,6 +460,7 @@ void vtkCaptionActor2D::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
+  os << indent << "Text Actor: " << this->TextActor << "\n";
   if (this->CaptionTextProperty)
     {
     os << indent << "Caption Text Property:\n";
