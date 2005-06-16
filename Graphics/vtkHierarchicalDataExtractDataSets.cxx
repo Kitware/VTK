@@ -26,7 +26,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <vtkstd/list>
 
-vtkCxxRevisionMacro(vtkHierarchicalDataExtractDataSets, "1.1");
+vtkCxxRevisionMacro(vtkHierarchicalDataExtractDataSets, "1.2");
 vtkStandardNewMacro(vtkHierarchicalDataExtractDataSets);
 
 struct vtkHierarchicalDataExtractDataSetsInternals
@@ -143,7 +143,8 @@ int vtkHierarchicalDataExtractDataSets::RequestInformation(
     for (; it != this->Internal->DataSets.end(); it++)
       {
       DataSetNode& node = *it;
-      unsigned int numInputDataSets = inCompInfo->GetNumberOfDataSets(node.Level);
+      unsigned int numInputDataSets = 
+        inCompInfo->GetNumberOfDataSets(node.Level);
       if (node.DataSetId <= numInputDataSets)
         {
         if (node.DataSetId >= compInfo->GetNumberOfDataSets(node.Level))
@@ -224,26 +225,30 @@ int vtkHierarchicalDataExtractDataSets::RequestData(
           }
         }
       }
-    }
 
-  vtkHierarchicalDataInformation* compInfo = 
-    vtkHierarchicalDataInformation::SafeDownCast(
-      info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
-
-  output->SetHierarchicalDataInformation(compInfo);
-  unsigned int numLevels = output->GetNumberOfLevels();
-
-  vtkHierarchicalBoxDataSet* hbds = 
-    vtkHierarchicalBoxDataSet::SafeDownCast(output);
-  if (hbds)
-    {
-    vtkHierarchicalBoxDataSet* ihbds = 
-      vtkHierarchicalBoxDataSet::SafeDownCast(input);
-    for (unsigned int level=0; level<numLevels-1; level++)
+    vtkHierarchicalDataInformation* compInfo = 
+      vtkHierarchicalDataInformation::SafeDownCast(
+        info->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_INFORMATION()));
+    
+    if (compInfo)
       {
-      hbds->SetRefinementRatio(level, ihbds->GetRefinementRatio(level));
+      output->SetHierarchicalDataInformation(compInfo);
       }
-    hbds->GenerateVisibilityArrays();
+    unsigned int numLevels = output->GetNumberOfLevels();
+    
+    vtkHierarchicalBoxDataSet* hbds = 
+      vtkHierarchicalBoxDataSet::SafeDownCast(output);
+    if (hbds)
+      {
+      vtkHierarchicalBoxDataSet* ihbds = 
+        vtkHierarchicalBoxDataSet::SafeDownCast(input);
+      for (unsigned int level=0; level<numLevels-1; level++)
+        {
+        hbds->SetRefinementRatio(level, ihbds->GetRefinementRatio(level));
+        }
+      hbds->GenerateVisibilityArrays();
+      }
+
     }
 
   return 1;
