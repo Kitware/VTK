@@ -22,8 +22,10 @@
 
 #include "vtkCamera.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCompositeDataPipeline.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
+#include "vtkHierarchicalDataExtractLevel.h"
 #include "vtkHierarchicalDataSetGeometryFilter.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkHierarchicalPolyDataMapper.h"
@@ -92,13 +94,18 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
   ren->AddActor(ocActor);
 
   // cell 2 point and contour
+  vtkHierarchicalDataExtractLevel* el = vtkHierarchicalDataExtractLevel::New();
+  el->SetInputConnection(0, reader->GetOutputPort(0));
+  el->SetLevelRange(2,2);
+
   vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
-  c2p->SetInputConnection(0, reader->GetOutputPort(0));
+  c2p->SetInputConnection(0, el->GetOutputPort(0));
 
   vtkContourFilter* contour = vtkContourFilter::New();
   contour->SetInputConnection(0, c2p->GetOutputPort(0));
   contour->SetValue(0, -0.013);
-  contour->SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
+  contour->SetInputArrayToProcess(
+    0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"phi");
 
   // Rendering objects
   vtkHierarchicalPolyDataMapper* contMapper = vtkHierarchicalPolyDataMapper::New();
@@ -126,6 +133,7 @@ int TestHierarchicalBoxPipeline(int argc, char* argv[])
     }
   
   // Cleanup
+  el->Delete();
   geom->Delete();
   shMapper->Delete();
   shActor->Delete();

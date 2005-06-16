@@ -23,7 +23,9 @@
 #include "vtkCellDataToPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
+#include "vtkHierarchicalDataExtractDataSets.h"
 #include "vtkHierarchicalDataSetGeometryFilter.h"
+#include "vtkMultiBlockPLOT3DReader.h"
 #include "vtkOutlineCornerFilter.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -32,7 +34,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShrinkPolyData.h"
-#include "vtkTestMultiBlockDataReader.h"
 #include "vtkTestUtilities.h"
 
 int TestMultiBlock(int argc, char* argv[])
@@ -47,12 +48,18 @@ int TestMultiBlock(int argc, char* argv[])
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
   iren->SetRenderWindow(renWin);
 
-  char* cfname = 
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/multicomb");
+  char* xyzname = 
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.xyz");
+  char* qname = 
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/mbwavelet_ascii.q");
 
-  vtkTestMultiBlockDataReader* reader = vtkTestMultiBlockDataReader::New();
-  reader->SetFileName(cfname);
-  delete[] cfname;
+  vtkMultiBlockPLOT3DReader* reader = vtkMultiBlockPLOT3DReader::New();
+  reader->SetXYZFileName(xyzname);
+  reader->SetQFileName(qname);
+  reader->SetMultiGrid(1);
+  reader->SetBinaryFile(0);
+  delete[] xyzname;
+  delete[] qname;
 
   // geometry filter
   vtkHierarchicalDataSetGeometryFilter* geom = 
@@ -88,13 +95,16 @@ int TestMultiBlock(int argc, char* argv[])
   ocActor->GetProperty()->SetColor(1, 0, 0);
   ren->AddActor(ocActor);
 
-  // cell 2 point and contour
-  vtkCellDataToPointData* c2p = vtkCellDataToPointData::New();
-  c2p->SetInputConnection(0, reader->GetOutputPort(0));
+  // extract a block
+  vtkHierarchicalDataExtractDataSets* eds = 
+    vtkHierarchicalDataExtractDataSets::New();
+  eds->SetInputConnection(0, reader->GetOutputPort(0));
+  eds->AddDataSet(0, 1);
 
+  // contour
   vtkContourFilter* contour = vtkContourFilter::New();
-  contour->SetInputConnection(0, c2p->GetOutputPort(0));
-  contour->SetValue(0, 0.45);
+  contour->SetInputConnection(0, eds->GetOutputPort(0));
+  contour->SetValue(0, 149);
 
   // geometry filter
   vtkHierarchicalDataSetGeometryFilter* geom3 = 
@@ -110,11 +120,11 @@ int TestMultiBlock(int argc, char* argv[])
   ren->AddActor(contActor);
   
   // Standard testing code.
+  eds->Delete();
   ocf->Delete();
   geom2->Delete();
   ocMapper->Delete();
   ocActor->Delete();
-  c2p->Delete();
   contour->Delete();
   geom3->Delete();
   contMapper->Delete();
