@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -65,13 +65,22 @@ vtkUnstructuredGridPreIntegration::~vtkUnstructuredGridPreIntegration()
 {
   this->SetIntegrator(NULL);
 
-  for (int i = 0; i < this->NumComponents; i++)
+  if (this->IntegrationTable)
     {
-    delete[] this->IntegrationTable[i];
+    for (int i = 0; i < this->NumComponents; i++)
+      {
+      delete[] this->IntegrationTable[i];
+      }
+    delete[] this->IntegrationTable;
     }
-  delete[] this->IntegrationTable;
-  delete[] this->IntegrationTableScalarShift;
-  delete[] this->IntegrationTableScalarScale;
+  if (this->IntegrationTableScalarShift)
+    {
+    delete[] this->IntegrationTableScalarShift;
+    }
+  if (this->IntegrationTableScalarScale)
+    {
+    delete[] this->IntegrationTableScalarScale;
+    }
 }
 
 void vtkUnstructuredGridPreIntegration::PrintSelf(ostream &os, vtkIndent indent)
