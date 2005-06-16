@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.1");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.2");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -779,7 +779,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       numberOfDims = 2;
       }
   
-    int numBlocks = this->Internal->Blocks.size();
     for(i=0; i<numBlocks; i++)
       {
 
