@@ -21,7 +21,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTrivialProducer, "1.8");
+vtkCxxRevisionMacro(vtkTrivialProducer, "1.9");
 vtkStandardNewMacro(vtkTrivialProducer);
 
 //----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ int vtkTrivialProducer::FillOutputPortInformation(int, vtkInformation*)
 //----------------------------------------------------------------------------
 int
 vtkTrivialProducer::ProcessRequest(vtkInformation* request,
-                                   vtkInformationVector**,
+                                   vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector)
 {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()) &&
@@ -137,7 +137,8 @@ vtkTrivialProducer::ProcessRequest(vtkInformation* request,
     vtkInformation* outputInfo = outputVector->GetInformationObject(0);
     outputInfo->Remove(vtkDemandDrivenPipeline::DATA_NOT_GENERATED());
     }
-  return 1;
+
+  return this->Superclass::ProcessRequest(request,inputVector,outputVector);
 }
 
 //----------------------------------------------------------------------------
