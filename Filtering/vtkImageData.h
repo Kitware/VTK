@@ -317,7 +317,7 @@ public:
   // to operate on more than just scalars.
 
   // Description:
-  // These are convienence methods for getting a pointer
+  // These are convenience methods for getting a pointer
   // from any filed array.  It is a start at expanding image filters
   // to process any array (not just scalars).
   void *GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);

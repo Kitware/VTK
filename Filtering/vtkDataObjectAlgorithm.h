@@ -78,7 +78,7 @@ protected:
   vtkDataObjectAlgorithm();
   ~vtkDataObjectAlgorithm();
 
-  // convinience method
+  // convenience method
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);

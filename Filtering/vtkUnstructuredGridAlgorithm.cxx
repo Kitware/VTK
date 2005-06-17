@@ -14,15 +14,14 @@
 =========================================================================*/
 #include "vtkUnstructuredGridAlgorithm.h"
 
-#include "vtkCommand.h"
+#include "vtkObjectFactory.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.4");
+vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.5");
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -61,12 +60,6 @@ vtkUnstructuredGrid* vtkUnstructuredGridAlgorithm::GetOutput(int port)
 void vtkUnstructuredGridAlgorithm::SetOutput(vtkDataObject* d)
 {
   this->GetExecutive()->SetOutputData(0, d);
-}
-
-//----------------------------------------------------------------------------
-vtkDataObject* vtkUnstructuredGridAlgorithm::GetInput()
-{
-  return this->GetInput(0);
 }
 
 //----------------------------------------------------------------------------

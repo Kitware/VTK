@@ -26,7 +26,6 @@
 #define __vtkImageAlgorithm_h
 
 #include "vtkAlgorithm.h"
-#include "vtkImageData.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkImageData;
@@ -54,8 +53,12 @@ public:
   // methods because they are not the only way to connect a pipeline
   void SetInput(vtkDataObject *);
   void SetInput(int, vtkDataObject*);
+
+  // this method is not recommended for use, but lots of old style filters
+  // use it
   vtkDataObject *GetInput(int port);
   vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkImageData  *GetImageDataInput(int port);
 
   // Description:
   // Add an input of this algorithm.
@@ -66,7 +69,7 @@ protected:
   vtkImageAlgorithm();
   ~vtkImageAlgorithm();
 
-  // convinience method
+  // convenience method
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
@@ -74,7 +77,7 @@ protected:
                                   vtkInformationVector**,
                                   vtkInformationVector*);
 
-  // convienience method to copy the selected scalars type and num components
+  // convenience method to copy the selected scalars type and num components
   // to the output info. Call this from inside your RequestInformation
   virtual void CopyInputArrayAttributesToOutput(vtkInformation* request,
                                                 vtkInformationVector** inputVector,

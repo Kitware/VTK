@@ -14,17 +14,15 @@
 =========================================================================*/
 #include "vtkImageAlgorithm.h"
 
+#include "vtkObjectFactory.h"
 #include "vtkCellData.h"
-#include "vtkCommand.h"
-#include "vtkDataArray.h"
+#include "vtkPointData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.23");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.24");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -128,6 +126,7 @@ void vtkImageAlgorithm::Execute()
   vtkErrorMacro(<< "Definition of Execute() method should be in subclass and you should really use the ExecuteData(vtkInformation *request,...) signature instead");
 }
 
+//----------------------------------------------------------------------------
 void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
 (vtkInformation* vtkNotUsed( request ),
  vtkInformationVector** inputVector,
@@ -163,6 +162,7 @@ void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
     }
 }  
 
+//----------------------------------------------------------------------------
 int vtkImageAlgorithm::RequestInformation(
   vtkInformation* request,
   vtkInformationVector** inputVector,
@@ -173,6 +173,7 @@ int vtkImageAlgorithm::RequestInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkImageAlgorithm::RequestUpdateExtent(
   vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector),
@@ -212,6 +213,7 @@ vtkImageData *vtkImageAlgorithm::AllocateOutputData(vtkDataObject *output)
   return out;
 }
 
+//----------------------------------------------------------------------------
 // by default copy the attr from the first input to the first output
 void vtkImageAlgorithm::CopyAttributeData(vtkImageData *input,
                                           vtkImageData *output,
@@ -353,6 +355,7 @@ int vtkImageAlgorithm::FillOutputPortInformation(
   return 1;
 }
 
+//----------------------------------------------------------------------------
 int vtkImageAlgorithm::FillInputPortInformation(
   int vtkNotUsed(port), vtkInformation* info)
 {
@@ -388,6 +391,12 @@ vtkDataObject* vtkImageAlgorithm::GetInput(int port)
     return 0;
     }
   return this->GetExecutive()->GetInputData(port, 0);
+}
+
+//----------------------------------------------------------------------------
+vtkImageData* vtkImageAlgorithm::GetImageDataInput(int port)
+{
+  return vtkImageData::SafeDownCast(this->GetInput(port));
 }
 
 //----------------------------------------------------------------------------

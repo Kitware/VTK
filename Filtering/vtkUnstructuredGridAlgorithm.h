@@ -35,7 +35,6 @@
 #define __vtkUnstructuredGridAlgorithm_h
 
 #include "vtkAlgorithm.h"
-#include "vtkUnstructuredGrid.h" // makes things a bit easier
 
 class vtkDataSet;
 class vtkUnstructuredGrid;
@@ -61,8 +60,8 @@ public:
 
   // this method is not recommended for use, but lots of old style filters
   // use it
-  vtkDataObject* GetInput();
   vtkDataObject *GetInput(int port);
+  vtkDataObject *GetInput() { return this->GetInput(0); };
   vtkUnstructuredGrid *GetUnstructuredGridInput(int port);
 
   // Description:
@@ -79,7 +78,7 @@ protected:
   vtkUnstructuredGridAlgorithm();
   ~vtkUnstructuredGridAlgorithm();
 
-  // convinience method
+  // convenience method
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
                                  vtkInformationVector* outputVector);
