@@ -16,11 +16,12 @@
 
 #include "vtkExecutive.h"
 #include "vtkObjectFactory.h"
+#include "vtkImageData.h"
 
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkImageExport, "1.31");
+vtkCxxRevisionMacro(vtkImageExport, "1.32");
 vtkStandardNewMacro(vtkImageExport);
 
 //----------------------------------------------------------------------------

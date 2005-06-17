@@ -29,6 +29,7 @@
 #define VTK_IMAGE_NON_MAXIMUM_SUPPRESSION_VECTOR_INPUT 1
 
 #include "vtkThreadedImageAlgorithm.h"
+#include "vtkImageData.h" // makes things a bit easier
 
 class VTK_IMAGING_EXPORT vtkImageNonMaximumSuppression : public vtkThreadedImageAlgorithm
 {

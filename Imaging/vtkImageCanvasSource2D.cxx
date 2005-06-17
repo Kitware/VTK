@@ -20,6 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkImageData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <math.h>
@@ -40,7 +41,7 @@ public:
 
 
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.42");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.43");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
