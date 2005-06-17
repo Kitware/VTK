@@ -24,7 +24,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.22");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.23");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -134,23 +134,29 @@ void vtkImageAlgorithm::CopyInputArrayAttributesToOutput
  vtkInformationVector* outputVector)
 {
   // for image data to image data
-  if (this->GetNumberOfInputPorts())
+  if (this->GetNumberOfInputPorts() && this->GetNumberOfOutputPorts())
     {
     vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
     // if the input is image data
     if (vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT())))
       {
-      vtkInformation *info = this->GetInputArrayFieldInformation(0, inputVector);
-      int scalarType = info->Get( vtkDataObject::FIELD_ARRAY_TYPE());
-      int numComp = info->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
-      for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
+      vtkInformation *info = 
+        this->GetInputArrayFieldInformation(0, inputVector);
+      if (info)
         {
-        vtkInformation* outInfo = outputVector->GetInformationObject(i);
-        // if the output is image data
-        if (vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT())))
+        int scalarType = info->Get( vtkDataObject::FIELD_ARRAY_TYPE());
+        int numComp = info->Get( vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
           {
-          // copy scalar type and scalar number of components
-          vtkDataObject::SetPointDataActiveScalarInfo(outInfo, scalarType, numComp);
+          vtkInformation* outInfo = outputVector->GetInformationObject(i);
+          // if the output is image data
+          if (vtkImageData::SafeDownCast
+              (outInfo->Get(vtkDataObject::DATA_OBJECT())))
+            {
+            // copy scalar type and scalar number of components
+            vtkDataObject::SetPointDataActiveScalarInfo(outInfo, 
+                                                        scalarType, numComp);
+            }
           }
         }
       }
