@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.23");
+vtkCxxRevisionMacro(vtkExecutive, "1.24");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -415,24 +415,22 @@ vtkDataObject* vtkExecutive::GetOutputData(int port)
     return 0;
     }
 
-  // TEMPORARY: Do not update if inside an algorithm.  Technically we
-  // should not get here because algorithms are not supposed to ask
-  // the executive for anything during a ProcessRequest call.  The
-  // algorithm should get its output from the information object
-  // arguments passed to ProcessRequest.  This is a temporary hack
-  // because so many converted algorithms break this rule.
-  if(!this->InAlgorithm)
+  vtkInformation* info = this->GetOutputInformation(port);
+  if (!info)
     {
-    // Bring the data object up to date.
+    return 0;
+    }
+  
+  // for backward compatibility we bring Outputs up to date if they do not
+  // already exist
+  if (!this->InAlgorithm && !info->Has(vtkDataObject::DATA_OBJECT()))
+    {
+    // Bring the data object up to date only if it isn't already there
     this->UpdateDataObject();
     }
-
+  
   // Return the data object.
-  if(vtkInformation* info = this->GetOutputInformation(port))
-    {
-    return info->Get(vtkDataObject::DATA_OBJECT());
-    }
-  return 0;
+  return info->Get(vtkDataObject::DATA_OBJECT());
 }
 
 //----------------------------------------------------------------------------
