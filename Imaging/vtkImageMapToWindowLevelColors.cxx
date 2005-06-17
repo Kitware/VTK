@@ -21,7 +21,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.22");
+vtkCxxRevisionMacro(vtkImageMapToWindowLevelColors, "1.23");
 vtkStandardNewMacro(vtkImageMapToWindowLevelColors);
 
 // Constructor sets default values
@@ -46,9 +46,9 @@ int vtkImageMapToWindowLevelColors::RequestData(
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
 
   vtkImageData *outData = vtkImageData::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  vtkImageData *inData = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkImageData *inData = vtkImageData::SafeDownCast(
+    inInfo->Get(vtkDataObject::DATA_OBJECT()));
  
   // If LookupTable is null and window / level produces no change,
   // then just pass the data
@@ -92,7 +92,8 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
-  vtkInformation *inScalarInfo = vtkDataObject::GetActiveFieldInformation(inInfo, 
+  vtkInformation *inScalarInfo = 
+    vtkDataObject::GetActiveFieldInformation(inInfo, 
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
     {
@@ -103,18 +104,21 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
   if ( this->LookupTable == NULL &&
-    (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) == VTK_UNSIGNED_CHAR &&
-          this->Window == 255 && this->Level == 127.5) )
+       (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) == 
+        VTK_UNSIGNED_CHAR &&
+        this->Window == 255 && this->Level == 127.5) )
     {
-    if (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != VTK_UNSIGNED_CHAR)
+    if (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != 
+        VTK_UNSIGNED_CHAR)
       {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
       }
     else
       {
       // no lookup table, pass the input if it was UNSIGNED_CHAR 
-      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 
-        inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
+      vtkDataObject::SetPointDataActiveScalarInfo
+        (outInfo, VTK_UNSIGNED_CHAR, 
+         inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
       }
     }
   else  // the lookup table was set or window / level produces a change
