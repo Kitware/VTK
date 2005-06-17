@@ -32,6 +32,7 @@
 #include "vtkTriangle.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLTexture.h"
+#include "vtkImageData.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
 # include "vtkOpenGL.h"
@@ -41,7 +42,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.103");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.104");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 

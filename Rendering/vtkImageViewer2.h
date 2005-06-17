@@ -56,6 +56,7 @@
 #include "vtkRenderWindow.h" // For inline methods
 #include "vtkImageActor.h" // For inline methods
 #include "vtkImageMapToWindowLevelColors.h" // For inline methods
+#include "vtkImageData.h" // makes things a bit easier
 
 class vtkInteractorStyleImage;
 
