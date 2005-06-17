@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.32");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.33");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -92,8 +92,11 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
       }
 
     // The pipeline's MTime starts with this algorithm's MTime.
-    this->PipelineMTime = this->Algorithm->GetMTime();
-
+    // Invoke the request on the algorithm.
+    int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
+                                     inInfoVec, outInfoVec);
+    this->PipelineMTime = request->Get(PIPELINE_MODIFIED_TIME());
+    
     // We want the maximum PipelineMTime of all inputs.
     for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
       {
