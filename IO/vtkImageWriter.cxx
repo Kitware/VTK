@@ -21,6 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkImageData.h"
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -28,7 +29,7 @@
 # include <io.h> /* unlink */
 #endif
 
-vtkCxxRevisionMacro(vtkImageWriter, "1.59");
+vtkCxxRevisionMacro(vtkImageWriter, "1.60");
 vtkStandardNewMacro(vtkImageWriter);
 
 #ifdef write
