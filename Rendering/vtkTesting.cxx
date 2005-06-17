@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.24");
+vtkCxxRevisionMacro(vtkTesting, "1.25");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -334,6 +334,20 @@ int vtkTesting::RegressionTest(double thresh, ostream &os)
 {
   vtkWindowToImageFilter *rt_w2if = vtkWindowToImageFilter::New(); 
   rt_w2if->SetInput(this->RenderWindow);
+
+  unsigned int i;
+  for (i=0; i<this->Args.size(); i++)
+    {
+    if ( strcmp("-FrontBuffer", this->Args[i].c_str()) == 0 )
+      {
+      this->FrontBufferOn();
+      }
+    else if ( strcmp("-NoRerender", this->Args[i].c_str()) == 0 )
+      {
+      rt_w2if->ShouldRerenderOff();
+      }
+    }
+
   // perform and extra render to make sure it is displayed
   if ( !this->FrontBuffer)
     {
