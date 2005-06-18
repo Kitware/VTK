@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.44");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.45");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -374,7 +374,6 @@ void vtkImageMedian3D::ThreadedRequestData(
 {
   void *inPtr;
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-  vtkIdType *inIncs;
 
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
   if (id == 0)
@@ -382,7 +381,6 @@ void vtkImageMedian3D::ThreadedRequestData(
     outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
     }
 
-  inIncs = inData[0][0]->GetIncrements();
   inPtr = inArray->GetVoidPointer(0); 
 
   // this filter expects that input is the same type as output.
