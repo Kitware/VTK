@@ -143,6 +143,8 @@ public:
   void Allocate(int numPieces)
     {
     assert(numPieces > 0);
+    // Force re-initialization of values.
+    this->Internals.resize(0);
     this->Internals.resize(numPieces);
     }
   void Allocate(int numPieces, int numElements, int numTimeSteps)
@@ -151,6 +153,8 @@ public:
     assert(numElements > 0);
     assert(numTimeSteps > 0);
 
+    // Force re-initialization of values.
+    this->Internals.resize(0);
     this->Internals.resize(numPieces);
     for(int i=0; i<numPieces; i++)
       {
