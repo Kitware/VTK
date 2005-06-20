@@ -5,14 +5,22 @@ IF (VTK_USE_VOLUMERENDERING AND VTK_USE_DISPLAY)
   SET(MyTests)
   IF (VTK_DATA_ROOT)
     # add tests that require data
-    SET(MyTests 
+    SET(MyTests
+      HomogeneousRayIntegration.cxx
+      LinearRayIntegration.cxx
+      PartialPreIntegration.cxx
+      PreIntegrationIncremental.cxx
+      PreIntegrationNonIncremental.cxx
       volProt.cxx
+      )
+    SET(MyTestSupport
+      ExerciseUnstructuredGridRayCastMapper.cxx
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                          EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
                          FUNCTION vtkSuppressCrtDbgWarning)
-  ADD_EXECUTABLE(${KIT}CxxTests ${Tests} )
+  ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ${MyTestSupport} )
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkVolumeRendering)
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)

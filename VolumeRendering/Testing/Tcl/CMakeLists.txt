@@ -11,11 +11,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_VOLUMERENDERING)
       TestFixedPointRayCasterNearest
       TestFixedPointRayCasterLinearCropped
       TestFixedPointRayCasterNearestCropped
-      TestHomogeneousRayIntegration
-      TestLinearRayIntegration
       TestLODProp3D
-      TestPartialPreIntegration
-      TestPreIntegration
       TestPTZSweep
       volRCClipPlanes
       volRCCropRegions
