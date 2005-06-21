@@ -15,11 +15,13 @@
 
 #include "ExerciseUnstructuredGridRayCastMapper.h"
 
+#include "vtkActor.h"
 #include "vtkArrayCalculator.h"
 #include "vtkAssignAttribute.h"
 #include "vtkCamera.h"
 #include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkCubeSource.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDoubleArray.h"
@@ -30,6 +32,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -72,7 +75,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkClassifyVolume, "1.1");
+vtkCxxRevisionMacro(vtkClassifyVolume, "1.2");
 vtkStandardNewMacro(vtkClassifyVolume);
 
 vtkClassifyVolume::vtkClassifyVolume()
@@ -274,6 +277,28 @@ static vtkRenderer *NewTestViewport(RayCastFunctionCreator NewFunction,
 
 //-----------------------------------------------------------------------------
 
+static vtkRenderer *NewPlaceholderViewport()
+{
+  vtkRenderer *ren = vtkRenderer::New();
+
+  vtkCubeSource *cube = vtkCubeSource::New();
+
+  vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
+  mapper->SetInputConnection(0, cube->GetOutputPort(0));
+  cube->Delete();
+
+  vtkActor *actor = vtkActor::New();
+  actor->SetMapper(mapper);
+  mapper->Delete();
+
+  ren->AddActor(actor);
+  actor->Delete();
+
+  return ren;
+}
+
+//-----------------------------------------------------------------------------
+
 static vtkVolumeProperty *NewRGBVolumeProperty()
 {
   // Create transfer mapping scalar value to opacity.
@@ -430,12 +455,16 @@ int ExerciseUnstructuredGridRayCastMapper(int argc, char *argv[],
     volumeProperty = NewRGBVolumeProperty();
     viewport = NewTestViewport(NewFunction, NewIntegrator, volumeProperty,
                                UseCellData, 1, 0);
-    if (!viewport) return -1;
-    viewport->SetViewport(0.0, 0.5, 0.5, 1.0);
-    renWin->AddRenderer(viewport);
     volumeProperty->Delete();
-    viewport->Delete();
     }
+  else
+    {
+    viewport = NewPlaceholderViewport();
+    }
+  if (!viewport) return -1;
+  viewport->SetViewport(0.0, 0.5, 0.5, 1.0);
+  renWin->AddRenderer(viewport);
+  viewport->Delete();
 
   // Multiple transfer functions
   volumeProperty = NewMultiTFVolumeProperty();
