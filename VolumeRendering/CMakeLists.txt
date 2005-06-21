@@ -23,6 +23,7 @@ vtkFixedPointVolumeRayCastCompositeShadeHelper.cxx
 vtkFixedPointVolumeRayCastHelper.cxx
 vtkFixedPointVolumeRayCastMIPHelper.cxx
 vtkFixedPointVolumeRayCastMapper.cxx
+vtkProjectedTetrahedraMapper.cxx
 vtkRayCastImageDisplayHelper.cxx
 vtkRecursiveSphereDirectionEncoder.cxx
 vtkSphericalDirectionEncoder.cxx

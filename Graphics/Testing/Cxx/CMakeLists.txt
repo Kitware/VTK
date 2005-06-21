@@ -9,6 +9,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     PointLocator.cxx
     FrustumClip.cxx
     RGrid.cxx
+    TestSortDataArray.cxx
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data

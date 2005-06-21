@@ -11,6 +11,7 @@ IF (VTK_USE_VOLUMERENDERING AND VTK_USE_DISPLAY)
       PartialPreIntegration.cxx
       PreIntegrationIncremental.cxx
       PreIntegrationNonIncremental.cxx
+      TestProjectedTetrahedra.cxx
       volProt.cxx
       )
     SET(MyTestSupport
