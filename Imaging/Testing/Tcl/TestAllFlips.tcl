@@ -10,15 +10,15 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageCast imageFloat
-  imageFloat SetInput [reader GetOutput]
+  imageFloat SetInputConnection [reader GetOutputPort]
   imageFloat SetOutputScalarTypeToFloat
 
 vtkImageFlip flipX
-  flipX SetInput [imageFloat GetOutput]
+  flipX SetInputConnection [imageFloat GetOutputPort]
   flipX SetFilteredAxis 0
 
 vtkImageFlip flipY
-  flipY SetInput [imageFloat GetOutput]
+  flipY SetInputConnection [imageFloat GetOutputPort]
   flipY SetFilteredAxis 1
   flipY FlipAboutOriginOn
 
@@ -29,7 +29,7 @@ vtkImageAppend imageAppend
   imageAppend SetAppendAxis 0
 
 vtkImageViewer viewer
-viewer SetInput [imageAppend GetOutput]
+viewer SetInputConnection [imageAppend GetOutputPort]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

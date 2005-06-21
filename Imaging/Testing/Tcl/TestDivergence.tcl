@@ -9,13 +9,13 @@ reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageGradient gradient
 gradient SetDimensionality 2
-gradient SetInput [reader GetOutput]
+gradient SetInputConnection [reader GetOutputPort]
 
 vtkImageDivergence derivative
-derivative SetInput [gradient GetOutput]
+derivative SetInputConnection [gradient GetOutputPort]
 
 vtkImageViewer viewer
-viewer SetInput [derivative GetOutput]
+viewer SetInputConnection [derivative GetOutputPort]
 viewer SetColorWindow 1000
 viewer SetColorLevel 0
 

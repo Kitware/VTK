@@ -16,37 +16,37 @@ vtkBMPReader inputImage2
 # shrink the images to a reasonable size
 
 vtkImageShrink3D shrink1
-shrink1 SetInput [inputImage GetOutput]
+shrink1 SetInputConnection [inputImage GetOutputPort]
 shrink1 SetShrinkFactors 2 2 1
 
 vtkImageShrink3D shrink2
-shrink2 SetInput [inputImage2 GetOutput]
+shrink2 SetInputConnection [inputImage2 GetOutputPort]
 shrink2 SetShrinkFactors 2 2 1
 
 vtkImageShiftScale color
 color SetOutputScalarTypeToFloat
 color SetShift 0
 color SetScale [expr 1.0/255]
-color SetInput [shrink1 GetOutput]
+color SetInputConnection [shrink1 GetOutputPort]
 
 vtkImageShiftScale backgroundColor
 backgroundColor SetOutputScalarTypeToFloat
 backgroundColor SetShift 0
 backgroundColor SetScale [expr 1.0/255]
-backgroundColor SetInput [shrink2 GetOutput]
+backgroundColor SetInputConnection [shrink2 GetOutputPort]
 
 # create a greyscale version
 
 vtkImageLuminance luminance
-luminance SetInput [color GetOutput]
+luminance SetInputConnection [color GetOutputPort]
 
 vtkImageLuminance backgroundLuminance
-backgroundLuminance SetInput [backgroundColor GetOutput]
+backgroundLuminance SetInputConnection [backgroundColor GetOutputPort]
 
 # create an alpha mask
 
 vtkImageThreshold alpha
-alpha SetInput [luminance GetOutput]
+alpha SetInputConnection [luminance GetOutputPort]
 alpha ThresholdByLower 0.9
 alpha SetInValue 1.0
 alpha SetOutValue 0.0
@@ -79,7 +79,7 @@ foreach background $backgrounds {
 	}
 
 	vtkImageMapper mapper${row}${column}
-	mapper${row}${column} SetInput [blend${row}${column} GetOutput]
+	mapper${row}${column} SetInputConnection [blend${row}${column} GetOutputPort]
 	mapper${row}${column} SetColorWindow 1.0
 	mapper${row}${column} SetColorLevel 0.5
 	

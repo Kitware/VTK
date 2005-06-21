@@ -18,13 +18,13 @@ vtkImageMandelbrotSource mandelbrot1
   mandelbrot1 SetProjectionAxes 0 1 2
 
 vtkImageMapToWindowLevelColors mapToWL
-mapToWL SetInput [mandelbrot1 GetOutput]
+mapToWL SetInputConnection [mandelbrot1 GetOutputPort]
 mapToWL SetWindow $RANGE
 mapToWL SetLevel [expr $RANGE/3.0]
 
 # set the window/level to 255.0/127.5 to view full range
 vtkImageViewer viewer
-viewer SetInput [mapToWL GetOutput]
+viewer SetInputConnection [mapToWL GetOutputPort]
 viewer SetColorWindow 255.0
 viewer SetColorLevel 127.5
 

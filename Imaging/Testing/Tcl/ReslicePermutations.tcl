@@ -20,79 +20,79 @@ transform RotateWXYZ 10 1 1 0
 transform Translate -100.8 -100.8 -69.0
 
 vtkImageReslice reslice1
-reslice1 SetInput [reader GetOutput]
+reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 SetResliceAxesDirectionCosines 1 0 0  0 1 0  0 0 1
 reslice1 SetResliceTransform transform
 reslice1 SetOutputSpacing 3.2 3.2 3.2
 reslice1 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageReslice reslice2
-reslice2 SetInput [reader GetOutput]
+reslice2 SetInputConnection [reader GetOutputPort]
 reslice2 SetResliceAxesDirectionCosines 0 1 0  0 0 1  1 0 0
 reslice2 SetResliceTransform transform
 reslice2 SetOutputSpacing 3.2 3.2 3.2
 reslice2 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageReslice reslice3
-reslice3 SetInput [reader GetOutput]
+reslice3 SetInputConnection [reader GetOutputPort]
 reslice3 SetResliceAxesDirectionCosines 0 0 1  1 0 0  0 1 0
 reslice3 SetResliceTransform transform
 reslice3 SetOutputSpacing 3.2 3.2 3.2
 reslice3 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageReslice reslice4
-reslice4 SetInput [reader GetOutput]
+reslice4 SetInputConnection [reader GetOutputPort]
 reslice4 SetResliceAxesDirectionCosines -1 0 0  0 -1 0  0 0 -1
 reslice4 SetResliceTransform transform
 reslice4 SetOutputSpacing 3.2 3.2 3.2
 reslice4 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageReslice reslice5
-reslice5 SetInput [reader GetOutput]
+reslice5 SetInputConnection [reader GetOutputPort]
 reslice5 SetResliceAxesDirectionCosines 0 -1 0  0 0 -1  -1 0 0
 reslice5 SetResliceTransform transform
 reslice5 SetOutputSpacing 3.2 3.2 3.2
 reslice5 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageReslice reslice6
-reslice6 SetInput [reader GetOutput]
+reslice6 SetInputConnection [reader GetOutputPort]
 reslice6 SetResliceAxesDirectionCosines 0 0 -1  -1 0 0  0 -1 0
 reslice6 SetResliceTransform transform
 reslice6 SetOutputSpacing 3.2 3.2 3.2
 reslice6 SetOutputExtent 0 74 0 74 0 0
 
 vtkImageMapper mapper1
-  mapper1 SetInput [reslice1 GetOutput]
+  mapper1 SetInputConnection [reslice1 GetOutputPort]
   mapper1 SetColorWindow 2000
   mapper1 SetColorLevel 1000
   mapper1 SetZSlice 0
 
 vtkImageMapper mapper2
-  mapper2 SetInput [reslice2 GetOutput]
+  mapper2 SetInputConnection [reslice2 GetOutputPort]
   mapper2 SetColorWindow 2000
   mapper2 SetColorLevel 1000
   mapper2 SetZSlice 0 
 
 vtkImageMapper mapper3
-  mapper3 SetInput [reslice3 GetOutput]
+  mapper3 SetInputConnection [reslice3 GetOutputPort]
   mapper3 SetColorWindow 2000
   mapper3 SetColorLevel 1000
   mapper3 SetZSlice 0 
 
 vtkImageMapper mapper4
-  mapper4 SetInput [reslice4 GetOutput]
+  mapper4 SetInputConnection [reslice4 GetOutputPort]
   mapper4 SetColorWindow 2000
   mapper4 SetColorLevel 1000
   mapper4 SetZSlice 0 
 
 vtkImageMapper mapper5
-  mapper5 SetInput [reslice5 GetOutput]
+  mapper5 SetInputConnection [reslice5 GetOutputPort]
   mapper5 SetColorWindow 2000
   mapper5 SetColorLevel 1000
   mapper5 SetZSlice 0 
 
 vtkImageMapper mapper6
-  mapper6 SetInput [reslice6 GetOutput]
+  mapper6 SetInputConnection [reslice6 GetOutputPort]
   mapper6 SetColorWindow 2000
   mapper6 SetColorLevel 1000
   mapper6 SetZSlice 0 

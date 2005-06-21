@@ -56,19 +56,19 @@ imageCanvas FillBox 250 300 220 320
 
 
 vtkImageRGBToHSI convert
-convert SetInput [imageCanvas GetOutput]
+convert SetInputConnection [imageCanvas GetOutputPort]
 
 vtkImageHSIToRGB convertBack
-convertBack SetInput [convert GetOutput]
+convertBack SetInputConnection [convert GetOutputPort]
 
 vtkImageCast cast
-cast SetInput [convertBack GetOutput]
+cast SetInputConnection [convertBack GetOutputPort]
 cast SetOutputScalarTypeToFloat
 cast ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetInput [convertBack GetOutput]
-#viewer SetInput [imageCanvas GetOutput]
+viewer SetInputConnection [convertBack GetOutputPort]
+#viewer SetInputConnection [imageCanvas GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

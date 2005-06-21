@@ -14,16 +14,16 @@ gauss SetStandardDeviation 50.0
 gauss SetMaximum 10000.0
 
 vtkImageGradient gradient
-gradient SetInput [gauss GetOutput]
+gradient SetInputConnection [gauss GetOutputPort]
 gradient SetDimensionality 2
 
 vtkImageEuclideanToPolar polar
-polar SetInput [gradient GetOutput]
+polar SetInputConnection [gradient GetOutputPort]
 polar SetThetaMaximum 255
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [polar GetOutput]
+viewer SetInputConnection [polar GetOutputPort]
 viewer SetZSlice 22
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5

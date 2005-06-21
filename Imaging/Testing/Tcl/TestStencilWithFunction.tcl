@@ -29,17 +29,17 @@ set stencilCopy [$stencilOriginal NewInstance]
 $stencilCopy DeepCopy $stencilOriginal
 
 vtkImageShiftScale shiftScale
-shiftScale SetInput [reader GetOutput]
+shiftScale SetInputConnection [reader GetOutputPort]
 shiftScale SetScale 0.2
 
 vtkImageStencil stencil
-stencil SetInput [reader GetOutput]
+stencil SetInputConnection [reader GetOutputPort]
 stencil SetBackgroundInput [shiftScale GetOutput]
 stencil SetStencil $stencilCopy
 $stencilCopy UnRegister reader
 
 vtkImageViewer viewer
-viewer SetInput [stencil GetOutput]
+viewer SetInputConnection [stencil GetOutputPort]
 viewer SetZSlice 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

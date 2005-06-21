@@ -17,7 +17,7 @@ table SetAlphaRange 0.9 0.0
 table Build
 
 vtkImageTranslateExtent translate
-translate SetInput [reader2 GetOutput]
+translate SetInputConnection [reader2 GetOutputPort]
 translate SetTranslation 60 60 0
 
 vtkSphere sphere
@@ -36,7 +36,7 @@ blend SetOpacity 1 0.8
 blend SetStencil [functionToStencil GetOutput]
 
 vtkImageViewer viewer
-viewer SetInput [blend GetOutput]
+viewer SetInputConnection [blend GetOutputPort]
 viewer SetColorWindow 255.0
 viewer SetColorLevel 127.5
 viewer SetZSlice 0

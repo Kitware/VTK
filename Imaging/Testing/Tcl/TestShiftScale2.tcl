@@ -12,24 +12,24 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageShiftScale shiftScale
-  shiftScale SetInput [reader GetOutput]
+  shiftScale SetInputConnection [reader GetOutputPort]
   shiftScale SetShift -1000.0
   shiftScale SetScale 4.0
   shiftScale SetOutputScalarTypeToUnsignedShort
   shiftScale ClampOverflowOn
 
 vtkImageShiftScale shiftScale2
-  shiftScale2 SetInput [shiftScale GetOutput]
+  shiftScale2 SetInputConnection [shiftScale GetOutputPort]
   shiftScale2 SetShift 0
   shiftScale2 SetScale 2.0
 
 vtkImageMagnify mag
-  mag SetInput [shiftScale2 GetOutput]
+  mag SetInputConnection [shiftScale2 GetOutputPort]
   mag SetMagnificationFactors 4 4 1
   mag InterpolateOff
 
 vtkImageViewer viewer
-  viewer SetInput [mag GetOutput]
+  viewer SetInputConnection [mag GetOutputPort]
   viewer SetColorWindow 1024
   viewer SetColorLevel 512
 

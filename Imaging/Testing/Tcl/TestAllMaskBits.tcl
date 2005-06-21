@@ -11,7 +11,7 @@ vtkTIFFReader image1
   image1 SetFileName "$VTK_DATA_ROOT/Data/beach.tif"
 
 vtkImageShrink3D shrink
-shrink SetInput [image1 GetOutput]
+shrink SetInputConnection [image1 GetOutputPort]
 shrink SetShrinkFactors 2 2 1
 
 set operators "\
@@ -25,16 +25,16 @@ Nor"
 foreach operator $operators {
     if { $operator != "ByPass" } {    
 	vtkImageMaskBits operator${operator}
-	operator${operator} SetInput [shrink GetOutput]
+	operator${operator} SetInputConnection [shrink GetOutputPort]
         operator${operator} SetOperationTo${operator}
 	operator${operator} SetMasks 255 255 0
     } 
     
     vtkImageMapper mapper${operator}
     if { $operator != "ByPass" } {    	
-	mapper${operator} SetInput [operator${operator} GetOutput]
+	mapper${operator} SetInputConnection [operator${operator} GetOutputPort]
     } else {
-	mapper${operator} SetInput [shrink GetOutput]
+	mapper${operator} SetInputConnection [shrink GetOutputPort]
     }
     mapper${operator} SetColorWindow 255
     mapper${operator} SetColorLevel 127.5

@@ -40,11 +40,11 @@ foreach rin $replacein {
         thresh$k SetOutValue 0
         thresh$k $rin
         thresh$k $rout
-        thresh$k SetInput [reader GetOutput]
+        thresh$k SetInputConnection [reader GetOutputPort]
         eval thresh$k $t
         thresh$k $outputtype($k)
       vtkImageMapper map$k
-        map$k SetInput [thresh$k GetOutput]
+        map$k SetInputConnection [thresh$k GetOutputPort]
         if {$k < 3} {
           map$k SetColorWindow 255
           map$k SetColorLevel 127.5

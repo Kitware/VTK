@@ -16,12 +16,12 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageSobel3D sobel
-sobel SetInput [reader GetOutput]
+sobel SetInputConnection [reader GetOutputPort]
 sobel ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [sobel GetOutput]
+viewer SetInputConnection [sobel GetOutputPort]
 viewer SetZSlice 22
 viewer SetColorWindow 400
 viewer SetColorLevel 0

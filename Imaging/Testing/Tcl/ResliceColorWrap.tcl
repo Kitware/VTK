@@ -16,7 +16,7 @@ vtkTransform transform
   transform Scale 1.414 1.414 1.414
 
 vtkImageReslice reslice
-  reslice SetInput [reader GetOutput]
+  reslice SetInputConnection [reader GetOutputPort]
   reslice SetResliceTransform transform
   reslice InterpolateOn
   reslice SetInterpolationModeToCubic
@@ -24,7 +24,7 @@ vtkImageReslice reslice
   reslice AutoCropOutputOn
 
 vtkImageViewer viewer
-  viewer SetInput [reslice GetOutput]
+  viewer SetInputConnection [reslice GetOutputPort]
   viewer SetZSlice 0
   viewer SetColorWindow 256.0
   viewer SetColorLevel 127.5

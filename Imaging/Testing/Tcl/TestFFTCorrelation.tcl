@@ -22,19 +22,19 @@ s2 FillTriangle 10 1  25 10  1 5
 
 vtkImageFFT fft1
 fft1 SetDimensionality 2
-fft1 SetInput [s1 GetOutput]
+fft1 SetInputConnection [s1 GetOutputPort]
 fft1 ReleaseDataFlagOff
 
 
 # Pad kernel out to same size as image.
 
 vtkImageConstantPad pad2
-pad2 SetInput [s2 GetOutput]
+pad2 SetInputConnection [s2 GetOutputPort]
 pad2 SetOutputWholeExtent 0 255 0 255 0 0
 
 vtkImageFFT fft2
 fft2 SetDimensionality 2
-fft2 SetInput [pad2 GetOutput]
+fft2 SetInputConnection [pad2 GetOutputPort]
 fft2 ReleaseDataFlagOff
 
 # conjugate is necessary for correlation (not convolution)
@@ -50,14 +50,14 @@ mult SetInput2 [conj GetOutput]
 
 vtkImageRFFT rfft
 rfft SetDimensionality 2
-rfft SetInput [mult GetOutput]
+rfft SetInputConnection [mult GetOutputPort]
 
 vtkImageExtractComponents real
-real SetInput [rfft GetOutput]
+real SetInputConnection [rfft GetOutputPort]
 real SetComponents 0
 
 vtkImageViewer viewer
-viewer SetInput [real GetOutput]
+viewer SetInputConnection [real GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

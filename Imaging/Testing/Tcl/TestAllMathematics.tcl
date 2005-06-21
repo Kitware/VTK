@@ -53,7 +53,7 @@ foreach operator $mathematics {
       mathematic${operator} SetConstantK .3
       mathematic${operator} SetConstantC .75
     vtkImageMapper mapper${operator}
-      mapper${operator} SetInput [mathematic${operator} GetOutput]
+      mapper${operator} SetInputConnection [mathematic${operator} GetOutputPort]
       mapper${operator} SetColorWindow 2.0
       mapper${operator} SetColorLevel .75
     vtkActor2D actor${operator}

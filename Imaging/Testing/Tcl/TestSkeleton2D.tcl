@@ -88,29 +88,29 @@ imageCanvas DrawSegment 231 110 331 10
 
 vtkImageSkeleton2D skeleton1
 #skeleton1 BypassOn
-skeleton1 SetInput [imageCanvas GetOutput]
+skeleton1 SetInputConnection [imageCanvas GetOutputPort]
 skeleton1 SetPrune 0
 skeleton1 SetNumberOfIterations 20
 skeleton1 ReleaseDataFlagOff
 
 vtkImageClip clip
-clip SetInput [skeleton1 GetOutput]
+clip SetInputConnection [skeleton1 GetOutputPort]
 clip SetOutputWholeExtent 0 120 0 120 0 0
 
 vtkImageMagnify magnify
-magnify SetInput [clip GetOutput]
+magnify SetInputConnection [clip GetOutputPort]
 magnify SetMagnificationFactors 5 5 1
 magnify InterpolateOff
 magnify ReleaseDataFlagOff
 
 vtkImageViewer viewer1
-viewer1 SetInput [imageCanvas GetOutput]
+viewer1 SetInputConnection [imageCanvas GetOutputPort]
 viewer1 SetColorWindow 5
 viewer1 SetColorLevel 1
 
 vtkImageViewer viewer
-#viewer SetInput [magnify GetOutput]
-viewer SetInput [skeleton1  GetOutput]
+#viewer SetInputConnection [magnify GetOutputPort]
+viewer SetInputConnection [skeleton1  GetOutputPort]
 viewer SetColorWindow 5
 viewer SetColorLevel 1
 

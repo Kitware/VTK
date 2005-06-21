@@ -20,13 +20,13 @@ foreach operator $ops {
     shrink${operator} SetMean 0
    shrink${operator} ${operator}On
     eval shrink${operator} SetShrinkFactors $factor $factor $factor
-  shrink${operator} SetInput [reader GetOutput];
+  shrink${operator} SetInputConnection [reader GetOutputPort];
   vtkImageMagnify mag${operator}
     mag${operator} SetMagnificationFactors $magFactor $magFactor $magFactor;
     mag${operator} InterpolateOff
-    mag${operator} SetInput [shrink${operator} GetOutput]
+    mag${operator} SetInputConnection [shrink${operator} GetOutputPort]
   vtkImageMapper mapper${operator}
-    mapper${operator} SetInput [mag${operator} GetOutput]
+    mapper${operator} SetInputConnection [mag${operator} GetOutputPort]
     mapper${operator} SetColorWindow 2000
     mapper${operator} SetColorLevel 1000
     mapper${operator} SetZSlice 45
@@ -40,13 +40,13 @@ foreach operator $ops {
   vtkImageShrink3D shrink
     shrink SetMean 0
     eval shrink SetShrinkFactors $factor $factor $factor
-  shrink SetInput [reader GetOutput];
+  shrink SetInputConnection [reader GetOutputPort];
   vtkImageMagnify mag
     mag SetMagnificationFactors $magFactor $magFactor $magFactor;
     mag InterpolateOff
-    mag SetInput [shrink GetOutput]
+    mag SetInputConnection [shrink GetOutputPort]
   vtkImageMapper mapper
-    mapper SetInput [mag GetOutput]
+    mapper SetInputConnection [mag GetOutputPort]
     mapper SetColorWindow 2000
     mapper SetColorLevel 1000
     mapper SetZSlice 45

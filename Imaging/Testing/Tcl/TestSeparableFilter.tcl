@@ -26,14 +26,14 @@ for { set i 0 } { $i < 31 } { incr i } {
 }
 
 vtkImageSeparableConvolution convolve
-convolve SetInput [reader GetOutput]
+convolve SetInputConnection [reader GetOutputPort]
 convolve SetDimensionality 2
 convolve SetXKernel kernel
 convolve SetYKernel gaussian
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [convolve GetOutput]
+viewer SetInputConnection [convolve GetOutputPort]
 viewer SetColorWindow 500
 viewer SetColorLevel 100
 

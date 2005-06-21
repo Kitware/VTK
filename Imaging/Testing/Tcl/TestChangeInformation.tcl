@@ -10,22 +10,22 @@ reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 # first center the image at (0,0,0)
 vtkImageChangeInformation information
-information SetInput [reader GetOutput]
+information SetInputConnection [reader GetOutputPort]
 information CenterImageOn
 
 vtkImageReslice reslice
-reslice SetInput [information GetOutput]
+reslice SetInputConnection [information GetOutputPort]
 reslice SetResliceAxesDirectionCosines 0.866025 -0.5 0  0.5 0.866025 0  0 0 1  
 reslice SetInterpolationModeToCubic
 
 # reset the image back to the way it was (you don't have
 # to do this, it is just put in as an example)
 vtkImageChangeInformation information2 
-information2 SetInput [reslice GetOutput]
+information2 SetInputConnection [reslice GetOutputPort]
 information2 SetInformationInput [reader GetOutput]
 
 vtkImageViewer viewer
-viewer SetInput [information2 GetOutput]
+viewer SetInputConnection [information2 GetOutputPort]
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 viewer Render

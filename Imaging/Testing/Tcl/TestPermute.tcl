@@ -13,11 +13,11 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImagePermute permute
-permute SetInput [reader GetOutput]
+permute SetInputConnection [reader GetOutputPort]
 permute SetFilteredAxes 1 2 0
 
 vtkImageViewer viewer
-viewer SetInput [permute GetOutput]
+viewer SetInputConnection [permute GetOutputPort]
 viewer SetZSlice 32
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

@@ -31,7 +31,7 @@ imageCanvas DrawImage 60 60 [ jreader GetOutput ] 50 50 100 100
 imageCanvas DrawImage 70 70 [ jreader GetOutput ] 50 50 100 100
 
 vtkImageViewer viewer
-viewer SetInput [imageCanvas GetOutput]
+viewer SetInputConnection [imageCanvas GetOutputPort]
 viewer SetColorWindow 255
 viewer SetColorLevel 128
 

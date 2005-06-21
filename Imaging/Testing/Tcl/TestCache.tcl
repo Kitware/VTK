@@ -10,11 +10,11 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageCacheFilter cache
-cache SetInput [reader GetOutput]
+cache SetInputConnection [reader GetOutputPort]
 cache SetCacheSize 20
 
 vtkImageViewer viewer
-viewer SetInput [cache GetOutput]
+viewer SetInputConnection [cache GetOutputPort]
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 viewer SetPosition 50 50

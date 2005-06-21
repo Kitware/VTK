@@ -11,15 +11,15 @@ cos SetPeriod 20
 cos ReleaseDataFlagOff
 
 vtkImageGradient gradient
-gradient SetInput [cos GetOutput]
+gradient SetInputConnection [cos GetOutputPort]
 gradient SetDimensionality 3
 
 vtkImageNormalize norm
-norm SetInput [gradient GetOutput]
+norm SetInputConnection [gradient GetOutputPort]
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [norm GetOutput]
+viewer SetInputConnection [norm GetOutputPort]
 viewer SetZSlice 10
 viewer SetColorWindow 2.0
 viewer SetColorLevel 0

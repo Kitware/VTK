@@ -10,21 +10,21 @@ vtkPNGReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageThreshold thresh
-thresh SetInput [reader GetOutput]
+thresh SetInputConnection [reader GetOutputPort]
 thresh ThresholdByUpper 2000.0
 thresh SetInValue 255
 thresh SetOutValue 0
 thresh ReleaseDataFlagOff
 
 vtkImageIslandRemoval2D island
-island SetInput [thresh GetOutput]
+island SetInputConnection [thresh GetOutputPort]
 island SetIslandValue 255
 island SetReplaceValue 128
 island SetAreaThreshold 100
 island SquareNeighborhoodOn
 
 vtkImageViewer viewer
-viewer SetInput [island GetOutput]
+viewer SetInputConnection [island GetOutputPort]
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5
 #viewer DebugOn

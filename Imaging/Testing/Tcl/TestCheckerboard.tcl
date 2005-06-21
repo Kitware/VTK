@@ -10,7 +10,7 @@ vtkImageCanvasSource2D image1
   image1 FillBox 0 511 0 511
 
 vtkImageWrapPad pad1
-  pad1 SetInput [image1 GetOutput]
+  pad1 SetInputConnection [image1 GetOutputPort]
   pad1 SetOutputWholeExtent 0 511 0 511 0 99
 
 vtkImageCanvasSource2D image2
@@ -21,7 +21,7 @@ vtkImageCanvasSource2D image2
   image2 FillBox 0 511 0 511
 
 vtkImageWrapPad pad2
-  pad2 SetInput [image2 GetOutput]
+  pad2 SetInputConnection [image2 GetOutputPort]
   pad2 SetOutputWholeExtent 0 511 0 511 0 99
 
 vtkImageCheckerboard checkers
@@ -30,7 +30,7 @@ vtkImageCheckerboard checkers
   checkers SetNumberOfDivisions 11 6 2
  
 vtkImageViewer viewer
-  viewer SetInput [checkers GetOutput]
+  viewer SetInputConnection [checkers GetOutputPort]
   viewer SetZSlice 49
   viewer SetColorWindow 255
   viewer SetColorLevel 127.5

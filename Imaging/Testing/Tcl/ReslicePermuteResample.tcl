@@ -14,14 +14,14 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageReslice reslice
-reslice SetInput [reader GetOutput]
+reslice SetInputConnection [reader GetOutputPort]
 # specify the new axes in terms of the original axes
 reslice SetResliceAxesDirectionCosines  0 +1 0   0 0 -1   -1 0 0    
 # resample the image to enlarge & to get the aspect right
 reslice SetOutputSpacing 1.0 1.0 1.0
 
 vtkImageViewer viewer
-viewer SetInput [reslice GetOutput]
+viewer SetInputConnection [reslice GetOutputPort]
 viewer SetZSlice 100
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

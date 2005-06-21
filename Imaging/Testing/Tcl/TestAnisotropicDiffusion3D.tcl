@@ -14,7 +14,7 @@ reader SetDataSpacing 1 1 2
 
 
 vtkImageAnisotropicDiffusion3D diffusion
-diffusion SetInput [reader GetOutput]
+diffusion SetInputConnection [reader GetOutputPort]
 diffusion SetDiffusionFactor 1.0
 diffusion SetDiffusionThreshold 100.0
 diffusion SetNumberOfIterations 5
@@ -23,7 +23,7 @@ diffusion ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [diffusion GetOutput]
+viewer SetInputConnection [diffusion GetOutputPort]
 viewer SetZSlice 22
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500

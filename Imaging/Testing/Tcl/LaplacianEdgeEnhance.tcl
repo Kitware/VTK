@@ -9,11 +9,11 @@ vtkPNGReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageCast cast
-cast SetInput [reader GetOutput]
+cast SetInputConnection [reader GetOutputPort]
 cast SetOutputScalarTypeToDouble
 
 vtkImageLaplacian lap
-lap SetInput [cast GetOutput]
+lap SetInputConnection [cast GetOutputPort]
 lap SetDimensionality 2
 
 vtkImageMathematics subtract
@@ -25,7 +25,7 @@ subtract ReleaseDataFlagOff
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [subtract GetOutput]
+viewer SetInputConnection [subtract GetOutputPort]
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000
 

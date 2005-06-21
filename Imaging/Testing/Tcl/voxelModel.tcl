@@ -15,7 +15,7 @@ vtkSphereSource sphereModel
   sphereModel SetPhiResolution 10
 
 vtkVoxelModeller voxelModel
-  voxelModel SetInput [sphereModel GetOutput]
+  voxelModel SetInputConnection [sphereModel GetOutputPort]
   voxelModel SetSampleDimensions 21 21 21
   voxelModel SetModelBounds -1.5 1.5 -1.5 1.5 -1.5 1.5
 
@@ -25,24 +25,24 @@ if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
 
    vtkDataSetWriter aWriter
      aWriter SetFileName voxelModel.vtk
-     aWriter SetInput [voxelModel GetOutput]
+     aWriter SetInputConnection [voxelModel GetOutputPort]
      aWriter Update
 
    vtkDataSetReader aReader
      aReader SetFileName voxelModel.vtk
 
    vtkContourFilter voxelSurface
-     voxelSurface SetInput [aReader GetOutput]
+     voxelSurface SetInputConnection [aReader GetOutputPort]
      voxelSurface SetValue 0 .999
 
    vtkPolyDataMapper voxelMapper
-     voxelMapper SetInput [voxelSurface GetOutput]
+     voxelMapper SetInputConnection [voxelSurface GetOutputPort]
 
    vtkActor voxelActor
      voxelActor SetMapper voxelMapper
 
    vtkPolyDataMapper sphereMapper
-     sphereMapper SetInput [sphereModel GetOutput]
+     sphereMapper SetInputConnection [sphereModel GetOutputPort]
 
    vtkActor sphereActor
      sphereActor SetMapper sphereMapper

@@ -35,13 +35,13 @@ proc changeLUT { } {
 }
 
 vtkImageMapToColors mapToRGBA
-mapToRGBA SetInput [reader GetOutput]
+mapToRGBA SetInputConnection [reader GetOutputPort]
 mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
 mapToRGBA AddObserver EndEvent changeLUT
 
 vtkImageDataStreamer imageStreamer
-imageStreamer SetInput [mapToRGBA GetOutput]
+imageStreamer SetInputConnection [mapToRGBA GetOutputPort]
 imageStreamer SetNumberOfStreamDivisions 8
 # make sure we get the correct translator.
 imageStreamer UpdateInformation
@@ -49,7 +49,7 @@ imageStreamer UpdateInformation
 
 # set the window/level to 255.0/127.5 to view full range
 vtkImageViewer viewer
-viewer SetInput [imageStreamer GetOutput]
+viewer SetInputConnection [imageStreamer GetOutputPort]
 viewer SetColorWindow 255.0
 viewer SetColorLevel 127.5
 viewer SetZSlice 50

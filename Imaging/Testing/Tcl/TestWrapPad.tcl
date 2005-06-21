@@ -16,12 +16,12 @@ reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
 reader SetDataMask 0x7fff
 
 vtkImageWrapPad pad
-pad SetInput [reader GetOutput]
+pad SetInputConnection [reader GetOutputPort]
 pad SetOutputWholeExtent -100 155 -100 170 0 92
 pad ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetInput [pad GetOutput]
+viewer SetInputConnection [pad GetOutputPort]
 viewer SetZSlice 22
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

@@ -19,10 +19,10 @@ vtkVolume16Reader v16
     v16 SetImageRange 1 93
     v16 SetDataSpacing 3.2 3.2 1.5
 vtkExtractVOI extract
-    extract SetInput [v16 GetOutput]
+    extract SetInputConnection [v16 GetOutputPort]
     extract SetVOI 32 32 0 63 0 93
 vtkTexture atext
-    atext SetInput [extract GetOutput]
+    atext SetInputConnection [extract GetOutputPort]
     atext InterpolateOn
 
 # gnerate plane to map texture on to
@@ -30,7 +30,7 @@ vtkPlaneSource plane
     plane SetXResolution 1
     plane SetYResolution 1
 vtkPolyDataMapper textureMapper
-    textureMapper SetInput [plane GetOutput]
+    textureMapper SetInputConnection [plane GetOutputPort]
 vtkActor textureActor
     textureActor SetMapper textureMapper
     textureActor SetTexture atext

@@ -47,13 +47,13 @@ shotNoiseSource SetMaximum 1.0
 shotNoiseSource ReleaseDataFlagOff
 
 vtkImageThreshold shotNoiseThresh1
-shotNoiseThresh1 SetInput [shotNoiseSource GetOutput]
+shotNoiseThresh1 SetInputConnection [shotNoiseSource GetOutputPort]
 shotNoiseThresh1 ThresholdByLower [expr 1.0 - $shotNoiseFraction]
 shotNoiseThresh1 SetInValue 0
 shotNoiseThresh1 SetOutValue $shotNoiseAmplitude
 
 vtkImageThreshold shotNoiseThresh2
-shotNoiseThresh2 SetInput [shotNoiseSource GetOutput]
+shotNoiseThresh2 SetInputConnection [shotNoiseSource GetOutputPort]
 shotNoiseThresh2 ThresholdByLower $shotNoiseFraction
 shotNoiseThresh2 SetInValue [expr - $shotNoiseAmplitude]
 shotNoiseThresh2 SetOutValue 0.0
@@ -76,17 +76,17 @@ add SetOperationToAdd
 
 
 vtkImageMedian3D median
-median SetInput [add GetOutput]
+median SetInputConnection [add GetOutputPort]
 median SetKernelSize 3 3 1
 
 vtkImageHybridMedian2D hybrid1
-hybrid1 SetInput [add GetOutput]
+hybrid1 SetInputConnection [add GetOutputPort]
 
 vtkImageHybridMedian2D hybrid2
-hybrid2 SetInput [hybrid1 GetOutput]
+hybrid2 SetInputConnection [hybrid1 GetOutputPort]
 
 vtkImageViewer viewer
-viewer SetInput [hybrid1 GetOutput]
+viewer SetInputConnection [hybrid1 GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

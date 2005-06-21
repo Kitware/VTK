@@ -20,7 +20,7 @@ vtkImageCanvasSource2D image2
   image2 FillBox 0 79 0 79
 
 vtkImageMapper mapper
-  mapper SetInput [image1 GetOutput]
+  mapper SetInputConnection [image1 GetOutputPort]
   mapper SetColorWindow 255
   mapper SetColorLevel 127.5
 vtkActor2D actor
@@ -41,7 +41,7 @@ foreach wipe $wipes {
       wiper${wipe} SetWipeTo${wipe}
   
     vtkImageMapper mapper${wipe}
-      mapper${wipe} SetInput [wiper${wipe} GetOutput]
+      mapper${wipe} SetInputConnection [wiper${wipe} GetOutputPort]
       mapper${wipe} SetColorWindow 255
       mapper${wipe} SetColorLevel 127.5
     vtkActor2D actor${wipe}

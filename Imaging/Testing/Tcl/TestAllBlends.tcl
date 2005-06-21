@@ -16,20 +16,20 @@ vtkBMPReader image2
 # shrink the images to a reasonable size
 
 vtkImageShrink3D color
-color SetInput [image1 GetOutput]
+color SetInputConnection [image1 GetOutputPort]
 color SetShrinkFactors 2 2 1
 
 vtkImageShrink3D backgroundColor
-backgroundColor SetInput [image2 GetOutput]
+backgroundColor SetInputConnection [image2 GetOutputPort]
 backgroundColor SetShrinkFactors 2 2 1
 
 # create a greyscale version
 
 vtkImageLuminance luminance
-luminance SetInput [color GetOutput]
+luminance SetInputConnection [color GetOutputPort]
 
 vtkImageLuminance backgroundLuminance
-backgroundLuminance SetInput [backgroundColor GetOutput]
+backgroundLuminance SetInputConnection [backgroundColor GetOutputPort]
 
 # create an alpha mask
 
@@ -40,7 +40,7 @@ table SetSaturationRange 0 0
 table Build
 
 vtkImageMapToColors alpha
-alpha SetInput [luminance GetOutput]
+alpha SetInputConnection [luminance GetOutputPort]
 alpha SetLookupTable table
 alpha SetOutputFormatToLuminance
 
@@ -72,7 +72,7 @@ foreach background $backgrounds {
 	}
 
 	vtkImageMapper mapper${row}${column}
-	mapper${row}${column} SetInput [blend${row}${column} GetOutput]
+	mapper${row}${column} SetInputConnection [blend${row}${column} GetOutputPort]
 	mapper${row}${column} SetColorWindow 255
 	mapper${row}${column} SetColorLevel 127.5
 	

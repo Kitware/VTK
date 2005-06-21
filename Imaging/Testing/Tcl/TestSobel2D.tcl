@@ -9,11 +9,11 @@ vtkDICOMImageReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/mr.001
 
 vtkImageSobel2D sobel
-sobel SetInput [reader GetOutput]
+sobel SetInputConnection [reader GetOutputPort]
 sobel ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetInput [sobel GetOutput]
+viewer SetInputConnection [sobel GetOutputPort]
 viewer SetColorWindow 400
 viewer SetColorLevel 0
 

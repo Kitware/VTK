@@ -19,7 +19,7 @@ transform RotateWXYZ 100 0.1 0.1 1
 transform Translate -100.8 -100.8 -69.0
 
 vtkImageReslice reslice1
-reslice1 SetInput [reader GetOutput]
+reslice1 SetInputConnection [reader GetOutputPort]
 reslice1 MirrorOn
 reslice1 SetResliceTransform transform
 reslice1 SetInterpolationModeToCubic
@@ -28,7 +28,7 @@ reslice1 SetOutputOrigin -32 -32 40
 reslice1 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice2
-reslice2 SetInput [reader GetOutput]
+reslice2 SetInputConnection [reader GetOutputPort]
 reslice2 MirrorOn
 reslice2 SetResliceTransform transform
 reslice2 SetInterpolationModeToLinear
@@ -37,7 +37,7 @@ reslice2 SetOutputOrigin -32 -32 40
 reslice2 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice3
-reslice3 SetInput [reader GetOutput]
+reslice3 SetInputConnection [reader GetOutputPort]
 reslice3 MirrorOn
 reslice3 SetResliceTransform transform
 reslice3 SetInterpolationModeToNearestNeighbor
@@ -46,7 +46,7 @@ reslice3 SetOutputOrigin -32 -32 40
 reslice3 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageReslice reslice4
-reslice4 SetInput [reader GetOutput]
+reslice4 SetInputConnection [reader GetOutputPort]
 reslice4 MirrorOn
 reslice4 SetResliceTransform transform
 reslice4 SetInterpolationModeToLinear
@@ -55,25 +55,25 @@ reslice4 SetOutputOrigin -102.4 -102.4 40
 reslice4 SetOutputExtent 0 127 0 127 0 0
 
 vtkImageMapper mapper1
-  mapper1 SetInput [reslice1 GetOutput]
+  mapper1 SetInputConnection [reslice1 GetOutputPort]
   mapper1 SetColorWindow 2000
   mapper1 SetColorLevel 1000
   mapper1 SetZSlice 0
 
 vtkImageMapper mapper2
-  mapper2 SetInput [reslice2 GetOutput]
+  mapper2 SetInputConnection [reslice2 GetOutputPort]
   mapper2 SetColorWindow 2000
   mapper2 SetColorLevel 1000
   mapper2 SetZSlice 0 
 
 vtkImageMapper mapper3
-  mapper3 SetInput [reslice3 GetOutput]
+  mapper3 SetInputConnection [reslice3 GetOutputPort]
   mapper3 SetColorWindow 2000
   mapper3 SetColorLevel 1000
   mapper3 SetZSlice 0 
 
 vtkImageMapper mapper4
-  mapper4 SetInput [reslice4 GetOutput]
+  mapper4 SetInputConnection [reslice4 GetOutputPort]
   mapper4 SetColorWindow 2000
   mapper4 SetColorLevel 1000
   mapper4 SetZSlice 0 

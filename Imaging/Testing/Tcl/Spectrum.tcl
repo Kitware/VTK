@@ -10,23 +10,23 @@ vtkPNGReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageFFT fft
-fft SetInput [reader GetOutput]
+fft SetInputConnection [reader GetOutputPort]
 fft ReleaseDataFlagOff
 #fft DebugOn
 
 vtkImageMagnitude magnitude
-magnitude SetInput [fft GetOutput]
+magnitude SetInputConnection [fft GetOutputPort]
 magnitude ReleaseDataFlagOff
 
 vtkImageFourierCenter center
-center SetInput [magnitude GetOutput]
+center SetInputConnection [magnitude GetOutputPort]
 
 vtkImageLogarithmicScale compress
-compress SetInput [center GetOutput]
+compress SetInputConnection [center GetOutputPort]
 compress SetConstant 15
 
 vtkImageViewer2 viewer
-viewer SetInput [compress GetOutput]
+viewer SetInputConnection [compress GetOutputPort]
 viewer SetColorWindow 150
 viewer SetColorLevel 170
 

@@ -16,7 +16,7 @@ reader SetDataMask 0x7fff
 
 vtkImageResample magnify
 magnify SetDimensionality 3
-magnify SetInput [reader GetOutput]
+magnify SetInputConnection [reader GetOutputPort]
 magnify SetAxisOutputSpacing 0 0.52
 magnify SetAxisOutputSpacing 1 2.2
 magnify SetAxisOutputSpacing 2 0.8
@@ -24,7 +24,7 @@ magnify ReleaseDataFlagOff
 
 
 vtkImageViewer viewer
-viewer SetInput [magnify GetOutput]
+viewer SetInputConnection [magnify GetOutputPort]
 viewer SetZSlice 30
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

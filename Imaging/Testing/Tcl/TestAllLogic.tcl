@@ -28,7 +28,7 @@ foreach operator $logics {
       logic${operator} SetOutputTrueValue 150
       logic${operator} SetOperationTo${operator}
     vtkImageMapper mapper${operator}
-      mapper${operator} SetInput [logic${operator} GetOutput]
+      mapper${operator} SetInputConnection [logic${operator} GetOutputPort]
       mapper${operator} SetColorWindow 255
       mapper${operator} SetColorLevel 127.5
     vtkActor2D actor${operator}

@@ -50,7 +50,7 @@ mask3 SetMaskAlpha 0.5
 mask3 ReleaseDataFlagOff
 
 vtkImageViewer viewer
-viewer SetInput [mask3 GetOutput]
+viewer SetInputConnection [mask3 GetOutputPort]
 viewer SetColorWindow 255
 viewer SetColorLevel 128
 #viewer DebugOn

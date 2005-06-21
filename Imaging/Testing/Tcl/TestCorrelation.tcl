@@ -27,7 +27,7 @@ convolve SetInput1 [s1 GetOutput]
 convolve SetInput2 [s2 GetOutput]
 
 vtkImageViewer viewer
-viewer SetInput [convolve GetOutput]
+viewer SetInputConnection [convolve GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

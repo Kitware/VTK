@@ -8,7 +8,7 @@ vtkPNGReader reader
 reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
 
 vtkImageAnisotropicDiffusion2D diffusion
-diffusion SetInput [reader GetOutput]
+diffusion SetInputConnection [reader GetOutputPort]
 diffusion SetDiffusionFactor 1.0
 diffusion SetDiffusionThreshold 200.0
 diffusion SetNumberOfIterations 5
@@ -16,7 +16,7 @@ diffusion SetNumberOfIterations 5
 
 vtkImageViewer viewer
 #viewer DebugOn
-viewer SetInput [diffusion GetOutput]
+viewer SetInputConnection [diffusion GetOutputPort]
 viewer SetColorWindow 3000
 viewer SetColorLevel 1500
 

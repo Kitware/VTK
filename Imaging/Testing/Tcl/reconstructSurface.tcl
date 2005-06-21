@@ -28,16 +28,16 @@ vtkSurfaceReconstructionFilter surf
     surf SetInput [pointSource GetPolyDataOutput]
 
 vtkContourFilter cf
-    cf SetInput [surf GetOutput]
+    cf SetInputConnection [surf GetOutputPort]
     cf SetValue 0 0.0
 
 vtkReverseSense reverse
-  reverse SetInput [cf GetOutput]
+  reverse SetInputConnection [cf GetOutputPort]
   reverse ReverseCellsOn
   reverse ReverseNormalsOn
 
 vtkPolyDataMapper map
-    map SetInput [reverse GetOutput]
+    map SetInputConnection [reverse GetOutputPort]
     map ScalarVisibilityOff
 
 vtkActor surfaceActor
