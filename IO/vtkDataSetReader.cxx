@@ -29,16 +29,11 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
-vtkCxxRevisionMacro(vtkDataSetReader, "1.69");
+vtkCxxRevisionMacro(vtkDataSetReader, "1.70");
 vtkStandardNewMacro(vtkDataSetReader);
 
 vtkDataSetReader::vtkDataSetReader()
 {
-  // need a default output, and can't create a vtkDataSet because it's an
-  // abstract class, so default must be a subclass of vtkDataSet
-  vtkPolyData *output = vtkPolyData::New();
-  this->GetExecutive()->SetOutputData(0, output);
-  output->Delete();
 }
 
 vtkDataSetReader::~vtkDataSetReader()
