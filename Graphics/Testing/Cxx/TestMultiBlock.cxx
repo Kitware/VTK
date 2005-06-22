@@ -20,6 +20,7 @@
 //              not allow interaction and exit
 // -D <path> => path to the data; the data should be in <path>/Data/
 
+#include "vtkCamera.h"
 #include "vtkCellDataToPointData.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
@@ -43,6 +44,11 @@ int TestMultiBlock(int argc, char* argv[])
 
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();
+  vtkCamera* cam = ren->GetActiveCamera();
+  cam->SetPosition(-5.1828, 5.89733, 8.97969);
+  cam->SetFocalPoint(14.6491, -2.08677, -8.92362);
+  cam->SetViewUp(0.210794, 0.95813, -0.193784);
+
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer(ren);
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
