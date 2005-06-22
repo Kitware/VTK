@@ -23,7 +23,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
                          EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
                          FUNCTION vtkSuppressCrtDbgWarning)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} 
-    vtkTestHierarchicalDataReader.cxx vtkTestMultiBlockDataReader.cxx)
+    vtkTestHierarchicalDataReader.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)
   SET (TestsToRun ${Tests})
   REMOVE (TestsToRun ${KIT}CxxTests.cxx)
