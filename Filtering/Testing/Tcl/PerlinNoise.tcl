@@ -14,11 +14,11 @@ vtkSampleFunction sample
     sample SetSampleDimensions 65 65 20
     sample ComputeNormalsOff
 vtkContourFilter surface
-    surface SetInput [sample GetOutput]
+    surface SetInputConnection [sample GetOutputPort]
     surface SetValue 0 0.0
 
 vtkPolyDataMapper mapper
-    mapper SetInput [surface GetOutput]
+    mapper SetInputConnection [surface GetOutputPort]
     mapper ScalarVisibilityOff
 vtkActor actor
     actor SetMapper mapper

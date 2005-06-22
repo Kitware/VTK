@@ -22,14 +22,14 @@ vtkPoints selectionPoints
 vtkImplicitSelectionLoop loop
     loop SetLoop selectionPoints
 vtkExtractGeometry extract
-    extract SetInput [sphere GetOutput]
+    extract SetInputConnection [sphere GetOutputPort]
     extract SetImplicitFunction loop
 vtkConnectivityFilter connect
-    connect SetInput [extract GetOutput]
+    connect SetInputConnection [extract GetOutputPort]
     connect SetExtractionModeToClosestPointRegion
     eval connect SetClosestPoint [selectionPoints GetPoint 0]
 vtkDataSetMapper clipMapper
-    clipMapper SetInput [connect GetOutput]
+    clipMapper SetInputConnection [connect GetOutputPort]
 vtkProperty backProp
     eval backProp SetDiffuseColor $tomato
 vtkActor clipActor

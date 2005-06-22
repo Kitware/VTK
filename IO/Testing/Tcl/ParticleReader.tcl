@@ -16,7 +16,7 @@ vtkParticleReader reader
   reader SetDataByteOrderToBigEndian
 
 vtkPolyDataMapper mapper
-    mapper SetInput [reader GetOutput]
+    mapper SetInputConnection [reader GetOutputPort]
     mapper SetScalarRange 4 9
     mapper SetPiece 1
     mapper SetNumberOfPieces 2

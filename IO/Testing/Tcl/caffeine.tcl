@@ -25,7 +25,7 @@ vtkSphereSource Sphere0
   Sphere0 SetEndPhi 180
 
 vtkGlyph3D Glyph0
-  Glyph0 SetInput [pdb0 GetOutput]
+  Glyph0 SetInputConnection [pdb0 GetOutputPort]
   Glyph0 SetOrient 1
   Glyph0 SetColorMode 1
   #Glyph0 ScalingOn
@@ -34,7 +34,7 @@ vtkGlyph3D Glyph0
   Glyph0 SetSource [Sphere0 GetOutput]
 
 vtkPolyDataMapper Mapper5
-  Mapper5 SetInput [Glyph0 GetOutput]
+  Mapper5 SetInputConnection [Glyph0 GetOutputPort]
   Mapper5 SetImmediateModeRendering 1
   Mapper5 UseLookupTableScalarRangeOff
   Mapper5 SetScalarVisibility 1
@@ -54,14 +54,14 @@ vtkLODActor Actor5
 ren1 AddActor Actor5
 
 vtkTubeFilter Tuber0
-  Tuber0 SetInput [pdb0 GetOutput]
+  Tuber0 SetInputConnection [pdb0 GetOutputPort]
   Tuber0 SetNumberOfSides 8
   Tuber0 SetCapping 0
   Tuber0 SetRadius 0.2
   Tuber0 SetVaryRadius 0
   Tuber0 SetRadiusFactor 10
 vtkPolyDataMapper Mapper7
-  Mapper7 SetInput [Tuber0 GetOutput]
+  Mapper7 SetInputConnection [Tuber0 GetOutputPort]
   Mapper7 SetImmediateModeRendering 1
   Mapper7 UseLookupTableScalarRangeOff
   Mapper7 SetScalarVisibility 1

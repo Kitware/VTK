@@ -7,7 +7,7 @@ set reader [createReader CreateImageReader2 "$VTK_DATA_ROOT/Data/beach.jpg"]
 $reader SetFileName "$VTK_DATA_ROOT/Data/beach.jpg"
 
 vtkImageViewer viewer
-viewer SetInput [$reader GetOutput]
+viewer SetInputConnection [$reader GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

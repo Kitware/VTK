@@ -41,14 +41,14 @@ squad SetThetaResolution 25
 vtkPNMReader pnmReader
   pnmReader SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
 vtkTexture atext
-  atext SetInput [pnmReader GetOutput]
+  atext SetInputConnection [pnmReader GetOutputPort]
   atext InterpolateOn
 
 vtkAppendPolyData appendSquads
     appendSquads AddInput [squad GetOutput]
    
 vtkPolyDataMapper mapper
-    mapper SetInput [squad GetOutput]
+    mapper SetInputConnection [squad GetOutputPort]
     mapper ScalarVisibilityOff
 vtkActor actor
     actor SetMapper mapper

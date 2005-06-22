@@ -10,12 +10,12 @@ reader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 reader SetAllow8BitBMP 1
 
 vtkImageMapToColors map
-map SetInput [reader GetOutput]
+map SetInputConnection [reader GetOutputPort]
 map SetLookupTable [reader GetLookupTable]
 map SetOutputFormatToRGB
 
 vtkImageViewer viewer
-viewer SetInput [map GetOutput]
+viewer SetInputConnection [map GetOutputPort]
 viewer SetColorWindow 256
 viewer SetColorLevel 127.5
 

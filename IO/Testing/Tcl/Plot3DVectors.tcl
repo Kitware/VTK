@@ -34,13 +34,13 @@ foreach vectorFunction $vectorFunctions {
     pl3d$vectorFunction SetVectorFunctionNumber $vectorFunction
     pl3d$vectorFunction Update
 vtkStructuredGridGeometryFilter plane$vectorFunction
-    plane$vectorFunction SetInput [pl3d$vectorFunction GetOutput]
+    plane$vectorFunction SetInputConnection [pl3d$vectorFunction GetOutputPort]
     plane$vectorFunction SetExtent 25 25 0 100 0 100
 vtkHedgeHog hog$vectorFunction
-  hog$vectorFunction SetInput [plane$vectorFunction GetOutput]
+  hog$vectorFunction SetInputConnection [plane$vectorFunction GetOutputPort]
   hog$vectorFunction SetScaleFactor [expr 1.0 / [[[[pl3d$vectorFunction GetOutput] GetPointData] GetVectors] GetMaxNorm]]
 vtkPolyDataMapper mapper$vectorFunction
-    mapper$vectorFunction SetInput [hog$vectorFunction GetOutput]
+    mapper$vectorFunction SetInputConnection [hog$vectorFunction GetOutputPort]
 vtkActor actor$vectorFunction
     actor$vectorFunction SetMapper mapper$vectorFunction
 

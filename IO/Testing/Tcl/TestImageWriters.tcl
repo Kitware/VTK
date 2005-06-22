@@ -30,51 +30,51 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
    file delete -force $dir/test.tmp
 
    vtkTIFFWriter tiff1
-   tiff1 SetInput [image1 GetOutput]
+   tiff1 SetInputConnection [image1 GetOutputPort]
    tiff1 SetFileName $dir/tiff1.tif
    
    vtkTIFFWriter tiff2
-   tiff2 SetInput [luminance GetOutput]
+   tiff2 SetInputConnection [luminance GetOutputPort]
    tiff2 SetFileName $dir/tiff2.tif
    
    vtkBMPWriter bmp1
-   bmp1 SetInput [image1 GetOutput]
+   bmp1 SetInputConnection [image1 GetOutputPort]
    bmp1 SetFileName $dir/bmp1.bmp
    
    vtkBMPWriter bmp2
-   bmp2 SetInput [luminance GetOutput]
+   bmp2 SetInputConnection [luminance GetOutputPort]
    bmp2 SetFileName $dir/bmp2.bmp
    
    vtkPNMWriter pnm1
-   pnm1 SetInput [image1 GetOutput]
+   pnm1 SetInputConnection [image1 GetOutputPort]
    pnm1 SetFileName $dir/pnm1.pnm
    
    vtkPNMWriter pnm2
-   pnm2 SetInput [luminance GetOutput]
+   pnm2 SetInputConnection [luminance GetOutputPort]
    pnm2 SetFileName $dir/pnm2.pnm
 
    vtkPostScriptWriter psw1
-   psw1 SetInput [image1 GetOutput]
+   psw1 SetInputConnection [image1 GetOutputPort]
    psw1 SetFileName $dir/psw1.ps
 
    vtkPostScriptWriter psw2
-   psw2 SetInput [luminance GetOutput]
+   psw2 SetInputConnection [luminance GetOutputPort]
    psw2 SetFileName $dir/psw2.ps
 
    vtkPNGWriter pngw1
-   pngw1 SetInput [image1 GetOutput]
+   pngw1 SetInputConnection [image1 GetOutputPort]
    pngw1 SetFileName $dir/pngw1.png
 
    vtkPNGWriter pngw2
-   pngw2 SetInput [luminance GetOutput]
+   pngw2 SetInputConnection [luminance GetOutputPort]
    pngw2 SetFileName $dir/pngw2.png
 
    vtkJPEGWriter jpgw1
-   jpgw1 SetInput [image1 GetOutput]
+   jpgw1 SetInputConnection [image1 GetOutputPort]
    jpgw1 SetFileName $dir/jpgw1.jpg
 
    vtkJPEGWriter jpgw2
-   jpgw2 SetInput [luminance GetOutput]
+   jpgw2 SetInputConnection [luminance GetOutputPort]
    jpgw2 SetFileName $dir/jpgw2.jpg
 
    tiff1 Write
@@ -105,7 +105,7 @@ if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
 }
 
 vtkImageViewer viewer
-  viewer SetInput [luminance GetOutput]
+  viewer SetInputConnection [luminance GetOutputPort]
   viewer SetColorWindow 255
   viewer SetColorLevel 127.5
   viewer Render

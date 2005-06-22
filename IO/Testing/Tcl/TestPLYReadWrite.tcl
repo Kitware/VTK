@@ -5,7 +5,7 @@ vtkSphereSource ss
    ss SetPhiResolution 10
    ss SetThetaResolution 20
 vtkSimpleElevationFilter ele
-   ele SetInput [ss GetOutput]
+   ele SetInputConnection [ss GetOutputPort]
 vtkPointDataToCellData pd2cd
    pd2cd SetInput [ele GetPolyDataOutput]
 
@@ -23,7 +23,7 @@ vtkPLYReader r
    r Update
 file delete -force plyWriter.ply
 vtkPolyDataMapper plyMapper
-   plyMapper SetInput [r GetOutput]
+   plyMapper SetInputConnection [r GetOutputPort]
 vtkActor plyActor
    plyActor SetMapper plyMapper
 
@@ -44,7 +44,7 @@ vtkPLYReader r2
    r2 SetFileName plyWriter.ply
    r2 Update
 vtkPolyDataMapper plyMapper2
-   plyMapper2 SetInput [r2 GetOutput]
+   plyMapper2 SetInputConnection [r2 GetOutputPort]
 vtkActor plyActor2
    plyActor2 SetMapper plyMapper2
    plyActor2 AddPosition 1 0 0
@@ -54,7 +54,7 @@ vtkPLYReader r3
    r3 SetFileName plyWriter.ply
    r3 Update
 vtkPLYWriter w3
-   w3 SetInput [r3 GetOutput]
+   w3 SetInputConnection [r3 GetOutputPort]
    w3 SetFileName plyWriter.ply
    w3 SetFileTypeToBinary
    w3 SetDataByteOrderToLittleEndian
@@ -66,7 +66,7 @@ vtkPLYReader r4
    r4 SetFileName plyWriter.ply
    r4 Update
 vtkPolyDataMapper plyMapper3
-   plyMapper3 SetInput [r4 GetOutput]
+   plyMapper3 SetInputConnection [r4 GetOutputPort]
 vtkActor plyActor3
    plyActor3 SetMapper plyMapper3
    plyActor3 AddPosition 2 0 0

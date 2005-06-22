@@ -17,16 +17,16 @@ vtkPolyDataReader input
 #
 # generate vectors
 vtkCleanPolyData clean
-  clean SetInput [input GetOutput]
+  clean SetInputConnection [input GetOutputPort]
 
 vtkWindowedSincPolyDataFilter smooth
-  smooth SetInput [clean GetOutput]
+  smooth SetInputConnection [clean GetOutputPort]
   smooth GenerateErrorVectorsOn
   smooth GenerateErrorScalarsOn
   smooth Update
 
 vtkPolyDataMapper mapper
-  mapper SetInput [smooth GetOutput]
+  mapper SetInputConnection [smooth GetOutputPort]
   eval mapper SetScalarRange [[smooth GetOutput] GetScalarRange]
 
 vtkActor brain
@@ -67,20 +67,20 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    #
    # test the writers
    vtkDataSetWriter dsw
-   dsw SetInput [smooth GetOutput]
+   dsw SetInputConnection [smooth GetOutputPort]
    dsw SetFileName brain.dsw
    dsw Write
    file delete -force brain.dsw
    
    vtkPolyDataWriter pdw
-   pdw SetInput [smooth GetOutput]
+   pdw SetInputConnection [smooth GetOutputPort]
    pdw SetFileName brain.pdw
    pdw Write
    file delete -force brain.pdw
    
    if { [info command vtkIVWriter] != "" } {
       vtkIVWriter iv
-      iv SetInput [smooth GetOutput]
+      iv SetInputConnection [smooth GetOutputPort]
       iv SetFileName brain.iv
       iv Write
       file delete -force brain.iv
@@ -89,11 +89,11 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    #
    # the next writers only handle triangles
    vtkTriangleFilter triangles
-   triangles SetInput [smooth GetOutput]
+   triangles SetInputConnection [smooth GetOutputPort]
    
    if { [info command vtkIVWriter] != "" } {
       vtkIVWriter iv2
-      iv2 SetInput [triangles GetOutput]
+      iv2 SetInputConnection [triangles GetOutputPort]
       iv2 SetFileName brain2.iv
       iv2 Write
       file delete -force brain2.iv
@@ -101,9 +101,9 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    
    if { [info command vtkIVWriter] != "" } {
       vtkExtractEdges edges
-      edges SetInput [triangles GetOutput]
+      edges SetInputConnection [triangles GetOutputPort]
       vtkIVWriter iv3
-      iv3 SetInput [edges GetOutput]
+      iv3 SetInputConnection [edges GetOutputPort]
       iv3 SetFileName brain3.iv
       iv3 Write
       file delete -force brain3.iv
@@ -113,14 +113,14 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    byu SetGeometryFileName brain.g
    byu SetScalarFileName brain.s
    byu SetDisplacementFileName brain.d
-   byu SetInput [triangles GetOutput]
+   byu SetInputConnection [triangles GetOutputPort]
    byu Write
    file delete -force brain.g
    file delete -force brain.s
    file delete -force brain.d
    
    vtkMCubesWriter mcubes
-   mcubes SetInput [triangles GetOutput]
+   mcubes SetInputConnection [triangles GetOutputPort]
    mcubes SetFileName brain.tri
    mcubes SetLimitsFileName brain.lim
    mcubes Write
@@ -128,20 +128,20 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
    file delete -force brain.tri
    
    vtkSTLWriter stl
-   stl SetInput [triangles GetOutput]
+   stl SetInputConnection [triangles GetOutputPort]
    stl SetFileName brain.stl
    stl Write
    file delete -force brain.stl
    
    vtkSTLWriter stlBinary
-   stlBinary SetInput [triangles GetOutput]
+   stlBinary SetInputConnection [triangles GetOutputPort]
    stlBinary SetFileName brainBinary.stl
    stlBinary SetFileType 2
    stlBinary Write
    file delete -force brainBinary.stl
 
    vtkCGMWriter cgm
-   cgm SetInput [triangles GetOutput]
+   cgm SetInputConnection [triangles GetOutputPort]
    cgm SetFileName brain.cgm
    cgm Write
    file delete -force brain.cgm

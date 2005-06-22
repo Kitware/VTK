@@ -38,7 +38,7 @@ vtkContourFilter pvTemp110
 	pvTemp110 SetComputeGradients 0
 	pvTemp110 SetComputeScalars 0
 vtkPolyDataMapper pvTemp114
-	pvTemp114 SetInput [pvTemp110 GetOutput]
+	pvTemp114 SetInputConnection [pvTemp110 GetOutputPort]
 	pvTemp114 SetImmediateModeRendering 1
 	pvTemp114 SetScalarRange 0 1
 	pvTemp114 UseLookupTableScalarRangeOn

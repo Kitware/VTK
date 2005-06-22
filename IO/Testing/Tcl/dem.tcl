@@ -31,29 +31,29 @@ set lods {4 8 16}
 foreach lod $lods {
   vtkImageShrink3D shrink$lod
     shrink$lod SetShrinkFactors $lod $lod 1
-    shrink$lod SetInput [demModel GetOutput]
+    shrink$lod SetInputConnection [demModel GetOutputPort]
     shrink$lod AveragingOn
 
   vtkImageDataGeometryFilter geom$lod
-    geom$lod SetInput [shrink$lod GetOutput]
+    geom$lod SetInputConnection [shrink$lod GetOutputPort]
     geom$lod ReleaseDataFlagOn
 
   vtkWarpScalar warp$lod
-    warp$lod SetInput [geom$lod GetOutput]
+    warp$lod SetInputConnection [geom$lod GetOutputPort]
     warp$lod SetNormal 0 0 1
     warp$lod UseNormalOn
     warp$lod SetScaleFactor $Scale
     warp$lod ReleaseDataFlagOn
 
   vtkElevationFilter elevation$lod
-    elevation$lod SetInput [warp$lod GetOutput]
+    elevation$lod SetInputConnection [warp$lod GetOutputPort]
     elevation$lod SetLowPoint 0 0 $lo
     elevation$lod SetHighPoint 0 0 $hi
 eval elevation$lod SetScalarRange $lo $hi
     elevation$lod ReleaseDataFlagOn
 
   vtkCastToConcrete toPoly$lod
-    toPoly$lod SetInput [elevation$lod GetOutput]
+    toPoly$lod SetInputConnection [elevation$lod GetOutputPort]
   
   vtkPolyDataNormals normals$lod
     normals$lod SetInput [toPoly$lod GetPolyDataOutput]
@@ -63,7 +63,7 @@ eval elevation$lod SetScalarRange $lo $hi
     normals$lod ReleaseDataFlagOn
 
   vtkPolyDataMapper demMapper$lod
-    demMapper$lod SetInput [normals$lod GetOutput]
+    demMapper$lod SetInputConnection [normals$lod GetOutputPort]
 eval demMapper$lod SetScalarRange $lo $hi
     demMapper$lod SetLookupTable lut
     demMapper$lod ImmediateModeRenderingOn

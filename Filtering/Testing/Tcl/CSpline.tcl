@@ -42,7 +42,7 @@ vtkGlyph3D glyphPoints
   glyphPoints SetSource [balls GetOutput]
 
 vtkPolyDataMapper glyphMapper
-  glyphMapper SetInput [glyphPoints GetOutput]
+  glyphMapper SetInputConnection [glyphPoints GetOutputPort]
 
 vtkActor glyph
   glyph SetMapper glyphMapper
@@ -84,7 +84,7 @@ vtkTubeFilter profileTubes
   profileTubes SetRadius .005
 
 vtkPolyDataMapper profileMapper
-  profileMapper SetInput [profileTubes GetOutput]
+  profileMapper SetInputConnection [profileTubes GetOutputPort]
 
 vtkActor profile
   profile SetMapper profileMapper

@@ -5,7 +5,7 @@ package require vtkinteraction
 vtkGAMBITReader reader
    reader SetFileName "$VTK_DATA_ROOT/Data/prism.neu"
 vtkDataSetMapper mapper
-   mapper SetInput [reader GetOutput]
+   mapper SetInputConnection [reader GetOutputPort]
 vtkActor actor
    actor SetMapper mapper
 

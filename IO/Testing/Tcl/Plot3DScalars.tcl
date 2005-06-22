@@ -32,10 +32,10 @@ foreach scalarFunction $scalarFunctions {
     pl3d$scalarFunction SetScalarFunctionNumber $scalarFunction
     pl3d$scalarFunction Update
 vtkStructuredGridGeometryFilter plane$scalarFunction
-    plane$scalarFunction SetInput [pl3d$scalarFunction GetOutput]
+    plane$scalarFunction SetInputConnection [pl3d$scalarFunction GetOutputPort]
     plane$scalarFunction SetExtent 25 25 0 100 0 100
 vtkPolyDataMapper mapper$scalarFunction
-    mapper$scalarFunction SetInput [plane$scalarFunction GetOutput]
+    mapper$scalarFunction SetInputConnection [plane$scalarFunction GetOutputPort]
     eval mapper$scalarFunction SetScalarRange \
       [[[[pl3d$scalarFunction GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor actor$scalarFunction

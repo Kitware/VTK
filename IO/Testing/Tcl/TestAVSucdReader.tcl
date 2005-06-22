@@ -5,7 +5,7 @@ package require vtkinteraction
 vtkAVSucdReader r
    r SetFileName "$VTK_DATA_ROOT/Data/cellsnd.ascii.inp"
 vtkDataSetMapper AVSMapper
-   AVSMapper SetInput [r GetOutput]
+   AVSMapper SetInputConnection [r GetOutputPort]
 vtkActor AVSActor
    AVSActor SetMapper AVSMapper
 
@@ -13,7 +13,7 @@ vtkActor AVSActor
 vtkAVSucdReader r2
    r2 SetFileName "$VTK_DATA_ROOT/Data/cellsnd.bin.inp"
 vtkDataSetMapper AVSMapper2
-   AVSMapper2 SetInput [r2 GetOutput]
+   AVSMapper2 SetInputConnection [r2 GetOutputPort]
 vtkActor AVSActor2
    AVSActor2 SetMapper AVSMapper2
    AVSActor2 AddPosition 5 0 0
