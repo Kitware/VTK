@@ -195,6 +195,7 @@ protected:
   // Description:
   // Project and sort the vertices by z-coordinates in view space in the
   // "event list" (an heap).
+  // \pre empty_list: this->EventList->GetNumberOfItems()==0
   void ProjectAndSortVertices(vtkRenderer *ren,
                               vtkVolume *vol);
   
@@ -204,6 +205,7 @@ protected:
   
   // Description:
   // MainLoop of the Zsweep algorithm.
+  // \post empty_list: this->EventList->GetNumberOfItems()==0
   void MainLoop(vtkRenderWindow *renWin);
   
   // Description:

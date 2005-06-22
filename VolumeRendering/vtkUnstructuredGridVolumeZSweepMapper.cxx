@@ -2183,7 +2183,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -2981,6 +2981,8 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   vtkRenderer *ren,
   vtkVolume *vol)
 {
+  assert("pre: empty list" && this->EventList->GetNumberOfItems()==0);
+  
   vtkUnstructuredGrid *input = this->GetInput();
   vtkIdType numberOfPoints=input->GetNumberOfPoints();
   
@@ -3001,9 +3003,6 @@ void vtkUnstructuredGridVolumeZSweepMapper::ProjectAndSortVertices(
   this->PerspectiveTransform->Concatenate(vol->GetMatrix());
   this->PerspectiveMatrix->DeepCopy(this->PerspectiveTransform->GetMatrix());
   
-
-  assert("check: empty list" && this->EventList->GetNumberOfItems()==0);
-
   this->AllocateVertices(numberOfPoints);
   
   while(pointId<numberOfPoints)
@@ -3296,8 +3295,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow *renWin)
     this->CompositeFunction(2);
 #endif
     }
+  else
+    {
+    this->EventList->Reset();
+    }
   this->PixelListFrame->Clean(this->MemoryManager);
 //  vtkDebugMacro(<<"MaxRecordedPixelListSize="<<this->MaxRecordedPixelListSize);
+  
+  assert("post: empty_list" && this->EventList->GetNumberOfItems()==0);
 }
 
 //-----------------------------------------------------------------------------
