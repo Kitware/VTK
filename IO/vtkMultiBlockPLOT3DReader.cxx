@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.2");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.3");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -1051,7 +1051,6 @@ int vtkMultiBlockPLOT3DReader::RequestData(
     {
     vtkStructuredGrid* nthOutput = this->Internal->Blocks[i];
     mb->SetDataSet(0, i, nthOutput);
-    cout << updatePiece << " loading block " << i << endl;
     }
 
   this->Internal->Blocks.clear();
