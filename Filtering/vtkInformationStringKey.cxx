@@ -16,7 +16,7 @@
 
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkInformationStringKey, "1.6");
+vtkCxxRevisionMacro(vtkInformationStringKey, "1.7");
 
 //----------------------------------------------------------------------------
 vtkInformationStringKey::vtkInformationStringKey(const char* name, const char* location):
@@ -65,16 +65,14 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
 const char* vtkInformationStringKey::Get(vtkInformation* info)
 {
   vtkInformationStringValue* v =
-    vtkInformationStringValue::SafeDownCast(this->GetAsObjectBase(info));
+    static_cast<vtkInformationStringValue *>(this->GetAsObjectBase(info));
   return v?v->Value.c_str():0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationStringKey::Has(vtkInformation* info)
 {
-  vtkInformationStringValue* v =
-    vtkInformationStringValue::SafeDownCast(this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

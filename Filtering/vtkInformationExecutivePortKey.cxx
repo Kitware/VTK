@@ -18,7 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(const char* name, const char* location):
@@ -54,7 +54,7 @@ void vtkInformationExecutivePortKey::Set(vtkInformation* info,
   if(executive)
     {
     if(vtkInformationExecutivePortValue* oldv =
-       vtkInformationExecutivePortValue::SafeDownCast(
+       static_cast<vtkInformationExecutivePortValue *>(
          this->GetAsObjectBase(info)))
       {
       // Replace the existing value.
@@ -88,7 +88,7 @@ vtkExecutive*
 vtkInformationExecutivePortKey::GetExecutive(vtkInformation* info)
 {
   if(vtkInformationExecutivePortValue* v =
-     vtkInformationExecutivePortValue::SafeDownCast(
+     static_cast<vtkInformationExecutivePortValue *>(
        this->GetAsObjectBase(info)))
     {
     return v->Executive;
@@ -100,7 +100,7 @@ vtkInformationExecutivePortKey::GetExecutive(vtkInformation* info)
 int vtkInformationExecutivePortKey::GetPort(vtkInformation* info)
 {
   vtkInformationExecutivePortValue* v =
-    vtkInformationExecutivePortValue::SafeDownCast(
+    static_cast<vtkInformationExecutivePortValue *>(
       this->GetAsObjectBase(info));
   return v?v->Port:0;
 }
@@ -108,10 +108,7 @@ int vtkInformationExecutivePortKey::GetPort(vtkInformation* info)
 //----------------------------------------------------------------------------
 int vtkInformationExecutivePortKey::Has(vtkInformation* info)
 {
-  vtkInformationExecutivePortValue* v =
-    vtkInformationExecutivePortValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -146,7 +143,7 @@ void vtkInformationExecutivePortKey::Report(vtkInformation* info,
                                             vtkGarbageCollector* collector)
 {
   if(vtkInformationExecutivePortValue* v =
-     vtkInformationExecutivePortValue::SafeDownCast(
+     static_cast<vtkInformationExecutivePortValue *>(
        this->GetAsObjectBase(info)))
     {
     v->Executive.Report(collector, this->GetName());

@@ -18,7 +18,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.7");
+vtkCxxRevisionMacro(vtkInformationDoubleVectorKey, "1.8");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleVectorKey
@@ -52,7 +52,7 @@ public:
 void vtkInformationDoubleVectorKey::Append(vtkInformation* info, double value)
 {
   vtkInformationDoubleVectorValue* v =
-    vtkInformationDoubleVectorValue::SafeDownCast(
+    static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   if(v)
     {
@@ -98,7 +98,7 @@ void vtkInformationDoubleVectorKey::Set(vtkInformation* info, double* value,
 double* vtkInformationDoubleVectorKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleVectorValue* v =
-    vtkInformationDoubleVectorValue::SafeDownCast(
+    static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   return v?(&v->Value[0]):0;
 }
@@ -108,7 +108,7 @@ void vtkInformationDoubleVectorKey::Get(vtkInformation* info,
                                      double* value)
 {
   vtkInformationDoubleVectorValue* v =
-    vtkInformationDoubleVectorValue::SafeDownCast(
+    static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   if(v && value)
     {
@@ -124,7 +124,7 @@ void vtkInformationDoubleVectorKey::Get(vtkInformation* info,
 int vtkInformationDoubleVectorKey::Length(vtkInformation* info)
 {
   vtkInformationDoubleVectorValue* v =
-    vtkInformationDoubleVectorValue::SafeDownCast(
+    static_cast<vtkInformationDoubleVectorValue *>(
       this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Value.size()):0;
 }
@@ -132,10 +132,7 @@ int vtkInformationDoubleVectorKey::Length(vtkInformation* info)
 //----------------------------------------------------------------------------
 int vtkInformationDoubleVectorKey::Has(vtkInformation* info)
 {
-  vtkInformationDoubleVectorValue* v =
-    vtkInformationDoubleVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

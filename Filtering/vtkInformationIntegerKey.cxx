@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.9");
+vtkCxxRevisionMacro(vtkInformationIntegerKey, "1.10");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerKey::vtkInformationIntegerKey(const char* name, const char* location):
@@ -48,8 +48,8 @@ public:
 void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
 {
   if(vtkInformationIntegerValue* oldv =
-     vtkInformationIntegerValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationIntegerValue *>
+     (this->GetAsObjectBase(info)))
     {
     // Replace the existing value.
     oldv->Value = value;
@@ -73,18 +73,15 @@ void vtkInformationIntegerKey::Set(vtkInformation* info, int value)
 int vtkInformationIntegerKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerValue* v =
-    vtkInformationIntegerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerValue *>
+    (this->GetAsObjectBase(info));
   return v?v->Value:0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationIntegerKey::Has(vtkInformation* info)
 {
-  vtkInformationIntegerValue* v =
-    vtkInformationIntegerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -114,8 +111,8 @@ void vtkInformationIntegerKey::Print(ostream& os, vtkInformation* info)
 int* vtkInformationIntegerKey::GetWatchAddress(vtkInformation* info)
 {
   if(vtkInformationIntegerValue* v =
-     vtkInformationIntegerValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationIntegerValue *>
+     (this->GetAsObjectBase(info)))
     {
     return &v->Value;
     }

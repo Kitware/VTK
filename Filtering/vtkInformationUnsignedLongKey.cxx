@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.9");
+vtkCxxRevisionMacro(vtkInformationUnsignedLongKey, "1.10");
 
 //----------------------------------------------------------------------------
 vtkInformationUnsignedLongKey::vtkInformationUnsignedLongKey(const char* name, const char* location):
@@ -49,8 +49,8 @@ void vtkInformationUnsignedLongKey::Set(vtkInformation* info,
                                         unsigned long value)
 {
   if(vtkInformationUnsignedLongValue* oldv =
-     vtkInformationUnsignedLongValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationUnsignedLongValue *>
+     (this->GetAsObjectBase(info)))
     {
     // Replace the existing value.
     oldv->Value = value;
@@ -74,18 +74,15 @@ void vtkInformationUnsignedLongKey::Set(vtkInformation* info,
 unsigned long vtkInformationUnsignedLongKey::Get(vtkInformation* info)
 {
   vtkInformationUnsignedLongValue* v =
-    vtkInformationUnsignedLongValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationUnsignedLongValue *>
+    (this->GetAsObjectBase(info));
   return v?v->Value:0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationUnsignedLongKey::Has(vtkInformation* info)
 {
-  vtkInformationUnsignedLongValue* v =
-    vtkInformationUnsignedLongValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -117,8 +114,8 @@ unsigned long*
 vtkInformationUnsignedLongKey::GetWatchAddress(vtkInformation* info)
 {
   if(vtkInformationUnsignedLongValue* v =
-     vtkInformationUnsignedLongValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationUnsignedLongValue *>
+     (this->GetAsObjectBase(info)))
     {
     return &v->Value;
     }

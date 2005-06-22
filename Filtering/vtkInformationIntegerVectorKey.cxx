@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.9");
+vtkCxxRevisionMacro(vtkInformationIntegerVectorKey, "1.10");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerVectorKey
@@ -53,8 +53,8 @@ public:
 void vtkInformationIntegerVectorKey::Append(vtkInformation* info, int value)
 {
   vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerVectorValue *>
+    (this->GetAsObjectBase(info));
   if(v)
     {
     v->Value.push_back(value);
@@ -84,8 +84,8 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
       }
 
     vtkInformationIntegerVectorValue* oldv =
-      vtkInformationIntegerVectorValue::SafeDownCast(
-        this->GetAsObjectBase(info));
+      static_cast<vtkInformationIntegerVectorValue *>
+      (this->GetAsObjectBase(info));
     if(oldv && static_cast<int>(oldv->Value.size()) == length)
       {
       // Replace the existing value.
@@ -116,8 +116,8 @@ void vtkInformationIntegerVectorKey::Set(vtkInformation* info, int* value,
 int* vtkInformationIntegerVectorKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?(&v->Value[0]):0;
 }
 
@@ -126,8 +126,8 @@ void vtkInformationIntegerVectorKey::Get(vtkInformation* info,
                                      int* value)
 {
   vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerVectorValue *>
+    (this->GetAsObjectBase(info));
   if(v && value)
     {
     for(vtkstd::vector<int>::size_type i = 0;
@@ -142,18 +142,15 @@ void vtkInformationIntegerVectorKey::Get(vtkInformation* info,
 int vtkInformationIntegerVectorKey::Length(vtkInformation* info)
 {
   vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Value.size()):0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationIntegerVectorKey::Has(vtkInformation* info)
 {
-  vtkInformationIntegerVectorValue* v =
-    vtkInformationIntegerVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -184,8 +181,8 @@ void vtkInformationIntegerVectorKey::Print(ostream& os, vtkInformation* info)
 int* vtkInformationIntegerVectorKey::GetWatchAddress(vtkInformation* info)
 {
   if(vtkInformationIntegerVectorValue* v =
-     vtkInformationIntegerVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationIntegerVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     return &v->Value[0];
     }

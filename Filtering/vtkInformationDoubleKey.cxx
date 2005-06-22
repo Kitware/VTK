@@ -16,7 +16,7 @@
 
 #include "vtkInformation.h"
 
-vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationDoubleKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationDoubleKey::vtkInformationDoubleKey(const char* name, const char* location):
@@ -48,7 +48,7 @@ public:
 void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 {
   if(vtkInformationDoubleValue* oldv =
-     vtkInformationDoubleValue::SafeDownCast(
+     static_cast<vtkInformationDoubleValue *>(
        this->GetAsObjectBase(info)))
     {
     // Replace the existing value.
@@ -73,7 +73,7 @@ void vtkInformationDoubleKey::Set(vtkInformation* info, double value)
 double vtkInformationDoubleKey::Get(vtkInformation* info)
 {
   vtkInformationDoubleValue* v =
-    vtkInformationDoubleValue::SafeDownCast(
+    static_cast<vtkInformationDoubleValue *>(
       this->GetAsObjectBase(info));
   return v?v->Value:0;
 }
@@ -81,10 +81,7 @@ double vtkInformationDoubleKey::Get(vtkInformation* info)
 //----------------------------------------------------------------------------
 int vtkInformationDoubleKey::Has(vtkInformation* info)
 {
-  vtkInformationDoubleValue* v =
-    vtkInformationDoubleValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -114,7 +111,7 @@ void vtkInformationDoubleKey::Print(ostream& os, vtkInformation* info)
 double* vtkInformationDoubleKey::GetWatchAddress(vtkInformation* info)
 {
   if(vtkInformationDoubleValue* v =
-     vtkInformationDoubleValue::SafeDownCast(
+     static_cast<vtkInformationDoubleValue *>(
        this->GetAsObjectBase(info)))
     {
     return &v->Value;

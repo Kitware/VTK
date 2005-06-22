@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationIntegerPointerKey, "1.1");
+vtkCxxRevisionMacro(vtkInformationIntegerPointerKey, "1.2");
 
 //----------------------------------------------------------------------------
 vtkInformationIntegerPointerKey
@@ -87,8 +87,8 @@ void vtkInformationIntegerPointerKey::Set(vtkInformation* info, int* value,
 int* vtkInformationIntegerPointerKey::Get(vtkInformation* info)
 {
   vtkInformationIntegerPointerValue* v =
-    vtkInformationIntegerPointerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerPointerValue *>
+    (this->GetAsObjectBase(info));
   return v->Value;
 }
 
@@ -97,8 +97,8 @@ void vtkInformationIntegerPointerKey::Get(vtkInformation* info,
                                           int* value)
 {
   vtkInformationIntegerPointerValue* v =
-    vtkInformationIntegerPointerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerPointerValue *>
+    (this->GetAsObjectBase(info));
   if(v && value)
     {
     memcpy(value, v->Value, v->Length*sizeof(int));
@@ -109,18 +109,15 @@ void vtkInformationIntegerPointerKey::Get(vtkInformation* info,
 int vtkInformationIntegerPointerKey::Length(vtkInformation* info)
 {
   vtkInformationIntegerPointerValue* v =
-    vtkInformationIntegerPointerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationIntegerPointerValue *>
+    (this->GetAsObjectBase(info));
   return v->Length;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationIntegerPointerKey::Has(vtkInformation* info)
 {
-  vtkInformationIntegerPointerValue* v =
-    vtkInformationIntegerPointerValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -151,8 +148,8 @@ void vtkInformationIntegerPointerKey::Print(ostream& os, vtkInformation* info)
 int* vtkInformationIntegerPointerKey::GetWatchAddress(vtkInformation* info)
 {
   if(vtkInformationIntegerPointerValue* v =
-     vtkInformationIntegerPointerValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationIntegerPointerValue *>
+     (this->GetAsObjectBase(info)))
     {
     return v->Value;
     }

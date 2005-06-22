@@ -17,7 +17,7 @@
 #include <vtkstd/vector>
 #include <vtkstd/algorithm> // find()
 
-vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.9");
+vtkCxxRevisionMacro(vtkInformationKeyVectorKey, "1.10");
 
 //----------------------------------------------------------------------------
 vtkInformationKeyVectorKey::vtkInformationKeyVectorKey(const char* name, const char* location):
@@ -50,8 +50,8 @@ void vtkInformationKeyVectorKey::Append(vtkInformation* info,
                                         vtkInformationKey* value)
 {
   vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
   if(v)
     {
     v->Value.push_back(value);
@@ -86,8 +86,8 @@ void vtkInformationKeyVectorKey::RemoveItem(vtkInformation* info,
                                             vtkInformationKey* value)
 {
   vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
   
   if(v)
     {
@@ -103,8 +103,8 @@ void vtkInformationKeyVectorKey::RemoveItem(vtkInformation* info,
 vtkInformationKey** vtkInformationKeyVectorKey::Get(vtkInformation* info)
 {
   vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?(&v->Value[0]):0;
 }
 
@@ -113,8 +113,8 @@ void vtkInformationKeyVectorKey::Get(vtkInformation* info,
                                      vtkInformationKey** value)
 {
   vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
   if(v && value)
     {
     for(vtkstd::vector<vtkInformationKey*>::size_type i = 0;
@@ -129,18 +129,15 @@ void vtkInformationKeyVectorKey::Get(vtkInformation* info,
 int vtkInformationKeyVectorKey::Length(vtkInformation* info)
 {
   vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationKeyVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Value.size()):0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationKeyVectorKey::Has(vtkInformation* info)
 {
-  vtkInformationKeyVectorValue* v =
-    vtkInformationKeyVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------

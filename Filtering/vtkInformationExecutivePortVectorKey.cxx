@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.4");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.5");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -80,8 +80,8 @@ void vtkInformationExecutivePortVectorKey::Append(vtkInformation* info,
                                                   int port)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     // The entry already exists.  Append to its vector.
     executive->Register(0);
@@ -101,8 +101,8 @@ void vtkInformationExecutivePortVectorKey::Remove(vtkInformation* info,
                                                   int port)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     // The entry exists.  Find this executive/port pair and remove it.
     for(unsigned int i=0; i < v->Executives.size(); ++i)
@@ -142,8 +142,8 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
 
     // Store the vector of pointers.
     vtkInformationExecutivePortVectorValue* oldv =
-      vtkInformationExecutivePortVectorValue::SafeDownCast(
-        this->GetAsObjectBase(info));
+      static_cast<vtkInformationExecutivePortVectorValue *>
+      (this->GetAsObjectBase(info));
     if(oldv && static_cast<int>(oldv->Executives.size()) == length)
       {
       // Replace the existing value.
@@ -178,8 +178,8 @@ vtkExecutive**
 vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
-    vtkInformationExecutivePortVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationExecutivePortVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?(&v->Executives[0]):0;
 }
 
@@ -187,8 +187,8 @@ vtkInformationExecutivePortVectorKey::GetExecutives(vtkInformation* info)
 int* vtkInformationExecutivePortVectorKey::GetPorts(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
-    vtkInformationExecutivePortVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationExecutivePortVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?(&v->Ports[0]):0;
 }
 
@@ -198,8 +198,8 @@ void vtkInformationExecutivePortVectorKey::Get(vtkInformation* info,
                                                int* ports)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     vtkstd::copy(v->Executives.begin(), v->Executives.end(), executives);
     vtkstd::copy(v->Ports.begin(), v->Ports.end(), ports);
@@ -210,18 +210,15 @@ void vtkInformationExecutivePortVectorKey::Get(vtkInformation* info,
 int vtkInformationExecutivePortVectorKey::Length(vtkInformation* info)
 {
   vtkInformationExecutivePortVectorValue* v =
-    vtkInformationExecutivePortVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
+    static_cast<vtkInformationExecutivePortVectorValue *>
+    (this->GetAsObjectBase(info));
   return v?static_cast<int>(v->Executives.size()):0;
 }
 
 //----------------------------------------------------------------------------
 int vtkInformationExecutivePortVectorKey::Has(vtkInformation* info)
 {
-  vtkInformationExecutivePortVectorValue* v =
-    vtkInformationExecutivePortVectorValue::SafeDownCast(
-      this->GetAsObjectBase(info));
-  return v?1:0;
+  return this->GetAsObjectBase(info)?1:0;
 }
 
 //----------------------------------------------------------------------------
@@ -271,8 +268,8 @@ vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
                                              vtkGarbageCollector* collector)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     for(vtkstd::vector<vtkExecutive*>::iterator i = v->Executives.begin();
         i != v->Executives.end(); ++i)
@@ -288,8 +285,8 @@ vtkInformationExecutivePortVectorKey
 ::GetExecutivesWatchAddress(vtkInformation* info)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     return &v->Executives[0];
     }
@@ -302,8 +299,8 @@ vtkInformationExecutivePortVectorKey
 ::GetPortsWatchAddress(vtkInformation* info)
 {
   if(vtkInformationExecutivePortVectorValue* v =
-     vtkInformationExecutivePortVectorValue::SafeDownCast(
-       this->GetAsObjectBase(info)))
+     static_cast<vtkInformationExecutivePortVectorValue *>
+     (this->GetAsObjectBase(info)))
     {
     return &v->Ports[0];
     }
