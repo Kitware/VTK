@@ -18,16 +18,32 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointerBase.h"
 
-#include <vtkstd/map>
 #include <vtkstd/queue>
-#include <vtkstd/set>
 #include <vtkstd/stack>
 #include <vtkstd/vector>
 
+// Leave the hashing version off for now.
+#define VTK_GARBAGE_COLLECTOR_HASH 0
+
+#if VTK_GARBAGE_COLLECTOR_HASH
+# include <vtksys/hash_set.hxx>
+# include <vtksys/hash_map.hxx>
+#else
+# include <vtkstd/map>
+# include <vtkstd/set>
+#endif
+
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.26");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.27");
 vtkStandardNewMacro(vtkGarbageCollector);
+
+#if VTK_GARBAGE_COLLECTOR_HASH
+struct vtkGarbageCollectorHash
+{
+  size_t operator()(void* p) const { return reinterpret_cast<size_t>(p); }
+};
+#endif
 
 class vtkGarbageCollectorSingleton;
 
@@ -157,7 +173,12 @@ public:
   void DeferredCollectionPop();
 
   // Map from object to number of stored references.
+#if VTK_GARBAGE_COLLECTOR_HASH
+  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+    ReferencesType;
+#else
   typedef vtkstd::map<vtkObjectBase*, int> ReferencesType;
+#endif
   ReferencesType References;
 
   // The number of references stored in the map.
@@ -196,7 +217,12 @@ public:
   //--------------------------------------------------------------------------
   // Internal data structure types.
 
+#if VTK_GARBAGE_COLLECTOR_HASH
+  typedef vtksys::hash_map<vtkObjectBase*, int, vtkGarbageCollectorHash>
+    ReferencesType;
+#else
   typedef vtkstd::map<vtkObjectBase*, int> ReferencesType;
+#endif
   struct ComponentType;
 
   // Store garbage collection entries keyed by object.
@@ -233,13 +259,26 @@ public:
     PointersType Pointers;
   };
 
-  // Order entries by object pointer for quick lookup.
+  // Compare entries by object pointer for quick lookup.
+#if VTK_GARBAGE_COLLECTOR_HASH
+  struct EntryCompare
+  {
+    vtkstd_bool operator()(Entry* l, Entry* r) const
+      { return l->Object == r->Object; }
+  };
+  struct EntryHash
+  {
+    size_t operator()(Entry* e) const
+      { return e?reinterpret_cast<size_t>(e->Object):0; }
+  };
+#else
   struct EntryCompare
   {
     vtkstd::less<vtkObjectBase*> Compare;
     vtkstd_bool operator()(Entry* l, Entry* r) const
       { return Compare(l->Object, r->Object); }
   };
+#endif
 
   // Represent a strongly connected component of the reference graph.
   typedef vtkstd::vector<Entry*> ComponentBase;
@@ -261,7 +300,11 @@ public:
   // Internal data objects.
 
   // The set of objects that have been visited.
+#if VTK_GARBAGE_COLLECTOR_HASH
+  typedef vtksys::hash_set<Entry*, EntryHash, EntryCompare> VisitedType;
+#else
   typedef vtkstd::set<Entry*, EntryCompare> VisitedType;
+#endif
   VisitedType Visited;
 
   // Count the number of components found to give each an identifier
@@ -269,7 +312,12 @@ public:
   int NumberOfComponents;
 
   // The set of components found that have not yet leaked.
+#if VTK_GARBAGE_COLLECTOR_HASH
+  typedef vtksys::hash_set<ComponentType*, vtkGarbageCollectorHash>
+    ComponentsType;
+#else
   typedef vtkstd::set<ComponentType*> ComponentsType;
+#endif
   ComponentsType ReferencedComponents;
 
   // Queue leaked components for deletion.
@@ -376,9 +424,11 @@ vtkGarbageCollectorImpl::~vtkGarbageCollectorImpl()
 
   // Clear visited list.
   for(VisitedType::iterator v = this->Visited.begin();
-      v != this->Visited.end(); ++v)
+      v != this->Visited.end();)
     {
-    delete *v;
+    // Increment the iterator before deleting because the hash table
+    // compare function dereferences the pointer.
+    delete *v++;
     }
   this->Visited.clear();
 
