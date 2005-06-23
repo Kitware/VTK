@@ -22,7 +22,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.7");
+vtkCxxRevisionMacro(vtkGenericAttributeCollection,"1.8");
 vtkStandardNewMacro(vtkGenericAttributeCollection);
 
 class vtkGenericAttributeInternalVector
@@ -230,6 +230,7 @@ void vtkGenericAttributeCollection::InsertNextAttribute(vtkGenericAttribute *a)
 
   this->AttributeInternalVector->Vector.push_back(a);
   this->AttributeIndices->Vector.push_back(0); // a dummy default value
+  a->Register( this );
   this->Modified();
   
   assert("post: more_items" && this->GetNumberOfAttributes()==oldnumber+1);
@@ -250,6 +251,7 @@ int oldnumber = this->GetNumberOfAttributes();
 #endif
 
   this->AttributeInternalVector->Vector[i] = a;
+  a->Register( this );
   this->Modified();
   
   assert("post: more_items" && this->GetNumberOfAttributes()==oldnumber);
@@ -267,7 +269,8 @@ void vtkGenericAttributeCollection::RemoveAttribute(int i)
 #ifndef NDEBUG
   int oldnumber=this->GetNumberOfAttributes();
 #endif
-  
+
+  this->AttributeInternalVector->Vector[i]->UnRegister( this );
   this->AttributeInternalVector->Vector.erase(
     this->AttributeInternalVector->Vector.begin()+i);
   
@@ -338,6 +341,14 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
   this->AttributeInternalVector->Vector = 
     other->AttributeInternalVector->Vector;
   this->AttributeIndices->Vector = other->AttributeIndices->Vector;
+  int c = this->AttributeInternalVector->Vector.size();
+  for (int i=0; i<c; ++i)
+    {
+    if (this->AttributeInternalVector->Vector[i] != 0)
+      {
+      this->AttributeInternalVector->Vector[i]->Register( this );
+      }
+    }
   this->Modified();
   
   assert("post: same_size" && this->GetNumberOfAttributes()==other->GetNumberOfAttributes());
