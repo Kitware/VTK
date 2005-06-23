@@ -475,7 +475,7 @@ VTK_PREPARE_CMAKEDEFINE(NOT VTK_COMPILER_HAS_FULL_SPECIALIZATION
 
 #-----------------------------------------------------------------------------
 # Include file dependency tracking regular expression.
-SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x]|cxx)")
+SET(VTK_REGEX "vtk[^.]*\\.([^t]|t[^x]|tx[^x]|cxx|hxx)")
 IF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies.
   SET(VTK_REGEX_TXX "vtk[^.]*\\.txx")
