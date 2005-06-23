@@ -1,10 +1,13 @@
 #!/usr/bin/env perl
-# Time-stamp: <2002-01-28 11:56:19 barre>
+# Time-stamp: <2005-06-23 17:26:59 barre>
 #
 # Convert VTK headers to doxygen format
 #
 # roeim : Vetle Roeim <vetler@ifi.uio.no>
 # barre : Sebastien Barre <sebastien@barre.nom.fr>
+#
+# 0.9 (barre) :
+#   - add --conds          : add \cond...\endcond around public:, private:, protected:
 #
 # 0.83 (barre) :
 #   - add --stdout          : print converted file to standard output
@@ -98,7 +101,7 @@ use File::Path;
 use Text::Wrap;
 use strict;
 
-my ($VERSION, $PROGNAME, $AUTHOR) = (0.83, $0, "Sebastien Barre et al.");
+my ($VERSION, $PROGNAME, $AUTHOR) = (0.9, $0, "Sebastien Barre et al.");
 $PROGNAME =~ s/^.*[\\\/]//;
 
 # -------------------------------------------------------------------------
@@ -130,13 +133,13 @@ my %default =
 
 my %args;
 Getopt::Long::Configure("bundling");
-GetOptions (\%args, "help", "verbose|v", "update|u", "force|f", "temp=s", "to=s", "stdout", "relativeto=s");
+GetOptions (\%args, "help", "verbose|v", "update|u", "conds|c", "force|f", "temp=s", "to=s", "stdout", "relativeto=s");
 
 print "$PROGNAME $VERSION, by $AUTHOR\n" if ! exists $args{"stdout"};
 
 if (exists $args{"help"}) {
     print <<"EOT";
-Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--force|-f] [--temp file] [--to path] [--relativeto path] [files|directories...]
+Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--conds|-c] [--force|-f] [--temp file] [--to path] [--relativeto path] [files|directories...]
   --help            : this message
   --verbose|-v      : verbose (display filenames while processing)
   --update|-u       : update (convert only if newer, requires --to)
@@ -145,6 +148,7 @@ Usage : $PROGNAME [--help] [--verbose|-v] [--update|-u] [--force|-f] [--temp fil
   --temp file       : use 'file' as temporary file (default: $default{temp})
   --to path         : use 'path' as destination directory (default: $default{to})
   --relativeto path : each file/directory to document is considered relative to 'path', where --to and --relativeto should be absolute (default: $default{relativeto})
+  --conds|-c        : use \cond sections around public, protected, private
 
 Example:
   $PROGNAME --to ../vtk-doxygen
@@ -155,6 +159,7 @@ EOT
 
 $args{"verbose"} = 1 if exists $default{"verbose"};
 $args{"update"} = 1 if exists $default{"update"};
+$args{"conds"} = 1 if exists $default{"conds"};
 $args{"force"} = 1 if exists $default{"force"};
 $args{"temp"} = $default{temp} if ! exists $args{"temp"};
 $args{"to"} = $default{"to"} if ! exists $args{"to"};
@@ -470,9 +475,31 @@ foreach my $source (@files) {
     #  // Construct with automatic computation of divisions, averaging
     #  // 25 points per bucket.
     #  static vtkPointLocator2D *New();
-    
+
+    my $in_section = "";
+
     while ($line = shift @headerfile) {
         
+        # Track the public:, protected: and private: sections and put them
+        # between \cond... \endcond so that they can be removed from the
+        # documentation conditionally. Add them to ENABLED_SECTION
+        # to show them.
+        # IMPORTANT: *no* spaces are allowed between the beginning of the
+        # line and the qualifier. This is mandatory to solve issues
+        # with nested class definitions, since it is non-trivial to
+        # track the fact that we are leaving a class definition to
+        # re-enter the parent class definition, etc.
+
+        if (exists $args{"conds"}) {
+            if ($line =~ /^(public|protected|private):/) {
+                if ($in_section ne "") {
+                    push @converted, "// \@endcond\n";
+                }
+                $in_section = $1;
+                push @converted, "// \@cond section_$in_section\n";
+            }
+        }
+
         if ($line =~ /^(\s*)\/\/\s*De(s|c)(s|c)?ription/) {
             
             my $indent = $1;
@@ -518,6 +545,12 @@ foreach my $source (@files) {
         push @converted, $line;
     }
     
+    if (exists $args{"conds"}) {
+        if ($in_section ne "") {
+            push @converted, "// \@endcond";
+        }
+    }
+
     # Write the converted header to its destination
     # or to standard output.
 
