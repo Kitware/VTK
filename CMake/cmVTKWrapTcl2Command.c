@@ -123,7 +123,7 @@ static void CreateInitFile(cmLoadedCommandInfo *info,
     fprintf(fout,
       "  vtkTclInterpStruct *info = new vtkTclInterpStruct;\n");
     fprintf(fout,
-            "  info->Number = 0; info->InDelete = 0; info->DebugOn = 0;\n");
+            "  info->Number = 0; info->InDelete = 0; info->DebugOn = 0; info->DeleteExistingObjectOnNew = 0;\n");
     fprintf(fout,"\n");
     fprintf(fout,"\n");
     fprintf(fout,

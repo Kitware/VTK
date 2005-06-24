@@ -106,6 +106,7 @@ struct vtkTclInterpStruct
   int Number;
   int DebugOn;
   int InDelete;
+  int DeleteExistingObjectOnNew;
 };
 
 #endif

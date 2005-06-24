@@ -187,6 +187,16 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
     is->DebugOn = 0;
     return TCL_OK;
     }
+  if (!strcmp(argv[1],"DeleteExistingObjectOnNewOn"))
+    {
+    is->DeleteExistingObjectOnNew = 1;
+    return TCL_OK;
+    }
+  if (!strcmp(argv[1],"DeleteExistingObjectOnNewOff"))
+    {
+    is->DeleteExistingObjectOnNew = 0;
+    return TCL_OK;
+    }
   if (!strcmp("ListMethods",argv[1]))
     {
     Tcl_AppendResult(interp,"Methods for vtkCommand:\n",NULL);
@@ -194,6 +204,8 @@ int vtkCreateCommand(ClientData vtkNotUsed(cd), Tcl_Interp *interp, int argc, ch
     Tcl_AppendResult(interp,"  DebugOff\n",NULL);
     Tcl_AppendResult(interp,"  DeleteAllObjects\n",NULL);
     Tcl_AppendResult(interp,"  ListAllInstances\n",NULL);
+    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOn\n",NULL);
+    Tcl_AppendResult(interp,"  DeleteExistingObjectOnNewOff\n",NULL);
     return TCL_OK;
     }
 
@@ -531,13 +543,14 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
   Tcl_HashEntry *entry;
   int is_new;
   char temps[80];
+  char name[80];
   vtkTclCommandStruct *cs = (vtkTclCommandStruct *)cd;
   Tcl_CmdInfo cinf;
   vtkTclInterpStruct *is = vtkGetInterpStruct(interp);
 
   if (argc != 2)
     {
-    Tcl_SetResult(interp, (char *) "vtk object creation requires one argument, a name.", TCL_VOLATILE);
+    Tcl_SetResult(interp, (char *) "vtk object creation requires one argument, a name, or the special New keyword to instantiate a new name.", TCL_VOLATILE);
     return TCL_ERROR;
     }
 
@@ -547,14 +560,21 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     Tcl_AppendResult(interp, ": vtk object cannot start with a numeric.", NULL);
     return TCL_ERROR;
     }
-
+  
   if (Tcl_FindHashEntry(&is->InstanceLookup,argv[1]))
     { 
-    Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
-    Tcl_AppendResult(interp,
-                     ": a vtk object with that name already exists.",
-                     NULL);
-    return TCL_ERROR;
+    if (is->DeleteExistingObjectOnNew)
+      {
+      Tcl_DeleteCommand(interp, argv[1]);
+      }
+    else
+      {
+      Tcl_SetResult(interp, argv[1], TCL_VOLATILE);
+      Tcl_AppendResult(interp,
+                       ": a vtk object with that name already exists.",
+                       NULL);
+      return TCL_ERROR;
+      }
     }
 
   // Make sure we are not clobbering a built in command
@@ -573,6 +593,14 @@ int vtkTclNewInstanceCommand(ClientData cd, Tcl_Interp *interp,
     vtkTclListInstances(interp,(ClientData) cs->CommandFunction);
     return TCL_OK;
     }
+
+  if (!strcmp("New",argv[1]))
+    {
+    sprintf(name,"vtkTemp%i",is->Number);
+    is->Number++;
+    argv[1] = name;
+    }
+
   temp = cs->NewCommand();
 
   entry = Tcl_CreateHashEntry(&is->InstanceLookup,argv[1],&is_new);
