@@ -133,6 +133,11 @@ public:
   vtkGetObjectMacro(WindowLevel,vtkImageMapToWindowLevelColors);
   
   // Description:
+  // Set your own renderwindow
+  virtual void SetRenderWindow(vtkRenderWindow *arg);
+  virtual void SetRenderer(vtkRenderer *arg);
+
+  // Description:
   // Create and attach an interactor for the internal render window.
   void SetupInteractor(vtkRenderWindowInteractor *);
   
@@ -148,6 +153,9 @@ public:
 protected:
   vtkImageViewer2();
   ~vtkImageViewer2();
+
+  virtual void InstallPipeline();
+  virtual void UnInstallPipeline();
 
   vtkImageMapToWindowLevelColors  *WindowLevel;
   vtkRenderWindow *RenderWindow;

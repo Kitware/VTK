@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.27");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.28");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -35,56 +35,137 @@ vtkImageViewer2::vtkImageViewer2()
   this->ImageActor   = vtkImageActor::New();
   this->WindowLevel  = vtkImageMapToWindowLevelColors::New();
   
-  // setup the pipeline
-  this->ImageActor->SetInput(this->WindowLevel->GetOutput());
-  this->Renderer->AddViewProp(this->ImageActor);
-  this->RenderWindow->AddRenderer(this->Renderer);
-
   this->FirstRender = 1;
  
-  this->Interactor = 0;
-  this->InteractorStyle = 0;
-  this->AutoResetCameraClippingRange = 1;
-}
+  this->Interactor = NULL;
+  this->InteractorStyle = NULL;
 
+  this->AutoResetCameraClippingRange = 1;
+
+  // Setup the pipeline
+
+  this->InstallPipeline();
+}
 
 //----------------------------------------------------------------------------
 vtkImageViewer2::~vtkImageViewer2()
 {
-  this->WindowLevel->Delete();
-  this->ImageActor->Delete();
-  this->Renderer->Delete();
-  this->RenderWindow->Delete();
+  if (this->WindowLevel)
+    {
+    this->WindowLevel->Delete();
+    this->WindowLevel = NULL;
+    }
+
+  if (this->ImageActor)
+    {
+    this->ImageActor->Delete();
+    this->ImageActor = NULL;
+    }
+
+  if (this->Renderer)
+    {
+    this->Renderer->Delete();
+    this->Renderer = NULL;
+    }
+
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->Delete();
+    this->RenderWindow = NULL;
+    }
 
   if (this->Interactor)
     {
     this->Interactor->Delete();
+    this->Interactor = NULL;
     }
+
   if (this->InteractorStyle)
     {
     this->InteractorStyle->Delete();
+    this->InteractorStyle = NULL;
     }
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
+void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *arg)
 {
-  this->Superclass::PrintSelf(os, indent);
+  if (this->Interactor == arg)
+    {
+    return;
+    }
 
-  os << indent << "RenderWindow:\n";
-  this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "Renderer:\n";
-  this->Renderer->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "ImageActor:\n";
-  this->ImageActor->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "WindowLevel:\n" << endl;
-  this->WindowLevel->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "AutoResetCameraClippingRange: "
-     << (this->AutoResetCameraClippingRange ? "On\n" : "Off\n");
+  this->UnInstallPipeline();
 
+  if (this->Interactor)
+    {
+    this->Interactor->UnRegister(this);
+    }
+    
+  this->Interactor = arg;
+  
+  if (this->Interactor)
+    {
+    this->Interactor->Register(this);
+    }
+
+  this->InstallPipeline();
+
+  if (this->Renderer)
+    {
+    this->Renderer->GetActiveCamera()->ParallelProjectionOn();
+    }
 }
 
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetRenderWindow(vtkRenderWindow *arg)
+{
+  if (this->RenderWindow == arg)
+    {
+    return;
+    }
 
+  this->UnInstallPipeline();
+
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->UnRegister(this);
+    }
+    
+  this->RenderWindow = arg;
+  
+  if (this->RenderWindow)
+    {
+    this->RenderWindow->Register(this);
+    }
+
+  this->InstallPipeline();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetRenderer(vtkRenderer *arg)
+{
+  if (this->Renderer == arg)
+    {
+    return;
+    }
+
+  this->UnInstallPipeline();
+
+  if (this->Renderer)
+    {
+    this->Renderer->UnRegister(this);
+    }
+    
+  this->Renderer = arg;
+  
+  if (this->Renderer)
+    {
+    this->Renderer->Register(this);
+    }
+
+  this->InstallPipeline();
+}
 
 //----------------------------------------------------------------------------
 void vtkImageViewer2::SetSize(int a[2])
@@ -212,31 +293,67 @@ public:
 };
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetupInteractor(vtkRenderWindowInteractor *rwi)
+void vtkImageViewer2::InstallPipeline()
 {
-  if (this->Interactor && rwi != this->Interactor)
+  if (this->RenderWindow && this->Renderer)
     {
-    this->Interactor->Delete();
+    this->RenderWindow->AddRenderer(this->Renderer);
     }
-  if (!this->InteractorStyle)
+
+  if (this->Interactor)
     {
-    this->InteractorStyle = vtkInteractorStyleImage::New();
-    vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
-    cbk->IV = this;
-    this->InteractorStyle->AddObserver(vtkCommand::WindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(vtkCommand::StartWindowLevelEvent, cbk);
-    this->InteractorStyle->AddObserver(vtkCommand::ResetWindowLevelEvent, cbk);
-    cbk->Delete();
+    if (!this->InteractorStyle)
+      {
+      this->InteractorStyle = vtkInteractorStyleImage::New();
+      vtkImageViewer2Callback *cbk = vtkImageViewer2Callback::New();
+      cbk->IV = this;
+      this->InteractorStyle->AddObserver(
+        vtkCommand::WindowLevelEvent, cbk);
+      this->InteractorStyle->AddObserver(
+        vtkCommand::StartWindowLevelEvent, cbk);
+      this->InteractorStyle->AddObserver(
+        vtkCommand::ResetWindowLevelEvent, cbk);
+      cbk->Delete();
+      }
+    
+    this->Interactor->SetInteractorStyle(this->InteractorStyle);
+    this->Interactor->SetRenderWindow(this->RenderWindow);
     }
-  
-  if (!this->Interactor)
+
+  if (this->Renderer && this->ImageActor)
     {
-    this->Interactor = rwi;
-    rwi->Register(this);
+    this->Renderer->AddViewProp(this->ImageActor);
     }
-  this->Interactor->SetInteractorStyle(this->InteractorStyle);
-  this->Interactor->SetRenderWindow(this->RenderWindow);
-  this->Renderer->GetActiveCamera()->ParallelProjectionOn();
+
+  if (this->ImageActor && this->WindowLevel)
+    {
+    this->ImageActor->SetInput(this->WindowLevel->GetOutput());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::UnInstallPipeline()
+{
+  if (this->ImageActor)
+    {
+    this->ImageActor->SetInput(NULL);
+    }
+
+  if (this->Renderer && this->ImageActor)
+    {
+    this->Renderer->RemoveViewProp(this->ImageActor);
+    }
+
+  if (this->RenderWindow && this->Renderer)
+    {
+    this->RenderWindow->RemoveRenderer(this->Renderer);
+    }
+
+  if (this->Interactor)
+    {
+    this->Interactor->SetInteractorStyle(NULL);
+    this->Interactor->SetRenderWindow(NULL);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -262,7 +379,6 @@ void vtkImageViewer2::Render()
     }
   this->RenderWindow->Render();
 }
-
 
 //----------------------------------------------------------------------------
 void vtkImageViewer2::SetOffScreenRendering(int i)
@@ -296,4 +412,22 @@ void vtkImageViewer2::SetZSlice(int s)
     {
     this->Renderer->ResetCameraClippingRange();
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "RenderWindow:\n";
+  this->RenderWindow->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "Renderer:\n";
+  this->Renderer->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "ImageActor:\n";
+  this->ImageActor->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "WindowLevel:\n" << endl;
+  this->WindowLevel->PrintSelf(os,indent.GetNextIndent());
+  os << indent << "AutoResetCameraClippingRange: "
+     << (this->AutoResetCameraClippingRange ? "On\n" : "Off\n");
+
 }
