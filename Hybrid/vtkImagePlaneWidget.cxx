@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.91");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.92");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -1106,6 +1106,17 @@ int vtkImagePlaneWidget::GetCursorData(double xyzv[4])
   return 1;
 }
 
+int vtkImagePlaneWidget::GetCursorDataStatus()
+{
+  if ( this->State != vtkImagePlaneWidget::Cursoring  || \
+    this->CurrentImageValue == VTK_DOUBLE_MAX )
+    {
+    return 0;
+    }
+  
+  return 1;
+}
+
 void vtkImagePlaneWidget::ManageTextDisplay()
 {
   if ( !this->DisplayText )
@@ -1234,7 +1245,6 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
   // or a ZX plane if i = 1, y-normal
   //
   this->PlaneOrientation = i;
-  this->Modified();
 
   // This method must be called _after_ SetInput
   //
@@ -1304,6 +1314,7 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
   this->BuildRepresentation();
   this->UpdateNormal();
   this->UpdateOrigin();
+  this->Modified();
 }
 
 void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
@@ -1730,6 +1741,7 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
   this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateOrigin();
+  this->Modified();
 }
 
 double vtkImagePlaneWidget::GetSlicePosition()
@@ -1810,6 +1822,7 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateOrigin();
+  this->Modified();
 }
 
 int vtkImagePlaneWidget::GetSliceIndex()
@@ -2102,11 +2115,13 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double *q)
 void vtkImagePlaneWidget::SetOrigin(double x, double y, double z)
 {
   this->PlaneSource->SetOrigin(x,y,z);
+  this->Modified();
 }
 
 void vtkImagePlaneWidget::SetOrigin(double xyz[3])
 {
   this->PlaneSource->SetOrigin(xyz);
+  this->Modified();
 }
 
 double* vtkImagePlaneWidget::GetOrigin()
@@ -2122,11 +2137,13 @@ void vtkImagePlaneWidget::GetOrigin(double xyz[3])
 void vtkImagePlaneWidget::SetPoint1(double x, double y, double z)
 {
   this->PlaneSource->SetPoint1(x,y,z);
+  this->Modified();
 }
 
 void vtkImagePlaneWidget::SetPoint1(double xyz[3])
 {
   this->PlaneSource->SetPoint1(xyz);
+  this->Modified();
 }
 
 double* vtkImagePlaneWidget::GetPoint1()
@@ -2142,11 +2159,13 @@ void vtkImagePlaneWidget::GetPoint1(double xyz[3])
 void vtkImagePlaneWidget::SetPoint2(double x, double y, double z)
 {
   this->PlaneSource->SetPoint2(x,y,z);
+  this->Modified();
 }
 
 void vtkImagePlaneWidget::SetPoint2(double xyz[3])
 {
   this->PlaneSource->SetPoint2(xyz);
+  this->Modified();
 }
 
 double* vtkImagePlaneWidget::GetPoint2()

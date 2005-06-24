@@ -355,6 +355,23 @@ public:
   int GetCursorData(double xyzv[4]);
 
   // Description:
+  // Get the status of the cursor data.  If this returns 1 the
+  // CurrentCursorPosition and CurrentImageValue will have current
+  // data.  If it returns 0, these values are invalid.
+  int GetCursorDataStatus();
+
+  // Description:
+  // Get the current cursor position.  To be used in conjunction with
+  // GetCursorDataStatus.
+  vtkGetVectorMacro(CurrentCursorPosition,double,3);
+
+  // Description:
+  // Get the current image value at the current cursor position.  To
+  // be used in conjunction with GetCursorDataStatus.  The value is
+  // VTK_DOUBLE_MAX when the data is invalid.
+  vtkGetMacro(CurrentImageValue,double);
+  
+  // Description:
   // Choose between voxel centered or continuous cursor probing.  With voxel
   // centered probing, the cursor snaps to the nearest voxel and the reported
   // cursor coordinates are extent based.  With continuous probing, voxel data
@@ -402,11 +419,11 @@ public:
     CONTROL_MODIFIER    = 2
   };
   //ETX
-  vtkSetClampMacro(LeftButtonAutoModifier,int, SHIFT_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(LeftButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
   vtkGetMacro(LeftButtonAutoModifier, int);
-  vtkSetClampMacro(MiddleButtonAutoModifier,int, SHIFT_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(MiddleButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
   vtkGetMacro(MiddleButtonAutoModifier, int);
-  vtkSetClampMacro(RightButtonAutoModifier,int, SHIFT_MODIFIER, CONTROL_MODIFIER);
+  vtkSetClampMacro(RightButtonAutoModifier,int, NO_MODIFIER, CONTROL_MODIFIER);
   vtkGetMacro(RightButtonAutoModifier, int);
 
 protected:
