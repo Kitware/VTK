@@ -35,6 +35,13 @@
 #cmakedefine VTK_OPENGL_HAS_OSMESA
 
 /*--------------------------------------------------------------------------*/
+/* Wrapping Configuration                                                   */
+
+#cmakedefine VTK_WRAP_TCL
+#cmakedefine VTK_WRAP_PYTHON
+#cmakedefine VTK_WRAP_JAVA
+
+/*--------------------------------------------------------------------------*/
 /* Other Configuration Options                                              */
 
 /* Whether we are building MPI support.  */
