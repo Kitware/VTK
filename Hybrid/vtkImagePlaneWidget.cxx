@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.92");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.93");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -549,6 +549,14 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Point 2: (" << pt2[0] << ", "
      << pt2[1] << ", "
      << pt2[2] << ")\n";
+
+  os << indent << "Current Cursor Position: (" 
+     << this->CurrentCursorPosition[0] << ", "
+     << this->CurrentCursorPosition[1] << ", "
+     << this->CurrentCursorPosition[2] << ")\n";
+
+  os << indent << "Current Image Value: " 
+     << this->CurrentImageValue << "\n";
 
   os << indent << "Plane Orientation: " << this->PlaneOrientation << "\n";
   os << indent << "Reslice Interpolate: " << this->ResliceInterpolate << "\n";
