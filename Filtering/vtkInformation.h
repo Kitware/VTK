@@ -44,6 +44,7 @@ class vtkInformationKey;
 class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationRequestKey;
 class vtkInformationStringKey;
 class vtkInformationUnsignedLongKey;
 class vtkInformationVector;
@@ -80,6 +81,7 @@ public:
   void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
+  void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
   void CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int deep=0);
 
@@ -91,6 +93,12 @@ public:
   void CopyEntries(vtkInformation* from, vtkInformationKeyVectorKey* key, int deep=0);
 
   // Description:
+  // Get/Set a request-valued entry.
+  void Set(vtkInformationRequestKey* key);
+  void Remove(vtkInformationRequestKey* key);
+  int Has(vtkInformationRequestKey* key);
+
+  // Description:
   // Get/Set an integer-valued entry.
   void Set(vtkInformationIntegerKey* key, int value);
   int Get(vtkInformationIntegerKey* key);
@@ -98,7 +106,7 @@ public:
   int Has(vtkInformationIntegerKey* key);
 
   // Description:
-  // Get/Set an integer-valued entry.
+  // Get/Set an double-valued entry.
   void Set(vtkInformationDoubleKey* key, double value);
   double Get(vtkInformationDoubleKey* key);
   void Remove(vtkInformationDoubleKey* key);
@@ -228,6 +236,7 @@ public:
   void Set(vtkInformationExecutivePortKey* key, vtkExecutive*, int);
   vtkExecutive* GetExecutive(vtkInformationExecutivePortKey* key);
   int GetPort(vtkInformationExecutivePortKey* key);
+  void Get(vtkInformationExecutivePortKey* key, vtkExecutive*& executive, int &port);
   void Remove(vtkInformationExecutivePortKey* key);
   int Has(vtkInformationExecutivePortKey* key);
 
@@ -257,6 +266,7 @@ public:
   static vtkInformationKey* GetKey(vtkInformationInformationVectorKey* key);
   static vtkInformationKey* GetKey(vtkInformationIntegerKey* key);
   static vtkInformationKey* GetKey(vtkInformationIntegerVectorKey* key);
+  static vtkInformationKey* GetKey(vtkInformationRequestKey* key);
   static vtkInformationKey* GetKey(vtkInformationStringKey* key);
   static vtkInformationKey* GetKey(vtkInformationKey* key);
   static vtkInformationKey* GetKey(vtkInformationUnsignedLongKey* key);
@@ -266,6 +276,11 @@ public:
   virtual void Register(vtkObjectBase* o);
   virtual void UnRegister(vtkObjectBase* o);
 
+  // Description:
+  // Get/Set the Request ivar
+  void SetRequest(vtkInformationRequestKey *request) { this->Request = request; }
+  vtkInformationRequestKey *GetRequest() { return this->Request; }
+      
 protected:
   vtkInformation();
   ~vtkInformation();
@@ -292,6 +307,7 @@ private:
 private:
   vtkInformation(const vtkInformation&);  // Not implemented.
   void operator=(const vtkInformation&);  // Not implemented.
+  vtkInformationRequestKey *Request;
 };
 
 #endif
