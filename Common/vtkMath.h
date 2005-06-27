@@ -464,6 +464,7 @@ public:
     { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
   static void RGBToHSV(float r, float g, float b, float *h, float *s, float *v);
   static double* RGBToHSV(double rgb[3]);
+  static double* RGBToHSV(double r, double g, double b);
   static void RGBToHSV(double rgb[3], double hsv[3])
     { RGBToHSV(rgb[0], rgb[1], rgb[2], hsv, hsv+1, hsv+2); }
   static void RGBToHSV(double r, double g, double b, double *h, double *s, double *v);
@@ -475,6 +476,7 @@ public:
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(float h, float s, float v, float *r, float *g, float *b);
   static double* HSVToRGB(double hsv[3]);
+  static double* HSVToRGB(double h, double s, double v);
   static void HSVToRGB(double hsv[3], double rgb[3])
     { HSVToRGB(hsv[0], hsv[1], hsv[2], rgb, rgb+1, rgb+2); }
   static void HSVToRGB(double h, double s, double v, double *r, double *g, double *b);
