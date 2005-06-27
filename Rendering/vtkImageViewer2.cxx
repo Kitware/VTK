@@ -23,15 +23,15 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.28");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.29");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
 // Construct the vtkImageViewer2 with AutoResetCameraClippingRange On by default
 vtkImageViewer2::vtkImageViewer2()
 {
-  this->RenderWindow = vtkRenderWindow::New();
-  this->Renderer     = vtkRenderer::New();
+  this->RenderWindow = NULL;
+  this->Renderer     = NULL;
   this->ImageActor   = vtkImageActor::New();
   this->WindowLevel  = vtkImageMapToWindowLevelColors::New();
   
@@ -43,6 +43,14 @@ vtkImageViewer2::vtkImageViewer2()
   this->AutoResetCameraClippingRange = 1;
 
   // Setup the pipeline
+
+  vtkRenderWindow *renwin = vtkRenderWindow::New();
+  this->SetRenderWindow(renwin);
+  renwin->Delete();
+
+  vtkRenderer *ren = vtkRenderer::New();
+  this->SetRenderer(ren);
+  ren->Delete();
 
   this->InstallPipeline();
 }

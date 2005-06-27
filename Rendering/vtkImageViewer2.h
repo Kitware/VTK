@@ -78,8 +78,8 @@ public:
   
   // Description:
   // Set/Get the input image to the viewer.
-  void SetInput(vtkImageData *in) {this->WindowLevel->SetInput(in);}
-  vtkImageData *GetInput()
+  virtual void SetInput(vtkImageData *in) {this->WindowLevel->SetInput(in);}
+  virtual vtkImageData *GetInput()
     { return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());}
   virtual void SetInputConnection(vtkAlgorithmOutput* input) {
     this->WindowLevel->SetInputConnection(input);};
