@@ -42,6 +42,7 @@ public:
   void Set(vtkInformation* info, vtkExecutive*, int);
   vtkExecutive* GetExecutive(vtkInformation* info);
   int GetPort(vtkInformation* info);
+  void Get(vtkInformation *info, vtkExecutive*& executive, int &port);
   int Has(vtkInformation* info);
 
   // Description:

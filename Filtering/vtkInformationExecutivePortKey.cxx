@@ -18,7 +18,7 @@
 #include "vtkInformation.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.5");
+vtkCxxRevisionMacro(vtkInformationExecutivePortKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortKey::vtkInformationExecutivePortKey(const char* name, const char* location):
@@ -81,6 +81,21 @@ void vtkInformationExecutivePortKey::Set(vtkInformation* info,
     {
     this->SetAsObjectBase(info, 0);
     }
+}
+
+void vtkInformationExecutivePortKey::Get(vtkInformation *info, vtkExecutive*& executive, int &port)
+{
+  if(vtkInformationExecutivePortValue* v =
+     static_cast<vtkInformationExecutivePortValue *>(
+       this->GetAsObjectBase(info)))
+    {
+    executive = v->Executive;
+    port = v->Port;
+    return;
+    }
+
+  executive = 0;
+  port = 0;
 }
 
 //----------------------------------------------------------------------------
