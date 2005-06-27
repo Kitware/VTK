@@ -27,7 +27,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkCornerAnnotation);
-vtkCxxRevisionMacro(vtkCornerAnnotation, "1.1");
+vtkCxxRevisionMacro(vtkCornerAnnotation, "1.2");
 
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,ImageActor,vtkImageActor);
 vtkSetObjectImplementationMacro(vtkCornerAnnotation,WindowLevel,
@@ -244,23 +244,30 @@ int vtkCornerAnnotation::RenderOpaqueGeometry(vtkViewport *viewport)
     }
   
   // Is there an image actor ?
-  vtkImageActor *ia = 0;  
   vtkImageMapToWindowLevelColors *wl = this->WindowLevel;
-  vtkPropCollection *pc = viewport->GetProps();
-  int numProps = pc->GetNumberOfItems();
-  for (i = 0; i < numProps; i++)
+  vtkImageActor *ia = NULL;  
+  if (this->ImageActor)
     {
-    ia = vtkImageActor::SafeDownCast(pc->GetItemAsObject(i));
-    if (ia)
+    ia = this->ImageActor;
+    }
+  else
+    {
+    vtkPropCollection *pc = viewport->GetProps();
+    int numProps = pc->GetNumberOfItems();
+    for (i = 0; i < numProps; i++)
       {
-      if (ia->GetInput() && !wl)
+      ia = vtkImageActor::SafeDownCast(pc->GetItemAsObject(i));
+      if (ia)
         {
-        wl = vtkImageMapToWindowLevelColors::SafeDownCast(
-          ia->GetInput()->GetProducerPort()->GetProducer());
+        if (ia->GetInput() && !wl)
+          {
+          wl = vtkImageMapToWindowLevelColors::SafeDownCast(
+            ia->GetInput()->GetProducerPort()->GetProducer());
+          }
+        break;
         }
-      break;
-      }
-    }  
+      }  
+    }
   
   int tprop_has_changed = (this->TextProperty && 
                            this->TextProperty->GetMTime() > this->BuildTime);
