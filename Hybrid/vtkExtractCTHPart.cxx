@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.11");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.12");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -227,6 +227,11 @@ int vtkExtractCTHPart::RequestData(
   
   if(input!=0)
     {
+    if(!inInfo->Has(vtkExtractCTHPart::BOUNDS()))
+      {
+      vtkErrorMacro(<<"No vtkExtractCTHPart::BOUNDS() key.");
+      return 0;
+      }
     inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
     }
   else
@@ -491,7 +496,7 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   
 
   this->Data->GetPointData()->SetScalars(this->PointVolumeFraction);
-
+  
   int isNotEmpty=this->ExtractUniformGridSurface(this->Data,this->SurfacePolyData);
   if(isNotEmpty)
     {
@@ -1518,7 +1523,6 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
   jEnd = dims[1]-1;
   kEnd = dims[2]-1;
   
-  
   for (k = 0; k <= kEnd; ++k)
     {
     // Just a fancy fast way to compute the number of cell neighbors of a
@@ -1527,8 +1531,10 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
       {
       count = count << 1;
       }
-    if (k == kEnd)
+    if (k == kEnd && kEnd>0)
       {
+      // only in 3D case, otherwise count may become zero
+      // and be involved in a division by zero later on
       count = count >> 1;
       }
     for (j = 0; j <= jEnd; ++j)
@@ -1556,6 +1562,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
           count = count >> 1;
           }
         assert("check: valid_range" && pPoint<endPtr);
+        assert("check: strictly_positive_count" && count>0);
         *pPoint = *pPoint / static_cast<double>(count);
         ++pPoint;
         }
