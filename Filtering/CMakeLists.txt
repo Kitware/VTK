@@ -106,6 +106,7 @@ vtkInformationIntegerVectorKey.cxx
 vtkInformationKey.cxx
 vtkInformationKeyVectorKey.cxx
 vtkInformationObjectBaseKey.cxx
+vtkInformationRequestKey.cxx
 vtkInformationStringKey.cxx
 vtkInformationUnsignedLongKey.cxx
 vtkInformationVector.cxx
@@ -241,6 +242,7 @@ vtkInformationIntegerVectorKey
 vtkInformationKey
 vtkInformationKeyVectorKey
 vtkInformationObjectBaseKey
+vtkInformationRequestKey
 vtkInformationStringKey
 vtkInformationUnsignedLongKey
 vtkLocator
