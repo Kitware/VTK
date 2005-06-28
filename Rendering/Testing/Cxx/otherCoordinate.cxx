@@ -168,7 +168,7 @@ int Test(ostream& strm)
 
 int otherCoordinate(int,char *[])
 {
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

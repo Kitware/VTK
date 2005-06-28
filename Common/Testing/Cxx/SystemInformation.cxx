@@ -66,7 +66,7 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
 
 int SystemInformation(int,char *[])
 {
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
   const char* files[] =

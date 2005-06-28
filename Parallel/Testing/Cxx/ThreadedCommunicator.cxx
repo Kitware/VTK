@@ -322,7 +322,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
 int main(int argc, char** argv)
 {
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 
@@ -338,7 +338,7 @@ int main(int argc, char** argv)
   // This is repeated for the sake of MPI. This one might not
   // get called by the parent process, the first one might not
   // get called by all others.
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

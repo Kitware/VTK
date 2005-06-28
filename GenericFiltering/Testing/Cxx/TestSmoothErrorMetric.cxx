@@ -61,7 +61,7 @@
 int TestSmoothErrorMetric(int argc, char* argv[])
 {
   // Disable for testing
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

@@ -38,7 +38,7 @@
 int volProt( int argc, char *argv[] )
 {
 
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

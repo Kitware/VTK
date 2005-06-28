@@ -259,7 +259,7 @@ int otherStringArrayTest(ostream& strm)
 
 int otherStringArray(int, char *[])
 {
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

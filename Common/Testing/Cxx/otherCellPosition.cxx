@@ -578,7 +578,7 @@ int TestOCP(ostream& strm)
 
 int otherCellPosition(int, char *[])
 {
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   vtkDebugLeaks::PromptUserOff();
 #endif
 

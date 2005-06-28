@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.22");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.23");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
@@ -149,7 +149,7 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumTableValue[1] << ", "
      << this->MaximumTableValue[2] << ", "
      << this->MaximumTableValue[3] << ")\n";  
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
   this->GetMinimumColor();
   os << indent << "MinimumColor : ("
      << this->MinimumColor[0] << ", "
@@ -168,7 +168,7 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 
 // Deprecated methods:
 
-#ifndef VTK_LEGACY_REMOVE
+#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
 void vtkWindowLevelLookupTable::SetMinimumColor(int r, int g, int b, int a)
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
