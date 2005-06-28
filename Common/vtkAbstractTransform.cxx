@@ -22,7 +22,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkPoints.h"
 
-vtkCxxRevisionMacro(vtkAbstractTransform, "1.25");
+vtkCxxRevisionMacro(vtkAbstractTransform, "1.26");
 
 //----------------------------------------------------------------------------
 vtkAbstractTransform::vtkAbstractTransform()
@@ -380,7 +380,7 @@ protected:
   void operator=(const vtkSimpleTransform&);
 };
 
-vtkCxxRevisionMacro(vtkSimpleTransform, "1.25");
+vtkCxxRevisionMacro(vtkSimpleTransform, "1.26");
 
 //----------------------------------------------------------------------------
 vtkTransformConcatenation::vtkTransformConcatenation()
@@ -1124,7 +1124,7 @@ void vtkTransformConcatenationStack::DeepCopy(
 }
 
 #ifndef VTK_LEGACY_REMOVE
-void vtkTransformConcatenationStack::Identity()
+void vtkAbstractTransform::Identity()
 {
   vtkWarningMacro("vtkAbstractTransform::Identity() is deprecated");
 }

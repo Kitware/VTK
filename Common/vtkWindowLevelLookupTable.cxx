@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.21");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.22");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
@@ -180,7 +180,7 @@ void vtkWindowLevelLookupTable::SetMinimumColor(const unsigned char rgba[4])
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
                            vtkWindowLevelLookupTable::SetMinimumTableValue);
-  this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
+  this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]);
 }
 
 void vtkWindowLevelLookupTable::GetMinimumColor(unsigned char rgba[4])
@@ -205,7 +205,7 @@ void vtkWindowLevelLookupTable::SetMaximumColor(int r, int g, int b, int a)
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "5.0",
                            vtkWindowLevelLookupTable::SetMaximumTableValue);
-  this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
+  this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0);
 }
 
 void vtkWindowLevelLookupTable::SetMaximumColor(const unsigned char rgba[4])

@@ -56,8 +56,10 @@ public:
   // Description:
   // @deprecated Turn prompt at exit on/off (this setting is deprecated 
   // and will be ignored).
-  VTK_LEGACY(static void PromptUserOn());
-  VTK_LEGACY(static void PromptUserOff());
+#ifndef VTK_LEGACY_REMOVE
+  static void vtkDebugLeaks::PromptUserOn() {}
+  static void vtkDebugLeaks::PromptUserOff() {}
+#endif
 
   // Description:
   // Get/Set flag for exiting with an error when leaks are present.
