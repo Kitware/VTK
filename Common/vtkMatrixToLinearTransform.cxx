@@ -17,7 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMatrixToLinearTransform, "1.13");
+vtkCxxRevisionMacro(vtkMatrixToLinearTransform, "1.14");
 vtkStandardNewMacro(vtkMatrixToLinearTransform);
 vtkCxxSetObjectMacro(vtkMatrixToLinearTransform,Input,vtkMatrix4x4);
 
@@ -104,3 +104,12 @@ unsigned long vtkMatrixToLinearTransform::GetMTime()
     }
   return mtime;
 }
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkMatrixToLinearTransform::SetMatrix(vtkMatrix4x4 *matrix)
+{
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetMatrix, "5.0",
+                           vtkAssemblyNode::SetInput);
+  this->SetInput(matrix);
+}
+#endif

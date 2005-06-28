@@ -93,7 +93,9 @@ void TestOEC(ostream& strm)
 
 int otherEmptyCell(int , char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   ostrstream vtkmsg_with_warning_C4701; 
   TestOEC(vtkmsg_with_warning_C4701);

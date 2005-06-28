@@ -35,7 +35,9 @@ int DumpQualityStats( vtkMeshQuality* iq, const char *arrayname )
 int MeshQuality( int argc, char* argv[] )
 {
 
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   vtkUnstructuredGridReader* mr = vtkUnstructuredGridReader::New();
   vtkUnstructuredGrid* ug;

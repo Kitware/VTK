@@ -456,7 +456,9 @@ char BoxWidgetEventLog[] =
 
 int BoxWidget( int argc, char *argv[] )
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

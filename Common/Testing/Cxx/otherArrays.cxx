@@ -666,7 +666,9 @@ int otherArraysTest(ostream& strm)
 
 int otherArrays(int, char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   ostrstream vtkmsg_with_warning_C4701; 
 //  return otherArraysTest(vtkmsg_with_warning_C4701);

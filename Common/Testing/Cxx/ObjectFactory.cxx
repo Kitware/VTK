@@ -40,7 +40,7 @@ private:
   void operator=(const vtkTestVertex&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex, "1.20");
+vtkCxxRevisionMacro(vtkTestVertex, "1.21");
 
 class vtkTestVertex2 : public vtkVertex
 {
@@ -58,7 +58,7 @@ private:
   void operator=(const vtkTestVertex2&);
 };
 
-vtkCxxRevisionMacro(vtkTestVertex2, "1.20");
+vtkCxxRevisionMacro(vtkTestVertex2, "1.21");
 
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex);
 VTK_CREATE_CREATE_FUNCTION(vtkTestVertex2);
@@ -106,7 +106,9 @@ void TestNewVertex(vtkVertex* v, const char* expectedClassName)
 
 int ObjectFactory(int, char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
   vtkOutputWindow::GetInstance()->PromptUserOff();
   vtkGenericWarningMacro("Test Generic Warning");
   TestFactory* factory = TestFactory::New();

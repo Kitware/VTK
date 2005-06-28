@@ -38,7 +38,9 @@
 int volProt( int argc, char *argv[] )
 {
 
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   int i, j, k, l;
   

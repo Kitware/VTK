@@ -292,7 +292,9 @@ char TestOMWidgetEventLog[] =
 
 int TestOrientationMarkerWidget( int argc, char *argv[] )
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
   
   // create an actor out of parts of vtkAxesActor and vtkAnnotatedCubeActor
   // to have the widget follow.

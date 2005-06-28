@@ -23,7 +23,9 @@
 
 int TestSmartPointer(int,char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
   
   vtkIntArray* ia = vtkIntArray::New();
   

@@ -81,7 +81,9 @@ int TestCellArray(ostream& strm)
 
 int otherCellArray(int,char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   ostrstream vtkmsg_with_warning_C4701; 
   return TestCellArray(vtkmsg_with_warning_C4701);

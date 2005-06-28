@@ -57,10 +57,8 @@ class VTK_COMMON_EXPORT vtkMatrixToLinearTransform : public vtkLinearTransform
   vtkAbstractTransform *MakeTransform();
 
   // Description:
-  // This method is deprecated.
-  void SetMatrix(vtkMatrix4x4 *matrix) {
-    this->SetInput(matrix);
-    vtkWarningMacro("SetMatrix: deprecated, use SetInput() instead"); }
+  // @deprecated This method is deprecated.
+  VTK_LEGACY(void SetMatrix(vtkMatrix4x4 *matrix));
 
 protected:
   vtkMatrixToLinearTransform();

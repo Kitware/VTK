@@ -21,7 +21,9 @@
 int otherFieldData(int,char *[])
 {
   int i;
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   vtkFieldData* fd = vtkFieldData::New();
 

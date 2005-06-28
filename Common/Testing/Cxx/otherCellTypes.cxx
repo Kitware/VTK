@@ -74,7 +74,9 @@ void TestOCT()
 
 int otherCellTypes(int, char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   TestOCT();
 

@@ -68,7 +68,9 @@ void otherTimerLogTest(ostream& strm)
 
 int otherTimerLog(int,char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   ostrstream vtkmsg_with_warning_C4701; 
   otherTimerLogTest(vtkmsg_with_warning_C4701);

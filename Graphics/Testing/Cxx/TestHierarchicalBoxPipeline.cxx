@@ -41,7 +41,9 @@
 int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
   // Disable for testing
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();

@@ -88,38 +88,20 @@ public:
   vtkGetVector4Macro(MaximumTableValue,double);
 
   // Description:
-  // For backwards compatibility: specify the color using integers
-  // in the range [0,255].  Deprecated: use SetMinimumTableValue()
-  // instead.
-  void SetMinimumColor(int r, int g, int b, int a) {
-    this->SetMinimumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
-  void SetMinimumColor(const unsigned char rgba[4]) {
-    this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
-  void GetMinimumColor(unsigned char rgba[4]) {
-    rgba[0] = int(this->MinimumColor[0]*255);
-    rgba[1] = int(this->MinimumColor[1]*255);
-    rgba[2] = int(this->MinimumColor[2]*255);
-    rgba[3] = int(this->MinimumColor[3]*255); };
-  unsigned char *GetMinimumColor() {
-    this->GetMinimumColor(this->MinimumColor); 
-    return this->MinimumColor; };
+  // @deprecated For backwards compatibility: specify the color using 
+  // integers in the range [0,255].  
+  VTK_LEGACY(void SetMinimumColor(int r, int g, int b, int a));
+  VTK_LEGACY(void SetMinimumColor(const unsigned char rgba[4]));
+  VTK_LEGACY(void GetMinimumColor(unsigned char rgba[4]));
+  VTK_LEGACY(unsigned char *GetMinimumColor());
 
   // Description:
-  // For backwards compatibility: specify the color using integers
-  // in the range [0,255].  Deprecated: use SetMaximumTableValue()
-  // instead.
-  void SetMaximumColor(int r, int g, int b, int a) {
-    this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0); };
-  void SetMaximumColor(const unsigned char rgba[4]) {
-    this->SetMaximumColor(rgba[0],rgba[1],rgba[2],rgba[3]); };
-  void GetMaximumColor(unsigned char rgba[4]) {
-    rgba[0] = int(this->MaximumColor[0]*255);
-    rgba[1] = int(this->MaximumColor[1]*255);
-    rgba[2] = int(this->MaximumColor[2]*255);
-    rgba[3] = int(this->MaximumColor[3]*255); };
-  unsigned char *GetMaximumColor() {
-    this->GetMaximumColor(this->MaximumColor); 
-    return this->MaximumColor; };
+  // @deprecated For backwards compatibility: specify the color using 
+  // integers in the range [0,255].  
+  VTK_LEGACY(void SetMaximumColor(int r, int g, int b, int a));
+  VTK_LEGACY(void SetMaximumColor(const unsigned char rgba[4]));
+  VTK_LEGACY(void GetMaximumColor(unsigned char rgba[4]));
+  VTK_LEGACY(unsigned char *GetMaximumColor());
 
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);

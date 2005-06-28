@@ -22,7 +22,9 @@
 
 int TestDirectory(int,char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
   vtkDirectory *myDir = vtkDirectory::New();
   vtkDirectory *testDir = vtkDirectory::New();
   myDir->Open (".");

@@ -147,7 +147,9 @@ int Test(ostream& strm)
 
 int otherColorTransferFunction(int, char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   ostrstream vtkmsg_with_warning_C4701; 
   return Test(vtkmsg_with_warning_C4701);

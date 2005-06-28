@@ -242,10 +242,9 @@ public:
   virtual void UnRegister(vtkObjectBase *O);
 
   // Description:
-  // This method is deprecated in the base class.  It is still valid
-  // to use it on many of the specialized classes.
-  void Identity() { 
-    vtkWarningMacro("vtkAbstractTransform::Identity() is deprecated"); };
+  // @deprecated This method is deprecated in the base class.  It is 
+  // still valid to use it on many of the specialized classes.
+  VTK_LEGACY(void Identity());
 
 protected:
   vtkAbstractTransform();

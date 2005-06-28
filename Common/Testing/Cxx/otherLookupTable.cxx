@@ -157,7 +157,9 @@ void TestOLT(vtkLookupTable *lut1)
 
 int otherLookupTable(int,char *[])
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   vtkLookupTable *lut1 = vtkLookupTable::New();
   lut1->SetAlpha(1.0);

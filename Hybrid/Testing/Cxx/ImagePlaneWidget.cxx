@@ -339,7 +339,9 @@ char IPWeventLog[] =
 
 int ImagePlaneWidget( int argc, char *argv[] )
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 

@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkTransform, "1.105");
+vtkCxxRevisionMacro(vtkTransform, "1.106");
 vtkStandardNewMacro(vtkTransform);
 
 //----------------------------------------------------------------------------
@@ -151,11 +151,13 @@ void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
   // to support the legacy hack in InternalUpdate
   this->Matrix->DeepCopy(transform->Matrix);
   this->MatrixUpdateMTime = this->Matrix->GetMTime();
+#ifndef VTK_LEGACY_REMOVE
   if (transform->Matrix->GetMTime() > transform->MatrixUpdateMTime)
     { // this copies the legacy hack flag to the transform
     vtkWarningMacro(<<"InternalDeepCopy: Legacy Hack deprecated in VTK 4.2.  May be removed in a future version.");
     this->MatrixUpdateMTime--;
     }
+#endif
 }
 
 //----------------------------------------------------------------------------

@@ -362,7 +362,9 @@ void Process1(vtkMultiProcessController *contr, void *arg)
 
 int main(int argc, char** argv)
 {
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
 #ifdef VTK_USE_MPI
   // This is here to avoid false leak messages from vtkDebugLeaks when
@@ -384,7 +386,9 @@ int main(int argc, char** argv)
   // This is repeated for the sake of MPI. This one might not
   // get called by the parent process, the first one might not
   // get called by all others.
+#ifndef VTK_LEGACY_REMOVE
   vtkDebugLeaks::PromptUserOff();
+#endif
 
   // When using MPI, the number of processes is determined
   // by the external program which launches this application.
