@@ -26,7 +26,7 @@
 // make garbage collecting easier but results in a weak reference.
 #define VTK_USE_SINGLE_REF 1
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.6");
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.7");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -276,10 +276,14 @@ void vtkInformationExecutivePortVectorKey::Print(ostream& os,
 
 //----------------------------------------------------------------------------
 void
+#ifdef VTK_USE_SINGLE_REF
+vtkInformationExecutivePortVectorKey::Report(vtkInformation*,
+                                             vtkGarbageCollector*)
+{
+#else
 vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
                                              vtkGarbageCollector* collector)
 {
-#ifndef VTK_USE_SINGLE_REF
   if(vtkInformationExecutivePortVectorValue* v =
      static_cast<vtkInformationExecutivePortVectorValue *>
      (this->GetAsObjectBase(info)))
