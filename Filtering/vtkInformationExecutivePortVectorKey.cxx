@@ -21,7 +21,12 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.5");
+
+// should the pipeline be double or singly linked (referenced) list, single
+// make garbage collecting easier but results in a weak reference.
+#define VTK_USE_SINGLE_REF 1
+
+vtkCxxRevisionMacro(vtkInformationExecutivePortVectorKey, "1.6");
 
 //----------------------------------------------------------------------------
 vtkInformationExecutivePortVectorKey::vtkInformationExecutivePortVectorKey(const char* name, const char* location):
@@ -64,6 +69,7 @@ vtkInformationExecutivePortVectorValue
 //----------------------------------------------------------------------------
 void vtkInformationExecutivePortVectorValue::UnRegisterAllExecutives()
 {
+#ifndef VTK_USE_SINGLE_REF
   for(vtkstd::vector<vtkExecutive*>::iterator i = this->Executives.begin();
       i != this->Executives.end(); ++i)
     {
@@ -72,6 +78,7 @@ void vtkInformationExecutivePortVectorValue::UnRegisterAllExecutives()
       e->UnRegister(0);
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -84,7 +91,9 @@ void vtkInformationExecutivePortVectorKey::Append(vtkInformation* info,
      (this->GetAsObjectBase(info)))
     {
     // The entry already exists.  Append to its vector.
+#ifndef VTK_USE_SINGLE_REF
     executive->Register(0);
+#endif
     v->Executives.push_back(executive);
     v->Ports.push_back(port);
     }
@@ -111,7 +120,9 @@ void vtkInformationExecutivePortVectorKey::Remove(vtkInformation* info,
         {
         v->Executives.erase(v->Executives.begin()+i);
         v->Ports.erase(v->Ports.begin()+i);
+#ifndef VTK_USE_SINGLE_REF
         executive->UnRegister(0);
+#endif
         break;
         }
       }
@@ -131,6 +142,7 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
 {
   if(executives && ports && length > 0)
     {
+#ifndef VTK_USE_SINGLE_REF
     // Register our references to all the given executives.
     for(int i=0; i < length; ++i)
       {
@@ -139,7 +151,7 @@ void vtkInformationExecutivePortVectorKey::Set(vtkInformation* info,
         executives[i]->Register(0);
         }
       }
-
+#endif
     // Store the vector of pointers.
     vtkInformationExecutivePortVectorValue* oldv =
       static_cast<vtkInformationExecutivePortVectorValue *>
@@ -267,6 +279,7 @@ void
 vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
                                              vtkGarbageCollector* collector)
 {
+#ifndef VTK_USE_SINGLE_REF
   if(vtkInformationExecutivePortVectorValue* v =
      static_cast<vtkInformationExecutivePortVectorValue *>
      (this->GetAsObjectBase(info)))
@@ -277,6 +290,7 @@ vtkInformationExecutivePortVectorKey::Report(vtkInformation* info,
       vtkGarbageCollectorReport(collector, *i, this->GetName());
       }
     }
+#endif
 }
 
 //----------------------------------------------------------------------------
