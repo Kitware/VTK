@@ -8,8 +8,6 @@ vtkObject rtTempObject;
 
 vtkMath rtExMath
 rtExMath RandomSeed 6
-vtkDebugLeaks rtDebugLeaks
-rtDebugLeaks PromptUserOff
 
 # create the testing class to do the work
 vtkTesting rtTester

@@ -6,10 +6,6 @@ for {set i  0} {$i < [expr $argc - 1]} {incr i} {
 
 package require vtk
 
-vtkDebugLeaks dl
-dl PromptUserOff
-dl Delete
-
 vtkDataSetAttributes dsa
 
 foreach array "Bit Char Double Float Int Long Short UnsignedChar UnsignedInt UnsignedLong UnsignedShort" {

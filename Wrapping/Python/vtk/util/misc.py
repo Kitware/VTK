@@ -31,8 +31,6 @@ def vtkRegressionTestImage( renWin ):
     This function writes out a regression .png file for a vtkWindow.
     Does anyone involved in testing care to elaborate?
     """
-    dl = vtk.vtkDebugLeaks()
-    dl.PromptUserOff()
     imageIndex=-1;
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == '-V' and i < len(sys.argv)-1:
