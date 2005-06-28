@@ -40,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.39");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.40");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -444,6 +444,11 @@ void vtkDebugLeaks::ClassFinalize()
     }
 #endif
 }
+
+#ifndef VTK_LEGACY_REMOVE
+void vtkDebugLeaks::PromptUserOn() {}
+void vtkDebugLeaks::PromptUserOff() {}
+#endif
 
 //----------------------------------------------------------------------------
 
