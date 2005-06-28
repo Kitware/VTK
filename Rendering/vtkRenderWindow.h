@@ -87,6 +87,10 @@ public:
   void RemoveRenderer(vtkRenderer *);
 
   // Description:
+  // Query if a renderer is in the list of renderers.
+  int HasRenderer(vtkRenderer *);
+
+  // Description:
   // What rendering library has the user requested
   static const char *GetRenderLibrary();
 

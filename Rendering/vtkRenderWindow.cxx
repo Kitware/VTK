@@ -22,7 +22,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.143");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.144");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -641,6 +641,10 @@ void vtkRenderWindow::DoStereoRender()
 // Add a renderer to the list of renderers.
 void vtkRenderWindow::AddRenderer(vtkRenderer *ren)
 {
+  if (this->HasRenderer(ren))
+    {
+    return;
+    }
   // we are its parent
   this->MakeCurrent();
   ren->SetRenderWindow(this);
@@ -661,6 +665,11 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
 {
   // we are its parent 
   this->Renderers->RemoveItem(ren);
+}
+
+int vtkRenderWindow::HasRenderer(vtkRenderer *ren)
+{
+  return (ren && this->Renderers->IsItemPresent(ren));
 }
 
 int vtkRenderWindow::CheckAbortStatus()
