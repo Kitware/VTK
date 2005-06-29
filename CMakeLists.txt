@@ -266,6 +266,15 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${VTK_REQUIRED_EXE_LINKER_
 SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${VTK_REQUIRED_SHARED_LINKER_FLAGS}")
 SET(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${VTK_REQUIRED_MODULE_LINKER_FLAGS}")
 
+# The Borland implib tool is used by CMake to generate the .lib export
+# file from a .dll.  CMake 2.0 and earlier did not add the "-c" option
+# to specify that the exported symbols should be case sensitive.  Add
+# the flag now if it is not there.
+IF(BORLAND)
+  STRING(REGEX REPLACE "implib -w" "implib -c -w"
+    CMAKE_CXX_CREATE_SHARED_LIBRARY "${CMAKE_CXX_CREATE_SHARED_LIBRARY}")
+ENDIF(BORLAND)
+
 #-----------------------------------------------------------------------------
 # Platform configuration tests.
 INCLUDE(${CMAKE_ROOT}/Modules/CMakeBackwardCompatibilityC.cmake)
