@@ -87,7 +87,6 @@ public:
   vtkSetVector4Macro(MaximumTableValue,double);
   vtkGetVector4Macro(MaximumTableValue,double);
 
-//BTX
   // Description:
   // @deprecated For backwards compatibility: specify the color using 
   // integers in the range [0,255].  
@@ -103,7 +102,6 @@ public:
   VTK_LEGACY(void SetMaximumColor(const unsigned char rgba[4]));
   VTK_LEGACY(void GetMaximumColor(unsigned char rgba[4]));
   VTK_LEGACY(unsigned char *GetMaximumColor());
-//ETX
 
 protected:
   vtkWindowLevelLookupTable(int sze=256, int ext=256);
@@ -114,8 +112,6 @@ protected:
   int InverseVideo;
   double MaximumTableValue[4];
   double MinimumTableValue[4];
-  unsigned char MinimumColor[4];
-  unsigned char MaximumColor[4];
 private:
   vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&);  // Not implemented.
   void operator=(const vtkWindowLevelLookupTable&);  // Not implemented.

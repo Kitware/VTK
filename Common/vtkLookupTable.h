@@ -228,11 +228,12 @@ private:
   void operator=(const vtkLookupTable&);  // Not implemented.
 };
 
+//----------------------------------------------------------------------------
 inline unsigned char *vtkLookupTable::WritePointer(const vtkIdType id, 
                                                    const int number)
 {
- this->InsertTime.Modified();
- return this->Table->WritePointer(4*id,4*number);
+  this->InsertTime.Modified();
+  return this->Table->WritePointer(4*id,4*number);
 }
 
 #endif

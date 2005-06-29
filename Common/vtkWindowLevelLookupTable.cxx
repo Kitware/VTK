@@ -17,9 +17,10 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.23");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.24");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
+//----------------------------------------------------------------------------
 vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
   : vtkLookupTable(sze, ext)
 {
@@ -37,20 +38,9 @@ vtkWindowLevelLookupTable::vtkWindowLevelLookupTable(int sze, int ext)
   this->MaximumTableValue[1] = 1.0;
   this->MaximumTableValue[2] = 1.0;
   this->MaximumTableValue[3] = 1.0;
-
-#ifndef VTK_LEGACY_REMOVE
-  this->MinimumColor[0] = 0;
-  this->MinimumColor[1] = 0;
-  this->MinimumColor[2] = 0;
-  this->MinimumColor[3] = 255;
-
-  this->MaximumColor[0] = 255;
-  this->MaximumColor[1] = 255;
-  this->MaximumColor[2] = 255;
-  this->MaximumColor[3] = 255;
-#endif
 }
 
+//----------------------------------------------------------------------------
 // Table is built as a linear ramp between MinimumTableValue and
 // MaximumTableValue.
 void vtkWindowLevelLookupTable::Build()
@@ -97,6 +87,7 @@ void vtkWindowLevelLookupTable::Build()
   this->BuildTime.Modified();
 }
 
+//----------------------------------------------------------------------------
 // Reverse the color table (don't rebuild in case someone has
 // been adjusting the table values by hand)
 // This is a little ugly ... it might be best to remove
@@ -131,6 +122,7 @@ void vtkWindowLevelLookupTable::SetInverseVideo(int iv)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -149,26 +141,13 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << this->MaximumTableValue[1] << ", "
      << this->MaximumTableValue[2] << ", "
      << this->MaximumTableValue[3] << ")\n";  
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  this->GetMinimumColor();
-  os << indent << "MinimumColor : ("
-     << this->MinimumColor[0] << ", "
-     << this->MinimumColor[1] << ", "
-     << this->MinimumColor[2] << ", "
-     << this->MinimumColor[3] << ")\n";
-  this->GetMaximumColor();
-  os << indent << "MaximumColor : ("
-     << this->MaximumColor[0] << ", "
-     << this->MaximumColor[1] << ", "
-     << this->MaximumColor[2] << ", "
-     << this->MaximumColor[3] << ")\n";
-#endif
 }
 
 
+//----------------------------------------------------------------------------
 // Deprecated methods:
 
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
+#ifndef VTK_LEGACY_REMOVE
 void vtkWindowLevelLookupTable::SetMinimumColor(int r, int g, int b, int a)
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
@@ -180,25 +159,29 @@ void vtkWindowLevelLookupTable::SetMinimumColor(const unsigned char rgba[4])
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
                            vtkWindowLevelLookupTable::SetMinimumTableValue);
-  this->SetMinimumColor(rgba[0],rgba[1],rgba[2],rgba[3]);
+  this->SetMinimumTableValue(rgba[0]*255,rgba[1]*255,rgba[2]*255,rgba[3]*255);
 }
 
 void vtkWindowLevelLookupTable::GetMinimumColor(unsigned char rgba[4])
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "5.0",
                            vtkWindowLevelLookupTable::GetMinimumTableValue);
-  rgba[0] = int(this->MinimumColor[0]*255);
-  rgba[1] = int(this->MinimumColor[1]*255);
-  rgba[2] = int(this->MinimumColor[2]*255);
-  rgba[3] = int(this->MinimumColor[3]*255); 
+  rgba[0] = int(this->MinimumTableValue[0]*255);
+  rgba[1] = int(this->MinimumTableValue[1]*255);
+  rgba[2] = int(this->MinimumTableValue[2]*255);
+  rgba[3] = int(this->MinimumTableValue[3]*255); 
 }
 
 unsigned char *vtkWindowLevelLookupTable::GetMinimumColor()
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "5.0",
                            vtkWindowLevelLookupTable::GetMinimumTableValue);
-  this->GetMinimumColor(this->MinimumColor); 
-  return this->MinimumColor;
+  static unsigned char minimumcolor[4];
+  minimumcolor[0] = int(this->MinimumTableValue[0]*255);
+  minimumcolor[1] = int(this->MinimumTableValue[1]*255);
+  minimumcolor[2] = int(this->MinimumTableValue[2]*255);
+  minimumcolor[3] = int(this->MinimumTableValue[3]*255); 
+  return minimumcolor;
 }
 
 void vtkWindowLevelLookupTable::SetMaximumColor(int r, int g, int b, int a)
@@ -212,25 +195,29 @@ void vtkWindowLevelLookupTable::SetMaximumColor(const unsigned char rgba[4])
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "5.0",
                            vtkWindowLevelLookupTable::SetMaximumTableValue);
-  this->SetMaximumColor(rgba[0],rgba[1],rgba[2],rgba[3]);
+  this->SetMaximumTableValue(rgba[0]*255,rgba[1]*255,rgba[2]*255,rgba[3]*255);
 }
 
 void vtkWindowLevelLookupTable::GetMaximumColor(unsigned char rgba[4])
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "5.0",
                            vtkWindowLevelLookupTable::GetMaximumTableValue);
-  rgba[0] = int(this->MaximumColor[0]*255);
-  rgba[1] = int(this->MaximumColor[1]*255);
-  rgba[2] = int(this->MaximumColor[2]*255);
-  rgba[3] = int(this->MaximumColor[3]*255); 
+  rgba[0] = int(this->MaximumTableValue[0]*255);
+  rgba[1] = int(this->MaximumTableValue[1]*255);
+  rgba[2] = int(this->MaximumTableValue[2]*255);
+  rgba[3] = int(this->MaximumTableValue[3]*255); 
 }
 
 unsigned char *vtkWindowLevelLookupTable::GetMaximumColor()
 {
   VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "5.0",
                            vtkWindowLevelLookupTable::GetMaximumTableValue);
-  this->GetMaximumColor(this->MaximumColor); 
-  return this->MaximumColor;
+  static unsigned char maximumcolor[4];
+  maximumcolor[0] = int(this->MaximumTableValue[0]*255);
+  maximumcolor[1] = int(this->MaximumTableValue[1]*255);
+  maximumcolor[2] = int(this->MaximumTableValue[2]*255);
+  maximumcolor[3] = int(this->MaximumTableValue[3]*255); 
+  return maximumcolor;
 }
 
 #endif

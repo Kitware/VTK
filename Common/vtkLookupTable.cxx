@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.99");
+vtkCxxRevisionMacro(vtkLookupTable, "1.100");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -49,12 +49,14 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
   this->Scale = VTK_SCALE_LINEAR;
 }
 
+//----------------------------------------------------------------------------
 vtkLookupTable::~vtkLookupTable()
 {
   this->Table->Delete();
   this->Table = NULL;
 }
 
+//----------------------------------------------------------------------------
 // Scalar values greater than maximum range value are clamped to maximum
 // range value.
 void vtkLookupTable::SetTableRange(double r[2])
@@ -62,6 +64,7 @@ void vtkLookupTable::SetTableRange(double r[2])
   this->SetTableRange(r[0],r[1]);
 }
 
+//----------------------------------------------------------------------------
 // Set the minimum/maximum scalar values for scalar mapping. Scalar values
 // less than minimum range value are clamped to minimum range value.
 // Scalar values greater than maximum range value are clamped to maximum
@@ -91,6 +94,7 @@ void vtkLookupTable::SetTableRange(double rmin, double rmax)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 // Have to be careful about the range if scale is logarithmic
 void vtkLookupTable::SetScale(int scale)
 {
@@ -115,6 +119,7 @@ void vtkLookupTable::SetScale(int scale)
     }
 }
 
+//----------------------------------------------------------------------------
 // Allocate a color table of specified size.
 int vtkLookupTable::Allocate(int sz, int ext)
 {
@@ -124,6 +129,7 @@ int vtkLookupTable::Allocate(int sz, int ext)
   return a;
 }
 
+//----------------------------------------------------------------------------
 // Force the lookup table to rebuild
 void vtkLookupTable::ForceBuild()
 {
@@ -201,6 +207,7 @@ void vtkLookupTable::ForceBuild()
   this->BuildTime.Modified();
 }
 
+//----------------------------------------------------------------------------
 // Generate lookup table from hue, saturation, value, alpha min/max values. 
 // Table is built from linear ramp of each value.
 void vtkLookupTable::Build()
@@ -213,6 +220,7 @@ void vtkLookupTable::Build()
     }
 }
 
+//----------------------------------------------------------------------------
 // get the color for a scalar value
 void vtkLookupTable::GetColor(double v, double rgb[3])
 {
@@ -223,6 +231,7 @@ void vtkLookupTable::GetColor(double v, double rgb[3])
   rgb[2] = rgb8[2]/255.0;
 }
 
+//----------------------------------------------------------------------------
 // get the opacity (alpha) for a scalar value
 double vtkLookupTable::GetOpacity(double v)
 {
@@ -231,6 +240,7 @@ double vtkLookupTable::GetOpacity(double v)
   return rgb8[3]/255.0;
 }
 
+//----------------------------------------------------------------------------
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
@@ -267,6 +277,7 @@ void vtkLookupTableLogRange(double range[2], double logRange[2])
     }
 }
 
+//----------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
 inline double vtkApplyLogScale(double v, double range[2], 
                                double logRange[2])
@@ -305,6 +316,7 @@ inline double vtkApplyLogScale(double v, double range[2],
   return v;
 }                 
 
+//----------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and do table lookup.
 inline unsigned char *vtkLinearLookup(double v,   
                                       unsigned char *table,
@@ -326,6 +338,7 @@ inline unsigned char *vtkLinearLookup(double v,
   */
 }
 
+//----------------------------------------------------------------------------
 // Given a scalar value v, return an index into the lookup table
 vtkIdType vtkLookupTable::GetIndex(double v)
 {
@@ -377,6 +390,7 @@ vtkIdType vtkLookupTable::GetIndex(double v)
   return static_cast<int>(findx);
 }
 
+//----------------------------------------------------------------------------
 // Given a scalar value v, return an rgba color value from lookup table.
 unsigned char *vtkLookupTable::MapValue(double v)
 {
@@ -384,6 +398,7 @@ unsigned char *vtkLookupTable::MapValue(double v)
   return (this->Table->GetPointer(0) + 4*idx);
 }
 
+//----------------------------------------------------------------------------
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template<class T>
@@ -658,6 +673,7 @@ void vtkLookupTableMapData(vtkLookupTable *self, T *input,
     }//alpha blending
 }
 
+//----------------------------------------------------------------------------
 // Although this is a relatively expensive calculation,
 // it is only done on the first render. Colors are cached
 // for subsequent renders.
@@ -689,6 +705,7 @@ void vtkLookupTableMapMag(vtkLookupTable *self, T *input,
 }
 
 
+//----------------------------------------------------------------------------
 void vtkLookupTable::MapScalarsThroughTable2(void *input, 
                                              unsigned char *output,
                                              int inputDataType, 
@@ -745,6 +762,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void *input,
     }
 }  
 
+//----------------------------------------------------------------------------
 // Specify the number of values (i.e., colors) in the lookup
 // table. This method simply allocates memory and prepares the table
 // for use with SetTableValue(). It differs from Build() method in
@@ -760,6 +778,7 @@ void vtkLookupTable::SetNumberOfTableValues(vtkIdType number)
   this->Table->SetNumberOfTuples(number);
 }
 
+//----------------------------------------------------------------------------
 // Directly load color into lookup table. Use [0,1] double values for color
 // component specification. Make sure that you've either used the
 // Build() method or used SetNumberOfTableValues() prior to using this method.
@@ -790,6 +809,7 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, double rgba[4])
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 // Directly load color into lookup table. Use [0,1] double values for color 
 // component specification.
 void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b, 
@@ -800,6 +820,7 @@ void vtkLookupTable::SetTableValue(vtkIdType indx, double r, double g, double b,
   this->SetTableValue(indx,rgba);
 }
 
+//----------------------------------------------------------------------------
 // Return a rgba color value for the given index into the lookup Table. Color
 // components are expressed as [0,1] double values.
 void vtkLookupTable::GetTableValue(vtkIdType indx, double rgba[4])
@@ -825,6 +846,7 @@ double *vtkLookupTable::GetTableValue(vtkIdType indx)
   return this->RGBA;
 }
 
+//----------------------------------------------------------------------------
 void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
@@ -850,6 +872,7 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "BuildTime: " <<this->BuildTime.GetMTime() << "\n";
 }
 
+//----------------------------------------------------------------------------
 void vtkLookupTable::DeepCopy(vtkLookupTable *lut)
 {
   if (!lut)
