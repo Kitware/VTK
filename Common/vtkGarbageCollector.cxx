@@ -35,7 +35,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkGarbageCollector, "1.27");
+vtkCxxRevisionMacro(vtkGarbageCollector, "1.28");
 vtkStandardNewMacro(vtkGarbageCollector);
 
 #if VTK_GARBAGE_COLLECTOR_HASH
@@ -225,6 +225,14 @@ public:
 #endif
   struct ComponentType;
 
+  struct Entry;
+  struct EntryEdge
+  {
+    Entry* Reference;
+    void* Pointer;
+    EntryEdge(Entry* r, void* p): Reference(r), Pointer(p) {}
+  };
+
   // Store garbage collection entries keyed by object.
   struct Entry
   {
@@ -253,10 +261,8 @@ public:
     int GarbageCount;
 
     // The list of references reported by this entry's object.
-    typedef vtkstd::vector<Entry*> ReferencesType;
-    typedef vtkstd::vector<void*> PointersType;
+    typedef vtkstd::vector<EntryEdge> ReferencesType;
     ReferencesType References;
-    PointersType Pointers;
   };
 
   // Compare entries by object pointer for quick lookup.
@@ -648,8 +654,7 @@ void vtkGarbageCollectorImpl::Report(vtkObjectBase* obj, void* ptr)
     }
 
   // Save this reference.
-  v->References.push_back(w);
-  v->Pointers.push_back(ptr);
+  v->References.push_back(EntryEdge(w, ptr));
 }
 
 //----------------------------------------------------------------------------
@@ -675,10 +680,10 @@ void vtkGarbageCollectorImpl::CollectComponent(ComponentType* c)
     for(unsigned int i = 0; i < entry->References.size(); ++i)
       {
       // Get a pointer to the object referenced.
-      vtkObjectBase* obj = entry->References[i]->Object;
+      vtkObjectBase* obj = entry->References[i].Reference->Object;
 
       // Get a pointer to the pointer holding the reference.
-      void** ptr = static_cast<void**>(entry->Pointers[i]);
+      void** ptr = static_cast<void**>(entry->References[i].Pointer);
 
       // Set the pointer holding the reference to NULL.  The
       // destructor of the object that reported this reference must
@@ -748,7 +753,7 @@ void vtkGarbageCollectorImpl::SubtractInternalReferences(ComponentType* c)
     for(Entry::ReferencesType::iterator r = v->References.begin();
         r != v->References.end(); ++r)
       {
-      Entry* w = *r;
+      Entry* w = r->Reference;
 
       // If this reference points inside the component, subtract it.
       if(v->Component == w->Component)
@@ -771,7 +776,7 @@ void vtkGarbageCollectorImpl::SubtractExternalReferences(ComponentType* c)
     for(Entry::ReferencesType::iterator r = v->References.begin();
         r != v->References.end(); ++r)
       {
-      Entry* w = *r;
+      Entry* w = r->Reference;
 
       // If this reference points outside the component, subtract it.
       if(v->Component != w->Component)
