@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.36");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.37");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -99,10 +99,10 @@ void vtkPolyDataMapper::Update()
 {
   int currentPiece, nPieces = this->NumberOfPieces;
   vtkPolyData* input = this->GetInput();
-
+  
   // If the estimated pipeline memory usage is larger than
   // the memory limit, break the current piece into sub-pieces.
-  if (this->GetInput()) 
+  if (input) 
     {
     currentPiece = this->NumberOfSubPieces * this->Piece;
     input->SetUpdateExtent(currentPiece, this->NumberOfSubPieces*nPieces, 
@@ -118,7 +118,8 @@ double *vtkPolyDataMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if ( ! this->GetInput() ) 
+  // do we have an input
+  if ( ! this->GetNumberOfInputConnections(0)) 
     {
     return bounds;
     }
