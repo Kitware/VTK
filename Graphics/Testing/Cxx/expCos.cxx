@@ -35,10 +35,6 @@
 
 int expCos( int argc, char *argv[] )
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   int i, numPts;
   double x[3];
   double r, deriv;

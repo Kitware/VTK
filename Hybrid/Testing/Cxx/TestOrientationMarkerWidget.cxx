@@ -292,10 +292,6 @@ char TestOMWidgetEventLog[] =
 
 int TestOrientationMarkerWidget( int argc, char *argv[] )
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-  
   // create an actor out of parts of vtkAxesActor and vtkAnnotatedCubeActor
   // to have the widget follow.
   // part 1 is a helical spring to test vtkAxesActor SetUserDefinedShaft

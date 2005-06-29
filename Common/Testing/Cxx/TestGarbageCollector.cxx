@@ -77,10 +77,6 @@ void MyDeleteCallback(vtkObject*, unsigned long, void*, void*)
 // Main test function.
 int TestGarbageCollector(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   // Create a callback that reports when it is called.
   vtkSmartPointer<vtkCallbackCommand> cc =
     vtkSmartPointer<vtkCallbackCommand>::New();

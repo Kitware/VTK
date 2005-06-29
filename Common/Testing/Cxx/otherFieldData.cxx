@@ -21,10 +21,6 @@
 int otherFieldData(int,char *[])
 {
   int i;
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   vtkFieldData* fd = vtkFieldData::New();
 
   vtkFloatArray* fa;

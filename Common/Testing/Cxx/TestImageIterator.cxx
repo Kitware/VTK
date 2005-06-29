@@ -41,10 +41,6 @@ inline int DoTest(T*)
 
 int TestImageIterator(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   DoTest( static_cast<char*>( 0 ) );
   DoTest( static_cast<int*>( 0 ) );
   DoTest( static_cast<long*>( 0 ) );

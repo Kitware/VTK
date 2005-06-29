@@ -23,10 +23,6 @@
 
 int TestSmartPointer(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-  
   vtkIntArray* ia = vtkIntArray::New();
   
   // Coverage:

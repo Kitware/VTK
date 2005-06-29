@@ -22,9 +22,6 @@
 
 int TestDirectory(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
   vtkDirectory *myDir = vtkDirectory::New();
   vtkDirectory *testDir = vtkDirectory::New();
   myDir->Open (".");

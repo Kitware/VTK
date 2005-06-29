@@ -272,10 +272,7 @@ int main( int argc, char* argv[] )
   // is configured, vtkMPIController otherwise.
   controller = vtkMPIController::New();
 
-
-  vtkDebugLeaks::PromptUserOff();
   controller->Initialize(&argc, &argv);
-  vtkDebugLeaks::PromptUserOff();
 
   int numProcs = controller->GetNumberOfProcesses();
   int myId = controller->GetLocalProcessId();

@@ -15,9 +15,6 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     # only once.  If you put it in the constructor or in the function
     # the pipeline will be created afresh for each and every test.
 
-    dl = vtk.vtkDebugLeaks()
-    dl.PromptUserOff()
-
     # create a dummy Tkinter root window.
     root = Tkinter.Tk()
     

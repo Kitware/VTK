@@ -42,10 +42,6 @@ static void CleanUp(vtkSocketCommunicator* comm, vtkSocketController* contr)
 
 int main(int argc, char** argv)
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   vtkSocketController* contr = vtkSocketController::New();
   contr->Initialize();
 

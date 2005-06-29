@@ -40,11 +40,6 @@
 
 int TestHierarchicalBoxPipeline(int argc, char* argv[])
 {
-  // Disable for testing
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   // Standard rendering classes
   vtkRenderer *ren = vtkRenderer::New();
   vtkCamera* cam = ren->GetActiveCamera();

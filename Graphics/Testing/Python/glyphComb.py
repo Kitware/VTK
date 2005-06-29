@@ -8,9 +8,6 @@ for i in range(0, len(sys.argv)):
 
 from vtkpython import *
 
-dl = vtkDebugLeaks()
-dl.PromptUserOff()
-
 # create planes
 # Create the RenderWindow, Renderer
 #

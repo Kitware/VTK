@@ -273,13 +273,7 @@ int main( int argc, char* argv[] )
   // is configured, vtkThreadedController otherwise.
   controller = vtkMultiProcessController::New();
 
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
   controller->Initialize(&argc, &argv);
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);

@@ -154,10 +154,6 @@ int TestByteSwap(ostream& strm)
 
 int otherByteSwap(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   ostrstream vtkmsg_with_warning_C4701; 
   return TestByteSwap(vtkmsg_with_warning_C4701);
 } 

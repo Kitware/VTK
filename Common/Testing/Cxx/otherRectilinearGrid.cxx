@@ -597,10 +597,6 @@ int TestORG(ostream& strm)
 
 int otherRectilinearGrid(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   ostrstream vtkmsg_with_warning_C4701; 
   return TestORG(vtkmsg_with_warning_C4701);
 } 

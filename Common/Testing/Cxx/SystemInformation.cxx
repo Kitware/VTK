@@ -66,9 +66,6 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
 
 int SystemInformation(int,char *[])
 {
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
   const char* files[] =
     {
       CMAKE_BINARY_DIR "/CMakeCache.txt", 

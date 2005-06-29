@@ -57,11 +57,6 @@
 
 int TestGenericStreamTracer(int argc, char* argv[])
 {
-  // Disable for testing
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   // Standard rendering classes
   vtkRenderer *renderer = vtkRenderer::New();
   vtkRenderWindow *renWin = vtkRenderWindow::New();

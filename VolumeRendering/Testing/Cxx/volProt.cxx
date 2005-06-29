@@ -37,11 +37,6 @@
 // using various techniques for testing purposes
 int volProt( int argc, char *argv[] )
 {
-
-#if !defined(VTK_LEGACY_REMOVE) && defined(VTK_LEGACY_SILENT)
-  vtkDebugLeaks::PromptUserOff();
-#endif
-
   int i, j, k, l;
   
   // Create the renderers, render window, and interactor

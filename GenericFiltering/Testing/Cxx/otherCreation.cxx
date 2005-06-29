@@ -1688,8 +1688,6 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
 int otherCreation(int vtkNotUsed(argc),
                   char *vtkNotUsed(argv)[])
 {
-  //vtkDebugLeaks::PromptUserOff();
-
   ostrstream vtkmsg_with_warning_C4701; 
   
   if (TestEmpty(cout))

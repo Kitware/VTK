@@ -8,9 +8,6 @@ for i in range(0, len(sys.argv)):
 
 from vtkpython import *
 
-dl = vtkDebugLeaks()
-dl.PromptUserOff()
-
 # create a rendering window and renderer
 ren = vtkRenderer()
 renWin = vtkRenderWindow()
