@@ -104,6 +104,13 @@ public:
   static vtkInformationStringKey*        INPUT_REQUIRED_COMPOSITE_DATA_TYPE();
   static vtkInformationObjectBaseKey*    UPDATE_BLOCKS();
 
+  // since PipelineMTime is called so often and since it travels the full
+  // length of the pipeline every time we have an optimized funciton to
+  // handle it. For most executives the request is not used.
+  virtual unsigned long ComputePipelineMTime(int forward, 
+                                             vtkInformation *request,
+                                             vtkInformationVector **inInfoVec);
+
 protected:
   vtkCompositeDataPipeline();
   ~vtkCompositeDataPipeline();

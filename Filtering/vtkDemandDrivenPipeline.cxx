@@ -26,12 +26,12 @@
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationKeyVectorKey.h"
+#include "vtkInformationRequestKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkSmartPointer.h"
 
 #include "vtkImageData.h"
 #include "vtkPolyData.h"
@@ -41,26 +41,46 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.34");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.35");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, PIPELINE_MODIFIED_TIME, UnsignedLong);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, RELEASE_DATA, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA, Request);
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_NOT_GENERATED, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Integer);
-vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_PIPELINE_MODIFIED_TIME, Integer);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_DATA_OBJECT, Request);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_INFORMATION, Request);
+vtkInformationKeyMacro(vtkDemandDrivenPipeline, REQUEST_PIPELINE_MODIFIED_TIME, Request);
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::vtkDemandDrivenPipeline()
 {
+  this->MTimeRequest = 0;
+  this->InfoRequest = 0;
+  this->DataObjectRequest = 0;
+  this->DataRequest = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkDemandDrivenPipeline::~vtkDemandDrivenPipeline()
 {
+  if (this->MTimeRequest)
+    {
+    this->MTimeRequest->Delete();
+    }
+  if (this->InfoRequest)
+    {
+    this->InfoRequest->Delete();
+    }
+  if (this->DataObjectRequest)
+    {
+    this->DataObjectRequest->Delete();
+    }
+  if (this->DataRequest)
+    {
+    this->DataRequest->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -69,6 +89,41 @@ void vtkDemandDrivenPipeline::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PipelineMTime: " << this->PipelineMTime << "\n";
 }
+
+
+unsigned long vtkDemandDrivenPipeline::ComputePipelineMTime(int forward, vtkInformation *request,
+                                                            vtkInformationVector **inInfoVec)
+{
+  // The pipeline's MTime starts with this algorithm's MTime.
+  // Invoke the request on the algorithm.
+  this->PipelineMTime = this->Algorithm->ComputePipelineMTime(request);
+  
+  // We want the maximum PipelineMTime of all inputs.
+  if (forward)
+    {
+    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+      {
+      for(int j=0; j < inInfoVec[i]->GetNumberOfInformationObjects(); ++j)
+        {
+        vtkInformation* info = inInfoVec[i]->GetInformationObject(j);
+        // call ComputePipelineMTime on the input
+        vtkExecutive* e;
+        int producerPort;
+        info->Get(vtkExecutive::PRODUCER(),e,producerPort);
+        if(e)
+          {
+          unsigned long mtime = e->ComputePipelineMTime(1,request,e->GetInputInformation());
+          if(mtime > this->PipelineMTime)
+            {
+            this->PipelineMTime = mtime;
+            }
+          }
+        }
+      }
+    }
+  return this->PipelineMTime;
+}
+
 
 //----------------------------------------------------------------------------
 int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
@@ -82,53 +137,19 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
     return 0;
     }
 
-  // Look for specially supported requests.
-  if(this->Algorithm && request->Has(REQUEST_PIPELINE_MODIFIED_TIME()))
-    {
-    // Update inputs first.
-    if(forward && !this->ForwardUpstream(request))
-      {
-      return 0;
-      }
-
-    // The pipeline's MTime starts with this algorithm's MTime.
-    // Invoke the request on the algorithm.
-    this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
-                        inInfoVec, outInfoVec);
-    this->PipelineMTime = request->Get(PIPELINE_MODIFIED_TIME());
-    
-    // We want the maximum PipelineMTime of all inputs.
-    for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
-      {
-      for(int j=0; j < inInfoVec[i]->GetNumberOfInformationObjects(); ++j)
-        {
-        vtkInformation* info = inInfoVec[i]->GetInformationObject(j);
-        unsigned long mtime = info->Get(PIPELINE_MODIFIED_TIME());
-        if(mtime > this->PipelineMTime)
-          {
-          this->PipelineMTime = mtime;
-          }
-        }
-      }
-
-    // Set the pipeline mtime for all outputs.
-    for(int j=0; j < outInfoVec->GetNumberOfInformationObjects(); ++j)
-      {
-      vtkInformation* info = outInfoVec->GetInformationObject(j);
-      info->Set(PIPELINE_MODIFIED_TIME(), this->PipelineMTime);
-      }
-
-    return 1;
-    }
-
   if(this->Algorithm && request->Has(REQUEST_DATA_OBJECT()))
     {
-    // Update inputs first.
+    // if we are up to date then short circuit
+    if (this->PipelineMTime < this->DataObjectTime.GetMTime())
+      {
+      return 1;
+      }
+    // Update inputs first if they are out of date
     if(forward && !this->ForwardUpstream(request))
       {
       return 0;
       }
-
+    
     // Make sure our output data type is up-to-date.
     int result = 1;
     if(this->PipelineMTime > this->DataObjectTime.GetMTime())
@@ -159,6 +180,11 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
 
   if(this->Algorithm && request->Has(REQUEST_INFORMATION()))
     {
+    // if we are up to date then short circuit
+    if (this->PipelineMTime < this->InformationTime.GetMTime())
+      {
+      return 1;
+      }
     // Update inputs first.
     if(forward && !this->ForwardUpstream(request))
       {
@@ -277,16 +303,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
     return 0;
     }
 
-  // Setup the request for pipeline modification time.
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-  r->Set(REQUEST_PIPELINE_MODIFIED_TIME(), 1);
-
-  // The request is forwarded upstream through the pipeline.
-  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-
-  // Send the request.
-  return this->ProcessRequest(r,1,this->GetInputInformation(),
-                              this->GetOutputInformation());
+  this->ComputePipelineMTime(1,0,this->GetInputInformation());
 }
 
 //----------------------------------------------------------------------------
@@ -305,17 +322,18 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
     }
 
   // Setup the request for data object creation.
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-  r->Set(REQUEST_DATA_OBJECT(), 1);
-
-  // The request is forwarded upstream through the pipeline.
-  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-
-  // Algorithms process this request after it is forwarded.
-  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
-
+  if (!this->DataObjectRequest)
+    {
+    this->DataObjectRequest = vtkInformation::New();
+    this->DataObjectRequest->Set(REQUEST_DATA_OBJECT());
+    // The request is forwarded upstream through the pipeline.
+    this->DataObjectRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request after it is forwarded.
+    this->DataObjectRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+    }
+  
   // Send the request.
-  return this->ProcessRequest(r,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->DataObjectRequest,1,this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
@@ -335,17 +353,18 @@ int vtkDemandDrivenPipeline::UpdateInformation()
     }
 
   // Setup the request for information.
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-  r->Set(REQUEST_INFORMATION(), 1);
-
-  // The request is forwarded upstream through the pipeline.
-  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-
-  // Algorithms process this request after it is forwarded.
-  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
-
+  if (!this->InfoRequest)
+    {
+    this->InfoRequest = vtkInformation::New();
+    this->InfoRequest->Set(REQUEST_INFORMATION());
+    // The request is forwarded upstream through the pipeline.
+    this->InfoRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request after it is forwarded.
+    this->InfoRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+    }
+  
   // Send the request.
-  return this->ProcessRequest(r,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->InfoRequest,1,this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
@@ -370,18 +389,19 @@ int vtkDemandDrivenPipeline::UpdateData(int outputPort)
     }
 
   // Setup the request for data.
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-  r->Set(REQUEST_DATA(), 1);
-  r->Set(FROM_OUTPUT_PORT(), outputPort);
-
-  // The request is forwarded upstream through the pipeline.
-  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-
-  // Algorithms process this request after it is forwarded.
-  r->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
-
+  if (!this->DataRequest)
+    {
+    this->DataRequest = vtkInformation::New();
+    this->DataRequest->Set(REQUEST_DATA());
+    // The request is forwarded upstream through the pipeline.
+    this->DataRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request after it is forwarded.
+    this->DataRequest->Set(vtkExecutive::ALGORITHM_AFTER_FORWARD(), 1);
+    }
+  
   // Send the request.
-  return this->ProcessRequest(r,1,this->GetInputInformation(),
+  this->DataRequest->Set(FROM_OUTPUT_PORT(), outputPort);
+  return this->ProcessRequest(this->DataRequest,1,this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 
@@ -456,7 +476,7 @@ void vtkDemandDrivenPipeline::ExecuteDataStart(vtkInformation* request,
   this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
                       inInfo, outputs);
   request->Remove(REQUEST_DATA_NOT_GENERATED());
-  request->Set(REQUEST_DATA(), 1);
+  request->Set(REQUEST_DATA());
 
   // Prepare outputs that will be generated to receive new data.
   for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
@@ -556,7 +576,7 @@ int vtkDemandDrivenPipeline::CheckDataObject(int port,
       this->SetOutputData(port, data, outInfo);
       if(data)
         {
-        data->Delete();
+        data->FastDelete();
         }
       }
     if(!data)

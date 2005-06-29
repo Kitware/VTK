@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.23");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.24");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -388,14 +388,6 @@ int vtkAlgorithm::ProcessRequest(vtkInformation* request,
                                  vtkInformationVector**,
                                  vtkInformationVector*)
 {
-  // default handling of pipeline MTime
-  if(request->Has(vtkDemandDrivenPipeline::REQUEST_PIPELINE_MODIFIED_TIME()))
-    {
-    request->Set(vtkDemandDrivenPipeline::PIPELINE_MODIFIED_TIME(), 
-                 this->GetMTime());
-    return 1;
-    }
-
   return 1;
 }
 
@@ -915,10 +907,6 @@ int vtkAlgorithm::GetTotalNumberOfInputConnections()
 //----------------------------------------------------------------------------
 vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 {
-  if(!this->InputPortIndexInRange(port, "get a connection for"))
-    {
-    return 0;
-    }
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))
     {
     vtkErrorMacro("Attempt to get connection index " << index
@@ -932,8 +920,9 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
     {
     // Get the executive producing this input.  If there is none, then
     // it is a NULL input.
-    vtkExecutive* producer = info->GetExecutive(vtkExecutive::PRODUCER());
-    int producerPort = info->GetPort(vtkExecutive::PRODUCER());
+    vtkExecutive* producer;
+    int producerPort;
+    info->Get(vtkExecutive::PRODUCER(),producer,producerPort);
     if(producer)
       {
       return producer->GetAlgorithm()->GetOutputPort(producerPort);

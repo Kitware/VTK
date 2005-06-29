@@ -35,6 +35,7 @@ class vtkInformation;
 class vtkInformationExecutivePortKey;
 class vtkInformationExecutivePortVectorKey;
 class vtkInformationIntegerKey;
+class vtkInformationRequestKey;
 class vtkInformationKeyVectorKey;
 class vtkInformationVector;
 
@@ -152,6 +153,14 @@ public:
                             vtkInformationVector** inInfo,
                             vtkInformationVector* outInfo);
 
+  // since PipelineMTime is called so often and since it travels the full
+  // length of the pipeline every time we have an optimized funciton to
+  // handle it. For most executives the request is not used.
+  virtual unsigned long ComputePipelineMTime(int forward, 
+                                             vtkInformation *request,
+                                             vtkInformationVector **inInfoVec) 
+    { return 0; };
+  
 protected:
   vtkExecutive();
   ~vtkExecutive();

@@ -88,19 +88,19 @@ public:
 
   // Description:
   // Key defining a request to get the cumulative pipeline modification time.
-  static vtkInformationIntegerKey* REQUEST_PIPELINE_MODIFIED_TIME();
+  static vtkInformationRequestKey* REQUEST_PIPELINE_MODIFIED_TIME();
 
   // Description:
   // Key defining a request to make sure the output data objects exist.
-  static vtkInformationIntegerKey* REQUEST_DATA_OBJECT();
-
+  static vtkInformationRequestKey* REQUEST_DATA_OBJECT();
+  
   // Description:
   // Key defining a request to make sure the output information is up to date.
-  static vtkInformationIntegerKey* REQUEST_INFORMATION();
-
+  static vtkInformationRequestKey* REQUEST_INFORMATION();
+  
   // Description:
   // Key defining a request to make sure the output data are up to date.
-  static vtkInformationIntegerKey* REQUEST_DATA();
+  static vtkInformationRequestKey* REQUEST_DATA();
 
   // Description:
   // Key defining a request to mark outputs that will NOT be generated
@@ -125,6 +125,14 @@ public:
   // Description:
   // Create (New) and return a data object of the given type.
   static vtkDataObject* NewDataObject(const char* type);
+
+  // since PipelineMTime is called so often and since it travels the full
+  // length of the pipeline every time we have an optimized funciton to
+  // handle it. For most executives the request is not used.
+  virtual unsigned long ComputePipelineMTime(int forward, 
+                                             vtkInformation *request,
+                                             vtkInformationVector **inInfoVec);
+  
 
 protected:
   vtkDemandDrivenPipeline();
@@ -198,6 +206,12 @@ protected:
   friend class vtkCompositeDataPipeline;
 //ETX
 
+
+  vtkInformation *MTimeRequest;
+  vtkInformation *InfoRequest;
+  vtkInformation *DataObjectRequest;
+  vtkInformation *DataRequest;
+  
 private:
   vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkDemandDrivenPipeline&);  // Not implemented.

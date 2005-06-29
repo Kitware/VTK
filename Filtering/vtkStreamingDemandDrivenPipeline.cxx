@@ -24,16 +24,17 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationRequestKey.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.31");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.32");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, EXACT_EXTENT, Integer);
-vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Integer);
+vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, REQUEST_UPDATE_EXTENT, Request);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, MAXIMUM_NUMBER_OF_PIECES, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_EXTENT_INITIALIZED, Integer);
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, UPDATE_PIECE_NUMBER, Integer);
@@ -62,11 +63,17 @@ public:
 vtkStreamingDemandDrivenPipeline::vtkStreamingDemandDrivenPipeline()
 {
   this->ContinueExecuting = 0;
+  this->UpdateExtentRequest = 0;
+  this->LastPropogateUpdateExtentShortCircuited = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkStreamingDemandDrivenPipeline::~vtkStreamingDemandDrivenPipeline()
 {
+  if (this->UpdateExtentRequest)
+    {
+    this->UpdateExtentRequest->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -92,12 +99,13 @@ int vtkStreamingDemandDrivenPipeline
   if(request->Has(REQUEST_UPDATE_EXTENT()))
     {
     // Get the output port from which the request was made.
+    this->LastPropogateUpdateExtentShortCircuited = 1;
     int outputPort = -1;
     if(request->Has(FROM_OUTPUT_PORT()))
       {
       outputPort = request->Get(FROM_OUTPUT_PORT());
       }
-
+    
     // Make sure the information on the output port is valid.
     if(!this->VerifyOutputInformation(outputPort,inInfoVec,outInfoVec))
       {
@@ -116,12 +124,8 @@ int vtkStreamingDemandDrivenPipeline
         }
 
       // Invoke the request on the algorithm.
-      vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-      r->Set(REQUEST_UPDATE_EXTENT(), 1);
-      r->Set(FROM_OUTPUT_PORT(), outputPort);
-      // Algorithms process this request before it is forwarded.
-      r->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
-      result = this->CallAlgorithm(r, vtkExecutive::RequestUpstream,
+      this->LastPropogateUpdateExtentShortCircuited = 0;
+      result = this->CallAlgorithm(request, vtkExecutive::RequestUpstream,
                                    inInfoVec, outInfoVec);
       
       // Propagate the update extent to all inputs.
@@ -129,6 +133,7 @@ int vtkStreamingDemandDrivenPipeline
         {
         result = this->ForwardUpstream(request);
         }
+      result = 1;
       }
     return result;
     }
@@ -143,9 +148,9 @@ int vtkStreamingDemandDrivenPipeline
       for(int i=0; i < outInfoVec->GetNumberOfInformationObjects(); ++i)
         {
         vtkInformation* info = outInfoVec->GetInformationObject(i);
-        vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
         if(info->Has(EXACT_EXTENT()) && info->Get(EXACT_EXTENT()))
           {
+          vtkDataObject* data = info->Get(vtkDataObject::DATA_OBJECT());
           vtkStreamingDemandDrivenPipelineToDataObjectFriendship::Crop(data);
           }
         }
@@ -179,8 +184,11 @@ int vtkStreamingDemandDrivenPipeline::Update(int port)
     // times for a single update
     do 
       {
-      retval =  
-        this->PropagateUpdateExtent(port) && this->UpdateData(port) && retval;
+      retval = retval && this->PropagateUpdateExtent(port);
+      if (retval && !this->LastPropogateUpdateExtentShortCircuited)
+        {
+        retval = retval && this->UpdateData(port);
+        }
       }
     while (this->ContinueExecuting);
     return retval;
@@ -481,18 +489,20 @@ int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
     }
 
   // Setup the request for update extent propagation.
-  vtkSmartPointer<vtkInformation> r = vtkSmartPointer<vtkInformation>::New();
-  r->Set(REQUEST_UPDATE_EXTENT(), 1);
-  r->Set(FROM_OUTPUT_PORT(), outputPort);
-
-  // The request is forwarded upstream through the pipeline.
-  r->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
-
-  // Algorithms process this request before it is forwarded.
-  r->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+  if (!this->UpdateExtentRequest)
+    {
+    this->UpdateExtentRequest = vtkInformation::New();
+    this->UpdateExtentRequest->Set(REQUEST_UPDATE_EXTENT());
+    // The request is forwarded upstream through the pipeline.
+    this->UpdateExtentRequest->Set(vtkExecutive::FORWARD_DIRECTION(), vtkExecutive::RequestUpstream);
+    // Algorithms process this request before it is forwarded.
+    this->UpdateExtentRequest->Set(vtkExecutive::ALGORITHM_BEFORE_FORWARD(), 1);
+    }
+  
+  this->UpdateExtentRequest->Set(FROM_OUTPUT_PORT(), outputPort);
 
   // Send the request.
-  return this->ProcessRequest(r,1,this->GetInputInformation(),
+  return this->ProcessRequest(this->UpdateExtentRequest,1,this->GetInputInformation(),
                               this->GetOutputInformation());
 }
 

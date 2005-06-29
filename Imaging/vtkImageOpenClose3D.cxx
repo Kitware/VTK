@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.29");
+vtkCxxRevisionMacro(vtkImageOpenClose3D, "1.30");
 vtkStandardNewMacro(vtkImageOpenClose3D);
 
 //----------------------------------------------------------------------------
@@ -176,6 +176,15 @@ unsigned long int vtkImageOpenClose3D::GetMTime()
     }
   
   return t1;
+}
+
+unsigned long vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation *request)
+{
+  this->Filter0->GetExecutive()->
+    ComputePipelineMTime(0, request, this->GetExecutive()->GetInputInformation());
+  this->Filter1->GetExecutive()->
+    ComputePipelineMTime(0, request, this->Filter1->GetExecutive()->GetInputInformation());
+  return this->GetMTime();
 }
 
 //----------------------------------------------------------------------------

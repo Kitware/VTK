@@ -126,7 +126,7 @@ public:
 
   // Description:
   // Key defining a request to propagate the update extent upstream.
-  static vtkInformationIntegerKey* REQUEST_UPDATE_EXTENT();
+  static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
   // Description:
   // Key for an algorithm to store in a request to tell this executive
@@ -217,6 +217,12 @@ protected:
   // Flag for when an algorithm returns with CONTINUE_EXECUTING in the
   // request.
   int ContinueExecuting;
+
+  vtkInformation *UpdateExtentRequest;
+
+  // did the most recent PUE do anything ?
+  int LastPropogateUpdateExtentShortCircuited;
+  
 private:
   vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
   void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
