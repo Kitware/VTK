@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourFilter, "1.121");
+vtkCxxRevisionMacro(vtkContourFilter, "1.122");
 vtkStandardNewMacro(vtkContourFilter);
 vtkCxxSetObjectMacro(vtkContourFilter,ScalarTree,vtkScalarTree);
 
@@ -244,15 +244,7 @@ int vtkContourFilter::RequestData(
   double *values=this->ContourValues->GetValues();
   int i;
   
-  vtkInformation *fInfo = 
-    vtkDataObject::GetActiveFieldInformation(inInfo, 
-                                             vtkDataObject::FIELD_ASSOCIATION_POINTS, 
-                                             vtkDataSetAttributes::SCALARS);
-  int sType = VTK_DOUBLE;
-  if (fInfo)
-    {
-    sType = fInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
-    }
+  int sType = this->GetInputArrayToProcess(0, inputVector)->GetDataType();
 
   // handle 2D images
   if (vtkImageData::SafeDownCast(input) && sType != VTK_BIT &&
