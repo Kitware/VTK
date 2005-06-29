@@ -270,8 +270,10 @@ public:
   int UpdateExtentIsEmpty(vtkInformation *pinfo, int extentType);
 
   // Description:
-  // perform computations required for the pipeline mtime. By default just calls GetMTime and returns
-  virtual unsigned long ComputePipelineMTime(vtkInformation * /* request */) { return this->GetMTime(); };
+  // perform computations required for the pipeline mtime. By default just
+  // calls GetMTime and returns
+  virtual unsigned long ComputePipelineMTime(vtkInformation * /* request */) 
+  { return this->GetMTime(); };
   
 protected:
   vtkAlgorithm();
