@@ -33,33 +33,74 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-#include <vtkstd/map>
+#include <vtkstd/algorithm>
+#include <vtkstd/utility>
+#include <vtkstd/vector>
 
-
-vtkCxxRevisionMacro(vtkInformation, "1.18");
+vtkCxxRevisionMacro(vtkInformation, "1.19");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
 class vtkInformationInternals
 {
 public:
-  typedef vtkstd::map<vtkInformationKey*,
-                      vtkSmartPointer<vtkObjectBase> > MapType;
-  MapType Map;
+  // Vector to store ordered key/value pairs for efficient lookup with
+  // a binary search.  Typically not many pairs are stored so linear
+  // insertion time is okay.
+  typedef vtkstd::pair<vtkInformationKey*, vtkObjectBase*> value_type;
+  typedef vtkstd::vector<value_type> VectorType;
+  VectorType Vector;
+
+  // Comparison functor to order the values by key.
+  struct CompareType
+  {
+    vtkstd_bool operator()(value_type const& l, value_type const& r) const
+      {
+      return l.first < r.first;
+      }
+  };
+  CompareType Compare;
+
+  // Methods to find the place for a value with a binary search.
+  VectorType::iterator Find(value_type const& v)
+    {
+    return vtkstd::lower_bound(this->Vector.begin(), this->Vector.end(),
+                               v, this->Compare);
+    }
+  VectorType::iterator Find(vtkInformationKey* key)
+    {
+    return this->Find(value_type(key, 0));
+    }
+
+  ~vtkInformationInternals()
+    {
+    // Delete all the values from the vector.
+    for(VectorType::iterator i = this->Vector.begin();
+        i != this->Vector.end(); ++i)
+      {
+      if(vtkObjectBase* value = i->second)
+        {
+        i->second = 0;
+        value->UnRegister(0);
+        }
+      }
+    }
 };
-
-
 
 //----------------------------------------------------------------------------
 vtkInformation::vtkInformation()
 {
+  // Allocate the internal representation.
   this->Internal = new vtkInformationInternals;
+
+  // There is no request key stored initially.
   this->Request = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkInformation::~vtkInformation()
 {
+  // Delete the internal representation.
   delete this->Internal;
 }
 
@@ -67,11 +108,17 @@ vtkInformation::~vtkInformation()
 void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  vtkInformationInternals::MapType::const_iterator i;
-  for(i=this->Internal->Map.begin(); i != this->Internal->Map.end(); ++i)
+
+  // Give each key a chance to print its value.
+  for(vtkInformationInternals::VectorType::iterator i =
+        this->Internal->Vector.begin();
+      i != this->Internal->Vector.end(); ++i)
     {
+    // Print the key name first.
     vtkInformationKey* key = i->first;
     os << indent << key->GetName() << ": ";
+
+    // Ask the key to print its value.
     key->Print(os, this);
     os << "\n";
     }
@@ -79,26 +126,36 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
-                                     vtkObjectBase* value)
+                                     vtkObjectBase* newvalue)
 {
   if(key)
     {
-    vtkInformationInternals::MapType::iterator i =
-      this->Internal->Map.find(key);
-    if(i != this->Internal->Map.end())
+    // Check for an existing entry.
+    vtkInformationInternals::VectorType::value_type v(key, newvalue);
+    vtkInformationInternals::VectorType::iterator i = this->Internal->Find(v);
+    if(i != this->Internal->Vector.end() && i->first == key)
       {
-      if(value)
+      // There is already an entry with this key.  Update the value.
+      if(newvalue)
         {
-        i->second = value;
+        // There is a new value.  Store it and remove the old one.
+        vtkObjectBase* oldvalue = i->second;
+        i->second = newvalue;
+        newvalue->Register(0);
+        oldvalue->UnRegister(0);
         }
       else
         {
-        this->Internal->Map.erase(i);
+        // There is no new value.  Erase the entry.
+        this->Internal->Vector.erase(i);
         }
       }
-    else if(value)
+    else if(newvalue)
       {
-      this->Internal->Map[key] = value;
+      // There is no entry with this key.  Create one and store the
+      // value.
+      newvalue->Register(0);
+      this->Internal->Vector.insert(i, v);
       }
     this->Modified();
     }
@@ -109,11 +166,12 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
   if(key)
     {
-    vtkInformationInternals::MapType::const_iterator i =
-      this->Internal->Map.find(key);
-    if(i != this->Internal->Map.end())
+    // Look for an entry with this key.
+    vtkInformationInternals::VectorType::iterator i =
+      this->Internal->Find(key);
+    if(i != this->Internal->Vector.end() && i->first == key)
       {
-      return i->second.GetPointer();
+      return i->second;
       }
     }
   return 0;
@@ -132,8 +190,9 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
   this->Internal = new vtkInformationInternals;
   if(from)
     {
-    vtkInformationInternals::MapType::const_iterator i;
-    for(i=from->Internal->Map.begin(); i != from->Internal->Map.end(); ++i)
+    for(vtkInformationInternals::VectorType::iterator i =
+          from->Internal->Vector.begin();
+        i != from->Internal->Vector.end(); ++i)
       {
       this->CopyEntry(from, i->first, deep);
       }
@@ -174,7 +233,7 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKe
 
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep)
-{  
+{
   if (!deep)
     {
     key->ShallowCopy(from, this);
@@ -371,35 +430,35 @@ VTK_INFORMATION_DEFINE_POINTER_PROPERTY(Integer, int);
 #undef VTK_INFORMATION_DEFINE_POINTER_PROPERTY
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationDataObjectKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationDoubleKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationDoubleVectorKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationExecutivePortKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationInformationKey* value)
 {
   key->Append(this, value);
@@ -413,42 +472,42 @@ void vtkInformation::Remove(vtkInformationKeyVectorKey* key,
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationInformationVectorKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationIntegerKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationIntegerVectorKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key, 
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationStringKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key,   
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationUnsignedLongKey* value)
 {
   key->Append(this, value);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Append(vtkInformationKeyVectorKey* key,   
+void vtkInformation::Append(vtkInformationKeyVectorKey* key,
                             vtkInformationObjectBaseKey* value)
 {
   key->Append(this, value);
@@ -480,7 +539,7 @@ int vtkInformation::GetPort(vtkInformationExecutivePortKey* key)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::Get(vtkInformationExecutivePortKey* key, 
+void vtkInformation::Get(vtkInformationExecutivePortKey* key,
                          vtkExecutive*& executive, int &port)
 {
   key->Get(this,executive,port);
@@ -640,9 +699,14 @@ void vtkInformation::UnRegister(vtkObjectBase* o)
 void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  vtkInformationInternals::MapType::const_iterator i;
-  for(i=this->Internal->Map.begin(); i != this->Internal->Map.end(); ++i)
+
+  // Ask each key/value pair to report any references it holds.
+  for(vtkInformationInternals::VectorType::iterator i =
+        this->Internal->Vector.begin();
+      i != this->Internal->Vector.end(); ++i)
     {
+    // TODO: Pass a reference to i->second as an argument to avoid
+    // need for another lookup.
     i->first->Report(this, collector);
     }
 }
@@ -653,9 +717,10 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
 {
   if(key)
     {
-    vtkInformationInternals::MapType::iterator i =
-      this->Internal->Map.find(key);
-    if(i != this->Internal->Map.end())
+    // Find the entry's value and report it.
+    vtkInformationInternals::VectorType::iterator i =
+      this->Internal->Find(key);
+    if(i != this->Internal->Vector.end() && i->first == key)
       {
       vtkGarbageCollectorReport(collector, i->second, key->GetName());
       }
