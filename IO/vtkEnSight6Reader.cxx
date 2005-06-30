@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.56");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.57");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -324,6 +324,12 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
   
   delete this->IS;
   this->IS = NULL;
+  if (this->UnstructuredNodeIds)
+    {
+      this->UnstructuredNodeIds->Delete();
+      this->UnstructuredNodeIds = NULL;
+    }
+
   return 1;
 }
 

@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.47");
+vtkCxxRevisionMacro(vtkEnSight6BinaryReader, "1.48");
 vtkStandardNewMacro(vtkEnSight6BinaryReader);
 
 //----------------------------------------------------------------------------
@@ -277,6 +277,11 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(const char* fileName, int timeStep
     free(name);
     }
   
+  if (this->UnstructuredNodeIds)
+    {
+      this->UnstructuredNodeIds->Delete();
+      this->UnstructuredNodeIds = NULL;
+    }
   // Close file from any previous image
   if (this->IFile)
     {
