@@ -57,6 +57,7 @@ public:
   void SetFontFamilyToCourier() { this->SetFontFamily(VTK_COURIER);};
   void SetFontFamilyToTimes()   { this->SetFontFamily(VTK_TIMES);  };
   char *GetFontFamilyAsString();
+  static char *GetFontFamilyAsString( int f );
 
   // Description:
   // Set/Get the font size (in points).
@@ -160,21 +161,26 @@ private:
   void operator=(const vtkTextProperty&);  // Not implemented.
 };
 
-inline char *vtkTextProperty::GetFontFamilyAsString(void)
+inline char *vtkTextProperty::GetFontFamilyAsString( int f )
 {
-  if (this->FontFamily == VTK_ARIAL)
+  if ( f == VTK_ARIAL )
     {
     return (char *)"Arial";
     }
-  else if (this->FontFamily == VTK_COURIER) 
+  else if ( f == VTK_COURIER ) 
     {
     return (char *)"Courier";
     }
-  else if (this->FontFamily == VTK_TIMES) 
+  else if ( f == VTK_TIMES ) 
     {
     return (char *)"Times";
     }
   return (char *)"Unknown";
+}
+
+inline char *vtkTextProperty::GetFontFamilyAsString(void)
+{
+  return vtkTextProperty::GetFontFamilyAsString( this->GetFontFamily() );
 }
 
 inline char *vtkTextProperty::GetJustificationAsString(void)
