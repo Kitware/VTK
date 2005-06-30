@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.24");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.25");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -384,7 +384,7 @@ void vtkAlgorithm::SetExecutive(vtkExecutive* newExecutive)
 }
 
 //----------------------------------------------------------------------------
-int vtkAlgorithm::ProcessRequest(vtkInformation* request,
+int vtkAlgorithm::ProcessRequest(vtkInformation* /* request */,
                                  vtkInformationVector**,
                                  vtkInformationVector*)
 {

@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.35");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.36");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -304,6 +304,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
     }
 
   this->ComputePipelineMTime(1,0,this->GetInputInformation());
+  return 1;
 }
 
 //----------------------------------------------------------------------------
