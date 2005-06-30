@@ -18,6 +18,7 @@
 #include "vtkConeSource.h"
 #include "vtkCubeSource.h"
 #include "vtkCullerCollection.h"
+#include "vtkGarbageCollector.h"
 #include "vtkGlyph3D.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
@@ -64,11 +65,12 @@ int main( int argc, char *argv[] )
     }
   
   vtkProperty *prop = vtkProperty::New();
+
+  //vtkGarbageCollector::DeferredCollectionPush();
   
   // create a rendering window and both renderers
   vtkRenderer *ren1 = vtkRenderer::New();
   ren1->GetCullers()->InitTraversal();
-//  ren1->RemoveCuller(ren1->GetCullers()->GetNextItem());
   vtkRenderWindow *renWindow = vtkRenderWindow::New();
   renWindow->AddRenderer(ren1);
 
@@ -105,6 +107,8 @@ int main( int argc, char *argv[] )
   vtkPolyData *cube = vtkPolyData::New();
   cube->SetPoints(cpnts);
   cube->SetStrips(ccells);
+  cpnts->Delete();
+  ccells->Delete();
   
   vtkPolyDataMapper *mapper;
   vtkCellArray *cells;
@@ -153,11 +157,14 @@ int main( int argc, char *argv[] )
       actor->SetMapper(mapper);
       ren1->AddActor(actor);
 
+      // all these are held by way of the renderer, so do a fast unref
       cells->Delete();
       data->Delete();
       filter->Delete();
       mapper->Delete();
       actor->Delete();
+      tfilter->Delete();
+      stripper->Delete();
     }
 
     // See if we are on a new level)
@@ -184,6 +191,10 @@ int main( int argc, char *argv[] )
     pnts->Modified();
     }
 
+  if (pnts)
+    {
+    pnts->Delete();
+    }
   
   // set the size of our window
   renWindow->SetSize(500,500);
@@ -203,20 +214,27 @@ int main( int argc, char *argv[] )
   tl->StartTimer();
   
   // do a azimuth of the cameras 3 degrees per iteration
-  for (i = 0; i < 360; i += 3) 
+  // for (i = 0; i < 360; i += 3) 
+#if 1
+  for (i = 0; i < 360; i += 9) 
     {
     ren1->GetActiveCamera()->Azimuth(3);
     renWindow->Render();
     }
-
+#endif
   tl->StopTimer();
   
   cerr << "Wall Time = " << tl->GetElapsedTime() << "\n";
   cerr << "FrameRate = " << 120.0 / tl->GetElapsedTime() << "\n";
 
   // Clean up
+  cube->Delete();
+  vtkGarbageCollector::SetGlobalDebugFlag(1);  
+  vtkGarbageCollector::SetGlobalDebugFlag(0);  
+  prop->Delete();
   ren1->Delete();
   renWindow->Delete();
   tl->Delete();
+  //vtkGarbageCollector::DeferredCollectionPop();
   return 1;
 }
