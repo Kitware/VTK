@@ -1,16 +1,29 @@
-SET(KIT Hybrid)
+SET(KIT Widgets)
 # add tests that do not require data
 SET(MyTests     
+  BoxWidget.cxx
+  TestImplicitPlaneWidget.cxx
+  TestOrientationMarkerWidget.cxx
   )
 IF (VTK_DATA_ROOT)
   # add tests that require data
   SET(MyTests ${MyTests}
+    ImagePlaneWidget.cxx
+    TestSplineWidget.cxx
+    TestScalarBarWidget.cxx
+    TestLineWidget.cxx
+    TestPlaneWidget.cxx
+    TestPointWidget.cxx
+    TestImageTracerWidget.cxx
     )
 ENDIF (VTK_DATA_ROOT)
 
 # remove some tests if there is no display
 IF(NOT VTK_USE_DISPLAY)
   REMOVE(MyTests     
+    BoxWidget.cxx
+    TestImplicitPlaneWidget.cxx
+    TestOrientationMarkerWidget.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
@@ -19,7 +32,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
                        FUNCTION vtkSuppressCrtDbgWarning)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
-TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkHybrid)
+TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkWidgets)
 SET (TestsToRun ${Tests})
 REMOVE (TestsToRun ${KIT}CxxTests.cxx)
 

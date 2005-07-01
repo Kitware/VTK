@@ -1,74 +1,37 @@
-SET(KIT Hybrid)
-SET(UKIT HYBRID)
+SET(KIT Widgets)
+SET(UKIT WIDGETS)
 
-SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL)
+SET(KIT_TCL_LIBS vtkRenderingTCL vtkHybridTCL)
 IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
+  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkHybridPythonD)
 ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython)
+  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkHybridPython)
 ENDIF(APPLE)
-SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
-
-IF (WIN32)
-  IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    SET(KIT_LIBS ${KIT_LIBS} vfw32)
-  ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
-  IF (VTK_USE_MATROX_IMAGING)
-    SET(KIT_LIBS ${KIT_LIBS} ${MIL_LIBRARY})
-  ENDIF (VTK_USE_MATROX_IMAGING)
-ENDIF (WIN32)
+SET(KIT_JAVA_LIBS vtkRenderingJava vtkHybridJava)
+SET(KIT_LIBS vtkRendering vtkHybrid)
 
 SET ( Kit_SRCS
-vtk3DSImporter.cxx
-vtkArcPlotter.cxx
-vtkAnnotatedCubeActor.cxx
-vtkAxesActor.cxx
-vtkCaptionActor2D.cxx
-vtkCornerAnnotation.cxx
-vtkCubeAxesActor2D.cxx
-vtkDepthSortPolyData.cxx
-vtkEarthSource.cxx
-vtkExtractCTHPart.cxx
-vtkFacetReader.cxx
-vtkGreedyTerrainDecimation.cxx
-vtkGridTransform.cxx
-vtkImageToPolyDataFilter.cxx
-vtkImplicitModeller.cxx
-vtkIterativeClosestPointTransform.cxx
-vtkLandmarkTransform.cxx
-vtkLegendBoxActor.cxx
-vtkPCAAnalysisFilter.cxx
-vtkPolyDataToImageStencil.cxx
-vtkProcrustesAlignmentFilter.cxx
-vtkProjectedTerrainPath.cxx
-vtkRIBExporter.cxx
-vtkRIBLight.cxx
-vtkRIBProperty.cxx
-vtkRenderLargeImage.cxx
-vtkThinPlateSplineTransform.cxx
-vtkTransformToGrid.cxx
-vtkVRMLImporter.cxx
-vtkVectorText.cxx
-vtkVideoSource.cxx
-vtkWeightedTransformFilter.cxx
-vtkXYPlotActor.cxx
+vtk3DWidget.cxx
+vtkBoxWidget.cxx
+vtkImagePlaneWidget.cxx
+vtkImageTracerWidget.cxx
+vtkImplicitPlaneWidget.cxx
+vtkLineWidget.cxx
+vtkOrientationMarkerWidget.cxx
+vtkPlaneWidget.cxx
+vtkPointWidget.cxx
+vtkPolyDataSourceWidget.cxx
+vtkScalarBarWidget.cxx
+vtkSphereWidget.cxx
+vtkSplineWidget.cxx
+vtkXYPlotWidget.cxx
 )
 
-IF (WIN32)
-  IF (VTK_USE_VIDEO_FOR_WINDOWS)
-    SET (Kit_SRCS ${Kit_SRCS} vtkWin32VideoSource.cxx)
-  ENDIF (VTK_USE_VIDEO_FOR_WINDOWS)
-
-  IF (VTK_USE_MATROX_IMAGING)
-    SET (Kit_SRCS ${Kit_SRCS} vtkMILVideoSource.cxx)
-    # Include directory needed for vtkMILVideoSource.cxx.
-  ENDIF (VTK_USE_MATROX_IMAGING)
-ENDIF (WIN32)
-
 SET_SOURCE_FILES_PROPERTIES(
-vtkVRML
-WRAP_EXCLUDE)
+vtk3DWidget
+vtkPolyDataSourceWidget
+ABSTRACT
+)
 
 SET(Kit_EXTRA_SRCS)
 SET(Kit_EXTRA_CMDS)
@@ -166,6 +129,3 @@ ENDIF(LOCALUSERMACRODEFINED)
 
 # End of common section
 # -----------------------------------------------------------------
-IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtk3DS)
-ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

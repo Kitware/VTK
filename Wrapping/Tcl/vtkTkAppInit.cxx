@@ -72,6 +72,10 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkHybridInstantiator.h"
 #endif
 
+#ifdef VTK_USE_WIDGETS
+#include "vtkWidgetsInstantiator.h"
+#endif
+
 #ifdef VTK_USE_PARALLEL
 #include "vtkParallelInstantiator.h"
 #endif
@@ -204,6 +208,10 @@ extern "C" int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_HYBRID
 extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
+#endif
+
+#ifdef VTK_USE_WIDGETS
+extern "C" int Vtkwidgetstcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_PARALLEL
@@ -458,6 +466,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
 
 #ifdef VTK_USE_HYBRID
   if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_WIDGETS
+  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }

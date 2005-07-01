@@ -43,6 +43,10 @@ extern int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
 extern int Vtkhybridtcl_Init(Tcl_Interp *interp);
 #endif
 
+#ifdef VTK_USE_WIDGETS
+extern int Vtkwidgetstcl_Init(Tcl_Interp *interp);
+#endif
+
 #ifdef VTK_USE_PARALLEL
 extern int Vtkparalleltcl_Init(Tcl_Interp *interp);
 #endif
@@ -87,6 +91,13 @@ int Vtktcl_Init(Tcl_Interp *interp)
 
 #ifdef VTK_USE_HYBRID
   if (Vtkhybridtcl_Init(interp) == TCL_ERROR) 
+    {
+    return TCL_ERROR;
+    }
+#endif
+
+#ifdef VTK_USE_WIDGETS
+  if (Vtkwidgetstcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }

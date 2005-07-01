@@ -88,10 +88,10 @@ IF(VTK_BINARY_DIR)
     )
   IF(VTK_USE_RENDERING)
     ADD_DEPENDENCIES(VTKExamplesTarget vtkRendering)
-  ENDIF(VTK_USE_RENDERING)
-  IF(VTK_USE_HYBRID)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkVolumeRendering)
     ADD_DEPENDENCIES(VTKExamplesTarget vtkHybrid)
-  ENDIF(VTK_USE_HYBRID)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkWidgets)
+  ENDIF(VTK_USE_RENDERING)
   IF(VTK_USE_PARALLEL)
     ADD_DEPENDENCIES(VTKExamplesTarget vtkParallel)
   ENDIF(VTK_USE_PARALLEL)
@@ -121,11 +121,8 @@ ELSE(VTK_BINARY_DIR)
       Tutorial/Step3/Cxx
       Tutorial/Step4/Cxx
       Tutorial/Step5/Cxx
+      Tutorial/Step6/Cxx
       )
-
-    IF(VTK_USE_HYBRID)
-      SUBDIRS(Tutorial/Step6/Cxx)
-    ENDIF(VTK_USE_HYBRID)
 
     IF(VTK_USE_PARALLEL)
       SUBDIRS(ParallelProcessing)

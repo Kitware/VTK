@@ -35,7 +35,6 @@ IF (VTK_USE_RENDERING)
       TestGridWarpNearest
       TestICPTransform
       TestImageStencilWithPolydata
-      TestInteractorEventRecorder
       TestPCA
       TestProcrustes
       TestProjectedTerrainPath

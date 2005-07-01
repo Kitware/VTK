@@ -155,6 +155,12 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
   #define VTK_HYBRID_EXPORT __declspec( dllimport ) 
  #endif
 
+ #if defined(vtkWidgets_EXPORTS)
+  #define VTK_WIDGETS_EXPORT __declspec( dllexport ) 
+ #else
+  #define VTK_WIDGETS_EXPORT __declspec( dllimport ) 
+ #endif
+
  #if defined(vtkParallel_EXPORTS)
   #define VTK_PARALLEL_EXPORT __declspec( dllexport ) 
  #else
@@ -171,6 +177,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
  #define VTK_RENDERING_EXPORT
  #define VTK_VOLUMERENDERING_EXPORT
  #define VTK_HYBRID_EXPORT
+ #define VTK_WIDGETS_EXPORT
  #define VTK_PARALLEL_EXPORT
  #define VTK_EXPORT
 #endif

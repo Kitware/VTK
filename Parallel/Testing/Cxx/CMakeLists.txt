@@ -2,10 +2,10 @@ ADD_EXECUTABLE(SocketServer SocketServer.cxx)
 ADD_EXECUTABLE(SocketClient SocketClient.cxx)
 
 IF (VTK_HAS_THREADS OR VTK_USE_MPI)
-  IF (VTK_USE_HYBRID)
+  IF (VTK_USE_RENDERING)
     ADD_EXECUTABLE(ParallelIsoTest ParallelIso.cxx)
-    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkParallel vtkHybrid)
-  ENDIF (VTK_USE_HYBRID)
+    TARGET_LINK_LIBRARIES(ParallelIsoTest vtkVolumeRendering vtkParallel vtkHybrid vtkWidgets)
+  ENDIF (VTK_USE_RENDERING)
 
  ADD_EXECUTABLE(GenericCommunicator GenericCommunicator.cxx)
  TARGET_LINK_LIBRARIES(GenericCommunicator vtkParallel)
@@ -35,7 +35,7 @@ ENDIF (VTK_USE_MPI)
 #
 
 IF (VTK_DATA_ROOT)
-  IF (VTK_USE_HYBRID)
+  IF (VTK_USE_RENDERING)
     IF (VTK_HAS_THREADS)
       ADD_TEST(ThreadedCommunicator-image 
                ${CXX_TEST_PATH}/ThreadedCommunicator
@@ -95,7 +95,7 @@ IF (VTK_DATA_ROOT)
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
       ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     ENDIF (VTK_USE_MPI)
-  ENDIF (VTK_USE_HYBRID)
+  ENDIF (VTK_USE_RENDERING)
 
   IF (VTK_USE_MPI)
     IF (VTK_MPIRUN_EXE)
@@ -115,7 +115,7 @@ IF (VTK_DATA_ROOT)
 # If we do not have the data, still run the tests that we can
 #
 ELSE (VTK_DATA_ROOT)
-  IF (VTK_USE_HYBRID)
+  IF (VTK_USE_RENDERING)
     IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
       ADD_TEST(ThreadedCommunicator ${CXX_TEST_PATH}/ThreadedCommunicator)
     ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
@@ -132,7 +132,7 @@ ELSE (VTK_DATA_ROOT)
         ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
       ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
     ENDIF (VTK_USE_MPI)
-  ENDIF (VTK_USE_HYBRID)
+  ENDIF (VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
 
 # For now this test is only available on Unix because
