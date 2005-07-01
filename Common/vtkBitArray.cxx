@@ -15,7 +15,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.58");
+vtkCxxRevisionMacro(vtkBitArray, "1.59");
 vtkStandardNewMacro(vtkBitArray);
 
 // Instantiate object.
@@ -134,7 +134,14 @@ void vtkBitArray::DeepCopy(vtkDataArray *ia)
 
   if (ia->GetDataType() != VTK_BIT)
     {
-    vtkDataArray::DeepCopy(ia);
+    vtkIdType numTuples = ia->GetNumberOfTuples();
+    this->NumberOfComponents = ia->GetNumberOfComponents();
+    this->SetNumberOfTuples(numTuples);
+
+    for (vtkIdType i = 0; i < numTuples; i++)
+      {
+      this->SetTuple(i, ia->GetTuple(i));
+      }
     return;
     }
 
