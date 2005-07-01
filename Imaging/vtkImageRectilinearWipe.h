@@ -62,12 +62,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get the location of the image transition.
+  // Set/Get the location of the image transition. Note that position is
+  // specified in pixels.
   vtkSetVector2Macro(Position,int);
   vtkGetVectorMacro(Position,int,2);
 
   // Description:
-  // Set the two inputs to this filter
+  // Set the two inputs to this filter.
   virtual void SetInput1(vtkDataObject *in) { this->SetInput(0,in); }
   virtual void SetInput2(vtkDataObject *in) { this->SetInput(1,in); }
 
