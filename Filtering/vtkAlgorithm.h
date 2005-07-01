@@ -336,7 +336,16 @@ protected:
                                                 vtkInformationVector **inputVector);
   
     
+  // Description:
+  // If the DefaultExecutivePrototype is set, a copy of it is created
+  // in CreateDefaultExecutive() using NewInstance().
+  static void SetDefaultExecutivePrototype(vtkExecutive* proto);
+
+  // Description:
   // Create a default executive.
+  // If the DefaultExecutivePrototype is set, a copy of it is created
+  // in CreateDefaultExecutive() using NewInstance().
+  // Otherwise, vtkStreamingDemandDrivenPipeline is created.
   virtual vtkExecutive* CreateDefaultExecutive();
 
   // Description:
@@ -368,6 +377,8 @@ protected:
   // a NULL input then the subclass must be able to handle NULL inputs
   // in its ProcessRequest method.
   virtual void SetNumberOfInputConnections(int port, int n);
+
+  static vtkExecutive* DefaultExecutivePrototype;
 
 private:
   vtkExecutive* Executive;

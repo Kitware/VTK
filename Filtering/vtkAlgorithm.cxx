@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.25");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.26");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -48,6 +48,8 @@ vtkInformationKeyMacro(vtkAlgorithm, PORT_REQUIREMENTS_FILLED, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_PORT, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_CONNECTION, Integer);
 vtkInformationKeyMacro(vtkAlgorithm, INPUT_ARRAYS_TO_PROCESS, InformationVector);
+
+vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = 0;
   
 //----------------------------------------------------------------------------
 class vtkAlgorithmInternals
@@ -566,8 +568,28 @@ int vtkAlgorithm::OutputPortIndexInRange(int index, const char* action)
 }
 
 //----------------------------------------------------------------------------
+void vtkAlgorithm::SetDefaultExecutivePrototype(vtkExecutive* proto)
+{
+  if (vtkAlgorithm::DefaultExecutivePrototype == proto)
+    {
+    return;
+    }
+  if (vtkAlgorithm::DefaultExecutivePrototype)
+    {
+    vtkAlgorithm::DefaultExecutivePrototype->UnRegister(0);
+    vtkAlgorithm::DefaultExecutivePrototype = 0;
+    }
+  proto->Register(0);
+  vtkAlgorithm::DefaultExecutivePrototype = proto;
+}
+
+//----------------------------------------------------------------------------
 vtkExecutive* vtkAlgorithm::CreateDefaultExecutive()
 {
+  if (vtkAlgorithm::DefaultExecutivePrototype)
+    {
+    return vtkAlgorithm::DefaultExecutivePrototype->NewInstance();
+    }
   return vtkStreamingDemandDrivenPipeline::New();
 }
 
