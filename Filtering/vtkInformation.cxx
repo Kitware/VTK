@@ -37,7 +37,7 @@
 #include <vtkstd/utility>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.19");
+vtkCxxRevisionMacro(vtkInformation, "1.20");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -136,19 +136,19 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
     if(i != this->Internal->Vector.end() && i->first == key)
       {
       // There is already an entry with this key.  Update the value.
+      vtkObjectBase* oldvalue = i->second;
       if(newvalue)
         {
-        // There is a new value.  Store it and remove the old one.
-        vtkObjectBase* oldvalue = i->second;
+        // There is a new value.  Replace the entry.
         i->second = newvalue;
         newvalue->Register(0);
-        oldvalue->UnRegister(0);
         }
       else
         {
         // There is no new value.  Erase the entry.
         this->Internal->Vector.erase(i);
         }
+      oldvalue->UnRegister(0);
       }
     else if(newvalue)
       {
