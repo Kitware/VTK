@@ -1,4 +1,4 @@
-xSUBDIRS(Cxx)
+SUBDIRS(Cxx)
 
 IF (VTK_WRAP_TCL)
 #  SUBDIRS(Tcl)
