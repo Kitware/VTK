@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.12");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.13");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -391,31 +391,11 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
       vtkDataObject *dataObj=input->GetDataSet(level,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
-        if(level==0)
+        vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
+        if(rg!=0)
           {
-          vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
-          if(rg!=0)
-            {
-            this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
-                                               append);
-            }
-          else
-            {
-#ifdef EXTRACT_USE_IMAGE_DATA
-            vtkImageData *ug=vtkImageData::SafeDownCast(dataObj);
-#else
-            vtkUniformGrid *ug=vtkUniformGrid::SafeDownCast(dataObj);
-#endif
-            if(ug!=0)
-              {
-              this->ExecutePartOnUniformGrid(arrayName,ug,appendSurface,
+          this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
                                              append);
-              }
-            else
-              {
-              vtkErrorMacro(<<" cannot handle a block of this type.");
-              }
-            }
           }
         else
           {
