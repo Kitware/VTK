@@ -172,6 +172,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/__init__
     vtk/common
     vtk/filtering
+    vtk/genericfiltering
     vtk/graphics
     vtk/hybrid
     vtk/imaging
@@ -180,6 +181,7 @@ IF(PYTHON_EXECUTABLE)
     vtk/rendering
     vtk/required
     vtk/volumerendering
+    vtk/widgets
     )
 
 # vtk.util package

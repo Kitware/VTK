@@ -39,6 +39,12 @@ kits = ['common', 'filtering', 'io', 'imaging', 'graphics']
 # ImportError is actually a link error.
 
 try:
+    from genericfiltering import *
+    kits.append('genericfiltering')
+except ImportError, exc:
+    __helper.refine_import_err('genericfiltering', 'vtkGenericFilteringPython',
+                               exc)
+try:
     from rendering import *
     kits.append('rendering')
 except ImportError, exc:
@@ -56,6 +62,12 @@ try:
     kits.append('hybrid')
 except ImportError, exc:
     __helper.refine_import_err('hybrid', 'vtkHybridPython', exc)
+
+try:
+    from widgets import *
+    kits.append('widgets')
+except ImportError, exc:
+    __helper.refine_import_err('widgets', 'vtkWidgetsPython', exc)
 
 try:
     from parallel import *
