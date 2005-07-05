@@ -71,23 +71,17 @@ int Vtktcl_Init(Tcl_Interp *interp)
     {
     return TCL_ERROR;
     }
-#endif
 
-#ifdef VTK_USE_VOLUMERENDERING
   if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
-#endif
 
-#ifdef VTK_USE_HYBRID
   if (Vtkhybridtcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;
     }
-#endif
 
-#ifdef VTK_USE_WIDGETS
   if (Vtkwidgetstcl_Init(interp) == TCL_ERROR) 
     {
     return TCL_ERROR;

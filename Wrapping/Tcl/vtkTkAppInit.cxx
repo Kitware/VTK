@@ -191,17 +191,8 @@ extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
 
-#endif
-
-#ifdef VTK_USE_VOLUMERENDERING
 extern "C" int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_HYBRID
 extern "C" int Vtkhybridtcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_WIDGETS
 extern "C" int Vtkwidgetstcl_Init(Tcl_Interp *interp);
 #endif
 
@@ -446,23 +437,17 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 #endif
-#endif
 
-#ifdef VTK_USE_VOLUMERENDERING
   if (Vtkvolumerenderingtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-#endif
 
-#ifdef VTK_USE_HYBRID
   if (Vtkhybridtcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
     }
-#endif
 
-#ifdef VTK_USE_WIDGETS
   if (Vtkwidgetstcl_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
