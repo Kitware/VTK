@@ -18,7 +18,7 @@
 #include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.13");
+vtkCxxRevisionMacro(vtkImageMultipleInputOutputFilter, "1.14");
 
 //----------------------------------------------------------------------------
 vtkImageMultipleInputOutputFilter::vtkImageMultipleInputOutputFilter()
@@ -210,7 +210,7 @@ ThreadedExecute(vtkImageData **vtkNotUsed(inData),
                 int extent[6], int vtkNotUsed(threadId))
 {
   extent = extent;
-  vtkErrorMacro("subclase should override this method!!!");
+  vtkErrorMacro("Subclass should override this method!!!");
 }
 
 //----------------------------------------------------------------------------
