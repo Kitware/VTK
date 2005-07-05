@@ -48,7 +48,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.11");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.11.2.1");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 
@@ -227,6 +227,11 @@ int vtkExtractCTHPart::RequestData(
   
   if(input!=0)
     {
+    if(!inInfo->Has(vtkExtractCTHPart::BOUNDS()))
+      {
+      vtkErrorMacro(<<"No vtkExtractCTHPart::BOUNDS() key.");
+      return 0;
+      }
     inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
     }
   else
@@ -386,31 +391,11 @@ void vtkExtractCTHPart::ExecutePart(const char *arrayName,
       vtkDataObject *dataObj=input->GetDataSet(level,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
-        if(level==0)
+        vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
+        if(rg!=0)
           {
-          vtkRectilinearGrid *rg=vtkRectilinearGrid::SafeDownCast(dataObj);
-          if(rg!=0)
-            {
-            this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
-                                               append);
-            }
-          else
-            {
-#ifdef EXTRACT_USE_IMAGE_DATA
-            vtkImageData *ug=vtkImageData::SafeDownCast(dataObj);
-#else
-            vtkUniformGrid *ug=vtkUniformGrid::SafeDownCast(dataObj);
-#endif
-            if(ug!=0)
-              {
-              this->ExecutePartOnUniformGrid(arrayName,ug,appendSurface,
+          this->ExecutePartOnRectilinearGrid(arrayName,rg,appendSurface,
                                              append);
-              }
-            else
-              {
-              vtkErrorMacro(<<" cannot handle a block of this type.");
-              }
-            }
           }
         else
           {
@@ -1527,8 +1512,10 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
       {
       count = count << 1;
       }
-    if (k == kEnd)
+    if (k == kEnd && kEnd>0)
       {
+      // only in 3D case, otherwise count may become zero
+      // and be involved in a division by zero later on
       count = count >> 1;
       }
     for (j = 0; j <= jEnd; ++j)
@@ -1556,6 +1543,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
           count = count >> 1;
           }
         assert("check: valid_range" && pPoint<endPtr);
+        assert("check: strictly_positive_count" && count>0);
         *pPoint = *pPoint / static_cast<double>(count);
         ++pPoint;
         }
