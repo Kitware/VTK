@@ -28,23 +28,14 @@ extern int Vtkiotcl_Init(Tcl_Interp *interp);
 
 #ifdef VTK_USE_RENDERING
 extern int Vtkrenderingtcl_Init(Tcl_Interp *interp);
+extern int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
+extern int Vtkhybridtcl_Init(Tcl_Interp *interp);
+extern int Vtkwidgetstcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_TKWIDGET
 extern int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern int Vtktkimagewindowwidget_Init(Tcl_Interp *interp);
 extern int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
-#endif
-
-#ifdef VTK_USE_VOLUMERENDERING
-extern int Vtkvolumerenderingtcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_HYBRID
-extern int Vtkhybridtcl_Init(Tcl_Interp *interp);
-#endif
-
-#ifdef VTK_USE_WIDGETS
-extern int Vtkwidgetstcl_Init(Tcl_Interp *interp);
 #endif
 
 #ifdef VTK_USE_PARALLEL

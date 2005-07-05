@@ -62,17 +62,8 @@ PURPOSE.  See the above copyright notice for more information.
 
 #ifdef VTK_USE_RENDERING
 #include "vtkRenderingInstantiator.h"
-#endif
-
-#ifdef VTK_USE_VOLUMERENDERING
 #include "vtkVolumeRenderingInstantiator.h"
-#endif
-
-#ifdef VTK_USE_HYBRID
 #include "vtkHybridInstantiator.h"
-#endif
-
-#ifdef VTK_USE_WIDGETS
 #include "vtkWidgetsInstantiator.h"
 #endif
 

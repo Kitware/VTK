@@ -20,9 +20,7 @@
 /*--------------------------------------------------------------------------*/
 /* Selected VTK Toolkits                                                    */
 
-#cmakedefine VTK_USE_HYBRID
 #cmakedefine VTK_USE_PARALLEL
-#cmakedefine VTK_USE_VOLUMERENDERING
 #cmakedefine VTK_USE_RENDERING
 #cmakedefine VTK_USE_GL2PS
 
