@@ -34,6 +34,7 @@ class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationExecutivePortKey;
 class vtkInformationExecutivePortVectorKey;
+class vtkInformationIdTypeKey;
 class vtkInformationInformationKey;
 class vtkInformationInformationVectorKey;
 class vtkInformationIntegerKey;
@@ -104,6 +105,13 @@ public:
   int Get(vtkInformationIntegerKey* key);
   void Remove(vtkInformationIntegerKey* key);
   int Has(vtkInformationIntegerKey* key);
+
+  // Description:
+  // Get/Set a vtkIdType-valued entry.
+  void Set(vtkInformationIdTypeKey* key, vtkIdType value);
+  vtkIdType Get(vtkInformationIdTypeKey* key);
+  void Remove(vtkInformationIdTypeKey* key);
+  int Has(vtkInformationIdTypeKey* key);
 
   // Description:
   // Get/Set an double-valued entry.

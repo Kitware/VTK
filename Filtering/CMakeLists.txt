@@ -98,6 +98,7 @@ vtkInformationDoubleKey.cxx
 vtkInformationDoubleVectorKey.cxx
 vtkInformationExecutivePortKey.cxx
 vtkInformationExecutivePortVectorKey.cxx
+vtkInformationIdTypeKey.cxx
 vtkInformationInformationKey.cxx
 vtkInformationInformationVectorKey.cxx
 vtkInformationIntegerKey.cxx
@@ -234,6 +235,7 @@ vtkInformationDoubleKey
 vtkInformationDoubleVectorKey
 vtkInformationExecutivePortKey
 vtkInformationExecutivePortVectorKey
+vtkInformationIdTypeKey
 vtkInformationInformationKey
 vtkInformationInformationVectorKey
 vtkInformationIntegerKey
