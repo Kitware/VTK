@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.121");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.122");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -461,6 +461,11 @@ int vtkGlyph3D::RequestData(
     // of the usefullness of point ghost levels over 1, but I will have
     // to think about it.
     if (inGhostLevels && inGhostLevels[inPtId] > requestedGhostLevel)
+      {
+      continue;
+      }
+
+    if (!this->IsPointVisible(input, inPtId))
       {
       continue;
       }

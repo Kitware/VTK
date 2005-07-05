@@ -209,6 +209,11 @@ public:
   vtkSetStringMacro(PointIdsName);
   vtkGetStringMacro(PointIdsName);
 
+  // Description:
+  // This can be overwritten by subclass to return 0 when a point is
+  // blanked. Default implementation is to always return 1;
+  virtual int IsPointVisible(vtkDataSet*, vtkIdType) {return 1;};
+
 protected:
   vtkGlyph3D();
   ~vtkGlyph3D();
