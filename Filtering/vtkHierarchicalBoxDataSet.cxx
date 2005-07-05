@@ -18,16 +18,18 @@
 
 #include "vtkHierarchicalDataInformation.h"
 #include "vtkInformation.h"
+#include "vtkInformationIdTypeKey.h"
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.9");
+vtkCxxRevisionMacro(vtkHierarchicalBoxDataSet, "1.10");
 vtkStandardNewMacro(vtkHierarchicalBoxDataSet);
 
 vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,BOX,IntegerVector);
+vtkInformationKeyMacro(vtkHierarchicalBoxDataSet,NUMBER_OF_BLANKED_POINTS,IdType);
 
 //----------------------------------------------------------------------------
 vtkHierarchicalBoxDataSet::vtkHierarchicalBoxDataSet()
@@ -191,6 +193,7 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
           {
           vis->SetValue(i, 1);
           }
+        vtkIdType numBlankedPts = 0;
         for (int iz=box.LoCorner[2]; iz<=box.HiCorner[2]; iz++)
           {
           for (int iy=box.LoCorner[1]; iy<=box.HiCorner[1]; iy++)
@@ -205,15 +208,58 @@ void vtkHierarchicalBoxDataSet::GenerateVisibilityArrays()
                   (iy-box.LoCorner[1])*cellDims[0] +
                   (ix-box.LoCorner[0]);
                 vis->SetValue(id, 0);
+                numBlankedPts++;
                 }
               }
             }
           }
         grid->SetCellVisibilityArray(vis);
         vis->Delete();
+        if (this->HierarchicalDataInformation->HasInformation(
+              levelIdx, dataSetIdx))
+          {
+          vtkInformation* infotmp = 
+            this->HierarchicalDataInformation->GetInformation(
+              levelIdx,dataSetIdx);
+          infotmp->Set(NUMBER_OF_BLANKED_POINTS(), numBlankedPts);
+          }
         }
       }
     }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkHierarchicalBoxDataSet::GetNumberOfPoints()
+{
+  vtkIdType numPts = 0;
+
+  unsigned int numLevels = this->GetNumberOfLevels();
+  for (unsigned int level=0; level<numLevels; level++)
+    {
+    unsigned int numDataSets = this->GetNumberOfDataSets(level);
+    for (unsigned int dataIdx=0; dataIdx<numDataSets; dataIdx++)
+      {
+      vtkIdType numBlankedPts = 0;
+      vtkInformation* blockInfo = 
+        this->HierarchicalDataInformation->GetInformation(level, dataIdx);
+      if (blockInfo)
+        {
+        if (blockInfo->Has(
+              vtkHierarchicalBoxDataSet::NUMBER_OF_BLANKED_POINTS()))
+          {
+          numBlankedPts = blockInfo->Get(NUMBER_OF_BLANKED_POINTS());
+          }
+        }
+      vtkDataSet* ds = vtkDataSet::SafeDownCast(
+        this->GetDataSet(level, dataIdx));
+      if (ds)
+        {
+        numPts += ds->GetNumberOfPoints() - numBlankedPts;
+        }
+      }
+    }
+
+  return numPts;
 }
 
 //----------------------------------------------------------------------------

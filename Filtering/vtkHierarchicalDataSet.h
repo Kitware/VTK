@@ -115,7 +115,7 @@ public:
   // Returns the total number of points of all blocks. This will
   // iterate over all blocks and call GetNumberOfPoints() so it
   // might be expansive.
-  vtkIdType GetNumberOfPoints();
+  virtual vtkIdType GetNumberOfPoints();
 
 //BTX
   friend class vtkHierarchicalDataIterator;

@@ -28,6 +28,7 @@
 struct vtkHierarchicalBoxDataSetInternal;
 //ETX
 class vtkDataObject;
+class vtkInformationIdTypeKey;
 class vtkUniformGrid;
 class vtkAMRBox;
 
@@ -89,6 +90,14 @@ public:
   virtual void DeepCopy(vtkDataObject *src);
 
   static vtkInformationIntegerVectorKey* BOX();
+  static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
+
+  // Description:
+  // Returns the total number of points of all blocks. This will
+  // iterate over all blocks and call GetNumberOfPoints() so it
+  // might be expansive. Does not include the number of blanked
+  // points.
+  virtual vtkIdType GetNumberOfPoints();
 
 protected:
   vtkHierarchicalBoxDataSet();
