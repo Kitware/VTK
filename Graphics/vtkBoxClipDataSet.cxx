@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.6");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.7");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -826,7 +826,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
   unsigned int idopos;
   unsigned int numbertetra;
 
-  static vtkIdType tri[3] = {0, 1, 2};
+  vtkIdType tri[3] = {0, 1, 2};
 
   switch(typeobj)
     {
