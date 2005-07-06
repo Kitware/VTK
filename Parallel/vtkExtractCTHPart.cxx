@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.2");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.3");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -429,7 +429,7 @@ void vtkExtractCTHPart::ComputeBounds(vtkHierarchicalDataSet *input,
       vtkDataObject *dataObj=input->GetDataSet(level,dataset);
       if(dataObj!=0)// can be null if on another processor
         {
-        vtkDataSet *ds=vtkDataSet::SafeDownCast(ds);
+        vtkDataSet *ds=vtkDataSet::SafeDownCast(dataObj);
         ds->GetBounds(realBounds);
         
         if(firstBlock)
