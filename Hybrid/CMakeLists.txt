@@ -29,7 +29,6 @@ vtkCornerAnnotation.cxx
 vtkCubeAxesActor2D.cxx
 vtkDepthSortPolyData.cxx
 vtkEarthSource.cxx
-vtkExtractCTHPart.cxx
 vtkFacetReader.cxx
 vtkGreedyTerrainDecimation.cxx
 vtkGridTransform.cxx
