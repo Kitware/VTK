@@ -114,7 +114,7 @@ public:
   // Description:
   // Set/Get the number of threads to use. This by default is equal to
   // the number of available processors detected.
-  void SetNumberOfThreads( int num );
+  vtkSetMacro( NumberOfThreads, int );
   vtkGetMacro( NumberOfThreads, int );
 
   // Description:

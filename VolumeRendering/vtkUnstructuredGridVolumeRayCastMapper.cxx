@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -247,11 +247,6 @@ const char *vtkUnstructuredGridVolumeRayCastMapper::GetScalarModeAsString(void)
     {
     return "Default";
     }
-}
-
-void vtkUnstructuredGridVolumeRayCastMapper::SetNumberOfThreads( int num )
-{
-  this->Threader->SetNumberOfThreads( num );
 }
 
 void vtkUnstructuredGridVolumeRayCastMapper::ReleaseGraphicsResources(vtkWindow *)
