@@ -29,7 +29,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.25");
+vtkCxxRevisionMacro(vtkExecutive, "1.26");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -470,12 +470,6 @@ vtkDataObject* vtkExecutive::GetInputData(int port, int index)
 {
   if(index < 0 || index >= this->GetNumberOfInputConnections(port))
     {
-    vtkErrorMacro("Attempt to get input data for connection index " << index
-                  << " on input port " << port << " of algorithm "
-                  << this->Algorithm->GetClassName() << "(" << this->Algorithm
-                  << "), which has "
-                  << this->GetNumberOfInputConnections(port)
-                  << " connections.");
     return 0;
     }
 
