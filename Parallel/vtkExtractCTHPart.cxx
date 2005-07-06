@@ -42,15 +42,17 @@
 #include "vtkCellArray.h"
 
 #include "vtkInformationDoubleVectorKey.h"
+#include "vtkMultiProcessController.h"
 
 #include <math.h>
 #include <vtkstd/string>
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.13");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.1");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
+vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
 
 vtkInformationKeyMacro(vtkExtractCTHPart,BOUNDS, DoubleVector);
 
@@ -92,7 +94,10 @@ vtkExtractCTHPart::vtkExtractCTHPart()
   this->RAppend2=0;
   this->RClip1=0;
   this->RCut=0;
-  this->RClip2=0; 
+  this->RClip2=0;
+  
+  this->Controller = 0;
+  this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
 //-----------------------------------------------------------------------------
@@ -102,6 +107,7 @@ vtkExtractCTHPart::~vtkExtractCTHPart()
   delete this->Internals;
   this->Internals = 0;
   this->DeleteInternalPipeline();
+  this->SetController(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -214,7 +220,7 @@ int vtkExtractCTHPart::RequestInformation(
 int vtkExtractCTHPart::RequestData(
   vtkInformation *vtkNotUsed(request),
   vtkInformationVector **inputVector,
-  vtkInformationVector *vtkNotUsed(outputVector))
+  vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -227,12 +233,32 @@ int vtkExtractCTHPart::RequestData(
   
   if(input!=0)
     {
-    if(!inInfo->Has(vtkExtractCTHPart::BOUNDS()))
+    if(inInfo->Has(vtkExtractCTHPart::BOUNDS()))
       {
-      vtkErrorMacro(<<"No vtkExtractCTHPart::BOUNDS() key.");
-      return 0;
+      inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
       }
-    inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
+    else
+      {
+      // compute the bounds
+      vtkWarningMacro(<<"compute bounds not yet implemented.");
+      
+      if(this->GetNumberOfOutputPorts()>0) // 
+        {
+        vtkInformation *info=outputVector->GetInformationObject(0);
+        int processNumber = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+        int numProcessors =info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+        if(this->Controller==0)
+          {
+          processNumber=0;
+          numProcessors=1;
+          }
+        this->ComputeBounds(input,processNumber,numProcessors);
+        }
+      else
+        {
+        return 1; // no output port, means no part to extract, that's OK.
+        }
+      }
     }
   else
     {
@@ -369,6 +395,235 @@ int vtkExtractCTHPart::RequestData(
   vtkGarbageCollector::DeferredCollectionPop();
   
   return 1;
+}
+
+// Magic number that encode the message ids for parallel communication
+enum
+{
+  VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS=288402,
+  VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS,
+  VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS
+};
+
+//-----------------------------------------------------------------------------
+void vtkExtractCTHPart::ComputeBounds(vtkHierarchicalDataSet *input,
+                                      int processNumber,
+                                      int numProcessors)
+{
+  assert("pre: input_exists" && input!=0);
+  assert("pre: positive_numProcessors" && numProcessors>0);
+  assert("pre: valid_processNumber" && processNumber>=0 &&
+         processNumber<numProcessors);
+  
+  int firstBlock=1;
+  double realBounds[6];
+  
+  int numberOfLevels=input->GetNumberOfLevels();
+  int level=0;
+  while(level<numberOfLevels)
+    {
+    int numberOfDataSets=input->GetNumberOfDataSets(level);    
+    int dataset=0;
+    while(dataset<numberOfDataSets)
+      {
+      vtkDataObject *dataObj=input->GetDataSet(level,dataset);
+      if(dataObj!=0)// can be null if on another processor
+        {
+        vtkDataSet *ds=vtkDataSet::SafeDownCast(ds);
+        ds->GetBounds(realBounds);
+        
+        if(firstBlock)
+          {
+          int c=0;
+          while(c<6)
+            {
+            this->Bounds[c]=realBounds[c];
+            ++c;
+            }
+          firstBlock=0;
+          }
+        else
+          {
+          int c=0;
+          while(c<3)
+            {
+            if(realBounds[2*c]<this->Bounds[2*c])
+              {
+              this->Bounds[2*c]=realBounds[2*c];
+              }
+            if(realBounds[2*c+1]>this->Bounds[2*c+1])
+              {
+              this->Bounds[2*c+1]=realBounds[2*c+1];
+              }
+            ++c;
+            }
+          }
+        }
+      ++dataset;
+      }
+    ++level;
+    }
+  // Here we have the bounds according to our local datasets.
+  
+  int parent;
+  int left=GetLeftChildProcessor(processNumber);
+  int right=left+1;
+  if(processNumber>0) // not root (nothing to do if root)
+    {
+    parent=this->GetParentProcessor(processNumber);
+    }
+  else
+    {
+    parent=0; // just to remove warnings, never used
+    }
+  
+  double otherBounds[6];
+  int leftHasBounds=0; // init is not useful, just for compiler warnings
+  int rightHasBounds=0; // init is not useful, just for compiler warnings
+  
+  if(left<numProcessors)
+    {
+    // TODO WARNING if the child is empty the bounds are not initialized!
+    // Grab the bounds from left child
+    this->Controller->Receive(&leftHasBounds, 1, left,
+                              VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
+    
+    if(leftHasBounds)
+      {
+      this->Controller->Receive(otherBounds, 6, left,
+                                VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
+      
+      if(firstBlock) // impossible the current processor is not a leaf
+        {
+        int cc=0;
+        while(cc<6)
+          {
+          this->Bounds[cc]=otherBounds[cc];
+          ++cc;
+          }
+        firstBlock=0;
+        }
+      else
+        {
+        int cc=0;
+        while(cc<3)
+          {
+          if(otherBounds[2*cc]<this->Bounds[2*cc])
+            {
+            this->Bounds[2*cc]=otherBounds[2*cc];
+            }
+          if(otherBounds[2*cc+1]>this->Bounds[2*cc+1])
+            {
+            this->Bounds[2*cc+1]=otherBounds[2*cc+1];
+            }
+          ++cc;
+          }
+        }
+      }
+    
+    if(right<numProcessors)
+      {
+      // Grab the bounds from right child
+      this->Controller->Receive(&rightHasBounds, 1, right,
+                                VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
+      if(rightHasBounds)
+        {
+        this->Controller->Receive(otherBounds, 6, right,
+                                  VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
+        if(firstBlock)// impossible the current processor is not a leaf
+          {
+          int cc=0;
+          while(cc<6)
+            {
+            this->Bounds[cc]=otherBounds[cc];
+            ++cc;
+            }
+          firstBlock=0;
+          }
+        else
+          {
+          int cc=0;
+          while(cc<3)
+            {
+            if(otherBounds[2*cc]<this->Bounds[2*cc])
+              {
+              this->Bounds[2*cc]=otherBounds[2*cc];
+              }
+            if(otherBounds[2*cc+1]>this->Bounds[2*cc+1])
+              {
+              this->Bounds[2*cc+1]=otherBounds[2*cc+1];
+              }
+            ++cc;
+            }
+          }
+        }
+      }
+    }
+  
+  // Send local to parent, Receive global from the parent.
+  if(processNumber>0) // not root (nothing to do if root)
+    {
+    int hasBounds=!firstBlock;
+    this->Controller->Send(&hasBounds, 1, parent,
+                           VTK_MSG_EXTRACT_CTH_PART_HAS_BOUNDS);
+    if(hasBounds)
+      {
+      this->Controller->Send(this->Bounds, 6, parent,
+                             VTK_MSG_EXTRACT_CTH_PART_LOCAL_BOUNDS);
+      
+      this->Controller->Receive(this->Bounds, 6, parent,
+                                VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
+      }
+    }
+  
+  if(firstBlock) // empty, no bounds, nothing to do
+    {
+    return;
+    }
+  
+  // Send it to children.
+  if(left<numProcessors)
+    {
+    if(leftHasBounds)
+      {
+      this->Controller->Send(this->Bounds, 6, left,
+                             VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
+      }
+    if(right<numProcessors)
+      {
+      if(rightHasBounds)
+        {
+        this->Controller->Send(this->Bounds, 6, right,
+                               VTK_MSG_EXTRACT_CTH_PART_GLOBAL_BOUNDS);
+        }
+      }
+    }
+  
+  // At this point, the global bounds is set in each processor.
+ 
+  cout<<processNumber<<" bounds="<<this->Bounds[0]<<"; "<<this->Bounds[1]<<"; "<<this->Bounds[2]<<"; "<<this->Bounds[3]<<"; "<<this->Bounds[4]<<"; "<<this->Bounds[5]<<endl;
+
+}
+// The processors are views as a heap tree. The root is the processor of
+// id 0.
+//-----------------------------------------------------------------------------
+int vtkExtractCTHPart::GetParentProcessor(int proc)
+{
+  int result;
+  if(proc%2==1)
+    {
+    result=proc>>1; // /2
+    }
+  else
+    {
+    result=(proc-1)>>1; // /2
+    }
+  return result;
+}
+
+int vtkExtractCTHPart::GetLeftChildProcessor(int proc)
+{
+  return (proc<<1)+1; // *2+1
 }
 
 //-----------------------------------------------------------------------------
