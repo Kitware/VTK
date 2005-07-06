@@ -197,6 +197,13 @@ public:
   vtkGetMacro(NumberOfColors,vtkIdType);
 
   // Description:
+  // Set/Get the internal table array that is used to map the scalars
+  // to colors.  The table array is an unsigned char array with 4
+  // components representing RGBA.
+  void SetTable(vtkUnsignedCharArray *);  
+  vtkUnsignedCharArray *GetTable() {return this->Table;};
+
+  // Description:
   // map a set of scalars through the lookup table
   void MapScalarsThroughTable2(void *input, unsigned char *output,
                                int inputDataType, int numberOfValues,

@@ -17,7 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkLookupTable, "1.100");
+vtkCxxRevisionMacro(vtkLookupTable, "1.101");
 vtkStandardNewMacro(vtkLookupTable);
 
 // Construct with range=(0,1); and hsv ranges set up for rainbow color table 
@@ -26,6 +26,8 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 {
   this->NumberOfColors = sze;
   this->Table = vtkUnsignedCharArray::New();
+  this->Table->Register(this);
+  this->Table->Delete();
   this->Table->SetNumberOfComponents(4);
   this->Table->Allocate(4*sze,4*ext);
 
@@ -52,7 +54,7 @@ vtkLookupTable::vtkLookupTable(int sze, int ext)
 //----------------------------------------------------------------------------
 vtkLookupTable::~vtkLookupTable()
 {
-  this->Table->Delete();
+  this->Table->UnRegister(this);
   this->Table = NULL;
 }
 
@@ -388,6 +390,33 @@ vtkIdType vtkLookupTable::GetIndex(double v)
     findx = maxIndex;
     }
   return static_cast<int>(findx);
+}
+
+//----------------------------------------------------------------------------
+// Given a table, set the internal table and set the number of colors.
+void vtkLookupTable::SetTable(vtkUnsignedCharArray *table)
+{
+  if (table != this->Table && table != NULL)
+    {
+    // Check for incorrect arrays.
+    if (table->GetNumberOfComponents() != this->Table->GetNumberOfComponents())
+      {
+      vtkErrorMacro(<<"Number of components in given table (" 
+                    << table->GetNumberOfComponents()
+                    << ") is incorrect, it should have "
+                    << this->Table->GetNumberOfComponents() 
+                    << "." );
+      return;
+      }
+    this->Table->UnRegister(this);
+    this->Table = table;
+    this->Table->Register(this);
+    this->NumberOfColors = this->Table->GetNumberOfTuples();
+    // If InsertTime is not modified the array will be rebuilt.  So we
+    // use the same approach that the SetTableValue function does.
+    this->InsertTime.Modified();
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -870,6 +899,7 @@ void vtkLookupTable::PrintSelf(ostream& os, vtkIndent indent)
      << (this->Ramp == VTK_RAMP_SCURVE ? "SCurve\n" : "Linear\n");
   os << indent << "InsertTime: " <<this->InsertTime.GetMTime() << "\n";
   os << indent << "BuildTime: " <<this->BuildTime.GetMTime() << "\n";
+  os << indent << "Table: " << this->Table << "\n";
 }
 
 //----------------------------------------------------------------------------
