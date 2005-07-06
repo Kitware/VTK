@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.1");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.2");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -1828,6 +1828,16 @@ void vtkExtractCTHPart::PrintSelf(ostream& os, vtkIndent indent)
   else  
     {
     os << indent << "ClipPlane: NULL\n";
+    }
+  
+  if ( this->Controller!=0)
+    {
+    os << "Controller:" << endl;
+    this->Controller->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "No Controller." << endl;
     }
 }
 
