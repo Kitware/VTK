@@ -42,10 +42,11 @@ MACRO(VTK_WRAP_PYTHON3 TARGET SRC_LIST_NAME SOURCES)
           SET(TMP_CONCRETE 0)
         ELSE (TMP_ABSTRACT)
           SET(TMP_CONCRETE 1)
-          # add the info to the init file
-          SET(VTK_WRAPPER_INIT_DATA
-            "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
         ENDIF (TMP_ABSTRACT)
+
+        # add the info to the init file
+        SET(VTK_WRAPPER_INIT_DATA
+          "${VTK_WRAPPER_INIT_DATA}\n${TMP_FILENAME}")
         
         # new source file is namePython.cxx, add to resulting list
         SET(${SRC_LIST_NAME} ${${SRC_LIST_NAME}} 
