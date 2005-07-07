@@ -24,6 +24,12 @@
 #cmakedefine VTK_USE_RENDERING
 #cmakedefine VTK_USE_GL2PS
 
+/* The Hybrid and VolumeRendering kits are now switched with Rendering.  */
+#ifdef VTK_USE_RENDERING
+# define VTK_USE_HYBRID
+# define VTK_USE_VOLUMERENDERING
+#endif
+
 /*--------------------------------------------------------------------------*/
 /* Rendering Configuration                                                  */
 
