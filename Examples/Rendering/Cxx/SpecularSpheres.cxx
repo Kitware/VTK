@@ -180,6 +180,7 @@ int main()
   ren1->Delete();
   renWin->Delete();
   iren->Delete();
+  light->Delete();
 
   return 0;
 }
