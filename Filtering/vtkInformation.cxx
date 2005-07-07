@@ -38,7 +38,7 @@
 #include <vtkstd/utility>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.21");
+vtkCxxRevisionMacro(vtkInformation, "1.22");
 vtkStandardNewMacro(vtkInformation);
 
 //----------------------------------------------------------------------------
@@ -109,6 +109,12 @@ vtkInformation::~vtkInformation()
 void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  // Print the request if one is set.
+  if(this->Request)
+    {
+    os << indent << "Request: " << this->Request->GetName() << "\n";
+    }
 
   // Give each key a chance to print its value.
   for(vtkInformationInternals::VectorType::iterator i =
