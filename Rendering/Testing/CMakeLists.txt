@@ -23,5 +23,7 @@ IF(PYTHON_EXECUTABLE)
            vtkOpenGLStateCache.h
            vtkVolumeRayCastStructures.h
            vtkVolumeShearWarpDataStructure.h
+           vtkgl.h
+           vtkOpenGLExtensionManagerConfigure.h
            )
 ENDIF(PYTHON_EXECUTABLE)
