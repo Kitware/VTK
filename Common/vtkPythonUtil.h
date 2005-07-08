@@ -57,6 +57,9 @@ typedef struct {
   PyObject *vtk_dict;
   // the rest are unique to the PyVTKObject
   vtkObjectBase *vtk_ptr;
+#if PY_VERSION_HEX >= 0x02010000
+  PyObject *vtk_weakreflist;
+#endif
 } PyVTKObject;
 
 // This for objects not derived from vtkObjectBase

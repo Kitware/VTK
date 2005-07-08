@@ -38,21 +38,12 @@
 // warnings.  Python documentation says these should not be necessary.
 // We define it as a macro in case the length needs to change across
 // python versions.
-#if   (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION == 4)
+#if   PY_VERSION_HEX >= 0x02030000
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
-#elif (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION == 3)
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,
+#elif PY_VERSION_HEX >= 0x02020000
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
-#elif (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION == 2)
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,
-#elif (PY_MAJOR_VERSION == 2) && (PY_MINOR_VERSION == 1)
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,
-#elif (PY_MAJOR_VERSION == 1) && (PY_MINOR_VERSION == 5)
-#define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED \
-  0,0,0,0,
+  0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0,
 #else
 #define VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 #endif
@@ -404,6 +395,12 @@ void vtkPythonDeleteCommand::Execute(vtkObject *caller,
 //--------------------------------------------------------------------
 static void PyVTKObject_PyDelete(PyVTKObject *self)
 {
+#if PY_VERSION_HEX >= 0x02010000
+  if (self->vtk_weakreflist != NULL)
+    {
+    PyObject_ClearWeakRefs((PyObject *) self);
+    }
+#endif
   self->vtk_ptr->Delete();
   // the rest of the delection is handled when the VTK-level object
   // is destroyed
@@ -439,8 +436,20 @@ static PyTypeObject PyVTKObjectType = {
   (getattrofunc)PyVTKObject_PyGetAttr,   // tp_getattro
   (setattrofunc)PyVTKObject_PySetAttr,   // tp_setattro
   0,                                     // tp_as_buffer
+#if PY_VERSION_HEX >= 0x02010000
+  Py_TPFLAGS_HAVE_WEAKREFS,              // tp_flags
+#else
   0,                                     // tp_flags
+#endif 
   (char*)"A VTK object.  Special attributes are:  __class__ (the class that this object belongs to), __dict__ (user-controlled attributes), __doc__ (the docstring for the class), __methods__ (a list of all methods for this object), and __this__ (a string that contains the hexidecimal address of the underlying VTK object)",  // tp_doc
+  0,                                     // tp_traverse
+  0,                                     // tp_clear
+  0,                                     // tp_richcompare
+#if PY_VERSION_HEX >= 0x02010000
+  offsetof(PyVTKObject, vtk_weakreflist),// tp_weaklistoffset
+#else
+  0,                                     // tp_weaklistoffset
+#endif
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -492,6 +501,10 @@ PyObject *PyVTKObject_New(PyObject *pyvtkclass, vtkObjectBase *ptr)
   Py_INCREF(self->vtk_class);
   
   self->vtk_dict = PyDict_New();
+
+#if PY_VERSION_HEX >= 0x02010000
+  self->vtk_weakreflist = NULL;
+#endif
 
   vtkPythonAddObjectToHash((PyObject *)self, ptr);
   /* I'll reinstate this later
