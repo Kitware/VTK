@@ -111,7 +111,7 @@ protected:
 
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int CreateOutput(vtkInformation* request, 
+  virtual int RequestDataObject(vtkInformation* request, 
                            vtkInformationVector** inputVector, 
                            vtkInformationVector* outputVector);
 
