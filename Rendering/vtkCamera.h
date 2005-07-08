@@ -266,10 +266,10 @@ class VTK_RENDERING_EXPORT vtkCamera : public vtkObject
   // Description:
   // Return the concatenation of the ViewTransform and the 
   // PerspectiveTransform.  This transform will convert world
-  // coordinates to viewport coordinates.  The 'aspect' is the
+  // coordinates to view coordinates.  The 'aspect' is the
   // width/height for the viewport, and the nearz and farz are the
   // Z-buffer values that map to the near and far clipping planes.
-  // The viewport coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
+  // The view coordinates are in the range ([-1,+1],[-1,+1],[nearz,farz]).
   virtual vtkMatrix4x4 *GetCompositePerspectiveTransformMatrix(double aspect, 
                                                                double nearz, 
                                                                double farz);
