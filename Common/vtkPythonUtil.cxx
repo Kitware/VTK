@@ -810,6 +810,10 @@ PyTypeObject PyVTKClassMetaType = {
   0,                        /*tp_xxx3*/
   0,                        /*tp_xxx4*/
   (char*)"Define the behavior of a particular type of object.",
+  0,                        // tp_traverse
+  0,                        // tp_clear
+  0,                        // tp_richcompare
+  0,                        // tp_weaklistoffset
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -837,6 +841,10 @@ static PyTypeObject PyVTKClassType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   (char*)"A generator for VTK objects.  Special attributes are: __bases__ (a tuple of base classes), __dict__ (user-defined methods and attributes), __doc__ (the docstring for the class), __name__ (the name of class), __methods__ (methods for this class, not including inherited methods or user-defined methods), and __module__ (module that the class is defined in).", // tp_doc
+  0,                                     // tp_traverse
+  0,                                     // tp_clear
+  0,                                     // tp_richcompare
+  0,                                     // tp_weaklistoffset
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
@@ -1205,6 +1213,10 @@ static PyTypeObject PyVTKSpecialObjectType = {
   0,                                     // tp_as_buffer
   0,                                     // tp_flags
   (char*)"vtkspecialobject - a vtk object not derived from vtkObjectBase.", // tp_doc
+  0,                                     // tp_traverse
+  0,                                     // tp_clear
+  0,                                     // tp_richcompare
+  0,                                     // tp_weaklistoffset
   VTK_PYTHON_UTIL_SUPRESS_UNINITIALIZED
 };
 
