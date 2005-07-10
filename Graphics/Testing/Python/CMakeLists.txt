@@ -25,6 +25,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       # Newer tests using vtk.test.Testing.
       FOREACH ( tfile
                 TestTensorGlyph
+                TestTextureGlyph
                 )
         ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
           ${VTK_SOURCE_DIR}/Graphics/Testing/Python/${tfile}.py
