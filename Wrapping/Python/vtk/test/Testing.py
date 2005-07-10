@@ -39,6 +39,11 @@ interact():
     anything by default and stops to interact with the user when given
     the appropriate command line arguments.
 
+isInteractive():
+    If interact() is not good enough, use this to find if the mode is
+    interactive or not and do whatever is necessary to generate an
+    interactive view.
+
 Examples:
 
   The best way to learn on how to use this module is to look at a few
@@ -126,6 +131,10 @@ def interact():
     if _INTERACT:
         raw_input("\nPress Enter/Return to continue with the testing. --> ")
 
+def isInteractive():
+    """Returns if the currently chosen mode is interactive or not
+    based on command line options."""
+    return _INTERACT
 
 def getAbsImagePath(img_basename):    
     """Returns the full path to the image given the basic image
