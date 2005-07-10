@@ -29,7 +29,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
-vtkCxxRevisionMacro(vtkGlyph3D, "1.122");
+vtkCxxRevisionMacro(vtkGlyph3D, "1.123");
 vtkStandardNewMacro(vtkGlyph3D);
 
 //----------------------------------------------------------------------------
@@ -521,7 +521,7 @@ int vtkGlyph3D::RequestData(
       {
       for (i = 0; i < numSourcePts; i++)
         {
-        sourceTCoords->GetTuple(inPtId, tc);
+        sourceTCoords->GetTuple(i, tc);
         newTCoords->InsertTuple(i+ptIncr, tc);
         }
       }
