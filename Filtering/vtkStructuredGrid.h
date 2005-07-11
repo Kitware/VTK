@@ -188,6 +188,12 @@ public:
   // 0 otherwise.
   unsigned char GetCellBlanking();
 
+  // Description:
+  // Reallocates and copies to set the Extent to the UpdateExtent.
+  // This is used internally when the exact extent is requested, 
+  // and the source generated more than the update extent. 
+  virtual void Crop();
+
 protected:
   vtkStructuredGrid();
   ~vtkStructuredGrid();
@@ -199,12 +205,6 @@ protected:
   vtkHexahedron *Hexahedron;
   vtkEmptyCell *EmptyCell;
   
-  // Description:
-  // Reallocates and copies to set the Extent to the UpdateExtent.
-  // This is used internally when the exact extent is requested, 
-  // and the source generated more than the update extent. 
-  virtual void Crop();
-
   int Dimensions[3];
   int DataDescription;
 

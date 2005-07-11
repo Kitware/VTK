@@ -163,6 +163,12 @@ public:
   // Structured extent. The extent type is a 3D extent
   int GetExtentType() { return VTK_3D_EXTENT; };
 
+  // Description:
+  // Reallocates and copies to set the Extent to the UpdateExtent.
+  // This is used internally when the exact extent is requested, 
+  // and the source generated more than the update extent. 
+  virtual void Crop();
+
 protected:
   vtkRectilinearGrid();
   ~vtkRectilinearGrid();
@@ -173,12 +179,6 @@ protected:
   vtkPixel *Pixel;
   vtkVoxel *Voxel;
   
-  // Description:
-  // Reallocates and copies to set the Extent to the UpdateExtent.
-  // This is used internally when the exact extent is requested, 
-  // and the source generated more than the update extent. 
-  virtual void Crop();
-
   int Dimensions[3];
   int DataDescription;
 
