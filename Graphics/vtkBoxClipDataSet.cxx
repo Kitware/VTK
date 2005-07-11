@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.7");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.8");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1741,6 +1741,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
+      // ind[0] is the index of the coordinate axis perpendicular to the plane.
+      // ind[1] and ind[2] are the indices of the other two axis.
       switch(planes)
         {
         case 0:
@@ -2714,6 +2716,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
+      // ind[0] is the index of the coordinate axis perpendicular to the plane.
+      // ind[1] and ind[2] are the indices of the other two axis.
       switch(planes) 
         {
         case 0:
@@ -3784,6 +3788,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
     // Test triangle intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
+      // ind[0] is the index of the coordinate axis perpendicular to the plane.
+      // ind[1] and ind[2] are the indices of the other two axis.
       switch(planes) 
         {
         case 0:
@@ -3919,19 +3925,32 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
               tab_id[0] = v_id[tab2[i0][0]];
               tab_id[1] = v_id[tab2[i0][1]];
               tab_id[2] = p_id[tab2[i0][2]];
-              newCellId = newcellArray->InsertNextCell(3,tab_id);                
+              newCellId = newcellArray->InsertNextCell(3,tab_id);
               tab_id[0] = p_id[tab2[i0][2]];
               tab_id[1] = p_id[tab2[i0][3]];
               tab_id[2] = v_id[tab2[i0][0]];
-              newCellId = newcellArray->InsertNextCell(3,tab_id);                
+              newCellId = newcellArray->InsertNextCell(3,tab_id);
               }
             else 
               {
               // The Triangle is inside: (v0,p0,p1)
-              tab_id[0] = v_id[i0];
-              tab_id[1] = p_id[0];
-              tab_id[2] = p_id[1];
-              newCellId = newcellArray->InsertNextCell(3,tab_id);                
+              // The correct winding of the new triangle depends on where the
+              // plane intersected the original triangle.
+              switch (edges_inter)
+                {
+                case 12:
+                case 23:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[1];
+                  tab_id[2] = p_id[0];
+                  break;
+                case 13:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[0];
+                  tab_id[2] = p_id[1];
+                  break;
+                }
+              newCellId = newcellArray->InsertNextCell(3,tab_id);
               }
             break;
 
@@ -3956,17 +3975,17 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                 ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1)))
               {
               // Test one of the vertices  vertex i0 is outside          
-              tab_id[0] = v_id[tab1[i0][0]];
-              tab_id[1] = v_id[tab1[i0][1]];
+              tab_id[0] = v_id[tab1[i0][1]];
+              tab_id[1] = v_id[tab1[i0][0]];
               tab_id[2] = p_id[0];
-              newCellId = newcellArray->InsertNextCell(3,tab_id);                
+              newCellId = newcellArray->InsertNextCell(3,tab_id);
               }
             else 
               {
-              tab_id[1] = v_id[tab1[i0][0]];
-              tab_id[2] = v_id[i0];
-              tab_id[3] = p_id[0];
-              newCellId = newcellArray->InsertNextCell(3,tab_id);                
+              tab_id[0] = v_id[tab1[i0][0]];
+              tab_id[1] = v_id[i0];
+              tab_id[2] = p_id[0];
+              newCellId = newcellArray->InsertNextCell(3,tab_id);
               }
             break;
           }
@@ -4138,6 +4157,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
           // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
+      // ind[0] is the index of the coordinate axis perpendicular to the plane.
+      // ind[1] and ind[2] are the indices of the other two axis.
       switch(planes) 
         {
         case 0:
@@ -4259,6 +4280,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         switch(num_inter) 
           {
           case 2:                 // We have one quad and one triangle
+            // i0 gets the index of the triangle point that lies alone on
+            // one side of the plane.
             switch(edges_inter) 
               {
               case 12:
@@ -4289,17 +4312,39 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
               tab_id[2] = v_id[tab2[i0][0]];
               newCellId = newcellArray->InsertNextCell(3,tab_id);
 
-              tab_id[0] = v_id[i0];            // Triangle Outside
-              tab_id[1] = p_id[0];
-              tab_id[2] = p_id[1];
+              switch (edges_inter)             // Triangle Outside
+                {
+                case 12:
+                case 23:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[1];
+                  tab_id[2] = p_id[0];
+                  break;
+                case 13:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[0];
+                  tab_id[2] = p_id[1];
+                  break;
+                }
               newCellId = cellarrayout->InsertNextCell(3,tab_id);
               }
             else 
               {
               // The Triangle is inside: (v0,p0,p1)
-              tab_id[0] = v_id[i0];
-              tab_id[1] = p_id[0];
-              tab_id[2] = p_id[1];
+              switch (edges_inter)
+                {
+                case 12:
+                case 23:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[1];
+                  tab_id[2] = p_id[0];
+                  break;
+                case 13:
+                  tab_id[0] = v_id[i0];
+                  tab_id[1] = p_id[0];
+                  tab_id[2] = p_id[1];
+                  break;
+                }
               newCellId = newcellArray->InsertNextCell(3,tab_id);
 
               tab_id[0] = v_id[tab2[i0][0]];   // Quad is Outside
@@ -4335,25 +4380,25 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
                 {
                 // Test one of the vertices vertex i0 is outside
 
-                tab_id[0] = v_id[tab1[i0][0]];         // Inside
-                tab_id[1] = v_id[tab1[i0][1]];
+                tab_id[0] = v_id[tab1[i0][1]];         // Inside
+                tab_id[1] = v_id[tab1[i0][0]];
                 tab_id[2] = p_id[0];
                 newCellId = newcellArray->InsertNextCell(3,tab_id);
 
-                tab_id[1] = v_id[tab1[i0][0]];         // Outside
-                tab_id[2] = v_id[i0];
-                tab_id[3] = p_id[0];
+                tab_id[0] = v_id[tab1[i0][0]];         // Outside
+                tab_id[1] = v_id[i0];
+                tab_id[2] = p_id[0];
                 newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
               else 
                 {
-                tab_id[1] = v_id[tab1[i0][0]];         // Inside
-                tab_id[2] = v_id[i0];
-                tab_id[3] = p_id[0];
+                tab_id[0] = v_id[tab1[i0][0]];         // Inside
+                tab_id[1] = v_id[i0];
+                tab_id[2] = p_id[0];
                 newCellId = newcellArray->InsertNextCell(3,tab_id);
 
-                tab_id[0] = v_id[tab1[i0][0]];         // Outside
-                tab_id[1] = v_id[tab1[i0][1]];
+                tab_id[0] = v_id[tab1[i0][1]];         // Outside
+                tab_id[1] = v_id[tab1[i0][0]];
                 tab_id[2] = p_id[0];
                 newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
@@ -4619,7 +4664,9 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
             }
           switch(num_inter) 
             {
-            case 2:                 // We have two wedges
+            case 2:                 // We have one quad and one triangle
+            // i0 gets the index of the triangle point that lies alone on
+            // one side of the plane.
               switch(edges_inter) 
                 {
                 case 12:
@@ -4632,31 +4679,44 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
                   i0 = 0;
                   break;
                 default:
-                  vtkErrorMacro( << "Intersection not found: Num_inter = " << 
-                                  num_inter << " Edges_inter = " << edges_inter );
+                  vtkErrorMacro(<< "Intersection not found: Num_inter = " << 
+                                num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }                                                    
               if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // The v_triangle[3] is outside box, so
                   ((p[i0] > 0) && ((planes % 2) == 1)))    // the first wedge is outside
                 {
-                // The v_triangle[3] is outside box, so the first wedge is outside
+                // The v_triangle[3] is outside box, so the quad is outside
                 // The Quad is inside: two triangles: (v0,v1,p0) and (p0,p1,v1)
                 tab_id[0] = v_id[tab2[i0][0]];
                 tab_id[1] = v_id[tab2[i0][1]];
                 tab_id[2] = p_id[tab2[i0][2]];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 tab_id[0] = p_id[tab2[i0][2]];
                 tab_id[1] = p_id[tab2[i0][3]];
                 tab_id[2] = v_id[tab2[i0][0]];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 }
               else 
                 {
                 // The Triangle is inside: (v0,p0,p1)
-                tab_id[0] = v_id[i0];
-                tab_id[1] = p_id[0];
-                tab_id[2] = p_id[1];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                // The correct winding of the new triangle depends on where the
+                // plane intersected the original triangle.
+                switch (edges_inter)
+                  {
+                  case 12:
+                  case 23:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[1];
+                    tab_id[2] = p_id[0];
+                    break;
+                  case 13:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[0];
+                    tab_id[2] = p_id[1];
+                    break;
+                  }
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 }
               break;
 
@@ -4673,25 +4733,25 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
                   i0 = 2;
                   break;
                 default:
-                  vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                                 num_inter << " Edges_inter = " << edges_inter );
+                  vtkErrorMacro(<< "Intersection not found: Num_inter = " <<
+                                num_inter << " Edges_inter = " << edges_inter);
                   continue;
-                }                                                     
+                }
               if (((p[i0] > 0) && ((planes % 2) == 0)) ||
-                  ((p[i0] > 0) && ((planes % 2) == 1))) 
+                  ((p[i0] > 0) && ((planes % 2) == 1)))
                 {
                 // Isolate vertex is outside box, so the triangle is outside
-                tab_id[0] = v_id[tab1[i0][0]];
-                tab_id[1] = v_id[tab1[i0][1]];
+                tab_id[0] = v_id[tab1[i0][1]];
+                tab_id[1] = v_id[tab1[i0][0]];
                 tab_id[2] = p_id[0];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 }
               else 
                 {
-                tab_id[1] = v_id[tab1[i0][0]];
-                tab_id[2] = v_id[i0];
-                tab_id[3] = p_id[0];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                tab_id[0] = v_id[tab1[i0][0]];
+                tab_id[1] = v_id[i0];
+                tab_id[2] = p_id[0];
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 }
               break;
             }
@@ -4756,8 +4816,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     {
     cellptId[i] = cellIds->GetId(i);
     }
-   
-  this->CellGrid(cellType,npts,cellptId,arraytriangle);  // Convert all volume cells to trianglehedra
+
+  // Convert all polygon cells to triangles
+  this->CellGrid(cellType,npts,cellptId,arraytriangle);
 
   unsigned int totalnewtriangle = arraytriangle->GetNumberOfCells();
   for (idtrianglenew = 0 ; idtrianglenew < totalnewtriangle; idtrianglenew++) 
@@ -4806,7 +4867,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
 
       int newCellId = tets[1]->InsertNextCell(3,iid);
       outCD[1]->CopyData(inCD,cellId,newCellId);
-      continue;                         // Tetrahedron is outside.
+      continue;                         // Triangle is outside.
       }
 
     for (allInside=1, i=0; i<3; i++)
@@ -4975,8 +5036,8 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                   i0 = 0;
                   break;
                 default:
-                  vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                                 num_inter << " Edges_inter = " << edges_inter );
+                  vtkErrorMacro(<< "Intersection not found: Num_inter = " <<
+                                num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }                                                    
 
@@ -4987,34 +5048,57 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                 tab_id[0] = v_id[tab2[i0][0]];
                 tab_id[1] = v_id[tab2[i0][1]];
                 tab_id[2] = p_id[tab2[i0][2]];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
                 tab_id[0] = p_id[tab2[i0][2]];
                 tab_id[1] = p_id[tab2[i0][3]];
                 tab_id[2] = v_id[tab2[i0][0]];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
 
-                tab_id[0] = v_id[i0];  // The Triangle is Outside
-                tab_id[1] = p_id[0];
-                tab_id[2] = p_id[1];
-                newCellId = cellarrayout->InsertNextCell(3,tab_id);                
+
+                switch (edges_inter)             // Triangle Outside
+                  {
+                  case 12:
+                  case 23:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[1];
+                    tab_id[2] = p_id[0];
+                    break;
+                  case 13:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[0];
+                    tab_id[2] = p_id[1];
+                    break;
+                  }
+                newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
               else 
                 {
                 // The Triangle is inside: (v0,p0,p1)
-                tab_id[0] = v_id[i0];
-                tab_id[1] = p_id[0];
-                tab_id[2] = p_id[1];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                switch (edges_inter)
+                  {
+                  case 12:
+                  case 23:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[1];
+                    tab_id[2] = p_id[0];
+                    break;
+                  case 13:
+                    tab_id[0] = v_id[i0];
+                    tab_id[1] = p_id[0];
+                    tab_id[2] = p_id[1];
+                    break;
+                  }
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
 
                 // The Quad is outside: two triangles: (v0,v1,p0) and (p0,p1,v1)
                 tab_id[0] = v_id[tab2[i0][0]];  
                 tab_id[1] = v_id[tab2[i0][1]];
                 tab_id[2] = p_id[tab2[i0][2]];
-                newCellId = cellarrayout->InsertNextCell(3,tab_id);                
+                newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 tab_id[0] = p_id[tab2[i0][2]];
                 tab_id[1] = p_id[tab2[i0][3]];
                 tab_id[2] = v_id[tab2[i0][0]];
-                newCellId = cellarrayout->InsertNextCell(3,tab_id);                
+                newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
               break;
 
@@ -5031,34 +5115,34 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
                   i0 = 2;
                   break;
                 default:
-                  vtkErrorMacro( << "Intersection not found: Num_inter = " <<
-                                 num_inter << " Edges_inter = " << edges_inter );
+                  vtkErrorMacro(<< "Intersection not found: Num_inter = " <<
+                                num_inter << " Edges_inter = " << edges_inter);
                   continue;
                 }                                                     
               if (((p[i0] > 0) && ((planes % 2) == 0)) ||   // Isolate vertex is outside box, so
                   ((p[i0] > 0) && ((planes % 2) == 1)))    // the triangle is outside
                 {
-                tab_id[0] = v_id[tab1[i0][0]];  // Inside
-                tab_id[1] = v_id[tab1[i0][1]];
+                tab_id[0] = v_id[tab1[i0][1]];  // Inside
+                tab_id[1] = v_id[tab1[i0][0]];
                 tab_id[2] = p_id[0];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
 
-                tab_id[1] = v_id[tab1[i0][0]];  // Outside
-                tab_id[2] = v_id[i0];
-                tab_id[3] = p_id[0];
-                newCellId = cellarrayout->InsertNextCell(3,tab_id);                
+                tab_id[0] = v_id[tab1[i0][0]];  // Outside
+                tab_id[1] = v_id[i0];
+                tab_id[2] = p_id[0];
+                newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
               else 
                 {
-                tab_id[1] = v_id[tab1[i0][0]];  // Inside
-                tab_id[2] = v_id[i0];
-                tab_id[3] = p_id[0];
-                newCellId = newcellArray->InsertNextCell(3,tab_id);                
-
-                tab_id[0] = v_id[tab1[i0][0]];   // Outside
-                tab_id[1] = v_id[tab1[i0][1]];
+                tab_id[0] = v_id[tab1[i0][0]];  // Inside
+                tab_id[1] = v_id[i0];
                 tab_id[2] = p_id[0];
-                newCellId = cellarrayout->InsertNextCell(3,tab_id);                
+                newCellId = newcellArray->InsertNextCell(3,tab_id);
+
+                tab_id[0] = v_id[tab1[i0][1]];   // Outside
+                tab_id[1] = v_id[tab1[i0][0]];
+                tab_id[2] = p_id[0];
+                newCellId = cellarrayout->InsertNextCell(3,tab_id);
                 }
               break;
             }
