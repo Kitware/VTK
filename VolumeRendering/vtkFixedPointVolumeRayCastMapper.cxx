@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.14");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.15");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -723,6 +723,7 @@ void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[
     {
     sz1 = (k < 1)?(0):(static_cast<int>((k-1)/4));
     sz2 =              static_cast<int>((k  )/4);
+    sz2 = ( k == fullDim[2]-1 )?(sz1):(sz2);
     
     unsigned char *dptr = this->GradientMagnitude[k];
     
@@ -730,11 +731,14 @@ void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[
       {      
       sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
       sy2 =              static_cast<int>((j  )/4);
+      sy2 = ( j == fullDim[1]-1 )?(sy1):(sy2);
+      
       for ( i = 0; i < fullDim[0]; i++ )
         {
         sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
         sx2 =              static_cast<int>((i  )/4);
-        
+        sx2 = ( i == fullDim[0]-1 )?(sx1):(sx2);
+
         for ( c = 0; c < smallDim[3]; c++ )
           {
           unsigned char val;
