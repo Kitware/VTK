@@ -13,7 +13,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     )
   IF (VTK_DATA_ROOT)
     # add tests that require data
-    SET(MyTests ${MyTests}     
+    SET(MyTests ${MyTests}
+      BoxClipPolyData.cxx
       MeshQuality.cxx
       TestHierarchicalBoxPipeline.cxx
       TestMultiBlock.cxx
