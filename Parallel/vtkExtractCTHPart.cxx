@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.3");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.4");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -240,8 +240,6 @@ int vtkExtractCTHPart::RequestData(
     else
       {
       // compute the bounds
-      vtkWarningMacro(<<"compute bounds not yet implemented.");
-      
       if(this->GetNumberOfOutputPorts()>0) // 
         {
         vtkInformation *info=outputVector->GetInformationObject(0);
