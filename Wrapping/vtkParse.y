@@ -158,6 +158,8 @@ char *vtkstrdup(const char *in)
 %token FLOAT
 %token SHORT
 %token LONG
+%token LONG_LONG
+%token INT64__
 %token DOUBLE
 %token VOID
 %token CHAR
@@ -425,7 +427,9 @@ type_primitive:
         currentFunction->ReturnClass = vtkstrdup($1); 
         }
     } |
-  IdType { postSig("vtkIdType "); $<integer>$ = 0xA;};
+  IdType { postSig("vtkIdType "); $<integer>$ = 0xA;} |
+  LONG_LONG { postSig("long long "); $<integer>$ = 0xB;} |
+  INT64__ { postSig("__int64 "); $<integer>$ = 0xC;};
 
 optional_scope: | ':' scope_list;
 
@@ -1083,7 +1087,7 @@ void output_function()
     {
     switch (currentFunction->ReturnType % 0x1000)
       {
-      case 0x301: case 0x302: case 0x307: case 0x30A:
+      case 0x301: case 0x302: case 0x307: case 0x30A: case 0x30B: case 0x30C:
       case 0x304: case 0x305: case 0x306: case 0x313:
         look_for_hint();
 	break;

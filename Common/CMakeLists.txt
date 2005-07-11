@@ -158,18 +158,11 @@ IF(VTK_TYPE_USE_LONG_LONG)
     vtkLongLongArray.cxx
     vtkUnsignedLongLongArray.cxx
     )
-  SET_SOURCE_FILES_PROPERTIES(
-    vtkLongLongArray.cxx
-    vtkUnsignedLongLongArray.cxx
-    WRAP_EXCLUDE
-    )
 ENDIF(VTK_TYPE_USE_LONG_LONG)
 IF(VTK_TYPE_USE___INT64)
   SET(Kit_SRCS ${Kit_SRCS} vtk__Int64Array.cxx)
-  SET_SOURCE_FILES_PROPERTIES(vtk__Int64Array.cxx WRAP_EXCLUDE)
   IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
     SET(Kit_SRCS ${Kit_SRCS} vtkUnsigned__Int64Array.cxx)
-    SET_SOURCE_FILES_PROPERTIES(vtkUnsigned__Int64Array.cxx WRAP_EXCLUDE)
   ENDIF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
 ENDIF(VTK_TYPE_USE___INT64)
 

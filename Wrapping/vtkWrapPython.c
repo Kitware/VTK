@@ -81,7 +81,21 @@ void use_hints(FILE *fp)
         fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
         }
       fprintf(fp,");\n");
-    case 0x305: case 0x306: case 0x313: case 0x314: case 0x31A: case 0x315: case 0x316:
+    case 0x30B: case 0x30C:
+      fprintf(fp,"    return Py_BuildValue((char*)\"");
+#ifdef PY_LONG_LONG
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"L");
+#else
+      for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"l");
+#endif
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++) 
+        {
+        fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+    case 0x305: case 0x306: case 0x313: case 0x314:
+    case 0x31A: case 0x31B: case 0x31C: case 0x315: case 0x316:
       break;
     }
   return;
@@ -129,6 +143,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int aCount)
     case 0x9:     
       fprintf(fp,"%s ",Id); break;
     case 0xA:     fprintf(fp,"vtkIdType "); break;
+    case 0xB:     fprintf(fp,"long long "); break;
+    case 0xC:     fprintf(fp,"__int64 "); break;
     case 0x8: return;
     }
   
@@ -199,7 +215,7 @@ void do_return(FILE *fp)
       
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
-    case 0x301: case 0x307: case 0x30A:
+    case 0x301: case 0x307: case 0x30A: case 0x30B: case 0x30C:
     case 0x304: case 0x305: case 0x306:
       use_hints(fp);
       break;
@@ -271,6 +287,60 @@ void do_return(FILE *fp)
       break;
       }
 #endif
+#if defined(VTK_SIZEOF_LONG_LONG)
+# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF_LONG_LONG)
+    case 0xB:
+      {
+      fprintf(fp,"    return PyLong_FromLongLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1B:
+      {
+      fprintf(fp,"    return PyLong_FromUnsignedLongLong(temp%i);\n",
+              MAX_ARGS);
+      break;
+      }
+# else
+    case 0xB:
+      {
+      fprintf(fp,"    return PyLong_FromLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1B:
+      {
+      fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
+              MAX_ARGS);
+      break;
+      }
+# endif
+#endif
+#if defined(VTK_SIZEOF___INT64)
+# if defined(PY_LONG_LONG) && (VTK_SIZEOF_LONG != VTK_SIZEOF___INT64)
+    case 0xC:
+      {
+      fprintf(fp,"    return PyLong_FromLongLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1C:
+      {
+      fprintf(fp,"    return PyLong_FromUnsignedLongLong(temp%i);\n",
+              MAX_ARGS);
+      break;
+      }
+# else
+    case 0xC:
+      {
+      fprintf(fp,"    return PyLong_FromLong(temp%i);\n", MAX_ARGS);
+      break;
+      }
+    case 0x1C:
+      {
+      fprintf(fp,"    return PyLong_FromUnsignedLong(temp%i);\n",
+              MAX_ARGS);
+      break;
+      }
+# endif
+#endif
     case 0x3:   
       {
       fprintf(fp,"    return PyString_FromStringAndSize((char *)&temp%i,1);\n",
@@ -340,6 +410,18 @@ char *get_format_string()
           }
         result[currPos] = ')'; currPos++;
         break;
+      case 0x30B: case 0x30C:
+        result[currPos] = '('; currPos++;
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+#ifdef PY_LONG_LONG
+          result[currPos] = 'L'; currPos++;
+#else
+          result[currPos] = 'l'; currPos++;
+#endif
+          }
+        result[currPos] = ')'; currPos++;
+        break;
       case 0x109:
       case 0x309: result[currPos] = 'O'; currPos++; break;
       case 0x303: result[currPos] = 'z'; currPos++; break;
@@ -363,6 +445,13 @@ char *get_format_string()
 #endif
 #else
         result[currPos] = 'i'; currPos++; break;
+#endif
+#ifdef PY_LONG_LONG
+      case 0xB: case 0xC:
+        result[currPos] = 'L'; currPos++; break;
+#else
+      case 0xB: case 0xC:
+        result[currPos] = 'l'; currPos++; break;
 #endif
       case 0x3:   result[currPos] = 'c'; currPos++; break;
       case 0x13:   result[currPos] = 'b'; currPos++; break;
@@ -450,6 +539,18 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
+      case 0x30B: case 0x30C:
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->ArgCounts[i]; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"long",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 0x109:
       case 0x309: add_to_sig(result,currentFunction->ArgClasses[i],&currPos); break;
       case 0x302:
@@ -457,6 +558,10 @@ void get_python_signature()
       case 0x1:
       case 0x7:   add_to_sig(result,"float",&currPos); break;
       case 0xA:
+      case 0x1B:
+      case 0xB:
+      case 0x1C:
+      case 0xC:
       case 0x14:
       case 0x4:
       case 0x15:
@@ -524,9 +629,25 @@ void get_python_signature()
           }
         add_to_sig(result,")",&currPos);
         break;
+      case 0x30B: case 0x30C:
+        add_to_sig(result,"(",&currPos);
+        for (j = 0; j < currentFunction->HintSize; j++) 
+          {
+          if (j != 0)
+            {
+            add_to_sig(result,", ",&currPos);
+            }
+          add_to_sig(result,"long",&currPos);
+          }
+        add_to_sig(result,")",&currPos);
+        break;
       case 0x1:
       case 0x7: add_to_sig(result,"float",&currPos); break;
       case 0xA:
+      case 0xB:
+      case 0xC:
+      case 0x1B:
+      case 0x1C:
       case 0x13:
       case 0x14:
       case 0x15:
@@ -1014,6 +1135,8 @@ void outputFunction(FILE *fp, FileInfo *data)
     if (currentFunction->ArgTypes[i] % 0x1000 == 0x313) args_ok = 0;
     if (currentFunction->ArgTypes[i] % 0x1000 == 0x314) args_ok = 0;
     if (currentFunction->ArgTypes[i] % 0x1000 == 0x31A) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31B) args_ok = 0;
+    if (currentFunction->ArgTypes[i] % 0x1000 == 0x31C) args_ok = 0;
     if (currentFunction->ArgTypes[i] % 0x1000 == 0x315) args_ok = 0;
     if (currentFunction->ArgTypes[i] % 0x1000 == 0x316) args_ok = 0;
     }
@@ -1028,6 +1151,8 @@ void outputFunction(FILE *fp, FileInfo *data)
   if (currentFunction->ReturnType % 0x1000 == 0x313) args_ok = 0;
   if (currentFunction->ReturnType % 0x1000 == 0x314) args_ok = 0;
   if (currentFunction->ReturnType % 0x1000 == 0x31A) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x31B) args_ok = 0;
+  if (currentFunction->ReturnType % 0x1000 == 0x31C) args_ok = 0;
   if (currentFunction->ReturnType % 0x1000 == 0x315) args_ok = 0;
   if (currentFunction->ReturnType % 0x1000 == 0x316) args_ok = 0;
 
@@ -1048,7 +1173,7 @@ void outputFunction(FILE *fp, FileInfo *data)
   /* if we need a return type hint make sure we have one */
   switch (currentFunction->ReturnType % 0x1000)
     {
-    case 0x301: case 0x307: case 0x30A:
+    case 0x301: case 0x307: case 0x30A: case 0x30B: case 0x30C:
     case 0x304: case 0x305: case 0x306:
       args_ok = currentFunction->HaveHint;
       break;

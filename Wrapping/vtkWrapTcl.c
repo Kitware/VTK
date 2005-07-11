@@ -64,6 +64,8 @@ void output_temp(FILE *fp, int i, int aType, char *Id, int count)
     case 0x3:     fprintf(fp,"char   "); break;
     case 0x9:     fprintf(fp,"%s ",Id); break;
     case 0xA:   fprintf(fp,"vtkIdType "); break;
+    case 0xB:   fprintf(fp,"long long "); break;
+    case 0xC:   fprintf(fp,"__int64 "); break;
     case 0x8: return;
     }
 
@@ -166,6 +168,36 @@ void use_hints(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+    case 0x30B:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,"%%lli ");
+        }
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
+    case 0x30C:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,"%%I64i ");
+        }
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
     case 0x313: case 0x314: case 0x315:
 #ifndef VTK_USE_64BIT_IDS
     case 0x31A:
@@ -220,6 +252,36 @@ void use_hints(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+    case 0x31B:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,"%%llu ");
+        }
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
+    case 0x31C:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,"%%I64u ");
+        }
+      fprintf(fp,"\"");
+      for (i = 0; i < currentFunction->HintSize; i++)
+        {
+        fprintf(fp,",temp%i[%i]",MAX_ARGS,i);
+        }
+      fprintf(fp,");\n");
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
     }
 }
 
@@ -270,6 +332,18 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+    case 0xB:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"%%lli\",temp%i);\n",
+              MAX_ARGS);
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
+    case 0xC:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"%%I64i\",temp%i);\n",
+              MAX_ARGS);
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
     case 0x14:
 #ifndef VTK_USE_64BIT_IDS
     case 0x1A:
@@ -310,6 +384,18 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
 #endif
+    case 0x1B:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"%%llu\",temp%i);\n",
+              MAX_ARGS);
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
+    case 0x1C:
+      fprintf(fp,"    char tempResult[1024];\n");
+      fprintf(fp,"    sprintf(tempResult,\"%%I64u\",temp%i);\n",
+              MAX_ARGS);
+      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
+      break;
     case 0x303:
       fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, (char*)temp%i, TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS); 
       fprintf(fp,"      }\n    else\n      {\n");
@@ -329,8 +415,8 @@ void return_result(FILE *fp)
     /* handle functions returning vectors */
     /* this is done by looking them up in a hint file */
     case 0x301: case 0x307:
-    case 0x304: case 0x305: case 0x306: case 0x30A:
-    case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A:      
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C:
+    case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       use_hints(fp);
       break;
     default:
@@ -374,7 +460,7 @@ void get_args(FILE *fp, int i)
               start_arg); 
       fprintf(fp,"    temp%i = tempd;\n",i);
       break;
-    case 0x4: case 0x5: case 0x6: case 0xA:
+    case 0x4: case 0x5: case 0x6: case 0xA: case 0xB: case 0xC:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
       fprintf(fp,"    temp%i = tempi;\n",i);
@@ -387,7 +473,7 @@ void get_args(FILE *fp, int i)
               start_arg); 
       fprintf(fp,"    temp%i = (unsigned char)tempi;\n",i);
       break;
-    case 0x14: case 0x1A:
+    case 0x14: case 0x1A: case 0x1B: case 0x1C:
       fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
               start_arg); 
       fprintf(fp,"    temp%i = (unsigned int)tempi;\n",i);
@@ -426,7 +512,7 @@ void get_args(FILE *fp, int i)
                       start_arg); 
               fprintf(fp,"    temp%i[%i] = tempd;\n",i,j);
               break;
-            case 0x4: case 0x5: case 0x6: case 0xA:
+            case 0x4: case 0x5: case 0x6: case 0xA: case 0xB: case 0xC:
               fprintf(fp,"    if (Tcl_GetInt(interp,argv[%i],&tempi) != TCL_OK) error = 1;\n",
                       start_arg); 
               fprintf(fp,"    temp%i[%i] = tempi;\n",i,j);
@@ -517,8 +603,8 @@ void outputFunction(FILE *fp, FileInfo *data)
   switch (currentFunction->ReturnType % 0x1000)
     {
     case 0x301: case 0x307:
-    case 0x304: case 0x305: case 0x306: case 0x30A:
-    case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C:
+    case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       args_ok = currentFunction->HaveHint;
       break;
     }

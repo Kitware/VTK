@@ -157,6 +157,12 @@ Modify lex.yy.c:
 "int"[\t\n\r ]*"short" return(SHORT);
 "int"[\t\n\r ]*"long"  return(LONG);
 
+"long"[\t\n\r ]*"long"  return(LONG_LONG);
+"int"[\t\n\r ]*"long"[\t\n\r ]*"long"  return(LONG_LONG);
+"long"[\t\n\r ]*"long"[\t\n\r ]*"int"  return(LONG_LONG);
+
+"__int64"  return(INT64__);
+
 "class"		return(CLASS);
 "public"  	return(PUBLIC);
 "private"  	return(PRIVATE);

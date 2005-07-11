@@ -18,7 +18,7 @@ IF(VTK_BINARY_DIR)
       --build-generator ${CMAKE_GENERATOR}
       --build-makeprogram ${MAKEPROGRAM}
       --build-project VTKLOCAL
-      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}"
+      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}"
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
       --test-command
       "${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin/vtkLocalTest"
@@ -31,7 +31,7 @@ IF(VTK_BINARY_DIR)
       --build-generator ${CMAKE_GENERATOR}
       --build-makeprogram ${MAKEPROGRAM}
       --build-project VTKMY
-      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}"
+      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}"
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
       --test-command
       "${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1"
