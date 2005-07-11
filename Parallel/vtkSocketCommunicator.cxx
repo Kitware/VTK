@@ -39,7 +39,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.58");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.59");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
@@ -356,8 +356,42 @@ int vtkSocketCommunicator::OpenSocket(int port, const char* )
 }
 
 //----------------------------------------------------------------------------
-int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock)
+int vtkSocketCommunicator::SelectSocket(int socket, unsigned long msec)
 {
+  if ( socket < 0 )
+    {
+    return 0;
+    }
+  fd_set rset;
+  struct timeval tval;
+  struct timeval* tvalptr = 0;
+  if ( msec > 0 )
+    {
+    tval.tv_sec = msec / 1000;
+    tval.tv_usec = msec % 1000;
+    tvalptr = &tval;
+    }
+  FD_ZERO(&rset);
+  FD_SET(socket, &rset);
+  int res = select(socket + 1, &rset, 0, 0, tvalptr);
+  if(res == 0)
+    {
+    return -1;//for time limit expire
+    }
+  if ( res < 0 || !(FD_ISSET(socket, &rset)) )
+    {
+    return 0;
+    }
+  return 1;
+}
+//----------------------------------------------------------------------------
+int vtkSocketCommunicator::WaitForConnectionOnSocket(int sock, unsigned long timeout)
+{
+  int res = this->SelectSocket(sock, timeout);
+  if ( res <= 0 )
+    {
+    return res;
+    }
   this->Socket = accept(sock, 0, 0);
   if ( this->Socket == -1 )
     {

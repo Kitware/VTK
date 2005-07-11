@@ -66,8 +66,9 @@ public:
   
   // Description:
   // Wait for a connection on an already bound port created
-  // by a call to BindPort.
-  virtual int WaitForConnectionOnSocket(int socket);
+  // by a call to BindPort. If the timeout is specified, then the call will
+  // fail after timeout expiers with resulting code of -1.
+  virtual int WaitForConnectionOnSocket(int socket, unsigned long timeout = 0);
   
   // Description:
   // Wait for connection on a given port.
@@ -189,6 +190,8 @@ protected:
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
   void operator=(const vtkSocketCommunicator&);  // Not implemented.
+
+  int SelectSocket(int socket, unsigned long msec);
 
 //BTX
   // SwapBytesInReceiveData needs an invalid / not set.
