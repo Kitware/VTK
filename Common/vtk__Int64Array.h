@@ -42,7 +42,7 @@ public:
   // Description:
   // Get the data type.
   int GetDataType()
-    { return VTK_LONG_LONG; }
+    { return VTK___INT64; }
 
   // Description:
   // Copy the tuple value into a user-provided array.
