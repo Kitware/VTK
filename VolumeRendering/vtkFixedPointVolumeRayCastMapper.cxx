@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.15");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.16");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -187,13 +187,27 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
 
   if ( !independent )
     {
-    scale[0] = 255.0 / (0.25*(scalarRange[components-1][1] - scalarRange[components-1][0]));
+    if ( scalarRange[components-1][1] - scalarRange[components-1][0] )
+      {
+      scale[0] = 255.0 / (0.25*(scalarRange[components-1][1] - scalarRange[components-1][0]));
+      }
+    else
+      {
+      scale[0] = 0.0;
+      }
     }
   else
     {
     for (c = 0; c < components; c++ )
       {
-      scale[c] = 255.0 / (0.25*(scalarRange[c][1] - scalarRange[c][0]));
+      if ( scalarRange[c][1] - scalarRange[c][0] )
+        {
+        scale[c] = 255.0 / (0.25*(scalarRange[c][1] - scalarRange[c][0]));
+        }
+      else
+        {
+        scale[c] = 1.0;
+        }
       }
     }
   
@@ -732,7 +746,7 @@ void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[
       sy1 = (j < 1)?(0):(static_cast<int>((j-1)/4));
       sy2 =              static_cast<int>((j  )/4);
       sy2 = ( j == fullDim[1]-1 )?(sy1):(sy2);
-      
+
       for ( i = 0; i < fullDim[0]; i++ )
         {
         sx1 = (i < 1)?(0):(static_cast<int>((i-1)/4));
@@ -755,7 +769,7 @@ void vtkFixedPointVolumeRayCastMapper::FillInMaxGradientMagnitudes( int fullDim[
                   3*( z*smallDim[0]*smallDim[1]*smallDim[3] +
                       y*smallDim[0]*smallDim[3] +
                       x*smallDim[3] + c);
-
+                
                 // Need to keep track of max gradient magnitude in upper
                 // eight bits. No need to preserve lower eight (the flag)
                 // since we will be recomputing this.
@@ -786,7 +800,7 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
   vtkImageData *input = this->GetInput();
 
   // We'll need this info later
-  int components   = input->GetNumberOfScalarComponents();
+  int components   = input->GetPointData()->GetScalars()->GetNumberOfComponents();
   int independent  = vol->GetProperty()->GetIndependentComponents();
   int dim[3];    
   input->GetDimensions( dim );  
@@ -1291,6 +1305,16 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
 
 void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
+  if ( !this->GetInput()->GetPointData()->GetScalars() )
+    {
+    cout << "Ack - I don't have point data scalars!" << endl;
+    }
+  else
+    {
+    cout << "Scalars OK - rendering" << endl;
+    }
+  
+  
   this->Timer->StartTimer();
   
   // Since we are passing in a value of 0 for the multiRender flag
@@ -1520,43 +1544,52 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
       dir[1] = this->ToFixedPointDirection(rayDirection[1]);        
       dir[2] = this->ToFixedPointDirection(rayDirection[2]);        
         
-      unsigned int biggestVal, biggestIndex;
-      biggestIndex = 0;
-      biggestVal = dir[0];
-      if ( (dir[1]&0x7fffffff) > (biggestVal&0x7fffffff) )
+      int stepLoop;
+      int stepsValid = 0;
+      int currSteps;
+      for ( stepLoop = 0; stepLoop < 3; stepLoop++ )
         {
-        biggestIndex = 1;
-        biggestVal = dir[1];
-        }
-      if ( (dir[2]&0x7fffffff) > (biggestVal&0x7fffffff) )
-        {
-        biggestIndex = 2;
-        biggestVal = dir[2];
-        }
-      
-      
-      unsigned int endVal = this->ToFixedPointPosition(rayEnd[biggestIndex]);
+        if ( !( dir[stepLoop]&0x7fffffff ) )
+          {
+          continue;
+          }
         
-      if ( biggestVal&0x80000000 )
-        {
-        if ( endVal > pos[biggestIndex] )
+        unsigned int endVal = this->ToFixedPointPosition(rayEnd[stepLoop]);
+        if ( rayEnd[stepLoop] < this->CroppingBounds[stepLoop*2] ||
+             rayEnd[stepLoop] >= this->CroppingBounds[stepLoop*2 + 1] )
           {
-          *numSteps = 1 + (endVal - pos[biggestIndex])/(biggestVal&0x7fffffff);
+          cout << "We seem to have a problem with the ray end!" << endl;
+          cout << rayEnd[stepLoop] << " " <<
+            this->CroppingBounds[stepLoop*2] << " " << this->CroppingBounds[stepLoop*2 + 1] << endl;
+          }
+        
+        if ( dir[stepLoop]&0x80000000 )
+          {
+          if ( endVal > pos[stepLoop] )
+            {
+            currSteps = 1 + (endVal - pos[stepLoop])/(dir[stepLoop]&0x7fffffff);
+            }
+          else
+            {
+            currSteps = 0;
+            }
           }
         else
           {
-          *numSteps = 0;
+          if ( pos[stepLoop] > endVal )
+            {
+            currSteps = 1 + (pos[stepLoop]- endVal)/dir[stepLoop];
+            }
+          else
+            {
+            currSteps = 0;
+            }
           }
-        }
-      else
-        {
-        if ( pos[biggestIndex] > endVal )
+        
+        if ( !stepsValid || currSteps < *numSteps )
           {
-          *numSteps = 1 + (pos[biggestIndex]- endVal)/biggestVal;
-          }
-        else
-          {
-          *numSteps = 0;
+          *numSteps = currSteps;
+          stepsValid = 1;
           }
         }
       }
@@ -2410,7 +2443,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
   void *dataPtr = input->GetScalarPointer();
  
  int scalarType   = input->GetScalarType();
- int components   = input->GetNumberOfScalarComponents();
+ int components   = input->GetPointData()->GetScalars()->GetNumberOfComponents();
  int independent  = vol->GetProperty()->GetIndependentComponents();
  
  int dim[3];
@@ -2539,7 +2572,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateShadingTable( vtkRenderer *ren,
     }
 
   // How many components?
-  int components = this->GetInput()->GetNumberOfScalarComponents();
+  int components = this->GetInput()->GetPointData()->GetScalars()->GetNumberOfComponents();
   
   int c;
   for ( c = 0; c < ((vol->GetProperty()->GetIndependentComponents())?(components):(1)); c++ )
@@ -2603,7 +2636,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateGradients( vtkVolume *vol )
     this->ShadingRequired = 1;
     }
   
-  for ( int c = 0; c < input->GetNumberOfScalarComponents(); c++ )
+  for ( int c = 0; c < input->GetPointData()->GetScalars()->GetNumberOfComponents(); c++ )
     {
     vtkPiecewiseFunction *f = vol->GetProperty()->GetGradientOpacity(c);
     if ( strcmp(f->GetType(), "Constant") || f->GetValue(0.0) != 1.0 )
@@ -2656,7 +2689,7 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
     }
   
   // How many components?
-  int components = input->GetNumberOfScalarComponents();
+  int components = input->GetPointData()->GetScalars()->GetNumberOfComponents();
 
   // Has the sample distance changed?
   if ( this->SavedSampleDistance != this->SampleDistance )
@@ -2790,10 +2823,18 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
       {
       arraySizeNeeded = 32768;
       offset          = -scalarRange[c][0];
-      scale           = 32767.0 / (scalarRange[c][1] - scalarRange[c][0]);
+      
+      if ( scalarRange[c][1] - scalarRange[c][0] )
+        {
+        scale = 32767.0 / (scalarRange[c][1] - scalarRange[c][0]);
+        }
+      else
+        {
+        scale = 1.0;
+        }
       }
     else
-      {
+      {        
       arraySizeNeeded = (int)(scalarRange[c][1] - scalarRange[c][0] + 1);
       offset          = -scalarRange[c][0]; 
       scale           = 1.0;
@@ -2862,16 +2903,26 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
         this->ScalarOpacityTable[c][i] = 
           static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
         }
-      
-      gradientOpacityFunc[c]->GetTable( 0, 
-                                        (scalarRange[c][1] - scalarRange[c][0])*0.25, 
-                                        256, tmpArray );
-      
-      for ( i = 0; i < 256; i++ )
+
+      if ( scalarRange[c][1] - scalarRange[c][0] )
         {
-        this->GradientOpacityTable[c][i] = 
-          static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-        }    
+        gradientOpacityFunc[c]->GetTable( 0, 
+                                          (scalarRange[c][1] - scalarRange[c][0])*0.25, 
+                                          256, tmpArray );
+        
+        for ( i = 0; i < 256; i++ )
+          {
+          this->GradientOpacityTable[c][i] = 
+            static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
+          }    
+        }
+      else
+        {
+        for ( i = 0; i < 256; i++ )
+          {
+          this->GradientOpacityTable[c][i] = 0x0000;
+          }
+        }
       }
     }
   else 
@@ -2937,14 +2988,26 @@ int vtkFixedPointVolumeRayCastMapper::UpdateColorTable( vtkVolume *vol )
           static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
         }
       
-      gradientOpacityFunc[0]->GetTable( 0, (scalarRange[components-1][1] - scalarRange[components-1][0])*0.25, 
-                                        256, tmpArray );
-      
-      for ( i = 0; i < 256; i++ )
+      if ( scalarRange[components-1][1] - scalarRange[components-1][0] )
         {
-        this->GradientOpacityTable[0][i] = 
-          static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
-        }    
+        gradientOpacityFunc[0]->GetTable( 0, 
+                                          (scalarRange[components-1][1] - 
+                                           scalarRange[components-1][0])*0.25, 
+                                          256, tmpArray );
+      
+        for ( i = 0; i < 256; i++ )
+          {
+          this->GradientOpacityTable[0][i] = 
+            static_cast<unsigned short>(tmpArray[i]*VTKKW_FP_SCALE + 0.5);
+          }    
+        }
+      else
+        {
+        for ( i = 0; i < 256; i++ )
+          {
+          this->GradientOpacityTable[0][i] = 0x0000;
+          }    
+        }
     }
   
   return 1;
