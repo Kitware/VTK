@@ -152,7 +152,11 @@ public:
 
   // Description:
   // Return the number of boundaries of dimension `dim' (or all dimensions
-  // less than GetDimension() if -1) of the cell.
+  // greater than 0 and less than GetDimension() if -1) of the cell.
+  // When \a dim is -1, the number of vertices is not included in the
+  // count because vertices are a special case: a vertex will have
+  // at most a single field value associated with it; DOF nodes may have
+  // an arbitrary number of field values associated with them.
   // \pre valid_dim_range: (dim==-1) || ((dim>=0)&&(dim<GetDimension()))
   // \post positive_result: result>=0
   virtual int GetNumberOfBoundaries(int dim=-1)=0;
@@ -160,8 +164,13 @@ public:
   // Description:
   // Accumulated number of DOF nodes of the current cell. A DOF node is
   // a component of cell with a given topological dimension. e.g.: a triangle
-  // has 7 DOF: 1 face, 3 edges, 3 vertices. An hexahedron has 27 DOF:
-  // 1 region, 6 faces, 12 edges, 8 vertices.
+  // has 4 DOF: 1 face and 3 edges. An hexahedron has 19 DOF:
+  // 1 region, 6 faces, and 12 edges.
+  //
+  // The number of vertices is not included in the
+  // count because vertices are a special case: a vertex will have
+  // at most a single field value associated with it; DOF nodes may have
+  // an arbitrary number of field values associated with them.
   // \post valid_result: result==GetNumberOfBoundaries(-1)+1
   virtual int GetNumberOfDOFNodes()=0;
   

@@ -70,7 +70,7 @@
 #endif
 
 
-vtkCxxRevisionMacro(vtkBridgeCell, "1.12");
+vtkCxxRevisionMacro(vtkBridgeCell, "1.13");
 
 vtkStandardNewMacro(vtkBridgeCell);
 
@@ -244,12 +244,12 @@ int vtkBridgeCell::GetNumberOfBoundaries(int dim)
   assert("pre: valid_dim_range" && ((dim==-1) ||((dim>=0)&&(dim<GetDimension()))));
   
   int result=0;
-  if( ((dim==-1)&& (this->GetDimension()>1)) || (dim==0) )
+  if( (dim==0) && (this->GetDimension()>1) )
     {
-    result=result+this->Cell->GetNumberOfPoints();
+    result += this->Cell->GetNumberOfPoints();
     if(!this->Cell->IsLinear())
-      {
-      result=result-this->Cell->GetNumberOfEdges();
+      { // Old cell API treats mid-edge nodes as vertices; subtract those out:
+      result -= this->Cell->GetNumberOfEdges();
       }
     }
   if( ((dim==-1) && (this->GetDimension()>1)) || (dim==1) )
