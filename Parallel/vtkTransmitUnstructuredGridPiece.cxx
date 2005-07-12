@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.18");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.19");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -151,7 +151,8 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
                                                    vtkInformation *outInfo)
 {
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
-  vtkExtractUnstructuredGridPiece *extract = vtkExtractUnstructuredGridPiece::New();
+  vtkExtractUnstructuredGridPiece *extract = 
+    vtkExtractUnstructuredGridPiece::New();
   int ext[3];
   int numProcs, i;
 
@@ -169,13 +170,17 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
   tmp->SetReleaseDataFlag(0);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
-  vtkInformation *extractOutInfo = extract->GetOutputPortInformation(0);
-  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  extractOutInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
-                      outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  vtkInformation *extractOutInfo = 
+    extract->GetExecutive()->GetOutputInformation(0);
+  extractOutInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+  extractOutInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  extractOutInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
 
   extract->Update();
 
