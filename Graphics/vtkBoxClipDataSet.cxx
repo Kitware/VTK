@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.9");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.10");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1628,65 +1628,72 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
-    // Test Outside: see(1)
-    unsigned int test[6] = {1,1,1,1,1,1};
-    for (i=0; i<4; i++)
-      {       
-      cellPts->GetPoint(v_id[i],v);
-
-      if (v[0] > this->BoundBoxClip[0][0])
-        {
-        test[0] = 0;
-        }
-      if (v[0] < this->BoundBoxClip[0][1])
-        {
-        test[1] = 0;
-        }
-      if (v[1] > this->BoundBoxClip[1][0])
-        {
-        test[2] = 0;
-        }
-      if (v[1] < this->BoundBoxClip[1][1])
-        {
-        test[3] = 0;
-        }
-      if (v[2] > this->BoundBoxClip[2][0])
-        {
-        test[4] = 0;
-        }
-      if (v[2] < this->BoundBoxClip[2][1])
-        {
-        test[5] = 0;
-        }
-             
-      }//for all points of the cell.
-
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1))
-      {
-      continue;                         // Tetrahedron is outside.
-      }
-
     for (allInside=1, i=0; i<4; i++)
       {
-        ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+
+      if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
+             (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
+             (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
+        { 
+        //outside,its type might change later (nearby intersection)
+        allInside = 0;      
+        }
+      }//for all points of the tetrahedron.
+
+    // Test Outside: see(1)
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<4; i++)
+        {       
         cellPts->GetPoint(v_id[i],v);
 
-        if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
-               (v[1] >= this->BoundBoxClip[1][0])&&(v[1] <= this->BoundBoxClip[1][1])&& 
-               (v[2] >= this->BoundBoxClip[2][0])&&(v[2] <= this->BoundBoxClip[2][1]))))
-          { 
-          //outside,its type might change later (nearby intersection)
-          allInside = 0;      
-          }
-    
-        // Currently all points are injected because of the possibility 
-        // of intersection point merging.
-        if ( locator->InsertUniquePoint(v, iid[i]) )
+        if (v[0] > this->BoundBoxClip[0][0])
           {
-          outPD->CopyData(inPD,ptId, iid[i]);
+          test[0] = 0;
           }
+        if (v[0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;
+          }
+        if (v[1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v[1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v[2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v[2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+
+        }//for all points of the cell.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        continue;                         // Tetrahedron is outside.
+        }
+      }//if not all inside.
+    
+    for (i=0; i<4; i++)
+      {
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+      // Currently all points are injected because of the possibility 
+      // of intersection point merging.
+      if ( locator->InsertUniquePoint(v, iid[i]) )
+        {
+        outPD->CopyData(inPD,ptId, iid[i]);
+        }
         
       }//for all points of the tetrahedron.
 
@@ -2097,6 +2104,25 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
   for (idtetranew = 0 ; idtetranew < totalnewtetra; idtetranew++) 
     {
     arraytetra->GetNextCell(ptstetra,v_id);
+   
+    for (allInside=1, i=0; i<4; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+        
+      for(k=0;k<6;k++)
+        {
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
+        }
+
+      if (!((p[0] <= 0) && (p[1] <= 0) &&
+           (p[2] <= 0) && (p[3] <= 0) &&
+           (p[4] <= 0) && (p[5] <= 0)))
+        {
+        allInside = 0;
+        }
+      }//for all points of the cell.
 
     // Test Outside
     unsigned int test[6] = {1,1,1,1,1,1};
@@ -2127,31 +2153,17 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
            
       }//for all points of the cell.
 
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1))
+    if (!allInside && ((test[0] == 1)|| (test[1] == 1) ||
+                       (test[2] == 1)|| (test[3] == 1) ||
+                       (test[4] == 1)|| (test[5] == 1)))
       {
       continue;                         // Tetrahedron is outside.
       }
    
-    for (allInside=1, i=0; i<4; i++)
+    for (i=0; i<4; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
-        
-      for(k=0;k<6;k++)
-        {
-        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
-               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
-               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
-        }
-
-      if (!((p[0] <= 0) && (p[1] <= 0) &&
-           (p[2] <= 0) && (p[3] <= 0) &&
-           (p[4] <= 0) && (p[5] <= 0)))
-        {
-        allInside = 0;
-        }
        
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
@@ -2575,58 +2587,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
-    // Test Outside: see(1)
-    unsigned int test[6] = {1,1,1,1,1,1};
-    for (i=0; i<4; i++)
-      {       
-      ptIdout[i] = cellIds->GetId(v_id[i]);
-      cellPts->GetPoint(v_id[i],v_tetra[i]);
-
-      if (v_tetra[i][0] > this->BoundBoxClip[0][0])
-        {
-        test[0] = 0;
-        }
-      if (v_tetra[i][0] < this->BoundBoxClip[0][1])
-        {
-        test[1] = 0;
-        }
-      if (v_tetra[i][1] > this->BoundBoxClip[1][0])
-        {
-        test[2] = 0;
-        }
-      if (v_tetra[i][1] < this->BoundBoxClip[1][1])
-        {
-        test[3] = 0;
-        }
-      if (v_tetra[i][2] > this->BoundBoxClip[2][0])
-        {
-        test[4] = 0;
-        }
-      if (v_tetra[i][2] < this->BoundBoxClip[2][1])
-        {
-        test[5] = 0;
-        }
-      }//for all points of the cell.
-
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1)) 
-      {
-      for (i=0; i<4; i++)
-        {
-        if ( locator->InsertUniquePoint(v_tetra[i], iid[i]) ) 
-          {
-          outPD->CopyData(inPD,ptIdout[i], iid[i]);
-          }
-        }
-      int newCellId = tets[1]->InsertNextCell(4,iid);
-      outCD[1]->CopyData(inCD,cellId,newCellId);
-      continue;                         // Tetrahedron is outside.
-      }
-
     for (allInside=1, i=0; i<4; i++)
       {
-      ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
 
       if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
@@ -2636,6 +2598,64 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
         //outside,its type might change later (nearby intersection)
         allInside = 0;      
         }
+      }//for all points of the cell.
+
+    // Test Outside: see(1)
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<4; i++)
+        {       
+        ptIdout[i] = cellIds->GetId(v_id[i]);
+        cellPts->GetPoint(v_id[i],v_tetra[i]);
+
+        if (v_tetra[i][0] > this->BoundBoxClip[0][0])
+          {
+          test[0] = 0;
+          }
+        if (v_tetra[i][0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;
+          }
+        if (v_tetra[i][1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v_tetra[i][1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v_tetra[i][2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v_tetra[i][2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+        }//for all points of the cell.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1)) 
+        {
+        for (i=0; i<4; i++)
+          {
+          if ( locator->InsertUniquePoint(v_tetra[i], iid[i]) ) 
+            {
+            outPD->CopyData(inPD,ptIdout[i], iid[i]);
+            }
+          }
+        int newCellId = tets[1]->InsertNextCell(4,iid);
+        outCD[1]->CopyData(inCD,cellId,newCellId);
+        continue;                         // Tetrahedron is outside.
+        }
+      }//if not allinside.
+
+    for (i=0; i<4; i++)
+      {
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
   
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
@@ -3117,6 +3137,25 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     {
     arraytetra->GetNextCell(ptstetra,v_id);
 
+    for (allInside=1, i=0; i<4; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+  
+      for(k=0;k<6;k++)
+        {
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0]) + 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
+        }
+
+      if (!((p[0] <= 0) && (p[1] <= 0) &&
+            (p[2] <= 0) && (p[3] <= 0) &&
+            (p[4] <= 0) && (p[5] <= 0)))
+        {
+        allInside = 0;
+        }
+      }//for all points of the tetrahedron.
+
     // Test Outside
     unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<4; i++)
@@ -3147,9 +3186,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
      
       }//for all points of the cell.
 
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1)) 
+    if (!allInside && ((test[0] == 1)|| (test[1] == 1) ||
+                       (test[2] == 1)|| (test[3] == 1) ||
+                       (test[4] == 1)|| (test[5] == 1)))
         {
         for (i=0; i<4; i++)
           {
@@ -3163,25 +3202,11 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
         continue;                   // Tetrahedron is outside.
         }
 
-    for (allInside=1, i=0; i<4; i++)
+    for (i=0; i<4; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
-  
-      for(k=0;k<6;k++)
-        {
-        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0]) + 
-               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
-               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
-        }
-
-      if (!((p[0] <= 0) && (p[1] <= 0) &&
-            (p[2] <= 0) && (p[3] <= 0) &&
-            (p[4] <= 0) && (p[5] <= 0)))
-        {
-        allInside = 0;
-        }
-       
+         
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
 
@@ -3663,48 +3688,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
     
-    // Test Outside: 
-    unsigned int test[6] = {1,1,1,1,1,1};
-    for (i=0; i<3; i++)
-      {       
-      cellPts->GetPoint(v_id[i],v);
-      
-      if (v[0] > this->BoundBoxClip[0][0])
-        {
-        test[0] = 0;
-        }
-      if (v[0] < this->BoundBoxClip[0][1])
-        {
-        test[1] = 0;
-        }
-      if (v[1] > this->BoundBoxClip[1][0])
-        {
-        test[2] = 0;
-        }
-      if (v[1] < this->BoundBoxClip[1][1])
-        {
-        test[3] = 0;
-        }
-      if (v[2] > this->BoundBoxClip[2][0])
-        {
-        test[4] = 0;
-        }
-      if (v[2] < this->BoundBoxClip[2][1])
-        {
-        test[5] = 0;
-        }
-      }//for all points of the triangle.
-    
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1))
-      {
-      continue;                         // Triangle is outside.
-      }
-    
     for (allInside=1, i=0; i<3; i++)
       {
-      ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
       
       if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
@@ -3714,9 +3699,56 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
         //outside,its type might change later (nearby intersection)
         allInside = 0;      
         }
+      }
+    
+    // Test Outside:
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<3; i++)
+        {       
+        cellPts->GetPoint(v_id[i],v);
+
+        if (v[0] > this->BoundBoxClip[0][0])
+          {
+          test[0] = 0;
+          }
+        if (v[0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;
+          }
+        if (v[1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v[1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v[2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v[2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+        }//for all points of the triangle.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        continue;                         // Triangle is outside.
+        }
+      }
       
+    for (i=0; i<3; i++)
+      {
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
       if ( locator->InsertUniquePoint(v, iid[i]) )
         {
         outPD->CopyData(inPD,ptId, iid[i]);
@@ -4000,60 +4032,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
-    // Test Outside: see(1)
-    unsigned int test[6] = {1,1,1,1,1,1};
-    for (i=0; i<3; i++)
-      {       
-      ptIdout[i] = cellIds->GetId(v_id[i]);
-      cellPts->GetPoint(v_id[i],v_triangle[i]);
-
-      if (v_triangle[i][0] > this->BoundBoxClip[0][0])
-        {
-        test[0] = 0;
-        }
-      if (v_triangle[i][0] < this->BoundBoxClip[0][1])
-        {
-        test[1] = 0;  
-        }
-      if (v_triangle[i][1] > this->BoundBoxClip[1][0])
-        {
-        test[2] = 0;
-        }
-      if (v_triangle[i][1] < this->BoundBoxClip[1][1])
-        {
-        test[3] = 0;
-        }
-      if (v_triangle[i][2] > this->BoundBoxClip[2][0])
-        {
-        test[4] = 0;
-        }
-      if (v_triangle[i][2] < this->BoundBoxClip[2][1])
-        {
-        test[5] = 0;
-        }
-           
-      }//for all points of the cell.
-
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1)) 
-      {
-      for (i=0; i<3; i++)
-        {
-        if ( locator->InsertUniquePoint(v_triangle[i], iid[i]) ) 
-          {
-          outPD->CopyData(inPD,ptIdout[i], iid[i]);
-          }
-        }
-
-      int newCellId = tets[1]->InsertNextCell(3,iid);
-      outCD[1]->CopyData(inCD,cellId,newCellId);
-      continue;                         // Triangle is outside.
-      }
-
     for (allInside=1, i=0; i<3; i++)
       {
-      ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
 
       if (!(((v[0] >= this->BoundBoxClip[0][0])&&(v[0] <= this->BoundBoxClip[0][1]) &&
@@ -4063,6 +4043,66 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
         //outside,its type might change later (nearby intersection)
         allInside = 0;      
         }
+      }//for all points of the cell.
+
+    // Test Outside: see(1)
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<3; i++)
+        {       
+        ptIdout[i] = cellIds->GetId(v_id[i]);
+        cellPts->GetPoint(v_id[i],v_triangle[i]);
+
+        if (v_triangle[i][0] > this->BoundBoxClip[0][0])
+          {
+          test[0] = 0;
+          }
+        if (v_triangle[i][0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;  
+          }
+        if (v_triangle[i][1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v_triangle[i][1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v_triangle[i][2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v_triangle[i][2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+
+        }//for all points of the cell.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1)) 
+        {
+        for (i=0; i<3; i++)
+          {
+          if ( locator->InsertUniquePoint(v_triangle[i], iid[i]) ) 
+            {
+            outPD->CopyData(inPD,ptIdout[i], iid[i]);
+            }
+          }
+
+        int newCellId = tets[1]->InsertNextCell(3,iid);
+        outCD[1]->CopyData(inCD,cellId,newCellId);
+        continue;                         // Triangle is outside.
+        }
+      }//if not allInside.
+
+    for (i=0; i<3; i++)
+      {
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
   
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
@@ -4403,6 +4443,25 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
+    for (allInside=1, i=0; i<3; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+
+      for(k=0;k<6;k++)
+        {
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+          this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+          this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
+        }
+
+      if (!((p[0] <= 0) && (p[1] <= 0) &&
+            (p[2] <= 0) && (p[3] <= 0) &&
+            (p[4] <= 0) && (p[5] <= 0)))
+        {
+        allInside = 0;
+        }
+      }//for all points of the triangle.
+
     // Test Outside
     unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
@@ -4430,31 +4489,17 @@ void vtkBoxClipDataSet::ClipHexahedron2D(vtkPoints *newPoints,
         }
       }//for all points of the cell.
 
-      if ((test[0] == 1)|| (test[1] == 1) ||
-          (test[2] == 1)|| (test[3] == 1) ||
-          (test[4] == 1)|| (test[5] == 1))
+      if (!allInside && ((test[0] == 1)|| (test[1] == 1) ||
+                         (test[2] == 1)|| (test[3] == 1) ||
+                         (test[4] == 1)|| (test[5] == 1)))
         {
         continue;                         // Triangle is outside.
         }
 
-      for (allInside=1, i=0; i<3; i++)
+      for (i=0; i<3; i++)
         {
         ptId = cellIds->GetId(v_id[i]);
         cellPts->GetPoint(v_id[i],v);
-          
-        for(k=0;k<6;k++)
-          {
-          p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
-                 this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
-                 this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
-          }
-
-        if (!((p[0] <= 0) && (p[1] <= 0) &&
-              (p[2] <= 0) && (p[3] <= 0) &&
-              (p[4] <= 0) && (p[5] <= 0)))
-          {
-          allInside = 0;
-          }
          
         // Currently all points are injected because of the possibility 
         // of intersection point merging.
@@ -4746,6 +4791,25 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     {
     arraytriangle->GetNextCell(ptstriangle,v_id);
 
+    for (allInside=1, i=0; i<3; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+        
+      for(k=0;k<6;k++)
+        {
+        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
+               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
+               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
+        }
+
+      if (!((p[0] <= 0) && (p[1] <= 0) &&
+            (p[2] <= 0) && (p[3] <= 0) &&
+            (p[4] <= 0) && (p[5] <= 0)))
+        {
+        allInside = 0;
+        }
+      }//for all points of the trianglehedron.
+
     // Test Outside
     unsigned int test[6] = {1,1,1,1,1,1};
     for (i=0; i<3; i++)
@@ -4774,9 +4838,9 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
         }
       }//for all points of the cell.
 
-    if ((test[0] == 1)|| (test[1] == 1) ||
-        (test[2] == 1)|| (test[3] == 1) ||
-        (test[4] == 1)|| (test[5] == 1)) 
+    if (!allInside && ((test[0] == 1)|| (test[1] == 1) ||
+                       (test[2] == 1)|| (test[3] == 1) ||
+                       (test[4] == 1)|| (test[5] == 1)))
       {
       for (i=0; i<3; i++)
         {
@@ -4791,24 +4855,10 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
       continue;                         // Triangle is outside.
       }
 
-    for (allInside=1, i=0; i<3; i++)
+    for (i=0; i<3; i++)
       {
       ptId = cellIds->GetId(v_id[i]);
       cellPts->GetPoint(v_id[i],v);
-        
-      for(k=0;k<6;k++)
-        {
-        p[k] = this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])+ 
-               this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1]) +  
-               this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]);
-        }
-
-      if (!((p[0] <= 0) && (p[1] <= 0) &&
-            (p[2] <= 0) && (p[3] <= 0) &&
-            (p[4] <= 0) && (p[5] <= 0)))
-        {
-        allInside = 0;
-        }
        
       // Currently all points are injected because of the possibility 
       // of intersection point merging.
