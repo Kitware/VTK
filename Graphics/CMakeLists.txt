@@ -138,6 +138,7 @@ vtkQuadricDecimation.cxx
 vtkQuantizePolyDataPoints.cxx
 vtkRearrangeFields.cxx
 vtkRectangularButtonSource.cxx
+vtkRectilinearGridClip.cxx
 vtkRectilinearGridGeometryFilter.cxx
 vtkRectilinearGridToTetrahedra.cxx
 vtkRectilinearSynchronizedTemplates.cxx
@@ -167,6 +168,7 @@ vtkStreamPoints.cxx
 vtkStreamTracer.cxx
 vtkStreamer.cxx
 vtkStripper.cxx
+vtkStructuredGridClip.cxx
 vtkStructuredGridGeometryFilter.cxx
 vtkStructuredGridOutlineFilter.cxx
 vtkStructuredPointsGeometryFilter.cxx
