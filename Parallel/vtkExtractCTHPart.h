@@ -42,9 +42,11 @@ class vtkDataSetSurfaceFilter;
 class vtkClipPolyData;
 class vtkCutter;
 
+class vtkMultiProcessController;
+
 //#define EXTRACT_USE_IMAGE_DATA 1
 
-class VTK_HYBRID_EXPORT vtkExtractCTHPart : public vtkPolyDataAlgorithm
+class VTK_PARALLEL_EXPORT vtkExtractCTHPart : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeRevisionMacro(vtkExtractCTHPart,vtkPolyDataAlgorithm);
@@ -73,8 +75,16 @@ public:
 
   // Description:
   // Look at clip plane to compute MTime.
-  unsigned long GetMTime();    
-
+  unsigned long GetMTime();
+  
+  // Description:
+  // Set the controller used to coordinate parallel processing.
+  void SetController(vtkMultiProcessController* controller);
+  
+  // Return the controller used to coordinate parallel processing. By default,
+  // it is the global controller.
+  vtkGetObjectMacro(Controller,vtkMultiProcessController);
+  
 protected:
   vtkExtractCTHPart();
   ~vtkExtractCTHPart();
@@ -92,6 +102,19 @@ protected:
   // the input is a hierarchy of vtkUniformGrid or one level of
   // vtkRectilinearGrid. The output is a hierarchy of vtkPolyData.
   
+  
+  // Description:
+  // Compute the bounds over the composite dataset, some sub-dataset
+  // can be on other processors.
+  void ComputeBounds(vtkHierarchicalDataSet *input,
+                     int processNumber,
+                     int numProcessors);
+  
+  // Description:
+  // The processors are views as a heap tree. The root is the processor of
+  // id 0.
+  int GetParentProcessor(int proc);
+  int GetLeftChildProcessor(int proc);
   
   void ExecutePart(const char *arrayName,
                    vtkHierarchicalDataSet *input,
@@ -190,6 +213,7 @@ protected:
   
   double Bounds[6]; // Whole bounds (dataset over all the processors)
   
+  vtkMultiProcessController *Controller;
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.
   void operator=(const vtkExtractCTHPart&);  // Not implemented.

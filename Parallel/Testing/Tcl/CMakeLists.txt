@@ -13,6 +13,13 @@ IF (VTK_DATA_ROOT)
            -T ${VTK_BINARY_DIR}/Testing/Temporary
            -V Baseline/Parallel/TestExtractVOI.tcl.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
+  ADD_TEST(TestExtractCTHPart ${VTK_EXECUTABLE}
+           ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
+           ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtractCTHPart.tcl
+           -D ${VTK_DATA_ROOT}
+           -T ${VTK_BINARY_DIR}/Testing/Temporary
+           -V Baseline/Parallel/TestExtractCTHPart.png
+           -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(ExtrudePiece-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtrudePiece.tcl
@@ -109,5 +116,5 @@ ADD_TEST(PrintSelf-Parallel ${TCL_TCLSH}
 
 ADD_TEST(TestSetObjectMacro-Parallel ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/FindString.tcl
-	 "${VTK_SOURCE_DIR}/Parallel/vtk\\\\*.h"
-	 "vtkSetObjectMacro")
+         "${VTK_SOURCE_DIR}/Parallel/vtk\\\\*.h"
+         "vtkSetObjectMacro")
