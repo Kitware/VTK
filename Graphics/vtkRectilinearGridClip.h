@@ -29,7 +29,7 @@
 // to the data.
 #include "vtkRectilinearGridAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkRectilinearGridClip : public vtkRectilinearGridAlgorithm
 {
 public:
   static vtkRectilinearGridClip *New();

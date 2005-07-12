@@ -29,7 +29,7 @@
 // to the data.
 #include "vtkStructuredGridAlgorithm.h"
 
-class VTK_IMAGING_EXPORT vtkStructuredGridClip : public vtkStructuredGridAlgorithm
+class VTK_GRAPHICS_EXPORT vtkStructuredGridClip : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkStructuredGridClip *New();
