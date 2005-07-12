@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkMath.h"
 
-vtkCxxRevisionMacro(vtkMapper, "1.119");
+vtkCxxRevisionMacro(vtkMapper, "1.120");
 
 // Initialize static member that controls global immediate mode rendering
 static int vtkMapperGlobalImmediateModeRendering = 0;
@@ -37,7 +37,7 @@ static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 vtkMapper::vtkMapper()
 {
   this->Colors = 0;
-
+  this->Static = 0;
   this->LookupTable = 0;
 
   this->ScalarVisibility = 1;
@@ -91,14 +91,18 @@ double *vtkMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
 
-  if ( ! this->GetInput() ) 
+  vtkDataSet *input = this->GetInput();
+  if ( ! input ) 
     {
     return bounds;
     }
   else
     {
-    this->Update();
-    this->GetInput()->GetBounds(this->Bounds);
+    if (!this->Static)
+      {
+      this->Update();
+      }
+    input->GetBounds(this->Bounds);
     return this->Bounds;
     }
 }
@@ -663,6 +667,9 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scalar Visibility: " 
     << (this->ScalarVisibility ? "On\n" : "Off\n");
+
+  os << indent << "Static: " 
+    << (this->Static ? "On\n" : "Off\n");
 
   double *range = this->GetScalarRange();
   os << indent << "Scalar Range: (" << range[0] << ", " << range[1] << ")\n";

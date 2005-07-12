@@ -21,7 +21,7 @@
 #include "vtkPolyData.h"
 #include "vtkRenderWindow.h"
 
-vtkCxxRevisionMacro(vtkPolyDataMapper, "1.37");
+vtkCxxRevisionMacro(vtkPolyDataMapper, "1.38");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -48,6 +48,12 @@ vtkPolyDataMapper::vtkPolyDataMapper()
 
 void vtkPolyDataMapper::Render(vtkRenderer *ren, vtkActor *act) 
 {
+  if (this->Static)
+    {
+    this->RenderPiece(ren,act);
+    return;
+    }
+  
   int currentPiece, nPieces;
   vtkPolyData *input = this->GetInput();
   
@@ -86,10 +92,6 @@ void vtkPolyDataMapper::SetInput(vtkPolyData *input)
 // Specify the input data or filter.
 vtkPolyData *vtkPolyDataMapper::GetInput()
 {
-  if (this->GetNumberOfInputConnections(0) < 1)
-    {
-    return 0;
-    }
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(0, 0));
 }
@@ -97,6 +99,11 @@ vtkPolyData *vtkPolyDataMapper::GetInput()
 // Update the network connected to this mapper.
 void vtkPolyDataMapper::Update()
 {
+  if (this->Static)
+    {
+    return;
+    }
+  
   int currentPiece, nPieces = this->NumberOfPieces;
   vtkPolyData* input = this->GetInput();
   
@@ -117,7 +124,7 @@ void vtkPolyDataMapper::Update()
 double *vtkPolyDataMapper::GetBounds()
 {
   static double bounds[] = {-1.0,1.0, -1.0,1.0, -1.0,1.0};
-
+  
   // do we have an input
   if ( ! this->GetNumberOfInputConnections(0)) 
     {
@@ -125,8 +132,11 @@ double *vtkPolyDataMapper::GetBounds()
     }
   else
     {
-    this->Update();
-    this->GetInput()->GetBounds(this->Bounds);
+    if (!this->Static)
+      {
+      this->Update();
+      this->GetInput()->GetBounds(this->Bounds);
+      }  
     // if the bounds indicate NAN and subpieces are being used then 
     // return NULL
     if (!vtkMath::AreBoundsInitialized(this->Bounds)

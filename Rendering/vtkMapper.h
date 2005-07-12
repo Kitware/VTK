@@ -117,6 +117,12 @@ public:
   vtkBooleanMacro(ScalarVisibility,int);
 
   // Description:
+  // Turn on/off flag to control whether the mapper's data is static
+  vtkSetMacro(Static,int);
+  vtkGetMacro(Static,int);
+  vtkBooleanMacro(Static,int);
+
+  // Description:
   // Control how the scalar data is mapped to colors.  By default
   // (ColorModeToDefault), unsigned char scalars are treated as colors, and
   // NOT mapped through the lookup table, while everything else is. Setting
@@ -358,6 +364,8 @@ protected:
   int ArrayComponent;
   int ArrayAccessMode;
 
+  int Static;
+  
 private:
   vtkMapper(const vtkMapper&);  // Not implemented.
   void operator=(const vtkMapper&);  // Not implemented.
