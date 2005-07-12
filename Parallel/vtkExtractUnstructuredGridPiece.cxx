@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.18");
+vtkCxxRevisionMacro(vtkExtractUnstructuredGridPiece, "1.18.8.1");
 vtkStandardNewMacro(vtkExtractUnstructuredGridPiece);
 
 vtkExtractUnstructuredGridPiece::vtkExtractUnstructuredGridPiece()
@@ -89,7 +89,7 @@ void vtkExtractUnstructuredGridPiece::ComputeCellTags(vtkIntArray *tags,
     }
     
   // Brute force division.
-  cellPointer = input->GetCells()->GetPointer();
+  cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : 0);
   for (idx = 0; idx < numCells; ++idx)
     {
     if ((idx * numPieces / numCells) == piece)
@@ -136,7 +136,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(
 
   vtkPointData *pd=input->GetPointData(), *outPD=output->GetPointData();
   vtkCellData *cd=input->GetCellData(), *outCD=output->GetCellData();
-  unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
+  unsigned char* cellTypes = (input->GetCellTypesArray() ? input->GetCellTypesArray()->GetPointer(0) : 0);
   int cellType;
   vtkIntArray *cellTags;
   int ghostLevel, piece, numPieces;
@@ -154,9 +154,12 @@ int vtkExtractUnstructuredGridPiece::RequestData(
   double *x;
 
   // Pipeline update piece will tell us what to generate.
-  ghostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
-  piece = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
-  numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
+  ghostLevel = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  piece = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  numPieces = outInfo->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   
   outPD->CopyAllocate(pd);
   outCD->CopyAllocate(cd);
@@ -209,7 +212,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(
     }
 
   // Filter the cells
-  cellPointer = input->GetCells()->GetPointer();
+  cellPointer = (input->GetCells() ? input->GetCells()->GetPointer() : 0);
   for (cellId=0; cellId < numCells; cellId++)
     {
     // Direct access to cells.
@@ -269,7 +272,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(
     {
     if (pointMap->GetId(idx) == -1)
       {
-      if ((count2 * numPieces / count) == piece)
+      if ((count2++ * numPieces / count) == piece)
         {
         x = input->GetPoint(idx);
         newId = newPoints->InsertNextPoint(x);
@@ -295,7 +298,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(
     output->GetCellData()->AddArray(cellGhostLevels);
     cellGhostLevels->Delete();
     cellGhostLevels = 0;
-     }
+    }
   if (pointGhostLevels)
     {
     pointGhostLevels->SetName("vtkGhostLevels");
@@ -321,7 +324,8 @@ void vtkExtractUnstructuredGridPiece::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   
-  os << indent << "Create Ghost Cells: " << (this->CreateGhostCells ? "On\n" : "Off\n");
+  os << indent << "Create Ghost Cells: " 
+     << (this->CreateGhostCells ? "On\n" : "Off\n");
 }
 
 
