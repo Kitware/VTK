@@ -41,7 +41,7 @@
 #include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.1");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.2");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -81,7 +81,6 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->PlaneSource->SetXResolution(1);
   this->PlaneSource->SetYResolution(1);
   this->PlaneOutlinePolyData = vtkPolyData::New();
-  this->PlaneOutlineMapper   = vtkPolyDataMapper::New();
   this->PlaneOutlineActor    = vtkActor::New();
 
   // Represent the resliced image plane
@@ -91,7 +90,6 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   this->ResliceAxes        = vtkMatrix4x4::New();
   this->Texture            = vtkTexture::New();
   this->TexturePlaneCoords = vtkTextureMapToPlane::New();
-  this->TexturePlaneMapper = vtkPolyDataMapper::New();
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
   this->ImageData          = 0;
@@ -100,13 +98,11 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   // Represent the cross hair cursor
   //
   this->CursorPolyData = vtkPolyData::New();
-  this->CursorMapper   = vtkPolyDataMapper::New();
   this->CursorActor    = vtkActor::New();
 
   // Represent the oblique positioning margins
   //
   this->MarginPolyData = vtkPolyData::New();
-  this->MarginMapper   = vtkPolyDataMapper::New();
   this->MarginActor    = vtkActor::New();
 
   // Represent the text: annotation for cursor position and W/L
@@ -172,7 +168,6 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
 vtkImagePlaneWidget::~vtkImagePlaneWidget()
 {
   this->PlaneOutlineActor->Delete();
-  this->PlaneOutlineMapper->Delete();
   this->PlaneOutlinePolyData->Delete();
   this->PlaneSource->Delete();
 
@@ -211,7 +206,6 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     }
 
   this->TexturePlaneCoords->Delete();
-  this->TexturePlaneMapper->Delete();
   this->TexturePlaneActor->Delete();
   this->ColorMap->Delete();
   this->Texture->Delete();
@@ -227,11 +221,9 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     }
 
   this->CursorActor->Delete();
-  this->CursorMapper->Delete();
   this->CursorPolyData->Delete();
 
   this->MarginActor->Delete();
-  this->MarginMapper->Delete();
   this->MarginPolyData->Delete();
 
   this->TextActor->Delete();
@@ -587,6 +579,7 @@ void vtkImagePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkImagePlaneWidget::BuildRepresentation()
 {
+  this->PlaneSource->Update();
   double *o = this->PlaneSource->GetOrigin();
   double *pt1 = this->PlaneSource->GetPoint1();
   double *pt2 = this->PlaneSource->GetPoint2();
@@ -1166,7 +1159,6 @@ void vtkImagePlaneWidget::Push(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
   
   this->PlaneSource->Push( vtkMath::Dot(v,this->Normal) );
-  this->PlaneSource->Update();
   this->BuildRepresentation();
 }
 
@@ -1240,7 +1232,6 @@ void vtkImagePlaneWidget::PlaceWidget(double bds[6])
     this->PlaneSource->SetPoint1(center[0],bounds[3],bounds[4]);
     this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
     }
-  this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateNormal();
   this->UpdateOrigin();
@@ -1318,7 +1309,6 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     this->PlaneSource->SetPoint2(xbounds[1],ybounds[0],zbounds[0]);
     }
 
-  this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateNormal();
   this->UpdateOrigin();
@@ -1421,17 +1411,13 @@ void vtkImagePlaneWidget::UpdateOrigin()
     if ( planeCenter[k] > bounds[2*k+1] )
       {
       planeCenter[k] = bounds[2*k+1];
-      this->PlaneSource->SetCenter(planeCenter);
-      this->PlaneSource->Update();
-      this->BuildRepresentation();
       }
     else if ( planeCenter[k] < bounds[2*k] )
       {
       planeCenter[k] = bounds[2*k];
-      this->PlaneSource->SetCenter(planeCenter);
-      this->PlaneSource->Update();
-      this->BuildRepresentation();
       }
+    this->PlaneSource->SetCenter(planeCenter);
+    this->BuildRepresentation();
     }
 
   this->ResliceAxes->DeepCopy(this->Reslice->GetResliceAxes());
@@ -1538,11 +1524,7 @@ void vtkImagePlaneWidget::UpdateNormal()
   // Pad extent up to a power of two for efficient texture mapping
 
   // make sure we're working with valid values
-  double realExtentX;
-  if (spacingX == 0)
-    realExtentX = 0;
-  else
-    realExtentX = planeSizeX / spacingX;
+  double realExtentX = ( spacingX == 0 ) ? 0 : planeSizeX / spacingX;
 
   int extentX;
   // Sanity check the input data:
@@ -1565,11 +1547,7 @@ void vtkImagePlaneWidget::UpdateNormal()
     }
 
   // make sure extentY doesn't wrap during padding
-  double realExtentY;
-  if (spacingY == 0)
-    realExtentY = 0;
-  else
-    realExtentY = planeSizeY / spacingY;
+  double realExtentY = ( spacingY == 0 ) ? 0 : planeSizeY / spacingY;
 
   int extentY;
   if (realExtentY > (VTK_INT_MAX >> 1) || realExtentY < 1)
@@ -1596,6 +1574,7 @@ void vtkImagePlaneWidget::UpdateNormal()
   // Find expansion factor to account for increasing the extent
   // to a power of two
   //
+
   double expand1 = extentX*spacingX;
   double expand2 = extentY*spacingY;
 
@@ -1609,6 +1588,7 @@ void vtkImagePlaneWidget::UpdateNormal()
   this->TexturePlaneCoords->SetPoint2(planeOrigin[0] + planeAxis2[0]*expand2,
                                       planeOrigin[1] + planeAxis2[1]*expand2,
                                       planeOrigin[2] + planeAxis2[2]*expand2);
+
 }
 
 vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
@@ -1746,7 +1726,6 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
     } 
 
   this->PlaneSource->Push(amount);
-  this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateOrigin();
   this->Modified();
@@ -1827,7 +1806,6 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->SetOrigin(planeOrigin);
   this->PlaneSource->SetPoint1(pt1);
   this->PlaneSource->SetPoint2(pt2);
-  this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateOrigin();
   this->Modified();
@@ -2218,7 +2196,6 @@ vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 
 void vtkImagePlaneWidget::UpdatePlacement(void)
 {
-  this->PlaneSource->Update();
   this->BuildRepresentation();
   this->UpdateNormal();
   this->UpdateOrigin();
@@ -2456,8 +2433,6 @@ void vtkImagePlaneWidget::Spin(double *p1, double *p2)
   this->PlaneSource->SetPoint2(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
   this->PlaneSource->SetOrigin(newpt);
-
-  this->PlaneSource->Update();
   this->BuildRepresentation();
 }
 
@@ -2510,8 +2485,6 @@ void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
   this->PlaneSource->SetPoint2(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
   this->PlaneSource->SetOrigin(newpt);
-
-  this->PlaneSource->Update();
   this->BuildRepresentation();
 }
 
@@ -2542,10 +2515,12 @@ void vtkImagePlaneWidget::GeneratePlaneOutline()
   this->PlaneOutlinePolyData->SetLines(cells);
   cells->Delete();
 
-  this->PlaneOutlineMapper->SetInput( this->PlaneOutlinePolyData );
-  this->PlaneOutlineMapper->SetResolveCoincidentTopologyToPolygonOffset();
-  this->PlaneOutlineActor->SetMapper(this->PlaneOutlineMapper);
-  this->PlaneOutlineActor->PickableOff();
+  vtkPolyDataMapper* planeOutlineMapper = vtkPolyDataMapper::New();
+  planeOutlineMapper->SetInput( this->PlaneOutlinePolyData );
+  planeOutlineMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->PlaneOutlineActor->SetMapper(planeOutlineMapper);
+  this->PlaneOutlineActor->PickableOff();    
+  planeOutlineMapper->Delete();
 }
 
 void vtkImagePlaneWidget::GenerateTexturePlane()
@@ -2561,7 +2536,8 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->TexturePlaneCoords->SetInput(this->PlaneSource->GetOutput());
   this->TexturePlaneCoords->AutomaticPlaneGenerationOff();
 
-  this->TexturePlaneMapper->SetInput(
+  vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
+   texturePlaneMapper->SetInput(
     vtkPolyData::SafeDownCast(this->TexturePlaneCoords->GetOutput()));
 
   this->Texture->SetQualityTo32Bit();
@@ -2570,9 +2546,10 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->Texture->RepeatOff();
   this->Texture->SetLookupTable(this->LookupTable);
 
-  this->TexturePlaneActor->SetMapper(this->TexturePlaneMapper);
+  this->TexturePlaneActor->SetMapper(texturePlaneMapper);
   this->TexturePlaneActor->SetTexture(this->Texture);
   this->TexturePlaneActor->PickableOn();
+  texturePlaneMapper->Delete();
 }
 
 void vtkImagePlaneWidget::GenerateMargins()
@@ -2603,11 +2580,13 @@ void vtkImagePlaneWidget::GenerateMargins()
   this->MarginPolyData->SetLines(cells);
   cells->Delete();
 
-  this->MarginMapper->SetInput(this->MarginPolyData);
-  this->MarginMapper->SetResolveCoincidentTopologyToPolygonOffset();
-  this->MarginActor->SetMapper(this->MarginMapper);
+  vtkPolyDataMapper* marginMapper = vtkPolyDataMapper::New();
+  marginMapper->SetInput(this->MarginPolyData);
+  marginMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->MarginActor->SetMapper(marginMapper);
   this->MarginActor->PickableOff();
   this->MarginActor->VisibilityOff();
+  marginMapper->Delete();
 }
 
 void vtkImagePlaneWidget::GenerateCursor()
@@ -2635,11 +2614,13 @@ void vtkImagePlaneWidget::GenerateCursor()
   this->CursorPolyData->SetLines(cells);
   cells->Delete();
 
-  this->CursorMapper->SetInput(this->CursorPolyData);
-  this->CursorMapper->SetResolveCoincidentTopologyToPolygonOffset();
-  this->CursorActor->SetMapper(this->CursorMapper);
+  vtkPolyDataMapper* cursorMapper = vtkPolyDataMapper::New();
+  cursorMapper->SetInput(this->CursorPolyData);
+  cursorMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  this->CursorActor->SetMapper(cursorMapper);
   this->CursorActor->PickableOff();
   this->CursorActor->VisibilityOff();
+  cursorMapper->Delete();
 }
 
 void vtkImagePlaneWidget::GenerateText()
@@ -2834,7 +2815,6 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     this->PlaneSource->SetOrigin(origin);
     }
 
-  this->PlaneSource->Update(); 
   this->BuildRepresentation();
 }
 
@@ -2880,7 +2860,6 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2,
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
   this->PlaneSource->SetPoint2(point2);
-  this->PlaneSource->Update();
   this->BuildRepresentation();
 }
 

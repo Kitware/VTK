@@ -109,7 +109,6 @@ class vtkMatrix4x4;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
-class vtkPolyDataMapper;
 class vtkProperty;
 class vtkTextActor;
 class vtkTextProperty;
@@ -512,7 +511,6 @@ protected:
   double              Normal[3]; // plane normal normalized
   vtkPolyData       *PlaneOutlinePolyData;
   vtkActor          *PlaneOutlineActor;
-  vtkPolyDataMapper *PlaneOutlineMapper;
   void               HighlightPlane(int highlight);
   void               GeneratePlaneOutline();
 
@@ -535,7 +533,6 @@ protected:
   vtkMatrix4x4         *ResliceAxes;
   vtkTransform         *Transform;
   vtkTextureMapToPlane *TexturePlaneCoords;
-  vtkPolyDataMapper    *TexturePlaneMapper;
   vtkActor             *TexturePlaneActor;
   vtkImageMapToColors  *ColorMap;
   vtkTexture           *Texture;
@@ -560,7 +557,6 @@ protected:
 
   // The cross-hair cursor
   vtkPolyData       *CursorPolyData;
-  vtkPolyDataMapper *CursorMapper;
   vtkActor          *CursorActor;
   double             CurrentCursorPosition[3];
   double             CurrentImageValue; // Set to VTK_DOUBLE_MAX when invalid
@@ -585,7 +581,6 @@ protected:
 
   // Visible margins to assist user interaction
   vtkPolyData       *MarginPolyData;
-  vtkPolyDataMapper *MarginMapper;
   vtkActor          *MarginActor;
   int                MarginSelectMode;
   void               GenerateMargins();
