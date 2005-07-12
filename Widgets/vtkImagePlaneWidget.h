@@ -25,8 +25,8 @@
 //
 // The core functionality of the widget is provided by a vtkImageReslice
 // object which passes its output onto a texture mapping pipeline for fast
-// slicing through volumetric data. See the key methods: GenerateTexturePlane(),
-// UpdateOrigin() and UpdateNormal() for implementation details.
+// slicing through volumetric data. See the key methods: GenerateTexturePlane()
+// and UpdatePlane() for implementation details.
 //
 // To use this object, just invoke SetInteractor() with the argument of the
 // method a vtkRenderWindowInteractor.  You may also wish to invoke
@@ -113,7 +113,6 @@ class vtkProperty;
 class vtkTextActor;
 class vtkTextProperty;
 class vtkTexture;
-class vtkTextureMapToPlane;
 class vtkTransform;
 
 #define VTK_NEAREST_RESLICE 0
@@ -508,7 +507,6 @@ protected:
 
   // The geometric represenation of the plane and it's outline
   vtkPlaneSource    *PlaneSource;
-  double              Normal[3]; // plane normal normalized
   vtkPolyData       *PlaneOutlinePolyData;
   vtkActor          *PlaneOutlineActor;
   void               HighlightPlane(int highlight);
@@ -532,7 +530,6 @@ protected:
   vtkImageReslice      *Reslice;
   vtkMatrix4x4         *ResliceAxes;
   vtkTransform         *Transform;
-  vtkTextureMapToPlane *TexturePlaneCoords;
   vtkActor             *TexturePlaneActor;
   vtkImageMapToColors  *ColorMap;
   vtkTexture           *Texture;
@@ -551,8 +548,7 @@ protected:
   void           CreateDefaultProperties();
 
   // Reslice and texture management
-  void UpdateNormal();
-  void UpdateOrigin();
+  void UpdatePlane();
   void GenerateTexturePlane();
 
   // The cross-hair cursor

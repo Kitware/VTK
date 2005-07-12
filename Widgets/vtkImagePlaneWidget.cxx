@@ -38,10 +38,9 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
-#include "vtkTextureMapToPlane.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.2");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.3");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -87,9 +86,9 @@ vtkImagePlaneWidget::vtkImagePlaneWidget() : vtkPolyDataSourceWidget()
   //
   this->ColorMap           = vtkImageMapToColors::New();
   this->Reslice            = vtkImageReslice::New();
+  this->Reslice->TransformInputSamplingOff();
   this->ResliceAxes        = vtkMatrix4x4::New();
   this->Texture            = vtkTexture::New();
-  this->TexturePlaneCoords = vtkTextureMapToPlane::New();
   this->TexturePlaneActor  = vtkActor::New();
   this->Transform          = vtkTransform::New();
   this->ImageData          = 0;
@@ -205,7 +204,6 @@ vtkImagePlaneWidget::~vtkImagePlaneWidget()
     this->LookupTable->UnRegister(this);
     }
 
-  this->TexturePlaneCoords->Delete();
   this->TexturePlaneActor->Delete();
   this->ColorMap->Delete();
   this->Texture->Delete();
@@ -596,9 +594,6 @@ void vtkImagePlaneWidget::BuildRepresentation()
   points->SetPoint(3,pt2);
   points->GetData()->Modified();
   this->PlaneOutlinePolyData->Modified();
-
-  this->PlaneSource->GetNormal(this->Normal);
-  vtkMath::Normalize(this->Normal);
 }
 
 void vtkImagePlaneWidget::HighlightPlane(int highlight)
@@ -988,37 +983,32 @@ void vtkImagePlaneWidget::OnMouseMove()
   else if ( this->State == vtkImagePlaneWidget::Pushing )
     {
     this->Push(prevPickPoint, pickPoint);
-    this->UpdateNormal();
-    this->UpdateOrigin();
+    this->UpdatePlane();
     this->UpdateMargins();
     }
   else if ( this->State == vtkImagePlaneWidget::Spinning )
     {
     this->Spin(prevPickPoint, pickPoint);
-    this->UpdateNormal();
-    this->UpdateOrigin();
+    this->UpdatePlane();
     this->UpdateMargins();
     }
   else if ( this->State == vtkImagePlaneWidget::Rotating )
     {
     camera->GetViewPlaneNormal(vpn);
     this->Rotate(prevPickPoint, pickPoint, vpn);
-    this->UpdateNormal();
-    this->UpdateOrigin();
+    this->UpdatePlane();
     this->UpdateMargins();
     }
   else if ( this->State == vtkImagePlaneWidget::Scaling )
     {
     this->Scale(prevPickPoint, pickPoint, X, Y);
-    this->UpdateNormal();
-    this->UpdateOrigin();
+    this->UpdatePlane();
     this->UpdateMargins();
     }
   else if ( this->State == vtkImagePlaneWidget::Moving )
     {
     this->Translate(prevPickPoint, pickPoint);
-    this->UpdateNormal();
-    this->UpdateOrigin();
+    this->UpdatePlane();
     this->UpdateMargins();
     }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
@@ -1157,8 +1147,8 @@ void vtkImagePlaneWidget::Push(double *p1, double *p2)
   v[0] = p2[0] - p1[0];
   v[1] = p2[1] - p1[1];
   v[2] = p2[2] - p1[2];
-  
-  this->PlaneSource->Push( vtkMath::Dot(v,this->Normal) );
+
+  this->PlaneSource->Push( vtkMath::Dot( v, this->PlaneSource->GetNormal() ) );
   this->BuildRepresentation();
 }
 
@@ -1233,8 +1223,7 @@ void vtkImagePlaneWidget::PlaceWidget(double bds[6])
     this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
     }
   this->BuildRepresentation();
-  this->UpdateNormal();
-  this->UpdateOrigin();
+  this->UpdatePlane();
 }
 
 void vtkImagePlaneWidget::SetPlaneOrientation(int i)
@@ -1310,8 +1299,7 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     }
 
   this->BuildRepresentation();
-  this->UpdateNormal();
-  this->UpdateOrigin();
+  this->UpdatePlane();
   this->Modified();
 }
 
@@ -1352,34 +1340,34 @@ void vtkImagePlaneWidget::SetInput(vtkDataSet* input)
   this->SetPlaneOrientation(this->PlaneOrientation);
 }
 
-void vtkImagePlaneWidget::UpdateOrigin()
+void vtkImagePlaneWidget::UpdatePlane()
 {
+  if ( !this->Reslice || \
+       !(this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput())) )
+    {
+    return;
+    }
+
+  // Calculate appropriate pixel spacing for the reslicing
+  //
+  this->ImageData->UpdateInformation();
+  double spacing[3];
+  this->ImageData->GetSpacing(spacing);
+
   int i;
 
   if ( this->RestrictPlaneToVolume )
     {
-    if ( !this->Reslice )
-      {
-      return;
-      }
-    this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
-    if ( !this->ImageData )
-      {
-      return;
-      }
-    this->ImageData->UpdateInformation();
     double origin[3];
     this->ImageData->GetOrigin(origin);
-    double spacing[3];
-    this->ImageData->GetSpacing(spacing);
     int extent[6];
     this->ImageData->GetWholeExtent(extent);
-    double bounds[] = {origin[0] + spacing[0]*extent[0],
-                      origin[0] + spacing[0]*extent[1],
-                      origin[1] + spacing[1]*extent[2],
-                      origin[1] + spacing[1]*extent[3],
-                      origin[2] + spacing[2]*extent[4],
-                      origin[2] + spacing[2]*extent[5]};
+    double bounds[] = {origin[0] + spacing[0]*extent[0], //xmin
+                       origin[0] + spacing[0]*extent[1], //xmax
+                       origin[1] + spacing[1]*extent[2], //ymin
+                       origin[1] + spacing[1]*extent[3], //ymax
+                       origin[2] + spacing[2]*extent[4], //zmin
+                       origin[2] + spacing[2]*extent[5]};//zmax
 
     for ( i = 0; i <= 4; i += 2 ) // reverse bounds if necessary
       {
@@ -1416,45 +1404,10 @@ void vtkImagePlaneWidget::UpdateOrigin()
       {
       planeCenter[k] = bounds[2*k];
       }
+
     this->PlaneSource->SetCenter(planeCenter);
-    this->BuildRepresentation();
     }
 
-  this->ResliceAxes->DeepCopy(this->Reslice->GetResliceAxes());
-  this->ResliceAxes->SetElement(0,3,0);
-  this->ResliceAxes->SetElement(1,3,0);
-  this->ResliceAxes->SetElement(2,3,0);
-
-  // Transpose is an exact way to invert a pure rotation matrix
-  //
-  this->ResliceAxes->Transpose();
-
-  double planeOrigin[4];
-  this->PlaneSource->GetOrigin(planeOrigin);
-  planeOrigin[3] = 1.0;
-  double originXYZW[4];
-  this->ResliceAxes->MultiplyPoint(planeOrigin,originXYZW);
-
-  this->ResliceAxes->Transpose();
-  double neworiginXYZW[4];
-  double point[] =  {0.0,0.0,originXYZW[2],1.0};
-  this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
-
-  this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
-  this->ResliceAxes->SetElement(1,3,neworiginXYZW[1]);
-  this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
-
-  this->Reslice->SetResliceAxes(this->ResliceAxes);
-
-  double spacingXYZ[3];
-  this->Reslice->GetOutputSpacing(spacingXYZ);
-  this->Reslice->SetOutputOrigin(0.5*spacingXYZ[0] + originXYZW[0],
-                                 0.5*spacingXYZ[1] + originXYZW[1],
-                                 0.0);
-}
-
-void vtkImagePlaneWidget::UpdateNormal()
-{
   double planeAxis1[3];
   double planeAxis2[3];
 
@@ -1466,22 +1419,19 @@ void vtkImagePlaneWidget::UpdateNormal()
   double planeSizeX = vtkMath::Normalize(planeAxis1);
   double planeSizeY = vtkMath::Normalize(planeAxis2);
 
-  this->PlaneSource->GetNormal(this->Normal);
+  double normal[3];
+  this->PlaneSource->GetNormal(normal);
 
   // Generate the slicing matrix
   //
-  int i;
+
   this->ResliceAxes->Identity();
   for ( i = 0; i < 3; i++ )
      {
-     this->ResliceAxes->SetElement(i,0,planeAxis1[i]);
-     this->ResliceAxes->SetElement(i,1,planeAxis2[i]);
-     this->ResliceAxes->SetElement(i,2,this->Normal[i]);
+     this->ResliceAxes->SetElement(0,i,planeAxis1[i]);
+     this->ResliceAxes->SetElement(1,i,planeAxis2[i]);
+     this->ResliceAxes->SetElement(2,i,normal[i]);
      }
-
-  // Transpose is an exact way to invert a pure rotation matrix
-  //
-  this->ResliceAxes->Transpose();
 
   double planeOrigin[4];
   this->PlaneSource->GetOrigin(planeOrigin);
@@ -1491,7 +1441,7 @@ void vtkImagePlaneWidget::UpdateNormal()
 
   this->ResliceAxes->Transpose();
   double neworiginXYZW[4];
-  double point[] =  {0.0,0.0,originXYZW[2],1.0};
+  double point[] =  {originXYZW[0],originXYZW[1],originXYZW[2],originXYZW[3]};
   this->ResliceAxes->MultiplyPoint(point,neworiginXYZW);
 
   this->ResliceAxes->SetElement(0,3,neworiginXYZW[0]);
@@ -1499,18 +1449,6 @@ void vtkImagePlaneWidget::UpdateNormal()
   this->ResliceAxes->SetElement(2,3,neworiginXYZW[2]);
 
   this->Reslice->SetResliceAxes(this->ResliceAxes);
-
-  this->ImageData = vtkImageData::SafeDownCast(this->Reslice->GetInput());
-  if (!this->ImageData)
-    {
-    return;
-    }
-
-  // Calculate appropriate pixel spacing for the reslicing
-  //
-  this->ImageData->UpdateInformation();
-  double spacing[3];
-  this->ImageData->GetSpacing(spacing);
 
   double spacingX = fabs(planeAxis1[0]*spacing[0])+\
                    fabs(planeAxis1[1]*spacing[1])+\
@@ -1564,31 +1502,9 @@ void vtkImagePlaneWidget::UpdateNormal()
         }
     }
 
-  this->Reslice->SetOutputSpacing(spacingX,spacingY,1);
-  this->Reslice->SetOutputOrigin(0.5*spacingX + originXYZW[0],
-                                 0.5*spacingY + originXYZW[1],
-                                 0.0);
-
+  this->Reslice->SetOutputSpacing(planeSizeX/extentX,planeSizeY/extentY,1);
+  this->Reslice->SetOutputOrigin(0.0,0.0,0.0);
   this->Reslice->SetOutputExtent(0,extentX-1,0,extentY-1,0,0);
-
-  // Find expansion factor to account for increasing the extent
-  // to a power of two
-  //
-
-  double expand1 = extentX*spacingX;
-  double expand2 = extentY*spacingY;
-
-  // Set the texture coordinates to map the image to the plane
-  //
-  this->TexturePlaneCoords->SetOrigin(planeOrigin[0],
-                                      planeOrigin[1],planeOrigin[2]);
-  this->TexturePlaneCoords->SetPoint1(planeOrigin[0] + planeAxis1[0]*expand1,
-                                      planeOrigin[1] + planeAxis1[1]*expand1,
-                                      planeOrigin[2] + planeAxis1[2]*expand1);
-  this->TexturePlaneCoords->SetPoint2(planeOrigin[0] + planeAxis2[0]*expand2,
-                                      planeOrigin[1] + planeAxis2[1]*expand2,
-                                      planeOrigin[2] + planeAxis2[2]*expand2);
-
 }
 
 vtkImageData* vtkImagePlaneWidget::GetResliceOutput()
@@ -1727,7 +1643,7 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
 
   this->PlaneSource->Push(amount);
   this->BuildRepresentation();
-  this->UpdateOrigin();
+  this->UpdatePlane();
   this->Modified();
 }
 
@@ -1807,7 +1723,7 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->SetPoint1(pt1);
   this->PlaneSource->SetPoint2(pt2);
   this->BuildRepresentation();
-  this->UpdateOrigin();
+  this->UpdatePlane();
   this->Modified();
 }
 
@@ -2197,8 +2113,7 @@ vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 void vtkImagePlaneWidget::UpdatePlacement(void)
 {
   this->BuildRepresentation();
-  this->UpdateNormal();
-  this->UpdateOrigin();
+  this->UpdatePlane();
   this->UpdateMargins();
 }
 
@@ -2402,7 +2317,7 @@ void vtkImagePlaneWidget::Spin(double *p1, double *p2)
   // Plane center and normal before transform
   //
   double* wc = this->PlaneSource->GetCenter();
-  double* wn = this->Normal;
+  double* wn = this->PlaneSource->GetNormal();
 
   // Radius vector from center to cursor position
   //
@@ -2533,12 +2448,9 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
   this->ColorMap->SetOutputFormatToRGBA();
   this->ColorMap->PassAlphaToOutputOn();
 
-  this->TexturePlaneCoords->SetInput(this->PlaneSource->GetOutput());
-  this->TexturePlaneCoords->AutomaticPlaneGenerationOff();
-
   vtkPolyDataMapper* texturePlaneMapper = vtkPolyDataMapper::New();
-   texturePlaneMapper->SetInput(
-    vtkPolyData::SafeDownCast(this->TexturePlaneCoords->GetOutput()));
+  texturePlaneMapper->SetInput(
+    vtkPolyData::SafeDownCast(this->PlaneSource->GetOutput()));
 
   this->Texture->SetQualityTo32Bit();
   this->Texture->MapColorScalarsThroughLookupTableOff();
@@ -2555,7 +2467,7 @@ void vtkImagePlaneWidget::GenerateTexturePlane()
 void vtkImagePlaneWidget::GenerateMargins()
 {
   // Construct initial points
-  vtkPoints* points = vtkPoints::New(VTK_DOUBLE); 
+  vtkPoints* points = vtkPoints::New(VTK_DOUBLE);
   points->SetNumberOfPoints(8);
   int i;
   for (i = 0; i < 8; i++)
