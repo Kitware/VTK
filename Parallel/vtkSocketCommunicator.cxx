@@ -29,6 +29,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 
 
@@ -39,7 +40,7 @@
 #define vtkCloseSocketMacro(sock) (close(sock))
 #endif
 
-vtkCxxRevisionMacro(vtkSocketCommunicator, "1.59");
+vtkCxxRevisionMacro(vtkSocketCommunicator, "1.60");
 vtkStandardNewMacro(vtkSocketCommunicator);
 
 //----------------------------------------------------------------------------
