@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.8");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.9");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -1255,7 +1255,10 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
 // The new cell  created in  intersection between tetrahedron and plane
 // are tetrahedron or wedges or pyramides.
 //
-// CreateTetra is used to subdivide wedges and pyramides in tetrahedron.
+// CreateTetra is used to subdivide wedges and pyramids in tetrahedron.  The
+// proper vertex ordering for wedges and pyramids can be found in "The
+// Visualization Toolkit."  In the third edition, they are in Figure 5-2 on page
+// 115 in section 5.4 ("Cell Types") in the "Basic Data Representation" chapter.
 //  
 void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArray *newCellArray)
 {
@@ -1272,8 +1275,8 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
     { 
     //VTK_WEDGE: Create 3 tetrahedra
     //first tetrahedron 
-    static  vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
-                                    {3,0,1,2},{4,0,1,2},{5,0,1,2}};             
+    const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
+                                  {3,0,1,2},{4,0,1,2},{5,0,1,2}};             
     xmin = cellIds[0];
     id = 0;
     for(i=1;i<6;i++) 
@@ -1292,10 +1295,10 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
       
     //Pyramid: create 2 tetrahedra
   
-    static vtkIdType vert[6][5]= {{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                  {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
-    static vtkIdType vpy[8][4] = {{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                  {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};                      
+    const vtkIdType vert[6][5]= {{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
+                                 {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
+    const vtkIdType vpy[8][4] = {{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
+                                 {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
     xmin    = cellIds[vert[id][0]];
     tabp[0] = vert[id][0];
     idpy = 0;
@@ -1325,8 +1328,8 @@ void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArr
     {  
     //VTK_PYRAMID: Create 2 tetrahedra
     //The first element in each set is the smallest index of pyramid
-    static  vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                    {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+    const vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
+                                  {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
     xmin = cellIds[0];
     id   = 0;
     for(i=1;i<4;i++) 
@@ -1601,7 +1604,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
   vtkIdType i,j;
   unsigned int allInside;
   unsigned int idcellnew;
-  unsigned int ind[3];
+  unsigned int cutInd;
 
   vtkIdType edges[6][2] = { {0,1}, {1,2}, {2,0},
                             {0,3}, {1,3}, {2,3} };  /* Edges Tetrahedron */
@@ -1697,42 +1700,42 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    // tab4: tetrahedron intersection in 4 edges.see (2)
-
-    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
-                            {2,0,0,3,2,1},
-                            {3,3,2,0,2,1},
-                            {1,0,2,0,1,3},
-                            {0,0,1,2,3,3},
-                            {0,1,2,1,2,3}};
-    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
-                            {0,2,1,0,3,2},
-                            {0,1,2,1,0,3},
-                            {0,1,2,0,1,2}};
-    unsigned int tab2[12][5] = { {0,0,1,2,3},
-                             {2,1,0,1,3},
-                             {1,0,1,0,3},
-                             {1,0,1,2,0},
-                             {3,1,0,1,0},
-                             {2,0,1,3,0},
-                             {3,1,0,2,1},
-                             {2,1,0,0,1},
-                             {0,0,1,3,1},
-                             {1,0,1,3,2},
-                             {3,1,0,0,2},
-                             {0,0,1,1,2}}; 
-    unsigned int tab1[12][3] = { {2,3,1},
-                             {3,2,0},
-                             {3,0,1},
-                             {0,3,2},
-                             {1,3,0},
-                             {3,1,2},
-                             {2,1,0},
-                             {1,2,3},
-                             {0,2,3},
-                             {2,0,1},
-                             {0,1,3},
-                             {1,0,2}}; 
+    
+    // Tetrahedron Intersection Cases
+    const unsigned int tab4[6][6] = { {1,1,0,3,3,2},
+                                      {2,0,0,3,2,1},
+                                      {3,3,2,0,2,1},
+                                      {1,0,2,0,1,3},
+                                      {0,0,1,2,3,3},
+                                      {0,1,2,1,2,3}};
+    const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
+                                      {0,1,2,0,2,3},
+                                      {0,1,2,1,0,3},
+                                      {0,1,2,0,1,2}};
+    const unsigned int tab2[12][5] = { {0,0,1,2,3},
+                                       {2,1,0,1,3},
+                                       {1,0,1,0,3},
+                                       {2,0,1,3,0},
+                                       {3,1,0,1,0},
+                                       {1,0,1,2,0},
+                                       {3,1,0,2,1},
+                                       {2,1,0,0,1},
+                                       {0,0,1,3,1},
+                                       {1,0,1,3,2},
+                                       {3,1,0,0,2},
+                                       {0,0,1,1,2}}; 
+    const unsigned int tab1[12][3] = { {2,3,1},
+                                       {3,2,0},
+                                       {3,0,1},
+                                       {0,3,2},
+                                       {1,3,0},
+                                       {3,1,2},
+                                       {2,1,0},
+                                       {1,2,3},
+                                       {2,0,3},
+                                       {0,2,1},
+                                       {0,1,3},
+                                       {1,0,2}}; 
       
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
@@ -1741,32 +1744,11 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      // ind[0] is the index of the coordinate axis perpendicular to the plane.
-      // ind[1] and ind[2] are the indices of the other two axis.
-      switch(planes)
-        {
-        case 0:
-        case 1:
-          ind[0] = 0;
-          ind[1] = 1;
-          ind[2] = 2;
-          break;
-        case 2:
-        case 3:
-          ind[0] = 1;
-          ind[1] = 0;
-          ind[2] = 2;
-          break;
-        case 4:
-        case 5:
-          ind[0] = 2;
-          ind[1] = 0;
-          ind[2] = 1;
-          break;
-        }
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
         
       // The plane is always parallel to unitary cube. 
-      value = this->BoundBoxClip[ind[0]][planes%2];
+      value = this->BoundBoxClip[cutInd][planes%2];
         
       unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -1792,10 +1774,10 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
           p1 = v_tetra[verts[0]];
           p2 = v_tetra[verts[1]];
   
-          if ( (p1[ind[0]] <= value && value <= p2[ind[0]]) || 
-               (p2[ind[0]] <= value && value <= p1[ind[0]]) )
+          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
+               (p2[cutInd] <= value && value <= p1[cutInd]) )
             {
-            deltaScalar = p2[ind[0]] - p1[ind[0]];
+            deltaScalar = p2[cutInd] - p1[cutInd];
       
             if (deltaScalar > 0)
               {
@@ -1811,7 +1793,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
       
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
-            (value - pedg1[ind[0]]) / deltaScalar );
+            (value - pedg1[cutInd]) / deltaScalar );
       
             if ( t == 0.0 || t == 1.0 )
               {
@@ -1839,8 +1821,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
           unsigned int outside = 0;
           for(i=0; i<4; i++)
             {
-            if (((v_tetra[i][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_tetra[i][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[i][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_tetra[i][cutInd] > value) && ((planes % 2) == 1))) 
 
               // If only one vertex is ouside, so the tetrahedron is outside 
               // because there is not intersection.
@@ -1876,8 +1858,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                 continue;
               }                                                         
 
-            if (((v_tetra[3][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_tetra[3][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[3][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_tetra[3][cutInd] > value) && ((planes % 2) == 1))) 
               { 
 
               // The v_tetra[3] is outside box, so the first wedge is outside
@@ -1904,6 +1886,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
               }
             break;
           case 3:                   // We have one tetrahedron and one wedge
+            // i0 gets the vertex on the tetrahedron.
             switch(edges_inter) 
               {
               case 134:
@@ -1924,8 +1907,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                 continue;
               }                                                              
 
-            if (((v_tetra[i0][ind[0]] < value) && ((planes % 2) == 0)) ||   
-                ((v_tetra[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[i0][cutInd] < value) && ((planes % 2) == 0)) ||   
+                ((v_tetra[i0][cutInd] > value) && ((planes % 2) == 1))) 
               {
 
               // Isolate vertex is outside box, so the tetrahedron is outside
@@ -1939,11 +1922,11 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
               }
             else 
               {
-              tab_id[0] = v_id[i0];
-              tab_id[1] = p_id[tab3[i0][0]];
-              tab_id[2] = p_id[tab3[i0][1]];
-              tab_id[3] = p_id[tab3[i0][2]];
-              newCellId = newcellArray->InsertNextCell(4,tab_id);                
+              tab_id[0] = p_id[tab3[i0][0]];
+              tab_id[1] = p_id[tab3[i0][1]];
+              tab_id[2] = p_id[tab3[i0][2]];
+              tab_id[3] = v_id[i0];
+              newCellId = newcellArray->InsertNextCell(4,tab_id);
               }
             break;
 
@@ -1991,8 +1974,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                          
-            if (((v_tetra[i1][ind[1]] < value) && ((planes % 2) == 0)) ||
-                ((v_tetra[i1][ind[1]] > value) && ((planes % 2) == 1)))
+            if (((v_tetra[i1][cutInd] < value) && ((planes % 2) == 0)) ||
+                ((v_tetra[i1][cutInd] > value) && ((planes % 2) == 1)))
               {
               // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = v_id[tab2[i0][0]];
@@ -2006,8 +1989,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
               {
               tab_id[0] = v_id[i1];
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = newcellArray->InsertNextCell(4,tab_id);    
               }
             break;
@@ -2019,8 +2002,8 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints *newPoints,
                              << num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                                         
-            if (((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] < value) && ((planes % 2) == 0)) ||   
-                ((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[tab1[2*edges_inter-1][2]][cutInd] < value) && ((planes % 2) == 0)) ||   
+                ((v_tetra[tab1[2*edges_inter-1][2]][cutInd] > value) && ((planes % 2) == 1))) 
               {   
               // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = p_id[0];
@@ -2187,40 +2170,41 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
-                            {2,0,0,3,2,1},
-                            {3,3,2,0,2,1},
-                            {1,0,2,0,1,3},
-                            {0,0,1,2,3,3},
-                            {0,1,2,1,2,3}};
-    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
-                            {0,2,1,0,3,2},
-                            {0,1,2,1,0,3},
-                            {0,1,2,0,1,2}};
-    unsigned int tab2[12][5] = { {0,0,1,2,3},
-                             {2,1,0,1,3},
-                             {1,0,1,0,3},
-                             {1,0,1,2,0},
-                             {3,1,0,1,0},
-                             {2,0,1,3,0},
-                             {3,1,0,2,1},
-                             {2,1,0,0,1},
-                             {0,0,1,3,1},
-                             {1,0,1,3,2},
-                             {3,1,0,0,2},
-                             {0,0,1,1,2}}; 
-    unsigned int tab1[12][3] = { {2,3,1},
-                             {3,2,0},
-                             {3,0,1},
-                             {0,3,2},
-                             {1,3,0},
-                             {3,1,2},
-                             {2,1,0},
-                             {1,2,3},
-                             {0,2,3},
-                             {2,0,1},
-                             {0,1,3},
-                             {1,0,2}}; 
+    // Tetrahedron Intersection Cases
+    const unsigned int tab4[6][6] = { {1,1,0,3,3,2},
+                                      {2,0,0,3,2,1},
+                                      {3,3,2,0,2,1},
+                                      {1,0,2,0,1,3},
+                                      {0,0,1,2,3,3},
+                                      {0,1,2,1,2,3}};
+    const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
+                                      {0,1,2,0,2,3},
+                                      {0,1,2,1,0,3},
+                                      {0,1,2,0,1,2}};
+    const unsigned int tab2[12][5] = { {0,0,1,2,3},
+                                       {2,1,0,1,3},
+                                       {1,0,1,0,3},
+                                       {2,0,1,3,0},
+                                       {3,1,0,1,0},
+                                       {1,0,1,2,0},
+                                       {3,1,0,2,1},
+                                       {2,1,0,0,1},
+                                       {0,0,1,3,1},
+                                       {1,0,1,3,2},
+                                       {3,1,0,0,2},
+                                       {0,0,1,1,2}}; 
+    const unsigned int tab1[12][3] = { {2,3,1},
+                                       {3,2,0},
+                                       {3,0,1},
+                                       {0,3,2},
+                                       {1,3,0},
+                                       {3,1,2},
+                                       {2,1,0},
+                                       {1,2,3},
+                                       {2,0,3},
+                                       {0,2,1},
+                                       {0,1,3},
+                                       {1,0,2}}; 
     
     vtkCellArray *cellarray = vtkCellArray::New();
     vtkIdType newCellId = cellarray->InsertNextCell(4,iid);
@@ -2416,11 +2400,11 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
                 }
               else 
                 {
-                tab_id[0] = v_id[i0];
-                tab_id[1] = p_id[tab3[i0][0]];
-                tab_id[2] = p_id[tab3[i0][1]];
-                tab_id[3] = p_id[tab3[i0][2]];
-                newCellId = newcellArray->InsertNextCell(4,tab_id);                
+                tab_id[0] = p_id[tab3[i0][0]];
+                tab_id[1] = p_id[tab3[i0][1]];
+                tab_id[2] = p_id[tab3[i0][2]];
+                tab_id[3] = v_id[i0];
+                newCellId = newcellArray->InsertNextCell(4,tab_id);
                 }
               break;
           case 2:                    // We have one tetrahedron and one pyramid
@@ -2483,8 +2467,8 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints *newPoints,
               {
               tab_id[0] = v_id[i1];
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = newcellArray->InsertNextCell(4,tab_id);    
               }
             break;
@@ -2564,7 +2548,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
 
   int i,j;
   int allInside;
-  int ind[3];
+  int cutInd;
 
   unsigned int planes;
   unsigned int idcellnew;
@@ -2672,42 +2656,41 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
 
     double *pedg1,*pedg2;
 
-    // tab4: tetrahedron intersection in 4 edges.see (2)
-
-    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
-                            {2,0,0,3,2,1},
-                            {3,3,2,0,2,1},
-                            {1,0,2,0,1,3},
-                            {0,0,1,2,3,3},
-                            {0,1,2,1,2,3}};
-    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
-                            {0,2,1,0,3,2},
-                            {0,1,2,1,0,3},
-                            {0,1,2,0,1,2}};
-    unsigned int tab2[12][5] = { {0,0,1,2,3},
-                             {2,1,0,1,3},
-                             {1,0,1,0,3},
-                             {1,0,1,2,0},
-                             {3,1,0,1,0},
-                             {2,0,1,3,0},
-                             {3,1,0,2,1},
-                             {2,1,0,0,1},
-                             {0,0,1,3,1},
-                             {1,0,1,3,2},
-                             {3,1,0,0,2},
-                             {0,0,1,1,2}}; 
-    unsigned int tab1[12][3] = { {2,3,1},
-                             {3,2,0},
-                             {3,0,1},
-                             {0,3,2},
-                             {1,3,0},
-                             {3,1,2},
-                             {2,1,0},
-                             {1,2,3},
-                             {0,2,3},
-                             {2,0,1},
-                             {0,1,3},
-                             {1,0,2}}; 
+    // Tetrahedron Intersection Cases
+    const unsigned int tab4[6][6] = { {1,1,0,3,3,2},
+                                      {2,0,0,3,2,1},
+                                      {3,3,2,0,2,1},
+                                      {1,0,2,0,1,3},
+                                      {0,0,1,2,3,3},
+                                      {0,1,2,1,2,3}};
+    const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
+                                      {0,1,2,0,2,3},
+                                      {0,1,2,1,0,3},
+                                      {0,1,2,0,1,2}};
+    const unsigned int tab2[12][5] = { {0,0,1,2,3},
+                                       {2,1,0,1,3},
+                                       {1,0,1,0,3},
+                                       {2,0,1,3,0},
+                                       {3,1,0,1,0},
+                                       {1,0,1,2,0},
+                                       {3,1,0,2,1},
+                                       {2,1,0,0,1},
+                                       {0,0,1,3,1},
+                                       {1,0,1,3,2},
+                                       {3,1,0,0,2},
+                                       {0,0,1,1,2}}; 
+    const unsigned int tab1[12][3] = { {2,3,1},
+                                       {3,2,0},
+                                       {3,0,1},
+                                       {0,3,2},
+                                       {1,3,0},
+                                       {3,1,2},
+                                       {2,1,0},
+                                       {1,2,3},
+                                       {2,0,3},
+                                       {0,2,1},
+                                       {0,1,3},
+                                       {1,0,2}}; 
     
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();
@@ -2716,31 +2699,10 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
     // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      // ind[0] is the index of the coordinate axis perpendicular to the plane.
-      // ind[1] and ind[2] are the indices of the other two axis.
-      switch(planes) 
-        {
-        case 0:
-        case 1:
-          ind[0] = 0;
-          ind[1] = 1;
-          ind[2] = 2;
-          break;
-        case 2:
-        case 3:
-          ind[0] = 1;
-          ind[1] = 0;
-          ind[2] = 2;
-          break;
-        case 4:
-        case 5:
-          ind[0] = 2;
-          ind[1] = 0;
-          ind[2] = 1;
-        break;
-        }
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
       
-      value = this->BoundBoxClip[ind[0]][planes%2];   // The plane is always parallel to unitary cube. 
+      value = this->BoundBoxClip[cutInd][planes%2];   // The plane is always parallel to unitary cube. 
       
       unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -2764,10 +2726,10 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
           p1 = v_tetra[verts[0]];
           p2 = v_tetra[verts[1]];
   
-          if ( (p1[ind[0]] <= value && value <= p2[ind[0]]) || 
-               (p2[ind[0]] <= value && value <= p1[ind[0]]) )
+          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
+               (p2[cutInd] <= value && value <= p1[cutInd]) )
             {
-            deltaScalar = p2[ind[0]] - p1[ind[0]];
+            deltaScalar = p2[cutInd] - p1[cutInd];
       
             if (deltaScalar > 0)
               {
@@ -2783,7 +2745,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
       
             // linear interpolation
             t = ( deltaScalar == 0.0 ? 0.0 :
-                (value - pedg1[ind[0]]) / deltaScalar );
+                (value - pedg1[cutInd]) / deltaScalar );
       
             if ( t == 0.0 )
               {
@@ -2816,8 +2778,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
           unsigned int outside = 0;
           for(i=0; i<4; i++)
             {
-            if (((v_tetra[i][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_tetra[i][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[i][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_tetra[i][cutInd] > value) && ((planes % 2) == 1))) 
               {      
               // If only one vertex is ouside, so the tetrahedron is outside 
               // because there is not intersection.
@@ -2856,14 +2818,14 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                        
-            if (((v_tetra[3][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_tetra[3][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[3][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_tetra[3][cutInd] > value) && ((planes % 2) == 1))) 
               {
               // The v_tetra[3] is outside box, so
               // the first wedge is outside
               // ps: v_tetra[3] is always in first wedge (see tab)
   
-              tab_id[0] = p_id[tab4[i0+1][0]];   // Inside                           
+              tab_id[0] = p_id[tab4[i0+1][0]];   // Inside
               tab_id[1] = v_id[tab4[i0+1][1]];
               tab_id[2] = p_id[tab4[i0+1][2]];
               tab_id[3] = p_id[tab4[i0+1][3]];         
@@ -2889,7 +2851,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
               tab_id[5] = p_id[tab4[i0][5]];
               this->CreateTetra(6,tab_id,newcellArray);
   
-              tab_id[0] = p_id[tab4[i0+1][0]];  // Outside                          
+              tab_id[0] = p_id[tab4[i0+1][0]];  // Outside
               tab_id[1] = v_id[tab4[i0+1][1]];
               tab_id[2] = p_id[tab4[i0+1][2]];
               tab_id[3] = p_id[tab4[i0+1][3]];         
@@ -2918,8 +2880,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                              
-            if (((v_tetra[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-                ((v_tetra[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[i0][cutInd] < value) && ((planes % 2) == 0)) ||
+                ((v_tetra[i0][cutInd] > value) && ((planes % 2) == 1))) 
               {
               // Isolate vertex is outside box, so/ the tetrahedron is outside
               tab_id[0] = p_id[tab3[i0][0]];  // Inside
@@ -2930,19 +2892,19 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
               tab_id[5] = v_id[tab3[i0][5]];
               this->CreateTetra(6,tab_id,newcellArray);
   
-              tab_id[0] = v_id[i0];          // Outside
-              tab_id[1] = p_id[tab3[i0][0]];
-              tab_id[2] = p_id[tab3[i0][1]];
-              tab_id[3] = p_id[tab3[i0][2]];
-              newCellId = cellarrayout->InsertNextCell(4,tab_id);                
+              tab_id[0] = p_id[tab3[i0][0]]; // Outside
+              tab_id[1] = p_id[tab3[i0][1]];
+              tab_id[2] = p_id[tab3[i0][2]];
+              tab_id[3] = v_id[i0];
+              newCellId = cellarrayout->InsertNextCell(4,tab_id);
               }
             else 
               {
-              tab_id[0] = v_id[i0];          // Inside
-              tab_id[1] = p_id[tab3[i0][0]];
-              tab_id[2] = p_id[tab3[i0][1]];
-              tab_id[3] = p_id[tab3[i0][2]];
-              newCellId = newcellArray->InsertNextCell(4,tab_id);                
+              tab_id[0] = p_id[tab3[i0][0]];
+              tab_id[1] = p_id[tab3[i0][1]];
+              tab_id[2] = p_id[tab3[i0][2]]; // Inside
+              tab_id[3] = v_id[i0];
+              newCellId = newcellArray->InsertNextCell(4,tab_id);
   
               tab_id[0] = p_id[tab3[i0][0]]; // Outside
               tab_id[1] = p_id[tab3[i0][1]];
@@ -2997,8 +2959,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                          
-            if (((v_tetra[i1][ind[1]] < value) && ((planes % 2) == 0)) ||
-                ((v_tetra[i1][ind[1]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[i1][cutInd] < value) && ((planes % 2) == 0)) ||
+                ((v_tetra[i1][cutInd] > value) && ((planes % 2) == 1))) 
               {
               // Isolate vertex is outside box, so the tetrahedron is outside
               tab_id[0] = v_id[tab2[i0][0]];  // Inside
@@ -3010,16 +2972,16 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
   
               tab_id[0] = v_id[i1];          // Outside
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = cellarrayout->InsertNextCell(4,tab_id);    
               }
             else 
               {
               tab_id[0] = v_id[i1];          // Inside
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = newcellArray->InsertNextCell(4,tab_id);    
   
               tab_id[0] = v_id[tab2[i0][0]];  // Outside
@@ -3037,8 +2999,8 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints *newPoints,
                              num_inter << " Edges_inter = " << edges_inter );
               continue;
               }                                                         
-            if (((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] < value) && ((planes % 2) == 0)) ||   
-                ((v_tetra[tab1[2*edges_inter-1][2]][ind[1]] > value) && ((planes % 2) == 1))) 
+            if (((v_tetra[tab1[2*edges_inter-1][2]][cutInd] < value) && ((planes % 2) == 0)) ||   
+                ((v_tetra[tab1[2*edges_inter-1][2]][cutInd] > value) && ((planes % 2) == 1))) 
               {   
               // Isolate vertex is outside box, so the tetrahedron is outside
                                           
@@ -3240,40 +3202,41 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
     //float *pc1  , *pc2;
     double *pedg1,*pedg2;
 
-    unsigned int tab4[6][6] = { {0,1,1,2,3,3},   // Tetrahedron Intersection Cases
-                            {2,0,0,3,2,1},
-                            {3,3,2,0,2,1},
-                            {1,0,2,0,1,3},
-                            {0,0,1,2,3,3},
-                            {0,1,2,1,2,3}};
-    unsigned int tab3[4][6] = { {0,2,1,1,3,2},
-                            {0,2,1,0,3,2},
-                            {0,1,2,1,0,3},
-                            {0,1,2,0,1,2}};
-    unsigned int tab2[12][5] = { {0,0,1,2,3},
-                             {2,1,0,1,3},
-                             {1,0,1,0,3},
-                             {1,0,1,2,0},
-                             {3,1,0,1,0},
-                             {2,0,1,3,0},
-                             {3,1,0,2,1},
-                             {2,1,0,0,1},
-                             {0,0,1,3,1},
-                             {1,0,1,3,2},
-                             {3,1,0,0,2},
-                             {0,0,1,1,2}}; 
-    unsigned int tab1[12][3] = { {2,3,1},
-                             {3,2,0},
-                             {3,0,1},
-                             {0,3,2},
-                             {1,3,0},
-                             {3,1,2},
-                             {2,1,0},
-                             {1,2,3},
-                             {0,2,3},
-                             {2,0,1},
-                             {0,1,3},
-                             {1,0,2}}; 
+    // Tetrahedron Intersection Cases
+    const unsigned int tab4[6][6] = { {1,1,0,3,3,2},
+                                      {2,0,0,3,2,1},
+                                      {3,3,2,0,2,1},
+                                      {1,0,2,0,1,3},
+                                      {0,0,1,2,3,3},
+                                      {0,1,2,1,2,3}};
+    const unsigned int tab3[4][6] = { {0,2,1,1,3,2},
+                                      {0,1,2,0,2,3},
+                                      {0,1,2,1,0,3},
+                                      {0,1,2,0,1,2}};
+    const unsigned int tab2[12][5] = { {0,0,1,2,3},
+                                       {2,1,0,1,3},
+                                       {1,0,1,0,3},
+                                       {2,0,1,3,0},
+                                       {3,1,0,1,0},
+                                       {1,0,1,2,0},
+                                       {3,1,0,2,1},
+                                       {2,1,0,0,1},
+                                       {0,0,1,3,1},
+                                       {1,0,1,3,2},
+                                       {3,1,0,0,2},
+                                       {0,0,1,1,2}}; 
+    const unsigned int tab1[12][3] = { {2,3,1},
+                                       {3,2,0},
+                                       {3,0,1},
+                                       {0,3,2},
+                                       {1,3,0},
+                                       {3,1,2},
+                                       {2,1,0},
+                                       {1,2,3},
+                                       {2,0,3},
+                                       {0,2,1},
+                                       {0,1,3},
+                                       {1,0,2}}; 
     
     vtkCellArray *cellarray    = vtkCellArray::New();
     vtkCellArray *cellarrayout = vtkCellArray::New();
@@ -3481,19 +3444,19 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
               tab_id[5] = v_id[tab3[i0][5]];
               this->CreateTetra(6,tab_id,newcellArray);
         
-              tab_id[0] = v_id[i0];           // Outside
-              tab_id[1] = p_id[tab3[i0][0]];
-              tab_id[2] = p_id[tab3[i0][1]];
-              tab_id[3] = p_id[tab3[i0][2]];
-              newCellId = cellarrayout->InsertNextCell(4,tab_id);                
+              tab_id[0] = p_id[tab3[i0][0]];  // Outside
+              tab_id[1] = p_id[tab3[i0][1]];
+              tab_id[2] = p_id[tab3[i0][2]];
+              tab_id[3] = v_id[i0];
+              newCellId = cellarrayout->InsertNextCell(4,tab_id);
               }
             else 
               {
-              tab_id[0] = v_id[i0];           // Inside
-              tab_id[1] = p_id[tab3[i0][0]];
-              tab_id[2] = p_id[tab3[i0][1]];
-              tab_id[3] = p_id[tab3[i0][2]];
-              newCellId = newcellArray->InsertNextCell(4,tab_id);                
+              tab_id[0] = p_id[tab3[i0][0]];  // Inside
+              tab_id[1] = p_id[tab3[i0][1]];
+              tab_id[2] = p_id[tab3[i0][2]];
+              tab_id[3] = v_id[i0];
+              newCellId = newcellArray->InsertNextCell(4,tab_id);
         
               tab_id[0] = p_id[tab3[i0][0]];  // Outside
               tab_id[1] = p_id[tab3[i0][1]];
@@ -3561,16 +3524,16 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints *newPoints,
       
               tab_id[0] = v_id[i1];     // Outside
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = cellarrayout->InsertNextCell(4,tab_id);    
               }
             else 
               {
               tab_id[0] = v_id[i1];     // Inside
               tab_id[1] = v_id[tab2[i0][4]];
-              tab_id[2] = p_id[tab2[i0][1]];
-              tab_id[3] = p_id[tab2[i0][2]];
+              tab_id[2] = p_id[tab2[i0][2]];
+              tab_id[3] = p_id[tab2[i0][1]];
               newCellId = newcellArray->InsertNextCell(4,tab_id);    
       
               tab_id[0] = v_id[tab2[i0][0]];  // Outside
@@ -3677,7 +3640,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
   int i,j;
   unsigned int allInside;
   unsigned int planes;
-  unsigned int ind[3];
+  unsigned int cutInd;
   
   vtkIdType edges[3][2] = { {0,1}, {1,2}, {2,0}};  /* Edges Triangle*/
   double value,deltaScalar; 
@@ -3788,32 +3751,11 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
     // Test triangle intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      // ind[0] is the index of the coordinate axis perpendicular to the plane.
-      // ind[1] and ind[2] are the indices of the other two axis.
-      switch(planes) 
-        {
-        case 0:
-        case 1:
-          ind[0] = 0;
-          ind[1] = 1;
-          ind[2] = 2;
-          break;
-        case 2:
-        case 3:
-          ind[0] = 1;
-          ind[1] = 0;
-          ind[2] = 2;
-          break;
-        case 4:
-        case 5:
-          ind[0] = 2;
-          ind[1] = 0;
-          ind[2] = 1;
-          break;
-        }
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
 
       // The plane is always parallel to unitary cube. 
-      value = this->BoundBoxClip[ind[0]][planes%2];   
+      value = this->BoundBoxClip[cutInd][planes%2];   
 
       unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -3836,10 +3778,10 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
           p1 = v_triangle[verts[0]];
           p2 = v_triangle[verts[1]];
 
-          if ( (p1[ind[0]] <= value && value <= p2[ind[0]]) || 
-               (p2[ind[0]] <= value && value <= p1[ind[0]]) )
+          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
+               (p2[cutInd] <= value && value <= p1[cutInd]) )
             {
-            deltaScalar = p2[ind[0]] - p1[ind[0]];
+            deltaScalar = p2[cutInd] - p1[cutInd];
 
             if (deltaScalar > 0)
               {
@@ -3854,7 +3796,7 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
               }
 
             // linear interpolation
-            t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[ind[0]]) / deltaScalar );
+            t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[cutInd]) / deltaScalar );
 
             if ( t == 0.0 || t == 1.0 )
               {
@@ -3883,9 +3825,9 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
           unsigned int outside = 0;
           for(i=0; i<3; i++)
             {
-            if (((v_triangle[i][ind[0]] < value) && ((planes % 2) == 0)) || 
+            if (((v_triangle[i][cutInd] < value) && ((planes % 2) == 0)) || 
                 // If only one vertex is ouside, so the triangle is outside 
-                ((v_triangle[i][ind[0]] > value) && ((planes % 2) == 1))) // because there is not intersection.
+                ((v_triangle[i][cutInd] > value) && ((planes % 2) == 1))) // because there is not intersection.
               {      
               outside = 1;
               break;
@@ -3917,8 +3859,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                         
-            if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-                ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_triangle[i0][cutInd] < value) && ((planes % 2) == 0)) ||
+                ((v_triangle[i0][cutInd] > value) && ((planes % 2) == 1))) 
               { 
               // The v_triangle[i0] is outside box, so
               // The Quad is inside: two triangles: (v0,v1,p0) and (p0,p1,v1)
@@ -3971,8 +3913,8 @@ void vtkBoxClipDataSet::ClipBox2D(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }                                                              
-            if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-                ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1)))
+            if (((v_triangle[i0][cutInd] < value) && ((planes % 2) == 0)) ||
+                ((v_triangle[i0][cutInd] > value) && ((planes % 2) == 1)))
               {
               // Test one of the vertices  vertex i0 is outside          
               tab_id[0] = v_id[tab1[i0][1]];
@@ -4034,7 +3976,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
 
   int i,j;
   unsigned int allInside;
-  unsigned int ind[3];
+  unsigned int cutInd;
   unsigned int planes;
   unsigned int idcellnew;
 
@@ -4157,32 +4099,11 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
           // Test Cell intersection with each plane of box
     for (planes = 0; planes < 6; planes++) 
       {
-      // ind[0] is the index of the coordinate axis perpendicular to the plane.
-      // ind[1] and ind[2] are the indices of the other two axis.
-      switch(planes) 
-        {
-        case 0:
-        case 1:
-          ind[0] = 0;
-          ind[1] = 1;
-          ind[2] = 2;
-          break;
-        case 2:
-        case 3:
-          ind[0] = 1;
-          ind[1] = 0;
-          ind[2] = 2;
-          break;
-        case 4:
-        case 5:
-          ind[0] = 2;
-          ind[1] = 0;
-          ind[2] = 1;
-          break;
-        }
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
       
       // The plane is always parallel to unitary cube. 
-      value = this->BoundBoxClip[ind[0]][planes%2];   
+      value = this->BoundBoxClip[cutInd][planes%2];   
       
       unsigned int totalnewcells = cellarray->GetNumberOfCells();
       vtkCellArray *newcellArray = vtkCellArray::New();
@@ -4205,10 +4126,10 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
           p1 = v_triangle[verts[0]];
           p2 = v_triangle[verts[1]];
   
-          if ( (p1[ind[0]] <= value && value <= p2[ind[0]]) || 
-               (p2[ind[0]] <= value && value <= p1[ind[0]]) )
+          if ( (p1[cutInd] <= value && value <= p2[cutInd]) || 
+               (p2[cutInd] <= value && value <= p1[cutInd]) )
             {
-            deltaScalar = p2[ind[0]] - p1[ind[0]];
+            deltaScalar = p2[cutInd] - p1[cutInd];
       
             if (deltaScalar > 0)
               {
@@ -4223,7 +4144,7 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
               }
       
             // linear interpolation
-            t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[ind[0]]) / deltaScalar );
+            t = ( deltaScalar == 0.0 ? 0.0 : (value - pedg1[cutInd]) / deltaScalar );
       
             if ( t == 0.0 )
               {
@@ -4256,8 +4177,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
           unsigned int outside = 0;
           for(i=0; i<3; i++)
             {
-            if (((v_triangle[i][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_triangle[i][ind[0]] > value) && ((planes % 2) == 1)))
+            if (((v_triangle[i][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_triangle[i][cutInd] > value) && ((planes % 2) == 1)))
               {      
               // If only one vertex is ouside, so the triangle is outside 
               // because there is not intersection.
@@ -4298,8 +4219,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }
-            if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) || 
-                ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+            if (((v_triangle[i0][cutInd] < value) && ((planes % 2) == 0)) || 
+                ((v_triangle[i0][cutInd] > value) && ((planes % 2) == 1))) 
               {
               // The v_triangle[i0] is outside box, so
 
@@ -4375,8 +4296,8 @@ void vtkBoxClipDataSet::ClipBoxInOut2D(vtkPoints *newPoints,
                                num_inter << " Edges_inter = " << edges_inter );
                 continue;
               }
-              if (((v_triangle[i0][ind[0]] < value) && ((planes % 2) == 0)) ||
-                  ((v_triangle[i0][ind[0]] > value) && ((planes % 2) == 1))) 
+              if (((v_triangle[i0][cutInd] < value) && ((planes % 2) == 0)) ||
+                  ((v_triangle[i0][cutInd] > value) && ((planes % 2) == 1))) 
                 {
                 // Test one of the vertices vertex i0 is outside
 
