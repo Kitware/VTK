@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.32");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.33");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -733,17 +733,26 @@ int vtkStreamingDemandDrivenPipeline
     {
     // Check the unstructured extent.  If we do not have the requested
     // piece, we need to execute.
-    int dataPiece = dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER());
-    int dataNumberOfPieces = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
-    int dataGhostLevel = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
-    int updatePiece = outInfo->Get(UPDATE_PIECE_NUMBER());
     int updateNumberOfPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
-    int updateGhostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
-    if(dataPiece != updatePiece ||
-       dataNumberOfPieces != updateNumberOfPieces ||
-       dataGhostLevel != updateGhostLevel)
+    int dataNumberOfPieces = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+    if(dataNumberOfPieces != updateNumberOfPieces)
       {
       return 1;
+      }
+    int dataGhostLevel = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_GHOST_LEVELS());
+    int updateGhostLevel = outInfo->Get(UPDATE_NUMBER_OF_GHOST_LEVELS());
+    if(dataGhostLevel != updateGhostLevel)
+      {
+      return 1;
+      }
+    if (dataNumberOfPieces != 1)
+      {
+      int dataPiece = dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER());
+      int updatePiece = outInfo->Get(UPDATE_PIECE_NUMBER());
+      if (dataPiece != updatePiece)
+        {
+        return 1;
+        }
       }
     }
   else if(dataInfo->Get(vtkDataObject::DATA_EXTENT_TYPE()) == VTK_3D_EXTENT)

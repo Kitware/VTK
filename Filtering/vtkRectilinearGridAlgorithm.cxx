@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGridAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkRectilinearGridAlgorithm, "1.3");
 vtkStandardNewMacro(vtkRectilinearGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -72,10 +72,6 @@ vtkDataObject* vtkRectilinearGridAlgorithm::GetInput()
 //----------------------------------------------------------------------------
 vtkDataObject* vtkRectilinearGridAlgorithm::GetInput(int port)
 {
-  if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return 0;
-    }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 

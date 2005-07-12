@@ -22,7 +22,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAlgorithm, "1.24");
+vtkCxxRevisionMacro(vtkImageAlgorithm, "1.25");
 
 //----------------------------------------------------------------------------
 vtkImageAlgorithm::vtkImageAlgorithm()
@@ -386,10 +386,6 @@ void vtkImageAlgorithm::SetInput(int index, vtkDataObject* input)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkImageAlgorithm::GetInput(int port)
 {
-  if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return 0;
-    }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 

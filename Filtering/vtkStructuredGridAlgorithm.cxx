@@ -22,7 +22,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkStructuredGridAlgorithm, "1.2");
+vtkCxxRevisionMacro(vtkStructuredGridAlgorithm, "1.3");
 vtkStandardNewMacro(vtkStructuredGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -72,10 +72,6 @@ vtkDataObject* vtkStructuredGridAlgorithm::GetInput()
 //----------------------------------------------------------------------------
 vtkDataObject* vtkStructuredGridAlgorithm::GetInput(int port)
 {
-  if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return 0;
-    }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 

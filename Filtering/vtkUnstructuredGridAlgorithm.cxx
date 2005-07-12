@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
-vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.5");
+vtkCxxRevisionMacro(vtkUnstructuredGridAlgorithm, "1.6");
 vtkStandardNewMacro(vtkUnstructuredGridAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -65,10 +65,6 @@ void vtkUnstructuredGridAlgorithm::SetOutput(vtkDataObject* d)
 //----------------------------------------------------------------------------
 vtkDataObject* vtkUnstructuredGridAlgorithm::GetInput(int port)
 {
-  if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return 0;
-    }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 

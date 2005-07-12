@@ -27,7 +27,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.13");
+vtkCxxRevisionMacro(vtkDataSetAlgorithm, "1.14");
 vtkStandardNewMacro(vtkDataSetAlgorithm);
 
 //----------------------------------------------------------------------------
@@ -160,10 +160,6 @@ vtkDataObject* vtkDataSetAlgorithm::GetInput()
 //----------------------------------------------------------------------------
 vtkDataObject* vtkDataSetAlgorithm::GetInput(int port)
 {
-  if (this->GetNumberOfInputConnections(port) < 1)
-    {
-    return 0;
-    }
   return this->GetExecutive()->GetInputData(port, 0);
 }
 
