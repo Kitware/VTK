@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.4");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.5");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -335,8 +335,16 @@ int vtkExtractCTHPart::RequestData(
   for (idx = 0; idx < num; ++idx)
     {
     arrayName=this->GetVolumeArrayName(idx);
+    
+    // we have to update the output before get its point data.
+    appendSurface[idx]->Update();
     clip->SetInput(appendSurface[idx]->GetOutput());
+#ifndef NDEBUG
+    int checkIndex=appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
+//    assert("check: SetActiveScalar succeeded" && checkIndex>=0);
+#else
     appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
+#endif
     clip2->Update();
 #if 1
     tmps[idx]->AddInput(clip2->GetOutput());
@@ -345,7 +353,7 @@ int vtkExtractCTHPart::RequestData(
 #endif
     
     output = this->GetOutput(idx);
-    vtkTimerLog::MarkStartEvent("BlockAppend");               
+    vtkTimerLog::MarkStartEvent("BlockAppend");
     tmps[idx]->Update();
     vtkTimerLog::MarkEndEvent("BlockAppend");     
     
@@ -360,7 +368,7 @@ int vtkExtractCTHPart::RequestData(
     tmps[idx]->Delete();
     appendSurface[idx]->Delete();
     tmps[idx] = 0;
-    
+
     // In the future we might be able to select the rgb color here.
     if (needPartIndex)
       {
@@ -384,7 +392,6 @@ int vtkExtractCTHPart::RequestData(
     sprintf(str, "%s", arrayName);
     output->GetFieldData()->AddArray(nameArray);
     nameArray->Delete();
-    
     }
   delete[] tmps;
   delete[] appendSurface;
@@ -935,6 +942,8 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   vtkAppendPolyData *appendSurface,
   vtkAppendPolyData *append)
 {
+  assert("pre: valid_input" && input->CheckAttributes()==0);
+  
   vtkPolyData* tmp;
   vtkDataArray* cellVolumeFraction;
   int* dims;
@@ -980,11 +989,14 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
 
   this->RData->GetPointData()->SetScalars(this->PointVolumeFraction);
 
+  assert("check: valid_rdata" && this->RData->CheckAttributes()==0);
+  
   int isNotEmpty=this->ExtractRectilinearGridSurface(this->RData,this->SurfacePolyData);
   if(isNotEmpty)
     {
     tmp=vtkPolyData::New();
     tmp->ShallowCopy(this->SurfacePolyData);
+    assert("check: valid_copy" && tmp->CheckAttributes()==0);
     appendSurface->AddInput(tmp);
     tmp->Delete();
     }
@@ -1020,6 +1032,9 @@ int vtkExtractCTHPart::ExtractRectilinearGridSurface(
   vtkPolyData *output
   )
 {
+  assert("pre: valid_input" && input!=0 && input->CheckAttributes()==0);
+  assert("pre: output_exists" && output!=0);
+  
   int result=0;
 #if 1
   int dims[3];
@@ -1121,97 +1136,101 @@ int vtkExtractCTHPart::ExtractRectilinearGridSurface(
   
   result=doFaceMinX||doFaceMaxX||doFaceMinY||doFaceMaxY||doFaceMinZ
     ||doFaceMaxZ;
-
+  
   if(result)
     {
-  vtkIdType numPoints=0;
-  vtkIdType cellArraySize=0;
-  
+    output->Initialize();
+    
+    vtkIdType numPoints=0;
+    vtkIdType cellArraySize=0;
+    
 //  input->GetExtent(ext);
-  
-  // Compute an upper bound for the number of points and cells.
-  // xMin face
-  if (doFaceMinX && ext[2] != ext[3] && ext[4] != ext[5] && ext[0] != ext[1])
-    {
-    cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
-    numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
-    }
-  // xMax face
-  if (doFaceMaxX && ext[2] != ext[3] && ext[4] != ext[5])
-    {
-    cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
-    numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
-    }
-  // yMin face
-  if (doFaceMinY && ext[0] != ext[1] && ext[4] != ext[5] && ext[2] != ext[3])
-    {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
-    numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
-    }
-  // yMax face
-  if (doFaceMaxY && ext[0] != ext[1] && ext[4] != ext[5])
-    {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
-    numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
-    }
-  // zMin face
-  if (doFaceMinZ && ext[0] != ext[1] && ext[2] != ext[3] && ext[4] != ext[5])
-    {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
-    numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
-    }
-  // zMax face
-  if (doFaceMaxZ && ext[0] != ext[1] && ext[2] != ext[3])
-    {
-    cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
-    numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
-    }
-  
-  vtkCellArray *outPolys = vtkCellArray::New();
-  outPolys->Allocate(cellArraySize);
-  output->SetPolys(outPolys);
-  outPolys->Delete();
-  
-  vtkPoints *outPoints = vtkPoints::New();
-  outPoints->Allocate(numPoints);
-  output->SetPoints(outPoints);
-  outPoints->Delete();
-
-  // Allocate attributes for copying.
-  output->GetPointData()->CopyAllocate(input->GetPointData());
-  output->GetCellData()->CopyAllocate(input->GetCellData());
-  
-  // Extents are already corrected for ghostcells.
-  
-  // make each face that is actually on the ds boundary
-  if(doFaceMinX)
-    {
-    this->ExecuteFaceQuads(input,output,0,originalExtents,ext,0,1,2);
-    }
-  if(doFaceMaxX)
-    {
-    this->ExecuteFaceQuads(input,output,1,originalExtents,ext,0,2,1);
-    }
-  if(doFaceMinY)
-    {
-    this->ExecuteFaceQuads(input,output,0,originalExtents,ext,1,2,0);
-    }
-  if(doFaceMaxY)
-    {
-    this->ExecuteFaceQuads(input,output,1,originalExtents,ext,1,0,2);
-    }
-  if(doFaceMinZ)
-    {
-    this->ExecuteFaceQuads(input,output,0,originalExtents,ext,2,0,1);
-    }
-  if(doFaceMaxZ)
-    {
-    this->ExecuteFaceQuads(input,output,1,originalExtents,ext,2,1,0);
-    }
-  
-  output->Squeeze();
+    
+    // Compute an upper bound for the number of points and cells.
+    // xMin face
+    if (doFaceMinX && ext[2] != ext[3] && ext[4] != ext[5] && ext[0] != ext[1])
+      {
+      cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+      numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+      }
+    // xMax face
+    if (doFaceMaxX && ext[2] != ext[3] && ext[4] != ext[5])
+      {
+      cellArraySize += 2*(ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+      numPoints += (ext[3]-ext[2]+1)*(ext[5]-ext[4]+1);
+      }
+    // yMin face
+    if (doFaceMinY && ext[0] != ext[1] && ext[4] != ext[5] && ext[2] != ext[3])
+      {
+      cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+      numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+      }
+    // yMax face
+    if (doFaceMaxY && ext[0] != ext[1] && ext[4] != ext[5])
+      {
+      cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+      numPoints += (ext[1]-ext[0]+1)*(ext[5]-ext[4]+1);
+      }
+    // zMin face
+    if (doFaceMinZ && ext[0] != ext[1] && ext[2] != ext[3] && ext[4] != ext[5])
+      {
+      cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+      numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+      }
+    // zMax face
+    if (doFaceMaxZ && ext[0] != ext[1] && ext[2] != ext[3])
+      {
+      cellArraySize += 2*(ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+      numPoints += (ext[1]-ext[0]+1)*(ext[3]-ext[2]+1);
+      }
+    
+    vtkCellArray *outPolys = vtkCellArray::New();
+    outPolys->Allocate(cellArraySize);
+    output->SetPolys(outPolys);
+    outPolys->Delete();
+    
+    vtkPoints *outPoints = vtkPoints::New();
+    outPoints->Allocate(numPoints);
+    output->SetPoints(outPoints);
+    outPoints->Delete();
+    
+    // Allocate attributes for copying.
+    output->GetPointData()->CopyAllocate(input->GetPointData());
+    output->GetCellData()->CopyAllocate(input->GetCellData());
+    
+    // Extents are already corrected for ghostcells.
+    
+    // make each face that is actually on the ds boundary
+    if(doFaceMinX)
+      {
+      this->ExecuteFaceQuads(input,output,0,originalExtents,ext,0,1,2);
+      }
+    if(doFaceMaxX)
+      {
+      this->ExecuteFaceQuads(input,output,1,originalExtents,ext,0,2,1);
+      }
+    if(doFaceMinY)
+      {
+      this->ExecuteFaceQuads(input,output,0,originalExtents,ext,1,2,0);
+      }
+    if(doFaceMaxY)
+      {
+      this->ExecuteFaceQuads(input,output,1,originalExtents,ext,1,0,2);
+      }
+    if(doFaceMinZ)
+      {
+      this->ExecuteFaceQuads(input,output,0,originalExtents,ext,2,0,1);
+      }
+    if(doFaceMaxZ)
+      {
+      this->ExecuteFaceQuads(input,output,1,originalExtents,ext,2,1,0);
+      }
+    
+    output->Squeeze();
     }
 #endif
+// result=>valid_surface: A=>B !A||B
+  assert("post: valid_surface" && (!result || output->CheckAttributes()==0));
   return result;
 }
 
@@ -1229,6 +1248,9 @@ int vtkExtractCTHPart::ExtractUniformGridSurface(
   vtkPolyData *output
   )
 {
+  assert("pre: valid_input" && input!=0 && input->CheckAttributes()==0);
+  assert("pre: output_exists" && output!=0);
+  
   int result=0;
 #if 1
   double origin[3];
@@ -1341,6 +1363,7 @@ int vtkExtractCTHPart::ExtractUniformGridSurface(
 
   if(result)
     {
+    output->Initialize();
   vtkIdType numPoints=0;
   vtkIdType cellArraySize=0;
   
@@ -1429,6 +1452,8 @@ int vtkExtractCTHPart::ExtractUniformGridSurface(
   output->Squeeze();
     }
 #endif
+  // result=>valid_surface: A=>B !A||B
+  assert("post: valid_surface" && (!result || output->CheckAttributes()==0));
   return result;
 }
 
