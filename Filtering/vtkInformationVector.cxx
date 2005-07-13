@@ -20,7 +20,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.9");
+vtkCxxRevisionMacro(vtkInformationVector, "1.10");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -172,7 +172,7 @@ void vtkInformationVector::Append(vtkInformation* info)
 void vtkInformationVector::Remove(vtkInformation* info)
 {
   // Search for the information object and remove it.
-  for(unsigned int i=0; i < this->NumberOfInformationObjects; ++i)
+  for(int i=0; i < this->NumberOfInformationObjects; ++i)
     {
     if(this->Internal->Vector[i] == info)
       {
@@ -223,7 +223,7 @@ void vtkInformationVector::UnRegister(vtkObjectBase* o)
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  for(unsigned int i=0; i < this->NumberOfInformationObjects; ++i)
+  for(int i=0; i < this->NumberOfInformationObjects; ++i)
     {
     vtkGarbageCollectorReport(collector, this->Internal->Vector[i], "Entry");
     }
