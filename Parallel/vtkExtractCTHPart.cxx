@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.5");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.6");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -341,7 +341,7 @@ int vtkExtractCTHPart::RequestData(
     clip->SetInput(appendSurface[idx]->GetOutput());
 #ifndef NDEBUG
     int checkIndex=appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
-//    assert("check: SetActiveScalar succeeded" && checkIndex>=0);
+    assert("check: SetActiveScalar succeeded" && checkIndex>=0);
 #else
     appendSurface[idx]->GetOutput()->GetPointData()->SetActiveScalars(arrayName);
 #endif
