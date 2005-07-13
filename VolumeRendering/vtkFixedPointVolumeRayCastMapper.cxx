@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.16");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.17");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1546,7 +1546,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
         
       int stepLoop;
       int stepsValid = 0;
-      int currSteps;
+      unsigned int currSteps;
       for ( stepLoop = 0; stepLoop < 3; stepLoop++ )
         {
         if ( !( dir[stepLoop]&0x7fffffff ) )
@@ -1567,7 +1567,8 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
           {
           if ( endVal > pos[stepLoop] )
             {
-            currSteps = 1 + (endVal - pos[stepLoop])/(dir[stepLoop]&0x7fffffff);
+            currSteps = static_cast<unsigned int>(
+              1 + (endVal - pos[stepLoop])/(dir[stepLoop]&0x7fffffff));
             }
           else
             {
