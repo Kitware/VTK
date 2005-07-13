@@ -39,6 +39,10 @@
 #include "vtkActor.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkCamera.h"
+/*
+** This test only builds if MPI is in use
+*/
+#include "vtkMPICommunicator.h"
 
 static int NumProcs, Me;
 
@@ -51,7 +55,7 @@ struct DDArgs_tmp
 
 static void Run(vtkMultiProcessController *contr, void *arg)
 {
-  int i;
+  int i, go;
   DDArgs_tmp *args = reinterpret_cast<DDArgs_tmp *>(arg);
 
   vtkCompositeRenderManager *prm = vtkCompositeRenderManager::New();
@@ -70,12 +74,34 @@ static void Run(vtkMultiProcessController *contr, void *arg)
         args->argc, args->argv, "Data/tetraMesh.vtk");
 
     dsr->SetFileName(fname);
+
     ds = dsr->GetOutput();
+
+    dsr->Update();
+    go = 1;
+
+    if ((ds == NULL) || (ds->GetNumberOfCells() == 0))
+      {
+      if (ds) cout << "Failure: input file has no cells" << endl;
+      go = 0;
+      }
     }
   else
     {
     ds = (vtkDataSet *)ug;
     }
+
+  vtkMPICommunicator *comm =
+    vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
+
+  comm->Broadcast(&go, 1, 0);
+
+  if (!go){
+    dsr->Delete();
+    ug->Delete();
+    prm->Delete();
+    return;
+  }
 
   // DATA DISTRIBUTION FILTER
 
