@@ -20,7 +20,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformationVector, "1.8");
+vtkCxxRevisionMacro(vtkInformationVector, "1.9");
 vtkStandardNewMacro(vtkInformationVector);
 
 class vtkInformationVectorInternals
@@ -49,6 +49,7 @@ vtkInformationVectorInternals::~vtkInformationVectorInternals()
 vtkInformationVector::vtkInformationVector()
 {
   this->Internal = new vtkInformationVectorInternals;
+  this->NumberOfInformationObjects = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -61,10 +62,9 @@ vtkInformationVector::~vtkInformationVector()
 void vtkInformationVector::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Number of Information Objects: " << this->GetNumberOfInformationObjects()
-     << "\n";
+  os << indent << "Number of Information Objects: " << this->NumberOfInformationObjects << "\n";
   os << indent << "Information Objects:\n";
-  for(int i=0; i < this->GetNumberOfInformationObjects(); ++i)
+  for(int i=0; i < this->NumberOfInformationObjects; ++i)
     {
     vtkInformation* info = this->GetInformationObject(i);
     vtkIndent nextIndent = indent.GetNextIndent();
@@ -74,16 +74,10 @@ void vtkInformationVector::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-int vtkInformationVector::GetNumberOfInformationObjects()
-{
-  return static_cast<int>(this->Internal->Vector.size());
-}
-
-//----------------------------------------------------------------------------
 void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
 {
   // Adjust the number of objects.
-  int oldNumber = static_cast<int>(this->Internal->Vector.size());
+  int oldNumber = this->NumberOfInformationObjects;
   if(newNumber > oldNumber)
     {
     // Create new information objects.
@@ -109,13 +103,14 @@ void vtkInformationVector::SetNumberOfInformationObjects(int newNumber)
       }
     this->Internal->Vector.resize(newNumber);
     }
+  this->NumberOfInformationObjects = newNumber;
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationVector::SetInformationObject(int index,
                                                 vtkInformation* newInfo)
 {
-  if(newInfo && index >= 0 && index < this->GetNumberOfInformationObjects())
+  if(newInfo && index >= 0 && index < this->NumberOfInformationObjects)
     {
     // Replace an existing information object.
     vtkInformation* oldInfo = this->Internal->Vector[index];
@@ -126,11 +121,10 @@ void vtkInformationVector::SetInformationObject(int index,
       oldInfo->UnRegister(this);
       }
     }
-  else if(newInfo && index >= 0 &&
-          index >= this->GetNumberOfInformationObjects())
+  else if(newInfo && index >= this->NumberOfInformationObjects)
     {
     // If a hole will be created fill it with empty objects.
-    if(index > this->GetNumberOfInformationObjects())
+    if(index > this->NumberOfInformationObjects)
       {
       this->SetNumberOfInformationObjects(index);
       }
@@ -138,9 +132,10 @@ void vtkInformationVector::SetInformationObject(int index,
     // Store the information object in a new entry.
     newInfo->Register(this);
     this->Internal->Vector.push_back(newInfo);
+    this->NumberOfInformationObjects++;
     }
   else if(!newInfo && index >= 0 &&
-          index < this->GetNumberOfInformationObjects()-1)
+          index < this->NumberOfInformationObjects-1)
     {
     // We do not allow NULL information objects.  Create an empty one
     // to fill in the hole.
@@ -149,7 +144,7 @@ void vtkInformationVector::SetInformationObject(int index,
     oldInfo->UnRegister(this);
     }
   else if(!newInfo && index >= 0 &&
-          index == this->GetNumberOfInformationObjects()-1)
+          index == this->NumberOfInformationObjects-1)
     {
     // Remove the last information object.
     this->SetNumberOfInformationObjects(index);
@@ -159,7 +154,7 @@ void vtkInformationVector::SetInformationObject(int index,
 //----------------------------------------------------------------------------
 vtkInformation* vtkInformationVector::GetInformationObject(int index)
 {
-  if(index >= 0 && index < this->GetNumberOfInformationObjects())
+  if(index >= 0 && index < this->NumberOfInformationObjects)
     {
     return this->Internal->Vector[index];
     }
@@ -170,19 +165,20 @@ vtkInformation* vtkInformationVector::GetInformationObject(int index)
 void vtkInformationVector::Append(vtkInformation* info)
 {
   // Setting an entry beyond the end will automatically append.
-  this->SetInformationObject(this->GetNumberOfInformationObjects(), info);
+  this->SetInformationObject(this->NumberOfInformationObjects, info);
 }
 
 //----------------------------------------------------------------------------
 void vtkInformationVector::Remove(vtkInformation* info)
 {
   // Search for the information object and remove it.
-  for(unsigned int i=0; i < this->Internal->Vector.size(); ++i)
+  for(unsigned int i=0; i < this->NumberOfInformationObjects; ++i)
     {
     if(this->Internal->Vector[i] == info)
       {
       this->Internal->Vector.erase(this->Internal->Vector.begin()+i);
       info->UnRegister(this);
+      this->NumberOfInformationObjects--;
       }
     }
 }
@@ -227,7 +223,7 @@ void vtkInformationVector::UnRegister(vtkObjectBase* o)
 void vtkInformationVector::ReportReferences(vtkGarbageCollector* collector)
 {
   this->Superclass::ReportReferences(collector);
-  for(unsigned int i=0; i < this->Internal->Vector.size(); ++i)
+  for(unsigned int i=0; i < this->NumberOfInformationObjects; ++i)
     {
     vtkGarbageCollectorReport(collector, this->Internal->Vector[i], "Entry");
     }

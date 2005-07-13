@@ -40,7 +40,7 @@ public:
   // the number to larger than the current number will create empty
   // vtkInformation instances.  Setting the number to smaller than the
   // current number will remove entries from higher indices.
-  int GetNumberOfInformationObjects();
+  int GetNumberOfInformationObjects() { return this->NumberOfInformationObjects; };
   void SetNumberOfInformationObjects(int n);
 
   // Description:
@@ -76,6 +76,8 @@ protected:
   // Internal implementation details.
   vtkInformationVectorInternals* Internal;
 
+  int NumberOfInformationObjects;
+  
   // Garbage collection support.
   virtual void ReportReferences(vtkGarbageCollector*);
 private:
