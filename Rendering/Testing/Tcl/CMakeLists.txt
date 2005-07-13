@@ -28,7 +28,6 @@ IF (VTK_USE_RENDERING)
       TestStyleTrackballActor
       TestStyleTrackballCamera
       TestTiling
-      TestWindowToImageTransparency
     )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
