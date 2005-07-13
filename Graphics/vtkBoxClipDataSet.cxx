@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.10");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.11");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -826,26 +826,38 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
   unsigned int idopos;
   unsigned int numbertetra;
 
-  vtkIdType tri[3] = {0, 1, 2};
+  const vtkIdType triPassThrough[3] = {0, 1, 2};
+  vtkIdType tri[3];
 
   switch(typeobj)
     {
     case VTK_TRIANGLE: // 5
     case VTK_QUADRATIC_TRIANGLE:
-      newCellArray->InsertNextCell(ptstriangle,tri);
+      newCellArray->InsertNextCell(ptstriangle,
+                                   const_cast<vtkIdType*>(triPassThrough));
       break;
 
     case VTK_TRIANGLE_STRIP: // 6
       for (i=0 ; i < npts-2; i++) 
         {
-        tri[0] = i;
-        tri[1] = i+1;
-        tri[2] = i+2;
+        if (i%2 == 0)
+          {
+          tri[0] = i;
+          tri[1] = i+1;
+          tri[2] = i+2;
+          }
+        else
+          {
+          tri[0] = i;
+          tri[1] = i+2;
+          tri[2] = i+1;
+          }
         newCellArray->InsertNextCell(3,tri);
         }
       break;
 
     case VTK_POLYGON: // 7 (Convex case)
+      tri[0] = 0;
       for (i=2 ; i < npts; i++) 
         {
         tri[1] = i-1;
