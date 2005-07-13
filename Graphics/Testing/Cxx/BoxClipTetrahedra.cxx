@@ -23,15 +23,15 @@
 // independent ways to specify a tetrahedra:
 //
 //        v3                    v3      
-//        /|\                   /|\     
-//       / | \                 / | \    
-//      /  |  \               /  |  \   
-//   v2/_ _|_ _\v1         v1/_ _|_ _\v2
-//     \   |   /             \   |   /  
-//      \  |  /               \  |  /   
-//       \ | /                 \ | /    
-//        \|/                   \|/     
-//         v0                    v0     
+//        /|\                   /|\                     //
+//       / | \                 / | \                    //
+//      /  |  \               /  |  \                   //
+//   v2/_ _|_ _\v1         v1/_ _|_ _\v2                //
+//     \   |   /             \   |   /                  //
+//      \  |  /               \  |  /                   //
+//       \ | /                 \ | /                    //
+//        \|/                   \|/                     //
+//         v0                    v0                     //
 //
 // I'm calling these rotationally independent vertex specifications windings for
 // short.  VTK expects the winding on the left.  We will test to make sure the
