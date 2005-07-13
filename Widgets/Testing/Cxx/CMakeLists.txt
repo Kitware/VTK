@@ -24,6 +24,13 @@ IF(NOT VTK_USE_DISPLAY)
     BoxWidget.cxx
     TestImplicitPlaneWidget.cxx
     TestOrientationMarkerWidget.cxx
+    ImagePlaneWidget.cxx
+    TestSplineWidget.cxx
+    TestScalarBarWidget.cxx
+    TestLineWidget.cxx
+    TestPlaneWidget.cxx
+    TestPointWidget.cxx
+    TestImageTracerWidget.cxx
     )
 ENDIF(NOT VTK_USE_DISPLAY)
 
