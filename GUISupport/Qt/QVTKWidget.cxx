@@ -371,13 +371,16 @@ bool QVTKWidget::event(QEvent* e)
     }
   else if(e->type() == QEvent::ParentChange)
     {
-    x11_setup_window();
-    // connect to new window
-    this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
+    if(this->mRenWin)
+      {
+      x11_setup_window();
+      // connect to new window
+      this->mRenWin->SetWindowId( reinterpret_cast<void*>(this->winId()));
 
-    // start up the window to create graphics resources for this window
-    if(isVisible())
-      this->mRenWin->Start();
+      // start up the window to create graphics resources for this window
+      if(isVisible())
+        this->mRenWin->Start();
+      }
     }
 #endif
   
