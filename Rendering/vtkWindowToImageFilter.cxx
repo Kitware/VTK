@@ -23,7 +23,7 @@
 #include "vtkRendererCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.37");
+vtkCxxRevisionMacro(vtkWindowToImageFilter, "1.38");
 vtkStandardNewMacro(vtkWindowToImageFilter);
 
 //----------------------------------------------------------------------------
@@ -37,7 +37,6 @@ vtkWindowToImageFilter::vtkWindowToImageFilter()
   this->Viewport[1] = 0;
   this->Viewport[2] = 1;
   this->Viewport[3] = 1;
-  this->InputBufferType = VTK_RGB;
 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
@@ -90,7 +89,6 @@ void vtkWindowToImageFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ShouldRerender: " << this->ShouldRerender << "\n";
   os << indent << "Viewport: " << this->Viewport[0] << "," << this->Viewport[1] 
      << "," << this->Viewport[2] << "," << this->Viewport[3] << "\n";
-  os << indent << "InputBufferType: " << this->InputBufferType << "\n";
 }
 
 
@@ -134,23 +132,7 @@ void vtkWindowToImageFilter::RequestInformation (
   // get the info objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wExtent, 6);
-
-  switch( this->InputBufferType )
-    {
-    case VTK_RGB:
-      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
-      break;
-    case VTK_RGBA:
-      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 4);
-      break;
-    case VTK_ZBUFFER:
-      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_FLOAT, 1);
-      break;
-    default:
-      // VTK_RGB configuration by default
-      vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
-      break;
-    }
+  vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -197,12 +179,11 @@ void vtkWindowToImageFilter::RequestData(
 
   int outIncrY;
   int size[2],winsize[2];
+  unsigned char *pixels, *outPtr;
   int idxY, rowSize;
   int i;
   
-  if (!  ((out->GetScalarType() == VTK_UNSIGNED_CHAR &&
-           (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)) ||
-          (out->GetScalarType() == VTK_FLOAT && this->InputBufferType == VTK_ZBUFFER)))
+  if (out->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
     vtkErrorMacro("mismatch in scalar types!");
     return;
@@ -215,8 +196,8 @@ void vtkWindowToImageFilter::RequestData(
   size[0] = int(winsize[0]*(this->Viewport[2]-this->Viewport[0]) + 0.5);
   size[1] = int(winsize[1]*(this->Viewport[3]-this->Viewport[1]) + 0.5);
   
-  rowSize = size[0]*out->GetNumberOfScalarComponents();
-  outIncrY = size[0]*this->Magnification*out->GetNumberOfScalarComponents();
+  rowSize = size[0]*3;
+  outIncrY = size[0]*this->Magnification*3;
     
   float *viewAngles;
   double *windowCenters;
@@ -317,72 +298,35 @@ void vtkWindowToImageFilter::RequestData(
         {
         this->Input->Render();
         }
-
       int buffer = this->ReadFrontBuffer;
       if(!this->Input->GetDoubleBuffer())
         {
         buffer = 1;
         }      
-      if (this->InputBufferType == VTK_RGB || this->InputBufferType == VTK_RGBA)
+      pixels = this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
+                                         int(this->Viewport[1]* winsize[1]),
+                                         int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
+                                         int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
+
+      unsigned char *pixels1 = pixels;
+      
+      // now write the data to the output image
+      outPtr = 
+        (unsigned char *)out->GetScalarPointer(x*size[0],y*size[1], 0);
+      
+      // Loop through ouput pixels
+      for (idxY = 0; idxY < size[1]; idxY++)
         {
-        unsigned char *pixels, *pixels1, *outPtr;
-        if (this->InputBufferType == VTK_RGB)
-          {
-          pixels = this->Input->GetPixelData(int(this->Viewport[0]* winsize[0]),
-                                             int(this->Viewport[1]* winsize[1]),
-                                             int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
-                                             int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
-          } 
-        else 
-          {
-          pixels = renWin->GetRGBACharPixelData(int(this->Viewport[0]* winsize[0]),
-                                                int(this->Viewport[1]* winsize[1]),
-                                                int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
-                                                int(this->Viewport[3]* winsize[1] + 0.5) - 1, buffer);
-
-          }
-
-        pixels1 = pixels;
-
-        // now write the data to the output image
-        outPtr = 
-          (unsigned char *)out->GetScalarPointer(x*size[0],y*size[1], 0);
-        for (idxY = 0; idxY < size[1]; idxY++)
-          {
-          memcpy(outPtr,pixels1,rowSize);
-          outPtr += outIncrY;
-          pixels1 += rowSize;
-          }
-      
-        // free the memory
-        delete [] pixels;
+        memcpy(outPtr,pixels1,rowSize);
+        outPtr += outIncrY;
+        pixels1 += rowSize;
         }
-      else 
-        { // VTK_ZBUFFER
-        float *pixels, *pixels1, *outPtr;
-        pixels = renWin->GetZbufferData(int(this->Viewport[0]* winsize[0]),
-                                        int(this->Viewport[1]* winsize[1]),
-                                        int(this->Viewport[2]* winsize[0] + 0.5) - 1,  
-                                        int(this->Viewport[3]* winsize[1] + 0.5) - 1);
-
-        pixels1 = pixels;
-
-        // now write the data to the output image
-        outPtr = 
-          (float *)out->GetScalarPointer(x*size[0],y*size[1], 0);
-        for (idxY = 0; idxY < size[1]; idxY++)
-          {
-          memcpy(outPtr,pixels1,rowSize*sizeof(float));
-          outPtr += outIncrY;
-          pixels1 += rowSize;
-          }
       
-        // free the memory
-        delete [] pixels;
-        }
+      // free the memory
+      delete [] pixels;
       }
     }
-
+  
   // restore settings
   // for each renderer
   rc->InitTraversal(rsit);

@@ -16,12 +16,9 @@
 // .SECTION Description
 // vtkWindowToImageFilter provides methods needed to read the data in
 // a vtkWindow and use it as input to the imaging pipeline. This is
-// useful for saving an image to a file for example. The window can
-// be read as either RGB or RGBA pixels;  in addition, the depth buffer
-// can also be read.   RGB and RGBA pixels are of type unsigned char,
-// while Z-Buffer data is returned as floats.  Use this filter
+// useful for saving an image to a file for example. Use this filter
 // to convert RenderWindows or ImageWindows to an image format.  
-//
+
 // .SECTION Caveats
 // A vtkWindow doesn't behave like other parts of the VTK pipeline: its
 // modification time doesn't get updated when an image is rendered.  As a
@@ -47,9 +44,6 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkImageData.h" // makes things a bit easier
-
-// VTK_RGB and VTK_RGBA are defined in system includes
-#define VTK_ZBUFFER 5
 
 class vtkWindow;
 
@@ -94,18 +88,6 @@ public:
   vtkSetVector4Macro(Viewport,double);
   vtkGetVectorMacro(Viewport,double,4);
 
-  //Description:
-  //Set/get the window buffer from which data will be read.  Choices
-  //include VTK_RGB (read the color image from the window), VTK_RGBA 
-  //(same, but include the alpha channel), and VTK_ZBUFFER (depth
-  //buffer, returned as a float array).
-  vtkSetMacro(InputBufferType, int);
-  vtkGetMacro(InputBufferType, int);
-  void SetInputBufferTypeToRGB() {this->SetInputBufferType(VTK_RGB);};
-  void SetInputBufferTypeToRGBA() {this->SetInputBufferType(VTK_RGBA);};
-  void SetInputBufferTypeToZBuffer() {this->SetInputBufferType(VTK_ZBUFFER);};
-
-
   // Description:
   // Get the output data object for a port on this algorithm.
   vtkImageData* GetOutput();
@@ -126,7 +108,6 @@ protected:
   int ReadFrontBuffer;
   int ShouldRerender;
   double Viewport[4];
-  int InputBufferType;
 
   void RequestData(vtkInformation *, 
                    vtkInformationVector **, vtkInformationVector *);
