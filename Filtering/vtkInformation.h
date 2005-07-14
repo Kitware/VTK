@@ -298,6 +298,9 @@ protected:
   void SetAsObjectBase(vtkInformationKey* key, vtkObjectBase* value);
   vtkObjectBase* GetAsObjectBase(vtkInformationKey* key);
 
+  // Expand the table to a larger size
+  void ExpandTable();
+  
   // Internal implementation details.
   vtkInformationInternals* Internal;
 

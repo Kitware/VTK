@@ -38,8 +38,23 @@
 #include <vtkstd/utility>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkInformation, "1.22");
+#include <assert.h>
+
+vtkCxxRevisionMacro(vtkInformation, "1.23");
 vtkStandardNewMacro(vtkInformation);
+
+// Note: assumes long is at least 32 bits.
+enum { _stl_num_primes = 16 };
+static const unsigned short _stl_prime_list[_stl_num_primes] =
+{
+  5u,          11u,         23u,        31u,        41u,
+  53u,         97u,         193u,       389u,       769u,
+  1543u,       3079u,       6151u,      12289u,     24593u,
+  49157u
+};
+
+// use a mod hash or a bit hash
+#define USE_MOD 1
 
 //----------------------------------------------------------------------------
 class vtkInformationInternals
@@ -49,42 +64,83 @@ public:
   // a binary search.  Typically not many pairs are stored so linear
   // insertion time is okay.
   typedef vtkstd::pair<vtkInformationKey*, vtkObjectBase*> value_type;
-  typedef vtkstd::vector<value_type> VectorType;
-  VectorType Vector;
-
-  // Comparison functor to order the values by key.
-  struct CompareType
-  {
-    vtkstd_bool operator()(value_type const& l, value_type const& r) const
-      {
-      return l.first < r.first;
-      }
-  };
-  CompareType Compare;
-
-  // Methods to find the place for a value with a binary search.
-  VectorType::iterator Find(value_type const& v)
+  vtkInformationKey** Keys;
+  vtkObjectBase** Values;
+  unsigned short TableSize;
+  unsigned short HashKey;
+  
+  vtkInformationInternals()
     {
-    return vtkstd::lower_bound(this->Vector.begin(), this->Vector.end(),
-                               v, this->Compare);
+      this->ComputeHashKey(33);
+      this->Keys = new vtkInformationKey* [this->TableSize];
+      this->Values = new vtkObjectBase* [this->TableSize];
+      int i;
+      for (i = 0; i < this->TableSize; ++i)
+        {
+        this->Keys[i] = 0;
+        }
     }
-  VectorType::iterator Find(vtkInformationKey* key)
+  
+  vtkInformationInternals(int size)
     {
-    return this->Find(value_type(key, 0));
+      assert(size < 65000 && "information cannot grow to more than 65000 entries");
+      this->ComputeHashKey(size);
+      this->Keys = new vtkInformationKey* [this->TableSize];
+      this->Values = new vtkObjectBase* [this->TableSize];
+      int i;
+      for (i = 0; i < this->TableSize; ++i)
+        {
+        this->Keys[i] = 0;
+        }
     }
 
   ~vtkInformationInternals()
     {
-    // Delete all the values from the vector.
-    for(VectorType::iterator i = this->Vector.begin();
-        i != this->Vector.end(); ++i)
-      {
-      if(vtkObjectBase* value = i->second)
+      unsigned short i;
+      for (i = 0; i < this->TableSize; ++i)
         {
-        i->second = 0;
-        value->UnRegister(0);
+        vtkObjectBase *value = this->Values[i];
+        if (this->Keys[i] && value)
+          {
+          this->Keys[i] = 0;
+          this->Values[i] = 0;
+          value->UnRegister(0);
+          }
         }
-      }
+      delete [] this->Keys;
+      delete [] this->Values;
+    }
+
+  void ComputeHashKey(int size)
+    {
+      // finds the best hash key for the target table size
+      // and then adjust table size to fit the hash size
+#if USE_MOD
+      unsigned short i = 1;
+      while(_stl_prime_list[i] + 1 <= size && i < _stl_num_primes)
+        {
+        i++;
+        }
+      this->HashKey = _stl_prime_list[i-1];
+      this->TableSize = this->HashKey + 1;
+#else
+      this->HashKey = 1;
+      while (this->HashKey + 1 <= size)
+        {
+        this->HashKey *= 2;
+        }
+      this->HashKey = this->HashKey/2-1;
+      this->TableSize = this->HashKey + 2;
+#endif      
+    }
+
+  unsigned short Hash(unsigned long hv)
+    {
+#if USE_MOD
+      return hv % this->HashKey;
+#else      
+      return (hv >> 2 & this->HashKey);
+#endif
     }
 };
 
@@ -117,55 +173,132 @@ void vtkInformation::PrintSelf(ostream& os, vtkIndent indent)
     }
 
   // Give each key a chance to print its value.
-  for(vtkInformationInternals::VectorType::iterator i =
-        this->Internal->Vector.begin();
-      i != this->Internal->Vector.end(); ++i)
+  unsigned short i;
+  for (i = 0; i < this->Internal->TableSize; ++i)
     {
-    // Print the key name first.
-    vtkInformationKey* key = i->first;
-    os << indent << key->GetName() << ": ";
-
-    // Ask the key to print its value.
-    key->Print(os, this);
-    os << "\n";
+    if (this->Internal->Keys[i])
+      {
+      // Print the key name first.
+      vtkInformationKey* key = this->Internal->Keys[i];
+      os << indent << key->GetName() << ": ";
+      
+      // Ask the key to print its value.
+      key->Print(os, this);
+      os << "\n";
+      }
     }
 }
+
+//----------------------------------------------------------------------------
+// grow the table by a factor of 2
+void vtkInformation::ExpandTable()
+{
+  vtkInformationInternals* oldInternal = this->Internal;
+  this->Internal = new vtkInformationInternals(
+    static_cast<int>(oldInternal->TableSize*2.2));
+  
+  unsigned short i;
+  for (i = 0; i < oldInternal->TableSize; ++i)
+    {
+    if (oldInternal->Keys[i])
+      {
+      this->SetAsObjectBase(oldInternal->Keys[i],oldInternal->Values[i]);
+      }
+    }
+  delete oldInternal;
+}
+
 
 //----------------------------------------------------------------------------
 void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
                                      vtkObjectBase* newvalue)
 {
-  if(key)
+  if(!key)
     {
-    // Check for an existing entry.
-    vtkInformationInternals::VectorType::value_type v(key, newvalue);
-    vtkInformationInternals::VectorType::iterator i = this->Internal->Find(v);
-    if(i != this->Internal->Vector.end() && i->first == key)
+    return;
+    }
+  
+  // compute the hash
+  unsigned short ohash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
+  unsigned short hash = ohash;
+  
+  // Check for an existing entry.
+  vtkInformationKey *val = this->Internal->Keys[hash];
+  // is there something in this hash slot
+  if (val)
+    {
+    while (val && val != key && hash < this->Internal->TableSize)
       {
-      // There is already an entry with this key.  Update the value.
-      vtkObjectBase* oldvalue = i->second;
+      hash++;
+      val = this->Internal->Keys[hash];
+      }
+    // if we have exceeded the table size or have two collisions
+    if (hash >= this->Internal->TableSize || hash - ohash > 1)
+      {
+      this->ExpandTable();
+      this->SetAsObjectBase(key,newvalue);
+      return;
+      }
+    // if there is an entry for this key
+    if(val)
+      {
+      // Update the value.
+      vtkObjectBase* oldvalue = this->Internal->Values[hash];
       if(newvalue)
         {
         // There is a new value.  Replace the entry.
-        i->second = newvalue;
+        this->Internal->Values[hash] = newvalue;
         newvalue->Register(0);
         }
+      // remove the value
       else
         {
-        // There is no new value.  Erase the entry.
-        this->Internal->Vector.erase(i);
+        // There is no new value.  Erase the entry.  and shift down any
+        // followup entries that hash to the same value, requires that they be sorted
+        hash++;
+        while (this->Internal->Keys[hash] && 
+               this->Internal->Hash(reinterpret_cast<unsigned long>(this->Internal->Keys[hash])) < hash 
+               && hash < this->Internal->TableSize)
+          {
+          this->Internal->Keys[hash-1] = this->Internal->Keys[hash];
+          this->Internal->Values[hash-1] = this->Internal->Values[hash];
+          hash++;
+          }
+        // clear the final entry 
+        this->Internal->Keys[hash-1] = 0;
         }
       oldvalue->UnRegister(0);
       }
-    else if(newvalue)
+    // add an entry but after the desired hash location
+    else if (newvalue)
       {
-      // There is no entry with this key.  Create one and store the
-      // value.
+      // start at ohash + 1 and find where we should instert this key
+      unsigned short hash2 = hash;
+      hash = ohash + 1;
+      while (this->Internal->Hash(reinterpret_cast<unsigned long>(this->Internal->Keys[hash])) == ohash)
+        {
+        hash++;
+        }
+      // insert and shift the rest, hash is the insertion point
+      for (;hash2 > hash; --hash2)
+        {
+        this->Internal->Keys[hash2] = this->Internal->Keys[hash2-1];
+        this->Internal->Values[hash2] = this->Internal->Values[hash2-1];
+        }
+      this->Internal->Keys[hash2] = key;
+      this->Internal->Values[hash2] = newvalue;      
       newvalue->Register(0);
-      this->Internal->Vector.insert(i, v);
       }
-    this->Modified();
     }
+  else if (newvalue)
+    {
+    // There is no entry with this key.  Create one and store the value.
+    newvalue->Register(0);
+    this->Internal->Keys[hash] = key;
+    this->Internal->Values[hash] = newvalue;
+    }
+  
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -173,12 +306,19 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
 {
   if(key)
     {
-    // Look for an entry with this key.
-    vtkInformationInternals::VectorType::iterator i =
-      this->Internal->Find(key);
-    if(i != this->Internal->Vector.end() && i->first == key)
+    // compute the hash
+    unsigned short hash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
+    
+    // Check for an existing entry.
+    vtkInformationKey *val = this->Internal->Keys[hash];
+    while (val && val != key)
       {
-      return i->second;
+      hash++;
+      val = this->Internal->Keys[hash];
+      }
+    if (val)
+      {
+      return this->Internal->Values[hash];
       }
     }
   return 0;
@@ -194,15 +334,21 @@ void vtkInformation::Clear()
 void vtkInformation::Copy(vtkInformation* from, int deep)
 {
   vtkInformationInternals* oldInternal = this->Internal;
-  this->Internal = new vtkInformationInternals;
   if(from)
     {
-    for(vtkInformationInternals::VectorType::iterator i =
-          from->Internal->Vector.begin();
-        i != from->Internal->Vector.end(); ++i)
+    this->Internal = new vtkInformationInternals(from->Internal->TableSize);
+    unsigned short i;
+    for (i = 0; i < from->Internal->TableSize; ++i)
       {
-      this->CopyEntry(from, i->first, deep);
+      if (from->Internal->Keys[i])
+        {
+        this->CopyEntry(from, from->Internal->Keys[i], deep);
+        }
       }
+    }
+  else
+    {
+    this->Internal = new vtkInformationInternals;
     }
   delete oldInternal;
 }
@@ -709,13 +855,13 @@ void vtkInformation::ReportReferences(vtkGarbageCollector* collector)
   this->Superclass::ReportReferences(collector);
 
   // Ask each key/value pair to report any references it holds.
-  for(vtkInformationInternals::VectorType::iterator i =
-        this->Internal->Vector.begin();
-      i != this->Internal->Vector.end(); ++i)
+  unsigned short i;
+  for (i = 0; i < this->Internal->TableSize; ++i)
     {
-    // TODO: Pass a reference to i->second as an argument to avoid
-    // need for another lookup.
-    i->first->Report(this, collector);
+    if (this->Internal->Keys[i])
+      {
+      this->Internal->Keys[i]->Report(this,collector);
+      }
     }
 }
 
@@ -725,12 +871,16 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
 {
   if(key)
     {
-    // Find the entry's value and report it.
-    vtkInformationInternals::VectorType::iterator i =
-      this->Internal->Find(key);
-    if(i != this->Internal->Vector.end() && i->first == key)
+    unsigned short ohash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
+    while (this->Internal->Keys[ohash] && this->Internal->Keys[ohash] != key && 
+           ohash < this->Internal->TableSize)
       {
-      vtkGarbageCollectorReport(collector, i->second, key->GetName());
+      ohash++;
+      }
+    if (this->Internal->Keys[ohash] && ohash < this->Internal->TableSize)
+      {
+      vtkGarbageCollectorReport(collector, this->Internal->Values[ohash], key->GetName());
+      return;
       }
     }
 }
