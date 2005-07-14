@@ -33,9 +33,9 @@
 
 #include <vtkstd/string>
 
-#ifdef VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+#ifdef VTK_DEFINE_GLX_GET_PROC_ADDRESS_PROTOTYPE
 extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
-#endif //VTK_USE_GLX_GET_PROC_ADDRESS_ARB
+#endif //VTK_DEFINE_GLX_GET_PROC_ADDRESS_PROTOTYPE
 
 #ifdef VTK_USE_VTK_DYNAMIC_LOADER
 #include "vtkDynamicLoader.h"
@@ -50,7 +50,7 @@ extern "C" vtkglX::__GLXextFuncPtr glXGetProcAddressARB(const GLubyte *);
 // GLU is currently not linked in VTK.  We do not support it here.
 #define GLU_SUPPORTED   0
 
-vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.11");
+vtkCxxRevisionMacro(vtkOpenGLExtensionManager, "1.12");
 vtkStandardNewMacro(vtkOpenGLExtensionManager);
 
 vtkOpenGLExtensionManager::vtkOpenGLExtensionManager()

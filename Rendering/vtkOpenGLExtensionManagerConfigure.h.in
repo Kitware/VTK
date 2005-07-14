@@ -29,6 +29,8 @@
 #cmakedefine VTK_USE_VTK_DYNAMIC_LOADER
 #cmakedefine VTK_NO_EXTENSION_LOADING
 
+#cmakedefine VTK_DEFINE_GLX_GET_PROC_ADDRESS_PROTOTYPE
+
 // If using vtkDynamicLoader, we need to know where the libraries are.
 #define OPENGL_LIBRARIES "@OPENGL_LIBRARIES@"
 
