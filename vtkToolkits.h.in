@@ -51,6 +51,9 @@
 /* Whether we are building MPI support.  */
 #cmakedefine VTK_USE_MPI
 
+/* Should VTK use the display?  */
+#cmakedefine VTK_USE_DISPLAY
+
 /* is VTK_DATA_ROOT defined? */
 #cmakedefine VTK_DATA_ROOT
 #ifdef VTK_DATA_ROOT
