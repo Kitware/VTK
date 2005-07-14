@@ -111,7 +111,7 @@ public:
   // Description:
   // Create a cell by specifying the number of points and an array of point
   // id's.  Return the cell id of the cell.
-  vtkIdType InsertNextCell(vtkIdType npts, vtkIdType* pts);
+  vtkIdType InsertNextCell(vtkIdType npts, const vtkIdType* pts);
 
   // Description:
   // Create a cell by specifying a list of point ids. Return the cell id of
@@ -161,7 +161,7 @@ public:
 
   // Description:
   // Replace the point ids of the cell with a different list of point ids.
-  void ReplaceCell(vtkIdType loc, int npts, vtkIdType *pts);
+  void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts);
 
   // Description:
   // Returns the size of the largest cell. The size is the number of points
@@ -232,7 +232,8 @@ private:
 
 
 //----------------------------------------------------------------------------
-inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts, vtkIdType* pts)
+inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts,
+                                              const vtkIdType* pts)
 {
   vtkIdType i = this->Ia->GetMaxId() + 1;
   vtkIdType *ptr = this->Ia->WritePointer(i, npts+1);
@@ -355,7 +356,8 @@ inline void vtkCellArray::ReverseCell(vtkIdType loc)
 }
 
 //----------------------------------------------------------------------------
-inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts, vtkIdType *pts)
+inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts,
+                                      const vtkIdType *pts)
 {
   vtkIdType *oldPts=this->Ia->GetPointer(loc+1);
   for (int i=0; i < npts; i++)
