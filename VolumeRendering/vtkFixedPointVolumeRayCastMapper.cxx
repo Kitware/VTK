@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.17");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.18");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -1575,7 +1575,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
             currSteps = 0;
             }
           }
-        else
+        else if ( dir[stepLoop] )
           {
           if ( pos[stepLoop] > endVal )
             {
@@ -1585,6 +1585,12 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
             {
             currSteps = 0;
             }
+          }
+        else
+          {
+          // The viewing direction lies in this plane, don't
+          // consider this component of the direction
+          continue;
           }
         
         if ( !stepsValid || currSteps < *numSteps )
