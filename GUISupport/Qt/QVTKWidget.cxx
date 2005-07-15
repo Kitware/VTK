@@ -1195,7 +1195,11 @@ void QVTKWidget::x11_setup_window()
   Window parent = RootWindow(display, DefaultScreen(display));
   if(parentWidget())
     parent = parentWidget()->winId();
-  Window win = XCreateWindow(display, parent, x(), y(), width(), height(),
+
+  XWindowAttributes a;
+  XGetWindowAttributes(display, this->winId(), &a);
+
+  Window win = XCreateWindow(display, parent, a.x, a.y, a.width, a.height,
                              0, vi->depth, InputOutput, vi->visual,
                              CWBorderPixel|CWColormap, &attrib);
   
