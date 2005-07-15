@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.12");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.13");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -437,9 +437,12 @@ void vtkBoxClipDataSet::CreateDefaultLocator()
 // Set the box for clipping
 // for each plane, specify the normal and one vertex on the plane. 
 //
-void vtkBoxClipDataSet::SetBoxClip(double *n0,double *o0,double *n1,double *o1,
-                                   double *n2,double *o2,double *n3,double *o3,
-                                   double *n4,double *o4,double *n5,double *o5)
+void vtkBoxClipDataSet::SetBoxClip(const double *n0, const double *o0,
+                                   const double *n1, const double *o1,
+                                   const double *n2, const double *o2,
+                                   const double *n3, const double *o3,
+                                   const double *n4, const double *o4,
+                                   const double *n5, const double *o5)
 {
   int i;
 
