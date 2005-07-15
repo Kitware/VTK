@@ -247,5 +247,5 @@ IF(NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR}/vtknetcdf .h
-                netcdf.h ncconfig.h)
+                netcdf.h ncconfig.h vtk_netcdf_mangle.h)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)

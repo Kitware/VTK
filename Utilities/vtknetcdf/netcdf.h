@@ -1,3 +1,4 @@
+#include "vtk_netcdf_mangle.h"
 /*
  * Copyright 1993-1996 University Corporation for Atmospheric Research/Unidata
  * 
