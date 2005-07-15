@@ -5,6 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   SET(MyTests     
     Mace.cxx
     expCos.cxx
+    BoxClipTriangulate.cxx
     CellLocator.cxx
     PointLocator.cxx
     FrustumClip.cxx
