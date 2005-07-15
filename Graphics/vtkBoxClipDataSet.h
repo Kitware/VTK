@@ -120,11 +120,16 @@ public:
   vtkGetMacro(Orientation,unsigned int);
   vtkSetMacro(Orientation,unsigned int);
   
-  void MinEdgeF(unsigned int *id_v, vtkIdType *cellIds, unsigned int *edgF );
-  void PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds, vtkCellArray *newCellArray);
-  void WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds, vtkCellArray *newCellArray);
-  void CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *cellIds, vtkCellArray *newCellArray);
-  void CreateTetra(vtkIdType npts, vtkIdType *cellIds, vtkCellArray *newCellArray);
+  void MinEdgeF(const unsigned int *id_v, const vtkIdType *cellIds,
+                unsigned int *edgF );
+  void PyramidToTetra(const vtkIdType *pyramId, const vtkIdType *cellIds,
+                      vtkCellArray *newCellArray);
+  void WedgeToTetra(const vtkIdType *wedgeId, const vtkIdType *cellIds,
+                    vtkCellArray *newCellArray);
+  void CellGrid(vtkIdType typeobj, vtkIdType npts, const vtkIdType *cellIds,
+                vtkCellArray *newCellArray);
+  void CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
+                   vtkCellArray *newCellArray);
   void ClipBox(vtkPoints *newPoints,vtkGenericCell *cell, 
                vtkPointLocator *locator, vtkCellArray *tets,vtkPointData *inPD, 
                vtkPointData *outPD,vtkCellData *inCD,vtkIdType cellId,

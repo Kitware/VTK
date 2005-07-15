@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.11");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.12");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -527,7 +527,9 @@ void vtkBoxClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 //
 // MinEdgF search the smallest vertex index in linear order of a face(4 vertices)
 //
-void vtkBoxClipDataSet::MinEdgeF(unsigned int *id_v, vtkIdType *cellIds,unsigned int *edgF)
+void vtkBoxClipDataSet::MinEdgeF(const unsigned int *id_v,
+                                 const vtkIdType *cellIds,
+                                 unsigned int *edgF)
 {
     
   int i;
@@ -619,7 +621,8 @@ void vtkBoxClipDataSet::MinEdgeF(unsigned int *id_v, vtkIdType *cellIds,unsigned
 //
 //        wedge : 1 tetrahedron + 1 pyramid = 3 tetrahedra. 
 //
-void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,
+void vtkBoxClipDataSet::WedgeToTetra(const vtkIdType *wedgeId,
+                                     const vtkIdType *cellIds,
                                      vtkCellArray *newCellArray)
 {
   int i;
@@ -628,8 +631,8 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,
   vtkIdType tab[4];
   vtkIdType tabpyram[5];
 
-  static  vtkIdType vwedge[6][4]={ {0, 4, 3, 5}, {1, 4, 3, 5}, {2, 4, 3, 5},
-                                   {3, 0, 1, 2}, {4, 0, 1, 2}, {5, 0, 1, 2} };
+  const vtkIdType vwedge[6][4]={ {0, 4, 3, 5}, {1, 4, 3, 5}, {2, 4, 3, 5},
+                                 {3, 0, 1, 2}, {4, 0, 1, 2}, {5, 0, 1, 2} };
         
   // the table 'vwedge' set 6 possibilities of the smallest index 
   //
@@ -662,9 +665,9 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,
   newCellArray->InsertNextCell(4,tab);
   
   // Pyramid :create 2 tetrahedra
-  static vtkIdType vert[6][5]={ {1, 2, 5, 4, 0}, {2, 0, 3, 5, 1}, 
-                                {3, 0, 1, 4, 2}, {1, 2, 5, 4, 3},
-                                {2, 0, 3, 5, 4}, {3, 0, 1, 4, 5} };
+  const vtkIdType vert[6][5]={ {1, 2, 5, 4, 0}, {2, 0, 3, 5, 1}, 
+                               {3, 0, 1, 4, 2}, {1, 2, 5, 4, 3},
+                               {2, 0, 3, 5, 4}, {3, 0, 1, 4, 5} };
   for(i=0;i<5;i++)
     {
     tabpyram[i] = wedgeId[vert[id][i]];
@@ -678,7 +681,9 @@ void vtkBoxClipDataSet::WedgeToTetra(vtkIdType *wedgeId, vtkIdType *cellIds,
 // PyramidToTetra :Subdivide the pyramid in consistent tetrahedra.
 //        Pyramid : 2 tetrahedra.
 //
-void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,vtkCellArray *newCellArray)
+void  vtkBoxClipDataSet::PyramidToTetra(const vtkIdType *pyramId,
+                                        const vtkIdType *cellIds,
+                                        vtkCellArray *newCellArray)
 {
   vtkIdType xmin;
   unsigned int i,j,idpy;
@@ -700,8 +705,8 @@ void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,v
   //         2 tetrahedra-> vpy[0]: {v0,v1,v2,v4}
   //                        vpy[1]: {v0,v2,v3,v4}
   //    
-  static vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                               {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}}; 
+  const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
+                              {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}}; 
   
   xmin = cellIds[pyramId[0]];
   idpy = 0;
@@ -809,7 +814,9 @@ void  vtkBoxClipDataSet::PyramidToTetra(vtkIdType *pyramId, vtkIdType *cellIds,v
 //  
 //
 //----------------------------------------------------------------------------
-void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *cellIds,vtkCellArray *newCellArray)
+void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
+                                 const vtkIdType *cellIds,
+                                 vtkCellArray *newCellArray)
 {
   vtkIdType tab[4];
   vtkIdType tabp[5];
@@ -833,8 +840,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
     {
     case VTK_TRIANGLE: // 5
     case VTK_QUADRATIC_TRIANGLE:
-      newCellArray->InsertNextCell(ptstriangle,
-                                   const_cast<vtkIdType*>(triPassThrough));
+      newCellArray->InsertNextCell(ptstriangle, triPassThrough);
       break;
 
     case VTK_TRIANGLE_STRIP: // 6
@@ -868,7 +874,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
 
     case VTK_PIXEL: // 8
       {
-      static vtkIdType vtrip[2][3] = {{0,1,3},{0,3,2}};
+      const vtkIdType vtrip[2][3] = {{0,1,3},{0,3,2}};
       newCellArray->InsertNextCell(3,vtrip[0]);
       newCellArray->InsertNextCell(3,vtrip[1]);
       }
@@ -878,7 +884,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
     case VTK_QUADRATIC_QUAD:
 
       {
-      static vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3}};
+      const vtkIdType vtriq[2][3] = {{0,1,2},{0,2,3}};
       newCellArray->InsertNextCell(3,vtriq[0]);
       newCellArray->InsertNextCell(3,vtriq[1]);
       }
@@ -887,7 +893,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
     case VTK_TETRA: // 10
     case VTK_QUADRATIC_TETRA:
       {
-      static  vtkIdType tetra[4]={0,1,2,3};
+      const vtkIdType tetra[4]={0,1,2,3};
       newCellArray->InsertNextCell(ptstetra,tetra);
       }
       break;  
@@ -967,8 +973,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         // case 1: create  5 tetraedra 
         if((id == 0)||(id == 3)||(id == 5)||(id == 6))
           {
-          static  vtkIdType vtetra[5][4]={{0,5,3,6},{0,4,5,6},
-                                          {0,1,3,5},{5,3,6,7},{0,3,2,6}}; 
+          const vtkIdType vtetra[5][4]={{0,5,3,6},{0,4,5,6},
+                                        {0,1,3,5},{5,3,6,7},{0,3,2,6}}; 
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -976,8 +982,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           }
         else
           {
-          static  vtkIdType vtetra[5][4]={{1,2,4,7},{0,1,2,4},
-                                          {1,4,5,7},{1,3,2,7},{2,6,4,7}};   
+          const vtkIdType vtetra[5][4]={{1,2,4,7},{0,1,2,4},
+                                        {1,4,5,7},{1,3,2,7},{2,6,4,7}};   
           
           for(i=0; i<5; i++)
             {
@@ -988,12 +994,12 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
       else 
         {
         //case 2: create 2 wedges-> 6 tetrahedra
-        static vtkIdType vwedge[12][6]={{0,5,4,2,7,6},{0,1,5,2,3,7},
-                                        {4,7,6,0,3,2},{4,5,7,0,1,3},
-                                        {1,7,5,0,6,4},{1,3,7,0,2,6},
-                                        {4,5,6,0,1,2},{6,5,7,2,1,3},
-                                        {3,7,5,2,6,4},{1,3,5,0,2,4},
-                                        {0,1,4,2,3,6},{1,5,4,3,7,6}}; 
+        const vtkIdType vwedge[12][6]={{0,5,4,2,7,6},{0,1,5,2,3,7},
+                                       {4,7,6,0,3,2},{4,5,7,0,1,3},
+                                       {1,7,5,0,6,4},{1,3,7,0,2,6},
+                                       {4,5,6,0,1,2},{6,5,7,2,1,3},
+                                       {3,7,5,2,6,4},{1,3,5,0,2,4},
+                                       {0,1,4,2,3,6},{1,5,4,3,7,6}}; 
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
         switch(edgeId)     
           {
@@ -1086,7 +1092,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         }
   
       //two cases: 
-      static unsigned int tabopos[8] = {6,7,4,5,2,3,0,1};
+      const unsigned int tabopos[8] = {6,7,4,5,2,3,0,1};
       idopos      = tabopos[id];
       numbertetra = 5;
       for(i=0;i<6;i++) 
@@ -1110,8 +1116,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
         // case 1: create  5 tetraedra 
         if((id == 0)||(id == 2)||(id == 5)||(id == 7))
           {
-          static  vtkIdType vtetra[5][4]={{0,5,2,7},{0,4,5,7},
-                                          {0,1,2,5},{5,2,7,6},{0,2,3,7}}; 
+          const vtkIdType vtetra[5][4]={{0,5,2,7},{0,4,5,7},
+                                        {0,1,2,5},{5,2,7,6},{0,2,3,7}}; 
           for(i=0; i<5; i++)
             {
             newCellArray->InsertNextCell(4,vtetra[i]);
@@ -1119,8 +1125,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
           }
         else
           {
-          static  vtkIdType vtetra[5][4]={{1,3,4,6},{0,1,3,4},
-                                          {1,4,5,6},{1,2,3,6},{3,7,4,6}};   
+          const vtkIdType vtetra[5][4]={{1,3,4,6},{0,1,3,4},
+                                        {1,4,5,6},{1,2,3,6},{3,7,4,6}};   
           
           for(i=0; i<5; i++)
             {
@@ -1131,12 +1137,12 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
       else 
         {
         //case 2: create 2 wedges-> 6 tetrahedra
-        static vtkIdType vwedge[12][6]={{0,5,4,3,6,7},{0,1,5,3,2,6},
-                                        {4,6,7,0,2,3},{4,5,6,0,1,2},
-                                        {1,6,5,0,7,4},{1,2,6,0,3,7},
-                                        {4,5,7,0,1,3},{7,5,6,3,1,2},
-                                        {2,6,5,3,7,4},{1,2,5,0,3,4},
-                                        {0,1,4,3,2,7},{1,5,4,2,6,7}}; 
+        const vtkIdType vwedge[12][6]={{0,5,4,3,6,7},{0,1,5,3,2,6},
+                                       {4,6,7,0,2,3},{4,5,6,0,1,2},
+                                       {1,6,5,0,7,4},{1,2,6,0,3,7},
+                                       {4,5,7,0,1,3},{7,5,6,3,1,2},
+                                       {2,6,5,3,7,4},{1,2,5,0,3,4},
+                                       {0,1,4,3,2,7},{1,5,4,2,6,7}}; 
         unsigned int edgeId = 10*Edg_f[i][0]+ Edg_f[i][1];
 
         switch(edgeId)
@@ -1181,26 +1187,26 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
       if(npts == 6) //create 3 tetrahedra
         {
         //first tetrahedron 
-        static  vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
-                                        {3,0,1,2},{4,0,1,2},{5,0,1,2}};             
+        const vtkIdType vwedge[6][4]={{0,4,3,5},{1,4,3,5},{2,4,3,5},
+                                      {3,0,1,2},{4,0,1,2},{5,0,1,2}};
         xmin = cellIds[0];
         id = 0;
         for(i=1;i<6;i++) 
           {
           if(xmin > cellIds[i])
             {
-            xmin = cellIds[i];// the smallest global index
-            id = i;           // local index 
+            xmin = cellIds[i];  // the smallest global index
+            id = i;             // local index 
             }  
           }
-        newCellArray->InsertNextCell(4,vwedge[id]);
+        newCellArray->InsertNextCell(4, vwedge[id]);
         
         //Pyramid :create 2 tetrahedra
            
-        static vtkIdType vert[6][5]={{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
-                                     {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
-        static vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                     {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};                      
+        const vtkIdType vert[6][5]={{1,2,5,4,0},{2,0,3,5,1},{3,0,1,4,2},
+                                    {1,2,5,4,3},{2,0,3,5,4},{3,0,1,4,5}};  
+        const vtkIdType vpy[8][4] ={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
+                                    {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
         xmin    = cellIds[vert[id][0]];
         tabp[0] = vert[id][0];
         idpy = 0;
@@ -1213,7 +1219,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
             idpy = i;                    // local index
             }
           }
-        tabp[4] = cellIds[vert[id][4]];
+        tabp[4] = vert[id][4];
         for(j = 0; j < 4 ; j++) 
           {
           tab[j] = tabp[vpy[2*idpy][j]];
@@ -1239,8 +1245,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
       if(npts == 5)
         {
         //note: the first element vpyram[][0] is the smallest index of pyramid
-        static  vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
-                                        {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
+        const vtkIdType vpyram[8][4]={{0,1,2,4},{0,2,3,4},{1,2,3,4},{1,3,0,4},
+                                      {2,3,0,4},{2,0,1,4},{3,0,1,4},{3,1,2,4}};
         xmin = cellIds[0];
         id   = 0;
         for(i=1;i<4;i++) 
@@ -1272,7 +1278,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts, vtkIdType *c
 // Visualization Toolkit."  In the third edition, they are in Figure 5-2 on page
 // 115 in section 5.4 ("Cell Types") in the "Basic Data Representation" chapter.
 //  
-void vtkBoxClipDataSet::CreateTetra(vtkIdType npts,vtkIdType *cellIds,vtkCellArray *newCellArray)
+void vtkBoxClipDataSet::CreateTetra(vtkIdType npts, const vtkIdType *cellIds,
+                                    vtkCellArray *newCellArray)
 {
   vtkIdType tabp[5];
   vtkIdType tab[3][4];
