@@ -11,7 +11,7 @@
 #  define DLL_NETCDF
 #endif
 
-#ifdef e2NetCDF_EXPORTS
+#ifdef vtkNetCDF_EXPORTS
 #  define DLL_EXPORT 
 #endif
 
