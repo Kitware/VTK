@@ -24,4 +24,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "could not be inlined"
   )
 
-
+SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
+  "vtk.*TCLInit.cxx"
+  "vtk[^\\.]*Tcl.cxx")

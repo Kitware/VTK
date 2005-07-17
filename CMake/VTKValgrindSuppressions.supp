@@ -1,0 +1,949 @@
+{
+   <insert a suppression name here>
+   Memcheck:Addr1
+   fun:strcmp
+   fun:_dl_map_object_internal
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:_dl_relocate_object_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:_dl_relocate_object_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:__stpcpy
+   obj:/lib/libc-2.3.3.so
+   fun:__sysconf
+}
+{
+   <insert a suppression name here>
+   core:PThread
+   fun:pthread_error
+   fun:pthread_attr_setscope
+   fun:_ZN16vtkMultiThreader19SingleMethodExecuteEv
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:__stpcpy
+   obj:/lib/libc-2.3.3.so
+   fun:setlocale
+   fun:TclpSetInitialEncodings
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:__stpcpy
+   fun:setlocale
+   fun:TclpSetInitialEncodings
+}  
+{  
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:__stpcpy
+   obj:/lib/libc-2.3.3.so
+   fun:__pthread_once
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:__stpcpy
+   obj:/lib/libc-2.3.3.so
+   fun:__nss_hosts_lookup
+   fun:gethostbyname_r
+   fun:gethostbyname
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_X11TransConnect
+   fun:_X11TransConnectDisplay
+   fun:XOpenDisplay
+   fun:TkpOpenDisplay
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XlcDefaultMapModifiers
+   fun:XSetLocaleModifiers
+   obj:/usr/lib/libtk8.4.so
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XrmDefaultInitParseInfo
+   fun:_XrmInitParseInfo
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XrmGetFileDatabase
+   fun:_XInitKeysymDB
+   fun:XStringToKeysym
+   fun:TkStringToKeysym
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/X11/locale/lib/common/ximcp.so.2
+   fun:_XimOpenIM
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XOpenIM
+   obj:/usr/lib/libtk8.4.so
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XlcResolveLocaleName
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XlcCreateLocaleDataBase
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:XauFileName
+   fun:XauGetBestAuthByAddr
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_X11TransConnectDisplay
+   fun:XOpenDisplay
+   fun:TkpOpenDisplay
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XrmInternalStringToQuark
+   fun:XrmStringToQuark
+   fun:_XlcGetCharSet
+   fun:_XlcAddCT
+   fun:_XlcInitCTInfo
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XlcAddCT
+   fun:_XlcInitCTInfo
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   obj:/usr/lib/libtk8.4.so
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:__strdup
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{
+   <insert a suppression name here>
+   Memcheck:Addr4
+   obj:/lib/libc-2.3.3.so
+   obj:/lib/libc-2.3.3.so
+   obj:/lib/libc-2.3.3.so
+   obj:/lib/libc-2.3.3.so
+   obj:/lib/libc-2.3.3.so
+   fun:__libc_freeres
+   fun:vgPlain___libc_freeres_wrapper
+   fun:exit
+   fun:Tcl_Exit
+}
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+
+{  
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object_internal
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{
+   <insert a suppression name here>
+   Memcheck:Overlap
+   fun:memcpy
+   obj:/usr/X11R6/lib/libXt.so.6.0
+   fun:_XtGetResources
+   obj:/usr/X11R6/lib/libXt.so.6.0
+   fun:_XtAppCreateShell
+   fun:XtVaAppCreateShell
+}
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:strlen
+   obj:/lib/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XrmInitParseInfo
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XrmGetStringDatabase
+   obj:/usr/X11R6/lib/libXt.so.6.0
+   obj:/usr/X11R6/lib/libXt.so.6.0
+   fun:_XtDisplayInitialize
+   fun:XtDisplayInitialize
+   fun:_ZN29vtkXRenderWindowTclInteractor10InitializeEv
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:XShmCreateImage
+   fun:alloc_shm_back_buffer
+   fun:xmesa_alloc_back_buffer
+   fun:xmesa_resize_buffers
+   fun:_mesa_ResizeBuffersMESA
+   fun:_mesa_set_viewport
+   fun:_mesa_Viewport
+   fun:glViewport
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:XCreateImage
+   fun:initialize_visual_and_buffer
+   fun:XMesaCreateWindowBuffer2
+   fun:Fake_glXMakeContextCurrent
+   fun:Fake_glXMakeCurrent
+   fun:glXMakeCurrent
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XNoticeCreateBitmap
+   fun:XCreatePixmap
+   fun:XCreateBitmapFromData
+   fun:GetBitmap
+   fun:Tk_GetBitmap
+   fun:TkButtonWorldChanged
+   fun:ConfigureButton
+   fun:ButtonCreate
+   fun:Tk_ButtonObjCmd
+   fun:TclEvalObjvInternal
+   fun:TclExecuteByteCode
+   fun:TclCompEvalObj
+   fun:TclObjInterpProc
+   fun:TclEvalObjvInternal
+   fun:TclExecuteByteCode
+   fun:TclCompEvalObj
+   fun:Tcl_EvalObjEx
+   fun:NamespaceEvalCmd
+   fun:Tcl_NamespaceObjCmd
+   fun:TclEvalObjvInternal
+   fun:Tcl_EvalEx
+   fun:Tcl_Eval
+   fun:Tcl_GlobalEval
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:XCreateGC
+   fun:initialize_visual_and_buffer
+   fun:XMesaCreateWindowBuffer2
+   fun:Fake_glXMakeContextCurrent
+   fun:Fake_glXMakeCurrent
+   fun:glXMakeCurrent
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:XGetVisualInfo
+   fun:get_visual
+   fun:choose_x_visual
+   fun:choose_visual
+   fun:Fake_glXChooseVisual
+   fun:glXChooseVisual
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_mesa_malloc
+   fun:_mesa_new_buffer_object
+   fun:_mesa_init_buffer_objects
+   fun:init_attrib_groups
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:strchr
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+   fun:_dl_map_object_from_fd
+   fun:_dl_map_object_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XlcDynamicLoad
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+   fun:OpenIM
+   fun:TkpOpenDisplay
+   fun:GetScreen
+   fun:CreateTopLevelWindow
+   fun:TkCreateMainWindow
+   fun:CreateFrame
+   fun:TkCreateFrame
+   fun:Initialize
+   fun:Tk_Init
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:_mesa_alloc_program
+   fun:alloc_shared_state
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_mesa_malloc
+   fun:alloc_vertex_store
+   fun:_tnl_NewList
+   fun:_mesa_NewList
+   fun:glNewList
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_mesa_malloc
+   fun:XMesaCreateVisual
+   fun:save_glx_visual
+   fun:choose_visual
+   fun:Fake_glXChooseVisual
+   fun:glXChooseVisual
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:XMesaCreateVisual
+   fun:save_glx_visual
+   fun:choose_visual
+   fun:Fake_glXChooseVisual
+   fun:glXChooseVisual
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:_mesa_NewHashTable
+   fun:_mesa_init_occlude
+   fun:init_attrib_groups
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_mesa_malloc
+   fun:_mesa_strdup
+   fun:_mesa_init_program
+   fun:init_attrib_groups
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:_mesa_NewHashTable
+   fun:_mesa_init_depth
+   fun:init_attrib_groups
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   fun:_mesa_calloc
+   fun:_mesa_new_texture_object
+   fun:alloc_shared_state
+   fun:_mesa_initialize_context
+   fun:XMesaCreateContext
+   fun:Fake_glXCreateContext
+   fun:glXCreateContext
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   write(buf)
+   fun:write
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_X11TransWrite
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XReply
+   fun:XSync
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   fun:_playback_copy_to_current
+   fun:_tnl_playback_vertex_list
+   fun:execute_list
+   fun:_mesa_CallList
+   fun:glCallList
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Addr4
+   obj:/lib/tls/libc-2.3.3.so
+   obj:/lib/tls/libc-2.3.3.so
+   obj:/lib/tls/libc-2.3.3.so
+   obj:/lib/tls/libc-2.3.3.so
+   obj:/lib/tls/libc-2.3.3.so
+   fun:__libc_freeres
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:get_dispatch
+   fun:glXChooseVisual
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libXcursor.so.1.0
+   fun:XcursorTryShapeCursor
+   fun:_XTryShapeCursor
+   fun:XCreateGlyphCursor
+   fun:TkGetCursorByName
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib/libdl-2.3.3.so
+   fun:dlsym
+   fun:fcntl
+   fun:TclpOpenFileChannel
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:open_path
+   fun:_dl_map_object_internal
+   obj:/lib/tls/libc-2.3.3.so
+   fun:_dl_catch_error_internal
+   fun:_dl_open
+   obj:/lib/libdl-2.3.3.so
+   fun:_dl_catch_error_internal
+   obj:/lib/libdl-2.3.3.so
+   fun:dlopen
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XNoticeCreateBitmap
+   fun:XCreatePixmap
+   fun:XCreateBitmapFromData
+   obj:/usr/lib/libtk8.4.so
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XQueryFont
+   obj:/usr/X11R6/lib/libXcursor.so.1.0
+   fun:XcursorTryShapeCursor
+   fun:_XTryShapeCursor
+   fun:XCreateGlyphCursor
+   fun:TkGetCursorByName
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XQueryFont
+   obj:/usr/X11R6/lib/libXcursor.so.1.0
+   fun:XcursorTryShapeCursor
+   fun:_XTryShapeCursor
+   fun:XCreateGlyphCursor
+   fun:TkGetCursorByName
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XQueryFont
+   obj:/usr/X11R6/lib/libXcursor.so.1.0
+   fun:XcursorTryShapeCursor
+   fun:_XTryShapeCursor
+   fun:XCreateGlyphCursor
+   fun:TkGetCursorByName
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:_mesa_malloc
+   fun:alloc_vertex_store
+   fun:_save_compile_vertex_list
+   fun:_save_wrap_buffers
+   fun:_save_wrap_filled_vertex
+   fun:save_attrib_0_3
+   fun:_save_Vertex3fv
+   fun:glVertex3fv
+}
