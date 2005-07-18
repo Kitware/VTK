@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.13");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.14");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -114,10 +114,9 @@ vtkUnstructuredGrid *vtkBoxClipDataSet::GetClippedOutput()
 //
 // Clip by box
 //
-int vtkBoxClipDataSet::RequestData(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **inputVector,
-  vtkInformationVector *outputVector)
+int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
+                                   vtkInformationVector **inputVector,
+                                   vtkInformationVector *outputVector)
 {
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -279,29 +278,47 @@ int vtkBoxClipDataSet::RequestData(
         numNew[1] = conn[1]->GetNumberOfCells() - num[1];
         num[0]    = conn[0]->GetNumberOfCells();
         num[1]    = conn[1]->GetNumberOfCells();
-        } 
-      else  // dimension 2
-        {
-        if((cell->GetCellDimension())==2 )
-          {
-          if (orientation)
-            {
-            this->ClipHexahedronInOut2D(newPoints,cell,this->Locator, conn,
-                                        inPD, outPD, inCD, cellId, outCD);
-            }
-          else 
-            {
-            this->ClipBoxInOut2D(newPoints,cell, this->Locator, conn,
-                                 inPD, outPD, inCD, cellId, outCD);
-            }
-                                                                                                        
-          numNew[0] = conn[0]->GetNumberOfCells() - num[0];
-          numNew[1] = conn[1]->GetNumberOfCells() - num[1];
-          num[0]    = conn[0]->GetNumberOfCells();
-          num[1]    = conn[1]->GetNumberOfCells();
-          }
         }
-      } 
+      else if((cell->GetCellDimension())==2 )
+        {
+        if (orientation)
+          {
+          this->ClipHexahedronInOut2D(newPoints,cell,this->Locator, conn,
+                                      inPD, outPD, inCD, cellId, outCD);
+          }
+        else 
+          {
+          this->ClipBoxInOut2D(newPoints,cell, this->Locator, conn,
+                               inPD, outPD, inCD, cellId, outCD);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        numNew[1] = conn[1]->GetNumberOfCells() - num[1];
+        num[0]    = conn[0]->GetNumberOfCells();
+        num[1]    = conn[1]->GetNumberOfCells();
+        }
+      else if (cell->GetCellDimension() == 1)
+        {
+        if (orientation)
+          {
+          this->ClipHexahedronInOut1D(newPoints,cell, this->Locator, conn,
+                                      inPD, outPD, inCD, cellId, outCD);
+          }
+        else
+          {
+          this->ClipBoxInOut1D(newPoints,cell, this->Locator, conn,
+                               inPD, outPD, inCD, cellId, outCD);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        numNew[1] = conn[1]->GetNumberOfCells() - num[0];
+        num[0]    = conn[0]->GetNumberOfCells();
+        num[1]    = conn[1]->GetNumberOfCells();
+        }
+      else
+        {
+        vtkErrorMacro(<< "Do not support cells of dimension "
+                      << cell->GetCellDimension());
+        }
+      }
     else 
       {
       if((cell->GetCellDimension())==3 )
@@ -320,22 +337,40 @@ int vtkBoxClipDataSet::RequestData(
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
         num[0]    = conn[0]->GetNumberOfCells();
         }  
-      else{
-        if((cell->GetCellDimension())==2 )
+      else if((cell->GetCellDimension())==2 )
+        {
+        if (orientation)
           {
-          if (orientation)
-            {
-            this->ClipHexahedron2D(newPoints,cell,this->Locator, conn[0],
-                                   inPD, outPD, inCD, cellId, outCD[0]); 
-            }
-          else
-            {
-            this->ClipBox2D(newPoints,cell, this->Locator, conn[0],
-                            inPD, outPD, inCD, cellId, outCD[0]);
-            }
-          numNew[0] = conn[0]->GetNumberOfCells() - num[0];
-          num[0]    = conn[0]->GetNumberOfCells();
+          this->ClipHexahedron2D(newPoints,cell,this->Locator, conn[0],
+                                 inPD, outPD, inCD, cellId, outCD[0]); 
           }
+        else
+          {
+          this->ClipBox2D(newPoints,cell, this->Locator, conn[0],
+                          inPD, outPD, inCD, cellId, outCD[0]);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        num[0]    = conn[0]->GetNumberOfCells();
+        }
+      else if (cell->GetCellDimension() == 1)
+        {
+        if (orientation)
+          {
+          this->ClipHexahedron1D(newPoints,cell, this->Locator, conn[0],
+                                 inPD, outPD, inCD, cellId, outCD[0]);
+          }
+        else
+          {
+          this->ClipBox1D(newPoints,cell, this->Locator, conn[0],
+                          inPD, outPD, inCD, cellId, outCD[0]);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        num[0]    = conn[0]->GetNumberOfCells();
+        }
+      else
+        {
+        vtkErrorMacro(<< "Do not support cells of dimension "
+                      << cell->GetCellDimension());
         }
       }  
 
@@ -838,9 +873,20 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
   const vtkIdType triPassThrough[3] = {0, 1, 2};
   vtkIdType tri[3];
+  vtkIdType line[2];
 
   switch(typeobj)
     {
+    case VTK_LINE:
+    case VTK_POLY_LINE:
+      for (i = 0; i < npts-1; i++)
+        {
+        line[0] = i;
+        line[1] = i+1;
+        newCellArray->InsertNextCell(2, line);
+        }
+      break;
+
     case VTK_TRIANGLE: // 5
     case VTK_QUADRATIC_TRIANGLE:
       newCellArray->InsertNextCell(ptstriangle, triPassThrough);
@@ -5166,4 +5212,882 @@ void vtkBoxClipDataSet::ClipHexahedronInOut2D(vtkPoints *newPoints,
     }
   arraytriangle->Delete();
 }
-//-------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
+                                  vtkGenericCell *cell,
+                                  vtkPointLocator *locator, 
+                                  vtkCellArray *lines,
+                                  vtkPointData *inPD, 
+                                  vtkPointData *outPD,
+                                  vtkCellData *inCD,
+                                  vtkIdType cellId,
+                                  vtkCellData *outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayline  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid[2];
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     tab_id[2];
+  vtkIdType     ptsline = 2;
+
+  int i,j;
+  unsigned int allInside;
+  unsigned int planes;
+  unsigned int cutInd;
+
+  double value;
+  double t;
+  double v[3],x[3];
+  double v_line[2][3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 1d cells to single line.
+  this->CellGrid(cellType, npts, cellptId, arrayline);
+
+  unsigned int totalnewline = arrayline->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
+    {
+    arrayline->GetNextCell(ptsline, v_id);
+
+    
+    for (allInside=1, i=0; i<2; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+
+      if (!(   (v[0] >= this->BoundBoxClip[0][0])
+            && (v[0] <= this->BoundBoxClip[0][1])
+            && (v[1] >= this->BoundBoxClip[1][0])
+            && (v[1] <= this->BoundBoxClip[1][1])
+            && (v[2] >= this->BoundBoxClip[2][0])
+            && (v[2] <= this->BoundBoxClip[2][1]) ))
+        { 
+        //outside
+        allInside = 0;      
+        }
+      }
+    
+    // Test Outside:
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<2; i++)
+        {       
+        cellPts->GetPoint(v_id[i],v);
+
+        if (v[0] > this->BoundBoxClip[0][0])
+          {
+          test[0] = 0;
+          }
+        if (v[0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;
+          }
+        if (v[1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v[1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v[2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v[2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+        }//for all points of the line.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        continue;                         // Line is outside.
+        }
+      }//if not allInside
+      
+    for (i=0; i<2; i++)
+      {
+      // Currently all points are injected because of the possibility 
+      // of intersection point merging.
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+      if ( locator->InsertUniquePoint(v, iid[i]) )
+        {
+        outPD->CopyData(inPD,ptId, iid[i]);
+        }
+      }//for all points of the triangle.
+    
+    if ( allInside )
+      {   
+      // Triangle inside.
+      int newCellId = lines->InsertNextCell(2,iid);
+      outCD->CopyData(inCD,cellId,newCellId);
+      continue;
+      }
+
+    vtkCellArray *cellarray = vtkCellArray::New();
+    int newCellId = cellarray->InsertNextCell(2,iid);
+    unsigned int idcellnew;
+    
+    // Test triangle intersection with each plane of box
+    for (planes = 0; planes < 6; planes++) 
+      {
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
+
+      // The plane is always parallel to unitary cube. 
+      value = this->BoundBoxClip[cutInd][planes%2];   
+
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
+      vtkCellArray *newcellArray = vtkCellArray::New();
+
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
+        {
+        vtkIdType p_id;
+        cellarray->GetNextCell(npts, v_id);
+
+        newPoints->GetPoint(v_id[0], v_line[0]); //coord (x,y,z) 
+        newPoints->GetPoint(v_id[1], v_line[1]);
+
+        // Check to see if line is inside plane.
+        if (   (   (planes%2 == 0)
+                && (v_line[0][cutInd] >= value)
+                && (v_line[1][cutInd] >= value) )
+            || (   (planes%2 == 1)
+                && (v_line[0][cutInd] <= value)
+                && (v_line[1][cutInd] <= value) ) )
+          {
+          newCellId = newcellArray->InsertNextCell(2, v_id);
+          continue;
+          }
+
+        // Check to see if line is outside plane.
+        if (   (   (planes%2 == 0)
+                && (v_line[0][cutInd] <= value)
+                && (v_line[1][cutInd] <= value) )
+            || (   (planes%2 == 1)
+                && (v_line[0][cutInd] >= value)
+                && (v_line[1][cutInd] >= value) ) )
+          {
+          continue;
+          }
+
+        // If we are here, the plane intersects the line segment.
+        t = (value - v_line[0][cutInd])/(v_line[1][cutInd] - v_line[0][cutInd]);
+        for (j = 0; j < 3; j++)
+          {
+          x[j] = (v_line[1][j] - v_line[0][j])*t + v_line[0][j];
+          }
+
+        // Incorporate point into output and interpolate edge data as
+        // necessary.
+        if (locator->InsertUniquePoint(x, p_id))
+          {
+          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
+                                 cellIds->GetId(1), t);
+          }
+
+        // Add the clipped line to the output.
+        if (   ((planes%2 == 0) && (v_line[0][cutInd] >= value))
+            || ((planes%2 == 1) && (v_line[0][cutInd] <= value)) )
+          {
+          // First point of line is inside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          newcellArray->InsertNextCell(2, tab_id);
+          }
+        else
+          {
+          // Second point of line is inside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          newcellArray->InsertNextCell(2, tab_id);
+          }
+        } // for all new cells
+      cellarray->Delete();
+      cellarray = newcellArray;
+      } // for all planes
+
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();
+
+    for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
+      {
+      cellarray->GetNextCell(npts,v_id);
+      newCellId = lines->InsertNextCell(npts,v_id);
+      outCD->CopyData(inCD,cellId,newCellId);
+      }
+    cellarray->Delete();
+    }
+  arrayline->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
+                                       vtkGenericCell *cell,
+                                       vtkPointLocator *locator, 
+                                       vtkCellArray **lines,
+                                       vtkPointData *inPD, 
+                                       vtkPointData *outPD,
+                                       vtkCellData *inCD,
+                                       vtkIdType cellId,
+                                       vtkCellData **outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayline  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid[2];
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     tab_id[2];
+  vtkIdType     ptsline = 2;
+
+  int i,j;
+  unsigned int allInside;
+  unsigned int planes;
+  unsigned int cutInd;
+
+  double value;
+  double t;
+  double v[3],x[3];
+  double v_line[2][3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 1d cells to single line.
+  this->CellGrid(cellType, npts, cellptId, arrayline);
+
+  unsigned int totalnewline = arrayline->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
+    {
+    arrayline->GetNextCell(ptsline, v_id);
+
+    for (allInside=1, i=0; i<2; i++)
+      {
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+
+      if (!(   (v[0] >= this->BoundBoxClip[0][0])
+            && (v[0] <= this->BoundBoxClip[0][1])
+            && (v[1] >= this->BoundBoxClip[1][0])
+            && (v[1] <= this->BoundBoxClip[1][1])
+            && (v[2] >= this->BoundBoxClip[2][0])
+            && (v[2] <= this->BoundBoxClip[2][1]) ))
+        { 
+        //outside
+        allInside = 0;      
+        }
+
+      if ( locator->InsertUniquePoint(v, iid[i]) )
+        {
+        outPD->CopyData(inPD, ptId, iid[i]);
+        }
+      }
+    
+    // Test Outside:
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<2; i++)
+        {       
+        cellPts->GetPoint(v_id[i],v);
+
+        if (v[0] > this->BoundBoxClip[0][0])
+          {
+          test[0] = 0;
+          }
+        if (v[0] < this->BoundBoxClip[0][1])
+          {
+          test[1] = 0;
+          }
+        if (v[1] > this->BoundBoxClip[1][0])
+          {
+          test[2] = 0;
+          }
+        if (v[1] < this->BoundBoxClip[1][1])
+          {
+          test[3] = 0;
+          }
+        if (v[2] > this->BoundBoxClip[2][0])
+          {
+          test[4] = 0;
+          }
+        if (v[2] < this->BoundBoxClip[2][1])
+          {
+          test[5] = 0;
+          }
+        }//for all points of the line.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        int newCellId = lines[1]->InsertNextCell(2, iid);
+        outCD[1]->CopyData(inCD, cellId, newCellId);
+        continue;                         // Line is outside.
+        }
+      }//if not allInside
+    
+    if ( allInside )
+      {   
+      // Triangle inside.
+      int newCellId = lines[0]->InsertNextCell(2,iid);
+      outCD[0]->CopyData(inCD,cellId,newCellId);
+      continue;
+      }
+
+    vtkCellArray *cellarray    = vtkCellArray::New();
+    vtkCellArray *cellarrayout = vtkCellArray::New();
+    int newCellId = cellarray->InsertNextCell(2,iid);
+    unsigned int idcellnew;
+    
+    // Test triangle intersection with each plane of box
+    for (planes = 0; planes < 6; planes++) 
+      {
+      // The index of the dimension of the cut plane (x == 0, y == 1, z == 2).
+      cutInd = planes/2;
+
+      // The plane is always parallel to unitary cube. 
+      value = this->BoundBoxClip[cutInd][planes%2];   
+
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
+      vtkCellArray *newcellArray = vtkCellArray::New();
+
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
+        {
+        vtkIdType p_id;
+        cellarray->GetNextCell(npts, v_id);
+
+        newPoints->GetPoint(v_id[0], v_line[0]); //coord (x,y,z) 
+        newPoints->GetPoint(v_id[1], v_line[1]);
+
+        // Check to see if line is inside plane.
+        if (   (   (planes%2 == 0)
+                && (v_line[0][cutInd] >= value)
+                && (v_line[1][cutInd] >= value) )
+            || (   (planes%2 == 1)
+                && (v_line[0][cutInd] <= value)
+                && (v_line[1][cutInd] <= value) ) )
+          {
+          newCellId = newcellArray->InsertNextCell(2, v_id);
+          continue;
+          }
+
+        // Check to see if line is outside plane.
+        if (   (   (planes%2 == 0)
+                && (v_line[0][cutInd] <= value)
+                && (v_line[1][cutInd] <= value) )
+            || (   (planes%2 == 1)
+                && (v_line[0][cutInd] >= value)
+                && (v_line[1][cutInd] >= value) ) )
+          {
+          newCellId = lines[1]->InsertNextCell(2, v_id);
+          outCD[1]->CopyData(inCD, cellId, newCellId);
+          continue;
+          }
+
+        // If we are here, the plane intersects the line segment.
+        t = (value - v_line[0][cutInd])/(v_line[1][cutInd] - v_line[0][cutInd]);
+        for (j = 0; j < 3; j++)
+          {
+          x[j] = (v_line[1][j] - v_line[0][j])*t + v_line[0][j];
+          }
+
+        // Incorporate point into output and interpolate edge data as
+        // necessary.
+        if (locator->InsertUniquePoint(x, p_id))
+          {
+          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
+                                 cellIds->GetId(1), t);
+          }
+
+        // Add the clipped line to the output.
+        if (   ((planes%2 == 0) && (v_line[0][cutInd] >= value))
+            || ((planes%2 == 1) && (v_line[0][cutInd] <= value)) )
+          {
+          // First point of line is inside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          newcellArray->InsertNextCell(2, tab_id);
+
+          // Second point of line is outside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          cellarrayout->InsertNextCell(2, tab_id);
+          }
+        else
+          {
+          // Second point of line is inside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          newcellArray->InsertNextCell(2, tab_id);
+
+          // First point of line is outside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          cellarrayout->InsertNextCell(2, tab_id);
+          }
+        } // for all new cells
+      cellarray->Delete();
+      cellarray = newcellArray;
+      } // for all planes
+
+    unsigned int totalnewcells = cellarray->GetNumberOfCells(); // Inside
+    for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
+      {
+      cellarray->GetNextCell(npts, v_id);
+      newCellId = lines[0]->InsertNextCell(npts, v_id);
+      outCD[0]->CopyData(inCD, cellId, newCellId);
+      }
+    cellarray->Delete();
+
+    totalnewcells = cellarrayout->GetNumberOfCells();           // Outside
+    for (idcellnew = 0; idcellnew < totalnewcells; idcellnew++)
+      {
+      cellarrayout->GetNextCell(npts, v_id);
+      newCellId = lines[1]->InsertNextCell(npts, v_id);
+      outCD[1]->CopyData(inCD, cellId, newCellId);
+      }
+    cellarrayout->Delete();
+    }
+  arrayline->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
+                                         vtkGenericCell *cell,
+                                         vtkPointLocator *locator, 
+                                         vtkCellArray *lines,
+                                         vtkPointData *inPD, 
+                                         vtkPointData *outPD,
+                                         vtkCellData *inCD,
+                                         vtkIdType cellId,
+                                         vtkCellData *outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayline  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid[2];
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     tab_id[2];
+  vtkIdType     ptsline = 2;
+
+  int i,j;
+  unsigned int allInside;
+  unsigned int planes;
+
+  double values[2];
+  double t;
+  double v[3],x[3];
+  double v_line[2][3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 1d cells to single line.
+  this->CellGrid(cellType, npts, cellptId, arrayline);
+
+  unsigned int totalnewline = arrayline->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
+    {
+    arrayline->GetNextCell(ptsline, v_id);
+
+    for (allInside=1, i=0; i<2; i++)
+      {
+      cellPts->GetPoint(v_id[i],v);
+
+      for (int k = 0; k < 6; k++)
+        {
+        values[0] = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+                     + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+                     + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]));
+        if (values[0] > 0)
+          {
+          //outside
+          allInside = 0;
+          }
+        }
+      }
+    
+    // Test Outside:
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<2; i++)
+        {       
+        cellPts->GetPoint(v_id[i],v);
+
+        // Use plane equation.
+        for (int k = 0; k < 6; k++)
+          {
+          values[0]
+            = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+               + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+               + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
+          if (values[0] < 0)
+            {
+            test[k] = 0;
+            }
+          }//for all planes of the hexahedron.
+        }//for all points of the line.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        continue;                         // Line is outside.
+        }
+      }//if not allInside
+      
+    for (i=0; i<2; i++)
+      {
+      // Currently all points are injected because of the possibility 
+      // of intersection point merging.
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+      if ( locator->InsertUniquePoint(v, iid[i]) )
+        {
+        outPD->CopyData(inPD,ptId, iid[i]);
+        }
+      }//for all points of the triangle.
+    
+    if ( allInside )
+      {   
+      // Triangle inside.
+      int newCellId = lines->InsertNextCell(2,iid);
+      outCD->CopyData(inCD,cellId,newCellId);
+      continue;
+      }
+
+    vtkCellArray *cellarray = vtkCellArray::New();
+    int newCellId = cellarray->InsertNextCell(2,iid);
+    unsigned int idcellnew;
+    
+    // Test triangle intersection with each plane of box
+    for (planes = 0; planes < 6; planes++) 
+      {
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
+      vtkCellArray *newcellArray = vtkCellArray::New();
+
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
+        {
+        vtkIdType p_id;
+        cellarray->GetNextCell(npts, v_id);
+
+        newPoints->GetPoint(v_id[0], v_line[0]); //coord (x,y,z) 
+        newPoints->GetPoint(v_id[1], v_line[1]);
+
+        const double *planeNormal = this->PlaneNormal[planes];
+        const double *planePoint = this->PlanePoint[planes];
+        values[0] = (  planeNormal[0]*(v_line[0][0] - planePoint[0])
+                     + planeNormal[1]*(v_line[0][1] - planePoint[1])
+                     + planeNormal[2]*(v_line[0][2] - planePoint[2]));
+        values[1] = (  planeNormal[0]*(v_line[1][0] - planePoint[0])
+                     + planeNormal[1]*(v_line[1][1] - planePoint[1])
+                     + planeNormal[2]*(v_line[1][2] - planePoint[2]));
+
+        // Check to see if line is inside plane.
+        if ((values[0] <= 0) && (values[1] <= 0))
+          {
+          newCellId = newcellArray->InsertNextCell(2, v_id);
+          continue;
+          }
+
+        // Check to see if line is outside plane.
+        if ((values[0] >= 0) && (values[1] >= 0))
+          {
+          continue;
+          }
+
+        // If we are here, the plane intersects the line segment.
+        t = values[0]/(values[0] - values[1]);
+        for (j = 0; j < 3; j++)
+          {
+          x[j] = (v_line[1][j] - v_line[0][j])*t + v_line[0][j];
+          }
+
+        // Incorporate point into output and interpolate edge data as
+        // necessary.
+        if (locator->InsertUniquePoint(x, p_id))
+          {
+          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
+                                 cellIds->GetId(1), t);
+          }
+
+        // Add the clipped line to the output.
+        if (values[0] <= 0)
+          {
+          // First point of line is inside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          newcellArray->InsertNextCell(2, tab_id);
+          }
+        else
+          {
+          // Second point of line is inside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          newcellArray->InsertNextCell(2, tab_id);
+          }
+        } // for all new cells
+      cellarray->Delete();
+      cellarray = newcellArray;
+      } // for all planes
+
+    unsigned int totalnewcells = cellarray->GetNumberOfCells();
+
+    for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
+      {
+      cellarray->GetNextCell(npts,v_id);
+      newCellId = lines->InsertNextCell(npts,v_id);
+      outCD->CopyData(inCD,cellId,newCellId);
+      }
+    cellarray->Delete();
+    }
+  arrayline->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
+                                              vtkGenericCell *cell,
+                                              vtkPointLocator *locator, 
+                                              vtkCellArray **lines,
+                                              vtkPointData *inPD, 
+                                              vtkPointData *outPD,
+                                              vtkCellData *inCD,
+                                              vtkIdType cellId,
+                                              vtkCellData **outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayline  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid[2];
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     tab_id[2];
+  vtkIdType     ptsline = 2;
+
+  int i,j;
+  unsigned int allInside;
+  unsigned int planes;
+
+  double values[2];
+  double t;
+  double v[3],x[3];
+  double v_line[2][3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 1d cells to single line.
+  this->CellGrid(cellType, npts, cellptId, arrayline);
+
+  unsigned int totalnewline = arrayline->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewline; idlinenew++)
+    {
+    arrayline->GetNextCell(ptsline, v_id);
+
+    for (allInside=1, i=0; i<2; i++)
+      {
+      ptId = cellIds->GetId(v_id[i]);
+      cellPts->GetPoint(v_id[i],v);
+
+      for (int k = 0; k < 6; k++)
+        {
+        values[0] = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+                     + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+                     + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]));
+        if (values[0] > 0)
+          {
+          //outside
+          allInside = 0;
+          }
+        }
+
+      if ( locator->InsertUniquePoint(v, iid[i]) )
+        {
+        outPD->CopyData(inPD, ptId, iid[i]);
+        }
+      }
+    
+    // Test Outside:
+    if (!allInside)
+      {
+      unsigned int test[6] = {1,1,1,1,1,1};
+      for (i=0; i<2; i++)
+        {       
+        cellPts->GetPoint(v_id[i],v);
+
+        // Use plane equation.
+        for (int k = 0; k < 6; k++)
+          {
+          values[0]
+            = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+               + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+               + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
+          if (values[0] < 0)
+            {
+            test[k] = 0;
+            }
+          }//for all planes of the hexahedron.
+        }//for all points of the line.
+
+      if ((test[0] == 1)|| (test[1] == 1) ||
+          (test[2] == 1)|| (test[3] == 1) ||
+          (test[4] == 1)|| (test[5] == 1))
+        {
+        int newCellId = lines[1]->InsertNextCell(2, iid);
+        outCD[1]->CopyData(inCD, cellId, newCellId);
+        continue;                         // Line is outside.
+        }
+      }//if not allInside
+    
+    if ( allInside )
+      {   
+      // Triangle inside.
+      int newCellId = lines[0]->InsertNextCell(2,iid);
+      outCD[0]->CopyData(inCD,cellId,newCellId);
+      continue;
+      }
+
+    vtkCellArray *cellarray    = vtkCellArray::New();
+    vtkCellArray *cellarrayout = vtkCellArray::New();
+    int newCellId = cellarray->InsertNextCell(2,iid);
+    unsigned int idcellnew;
+    
+    // Test triangle intersection with each plane of box
+    for (planes = 0; planes < 6; planes++) 
+      {
+      unsigned int totalnewcells = cellarray->GetNumberOfCells();
+      vtkCellArray *newcellArray = vtkCellArray::New();
+
+      for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++)
+        {
+        vtkIdType p_id;
+        cellarray->GetNextCell(npts, v_id);
+
+        newPoints->GetPoint(v_id[0], v_line[0]); //coord (x,y,z) 
+        newPoints->GetPoint(v_id[1], v_line[1]);
+
+        const double *planeNormal = this->PlaneNormal[planes];
+        const double *planePoint = this->PlanePoint[planes];
+        values[0] = (  planeNormal[0]*(v_line[0][0] - planePoint[0])
+                     + planeNormal[1]*(v_line[0][1] - planePoint[1])
+                     + planeNormal[2]*(v_line[0][2] - planePoint[2]));
+        values[1] = (  planeNormal[0]*(v_line[1][0] - planePoint[0])
+                     + planeNormal[1]*(v_line[1][1] - planePoint[1])
+                     + planeNormal[2]*(v_line[1][2] - planePoint[2]));
+
+        // Check to see if line is inside plane.
+        if ((values[0] <= 0) && (values[1] <= 0))
+          {
+          newCellId = newcellArray->InsertNextCell(2, v_id);
+          continue;
+          }
+
+        // Check to see if line is outside plane.
+        if ((values[0] >= 0) && (values[1] >= 0))
+          {
+          newCellId = lines[1]->InsertNextCell(2, v_id);
+          outCD[1]->CopyData(inCD, cellId, newCellId);
+          continue;
+          }
+
+        // If we are here, the plane intersects the line segment.
+        t = values[0]/(values[0] - values[1]);
+        for (j = 0; j < 3; j++)
+          {
+          x[j] = (v_line[1][j] - v_line[0][j])*t + v_line[0][j];
+          }
+
+        // Incorporate point into output and interpolate edge data as
+        // necessary.
+        if (locator->InsertUniquePoint(x, p_id))
+          {
+          outPD->InterpolateEdge(inPD, p_id, cellIds->GetId(0),
+                                 cellIds->GetId(1), t);
+          }
+
+        // Add the clipped line to the output.
+        if (values[0] <= 0)
+          {
+          // First point of line is inside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          newcellArray->InsertNextCell(2, tab_id);
+
+          // Second point of line is outside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          cellarrayout->InsertNextCell(2, tab_id);
+          }
+        else
+          {
+          // Second point of line is inside.
+          tab_id[0] = p_id;
+          tab_id[1] = v_id[1];
+          newcellArray->InsertNextCell(2, tab_id);
+
+          // First point of line is outside.
+          tab_id[0] = v_id[0];
+          tab_id[1] = p_id;
+          cellarrayout->InsertNextCell(2, tab_id);
+          }
+        } // for all new cells
+      cellarray->Delete();
+      cellarray = newcellArray;
+      } // for all planes
+
+    unsigned int totalnewcells = cellarray->GetNumberOfCells(); // Inside
+    for (idcellnew = 0 ; idcellnew < totalnewcells; idcellnew++) 
+      {
+      cellarray->GetNextCell(npts, v_id);
+      newCellId = lines[0]->InsertNextCell(npts, v_id);
+      outCD[0]->CopyData(inCD, cellId, newCellId);
+      }
+    cellarray->Delete();
+
+    totalnewcells = cellarrayout->GetNumberOfCells();           // Outside
+    for (idcellnew = 0; idcellnew < totalnewcells; idcellnew++)
+      {
+      cellarrayout->GetNextCell(npts, v_id);
+      newCellId = lines[1]->InsertNextCell(npts, v_id);
+      outCD[1]->CopyData(inCD, cellId, newCellId);
+      }
+    cellarrayout->Delete();
+    }
+  arrayline->Delete();
+}
