@@ -15,7 +15,7 @@ IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
   SUBDIRS(vtknetcdf)
   SUBDIRS(vtkexodus2)
 ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-  MESSAGE(STATUS "CMake older than 2.0 detected. NetCDF will be disabled")
+  MESSAGE(STATUS "CMake older or equal to 2.0 detected. NetCDF will be disabled")
 ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
 
 SUBDIRS(Doxygen)
