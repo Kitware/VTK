@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.14");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.15");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -313,6 +313,23 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         num[0]    = conn[0]->GetNumberOfCells();
         num[1]    = conn[1]->GetNumberOfCells();
         }
+      else if (cell->GetCellDimension() == 0)
+        {
+        if (orientation)
+          {
+          this->ClipHexahedronInOut0D(cell, this->Locator, conn,
+                                      inPD, outPD, inCD, cellId, outCD);
+          }
+        else
+          {
+          this->ClipBoxInOut0D(cell, this->Locator, conn,
+                               inPD, outPD, inCD, cellId, outCD);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        numNew[1] = conn[1]->GetNumberOfCells() - num[0];
+        num[0]    = conn[0]->GetNumberOfCells();
+        num[1]    = conn[1]->GetNumberOfCells();
+        }
       else
         {
         vtkErrorMacro(<< "Do not support cells of dimension "
@@ -362,6 +379,21 @@ int vtkBoxClipDataSet::RequestData(vtkInformation *vtkNotUsed(request),
         else
           {
           this->ClipBox1D(newPoints,cell, this->Locator, conn[0],
+                          inPD, outPD, inCD, cellId, outCD[0]);
+          }
+        numNew[0] = conn[0]->GetNumberOfCells() - num[0];
+        num[0]    = conn[0]->GetNumberOfCells();
+        }
+      else if (cell->GetCellDimension() == 0)
+        {
+        if (orientation)
+          {
+          this->ClipHexahedron0D(cell, this->Locator, conn[0],
+                                 inPD, outPD, inCD, cellId, outCD[0]);
+          }
+        else
+          {
+          this->ClipBox0D(cell, this->Locator, conn[0],
                           inPD, outPD, inCD, cellId, outCD[0]);
           }
         numNew[0] = conn[0]->GetNumberOfCells() - num[0];
@@ -877,6 +909,14 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
   switch(typeobj)
     {
+    case VTK_VERTEX:
+    case VTK_POLY_VERTEX:
+      for (i = 0; i < npts; i++)
+        {
+        newCellArray->InsertNextCell(1, &i);
+        }
+      break;
+
     case VTK_LINE:
     case VTK_POLY_LINE:
       for (i = 0; i < npts-1; i++)
@@ -5260,7 +5300,6 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
     {
     arrayline->GetNextCell(ptsline, v_id);
 
-    
     for (allInside=1, i=0; i<2; i++)
       {
       cellPts->GetPoint(v_id[i],v);
@@ -6090,4 +6129,285 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
     cellarrayout->Delete();
     }
   arrayline->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipBox0D(vtkGenericCell *cell,
+                                  vtkPointLocator *locator, 
+                                  vtkCellArray *verts,
+                                  vtkPointData *inPD, 
+                                  vtkPointData *outPD,
+                                  vtkCellData *inCD,
+                                  vtkIdType cellId,
+                                  vtkCellData *outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayvert  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid;
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     ptsvert = 1;
+
+  int i;
+
+  double v[3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 0d cells to single vert.
+  this->CellGrid(cellType, npts, cellptId, arrayvert);
+
+  unsigned int totalnewvert = arrayvert->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
+    {
+    arrayvert->GetNextCell(ptsvert, v_id);
+
+    // Clipping verts is easy.  Either it is inside the box or it isn't.
+    cellPts->GetPoint(v_id[0], v);
+    if (   (v[0] >= this->BoundBoxClip[0][0])
+        && (v[0] <= this->BoundBoxClip[0][1])
+        && (v[1] >= this->BoundBoxClip[1][0])
+        && (v[1] <= this->BoundBoxClip[1][1])
+        && (v[2] >= this->BoundBoxClip[2][0])
+        && (v[2] <= this->BoundBoxClip[2][1]) )
+      {
+      // Vert is inside.
+      ptId = cellIds->GetId(v_id[0]);
+      if (locator->InsertUniquePoint(v, iid))
+        {
+        outPD->CopyData(inPD, ptId, iid);
+        }
+
+      int newCellId = verts->InsertNextCell(1, &iid);
+      outCD->CopyData(inCD, cellId, newCellId);
+      }
+    }
+  arrayvert->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipBoxInOut0D(vtkGenericCell *cell,
+                                       vtkPointLocator *locator, 
+                                       vtkCellArray **verts,
+                                       vtkPointData *inPD, 
+                                       vtkPointData *outPD,
+                                       vtkCellData *inCD,
+                                       vtkIdType cellId,
+                                       vtkCellData **outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayvert  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid;
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     ptsvert = 1;
+
+  int i;
+
+  double v[3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 0d cells to single vert.
+  this->CellGrid(cellType, npts, cellptId, arrayvert);
+
+  unsigned int totalnewvert = arrayvert->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
+    {
+    arrayvert->GetNextCell(ptsvert, v_id);
+
+    // One way or another, we are adding the point.
+    ptId = cellIds->GetId(v_id[0]);
+    cellPts->GetPoint(v_id[0], v);
+
+    if (locator->InsertUniquePoint(v, iid))
+      {
+      outPD->CopyData(inPD, ptId, iid);
+      }
+
+    // Clipping verts is easy.  Either it is inside the box or it isn't.
+    if (   (v[0] >= this->BoundBoxClip[0][0])
+        && (v[0] <= this->BoundBoxClip[0][1])
+        && (v[1] >= this->BoundBoxClip[1][0])
+        && (v[1] <= this->BoundBoxClip[1][1])
+        && (v[2] >= this->BoundBoxClip[2][0])
+        && (v[2] <= this->BoundBoxClip[2][1]) )
+      {
+      // Vert is inside.
+      int newCellId = verts[0]->InsertNextCell(1, &iid);
+      outCD[0]->CopyData(inCD, cellId, newCellId);
+      }
+    else
+      {
+      // Vert is outside.
+      int newCellId = verts[1]->InsertNextCell(1, &iid);
+      outCD[1]->CopyData(inCD, cellId, newCellId);
+      }
+    }
+  arrayvert->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipHexahedron0D(vtkGenericCell *cell,
+                                         vtkPointLocator *locator, 
+                                         vtkCellArray *verts,
+                                         vtkPointData *inPD, 
+                                         vtkPointData *outPD,
+                                         vtkCellData *inCD,
+                                         vtkIdType cellId,
+                                         vtkCellData *outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayvert  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid;
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     ptsvert = 1;
+
+  int i;
+
+  double v[3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 0d cells to single vert.
+  this->CellGrid(cellType, npts, cellptId, arrayvert);
+
+  unsigned int totalnewvert = arrayvert->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
+    {
+    arrayvert->GetNextCell(ptsvert, v_id);
+
+    // Clipping verts is easy.  Either it is inside the hexahedron or it isn't.
+    cellPts->GetPoint(v_id[0], v);
+    int inside = 1;
+
+    for (int k = 0; k < 6; k++)
+      {
+      double value
+        = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+           + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+           + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
+      if (value > 0)
+        {
+        inside = 0;
+        }
+      }
+
+    if (inside)
+      {
+      // Vert is inside.
+      ptId = cellIds->GetId(v_id[0]);
+      if (locator->InsertUniquePoint(v, iid))
+        {
+        outPD->CopyData(inPD, ptId, iid);
+        }
+
+      int newCellId = verts->InsertNextCell(1, &iid);
+      outCD->CopyData(inCD, cellId, newCellId);
+      }
+    }
+  arrayvert->Delete();
+}
+
+//-----------------------------------------------------------------------------
+
+void vtkBoxClipDataSet::ClipHexahedronInOut0D(vtkGenericCell *cell,
+                                              vtkPointLocator *locator, 
+                                              vtkCellArray **verts,
+                                              vtkPointData *inPD, 
+                                              vtkPointData *outPD,
+                                              vtkCellData *inCD,
+                                              vtkIdType cellId,
+                                              vtkCellData **outCD)
+{
+  vtkIdType     cellType   = cell->GetCellType();
+  vtkIdList    *cellIds    = cell->GetPointIds();
+  vtkCellArray *arrayvert  = vtkCellArray::New();
+  vtkPoints    *cellPts    = cell->GetPoints();
+  vtkIdType     npts       = cellPts->GetNumberOfPoints(); 
+  vtkIdType     cellptId[VTK_CELL_SIZE];
+  vtkIdType     iid;
+  vtkIdType    *v_id = NULL;
+  vtkIdType     ptId;
+  vtkIdType     ptsvert = 1;
+
+  int i;
+
+  double v[3];
+  
+  for (i = 0; i < npts; i++)
+    {
+    cellptId[i] = cellIds->GetId(i);
+    }
+
+  // Convert all 0d cells to single vert.
+  this->CellGrid(cellType, npts, cellptId, arrayvert);
+
+  unsigned int totalnewvert = arrayvert->GetNumberOfCells();
+  for (unsigned int idlinenew = 0; idlinenew < totalnewvert; idlinenew++)
+    {
+    arrayvert->GetNextCell(ptsvert, v_id);
+
+    // One way or another, we are adding the point.
+    ptId = cellIds->GetId(v_id[0]);
+    cellPts->GetPoint(v_id[0], v);
+
+    if (locator->InsertUniquePoint(v, iid))
+      {
+      outPD->CopyData(inPD, ptId, iid);
+      }
+
+    int inside = 1;
+    for (int k = 0; k < 6; k++)
+      {
+      double value
+        = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
+           + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
+           + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
+      if (value > 0)
+        {
+        inside = 0;
+        }
+      }
+
+    // Clipping verts is easy.  Either it is inside the box or it isn't.
+    if (inside)
+      {
+      // Vert is inside.
+      int newCellId = verts[0]->InsertNextCell(1, &iid);
+      outCD[0]->CopyData(inCD, cellId, newCellId);
+      }
+    else
+      {
+      // Vert is outside.
+      int newCellId = verts[1]->InsertNextCell(1, &iid);
+      outCD[1]->CopyData(inCD, cellId, newCellId);
+      }
+    }
+  arrayvert->Delete();
 }

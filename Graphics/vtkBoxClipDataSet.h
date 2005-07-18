@@ -192,6 +192,26 @@ public:
                              vtkPointData *inPD, vtkPointData *outPD, 
                              vtkCellData *inCD, vtkIdType cellId,
                              vtkCellData **outCD);
+
+  void ClipBox0D(vtkGenericCell *cell,
+                 vtkPointLocator *locator, vtkCellArray *verts,
+                 vtkPointData *inPD, vtkPointData *outPD, vtkCellData *inCD,
+                 vtkIdType cellId, vtkCellData *outCD);
+  void ClipBoxInOut0D(vtkGenericCell *cell,
+                      vtkPointLocator *locator, vtkCellArray **verts,
+                      vtkPointData *inPD, vtkPointData *outPD,
+                      vtkCellData *inCD,
+                      vtkIdType cellId, vtkCellData **outCD);
+  void ClipHexahedron0D(vtkGenericCell *cell,
+                        vtkPointLocator *locator, vtkCellArray *verts,
+                        vtkPointData *inPD, vtkPointData *outPD,
+                        vtkCellData *inCD,
+                        vtkIdType cellId, vtkCellData *outCD);
+  void ClipHexahedronInOut0D(vtkGenericCell *cell,
+                             vtkPointLocator *locator, vtkCellArray **verts,
+                             vtkPointData *inPD, vtkPointData *outPD,
+                             vtkCellData *inCD,
+                             vtkIdType cellId, vtkCellData **outCD);
 protected:
   vtkBoxClipDataSet();
   ~vtkBoxClipDataSet();
