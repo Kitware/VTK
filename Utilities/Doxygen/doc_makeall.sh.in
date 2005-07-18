@@ -189,7 +189,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/VolumeRendering"
 fi
@@ -222,7 +222,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/VolumeRendering"
 fi
@@ -247,7 +247,7 @@ if test "x$PERL_PROG" != "xNOTFOUND" ; then
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Imaging" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/IO" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Parallel" \
-        "$SOURCE_DIR/$REL_PATH_TO_TOP/Patented" \
+        "$SOURCE_DIR/$REL_PATH_TO_TOP/Widgets" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/Rendering" \
         "$SOURCE_DIR/$REL_PATH_TO_TOP/VolumeRendering"
 fi

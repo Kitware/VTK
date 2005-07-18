@@ -49,7 +49,7 @@ INPUT                = \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Imaging" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/IO" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Parallel" \
-          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Patented" \
+          "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Widgets" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/VolumeRendering" \
           "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/doc_VTK_contributors.dox" \
