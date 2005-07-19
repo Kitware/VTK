@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkClipDataSet - clip any dataset with user-specified implicit function or input scalar data
 // .SECTION Description
-// vtkClipDataSet is a filter that any type of dataset using either
+// vtkClipDataSet is a filter that clips any type of dataset using either
 // any subclass of vtkImplicitFunction, or the input scalar
 // data. Clipping means that it actually "cuts" through the cells of
 // the dataset, returning everything inside of the specified implicit
