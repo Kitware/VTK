@@ -11,7 +11,11 @@ VTK.
 The following command was used to obtain the symbol list:
 
 nm libvtkNetCDF.a |grep " [TR] "
+
+This is the way to recreate the whole list:
+
 nm bin/libvtkNetCDF.so |grep " [TR] " | awk '{ print "#define "$3" vtk_netcdf_"$3 }'
+
 */
 
 #define NC_check_id vtk_netcdf_NC_check_id
