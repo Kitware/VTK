@@ -60,6 +60,10 @@
 #endif
 #endif
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4127 )
+#endif
+
 #include <stdio.h>
 
 /* these should be defined in ANSI C, and probably C++, but just in case ... */
