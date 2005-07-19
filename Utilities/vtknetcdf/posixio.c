@@ -135,6 +135,7 @@ blksize(int fd)
   }
   /* else, silent in the face of error */
 #endif
+  (void)fd;
   return (size_t) 2 * pagesize();
 }
 

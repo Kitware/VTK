@@ -28,6 +28,11 @@
 #include <errno.h>
 #include <sys/types.h> /* off_t */
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4244 )
+#endif
+
+
 #if defined(_CRAY) && !defined(_CRAYIEEE)
 #define CRAYFLOAT 1 /* CRAY Floating point */
 #elif defined(_SX) && defined(_FLOAT2)  /* NEC SUPER-UX in CRAY mode */

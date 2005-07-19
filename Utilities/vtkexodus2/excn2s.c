@@ -355,7 +355,7 @@ int ex_cvt_nodes_to_sides(int exoid,
 
     for (m=0; (size_t)m < strlen(elem_type); m++)
       elem_blk_parms[i].elem_type[m] = 
-              toupper((int)elem_type[m]);
+              (char)toupper((int)elem_type[m]);
     elem_blk_parms[i].elem_type[m] = '\0';
 
     if (strncmp(elem_blk_parms[i].elem_type,"CIRCLE",3) == 0)

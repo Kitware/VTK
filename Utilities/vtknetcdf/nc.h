@@ -17,6 +17,11 @@
 #include  "ncio.h"  /* ncio */
 #include  "fbits.h"
 
+#ifdef _MSC_VER
+#  pragma warning ( disable : 4127 )
+#  pragma warning ( disable : 4130 )
+#endif
+
 
 #ifndef NC_ARRAY_GROWBY
 #define NC_ARRAY_GROWBY 4

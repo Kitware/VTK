@@ -62,7 +62,10 @@
 
 #ifdef _MSC_VER
 #  pragma warning ( disable : 4127 )
+#  pragma warning ( disable : 4706 )
+#  pragma warning ( disable : 4701 )
 #endif
+
 
 #include <stdio.h>
 

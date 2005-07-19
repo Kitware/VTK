@@ -6662,9 +6662,9 @@ nc_get_vara(int ncid, int varid,
   return NC_EBADTYPE;
 }
 
-#if defined(__cplusplus)
+#if 1 /* defined(__cplusplus) */
 /* C++ consts default to internal linkage and must be initialized */
-const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
+static const size_t coord_zero[NC_MAX_VAR_DIMS] = {0};
 #else
 static const size_t coord_zero[NC_MAX_VAR_DIMS];
 #endif
