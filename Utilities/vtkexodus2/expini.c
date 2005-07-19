@@ -81,7 +81,6 @@ int ex_put_init (int   exoid,
                  int   num_side_sets)
 {
   int numdimdim, numnoddim, elblkdim, strdim, dim[2], dimid, varid;
-  int header_size, fixed_var_size, iows;
   
   char errmsg[MAX_ERR_LENGTH];
 

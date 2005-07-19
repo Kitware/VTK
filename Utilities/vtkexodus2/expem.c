@@ -57,6 +57,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /* initialize this once */
 
 struct list_item* em_ctr_list = 0;

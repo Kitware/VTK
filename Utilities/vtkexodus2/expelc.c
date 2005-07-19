@@ -61,6 +61,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /*
  * writes the connectivity array for an element block
  */

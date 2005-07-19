@@ -59,6 +59,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /*
  * writes out the node numbering map to the database; allows node numbers
  * to be non-contiguous

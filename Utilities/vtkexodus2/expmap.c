@@ -60,6 +60,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /*
  * writes out the element order map to the database
  */

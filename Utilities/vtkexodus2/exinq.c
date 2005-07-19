@@ -66,7 +66,7 @@
 
 static void flt_cvt(float *xptr,double x)
 {
-  *xptr = x;
+  *xptr = (float)x;
 }
 
 /*

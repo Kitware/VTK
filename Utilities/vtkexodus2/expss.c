@@ -62,6 +62,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /*
  * writes the side set element list and side set side list for a single side set
  */

@@ -60,7 +60,9 @@
 
 #include "exodusII.h"
 #include "exodusII_int.h"
+
 #include <string.h>
+#include <stdlib.h>
 
 /*
  * writes an array of object properties

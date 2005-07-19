@@ -59,6 +59,8 @@
 #include "exodusII.h"
 #include "exodusII_int.h"
 
+#include <stdlib.h>
+
 /*
  * writes out the element numbering map to the database; this allows
  * element numbers to be non-contiguous
