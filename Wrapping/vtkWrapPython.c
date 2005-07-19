@@ -81,6 +81,7 @@ void use_hints(FILE *fp)
         fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
         }
       fprintf(fp,");\n");
+      break;
     case 0x30B: case 0x30C:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
 #ifdef PY_LONG_LONG
@@ -94,6 +95,7 @@ void use_hints(FILE *fp)
         fprintf(fp,",temp%i[%d]",MAX_ARGS,i);
         }
       fprintf(fp,");\n");
+      break;
     case 0x305: case 0x306: case 0x313: case 0x314:
     case 0x31A: case 0x31B: case 0x31C: case 0x315: case 0x316:
       break;
@@ -958,14 +960,14 @@ void outputFunction2(FILE *fp, FileInfo *data)
                 {
                 if (currentFunction->IsPureVirtual)
                   {
-                  fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+                  fprintf(fp,"    if (PyVTKClass_Check(self))\n      {\n");
                   fprintf(fp,"      PyErr_SetString(PyExc_TypeError,\"pure virtual method call\");\n");
                   fprintf(fp,"      return NULL;\n    }\n");
                   continue;
                   }
                 else
                   {
-                  fprintf(fp,"    if (PyVTKClass_Check(self)) {\n");
+                  fprintf(fp,"    if (PyVTKClass_Check(self))\n      {\n");
                   sprintf(methodname,"op->%s::%s",
                     data->ClassName,currentFunction->Name);
                   }
@@ -973,7 +975,7 @@ void outputFunction2(FILE *fp, FileInfo *data)
               }
             else
               {
-              fprintf(fp,"    else {\n");
+              fprintf(fp,"    else\n      {\n");
               sprintf(methodname,"op->%s",currentFunction->Name);
               }
                 
