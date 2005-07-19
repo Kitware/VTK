@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.15");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.16");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -913,7 +913,8 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
     case VTK_POLY_VERTEX:
       for (i = 0; i < npts; i++)
         {
-        newCellArray->InsertNextCell(1, &i);
+        vtkIdType id = i;
+        newCellArray->InsertNextCell(1, &id);
         }
       break;
 
