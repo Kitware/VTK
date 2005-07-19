@@ -56,6 +56,7 @@ class TestVTKFiles:
         self.WarningValue = 0;
         self.Warnings = {}
         self.FileLines = []
+        self.Export = ""
         self.UnnecessaryIncludes = [
             "stdio.h",
             "stdlib.h",
@@ -69,6 +70,8 @@ class TestVTKFiles:
             "windows.h"
             ]
         pass
+    def SetExport(self, export):
+        self.Export = export
     def Print(self, text=""):
         rtext = text
         if test_from_dart:
@@ -161,7 +164,7 @@ class TestVTKFiles:
         pass
 
     def CheckParent(self):
-        classre = "^class(\s*.*_EXPORT|\s*) (vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s*(vtk[^ \n\{]*)"
+        classre = "^class\s*(.*_EXPORT|\s*) (vtk[A-Z0-9_][^ :\n]*)\s*:\s*public\s*(vtk[^ \n\{]*)"
         cname = ""
         pname = ""
         classlines = []
@@ -183,6 +186,11 @@ class TestVTKFiles:
                     self.Print("File: %s defines 1 class with no export macro:" % self.FileName)
                     self.Print(" %4d: %s" % (cc, line))
                     self.Error("No export macro")
+                elif self.Export and self.Export != export:
+                    self.Print("File: %s defines 1 class with wrong export macro:" % self.FileName)
+                    self.Print(" %4d: %s" % (cc, line))
+                    self.Print("      The export macro should be: %s" % (self.Export))
+                    self.Error("Wrong export macro")
             cc = cc + 1
             lastline = a
         if len(classlines) > 1:
@@ -373,7 +381,12 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 dirname = sys.argv[1]
+export = sys.argv[2]
 exceptions = sys.argv[2:]
+if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
+  print "Use export macro: %s" % export
+  exceptions = sys.argv[3:]
+  test.SetExport(export)
 
 ## Traverse through the list of files
 for a in os.listdir(dirname):
