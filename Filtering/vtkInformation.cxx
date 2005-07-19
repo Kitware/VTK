@@ -40,7 +40,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkInformation, "1.23");
+vtkCxxRevisionMacro(vtkInformation, "1.24");
 vtkStandardNewMacro(vtkInformation);
 
 // Note: assumes long is at least 32 bits.
@@ -254,11 +254,13 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
       else
         {
         // There is no new value.  Erase the entry.  and shift down any
-        // followup entries that hash to the same value, requires that they be sorted
+        // followup entries that hash to the same value, requires that they
+        // be sorted
         hash++;
-        while (this->Internal->Keys[hash] && 
-               this->Internal->Hash(reinterpret_cast<unsigned long>(this->Internal->Keys[hash])) < hash 
-               && hash < this->Internal->TableSize)
+        while (hash < this->Internal->TableSize && 
+               this->Internal->Keys[hash] && 
+               this->Internal->Hash(reinterpret_cast<unsigned long>
+                                    (this->Internal->Keys[hash])) < hash)
           {
           this->Internal->Keys[hash-1] = this->Internal->Keys[hash];
           this->Internal->Values[hash-1] = this->Internal->Values[hash];
@@ -275,7 +277,8 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
       // start at ohash + 1 and find where we should instert this key
       unsigned short hash2 = hash;
       hash = ohash + 1;
-      while (this->Internal->Hash(reinterpret_cast<unsigned long>(this->Internal->Keys[hash])) == ohash)
+      while (this->Internal->Hash(reinterpret_cast<unsigned long>
+                                  (this->Internal->Keys[hash])) == ohash)
         {
         hash++;
         }
@@ -307,7 +310,8 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
   if(key)
     {
     // compute the hash
-    unsigned short hash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
+    unsigned short hash = 
+      this->Internal->Hash(reinterpret_cast<unsigned long>(key));
     
     // Check for an existing entry.
     vtkInformationKey *val = this->Internal->Keys[hash];
@@ -354,25 +358,29 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDataObjectKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationDataObjectKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationExecutivePortKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationExecutivePortKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKey* key, int deep)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationInformationKey* key, int deep)
 {
   if (!deep)
     {
@@ -385,7 +393,9 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationKe
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationInformationVectorKey* key, 
+                               int deep)
 {
   if (!deep)
     {
@@ -398,37 +408,43 @@ void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationInformationVe
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationIntegerKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationRequestKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationIntegerVectorKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationDoubleVectorKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationDoubleVectorKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationStringKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
 
 //----------------------------------------------------------------------------
-void vtkInformation::CopyEntry(vtkInformation* from, vtkInformationUnsignedLongKey* key, int)
+void vtkInformation::CopyEntry(vtkInformation* from, 
+                               vtkInformationUnsignedLongKey* key, int)
 {
   key->ShallowCopy(from, this);
 }
@@ -871,15 +887,18 @@ void vtkInformation::ReportAsObjectBase(vtkInformationKey* key,
 {
   if(key)
     {
-    unsigned short ohash = this->Internal->Hash(reinterpret_cast<unsigned long>(key));
-    while (this->Internal->Keys[ohash] && this->Internal->Keys[ohash] != key && 
+    unsigned short ohash = 
+      this->Internal->Hash(reinterpret_cast<unsigned long>(key));
+    while (this->Internal->Keys[ohash] && 
+           this->Internal->Keys[ohash] != key && 
            ohash < this->Internal->TableSize)
       {
       ohash++;
       }
     if (this->Internal->Keys[ohash] && ohash < this->Internal->TableSize)
       {
-      vtkGarbageCollectorReport(collector, this->Internal->Values[ohash], key->GetName());
+      vtkGarbageCollectorReport(collector, this->Internal->Values[ohash], 
+                                key->GetName());
       return;
       }
     }
