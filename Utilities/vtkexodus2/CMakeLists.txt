@@ -40,6 +40,12 @@ SET(cbind_SRCS
   exgvv.c expvv.c expnvv.c exgnvv.c exgnvid.c exgevid.c
   )
 
+SET_SOURCE_FILES_PROPERTIES(
+  ex_utils.c
+  PROPERTIES
+  COMPILE_FLAGS -fno-common)
+
+
 ADD_LIBRARY(vtkexoIIc ${cbind_SRCS})
 TARGET_LINK_LIBRARIES(vtkexoIIc vtkNetCDF)
 
