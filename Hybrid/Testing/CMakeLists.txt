@@ -12,9 +12,10 @@ ENDIF (VTK_WRAP_PYTHON)
 
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Hybrid ${PYTHON_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-	   "${VTK_SOURCE_DIR}/Hybrid"
-           vtk3DS.h
-           vtkVRML.h
-           )
+    ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+    "${VTK_SOURCE_DIR}/Hybrid"
+    VTK_HYBRID_EXPORT
+    vtk3DS.h
+    vtkVRML.h
+    )
 ENDIF(PYTHON_EXECUTABLE)

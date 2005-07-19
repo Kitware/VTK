@@ -12,5 +12,6 @@ IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Widgets ${PYTHON_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
            "${VTK_SOURCE_DIR}/Widgets"
+           VTK_WIDGETS_EXPORT
            )
 ENDIF(PYTHON_EXECUTABLE)

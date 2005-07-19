@@ -6,7 +6,8 @@ ENDIF (VTK_WRAP_TCL)
 
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-GenericFiltering ${PYTHON_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-           "${VTK_SOURCE_DIR}/GenericFiltering"
-           )
+    ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+    "${VTK_SOURCE_DIR}/GenericFiltering"
+    VTK_GENERIC_FILTERING_EXPORT
+    )
 ENDIF(PYTHON_EXECUTABLE)

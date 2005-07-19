@@ -6,22 +6,23 @@ ENDIF (VTK_WRAP_TCL)
 
 IF(PYTHON_EXECUTABLE)
   ADD_TEST(HeaderTesting-Filtering ${PYTHON_EXECUTABLE}
-           ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
-           "${VTK_SOURCE_DIR}/Filtering"
-           vtkActor2DCollection.h
-           vtkAMRBox.h
-           vtkApplyFilterCommandInternal.h
-           vtkCellType.h
-           vtkDataSetCollection.h
-           vtkFilteringInformationKeyManager.h
-           vtkImageIterator.h
-           vtkImageProgressIterator.h
-           vtkMarchingCubesCases.h
-           vtkMarchingSquaresCases.h
-           vtkMultiBlockDataSetInternal.h
-           vtkDataObjectCollection.h
-           vtkHierarchicalDataSetInternal.h
-           vtkHierarchicalBoxDataSetInternal.h
-           vtkStructuredPoints.h
-           )
+    ${VTK_SOURCE_DIR}/Common/Testing/HeaderTesting.py
+    "${VTK_SOURCE_DIR}/Filtering"
+    VTK_FILTERING_EXPORT
+    vtkActor2DCollection.h
+    vtkAMRBox.h
+    vtkApplyFilterCommandInternal.h
+    vtkCellType.h
+    vtkDataSetCollection.h
+    vtkFilteringInformationKeyManager.h
+    vtkImageIterator.h
+    vtkImageProgressIterator.h
+    vtkMarchingCubesCases.h
+    vtkMarchingSquaresCases.h
+    vtkMultiBlockDataSetInternal.h
+    vtkDataObjectCollection.h
+    vtkHierarchicalDataSetInternal.h
+    vtkHierarchicalBoxDataSetInternal.h
+    vtkStructuredPoints.h
+    )
 ENDIF(PYTHON_EXECUTABLE)

@@ -381,12 +381,13 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 dirname = sys.argv[1]
-export = sys.argv[2]
 exceptions = sys.argv[2:]
-if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
-  print "Use export macro: %s" % export
-  exceptions = sys.argv[3:]
-  test.SetExport(export)
+if len(sys.argv) > 2:
+  export = sys.argv[2]
+  if export[:3] == "VTK" and export[len(export)-len("EXPORT"):] == "EXPORT":
+    print "Use export macro: %s" % export
+    exceptions = sys.argv[3:]
+    test.SetExport(export)
 
 ## Traverse through the list of files
 for a in os.listdir(dirname):
