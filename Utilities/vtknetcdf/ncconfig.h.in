@@ -54,6 +54,9 @@
 /* Define if you have <alloca.h> and it should be used (not on Ultrix).  */
 #cmakedefine HAVE_ALLOCA_H @HAVE_ALLOCA_H@
 
+/* Define if you have <unistd.h> and it should be used (not on Ultrix).  */
+#cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
+
 /* Define if you don't have the strerror function  */
 #cmakedefine NO_STRERROR @NO_STRERROR@
 
