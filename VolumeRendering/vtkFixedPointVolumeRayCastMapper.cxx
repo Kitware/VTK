@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.18");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.19");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -278,7 +278,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
             // otherwise use a forward or backward difference if
             // we are on the edge
             // Compute the X component
-            if ( x < 2 ) 
+            if ( x < d ) 
               {
               n[0] = 2.0*((float)*(cdptr) - (float)*(cdptr+d*xstep));
               }
@@ -1305,16 +1305,6 @@ void vtkFixedPointVolumeRayCastMapper::CaptureZBuffer( vtkRenderer *ren )
 
 void vtkFixedPointVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
 {
-  if ( !this->GetInput()->GetPointData()->GetScalars() )
-    {
-    cout << "Ack - I don't have point data scalars!" << endl;
-    }
-  else
-    {
-    cout << "Scalars OK - rendering" << endl;
-    }
-  
-  
   this->Timer->StartTimer();
   
   // Since we are passing in a value of 0 for the multiRender flag
@@ -1555,13 +1545,6 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
           }
         
         unsigned int endVal = this->ToFixedPointPosition(rayEnd[stepLoop]);
-        if ( rayEnd[stepLoop] < this->CroppingBounds[stepLoop*2] ||
-             rayEnd[stepLoop] >= this->CroppingBounds[stepLoop*2 + 1] )
-          {
-          cout << "We seem to have a problem with the ray end!" << endl;
-          cout << rayEnd[stepLoop] << " " <<
-            this->CroppingBounds[stepLoop*2] << " " << this->CroppingBounds[stepLoop*2 + 1] << endl;
-          }
         
         if ( dir[stepLoop]&0x80000000 )
           {
@@ -1575,7 +1558,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
             currSteps = 0;
             }
           }
-        else if ( dir[stepLoop] )
+        else
           {
           if ( pos[stepLoop] > endVal )
             {
@@ -1585,12 +1568,6 @@ void vtkFixedPointVolumeRayCastMapper::ComputeRayInfo( int x, int y, unsigned in
             {
             currSteps = 0;
             }
-          }
-        else
-          {
-          // The viewing direction lies in this plane, don't
-          // consider this component of the direction
-          continue;
           }
         
         if ( !stepsValid || currSteps < *numSteps )
