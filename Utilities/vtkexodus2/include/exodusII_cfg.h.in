@@ -19,7 +19,7 @@
 #    define EXODUS_EXPORT __declspec( dllimport ) 
 #  endif
 #else
-#  define EXODUS_EXPORT
+#  define EXODUS_EXPORT extern
 #endif
 
 #endif
