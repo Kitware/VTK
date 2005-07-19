@@ -218,6 +218,9 @@ int ex_cvt_nodes_to_sides(int exoid,
 
   char errmsg[MAX_ERR_LENGTH];
 
+  (void)side_sets_node_index;
+  (void)side_sets_elem_index;
+
   exerrval = 0; /* clear error code */
 
   cdum = 0; /* initialize even though it is not used */

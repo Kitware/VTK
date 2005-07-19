@@ -92,6 +92,8 @@ int ex_put_concat_node_sets (int   exoid,
    double *dbl_dist_fact;
    char errmsg[MAX_ERR_LENGTH];
 
+   (void)node_sets_df_index;
+
   exerrval = 0; /* clear error code */
 
   cdum = 0; /* initialize even though it is not used */

@@ -555,6 +555,8 @@ NCedgeck(const NC *ncp, const NC_var *varp,
   const size_t *const end = start + varp->ndims;
   const size_t *shp = varp->shape;
 
+  (void)ncp;
+
   if(varp->ndims == 0)
     return NC_NOERR;  /* 'scalar' variable */
 
