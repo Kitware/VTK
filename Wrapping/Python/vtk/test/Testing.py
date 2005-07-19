@@ -26,6 +26,13 @@ compareImage(renwin, img_fname, threshold=10):
    The function also handles multiple images and finds the best
    matching image.
 
+compareImageWithSavedImage(src_img, img_fname, threshold=10):
+   Compares given source image (in the form of a vtkImageData) with
+   saved image and generates the image if it does not exist.  The
+   threshold determines how closely the images must match.  The
+   function also handles multiple images and finds the best matching
+   image.
+
 getAbsImagePath(img_basename):
    Returns the full path to the image given the basic image name.
 
@@ -142,30 +149,25 @@ def getAbsImagePath(img_basename):
     global VTK_BASELINE_ROOT
     return os.path.join(VTK_BASELINE_ROOT, img_basename)
 
-
-def compareImage(renwin, img_fname, threshold=10):
-    """Compares renwin's (a vtkRenderWindow) contents with the image
-    file whose name is given in the second argument.  If the image
-    file does not exist the image is generated and stored.  If not the
-    image in the render window is compared to that of the figure.
-    This function also handles multiple images and finds the best
-    matching image.  """
-
+def compareImageWithSavedImage(src_img, img_fname, threshold=10):
+    """Compares a source image (src_img, which is a vtkImageData) with
+    the saved image file whose name is given in the second argument.
+    If the image file does not exist the image is generated and
+    stored.  If not the source image is compared to that of the
+    figure.  This function also handles multiple images and finds the
+    best matching image.
+    """
     global _NO_IMAGE
     if _NO_IMAGE:
         return
     
     f_base, f_ext = os.path.splitext(img_fname)
 
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.ReadFrontBufferOff()
-    w2if.SetInput(renwin)
-
     if not os.path.isfile(img_fname):
         # generate the image
         pngw = vtk.vtkPNGWriter()
         pngw.SetFileName(img_fname)
-        pngw.SetInput(w2if.GetOutput())
+        pngw.SetInput(src_img)
         pngw.Write()
         return 
         
@@ -173,10 +175,9 @@ def compareImage(renwin, img_fname, threshold=10):
     pngr.SetFileName(img_fname)
 
     idiff = vtk.vtkImageDifference()
-    idiff.SetInput(w2if.GetOutput())
+    idiff.SetInput(src_img)
     idiff.SetImage(pngr.GetOutput())
     idiff.Update()
-    del w2if
 
     min_err = idiff.GetThresholdedError()
     img_err = min_err
@@ -225,6 +226,24 @@ def compareImage(renwin, img_fname, threshold=10):
             raise AssertionError, msg
     # output the image error even if a test passed
     _printDartImageSuccess(img_err, err_index)
+
+
+def compareImage(renwin, img_fname, threshold=10):
+    """Compares renwin's (a vtkRenderWindow) contents with the image
+    file whose name is given in the second argument.  If the image
+    file does not exist the image is generated and stored.  If not the
+    image in the render window is compared to that of the figure.
+    This function also handles multiple images and finds the best
+    matching image.  """
+
+    global _NO_IMAGE
+    if _NO_IMAGE:
+        return
+
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.ReadFrontBufferOff()
+    w2if.SetInput(renwin)
+    return compareImageWithSavedImage(w2if.GetOutput(), img_fname, threshold)
 
 
 def _printDartImageError(img_err, err_index, img_base):
