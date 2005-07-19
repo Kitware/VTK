@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.16");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.17");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -893,6 +893,7 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
   vtkIdType ptstriangle = 3;
   vtkIdType ptstetra = 4;
   vtkIdType xmin;  
+  vtkIdType idt;
   int i,j;
   unsigned int id   =0;
   unsigned int idpy =0;
@@ -911,19 +912,18 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
     {
     case VTK_VERTEX:
     case VTK_POLY_VERTEX:
-      for (i = 0; i < npts; i++)
+      for (idt = 0; idt < npts; idt++)
         {
-        vtkIdType id = i;
-        newCellArray->InsertNextCell(1, &id);
+        newCellArray->InsertNextCell(1, &idt);
         }
       break;
 
     case VTK_LINE:
     case VTK_POLY_LINE:
-      for (i = 0; i < npts-1; i++)
+      for (idt = 0; idt < npts-1; idt++)
         {
-        line[0] = i;
-        line[1] = i+1;
+        line[0] = idt;
+        line[1] = idt+1;
         newCellArray->InsertNextCell(2, line);
         }
       break;
@@ -934,19 +934,19 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
       break;
 
     case VTK_TRIANGLE_STRIP: // 6
-      for (i=0 ; i < npts-2; i++) 
+      for (idt=0 ; idt < npts-2; idt++) 
         {
-        if (i%2 == 0)
+        if (idt%2 == 0)
           {
-          tri[0] = i;
-          tri[1] = i+1;
-          tri[2] = i+2;
+          tri[0] = idt;
+          tri[1] = idt+1;
+          tri[2] = idt+2;
           }
         else
           {
-          tri[0] = i;
-          tri[1] = i+2;
-          tri[2] = i+1;
+          tri[0] = idt;
+          tri[1] = idt+2;
+          tri[2] = idt+1;
           }
         newCellArray->InsertNextCell(3,tri);
         }
@@ -954,10 +954,10 @@ void vtkBoxClipDataSet::CellGrid(vtkIdType typeobj, vtkIdType npts,
 
     case VTK_POLYGON: // 7 (Convex case)
       tri[0] = 0;
-      for (i=2 ; i < npts; i++) 
+      for (idt=2 ; idt < npts; idt++) 
         {
-        tri[1] = i-1;
-        tri[2] = i;
+        tri[1] = idt-1;
+        tri[2] = idt;
         newCellArray->InsertNextCell(3,tri);
         }
       break;
