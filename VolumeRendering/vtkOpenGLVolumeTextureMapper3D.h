@@ -27,7 +27,7 @@
 #include "vtkVolumeTextureMapper3D.h"
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-# include "vtkOpenGL.h"
+# include "vtkOpenGL.h" // Required for GL structures
 #endif
 
 class vtkRenderWindow;

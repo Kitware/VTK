@@ -19,7 +19,6 @@
 #define __vtkVolumeRenderingFactory_h
 
 #include "vtkObject.h"
-#include "vtkGraphicsFactory.h"
 
 class VTK_VOLUMERENDERING_EXPORT vtkVolumeRenderingFactory : public vtkObject
 {
