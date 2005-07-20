@@ -12,7 +12,7 @@ vtkDataSetReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
-if {[catch {set channel [open RGridField.vtk w]}] == 0 } {
+if {[catch {set channel [open "RGridField.vtk" "w"]}] == 0 } {
    close $channel
 vtkDataObjectWriter writer
     writer SetInputConnection [ds2do GetOutputPort]
@@ -26,18 +26,18 @@ vtkDataObjectReader dor
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToRectilinearGrid
-    do2ds SetDimensionsComponent Dimensions 0 
-    do2ds SetPointComponent 0 XCoordinates 0
-    do2ds SetPointComponent 1 YCoordinates 0 
-    do2ds SetPointComponent 2 ZCoordinates 0
+    do2ds SetDimensionsComponent "Dimensions" 0 
+    do2ds SetPointComponent 0 "XCoordinates" 0
+    do2ds SetPointComponent 1 "YCoordinates" 0 
+    do2ds SetPointComponent 2 "ZCoordinates" 0
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetRectilinearGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 vectors 0 
-    fd2ad SetVectorComponent 1 vectors 1 
-    fd2ad SetVectorComponent 2 vectors 2 
-    fd2ad SetScalarComponent 0 scalars 0 
+    fd2ad SetVectorComponent 0 "vectors" 0 
+    fd2ad SetVectorComponent 1 "vectors" 1 
+    fd2ad SetVectorComponent 2 "vectors" 2 
+    fd2ad SetScalarComponent 0 "scalars" 0 
     fd2ad Update
 
 # create pipeline
@@ -141,8 +141,8 @@ iren Initialize
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
-if {[info commands rtExMath] != ""} { 
-    file delete -force RGridField.vtk
+if {[info commands "rtExMath"] != ""} { 
+    file delete -force "RGridField.vtk"
 }
 }
 

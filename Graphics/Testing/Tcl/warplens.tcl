@@ -30,8 +30,8 @@ wl SetImageWidth $xWidth
 wl SetImageHeight $yHeight
 wl SetK1 0.01307
 wl SetK2 0.0003102
-wl SetP1 1.953E-005
-wl SetP2 -9.655E-005
+wl SetP1 1.953e-005
+wl SetP2 -9.655e-005
 
 vtkTriangleFilter tf
 tf SetInput [wl GetPolyDataOutput]

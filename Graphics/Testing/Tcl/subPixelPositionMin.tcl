@@ -14,12 +14,12 @@ vtkSampleFunction sample
     sample ComputeNormalsOff
 
 
-vtkThreshold threshold
-    threshold SetInputConnection [sample GetOutputPort]
-    threshold ThresholdByLower 0.001
+vtkThreshold threshold1
+    threshold1 SetInputConnection [sample GetOutputPort]
+    threshold1 ThresholdByLower 0.001
 
 vtkGeometryFilter geometry
-  geometry SetInputConnection [threshold GetOutputPort]
+  geometry SetInputConnection [threshold1 GetOutputPort]
 
 vtkImageGradient grad
 grad SetDimensionality 3

@@ -21,7 +21,7 @@ $camera SetViewAngle 30
 $camera SetClippingRange 124.221 363.827
 
 vtkGenericEnSightReader reader
-reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/ironProt_bin.case
+reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/ironProt_bin.case"
 reader Update
 
 vtkContourFilter Contour0

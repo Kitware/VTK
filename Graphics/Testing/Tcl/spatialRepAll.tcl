@@ -8,7 +8,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkSTLReader asource
-  asource SetFileName $VTK_DATA_ROOT/Data/42400-IDGH.stl
+  asource SetFileName "$VTK_DATA_ROOT/Data/42400-IDGH.stl"
 vtkPolyDataMapper dataMapper
   dataMapper SetInput [asource GetOutput]
 vtkActor model

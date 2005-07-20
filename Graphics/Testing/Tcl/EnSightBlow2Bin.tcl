@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
 
 vtkGenericEnSightReader reader
-reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/blow2_bin.case
+reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/blow2_bin.case"
 reader SetTimeValue 1
 reader Update
 
@@ -23,7 +23,7 @@ vtkPolyDataMapper mapper
 mapper SetInputConnection [geom GetOutputPort]
 mapper SetColorModeToMapScalars
 mapper SetScalarModeToUsePointFieldData
-mapper ColorByArrayComponent displacement 0
+mapper ColorByArrayComponent "displacement" 0
 mapper SetScalarRange 0 2.08
 
 vtkActor actor

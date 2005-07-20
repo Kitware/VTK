@@ -34,11 +34,11 @@ streamer SetInitialIntegrationStep 2 0.2
 streamer SetIntegrationDirection 0
 streamer SetIntegrator rk
 streamer SetRotationScale 0.5
-streamer SetMaximumError 1.0E-8
+streamer SetMaximumError 1.0e-8
 
 vtkAssignAttribute aa
 aa SetInputConnection [streamer GetOutputPort]
-aa Assign Normals NORMALS POINT_DATA
+aa Assign "Normals" "NORMALS" "POINT_DATA"
 
 vtkRibbonFilter rf1
 rf1 SetInputConnection [aa GetOutputPort]

@@ -20,11 +20,14 @@ tfarray SetNumberOfTuples $npoints
 # with (1.0-a, a) to linearly interpolate across the shape
 for {set i 0} {$i < $npoints} {incr i} {
     set pt [$sphereData GetPoint $i]
-    foreach {x y z} $pt {}
+    set x [lindex $pt 0]
+    set y [lindex $pt 1]
+    set z [lindex $pt 2]
+#foreach {x y z} $pt {}
 
     # -0.5 < z < 0.5
-    set zn [expr {$z + 0.5}]
-    set zn1 [expr {1.0 - $zn}]
+    set zn [expr $z + 0.5]
+    set zn1 [expr 1.0 - $zn]
     if {$zn > 1.0} {set zn 1.0}
     if {$zn1 < 0.0} {set zn1 0.0}
 

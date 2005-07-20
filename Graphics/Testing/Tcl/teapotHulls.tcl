@@ -9,7 +9,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkBYUReader byuReader
-    byuReader SetGeometryFileName $VTK_DATA_ROOT/Data/teapot.g
+    byuReader SetGeometryFileName "$VTK_DATA_ROOT/Data/teapot.g"
 
 vtkPolyDataMapper   byuMapper
     byuMapper SetInputConnection [byuReader GetOutputPort]

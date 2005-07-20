@@ -15,16 +15,16 @@ vtkRenderWindowInteractor iren
 vtkXMLRectilinearGridReader pvTemp59
   pvTemp59 SetFileName "$VTK_DATA_ROOT/Data/cth.vtr"
   pvTemp59 UpdateInformation
-  pvTemp59 SetCellArrayStatus {X Velocity} 0
-  pvTemp59 SetCellArrayStatus {Y Velocity} 0
-  pvTemp59 SetCellArrayStatus {Z Velocity} 0
-  pvTemp59 SetCellArrayStatus {Mass for Armor Plate} 0
-  pvTemp59 SetCellArrayStatus {Mass for Body, Nose} 0
+  pvTemp59 SetCellArrayStatus "X Velocity" 0
+  pvTemp59 SetCellArrayStatus "Y Velocity" 0
+  pvTemp59 SetCellArrayStatus "Z Velocity" 0
+  pvTemp59 SetCellArrayStatus "Mass for Armor Plate" 0
+  pvTemp59 SetCellArrayStatus "Mass for Body, Nose" 0
 
 vtkExtractCTHPart pvTemp79
   pvTemp79 SetInput [pvTemp59 GetOutput 0]
-  pvTemp79 AddVolumeArrayName {Volume Fraction for Armor Plate}
-  pvTemp79 AddVolumeArrayName {Volume Fraction for Body, Nose}
+  pvTemp79 AddVolumeArrayName "Volume Fraction for Armor Plate"
+  pvTemp79 AddVolumeArrayName "Volume Fraction for Body, Nose"
   pvTemp79 SetClipPlane {}
 vtkLookupTable pvTemp104
   pvTemp104 SetNumberOfTableValues 256
@@ -41,7 +41,7 @@ vtkPolyDataMapper pvTemp87
   pvTemp87 UseLookupTableScalarRangeOn
   pvTemp87 SetScalarVisibility 1
   pvTemp87 SetScalarModeToUsePointFieldData
-  pvTemp87 SelectColorArray {Part Index}
+  pvTemp87 SelectColorArray "Part Index"
 pvTemp87 SetLookupTable pvTemp104
 vtkActor pvTemp88
   pvTemp88 SetMapper pvTemp87
@@ -60,7 +60,7 @@ vtkPolyDataMapper pvTemp96
   pvTemp96 UseLookupTableScalarRangeOn
   pvTemp96 SetScalarVisibility 1
   pvTemp96 SetScalarModeToUsePointFieldData
-  pvTemp96 SelectColorArray {Part Index}
+  pvTemp96 SelectColorArray "Part Index"
 pvTemp96 SetLookupTable pvTemp104
 vtkActor pvTemp97
   pvTemp97 SetMapper pvTemp96

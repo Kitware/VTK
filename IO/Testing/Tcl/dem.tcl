@@ -16,10 +16,10 @@ vtkLookupTable lut
   lut SetValueRange 0.5 1.0
 
 vtkDEMReader demModel
-  demModel SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
+  demModel SetFileName "$VTK_DATA_ROOT/Data/SainteHelens.dem"
   demModel Update
 
-demModel Print
+catch { demModel Print }
 
 set lo [expr $Scale * [lindex [demModel GetElevationBounds] 0]]
 set hi [expr $Scale * [lindex [demModel GetElevationBounds] 1]]
@@ -27,10 +27,10 @@ set hi [expr $Scale * [lindex [demModel GetElevationBounds] 1]]
 vtkLODActor demActor
 
 # create a pipeline for each lod mapper
-set lods {4 8 16}
+set lods "4 8 16"
 foreach lod $lods {
   vtkImageShrink3D shrink$lod
-    shrink$lod SetShrinkFactors $lod $lod 1
+    shrink$lod SetShrinkFactors [expr int($lod)] [expr int($lod)] 1
     shrink$lod SetInputConnection [demModel GetOutputPort]
     shrink$lod AveragingOn
 
@@ -86,7 +86,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
     if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin AddObserver AbortCheckEvent {TkCheckAbort}
+renWin AddObserver "AbortCheckEvent" {TkCheckAbort}
 
 [ren1 GetActiveCamera] SetViewUp 0 0 1
 [ren1 GetActiveCamera] SetPosition -99900 -21354 131801

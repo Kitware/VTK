@@ -1,7 +1,7 @@
 package require vtk
 
 vtkBMPReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/masonry.bmp
+reader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 
 # set the window/level 
 vtkImageViewer2 viewer

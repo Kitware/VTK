@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkOBJReader wavefront
-  wavefront SetFileName $VTK_DATA_ROOT/Data/Viewpoint/cow.obj
+  wavefront SetFileName "$VTK_DATA_ROOT/Data/Viewpoint/cow.obj"
   wavefront Update
 
 vtkConeSource cone

@@ -9,7 +9,7 @@ vtkLookupTable lut
 
 # Read the data: a height field results
 vtkDEMReader demReader
-  demReader SetFileName $VTK_DATA_ROOT/Data/SainteHelens.dem
+  demReader SetFileName "$VTK_DATA_ROOT/Data/SainteHelens.dem"
   demReader Update
 
 set lo [lindex [[demReader GetOutput] GetScalarRange] 0]

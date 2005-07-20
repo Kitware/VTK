@@ -18,10 +18,10 @@ vtkLineSource lineZ
 vtkPlaneSource aPlane
     aPlane Update
 
-set Data(0) "lineX"
-set Data(1) "lineY"
-set Data(2) "lineZ"
-set Data(3) "aPlane"
+# set Data(0) "lineX"
+# set Data(1) "lineY"
+# set Data(2) "lineZ"
+# set Data(3) "aPlane"
 
 vtkImplicitModeller imp
     imp SetModelBounds -2.5 2.5 -2.5 2.5 -2.5 2.5
@@ -31,9 +31,13 @@ vtkImplicitModeller imp
 
 # Okay now let's see if we can append
 imp StartAppend
-for {set i 0} {$i < 4} {incr i} {
-    imp Append [$Data($i) GetOutput]
-}
+# for {set i 0} {$i < 4} {incr i} {
+#     imp Append [$Data($i) GetOutput]
+# }
+imp Append [lineX GetOutput]
+imp Append [lineY GetOutput]
+imp Append [lineZ GetOutput]
+imp Append [aPlane GetOutput]
 imp EndAppend
 
 

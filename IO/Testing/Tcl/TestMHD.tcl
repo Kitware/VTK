@@ -17,11 +17,11 @@ vtkImageReader reader
   reader SetDataMask 0x7fff
 
 vtkMetaImageWriter pvTemp200
-  pvTemp200 SetFileName {mhdWriter.mhd}
+  pvTemp200 SetFileName "mhdWriter.mhd"
   pvTemp200 SetInput [ reader GetOutput ]
   pvTemp200 Write
 vtkMetaImageReader pvTemp90
-	pvTemp90 SetFileName {mhdWriter.mhd}
+	pvTemp90 SetFileName "mhdWriter.mhd"
 vtkLookupTable pvTemp109
 	pvTemp109 SetNumberOfTableValues 256
 	pvTemp109 SetHueRange 0.6667 0
@@ -44,7 +44,7 @@ vtkPolyDataMapper pvTemp114
 	pvTemp114 UseLookupTableScalarRangeOn
 	pvTemp114 SetScalarVisibility 1
 	pvTemp114 SetScalarModeToUsePointFieldData
-	pvTemp114 SelectColorArray {ImageFile}
+	pvTemp114 SelectColorArray "ImageFile"
 pvTemp114 SetLookupTable pvTemp109
 vtkActor pvTemp115
 	pvTemp115 SetMapper pvTemp114

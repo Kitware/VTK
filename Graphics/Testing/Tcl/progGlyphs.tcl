@@ -14,17 +14,6 @@ vtkActor planeActor
     planeActor SetMapper planeMapper
     [planeActor GetProperty] SetRepresentationToWireframe
 
-# create simple poly data so we can apply glyph
-vtkSuperquadricSource squad
-vtkProgrammableGlyphFilter glypher
-    glypher SetInputConnection [colors GetOutputPort]
-    glypher SetSource [squad GetOutput]
-    glypher SetGlyphMethod {Glyph}
-vtkPolyDataMapper glyphMapper
-    glyphMapper SetInputConnection [glypher GetOutputPort]
-vtkActor glyphActor
-    glyphActor SetMapper glyphMapper
-
 # procedure for generating glyphs
 proc Glyph {} {
    global res
@@ -41,6 +30,19 @@ proc Glyph {} {
    squad SetPhiRoundness [expr abs($x)*5.0]
    squad SetThetaRoundness [expr abs($y)*5.0]
 }
+
+# create simple poly data so we can apply glyph
+vtkSuperquadricSource squad
+vtkProgrammableGlyphFilter glypher
+    glypher SetInputConnection [colors GetOutputPort]
+    glypher SetSource [squad GetOutput]
+    glypher SetGlyphMethod Glyph
+vtkPolyDataMapper glyphMapper
+    glyphMapper SetInputConnection [glypher GetOutputPort]
+vtkActor glyphActor
+    glyphActor SetMapper glyphMapper
+
+
 
 # Create the rendering stuff
 #

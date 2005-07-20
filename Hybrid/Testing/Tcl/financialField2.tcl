@@ -19,7 +19,7 @@ vtkProgrammableDataObjectSource dos
     dos SetExecuteMethod parseFile
 proc parseFile {} {
    global VTK_DATA_ROOT
-   set file [open "$VTK_DATA_ROOT/Data/financial.txt" r]
+   set file [open "$VTK_DATA_ROOT/Data/financial.txt" "r"]
    set line [gets $file]
    scan $line "%*s %d" numPts
    set numLines [expr (($numPts - 1) / 8) + 1 ]

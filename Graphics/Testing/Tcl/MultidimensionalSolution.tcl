@@ -70,17 +70,6 @@ vtkHedgeHog pressureGradient
 pressureGradient SetInputConnection [probe_gradient GetOutputPort]
 pressureGradient SetScaleFactor 0.00002
 
-#
-# We use the ProgrammableAttributeDataFilter to compute the cosine
-# of the angle between the two vector fields (i.e. the dot product 
-# normalized by the product of the vector lengths).
-#
-#
-vtkProgrammableAttributeDataFilter dotProduct
-dotProduct SetInputConnection [probe_velocity GetOutputPort]
-dotProduct AddInput [probe_velocity GetOutput]
-dotProduct AddInput [probe_gradient GetOutput]
-dotProduct SetExecuteMethod ExecuteDot
 
 proc ExecuteDot {} {
    # proc for ProgrammableAttributeDataFilter.  Note the use of "double()"
@@ -132,6 +121,17 @@ proc ExecuteDot {} {
     scalars Delete
 }
 
+#
+# We use the ProgrammableAttributeDataFilter to compute the cosine
+# of the angle between the two vector fields (i.e. the dot product 
+# normalized by the product of the vector lengths).
+#
+#
+vtkProgrammableAttributeDataFilter dotProduct
+dotProduct SetInputConnection [probe_velocity GetOutputPort]
+dotProduct AddInput [probe_velocity GetOutput]
+dotProduct AddInput [probe_gradient GetOutput]
+dotProduct SetExecuteMethod ExecuteDot
 
 #
 # Create the mappers and actors.  Note the call to GetPolyDataOutput when

@@ -51,11 +51,6 @@ vtkSphereSource sphereSource
     sphereSource SetThetaResolution 20
     sphereSource SetPhiResolution 40
 
-# Compute random scalars (colors) for each cell
-vtkProgrammableAttributeDataFilter randomColors
-    randomColors SetInput [sphereSource GetOutput]
-    randomColors SetExecuteMethod colorCells
-
 proc colorCells {} {
     vtkMath randomColorGenerator
     set input [randomColors GetInput]
@@ -75,6 +70,11 @@ proc colorCells {} {
     colors Delete; #reference counting - it's ok
     randomColorGenerator Delete
 }
+
+# Compute random scalars (colors) for each cell
+vtkProgrammableAttributeDataFilter randomColors
+    randomColors SetInput [sphereSource GetOutput]
+    randomColors SetExecuteMethod colorCells
 
 # This does not need a hierarchical mapper, but hierarchical
 # mapper could use a test that has clipping so we use it here

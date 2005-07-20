@@ -161,7 +161,7 @@ ren1 ResetCameraClippingRange
 renWin Render
 iren Initialize
 
-set mask {1 2 4 8 16 32}
+set mask "1 2 4 8 16 32"
 proc cases {id} {
     global mask
     for {set i 0} {$i < 6} {incr i} {

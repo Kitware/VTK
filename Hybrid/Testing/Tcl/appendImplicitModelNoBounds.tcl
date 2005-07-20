@@ -25,10 +25,10 @@ vtkLineSource lineZ
 vtkPlaneSource aPlane
     aPlane Update
 
-set Data(3) "lineX"
-set Data(1) "lineY"
-set Data(2) "lineZ"
-set Data(0) "aPlane"
+# set Data(3) "lineX"
+# set Data(1) "lineY"
+# set Data(2) "lineZ"
+# set Data(0) "aPlane"
 
 vtkImplicitModeller imp
     imp SetSampleDimensions 60 60 60
@@ -37,9 +37,13 @@ vtkImplicitModeller imp
 
 # Okay now let's see if we can append
 imp StartAppend
-for {set i 0} {$i < 4} {incr i} {
-    imp Append [$Data($i) GetOutput]
-}
+# for {set i 0} {$i < 4} {incr i} {
+#     imp Append [$Data($i) GetOutput]
+# }
+imp Append [aPlane GetOutput]
+imp Append [lineZ GetOutput]
+imp Append [lineY GetOutput]
+imp Append [lineX GetOutput]
 imp EndAppend
 
 

@@ -13,13 +13,13 @@ vtkRenderWindowInteractor iren
 # of z = f(x,y)
 #
 
-vtkMath math
+vtkMath math1
 vtkPoints points
 vtkFloatArray vectors
 vectors SetNumberOfComponents 3
 for {set i 0} {$i<100} {incr i 1} {
-    set theta [math Random 0.31415 2.8]
-    set phi [math Random 0.31415 2.8]
+    set theta [math1 Random 0.31415 2.8]
+    set phi [math1 Random 0.31415 2.8]
     eval points InsertPoint $i [expr cos($theta)*sin($phi)] [expr sin($theta)*sin($phi)] [expr cos($phi)]
     eval vectors InsertTuple3 $i [expr cos($theta)*sin($phi)] [expr sin($theta)*sin($phi)] [expr cos($phi)]
 }
@@ -36,16 +36,16 @@ transform RotateX 90
 
 # triangulate the data using the specified transform
 #
-vtkDelaunay2D del
-    del SetInput profile
-    del SetTransform transform
-    del BoundingTriangulationOff
-    del SetTolerance 0.001
-    del SetAlpha 0.0
+vtkDelaunay2D del1
+    del1 SetInput profile
+    del1 SetTransform transform
+    del1 BoundingTriangulationOff
+    del1 SetTolerance 0.001
+    del1 SetAlpha 0.0
 
     
 vtkShrinkPolyData shrink
-    shrink SetInputConnection [del GetOutputPort]
+    shrink SetInputConnection [del1 GetOutputPort]
 
 vtkPolyDataMapper map
     map SetInputConnection [shrink GetOutputPort]

@@ -29,7 +29,7 @@ foreach scalarFunction $scalarFunctions {
   vtkPLOT3DReader pl3d$scalarFunction
     pl3d$scalarFunction SetXYZFileName "$VTK_DATA_ROOT/Data/bluntfinxyz.bin"
     pl3d$scalarFunction SetQFileName "$VTK_DATA_ROOT/Data/bluntfinq.bin"
-    pl3d$scalarFunction SetScalarFunctionNumber $scalarFunction
+    pl3d$scalarFunction SetScalarFunctionNumber [expr int($scalarFunction)]
     pl3d$scalarFunction Update
 vtkStructuredGridGeometryFilter plane$scalarFunction
     plane$scalarFunction SetInputConnection [pl3d$scalarFunction GetOutputPort]
@@ -56,7 +56,7 @@ vtkActor2D text$scalarFunction
   text$scalarFunction SetMapper textMapper$scalarFunction
   text$scalarFunction SetPosition 2 3
 
-    if { [info command rtExMath] == ""} {
+    if { [info command "rtExMath"] == ""} {
 	ren$scalarFunction AddActor2D text$scalarFunction
     }
 incr i

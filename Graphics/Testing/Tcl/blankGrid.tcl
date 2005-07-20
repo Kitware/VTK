@@ -30,7 +30,7 @@ vtkImageData blankImage
 blankImage SetScalarTypeToUnsignedChar
 blankImage SetDimensions 57 33 1
 blankImage AllocateScalars
-[[blankImage GetPointData] GetScalars] SetName blankScalars
+[[blankImage GetPointData] GetScalars] SetName "blankScalars"
 
 set blanking [[blankImage GetPointData] GetScalars]
 set numBlanks [expr 57*33]
@@ -71,7 +71,7 @@ anotherGrid CopyStructure [plane GetOutput]
 
 vtkBlankStructuredGrid blankGrid
 blankGrid SetInput anotherGrid 
-blankGrid SetArrayName blankScalars
+blankGrid SetArrayName "blankScalars"
 blankGrid SetMinBlankingValue -0.5
 blankGrid SetMaxBlankingValue  0.5
 

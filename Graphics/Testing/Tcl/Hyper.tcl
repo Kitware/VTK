@@ -24,26 +24,26 @@ vtkPointLoad ptLoad
 #
 # If the current directory is writable, then test the witers
 #
-if {[catch {set channel [open test.tmp w]}] == 0 } {
+if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    close $channel
-   file delete -force test.tmp
+   file delete -force "test.tmp"
 
    vtkDataSetWriter wSP
    wSP SetInputConnection [ptLoad GetOutputPort]
-   wSP SetFileName wSP.vtk
-   wSP SetTensorsName pointload
-   wSP SetScalarsName effective_stress
+   wSP SetFileName "wSP.vtk"
+   wSP SetTensorsName "pointload"
+   wSP SetScalarsName "effective_stress"
    wSP Write
 
    vtkDataSetReader rSP
-   rSP SetFileName wSP.vtk
-   rSP SetTensorsName pointload
-   rSP SetScalarsName effective_stress
+   rSP SetFileName "wSP.vtk"
+   rSP SetTensorsName "pointload"
+   rSP SetScalarsName "effective_stress"
    rSP Update
    
    set input [rSP GetOutput]
    
-   file delete -force wSP.vtk
+   file delete -force "wSP.vtk"
 } else {
    set input [ptLoad GetOutput]
 }

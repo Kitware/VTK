@@ -26,7 +26,7 @@ vtkCaptionActor2D caption
     caption SetCaption "This is the\nsouth pole"
     caption SetAttachmentPoint 0 0 -0.5
     [caption GetPositionCoordinate] SetCoordinateSystemToNormalizedViewport
-    [caption GetPositionCoordinate] SetReferenceCoordinate ""
+    [caption GetPositionCoordinate] SetReferenceCoordinate {}
     [caption GetPositionCoordinate] SetValue 0.05 0.05
     caption SetWidth 0.25
     caption SetHeight 0.15

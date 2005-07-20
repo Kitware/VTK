@@ -4,10 +4,10 @@ package require vtktesting
 
 set size 3187;#maximum number possible
 #set size 100;#maximum number possible
-set xAxis INTEREST_RATE
-set yAxis MONTHLY_PAYMENT
-set zAxis MONTHLY_INCOME
-set scalar TIME_LATE
+set xAxis "INTEREST_RATE"
+set yAxis "MONTHLY_PAYMENT"
+set zAxis "MONTHLY_INCOME"
+set scalar "TIME_LATE"
 
 # extract data from field as a polydata (just points), then extract scalars
 vtkDataObjectReader fdr

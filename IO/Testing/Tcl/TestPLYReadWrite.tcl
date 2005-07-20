@@ -12,16 +12,16 @@ vtkPointDataToCellData pd2cd
 # First way or writing
 vtkPLYWriter w
    w SetInput [pd2cd GetPolyDataOutput]
-   w SetFileName plyWriter.ply
+   w SetFileName "plyWriter.ply"
    w SetFileTypeToBinary
    w SetDataByteOrderToLittleEndian
    w SetColorModeToUniformCellColor
    w SetColor 255 0 0 
    w Write
 vtkPLYReader r
-   r SetFileName plyWriter.ply
+   r SetFileName "plyWriter.ply"
    r Update
-file delete -force plyWriter.ply
+file delete -force "plyWriter.ply"
 vtkPolyDataMapper plyMapper
    plyMapper SetInputConnection [r GetOutputPort]
 vtkActor plyActor
@@ -32,16 +32,16 @@ vtkLookupTable lut
    lut Build
 vtkPLYWriter w2
    w2 SetInput [pd2cd GetPolyDataOutput]
-   w2 SetFileName plyWriter.ply
+   w2 SetFileName "plyWriter.ply"
    w2 SetFileTypeToBinary
    w2 SetDataByteOrderToLittleEndian
    w2 SetColorModeToDefault
    w2 SetLookupTable lut
-   w2 SetArrayName Elevation
+   w2 SetArrayName "Elevation"
    w2 SetComponent 0
    w2 Write
 vtkPLYReader r2
-   r2 SetFileName plyWriter.ply
+   r2 SetFileName "plyWriter.ply"
    r2 Update
 vtkPolyDataMapper plyMapper2
    plyMapper2 SetInputConnection [r2 GetOutputPort]
@@ -51,19 +51,19 @@ vtkActor plyActor2
 
 # Third way or writing - it will read the previous file with rgb cell color
 vtkPLYReader r3
-   r3 SetFileName plyWriter.ply
+   r3 SetFileName "plyWriter.ply"
    r3 Update
 vtkPLYWriter w3
    w3 SetInputConnection [r3 GetOutputPort]
-   w3 SetFileName plyWriter.ply
+   w3 SetFileName "plyWriter.ply"
    w3 SetFileTypeToBinary
    w3 SetDataByteOrderToLittleEndian
    w3 SetColorModeToDefault
-   w3 SetArrayName RGB
+   w3 SetArrayName "RGB"
    w3 SetComponent 0
    w3 Write
 vtkPLYReader r4
-   r4 SetFileName plyWriter.ply
+   r4 SetFileName "plyWriter.ply"
    r4 Update
 vtkPolyDataMapper plyMapper3
    plyMapper3 SetInputConnection [r4 GetOutputPort]
@@ -71,7 +71,7 @@ vtkActor plyActor3
    plyActor3 SetMapper plyMapper3
    plyActor3 AddPosition 2 0 0
 
-file delete -force plyWriter.ply
+file delete -force "plyWriter.ply"
 
 # Create the RenderWindow, Renderer and both Actors
 #

@@ -9,7 +9,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 vtkXYZMolReader pdb0
-  pdb0 SetFileName $VTK_DATA_ROOT/Data/thio3xx.xyz
+  pdb0 SetFileName "$VTK_DATA_ROOT/Data/thio3xx.xyz"
 
 vtkSphereSource Sphere0
   Sphere0 SetCenter 0 0 0 

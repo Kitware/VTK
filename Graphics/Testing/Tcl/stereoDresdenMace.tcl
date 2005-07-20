@@ -52,11 +52,13 @@ set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 iren Initialize
 
-proc TkCheckAbort {} {
+# default arguments added so that the protoype matches
+# as required in Python when the test is translated.
+proc TkCheckAbort { { a 0 } { b 0 } } {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin AddObserver AbortCheckEvent {TkCheckAbort}
+renWin AddObserver "AbortCheckEvent" TkCheckAbort
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .

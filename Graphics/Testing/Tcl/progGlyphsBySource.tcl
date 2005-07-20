@@ -28,17 +28,6 @@ vtkTransformPolyDataFilter transformSquad
   transformSquad SetInput [squadColors GetPolyDataOutput]
   transformSquad SetTransform squadTransform
 
-vtkProgrammableGlyphFilter glypher
-    glypher SetInputConnection [colors GetOutputPort]
-    glypher SetSource [transformSquad GetOutput]
-    glypher SetGlyphMethod {Glyph}
-    glypher SetColorModeToColorBySource
-
-vtkPolyDataMapper glyphMapper
-    glyphMapper SetInputConnection [glypher GetOutputPort]
-vtkActor glyphActor
-    glyphActor SetMapper glyphMapper
-
 # procedure for generating glyphs
 proc Glyph {} {
    global res
@@ -64,6 +53,19 @@ proc Glyph {} {
    squad SetPhiRoundness [expr abs($x)*5.0]
    squad SetThetaRoundness [expr abs($y)*5.0]
 }
+
+vtkProgrammableGlyphFilter glypher
+    glypher SetInputConnection [colors GetOutputPort]
+    glypher SetSource [transformSquad GetOutput]
+    glypher SetGlyphMethod Glyph
+    glypher SetColorModeToColorBySource
+
+vtkPolyDataMapper glyphMapper
+    glyphMapper SetInputConnection [glypher GetOutputPort]
+vtkActor glyphActor
+    glyphActor SetMapper glyphMapper
+
+
 
 # Create the rendering stuff
 #

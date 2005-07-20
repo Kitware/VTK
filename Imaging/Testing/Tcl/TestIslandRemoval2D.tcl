@@ -7,7 +7,7 @@ package require vtk
 # Image pipeline
 
 vtkPNGReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
+reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkImageThreshold thresh
 thresh SetInputConnection [reader GetOutputPort]

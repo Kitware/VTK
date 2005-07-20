@@ -20,7 +20,10 @@ LUT SetValueRange 1 1
 LUT SetAlphaRange 1 1
 LUT Build
 
-proc changeLUT { } {
+# The prototype of this function has
+# arguments so that the code can be
+# translated to python for testing.
+proc changeLUT { { a 0 } { b 0 } } {
     global rangeStart rangeEnd
     
     set rangeStart [expr $rangeStart + 0.1]
@@ -38,7 +41,7 @@ vtkImageMapToColors mapToRGBA
 mapToRGBA SetInputConnection [reader GetOutputPort]
 mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
-mapToRGBA AddObserver EndEvent changeLUT
+mapToRGBA AddObserver "EndEvent" changeLUT
 
 vtkImageDataStreamer imageStreamer
 imageStreamer SetInputConnection [mapToRGBA GetOutputPort]

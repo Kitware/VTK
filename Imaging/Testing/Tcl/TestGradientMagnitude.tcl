@@ -5,7 +5,7 @@ package require vtk
 # Image pipeline
 
 vtkGESignaReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/E07733S002I009.MR
+reader SetFileName "$VTK_DATA_ROOT/Data/E07733S002I009.MR"
 
 vtkImageGradientMagnitude gradient
 gradient SetDimensionality 2

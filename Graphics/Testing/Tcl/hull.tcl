@@ -11,14 +11,14 @@ package require vtkinteraction
 # create some points laying between 1<=r<5 (r is radius)
 # the points also have normals pointing away from the origin.
 #
-vtkMath math
+vtkMath mathObj
 vtkPoints points
 vtkFloatArray normals
 normals SetNumberOfComponents 3
 for {set i 0} {$i<100} {incr i 1} {
     set radius 1.0
-    set theta  [math Random 0 360]
-    set phi    [math Random 0 180]
+    set theta  [mathObj Random 0 360]
+    set phi    [mathObj Random 0 180]
 
     set x [expr $radius*sin($phi)*cos($theta)]
     set y [expr $radius*sin($phi)*sin($theta)]

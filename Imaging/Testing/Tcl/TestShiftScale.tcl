@@ -35,7 +35,7 @@ viewer SetColorLevel 1024
 source [file join [file dirname [info script]] WindowLevelInterface.tcl]
 
 
-vtkPNMWriter w
-w SetFileName D:/vtknew/vtk/graphics/examplesTcl/mace2.ppm
-w SetInputConnection [shiftScale GetOutputPort]
+#vtkPNMWriter w
+#w SetFileName "D:/vtknew/vtk/graphics/examplesTcl/mace2.ppm"
+#w SetInputConnection [shiftScale GetOutputPort]
 #w Write

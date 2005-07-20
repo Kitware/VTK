@@ -37,7 +37,7 @@ vtkIntArray DivTypes
   set numCell [[FormMesh GetInput] GetNumberOfCells]
   DivTypes SetNumberOfValues $numCell
   for {set i 0} {$i<$numCell} {incr i 1} {
-    DivTypes SetValue $i [expr 5+[expr 7*[expr $i % 4]]]
+    DivTypes SetValue $i [expr 5 + (7* ( $i % 4))]
   }
 
 ### Finish this pipeline

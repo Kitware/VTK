@@ -12,7 +12,7 @@ package require vtkinteraction
 # Get a texture
 # ------------------------------------------------------------
 vtkJPEGReader textureReader
-  textureReader SetFileName $VTK_DATA_ROOT/Data/beach.jpg
+  textureReader SetFileName "$VTK_DATA_ROOT/Data/beach.jpg"
 vtkTexture texture
   texture SetInput [textureReader GetOutput]
 

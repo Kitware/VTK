@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkEnSightMasterServerReader reader1
-    reader1 SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/mandelbrot.sos
+    reader1 SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/mandelbrot.sos"
     reader1 SetCurrentPiece 0
     reader1 Update
 
@@ -23,13 +23,13 @@ vtkPolyDataMapper mapper0
     mapper0 SetInputConnection [geom0 GetOutputPort]
     mapper0 SetColorModeToMapScalars
     mapper0 SetScalarModeToUsePointFieldData
-    mapper0 ColorByArrayComponent Iterations 0
+    mapper0 ColorByArrayComponent "Iterations" 0
     mapper0 SetScalarRange 0 112
 vtkPolyDataMapper mapper1
     mapper1 SetInputConnection [geom1 GetOutputPort]
     mapper1 SetColorModeToMapScalars
     mapper1 SetScalarModeToUsePointFieldData
-    mapper1 ColorByArrayComponent Iterations 0
+    mapper1 ColorByArrayComponent "Iterations" 0
     mapper1 SetScalarRange 0 112
 
 vtkActor actor0
@@ -38,7 +38,7 @@ vtkActor actor1
     actor1 SetMapper mapper1
 
 vtkEnSightMasterServerReader reader2
-    reader2 SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/mandelbrot.sos
+    reader2 SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/mandelbrot.sos"
     reader2 SetCurrentPiece 1
     reader2 Update
 
@@ -51,13 +51,13 @@ vtkPolyDataMapper mapper2
     mapper2 SetInputConnection [geom2 GetOutputPort]
     mapper2 SetColorModeToMapScalars
     mapper2 SetScalarModeToUsePointFieldData
-    mapper2 ColorByArrayComponent Iterations 0
+    mapper2 ColorByArrayComponent "Iterations" 0
     mapper2 SetScalarRange 0 112
 vtkPolyDataMapper mapper3
     mapper3 SetInputConnection [geom3 GetOutputPort]
     mapper3 SetColorModeToMapScalars
     mapper3 SetScalarModeToUsePointFieldData
-    mapper3 ColorByArrayComponent Iterations 0
+    mapper3 ColorByArrayComponent "Iterations" 0
     mapper3 SetScalarRange 0 112
 
 vtkActor actor2

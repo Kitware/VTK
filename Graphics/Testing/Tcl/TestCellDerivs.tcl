@@ -560,7 +560,7 @@ ren1 AddActor aHexaActor; [aHexaActor GetProperty] SetDiffuseColor 1 1 0
 vtkSphereSource ball
   ball SetRadius .2
 
-foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra aPixel aQuad aTriangle aPolygon
+foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra aPixel aQuad aTriangle aPolygon \
 aTriangleStrip aLine aPolyLine aVertex aPolyVertex aPenta aHexa" {
   vtkFloatArray ${cell}Scalars
    set N [${cell}Grid GetNumberOfPoints  ]   
@@ -577,12 +577,12 @@ aTriangleStrip aLine aPolyLine aVertex aPolyVertex aPenta aHexa" {
 
 # write to the temp directory if possible, otherwise use .
 set dir "."
-if {[info commands rtTester] == "rtTester"}  {
+if {[info commands "rtTester"] == "rtTester"}  {
    set dir [rtTester GetTempDirectory]
 }
 
 
-foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra  aQuad aTriangle aTriangleStrip aLine
+foreach cell "aVoxel aHexahedron aWedge aPyramid aTetra  aQuad aTriangle aTriangleStrip aLine \
 aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
 
   vtkCellDerivatives ${cell}derivs
@@ -590,13 +590,13 @@ aPolyLine aVertex aPolyVertex aPixel aPolygon aPenta aHexa"  {
      ${cell}derivs SetVectorModeToComputeGradient
 
  set FileName $dir
- append FileName ${cell}
+ append FileName $cell
  append FileName ".vtk"
 
  # make sure the directory is writeable first
- if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
+ if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    close $channel
-   file delete -force $dir/test.tmp
+   file delete -force "$dir/test.tmp"
 
    vtkUnstructuredGridWriter ${cell}Writer
      ${cell}Writer SetInputConnection [${cell}derivs GetOutputPort]

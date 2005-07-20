@@ -38,10 +38,10 @@ imageCanvas DrawSegment 80 130 130 80
 
 set shotNoiseAmplitude 255.0
 set shotNoiseFraction 0.1
-set shotNoiseExtent "1 256 1 256 0 0"
+#set shotNoiseExtent "1 256 1 256 0 0"
 
 vtkImageNoiseSource shotNoiseSource
-eval shotNoiseSource SetWholeExtent $shotNoiseExtent
+shotNoiseSource SetWholeExtent 1 256 1 256 0 0 ;#$shotNoiseExtent
 shotNoiseSource SetMinimum 0.0
 shotNoiseSource SetMaximum 1.0
 shotNoiseSource ReleaseDataFlagOff

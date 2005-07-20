@@ -8,10 +8,6 @@ vtkSphereSource sphere
     sphere SetThetaResolution 20
     sphere SetPhiResolution 40
 
-# Compute random scalars (colors) for each cell
-vtkProgrammableAttributeDataFilter randomColors
-    randomColors SetInput [sphere GetOutput]
-    randomColors SetExecuteMethod colorCells
 
 proc colorCells {} {
     vtkMath randomColorGenerator
@@ -32,6 +28,12 @@ proc colorCells {} {
     colors Delete; #reference counting - it's ok
     randomColorGenerator Delete
 }
+
+# Compute random scalars (colors) for each cell
+vtkProgrammableAttributeDataFilter randomColors
+    randomColors SetInput [sphere GetOutput]
+    randomColors SetExecuteMethod colorCells
+
 # mapper and actor
 vtkPolyDataMapper mapper
     mapper SetInput [randomColors GetPolyDataOutput]

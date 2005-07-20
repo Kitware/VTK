@@ -21,14 +21,14 @@ vtkPolyData profile
 
 # triangulate them
 #
-vtkDelaunay2D del
-    del SetInput profile
-    del SetTolerance 0.001
-    del SetAlpha 0.1
-    del Update
+vtkDelaunay2D del1
+    del1 SetInput profile
+    del1 SetTolerance 0.001
+    del1 SetAlpha 0.1
+    del1 Update
     
 vtkShrinkPolyData shrink
-    shrink SetInputConnection [del GetOutputPort]
+    shrink SetInputConnection [del1 GetOutputPort]
 
 vtkPolyDataMapper map
     map SetInputConnection [shrink GetOutputPort]

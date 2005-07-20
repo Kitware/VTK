@@ -110,15 +110,6 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-
-proc MoveWindow {} {
-    for {set y 100} {$y < 300} {incr y 25} {
-	for {set x 100} {$x < 300} {incr x 25} {
-	    PlaceWindow $x $y
-	}
-    }
-}
-
 proc PlaceWindow {xmin ymin} {
     global xLength yLength
 
@@ -136,6 +127,16 @@ proc PlaceWindow {xmin ymin} {
 
     renWin Render
 }
+
+proc MoveWindow {} {
+    for {set y 100} {$y < 300} {incr y 25} {
+	for {set x 100} {$x < 300} {incr x 25} {
+	    PlaceWindow $x $y
+	}
+    }
+}
+
+
 
 MoveWindow
 PlaceWindow $xmin $ymin

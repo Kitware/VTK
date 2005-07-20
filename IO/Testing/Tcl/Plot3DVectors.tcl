@@ -31,14 +31,15 @@ foreach vectorFunction $vectorFunctions {
   vtkPLOT3DReader pl3d$vectorFunction
     pl3d$vectorFunction SetXYZFileName "$VTK_DATA_ROOT/Data/bluntfinxyz.bin"
     pl3d$vectorFunction SetQFileName "$VTK_DATA_ROOT/Data/bluntfinq.bin"
-    pl3d$vectorFunction SetVectorFunctionNumber $vectorFunction
+    pl3d$vectorFunction SetVectorFunctionNumber [expr int($vectorFunction)]
     pl3d$vectorFunction Update
 vtkStructuredGridGeometryFilter plane$vectorFunction
     plane$vectorFunction SetInputConnection [pl3d$vectorFunction GetOutputPort]
     plane$vectorFunction SetExtent 25 25 0 100 0 100
 vtkHedgeHog hog$vectorFunction
   hog$vectorFunction SetInputConnection [plane$vectorFunction GetOutputPort]
-  hog$vectorFunction SetScaleFactor [expr 1.0 / [[[[pl3d$vectorFunction GetOutput] GetPointData] GetVectors] GetMaxNorm]]
+  set maxnorm [[[[pl3d$vectorFunction GetOutput] GetPointData] GetVectors] GetMaxNorm]
+  hog$vectorFunction SetScaleFactor [expr 1.0 / $maxnorm]
 vtkPolyDataMapper mapper$vectorFunction
     mapper$vectorFunction SetInputConnection [hog$vectorFunction GetOutputPort]
 vtkActor actor$vectorFunction
@@ -59,7 +60,7 @@ vtkActor2D text$vectorFunction
   text$vectorFunction SetMapper textMapper$vectorFunction
   text$vectorFunction SetPosition 2 5
 
-  if { [info command rtExMath] == ""} {
+  if { [info command "rtExMath"] == ""} {
     ren$vectorFunction AddActor2D text$vectorFunction
   }
 incr i

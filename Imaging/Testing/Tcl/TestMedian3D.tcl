@@ -10,7 +10,7 @@ package require vtk
 # Image pipeline
 
 vtkPNGReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
+reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkImageMedian3D median
 median SetInputConnection [reader GetOutputPort]

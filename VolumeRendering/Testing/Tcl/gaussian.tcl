@@ -30,7 +30,7 @@ set max [lindex $range 1]
 vtkImageShiftScale readerSS
   readerSS SetInput [reader GetGridOutput]
   readerSS SetShift [expr $min * -1]
-  readerSS SetScale [expr 255 / [expr $max - $min]]
+  readerSS SetScale [expr 255 / ($max - $min)]
   readerSS SetOutputScalarTypeToUnsignedChar
 
 vtkOutlineFilter bounds
@@ -170,7 +170,7 @@ proc TkCheckAbort {} {
   set foo [renWin GetEventPending]
   if {$foo != 0} {renWin SetAbortRender 1}
 }
-renWin AddObserver AbortCheckEvent {TkCheckAbort}
+renWin AddObserver "AbortCheckEvent" {TkCheckAbort}
 
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize

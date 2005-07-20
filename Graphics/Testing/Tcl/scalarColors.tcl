@@ -69,7 +69,7 @@ vtkGlyph3D glyphs
   glyphs SetInputArrayToProcess 0 0 0 0 "Sizes"
   glyphs SetInputArrayToProcess 3 0 0 0 "Colors"
 
-puts [ glyphs GetScaleModeAsString]
+#puts [ glyphs GetScaleModeAsString]
 
 vtkDataSetMapper glyphsMapper
   glyphsMapper SetInputConnection [glyphs GetOutputPort]

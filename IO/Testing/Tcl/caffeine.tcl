@@ -9,7 +9,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 vtkPDBReader pdb0
-  pdb0 SetFileName $VTK_DATA_ROOT/Data/caffeine.pdb
+  pdb0 SetFileName "$VTK_DATA_ROOT/Data/caffeine.pdb"
 
   pdb0 SetHBScale 1.0
   pdb0 SetBScale 1.0

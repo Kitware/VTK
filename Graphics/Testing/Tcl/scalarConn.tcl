@@ -9,7 +9,7 @@ vtkSampleFunction sample
   sample SetSampleDimensions 30 30 30
   sample SetImplicitFunction quadric
   sample Update
-  sample Print
+  #sample Print
   sample ComputeNormalsOff
 
 # Extract cells that contains isosurface of interest

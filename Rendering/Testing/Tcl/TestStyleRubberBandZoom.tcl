@@ -27,9 +27,9 @@ renWin Render
 
 # Test style
 
-iren SetEventInformationFlipY 250 250 0 0 0 0 0
+iren SetEventInformationFlipY 250 250 0 0 "0" 0 "0"
 iren InvokeEvent "LeftButtonPressEvent"
-iren SetEventInformationFlipY 100 100 0 0 0 0 0
+iren SetEventInformationFlipY 100 100 0 0 "0" 0 "0"
 iren InvokeEvent "MouseMoveEvent"
 iren InvokeEvent "LeftButtonReleaseEvent"
 

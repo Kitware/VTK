@@ -34,21 +34,21 @@ vtkActor actor1
 # write out a rect grid
 # write to the temp directory if possible, otherwise use .
 set dir "."
-if {[info commands rtTester] == "rtTester"}  {
+if {[info commands "rtTester"] == "rtTester"}  {
    set dir [rtTester GetTempDirectory]
 }
 
 # make sure the directory is writeable first
-if {[catch {set channel [open $dir/test.tmp w]}] == 0 } {
+if {[catch {set channel [open "$dir/test.tmp" "w"]}] == 0 } {
    close $channel
-   file delete -force $dir/test.tmp
+   file delete -force "$dir/test.tmp"
    
    vtkRectilinearGridWriter rectWriter
    rectWriter SetInputConnection [extract1 GetOutputPort]
-   rectWriter SetFileName $dir/rect.tmp
+   rectWriter SetFileName "$dir/rect.tmp"
    rectWriter Write   
    # delete the file
-   file delete -force $dir/rect.tmp
+   file delete -force "$dir/rect.tmp"
 }
 
 

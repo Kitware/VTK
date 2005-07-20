@@ -82,7 +82,7 @@ Stream0 SetTerminalSpeed 1e-12
 
 vtkAssignAttribute aa
 aa SetInputConnection [Stream0 GetOutputPort]
-aa Assign Normals NORMALS POINT_DATA
+aa Assign "Normals" "NORMALS" "POINT_DATA"
 
 vtkRibbonFilter Ribbon0
 Ribbon0 SetInputConnection [aa GetOutputPort]
@@ -106,7 +106,7 @@ Mapper10 SetImmediateModeRendering 1
 Mapper10 UseLookupTableScalarRangeOn
 Mapper10 SetScalarVisibility 1
 Mapper10 SetScalarModeToUsePointFieldData
-Mapper10 SelectColorArray {Density}
+Mapper10 SelectColorArray "Density"
 Mapper10 SetLookupTable LookupTable1
 
 vtkActor Actor10

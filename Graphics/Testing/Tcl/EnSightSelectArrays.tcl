@@ -12,13 +12,13 @@ vtkRenderWindowInteractor iren
 iren SetRenderWindow renWin
 
 vtkGenericEnSightReader reader
-reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/blow1_ascii.case
+reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/blow1_ascii.case"
 reader SetTimeValue 1
 reader ReadAllVariablesOff
 
-reader SetPointArrayStatus displacement 1
-reader SetCellArrayStatus thickness 1
-reader SetCellArrayStatus displacement 1
+reader SetPointArrayStatus "displacement" 1
+reader SetCellArrayStatus "thickness" 1
+reader SetCellArrayStatus "displacement" 1
 
 reader Update
 

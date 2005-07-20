@@ -9,7 +9,7 @@ vtkRenderWindowInteractor iren
   iren SetRenderWindow renWin
 
 vtkFacetReader facet0
-  facet0 SetFileName $VTK_DATA_ROOT/Data/clown.facet
+  facet0 SetFileName "$VTK_DATA_ROOT/Data/clown.facet"
 
 vtkPolyDataMapper Mapper5
   Mapper5 SetInput [facet0 GetOutput]

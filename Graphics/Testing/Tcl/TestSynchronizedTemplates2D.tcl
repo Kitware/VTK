@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPNGReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/fullhead15.png
+reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkContourFilter iso
     iso SetInput [reader GetOutput]

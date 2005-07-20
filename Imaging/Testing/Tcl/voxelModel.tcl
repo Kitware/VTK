@@ -19,17 +19,17 @@ vtkVoxelModeller voxelModel
   voxelModel SetSampleDimensions 21 21 21
   voxelModel SetModelBounds -1.5 1.5 -1.5 1.5 -1.5 1.5
 
-if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
+if {[catch {set channel [open "voxelModel.vtk" "w"]}] == 0 } {
    close $channel
-   file delete -force voxelModel.vtk
+   file delete -force "voxelModel.vtk"
 
    vtkDataSetWriter aWriter
-     aWriter SetFileName voxelModel.vtk
+     aWriter SetFileName "voxelModel.vtk"
      aWriter SetInputConnection [voxelModel GetOutputPort]
      aWriter Update
 
    vtkDataSetReader aReader
-     aReader SetFileName voxelModel.vtk
+     aReader SetFileName "voxelModel.vtk"
 
    vtkContourFilter voxelSurface
      voxelSurface SetInputConnection [aReader GetOutputPort]
@@ -66,7 +66,7 @@ if {[catch {set channel [open voxelModel.vtk w]}] == 0 } {
 
 # prevent the tk window from showing up then start the event loop
    wm withdraw .
-   file delete -force voxelModel.vtk
+   catch { file delete -force "voxelModel.vtk" }
 }
 
 

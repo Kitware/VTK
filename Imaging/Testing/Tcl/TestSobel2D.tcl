@@ -6,7 +6,7 @@ package require vtk
 
 # Image pipeline
 vtkDICOMImageReader reader
-reader SetFileName $VTK_DATA_ROOT/Data/mr.001
+reader SetFileName "$VTK_DATA_ROOT/Data/mr.001"
 
 vtkImageSobel2D sobel
 sobel SetInputConnection [reader GetOutputPort]

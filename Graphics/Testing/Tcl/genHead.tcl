@@ -2,10 +2,10 @@ package require vtk
 package require vtkinteraction
 package require vtktesting
 
-if {[catch {set channel [open fullHead.tri w]}] == 0 } {
+if {[catch {set channel [open "fullHead.tri" "w"]}] == 0 } {
    close $channel
-   file delete -force fullHead.tri
-   file delete -force fullHead.lim
+   file delete -force "fullHead.tri"
+   file delete -force "fullHead.lim"
 # reader reads slices
 vtkVolume16Reader v16
     v16 SetDataDimensions 64 64
@@ -65,6 +65,6 @@ renWin Render
 
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
-   file delete -force fullHead.tri
-   file delete -force fullHead.lim
+   file delete -force "fullHead.tri"
+   file delete -force "fullHead.lim"
 }

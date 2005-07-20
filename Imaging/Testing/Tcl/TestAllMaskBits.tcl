@@ -14,13 +14,7 @@ vtkImageShrink3D shrink
 shrink SetInputConnection [image1 GetOutputPort]
 shrink SetShrinkFactors 2 2 1
 
-set operators "\
-ByPass \
-And \
-Nand \
-Xor \ 
-Or \ 
-Nor"
+set operators "ByPass And Nand Xor Or Nor"
 
 foreach operator $operators {
     if { $operator != "ByPass" } {    

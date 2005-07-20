@@ -32,6 +32,9 @@ MakeColors lut 256
 set n 20
 set radius 10
 
+# This has been moved outside the loop so that the code can be correctly
+# translated to python
+catch {vtkImageData blobImage}
 for {set i 0} {$i < $n} {incr i} {
   catch {vtkSphere sphere}
     sphere SetRadius $radius
@@ -53,7 +56,6 @@ for {set i 0} {$i < $n} {incr i} {
     thres SetOutValue 0
     thres Update
 
-  catch {vtkImageData blobImage}
   if {$i == 0} {
       blobImage DeepCopy [thres GetOutput]
   }

@@ -14,15 +14,15 @@ vtkPolyData profile
 
 # triangulate them
 #
-vtkDelaunay3D del
-    del SetInput profile
-    del BoundingTriangulationOn
-    del SetTolerance 0.01
-    del SetAlpha 0.2
-    del BoundingTriangulationOff
+vtkDelaunay3D del1
+    del1 SetInput profile
+    del1 BoundingTriangulationOn
+    del1 SetTolerance 0.01
+    del1 SetAlpha 0.2
+    del1 BoundingTriangulationOff
     
 vtkShrinkFilter shrink
-    shrink SetInputConnection [del GetOutputPort]
+    shrink SetInputConnection [del1 GetOutputPort]
     shrink SetShrinkFactor 0.9
 
 vtkDataSetMapper map

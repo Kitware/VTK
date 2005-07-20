@@ -1,5 +1,6 @@
 package require vtk
 package require vtkinteraction
+package require vtktesting
 
 # Create the RenderWindow, Renderer and both Actors
 #
@@ -30,7 +31,6 @@ vtkTexture aTexture
     aTexture SetInputConnection [aTriangularTexture GetOutputPort]
     aTexture InterpolateOn
 
-set banana "0.8900 0.8100 0.3400"
 vtkActor texturedActor
     texturedActor SetMapper triangleMapper
     texturedActor SetTexture aTexture
@@ -46,12 +46,10 @@ vtkCubeSource aCube
 vtkPolyDataMapper aCubeMapper
     aCubeMapper SetInputConnection [aCube GetOutputPort]
 
-set tomato "1.0000 0.3882 0.2784"
 vtkActor cubeActor
     cubeActor SetMapper aCubeMapper
     eval [cubeActor GetProperty] SetDiffuseColor $tomato
 
-set slate_grey "0.4392 0.5020 0.5647"
 eval ren1 SetBackground $slate_grey
 ren1 AddActor cubeActor
 ren1 AddActor texturedActor

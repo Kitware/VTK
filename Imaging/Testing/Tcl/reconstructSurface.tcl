@@ -1,18 +1,15 @@
 package require vtk
 package require vtkinteraction
 
-# Read some points. Use a programmable filter to read them.
-#
-vtkProgrammableSource pointSource
-    pointSource SetExecuteMethod readPoints
+
 proc readPoints {} {
 global VTK_DATA_ROOT
     set output [pointSource GetPolyDataOutput]
     vtkPoints points
     $output SetPoints points
 
-   set file [open "$VTK_DATA_ROOT/Data/cactus.3337.pts" r]
-   while { [gets $file line] != -1 } {
+   set fp [open "$VTK_DATA_ROOT/Data/cactus.3337.pts" r]
+   while { [gets $fp line] != -1 } {
       scan $line "%s" firstToken
       if { $firstToken == "p" } {
          scan $line "%s %f %f %f" firstToken x y z
@@ -21,6 +18,11 @@ global VTK_DATA_ROOT
    }
    points Delete; #okay, reference counting
 }
+
+# Read some points. Use a programmable filter to read them.
+#
+vtkProgrammableSource pointSource
+    pointSource SetExecuteMethod readPoints
 
 # Construct the surface and create isosurface
 #

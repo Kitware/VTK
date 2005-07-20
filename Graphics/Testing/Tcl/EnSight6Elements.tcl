@@ -10,7 +10,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkGenericEnSightReader reader
-    reader SetCaseFileName $VTK_DATA_ROOT/Data/EnSight/elements6.case
+    reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/elements6.case"
     reader Update
 
 vtkGeometryFilter geom
@@ -20,16 +20,16 @@ vtkArrayCalculator calc
     calc SetInputConnection [geom GetOutputPort]
     calc SetAttributeModeToUsePointData
     calc SetFunction "pointCVectors_r . pointCVectors_i + pointScalars"
-    calc AddScalarArrayName pointScalars 0
-    calc AddVectorArrayName pointCVectors_r 0 1 2
-    calc AddVectorArrayName pointCVectors_i 0 1 2
-    calc SetResultArrayName test
+    calc AddScalarArrayName "pointScalars" 0
+    calc AddVectorArrayName "pointCVectors_r" 0 1 2
+    calc AddVectorArrayName "pointCVectors_i" 0 1 2
+    calc SetResultArrayName "test"
 
 vtkPolyDataMapper mapper
     mapper SetInputConnection [calc GetOutputPort]
     mapper SetColorModeToMapScalars
     mapper SetScalarModeToUsePointFieldData
-    mapper ColorByArrayComponent test 0
+    mapper ColorByArrayComponent "test" 0
     mapper SetScalarRange 0 36000
 
 vtkActor actor

@@ -7,8 +7,8 @@ package require vtkinteraction
 # Create a reader and write out the field
 vtkUnstructuredGridReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/blow.vtk"
-    reader SetVectorsName displacement9
-    reader SetScalarsName thickness9
+    reader SetVectorsName "displacement9"
+    reader SetScalarsName "thickness9"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInput [reader GetOutput]
 vtkParallelCoordinatesActor actor

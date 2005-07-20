@@ -28,19 +28,19 @@ for { set z -5 } { $z < 30 } { incr z } {
 	    set x [expr $x + $xtraX]
 	    set y [expr $y + $xtraY]
 
-	    if { $z%12 == 0 }  { incr x 1; }
-	    if { $z%12 == 1 }  { incr x 2 }
-	    if { $z%12 == 2 }  { incr x 3 }
-	    if { $z%12 == 3 }  { incr x 3; incr y 1 }
-	    if { $z%12 == 4 }  { incr x 3; incr y 2 }
-	    if { $z%12 == 5 }  { incr x 3; incr y 3 }
-	    if { $z%12 == 6 }  { incr x 2; incr y 3 }
-	    if { $z%12 == 7 }  { incr x 1; incr y 3 }
-	    if { $z%12 == 8 }  { incr y 3 }
-	    if { $z%12 == 9 }  { incr y 2 }
-	    if { $z%12 == 10 } { incr y 1 }
+	    if { [expr $z % 12] == 0 }  { incr x 1; }
+	    if { [expr $z % 12] == 1 }  { incr x 2 }
+	    if { [expr $z % 12] == 2 }  { incr x 3 }
+	    if { [expr $z % 12] == 3 }  { incr x 3; incr y 1 }
+	    if { [expr $z % 12] == 4 }  { incr x 3; incr y 2 }
+	    if { [expr $z % 12] == 5 }  { incr x 3; incr y 3 }
+	    if { [expr $z % 12] == 6 }  { incr x 2; incr y 3 }
+	    if { [expr $z % 12] == 7 }  { incr x 1; incr y 3 }
+	    if { [expr $z % 12] == 8 }  { incr y 3 }
+	    if { [expr $z % 12] == 9 }  { incr y 2 }
+	    if { [expr $z % 12] == 10 } { incr y 1 }
 	    
-	    if { !(($xtraX == 30 || $xtraY == 30) && ($xtraX != $xtraY)) } {
+	    if { [expr ($xtraX != 30 && $xtraY != 30) || ($xtraX == $xtraY)] } {
 		polys InsertNextCell 4
 		points InsertPoint $i [expr $x +  0] [expr $y +  0] $z
 		polys InsertCellPoint $i
@@ -70,7 +70,7 @@ for { set z -5 } { $z < 30 } { incr z } {
 		incr i
 	    }
 	    
-	    if { $xtraX != 30 || $xtraY != 30 } {
+	    if { [expr $xtraX != 30 || $xtraY != 30]} {
 		polys InsertNextCell 4
 		points InsertPoint $i [expr $x +  8] [expr $y +  8] $z
 		polys InsertCellPoint $i

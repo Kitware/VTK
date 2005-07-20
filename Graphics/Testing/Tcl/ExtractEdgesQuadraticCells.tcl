@@ -236,7 +236,7 @@ vtkQuadraticWedge aWedge
   [aWedge GetPointIds] SetId 14 14
   #aWedge DebugOn
   
-  puts aWedge
+#puts aWedge
   
 vtkUnstructuredGrid aWedgeGrid
   aWedgeGrid Allocate 1 1
@@ -291,7 +291,7 @@ vtkQuadraticPyramid aPyramid
   [aPyramid GetPointIds] SetId 12 12
   #aPyramid DebugOn
   
-  puts aPyramid
+#puts aPyramid
   
 vtkUnstructuredGrid aPyraGrid
   aPyraGrid Allocate 1 1

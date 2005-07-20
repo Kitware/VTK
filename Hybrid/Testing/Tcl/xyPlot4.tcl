@@ -139,11 +139,11 @@ vtkXYPlotActor xyplot2
     xyplot2 SetLabelFormat [xyplot GetLabelFormat]
 
 vtkXYPlotActor xyplot3
-    xyplot3 AddInput [probe GetOutput] Momentum 0
-    xyplot3 AddInput [probe GetOutput] Density 0
-    xyplot3 AddInput [probe GetOutput] Momentum 1
-    xyplot3 AddInput [probe GetOutput] Momentum 2
-    xyplot3 RemoveInput [probe GetOutput] Density 0
+    xyplot3 AddInput [probe GetOutput] "Momentum" 0
+    xyplot3 AddInput [probe GetOutput] "Density" 0
+    xyplot3 AddInput [probe GetOutput] "Momentum" 1
+    xyplot3 AddInput [probe GetOutput] "Momentum" 2
+    xyplot3 RemoveInput [probe GetOutput] "Density" 0
     xyplot3 SetPlotLabel 0 "Mx"
     xyplot3 SetPlotColor 0 1 0 0
     xyplot3 SetPlotLabel 1 "My"

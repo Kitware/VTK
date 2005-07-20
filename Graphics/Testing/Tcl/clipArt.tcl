@@ -42,29 +42,25 @@ vtkImageExtractComponents extractImage
   extractImage SetComponents 2
   extractImage ReleaseDataFlagOff
 
-vtkImageThreshold threshold
-  threshold SetInputConnection [extractImage GetOutputPort]
-  threshold ThresholdByUpper 230
-  threshold SetInValue 255
-  threshold SetOutValue 0
-  threshold Update
+vtkImageThreshold threshold1
+  threshold1 SetInputConnection [extractImage GetOutputPort]
+  threshold1 ThresholdByUpper 230
+  threshold1 SetInValue 255
+  threshold1 SetOutValue 0
+  threshold1 Update
 
 
-set extent [[threshold GetOutput] GetWholeExtent]
-set seed1 "[lindex $extent 0] [lindex $extent 2]"
-set seed2 "[lindex $extent 1] [lindex $extent 2]"
-set seed3 "[lindex $extent 1] [lindex $extent 3]"
-set seed4 "[lindex $extent 0] [lindex $extent 3]"
+set extent [[threshold1 GetOutput] GetWholeExtent]
 
 vtkImageSeedConnectivity connect
-  connect SetInputConnection [threshold GetOutputPort]
+  connect SetInputConnection [threshold1 GetOutputPort]
   connect SetInputConnectValue 255
   connect SetOutputConnectedValue 255
   connect SetOutputUnconnectedValue 0
-  eval connect AddSeed $seed1
-  eval connect AddSeed $seed2
-  eval connect AddSeed $seed3
-  eval connect AddSeed $seed4
+  connect AddSeed [lindex $extent 0] [lindex $extent 2]
+  connect AddSeed [lindex $extent 1] [lindex $extent 2] 
+  connect AddSeed [lindex $extent 1] [lindex $extent 3]
+  connect AddSeed [lindex $extent 0] [lindex $extent 3]
 
 vtkImageGaussianSmooth smooth
   smooth SetDimensionality 2

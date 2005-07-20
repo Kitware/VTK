@@ -20,7 +20,7 @@ vtkPLOT3DReader pl3d
 
 vtkSplitField sf
     sf SetInputConnection [pl3d GetOutputPort]
-    sf SetInputField VECTORS POINT_DATA
+    sf SetInputField "VECTORS" "POINT_DATA"
     sf Split 0 "vx"
     sf Split 1 "vy"
     sf Split 2 "vz"
@@ -29,7 +29,7 @@ sf Print
 
 vtkAssignAttribute aax
    aax SetInputConnection [sf GetOutputPort]
-   aax Assign vx SCALARS POINT_DATA
+   aax Assign "vx" "SCALARS" "POINT_DATA"
 vtkContourFilter isoVx
     isoVx SetInputConnection [aax GetOutputPort]
     isoVx SetValue 0 .38
@@ -46,7 +46,7 @@ vtkActor isoVxActor
 
 vtkAssignAttribute aay
    aay SetInputConnection [sf GetOutputPort]
-   aay Assign vy SCALARS POINT_DATA
+   aay Assign "vy" "SCALARS" "POINT_DATA"
 vtkContourFilter isoVy
     isoVy SetInputConnection [aay GetOutputPort]
     isoVy SetValue 0 .38
@@ -63,7 +63,7 @@ vtkActor isoVyActor
 
 vtkAssignAttribute aaz
    aaz SetInputConnection [sf GetOutputPort]
-   aaz Assign vz SCALARS POINT_DATA
+   aaz Assign "vz" "SCALARS" "POINT_DATA"
 vtkContourFilter isoVz
     isoVz SetInputConnection [aaz GetOutputPort]
     isoVz SetValue 0 .38
@@ -80,20 +80,20 @@ vtkActor isoVzActor
 
 vtkMergeFields mf
    mf SetInputConnection [sf GetOutputPort]
-   mf SetOutputField merged POINT_DATA
+   mf SetOutputField "merged" "POINT_DATA"
    mf SetNumberOfComponents 3
-   mf Merge 0 vy 0
-   mf Merge 1 vz 0
-   mf Merge 2 vx 0
+   mf Merge 0 "vy" 0
+   mf Merge 1 "vz" 0
+   mf Merge 2 "vx" 0
 
 mf Print
 
 vtkAssignAttribute aa
    aa SetInputConnection [mf GetOutputPort]
-   aa Assign merged SCALARS POINT_DATA
+   aa Assign "merged" "SCALARS" "POINT_DATA"
 vtkAssignAttribute aa2
    aa2 SetInputConnection [aa GetOutputPort]
-   aa2 Assign SCALARS VECTORS POINT_DATA
+   aa2 Assign "SCALARS" "VECTORS" "POINT_DATA"
 vtkStreamLine sl
    sl SetInputConnection [aa2 GetOutputPort]
    sl SetStartPosition 2 -2 26

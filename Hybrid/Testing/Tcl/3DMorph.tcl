@@ -6,15 +6,15 @@ package require vtktesting
 #
 # make the letter v
 vtkVectorText letterV
-  letterV SetText v
+  letterV SetText "v"
 
 # read the geometry file containing the letter t
 vtkVectorText letterT
-  letterT SetText t
+  letterT SetText "t"
 
 # read the geometry file containing the letter k
 vtkVectorText letterK
-  letterK SetText k
+  letterK SetText "k"
 
 # create implicit models of each
 vtkImplicitModeller blobbyV

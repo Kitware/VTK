@@ -12,7 +12,7 @@ vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
 
 # we must be able to write here
-if {[catch {set channel [open UGridField.vtk w]}] == 0 } {
+if {[catch {set channel [open "UGridField.vtk" "w"]}] == 0 } {
    close $channel
 
 vtkDataObjectWriter write
@@ -26,19 +26,19 @@ vtkDataObjectReader dor
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToUnstructuredGrid
-    do2ds SetPointComponent 0 Points 0 
-    do2ds SetPointComponent 1 Points 1 
-    do2ds SetPointComponent 2 Points 2 
-    do2ds SetCellTypeComponent CellTypes 0
-    do2ds SetCellConnectivityComponent Cells 0
+    do2ds SetPointComponent 0 "Points" 0 
+    do2ds SetPointComponent 1 "Points" 1 
+    do2ds SetPointComponent 2 "Points" 2 
+    do2ds SetCellTypeComponent "CellTypes" 0
+    do2ds SetCellConnectivityComponent "Cells" 0
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetUnstructuredGridOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetVectorComponent 0 displacement9 0 
-    fd2ad SetVectorComponent 1 displacement9 1 
-    fd2ad SetVectorComponent 2 displacement9 2 
-    fd2ad SetScalarComponent 0 thickness9 0 
+    fd2ad SetVectorComponent 0 "displacement9" 0 
+    fd2ad SetVectorComponent 1 "displacement9" 1 
+    fd2ad SetVectorComponent 2 "displacement9" 2 
+    fd2ad SetScalarComponent 0 "thickness9" 0 
     
 # Now start visualizing
 vtkWarpVector warp
@@ -105,8 +105,8 @@ renWin SetSize 375 200
 
 iren Initialize
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
-if {[info commands rtExMath] != ""} { 
-    file delete -force UGridField.vtk
+if {[info commands "rtExMath"] != ""} { 
+    file delete -force "UGridField.vtk"
 }
 }
 

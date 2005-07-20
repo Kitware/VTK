@@ -9,14 +9,14 @@ vtkPointSource sphere
 
 # triangulate the points
 #
-vtkDelaunay3D del
-  del SetInputConnection [sphere GetOutputPort]
-  del SetTolerance 0.01
+vtkDelaunay3D del1
+  del1 SetInputConnection [sphere GetOutputPort]
+  del1 SetTolerance 0.01
     
 # texture map the sphere (using cylindrical coordinate system)
 #
 vtkTextureMapToCylinder tmapper
-  tmapper SetInputConnection [del GetOutputPort]
+  tmapper SetInputConnection [del1 GetOutputPort]
   tmapper PreventSeamOn
 
 vtkTransformTextureCoords xform

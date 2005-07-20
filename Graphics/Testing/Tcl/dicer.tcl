@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 # create pipeline
 #
 vtkSTLReader reader
-    reader SetFileName $VTK_DATA_ROOT/Data/42400-IDGH.stl
+    reader SetFileName "$VTK_DATA_ROOT/Data/42400-IDGH.stl"
 vtkOBBDicer dicer
     dicer SetInputConnection [reader GetOutputPort]
     dicer SetNumberOfPointsPerPiece 1000

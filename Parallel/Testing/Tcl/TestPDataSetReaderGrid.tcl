@@ -16,9 +16,9 @@ vtkRenderWindowInteractor iren
 # If the current directory is writable, then test the witers
 #
 
-if {[catch {set channel [open test.tmp w]}] == 0 } {
+if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
    close $channel
-   file delete -force test.tmp
+   file delete -force "test.tmp"
 
   # ====== Structured Grid ======
   # First save out a grid in parallel form.
@@ -41,11 +41,11 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     mapper SetGhostLevel 1
     mapper Update
 
-  file delete -force comb.pvtk
-  file delete -force comb.0.vtk
-  file delete -force comb.1.vtk
-  file delete -force comb.2.vtk
-  file delete -force comb.3.vtk
+  file delete -force "comb.pvtk"
+  file delete -force "comb.0.vtk"
+  file delete -force "comb.1.vtk"
+  file delete -force "comb.2.vtk"
+  file delete -force "comb.3.vtk"
 
   vtkActor actor
     actor SetMapper mapper
@@ -84,11 +84,11 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     mapper2 SetGhostLevel 0
     mapper2 Update
 
-  file delete -force fractal.pvtk
-  file delete -force fractal.0.vtk
-  file delete -force fractal.1.vtk
-  file delete -force fractal.2.vtk
-  file delete -force fractal.3.vtk
+  file delete -force "fractal.pvtk"
+  file delete -force "fractal.0.vtk"
+  file delete -force "fractal.1.vtk"
+  file delete -force "fractal.2.vtk"
+  file delete -force "fractal.3.vtk"
 
   vtkActor actor2
     actor2 SetMapper mapper2
@@ -122,11 +122,11 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     mapper3 SetGhostLevel 1
     mapper3 Update
 
-  file delete -force sphere.pvtk
-  file delete -force sphere.0.vtk
-  file delete -force sphere.1.vtk
-  file delete -force sphere.2.vtk
-  file delete -force sphere.3.vtk
+  file delete -force "sphere.pvtk"
+  file delete -force "sphere.0.vtk"
+  file delete -force "sphere.1.vtk"
+  file delete -force "sphere.2.vtk"
+  file delete -force "sphere.3.vtk"
 
   vtkActor actor3
     actor3 SetMapper mapper3

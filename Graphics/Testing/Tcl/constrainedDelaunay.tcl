@@ -97,17 +97,17 @@ vtkPolyData polyData
 
 # triangulate them
 #
-vtkDelaunay2D del
-    del SetInput polyData
-    del SetSource polyData
+vtkDelaunay2D del1
+    del1 SetInput polyData
+    del1 SetSource polyData
 vtkPolyDataMapper mapMesh
-    mapMesh SetInputConnection [del GetOutputPort]
+    mapMesh SetInputConnection [del1 GetOutputPort]
 vtkActor meshActor
     meshActor SetMapper mapMesh
 
 # tubes around mesh
 vtkExtractEdges extract
-    extract SetInputConnection [del GetOutputPort]
+    extract SetInputConnection [del1 GetOutputPort]
 vtkTubeFilter tubes
     tubes SetInputConnection [extract GetOutputPort]
     tubes SetRadius 0.1

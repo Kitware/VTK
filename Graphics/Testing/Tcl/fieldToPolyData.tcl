@@ -11,7 +11,7 @@ vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/polyEx.vtk"
 vtkDataSetToDataObjectFilter ds2do
     ds2do SetInputConnection [reader GetOutputPort]
-if {[catch {set channel [open PolyField.vtk w]}] == 0 } {
+if {[catch {set channel [open "PolyField.vtk" "w"]}] == 0 } {
    close $channel
    vtkDataObjectWriter writer
     writer SetInputConnection [ds2do GetOutputPort]
@@ -25,15 +25,15 @@ vtkDataObjectReader dor
 vtkDataObjectToDataSetFilter do2ds
     do2ds SetInputConnection [dor GetOutputPort]
     do2ds SetDataSetTypeToPolyData
-    do2ds SetPointComponent 0 Points 0 
-    do2ds SetPointComponent 1 Points 1 
-    do2ds SetPointComponent 2 Points 2 
-    do2ds SetPolysComponent Polys 0
+    do2ds SetPointComponent 0 "Points" 0 
+    do2ds SetPointComponent 1 "Points" 1 
+    do2ds SetPointComponent 2 "Points" 2 
+    do2ds SetPolysComponent "Polys" 0
 vtkFieldDataToAttributeDataFilter fd2ad
     fd2ad SetInput [do2ds GetPolyDataOutput]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
-    fd2ad SetScalarComponent 0 my_scalars 0 
+    fd2ad SetScalarComponent 0 "my_scalars" 0 
 
 vtkPolyDataMapper mapper
     mapper SetInput [fd2ad GetPolyDataOutput]
@@ -62,8 +62,8 @@ $cam1 Azimuth 90
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
-if {[info commands rtExMath] != ""} { 
-    file delete -force PolyField.vtk
+if {[info commands "rtExMath"] != ""} { 
+    file delete -force "PolyField.vtk"
 }
 }
 # prevent the tk window from showing up then start the event loop
