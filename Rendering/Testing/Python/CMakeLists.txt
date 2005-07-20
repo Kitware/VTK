@@ -71,7 +71,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -A "${LIBRARY_OUTPUT_PATH}"
           )
       ENDFOREACH( tfile ) 
-      ADD_CUSTOM_TARGET(converted_tests ALL DEPENDS ${CONVERTED_TESTS}) 
+      ADD_CUSTOM_TARGET(RenderingPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
 
       
     ENDIF (VTK_PYTHON_EXE)
