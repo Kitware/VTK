@@ -42,7 +42,7 @@
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.105");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper, "1.106");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #endif
 
@@ -60,7 +60,8 @@ vtkStandardNewMacro(vtkOpenGLPolyDataMapper);
 #define VTK_PDM_TCOORD_TYPE_DOUBLE 0x400
 #define VTK_PDM_TCOORD_1D          0x800
 #define VTK_PDM_OPAQUE_COLORS      0x1000
-
+#define VTK_PDM_USE_FIELD_DATA     0x2000
+      
 // Construct empty object.
 vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
 {
@@ -1274,6 +1275,7 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
     int j;
     vtkIdType nPts = 0;
     unsigned short count = 0;
+    unsigned long coloroffset = cellNum;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(nPts,ptIds); 
          count++)
       { 
@@ -1284,7 +1286,12 @@ void vtkOpenGLPolyDataMapper::DrawTStrips(int idx,
         {
         if (c)
           {
-          if (idx & VTK_PDM_CELL_COLORS)
+          if ( (idx & VTK_PDM_USE_FIELD_DATA) && j>=2 )
+            {
+            glColor4ubv(c->GetPointer(coloroffset << 2));
+            coloroffset++;
+            }
+          else if (idx & VTK_PDM_CELL_COLORS)
             {
             glColor4ubv(c->GetPointer(cellNum << 2));
             }
@@ -1460,6 +1467,7 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
     int j;
     vtkIdType nPts = 0;
     int count = 0;
+    unsigned long coloroffset = cellNum;
     for (ca->InitTraversal(); noAbort && ca->GetNextCell(nPts,ptIds); 
          count++)
       { 
@@ -1468,7 +1476,11 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
         {
         if (c)
           {
-          if (idx & VTK_PDM_CELL_COLORS)
+          if ( (idx & VTK_PDM_USE_FIELD_DATA) && j >= 2)
+            {
+            glColor4ubv(c->GetPointer((coloroffset+j) << 2));
+            }
+          else if (idx & VTK_PDM_CELL_COLORS)
             {
             glColor4ubv(c->GetPointer(cellNum << 2));
             }
@@ -1522,7 +1534,11 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
         {
         if (c)
           {
-          if (idx & VTK_PDM_CELL_COLORS)
+          if ( (idx & VTK_PDM_USE_FIELD_DATA) && j >= 2)
+            {
+            glColor4ubv(c->GetPointer((coloroffset+j) << 2));
+            }
+          else if (idx & VTK_PDM_CELL_COLORS)
             {
             glColor4ubv(c->GetPointer(cellNum << 2));
             }
@@ -1581,6 +1597,7 @@ void vtkOpenGLPolyDataMapperDrawTStripLines(int idx,
           }
         }
       ++cellNum;
+      coloroffset += (nPts >= 2)? (nPts - 2) : 0;
       }
     }  
     }
@@ -1633,6 +1650,7 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     c = this->Colors;
     if ( (this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA ||
           this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA ||
+          this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA ||
           !input->GetPointData()->GetScalars() )
          && this->ScalarMode != VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
       {
@@ -1709,7 +1727,11 @@ int vtkOpenGLPolyDataMapper::Draw(vtkRenderer *aren, vtkActor *act)
     {
     idx |= VTK_PDM_CELL_NORMALS;
     }
-  
+  if (this->ScalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA)
+    {
+    idx |= VTK_PDM_USE_FIELD_DATA;
+    }
+
   // store the types in the index
   if (p->GetDataType() == VTK_FLOAT)
     {

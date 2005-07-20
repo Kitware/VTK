@@ -26,6 +26,18 @@
 //
 // The ivar MaximumLength can be used to control the maximum
 // allowable triangle strip and poly-line length.
+//
+// By default, this filter discards any cell data associated with the input.
+// Thus is because the cell structure changes and and the old cell data
+// is no longer valid. When PassCellDataAsFieldData flag is set,
+// the cell data is passed as FieldData to the output using the following rule:
+// 1) for every cell in the output that is not a triangle strip,
+//    the cell data is inserted once per cell in the output field data.
+// 2) for every triangle strip cell in the output:
+//    ii) 1 tuple is inserted for every point(j|j>=2) in the strip. 
+//    This is the cell data for the cell formed by (j-2, j-1, j) in 
+//    the input.
+// The field data order is same as cell data i.e. (verts,line,polys,tsrips).
 
 // .SECTION Caveats
 // If triangle strips or poly-lines exist in the input data they will
@@ -57,6 +69,13 @@ public:
   vtkSetClampMacro(MaximumLength,int,4,100000);
   vtkGetMacro(MaximumLength,int);
 
+  // Description:
+  // Enable/Disable passing of the CellData in the input to
+  // the output as FieldData. Note the field data is tranformed.
+  vtkBooleanMacro(PassCellDataAsFieldData, int);
+  vtkSetMacro(PassCellDataAsFieldData, int);
+  vtkGetMacro(PassCellDataAsFieldData, int);
+
 protected:
   vtkStripper();
   ~vtkStripper() {}
@@ -65,6 +84,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int MaximumLength;
+  int PassCellDataAsFieldData;
 
 private:
   vtkStripper(const vtkStripper&);  // Not implemented.

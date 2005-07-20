@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAbstractMapper, "1.3");
+vtkCxxRevisionMacro(vtkAbstractMapper, "1.4");
 
 vtkCxxSetObjectMacro(vtkAbstractMapper,ClippingPlanes,vtkPlaneCollection);
 
@@ -122,6 +122,7 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
   vtkDataArray *scalars=NULL;
   vtkPointData *pd;
   vtkCellData *cd;
+  vtkFieldData *fd;
   
   // make sure we have an input
   if ( !input )
@@ -173,6 +174,19 @@ vtkDataArray *vtkAbstractMapper::GetScalars(vtkDataSet *input,
     else
       {
       scalars = cd->GetArray(arrayName);
+      }
+    cellFlag = 1;
+    }
+  else if ( scalarMode == VTK_SCALAR_MODE_USE_FIELD_DATA )
+    {
+    fd = input->GetFieldData();
+    if (arrayAccessMode == VTK_GET_ARRAY_BY_ID)
+      {
+      scalars = fd->GetArray(arrayId);
+      }
+    else
+      {
+      scalars = fd->GetArray(arrayName);
       }
     cellFlag = 1;
     }

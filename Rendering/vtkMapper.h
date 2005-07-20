@@ -204,6 +204,11 @@ public:
   // (ScalarModeToUseCellFieldData).  If scalars are coming from a field
   // data array, you must call SelectColorArray before you call
   // GetColors.
+  // When ScalarMode is set to use Field Data (ScalarModeToFieldData), you 
+  // must call SelectColorArray to choose the field data array to be used to
+  // color cells. In this mode, if the poly data has triangle strips, 
+  // the field data is treated as the celldata for each mini-cell formed by
+  // a triangle in the strip rather than the entire strip.
   vtkSetMacro(ScalarMode,int);
   vtkGetMacro(ScalarMode,int);
   void SetScalarModeToDefault() {
@@ -216,6 +221,8 @@ public:
     this->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);};
   void SetScalarModeToUseCellFieldData() {
     this->SetScalarMode(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);};
+  void SetScalarModeToUseFieldData() {
+    this->SetScalarMode(VTK_SCALAR_MODE_USE_FIELD_DATA); }
   
   // Description:
   // When ScalarMode is set to UsePointFileData or UseCellFieldData,
