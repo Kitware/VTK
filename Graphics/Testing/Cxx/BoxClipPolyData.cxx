@@ -228,7 +228,7 @@ int BoxClipPolyData(int argc, char *argv[])
 
   // The render window.
   VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->SetSize(800, 800);
+  renwin->SetSize(740, 740);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
