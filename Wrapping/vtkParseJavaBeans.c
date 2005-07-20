@@ -53,6 +53,7 @@ void output_temp(FILE *fp,int i)
       case 0xB:   fprintf(fp,"int "); break;
       case 0xC:   fprintf(fp,"int "); break;
       case 0x2:     fprintf(fp,"void "); break;
+      case 0xD:   fprintf(fp,"char "); break;
       case 0x3:     fprintf(fp,"char "); break;
       case 0x9:     fprintf(fp,"%s ",currentFunction->ArgClasses[i]); break;
       case 0x8: return;
@@ -91,7 +92,7 @@ void return_result(FILE *fp)
     case 0x301: case 0x307:
       fprintf(fp,"double[] "); 
       break;
-    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C:
+    case 0x304: case 0x305: case 0x306: case 0x30A: case 0x30B: case 0x30C: case 0x30D:
     case 0x313: case 0x314: case 0x315: case 0x316: case 0x31A: case 0x31B: case 0x31C:
       fprintf(fp,"int[]  "); break;
     }

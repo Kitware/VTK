@@ -163,6 +163,8 @@ Modify lex.yy.c:
 
 "__int64"  return(INT64__);
 
+"signed"[\t\n\r ]*"char"  return(SIGNED_CHAR);
+
 "class"		return(CLASS);
 "public"  	return(PUBLIC);
 "private"  	return(PRIVATE);

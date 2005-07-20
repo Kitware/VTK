@@ -163,6 +163,7 @@ char *vtkstrdup(const char *in)
 %token DOUBLE
 %token VOID
 %token CHAR
+%token SIGNED_CHAR
 %token CLASS_REF
 %token OTHER
 %token CONST
@@ -429,7 +430,8 @@ type_primitive:
     } |
   IdType { postSig("vtkIdType "); $<integer>$ = 0xA;} |
   LONG_LONG { postSig("long long "); $<integer>$ = 0xB;} |
-  INT64__ { postSig("__int64 "); $<integer>$ = 0xC;};
+  INT64__ { postSig("__int64 "); $<integer>$ = 0xC;} |
+  SIGNED_CHAR { postSig("signed char "); $<integer>$ = 0xD;};
 
 optional_scope: | ':' scope_list;
 

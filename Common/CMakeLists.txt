@@ -250,7 +250,6 @@ SET_SOURCE_FILES_PROPERTIES(
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
-  vtkSignedCharArray.cxx
   vtkSmartPointerBase.cxx
   vtkStdString.cxx
   vtkTimeStamp.cxx
