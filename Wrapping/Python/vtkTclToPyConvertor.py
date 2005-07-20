@@ -23,9 +23,6 @@ for i in range(0, len(sys.argv)):
 import vtkTclParser
 import vtkpython
 
-sys.path.append("/home/utkarsh/Kitware/VTK/VTKBin/Wrapping/Python")
-sys.path.append("/home/utkarsh/Kitware/VTK/VTKBin/bin")
-
 reVariable = re.compile("^([+\-])?\$([^\$\{\}]+)$")
 reCompoundVariable = re.compile("\$(?:([^\$\}\{]+)|\{([^\$\}]+)\})")
 

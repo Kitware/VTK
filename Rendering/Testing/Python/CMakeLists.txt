@@ -56,6 +56,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ARGS ${CONVERTER_SCRIPT}
             "-i" "${input}" "-o" "${output}" 
             "-A" "${VTK_BINARY_DIR}/Wrapping/Python" "-A" "${LIBRARY_OUTPUT_PATH}"
+            -A "${LIBRARY_OUTPUT_PATH}/Debug"
+            -A "${LIBRARY_OUTPUT_PATH}/Release"
           DEPENDS "${input}" "${CONVERTER_SCRIPT}"
           COMMENT "Converting Tcl test"
           )

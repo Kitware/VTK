@@ -84,6 +84,8 @@ IF (VTK_PYTHON_EXE)
         -V Baseline/Parallel/${tfile}.png
         -A "${VTK_BINARY_DIR}/Wrapping/Python" 
         -A "${LIBRARY_OUTPUT_PATH}"
+        -A "${LIBRARY_OUTPUT_PATH}/Debug"
+        -A "${LIBRARY_OUTPUT_PATH}/Release"
         )
     ENDFOREACH( tfile )      
   ENDIF (VTK_DATA_ROOT)

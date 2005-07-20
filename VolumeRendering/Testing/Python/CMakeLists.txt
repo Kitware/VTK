@@ -45,6 +45,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -V Baseline/VolumeRendering/${tfile}.png
           -A "${VTK_BINARY_DIR}/Wrapping/Python" 
           -A "${LIBRARY_OUTPUT_PATH}"
+          -A "${LIBRARY_OUTPUT_PATH}/Debug"
+          -A "${LIBRARY_OUTPUT_PATH}/Release"
           )
       ENDFOREACH( tfile ) 
       ADD_CUSTOM_TARGET(VolumeRenderingPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
