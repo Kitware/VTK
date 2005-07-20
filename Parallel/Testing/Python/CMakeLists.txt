@@ -88,4 +88,6 @@ IF (VTK_PYTHON_EXE)
     ENDFOREACH( tfile )      
   ENDIF (VTK_DATA_ROOT)
   ADD_CUSTOM_TARGET(ParallelPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
+  ADD_DEPENDENCIES(ParallelPythonTests vtkpython_pyc)
+
 ENDIF (VTK_PYTHON_EXE)

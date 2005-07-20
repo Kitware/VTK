@@ -72,6 +72,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           )
       ENDFOREACH( tfile ) 
       ADD_CUSTOM_TARGET(RenderingPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
+      ADD_DEPENDENCIES(RenderingPythonTests vtkpython_pyc)
 
       
     ENDIF (VTK_PYTHON_EXE)
