@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLImageDataReader, "1.11");
 vtkStandardNewMacro(vtkXMLImageDataReader);
 
 //----------------------------------------------------------------------------
@@ -127,10 +127,6 @@ void vtkXMLImageDataReader::CopyOutputInformation(vtkInformation *outInfo, int p
   if ( localInfo->Has(vtkDataObject::SPACING()) )
     {
     outInfo->CopyEntry( localInfo, vtkDataObject::SPACING() );
-    }
-  if ( localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()) )
-    {
-    outInfo->CopyEntry( localInfo, vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT() );
     }
 }
 
