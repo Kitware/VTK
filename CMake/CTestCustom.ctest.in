@@ -25,5 +25,6 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   )
 
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
+  ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
   "vtk.*TCLInit.cxx"
-  "vtk[^\\.]*Tcl.cxx")
+  "vtk[^\\.]+Tcl.cxx")
