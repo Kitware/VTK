@@ -23,7 +23,7 @@
 #include "vtkCellData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkStripper, "1.69");
+vtkCxxRevisionMacro(vtkStripper, "1.70");
 vtkStandardNewMacro(vtkStripper);
 
 // Construct object with MaximumLength set to 1000.
@@ -134,18 +134,19 @@ int vtkStripper::RequestData(
     {
     newStrips = vtkCellArray::New();
     newStrips->Allocate(newStrips->EstimateSize(numCells,6));
+    cellId = inNumVerts + inNumLines + inNumPolys;
     for(inStrips->InitTraversal();
         inStrips->GetNextCell(numStripPts,stripPts); )
       {
       newStrips->InsertNextCell(numStripPts,stripPts);
       if (this->PassCellDataAsFieldData)
         {
-        cellId = inNumVerts + inNumLines + inNumPolys + 2;
-        for (vtkIdType i=2; i < numStripPts; i++, cellId++)
+        for (i=2; i < numStripPts; i++)
           {
           newfdStrips->InsertNextTuple(cd->GetTuple(cellId));
           }
         }
+      cellId++;
       }
     // These are for passing through non-triangle polygons
     newPolys = vtkCellArray::New();
@@ -445,7 +446,7 @@ int vtkStripper::RequestData(
   if (this->PassCellDataAsFieldData)
     {
     cellId = 0;
-    int i, max;
+    int max;
     for (i=0; i < inNumVerts; i++, cellId++)
       {
       newfd->InsertNextTuple(cd->GetTuple(cellId));
