@@ -138,8 +138,6 @@ ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 # *** Step 1 has to be done carefully to avoid missing out files ***
 
 IF(PYTHON_EXECUTABLE)
-  ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "...")
-
 # Make the necessary directories.
   FOREACH(dir
     ${VTK_BINARY_DIR}/Wrapping/Python/vtk/gtk
@@ -265,11 +263,10 @@ IF(PYTHON_EXECUTABLE)
     FOREACH(file ${VTK_PYTHON_FILES})
       SET(src "${VTK_SOURCE_DIR}/Wrapping/Python/${file}.py")
       SET(tgt "${VTK_BINARY_DIR}/Wrapping/Python/${file}.py")
-      ADD_CUSTOM_COMMAND(SOURCE ${src}
+      ADD_CUSTOM_COMMAND(DEPENDS ${src}
                          COMMAND ${CMAKE_COMMAND}
                          ARGS -E copy ${src} ${tgt}
-                         OUTPUTS ${tgt}
-                         TARGET vtkpython_pyc
+                         OUTPUT ${tgt}
                          COMMENT "source copy")
     ENDFOREACH(file)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
@@ -284,20 +281,14 @@ IF(PYTHON_EXECUTABLE)
         "file.write('Done')\n")
 
   ADD_CUSTOM_COMMAND(
-    SOURCE ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
-    DEPENDS ${VTK_PYTHON_SOURCE_FILES}
-    OUTPUTS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
-    TARGET vtkpython_pyc
+    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
+    OUTPUT "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
     )
 
-  ADD_CUSTOM_COMMAND(
-    SOURCE vtkpython_pyc
-    DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
-    TARGET vtkpython_pyc
-    )
-
+  ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "..."
+    DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete")
 ENDIF(PYTHON_EXECUTABLE)
 
 # Allow the user to customize their build with some local options
