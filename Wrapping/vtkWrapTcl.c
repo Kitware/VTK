@@ -303,6 +303,7 @@ void return_result(FILE *fp)
 #ifndef VTK_USE_64BIT_IDS
     case 0xA:
 #endif
+    case 0xD:
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%i\",temp%i);\n",
               MAX_ARGS); 

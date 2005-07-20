@@ -55,6 +55,7 @@ void use_hints(FILE *fp)
       fprintf(fp,");\n");
       break;
     case 0x304:
+    case 0x30D:
       fprintf(fp,"    return Py_BuildValue((char*)\"");
       for (i = 0; i < currentFunction->HintSize; i++) fprintf(fp,"i");
       fprintf(fp,"\"");
