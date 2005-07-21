@@ -59,7 +59,6 @@ vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
-vtkExodusIIWriter.cxx
 vtkExtractCTHPart.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
@@ -95,6 +94,12 @@ vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
 )
+
+IF(VTK_HAS_EXODUS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkExodusIIWriter.cxx
+    )
+ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkParallelRenderManager

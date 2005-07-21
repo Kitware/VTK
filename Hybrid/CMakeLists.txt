@@ -21,11 +21,6 @@ IF (WIN32)
 ENDIF (WIN32)
 
 SET ( Kit_SRCS
-vtkPExodusReader.cxx
-vtkExodusReader.cxx
-vtkDSPFilterDefinition.cxx
-vtkExodusModel.cxx
-vtkDSPFilterGroup.cxx
 vtk3DSImporter.cxx
 vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx
@@ -59,6 +54,15 @@ vtkVideoSource.cxx
 vtkWeightedTransformFilter.cxx
 vtkXYPlotActor.cxx
 )
+IF(VTK_HAS_EXODUS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkPExodusReader.cxx
+    vtkExodusReader.cxx
+    vtkDSPFilterDefinition.cxx
+    vtkExodusModel.cxx
+    vtkDSPFilterGroup.cxx
+    )
+ENDIF(VTK_HAS_EXODUS)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
