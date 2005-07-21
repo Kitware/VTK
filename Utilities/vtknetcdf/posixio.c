@@ -305,6 +305,8 @@ px_rel(ncio_px *const pxp, off_t offset, int rflags)
   assert(pIf(fIsSet(rflags, RGN_MODIFIED),
     fIsSet(pxp->bf_rflags, RGN_WRITE)));
 
+  (void)offset;
+
   if(fIsSet(rflags, RGN_MODIFIED))
   {
     fSet(pxp->bf_rflags, RGN_MODIFIED);
@@ -830,6 +832,8 @@ ncio_spx_rel(ncio *const nciop, off_t offset, int rflags)
 {
   ncio_spx *const pxp = (ncio_spx *)nciop->pvt;
   int status = ENOERR;
+
+  (void)offset;
 
   assert(pxp->bf_offset <= offset);
   assert(pxp->bf_cnt != 0);

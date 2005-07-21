@@ -452,6 +452,7 @@ int ex_put_concat_elem_block (int    exoid,
               exoid);
       ex_err("ex_put_elem_block",errmsg,exerrval);
     }
+  (void)mapid;
   return (EX_FATAL);
 }
 
