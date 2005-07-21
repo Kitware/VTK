@@ -1364,7 +1364,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.1");
+vtkCxxRevisionMacro(vtkExodusReader, "1.2");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -3706,8 +3706,37 @@ void vtkExodusReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "GenerateGlobalNodeIdArray: Off\n";
     }  
   
+  if (this->PackExodusModelOntoOutput )
+    {
+    os << indent << "PackExodusModelOntoOutput: On\n";
+    }
+  else
+    {
+    os << indent << "PackExodusModelOntoOutput: Off\n";
+    }  
+  
+  if (this->ApplyDisplacements)
+    {
+    os << indent << "ApplyDisplacements: On\n";
+    }
+  else
+    {
+    os << indent << "ApplyDisplacements: Off\n";
+    }  
+  
+  if (this->ExodusModelMetadata)
+    {
+    os << indent << "ExodusModelMetadata: On\n";
+    }
+  else
+    {
+    os << indent << "ExodusModelMetadata: Off\n";
+    }  
+  
   os << indent << "File Name: " 
      << (this->FileName ? this->FileName : "(none)") << "\n";
+  os << indent << "XML File Name: " 
+     << (this->XMLFileName ? this->XMLFileName : "(none)") << "\n";
   os << indent << "Title: " 
      << (this->Title ? this->Title : "(none)") << "\n";
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
@@ -3750,7 +3779,12 @@ void vtkExodusReader::PrintSelf(ostream& os, vtkIndent indent)
       }
     os << endl;
     }
-  os << indent << "Timestep: " << this->TimeStep << endl;
+  os << indent << "NumberOfSideSets: " << this->NumberOfSideSets << "\n";
+  os << indent << "NumberOfNodeSets: " << this->NumberOfNodeSets << "\n";
+  os << indent << "TimeStep: " << this->TimeStep << endl;
+  os << indent << "TimeStepRange: " << this->TimeStepRange[0] << " " << this->TimeStepRange[1] << endl;
+  os << indent << "DisplacementMagnitude: " << this->DisplacementMagnitude << "\n";
+  os << indent << "DisplayType: " << this->DisplayType << "\n";
 }
 
 

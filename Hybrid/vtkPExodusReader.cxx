@@ -51,7 +51,7 @@
 #define DEBUG 0
 #define MAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.1");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.2");
 vtkStandardNewMacro(vtkPExodusReader);
 
 //----------------------------------------------------------------------------
@@ -806,6 +806,7 @@ void vtkPExodusReader::PrintSelf(ostream& os, vtkIndent indent)
      << this->FileRange[0] << " " << this->FileRange[1] << endl;
 
   os << indent << "GenerateFileIdArray: " << this->GenerateFileIdArray << endl;
+  os << indent << "NumberOfFiles: " << this->NumberOfFiles << endl;
 }
 
 

@@ -68,7 +68,6 @@
 
 #include "vtkWriter.h"
 
-#include "vtkModelMetadata.h"  // For vtkSetObjectMacro
 #include <vtkstd/map> // For the map
 
 class vtkUnstructuredGrid;
@@ -77,6 +76,7 @@ class vtkDoubleArray;
 class vtkDataArray;
 class vtkUnsignedCharArray;
 class vtkIntArray;
+class vtkModelMetadata;
 
 class VTK_PARALLEL_EXPORT vtkExodusIIWriter : public vtkWriter
 {
@@ -100,7 +100,7 @@ public:
   // object to it's output.  If this has happened, the ExodusIIWriter will
   // find it and use it.
 
-  vtkSetObjectMacro(ModelMetadata, vtkModelMetadata);
+  virtual void SetModelMetadata(vtkModelMetadata*);
   vtkGetObjectMacro(ModelMetadata, vtkModelMetadata);
 
   // Description:
