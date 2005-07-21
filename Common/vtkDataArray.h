@@ -283,7 +283,7 @@ public:
   // This method copies the array data to the void pointer specified
   // by the user.  It is up to the user to allocate enough memory for
   // the void pointer.
-  virtual void ExportToVoidPointer(void *out_ptr) {};
+  virtual void ExportToVoidPointer(void *vtkNotUsed(out_ptr)) {}
 
   // Description:
   // Return the memory in kilobytes consumed by this data array. Used to
