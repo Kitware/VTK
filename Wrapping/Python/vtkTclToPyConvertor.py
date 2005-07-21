@@ -16,12 +16,13 @@
 
 import sys
 import re
+import string
+
 for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
 import vtkTclParser
-import vtkpython
 
 reVariable = re.compile("^([+\-])?\$([^\$\{\}]+)$")
 reCompoundVariable = re.compile("\$(?:([^\$\}\{]+)|\{([^\$\}]+)\})")
@@ -34,9 +35,12 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
     self.Output = ""
     self.Indent = ""
     self.ProcList = []
+    self.ClassList = []
+    self.NameSpace = "vtkpython"
 
-  def printHeader(self):
-    self.handle_command("""#!/usr/bin/env python""")
+  def printHeader(self, prefix_content):
+    self.handle_command("""#!/usr/bin/env python
+%s""" % (prefix_content))
     pass
   
   def printFooter(self):
@@ -52,6 +56,8 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
 
   def GetBlockParser(self):
     p = vtkTclToPyConvertor()
+    p.ClassList = self.ClassList
+    p.NameSpace = self.NameSpace
     p.Indent = self.Indent + "  "
     p.ProcList = self.ProcList[:]
     return p
@@ -203,14 +209,14 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
       if len(arguments) > 2:
         translated_cmd += self.Indent + \
           self.translate_command(arguments[2], arguments[3:])
-      translated_cmd += "\n" + self.Indent + "  pass"
+      translated_cmd += self.Indent + "  pass"
     elif command=="else" and len(arguments)==1:
-      translated_cmd ="else:\n"
+      translated_cmd = "  pass\n"
+      translated_cmd += self.Indent + "else:\n"
       p = self.GetBlockParser()
       p.Indent = self.Indent + "  "
       p.feed(arguments[0])
       translated_cmd += p.Output
-      translated_cmd += "\n" + self.Indent + "  pass"
     elif command == "return" and len(arguments) == 0:
       translated_cmd = "return" 
     elif command == "return" and len(arguments) == 1:
@@ -249,11 +255,11 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
       if len(arguments) > 3:
         return self.translate_command(new_cmd, arguments[3:])
       return translated_cmd
-    elif command in vtkpython.__dict__.keys():
+    elif command in self.ClassList:
       #translate a VTK object create command.
       if len(arguments) == 1:
         self.VTKObjects.append(arguments[0])
-        translated_cmd = "%s = vtkpython.%s()" % (arguments[0], command)
+        translated_cmd = "%s = %s.%s()" % (arguments[0], self.NameSpace, command)
       else:
         self.Error("Invalid command: %s %s" % (command, `arguments`))
     elif command == "BuildBackdrop" and len(arguments) == 7:
@@ -337,31 +343,71 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
 if __name__ == "__main__":
   input_file = None
   output_file = None
+  class_file = None
+  prefix_file = None
+  namespace = "vtkpython"
   
   for i in range(0, len(sys.argv)):
     if sys.argv[i] == "-i" and i < len(sys.argv)-1:
       input_file = sys.argv[i+1]
     if sys.argv[i] == "-o" and i < len(sys.argv)-1:
       output_file = sys.argv[i+1]
+    if sys.argv[i] == "-f" and i < len(sys.argv)-1:
+      class_file = sys.argv[i+1]
+    if sys.argv[i] == "-n" and i < len(sys.argv)-1:
+      namespace = sys.argv[i+1]
+    if sys.argv[i] == "-p" and i < len(sys.argv)-1:
+      prefix_file = sys.argv[i+1]
   if not input_file or not output_file:
     print "Usage: %s -i <input tcl test> <output tcl test>" % sys.argv[0]
     sys.exit(1)
+  class_list = []
+  if class_file:
+    try:
+      fp = file(class_file, "r")
+      new_class_list = fp.readlines()
+      for a in new_class_list:
+        class_list.append(string.strip(a))
+      fp.close()
+    except:
+      print "Failed to read class list file %s" % class_file
+      sys.exit(1)
+  try:
+    import vtkpython
+    class_list += vtkpython.__dict__.keys()
+  except:
+    pass
+  if not class_list:
+    print "Cannot find list of classes. Please provide -f <file> option"
+    sys.exit(1)
+  try:
+    ofp = file(output_file, "w")
+  except:
+    print "Failed to write output file %s" % output_file
+    sys.exit(1)
+  prefix_content = ""
+  try:
+    fp = file(prefix_file, "r")
+    prefix_content = fp.read()
+    fp.close()
+  except:
+    pass
   data = ""
   try:
     fp = file(input_file, "r")
     data = fp.read()
     fp.close()
   except:
-    print "Failed to read file %s" % input_file
+    print "Failed to read input file %s" % input_file
     sys.exit(1)
-  try:
-    ofp = file(output_file, "w")
-  except:
-    print "Failed to write file %s" % output_file
-    sys.exit(1)
+
   p = vtkTclToPyConvertor()
+  p.ClassList = class_list
+  p.NameSpace = namespace
+  print "Class list: %s" % `p.ClassList`
+  print "NameSpace: %s" % `p.NameSpace`
   p.OutputFP = ofp
-  p.printHeader()
+  p.printHeader(prefix_content)
   p.feed(data)
   p.printFooter()
   ofp.close()
