@@ -26,6 +26,8 @@
 //
 // To enable garbage collection for a class, add these members:
 //
+// \code
+//
 //  public:
 //   virtual void Register(vtkObjectBase* o)
 //     {
@@ -44,6 +46,7 @@
 //     this->Superclass::ReportReferences(collector);
 //     vtkGarbageCollectorReport(collector, this->OtherObject, "Other Object");
 //     }
+// \endcode
 //
 // The implementations should be in the .cxx file in practice.
 // It is important that the reference be reported using the real
