@@ -91,7 +91,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.2");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.3");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -391,6 +391,11 @@ void vtkExodusIIWriter::SetAllBlockIds(int numEntries, int *blockIds)
 void vtkExodusIIWriter::WriteData()
 {
   int rc = 0;
+  if ( !this->FileName )
+    {
+    vtkErrorMacro("No FileName specified.");
+    return;
+    }
 
   this->SetPassDoubles();   // does input contain floats or doubles
 
