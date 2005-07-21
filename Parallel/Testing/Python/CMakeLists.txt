@@ -26,10 +26,10 @@ IF (VTK_PYTHON_EXE)
         OUTPUT "${output}"
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS ${CONVERTER_SCRIPT}
-          "-i" "${input}" "-o" "${output}" 
-          "-A" "${VTK_BINARY_DIR}/Wrapping/Python" "-A" "${LIBRARY_OUTPUT_PATH}"
-          -A "${LIBRARY_OUTPUT_PATH}/Debug"
-          -A "${LIBRARY_OUTPUT_PATH}/Release"
+          -i "${input}" 
+          -o "${output}" 
+          -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+          -A "${VTK_LIBRARY_DIR}"
         DEPENDS "${input}" "${CONVERTER_SCRIPT}"
         COMMENT "Converting Tcl test"
         )
@@ -43,7 +43,7 @@ IF (VTK_PYTHON_EXE)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Parallel/${tfile}.png
           -A "${VTK_BINARY_DIR}/Wrapping/Python" 
-          -A "${LIBRARY_OUTPUT_PATH}"
+          -A "${VTK_LIBRARY_DIR}"
           )
       ELSE (${tfile} MATCHES TestExtractCTHPart)
         ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
@@ -53,7 +53,7 @@ IF (VTK_PYTHON_EXE)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Parallel/${tfile}.tcl.png
           -A "${VTK_BINARY_DIR}/Wrapping/Python" 
-          -A "${LIBRARY_OUTPUT_PATH}"
+          -A "${VTK_LIBRARY_DIR}"
           )
       ENDIF (${tfile} MATCHES TestExtractCTHPart)
 
@@ -72,10 +72,10 @@ IF (VTK_PYTHON_EXE)
         OUTPUT "${output}"
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS ${CONVERTER_SCRIPT}
-          "-i" "${input}" "-o" "${output}" 
-          "-A" "${VTK_BINARY_DIR}/Wrapping/Python" "-A" "${LIBRARY_OUTPUT_PATH}"
-          -A "${LIBRARY_OUTPUT_PATH}/Debug"
-          -A "${LIBRARY_OUTPUT_PATH}/Release"
+          -i "${input}" 
+          -o "${output}" 
+          -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+          -A "${VTK_LIBRARY_DIR}"
         DEPENDS "${input}" "${CONVERTER_SCRIPT}"
         COMMENT "Converting Tcl test"
         )
@@ -87,7 +87,7 @@ IF (VTK_PYTHON_EXE)
         -T ${VTK_BINARY_DIR}/Testing/Temporary
         -V Baseline/Parallel/${tfile}.png
         -A "${VTK_BINARY_DIR}/Wrapping/Python" 
-        -A "${LIBRARY_OUTPUT_PATH}"
+        -A "${VTK_LIBRARY_DIR}"
         )
     ENDFOREACH( tfile )      
   ENDIF (VTK_DATA_ROOT)

@@ -203,10 +203,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           OUTPUT "${output}"
           COMMAND ${PYTHON_EXECUTABLE}
           ARGS ${CONVERTER_SCRIPT}
-            "-i" "${input}" "-o" "${output}" 
-            "-A" "${VTK_BINARY_DIR}/Wrapping/Python" "-A" "${LIBRARY_OUTPUT_PATH}"
-            -A "${LIBRARY_OUTPUT_PATH}/Debug"
-            -A "${LIBRARY_OUTPUT_PATH}/Release"
+            -i "${input}" 
+            -o "${output}" 
+            -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+            -A "${VTK_LIBRARY_DIR}"
           DEPENDS "${input}" "${CONVERTER_SCRIPT}"
           COMMENT "Converting Tcl test"
           )
@@ -219,7 +219,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Graphics/${tfile}.png
           -A "${VTK_BINARY_DIR}/Wrapping/Python" 
-          -A "${LIBRARY_OUTPUT_PATH}"
+          -A "${VTK_LIBRARY_DIR}"
           )
       ENDFOREACH( tfile ) 
 
@@ -285,11 +285,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           OUTPUT "${output}"
           COMMAND ${PYTHON_EXECUTABLE}
           ARGS ${CONVERTER_SCRIPT}
-            "-i" "${input}" "-o" "${output}" 
-            "-A" "${VTK_BINARY_DIR}/Wrapping/Python" 
-            "-A" "${LIBRARY_OUTPUT_PATH}"
-            "-A" "${LIBRARY_OUTPUT_PATH}/Debug"
-            "-A" "${LIBRARY_OUTPUT_PATH}/Release"
+            -i "${input}" 
+            -o "${output}" 
+            -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+            -A "${VTK_LIBRARY_DIR}"
           DEPENDS "${input}" "${CONVERTER_SCRIPT}"
           COMMENT "Converting Tcl test"
           )
@@ -301,7 +300,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Graphics/${tfile}.png
           -A "${VTK_BINARY_DIR}/Wrapping/Python" 
-          -A "${LIBRARY_OUTPUT_PATH}"
+          -A "${VTK_LIBRARY_DIR}"
           )
       ENDFOREACH( tfile )      
     ENDIF (VTK_DATA_ROOT)
