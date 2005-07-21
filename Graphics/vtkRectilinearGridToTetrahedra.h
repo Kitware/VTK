@@ -51,7 +51,7 @@
 
 #include "vtkUnstructuredGridAlgorithm.h"
 class vtkRectilinearGrid;
-class vtkCharArray;
+class vtkSignedCharArray;
 class vtkIdList;
 class vtkCellArray;
 class vtkPoints;
@@ -122,13 +122,13 @@ protected:
   // Determine how to Divide each cell (voxel) in the RectilinearGrid
   // Overwrites VoxelSubdivisionType with flipping information for forming the mesh
   static void DetermineGridDivisionTypes(vtkRectilinearGrid *RectGrid, 
-                                         vtkCharArray *VoxelSubdivisionType,
+                                         vtkSignedCharArray *VoxelSubdivisionType,
                                          const int &TetraPerCell);
 
   // Description:
   // Take the grid and make it into a tetrahedral mesh.
   static void GridToTetMesh(vtkRectilinearGrid *RectGrid, 
-                            vtkCharArray *VoxelSubdivisionType,
+                            vtkSignedCharArray *VoxelSubdivisionType,
                             const int &TetraPerCell,
                             const int &RememberVoxelId,
                             vtkUnstructuredGrid *TetMesh);
