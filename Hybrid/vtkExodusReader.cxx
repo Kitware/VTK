@@ -946,8 +946,18 @@ public:
     }
 
 protected: 
-  virtual void StartElement(const char* name, const char** attrs)
+  virtual void StartElement(const char* tname, const char** attrs)
     { 
+      const char* name=strrchr(tname,':');
+      if (!name)
+        {
+        name=tname;
+        }
+      else
+        {
+        name++;
+        }
+
       if (strcmp(name,"assembly")==0)
         {
         const char* assemblyNumber=this->GetValue("number",attrs);
@@ -1137,8 +1147,18 @@ protected:
     return vtkstd::string("");
   }
   
-  virtual void EndElement(const char* name)
+  virtual void EndElement(const char* tname)
     {
+      const char* name=strrchr(tname,':');
+      if (!name)
+        {
+        name=tname;
+        }
+      else
+        {
+        name++;
+        }
+
       if (strcmp(name,"assembly")==0)
         {
         this->CurrentAssemblyNumbers.pop_back();
@@ -1190,7 +1210,16 @@ protected:
       int i;
       for (i=0;attrs[i];i+=2)
         {
-        if (strcmp(attr,attrs[i])==0)
+        const char* name=strrchr(attrs[i],':');
+        if (!name)
+          {
+          name=attrs[i];
+          }
+        else
+          {
+          name++;
+          }
+        if (strcmp(attr,name)==0)
           {
           return attrs[i+1];
           }
@@ -1364,7 +1393,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.2");
+vtkCxxRevisionMacro(vtkExodusReader, "1.3");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -2134,8 +2163,7 @@ int vtkExodusReader::RequestInformation(
       char tempName[512];
       strcpy(tempName,this->FileName);
       char* fpt=strrchr(tempName,'.');
-      if (fpt) strncpy(fpt,".xml",4);
-  
+      if (fpt) strncpy(fpt,".xml\0",5);
       // Does the xml file exist?
       if (vtkExodusReaderFileExist(tempName)) 
         {
@@ -2143,7 +2171,17 @@ int vtkExodusReader::RequestInformation(
         } 
       else 
         {
-        SetXMLFileName(NULL);
+        //try .dart
+        fpt=strrchr(tempName,'.');
+        if (fpt) strncpy(fpt,".dart\0",6);
+        if (vtkExodusReaderFileExist(tempName)) 
+          {
+          SetXMLFileName(tempName);
+          }
+        else
+          {
+          SetXMLFileName(NULL);
+          }
         }
       }
     
