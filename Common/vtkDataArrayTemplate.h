@@ -156,6 +156,12 @@ public:
     { this->SetArray(static_cast<T*>(array), size, save); }
 
   // Description:
+  // This method copies the array data to the void pointer specified
+  // by the user.  It is up to the user to allocate enough memory for
+  // the void pointer.
+  void ExportToVoidPointer(void *out_ptr);
+
+  // Description:
   // Do not call.  Use GetRange.
   virtual void ComputeRange(int comp);
 protected:

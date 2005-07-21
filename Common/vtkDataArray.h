@@ -280,6 +280,12 @@ public:
                             int vtkNotUsed(save)) {};
 
   // Description:
+  // This method copies the array data to the void pointer specified
+  // by the user.  It is up to the user to allocate enough memory for
+  // the void pointer.
+  virtual void ExportToVoidPointer(void *out_ptr) {};
+
+  // Description:
   // Return the memory in kilobytes consumed by this data array. Used to
   // support streaming and reading/writing data. The value returned is
   // guaranteed to be greater than or equal to the memory required to

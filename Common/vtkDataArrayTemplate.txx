@@ -697,4 +697,15 @@ void vtkDataArrayTemplate<T>::ComputeVectorRange()
   this->Range[1] = sqrt(range[1]);
 }
 
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::ExportToVoidPointer(void *out_ptr)
+{
+  if(out_ptr && this->Array) 
+    {
+    memcpy(static_cast<T*>(out_ptr), this->Array, 
+           (this->MaxId + 1)*sizeof(T));
+    }
+}
+
 #endif
