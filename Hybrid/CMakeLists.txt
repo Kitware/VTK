@@ -8,7 +8,8 @@ ELSE(APPLE)
   SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython)
 ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
+SET(KIT_LIBS vtkRendering vtkIO
+  vtkexoIIc)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
@@ -20,6 +21,11 @@ IF (WIN32)
 ENDIF (WIN32)
 
 SET ( Kit_SRCS
+vtkPExodusReader.cxx
+vtkExodusReader.cxx
+vtkDSPFilterDefinition.cxx
+vtkExodusModel.cxx
+vtkDSPFilterGroup.cxx
 vtk3DSImporter.cxx
 vtkArcPlotter.cxx
 vtkAnnotatedCubeActor.cxx

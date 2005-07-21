@@ -7,7 +7,7 @@ ELSE(APPLE)
   SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython)
 ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
-SET(KIT_LIBS vtkRendering vtkIO)
+SET(KIT_LIBS vtkRendering vtkIO vtkexoIIc)
 IF (WIN32)
   IF (NOT BORLAND)
     SET(KIT_LIBS ${KIT_LIBS} wsock32)
@@ -59,6 +59,7 @@ vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
+vtkExodusIIWriter.cxx
 vtkExtractCTHPart.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
