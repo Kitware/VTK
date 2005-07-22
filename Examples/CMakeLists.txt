@@ -10,7 +10,38 @@ IF(VTK_BINARY_DIR)
   # We are building in the VTK tree.  Add tests for some examples.
   # Test the build system examples.
   IF(BUILD_TESTING)
+    # If multiple configuration types are available we must add the test
+    # in a way that will use the configuration given for testing.  When
+    # CTest 2.1 and higher is used to drive the tests it evaluates the
+    # ADD_TEST commands stored in the test files using standard cmake
+    # language evaluation.  The variable CTEST_CONFIGURATION_TYPE expands
+    # to the configuration specified for testing (Debug, Release, etc.).
+    # This variable must be stored in the test string and evaluated at
+    # testing time, so the dollar must be stored in a way that will not be
+    # evaluated immediately.  In CMake 2.1 and higher this can be done
+    # with an escaped dollar but we must support older CMake versions
+    # syntactically.  Since we do not know what tool will be used to drive
+    # the tests (Dart, CTest <= 2.0, CTest > 2.0, etc.) we have to have a
+    # special cache option "VTK_TEST_WITH_CTEST" to enable this feature.
+    # Dashboard maintainers will have to set this option to properly run
+    # these tests.
+
+    # Default to single-configuration behavior.
+    SET(VTK_EXAMPLE_TEST_CONFIG_TYPE)
+    SET(VTK_EXAMPLE_TEST_RUN_DIR "${EXECUTABLE_OUTPUT_PATH}")
+
+    # Enable multi-configuration behavior if support is available.
+    IF(CMAKE_CONFIGURATION_TYPES AND VTK_TEST_WITH_CTEST)
+      SET(DOLLAR "$")
+      IF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.0)
+        SET(VTK_EXAMPLE_TEST_CONFIG_TYPE -C "${DOLLAR}{CTEST_CONFIGURATION_TYPE}")
+        SET(VTK_EXAMPLE_TEST_RUN_DIR "${EXECUTABLE_OUTPUT_PATH}/${DOLLAR}{CTEST_CONFIGURATION_TYPE}")
+      ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.0)
+    ENDIF(CMAKE_CONFIGURATION_TYPES AND VTK_TEST_WITH_CTEST)
+
+    # Add a test to build the vtkLocal example.
     ADD_TEST(Example-vtkLocal ${CMAKE_CTEST_COMMAND}
+      ${VTK_EXAMPLE_TEST_CONFIG_TYPE}
       --build-and-test
       ${VTK_SOURCE_DIR}/Examples/Build/vtkLocal
       ${VTK_BINARY_DIR}/Examples/Build/vtkLocal
@@ -18,12 +49,14 @@ IF(VTK_BINARY_DIR)
       --build-generator ${CMAKE_GENERATOR}
       --build-makeprogram ${MAKEPROGRAM}
       --build-project VTKLOCAL
-      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}"
+      --build-run-dir ${VTK_EXAMPLE_TEST_RUN_DIR}
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
-      --test-command
-      "${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin/vtkLocalTest"
+      --test-command "${VTK_BINARY_DIR}/Examples/Build/vtkLocal/bin/vtkLocalTest"
       )
+
+    # Add a test to build the vtkMy example.
     ADD_TEST(Example-vtkMy ${CMAKE_CTEST_COMMAND}
+      ${VTK_EXAMPLE_TEST_CONFIG_TYPE}
       --build-and-test
       ${VTK_SOURCE_DIR}/Examples/Build/vtkMy
       ${VTK_BINARY_DIR}/Examples/Build/vtkMy
@@ -31,10 +64,9 @@ IF(VTK_BINARY_DIR)
       --build-generator ${CMAKE_GENERATOR}
       --build-makeprogram ${MAKEPROGRAM}
       --build-project VTKMY
-      --build-run-dir "${EXECUTABLE_OUTPUT_PATH}"
+      --build-run-dir ${VTK_EXAMPLE_TEST_RUN_DIR}
       --build-options -DVTK_DIR:PATH=${VTK_BINARY_DIR}
-      --test-command
-      "${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1"
+      --test-command "${VTK_BINARY_DIR}/Examples/Build/vtkMy/bin/vtkmyEx1"
       )
   ENDIF(BUILD_TESTING)
 
