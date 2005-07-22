@@ -154,22 +154,12 @@ IF(PYTHON_EXECUTABLE)
 
 # Files in Wrapping/Python (these are actually for backwards compatibility)
   SET(VTK_PYTHON_FILES
-    backdrop
-    catch
-    expr
-    file
-    info
-    mccases
     QVTKRenderWidget
-    rtImageTest
     vtkRenderWidget
     vtkTkImageViewerWidget
     vtkTkRenderWidget
     vtkpython
     vtkpythontk
-    vtkTclParser
-    vtkTclToPyConvertor
-    vtkColors
     wxVTKRenderWindow
     )
 

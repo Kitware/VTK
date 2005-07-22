@@ -5,7 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   #
   IF (VTK_PYTHON_EXE)
     SET (CONVERTED_TESTS)
-    SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Wrapping/Python/vtkTclToPyConvertor.py")
+    SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
     IF (VTK_DATA_ROOT)
       # Older tests
       FOREACH ( tfile
@@ -20,7 +20,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ${VTK_SOURCE_DIR}/Graphics/Testing/Python/${tfile}.py
           -D ${VTK_DATA_ROOT}
           -V Baseline/Graphics/${tfile}.png
-          -A ${VTK_SOURCE_DIR}/Wrapping/Python
+          -A ${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py
           -A ${LIBRARY_OUTPUT_PATH})
       ENDFOREACH( tfile )
 
@@ -205,7 +205,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ARGS ${CONVERTER_SCRIPT}
             -i "${input}" 
             -o "${output}" 
-            -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+            -A "${VTK_BINARY_DIR}/Wrapping/Python"
+            -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
             -A "${VTK_LIBRARY_DIR}"
           DEPENDS "${input}" "${CONVERTER_SCRIPT}"
           COMMENT "Converting Tcl test"
@@ -213,12 +214,12 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
         #Add the py test.
         ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
-          ${VTK_BINARY_DIR}/Wrapping/Python/rtImageTest.py
+          ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${output}
           -D ${VTK_DATA_ROOT}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Graphics/${tfile}.png
-          -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
           -A "${VTK_LIBRARY_DIR}"
           )
       ENDFOREACH( tfile ) 
@@ -287,7 +288,8 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           ARGS ${CONVERTER_SCRIPT}
             -i "${input}" 
             -o "${output}" 
-            -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+            -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+            -A "${VTK_BINARY_DIR}/Wrapping/Python"
             -A "${VTK_LIBRARY_DIR}"
           DEPENDS "${input}" "${CONVERTER_SCRIPT}"
           COMMENT "Converting Tcl test"
@@ -295,17 +297,17 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
         #Add the py test.
         ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
-          ${VTK_BINARY_DIR}/Wrapping/Python/rtImageTest.py
+          ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
           ${output}
           -T ${VTK_BINARY_DIR}/Testing/Temporary
           -V Baseline/Graphics/${tfile}.png
-          -A "${VTK_BINARY_DIR}/Wrapping/Python" 
+          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
           -A "${VTK_LIBRARY_DIR}"
           )
       ENDFOREACH( tfile )      
     ENDIF (VTK_DATA_ROOT)
     ADD_CUSTOM_TARGET(GraphicsPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
-    ADD_DEPENDENCIES(GraphicsPythonTests vtkpython_pyc)
+    ADD_DEPENDENCIES(GraphicsPythonTests vtktcltest2py_pyc)
 
   ENDIF (VTK_PYTHON_EXE)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
