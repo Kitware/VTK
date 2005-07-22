@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.15");
+vtkCxxRevisionMacro(vtkPKdTree, "1.16");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -393,6 +393,12 @@ void vtkPKdTree::BuildLocator()
 
     this->FreeSearchStructure();
     this->ReleaseTables();
+
+    // Make sure input is up to date.
+    for (int i = 0; i < this->GetNumberOfDataSets(); i++)
+      {
+      this->GetDataSet(i)->Update();
+      }
 
     this->AllCheckParameters();   // global operation to ensure same parameters
 
