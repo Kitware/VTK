@@ -404,8 +404,8 @@ if __name__ == "__main__":
   p = vtkTclToPyConvertor()
   p.ClassList = class_list
   p.NameSpace = namespace
-  print "Class list: %s" % `p.ClassList`
-  print "NameSpace: %s" % `p.NameSpace`
+  #print "Class list: %s" % `p.ClassList`
+  #print "NameSpace: %s" % `p.NameSpace`
   p.OutputFP = ofp
   p.printHeader(prefix_content)
   p.feed(data)
