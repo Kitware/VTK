@@ -277,8 +277,12 @@ IF(PYTHON_EXECUTABLE)
     OUTPUT "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
     )
 
+  # Create a target on which custom commands can depend.  When this
+  # is up-to-date, it is safe to run VTK python code.  Therefore
+  # this should also depend on the vtkpython executable.
   ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "..."
     DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete")
+  ADD_DEPENDENCIES(vtkpython_pyc vtkpython)
 ENDIF(PYTHON_EXECUTABLE)
 
 # Allow the user to customize their build with some local options
