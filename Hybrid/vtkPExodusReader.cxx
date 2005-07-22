@@ -49,9 +49,9 @@
 #include <vector>
 
 #define DEBUG 0
-#define MAXPATHLEN 2048
+#define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.2");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.3");
 vtkStandardNewMacro(vtkPExodusReader);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ vtkPExodusReader::vtkPExodusReader()
   this->NumberOfFiles = 1;
   this->FileNames = NULL;
   this->NumberOfFileNames = 0;
-  this->MultiFileName = new char[MAXPATHLEN];
+  this->MultiFileName = new char[vtkPExodusReaderMAXPATHLEN];
   this->GenerateFileIdArray = 0;
   this->XMLFileName=NULL;
 }
