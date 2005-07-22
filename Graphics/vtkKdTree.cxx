@@ -28,6 +28,7 @@
 #include "vtkMath.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
+#include "vtkGarbageCollector.h"
 #include "vtkIdList.h"
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
@@ -44,7 +45,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.3");
+vtkCxxRevisionMacro(vtkKdTree, "1.4");
 
 // Timing data ---------------------------------------------
 
@@ -824,6 +825,7 @@ void vtkKdTree::BuildLocator()
       continue;
       }
 
+    this->DataSets[i]->Update();
     if (first)
       {
       this->DataSets[i]->GetBounds(volBounds);
@@ -4161,6 +4163,17 @@ void vtkKdTree::OmitNoPartitioning()
 void vtkKdTree::PrintTiming(ostream& os, vtkIndent )
 {
   vtkTimerLog::DumpLogWithIndents(&os, (float)0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkKdTree::ReportReferences(vtkGarbageCollector *collector)
+{
+  this->Superclass::ReportReferences(collector);
+
+  for (int i = 0; i < this->NumDataSetsAllocated; i++)
+    {
+    vtkGarbageCollectorReport(collector, this->DataSets[i], "DataSets[i]");
+    }
 }
 
 //----------------------------------------------------------------------------

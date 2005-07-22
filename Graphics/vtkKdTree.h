@@ -557,6 +557,8 @@ protected:
   float *ComputeCellCenters(int set);
   float *ComputeCellCenters(vtkDataSet *set);
 
+  virtual void ReportReferences(vtkGarbageCollector*);
+
 private:
 
   static void _SetNewBounds(vtkKdNode *kd, double *b, int *fixDim);
