@@ -33,7 +33,7 @@
 #include <ctype.h>
 
 
-vtkCxxRevisionMacro(vtkExodusModel, "1.1");
+vtkCxxRevisionMacro(vtkExodusModel, "1.2");
 vtkStandardNewMacro(vtkExodusModel);
 
 vtkExodusModel::vtkExodusModel()
@@ -669,7 +669,7 @@ int vtkExodusModel::SetLocalBlockInformation(
         return 1; 
         }
 
-      blockIdStart.insert(vtkstd::pair<int,int>(idx, i));
+      blockIdStart.insert(vtkstd::map<int,int>::value_type(idx, i));
       lastId = id;
       }
 
@@ -785,7 +785,7 @@ int vtkExodusModel::SetLocalNodeSetInformation(
 
   for (i=0; i<npoints; i++)
     {
-    localNodeIdMap.insert(vtkstd::pair<int,int>(pointIds[i], i));
+    localNodeIdMap.insert(vtkstd::map<int,int>::value_type(pointIds[i], i));
     }
 
   int nns = emd->GetNumberOfNodeSets();
@@ -939,7 +939,7 @@ int vtkExodusModel::SetLocalSideSetInformation(
 
   for (i=0; i<ncells; i++)
     {
-    localCellIdMap.insert(vtkstd::pair<int,int>(cellIds[i], i));
+    localCellIdMap.insert(vtkstd::map<int,int>::value_type(cellIds[i], i));
     }
 
   int nss = emd->GetNumberOfSideSets();

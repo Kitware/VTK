@@ -91,7 +91,7 @@
   x = NULL;      \
 }
 
-vtkCxxRevisionMacro(vtkExodusIIWriter, "1.3");
+vtkCxxRevisionMacro(vtkExodusIIWriter, "1.4");
 vtkStandardNewMacro(vtkExodusIIWriter);
 vtkCxxSetObjectMacro(vtkExodusIIWriter, ModelMetadata, vtkModelMetadata);
 
@@ -988,7 +988,7 @@ int vtkExodusIIWriter::CreateBlockIdInformation(vtkModelMetadata *em)
     {
     int id = this->InputBlockIds[i];
 
-    idxMap.insert(vtkstd::pair<int,int>(id, i));
+    idxMap.insert(vtkstd::map<int,int>::value_type(id, i));
 
     int cellType = 
       vtkExodusIIWriter::FindCellType(id, this->BlockIdList, 
@@ -1069,7 +1069,7 @@ int vtkExodusIIWriter::CreateBlockIdInformationFromCellTypes(vtkModelMetadata *e
   for (i=0; i<ncells; i++)
     {
     vtkstd::pair<vtkstd::map<int,int>::iterator, bool> inserted = 
-      idxMap.insert(vtkstd::pair<int,int>((int)ct[i], nTypes));
+      idxMap.insert(vtkstd::map<int,int>::value_type((int)ct[i], nTypes));
 
     if (inserted.second)
       {
@@ -1356,7 +1356,7 @@ int vtkExodusIIWriter::GetBlockLocalIndex(int id)
       {
       int gid = this->BlockIds[i];
 
-      this->LocalBlockIndexMap->insert(vtkstd::pair<int,int>(gid, i));
+      this->LocalBlockIndexMap->insert(vtkstd::map<int,int>::value_type(gid, i));
       }
     }
 
@@ -1384,7 +1384,7 @@ int vtkExodusIIWriter::GetElementLocalId(int id)
       {
       int gid = this->GlobalElementIdList[i];
 
-      this->LocalElementIdMap->insert(vtkstd::pair<int,int>(gid, i));
+      this->LocalElementIdMap->insert(vtkstd::map<int,int>::value_type(gid, i));
       }
     }
 
@@ -1412,7 +1412,7 @@ int vtkExodusIIWriter::GetNodeLocalId(int id)
       {
       int gid = this->GlobalNodeIdList[i];
 
-      this->LocalNodeIdMap->insert(vtkstd::pair<int,int>(gid, i));
+      this->LocalNodeIdMap->insert(vtkstd::map<int,int>::value_type(gid, i));
       }
     }
 
@@ -2455,7 +2455,7 @@ int vtkExodusIIWriter::WriteSideSetInformation()
 
     for (i=0; i<ncells; i++)
       {
-      newElementId.insert(vtkstd::pair<const int, int>(this->ElementIndex[i], i));
+      newElementId.insert(vtkstd::map<int,int>::value_type(this->ElementIndex[i], i));
       }
     }
 
@@ -3352,7 +3352,7 @@ vtkstd::map<int, int> *vtkExodusIIWriter::BuildBlockElementSearchStructure(int b
 
   for (int i=0; i<blockSize; i++)
     {
-    eltMap->insert(vtkstd::pair<int, int>(eltIds[i], i));
+    eltMap->insert(vtkstd::map<int,int>::value_type(eltIds[i], i));
     }
 
   return eltMap;
