@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.61");
+vtkCxxRevisionMacro(vtkOpenGLImageMapper, "1.62");
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 #endif
 
@@ -91,9 +91,9 @@ inline int vtkPadToFour(int n)
 // 3) draw using glDrawPixels
 
 template <class T>
-void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data, 
-                                T *dataPtr, double shift, double scale,
-                                int *actorPos, int *actorPos2, int front, int *vsize)
+void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                      T *dataPtr, double shift, double scale,
+                                      int *actorPos, int *actorPos2, int front, int *vsize)
 {
   int inMin0 = self->DisplayExtent[0];
   int inMax0 = self->DisplayExtent[1];
@@ -496,6 +496,92 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
 }
 
 //----------------------------------------------------------------------------
+// Define overloads to help the template macro below dispatch to a
+// suitable implementation for each type.  The last argument is of
+// type "long" for the template and of type "int" for the
+// non-templates.  The template macro's call to this function always
+// passes a literal "1" as the last argument, which requires a
+// conversion to produce a long.  This helps broken compilers select
+// the non-template even when the template is otherwise an equal
+// match.
+template <class T>
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                T *dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                long)
+{
+  vtkOpenGLImageMapperRenderDouble(self, data, dataPtr, shift, scale,
+                                   actorPos, actorPos2, front, vsize);
+}
+
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                char* dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                int)
+{
+  if(shift == 0.0 && scale == 1.0)
+    {
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
+                                   actorPos, actorPos2, front, vsize);
+    }
+  else
+    {
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                    actorPos, actorPos2, front, vsize);
+    }
+}
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                unsigned char* dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                int)
+{
+  if(shift == 0.0 && scale == 1.0)
+    {
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
+                                   actorPos, actorPos2, front, vsize);
+    }
+  else
+    {
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                    actorPos, actorPos2, front, vsize);
+    }
+}
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                signed char* dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                int)
+{
+  if(shift == 0.0 && scale == 1.0)
+    {
+    vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
+                                   actorPos, actorPos2, front, vsize);
+    }
+  else
+    {
+    vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                    actorPos, actorPos2, front, vsize);
+    }
+}
+
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                short* dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                int)
+{
+  vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                  actorPos, actorPos2, front, vsize);
+}
+
+void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
+                                unsigned short* dataPtr, double shift, double scale,
+                                int *actorPos, int *actorPos2, int front, int *vsize,
+                                int)
+{
+  vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
+                                  actorPos, actorPos2, front, vsize);
+}
+
+//----------------------------------------------------------------------------
 // Expects data to be X, Y, components
 
 void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
@@ -581,79 +667,11 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 #endif
   switch (data->GetPointData()->GetScalars()->GetDataType())
     {
-    case VTK_DOUBLE:  
-      vtkOpenGLImageMapperRender(this, data,
-                                 (double *)(ptr0),
-                                 shift, scale, actorPos, actorPos2, front, vsize);
-      break;
-    case VTK_FLOAT:
-      vtkOpenGLImageMapperRender(this, data,
-                                 (float *)(ptr0),
-                                 shift, scale, actorPos, actorPos2, front, vsize);
-      break;
-    case VTK_LONG:
-      vtkOpenGLImageMapperRender(this, data,
-                                 (long *)(ptr0),
-                                 shift, scale, actorPos, actorPos2, front, vsize);
-      break;
-    case VTK_UNSIGNED_LONG:
-      vtkOpenGLImageMapperRender(this, data,
-                                 (unsigned long *)(ptr0),
-                                 shift, scale, actorPos, actorPos2, front, vsize);
-      break;
-    case VTK_INT:
-      vtkOpenGLImageMapperRender(this, data,
-                                 (int *)(ptr0),
-                                 shift, scale, actorPos, actorPos2, front, vsize);
-      break;
-    case VTK_UNSIGNED_INT:
-      vtkOpenGLImageMapperRender(this, data,
-          (unsigned int *)(ptr0),
-          shift, scale, actorPos, actorPos2, front, vsize);
-
-      break;
-    case VTK_SHORT:
-      vtkOpenGLImageMapperRenderShort(this, data,
-          (short *)(ptr0),
-          shift, scale, actorPos, actorPos2, front, vsize);
-
-      break;
-    case VTK_UNSIGNED_SHORT:
-      vtkOpenGLImageMapperRenderShort(this, data,
-          (unsigned short *)(ptr0),
-          shift, scale, actorPos, actorPos2, front, vsize);
-
-      break;
-    case VTK_UNSIGNED_CHAR:
-      if (shift == 0.0 && scale == 1.0)
-              {
-              vtkOpenGLImageMapperRenderChar(this, data,
-            (unsigned char *)(ptr0),
-            actorPos, actorPos2, front, vsize);
-              }
-      else
-              {
-              // RenderShort is Templated, so we can pass unsigned char
-              vtkOpenGLImageMapperRenderShort(this, data,
-            (unsigned char *)(ptr0),
-                                    shift, scale, actorPos, actorPos2, front, vsize);
-              }
-      break;
-    case VTK_CHAR:
-      if (shift == 0.0 && scale == 1.0)
-              {
-              vtkOpenGLImageMapperRenderChar(this, data,
-          (char *)(ptr0),
-          actorPos, actorPos2, front, vsize);
-              }
-      else
-              {
-              // RenderShort is Templated, so we can pass unsigned char
-              vtkOpenGLImageMapperRenderShort(this, data,
-                                   (char *)(ptr0),
-                                   shift, scale, actorPos, actorPos2, front, vsize);
-              }
-      break;
+    vtkTemplateMacro(
+      vtkOpenGLImageMapperRender(this, data, static_cast<VTK_TT*>(ptr0),
+                                 shift, scale, actorPos, actorPos2, front, vsize,
+                                 1)
+      );
     default:
       vtkErrorMacro ( << "Unsupported image type: " << data->GetScalarType());
     }
