@@ -120,7 +120,7 @@ class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
             pass
         elif command == "catch" and len(arguments) == 1:
             translated_cmd = "catch.catch(globals(),\"\"\"%s\"\"\")" % \
-                                                self.translate_block(arguments[0])
+                              self.translate_block(arguments[0]).strip()
         elif command == "expr":
             translated_cmd = "expr.expr(globals(), locals(),["
             i = False
