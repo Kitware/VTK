@@ -39,17 +39,11 @@
 #include <sys/stat.h>
 #include <exodusII.h>
 
-#ifdef WIN32
-#pragma warning(disable:4786)
-#pragma warning(disable:4146)
-#pragma warning(disable:4018)
-#pragma warning(disable:4503)
-#endif
-#include <algorithm>
-#include <string>
-#include <vector>
-#include <map>
-#include <list>
+#include <vtkstd/algorithm>
+#include <vtkstd/string>
+#include <vtkstd/vector>
+#include <vtkstd/map>
+#include <vtkstd/list>
 
 #define DEBUG 0
 
@@ -562,7 +556,7 @@ public:
     { 
       return blockNames.size(); 
     }
-  inline const int GetSortedOrder(int idx) 
+  inline int GetSortedOrder(int idx) 
     { 
       return sortedOrder[idx];
     }
@@ -1227,7 +1221,9 @@ protected:
       return NULL;
     }
   
-  
+private:
+  vtkExodusXMLParser(const vtkExodusXMLParser&); // Not implemented
+  void operator=(const vtkExodusXMLParser&); // Not implemented
 };
 
 
@@ -1393,7 +1389,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.3");
+vtkCxxRevisionMacro(vtkExodusReader, "1.4");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4179,7 +4175,7 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
     // result->Initialize();
     result->SetName( vName );
     float *memory = result->GetPointer( 0 ); 
-    int err = 0;
+    int err;
 
     if ((strcmp(vType, "CELL") == 0) || (strcmp(vType, "cell") == 0) ) 
       {
@@ -4199,6 +4195,7 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
       {
       }
     this->CloseCurrentFile();
+    (void)err;
     }
 
   if ( retVal == 0 )
