@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.4.2.2");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.4.2.3");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -233,6 +233,11 @@ int vtkExtractCTHPart::RequestData(
   
   if(input!=0)
     {
+    if(input->GetNumberOfLevels()==0)
+      {
+      // empty input, do nothing.
+      return 1;
+      }
     if(inInfo->Has(vtkExtractCTHPart::BOUNDS()))
       {
       inInfo->Get(vtkExtractCTHPart::BOUNDS(),this->Bounds);
