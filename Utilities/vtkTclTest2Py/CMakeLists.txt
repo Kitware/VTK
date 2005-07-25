@@ -61,7 +61,7 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
 
   ADD_CUSTOM_COMMAND(
     COMMAND ${PYTHON_EXECUTABLE}
-    ARGS ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
+    ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
     DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
     OUTPUT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete"
     )
