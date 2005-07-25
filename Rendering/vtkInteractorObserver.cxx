@@ -20,10 +20,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 
-vtkCxxRevisionMacro(vtkInteractorObserver, "1.31");
+vtkCxxRevisionMacro(vtkInteractorObserver, "1.32");
 
 vtkCxxSetObjectMacro(vtkInteractorObserver,DefaultRenderer,vtkRenderer);
 
+//----------------------------------------------------------------------------
 vtkInteractorObserver::vtkInteractorObserver()
 {
   this->Enabled = 0;
@@ -51,6 +52,7 @@ vtkInteractorObserver::vtkInteractorObserver()
   this->DeleteObserverTag = 0;
 }
 
+//----------------------------------------------------------------------------
 vtkInteractorObserver::~vtkInteractorObserver()
 {
   this->SetEnabled(0);
@@ -106,6 +108,7 @@ void vtkInteractorObserver::SetCurrentRenderer(vtkRenderer *_arg)
   this->Modified();
 } 
 
+//----------------------------------------------------------------------------
 // This adds the keypress event observer and the delete event observer
 void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
 {
@@ -140,6 +143,7 @@ void vtkInteractorObserver::SetInteractor(vtkRenderWindowInteractor* i)
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorObserver::ProcessEvents(vtkObject* vtkNotUsed(object), 
                                           unsigned long event,
                                           void* clientdata, 
@@ -185,19 +189,15 @@ void vtkInteractorObserver::EndInteraction()
 // Description:
 // Transform from display to world coordinates.
 // WorldPt has to be allocated as 4 vector
-void vtkInteractorObserver::ComputeDisplayToWorld(double x, 
+void vtkInteractorObserver::ComputeDisplayToWorld(vtkRenderer *ren,
+                                                  double x, 
                                                   double y,
                                                   double z, 
                                                   double worldPt[4])
 {
-  if ( !this->CurrentRenderer ) 
-    {
-    return;
-    }
-  
-  this->CurrentRenderer->SetDisplayPoint(x, y, z);
-  this->CurrentRenderer->DisplayToWorld();
-  this->CurrentRenderer->GetWorldPoint(worldPt);
+  ren->SetDisplayPoint(x, y, z);
+  ren->DisplayToWorld();
+  ren->GetWorldPoint(worldPt);
   if (worldPt[3])
     {
     worldPt[0] /= worldPt[3];
@@ -208,6 +208,40 @@ void vtkInteractorObserver::ComputeDisplayToWorld(double x,
 }
 
 
+//----------------------------------------------------------------------------
+// Description:
+// Transform from world to display coordinates.
+// displayPt has to be allocated as 3 vector
+void vtkInteractorObserver::ComputeWorldToDisplay(vtkRenderer *ren,
+                                                  double x, 
+                                                  double y,
+                                                  double z, 
+                                                  double displayPt[3])
+{
+  ren->SetWorldPoint(x, y, z, 1.0);
+  ren->WorldToDisplay();
+  ren->GetDisplayPoint(displayPt);
+}
+
+//----------------------------------------------------------------------------
+// Description:
+// Transform from display to world coordinates.
+// WorldPt has to be allocated as 4 vector
+void vtkInteractorObserver::ComputeDisplayToWorld(double x, 
+                                                  double y,
+                                                  double z, 
+                                                  double worldPt[4])
+{
+  if ( !this->CurrentRenderer ) 
+    {
+    return;
+    }
+  
+  this->ComputeDisplayToWorld(this->CurrentRenderer, x, y, z, worldPt);
+}
+
+
+//----------------------------------------------------------------------------
 // Description:
 // Transform from world to display coordinates.
 // displayPt has to be allocated as 3 vector
@@ -221,11 +255,10 @@ void vtkInteractorObserver::ComputeWorldToDisplay(double x,
     return;
     }
   
-  this->CurrentRenderer->SetWorldPoint(x, y, z, 1.0);
-  this->CurrentRenderer->WorldToDisplay();
-  this->CurrentRenderer->GetDisplayPoint(displayPt);
+  this->ComputeWorldToDisplay(this->CurrentRenderer, x, y, z, displayPt);
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorObserver::OnChar()
 {
   // catch additional keycodes otherwise
@@ -246,6 +279,7 @@ void vtkInteractorObserver::OnChar()
     }//if activation enabled
 }
 
+//----------------------------------------------------------------------------
 void vtkInteractorObserver::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

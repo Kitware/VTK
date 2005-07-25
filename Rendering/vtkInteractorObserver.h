@@ -132,6 +132,13 @@ public:
   // Sets up the keypress-i event. 
   virtual void OnChar();
   
+  // Convenience methods for outside classes. Make sure that the
+  // parameter "ren" is not-null.
+  static void ComputeDisplayToWorld(vtkRenderer *ren, double x, double y, 
+                                    double z, double worldPt[4]);
+  static void ComputeWorldToDisplay(vtkRenderer *ren, double x, double y, 
+                                    double z, double displayPt[3]);
+
 protected:
   vtkInteractorObserver();
   ~vtkInteractorObserver();
@@ -151,7 +158,7 @@ protected:
                             void* calldata);
 
   // Description:
-  // Helper method for subclasses
+  // Helper method for subclasses.
   void ComputeDisplayToWorld(double x, double y, double z, 
                              double worldPt[4]);
   void ComputeWorldToDisplay(double x, double y, double z, 
