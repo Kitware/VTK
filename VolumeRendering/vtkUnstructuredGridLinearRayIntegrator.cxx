@@ -185,13 +185,16 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     function += 2;
     }
 
-  // Add the scalar at the beginning of the range so the interpolation is
-  // correct there.
+  // Add the scalar at the beginning and end of the range so the interpolation
+  // is correct there.
   cpset.insert(scalar_range[0]);
-  // Do the same for the end, but add a bunch of padding to make sure we
-  // don't have an array overrun (so long as the ray caster is behaving
-  // correctly).
-  cpset.insert(2*scalar_range[1] - scalar_range[0]);
+  cpset.insert(scalar_range[1]);
+  // Make extra sure there are at least two entries in cpset.
+  if (cpset.size() < 2)
+    {
+    cpset.insert(0.0);
+    cpset.insert(1.0);
+    }
 
   // Now record control points and colors.
   this->ControlPoints.erase(this->ControlPoints.begin(),
@@ -235,13 +238,16 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     function += 2;
     }
 
-  // Add the scalar at the beginning of the range so the interpolation is
-  // correct there.
+  // Add the scalar at the beginning and end of the range so the interpolation
+  // is correct there.
   cpset.insert(scalar_range[0]);
-  // Do the same for the end, but add a bunch of padding to make sure we
-  // don't have an array overrun (so long as the ray caster is behaving
-  // correctly).
-  cpset.insert(2*scalar_range[1] - scalar_range[0]);
+  cpset.insert(scalar_range[1]);
+  // Make extra sure there are at least two entries in cpset.
+  if (cpset.size() < 2)
+    {
+    cpset.insert(0.0);
+    cpset.insert(1.0);
+    }
 
   // Now record control points and colors.
   this->ControlPoints.erase(this->ControlPoints.begin(),
@@ -283,7 +289,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.1");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.2");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
