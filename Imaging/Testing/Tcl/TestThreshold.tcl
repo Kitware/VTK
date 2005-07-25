@@ -15,7 +15,7 @@ vtkImageReader reader
   reader SetFilePrefix "$VTK_DATA_ROOT/Data/headsq/quarter"
   reader SetDataMask 0x7fff
 
-set outputtype(1) SetOutputScalarTypeToChar
+set outputtype(1) SetOutputScalarTypeToSignedChar
 set outputtype(2) SetOutputScalarTypeToUnsignedChar
 set outputtype(3) SetOutputScalarTypeToLong
 set outputtype(4) SetOutputScalarTypeToUnsignedLong
