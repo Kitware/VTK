@@ -93,6 +93,8 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
   void SetOutputScalarTypeToChar()
     {this->SetOutputScalarType(VTK_CHAR);}
+  void SetOutputScalarTypeToSignedChar()
+    {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
   
