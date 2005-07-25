@@ -51,6 +51,15 @@ TARGET_LINK_LIBRARIES(vtkpython
   vtkGraphics
   vtkImaging
   ${PYTHON_UTIL_LIBRARY_LIB})
+  
+SET (vtkpython_pyc_depends
+    vtkCommonPython
+    vtkFilteringPython
+    vtkIOPython
+    vtkGraphicsPython
+    vtkImagingPython
+    )
+
 IF(VTK_WRAP_TCL)
   TARGET_LINK_LIBRARIES(vtkpython ${VTK_TK_LIBRARIES})
 ENDIF(VTK_WRAP_TCL)
@@ -78,10 +87,21 @@ IF (VTK_USE_RENDERING)
   TARGET_LINK_LIBRARIES(vtkpython vtkVolumeRendering)
   TARGET_LINK_LIBRARIES(vtkpython vtkHybrid)
   TARGET_LINK_LIBRARIES(vtkpython vtkWidgets)
+  SET (vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkRenderingPython
+      vtkVolumeRenderingPython
+      vtkHybridPython
+      vtkWidgetsPython
+      )
 ENDIF (VTK_USE_RENDERING)
 
 IF (VTK_USE_PARALLEL)
   TARGET_LINK_LIBRARIES(vtkpython vtkParallel)
+  SET(vtkpython_pyc_depends
+      ${vtkpython_pyc_depends}
+      vtkParallelPython
+      )
 ENDIF (VTK_USE_PARALLEL)
 
 # Create the pvtkpython Python wrapper executable with MPI support.
@@ -282,7 +302,9 @@ IF(PYTHON_EXECUTABLE)
   # this should also depend on the vtkpython executable.
   ADD_CUSTOM_TARGET(vtkpython_pyc ALL echo "..."
     DEPENDS "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete")
-  ADD_DEPENDENCIES(vtkpython_pyc vtkpython)
+  ADD_DEPENDENCIES(vtkpython_pyc 
+      vtkpython
+      ${vtkpython_pyc_depends})
 ENDIF(PYTHON_EXECUTABLE)
 
 # Allow the user to customize their build with some local options
