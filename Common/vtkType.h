@@ -83,14 +83,14 @@
 #define VTK_BIT_MIN                 0
 #define VTK_BIT_MAX                 1
 #if VTK_TYPE_CHAR_IS_SIGNED
-# define VTK_CHAR_MIN VTK_SIGNED_CHAR_MIN
-# define VTK_CHAR_MAX VTK_SIGNED_CHAR_MAX
+# define VTK_CHAR_MIN               VTK_TYPE_CAST(char, 0x80)
+# define VTK_CHAR_MAX               VTK_TYPE_CAST(char, 0x7f)
 #else
-# define VTK_CHAR_MIN VTK_UNSIGNED_CHAR_MIN
-# define VTK_CHAR_MAX VTK_UNSIGNED_CHAR_MAX
+# define VTK_CHAR_MIN               VTK_TYPE_CAST(char, 0u)
+# define VTK_CHAR_MAX               VTK_TYPE_CAST(char, 0xffu)
 #endif
-#define VTK_SIGNED_CHAR_MIN         VTK_TYPE_CAST(char, 0x80)
-#define VTK_SIGNED_CHAR_MAX         VTK_TYPE_CAST(char, 0x7f)
+#define VTK_SIGNED_CHAR_MIN         VTK_TYPE_CAST(signed char, 0x80)
+#define VTK_SIGNED_CHAR_MAX         VTK_TYPE_CAST(signed char, 0x7f)
 #define VTK_UNSIGNED_CHAR_MIN       VTK_TYPE_CAST(unsigned char, 0u)
 #define VTK_UNSIGNED_CHAR_MAX       VTK_TYPE_CAST(unsigned char, 0xffu)
 #define VTK_SHORT_MIN               VTK_TYPE_CAST(short, 0x8000)
