@@ -157,7 +157,7 @@ doublebyte DICOMFile::ReadDoubleByte()
   this->Read((char*)&(sh),sz); 
   if (PlatformIsBigEndian) 
     {
-    sh = swapShort(sh);
+    sh = swap2(sh);
     }
   return(sh);
 }
@@ -169,7 +169,7 @@ doublebyte DICOMFile::ReadDoubleByteAsLittleEndian()
   this->Read((char*)&(sh),sz); 
   if (PlatformIsBigEndian)
     {
-    sh = swapShort(sh);
+    sh = swap2(sh);
     }
   return(sh);
 }
@@ -181,7 +181,7 @@ quadbyte DICOMFile::ReadQuadByte()
   this->Read((char*)&(sh),sz);
   if (PlatformIsBigEndian) 
     {
-    sh = swapLong(sh);
+    sh = swap4(sh);
     }
   return(sh);
 }

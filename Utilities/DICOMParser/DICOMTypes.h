@@ -25,6 +25,7 @@ typedef unsigned short doublebyte;
 typedef int quadbyte;
 typedef unsigned short ushort;
 typedef unsigned long  ulong;
+typedef unsigned int  uint;
 
 
 #endif

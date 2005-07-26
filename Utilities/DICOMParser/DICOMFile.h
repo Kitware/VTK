@@ -120,38 +120,50 @@ class DICOM_EXPORT DICOMFile
   //
   // Convert the data to signed long.
   //
-  static long ReturnAsSignedLong(unsigned char* data, bool )
+  static int ReturnAsSignedLong(unsigned char* data, bool big_endian)
   {
     unsigned char* data2 = data;
-    return *((quadbyte*) data2);
+    int tmp = *((quadbyte*) data2);
+    if(big_endian)
+      tmp = swap4(tmp);
+    return tmp;
   }
   
   
   //
   // Convert the data to unsigned long.
   //
-  static ulong ReturnAsUnsignedLong(unsigned char* data, bool )
+  static uint ReturnAsUnsignedLong(unsigned char* data, bool big_endian)
   {
     unsigned char* data2 = data;
-    return *((ulong*) data2);
+    int tmp = *((ulong*) data2);
+    if(big_endian)
+      tmp = swap4(tmp);
+    return tmp;
   }
   
   //
   // Convert data to unsigned short.
   //
-  static ushort ReturnAsUnsignedShort(unsigned char* data, bool )
+  static ushort ReturnAsUnsignedShort(unsigned char* data, bool big_endian)
   {
     unsigned char* data2 = data;
-    return *((doublebyte*)data2);
+    ushort tmp = *((doublebyte*)data2);
+    if(big_endian)
+      tmp = swap2(tmp);
+    return tmp;
   }
   
   //
   // Convert data to signed short.
   // 
-  static short int ReturnAsSignedShort(unsigned char* data, bool )
+  static short int ReturnAsSignedShort(unsigned char* data, bool big_endian)
   {
     unsigned char* data2 = data;
-    return *((short int*)data2);
+    int tmp = *((short int*)data2);
+    if(big_endian)
+      tmp = swap2(tmp);
+    return tmp;
   }
 
   //
@@ -180,11 +192,11 @@ class DICOM_EXPORT DICOMFile
   //
   // Swap the bytes in an array of unsigned shorts.
   //
-  static void swapShorts(ushort *ip, ushort *op, int count)
+  static void swap2(ushort *ip, ushort *op, int count)
   {
     while (count)
       {
-      *op++ = swapShort(*ip++);
+      *op++ = swap2(*ip++);
       count--;
       }
   }
@@ -192,11 +204,11 @@ class DICOM_EXPORT DICOMFile
   //
   // Swap the bytes in an array of unsigned longs.
   //
-  static void swapLongs(ulong *ip, ulong *op, int count)
+  static void swap4(uint *ip, uint *op, int count)
   {
     while (count)
       {
-      *op++ = swapLong(*ip++);
+      *op++ = swap4(*ip++);
       count--;
       }
   }
@@ -205,7 +217,7 @@ class DICOM_EXPORT DICOMFile
   //
   // Swap the bytes in an unsigned short.
   //
-  static ushort swapShort(ushort v)
+  static ushort swap2(ushort v)
   {
     return ushort((v << 8)
       | (v >> 8));
@@ -214,9 +226,9 @@ class DICOM_EXPORT DICOMFile
   // 
   // Swap the bytes in an unsigned long.
   //
-  static ulong swapLong(ulong v)
+  static uint swap4(uint v)
     {
-    return ulong((v << 24) 
+    return uint((v << 24) 
       | (v << 8) & 0x00ff0000
       | (v >> 8) & 0x0000ff00
       | (v >> 24));

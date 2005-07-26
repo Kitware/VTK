@@ -376,7 +376,7 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
         dicom_stream::cout << " DataFile Byte Swap : " << this->DataFile->GetPlatformIsBigEndian() << dicom_stream::endl;
         dicom_stream::cout << "==============================" << dicom_stream::endl;
 #endif
-        DICOMFile::swapShorts((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
+        DICOMFile::swap2((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
         }
       else
         {
@@ -412,22 +412,17 @@ void DICOMParser::ReadNextRecord(doublebyte& group, doublebyte& element, DICOMPa
           case DICOMParser::VR_OW:
           case DICOMParser::VR_US:
           case DICOMParser::VR_SS:
-            DICOMFile::swapShorts((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
+            DICOMFile::swap2((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
             // dicom_stream::cout << "16 bit byte swap needed!" << dicom_stream::endl;
             break;
           case DICOMParser::VR_FL:
           case DICOMParser::VR_FD:
+            DICOMFile::swap4((uint*) tempdata, (uint*) tempdata, length/sizeof(uint));
             // dicom_stream::cout << "Float byte swap needed!" << dicom_stream::endl;
-            /*
-            if (this->DataFile->GetPlatformIsBigEndian())
-              {
-              DICOMFile::swapShorts((ushort*) tempdata, (ushort*) tempdata, length/sizeof(ushort));
-              }
-            */
             break;
           case DICOMParser::VR_SL:
           case DICOMParser::VR_UL:
-            DICOMFile::swapLongs((ulong*) tempdata, (ulong*) tempdata, length/sizeof(ulong));
+            DICOMFile::swap4((uint*) tempdata, (uint*) tempdata, length/sizeof(uint));
             // dicom_stream::cout << "32 bit byte swap needed!" << dicom_stream::endl;
             break;
           case DICOMParser::VR_AT:
