@@ -91,7 +91,7 @@
 #define X_LONG_MAX  2147483647
 #define X_ULONG_MAX  4294967295U
 #endif
-#define X_FLOAT_MAX  3.40282347e+38f
+#define X_FLOAT_MAX  ((float)3.40282347e+38)
 #define X_FLOAT_MIN  (-X_FLOAT_MAX)
 #define X_FLT_MAX  X_FLOAT_MAX  /* alias compatible with limits.h */
 #if CRAYFLOAT
