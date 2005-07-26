@@ -75,7 +75,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkClassifyVolume, "1.2");
+vtkCxxRevisionMacro(vtkClassifyVolume, "1.3");
 vtkStandardNewMacro(vtkClassifyVolume);
 
 vtkClassifyVolume::vtkClassifyVolume()
@@ -378,7 +378,7 @@ static vtkVolumeProperty *NewMultiTFVolumeProperty()
 
   a = vtkPiecewiseFunction::New();
   a->AddPoint(2.9, 0.0);
-  a->AddPoint(3.0, 2.0);
+  a->AddPoint(3.0, 1.0);
   volumeProperty->SetScalarOpacity(0, a);
   a->Delete();
 
@@ -390,7 +390,7 @@ static vtkVolumeProperty *NewMultiTFVolumeProperty()
 
   a = vtkPiecewiseFunction::New();
   a->AddPoint(4.9, 0.0);
-  a->AddPoint(5.0, 1.0);
+  a->AddPoint(5.0, 0.5);
   volumeProperty->SetScalarOpacity(1, a);
   a->Delete();
 
