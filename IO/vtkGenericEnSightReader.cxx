@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.72");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.73");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -669,6 +669,7 @@ void vtkGenericEnSightReader::Update()
     if ( this->GetOutput(i) )
       {
       this->GetOutput(i)->DataHasBeenGenerated();
+      this->GetOutput(i)->SetUpdateExtentToWholeExtent();
       }
     }
 }

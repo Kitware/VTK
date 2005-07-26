@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.56");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.57");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -380,6 +380,7 @@ void vtkEnSightReader::Update()
     if ( this->GetOutput(i) )
       {
       this->GetOutput(i)->DataHasBeenGenerated();
+      this->GetOutput(i)->SetUpdateExtentToWholeExtent();
       }
     }
 }
