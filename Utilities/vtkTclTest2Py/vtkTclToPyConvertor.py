@@ -349,8 +349,9 @@ if __name__ == "__main__":
     output_file = None
     class_file = None
     prefix_file = None
+    convert_file_list_file = None
     namespace = "vtk"
-    
+    touch_file = None
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == "-i" and i < len(sys.argv)-1:
             input_file = sys.argv[i+1]
@@ -362,8 +363,15 @@ if __name__ == "__main__":
             namespace = sys.argv[i+1]
         if sys.argv[i] == "-p" and i < len(sys.argv)-1:
             prefix_file = sys.argv[i+1]
-    if not input_file or not output_file:
-        print "Usage: %s -i <input tcl test> <output tcl test>" % sys.argv[0]
+        if sys.argv[i] == "-l" and i < len(sys.argv)-1:
+            convert_file_list_file = sys.argv[i+1]
+        if sys.argv[i] == "-t" and i < len(sys.argv)-1:
+            touch_file = sys.argv[i+1]
+     
+            
+    if (not input_file or not output_file) and not convert_file_list_file:
+        print "Usage: %s -i <input tcl test> -o <output tcl test>" % sys.argv[0]
+        print `sys.argv`
         sys.exit(1)
     class_list = []
     if class_file:
@@ -393,30 +401,64 @@ if __name__ == "__main__":
         fp.close()
     except:
         pass
-    data = ""
-    try:
-        fp = file(input_file, "r")
-        data = fp.read()
-        fp.close()
-    except:
-        print "Failed to read input file %s" % input_file
-        sys.exit(1)
-
-    p = vtkTclToPyConvertor()
-    p.class_list = class_list
-    p.name_space = namespace
-    p.print_header(prefix_content)
-    p.feed(data)
-    p.print_footer()
-    if p.success():
+    convert_file_list = []
+    output_file_list = []
+    if convert_file_list_file:
         try:
-            ofp = file(output_file, "w")
-            ofp.write(p.output)
+            fp = file(convert_file_list_file, "r")
+            filename_list = fp.read().split(";")
+            fp.close()
+            for i in range(0, len(filename_list), 2):
+                convert_file_list.append(filename_list[i])
+                output_file_list.append(filename_list[i+1])
+        except:
+            print "Failed to read list of file to translate %s" % convert_file_list_file
+            print "%s" % sys.exc_info()[1]
+            sys.exit(1)
+        
+       
+    if input_file:
+        convert_file_list.append(input_file)
+    if output_file:
+        output_file_list.append(output_file)
+   
+    for i in range(0,len(convert_file_list)):
+        data = ""
+        ip_filename = convert_file_list[i].strip()
+        op_filename = output_file_list[i].strip()
+        try:
+            print "Converting %s" % ip_filename
+            fp = file(ip_filename, "r")
+            data = fp.read()
+            fp.close()
+        except:
+            print "Failed to read input file %s" % ip_filename 
+            sys.exit(1)
+
+        p = vtkTclToPyConvertor()
+        p.class_list = class_list
+        p.name_space = namespace
+        p.print_header(prefix_content)
+        p.feed(data)
+        p.print_footer()
+        if p.success():
+            try:
+                ofp = file(op_filename, "w")
+                ofp.write(p.output)
+                ofp.close()
+            except:
+                print "Failed to write output file %s" % op_filename
+                sys.exit(1)
+        else:
+            print "Conversion failed!"
+            sys.exit(1)
+    if touch_file:
+        try:
+            ofp = file(touch_file, "w")
+            ofp.write("Done\n")
             ofp.close()
         except:
-            print "Failed to write output file %s" % output_file
+            print "Failed to touch file %s" % touch_file
             sys.exit(1)
-        sys.exit(0)
-    print "Conversion failed!"
-    sys.exit(1)
-    
+
+    sys.exit(0) 

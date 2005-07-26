@@ -5,6 +5,8 @@ IF (VTK_PYTHON_EXE)
   # Add test converted from Tcl
   SET (CONVERTED_TESTS)
   SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
+  SET (TESTS_TO_CONVERT)
+  SET (CONVERSIONLIST)
   IF (VTK_DATA_ROOT)
     FOREACH( tfile
         RectOutline
@@ -22,18 +24,8 @@ IF (VTK_PYTHON_EXE)
       SET (input "${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/${tfile}.tcl")
       SET (output "${VTK_BINARY_DIR}/Parallel/Testing/Python/${tfile}.py")
       SET (CONVERTED_TESTS ${CONVERTED_TESTS} "${output}")
-      ADD_CUSTOM_COMMAND(
-        OUTPUT "${output}"
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS ${CONVERTER_SCRIPT}
-          -i "${input}" 
-          -o "${output}" 
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
-          -A "${VTK_BINARY_DIR}/Wrapping/Python"
-          -A "${VTK_LIBRARY_DIR}"
-        DEPENDS "${input}" "${CONVERTER_SCRIPT}"
-        COMMENT "Converting Tcl test"
-        )
+      SET (CONVERSIONLIST ${CONVERSIONLIST} "${input};${output}")
+      SET (TESTS_TO_CONVERT ${TESTS_TO_CONVERT} "${input}")
 
       #Add the py test.
       IF (${tfile} MATCHES TestExtractCTHPart)
@@ -69,18 +61,8 @@ IF (VTK_PYTHON_EXE)
       SET (input "${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/${tfile}.tcl")
       SET (output "${VTK_BINARY_DIR}/Parallel/Testing/Python/${tfile}.py")
       SET (CONVERTED_TESTS ${CONVERTED_TESTS} "${output}")
-      ADD_CUSTOM_COMMAND(
-        OUTPUT "${output}"
-        COMMAND ${PYTHON_EXECUTABLE}
-        ARGS ${CONVERTER_SCRIPT}
-          -i "${input}" 
-          -o "${output}" 
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
-          -A "${VTK_BINARY_DIR}/Wrapping/Python"
-          -A "${VTK_LIBRARY_DIR}"
-        DEPENDS "${input}" "${CONVERTER_SCRIPT}"
-        COMMENT "Converting Tcl test"
-        )
+      SET (CONVERSIONLIST ${CONVERSIONLIST} "${input};${output}")
+      SET (TESTS_TO_CONVERT ${TESTS_TO_CONVERT} "${input}")
 
       #Add the py test.
       ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
@@ -93,7 +75,26 @@ IF (VTK_PYTHON_EXE)
         )
     ENDFOREACH( tfile )      
   ENDIF (VTK_DATA_ROOT)
-  ADD_CUSTOM_TARGET(ParallelPythonTests ALL DEPENDS ${CONVERTED_TESTS}) 
+  WRITE_FILE(${VTK_BINARY_DIR}/Parallel/Testing/Python/conversionlist
+    "${CONVERSIONLIST}")
+
+  ADD_CUSTOM_COMMAND(
+    OUTPUT "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversion_complete"
+    COMMAND ${PYTHON_EXECUTABLE}
+    ARGS ${CONVERTER_SCRIPT}
+      -l "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversionlist"
+      -t "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversion_complete"
+      -A "${VTK_BINARY_DIR}/Wrapping/Python"
+      -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
+      -A "${VTK_LIBRARY_DIR}"
+    DEPENDS ${TESTS_TO_CONVERT} 
+        ${VTK_BINARY_DIR}/Parallel/Testing/Python/conversionlist 
+        ${CONVERTER_SCRIPT}
+    COMMENT "Converting Tcl test"
+    )
+
+  ADD_CUSTOM_TARGET(ParallelPythonTests ALL 
+      DEPENDS "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversion_complete") 
   ADD_DEPENDENCIES(ParallelPythonTests vtktcltest2py_pyc)
 
 ENDIF (VTK_PYTHON_EXE)
