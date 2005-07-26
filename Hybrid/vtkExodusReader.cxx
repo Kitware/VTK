@@ -1390,7 +1390,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.5");
+vtkCxxRevisionMacro(vtkExodusReader, "1.6");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4094,6 +4094,73 @@ int vtkExodusReader::GetArrayStatus ( vtkExodusReader::ArrayType type,
     case vtkExodusReader::UNKNOWN_TYPE:
     default:
       return 0;
+      break;
+    }
+}
+
+int vtkExodusReader::GetNumberOfArrays ( vtkExodusReader::ArrayType type )
+{
+  switch (type)
+    {
+    case vtkExodusReader::CELL:
+      return this->GetNumberOfCellArrays();
+      break;
+    case vtkExodusReader::POINT:
+      return this->GetNumberOfPointArrays();
+      break;
+    case vtkExodusReader::BLOCK:
+      return this->GetNumberOfBlockArrays();
+      break;
+    case vtkExodusReader::PART:
+      return this->GetNumberOfPartArrays();
+      break;
+    case vtkExodusReader::MATERIAL:
+      return this->GetNumberOfMaterialArrays();
+      break;
+    case vtkExodusReader::ASSEMBLY:
+      return this->GetNumberOfAssemblyArrays();
+      break;
+    case vtkExodusReader::HIERARCHY:
+      return this->GetNumberOfHierarchyArrays();
+      break;
+    case vtkExodusReader::NUM_ARRAY_TYPES:
+    case vtkExodusReader::UNKNOWN_TYPE:
+    default:
+      return 0;
+      break;
+    }
+}
+
+const char*vtkExodusReader::GetArrayName ( vtkExodusReader::ArrayType type, 
+    int id )
+{
+  switch (type)
+    {
+    case vtkExodusReader::CELL:
+      return this->GetCellArrayName( id );
+      break;
+    case vtkExodusReader::POINT:
+      return this->GetPointArrayName( id );
+      break;
+    case vtkExodusReader::BLOCK:
+      return this->GetBlockArrayName( id );
+      break;
+    case vtkExodusReader::PART:
+      return this->GetPartArrayName( id );
+      break;
+    case vtkExodusReader::MATERIAL:
+      return this->GetMaterialArrayName( id );
+      break;
+    case vtkExodusReader::ASSEMBLY:
+      return this->GetAssemblyArrayName( id );
+      break;
+    case vtkExodusReader::HIERARCHY:
+      return this->GetHierarchyArrayName( id );
+      break;
+    case vtkExodusReader::NUM_ARRAY_TYPES:
+    case vtkExodusReader::UNKNOWN_TYPE:
+    default:
+      return NULL;
       break;
     }
 }
