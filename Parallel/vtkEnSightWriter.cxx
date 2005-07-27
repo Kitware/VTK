@@ -85,7 +85,9 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
-vtkCxxRevisionMacro(vtkEnSightWriter, "1.1");
+vtkCxxRevisionMacro(vtkEnSightWriter, "1.2");
+
+vtkCxxSetObjectMacro(vtkEnSightWriter, ModelMetadata, vtkModelMetadata);
 
 //----------------------------------------------------------------------------
 // Created object with no filename and timestep 0
@@ -1146,13 +1148,6 @@ FILE* vtkEnSightWriter::OpenFile(char* name)
     return NULL;
     }
   return fd;
-}
-
-//----------------------------------------------------------------------------
-void vtkEnSightWriter::SetModelMetadata(vtkModelMetadata* model)
-{
-  this->ModelMetadata=model;
-  model->Register(this);
 }
 
 //----------------------------------------------------------------------------
