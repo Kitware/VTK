@@ -14,6 +14,11 @@ IF (VTK_USE_RENDERING)
       TestJPEGReader
       TestTIFFReader
       TestBMPReader
+      TestXMLRectilinearGridIO
+      TestXMLStructuredGridIO
+      TestXMLImageDataIO
+      TestXMLPolyDataIO
+      TestXMLUnstructuredGridIO
       Plot3DScalars
       Plot3DVectors
       ParticleReader
