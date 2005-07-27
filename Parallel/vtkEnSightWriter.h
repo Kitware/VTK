@@ -21,7 +21,7 @@
 // .SECTION Description
 // vtkEnSightWriter is a source object that writes binary 
 // unstructured grid data files in EnSight format. See EnSight Manual for 
-//format details
+// format details
 
 // .SECTION Caveats
 // Binary files written on one system may not be readable on other systems.
@@ -90,12 +90,14 @@ public:
   //Description
   //set the array of Block ID's
   //this class keeps a reference to the array and will not delete it
-  virtual void SetBlockIDs(int* val){
+  virtual void SetBlockIDs(int* val)
+    {
     BlockIDs=val;
-  }
-  virtual int* GetBlockIDs(){
+    }
+  virtual int* GetBlockIDs()
+    {
     return BlockIDs;
-  }
+    }
 
   // Description:
   // Specify the input data or filter.
