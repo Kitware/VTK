@@ -499,7 +499,7 @@ ELSE(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
   # Track all .txx file dependencies except *Implicit.txx files.
   SET(VTK_REGEX_TXX "vtk[^.]*([^t]|[^i]t|[^c]it|[^i]cit|[^l]icit|[^p]licit|[^m]plicit|[^I]mplicit)\\.txx")
 ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
-INCLUDE_REGULAR_EXPRESSION("^((lex|png|j|z|t).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
+INCLUDE_REGULAR_EXPRESSION("^((lex|png|j|z|t|D).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
 # Load the VTK CMake extension modules.
