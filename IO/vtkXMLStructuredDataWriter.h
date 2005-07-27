@@ -86,8 +86,13 @@ protected:
                      vtkInformationVector** inputVector,
                      vtkInformationVector* outputVector);
 
-  // The extent of the input to write.
+  vtkSetVector6Macro(InternalWriteExtent, int);
+
+  // The extent of the input to write, as specified by user
   int WriteExtent[6];
+  
+  // The actual extent of the input to write.
+  int InternalWriteExtent[6];
   
   // Number of pieces used for streaming.
   int NumberOfPieces;
