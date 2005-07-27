@@ -32,7 +32,7 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkInteractorStyle, "1.98");
+vtkCxxRevisionMacro(vtkInteractorStyle, "1.99");
 vtkStandardNewMacro(vtkInteractorStyle);
 
 //----------------------------------------------------------------------------
@@ -779,17 +779,16 @@ void vtkInteractorStyle::OnChar()
     case 'P' :
       if (this->State == VTKIS_NONE) 
         {
-        vtkAssemblyPath *path=NULL;
-        this->FindPokedRenderer(rwi->GetEventPosition()[0],
-                                rwi->GetEventPosition()[1]);
+        vtkAssemblyPath *path = NULL;
+        int *eventPos = rwi->GetEventPosition();
+        this->FindPokedRenderer(eventPos[0], eventPos[1]);
         rwi->StartPickCallback();
-        rwi->GetPicker()->Pick(rwi->GetEventPosition()[0],
-                               rwi->GetEventPosition()[1], 
-                               0.0, 
-                               this->CurrentRenderer);
-        vtkAbstractPropPicker *picker;
-        if ( (picker=vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker())) )
+        vtkAbstractPropPicker *picker = 
+          vtkAbstractPropPicker::SafeDownCast(rwi->GetPicker());
+        if ( picker != NULL )
           {
+          picker->Pick(eventPos[0], eventPos[1], 
+                       0.0, this->CurrentRenderer);
           path = picker->GetPath();
           }
         if ( path == NULL )
