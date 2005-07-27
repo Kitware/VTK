@@ -310,10 +310,12 @@ public:
   // return boolean indicating whether the type,name is a valid variable 
   int IsValidVariable( const char *type, const char *name );
 
+//BTX
   // Description:
   // Named type accessor for array information
   int GetNumberOfArrays( vtkExodusReader::ArrayType type );
   const char *GetArrayName( vtkExodusReader::ArrayType type, int id );
+//ETX
 
   // Descriptions:
   // Return the id of the type,name variable
