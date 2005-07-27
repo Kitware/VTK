@@ -195,7 +195,7 @@ public:
   // many renders) the axes can switch position (jump from one axes 
   // to another).
   vtkSetClampMacro(Inertia, int, 1, VTK_LARGE_INTEGER);
-  vtkGetMacro(Inertia, double);
+  vtkGetMacro(Inertia, int);
   
   // Description:
   // Set/Get the variable that controls whether the actual
