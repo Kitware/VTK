@@ -120,50 +120,38 @@ class DICOM_EXPORT DICOMFile
   //
   // Convert the data to signed long.
   //
-  static int ReturnAsSignedLong(unsigned char* data, bool big_endian)
+  static int ReturnAsSignedLong(unsigned char* data, bool )
   {
     unsigned char* data2 = data;
-    int tmp = *((quadbyte*) data2);
-    if(big_endian)
-      tmp = swap4(tmp);
-    return tmp;
+    return *((quadbyte*) data2);
   }
   
   
   //
   // Convert the data to unsigned long.
   //
-  static uint ReturnAsUnsignedLong(unsigned char* data, bool big_endian)
+  static uint ReturnAsUnsignedLong(unsigned char* data, bool)
   {
     unsigned char* data2 = data;
-    int tmp = *((ulong*) data2);
-    if(big_endian)
-      tmp = swap4(tmp);
-    return tmp;
+    return *((ulong*) data2);
   }
   
   //
   // Convert data to unsigned short.
   //
-  static ushort ReturnAsUnsignedShort(unsigned char* data, bool big_endian)
+  static ushort ReturnAsUnsignedShort(unsigned char* data, bool)
   {
     unsigned char* data2 = data;
-    ushort tmp = *((doublebyte*)data2);
-    if(big_endian)
-      tmp = swap2(tmp);
-    return tmp;
+    return *((doublebyte*)data2);
   }
   
   //
   // Convert data to signed short.
   // 
-  static short int ReturnAsSignedShort(unsigned char* data, bool big_endian)
+  static short int ReturnAsSignedShort(unsigned char* data, bool)
   {
     unsigned char* data2 = data;
-    int tmp = *((short int*)data2);
-    if(big_endian)
-      tmp = swap2(tmp);
-    return tmp;
+    return *((short int*)data2);
   }
 
   //
