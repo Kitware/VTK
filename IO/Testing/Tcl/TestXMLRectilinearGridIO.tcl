@@ -32,6 +32,12 @@ vtkXMLRectilinearGridWriter rgWriter
   rgWriter SetFileName $file2
   rgWriter SetDataModeToBinary
   rgWriter SetWriteExtent 3 46 6 32 1 5
+  rgWriter SetCompressor ""
+  if {[rgWriter GetByteOrder]} {  
+    rgWriter SetByteOrder 0
+  } else {
+    rgWriter SetByteOrder 1
+  }
   rgWriter Write
 
 # read the extracted grid
