@@ -1390,7 +1390,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.6");
+vtkCxxRevisionMacro(vtkExodusReader, "1.7");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4243,19 +4243,18 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
     // result->Initialize();
     result->SetName( vName );
     float *memory = result->GetPointer( 0 ); 
-    int err;
 
     if ((strcmp(vType, "CELL") == 0) || (strcmp(vType, "cell") == 0) ) 
       {
       int varid = GetCellArrayID( vName );
-      err = ex_get_elem_var_time( this->CurrentHandle, varid, itemID, 1, 
+      ex_get_elem_var_time( this->CurrentHandle, varid, itemID, 1, 
                                   numTimesteps, memory );
       retVal = 1;
       }
     else if ((strcmp(vType, "POINT") == 0) || (strcmp(vType, "point") == 0) ) 
       {
       int varid = GetPointArrayID( vName );
-      err = ex_get_nodal_var_time( this->CurrentHandle, varid, itemID, 1, 
+      ex_get_nodal_var_time( this->CurrentHandle, varid, itemID, 1, 
                                    numTimesteps, memory );
       retVal = 1;
       }
@@ -4263,7 +4262,6 @@ int vtkExodusReader::GetTimeSeriesData( int itemID, const char *vName,
       {
       }
     this->CloseCurrentFile();
-    (void)err;
     }
 
   if ( retVal == 0 )
