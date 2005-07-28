@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.6");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.7");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -157,6 +157,7 @@ void vtkAnimationScene::Play()
   // adjust currenttime to a valid time.
   currenttime = (currenttime < this->StartTime || currenttime >= this->EndTime)?
     this->StartTime : currenttime;
+  double STime = currenttime;
   double clocktime = currenttime;
   double oldclocktime = clocktime;
   double time_adjustment = 0;
@@ -173,7 +174,7 @@ void vtkAnimationScene::Play()
         {
         this->AnimationTimer->StopTimer();
         clocktime = this->AnimationTimer->GetElapsedTime() + 
-          this->StartTime;
+          STime;
         }
       else if (this->PlayMode == PLAYMODE_SEQUENCE)
         {
