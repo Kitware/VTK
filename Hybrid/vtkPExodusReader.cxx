@@ -51,7 +51,7 @@
 #define DEBUG 0
 #define vtkPExodusReaderMAXPATHLEN 2048
 
-vtkCxxRevisionMacro(vtkPExodusReader, "1.3");
+vtkCxxRevisionMacro(vtkPExodusReader, "1.4");
 vtkStandardNewMacro(vtkPExodusReader);
 
 //----------------------------------------------------------------------------
@@ -173,7 +173,7 @@ int vtkPExodusReader::RequestInformation(
     return 0;
     }
 
-  this->SetExodusModelMetadata(mmd); // turn it back, will compute in Execute
+  this->SetExodusModelMetadata(mmd); // turn it back, will compute in RequestData 
 
   if (this->CurrentFilePrefix)
     {
@@ -562,28 +562,33 @@ void vtkPExodusReader::SetUpEmptyGrid() {
       output->GetCellData()->AddArray(array);
     }
   }
- 
-
-  // Set up generated arrays
-  if (this->GenerateBlockIdCellArray) {
-    array->SetName("BlockId");
-    array->SetNumberOfComponents(1);
-    output->GetCellData()->AddArray(array);
-  }
-  if (this->GenerateGlobalNodeIdArray) {
-    array->SetName("GlobalNodeId");
-    array->SetNumberOfComponents(1);
-    output->GetPointData()->AddArray(array);
-  }
-  if (this->GenerateGlobalElementIdArray) {
-    array->SetName("GlobalElementId");
-    array->SetNumberOfComponents(1);
-    output->GetCellData()->AddArray(array);
-  }
-
   // Delete array
   array->Delete();
   array = NULL;
+ 
+  // Set up generated arrays
+
+  vtkIntArray *iarray = vtkIntArray::New();
+
+  if (this->GenerateBlockIdCellArray) {
+    iarray->SetName("BlockId");
+    iarray->SetNumberOfComponents(1);
+    output->GetCellData()->AddArray(iarray);
+  }
+  if (this->GenerateGlobalNodeIdArray) {
+    iarray->SetName("GlobalNodeId");
+    iarray->SetNumberOfComponents(1);
+    output->GetPointData()->AddArray(iarray);
+  }
+  if (this->GenerateGlobalElementIdArray) {
+    iarray->SetName("GlobalElementId");
+    iarray->SetNumberOfComponents(1);
+    output->GetCellData()->AddArray(iarray);
+  }
+
+  // Delete array
+  iarray->Delete();
+  iarray = NULL;
 }
 
 //----------------------------------------------------------------------------
