@@ -50,6 +50,10 @@ public:
   vtkGetMacro(WholeSlices, int);
   vtkBooleanMacro(WholeSlices, int);
   
+  // Description:
+  // For the specified port, copy the information this reader sets up in
+  // SetupOutputInformation to outInfo
+  virtual void CopyOutputInformation(vtkInformation *outInfo, int port);
 protected:
   vtkXMLStructuredDataReader();
   ~vtkXMLStructuredDataReader();

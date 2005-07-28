@@ -29,7 +29,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.19");
+vtkCxxRevisionMacro(vtkXMLStructuredDataWriter, "1.19.2.1");
 vtkCxxSetObjectMacro(vtkXMLStructuredDataWriter, ExtentTranslator,
                      vtkExtentTranslator);
 
@@ -41,6 +41,9 @@ vtkXMLStructuredDataWriter::vtkXMLStructuredDataWriter()
   this->WriteExtent[0] = 0; this->WriteExtent[1] = -1;
   this->WriteExtent[2] = 0; this->WriteExtent[3] = -1;
   this->WriteExtent[4] = 0; this->WriteExtent[5] = -1;
+  this->InternalWriteExtent[0] = 0; this->InternalWriteExtent[1] = -1;
+  this->InternalWriteExtent[2] = 0; this->InternalWriteExtent[3] = -1;
+  this->InternalWriteExtent[4] = 0; this->InternalWriteExtent[5] = -1;
 
   this->CurrentPiece = 0;
   this->ProgressFractions = 0;
@@ -66,6 +69,13 @@ void vtkXMLStructuredDataWriter::PrintSelf(ostream& os, vtkIndent indent)
      << this->WriteExtent[0] << " " << this->WriteExtent[1] << "  "
      << this->WriteExtent[2] << " " << this->WriteExtent[3] << "  "
      << this->WriteExtent[4] << " " << this->WriteExtent[5] << "\n";
+  os << indent << "InternalWriteExtent: "
+     << this->InternalWriteExtent[0] << " " 
+     << this->InternalWriteExtent[1] << "  "
+     << this->InternalWriteExtent[2] << " " 
+     << this->InternalWriteExtent[3] << "  "
+     << this->InternalWriteExtent[4] << " " 
+     << this->InternalWriteExtent[5] << "\n";
   if(this->ExtentTranslator)
     {
     os << indent << "ExtentTranslator: " << this->ExtentTranslator << "\n";
@@ -425,18 +435,25 @@ void vtkXMLStructuredDataWriter::SetupExtentTranslator()
      (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
      (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
     {
-    this->SetWriteExtent(input->GetWholeExtent());
+    this->SetInternalWriteExtent(input->GetWholeExtent());
+    }
+  else
+    {
+    this->SetInternalWriteExtent(this->WriteExtent);
     }
   
   // Our WriteExtent becomes the WholeExtent of the file.
-  this->ExtentTranslator->SetWholeExtent(this->WriteExtent);
+  this->ExtentTranslator->SetWholeExtent(this->InternalWriteExtent);
   this->ExtentTranslator->SetNumberOfPieces(this->NumberOfPieces);
   
-  vtkDebugMacro("Writing Extent: "
-                << this->WriteExtent[0] << " " << this->WriteExtent[1] << " "
-                << this->WriteExtent[2] << " " << this->WriteExtent[3] << " "
-                << this->WriteExtent[4] << " " << this->WriteExtent[5]
-                << " in " << this->NumberOfPieces << " pieces.");
+  vtkDebugMacro("Writing Extent: " 
+    << this->InternalWriteExtent[0] << " "
+    << this->InternalWriteExtent[1] << " "
+    << this->InternalWriteExtent[2] << " "
+    << this->InternalWriteExtent[3] << " "
+    << this->InternalWriteExtent[4] << " "
+    << this->InternalWriteExtent[5] << " in "
+    << this->NumberOfPieces << " pieces.");
 }
 
 //----------------------------------------------------------------------------
@@ -533,7 +550,7 @@ void vtkXMLStructuredDataWriter::WritePrimaryElementAttributes(ostream &os,
 {
   this->Superclass::WritePrimaryElementAttributes(os, indent);
 
-  this->WriteVectorAttribute("WholeExtent", 6, this->WriteExtent);
+  this->WriteVectorAttribute("WholeExtent", 6, this->InternalWriteExtent);
 }
 
 //----------------------------------------------------------------------------

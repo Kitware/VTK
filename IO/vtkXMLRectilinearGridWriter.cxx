@@ -26,7 +26,7 @@
 #include "vtkOffsetsManagerArray.h"
 #undef  vtkOffsetsManager_DoNotInclude
 
-vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.12");
+vtkCxxRevisionMacro(vtkXMLRectilinearGridWriter, "1.12.2.1");
 vtkStandardNewMacro(vtkXMLRectilinearGridWriter);
 
 //----------------------------------------------------------------------------
@@ -78,6 +78,8 @@ vtkXMLRectilinearGridWriter::CreateExactCoordinates(vtkDataArray* a, int xyz)
   int inExtent[6];
   int outExtent[6];
   this->GetInput()->GetExtent(inExtent);
+  this->ExtentTranslator->SetPiece(this->CurrentPiece);
+  this->ExtentTranslator->PieceToExtent();
   this->ExtentTranslator->GetExtent(outExtent);
   int* inBounds = inExtent+xyz*2;
   int* outBounds = outExtent+xyz*2;
@@ -206,6 +208,8 @@ void vtkXMLRectilinearGridWriter::WriteInlinePiece(vtkIndent indent)
 void vtkXMLRectilinearGridWriter::CalculateSuperclassFraction(float* fractions)
 {
   int extent[6];
+  this->ExtentTranslator->SetPiece(this->CurrentPiece);
+  this->ExtentTranslator->PieceToExtent();
   this->ExtentTranslator->GetExtent(extent);
   int dims[3] = {extent[1]-extent[0]+1,
                  extent[3]-extent[2]+1,

@@ -20,7 +20,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.17");
+vtkCxxRevisionMacro(vtkXMLPUnstructuredDataReader, "1.17.2.1");
 
 //----------------------------------------------------------------------------
 vtkXMLPUnstructuredDataReader::vtkXMLPUnstructuredDataReader()
@@ -333,6 +333,11 @@ int vtkXMLPUnstructuredDataReader::ReadPieceData()
     return 0;
     }
   
+  if (!input->GetPoints())
+    {
+    return 0;
+    }
+
   // Copy the points array.
   this->CopyArrayForPoints(input->GetPoints()->GetData(),
                            output->GetPoints()->GetData());

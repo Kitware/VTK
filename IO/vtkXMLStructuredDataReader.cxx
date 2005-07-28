@@ -16,10 +16,12 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkInformation.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.17");
+vtkCxxRevisionMacro(vtkXMLStructuredDataReader, "1.17.2.1");
 
 //----------------------------------------------------------------------------
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -76,6 +78,23 @@ int vtkXMLStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 }
 
 //----------------------------------------------------------------------------
+void
+vtkXMLStructuredDataReader::CopyOutputInformation(vtkInformation* outInfo,
+                                                  int port)
+{
+  // Let the superclass copy information first.
+  this->Superclass::CopyOutputInformation(outInfo, port);
+
+  // All structured data has a whole extent.
+  vtkInformation* localInfo = this->GetExecutive()->GetOutputInformation(port);
+  if(localInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+    outInfo->CopyEntry(localInfo,
+                       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkXMLStructuredDataReader::SetupEmptyOutput()
 {
   // Special extent to indicate no input.
@@ -129,9 +148,21 @@ vtkIdType vtkXMLStructuredDataReader::GetNumberOfPoints()
 //----------------------------------------------------------------------------
 vtkIdType vtkXMLStructuredDataReader::GetNumberOfCells()
 {
-  return (this->CellDimensions[0]*
-          this->CellDimensions[1]*
-          this->CellDimensions[2]);
+  // Special computation of cell count to support dimensions lower
+  // than 3.
+  vtkIdType nCells = 1;
+  for(int i=0; i < 3; ++i)
+    {
+    if(this->CellDimensions[i] == -1)
+      {
+      return 0;
+      }
+    if(this->CellDimensions[i] > 0)
+      {
+      nCells *= this->CellDimensions[i];
+      }
+    }
+  return nCells;
 }
 
 //----------------------------------------------------------------------------
