@@ -40,7 +40,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkInformation, "1.24");
+vtkCxxRevisionMacro(vtkInformation, "1.25");
 vtkStandardNewMacro(vtkInformation);
 
 // Note: assumes long is at least 32 bits.
@@ -227,13 +227,13 @@ void vtkInformation::SetAsObjectBase(vtkInformationKey* key,
   // is there something in this hash slot
   if (val)
     {
-    while (val && val != key && hash < this->Internal->TableSize)
+    while (val && val != key && hash < this->Internal->TableSize -1)
       {
       hash++;
       val = this->Internal->Keys[hash];
       }
     // if we have exceeded the table size or have two collisions
-    if (hash >= this->Internal->TableSize || hash - ohash > 1)
+    if ((hash == this->Internal->TableSize -1  && val != key) || hash - ohash > 1)
       {
       this->ExpandTable();
       this->SetAsObjectBase(key,newvalue);
@@ -315,12 +315,12 @@ vtkObjectBase* vtkInformation::GetAsObjectBase(vtkInformationKey* key)
     
     // Check for an existing entry.
     vtkInformationKey *val = this->Internal->Keys[hash];
-    while (val && val != key)
+        while (hash < this->Internal->TableSize - 1 && val && val != key)
       {
       hash++;
       val = this->Internal->Keys[hash];
       }
-    if (val)
+    if (val == key)
       {
       return this->Internal->Values[hash];
       }
