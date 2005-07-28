@@ -8,6 +8,9 @@ ELSE(APPLE)
 ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_LIBS vtkRendering vtkIO)
+IF(VTK_HAS_EXODUS)
+  SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
+ENDIF(VTK_HAS_EXODUS)
 IF (WIN32)
   IF (NOT BORLAND)
     SET(KIT_LIBS ${KIT_LIBS} wsock32)
@@ -59,6 +62,7 @@ vtkCutMaterial.cxx
 vtkDistributedDataFilter.cxx
 vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
+vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
@@ -94,6 +98,12 @@ vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
 )
+
+IF(VTK_HAS_EXODUS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkExodusIIWriter.cxx
+    )
+ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkParallelRenderManager

@@ -1,0 +1,96 @@
+#include "vtk_netcdf_mangle.h"
+
+/* libsrc/ncconfig.in.  Generated automatically from configure.in by autoheader.  */
+/* Id */
+#ifndef _NCCONFIG_H_
+#define _NCCONFIG_H_
+
+/* Define if this is a shared build */
+#cmakedefine BUILD_SHARED_LIBS
+#if defined( BUILD_SHARED_LIBS ) && defined( _WIN32 )
+#  define DLL_NETCDF
+#endif
+
+#ifdef vtkNetCDF_EXPORTS
+#  define DLL_EXPORT 
+#endif
+
+/* Define if you're on an HP-UX system. */
+#cmakedefine _HPUX_SOURCE
+
+/* Define if type char is unsigned and you are not using gcc.  */
+#ifndef __CHAR_UNSIGNED__
+#cmakedefine __CHAR_UNSIGNED__
+#endif
+
+/* Define if your struct stat has st_blksize.  */
+#cmakedefine HAVE_ST_BLKSIZE @HAVE_ST_BLKSIZE@
+
+/* Define to `long' if <sys/types.h> doesn't define.  */
+#cmakedefine off_t @off_t@
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#cmakedefine size_t @size_t@
+
+/* Define if you have the ANSI C header files.  */
+#cmakedefine STDC_HEADERS @STDC_HEADERS@
+
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+#cmakedefine WORDS_BIGENDIAN @WORDS_BIGENDIAN@
+
+/* Define if you don't have the <stdlib.h>.  */
+#cmakedefine NO_STDLIB_H @NO_STDLIB_H@
+
+/* Define if you don't have the <sys/types.h>.  */
+#cmakedefine NO_SYS_TYPES_H @NO_SYS_TYPES_H@
+
+/* Define if you have the ftruncate function  */
+#cmakedefine HAVE_FTRUNCATE @HAVE_FTRUNCATE@
+
+/* Define if you have alloca, as a function or macro.  */
+#cmakedefine HAVE_ALLOCA @HAVE_ALLOCA@
+
+/* Define if you have <alloca.h> and it should be used (not on Ultrix).  */
+#cmakedefine HAVE_ALLOCA_H @HAVE_ALLOCA_H@
+
+/* Define if you have <unistd.h> and it should be used (not on Ultrix).  */
+#cmakedefine HAVE_UNISTD_H @HAVE_UNISTD_H@
+
+/* Define if you don't have the strerror function  */
+#cmakedefine NO_STRERROR @NO_STRERROR@
+
+/* The number of bytes in a size_t */
+#cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
+
+/* The number of bytes in a off_t */
+#cmakedefine SIZEOF_OFF_T @SIZEOF_OFF_T@
+
+/* Define to `int' if system doesn't define.  */
+#cmakedefine ssize_t @ssize_t@
+
+/* Define to `int' if system doesn't define.  */
+#cmakedefine ptrdiff_t @ptrdiff_t@
+
+/* Define to `unsigned char' if system doesn't define.  */
+#cmakedefine uchar @uchar@
+
+/* Define if the system does not use IEEE floating point representation */
+#cmakedefine NO_IEEE_FLOAT @NO_IEEE_FLOAT@
+
+/* The number of bytes in a double.  */
+#cmakedefine SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+
+/* The number of bytes in a float.  */
+#cmakedefine SIZEOF_FLOAT @SIZEOF_FLOAT@
+
+/* The number of bytes in a int.  */
+#cmakedefine SIZEOF_INT @SIZEOF_INT@
+
+/* The number of bytes in a long.  */
+#cmakedefine SIZEOF_LONG @SIZEOF_LONG@
+
+/* The number of bytes in a short.  */
+#cmakedefine SIZEOF_SHORT @SIZEOF_SHORT@
+
+#endif /* !_NCCONFIG_H_ */

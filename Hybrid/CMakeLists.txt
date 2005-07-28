@@ -9,6 +9,9 @@ ELSE(APPLE)
 ENDIF(APPLE)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_LIBS vtkRendering vtkIO)
+IF(VTK_HAS_EXODUS)
+  SET(KIT_LIBS ${KIT_LIBS} vtkexoIIc)
+ENDIF(VTK_HAS_EXODUS)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)
@@ -73,6 +76,15 @@ vtk3DWidget
 vtkPolyDataSourceWidget
 ABSTRACT
 )
+IF(VTK_HAS_EXODUS)
+  SET(Kit_SRCS ${Kit_SRCS}
+    vtkPExodusReader.cxx
+    vtkExodusReader.cxx
+    vtkDSPFilterDefinition.cxx
+    vtkExodusModel.cxx
+    vtkDSPFilterGroup.cxx
+    )
+ENDIF(VTK_HAS_EXODUS)
 
 IF (WIN32)
   IF (VTK_USE_VIDEO_FOR_WINDOWS)

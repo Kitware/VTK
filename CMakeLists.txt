@@ -659,6 +659,14 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 #-----------------------------------------------------------------------------
 # Dispatch the build into the proper subdirectories.
 
+
+SET(VTK_HAS_EXODUS)
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
+  SET(VTK_HAS_EXODUS 1)
+ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
+  MESSAGE(STATUS "CMake older than 2.0 detected. NetCDF will be disabled")
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
+
 # Utility libraries and executables.
 SUBDIRS(Wrapping Utilities)
 
