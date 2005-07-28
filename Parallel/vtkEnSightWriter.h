@@ -122,6 +122,8 @@ protected:
   vtkEnSightWriter();
   virtual ~vtkEnSightWriter();
 
+  virtual int FillInputPortInformation(int port, vtkInformation* info);
+
   virtual void WriteData(); // method to allow this class to be instantiated and delegated to
 
   virtual void WriteStringToFile(const char* string, FILE* file);

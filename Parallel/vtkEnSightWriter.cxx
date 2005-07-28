@@ -42,6 +42,7 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
@@ -85,7 +86,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkEnSightWriter);
-vtkCxxRevisionMacro(vtkEnSightWriter, "1.2");
+vtkCxxRevisionMacro(vtkEnSightWriter, "1.3");
 
 vtkCxxSetObjectMacro(vtkEnSightWriter, ModelMetadata, vtkModelMetadata);
 
@@ -151,6 +152,12 @@ void vtkEnSightWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfBlocks: " << this->NumberOfBlocks << endl;
   os << indent << "BlockIDs: " << this->BlockIDs << endl;
   os << indent << "GhostLevel: " << this->GhostLevel << endl;
+}
+
+int vtkEnSightWriter::FillInputPortInformation( int vtkNotUsed(port), vtkInformation* info )
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUnstructuredGrid");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
