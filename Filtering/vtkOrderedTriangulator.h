@@ -226,6 +226,17 @@ public:
   // Methods to get one tetra at a time. Start with InitTetraTraversal()
   // and then invoke GetNextTetra() until the method returns 0.
   void InitTetraTraversal();
+  
+  // Description:
+  // Methods to get one tetra at a time. Start with InitTetraTraversal()
+  // and then invoke GetNextTetra() until the method returns 0.
+  // cellScalars are point-centered scalars on the original cell.
+  // tetScalars are point-centered scalars on the tetra: the values will be
+  // copied from cellScalars.
+  // \pre tet_exists: tet!=0
+  // \pre cellScalars_exists: cellScalars!=0
+  // \pre tetScalars_exists: tetScalars!=0
+  // \pre tetScalars_valid_size: tetScalars->GetNumberOfTuples()==4
   int  GetNextTetra(int classification, vtkTetra *tet,
                     vtkDataArray *cellScalars, vtkDoubleArray *tetScalars);
   
