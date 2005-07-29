@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.1");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.2");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -284,6 +284,17 @@ void vtkImageTracerWidget::SetEnabled(int enabling)
       return;
       }
 
+    // if disabling occurs without finishing an activity, cleanup states
+    if ( this->State == vtkImageTracerWidget::Tracing )
+      {
+      this->OnLeftButtonUp();
+      }
+    else if ( this->State == vtkImageTracerWidget::Snapping )
+      {
+      this->Interactor->SetControlKey( 1 );
+      this->OnMiddleButtonUp();
+      }
+
     this->Enabled = 0;
 
     // Don't listen for events any more
@@ -524,12 +535,23 @@ void vtkImageTracerWidget::AdjustHandlePosition(const int& handle, double pos[3]
 void vtkImageTracerWidget::SetProjectionPosition(double position)
 {
   this->ProjectionPosition = position;
-  
-  for ( int i = 0; i < this->NumberOfHandles; ++i )
+
+  int i;
+  for ( i = 0; i < this->NumberOfHandles; ++i )
     {
     this->AdjustHandlePosition(i,this->HandleGeometry[i]->GetCenter());
     }
-  this->BuildLinesFromHandles();
+
+  double pt[3];
+  for ( i = 0; i < this->NumberOfHandles; ++i )
+    {
+    this->LinePoints->GetPoint(i,pt);
+    pt[ this->ProjectionNormal ] = this->ProjectionPosition;
+    this->LinePoints->SetPoint(i,pt);
+    }
+    
+  this->LinePoints->GetData()->Modified();
+  this->LineData->Modified();
 }
 
 void vtkImageTracerWidget::SetHandlePosition(int handle, double xyz[3])
@@ -1298,6 +1320,7 @@ void vtkImageTracerWidget::ResetLine(double* pos)
 
   this->LinePoints->Reset();
   this->LineCells->Reset();
+
   this->LineData->Initialize();
 
   this->PickCount = 0;
