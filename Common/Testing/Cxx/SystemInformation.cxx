@@ -71,7 +71,7 @@ int SystemInformation(int,char *[])
       CMAKE_BINARY_DIR "/CMakeCache.txt", 
       VTK_BINARY_DIR "/vtkConfigure.h",
       VTK_BINARY_DIR "/vtkToolkits.h",
-      CMAKE_BINARY_DIR "/CMakeError.log",
+      CMAKE_BINARY_DIR "/CMakeFiles/CMakeError.log",
       VTK_BINARY_DIR "/CMake/CMakeCache.txt", 
       VTK_BINARY_DIR "/VTKBuildSettings.cmake",
       VTK_BINARY_DIR "/VTKLibraryDepends.cmake",

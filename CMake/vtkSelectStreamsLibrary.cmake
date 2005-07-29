@@ -37,7 +37,7 @@ MACRO(VTK_SELECT_STREAMS_LIBRARY var VTK_SOURCE_DIR)
           ELSE(VTK_COMPILER_IS_VC6)
             MESSAGE(STATUS "Checking if compiler is VC6 -- no")
             SET(VTK_COMPILER_IS_VC6 0 CACHE INTERNAL "Compiler is MSVC 6")
-            WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+            WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
               "Determining if the compiler is MSVC 6 "
               "failed with the following output:\n"
               "${OUTPUT}\n" APPEND)

@@ -310,14 +310,14 @@ IF(VTK_SIZEOF___INT64)
     IF(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- yes")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 1 CACHE INTERNAL "Whether long and __int64 are the same type")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining whether long and __int64 are the same type "
         "passed with the following output:\n"
         "${OUTPUT}\n" APPEND)
     ELSE(VTK_TYPE_SAME_LONG_AND___INT64)
       MESSAGE(STATUS "Checking whether long and __int64 are the same type -- no")
       SET(VTK_TYPE_SAME_LONG_AND___INT64 0 CACHE INTERNAL "Whether long and __int64 are the same type")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining whether long and __int64 are the same type "
         "failed with the following output:\n"
         "${OUTPUT}\n" APPEND)
@@ -336,14 +336,14 @@ IF(VTK_SIZEOF___INT64)
       IF(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- yes")
         SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 1 CACHE INTERNAL "Whether long long and __int64 are the same type")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
           "Determining whether long long and __int64 are the same type "
           "passed with the following output:\n"
           "${OUTPUT}\n" APPEND)
       ELSE(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
         MESSAGE(STATUS "Checking whether long long and __int64 are the same type -- no")
         SET(VTK_TYPE_SAME_LONG_LONG_AND___INT64 0 CACHE INTERNAL "Whether long long and __int64 are the same type")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Determining whether long long and __int64 are the same type "
           "failed with the following output:\n"
           "${OUTPUT}\n" APPEND)
@@ -366,14 +366,14 @@ IF(VTK_SIZEOF___INT64)
         IF(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- yes")
           SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 1 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
             "Determining whether unsigned __int64 can convert to double "
             "passed with the following output:\n"
             "${OUTPUT}\n" APPEND)
         ELSE(VTK_TYPE_CONVERT_UI64_TO_DOUBLE)
           MESSAGE(STATUS "Checking whether unsigned __int64 can convert to double -- no")
           SET(VTK_TYPE_CONVERT_UI64_TO_DOUBLE 0 CACHE INTERNAL "Whether unsigned __int64 can convert to double")
-          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+          WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
             "Determining whether unsigned __int64 can convert to double "
             "failed with the following output:\n"
             "${OUTPUT}\n" APPEND)
@@ -410,14 +410,14 @@ IF("VTK_COMPILER_HAS_BOOL" MATCHES "^VTK_COMPILER_HAS_BOOL$")
   IF(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- yes")
     SET(VTK_COMPILER_HAS_BOOL 1 CACHE INTERNAL "Support for C++ type bool")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
       "Determining if the C++ compiler supports type bool "
       "passed with the following output:\n"
       "${OUTPUT}\n" APPEND)
   ELSE(VTK_COMPILER_HAS_BOOL)
     MESSAGE(STATUS "Checking support for C++ type bool -- no")
     SET(VTK_COMPILER_HAS_BOOL 0 CACHE INTERNAL "Support for C++ type bool")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
       "Determining if the C++ compiler supports type bool "
       "failed with the following output:\n"
       "${OUTPUT}\n" APPEND)
@@ -433,14 +433,14 @@ IF("VTK_COMPILER_HAS_FULL_SPECIALIZATION" MATCHES "^VTK_COMPILER_HAS_FULL_SPECIA
   IF(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
     MESSAGE(STATUS "Checking support for full template specialization syntax -- yes")
     SET(VTK_COMPILER_HAS_FULL_SPECIALIZATION 1 CACHE INTERNAL "Support for full template specialization syntax")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
       "Determining if the C++ compiler supports full template specialization syntax "
       "passed with the following output:\n"
       "${OUTPUT}\n" APPEND)
   ELSE(VTK_COMPILER_HAS_FULL_SPECIALIZATION)
     MESSAGE(STATUS "Checking support for full template specialization syntax -- no")
     SET(VTK_COMPILER_HAS_FULL_SPECIALIZATION 0 CACHE INTERNAL "Support for full template specialization syntax")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
       "Determining if the C++ compiler supports full template specialization syntax "
       "failed with the following output:\n"
       "${OUTPUT}\n" APPEND)
@@ -614,14 +614,14 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- yes")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether ostream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining if ostream supports long long "
         "passed with the following output:\n"
         "${OUTPUT}\n" APPEND)
     ELSE(VTK_OSTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if ostream supports long long -- no")
       SET(VTK_OSTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether ostream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if ostream supports long long "
         "failed with the following output:\n"
         "${OUTPUT}\n" APPEND)
@@ -637,14 +637,14 @@ IF(VTK_SIZEOF_LONG_LONG)
     IF(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- yes")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 1 CACHE INTERNAL "Whether istream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
         "Determining if istream supports long long "
         "passed with the following output:\n"
         "${OUTPUT}\n" APPEND)
     ELSE(VTK_ISTREAM_SUPPORTS_LONG_LONG)
       MESSAGE(STATUS "Checking if istream supports long long -- no")
       SET(VTK_ISTREAM_SUPPORTS_LONG_LONG 0 CACHE INTERNAL "Whether istream supports long long")
-      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
         "Determining if istream supports long long "
         "failed with the following output:\n"
         "${OUTPUT}\n" APPEND)

@@ -49,14 +49,14 @@ IF(NOT CMAKE_COMPILER_IS_GNUCXX)
       IF(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
         MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed -- no")
         SET(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND 1 CACHE INTERNAL "Whether SGI MIPSpro 7.4 stdarg work-around is needed")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
           "Determining whether SGI MIPSpro does not have stdarg problems "
           "passed with the following output:\n"
           "${OUTPUT}\n" APPEND)
       ELSE(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND)
         MESSAGE(STATUS "Checking whether SGI MIPSpro 7.4 stdarg work-around is needed -- yes")
         SET(VTK_COMPILER_NO_SGI_STDARG_WORKAROUND 0 CACHE INTERNAL "Whether SGI MIPSpro 7.4 stdarg work-around is needed")
-        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
           "Determining whether SGI MIPSpro does not have stdarg problems "
           "failed with the following output:\n"
           "${OUTPUT}\n" APPEND)

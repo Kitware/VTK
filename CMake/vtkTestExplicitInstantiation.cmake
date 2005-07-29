@@ -41,14 +41,14 @@ IF("VTK_EXPLICIT_TEMPLATES" MATCHES "^VTK_EXPLICIT_TEMPLATES")
   IF(VTK_EXPLICIT_TEMPLATES)
     MESSAGE(STATUS "Checking support for C++ explicit template instantiation -- yes")
     SET(VTK_EXPLICIT_TEMPLATES 1 CACHE INTERNAL "Support for C++ explict templates")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeOutput.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
       "Determining if the C++ compiler supports explict template instantiation "
       "passed with the following output:\n"
       "${OUTPUT}\n" APPEND)
   ELSE(VTK_EXPLICIT_TEMPLATES)
     MESSAGE(STATUS "Checking support for C++ explicit template instantiation -- no")
     SET(VTK_EXPLICIT_TEMPLATES 0 CACHE INTERNAL "Support for C++ explict templates")
-    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeError.log
+    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
       "Determining if the C++ compiler supports explict template instantiation "
       "failed with the following output:\n"
       "${OUTPUT}\n" APPEND)
