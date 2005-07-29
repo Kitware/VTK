@@ -49,7 +49,7 @@
 #include <vtkstd/vector>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkExtractCTHPart, "1.7");
+vtkCxxRevisionMacro(vtkExtractCTHPart, "1.8");
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,ClipPlane,vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart,Controller,vtkMultiProcessController);
@@ -757,10 +757,12 @@ void vtkExtractCTHPart::ExecutePartOnUniformGrid(
   cellVolumeFraction->GetRange(range);
   if (range[1] < CTH_AMR_SURFACE_VALUE)
     {
+    vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
   if (this->ClipPlane == 0 && range[0] > CTH_AMR_SURFACE_VALUE)
     {
+    vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
 
@@ -1012,10 +1014,12 @@ void vtkExtractCTHPart::ExecutePartOnRectilinearGrid(
   cellVolumeFraction->GetRange(range);
   if (range[1] < CTH_AMR_SURFACE_VALUE)
     {
+    vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
   if (this->ClipPlane == 0 && range[0] > CTH_AMR_SURFACE_VALUE)
     {
+    vtkTimerLog::MarkEndEvent("Execute Part");
     return;
     }
   
