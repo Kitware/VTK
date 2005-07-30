@@ -60,9 +60,9 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
         "file.write('Done')\n")
 
   ADD_CUSTOM_COMMAND(
-    COMMAND ${PYTHON_EXECUTABLE}
+    COMMAND ${VTK_PYTHON_EXE}
     ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
-    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
+    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk ${VTK_PYTHON_EXE}
     OUTPUT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete"
     )
 
