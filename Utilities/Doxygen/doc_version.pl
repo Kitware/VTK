@@ -181,7 +181,7 @@ print DEST_FILE
   "  \@li VTK FAQ: http://www.vtk.org/Wiki/VTK_FAQ\n",
   "  \@li VTK Wiki: http://www.vtk.org/Wiki/\n",
   "  \@li VTK Search: http://www.kitware.com/search.html\n",
-  "  \@li VTK Dashboard: http://www.vtk.org/Testing/Dashboard/MostRecentResults-Nightly/Dashboard.html",
+  "  \@li VTK Dashboard: http://www.vtk.org/Testing/Dashboard/MostRecentResults-Nightly/Dashboard.html\n",
   "  \@li VTK-Doxygen scripts (Sebastien Barre): http://www.barre.nom.fr/vtk/doc/README\n",
   "  \@li Kitware Home: http://www.kitware.com\n",
   "  \@li Sebastien's VTK Links: http://www.barre.nom.fr/vtk/links.html\n",
