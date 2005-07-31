@@ -66,7 +66,9 @@ public:
   void RemoveAllPoints();
 
   // Description:
-  // Returns the RGB color evaluated at the specified location
+  // Returns an RGB color for the specified scalar value 
+  double *GetColor(double x) {
+    return vtkScalarsToColors::GetColor(x); }
   void GetColor(double x, double rgb[3]);
 
   // Description:
