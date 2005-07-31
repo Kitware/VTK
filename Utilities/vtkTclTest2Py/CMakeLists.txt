@@ -7,7 +7,12 @@
 # *** Step 1 has to be done carefully to avoid missing out files ***
 
 IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
-# Make the necessary directories.
+  GET_FILENAME_COMPONENT(VTK_OUTPUT_PYTHON_EXE ${VTK_PYTHON_EXE} PATH)
+  GET_FILENAME_COMPONENT(exename ${VTK_PYTHON_EXE} NAME)
+  SET(VTK_OUTPUT_PYTHON_EXE 
+    "${VTK_OUTPUT_PYTHON_EXE}/${CMAKE_CFG_INTDIR}/${exename}")
+  
+  # Make the necessary directories.
   FOREACH(dir
     ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py
     )
@@ -60,7 +65,7 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
         "file.write('Done')\n")
 
   ADD_CUSTOM_COMMAND(
-    COMMAND ${VTK_PYTHON_EXE}
+    COMMAND ${VTK_OUTPUT_PYTHON_EXE}
     ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
     DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk ${VTK_PYTHON_EXE}
     OUTPUT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete"
