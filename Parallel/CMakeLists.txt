@@ -89,6 +89,7 @@ vtkPStreamTracer.cxx
 vtkParallelFactory.cxx
 vtkPieceScalars.cxx
 vtkPipelineSize.cxx
+vtkProcessIdScalars.cxx
 vtkRTAnalyticSource.cxx
 vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
