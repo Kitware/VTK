@@ -7,11 +7,7 @@
 # *** Step 1 has to be done carefully to avoid missing out files ***
 
 IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
-  SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
-  IF(MAKE_SYSTEM OR UNIX)
-    SET(CFG_INIT "")
-  ENDIF(MAKE_SYSTEM OR UNIX)
-  SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/vtkpython${EXE_EXT})
+  SET(CMD ${PYTHON_EXECUTABLE})
 
   # Make the necessary directories.
   FOREACH(dir
@@ -68,6 +64,7 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
   ADD_CUSTOM_COMMAND(
     COMMAND ${CMD}
     ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
+      -A "${VTK_BINARY_DIR}/Wrapping/Python"
     DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk vtkpython
     OUTPUT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete"
     )

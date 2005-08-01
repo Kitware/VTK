@@ -20,7 +20,7 @@ import string
 
 for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
-        sys.path = sys.path + [sys.argv[i+1]]
+        sys.path = [sys.argv[i+1]] + sys.path
 
 import vtkTclParser
 
