@@ -352,6 +352,9 @@ def main(cases):
     print " %f </DartMeasurement>"%tot_wall_time
     print "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">",
     print " %f </DartMeasurement>"%tot_time
+
+    # Delete these to eliminate debug leaks warnings.
+    del cases, timer
     
     if result.wasSuccessful():
         sys.exit(0)
@@ -493,24 +496,23 @@ def processCmdLine():
 
 
 
-######################################################################
-# A Trivial test case to illustrate how this module works.
-class SampleTest(vtkTest):
-    obj = vtk.vtkActor()
-    def testParse(self):
-        "Test if class is parseable"
-        self._testParse(self.obj)
-
-    def testGetSet(self):
-        "Testing Get/Set methods"
-        self._testGetSet(self.obj)
-
-    def testBoolean(self):
-        "Testing Boolean methods"
-        self._testBoolean(self.obj)
-
-
 if __name__ == "__main__":
+    ######################################################################
+    # A Trivial test case to illustrate how this module works.
+    class SampleTest(vtkTest):
+        obj = vtk.vtkActor()
+        def testParse(self):
+            "Test if class is parseable"
+            self._testParse(self.obj)
+
+        def testGetSet(self):
+            "Testing Get/Set methods"
+            self._testGetSet(self.obj)
+
+        def testBoolean(self):
+            "Testing Boolean methods"
+            self._testBoolean(self.obj)
+
     # Test with the above trivial sample test.
     main( [ (SampleTest, 'test') ] )
 

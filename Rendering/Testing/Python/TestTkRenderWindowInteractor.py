@@ -60,4 +60,6 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
         self._testBoolean(self.tkrw)
 
 if __name__ == "__main__":
-    Testing.main([(TestTkRenderWindowInteractor, 'test')])
+    cases = [(TestTkRenderWindowInteractor, 'test')]
+    del TestTkRenderWindowInteractor
+    Testing.main(cases)

@@ -60,4 +60,6 @@ class TestTkRenderWidget(Testing.vtkTest):
 
 
 if __name__ == "__main__":
-    Testing.main([(TestTkRenderWidget, 'test')])
+    cases = [(TestTkRenderWidget, 'test')]
+    del TestTkRenderWidget
+    Testing.main(cases)

@@ -157,4 +157,7 @@ class TestGL2PSExporter(Testing.vtkTest):
 
 
 if __name__ == "__main__":
-    Testing.main([(TestGL2PSExporter, 'test')])
+    cases = [(TestGL2PSExporter, 'test')]
+    # This should prevent debug leaks messages.
+    del TestGL2PSExporter
+    Testing.main(cases)
