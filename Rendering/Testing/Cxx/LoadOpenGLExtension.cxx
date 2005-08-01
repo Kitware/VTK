@@ -133,6 +133,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
       return 0;
       }
     }
+  cout << extensions->GetExtensionsString() << endl;
   cout << "Load extension." << endl;
   extensions->LoadExtension("GL_VERSION_1_2");
   extensions->Delete();
