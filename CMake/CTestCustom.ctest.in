@@ -22,6 +22,8 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
   "warning: To disable this warning use"
   "ranlib: file: .+ has no symbols"
   "could not be inlined"
+  "ld: warning prebinding disabled because \\((__TEXT|__DATA|__LINKEDIT) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*) overlaps with (__LINKEDIT|__TEXT|__DATA) segment \\(address = 0x[a-f0-9]+ size = 0x[a-f0-9]+\\) of (.*)"
+  "ld: warning prebinding disabled because dependent library: (.*).dylib is not prebound"
   )
 
 SET(CTEST_CUSTOM_COVERAGE_EXCLUDE
