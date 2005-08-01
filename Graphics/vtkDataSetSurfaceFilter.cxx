@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.47");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.48");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -68,6 +68,8 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
   this->FastGeomQuadArrays = NULL;
   this->NextArrayIndex = 0;
   this->NextQuadIndex = 0;
+
+  this->PieceInvariant = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -672,7 +674,7 @@ int vtkDataSetSurfaceFilter::RequestUpdateExtent(
   ghostLevels =
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
   
-  if (numPieces > 1)
+  if (numPieces > 1 && this->PieceInvariant)
     {
     // The special execute for structured data handle boundaries internally.
     // PolyData does not need any ghost levels.
@@ -1143,7 +1145,10 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
   output->Squeeze();
 
   int ghostLevels = output->GetUpdateGhostLevel();
-  output->RemoveGhostCells(ghostLevels+1);
+  if (this->PieceInvariant)
+    {
+    output->RemoveGhostCells(ghostLevels+1);
+    }
 
   this->DeleteQuadHash();
 

@@ -50,6 +50,13 @@ public:
   vtkGetMacro(UseStrips, int);
   vtkBooleanMacro(UseStrips, int);
 
+  // Description:
+  // If PieceInvariant is true, vtkDataSetSurfaceFilter requests
+  // 1 ghost level from input in order to remove internal surface
+  // that are between processes. False by default.
+  vtkSetMacro(PieceInvariant, int);
+  vtkGetMacro(PieceInvariant, int);
+
 protected:
   vtkDataSetSurfaceFilter();
   ~vtkDataSetSurfaceFilter();
@@ -114,6 +121,8 @@ protected:
   // These indexes allow us to find the next available face.
   int NextArrayIndex;
   int NextQuadIndex;
+
+  int PieceInvariant;
 
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
