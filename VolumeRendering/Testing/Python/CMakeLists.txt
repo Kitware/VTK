@@ -9,6 +9,12 @@ IF (VTK_USE_RENDERING)
       SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
       SET (TESTS_TO_CONVERT)
       SET (CONVERSIONLIST)
+      SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
+      IF(MAKE_SYSTEM OR UNIX)
+        SET(CFG_INIT "")
+      ENDIF(MAKE_SYSTEM OR UNIX)
+      SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/vtkpython${EXE_EXT})
+
       FOREACH( tfile
           gaussian
           TestBunykRayCastFunction
@@ -47,11 +53,10 @@ IF (VTK_USE_RENDERING)
 
       ADD_CUSTOM_COMMAND(
         OUTPUT "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversion_complete"
-        COMMAND ${PYTHON_EXECUTABLE}
+        COMMAND ${CMD}
         ARGS ${CONVERTER_SCRIPT}
           -l "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversionlist"
           -t "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversion_complete"
-          -A "${VTK_BINARY_DIR}/Wrapping/Python"
           -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
           -A "${VTK_LIBRARY_DIR}"
         DEPENDS ${TESTS_TO_CONVERT} 
