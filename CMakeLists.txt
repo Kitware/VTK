@@ -714,6 +714,8 @@ ENDIF(VTK_WRAP_JAVA)
 # Testing.
 IF(BUILD_TESTING)
   MAKE_DIRECTORY(${VTK_BINARY_DIR}/Testing/Temporary)
+  # Build scripts to convert tcl tests to python
+  SUBDIRS(Utilities/vtkTclTest2Py)
   SUBDIRS(Common/Testing Filtering/Testing Graphics/Testing GenericFiltering/Testing Imaging/Testing
           IO/Testing)
   IF(VTK_USE_RENDERING)
@@ -726,6 +728,7 @@ IF(BUILD_TESTING)
     SUBDIRS(Parallel/Testing)
   ENDIF(VTK_USE_PARALLEL)
 ENDIF(BUILD_TESTING)
+
 
 # Include the examples if they are enabled.  Note that the in-tree
 # build adds tests and a custom target to build the examples project

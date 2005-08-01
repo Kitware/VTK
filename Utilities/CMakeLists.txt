@@ -1,9 +1,6 @@
 # Build kwsys
 SUBDIRS(kwsys)
 
-# Build TclTest2Py
-SUBDIRS(vtkTclTest2Py)
-
 # Build third-party utilities.
 
 VTK_THIRD_PARTY_SUBDIR(ZLIB vtkzlib)
