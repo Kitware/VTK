@@ -40,9 +40,6 @@
 #define qDebug(a)
 //#define qDebug(a) printf(a)
 
-#include <QtDesigner/QtDesigner>
-#include <QtCore/qplugin.h>
-
 QVTKWidgetPlugin::QVTKWidgetPlugin()
 {
   qDebug("QVTKWidgetPlugin instantiated\n");
@@ -139,7 +136,7 @@ bool QVTKWidgetPlugin::isContainer() const
   return false;
 }
 
-QVTKPlugin::QVTKPlugin(QObject* parent) : QObject(parent)
+QVTKPlugin::QVTKPlugin()
 {
   mQVTKWidgetPlugin = new QVTKWidgetPlugin;
 }
