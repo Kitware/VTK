@@ -127,6 +127,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
            << "If you think this might be the case, try rerunning this test\n"
            << "with the -ForceLoad flag.  However, if Opengl 1.2 is really\n"
            << "not supported, a seg fault will occur." << endl;
+      cout << extensions->GetExtensionsString() << endl;
       renwin->Delete();
       iren->Delete();
       extensions->Delete();
