@@ -26,7 +26,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.31");
+vtkCxxRevisionMacro(vtkParallelCoordinatesActor, "1.32");
 vtkStandardNewMacro(vtkParallelCoordinatesActor);
 
 vtkCxxSetObjectMacro(vtkParallelCoordinatesActor,Input,vtkDataObject);
@@ -299,7 +299,7 @@ int vtkParallelCoordinatesActor::RenderOpaqueGeometry(vtkViewport *viewport)
 //----------------------------------------------------------------------------
 int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUsed(size))
 {
-  vtkIdType i, j, id;
+  vtkIdType i, j, ptId;
   vtkDataObject *input = this->GetInput();
   vtkFieldData *field = input->GetFieldData();
   double v;
@@ -462,8 +462,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
           }
-        id = pts->InsertNextPoint(x);
-        lines->InsertCellPoint(id);
+        ptId = pts->InsertNextPoint(x);
+        lines->InsertCellPoint(ptId);
         }
       }
     }
@@ -487,8 +487,8 @@ int vtkParallelCoordinatesActor::PlaceAxes(vtkViewport *viewport, int *vtkNotUse
             ((v - this->Mins[i]) / (this->Maxs[i] - this->Mins[i])) *
             (this->YMax - this->YMin);
           }
-        id = pts->InsertNextPoint(x);
-        lines->InsertCellPoint(id);
+        ptId = pts->InsertNextPoint(x);
+        lines->InsertCellPoint(ptId);
         }
       }
     }

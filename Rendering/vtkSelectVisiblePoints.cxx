@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.35");
+vtkCxxRevisionMacro(vtkSelectVisiblePoints, "1.36");
 vtkStandardNewMacro(vtkSelectVisiblePoints);
 
 // Instantiate object with no renderer; window selection turned off; 
@@ -62,7 +62,7 @@ int vtkSelectVisiblePoints::RequestData(
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType ptId, id;
+  vtkIdType ptId, cellId;
   int visible;
   vtkPoints *outPts;
   vtkCellArray *outputVertices;
@@ -134,7 +134,7 @@ int vtkSelectVisiblePoints::RequestData(
   int abort=0;
   vtkIdType progressInterval=numPts/20+1;
   x[3] = 1.0;
-  for (id=(-1), ptId=0; ptId < numPts && !abort; ptId++)
+  for (cellId=(-1), ptId=0; ptId < numPts && !abort; ptId++)
     {
     // perform conversion
     input->GetPoint(ptId,x);
@@ -182,9 +182,9 @@ int vtkSelectVisiblePoints::RequestData(
     if ( (visible && !this->SelectInvisible) ||
          (!visible && this->SelectInvisible) )
       {
-      id = outPts->InsertNextPoint(x);
-      output->InsertNextCell(VTK_VERTEX, 1, &id);
-      outPD->CopyData(inPD,ptId,id);
+      cellId = outPts->InsertNextPoint(x);
+      output->InsertNextCell(VTK_VERTEX, 1, &cellId);
+      outPD->CopyData(inPD,ptId,cellId);
       }
     }//for all points
 
@@ -199,7 +199,7 @@ int vtkSelectVisiblePoints::RequestData(
     delete [] zPtr;
     }
 
-  vtkDebugMacro(<<"Selected " << id + 1 << " out of " 
+  vtkDebugMacro(<<"Selected " << cellId + 1 << " out of " 
                 << numPts << " original points");
 
   return 1;
