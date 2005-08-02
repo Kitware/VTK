@@ -16,6 +16,7 @@ public class vtkCanvas extends vtkPanel implements MouseListener, MouseMotionLis
   static { 
     // load up hybrid for 3d widgets
     System.loadLibrary("vtkHybridJava"); 
+    System.loadLibrary("vtkWidgetsJava");
   }
 
   public vtkCanvas()
