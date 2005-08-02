@@ -9,19 +9,19 @@ IF (VTK_USE_RENDERING)
       SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
       SET (TESTS_TO_CONVERT)
       SET (CONVERSIONLIST)
-      IF(WINDOWS)
+      IF(WIN32)
         # VS-6.0 does not use current environment PATH when running custom commands,
         # hence it might fail to locate the python dlls if we run vtkpython.
         # Hence we use python executable. Python executable cannot be used to import
         # vtk modules on Sun/SGI hence, for non-windows machines we use vtkpython.
         SET(CMD ${PYTHON_EXECUTABLE})
-      ELSE(WINDOWS)
+      ELSE(WIN32)
         SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
         IF(MAKE_SYSTEM OR UNIX)
           SET(CFG_INIT "")
         ENDIF(MAKE_SYSTEM OR UNIX)
         SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/vtkpython${EXE_EXT})
-      ENDIF(WINDOWS)
+      ENDIF(WIN32)
       FOREACH( tfile
           closedSplines
           CSpline
