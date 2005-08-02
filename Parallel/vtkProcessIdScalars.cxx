@@ -26,7 +26,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkProcessIdScalars, "1.1");
+vtkCxxRevisionMacro(vtkProcessIdScalars, "1.2");
 vtkStandardNewMacro(vtkProcessIdScalars);
 
 vtkCxxSetObjectMacro(vtkProcessIdScalars,Controller,
@@ -165,4 +165,14 @@ void vtkProcessIdScalars::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "ScalarMode: PointData\n";
     }  
+
+  os << indent << "Controller: ";
+  if (this->Controller)
+    {
+    this->Controller->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }

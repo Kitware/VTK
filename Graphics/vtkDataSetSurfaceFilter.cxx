@@ -50,7 +50,7 @@ struct vtkFastGeomQuadStruct
   struct vtkFastGeomQuadStruct *Next;
 };
 
-vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.48");
+vtkCxxRevisionMacro(vtkDataSetSurfaceFilter, "1.49");
 vtkStandardNewMacro(vtkDataSetSurfaceFilter);
 
 //----------------------------------------------------------------------------
@@ -717,6 +717,8 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "UseStripsOff\n";
     }
+
+  os << indent << "PieceInvariant: " << this->PieceInvariant << endl;
 }
 
 //========================================================================
