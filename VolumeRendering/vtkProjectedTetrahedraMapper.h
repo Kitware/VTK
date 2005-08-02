@@ -128,6 +128,8 @@ protected:
   int   ArrayId;
   int   ArrayAccessMode;
 
+  int GaveError;
+
   vtkVolume *LastVolume;
 
   virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);

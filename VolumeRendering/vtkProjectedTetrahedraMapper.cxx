@@ -60,7 +60,7 @@ static int tet_edges[6][2] = { {0,1}, {1,2}, {2,0},
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.1");
+vtkCxxRevisionMacro(vtkProjectedTetrahedraMapper, "1.1.2.1");
 vtkStandardNewMacro(vtkProjectedTetrahedraMapper);
 
 vtkCxxSetObjectMacro(vtkProjectedTetrahedraMapper,
@@ -82,6 +82,8 @@ vtkProjectedTetrahedraMapper::vtkProjectedTetrahedraMapper()
 
   this->OpacityTexture = 0;
   this->MaxCellSize = 0;
+
+  this->GaveError = 0;
 }
 
 vtkProjectedTetrahedraMapper::~vtkProjectedTetrahedraMapper()
@@ -217,7 +219,7 @@ void vtkProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
   if (   (this->InputAnalyzedTime < this->MTime)
       || (this->InputAnalyzedTime < input->GetMTime()) )
     {
-    int gave_error = 0;
+    this->GaveError = 0;
     float max_cell_size2 = 0;
 
     vtkCellArray *cells = input->GetCells();
@@ -234,11 +236,12 @@ void vtkProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
       int j;
       if (npts != 4)
         {
-        if (!gave_error)
+        if (!this->GaveError)
           {
           vtkErrorMacro("Encountered non-tetrahedra cell!");
-          gave_error = 1;
+          this->GaveError = 1;
           }
+        continue;
         }
       for (j = 0; j < 6; j++)
         {
@@ -254,7 +257,8 @@ void vtkProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
     this->InputAnalyzedTime.Modified();
     }
-  if (renderer->GetRenderWindow()->CheckAbortStatus())
+
+  if (renderer->GetRenderWindow()->CheckAbortStatus() || this->GaveError)
     {
     return;
     }
