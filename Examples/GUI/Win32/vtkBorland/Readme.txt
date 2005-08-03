@@ -48,6 +48,19 @@ In the Borland C++ Builder IDE:
    Conditionals:
    Add
      'STRICT'
+   *optionally, if you compile VTK with VTK_DEBUG_LEAKS:BOOL=ON, 
+    you can also add VTK_DEBUG_LEAKS as a conditional.  If so,
+    then you must add the following additional include directories:
+    /VTK/Graphics
+    /VTK/Imaging
+    /VTK/IO
+    /VTK/Utilities/vtkjpeg
+    /VTK/Utilities/vtkpng
+    /VTK/Utilities/vtkzlib 
+    /VTK/Utilities/vtkfreetype
+    /VTK/Utilities/vtkftgl
+    and add the corresponding libs as in step 4
+
 4. Add->Add Unit->Browse
    Files of type:
      choose Library file (*.lib)
