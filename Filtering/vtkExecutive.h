@@ -169,8 +169,16 @@ protected:
   int InputPortIndexInRange(int port, const char* action);
   int OutputPortIndexInRange(int port, const char* action);
 
-
-  int CheckAlgorithm(const char* method);
+  // Called by methods to check for a recursive pipeline update.  A
+  // request should be fulfilled without making another request.  This
+  // is used to help enforce that behavior.  Returns 1 if no recursive
+  // request is occurring, and 0 otherwise.  An error message is
+  // produced automatically if 0 is returned.  The first argument is
+  // the name of the calling method (the one that should not be
+  // invoked recursively during an update).  The second argument is
+  // the recursive request information object, if any.  It is used to
+  // construct the error message.
+  int CheckAlgorithm(const char* method, vtkInformation* request);
 
   virtual int ForwardDownstream(vtkInformation* request);
   virtual int ForwardUpstream(vtkInformation* request);

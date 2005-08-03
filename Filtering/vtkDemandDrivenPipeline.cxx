@@ -41,7 +41,7 @@
 
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.36");
+vtkCxxRevisionMacro(vtkDemandDrivenPipeline, "1.37");
 vtkStandardNewMacro(vtkDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkDemandDrivenPipeline, DATA_NOT_GENERATED, Integer);
@@ -132,7 +132,7 @@ int vtkDemandDrivenPipeline::ProcessRequest(vtkInformation* request,
                                             vtkInformationVector* outInfoVec)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("ProcessRequest"))
+  if(!this->CheckAlgorithm("ProcessRequest", request))
     {
     return 0;
     }
@@ -298,7 +298,7 @@ int vtkDemandDrivenPipeline::Update(int port)
 int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdatePipelineMTime"))
+  if(!this->CheckAlgorithm("UpdatePipelineMTime", 0))
     {
     return 0;
     }
@@ -311,7 +311,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
 int vtkDemandDrivenPipeline::UpdateDataObject()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateDataObject"))
+  if(!this->CheckAlgorithm("UpdateDataObject", 0))
     {
     return 0;
     }
@@ -342,7 +342,7 @@ int vtkDemandDrivenPipeline::UpdateDataObject()
 int vtkDemandDrivenPipeline::UpdateInformation()
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateInformation"))
+  if(!this->CheckAlgorithm("UpdateInformation", 0))
     {
     return 0;
     }
@@ -373,7 +373,7 @@ int vtkDemandDrivenPipeline::UpdateInformation()
 int vtkDemandDrivenPipeline::UpdateData(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("UpdateData"))
+  if(!this->CheckAlgorithm("UpdateData", 0))
     {
     return 0;
     }

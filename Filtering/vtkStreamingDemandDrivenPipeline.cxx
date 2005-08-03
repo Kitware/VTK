@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.33");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.34");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -90,7 +90,7 @@ int vtkStreamingDemandDrivenPipeline
                  vtkInformationVector* outInfoVec)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("ProcessRequest"))
+  if(!this->CheckAlgorithm("ProcessRequest", request))
     {
     return 0;
     }
@@ -472,7 +472,7 @@ vtkStreamingDemandDrivenPipeline
 int vtkStreamingDemandDrivenPipeline::PropagateUpdateExtent(int outputPort)
 {
   // The algorithm should not invoke anything on the executive.
-  if(!this->CheckAlgorithm("PropagateUpdateExtent"))
+  if(!this->CheckAlgorithm("PropagateUpdateExtent", 0))
     {
     return 0;
     }

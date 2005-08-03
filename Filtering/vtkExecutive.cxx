@@ -28,8 +28,9 @@
 #include "vtkSmartPointer.h"
 
 #include <vtkstd/vector>
+#include <vtksys/ios/sstream>
 
-vtkCxxRevisionMacro(vtkExecutive, "1.26");
+vtkCxxRevisionMacro(vtkExecutive, "1.27");
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_AFTER_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_BEFORE_FORWARD, Integer);
 vtkInformationKeyMacro(vtkExecutive, ALGORITHM_DIRECTION, Integer);
@@ -691,14 +692,28 @@ int vtkExecutive::CallAlgorithm(vtkInformation* request, int direction,
 }
 
 //----------------------------------------------------------------------------
-int vtkExecutive::CheckAlgorithm(const char* method)
+int vtkExecutive::CheckAlgorithm(const char* method,
+                                 vtkInformation* request)
 {
   if(this->InAlgorithm)
     {
-    vtkErrorMacro(<< method << " invoked during another request.  "
-                  "Returning failure to algorithm "
-                  << this->Algorithm->GetClassName() << "("
-                  << this->Algorithm << ").");
+    if(request)
+      {
+      vtksys_ios::ostringstream rqmsg;
+      request->Print(rqmsg);
+      vtkErrorMacro(<< method << " invoked during another request.  "
+                    "Returning failure to algorithm "
+                    << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm << ") for the recursive request:\n"
+                    << rqmsg.str().c_str());
+      }
+    else
+      {
+      vtkErrorMacro(<< method << " invoked during another request.  "
+                    "Returning failure to algorithm "
+                    << this->Algorithm->GetClassName() << "("
+                    << this->Algorithm << ").");
+      }
 
     // Tests should fail when this happens because there is a bug in
     // the code.
