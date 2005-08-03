@@ -131,7 +131,7 @@ vtkRenderer * __fastcall TvtkBorlandRenderWindow::GetRenderer(void)
     GetRenderWindow()->AddRenderer(FRenderer);
     FRenderer->ResetCamera();
     DWORD  L = ColorToRGB(Color);
-    float rgb[3] = { GetRValue(L)/255.0, GetGValue(L)/255.0, GetBValue(L)/255.0 };
+    double rgb[3] = { GetRValue(L)/255.0, GetGValue(L)/255.0, GetBValue(L)/255.0 };
     FRenderer->SetBackground(rgb);
     }
   return FRenderer;
