@@ -37,6 +37,7 @@
 #include "vtkDSPFilterDefinition.h"
 
 #include <sys/stat.h>
+#include <ctype.h>
 #include <exodusII.h>
 
 #include <vtkstd/algorithm>
@@ -1390,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.7");
+vtkCxxRevisionMacro(vtkExodusReader, "1.8");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
