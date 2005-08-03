@@ -56,6 +56,9 @@
 class vtkLinearRayIntegratorTransferFunction
 {
 public:
+  vtkLinearRayIntegratorTransferFunction();
+  ~vtkLinearRayIntegratorTransferFunction();
+
   void GetTransferFunction(vtkColorTransferFunction *color,
                            vtkPiecewiseFunction *opacity,
                            double unit_distance,
@@ -70,9 +73,28 @@ public:
   struct acolor {
     double c[4];
   };
-  vtkstd::vector<double> ControlPoints;
-  vtkstd::vector<acolor> Colors;
+  double *ControlPoints;
+  int NumControlPoints;
+  acolor *Colors;
+
+private:
+  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&);  // Not implemented.
+  void operator=(const vtkLinearRayIntegratorTransferFunction &);  // Not implemented.
 };
+
+vtkLinearRayIntegratorTransferFunction::vtkLinearRayIntegratorTransferFunction()
+{
+  this->ControlPoints = NULL;
+  this->Colors = NULL;
+
+  this->NumControlPoints = 0;
+}
+
+vtkLinearRayIntegratorTransferFunction::~vtkLinearRayIntegratorTransferFunction()
+{
+  if (this->ControlPoints) delete[] this->ControlPoints;
+  if (this->Colors) delete[] this->Colors;
+}
 
 static const double huebends[6] = {
   1.0/6.0, 1.0/3.0, 0.5, 2.0/3.0, 5.0/6.0, 1.0
@@ -197,14 +219,14 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     }
 
   // Now record control points and colors.
-  this->ControlPoints.erase(this->ControlPoints.begin(),
-                            this->ControlPoints.end());
-  this->ControlPoints.resize(cpset.size());
-  this->Colors.erase(this->Colors.begin(), this->Colors.end());
-  this->Colors.resize(cpset.size());
+  if (this->ControlPoints) delete[] this->ControlPoints;
+  if (this->Colors) delete[] this->Colors;
+  this->NumControlPoints = cpset.size();
+  this->ControlPoints = new double[this->NumControlPoints];
+  this->Colors = new acolor[this->NumControlPoints];
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
-  for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
+  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints);
+  for (int i = 0; i < this->NumControlPoints; i++)
     {
     color->GetColor(this->ControlPoints[i], this->Colors[i].c);
     this->Colors[i].c[3] = (  opacity->GetValue(this->ControlPoints[i])
@@ -250,14 +272,14 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
     }
 
   // Now record control points and colors.
-  this->ControlPoints.erase(this->ControlPoints.begin(),
-                            this->ControlPoints.end());
-  this->ControlPoints.resize(cpset.size());
-  this->Colors.erase(this->Colors.begin(), this->Colors.end());
-  this->Colors.resize(cpset.size());
+  if (this->ControlPoints) delete[] this->ControlPoints;
+  if (this->Colors) delete[] this->Colors;
+  this->NumControlPoints = cpset.size();
+  this->ControlPoints = new double[this->NumControlPoints];
+  this->Colors = new acolor[this->NumControlPoints];
 
-  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints.begin());
-  for (unsigned int i = 0; i < this->ControlPoints.size(); i++)
+  vtkstd::copy(cpset.begin(), cpset.end(), this->ControlPoints);
+  for (int i = 0; i < this->NumControlPoints; i++)
     {
     // Is setting all the colors to the same value the right thing to do?
     this->Colors[i].c[0] = this->Colors[i].c[1] = this->Colors[i].c[2]
@@ -270,9 +292,8 @@ void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(
 inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
                                                              double c[4])
 {
-  unsigned int i = 1;
-  unsigned int size = this->ControlPoints.size();
-  while ((this->ControlPoints[i] < x) && (i < size-1)) i++;
+  int i = 1;
+  while ((this->ControlPoints[i] < x) && (i < this->NumControlPoints-1)) i++;
 
   double before = this->ControlPoints[i-1];
   double after = this->ControlPoints[i];
@@ -289,7 +310,7 @@ inline void vtkLinearRayIntegratorTransferFunction::GetColor(double x,
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridLinearRayIntegrator, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridLinearRayIntegrator);
 
 vtkUnstructuredGridLinearRayIntegrator::vtkUnstructuredGridLinearRayIntegrator()
@@ -399,8 +420,8 @@ void vtkUnstructuredGridLinearRayIntegrator::Integrate(
       segments.insert(1.0);
       for (int j = 0; j < numscalars; j++)
         {
-        vtkstd::vector<double> &cp = this->TransferFunctions[j].ControlPoints;
-        vtkIdType numcp = cp.size();
+        double *cp = this->TransferFunctions[j].ControlPoints;
+        vtkIdType numcp = this->TransferFunctions[j].NumControlPoints;
         double minscalar, maxscalar;
         if (nearScalars[j] < farScalars[j])
           {
