@@ -23,7 +23,7 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLStructuredDataReader.h"
 
-vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.21");
+vtkCxxRevisionMacro(vtkXMLPStructuredDataReader, "1.22");
 
 //----------------------------------------------------------------------------
 vtkXMLPStructuredDataReader::vtkXMLPStructuredDataReader()
@@ -82,10 +82,10 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
                 << "\n");  
   
   // Prepare increments for the update extent.
-  this->ComputeDimensions(this->UpdateExtent, this->PointDimensions, 1);
-  this->ComputeIncrements(this->UpdateExtent, this->PointIncrements, 1);
-  this->ComputeDimensions(this->UpdateExtent, this->CellDimensions, 0);
-  this->ComputeIncrements(this->UpdateExtent, this->CellIncrements, 0);  
+  this->ComputePointDimensions(this->UpdateExtent, this->PointDimensions);
+  this->ComputePointIncrements(this->UpdateExtent, this->PointIncrements);
+  this->ComputeCellDimensions(this->UpdateExtent, this->CellDimensions);
+  this->ComputeCellIncrements(this->UpdateExtent, this->CellIncrements);
   
   // Let superclasses read data.  This also allocates output data.
   this->Superclass::ReadXMLData();
@@ -117,7 +117,7 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
     
     // Add this sub-extent's volume to the cumulative volume.
     int pieceDims[3] = {0,0,0};
-    this->ComputeDimensions(this->SubExtent, pieceDims, 1);
+    this->ComputePointDimensions(this->SubExtent, pieceDims);
     fractions[i+1] = fractions[i] + pieceDims[0]*pieceDims[1]*pieceDims[2];
     }
   if(fractions[n] == 0)
@@ -145,8 +145,8 @@ void vtkXMLPStructuredDataReader::ReadXMLData()
                   << this->SubExtent[4] << " " << this->SubExtent[5]
                   << " from piece " << piece);
     
-    this->ComputeDimensions(this->SubExtent, this->SubPointDimensions, 1);
-    this->ComputeDimensions(this->SubExtent, this->SubCellDimensions, 0);
+    this->ComputePointDimensions(this->SubExtent, this->SubPointDimensions);
+    this->ComputeCellDimensions(this->SubExtent, this->SubCellDimensions);
     
     // Read the data from this piece.
     if(!this->Superclass::ReadPieceData(piece))
@@ -168,17 +168,26 @@ vtkXMLPStructuredDataReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 {
   if(!this->Superclass::ReadPrimaryElement(ePrimary)) { return 0; }
   vtkDataSet* output = this->GetOutputAsDataSet(0);
-  
-  // Read information about the structured data.
+
+  // Get the whole extent attribute.
   int extent[6];
-  if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) < 6)
+  if(ePrimary->GetVectorAttribute("WholeExtent", 6, extent) == 6)
     {
-    vtkErrorMacro(<< this->GetDataSetName()
-                  << " element has no WholeExtent.");
+    // Set the output's whole extent.
+    output->SetWholeExtent(extent);
+
+    // Check each axis to see if it has cells.
+    for(int a=0; a < 3; ++a)
+      {
+      this->AxesEmpty[a] = (extent[2*a+1] > extent[2*a])? 0 : 1;
+      }
+    }
+  else
+    {
+    vtkErrorMacro(<< this->GetDataSetName() << " element has no WholeExtent.");
     return 0;
     }
-  output->SetWholeExtent(extent);  
-  
+
   return 1;
 }
 
@@ -280,14 +289,14 @@ int vtkXMLPStructuredDataReader::ReadPieceData()
   
   // Get the actual portion of the piece that was read.
   this->GetPieceInputExtent(this->Piece, this->SubPieceExtent);
-  this->ComputeDimensions(this->SubPieceExtent,
-                          this->SubPiecePointDimensions, 1);
-  this->ComputeIncrements(this->SubPieceExtent,
-                          this->SubPiecePointIncrements, 1);
-  this->ComputeDimensions(this->SubPieceExtent,
-                          this->SubPieceCellDimensions, 0);
-  this->ComputeIncrements(this->SubPieceExtent,
-                          this->SubPieceCellIncrements, 0);
+  this->ComputePointDimensions(this->SubPieceExtent,
+                               this->SubPiecePointDimensions);
+  this->ComputePointIncrements(this->SubPieceExtent,
+                               this->SubPiecePointIncrements);
+  this->ComputeCellDimensions(this->SubPieceExtent,
+                              this->SubPieceCellDimensions);
+  this->ComputeCellIncrements(this->SubPieceExtent,
+                              this->SubPieceCellIncrements);
   
   // Let the superclass read the data it wants.
   return this->Superclass::ReadPieceData();

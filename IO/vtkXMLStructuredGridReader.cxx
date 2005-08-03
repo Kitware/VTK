@@ -21,7 +21,7 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.10");
+vtkCxxRevisionMacro(vtkXMLStructuredGridReader, "1.11");
 vtkStandardNewMacro(vtkXMLStructuredGridReader);
 
 //----------------------------------------------------------------------------
@@ -170,7 +170,7 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   // The amount of data read by the superclass's ReadPieceData comes
   // from point/cell data (we read point specifications here).
   int dims[3] = {0,0,0};
-  this->ComputeDimensions(this->SubExtent, dims, 1);  
+  this->ComputePointDimensions(this->SubExtent, dims);
   vtkIdType superclassPieceSize =
     (this->NumberOfPointArrays*dims[0]*dims[1]*dims[2]+
      this->NumberOfCellArrays*(dims[0]-1)*(dims[1]-1)*(dims[2]-1));

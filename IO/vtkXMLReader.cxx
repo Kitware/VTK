@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.37");
+vtkCxxRevisionMacro(vtkXMLReader, "1.38");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -63,6 +63,11 @@ vtkXMLReader::vtkXMLReader()
                                             this->SelectionObserver); 
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
+
+  // Lower dimensional cell data support.
+  this->AxesEmpty[0] = 0;
+  this->AxesEmpty[1] = 0;
+  this->AxesEmpty[2] = 0;
 
   // Time support:
   this->TimeStep = 0; // By default the file does not have timestep
@@ -695,22 +700,58 @@ int vtkXMLReader::Max(int a, int b)
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ComputeDimensions(int* extent, int* dimensions, int isPoint)
+void vtkXMLReader::ComputePointDimensions(int* extent, int* dimensions)
 {
-  dimensions[0] = extent[1] - extent[0] + isPoint;
-  dimensions[1] = extent[3] - extent[2] + isPoint;
-  dimensions[2] = extent[5] - extent[4] + isPoint;
+  dimensions[0] = extent[1] - extent[0] + 1;
+  dimensions[1] = extent[3] - extent[2] + 1;
+  dimensions[2] = extent[5] - extent[4] + 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkXMLReader::ComputeIncrements(int* extent, vtkIdType* increments,
-                                     int isPoint)
+void vtkXMLReader::ComputePointIncrements(int* extent, vtkIdType* increments)
 {
-  int dimensions[3];
-  this->ComputeDimensions(extent, dimensions, isPoint);
   increments[0] = 1;
-  increments[1] = increments[0]*dimensions[0];
-  increments[2] = increments[1]*dimensions[1];
+  increments[1] = increments[0] * (extent[1] - extent[0] + 1);
+  increments[2] = increments[1] * (extent[3] - extent[2] + 1);
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::ComputeCellDimensions(int* extent, int* dimensions)
+{
+  // For structured cells, axes that are empty of cells are treated as
+  // having one cell when computing cell counts.  This allows cell
+  // dimensions lower than 3.
+  for(int a=0; a < 3; ++a)
+    {
+    if(this->AxesEmpty[a] && extent[2*a+1] == extent[2*a])
+      {
+      dimensions[a] = 1;
+      }
+    else
+      {
+      dimensions[a] = extent[2*a+1] - extent[2*a];
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkXMLReader::ComputeCellIncrements(int* extent, vtkIdType* increments)
+{
+  // For structured cells, axes that are empty of cells do not
+  // contribute to the memory layout of cell data.
+  vtkIdType nextIncrement = 1;
+  for(int a=0; a < 3; ++a)
+    {
+    if(this->AxesEmpty[a] && extent[2*a+1] == extent[2*a])
+      {
+      increments[a] = 0;
+      }
+    else
+      {
+      increments[a] = nextIncrement;
+      nextIncrement *= extent[2*a+1] - extent[2*a];
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

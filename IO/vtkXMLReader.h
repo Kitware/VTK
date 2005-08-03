@@ -143,8 +143,10 @@ protected:
   int IntersectExtents(int* extent1, int* extent2, int* result);
   int Min(int a, int b);
   int Max(int a, int b);
-  void ComputeDimensions(int* extent, int* dimensions, int isPoint);
-  void ComputeIncrements(int* extent, vtkIdType* increments, int isPoint);
+  void ComputePointDimensions(int* extent, int* dimensions);
+  void ComputePointIncrements(int* extent, vtkIdType* increments);
+  void ComputeCellDimensions(int* extent, int* dimensions);
+  void ComputeCellIncrements(int* extent, vtkIdType* increments);
   vtkIdType GetStartTuple(int* extent, vtkIdType* increments,
                           int i, int j, int k);
   void ReadAttributeIndices(vtkXMLDataElement* eDSA,
@@ -225,6 +227,11 @@ protected:
 
   // Whether there was an error reading the XML.
   int ReadError;
+
+  // For structured data keep track of dimensions empty of cells.  For
+  // unstructured data these are always zero.  This is used to support
+  // 1-D and 2-D cell data.
+  int AxesEmpty[3];
 
   // The timestep currently being read.
   int TimeStep;
