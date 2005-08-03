@@ -1,4 +1,4 @@
-IF (VTK_USE_RENDERING)
+IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
   #
   # Add tests, with the data
@@ -84,7 +84,7 @@ IF (VTK_USE_RENDERING)
     ENDFOREACH( tfile )
   ENDIF (VTK_DATA_ROOT)
 
-ENDIF (VTK_USE_RENDERING)
+ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Hybrid ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  

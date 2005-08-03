@@ -1,4 +1,4 @@
-IF (VTK_USE_RENDERING)
+IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
   #
   # Add tests, with the data
@@ -8,8 +8,8 @@ IF (VTK_USE_RENDERING)
         ContinuousClose2D
         IdealHighPass
         LaplacianEdgeEnhance
-	reconstructSurface
-	resampledTexture
+        reconstructSurface
+        resampledTexture
         ResliceColorWrap
         ResliceInterpolationModes
         ResliceInterpolationOblique
@@ -35,7 +35,7 @@ IF (VTK_USE_RENDERING)
         TestButterworthHighPass
         TestCache
         TestChangeInformation
-	TestCheckerboard
+        TestCheckerboard
         TestCityBlockDistance
         TestConvolve
         TestCorrelation
@@ -65,9 +65,9 @@ IF (VTK_USE_RENDERING)
         TestQuantizeTo16Colors 
         TestRange3D
         TestResample
-	TestSeparableFilter
-	TestShiftScale
-	TestShiftScale2
+        TestSeparableFilter
+        TestShiftScale
+        TestShiftScale2
         TestSimpleImageExample
         TestSkeleton2D
         TestSobel2D
@@ -78,7 +78,7 @@ IF (VTK_USE_RENDERING)
         TestVariance3D
         TestWipe
         TestWrapPad
-	voxelModel
+        voxelModel
         )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
@@ -91,7 +91,7 @@ IF (VTK_USE_RENDERING)
     ENDFOREACH ( tfile )
   ENDIF (VTK_DATA_ROOT)
 
-ENDIF (VTK_USE_RENDERING)
+ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Imaging ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  

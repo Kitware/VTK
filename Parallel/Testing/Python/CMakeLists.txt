@@ -1,7 +1,7 @@
 #
 # Add tests, with the data
 #
-IF (VTK_PYTHON_EXE)
+IF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
   # Add test converted from Tcl
   SET (CONVERTED_TESTS)
   SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
@@ -111,4 +111,4 @@ IF (VTK_PYTHON_EXE)
       DEPENDS "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversion_complete") 
   ADD_DEPENDENCIES(ParallelPythonTests vtktcltest2py_pyc)
 
-ENDIF (VTK_PYTHON_EXE)
+ENDIF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
