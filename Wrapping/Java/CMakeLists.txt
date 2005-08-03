@@ -181,12 +181,12 @@ IF(JAVA_COMPILE)
       ENDIF(WIN32)
 
       # Since vtkTesting is within vtkRendering we need blockers
-      IF(VTK_USE_RENDERING)
+      IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
         ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
           -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
           Regression -D ${VTK_DATA_ROOT}
           -V Baseline/Graphics/Cone.png)
-      ENDIF(VTK_USE_RENDERING)
+      ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     ENDIF(BUILD_TESTING)
 
     ADD_CUSTOM_COMMAND( 
@@ -240,10 +240,13 @@ IF(JAVA_COMPILE)
           SET(SEPARATOR ":")
         ENDIF(WIN32)
 
-        ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
-          -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
-          Regression -D ${VTK_DATA_ROOT}
-          -V Baseline/Graphics/Cone.png)
+        # Since vtkTesting is within vtkRendering we need blockers
+        IF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
+          ADD_TEST(JavaRegression ${JAVA_RUNTIME} 
+            -classpath ${LIBRARY_OUTPUT_PATH}/vtk.jar${SEPARATOR}${VTK_BINARY_DIR}/Wrapping/Java
+            Regression -D ${VTK_DATA_ROOT}
+            -V Baseline/Graphics/Cone.png)
+        ENDIF(VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       ENDIF(BUILD_TESTING)
 
       ADD_CUSTOM_COMMAND( 
