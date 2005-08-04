@@ -418,11 +418,18 @@ IF (VTK_WRAP_PYTHON)
           vtkTkRenderWidgetPython.cxx
           vtkTkImageViewerWidgetPython.cxx
           )
-         ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
-                     ${RenderingPythonTkWidgets_SRCS})
+       ADD_LIBRARY(vtkRenderingPythonTkWidgets SHARED
+                   ${RenderingPythonTkWidgets_SRCS})
        TARGET_LINK_LIBRARIES (vtkRenderingPythonTkWidgets
                               vtk${KIT}
                               ${VTK_TK_LIBRARIES})
+
+       # Apply user-defined properties to the library target.
+       IF(VTK_LIBRARY_PROPERTIES)
+         SET_TARGET_PROPERTIES(vtkRenderingPythonTkWidgets PROPERTIES
+           ${VTK_LIBRARY_PROPERTIES})
+       ENDIF(VTK_LIBRARY_PROPERTIES)
+
        IF(NOT VTK_INSTALL_NO_LIBRARIES)
          INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkRenderingPythonTkWidgets)
        ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
