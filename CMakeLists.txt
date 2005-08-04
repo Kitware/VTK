@@ -42,24 +42,26 @@ IF(NOT WIN32)
   IF(VTK_FORCE_RPATH)
     SET(VTK_USE_RPATH ${VTK_FORCE_RPATH})
   ELSE(VTK_FORCE_RPATH)
-    # Choosing a default value for this option is tricky.  Dashboard
-    # scripts need to have this ON or set the LD_LIBRARY_PATH, which at
-    # the time of this writing none does.  Therefore the default must be
-    # ON.  However, users that download a VTK release to build and install
-    # it will not know to turn this OFF and will be confused when they get
-    # an empty installation.  One solution to this dilema is to note that
-    # users that do not know what they are doing will generally use a
-    # release.  Dashboards use the latest development version.  Users that
-    # checkout from the CVS head will usually run from the build tree or
-    # at least understand this option.  Therefore a simple decision
-    # criterion is whether VTK_MINOR_VERSION is odd or even.
-    IF(VTK_MINOR_VERSION MATCHES "[02468]$")
-      # This is a release version.  Default to not use rpath.
-      SET(VTK_USE_RPATH_DEFAULT OFF)
-    ELSE(VTK_MINOR_VERSION MATCHES "[02468]$")
-      # This is a development version.  Default to use rpath.
-      SET(VTK_USE_RPATH_DEFAULT ON)
-    ENDIF(VTK_MINOR_VERSION MATCHES "[02468]$")
+    IF("VTK_USE_RPATH_DEFAULT" MATCHES "^VTK_USE_RPATH_DEFAULT$")
+      # Choosing a default value for this option is tricky.  Dashboard
+      # scripts need to have this ON or set the LD_LIBRARY_PATH, which at
+      # the time of this writing none does.  Therefore the default must be
+      # ON.  However, users that download a VTK release to build and install
+      # it will not know to turn this OFF and will be confused when they get
+      # an empty installation.  One solution to this dilema is to note that
+      # users that do not know what they are doing will generally use a
+      # release.  Dashboards use the latest development version.  Users that
+      # checkout from the CVS head will usually run from the build tree or
+      # at least understand this option.  Therefore a simple decision
+      # criterion is whether VTK_MINOR_VERSION is odd or even.
+      IF(VTK_MINOR_VERSION MATCHES "[02468]$")
+        # This is a release version.  Default to not use rpath.
+        SET(VTK_USE_RPATH_DEFAULT OFF)
+      ELSE(VTK_MINOR_VERSION MATCHES "[02468]$")
+        # This is a development version.  Default to use rpath.
+        SET(VTK_USE_RPATH_DEFAULT ON)
+      ENDIF(VTK_MINOR_VERSION MATCHES "[02468]$")
+    ENDIF("VTK_USE_RPATH_DEFAULT" MATCHES "^VTK_USE_RPATH_DEFAULT$")
     VTK_DEPENDENT_OPTION(VTK_USE_RPATH "Build shared libraries with rpath.  This makes it easy to run executables from the build tree when using shared libraries, but removes install support."
                          ${VTK_USE_RPATH_DEFAULT}
                          "BUILD_SHARED_LIBS" OFF)
