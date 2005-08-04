@@ -62,6 +62,7 @@ VTK_TYPE_TRAITS(float, FLOAT, 1, Float32, float, "%f");
 VTK_TYPE_TRAITS(double, DOUBLE, 1, Float64, double, "%lf");
 
 // Define traits for char types.
+// Note the print type is short because not all platforms support formating integers with char.
 #define VTK_TYPE_NAME_CHAR char
 #if VTK_TYPE_CHAR_IS_SIGNED
 # define VTK_TYPE_SIZED_CHAR INT8
