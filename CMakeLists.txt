@@ -997,8 +997,12 @@ IF(VTK_WRAP_TCL)
 ENDIF(VTK_WRAP_TCL)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake
-                FILES ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
+  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
+    ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake
+    ${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake
+    ${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake
+    ${VTK_SOURCE_DIR}/CMake/vtkWrapPython.cmake
+    )
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
