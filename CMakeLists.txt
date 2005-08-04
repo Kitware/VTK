@@ -19,6 +19,68 @@ SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
 #-----------------------------------------------------------------------------
+# Load some macros.
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake)
+INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
+
+#-----------------------------------------------------------------------------
+# Choose static or shared libraries.
+OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
+SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
+# On platforms that support rpath users may want to use them to make
+# running VTK from the build tree easy.  It is not safe to install
+# programs built with an rpath pointing at the build tree, so we must
+# disable install support when using the rpath feature.
+IF(NOT WIN32)
+  # Choose whether to use the rpath feature.  Parent projects may
+  # set VTK_FORCE_RPATH to force the value on or off without providing
+  # the option.
+  IF(VTK_FORCE_RPATH)
+    SET(VTK_USE_RPATH ${VTK_FORCE_RPATH})
+  ELSE(VTK_FORCE_RPATH)
+    # Choosing a default value for this option is tricky.  Dashboard
+    # scripts need to have this ON or set the LD_LIBRARY_PATH, which at
+    # the time of this writing none does.  Therefore the default must be
+    # ON.  However, users that download a VTK release to build and install
+    # it will not know to turn this OFF and will be confused when they get
+    # an empty installation.  One solution to this dilema is to note that
+    # users that do not know what they are doing will generally use a
+    # release.  Dashboards use the latest development version.  Users that
+    # checkout from the CVS head will usually run from the build tree or
+    # at least understand this option.  Therefore a simple decision
+    # criterion is whether VTK_MINOR_VERSION is odd or even.
+    IF(VTK_MINOR_VERSION MATCHES "[02468]$")
+      # This is a release version.  Default to not use rpath.
+      SET(VTK_USE_RPATH_DEFAULT OFF)
+    ELSE(VTK_MINOR_VERSION MATCHES "[02468]$")
+      # This is a development version.  Default to use rpath.
+      SET(VTK_USE_RPATH_DEFAULT ON)
+    ENDIF(VTK_MINOR_VERSION MATCHES "[02468]$")
+    VTK_DEPENDENT_OPTION(VTK_USE_RPATH "Build shared libraries with rpath.  This makes it easy to run executables from the build tree when using shared libraries, but removes install support."
+                         ${VTK_USE_RPATH_DEFAULT}
+                         "BUILD_SHARED_LIBS" OFF)
+  ENDIF(VTK_FORCE_RPATH)
+
+  # Configure VTK according to the rpath setting.
+  IF(VTK_USE_RPATH)
+    # We will use rpath support.  Tell CMake not to skip it and
+    # disable the install targets.
+    SET(CMAKE_SKIP_RPATH 0 CACHE INTERNAL "Whether to build with rpath." FORCE)
+    SET(VTK_INSTALL_NO_RUNTIME 1)
+    SET(VTK_INSTALL_NO_DEVELOPMENT 1)
+    SET(VTK_INSTALL_NO_DOCUMENTATION 1)
+  ELSE(VTK_USE_RPATH)
+    # We will not use rpath support.  Tell CMake to skip it and do not
+    # disable the install targets.
+    SET(CMAKE_SKIP_RPATH 1 CACHE INTERNAL "Whether to build with rpath." FORCE)
+  ENDIF(VTK_USE_RPATH)
+ENDIF(NOT WIN32)
+
+#-----------------------------------------------------------------------------
 # Output directories.
 IF(NOT LIBRARY_OUTPUT_PATH)
   SET(LIBRARY_OUTPUT_PATH ${VTK_BINARY_DIR}/bin CACHE INTERNAL "Single output directory for building all libraries.")
@@ -71,24 +133,11 @@ ELSE(BUILD_SHARED_LIBS)
 ENDIF(BUILD_SHARED_LIBS)
 
 #-----------------------------------------------------------------------------
-# Load some macros.
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkThirdParty.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkExportKit.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake)
-INCLUDE(${CMAKE_ROOT}/Modules/CMakeExportBuildSettings.cmake)
-
-#-----------------------------------------------------------------------------
 # Save the compiler settings so another project can import them.
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKBuildSettings)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-
-#-----------------------------------------------------------------------------
-# Choose static or shared libraries.
-OPTION(BUILD_SHARED_LIBS "Build VTK with shared libraries." OFF)
-SET(VTK_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
 #-----------------------------------------------------------------------------
 # Provide compatibility options.
