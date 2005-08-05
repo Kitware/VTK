@@ -1,5 +1,5 @@
 IF (VTK_USE_DISPLAY)
-IF (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
+IF (VTK_DATA_ROOT)
   ADD_TEST(RectOutline-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/RectOutline.tcl
@@ -96,7 +96,7 @@ IF (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
              -V Baseline/Parallel/TestPProbe.png
              -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ENDIF(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
-ELSE (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
+ELSE (VTK_DATA_ROOT)
   ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
@@ -109,7 +109,7 @@ ELSE (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestBranchExtentTranslator.tcl
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
-ENDIF (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
+ENDIF (VTK_DATA_ROOT)
 ENDIF (VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Parallel ${TCL_TCLSH}
