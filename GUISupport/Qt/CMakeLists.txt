@@ -1,7 +1,7 @@
 
 # we need Qt3 or Qt4
 SET(QT_MAX_VERSION "4.9.9")
-INCLUDE( ${CMAKE_ROOT}/Modules/FindQt4.cmake )
+INCLUDE( ${CMAKE_ROOT}/Modules/FindQt.cmake )
 
 SET(QT_INST_MAJOR_VERSION 4)
 
