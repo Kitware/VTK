@@ -22,6 +22,12 @@
  !!! license.
 =========================================================================*/
 
+#if !defined(_DEBUG)
+# if !defined(QT_NO_DEBUG)
+#  define QT_NO_DEBUG
+# endif
+#endif
+
 #include "Q4VTKWidgetPlugin.h"
 
 #include "qobject.h"

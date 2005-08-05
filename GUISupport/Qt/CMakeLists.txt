@@ -1,57 +1,104 @@
 
-# we need Qt
-INCLUDE( ${CMAKE_ROOT}/Modules/FindQt.cmake )
+# we need Qt3 or Qt4
+SET(QT_MAX_VERSION "4.9.9")
+INCLUDE( ${CMAKE_ROOT}/Modules/FindQt4.cmake )
+
+SET(QT_INST_MAJOR_VERSION 4)
 
 # set up sources to build
 SET ( QVTKLibSrcs
-    QVTKWidget.cxx
-    vtkEventQtSlotConnect.cxx)
+    vtkEventQtSlotConnect.cxx
+    QVTKWidget.cxx )
 
 SET ( QVTKMocHeaders
-    QVTKWidget.h)
+    QVTKWidget.h )
 
-SET ( QVTKExtraMoc
+SET ( QVTKExtraMocHeaders
     vtkEventQtSlotConnect.cxx)
 
-SET ( PluginLibSrcs
-    QVTKWidget.cxx
-    Q3VTKWidgetPlugin.cxx)
+INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
-SET ( PluginMocHeaders
-    QVTKWidget.h)
 
-# CMake apparently doesn't do this automatically
-SET_SOURCE_FILES_PROPERTIES(Q3VTKWidgetPlugin.cxx PROPERTIES 
-                            OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
+IF(QT_INST_MAJOR_VERSION GREATER 3)
 
-# help CMake with this generated moc file
+  # Qt4 settings
+  INCLUDE_DIRECTORIES ( ${QT_INCLUDE_DIR} ${QT_QTCORE_INCLUDE_DIR} ${QT_QTGUI_INCLUDE_DIR})
+  ADD_DEFINITIONS(-DQT_GUI_LIB -DQT_CORE_LIB -DQT_DLL)
+  
+  SET ( PluginLibSrcs
+        Q4VTKWidgetPlugin.cxx
+        QVTKWidget.cxx)
+
+  SET ( PluginMocHeaders
+        Q4VTKWidgetPlugin.h
+        QVTKWidget.h)
+
+  # CMake apparently doesn't do this automatically
+  SET_SOURCE_FILES_PROPERTIES(Q4VTKWidgetPlugin.cxx PROPERTIES 
+                              OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
+
+  QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
+  QT4_WRAP_CPP ( QVTKLibExtraMocSrcs ${QVTKExtraMocHeaders} )
+  QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
+
+IF(APPLE)
+# assume Qt framework
+  SET(QT_LIBS "-framework QtGui" "-framework QtCore")
+ELSE(APPLE)
+  SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG} 
+              optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+ENDIF(APPLE)
+  
+ELSE(QT_INST_MAJOR_VERSION GREATER 3)
+  
+  # Qt3 settings
+  INCLUDE_DIRECTORIES ( ${QT_INCLUDE_DIR} )
+  # assume Qt dll
+  ADD_DEFINITIONS(-DQT_DLL)
+  # check for a multithreaded Qt3 dll
+  IF(QT_QT_LIBRARY MATCHES "mt")
+    ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
+  ENDIF(QT_QT_LIBRARY MATCHES "mt")
+  
+  SET ( PluginLibSrcs
+        Q3VTKWidgetPlugin.cxx
+        QVTKWidget.cxx)
+
+  SET ( PluginMocHeaders
+        QVTKWidget.h)
+
+  # CMake apparently doesn't do this automatically
+  SET_SOURCE_FILES_PROPERTIES(Q3VTKWidgetPlugin.cxx PROPERTIES 
+                              OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
+
+
+  QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
+  QT_WRAP_CPP ( QVTK QVTKLibExtraMocSrcs ${QVTKExtraMocHeaders} )
+  QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
+  
+  SET(QT_LIBS ${QT_QT_LIBRARY} )
+  
+ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+
 SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
 
+ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs} )
 
-# assuming a Qt dll, otherwise plugins aren't possible
-ADD_DEFINITIONS(-DQT_DLL)
+# give Qt framework directory for linking
+IF(APPLE)
+IF(QT_INST_MAJOR_VERSION GREATER 3)
+  SET_TARGET_PROPERTIES(QVTK PROPERTIES LINK_FLAGS "-F${QT_LIBRARY_DIR}")
+ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+ENDIF(APPLE)
 
-# check for a multithreaded Qt dll
-IF(QT_QT_LIBRARY MATCHES "mt")
-  ADD_DEFINITIONS(-DQT_THREAD_SUPPORT)
-ENDIF(QT_QT_LIBRARY MATCHES "mt")
-
-# include Qt
-INCLUDE_DIRECTORIES ( ${QT_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
-
-QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
-QT_WRAP_CPP ( QVTK QVTKLibExtraMocSrcs ${QVTKExtraMoc} )
-QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
-
-ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
-
-TARGET_LINK_LIBRARIES( QVTK ${QT_QT_LIBRARY} 
+TARGET_LINK_LIBRARIES( QVTK 
+  ${QT_LIBS}
   vtkRendering 
   vtkGraphics
   vtkImaging 
   vtkCommon)
+
 
 # build plugin by default
 # even if VTK is built as static libraries (for convenience)
@@ -66,9 +113,17 @@ ENDIF(NOT BUILD_SHARED_LIBS)
 
 
 IF(BUILD_QVTK_PLUGIN)
-  
-  ADD_DEFINITIONS(-DQT_PLUGIN)
 
+  ADD_DEFINITIONS(-DQT_PLUGIN)
+  IF(QT_INST_MAJOR_VERSION GREATER 3)
+    # A release build of the designer must have 
+    # a release build of this plugin to work properly
+    # if the QtGui exists, a release build of the designer is assumed
+    IF(QT_QTGUI_LIBRARY)
+      ADD_DEFINITIONS(-DQT_NO_DEBUG)
+    ENDIF(QT_QTGUI_LIBRARY)
+  ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+  
 # add QVTK plugin from sources 
 # stand-alone as it doesn't depend on QVTK library
   ADD_LIBRARY ( QVTKWidgetPlugin
@@ -77,8 +132,15 @@ IF(BUILD_QVTK_PLUGIN)
     ${PluginMocSrcs}
   )
 
+IF(APPLE)
+IF(QT_INST_MAJOR_VERSION GREATER 3)
+  SET_TARGET_PROPERTIES(QVTKWidgetPlugin PROPERTIES LINK_FLAGS "-F${QT_LIB_DIR}")
+ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+ENDIF(APPLE)
+
+# link with release version of Qt libs
   TARGET_LINK_LIBRARIES( QVTKWidgetPlugin 
-    ${QT_QT_LIBRARY}
+    ${QT_LIBS}
     vtkRendering
     vtkImaging
     vtkGraphics
@@ -121,6 +183,4 @@ ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 IF(NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL_TARGETS( ${VTK_INSTALL_LIB_DIR} QVTK )
 ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-
-
 
