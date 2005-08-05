@@ -15,75 +15,173 @@
 #include "vtkMedicalImageReader2.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.4");
+#include "vtkMedicalImageProperties.h"
+
+//----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkMedicalImageReader2, "1.5");
 vtkStandardNewMacro(vtkMedicalImageReader2);
 
+//----------------------------------------------------------------------------
 vtkMedicalImageReader2::vtkMedicalImageReader2()
 {
-  this->PatientName = 0;
-  this->PatientID = 0;
-  this->Date = 0;
-  this->ImageNumber = 0;
-  this->Series = 0;
-  this->Study = 0;
-  this->Modality = 0;
+  this->MedicalImageProperties = vtkMedicalImageProperties::New();
 }
 
+//----------------------------------------------------------------------------
 vtkMedicalImageReader2::~vtkMedicalImageReader2()
 {
-  delete [] this->PatientName;
-  this->PatientName = NULL;
-  delete [] this->PatientID;
-  this->PatientID = NULL;
-  delete [] this->Date;
-  this->Date = NULL;
-  delete [] this->ImageNumber;
-  this->ImageNumber = NULL;
-  delete [] this->Series;
-  this->Series = NULL;
-  delete [] this->Study;
-  this->Study = NULL;
-  delete [] this->Modality;
-  this->Modality = NULL;
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->Delete();
+    this->MedicalImageProperties = NULL;
+    }
 }
 
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetPatientName(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetPatientName(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetPatientName()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetPatientName();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetPatientID(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetPatientID(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetPatientID()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetPatientID();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetDate(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetDate(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetDate()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetDate();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetSeries(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetSeries(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetSeries()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetSeries();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetStudy(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetStudy(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetStudy()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetStudy();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetImageNumber(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetImageNumber(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetImageNumber()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetImageNumber();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkMedicalImageReader2::SetModality(const char *arg)
+{
+  if (this->MedicalImageProperties)
+    {
+    this->MedicalImageProperties->SetModality(arg);
+    }
+}
+
+//----------------------------------------------------------------------------
+const char* vtkMedicalImageReader2::GetModality()
+{
+  if (this->MedicalImageProperties)
+    {
+    return this->MedicalImageProperties->GetModality();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
 void vtkMedicalImageReader2::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << "\n" << indent << "PatientName: ";
-  if (this->PatientName)
+  if (this->MedicalImageProperties)
     {
-    os << this->PatientName;
+    os << indent << "Medical Image Properties:\n";
+    this->MedicalImageProperties->PrintSelf(os, indent.GetNextIndent());
     }
-  os << "\n" << indent << "PatientID: ";
-  if (this->PatientID)
+  else
     {
-    os << this->PatientID;
-    }
-  os << "\n" << indent << "Date: ";
-  if (this->Date)
-    {
-    os << this->Date;
-    }
-  os << "\n" << indent << "ImageNumber: ";
-  if (this->ImageNumber)
-    {
-    os << this->ImageNumber;
-    }
-  os << "\n" << indent << "Series: ";
-  if (this->Series)
-    {
-    os << this->Series;
-    }
-  os << "\n" << indent << "Study: ";
-  if (this->Study)
-    {
-    os << this->Study;
-    }
-  os << "\n" << indent << "Modality: ";
-  if (this->Modality)
-    {
-    os << this->Modality;
+    os << indent << "MedicalImageProperties: (none)\n";
     }
 }

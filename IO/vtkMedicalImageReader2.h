@@ -17,15 +17,15 @@
 // vtkMedicalImageReader2 is a parent class for medical image readers.
 // It provides a place to store patient information that may be stored
 // in the image header.
-
 // .SECTION See Also
-// vtkImageReader2 vtkGESignaReader
+// vtkImageReader2 vtkGESignaReader vtkMedicalImageProperties
 
 #ifndef __vtkMedicalImageReader2_h
 #define __vtkMedicalImageReader2_h
 
 #include "vtkImageReader2.h"
 
+class vtkMedicalImageProperties;
 
 class VTK_IO_EXPORT vtkMedicalImageReader2 : public vtkImageReader2
 {
@@ -35,35 +35,35 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);   
 
   // Description:
-  // Methods to set/get the patient and acquisition information data.
-  vtkSetStringMacro(PatientName);
-  vtkGetStringMacro(PatientName);
-  vtkSetStringMacro(PatientID);
-  vtkGetStringMacro(PatientID);
-  vtkSetStringMacro(Date);
-  vtkGetStringMacro(Date);
-  vtkSetStringMacro(Series);
-  vtkGetStringMacro(Series);
-  vtkSetStringMacro(Study);
-  vtkGetStringMacro(Study);
-  vtkSetStringMacro(ImageNumber);
-  vtkGetStringMacro(ImageNumber);
-  vtkSetStringMacro(Modality);
-  vtkGetStringMacro(Modality);
+  // Get the medical image properties object
+  vtkGetObjectMacro(MedicalImageProperties, vtkMedicalImageProperties);
+  
+  // Description:
+  // For backward compatibility, propagate calls to the MedicalImageProperties
+  // object.
+  virtual void SetPatientName(const char*);
+  virtual const char* GetPatientName();
+  virtual void SetPatientID(const char*);
+  virtual const char* GetPatientID();
+  virtual void SetDate(const char*);
+  virtual const char* GetDate();
+  virtual void SetSeries(const char*);
+  virtual const char* GetSeries();
+  virtual void SetStudy(const char*);
+  virtual const char* GetStudy();
+  virtual void SetImageNumber(const char*);
+  virtual const char* GetImageNumber();
+  virtual void SetModality(const char*);
+  virtual const char* GetModality();
   
 protected:
   vtkMedicalImageReader2();
   ~vtkMedicalImageReader2();
 
-  // store header info
-  char *PatientName;
-  char *PatientID;
-  char *Date;
-  char *ImageNumber;
-  char *Study;
-  char *Series;
-  char *Modality;
-  
+  // Description:
+  // Medical Image properties
+  vtkMedicalImageProperties *MedicalImageProperties;
+
 private:
   vtkMedicalImageReader2(const vtkMedicalImageReader2&); // Not implemented.
   void operator=(const vtkMedicalImageReader2&); // Not implemented.

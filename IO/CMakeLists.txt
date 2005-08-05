@@ -53,6 +53,7 @@ vtkJPEGReader.cxx
 vtkJPEGWriter.cxx
 vtkMCubesReader.cxx
 vtkMCubesWriter.cxx
+vtkMedicalImageProperties.cxx
 vtkMedicalImageReader2.cxx
 vtkMetaImageReader.cxx
 vtkMetaImageWriter.cxx
