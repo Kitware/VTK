@@ -1,3 +1,4 @@
+IF (VTK_USE_DISPLAY)
 IF (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
   ADD_TEST(RectOutline-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
@@ -109,6 +110,7 @@ ELSE (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestBranchExtentTranslator.tcl
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
 ENDIF (VTK_DATA_ROOT AND VTK_USE_DISPLAY)
+ENDIF (VTK_USE_DISPLAY)
 
 ADD_TEST(PrintSelf-Parallel ${TCL_TCLSH}
          ${VTK_SOURCE_DIR}/Common/Testing/Tcl/PrintSelfCheck.tcl  
