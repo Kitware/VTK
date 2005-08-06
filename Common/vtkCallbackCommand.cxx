@@ -23,6 +23,7 @@ vtkCallbackCommand::vtkCallbackCommand()
   this->ClientData = NULL;
   this->Callback = NULL; 
   this->ClientDataDeleteCallback = NULL;
+  this->AbortFlagOnExecute = 0;
 }
 
 vtkCallbackCommand::~vtkCallbackCommand() 
@@ -39,6 +40,10 @@ void vtkCallbackCommand::Execute(vtkObject *caller, unsigned long event,
   if (this->Callback)
     {
     this->Callback(caller, event, this->ClientData, callData);
+    if (this->AbortFlagOnExecute)
+      {
+      this->AbortFlagOn();
+      }
     }
 }
 
