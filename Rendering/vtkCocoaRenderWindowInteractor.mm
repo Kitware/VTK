@@ -33,7 +33,7 @@
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.5");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.6");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -184,7 +184,6 @@ void vtkCocoaRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void 
 void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
-
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 

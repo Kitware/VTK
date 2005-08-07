@@ -56,7 +56,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.91");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.92");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -734,6 +734,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 }
 
 
+//----------------------------------------------------------------------------
 // Specify the default function to be called when an interactor needs to exit.
 // This callback is overridden by an instance ExitMethod that is defined.
 void
@@ -757,6 +758,7 @@ vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 }
 
 
+//----------------------------------------------------------------------------
 // Set the arg delete method.  This is used to free user memory.
 void
 vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
@@ -769,12 +771,14 @@ vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
     }
 }
 
+//----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   os << indent << "InstallMessageProc: " << this->InstallMessageProc << endl;
 }
 
+//----------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent)) 

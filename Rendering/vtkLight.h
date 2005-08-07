@@ -219,15 +219,15 @@ protected:
   double AmbientColor[3];
   double DiffuseColor[3];
   double SpecularColor[3];
-  int   Switch;
-  int   Positional;
+  int    Switch;
+  int    Positional;
   double Exponent;
   double ConeAngle;
   double AttenuationValues[3];
   vtkMatrix4x4 *TransformMatrix;
   double TransformedFocalPointReturn[3];
   double TransformedPositionReturn[3];
-  int LightType;
+  int    LightType;
 
 private:
   vtkLight(const vtkLight&);  // Not implemented.
