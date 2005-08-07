@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.36");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.37");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 
@@ -345,7 +345,6 @@ vtkCarbonRenderWindow::vtkCarbonRenderWindow()
   this->WindowId = 0;
   this->ParentId = 0;
   this->RootWindow = 0;
-  this->StereoType = 0;
   this->SetWindowName("Visualization Toolkit - Carbon");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;

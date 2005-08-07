@@ -31,7 +31,7 @@
 #define id Id // since id is a reserved token in ObjC and is used a _lot_ in vtk
 
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.25");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.26");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 
@@ -45,7 +45,6 @@ vtkCocoaRenderWindow::vtkCocoaRenderWindow()
   this->MultiSamples = 8;
   this->WindowId = 0;
   this->DeviceContext = 0;    // hsr
-  this->StereoType = 0;  
   this->SetWindowName("Visualization Toolkit - Cocoa");
   this->CursorHidden = 0;
   this->ForceMakeCurrent = 0;
