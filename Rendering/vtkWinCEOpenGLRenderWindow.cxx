@@ -28,7 +28,7 @@
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.11");
+vtkCxxRevisionMacro(vtkWinCEOpenGLRenderWindow, "1.12");
 vtkStandardNewMacro(vtkWinCEOpenGLRenderWindow);
 
 #define VTK_MAX_LIGHTS 8
@@ -502,7 +502,7 @@ int *vtkWinCEOpenGLRenderWindow::GetSize(void)
   // if we aren't mapped then just return the ivar 
   if (!this->Mapped)
     {
-    return(this->Size);
+    return this->Size;
     }
 
   //  Find the current window size 
@@ -533,7 +533,7 @@ int *vtkWinCEOpenGLRenderWindow::GetPosition(void)
   // if we aren't mapped then just return the ivar 
   if (!this->Mapped)
     {
-    return(this->Position);
+    return this->Position;
     }
 
   //  Find the current window position 

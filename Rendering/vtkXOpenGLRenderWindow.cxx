@@ -84,7 +84,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.52");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.53");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -489,7 +489,7 @@ void vtkXOpenGLRenderWindow::Initialize (void)
 void vtkXOpenGLRenderWindow::Finalize (void)
 {
   vtkRenderer *ren;
-  GLuint id;
+  GLuint txId;
   short cur_light;
   
   // free the cursors
@@ -578,16 +578,16 @@ void vtkXOpenGLRenderWindow::Finalize (void)
     glDisable(GL_TEXTURE_2D);
     for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
       {
-      id = (GLuint) this->TextureResourceIds->GetId(i);
+      txId = (GLuint) this->TextureResourceIds->GetId(i);
 #ifdef GL_VERSION_1_1
-      if (glIsTexture(id))
+      if (glIsTexture(txId))
         {
-        glDeleteTextures(1, &id);
+        glDeleteTextures(1, &txId);
         }
 #else
-      if (glIsList(id))
+      if (glIsList(txId))
         {
-        glDeleteLists(id,1);
+        glDeleteLists(txId,1);
         }
 #endif
       }
@@ -1013,7 +1013,7 @@ int *vtkXOpenGLRenderWindow::GetPosition(void)
   // if we aren't mapped then just return the ivar 
   if (!this->Mapped)
     {
-    return(this->Position);
+    return this->Position;
     }
 
   //  Find the current window size 

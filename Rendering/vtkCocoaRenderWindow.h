@@ -16,11 +16,20 @@
 //
 // .SECTION Description
 // vtkCocoaRenderWindow is a concrete implementation of the abstract
-// class vtkOpenGLRenderWindow. vtkCocoaRenderWindow interfaces to the
-// OpenGL graphics library using the Cocoa API on Mac OSX.
-// It interacts with the OSX Window manager to display a window and create
-// its vtkCocoaGLView. These were separated to allow applications to do their
-// own window management and just use vtkCocoaGLView themselves.
+// class vtkOpenGLRenderWindow. It uses Objective-C++, and the OpenGL and
+// Cocoa APIs. This class's default behaviour is to create an NSWindow and
+// a vtkCocoaGLView which are used together to draw all vtk stuff into.
+// If you already have an NSWindow and vtkCocoaGLView and you want this
+// class to use them you must call both SetWindowId() and SetDisplayId()
+// early on (before WindowInitialize() is executed).
+//
+// .SECTION See Also
+// vtkOpenGLRenderWindow vtkCocoaGLView
+
+// .SECTION Warning
+// This header must be in C++ only because it is included by .cxx files.
+// That means no Objective-C may be used. That's why some instance variables 
+// are void* instead of what they really should be.
 
 #ifndef __vtkCocoaRenderWindow_h
 #define __vtkCocoaRenderWindow_h
@@ -39,7 +48,7 @@ public:
   virtual void Start();
 
   // Description:
-  // End the rendering process and display the image.
+  // Finish the rendering process.
   virtual void Frame();
 
   // Description:
@@ -93,21 +102,29 @@ public:
   // normally.
   virtual void SetWindowName(const char *);
   
-  // Description:
-  // Set this RenderWindow's window id to a pre-existing window.
-  virtual void SetWindowInfo(void *);
-
   void SetNextWindowInfo(char *)
     {
     vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
     }
 
+  virtual void *GetGenericDisplayId() {return this->NSViewId;}
+  virtual void *GetGenericWindowId()  {return this->WindowId;}
+  virtual void *GetGenericContext()   {return this->ContextId;}
+  
+  // Description:
+  // Returns the NSView* associated with this vtkRenderWindow.
+  virtual void* GetDisplayId();
 
-  //BTX
-  virtual void *GetGenericDisplayId() {return (void *)this->ContextId;};
-  virtual void *GetGenericWindowId()  {return (void *)this->WindowId;};
-  virtual void *GetGenericContext()   {return (void *)this->DeviceContext;};
-  virtual void SetDisplayId(void *) {};
+  // Description:
+  // Sets the NSView* associated with this vtkRenderWindow. This class' default
+  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
+  // together to draw all vtk stuff into. If you already have an NSWindow and
+  // NSView and you want this class to use them you must call both SetWindowId()
+  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
+  // case of Java, you should call only SetDisplayId().
+  virtual void SetDisplayId(void *);
+  
   virtual void SetParentId(void *) 
     {
     vtkWarningMacro("Method not implemented.");
@@ -132,26 +149,24 @@ public:
     }
 
   // Description:
-  // Get the window id.
+  // Returns the NSWindow* associated with this vtkRenderWindow.
   virtual void *GetWindowId();
 
   // Description:
-  // Set the window id to a pre-existing window.
-  virtual void  SetWindowId(void *);
+  // Sets the NSWindow* associated with this vtkRenderWindow. This class' default
+  // behaviour, that is, if you never call this SetDisplayId()/SetWindowId() is
+  // to create an NSWindow and a vtkCocoaGLView (NSView subclass) which are used
+  // together to draw all vtk stuff into. If you already have an NSWindow and
+  // NSView and you want this class to use them you must call both SetWindowId()
+  // and SetDisplayId() early on (before WindowInitialize() is executed). In the
+  // case of Java, you should call only SetDisplayId().
+  virtual void SetWindowId(void *);
 
   void SetNextWindowId(void*)
     {
     vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
     }
 
-  void  SetContextId(void *);   // hsr
-  void  SetDeviceContext(void *);       // hsr
-
-  //ETX
-
-  // supply base class virtual function
-  vtkSetMacro(MultiSamples,int);
-  vtkGetMacro(MultiSamples,int);
 
   // Description:
   // Update system if needed due to stereo rendering.
@@ -167,6 +182,10 @@ public:
   // Description:
   // Make this windows OpenGL context the current context.
   virtual void MakeCurrent();
+  
+  // Description:
+  // Update this window's OpenGL context, e.g. when the window is resized.
+  void UpdateContext();
 
   // Description:
   // Get report of capabilities for the render window
@@ -192,13 +211,6 @@ public:
   virtual  int GetEventPending();
 
   // Description:
-  // These methods can be used by MFC applications 
-  // to support print preview and printing, or more
-  // general rendering into memory. 
-//  void *GetMemoryDC();
-//  unsigned char *GetMemoryData(){return this->MemoryData;};  
-  
-  // Description:
   // Initialize OpenGL for this window.
   virtual void SetupPalette(void *hDC);
   virtual void SetupPixelFormat(void *hDC, void *dwFlags, int debug, 
@@ -222,43 +234,30 @@ public:
   virtual void HideCursor();
   virtual void ShowCursor();
   
-  void UpdateSizeAndPosition(int xPos, int yPos, int xSize, int ySize);
 
-  
 protected:
   vtkCocoaRenderWindow();
   ~vtkCocoaRenderWindow();
 
-  int       ApplicationInitialized; //NSApplication called?
-  void     *AutoreleasePool;
-  void     *ContextId;
-  void     *DeviceContext;
-  void     *WindowId;
-  void     *WindowController;
-  int       OwnWindow;
-  int       ScreenSize[2];
-  int       MultiSamples;
-
-  // the following is used to support rendering into memory
-//  void *MemoryDataHeader;
-//  void *MemoryBuffer;
-//  unsigned char *MemoryData;  // the data in the DIBSection
-//  void *MemoryHdc;
-
-  int ScreenMapped;
-  int ScreenWindowSize[2];
-  void *ScreenDeviceContext;
-  int ScreenDoubleBuffer;
-  void *ScreenContextId;
-
-  int CursorHidden;
-  int ForceMakeCurrent;
-
-  char *Capabilities;
+  void CreateGLContext();
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
   void operator=(const vtkCocoaRenderWindow&);  // Not implemented.
+
+private:
+  void     *ContextId;    // really an NSOpenGLContext*
+  void     *WindowId;     // really an NSWindow*
+  void     *NSViewId;     // really an NSView* (usually but not necessarily a vtkCocoaGLView*)
+  void     *PixelFormat;  // really an NSOpenGLPixelFormat*
+
+  int      WindowCreated;
+  int      ViewCreated;
+  int      CursorHidden;
+
+  void     *AutoreleasePool; // really a NSAutoreleasePool
+  int      ForceMakeCurrent;
+  char     *Capabilities;
 };
 
 #endif

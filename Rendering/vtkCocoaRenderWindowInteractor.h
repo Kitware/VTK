@@ -19,6 +19,10 @@
 // The interactor interfaces with vtkCocoaRenderWindow and vtkCocoaGLView
 // to trap messages from the Cocoa window manager and send them to vtk.
 
+// IMPORTANT: This header must be in C++ only because it is included by .cxx files.
+// That means no Objective C may be used. That's why some instance variables are
+// void* instead of what they really should be.  Pitty.
+
 #ifndef __vtkCocoaRenderWindowInteractor_h
 #define __vtkCocoaRenderWindowInteractor_h
 
@@ -96,11 +100,8 @@ protected:
   vtkCocoaRenderWindowInteractor();
   ~vtkCocoaRenderWindowInteractor();
 
-  void   *WindowId;
-  void   *ApplicationId;
-  int     TimerId;
-  void   *OldProc;
   int     InstallMessageProc;
+  void*   Timer;  // really a vtkCocoaTimer*
 
   //BTX
   // Description:

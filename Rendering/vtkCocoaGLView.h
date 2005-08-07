@@ -15,39 +15,33 @@
 // .NAME vtkCocoaGLView - Cocoa OpenGL rendering context
 //
 // .SECTION Description
-// This class only takes care of allocating an NSOpenGLView which simply
-// provides a rendering context. This class uses Objective-C++
+// This class is a subclass of Cocoa's NSView; it uses Objective-C++.
+// This class overrides several NSView methods. It overrides keyDown and
+// keyUp to provide the usual VTK keyboard user interface. It overrides
+// mouseMoved, scrollWheel, mouseDown, rightMouseDown, and otherMouseDown
+// to provide the usual VTK mouse user interface. It overrides drawRect
+// to render and draw onscreen.
+// Note that this class was previously a subclass of NSOpenGLView,
+// but is now a subclass of NSView.
 //
 // .SECTION See Also
-// vtkCocoaRenderWindow
+// vtkCocoaRenderWindow vtkCocoaRenderWindowInteractor
 
 #import <Cocoa/Cocoa.h>
-#import <OpenGL/gl.h>
-#define id Id
-#import "vtkCocoaRenderWindow.h"
-#import "vtkCocoaRenderWindowInteractor.h"
-#include "vtkInteractorStyle.h"
-#undef id
 
-@interface vtkCocoaGLView : NSOpenGLView
+// Forward declarations
+class vtkCocoaRenderWindow;
+class vtkCocoaRenderWindowInteractor;
+
+@interface vtkCocoaGLView : NSView
 {
-  NSOpenGLPixelFormatAttribute bitsPerPixel, depthSize;
-
   @private
     vtkCocoaRenderWindow *myVTKRenderWindow;
-    vtkCocoaRenderWindowInteractor *myVTKRenderWindowInteractor;
 }
-
-// Overrides
-- (void) drawRect:(NSRect)theRect;
-- (id)initWithFrame:(NSRect)theFrame;
 
 - (vtkCocoaRenderWindow *)getVTKRenderWindow;
 - (void)setVTKRenderWindow:(vtkCocoaRenderWindow *)theVTKRenderWindow;
 
-- (vtkCocoaRenderWindowInteractor *)getVTKRenderWindowInteractor;
-- (void)setVTKRenderWindowInteractor:(vtkCocoaRenderWindowInteractor *)theVTKRenderWindowInteractor;
-
-- (void*)getOpenGLContext;
+- (vtkCocoaRenderWindowInteractor *)getInteractor;
 
 @end

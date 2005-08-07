@@ -26,7 +26,7 @@
 
 #import <Carbon/Carbon.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.14");
+vtkCxxRevisionMacro(vtkCarbonRenderWindowInteractor, "1.15");
 vtkStandardNewMacro(vtkCarbonRenderWindowInteractor);
 
 void (*vtkCarbonRenderWindowInteractor::ClassExitMethod)(void *) 
@@ -452,16 +452,13 @@ void vtkCarbonRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindowInteractor::ExitCallback()
 {
-  if (this->ClassExitMethod)
+  if (this->HasObserver(vtkCommand::ExitEvent)) 
     {
-    (*this->ClassExitMethod)(this->ClassExitMethodArg);
+    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
     }
   else if (this->ClassExitMethod)
     {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
     }
-  else
-    {
-    this->TerminateApp();
-    }
+  this->TerminateApp();
 }

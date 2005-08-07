@@ -28,25 +28,8 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.37");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.38");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
-
-
-#define VTK_MAX_LIGHTS 8
-
-//----------------------------------------------------------------------------
-// Copy C string to Pascal string
-// Some of the Carbon routines require Pascal strings
-static void CStrToPStr (StringPtr outString, const char *inString)
-{
-  unsigned char x = 0;
-  do
-    {
-    *(((char*)outString) + x + 1) = *(inString + x++);
-    }  
-  while ((*(inString + x) != 0)  && (x < 255));
-  *((char*)outString) = (char) x;
-}
 
 //----------------------------------------------------------------------------
 // Dump agl errors to string, return error code
@@ -361,8 +344,7 @@ vtkCarbonRenderWindow::~vtkCarbonRenderWindow()
 //--------------------------------------------------------------------------
 void vtkCarbonRenderWindow::Clean()
 {
-  vtkRenderer *ren;
-  GLuint id;
+  GLuint txId;
 
   /* finish OpenGL rendering */
   if (this->ContextId)
@@ -373,16 +355,16 @@ void vtkCarbonRenderWindow::Clean()
     glDisable(GL_TEXTURE_2D);
     for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
       {
-      id = (GLuint) this->TextureResourceIds->GetId(i);
+      txId = (GLuint) this->TextureResourceIds->GetId(i);
 #ifdef GL_VERSION_1_1
-      if (glIsTexture(id))
+      if (glIsTexture(txId))
         {
-        glDeleteTextures(1, &id);
+        glDeleteTextures(1, &txId);
         }
 #else
-      if (glIsList(id))
+      if (glIsList(txId))
         {
-        glDeleteLists(id,1);
+        glDeleteLists(txId,1);
         }
 #endif
       }
@@ -390,10 +372,10 @@ void vtkCarbonRenderWindow::Clean()
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
     // destructor)
-    this->Renderers->InitTraversal();
-    for (ren=(vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject();
-         ren != NULL;
-         ren = (vtkOpenGLRenderer *)this->Renderers->GetNextItemAsObject())
+    vtkCollectionSimpleIterator rsit;
+    vtkRenderer *ren;
+    for ( this->Renderers->InitTraversal(rsit);
+         (ren = this->Renderers->GetNextRenderer(rsit));)
       {
       ren->SetRenderWindow(NULL);
       }
@@ -408,9 +390,9 @@ void vtkCarbonRenderWindow::Clean()
 void vtkCarbonRenderWindow::SetWindowName( const char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
-  Str255 newTitle = "\p"; // SetWTitle takes a pascal string
+  Str255 newTitle; // SetWTitle takes a pascal string
 
-  CStrToPStr (newTitle, _arg);
+  CopyCStringToPascal(_arg, newTitle);
   
   if (this->OwnWindow)
     {
@@ -994,7 +976,7 @@ int *vtkCarbonRenderWindow::GetPosition()
   // if we aren't mapped then just return the ivar
   if (!this->Mapped)
     {
-    return(this->Position);
+    return this->Position;
     }
 
   if(!this->WindowId && !this->ParentId)

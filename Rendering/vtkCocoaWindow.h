@@ -15,39 +15,23 @@
 // .NAME vtkCocoaWindow - Access Cocoa NSWindow context
 //
 // .SECTION Description
-// This class only takes care of allocating an NSWindow. Manage also an internal
-// pointer to a vtkCocoaGLView. This class uses Objective-C++
+// This class is a subclass of Cocoa's NSWindow; it uses Objective-C++.
+// This class overrides NSWindow's close method to quit the application
+// when the close box is pressed by the user. A vtkCocoaWindow is created
+// automatically by vtk by default, but the programmer can override this
+// behaviour, see vtkCocoaRenderWindow's SetWindowId().
+// Note that this class previously contained much more functionality
+// but that functionality has been moved to other classes.
+ 
 
 // .SECTION See Also
 // vtkCocoaGLView vtkCocoaRenderWindow
 
 #import <Cocoa/Cocoa.h>
 
-@class vtkCocoaGLView;
-
 @interface vtkCocoaWindow : NSWindow
 {
-  @private
-    IBOutlet vtkCocoaGLView *myvtkCocoaGLView;
-    void *myVTKRenderWindow;
-    void *myVTKRenderWindowInteractor;
 }
 
-// accessor and convenience
-
-- (vtkCocoaGLView *)getvtkCocoaGLView;
-- (void)setvtkCocoaGLView:(vtkCocoaGLView *)thevtkCocoaGLView;
-
-- (void *)getVTKRenderWindow;
-- (void)setVTKRenderWindow:(void *)theVTKRenderWindow;
-
-- (void *)getVTKRenderWindowInteractor;
-- (void)setVTKRenderWindowInteractor:(void *)theVTKRenderWindowInteractor;
-
-- (void)makeCurrentContext;
-
-- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)proposedFrameSize;
-- (BOOL)windowShouldZoom:(NSWindow *)sender toFrame:(NSRect)newFrame;
-- (void)close; //close your face!
-
+- (void)close;
 @end

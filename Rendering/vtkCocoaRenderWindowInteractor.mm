@@ -12,28 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
-
-#include "vtkCocoaRenderWindow.h"
-#include "vtkCocoaRenderWindowInteractor.h"
-#include "vtkCocoaWindow.h"
-#include "vtkCocoaGLView.h"
+#import "vtkCocoaRenderWindowInteractor.h"
+#import "vtkCocoaRenderWindow.h"
+#import "vtkCommand.h"
+#import "vtkObjectFactory.h"
 
 #import <Cocoa/Cocoa.h>
+#import <OpenGL/gl.h>
 
-#define id Id
-
-#include "vtkInteractorStyle.h"
-#include "vtkActor.h"
-#include <OpenGL/gl.h>
-#include "vtkObjectFactory.h"
+#ifndef MAC_OS_X_VERSION_10_4
+#define MAC_OS_X_VERSION_10_4 1040
+#endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.6");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.7");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -41,12 +33,65 @@ void (*vtkCocoaRenderWindowInteractor::ClassExitMethod)(void *) = (void (*)(void
 void *vtkCocoaRenderWindowInteractor::ClassExitMethodArg = (void *)NULL;
 void (*vtkCocoaRenderWindowInteractor::ClassExitMethodArgDelete)(void *) = (void (*)(void *))NULL;
 
+// This is a private class and an implementation detail, do not use it.
+//----------------------------------------------------------------------------
+@interface vtkCocoaTimer : NSObject
+{
+  NSTimer *timer;
+  vtkCocoaRenderWindowInteractor *interactor;
+}
+
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor;
+- (void)startTimer;
+- (void)stopTimer;
+- (void)timerFired:(NSTimer *)myTimer;
+
+@end
+
+//----------------------------------------------------------------------------
+@implementation vtkCocoaTimer
+
+- (id)initWithInteractor:(vtkCocoaRenderWindowInteractor *)myInteractor
+{
+  self = [super init]; 
+  if (self)
+    {
+    interactor = myInteractor;
+    }
+  return self;
+}
+
+- (void)timerFired:(NSTimer *)myTimer
+{
+  (void)myTimer;
+  interactor->InvokeEvent(vtkCommand::TimerEvent,NULL);
+}
+
+- (void)startTimer
+{
+  timer = [NSTimer timerWithTimeInterval:0.01
+  target:self
+  selector:@selector(timerFired:)
+  userInfo:nil
+  repeats:YES];
+  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
+  [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSEventTrackingRunLoopMode];
+}
+
+- (void)stopTimer
+{
+  [timer invalidate];
+}
+
+@end
+
+
+
 //----------------------------------------------------------------------------
 // Construct object so that light follows camera motion.
 vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor() 
 {
-  this->WindowId           = 0;
-  this->ApplicationId      = 0;
+  (void)[NSApplication sharedApplication]; //make sure the app is initialized
   this->InstallMessageProc = 1;
 }
 
@@ -59,6 +104,13 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 //----------------------------------------------------------------------------
 void  vtkCocoaRenderWindowInteractor::Start() 
 {
+  // Let the compositing handle the event loop if it wants to.
+  if (this->HasObserver(vtkCommand::StartEvent))
+    {
+    this->InvokeEvent(vtkCommand::StartEvent,NULL);
+    return;
+    }
+
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc) 
     {
@@ -71,7 +123,7 @@ void  vtkCocoaRenderWindowInteractor::Start()
 // Begin processing keyboard strokes.
 void vtkCocoaRenderWindowInteractor::Initialize()
 {
-  vtkCocoaRenderWindow *ren;
+  vtkCocoaRenderWindow *renWin;
   int *size;
 
   // make sure we have a RenderWindow and camera
@@ -86,11 +138,12 @@ void vtkCocoaRenderWindowInteractor::Initialize()
     }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
-  ren = (vtkCocoaRenderWindow *)(this->RenderWindow);
-  ren->Start();
-  size = ren->GetSize();
-  ren->GetPosition();
-  this->WindowId = ren->GetWindowId();
+  renWin = (vtkCocoaRenderWindow *)(this->RenderWindow);
+  renWin->Start();
+  size = renWin->GetSize();
+
+  renWin->GetPosition(); // update values of this->Position[2]
+
   this->Enable();
   this->Size[0] = size[0];
   this->Size[1] = size[1];
@@ -103,8 +156,11 @@ void vtkCocoaRenderWindowInteractor::Enable()
     {
     return;
     }
-  [(vtkCocoaWindow *)this->WindowId setVTKRenderWindowInteractor:this];
-  [[(vtkCocoaWindow *)this->WindowId getvtkCocoaGLView] setVTKRenderWindowInteractor:this];
+
+  // Set the RenderWindow's interactor so that when the vtkCocoaGLView tries
+  // to handle events from the OS it will either handle them or ignore them
+  this->GetRenderWindow()->SetInteractor(this);
+
   this->Enabled = 1;
   this->Modified();
 }
@@ -117,8 +173,10 @@ void vtkCocoaRenderWindowInteractor::Disable()
     return;
     }
   
-  [(vtkCocoaWindow *)this->WindowId setVTKRenderWindowInteractor:0];
-  [[(vtkCocoaWindow *)this->WindowId getvtkCocoaGLView] setVTKRenderWindowInteractor:0];
+  // Set the RenderWindow's interactor so that when the vtkCocoaGLView tries
+  // to handle events from the OS it will either handle them or ignore them
+  this->GetRenderWindow()->SetInteractor(NULL);
+
   this->Enabled = 0;
   this->Modified();
 }
@@ -126,22 +184,26 @@ void vtkCocoaRenderWindowInteractor::Disable()
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::TerminateApp() 
 {
-  [NSApp terminate:(vtkCocoaWindow *)this->WindowId];
+  [NSApp terminate:NSApp];
 }
 
 //----------------------------------------------------------------------------
-int vtkCocoaRenderWindowInteractor::CreateTimer(int) 
+int vtkCocoaRenderWindowInteractor::CreateTimer(int timertype) 
 {
-  [NSEvent stopPeriodicEvents];
-  [NSEvent startPeriodicEventsAfterDelay:0.01 withPeriod:0.01];
-
+  if (timertype==VTKI_TIMER_FIRST)
+    {
+    this->Timer = (void*)[[vtkCocoaTimer alloc] initWithInteractor:this];
+    [(vtkCocoaTimer*)Timer startTimer];
+    }
   return 1;
 }
 
 //----------------------------------------------------------------------------
 int vtkCocoaRenderWindowInteractor::DestroyTimer()
 {
-  [NSEvent stopPeriodicEvents];
+  [(vtkCocoaTimer*)Timer stopTimer];
+  [(vtkCocoaTimer*)Timer release];
+  this->Timer = 0;
   return 1;
 }
 
@@ -190,16 +252,13 @@ void vtkCocoaRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 void vtkCocoaRenderWindowInteractor::ExitCallback()
 {
-  if (this->ClassExitMethod)
+  if (this->HasObserver(vtkCommand::ExitEvent)) 
     {
-    (*this->ClassExitMethod)(this->ClassExitMethodArg);
+    this->InvokeEvent(vtkCommand::ExitEvent,NULL);
     }
   else if (this->ClassExitMethod)
     {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
     }
-  else
-    {
-    this->TerminateApp();
-    }
+  this->TerminateApp();
 }
