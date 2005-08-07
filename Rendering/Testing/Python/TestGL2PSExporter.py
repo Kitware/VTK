@@ -13,6 +13,7 @@ VTK.
 
 """
 
+import sys
 import os
 import os.path
 import tempfile
@@ -21,8 +22,12 @@ import vtk
 from vtk.test import Testing
 
 # This requires that you have PIL installed.
-import Image
-
+try:
+    import Image
+except ImportError:
+    print "Please install PIL (Python Imaging Library) to run this test."
+    sys.exit(0)
+    
 
 class TestGL2PSExporter(Testing.vtkTest):
     # Create these as class attributes so that they are only created

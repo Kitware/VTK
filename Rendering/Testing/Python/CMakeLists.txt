@@ -16,6 +16,20 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
             -D ${VTK_DATA_ROOT}/Data)
         ENDFOREACH( tfile )
       ENDIF(NOT VTK_USE_COCOA)
+      
+      #############################
+      # Add GL2PS specific tests.
+      IF(VTK_USE_GL2PS)
+        FOREACH ( tfile
+                  TestGL2PSExporter
+                  )
+          ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
+            ${VTK_SOURCE_DIR}/Rendering/Testing/Python/${tfile}.py
+            -B ${VTK_DATA_ROOT}/Baseline/Rendering
+            -D ${VTK_DATA_ROOT}/Data)
+        ENDFOREACH( tfile )
+      ENDIF(VTK_USE_GL2PS)
+      #############################
 
       # Add test converted from Tcl
       SET (CONVERTED_TESTS)
