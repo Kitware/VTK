@@ -1,9 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 1.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 PROJECT(VTK)
 
 # Don't build anything unless the version of CMake is high enough.
 # The matching ELSE/ENDIF should be the last lines in the file.
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
+IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
 
 # Tell the CMake makefile generator to not have rules depend on
 # themselves.  This causes extra rebuilds when the include path
@@ -1267,8 +1267,8 @@ SUBDIRS(Utilities/LastConfigureStep)
 
 # If the version of CMake was too old, complain and build nothing.
 # These should be the last lines in this file.
-ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
+ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
   MESSAGE(SEND_ERROR
           "This version of CMake is too old to build VTK.  "
-          "Please upgrade to CMake 1.8.")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.7)
+          "Please upgrade to CMake 2.0.")
+ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.9)
