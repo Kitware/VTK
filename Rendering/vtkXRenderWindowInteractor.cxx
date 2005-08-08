@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.120");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.121");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -60,7 +60,6 @@ XrmOptionDescRec Desc[] =
 // Construct an instance so that the light follows the camera motion.
 vtkXRenderWindowInteractor::vtkXRenderWindowInteractor()
 {
-  vtkXRenderWindowInteractor::App = 0;
   this->Top = 0;
   this->OwnTop = 0;
   this->OwnApp = 0;
@@ -84,7 +83,10 @@ vtkXRenderWindowInteractor::~vtkXRenderWindowInteractor()
     {
     if(vtkXRenderWindowInteractor::NumAppInitialized == 1)
       {
-      XtDestroyApplicationContext(vtkXRenderWindowInteractor::App);
+      if(this->OwnApp)
+        {
+        XtDestroyApplicationContext(vtkXRenderWindowInteractor::App);
+        }
       vtkXRenderWindowInteractor::App = 0;
       }
     vtkXRenderWindowInteractor::NumAppInitialized--;
