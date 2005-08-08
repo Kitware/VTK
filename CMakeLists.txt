@@ -18,6 +18,16 @@ SET(VTK_BUILD_VERSION 0)
 SET(VTK_VERSION
     "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}")
 
+# Append the library version information to the library target
+# properties.  A parent project may set its own properties and/or may
+# block this.
+IF(NOT VTK_NO_LIBRARY_VERSION)
+  SET(VTK_LIBRARY_PROPERTIES ${VTK_LIBRARY_PROPERTIES}
+    VERSION "${VTK_VERSION}"
+    SOVERSION "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}"
+    )
+ENDIF(NOT VTK_NO_LIBRARY_VERSION)
+
 #-----------------------------------------------------------------------------
 # Load some macros.
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkDependentOption.cmake)
@@ -723,6 +733,7 @@ SET(KWSYS_USE_RegularExpression 1)
 SET(KWSYS_USE_CommandLineArguments 1)
 SET(KWSYS_USE_Base64 1)
 SET(KWSYS_HEADER_ROOT ${VTK_BINARY_DIR}/Utilities)
+SET(KWSYS_PROPERTIES_CXX ${VTK_LIBRARY_PROPERTIES})
 IF(NOT VTK_USE_ANSI_STDLIB)
   SET(KWSYS_IOS_FORCE_OLD 1)
 ENDIF(NOT VTK_USE_ANSI_STDLIB)
