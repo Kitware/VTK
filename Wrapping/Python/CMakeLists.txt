@@ -172,20 +172,8 @@ IF(PYTHON_EXECUTABLE)
 
 # Now create a list of Python files.
 
-# Files in Wrapping/Python (these are actually for backwards compatibility)
-  SET(VTK_PYTHON_FILES
-    QVTKRenderWidget
-    vtkRenderWidget
-    vtkTkImageViewerWidget
-    vtkTkRenderWidget
-    vtkpython
-    vtkpythontk
-    wxVTKRenderWindow
-    )
-
 # Wrapping/Python/vtk/*.py
   SET(VTK_PYTHON_FILES 
-    ${VTK_PYTHON_FILES}
     vtk/__helper
     vtk/__init__
     vtk/common
@@ -279,8 +267,6 @@ IF(PYTHON_EXECUTABLE)
                          OUTPUT ${tgt}
                          COMMENT "source copy")
     ENDFOREACH(file)
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtk.pth
-                   ${VTK_BINARY_DIR}/Wrapping/Python/vtk.pth COPYONLY)
   ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
 # Byte compile the Python files.

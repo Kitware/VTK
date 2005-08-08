@@ -7,7 +7,10 @@ Created by Prabhu Ramachandran, June 2002.
 
 """
 
-import glob, sys, os
+import glob
+import sys
+import os
+import os.path
 from types import StringType
 from distutils.core import setup
 from distutils.util import change_root, convert_path
@@ -23,6 +26,9 @@ build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
 # You can change this to suit your needs.  However you must make sure
 # that under *nix the libvtk*Python*.so in the specified directory.
 install_lib_dir = "${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_LIB_DIR}"
+
+# The build type ('Release', 'Debug' etc.)
+build_type = "${CMAKE_BUILD_TYPE}"
 
 
 def get_libs():
@@ -51,12 +57,8 @@ def get_scripts():
             if os.path.exists(f):
                 scripts.append(f)
     else:
-        win32_bin_dir = build_bin_dir
-        for subdir in ('Debug', 'Release', 'MinSizeRel',
-                       'RelWithDebInfo'):
-            win32_bin_dir = os.path.join(build_bin_dir, subdir)
-            if os.path.exists(win32_bin_dir):
-                break
+        # Under win32 the binary is insider a sub-directory.
+        win32_bin_dir = os.path.join(build_bin_dir, build_type)
         for i in ('vtkpython.exe', 'pvtkpython.exe'):
             f = os.path.join(os.path.normpath(win32_bin_dir), i)
             if os.path.exists(f):
@@ -116,11 +118,8 @@ setup (name              = "VTK",
        url               = "http://www.vtk.org/",
        platforms         = ['Any'],
        cmdclass          = {'install_data': my_install_data},
-       packages          = ['vtk_python', 'vtk_python.vtk',
-                            'vtk_python.vtk.gtk', 'vtk_python.vtk.qt',
-                            'vtk_python.vtk.tk', 'vtk_python.vtk.util',
-                            'vtk_python.vtk.wx', 'vtk_python.vtk.test'],
+       packages          = ['vtk', 'vtk.gtk', 'vtk.qt', 'vtk.tk',
+                            'vtk.util', 'vtk.wx', 'vtk.test'],
        scripts           = get_scripts(),
-       package_dir       = {'vtk_python': '.'},
-       data_files        = [('vtk_python', get_libs()), ('.', ['vtk.pth'])]
+       data_files        = [('vtk', get_libs())]
        )

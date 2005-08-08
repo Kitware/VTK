@@ -6,6 +6,8 @@ This file documents the VTK-Python modules.
 The file README_WRAP.txt provides a detailed description of how VTK
 objects are accessed and modified through Python.
 
+******** FIXME XXX TODO ***************
+
 
 Contents
 ^^^^^^^^
@@ -248,18 +250,11 @@ Other VTK related modules
 Backwards compatibility
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-  All the older modules like vtkpython etc. are still available.  This
-  means that all your old code should still run fine.  However, new
-  additions like the pyGTK widget will only be available via the new
-  package structure.  To illustrate the point consider the
-  wxVTKRenderWindow.py module.  To import this you can do either
-
-    from vtk.wx import wxVTKRenderWindow
-    # or
-    import wxVTKRenderWindow
-
-  The wxVTKRenderWindow and other older modules have been suitably
-  modified to use the new structure.
+  Since VTK-4.0, the usage of `vtkpython`, `vtkpythontk`,
+  `vtkTkRenderWidget` and other modules in the Wrapping/Python
+  directory were deprecated.  As of VTK-5.0, these files are no longer
+  available.  Please use the `vtk` package instead which provides the
+  functionality.
 
 
 Writing and running VTK-Python tests
@@ -291,34 +286,31 @@ Information for packagers
   setup.py script might not do.  Here is some information for such
   people who are unable to use the setup.py script.
 
-    (1) The entire contents of this directory and its sub-directories
-    could be placed in a system wide directory called 'vtkpython' (or
-    something else).  Additionally you will need to create a vtk.pth
-    that points to this directory.  Lets say you install the modules
-    in /usr/lib/python2.1/site-packages/vtkpython.  Then create a
-    vtk.pth that contains just one line containing just the word
-    'vtkpython' (without the quotes) in it and place that in
-    /usr/lib/python2.1/site-packages/.
+    (1) The entire contents of the `vtk` directory and its
+        sub-directories should be installed in the Python's path.
+        Usually this is in `$prefix/python2.3/site-packages`.
 
     (2) You must ensure that the VTK Python libraries are in both your
-    PYTHONPATH and in your linkers path.  Under Unix this means that
-    the files libvtkCommonPython.so (libvtk*Python.so) are both in
-    your PYTHONPATH and in the LD_LIBRARY_PATH (or in ld.so.conf).
+        PYTHONPATH and in your linkers path.  Under Unix this means
+        that the files libvtkCommonPython.so (libvtk*Python.so) are
+        both in your PYTHONPATH and in the LD_LIBRARY_PATH (or in
+        ld.so.conf).
 
     (3) Under GNU/Linux both (1) and (2) are achievable if you do
-    something like so:
+        something like so:
 
-     Method 1:
+        Method 1:
 
-      (a) Put all the Python modules in /usr/lib/vtk/python.
+          (a) Put all the Python modules in /usr/lib/vtk/python.
 
-      (b) Put libvtk*Python.so also in /usr/lib/vtk/python.
+          (b) Put libvtk*Python.so also in /usr/lib/vtk/python.
 
-      (c) Add the /usr/lib/vtk/python directory to /etc/ld.so.conf.
+          (c) Add the /usr/lib/vtk/python directory to /etc/ld.so.conf.
 
-      (d) Create a vtkpython.pth in /usr/lib/pythonX.Y/site-packages/
-      with the single entry '/usr/lib/vtk/python' (without the
-      quotes).
+          (d) Create a vtkpython.pth in
+              /usr/lib/pythonX.Y/site-packages/ with the single entry
+              '/usr/lib/vtk/python' (without the
+          quotes).
 
     Alternatively, the following approach might be preferred (this is
     in fact exactly what the setup.py script does):
