@@ -85,9 +85,10 @@
 // \endcode
 //
 // Once you have queried and loaded all of the extensions you need, you can
-// delete the vtkExtensionManager.  To use a constant of an extension,
-// simply replace the "GL_" prefix with "vtkgl::".  Likewise, replace the
-// "gl" prefix of functions with "vtkgl::".
+// delete the vtkExtensionManager.  To use a constant of an extension, simply
+// replace the "GL_" prefix with "vtkgl::".  Likewise, replace the "gl" prefix
+// of functions with "vtkgl::".  In rare cases, an extension will add a type.
+// In this case, add vtkgl:: to the type (i.e. vtkgl::GLchar).
 //
 // \code
 // extensions->Delete();
