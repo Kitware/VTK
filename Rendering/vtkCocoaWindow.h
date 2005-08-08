@@ -33,5 +33,4 @@
 {
 }
 
-- (void)close;
 @end

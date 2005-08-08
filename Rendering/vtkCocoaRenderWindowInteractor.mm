@@ -25,7 +25,7 @@
 #endif
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.7");
+vtkCxxRevisionMacro(vtkCocoaRenderWindowInteractor, "1.8");
 vtkStandardNewMacro(vtkCocoaRenderWindowInteractor);
 
 //----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 }
 
 //----------------------------------------------------------------------------
-void  vtkCocoaRenderWindowInteractor::Start() 
+void vtkCocoaRenderWindowInteractor::Start() 
 {
   // Let the compositing handle the event loop if it wants to.
   if (this->HasObserver(vtkCommand::StartEvent))
@@ -172,7 +172,7 @@ void vtkCocoaRenderWindowInteractor::Disable()
     {
     return;
     }
-  
+
   // Set the RenderWindow's interactor so that when the vtkCocoaGLView tries
   // to handle events from the OS it will either handle them or ignore them
   this->GetRenderWindow()->SetInteractor(NULL);
@@ -193,7 +193,7 @@ int vtkCocoaRenderWindowInteractor::CreateTimer(int timertype)
   if (timertype==VTKI_TIMER_FIRST)
     {
     this->Timer = (void*)[[vtkCocoaTimer alloc] initWithInteractor:this];
-    [(vtkCocoaTimer*)Timer startTimer];
+    [(vtkCocoaTimer*)this->Timer startTimer];
     }
   return 1;
 }
@@ -201,8 +201,8 @@ int vtkCocoaRenderWindowInteractor::CreateTimer(int timertype)
 //----------------------------------------------------------------------------
 int vtkCocoaRenderWindowInteractor::DestroyTimer()
 {
-  [(vtkCocoaTimer*)Timer stopTimer];
-  [(vtkCocoaTimer*)Timer release];
+  [(vtkCocoaTimer*)this->Timer stopTimer];
+  [(vtkCocoaTimer*)this->Timer release];
   this->Timer = 0;
   return 1;
 }
@@ -262,3 +262,4 @@ void vtkCocoaRenderWindowInteractor::ExitCallback()
     }
   this->TerminateApp();
 }
+
