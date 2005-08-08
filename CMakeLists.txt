@@ -93,8 +93,8 @@ IF(NOT WIN32)
 
     # Add a dummy target and attach an install rule that will always fail
     # and produce a message explaining why installation is disabled.
-    ADD_CUSTOM_TARGET(install_disabled)
-    SET_TARGET_PROPERTIES(install_disabled PROPERTIES
+    ADD_CUSTOM_TARGET(vtk_install_disabled)
+    SET_TARGET_PROPERTIES(vtk_install_disabled PROPERTIES
       PRE_INSTALL_SCRIPT ${VTK_SOURCE_DIR}/CMake/InstallDisabled.cmake)
   ELSE(VTK_USE_RPATH)
     # We will not use rpath support.  Tell CMake to skip it and do not
