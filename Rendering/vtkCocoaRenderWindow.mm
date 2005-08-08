@@ -25,12 +25,13 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.27");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.28");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 {
+  (void)[NSApplication sharedApplication]; //make sure the app is initialized
   this->WindowCreated = 0;
   this->ViewCreated = 0;
   this->ContextId = 0;
@@ -66,7 +67,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
     [(NSView *)this->NSViewId release];
     }
   this->NSViewId = NULL;
-  
+
   if (this->WindowId && this->WindowCreated)
     {
     // If this class created the window, then this class must close
@@ -80,7 +81,7 @@ vtkCocoaRenderWindow::~vtkCocoaRenderWindow()
 void vtkCocoaRenderWindow::Finalize()
 {
   GLuint txId;
-  
+
   // finish OpenGL rendering
   if (this->ContextId) 
     {
@@ -117,7 +118,7 @@ void vtkCocoaRenderWindow::Finalize()
 
     [(NSOpenGLContext*)this->ContextId release];
     [(NSOpenGLPixelFormat*)this->PixelFormat release];
-    
+
     this->ContextId = NULL;
     this->PixelFormat = NULL;
     NSAutoreleasePool *pool = (NSAutoreleasePool*)this->AutoreleasePool;
@@ -165,7 +166,7 @@ void vtkCocoaRenderWindow::Start()
   // but only early in the app's lifetime (ie sometime during launch)
 
   [context setView:(NSView*)this->NSViewId];
-  
+
   [context update];
 
   // set the current window 
@@ -295,7 +296,7 @@ void vtkCocoaRenderWindow::SetSize(int* a)
 void vtkCocoaRenderWindow::SetSize(int x, int y)
 {
   static int resizing = 0;
-  
+
   if ((this->Size[0] != x) || (this->Size[1] != y))
     {
     this->Modified();
@@ -311,7 +312,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
         resizing = 0;
         }
       }
-   }
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -344,7 +345,7 @@ void vtkCocoaRenderWindow::SetPosition(int x, int y)
         NSPoint origin = NSMakePoint((float)x, (float)y);
         [(NSWindow*)this->WindowId setFrameOrigin:origin];
         resizing = 0;
-        }         
+        }
       }
   }
 }
@@ -374,10 +375,10 @@ void vtkCocoaRenderWindow::StereoUpdate()
         break;
       case VTK_STEREO_ANAGLYPH:
         this->StereoStatus = 1;
-        break;    
+        break;
       case VTK_STEREO_DRESDEN:
         this->StereoStatus = 1;
-        break;      
+        break;
       case VTK_STEREO_INTERLACED:
         this->StereoStatus = 1;
         break;
@@ -432,6 +433,7 @@ void vtkCocoaRenderWindow::WindowInitialize ()
   static int count = 1;
 
   this->AutoreleasePool = [[NSAutoreleasePool alloc] init];
+  (void)[NSApplication sharedApplication]; //make sure the app is initialized
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already
@@ -471,7 +473,7 @@ void vtkCocoaRenderWindow::WindowInitialize ()
 #endif
 
     [theWindow makeKeyAndOrderFront:nil];
-    
+
     [theWindow setAcceptsMouseMovedEvents:YES];
 
     this->SetWindowId(theWindow);
@@ -490,7 +492,7 @@ void vtkCocoaRenderWindow::WindowInitialize ()
     this->ViewCreated = 1;
     [glView setVTKRenderWindow:this];
     }
-  
+ 
   this->CreateGLContext();
 
   this->MakeCurrent();
@@ -592,12 +594,12 @@ int *vtkCocoaRenderWindow::GetPosition()
 void vtkCocoaRenderWindow::SetFullScreen(int arg)
 {
   int *pos;
-  
+
   if (this->FullScreen == arg)
     {
     return;
     }
-  
+
   if (!this->Mapped)
     {
     this->PrefFullScreen();
@@ -619,7 +621,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
     // if window already up get its values 
     if (this->WindowId)
       {
-      pos = this->GetPosition();      
+      pos = this->GetPosition();
       this->OldScreen[0] = pos[0];
       this->OldScreen[1] = pos[1];
 
@@ -627,7 +629,7 @@ void vtkCocoaRenderWindow::SetFullScreen(int arg)
       this->PrefFullScreen();
       }
     }
-  
+
   // remap the window 
   this->WindowRemap();
 
@@ -748,4 +750,5 @@ void vtkCocoaRenderWindow::ShowCursor()
   this->CursorHidden = 0;
 
   [NSCursor unhide];
-}           
+}
+
