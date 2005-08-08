@@ -6,14 +6,15 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
-from vtkpython import *
+import vtk
+from vtk.util.misc import vtkGetDataRoot
 
 filename = vtkGetDataRoot() + '/Data/tetraMesh.vtk'
 
-reader = vtkUnstructuredGridReader()
+reader = vtk.vtkUnstructuredGridReader()
 reader.SetFileName(filename)
 
-a = vtkMeshQuality()
+a = vtk.vtkMeshQuality()
 a.SetInput(reader.GetOutput())
 a.VolumeOn()
 a.RatioOn()

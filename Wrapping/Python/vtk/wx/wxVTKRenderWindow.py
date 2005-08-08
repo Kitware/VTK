@@ -77,7 +77,7 @@ __Handle:              Handle to the window containing the vtkRenderWindow
 # import usual libraries
 import math, os, sys
 from wxPython.wx import *
-from vtkpython import *
+import vtk
 
 # a few configuration items, see what works best on your system
 
@@ -130,9 +130,9 @@ class wxVTKRenderWindow(baseClass):
         self._ViewportCenterX = 0
         self._ViewportCenterY = 0
         
-        self._Picker = vtkCellPicker()
+        self._Picker = vtk.vtkCellPicker()
         self._PickedActor = None
-        self._PickedProperty = vtkProperty()
+        self._PickedProperty = vtk.vtkProperty()
         self._PickedProperty.SetColor(1,0,0)
         self._PrePickedProperty = None
         
@@ -204,7 +204,7 @@ class wxVTKRenderWindow(baseClass):
         baseClass.__init__(self, parent, ID, position, size, style)
 
         # create the RenderWindow and initialize it
-        self._RenderWindow = vtkRenderWindow()
+        self._RenderWindow = vtk.vtkRenderWindow()
         try:
             self._RenderWindow.SetSize(size.width, size.height)
         except AttributeError:
@@ -674,16 +674,16 @@ def wxVTKRenderWindowConeExample():
     frame = wxFrame(None, -1, "wxRenderWindow", size=wxSize(400,400))
     widget = wxVTKRenderWindow(frame, -1)
 
-    ren = vtkRenderer()
+    ren = vtk.vtkRenderer()
     widget.GetRenderWindow().AddRenderer(ren)
 
-    cone = vtkConeSource()
+    cone = vtk.vtkConeSource()
     cone.SetResolution(8)
     
-    coneMapper = vtkPolyDataMapper()
+    coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInput(cone.GetOutput())
     
-    coneActor = vtkActor()
+    coneActor = vtk.vtkActor()
     coneActor.SetMapper(coneMapper)
 
     ren.AddActor(coneActor)
@@ -695,6 +695,5 @@ def wxVTKRenderWindowConeExample():
     app.MainLoop()
 
 if __name__ == "__main__":
-    from vtkpython import *
     wxVTKRenderWindowConeExample()
 

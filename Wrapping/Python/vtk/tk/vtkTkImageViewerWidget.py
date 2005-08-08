@@ -8,9 +8,8 @@ Created by David Gobbi, Nov 1999
 """
 
 import Tkinter
-from Tkinter import *
 import math, os, sys
-from vtkpython import *
+import vtk
 
 from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
@@ -47,7 +46,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         try: # use specified vtkImageViewer
             imageViewer = kw['iv']
         except KeyError: # or create one if none specified
-            imageViewer = vtkImageViewer()
+            imageViewer = vtk.vtkImageViewer()
 
         doubleBuffer = 0
         try:
@@ -79,7 +78,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         # as an attribute but instead have to get it from the tk-side
         if attr == '_ImageViewer':
             addr = self.tk.call(self._w, 'GetImageViewer')[5:]
-            return vtkImageViewer('_%s_vtkImageViewer_p' % addr)
+            return vtk.vtkImageViewer('_%s_vtkImageViewer_p' % addr)
         raise AttributeError, self.__class__.__name__ + \
               " has no attribute named " + attr
 
@@ -93,7 +92,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         imager = self._ImageViewer.GetRenderer()
         
         # stuff for window level text.
-        mapper = vtkTextMapper()
+        mapper = vtk.vtkTextMapper()
         mapper.SetInput("none")
         t_prop = mapper.GetTextProperty()
         t_prop.SetFontFamilyToTimes()
@@ -103,7 +102,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         
         self._LevelMapper = mapper
 
-        actor = vtkActor2D()
+        actor = vtk.vtkActor2D()
         actor.SetMapper(mapper)
         actor.SetLayerNumber(1)
         actor.GetPositionCoordinate().SetValue(4,22)
@@ -113,7 +112,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 
         self._LevelActor = actor
                 
-        mapper = vtkTextMapper()
+        mapper = vtk.vtkTextMapper()
         mapper.SetInput("none")
         t_prop = mapper.GetTextProperty()
         t_prop.SetFontFamilyToTimes()
@@ -123,7 +122,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
         
         self._WindowMapper = mapper
 
-        actor = vtkActor2D()
+        actor = vtk.vtkActor2D()
         actor.SetMapper(mapper)
         actor.SetLayerNumber(1)
         actor.GetPositionCoordinate().SetValue(4,4)
@@ -300,7 +299,7 @@ class vtkTkImageViewerWidget(Tkinter.Widget):
 #-----------------------------------------------------------------------------
 # an example of how to use this widget
 if __name__ == "__main__":
-    canvas = vtkImageCanvasSource2D()
+    canvas = vtk.vtkImageCanvasSource2D()
     canvas.SetNumberOfScalarComponents(3)
     canvas.SetScalarType(3)
     canvas.SetExtent(0,511,0,511,0,0)
@@ -343,7 +342,7 @@ if __name__ == "__main__":
 
     # Create the GUI: two renderer widgets and a quit button
 
-    frame = Frame()
+    frame = Tkinter.Frame()
 
     widget = vtkTkImageViewerWidget(frame,width=512,height=512,double=1)
     viewer = widget.GetImageViewer()
@@ -351,7 +350,7 @@ if __name__ == "__main__":
     viewer.SetColorWindow(256)
     viewer.SetColorLevel(127.5)
 
-    button = Button(frame,text="Quit",command=frame.quit)
+    button = Tkinter.Button(frame,text="Quit",command=frame.quit)
 
     widget.pack(side='top',padx=3,pady=3,fill='both',expand='t')
     frame.pack(fill='both',expand='t')

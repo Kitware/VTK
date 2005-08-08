@@ -6,24 +6,25 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
-from vtkpython import *
+import vtk
+from vtk.util.misc import vtkRegressionTestImage
 
 # create a rendering window and renderer
-ren = vtkRenderer()
-renWin = vtkRenderWindow()
+ren = vtk.vtkRenderer()
+renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren)
 renWin.SetSize(300,300)
 
 # create an actor and give it cone geometry
-cone = vtkConeSource()
+cone = vtk.vtkConeSource()
 cone.SetResolution(8)
-coneMapper = vtkPolyDataMapper()
+coneMapper = vtk.vtkPolyDataMapper()
 coneMapper.SetInput(cone.GetOutput())
-coneActor = vtkActor()
+coneActor = vtk.vtkActor()
 coneActor.SetMapper(coneMapper)
 
 # create a transform and distort the camera using it
-mat = vtkMatrix4x4()
+mat = vtk.vtkMatrix4x4()
 mat.SetElement(0,0,0.5)
 mat.SetElement(0,1,0)
 mat.SetElement(0,2,0)
@@ -41,7 +42,7 @@ mat.SetElement(3,1,0)
 mat.SetElement(3,2,0)
 mat.SetElement(3,3,1)
 
-trans = vtkTransform()
+trans = vtk.vtkTransform()
 trans.SetMatrix(mat)
 
 # assign our actor to the renderer

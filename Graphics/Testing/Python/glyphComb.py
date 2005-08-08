@@ -6,46 +6,47 @@ for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
         sys.path = sys.path + [sys.argv[i+1]]
 
-from vtkpython import *
+import vtk
+from vtk.util.misc import vtkRegressionTestImage, vtkGetDataRoot
 
 # create planes
 # Create the RenderWindow, Renderer
 #
-ren = vtkRenderer()
-renWin = vtkRenderWindow()
+ren = vtk.vtkRenderer()
+renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer( ren )
 
-iren = vtkRenderWindowInteractor()
+iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # create pipeline
 #
-pl3d = vtkPLOT3DReader()
+pl3d = vtk.vtkPLOT3DReader()
 pl3d.SetXYZFileName( vtkGetDataRoot() + '/Data/combxyz.bin' )
 pl3d.SetQFileName( vtkGetDataRoot() + '/Data/combq.bin' )
 pl3d.SetScalarFunctionNumber( 100 )
 pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
 
-eg = vtkExtractGrid()
+eg = vtk.vtkExtractGrid()
 eg.SetInput(pl3d.GetOutput())
 eg.SetSampleRate(4,4,4)
 
-gs = vtkGlyphSource2D()
+gs = vtk.vtkGlyphSource2D()
 gs.SetGlyphTypeToThickArrow()
 gs.SetScale( 1 )
 gs.FilledOff()
 gs.CrossOff()
 
-glyph = vtkGlyph3D()
+glyph = vtk.vtkGlyph3D()
 glyph.SetInput(eg.GetOutput())
 glyph.SetSource(gs.GetOutput())
 glyph.SetScaleFactor( 0.75 )
 
-mapper = vtkPolyDataMapper()
+mapper = vtk.vtkPolyDataMapper()
 mapper.SetInput(glyph.GetOutput())
 
-actor = vtkActor()
+actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
 ren.AddActor(actor)

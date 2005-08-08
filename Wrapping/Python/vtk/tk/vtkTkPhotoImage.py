@@ -6,8 +6,6 @@ Created by Daniel Blezek, August 2002
 """
 
 import Tkinter
-from Tkinter import *
-from vtkpython import *
 
 from vtkLoadPythonTkWidgets import vtkLoadPythonTkWidgets
 
@@ -24,4 +22,3 @@ class vtkTkPhotoImage ( Tkinter.PhotoImage ):
         t = image.__this__
         s = 'vtkImageDataToTkPhoto %s %s %d %s %d %d' % ( t[:-2], self.name, z, orientation, window, level )
         self.tk.eval ( s )
-
