@@ -26,6 +26,8 @@
 
 #include "vtkObject.h"
 
+class vtkMedicalImagePropertiesInternals;
+
 class VTK_IO_EXPORT vtkMedicalImageProperties : public vtkObject
 {
 public:
@@ -48,9 +50,9 @@ public:
   vtkGetStringMacro(PatientID);
 
   // Description:
-  // Date
-  vtkSetStringMacro(Date);
-  vtkGetStringMacro(Date);
+  // Image Date
+  vtkSetStringMacro(ImageDate);
+  vtkGetStringMacro(ImageDate);
 
   // Description:
   // Series
@@ -75,6 +77,23 @@ public:
   // Description:
   // Copy the contents of p to this instance. 
   virtual void DeepCopy(vtkMedicalImageProperties *p);
+
+  // Description:
+  // Add/Remove/Query the window/level presets that may have been associated
+  // to a medical image.
+  // The preset name can be empty, and does not have to be unique
+  // (the window/level pair has to).
+  virtual void AddWindowLevelPreset(double w, double l, const char *name);
+  virtual void RemoveWindowLevelPreset(double w, double l);
+  virtual void RemoveWindowLevelPreset(const char *name);
+  virtual void RemoveAllWindowLevelPresets();
+  virtual int GetNumberOfWindowLevelPresets();
+  virtual int GetWindowLevelPreset(const char *name, double *w, double *l);
+  virtual double* GetWindowLevelPreset(const char *name);
+  virtual int GetNthWindowLevelPreset(int idx, double *w, double *l);
+  virtual double* GetNthWindowLevelPreset(int idx);
+  virtual const char* GetWindowLevelPresetName(double w, double l);
+  virtual const char* GetNthWindowLevelPresetName(int idx);
   
 protected:
   vtkMedicalImageProperties();
@@ -82,11 +101,17 @@ protected:
 
   char *PatientName;
   char *PatientID;
-  char *Date;
+  char *ImageDate;
   char *ImageNumber;
   char *Study;
   char *Series;
   char *Modality;
+
+  // Description:
+  // PIMPL Encapsulation for STL containers
+  //BTX
+  vtkMedicalImagePropertiesInternals *Internals;
+  //ETX
   
 private:
   vtkMedicalImageProperties(const vtkMedicalImageProperties&); // Not implemented.
