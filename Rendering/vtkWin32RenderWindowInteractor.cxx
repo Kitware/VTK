@@ -17,6 +17,8 @@
 #include <string.h>
 #include <math.h>
 
+#define _WIN32_WINNT 0x0400  // for trackmouseevent support  requires Win95 with IE 3.0 or greater.
+
 #include "vtkWin32OpenGLRenderWindow.h"
 
 // Mouse wheel support
@@ -56,7 +58,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.92");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.93");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -311,7 +313,7 @@ static char *VKeyCodeToKeySymTable[] = {
 //-------------------------------------------------------------
 // Event loop handlers
 //-------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::OnMouseMove(HWND, UINT nFlags, 
+void vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags, 
                                                  int X, int Y) 
 {
   if (!this->Enabled) 
@@ -328,15 +330,14 @@ void vtkWin32RenderWindowInteractor::OnMouseMove(HWND, UINT nFlags,
     {
     this->InvokeEvent(vtkCommand::EnterEvent, NULL);
     this->MouseInWindow = 1;
+    // request WM_MOUSELEAVE generation
+    TRACKMOUSEEVENT tme;
+    tme.cbSize = sizeof(TRACKMOUSEEVENT);
+    tme.dwFlags = TME_LEAVE;
+    tme.hwndTrack = hWnd;
+    TrackMouseEvent(&tme);
     }
  
-  if (this->MouseInWindow && 
-      (X < 0 || X >= this->Size[0] || Y < 0 || Y >= this->Size[1]))
-    {
-    this->InvokeEvent(vtkCommand::LeaveEvent, NULL);
-    this->MouseInWindow = 0;
-    }
-
   this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
 
@@ -670,7 +671,12 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
     case WM_RBUTTONUP:
       me->OnRButtonUp(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
-      
+
+    case WM_MOUSELEAVE:
+      me->InvokeEvent(vtkCommand::LeaveEvent, NULL);
+      me->MouseInWindow = 0;
+      break;
+
     case WM_MOUSEMOVE:
       me->OnMouseMove(hWnd,wParam,MAKEPOINTS(lParam).x,MAKEPOINTS(lParam).y);
       break;
