@@ -26,7 +26,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkConeSource, "1.72");
+vtkCxxRevisionMacro(vtkConeSource, "1.72.8.1");
 vtkStandardNewMacro(vtkConeSource);
 
 //----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ int vtkConeSource::RequestData(
   int createBottom;
   
   piece = output->GetUpdatePiece();
-  if (piece >= this->Resolution)
+  if (piece >= this->Resolution && !(piece == 0 && this->Resolution == 0))
     {
     return 1;
     }
