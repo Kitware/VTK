@@ -30,7 +30,7 @@
 #include "vtkVertex.h"
 #include "vtkVoxel.h"
 
-vtkCxxRevisionMacro(vtkRectilinearGrid, "1.4");
+vtkCxxRevisionMacro(vtkRectilinearGrid, "1.5");
 vtkStandardNewMacro(vtkRectilinearGrid);
 
 vtkCxxSetObjectMacro(vtkRectilinearGrid,XCoordinates,vtkDataArray);
@@ -887,11 +887,13 @@ void vtkRectilinearGrid::ShallowCopy(vtkDataObject *dataObject)
   if ( grid != NULL )
     {
     this->SetDimensions(grid->GetDimensions());
+    memcpy(this->Extent, grid->GetExtent(), 6*sizeof(int));
     this->DataDescription = grid->DataDescription;
     
     this->SetXCoordinates(grid->GetXCoordinates());
     this->SetYCoordinates(grid->GetYCoordinates());
     this->SetZCoordinates(grid->GetZCoordinates());
+
     }
 
   // Do superclass
@@ -907,6 +909,7 @@ void vtkRectilinearGrid::DeepCopy(vtkDataObject *dataObject)
     {
     vtkDoubleArray *s;
     this->SetDimensions(grid->GetDimensions());
+    memcpy(this->Extent, grid->GetExtent(), 6*sizeof(int));
     this->DataDescription = grid->DataDescription;
     
     s = vtkDoubleArray::New();
