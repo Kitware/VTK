@@ -24,7 +24,7 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.20");
+vtkCxxRevisionMacro(vtkTransmitPolyDataPiece, "1.21");
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitPolyDataPiece,Controller,
@@ -194,20 +194,27 @@ void vtkTransmitPolyDataPiece::RootExecute(vtkPolyData *input,
   int ext[3];
   int numProcs, i;
 
+  vtkStreamingDemandDrivenPipeline *extractExecutive =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(extract->GetExecutive());
+  vtkInformation *extractInfo = extractExecutive->GetOutputInformation(0);
+  
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
   tmp->SetReleaseDataFlag(0);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
 
-  vtkInformation *extractInfo = extract->GetExecutive()->GetOutputInformation(0);
+  extractExecutive->UpdateDataObject();
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
   extractInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
                    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  extractInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
   extract->Update();
+
   // Copy geometry without copying information.
   output->CopyStructure(extract->GetOutput());
   output->GetPointData()->PassData(extract->GetOutput()->GetPointData());
