@@ -21,7 +21,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.42");
+vtkCxxRevisionMacro(vtkImageMandelbrotSource, "1.43");
 vtkStandardNewMacro(vtkImageMandelbrotSource);
 
 //----------------------------------------------------------------------------
@@ -323,10 +323,23 @@ vtkImageMandelbrotSource::CopyOriginAndSample(vtkImageMandelbrotSource *source)
   this->Modified();
 }
 //----------------------------------------------------------------------------
-void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
+int vtkImageMandelbrotSource::RequestData(
+  vtkInformation* vtkNotUsed( request ),
+  vtkInformationVector** vtkNotUsed(inputVector),
+  vtkInformationVector* outputVector)
 {
-  vtkImageData *data = this->AllocateOutputData(output);
-  int *ext, a0, a1, a2;
+  // get the output
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkImageData *data = vtkImageData::SafeDownCast(
+    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  
+  // We need to allocate our own scalars since we are overriding
+  // the superclasses "Execute()" method.
+  int *ext = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  data->SetExtent(ext);
+  data->AllocateScalars();
+  
+  int a0, a1, a2;
   float *ptr;
   int min0, max0;
   int idx0, idx1, idx2;
@@ -338,19 +351,18 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
   
   // Name the array appropriately.
   data->GetPointData()->GetScalars()->SetName("Iterations");
-
+  
   if (data->GetNumberOfPoints() <= 0)
     {
-    return;
+    return 1;
     }
-
+  
   // Copy origin into pixel
   for (idx0 = 0; idx0 < 4; ++idx0)
     {
     p[idx0] = this->OriginCX[idx0];
     }
 
-  ext = data->GetUpdateExtent();
   ptr = (float *)(data->GetScalarPointerForExtent(ext));
 
   vtkDebugMacro("Generating Extent: " << ext[0] << " -> " << ext[1] << ", "
@@ -373,7 +385,7 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
   if (a0<0 || a1<0 || a2<0 || a0>3 || a1>3 || a2>3)
     {
     vtkErrorMacro("Bad projection axis");
-    return;
+    return 0;
     }
   for (idx2 = ext[4]; idx2 <= ext[5]; ++idx2)
     {
@@ -400,6 +412,7 @@ void vtkImageMandelbrotSource::ExecuteData(vtkDataObject *output)
     ptr += inc2;
     }
   
+  return 1;
 }
 
 

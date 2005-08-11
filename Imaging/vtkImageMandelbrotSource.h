@@ -120,8 +120,14 @@ protected:
   // A flag for keeping size constant (vs. keeping the spacing).
   int ConstantSize;
 
-  virtual void ExecuteData(vtkDataObject *outData);
-  virtual int RequestInformation (vtkInformation *, vtkInformationVector**, vtkInformationVector *);
+  // see vtkAlgorithm for details
+  virtual int RequestData(vtkInformation *request,
+                          vtkInformationVector** inputVector,
+                          vtkInformationVector* outputVector);
+
+  virtual int RequestInformation (vtkInformation *, 
+                                  vtkInformationVector**, 
+                                  vtkInformationVector *);
   double EvaluateSet(double p[4]);
 private:
   vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.
