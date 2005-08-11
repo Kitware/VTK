@@ -24,7 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.19");
+vtkCxxRevisionMacro(vtkTransmitUnstructuredGridPiece, "1.20");
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitUnstructuredGridPiece,Controller,
@@ -165,13 +165,17 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
                     << "Altering request to try to avoid a deadlock.");
     }
 
+  vtkStreamingDemandDrivenPipeline *extractExecutive =
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(extract->GetExecutive());
+
   // First, set up the pipeline and handle local request.
   tmp->ShallowCopy(input);
   tmp->SetReleaseDataFlag(0);
   extract->SetCreateGhostCells(this->CreateGhostCells);
   extract->SetInput(tmp);
-  vtkInformation *extractOutInfo = 
-    extract->GetExecutive()->GetOutputInformation(0);
+  extractExecutive->UpdateDataObject();
+
+  vtkInformation *extractOutInfo = extractExecutive->GetOutputInformation(0);
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
@@ -181,6 +185,8 @@ void vtkTransmitUnstructuredGridPiece::RootExecute(vtkUnstructuredGrid *input,
   extractOutInfo->Set(
     vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
     outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
+  extractOutInfo->Set(
+    vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT_INITIALIZED(), 1);
 
   extract->Update();
 
