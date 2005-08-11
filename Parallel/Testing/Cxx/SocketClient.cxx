@@ -271,7 +271,7 @@ int main(int argc, char** argv)
   ip->SetRemoteProcessId(1);
 
   // Get polydata
-  ip->GetPolyDataOutput()->Update();
+  ip->Update();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
   vtkPolyData* pd = vtkPolyData::New();
@@ -285,7 +285,7 @@ int main(int argc, char** argv)
   pmapper->UnRegister(0);
 
   // Get rectilinear grid
-  ip->GetRectilinearGridOutput()->Update();
+  ip->Update();
 
   vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
   vtkRectilinearGrid* rg = vtkRectilinearGrid::New();
@@ -301,7 +301,7 @@ int main(int argc, char** argv)
   rgmapper->UnRegister(0);
 
   // Get structured points
-  ip->GetStructuredPointsOutput()->Update();
+  ip->Update();
 
   vtkContourFilter* iso = vtkContourFilter::New();
   vtkStructuredPoints* sp = vtkStructuredPoints::New();
@@ -322,7 +322,7 @@ int main(int argc, char** argv)
   spmapper->UnRegister(0);
 
   // Get structured grid
-  ip->GetStructuredGridOutput()->Update();
+  ip->Update();
 
   vtkContourFilter* iso2 = vtkContourFilter::New();
   vtkStructuredGrid* sg = vtkStructuredGrid::New();
@@ -342,7 +342,7 @@ int main(int argc, char** argv)
   sgmapper->UnRegister(0);
 
   // Get image data
-  ip->GetImageDataOutput()->Update();
+  ip->Update();
 
   vtkContourFilter* iso3 = vtkContourFilter::New();
   vtkImageData* id = vtkImageData::New();
