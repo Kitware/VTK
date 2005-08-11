@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.21");
+vtkCxxRevisionMacro(vtkInputPort, "1.22");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -317,6 +317,7 @@ int vtkInputPort::RequestDataObject(
   
   if (!output || output->GetDataObjectType() != dataType) 
     {
+    output = 0;
     switch (dataType)
       {
       case VTK_POLY_DATA:
