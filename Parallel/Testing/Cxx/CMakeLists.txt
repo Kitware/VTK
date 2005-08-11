@@ -145,7 +145,8 @@ IF (UNIX)
       ${VTK_EXECUTABLE_DIR}/SocketServer
       ${VTK_EXECUTABLE_DIR}/SocketClient
       ${VTK_DATA_ROOT}
-      Baseline/Parallel/SocketClient.cxx.png)
+      Baseline/Parallel/SocketClient.cxx.png
+      ${VTK_BINARY_DIR}/Testing/Temporary)
   ENDIF (VTK_DATA_ROOT)
  ENDIF (PYTHON_EXECUTABLE)
 ENDIF (UNIX)
