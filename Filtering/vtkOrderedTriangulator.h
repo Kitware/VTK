@@ -17,11 +17,11 @@
 // This class is used to generate unique triangulations of points. The
 // uniqueness of the triangulation is controlled by the id of the inserted
 // points in combination with a Delaunay criterion. The class is designed to
-// be very fast and uses block memory allocations to support rapid
-// triangulation generation. Also, the assumption behind the class is that a
-// maximum of hundreds of points are to be triangulated. If you desire more
-// robust triangulation methods use vtkPolygon::Triangulate(), vtkDelaunay2D,
-// or vtkDelaunay3D.
+// be as fast as possible (since the algorithm can be slow) and uses block
+// memory allocations to support rapid triangulation generation. Also, the
+// assumption behind the class is that a maximum of hundreds of points are to
+// be triangulated. If you desire more robust triangulation methods use
+// vtkPolygon::Triangulate(), vtkDelaunay2D, or vtkDelaunay3D.
 //
 // .SECTION Background
 // This work is documented in the technical paper: W.J. Schroeder, B. Geveci,
@@ -67,6 +67,10 @@
 // user of this class must prevent duplicate points. Because the precision
 // of this algorithm is double, it's also a good idea to merge points
 // that are within some epsilon of one another.
+//
+// The triangulation is performed using the parametric coordinates of the
+// inserted points. Therefore the bounds (see InitTriangulation()) should
+// represent the range of the parametric coordinates of the inserted points.
 
 // .SECTION See Also
 // vtkDelaunay2D vtkDelaunay3D vtkPolygon
@@ -109,7 +113,10 @@ public:
 
   // Description:
   // Initialize the triangulation process. Provide a bounding box and
-  // the maximum number of points to be inserted.
+  // the maximum number of points to be inserted. Note that since the
+  // triangulation is performed using parametric coordinates (see
+  // InsertPoint()) the bounds should be represent the range of the
+  // parametric coordinates inserted.
   void InitTriangulation(double xmin, double xmax, double ymin, double ymax,
                          double zmin, double zmax, int numPts);
   void InitTriangulation(double bounds[6], int numPts);
@@ -126,7 +133,7 @@ public:
   // can be used prior to the Triangulate() method to update the type of the
   // point with UpdatePointType(). (Note: the algorithm triangulated with the
   // parametric coordinate p[3] and creates tetras with the global coordinate
-  // x[3]. These may be the same.)
+  // x[3]. The parametric coordinates and global coordinates may be the same.)
   vtkIdType InsertPoint(vtkIdType id, double x[3], double p[3], int type);
   vtkIdType InsertPoint(vtkIdType id, vtkIdType sortid, double x[3], 
                         double p[3], int type);
