@@ -29,7 +29,7 @@
 #include <vtkstd/stack>
 #include <vtkstd/map>
 
-vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.1");
+vtkCxxRevisionMacro(vtkOrderedTriangulator, "1.2");
 vtkStandardNewMacro(vtkOrderedTriangulator);
 
 #ifdef _WIN32_WCE
@@ -483,7 +483,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, double x[3],
                                               double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
-  if ( idx > this->MaximumNumberOfPoints )
+  if ( idx >= this->MaximumNumberOfPoints )
     {
     vtkErrorMacro(<< "Trying to insert more points than specified");
     return idx;
@@ -511,7 +511,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
                                               double x[3], double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
-  if ( idx > this->MaximumNumberOfPoints )
+  if ( idx >= this->MaximumNumberOfPoints )
     {
     vtkErrorMacro(<< "Trying to insert more points than specified");
     return idx;
@@ -540,7 +540,7 @@ vtkIdType vtkOrderedTriangulator::InsertPoint(vtkIdType id, vtkIdType sortid,
                                               double x[3], double p[3], int type)
 {
   vtkIdType idx = this->NumberOfPoints++;
-  if ( idx > this->MaximumNumberOfPoints )
+  if ( idx >= this->MaximumNumberOfPoints )
     {
     vtkErrorMacro(<< "Trying to insert more points than specified");
     return idx;
