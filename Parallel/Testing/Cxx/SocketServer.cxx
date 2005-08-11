@@ -25,8 +25,8 @@
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsReader.h"
+#include "vtkImageData.h"
+#include "vtkImageReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
@@ -273,7 +273,7 @@ int main(int argc, char** argv)
   op->WaitForUpdate();
   rgrid->Delete();
 
-  vtkStructuredPointsReader* spgrid = vtkStructuredPointsReader::New();
+  vtkImageReader* spgrid = vtkImageReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
                                                "Data/ironProt.vtk");
   spgrid->SetFileName(fname);

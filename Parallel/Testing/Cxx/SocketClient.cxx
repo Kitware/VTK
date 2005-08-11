@@ -27,7 +27,7 @@
 #include "vtkSocketCommunicator.h"
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
+#include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
 
 static const int scMsgLength = 10;
@@ -304,8 +304,8 @@ int main(int argc, char** argv)
   ip->Update();
 
   vtkContourFilter* iso = vtkContourFilter::New();
-  vtkStructuredPoints* sp = vtkStructuredPoints::New();
-  sp->ShallowCopy(ip->GetStructuredPointsOutput());
+  vtkImageData* sp = vtkImageData::New();
+  sp->ShallowCopy(ip->GetImageDataOutput());
   iso->SetInput(sp);
   sp->Delete();
   iso->SetValue(0, 128);
