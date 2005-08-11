@@ -288,9 +288,10 @@ int main(int argc, char** argv)
   ip->GetRectilinearGridOutput()->Update();
 
   vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
-  vtkRectilinearGrid* rg = ip->GetRectilinearGridOutput();
-  rg->SetSource(0);
+  vtkRectilinearGrid* rg = vtkRectilinearGrid::New();
+  rg->ShallowCopy(ip->GetRectilinearGridOutput());
   rgmapper->SetInput(rg);
+  rg->Delete();
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* rgactor = vtkActor::New();
@@ -303,9 +304,10 @@ int main(int argc, char** argv)
   ip->GetStructuredPointsOutput()->Update();
 
   vtkContourFilter* iso = vtkContourFilter::New();
-  vtkStructuredPoints* sp = ip->GetStructuredPointsOutput();
-  sp->SetSource(0);
+  vtkStructuredPoints* sp = vtkStructuredPoints::New();
+  sp->ShallowCopy(ip->GetStructuredPointsOutput());
   iso->SetInput(sp);
+  sp->Delete();
   iso->SetValue(0, 128);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
@@ -323,9 +325,10 @@ int main(int argc, char** argv)
   ip->GetStructuredGridOutput()->Update();
 
   vtkContourFilter* iso2 = vtkContourFilter::New();
-  vtkStructuredGrid* sg = ip->GetStructuredGridOutput();
-  sg->SetSource(0);
+  vtkStructuredGrid* sg = vtkStructuredGrid::New();
+  sg->ShallowCopy(ip->GetStructuredGridOutput());
   iso2->SetInput(sg);
+  sg->Delete();
   iso2->SetValue(0, .205);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
@@ -342,9 +345,10 @@ int main(int argc, char** argv)
   ip->GetImageDataOutput()->Update();
 
   vtkContourFilter* iso3 = vtkContourFilter::New();
-  vtkImageData* id = ip->GetImageDataOutput();
-  id->SetSource(0);
+  vtkImageData* id = vtkImageData::New();
+  id->ShallowCopy(ip->GetImageDataOutput());
   iso3->SetInput(id);
+  id->Delete();
   iso3->SetValue(0, .205);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
