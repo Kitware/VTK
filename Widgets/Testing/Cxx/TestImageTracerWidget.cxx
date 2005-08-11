@@ -313,7 +313,7 @@ public:
       if(!splineWidget) { return; }
 
       int npts = splineWidget->GetNumberOfHandles();
-      int closed = (splineWidget->GetClosed() && npts > 2) ? 1 : 0;
+      int closed = splineWidget->IsClosed();
 
       Points->Reset();
       for (int i = 0; i < npts; ++i)

@@ -248,10 +248,7 @@ proc AdjustTracer { } {
     points InsertNextPoint [lindex $pt 0] [lindex $pt 1] [lindex $pt 2]
   }
 
-  set closed [isw GetClosed]
-  if { $npts < 3 } {
-     set closed 0
-  }
+  set closed [isw IsClosed]
 
   if { $closed } {    
     set ac [itw GetAutoClose]
@@ -262,6 +259,8 @@ proc AdjustTracer { } {
     isw GetPolyData spoly
     stencil Update
     imageActor2 SetInput [stencil GetOutput]
+    } else {
+    imageActor2 SetInput [extract GetOutput] 
     }
 
   itw InitializeHandles points  
