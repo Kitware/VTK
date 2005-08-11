@@ -274,9 +274,10 @@ int main(int argc, char** argv)
   ip->GetPolyDataOutput()->Update();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  vtkPolyData* pd = ip->GetPolyDataOutput();
-  pd->SetSource(0);
+  vtkPolyData* pd = vtkPolyData::New();
+  pd->ShallowCopy(ip->GetPolyDataOutput());
   pmapper->SetInput(pd);
+  pd->Delete();
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* pactor = vtkActor::New();
