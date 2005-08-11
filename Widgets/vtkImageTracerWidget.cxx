@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.2");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.3");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -92,15 +92,16 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->LineCells = vtkCellArray::New();
   this->LineCells->Allocate(this->LineCells->EstimateSize(1000,2));
   this->LineActor = vtkActor::New();
-  this->LineMapper = vtkPolyDataMapper::New();
+  vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
   this->LineData = vtkPolyData::New();
 
-  this->LineMapper->SetInput(this->LineData);
-  this->LineMapper->SetResolveCoincidentTopologyToPolygonOffset();
-  this->LineMapper->ScalarVisibilityOff();
-  this->LineActor->SetMapper(this->LineMapper);
+  lineMapper->SetInput(this->LineData);
+  lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
+  lineMapper->ScalarVisibilityOff();
+  this->LineActor->SetMapper(lineMapper);
   this->LineActor->PickableOff();
   this->LineActor->VisibilityOff();
+  lineMapper->Delete();
 
   // Manage the picking stuff
   this->HandlePicker = vtkCellPicker::New();
@@ -119,10 +120,9 @@ vtkImageTracerWidget::vtkImageTracerWidget()
   this->CreateDefaultProperties();
 
   // Initialize ivars
-  this->Handle = 0;
-  this->HandleGeometry = 0;
-  this->HandleMapper = 0;
-  
+  this->Handle = NULL;
+  this->HandleGeometry = NULL;
+
   // Create one handle
   this->AllocateHandles(1);
   this->AdjustHandlePosition(0,this->HandleGenerator->GetCenter());
@@ -141,25 +141,19 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
   for ( int i = 0; i < this->NumberOfHandles; ++i )
     {
     this->HandleGeometry[i]->Delete();
-    this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
     }
   if ( this->Handle )
     {
     delete [] this->Handle;
-    this->Handle = 0;
+    this->Handle = NULL;
     }
   if ( this->HandleGeometry )
     {
     delete [] this->HandleGeometry;
-    this->HandleGeometry = 0;
+    this->HandleGeometry = NULL;
     }
-  if ( this->HandleMapper )
-    {
-    delete [] this->HandleMapper;
-    this->HandleMapper = 0;
-    }
-  
+ 
   if ( this->HandleProperty )
     {
     this->HandleProperty->Delete();
@@ -184,7 +178,6 @@ vtkImageTracerWidget::~vtkImageTracerWidget()
   this->LinePoints->Delete();
   this->LineCells->Delete();
   this->LineActor->Delete();
-  this->LineMapper->Delete();
   this->LineData->Delete();
 
   this->LinePicker->Delete();
@@ -1141,7 +1134,6 @@ void vtkImageTracerWidget::ResetHandles(void)
   for ( i = 0; i < this->NumberOfHandles; ++i )
     {
     this->HandleGeometry[i]->Delete();
-    this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
     }
 
@@ -1150,17 +1142,12 @@ void vtkImageTracerWidget::ResetHandles(void)
   if ( this->Handle )
     {
     delete [] this->Handle;
-    this->Handle = 0;
+    this->Handle = NULL;
     }
   if ( this->HandleGeometry )
     {
     delete [] this->HandleGeometry;
-    this->HandleGeometry = 0;
-    }
-  if ( this->HandleMapper )
-    {
-    delete [] this->HandleMapper;
-    this->HandleMapper = 0;
+    this->HandleGeometry = NULL;
     }
 }
 
@@ -1174,17 +1161,17 @@ void vtkImageTracerWidget::AllocateHandles(const int& nhandles)
 
   // Create the handles
   this->Handle         = new vtkActor* [this->NumberOfHandles];
-  this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkPolyData* [this->NumberOfHandles];
 
   int i;
   for ( i = 0; i < this->NumberOfHandles; ++i )
     {
     this->HandleGeometry[i] = vtkPolyData::New();
-    this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInput(this->HandleGeometry[i]);
+    vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
+    handleMapper->SetInput(this->HandleGeometry[i]);
     this->Handle[i] = vtkActor::New();
-    this->Handle[i]->SetMapper(this->HandleMapper[i]);
+    this->Handle[i]->SetMapper(handleMapper);
+    handleMapper->Delete();
     this->Handle[i]->SetProperty(this->HandleProperty);
     this->Handle[i]->PickableOff();
     this->HandlePicker->AddPickList(this->Handle[i]);
@@ -1318,10 +1305,17 @@ void vtkImageTracerWidget::ResetLine(double* pos)
   this->LineActor->VisibilityOff();
   this->LineActor->PickableOff();
 
-  this->LinePoints->Reset();
-  this->LineCells->Reset();
+  this->LinePoints->Delete();
+  this->LineCells->Delete();
 
   this->LineData->Initialize();
+  this->LineData->Squeeze();
+
+  this->LinePoints = vtkPoints::New();
+  this->LineCells = vtkCellArray::New();
+
+  this->LineData->SetPoints( this->LinePoints );
+  this->LineData->SetLines( this->LineCells );
 
   this->PickCount = 0;
 

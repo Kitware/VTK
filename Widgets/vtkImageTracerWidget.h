@@ -61,7 +61,6 @@ class vtkFloatArray;
 class vtkGlyphSource2D;
 class vtkPoints;
 class vtkPolyData;
-class vtkPolyDataMapper;
 class vtkProp;
 class vtkProperty;
 class vtkPropPicker;
@@ -282,7 +281,6 @@ protected:
 
   // 2D glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
-  vtkPolyDataMapper **HandleMapper;
   vtkPolyData       **HandleGeometry;
   vtkGlyphSource2D   *HandleGenerator;
 
@@ -311,7 +309,6 @@ protected:
   vtkPoints         *LinePoints;
   vtkCellArray      *LineCells;
   vtkActor          *LineActor;
-  vtkPolyDataMapper *LineMapper;
   vtkPolyData       *LineData;
   vtkIdType          CurrentPoints[2];
 
