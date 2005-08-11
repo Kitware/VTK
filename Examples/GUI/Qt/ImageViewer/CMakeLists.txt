@@ -6,22 +6,50 @@ IF(NOT VTK_DIR)
 ENDIF(NOT VTK_DIR)
 INCLUDE(${VTK_USE_FILE})
 
+SET(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
+SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
+SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
+FIND_PACKAGE(Qt)
+
 SET (SRCS
   main.cxx
 )
 
 # Use the include path and library for Qt that is used by VTK.
-INCLUDE_DIRECTORIES( ${VTK_QT_INCLUDE_DIR} )
+INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} ${QT_QTGUI_INCLUDE_DIR}
+                     ${QT_QTCORE_INCLUDE_DIR})
 
-ADD_EXECUTABLE( qtimageviewer ${SRCS})
+ADD_EXECUTABLE( qtimageviewer MACOSX_BUNDLE ${SRCS})
 
 # note: if you use Mesa in VTK and get link errors about opengl symbols
 #       they are coming from Qt.  Either link OpenGL in, configure Qt to
 #       dlopen the GL library, or configure Qt without OpenGL support.
 
+IF(QT_INST_MAJOR_VERSION GREATER 3)
+  IF(APPLE)
+    SET(QT_LIBS   "-framework QtGui" "-framework QtCore")
+    SET_TARGET_PROPERTIES(qtimageviewer PROPERTIES LINK_FLAGS "-F${QT_LIBRARY_DIR}")
+  ELSE(APPLE)
+    IF(CMAKE_BUILD_TYPE)
+      SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
+                  optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+    ELSE(CMAKE_BUILD_TYPE)
+      IF(CMAKE_CONFIGURATION_TYPES)
+        SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
+                    optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+      ELSE(CMAKE_CONFIGURATION_TYPES)
+        SET(QT_LIBS ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+      ENDIF(CMAKE_CONFIGURATION_TYPES)
+    ENDIF(CMAKE_BUILD_TYPE)
+  ENDIF(APPLE)
+ELSE(QT_INST_MAJOR_VERSION GREATER 3)
+  SET(QT_LIBS   ${QT_QT_LIBRARY})
+ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+
+
 TARGET_LINK_LIBRARIES( qtimageviewer
   QVTK
-  ${VTK_QT_QT_LIBRARY}
+  ${QT_LIBS}
   vtkRendering
   vtkGraphics
   vtkIO

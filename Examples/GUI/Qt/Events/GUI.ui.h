@@ -31,6 +31,11 @@
 #include "vtkPolyDataMapper.h"
 #include "vtkActor.h"
 
+#if QT_VERSION >= 0x040000
+#include "q3popupmenu.h"
+#define QPopupMenu Q3PopupMenu
+#endif
+
 void Form1::init()
 {
   // create a window to make it stereo capable and give it to QVTKWidget

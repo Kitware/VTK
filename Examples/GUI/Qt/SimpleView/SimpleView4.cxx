@@ -24,8 +24,9 @@
 
 #include <qapplication.h>
 #include <qfiledialog.h>
+#include "qmenubar.h"
 
-#include "SimpleView.h"
+#include "SimpleView4.h"
 #include <vtkActor.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -34,9 +35,26 @@
 
 
 // Constructor
-SimpleView::SimpleView( QWidget* parent, const char* name, WFlags fl) 
- : uiSimpleView(parent, name, fl)
+SimpleView::SimpleView(QWidget* parent) 
+ : QMainWindow(parent)
 {
+  setupUi(this);
+
+  QAction* a_fileOpen = new QAction(tr("&Open"), this);
+  a_fileOpen->setShortcut(tr("Ctrl+N"));
+  a_fileOpen->setStatusTip(tr("Create a new file"));
+  connect(a_fileOpen, SIGNAL(triggered()), this, SLOT(fileOpen()));
+
+  QAction* a_fileExit = new QAction(tr("&Exit"), this);
+  a_fileExit->setShortcut(tr("Ctrl+Q"));
+  a_fileExit->setStatusTip(tr("Exit"));
+  connect(a_fileExit, SIGNAL(triggered()), this, SLOT(fileExit()));
+
+  QMenu* file_menu = this->menuBar()->addMenu(tr("&File"));
+  file_menu->addAction(a_fileOpen);
+  file_menu->addAction(a_fileExit);
+
+  
   // QT/VTK interact
   ren = vtkRenderer::New();
   vtkWidget->GetRenderWindow()->AddRenderer(ren);

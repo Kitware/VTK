@@ -22,24 +22,52 @@
  !!! license.
 =========================================================================*/
 
-// QT includes
 #include <qapplication.h>
+#include <qfiledialog.h>
 
-#if QT_VERSION >= 0x040000
-#include "SimpleView4.h"
-#else
 #include "SimpleView3.h"
-#endif
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include "vtkCylinderSource.h"
+#include <vtkPolyDataMapper.h>
 
-int main( int argc, char** argv )
+
+// Constructor
+SimpleView::SimpleView(QWidget* parent) 
+ : uiSimpleView(parent)
 {
-  // QT Stuff
-  QApplication app( argc, argv );
+  // QT/VTK interact
+  ren = vtkRenderer::New();
+  vtkWidget->GetRenderWindow()->AddRenderer(ren);
 
-  SimpleView mainwindow;
-  app.setMainWidget(&mainwindow);
-  mainwindow.show();
+};
+   
+// Action to be taken upon file open 
+void SimpleView::fileOpen()
+{
+  // Geometry
+  source = vtkCylinderSource::New();
 
-  return app.exec();
+  // Mapper
+  mapper = vtkPolyDataMapper::New();
+  mapper->ImmediateModeRenderingOn();
+  mapper->SetInput(source->GetOutput());
+
+  // Actor in scene
+  actor = vtkActor::New();
+  actor->SetMapper(mapper);
+
+  // Add Actor to renderer
+  ren->AddActor(actor);
+
+  // Reset camera
+  ren->ResetCamera();
+
+  ren->GetRenderWindow()->Render();
+}
+
+void SimpleView::fileExit() {
+  qApp->exit();
 }
 

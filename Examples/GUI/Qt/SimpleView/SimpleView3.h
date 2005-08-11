@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    SimpleView.h
+  Module:    SimpleView3.h
   Language:  C++
   Date:      $Date$
   Version:   $Revision$
@@ -52,7 +52,7 @@ class SimpleView : public uiSimpleView
 public:
 
     // Constructor/Destructor
-    SimpleView(QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel); 
+    SimpleView(QWidget* parent = 0);
     ~SimpleView() {};
 
 public slots:
@@ -60,21 +60,9 @@ public slots:
      virtual void fileOpen();
      virtual void fileExit();
 
-  // You can overload all these methods!
-#if 0
-    virtual void fileNew();
-    virtual void fileSave();
-    virtual void fileSaveAs();
-    virtual void filePrint();
-    virtual void helpIndex();
-    virtual void helpContents();
-    virtual void helpAbout();
-#endif
-
 protected:
-   
+
 protected slots:
-    // virtual void languageChange();
 
 private:
      vtkCylinderSource* source;
@@ -85,3 +73,4 @@ private:
 };
 
 #endif // SIMPLEVIEW_H
+
