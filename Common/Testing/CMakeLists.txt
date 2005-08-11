@@ -94,7 +94,9 @@ IF(UNIX)
     CONFIGURE_FILE(${VTK_SOURCE_DIR}/Common/Testing/Install/test.sh.in
       ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh @ONLY
       IMMEDIATE)
-    ADD_TEST(Install /bin/sh ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh)
+    # Disable the install test until it can be fixed to deal with
+    # shared libraries correctly.
+    #ADD_TEST(Install /bin/sh ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh)
   ENDIF(VTK_TEST_INSTALL)
 ENDIF(UNIX)
 
