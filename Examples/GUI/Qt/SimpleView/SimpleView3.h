@@ -34,7 +34,7 @@
 #ifndef SIMPLEVIEW_H
 #define SIMPLEVIEW_H
 
-#include "uiSimpleView.h"
+#include "uiSimpleView3.h"
 
 // Forward class declarations
 class vtkCylinderSource;
