@@ -131,7 +131,9 @@ ENDIF(NOT VTK_INSTALL_BIN_DIR)
 
 # The location in which to install VTK header files.
 IF(NOT VTK_INSTALL_INCLUDE_DIR)
-  SET(VTK_INSTALL_INCLUDE_DIR ${VTK_INSTALL_ROOT}/include/vtk)
+  SET(VTK_INSTALL_INCLUDE_DIR
+    ${VTK_INSTALL_ROOT}/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
+    )
 ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
 
 # The location in which to install VTK libraries.
