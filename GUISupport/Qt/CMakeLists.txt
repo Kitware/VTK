@@ -9,10 +9,8 @@ SET ( QVTKLibSrcs
     QVTKWidget.cxx )
 
 SET ( QVTKMocHeaders
-    QVTKWidget.h )
-
-SET ( QVTKExtraMocHeaders
-    vtkEventQtSlotConnect.cxx)
+    QVTKWidget.h 
+    vtkEventQtSlotConnect.h)
 
 INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -36,15 +34,23 @@ IF(QT_INST_MAJOR_VERSION GREATER 3)
                               OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/QVTKWidget.xpm)
 
   QT4_WRAP_CPP ( QVTKLibMocSrcs ${QVTKMocHeaders} )
-  QT4_WRAP_CPP ( QVTKLibExtraMocSrcs ${QVTKExtraMocHeaders} )
   QT4_WRAP_CPP ( PluginMocSrcs ${PluginMocHeaders} )
 
 IF(APPLE)
 # assume Qt framework
   SET(QT_LIBS "-framework QtGui" "-framework QtCore")
 ELSE(APPLE)
-  SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG} 
-              optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+  IF(CMAKE_BUILD_TYPE)
+    SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
+                optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+  ELSE(CMAKE_BUILD_TYPE)
+    IF(CMAKE_CONFIGURATION_TYPES)
+      SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
+                  optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
+    ELSE(CMAKE_CONFIGURATION_TYPES)
+      SET(QT_LIBS ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    ENDIF(CMAKE_CONFIGURATION_TYPES)
+  ENDIF(CMAKE_BUILD_TYPE)
 ENDIF(APPLE)
   
 ELSE(QT_INST_MAJOR_VERSION GREATER 3)
@@ -71,7 +77,6 @@ ELSE(QT_INST_MAJOR_VERSION GREATER 3)
 
 
   QT_WRAP_CPP ( QVTK QVTKLibMocSrcs ${QVTKMocHeaders} )
-  QT_WRAP_CPP ( QVTK QVTKLibExtraMocSrcs ${QVTKExtraMocHeaders} )
   QT_WRAP_CPP ( QVTKWidgetPlugin PluginMocSrcs ${PluginMocHeaders} )
   
   SET(QT_LIBS ${QT_QT_LIBRARY} )
@@ -81,7 +86,7 @@ ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
 SET_SOURCE_FILES_PROPERTIES(vtkEventQtSlotConnect.cxx PROPERTIES 
                             OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/moc_vtkEventQtSlotConnect.cxx)
 
-ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs} )
+ADD_LIBRARY(QVTK ${QVTKLibSrcs} ${QVTKLibMocSrcs})
 
 # give Qt framework directory for linking
 IF(APPLE)

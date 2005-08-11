@@ -30,60 +30,8 @@
 
 #include "vtkstd/vector"
 
-#include "qobject.h"
-
-// class for managing a single VTK/Qt connection
-class vtkQtConnection : public QObject
-{
-  Q_OBJECT
-  
-  public:
-
-    // constructor
-    vtkQtConnection();
-
-    // destructor, disconnect if necessary
-    ~vtkQtConnection();
-   
-    // print function
-    void PrintSelf(ostream& os, vtkIndent indent);
-    
-    // callback from VTK to emit signal
-    void Execute(vtkObject* caller, unsigned long event, void* client_data);
-    
-    // set the connection
-    void SetConnection(vtkObject* vtk_obj, unsigned long event,
-                       QObject* qt_obj, const char* slot, void* client_data, float priority=0.0);
-    
-    // check if a connection matches input parameters
-    bool IsConnection(vtkObject* vtk_obj, unsigned long event,
-                      QObject* qt_obj, const char* slot);
-
-    static void DoCallback(vtkObject* vtk_obj, unsigned long event,
-                           void* client_data, void* call_data);
-    
-  signals:
-    // the qt signal for moc to take care of
-    void EmitExecute(vtkObject*, unsigned long, void* client_data, vtkCommand*);
-
-  protected:
-    
-    // the connection information
-    vtkObject* VTKObject;
-    vtkCallbackCommand* Callback;
-    QObject* QtObject;
-    void* ClientData;
-    unsigned long VTKEvent;
-    QString QtSlot;
-
-  private:
-    vtkQtConnection(const vtkQtConnection&);
-    void operator=(const vtkQtConnection&);
-
-};
-
-#include "moc_vtkEventQtSlotConnect.cxx"
-
+#include <qobject.h>
+#include <qmetaobject.h>
 
 // constructor
 vtkQtConnection::vtkQtConnection() 
