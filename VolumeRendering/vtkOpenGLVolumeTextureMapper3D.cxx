@@ -30,6 +30,8 @@
 #include "vtkLight.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
+#include "vtkOpenGLExtensionManager.h"
+#include "vtkgl.h"
 
 #include "vtkVolumeTextureMapper3D_OneComponentShadeFP.h"
 #include "vtkVolumeTextureMapper3D_OneComponentNoShadeFP.h"
@@ -38,18 +40,18 @@
 #include "vtkVolumeTextureMapper3D_FourDependentNoShadeFP.h"
 #include "vtkVolumeTextureMapper3D_FourDependentShadeFP.h"
 
-extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
+//extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
 
-#ifdef _WIN32
+//#ifdef _WIN32
 
-#endif
+//#endif
 
 #define PrintError(S)                                                           \
   {                                                                             \
   GLenum errorCode;                                                             \
   if ( (errorCode = glGetError()) != GL_NO_ERROR )                              \
     {                                                                           \
-      cout << S << endl;                                                        \
+    cout << S << endl;                                                          \
     cout << "ERROR" << endl;                                                    \
     switch (errorCode)                                                          \
       {                                                                         \
@@ -64,7 +66,7 @@ extern "C" void (*glXGetProcAddressARB(const GLubyte *procName))( void );
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.3");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.4");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -78,35 +80,10 @@ vtkOpenGLVolumeTextureMapper3D::vtkOpenGLVolumeTextureMapper3D()
   this->Volume3Index                 =  0;
   this->ColorLookupIndex             =  0;
   this->RenderWindow                 = NULL;
-
-  this->glTexImage3DEXT              = NULL;
-  this->glActiveTextureARB           = NULL;
-  this->glMultiTexCoord3fvARB        = NULL;  
-  this->glCombinerParameteriNV       = NULL;
-  this->glCombinerStageParameterfvNV = NULL;
-  this->glCombinerInputNV            = NULL;
-  this->glCombinerOutputNV           = NULL;
-  this->glFinalCombinerInputNV       = NULL;
-  this->glGenProgramsARB             = NULL;
-  this->glDeleteProgramsARB          = NULL;
-  this->glBindProgramARB             = NULL;
-  this->glProgramStringARB           = NULL;
-  this->glProgramLocalParameter4fARB = NULL;
 }
 
 vtkOpenGLVolumeTextureMapper3D::~vtkOpenGLVolumeTextureMapper3D()
 {
-}
-
-KWVTMFuncPtr vtkOpenGLVolumeTextureMapper3D::GetProcAddress(char *name)
-{
-#ifdef _WIN32
-  KWVTMFuncPtr t = (KWVTMFuncPtr)wglGetProcAddress(name);
-  return t;
-#else
-  KWVTMFuncPtr t = (KWVTMFuncPtr)glXGetProcAddressARB((const GLubyte*)name);
-  return t;
-#endif
 }
 
 // Release the graphics resources used by this texture.  
@@ -288,17 +265,17 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFP( vtkRenderer *ren, vtkVolume *vol 
         }
     }
   
-  glActiveTextureARB( GL_TEXTURE2_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   
-  glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   
-  glActiveTextureARB( GL_TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );  
+  glDisable( vtkgl::TEXTURE_3D_EXT );  
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol )
@@ -346,21 +323,21 @@ void vtkOpenGLVolumeTextureMapper3D::RenderNV( vtkRenderer *ren, vtkVolume *vol 
         }
     }
   
-  glActiveTextureARB( GL_TEXTURE2_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   
-  glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   
-  glActiveTextureARB( GL_TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
   glDisable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   
-  glDisable( GL_TEXTURE_SHADER_NV );
+  glDisable( vtkgl::TEXTURE_SHADER_NV );
 
-  glDisable(GL_REGISTER_COMBINERS_NV);    
+  glDisable(vtkgl::REGISTER_COMBINERS_NV);    
 }
 
 void vtkOpenGLVolumeTextureMapper3D::DeleteTextureIndex( GLuint *index )
@@ -559,7 +536,7 @@ void vtkOpenGLVolumeTextureMapper3D::RenderPolygons( vtkRenderer *ren,
           {
           if ( stages[k] )
             {
-            this->glMultiTexCoord3fvARB( GL_TEXTURE0_ARB + k, ptr );
+            vtkgl::MultiTexCoord3fvARB( vtkgl::TEXTURE0_ARB + k, ptr );
             }
           }
         glVertex3fv( ptr+3 );
@@ -575,37 +552,37 @@ void vtkOpenGLVolumeTextureMapper3D::Setup3DTextureParameters( vtkVolumeProperty
 {
   if ( property->GetInterpolationType() == VTK_NEAREST_INTERPOLATION )
     {
-    glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-    glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     }
   else
     {
-    glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     }
-  glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP );
-  glTexParameterf( GL_TEXTURE_3D_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP );
+  glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP );
+  glTexParameterf( vtkgl::TEXTURE_3D_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *vtkNotUsed(ren),
                     vtkVolume *vol )
 {
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );  
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );  
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
   // Update the volume containing the 2 byte scalar / gradient magnitude
@@ -615,40 +592,40 @@ void vtkOpenGLVolumeTextureMapper3D::SetupOneIndependentTextures( vtkRenderer *v
     this->GetVolumeDimensions(dim);
     this->DeleteTextureIndex(&this->Volume3Index);
     
-    this->glActiveTextureARB( GL_TEXTURE0_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, this->Volume1 );
     
 
-    this->glActiveTextureARB( GL_TEXTURE2_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glEnable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glTexEnvf ( GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, 
-                GL_DEPENDENT_AR_TEXTURE_2D_NV );  
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB);
+    glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
+                vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );  
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
     }
 
   // Update the dependent 2D color table mapping scalar value and
@@ -679,40 +656,40 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersNoShadeNV( vtkRendere
 {
   if ( components < 3 )
     {
-    this->glActiveTextureARB(GL_TEXTURE2_ARB);
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_NONE);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE2_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
   
     if ( components == 1 )
       {
-      this->glActiveTextureARB(GL_TEXTURE3_ARB);
-      glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_NONE);
+      vtkgl::ActiveTextureARB(vtkgl::TEXTURE3_ARB);
+      glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
       }
     }
   
   
-  glEnable(GL_REGISTER_COMBINERS_NV);    
-  this->glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, 1);
-  this->glCombinerParameteriNV(GL_COLOR_SUM_CLAMP_NV, GL_TRUE);
+  glEnable(vtkgl::REGISTER_COMBINERS_NV);    
+  vtkgl::CombinerParameteriNV(vtkgl::NUM_GENERAL_COMBINERS_NV, 1);
+  vtkgl::CombinerParameteriNV(vtkgl::COLOR_SUM_CLAMP_NV, GL_TRUE);
     
-  this->glFinalCombinerInputNV(GL_VARIABLE_A_NV, GL_ZERO,         GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
-  this->glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_ZERO,         GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
-  this->glFinalCombinerInputNV(GL_VARIABLE_C_NV, GL_ZERO,         GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_A_NV, GL_ZERO,         vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, GL_ZERO,         vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_C_NV, GL_ZERO,         vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
   if ( components < 3 )
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE1_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   else
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::TEXTURE0_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   
   if ( components == 1 )
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   else
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_TEXTURE3_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3_ARB, vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
 }
 
@@ -722,8 +699,8 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
 {
   if ( components == 1 )
     {
-    this->glActiveTextureARB(GL_TEXTURE3_ARB);
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_NONE);
+    vtkgl::ActiveTextureARB(vtkgl::TEXTURE3_ARB);
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, GL_NONE);
     }
     
   GLfloat white[4] = {1,1,1,1};
@@ -742,183 +719,229 @@ void vtkOpenGLVolumeTextureMapper3D::SetupRegisterCombinersShadeNV( vtkRenderer 
   
   float specularPower = vol->GetProperty()->GetSpecularPower();
   
-  glEnable(GL_REGISTER_COMBINERS_NV);    
-  glEnable( GL_PER_STAGE_CONSTANTS_NV );
-  this->glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, 8);
-  this->glCombinerParameteriNV(GL_COLOR_SUM_CLAMP_NV, GL_TRUE);
+  glEnable(vtkgl::REGISTER_COMBINERS_NV);    
+  glEnable( vtkgl::PER_STAGE_CONSTANTS_NV );
+  vtkgl::CombinerParameteriNV(vtkgl::NUM_GENERAL_COMBINERS_NV, 8);
+  vtkgl::CombinerParameteriNV(vtkgl::COLOR_SUM_CLAMP_NV, GL_TRUE);
   
   // Stage 0
   //
-  //  N dot L is computed into GL_SPARE0_NV
-  // -N dot L is computed into GL_SPARE1_NV
+  //  N dot L is computed into vtkgl::SPARE0_NV
+  // -N dot L is computed into vtkgl::SPARE1_NV
   //
-  this->glCombinerStageParameterfvNV( GL_COMBINER0_NV, GL_CONSTANT_COLOR0_NV, lightDirection[0] );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER0_NV, vtkgl::CONSTANT_COLOR0_NV, lightDirection[0] );
   
-  this->glCombinerInputNV( GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_A_NV, GL_CONSTANT_COLOR0_NV, GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_B_NV, GL_TEXTURE2_ARB,       GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_C_NV, GL_CONSTANT_COLOR0_NV, GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_D_NV, GL_TEXTURE2_ARB,       GL_EXPAND_NEGATE_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                          vtkgl::TEXTURE2_ARB,       vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                          vtkgl::TEXTURE2_ARB,       vtkgl::EXPAND_NEGATE_NV, GL_RGB );
   
-  this->glCombinerOutputNV( GL_COMBINER0_NV, GL_RGB, GL_SPARE0_NV, GL_SPARE1_NV, GL_DISCARD_NV, 
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER0_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, vtkgl::DISCARD_NV, 
                             GL_NONE, GL_NONE, GL_TRUE, GL_TRUE, GL_FALSE );
   
   // Stage 1
   //
-  // lightColor * max( 0, (N dot L)) + lightColor * max( 0, (-N dot L)) is computed into GL_SPARE0_NV
+  // lightColor * max( 0, (N dot L)) + lightColor * max( 0, (-N dot L)) is computed into vtkgl::SPARE0_NV
   // 
-  this->glCombinerStageParameterfvNV( GL_COMBINER1_NV, GL_CONSTANT_COLOR0_NV, lightDiffuseColor[0] );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER1_NV, vtkgl::CONSTANT_COLOR0_NV, lightDiffuseColor[0] );
   
-  this->glCombinerInputNV( GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_C_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER1_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER1_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV,          vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER1_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER1_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::SPARE1_NV,          vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER1_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
   
-  this->glCombinerOutputNV( GL_COMBINER1_NV, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_SPARE0_NV, 
-                            GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER1_NV, GL_RGB, vtkgl::DISCARD_NV, vtkgl::DISCARD_NV,
+                           vtkgl::SPARE0_NV, GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
   
   // Stage 2
   //
-  // result from Stage 1 is added to the ambient color and stored in GL_PRIMARY_COLOR_NV
+  // result from Stage 1 is added to the ambient color and stored in vtkgl::PRIMARY_COLOR_NV
   //
-  this->glCombinerStageParameterfvNV( GL_COMBINER2_NV, GL_CONSTANT_COLOR0_NV, white );
-  this->glCombinerStageParameterfvNV( GL_COMBINER2_NV, GL_CONSTANT_COLOR1_NV, ambientColor );    
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER2_NV, vtkgl::CONSTANT_COLOR0_NV, white );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER2_NV, vtkgl::CONSTANT_COLOR1_NV, ambientColor );    
   
-  this->glCombinerInputNV( GL_COMBINER2_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER2_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER2_NV, GL_RGB, GL_VARIABLE_C_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER2_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR1_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER2_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV,          vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER2_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER2_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER2_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                          vtkgl::CONSTANT_COLOR1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
   
-  this->glCombinerOutputNV( GL_COMBINER2_NV, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_PRIMARY_COLOR_NV, 
-                            GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER2_NV, GL_RGB, vtkgl::DISCARD_NV, vtkgl::DISCARD_NV, 
+                           vtkgl::PRIMARY_COLOR_NV, GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
   
   // Stage 3
   // 
-  //  N dot H is computed into GL_SPARE0_NV
-  // -N dot H is computed into GL_SPARE1_NV
+  //  N dot H is computed into vtkgl::SPARE0_NV
+  // -N dot H is computed into vtkgl::SPARE1_NV
   //
-  this->glCombinerStageParameterfvNV( GL_COMBINER3_NV, GL_CONSTANT_COLOR0_NV, halfwayVector[0] );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER3_NV, vtkgl::CONSTANT_COLOR0_NV, halfwayVector[0] );
   
-  this->glCombinerInputNV( GL_COMBINER3_NV, GL_RGB, GL_VARIABLE_A_NV, GL_CONSTANT_COLOR0_NV, GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER3_NV, GL_RGB, GL_VARIABLE_B_NV, GL_TEXTURE2_ARB,       GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER3_NV, GL_RGB, GL_VARIABLE_C_NV, GL_CONSTANT_COLOR0_NV, GL_EXPAND_NORMAL_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER3_NV, GL_RGB, GL_VARIABLE_D_NV, GL_TEXTURE2_ARB,       GL_EXPAND_NEGATE_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                          vtkgl::TEXTURE2_ARB, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::EXPAND_NORMAL_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                          vtkgl::TEXTURE2_ARB, vtkgl::EXPAND_NEGATE_NV, GL_RGB );
   
-  this->glCombinerOutputNV( GL_COMBINER3_NV, GL_RGB, GL_SPARE0_NV, GL_SPARE1_NV, GL_DISCARD_NV, 
-                            GL_NONE, GL_NONE, GL_TRUE, GL_TRUE, GL_FALSE );
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER3_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, 
+                           vtkgl::DISCARD_NV, GL_NONE, GL_NONE, GL_TRUE, GL_TRUE, GL_FALSE );
   
   // Stage 4
   //
   // if the specular power is greater than 1, then
   //
-  //  N dot H squared is computed into GL_SPARE0_NV
-  // -N dot H squared is computed into GL_SPARE1_NV
+  //  N dot H squared is computed into vtkgl::SPARE0_NV
+  // -N dot H squared is computed into vtkgl::SPARE1_NV
   //
   // otherwise these registers are simply multiplied by white
-  this->glCombinerStageParameterfvNV( GL_COMBINER4_NV, GL_CONSTANT_COLOR0_NV, white );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER4_NV, vtkgl::CONSTANT_COLOR0_NV, white );
   
-  this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_C_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
   if ( specularPower > 1.0 )
     {
-    this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_B_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_D_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   else
     {
-    this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER4_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   
-  this->glCombinerOutputNV( GL_COMBINER4_NV, GL_RGB, GL_SPARE0_NV, GL_SPARE1_NV, GL_DISCARD_NV, 
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER4_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, vtkgl::DISCARD_NV, 
                             GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
 
   // Stage 5
   //
   // if the specular power is greater than 3, then
   //
-  //  N dot H to the fourth is computed into GL_SPARE0_NV
-  // -N dot H to the fourth is computed into GL_SPARE1_NV
+  //  N dot H to the fourth is computed into vtkgl::SPARE0_NV
+  // -N dot H to the fourth is computed into vtkgl::SPARE1_NV
   //
   // otherwise these registers are simply multiplied by white
-  this->glCombinerStageParameterfvNV( GL_COMBINER5_NV, GL_CONSTANT_COLOR0_NV, white );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER5_NV, vtkgl::CONSTANT_COLOR0_NV, white );
   
-  this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_C_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV,  vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::SPARE1_NV,  vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
   if ( specularPower > 3.0 )
     {
-    this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_B_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_D_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   else
     {
-    this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER5_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   
-  this->glCombinerOutputNV( GL_COMBINER5_NV, GL_RGB, GL_SPARE0_NV, GL_SPARE1_NV, GL_DISCARD_NV, 
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER5_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, vtkgl::DISCARD_NV, 
                             GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
 
   // Stage 6
   //
   // if the specular power is greater than 6, then
   //
-  //  N dot H to the eighth is computed into GL_SPARE0_NV
-  // -N dot H to the eighth is computed into GL_SPARE1_NV
+  //  N dot H to the eighth is computed into vtkgl::SPARE0_NV
+  // -N dot H to the eighth is computed into vtkgl::SPARE1_NV
   //
   // otherwise these registers are simply multiplied by white
-  this->glCombinerStageParameterfvNV( GL_COMBINER6_NV, GL_CONSTANT_COLOR0_NV, white );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER6_NV, vtkgl::CONSTANT_COLOR0_NV, white );
   
-  this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_C_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
 
   if ( specularPower > 6.0 )
     {
-    this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_B_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_D_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   else
     {
-    this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-    this->glCombinerInputNV( GL_COMBINER6_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+    vtkgl::CombinerInputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                            vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
     }
   
-  this->glCombinerOutputNV( GL_COMBINER6_NV, GL_RGB, GL_SPARE0_NV, GL_SPARE1_NV, GL_DISCARD_NV, 
-                            GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER6_NV, GL_RGB, vtkgl::SPARE0_NV, vtkgl::SPARE1_NV, 
+                           vtkgl::DISCARD_NV, GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
 
   
   // Stage 7
   //
   // Add the two specular contributions and multiply each by the specular color.
-  this->glCombinerStageParameterfvNV( GL_COMBINER7_NV, GL_CONSTANT_COLOR0_NV, lightSpecularColor[0] );
-  this->glCombinerStageParameterfvNV( GL_COMBINER7_NV, GL_CONSTANT_COLOR1_NV, lightSpecularColor[1] );    
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER7_NV, vtkgl::CONSTANT_COLOR0_NV, lightSpecularColor[0] );
+  vtkgl::CombinerStageParameterfvNV( vtkgl::COMBINER7_NV, vtkgl::CONSTANT_COLOR1_NV, lightSpecularColor[1] );    
   
-  this->glCombinerInputNV( GL_COMBINER7_NV, GL_RGB, GL_VARIABLE_A_NV, GL_SPARE0_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER7_NV, GL_RGB, GL_VARIABLE_B_NV, GL_CONSTANT_COLOR0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER7_NV, GL_RGB, GL_VARIABLE_C_NV, GL_SPARE1_NV,          GL_UNSIGNED_IDENTITY_NV, GL_RGB );
-  this->glCombinerInputNV( GL_COMBINER7_NV, GL_RGB, GL_VARIABLE_D_NV, GL_CONSTANT_COLOR1_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER7_NV, GL_RGB, vtkgl::VARIABLE_A_NV, 
+                          vtkgl::SPARE0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER7_NV, GL_RGB, vtkgl::VARIABLE_B_NV, 
+                          vtkgl::CONSTANT_COLOR0_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER7_NV, GL_RGB, vtkgl::VARIABLE_C_NV, 
+                          vtkgl::SPARE1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
+  vtkgl::CombinerInputNV( vtkgl::COMBINER7_NV, GL_RGB, vtkgl::VARIABLE_D_NV, 
+                          vtkgl::CONSTANT_COLOR1_NV, vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB );
   
-  this->glCombinerOutputNV( GL_COMBINER7_NV, GL_RGB, GL_DISCARD_NV, GL_DISCARD_NV, GL_SPARE0_NV, 
+  vtkgl::CombinerOutputNV( vtkgl::COMBINER7_NV, GL_RGB, vtkgl::DISCARD_NV, 
+                           vtkgl::DISCARD_NV, vtkgl::SPARE0_NV, 
                             GL_NONE, GL_NONE, GL_FALSE, GL_FALSE, GL_FALSE );
 
-  this->glFinalCombinerInputNV(GL_VARIABLE_A_NV, GL_PRIMARY_COLOR_NV,               GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_A_NV, vtkgl::PRIMARY_COLOR_NV, 
+                              vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
   if ( components < 3 )
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_TEXTURE1_ARB,                   GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE1_ARB, 
+                                vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
   else
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_TEXTURE0_ARB,                   GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_B_NV, vtkgl::TEXTURE0_ARB, 
+                                vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
     }
-  this->glFinalCombinerInputNV(GL_VARIABLE_C_NV, GL_ZERO,                           GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
-  this->glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_SPARE0_NV,                      GL_UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_C_NV, GL_ZERO, 
+                              vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
+  vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_D_NV, vtkgl::SPARE0_NV, 
+                              vtkgl::UNSIGNED_IDENTITY_NV, GL_RGB  );
   
   if ( components == 1 )
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE1_ARB, 
+                                vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   else
     {
-    this->glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_TEXTURE3_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+    vtkgl::FinalCombinerInputNV(vtkgl::VARIABLE_G_NV, vtkgl::TEXTURE3_ARB, 
+                                vtkgl::UNSIGNED_IDENTITY_NV, GL_ALPHA);
     }
   
 }
@@ -956,22 +979,22 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeNV( vtkRenderer *r
 void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtkNotUsed(ren),
                   vtkVolume *vol )
 {
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );  
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );  
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
   // Update the volume containing the 3 byte scalars / gradient magnitude
@@ -981,49 +1004,49 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
     this->GetVolumeDimensions(dim);
     this->DeleteTextureIndex(&this->Volume3Index);
     
-    this->glActiveTextureARB( GL_TEXTURE0_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
     
-    this->glActiveTextureARB( GL_TEXTURE2_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGBA8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
     
-  this->glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glEnable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glTexEnvf ( GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, 
-                GL_DEPENDENT_AR_TEXTURE_2D_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB);
+    glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
+                vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
     }
 
-  this->glActiveTextureARB( GL_TEXTURE3_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
   glEnable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glTexEnvf ( GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, 
-                GL_DEPENDENT_GB_TEXTURE_2D_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE0_ARB);
+    glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
+                vtkgl::DEPENDENT_GB_TEXTURE_2D_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE0_ARB);
     }
 
   // Update the dependent 2D color table mapping scalar value and
@@ -1031,7 +1054,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
   if ( this->UpdateColorLookup( vol ) || 
        !this->ColorLookupIndex || !this->AlphaLookupIndex )
     {    
-    this->glActiveTextureARB( GL_TEXTURE1_ARB );
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     this->CreateTextureIndex(&this->ColorLookupIndex);
@@ -1045,7 +1068,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB8, 256, 256, 0,
                   GL_RGB, GL_UNSIGNED_BYTE, this->ColorLookup );    
       
-    this->glActiveTextureARB( GL_TEXTURE3_ARB );
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
@@ -1060,10 +1083,10 @@ void vtkOpenGLVolumeTextureMapper3D::SetupTwoDependentTextures( vtkRenderer *vtk
                   GL_ALPHA, GL_UNSIGNED_BYTE, this->AlphaLookup );      
     }
   
-  this->glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glBindTexture(GL_TEXTURE_2D, this->ColorLookupIndex);   
 
-  this->glActiveTextureARB( GL_TEXTURE3_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   
 }
 
@@ -1098,31 +1121,31 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeNV( vtkRenderer *ren
 void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vtkNotUsed(ren),
                    vtkVolume *vol )
 {
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
-  this->glActiveTextureARB( GL_TEXTURE1_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
   glDisable( GL_TEXTURE_2D );
-  glEnable( GL_TEXTURE_3D_EXT );
+  glEnable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glEnable( GL_TEXTURE_SHADER_NV );  
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, GL_TEXTURE_3D_EXT);
+    glEnable( vtkgl::TEXTURE_SHADER_NV );  
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, vtkgl::TEXTURE_3D_EXT);
     }
 
   // Update the volume containing the 3 byte scalars / gradient magnitude
@@ -1132,51 +1155,51 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
     int dim[3];
     this->GetVolumeDimensions(dim);
     
-    this->glActiveTextureARB( GL_TEXTURE0_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume1Index);
     this->CreateTextureIndex(&this->Volume1Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume1 );
 
-    this->glActiveTextureARB( GL_TEXTURE1_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume2Index);
     this->CreateTextureIndex(&this->Volume2Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);   
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_LUMINANCE8_ALPHA8, dim[0], dim[1], dim[2], 0,
                            GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, this->Volume2 );
 
-    this->glActiveTextureARB( GL_TEXTURE2_ARB );
-    glBindTexture(GL_TEXTURE_3D_EXT, (GLuint)NULL);
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, (GLuint)NULL);
     this->DeleteTextureIndex(&this->Volume3Index);
     this->CreateTextureIndex(&this->Volume3Index);
-    glBindTexture(GL_TEXTURE_3D_EXT, this->Volume3Index);
-    this->glTexImage3DEXT( GL_TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
+    glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume3Index);
+    vtkgl::TexImage3DEXT( vtkgl::TEXTURE_3D_EXT, 0, GL_RGB8, dim[0], dim[1], dim[2], 0,
                            GL_RGB, GL_UNSIGNED_BYTE, this->Volume3 );
     }
   
-  this->glActiveTextureARB( GL_TEXTURE0_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume1Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE0_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume1Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE1_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume2Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE1_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume2Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE2_ARB );
-  glBindTexture(GL_TEXTURE_3D_EXT, this->Volume3Index);   
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE2_ARB );
+  glBindTexture(vtkgl::TEXTURE_3D_EXT, this->Volume3Index);   
   this->Setup3DTextureParameters( vol->GetProperty() );
 
-  this->glActiveTextureARB( GL_TEXTURE3_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
   glEnable( GL_TEXTURE_2D );
-  glDisable( GL_TEXTURE_3D_EXT );
+  glDisable( vtkgl::TEXTURE_3D_EXT );
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NVIDIA_METHOD )
     {
-    glTexEnvf ( GL_TEXTURE_SHADER_NV, GL_SHADER_OPERATION_NV, 
-                GL_DEPENDENT_AR_TEXTURE_2D_NV );
-    glTexEnvi(GL_TEXTURE_SHADER_NV, GL_PREVIOUS_TEXTURE_INPUT_NV, GL_TEXTURE1_ARB);
+    glTexEnvf ( vtkgl::TEXTURE_SHADER_NV, vtkgl::SHADER_OPERATION_NV, 
+                vtkgl::DEPENDENT_AR_TEXTURE_2D_NV );
+    glTexEnvi(vtkgl::TEXTURE_SHADER_NV, vtkgl::PREVIOUS_TEXTURE_INPUT_NV, vtkgl::TEXTURE1_ARB);
     }
 
   // Update the dependent 2D table mapping scalar value and
@@ -1185,7 +1208,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
     {    
     this->DeleteTextureIndex(&this->ColorLookupIndex);
     
-    this->glActiveTextureARB( GL_TEXTURE3_ARB );
+    vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
     glBindTexture(GL_TEXTURE_2D, (GLuint)NULL);
     this->DeleteTextureIndex(&this->AlphaLookupIndex);
     this->CreateTextureIndex(&this->AlphaLookupIndex);
@@ -1200,7 +1223,7 @@ void vtkOpenGLVolumeTextureMapper3D::SetupFourDependentTextures( vtkRenderer *vt
                   GL_ALPHA, GL_UNSIGNED_BYTE, this->AlphaLookup );      
     }
 
-  this->glActiveTextureARB( GL_TEXTURE3_ARB );
+  vtkgl::ActiveTextureARB( vtkgl::TEXTURE3_ARB );
   glBindTexture(GL_TEXTURE_2D, this->AlphaLookupIndex);   
 }
 
@@ -1235,16 +1258,16 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeNV( vtkRenderer *re
 void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP( vtkRenderer *ren,
                                                                       vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_OneComponentNoShadeFP),
           vtkVolumeTextureMapper3D_OneComponentNoShadeFP );
 
@@ -1256,24 +1279,24 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentNoShadeFP( vtkRenderer 
   int stages[4] = {1,0,0,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP( vtkRenderer *ren,
                                                                     vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_OneComponentShadeFP),
           vtkVolumeTextureMapper3D_OneComponentShadeFP );
            
@@ -1286,23 +1309,23 @@ void vtkOpenGLVolumeTextureMapper3D::RenderOneIndependentShadeFP( vtkRenderer *r
   int stages[4] = {1,1,1,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP( vtkRenderer *ren,
                                                                     vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_TwoDependentNoShadeFP),
           vtkVolumeTextureMapper3D_TwoDependentNoShadeFP );
 
@@ -1314,24 +1337,24 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentNoShadeFP( vtkRenderer *r
   int stages[4] = {1,0,0,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 
 void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP( vtkRenderer *ren,
                   vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_TwoDependentShadeFP),
           vtkVolumeTextureMapper3D_TwoDependentShadeFP );
 
@@ -1344,23 +1367,23 @@ void vtkOpenGLVolumeTextureMapper3D::RenderTwoDependentShadeFP( vtkRenderer *ren
   int stages[4] = {1,0,1,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP( vtkRenderer *ren,
                                                                      vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_FourDependentNoShadeFP),
           vtkVolumeTextureMapper3D_FourDependentNoShadeFP );
 
@@ -1372,23 +1395,23 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentNoShadeFP( vtkRenderer *
   int stages[4] = {1,1,0,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP( vtkRenderer *ren,
                    vtkVolume *vol )
 {
-  glEnable( GL_FRAGMENT_PROGRAM_ARB );
+  glEnable( vtkgl::FRAGMENT_PROGRAM_ARB );
 
   GLuint fragmentProgram;
-  this->glGenProgramsARB( 1, &fragmentProgram );
+  vtkgl::GenProgramsARB( 1, &fragmentProgram );
 
-  this->glBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, fragmentProgram );
+  vtkgl::BindProgramARB( vtkgl::FRAGMENT_PROGRAM_ARB, fragmentProgram );
 
-  this->glProgramStringARB( GL_FRAGMENT_PROGRAM_ARB,
-          GL_PROGRAM_FORMAT_ASCII_ARB, 
+  vtkgl::ProgramStringARB( vtkgl::FRAGMENT_PROGRAM_ARB,
+          vtkgl::PROGRAM_FORMAT_ASCII_ARB, 
           strlen(vtkVolumeTextureMapper3D_FourDependentShadeFP),
           vtkVolumeTextureMapper3D_FourDependentShadeFP );
 
@@ -1401,9 +1424,9 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP( vtkRenderer *re
   int stages[4] = {1,1,1,0};
   this->RenderPolygons( ren, vol, stages );  
 
-  glDisable( GL_FRAGMENT_PROGRAM_ARB );
+  glDisable( vtkgl::FRAGMENT_PROGRAM_ARB );
   
-  this->glDeleteProgramsARB( 1, &fragmentProgram );
+  vtkgl::DeleteProgramsARB( 1, &fragmentProgram );
 }
 
 
@@ -1653,40 +1676,40 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
   
   volumeTransform->Delete();
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 0, 
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 0, 
               lightDirection[0][0],
               lightDirection[0][1],
               lightDirection[0][2],
               lightDirection[0][3] );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 1, 
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 1, 
               halfwayVector[0][0],
               halfwayVector[0][1],
               halfwayVector[0][2],
               halfwayVector[0][3] );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 2,
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 2,
               ambient, diffuse, specular, specularPower );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 3,
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 3,
               lightDiffuseColor[0][0],
               lightDiffuseColor[0][1],
               lightDiffuseColor[0][2],
               lightDiffuseColor[0][3] );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 4,
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 4,
               lightSpecularColor[0][0],
               lightSpecularColor[0][1],
               lightSpecularColor[0][2],
               lightSpecularColor[0][3] );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 5,
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 5,
               viewDirection[0],
               viewDirection[1],
               viewDirection[2],
               viewDirection[3] );
 
-  this->glProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 6, 2.0, -1.0, 0.0, 0.0 );
+  vtkgl::ProgramLocalParameter4fARB( vtkgl::FRAGMENT_PROGRAM_ARB, 6, 2.0, -1.0, 0.0, 0.0 );
 }
 
 int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported( vtkVolumeProperty *property )
@@ -1718,70 +1741,118 @@ int  vtkOpenGLVolumeTextureMapper3D::IsRenderSupported( vtkVolumeProperty *prope
 void vtkOpenGLVolumeTextureMapper3D::Initialize()
 {
   this->Initialized = 1;
+  vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
+  extensions->SetRenderWindow(NULL); // set render window to current render window
+  
+  
+  int supports_GL_EXT_texture3D          = extensions->ExtensionSupported( "GL_EXT_texture3D" );
+  int supports_GL_ARB_multitexture       = extensions->ExtensionSupported( "GL_ARB_multitexture" );
+  int supports_GL_NV_texture_shader2     = extensions->ExtensionSupported( "GL_NV_texture_shader2" );
+  int supports_GL_NV_register_combiners2 = extensions->ExtensionSupported( "GL_NV_register_combiners2" );
+  int supports_GL_ATI_fragment_shader    = extensions->ExtensionSupported( "GL_ATI_fragment_shader" );
+  int supports_GL_ARB_fragment_program   = extensions->ExtensionSupported( "GL_ARB_fragment_program" );
+  int supports_GL_ARB_vertex_program     = extensions->ExtensionSupported( "GL_ARB_vertex_program" );
+  int supports_GL_NV_register_combiners  = extensions->ExtensionSupported( "GL_NV_register_combiners" );
+  
+  if(supports_GL_EXT_texture3D)
+    {
+    extensions->LoadExtension("GL_EXT_texture3D");
+    }
+  
+  if(supports_GL_ARB_multitexture)      
+    {
+    extensions->LoadExtension("GL_ARB_multitexture" );
+    }
+  
+  if(supports_GL_NV_texture_shader2) 
+    {
+    extensions->LoadExtension("GL_NV_texture_shader2" );
+    }
+  
+  if(supports_GL_NV_register_combiners2)  
+    {
+    extensions->LoadExtension( "GL_NV_register_combiners2" );
+    }
+  
+  if(supports_GL_ATI_fragment_shader)     
+    {
+    extensions->LoadExtension( "GL_ATI_fragment_shader" );
+    }
+  
+  if(supports_GL_ARB_fragment_program)    
+    {
+    extensions->LoadExtension( "GL_ARB_fragment_program" );
+    }
+  
+  if(supports_GL_ARB_vertex_program)    
+    {
+    extensions->LoadExtension( "GL_ARB_vertex_program" );
+    }
+  
+  if(supports_GL_NV_register_combiners)  
+    {
+    extensions->LoadExtension( "GL_NV_register_combiners" );
+    }
 
-  int supports_GL_EXT_texture3D          = this->IsExtensionSupported( "GL_EXT_texture3D" );
-  int supports_GL_ARB_multitexture       = this->IsExtensionSupported( "GL_ARB_multitexture" );
-  int supports_GL_NV_texture_shader2     = this->IsExtensionSupported( "GL_NV_texture_shader2" );
-  int supports_GL_NV_register_combiners2 = this->IsExtensionSupported( "GL_NV_register_combiners2" );
-  int supports_GL_ATI_fragment_shader    = this->IsExtensionSupported( "GL_ATI_fragment_shader" );
-  int supports_GL_ARB_fragment_program   = this->IsExtensionSupported( "GL_ARB_fragment_program" );
-
-  this->glTexImage3DEXT              = (PFNGLTEX3DEXT) this->GetProcAddress("glTexImage3DEXT");
-  this->glActiveTextureARB           = (PFNGLACTIVETEXTUREARB) this->GetProcAddress("glActiveTextureARB");
-  this->glMultiTexCoord3fvARB        = (PFNGLMULTITEXCOORD3FVARB) this->GetProcAddress("glMultiTexCoord3fvARB");
-  this->glCombinerParameteriNV       = (PFNGLCOMBINERPARAMETERINV) this->GetProcAddress("glCombinerParameteriNV");
-  this->glCombinerStageParameterfvNV = (PFNGLCOMBINERSTAGEPARAMETERFVNV) this->GetProcAddress("glCombinerStageParameterfvNV");
-  this->glCombinerInputNV            = (PFNGLCOMBINERINPUTNV) this->GetProcAddress("glCombinerInputNV");
-  this->glCombinerOutputNV           = (PFNGLCOMBINEROUTPUTNV) this->GetProcAddress("glCombinerOutputNV");
-  this->glFinalCombinerInputNV       = (PFNGLFINALCOMBINERINPUTNV) this->GetProcAddress("glFinalCombinerInputNV");
-  this->glGenProgramsARB             = (PFNGLGENPROGRAMSARB) this->GetProcAddress("glGenProgramsARB");
-  this->glDeleteProgramsARB          = (PFNGLDELETEPROGRAMSARB) this->GetProcAddress("glDeleteProgramsARB");
-  this->glBindProgramARB             = (PFNGLBINDPROGRAMARB) this->GetProcAddress("glBindProgramARB");
-  this->glProgramStringARB           = (PFNGLPROGRAMSTRINGARB) this->GetProcAddress("glProgramStringARB");
-  this->glProgramLocalParameter4fARB = (PFNGLPROGRAMLOCALPARAMETER4FARB) this->GetProcAddress("glProgramLocalParameter4fARB");
-
-  if ( supports_GL_EXT_texture3D          && 
+  extensions->Delete();
+  
+  
+  int canDoFP = 0;
+  int canDoNV = 0;
+  
+  if ( supports_GL_EXT_texture3D          &&
        supports_GL_ARB_multitexture       &&
        supports_GL_ARB_fragment_program   &&
-       this->glTexImage3DEXT              &&
-       this->glActiveTextureARB           &&
-       this->glMultiTexCoord3fvARB        &&
-       this->glGenProgramsARB             &&
-       this->glDeleteProgramsARB          &&
-       this->glBindProgramARB             &&
-       this->glProgramStringARB           &&
-       this->glProgramLocalParameter4fARB )
+       supports_GL_ARB_vertex_program     &&
+       vtkgl::TexImage3DEXT               &&
+       vtkgl::ActiveTextureARB            &&
+       vtkgl::MultiTexCoord3fvARB         &&
+       vtkgl::GenProgramsARB              &&
+       vtkgl::DeleteProgramsARB           &&
+       vtkgl::BindProgramARB              &&
+       vtkgl::ProgramStringARB            &&
+       vtkgl::ProgramLocalParameter4fARB )
+    {    
+    canDoFP = 1;
+    }
+  else if ( supports_GL_EXT_texture3D          &&
+            supports_GL_ARB_multitexture       &&
+            supports_GL_NV_texture_shader2     &&
+            supports_GL_NV_register_combiners2 &&
+            supports_GL_NV_register_combiners  &&
+            vtkgl::TexImage3DEXT               &&
+            vtkgl::ActiveTextureARB            &&
+            vtkgl::MultiTexCoord3fvARB         &&
+            vtkgl::CombinerParameteriNV        &&
+            vtkgl::CombinerStageParameterfvNV  &&
+            vtkgl::CombinerInputNV             &&
+            vtkgl::CombinerOutputNV            &&
+            vtkgl::FinalCombinerInputNV )
+    {
+    canDoNV = 1;
+    }
+
+  // can't do either
+  if ( !canDoFP && !canDoNV )
+    {
+    this->RenderMethod = vtkVolumeTextureMapper3D::NO_METHOD;
+    }
+  // can only do FragmentProgram
+  else if ( canDoFP && !canDoNV )
     {
     this->RenderMethod = vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD;  
     }
-  else if ( supports_GL_EXT_texture3D    &&
-      supports_GL_ARB_multitexture       &&
-      supports_GL_NV_texture_shader2     &&
-      supports_GL_NV_register_combiners2 &&
-      this->glTexImage3DEXT              &&
-      this->glActiveTextureARB           &&
-      this->glMultiTexCoord3fvARB        &&
-      this->glCombinerParameteriNV       &&
-      this->glCombinerStageParameterfvNV &&
-      this->glCombinerInputNV            &&
-      this->glCombinerOutputNV           &&
-      this->glFinalCombinerInputNV )
+  // can only do NVidia method
+  else if ( !canDoFP && canDoNV )
     {
     this->RenderMethod = vtkVolumeTextureMapper3D::NVIDIA_METHOD;
     }
-  else if ( supports_GL_EXT_texture3D         &&
-            supports_GL_ARB_multitexture      &&
-            supports_GL_ATI_fragment_shader )
-    {
-    // this should be the older ATI support but is not filled in yet so
-    // returning no method instead of:
-    //    this->RenderMethod = vtkVolumeTextureMapper3D::ATI_METHOD;
-    this->RenderMethod = vtkVolumeTextureMapper3D::NO_METHOD;
-    }
+  // can do both - pick the preferred one
   else
     {
-    this->RenderMethod = vtkVolumeTextureMapper3D::NO_METHOD;
+    this->RenderMethod = this->PreferredRenderMethod;
     }
+  
   
   
 }
@@ -1795,7 +1866,7 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
       return 0;
       }
     
-    this->glTexImage3DEXT( GL_PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2, 
+    vtkgl::TexImage3DEXT( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2, 
                            size[1]*2, size[2], 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   else
@@ -1805,13 +1876,13 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
       return 0;
       }
     
-    this->glTexImage3DEXT( GL_PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2, 
-                           size[1]*2, size[2]*2, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Volume2 );
+    vtkgl::TexImage3DEXT( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_RGBA8, size[0]*2,
+                          size[1]*2, size[2]*2, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->Volume2 );
     }
   
 
   GLint params[1];
-  glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_3D_EXT, 0, GL_TEXTURE_WIDTH, params ); 
+  glGetTexLevelParameteriv ( vtkgl::PROXY_TEXTURE_3D_EXT, 0, GL_TEXTURE_WIDTH, params ); 
 
   if ( params[0] != 0 ) 
     {
@@ -1823,62 +1894,31 @@ int vtkOpenGLVolumeTextureMapper3D::IsTextureSizeSupported( int size[3] )
     }
 }
 
-int vtkOpenGLVolumeTextureMapper3D::IsExtensionSupported(const char *extension)
-{
-  const GLubyte *extensions = NULL;
-  const GLubyte *start;
-  
-  GLubyte *where, *terminator;
-
-  where = (GLubyte *) strchr(extension, ' ');
-  if (where || *extension == '\0')
-    return 0;
-  
-  extensions = glGetString(GL_EXTENSIONS);
-  
-  start = extensions;
-  while (1)
-    {
-    where = (GLubyte *) strstr((const char *) start, extension);
-    if (!where)
-      {
-      break;
-      }
-    
-    terminator = where + strlen(extension);
-    if (where == start || *(where - 1) == ' ')
-      {
-      if (*terminator == ' ' || *terminator == '\0')
-        {
-        return true;
-        }
-      }
-    
-    start = terminator;
-    }
-  return false;
-}
-
 // Print the vtkOpenGLVolumeTextureMapper3D
 void vtkOpenGLVolumeTextureMapper3D::PrintSelf(ostream& os, vtkIndent indent)
 {
+
+  vtkOpenGLExtensionManager * extensions = vtkOpenGLExtensionManager::New();
+  extensions->SetRenderWindow(NULL); // set render window to current render window
+  
   os << indent << "Initialized " << this->Initialized << endl;
   if ( this->Initialized )
     {
     os << indent << "Supports GL_EXT_texture3D:" 
-       << this->IsExtensionSupported( "GL_EXT_texture3D" ) << endl;
+       << extensions->ExtensionSupported( "GL_EXT_texture3D" ) << endl;
     os << indent << "Supports GL_ARB_multitexture: " 
-       << this->IsExtensionSupported( "GL_ARB_multitexture" ) << endl;
+       << extensions->ExtensionSupported( "GL_ARB_multitexture" ) << endl;
     os << indent << "Supports GL_NV_texture_shader2: " 
-       << this->IsExtensionSupported( "GL_NV_texture_shader2" ) << endl;
+       << extensions->ExtensionSupported( "GL_NV_texture_shader2" ) << endl;
     os << indent << "Supports GL_NV_register_combiners2: " 
-       << this->IsExtensionSupported( "GL_NV_register_combiners2" ) << endl;
+       << extensions->ExtensionSupported( "GL_NV_register_combiners2" ) << endl;
     os << indent << "Supports GL_ATI_fragment_shader: " 
-       << this->IsExtensionSupported( "GL_ATI_fragment_shader" ) << endl;
+       << extensions->ExtensionSupported( "GL_ATI_fragment_shader" ) << endl;
     os << indent << "Supports GL_ARB_fragment_program: "
-       << this->IsExtensionSupported( "GL_ARB_fragment_program" ) << endl;
+       << extensions->ExtensionSupported( "GL_ARB_fragment_program" ) << endl;
     }
-
+  extensions->Delete();
+  
   this->Superclass::PrintSelf(os,indent);
 }
 

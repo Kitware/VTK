@@ -110,7 +110,7 @@ public:
   // rendering.
   vtkGetMacro( NumberOfPolygons, int );
   
-  // Description::
+  // Description:
   // Allow access to the actual sample distance used to render
   // the image.
   vtkGetMacro( ActualSampleDistance, float );
@@ -127,13 +127,26 @@ public:
   // What rendering method is supported?
   enum 
   {
-    FRAGMENT_PROGRAM_METHOD,
-    NVIDIA_METHOD,
-    ATI_METHOD,
-    NO_METHOD
+    FRAGMENT_PROGRAM_METHOD=0,
+    NVIDIA_METHOD=1,
+    ATI_METHOD=2,
+    NO_METHOD=3
   }; 
 //ETX
 
+  // Description:
+  // Set the preferred render method. If it is supported, this
+  // one will be used. Don't allow ATI_METHOD - it is not actually
+  // supported.
+  vtkSetClampMacro( PreferredRenderMethod, int, 
+                    vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD,
+                    vtkVolumeTextureMapper3D::NVIDIA_METHOD );
+  void SetPreferredMethodToFragmentProgram() 
+    { this->SetPreferredRenderMethod( vtkVolumeTextureMapper3D::FRAGMENT_PROGRAM_METHOD ); }
+  void SetPreferredMethodToNVidia() 
+    { this->SetPreferredRenderMethod( vtkVolumeTextureMapper3D::NVIDIA_METHOD ); }
+  
+      
 
 protected:
   vtkVolumeTextureMapper3D();
@@ -181,6 +194,7 @@ protected:
   vtkTimeStamp              SavedParametersMTime;
 
   int                       RenderMethod;
+  int                       PreferredRenderMethod;
   
   // Description:
   // For the given viewing direction, compute the set of polygons.

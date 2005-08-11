@@ -22,11 +22,9 @@
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
-#include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLRayCastImageDisplayHelper.h"
-#ifdef VTK_USE_VOLUMETEXTUREMAPPER3D    
+#include "vtkOpenGLVolumeTextureMapper2D.h"
 #include "vtkOpenGLVolumeTextureMapper3D.h"
-#endif
 #endif
 
 #if defined(VTK_USE_MANGLED_MESA)
@@ -38,7 +36,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.5");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.6");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -75,8 +73,6 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
       }
     
     // 3D Volume Texture Mapper
-    // Conditionally included based on platform (just win32 now)
-#ifdef VTK_USE_VOLUMETEXTUREMAPPER3D    
     if(strcmp(vtkclassname, "vtkVolumeTextureMapper3D") == 0)
       {
 #if defined(VTK_USE_MANGLED_MESA)
@@ -88,7 +84,6 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #endif
       return vtkOpenGLVolumeTextureMapper3D::New();
       }
-#endif
     
     // Ray Cast Image Display Helper
     if(strcmp(vtkclassname, "vtkRayCastImageDisplayHelper") == 0)

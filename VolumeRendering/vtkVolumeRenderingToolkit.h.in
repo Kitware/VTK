@@ -16,6 +16,6 @@
 #define __vtkVolumeRenderingToolkit_h
 
 /* This header is configured by VTK's build process.  */
-#cmakedefine VTK_USE_VOLUMETEXTUREMAPPER3D
+/* Nothing in here right now - keep for future use    */
 
 #endif
