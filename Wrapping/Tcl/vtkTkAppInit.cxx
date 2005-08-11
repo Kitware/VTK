@@ -39,12 +39,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sys/stat.h>
 #endif
 
-#if defined(CMAKE_INTDIR)
-# define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD "/" CMAKE_INTDIR
-#else
-# define VTK_TCL_PACKAGE_DIR VTK_TCL_PACKAGE_DIR_BUILD
-#endif
-
 #ifdef VTK_USE_RENDERING
 # include "vtkTk.h"
 #else
@@ -325,11 +319,13 @@ int Tcl_AppInit(Tcl_Interp *interp)
       vtkTkAppInitConvertToUnixSlashes(dir, dir_unix);
 
       // Installed application, otherwise build tree/windows
-      sprintf(buffer, "%s/TclTk", dir_unix);
+      sprintf(buffer, "%s/TclTk/lib", dir_unix);
       int exists = vtkTkAppInitFileExists(buffer);
       if (!exists)
         {
-        sprintf(buffer, "%s/.." VTK_TCL_INSTALL_LIB_DIR "/TclTk", dir_unix);
+        char buffer2[1024];
+        vtkTkAppInitGetFilenamePath(dir_unix, buffer2);
+        sprintf(buffer, "%s" VTK_INSTALL_TCL_DIR, buffer2);
         exists = vtkTkAppInitFileExists(buffer);
         }
       if (exists)
@@ -344,7 +340,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
         if (!has_tcllibpath_env)
           {
           char tcl_library[1024] = "";
-          sprintf(tcl_library, "%s/lib/tcl%s", buffer, TCL_VERSION);
+          sprintf(tcl_library, "%s/tcl" TCL_VERSION, buffer);
           if (vtkTkAppInitFileExists(tcl_library))
             {
             // Setting TCL_LIBRARY won't do the trick, it's too late
@@ -362,7 +358,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
         if (!has_tklibpath_env)
           {
           char tk_library[1024] = "";
-          sprintf(tk_library, "%s/lib/tk%s", buffer, TK_VERSION);
+          sprintf(tk_library, "%s/tk" TK_VERSION, buffer);
           if (vtkTkAppInitFileExists(tk_library))
             {
             // Setting TK_LIBRARY won't do the trick, it's too late
@@ -469,11 +465,14 @@ int Tcl_AppInit(Tcl_Interp *interp)
    * Append path to VTK packages to auto_path
    */
   static char script[] =
-    "foreach dir [list {" VTK_TCL_PACKAGE_DIR "} {" VTK_TCL_INSTALL_DIR "}"
+    "foreach dir [list "
+#if defined(CMAKE_INTDIR)
+    " [file join [file dirname [file dirname [file dirname [info nameofexecutable]]]] Wrapping Tcl " CMAKE_INTDIR "]"
+#else
     " [file join [file dirname [file dirname [info nameofexecutable]]] Wrapping Tcl]"
-    " [file join [file dirname [file dirname [info nameofexecutable]]] lib vtk tcl]"
+#endif
     " ] {\n"
-    "  if {[file isdirectory $dir]} {\n"
+    "  if {[file isdirectory \"$dir\"]} {\n"
     "    lappend auto_path $dir\n"
     "  }\n"
     "}\n"
@@ -506,7 +505,6 @@ int Tcl_AppInit(Tcl_Interp *interp)
     "  }\n"
     "  return $package_res\n"
     "}\n";
-
   Tcl_Eval(interp, script);
 
   /*

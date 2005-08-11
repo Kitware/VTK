@@ -123,15 +123,45 @@ LINK_DIRECTORIES(.)
 # the install location.  Optionally allow the project to specify a
 # single VTK_INSTALL_ROOT which basically adds to its install prefix
 # for VTK only.
+
+# The location in which to install VTK executables.
 IF(NOT VTK_INSTALL_BIN_DIR)
   SET(VTK_INSTALL_BIN_DIR ${VTK_INSTALL_ROOT}/bin)
 ENDIF(NOT VTK_INSTALL_BIN_DIR)
+
+# The location in which to install VTK header files.
 IF(NOT VTK_INSTALL_INCLUDE_DIR)
   SET(VTK_INSTALL_INCLUDE_DIR ${VTK_INSTALL_ROOT}/include/vtk)
 ENDIF(NOT VTK_INSTALL_INCLUDE_DIR)
+
+# The location in which to install VTK libraries.
 IF(NOT VTK_INSTALL_LIB_DIR)
-  SET(VTK_INSTALL_LIB_DIR ${VTK_INSTALL_ROOT}/lib/vtk)
+  SET(VTK_INSTALL_LIB_DIR ${VTK_INSTALL_ROOT}/lib)
 ENDIF(NOT VTK_INSTALL_LIB_DIR)
+
+# The location in which to install CMake scripts for packaging VTK.
+IF(NOT VTK_INSTALL_PACKAGE_DIR)
+  SET(VTK_INSTALL_PACKAGE_DIR
+    ${VTK_INSTALL_LIB_DIR}/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
+    )
+ENDIF(NOT VTK_INSTALL_PACKAGE_DIR)
+
+# The location in which to install VTK doxygen documentation helper
+# files.
+IF(NOT VTK_INSTALL_DOXYGEN_DIR)
+  SET(VTK_INSTALL_DOXYGEN_DIR ${VTK_INSTALL_PACKAGE_DIR}/doxygen)
+ENDIF(NOT VTK_INSTALL_DOXYGEN_DIR)
+
+# Compute the proper location for installing the Tcl package.  This
+# must be a fixed relative path below the library install location and
+# is therefore not settable by parent projects.
+SET(VTK_INSTALL_TCL_DIR
+  ${VTK_INSTALL_LIB_DIR}/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}
+  )
+
+IF(NOT VTK_INSTALL_JAVA_DIR)
+  SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
+ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 
 # There are three basic components to the VTK installation: runtime,
 # development, and documentation.  Install rules for each component
@@ -159,7 +189,7 @@ ENDIF(BUILD_SHARED_LIBS)
 # Save the compiler settings so another project can import them.
 CMAKE_EXPORT_BUILD_SETTINGS(${VTK_BINARY_DIR}/VTKBuildSettings.cmake)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake VTKBuildSettings)
+  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} .cmake VTKBuildSettings)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 #-----------------------------------------------------------------------------
@@ -1024,7 +1054,7 @@ IF(VTK_WRAP_TCL)
 ENDIF(VTK_WRAP_TCL)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
+  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
     ${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapTcl.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkWrapJava.cmake
@@ -1249,7 +1279,7 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   ENDIF(VTK_USE_PARALLEL)
 
   # Install cmake extensions so user projects can load them.
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
+  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
     ${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake 
     ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.cmake
     ${VTK_SOURCE_DIR}/CMake/vtkMakeInstantiator.h.in
@@ -1258,10 +1288,10 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
         VTK_GENERATE_JAVA_DEPENDENCIES)
       IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-        INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
+        INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
       ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
         IF(UNIX)
-          INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/CMake FILES
+          INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
             "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
         ENDIF(UNIX)
       ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
@@ -1275,9 +1305,9 @@ EXPORT_LIBRARY_DEPENDENCIES(${VTK_BINARY_DIR}/VTKLibraryDepends.cmake)
 # Install some files.
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INSTALL_FILES(${VTK_INSTALL_INCLUDE_DIR} .h vtkConfigure vtkToolkits)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR} .cmake UseVTK VTKLibraryDepends)
+  INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} .cmake UseVTK VTKLibraryDepends)
   IF(VTK_WRAP_HINTS)
-    INSTALL_FILES(${VTK_INSTALL_LIB_DIR} FILES ${VTK_WRAP_HINTS})
+    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES ${VTK_WRAP_HINTS})
   ENDIF(VTK_WRAP_HINTS)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 

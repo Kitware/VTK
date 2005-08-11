@@ -1,3 +1,3 @@
 IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl/vtkvolumerendering .tcl vtkvolumerendering)
+  INSTALL_FILES(${VTK_TCL_INSTALL_DIR}/vtkvolumerendering .tcl vtkvolumerendering)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)

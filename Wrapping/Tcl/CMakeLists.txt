@@ -68,6 +68,9 @@ FOREACH(lib ${VTK_EXTRA_TCL_LIBRARIES})
   TARGET_LINK_LIBRARIES(vtk ${lib})
 ENDFOREACH(lib)
 
+# Setup install location for vtk tcl scripts.
+SET(VTK_TCL_INSTALL_DIR ${VTK_INSTALL_TCL_DIR}/tcl)
+
 IF(NOT VTK_INSTALL_NO_RUNTIME)
   INSTALL_TARGETS(${VTK_INSTALL_BIN_DIR} vtk)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
@@ -113,10 +116,10 @@ ENDIF (VTK_USE_PARALLEL)
 SUBDIRS(vtk vtkbase vtkcommon vtkfiltering vtkgraphics vtkimaging vtkinteraction vtkio vtktesting)
 
 IF(NOT VTK_INSTALL_NO_DOCUMENTATION)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl "" README)
+  INSTALL_FILES(${VTK_TCL_INSTALL_DIR} "" README)
 ENDIF(NOT VTK_INSTALL_NO_DOCUMENTATION)
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl .c vtktcl)
+  INSTALL_FILES(${VTK_TCL_INSTALL_DIR} .c vtktcl)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 SET(VTK_TCL_RENDERING_CONFIG "")
@@ -162,18 +165,18 @@ ELSE(VTK_TCL_CONFIGURATION_TYPES)
 ENDIF(VTK_TCL_CONFIGURATION_TYPES)
 
 # Configure the Tcl package index file for the install tree.
-SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]")
+SET(VTK_TCL_SCRIPT_DIR "[file dirname [info script]]/tcl")
 IF(UNIX)
   SET(VTK_TCL_LIBRARY_DIR "[file dirname [file dirname [info script]]]")
 ELSE(UNIX)
   SET(VTK_TCL_LIBRARY_DIR
-      "[file join [file dirname [file dirname [file dirname [file dirname [info script]]]]] bin]")
+      "[file join [file dirname [file dirname [file dirname [info script]]]] bin]")
 ENDIF(UNIX)
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Tcl/pkgIndex.tcl.in
                ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl
                @ONLY IMMEDIATE)
 IF(NOT VTK_INSTALL_NO_RUNTIME)
-  INSTALL_FILES(${VTK_INSTALL_LIB_DIR}/tcl FILES
+  INSTALL_FILES(${VTK_INSTALL_TCL_DIR} FILES
                 ${VTK_BINARY_DIR}/Wrapping/Tcl/Install/Hide/pkgIndex.tcl)
 ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 
