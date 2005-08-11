@@ -23,6 +23,7 @@
 #include "vtkCellPicker.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkParametricFunctionSource.h"
 #include "vtkParametricSpline.h"
 #include "vtkPlaneSource.h"
 #include "vtkPolyData.h"
@@ -33,7 +34,7 @@
 #include "vtkSphereSource.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkSplineWidget, "1.1");
+vtkCxxRevisionMacro(vtkSplineWidget, "1.2");
 vtkStandardNewMacro(vtkSplineWidget);
 
 vtkCxxSetObjectMacro(vtkSplineWidget, HandleProperty, vtkProperty);
@@ -59,7 +60,6 @@ vtkSplineWidget::vtkSplineWidget()
   // Create the handles along a straight line within the bounds of a unit cube
   this->NumberOfHandles = 5;
   this->Handle         = new vtkActor* [this->NumberOfHandles];
-  this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
   int i;
   double u[3];
@@ -80,10 +80,11 @@ vtkSplineWidget::vtkSplineWidget()
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
-    this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInput(this->HandleGeometry[i]->GetOutput());
+    vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
+    handleMapper->SetInput(this->HandleGeometry[i]->GetOutput());
     this->Handle[i] = vtkActor::New();
-    this->Handle[i]->SetMapper(this->HandleMapper[i]);
+    this->Handle[i]->SetMapper(handleMapper);
+    handleMapper->Delete();
     u[0] = (double)i / (double)(this->NumberOfHandles - 1.0);
     x = (1.0 - u[0])*x0 + u[0]*x1;
     y = (1.0 - u[0])*y0 + u[0]*y1;
@@ -103,37 +104,15 @@ vtkSplineWidget::vtkSplineWidget()
   // Define the points and line segments representing the spline
   this->Resolution = 499;
 
-  points = vtkPoints::New();
-  points->SetNumberOfPoints(this->Resolution + 1);
-
-  // Interpolate x, y and z by using the three spline filters and
-  // create new points
-  double pt[3];
-  for ( i = 0; i <= this->Resolution; ++i )
-    {
-    u[0] = (double)i / (double)this->Resolution;
-    this->ParametricSpline->Evaluate(u, pt, NULL);
-    points->InsertPoint(i, pt);
-    }
-
-  // Create the polyline representation of the spline
-  vtkCellArray* lines = vtkCellArray::New();
-  lines->Allocate(lines->EstimateSize(this->Resolution,2));
-  lines->InsertNextCell(this->Resolution + 1);
-
-  for ( i = 0 ; i <= this->Resolution; ++i )
-    {
-    lines->InsertCellPoint(i);
-    }
-
-  this->LineData = vtkPolyData::New();
-  this->LineData->SetPoints(points);
-  points->Delete();
-  this->LineData->SetLines(lines);
-  lines->Delete();
+  this->ParametricFunctionSource = vtkParametricFunctionSource::New();
+  this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
+  this->ParametricFunctionSource->SetScalarModeToNone();
+  this->ParametricFunctionSource->GenerateTextureCoordinatesOff();
+  this->ParametricFunctionSource->SetUResolution( this->Resolution );
+  this->ParametricFunctionSource->Update();
 
   vtkPolyDataMapper* lineMapper = vtkPolyDataMapper::New();
-  lineMapper->SetInput( this->LineData ) ;
+  lineMapper->SetInput( this->ParametricFunctionSource->GetOutput() ) ;
   lineMapper->ImmediateModeRenderingOn();
   lineMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
@@ -180,17 +159,16 @@ vtkSplineWidget::~vtkSplineWidget()
     this->ParametricSpline->UnRegister(this);
     }
 
+  this->ParametricFunctionSource->Delete();
+
   this->LineActor->Delete();
-  this->LineData->Delete();
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
     {
     this->HandleGeometry[i]->Delete();
-    this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
     }
   delete [] this->Handle;
-  delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
 
   this->HandlePicker->Delete();
@@ -242,6 +220,7 @@ void vtkSplineWidget::SetParametricSpline(vtkParametricSpline* spline)
     if (this->ParametricSpline != NULL)
       {
       this->ParametricSpline->Register(this);
+      this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
       }
     }
 }
@@ -561,18 +540,6 @@ void vtkSplineWidget::BuildRepresentation()
     points->SetPoint(i, pt);
     }
   this->ParametricSpline->Modified();
-
-  points = this->LineData->GetPoints();
-
-  double u[3];
-  for ( i = 0; i <= this->Resolution; ++i )
-    {
-    u[0] = (double)i / (double)this->Resolution;
-    this->ParametricSpline->Evaluate(u, pt, NULL);
-    points->SetPoint(i, pt);
-    }
-  points->GetData()->Modified();
-  this->LineData->Modified();
 }
 
 int vtkSplineWidget::HighlightHandle(vtkProp *prop)
@@ -1213,7 +1180,6 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
 
   // Create the handles
   this->Handle         = new vtkActor* [this->NumberOfHandles];
-  this->HandleMapper   = new vtkPolyDataMapper* [this->NumberOfHandles];
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
 
   int i;
@@ -1224,10 +1190,11 @@ void vtkSplineWidget::SetNumberOfHandles(int npts)
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
-    this->HandleMapper[i] = vtkPolyDataMapper::New();
-    this->HandleMapper[i]->SetInput(this->HandleGeometry[i]->GetOutput());
+    vtkPolyDataMapper* handleMapper = vtkPolyDataMapper::New();
+    handleMapper->SetInput(this->HandleGeometry[i]->GetOutput());
     this->Handle[i] = vtkActor::New();
-    this->Handle[i]->SetMapper(this->HandleMapper[i]);
+    this->Handle[i]->SetMapper(handleMapper);
+    handleMapper->Delete();
     this->Handle[i]->SetProperty(this->HandleProperty);
     u[0] = (double)i / (double)(this->NumberOfHandles - 1.0);
     this->ParametricSpline->Evaluate(u, pt, NULL);
@@ -1282,14 +1249,12 @@ void vtkSplineWidget::Initialize(void)
     {
     this->HandlePicker->DeletePickList(this->Handle[i]);
     this->HandleGeometry[i]->Delete();
-    this->HandleMapper[i]->Delete();
     this->Handle[i]->Delete();
     }
 
   this->NumberOfHandles = 0;
 
   delete [] this->Handle;
-  delete [] this->HandleMapper;
   delete [] this->HandleGeometry;
 }
 
@@ -1301,37 +1266,13 @@ void vtkSplineWidget::SetResolution(int resolution)
     }
 
   this->Resolution = resolution;
-
-  vtkPoints* newPoints = vtkPoints::New();
-  newPoints->Allocate(this->Resolution+1);
-  vtkCellArray *newLines  = vtkCellArray::New();
-  newLines->Allocate(newLines->EstimateSize(this->Resolution,2));
-
-  double pt[3];
-  double u[3];
-  int i;
-  for ( i = 0; i <= this->Resolution; ++i )
-    {
-    u[0] = (double)i / (double)this->Resolution;
-    this->ParametricSpline->Evaluate(u, pt, NULL);
-    newPoints->InsertPoint(i, pt);
-    }
-
-  newLines->InsertNextCell(this->Resolution+1);
-  for ( i = 0; i <= this->Resolution; ++i )
-    {
-    newLines->InsertCellPoint(i);
-    }
-
-  this->LineData->SetPoints(newPoints);
-  newPoints->Delete();
-  this->LineData->SetLines(newLines);
-  newLines->Delete();
+  this->ParametricFunctionSource->SetUResolution( this->Resolution );
+  this->ParametricFunctionSource->Modified();
 }
 
 void vtkSplineWidget::GetPolyData(vtkPolyData *pd)
 {
-  pd->ShallowCopy(this->LineData);
+  pd->ShallowCopy( this->ParametricFunctionSource->GetOutput() );
 }
 
 void vtkSplineWidget::SizeHandles()
@@ -1345,7 +1286,7 @@ void vtkSplineWidget::SizeHandles()
 
 double vtkSplineWidget::GetSummedLength()
 {
-  vtkPoints* points = this->LineData->GetPoints();
+  vtkPoints* points = this->ParametricFunctionSource->GetOutput()->GetPoints();
   int npts = points->GetNumberOfPoints();
 
   if ( npts < 2 ) { return 0.0; }
@@ -1480,4 +1421,44 @@ void vtkSplineWidget::InitializeHandles(vtkPoints* points)
     {
     this->Interactor->Render();
     }
+}
+
+int vtkSplineWidget::IsClosed()
+{
+  if ( this->NumberOfHandles < 3 || !this->Closed ) { return 0; }
+
+  vtkPolyData* lineData = this->ParametricFunctionSource->GetOutput();
+  if ( !lineData || !(lineData->GetPoints()) )
+    {
+    vtkErrorMacro(<<"No line data to query geometric closure");
+    return 0;
+    }
+
+  vtkPoints *points = lineData->GetPoints();
+  int numPoints = points->GetNumberOfPoints();
+
+  if ( numPoints < 3 )
+    {
+    return 0;
+    }
+
+  int numEntries = lineData->GetLines()->GetNumberOfConnectivityEntries();
+
+  double p0[3];
+  double p1[3];
+
+  points->GetPoint( 0, p0 );
+  points->GetPoint( numPoints - 1, p1 );
+  int minusNth = ( p0[0] == p1[0] && p0[1] == p1[1] && p0[2] == p1[2] ) ? 1 : 0;
+  int result;
+  if ( minusNth ) //definitely closed
+    {
+    result = 1;
+    }
+  else       // not physically closed, check connectivity
+    {
+    result = ( ( numEntries - numPoints ) == 2 ) ? 1 : 0;
+    }
+
+  return result;
 }

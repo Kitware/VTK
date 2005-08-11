@@ -88,10 +88,10 @@
 class vtkActor;
 class vtkCellPicker;
 class vtkParametricSpline;
+class vtkParametricFunctionSource;
 class vtkPlaneSource;
 class vtkPoints;
 class vtkPolyData;
-class vtkPolyDataMapper;
 class vtkProp;
 class vtkProperty;
 class vtkSphereSource;
@@ -214,11 +214,18 @@ public:
   // Description:
   // Control whether the spline is open or closed. A closed spline forms
   // a continuous loop: the first and last points are the same, and
-  // derivatives are continuous. This method enforces consistency with
+  // derivatives are continuous.  A minimum of 3 handles are required to
+  // form a closed loop.  This method enforces consistency with
   // user supplied subclasses of vtkSpline.
   void SetClosed(int closed);
   vtkGetMacro(Closed,int);
   vtkBooleanMacro(Closed,int);
+
+  // Description:
+  // Convenience method to determine whether the spline is
+  // closed in a geometric sense.  The widget may be set "closed" but still
+  // be geometrically open (e.g., a straight line).
+  int IsClosed();
 
   // Description:
   // Get the approximate vs. the true arc length of the spline. Calculated as
@@ -279,19 +286,18 @@ protected:
 
   // The spline
   vtkParametricSpline *ParametricSpline;
+  vtkParametricFunctionSource *ParametricFunctionSource;
   int NumberOfHandles;
   int Closed;
   void BuildRepresentation();
   
   // The line segments
   vtkActor           *LineActor;
-  vtkPolyData        *LineData;
   void HighlightLine(int highlight);
   int Resolution;
 
   // Glyphs representing hot spots (e.g., handles)
   vtkActor          **Handle;
-  vtkPolyDataMapper **HandleMapper;
   vtkSphereSource   **HandleGeometry;
   void Initialize();
   int  HighlightHandle(vtkProp *prop); //returns handle index or -1 on fail
