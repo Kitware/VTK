@@ -80,8 +80,8 @@ ADD_EXECUTABLE( qtevents MACOSX_BUNDLE ${SRCS} ${UI_SRCS})
 
 IF(QT_INST_MAJOR_VERSION GREATER 3)
   IF(APPLE)
-    SET(QT_LIBS   "-framework QtGui" "-framework QtCore")
-    SET_TARGET_PROPERTIES(qtimageviewer PROPERTIES LINK_FLAGS "-F${QT_LIBRARY_DIR}")
+    SET(QT_LIBS   "-framework Qt3Support -framework QtGui" "-framework QtCore")
+    SET_TARGET_PROPERTIES(qtevents PROPERTIES LINK_FLAGS "-F${QT_LIBRARY_DIR}")
   ELSE(APPLE)
     IF(CMAKE_BUILD_TYPE)
       SET(QT_LIBS optimized ${QT_QT3SUPPORT_LIBRARY} debug ${QT_QT3SUPPORT_LIBRARY_DEBUG}
