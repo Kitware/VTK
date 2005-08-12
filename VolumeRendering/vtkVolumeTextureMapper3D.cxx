@@ -26,7 +26,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.4");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.5");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -625,14 +625,14 @@ void vtkVolumeTextureMapper3DComputeGradients( T *dataPtr,
         outPtr2 += 3;
         }
       }
-    if ( z%8 == 7 )
-      {
-      float args[1];
-      args[0] = 
-        static_cast<float>(z - z_start) / 
-        static_cast<float>(z_limit - z_start - 1);
+//    if ( z%8 == 7 )
+//      {
+//      float args[1];
+//      args[0] = 
+//        static_cast<float>(z - z_start) / 
+//        static_cast<float>(z_limit - z_start - 1);
 //      me->InvokeEvent( vtkEvent::VolumeMapperComputeGradientsProgressEvent, args );
-      }
+//      }
     }
 //  me->InvokeEvent( vtkEvent::VolumeMapperComputeGradientsEndEvent, NULL );
 }
