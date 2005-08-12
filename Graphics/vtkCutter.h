@@ -188,7 +188,7 @@ protected:
                               vtkInformation *, vtkInformationVector **, 
                               vtkInformationVector *);
   void StructuredGridCutter(vtkDataSet *, vtkPolyData *);
-  void RectilinearGridCutter(vtkDataSet *, vtkPolyData *, vtkInformation *);
+  void RectilinearGridCutter(vtkDataSet *, vtkPolyData *);
   vtkImplicitFunction *CutFunction;
 
   vtkSynchronizedTemplates3D *SynchronizedTemplates3D;
