@@ -16,13 +16,11 @@
 //
 // .SECTION Description
 // This class is a subclass of Cocoa's NSWindow; it uses Objective-C++.
-// This class overrides NSWindow's close method to quit the application
-// when the close box is pressed by the user. A vtkCocoaWindow is created
-// automatically by vtk by default, but the programmer can override this
-// behaviour, see vtkCocoaRenderWindow's SetWindowId().
+// A vtkCocoaWindow is created automatically by vtk by default, but the
+// programmer can override this behaviour. See vtkCocoaRenderWindow's
+// SetWindowId() and WindowInitialize().
 // Note that this class previously contained much more functionality
 // but that functionality has been moved to other classes.
- 
 
 // .SECTION See Also
 // vtkCocoaGLView vtkCocoaRenderWindow

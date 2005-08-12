@@ -21,7 +21,6 @@
 - (void)close
 {
   [super close];
-  [NSApp terminate:self];
 }
 
 @end
