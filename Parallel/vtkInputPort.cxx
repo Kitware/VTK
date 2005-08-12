@@ -28,7 +28,7 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkInputPort, "1.22");
+vtkCxxRevisionMacro(vtkInputPort, "1.23");
 vtkStandardNewMacro(vtkInputPort);
 
 vtkCxxSetObjectMacro(vtkInputPort,Controller, vtkMultiProcessController);
@@ -335,11 +335,18 @@ int vtkInputPort::RequestDataObject(
       case VTK_IMAGE_DATA:
         output = vtkImageData::New();
         break;
+      case VTK_STRUCTURED_POINTS:
+        vtkErrorMacro("vtkStructuredPoints are being deprecated. Please use "
+                      "vtkImageData instead");
+        break;
       }
-    output->SetPipelineInformation(info);
-    output->Delete();
-    this->GetOutputPortInformation(0)->Set(
-      vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+    if (output)
+      {
+      output->SetPipelineInformation(info);
+      output->Delete();
+      this->GetOutputPortInformation(0)->Set(
+        vtkDataObject::DATA_EXTENT_TYPE(), output->GetExtentType());
+      }
     }
   return 1;
 }
