@@ -36,7 +36,7 @@
 
 #include "stdlib.h"
 
-vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.6");
+vtkCxxRevisionMacro(vtkVolumeRenderingFactory, "1.7");
 vtkStandardNewMacro(vtkVolumeRenderingFactory);
 
 
@@ -78,7 +78,7 @@ vtkObject* vtkVolumeRenderingFactory::CreateInstance(const char* vtkclassname )
 #if defined(VTK_USE_MANGLED_MESA)
       if ( vtkGraphicsFactory::GetUseMesaClasses() )
         {
-        vtkErrorMacro("No support for mesa in vtkVolumeTextureMapper3D");
+        vtkGenericWarningMacro("No support for mesa in vtkVolumeTextureMapper3D");
         return 0;
         }
 #endif
