@@ -1088,17 +1088,18 @@ IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 
 IF(VTK_INCLUDE_NEED_TK)
-  # Need Tk sources on windows
-  IF(WIN32)
-    FIND_PATH(TK_XLIB_PATH 
-              X11/Xlib.h ${TK_INCLUDE_PATH}
-              ${TK_INCLUDE_PATH}/../xlib)
-    MARK_AS_ADVANCED(TK_XLIB_PATH)
-  ENDIF(WIN32)
   # Need Tk headers and libraries for python TK widgets
   IF(NOT VTK_WRAP_TCL)
     VTK_INCLUDE_TCL_TK_MODULES()
   ENDIF(NOT VTK_WRAP_TCL)
+
+  # Need Tk sources on windows
+  IF(WIN32)
+    FIND_PATH(TK_XLIB_PATH
+              X11/Xlib.h ${TK_INCLUDE_PATH}
+              ${TK_INCLUDE_PATH}/../xlib)
+    MARK_AS_ADVANCED(TK_XLIB_PATH)
+  ENDIF(WIN32)
 ENDIF(VTK_INCLUDE_NEED_TK)
 
 # Need Tk internal headers for Tk initialization.
