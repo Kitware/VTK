@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCutter, "1.83");
+vtkCxxRevisionMacro(vtkCutter, "1.84");
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
 
@@ -292,12 +292,6 @@ void vtkCutter::RectilinearGridCutter(vtkDataSet *dataSetInput,
   this->RectilinearSynchronizedTemplates->ComputeScalarsOff();
   this->RectilinearSynchronizedTemplates->ComputeNormalsOff();
   output = this->RectilinearSynchronizedTemplates->GetOutput();
-  output->SetUpdateNumberOfPieces(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
-  output->SetUpdatePiece(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
-  output->SetUpdateGhostLevel(
-    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
   this->RectilinearSynchronizedTemplates->Update();
   output->Register(this);
   
