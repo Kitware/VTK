@@ -72,10 +72,8 @@ IF(VTK_BINARY_DIR)
 
   # Build the examples as a separate project using a custom target.
   # Make sure it uses the same build configuration as VTK.
-  # we must use the LCD IntDir instead of ConfigurationName which is
-  # only supported in VC7 and above.
   IF(CMAKE_CONFIGURATION_TYPES)
-    SET(VTKExamples_CONFIG_TYPE -C "$(IntDir)")
+    SET(VTKExamples_CONFIG_TYPE -C "${CMAKE_CFG_INTDIR}")
   ELSE(CMAKE_CONFIGURATION_TYPES)
     SET(VTKExamples_CONFIG_TYPE)
   ENDIF(CMAKE_CONFIGURATION_TYPES)
