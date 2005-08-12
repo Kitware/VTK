@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.26");
+vtkCxxRevisionMacro(vtkCommunicator, "1.27");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -466,7 +466,6 @@ int vtkCommunicator::ReadImageData(vtkImageData *object)
   reader->GetOutput()->Update();
 
   object->ShallowCopy(reader->GetOutput());
-  object->SetUpdateExtent(reader->GetOutput()->GetUpdateExtent());
   
   reader->Delete();
 
