@@ -31,7 +31,6 @@ public:
       << "//" << endl
       << "const char* " << title << " =" 
       << endl << "\"";
-    int start = 1;
     int preproc = 0;
     while ( ( ch = fgetc(fp) ) != EOF )
       {
@@ -49,22 +48,18 @@ public:
         if ( ch == '\n' )
           {
           this->Stream << "\\n\"" << endl << "\"";
-          start = 1;
           }
         else if ( ch == '\\' )
           {
           this->Stream << "\\\\";
-          start = 0;
           }
         else if ( ch == '\"' )
           {
           this->Stream << "\\\"";
-          start = 0;
           }
         else
           {
           this->Stream << (unsigned char)ch;
-          start = 0;
           }
         }
       }
