@@ -1,7 +1,8 @@
 #
 # Add tests, with the data
 #
-IF (VTK_PYTHON_EXE)
+IF (VTK_PYTHON_EXE AND VTK_USE_RENDERING AND VTK_DATA_ROOT AND 
+    VTK_USE_DISPLAY)
   FOREACH ( tfile
       TestImagePlaneWidget
       )
@@ -11,4 +12,5 @@ IF (VTK_PYTHON_EXE)
              -B ${VTK_DATA_ROOT}/Baseline/Widgets
              )                   
   ENDFOREACH( tfile )
-ENDIF (VTK_PYTHON_EXE)
+ENDIF (VTK_PYTHON_EXE AND VTK_USE_RENDERING AND VTK_DATA_ROOT AND 
+       VTK_USE_DISPLAY)
