@@ -1,11 +1,7 @@
 SET(KIT Filtering)
 SET(UKIT FILTERING)
 SET(KIT_TCL_LIBS vtkCommonTCL)
-IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkCommonPythonD)
-ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkCommonPython)
-ENDIF(APPLE)
+SET(KIT_PYTHON_LIBS vtkCommonPythonD)
 SET(KIT_JAVA_LIBS vtkCommonJava)
 SET(KIT_LIBS vtkCommon)
 

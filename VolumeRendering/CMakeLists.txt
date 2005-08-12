@@ -2,11 +2,7 @@ SET(KIT VolumeRendering)
 SET(UKIT VOLUMERENDERING)
 
 SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL)
-IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
-ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkIOPython)
-ENDIF(APPLE)
+SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_LIBS vtkRendering vtkIO)
 

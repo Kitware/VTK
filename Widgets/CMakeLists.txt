@@ -2,11 +2,7 @@ SET(KIT Widgets)
 SET(UKIT WIDGETS)
 
 SET(KIT_TCL_LIBS vtkRenderingTCL vtkHybridTCL)
-IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkHybridPythonD)
-ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkRenderingPython vtkHybridPython)
-ENDIF(APPLE)
+SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkHybridPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkHybridJava)
 SET(KIT_LIBS vtkRendering vtkHybrid)
 

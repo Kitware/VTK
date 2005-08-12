@@ -1,11 +1,7 @@
 SET(KIT GenericFiltering)
 SET(UKIT GENERIC_FILTERING)
 SET(KIT_TCL_LIBS vtkFilteringTCL vtkGraphicsTCL)
-IF(APPLE)
-  SET(KIT_PYTHON_LIBS vtkFilteringPythonD vtkGraphicsPythonD)
-ELSE(APPLE)
-  SET(KIT_PYTHON_LIBS vtkFilteringPython vtkGraphicsPython)
-ENDIF(APPLE)
+SET(KIT_PYTHON_LIBS vtkFilteringPythonD vtkGraphicsPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava vtkGraphicsJava)
 SET(KIT_LIBS vtkFiltering vtkGraphics)
 
