@@ -26,7 +26,7 @@
 #include "vtkSocketController.h"
 #include "vtkStructuredGrid.h"
 #include "vtkImageData.h"
-#include "vtkImageReader.h"
+#include "vtkDataSetReader.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
@@ -272,18 +272,6 @@ int main(int argc, char** argv)
   op->SetInput(rgrid->GetOutput());
   op->WaitForUpdate();
   rgrid->Delete();
-
-  vtkImageReader* spgrid = vtkImageReader::New();
-  fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
-                                               "Data/ironProt.vtk");
-  spgrid->SetFileName(fname);
-  delete[] fname;
-
-  spgrid->Update();
-
-  op->SetInput(spgrid->GetOutput());
-  op->WaitForUpdate();
-  spgrid->Delete();
 
   vtkPLOT3DReader* pl3d = vtkPLOT3DReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");

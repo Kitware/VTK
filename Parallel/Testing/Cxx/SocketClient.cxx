@@ -29,6 +29,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkTubeFilter.h"
 
 static const int scMsgLength = 10;
 
@@ -271,7 +272,7 @@ int main(int argc, char** argv)
   ip->SetRemoteProcessId(1);
 
   // Get polydata
-  ip->Update();
+  ip->UpdateWholeExtent();
 
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
   vtkPolyData* pd = vtkPolyData::New();
@@ -285,7 +286,7 @@ int main(int argc, char** argv)
   pmapper->UnRegister(0);
 
   // Get rectilinear grid
-  ip->Update();
+  ip->UpdateWholeExtent();
 
   vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
   vtkRectilinearGrid* rg = vtkRectilinearGrid::New();
@@ -300,29 +301,8 @@ int main(int argc, char** argv)
   rgactor->SetScale(2, 2, 2);
   rgmapper->UnRegister(0);
 
-  // Get structured points
-  ip->Update();
-
-  vtkContourFilter* iso = vtkContourFilter::New();
-  vtkImageData* sp = vtkImageData::New();
-  sp->ShallowCopy(ip->GetImageDataOutput());
-  iso->SetInput(sp);
-  sp->Delete();
-  iso->SetValue(0, 128);
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
-
-  vtkPolyDataMapper* spmapper = vtkPolyDataMapper::New();
-  spmapper->SetInput(iso->GetOutput());
-  iso->UnRegister(0);
-
-  vtkActor* spactor = vtkActor::New();
-  spactor->SetMapper(spmapper);
-  spactor->SetPosition(5, -5, 0);
-  spactor->SetScale(0.1, 0.1, 0.1);
-  spmapper->UnRegister(0);
-
   // Get structured grid
-  ip->Update();
+  ip->UpdateWholeExtent();
 
   vtkContourFilter* iso2 = vtkContourFilter::New();
   vtkStructuredGrid* sg = vtkStructuredGrid::New();
@@ -333,7 +313,7 @@ int main(int argc, char** argv)
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkPolyDataMapper* sgmapper = vtkPolyDataMapper::New();
-  sgmapper->SetInput(iso2->GetOutput());
+  sgmapper->SetInputConnection(0, iso2->GetOutputPort());
   iso2->UnRegister(0);
 
   vtkActor* sgactor = vtkActor::New();
@@ -342,7 +322,7 @@ int main(int argc, char** argv)
   sgmapper->UnRegister(0);
 
   // Get image data
-  ip->Update();
+  ip->UpdateWholeExtent();
 
   vtkContourFilter* iso3 = vtkContourFilter::New();
   vtkImageData* id = vtkImageData::New();
@@ -352,9 +332,13 @@ int main(int argc, char** argv)
   iso3->SetValue(0, .205);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
-  vtkPolyDataMapper* immapper = vtkPolyDataMapper::New();
-  immapper->SetInput(iso3->GetOutput());
+  vtkTubeFilter* tube = vtkTubeFilter::New();
+  tube->SetRadius(100);
+  tube->SetInputConnection(0, iso3->GetOutputPort());
   iso3->UnRegister(0);
+  vtkPolyDataMapper* immapper = vtkPolyDataMapper::New();
+  immapper->SetInputConnection(0, tube->GetOutputPort());
+  tube->UnRegister(0);
 
   vtkActor* imactor = vtkActor::New();
   imactor->SetMapper(immapper);
@@ -366,13 +350,11 @@ int main(int argc, char** argv)
   ren->AddActor(uactor);
   ren->AddActor(pactor);
   ren->AddActor(rgactor);
-  ren->AddActor(spactor);
   ren->AddActor(sgactor);
   ren->AddActor(imactor);
   uactor->UnRegister(0);
   pactor->UnRegister(0);
   rgactor->UnRegister(0);
-  spactor->UnRegister(0);
   sgactor->UnRegister(0);
   imactor->UnRegister(0);
 
