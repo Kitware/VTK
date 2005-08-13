@@ -467,9 +467,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
   static char script[] =
     "foreach dir [list "
 #if defined(CMAKE_INTDIR)
-    " [file join [file dirname [file dirname [file dirname [info nameofexecutable]]]] Wrapping Tcl " CMAKE_INTDIR "]"
+    " [file join [file dirname [file dirname [file dirname [file normalize [info nameofexecutable]]]]] Wrapping Tcl " CMAKE_INTDIR "]"
 #else
-    " [file join [file dirname [file dirname [info nameofexecutable]]] Wrapping Tcl]"
+    " [file join [file dirname [file dirname [file normalize [info nameofexecutable]]]] Wrapping Tcl]"
 #endif
     " ] {\n"
     "  if {[file isdirectory \"$dir\"]} {\n"
