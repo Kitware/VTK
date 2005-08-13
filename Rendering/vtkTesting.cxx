@@ -31,7 +31,7 @@
 #include <sys/stat.h>
 
 vtkStandardNewMacro(vtkTesting);
-vtkCxxRevisionMacro(vtkTesting, "1.25");
+vtkCxxRevisionMacro(vtkTesting, "1.26");
 vtkCxxSetObjectMacro(vtkTesting, RenderWindow, vtkRenderWindow);
 
 
@@ -178,7 +178,6 @@ const char *vtkTesting::GetValidImageFileName()
   this->SetValidImageFileName(0);
   if (!this->IsValidImageSpecified())
     {
-    cout << "Valid image not specified" << endl;
     return this->ValidImageFileName;
     }
   
