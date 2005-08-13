@@ -1391,7 +1391,7 @@ void vtkExodusMetadata::Finalize()
 }
 
 
-vtkCxxRevisionMacro(vtkExodusReader, "1.8");
+vtkCxxRevisionMacro(vtkExodusReader, "1.9");
 vtkStandardNewMacro(vtkExodusReader);
 
 #ifdef ARRAY_TYPE_NAMES_IN_CXX_FILE
@@ -4369,7 +4369,7 @@ int vtkExodusReader::OpenCurrentFile()
   int result = 0;
 
   // is there a file open now?
-  if ( this->CurrentHandle == -1 ) 
+  if ( this->CurrentHandle == -1 && this->FileName ) 
     {
     this->CurrentHandle = ex_open( this->FileName, EX_READ, 
                                    &(this->ExodusCPUWordSize),
