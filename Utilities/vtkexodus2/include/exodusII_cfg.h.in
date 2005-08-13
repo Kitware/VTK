@@ -14,9 +14,9 @@
 #cmakedefine EXODUSII_BUILD_SHARED_LIBS
 #if defined(WIN32) && defined(EXODUSII_BUILD_SHARED_LIBS)
 #  if defined(vtkexoIIc_EXPORTS)
-#    define EXODUS_EXPORT __declspec( dllexport ) 
+#    define EXODUS_EXPORT __declspec( dllexport ) extern
 #  else
-#    define EXODUS_EXPORT __declspec( dllimport ) 
+#    define EXODUS_EXPORT __declspec( dllimport ) extern
 #  endif
 #else
 #  define EXODUS_EXPORT extern
