@@ -23,8 +23,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       )
   ENDIF (VTK_DATA_ROOT)
   CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-                         EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
-                         FUNCTION vtkSuppressCrtDbgWarning)
+                         EXTRA_INCLUDE vtkTestDriver.h)
   ADD_EXECUTABLE(${KIT}CxxTests ${Tests} 
     vtkTestHierarchicalDataReader.cxx)
   TARGET_LINK_LIBRARIES(${KIT}CxxTests vtkRendering vtkIO)

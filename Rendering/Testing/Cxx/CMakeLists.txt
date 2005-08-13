@@ -17,8 +17,7 @@ ENDIF(VTK_USE_DISPLAY)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   ${RenderingTests};${RenderingTestsWithArguments}
-  EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
-  FUNCTION vtkSuppressCrtDbgWarning
+  EXTRA_INCLUDE vtkTestDriver.h
   )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

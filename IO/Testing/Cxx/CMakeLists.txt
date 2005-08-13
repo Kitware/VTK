@@ -4,8 +4,7 @@ SET(KIT IO)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
-  EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
-  FUNCTION vtkSuppressCrtDbgWarning
+  EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})

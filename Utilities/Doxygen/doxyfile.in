@@ -84,7 +84,7 @@ EXCLUDE              = \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/vtkFreeTypeFontCache.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/fonts/vtkEmbeddedFonts.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Rendering/Testing/vtkRegressionTestImage.h" \
-    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkSuppressCrtDbgWarning.h" \
+    "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestDriver.h" \
     "@VTK_BINARY_DIR@/Utilities/Doxygen/dox/Common/Testing/vtkTestingColors.h"
 
 # TAGFILES           = "@VTK_BINARY_DIR@/Utilities/Doxygen/vtk4-nightly.tag"=http://www.vtk.org/doc/nightly/html

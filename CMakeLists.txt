@@ -582,6 +582,14 @@ IF(BUILD_TESTING)
   MARK_AS_ADVANCED(VTK_USE_DISPLAY)
 ENDIF(BUILD_TESTING)
 
+SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "    try {")
+SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
+    catch(vtkstd::exception& e)
+      {
+      fprintf(stderr, \"Test driver caught exception: [%s]\\n\", e.what());
+      result = -1;
+      }")
+
 #-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.
 OPTION(VTK_WRAP_TCL "Wrap VTK classes into the TCL language." OFF)

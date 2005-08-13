@@ -70,8 +70,7 @@ ENDIF (VTK_DATA_ROOT)
 #
 # Create a test lists
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx ${MyTests}
-  EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
-  FUNCTION vtkSuppressCrtDbgWarning
+  EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests} ${Kit_SRCS} )

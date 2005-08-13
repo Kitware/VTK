@@ -4,8 +4,7 @@ SET(KIT Filtering)
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   quadCellConsistency.cxx
   otherColorTransferFunction.cxx
-  EXTRA_INCLUDE vtkSuppressCrtDbgWarning.h
-  FUNCTION vtkSuppressCrtDbgWarning
+  EXTRA_INCLUDE vtkTestDriver.h
 )
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
