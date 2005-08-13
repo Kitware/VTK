@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.25");
+vtkCxxRevisionMacro(vtkDataObject, "1.26");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -622,14 +622,30 @@ void vtkDataObject::SetActiveAttributeInfo(vtkInformation *info,
     {
     attrInfo->Set(FIELD_NAME(), name);
     }
+
+  // Set the scalar type if it was given.  If it was not given and
+  // there is no current scalar type set the default to VTK_DOUBLE.
   if (arrayType != -1)
     {
     attrInfo->Set(FIELD_ARRAY_TYPE(), arrayType);
     }
+  else if(!attrInfo->Has(FIELD_ARRAY_TYPE()))
+    {
+    attrInfo->Set(FIELD_ARRAY_TYPE(), VTK_DOUBLE);
+    }
+
+  // Set the number of components if it was given.  If it was not
+  // given and there is no current number of components set the
+  // default to 1.
   if (numComponents != -1)
     {
     attrInfo->Set(FIELD_NUMBER_OF_COMPONENTS(), numComponents);
     }
+  else if(!attrInfo->Has(FIELD_NUMBER_OF_COMPONENTS()))
+    {
+    attrInfo->Set(FIELD_NUMBER_OF_COMPONENTS(), 1);
+    }
+
   if (numTuples != -1)
     {
     attrInfo->Set(FIELD_NUMBER_OF_TUPLES(), numTuples);
