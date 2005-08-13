@@ -19,13 +19,13 @@
 #include "vtkCommand.h"
 
 #if defined(WIN32)
-#if defined(vtkCommonPython_EXPORTS)
-  #define VTK_PYTHON_EXPORT __declspec( dllexport )
+# if defined(vtkCommonPythonD_EXPORTS)
+#  define VTK_PYTHON_EXPORT __declspec(dllexport)
+# else
+#  define VTK_PYTHON_EXPORT __declspec(dllimport)
+# endif
 #else
-    #define VTK_PYTHON_EXPORT __declspec( dllimport )
-#endif
-#else
-  #define VTK_PYTHON_EXPORT
+# define VTK_PYTHON_EXPORT
 #endif
 
 // This is the VTK/Python 'class,' it contains the method list and a pointer
