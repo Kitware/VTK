@@ -65,6 +65,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkParallelInstantiator.h"
 #endif
 
+#include <vtkstd/string>
+#include <vtksys/SystemTools.hxx>
+
 static void vtkTkAppInitEnableMSVCDebugHook();
 
 // I need those two Tcl functions. They usually are declared in tclIntDecls.h,
@@ -135,7 +138,8 @@ main(int argc, char **argv)
   // (like finding the encodings, setting variables depending on the value
   // of TCL_LIBRARY, TK_LIBRARY
 
-  Tcl_FindExecutable(argv[0]);
+  vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+  Tcl_FindExecutable(av0.c_str());
 
 #ifdef VTK_USE_RENDERING
   Tk_Main(argc, argv, Tcl_AppInit);
@@ -467,9 +471,9 @@ int Tcl_AppInit(Tcl_Interp *interp)
   static char script[] =
     "foreach dir [list "
 #if defined(CMAKE_INTDIR)
-    " [file join [file dirname [file dirname [file dirname [file normalize [info nameofexecutable]]]]] Wrapping Tcl " CMAKE_INTDIR "]"
+    " [file join [file dirname [file dirname [file dirname [info nameofexecutable]]]] Wrapping Tcl " CMAKE_INTDIR "]"
 #else
-    " [file join [file dirname [file dirname [file normalize [info nameofexecutable]]]] Wrapping Tcl]"
+    " [file join [file dirname [file dirname [info nameofexecutable]]] Wrapping Tcl]"
 #endif
     " ] {\n"
     "  if {[file isdirectory \"$dir\"]} {\n"
