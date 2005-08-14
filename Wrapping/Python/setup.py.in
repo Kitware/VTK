@@ -13,19 +13,25 @@ import os
 import os.path
 from types import StringType
 from distutils.core import setup
-from distutils.util import change_root, convert_path
 from distutils.command.install_data import install_data
 from distutils.sysconfig import get_config_var
+
+# Support for Python Eggs:
+#  http://peak.telecommunity.com/DevCenter/PythonEggs
+#  http://peak.telecommunity.com/DevCenter/EasyInstall
+has_setup_tools = 0
+# Uncomment the following two lines if you need to build an Egg.
+# This is commented out by default since the install rule seems
+# broken for setuptools-0.5a13.
+#from setuptools import setup
+#has_setup_tools = 1
+
 
 version = "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
 
 build_lib_dir = "${LIBRARY_OUTPUT_PATH}"
 
 build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
-
-# You can change this to suit your needs.  However you must make sure
-# that under *nix the libvtk*Python*.so in the specified directory.
-install_lib_dir = "${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_LIB_DIR}"
 
 # The build type ('Release', 'Debug' etc.)
 build_type = "${CMAKE_BUILD_TYPE}"
@@ -35,19 +41,17 @@ def get_libs():
     """Returns a list of libraries to be installed.  """
     libs = []
     if os.name == 'posix':
-        libs = glob.glob(os.path.abspath(os.path.join(
-            install_lib_dir, 'libvtk*Python*' + get_config_var('SO'))))
+        pth = os.path.join(build_lib_dir,
+                           'libvtk*Python' + get_config_var('SO'))
+        libs = glob.glob(os.path.abspath(pth))
     else:
-        d = os.path.normpath(build_lib_dir)
-        if not os.path.isfile(os.path.join(d, 'vtkCommonPython.dll')):
-            d = os.path.normpath(os.path.join(build_lib_dir, 'release'))
-            
+        d = os.path.join(build_bin_dir, build_type)
         libs = glob.glob(os.path.join(d, 'vtk*Python.dll'))
 
     return libs
 
 
-def get_scripts():    
+def get_scripts():
     """Returns the appropriate vtkpython executable and pvtkpython
     that is to be installed."""
     scripts = []
@@ -57,10 +61,11 @@ def get_scripts():
             if os.path.exists(f):
                 scripts.append(f)
     else:
-        # Under win32 the binary is insider a sub-directory.
-        win32_bin_dir = os.path.join(build_bin_dir, build_type)
+        # Under win32 the binary is inside a sub-directory.
+        win32_bin_dir = os.path.normpath(os.path.join(build_bin_dir,
+                                                      build_type))
         for i in ('vtkpython.exe', 'pvtkpython.exe'):
-            f = os.path.join(os.path.normpath(win32_bin_dir), i)
+            f = os.path.join(win32_bin_dir, i)
             if os.path.exists(f):
                 scripts.append(f)
     return scripts
@@ -74,52 +79,32 @@ class my_install_data (install_data):
                                     ('root', 'root'),
                                     ('force', 'force'),
                                     )
-    def run (self):
-        """Slightly modified from original to make symlinks to the
-        libvtk*Python.so libraries"""
-        self.mkpath(self.install_dir)
-        for f in self.data_files:
-            if type(f) == StringType:
-                # it's a simple file, so copy it
-                f = convert_path(f)
-                if self.warn_dir:
-                    self.warn("setup script did not provide a directory for "
-                              "'%s' -- installing right in '%s'" %
-                              (f, self.install_dir))
-                (out, _) = self.copy_file(f, self.install_dir)
-                self.outfiles.append(out)
-            else:
-                # it's a tuple with path to install to and a list of files
-                dir = convert_path(f[0])
-                if not os.path.isabs(dir):
-                    dir = os.path.join(self.install_dir, dir)
-                elif self.root:
-                    dir = change_root(self.root, dir)
-                self.mkpath(dir)
-                for data in f[1]:
-                    data = convert_path(data)
-                    # do symlinking if ! posix and library.
-                    if (os.path.basename(data)[:6] == 'libvtk') and \
-                       (os.name == 'posix'):
-                        (out, _) = self.copy_file(data, dir, link='sym')
-                    else:
-                        (out, _) = self.copy_file(data, dir)
-                    self.outfiles.append(out)
-      
-        
 
-setup (name              = "VTK",
-       version           = version,
-       description       = "The Visualization Toolkit",
-       maintainer        = "VTK Developers",
-       maintainer_email  = "vtk-developers@public.kitware.com",
-       licence           = "BSD",
-       long_description  = "A high level visualization library",
-       url               = "http://www.vtk.org/",
-       platforms         = ['Any'],
-       cmdclass          = {'install_data': my_install_data},
-       packages          = ['vtk', 'vtk.gtk', 'vtk.qt', 'vtk.tk',
-                            'vtk.util', 'vtk.wx', 'vtk.test'],
-       scripts           = get_scripts(),
-       data_files        = [('vtk', get_libs())]
-       )
+if __name__ == '__main__':
+    def mk_dict(**kw):
+        # Unnecessary in recent Pythons but handy for earlier
+        # versions.
+        return kw
+
+    # The options for setup.
+    opts = mk_dict(name              = "VTK",
+                   version           = version,
+                   description       = "The Visualization Toolkit",
+                   maintainer        = "VTK Developers",
+                   maintainer_email  = "vtk-developers@vtk.org",
+                   license           = "BSD",
+                   long_description  = "A high level visualization library",
+                   url               = "http://www.vtk.org/",
+                   platforms         = ['Any'],
+                   cmdclass          = {'install_data': my_install_data},
+                   packages          = ['vtk', 'vtk.gtk', 'vtk.qt', 'vtk.tk',
+                                        'vtk.util', 'vtk.wx', 'vtk.test'],
+                   scripts           = get_scripts(),
+                   data_files        = [('vtk', get_libs())]
+                   )
+    # If setup_tools is available, then add an extra option to disable
+    # creation of a ZIP file.
+    if has_setup_tools:
+        opts['zip_safe'] = 0
+
+    setup(**opts)
