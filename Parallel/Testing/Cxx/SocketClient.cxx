@@ -327,6 +327,7 @@ int main(int argc, char** argv)
   vtkContourFilter* iso3 = vtkContourFilter::New();
   vtkImageData* id = vtkImageData::New();
   id->ShallowCopy(ip->GetImageDataOutput());
+  vtkGenericWarningMacro("Number of points: " << id->GetNumberOfPoints());
   iso3->SetInput(id);
   id->Delete();
   iso3->SetValue(0, .205);
