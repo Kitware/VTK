@@ -93,6 +93,7 @@ IF (VTK_USE_PARALLEL)
     ENDIF(VTK_USE_CARBON)
 
     TARGET_LINK_LIBRARIES (pvtk
+      vtksys
       vtkCommonTCL
       vtkFilteringTCL
       vtkGraphicsTCL
