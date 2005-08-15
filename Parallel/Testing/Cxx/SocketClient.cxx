@@ -29,7 +29,10 @@
 #include "vtkStructuredGrid.h"
 #include "vtkImageData.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkTubeFilter.h"
+#include "vtkCamera.h"
+#include "vtkImageActor.h"
+
+#include "vtkRenderWindowInteractor.h"
 
 static const int scMsgLength = 10;
 
@@ -318,34 +321,21 @@ int main(int argc, char** argv)
 
   vtkActor* sgactor = vtkActor::New();
   sgactor->SetMapper(sgmapper);
-  sgactor->SetPosition(10, -5, 0);
+  sgactor->SetPosition(10, -5, -40);
   sgmapper->UnRegister(0);
 
   // Get image data
   ip->UpdateWholeExtent();
 
-  vtkContourFilter* iso3 = vtkContourFilter::New();
   vtkImageData* id = vtkImageData::New();
   id->ShallowCopy(ip->GetImageDataOutput());
-  vtkGenericWarningMacro("Number of points: " << id->GetNumberOfPoints());
-  iso3->SetInput(id);
-  id->Delete();
-  iso3->SetValue(0, .205);
   contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
-  vtkTubeFilter* tube = vtkTubeFilter::New();
-  tube->SetRadius(100);
-  tube->SetInputConnection(0, iso3->GetOutputPort());
-  iso3->UnRegister(0);
-  vtkPolyDataMapper* immapper = vtkPolyDataMapper::New();
-  immapper->SetInputConnection(0, tube->GetOutputPort());
-  tube->UnRegister(0);
-
-  vtkActor* imactor = vtkActor::New();
-  imactor->SetMapper(immapper);
-  imactor->SetPosition(10, 0, 0);
+  vtkImageActor* imactor = vtkImageActor::New();
+  imactor->SetInput(id);
+  id->Delete();
+  imactor->SetPosition(10, 0, 10);
   imactor->SetScale(0.02, 0.02, 0.02);
-  immapper->UnRegister(0);
 
   vtkRenderer* ren = vtkRenderer::New();
   ren->AddActor(uactor);
@@ -360,7 +350,9 @@ int main(int argc, char** argv)
   imactor->UnRegister(0);
 
   vtkRenderWindow* renWin = vtkRenderWindow::New();
+  renWin->SetSize(500,400);
   renWin->AddRenderer(ren);
+  ren->GetActiveCamera()->Zoom(2.2);
   ren->UnRegister(0);
 
   renWin->Render();
