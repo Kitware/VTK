@@ -38,7 +38,7 @@
 #include <math.h>
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.54");
+vtkCxxRevisionMacro(vtkOpenGLPolyDataMapper2D, "1.55");
 vtkStandardNewMacro(vtkOpenGLPolyDataMapper2D);
 #endif
 
@@ -240,11 +240,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glClipPlane((GLenum)(GL_CLIP_PLANE0+i),planeEquation);
     }
 
+  // Set the PointSize
+  glPointSize(actor->GetProperty()->GetPointSize());
+
   double *dptr;
-  aPrim = input->GetPolys();
+  aPrim = input->GetVerts();
+  glBegin(GL_POINTS);
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     { 
-    glBegin(GL_POLYGON);
     for (j = 0; j < npts; j++) 
       {
       if (c) 
@@ -264,8 +267,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0],dptr[1],0);
       }
-    glEnd();
     }
+  glEnd();
 
   // Set pointsize and linewidth for GL2PS output.
 #ifdef VTK_USE_GL2PS
@@ -322,13 +325,10 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
     glEnd();
     }
 
-  // Set the PointSize
-  glPointSize(actor->GetProperty()->GetPointSize());
-
-  aPrim = input->GetVerts();
-  glBegin(GL_POINTS);
+  aPrim = input->GetPolys();
   for (aPrim->InitTraversal(); aPrim->GetNextCell(npts,pts); cellNum++)
     {
+    glBegin(GL_POLYGON);
     for (j = 0; j < npts; j++)
       {
       if (c)
@@ -348,8 +348,8 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
       dptr = p->GetPoint(pts[j]);
       glVertex3d(dptr[0],dptr[1],0);
       }
+    glEnd();
     }
-  glEnd();
 
   if ( this->TransformCoordinate )
     {
