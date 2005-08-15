@@ -22,6 +22,12 @@
 // include.
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 # pragma warning (disable: 4514) /* unreferenced inline function */
+
+// Temporary suppression of this warning from CMake generated TestDriver
+// code until it can be fixed in the generator...
+# pragma warning (disable: 4701) /* local variable 'x' may be used
+                                    without having been initialized */
+
 #endif
 
 #include <vtkstd/exception> // for vtkstd::exception
