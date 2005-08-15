@@ -37,7 +37,7 @@
 
 //-----------------------------------------------------------------------------
 
-vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridPreIntegration, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridPreIntegration);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridPreIntegration, Integrator,
@@ -124,6 +124,24 @@ float *vtkUnstructuredGridPreIntegration::GetPreIntegrationTable(int component)
 
 void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *scalars)
 {
+  // Delete old tables.
+  if (this->IntegrationTable)
+    {
+    for (int i = 0; i < this->NumComponents; i++)
+      {
+      delete[] this->IntegrationTable[i];
+      }
+    delete[] this->IntegrationTable;
+    }
+  if (this->IntegrationTableScalarShift)
+    {
+    delete[] this->IntegrationTableScalarShift;
+    }
+  if (this->IntegrationTableScalarScale)
+    {
+    delete[] this->IntegrationTableScalarScale;
+    }
+
   // Establish temporary inputs to integrator.
   vtkVolume         *tmpVolume = vtkVolume::New();
   vtkVolumeProperty *tmpProperty = vtkVolumeProperty::New();
@@ -171,10 +189,44 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     float *c;
 
     // Allocate table.
-    this->IntegrationTable[component]
-      = new float[4*this->IntegrationTableScalarResolution
-                 *this->IntegrationTableScalarResolution
-                 *this->IntegrationTableLengthResolution];
+    try
+      {
+      this->IntegrationTable[component]
+        = new float[4*this->IntegrationTableScalarResolution
+                   *this->IntegrationTableScalarResolution
+                   *this->IntegrationTableLengthResolution];
+      }
+    catch (...)
+      {
+      this->IntegrationTable[component] = NULL;
+      }
+
+    if (this->IntegrationTable[component] == NULL)
+      {
+      // Could not allocate memory for table.
+      if (   (this->IntegrationTableScalarResolution > 32)
+          || (this->IntegrationTableLengthResolution > 64) )
+        {
+        vtkWarningMacro("Could not allocate integration table.\n"
+                        "Reducing the table size and trying again.");
+        for (int i = 0; i < component; i++)
+          {
+          delete[] this->IntegrationTable[i];
+          }
+        delete[] this->IntegrationTable;
+        this->IntegrationTable = NULL;
+
+        this->IntegrationTableScalarResolution = 32;
+        this->IntegrationTableLengthResolution = 64;
+        this->BuildPreIntegrationTables(scalars);
+        }
+      else
+        {
+        vtkErrorMacro("Could not allocate integration table.");
+        }
+      break;
+      }
+
     // Determine scale and shift.
     double *range = scalars->GetRange(component);
     if (range[0] == range[1])
@@ -339,15 +391,6 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
     // Nothing changed from the last time Initialize was run.
     return;
     }
-
-  // Delete old tables.
-  for (i = 0; i < this->NumComponents; i++)
-    {
-    delete[] this->IntegrationTable[i];
-    }
-  delete[] this->IntegrationTable;
-  delete[] this->IntegrationTableScalarShift;
-  delete[] this->IntegrationTableScalarScale;
 
   this->NumComponents = scalars->GetNumberOfComponents();
   this->Property = property;
