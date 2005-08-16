@@ -22,7 +22,7 @@ vtkPolyDataMapper mapper
 vtkActor actor0
   actor0 SetMapper mapper
 
-# Create the RenderWindow, Renderer and both Actors
+# Create the RenderWindow, Renderer and interactor
 #
 vtkRenderer ren1
 vtkRenderWindow renWin
@@ -30,7 +30,7 @@ vtkRenderWindow renWin
 vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
-# Add the actors to the renderer, set the background and size
+# Add the actor to the renderer, set the background and size
 #
 ren1 AddActor actor0
 ren1 SetBackground 0 0 0
