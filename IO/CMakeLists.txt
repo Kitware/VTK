@@ -38,6 +38,7 @@ vtkGESignaReader.cxx
 vtkGAMBITReader.cxx
 vtkGaussianCubeReader.cxx
 vtkGenericEnSightReader.cxx
+vtkGenericMovieWriter.cxx
 vtkIVWriter.cxx
 vtkImageReader.cxx
 vtkImageReader2.cxx
@@ -135,6 +136,7 @@ vtkZLibDataCompressor.cxx
 SET_SOURCE_FILES_PROPERTIES(
 vtkDataCompressor
 vtkEnSightReader
+vtkGenericMovieWriter
 vtkMoleculeReaderBase
 vtkVolumeReader
 vtkWriter
@@ -153,6 +155,19 @@ vtkXMLUnstructuredDataWriter
 vtkXMLWriter
 ABSTRACT
 )
+
+IF(WIN32)
+  SET(Kit_SRCS ${Kit_SRCS} vtkAVIWriter.cxx)
+  SET(KIT_LIBS ${KIT_LIBS} vfw32)
+ENDIF(WIN32)
+
+# Include mpeg2 writer if the mpeg2 lib has been defined
+
+IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
+  SET(Kit_SRCS ${Kit_SRCS} vtkMPEG2Writer.cxx)
+  INCLUDE_DIRECTORIES(${vtkMPEG2Encode_INCLUDE_PATH})
+  SET(KIT_LIBS ${KIT_LIBS} vtkMPEG2Encode)
+ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
 
 SET_SOURCE_FILES_PROPERTIES(
   vtkPLY
