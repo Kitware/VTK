@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.6");
+vtkCxxRevisionMacro(vtkChacoReader, "1.7");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -863,8 +863,8 @@ vtkIdType nvtxs,    // Number of vertices to read in
 int    igeom,       // Dimension (1, 2 or 3), or 0 if you don't know
 double *x, double *y, double *z)
 {
-  double xc, yc, zc;
-  int line_num, end_flag, ndims, i;
+  double xc=0.0, yc=0.0, zc=0.0;
+  int line_num, end_flag, ndims, i=0;
 
   rewind(this->CurrentGeometryFP);
 
