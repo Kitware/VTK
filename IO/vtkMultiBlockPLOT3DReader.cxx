@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.3");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.4");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -1043,6 +1043,10 @@ int vtkMultiBlockPLOT3DReader::RequestData(
   int minBlock = numBlocksPerPiece*updatePiece;
   int maxBlock = numBlocksPerPiece*(updatePiece+1);
   if (updatePiece == updateNumPieces - 1)
+    {
+    maxBlock = numBlocks;
+    }
+  if (maxBlock > numBlocks)
     {
     maxBlock = numBlocks;
     }
