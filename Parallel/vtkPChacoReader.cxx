@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.2");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.3");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -448,6 +448,10 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     mygrid->Delete();
     }
 
+#else
+  source = 0;
+  contr = NULL;
+  output = NULL;
 #endif
   return retVal;
 }
@@ -484,7 +488,10 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *c,
     }
 
   delete [] buf;
-
+#else
+  c = NULL;
+  to = 0;
+  grid = NULL;
 #endif
   return retVal;
 }
@@ -518,7 +525,9 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *c, int 
     ack = 0;
     contr->Send(&ack, 1, 0, 0x12);
     }
-
+#else
+  c = NULL;
+  from = 0;
 #endif
   return grid;
 }
