@@ -18,6 +18,7 @@ vtkBase64InputStream.cxx
 vtkBase64OutputStream.cxx
 vtkBase64Utilities.cxx
 vtkCGMWriter.cxx
+vtkChacoReader.cxx
 vtkDEMReader.cxx
 vtkDICOMImageReader.cxx
 vtkDataCompressor.cxx
