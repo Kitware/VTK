@@ -14,6 +14,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestJPEGReader
       TestTIFFReader
       TestBMPReader
+      TestChacoReader
       Plot3DScalars
       Plot3DVectors
       ParticleReader
