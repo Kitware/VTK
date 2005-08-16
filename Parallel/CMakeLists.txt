@@ -71,6 +71,7 @@ vtkOutputPort.cxx
 vtkParallelRenderManager.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
+vtkPChacoReader.cxx
 vtkPDataSetReader.cxx
 vtkPDataSetWriter.cxx
 vtkPImageWriter.cxx
