@@ -14,22 +14,42 @@
 =========================================================================*/
 // .NAME vtkPolyData - concrete dataset represents vertices, lines, polygons, and triangle strips
 // .SECTION Description
-// vtkPolyData is a data object that is a concrete implementation of 
-// vtkDataSet. vtkPolyData represents a geometric structure consisting of 
-// vertices, lines, polygons, and triangle strips. Point attribute values 
-// (e.g., scalars, vectors, etc.) also are represented.
+// vtkPolyData is a data object that is a concrete implementation of
+// vtkDataSet. vtkPolyData represents a geometric structure consisting of
+// vertices, lines, polygons, and/or triangle strips. Point and cell
+// attribute values (e.g., scalars, vectors, etc.) also are represented.
 //
 // The actual cell types (vtkCellType.h) supported by vtkPolyData are: 
-// vtkVertex, vtkPolyVertex, vtkLine, vtkPolyLine, vtkTriangle, 
-// vtkTriangleStrip, vtkPolygon, vtkPixel, and vtkQuad.
+// vtkVertex, vtkPolyVertex, vtkLine, vtkPolyLine, vtkTriangle, vtkQuad,
+// vtkPolygon, and vtkTriangleStrip.
 //
-// One important feature of vtkPolyData objects is that special traversal
-// and data manipulation methods are available to process data. These methods
-// are generally more efficient than vtkDataSet methods and should be used
+// One important feature of vtkPolyData objects is that special traversal and
+// data manipulation methods are available to process data. These methods are
+// generally more efficient than vtkDataSet methods and should be used
 // whenever possible. For example, traversing the cells in a dataset we would
 // use GetCell(). To traverse cells with vtkPolyData we would retrieve the
-// cell array object representing polygons (for example) and then use
-// vtkCellArray's InitTraversal() and GetNextCell() methods.
+// cell array object representing polygons (for example using GetPolys()) and
+// then use vtkCellArray's InitTraversal() and GetNextCell() methods.
+//
+// .SECTION Caveats
+// Because vtkPolyData is implemented with four separate instances of
+// vtkCellArray to represent 0D vertices, 1D lines, 2D polygons, and 2D
+// triangle strips, it is possible to create vtkPolyData instances that
+// consist of a mixture of cell types. Because of the design of the class,
+// there are certain limitations on how mixed cell types are inserted into
+// the vtkPolyData, and in turn the order in which they are processed and
+// rendered. To preserve the consistency of cell ids, and to insure that
+// cells with cell data are rendered properly, users must insert mixed cells
+// in the order of vertices (vtkVertex and vtkPolyVertex), lines (vtkLine and
+// vtkPolyLine), polygons (vtkTriangle, vtkQuad, vtkPolygon), and triangle
+// strips (vtkTriangleStrip).
+//
+// Some filters when processing vtkPolyData with mixed cell types may process
+// the cells in differing ways. Some will convert one type into another
+// (e.g., vtkTriangleStrip into vtkTriangles) or expect a certain type
+// (vtkDecimatePro expects triangles or triangle strips; vtkTubeFilter
+// expects lines). Read the documentation for each filter carefully to
+// understand how each part of vtkPolyData is processed.
 
 #ifndef __vtkPolyData_h
 #define __vtkPolyData_h
