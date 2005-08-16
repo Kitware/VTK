@@ -32,7 +32,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.1");
+vtkCxxRevisionMacro(vtkChacoReader, "1.2");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ int vtkChacoReader::RequestData(
   vtkInformationVector *outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  // get the ouptut
+
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -529,8 +529,6 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     {
     // Special case: there are no edges in this graph.  Every
     // vertex will be a cell.
-
-cout << "no edges - each vertex will be a VTK_VERTEX cell" << endl;
 
     ca->SetNumberOfValues(2*this->NumberOfVertices);
     vtkIdType *captr = ca->GetPointer(0);

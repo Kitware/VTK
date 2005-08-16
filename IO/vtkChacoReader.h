@@ -96,8 +96,6 @@ public:
   char *GetVertexWeightArrayName(int weight);
 
   // Description:
-
-  // Description:
   // Each edge in the Chaco file connects two vertices.  The file may 
   // specify one or more weights for each edge.  (The weight for an
   // edge from vertex A to vertex B equals the weight from B to A.)
