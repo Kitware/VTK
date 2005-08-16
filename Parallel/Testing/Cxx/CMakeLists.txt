@@ -1,3 +1,4 @@
+IF(VTK_USE_DISPLAY)
 ADD_EXECUTABLE(SocketServer SocketServer.cxx)
 ADD_EXECUTABLE(SocketClient SocketClient.cxx)
 
@@ -84,7 +85,7 @@ IF (VTK_DATA_ROOT)
       ENDIF(VTK_MPIRUN_EXE)
      ENDIF (UNIX)
     ELSE (VTK_USE_MPI)
-      IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+      IF (VTK_HAS_THREADS)
         ADD_TEST(ParallelIso-image ${CXX_TEST_PATH}/ParallelIsoTest
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
@@ -93,7 +94,7 @@ IF (VTK_DATA_ROOT)
                  -D ${VTK_DATA_ROOT}
                  -T ${VTK_BINARY_DIR}/Testing/Temporary
                  -V Baseline/Parallel/GenericCommunicator.cxx.png)
-      ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+      ENDIF (VTK_HAS_THREADS)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_RENDERING)
 
@@ -116,21 +117,21 @@ IF (VTK_DATA_ROOT)
 #
 ELSE (VTK_DATA_ROOT)
   IF (VTK_USE_RENDERING)
-    IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+    IF (VTK_HAS_THREADS)
       ADD_TEST(ThreadedCommunicator ${CXX_TEST_PATH}/ThreadedCommunicator)
-    ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+    ENDIF (VTK_HAS_THREADS)
     IF (VTK_USE_MPI)
      IF(UNIX)
-      IF (VTK_MPIRUN_EXE AND VTK_USE_DISPLAY)
+      IF (VTK_MPIRUN_EXE)
         ADD_TEST(TestCommunicatorMPI 
       ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
       ${CXX_TEST_PATH}/GenericCommunicator ${VTK_MPI_POSTFLAGS})
-      ENDIF(VTK_MPIRUN_EXE AND VTK_USE_DISPLAY)
+      ENDIF(VTK_MPIRUN_EXE)
      ENDIF(UNIX)
     ELSE (VTK_USE_MPI)
-      IF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+      IF (VTK_HAS_THREADS)
         ADD_TEST(TestCommunicator ${CXX_TEST_PATH}/GenericCommunicator)
-      ENDIF (VTK_HAS_THREADS AND VTK_USE_DISPLAY)
+      ENDIF (VTK_HAS_THREADS)
     ENDIF (VTK_USE_MPI)
   ENDIF (VTK_USE_RENDERING)
 ENDIF (VTK_DATA_ROOT)
@@ -150,4 +151,4 @@ IF (UNIX)
   ENDIF (VTK_DATA_ROOT)
  ENDIF (PYTHON_EXECUTABLE)
 ENDIF (UNIX)
-
+ENDIF(VTK_USE_DISPLAY)
