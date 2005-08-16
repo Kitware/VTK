@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.3");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.4");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -96,6 +96,12 @@ int vtkPChacoReader::RequestInformation(
   vtkInformationVector **inputVector,
   vtkInformationVector *outputVector)
 {
+  if (!this->BaseName)
+    {
+    vtkErrorMacro(<< "No BaseName specified");
+    return 0;
+    }
+
   // Setting maximum number of pieces to -1 indicates to the
   // upstream consumer that I can provide the same number of pieces
   // as there are number of processors
@@ -184,6 +190,12 @@ int vtkPChacoReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  if (!this->BaseName)
+    {
+    vtkErrorMacro(<< "No BaseName specified");
+    return 0;
+    }
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
