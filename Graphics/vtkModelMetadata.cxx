@@ -30,7 +30,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.2");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.3");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -4216,12 +4216,15 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
     os << this->NodeSetIds[i] << " ";
     }
   os << endl;
-  os << indent << "NodeSetSize: ";
-  for(i=0;i<this->NumberOfNodeSets;i++)
+  if (this->NodeSetSize)
     {
-    os << this->NodeSetSize[i] << " ";
+    os << indent << "NodeSetSize: ";
+    for(i=0;i<this->NumberOfNodeSets;i++)
+      {
+      os << this->NodeSetSize[i] << " ";
+      }
+    os << endl;
     }
-  os << endl;
   os << indent << "NodeSetNodeIdList: ";
   for(i=0;i<this->SumNodesPerNodeSet;i++)
     {
@@ -4244,12 +4247,15 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
     os << this->SideSetIds[i] << " ";
     }
   os << endl;
-  os << indent << "SideSetSize: ";
-  for(i=0;i<this->NumberOfSideSets;i++)
+  if (this->SideSetSize)
     {
-    os << this->SideSetSize[i] << " ";
+    os << indent << "SideSetSize: ";
+    for(i=0;i<this->NumberOfSideSets;i++)
+      {
+      os << this->SideSetSize[i] << " ";
+      }
+    os << endl;
     }
-  os << endl;
 //  os << indent << "SideSetNumberOfDistributionFactors: " <<
 //                  (this->SideSetNumberOfDistributionFactors?this->SideSetNumberOfDistributionFactors:"(none)" << endl;
   os << indent << "SideSetElementList: ";
