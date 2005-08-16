@@ -28,7 +28,7 @@
 #include "vtkProp.h"
 #include <vtkstd/vector>
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkRenderLargeImage, "1.34");
+vtkCxxRevisionMacro(vtkRenderLargeImage, "1.35");
 vtkStandardNewMacro(vtkRenderLargeImage);
 
 vtkCxxSetObjectMacro(vtkRenderLargeImage,Input,vtkRenderer);
@@ -325,7 +325,7 @@ void vtkRenderLargeImage::Rescale2DActors()
     rc = this->Input->GetRenderWindow()->GetRenderers();
     for (rc->InitTraversal(); (aren = rc->GetNextItem()); ) 
     {
-        pc = aren->GetProps();
+        pc = aren->GetViewProps();
         if (pc) 
         {
             for ( pc->InitTraversal(); (aProp = pc->GetNextProp()); ) 

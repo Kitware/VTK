@@ -49,16 +49,12 @@ public:
   void AddViewProp(vtkProp *);
 
   // Description:
-  // @deprecated Replaced by vtkViewport::AddViewProp() as of VTK 5.0.
-  VTK_LEGACY(void AddProp(vtkProp *));
-
-  // Description:
   // Return any props in this viewport.
-  vtkPropCollection *GetProps() {return this->Props;};
+  vtkPropCollection *GetViewProps() {return this->Props;};
 
   // Description:
   // Query if a prop is in the list of props.
-  int HasProp(vtkProp *);
+  int HasViewProp(vtkProp *);
 
   // Description:
   // Remove an actor from the list of actors.
@@ -66,7 +62,7 @@ public:
 
   // Description:
   // Remove all actors from the list of actors.
-  void RemoveAllProps(void);
+  void RemoveAllViewProps(void);
 
   // Description:
   // Add/Remove different types of props to the renderer.
@@ -233,6 +229,22 @@ public:
   VTK_LEGACY(void RemovePropW(vtkProp*));
   //ETX
 #endif
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::AddViewProp() as of VTK 5.0.
+  VTK_LEGACY(void AddProp(vtkProp *));
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::GetViewProps() as of VTK 5.0.
+  VTK_LEGACY(vtkPropCollection *GetProps());
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::HasViewProp() as of VTK 5.0.
+  VTK_LEGACY(int HasProp(vtkProp *));
+
+  // Description:
+  // @deprecated Replaced by vtkViewport::RemoveAllViewProps() as of VTK 5.0.
+  VTK_LEGACY(void RemoveAllProps());
 
 protected:
   // Create a vtkViewport with a black background, a white ambient light, 

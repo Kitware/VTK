@@ -36,7 +36,7 @@
 #include "vtkBox.h"
 #include "vtkImageActor.h"
 
-vtkCxxRevisionMacro(vtkPicker, "1.92");
+vtkCxxRevisionMacro(vtkPicker, "1.93");
 vtkStandardNewMacro(vtkPicker);
 
 // Construct object with initial tolerance of 1/40th of window. There are no
@@ -261,7 +261,7 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ,
     }
   else 
     {
-    props = renderer->GetProps();
+    props = renderer->GetViewProps();
     }
 
   vtkActor *actor;
