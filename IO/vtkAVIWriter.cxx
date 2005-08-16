@@ -32,7 +32,7 @@ public:
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkAVIWriter);
-vtkCxxRevisionMacro(vtkAVIWriter, "1.1");
+vtkCxxRevisionMacro(vtkAVIWriter, "1.2");
 
 //---------------------------------------------------------------------------
 vtkAVIWriter::vtkAVIWriter()
@@ -97,7 +97,7 @@ void vtkAVIWriter::Start()
   strhdr.fccHandler             = 0;
   strhdr.dwScale                = 1;
   strhdr.dwRate                 = this->Rate;
-  strhdr.dwQuality              = -1;
+  strhdr.dwQuality              = (DWORD) -1;
   strhdr.dwSuggestedBufferSize  = (wExtent[1] - wExtent[0] + 1)*
     (wExtent[3] - wExtent[2] + 1)*3;
   SetRect(&strhdr.rcFrame, 0, 0, wExtent[1] - wExtent[0] + 1, 
@@ -110,7 +110,7 @@ void vtkAVIWriter::Start()
 
   // do not want to display this dialog
   AVICOMPRESSOPTIONS opts;
-  AVICOMPRESSOPTIONS FAR * aopts[1] = {&opts};
+//  AVICOMPRESSOPTIONS FAR * aopts[1] = {&opts};
   memset(&opts, 0, sizeof(opts));  
 
   // need to setup opts
