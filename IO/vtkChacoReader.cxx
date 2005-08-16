@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.5");
+vtkCxxRevisionMacro(vtkChacoReader, "1.6");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,8 @@ int vtkChacoReader::RequestData(
 {
   if (!this->BaseName)
     {
-    return 1;
+    vtkErrorMacro(<< "No BaseName specified");
+    return 0;
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
