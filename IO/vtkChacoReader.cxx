@@ -19,6 +19,7 @@
 ----------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <ctype.h>
 #include "vtkChacoReader.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -32,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.2");
+vtkCxxRevisionMacro(vtkChacoReader, "1.3");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
