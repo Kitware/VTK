@@ -11,7 +11,7 @@ CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
 # working. Once a valid MovieWriter derived class is compiled
 # and linked in on other platforms, get rid of this IF:
 IF(WIN32)
-  SET(Tests ${Tests} TestMovieWriter.cxx)
+#  SET(Tests ${Tests} TestMovieWriter.cxx)
 ENDIF(WIN32)
 
 ADD_EXECUTABLE(${KIT}CxxTests ${Tests})
