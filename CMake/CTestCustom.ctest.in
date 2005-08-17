@@ -22,8 +22,8 @@ ENDIF("@CMAKE_SYSTEM@" MATCHES "OSF")
 
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
-  "Utilities/vtktiff/"      
-  "Utilities/vtkmpeg2encode/"      
+  "Utilities/vtktiff/"
+  "Utilities[/\\\\]vtkmpeg2encode.*warning"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "warning LNK4221"
   "variable .var_args[2]*. is used before its value is set"
