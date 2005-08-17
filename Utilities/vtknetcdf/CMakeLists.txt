@@ -136,13 +136,10 @@ FOREACH(type
     "int"
     "long"
     "short"
-    "unsigned char"
+    "uchar"
     )
   CHECK_TYPE_SIZE_EX("${type}")
 ENDFOREACH(type)
-IF(HAVE_SIZEOF_UNSIGNED_CHAR)
-  SET(uchar "unsigned char")
-ENDIF(HAVE_SIZEOF_UNSIGNED_CHAR)
 
 SET(testsrc
 "#include <sys/stat.h>
@@ -240,6 +237,9 @@ ENDIF(NOT HAVE_SIZEOF_SSIZE_T)
 IF(NOT HAVE_SIZEOF_PTRDIFF_T)
   SET(ptrdiff_t int)
 ENDIF(NOT HAVE_SIZEOF_PTRDIFF_T)
+IF(NOT HAVE_SIZEOF_UCHAR)
+  SET(uchar "unsigned char")
+ENDIF(NOT HAVE_SIZEOF_UCHAR)
 
 TEST_BIG_ENDIAN(WORDS_BIGENDIAN)
 
