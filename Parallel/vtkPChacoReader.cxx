@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.4");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.5");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -461,9 +461,10 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     }
 
 #else
-  source = 0;
-  contr = NULL;
-  output = NULL;
+  vtkErrorMacro(<< "vtkPChacoReader::DivideCells requires MPI");
+  (void)source;
+  (void)contr;
+  (void)output;
 #endif
   return retVal;
 }
@@ -501,9 +502,10 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *c,
 
   delete [] buf;
 #else
-  c = NULL;
-  to = 0;
-  grid = NULL;
+  vtkErrorMacro(<< "vtkPChacoReader::SendGrid requires MPI");
+  (void)c;
+  (void)to;
+  (void)grid;
 #endif
   return retVal;
 }
@@ -538,8 +540,9 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *c, int 
     contr->Send(&ack, 1, 0, 0x12);
     }
 #else
-  c = NULL;
-  from = 0;
+  vtkErrorMacro(<< "vtkPChacoReader::GetGrid requires MPI");
+  (void)c;
+  (void)from;
 #endif
   return grid;
 }
