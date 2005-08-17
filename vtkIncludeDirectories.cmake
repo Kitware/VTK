@@ -115,10 +115,10 @@ SET(VTK_INCLUDE_DIRS_SOURCE_TREE ${VTK_INCLUDE_DIRS_SOURCE_TREE}
 # Include directories needed for .cxx files in VTK.  These include
 # directories will NOT be available to user projects.
 SET(VTK_INCLUDE_DIRS_BUILD_TREE_CXX
-  ${VTKFREETYPE_SOURCE_DIR}/include
-  ${VTKFREETYPE_BINARY_DIR}
-  ${VTKFTGL_SOURCE_DIR}/src
-  ${VTKFTGL_BINARY_DIR}
+  ${VTK_SOURCE_DIR}/Utilities/vtkfreetype/include
+  ${VTK_BINARY_DIR}/Utilities/vtkfreetype
+  ${VTK_SOURCE_DIR}/Utilities/ftgl/src
+  ${VTK_BINARY_DIR}/Utilities/ftgl
 )
 
 IF(VTK_RENDERING_NEED_TK_INTERNAL)
