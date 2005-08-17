@@ -749,8 +749,18 @@ ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 1.8)
 # Utility libraries and executables.
 SUBDIRS(Wrapping Utilities)
 
-# Kits.
-SUBDIRS(Common Filtering Imaging Graphics GenericFiltering IO)
+# Build the subdirector for each kit.  The vtkIO kit depends on
+# vtkMPEG2Encode which depends on vtkImaging so we build things in
+# that order (this ordering is not necessary with CMake 2.2 or
+# higher).
+SUBDIRS(
+  Common
+  Filtering
+  Imaging
+  Utilities/vtkmpeg2encode
+  Graphics
+  GenericFiltering
+  IO)
 IF(VTK_USE_RENDERING)
   SUBDIRS(Rendering)
   SUBDIRS(VolumeRendering)
