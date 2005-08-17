@@ -158,8 +158,10 @@ ABSTRACT
 )
 
 IF(WIN32)
-  SET(Kit_SRCS ${Kit_SRCS} vtkAVIWriter.cxx)
-  SET(KIT_LIBS ${KIT_LIBS} vfw32)
+  IF(VTK_USE_VIDEO_FOR_WINDOWS)
+    SET(Kit_SRCS ${Kit_SRCS} vtkAVIWriter.cxx)
+    SET(KIT_LIBS ${KIT_LIBS} vfw32)
+  ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
 ENDIF(WIN32)
 
 # Include mpeg2 writer if the mpeg2 lib has been defined
