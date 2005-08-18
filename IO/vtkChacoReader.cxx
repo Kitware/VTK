@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.7");
+vtkCxxRevisionMacro(vtkChacoReader, "1.8");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -89,9 +89,10 @@ vtkChacoReader::~vtkChacoReader()
 //----------------------------------------------------------------------------
 void vtkChacoReader::ClearWeightArrayNames()
 {
+  int i;
   if (this->VarrayName)
     {
-    for (int i=0; i<this->NumberOfVertexWeights; i++)
+    for (i=0; i<this->NumberOfVertexWeights; i++)
       {
       delete [] this->VarrayName[i];
       }
@@ -101,7 +102,7 @@ void vtkChacoReader::ClearWeightArrayNames()
 
   if (this->EarrayName)
     {
-    for (int i=0; i<this->NumberOfEdgeWeights; i++)
+    for (i=0; i<this->NumberOfEdgeWeights; i++)
       {
       delete [] this->EarrayName[i];
       }
@@ -111,10 +112,11 @@ void vtkChacoReader::ClearWeightArrayNames()
 }
 void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
 {
+  int i;
   if (nv > 0)
     {
     this->VarrayName = new char *[nv];
-    for (int i=0; i<nv; i++)
+    for (i=0; i<nv; i++)
       {
       this->VarrayName[i] = new char [64];
       sprintf(this->VarrayName[i], "VertexWeight%d", i+1); 
@@ -123,7 +125,7 @@ void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
   if (ne > 0)
     {
     this->EarrayName = new char *[ne];
-    for (int i=0; i<ne; i++)
+    for (i=0; i<ne; i++)
       {
       this->EarrayName[i] = new char [64];
       sprintf(this->EarrayName[i], "EdgeWeight%d", i+1); 
@@ -164,7 +166,8 @@ int vtkChacoReader::RequestInformation(
 
   if (!this->BaseName)
     {
-    return 1;
+    vtkErrorMacro(<< "No BaseName specified");
+    return 0;
     }
 
   int newFile = 
@@ -236,6 +239,7 @@ int vtkChacoReader::RequestData(
 //----------------------------------------------------------------------------
 int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 {
+  int i;
   if ( this->OpenCurrentFile() != 1 )
     {
     vtkWarningMacro(<< "Can't open file");
@@ -308,7 +312,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 
     if (haveVertexWeightArrays && !this->GenerateVertexWeightArrays)
       {
-      for (int i=0; i<this->NumberOfVertexWeights; i++)
+      for (i=0; i<this->NumberOfVertexWeights; i++)
          {
          this->DataCache->GetPointData()->RemoveArray(this->VarrayName[i]);
          }
@@ -318,7 +322,7 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 
     if (haveEdgeWeightArrays && !this->GenerateEdgeWeightArrays)
       {
-      for (int i=0; i<this->NumberOfEdgeWeights; i++)
+      for (i=0; i<this->NumberOfEdgeWeights; i++)
          {
          this->DataCache->GetCellData()->RemoveArray(this->EarrayName[i]);
          }
@@ -368,6 +372,9 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 //----------------------------------------------------------------------------
 int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 {
+  int i;
+  vtkIdType id;
+
   // Reset the entire unstructured grid
   output->Reset();
 
@@ -430,23 +437,23 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 
   if (this->Dimensionality == 3)
     {
-    for (vtkIdType i=0; i<this->NumberOfVertices; i++)
+    for (id=0; id<this->NumberOfVertices; id++)
       {
-      ptarray->InsertNextPoint(x[i], y[i], z[i]);
+      ptarray->InsertNextPoint(x[id], y[id], z[id]);
       }
     }
   else if (this->Dimensionality == 2)
     {
-    for (vtkIdType i=0; i<this->NumberOfVertices; i++)
+    for (id=0; id<this->NumberOfVertices; id++)
       {
-      ptarray->InsertNextPoint(x[i], y[i], 0.0);
+      ptarray->InsertNextPoint(x[id], y[id], 0.0);
       }
     }
   else if (this->Dimensionality == 1)
     {
-    for (vtkIdType i=0; i<this->NumberOfVertices; i++)
+    for (id=0; id<this->NumberOfVertices; id++)
       {
-      ptarray->InsertNextPoint(x[i], 0.0, 0.0);
+      ptarray->InsertNextPoint(x[id], 0.0, 0.0);
       }
     }
 
@@ -509,7 +516,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (vw)
     {
     varrays = new vtkDoubleArray * [this->NumberOfVertexWeights];
-    for (int i=0; i<this->NumberOfVertexWeights; i++)
+    for (i=0; i<this->NumberOfVertexWeights; i++)
       {
       varrays[i] = vtkDoubleArray::New();
       varrays[i]->SetNumberOfValues(this->NumberOfVertices);
@@ -521,7 +528,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (ew)
     {
     earrays = new vtkDoubleArray * [this->NumberOfEdgeWeights];
-    for (int i=0; i<this->NumberOfEdgeWeights; i++)
+    for (i=0; i<this->NumberOfEdgeWeights; i++)
       {
       earrays[i] = vtkDoubleArray::New();
       earrays[i]->SetNumberOfValues(this->NumberOfEdges);
@@ -540,16 +547,16 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
     ca->SetNumberOfValues(2*this->NumberOfVertices);
     vtkIdType *captr = ca->GetPointer(0);
 
-    for (vtkIdType i=0; i<this->NumberOfVertices; i++)
+    for (id=0; id<this->NumberOfVertices; id++)
       {
       *captr++ = 1;  // number of vertices in cell
-      *captr++ = i;  // internal ID of vertex
+      *captr++ = id;  // internal ID of vertex
 
       if (vw)
         {
         for (int w=0; w<this->NumberOfVertexWeights; w++)
           {
-          varrays[w]->SetValue(i, *vwgt++);
+          varrays[w]->SetValue(id, *vwgt++);
           }
         }
       }
@@ -568,7 +575,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   
     vtkIdType edgeNum = -1;
   
-    for (vtkIdType id=0; id < this->NumberOfVertices; id++)
+    for (id=0; id < this->NumberOfVertices; id++)
       {
       // Each edge in the Chaco file is listed twice, for each
       // vertex.  We only save the edge once.
@@ -599,7 +606,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
             {
             // Save the edge weights associated with this edge
   
-            for (int i=0; i<this->NumberOfEdgeWeights; i++)
+            for (i=0; i<this->NumberOfEdgeWeights; i++)
               {
               earrays[i]->SetValue(edgeNum, *ewgt++);
               }
@@ -617,7 +624,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   
       if (vw)
         {
-        for (int i=0; i<this->NumberOfVertexWeights; i++)
+        for (i=0; i<this->NumberOfVertexWeights; i++)
           {
           varrays[i]->SetValue(id, *vwgt++);
           }
@@ -657,7 +664,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (vw)
     {
     delete [] vweights;
-    for (int i=0; i<this->NumberOfVertexWeights; i++)
+    for (i=0; i<this->NumberOfVertexWeights; i++)
       {
       if (retVal)
         {
@@ -672,7 +679,7 @@ int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
   if (ew)
     {
     delete [] eweights;
-    for (int i=0; i<this->NumberOfEdgeWeights; i++)
+    for (i=0; i<this->NumberOfEdgeWeights; i++)
       {
       if (retVal)
         {
@@ -734,6 +741,7 @@ void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
 //----------------------------------------------------------------------------
 void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
+  int i;
   this->Superclass::PrintSelf(os,indent);
 
   if (this->GenerateGlobalElementIdArray)
@@ -782,12 +790,12 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfPointWeightArrays: " << this->NumberOfPointWeightArrays<< "\n";
   os << indent << "NumberOfCellWeightArrays: " << this->NumberOfCellWeightArrays<< "\n";
 
-  for (int i=1; i<=this->NumberOfPointWeightArrays; i++)
+  for (i=1; i<=this->NumberOfPointWeightArrays; i++)
     {
     cout << "vertex weight array name: " << this->GetVertexWeightArrayName(i) << endl;;
     }
 
-  for (int i=1; i<=this->NumberOfCellWeightArrays; i++)
+  for (i=1; i<=this->NumberOfCellWeightArrays; i++)
     {
     cout << "edge weight array name: " << this->GetEdgeWeightArrayName(i) << endl;;
     }
