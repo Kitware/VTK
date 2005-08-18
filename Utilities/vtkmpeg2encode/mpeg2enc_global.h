@@ -49,7 +49,11 @@ extern "C" {
 #endif
 #else
 /* not a Win32 system or building a static Win32 lib */
+#ifdef GLOBAL_DEF
+#define EXTERN(type)            type
+#else
 #define EXTERN(type)            extern type
+#endif
 #endif
 
 #include "mpeg2enc.h"
