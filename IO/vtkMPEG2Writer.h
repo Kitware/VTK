@@ -28,7 +28,7 @@ class vtkMPEG2WriterInternal;
 class vtkImageData;
 struct MPEG2_structure;
 
-class VTK_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
+class VTK_IO_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
 {
 public:
   static vtkMPEG2Writer *New();
