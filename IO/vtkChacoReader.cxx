@@ -33,7 +33,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkChacoReader, "1.8");
+vtkCxxRevisionMacro(vtkChacoReader, "1.9");
 vtkStandardNewMacro(vtkChacoReader);
 
 //----------------------------------------------------------------------------
@@ -89,7 +89,7 @@ vtkChacoReader::~vtkChacoReader()
 //----------------------------------------------------------------------------
 void vtkChacoReader::ClearWeightArrayNames()
 {
-  int i;
+  int i=0;
   if (this->VarrayName)
     {
     for (i=0; i<this->NumberOfVertexWeights; i++)
@@ -112,7 +112,7 @@ void vtkChacoReader::ClearWeightArrayNames()
 }
 void vtkChacoReader::MakeWeightArrayNames(int nv, int ne)
 {
-  int i;
+  int i=0;
   if (nv > 0)
     {
     this->VarrayName = new char *[nv];
@@ -239,7 +239,7 @@ int vtkChacoReader::RequestData(
 //----------------------------------------------------------------------------
 int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 {
-  int i;
+  int i=0;
   if ( this->OpenCurrentFile() != 1 )
     {
     vtkWarningMacro(<< "Can't open file");
@@ -372,8 +372,8 @@ int vtkChacoReader::BuildOutputGrid(vtkUnstructuredGrid *output)
 //----------------------------------------------------------------------------
 int vtkChacoReader::ReadFile(vtkUnstructuredGrid* output)
 {
-  int i;
-  vtkIdType id;
+  int i=0;
+  vtkIdType id=0;
 
   // Reset the entire unstructured grid
   output->Reset();
@@ -741,7 +741,7 @@ void vtkChacoReader::AddNodeIds(vtkUnstructuredGrid* output)
 //----------------------------------------------------------------------------
 void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 {
-  int i;
+  int i=0;
   this->Superclass::PrintSelf(os,indent);
 
   if (this->GenerateGlobalElementIdArray)
