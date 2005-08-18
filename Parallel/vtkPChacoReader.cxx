@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.5");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.6");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -190,6 +190,7 @@ int vtkPChacoReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
+  int i;
   if (!this->BaseName)
     {
     vtkErrorMacro(<< "No BaseName specified");
@@ -235,7 +236,7 @@ int vtkPChacoReader::RequestData(
 
     int nparticipants = 0;
 
-    for (int i=0; i<this->NumProcesses; i++)
+    for (i=0; i<this->NumProcesses; i++)
       {
       if ((myPiece[i] >= 0) && (myPiece[i] < numPieces))
         {
@@ -328,6 +329,7 @@ int vtkPChacoReader::RequestData(
 //----------------------------------------------------------------------------
 void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 {
+  int i;
   // Note: The cell and point arrays should be added in the same order in 
   // which they are added in vtkChacoReader::BuildOutputGrid.  See "Note" in
   // vtkChacoReader.cxx.
@@ -336,7 +338,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateVertexWeightArrays())
     {
-    for (int i=0; i < this->NumberOfVertexWeights; i++)
+    for (i=0; i < this->NumberOfVertexWeights; i++)
       {
       vtkDoubleArray *da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
@@ -351,7 +353,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 
   if (this->GetGenerateEdgeWeightArrays())
     {
-    for (int i=0; i < this->NumberOfEdgeWeights; i++)
+    for (i=0; i < this->NumberOfEdgeWeights; i++)
       {
       vtkDoubleArray *da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
@@ -386,6 +388,7 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr, 
                                   vtkUnstructuredGrid *output, int source)
 {
+  int i;
   int retVal = 1;
 
 #ifdef VTK_USE_MPI
@@ -405,7 +408,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
 
     vtkIdType startId = 0;
 
-    for (int i=0; i < nprocs; i++)
+    for (i=0; i < nprocs; i++)
       {
       if (!retVal && (i != myrank))
         {
