@@ -26,7 +26,7 @@
 
 class vtkMPEG2WriterInternal;
 class vtkImageData;
-struct vtkMPEG2Structure;
+struct MPEG2_structure;
 
 class VTK_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
 {
@@ -55,7 +55,7 @@ protected:
 
   int Initialized;
 
-  vtkMPEG2Structure* MPEGStructure;
+  MPEG2_structure* MPEGStructure;
 
 private:
   vtkMPEG2Writer(const vtkMPEG2Writer&); // Not implemented
