@@ -66,7 +66,7 @@
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.4");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.5");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -113,7 +113,6 @@ void vtkOpenGLVolumeTextureMapper3D::ReleaseGraphicsResources(vtkWindow
 
 void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
 {  
-
   ren->GetRenderWindow()->MakeCurrent();
   
   if ( !this->Initialized )
@@ -123,7 +122,7 @@ void vtkOpenGLVolumeTextureMapper3D::Render(vtkRenderer *ren, vtkVolume *vol)
   
   if ( this->RenderMethod == vtkVolumeTextureMapper3D::NO_METHOD )
     {
-    cout << "required extensions not supported" << endl;
+    vtkErrorMacro( "required extensions not supported" );
     return;
     }
 
@@ -1431,12 +1430,12 @@ void vtkOpenGLVolumeTextureMapper3D::RenderFourDependentShadeFP( vtkRenderer *re
 
 
 void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
-                                                            vtkVolume *vol,
-                                                            GLfloat lightDirection[2][4],
-                                                            GLfloat lightDiffuseColor[2][4],
-                                                            GLfloat lightSpecularColor[2][4],
-                                                            GLfloat halfwayVector[2][4],
-                                                            GLfloat ambientColor[4] )
+                                                          vtkVolume *vol,
+                                                          GLfloat lightDirection[2][4],
+                                                          GLfloat lightDiffuseColor[2][4],
+                                                          GLfloat lightSpecularColor[2][4],
+                                                          GLfloat halfwayVector[2][4],
+                                                          GLfloat ambientColor[4] )
 {
   float ambient = vol->GetProperty()->GetAmbient();
   float diffuse  = vol->GetProperty()->GetDiffuse();
@@ -1518,7 +1517,6 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
       
       vtkMath::Normalize( dir );
       
-      
       lightDiffuseColor[lightIndex][0] = lightColor[0]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][1] = lightColor[1]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][2] = lightColor[2]*diffuse*lightIntensity;
@@ -1556,7 +1554,7 @@ void vtkOpenGLVolumeTextureMapper3D::GetLightInformation( vtkRenderer *ren,
 }
 
 void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer *ren,
-                  vtkVolume *vol )
+                                                                     vtkVolume *vol )
 {
   GLfloat lightDirection[2][4];
   GLfloat lightDiffuseColor[2][4];
@@ -1589,6 +1587,9 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
   ren->GetActiveCamera()->GetPosition( cameraPosition );
   ren->GetActiveCamera()->GetFocalPoint( cameraFocalPoint );
   
+  volumeTransform->TransformPoint( cameraPosition, cameraPosition );
+  volumeTransform->TransformPoint( cameraFocalPoint, cameraFocalPoint );
+  
   double viewDirection[3];
   
   viewDirection[0] = cameraFocalPoint[0] - cameraPosition[0];
@@ -1597,8 +1598,6 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
   
   vtkMath::Normalize( viewDirection );
   
-  volumeTransform->TransformPoint( viewDirection, viewDirection );
-
   ambientColor[0] = 0.0;
   ambientColor[1] = 0.0;
   ambientColor[2] = 0.0;  
@@ -1634,13 +1633,14 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
       light[lightIndex]->GetTransformedPosition( lightPosition );
       light[lightIndex]->GetTransformedFocalPoint( lightFocalPoint );
       
+      volumeTransform->TransformPoint( lightPosition, lightPosition );
+      volumeTransform->TransformPoint( lightFocalPoint, lightFocalPoint );      
+      
       dir[0] = lightPosition[0] - lightFocalPoint[0];
       dir[1] = lightPosition[1] - lightFocalPoint[1];
       dir[2] = lightPosition[2] - lightFocalPoint[2];
       
       vtkMath::Normalize( dir );
-      
-      volumeTransform->TransformPoint( dir, dir );
       
       lightDiffuseColor[lightIndex][0] = lightColor[0]*diffuse*lightIntensity;
       lightDiffuseColor[lightIndex][1] = lightColor[1]*diffuse*lightIntensity;
