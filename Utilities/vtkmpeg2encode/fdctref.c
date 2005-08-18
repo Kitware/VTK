@@ -28,8 +28,9 @@
  */
 
 #include <math.h>
-
-#include "config.h"
+#include <stdio.h>
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 #ifndef PI
 # ifdef M_PI
@@ -40,13 +41,12 @@
 #endif
 
 /* global declarations */
-void MPEG2_init_fdct _ANSI_ARGS_((void));
 void MPEG2_fdct _ANSI_ARGS_((short *block));
 
 /* private data */
 static double c[8][8]; /* transform coefficients */
 
-void MPEG2_init_fdct()
+GLOBAL(void) MPEG2_init_fdct()
 {
   int i, j;
   double s;

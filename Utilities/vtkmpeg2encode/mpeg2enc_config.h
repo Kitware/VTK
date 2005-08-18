@@ -1,4 +1,4 @@
-/* config.h, configuration defines                                          */
+/* mpeg2enc_config.h, configuration defines                                          */
 
 /* Copyright (C) 1996, MPEG Software Simulation Group. All Rights Reserved. */
 

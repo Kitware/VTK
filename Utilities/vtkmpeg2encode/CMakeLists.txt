@@ -20,11 +20,22 @@ SET(srcs
   conform.c  motion.c    putbits.c  putpic.c  quantize.c  stats.c
   fdctref.c  puthdr.c   putseq.c  ratectl.c   transfrm.c
   idct.c     predict.c   putmpg.c   putvlc.c  readpic.c   writepic.c
-  vtkMPEG2WriterHelper.cxx
   )
 
 ADD_LIBRARY(vtkMPEG2Encode ${srcs})
-TARGET_LINK_LIBRARIES(vtkMPEG2Encode vtkImaging)
+
+IF (WIN32)
+  IF (BUILD_SHARED_LIBS)
+    ADD_DEFINITIONS(-DMPEG2ENCDLL)
+  ELSE (BUILD_SHARED_LIBS)
+    SET(MPEG2ENCSTATIC 1)
+  ENDIF (BUILD_SHARED_LIBS)
+ENDIF (WIN32)
+
+CONFIGURE_FILE(${vtkMPEG2Encode_SOURCE_DIR}/.NoDartCoverage
+               ${vtkMPEG2Encode_BINARY_DIR}/.NoDartCoverage)
+CONFIGURE_FILE(${vtkMPEG2Encode_SOURCE_DIR}/mpeg2encDllConfig.h.in
+               ${vtkMPEG2Encode_BINARY_DIR}/mpeg2encDllConfig.h)
 
 # Apply user-defined properties to the library target.
 IF(VTK_LIBRARY_PROPERTIES)

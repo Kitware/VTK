@@ -29,126 +29,126 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* private prototypes */
-static void read_y_u_v _ANSI_ARGS_((char *fname, unsigned char *frame[]));
-static void read_yuv _ANSI_ARGS_((char *fname, unsigned char *frame[]));
-static void read_ppm _ANSI_ARGS_((char *fname, unsigned char *frame[]));
-static void read_memory_ppm _ANSI_ARGS_((char *fname, unsigned char *frame[]));
+static void read_y_u_v _ANSI_ARGS_((char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct));
+static void read_yuv _ANSI_ARGS_((char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct));
+static void read_ppm _ANSI_ARGS_((char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct));
+static void read_memory_ppm _ANSI_ARGS_((char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct));
 static void border_extend _ANSI_ARGS_((unsigned char *frame, int w1, int h1,
   int w2, int h2));
-static void conv444to422 _ANSI_ARGS_((unsigned char *src, unsigned char *dst));
-static void conv422to420 _ANSI_ARGS_((unsigned char *src, unsigned char *dst));
+static void conv444to422 _ANSI_ARGS_((unsigned char *src, unsigned char *dst,struct MPEG2_structure *mpeg2_struct));
+static void conv422to420 _ANSI_ARGS_((unsigned char *src, unsigned char *dst,struct MPEG2_structure *mpeg2_struct));
 
-void MPEG2_readframe( char *fname, unsigned char *frame[])
+void MPEG2_readframe( char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct)
 {
-  switch (vtkMPEG2WriterStr->inputtype)
+  switch (mpeg2_struct->inputtype)
   {
   case T_Y_U_V:
-    read_y_u_v(fname,frame);
+    read_y_u_v(fname,frame,mpeg2_struct);
     break;
   case T_YUV:
-    read_yuv(fname,frame);
+    read_yuv(fname,frame,mpeg2_struct);
     break;
   case T_PPM:
-    read_ppm(fname,frame);
+    read_ppm(fname,frame,mpeg2_struct);
     break;
   case T_MEMPPM:
-    read_memory_ppm(fname,frame);
+    read_memory_ppm(fname,frame,mpeg2_struct);
     break;
   default:
     break;
   }
 }
 
-static void read_y_u_v( char *fname, unsigned char *frame[])
+static void read_y_u_v( char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct)
 {
   int i;
   int chrom_hsize, chrom_vsize;
   char name[128];
   FILE *fd;
 
-  chrom_hsize = (vtkMPEG2WriterStr->chroma_format==CHROMA444) ? vtkMPEG2WriterStr->horizontal_size
-                                           : vtkMPEG2WriterStr->horizontal_size>>1;
-  chrom_vsize = (vtkMPEG2WriterStr->chroma_format!=CHROMA420) ? vtkMPEG2WriterStr->vertical_size
-                                           : vtkMPEG2WriterStr->vertical_size>>1;
+  chrom_hsize = (mpeg2_struct->chroma_format==CHROMA444) ? mpeg2_struct->horizontal_size
+                                           : mpeg2_struct->horizontal_size>>1;
+  chrom_vsize = (mpeg2_struct->chroma_format!=CHROMA420) ? mpeg2_struct->vertical_size
+                                           : mpeg2_struct->vertical_size>>1;
 
   sprintf(name,"%s.Y",fname);
   if (!(fd = fopen(name,"rb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't open %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't open %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
-  for (i=0; i<vtkMPEG2WriterStr->vertical_size; i++)
-    fread(frame[0]+i*vtkMPEG2WriterStr->width,1,vtkMPEG2WriterStr->horizontal_size,fd);
+  for (i=0; i<mpeg2_struct->vertical_size; i++)
+    fread(frame[0]+i*mpeg2_struct->width,1,mpeg2_struct->horizontal_size,fd);
   fclose(fd);
-  border_extend(frame[0],vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
+  border_extend(frame[0],mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
 
   sprintf(name,"%s.U",fname);
   if (!(fd = fopen(name,"rb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't open %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't open %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
   for (i=0; i<chrom_vsize; i++)
-    fread(frame[1]+i*vtkMPEG2WriterStr->chrom_width,1,chrom_hsize,fd);
+    fread(frame[1]+i*mpeg2_struct->chrom_width,1,chrom_hsize,fd);
   fclose(fd);
-  border_extend(frame[1],chrom_hsize,chrom_vsize,vtkMPEG2WriterStr->chrom_width,vtkMPEG2WriterStr->chrom_height);
+  border_extend(frame[1],chrom_hsize,chrom_vsize,mpeg2_struct->chrom_width,mpeg2_struct->chrom_height);
 
   sprintf(name,"%s.V",fname);
   if (!(fd = fopen(name,"rb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't open %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't open %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
   for (i=0; i<chrom_vsize; i++)
-    fread(frame[2]+i*vtkMPEG2WriterStr->chrom_width,1,chrom_hsize,fd);
+    fread(frame[2]+i*mpeg2_struct->chrom_width,1,chrom_hsize,fd);
   fclose(fd);
-  border_extend(frame[2],chrom_hsize,chrom_vsize,vtkMPEG2WriterStr->chrom_width,vtkMPEG2WriterStr->chrom_height);
+  border_extend(frame[2],chrom_hsize,chrom_vsize,mpeg2_struct->chrom_width,mpeg2_struct->chrom_height);
 }
 
-static void read_yuv( char *fname, unsigned char *frame[])
+static void read_yuv( char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct)
 {
   int i;
   int chrom_hsize, chrom_vsize;
   char name[128];
   FILE *fd;
 
-  chrom_hsize = (vtkMPEG2WriterStr->chroma_format==CHROMA444) ? vtkMPEG2WriterStr->horizontal_size
-                                           : vtkMPEG2WriterStr->horizontal_size>>1;
-  chrom_vsize = (vtkMPEG2WriterStr->chroma_format!=CHROMA420) ? vtkMPEG2WriterStr->vertical_size
-                                           : vtkMPEG2WriterStr->vertical_size>>1;
+  chrom_hsize = (mpeg2_struct->chroma_format==CHROMA444) ? mpeg2_struct->horizontal_size
+                                           : mpeg2_struct->horizontal_size>>1;
+  chrom_vsize = (mpeg2_struct->chroma_format!=CHROMA420) ? mpeg2_struct->vertical_size
+                                           : mpeg2_struct->vertical_size>>1;
 
   sprintf(name,"%s.yuv",fname);
   if (!(fd = fopen(name,"rb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't open %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't open %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
 
   /* Y */
-  for (i=0; i<vtkMPEG2WriterStr->vertical_size; i++)
-    fread(frame[0]+i*vtkMPEG2WriterStr->width,1,vtkMPEG2WriterStr->horizontal_size,fd);
-  border_extend(frame[0],vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
+  for (i=0; i<mpeg2_struct->vertical_size; i++)
+    fread(frame[0]+i*mpeg2_struct->width,1,mpeg2_struct->horizontal_size,fd);
+  border_extend(frame[0],mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
 
   /* Cb */
   for (i=0; i<chrom_vsize; i++)
-    fread(frame[1]+i*vtkMPEG2WriterStr->chrom_width,1,chrom_hsize,fd);
-  border_extend(frame[1],chrom_hsize,chrom_vsize,vtkMPEG2WriterStr->chrom_width,vtkMPEG2WriterStr->chrom_height);
+    fread(frame[1]+i*mpeg2_struct->chrom_width,1,chrom_hsize,fd);
+  border_extend(frame[1],chrom_hsize,chrom_vsize,mpeg2_struct->chrom_width,mpeg2_struct->chrom_height);
 
   /* Cr */
   for (i=0; i<chrom_vsize; i++)
-    fread(frame[2]+i*vtkMPEG2WriterStr->chrom_width,1,chrom_hsize,fd);
-  border_extend(frame[2],chrom_hsize,chrom_vsize,vtkMPEG2WriterStr->chrom_width,vtkMPEG2WriterStr->chrom_height);
+    fread(frame[2]+i*mpeg2_struct->chrom_width,1,chrom_hsize,fd);
+  border_extend(frame[2],chrom_hsize,chrom_vsize,mpeg2_struct->chrom_width,mpeg2_struct->chrom_height);
 
   fclose(fd);
 }
 
 static int pbm_getint(FILE* file);
 
-static void read_ppm( char *fname, unsigned char *frame[] )
+static void read_ppm( char *fname, unsigned char *frame[],struct MPEG2_structure *mpeg2_struct)
 {
   int i, j;
   int r, g, b;
@@ -167,7 +167,7 @@ static void read_ppm( char *fname, unsigned char *frame[] )
     {0.299, 0.587, 0.114},  /* SMPTE 170M */
     {0.212, 0.701, 0.087}}; /* SMPTE 240M (1987) */
 
-  i = vtkMPEG2WriterStr->matrix_coefficients;
+  i = mpeg2_struct->matrix_coefficients;
   if (i>8)
     i = 3;
 
@@ -177,7 +177,7 @@ static void read_ppm( char *fname, unsigned char *frame[] )
   cu = 0.5/(1.0-cb);
   cv = 0.5/(1.0-cr);
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA444)
+  if (mpeg2_struct->chroma_format==CHROMA444)
   {
     u444 = frame[1];
     v444 = frame[2];
@@ -186,16 +186,16 @@ static void read_ppm( char *fname, unsigned char *frame[] )
   {
     if (!u444)
     {
-      if (!(u444 = (unsigned char *)malloc(vtkMPEG2WriterStr->width*vtkMPEG2WriterStr->height)))
-        MPEG2_error("malloc failed");
-      if (!(v444 = (unsigned char *)malloc(vtkMPEG2WriterStr->width*vtkMPEG2WriterStr->height)))
-        MPEG2_error("malloc failed");
-      if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+      if (!(u444 = (unsigned char *)malloc(mpeg2_struct->width*mpeg2_struct->height)))
+        (*(mpeg2_struct->report_error))("malloc failed");
+      if (!(v444 = (unsigned char *)malloc(mpeg2_struct->width*mpeg2_struct->height)))
+        (*(mpeg2_struct->report_error))("malloc failed");
+      if (mpeg2_struct->chroma_format==CHROMA420)
       {
-        if (!(u422 = (unsigned char *)malloc((vtkMPEG2WriterStr->width>>1)*vtkMPEG2WriterStr->height)))
-          MPEG2_error("malloc failed");
-        if (!(v422 = (unsigned char *)malloc((vtkMPEG2WriterStr->width>>1)*vtkMPEG2WriterStr->height)))
-          MPEG2_error("malloc failed");
+        if (!(u422 = (unsigned char *)malloc((mpeg2_struct->width>>1)*mpeg2_struct->height)))
+          (*(mpeg2_struct->report_error))("malloc failed");
+        if (!(v422 = (unsigned char *)malloc((mpeg2_struct->width>>1)*mpeg2_struct->height)))
+          (*(mpeg2_struct->report_error))("malloc failed");
       }
     }
   }
@@ -204,21 +204,21 @@ static void read_ppm( char *fname, unsigned char *frame[] )
 
   if (!(fd = fopen(name,"rb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't open %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't open %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
 
   /* skip header */
   getc(fd); getc(fd); /* magic number (P6) */
-  pbm_getint(fd); pbm_getint(fd); pbm_getint(fd); /* vtkMPEG2WriterStr->width vtkMPEG2WriterStr->height maxcolors */
+  pbm_getint(fd); pbm_getint(fd); pbm_getint(fd); /* mpeg2_struct->width mpeg2_struct->height maxcolors */
 
-  for (i=0; i<vtkMPEG2WriterStr->vertical_size; i++)
+  for (i=0; i<mpeg2_struct->vertical_size; i++)
   {
-    yp = frame[0] + i*vtkMPEG2WriterStr->width;
-    up = u444 + i*vtkMPEG2WriterStr->width;
-    vp = v444 + i*vtkMPEG2WriterStr->width;
+    yp = frame[0] + i*mpeg2_struct->width;
+    up = u444 + i*mpeg2_struct->width;
+    vp = v444 + i*mpeg2_struct->width;
 
-    for (j=0; j<vtkMPEG2WriterStr->horizontal_size; j++)
+    for (j=0; j<mpeg2_struct->horizontal_size; j++)
     {
       r=getc(fd); g=getc(fd); b=getc(fd);
       /* convert to YUV */
@@ -235,26 +235,26 @@ static void read_ppm( char *fname, unsigned char *frame[] )
   }
   fclose(fd);
 
-  border_extend(frame[0],vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
-  border_extend(u444,vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
-  border_extend(v444,vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
+  border_extend(frame[0],mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
+  border_extend(u444,mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
+  border_extend(v444,mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA422)
+  if (mpeg2_struct->chroma_format==CHROMA422)
   {
-    conv444to422(u444,frame[1]);
-    conv444to422(v444,frame[2]);
+    conv444to422(u444,frame[1],mpeg2_struct);
+    conv444to422(v444,frame[2],mpeg2_struct);
   }
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+  if (mpeg2_struct->chroma_format==CHROMA420)
   {
-    conv444to422(u444,u422);
-    conv444to422(v444,v422);
-    conv422to420(u422,frame[1]);
-    conv422to420(v422,frame[2]);
+    conv444to422(u444,u422,mpeg2_struct);
+    conv444to422(v444,v422,mpeg2_struct);
+    conv422to420(u422,frame[1],mpeg2_struct);
+    conv422to420(v422,frame[2],mpeg2_struct);
   }
 }
 
-static void read_memory_ppm( char *fname, unsigned char *frame[] )
+static void read_memory_ppm( char *fname, unsigned char *frame[], struct MPEG2_structure *mpeg2_struct)
 {
   int i, j;
   int r, g, b;
@@ -270,9 +270,9 @@ static void read_memory_ppm( char *fname, unsigned char *frame[] )
     {0.299, 0.587, 0.114},  /* ITU-R Rec. 624-4 System B, G */
     {0.299, 0.587, 0.114},  /* SMPTE 170M */
     {0.212, 0.701, 0.087}}; /* SMPTE 240M (1987) */
-  unsigned char* iptr = vtkMPEG2WriterInternalGetImagePtr(fname); 
+  unsigned char* iptr = (*(mpeg2_struct->get_image_ptr))(fname,mpeg2_struct->mpeg2_writer_internal); 
 
-  i = vtkMPEG2WriterStr->matrix_coefficients;
+  i = mpeg2_struct->matrix_coefficients;
   if (i>8)
     i = 3;
 
@@ -282,7 +282,7 @@ static void read_memory_ppm( char *fname, unsigned char *frame[] )
   cu = 0.5/(1.0-cb);
   cv = 0.5/(1.0-cr);
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA444)
+  if (mpeg2_struct->chroma_format==CHROMA444)
   {
     u444 = frame[1];
     v444 = frame[2];
@@ -291,27 +291,27 @@ static void read_memory_ppm( char *fname, unsigned char *frame[] )
   {
     if (!u444)
     {
-      if (!(u444 = (unsigned char *)malloc(vtkMPEG2WriterStr->width*vtkMPEG2WriterStr->height)))
-        MPEG2_error("malloc failed");
-      if (!(v444 = (unsigned char *)malloc(vtkMPEG2WriterStr->width*vtkMPEG2WriterStr->height)))
-        MPEG2_error("malloc failed");
-      if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+      if (!(u444 = (unsigned char *)malloc(mpeg2_struct->width*mpeg2_struct->height)))
+        (*(mpeg2_struct->report_error))("malloc failed");
+      if (!(v444 = (unsigned char *)malloc(mpeg2_struct->width*mpeg2_struct->height)))
+        (*(mpeg2_struct->report_error))("malloc failed");
+      if (mpeg2_struct->chroma_format==CHROMA420)
       {
-        if (!(u422 = (unsigned char *)malloc((vtkMPEG2WriterStr->width>>1)*vtkMPEG2WriterStr->height)))
-          MPEG2_error("malloc failed");
-        if (!(v422 = (unsigned char *)malloc((vtkMPEG2WriterStr->width>>1)*vtkMPEG2WriterStr->height)))
-          MPEG2_error("malloc failed");
+        if (!(u422 = (unsigned char *)malloc((mpeg2_struct->width>>1)*mpeg2_struct->height)))
+          (*(mpeg2_struct->report_error))("malloc failed");
+        if (!(v422 = (unsigned char *)malloc((mpeg2_struct->width>>1)*mpeg2_struct->height)))
+          (*(mpeg2_struct->report_error))("malloc failed");
       }
     }
   }
 
-  for (i=0; i<vtkMPEG2WriterStr->vertical_size; i++)
+  for (i=0; i<mpeg2_struct->vertical_size; i++)
   {
-    yp = frame[0] + i*vtkMPEG2WriterStr->width;
-    up = u444 + i*vtkMPEG2WriterStr->width;
-    vp = v444 + i*vtkMPEG2WriterStr->width;
+    yp = frame[0] + i*mpeg2_struct->width;
+    up = u444 + i*mpeg2_struct->width;
+    vp = v444 + i*mpeg2_struct->width;
 
-    for (j=0; j<vtkMPEG2WriterStr->horizontal_size; j++)
+    for (j=0; j<mpeg2_struct->horizontal_size; j++)
     {
       r=iptr[0]; g=iptr[1]; b=iptr[2];
       /* convert to YUV */
@@ -327,22 +327,22 @@ static void read_memory_ppm( char *fname, unsigned char *frame[] )
       iptr += 3;
     }
   }
-  border_extend(frame[0],vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
-  border_extend(u444,vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
-  border_extend(v444,vtkMPEG2WriterStr->horizontal_size,vtkMPEG2WriterStr->vertical_size,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height);
+  border_extend(frame[0],mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
+  border_extend(u444,mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
+  border_extend(v444,mpeg2_struct->horizontal_size,mpeg2_struct->vertical_size,mpeg2_struct->width,mpeg2_struct->height);
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA422)
+  if (mpeg2_struct->chroma_format==CHROMA422)
   {
-    conv444to422(u444,frame[1]);
-    conv444to422(v444,frame[2]);
+    conv444to422(u444,frame[1],mpeg2_struct);
+    conv444to422(v444,frame[2],mpeg2_struct);
   }
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+  if (mpeg2_struct->chroma_format==CHROMA420)
   {
-    conv444to422(u444,u422);
-    conv444to422(v444,v422);
-    conv422to420(u422,frame[1]);
-    conv422to420(v422,frame[2]);
+    conv444to422(u444,u422,mpeg2_struct);
+    conv444to422(v444,v422,mpeg2_struct);
+    conv422to420(u422,frame[1],mpeg2_struct);
+    conv422to420(v422,frame[2],mpeg2_struct);
   }
 }
 
@@ -371,93 +371,93 @@ static void border_extend( unsigned char *frame, int w1, int h1, int w2, int h2 
 }
 
 /* horizontal filter and 2:1 subsampling */
-static void conv444to422( unsigned char *src, unsigned char *dst )
+static void conv444to422( unsigned char *src, unsigned char *dst,struct MPEG2_structure *mpeg2_struct )
 {
   int i, j, im5, im4, im3, im2, im1, ip1, ip2, ip3, ip4, ip5, ip6;
 
-  if (vtkMPEG2WriterStr->mpeg1)
+  if (mpeg2_struct->mpeg1)
   {
-    for (j=0; j<vtkMPEG2WriterStr->height; j++)
+    for (j=0; j<mpeg2_struct->height; j++)
     {
-      for (i=0; i<vtkMPEG2WriterStr->width; i+=2)
+      for (i=0; i<mpeg2_struct->width; i+=2)
       {
         im5 = (i<5) ? 0 : i-5;
         im4 = (i<4) ? 0 : i-4;
         im3 = (i<3) ? 0 : i-3;
         im2 = (i<2) ? 0 : i-2;
         im1 = (i<1) ? 0 : i-1;
-        ip1 = (i<vtkMPEG2WriterStr->width-1) ? i+1 : vtkMPEG2WriterStr->width-1;
-        ip2 = (i<vtkMPEG2WriterStr->width-2) ? i+2 : vtkMPEG2WriterStr->width-1;
-        ip3 = (i<vtkMPEG2WriterStr->width-3) ? i+3 : vtkMPEG2WriterStr->width-1;
-        ip4 = (i<vtkMPEG2WriterStr->width-4) ? i+4 : vtkMPEG2WriterStr->width-1;
-        ip5 = (i<vtkMPEG2WriterStr->width-5) ? i+5 : vtkMPEG2WriterStr->width-1;
-        ip6 = (i<vtkMPEG2WriterStr->width-5) ? i+6 : vtkMPEG2WriterStr->width-1;
+        ip1 = (i<mpeg2_struct->width-1) ? i+1 : mpeg2_struct->width-1;
+        ip2 = (i<mpeg2_struct->width-2) ? i+2 : mpeg2_struct->width-1;
+        ip3 = (i<mpeg2_struct->width-3) ? i+3 : mpeg2_struct->width-1;
+        ip4 = (i<mpeg2_struct->width-4) ? i+4 : mpeg2_struct->width-1;
+        ip5 = (i<mpeg2_struct->width-5) ? i+5 : mpeg2_struct->width-1;
+        ip6 = (i<mpeg2_struct->width-5) ? i+6 : mpeg2_struct->width-1;
 
         /* FIR filter with 0.5 sample interval phase shift */
-        dst[i>>1] = vtkMPEG2WriterStr->clp[(int)(228*(src[i]+src[ip1])
+        dst[i>>1] = mpeg2_struct->clp[(int)(228*(src[i]+src[ip1])
                          +70*(src[im1]+src[ip2])
                          -37*(src[im2]+src[ip3])
                          -21*(src[im3]+src[ip4])
                          +11*(src[im4]+src[ip5])
                          + 5*(src[im5]+src[ip6])+256)>>9];
       }
-      src+= vtkMPEG2WriterStr->width;
-      dst+= vtkMPEG2WriterStr->width>>1;
+      src+= mpeg2_struct->width;
+      dst+= mpeg2_struct->width>>1;
     }
   }
   else
   {
     /* MPEG-2 */
-    for (j=0; j<vtkMPEG2WriterStr->height; j++)
+    for (j=0; j<mpeg2_struct->height; j++)
     {
-      for (i=0; i<vtkMPEG2WriterStr->width; i+=2)
+      for (i=0; i<mpeg2_struct->width; i+=2)
       {
         im5 = (i<5) ? 0 : i-5;
         im3 = (i<3) ? 0 : i-3;
         im1 = (i<1) ? 0 : i-1;
-        ip1 = (i<vtkMPEG2WriterStr->width-1) ? i+1 : vtkMPEG2WriterStr->width-1;
-        ip3 = (i<vtkMPEG2WriterStr->width-3) ? i+3 : vtkMPEG2WriterStr->width-1;
-        ip5 = (i<vtkMPEG2WriterStr->width-5) ? i+5 : vtkMPEG2WriterStr->width-1;
+        ip1 = (i<mpeg2_struct->width-1) ? i+1 : mpeg2_struct->width-1;
+        ip3 = (i<mpeg2_struct->width-3) ? i+3 : mpeg2_struct->width-1;
+        ip5 = (i<mpeg2_struct->width-5) ? i+5 : mpeg2_struct->width-1;
 
         /* FIR filter coefficients (*512): 22 0 -52 0 159 256 159 0 -52 0 22 */
-        dst[i>>1] = vtkMPEG2WriterStr->clp[(int)(  22*(src[im5]+src[ip5])-52*(src[im3]+src[ip3])
+        dst[i>>1] = mpeg2_struct->clp[(int)(  22*(src[im5]+src[ip5])-52*(src[im3]+src[ip3])
                          +159*(src[im1]+src[ip1])+256*src[i]+256)>>9];
       }
-      src+= vtkMPEG2WriterStr->width;
-      dst+= vtkMPEG2WriterStr->width>>1;
+      src+= mpeg2_struct->width;
+      dst+= mpeg2_struct->width>>1;
     }
   }
 }
 
 /* vertical filter and 2:1 subsampling */
-static void conv422to420( unsigned char *src, unsigned char *dst )
+static void conv422to420( unsigned char *src, unsigned char *dst,struct MPEG2_structure *mpeg2_struct )
 {
   int w, i, j, jm6, jm5, jm4, jm3, jm2, jm1;
   int jp1, jp2, jp3, jp4, jp5, jp6;
 
-  w = vtkMPEG2WriterStr->width>>1;
+  w = mpeg2_struct->width>>1;
 
-  if (vtkMPEG2WriterStr->prog_frame)
+  if (mpeg2_struct->prog_frame)
   {
     /* intra frame */
     for (i=0; i<w; i++)
     {
-      for (j=0; j<vtkMPEG2WriterStr->height; j+=2)
+      for (j=0; j<mpeg2_struct->height; j+=2)
       {
         jm5 = (j<5) ? 0 : j-5;
         jm4 = (j<4) ? 0 : j-4;
         jm3 = (j<3) ? 0 : j-3;
         jm2 = (j<2) ? 0 : j-2;
         jm1 = (j<1) ? 0 : j-1;
-        jp1 = (j<vtkMPEG2WriterStr->height-1) ? j+1 : vtkMPEG2WriterStr->height-1;
-        jp2 = (j<vtkMPEG2WriterStr->height-2) ? j+2 : vtkMPEG2WriterStr->height-1;
-        jp3 = (j<vtkMPEG2WriterStr->height-3) ? j+3 : vtkMPEG2WriterStr->height-1;
-        jp4 = (j<vtkMPEG2WriterStr->height-4) ? j+4 : vtkMPEG2WriterStr->height-1;
-        jp5 = (j<vtkMPEG2WriterStr->height-5) ? j+5 : vtkMPEG2WriterStr->height-1;
-        jp6 = (j<vtkMPEG2WriterStr->height-5) ? j+6 : vtkMPEG2WriterStr->height-1;
+        jp1 = (j<mpeg2_struct->height-1) ? j+1 : mpeg2_struct->height-1;
+        jp2 = (j<mpeg2_struct->height-2) ? j+2 : mpeg2_struct->height-1;
+        jp3 = (j<mpeg2_struct->height-3) ? j+3 : mpeg2_struct->height-1;
+        jp4 = (j<mpeg2_struct->height-4) ? j+4 : mpeg2_struct->height-1;
+        jp5 = (j<mpeg2_struct->height-5) ? j+5 : mpeg2_struct->height-1;
+        jp6 = (j<mpeg2_struct->height-5) ? j+6 : mpeg2_struct->height-1;
 
         /* FIR filter with 0.5 sample interval phase shift */
-        dst[w*(j>>1)] = vtkMPEG2WriterStr->clp[(int)(228*(src[w*j]+src[w*jp1])
+        dst[w*(j>>1)] = mpeg2_struct->clp[(int)(228*(src[w*j]+src[w*jp1])
                              +70*(src[w*jm1]+src[w*jp2])
                              -37*(src[w*jm2]+src[w*jp3])
                              -21*(src[w*jm3]+src[w*jp4])
@@ -473,7 +473,7 @@ static void conv422to420( unsigned char *src, unsigned char *dst )
     /* intra field */
     for (i=0; i<w; i++)
     {
-      for (j=0; j<vtkMPEG2WriterStr->height; j+=4)
+      for (j=0; j<mpeg2_struct->height; j+=4)
       {
         /* top field */
         jm5 = (j<10) ? 0 : j-10;
@@ -481,15 +481,15 @@ static void conv422to420( unsigned char *src, unsigned char *dst )
         jm3 = (j<6) ? 0 : j-6;
         jm2 = (j<4) ? 0 : j-4;
         jm1 = (j<2) ? 0 : j-2;
-        jp1 = (j<vtkMPEG2WriterStr->height-2) ? j+2 : vtkMPEG2WriterStr->height-2;
-        jp2 = (j<vtkMPEG2WriterStr->height-4) ? j+4 : vtkMPEG2WriterStr->height-2;
-        jp3 = (j<vtkMPEG2WriterStr->height-6) ? j+6 : vtkMPEG2WriterStr->height-2;
-        jp4 = (j<vtkMPEG2WriterStr->height-8) ? j+8 : vtkMPEG2WriterStr->height-2;
-        jp5 = (j<vtkMPEG2WriterStr->height-10) ? j+10 : vtkMPEG2WriterStr->height-2;
-        jp6 = (j<vtkMPEG2WriterStr->height-12) ? j+12 : vtkMPEG2WriterStr->height-2;
+        jp1 = (j<mpeg2_struct->height-2) ? j+2 : mpeg2_struct->height-2;
+        jp2 = (j<mpeg2_struct->height-4) ? j+4 : mpeg2_struct->height-2;
+        jp3 = (j<mpeg2_struct->height-6) ? j+6 : mpeg2_struct->height-2;
+        jp4 = (j<mpeg2_struct->height-8) ? j+8 : mpeg2_struct->height-2;
+        jp5 = (j<mpeg2_struct->height-10) ? j+10 : mpeg2_struct->height-2;
+        jp6 = (j<mpeg2_struct->height-12) ? j+12 : mpeg2_struct->height-2;
 
         /* FIR filter with 0.25 sample interval phase shift */
-        dst[w*(j>>1)] = vtkMPEG2WriterStr->clp[(int)(8*src[w*jm5]
+        dst[w*(j>>1)] = mpeg2_struct->clp[(int)(8*src[w*jm5]
                             +5*src[w*jm4]
                            -30*src[w*jm3]
                            -18*src[w*jm2]
@@ -508,16 +508,16 @@ static void conv422to420( unsigned char *src, unsigned char *dst )
         jm4 = (j<5) ? 1 : j-5;
         jm3 = (j<3) ? 1 : j-3;
         jm2 = (j<1) ? 1 : j-1;
-        jm1 = (j<vtkMPEG2WriterStr->height-1) ? j+1 : vtkMPEG2WriterStr->height-1;
-        jp1 = (j<vtkMPEG2WriterStr->height-3) ? j+3 : vtkMPEG2WriterStr->height-1;
-        jp2 = (j<vtkMPEG2WriterStr->height-5) ? j+5 : vtkMPEG2WriterStr->height-1;
-        jp3 = (j<vtkMPEG2WriterStr->height-7) ? j+7 : vtkMPEG2WriterStr->height-1;
-        jp4 = (j<vtkMPEG2WriterStr->height-9) ? j+9 : vtkMPEG2WriterStr->height-1;
-        jp5 = (j<vtkMPEG2WriterStr->height-11) ? j+11 : vtkMPEG2WriterStr->height-1;
-        jp6 = (j<vtkMPEG2WriterStr->height-13) ? j+13 : vtkMPEG2WriterStr->height-1;
+        jm1 = (j<mpeg2_struct->height-1) ? j+1 : mpeg2_struct->height-1;
+        jp1 = (j<mpeg2_struct->height-3) ? j+3 : mpeg2_struct->height-1;
+        jp2 = (j<mpeg2_struct->height-5) ? j+5 : mpeg2_struct->height-1;
+        jp3 = (j<mpeg2_struct->height-7) ? j+7 : mpeg2_struct->height-1;
+        jp4 = (j<mpeg2_struct->height-9) ? j+9 : mpeg2_struct->height-1;
+        jp5 = (j<mpeg2_struct->height-11) ? j+11 : mpeg2_struct->height-1;
+        jp6 = (j<mpeg2_struct->height-13) ? j+13 : mpeg2_struct->height-1;
 
         /* FIR filter with 0.25 sample interval phase shift */
-        dst[w*((j>>1)+1)] = vtkMPEG2WriterStr->clp[(int)(8*src[w*jp6]
+        dst[w*((j>>1)+1)] = mpeg2_struct->clp[(int)(8*src[w*jp6]
                                 +5*src[w*jp5]
                                -30*src[w*jp4]
                                -18*src[w*jp3]

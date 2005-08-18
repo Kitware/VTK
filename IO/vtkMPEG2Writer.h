@@ -24,9 +24,11 @@
 
 #include "vtkGenericMovieWriter.h"
 
-class vtkMPEG2WriterHelper;
+class vtkMPEG2WriterInternal;
+class vtkImageData;
+struct vtkMPEG2Structure;
 
-class VTK_IO_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
+class VTK_EXPORT vtkMPEG2Writer : public vtkGenericMovieWriter
 {
 public:
   static vtkMPEG2Writer *New();
@@ -40,16 +42,20 @@ public:
   void Write();
   void End();
   
-  // Description:
-  // Set/Get the input object from the image pipeline.
-  virtual void SetInput(vtkImageData *input);
-  virtual vtkImageData *GetInput();
-
 protected:
   vtkMPEG2Writer();
   ~vtkMPEG2Writer();
 
-  vtkMPEG2WriterHelper *MPEG2WriterHelper;
+  vtkMPEG2WriterInternal *Internals;
+
+  long Time;
+  int ActualWrittenTime;
+
+  void Initialize();
+
+  int Initialized;
+
+  vtkMPEG2Structure* MPEGStructure;
 
 private:
   vtkMPEG2Writer(const vtkMPEG2Writer&); // Not implemented

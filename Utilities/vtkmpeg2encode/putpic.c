@@ -27,18 +27,21 @@
  *
  */
 
+#define GLOBAL_DEF /* used by mpeg2enc_global.h */
+
 #include <stdio.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* private prototypes */
 static void MPEG2_putmvs _ANSI_ARGS_((int MV[2][2][2], int PMV[2][2][2],
   int mv_field_sel[2][2], int dmvector[2], int s, int motion_type,
-  int hor_f_code, int vert_f_code));
+  int hor_f_code, int vert_f_code,struct MPEG2_structure *mpeg2_struct));
 
 /* quantization / variable length encoding of a complete picture */
-void MPEG2_putpict(frame)
+void MPEG2_putpict(frame,mpeg2_struct)
 unsigned char *frame;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i, j, k, comp, cc;
   int mb_type;
@@ -46,48 +49,48 @@ unsigned char *frame;
   int prev_mquant;
   int cbp, MBAinc;
 
-  MPEG2_rc_init_pict(frame); /* set up rate control */
+  MPEG2_rc_init_pict(frame,mpeg2_struct); /* set up rate control */
 
   /* picture header and picture coding extension */
-  MPEG2_putpicthdr();
+  MPEG2_putpicthdr(mpeg2_struct);
 
-  if (!vtkMPEG2WriterStr->mpeg1)
-    MPEG2_putpictcodext();
+  if (!mpeg2_struct->mpeg1)
+    MPEG2_putpictcodext(mpeg2_struct);
 
-  prev_mquant = MPEG2_rc_start_mb(); /* initialize quantization parameter */
+  prev_mquant = MPEG2_rc_start_mb(mpeg2_struct); /* initialize quantization parameter */
 
   k = 0;
 
-  for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+  for (j=0; j<mpeg2_struct->mb_height2; j++)
   {
     /* macroblock row loop */
 
-    for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+    for (i=0; i<mpeg2_struct->mb_width; i++)
     {
       /* macroblock loop */
       if (i==0)
       {
         /* slice header (6.2.4) */
-        MPEG2_alignbits();
+        MPEG2_alignbits(mpeg2_struct);
 
-        if (vtkMPEG2WriterStr->mpeg1 || vtkMPEG2WriterStr->vertical_size<=2800)
-          MPEG2_putbits(SLICE_MIN_START+j,32); /* slice_start_code */
+        if (mpeg2_struct->mpeg1 || mpeg2_struct->vertical_size<=2800)
+          MPEG2_putbits(SLICE_MIN_START+j,32,mpeg2_struct); /* slice_start_code */
         else
         {
-          MPEG2_putbits(SLICE_MIN_START+(j&127),32); /* slice_start_code */
-          MPEG2_putbits(j>>7,3); /* slice_vertical_position_extension */
+          MPEG2_putbits(SLICE_MIN_START+(j&127),32,mpeg2_struct); /* slice_start_code */
+          MPEG2_putbits(j>>7,3,mpeg2_struct); /* slice_vertical_position_extension */
         }
   
         /* quantiser_scale_code */
-        MPEG2_putbits(vtkMPEG2WriterStr->q_scale_type ? MPEG2_map_non_linear_mquant[prev_mquant]
-                             : prev_mquant >> 1, 5);
+        MPEG2_putbits(mpeg2_struct->q_scale_type ? MPEG2_map_non_linear_mquant[prev_mquant]
+                             : prev_mquant >> 1, 5,mpeg2_struct);
   
-        MPEG2_putbits(0,1); /* extra_bit_slice */
+        MPEG2_putbits(0,1,mpeg2_struct); /* extra_bit_slice */
   
         /* reset predictors */
 
         for (cc=0; cc<3; cc++)
-          vtkMPEG2WriterStr->dc_dct_pred[cc] = 0;
+          mpeg2_struct->dc_dct_pred[cc] = 0;
 
         PMV[0][0][0]=PMV[0][0][1]=PMV[1][0][0]=PMV[1][0][1]=0;
         PMV[0][1][0]=PMV[0][1][1]=PMV[1][1][0]=PMV[1][1][1]=0;
@@ -95,70 +98,70 @@ unsigned char *frame;
         MBAinc = i + 1; /* first MBAinc denotes absolute position */
       }
 
-      mb_type = vtkMPEG2WriterStr->mbinfo[k].mb_type;
+      mb_type = mpeg2_struct->mbinfo[k].mb_type;
 
       /* determine mquant (rate control) */
-      vtkMPEG2WriterStr->mbinfo[k].mquant = MPEG2_rc_calc_mquant(k);
+      mpeg2_struct->mbinfo[k].mquant = MPEG2_rc_calc_mquant(k,mpeg2_struct);
 
       /* quantize macroblock */
       if (mb_type & MB_INTRA)
       {
-        for (comp=0; comp<vtkMPEG2WriterStr->block_count; comp++)
-          MPEG2_quant_intra(vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp],vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp],
-                      vtkMPEG2WriterStr->dc_prec,vtkMPEG2WriterStr->intra_q,vtkMPEG2WriterStr->mbinfo[k].mquant);
-        vtkMPEG2WriterStr->mbinfo[k].cbp = cbp = (1<<vtkMPEG2WriterStr->block_count) - 1;
+        for (comp=0; comp<mpeg2_struct->block_count; comp++)
+          MPEG2_quant_intra(mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],
+                      mpeg2_struct->dc_prec,mpeg2_struct->intra_q,mpeg2_struct->mbinfo[k].mquant,mpeg2_struct);
+        mpeg2_struct->mbinfo[k].cbp = cbp = (1<<mpeg2_struct->block_count) - 1;
       }
       else
       {
         cbp = 0;
-        for (comp=0;comp<vtkMPEG2WriterStr->block_count;comp++)
-          cbp = (cbp<<1) | MPEG2_quant_non_intra(vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp],
-                                           vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp],
-                                           vtkMPEG2WriterStr->inter_q,vtkMPEG2WriterStr->mbinfo[k].mquant);
+        for (comp=0;comp<mpeg2_struct->block_count;comp++)
+          cbp = (cbp<<1) | MPEG2_quant_non_intra(mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],
+                                           mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],
+                                           mpeg2_struct->inter_q,mpeg2_struct->mbinfo[k].mquant,mpeg2_struct);
 
-        vtkMPEG2WriterStr->mbinfo[k].cbp = cbp;
+        mpeg2_struct->mbinfo[k].cbp = cbp;
 
         if (cbp)
           mb_type|= MB_PATTERN;
       }
 
       /* output mquant if it has changed */
-      if (cbp && prev_mquant!=vtkMPEG2WriterStr->mbinfo[k].mquant)
+      if (cbp && prev_mquant!=mpeg2_struct->mbinfo[k].mquant)
         mb_type|= MB_QUANT;
 
       /* check if macroblock can be skipped */
-      if (i!=0 && i!=vtkMPEG2WriterStr->mb_width-1 && !cbp)
+      if (i!=0 && i!=mpeg2_struct->mb_width-1 && !cbp)
       {
         /* no DCT coefficients and neither first nor last macroblock of slice */
 
-        if (vtkMPEG2WriterStr->pict_type==P_TYPE && !(mb_type&MB_FORWARD))
+        if (mpeg2_struct->pict_type==P_TYPE && !(mb_type&MB_FORWARD))
         {
           /* P picture, no motion vectors -> skip */
 
           /* reset predictors */
 
           for (cc=0; cc<3; cc++)
-            vtkMPEG2WriterStr->dc_dct_pred[cc] = 0;
+            mpeg2_struct->dc_dct_pred[cc] = 0;
 
           PMV[0][0][0]=PMV[0][0][1]=PMV[1][0][0]=PMV[1][0][1]=0;
           PMV[0][1][0]=PMV[0][1][1]=PMV[1][1][0]=PMV[1][1][1]=0;
 
-          vtkMPEG2WriterStr->mbinfo[k].mb_type = mb_type;
-          vtkMPEG2WriterStr->mbinfo[k].skipped = 1;
+          mpeg2_struct->mbinfo[k].mb_type = mb_type;
+          mpeg2_struct->mbinfo[k].skipped = 1;
           MBAinc++;
           k++;
           continue;
         }
 
-        if (vtkMPEG2WriterStr->pict_type==B_TYPE && vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE
-            && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FRAME
-            && ((vtkMPEG2WriterStr->mbinfo[k-1].mb_type^mb_type)&(MB_FORWARD|MB_BACKWARD))==0
+        if (mpeg2_struct->pict_type==B_TYPE && mpeg2_struct->pict_struct==FRAME_PICTURE
+            && mpeg2_struct->mbinfo[k].motion_type==MC_FRAME
+            && ((mpeg2_struct->mbinfo[k-1].mb_type^mb_type)&(MB_FORWARD|MB_BACKWARD))==0
             && (!(mb_type&MB_FORWARD) ||
-                (PMV[0][0][0]==vtkMPEG2WriterStr->mbinfo[k].MV[0][0][0] &&
-                 PMV[0][0][1]==vtkMPEG2WriterStr->mbinfo[k].MV[0][0][1]))
+                (PMV[0][0][0]==mpeg2_struct->mbinfo[k].MV[0][0][0] &&
+                 PMV[0][0][1]==mpeg2_struct->mbinfo[k].MV[0][0][1]))
             && (!(mb_type&MB_BACKWARD) ||
-                (PMV[0][1][0]==vtkMPEG2WriterStr->mbinfo[k].MV[0][1][0] &&
-                 PMV[0][1][1]==vtkMPEG2WriterStr->mbinfo[k].MV[0][1][1])))
+                (PMV[0][1][0]==mpeg2_struct->mbinfo[k].MV[0][1][0] &&
+                 PMV[0][1][1]==mpeg2_struct->mbinfo[k].MV[0][1][1])))
         {
           /* conditions for skipping in B frame pictures:
            * - must be frame predicted
@@ -168,24 +171,24 @@ unsigned char *frame;
            *   as in previous macroblock
            */
 
-          vtkMPEG2WriterStr->mbinfo[k].mb_type = mb_type;
-          vtkMPEG2WriterStr->mbinfo[k].skipped = 1;
+          mpeg2_struct->mbinfo[k].mb_type = mb_type;
+          mpeg2_struct->mbinfo[k].skipped = 1;
           MBAinc++;
           k++;
           continue;
         }
 
-        if (vtkMPEG2WriterStr->pict_type==B_TYPE && vtkMPEG2WriterStr->pict_struct!=FRAME_PICTURE
-            && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FIELD
-            && ((vtkMPEG2WriterStr->mbinfo[k-1].mb_type^mb_type)&(MB_FORWARD|MB_BACKWARD))==0
+        if (mpeg2_struct->pict_type==B_TYPE && mpeg2_struct->pict_struct!=FRAME_PICTURE
+            && mpeg2_struct->mbinfo[k].motion_type==MC_FIELD
+            && ((mpeg2_struct->mbinfo[k-1].mb_type^mb_type)&(MB_FORWARD|MB_BACKWARD))==0
             && (!(mb_type&MB_FORWARD) ||
-                (PMV[0][0][0]==vtkMPEG2WriterStr->mbinfo[k].MV[0][0][0] &&
-                 PMV[0][0][1]==vtkMPEG2WriterStr->mbinfo[k].MV[0][0][1] &&
-                 vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[0][0]==(vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD)))
+                (PMV[0][0][0]==mpeg2_struct->mbinfo[k].MV[0][0][0] &&
+                 PMV[0][0][1]==mpeg2_struct->mbinfo[k].MV[0][0][1] &&
+                 mpeg2_struct->mbinfo[k].mv_field_sel[0][0]==(mpeg2_struct->pict_struct==BOTTOM_FIELD)))
             && (!(mb_type&MB_BACKWARD) ||
-                (PMV[0][1][0]==vtkMPEG2WriterStr->mbinfo[k].MV[0][1][0] &&
-                 PMV[0][1][1]==vtkMPEG2WriterStr->mbinfo[k].MV[0][1][1] &&
-                 vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[0][1]==(vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD))))
+                (PMV[0][1][0]==mpeg2_struct->mbinfo[k].MV[0][1][0] &&
+                 PMV[0][1][1]==mpeg2_struct->mbinfo[k].MV[0][1][1] &&
+                 mpeg2_struct->mbinfo[k].mv_field_sel[0][1]==(mpeg2_struct->pict_struct==BOTTOM_FIELD))))
         {
           /* conditions for skipping in B field pictures:
            * - must be field predicted
@@ -197,8 +200,8 @@ unsigned char *frame;
            *   parity as current field
            */
 
-          vtkMPEG2WriterStr->mbinfo[k].mb_type = mb_type;
-          vtkMPEG2WriterStr->mbinfo[k].skipped = 1;
+          mpeg2_struct->mbinfo[k].mb_type = mb_type;
+          mpeg2_struct->mbinfo[k].skipped = 1;
           MBAinc++;
           k++;
           continue;
@@ -206,85 +209,85 @@ unsigned char *frame;
       }
 
       /* macroblock cannot be skipped */
-      vtkMPEG2WriterStr->mbinfo[k].skipped = 0;
+      mpeg2_struct->mbinfo[k].skipped = 0;
 
       /* there's no VLC for 'No MC, Not Coded':
        * we have to transmit (0,0) motion vectors
        */
-      if (vtkMPEG2WriterStr->pict_type==P_TYPE && !cbp && !(mb_type&MB_FORWARD))
+      if (mpeg2_struct->pict_type==P_TYPE && !cbp && !(mb_type&MB_FORWARD))
         mb_type|= MB_FORWARD;
 
-      MPEG2_putaddrinc(MBAinc); /* macroblock_address_increment */
+      MPEG2_putaddrinc(MBAinc,mpeg2_struct); /* macroblock_address_increment */
       MBAinc = 1;
 
-      MPEG2_putmbtype(vtkMPEG2WriterStr->pict_type,mb_type); /* macroblock type */
+      MPEG2_putmbtype(mpeg2_struct->pict_type,mb_type,mpeg2_struct); /* macroblock type */
 
-      if (mb_type & (MB_FORWARD|MB_BACKWARD) && !vtkMPEG2WriterStr->frame_pred_dct)
-        MPEG2_putbits(vtkMPEG2WriterStr->mbinfo[k].motion_type,2);
+      if (mb_type & (MB_FORWARD|MB_BACKWARD) && !mpeg2_struct->frame_pred_dct)
+        MPEG2_putbits(mpeg2_struct->mbinfo[k].motion_type,2,mpeg2_struct);
 
-      if (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && cbp && !vtkMPEG2WriterStr->frame_pred_dct)
-        MPEG2_putbits(vtkMPEG2WriterStr->mbinfo[k].dct_type,1);
+      if (mpeg2_struct->pict_struct==FRAME_PICTURE && cbp && !mpeg2_struct->frame_pred_dct)
+        MPEG2_putbits(mpeg2_struct->mbinfo[k].dct_type,1,mpeg2_struct);
 
       if (mb_type & MB_QUANT)
       {
-        MPEG2_putbits(vtkMPEG2WriterStr->q_scale_type ? MPEG2_map_non_linear_mquant[vtkMPEG2WriterStr->mbinfo[k].mquant]
-                             : vtkMPEG2WriterStr->mbinfo[k].mquant>>1,5);
-        prev_mquant = vtkMPEG2WriterStr->mbinfo[k].mquant;
+        MPEG2_putbits(mpeg2_struct->q_scale_type ? MPEG2_map_non_linear_mquant[mpeg2_struct->mbinfo[k].mquant]
+                             : mpeg2_struct->mbinfo[k].mquant>>1,5,mpeg2_struct);
+        prev_mquant = mpeg2_struct->mbinfo[k].mquant;
       }
 
       if (mb_type & MB_FORWARD)
       {
         /* forward motion vectors, update predictors */
-        MPEG2_putmvs(vtkMPEG2WriterStr->mbinfo[k].MV,PMV,vtkMPEG2WriterStr->mbinfo[k].mv_field_sel,vtkMPEG2WriterStr->mbinfo[k].dmvector,0,
-          vtkMPEG2WriterStr->mbinfo[k].motion_type,vtkMPEG2WriterStr->forw_hor_f_code,vtkMPEG2WriterStr->forw_vert_f_code);
+        MPEG2_putmvs(mpeg2_struct->mbinfo[k].MV,PMV,mpeg2_struct->mbinfo[k].mv_field_sel,mpeg2_struct->mbinfo[k].dmvector,0,
+          mpeg2_struct->mbinfo[k].motion_type,mpeg2_struct->forw_hor_f_code,mpeg2_struct->forw_vert_f_code,mpeg2_struct);
       }
 
       if (mb_type & MB_BACKWARD)
       {
         /* backward motion vectors, update predictors */
-        MPEG2_putmvs(vtkMPEG2WriterStr->mbinfo[k].MV,PMV,vtkMPEG2WriterStr->mbinfo[k].mv_field_sel,vtkMPEG2WriterStr->mbinfo[k].dmvector,1,
-          vtkMPEG2WriterStr->mbinfo[k].motion_type,vtkMPEG2WriterStr->back_hor_f_code,vtkMPEG2WriterStr->back_vert_f_code);
+        MPEG2_putmvs(mpeg2_struct->mbinfo[k].MV,PMV,mpeg2_struct->mbinfo[k].mv_field_sel,mpeg2_struct->mbinfo[k].dmvector,1,
+          mpeg2_struct->mbinfo[k].motion_type,mpeg2_struct->back_hor_f_code,mpeg2_struct->back_vert_f_code,mpeg2_struct);
       }
 
       if (mb_type & MB_PATTERN)
       {
-        MPEG2_putcbp((cbp >> (vtkMPEG2WriterStr->block_count-6)) & 63);
-        if (vtkMPEG2WriterStr->chroma_format!=CHROMA420)
-          MPEG2_putbits(cbp,vtkMPEG2WriterStr->block_count-6);
+        MPEG2_putcbp((cbp >> (mpeg2_struct->block_count-6)) & 63,mpeg2_struct);
+        if (mpeg2_struct->chroma_format!=CHROMA420)
+          MPEG2_putbits(cbp,mpeg2_struct->block_count-6,mpeg2_struct);
       }
 
-      for (comp=0; comp<vtkMPEG2WriterStr->block_count; comp++)
+      for (comp=0; comp<mpeg2_struct->block_count; comp++)
       {
         /* block loop */
-        if (cbp & (1<<(vtkMPEG2WriterStr->block_count-1-comp)))
+        if (cbp & (1<<(mpeg2_struct->block_count-1-comp)))
         {
           if (mb_type & MB_INTRA)
           {
             cc = (comp<4) ? 0 : (comp&1)+1;
-            MPEG2_putintrablk(vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp],cc);
+            MPEG2_putintrablk(mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],cc,mpeg2_struct);
           }
           else
-            MPEG2_putnonintrablk(vtkMPEG2WriterStr->blocks[k*vtkMPEG2WriterStr->block_count+comp]);
+            MPEG2_putnonintrablk(mpeg2_struct->blocks[k*mpeg2_struct->block_count+comp],mpeg2_struct);
         }
       }
 
       /* reset predictors */
       if (!(mb_type & MB_INTRA))
         for (cc=0; cc<3; cc++)
-          vtkMPEG2WriterStr->dc_dct_pred[cc] = 0;
+          mpeg2_struct->dc_dct_pred[cc] = 0;
 
-      if (mb_type & MB_INTRA || (vtkMPEG2WriterStr->pict_type==P_TYPE && !(mb_type & MB_FORWARD)))
+      if (mb_type & MB_INTRA || (mpeg2_struct->pict_type==P_TYPE && !(mb_type & MB_FORWARD)))
       {
         PMV[0][0][0]=PMV[0][0][1]=PMV[1][0][0]=PMV[1][0][1]=0;
         PMV[0][1][0]=PMV[0][1][1]=PMV[1][1][0]=PMV[1][1][1]=0;
       }
 
-      vtkMPEG2WriterStr->mbinfo[k].mb_type = mb_type;
+      mpeg2_struct->mbinfo[k].mb_type = mb_type;
       k++;
     }
   }
 
-  MPEG2_rc_update_pict();
+  MPEG2_rc_update_pict(mpeg2_struct);
   MPEG2_vbv_end_of_picture();
 }
 
@@ -295,31 +298,32 @@ unsigned char *frame;
  */
  
 static void MPEG2_putmvs(MV,PMV,mv_field_sel,dmvector,s,motion_type,
-  hor_f_code,vert_f_code)
+  hor_f_code,vert_f_code,mpeg2_struct)
 int MV[2][2][2],PMV[2][2][2];
 int mv_field_sel[2][2];
 int dmvector[2];
 int s,motion_type,hor_f_code,vert_f_code;
+struct MPEG2_structure *mpeg2_struct;
 {
-  if (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE)
+  if (mpeg2_struct->pict_struct==FRAME_PICTURE)
   {
     if (motion_type==MC_FRAME)
     {
       /* frame prediction */
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code,mpeg2_struct);
       PMV[0][s][0]=PMV[1][s][0]=MV[0][s][0];
       PMV[0][s][1]=PMV[1][s][1]=MV[0][s][1];
     }
     else if (motion_type==MC_FIELD)
     {
       /* field prediction */
-      MPEG2_putbits(mv_field_sel[0][s],1);
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putmv((MV[0][s][1]>>1)-(PMV[0][s][1]>>1),vert_f_code);
-      MPEG2_putbits(mv_field_sel[1][s],1);
-      MPEG2_putmv(MV[1][s][0]-PMV[1][s][0],hor_f_code);
-      MPEG2_putmv((MV[1][s][1]>>1)-(PMV[1][s][1]>>1),vert_f_code);
+      MPEG2_putbits(mv_field_sel[0][s],1,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv((MV[0][s][1]>>1)-(PMV[0][s][1]>>1),vert_f_code,mpeg2_struct);
+      MPEG2_putbits(mv_field_sel[1][s],1,mpeg2_struct);
+      MPEG2_putmv(MV[1][s][0]-PMV[1][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv((MV[1][s][1]>>1)-(PMV[1][s][1]>>1),vert_f_code,mpeg2_struct);
       PMV[0][s][0]=MV[0][s][0];
       PMV[0][s][1]=MV[0][s][1];
       PMV[1][s][0]=MV[1][s][0];
@@ -328,10 +332,10 @@ int s,motion_type,hor_f_code,vert_f_code;
     else
     {
       /* dual prime prediction */
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putdmv(dmvector[0]);
-      MPEG2_putmv((MV[0][s][1]>>1)-(PMV[0][s][1]>>1),vert_f_code);
-      MPEG2_putdmv(dmvector[1]);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putdmv(dmvector[0],mpeg2_struct);
+      MPEG2_putmv((MV[0][s][1]>>1)-(PMV[0][s][1]>>1),vert_f_code,mpeg2_struct);
+      MPEG2_putdmv(dmvector[1],mpeg2_struct);
       PMV[0][s][0]=PMV[1][s][0]=MV[0][s][0];
       PMV[0][s][1]=PMV[1][s][1]=MV[0][s][1];
     }
@@ -342,21 +346,21 @@ int s,motion_type,hor_f_code,vert_f_code;
     if (motion_type==MC_FIELD)
     {
       /* field prediction */
-      MPEG2_putbits(mv_field_sel[0][s],1);
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code);
+      MPEG2_putbits(mv_field_sel[0][s],1,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code,mpeg2_struct);
       PMV[0][s][0]=PMV[1][s][0]=MV[0][s][0];
       PMV[0][s][1]=PMV[1][s][1]=MV[0][s][1];
     }
     else if (motion_type==MC_16X8)
     {
       /* 16x8 prediction */
-      MPEG2_putbits(mv_field_sel[0][s],1);
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code);
-      MPEG2_putbits(mv_field_sel[1][s],1);
-      MPEG2_putmv(MV[1][s][0]-PMV[1][s][0],hor_f_code);
-      MPEG2_putmv(MV[1][s][1]-PMV[1][s][1],vert_f_code);
+      MPEG2_putbits(mv_field_sel[0][s],1,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code,mpeg2_struct);
+      MPEG2_putbits(mv_field_sel[1][s],1,mpeg2_struct);
+      MPEG2_putmv(MV[1][s][0]-PMV[1][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putmv(MV[1][s][1]-PMV[1][s][1],vert_f_code,mpeg2_struct);
       PMV[0][s][0]=MV[0][s][0];
       PMV[0][s][1]=MV[0][s][1];
       PMV[1][s][0]=MV[1][s][0];
@@ -365,10 +369,10 @@ int s,motion_type,hor_f_code,vert_f_code;
     else
     {
       /* dual prime prediction */
-      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code);
-      MPEG2_putdmv(dmvector[0]);
-      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code);
-      MPEG2_putdmv(dmvector[1]);
+      MPEG2_putmv(MV[0][s][0]-PMV[0][s][0],hor_f_code,mpeg2_struct);
+      MPEG2_putdmv(dmvector[0],mpeg2_struct);
+      MPEG2_putmv(MV[0][s][1]-PMV[0][s][1],vert_f_code,mpeg2_struct);
+      MPEG2_putdmv(dmvector[1],mpeg2_struct);
       PMV[0][s][0]=PMV[1][s][0]=MV[0][s][0];
       PMV[0][s][1]=PMV[1][s][1]=MV[0][s][1];
     }

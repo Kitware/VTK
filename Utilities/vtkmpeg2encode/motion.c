@@ -28,43 +28,47 @@
  */
 
 #include <stdio.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* private prototypes */
 
 static void frame_ME _ANSI_ARGS_((unsigned char *oldorg, unsigned char *neworg,
   unsigned char *oldref, unsigned char *newref, unsigned char *cur,
-  int i, int j, int sxf, int syf, int sxb, int syb, struct mbinfo *mbi));
+  int i, int j, int sxf, int syf, int sxb, int syb, struct mbinfo *mbi,struct MPEG2_structure *mpeg2_struct));
 
 static void field_ME _ANSI_ARGS_((unsigned char *oldorg, unsigned char *neworg,
   unsigned char *oldref, unsigned char *newref, unsigned char *cur,
   unsigned char *curref, int i, int j, int sxf, int syf, int sxb, int syb,
-  struct mbinfo *mbi, int secondfield, int ipflag));
+  struct mbinfo *mbi, int secondfield, int ipflag,struct MPEG2_structure *mpeg2_struct));
 
 static void frame_estimate _ANSI_ARGS_((unsigned char *org,
   unsigned char *ref, unsigned char *mb,
   int i, int j,
   int sx, int sy, int *iminp, int *jminp, int *imintp, int *jmintp,
   int *iminbp, int *jminbp, int *dframep, int *dfieldp,
-  int *tselp, int *bselp, int imins[2][2], int jmins[2][2]));
+  int *tselp, int *bselp, int imins[2][2], int jmins[2][2],
+  struct MPEG2_structure *mpeg2_struct));
 
 static void field_estimate _ANSI_ARGS_((unsigned char *toporg,
   unsigned char *topref, unsigned char *botorg, unsigned char *botref,
   unsigned char *mb, int i, int j, int sx, int sy, int ipflag,
   int *iminp, int *jminp, int *imin8up, int *jmin8up, int *imin8lp,
   int *jmin8lp, int *dfieldp, int *d8p, int *selp, int *sel8up, int *sel8lp,
-  int *iminsp, int *jminsp, int *dsp));
+  int *iminsp, int *jminsp, int *dsp,
+  struct MPEG2_structure *mpeg2_struct));
 
 static void dpframe_estimate _ANSI_ARGS_((unsigned char *ref,
   unsigned char *mb, int i, int j, int iminf[2][2], int jminf[2][2],
   int *iminp, int *jminp, int *imindmvp, int *jmindmvp,
-  int *dmcp, int *vmcp));
+  int *dmcp, int *vmcp,
+  struct MPEG2_structure *mpeg2_struct));
 
 static void dpfield_estimate _ANSI_ARGS_((unsigned char *topref,
   unsigned char *botref, unsigned char *mb,
   int i, int j, int imins, int jmins, int *imindmvp, int *jmindmvp,
-  int *dmcp, int *vmcp));
+  int *dmcp, int *vmcp,
+  struct MPEG2_structure *mpeg2_struct));
 
 static int fullsearch _ANSI_ARGS_((unsigned char *org, unsigned char *ref,
   unsigned char *blk,
@@ -107,41 +111,43 @@ static int variance _ANSI_ARGS_((unsigned char *p, int lx));
  * uses global vars: pict_type, frame_pred_dct
  */
 void MPEG2_motion_estimation(oldorg,neworg,oldref,newref,cur,curref,
-  sxf,syf,sxb,syb,mbi,secondfield,ipflag)
+  sxf,syf,sxb,syb,mbi,secondfield,ipflag,mpeg2_struct)
 unsigned char *oldorg,*neworg,*oldref,*newref,*cur,*curref;
 int sxf,syf,sxb,syb;
 struct mbinfo *mbi;
 int secondfield,ipflag;
+  struct MPEG2_structure *mpeg2_struct;
 {
   int i, j;
 
   /* loop through all macroblocks of the picture */
-  for (j=0; j<vtkMPEG2WriterStr->height2; j+=16)
+  for (j=0; j<mpeg2_struct->height2; j+=16)
   {
-    for (i=0; i<vtkMPEG2WriterStr->width; i+=16)
+    for (i=0; i<mpeg2_struct->width; i+=16)
     {
-      if (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE)
-        frame_ME(oldorg,neworg,oldref,newref,cur,i,j,sxf,syf,sxb,syb,mbi);
+      if (mpeg2_struct->pict_struct==FRAME_PICTURE)
+        frame_ME(oldorg,neworg,oldref,newref,cur,i,j,sxf,syf,sxb,syb,mbi,mpeg2_struct);
       else
         field_ME(oldorg,neworg,oldref,newref,cur,curref,i,j,sxf,syf,sxb,syb,
-          mbi,secondfield,ipflag);
+          mbi,secondfield,ipflag,mpeg2_struct);
       mbi++;
     }
 
-    if (!vtkMPEG2WriterStr->quiet)
+    if (!mpeg2_struct->quiet)
     {
       putc('.',stderr);
       fflush(stderr);
     }
   }
-  if (!vtkMPEG2WriterStr->quiet)
+  if (!mpeg2_struct->quiet)
     putc('\n',stderr);
 }
 
-static void frame_ME(oldorg,neworg,oldref,newref,cur,i,j,sxf,syf,sxb,syb,mbi)
+static void frame_ME(oldorg,neworg,oldref,newref,cur,i,j,sxf,syf,sxb,syb,mbi,mpeg2_struct)
 unsigned char *oldorg,*neworg,*oldref,*newref,*cur;
 int i,j,sxf,syf,sxb,syb;
 struct mbinfo *mbi;
+  struct MPEG2_structure *mpeg2_struct;
 {
   int imin,jmin,iminf,jminf,iminr,jminr;
   int imint,jmint,iminb,jminb;
@@ -155,34 +161,34 @@ struct mbinfo *mbi;
   int imins[2][2],jmins[2][2];
   int imindp,jmindp,imindmv,jmindmv,dmc_dp,vmc_dp;
 
-  mb = cur + i + vtkMPEG2WriterStr->width*j;
+  mb = cur + i + mpeg2_struct->width*j;
 
-  var = variance(mb,vtkMPEG2WriterStr->width);
+  var = variance(mb,mpeg2_struct->width);
 
-  if (vtkMPEG2WriterStr->pict_type==I_TYPE)
+  if (mpeg2_struct->pict_type==I_TYPE)
     mbi->mb_type = MB_INTRA;
-  else if (vtkMPEG2WriterStr->pict_type==P_TYPE)
+  else if (mpeg2_struct->pict_type==P_TYPE)
   {
-    if (vtkMPEG2WriterStr->frame_pred_dct)
+    if (mpeg2_struct->frame_pred_dct)
     {
       dmc = fullsearch(oldorg,oldref,mb,
-                       vtkMPEG2WriterStr->width,i,j,sxf,syf,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height,&imin,&jmin);
-      vmc = dist2(oldref+(imin>>1)+vtkMPEG2WriterStr->width*(jmin>>1),mb,
-                  vtkMPEG2WriterStr->width,imin&1,jmin&1,16);
+                       mpeg2_struct->width,i,j,sxf,syf,16,mpeg2_struct->width,mpeg2_struct->height,&imin,&jmin);
+      vmc = dist2(oldref+(imin>>1)+mpeg2_struct->width*(jmin>>1),mb,
+                  mpeg2_struct->width,imin&1,jmin&1,16);
       mbi->motion_type = MC_FRAME;
     }
     else
     {
       frame_estimate(oldorg,oldref,mb,i,j,sxf,syf,
         &imin,&jmin,&imint,&jmint,&iminb,&jminb,
-        &dmc,&dmcfield,&tsel,&bsel,imins,jmins);
+        &dmc,&dmcfield,&tsel,&bsel,imins,jmins,mpeg2_struct);
 
-      if (vtkMPEG2WriterStr->M_val==1)
+      if (mpeg2_struct->M_val==1)
         dpframe_estimate(oldref,mb,i,j>>1,imins,jmins,
-          &imindp,&jmindp,&imindmv,&jmindmv,&dmc_dp,&vmc_dp);
+          &imindp,&jmindp,&imindmv,&jmindmv,&dmc_dp,&vmc_dp,mpeg2_struct);
 
       /* select between dual prime, frame and field prediction */
-      if (vtkMPEG2WriterStr->M_val==1 && dmc_dp<dmc && dmc_dp<dmcfield)
+      if (mpeg2_struct->M_val==1 && dmc_dp<dmc && dmc_dp<dmcfield)
       {
         mbi->motion_type = MC_DMV;
         dmc = dmc_dp;
@@ -191,17 +197,17 @@ struct mbinfo *mbi;
       else if (dmc<=dmcfield)
       {
         mbi->motion_type = MC_FRAME;
-        vmc = dist2(oldref+(imin>>1)+vtkMPEG2WriterStr->width*(jmin>>1),mb,
-                    vtkMPEG2WriterStr->width,imin&1,jmin&1,16);
+        vmc = dist2(oldref+(imin>>1)+mpeg2_struct->width*(jmin>>1),mb,
+                    mpeg2_struct->width,imin&1,jmin&1,16);
       }
       else
       {
         mbi->motion_type = MC_FIELD;
         dmc = dmcfield;
-        vmc = dist2(oldref+(tsel?vtkMPEG2WriterStr->width:0)+(imint>>1)+(vtkMPEG2WriterStr->width<<1)*(jmint>>1),
-                    mb,vtkMPEG2WriterStr->width<<1,imint&1,jmint&1,8);
-        vmc+= dist2(oldref+(bsel?vtkMPEG2WriterStr->width:0)+(iminb>>1)+(vtkMPEG2WriterStr->width<<1)*(jminb>>1),
-                    mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,iminb&1,jminb&1,8);
+        vmc = dist2(oldref+(tsel?mpeg2_struct->width:0)+(imint>>1)+(mpeg2_struct->width<<1)*(jmint>>1),
+                    mb,mpeg2_struct->width<<1,imint&1,jmint&1,8);
+        vmc+= dist2(oldref+(bsel?mpeg2_struct->width:0)+(iminb>>1)+(mpeg2_struct->width<<1)*(jminb>>1),
+                    mb+mpeg2_struct->width,mpeg2_struct->width<<1,iminb&1,jminb&1,8);
       }
     }
 
@@ -225,7 +231,7 @@ struct mbinfo *mbi;
        * blocks with small prediction error are always coded as No-MC
        * (requires no motion vectors, allows skipping)
        */
-      v0 = dist2(oldref+i+vtkMPEG2WriterStr->width*j,mb,vtkMPEG2WriterStr->width,0,0,16);
+      v0 = dist2(oldref+i+mpeg2_struct->width*j,mb,mpeg2_struct->width,0,0,16);
       if (4*v0>5*vmc && v0>=9*256)
       {
         /* use MC */
@@ -269,26 +275,26 @@ struct mbinfo *mbi;
       }
     }
   }
-  else /* if (vtkMPEG2WriterStr->pict_type==B_TYPE) */
+  else /* if (mpeg2_struct->pict_type==B_TYPE) */
   {
-    if (vtkMPEG2WriterStr->frame_pred_dct)
+    if (mpeg2_struct->frame_pred_dct)
     {
       /* forward */
       dmcf = fullsearch(oldorg,oldref,mb,
-                        vtkMPEG2WriterStr->width,i,j,sxf,syf,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height,&iminf,&jminf);
-      vmcf = dist2(oldref+(iminf>>1)+vtkMPEG2WriterStr->width*(jminf>>1),mb,
-                   vtkMPEG2WriterStr->width,iminf&1,jminf&1,16);
+                        mpeg2_struct->width,i,j,sxf,syf,16,mpeg2_struct->width,mpeg2_struct->height,&iminf,&jminf);
+      vmcf = dist2(oldref+(iminf>>1)+mpeg2_struct->width*(jminf>>1),mb,
+                   mpeg2_struct->width,iminf&1,jminf&1,16);
 
       /* backward */
       dmcr = fullsearch(neworg,newref,mb,
-                        vtkMPEG2WriterStr->width,i,j,sxb,syb,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height,&iminr,&jminr);
-      vmcr = dist2(newref+(iminr>>1)+vtkMPEG2WriterStr->width*(jminr>>1),mb,
-                   vtkMPEG2WriterStr->width,iminr&1,jminr&1,16);
+                        mpeg2_struct->width,i,j,sxb,syb,16,mpeg2_struct->width,mpeg2_struct->height,&iminr,&jminr);
+      vmcr = dist2(newref+(iminr>>1)+mpeg2_struct->width*(jminr>>1),mb,
+                   mpeg2_struct->width,iminr&1,jminr&1,16);
 
       /* interpolated (bidirectional) */
-      vmci = bdist2(oldref+(iminf>>1)+vtkMPEG2WriterStr->width*(jminf>>1),
-                    newref+(iminr>>1)+vtkMPEG2WriterStr->width*(jminr>>1),
-                    mb,vtkMPEG2WriterStr->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
+      vmci = bdist2(oldref+(iminf>>1)+mpeg2_struct->width*(jminf>>1),
+                    newref+(iminr>>1)+mpeg2_struct->width*(jminr>>1),
+                    mb,mpeg2_struct->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
 
       /* decisions */
 
@@ -318,30 +324,30 @@ struct mbinfo *mbi;
       /* forward prediction */
       frame_estimate(oldorg,oldref,mb,i,j,sxf,syf,
         &iminf,&jminf,&imintf,&jmintf,&iminbf,&jminbf,
-        &dmcf,&dmcfieldf,&tself,&bself,imins,jmins);
+        &dmcf,&dmcfieldf,&tself,&bself,imins,jmins,mpeg2_struct);
 
       /* backward prediction */
       frame_estimate(neworg,newref,mb,i,j,sxb,syb,
         &iminr,&jminr,&imintr,&jmintr,&iminbr,&jminbr,
-        &dmcr,&dmcfieldr,&tselr,&bselr,imins,jmins);
+        &dmcr,&dmcfieldr,&tselr,&bselr,imins,jmins,mpeg2_struct);
 
       /* calculate interpolated distance */
       /* frame */
-      dmci = bdist1(oldref+(iminf>>1)+vtkMPEG2WriterStr->width*(jminf>>1),
-                    newref+(iminr>>1)+vtkMPEG2WriterStr->width*(jminr>>1),
-                    mb,vtkMPEG2WriterStr->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
+      dmci = bdist1(oldref+(iminf>>1)+mpeg2_struct->width*(jminf>>1),
+                    newref+(iminr>>1)+mpeg2_struct->width*(jminr>>1),
+                    mb,mpeg2_struct->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
 
       /* top field */
       dmcfieldi = bdist1(
-                    oldref+(imintf>>1)+(tself?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jmintf>>1),
-                    newref+(imintr>>1)+(tselr?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jmintr>>1),
-                    mb,vtkMPEG2WriterStr->width<<1,imintf&1,jmintf&1,imintr&1,jmintr&1,8);
+                    oldref+(imintf>>1)+(tself?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jmintf>>1),
+                    newref+(imintr>>1)+(tselr?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jmintr>>1),
+                    mb,mpeg2_struct->width<<1,imintf&1,jmintf&1,imintr&1,jmintr&1,8);
 
       /* bottom field */
       dmcfieldi+= bdist1(
-                    oldref+(iminbf>>1)+(bself?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jminbf>>1),
-                    newref+(iminbr>>1)+(bselr?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jminbr>>1),
-                    mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,iminbf&1,jminbf&1,iminbr&1,jminbr&1,8);
+                    oldref+(iminbf>>1)+(bself?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jminbf>>1),
+                    newref+(iminbr>>1)+(bselr?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jminbr>>1),
+                    mb+mpeg2_struct->width,mpeg2_struct->width<<1,iminbf&1,jminbf&1,iminbr&1,jminbr&1,8);
 
       /* select prediction type of minimum distance from the
        * six candidates (field/frame * forward/backward/interpolated)
@@ -352,9 +358,9 @@ struct mbinfo *mbi;
         /* frame, interpolated */
         mbi->mb_type = MB_FORWARD|MB_BACKWARD;
         mbi->motion_type = MC_FRAME;
-        vmc = bdist2(oldref+(iminf>>1)+vtkMPEG2WriterStr->width*(jminf>>1),
-                     newref+(iminr>>1)+vtkMPEG2WriterStr->width*(jminr>>1),
-                     mb,vtkMPEG2WriterStr->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
+        vmc = bdist2(oldref+(iminf>>1)+mpeg2_struct->width*(jminf>>1),
+                     newref+(iminr>>1)+mpeg2_struct->width*(jminr>>1),
+                     mb,mpeg2_struct->width,iminf&1,jminf&1,iminr&1,jminr&1,16);
       }
       else if (dmcfieldi<dmcf && dmcfieldi<dmcfieldf
                && dmcfieldi<dmcr && dmcfieldi<dmcfieldr)
@@ -362,48 +368,48 @@ struct mbinfo *mbi;
         /* field, interpolated */
         mbi->mb_type = MB_FORWARD|MB_BACKWARD;
         mbi->motion_type = MC_FIELD;
-        vmc = bdist2(oldref+(imintf>>1)+(tself?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jmintf>>1),
-                     newref+(imintr>>1)+(tselr?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jmintr>>1),
-                     mb,vtkMPEG2WriterStr->width<<1,imintf&1,jmintf&1,imintr&1,jmintr&1,8);
-        vmc+= bdist2(oldref+(iminbf>>1)+(bself?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jminbf>>1),
-                     newref+(iminbr>>1)+(bselr?vtkMPEG2WriterStr->width:0)+(vtkMPEG2WriterStr->width<<1)*(jminbr>>1),
-                     mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,iminbf&1,jminbf&1,iminbr&1,jminbr&1,8);
+        vmc = bdist2(oldref+(imintf>>1)+(tself?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jmintf>>1),
+                     newref+(imintr>>1)+(tselr?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jmintr>>1),
+                     mb,mpeg2_struct->width<<1,imintf&1,jmintf&1,imintr&1,jmintr&1,8);
+        vmc+= bdist2(oldref+(iminbf>>1)+(bself?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jminbf>>1),
+                     newref+(iminbr>>1)+(bselr?mpeg2_struct->width:0)+(mpeg2_struct->width<<1)*(jminbr>>1),
+                     mb+mpeg2_struct->width,mpeg2_struct->width<<1,iminbf&1,jminbf&1,iminbr&1,jminbr&1,8);
       }
       else if (dmcf<dmcfieldf && dmcf<dmcr && dmcf<dmcfieldr)
       {
         /* frame, forward */
         mbi->mb_type = MB_FORWARD;
         mbi->motion_type = MC_FRAME;
-        vmc = dist2(oldref+(iminf>>1)+vtkMPEG2WriterStr->width*(jminf>>1),mb,
-                    vtkMPEG2WriterStr->width,iminf&1,jminf&1,16);
+        vmc = dist2(oldref+(iminf>>1)+mpeg2_struct->width*(jminf>>1),mb,
+                    mpeg2_struct->width,iminf&1,jminf&1,16);
       }
       else if (dmcfieldf<dmcr && dmcfieldf<dmcfieldr)
       {
         /* field, forward */
         mbi->mb_type = MB_FORWARD;
         mbi->motion_type = MC_FIELD;
-        vmc = dist2(oldref+(tself?vtkMPEG2WriterStr->width:0)+(imintf>>1)+(vtkMPEG2WriterStr->width<<1)*(jmintf>>1),
-                    mb,vtkMPEG2WriterStr->width<<1,imintf&1,jmintf&1,8);
-        vmc+= dist2(oldref+(bself?vtkMPEG2WriterStr->width:0)+(iminbf>>1)+(vtkMPEG2WriterStr->width<<1)*(jminbf>>1),
-                    mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,iminbf&1,jminbf&1,8);
+        vmc = dist2(oldref+(tself?mpeg2_struct->width:0)+(imintf>>1)+(mpeg2_struct->width<<1)*(jmintf>>1),
+                    mb,mpeg2_struct->width<<1,imintf&1,jmintf&1,8);
+        vmc+= dist2(oldref+(bself?mpeg2_struct->width:0)+(iminbf>>1)+(mpeg2_struct->width<<1)*(jminbf>>1),
+                    mb+mpeg2_struct->width,mpeg2_struct->width<<1,iminbf&1,jminbf&1,8);
       }
       else if (dmcr<dmcfieldr)
       {
         /* frame, backward */
         mbi->mb_type = MB_BACKWARD;
         mbi->motion_type = MC_FRAME;
-        vmc = dist2(newref+(iminr>>1)+vtkMPEG2WriterStr->width*(jminr>>1),mb,
-                    vtkMPEG2WriterStr->width,iminr&1,jminr&1,16);
+        vmc = dist2(newref+(iminr>>1)+mpeg2_struct->width*(jminr>>1),mb,
+                    mpeg2_struct->width,iminr&1,jminr&1,16);
       }
       else
       {
         /* field, backward */
         mbi->mb_type = MB_BACKWARD;
         mbi->motion_type = MC_FIELD;
-        vmc = dist2(newref+(tselr?vtkMPEG2WriterStr->width:0)+(imintr>>1)+(vtkMPEG2WriterStr->width<<1)*(jmintr>>1),
-                    mb,vtkMPEG2WriterStr->width<<1,imintr&1,jmintr&1,8);
-        vmc+= dist2(newref+(bselr?vtkMPEG2WriterStr->width:0)+(iminbr>>1)+(vtkMPEG2WriterStr->width<<1)*(jminbr>>1),
-                    mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,iminbr&1,jminbr&1,8);
+        vmc = dist2(newref+(tselr?mpeg2_struct->width:0)+(imintr>>1)+(mpeg2_struct->width<<1)*(jmintr>>1),
+                    mb,mpeg2_struct->width<<1,imintr&1,jmintr&1,8);
+        vmc+= dist2(newref+(bselr?mpeg2_struct->width:0)+(iminbr>>1)+(mpeg2_struct->width<<1)*(jminbr>>1),
+                    mb+mpeg2_struct->width,mpeg2_struct->width<<1,iminbr&1,jminbr&1,8);
       }
     }
 
@@ -479,14 +485,15 @@ struct mbinfo *mbi;
  *  mv_field_sel: top/bottom field
  *  motion_type: MC_FIELD, MC_16X8
  *
- * uses global vars: pict_type, vtkMPEG2WriterStr->pict_struct
+ * uses global vars: pict_type, mpeg2_struct->pict_struct
  */
 static void field_ME(oldorg,neworg,oldref,newref,cur,curref,i,j,
-  sxf,syf,sxb,syb,mbi,secondfield,ipflag)
+  sxf,syf,sxb,syb,mbi,secondfield,ipflag,mpeg2_struct)
 unsigned char *oldorg,*neworg,*oldref,*newref,*cur,*curref;
 int i,j,sxf,syf,sxb,syb;
 struct mbinfo *mbi;
 int secondfield,ipflag;
+struct MPEG2_structure *mpeg2_struct;
 {
   int w2;
   unsigned char *mb, *toporg, *topref, *botorg, *botref;
@@ -496,31 +503,31 @@ int secondfield,ipflag;
   int iminr,jminr,imin8ur,jmin8ur,imin8lr,jmin8lr,dmcfieldr,dmc8r,selr,sel8ur,sel8lr;
   int imins,jmins,ds,imindmv,jmindmv,vmc_dp,dmc_dp;
 
-  w2 = vtkMPEG2WriterStr->width<<1;
+  w2 = mpeg2_struct->width<<1;
 
   mb = cur + i + w2*j;
-  if (vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD)
-    mb += vtkMPEG2WriterStr->width;
+  if (mpeg2_struct->pict_struct==BOTTOM_FIELD)
+    mb += mpeg2_struct->width;
 
   var = variance(mb,w2);
 
-  if (vtkMPEG2WriterStr->pict_type==I_TYPE)
+  if (mpeg2_struct->pict_type==I_TYPE)
     mbi->mb_type = MB_INTRA;
-  else if (vtkMPEG2WriterStr->pict_type==P_TYPE)
+  else if (mpeg2_struct->pict_type==P_TYPE)
   {
     toporg = oldorg;
     topref = oldref;
-    botorg = oldorg + vtkMPEG2WriterStr->width;
-    botref = oldref + vtkMPEG2WriterStr->width;
+    botorg = oldorg + mpeg2_struct->width;
+    botref = oldref + mpeg2_struct->width;
 
     if (secondfield)
     {
       /* opposite parity field is in same frame */
-      if (vtkMPEG2WriterStr->pict_struct==TOP_FIELD)
+      if (mpeg2_struct->pict_struct==TOP_FIELD)
       {
         /* current is top field */
-        botorg = cur + vtkMPEG2WriterStr->width;
-        botref = curref + vtkMPEG2WriterStr->width;
+        botorg = cur + mpeg2_struct->width;
+        botref = curref + mpeg2_struct->width;
       }
       else
       {
@@ -532,14 +539,14 @@ int secondfield,ipflag;
 
     field_estimate(toporg,topref,botorg,botref,mb,i,j,sxf,syf,ipflag,
                    &imin,&jmin,&imin8u,&jmin8u,&imin8l,&jmin8l,
-                   &dmcfield,&dmc8,&sel,&sel8u,&sel8l,&imins,&jmins,&ds);
+                   &dmcfield,&dmc8,&sel,&sel8u,&sel8l,&imins,&jmins,&ds,mpeg2_struct);
 
-    if (vtkMPEG2WriterStr->M_val==1 && !ipflag)  /* generic condition which permits Dual Prime */
+    if (mpeg2_struct->M_val==1 && !ipflag)  /* generic condition which permits Dual Prime */
       dpfield_estimate(topref,botref,mb,i,j,imins,jmins,&imindmv,&jmindmv,
-        &dmc_dp,&vmc_dp);
+        &dmc_dp,&vmc_dp,mpeg2_struct);
 
     /* select between dual prime, field and 16x8 prediction */
-    if (vtkMPEG2WriterStr->M_val==1 && !ipflag && dmc_dp<dmc8 && dmc_dp<dmcfield)
+    if (mpeg2_struct->M_val==1 && !ipflag && dmc_dp<dmc8 && dmc_dp<dmcfield)
     {
       /* Dual Prime prediction */
       mbi->motion_type = MC_DMV;
@@ -575,7 +582,7 @@ int secondfield,ipflag;
        * (not allowed if ipflag is set)
        */
       if (!ipflag)
-        v0 = dist2(((vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD)?botref:topref) + i + w2*j,
+        v0 = dist2(((mpeg2_struct->pict_struct==BOTTOM_FIELD)?botref:topref) + i + w2*j,
                    mb,w2,0,0,16);
       if (ipflag || (4*v0>5*vmc && v0>=9*256))
       {
@@ -615,38 +622,38 @@ int secondfield,ipflag;
         mbi->motion_type = MC_FIELD;
         mbi->MV[0][0][0] = 0;
         mbi->MV[0][0][1] = 0;
-        mbi->mv_field_sel[0][0] = (vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD);
+        mbi->mv_field_sel[0][0] = (mpeg2_struct->pict_struct==BOTTOM_FIELD);
       }
     }
   }
   else /* if (pict_type==B_TYPE) */
   {
     /* forward prediction */
-    field_estimate(oldorg,oldref,oldorg+vtkMPEG2WriterStr->width,oldref+vtkMPEG2WriterStr->width,mb,
+    field_estimate(oldorg,oldref,oldorg+mpeg2_struct->width,oldref+mpeg2_struct->width,mb,
                    i,j,sxf,syf,0,
                    &iminf,&jminf,&imin8uf,&jmin8uf,&imin8lf,&jmin8lf,
-                   &dmcfieldf,&dmc8f,&self,&sel8uf,&sel8lf,&imins,&jmins,&ds);
+                   &dmcfieldf,&dmc8f,&self,&sel8uf,&sel8lf,&imins,&jmins,&ds,mpeg2_struct);
 
     /* backward prediction */
-    field_estimate(neworg,newref,neworg+vtkMPEG2WriterStr->width,newref+vtkMPEG2WriterStr->width,mb,
+    field_estimate(neworg,newref,neworg+mpeg2_struct->width,newref+mpeg2_struct->width,mb,
                    i,j,sxb,syb,0,
                    &iminr,&jminr,&imin8ur,&jmin8ur,&imin8lr,&jmin8lr,
-                   &dmcfieldr,&dmc8r,&selr,&sel8ur,&sel8lr,&imins,&jmins,&ds);
+                   &dmcfieldr,&dmc8r,&selr,&sel8ur,&sel8lr,&imins,&jmins,&ds,mpeg2_struct);
 
     /* calculate distances for bidirectional prediction */
     /* field */
-    dmcfieldi = bdist1(oldref + (self?vtkMPEG2WriterStr->width:0) + (iminf>>1) + w2*(jminf>>1),
-                       newref + (selr?vtkMPEG2WriterStr->width:0) + (iminr>>1) + w2*(jminr>>1),
+    dmcfieldi = bdist1(oldref + (self?mpeg2_struct->width:0) + (iminf>>1) + w2*(jminf>>1),
+                       newref + (selr?mpeg2_struct->width:0) + (iminr>>1) + w2*(jminr>>1),
                        mb,w2,iminf&1,jminf&1,iminr&1,jminr&1,16);
 
     /* 16x8 upper half block */
-    dmc8i = bdist1(oldref + (sel8uf?vtkMPEG2WriterStr->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
-                   newref + (sel8ur?vtkMPEG2WriterStr->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
+    dmc8i = bdist1(oldref + (sel8uf?mpeg2_struct->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
+                   newref + (sel8ur?mpeg2_struct->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
                    mb,w2,imin8uf&1,jmin8uf&1,imin8ur&1,jmin8ur&1,8);
 
     /* 16x8 lower half block */
-    dmc8i+= bdist1(oldref + (sel8lf?vtkMPEG2WriterStr->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
-                   newref + (sel8lr?vtkMPEG2WriterStr->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
+    dmc8i+= bdist1(oldref + (sel8lf?mpeg2_struct->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
+                   newref + (sel8lr?mpeg2_struct->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
                    mb+8*w2,w2,imin8lf&1,jmin8lf&1,imin8lr&1,jmin8lr&1,8);
 
     /* select prediction type of minimum distance */
@@ -656,8 +663,8 @@ int secondfield,ipflag;
       /* field, interpolated */
       mbi->mb_type = MB_FORWARD|MB_BACKWARD;
       mbi->motion_type = MC_FIELD;
-      vmc = bdist2(oldref + (self?vtkMPEG2WriterStr->width:0) + (iminf>>1) + w2*(jminf>>1),
-                   newref + (selr?vtkMPEG2WriterStr->width:0) + (iminr>>1) + w2*(jminr>>1),
+      vmc = bdist2(oldref + (self?mpeg2_struct->width:0) + (iminf>>1) + w2*(jminf>>1),
+                   newref + (selr?mpeg2_struct->width:0) + (iminr>>1) + w2*(jminr>>1),
                    mb,w2,iminf&1,jminf&1,iminr&1,jminr&1,16);
     }
     else if (dmc8i<dmcfieldf && dmc8i<dmc8f
@@ -668,13 +675,13 @@ int secondfield,ipflag;
       mbi->motion_type = MC_16X8;
 
       /* upper half block */
-      vmc = bdist2(oldref + (sel8uf?vtkMPEG2WriterStr->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
-                   newref + (sel8ur?vtkMPEG2WriterStr->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
+      vmc = bdist2(oldref + (sel8uf?mpeg2_struct->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
+                   newref + (sel8ur?mpeg2_struct->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
                    mb,w2,imin8uf&1,jmin8uf&1,imin8ur&1,jmin8ur&1,8);
 
       /* lower half block */
-      vmc+= bdist2(oldref + (sel8lf?vtkMPEG2WriterStr->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
-                   newref + (sel8lr?vtkMPEG2WriterStr->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
+      vmc+= bdist2(oldref + (sel8lf?mpeg2_struct->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
+                   newref + (sel8lr?mpeg2_struct->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
                    mb+8*w2,w2,imin8lf&1,jmin8lf&1,imin8lr&1,jmin8lr&1,8);
     }
     else if (dmcfieldf<dmc8f && dmcfieldf<dmcfieldr && dmcfieldf<dmc8r)
@@ -682,7 +689,7 @@ int secondfield,ipflag;
       /* field, forward */
       mbi->mb_type = MB_FORWARD;
       mbi->motion_type = MC_FIELD;
-      vmc = dist2(oldref + (self?vtkMPEG2WriterStr->width:0) + (iminf>>1) + w2*(jminf>>1),
+      vmc = dist2(oldref + (self?mpeg2_struct->width:0) + (iminf>>1) + w2*(jminf>>1),
                   mb,w2,iminf&1,jminf&1,16);
     }
     else if (dmc8f<dmcfieldr && dmc8f<dmc8r)
@@ -692,11 +699,11 @@ int secondfield,ipflag;
       mbi->motion_type = MC_16X8;
 
       /* upper half block */
-      vmc = dist2(oldref + (sel8uf?vtkMPEG2WriterStr->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
+      vmc = dist2(oldref + (sel8uf?mpeg2_struct->width:0) + (imin8uf>>1) + w2*(jmin8uf>>1),
                   mb,w2,imin8uf&1,jmin8uf&1,8);
 
       /* lower half block */
-      vmc+= dist2(oldref + (sel8lf?vtkMPEG2WriterStr->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
+      vmc+= dist2(oldref + (sel8lf?mpeg2_struct->width:0) + (imin8lf>>1) + w2*(jmin8lf>>1),
                   mb+8*w2,w2,imin8lf&1,jmin8lf&1,8);
     }
     else if (dmcfieldr<dmc8r)
@@ -704,7 +711,7 @@ int secondfield,ipflag;
       /* field, backward */
       mbi->mb_type = MB_BACKWARD;
       mbi->motion_type = MC_FIELD;
-      vmc = dist2(newref + (selr?vtkMPEG2WriterStr->width:0) + (iminr>>1) + w2*(jminr>>1),
+      vmc = dist2(newref + (selr?mpeg2_struct->width:0) + (iminr>>1) + w2*(jminr>>1),
                   mb,w2,iminr&1,jminr&1,16);
     }
     else
@@ -714,11 +721,11 @@ int secondfield,ipflag;
       mbi->motion_type = MC_16X8;
 
       /* upper half block */
-      vmc = dist2(newref + (sel8ur?vtkMPEG2WriterStr->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
+      vmc = dist2(newref + (sel8ur?mpeg2_struct->width:0) + (imin8ur>>1) + w2*(jmin8ur>>1),
                   mb,w2,imin8ur&1,jmin8ur&1,8);
 
       /* lower half block */
-      vmc+= dist2(newref + (sel8lr?vtkMPEG2WriterStr->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
+      vmc+= dist2(newref + (sel8lr?mpeg2_struct->width:0) + (imin8lr>>1) + w2*(jmin8lr>>1),
                   mb+8*w2,w2,imin8lr&1,jmin8lr&1,8);
     }
 
@@ -777,7 +784,7 @@ int secondfield,ipflag;
  */
 static void frame_estimate(org,ref,mb,i,j,sx,sy,
   iminp,jminp,imintp,jmintp,iminbp,jminbp,dframep,dfieldp,tselp,bselp,
-  imins,jmins)
+  imins,jmins,mpeg2_struct)
 unsigned char *org,*ref,*mb;
 int i,j,sx,sy;
 int *iminp,*jminp;
@@ -785,20 +792,21 @@ int *imintp,*jmintp,*iminbp,*jminbp;
 int *dframep,*dfieldp;
 int *tselp,*bselp;
 int imins[2][2],jmins[2][2];
+  struct MPEG2_structure *mpeg2_struct;
 {
   int dt,db,dmint,dminb;
   int imint,iminb,jmint,jminb;
 
   /* frame prediction */
-  *dframep = fullsearch(org,ref,mb,vtkMPEG2WriterStr->width,i,j,sx,sy,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height,
+  *dframep = fullsearch(org,ref,mb,mpeg2_struct->width,i,j,sx,sy,16,mpeg2_struct->width,mpeg2_struct->height,
                         iminp,jminp);
 
   /* predict top field from top field */
-  dt = fullsearch(org,ref,mb,vtkMPEG2WriterStr->width<<1,i,j>>1,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+  dt = fullsearch(org,ref,mb,mpeg2_struct->width<<1,i,j>>1,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                   &imint,&jmint);
 
   /* predict top field from bottom field */
-  db = fullsearch(org+vtkMPEG2WriterStr->width,ref+vtkMPEG2WriterStr->width,mb,vtkMPEG2WriterStr->width<<1,i,j>>1,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+  db = fullsearch(org+mpeg2_struct->width,ref+mpeg2_struct->width,mb,mpeg2_struct->width<<1,i,j>>1,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                   &iminb,&jminb);
 
   imins[0][0] = imint;
@@ -817,11 +825,11 @@ int imins[2][2],jmins[2][2];
   }
 
   /* predict bottom field from top field */
-  dt = fullsearch(org,ref,mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,i,j>>1,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+  dt = fullsearch(org,ref,mb+mpeg2_struct->width,mpeg2_struct->width<<1,i,j>>1,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                   &imint,&jmint);
 
   /* predict bottom field from bottom field */
-  db = fullsearch(org+vtkMPEG2WriterStr->width,ref+vtkMPEG2WriterStr->width,mb+vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->width<<1,i,j>>1,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+  db = fullsearch(org+mpeg2_struct->width,ref+mpeg2_struct->width,mb+mpeg2_struct->width,mpeg2_struct->width<<1,i,j>>1,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                   &iminb,&jminb);
 
   imins[0][1] = imint;
@@ -863,7 +871,7 @@ int imins[2][2],jmins[2][2];
  */
 static void field_estimate(toporg,topref,botorg,botref,mb,i,j,sx,sy,ipflag,
   iminp,jminp,imin8up,jmin8up,imin8lp,jmin8lp,dfieldp,d8p,selp,sel8up,sel8lp,
-  iminsp,jminsp,dsp)
+  iminsp,jminsp,dsp,mpeg2_struct)
 unsigned char *toporg, *topref, *botorg, *botref, *mb;
 int i,j,sx,sy;
 int ipflag;
@@ -872,12 +880,13 @@ int *imin8up, *jmin8up, *imin8lp, *jmin8lp;
 int *dfieldp,*d8p;
 int *selp, *sel8up, *sel8lp;
 int *iminsp, *jminsp, *dsp;
+struct MPEG2_structure *mpeg2_struct;
 {
   int dt, db, imint, jmint, iminb, jminb, notop, nobot;
 
   /* if ipflag is set, predict from field of opposite parity only */
-  notop = ipflag && (vtkMPEG2WriterStr->pict_struct==TOP_FIELD);
-  nobot = ipflag && (vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD);
+  notop = ipflag && (mpeg2_struct->pict_struct==TOP_FIELD);
+  nobot = ipflag && (mpeg2_struct->pict_struct==BOTTOM_FIELD);
 
   /* field prediction */
 
@@ -885,20 +894,20 @@ int *iminsp, *jminsp, *dsp;
   if (notop)
     dt = 65536; /* infinity */
   else
-    dt = fullsearch(toporg,topref,mb,vtkMPEG2WriterStr->width<<1,
-                    i,j,sx,sy>>1,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    dt = fullsearch(toporg,topref,mb,mpeg2_struct->width<<1,
+                    i,j,sx,sy>>1,16,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &imint,&jmint);
 
   /* predict current field from bottom field */
   if (nobot)
     db = 65536; /* infinity */
   else
-    db = fullsearch(botorg,botref,mb,vtkMPEG2WriterStr->width<<1,
-                    i,j,sx,sy>>1,16,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    db = fullsearch(botorg,botref,mb,mpeg2_struct->width<<1,
+                    i,j,sx,sy>>1,16,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &iminb,&jminb);
 
   /* same parity prediction (only valid if ipflag==0) */
-  if (vtkMPEG2WriterStr->pict_struct==TOP_FIELD)
+  if (mpeg2_struct->pict_struct==TOP_FIELD)
   {
     *iminsp = imint; *jminsp = jmint; *dsp = dt;
   }
@@ -924,16 +933,16 @@ int *iminsp, *jminsp, *dsp;
   if (notop)
     dt = 65536;
   else
-    dt = fullsearch(toporg,topref,mb,vtkMPEG2WriterStr->width<<1,
-                    i,j,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    dt = fullsearch(toporg,topref,mb,mpeg2_struct->width<<1,
+                    i,j,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &imint,&jmint);
 
   /* predict upper half field from bottom field */
   if (nobot)
     db = 65536;
   else
-    db = fullsearch(botorg,botref,mb,vtkMPEG2WriterStr->width<<1,
-                    i,j,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    db = fullsearch(botorg,botref,mb,mpeg2_struct->width<<1,
+                    i,j,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &iminb,&jminb);
 
   /* select prediction for upper half field */
@@ -950,16 +959,16 @@ int *iminsp, *jminsp, *dsp;
   if (notop)
     dt = 65536;
   else
-    dt = fullsearch(toporg,topref,mb+(vtkMPEG2WriterStr->width<<4),vtkMPEG2WriterStr->width<<1,
-                    i,j+8,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    dt = fullsearch(toporg,topref,mb+(mpeg2_struct->width<<4),mpeg2_struct->width<<1,
+                    i,j+8,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &imint,&jmint);
 
   /* predict lower half field from bottom field */
   if (nobot)
     db = 65536;
   else
-    db = fullsearch(botorg,botref,mb+(vtkMPEG2WriterStr->width<<4),vtkMPEG2WriterStr->width<<1,
-                    i,j+8,sx,sy>>1,8,vtkMPEG2WriterStr->width,vtkMPEG2WriterStr->height>>1,
+    db = fullsearch(botorg,botref,mb+(mpeg2_struct->width<<4),mpeg2_struct->width<<1,
+                    i,j+8,sx,sy>>1,8,mpeg2_struct->width,mpeg2_struct->height>>1,
                     &iminb,&jminb);
 
   /* select prediction for lower half field */
@@ -974,13 +983,14 @@ int *iminsp, *jminsp, *dsp;
 }
 
 static void dpframe_estimate(ref,mb,i,j,iminf,jminf,
-  iminp,jminp,imindmvp, jmindmvp, dmcp, vmcp)
+  iminp,jminp,imindmvp, jmindmvp, dmcp, vmcp,mpeg2_struct)
 unsigned char *ref, *mb;
 int i,j;
 int iminf[2][2], jminf[2][2];
 int *iminp, *jminp;
 int *imindmvp, *jmindmvp;
 int *dmcp,*vmcp;
+struct MPEG2_structure *mpeg2_struct;
 {
   int pref,ppred,delta_x,delta_y;
   int is,js,it,jt,ib,jb,it0,jt0,ib0,jb0;
@@ -1016,7 +1026,7 @@ int *dmcp,*vmcp;
         /* mvxs and mvys scaling*/
         is<<=1;
         js<<=1;
-        if (vtkMPEG2WriterStr->topfirst == ppred)
+        if (mpeg2_struct->topfirst == ppred)
         {
           /* second field: scale by 1/3 */
           is = (is>=0) ? (is+1)/3 : -((-is+1)/3);
@@ -1027,7 +1037,7 @@ int *dmcp,*vmcp;
       }
 
       /* vector for prediction from field of opposite 'parity' */
-      if (vtkMPEG2WriterStr->topfirst)
+      if (mpeg2_struct->topfirst)
       {
         /* vector for prediction of top field from bottom field */
         it0 = ((is+(is>0))>>1);
@@ -1056,8 +1066,8 @@ int *dmcp,*vmcp;
       ib0 += i<<1;
       jb0 += j<<1;
 
-      if (is >= 0 && is <= (vtkMPEG2WriterStr->width-16)<<1 &&
-          js >= 0 && js <= (vtkMPEG2WriterStr->height-16))
+      if (is >= 0 && is <= (mpeg2_struct->width-16)<<1 &&
+          js >= 0 && js <= (mpeg2_struct->height-16))
       {
         for (delta_y=-1; delta_y<=1; delta_y++)
         {
@@ -1069,26 +1079,26 @@ int *dmcp,*vmcp;
             ib = ib0 + delta_x;
             jb = jb0 + delta_y;
 
-            if (it >= 0 && it <= (vtkMPEG2WriterStr->width-16)<<1 &&
-                jt >= 0 && jt <= (vtkMPEG2WriterStr->height-16) &&
-                ib >= 0 && ib <= (vtkMPEG2WriterStr->width-16)<<1 &&
-                jb >= 0 && jb <= (vtkMPEG2WriterStr->height-16))
+            if (it >= 0 && it <= (mpeg2_struct->width-16)<<1 &&
+                jt >= 0 && jt <= (mpeg2_struct->height-16) &&
+                ib >= 0 && ib <= (mpeg2_struct->width-16)<<1 &&
+                jb >= 0 && jb <= (mpeg2_struct->height-16))
             {
               /* compute prediction error */
               local_dist = bdist2(
-                ref + (is>>1) + (vtkMPEG2WriterStr->width<<1)*(js>>1),
-                ref + vtkMPEG2WriterStr->width + (it>>1) + (vtkMPEG2WriterStr->width<<1)*(jt>>1),
+                ref + (is>>1) + (mpeg2_struct->width<<1)*(js>>1),
+                ref + mpeg2_struct->width + (it>>1) + (mpeg2_struct->width<<1)*(jt>>1),
                 mb,             /* current mb location */
-                vtkMPEG2WriterStr->width<<1,       /* adjacent line distance */
+                mpeg2_struct->width<<1,       /* adjacent line distance */
                 is&1, js&1, it&1, jt&1, /* half-pel flags */
-                8);             /* block vtkMPEG2WriterStr->height */
+                8);             /* block mpeg2_struct->height */
               local_dist += bdist2(
-                ref + vtkMPEG2WriterStr->width + (is>>1) + (vtkMPEG2WriterStr->width<<1)*(js>>1),
-                ref + (ib>>1) + (vtkMPEG2WriterStr->width<<1)*(jb>>1),
-                mb + vtkMPEG2WriterStr->width,     /* current mb location */
-                vtkMPEG2WriterStr->width<<1,       /* adjacent line distance */
+                ref + mpeg2_struct->width + (is>>1) + (mpeg2_struct->width<<1)*(js>>1),
+                ref + (ib>>1) + (mpeg2_struct->width<<1)*(jb>>1),
+                mb + mpeg2_struct->width,     /* current mb location */
+                mpeg2_struct->width<<1,       /* adjacent line distance */
                 is&1, js&1, ib&1, jb&1, /* half-pel flags */
-                8);             /* block vtkMPEG2WriterStr->height */
+                8);             /* block mpeg2_struct->height */
 
               /* update delta with least distortion vector */
               if (local_dist < vmc)
@@ -1112,17 +1122,17 @@ int *dmcp,*vmcp;
 
   /* Compute L1 error for decision purposes */
   local_dist = bdist1(
-    ref + (imins>>1) + (vtkMPEG2WriterStr->width<<1)*(jmins>>1),
-    ref + vtkMPEG2WriterStr->width + (imint>>1) + (vtkMPEG2WriterStr->width<<1)*(jmint>>1),
+    ref + (imins>>1) + (mpeg2_struct->width<<1)*(jmins>>1),
+    ref + mpeg2_struct->width + (imint>>1) + (mpeg2_struct->width<<1)*(jmint>>1),
     mb,
-    vtkMPEG2WriterStr->width<<1,
+    mpeg2_struct->width<<1,
     imins&1, jmins&1, imint&1, jmint&1,
     8);
   local_dist += bdist1(
-    ref + vtkMPEG2WriterStr->width + (imins>>1) + (vtkMPEG2WriterStr->width<<1)*(jmins>>1),
-    ref + (iminb>>1) + (vtkMPEG2WriterStr->width<<1)*(jminb>>1),
-    mb + vtkMPEG2WriterStr->width,
-    vtkMPEG2WriterStr->width<<1,
+    ref + mpeg2_struct->width + (imins>>1) + (mpeg2_struct->width<<1)*(jmins>>1),
+    ref + (iminb>>1) + (mpeg2_struct->width<<1)*(jminb>>1),
+    mb + mpeg2_struct->width,
+    mpeg2_struct->width<<1,
     imins&1, jmins&1, iminb&1, jminb&1,
     8);
 
@@ -1135,12 +1145,13 @@ int *dmcp,*vmcp;
 }
 
 static void dpfield_estimate(topref,botref,mb,i,j,imins,jmins,
-  imindmvp, jmindmvp, dmcp, vmcp)
+  imindmvp, jmindmvp, dmcp, vmcp,mpeg2_struct)
 unsigned char *topref, *botref, *mb;
 int i,j;
 int imins, jmins;
 int *imindmvp, *jmindmvp;
 int *dmcp,*vmcp;
+struct MPEG2_structure *mpeg2_struct;
 {
   unsigned char *sameref, *oppref;
   int io0,jo0,io,jo,delta_x,delta_y,mvxs,mvys,mvxo0,mvyo0;
@@ -1150,7 +1161,7 @@ int *dmcp,*vmcp;
   /* Note: only for P pictures! */
 
   /* Assign opposite and same reference pointer */
-  if (vtkMPEG2WriterStr->pict_struct==TOP_FIELD)
+  if (mpeg2_struct->pict_struct==TOP_FIELD)
   {
     sameref = topref;    
     oppref = botref;
@@ -1172,7 +1183,7 @@ int *dmcp,*vmcp;
   mvyo0 = (mvys+(mvys>0)) >> 1;  /* mvys // 2 */
 
   /* vertical field shift correction */
-  if (vtkMPEG2WriterStr->pict_struct==TOP_FIELD)
+  if (mpeg2_struct->pict_struct==TOP_FIELD)
     mvyo0--;
   else
     mvyo0++;
@@ -1192,17 +1203,17 @@ int *dmcp,*vmcp;
       io = io0 + delta_x;
       jo = jo0 + delta_y;
 
-      if (io >= 0 && io <= (vtkMPEG2WriterStr->width-16)<<1 &&
-          jo >= 0 && jo <= (vtkMPEG2WriterStr->height2-16)<<1)
+      if (io >= 0 && io <= (mpeg2_struct->width-16)<<1 &&
+          jo >= 0 && jo <= (mpeg2_struct->height2-16)<<1)
       {
         /* compute prediction error */
         local_dist = bdist2(
-          sameref + (imins>>1) + vtkMPEG2WriterStr->width2*(jmins>>1),
-          oppref  + (io>>1)    + vtkMPEG2WriterStr->width2*(jo>>1),
+          sameref + (imins>>1) + mpeg2_struct->width2*(jmins>>1),
+          oppref  + (io>>1)    + mpeg2_struct->width2*(jo>>1),
           mb,             /* current mb location */
-          vtkMPEG2WriterStr->width2,         /* adjacent line distance */
+          mpeg2_struct->width2,         /* adjacent line distance */
           imins&1, jmins&1, io&1, jo&1, /* half-pel flags */
-          16);            /* block vtkMPEG2WriterStr->height */
+          16);            /* block mpeg2_struct->height */
 
         /* update delta with least distortion vector */
         if (local_dist < vmc_dp)
@@ -1219,12 +1230,12 @@ int *dmcp,*vmcp;
 
   /* Compute L1 error for decision purposes */
   *dmcp = bdist1(
-    sameref + (imins>>1) + vtkMPEG2WriterStr->width2*(jmins>>1),
-    oppref  + (imino>>1) + vtkMPEG2WriterStr->width2*(jmino>>1),
+    sameref + (imins>>1) + mpeg2_struct->width2*(jmins>>1),
+    oppref  + (imino>>1) + mpeg2_struct->width2*(jmino>>1),
     mb,             /* current mb location */
-    vtkMPEG2WriterStr->width2,         /* adjacent line distance */
+    mpeg2_struct->width2,         /* adjacent line distance */
     imins&1, jmins&1, imino&1, jmino&1, /* half-pel flags */
-    16);            /* block vtkMPEG2WriterStr->height */
+    16);            /* block mpeg2_struct->height */
 
   *imindmvp = imindmv;
   *jmindmvp = jmindmv;
@@ -1235,12 +1246,12 @@ int *dmcp,*vmcp;
  * full search block matching
  *
  * blk: top left pel of (16*h) block
- * h: vtkMPEG2WriterStr->height of block
+ * h: mpeg2_struct->height of block
  * lx: distance (in bytes) of vertically adjacent pels in ref,blk
  * org: top left pel of source reference picture
  * ref: top left pel of reconstructed reference picture
  * i0,j0: center of search window
- * sx,sy: half vtkMPEG2WriterStr->widths of search window
+ * sx,sy: half mpeg2_struct->widths of search window
  * xmax,ymax: right/bottom limits of search area
  * iminp,jminp: pointers to where the result is stored
  *              result is given as half pel offset from ref(0,0)
@@ -1340,7 +1351,7 @@ int *iminp,*jminp;
  * blk1,blk2: addresses of top left pels of both blocks
  * lx:        distance (in bytes) of vertically adjacent pels
  * hx,hy:     flags for horizontal and/or vertical interpolation
- * h:         vtkMPEG2WriterStr->height of block (usually 8 or 16)
+ * h:         mpeg2_struct->height of block (usually 8 or 16)
  * distlim:   bail out if sum exceeds this value
  */
 static int dist1(blk1,blk2,lx,hx,hy,h,distlim)
@@ -1442,7 +1453,7 @@ int distlim;
  * blk1,blk2: addresses of top left pels of both blocks
  * lx:        distance (in bytes) of vertically adjacent pels
  * hx,hy:     flags for horizontal and/or vertical interpolation
- * h:         vtkMPEG2WriterStr->height of block (usually 8 or 16)
+ * h:         mpeg2_struct->height of block (usually 8 or 16)
  */
 static int dist2(blk1,blk2,lx,hx,hy,h)
 unsigned char *blk1,*blk2;

@@ -29,22 +29,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
-void MPEG2_writeframe(fname,frame)
+void MPEG2_writeframe(fname,frame,mpeg2_struct)
 char *fname;
 unsigned char *frame[];
+struct MPEG2_structure *mpeg2_struct;
 {
   int chrom_hsize, chrom_vsize;
   char name[128];
   FILE *fd;
 
-  chrom_hsize = (vtkMPEG2WriterStr->chroma_format==CHROMA444) ? vtkMPEG2WriterStr->horizontal_size
-                                           : vtkMPEG2WriterStr->horizontal_size>>1;
+  chrom_hsize = (mpeg2_struct->chroma_format==CHROMA444) ? mpeg2_struct->horizontal_size
+                                           : mpeg2_struct->horizontal_size>>1;
 
-  chrom_vsize = (vtkMPEG2WriterStr->chroma_format!=CHROMA420) ? vtkMPEG2WriterStr->vertical_size
-                                           : vtkMPEG2WriterStr->vertical_size>>1;
+  chrom_vsize = (mpeg2_struct->chroma_format!=CHROMA420) ? mpeg2_struct->vertical_size
+                                           : mpeg2_struct->vertical_size>>1;
 
   if (fname[0]=='-')
     return;
@@ -53,18 +54,18 @@ unsigned char *frame[];
   sprintf(name,"%s.Y",fname);
   if (!(fd = fopen(name,"wb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't create %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't create %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
-  fwrite(frame[0],1,vtkMPEG2WriterStr->horizontal_size*vtkMPEG2WriterStr->vertical_size,fd);
+  fwrite(frame[0],1,mpeg2_struct->horizontal_size*mpeg2_struct->vertical_size,fd);
   fclose(fd);
 
   /* Cb */
   sprintf(name,"%s.U",fname);
   if (!(fd = fopen(name,"wb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't create %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't create %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
   fwrite(frame[1],1,chrom_hsize*chrom_vsize,fd);
   fclose(fd);
@@ -73,8 +74,8 @@ unsigned char *frame[];
   sprintf(name,"%s.V",fname);
   if (!(fd = fopen(name,"wb")))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"Couldn't create %s\n",name);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"Couldn't create %s\n",name);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
   fwrite(frame[2],1,chrom_hsize*chrom_vsize,fd);
   fclose(fd);

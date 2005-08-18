@@ -29,52 +29,53 @@
 
 #include <stdio.h>
 #include <math.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* private prototypes */
 static void MPEG2_calcSNR1 _ANSI_ARGS_((unsigned char *org, unsigned char *rec,
   int lx, int w, int h, double *pv, double *pe));
 
 
-void MPEG2_calcSNR(org,rec)
+void MPEG2_calcSNR(org,rec,mpeg2_struct)
 unsigned char *org[3];
 unsigned char *rec[3];
+struct MPEG2_structure *mpeg2_struct;
 {
   int w,h,offs;
   double v,e;
 
-  w = vtkMPEG2WriterStr->horizontal_size;
-  h = (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE) ? vtkMPEG2WriterStr->vertical_size : (vtkMPEG2WriterStr->vertical_size>>1);
-  offs = (vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD) ? vtkMPEG2WriterStr->width : 0;
+  w = mpeg2_struct->horizontal_size;
+  h = (mpeg2_struct->pict_struct==FRAME_PICTURE) ? mpeg2_struct->vertical_size : (mpeg2_struct->vertical_size>>1);
+  offs = (mpeg2_struct->pict_struct==BOTTOM_FIELD) ? mpeg2_struct->width : 0;
 
-  MPEG2_calcSNR1(org[0]+offs,rec[0]+offs,vtkMPEG2WriterStr->width2,w,h,&v,&e);
-  if ( vtkMPEG2WriterStr->statfile )
+  MPEG2_calcSNR1(org[0]+offs,rec[0]+offs,mpeg2_struct->width2,w,h,&v,&e);
+  if ( mpeg2_struct->statfile )
     {
-    fprintf(vtkMPEG2WriterStr->statfile,"Y: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
+    fprintf(mpeg2_struct->statfile,"Y: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
       v, e, 10.0*log10(255.0*255.0/e), 10.0*log10(v/e));
     }
 
-  if (vtkMPEG2WriterStr->chroma_format!=CHROMA444)
+  if (mpeg2_struct->chroma_format!=CHROMA444)
   {
     w >>= 1;
     offs >>= 1;
   }
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+  if (mpeg2_struct->chroma_format==CHROMA420)
     h >>= 1;
 
-  MPEG2_calcSNR1(org[1]+offs,rec[1]+offs,vtkMPEG2WriterStr->chrom_width2,w,h,&v,&e);
-  if ( vtkMPEG2WriterStr->statfile )
+  MPEG2_calcSNR1(org[1]+offs,rec[1]+offs,mpeg2_struct->chrom_width2,w,h,&v,&e);
+  if ( mpeg2_struct->statfile )
     {
-    fprintf(vtkMPEG2WriterStr->statfile,"U: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
+    fprintf(mpeg2_struct->statfile,"U: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
       v, e, 10.0*log10(255.0*255.0/e), 10.0*log10(v/e));
     }
 
-  MPEG2_calcSNR1(org[2]+offs,rec[2]+offs,vtkMPEG2WriterStr->chrom_width2,w,h,&v,&e);
-  if ( vtkMPEG2WriterStr->statfile )
+  MPEG2_calcSNR1(org[2]+offs,rec[2]+offs,mpeg2_struct->chrom_width2,w,h,&v,&e);
+  if ( mpeg2_struct->statfile )
     {
-    fprintf(vtkMPEG2WriterStr->statfile,"V: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
+    fprintf(mpeg2_struct->statfile,"V: variance=%4.4g, MSE=%3.3g (%3.3g dB), SNR=%3.3g dB\n",
       v, e, 10.0*log10(255.0*255.0/e), 10.0*log10(v/e));
     }
 }
@@ -116,19 +117,20 @@ double *pv,*pe;
   *pe = e2;         /* MSE */
 }
 
-void MPEG2_stats()
+void MPEG2_stats(mpeg2_struct)
+  struct MPEG2_structure *mpeg2_struct;
 {
   int i, j, k, nmb, mb_type;
   int n_skipped, n_intra, n_ncoded, n_blocks, n_interp, n_forward, n_backward;
   struct mbinfo *mbi;
 
-  nmb = vtkMPEG2WriterStr->mb_width*vtkMPEG2WriterStr->mb_height2;
+  nmb = mpeg2_struct->mb_width*mpeg2_struct->mb_height2;
 
   n_skipped=n_intra=n_ncoded=n_blocks=n_interp=n_forward=n_backward=0;
 
   for (k=0; k<nmb; k++)
   {
-    mbi = vtkMPEG2WriterStr->mbinfo+k;
+    mbi = mpeg2_struct->mbinfo+k;
     if (mbi->skipped)
       n_skipped++;
     else if (mbi->mb_type & MB_INTRA)
@@ -136,7 +138,7 @@ void MPEG2_stats()
     else if (!(mbi->mb_type & MB_PATTERN))
       n_ncoded++;
 
-    for (i=0; i<vtkMPEG2WriterStr->block_count; i++)
+    for (i=0; i<mpeg2_struct->block_count; i++)
       if (mbi->cbp & (1<<i))
         n_blocks++;
 
@@ -151,269 +153,269 @@ void MPEG2_stats()
       n_backward++;
   }
 
-  if ( vtkMPEG2WriterStr->statfile )
+  if ( mpeg2_struct->statfile )
     {
-    fprintf(vtkMPEG2WriterStr->statfile,"\npicture statistics:\n");
-    fprintf(vtkMPEG2WriterStr->statfile," # of intra coded macroblocks:  %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile,"\npicture statistics:\n");
+    fprintf(mpeg2_struct->statfile," # of intra coded macroblocks:  %4d (%.1f%%)\n",
       n_intra,100.0*(double)n_intra/nmb);
-    fprintf(vtkMPEG2WriterStr->statfile," # of coded blocks:             %4d (%.1f%%)\n",
-      n_blocks,100.0*(double)n_blocks/(vtkMPEG2WriterStr->block_count*nmb));
-    fprintf(vtkMPEG2WriterStr->statfile," # of not coded macroblocks:    %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile," # of coded blocks:             %4d (%.1f%%)\n",
+      n_blocks,100.0*(double)n_blocks/(mpeg2_struct->block_count*nmb));
+    fprintf(mpeg2_struct->statfile," # of not coded macroblocks:    %4d (%.1f%%)\n",
       n_ncoded,100.0*(double)n_ncoded/nmb);
-    fprintf(vtkMPEG2WriterStr->statfile," # of skipped macroblocks:      %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile," # of skipped macroblocks:      %4d (%.1f%%)\n",
       n_skipped,100.0*(double)n_skipped/nmb);
-    fprintf(vtkMPEG2WriterStr->statfile," # of forw. pred. macroblocks:  %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile," # of forw. pred. macroblocks:  %4d (%.1f%%)\n",
       n_forward,100.0*(double)n_forward/nmb);
-    fprintf(vtkMPEG2WriterStr->statfile," # of backw. pred. macroblocks: %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile," # of backw. pred. macroblocks: %4d (%.1f%%)\n",
       n_backward,100.0*(double)n_backward/nmb);
-    fprintf(vtkMPEG2WriterStr->statfile," # of interpolated macroblocks: %4d (%.1f%%)\n",
+    fprintf(mpeg2_struct->statfile," # of interpolated macroblocks: %4d (%.1f%%)\n",
       n_interp,100.0*(double)n_interp/nmb);
 
-    fprintf(vtkMPEG2WriterStr->statfile,"\nmacroblock_type map:\n");
+    fprintf(mpeg2_struct->statfile,"\nmacroblock_type map:\n");
 
     k = 0;
 
-    for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+    for (j=0; j<mpeg2_struct->mb_height2; j++)
       {
-      for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+      for (i=0; i<mpeg2_struct->mb_width; i++)
         {
-        mbi = vtkMPEG2WriterStr->mbinfo + k;
+        mbi = mpeg2_struct->mbinfo + k;
         mb_type = mbi->mb_type;
         if (mbi->skipped)
-          putc('S',vtkMPEG2WriterStr->statfile);
+          putc('S',mpeg2_struct->statfile);
         else if (mb_type & MB_INTRA)
-          putc('I',vtkMPEG2WriterStr->statfile);
+          putc('I',mpeg2_struct->statfile);
         else switch (mb_type & (MB_FORWARD|MB_BACKWARD))
           {
         case MB_FORWARD:
           putc(mbi->motion_type==MC_FIELD ? 'f' :
             mbi->motion_type==MC_DMV   ? 'p' :
-            'F',vtkMPEG2WriterStr->statfile); break;
+            'F',mpeg2_struct->statfile); break;
         case MB_BACKWARD:
           putc(mbi->motion_type==MC_FIELD ? 'b' :
-            'B',vtkMPEG2WriterStr->statfile); break;
+            'B',mpeg2_struct->statfile); break;
         case MB_FORWARD|MB_BACKWARD:
           putc(mbi->motion_type==MC_FIELD ? 'd' :
-            'D',vtkMPEG2WriterStr->statfile); break;
+            'D',mpeg2_struct->statfile); break;
         default:
-          putc('0',vtkMPEG2WriterStr->statfile); break;
+          putc('0',mpeg2_struct->statfile); break;
           }
 
         if (mb_type & MB_QUANT)
-          putc('Q',vtkMPEG2WriterStr->statfile);
+          putc('Q',mpeg2_struct->statfile);
         else if (mb_type & (MB_PATTERN|MB_INTRA))
-          putc(' ',vtkMPEG2WriterStr->statfile);
+          putc(' ',mpeg2_struct->statfile);
         else
-          putc('N',vtkMPEG2WriterStr->statfile);
+          putc('N',mpeg2_struct->statfile);
 
-        putc(' ',vtkMPEG2WriterStr->statfile);
+        putc(' ',mpeg2_struct->statfile);
 
         k++;
         }
-      putc('\n',vtkMPEG2WriterStr->statfile);
+      putc('\n',mpeg2_struct->statfile);
       }
 
-    fprintf(vtkMPEG2WriterStr->statfile,"\nmquant map:\n");
+    fprintf(mpeg2_struct->statfile,"\nmquant map:\n");
 
     k=0;
-    for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+    for (j=0; j<mpeg2_struct->mb_height2; j++)
       {
-      for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+      for (i=0; i<mpeg2_struct->mb_width; i++)
         {
-        if (i==0 || vtkMPEG2WriterStr->mbinfo[k].mquant!=vtkMPEG2WriterStr->mbinfo[k-1].mquant)
-          fprintf(vtkMPEG2WriterStr->statfile,"%3d",vtkMPEG2WriterStr->mbinfo[k].mquant);
+        if (i==0 || mpeg2_struct->mbinfo[k].mquant!=mpeg2_struct->mbinfo[k-1].mquant)
+          fprintf(mpeg2_struct->statfile,"%3d",mpeg2_struct->mbinfo[k].mquant);
         else
-          fprintf(vtkMPEG2WriterStr->statfile,"   ");
+          fprintf(mpeg2_struct->statfile,"   ");
 
         k++;
         }
-      putc('\n',vtkMPEG2WriterStr->statfile);
+      putc('\n',mpeg2_struct->statfile);
       }
 
 #if 0
-    fprintf(vtkMPEG2WriterStr->statfile,"\ncbp map:\n");
+    fprintf(mpeg2_struct->statfile,"\ncbp map:\n");
 
     k=0;
-    for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+    for (j=0; j<mpeg2_struct->mb_height2; j++)
       {
-      for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+      for (i=0; i<mpeg2_struct->mb_width; i++)
         {
-        fprintf(vtkMPEG2WriterStr->statfile,"%02x ",vtkMPEG2WriterStr->mbinfo[k].cbp);
+        fprintf(mpeg2_struct->statfile,"%02x ",mpeg2_struct->mbinfo[k].cbp);
 
         k++;
         }
-      putc('\n',vtkMPEG2WriterStr->statfile);
+      putc('\n',mpeg2_struct->statfile);
       }
 
-    if (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && !vtkMPEG2WriterStr->frame_pred_dct)
+    if (mpeg2_struct->pict_struct==FRAME_PICTURE && !mpeg2_struct->frame_pred_dct)
       {
-      fprintf(vtkMPEG2WriterStr->statfile,"\ndct_type map:\n");
+      fprintf(mpeg2_struct->statfile,"\ndct_type map:\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & (MB_PATTERN|MB_INTRA))
-            fprintf(vtkMPEG2WriterStr->statfile,"%d  ",vtkMPEG2WriterStr->mbinfo[k].dct_type);
+          if (mpeg2_struct->mbinfo[k].mb_type & (MB_PATTERN|MB_INTRA))
+            fprintf(mpeg2_struct->statfile,"%d  ",mpeg2_struct->mbinfo[k].dct_type);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   ");
+            fprintf(mpeg2_struct->statfile,"   ");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
       }
 
-    if (vtkMPEG2WriterStr->pict_type!=I_TYPE)
+    if (mpeg2_struct->pict_type!=I_TYPE)
       {
-      fprintf(vtkMPEG2WriterStr->statfile,"\nforward motion vectors (first vector, horizontal):\n");
+      fprintf(mpeg2_struct->statfile,"\nforward motion vectors (first vector, horizontal):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_FORWARD)
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[0][0][0]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_FORWARD)
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[0][0][0]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nforward motion vectors (first vector, vertical):\n");
+      fprintf(mpeg2_struct->statfile,"\nforward motion vectors (first vector, vertical):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_FORWARD)
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[0][0][1]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_FORWARD)
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[0][0][1]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nforward motion vectors (second vector, horizontal):\n");
+      fprintf(mpeg2_struct->statfile,"\nforward motion vectors (second vector, horizontal):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_FORWARD
-            && ((vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FIELD) ||
-              (vtkMPEG2WriterStr->pict_struct!=FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_16X8)))
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[1][0][0]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_FORWARD
+            && ((mpeg2_struct->pict_struct==FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_FIELD) ||
+              (mpeg2_struct->pict_struct!=FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_16X8)))
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[1][0][0]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nforward motion vectors (second vector, vertical):\n");
+      fprintf(mpeg2_struct->statfile,"\nforward motion vectors (second vector, vertical):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_FORWARD
-            && ((vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FIELD) ||
-              (vtkMPEG2WriterStr->pict_struct!=FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_16X8)))
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[1][0][1]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_FORWARD
+            && ((mpeg2_struct->pict_struct==FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_FIELD) ||
+              (mpeg2_struct->pict_struct!=FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_16X8)))
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[1][0][1]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
 
       }
 
-    if (vtkMPEG2WriterStr->pict_type==B_TYPE)
+    if (mpeg2_struct->pict_type==B_TYPE)
       {
-      fprintf(vtkMPEG2WriterStr->statfile,"\nbackward motion vectors (first vector, horizontal):\n");
+      fprintf(mpeg2_struct->statfile,"\nbackward motion vectors (first vector, horizontal):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_BACKWARD)
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[0][1][0]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_BACKWARD)
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[0][1][0]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nbackward motion vectors (first vector, vertical):\n");
+      fprintf(mpeg2_struct->statfile,"\nbackward motion vectors (first vector, vertical):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_BACKWARD)
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[0][1][1]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_BACKWARD)
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[0][1][1]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nbackward motion vectors (second vector, horizontal):\n");
+      fprintf(mpeg2_struct->statfile,"\nbackward motion vectors (second vector, horizontal):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_BACKWARD
-            && ((vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FIELD) ||
-              (vtkMPEG2WriterStr->pict_struct!=FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_16X8)))
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[1][1][0]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_BACKWARD
+            && ((mpeg2_struct->pict_struct==FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_FIELD) ||
+              (mpeg2_struct->pict_struct!=FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_16X8)))
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[1][1][0]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
-      fprintf(vtkMPEG2WriterStr->statfile,"\nbackward motion vectors (second vector, vertical):\n");
+      fprintf(mpeg2_struct->statfile,"\nbackward motion vectors (second vector, vertical):\n");
 
       k=0;
-      for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+      for (j=0; j<mpeg2_struct->mb_height2; j++)
         {
-        for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+        for (i=0; i<mpeg2_struct->mb_width; i++)
           {
-          if (vtkMPEG2WriterStr->mbinfo[k].mb_type & MB_BACKWARD
-            && ((vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_FIELD) ||
-              (vtkMPEG2WriterStr->pict_struct!=FRAME_PICTURE && vtkMPEG2WriterStr->mbinfo[k].motion_type==MC_16X8)))
-            fprintf(vtkMPEG2WriterStr->statfile,"%4d",vtkMPEG2WriterStr->mbinfo[k].MV[1][1][1]);
+          if (mpeg2_struct->mbinfo[k].mb_type & MB_BACKWARD
+            && ((mpeg2_struct->pict_struct==FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_FIELD) ||
+              (mpeg2_struct->pict_struct!=FRAME_PICTURE && mpeg2_struct->mbinfo[k].motion_type==MC_16X8)))
+            fprintf(mpeg2_struct->statfile,"%4d",mpeg2_struct->mbinfo[k].MV[1][1][1]);
           else
-            fprintf(vtkMPEG2WriterStr->statfile,"   .");
+            fprintf(mpeg2_struct->statfile,"   .");
 
           k++;
           }
-        putc('\n',vtkMPEG2WriterStr->statfile);
+        putc('\n',mpeg2_struct->statfile);
         }
 
 
@@ -422,33 +424,33 @@ void MPEG2_stats()
 
 #if 0
     /* useful for debugging */
-    fprintf(vtkMPEG2WriterStr->statfile,"\nmacroblock info dump:\n");
+    fprintf(mpeg2_struct->statfile,"\nmacroblock info dump:\n");
 
     k=0;
-    for (j=0; j<vtkMPEG2WriterStr->mb_height2; j++)
+    for (j=0; j<mpeg2_struct->mb_height2; j++)
       {
-      for (i=0; i<vtkMPEG2WriterStr->mb_width; i++)
+      for (i=0; i<mpeg2_struct->mb_width; i++)
         {
-        fprintf(vtkMPEG2WriterStr->statfile,"%d: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+        fprintf(mpeg2_struct->statfile,"%d: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
           k,
-          vtkMPEG2WriterStr->mbinfo[k].mb_type,
-          vtkMPEG2WriterStr->mbinfo[k].motion_type,
-          vtkMPEG2WriterStr->mbinfo[k].dct_type,
-          vtkMPEG2WriterStr->mbinfo[k].mquant,
-          vtkMPEG2WriterStr->mbinfo[k].cbp,
-          vtkMPEG2WriterStr->mbinfo[k].skipped,
-          vtkMPEG2WriterStr->mbinfo[k].MV[0][0][0],
-          vtkMPEG2WriterStr->mbinfo[k].MV[0][0][1],
-          vtkMPEG2WriterStr->mbinfo[k].MV[0][1][0],
-          vtkMPEG2WriterStr->mbinfo[k].MV[0][1][1],
-          vtkMPEG2WriterStr->mbinfo[k].MV[1][0][0],
-          vtkMPEG2WriterStr->mbinfo[k].MV[1][0][1],
-          vtkMPEG2WriterStr->mbinfo[k].MV[1][1][0],
-          vtkMPEG2WriterStr->mbinfo[k].MV[1][1][1],
-          vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[0][0],
-          vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[0][1],
-          vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[1][0],
-          vtkMPEG2WriterStr->mbinfo[k].mv_field_sel[1][1]);
+          mpeg2_struct->mbinfo[k].mb_type,
+          mpeg2_struct->mbinfo[k].motion_type,
+          mpeg2_struct->mbinfo[k].dct_type,
+          mpeg2_struct->mbinfo[k].mquant,
+          mpeg2_struct->mbinfo[k].cbp,
+          mpeg2_struct->mbinfo[k].skipped,
+          mpeg2_struct->mbinfo[k].MV[0][0][0],
+          mpeg2_struct->mbinfo[k].MV[0][0][1],
+          mpeg2_struct->mbinfo[k].MV[0][1][0],
+          mpeg2_struct->mbinfo[k].MV[0][1][1],
+          mpeg2_struct->mbinfo[k].MV[1][0][0],
+          mpeg2_struct->mbinfo[k].MV[1][0][1],
+          mpeg2_struct->mbinfo[k].MV[1][1][0],
+          mpeg2_struct->mbinfo[k].MV[1][1][1],
+          mpeg2_struct->mbinfo[k].mv_field_sel[0][0],
+          mpeg2_struct->mbinfo[k].mv_field_sel[0][1],
+          mpeg2_struct->mbinfo[k].mv_field_sel[1][0],
+          mpeg2_struct->mbinfo[k].mv_field_sel[1][1]);
 
         k++;
         }

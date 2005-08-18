@@ -41,7 +41,9 @@
 /* this code assumes >> to be a two's-complement arithmetic */
 /* right shift: (-2)>>1 == -1 , (-3)>>1 == -2               */
 
-#include "config.h"
+#include <stdio.h>
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 #define W1 2841 /* 2048*sqrt(2)*cos(1*pi/16) */
 #define W2 2676 /* 2048*sqrt(2)*cos(2*pi/16) */
@@ -51,7 +53,6 @@
 #define W7 565  /* 2048*sqrt(2)*cos(7*pi/16) */
 
 /* global declarations */
-void MPEG2_init_idct _ANSI_ARGS_((void));
 void MPEG2_idct _ANSI_ARGS_((short *block));
 
 /* private data */
@@ -201,7 +202,7 @@ short *block;
     MPEG2_idctcol(block+i);
 }
 
-void MPEG2_init_idct()
+GLOBAL(void) MPEG2_init_idct()
 {
   int i;
 

@@ -28,8 +28,8 @@
  */
 
 #include <stdio.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 static void iquant1_intra _ANSI_ARGS_((short *src, short *dst,
   int dc_prec, unsigned char *quant_mat, int mquant));
@@ -41,11 +41,12 @@ static void iquant1_non_intra _ANSI_ARGS_((short *src, short *dst,
  * this quantizer has a bias of 1/8 stepsize towards zero
  * (except for the DC coefficient)
  */
-int MPEG2_quant_intra(src,dst,dc_prec,quant_mat,mquant)
+int MPEG2_quant_intra(src,dst,dc_prec,quant_mat,mquant,mpeg2_struct)
 short *src, *dst;
 int dc_prec;
 unsigned char *quant_mat;
 int mquant;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i;
   int x, y, d;
@@ -65,7 +66,7 @@ int mquant;
     /* clip to syntax limits */
     if (y > 255)
     {
-      if (vtkMPEG2WriterStr->mpeg1)
+      if (mpeg2_struct->mpeg1)
         y = 255;
       else if (y > 2047)
         y = 2047;
@@ -86,10 +87,11 @@ int mquant;
   return 1;
 }
 
-int MPEG2_quant_non_intra(src,dst,quant_mat,mquant)
+int MPEG2_quant_non_intra(src,dst,quant_mat,mquant,mpeg2_struct)
 short *src, *dst;
 unsigned char *quant_mat;
 int mquant;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i;
   int x, y, d;
@@ -107,7 +109,7 @@ int mquant;
     /* clip to syntax limits */
     if (y > 255)
     {
-      if (vtkMPEG2WriterStr->mpeg1)
+      if (mpeg2_struct->mpeg1)
         y = 255;
       else if (y > 2047)
         y = 2047;
@@ -121,15 +123,16 @@ int mquant;
 }
 
 /* MPEG-2 inverse quantization */
-void MPEG2_iquant_intra(src,dst,dc_prec,quant_mat,mquant)
+void MPEG2_iquant_intra(src,dst,dc_prec,quant_mat,mquant,mpeg2_struct)
 short *src, *dst;
 int dc_prec;
 unsigned char *quant_mat;
 int mquant;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i, val, sum;
 
-  if (vtkMPEG2WriterStr->mpeg1)
+  if (mpeg2_struct->mpeg1)
     iquant1_intra(src,dst,dc_prec,quant_mat,mquant);
   else
   {
@@ -146,14 +149,15 @@ int mquant;
   }
 }
 
-void MPEG2_iquant_non_intra(src,dst,quant_mat,mquant)
+void MPEG2_iquant_non_intra(src,dst,quant_mat,mquant,mpeg2_struct)
 short *src, *dst;
 unsigned char *quant_mat;
 int mquant;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i, val, sum;
 
-  if (vtkMPEG2WriterStr->mpeg1)
+  if (mpeg2_struct->mpeg1)
     iquant1_non_intra(src,dst,quant_mat,mquant);
   else
   {

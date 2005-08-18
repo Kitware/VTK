@@ -1,0 +1,6 @@
+#ifndef _mpeg2encDllConfig_h
+#define _mpeg2encDllConfig_h
+
+#cmakedefine MPEG2ENCSTATIC
+
+#endif

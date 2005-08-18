@@ -1,4 +1,4 @@
-/* global.h, global variables, function prototypes                          */
+/* mpeg2enc_global.h, global variables, function prototypes                          */
 
 /* Copyright (C) 1996, MPEG Software Simulation Group. All Rights Reserved. */
 
@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include <vtkmpeg2encode/vtkMPEG2EncodeDllConfig.h>
+#include <vtkmpeg2encode/mpeg2encDllConfig.h>
 
 #if defined( _WIN32 ) && defined (MPEG2ENCDLL)
 #define GLOBAL(type)            __declspec(dllexport) type
@@ -54,7 +54,7 @@ extern "C" {
 
 #include "mpeg2enc.h"
 
-/* GLOBAL_DEF is defined in exactly one file (mpeg2enc.c)
+/* GLOBAL_DEF is defined in exactly one file (putpic.c)
  */
 
 /*

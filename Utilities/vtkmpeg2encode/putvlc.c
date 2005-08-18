@@ -29,41 +29,44 @@
 
 #include <stdio.h>
 
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 #include "vlc.h"
 
 /* private prototypes */
-static void putDC _ANSI_ARGS_((sVLCtable *tab, int val));
+static void putDC _ANSI_ARGS_((sVLCtable *tab, int val,struct MPEG2_structure *mpeg2_struct));
 
 /* generate variable length code for luminance DC coefficient */
-void MPEG2_putDClum(val)
+void MPEG2_putDClum(val,mpeg2_struct)
 int val;
+struct MPEG2_structure *mpeg2_struct;
 {
-  putDC(DClumtab,val);
+  putDC(DClumtab,val,mpeg2_struct);
 }
 
 /* generate variable length code for chrominance DC coefficient */
-void MPEG2_putDCchrom(val)
+void MPEG2_putDCchrom(val,mpeg2_struct)
 int val;
+struct MPEG2_structure *mpeg2_struct;
 {
-  putDC(DCchromtab,val);
+  putDC(DCchromtab,val,mpeg2_struct);
 }
 
 /* generate variable length code for DC coefficient (7.2.1) */
-static void putDC(tab,val)
+static void putDC(tab,val,mpeg2_struct)
 sVLCtable *tab;
 int val;
+struct MPEG2_structure *mpeg2_struct;
 {
   int absval, size;
 
   absval = (val<0) ? -val : val; /* abs(val) */
 
-  if (absval>2047 || (vtkMPEG2WriterStr->mpeg1 && absval>255))
+  if (absval>2047 || (mpeg2_struct->mpeg1 && absval>255))
   {
     /* should never happen */
-    sprintf(vtkMPEG2WriterStr->errortext,"DC value out of range (%d)\n",val);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    sprintf(mpeg2_struct->errortext,"DC value out of range (%d)\n",val);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
 
   /* compute dct_dc_size */
@@ -76,7 +79,7 @@ int val;
   }
 
   /* generate VLC for dct_dc_size (Table B-12 or B-13) */
-  MPEG2_putbits(tab[size].code,tab[size].len);
+  MPEG2_putbits(tab[size].code,tab[size].len,mpeg2_struct);
 
   /* append fixed length code (dc_dct_differential) */
   if (size!=0)
@@ -85,24 +88,26 @@ int val;
       absval = val;
     else
       absval = val + (1<<size) - 1; /* val + (2 ^ size) - 1 */
-    MPEG2_putbits(absval,size);
+    MPEG2_putbits(absval,size,mpeg2_struct);
   }
 }
 
 /* generate variable length code for first coefficient
  * of a non-intra block (7.2.2.2) */
-void MPEG2_putACfirst(run,val)
+void MPEG2_putACfirst(run,val,mpeg2_struct)
 int run,val;
+struct MPEG2_structure *mpeg2_struct;
 {
   if (run==0 && (val==1 || val==-1)) /* these are treated differently */
-    MPEG2_putbits(2|(val<0),2); /* generate '1s' (s=sign), (Table B-14, line 2) */
+    MPEG2_putbits(2|(val<0),2,mpeg2_struct); /* generate '1s' (s=sign), (Table B-14, line 2) */
   else
-    MPEG2_putAC(run,val,0); /* no difference for all others */
+    MPEG2_putAC(run,val,0,mpeg2_struct); /* no difference for all others */
 }
 
 /* generate variable length code for other DCT coefficients (7.2.2) */
-void MPEG2_putAC(run,signed_level,vlcformat)
+void MPEG2_putAC(run,signed_level,vlcformat,mpeg2_struct)
 int run,signed_level,vlcformat;
+struct MPEG2_structure *mpeg2_struct;
 {
   int level, len;
   VLCtable *ptab;
@@ -110,11 +115,11 @@ int run,signed_level,vlcformat;
   level = (signed_level<0) ? -signed_level : signed_level; /* abs(signed_level) */
 
   /* make sure run and level are valid */
-  if (run<0 || run>63 || level==0 || level>2047 || (vtkMPEG2WriterStr->mpeg1 && level>255))
+  if (run<0 || run>63 || level==0 || level>2047 || (mpeg2_struct->mpeg1 && level>255))
   {
-    sprintf(vtkMPEG2WriterStr->errortext,"AC value out of range (run=%d, signed_level=%d)\n",
+    sprintf(mpeg2_struct->errortext,"AC value out of range (run=%d, signed_level=%d)\n",
       run,signed_level);
-    MPEG2_error(vtkMPEG2WriterStr->errortext);
+    (*(mpeg2_struct->report_error))(mpeg2_struct->errortext);
   }
 
   len = 0;
@@ -142,81 +147,85 @@ int run,signed_level,vlcformat;
 
   if (len!=0) /* a VLC code exists */
   {
-    MPEG2_putbits(ptab->code,len);
-    MPEG2_putbits(signed_level<0,1); /* sign */
+    MPEG2_putbits(ptab->code,len,mpeg2_struct);
+    MPEG2_putbits(signed_level<0,1,mpeg2_struct); /* sign */
   }
   else
   {
     /* no VLC for this (run, level) combination: use escape coding (7.2.2.3) */
-    MPEG2_putbits(1l,6); /* Escape */
-    MPEG2_putbits(run,6); /* 6 bit code for run */
-    if (vtkMPEG2WriterStr->mpeg1)
+    MPEG2_putbits(1l,6,mpeg2_struct); /* Escape */
+    MPEG2_putbits(run,6,mpeg2_struct); /* 6 bit code for run */
+    if (mpeg2_struct->mpeg1)
     {
       /* ISO/IEC 11172-2 uses a 8 or 16 bit code */
       if (signed_level>127)
-        MPEG2_putbits(0,8);
+        MPEG2_putbits(0,8,mpeg2_struct);
       if (signed_level<-127)
-        MPEG2_putbits(128,8);
-      MPEG2_putbits(signed_level,8);
+        MPEG2_putbits(128,8,mpeg2_struct);
+      MPEG2_putbits(signed_level,8,mpeg2_struct);
     }
     else
     {
       /* ISO/IEC 13818-2 uses a 12 bit code, Table B-16 */
-      MPEG2_putbits(signed_level,12);
+      MPEG2_putbits(signed_level,12,mpeg2_struct);
     }
   }
 }
 
 /* generate variable length code for macroblock_address_increment (6.3.16) */
-void MPEG2_putaddrinc(addrinc)
+void MPEG2_putaddrinc(addrinc,mpeg2_struct)
 int addrinc;
+struct MPEG2_structure *mpeg2_struct;
 {
   while (addrinc>33)
   {
-    MPEG2_putbits(0x08,11); /* macroblock_escape */
+    MPEG2_putbits(0x08,11,mpeg2_struct); /* macroblock_escape */
     addrinc-= 33;
   }
 
-  MPEG2_putbits(addrinctab[addrinc-1].code,addrinctab[addrinc-1].len);
+  MPEG2_putbits(addrinctab[addrinc-1].code,addrinctab[addrinc-1].len,mpeg2_struct);
 }
 
 /* generate variable length code for macroblock_type (6.3.16.1) */
-void MPEG2_putmbtype( int pict_type, int mb_type )
+void MPEG2_putmbtype( int pict_type, int mb_type,struct MPEG2_structure *mpeg2_struct )
 {
   MPEG2_putbits(mbtypetab[pict_type-1][mb_type].code,
-          mbtypetab[pict_type-1][mb_type].len);
+          mbtypetab[pict_type-1][mb_type].len,mpeg2_struct);
 }
 
 /* generate variable length code for motion_code (6.3.16.3) */
-void MPEG2_putmotioncode(motion_code)
+void MPEG2_putmotioncode(motion_code,mpeg2_struct)
 int motion_code;
+struct MPEG2_structure *mpeg2_struct;
 {
   int abscode;
 
   abscode = (motion_code>=0) ? motion_code : -motion_code; /* abs(motion_code) */
-  MPEG2_putbits(motionvectab[abscode].code,motionvectab[abscode].len);
+  MPEG2_putbits(motionvectab[abscode].code,motionvectab[abscode].len,mpeg2_struct);
   if (motion_code!=0)
-    MPEG2_putbits(motion_code<0,1); /* sign, 0=positive, 1=negative */
+    MPEG2_putbits(motion_code<0,1,mpeg2_struct); /* sign, 0=positive, 1=negative */
 }
 
 /* generate variable length code for dmvector[t] (6.3.16.3), Table B-11 */
-void MPEG2_putdmv(dmv)
+void MPEG2_putdmv(dmv,mpeg2_struct)
 int dmv;
+struct MPEG2_structure *mpeg2_struct;
 {
   if (dmv==0)
-    MPEG2_putbits(0,1);
+    MPEG2_putbits(0,1,mpeg2_struct);
   else if (dmv>0)
-    MPEG2_putbits(2,2);
+    MPEG2_putbits(2,2,mpeg2_struct);
   else
-    MPEG2_putbits(3,2);
+    MPEG2_putbits(3,2,mpeg2_struct);
 }
 
 /* generate variable length code for coded_block_pattern (6.3.16.4)
  *
  * 4:2:2, 4:4:4 not implemented
  */
-void MPEG2_putcbp(cbp)
+void MPEG2_putcbp(cbp,mpeg2_struct)
 int cbp;
+struct MPEG2_structure *mpeg2_struct;
 {
-  MPEG2_putbits(cbptable[cbp].code,cbptable[cbp].len);
+  MPEG2_putbits(cbptable[cbp].code,cbptable[cbp].len,mpeg2_struct);
 }

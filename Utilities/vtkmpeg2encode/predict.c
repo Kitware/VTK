@@ -28,27 +28,29 @@
  */
 
 #include <stdio.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* private prototypes */
 static void MPEG2_predict_mb _ANSI_ARGS_((
   unsigned char *oldref[], unsigned char *newref[], unsigned char *cur[],
   int lx, int bx, int by, int pict_type, int pict_struct, int mb_type,
   int motion_type, int secondfield,
-  int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2]));
+  int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2],
+  struct MPEG2_structure *mpeg2_struct));
 
 static void pred _ANSI_ARGS_((unsigned char *src[], int sfield,
   unsigned char *dst[], int dfield,
-  int lx, int w, int h, int x, int y, int dx, int dy, int addflag));
+  int lx, int w, int h, int x, int y, int dx, int dy, int addflag,
+  struct MPEG2_structure *mpeg2_struct));
 
 static void pred_comp _ANSI_ARGS_((unsigned char *src, unsigned char *dst,
   int lx, int w, int h, int x, int y, int dx, int dy, int addflag));
 
 static void calc_DMV _ANSI_ARGS_((int DMV[][2], int *dmvector, int mvx,
-  int mvy));
+  int mvy,struct MPEG2_structure *mpeg2_struct));
 
-static void clearblock _ANSI_ARGS_((unsigned char *cur[], int i0, int j0));
+static void clearblock _ANSI_ARGS_((unsigned char *cur[], int i0, int j0,struct MPEG2_structure *mpeg2_struct));
 
 
 /* form prediction for a complete picture (frontend for predict_mb)
@@ -65,19 +67,20 @@ static void clearblock _ANSI_ARGS_((unsigned char *cur[], int i0, int j0));
 
 void MPEG2_predict( unsigned char *reff[], unsigned char *refb[], unsigned char *cur[3],
   int secondfield,
-  struct mbinfo *mbi)
+  struct mbinfo *mbi, 
+  struct MPEG2_structure *mpeg2_struct)
 {
   int i, j, k;
 
   k = 0;
 
   /* loop through all macroblocks of the picture */
-  for (j=0; j<vtkMPEG2WriterStr->height2; j+=16)
-    for (i=0; i<vtkMPEG2WriterStr->width; i+=16)
+  for (j=0; j<mpeg2_struct->height2; j+=16)
+    for (i=0; i<mpeg2_struct->width; i+=16)
     {
-      MPEG2_predict_mb(reff,refb,cur,vtkMPEG2WriterStr->width,i,j,vtkMPEG2WriterStr->pict_type,vtkMPEG2WriterStr->pict_struct,
+      MPEG2_predict_mb(reff,refb,cur,mpeg2_struct->width,i,j,mpeg2_struct->pict_type,mpeg2_struct->pict_struct,
                  mbi[k].mb_type,mbi[k].motion_type,secondfield,
-                 mbi[k].MV,mbi[k].mv_field_sel,mbi[k].dmvector);
+                 mbi[k].MV,mbi[k].mv_field_sel,mbi[k].dmvector,mpeg2_struct);
 
       k++;
     }
@@ -121,7 +124,8 @@ int pict_struct,
 int mb_type,
 int motion_type,
 int secondfield,
-int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
+int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2],
+struct MPEG2_structure *mpeg2_struct)
 {
   int addflag, currentfield;
   unsigned char **predframe;
@@ -129,7 +133,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
   if (mb_type&MB_INTRA)
   {
-    clearblock(cur,bx,by);
+    clearblock(cur,bx,by,mpeg2_struct);
     return;
   }
 
@@ -147,7 +151,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
       {
         /* frame-based prediction in frame picture */
         pred(oldref,0,cur,0,
-          lx,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0);
+          lx,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0,mpeg2_struct);
       }
       else if (motion_type==MC_FIELD)
       {
@@ -159,39 +163,39 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
         /* top field prediction */
         pred(oldref,mv_field_sel[0][0],cur,0,
-          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0);
+          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0,mpeg2_struct);
 
         /* bottom field prediction */
         pred(oldref,mv_field_sel[1][0],cur,1,
-          lx<<1,16,8,bx,by>>1,PMV[1][0][0],PMV[1][0][1]>>1,0);
+          lx<<1,16,8,bx,by>>1,PMV[1][0][0],PMV[1][0][1]>>1,0,mpeg2_struct);
       }
       else if (motion_type==MC_DMV)
       {
         /* dual prime prediction */
 
         /* calculate derived motion vectors */
-        calc_DMV(DMV,dmvector,PMV[0][0][0],PMV[0][0][1]>>1);
+        calc_DMV(DMV,dmvector,PMV[0][0][0],PMV[0][0][1]>>1,mpeg2_struct);
 
         /* predict top field from top field */
         pred(oldref,0,cur,0,
-          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0);
+          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0,mpeg2_struct);
 
         /* predict bottom field from bottom field */
         pred(oldref,1,cur,1,
-          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0);
+          lx<<1,16,8,bx,by>>1,PMV[0][0][0],PMV[0][0][1]>>1,0,mpeg2_struct);
 
         /* predict and add to top field from bottom field */
         pred(oldref,1,cur,0,
-          lx<<1,16,8,bx,by>>1,DMV[0][0],DMV[0][1],1);
+          lx<<1,16,8,bx,by>>1,DMV[0][0],DMV[0][1],1,mpeg2_struct);
 
         /* predict and add to bottom field from top field */
         pred(oldref,0,cur,1,
-          lx<<1,16,8,bx,by>>1,DMV[1][0],DMV[1][1],1);
+          lx<<1,16,8,bx,by>>1,DMV[1][0],DMV[1][1],1,mpeg2_struct);
       }
       else
       {
         /* invalid motion_type in frame picture */
-        if (!vtkMPEG2WriterStr->quiet)
+        if (!mpeg2_struct->quiet)
           fprintf(stderr,"invalid motion_type\n");
       }
     }
@@ -212,7 +216,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
       {
         /* field-based prediction in field picture */
         pred(predframe,mv_field_sel[0][0],cur,currentfield,
-          lx<<1,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0);
+          lx<<1,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0,mpeg2_struct);
       }
       else if (motion_type==MC_16X8)
       {
@@ -220,7 +224,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
         /* upper half */
         pred(predframe,mv_field_sel[0][0],cur,currentfield,
-          lx<<1,16,8,bx,by,PMV[0][0][0],PMV[0][0][1],0);
+          lx<<1,16,8,bx,by,PMV[0][0][0],PMV[0][0][1],0,mpeg2_struct);
 
         /* determine which frame to use for lower half prediction */
         if ((pict_type==P_TYPE) && secondfield
@@ -231,7 +235,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
         /* lower half */
         pred(predframe,mv_field_sel[1][0],cur,currentfield,
-          lx<<1,16,8,bx,by+8,PMV[1][0][0],PMV[1][0][1],0);
+          lx<<1,16,8,bx,by+8,PMV[1][0][0],PMV[1][0][1],0,mpeg2_struct);
       }
       else if (motion_type==MC_DMV)
       {
@@ -244,20 +248,20 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
           predframe = oldref; /* previous frame */
 
         /* calculate derived motion vectors */
-        calc_DMV(DMV,dmvector,PMV[0][0][0],PMV[0][0][1]);
+        calc_DMV(DMV,dmvector,PMV[0][0][0],PMV[0][0][1],mpeg2_struct);
 
         /* predict from field of same parity */
         pred(oldref,currentfield,cur,currentfield,
-          lx<<1,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0);
+          lx<<1,16,16,bx,by,PMV[0][0][0],PMV[0][0][1],0,mpeg2_struct);
 
         /* predict from field of opposite parity */
         pred(predframe,!currentfield,cur,currentfield,
-          lx<<1,16,16,bx,by,DMV[0][0],DMV[0][1],1);
+          lx<<1,16,16,bx,by,DMV[0][0],DMV[0][1],1,mpeg2_struct);
       }
       else
       {
         /* invalid motion_type in field picture */
-        if (!vtkMPEG2WriterStr->quiet)
+        if (!mpeg2_struct->quiet)
           fprintf(stderr,"invalid motion_type\n");
       }
     }
@@ -276,7 +280,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
       {
         /* frame-based prediction in frame picture */
         pred(newref,0,cur,0,
-          lx,16,16,bx,by,PMV[0][1][0],PMV[0][1][1],addflag);
+          lx,16,16,bx,by,PMV[0][1][0],PMV[0][1][1],addflag,mpeg2_struct);
       }
       else
       {
@@ -288,11 +292,11 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
         /* top field prediction */
         pred(newref,mv_field_sel[0][1],cur,0,
-          lx<<1,16,8,bx,by>>1,PMV[0][1][0],PMV[0][1][1]>>1,addflag);
+          lx<<1,16,8,bx,by>>1,PMV[0][1][0],PMV[0][1][1]>>1,addflag,mpeg2_struct);
 
         /* bottom field prediction */
         pred(newref,mv_field_sel[1][1],cur,1,
-          lx<<1,16,8,bx,by>>1,PMV[1][1][0],PMV[1][1][1]>>1,addflag);
+          lx<<1,16,8,bx,by>>1,PMV[1][1][0],PMV[1][1][1]>>1,addflag,mpeg2_struct);
       }
     }
     else /* TOP_FIELD or BOTTOM_FIELD */
@@ -305,7 +309,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
       {
         /* field-based prediction in field picture */
         pred(newref,mv_field_sel[0][1],cur,currentfield,
-          lx<<1,16,16,bx,by,PMV[0][1][0],PMV[0][1][1],addflag);
+          lx<<1,16,16,bx,by,PMV[0][1][0],PMV[0][1][1],addflag,mpeg2_struct);
       }
       else if (motion_type==MC_16X8)
       {
@@ -313,16 +317,16 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
 
         /* upper half */
         pred(newref,mv_field_sel[0][1],cur,currentfield,
-          lx<<1,16,8,bx,by,PMV[0][1][0],PMV[0][1][1],addflag);
+          lx<<1,16,8,bx,by,PMV[0][1][0],PMV[0][1][1],addflag,mpeg2_struct);
 
         /* lower half */
         pred(newref,mv_field_sel[1][1],cur,currentfield,
-          lx<<1,16,8,bx,by+8,PMV[1][1][0],PMV[1][1][1],addflag);
+          lx<<1,16,8,bx,by+8,PMV[1][1][0],PMV[1][1][1],addflag,mpeg2_struct);
       }
       else
       {
         /* invalid motion_type in field picture */
-        if (!vtkMPEG2WriterStr->quiet)
+        if (!mpeg2_struct->quiet)
           fprintf(stderr,"invalid motion_type\n");
       }
     }
@@ -343,7 +347,7 @@ int PMV[2][2][2], int mv_field_sel[2][2], int dmvector[2])
  * dx,dy:   half pel motion vector
  * addflag: store or add (= average) prediction
  */
-static void pred(src,sfield,dst,dfield,lx,w,h,x,y,dx,dy,addflag)
+static void pred(src,sfield,dst,dfield,lx,w,h,x,y,dx,dy,addflag, mpeg2_struct)
 unsigned char *src[];
 int sfield;
 unsigned char *dst[];
@@ -353,6 +357,7 @@ int w, h;
 int x, y;
 int dx, dy;
 int addflag;
+struct MPEG2_structure *mpeg2_struct;
 {
   int cc;
 
@@ -361,12 +366,12 @@ int addflag;
     if (cc==1)
     {
       /* scale for color components */
-      if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+      if (mpeg2_struct->chroma_format==CHROMA420)
       {
         /* vertical */
         h >>= 1; y >>= 1; dy /= 2;
       }
-      if (vtkMPEG2WriterStr->chroma_format!=CHROMA444)
+      if (mpeg2_struct->chroma_format!=CHROMA444)
       {
         /* horizontal */
         w >>= 1; x >>= 1; dx /= 2;
@@ -495,14 +500,15 @@ int addflag;
  *  - all vectors are in field coordinates (even for frame pictures)
  */
 
-static void calc_DMV(DMV,dmvector,mvx,mvy)
+static void calc_DMV(DMV,dmvector,mvx,mvy,mpeg2_struct)
 int DMV[][2];
 int *dmvector;
 int mvx, mvy;
+struct MPEG2_structure *mpeg2_struct;
 {
-  if (vtkMPEG2WriterStr->pict_struct==FRAME_PICTURE)
+  if (mpeg2_struct->pict_struct==FRAME_PICTURE)
   {
-    if (vtkMPEG2WriterStr->topfirst)
+    if (mpeg2_struct->topfirst)
     {
       /* vector for prediction of top field from bottom field */
       DMV[0][0] = ((mvx  +(mvx>0))>>1) + dmvector[0];
@@ -530,58 +536,59 @@ int mvx, mvy;
     DMV[0][1] = ((mvy+(mvy>0))>>1) + dmvector[1];
 
     /* correct for vertical field shift */
-    if (vtkMPEG2WriterStr->pict_struct==TOP_FIELD)
+    if (mpeg2_struct->pict_struct==TOP_FIELD)
       DMV[0][1]--;
     else
       DMV[0][1]++;
   }
 }
 
-static void clearblock(cur,i0,j0)
+static void clearblock(cur,i0,j0,mpeg2_struct)
 unsigned char *cur[];
 int i0, j0;
+struct MPEG2_structure *mpeg2_struct;
 {
   int i, j, w, h;
   unsigned char *p;
 
-  p = cur[0] + ((vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD) ? vtkMPEG2WriterStr->width : 0) + i0 + vtkMPEG2WriterStr->width2*j0;
+  p = cur[0] + ((mpeg2_struct->pict_struct==BOTTOM_FIELD) ? mpeg2_struct->width : 0) + i0 + mpeg2_struct->width2*j0;
 
   for (j=0; j<16; j++)
   {
     for (i=0; i<16; i++)
       p[i] = 128;
-    p+= vtkMPEG2WriterStr->width2;
+    p+= mpeg2_struct->width2;
   }
 
   w = h = 16;
 
-  if (vtkMPEG2WriterStr->chroma_format!=CHROMA444)
+  if (mpeg2_struct->chroma_format!=CHROMA444)
   {
     i0>>=1; w>>=1;
   }
 
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA420)
+  if (mpeg2_struct->chroma_format==CHROMA420)
   {
     j0>>=1; h>>=1;
   }
 
-  p = cur[1] + ((vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD) ? vtkMPEG2WriterStr->chrom_width : 0) + i0
-             + vtkMPEG2WriterStr->chrom_width2*j0;
+  p = cur[1] + ((mpeg2_struct->pict_struct==BOTTOM_FIELD) ? mpeg2_struct->chrom_width : 0) + i0
+             + mpeg2_struct->chrom_width2*j0;
 
   for (j=0; j<h; j++)
   {
     for (i=0; i<w; i++)
       p[i] = 128;
-    p+= vtkMPEG2WriterStr->chrom_width2;
+    p+= mpeg2_struct->chrom_width2;
   }
 
-  p = cur[2] + ((vtkMPEG2WriterStr->pict_struct==BOTTOM_FIELD) ? vtkMPEG2WriterStr->chrom_width : 0) + i0
-             + vtkMPEG2WriterStr->chrom_width2*j0;
+  p = cur[2] + ((mpeg2_struct->pict_struct==BOTTOM_FIELD) ? mpeg2_struct->chrom_width : 0) + i0
+             + mpeg2_struct->chrom_width2*j0;
 
   for (j=0; j<h; j++)
   {
     for (i=0; i<w; i++)
       p[i] = 128;
-    p+= vtkMPEG2WriterStr->chrom_width2;
+    p+= mpeg2_struct->chrom_width2;
   }
 }

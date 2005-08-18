@@ -28,34 +28,35 @@
  */
 
 #include <stdio.h>
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* generate variable length codes for an intra-coded block (6.2.6, 6.3.17) */
-void MPEG2_putintrablk(blk,cc)
+void MPEG2_putintrablk(blk,cc,mpeg2_struct)
 short *blk;
 int cc;
+struct MPEG2_structure *mpeg2_struct;
 {
   int n, dct_diff, run, signed_level;
 
   /* DC coefficient (7.2.1) */
-  dct_diff = blk[0] - vtkMPEG2WriterStr->dc_dct_pred[cc]; /* difference to previous block */
-  vtkMPEG2WriterStr->dc_dct_pred[cc] = blk[0];
+  dct_diff = blk[0] - mpeg2_struct->dc_dct_pred[cc]; /* difference to previous block */
+  mpeg2_struct->dc_dct_pred[cc] = blk[0];
 
   if (cc==0)
-    MPEG2_putDClum(dct_diff);
+    MPEG2_putDClum(dct_diff,mpeg2_struct);
   else
-    MPEG2_putDCchrom(dct_diff);
+    MPEG2_putDCchrom(dct_diff,mpeg2_struct);
 
   /* AC coefficients (7.2.2) */
   run = 0;
   for (n=1; n<64; n++)
   {
     /* use appropriate entropy scanning pattern */
-    signed_level = blk[(vtkMPEG2WriterStr->altscan ? MPEG2_alternate_scan : MPEG2_zig_zag_scan)[n]];
+    signed_level = blk[(mpeg2_struct->altscan ? MPEG2_alternate_scan : MPEG2_zig_zag_scan)[n]];
     if (signed_level!=0)
     {
-      MPEG2_putAC(run,signed_level,vtkMPEG2WriterStr->intravlc);
+      MPEG2_putAC(run,signed_level,mpeg2_struct->intravlc,mpeg2_struct);
       run = 0;
     }
     else
@@ -63,15 +64,16 @@ int cc;
   }
 
   /* End of Block -- normative block punctuation */
-  if (vtkMPEG2WriterStr->intravlc)
-    MPEG2_putbits(6,4); /* 0110 (Table B-15) */
+  if (mpeg2_struct->intravlc)
+    MPEG2_putbits(6,4,mpeg2_struct); /* 0110 (Table B-15) */
   else
-    MPEG2_putbits(2,2); /* 10 (Table B-14) */
+    MPEG2_putbits(2,2,mpeg2_struct); /* 10 (Table B-14) */
 }
 
 /* generate variable length codes for a non-intra-coded block (6.2.6, 6.3.17) */
-void MPEG2_putnonintrablk(blk)
+void MPEG2_putnonintrablk(blk,mpeg2_struct)
 short *blk;
+struct MPEG2_structure *mpeg2_struct;
 {
   int n, run, signed_level, first;
 
@@ -81,18 +83,18 @@ short *blk;
   for (n=0; n<64; n++)
   {
     /* use appropriate entropy scanning pattern */
-    signed_level = blk[(vtkMPEG2WriterStr->altscan ? MPEG2_alternate_scan : MPEG2_zig_zag_scan)[n]];
+    signed_level = blk[(mpeg2_struct->altscan ? MPEG2_alternate_scan : MPEG2_zig_zag_scan)[n]];
 
     if (signed_level!=0)
     {
       if (first)
       {
         /* first coefficient in non-intra block */
-        MPEG2_putACfirst(run,signed_level);
+        MPEG2_putACfirst(run,signed_level,mpeg2_struct);
         first = 0;
       }
       else
-        MPEG2_putAC(run,signed_level,0);
+        MPEG2_putAC(run,signed_level,0,mpeg2_struct);
 
       run = 0;
     }
@@ -101,12 +103,13 @@ short *blk;
   }
 
   /* End of Block -- normative block punctuation  */
-  MPEG2_putbits(2,2);
+  MPEG2_putbits(2,2,mpeg2_struct);
 }
 
 /* generate variable length code for a motion vector component (7.6.3.1) */
-void MPEG2_putmv(dmv,f_code)
+void MPEG2_putmv(dmv,f_code,mpeg2_struct)
 int dmv,f_code;
+struct MPEG2_structure *mpeg2_struct;
 {
   int r_size, f, vmin, vmax, dv, temp, motion_code, motion_residual;
 
@@ -124,7 +127,7 @@ int dmv,f_code;
 
   /* check value */
   if (dmv<vmin || dmv>vmax)
-    if (!vtkMPEG2WriterStr->quiet)
+    if (!mpeg2_struct->quiet)
       fprintf(stderr,"invalid motion vector\n");
 
   /* split dmv into motion_code and motion_residual */
@@ -134,8 +137,8 @@ int dmv,f_code;
     motion_code = -motion_code;
   motion_residual = temp & (f-1);
 
-  MPEG2_putmotioncode(motion_code); /* variable length code */
+  MPEG2_putmotioncode(motion_code,mpeg2_struct); /* variable length code */
 
   if (r_size!=0 && motion_code!=0)
-    MPEG2_putbits(motion_residual,r_size); /* fixed length code */
+    MPEG2_putbits(motion_residual,r_size,mpeg2_struct); /* fixed length code */
 }

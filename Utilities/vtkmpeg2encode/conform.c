@@ -30,119 +30,120 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "config.h"
-#include "global.h"
+#include "mpeg2enc_config.h"
+#include "mpeg2enc_global.h"
 
 /* check for (level independent) parameter limits */
-void MPEG2_range_checks()
+GLOBAL(void) MPEG2_range_checks(mpeg2_struct)
+  struct MPEG2_structure *mpeg2_struct;
 {
   int i;
 
   /* range and value checks */
 
-  if (vtkMPEG2WriterStr->horizontal_size<1 || vtkMPEG2WriterStr->horizontal_size>16383)
-    MPEG2_error("horizontal_size must be between 1 and 16383");
-  if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->horizontal_size>4095)
-    MPEG2_error("horizontal_size must be less than 4096 (MPEG-1)");
-  if ((vtkMPEG2WriterStr->horizontal_size&4095)==0)
-    MPEG2_error("horizontal_size must not be a multiple of 4096");
-  if (vtkMPEG2WriterStr->chroma_format!=CHROMA444 && vtkMPEG2WriterStr->horizontal_size%2 != 0)
-    MPEG2_error("horizontal_size must be a even (4:2:0 / 4:2:2)");
+  if (mpeg2_struct->horizontal_size<1 || mpeg2_struct->horizontal_size>16383)
+    (*(mpeg2_struct->report_error))("horizontal_size must be between 1 and 16383");
+  if (mpeg2_struct->mpeg1 && mpeg2_struct->horizontal_size>4095)
+    (*(mpeg2_struct->report_error))("horizontal_size must be less than 4096 (MPEG-1)");
+  if ((mpeg2_struct->horizontal_size&4095)==0)
+    (*(mpeg2_struct->report_error))("horizontal_size must not be a multiple of 4096");
+  if (mpeg2_struct->chroma_format!=CHROMA444 && mpeg2_struct->horizontal_size%2 != 0)
+    (*(mpeg2_struct->report_error))("horizontal_size must be a even (4:2:0 / 4:2:2)");
 
-  if (vtkMPEG2WriterStr->vertical_size<1 || vtkMPEG2WriterStr->vertical_size>16383)
-    MPEG2_error("vertical_size must be between 1 and 16383");
-  if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->vertical_size>4095)
-    MPEG2_error("vertical size must be less than 4096 (MPEG-1)");
-  if ((vtkMPEG2WriterStr->vertical_size&4095)==0)
-    MPEG2_error("vertical_size must not be a multiple of 4096");
-  if (vtkMPEG2WriterStr->chroma_format==CHROMA420 && vtkMPEG2WriterStr->vertical_size%2 != 0)
-    MPEG2_error("vertical_size must be a even (4:2:0)");
-  if(vtkMPEG2WriterStr->fieldpic)
+  if (mpeg2_struct->vertical_size<1 || mpeg2_struct->vertical_size>16383)
+    (*(mpeg2_struct->report_error))("vertical_size must be between 1 and 16383");
+  if (mpeg2_struct->mpeg1 && mpeg2_struct->vertical_size>4095)
+    (*(mpeg2_struct->report_error))("vertical size must be less than 4096 (MPEG-1)");
+  if ((mpeg2_struct->vertical_size&4095)==0)
+    (*(mpeg2_struct->report_error))("vertical_size must not be a multiple of 4096");
+  if (mpeg2_struct->chroma_format==CHROMA420 && mpeg2_struct->vertical_size%2 != 0)
+    (*(mpeg2_struct->report_error))("vertical_size must be a even (4:2:0)");
+  if(mpeg2_struct->fieldpic)
   {
-    if (vtkMPEG2WriterStr->vertical_size%2 != 0)
-      MPEG2_error("vertical_size must be a even (field pictures)");
-    if (vtkMPEG2WriterStr->chroma_format==CHROMA420 && vtkMPEG2WriterStr->vertical_size%4 != 0)
-      MPEG2_error("vertical_size must be a multiple of 4 (4:2:0 field pictures)");
+    if (mpeg2_struct->vertical_size%2 != 0)
+      (*(mpeg2_struct->report_error))("vertical_size must be a even (field pictures)");
+    if (mpeg2_struct->chroma_format==CHROMA420 && mpeg2_struct->vertical_size%4 != 0)
+      (*(mpeg2_struct->report_error))("vertical_size must be a multiple of 4 (4:2:0 field pictures)");
   }
 
-  if (vtkMPEG2WriterStr->mpeg1)
+  if (mpeg2_struct->mpeg1)
   {
-    if (vtkMPEG2WriterStr->aspectratio<1 || vtkMPEG2WriterStr->aspectratio>14)
-      MPEG2_error("pel_aspect_ratio must be between 1 and 14 (MPEG-1)");
+    if (mpeg2_struct->aspectratio<1 || mpeg2_struct->aspectratio>14)
+      (*(mpeg2_struct->report_error))("pel_aspect_ratio must be between 1 and 14 (MPEG-1)");
   }
   else
   {
-    if (vtkMPEG2WriterStr->aspectratio<1 || vtkMPEG2WriterStr->aspectratio>4)
-      MPEG2_error("aspect_ratio_information must be 1, 2, 3 or 4");
+    if (mpeg2_struct->aspectratio<1 || mpeg2_struct->aspectratio>4)
+      (*(mpeg2_struct->report_error))("aspect_ratio_information must be 1, 2, 3 or 4");
   }
 
-  if (vtkMPEG2WriterStr->frame_rate_code<1 || vtkMPEG2WriterStr->frame_rate_code>8)
-    MPEG2_error("frame_rate code must be between 1 and 8");
+  if (mpeg2_struct->frame_rate_code<1 || mpeg2_struct->frame_rate_code>8)
+    (*(mpeg2_struct->report_error))("frame_rate code must be between 1 and 8");
 
-  if (vtkMPEG2WriterStr->bit_rate<=0.0)
-    MPEG2_error("bit_rate must be positive");
-  if (vtkMPEG2WriterStr->bit_rate > ((1<<30)-1)*400.0)
-    MPEG2_error("bit_rate must be less than 429 Gbit/s");
-  if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->bit_rate > ((1<<18)-1)*400.0)
-    MPEG2_error("bit_rate must be less than 104 Mbit/s (MPEG-1)");
+  if (mpeg2_struct->bit_rate<=0.0)
+    (*(mpeg2_struct->report_error))("bit_rate must be positive");
+  if (mpeg2_struct->bit_rate > ((1<<30)-1)*400.0)
+    (*(mpeg2_struct->report_error))("bit_rate must be less than 429 Gbit/s");
+  if (mpeg2_struct->mpeg1 && mpeg2_struct->bit_rate > ((1<<18)-1)*400.0)
+    (*(mpeg2_struct->report_error))("bit_rate must be less than 104 Mbit/s (MPEG-1)");
 
-  if (vtkMPEG2WriterStr->vbv_buffer_size<1 || vtkMPEG2WriterStr->vbv_buffer_size>0x3ffff)
-    MPEG2_error("vbv_buffer_size must be in range 1..(2^18-1)");
-  if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->vbv_buffer_size>=1024)
-    MPEG2_error("vbv_buffer_size must be less than 1024 (MPEG-1)");
+  if (mpeg2_struct->vbv_buffer_size<1 || mpeg2_struct->vbv_buffer_size>0x3ffff)
+    (*(mpeg2_struct->report_error))("vbv_buffer_size must be in range 1..(2^18-1)");
+  if (mpeg2_struct->mpeg1 && mpeg2_struct->vbv_buffer_size>=1024)
+    (*(mpeg2_struct->report_error))("vbv_buffer_size must be less than 1024 (MPEG-1)");
 
-  if (vtkMPEG2WriterStr->chroma_format<CHROMA420 || vtkMPEG2WriterStr->chroma_format>CHROMA444)
-    MPEG2_error("chroma_format must be in range 1...3");
+  if (mpeg2_struct->chroma_format<CHROMA420 || mpeg2_struct->chroma_format>CHROMA444)
+    (*(mpeg2_struct->report_error))("chroma_format must be in range 1...3");
 
-  if (vtkMPEG2WriterStr->video_format<0 || vtkMPEG2WriterStr->video_format>4)
-    MPEG2_error("video_format must be in range 0...4");
+  if (mpeg2_struct->video_format<0 || mpeg2_struct->video_format>4)
+    (*(mpeg2_struct->report_error))("video_format must be in range 0...4");
 
-  if (vtkMPEG2WriterStr->color_primaries<1 || vtkMPEG2WriterStr->color_primaries>7 || vtkMPEG2WriterStr->color_primaries==3)
-    MPEG2_error("color_primaries must be in range 1...2 or 4...7");
+  if (mpeg2_struct->color_primaries<1 || mpeg2_struct->color_primaries>7 || mpeg2_struct->color_primaries==3)
+    (*(mpeg2_struct->report_error))("color_primaries must be in range 1...2 or 4...7");
 
-  if (vtkMPEG2WriterStr->transfer_characteristics<1 || vtkMPEG2WriterStr->transfer_characteristics>7
-      || vtkMPEG2WriterStr->transfer_characteristics==3)
-    MPEG2_error("transfer_characteristics must be in range 1...2 or 4...7");
+  if (mpeg2_struct->transfer_characteristics<1 || mpeg2_struct->transfer_characteristics>7
+      || mpeg2_struct->transfer_characteristics==3)
+    (*(mpeg2_struct->report_error))("transfer_characteristics must be in range 1...2 or 4...7");
 
-  if (vtkMPEG2WriterStr->matrix_coefficients<1 || vtkMPEG2WriterStr->matrix_coefficients>7 || vtkMPEG2WriterStr->matrix_coefficients==3)
-    MPEG2_error("matrix_coefficients must be in range 1...2 or 4...7");
+  if (mpeg2_struct->matrix_coefficients<1 || mpeg2_struct->matrix_coefficients>7 || mpeg2_struct->matrix_coefficients==3)
+    (*(mpeg2_struct->report_error))("matrix_coefficients must be in range 1...2 or 4...7");
 
-  if (vtkMPEG2WriterStr->display_horizontal_size<0 || vtkMPEG2WriterStr->display_horizontal_size>16383)
-    MPEG2_error("display_horizontal_size must be in range 0...16383");
-  if (vtkMPEG2WriterStr->display_vertical_size<0 || vtkMPEG2WriterStr->display_vertical_size>16383)
-    MPEG2_error("display_vertical_size must be in range 0...16383");
+  if (mpeg2_struct->display_horizontal_size<0 || mpeg2_struct->display_horizontal_size>16383)
+    (*(mpeg2_struct->report_error))("display_horizontal_size must be in range 0...16383");
+  if (mpeg2_struct->display_vertical_size<0 || mpeg2_struct->display_vertical_size>16383)
+    (*(mpeg2_struct->report_error))("display_vertical_size must be in range 0...16383");
 
-  if (vtkMPEG2WriterStr->dc_prec<0 || vtkMPEG2WriterStr->dc_prec>3)
-    MPEG2_error("intra_dc_precision must be in range 0...3");
+  if (mpeg2_struct->dc_prec<0 || mpeg2_struct->dc_prec>3)
+    (*(mpeg2_struct->report_error))("intra_dc_precision must be in range 0...3");
 
-  for (i=0; i<vtkMPEG2WriterStr->M_val; i++)
+  for (i=0; i<mpeg2_struct->M_val; i++)
   {
-    if (vtkMPEG2WriterStr->motion_data[i].forw_hor_f_code<1 || vtkMPEG2WriterStr->motion_data[i].forw_hor_f_code>9)
-      MPEG2_error("f_code must be between 1 and 9");
-    if (vtkMPEG2WriterStr->motion_data[i].forw_vert_f_code<1 || vtkMPEG2WriterStr->motion_data[i].forw_vert_f_code>9)
-      MPEG2_error("f_code must be between 1 and 9");
-    if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->motion_data[i].forw_hor_f_code>7)
-      MPEG2_error("f_code must be le less than 8");
-    if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->motion_data[i].forw_vert_f_code>7)
-      MPEG2_error("f_code must be le less than 8");
-    if (vtkMPEG2WriterStr->motion_data[i].sxf<=0)
-      MPEG2_error("search window must be positive"); /* doesn't belong here */
-    if (vtkMPEG2WriterStr->motion_data[i].syf<=0)
-      MPEG2_error("search window must be positive");
+    if (mpeg2_struct->motion_data[i].forw_hor_f_code<1 || mpeg2_struct->motion_data[i].forw_hor_f_code>9)
+      (*(mpeg2_struct->report_error))("f_code must be between 1 and 9");
+    if (mpeg2_struct->motion_data[i].forw_vert_f_code<1 || mpeg2_struct->motion_data[i].forw_vert_f_code>9)
+      (*(mpeg2_struct->report_error))("f_code must be between 1 and 9");
+    if (mpeg2_struct->mpeg1 && mpeg2_struct->motion_data[i].forw_hor_f_code>7)
+      (*(mpeg2_struct->report_error))("f_code must be le less than 8");
+    if (mpeg2_struct->mpeg1 && mpeg2_struct->motion_data[i].forw_vert_f_code>7)
+      (*(mpeg2_struct->report_error))("f_code must be le less than 8");
+    if (mpeg2_struct->motion_data[i].sxf<=0)
+      (*(mpeg2_struct->report_error))("search window must be positive"); /* doesn't belong here */
+    if (mpeg2_struct->motion_data[i].syf<=0)
+      (*(mpeg2_struct->report_error))("search window must be positive");
     if (i!=0)
     {
-      if (vtkMPEG2WriterStr->motion_data[i].back_hor_f_code<1 || vtkMPEG2WriterStr->motion_data[i].back_hor_f_code>9)
-        MPEG2_error("f_code must be between 1 and 9");
-      if (vtkMPEG2WriterStr->motion_data[i].back_vert_f_code<1 || vtkMPEG2WriterStr->motion_data[i].back_vert_f_code>9)
-        MPEG2_error("f_code must be between 1 and 9");
-      if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->motion_data[i].back_hor_f_code>7)
-        MPEG2_error("f_code must be le less than 8");
-      if (vtkMPEG2WriterStr->mpeg1 && vtkMPEG2WriterStr->motion_data[i].back_vert_f_code>7)
-        MPEG2_error("f_code must be le less than 8");
-      if (vtkMPEG2WriterStr->motion_data[i].sxb<=0)
-        MPEG2_error("search window must be positive");
-      if (vtkMPEG2WriterStr->motion_data[i].syb<=0)
-        MPEG2_error("search window must be positive");
+      if (mpeg2_struct->motion_data[i].back_hor_f_code<1 || mpeg2_struct->motion_data[i].back_hor_f_code>9)
+        (*(mpeg2_struct->report_error))("f_code must be between 1 and 9");
+      if (mpeg2_struct->motion_data[i].back_vert_f_code<1 || mpeg2_struct->motion_data[i].back_vert_f_code>9)
+        (*(mpeg2_struct->report_error))("f_code must be between 1 and 9");
+      if (mpeg2_struct->mpeg1 && mpeg2_struct->motion_data[i].back_hor_f_code>7)
+        (*(mpeg2_struct->report_error))("f_code must be le less than 8");
+      if (mpeg2_struct->mpeg1 && mpeg2_struct->motion_data[i].back_vert_f_code>7)
+        (*(mpeg2_struct->report_error))("f_code must be le less than 8");
+      if (mpeg2_struct->motion_data[i].sxb<=0)
+        (*(mpeg2_struct->report_error))("search window must be positive");
+      if (mpeg2_struct->motion_data[i].syb<=0)
+        (*(mpeg2_struct->report_error))("search window must be positive");
     }
   }
 }
@@ -185,103 +186,104 @@ static struct level_limits {
 #define H14  6
 #define HL   4
 
-void MPEG2_profile_and_level_checks()
+GLOBAL(void) MPEG2_profile_and_level_checks(mpeg2_struct)
+  struct MPEG2_structure *mpeg2_struct;
 {
   int i;
   struct level_limits *maxval;
 
-  if (vtkMPEG2WriterStr->profile<0 || vtkMPEG2WriterStr->profile>15)
-    MPEG2_error("profile must be between 0 and 15");
+  if (mpeg2_struct->profile<0 || mpeg2_struct->profile>15)
+    (*(mpeg2_struct->report_error))("profile must be between 0 and 15");
 
-  if (vtkMPEG2WriterStr->level<0 || vtkMPEG2WriterStr->level>15)
-    MPEG2_error("level must be between 0 and 15");
+  if (mpeg2_struct->level<0 || mpeg2_struct->level>15)
+    (*(mpeg2_struct->report_error))("level must be between 0 and 15");
 
-  if (vtkMPEG2WriterStr->profile>=8)
+  if (mpeg2_struct->profile>=8)
   {
-    if (!vtkMPEG2WriterStr->quiet)
+    if (!mpeg2_struct->quiet)
       fprintf(stderr,"Warning: profile uses a reserved value, conformance checks skipped\n");
     return;
   }
 
-  if (vtkMPEG2WriterStr->profile<HP || vtkMPEG2WriterStr->profile>SP)
-    MPEG2_error("undefined Profile");
+  if (mpeg2_struct->profile<HP || mpeg2_struct->profile>SP)
+    (*(mpeg2_struct->report_error))("undefined Profile");
 
-  if (vtkMPEG2WriterStr->profile==SNR || vtkMPEG2WriterStr->profile==SPAT)
-    MPEG2_error("This encoder currently generates no scalable bitstreams");
+  if (mpeg2_struct->profile==SNR || mpeg2_struct->profile==SPAT)
+    (*(mpeg2_struct->report_error))("This encoder currently generates no scalable bitstreams");
 
-  if (vtkMPEG2WriterStr->level<HL || vtkMPEG2WriterStr->level>LL || vtkMPEG2WriterStr->level&1)
-    MPEG2_error("undefined Level");
+  if (mpeg2_struct->level<HL || mpeg2_struct->level>LL || mpeg2_struct->level&1)
+    (*(mpeg2_struct->report_error))("undefined Level");
 
-  maxval = &maxval_tab[(vtkMPEG2WriterStr->level-4) >> 1];
+  maxval = &maxval_tab[(mpeg2_struct->level-4) >> 1];
 
   /* check profile@level combination */
-  if(!profile_level_defined[vtkMPEG2WriterStr->profile-1][(vtkMPEG2WriterStr->level-4) >> 1])
-    MPEG2_error("undefined profile@level combination");
+  if(!profile_level_defined[mpeg2_struct->profile-1][(mpeg2_struct->level-4) >> 1])
+    (*(mpeg2_struct->report_error))("undefined profile@level combination");
   
 
   /* profile (syntax) constraints */
 
-  if (vtkMPEG2WriterStr->profile==SP && vtkMPEG2WriterStr->M_val!=1)
-    MPEG2_error("Simple Profile does not allow B pictures");
+  if (mpeg2_struct->profile==SP && mpeg2_struct->M_val!=1)
+    (*(mpeg2_struct->report_error))("Simple Profile does not allow B pictures");
 
-  if (vtkMPEG2WriterStr->profile!=HP && vtkMPEG2WriterStr->chroma_format!=CHROMA420)
-    MPEG2_error("chroma format must be 4:2:0 in specified Profile");
+  if (mpeg2_struct->profile!=HP && mpeg2_struct->chroma_format!=CHROMA420)
+    (*(mpeg2_struct->report_error))("chroma format must be 4:2:0 in specified Profile");
 
-  if (vtkMPEG2WriterStr->profile==HP && vtkMPEG2WriterStr->chroma_format==CHROMA444)
-    MPEG2_error("chroma format must be 4:2:0 or 4:2:2 in High Profile");
+  if (mpeg2_struct->profile==HP && mpeg2_struct->chroma_format==CHROMA444)
+    (*(mpeg2_struct->report_error))("chroma format must be 4:2:0 or 4:2:2 in High Profile");
 
-  if (vtkMPEG2WriterStr->profile>=MP) /* SP, MP: constrained repeat_first_field */
+  if (mpeg2_struct->profile>=MP) /* SP, MP: constrained repeat_first_field */
   {
-    if (vtkMPEG2WriterStr->frame_rate_code<=2 && vtkMPEG2WriterStr->repeatfirst)
-      MPEG2_error("repeat_first_first must be zero");
-    if (vtkMPEG2WriterStr->frame_rate_code<=6 && vtkMPEG2WriterStr->prog_seq && vtkMPEG2WriterStr->repeatfirst)
-      MPEG2_error("repeat_first_first must be zero");
+    if (mpeg2_struct->frame_rate_code<=2 && mpeg2_struct->repeatfirst)
+      (*(mpeg2_struct->report_error))("repeat_first_first must be zero");
+    if (mpeg2_struct->frame_rate_code<=6 && mpeg2_struct->prog_seq && mpeg2_struct->repeatfirst)
+      (*(mpeg2_struct->report_error))("repeat_first_first must be zero");
   }
 
-  if (vtkMPEG2WriterStr->profile!=HP && vtkMPEG2WriterStr->dc_prec==3)
-    MPEG2_error("11 bit DC precision only allowed in High Profile");
+  if (mpeg2_struct->profile!=HP && mpeg2_struct->dc_prec==3)
+    (*(mpeg2_struct->report_error))("11 bit DC precision only allowed in High Profile");
 
 
   /* level (parameter value) constraints */
 
   /* Table 8-8 */
-  if (vtkMPEG2WriterStr->frame_rate_code>5 && vtkMPEG2WriterStr->level>=ML)
-    MPEG2_error("Picture rate greater than permitted in specified Level");
+  if (mpeg2_struct->frame_rate_code>5 && mpeg2_struct->level>=ML)
+    (*(mpeg2_struct->report_error))("Picture rate greater than permitted in specified Level");
 
-  for (i=0; i<vtkMPEG2WriterStr->M_val; i++)
+  for (i=0; i<mpeg2_struct->M_val; i++)
   {
-    if (vtkMPEG2WriterStr->motion_data[i].forw_hor_f_code > maxval->hor_f_code)
-      MPEG2_error("forward horizontal f_code greater than permitted in specified Level");
+    if (mpeg2_struct->motion_data[i].forw_hor_f_code > maxval->hor_f_code)
+      (*(mpeg2_struct->report_error))("forward horizontal f_code greater than permitted in specified Level");
 
-    if (vtkMPEG2WriterStr->motion_data[i].forw_vert_f_code > maxval->vert_f_code)
-      MPEG2_error("forward vertical f_code greater than permitted in specified Level");
+    if (mpeg2_struct->motion_data[i].forw_vert_f_code > maxval->vert_f_code)
+      (*(mpeg2_struct->report_error))("forward vertical f_code greater than permitted in specified Level");
 
     if (i!=0)
     {
-      if (vtkMPEG2WriterStr->motion_data[i].back_hor_f_code > maxval->hor_f_code)
-        MPEG2_error("backward horizontal f_code greater than permitted in specified Level");
+      if (mpeg2_struct->motion_data[i].back_hor_f_code > maxval->hor_f_code)
+        (*(mpeg2_struct->report_error))("backward horizontal f_code greater than permitted in specified Level");
   
-      if (vtkMPEG2WriterStr->motion_data[i].back_vert_f_code > maxval->vert_f_code)
-        MPEG2_error("backward vertical f_code greater than permitted in specified Level");
+      if (mpeg2_struct->motion_data[i].back_vert_f_code > maxval->vert_f_code)
+        (*(mpeg2_struct->report_error))("backward vertical f_code greater than permitted in specified Level");
     }
   }
 
   /* Table 8-10 */
-  if (vtkMPEG2WriterStr->horizontal_size > maxval->hor_size)
-    MPEG2_error("Horizontal size is greater than permitted in specified Level");
+  if (mpeg2_struct->horizontal_size > maxval->hor_size)
+    (*(mpeg2_struct->report_error))("Horizontal size is greater than permitted in specified Level");
 
-  if (vtkMPEG2WriterStr->vertical_size > maxval->vert_size)
-    MPEG2_error("Horizontal size is greater than permitted in specified Level");
+  if (mpeg2_struct->vertical_size > maxval->vert_size)
+    (*(mpeg2_struct->report_error))("Horizontal size is greater than permitted in specified Level");
 
   /* Table 8-11 */
-  if (vtkMPEG2WriterStr->horizontal_size*vtkMPEG2WriterStr->vertical_size*vtkMPEG2WriterStr->frame_rate > maxval->sample_rate)
-    MPEG2_error("Sample rate is greater than permitted in specified Level");
+  if (mpeg2_struct->horizontal_size*mpeg2_struct->vertical_size*mpeg2_struct->frame_rate > maxval->sample_rate)
+    (*(mpeg2_struct->report_error))("Sample rate is greater than permitted in specified Level");
 
   /* Table 8-12 */
-  if (vtkMPEG2WriterStr->bit_rate> 1.0e6 * maxval->bit_rate)
-    MPEG2_error("Bit rate is greater than permitted in specified Level");
+  if (mpeg2_struct->bit_rate> 1.0e6 * maxval->bit_rate)
+    (*(mpeg2_struct->report_error))("Bit rate is greater than permitted in specified Level");
 
   /* Table 8-13 */
-  if (vtkMPEG2WriterStr->vbv_buffer_size > maxval->vbv_buffer_size)
-    MPEG2_error("vbv_buffer_size exceeds High Level limit");
+  if (mpeg2_struct->vbv_buffer_size > maxval->vbv_buffer_size)
+    (*(mpeg2_struct->report_error))("vbv_buffer_size exceeds High Level limit");
 }
