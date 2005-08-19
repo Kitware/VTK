@@ -699,6 +699,8 @@ virtual double *Get##name() \
          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8, a9))
 #define vtkTemplateMacro10(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
           vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10))
+#define vtkTemplateMacro11(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) \
+          vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11))
 
 // Old-style legacy code marker macro.
 #if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_LEAN_AND_MEAN)
