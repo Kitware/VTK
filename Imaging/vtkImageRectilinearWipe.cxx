@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageRectilinearWipe, "1.4");
+vtkCxxRevisionMacro(vtkImageRectilinearWipe, "1.5");
 vtkStandardNewMacro(vtkImageRectilinearWipe);
 
 //----------------------------------------------------------------------------
@@ -217,10 +217,11 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     inPtr = inData[whichInput][0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageRectilinearWipeExecute2, this,
-                        inData[whichInput][0], (VTK_TT *)(inPtr),
-                        outData[0], (VTK_TT *)(outPtr),
-                        wipeExt, id);
+      vtkTemplateMacro(
+        vtkImageRectilinearWipeExecute2(this,
+                                        inData[whichInput][0], (VTK_TT *)(inPtr),
+                                        outData[0], (VTK_TT *)(outPtr),
+                                        wipeExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -263,10 +264,13 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageRectilinearWipeExecute2, this,
-                        inData[whichInput][0], (VTK_TT *)(inPtr),
-                        outData[0], (VTK_TT *)(outPtr),
-                        wipeExt, id);
+      vtkTemplateMacro(
+        vtkImageRectilinearWipeExecute2( this,
+                                         inData[whichInput][0], 
+                                         (VTK_TT *)(inPtr),
+                                         outData[0], 
+                                         (VTK_TT *)(outPtr),
+                                         wipeExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -310,10 +314,13 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageRectilinearWipeExecute2, this,
-                        inData[whichInput][0], (VTK_TT *)(inPtr),
-                        outData[0], (VTK_TT *)(outPtr),
-                        wipeExt, id);
+      vtkTemplateMacro(
+        vtkImageRectilinearWipeExecute2(this,
+                                        inData[whichInput][0], 
+                                        (VTK_TT *)(inPtr),
+                                        outData[0], 
+                                        (VTK_TT *)(outPtr),
+                                        wipeExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -356,10 +363,13 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageRectilinearWipeExecute2, this,
-                        inData[whichInput][0], (VTK_TT *)(inPtr),
-                        outData[0], (VTK_TT *)(outPtr),
-                        wipeExt, id);
+      vtkTemplateMacro(
+        vtkImageRectilinearWipeExecute2( this,
+                                         inData[whichInput][0], 
+                                         (VTK_TT *)(inPtr),
+                                         outData[0], 
+                                         (VTK_TT *)(outPtr),
+                                         wipeExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;

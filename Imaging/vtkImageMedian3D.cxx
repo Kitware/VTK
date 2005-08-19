@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageMedian3D, "1.45");
+vtkCxxRevisionMacro(vtkImageMedian3D, "1.46");
 vtkStandardNewMacro(vtkImageMedian3D);
 
 //-----------------------------------------------------------------------------
@@ -394,10 +394,11 @@ void vtkImageMedian3D::ThreadedRequestData(
   
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro8(vtkImageMedian3DExecute, this,inData[0][0],
-                      (VTK_TT *)(inPtr), 
-                      outData[0], (VTK_TT *)(outPtr),outExt, id,
-                      inArray);
+    vtkTemplateMacro(
+      vtkImageMedian3DExecute(this,inData[0][0],
+                              (VTK_TT *)(inPtr), 
+                              outData[0], (VTK_TT *)(outPtr),outExt, id,
+                              inArray));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConstantPad, "1.37");
+vtkCxxRevisionMacro(vtkImageConstantPad, "1.38");
 vtkStandardNewMacro(vtkImageConstantPad);
 
 //----------------------------------------------------------------------------
@@ -173,9 +173,10 @@ void vtkImageConstantPad::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageConstantPadExecute, this, 
-                      inData[0][0], (VTK_TT *)(inPtr), outData[0], 
-                      (VTK_TT *)(outPtr), outExt, inExt, id);
+    vtkTemplateMacro(
+      vtkImageConstantPadExecute(this, 
+                                 inData[0][0], (VTK_TT *)(inPtr), outData[0], 
+                                 (VTK_TT *)(outPtr), outExt, inExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

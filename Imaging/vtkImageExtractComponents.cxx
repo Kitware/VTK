@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageExtractComponents, "1.35");
+vtkCxxRevisionMacro(vtkImageExtractComponents, "1.36");
 vtkStandardNewMacro(vtkImageExtractComponents);
 
 //----------------------------------------------------------------------------
@@ -245,9 +245,11 @@ void vtkImageExtractComponents::ThreadedExecute (vtkImageData *inData,
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageExtractComponentsExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr),
-                      outExt, id);
+    vtkTemplateMacro(
+      vtkImageExtractComponentsExecute(this, inData, 
+                                       (VTK_TT *)(inPtr), outData, 
+                                       (VTK_TT *)(outPtr),
+                                       outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

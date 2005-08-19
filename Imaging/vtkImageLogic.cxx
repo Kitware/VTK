@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLogic, "1.31");
+vtkCxxRevisionMacro(vtkImageLogic, "1.32");
 vtkStandardNewMacro(vtkImageLogic);
 
 //----------------------------------------------------------------------------
@@ -238,8 +238,10 @@ void vtkImageLogic::ThreadedRequestData (
     {
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro6(vtkImageLogicExecute1, this, inData[0][0], 
-                        outData[0], outExt, id,  static_cast<VTK_TT *>(0));
+      vtkTemplateMacro(
+        vtkImageLogicExecute1(this, inData[0][0], 
+                              outData[0], outExt, id,  
+                              static_cast<VTK_TT *>(0)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -266,9 +268,10 @@ void vtkImageLogic::ThreadedRequestData (
 
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageLogicExecute2, this, inData[0][0], 
-                        inData[1][0], outData[0], outExt, id,
-                        static_cast<VTK_TT *>(0));
+      vtkTemplateMacro(
+        vtkImageLogicExecute2( this, inData[0][0], 
+                               inData[1][0], outData[0], outExt, id,
+                               static_cast<VTK_TT *>(0)));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;

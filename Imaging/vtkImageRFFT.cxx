@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRFFT, "1.35");
+vtkCxxRevisionMacro(vtkImageRFFT, "1.36");
 vtkStandardNewMacro(vtkImageRFFT);
 
 //----------------------------------------------------------------------------
@@ -201,9 +201,10 @@ void vtkImageRFFT::ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageRFFTExecute, this, inData, inExt, 
-                      (VTK_TT *)(inPtr), outData, outExt, 
-                      (double *)(outPtr), threadId);
+    vtkTemplateMacro(
+      vtkImageRFFTExecute(this, inData, inExt, 
+                          (VTK_TT *)(inPtr), outData, outExt, 
+                          (double *)(outPtr), threadId));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

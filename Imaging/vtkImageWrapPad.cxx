@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageWrapPad, "1.32");
+vtkCxxRevisionMacro(vtkImageWrapPad, "1.33");
 vtkStandardNewMacro(vtkImageWrapPad);
 
 //----------------------------------------------------------------------------
@@ -241,9 +241,10 @@ void vtkImageWrapPad::ThreadedRequestData (
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageWrapPadExecute, this, inData[0][0], 
-                      (VTK_TT *)inPtr, outData[0], 
-                      (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro(
+      vtkImageWrapPadExecute( this, inData[0][0], 
+                              (VTK_TT *)inPtr, outData[0], 
+                              (VTK_TT *)(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

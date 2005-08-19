@@ -41,7 +41,7 @@ public:
 
 
 
-vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.43");
+vtkCxxRevisionMacro(vtkImageCanvasSource2D, "1.44");
 vtkStandardNewMacro(vtkImageCanvasSource2D);
 
 //----------------------------------------------------------------------------
@@ -241,10 +241,11 @@ void vtkImageCanvasSource2D::DrawImage(int x0, int y0,
   sptr = ic->GetOutput()->GetScalarPointer(ext[0], ext[2], 0);
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageCanvasSource2DDrawImage, this->ImageData, 
-                      ic->GetOutput(),
-                      (VTK_TT *)(ptr), (VTK_TT *)(sptr),
-                      min0,max0, min1,max1);
+    vtkTemplateMacro(vtkImageCanvasSource2DDrawImage(this->ImageData, 
+                                                     ic->GetOutput(),
+                                                     (VTK_TT *)(ptr), 
+                                                     (VTK_TT *)(sptr),
+                                                     min0,max0, min1,max1));
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
     }
@@ -331,9 +332,10 @@ void vtkImageCanvasSource2D::FillBox(int min0, int max0, int min1, int max1)
   ptr = this->ImageData->GetScalarPointer(min0, min1, z);
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageCanvasSource2DFillBox, this->ImageData, 
-                      this->DrawColor, (VTK_TT *)(ptr), 
-                      min0,max0, min1,max1);
+    vtkTemplateMacro(vtkImageCanvasSource2DFillBox(this->ImageData, 
+                                                   this->DrawColor, 
+                                                   (VTK_TT *)(ptr), 
+                                                   min0,max0, min1,max1));
     default:
       vtkErrorMacro(<< "FillBox: Cannot handle ScalarType.");
     }   
@@ -449,8 +451,12 @@ void vtkImageCanvasSource2D::FillTube(int a0, int a1,
   ptr = this->ImageData->GetScalarPointer(extent[0], extent[2], z);
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageCanvasSource2DFillTube, this->ImageData, 
-                     this->DrawColor, (VTK_TT *)(ptr), a0,a1, b0,b1, radius);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DFillTube(this->ImageData, 
+                                     this->DrawColor, 
+                                     (VTK_TT *)(ptr), 
+                                     a0,a1, b0,b1, 
+                                     radius));
     default:
       vtkErrorMacro(<< "FillTube: Cannot handle ScalarType.");
     }   
@@ -602,9 +608,10 @@ void vtkImageCanvasSource2D::FillTriangle(int a0,int a1, int b0,int b1,
   ptr = this->ImageData->GetScalarPointer();
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro10(vtkImageCanvasSource2DFillTriangle, this->ImageData, 
-                       this->DrawColor, (VTK_TT *)(ptr), 
-                       a0,a1, b0,b1, c0,c1, z);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DFillTriangle(this->ImageData, 
+                                         this->DrawColor, (VTK_TT *)(ptr), 
+                                         a0,a1, b0,b1, c0,c1, z));
     default:
       vtkErrorMacro(<< "FillTriangle: Cannot handle ScalarType.");
     }   
@@ -673,9 +680,12 @@ void vtkImageCanvasSource2D::DrawPoint(int p0, int p1)
 
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageCanvasSource2DDrawPoint, this->ImageData, 
-                      this->DrawColor, (VTK_TT *)(ptr), p0, p1, 
-                      z);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DDrawPoint(this->ImageData, 
+                                      this->DrawColor, 
+                                      (VTK_TT *)(ptr), 
+                                      p0, p1, 
+                                      z));
     default:
       vtkErrorMacro(<< "DrawPoint: Cannot handle ScalarType.");
     }   
@@ -765,9 +775,13 @@ void vtkImageCanvasSource2D::DrawCircle(int c0, int c1, double radius)
 
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageCanvasSource2DDrawCircle, this->ImageData, 
-                      this->DrawColor, 
-                      (VTK_TT *)(ptr), c0, c1, radius, z);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DDrawCircle(this->ImageData, 
+                                       this->DrawColor, 
+                                       (VTK_TT *)(ptr), 
+                                       c0, c1, 
+                                       radius, 
+                                       z));
     default:
       vtkErrorMacro(<< "DrawCircle: Cannot handle ScalarType.");
     }   
@@ -911,8 +925,11 @@ void vtkImageCanvasSource2D::DrawSegment(int a0, int a1, int b0, int b1)
   a1 -= b1;
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro5(vtkImageCanvasSource2DDrawSegment, this->ImageData, 
-                      this->DrawColor, (VTK_TT *)(ptr), a0, a1);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DDrawSegment(this->ImageData, 
+                                        this->DrawColor, 
+                                        (VTK_TT *)(ptr), 
+                                        a0, a1));
     default:
       vtkErrorMacro(<< "DrawSegment: Cannot handle ScalarType.");
     }   
@@ -1160,8 +1177,11 @@ void vtkImageCanvasSource2D::DrawSegment3D(double *a, double *b)
   a2 = (int)(a[2] - b[2] + 0.5);
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageCanvasSource2DDrawSegment3D, this->ImageData, 
-                      this->DrawColor, (VTK_TT *)(ptr), a0, a1, a2);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DDrawSegment3D(this->ImageData, 
+                                          this->DrawColor, 
+                                          (VTK_TT *)(ptr), 
+                                          a0, a1, a2));
     default:
       vtkErrorMacro(<< "DrawSegment3D: Cannot handle ScalarType.");
     }   
@@ -1464,8 +1484,11 @@ void vtkImageCanvasSource2D::FillPixel(int x, int y)
 
   switch (this->ImageData->GetScalarType())
     {
-    vtkTemplateMacro5(vtkImageCanvasSource2DFill, this->ImageData, 
-                      this->DrawColor, (VTK_TT *)(ptr), x, y);
+    vtkTemplateMacro(
+      vtkImageCanvasSource2DFill(this->ImageData, 
+                                 this->DrawColor, 
+                                 (VTK_TT *)(ptr), 
+                                 x, y));
     default:
       vtkErrorMacro(<< "Fill: Cannot handle ScalarType.");
     }   

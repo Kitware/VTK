@@ -19,7 +19,7 @@
 #include "vtkPointData.h"
 #include "vtk_png.h"
 
-vtkCxxRevisionMacro(vtkPNGReader, "1.24");
+vtkCxxRevisionMacro(vtkPNGReader, "1.25");
 vtkStandardNewMacro(vtkPNGReader);
 
 #ifdef _MSC_VER
@@ -323,7 +323,7 @@ void vtkPNGReader::ExecuteData(vtkDataObject *output)
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro3(vtkPNGReaderUpdate, this, data, (VTK_TT *)(outPtr));
+    vtkTemplateMacro(vtkPNGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   

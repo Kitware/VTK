@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageDivergence, "1.34");
+vtkCxxRevisionMacro(vtkImageDivergence, "1.35");
 vtkStandardNewMacro(vtkImageDivergence);
 
 vtkImageDivergence::vtkImageDivergence()
@@ -222,9 +222,11 @@ void vtkImageDivergence::ThreadedExecute (vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageDivergenceExecute, this, inData, 
-                      (VTK_TT *)(inPtr), outData, (VTK_TT *)(outPtr), 
-                      outExt, id);
+    vtkTemplateMacro(
+      vtkImageDivergenceExecute(this, inData, 
+                                (VTK_TT *)(inPtr), outData, 
+                                (VTK_TT *)(outPtr), 
+                                outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

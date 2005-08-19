@@ -43,7 +43,7 @@
 # endif
 #endif
 
-vtkCxxRevisionMacro(vtkDataArray, "1.68");
+vtkCxxRevisionMacro(vtkDataArray, "1.69");
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.
@@ -94,8 +94,11 @@ void vtkDeepCopySwitchOnOutput(IT *input, vtkDataArray *da,
 
   switch (da->GetDataType())
     {
-    vtkTemplateMacro4(vtkDeepCopyArrayOfDifferentType,input,(VTK_TT*)output,
-                      numTuples,nComp);
+    vtkTemplateMacro(
+      vtkDeepCopyArrayOfDifferentType (input,
+                                       (VTK_TT*)output,
+                                       numTuples,
+                                       nComp) );
 
     default:
       vtkGenericWarningMacro("Unsupported data type " << da->GetDataType()
@@ -124,8 +127,11 @@ void vtkDataArray::DeepCopy(vtkDataArray *da)
 
     switch (da->GetDataType())
       {
-      vtkTemplateMacro4(vtkDeepCopySwitchOnOutput,(VTK_TT*)input,
-                        this,numTuples,this->NumberOfComponents);
+      vtkTemplateMacro(
+        vtkDeepCopySwitchOnOutput((VTK_TT*)input,
+                                  this,
+                                  numTuples,
+                                  this->NumberOfComponents));
 
       case VTK_BIT:
         {//bit not supported, using generic double API
@@ -679,9 +685,9 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output, vtkIdList* ptIds)
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro4(vtkCopyTuples, input, 
-                      (VTK_TT *)output->GetVoidPointer(0), 
-                      output->GetNumberOfComponents(), ptIds );
+    vtkTemplateMacro(vtkCopyTuples(input, 
+                                   (VTK_TT *)output->GetVoidPointer(0), 
+                                   output->GetNumberOfComponents(), ptIds) );
 
     default:
       vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
@@ -702,8 +708,8 @@ void vtkDataArray::GetTuples(vtkIdList *ptIds, vtkDataArray *da)
 
   switch (this->GetDataType())
     {
-    vtkTemplateMacro3(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
-                      ptIds );
+    vtkTemplateMacro(vtkCopyTuples1 ((VTK_TT *)this->GetVoidPointer(0), da,
+                                     ptIds ));
     // This is not supported by the template macro.
     // Switch to using the double interface.
     case VTK_BIT:
@@ -745,9 +751,9 @@ void vtkCopyTuples1(IT* input, vtkDataArray* output,
 {
   switch (output->GetDataType())
     {
-    vtkTemplateMacro5(vtkCopyTuples, input, 
-                      (VTK_TT *)output->GetVoidPointer(0), 
-                      output->GetNumberOfComponents(), p1, p2 );
+    vtkTemplateMacro(vtkCopyTuples( input, 
+                                    (VTK_TT *)output->GetVoidPointer(0), 
+                                    output->GetNumberOfComponents(), p1, p2) );
 
     default:
       vtkGenericWarningMacro("Sanity check failed: Unsupported data type "
@@ -769,8 +775,8 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkDataArray *da)
 
   switch (this->GetDataType())
     {
-    vtkTemplateMacro4(vtkCopyTuples1, (VTK_TT *)this->GetVoidPointer(0), da,
-                      p1, p2 );
+    vtkTemplateMacro(vtkCopyTuples1( (VTK_TT *)this->GetVoidPointer(0), da,
+                                     p1, p2 ) );
     // This is not supported by the template macro.
     // Switch to using the double interface.
     case VTK_BIT:

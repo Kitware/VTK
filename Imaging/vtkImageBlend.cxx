@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkImageBlend, "1.37");
+vtkCxxRevisionMacro(vtkImageBlend, "1.38");
 vtkStandardNewMacro(vtkImageBlend);
 
 //----------------------------------------------------------------------------
@@ -1025,11 +1025,11 @@ void vtkImageBlend::ThreadedRequestData (
             {
             switch (inData[0][idx1]->GetScalarType())
               {
-              vtkTemplateMacro8(vtkImageBlendExecute, 
-                                this, extent,
-                                inData[0][idx1], (VTK_TT *)(inPtr),
-                                outData[0], (VTK_TT *)(outPtr), 
-                                opacity, id);
+              vtkTemplateMacro(
+                vtkImageBlendExecute(this, extent,
+                                     inData[0][idx1], (VTK_TT *)(inPtr),
+                                     outData[0], (VTK_TT *)(outPtr), 
+                                     opacity, id));
               default:
                 vtkErrorMacro(<< "Execute: Unknown ScalarType");
                 return;
@@ -1040,14 +1040,14 @@ void vtkImageBlend::ThreadedRequestData (
         case VTK_IMAGE_BLEND_MODE_COMPOUND:
           switch (inData[0][idx1]->GetScalarType())
             {
-            vtkTemplateMacro7(vtkImageBlendCompoundExecute, 
-                              this, 
-                              extent,
-                              inData[0][idx1], 
-                              (VTK_TT *)(inPtr), 
-                              tmpData, 
-                              opacity,
-                              this->CompoundThreshold);
+            vtkTemplateMacro(
+              vtkImageBlendCompoundExecute(this, 
+                                           extent,
+                                           inData[0][idx1], 
+                                           (VTK_TT *)(inPtr), 
+                                           tmpData, 
+                                           opacity,
+                                           this->CompoundThreshold));
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return;
@@ -1070,12 +1070,12 @@ void vtkImageBlend::ThreadedRequestData (
       outPtr = outData[0]->GetScalarPointerForExtent(outExt);
       switch (outData[0]->GetScalarType())
         {
-        vtkTemplateMacro5(vtkImageBlendCompoundTransferExecute, 
-                          this, 
-                          outExt,
-                          outData[0], 
-                          (VTK_TT *)(outPtr), 
-                          tmpData);
+        vtkTemplateMacro(
+          vtkImageBlendCompoundTransferExecute(this, 
+                                               outExt,
+                                               outData[0], 
+                                               (VTK_TT *)(outPtr), 
+                                               tmpData));
         default:
           vtkErrorMacro(<< "Execute: Unknown ScalarType");
           return;

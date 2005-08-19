@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.19");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.20");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -906,9 +906,10 @@ void vtkFixedPointVolumeRayCastMapper::UpdateMinMaxVolume( vtkVolume *vol )
       
       switch ( scalarType )
         {
-        vtkTemplateMacro8( vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume,
-                           (VTK_TT *)(dataPtr), this->MinMaxVolume, dim, targetSize, 
-                           independent, components, this->TableShift, this->TableScale );
+        vtkTemplateMacro( 
+          vtkFixedPointVolumeRayCastMapperFillInMinMaxVolume(
+            (VTK_TT *)(dataPtr), this->MinMaxVolume, dim, targetSize, 
+            independent, components, this->TableShift, this->TableScale) );
         }
       }
     
@@ -2537,13 +2538,14 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients( vtkVolume *vol )
  
  switch ( scalarType )
    {
-   vtkTemplateMacro10( vtkFixedPointVolumeRayCastMapperComputeGradients, 
-                      (VTK_TT *)(dataPtr), dim, spacing, components,
-                      independent, scalarRange,
-                      this->GradientNormal,
-                      this->GradientMagnitude,
-                      this->DirectionEncoder,
-                      this );
+   vtkTemplateMacro( 
+     vtkFixedPointVolumeRayCastMapperComputeGradients(
+       (VTK_TT *)(dataPtr), dim, spacing, components,
+       independent, scalarRange,
+       this->GradientNormal,
+       this->GradientMagnitude,
+       this->DirectionEncoder,
+       this) );
    }
 }
 

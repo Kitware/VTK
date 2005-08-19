@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageAppend, "1.29");
+vtkCxxRevisionMacro(vtkImageAppend, "1.30");
 vtkStandardNewMacro(vtkImageAppend);
 
 //----------------------------------------------------------------------------
@@ -371,9 +371,10 @@ void vtkImageAppend::ThreadedRequestData (
         
         switch (inData[0][idx1]->GetScalarType())
           {
-          vtkTemplateMacro8(vtkImageAppendExecute, this, id, 
-                            inExt, inData[0][idx1], (VTK_TT *)(inPtr),
-                            cOutExt, outData[0], (VTK_TT *)(outPtr));
+          vtkTemplateMacro(
+            vtkImageAppendExecute(this, id, 
+                                  inExt, inData[0][idx1], (VTK_TT *)(inPtr),
+                                  cOutExt, outData[0], (VTK_TT *)(outPtr)));
           default:
             vtkErrorMacro(<< "Execute: Unknown ScalarType");
           return;

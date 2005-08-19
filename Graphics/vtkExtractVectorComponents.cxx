@@ -24,7 +24,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 
-vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.50");
+vtkCxxRevisionMacro(vtkExtractVectorComponents, "1.51");
 vtkStandardNewMacro(vtkExtractVectorComponents);
 
 vtkExtractVectorComponents::vtkExtractVectorComponents()
@@ -222,11 +222,12 @@ int vtkExtractVectorComponents::RequestData(
 
     switch (vectors->GetDataType())
       {
-      vtkTemplateMacro5(vtkExtractComponents, numVectors,
-                        (VTK_TT *)vectors->GetVoidPointer(0),
-                        (VTK_TT *)vx->GetVoidPointer(0),
-                        (VTK_TT *)vy->GetVoidPointer(0),
-                        (VTK_TT *)vz->GetVoidPointer(0));
+      vtkTemplateMacro(
+        vtkExtractComponents(numVectors,
+                             (VTK_TT *)vectors->GetVoidPointer(0),
+                             (VTK_TT *)vx->GetVoidPointer(0),
+                             (VTK_TT *)vy->GetVoidPointer(0),
+                             (VTK_TT *)vz->GetVoidPointer(0)));
       }
 
     outVx->PassData(pd);
@@ -270,11 +271,12 @@ int vtkExtractVectorComponents::RequestData(
 
     switch (vectorsc->GetDataType())
       {
-      vtkTemplateMacro5(vtkExtractComponents, numVectorsc,
-                        (VTK_TT *)vectorsc->GetVoidPointer(0),
-                        (VTK_TT *)vxc->GetVoidPointer(0),
-                        (VTK_TT *)vyc->GetVoidPointer(0),
-                        (VTK_TT *)vzc->GetVoidPointer(0));
+      vtkTemplateMacro(
+        vtkExtractComponents( numVectorsc,
+                              (VTK_TT *)vectorsc->GetVoidPointer(0),
+                              (VTK_TT *)vxc->GetVoidPointer(0),
+                              (VTK_TT *)vyc->GetVoidPointer(0),
+                              (VTK_TT *)vzc->GetVoidPointer(0)));
       }
 
     outVxc->PassData(cd);

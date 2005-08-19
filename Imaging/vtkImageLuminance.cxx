@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLuminance, "1.27");
+vtkCxxRevisionMacro(vtkImageLuminance, "1.28");
 vtkStandardNewMacro(vtkImageLuminance);
 
 //----------------------------------------------------------------------------
@@ -108,8 +108,9 @@ void vtkImageLuminance::ThreadedExecute (vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageLuminanceExecute, this, inData, outData, 
-                      outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageLuminanceExecute( this, inData, outData, 
+                                outExt, id, static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

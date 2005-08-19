@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.5");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMIPHelper, "1.6");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMIPHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastMIPHelper with default values
@@ -573,9 +573,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageOneNN, 
-                           (VTK_TT *)(dataPtr),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointMIPHelperGenerateImageOneNN(
+            (VTK_TT *)(dataPtr),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // More that one independent components
@@ -583,9 +584,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageIndependentNN, 
-                           (VTK_TT *)(dataPtr),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointMIPHelperGenerateImageIndependentNN(
+            (VTK_TT *)(dataPtr),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent (color) components
@@ -593,9 +595,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageDependentNN, 
-                           (VTK_TT *)(dataPtr),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointMIPHelperGenerateImageDependentNN(
+            (VTK_TT *)(dataPtr),
+            threadID, threadCount, mapper, vol) );
         }
       }
     }
@@ -610,9 +613,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin, 
-                             (VTK_TT *)(dataPtr),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointMIPHelperGenerateImageOneSimpleTrilin(
+              (VTK_TT *)(dataPtr),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Scale != 1.0 or shift != 0.0 - must apply scale/shift in inner loop
@@ -620,9 +624,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageOneTrilin, 
-                             (VTK_TT *)(dataPtr),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointMIPHelperGenerateImageOneTrilin(
+              (VTK_TT *)(dataPtr),
+              threadID, threadCount, mapper, vol) );
           }
         }
       }
@@ -631,9 +636,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageIndependentTrilin, 
-                           (VTK_TT *)(dataPtr),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointMIPHelperGenerateImageIndependentTrilin(
+            (VTK_TT *)(dataPtr),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent components
@@ -641,9 +647,10 @@ void vtkFixedPointVolumeRayCastMIPHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointMIPHelperGenerateImageDependentTrilin, 
-                           (VTK_TT *)(dataPtr),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointMIPHelperGenerateImageDependentTrilin(
+            (VTK_TT *)(dataPtr),
+            threadID, threadCount, mapper, vol) );
         }
       }
     }

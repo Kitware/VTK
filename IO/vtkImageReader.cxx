@@ -23,7 +23,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageReader, "1.120");
+vtkCxxRevisionMacro(vtkImageReader, "1.121");
 vtkStandardNewMacro(vtkImageReader);
 
 vtkCxxSetObjectMacro(vtkImageReader,Transform,vtkTransform);
@@ -408,8 +408,8 @@ void vtkImageReaderUpdate1(vtkImageReader *self, vtkImageData *data, T *inPtr)
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro4(vtkImageReaderUpdate2, self, data, inPtr, 
-                      (VTK_TT *)(outPtr));
+    vtkTemplateMacro(vtkImageReaderUpdate2(self, data, inPtr, 
+                                           (VTK_TT *)(outPtr)));
     default:
       vtkGenericWarningMacro("Update1: Unknown data type\n");
     }  
@@ -445,7 +445,7 @@ void vtkImageReader::ExecuteData(vtkDataObject *output)
   // Call the correct templated function for the output
   switch (this->GetDataScalarType())
     {
-    vtkTemplateMacro3(vtkImageReaderUpdate1, this, data, (VTK_TT *)(ptr));
+    vtkTemplateMacro(vtkImageReaderUpdate1(this, data, (VTK_TT *)(ptr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   

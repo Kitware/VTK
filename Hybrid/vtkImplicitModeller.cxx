@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImplicitModeller, "1.97");
+vtkCxxRevisionMacro(vtkImplicitModeller, "1.98");
 vtkStandardNewMacro(vtkImplicitModeller);
 
 struct vtkImplicitModellerAppendInfo
@@ -466,10 +466,12 @@ static VTK_THREAD_RETURN_TYPE vtkImplicitModeller_ThreadedAppend( void *arg )
 
   switch (userData->Modeller->GetOutputScalarType())
     {
-    vtkTemplateMacro8(vtkImplicitModellerAppendExecute, userData->Modeller, 
-                      userData->Input[threadId], output, outExt, 
-                      userData->MaximumDistance, locator, threadId,
-                      static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImplicitModellerAppendExecute( 
+        userData->Modeller, 
+        userData->Input[threadId], output, outExt, 
+        userData->MaximumDistance, locator, threadId,
+        static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return VTK_THREAD_RETURN_VALUE;
@@ -623,8 +625,12 @@ void vtkImplicitModeller::Append(vtkDataSet *input)
  
     switch (this->OutputScalarType)
       {
-      vtkTemplateMacro5(vtkImplicitModellerAppendExecute, this, 
-        input, output, this->InternalMaxDistance, static_cast<VTK_TT *>(0));
+      vtkTemplateMacro(
+        vtkImplicitModellerAppendExecute( this, 
+                                          input, 
+                                          output, 
+                                          this->InternalMaxDistance, 
+                                          static_cast<VTK_TT *>(0)));
      }
     }
   else

@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageLaplacian, "1.32");
+vtkCxxRevisionMacro(vtkImageLaplacian, "1.33");
 vtkStandardNewMacro(vtkImageLaplacian);
 
 //----------------------------------------------------------------------------
@@ -216,9 +216,11 @@ void vtkImageLaplacian::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageLaplacianExecute, this, inData[0][0],
-                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr), 
-                      outExt, id);
+    vtkTemplateMacro(
+      vtkImageLaplacianExecute( this, inData[0][0],
+                                (VTK_TT *)(inPtr), outData[0], 
+                                (VTK_TT *)(outPtr), 
+                                outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

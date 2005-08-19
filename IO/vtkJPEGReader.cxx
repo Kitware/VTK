@@ -30,7 +30,7 @@ extern "C" {
 }
 
 
-vtkCxxRevisionMacro(vtkJPEGReader, "1.23");
+vtkCxxRevisionMacro(vtkJPEGReader, "1.24");
 vtkStandardNewMacro(vtkJPEGReader);
 
 
@@ -283,7 +283,7 @@ void vtkJPEGReader::ExecuteData(vtkDataObject *output)
   outPtr = data->GetScalarPointer();
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro3(vtkJPEGReaderUpdate, this, data, (VTK_TT *)(outPtr));
+    vtkTemplateMacro(vtkJPEGReaderUpdate(this, data, (VTK_TT *)(outPtr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   

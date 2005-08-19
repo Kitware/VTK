@@ -24,7 +24,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkImageReader2, "1.37");
+vtkCxxRevisionMacro(vtkImageReader2, "1.38");
 vtkStandardNewMacro(vtkImageReader2);
 
 #ifdef read
@@ -715,7 +715,7 @@ void vtkImageReader2::ExecuteData(vtkDataObject *output)
   ptr = data->GetScalarPointer();
   switch (this->GetDataScalarType())
     {
-    vtkTemplateMacro3(vtkImageReader2Update, this, data, (VTK_TT *)(ptr));
+    vtkTemplateMacro(vtkImageReader2Update(this, data, (VTK_TT *)(ptr)));
     default:
       vtkErrorMacro(<< "UpdateFromFile: Unknown data type");
     }   

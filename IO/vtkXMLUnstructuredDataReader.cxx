@@ -25,7 +25,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.26");
+vtkCxxRevisionMacro(vtkXMLUnstructuredDataReader, "1.27");
 
 //----------------------------------------------------------------------------
 vtkXMLUnstructuredDataReader::vtkXMLUnstructuredDataReader()
@@ -123,9 +123,10 @@ vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
   vtkIdType* idBuffer = ida->GetPointer(0);
   switch (a->GetDataType())
     {
-    vtkTemplateMacro3(vtkXMLUnstructuredDataReaderCopyArray,
+    vtkTemplateMacro(
+      vtkXMLUnstructuredDataReaderCopyArray(
                       static_cast<VTK_TT*>(a->GetVoidPointer(0)),
-                      idBuffer, length);
+                      idBuffer, length));
     default:
       vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
                     << " to vtkIdTypeArray.");
@@ -155,9 +156,10 @@ vtkXMLUnstructuredDataReader::ConvertToUnsignedCharArray(vtkDataArray* a)
   unsigned char* ucBuffer = uca->GetPointer(0);
   switch (a->GetDataType())
     {
-    vtkTemplateMacro3(vtkXMLUnstructuredDataReaderCopyArray,
-                      static_cast<VTK_TT*>(a->GetVoidPointer(0)),
-                      ucBuffer, length);
+    vtkTemplateMacro(
+      vtkXMLUnstructuredDataReaderCopyArray(
+        static_cast<VTK_TT*>(a->GetVoidPointer(0)),
+        ucBuffer, length));
     default:
       vtkErrorMacro("Cannot convert vtkDataArray of type " << a->GetDataType()
                     << " to vtkUnsignedCharArray.");

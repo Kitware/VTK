@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper, "1.4");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper, "1.5");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeShadeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeShadeHelper with default values
@@ -722,18 +722,20 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageOneSimpleNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageOneSimpleNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       else
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageOneNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageOneNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       }
@@ -742,9 +744,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageIndependentNN, 
-                           (VTK_TT *)(data),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointCompositeShadeHelperGenerateImageIndependentNN(
+            (VTK_TT *)(data),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent (color) components
@@ -756,9 +759,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageTwoDependentNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageTwoDependentNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Four components - they must be unsigned char, the first three directly
@@ -788,9 +792,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageOneSimpleTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageOneSimpleTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Scale != 1.0 or shift != 0.0 - must apply scale/shift in inner loop
@@ -798,9 +803,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageOneTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageOneTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       }
@@ -809,9 +815,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageIndependentTrilin, 
-                           (VTK_TT *)(data),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointCompositeShadeHelperGenerateImageIndependentTrilin(
+            (VTK_TT *)(data),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent components
@@ -823,9 +830,10 @@ void vtkFixedPointVolumeRayCastCompositeShadeHelper::GenerateImage( int threadID
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeShadeHelperGenerateImageTwoDependentTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeShadeHelperGenerateImageTwoDependentTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Four components - they must be unsigned char, the first three directly

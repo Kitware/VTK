@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.43");
+vtkCxxRevisionMacro(vtkImageGradientMagnitude, "1.44");
 vtkStandardNewMacro(vtkImageGradientMagnitude);
 
 //----------------------------------------------------------------------------
@@ -258,9 +258,10 @@ void vtkImageGradientMagnitude::ThreadedExecute (vtkImageData *inData,
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageGradientMagnitudeExecute, this, 
-                      inData, (VTK_TT *)(inPtr), outData, 
-                      (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro(
+      vtkImageGradientMagnitudeExecute(this, 
+                                       inData, (VTK_TT *)(inPtr), outData, 
+                                       (VTK_TT *)(outPtr), outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

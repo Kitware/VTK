@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.22");
+vtkCxxRevisionMacro(vtkImageEuclideanDistance, "1.23");
 vtkStandardNewMacro(vtkImageEuclideanDistance);
 
 //----------------------------------------------------------------------------
@@ -615,10 +615,11 @@ int vtkImageEuclideanDistance::IterativeRequestData(
     {
     switch (inData->GetScalarType())
       {
-      vtkTemplateMacro6(vtkImageEuclideanDistanceInitialize,
-                        this, 
-                        inData, (VTK_TT *)(inPtr), 
-                        outData, outExt, (double *)(outPtr) );
+      vtkTemplateMacro(
+        vtkImageEuclideanDistanceInitialize(this, 
+                                            inData, (VTK_TT *)(inPtr), 
+                                            outData, outExt, 
+                                            (double *)(outPtr) ));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return 1;
@@ -629,10 +630,11 @@ int vtkImageEuclideanDistance::IterativeRequestData(
     if( inData != outData )
       switch (inData->GetScalarType())
         {    
-        vtkTemplateMacro6(vtkImageEuclideanDistanceCopyData,
-                          this, 
-                          inData, (VTK_TT *)(inPtr), 
-                          outData, outExt, (double *)(outPtr) );
+        vtkTemplateMacro(
+          vtkImageEuclideanDistanceCopyData(this, 
+                                            inData, (VTK_TT *)(inPtr), 
+                                            outData, outExt, 
+                                            (double *)(outPtr) ));
         }
     }
   

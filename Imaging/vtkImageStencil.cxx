@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencil, "1.20");
+vtkCxxRevisionMacro(vtkImageStencil, "1.21");
 vtkStandardNewMacro(vtkImageStencil);
 
 //----------------------------------------------------------------------------
@@ -354,9 +354,17 @@ void vtkImageStencil::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro10(vtkImageStencilExecute, this, inData[0][0],
-                       (VTK_TT *)(inPtr), inData2, (VTK_TT *)(inPtr2), 
-                       outData[0], (VTK_TT *)(outPtr), outExt, id, outInfo);
+    vtkTemplateMacro(
+      vtkImageStencilExecute( this, 
+                              inData[0][0],
+                              (VTK_TT *)(inPtr), 
+                              inData2, 
+                              (VTK_TT *)(inPtr2), 
+                              outData[0], 
+                              (VTK_TT *)(outPtr), 
+                              outExt, 
+                              id, 
+                              outInfo) );
     default:
       vtkErrorMacro("Execute: Unknown ScalarType");
       return;

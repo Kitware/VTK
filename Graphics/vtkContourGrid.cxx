@@ -31,7 +31,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkContourGrid, "1.31");
+vtkCxxRevisionMacro(vtkContourGrid, "1.32");
 vtkStandardNewMacro(vtkContourGrid);
 
 // Construct object with initial range (0,1) and single contour value
@@ -363,10 +363,11 @@ int vtkContourGrid::RequestData(
         
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro10(vtkContourGridExecute, this, input, output, inScalars,
-                       (VTK_TT *)(scalarArrayPtr), numContours, values,
-                       computeScalars, useScalarTree, 
-                       scalarTree);
+    vtkTemplateMacro(
+      vtkContourGridExecute( this, input, output, inScalars,
+                             (VTK_TT *)(scalarArrayPtr), numContours, values,
+                             computeScalars, useScalarTree, 
+                             scalarTree));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

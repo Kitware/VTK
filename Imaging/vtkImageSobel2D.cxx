@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageSobel2D, "1.36");
+vtkCxxRevisionMacro(vtkImageSobel2D, "1.37");
 vtkStandardNewMacro(vtkImageSobel2D);
 
 //----------------------------------------------------------------------------
@@ -210,9 +210,10 @@ void vtkImageSobel2D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageSobel2DExecute, this, inData[0][0], 
-                      (VTK_TT *)(inPtr), outData[0], outExt, 
-                      (double *)(outPtr),id, inInfo);
+    vtkTemplateMacro(
+      vtkImageSobel2DExecute(this, inData[0][0], 
+                             (VTK_TT *)(inPtr), outData[0], outExt, 
+                             (double *)(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

@@ -26,7 +26,7 @@
 #include "vtkVolumeProperty.h"
 #include "vtkMatrix4x4.h"
 
-vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.5");
+vtkCxxRevisionMacro(vtkVolumeTextureMapper3D, "1.6");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -1160,21 +1160,23 @@ int vtkVolumeTextureMapper3D::UpdateVolumes(vtkVolume *vtkNotUsed(vol))
 
   switch ( scalarType )
     {
-    vtkTemplateMacro6( vtkVolumeTextureMapper3DComputeScalars, 
-                       (VTK_TT *)(dataPtr), this,
-                       offset, scale,
-                       this->Volume1,
-                       this->Volume2);
+    vtkTemplateMacro(
+      vtkVolumeTextureMapper3DComputeScalars(
+        (VTK_TT *)(dataPtr), this,
+        offset, scale,
+        this->Volume1,
+        this->Volume2));
     }
 
   switch ( scalarType )
     {
-    vtkTemplateMacro6( vtkVolumeTextureMapper3DComputeGradients, 
-                       (VTK_TT *)(dataPtr), this,
-                       scalarRange,
-                       this->Volume1,
-                       this->Volume2,
-                       this->Volume3);
+    vtkTemplateMacro( 
+      vtkVolumeTextureMapper3DComputeGradients(
+        (VTK_TT *)(dataPtr), this,
+        scalarRange,
+        this->Volume1,
+        this->Volume2,
+        this->Volume3));
     }
 
   return 1;

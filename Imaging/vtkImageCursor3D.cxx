@@ -19,7 +19,7 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageCursor3D, "1.21");
+vtkCxxRevisionMacro(vtkImageCursor3D, "1.22");
 vtkStandardNewMacro(vtkImageCursor3D);
 
 //----------------------------------------------------------------------------
@@ -127,8 +127,8 @@ int vtkImageCursor3D::RequestData(
   
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro3(vtkImageCursor3DExecute, this, 
-                      outData, (VTK_TT *)(ptr));
+    vtkTemplateMacro(
+      vtkImageCursor3DExecute(this,outData, (VTK_TT *)(ptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

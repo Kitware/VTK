@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.5");
+vtkCxxRevisionMacro(vtkGridSynchronizedTemplates3D, "1.6");
 vtkStandardNewMacro(vtkGridSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -742,8 +742,8 @@ void ContourGrid(vtkGridSynchronizedTemplates3D *self,
 {
   switch(input->GetPoints()->GetData()->GetDataType())
     {
-    vtkTemplateMacro7(ContourGrid, self, exExt, scalars,
-                      input, output, (VTK_TT*)0, inScalars);
+    vtkTemplateMacro(
+      ContourGrid(self, exExt, scalars, input, output, (VTK_TT*)0, inScalars));
     }
 }
 
@@ -787,8 +787,8 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(int *exExt, int ,
     void *scalars = inScalars->GetVoidPointer(0);
     switch (inScalars->GetDataType())
       {
-      vtkTemplateMacro6(ContourGrid, this, exExt, (VTK_TT *)scalars, 
-                        input, output, inScalars);
+      vtkTemplateMacro(
+        ContourGrid(this, exExt, (VTK_TT *)scalars, input, output, inScalars));
       }//switch
     }
   else //multiple components - have to convert

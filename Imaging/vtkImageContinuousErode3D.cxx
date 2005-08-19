@@ -23,7 +23,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.33");
+vtkCxxRevisionMacro(vtkImageContinuousErode3D, "1.34");
 vtkStandardNewMacro(vtkImageContinuousErode3D);
 
 //----------------------------------------------------------------------------
@@ -322,10 +322,13 @@ void vtkImageContinuousErode3D::ThreadedRequestData(
   
   switch (inArray->GetDataType())
     {
-    vtkTemplateMacro10(vtkImageContinuousErode3DExecute, this, mask, 
-                       inData[0][0], (VTK_TT *)(inPtr), outData[0], outExt, 
-                       (VTK_TT *)(outPtr),id, inArray,
-                       inInfo);
+    vtkTemplateMacro(
+      vtkImageContinuousErode3DExecute(this, mask, 
+                                       inData[0][0], 
+                                       (VTK_TT *)(inPtr), 
+                                       outData[0], outExt, 
+                                       (VTK_TT *)(outPtr),id, inArray,
+                                       inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

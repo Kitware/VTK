@@ -20,7 +20,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.4");
+vtkCxxRevisionMacro(vtkImageRGBToHSI, "1.5");
 vtkStandardNewMacro(vtkImageRGBToHSI);
 
 //----------------------------------------------------------------------------
@@ -145,8 +145,10 @@ void vtkImageRGBToHSI::ThreadedExecute (vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageRGBToHSIExecute, this, inData, 
-                      outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageRGBToHSIExecute( this, inData, 
+                               outData, outExt, id, 
+                               static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

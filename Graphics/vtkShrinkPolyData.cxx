@@ -22,7 +22,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
-vtkCxxRevisionMacro(vtkShrinkPolyData, "1.68");
+vtkCxxRevisionMacro(vtkShrinkPolyData, "1.69");
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)
@@ -298,9 +298,10 @@ int vtkShrinkPolyData::RequestData(
   // call templated function
   switch (input->GetPoints()->GetDataType())
     {
-    vtkTemplateMacro5(vtkShrinkPolyDataExecute, this, 
-                      (VTK_TT *)(inPtr), this->ShrinkFactor,
-                      inInfo, outInfo);
+    vtkTemplateMacro(
+      vtkShrinkPolyDataExecute(this, 
+                               (VTK_TT *)(inPtr), this->ShrinkFactor,
+                               inInfo, outInfo));
     default:
       break;
     }

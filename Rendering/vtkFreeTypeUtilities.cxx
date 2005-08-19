@@ -39,7 +39,7 @@
 #define VTK_FTFC_DEBUG_CD 0
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.11");
+vtkCxxRevisionMacro(vtkFreeTypeUtilities, "1.12");
 vtkInstantiatorNewMacro(vtkFreeTypeUtilities);
 
 //----------------------------------------------------------------------------
@@ -1217,14 +1217,14 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
     {
     switch (data->GetScalarType())
       {
-      vtkTemplateMacro8(res &= vtkFreeTypeUtilitiesRenderString, 
-                        this, 
-                        tprop,
-                        str,
-                        x + 1, y - 1,
-                        data, 
-                        (VTK_TT *)(NULL),
-                        1);
+      vtkTemplateMacro(res &= vtkFreeTypeUtilitiesRenderString( 
+                         this, 
+                         tprop,
+                         str,
+                         x + 1, y - 1,
+                         data, 
+                         (VTK_TT *)(NULL),
+                         1));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return 0;
@@ -1235,14 +1235,14 @@ int vtkFreeTypeUtilities::RenderString(vtkTextProperty *tprop,
 
   switch (data->GetScalarType())
     {
-    vtkTemplateMacro8(res &= vtkFreeTypeUtilitiesRenderString, 
-                      this, 
-                      tprop,
-                      str,
-                      x, y,
-                      data, 
-                      (VTK_TT *)(NULL),
-                      0);
+    vtkTemplateMacro(res &= vtkFreeTypeUtilitiesRenderString( 
+                       this, 
+                       tprop,
+                       str,
+                       x, y,
+                       data, 
+                       (VTK_TT *)(NULL),
+                       0));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 0;

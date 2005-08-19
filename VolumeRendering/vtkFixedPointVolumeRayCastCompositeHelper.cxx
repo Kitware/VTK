@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.4");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastCompositeHelper, "1.5");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastCompositeHelper);
 
 // Construct a new vtkFixedPointVolumeRayCastCompositeHelper with default values
@@ -646,18 +646,20 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageOneSimpleNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageOneSimpleNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       else
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageOneNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageOneNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       }
@@ -666,9 +668,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageIndependentNN, 
-                           (VTK_TT *)(data),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointCompositeHelperGenerateImageIndependentNN(
+            (VTK_TT *)(data),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent (color) components
@@ -680,9 +683,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageTwoDependentNN, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageTwoDependentNN(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Four components - they must be unsigned char, the first three directly
@@ -712,9 +716,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageOneSimpleTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageOneSimpleTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Scale != 1.0 or shift != 0.0 - must apply scale/shift in inner loop
@@ -722,9 +727,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageOneTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageOneTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       }
@@ -733,9 +739,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
       {
       switch ( scalarType )
         {
-        vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageIndependentTrilin, 
-                           (VTK_TT *)(data),
-                           threadID, threadCount, mapper, vol );
+        vtkTemplateMacro( 
+          vtkFixedPointCompositeHelperGenerateImageIndependentTrilin(
+            (VTK_TT *)(data),
+            threadID, threadCount, mapper, vol) );
         }
       }
     // Dependent components
@@ -747,9 +754,10 @@ void vtkFixedPointVolumeRayCastCompositeHelper::GenerateImage( int threadID,
         {
         switch ( scalarType )
           {
-          vtkTemplateMacro5( vtkFixedPointCompositeHelperGenerateImageTwoDependentTrilin, 
-                             (VTK_TT *)(data),
-                             threadID, threadCount, mapper, vol );
+          vtkTemplateMacro( 
+            vtkFixedPointCompositeHelperGenerateImageTwoDependentTrilin(
+              (VTK_TT *)(data),
+              threadID, threadCount, mapper, vol) );
           }
         }
       // Four components - they must be unsigned char, the first three directly

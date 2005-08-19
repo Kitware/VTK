@@ -21,7 +21,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageMathematics, "1.52");
+vtkCxxRevisionMacro(vtkImageMathematics, "1.53");
 vtkStandardNewMacro(vtkImageMathematics);
 
 //----------------------------------------------------------------------------
@@ -445,10 +445,10 @@ void vtkImageMathematics::ThreadedRequestData(
     
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro9(vtkImageMathematicsExecute2,
-                        this,inData[0][0], (VTK_TT *)(inPtr1), 
-                        inData[1][0], (VTK_TT *)(inPtr2), 
-                        outData[0], (VTK_TT *)(outPtr), outExt, id);
+      vtkTemplateMacro(
+        vtkImageMathematicsExecute2(this,inData[0][0], (VTK_TT *)(inPtr1), 
+                                    inData[1][0], (VTK_TT *)(inPtr2), 
+                                    outData[0], (VTK_TT *)(outPtr), outExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
@@ -475,9 +475,9 @@ void vtkImageMathematics::ThreadedRequestData(
 
     switch (inData[0][0]->GetScalarType())
       {
-      vtkTemplateMacro7(vtkImageMathematicsExecute1,
-                        this, inData[0][0], (VTK_TT *)(inPtr1), 
-                        outData[0], (VTK_TT *)(outPtr), outExt, id);
+      vtkTemplateMacro(
+        vtkImageMathematicsExecute1(this, inData[0][0], (VTK_TT *)(inPtr1), 
+                                    outData[0], (VTK_TT *)(outPtr), outExt, id));
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;

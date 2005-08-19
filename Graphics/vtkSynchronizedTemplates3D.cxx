@@ -38,7 +38,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.8");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates3D, "1.9");
 vtkStandardNewMacro(vtkSynchronizedTemplates3D);
 
 //----------------------------------------------------------------------------
@@ -700,8 +700,9 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(vtkImageData *data,
   ptr = data->GetArrayPointerForExtent(inScalars, exExt);
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro7(ContourImage, this, exExt, inInfo, data, output, 
-                      (VTK_TT *)ptr, inScalars);
+    vtkTemplateMacro(
+      ContourImage(this, exExt, inInfo, data, output, 
+                   (VTK_TT *)ptr, inScalars));
     }
 }
 

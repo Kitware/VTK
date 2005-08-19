@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageConvolve, "1.17");
+vtkCxxRevisionMacro(vtkImageConvolve, "1.18");
 vtkStandardNewMacro(vtkImageConvolve);
 
 //----------------------------------------------------------------------------
@@ -466,9 +466,11 @@ void vtkImageConvolve::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro8(vtkImageConvolveExecute, this, inData[0][0],
-                      (VTK_TT *)(inPtr), outData[0], (VTK_TT *)(outPtr),
-                      outExt, id, inInfo);
+    vtkTemplateMacro(
+      vtkImageConvolveExecute(this, inData[0][0],
+                              (VTK_TT *)(inPtr), outData[0], 
+                              (VTK_TT *)(outPtr),
+                              outExt, id, inInfo));
 
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");

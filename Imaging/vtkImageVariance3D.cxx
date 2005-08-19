@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageVariance3D, "1.31");
+vtkCxxRevisionMacro(vtkImageVariance3D, "1.32");
 vtkStandardNewMacro(vtkImageVariance3D);
 
 //----------------------------------------------------------------------------
@@ -316,9 +316,10 @@ void vtkImageVariance3D::ThreadedRequestData(
 
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageVariance3DExecute, this, mask, inData[0][0], 
-                      (VTK_TT *)(inPtr), outData[0], outExt,
-                      (float *)(outPtr),id, inInfo);
+    vtkTemplateMacro(
+      vtkImageVariance3DExecute( this, mask, inData[0][0], 
+                                 (VTK_TT *)(inPtr), outData[0], outExt,
+                                 (float *)(outPtr),id, inInfo));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

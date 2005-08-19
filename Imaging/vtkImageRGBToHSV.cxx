@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.29");
+vtkCxxRevisionMacro(vtkImageRGBToHSV, "1.30");
 vtkStandardNewMacro(vtkImageRGBToHSV);
 
 //----------------------------------------------------------------------------
@@ -124,8 +124,10 @@ void vtkImageRGBToHSV::ThreadedExecute (vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageRGBToHSVExecute, this, inData, 
-                      outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageRGBToHSVExecute( this, inData, 
+                               outData, outExt, id, 
+                               static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

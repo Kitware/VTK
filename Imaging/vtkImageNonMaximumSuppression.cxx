@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.54");
+vtkCxxRevisionMacro(vtkImageNonMaximumSuppression, "1.55");
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 
 //----------------------------------------------------------------------------
@@ -319,9 +319,12 @@ void vtkImageNonMaximumSuppression::ThreadedRequestData(
   
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro9(vtkImageNonMaximumSuppressionExecute, this, inData[0][0], 
-                      (VTK_TT *)(in1Ptr),inData[1][0], (VTK_TT *)(in2Ptr), 
-                      outData[0], (VTK_TT *)(outPtr), outExt, id);
+    vtkTemplateMacro(
+      vtkImageNonMaximumSuppressionExecute(this, inData[0][0], 
+                                           (VTK_TT *)(in1Ptr),inData[1][0], 
+                                           (VTK_TT *)(in2Ptr), 
+                                           outData[0], (VTK_TT *)(outPtr), 
+                                           outExt, id));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

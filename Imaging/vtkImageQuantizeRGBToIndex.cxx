@@ -24,7 +24,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.42");
+vtkCxxRevisionMacro(vtkImageQuantizeRGBToIndex, "1.43");
 vtkStandardNewMacro(vtkImageQuantizeRGBToIndex);
 
 class vtkColorQuantizeNode
@@ -408,10 +408,11 @@ void vtkColorQuantizeNode::ComputeStdDev()
   // Create histogram
   switch (this->ImageType)
     {
-    vtkTemplateMacro6(vtkImageQuantizeRGBToIndexHistogram, 
-                      (VTK_TT *)this->Image, this->ImageExtent, 
-                      this->ImageIncrement, this->ImageType,
-                      this->Bounds, this->Histogram );
+    vtkTemplateMacro(
+      vtkImageQuantizeRGBToIndexHistogram(
+        (VTK_TT *)this->Image, this->ImageExtent, 
+        this->ImageIncrement, this->ImageType,
+        this->Bounds, this->Histogram ));
     }
 
 
@@ -617,9 +618,10 @@ int vtkImageQuantizeRGBToIndex::RequestData(
 
   switch ( this->InputType )
     {
-    vtkTemplateMacro5(vtkImageQuantizeRGBToIndexExecute, this, 
-                      inData, (VTK_TT *)(inPtr), 
-                      outData, (unsigned short *)(outPtr));
+    vtkTemplateMacro(
+      vtkImageQuantizeRGBToIndexExecute( this, 
+                                         inData, (VTK_TT *)(inPtr), 
+                                         outData, (unsigned short *)(outPtr)));
     default:
       vtkErrorMacro(<< "Execute: This ScalarType is not handled");
       return 1;

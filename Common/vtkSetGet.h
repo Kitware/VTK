@@ -683,24 +683,25 @@ virtual double *Get##name() \
 #endif
 
 // Legacy versions of vtkTemplateMacro:
-#define vtkTemplateMacro3(func, a1, a2, a3) \
-         vtkTemplateMacro(func (a1, a2, a3))
-#define vtkTemplateMacro4(func, a1, a2, a3, a4) \
-         vtkTemplateMacro(func (a1, a2, a3, a4))
-#define vtkTemplateMacro5(func, a1, a2, a3, a4, a5) \
-         vtkTemplateMacro(func (a1, a2, a3, a4, a5))
-#define vtkTemplateMacro6(func, a1, a2, a3, a4, a5, a6) \
-         vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6))
-#define vtkTemplateMacro7(func, a1, a2, a3, a4, a5, a6, a7) \
-         vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7))
-#define vtkTemplateMacro8(func, a1, a2, a3, a4, a5, a6, a7, a8) \
-         vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8))
-#define vtkTemplateMacro9(func, a1, a2, a3, a4, a5, a6, a7, a8, a9) \
-         vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8, a9))
-#define vtkTemplateMacro10(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
-          vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10))
-#define vtkTemplateMacro11(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) \
-          vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11))
+#if !defined(VTK_LEGACY_REMOVE)
+# define vtkTemplateMacro3(func, a1, a2, a3) \
+          vtkTemplateMacro(func (a1, a2, a3))
+# define vtkTemplateMacro4(func, a1, a2, a3, a4) \
+          vtkTemplateMacro(func (a1, a2, a3, a4))
+# define vtkTemplateMacro5(func, a1, a2, a3, a4, a5) \
+          vtkTemplateMacro(func (a1, a2, a3, a4, a5))
+# define vtkTemplateMacro6(func, a1, a2, a3, a4, a5, a6) \
+          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6))
+# define vtkTemplateMacro7(func, a1, a2, a3, a4, a5, a6, a7) \
+          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7))
+# define vtkTemplateMacro8(func, a1, a2, a3, a4, a5, a6, a7, a8) \
+          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8))
+# define vtkTemplateMacro9(func, a1, a2, a3, a4, a5, a6, a7, a8, a9) \
+          vtkTemplateMacro(func (a1, a2, a3, a4, a5, a6, a7, a8, a9))
+# define vtkTemplateMacro10(func,a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) \
+           vtkTemplateMacro(func(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10))
+// These are legacy macros, do not add anymore. Use vtkTemplateMacro instead
+#endif
 
 // Old-style legacy code marker macro.
 #if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_LEAN_AND_MEAN)

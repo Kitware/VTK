@@ -20,7 +20,7 @@
 
 #include "math.h"
 
-vtkCxxRevisionMacro(vtkGridTransform, "1.29");
+vtkCxxRevisionMacro(vtkGridTransform, "1.30");
 vtkStandardNewMacro(vtkGridTransform);
 
 vtkCxxSetObjectMacro(vtkGridTransform,DisplacementGrid,vtkImageData);
@@ -127,7 +127,8 @@ inline void vtkNearestNeighborInterpolation(double point[3],
 
   switch (gridType)
     {
-    vtkTemplateMacro(vtkNearestHelper(displacement, static_cast<VTK_TT*>(gridPtr), increment));
+    vtkTemplateMacro(
+      vtkNearestHelper(displacement, static_cast<VTK_TT*>(gridPtr), increment));
     }
 }
 
@@ -243,7 +244,8 @@ void vtkNearestNeighborInterpolation(double point[3], double displacement[3],
   // do nearest-neighbor interpolation
   switch (gridType)
     {
-    vtkTemplateMacro(vtkNearestHelper(displacement, derivatives, static_cast<VTK_TT*>(gridPtr),
+    vtkTemplateMacro(
+      vtkNearestHelper(displacement, derivatives, static_cast<VTK_TT*>(gridPtr),
                        gridId, gridId0, gridId1, gridInc));
     }
 }

@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkImageThreshold, "1.49");
+vtkCxxRevisionMacro(vtkImageThreshold, "1.50");
 vtkStandardNewMacro(vtkImageThreshold);
 
 //----------------------------------------------------------------------------
@@ -263,9 +263,11 @@ void vtkImageThresholdExecute1(vtkImageThreshold *self,
 {
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageThresholdExecute, self, inData,
-                      outData, outExt, id, 
-                      static_cast<T *>(0), static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageThresholdExecute( self, inData,
+                                outData, outExt, id, 
+                                static_cast<T *>(0), 
+                                static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
@@ -287,9 +289,13 @@ void vtkImageThreshold::ThreadedRequestData(
 {
   switch (inData[0][0]->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageThresholdExecute1, this, inData[0][0], 
-                      outData[0], outExt, id,
-                      static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageThresholdExecute1( this, 
+                                 inData[0][0], 
+                                 outData[0], 
+                                 outExt, 
+                                 id,
+                                 static_cast<VTK_TT *>(0) ));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

@@ -19,7 +19,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.30");
+vtkCxxRevisionMacro(vtkImageHSVToRGB, "1.31");
 vtkStandardNewMacro(vtkImageHSVToRGB);
 
 //----------------------------------------------------------------------------
@@ -125,8 +125,9 @@ void vtkImageHSVToRGB::ThreadedExecute (vtkImageData *inData,
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageHSVToRGBExecute,this, inData, 
-                      outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageHSVToRGBExecute(this, inData, 
+                              outData, outExt, id, static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

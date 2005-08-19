@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.6");
+vtkCxxRevisionMacro(vtkSynchronizedTemplates2D, "1.7");
 vtkStandardNewMacro(vtkSynchronizedTemplates2D);
 
 //----------------------------------------------------------------------------
@@ -476,8 +476,9 @@ int vtkSynchronizedTemplates2D::RequestData(
     }
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro7(vtkContourImage,this,(VTK_TT *)scalars, newPts,
-                      newScalars, newLines, input, ext);
+    vtkTemplateMacro(
+      vtkContourImage(this,(VTK_TT *)scalars, newPts,
+                      newScalars, newLines, input, ext));
     }//switch
 
   // Lets set the name of the scalars here.

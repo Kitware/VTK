@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageShiftScale, "1.51");
+vtkCxxRevisionMacro(vtkImageShiftScale, "1.52");
 vtkStandardNewMacro(vtkImageShiftScale);
 
 //----------------------------------------------------------------------------
@@ -123,9 +123,11 @@ void vtkImageShiftScaleExecute1(vtkImageShiftScale *self,
 {
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageShiftScaleExecute, self, inData,
-                      outData,outExt, id,
-                      static_cast<T *>(0), static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageShiftScaleExecute(self, inData,
+                                outData,outExt, id,
+                                static_cast<T *>(0), 
+                                static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown input ScalarType");
       return;
@@ -146,8 +148,10 @@ void vtkImageShiftScale::ThreadedExecute (vtkImageData *inData,
 {
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageShiftScaleExecute1, this, 
-                      inData, outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageShiftScaleExecute1(this, 
+                                 inData, outData, outExt, id, 
+                                 static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;

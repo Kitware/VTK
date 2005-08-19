@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.62");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.63");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -323,13 +323,14 @@ int vtkImageAccumulate::RequestData(
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro11(vtkImageAccumulateExecute, this, 
-                       inData, (VTK_TT *)(inPtr), 
-                       outData, (int *)(outPtr),
-                       this->Min, this->Max,
-                       this->Mean,
-                       this->StandardDeviation, &this->VoxelCount,
-                       uExt);
+    vtkTemplateMacro(vtkImageAccumulateExecute( this, 
+                                                inData, (VTK_TT *)(inPtr), 
+                                                outData, (int *)(outPtr),
+                                                this->Min, this->Max,
+                                                this->Mean,
+                                                this->StandardDeviation, 
+                                                &this->VoxelCount,
+                                                uExt ));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

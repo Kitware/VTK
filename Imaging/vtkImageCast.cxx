@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCast, "1.50");
+vtkCxxRevisionMacro(vtkImageCast, "1.51");
 vtkStandardNewMacro(vtkImageCast);
 
 //----------------------------------------------------------------------------
@@ -117,9 +117,10 @@ void vtkImageCastExecute(vtkImageCast *self,
 {
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro7(vtkImageCastExecute, self, 
-                      inData, outData, outExt, id,
-                      static_cast<T *>(0), static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(vtkImageCastExecute(self, 
+                                         inData, outData, outExt, id,
+                                         static_cast<T *>(0), 
+                                         static_cast<VTK_TT *>(0)));
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
@@ -140,8 +141,10 @@ void vtkImageCast::ThreadedExecute (vtkImageData *inData,
 {
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro6(vtkImageCastExecute, this, inData, 
-                      outData, outExt, id, static_cast<VTK_TT *>(0));
+    vtkTemplateMacro(
+      vtkImageCastExecute(this, inData, 
+                          outData, outExt, id, 
+                          static_cast<VTK_TT *>(0)));
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

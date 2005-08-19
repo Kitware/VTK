@@ -32,7 +32,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.14");
+vtkCxxRevisionMacro(vtkImageData, "1.15");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -1621,8 +1621,12 @@ void vtkImageDataCastExecute(vtkImageData *inData, T *inPtr,
 
   switch (outData->GetScalarType())
     {
-    vtkTemplateMacro5(vtkImageDataCastExecute, inData, (T *)(inPtr), 
-                      outData, (VTK_TT *)(outPtr),outExt);
+    vtkTemplateMacro(
+      vtkImageDataCastExecute(inData, 
+                              (T *)(inPtr), 
+                              outData, 
+                              (VTK_TT *)(outPtr),
+                              outExt) );
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
@@ -1649,8 +1653,8 @@ void vtkImageData::CopyAndCastFrom(vtkImageData *inData, int extent[6])
 
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro4(vtkImageDataCastExecute,inData, (VTK_TT *)(inPtr), 
-                      this, extent);
+    vtkTemplateMacro(vtkImageDataCastExecute(inData, (VTK_TT *)(inPtr), 
+                                             this, extent) );
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;

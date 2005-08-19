@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.3");
+vtkCxxRevisionMacro(vtkRectilinearSynchronizedTemplates, "1.4");
 vtkStandardNewMacro(vtkRectilinearSynchronizedTemplates);
 
 //----------------------------------------------------------------------------
@@ -696,8 +696,9 @@ int vtkRectilinearSynchronizedTemplates::RequestData(
   ptr = this->GetScalarsForExtent(inScalars, this->ExecuteExtent, data);
   switch (inScalars->GetDataType())
     {
-    vtkTemplateMacro6(ContourRectilinearGrid, this, this->ExecuteExtent, data,
-                      output, (VTK_TT *)ptr, inScalars);
+    vtkTemplateMacro(
+      ContourRectilinearGrid(this, this->ExecuteExtent, data,
+                             output, (VTK_TT *)ptr, inScalars));
     }
 
   return 1;
