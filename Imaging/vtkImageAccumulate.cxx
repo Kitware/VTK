@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.61");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.62");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -133,7 +133,8 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
                                double Min[3], double Max[3],
                                double Mean[3],
                                double StandardDeviation[3],
-                               long int *VoxelCount)
+                               long int *VoxelCount,
+                               int* updateExtent)
 {
   int idX, idY, idZ, idxC;
   int iter, pmin0, pmax0, min0, max0, min1, max1, min2, max2;
@@ -165,7 +166,12 @@ void vtkImageAccumulateExecute(vtkImageAccumulate *self,
     
   // Get information to march through data 
   numC = inData->GetNumberOfScalarComponents();
-  inData->GetUpdateExtent(min0, max0, min1, max1, min2, max2);
+  min0 = updateExtent[0];
+  max0 = updateExtent[1];
+  min1 = updateExtent[2];
+  max1 = updateExtent[3];
+  min2 = updateExtent[4];
+  max2 = updateExtent[5];
   inData->GetIncrements(inInc0, inInc1, inInc2);
   outExtent = outData->GetExtent();
   outIncs = outData->GetIncrements();
@@ -282,6 +288,7 @@ int vtkImageAccumulate::RequestData(
   vtkInformation* in1Info = inputVector[0]->GetInformationObject(0);
   vtkImageData *inData = vtkImageData::SafeDownCast(
     in1Info->Get(vtkDataObject::DATA_OBJECT()));
+  int *uExt = in1Info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   
   // get the output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -296,7 +303,7 @@ int vtkImageAccumulate::RequestData(
   outData->AllocateScalars();
   
   vtkDataArray *inArray = this->GetInputArrayToProcess(0,inputVector);
-  inPtr = inData->GetArrayPointerForExtent(inArray, inData->GetUpdateExtent());
+  inPtr = inData->GetArrayPointerForExtent(inArray, uExt);
   outPtr = outData->GetScalarPointer();
   
   // Components turned into x, y and z
@@ -316,12 +323,13 @@ int vtkImageAccumulate::RequestData(
   
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro10(vtkImageAccumulateExecute, this, 
+    vtkTemplateMacro11(vtkImageAccumulateExecute, this, 
                        inData, (VTK_TT *)(inPtr), 
                        outData, (int *)(outPtr),
                        this->Min, this->Max,
                        this->Mean,
-                       this->StandardDeviation, &this->VoxelCount);
+                       this->StandardDeviation, &this->VoxelCount,
+                       uExt);
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

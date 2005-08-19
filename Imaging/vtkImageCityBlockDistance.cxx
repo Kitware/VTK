@@ -20,7 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.28");
+vtkCxxRevisionMacro(vtkImageCityBlockDistance, "1.29");
 vtkStandardNewMacro(vtkImageCityBlockDistance);
 
 //----------------------------------------------------------------------------
@@ -30,12 +30,13 @@ vtkImageCityBlockDistance::vtkImageCityBlockDistance()
 
 
 //----------------------------------------------------------------------------
-void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData)
+void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData,
+                                                      int* uExt,
+                                                      int* wholeExtent)
 {
-  int *wholeExtent, updateExtent[6], idx;
+  int updateExtent[6], idx;
   
-  outData->GetUpdateExtent(updateExtent);
-  wholeExtent = outData->GetWholeExtent();
+  memcpy(updateExtent, uExt, 6*sizeof(int));
   for (idx = 0; idx < this->Dimensionality; ++idx)
     {
     updateExtent[idx*2] = wholeExtent[idx*2];
@@ -78,8 +79,10 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkImageData *outData = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+  int *uExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  int *wExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
-  this->AllocateOutputScalars(outData);
+  this->AllocateOutputScalars(outData, uExt, wExt);
   
   short *inPtr0, *inPtr1, *inPtr2, *inPtrC;
   short *outPtr0, *outPtr1, *outPtr2, *outPtrC;

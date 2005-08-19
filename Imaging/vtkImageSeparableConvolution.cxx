@@ -21,7 +21,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.18");
+vtkCxxRevisionMacro(vtkImageSeparableConvolution, "1.19");
 vtkStandardNewMacro(vtkImageSeparableConvolution);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,XKernel,vtkFloatArray);
 vtkCxxSetObjectMacro(vtkImageSeparableConvolution,YKernel,vtkFloatArray);
@@ -193,7 +193,9 @@ template <class T>
 void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
                                            vtkImageData* inData,
                                            vtkImageData* outData,
-                                           T* vtkNotUsed ( dummy ) )
+                                           T* vtkNotUsed ( dummy ),
+                                           int* inExt,
+                                           int* outExt)
 {
   T *inPtr0, *inPtr1, *inPtr2;
   float *outPtr0, *outPtr1, *outPtr2;
@@ -202,13 +204,9 @@ void vtkImageSeparableConvolutionExecute ( vtkImageSeparableConvolution* self,
   int inMin0, inMax0, inMin1, inMax1, inMin2, inMax2;
   int outMin0, outMax0, outMin1, outMax1, outMin2, outMax2;
   int idx0, idx1, idx2;
-  int outExt[6], inExt[6];
   int i;
   unsigned long count = 0;
   unsigned long target;
-
-  inData->GetUpdateExtent ( inExt );
-  outData->GetUpdateExtent ( outExt );
 
   // Reorder axes (the in and out extents are assumed to be the same)
   // (see intercept cache update)
@@ -378,7 +376,7 @@ int vtkImageSeparableConvolution::IterativeRequestData(
   // choose which templated function to call.
   switch (inData->GetScalarType())
     {
-    vtkTemplateMacro4(vtkImageSeparableConvolutionExecute, this, inData, outData, static_cast<VTK_TT*>(0) );
+    vtkTemplateMacro6(vtkImageSeparableConvolutionExecute, this, inData, outData, static_cast<VTK_TT*>(0), inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()), outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()) );
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;

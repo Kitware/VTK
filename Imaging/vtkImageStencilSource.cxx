@@ -22,7 +22,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageStencilSource, "1.10");
+vtkCxxRevisionMacro(vtkImageStencilSource, "1.11");
 vtkStandardNewMacro(vtkImageStencilSource);
 
 //----------------------------------------------------------------------------
@@ -70,7 +70,7 @@ vtkImageStencilData *vtkImageStencilSource::GetOutput()
 
 //----------------------------------------------------------------------------
 vtkImageStencilData * 
-vtkImageStencilSource::AllocateOutputData(vtkDataObject *out)
+vtkImageStencilSource::AllocateOutputData(vtkDataObject *out, int* uExt)
 {
   vtkImageStencilData *res = vtkImageStencilData::SafeDownCast(out);
   if (!res)
@@ -79,7 +79,7 @@ vtkImageStencilSource::AllocateOutputData(vtkDataObject *out)
                     " output");
     return NULL;
     }
-  res->SetExtent(res->GetUpdateExtent());
+  res->SetExtent(uExt);
   res->SetOldSpacing(res->GetSpacing());
   res->SetOldOrigin(res->GetOrigin());
   res->AllocateExtents();
@@ -95,7 +95,9 @@ int vtkImageStencilSource::RequestData(
 {
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject *out = outInfo->Get(vtkDataObject::DATA_OBJECT());
-  this->AllocateOutputData(out);
+  this->AllocateOutputData(
+    out,
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
   return 1;
 }
 

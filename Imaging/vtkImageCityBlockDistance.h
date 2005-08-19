@@ -48,7 +48,9 @@ protected:
                                     vtkInformationVector**,
                                     vtkInformationVector*);
 
-  void AllocateOutputScalars(vtkImageData *outData);
+  void AllocateOutputScalars(vtkImageData *outData, 
+                             int* updateExtent,
+                             int* wholeExtent);
 
 private:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&);  // Not implemented.

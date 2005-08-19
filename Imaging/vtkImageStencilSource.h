@@ -63,7 +63,7 @@ protected:
                                  vtkInformationVector *) { return 1; }
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *) { return 1; }
-  vtkImageStencilData *AllocateOutputData(vtkDataObject *out);
+  vtkImageStencilData *AllocateOutputData(vtkDataObject *out, int* updateExt);
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
