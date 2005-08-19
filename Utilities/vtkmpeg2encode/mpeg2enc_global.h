@@ -32,28 +32,29 @@ extern "C" {
 
 #include <vtkmpeg2encode/mpeg2encDllConfig.h>
 
-#if defined( _WIN32 ) && defined (MPEG2ENCDLL)
+#if defined( _WIN32 ) && defined (vtkMPEG2Encode_EXPORTS)
 #define GLOBAL(type)            __declspec(dllexport) type
 #else
 #define GLOBAL(type)            type
 #endif
 
 /* a reference to a GLOBAL function: */
-#if defined(_WIN32) && !defined(MPEG2ENCSTATIC)
-#ifdef MPEG2ENCDLL
-/* Win32, building a dll */
-#define EXTERN(type)            __declspec(dllexport) type
-#else
-/* Win32, not building a dll but using the dll */
-#define EXTERN(type)            __declspec(dllimport) type
-#endif
-#else
-/* not a Win32 system or building a static Win32 lib */
 #ifdef GLOBAL_DEF
-#define EXTERN(type)            type
+# define VTK_MPEG2ENC_EXTERN
 #else
-#define EXTERN(type)            extern type
+# define VTK_MPEG2ENC_EXTERN extern
 #endif
+#if defined(_WIN32) && !defined(VTK_MPEG2ENC_STATIC)
+# if defined(vtkMPEG2Encode_EXPORTS)
+   /* Win32, building a dll */
+#  define EXTERN(type) __declspec(dllexport) VTK_MPEG2ENC_EXTERN type
+# else
+   /* Win32, not building a dll but using the dll */
+#  define EXTERN(type) __declspec(dllimport) extern type
+# endif
+#else
+  /* not a Win32 system or building a static Win32 lib */
+# define EXTERN(type) VTK_MPEG2ENC_EXTERN type
 #endif
 
 #include "mpeg2enc.h"

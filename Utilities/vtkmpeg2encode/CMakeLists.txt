@@ -17,6 +17,11 @@ SET (vtkMPEG2Encode_LIBRARIES vtkMPEG2Encode
 SET(CMAKE_C_FLAGS "${CMAKE_ANSI_CFLAGS} ${CMAKE_C_FLAGS}")
 SET(CMAKE_REQUIRED_FLAGS ${CMAKE_ANSI_CFLAGS})
 
+# Disable some warnings so we do not have to change the code.
+IF(WIN32 AND BORLAND)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -w-8004")
+ENDIF(WIN32 AND BORLAND)
+
 SET(srcs
   conform.c  motion.c    putbits.c  putpic.c  quantize.c  stats.c
   fdctref.c  puthdr.c   putseq.c  ratectl.c   transfrm.c
@@ -25,13 +30,10 @@ SET(srcs
 
 ADD_LIBRARY(vtkMPEG2Encode ${srcs})
 
-IF (WIN32)
-  IF (BUILD_SHARED_LIBS)
-    ADD_DEFINITIONS(-DMPEG2ENCDLL)
-  ELSE (BUILD_SHARED_LIBS)
-    SET(MPEG2ENCSTATIC 1)
-  ENDIF (BUILD_SHARED_LIBS)
-ENDIF (WIN32)
+ADD_DEFINITIONS(-DVTK_IN_MPEG2ENC)
+IF(NOT BUILD_SHARED_LIBS)
+  SET(VTK_MPEG2ENC_STATIC 1)
+ENDIF(NOT BUILD_SHARED_LIBS)
 
 CONFIGURE_FILE(${vtkMPEG2Encode_SOURCE_DIR}/.NoDartCoverage
                ${vtkMPEG2Encode_BINARY_DIR}/.NoDartCoverage)
