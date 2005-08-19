@@ -41,7 +41,7 @@
 #include "vtkMPIGroup.h"
 #endif
 
-vtkCxxRevisionMacro(vtkPChacoReader, "1.7");
+vtkCxxRevisionMacro(vtkPChacoReader, "1.8");
 vtkStandardNewMacro(vtkPChacoReader);
 
 //----------------------------------------------------------------------------
@@ -190,7 +190,6 @@ int vtkPChacoReader::RequestData(
   vtkInformationVector **vtkNotUsed(inputVector),
   vtkInformationVector *outputVector)
 {
-  int i=0;
   if (!this->BaseName)
     {
     vtkErrorMacro(<< "No BaseName specified");
@@ -211,6 +210,7 @@ int vtkPChacoReader::RequestData(
   vtkMultiProcessController *contr = this->Controller;
 
 #ifdef VTK_USE_MPI
+  int i=0;
   vtkMPICommunicator *comm = 
     vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
 
@@ -388,10 +388,10 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
 int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr, 
                                   vtkUnstructuredGrid *output, int source)
 {
-  int i=0;
   int retVal = 1;
 
 #ifdef VTK_USE_MPI
+  int i=0;
   vtkMPICommunicator *comm = 
     vtkMPICommunicator::SafeDownCast(contr->GetCommunicator());
 
