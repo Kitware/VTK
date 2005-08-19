@@ -28,7 +28,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
-vtkCxxRevisionMacro(vtkCommunicator, "1.27");
+vtkCxxRevisionMacro(vtkCommunicator, "1.28");
 
 template <class T>
 int SendDataArray(T* data, int length, int handle, int tag, vtkCommunicator *self)
@@ -424,7 +424,6 @@ int vtkCommunicator::WriteImageData(vtkImageData *data)
   // keep Update from propagating
   vtkImageData *tmp = vtkImageData::New();
   tmp->ShallowCopy(data);
-  tmp->SetUpdateExtent(data->GetUpdateExtent());
   
   clip = vtkImageClip::New();
   clip->SetInput(tmp);
