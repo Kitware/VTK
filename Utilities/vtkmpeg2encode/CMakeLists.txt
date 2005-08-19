@@ -1,4 +1,5 @@
 PROJECT(vtkMPEG2Encode)
+INCLUDE_REGULAR_EXPRESSION("^.*$")
 
 #############################################################################
 # to use this library in your code you will need to SUBDIR into this
