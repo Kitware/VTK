@@ -3,7 +3,7 @@
 # VTK.
 
 #-----------------------------------------------------------------------------
-# Settings shared between the build tres and install tree.
+# Settings shared between the build tree and install tree.
 
 IF(VTK_USE_MPI)
   SET(VTK_MPIRUN_EXE_CONFIG ${VTK_MPIRUN_EXE})
@@ -42,6 +42,9 @@ SET(VTK_WRAP_HINTS_CONFIG ${VTK_WRAP_HINTS})
 
 # Library directory.
 SET(VTK_LIBRARY_DIRS_CONFIG ${LIBRARY_OUTPUT_PATH})
+
+# Runtime directory.
+SET(VTK_RUNTIME_DIRS_CONFIG ${LIBRARY_OUTPUT_PATH})
 
 # Determine the include directories needed.
 SET(VTK_INCLUDE_DIRS_CONFIG
@@ -106,6 +109,10 @@ SET(VTK_CMAKE_EXTENSIONS_DIR_CONFIG ${VTK_BINARY_DIR}/CMake)
 # Library dependencies file.
 SET(VTK_LIBRARY_DEPENDS_FILE "${VTK_BINARY_DIR}/VTKLibraryDepends.cmake")
 
+# Build configuration information.
+SET(VTK_CONFIGURATION_TYPES_CONFIG ${CMAKE_CONFIGURATION_TYPES})
+SET(VTK_BUILD_TYPE_CONFIG ${CMAKE_BUILD_TYPE})
+
 # Hack to give source tree access for a build tree configuration.
 STRING(ASCII 35 VTK_STRING_POUND)
 STRING(ASCII 64 VTK_STRING_AT)
@@ -143,6 +150,13 @@ SET(VTK_INCLUDE_DIRS_CONFIG
 
 # Link directories.
 SET(VTK_LIBRARY_DIRS_CONFIG ${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_LIB_DIR})
+
+# Runtime directories.
+IF(WIN32)
+  SET(VTK_RUNTIME_DIRS_CONFIG ${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_BIN_DIR})
+ELSE(WIN32)
+  SET(VTK_RUNTIME_DIRS_CONFIG ${CMAKE_INSTALL_PREFIX}${VTK_INSTALL_LIB_DIR})
+ENDIF(WIN32)
 
 # Executable locations.
 SET(VTK_TCL_HOME_CONFIG "")
@@ -214,5 +228,34 @@ SET(VTK_CONFIG_BACKWARD_COMPATIBILITY_HACK)
 
 #-----------------------------------------------------------------------------
 # Configure VTKConfig.cmake for the install tree.
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
-               ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
+SET(VTK_CONFIGURATION_TYPES_CONFIG)
+IF(CMAKE_CONFIGURATION_TYPES)
+  # There are multiple build configurations.  Configure one
+  # VTKConfig.cmake for each configuration.
+  FOREACH(config ${CMAKE_CONFIGURATION_TYPES})
+    SET(VTK_BUILD_TYPE_CONFIG ${config})
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
+                   ${VTK_BINARY_DIR}/Utilities/${config}/VTKConfig.cmake
+                   @ONLY IMMEDIATE)
+  ENDFOREACH(config)
+
+  # Install the config file corresponding to the build configuration
+  # specified when building the install target.  The BUILD_TYPE variable
+  # will be set while CMake is processing the install files.
+  SET(DOLLAR "$")
+  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES
+      ${VTK_BINARY_DIR}/Utilities/${DOLLAR}{BUILD_TYPE}/VTKConfig.cmake)
+  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ELSE(CMAKE_CONFIGURATION_TYPES)
+  # There is only one build configuration.  Configure one VTKConfig.cmake.
+  SET(VTK_BUILD_TYPE_CONFIG ${CMAKE_BUILD_TYPE})
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/VTKConfig.cmake.in
+                 ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake @ONLY IMMEDIATE)
+
+  # Setup an install rule for the config file.
+  IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+    INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR} FILES
+      ${VTK_BINARY_DIR}/Utilities/VTKConfig.cmake)
+  ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
+ENDIF(CMAKE_CONFIGURATION_TYPES)

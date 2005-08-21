@@ -11,6 +11,12 @@ SET(VTK_INCLUDE_DIRS "@VTK_INCLUDE_DIRS_CONFIG@")
 # The VTK library directories.
 SET(VTK_LIBRARY_DIRS "@VTK_LIBRARY_DIRS_CONFIG@")
 
+# The VTK runtime library directories.  Note that if
+# VTK_CONFIGURATION_TYPES is set (see below) then these directories
+# will be the parent directories under which there will be a directory
+# of runtime binaries for each configuration type.
+SET(VTK_RUNTIME_DIRS "@VTK_RUNTIME_DIRS_CONFIG@")
+
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")
@@ -123,6 +129,20 @@ SET(VTK_FREETYPE_LIBRARIES "@VTK_FREETYPE_LIBRARIES@")
 IF(VTK_USE_QVTK)
   INCLUDE(${VTK_DIR}/VTKConfigQt.cmake)
 ENDIF(VTK_USE_QVTK)
+
+# A VTK install tree always provides one build configuration.  A VTK
+# build tree may provide either one or multiple build configurations
+# depending on the CMake generator used.  Since VTK can be used either
+# from a build tree or an install tree it is useful for outside
+# projects to know the configurations available.  If this
+# VTKConfig.cmake is in a VTK install tree VTK_CONFIGURATION_TYPES
+# will be empty and VTK_BUILD_TYPE will be set to the value of
+# CMAKE_BUILD_TYPE used to build VTK.  If VTKConfig.cmake is in a VTK
+# build tree then VTK_CONFIGURATION_TYPES and VTK_BUILD_TYPE will have
+# values matching CMAKE_CONFIGURATION_TYPES and CMAKE_BUILD_TYPE for
+# that build tree (only one will ever be set).
+SET(VTK_CONFIGURATION_TYPES @VTK_CONFIGURATION_TYPES_CONFIG@)
+SET(VTK_BUILD_TYPE @VTK_BUILD_TYPE_CONFIG@)
 
 # The VTK library dependencies.
 IF(NOT VTK_NO_LIBRARY_DEPENDS)
