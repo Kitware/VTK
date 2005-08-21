@@ -557,40 +557,6 @@ ENDIF(VTK_NO_EXPLICIT_TEMPLATE_INSTANTIATION)
 INCLUDE_REGULAR_EXPRESSION("^((lex|png|j|z|t|D).*|${VTK_REGEX}|${VTK_REGEX_TXX})$")
 
 #-----------------------------------------------------------------------------
-# Load the VTK CMake extension modules.
-
-# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
-INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
-
-# Compile the extensions into the build tree and load them.
-VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
-  VTK_CMAKE_EXTENSIONS_COMPILED)
-IF(VTK_CMAKE_EXTENSIONS_COMPILED)
-  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
-ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
-
-#-----------------------------------------------------------------------------
-# Configure Dart testing support.
-INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
-MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
-IF(BUILD_TESTING)
-  ENABLE_TESTING()
-  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/CTestCustom.ctest.in
-    ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
-  OPTION(VTK_USE_DISPLAY "Turn this option off and tests will not popup windows" ON)
-  MARK_AS_ADVANCED(VTK_USE_DISPLAY)
-ENDIF(BUILD_TESTING)
-
-SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "    try {")
-SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
-    catch(vtkstd::exception& e)
-      {
-      fprintf(stderr, \"Test driver caught exception: [%s]\\n\", e.what());
-      result = -1;
-      }")
-
-#-----------------------------------------------------------------------------
 # Determine the set of language wrappers that should be built.
 OPTION(VTK_WRAP_TCL "Wrap VTK classes into the TCL language." OFF)
 OPTION(VTK_WRAP_PYTHON "Wrap VTK classes into the Python language." OFF)
@@ -625,6 +591,42 @@ IF(VTK_WRAP_JAVA)
   SET(VTK_LANGUAGES ${VTK_LANGUAGES} JAVA)
 ENDIF(VTK_WRAP_JAVA)
 
+#-----------------------------------------------------------------------------
+# Load the VTK CMake extension modules.  This must be done after the
+# wrapping language selection.
+
+# Import the VTK_COMPILE_CMAKE_EXTENSIONS and VTK_LOAD_CMAKE_EXTENSIONS macros
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkCompileCMakeExtensions.cmake)
+INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkLoadCMakeExtensions.cmake)
+
+# Compile the extensions into the build tree and load them.
+VTK_COMPILE_CMAKE_EXTENSIONS(${VTK_SOURCE_DIR}/CMake ${VTK_BINARY_DIR}/CMake
+  VTK_CMAKE_EXTENSIONS_COMPILED)
+IF(VTK_CMAKE_EXTENSIONS_COMPILED)
+  VTK_LOAD_CMAKE_EXTENSIONS(${VTK_BINARY_DIR}/CMake)
+ENDIF(VTK_CMAKE_EXTENSIONS_COMPILED)
+
+#-----------------------------------------------------------------------------
+# Configure Dart testing support.
+INCLUDE(${CMAKE_ROOT}/Modules/Dart.cmake)
+MARK_AS_ADVANCED(BUILD_TESTING DART_ROOT TCL_TCLSH)
+IF(BUILD_TESTING)
+  ENABLE_TESTING()
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/CTestCustom.ctest.in
+    ${VTK_BINARY_DIR}/CMake/CTestCustom.ctest @ONLY)
+  OPTION(VTK_USE_DISPLAY "Turn this option off and tests will not popup windows" ON)
+  MARK_AS_ADVANCED(VTK_USE_DISPLAY)
+ENDIF(BUILD_TESTING)
+
+SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN "    try {")
+SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN "    }
+    catch(vtkstd::exception& e)
+      {
+      fprintf(stderr, \"Test driver caught exception: [%s]\\n\", e.what());
+      result = -1;
+      }")
+
+#-----------------------------------------------------------------------------
 # Select a streams library.
 
 INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkSelectStreamsLibrary.cmake)
@@ -1253,12 +1255,21 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
     FOREACH(cmd VTK_WRAP_TCL2 VTK_WRAP_PYTHON2 VTK_WRAP_JAVA2
         VTK_GENERATE_JAVA_DEPENDENCIES)
       IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
+        # CMake 2.2 and above will set CMAKE_LOADED_COMMAND_<command-name>
+        # to the full path to the actual module that was loaded.  Use
+        # this variable to find the module to install.
         INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES ${CMAKE_LOADED_COMMAND_${cmd}})
       ELSE("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
-        IF(UNIX)
+        # CMake 2.0 will not tell us what module was loaded.  Construct the
+        # name of the module for this platform.  If using a generator with
+        # multiple configurations the loaded commands are always built Debug.
+        IF(CMAKE_CONFIGURATION_TYPES)
+          INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
+            "${VTK_BINARY_DIR}/CMake/Debug/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
+        ELSE(CMAKE_CONFIGURATION_TYPES)
           INSTALL_FILES(${VTK_INSTALL_PACKAGE_DIR}/CMake FILES
             "${VTK_BINARY_DIR}/CMake/${CMAKE_SHARED_MODULE_PREFIX}cm${cmd}${CMAKE_SHARED_MODULE_SUFFIX}")
-        ENDIF(UNIX)
+        ENDIF(CMAKE_CONFIGURATION_TYPES)
       ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" GREATER 2.0)
     ENDFOREACH(cmd)
   ENDIF (VTK_NEED_LOADED_COMMANDS)
