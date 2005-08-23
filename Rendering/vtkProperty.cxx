@@ -16,6 +16,7 @@
 
 #include "vtkActor.h"
 #include "vtkCollection.h"
+#include "vtkCollectionIterator.h"
 #include "vtkBMPReader.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkImageData.h"
@@ -35,7 +36,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.2");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.3");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -578,6 +579,16 @@ void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
   if (this->ShaderProgram && this->GetShading())
     {
     vtkDebugMacro("Attempting to use Shaders");
+    // Render all the textures.
+    vtkCollectionIterator* iter = this->TextureCollection->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); 
+      iter->GoToNextItem())
+      {
+      vtkTexture* tex = vtkTexture::SafeDownCast(
+        iter->GetCurrentObject());
+      tex->Render(renderer);
+      }
+    iter->Delete();
     this->ShaderProgram->Render(actor, renderer);
     }
 }
