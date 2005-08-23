@@ -4,7 +4,7 @@
 #
 # This file is configured by VTK and used by the UseVTK.cmake module
 # to load VTK's settings for an external project.
-
+@VTK_CONFIG_INSTALL_ONLY@
 # The VTK include file directories.
 SET(VTK_INCLUDE_DIRS "@VTK_INCLUDE_DIRS_CONFIG@")
 
