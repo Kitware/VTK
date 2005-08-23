@@ -42,6 +42,8 @@
 
 class vtkRenderer;
 class vtkActor;
+class vtkShaderProgram;
+class vtkXMLMaterial;
 
 class VTK_RENDERING_EXPORT vtkProperty : public vtkObject
 {
@@ -66,7 +68,7 @@ public:
   // vtkProperty, which is created automatically. This
   // method includes the invoking actor as an argument which can
   // be used by property devices that require the actor.
-  virtual void Render(vtkActor *,vtkRenderer *) {};
+  virtual void Render(vtkActor *,vtkRenderer *);
 
   // Description:
   // This method renders the property as a backface property. TwoSidedLighting
@@ -75,6 +77,14 @@ public:
   // such as Representation, Culling are specified by the Property.
   virtual void BackfaceRender(vtkActor *,vtkRenderer *) {};
 
+  // BTX
+  // Description:
+  // This method is called after the actor has been rendered.
+  // Don't call this directly. This method cleans up 
+  // any shaders allocated.
+  virtual void PostRender(vtkActor*, vtkRenderer*);
+  // ETX
+  
   // Description:
   // Set the shading interpolation method for an object.
   vtkSetClampMacro(Interpolation,int,VTK_FLAT,VTK_PHONG);
@@ -202,9 +212,45 @@ public:
   vtkSetMacro(FrontfaceCulling,int);
   vtkBooleanMacro(FrontfaceCulling,int);
 
+  // Description:
+  // Get the material representation used for shading. The material will be used
+  // only when shading is enabled. 
+  vtkGetObjectMacro(Material, vtkXMLMaterial);
+
+  // TODO: GetMaterialName().
+  
+  // Description:
+  // Load the material. The material can be the name of a
+  // built-on material or the filename for a VTK material XML description.
+  void LoadMaterial(const char* name);
+
+  // Description:
+  // Load the material given the material representation.
+  void LoadMaterial(vtkXMLMaterial*);
+  
+  // Description:
+  // Enable/Disable shading. When shading is enabled, the
+  // Material must be set.
+  vtkSetMacro(Shading, int);
+  vtkGetMacro(Shading, int);
+  vtkBooleanMacro(Shading, int);
+
+  // Description:
+  // Get the Shader program. If Material is not set/or not loaded properly,
+  // this will return null.
+  vtkGetObjectMacro(ShaderProgram, vtkShaderProgram);
+ 
+  // TODO: I am not adding the AddShaderVariable() methods to the
+  // property. One must get the shader program and then set the variables.
+  // This will keep the user from adding shader variables before
+  // setting the material.
 protected:
   vtkProperty();
-  ~vtkProperty() {};
+  ~vtkProperty();
+
+  // Description:
+  // Load property iVar values from the Material XML.
+  void LoadProperty();
 
   double Color[3];
   double AmbientColor[3];
@@ -225,6 +271,17 @@ protected:
   int   EdgeVisibility;
   int   BackfaceCulling;
   int   FrontfaceCulling;
+
+  int Shading;
+  
+  char* MaterialName;
+  vtkSetStringMacro(MaterialName);
+
+  vtkShaderProgram* ShaderProgram;
+  void SetShaderProgram(vtkShaderProgram*);
+
+  vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
+  
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.
   void operator=(const vtkProperty&);  // Not implemented.

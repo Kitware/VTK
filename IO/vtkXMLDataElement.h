@@ -55,7 +55,13 @@ public:
   // Set the attribute with the given name and value. If it doesn't exist,
   // adds it.
   void SetAttribute(const char* name, const char* value);
-  
+ 
+  // Description:
+  // Set/Get the character data between XML start/end tags.
+  void SetCharacterData(const char* c, int length);
+  void AddCharacterData(const char* c, int length);
+  vtkGetStringMacro(CharacterData);
+
   // Description:
   // Get the attribute with the given name and converted to a scalar
   // value.  Returns whether value was extracted.
@@ -202,6 +208,9 @@ protected:
   // The value of the "id" attribute, if any was given.
   char* Id;
   
+  // The character data between the start and end tags of this element.
+  char* CharacterData;
+  
   // The offset into the XML stream where the element begins.
   unsigned long XMLByteIndex;
   
@@ -236,6 +245,7 @@ protected:
   
   //BTX
   friend class vtkXMLDataParser;
+  friend class vtkXMLMaterialParser;
   //ETX
 
 private:

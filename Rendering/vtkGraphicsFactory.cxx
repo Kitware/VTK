@@ -17,16 +17,24 @@
 #include "vtkGraphicsFactory.h"
 #include "vtkToolkits.h"
 #include "vtkDebugLeaks.h"
+#include "vtkPainterPolyDataMapper.h"
 
 // if using some sort of opengl, then include these files
 #if defined(VTK_USE_OGLR) || defined(_WIN32) || defined(VTK_USE_COCOA) || defined(VTK_USE_CARBON)
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLCamera.h"
+#include "vtkOpenGLClipPlanesPainter.h"
+#include "vtkOpenGLCoincidentTopologyResolutionPainter.h"
+#include "vtkOpenGLDisplayListPainter.h"
 #include "vtkOpenGLImageActor.h"
 #include "vtkOpenGLLight.h"
+#include "vtkOpenGLLightingPainter.h"
+#include "vtkOpenGLPainterDeviceAdapter.h"
 #include "vtkOpenGLProperty.h"
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRepresentationPainter.h"
+#include "vtkOpenGLScalarsToColorsPainter.h"
 #include "vtkOpenGLTexture.h"
 #endif
 
@@ -78,7 +86,7 @@
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37");
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37.4.1");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -259,7 +267,36 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
         return vtkMesaPolyDataMapper::New();
         }
 #endif
-      return vtkOpenGLPolyDataMapper::New();
+      //return vtkOpenGLPolyDataMapper::New();
+      return vtkPainterPolyDataMapper::New();
+      }
+    if (strcmp(vtkclassname, "vtkPainterDeviceAdapter") == 0)
+      {
+      return vtkOpenGLPainterDeviceAdapter::New();
+      }
+    if (strcmp(vtkclassname, "vtkScalarsToColorsPainter") == 0)
+      {
+      return vtkOpenGLScalarsToColorsPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkClipPlanesPainter") == 0)
+      {
+      return vtkOpenGLClipPlanesPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkCoincidentTopologyResolutionPainter") == 0)
+      {
+      return vtkOpenGLCoincidentTopologyResolutionPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkDisplayListPainter") == 0)
+      {
+      return vtkOpenGLDisplayListPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkLightingPainter") == 0)
+      {
+      return vtkOpenGLLightingPainter::New();
+      }
+    if (strcmp(vtkclassname, "vtkRepresentationPainter") == 0)
+      {
+      return vtkOpenGLRepresentationPainter::New();
       }
     if(strcmp(vtkclassname, "vtkRenderer") == 0)
       {

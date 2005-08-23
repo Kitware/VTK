@@ -5,7 +5,8 @@ SET(KIT_PYTHON_LIBS vtkFilteringPythonD)
 SET(KIT_JAVA_LIBS vtkFilteringJava)
 SET(KIT_LIBS vtkFiltering vtkDICOMParser
   ${VTK_PNG_LIBRARIES} ${VTK_ZLIB_LIBRARIES} ${VTK_JPEG_LIBRARIES}
-  ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES})
+  ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES}
+  ${KWSYS_NAMESPACE})
 
 
 SET( Kit_SRCS
@@ -96,6 +97,9 @@ vtkXMLDataSetWriter.cxx
 vtkXMLFileReadTester.cxx
 vtkXMLImageDataReader.cxx
 vtkXMLImageDataWriter.cxx
+vtkXMLMaterial.cxx
+vtkXMLMaterialParser.cxx
+vtkXMLMaterialReader.cxx
 vtkXMLPDataReader.cxx
 vtkXMLPDataSetWriter.cxx
 vtkXMLPDataWriter.cxx
@@ -119,6 +123,7 @@ vtkXMLPolyDataWriter.cxx
 vtkXMLReader.cxx
 vtkXMLRectilinearGridReader.cxx
 vtkXMLRectilinearGridWriter.cxx
+vtkXMLShader.cxx
 vtkXMLStructuredDataReader.cxx
 vtkXMLStructuredDataWriter.cxx
 vtkXMLStructuredGridReader.cxx

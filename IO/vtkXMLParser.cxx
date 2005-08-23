@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkXMLParser, "1.25");
+vtkCxxRevisionMacro(vtkXMLParser, "1.25.4.1");
 vtkStandardNewMacro(vtkXMLParser);
 
 //----------------------------------------------------------------------------
@@ -180,7 +180,7 @@ int vtkXMLParser::Parse(const char* inputString)
 {
   this->InputString = inputString;
   this->InputStringLength = -1;
-  int result = this->vtkXMLParser::Parse();
+  int result = this->Parse();
   this->InputString = 0;
   return result;
 }
@@ -190,7 +190,7 @@ int vtkXMLParser::Parse(const char* inputString, unsigned int length)
 {
   this->InputString = inputString;
   this->InputStringLength = length;
-  int result = this->vtkXMLParser::Parse();
+  int result = this->Parse();
   this->InputString = 0;
   this->InputStringLength = -1;
   return result;

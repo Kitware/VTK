@@ -50,8 +50,8 @@ ENDFOREACH(test)
 # Add other odd tests or executables
 #
 FOREACH (exe
-#    TimeRenderer
-#    TimeRenderer2
+    TimeRenderer
+    TimeRenderer2
     VTKBenchMark
     )
   ADD_EXECUTABLE(${exe} ${exe}.cxx)

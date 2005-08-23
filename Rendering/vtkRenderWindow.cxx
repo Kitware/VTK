@@ -18,11 +18,12 @@
 #include "vtkCommand.h"
 #include "vtkGraphicsFactory.h"
 #include "vtkMath.h"
+#include "vtkPainterDeviceAdapter.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkRenderWindow, "1.144");
+vtkCxxRevisionMacro(vtkRenderWindow, "1.144.2.1");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -69,6 +70,7 @@ vtkRenderWindow::vtkRenderWindow()
   this->AnaglyphColorSaturation = 0.65;
   this->AnaglyphColorMask[0] = 4;  // red
   this->AnaglyphColorMask[1] = 3;  // cyan
+  this->PainterDeviceAdapter = vtkPainterDeviceAdapter::New();
 }
 
 vtkRenderWindow::~vtkRenderWindow()
@@ -87,6 +89,8 @@ vtkRenderWindow::~vtkRenderWindow()
     this->ResultFrame = NULL;
     }
   this->Renderers->Delete();
+
+  this->PainterDeviceAdapter->Delete();
 }
 
 // return the correct type of RenderWindow 
@@ -725,6 +729,17 @@ void vtkRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "AnaglyphColorMask: "  
      << this->AnaglyphColorMask[0] << " , " 
      << this->AnaglyphColorMask[1] << "\n";
+
+  os << indent << "PainterDeviceAdapter: ";
+  if (this->PainterDeviceAdapter)
+    {
+    os << endl;
+    this->PainterDeviceAdapter->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 
