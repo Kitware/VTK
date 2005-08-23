@@ -28,7 +28,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.56");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.56.2.1");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -516,14 +516,14 @@ int vtkEnSightReader::ReadCaseFile()
       {
       if (strncmp(line, "model:", 6) == 0)
         {
-        if (sscanf(line, " %*s %d%*[ ]%d%*[ ]%s", &timeSet, &fileSet, subLine) == 3)
+        if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%s", &timeSet, &fileSet, subLine) == 3)
           {
           this->GeometryTimeSet = timeSet;
           this->GeometryFileSet = fileSet;
           this->SetGeometryFileName(subLine);
           vtkDebugMacro(<<this->GetGeometryFileName());
           }
-        else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
+        else if (sscanf(line, " %*s %d%*[ \t]%s", &timeSet, subLine) == 2)
           {
           this->GeometryTimeSet = timeSet;
           this->SetGeometryFileName(subLine);
@@ -537,14 +537,14 @@ int vtkEnSightReader::ReadCaseFile()
         }
       else if (strncmp(line, "measured:", 9) == 0)
         {
-        if (sscanf(line, " %*s %d%*[ ]%d%*[ ]%s", &timeSet, &fileSet, subLine) == 3)
+        if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%s", &timeSet, &fileSet, subLine) == 3)
           {
           this->MeasuredTimeSet = timeSet;
           this->MeasuredFileSet = fileSet;
           this->SetMeasuredFileName(subLine);
           vtkDebugMacro(<< this->GetMeasuredFileName());
           }
-        else if (sscanf(line, " %*s %d%*[ ]%s", &timeSet, subLine) == 2)
+        else if (sscanf(line, " %*s %d%*[ \t]%s", &timeSet, subLine) == 2)
           {
           this->MeasuredTimeSet = timeSet;
           this->SetMeasuredFileName(subLine);
