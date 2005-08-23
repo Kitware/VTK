@@ -28,16 +28,6 @@
 /* private prototypes */
 
 //---------------------------------------------------------------------------
-void vtkMPEG2WriterReportError _ANSI_ARGS_((const char *text));
-
-void vtkMPEG2WriterReportError( const char *text )
-{
-  vtkGenericWarningMacro(<< text);
-}
-
-unsigned char* vtkMPEG2WriterInternalGetImagePtr _ANSI_ARGS_((const char* fname, void *mpeg2_writer_internal));
-
-//---------------------------------------------------------------------------
 class vtkMPEG2WriterInternal 
 {
 public:
@@ -64,10 +54,18 @@ private:
 };
 
 //---------------------------------------------------------------------------
-unsigned char* vtkMPEG2WriterInternalGetImagePtr(const char* fname, 
-                                                 void *mpeg2_writer_internal)
+extern "C"
 {
-  return (static_cast<vtkMPEG2WriterInternal*>(mpeg2_writer_internal))->GetImagePtr(fname);
+  void vtkMPEG2WriterReportError( const char *text )
+  {
+    vtkGenericWarningMacro(<< text);
+  }
+
+  unsigned char* vtkMPEG2WriterInternalGetImagePtr(const char* fname, 
+                                                   void *mpeg2_writer_internal)
+  {
+    return (static_cast<vtkMPEG2WriterInternal*>(mpeg2_writer_internal))->GetImagePtr(fname);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -165,7 +163,7 @@ int vtkMPEG2WriterInternal::RemoveImage(const char* fname)
 
 //---------------------------------------------------------------------------
 vtkStandardNewMacro(vtkMPEG2Writer);
-vtkCxxRevisionMacro(vtkMPEG2Writer, "1.2");
+vtkCxxRevisionMacro(vtkMPEG2Writer, "1.3");
 
 //---------------------------------------------------------------------------
 vtkMPEG2Writer::vtkMPEG2Writer()
@@ -270,8 +268,8 @@ void vtkMPEG2Writer::Initialize()
   str->quiet = 1;
 
   str->report_error = vtkMPEG2WriterReportError;
-  str->mpeg2_writer_internal = this->Internals;
   str->get_image_ptr = vtkMPEG2WriterInternalGetImagePtr;
+  str->mpeg2_writer_internal = this->Internals;
 
   /* read parameter file */
   this->Internals->ReadParmFile();
