@@ -491,7 +491,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     " VTK packages.  Please check that your TCLLIBPATH environment variable"
     " includes the path to your VTK Tcl directory.  You might find it under"
     " your VTK binary directory in Wrapping/Tcl, or under your"
-    " site-specific \"" VTK_TCL_INSTALL_DIR "\" directory.}\n"
+    " site-specific installation directory.}\n"
     "        if {[info exists env(TCLLIBPATH)]} {\n"
     "          append msg \"  The TCLLIBPATH current value is: $env(TCLLIBPATH).\"\n"
     "        }\n"

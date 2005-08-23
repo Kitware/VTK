@@ -1,7 +1,6 @@
 #ifndef __vtkTkAppInitConfigure_h
 #define __vtkTkAppInitConfigure_h
 
-#define VTK_TCL_INSTALL_DIR "@CMAKE_INSTALL_PREFIX@@VTK_INSTALL_TCL_DIR@"
 #define VTK_INSTALL_TCL_DIR "@VTK_INSTALL_TCL_DIR@"
 
 @VTK_EXTRA_TCL_WRAPPING_CODE@
