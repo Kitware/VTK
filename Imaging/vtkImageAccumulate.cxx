@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkImageAccumulate, "1.63");
+vtkCxxRevisionMacro(vtkImageAccumulate, "1.64");
 vtkStandardNewMacro(vtkImageAccumulate);
 
 //----------------------------------------------------------------------------
@@ -377,11 +377,24 @@ int vtkImageAccumulate::RequestUpdateExtent (
   vtkInformationVector* vtkNotUsed( outputVector ))
 {
   // get the info objects
-  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+  vtkInformation* stencilInfo = 0;
+  if(inputVector[1]->GetNumberOfInformationObjects() > 0)
+    {
+    stencilInfo = inputVector[1]->GetInformationObject(0);
+    }
 
-  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
-              inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),6);
-
+  // Use the whole extent of the first input as the update extent for
+  // both inputs.  This way the stencil will be the same size as the
+  // input.
+  int extent[6] = {0,-1,0,-1,0,-1};
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
+  if(stencilInfo)
+    {
+    stencilInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+                     extent, 6);
+    }
   return 1;
 }
 
