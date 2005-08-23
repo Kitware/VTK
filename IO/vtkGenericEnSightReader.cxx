@@ -30,7 +30,7 @@
 #include <assert.h>
 #include <ctype.h> /* isspace */
 
-vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.73");
+vtkCxxRevisionMacro(vtkGenericEnSightReader, "1.74");
 vtkStandardNewMacro(vtkGenericEnSightReader);
 
 vtkCxxSetObjectMacro(vtkGenericEnSightReader,TimeSets, 
@@ -354,7 +354,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
                 fileSet = xfileSet;
                 this->SetGeometryFileName(subLine);
                 }
-              else if (sscanf(line, " %*s %d%*[ ]%s", &xtimeSet, subLine) == 2)
+              else if (sscanf(line, " %*s %d%*[ \t]%s", &xtimeSet, subLine) == 2)
                 {
                 timeSet = xtimeSet;
                 this->SetGeometryFileName(subLine);
@@ -455,7 +455,7 @@ int vtkGenericEnSightReader::DetermineEnSightVersion()
             fileSet = xfileSet;
             this->SetGeometryFileName(subLine);
             }
-          else if (sscanf(line, " %*s %d%*[ ]%s", &xtimeSet, subLine) == 2)
+          else if (sscanf(line, " %*s %d%*[ \t]%s", &xtimeSet, subLine) == 2)
             {
             timeSet = xtimeSet;
             this->SetGeometryFileName(subLine);
