@@ -99,7 +99,7 @@ if __name__ == '__main__':
                    cmdclass          = {'install_data': my_install_data},
                    packages          = ['vtk', 'vtk.gtk', 'vtk.qt', 'vtk.tk',
                                         'vtk.util', 'vtk.wx', 'vtk.test'],
-                   scripts           = get_scripts(),
+                   #scripts           = get_scripts(),
                    data_files        = [('vtk', get_libs())]
                    )
     # If setup_tools is available, then add an extra option to disable
