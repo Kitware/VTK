@@ -66,7 +66,7 @@
     }}
 
 //#ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.5");
+vtkCxxRevisionMacro(vtkOpenGLVolumeTextureMapper3D, "1.6");
 vtkStandardNewMacro(vtkOpenGLVolumeTextureMapper3D);
 //#endif
 
@@ -1590,11 +1590,12 @@ void vtkOpenGLVolumeTextureMapper3D::SetupProgramLocalsForShadingFP( vtkRenderer
   volumeTransform->TransformPoint( cameraPosition, cameraPosition );
   volumeTransform->TransformPoint( cameraFocalPoint, cameraFocalPoint );
   
-  double viewDirection[3];
+  double viewDirection[4];
   
   viewDirection[0] = cameraFocalPoint[0] - cameraPosition[0];
   viewDirection[1] = cameraFocalPoint[1] - cameraPosition[1];
   viewDirection[2] = cameraFocalPoint[2] - cameraPosition[2];
+  viewDirection[3] = 0.0;
   
   vtkMath::Normalize( viewDirection );
   
