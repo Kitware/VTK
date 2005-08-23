@@ -146,7 +146,7 @@ protected:
   // Equivalen to cgGLSetTexture(), GLSL merely does a glUniform1v().
   // Subclass may have to cast the texture to vtkOpenGLTexture to obtain
   // the GLunint for texture this texture.
-  virtual void SetTexture(const char* name, vtkTexture* texture) { };
+  virtual void SetSamplerParameter(const char* name, vtkTexture* texture);
 private:
   vtkGLSLShader(const vtkGLSLShader&); // Not Implemented
   void operator=(const vtkGLSLShader&); // Not Implemented

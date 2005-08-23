@@ -15,8 +15,10 @@
 #include "vtkProperty.h"
 
 #include "vtkActor.h"
+#include "vtkCollection.h"
 #include "vtkBMPReader.h"
 #include "vtkGraphicsFactory.h"
+#include "vtkImageData.h"
 #include "vtkImageReader2.h"
 #include "vtkJPEGReader.h"
 #include "vtkPNGReader.h"
@@ -33,7 +35,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.1");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.2");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -81,6 +83,7 @@ vtkProperty::vtkProperty()
   this->ShaderProgram = 0;
   this->Material = 0;
   this->MaterialName = 0;
+  this->TextureCollection = vtkCollection::New();
 }
 
 //----------------------------------------------------------------------------
@@ -92,6 +95,7 @@ vtkProperty::~vtkProperty()
     }
   this->SetShaderProgram(0); 
   this->SetMaterialName(0);
+  this->TextureCollection->Delete();
 }
 
 
@@ -183,18 +187,73 @@ void vtkProperty::GetColor(double rgb[3])
 }
 
 //----------------------------------------------------------------------------
+void vtkProperty::SetTexture(vtkTexture* tex)
+{
+  if (this->GetNumberOfTextures() == 0)
+    {
+    this->AddTexture(tex);
+    }
+  else
+    {
+    this->ReplaceTexture(0, tex);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkProperty::AddTexture(vtkTexture* tex)
+{
+  this->TextureCollection->AddItem(tex);
+  return (this->TextureCollection->GetNumberOfItems()-1);
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::ReplaceTexture(vtkIdType index, vtkTexture* newTex)
+{
+  if (this->GetNumberOfTextures() <= index)
+    {
+    vtkErrorMacro("Invalid texture index " << index);
+    return;
+    }
+  this->TextureCollection->ReplaceItem(index, newTex);
+}
+
+//----------------------------------------------------------------------------
+vtkTexture* vtkProperty::GetTexture(vtkIdType index)
+{
+  if (this->GetNumberOfTextures() <= index)
+    {
+    return 0;
+    }
+  return vtkTexture::SafeDownCast(
+    this->TextureCollection->GetItemAsObject(index));
+}
+
+//----------------------------------------------------------------------------
+int vtkProperty::GetNumberOfTextures()
+{
+  return this->TextureCollection->GetNumberOfItems();
+}
+
+//----------------------------------------------------------------------------
 void vtkProperty::LoadMaterial(const char* name)
 {
   this->SetMaterialName(name);
   //TODO: Here we must check to see if the material is built-in.
 
   char* filename = vtkXMLShader::LocateFile(name);
-  vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
-  reader->SetFileName(filename);
-  reader->ReadMaterial();
-  this->LoadMaterial(reader->GetMaterial());
-  reader->Delete();
-  delete [] filename;
+  if (filename)
+    {
+    vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
+    reader->SetFileName(filename);
+    reader->ReadMaterial();
+    this->LoadMaterial(reader->GetMaterial());
+    reader->Delete();
+    delete [] filename;
+    }
+  else
+    {
+    vtkErrorMacro("Failed to locate Material file: " << name);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -237,214 +296,280 @@ void vtkProperty::LoadProperty()
 
   int iElem = 0;
   int numNested = elem->GetNumberOfNestedElements();
-  int numAttrs = 0;
-  int numElems = 0;
-  int err = 0;
-  const char* name = NULL;
-  const char* type = NULL;
-  // Each element is a data member of vtkProperty
+  
+  // Each element is a child node of <Property />
   for( iElem=0; iElem<numNested; iElem++ )
     {
     vtkXMLDataElement* currElement = elem->GetNestedElement(iElem);
-    numAttrs = currElement->GetNumberOfAttributes();
-    name = currElement->GetAttribute("name");
-    numElems = 0;
-    err = currElement->GetScalarAttribute("number_of_elements", numElems);
-    type = currElement->GetAttribute("type");
+    const char* tagname = currElement->GetName();
 
-    if( !name || !type )
+    if (strcmp(tagname, "Texture") == 0)
       {
-      continue;
+      // If texture, load it.
+      this->LoadTexture(currElement);
       }
-
-    // Allocate memory to store values (stored as attributes) from XML file.
-    void* ifXVoid;
-    if( strcmp(type,"Double")==0 )
+    else if (strcmp(tagname, "PerlinNoise") == 0)
       {
-      ifXVoid = new double[numElems];
-      err = currElement->GetVectorAttribute( "value", numElems, &((double*)ifXVoid)[0] );
+      this->LoadPerlineNoise(currElement);
       }
-    else if( strcmp(type,"Float")==0 )
+    else if (strcmp(tagname, "Member") == 0)
       {
-      ifXVoid = new float[numElems];
-      err = currElement->GetVectorAttribute( "value", numElems, &((float*)ifXVoid)[0] );
-      }
-    else if( strcmp(type,"Int")==0 )
-      {
-      ifXVoid = new int[numElems];
-      err = currElement->GetVectorAttribute( "value", numElems, &((int*)ifXVoid)[0] );
-      }
-
-    // vtkDataElement::GetVectorAttribute(...) returns the length of the vector it read.
-    if( (err<=0) && ( strcmp(name,"Texture1D")!=0 &&
-                      strcmp(name,"Texture2D")!=0 &&
-                      strcmp(name,"Texture3D")!=0) )
-      {
-      cout << "Error reading vtkShaderPropertyMemberAttribute : " << name;
-      cout << " error value: " << err << endl;
-      return;
-      }
-
-    // Figure out which vtk property member we're setting and make the call to set it's value.
-    // FIXME - Could this be in a map that maps string names to function pointers.
-    if( strcmp(name,"Color")==0 )
-      {
-      this->SetAmbientColor( &((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"AmbientColor")==0 )
-      {
-      this->SetAmbientColor( &((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"DiffuseColor")==0 )
-      {
-      this->SetDiffuseColor( &((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"SpecularColor")==0 )
-      {
-      this->SetSpecularColor( &((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"EdgeColor")==0 )
-      {
-      this->SetEdgeColor( &((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Ambient")==0 )
-      {
-      this->SetAmbient( ((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Diffuse")==0 )
-      {
-      this->SetDiffuse( ((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Specular")==0 )
-      {
-      this->SetSpecular( ((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"SpecularPower")==0 )
-      {
-      this->SetSpecularPower( ((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Opacity")==0 )
-      {
-      this->SetOpacity( ((double*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"PointSize")==0 )
-      {
-      this->SetPointSize( ((float*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"LineWidth")==0 )
-      {
-      this->SetLineWidth( ((float*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"LineStipplePattern")==0 )
-      {
-      this->SetLineStipplePattern( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"LineStippleRepeatFactor")==0 )
-      {
-      this->SetLineStippleRepeatFactor( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Interpolation")==0 )
-      {
-      this->SetInterpolation( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Representation")==0 )
-      {
-      this->SetRepresentation( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"EdgeVisibility")==0 )
-      {
-      this->SetEdgeVisibility( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"BackfaceCulling")==0 )
-      {
-      this->SetBackfaceCulling( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"FrontfaceCulling")==0 )
-      {
-      this->SetFrontfaceCulling( ((int*)ifXVoid)[0] );
-      }
-    else if( strcmp(name,"Texture1D")==0 )
-      {
-      vtkErrorMacro( "vtkShaderProperty: 1D Texture not supported!!!" );
-      }
-    else if( strcmp(name,"Texture2D" )==0 )
-      {
-      cout << "Texture: " << endl;
-      // If a texture is defined, add it the collection for later rendering.
-      const char* fname = currElement->GetAttribute( "Filename" );
-      vtkImageReader2 *reader = NULL;
-      if( strcmp(type,"bmp")==0 )
-        {
-        reader = vtkBMPReader::New();
-        }
-      else if( strcmp(type,"jpg")==0 || strcmp(type,"jpeg")==0 )
-        {
-        reader = vtkJPEGReader::New();
-        }
-      else if( strcmp(type,"png")==0 )
-        {
-        reader = vtkPNGReader::New();
-        }
-      else if( strcmp(type,"tiff")==0 )
-        {
-        reader = vtkTIFFReader::New();
-        }
-      else if( strcmp(type,"ppm")==0 )
-        {
-        reader = vtkPNMReader::New();
-        }
-      else
-        {
-        vtkErrorMacro("Texture filetype ('Type') not specified in XML description!");
-        }
-
-      // Look for textures relative to default material/shader paths
-      const char* filename = vtkXMLShader::LocateFile(fname);
-      if( filename && reader )
-        {
-        reader->SetFileName(filename);
-        vtkTexture* t = vtkTexture::New();
-        t->SetInput( (vtkDataObject*)reader->GetOutput() );
-        t->InterpolateOn();
-        //this->Textures->AddItem( t ); // TODO:
-        t->Delete();
-        }
-      delete [] filename;
-      if( reader )
-        {
-        reader->Delete();
-        }
-
-      }
-    else if( strcmp(name,"Texture3D")==0 )
-      {
-      vtkErrorMacro( "vtkShaderProperty: 3D Texture not supported!!!" );
+      this->LoadMember(currElement);
       }
     else
       {
-      vtkDebugMacro( "Found an unrecognized vtkProperty xml element." << endl );
-      }
-
-
-
-    // delete temporary memory
-    // FIXME - this could be reused in consecutive loops if the type is the same
-    // just delete and re-allocate for each iteration for now
-    if( strcmp(type,"Double")==0 )
-      {
-      delete [] (double*)ifXVoid;
-      }
-    else if( strcmp(type,"Float")==0 )
-      {
-      delete [] (float*)ifXVoid;
-      }
-    else if( strcmp(type,"Int")==0 )
-      {
-      delete [] (int*)ifXVoid;
+      vtkErrorMacro("Unknown tag name '" << tagname << "'");
       }
     }
 }
+
+//----------------------------------------------------------------------------
+void vtkProperty::LoadMember(vtkXMLDataElement* elem)
+{
+  const char* name = elem->GetAttribute("name");
+  if (!name)
+    {
+    vtkErrorMacro("Element missing required attribute 'name'");
+    return;
+    }
+
+  const char* type = elem->GetAttribute("type");
+  if (!type)
+    {
+    vtkErrorMacro("Element with name=" << name 
+      << " missing required attribute 'type'.");
+    return;
+    }
+
+  int number_of_elements;
+  if (!elem->GetScalarAttribute("number_of_elements", number_of_elements))
+    {
+    vtkErrorMacro("Element with name=" << name << " missing required attribute "
+      "'number_of_elements'");
+    return;
+    }
+  if (!elem->GetAttribute("value"))
+    {
+    vtkErrorMacro("Element with name=" << name << " missing required attribute "
+      "'value'");
+    return;
+    }
+
+  int* pint = 0;
+  double* pdouble = 0;
+  float* pfloat = 0;
+  int success = 0;
+
+  if (strcmp(type,"Double") == 0)
+    {
+    pdouble = new double[number_of_elements];
+    success = elem->GetVectorAttribute("value", number_of_elements, pdouble);
+    }
+  else if (strcmp(type, "Float") == 0)
+    {
+    pfloat = new float[number_of_elements];
+    success = elem->GetVectorAttribute("value", number_of_elements, pfloat);
+    }
+  else if (strcmp(type,"Int") == 0)
+    {
+    pint = new int[number_of_elements];
+    success = elem->GetVectorAttribute( "value", number_of_elements, pint);
+    }
+  else
+    {
+    vtkErrorMacro("Invalid type='" << type << "' for name=" << name);
+    return;
+    }
+
+  if (!success)
+    {
+    vtkErrorMacro("Error reading 'value' for name=" << name);
+    delete []pdouble;
+    delete []pfloat;
+    delete []pint;
+    return;
+    }
+
+  if (pdouble)
+    {
+    if (strcmp(name,"Color") == 0)
+      {
+      this->SetColor(pdouble);
+      }
+    else if (strcmp(name, "AmbientColor") == 0)
+      {
+      this->SetAmbientColor(pdouble);
+      }
+    else if (strcmp(name, "DiffuseColor") == 0)
+      {
+      this->SetDiffuseColor(pdouble);
+      }
+    else if (strcmp(name, "SpecularColor") == 0)
+      {
+      this->SetSpecularColor(pdouble);
+      }
+    else if (strcmp(name, "EdgeColor") == 0)
+      {
+      this->SetEdgeColor(pdouble);
+      }
+    else if (strcmp(name, "Ambient") == 0)
+      {
+      this->SetAmbient(*pdouble);
+      }
+    else if (strcmp(name, "Diffuse") == 0)
+      {
+      this->SetDiffuse(*pdouble);
+      }
+    else if (strcmp(name, "Specular") == 0)
+      {
+      this->SetSpecular(*pdouble);
+      }
+    else if (strcmp(name, "SpecularPower") == 0)
+      {
+      this->SetSpecularPower(*pdouble);
+      }
+    else if (strcmp(name,"Opacity") == 0)
+      {
+      this->SetOpacity(*pdouble);
+      }
+    }
+  else if (pfloat)
+    {
+    if (strcmp(name, "PointSize") == 0)
+      {
+      this->SetPointSize(*pfloat);
+      }
+    else if (strcmp(name, "LineWidth") == 0)
+      {
+      this->SetLineWidth(*pfloat);
+      }
+    }
+  else if (pint)
+    {
+    if (strcmp(name, "LineStipplePattern") == 0)
+      {
+      this->SetLineStipplePattern(*pint);
+      }
+    else if (strcmp(name, "LineStippleRepeatFactor") == 0)
+      {
+      this->SetLineStippleRepeatFactor(*pint);
+      }
+    else if (strcmp(name, "Interpolation") == 0)
+      {
+      this->SetInterpolation(*pint);
+      }
+    else if (strcmp(name, "Representation") == 0)
+      {
+      this->SetRepresentation(*pint);
+      }
+    else if (strcmp(name, "EdgeVisibility") == 0)
+      {
+      this->SetEdgeVisibility(*pint);
+      }
+    else if (strcmp(name, "BackfaceCulling") == 0)
+      {
+      this->SetBackfaceCulling(*pint);
+      }
+    else if (strcmp(name, "FrontfaceCulling") == 0)
+      {
+      this->SetFrontfaceCulling(*pint);
+      }
+    }
+
+  delete []pdouble;
+  delete []pfloat;
+  delete []pint;
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::LoadTexture(vtkXMLDataElement* elem )
+{
+  const char* name = elem->GetAttribute("name");
+  if (!name)
+    {
+    vtkErrorMacro("Missing required attribute 'name'");
+    return;
+    }
+
+  const char* type = elem->GetAttribute("type");
+  if (!type)
+    {
+    vtkErrorMacro("Missing required attribute 'type' "
+      "for element with name=" << name);
+    return;
+    }
   
+  const char* location = elem->GetAttribute("location");
+  if (!location)
+    {
+    vtkErrorMacro("Missing required attribute 'location'"
+      "for element with name=" << name);
+    return;
+    }
+
+  const char* format = elem->GetAttribute("format");
+  if (!format)
+    {
+    vtkErrorMacro("Missing required attribute 'format'"
+      "for element with name=" << name);
+    return;
+    }
+  
+  vtkImageReader2* reader;
+  if (strcmp(format, "bmp") == 0)
+    {
+    reader = vtkBMPReader::New();
+    }
+  else if (strcmp(format, "jpg") == 0 || strcmp(format, "jpeg") == 0)
+    {
+    reader = vtkJPEGReader::New();
+    }
+  else if (strcmp(format, "png") == 0)
+    {
+    reader = vtkPNGReader::New();
+    }
+  else if (strcmp(format, "tiff") == 0 || strcmp(format, "tif") == 0)
+    {
+    reader = vtkTIFFReader::New();
+    }
+  else if (strcmp(format, "ppm") == 0)
+    {
+    reader = vtkPNMReader::New();
+    }
+  else
+    {
+    vtkErrorMacro("Invalid format='" << format << "' for element with name="
+      << name);
+    return;
+    }
+ 
+  char* filename = vtkXMLShader::LocateFile(location);
+  if (filename)
+    {
+    reader->SetFileName(filename);
+    vtkTexture* t = vtkTexture::New();
+    t->SetInput(reader->GetOutput());
+    t->InterpolateOn();
+    this->AddTexture(t);
+    // Eventually, we may want to assign names to the textures.
+    // but for now, the shaders will use them by their index.
+    t->Delete();
+    }
+  else
+    {
+    vtkErrorMacro("Failed to locate texture file " << location);
+    }
+ 
+  reader->Delete();
+  delete []filename;
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::LoadPerlineNoise(vtkXMLDataElement* )
+{
+  vtkWarningMacro("Perlin Noise support not complete yet!");
+}
+
 //----------------------------------------------------------------------------
 void vtkProperty::Render(vtkActor* actor, vtkRenderer* renderer)
 {
@@ -484,28 +609,28 @@ void vtkProperty::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Interpolation: ";
   switch (this->Interpolation) 
     {
-    case VTK_FLAT: os << "VTK_FLAT\n"; break;
-    case VTK_GOURAUD: os << "VTK_GOURAUD\n"; break;
-    case VTK_PHONG: os << "VTK_PHONG\n"; break;
-    default: os << "unknown\n";
+  case VTK_FLAT: os << "VTK_FLAT\n"; break;
+  case VTK_GOURAUD: os << "VTK_GOURAUD\n"; break;
+  case VTK_PHONG: os << "VTK_PHONG\n"; break;
+  default: os << "unknown\n";
     }
   os << indent << "Opacity: " << this->Opacity << "\n";
   os << indent << "Representation: ";
   switch (this->Representation) 
     {
-    case VTK_POINTS: os << "VTK_POINTS\n"; break;
-    case VTK_WIREFRAME: os << "VTK_WIREFRAME\n"; break;
-    case VTK_SURFACE: os << "VTK_SURFACE\n"; break;
-    default: os << "unknown\n";
+  case VTK_POINTS: os << "VTK_POINTS\n"; break;
+  case VTK_WIREFRAME: os << "VTK_WIREFRAME\n"; break;
+  case VTK_SURFACE: os << "VTK_SURFACE\n"; break;
+  default: os << "unknown\n";
     }
   os << indent << "Specular: " << this->Specular << "\n";
   os << indent << "Specular Color: (" << this->SpecularColor[0] << ", " 
-     << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
+    << this->SpecularColor[1] << ", " << this->SpecularColor[2] << ")\n";
   os << indent << "Specular Power: " << this->SpecularPower << "\n";
   os << indent << "Backface Culling: " 
-     << (this->BackfaceCulling ? "On\n" : "Off\n");
+    << (this->BackfaceCulling ? "On\n" : "Off\n");
   os << indent << "Frontface Culling: " 
-     << (this->FrontfaceCulling ? "On\n" : "Off\n");
+    << (this->FrontfaceCulling ? "On\n" : "Off\n");
   os << indent << "Point size: " << this->PointSize << "\n";
   os << indent << "Line width: " << this->LineWidth << "\n";
   os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";

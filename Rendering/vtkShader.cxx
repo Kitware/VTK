@@ -201,7 +201,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.1.2.1")
+vtkCxxRevisionMacro(vtkShader, "1.1.2.2")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -382,11 +382,7 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
     else if (strcmp(tagname, "CameraUniform") == 0)
       {
       this->SetCameraParameter(actor, renderer, elem);
-      }
-    else if (strcmp(tagname, "PropertyUniform") == 0)
-      {
-      this->SetPropertyParameter(actor, renderer, elem);
-      }
+      } 
     else if (strcmp(tagname, "LightUniform") == 0)
       {
       this->SetLightParameter(actor, renderer, elem);
@@ -394,6 +390,14 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
     else if (strcmp(tagname, "MatrixUniform") == 0)
       {
       this->SetMatrixParameter(actor, renderer, elem);
+      }
+    else if (strcmp(tagname, "PropertyUniform") == 0)
+      {
+      this->SetPropertyParameter(actor, renderer, elem);
+      }
+    else if (strcmp(tagname, "SamplerUniform") == 0)
+      {
+      this->SetSamplerParameter(actor, renderer, elem);
       }
     else
       {
@@ -906,6 +910,38 @@ void vtkShader::SetMatrixParameter(vtkActor* , vtkRenderer* ,
       vtkErrorMacro("Invalid 'type'='" << type << "' for name=" << name);
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*, 
+  vtkXMLDataElement* elem)
+{
+  const char* name = elem->GetAttribute("name");
+  const char* value = elem->GetAttribute("value");
+  if (!value)
+    {
+    vtkErrorMacro("Missing required attribute 'value' on element "
+      "with name=" << name);
+    return;
+    }
+
+  int texture_id;
+  if (!elem->GetScalarAttribute("value", texture_id))
+    {
+    vtkErrorMacro("Expected interger 'value' for element "
+      "with name=" << name);
+    return;
+    }
+
+  vtkTexture* texture = act->GetProperty()->GetTexture(texture_id);
+  
+  if (!texture)
+    {
+    vtkErrorMacro("Property does have texture at index="<<texture_id);
+    return;
+    }
+  
+  this->SetSamplerParameter(name, texture);
 }
 
 //-----------------------------------------------------------------------------

@@ -23,6 +23,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkXMLDataElement.h"
@@ -87,7 +88,7 @@ extern "C" {
 }
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.1.2.1");
+vtkCxxRevisionMacro(vtkCgShader, "1.1.2.2");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
@@ -350,6 +351,22 @@ void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matix_t
   cgGLSetStateMatrixParameter(param,
     this->StateMatrixMap->GetCGGLenum(state_matix_type),
     this->StateMatrixMap->GetCGGLenum(transform_type));
+}
+
+//-----------------------------------------------------------------------------
+void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture)
+{
+  CGparameter param = this->GetUniformParameter(name);
+  if (!param)
+    {
+    return;
+    }
+  vtkOpenGLTexture* glTexture = vtkOpenGLTexture::SafeDownCast(texture);
+  if (glTexture)
+    {
+    cgGLSetTextureParameter(param, glTexture->GetIndex());
+    cgGLEnableTextureParameter(param);
+    }
 }
 
 //-----------------------------------------------------------------------------

@@ -40,9 +40,12 @@
 #define VTK_WIREFRAME 1
 #define VTK_SURFACE   2
 
-class vtkRenderer;
 class vtkActor;
+class vtkCollection;
+class vtkRenderer;
 class vtkShaderProgram;
+class vtkTexture;
+class vtkXMLDataElement;
 class vtkXMLMaterial;
 
 class VTK_RENDERING_EXPORT vtkProperty : public vtkObject
@@ -244,6 +247,33 @@ public:
   // property. One must get the shader program and then set the variables.
   // This will keep the user from adding shader variables before
   // setting the material.
+  
+  // Description: 
+  // Set/Get the texture object to control rendering texture maps.  This will
+  // be a vtkTexture object. A property does not need to have an associated
+  // texture map and multiple properties can share one texture.
+  void SetTexture(vtkTexture* texture);
+  vtkTexture* GetTexture() { return this->GetTexture(0); }
+  
+ 
+  // Description:
+  // Adds a texture to the collection of textures.
+  // Multiple textures can be used when using shading.
+  vtkIdType AddTexture(vtkTexture* texture);
+
+  // Description:
+  // Replace a texture. The index must be less than the
+  // number of textures.
+  void ReplaceTexture(vtkIdType index, vtkTexture* texture);
+
+  // Description:
+  // Get the texture at a given index.
+  vtkTexture* GetTexture(vtkIdType index);
+
+  // Description:
+  // Returns the number of textures in this property.
+  int GetNumberOfTextures();
+
 protected:
   vtkProperty();
   ~vtkProperty();
@@ -251,6 +281,9 @@ protected:
   // Description:
   // Load property iVar values from the Material XML.
   void LoadProperty();
+  void LoadTexture(vtkXMLDataElement* elem);
+  void LoadPerlineNoise(vtkXMLDataElement* );
+  void LoadMember(vtkXMLDataElement* elem);
 
   double Color[3];
   double AmbientColor[3];
@@ -281,6 +314,7 @@ protected:
   void SetShaderProgram(vtkShaderProgram*);
 
   vtkXMLMaterial* Material; // TODO: I wonder if this reference needs to be maintained.
+  vtkCollection* TextureCollection;
   
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.

@@ -36,6 +36,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLTexture.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkXMLDataElement.h"
@@ -173,7 +174,7 @@ void printAttributeInfo( GLuint program, const char* filename )
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.1");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.2");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -416,6 +417,17 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues,
 void vtkGLSLShader::SetMatrixParameter(const char*, const char*, const char*)
 {
   vtkErrorMacro("GLSL does not support any system matrices!");
+}
+
+//-----------------------------------------------------------------------------
+void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* texture)
+{
+  vtkOpenGLTexture* glTexture = vtkOpenGLTexture::SafeDownCast(texture);
+  if (glTexture)
+    {
+    int id = static_cast<int>(glTexture->GetIndex());
+    this->SetUniformParameter(name, 1, &id);
+    }
 }
 
 //-----------------------------------------------------------------------------
