@@ -41,6 +41,7 @@ ENDIF (APPLE)
 # Link against all the kit wrappers.
 TARGET_LINK_LIBRARIES(vtkpython 
   ${VTK_PYTHON_LIBRARIES} 
+  vtksys
   vtkCommon 
   vtkFiltering
   vtkIO
@@ -122,6 +123,7 @@ IF (VTK_USE_PARALLEL)
 
     TARGET_LINK_LIBRARIES (pvtkpython
       ${VTK_PYTHON_LIBRARIES}
+      vtksys
       vtkCommon
       vtkFiltering
       vtkIO

@@ -52,6 +52,9 @@
 #include "vtkParallelInstantiator.h"
 #endif
 
+#include <vtkstd/string>
+#include <vtksys/SystemTools.hxx>
+
 #ifdef VTK_COMPILED_USING_MPI
 class vtkMPICleanup {
 public:
@@ -87,7 +90,21 @@ extern "C" {
 }
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
-static int vtkPythonAppInitFileExists(const char* filename);
+
+/* The maximum length of a file name.  */
+#if defined(PATH_MAX)
+# define VTK_PYTHON_MAXPATH PATH_MAX
+#elif defined(MAXPATHLEN)
+# define VTK_PYTHON_MAXPATH MAXPATHLEN
+#else
+# define VTK_PYTHON_MAXPATH 16384
+#endif
+
+/* Python major.minor version string.  */
+#define VTK_PYTHON_TO_STRING(x) VTK_PYTHON_TO_STRING0(x)
+#define VTK_PYTHON_TO_STRING0(x) VTK_PYTHON_TO_STRING1(x)
+#define VTK_PYTHON_TO_STRING1(x) #x
+#define VTK_PYTHON_VERSION VTK_PYTHON_TO_STRING(PY_MAJOR_VERSION.PY_MINOR_VERSION)
 
 int main(int argc, char **argv)
 {
@@ -124,47 +141,78 @@ int main(int argc, char **argv)
   // professionals.
 
   // Set the program name, so that we can ask python to provide us
-  // full path.
-  Py_SetProgramName(argv[0]);
+  // full path.  We need to collapse the path name to aid relative
+  // path computation for the VTK python module installation.
+  char argv0[VTK_PYTHON_MAXPATH];
+  vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
+  strcpy(argv0, av0.c_str());
+  Py_SetProgramName(argv0);
 
   // Initialize interpreter.
   Py_Initialize();
 
-  // If the location of the library path and wrapping path exist, add
-  // them to the list.
-  
-  // Get the pointer to path list object, append both paths, and
-  // make sure to decrease reference counting for both path strings.
-  char tmpPath[5];
-  sprintf(tmpPath,"path");
-  PyObject* path = PySys_GetObject(tmpPath);
-  PyObject* newpath;
-  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_LIBRARY_DIR) )
+  // Try to put the VTK python module location in sys.path.
+  vtkstd::string self_dir = vtksys::SystemTools::GetFilenamePath(av0);
+  vtkstd::string package_dir = self_dir;
+#if defined(CMAKE_INTDIR)
+  package_dir += "/..";
+#endif
+  package_dir += "/../Wrapping/Python";
+  package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
+  if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
     {
+    // This executable is running from the build tree.  Prepend the
+    // library directory and package directory to the search path.
+    char tmpPath[] = "path";
+    PyObject* path = PySys_GetObject(tmpPath);
+    PyObject* newpath;
     newpath = PyString_FromString(VTK_PYTHON_LIBRARY_DIR);
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
-    }
-  if ( ::vtkPythonAppInitFileExists(VTK_PYTHON_PACKAGE_DIR) )
-    {
-    newpath = PyString_FromString(VTK_PYTHON_PACKAGE_DIR);
+    newpath = PyString_FromString(package_dir.c_str());
     PyList_Insert(path, 0, newpath);
     Py_DECREF(newpath);
+    }
+  else
+    {
+    // This executable is running from an install tree.  Check for
+    // possible VTK python module locations.  See
+    // http://python.org/doc/2.4.1/inst/alt-install-windows.html for
+    // information about possible install locations.  If the user
+    // changes the prefix to something other than VTK's prefix or
+    // python's native prefix then he/she will have to get the
+    // packages in sys.path himself/herself.
+    const char* inst_dirs[] = {
+      "/lib/python" VTK_PYTHON_VERSION "/site-packages/vtk", // UNIX --prefix
+      "/lib/python/vtk", // UNIX --home
+      "/Lib/site-packages/vtk", "/Lib/vtk", // Windows
+      "/site-packages/vtk", "/vtk", // Windows
+      0
+    };
+    vtkstd::string prefix = vtksys::SystemTools::GetFilenamePath(self_dir);
+    for(const char** dir = inst_dirs; *dir; ++dir)
+      {
+      package_dir = prefix;
+      package_dir += *dir;
+      package_dir = vtksys::SystemTools::CollapseFullPath(package_dir.c_str());
+      if(vtksys::SystemTools::FileIsDirectory(package_dir.c_str()))
+        {
+        // We found the modules.  Add the location to sys.path, but
+        // without the "/vtk" suffix.
+        vtkstd::string path_dir =
+          vtksys::SystemTools::GetFilenamePath(package_dir);
+        char tmpPath[] = "path";
+        PyObject* path = PySys_GetObject(tmpPath);
+        PyObject* newpath = PyString_FromString(path_dir.c_str());
+        PyList_Insert(path, 0, newpath);
+        Py_DECREF(newpath);
+        break;
+        }
+      }
     }
 
   // Ok, all done, now enter python main.
   return Py_Main(argc, argv);
-}
-
-int vtkPythonAppInitFileExists(const char* filename)
-{
-  // Return true if the file exists.
-  struct stat fs;
-  if (stat(filename, &fs) != 0) 
-    {
-    return 0;
-    }
-  return 1;
 }
 
 // For a DEBUG build on MSVC, add a hook to prevent error dialogs when
