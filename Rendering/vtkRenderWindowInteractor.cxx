@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.105");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.106");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -101,6 +101,9 @@ void vtkRenderWindowInteractor::Render()
     {
     this->RenderWindow->Render();
     }
+  // outside the above test so that third-party code can redirect
+  // the render to the appropriate class
+  this->InvokeEvent(vtkCommand::RenderEvent, NULL);
 }
 
 // treat renderWindow and interactor as one object.
