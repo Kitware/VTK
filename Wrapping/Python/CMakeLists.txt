@@ -1,7 +1,3 @@
-# Create a setup.py file.
-CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in 
-               ${VTK_BINARY_DIR}/Wrapping/Python/setup.py)
-
 # create the VTK/Python  executable
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h.in
                ${VTK_BINARY_DIR}/Wrapping/Python/vtkPythonAppInitConfigure.h)
@@ -292,6 +288,40 @@ IF(PYTHON_EXECUTABLE)
       vtkpython
       ${vtkpython_pyc_depends})
 ENDIF(PYTHON_EXECUTABLE)
+
+# Create the setup.py file.
+IF(CMAKE_CONFIGURATION_TYPES)
+  # The build has multiple configuration types.  If CMAKE_BUILD_TYPE
+  # is set use it as the default BUILD_TYPE for setup.py to install.
+  SET(VTK_PYTHON_HAS_CONFIG_TYPES 1)
+  IF(CMAKE_BUILD_TYPE)
+    SET(VTK_PYTHON_BUILD_TYPE "\"${CMAKE_BUILD_TYPE}\"")
+  ELSE(CMAKE_BUILD_TYPE)
+    SET(VTK_PYTHON_BUILD_TYPE "[]")
+  ENDIF(CMAKE_BUILD_TYPE)
+ELSE(CMAKE_CONFIGURATION_TYPES)
+  # The build has one configuration type.  The build type does not
+  # affect installation.
+  SET(VTK_PYTHON_HAS_CONFIG_TYPES 0)
+  SET(VTK_PYTHON_BUILD_TYPE "[]")
+ENDIF(CMAKE_CONFIGURATION_TYPES)
+IF(VTK_USE_RENDERING)
+  SET(VTK_PYTHON_USE_RENDERING 1)
+ELSE(VTK_USE_RENDERING)
+  SET(VTK_PYTHON_USE_RENDERING 0)
+ENDIF(VTK_USE_RENDERING)
+IF(VTK_USE_PARALLEL)
+  SET(VTK_PYTHON_USE_PARALLEL 1)
+ELSE(VTK_USE_PARALLEL)
+  SET(VTK_PYTHON_USE_PARALLEL 0)
+ENDIF(VTK_USE_PARALLEL)
+IF(VTK_USE_MPI)
+  SET(VTK_PYTHON_USE_MPI 1)
+ELSE(VTK_USE_MPI)
+  SET(VTK_PYTHON_USE_MPI 0)
+ENDIF(VTK_USE_MPI)
+CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/setup.py.in
+               ${VTK_BINARY_DIR}/Wrapping/Python/setup.py @ONLY IMMEDIATE)
 
 # Allow the user to customize their build with some local options
 #

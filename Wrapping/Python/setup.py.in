@@ -5,9 +5,10 @@ setup.py for installing the VTK-Python bindings using distutils.
 
 Created by Prabhu Ramachandran, June 2002.
 
+Updated for install with configuration types by Brad King, August 2005.
+
 """
 
-import glob
 import sys
 import string
 import os
@@ -27,30 +28,55 @@ has_setup_tools = 0
 #from setuptools import setup
 #has_setup_tools = 1
 
+# VTK build configuration settings.
+vtk_version = "@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.@VTK_BUILD_VERSION@"
+vtk_lib_dir = "@LIBRARY_OUTPUT_PATH@"
+vtk_bin_dir = "@EXECUTABLE_OUTPUT_PATH@"
+vtk_use_rendering = @VTK_PYTHON_USE_RENDERING@
+vtk_use_parallel = @VTK_PYTHON_USE_PARALLEL@
+vtk_use_mpi = @VTK_PYTHON_USE_MPI@
+vtk_has_configuration_types = @VTK_PYTHON_HAS_CONFIG_TYPES@
 
-version = "${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}.${VTK_BUILD_VERSION}"
-
-build_lib_dir = "${LIBRARY_OUTPUT_PATH}"
-
-build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
-
-# The build type ('Release', 'Debug' etc.).  This may also be
-# overridden on the command line by something like
-# 'BUILD_TYPE=Release'.  For example::
+# The build type ('Release', 'Debug' etc.).  If vtk_has_configuration_types
+# is true this must be set.  It may be set on the command line by something
+# like 'BUILD_TYPE=Release'.  For example::
 #   python setup.py install --prefix=D:\\Python23 BUILD_TYPE=Release
-build_type = "${CMAKE_BUILD_TYPE}"
+vtk_build_type = @VTK_PYTHON_BUILD_TYPE@
 
+# Construct the list of kit names to be installed.
+vtk_kit_names = ['Common', 'Filtering', 'IO', 'Graphics',
+                 'GenericFiltering', 'Imaging']
+if vtk_use_rendering:
+    vtk_kit_names.extend(['Rendering', 'VolumeRendering', 'Hybrid', 'Widgets'])
+if vtk_use_parallel:
+    vtk_kit_names.extend(['Parallel'])
+
+# Construct the list of executable names to be installed.
+vtk_exe_names = ['vtkpython']
+if vtk_use_parallel and vtk_use_mpi:
+    vtk_exe_names.extend(['pvtkpython'])
 
 def get_libs():
     """Returns a list of libraries to be installed.  """
     libs = []
+
+    # Select platform-specific components of the module file names.
     if os.name == 'posix':
-        pth = os.path.join(build_lib_dir,
-                           'libvtk*Python' + get_config_var('SO'))
-        libs = glob.glob(os.path.abspath(pth))
+        dir = vtk_lib_dir
+        prefix = 'libvtk'
+        suffix = 'Python' + get_config_var('SO')
     else:
-        d = os.path.join(build_bin_dir.replace('/', '\\'), build_type)
-        libs = glob.glob(os.path.join(d, 'vtk*Python.dll'))
+        dir = vtk_bin_dir.replace('/', '\\')
+        prefix = 'vtk'
+        suffix = 'Python.dll'
+
+    # If this build has configuration types append the selected configuration.
+    if vtk_has_configuration_types:
+        dir = os.path.join(dir, vtk_build_type)
+
+    # Enumerate ths list of module files.
+    for kit in vtk_kit_names:
+        libs.append(os.path.abspath(os.path.join(dir, prefix+kit+suffix)))
 
     return libs
 
@@ -59,19 +85,23 @@ def get_scripts():
     """Returns the appropriate vtkpython executable and pvtkpython
     that is to be installed."""
     scripts = []
+
+    # Select platform-specific components of the executable file names.
     if os.name == 'posix':
-        for i in ('vtkpython', 'pvtkpython'):
-            f = os.path.join(build_bin_dir, i)
-            if os.path.exists(f):
-                scripts.append(f)
+        dir = vtk_lib_dir
+        suffix = ''
     else:
-        # Under win32 the binary is inside a sub-directory.
-        win32_bin_dir = os.path.normpath(os.path.join(build_bin_dir,
-                                                      build_type))
-        for i in ('vtkpython.exe', 'pvtkpython.exe'):
-            f = os.path.join(win32_bin_dir, i)
-            if os.path.exists(f):
-                scripts.append(f)
+        dir = vtk_bin_dir.replace('/', '\\')
+        suffix = '.exe'
+
+    # If this build has configuration types append the selected configuration.
+    if vtk_has_configuration_types:
+        dir = os.path.join(dir, vtk_build_type)
+
+    # Enumerate ths list of executable files.
+    for exe in vtk_exe_names:
+        scripts.append(os.path.abspath(os.path.join(dir, exe+suffix)))
+
     return scripts
 
 
@@ -88,9 +118,14 @@ if __name__ == '__main__':
     # Get the optional build type argument.
     for x in sys.argv[:]:
         if 'BUILD_TYPE' in x:
-            build_type = string.strip(string.split(x, '=')[1])
+            vtk_build_type = string.strip(string.split(x, '=')[1])
             sys.argv.remove(x)
             break
+
+    # Make sure a build type was specified if it is required.
+    if vtk_has_configuration_types:
+        if not vtk_build_type:
+            raise "ERROR: Must specify BUILD_TYPE=<config-name> on command line."
 
     def mk_dict(**kw):
         # Unnecessary in recent Pythons but handy for earlier
@@ -99,7 +134,7 @@ if __name__ == '__main__':
 
     # The options for setup.
     opts = mk_dict(name              = "VTK",
-                   version           = version,
+                   version           = vtk_version,
                    description       = "The Visualization Toolkit",
                    maintainer        = "VTK Developers",
                    maintainer_email  = "vtk-developers@vtk.org",
