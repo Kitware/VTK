@@ -9,6 +9,7 @@ Created by Prabhu Ramachandran, June 2002.
 
 import glob
 import sys
+import string
 import os
 import os.path
 from types import StringType
@@ -33,7 +34,10 @@ build_lib_dir = "${LIBRARY_OUTPUT_PATH}"
 
 build_bin_dir = "${EXECUTABLE_OUTPUT_PATH}"
 
-# The build type ('Release', 'Debug' etc.)
+# The build type ('Release', 'Debug' etc.).  This may also be
+# overridden on the command line by something like
+# 'BUILD_TYPE=Release'.  For example::
+#   python setup.py install --prefix=D:\\Python23 BUILD_TYPE=Release
 build_type = "${CMAKE_BUILD_TYPE}"
 
 
@@ -45,7 +49,7 @@ def get_libs():
                            'libvtk*Python' + get_config_var('SO'))
         libs = glob.glob(os.path.abspath(pth))
     else:
-        d = os.path.join(build_bin_dir, build_type)
+        d = os.path.join(build_bin_dir.replace('/', '\\'), build_type)
         libs = glob.glob(os.path.join(d, 'vtk*Python.dll'))
 
     return libs
@@ -81,6 +85,13 @@ class my_install_data (install_data):
                                     )
 
 if __name__ == '__main__':
+    # Get the optional build type argument.
+    for x in sys.argv[:]:
+        if 'BUILD_TYPE' in x:
+            build_type = string.strip(string.split(x, '=')[1])
+            sys.argv.remove(x)
+            break
+
     def mk_dict(**kw):
         # Unnecessary in recent Pythons but handy for earlier
         # versions.
