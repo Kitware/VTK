@@ -88,26 +88,60 @@ extern "C" {
 }
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.1.2.2");
+class vtkCgShaderInternals
+{
+public:
+  CGprofile Profile;
+  CGcontext Context;
+  CGprogram Program;
+  CGerror LastError;
+  CgStateMatrixMap StateMatrixMap;
+  
+  CGparameter GetUniformParameter(const char* name)
+    {
+    if(!name)
+      {
+      vtkGenericWarningMacro( "NULL uniform shader parameter name.");
+      return NULL;
+      }
+
+    if( cgIsProgram(this->Program) != GL_TRUE )
+      {
+      vtkGenericWarningMacro( "NULL shader program.");
+      return NULL;
+      }
+
+    CGparameter p = cgGetNamedParameter( this->Program, name );
+    if( (cgIsParameter(p)!=CG_TRUE) || (p==NULL) )
+      {
+      vtkGenericWarningMacro( "No parameter named: " << name << endl );
+      return NULL;
+      }
+    return p;
+    }
+};
+
+//-----------------------------------------------------------------------------
+vtkCxxRevisionMacro(vtkCgShader, "1.1.2.3");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
 vtkCgShader::vtkCgShader()
 {
-  this->StateMatrixMap = new CgStateMatrixMap;
-  this->LastError = CG_NO_ERROR;
+  this->Internals = new vtkCgShaderInternals;
+  this->Internals->LastError = CG_NO_ERROR;
 }
 
 //-----------------------------------------------------------------------------
 vtkCgShader::~vtkCgShader()
 {
-  delete this->StateMatrixMap;
+  delete this->Internals;
 }
 
 //-----------------------------------------------------------------------------
 int vtkCgShader::Compile()
 {
-  if (!this->XMLShader)
+  if (!this->XMLShader || this->Internals->LastError != CG_NO_ERROR)
     {
     return 0;
     }
@@ -115,49 +149,51 @@ int vtkCgShader::Compile()
   if (!this->XMLShader->GetCode())
     {
     vtkErrorMacro("Shader doesn't have any code!");
+    this->Internals->LastError = CG_INVALID_PROGRAM_HANDLE_ERROR;
     return 0;
     }
 
   // If we already have a compiled program, grab the
   // correct context and profilæ and return control.
-  if( cgIsProgram(this->Program) == GL_TRUE )
+  if( cgIsProgram(this->Internals->Program) == GL_TRUE )
     {
-    if( cgGLIsProgramLoaded(this->Program) == GL_TRUE )
+    if( cgGLIsProgramLoaded(this->Internals->Program) == GL_TRUE )
       {
-      this->Profile = cgGetProgramProfile( this->Program );
-      this->Context = cgGetProgramContext( this->Program );
+      this->Internals->Profile = cgGetProgramProfile( this->Internals->Program );
+      this->Internals->Context = cgGetProgramContext( this->Internals->Program );
       return 1;
       }
     }
 
   // Get a valid profile
-  if( cgGLIsProfileSupported(this->Profile) == CG_FALSE )
+  if( cgGLIsProfileSupported(this->Internals->Profile) == CG_FALSE )
     {
     switch(this->XMLShader->GetScope())
       {
     case vtkXMLShader::SCOPE_VERTEX:
-      this->Profile = cgGLGetLatestProfile(CG_GL_VERTEX);
+      this->Internals->Profile = cgGLGetLatestProfile(CG_GL_VERTEX);
       break;
 
     case vtkXMLShader::SCOPE_FRAGMENT:
-      this->Profile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
+      this->Internals->Profile = cgGLGetLatestProfile(CG_GL_FRAGMENT);
       break;
 
     default:
       vtkErrorMacro("Unsupported scope!");
+      this->Internals->LastError = CG_UNKNOWN_PROFILE_ERROR;
       return 0;
       }
     }
 
   // Get a valid context
-  if( cgIsContext(this->Context) == CG_FALSE )
+  if( cgIsContext(this->Internals->Context) == CG_FALSE )
     {
-    this->Context = cgCreateContext();
+    this->Internals->Context = cgCreateContext();
     }
 
   ::CurrentShader = this;
   cgSetErrorCallback(ErrorCallback);
-  this->LastError = CG_NO_ERROR;
+  this->Internals->LastError = CG_NO_ERROR;
 
   const char* source_string = this->XMLShader->GetCode();
 
@@ -166,28 +202,28 @@ int vtkCgShader::Compile()
   // filename (to keep the interface simple and clear).
   // So we always provide the contents of the file .
 
-  if( cgIsContext(this->Context) == CG_TRUE
-    && cgGLIsProfileSupported( this->Profile ) == CG_TRUE 
+  if( cgIsContext(this->Internals->Context) == CG_TRUE
+    && cgGLIsProfileSupported( this->Internals->Profile ) == CG_TRUE 
     && source_string)
     {
-    this->Program = cgCreateProgram( this->Context,
+    this->Internals->Program = cgCreateProgram( this->Internals->Context,
       CG_SOURCE,
       source_string,
-      this->Profile,
+      this->Internals->Profile,
       this->XMLShader->GetEntry(),
       this->XMLShader->GetArgs());
     }
 
-  if( cgIsProgram( this->Program ) == CG_TRUE )
+  if( cgIsProgram( this->Internals->Program ) == CG_TRUE )
     {
-    cgGLLoadProgram(this->Program);
+    cgGLLoadProgram(this->Internals->Program);
     }
   else
     {
     vtkErrorMacro("Failed to create Cg program.");
     return 0;
     }
-  if (this->LastError != CG_NO_ERROR)
+  if (this->Internals->LastError != CG_NO_ERROR)
     {
     vtkErrorMacro("Error occured during Shader compile.");
     return 0;
@@ -199,10 +235,10 @@ int vtkCgShader::Compile()
 void vtkCgShader::Bind()
 {
   // Bind shader to hardware
-  if(cgIsProgram( this->Program ) == CG_TRUE)
+  if(cgIsProgram( this->Internals->Program ) == CG_TRUE)
     {
-    cgGLEnableProfile(this->Profile);
-    cgGLBindProgram(this->Program);
+    cgGLEnableProfile(this->Internals->Profile);
+    cgGLBindProgram(this->Internals->Program);
     }
 }
 
@@ -210,10 +246,10 @@ void vtkCgShader::Bind()
 //-----------------------------------------------------------------------------
 void vtkCgShader::Unbind()
 {
-  if(cgIsProgram( this->Program ) == CG_TRUE)
+  if(cgIsProgram( this->Internals->Program ) == CG_TRUE)
     {
-    cgGLUnbindProgram(this->Profile);
-    cgGLDisableProfile(this->Profile);
+    cgGLUnbindProgram(this->Internals->Profile);
+    cgGLDisableProfile(this->Internals->Profile);
     }
 }
 
@@ -221,11 +257,11 @@ void vtkCgShader::Unbind()
 void vtkCgShader::ReportError()
 {
   CGerror error = cgGetError();
-  this->LastError = error;
+  this->Internals->LastError = error;
   vtkErrorMacro( << cgGetErrorString(error) );
   if( error == CG_COMPILER_ERROR )
     {
-    vtkErrorMacro( << cgGetLastListing(this->Context) );
+    vtkErrorMacro( << cgGetLastListing(this->Internals->Context) );
     }
 }
 
@@ -246,7 +282,7 @@ void vtkCgShader::SetUniformParameter(const char* name, int numValues,
 //-----------------------------------------------------------------------------
 void vtkCgShader::SetUniformParameter(const char* name, int numValues, const float* value)
 {
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
@@ -273,7 +309,7 @@ void vtkCgShader::SetUniformParameter(const char* name, int numValues, const flo
 //-----------------------------------------------------------------------------
 void vtkCgShader::SetUniformParameter(const char* name, int numValues, const double* value)
 {
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
@@ -301,7 +337,7 @@ void vtkCgShader::SetUniformParameter(const char* name, int numValues, const dou
 void vtkCgShader::SetMatrixParameter(const char* name, int , int order, 
   const float* value)
 {
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
@@ -320,7 +356,7 @@ void vtkCgShader::SetMatrixParameter(const char* name, int , int order,
 void vtkCgShader::SetMatrixParameter(const char* name, int , int order, 
   const double* value)
 {
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
@@ -343,20 +379,20 @@ void vtkCgShader::SetMatrixParameter(const char* name, const char* state_matix_t
     {
     transform_type = "CG_GL_MATRIX_IDENTITY";
     }
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
     }
   cgGLSetStateMatrixParameter(param,
-    this->StateMatrixMap->GetCGGLenum(state_matix_type),
-    this->StateMatrixMap->GetCGGLenum(transform_type));
+    this->Internals->StateMatrixMap.GetCGGLenum(state_matix_type),
+    this->Internals->StateMatrixMap.GetCGGLenum(transform_type));
 }
 
 //-----------------------------------------------------------------------------
 void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture)
 {
-  CGparameter param = this->GetUniformParameter(name);
+  CGparameter param = this->Internals->GetUniformParameter(name);
   if (!param)
     {
     return;
@@ -368,31 +404,6 @@ void vtkCgShader::SetSamplerParameter(const char* name, vtkTexture* texture)
     cgGLEnableTextureParameter(param);
     }
 }
-
-//-----------------------------------------------------------------------------
-CGparameter vtkCgShader::GetUniformParameter( const char* name )
-{
-  if(!name)
-    {
-    vtkErrorMacro( "NULL uniform shader parameter name.");
-    return NULL;
-    }
-
-  if( cgIsProgram(this->Program) != GL_TRUE )
-    {
-    vtkErrorMacro( "NULL shader program.");
-    return NULL;
-    }
-
-  CGparameter p = cgGetNamedParameter( this->Program, name );
-  if( (cgIsParameter(p)!=CG_TRUE) || (p==NULL) )
-    {
-    vtkErrorMacro( "No parameter named: " << name << endl );
-    return NULL;
-    }
-  return p;
-}
-
 
 //-----------------------------------------------------------------------------
 void vtkCgShader::PrintSelf(ostream& os, vtkIndent indent)

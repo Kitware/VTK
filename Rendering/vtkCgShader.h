@@ -77,18 +77,12 @@
 
 #include "vtkShader.h"
 
-#include <Cg/cg.h>
-#include <Cg/cgGL.h>
-
 class vtkActor;
-class vtkRenderer;
-//BTX
-class CgStateMatrixMap;
-//ETX
-
-class vtkProperty;
-class vtkLight;
 class vtkCamera;
+class vtkCgShaderInternals;
+class vtkLight;
+class vtkProperty;
+class vtkRenderer;
 
 // manages all shaders defined in the XML file
 // especially the part about sending things to the card
@@ -126,11 +120,6 @@ protected:
   vtkCgShader();
   ~vtkCgShader();
 
-  CGprofile Profile;
-  CGcontext Context;
-  CGprogram Program;
-  CGerror   LastError;
-  
   // Description:
   // Equivalent to cgGLSetParameter and glUniform.
   virtual void SetUniformParameter(const char* name, int numValues, const int* value) ;
@@ -151,14 +140,11 @@ protected:
   // Subclass may have to cast the texture to vtkOpenGLTexture to obtain
   // the GLunint for texture this texture.
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture);
+
 private:
   vtkCgShader(const vtkCgShader&); // Not Implemented
   void operator=(const vtkCgShader&); // Not Implemented
-
-  //BTX
-  // Initialize specific types of uniform variables
-  CgStateMatrixMap *StateMatrixMap;
-  CGparameter GetUniformParameter(const char* name);
-  //ETX
+  
+  vtkCgShaderInternals* Internals;
 };
 #endif //_vtkCgShader_h
