@@ -255,7 +255,6 @@ public:
   void SetTexture(vtkTexture* texture);
   vtkTexture* GetTexture() { return this->GetTexture(0); }
   
- 
   // Description:
   // Adds a texture to the collection of textures.
   // Multiple textures can be used when using shading.
@@ -265,6 +264,15 @@ public:
   // Replace a texture. The index must be less than the
   // number of textures.
   void ReplaceTexture(vtkIdType index, vtkTexture* texture);
+
+  // Description:
+  // Remove a texture from the collection. Note that the
+  // indices of all the subsquent textures, if any, will change.
+  void RemoveTexture(vtkIdType index);
+
+  // Description:
+  // Remove all the textures.
+  void RemoveAllTextures();
 
   // Description:
   // Get the texture at a given index.

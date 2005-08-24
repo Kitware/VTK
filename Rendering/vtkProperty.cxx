@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.3");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.4");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -127,6 +127,12 @@ void vtkProperty::DeepCopy(vtkProperty *p)
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetShading(p->GetShading());
     this->LoadMaterial(p->GetMaterial());
+    
+    this->TextureCollection->RemoveAllItems();
+    for (int i=0; i < p->GetNumberOfTextures(); i++)
+      {
+      this->AddTexture(p->GetTexture(i));
+      }
     }
 }
 
@@ -233,6 +239,22 @@ vtkTexture* vtkProperty::GetTexture(vtkIdType index)
 int vtkProperty::GetNumberOfTextures()
 {
   return this->TextureCollection->GetNumberOfItems();
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::RemoveTexture(vtkIdType index)
+{
+  if (index >= this->GetNumberOfTextures())
+    {
+    return;
+    }
+  this->TextureCollection->RemoveItem(index);
+}
+
+//----------------------------------------------------------------------------
+void vtkProperty::RemoveAllTextures()
+{
+  this->TextureCollection->RemoveAllItems();
 }
 
 //----------------------------------------------------------------------------
