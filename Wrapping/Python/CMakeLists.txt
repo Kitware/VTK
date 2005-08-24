@@ -287,6 +287,36 @@ IF(PYTHON_EXECUTABLE)
   ADD_DEPENDENCIES(vtkpython_pyc 
       vtkpython
       ${vtkpython_pyc_depends})
+
+  # Add a rule to use python distutils to install the python wrappers.
+  IF(NOT VTK_INSTALL_NO_PYTHON)
+    SET(DOLLAR "$")
+
+    # Create default python setup arguments if they are not set.
+    IF(DEFINED VTK_PYTHON_SETUP_ARGS)
+    ELSE(DEFINED VTK_PYTHON_SETUP_ARGS)
+      SET(VTK_PYTHON_SETUP_ARGS "--prefix=\"${DOLLAR}{CMAKE_INSTALL_PREFIX}\""
+        CACHE STRING "Arguments passed to \"python setup.py install ...\" during installation.")
+      MARK_AS_ADVANCED(VTK_PYTHON_SETUP_ARGS)
+    ENDIF(DEFINED VTK_PYTHON_SETUP_ARGS)
+
+    # If there are multiple configurations then add a BUILD_TYPE=...
+    # argument to the python setup.py call.  The build type to use is set
+    # in the CMake variable BUILD_TYPE while running the install script.
+    IF(CMAKE_CONFIGURATION_TYPES)
+      SET(VTK_PYTHON_SETUP_BUILD_TYPE "BUILD_TYPE=${DOLLAR}{BUILD_TYPE}")
+    ELSE(CMAKE_CONFIGURATION_TYPES)
+      SET(VTK_PYTHON_SETUP_BUILD_TYPE)
+    ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+    # Configure the post-install script to run python on setup.py.
+    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/PythonInstall.cmake.in
+                   ${VTK_BINARY_DIR}/Wrapping/Python/PythonInstall.cmake
+                   @ONLY IMMEDIATE)
+    SET_TARGET_PROPERTIES(vtkpython_pyc PROPERTIES POST_INSTALL_SCRIPT
+      ${VTK_BINARY_DIR}/Wrapping/Python/PythonInstall.cmake
+      )
+  ENDIF(NOT VTK_INSTALL_NO_PYTHON)
 ENDIF(PYTHON_EXECUTABLE)
 
 # Create the setup.py file.
