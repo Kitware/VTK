@@ -288,7 +288,6 @@ static void vtkPythonAppInitPrependPath(const char* self_dir)
       strcat(system_path, ";");
       strcat(system_path, oldpath);
       }
-    cout << system_path << endl;
     putenv(system_path);
 #endif
     }
