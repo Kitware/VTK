@@ -36,7 +36,7 @@
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.4");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.5");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -133,6 +133,8 @@ void vtkProperty::DeepCopy(vtkProperty *p)
       {
       this->AddTexture(p->GetTexture(i));
       }
+
+    // TODO: need to pass shader variables.
     }
 }
 
@@ -294,6 +296,7 @@ void vtkProperty::LoadMaterial(vtkXMLMaterial* material)
       shader->Delete();
       this->ShaderProgram->SetMaterial(this->Material);
       this->ShaderProgram->ReadMaterial();
+      this->ShaderProgram->PrintSelf(cout, vtkIndent());
       }
     else
       {

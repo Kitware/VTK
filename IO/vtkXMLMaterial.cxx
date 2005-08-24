@@ -38,7 +38,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.1");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.2");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -190,4 +190,10 @@ int vtkXMLMaterial::GetShaderLanguage()
 void vtkXMLMaterial::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Number of Properties: " << this->GetNumberOfProperties()
+    << endl;
+  os << indent << "Number of Vertex Shaders: " 
+    << this->GetNumberOfVertexShaders() << endl;
+  os << indent << "Number of Fragment Shaders: " 
+    << this->GetNumberOfFragmentShaders() << endl;
 }

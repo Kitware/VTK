@@ -43,7 +43,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.1.2.1");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.1.2.2");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 vtkCxxSetObjectMacro(vtkShaderProgram, VertexShader, vtkShader);
@@ -164,4 +164,36 @@ void vtkShaderProgram::PostRender(vtkActor*, vtkRenderer*)
 void vtkShaderProgram::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Material: ";
+  if (this->Material)
+    {
+    os << endl;
+    this->Material->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  
+  os << indent << "VertexShader: ";
+  if (this->VertexShader)
+    {
+    os << endl;
+    this->VertexShader->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
+  
+  os << indent << "FragmentShader: ";
+  if (this->FragmentShader)
+    {
+    os << endl;
+    this->FragmentShader->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }

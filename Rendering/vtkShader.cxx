@@ -162,6 +162,43 @@ public:
       }
     }
 
+  void PrintSelf(ostream& os, vtkIndent indent)
+    {
+    int i;
+    os << indent << "Name: " << ((this->Name)? this->Name : "(none)") << endl;
+    os << indent << "NumberOfValues: " << this->NumberOfValues;
+    switch (this->Type)
+      {
+    case VTK_INT:
+      os << indent << "Type: int" << endl;
+      os << indent << "Values: " ;
+      for (i=0; i < this->NumberOfValues; i++)
+        {
+        os << this->IntValues[i] << " ";
+        }
+      os << endl;
+      break;
+    case VTK_DOUBLE:
+      os << indent << "Type: double" << endl;
+      os << indent << "Values: " ;
+      for (i=0; i < this->NumberOfValues; i++)
+        {
+        os << this->DoubleValues[i] << " ";
+        }
+      os << endl;
+      break;
+    case VTK_FLOAT:
+      os << indent << "Type: float" << endl;
+      os << indent << "Values: " ;
+      for (i=0; i < this->NumberOfValues; i++)
+        {
+        os << this->FloatValues[i] << " ";
+        }
+      os << endl;
+      break;
+      }
+    }
+
 private:
   void Initialize()
     {
@@ -201,7 +238,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.1.2.2")
+vtkCxxRevisionMacro(vtkShader, "1.1.2.3")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -948,6 +985,17 @@ void vtkShader::SetSamplerParameter(vtkActor* act, vtkRenderer*,
 void vtkShader::PrintSelf(ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "Number of Shader Variables: " 
+    << this->Internals->UniformVariables.size() << endl;
+  
+  vtkstd::map<vtkstd::string, vtkShaderUniformVariable>::iterator iter;
+  for (iter = this->Internals->UniformVariables.begin();
+    iter != this->Internals->UniformVariables.end(); ++iter)
+    {
+    os << indent << "ShaderVariable: " << endl;
+    iter->second.PrintSelf(os, indent.GetNextIndent());
+    }
+
   os << indent << "XMLShader: ";
   if (this->XMLShader)
     {

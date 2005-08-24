@@ -104,8 +104,6 @@ protected:
   // Reads the file and fills it in this->Code.
   void ReadCodeFromFile(const char* fullpath);
   
-  
-//  virtual void FindShaderCodeFile(const char* filename);
   char* Code; // cache for the code.
   vtkSetStringMacro(Code);
   
