@@ -24,7 +24,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.106");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.107");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -237,7 +237,7 @@ void vtkRenderWindowInteractor::FlyTo(vtkRenderer *ren, double x, double y, doub
     ren->GetActiveCamera()->Dolly(this->Dolly/this->NumberOfFlyFrames + 1.0);
     ren->GetActiveCamera()->OrthogonalizeViewUp();
     ren->ResetCameraClippingRange();
-    this->RenderWindow->Render();
+    this->Render();
     }
 }
 
@@ -269,7 +269,7 @@ void vtkRenderWindowInteractor::FlyToImage(vtkRenderer *ren, double x, double y)
     ren->GetActiveCamera()->SetPosition(position);
     ren->GetActiveCamera()->Dolly(this->Dolly/this->NumberOfFlyFrames + 1.0);
     ren->ResetCameraClippingRange();
-    this->RenderWindow->Render();
+    this->Render();
     }
 }
 
@@ -373,7 +373,7 @@ void vtkRenderWindowInteractor::Initialize()
 {
   this->Initialized=1; 
   this->Enable();
-  this->RenderWindow->Render();
+  this->Render();
 }
 
 void vtkRenderWindowInteractor::HideCursor() 
