@@ -90,6 +90,7 @@ extern "C" {
 }
 
 static void vtkPythonAppInitEnableMSVCDebugHook();
+static void vtkPythonAppInitPrependPath(const char* self_dir);
 
 /* The maximum length of a file name.  */
 #if defined(PATH_MAX)
@@ -143,7 +144,7 @@ int main(int argc, char **argv)
   // Set the program name, so that we can ask python to provide us
   // full path.  We need to collapse the path name to aid relative
   // path computation for the VTK python module installation.
-  char argv0[VTK_PYTHON_MAXPATH];
+  static char argv0[VTK_PYTHON_MAXPATH];
   vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
   strcpy(argv0, av0.c_str());
   Py_SetProgramName(argv0);
@@ -151,8 +152,73 @@ int main(int argc, char **argv)
   // Initialize interpreter.
   Py_Initialize();
 
+  // Compute the directory containing this executable.  The python
+  // sys.executable variable contains the full path to the interpreter
+  // executable.
+  char tmpExe[] = "executable";
+  PyObject* executable = PySys_GetObject(tmpExe);
+  if(const char* exe_str = PyString_AsString(executable))
+    {
+    // Use the executable location to try to set sys.path to include
+    // the VTK python modules.
+    vtkstd::string self_dir = vtksys::SystemTools::GetFilenamePath(exe_str);
+    vtkPythonAppInitPrependPath(self_dir.c_str());
+    }
+
+  // Ok, all done, now enter python main.
+  return Py_Main(argc, argv);
+}
+
+// For a DEBUG build on MSVC, add a hook to prevent error dialogs when
+// being run from DART.
+#if defined(_MSC_VER) && defined(_DEBUG)
+# include <crtdbg.h>
+static int vtkPythonAppInitDebugReport(int, char* message, int*)
+{
+  fprintf(stderr, message);
+  exit(1);
+}
+void vtkPythonAppInitEnableMSVCDebugHook()
+{
+  if(getenv("DART_TEST_FROM_DART"))
+    {
+    _CrtSetReportHook(vtkPythonAppInitDebugReport);
+    }
+}
+#else
+void vtkPythonAppInitEnableMSVCDebugHook()
+{
+}
+#endif
+
+//----------------------------------------------------------------------------
+static void vtkPythonAppInitPrependPythonPath(const char* dir)
+{
+  // Convert slashes for this platform.
+  vtkstd::string out_dir = dir;
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  for(vtkstd::string::size_type i = 0; i < out_dir.length(); ++i)
+    {
+    if(out_dir[i] == '/')
+      {
+      out_dir[i] = '\\';
+      }
+    }
+#endif
+
+  // Append the path to the python sys.path object.
+  char tmpPath[] = "path";
+  PyObject* path = PySys_GetObject(tmpPath);
+  PyObject* newpath;
+  newpath = PyString_FromString(out_dir.c_str());
+  PyList_Insert(path, 0, newpath);
+  Py_DECREF(newpath);
+}
+
+//----------------------------------------------------------------------------
+static void vtkPythonAppInitPrependPath(const char* self_dir)
+{
   // Try to put the VTK python module location in sys.path.
-  vtkstd::string self_dir = vtksys::SystemTools::GetFilenamePath(av0);
   vtkstd::string package_dir = self_dir;
 #if defined(CMAKE_INTDIR)
   package_dir += "/..";
@@ -163,15 +229,8 @@ int main(int argc, char **argv)
     {
     // This executable is running from the build tree.  Prepend the
     // library directory and package directory to the search path.
-    char tmpPath[] = "path";
-    PyObject* path = PySys_GetObject(tmpPath);
-    PyObject* newpath;
-    newpath = PyString_FromString(VTK_PYTHON_LIBRARY_DIR);
-    PyList_Insert(path, 0, newpath);
-    Py_DECREF(newpath);
-    newpath = PyString_FromString(package_dir.c_str());
-    PyList_Insert(path, 0, newpath);
-    Py_DECREF(newpath);
+    vtkPythonAppInitPrependPythonPath(package_dir.c_str());
+    vtkPythonAppInitPrependPythonPath(VTK_PYTHON_LIBRARY_DIR);
     }
   else
     {
@@ -201,38 +260,36 @@ int main(int argc, char **argv)
         // without the "/vtk" suffix.
         vtkstd::string path_dir =
           vtksys::SystemTools::GetFilenamePath(package_dir);
-        char tmpPath[] = "path";
-        PyObject* path = PySys_GetObject(tmpPath);
-        PyObject* newpath = PyString_FromString(path_dir.c_str());
-        PyList_Insert(path, 0, newpath);
-        Py_DECREF(newpath);
+        vtkPythonAppInitPrependPythonPath(path_dir.c_str());
         break;
         }
       }
-    }
 
-  // Ok, all done, now enter python main.
-  return Py_Main(argc, argv);
-}
-
-// For a DEBUG build on MSVC, add a hook to prevent error dialogs when
-// being run from DART.
-#if defined(_MSC_VER) && defined(_DEBUG)
-# include <crtdbg.h>
-static int vtkPythonAppInitDebugReport(int, char* message, int*)
-{
-  fprintf(stderr, message);
-  exit(1);
-}
-void vtkPythonAppInitEnableMSVCDebugHook()
-{
-  if(getenv("DART_TEST_FROM_DART"))
-    {
-    _CrtSetReportHook(vtkPythonAppInitDebugReport);
-    }
-}
-#else
-void vtkPythonAppInitEnableMSVCDebugHook()
-{
-}
+    // This executable does not actually link to the python wrapper
+    // libraries, though it probably should now that the stub-modules
+    // are separated from them.  Since it does not we have to make
+    // sure the wrapper libraries can be found by the dynamic loader
+    // when the stub-modules are loaded.  On UNIX this executable must
+    // be running in an environment where the main VTK libraries (to
+    // which this executable does link) have been found, so the
+    // wrapper libraries will also be found.  On Windows this
+    // executable may have simply found its .dll files next to itself
+    // so the wrapper libraries may not be found when the wrapper
+    // modules are loaded.  Solve this problem by adding this
+    // executable's location to the system PATH variable.  Note that
+    // this need only be done for an installed VTK because in the
+    // build tree the wrapper modules are in the same directory as the
+    // wrapper libraries.
+#if defined(_WIN32)
+    static char system_path[(VTK_PYTHON_MAXPATH+1)*10] = "PATH=";
+    strcat(system_path, self_dir);
+    if(char* oldpath = getenv("PATH"))
+      {
+      strcat(system_path, ";");
+      strcat(system_path, oldpath);
+      }
+    cout << system_path << endl;
+    putenv(system_path);
 #endif
+    }
+}
