@@ -104,6 +104,7 @@ public:
     DeleteEvent,
     StartEvent,
     EndEvent,
+    RenderEvent,
     ProgressEvent,
     PickEvent,
     StartPickEvent,

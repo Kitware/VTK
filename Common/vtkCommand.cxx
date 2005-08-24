@@ -24,6 +24,7 @@ static const char *vtkCommandEventStrings[] = {
   "DeleteEvent",
   "StartEvent",
   "EndEvent",
+  "RenderEvent",
   "ProgressEvent",
   "PickEvent",
   "StartPickEvent",
