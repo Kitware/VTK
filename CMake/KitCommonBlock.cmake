@@ -69,9 +69,9 @@ IF (VTK_WRAP_PYTHON)
   # the shared library containing the wrappers for this kit.
   ADD_LIBRARY(vtk${KIT}Python MODULE vtk${KIT}PythonInit.cxx)
   TARGET_LINK_LIBRARIES(vtk${KIT}Python vtk${KIT}PythonD)
-  IF(NOT VTK_INSTALL_NO_LIBRARIES)
+  IF(NOT VTK_INSTALL_NO_RUNTIME)
     INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtk${KIT}Python)
-  ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
+  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 ENDIF (VTK_WRAP_PYTHON)
 
 # if we are wrapping into Java then add the library and extra
