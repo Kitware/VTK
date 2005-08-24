@@ -25,6 +25,7 @@
 #include "vtkLightCollection.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkTimeStamp.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLShader.h"
 
@@ -238,7 +239,7 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkShader, "1.1.2.3")
+vtkCxxRevisionMacro(vtkShader, "1.1.2.4")
 vtkCxxSetObjectMacro(vtkShader, XMLShader, vtkXMLShader);
 //-----------------------------------------------------------------------------
 vtkShader::vtkShader()
@@ -259,6 +260,7 @@ void vtkShader::PassShaderVariables(vtkActor* actor, vtkRenderer* renderer)
 {
   this->SetShaderParameters(actor, renderer, 
     this->XMLShader->GetRootElement());
+  this->PassShaderVariablesTime.Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -292,6 +294,7 @@ void vtkShader::AddShaderVariable(const char* name, int num_of_elements,
     }
   this->Internals->UniformVariables[name] = vtkShaderUniformVariable(
     name, num_of_elements, values);
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -310,6 +313,7 @@ void vtkShader::AddShaderVariable(const char* name, int num_of_elements,
     }
   this->Internals->UniformVariables[name] = vtkShaderUniformVariable(
     name, num_of_elements, values);
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
@@ -328,6 +332,7 @@ void vtkShader::AddShaderVariable(const char* name, int num_of_elements,
     }
   this->Internals->UniformVariables[name] = vtkShaderUniformVariable(
     name, num_of_elements, values);
+  this->Modified();
 }
 
 
@@ -447,6 +452,10 @@ void vtkShader::SetShaderParameters(vtkActor* actor, vtkRenderer* renderer,
 void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* , 
   vtkXMLDataElement* elem)
 {
+  if (this->GetMTime() < this->PassShaderVariablesTime)
+    {
+    return; // no need to update.
+    }
   const char* name = elem->GetAttribute("name");
   const char* ctype = elem->GetAttribute("type");
   const char* cvalue = elem->GetAttribute("value");
@@ -550,10 +559,16 @@ void vtkShader::SetUniformParameter(vtkActor* , vtkRenderer* ,
 void vtkShader::SetCameraParameter(vtkActor* , vtkRenderer* ren, 
   vtkXMLDataElement* elem)
 {
+  vtkCamera* camera = ren->GetActiveCamera();
+
+  if (camera->GetMTime() < this->PassShaderVariablesTime)
+    {
+    // no need to update.
+    return;
+    }
+
   const char* name = elem->GetAttribute("name");
   const char* value = elem->GetAttribute("value");
-  
-  vtkCamera* camera = ren->GetActiveCamera();
   
   if (!value)
     {
@@ -654,6 +669,11 @@ void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
   vtkXMLDataElement* elem)
 {
   vtkProperty* property = actor->GetProperty();
+  if (property->GetMTime() < this->PassShaderVariablesTime)
+    {
+    // no need to update.
+    return;
+    }
   const char* name = elem->GetAttribute("name");
   const char* value = elem->GetAttribute("value");
   if (!value)
@@ -754,7 +774,6 @@ void vtkShader::SetPropertyParameter(vtkActor* actor, vtkRenderer* ,
     }
   else if( strcmp(value,"MTime")==0 )
     {
-    property->Modified();
     double mtime = static_cast<double>(property->GetMTime());
     this->SetUniformParameter(name, 1, &mtime);
     }
@@ -799,6 +818,13 @@ void vtkShader::SetLightParameter(vtkActor* , vtkRenderer* renderer,
   if (!light)
     {
     vtkErrorMacro("Failed to locate light with id " << lightid);
+    return;
+    }
+
+  if (lights->GetMTime() < this->PassShaderVariablesTime &&
+    light->GetMTime() < this->PassShaderVariablesTime)
+    {
+    // no need to update.
     return;
     }
   

@@ -187,7 +187,8 @@ protected:
   // the GLunint for texture this texture.
   // Subclasses must override these and perform GLSL or Cg calls.
   virtual void SetSamplerParameter(const char* name, vtkTexture* texture)=0;
-  
+ 
+  vtkTimeStamp PassShaderVariablesTime;
 private:
   vtkShader(const vtkShader&); // Not Implemented
   void operator=(const vtkShader&); // Not Implemented
