@@ -290,6 +290,11 @@ IF(PYTHON_EXECUTABLE)
       vtkpython
       ${vtkpython_pyc_depends})
 
+  # If no runtime is to be installed then do not install python modules.
+  IF(VTK_INSTALL_NO_RUNTIME)
+    SET(VTK_INSTALL_NO_PYTHON 1)
+  ENDIF(VTK_INSTALL_NO_RUNTIME)
+
   # Add a rule to use python distutils to install the python wrappers.
   IF(NOT VTK_INSTALL_NO_PYTHON)
     SET(DOLLAR "$")
