@@ -66,7 +66,7 @@ int printOglError(char *file, int line)
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.1");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.2");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -204,7 +204,8 @@ void vtkGLSLShaderProgram::GetInfoLog()
   int infologLength = 0;
   int charsWritten  = 0;
   vtkgl::GLchar *infoLog = NULL;
-  vtkgl::GetProgramiv(this->Program, vtkgl::INFO_LOG_LENGTH, &infologLength);
+  vtkgl::GetProgramiv(this->Program, vtkgl::INFO_LOG_LENGTH, 
+    reinterpret_cast<GLint*>(&infologLength));
   if(infologLength > 0)
     {
     infoLog = new vtkgl::GLchar[infologLength];
@@ -213,7 +214,8 @@ void vtkGLSLShaderProgram::GetInfoLog()
       printf("ERROR: Could not allocate InfoLog buffer\n");
       return;
       }
-    vtkgl::GetProgramInfoLog(this->Program, infologLength, &charsWritten, infoLog);
+    vtkgl::GetProgramInfoLog(this->Program, infologLength, 
+      reinterpret_cast<GLsizei*>(&charsWritten), infoLog);
     }
   if( !infoLog )
     {

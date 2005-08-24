@@ -174,7 +174,7 @@ void printAttributeInfo( GLuint program, const char* filename )
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.2");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.3");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -314,16 +314,16 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
   switch(numValues)
     {
   case 1:
-    vtkgl::Uniform1iv(loc, 1, values);
+    vtkgl::Uniform1iv(loc, 1, reinterpret_cast<const GLint*>(values));
     break;
   case 2:
-    vtkgl::Uniform2iv(loc, 1, values);
+    vtkgl::Uniform2iv(loc, 1, reinterpret_cast<const GLint*>(values));
     break;
   case 3:
-    vtkgl::Uniform3iv(loc, 1, values);
+    vtkgl::Uniform3iv(loc, 1, reinterpret_cast<const GLint*>(values));
     break;
   case 4:
-    vtkgl::Uniform4iv(loc, 1, values);
+    vtkgl::Uniform4iv(loc, 1, reinterpret_cast<const GLint*>(values));
     break;
   default:
     vtkErrorMacro("Number of values not supported: " << numValues);
