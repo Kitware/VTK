@@ -42,14 +42,6 @@
 
 #include "vtkShaderProgram.h"
 
-#if 0
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
-#else
-#include <vtkgl.h>
-#endif
-
 class vtkGLSLShader;
 class vtkXMLDataElement;
 class vtkRenderWindow;
@@ -69,11 +61,7 @@ public:
   virtual void Render(vtkActor *actor, vtkRenderer *renderer);
   
   virtual vtkGLSLShader* GetGLSLVertex();
-  virtual vtkGLSLShader* GetGLSLFragment();
-
-  bool IsProgram();
-  bool IsLinked();
-  bool IsAttached(GLuint handle);
+  virtual vtkGLSLShader* GetGLSLFragment(); 
 
   void GetProgramInfo();
   void GetInfoLog();
@@ -82,11 +70,10 @@ protected:
   vtkGLSLShaderProgram();
   virtual ~vtkGLSLShaderProgram();
 
-  //BTX
-  GLuint Program;
-  GLint Linked;
-  //ETX
-
+  unsigned int Program;
+  int IsProgram();
+  int IsLinked();
+  int IsAttached(unsigned int handle);
   virtual void Link();
 
   vtkSetStringMacro( Info );

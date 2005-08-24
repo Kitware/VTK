@@ -52,8 +52,7 @@
 
 #if 1
 #define GLSLprintOpenGLError() GLSLprintOglError(__FILE__, __LINE__)
-int GLSLprintOglError(char *file, int line);
-int GLSLprintOglError(char *file, int line)
+static int GLSLprintOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 {
   //Returns 1 if an OpenGL error occurred, 0 otherwise.
   GLenum glErr;
@@ -71,10 +70,7 @@ int GLSLprintOglError(char *file, int line)
 }
 #endif
 
-
-
-void printLogInfo( GLuint shader, const char* filename );
-void printLogInfo( GLuint shader, const char* filename )
+static void printLogInfo( GLuint shader, const char* filename)
 {
 #if 1
   GLint type = 0;
@@ -124,9 +120,8 @@ void printLogInfo( GLuint shader, const char* filename )
 }
 
 
-
-void printAttributeInfo( GLuint program, const char* filename );
-void printAttributeInfo( GLuint program, const char* filename )
+#if 0
+static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 {
   // print all uniform attributes
   GLint numAttrs;
@@ -170,22 +165,21 @@ void printAttributeInfo( GLuint program, const char* filename )
     }
   cout << endl;
 }
-
+#endif
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.3");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.4");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
 {
-
+  this->Shader = 0;
 }
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::~vtkGLSLShader()
 {
-  this->Shader = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -194,7 +188,7 @@ int vtkGLSLShader::IsCompiled()
   GLint value = 0;
   if( this->IsShader() )
     {
-    vtkgl::GetShaderiv( this->Shader,
+    vtkgl::GetShaderiv( static_cast<GLuint>(this->Shader),
                    vtkgl::COMPILE_STATUS,
                    &value );
     }
@@ -210,18 +204,12 @@ int vtkGLSLShader::IsShader()
 {
   if( this->Shader )
     {
-    if( vtkgl::IsShader( this->Shader ) == GL_TRUE )
+    if( vtkgl::IsShader( static_cast<GLuint>(this->Shader) ) == GL_TRUE )
       {
       return 1;
       }
     }
   return 0;
-}
-
-//-----------------------------------------------------------------------------
-GLuint vtkGLSLShader::GetHandle()
-{
-  return this->Shader;
 }
 
 //-----------------------------------------------------------------------------
@@ -272,7 +260,7 @@ int vtkGLSLShader::Compile()
     vtkErrorMacro( "Shader not loaded!!!" << endl );
     if( this->Shader && this->XMLShader->GetName() )
       {
-      printLogInfo(this->Shader, this->XMLShader->GetName());
+      printLogInfo(static_cast<GLuint>(this->Shader), this->XMLShader->GetName());
       }
     return 0;
     }
@@ -284,18 +272,18 @@ int vtkGLSLShader::Compile()
   
   // Since the entire shader is sent to GL as a single string, the number of
   // lines (second argument) is '1'.
-  vtkgl::ShaderSource( this->Shader, 1, &source, NULL );
+  vtkgl::ShaderSource( static_cast<GLuint>(this->Shader), 1, &source, NULL );
 
   // make sure the source has been loaded
   // print an error log if the shader is not compiled
-  vtkgl::CompileShader(this->Shader);
+  vtkgl::CompileShader(static_cast<GLuint>(this->Shader));
 
   if( !this->IsCompiled() )
     {
     vtkErrorMacro( "Shader not compiled!!!" << endl );
     if( this->Shader && this->XMLShader->GetName() )
       {
-      printLogInfo( this->Shader, this->XMLShader->GetName() );
+      printLogInfo( static_cast<GLuint>(this->Shader), this->XMLShader->GetName() );
       }
     return 0;
     }
@@ -306,7 +294,7 @@ int vtkGLSLShader::Compile()
 void vtkGLSLShader::SetUniformParameter(const char* name, int numValues, 
   const int* values)
 {
-  GLint loc = this->GetUniformLocation(name);
+  GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
     return;
@@ -334,7 +322,7 @@ void vtkGLSLShader::SetUniformParameter(const char* name, int numValues,
 void vtkGLSLShader::SetUniformParameter(const char* name, int numValues, 
   const float* values)
 {
-  GLint loc = this->GetUniformLocation(name);
+  GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
     return;
@@ -378,7 +366,7 @@ void vtkGLSLShader:: SetMatrixParameter(const char* name, int numValues,
 {
   int transpose = (order == vtkShader::RowMajor)? 1: 0;
 
-  GLint loc = this->GetUniformLocation(name);
+  GLint loc = static_cast<GLint>(this->GetUniformLocation(name));
   if (loc == -1)
     {
     return;
@@ -431,7 +419,7 @@ void vtkGLSLShader::SetSamplerParameter(const char* name, vtkTexture* texture)
 }
 
 //-----------------------------------------------------------------------------
-GLint vtkGLSLShader::GetUniformLocation( const char* name )
+int vtkGLSLShader::GetUniformLocation( const char* name )
 {
   if( !name )
     {
@@ -445,7 +433,7 @@ GLint vtkGLSLShader::GetUniformLocation( const char* name )
     return -1;
     }
 
-  GLint location = location = vtkgl::GetUniformLocation( this->GetProgram(), name );
+  int location = vtkgl::GetUniformLocation( this->GetProgram(), name );
   if( location == -1 )
     {
     vtkErrorMacro( "No such shader parameter. " << name );

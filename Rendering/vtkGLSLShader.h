@@ -72,7 +72,6 @@
 #define __vtkGLSLShader_h
 
 #include "vtkShader.h"
-#include <vtkgl.h>
 
 class vtkActor;
 class vtkRenderer;
@@ -98,30 +97,28 @@ public:
   // already compiled.
   virtual int Compile();
 
-  //BTX
-  virtual GLuint GetHandle();
-  //ETX
+  // Description:
+  // The vtkGLSLShaderProgram needs the shader handle
+  // for attaching.
+  unsigned int GetHandle() { return this->Shader; }
 
-  vtkSetMacro( Program, GLuint );
-  vtkGetMacro( Program, GLuint );
-
-  vtkGetMacro( Shader, GLuint );
-
-  int IsShader();
-  int IsCompiled();
+  // Description:
+  // The Shader needs the id of the ShaderProgram
+  // to obtain uniform variable locations. This is set
+  // by vtkGLSLShaderProgram.
+  vtkSetMacro( Program, unsigned int );
+  vtkGetMacro( Program, unsigned int );
 
 protected:
   vtkGLSLShader();
   virtual ~vtkGLSLShader();
 
-  // Desctiption:
-  // This not sympatico with VTK's style since it's a GL type. One option might be
-  // to store these as ints and cast the to GLint when interfacing with OpenGL. Otherwise
-  // the parsing guards should suffice.
-  //BTX
-  GLuint Program;
-  GLuint Shader;
-  //ETX
+  // These are GLuints.
+  unsigned int Program;
+  unsigned int Shader;
+
+  int IsShader();
+  int IsCompiled();
 
   // Description:
   // Create an empty Shader context.
@@ -151,8 +148,6 @@ private:
   vtkGLSLShader(const vtkGLSLShader&); // Not Implemented
   void operator=(const vtkGLSLShader&); // Not Implemented
 
-  //BTX
-  GLint GetUniformLocation( const char* name );
-  //ETX
+  int GetUniformLocation( const char* name );
 };
 #endif //__vtkGLSLShader_h
