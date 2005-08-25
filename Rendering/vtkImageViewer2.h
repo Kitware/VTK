@@ -26,9 +26,10 @@
 // to draw an image on a plane.  This allows for rapid rendering,
 // zooming, and panning. The image is placed in the 3D scene at a
 // depth based on the z-coordinate of the particular image slice. Each
-// call to SetZSlice() changes the image data (slice) displayed AND
+// call to SetSlice() changes the image data (slice) displayed AND
 // changes the depth of the displayed slice in the 3D scene. This can
-// be controlled by the AutoResetCameraClippingRange ivar.
+// be controlled by the AutoAdjustCameraClippingRange ivar of the
+// InteractorStyle member.
 //
 // It is possible to mix images and geometry, using the methods:
 //
@@ -44,7 +45,9 @@
 // direction) for achieving this effect is provided by the
 // vtkImagePlaneWidget .
 //
-
+// Note that pressing 'r' will reset the window/level and pressing
+// shift+'r' or control+'r' will reset the camera.
+//
 // .SECTION See Also
 // vtkRenderWindow vtkRenderer vtkImageActor vtkImageMapToWindowLevelColors
 
@@ -53,24 +56,25 @@
 
 #include "vtkObject.h"
 
-#include "vtkRenderWindow.h" // For inline methods
-#include "vtkImageActor.h" // For inline methods
-#include "vtkImageMapToWindowLevelColors.h" // For inline methods
-#include "vtkImageData.h" // makes things a bit easier
-
+class vtkAlgorithmOutput;
+class vtkImageActor;
+class vtkImageData;
+class vtkImageMapToWindowLevelColors;
 class vtkInteractorStyleImage;
+class vtkRenderWindow;
+class vtkRenderer;
+class vtkRenderWindowInteractor;
 
 class VTK_RENDERING_EXPORT vtkImageViewer2 : public vtkObject 
 {
 public:
   static vtkImageViewer2 *New();
-  
   vtkTypeRevisionMacro(vtkImageViewer2,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Get the name of rendering window.
-  char *GetWindowName() {return this->RenderWindow->GetWindowName();}
+  virtual char *GetWindowName();
 
   // Description:
   // Render the resulting image.
@@ -78,51 +82,69 @@ public:
   
   // Description:
   // Set/Get the input image to the viewer.
-  virtual void SetInput(vtkImageData *in) {this->WindowLevel->SetInput(in);}
-  virtual vtkImageData *GetInput()
-    { return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());}
-  virtual void SetInputConnection(vtkAlgorithmOutput* input) {
-    this->WindowLevel->SetInputConnection(input);};
+  virtual void SetInput(vtkImageData *in);
+  virtual vtkImageData *GetInput();
+  virtual void SetInputConnection(vtkAlgorithmOutput* input);
   
   // Description:
-  // Return the minimum and maximum z-slice values.
-  int GetWholeZMin() {return this->ImageActor->GetWholeZMin();}
-  int GetWholeZMax() {return this->ImageActor->GetWholeZMax();}
+  // Set/get the slice orientation
+  //BTX
+  enum
+  {
+    SLICE_ORIENTATION_YZ = 0,
+    SLICE_ORIENTATION_XZ = 1,
+    SLICE_ORIENTATION_XY = 2
+  };
+  //ETX
+  vtkGetMacro(SliceOrientation, int);
+  virtual void SetSliceOrientation(int orientation);
+  virtual void SetSliceOrientationToXY()
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XY); };
+  virtual void SetSliceOrientationToYZ()
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_YZ); };
+  virtual void SetSliceOrientationToXZ()
+    { this->SetSliceOrientation(vtkImageViewer2::SLICE_ORIENTATION_XZ); };
+
+  // Description:
+  // Set/Get the current slice to display (depending on the orientation
+  // this can be in X, Y or Z).
+  vtkGetMacro(Slice, int);
+  virtual void SetSlice(int s);
   
   // Description:
-  vtkGetMacro(AutoResetCameraClippingRange,int);
-  vtkSetMacro(AutoResetCameraClippingRange,int);
-  vtkBooleanMacro(AutoResetCameraClippingRange,int);
-  
-  // Description:
-  // Set/Get the current z-slice to display.
-  int GetZSlice() {return this->ImageActor->GetZSlice();}
-  void SetZSlice(int s);
+  // Return the minimum and maximum slice values (depending on the orientation
+  // this can be in X, Y or Z).
+  virtual int GetSliceMin();
+  virtual int GetSliceMax();
+  virtual void GetSliceRange(int range[2])
+    { this->GetSliceRange(range[0], range[1]); }
+  virtual void GetSliceRange(int &min, int &max);
+  virtual int* GetSliceRange();
   
   // Description:
   // Set window and level for mapping pixels to colors.
-  double GetColorWindow() {return this->WindowLevel->GetWindow();}
-  double GetColorLevel() {return this->WindowLevel->GetLevel();}
-  void SetColorWindow(double s) {this->WindowLevel->SetWindow(s);}
-  void SetColorLevel(double s) {this->WindowLevel->SetLevel(s);}
+  virtual double GetColorWindow();
+  virtual double GetColorLevel();
+  virtual void SetColorWindow(double s);
+  virtual void SetColorLevel(double s);
 
   // Description:
   // These are here when using a Tk window.
-  void SetDisplayId(void *a) {this->RenderWindow->SetDisplayId(a);}
-  void SetWindowId(void *a) {this->RenderWindow->SetWindowId(a);}
-  void SetParentId(void *a) {this->RenderWindow->SetParentId(a);}
+  virtual void SetDisplayId(void *a);
+  virtual void SetWindowId(void *a);
+  virtual void SetParentId(void *a);
   
   // Description:
   // Set/Get the position in screen coordinates of the rendering window.
-  int *GetPosition() {return this->RenderWindow->GetPosition();}
-  void SetPosition(int a,int b) {this->RenderWindow->SetPosition(a,b);}
-  virtual void SetPosition(int a[2]);
-
+  virtual int* GetPosition();
+  virtual void SetPosition(int a,int b);
+  virtual void SetPosition(int a[2]) { this->SetPosition(a[0],a[1]); }
+  
   // Description:
   // Set/Get the size of the window in screen coordinates.
-  int *GetSize() {return this->RenderWindow->GetSize();}
-  void SetSize(int a,int b) {this->RenderWindow->SetSize(a,b);}
-  virtual void SetSize(int a[2]);
+  virtual int* GetSize();
+  virtual void SetSize(int a, int b);
+  virtual void SetSize(int a[2]) { this->SetSize(a[0],a[1]); }
   
   // Description:
   // Get the internal render window, renderer, image actor, and
@@ -131,24 +153,40 @@ public:
   vtkGetObjectMacro(Renderer, vtkRenderer);
   vtkGetObjectMacro(ImageActor,vtkImageActor);
   vtkGetObjectMacro(WindowLevel,vtkImageMapToWindowLevelColors);
+  vtkGetObjectMacro(InteractorStyle,vtkInteractorStyleImage);
   
   // Description:
-  // Set your own renderwindow
+  // Set your own renderwindow and renderer
   virtual void SetRenderWindow(vtkRenderWindow *arg);
   virtual void SetRenderer(vtkRenderer *arg);
 
   // Description:
-  // Create and attach an interactor for the internal render window.
-  void SetupInteractor(vtkRenderWindowInteractor *);
+  // Attach an interactor for the internal render window.
+  virtual void SetupInteractor(vtkRenderWindowInteractor*);
   
   // Description:  
   // Create a window in memory instead of on the screen. This may not
   // be supported for every type of window and on some windows you may
   // need to invoke this prior to the first render.
-  void SetOffScreenRendering(int);
-  int GetOffScreenRendering();
-  void OffScreenRenderingOn();
-  void OffScreenRenderingOff();
+  virtual void SetOffScreenRendering(int);
+  virtual int GetOffScreenRendering();
+  vtkBooleanMacro(OffScreenRendering,int);
+
+  // Description:
+  // @deprecated Replaced by vtkImageViewer2::GetSliceMin() as of VTK 5.0.
+  VTK_LEGACY(int GetWholeZMin());
+
+  // Description:
+  // @deprecated Replaced by vtkImageViewer2::GetSliceMax() as of VTK 5.0.
+  VTK_LEGACY(int GetWholeZMax());
+
+  // Description:
+  // @deprecated Replaced by vtkImageViewer2::GetSlice() as of VTK 5.0.
+  VTK_LEGACY(int GetZSlice());
+
+  // Description:
+  // @deprecated Replaced by vtkImageViewer2::SetSlice() as of VTK 5.0.
+  VTK_LEGACY(void SetZSlice(int));
 
 protected:
   vtkImageViewer2();
@@ -158,13 +196,18 @@ protected:
   virtual void UnInstallPipeline();
 
   vtkImageMapToWindowLevelColors  *WindowLevel;
-  vtkRenderWindow *RenderWindow;
-  vtkRenderer     *Renderer;
-  vtkImageActor   *ImageActor;
+  vtkRenderWindow                 *RenderWindow;
+  vtkRenderer                     *Renderer;
+  vtkImageActor                   *ImageActor;
+  vtkRenderWindowInteractor       *Interactor;
+  vtkInteractorStyleImage         *InteractorStyle;
+
+  int SliceOrientation;
   int FirstRender;
-  int AutoResetCameraClippingRange;
-  vtkRenderWindowInteractor *Interactor;
-  vtkInteractorStyleImage *InteractorStyle;
+  int Slice;
+
+  virtual void UpdateOrientation();
+  virtual void UpdateDisplayExtent();
 
 private:
   vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.

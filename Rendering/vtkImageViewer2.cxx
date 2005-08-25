@@ -16,31 +16,32 @@
 
 #include "vtkCamera.h"
 #include "vtkCommand.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkInteractorStyleImage.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.29");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.30");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
-// Construct the vtkImageViewer2 with AutoResetCameraClippingRange On by default
 vtkImageViewer2::vtkImageViewer2()
 {
-  this->RenderWindow = NULL;
-  this->Renderer     = NULL;
-  this->ImageActor   = vtkImageActor::New();
-  this->WindowLevel  = vtkImageMapToWindowLevelColors::New();
-  
-  this->FirstRender = 1;
- 
-  this->Interactor = NULL;
+  this->RenderWindow    = NULL;
+  this->Renderer        = NULL;
+  this->ImageActor      = vtkImageActor::New();
+  this->WindowLevel     = vtkImageMapToWindowLevelColors::New();
+  this->Interactor      = NULL;
   this->InteractorStyle = NULL;
 
-  this->AutoResetCameraClippingRange = 1;
+  this->Slice = 0;
+  this->FirstRender = 1;
+  this->SliceOrientation = vtkImageViewer2::SLICE_ORIENTATION_XY;
 
   // Setup the pipeline
 
@@ -173,17 +174,287 @@ void vtkImageViewer2::SetRenderer(vtkRenderer *arg)
     }
 
   this->InstallPipeline();
+  this->UpdateOrientation();
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetSize(int a[2])
+void vtkImageViewer2::SetSize(int a,int b) 
 {
-  this->SetSize(a[0],a[1]);
+  this->RenderWindow->SetSize(a, b);
 }
+
 //----------------------------------------------------------------------------
-void vtkImageViewer2::SetPosition(int a[2])
+int* vtkImageViewer2::GetSize() 
 {
-  this->SetPosition(a[0],a[1]);
+  return this->RenderWindow->GetSize();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::GetSliceRange(int &min, int &max)
+{
+  vtkImageData *input = this->GetInput();
+  if (input)
+    {
+    input->UpdateInformation();
+    int *w_ext = input->GetWholeExtent();
+    min = w_ext[this->SliceOrientation * 2];
+    max = w_ext[this->SliceOrientation * 2 + 1];
+    }
+}
+
+//----------------------------------------------------------------------------
+int* vtkImageViewer2::GetSliceRange()
+{
+  vtkImageData *input = this->GetInput();
+  if (input)
+    {
+    input->UpdateInformation();
+    return input->GetWholeExtent() + this->SliceOrientation * 2;
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageViewer2::GetSliceMin() 
+{
+  int *range = this->GetSliceRange();
+  if (range)
+    {
+    return range[0];
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageViewer2::GetSliceMax() 
+{
+  int *range = this->GetSliceRange();
+  if (range)
+    {
+    return range[1];
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetSlice(int slice)
+{
+  int *range = this->GetSliceRange();
+  if (range)
+    {
+    if (slice < range[0])
+      {
+      slice = range[0];
+      }
+    else if (slice > range[1])
+      {
+      slice = range[1];
+      }
+    }
+
+  if (this->Slice == slice)
+    {
+    return;
+    }
+
+  this->Slice = slice;
+  this->Modified();
+
+  this->UpdateDisplayExtent();
+  this->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetSliceOrientation(int orientation)
+{
+  if (orientation < vtkImageViewer2::SLICE_ORIENTATION_YZ ||
+      orientation > vtkImageViewer2::SLICE_ORIENTATION_XY)
+    {
+    vtkErrorMacro("Error - invalid slice orientation " << orientation);
+    return;
+    }
+  
+  if (this->SliceOrientation == orientation)
+    {
+    return;
+    }
+
+  this->SliceOrientation = orientation;
+
+  // Update the viewer 
+
+  int *range = this->GetSliceRange();
+  if (range)
+    {
+    this->Slice = static_cast<int>((range[0] + range[1]) * 0.5);
+    }
+
+  this->UpdateOrientation();
+  this->UpdateDisplayExtent();
+
+  if (this->Renderer && this->GetInput())
+    {
+    double scale = this->Renderer->GetActiveCamera()->GetParallelScale();
+    this->Renderer->ResetCamera();
+    this->Renderer->GetActiveCamera()->SetParallelScale(scale);
+    }
+
+  this->Render();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::UpdateOrientation()
+{
+  // Set the camera position
+
+  vtkCamera *cam = this->Renderer ? this->Renderer->GetActiveCamera() : NULL;
+  if (cam)
+    {
+    switch (this->SliceOrientation)
+      {
+      case vtkImageViewer2::SLICE_ORIENTATION_XY:
+        cam->SetFocalPoint(0,0,0);
+        cam->SetPosition(0,0,1); // -1 if medical ?
+        cam->SetViewUp(0,1,0);
+        break;
+        
+      case vtkImageViewer2::SLICE_ORIENTATION_XZ:
+        cam->SetFocalPoint(0,0,0);
+        cam->SetPosition(0,-1,0); // 1 if medical ?
+        cam->SetViewUp(0,0,1);
+        break;
+        
+      case vtkImageViewer2::SLICE_ORIENTATION_YZ:
+        cam->SetFocalPoint(0,0,0);
+        cam->SetPosition(1,0,0); // -1 if medical ?
+        cam->SetViewUp(0,0,1);
+        break;
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::UpdateDisplayExtent()
+{
+  vtkImageData *input = this->GetInput();
+  if (!input || !this->ImageActor)
+    {
+    return;
+    }
+
+  input->UpdateInformation();
+  int *w_ext = input->GetWholeExtent();
+
+  // Is the slice in range ? If not, fix it
+
+  int slice_min = w_ext[this->SliceOrientation * 2];
+  int slice_max = w_ext[this->SliceOrientation * 2 + 1];
+  if (this->Slice < slice_min || this->Slice > slice_max)
+    {
+    this->Slice = static_cast<int>((slice_min + slice_max) * 0.5);
+    }
+
+  // Set the image actor
+
+  switch (this->SliceOrientation)
+    {
+    case vtkImageViewer2::SLICE_ORIENTATION_XY:
+      this->ImageActor->SetDisplayExtent(
+        w_ext[0], w_ext[1], w_ext[2], w_ext[3], this->Slice, this->Slice);
+      break;
+
+    case vtkImageViewer2::SLICE_ORIENTATION_XZ:
+      this->ImageActor->SetDisplayExtent(
+        w_ext[0], w_ext[1], this->Slice, this->Slice, w_ext[4], w_ext[5]);
+      break;
+
+    case vtkImageViewer2::SLICE_ORIENTATION_YZ:
+      this->ImageActor->SetDisplayExtent(
+        this->Slice, this->Slice, w_ext[2], w_ext[3], w_ext[4], w_ext[5]);
+      break;
+    }
+
+  // Figure out the correct clipping range
+
+  if (this->Renderer)
+    {
+    if (this->InteractorStyle && 
+        this->InteractorStyle->GetAutoAdjustCameraClippingRange())
+      {
+      this->Renderer->ResetCameraClippingRange();
+      }
+    else
+      {
+      vtkCamera *cam = this->Renderer->GetActiveCamera();
+      if (cam)
+        {
+        double bounds[6];
+        this->ImageActor->GetBounds(bounds);
+        double spos = (double)bounds[this->SliceOrientation * 2];
+        double cpos = (double)cam->GetPosition()[this->SliceOrientation];
+        double range = fabs(spos - cpos);
+        double *spacing = input->GetSpacing();
+        double avg_spacing = 
+          ((double)spacing[0] + (double)spacing[1] + (double)spacing[2]) / 3.0;
+        cam->SetClippingRange(
+          range - avg_spacing * 3.0, range + avg_spacing * 3.0);
+        }
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetPosition(int a,int b) 
+{
+  this->RenderWindow->SetPosition(a, b);
+}
+
+//----------------------------------------------------------------------------
+int* vtkImageViewer2::GetPosition() 
+{
+  return this->RenderWindow->GetPosition();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetDisplayId(void *a) 
+{
+  this->RenderWindow->SetDisplayId(a);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetWindowId(void *a) 
+{
+  this->RenderWindow->SetWindowId(a);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetParentId(void *a) 
+{
+  this->RenderWindow->SetParentId(a);
+}
+
+//----------------------------------------------------------------------------
+double vtkImageViewer2::GetColorWindow() 
+{
+  return this->WindowLevel->GetWindow();
+}
+
+//----------------------------------------------------------------------------
+double vtkImageViewer2::GetColorLevel() 
+{
+  return this->WindowLevel->GetLevel();
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetColorWindow(double s) 
+{
+  this->WindowLevel->SetWindow(s);
+}
+
+//----------------------------------------------------------------------------
+void vtkImageViewer2::SetColorLevel(double s) 
+{
+  this->WindowLevel->SetLevel(s);
 }
 
 //----------------------------------------------------------------------------
@@ -369,23 +640,54 @@ void vtkImageViewer2::Render()
 {
   if (this->FirstRender)
     {
-    // initialize the size if not set yet
-    if (this->RenderWindow->GetSize()[0] == 0 && this->ImageActor->GetInput())
+    // Initialize the size if not set yet
+
+    vtkImageData *input = this->GetInput();
+    if (this->RenderWindow->GetSize()[0] == 0 && input)
       {
-      // get the size from the mappers input
-      this->WindowLevel->GetInput()->UpdateInformation();
-      int *ext = this->WindowLevel->GetInput()->GetWholeExtent();
+      input->UpdateInformation();
+      int *w_ext = input->GetWholeExtent();
+      int xs = 0, ys = 0;
+
+      switch (this->SliceOrientation)
+        {
+        case vtkImageViewer2::SLICE_ORIENTATION_XY:
+        default:
+          xs = w_ext[1] - w_ext[0] + 1;
+          ys = w_ext[3] - w_ext[2] + 1;
+          break;
+
+        case vtkImageViewer2::SLICE_ORIENTATION_XZ:
+          xs = w_ext[1] - w_ext[0] + 1;
+          ys = w_ext[5] - w_ext[4] + 1;
+          break;
+
+        case vtkImageViewer2::SLICE_ORIENTATION_YZ:
+          xs = w_ext[3] - w_ext[2] + 1;
+          ys = w_ext[5] - w_ext[4] + 1;
+          break;
+        }
+
       // if it would be smaller than 150 by 100 then limit to 150 by 100
-      int xs = ext[1] - ext[0] + 1;
-      int ys = ext[3] - ext[2] + 1;
-      this->RenderWindow->SetSize(xs < 150 ? 150 : xs,
-                                  ys < 100 ? 100 : ys);
-      this->Renderer->GetActiveCamera()->SetParallelScale(xs < 150 ? 75 
-                                                          : (xs-1)/2.0);
+      this->RenderWindow->SetSize(
+        xs < 150 ? 150 : xs, ys < 100 ? 100 : ys);
+
+      if (this->Renderer)
+        {
+        this->Renderer->GetActiveCamera()->SetParallelScale(
+          xs < 150 ? 75 : (xs - 1 ) / 2.0);
+        this->Renderer->ResetCamera();
+        }
+      this->FirstRender = 0;  
       }
-    this->FirstRender = 0;  
     }
   this->RenderWindow->Render();
+}
+
+//----------------------------------------------------------------------------
+char* vtkImageViewer2::GetWindowName() 
+{
+  return this->RenderWindow->GetWindowName();
 }
 
 //----------------------------------------------------------------------------
@@ -401,26 +703,51 @@ int vtkImageViewer2::GetOffScreenRendering()
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::OffScreenRenderingOn()
+void vtkImageViewer2::SetInput(vtkImageData *in) 
 {
-  this->SetOffScreenRendering(1);
+  this->WindowLevel->SetInput(in);
+  this->UpdateDisplayExtent();
+}
+//----------------------------------------------------------------------------
+vtkImageData* vtkImageViewer2::GetInput()
+{ 
+  return vtkImageData::SafeDownCast(this->WindowLevel->GetInput());
 }
 
 //----------------------------------------------------------------------------
-void vtkImageViewer2::OffScreenRenderingOff()
+void vtkImageViewer2::SetInputConnection(vtkAlgorithmOutput* input) 
 {
-  this->SetOffScreenRendering(0);
-}
+  this->WindowLevel->SetInputConnection(input);
+  this->UpdateDisplayExtent();
+};
 
 //----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+int vtkImageViewer2::GetWholeZMin()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetWholeZMin, "5.0",
+                           vtkImageViewer2::GetSliceMin);
+  return this->GetSliceMin();
+}
+int vtkImageViewer2::GetWholeZMax()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetWholeZMax, "5.0",
+                           vtkImageViewer2::GetSliceMax);
+  return this->GetSliceMax();
+}
+int vtkImageViewer2::GetZSlice()
+{
+  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::GetZSlice, "5.0",
+                           vtkImageViewer2::GetSlice);
+  return this->GetSlice();
+}
 void vtkImageViewer2::SetZSlice(int s)
 {
-  this->ImageActor->SetZSlice(s);
-  if(this->AutoResetCameraClippingRange)
-    {
-    this->Renderer->ResetCameraClippingRange();
-    }
+  VTK_LEGACY_REPLACED_BODY(vtkImageViewer2::SetZSlice, "5.0",
+                           vtkImageViewer2::SetSlice);
+  this->SetSlice(s);
 }
+#endif
 
 //----------------------------------------------------------------------------
 void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
@@ -435,7 +762,5 @@ void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
   this->ImageActor->PrintSelf(os,indent.GetNextIndent());
   os << indent << "WindowLevel:\n" << endl;
   this->WindowLevel->PrintSelf(os,indent.GetNextIndent());
-  os << indent << "AutoResetCameraClippingRange: "
-     << (this->AutoResetCameraClippingRange ? "On\n" : "Off\n");
-
+  os << indent << "Slice: " << this->Slice << endl;
 }
