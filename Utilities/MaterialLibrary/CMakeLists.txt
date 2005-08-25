@@ -157,6 +157,9 @@ ADD_LIBRARY(vtkMaterialLibrary
   vtkShaderCodeLibrary.cxx
   vtkMaterialLibrary.cxx)
 
+TARGET_LINK_LIBRARIES(vtkMaterialLibrary
+  vtkCommon)
+
 ADD_DEPENDENCIES(vtkMaterialLibrary
   ${ShaderLibraryDependencies}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
