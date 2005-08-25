@@ -8,6 +8,13 @@ SET(KIT_LIBS vtkFiltering vtkDICOMParser vtkMaterialLibrary
   ${VTK_TIFF_LIBRARIES} ${VTK_EXPAT_LIBRARIES}
   ${KWSYS_NAMESPACE})
 
+# Build the Utilities/MaterialLibrary which is needed for IO.
+SUBDIRS(../Utilities/MaterialLibrary)
+
+# Set include path to include the ShaderLibrary.
+IF (VTK_MATERIAL_LIBRARY_INCLUDE_PATH)
+  INCLUDE_DIRECTORIES(${VTK_MATERIAL_LIBRARY_INCLUDE_PATH})
+ENDIF (VTK_MATERIAL_LIBRARY_INCLUDE_PATH)
 
 SET( Kit_SRCS
 vtkAVSucdReader.cxx

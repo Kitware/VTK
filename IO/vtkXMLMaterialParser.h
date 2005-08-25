@@ -77,9 +77,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Get the vtkXMLMaterial representation of the parsed material.
+  // Set/Get the vtkXMLMaterial representation of the parsed material.
   vtkGetObjectMacro(Material, vtkXMLMaterial);
-
+  void SetMaterial(vtkXMLMaterial*);
+  
   // Description:
   // Overridden to initialize the internal structures before
   // the parsing begins.

@@ -41,12 +41,15 @@ public:
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLMaterialParser);
-vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.1.2.1" )
+vtkCxxRevisionMacro(vtkXMLMaterialParser, "1.1.2.2" );
+vtkCxxSetObjectMacro(vtkXMLMaterialParser, Material, vtkXMLMaterial);
 
 //-----------------------------------------------------------------------------
 vtkXMLMaterialParser::vtkXMLMaterialParser()
 {
   this->Material = vtkXMLMaterial::New();
+  this->Material->Register(this);
+  this->Material->Delete();
   this->Internals = new vtkXMLMaterialParserInternals;
 }
 
@@ -54,7 +57,7 @@ vtkXMLMaterialParser::vtkXMLMaterialParser()
 vtkXMLMaterialParser::~vtkXMLMaterialParser()
 {
   delete this->Internals;
-  this->Material->Delete();
+  this->SetMaterial(0);
 }
 
 //-----------------------------------------------------------------------------

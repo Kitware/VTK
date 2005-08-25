@@ -15,9 +15,11 @@
 
 #include "vtkXMLMaterial.h"
 
+#include "vtkMaterialLibrary.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkXMLDataElement.h"
+#include "vtkXMLMaterialParser.h"
 #include "vtkXMLShader.h"
 
 #include <vtkstd/vector>
@@ -38,7 +40,7 @@ public:
 };
 
 vtkStandardNewMacro(vtkXMLMaterial);
-vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.2");
+vtkCxxRevisionMacro(vtkXMLMaterial, "1.1.2.3");
 //-----------------------------------------------------------------------------
 vtkXMLMaterial::vtkXMLMaterial()
 {
@@ -51,6 +53,22 @@ vtkXMLMaterial::~vtkXMLMaterial()
 {
   this->SetRootElement(0);
   delete this->Internals;
+}
+
+//-----------------------------------------------------------------------------
+vtkXMLMaterial* vtkXMLMaterial::CreateInstance(const char* name)
+{
+  char* xml = vtkMaterialLibrary::GetMaterial(name);
+  if (xml)
+    {
+    vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
+    vtkXMLMaterial* material = vtkXMLMaterial::New();
+    parser->SetMaterial(material);
+    parser->Parse(xml);
+    parser->Delete();
+    return material;
+    }
+  return NULL;
 }
 
 //-----------------------------------------------------------------------------

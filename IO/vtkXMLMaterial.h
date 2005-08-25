@@ -35,6 +35,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Create a new instance using the vtkMaterialLibrary.
+  // If a material by the given name is found, a new instance
+  // is returned, else it returns NULL.
+  static vtkXMLMaterial* CreateInstance(const char* name);
+  
+  // Description:
   // Get number of elements of type vtkProperty.
   int GetNumberOfProperties();
 

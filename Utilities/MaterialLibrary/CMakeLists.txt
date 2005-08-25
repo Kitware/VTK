@@ -155,6 +155,7 @@ WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialLibraryMacro.h
 # Since we have configured header files that
 # this library needs.
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 ADD_LIBRARY(vtkMaterialLibrary
   vtkShaderCodeLibrary.cxx
