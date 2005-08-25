@@ -65,7 +65,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.3");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.4");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -236,7 +236,7 @@ void vtkGLSLShaderProgram::GetInfoLog()
 }
 
 //-----------------------------------------------------------------------------
-int vtkGLSLShaderProgram::IsAttached(GLuint handle)
+int vtkGLSLShaderProgram::IsAttached(unsigned int handle)
 {
   int attached = 0;
   // find out what's attached
@@ -255,7 +255,7 @@ int vtkGLSLShaderProgram::IsAttached(GLuint handle)
   vtkstd::vector<GLuint>::iterator itEnd = attachedObjects.end();
   while( it != itEnd )
     {
-    if( handle == *it )
+    if( static_cast<GLuint>(handle) == *it )
       {
       attached = 1;
       }
