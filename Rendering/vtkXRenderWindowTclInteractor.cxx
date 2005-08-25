@@ -28,7 +28,7 @@
 #include <string.h>
 #include <vtkTk.h>
 
-vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.49");
+vtkCxxRevisionMacro(vtkXRenderWindowTclInteractor, "1.50");
 vtkStandardNewMacro(vtkXRenderWindowTclInteractor);
 
 // steal the first three elements of the TkMainInfo stuct
@@ -327,7 +327,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       if (me->Enabled)
         {
         me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
-        me->GetRenderWindow()->Render();
+        me->Render();
         }
       }
       break;
@@ -337,7 +337,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
       // only render if we are currently accepting events
       if (me->Enabled && me->GetRenderWindow()->GetNeverRendered())
         {
-        me->GetRenderWindow()->Render();
+        me->Render();
         }
       }
       break;
@@ -365,7 +365,7 @@ void vtkXRenderWindowTclInteractorCallback(Widget vtkNotUsed(w),
         if (me->Enabled)
           {
           me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
-          me->GetRenderWindow()->Render();
+          me->Render();
           }
         }
       }

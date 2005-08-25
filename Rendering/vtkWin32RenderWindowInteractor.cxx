@@ -58,7 +58,7 @@ VTK_RENDERING_EXPORT LRESULT CALLBACK vtkHandleMessage2(HWND,UINT,WPARAM,LPARAM,
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.93");
+vtkCxxRevisionMacro(vtkWin32RenderWindowInteractor, "1.94");
 vtkStandardNewMacro(vtkWin32RenderWindowInteractor);
 #endif
 
@@ -627,7 +627,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
   switch (uMsg) 
     {
     case WM_PAINT:
-      me->GetRenderWindow()->Render();
+      me->Render();
       return CallWindowProc(me->OldProc,hWnd,uMsg,wParam,lParam);
       break;
       

@@ -27,7 +27,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkCommand.h"
 
-vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.121");
+vtkCxxRevisionMacro(vtkXRenderWindowInteractor, "1.122");
 vtkStandardNewMacro(vtkXRenderWindowInteractor);
 
 // Initialize static members:
@@ -468,7 +468,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       if (me->Enabled)
         {
         me->InvokeEvent(vtkCommand::ExposeEvent,NULL);
-        me->GetRenderWindow()->Render();
+        me->Render();
         }
       }
       break;
@@ -478,7 +478,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
       // only render if we are currently accepting events
       if (me->Enabled && me->GetRenderWindow()->GetNeverRendered())
         {
-        me->GetRenderWindow()->Render();
+        me->Render();
         }
       }
       break;
@@ -504,7 +504,7 @@ void vtkXRenderWindowInteractorCallback(Widget vtkNotUsed(w),
         if (me->Enabled)
           {
           me->InvokeEvent(vtkCommand::ConfigureEvent,NULL);
-          me->GetRenderWindow()->Render();
+          me->Render();
           }
         }
       }
