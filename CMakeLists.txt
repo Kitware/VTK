@@ -61,9 +61,6 @@ SET(VTK_LIBRARY_DIR ${LIBRARY_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(VTK_EXECUTABLE_DIR ${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR})
 SET(CXX_TEST_PATH ${EXECUTABLE_OUTPUT_PATH})
 
-# Put "." in the rpath of all VTK shared libraries.
-LINK_DIRECTORIES(.)
-
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify
 # the install location.  Optionally allow the project to specify a
