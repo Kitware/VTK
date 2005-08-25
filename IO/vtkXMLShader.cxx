@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.4");
+vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.5");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -60,14 +60,14 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
     case vtkXMLShader::LOCATION_LIBRARY:
         {
         const char* name = this->RootElement->GetAttribute("name");
-      this->Code = vtkShaderCodeLibrary::GetShaderCode(name);
-      // TODO: the library should be XML enclosed.
-      // For now, it's not.
-      if (!this->Code)
-        {
-        vtkErrorMacro("Failed to locate library " << name);
-        return;
-        }
+        this->Code = vtkShaderCodeLibrary::GetShaderCode(name);
+        // TODO: the library should be XML enclosed.
+        // For now, it's not.
+        if (!this->Code)
+          {
+          vtkErrorMacro("Failed to locate library " << name);
+          return;
+          }
         }
       break;
     case vtkXMLShader::LOCATION_FILE:
