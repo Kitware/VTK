@@ -1,25 +1,6 @@
-# For shared libraries on non-windows systems use the KWSys shared-forward
-# implementation to make sure shared libraries are found.
-IF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH)
-  IF(NOT WIN32)
-    SET(KW_FORWARD_DIR_BUILD ${EXECUTABLE_OUTPUT_PATH})
-    SET(KW_FORWARD_BIN_TO_LIB "..${KW_INSTALL_LIB_DIR}")
-    SET(KW_EXE_SUFFIX -real)
-    SET(KW_FORWARD_EXE "ProcessShader${KW_EXE_SUFFIX}")
-    SET(KW_EXE_INSTALL ${KW_INSTALL_LIB_DIR})
-    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/kw-forward.c.in
-      ${CMAKE_CURRENT_BINARY_DIR}/ProcessShader-forward.c
-      @ONLY IMMEDIATE)
-    ADD_EXECUTABLE(ProcessShader
-      ${CMAKE_CURRENT_BINARY_DIR}/ProcessShader-forward.c)
-    IF(NOT KW_INSTALL_NO_DEVELOPMENT)
-      INSTALL_TARGETS(${KW_INSTALL_BIN_DIR} ProcessShader)
-    ENDIF(NOT KW_INSTALL_NO_DEVELOPMENT)
-  ENDIF(NOT WIN32)
-ENDIF(BUILD_SHARED_LIBS AND CMAKE_SKIP_RPATH)
-
-ADD_EXECUTABLE(ProcessShader${KW_EXE_SUFFIX} ProcessShader.cxx)
-TARGET_LINK_LIBRARIES(ProcessShader${KW_EXE_SUFFIX} vtkCommon vtksys)
+ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
+TARGET_LINK_LIBRARIES(ProcessShader
+  vtkCommon vtksys)
 
 # Build the ShaderCodes Library.
 SET (CgCodes
