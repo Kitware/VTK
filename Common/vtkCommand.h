@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkCommand is an implementation of the observer/command design
 // pattern.  In this design pattern, any instance of vtkObject can be
-// "observered" for any events it might invoke. For example,
+// "observed" for any events it might invoke. For example,
 // vtkRenderer invokes a StartEvent as it begins to render and a
 // EndEvent when it finishes rendering. Filters (subclasses of
 // vtkProcessObject) invoke StartEvent, ProgressEvent, and EndEvent as
