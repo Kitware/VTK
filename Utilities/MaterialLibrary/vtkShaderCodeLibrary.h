@@ -20,8 +20,9 @@
 #define __vtkShaderCodeLibrary_h
 
 #include "vtkObject.h"
+#include "vtkMaterialLibraryConfig.h"
 
-class vtkShaderCodeLibrary : public vtkObject
+class VTK_MATERIAL_LIBRARY_EXPORT vtkShaderCodeLibrary : public vtkObject
 {
 public:
   static vtkShaderCodeLibrary* New();

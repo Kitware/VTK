@@ -1,24 +1,38 @@
+PROJECT(MaterialLibrary)
+
+IF (WIN32)
+  IF (BUILD_SHARED_LIBS)
+    SET(MATERIAL_LIBRARY_DLL 1)
+  ELSE (BUILD_SHARED_LIBS)
+    SET(MATERIAL_LIBRARY_STATIC 1)
+  ENDIF(BUILD_SHARED_LIBS)
+ENDIF (WIN32)
+ 
 ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
 TARGET_LINK_LIBRARIES(ProcessShader
   vtkCommon vtksys)
 
 # Build the ShaderCodes Library.
 SET (CgCodes
-  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/FragmentTexture.cg
-  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/VertTexPassThrough.cg
-  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/VertPassThrough.cg
-  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/FragmentIsotropicTorranceSparrow.cg
-  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/cg_sinewave.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/FragmentTexture.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/VertTexPassThrough.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/VertPassThrough.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/FragmentIsotropicTorranceSparrow.cg
+  ${MaterialLibrary_SOURCE_DIR}/CgShaders/cg_sinewave.cg
   )
 
 SET (GLSLCodes
-  ${CMAKE_CURRENT_SOURCE_DIR}/GLSLShaders/TestAppVarFrag.glsl
-  ${CMAKE_CURRENT_SOURCE_DIR}/GLSLShaders/TestVertex.glsl
-  ${CMAKE_CURRENT_SOURCE_DIR}/GLSLShaders/TestVtkPropertyFrag.glsl
-  ${CMAKE_CURRENT_SOURCE_DIR}/GLSLShaders/TestMatrixFrag.glsl
-  ${CMAKE_CURRENT_SOURCE_DIR}/GLSLShaders/TestScalarVectorFrag.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestAppVarFrag.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestVertex.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestVtkPropertyFrag.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestMatrixFrag.glsl
+  ${MaterialLibrary_SOURCE_DIR}/GLSLShaders/TestScalarVectorFrag.glsl
   )
 
+SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
+IF(MAKE_SYSTEM OR UNIX)
+  SET(CFG_INIT "")
+ENDIF(MAKE_SYSTEM OR UNIX)
 SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/ProcessShader${EXE_EXT})
 
 SET (ShaderLibraryDependencies)
@@ -36,18 +50,18 @@ ENDMACRO(get_modules)
 IF (VTK_USE_CG_SHADERS)
   # Create the Cg library.
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkCgShaderLibrary.h
+    OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h
     DEPENDS ${CgCodes}
     ProcessShader
     COMMAND ${CMD}
-    ARGS ${CMAKE_CURRENT_BINARY_DIR}/vtkCgShaderLibrary.h
+    ARGS ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h
     vtkShaderCG Code GetCode
     ${CgCodes})
   
   SET (ShaderLibraryHeaders ${ShaderLibraryHeaders}
     vtkCgShaderLibrary.h)
   SET (ShaderLibraryDependencies ${ShaderLibraryDependencies}
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkCgShaderLibrary.h)
+    ${MaterialLibrary_BINARY_DIR}/vtkCgShaderLibrary.h)
 
   get_modules(ShaderLibraryModules "CG" "${CgCodes}")
 ENDIF (VTK_USE_CG_SHADERS)
@@ -55,17 +69,17 @@ ENDIF (VTK_USE_CG_SHADERS)
 IF (VTK_USE_GLSL_SHADERS)
   # Create the GLSL library
   ADD_CUSTOM_COMMAND(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkGLSLShaderLibrary.h
+    OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkGLSLShaderLibrary.h
     DEPENDS ${GLSLCodes}
     ProcessShader
     COMMAND ${CMD}
-    ARGS ${CMAKE_CURRENT_BINARY_DIR}/vtkGLSLShaderLibrary.h
+    ARGS ${MaterialLibrary_BINARY_DIR}/vtkGLSLShaderLibrary.h
     vtkShaderGLSL Code GetCode
     ${GLSLCodes})
   SET (ShaderLibraryHeaders ${ShaderLibraryHeaders}
     vtkGLSLShaderLibrary.h)
   SET (ShaderLibraryDependencies ${ShaderLibraryDependencies}
-    ${CMAKE_CURRENT_BINARY_DIR}/vtkGLSLShaderLibrary.h)
+    ${MaterialLibrary_BINARY_DIR}/vtkGLSLShaderLibrary.h)
 
   get_modules(ShaderLibraryModules "GLSL" "${GLSLCodes}")
 ENDIF (VTK_USE_GLSL_SHADERS)
@@ -88,7 +102,7 @@ FOREACH (module ${ShaderLibraryModules})
         }\\\n")
 ENDFOREACH(module)
 
-WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
+WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
   ${VTK_SHADER_CODE_LIBRARY_MACRO})
 
 # Build the Material library.
@@ -96,7 +110,7 @@ SET (MaterialXMLs)
 
 IF (VTK_USE_CG_SHADERS)
   SET (MaterialXMLs ${MaterialXMLs}
-    ${CMAKE_CURRENT_SOURCE_DIR}/Materials/CgSinewave.xml
+    ${MaterialLibrary_SOURCE_DIR}/Materials/CgSinewave.xml
     )
 ENDIF (VTK_USE_CG_SHADERS)
 
@@ -106,11 +120,11 @@ IF (VTK_USE_GLSL_SHADERS)
 ENDIF (VTK_USE_GLSL_SHADERS)
 
 ADD_CUSTOM_COMMAND(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialXMLLibrary.h
+  OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   DEPENDS ${MaterialXMLs}
     ProcessShader
   COMMAND ${CMD}
-  ARGS ${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialXMLLibrary.h
+  ARGS ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   vtkMaterial XML GetXML
   ${MaterialXMLs})
 
@@ -129,34 +143,48 @@ FOREACH(module ${MaterialModules})
       }\\\n")
 ENDFOREACH(module)
 
-WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialLibraryMacro.h
+WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h
   ${VTK_MATERIAL_LIBRARY_MACRO})
 
 
 # Since we have configured header files that
 # this library needs.
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${MaterialLibrary_BINARY_DIR})
+INCLUDE_DIRECTORIES(${MaterialLibrary_SOURCE_DIR})
+
+CONFIGURE_FILE(${MaterialLibrary_SOURCE_DIR}/MaterialLibraryCMakeConfig.h.in
+  ${MaterialLibrary_BINARY_DIR}/MaterialLibraryCMakeConfig.h)
 
 ADD_LIBRARY(vtkMaterialLibrary
   vtkShaderCodeLibrary.cxx
   vtkMaterialLibrary.cxx)
 
+# Apply user-defined properties to the library target.
+IF(VTK_LIBRARY_PROPERTIES)
+  SET_TARGET_PROPERTIES(vtkMaterialLibrary PROPERTIES ${VTK_LIBRARY_PROPERTIES})
+ENDIF(VTK_LIBRARY_PROPERTIES)
+
 TARGET_LINK_LIBRARIES(vtkMaterialLibrary
   vtkCommon)
+
+ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
+  ${ShaderLibraryDependencies}
+  ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
 
 # The target vtkMaterialLibrary requires that the header files
 # with the shader/material code have been written out.
 ADD_DEPENDENCIES(vtkMaterialLibrary
-  ${ShaderLibraryDependencies}
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialXMLLibrary.h
-  ${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialLibraryMacro.h)
+  vtkMaterialLibraryConfiguredFiles
+ )
 
 IF (NOT VTK_INSTALL_NO_LIBRARIES)
   INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkMaterialLibrary)
 ENDIF (NOT VTK_INSTALL_NO_LIBRARIES)
 
-SET(VTK_MATERIAL_LIBRARY_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
+SET(MATERIAL_LIBRARY_INCLUDE_DIR
+  ${MaterialLibrary_SOURCE_DIR} 
+  ${MaterialLibrary_BINARY_DIR}
   CACHE INTERNAL "Include path for vtkMaterialLibrary.h and vtkShaderCodeLibrary.h")
 
