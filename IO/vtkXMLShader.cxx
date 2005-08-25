@@ -22,7 +22,7 @@
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.3");
+vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.4");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -58,10 +58,17 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
     switch (this->GetLocation())
       {
     case vtkXMLShader::LOCATION_LIBRARY:
-      this->Code = vtkShaderCodeLibrary::GetShaderCode(
-        this->RootElement->GetAttribute("Name"));
+        {
+        const char* name = this->RootElement->GetAttribute("name");
+      this->Code = vtkShaderCodeLibrary::GetShaderCode(name);
       // TODO: the library should be XML enclosed.
       // For now, it's not.
+      if (!this->Code)
+        {
+        vtkErrorMacro("Failed to locate library " << name);
+        return;
+        }
+        }
       break;
     case vtkXMLShader::LOCATION_FILE:
         {
@@ -198,11 +205,11 @@ int vtkXMLShader::GetLocation()
       {
       vtkErrorMacro("Shader description missing 'location' attribute.");
       }
-    else if (strcmp(loc, "inline") == 0)
+    else if (strcmp(loc, "Inline") == 0)
       {
       return vtkXMLShader::LOCATION_INLINE;
       }
-    else if (strcmp(loc, "library") == 0)
+    else if (strcmp(loc, "Library") == 0)
       {
       return vtkXMLShader::LOCATION_LIBRARY;
       }
@@ -263,7 +270,8 @@ const char* vtkXMLShader::GetCode()
     return this->RootElement->GetCharacterData();
 
   case vtkXMLShader::LOCATION_LIBRARY:
-    break;
+    // until the ShaderCode library starts providing XMLs, we just return the code.
+    return this->Code;
   
   case vtkXMLShader::LOCATION_FILE:
     return this->Code;
