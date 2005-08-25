@@ -15,13 +15,14 @@
 #include "vtkXMLShader.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkShaderCodeLibrary.h"
 #include "vtkToolkits.h" // for VTK_SHADERS_DIRS.
 #include "vtkXMLDataElement.h"
 
 #include <vtksys/SystemTools.hxx>
 
 vtkStandardNewMacro(vtkXMLShader);
-vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.2");
+vtkCxxRevisionMacro(vtkXMLShader, "1.1.2.3");
 vtkCxxSetObjectMacro(vtkXMLShader, SourceLibraryElement, vtkXMLDataElement);
 //-----------------------------------------------------------------------------
 vtkXMLShader::vtkXMLShader()
@@ -57,14 +58,10 @@ void vtkXMLShader::SetRootElement(vtkXMLDataElement* root)
     switch (this->GetLocation())
       {
     case vtkXMLShader::LOCATION_LIBRARY:
-      /* 
-       * Load the library.
-       * str = vtkLibrary::GetShader(this->RootElement->GetAttribute("Name"));
-       * parse str.
-       * this->SetSourceLibraryElement(parser->GetElemenet());
-       *
-       *
-       */
+      this->Code = vtkShaderCodeLibrary::GetShaderCode(
+        this->RootElement->GetAttribute("Name"));
+      // TODO: the library should be XML enclosed.
+      // For now, it's not.
       break;
     case vtkXMLShader::LOCATION_FILE:
         {

@@ -773,8 +773,18 @@ SUBDIRS(
   Filtering
   Imaging
   Graphics
-  GenericFiltering
-  IO)
+  GenericFiltering)
+
+# Build the Utilities/MaterialLibrary which is needed for IO.
+SUBDIRS(Utilities/MaterialLibrary)
+
+# Set include path to include the ShaderLibrary.
+IF (VTK_MATERIAL_LIBRARY_INCLUDE_PATH)
+  INCLUDE_DIRECTORIES(${VTK_MATERIAL_LIBRARY_INCLUDE_PATH})
+ENDIF (VTK_MATERIAL_LIBRARY_INCLUDE_PATH)
+
+# Build the remaining kits
+SUBDIRS(IO)
 IF(VTK_USE_RENDERING)
   SUBDIRS(Rendering)
   SUBDIRS(VolumeRendering)
