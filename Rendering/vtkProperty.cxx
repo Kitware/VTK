@@ -31,12 +31,14 @@
 #include "vtkTIFFReader.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLMaterial.h"
+#include "vtkMaterialLibrary.h"
+#include "vtkXMLMaterialParser.h"
 #include "vtkXMLMaterialReader.h"
 #include "vtkXMLShader.h"
 
 #include <stdlib.h>
 
-vtkCxxRevisionMacro(vtkProperty, "1.55.24.5");
+vtkCxxRevisionMacro(vtkProperty, "1.55.24.6");
 vtkCxxSetObjectMacro(vtkProperty, ShaderProgram, vtkShaderProgram);
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -263,21 +265,31 @@ void vtkProperty::RemoveAllTextures()
 void vtkProperty::LoadMaterial(const char* name)
 {
   this->SetMaterialName(name);
-  //TODO: Here we must check to see if the material is built-in.
 
-  char* filename = vtkXMLShader::LocateFile(name);
-  if (filename)
+  char* xml = vtkMaterialLibrary::GetMaterial(name);
+  if (xml)
     {
-    vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
-    reader->SetFileName(filename);
-    reader->ReadMaterial();
-    this->LoadMaterial(reader->GetMaterial());
-    reader->Delete();
-    delete [] filename;
+    vtkXMLMaterialParser* parser = vtkXMLMaterialParser::New();
+    parser->Parse(xml);
+    this->LoadMaterial(parser->GetMaterial());
+    parser->Delete();
     }
   else
     {
-    vtkErrorMacro("Failed to locate Material file: " << name);
+    char* filename = vtkXMLShader::LocateFile(name);
+    if (filename)
+      {
+      vtkXMLMaterialReader* reader = vtkXMLMaterialReader::New();
+      reader->SetFileName(filename);
+      reader->ReadMaterial();
+      this->LoadMaterial(reader->GetMaterial());
+      reader->Delete();
+      delete [] filename;
+      }
+    else
+      {
+      vtkErrorMacro("Failed to locate Material file: " << name);
+      }
     }
 }
 

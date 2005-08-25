@@ -44,6 +44,7 @@ SET (ShaderLibraryDependencies)
 SET (ShaderLibraryHeaders)
 SET (ShaderLibraryModules)
 
+# Macro to obtain the Module names from filenames.
 MACRO(get_modules modules prefix files )
   FOREACH(file ${files})
     STRING(REGEX REPLACE ".*[\\\\/]([^./\\\\]+)\\.(cg|glsl|xml)$" "\\1" module "${file}")
@@ -109,15 +110,12 @@ ENDFOREACH(module)
 WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
   ${VTK_SHADER_CODE_LIBRARY_MACRO})
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-
-
-
 # Build the Material library.
 SET (MaterialXMLs)
 
 IF (VTK_USE_CG_SHADERS)
   SET (MaterialXMLs ${MaterialXMLs}
+    ${CMAKE_CURRENT_SOURCE_DIR}/Materials/CgSinewave.xml
     )
 ENDIF (VTK_USE_CG_SHADERS)
 
@@ -132,7 +130,7 @@ ADD_CUSTOM_COMMAND(
     ProcessShader
   COMMAND ${CMD}
   ARGS ${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialXMLLibrary.h
-  vtkMaterial XML GetMaterialXML
+  vtkMaterial XML GetXML
   ${MaterialXMLs})
 
 # Write the MaterialLibraryMacro header file.
@@ -153,6 +151,11 @@ ENDFOREACH(module)
 WRITE_FILE(${CMAKE_CURRENT_BINARY_DIR}/vtkMaterialLibraryMacro.h
   ${VTK_MATERIAL_LIBRARY_MACRO})
 
+
+# Since we have configured header files that
+# this library needs.
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+
 ADD_LIBRARY(vtkMaterialLibrary
   vtkShaderCodeLibrary.cxx
   vtkMaterialLibrary.cxx)
@@ -160,6 +163,8 @@ ADD_LIBRARY(vtkMaterialLibrary
 TARGET_LINK_LIBRARIES(vtkMaterialLibrary
   vtkCommon)
 
+# The target vtkMaterialLibrary requires that the header files
+# with the shader/material code have been written out.
 ADD_DEPENDENCIES(vtkMaterialLibrary
   ${ShaderLibraryDependencies}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
@@ -171,5 +176,5 @@ IF (NOT VTK_INSTALL_NO_LIBRARIES)
 ENDIF (NOT VTK_INSTALL_NO_LIBRARIES)
 
 SET(VTK_MATERIAL_LIBRARY_INCLUDE_PATH ${CMAKE_CURRENT_SOURCE_DIR}
-  CACHE INTERNAL "Include path for vtkShaderLibrary.h")
+  CACHE INTERNAL "Include path for vtkMaterialLibrary.h and vtkShaderCodeLibrary.h")
 

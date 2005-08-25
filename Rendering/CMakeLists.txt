@@ -9,6 +9,7 @@ ENDIF (JAVA_AWT_LIBRARY)
 SET(KIT_LIBS vtkGraphics vtkImaging vtkIO
   vtkftgl
   ${VTK_FREETYPE_LIBRARIES}
+  vtkMaterialLibrary
 )
 
 # Fix for bug#1026 moved out of the common section.  This should be
