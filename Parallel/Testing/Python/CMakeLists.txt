@@ -89,8 +89,9 @@ IF (VTK_PYTHON_EXE AND VTK_USE_DISPLAY)
         )
     ENDFOREACH( tfile )      
   ENDIF (VTK_DATA_ROOT)
-  WRITE_FILE(${VTK_BINARY_DIR}/Parallel/Testing/Python/conversionlist
-    "${CONVERSIONLIST}")
+  CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/conversionlist.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/conversionlist
+                 @ONLY IMMEDIATE)
 
   ADD_CUSTOM_COMMAND(
     OUTPUT "${VTK_BINARY_DIR}/Parallel/Testing/Python/conversion_complete"

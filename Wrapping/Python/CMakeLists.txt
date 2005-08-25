@@ -267,17 +267,14 @@ IF(PYTHON_EXECUTABLE)
     ENDFOREACH(file)
   ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
-# Byte compile the Python files.
-  WRITE_FILE(${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
-        "import compileall\n"
-        "compileall.compile_dir('${VTK_BINARY_DIR}/Wrapping/Python')\n"
-        "file = open('${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete', 'w')\n"
-        "file.write('Done')\n")
-
+  # Byte compile the Python files.
+  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
+                 @ONLY IMMEDIATE)
   ADD_CUSTOM_COMMAND(
     COMMAND ${PYTHON_EXECUTABLE}
-    ARGS ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
-    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Wrapping/Python/compile_all_vtk
+    ARGS ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
+    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
     OUTPUT "${VTK_BINARY_DIR}/Wrapping/Python/vtk_compile_complete"
     )
 

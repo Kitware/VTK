@@ -83,9 +83,10 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           -A "${VTK_LIBRARY_DIR}"
           )
       ENDFOREACH( tfile ) 
-      
-      WRITE_FILE(${VTK_BINARY_DIR}/Hybrid/Testing/Python/conversionlist
-        "${CONVERSIONLIST}")
+
+      CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/conversionlist.in
+                     ${CMAKE_CURRENT_BINARY_DIR}/conversionlist
+                     @ONLY IMMEDIATE)
 
       ADD_CUSTOM_COMMAND(
         OUTPUT "${VTK_BINARY_DIR}/Hybrid/Testing/Python/conversion_complete"

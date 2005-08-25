@@ -55,17 +55,14 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
   ENDIF ("${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
 
   # Byte compile the Python files.
-  WRITE_FILE(${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
-        "import compileall\n"
-        "compileall.compile_dir('${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py')\n"
-        "file = open('${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete', 'w')\n"
-        "file.write('Done')\n")
-
+  CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/compile_all_vtk.py.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/compile_all_vtk.py
+                 @ONLY IMMEDIATE)
   ADD_CUSTOM_COMMAND(
     COMMAND ${CMD}
-    ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk
+    ARGS -- ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk.py
       -A "${VTK_BINARY_DIR}/Wrapping/Python"
-    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk vtkpython
+    DEPENDS ${VTK_PYTHON_SOURCE_FILES} ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/compile_all_vtk.py vtkpython
     OUTPUT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete"
     )
 
