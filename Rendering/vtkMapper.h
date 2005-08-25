@@ -117,7 +117,10 @@ public:
   vtkBooleanMacro(ScalarVisibility,int);
 
   // Description:
-  // Turn on/off flag to control whether the mapper's data is static
+  // Turn on/off flag to control whether the mapper's data is static. Static data
+  // means that the mapper does not propagate updates down the pipeline, greatly
+  // decreasing the time it takes to update many mappers. This should only be
+  // used if the data never changes.
   vtkSetMacro(Static,int);
   vtkGetMacro(Static,int);
   vtkBooleanMacro(Static,int);
