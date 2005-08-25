@@ -1,0 +1,60 @@
+/*********************************************************************NVMH3****
+Path:  NVSDK\Common\media\programs
+File:  simple.cg
+
+Copyright NVIDIA Corporation 2002
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED
+*AS IS* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS FOR A PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS
+BE LIABLE FOR ANY SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES
+WHATSOEVER (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS,
+BUSINESS INTERRUPTION, LOSS OF BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS)
+ARISING OUT OF THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS
+BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+
+Comments:
+
+******************************************************************************/
+
+// define inputs from application
+struct appin
+{
+    float4 Position : POSITION;
+    float4 Color    : COLOR0;
+    float4 Normal   : NORMAL;
+};
+
+// define outputs from vertex shader
+struct vertout
+{
+    float4 HPosition : POSITION;
+    float4 OPosition : TEXCOORD0; // Obj coords location
+    float4 Normal    : TEXCOORD1;
+    float4 Color0    : COLOR0;
+};
+
+vertout main(appin IN, 
+             uniform float4x4 ModelViewProj,
+             uniform float4x4 ModelViewIT,
+             uniform float4x4 ModelView
+             )
+{
+  vertout OUT;
+
+  // transform vertex position into homogenous clip-space
+  OUT.HPosition = mul(ModelViewProj, IN.Position);
+  // pass through postion in object space for reflectance calculation
+#if 1
+  OUT.Normal = IN.Normal;
+  OUT.OPosition = IN.Position;
+#else
+  OUT.Normal = normalize( mul( ModelViewIT, IN.Normal) );
+  OUT.OPosition = mul(ModelViewIT, IN.Position);
+#endif
+
+  OUT.Color0 = IN.Color;
+
+  return OUT;
+}

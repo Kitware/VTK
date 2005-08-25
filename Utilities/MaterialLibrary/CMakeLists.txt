@@ -27,6 +27,7 @@ SET (CgCodes
   ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/VertTexPassThrough.cg
   ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/VertPassThrough.cg
   ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/FragmentIsotropicTorranceSparrow.cg
+  ${CMAKE_CURRENT_SOURCE_DIR}/CgShaders/cg_sinewave.cg
   )
 
 SET (GLSLCodes

@@ -1,0 +1,20 @@
+// don't reference TEXCOORD0, it's and alias for POSITION
+void fragment_program( in float2 tcoord : TEXCOORD0,
+                       in float4 pos    : TEXCOORD1,
+                       in float4 normal : TEXCOORD2,
+                       in float4 col    : COLOR0,
+
+                       uniform float3 opacity,
+                       uniform sampler2D decal,
+
+                       out float4 color  : COLOR
+                       )
+{
+#if 0
+  color.rg = tcoord.rg;
+  color.b = 1.0;
+#else
+  color.rgb = tex2D(decal, tcoord);
+#endif
+  color.a = opacity;
+}
