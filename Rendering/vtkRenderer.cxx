@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.217");
+vtkCxxRevisionMacro(vtkRenderer, "1.218");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -547,7 +547,7 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     // The following line has been commented out as it has a lot of
     // side effects (like computing the bounds of all props, which will
     // eventually call UpdateInformation() on data objects, etc).
-    // this->ResetCamera();
+    this->ResetCamera();
     }
 
   return this->ActiveCamera;
