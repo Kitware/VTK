@@ -89,8 +89,7 @@ public:
   //   SetWipeToVertical - alternate input 0 and input 1 with a
   //     horizontal split. Position[1] specifies the location of the
   //     horizonal transition between input 0 and input 1.
-  vtkSetClampMacro(Wipe,int,
-                   VTK_WIPE_QUAD,VTK_WIPE_UPPER_RIGHT);
+  vtkSetClampMacro(Wipe,int,VTK_WIPE_QUAD,VTK_WIPE_UPPER_RIGHT);
   vtkGetMacro(Wipe,int);
   void SetWipeToQuad()
     {this->SetWipe(VTK_WIPE_QUAD);}
