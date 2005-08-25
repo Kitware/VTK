@@ -118,6 +118,7 @@ $renWin1 AddRenderer ren1
 #
 ren1 AddActor actor
 ren1 SetBackground 0.25 0.2 0.2
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.2
 [ren1 GetActiveCamera] Elevation 40
 [ren1 GetActiveCamera] Azimuth -20

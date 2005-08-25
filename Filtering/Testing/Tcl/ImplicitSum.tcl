@@ -47,6 +47,7 @@ vtkRenderWindowInteractor iren
 ren1 AddActor actor
 ren1 SetBackground 1 1 1
 renWin SetSize 300 300
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 60
 [ren1 GetActiveCamera] Elevation -10
 [ren1 GetActiveCamera] Dolly 1.5

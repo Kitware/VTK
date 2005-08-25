@@ -94,6 +94,7 @@ vtkActor profile
 
 ren1 AddActor profile
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.5
 ren1 ResetCameraClippingRange
 

@@ -157,6 +157,7 @@ eval  [profileC GetProperty] SetDiffuseColor $peacock
   [profileC GetProperty] SetSpecularPower 30
 
 ren1 AddActor profileC
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.5
 ren1 ResetCameraClippingRange
 
