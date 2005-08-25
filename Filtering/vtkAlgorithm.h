@@ -16,7 +16,9 @@
 // .SECTION Description
 // vtkAlgorithm is the superclass for all sources, filters, and sinks
 // in VTK.  It defines a generalized interface for executing data
-// processing algorithms.
+// processing algorithms.  Pipeline connections are associated with
+// input and output ports that are independent of the type of data
+// passing through the connections.
 //
 // Instances may be used independently or within pipelines with a
 // variety of architectures and update mechanisms.  Pipelines are
@@ -115,7 +117,7 @@ public:
   // Description:
   // Get the number of output ports provided by the algorithm.
   int GetNumberOfOutputPorts();
-  
+
   // Description:
   // Participate in garbage collection.
   virtual void Register(vtkObjectBase* o);
@@ -195,29 +197,53 @@ public:
   vtkDataObject* GetOutputDataObject(int port);
 
   // Description:
-  // Set the connection for the given input port index.  Removes
-  // any other connections.
+  // Set the connection for the given input port index.  Each input
+  // port of a filter has a specific purpose.  A port may have zero or
+  // more connections and the required number is specified by each
+  // filter.  Setting the connection with this method removes all
+  // other connections from the port.  To add more than one connection
+  // use AddInputConnection().
+  //
+  // The input for the connection is the output port of another
+  // filter, which is obtained with GetOutputPort().  Typical usage is
+  //
+  //   filter2->SetInputConnection(0, filter1->GetOutputPort(0)).
   virtual void SetInputConnection(int port, vtkAlgorithmOutput* input);
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
 
   // Description:
-  // Add a connection to the given input port index.
+
+  // Add a connection to the given input port index.  See
+  // SetInputConnection() for details on input connections.  This
+  // method is the complement to RemoveInputConnection() in that it
+  // adds only the connection specified without affecting other
+  // connections.  Typical usage is
+  //
+  //   filter2->AddInputConnection(0, filter1->GetOutputPort(0)).
   virtual void AddInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
-  // Remove a connection from the given input port index.
+
+  // Remove a connection from the given input port index.  See
+  // SetInputConnection() for details on input connection.  This
+  // method is the complement to AddInputConnection() in that it
+  // removes only the connection specified without affecting other
+  // connections.  Typical usage is
+  //
+  //   filter2->RemoveInputConnection(0, filter1->GetOutputPort(0)).
   virtual void RemoveInputConnection(int port, vtkAlgorithmOutput* input);
 
   // Description:
   // Get a proxy object corresponding to the given output port of this
   // algorithm.  The proxy object can be passed to another algorithm's
-  // InputConnection methods to modify pipeline connectivity.
+  // SetInputConnection(), AddInputConnection(), and
+  // RemoveInputConnection() methods to modify pipeline connectivity.
   vtkAlgorithmOutput* GetOutputPort(int index);
   vtkAlgorithmOutput* GetOutputPort() {
     return this->GetOutputPort(0); }
 
   // Description:
-  // Get the number of input currently connected to a port.
+  // Get the number of inputs currently connected to a port.
   int GetNumberOfInputConnections(int port);
 
   // Description:
@@ -241,10 +267,9 @@ public:
   virtual void UpdateWholeExtent();
 
   // Description:
-  // Conviniance routine to convert from a linrar ordering of input
-  // connections to a port, connecction pair
-  void ConvertTotalInputToPortConnection(int ind, int &port, int &conn);
-  
+  // Convenience routine to convert from a linear ordering of input
+  // connections to a port/connection pair.
+  void ConvertTotalInputToPortConnection(int ind, int& port, int& conn);
 
   //======================================================================
   //The following block of code is to support old style VTK applications. If

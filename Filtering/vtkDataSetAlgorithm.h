@@ -84,14 +84,23 @@ public:
   vtkRectilinearGrid *GetRectilinearGridOutput();
 
   // Description:
-  // Set an input of this algorithm.
+  // Set an input of this algorithm. You should not override these
+  // methods because they are not the only way to connect a pipeline.
+  // Note that these methods support old-style pipeline connections.
+  // When writing new code you should use the more general
+  // vtkAlgorithm::SetInputConnection().  These methods transform the
+  // input index to the input port index, not an index of a connection
+  // within a single port.
   void SetInput(vtkDataObject*);
   void SetInput(int, vtkDataObject*);
   void SetInput(vtkDataSet*);
   void SetInput(int, vtkDataSet*);
 
   // Description:
-  // Add an input of this algorithm.
+  // Add an input of this algorithm.  Note that these methods support
+  // old-style pipeline connections.  When writing new code you should
+  // use the more general vtkAlgorithm::AddInputConnection().  See
+  // SetInput() for details.
   void AddInput(vtkDataObject *);
   void AddInput(vtkDataSet*);
   void AddInput(int, vtkDataSet*);
