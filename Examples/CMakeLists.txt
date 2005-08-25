@@ -125,6 +125,12 @@ IF(VTK_BINARY_DIR)
   IF(VTK_USE_PARALLEL)
     ADD_DEPENDENCIES(VTKExamplesTarget vtkParallel)
   ENDIF(VTK_USE_PARALLEL)
+  IF(VTK_USE_QVTK)
+    ADD_DEPENDENCIES(VTKExamplesTarget QVTK)
+  ENDIF(VTK_USE_QVTK)
+  IF(VTK_USE_MFC)
+    ADD_DEPENDENCIES(VTKExamplesTarget vtkMFC)
+  ENDIF(VTK_USE_MFC)
 
 ELSE(VTK_BINARY_DIR)
   # We are building outside the VTK tree.  Build the examples directly.
