@@ -168,20 +168,50 @@ CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/VTKConfigQt.cmake.in
 # install rules
 
 IF(BUILD_QVTK_PLUGIN)
-# install at /plugins/designer allows one to set their designer plugin path
-# in the designer preferences to the vtk-install/plugins directory.
+  # The VTK_INSTALL_QT_PLUGIN_DIR variable sets the location
+  # in which the Qt plugin will be installed.  It may or may not contain
+  # variable references to CMAKE_INSTALL_PREFIX and VTK_INSTALL_QT_DIR.
+  # The default is to install to VTK_INSTALL_QT_DIR under the installation
+  # prefix.  The default VTK_INSTALL_QT_DIR will allow the designer plugin
+  # path to be set to vtk-install-prefix/plugins to get the plugin.
   IF(NOT VTK_INSTALL_QT_DIR)
     SET(VTK_INSTALL_QT_DIR /plugins/designer)
   ENDIF(NOT VTK_INSTALL_QT_DIR)
-  IF(NOT VTK_INSTALL_NO_RUNTIME)
-    INSTALL_TARGETS( ${VTK_INSTALL_QT_DIR} QVTKWidgetPlugin )
-  ENDIF(NOT VTK_INSTALL_NO_RUNTIME)
 
-  IF ( UNIX )
-    ADD_CUSTOM_TARGET( install-qtplugin
-                       install -m 777 -o root ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so ${QTDIR}/${VTK_INSTALL_QT_DIR}
-                       DEPENDS ${VTK_BINARY_DIR}/bin/libQVTKWidgetPlugin.so )
-  ENDIF ( UNIX )
+  # If no runtime is to be installed then do not install the qt plugin.
+  IF(VTK_INSTALL_NO_RUNTIME)
+    SET(VTK_INSTALL_NO_QT_PLUGIN 1)
+  ENDIF(VTK_INSTALL_NO_RUNTIME)
+
+  IF(NOT VTK_INSTALL_NO_QT_PLUGIN)
+    # Set default plugin install directory.
+    SET(DOLLAR "$")
+    IF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+    ELSE(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+      SET(VTK_INSTALL_QT_PLUGIN_DIR "${DOLLAR}{CMAKE_INSTALL_PREFIX}${DOLLAR}{VTK_INSTALL_QT_DIR}"
+        CACHE STRING "Directory in which the VTK Qt plugin is placed during installation.")
+      MARK_AS_ADVANCED(VTK_INSTALL_QT_PLUGIN_DIR)
+    ENDIF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
+
+    # If there are multiple configurations then make sure the one
+    # specified by the CMake variable BUILD_TYPE is installed.  This
+    # variable is set while the install script is running.
+    IF(CMAKE_CONFIGURATION_TYPES)
+      SET(VTK_INSTALL_QT_BUILD_TYPE "/${DOLLAR}{BUILD_TYPE}")
+    ELSE(CMAKE_CONFIGURATION_TYPES)
+      SET(VTK_INSTALL_QT_BUILD_TYPE)
+    ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+    # Configure the plugin install script.  This is used instead of
+    # INSTALL_TARGETS to allow the plugin to be installed outside the
+    # main install prefix.  Attach the script as a post-install script.
+    CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/PluginInstall.cmake.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
+                   @ONLY IMMEDIATE)
+    SET_TARGET_PROPERTIES(QVTK PROPERTIES POST_INSTALL_SCRIPT
+      ${CMAKE_CURRENT_BINARY_DIR}/PluginInstall.cmake
+      )
+  ENDIF(NOT VTK_INSTALL_NO_QT_PLUGIN)
 ENDIF(BUILD_QVTK_PLUGIN)
 
 IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
