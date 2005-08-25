@@ -201,6 +201,7 @@ public:
   // The other information is about key board input.
   vtkGetVector2Macro(EventPosition,int);
   vtkGetVector2Macro(LastEventPosition,int);
+  vtkSetVector2Macro(LastEventPosition,int);
   virtual void SetEventPosition(int x, int y)
   {
     vtkDebugMacro(<< this->GetClassName() << " (" << this 
