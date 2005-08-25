@@ -83,22 +83,50 @@ IF(PYTHON_EXECUTABLE)
     )
 ENDIF(PYTHON_EXECUTABLE)
 
-IF(UNIX)
-  IF(VTK_USE_RPATH)
+#-----------------------------------------------------------------------------
+# Configure the VTK install test.  It is enabled only if the install
+# prefix is set to an InstallTest directory under the top of the build
+# tree.
+STRING(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "${VTK_BINARY_DIR}/InstallTest"
+  VTK_TEST_INSTALL)
+
+# No install when using rpaths.
+IF(VTK_USE_RPATH)
+  SET(VTK_TEST_INSTALL 0)
+ENDIF(VTK_USE_RPATH)
+
+# We cannot safely implement the install test when there are multiple
+# configuration types unless tests are run by CTest 2.2 or higher.
+# See VTK/Examples/CMakeLists.txt where it adds the Example-vtkLocal
+# test for an explanation.
+IF(CMAKE_CONFIGURATION_TYPES)
+  IF(NOT VTK_TEST_WITH_CTEST)
     SET(VTK_TEST_INSTALL 0)
-  ELSE(VTK_USE_RPATH)
-    STRING(COMPARE EQUAL "${CMAKE_INSTALL_PREFIX}" "${VTK_BINARY_DIR}/InstallTest"
-      VTK_TEST_INSTALL)
-  ENDIF(VTK_USE_RPATH)
-  IF(VTK_TEST_INSTALL)
-    CONFIGURE_FILE(${VTK_SOURCE_DIR}/Common/Testing/Install/test.sh.in
-      ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh @ONLY
-      IMMEDIATE)
-    # Disable the install test until it can be fixed to deal with
-    # shared libraries correctly.
-    #ADD_TEST(Install /bin/sh ${VTK_BINARY_DIR}/Common/Testing/Install/test.sh)
-  ENDIF(VTK_TEST_INSTALL)
-ENDIF(UNIX)
+  ENDIF(NOT VTK_TEST_WITH_CTEST)
+ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+IF(VTK_TEST_INSTALL)
+  IF(CMAKE_CONFIGURATION_TYPES)
+    # There are multiple configurations.  Make sure the tested
+    # configuration is the one that is installed.
+    SET(DOLLAR "$")
+    SET(VTK_INSTALL_TEST_CONFIG_TYPE -C "${DOLLAR}{CTEST_CONFIGURATION_TYPE}")
+  ELSE(CMAKE_CONFIGURATION_TYPES)
+    # There is only one configuration.  It will be installed.
+    SET(VTK_INSTALL_TEST_CONFIG_TYPE)
+  ENDIF(CMAKE_CONFIGURATION_TYPES)
+
+  # Add a test to install VTK through the build system install target.
+  ADD_TEST(Install
+    ${CMAKE_CTEST_COMMAND}
+    ${VTK_INSTALL_TEST_CONFIG_TYPE}
+    --build-and-test ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}
+    --build-generator ${CMAKE_GENERATOR}
+    --build-project VTK
+    --build-makeprogram ${CMAKE_MAKE_PROGRAM}
+    --build-noclean
+    --build-target install)
+ENDIF(VTK_TEST_INSTALL)
 
 # Suppress memory checking of some tests
 CONFIGURE_FILE(${VTK_SOURCE_DIR}/Common/Testing/CTestCustom.ctest.in
