@@ -1,16 +1,9 @@
 PROJECT(MaterialLibrary)
 
-IF (WIN32)
-  IF (BUILD_SHARED_LIBS)
-    SET(MATERIAL_LIBRARY_DLL 1)
-  ELSE (BUILD_SHARED_LIBS)
-    SET(MATERIAL_LIBRARY_STATIC 1)
-  ENDIF(BUILD_SHARED_LIBS)
-ENDIF (WIN32)
- 
+# TODO: Handle no RPATH support.
 ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
 TARGET_LINK_LIBRARIES(ProcessShader
-  vtkCommon vtksys)
+  vtksys)
 
 # Build the ShaderCodes Library.
 SET (CgCodes
@@ -109,15 +102,21 @@ WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
 SET (MaterialXMLs)
 
 IF (VTK_USE_CG_SHADERS)
+  # Add Materials using Cg Shaders.
   SET (MaterialXMLs ${MaterialXMLs}
     ${MaterialLibrary_SOURCE_DIR}/Materials/CgSinewave.xml
     )
 ENDIF (VTK_USE_CG_SHADERS)
 
 IF (VTK_USE_GLSL_SHADERS)
+  # Add Materials using GLSL Shaders.
   SET (MaterialXMLs ${MaterialXMLs}
     )
 ENDIF (VTK_USE_GLSL_SHADERS)
+
+# Add the Materials that don't use Cg/GLSL.
+SET (Materials ${MaterialXMLs}
+  )
 
 ADD_CUSTOM_COMMAND(
   OUTPUT ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
@@ -146,45 +145,20 @@ ENDFOREACH(module)
 WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h
   ${VTK_MATERIAL_LIBRARY_MACRO})
 
-
-# Since we have configured header files that
-# this library needs.
-INCLUDE_DIRECTORIES(${MaterialLibrary_BINARY_DIR})
-INCLUDE_DIRECTORIES(${MaterialLibrary_SOURCE_DIR})
-
-CONFIGURE_FILE(${MaterialLibrary_SOURCE_DIR}/MaterialLibraryCMakeConfig.h.in
-  ${MaterialLibrary_BINARY_DIR}/MaterialLibraryCMakeConfig.h)
-
-ADD_LIBRARY(vtkMaterialLibrary
-  vtkShaderCodeLibrary.cxx
-  vtkMaterialLibrary.cxx)
-
-# Apply user-defined properties to the library target.
-IF(VTK_LIBRARY_PROPERTIES)
-  SET_TARGET_PROPERTIES(vtkMaterialLibrary PROPERTIES ${VTK_LIBRARY_PROPERTIES})
-ENDIF(VTK_LIBRARY_PROPERTIES)
-
-TARGET_LINK_LIBRARIES(vtkMaterialLibrary
-  vtkCommon)
-
 ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
   ${ShaderLibraryDependencies}
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
+
+ADD_DEPENDENCIES(vtkMaterialLibraryConfiguredFiles
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
-  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
+ 
+SET(MATERIAL_LIBRARY_SHADER_MACRO_HEADER
+  ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
+  CACHE INTERNAL "Path to vtkShaderCodeLibraryMacro.h")
 
-# The target vtkMaterialLibrary requires that the header files
-# with the shader/material code have been written out.
-ADD_DEPENDENCIES(vtkMaterialLibrary
-  vtkMaterialLibraryConfiguredFiles
- )
-
-IF (NOT VTK_INSTALL_NO_LIBRARIES)
-  INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkMaterialLibrary)
-ENDIF (NOT VTK_INSTALL_NO_LIBRARIES)
-
-SET(MATERIAL_LIBRARY_INCLUDE_DIR
-  ${MaterialLibrary_SOURCE_DIR} 
-  ${MaterialLibrary_BINARY_DIR}
-  CACHE INTERNAL "Include path for vtkMaterialLibrary.h and vtkShaderCodeLibrary.h")
+SET(MATERIAL_LIBRARY_MATERIAL_MACRO_HEADER
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h
+  CACHE INTERNAL "Path to vtkMaterialLibraryMacro.h")
+  
 

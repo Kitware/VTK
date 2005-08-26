@@ -1,9 +1,0 @@
-
-#ifndef __MaterialLibraryCMakeConfig_h_
-#define __MaterialLibraryCMakeConfig_h_
-
-#cmakedefine MATERIAL_LIBRARY_STATIC
-#cmakedefine MATERIAL_LIBRARY_DLL
-
-
-#endif

@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkMaterialLibrary.h
+  Module:    vtkShaderCodeLibrary.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,21 +12,20 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkMaterialLibrary - Library for Materials
+// .NAME vtkShaderCodeLibrary - Library for Hardware Shaders.
 // .SECTION Description
-// This class provides the Material XMLs.
+// This class provides the hardware shader code.
 
 #ifndef __vtkShaderCodeLibrary_h
 #define __vtkShaderCodeLibrary_h
 
 #include "vtkObject.h"
-#include "vtkMaterialLibraryConfig.h"
 
-class VTK_MATERIAL_LIBRARY_EXPORT vtkMaterialLibrary : public vtkObject
+class VTK_IO_EXPORT vtkShaderCodeLibrary : public vtkObject
 {
 public:
-  static vtkMaterialLibrary* New();
-  vtkTypeRevisionMacro(vtkMaterialLibrary, vtkObject);
+  static vtkShaderCodeLibrary* New();
+  vtkTypeRevisionMacro(vtkShaderCodeLibrary, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -35,16 +34,16 @@ public:
   // GLSL shader names are prefixed with GLSL.
   // This method allocates memory. It's the responsibility
   // of the caller to free this memory.
-  static char* GetMaterial(const char* name);
+  static char* GetShaderCode(const char* name);
 
 
 protected:
-  vtkMaterialLibrary();
-  ~vtkMaterialLibrary();
+  vtkShaderCodeLibrary();
+  ~vtkShaderCodeLibrary();
 
 private:
-  vtkMaterialLibrary(const vtkMaterialLibrary&); // Not implemented.
-  void operator=(const vtkMaterialLibrary&); // Not implemented.
+  vtkShaderCodeLibrary(const vtkShaderCodeLibrary&); // Not implemented.
+  void operator=(const vtkShaderCodeLibrary&); // Not implemented.
 };
 
 
