@@ -193,15 +193,6 @@ IF(BUILD_QVTK_PLUGIN)
       MARK_AS_ADVANCED(VTK_INSTALL_QT_PLUGIN_DIR)
     ENDIF(DEFINED VTK_INSTALL_QT_PLUGIN_DIR)
 
-    # If there are multiple configurations then make sure the one
-    # specified by the CMake variable BUILD_TYPE is installed.  This
-    # variable is set while the install script is running.
-    IF(CMAKE_CONFIGURATION_TYPES)
-      SET(VTK_INSTALL_QT_BUILD_TYPE "/${DOLLAR}{BUILD_TYPE}")
-    ELSE(CMAKE_CONFIGURATION_TYPES)
-      SET(VTK_INSTALL_QT_BUILD_TYPE)
-    ENDIF(CMAKE_CONFIGURATION_TYPES)
-
     # Configure the plugin install script.  This is used instead of
     # INSTALL_TARGETS to allow the plugin to be installed outside the
     # main install prefix.  Attach the script as a post-install script.
