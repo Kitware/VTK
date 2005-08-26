@@ -1,0 +1,10 @@
+# List of wrapped classes in VTK.
+
+
+VTKClassList = [
+    @VTK_CLASSES@
+    ]
+
+
+def get_vtk_classes():
+    return VTKClassList

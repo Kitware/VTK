@@ -57,7 +57,6 @@ MACRO (CONVERT_TCL_TEST_TO_PY tcl_tests kit_name)
     -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
     -A "${VTK_BINARY_DIR}/Wrapping/Python"
     -A "${VTK_LIBRARY_DIR}"
-    -k "${VTK_BINARY_DIR}/Utilities"
     DEPENDS ${TESTS_TO_CONVERT} 
     ${output_dir}/vtkTestsToConvert
     ${CONVERTER_SCRIPT}

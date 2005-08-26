@@ -17,8 +17,6 @@
 import sys
 import re
 import string
-import os.path
-import os
 
 for i in range(0, len(sys.argv)):
     if sys.argv[i] == '-A' and i < len(sys.argv)-1:
@@ -28,58 +26,6 @@ import vtkTclParser
 
 reVariable = re.compile("^([+\-])?\$([^\$\{\}]+)$")
 reCompoundVariable = re.compile("\$(?:([^\$\}\{]+)|\{([^\$\}]+)\})")
-reKitName = re.compile("vtk([a-zA-Z]+)Kit.cmake")
-
-def get_kit_classes(kit_cmake_files_dir):
-    "Reads a vtk{}Kit.cmake file and returns a list of the class names"
-    kit_cmake_filepaths = []
-    try:
-        listing = os.listdir(kit_cmake_files_dir)
-        for filename in listing:
-            if reKitName.match(filename):
-                kit_cmake_filepaths.append(os.path.join(kit_cmake_files_dir, filename))
-    except:
-        return "ERROR: listing dir %s" % kit_cmake_files_dir
-
-    text = ""
-    list = []
-    for kit_cmake_filepath in kit_cmake_filepaths:
-        try:
-            fp = file(kit_cmake_filepath, "r")
-            lines = fp.readlines()
-            fp.close()
-            for line in lines:
-                text += line
-        except:
-            #print "ERROR: Failed to read file %s" % kit_cmake_filepath
-            #return []
-            continue
-     
-        filename = os.path.basename(kit_cmake_filepath)
-        match = reKitName.match(filename)
-        if not match:
-            #print "ERROR: Failed to determine Kit name from file %s" % kit_cmake_filepath
-            #return []
-            continue
-
-        kitname = match.group(1)
-        upper_kitname = kitname.upper()
-      
-        reClassList = re.compile("SET\s*\(\s*VTK_%s_CLASSES\s([^\)]*)\)" % upper_kitname)
-        search = reClassList.search(text)
-        if not search:
-            #print "ERROR: Failed to locate the Kit Class list."
-            #return []
-            continue
-
-        list += search.group(1).split()
-    if not list:
-        print "ERROR: Failed to read vtk{Name}Kit.cmake files"
-    # remove quotation marks from the names.
-    ret_list = []
-    for elem in list:
-        ret_list.append(elem.strip("\""))
-    return ret_list 
 
 class vtkTclToPyConvertor(vtkTclParser.vtkTclParser):
 
@@ -445,19 +391,14 @@ if __name__ == "__main__":
         except:
             print "Failed to read class list file %s" % class_file
             sys.exit(1)
-    elif kit_files_dir:
-        # vtk{Name}Kit.cmake files specified. Get the class list from them
-        class_list = get_kit_classes(kit_files_dir)
-        pass
     else:
-        # try importing VTK as a last resort.
         try:
-            #import vtk
-            raise "Importing VTK no longer supported"
-            class_list += vtk.__dict__.keys()
-        except:
-            print "%s"  % sys.exc_info()[1]
+            import vtkClassList
+            class_list = vtkClassList.get_vtk_classes()
             pass
+        except:
+            print "ERROR: Failed to load module vtkClassList."
+            sys.exit(1)
      
     if not class_list:
         print "Cannot find list of classes. Please provide -f <file> option"
