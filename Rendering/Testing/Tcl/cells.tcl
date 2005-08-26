@@ -636,6 +636,7 @@ aLight SetConeAngle 25
 
 ren1 AddLight aLight
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 2.8

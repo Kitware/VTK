@@ -59,6 +59,7 @@ foreach order $orders {
 }
 
 renWin SetSize 300 300
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 210
 [ren1 GetActiveCamera] Elevation 30
 [ren1 GetActiveCamera] Dolly 1.2

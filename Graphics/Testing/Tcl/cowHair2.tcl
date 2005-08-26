@@ -56,6 +56,7 @@ vtkActor cow
 #
 ren1 AddActor cow
 ren1 AddActor hair
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 2
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 30

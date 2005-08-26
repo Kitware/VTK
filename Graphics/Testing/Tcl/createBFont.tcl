@@ -41,6 +41,7 @@ ren1 AddActor letter
   [letter GetProperty] SetRepresentationToWireframe
 
 ren1 SetBackground 1 1 1
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.2
 ren1 ResetCameraClippingRange
 

@@ -269,6 +269,7 @@ for  {set i 0} {$i < 16} {incr i} {
     }
 
 ren1 SetBackground  0.4392 0.5020 0.5647 
+ren1 ResetCamera
 [ren1 GetActiveCamera]   Zoom 1.4
 renWin SetSize 500 500
 

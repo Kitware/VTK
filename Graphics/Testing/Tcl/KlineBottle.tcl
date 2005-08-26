@@ -347,6 +347,7 @@ renWin SetSize 300 300
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 4.5
 $cam1 Azimuth -90

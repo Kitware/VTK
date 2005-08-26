@@ -110,6 +110,7 @@ vtkActor contourActor
 
 ren1 AddViewProp contourActor
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth   10
 [ren1 GetActiveCamera] Elevation 30
 ren1 ResetCameraClippingRange

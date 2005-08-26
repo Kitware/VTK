@@ -492,6 +492,8 @@ int TestImageTracerWidget( int argc, char *argv[] )
   ren2->SetViewport(0.5, 0, 1, 1);
   ren2->AddViewProp(imageActor2);
 
+  ren1->ResetCamera();
+  ren2->ResetCamera();
   renWin->SetSize(480, 240);
 
   imageTracerWidget->On();

@@ -39,6 +39,7 @@ ren1 AddActor blockActor0
 ren1 AddActor blockActor1
 ren1 AddActor blockActor2
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetFocalPoint 0 0 0
 $cam1 ParallelProjectionOff

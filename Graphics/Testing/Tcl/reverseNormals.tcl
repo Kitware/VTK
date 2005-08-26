@@ -60,6 +60,7 @@ ren1 AddActor cow
 
 ren1 SetBackground .1 .2 .4
 renWin SetSize 320 240
+ren1 ResetCamera
 [ren1 GetActiveCamera] SetViewUp 0 1 0
 [ren1 GetActiveCamera] Azimuth 180
 [ren1 GetActiveCamera] Dolly 1.75

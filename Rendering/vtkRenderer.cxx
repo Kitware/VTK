@@ -33,7 +33,7 @@
 #include "vtkTimerLog.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkRenderer, "1.218");
+vtkCxxRevisionMacro(vtkRenderer, "1.219");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -330,7 +330,7 @@ int vtkRenderer::UpdateCamera ()
     vtkDebugMacro(<< "No cameras are on, creating one.");
     // the get method will automagically create a camera
     // and reset it since one hasn't been specified yet
-    this->GetActiveCamera();
+    this->GetActiveCameraAndEventuallyReset();
     }
 
   // update the viewing transformation
@@ -348,7 +348,7 @@ int vtkRenderer::UpdateLightsGeometryToFollowCamera()
   // only update the light's geometry if this Renderer is tracking
   // this lights.  That allows one renderer to view the lights that
   // another renderer is setting up.
-  camera = this->GetActiveCamera();
+  camera = this->GetActiveCameraAndEventuallyReset();
   lightMatrix = camera->GetCameraLightTransformMatrix();
 
   vtkCollectionSimpleIterator sit;
@@ -419,6 +419,18 @@ void vtkRenderer::AllocateTime()
 
   totalTime = this->PropArrayCount;
   this->ComputeAspect();
+
+  // It is very likely that the culler framework will call our
+  // GetActiveCamera (say, to get the view frustrum planes for example).
+  // This does not reset the camera anymore. If no camera has been 
+  // created though, we want it not only to be created but also reset
+  // so that it behaves nicely for people who never bother with the camera
+  // (i.e. neither call GetActiveCamera or ResetCamera)
+
+  if ( this->Cullers->GetNumberOfItems())
+    {
+    this->GetActiveCameraAndEventuallyReset();
+    }
 
   vtkCollectionSimpleIterator sit;    
   for (this->Cullers->InitTraversal(sit); 
@@ -530,13 +542,13 @@ void vtkRenderer::SetActiveCamera(vtkCamera *cam)
   this->Modified();
 }
 
-
+//----------------------------------------------------------------------------
 vtkCamera* vtkRenderer::MakeCamera()
 {
   return vtkCamera::New();
 }
   
-// Get the current camera.
+//----------------------------------------------------------------------------
 vtkCamera *vtkRenderer::GetActiveCamera()
 {
   if ( this->ActiveCamera == NULL )
@@ -547,9 +559,23 @@ vtkCamera *vtkRenderer::GetActiveCamera()
     // The following line has been commented out as it has a lot of
     // side effects (like computing the bounds of all props, which will
     // eventually call UpdateInformation() on data objects, etc).
-    this->ResetCamera();
+    // Instead, the rendering code has been updated to internally use
+    // GetActiveCameraAndEventuallyReset which will reset the camera
+    // if it gets created
+    // this->ResetCamera();
     }
 
+  return this->ActiveCamera;
+}
+
+//----------------------------------------------------------------------------
+vtkCamera *vtkRenderer::GetActiveCameraAndEventuallyReset()
+{
+  if (this->ActiveCamera == NULL)
+    {
+    this->GetActiveCamera();
+    this->ResetCamera();
+    }
   return this->ActiveCamera;
 }
 
@@ -891,7 +917,7 @@ void vtkRenderer::ResetCameraClippingRange( double bounds[6] )
     return;
     }
   
-  this->GetActiveCamera();
+  this->GetActiveCameraAndEventuallyReset();
   if ( this->ActiveCamera == NULL )
     {
     vtkErrorMacro(<< "Trying to reset clipping range of non-existant camera");

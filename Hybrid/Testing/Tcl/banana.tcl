@@ -90,6 +90,7 @@ ren1 AddActor weightedTransActor
 ren1 SetBackground 0.1 0.2 0.5
 renWin SetSize 300 300
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 90
 [ren1 GetActiveCamera] Dolly 1
 # Get handles to some useful objects

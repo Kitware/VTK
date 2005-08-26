@@ -65,6 +65,7 @@ vtkActor triangleActor
 
 ren1 SetBackground .3 .7 .2
 ren1 AddActor triangleActor
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 
 # render the image

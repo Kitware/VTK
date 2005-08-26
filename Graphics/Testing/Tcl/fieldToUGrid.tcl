@@ -96,6 +96,7 @@ vtkRenderWindowInteractor iren
 ren1 AddActor moldActor
 ren1 AddActor parisonActor
 ren1 AddActor contours
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 60
 [ren1 GetActiveCamera] Roll -90
 [ren1 GetActiveCamera] Dolly 2

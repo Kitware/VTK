@@ -38,6 +38,7 @@ ren1 AddActor isoActor
 ren1 SetBackground 0.8 0.8 1
 renWin SetSize 400 400
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.3
 
 iren Initialize

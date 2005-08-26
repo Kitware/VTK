@@ -133,6 +133,7 @@ ren1 AddActor clipart
 [clipart GetProperty] SetSpecularPower 30
 [clipart GetProperty] SetDiffuse .9
 
+ren1 ResetCamera
 set camera [ren1 GetActiveCamera]
 $camera Azimuth 30
 $camera Elevation -30

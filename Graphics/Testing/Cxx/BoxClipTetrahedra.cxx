@@ -220,6 +220,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->AddActor(actor);
     renderer->SetBackground(0.0, 0.5, 0.5);
     PlaceRenderer(renderer, boxnum, i, 0);
+    renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -265,6 +266,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->AddActor(actor2);
     renderer->SetBackground(0.0, 0.5, 0.5);
     PlaceRenderer(renderer, boxnum, i, 1);
+    renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -303,6 +305,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->AddActor(actor);
     renderer->SetBackground(0.0, 0.5, 0.5);
     PlaceRenderer(renderer, boxnum, i, 2);
+    renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -349,6 +352,7 @@ static void TestBox(vtkRenderWindow *renwin, int boxnum,
     renderer->AddActor(actor2);
     renderer->SetBackground(0.0, 0.5, 0.5);
     PlaceRenderer(renderer, boxnum, i, 3);
+    renderer->ResetCamera();
     renwin->AddRenderer(renderer);
 
     vtkCamera *camera = renderer->GetActiveCamera();

@@ -59,7 +59,8 @@ ren1 AddActor tubeActor
 
 ren1 SetBackground 1 1 1
 renWin SetSize 900 350
-eval ren1 SetBackground 1 1 1
+ren1 SetBackground 1 1 1
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 4
 
 # render the image

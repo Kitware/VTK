@@ -81,12 +81,14 @@ ren2 SetViewport 0 0 1 .25
 
 renWin SetSize 300 300
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 8.88908 0.595038 29.3342
 $cam1 SetPosition 9.9 -26 41
 $cam1 SetViewUp 0.060772 -0.319905 0.945498
 
+ren2 ResetCamera
 set cam2 [ren2 GetActiveCamera]
 $cam2 ParallelProjectionOn
 $cam2 SetParallelScale .15

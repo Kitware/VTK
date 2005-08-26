@@ -49,6 +49,7 @@ ren1 AddActor block
 ren1 SetBackground 1 1 1
 renWin SetSize 400 400
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Azimuth 160
 $cam1 Elevation 30

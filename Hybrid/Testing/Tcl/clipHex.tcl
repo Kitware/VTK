@@ -165,6 +165,7 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 case2 Scalars 1 0
 renWin SetSize 400 400
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.2
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20

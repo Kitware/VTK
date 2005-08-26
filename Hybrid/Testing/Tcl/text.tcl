@@ -65,6 +65,7 @@ ren1 AddActor text0Actor
 ren1 AddActor text1Actor
 ren1 AddActor text2Actor
 ren1 AddActor text3Actor
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 3
 ren1 SetBackground .1 .2 .4
 

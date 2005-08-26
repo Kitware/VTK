@@ -151,6 +151,7 @@ iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
 renWin SetSize 400 400
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.3
 [ren1 GetActiveCamera] Elevation 15
 ren1 ResetCameraClippingRange

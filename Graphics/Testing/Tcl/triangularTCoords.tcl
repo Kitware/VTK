@@ -53,6 +53,7 @@ vtkActor cubeActor
 eval ren1 SetBackground $slate_grey
 ren1 AddActor cubeActor
 ren1 AddActor texturedActor
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 
 # render the image

@@ -539,6 +539,7 @@ ren1 AddViewProp romanTextActor
 
 ren1 SetBackground 0.7 0.8 1
 renWin SetSize 500 500
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.3
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render

@@ -522,6 +522,7 @@ ren1 AddActor aPolyVertexActor; [aPolyVertexActor GetProperty] SetDiffuseColor 1
 ren1 AddActor aPentaActor; [aPentaActor GetProperty] SetDiffuseColor .2 .4 .7
 ren1 AddActor aHexaActor; [aHexaActor GetProperty] SetDiffuseColor .7 .5 1
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 1.25

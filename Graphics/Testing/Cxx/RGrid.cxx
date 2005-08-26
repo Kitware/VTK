@@ -87,6 +87,7 @@ int RGrid( int argc, char *argv[] )
 
   renderer->AddActor(wireActor);
   renderer->SetBackground(1,1,1);
+  renderer->ResetCamera();
   renderer->GetActiveCamera()->Elevation(60.0);
   renderer->GetActiveCamera()->Azimuth(30.0);
   renderer->GetActiveCamera()->Zoom(1.0);

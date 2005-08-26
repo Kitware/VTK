@@ -60,6 +60,7 @@ vtkRenderWindowInteractor iren
 ren1 SetBackground 1 1 1
 ren1 AddActor contActor
 ren1 AddActor outlineActor
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.4
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize

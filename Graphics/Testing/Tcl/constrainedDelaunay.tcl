@@ -134,6 +134,7 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 ren1 AddActor meshActor
 ren1 AddActor edgeActor
+ren1 ResetCamera
 ren1 SetBackground 0 0 0
 renWin SetSize 450 300
 

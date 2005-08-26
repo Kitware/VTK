@@ -49,6 +49,7 @@ ren1 AddActor outlineActor
 ren1 AddActor isoActor
 ren1 SetBackground 0.2 0.3 0.4
 renWin SetSize 200 200
+ren1 ResetCamera
 [ren1 GetActiveCamera] Elevation 90
 [ren1 GetActiveCamera] SetViewUp 0 0 -1
 [ren1 GetActiveCamera] Azimuth 180

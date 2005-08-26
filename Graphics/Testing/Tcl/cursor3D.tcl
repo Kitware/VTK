@@ -66,6 +66,7 @@ ren1 AddActor cursorActor
 ren1 AddActor glyphActor
 ren1 SetBackground 1.0 1.0 1.0
 renWin SetSize 200 200
+ren1 ResetCamera
 [ren1 GetActiveCamera] Elevation 60
 ren1 ResetCameraClippingRange
 renWin Render

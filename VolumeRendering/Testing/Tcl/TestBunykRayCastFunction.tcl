@@ -81,6 +81,7 @@ ren1 AddViewProp actor
 ren1 AddVolume volume
 renWin SetSize 300 300
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 20.0
 [ren1 GetActiveCamera] Elevation 10.0
 [ren1 GetActiveCamera] Zoom 1.5

@@ -219,21 +219,25 @@ ren4 AddActor Actor4c
 
 ren1 SetBackground 1 1 1
 ren1 SetViewport 0.0 0.0 0.25 1.0
+ren1 ResetCamera
 [ren1 GetActiveCamera] SetPosition 1 -1 0
 ren1 ResetCamera
 
 ren2 SetBackground 1 1 1
 ren2 SetViewport 0.25 0.0 0.5 1.0
+ren2 ResetCamera
 [ren2 GetActiveCamera] SetPosition 1 -1 0   
 ren2 ResetCamera
 
 ren3 SetBackground 1 1 1
 ren3 SetViewport 0.5 0.0 0.75 1.0
+ren3 ResetCamera
 [ren3 GetActiveCamera] SetPosition 1 -1 0
 ren3 ResetCamera
 
 ren4 SetBackground 1 1 1
 ren4 SetViewport 0.75 0.0 1.0 1.0
+ren4 ResetCamera
 [ren4 GetActiveCamera] SetPosition 1 -1 0
 ren4 ResetCamera
 

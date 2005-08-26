@@ -56,6 +56,7 @@ vtkRenderWindowInteractor iren
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor actor
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 20
 [ren1 GetActiveCamera] Elevation 30
 ren1 SetBackground 0.1 0.2 0.4

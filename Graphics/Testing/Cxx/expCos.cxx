@@ -109,6 +109,7 @@ int expCos( int argc, char *argv[] )
   renWin->SetSize(300,300);
 
   // draw the resulting scene
+  ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(1.4);
   ren->GetActiveCamera()->Elevation(-55);
   ren->GetActiveCamera()->Azimuth(25);

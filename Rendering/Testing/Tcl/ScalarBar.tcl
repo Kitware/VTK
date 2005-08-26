@@ -70,6 +70,7 @@ renWin SetSize 350 350
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 scalarBar SetNumberOfLabels 8

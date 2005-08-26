@@ -489,6 +489,7 @@ ren1 AddActor left
 ren1 AddActor back
 [back GetProperty] SetDiffuseColor .2 .2 .2
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 2.5
 ren1 ResetCameraClippingRange
 

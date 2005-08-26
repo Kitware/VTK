@@ -62,6 +62,7 @@ for {set i 1} {$i<5} {incr i 1} {
   vtkRenderer ren$i
     ren$i AddActor edgeActor$i
     ren$i SetBackground 0 0 0
+    ren$i ResetCamera
     [ren$i GetActiveCamera] Zoom 1
     [ren$i GetActiveCamera] SetPosition 1.73906 12.7987 -0.257808
     [ren$i GetActiveCamera] SetViewUp 0.992444 0.00890284 -0.122379

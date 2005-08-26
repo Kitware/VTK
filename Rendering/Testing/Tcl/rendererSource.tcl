@@ -66,6 +66,7 @@ ren1 SetViewport 0 0 .5 1
 renWin SetSize 512 256
 ren1 SetBackground 0.1 0.2 0.4
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 9.71821 0.458166 29.3999
@@ -87,6 +88,7 @@ ren2 SetViewport .5 0 1 1
 [ren2 GetActiveCamera] Elevation 30
 ren2 SetBackground .8 .4 .3
 ren1 ResetCameraClippingRange
+ren2 ResetCamera
 ren2 ResetCameraClippingRange
 renWin Render
 
@@ -99,7 +101,6 @@ vtkTexture aTexture
 screen SetTexture aTexture
 
 renWin Render
-
 
 # render the image
 #

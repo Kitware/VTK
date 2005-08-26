@@ -142,7 +142,9 @@ public:
   void SetActiveCamera(vtkCamera *);
 
   // Description:
-  // Get the current camera.
+  // Get the current camera. If there is not camera assigned to the
+  // renderer already, a new one is created automatically.
+  // This does *not* reset the camera.
   vtkCamera *GetActiveCamera();
 
   // Description:
@@ -448,6 +450,12 @@ protected:
   // Ask all lights to load themselves into rendering pipeline.
   // This method will return the actual number of lights that were on.
   virtual int UpdateLights(void) {return 0;};
+
+  // Description:
+  // Get the current camera and eventually reset it if it gets created
+  // automatically (see GetActiveCamera).
+  // This is mainly used internally.
+  vtkCamera *GetActiveCameraAndEventuallyReset();
   
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.

@@ -66,6 +66,7 @@ ren1 AddLight lgt
 renWin SetSize 250 250
 ren1 SetBackground 0.1 0.2 0.4
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation 90
 $cam1 SetViewUp 0 0 -1

@@ -51,6 +51,7 @@ vtkActor outlineActor
 # Add the actors to the renderer, set the background and size
 #
 ren1 AddActor outlineActor
+ren1 ResetCamera
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Azimuth 20

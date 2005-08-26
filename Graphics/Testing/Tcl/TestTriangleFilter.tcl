@@ -102,6 +102,7 @@ ren1 AddActor actor
 ren1 SetBackground 1 1 1
 
 renWin SetSize 300 150
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 2.5
 renWin Render
 

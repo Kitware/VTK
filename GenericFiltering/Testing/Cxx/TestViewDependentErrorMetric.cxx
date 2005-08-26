@@ -249,6 +249,9 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   
 //  vtkCamera *cam1=renderer->GetActiveCamera();
   vtkCamera *cam2=renderer2->GetActiveCamera();
+
+  renderer->ResetCamera();
+  renderer2->ResetCamera();
   
   cam2->Azimuth(90);
   
@@ -258,7 +261,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   // but the view dependent error metric are not yet initialized!
   renderer->AddActor(actor);
   renderer2->AddActor(actor);
-  
+
   renWin->Render();
   
 #ifdef WRITE_GENERIC_RESULT

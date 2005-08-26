@@ -52,6 +52,7 @@ ren1 AddActor actor
 ren1 SetBackground 1 1 1
 renWin SetSize 300 300
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange .348 17.43
 $cam1 SetPosition 2.92 2.62 -0.836

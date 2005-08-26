@@ -61,6 +61,7 @@ vtkActor outlineActor
 #
 ren1 AddActor outlineActor
 ren1 SetBackground 0.9 .9 .9
+ren1 ResetCamera
 [ren1 GetActiveCamera] SetViewAngle 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Azimuth 20

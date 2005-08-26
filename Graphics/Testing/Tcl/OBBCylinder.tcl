@@ -56,6 +56,7 @@ ren1 AddActor model
 ren1 AddActor boxActor
 ren1 SetBackground 0.1 0.2 0.4
 renWin SetSize 300 300
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 
 # render the image

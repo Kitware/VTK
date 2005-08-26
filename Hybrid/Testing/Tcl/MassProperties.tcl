@@ -93,6 +93,7 @@ renWin SetSize 786 256
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Dolly 3
 ren1 ResetCameraClippingRange
