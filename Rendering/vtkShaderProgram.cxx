@@ -43,7 +43,7 @@
 #include "vtkGLSLShaderProgram.h"
 #endif
 
-vtkCxxRevisionMacro(vtkShaderProgram, "1.1.2.2");
+vtkCxxRevisionMacro(vtkShaderProgram, "1.1.2.3");
 
 vtkCxxSetObjectMacro(vtkShaderProgram, Material, vtkXMLMaterial);
 vtkCxxSetObjectMacro(vtkShaderProgram, VertexShader, vtkShader);
@@ -65,6 +65,19 @@ vtkShaderProgram::~vtkShaderProgram()
   this->SetMaterial(0);
   this->SetVertexShader(0);
   this->SetFragmentShader(0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkShaderProgram::ReleaseGraphicsResources(vtkWindow *w)
+{
+  if (this->VertexShader)
+    {
+    this->VertexShader->ReleaseGraphicsResources(w);
+    }
+  if (this->FragmentShader)
+    {
+    this->FragmentShader->ReleaseGraphicsResources(w);
+    }
 }
 
 //-----------------------------------------------------------------------------

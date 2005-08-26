@@ -65,7 +65,7 @@ int printOglError(char *vtkNotUsed(file), int vtkNotUsed(line))
 #endif
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.4");
+vtkCxxRevisionMacro(vtkGLSLShaderProgram, "1.1.2.5");
 vtkStandardNewMacro(vtkGLSLShaderProgram);
 
 //-----------------------------------------------------------------------------
@@ -85,6 +85,17 @@ vtkGLSLShaderProgram::~vtkGLSLShaderProgram()
 {
 }
 
+
+//-----------------------------------------------------------------------------
+void vtkGLSLShaderProgram::ReleaseGraphicsResources(vtkWindow* w)
+{
+  if (this->IsProgram())
+    {
+    vtkgl::DeleteProgram(this->Program);
+    this->Program = 0;
+    }
+  this->Superclass::ReleaseGraphicsResources(w);
+}
 
 //-----------------------------------------------------------------------------
 void vtkGLSLShaderProgram::Link()
@@ -348,6 +359,15 @@ void vtkGLSLShaderProgram::Render(vtkActor *actor, vtkRenderer *renderer)
     {
     this->GetGLSLFragment()->SetProgram(this->Program);
     this->FragmentShader->PassShaderVariables(actor, renderer);
+    }
+}
+//-----------------------------------------------------------------------------
+void vtkGLSLShaderProgram::PostRender(vtkActor*, vtkRenderer*)
+{
+  if (this->IsProgram())
+    {
+    // this unloads the shader program.
+    vtkgl::UseProgram(0);
     }
 }
 

@@ -169,7 +169,7 @@ static void printAttributeInfo(GLuint program, const char* vtkNotUsed(filename))
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkGLSLShader);
-vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.4");
+vtkCxxRevisionMacro(vtkGLSLShader, "1.1.2.5");
 
 //-----------------------------------------------------------------------------
 vtkGLSLShader::vtkGLSLShader()
@@ -180,6 +180,17 @@ vtkGLSLShader::vtkGLSLShader()
 //-----------------------------------------------------------------------------
 vtkGLSLShader::~vtkGLSLShader()
 {
+  this->ReleaseGraphicsResources(0);
+}
+
+//-----------------------------------------------------------------------------
+void vtkGLSLShader::ReleaseGraphicsResources(vtkWindow*)
+{
+  if (this->IsShader())
+    {
+    vtkgl::DeleteShader(this->Shader);
+    this->Shader = 0;
+    }
 }
 
 //-----------------------------------------------------------------------------

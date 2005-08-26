@@ -109,6 +109,11 @@ public:
   vtkSetMacro( Program, unsigned int );
   vtkGetMacro( Program, unsigned int );
 
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
 protected:
   vtkGLSLShader();
   virtual ~vtkGLSLShader();

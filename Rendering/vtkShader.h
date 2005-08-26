@@ -42,6 +42,7 @@ class vtkProperty;
 class vtkRenderer;
 class vtkShaderInternals;
 class vtkTexture;
+class vtkWindow;
 class vtkXMLDataElement;
 class vtkXMLShader;
 
@@ -76,6 +77,12 @@ public:
   // to Cg.
   virtual void Unbind() { }
 
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *) { }
+  
   // Description:
   // Get/Set the XMLShader reprentation for this shader.
   // A shader is not valid without a XMLShader.

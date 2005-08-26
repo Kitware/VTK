@@ -97,6 +97,11 @@ public:
   CGerror LastError;
   CgStateMatrixMap StateMatrixMap;
   
+  vtkCgShaderInternals()
+    {
+    this->LastError = CG_NO_ERROR;
+    }
+  
   CGparameter GetUniformParameter(const char* name)
     {
     if(!name)
@@ -122,20 +127,30 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkCgShader, "1.1.2.3");
+vtkCxxRevisionMacro(vtkCgShader, "1.1.2.4");
 vtkStandardNewMacro(vtkCgShader);
 
 //-----------------------------------------------------------------------------
 vtkCgShader::vtkCgShader()
 {
   this->Internals = new vtkCgShaderInternals;
-  this->Internals->LastError = CG_NO_ERROR;
 }
 
 //-----------------------------------------------------------------------------
 vtkCgShader::~vtkCgShader()
 {
+  this->ReleaseGraphicsResources(NULL);
   delete this->Internals;
+}
+
+//-----------------------------------------------------------------------------
+void vtkCgShader::ReleaseGraphicsResources(vtkWindow*)
+{
+  if (cgIsContext(this->Internals->Context))
+    {
+    // This will also destroy any programs contained in the context.
+    cgDestroyContext(this->Internals->Context);
+    }
 }
 
 //-----------------------------------------------------------------------------

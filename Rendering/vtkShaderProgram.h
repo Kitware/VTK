@@ -53,8 +53,9 @@
 class vtkActor;
 class vtkRenderer;
 class vtkRenderWindow;
-class vtkXMLMaterial;
 class vtkShader;
+class vtkWindow;
+class vtkXMLMaterial;
 
 // manages all shaders defined in the XML file
 // especially the part about sending things to the card
@@ -109,6 +110,13 @@ public:
   // Description:
   // Called to unload the shaders after the actor has been rendered.
   virtual void PostRender(vtkActor*, vtkRenderer*);
+
+  // Description:
+  // Release any graphics resources that are being consumed by this actor.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  void ReleaseGraphicsResources(vtkWindow *);
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
