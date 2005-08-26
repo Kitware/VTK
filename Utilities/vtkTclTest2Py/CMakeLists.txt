@@ -71,5 +71,7 @@ IF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
 
   ADD_CUSTOM_TARGET(vtktcltest2py_pyc ALL echo "..."
     DEPENDS "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtk_compile_complete")
-  ADD_DEPENDENCIES(vtktcltest2py_pyc vtkpython_pyc)
+  #ADD_DEPENDENCIES(vtktcltest2py_pyc vtkpython_pyc)
 ENDIF(PYTHON_EXECUTABLE AND VTK_WRAP_PYTHON)
+
+

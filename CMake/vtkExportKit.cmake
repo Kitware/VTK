@@ -23,6 +23,8 @@ MACRO(VTK_EXPORT_KIT kit ukit sources)
                  ${VTK_BINARY_DIR}/Utilities/InstallOnly/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
   SET(VTK_EXPORT_HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # This file is also used when converting Tcl tests to python tests.
   CONFIGURE_FILE(${VTK_SOURCE_DIR}/CMake/vtkKit.cmake.in
                  ${VTK_BINARY_DIR}/Utilities/vtk${kit}Kit.cmake
                  @ONLY IMMEDIATE)
