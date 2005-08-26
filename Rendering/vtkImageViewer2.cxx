@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.30");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.31");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -674,9 +674,9 @@ void vtkImageViewer2::Render()
 
       if (this->Renderer)
         {
+        this->Renderer->ResetCamera();
         this->Renderer->GetActiveCamera()->SetParallelScale(
           xs < 150 ? 75 : (xs - 1 ) / 2.0);
-        this->Renderer->ResetCamera();
         }
       this->FirstRender = 0;  
       }
@@ -763,4 +763,15 @@ void vtkImageViewer2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "WindowLevel:\n" << endl;
   this->WindowLevel->PrintSelf(os,indent.GetNextIndent());
   os << indent << "Slice: " << this->Slice << endl;
+  os << indent << "SliceOrientation: " << this->SliceOrientation << endl;
+  os << indent << "InteractorStyle: " << endl;
+  if (this->InteractorStyle)
+    {
+    os << "\n";
+    this->InteractorStyle->PrintSelf(os,indent.GetNextIndent());
+    }
+  else
+    {
+    os << "None";
+    }
 }
