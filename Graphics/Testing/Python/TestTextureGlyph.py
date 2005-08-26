@@ -70,6 +70,7 @@ class TestTextureGlyph(Testing.vtkTest):
         ren.SetBackground(0.5, 0.5, 0.5)
         ren.AddActor(a)
 
+        ren.ResetCamera();
         cam = ren.GetActiveCamera()
         cam.Azimuth(-90)
         cam.Zoom(1.4)

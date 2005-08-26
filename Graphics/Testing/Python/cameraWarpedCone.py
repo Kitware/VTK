@@ -48,6 +48,7 @@ trans.SetMatrix(mat)
 # assign our actor to the renderer
 ren.AddActor(coneActor)
 
+ren.ResetCamera();
 ren.GetActiveCamera().SetUserTransform(trans); 
 
 renWin.Render()

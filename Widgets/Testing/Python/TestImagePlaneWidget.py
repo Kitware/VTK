@@ -135,6 +135,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         planeWidgetZ.On()
 
         # Create an initial interesting view
+        ren.ResetCamera();
         cam1 = ren.GetActiveCamera()
         cam1.Elevation(110)
         cam1.SetViewUp(0, 0, -1)

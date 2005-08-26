@@ -86,6 +86,7 @@ class TestTensorGlyph(Testing.vtkTest):
             for j in i.GetActors():
                 ren.AddActor(j)
 
+        ren.ResetCamera();
         cam = ren.GetActiveCamera()
         cam.Azimuth(-20)
         cam.Elevation(20)
