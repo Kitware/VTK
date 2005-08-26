@@ -81,19 +81,13 @@ public:
   // Description:
   // Add/Remove/Query the window/level presets that may have been associated
   // to a medical image.
-  // The preset name can be empty, and does not have to be unique
-  // (the window/level pair has to).
-  virtual void AddWindowLevelPreset(double w, double l, const char *name);
+  virtual void AddWindowLevelPreset(double w, double l);
   virtual void RemoveWindowLevelPreset(double w, double l);
-  virtual void RemoveWindowLevelPreset(const char *name);
   virtual void RemoveAllWindowLevelPresets();
   virtual int GetNumberOfWindowLevelPresets();
-  virtual int GetWindowLevelPreset(const char *name, double *w, double *l);
-  virtual double* GetWindowLevelPreset(const char *name);
+  virtual int HasWindowLevelPreset(double w, double l);
   virtual int GetNthWindowLevelPreset(int idx, double *w, double *l);
   virtual double* GetNthWindowLevelPreset(int idx);
-  virtual const char* GetWindowLevelPresetName(double w, double l);
-  virtual const char* GetNthWindowLevelPresetName(int idx);
   
 protected:
   vtkMedicalImageProperties();

@@ -19,7 +19,7 @@
 #include <vtksys/stl/vector>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.2");
+vtkCxxRevisionMacro(vtkMedicalImageProperties, "1.3");
 vtkStandardNewMacro(vtkMedicalImageProperties);
 
 //----------------------------------------------------------------------------
@@ -30,7 +30,6 @@ public:
   class WindowLevelPreset
   {
   public:
-    vtksys_stl::string Name;
     double Window;
     double Level;
   };
@@ -104,44 +103,43 @@ void vtkMedicalImageProperties::DeepCopy(vtkMedicalImageProperties *p)
     {
     double w, l;
     p->GetNthWindowLevelPreset(i, &w, &l);
-    this->AddWindowLevelPreset(w, l, p->GetNthWindowLevelPresetName(i));
+    this->AddWindowLevelPreset(w, l);
     }
 }
 
 //----------------------------------------------------------------------------
 void vtkMedicalImageProperties::AddWindowLevelPreset(
-  double w, double l, const char *name)
+  double w, double l)
 {
-  if (!this->Internals)
+  if (!this->Internals || this->HasWindowLevelPreset(w, l))
     {
     return;
     }
 
-  // If we have that preset already, replace its name
-
-  vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
-    this->Internals->WindowLevelPresetPool.begin();
-  vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
-    this->Internals->WindowLevelPresetPool.end();
-  for (; it != end; ++it)
-    {
-    if ((*it).Window == w && (*it).Level == l)
-      {
-      (*it).Name = name ? name : "";
-      return;
-      }
-    }
-
-  // Otherwise add it
-
   vtkMedicalImagePropertiesInternals::WindowLevelPreset preset;
   preset.Window = w;
   preset.Level = l;
-  if (name)
-    {
-    preset.Name = name;
-    }
   this->Internals->WindowLevelPresetPool.push_back(preset);
+}
+
+//----------------------------------------------------------------------------
+int vtkMedicalImageProperties::HasWindowLevelPreset(double w, double l)
+{
+  if (this->Internals)
+    {
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
+      this->Internals->WindowLevelPresetPool.begin();
+    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
+      this->Internals->WindowLevelPresetPool.end();
+    for (; it != end; ++it)
+      {
+      if ((*it).Window == w && (*it).Level == l)
+        {
+        return 1;
+        }
+      }
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------
@@ -156,26 +154,6 @@ void vtkMedicalImageProperties::RemoveWindowLevelPreset(double w, double l)
     for (; it != end; ++it)
       {
       if ((*it).Window == w && (*it).Level == l)
-        {
-        this->Internals->WindowLevelPresetPool.erase(it);
-        break;
-        }
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkMedicalImageProperties::RemoveWindowLevelPreset(const char *name)
-{
-  if (this->Internals && name && *name)
-    {
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
-      this->Internals->WindowLevelPresetPool.begin();
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
-      this->Internals->WindowLevelPresetPool.end();
-    for (; it != end; ++it)
-      {
-      if (!strcmp((*it).Name.c_str(), name))
         {
         this->Internals->WindowLevelPresetPool.erase(it);
         break;
@@ -200,41 +178,6 @@ int vtkMedicalImageProperties::GetNumberOfWindowLevelPresets()
 }
 
 //----------------------------------------------------------------------------
-int vtkMedicalImageProperties::GetWindowLevelPreset(
-  const char *name, double *w, double *l)
-{
-  if (this->Internals && name && *name && w && l)
-    {
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
-      this->Internals->WindowLevelPresetPool.begin();
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
-      this->Internals->WindowLevelPresetPool.end();
-    for (; it != end; ++it)
-      {
-      if (!strcmp((*it).Name.c_str(), name))
-        {
-        *w = (*it).Window;
-        *l = (*it).Level;
-        return 1;
-        }
-      }
-    }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-double* vtkMedicalImageProperties::GetWindowLevelPreset(const char *name)
-
-{
-  static double wl[2];
-  if (this->GetWindowLevelPreset(name, wl, wl + 1))
-    {
-    return wl;
-    }
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
 int vtkMedicalImageProperties::GetNthWindowLevelPreset(
   int idx, double *w, double *l)
 {
@@ -256,39 +199,6 @@ double* vtkMedicalImageProperties::GetNthWindowLevelPreset(int idx)
   if (this->GetNthWindowLevelPreset(idx, wl, wl + 1))
     {
     return wl;
-    }
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
-const char* vtkMedicalImageProperties::GetWindowLevelPresetName(
-  double w, double l)
-
-{
-  if (this->Internals)
-    {
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator it = 
-      this->Internals->WindowLevelPresetPool.begin();
-    vtkMedicalImagePropertiesInternals::WindowLevelPresetPoolIterator end = 
-      this->Internals->WindowLevelPresetPool.end();
-    for (; it != end; ++it)
-      {
-      if ((*it).Window == w && (*it).Level == l)
-        {
-        return (*it).Name.c_str();
-        }
-      }
-    }
-  return NULL;
-}
-
-//----------------------------------------------------------------------------
-const char* vtkMedicalImageProperties::GetNthWindowLevelPresetName(int idx)
-{
-  if (this->Internals && 
-      idx >= 0 && idx < this->GetNumberOfWindowLevelPresets())
-    {
-    return this->Internals->WindowLevelPresetPool[idx].Name.c_str();
     }
   return NULL;
 }
