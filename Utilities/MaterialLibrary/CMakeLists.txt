@@ -91,12 +91,13 @@ FOREACH (module ${ShaderLibraryModules})
   SET(VTK_SHADER_CODE_LIBRARY_MACRO 
     "${VTK_SHADER_CODE_LIBRARY_MACRO} if (strcmp(name, \"${module}\") == 0)\\
         {\\
-        return vtkShader${module}GetCode()\;\\
+        return vtkShader${module}GetCode();\\
         }\\\n")
 ENDFOREACH(module)
 
-WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
-  ${VTK_SHADER_CODE_LIBRARY_MACRO})
+CONFIGURE_FILE(${MaterialLibrary_SOURCE_DIR}/vtkShaderCodeLibraryMacro.h.in
+  ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
+  @ONLY)
 
 # Build the Material library.
 SET (MaterialXMLs)
@@ -138,18 +139,17 @@ FOREACH(module ${MaterialModules})
   SET (VTK_MATERIAL_LIBRARY_MACRO
     "${VTK_MATERIAL_LIBRARY_MACRO} if (strcmp(name, \"${module}\") == 0)\\
       {\\
-      return vtkMaterial${module}GetXML()\;\\
+      return vtkMaterial${module}GetXML();\\
       }\\\n")
 ENDFOREACH(module)
 
-WRITE_FILE(${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h
-  ${VTK_MATERIAL_LIBRARY_MACRO})
+CONFIGURE_FILE(
+  ${MaterialLibrary_SOURCE_DIR}/vtkMaterialLibraryMacro.h.in
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
 
 ADD_CUSTOM_TARGET(vtkMaterialLibraryConfiguredFiles ALL DEPENDS
   ${ShaderLibraryDependencies}
-  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h)
-
-ADD_DEPENDENCIES(vtkMaterialLibraryConfiguredFiles
+  ${MaterialLibrary_BINARY_DIR}/vtkMaterialXMLLibrary.h
   ${MaterialLibrary_BINARY_DIR}/vtkShaderCodeLibraryMacro.h
   ${MaterialLibrary_BINARY_DIR}/vtkMaterialLibraryMacro.h)
  
