@@ -145,6 +145,7 @@ public:
     DisableEvent,
     CreateTimerEvent,
     DestroyTimerEvent,
+    PlacePointEvent,
     PlaceWidgetEvent,
     CursorChangedEvent,
     ExecuteInformationEvent,
