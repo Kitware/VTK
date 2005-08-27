@@ -164,6 +164,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   if (Me == 0)
     {
+    renderer->ResetCamera();
     vtkCamera *camera = renderer->GetActiveCamera();
     camera->UpdateViewport(renderer);
     camera->ParallelProjectionOn();
@@ -199,6 +200,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
     if (Me == 0)
       {
+      renderer->ResetCamera();
       vtkCamera *camera = renderer->GetActiveCamera();
       camera->UpdateViewport(renderer);
       camera->ParallelProjectionOn();

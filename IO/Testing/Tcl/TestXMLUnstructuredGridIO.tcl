@@ -98,6 +98,7 @@ ren1 AddActor actor0
 ren1 AddActor actor1
 ren1 AddActor actor2
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] SetPosition 180 55 65
 [ren1 GetActiveCamera] SetFocalPoint 3.5 32 15 
 renWin SetSize 300 300

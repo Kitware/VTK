@@ -352,6 +352,7 @@ int main(int argc, char** argv)
   vtkRenderWindow* renWin = vtkRenderWindow::New();
   renWin->SetSize(500,400);
   renWin->AddRenderer(ren);
+  ren->ResetCamera();
   ren->GetActiveCamera()->Zoom(2.2);
   ren->UnRegister(0);
 

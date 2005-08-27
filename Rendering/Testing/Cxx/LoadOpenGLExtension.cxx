@@ -153,6 +153,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
 
   renwin->AddRenderer(renderer);
 
+  renderer->ResetCamera();
   vtkCamera *camera = renderer->GetActiveCamera();
   camera->Elevation(-45);
 
