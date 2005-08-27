@@ -33,8 +33,6 @@
 
 #include "vtkRenderWindowInteractor.h"
 
-#include <unistd.h>
-
 static const int scMsgLength = 10;
 
 static void CleanUp(vtkSocketCommunicator* comm, vtkSocketController* contr)
