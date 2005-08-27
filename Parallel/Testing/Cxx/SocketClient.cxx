@@ -17,7 +17,6 @@
 #include "vtkDataSetMapper.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkInputPort.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRectilinearGrid.h"
@@ -33,6 +32,8 @@
 #include "vtkImageActor.h"
 
 #include "vtkRenderWindowInteractor.h"
+
+#include <unistd.h>
 
 static const int scMsgLength = 10;
 
@@ -268,35 +269,21 @@ int main(int argc, char** argv)
   contr->Barrier();
   contr->Finalize();
 
-  // Test the ports
-  vtkInputPort* ip = vtkInputPort::New();
-  ip->SetController(contr);
-  ip->SetTag(45);
-  ip->SetRemoteProcessId(1);
-
-  // Get polydata
-  ip->UpdateWholeExtent();
-
   vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
   vtkPolyData* pd = vtkPolyData::New();
-  pd->ShallowCopy(ip->GetPolyDataOutput());
+  comm->Receive(pd, 1, 11);
   pmapper->SetInput(pd);
   pd->Delete();
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* pactor = vtkActor::New();
   pactor->SetMapper(pmapper);
   pmapper->UnRegister(0);
 
-  // Get rectilinear grid
-  ip->UpdateWholeExtent();
-
   vtkDataSetMapper* rgmapper = vtkDataSetMapper::New();
   vtkRectilinearGrid* rg = vtkRectilinearGrid::New();
-  rg->ShallowCopy(ip->GetRectilinearGridOutput());
+  comm->Receive(rg, 1, 11);
   rgmapper->SetInput(rg);
   rg->Delete();
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkActor* rgactor = vtkActor::New();
   rgactor->SetMapper(rgmapper);
@@ -304,16 +291,12 @@ int main(int argc, char** argv)
   rgactor->SetScale(2, 2, 2);
   rgmapper->UnRegister(0);
 
-  // Get structured grid
-  ip->UpdateWholeExtent();
-
   vtkContourFilter* iso2 = vtkContourFilter::New();
   vtkStructuredGrid* sg = vtkStructuredGrid::New();
-  sg->ShallowCopy(ip->GetStructuredGridOutput());
+  comm->Receive(sg, 1, 11);
   iso2->SetInput(sg);
   sg->Delete();
   iso2->SetValue(0, .205);
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
 
   vtkPolyDataMapper* sgmapper = vtkPolyDataMapper::New();
   sgmapper->SetInputConnection(0, iso2->GetOutputPort());
@@ -324,12 +307,9 @@ int main(int argc, char** argv)
   sgactor->SetPosition(10, -5, -40);
   sgmapper->UnRegister(0);
 
-  // Get image data
-  ip->UpdateWholeExtent();
 
   vtkImageData* id = vtkImageData::New();
-  id->ShallowCopy(ip->GetImageDataOutput());
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
+  comm->Receive(id, 1, 11);
 
   vtkImageActor* imactor = vtkImageActor::New();
   imactor->SetInput(id);
@@ -360,7 +340,6 @@ int main(int argc, char** argv)
 
   int retVal = vtkRegressionTestImage( renWin );
 
-  ip->Delete();
   renWin->Delete();
   ugrid->Delete();
   CleanUp(comm, contr);

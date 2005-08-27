@@ -32,7 +32,7 @@
 #include "vtkDistributedDataFilter.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkPieceScalars.h"
-#include "vtkMultiProcessController.h"
+#include "vtkMPIController.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -246,7 +246,7 @@ int main(int argc, char **argv)
 {
   int retVal = 1;
 
-  vtkMultiProcessController *contr = vtkMultiProcessController::New();
+  vtkMPIController *contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv);
 
   vtkMultiProcessController::SetGlobalController(contr);

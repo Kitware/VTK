@@ -14,7 +14,7 @@
 =========================================================================*/
 // This program demonstrates the use ports by setting up a simple 
 // pipeline. All processes create an identical pipeline:
-// vtkImageReader -> vtkContourFilter -> vtkElevationFilter
+// vtkImageReader -> vtkContourFilter -> vtkProcessIdScalars
 // In addition, the first (root) process creates n input ports
 // (where n=nProcs-1), each attached to an output port on the other 
 // processes. It then appends the polygonal output from all input 
@@ -28,10 +28,8 @@
 #include "vtkDataSet.h"
 #include "vtkElevationFilter.h"
 #include "vtkImageReader.h"
-#include "vtkInputPort.h"
 #include "vtkMath.h"
-#include "vtkMultiProcessController.h"
-#include "vtkOutputPort.h"
+#include "vtkMPIController.h"
 #include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -40,19 +38,21 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTIFFWriter.h"
-#include "vtkTimerLog.h"
 #include "vtkWindowToImageFilter.h"
 #include "vtkImageData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkInformation.h"
 
 #include "vtkDebugLeaks.h"
+
+#include <mpi.h>
 
 static const float ISO_START=4250.0;
 static const float ISO_STEP=-1250.0;
 static const int ISO_NUM=3;
 // Just pick a tag which is available
 static const int ISO_VALUE_RMI_TAG=300; 
-static const int PORT_TAG=999;
+static const int ISO_OUTPUT_TAG=301;
 
 struct ParallelIsoArgs_tmp
 {
@@ -61,16 +61,28 @@ struct ParallelIsoArgs_tmp
   char** argv;
 };
 
+struct ParallelIsoRMIArgs_tmp
+{
+  vtkContourFilter* ContourFilter;
+  vtkMultiProcessController* Controller;
+  vtkElevationFilter* Elevation;
+};
+
 // call back to set the iso surface value.
 void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg), 
                     int vtkNotUsed(remoteArgLen), int vtkNotUsed(id))
 { 
+  ParallelIsoRMIArgs_tmp* args = (ParallelIsoRMIArgs_tmp*)localArg;
+
   float val;
 
-  vtkContourFilter *iso;
-  iso = (vtkContourFilter *)localArg;
+  vtkContourFilter *iso = args->ContourFilter;
   val = iso->GetValue(0);
   iso->SetValue(0, val + ISO_STEP);
+  args->Elevation->Update();
+
+  vtkMultiProcessController* contrl = args->Controller;
+  contrl->Send(args->Elevation->GetOutput(), 0, ISO_OUTPUT_TAG);
 }
 
 
@@ -114,125 +126,86 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   val = (myid+1) / static_cast<float>(numProcs);
   elev->SetScalarRange(val, val+0.001);
 
+  // Tell the pipeline which piece we want to update.
+  vtkStreamingDemandDrivenPipeline* exec = 
+    vtkStreamingDemandDrivenPipeline::SafeDownCast(elev->GetExecutive());
+  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
+  exec->SetUpdatePiece(exec->GetOutputInformation(0), myid);
+
   if (myid != 0)
     {
     // If I am not the root process
+    ParallelIsoRMIArgs_tmp args;
+    args.ContourFilter = iso;
+    args.Controller = controller;
+    args.Elevation = elev;
 
-    // Satellite process! Send data through port.
-    vtkOutputPort *upPort = vtkOutputPort::New();
-    
     // Last, set up a RMI call back to change the iso surface value.
     // This is done so that the root process can let this process
     // know that it wants the contour value to change.
-    controller->AddRMI(SetIsoValueRMI, (void *)iso, ISO_VALUE_RMI_TAG);
-  
-    // connect the port to the output of the pipeline
-    upPort->SetInput(elev->GetPolyDataOutput());
-
-    // Multiple ports can go through the same connection.
-    // This is used to differentiate ports
-    upPort->SetTag(PORT_TAG);
-
-    // Loop which processes RMI requests. 
-    // Use vtkMultiProcessController::BREAK_RMI_TAG to break it.
-    // The root process with send a ISO_VALUE_RMI_TAG to make this
-    // process change it's contour value.
-    upPort->WaitForUpdate();
-    
-    // We are done. Clean up.
-    upPort->Delete();
+    controller->AddRMI(SetIsoValueRMI, (void *)&args, ISO_VALUE_RMI_TAG);
+    controller->ProcessRMIs();
     }
   else
     {
-    // If I am the root process
-
-    int i, j;
+    // Create the rendering part of the pipeline
     vtkAppendPolyData *app = vtkAppendPolyData::New();
-    vtkInputPort *downPort;
     vtkRenderer *ren = vtkRenderer::New();
     vtkRenderWindow *renWindow = vtkRenderWindow::New();
     vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
     vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
     vtkActor *actor = vtkActor::New();
-    vtkTimerLog *timer = vtkTimerLog::New();
     vtkCamera *cam = vtkCamera::New();
-
-    // Add my pipeline's output to the append filter
-    app->AddInput(elev->GetPolyDataOutput());
-
-    // ###################### important ####################
-    // # This tells the append filter to request pieces from
-    // # each of its inputs.  Since each of its inputs comes from
-    // # a different process,  each process generates a separate 
-    // # piece of the data (data parallelism).
-    // # If this is not used, all processes will iso-surface
-    // # all the data.
-    app->ParallelStreamingOn();
-    
-    // This is the main thread: Collect the data and render it.
-    for (i = 1; i < numProcs; ++i)
-      {
-      downPort = vtkInputPort::New();
-      downPort->SetRemoteProcessId(i);
-
-      // Multiple ports can go through the same connection.
-      // This is used to differentiate ports
-      downPort->SetTag(PORT_TAG);
-
-      app->AddInput(downPort->GetPolyDataOutput());
-
-      // Reference already incremented by AddInput(). Delete()
-      // will only decrement the count, not destroy the object.
-      // The ports will be destroyed when the append filter
-      // goes away.
-      downPort->Delete();
-      downPort = NULL;
-      }
-
-    // Create the rendering part of the pipeline
     renWindow->AddRenderer(ren);
     iren->SetRenderWindow(renWindow);
     ren->SetBackground(0.9, 0.9, 0.9);
     renWindow->SetSize( 400, 400);
-  
     mapper->SetInput(app->GetOutput());
     actor->SetMapper(mapper);
-  
     ren->AddActor(actor);
-  
     cam->SetFocalPoint(100, 100, 65);
     cam->SetPosition(100, 450, 65);
     cam->SetViewUp(0, 0, -1);
     cam->SetViewAngle(30);
-
     cam->SetClippingRange(177.0, 536.0);
     ren->SetActiveCamera(cam);
-    
+
     // loop through some iso surface values.
-    for (j = 0; j < ISO_NUM; ++j)
+    for (int j = 0; j < ISO_NUM; ++j)
       {
       // set the local value
-      SetIsoValueRMI((void*)iso, NULL, 0, 0);
-      for (i = 1; i < numProcs; ++i)
+      iso->SetValue(0, iso->GetValue(0) + ISO_STEP);
+      elev->Update();
+
+      for (int i = 1; i < numProcs; ++i)
         {
         // trigger the RMI to change the iso surface value.
         controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);      
         }
-      
-      // Time the rendering. Note that the execution on all processes
-      // start only after Update()
-      timer->StartTimer();
-      app->Update();
-      timer->StopTimer();
-      numTris = iso->GetOutput()->GetNumberOfCells();
-      val = iso->GetValue(0);
-      cout << "Update " << val << " took " << timer->GetElapsedTime() 
-           << " seconds to produce " << numTris << " triangles\n";
-      
-      // now render the results
-      renWindow->Render();
+      for (int i = 1; i < numProcs; ++i)
+        {
+        vtkPolyData* pd = vtkPolyData::New();
+        controller->Receive(pd, i, ISO_OUTPUT_TAG);
+        if (j == ISO_NUM - 1)
+          {
+          app->AddInput(pd);
+          }
+        pd->Delete();
+        }
       }
 
+    // Tell the other processors to stop processing RMIs.
+    for (int i = 1; i < numProcs; ++i)
+      {
+      controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG); 
+      }
+
+    vtkPolyData* outputCopy = vtkPolyData::New();
+    outputCopy->ShallowCopy(elev->GetOutput());
+    app->AddInput(outputCopy);
+    outputCopy->Delete();
+    app->Update();
+    renWindow->Render();
 
     *(args->retVal) = 
       vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
@@ -241,12 +214,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       {
       iren->Start();
       }
-    // Tell the other processors to stop processing RMIs.
-    for (i = 1; i < numProcs; ++i)
-      {
-      controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG); 
-      }
-    
+
     // Clean up
     app->Delete();
     ren->Delete();
@@ -255,7 +223,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     mapper->Delete();
     actor->Delete();
     cam->Delete();
-    timer->Delete();
     }
   
   // clean up objects in all processes.
@@ -267,13 +234,18 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
 int main( int argc, char* argv[] )
 {
-  vtkMultiProcessController *controller;
+  // This is here to avoid false leak messages from vtkDebugLeaks when
+  // using mpich. It appears that the root process which spawns all the
+  // main processes waits in MPI_Init() and calls exit() when
+  // the others are done, causing apparent memory leaks for any objects
+  // created before MPI_Init().
+  MPI_Init(&argc, &argv);
 
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  controller = vtkMultiProcessController::New();
+  vtkMPIController* controller = vtkMPIController::New();
 
-  controller->Initialize(&argc, &argv);
+  controller->Initialize(&argc, &argv, 1);
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
@@ -289,15 +261,6 @@ int main( int argc, char* argv[] )
   // ----------------------------------------------
 
   controller->SetSingleMethod(MyMain, &args);
-
-  // When using MPI, the number of processes is determined
-  // by the external program which launches this application.
-  // However, when using threads, we need to set it ourselves.
-  if (controller->IsA("vtkThreadedController"))
-    {
-    // Set the number of processes to 2 for this example.
-    controller->SetNumberOfProcesses(2);
-    } 
   controller->SingleMethodExecute();
 
   controller->Finalize();

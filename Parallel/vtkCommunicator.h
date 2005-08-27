@@ -12,7 +12,7 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkCommunicator - Used to send/receive messages in a multiprocess/thread environment.
+// .NAME vtkCommunicator - Used to send/receive messages in a multiprocess environment.
 // .SECTION Description
 // This is an abstact class which contains functionality for sending
 // and receiving inter-process messages. It contains methods for marshaling
@@ -24,7 +24,7 @@
 // supported. All machines have to have the same vtkIdType.
 
 // .SECTION see also
-// vtkSharedMemoryCommunicator vtkMPICommunicator
+// vtkMPICommunicator
 
 #ifndef __vtkCommunicator_h
 #define __vtkCommunicator_h

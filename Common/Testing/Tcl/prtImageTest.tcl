@@ -20,7 +20,7 @@ for {set i  1} {$i < [expr $argc - 1]} {incr i} {
    }
 }
 
-vtkMultiProcessController mpc
+vtkMPIController mpc
 set gc [mpc GetGlobalController]
 mpc Delete
 

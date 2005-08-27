@@ -20,10 +20,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInputPort.h"
 #include "vtkIntArray.h"
-#include "vtkMultiProcessController.h"
-#include "vtkOutputPort.h"
+#include "vtkMPIController.h"
 #include "vtkParallelFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -37,9 +35,7 @@
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
 
-#ifdef VTK_USE_MPI
-# include <mpi.h>
-#endif
+#include <mpi.h>
 
 static const int scMsgLength = 10;
 
@@ -50,31 +46,26 @@ struct GenericCommunicatorArgs_tmp
   char** argv;
 };
 
-static void UpdateXFreq(vtkObject *vtkNotUsed( caller ),
-                        unsigned long vtkNotUsed(eventId), 
-                        void *cd, void *)
-{
-  vtkRTAnalyticSource* id = reinterpret_cast<vtkRTAnalyticSource*>(cd);
-  id->SetXFreq(id->GetXFreq()+20);
-}
-
 void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
 {
   vtkCommunicator* comm = contr->GetCommunicator();
 
-  int i;
+  int i, retVal=1;
 
   // Test receiving all supported types of arrays
   vtkIntArray* ia = vtkIntArray::New();
   if (!comm->Receive(ia, 0, 11))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<ia->GetNumberOfTuples(); i++)
     {
     if (ia->GetValue(i) != i)
       {
       cerr << "Server error: Corrupt integer array." << endl;
+      retVal = 0;
+      break;
       }
     }
   ia->Delete();
@@ -83,12 +74,15 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(ula, 0, 22))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<ula->GetNumberOfTuples(); i++)
     {
     if (ula->GetValue(i) != static_cast<unsigned long>(i))
       {
       cerr << "Server error: Corrupt unsigned long array." << endl;
+      retVal = 0;
+      break;
       }
     }
   ula->Delete();
@@ -97,12 +91,15 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(ca, 0, 33))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<ca->GetNumberOfTuples(); i++)
     {
     if (ca->GetValue(i) != static_cast<char>(i))
       {
       cerr << "Server error: Corrupt char array." << endl;
+      retVal = 0;
+      break;
       }
     }
   ca->Delete();
@@ -111,12 +108,15 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(uca, 0, 44))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<uca->GetNumberOfTuples(); i++)
     {
     if (uca->GetValue(i) != static_cast<unsigned char>(i))
       {
       cerr << "Server error: Corrupt unsigned char array." << endl;
+      retVal = 0;
+      break;
       }
     }
   uca->Delete();
@@ -125,12 +125,15 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(fa, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<fa->GetNumberOfTuples(); i++)
     {
     if (fa->GetValue(i) != static_cast<float>(i))
       {
       cerr << "Server error: Corrupt float array." << endl;
+      retVal = 0;
+      break;
       }
     }
   fa->Delete();
@@ -139,12 +142,15 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(da, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<da->GetNumberOfTuples(); i++)
     {
     if (da->GetValue(i) != static_cast<double>(i))
       {
       cerr << "Server error: Corrupt double array." << endl;
+      retVal = 0;
+      break;
       }
     }
   da->Delete();
@@ -153,45 +159,20 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   if (!comm->Receive(ita, 0, 7))
     {
     cerr << "Server error: Error receiving data." << endl;
+    retVal = 0;
     }
   for (i=0; i<ita->GetNumberOfTuples(); i++)
     {
     if (ita->GetValue(i) != static_cast<vtkIdType>(i))
       {
       cerr << "Server error: Corrupt vtkIdType array." << endl;
+      retVal = 0;
+      break;
       }
     }
   ita->Delete();
 
-  vtkOutputPort* op = vtkOutputPort::New();
-  op->SetController(contr);
-  op->SetTag(45);
-
-  int extent = 20;
-  vtkRTAnalyticSource* id = vtkRTAnalyticSource::New();
-  id->SetWholeExtent (0, 2*extent, 0, 2*extent, 0, 2*extent); 
-  id->SetCenter(extent, extent, extent);
-  id->SetStandardDeviation( 0.5 );
-  id->SetMaximum( 255.0 );
-  id->SetXFreq( 60 );
-  id->SetXMag( 10 );
-  id->SetYFreq( 30 );
-  id->SetYMag( 18 );
-  id->SetZFreq( 40 );
-  id->SetZMag( 5 );
-  id->GetOutput()->SetSpacing(2.0/extent,2.0/extent,2.0/extent);
-
-  vtkCallbackCommand *cbc = vtkCallbackCommand::New();
-  cbc->SetCallback(UpdateXFreq);
-  cbc->SetClientData((void *)id);
-  op->AddObserver(vtkCommand::EndEvent,cbc);
-  cbc->Delete();
-                  
-  op->SetInput(id->GetOutput());
-  op->WaitForUpdate();
-  id->Delete();
-
-  op->Delete();
+  comm->Send(&retVal, 1, 0, 11);
 }
 
 void Process1(vtkMultiProcessController *contr, void *arg)
@@ -214,6 +195,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(ia, 1, 11))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   ia->Delete();
 
@@ -227,6 +209,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(ula, 1, 22))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   ula->Delete();
 
@@ -240,6 +223,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(ca, 1, 33))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   ca->Delete();
 
@@ -253,6 +237,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(uca, 1, 44))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   uca->Delete();
 
@@ -266,6 +251,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(fa, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   fa->Delete();
 
@@ -280,6 +266,7 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(da, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   da->Delete();
 
@@ -293,100 +280,35 @@ void Process1(vtkMultiProcessController *contr, void *arg)
   if (!comm->Send(ita, 1, 7))
     {
     cerr << "Client error: Error sending data." << endl;
+    *(args->retVal) = 0;
     }
   ita->Delete();
 
-  // Test the ports
-  vtkInputPort* ip = vtkInputPort::New();
-  ip->SetController(contr);
-  ip->SetTag(45);
-  ip->SetRemoteProcessId(1);
-
-  // Get polydata
-  ip->GetImageDataOutput()->Update();
-
-  vtkContourFilter* cf = vtkContourFilter::New();
-  cf->SetInput(ip->GetImageDataOutput());
-  
-  cf->SetNumberOfContours(1);
-  cf->SetValue(0, 220);
-
-  cf->Update();
-  cf->Update();
-  cf->Update();
-  cf->Update();
-  cf->Update();
-  cf->Update();
-  cf->Update();
-
-  vtkPolyData* pd = vtkPolyData::New();
-  pd->ShallowCopy(cf->GetOutput());
-  cf->Delete();
-
-  vtkPolyDataMapper* pmapper = vtkPolyDataMapper::New();
-  pmapper->SetInput(pd);
-  pd->Delete();
-
-  vtkActor* pactor = vtkActor::New();
-  pactor->SetMapper(pmapper);
-  pmapper->UnRegister(0);
-
-  vtkRenderer* ren = vtkRenderer::New();
-  ren->AddActor(pactor);
-  pactor->UnRegister(0);
-
-  vtkRenderWindow* renWin = vtkRenderWindow::New();
-  renWin->AddRenderer(ren);
-  ren->UnRegister(0);
-
-  vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::New();
-  iren->SetRenderWindow(renWin);
-  iren->Initialize();
-
-  renWin->Render();
-
-  *(args->retVal) = 
-    vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
-
-  if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
+  int remoteRetVal;
+  comm->Receive(&remoteRetVal, 1, 1, 11);
+  if (!remoteRetVal)
     {
-    iren->Start();
+    *(args->retVal) = 0;
     }
-  iren->Delete();
 
-  contr->TriggerRMI(1, vtkMultiProcessController::BREAK_RMI_TAG);
-
-  ip->Delete();
-  renWin->Delete();
 }
 
 int main(int argc, char** argv)
 {
-#ifdef VTK_USE_MPI
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
   // main processes waits in MPI_Init() and calls exit() when
   // the others are done, causing apparent memory leaks for any objects
   // created before MPI_Init().
   MPI_Init(&argc, &argv);
-#endif
 
-  vtkMultiProcessController* contr = vtkMultiProcessController::New();
+  vtkMPIController* contr = vtkMPIController::New();
   contr->Initialize(&argc, &argv,1);
   contr->CreateOutputWindow();
 
   vtkParallelFactory* pf = vtkParallelFactory::New();
   vtkObjectFactory::RegisterFactory(pf);
   pf->Delete();
-
-  // When using MPI, the number of processes is determined
-  // by the external program which launches this application.
-  // However, when using threads, we need to set it ourselves.
-  if (contr->IsA("vtkThreadedController"))
-    {
-    // Set the number of processes to 2 for this example.
-    contr->SetNumberOfProcesses(2);
-    } 
 
   // Added for regression test.
   // ----------------------------------------------

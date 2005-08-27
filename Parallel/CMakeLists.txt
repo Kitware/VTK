@@ -64,10 +64,8 @@ vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
 vtkPKdTree.cxx
-vtkInputPort.cxx
 vtkMemoryLimitImageDataStreamer.cxx
 vtkMultiProcessController.cxx
-vtkOutputPort.cxx
 vtkParallelRenderManager.cxx
 vtkPassThroughFilter.cxx
 vtkPCellDataToPointData.cxx
@@ -104,32 +102,12 @@ IF(VTK_HAS_EXODUS)
 ENDIF(VTK_HAS_EXODUS)
 
 SET_SOURCE_FILES_PROPERTIES(
+vtkCommunicator 
+vtkMultiProcessController
 vtkParallelRenderManager
 vtkPStreamTracer
 ABSTRACT
 )
-
-IF (CMAKE_USE_PTHREADS)
-   SET(VTK_HAS_THREADS 1)
-ENDIF (CMAKE_USE_PTHREADS)
-IF (CMAKE_USE_SPROC)
-   SET(VTK_HAS_THREADS 1)
-ENDIF (CMAKE_USE_SPROC)
-IF (CMAKE_USE_WIN32_THREADS)
-   SET(VTK_HAS_THREADS 1)
-ENDIF (CMAKE_USE_WIN32_THREADS)
-
-IF (VTK_HAS_THREADS)
- SET ( Kit_SRCS
-      ${Kit_SRCS}
-      vtkSharedMemoryCommunicator.cxx
-      vtkThreadedController.cxx)
-ENDIF (VTK_HAS_THREADS)
-
-
-SET_SOURCE_FILES_PROPERTIES(
-vtkCommunicator 
-ABSTRACT)
 
 IF (VTK_USE_MPI)
   INCLUDE (${CMAKE_ROOT}/Modules/FindMPI.cmake)

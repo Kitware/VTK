@@ -26,7 +26,7 @@
 // of that type.
 
 // .SECTION see also
-// vtkCommunicator vtkSharedMemoryCommunicator vtkSocketController
+// vtkCommunicator vtkSocketController
 
 #ifndef __vtkSocketCommunicator_h
 #define __vtkSocketCommunicator_h

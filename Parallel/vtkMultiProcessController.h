@@ -14,8 +14,8 @@
 =========================================================================*/
 // .NAME vtkMultiProcessController - Multiprocessing communication superclass
 // .SECTION Description
-// vtkMultiProcessController is used to control multiple processes/threads
-// in a shared memory/distributed computing environment. It has
+// vtkMultiProcessController is used to control multiple processes
+// in a distributed computing environment. It has
 // methods for executing single/multiple method(s) on multiple processors,
 // triggering registered callbacks (Remote Methods) (AddRMI(), TriggerRMI())
 // and communication. Please note that the communication is done using
@@ -23,21 +23,11 @@
 // possible to get the communicator with GetCommunicator() and use
 // it to send and receive data. This is the encoured communication method.
 // The internal (RMI) communications are done using a second internal
-// communicator (called RMICommunicator). For the threaded controllers,
-// this is identical to the user communicator. However, for the MPI
-// controller, this is a communicator which shares the same process
-// group as the user communicator but uses a different context. Therefore,
-// the user and the internal communications can not interfere with each
-// other (even if the same message tag is used).
-//
-// .SECTION Note
-// The internal behavior can be changed using the environment variable: 
-// VTK_CONTROLLER ( can be 'MPI' or 'Threaded' ). By defaut a vtkDummyController
-// is created
+// communicator (called RMICommunicator).
 //
 // .SECTION see also
-// vtkMPIController vtkThreadedController vtkInputPort vtkOutputPort 
-// vtkCommunicator vtkSharedMemoryCommunicator vtkMPICommunicator
+// vtkMPIController
+// vtkCommunicator vtkMPICommunicator
 
 #ifndef __vtkMultiProcessController_h
 #define __vtkMultiProcessController_h
@@ -68,7 +58,6 @@ typedef void (*vtkRMIFunctionType)(void *localArg,
 class VTK_PARALLEL_EXPORT vtkMultiProcessController : public vtkObject
 {
 public:
-  static vtkMultiProcessController *New();
   vtkTypeRevisionMacro(vtkMultiProcessController,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -151,17 +140,6 @@ public:
   // by the process id.
   virtual void CreateOutputWindow() = 0;
   
-  // Description:
-  // By default, sending objects use shallow copy whenever possible.
-  // This flag forces the controller to use deep copies instead.
-  // This is necessary when asynchronous processing occurs 
-  // (i.e. pipeline parallelism). This is only important when using
-  // vtkThreadedController.
-  vtkSetMacro(ForceDeepCopy, int);
-  vtkGetMacro(ForceDeepCopy, int);
-  vtkBooleanMacro(ForceDeepCopy, int);
-
-  
   //------------------ RMIs --------------------
   //BTX
   // Description:
@@ -212,7 +190,7 @@ public:
   // ProcessRMIs() calls ProcessRMIs(int) with reportErrors = 0.
   int ProcessRMIs(int reportErrors);
   int ProcessRMIs();
-
+ 
   // Description:
   // Setting this flag to 1 will cause the ProcessRMIs loop to return.
   // This also causes vtkUpStreamPorts to return from
@@ -245,7 +223,7 @@ public:
 //ETX
 
   // Description:
-  // This method can be used to synchronize processes/threads.
+  // This method can be used to synchronize processes.
   virtual void Barrier() = 0;
 
   static void SetGlobalController(vtkMultiProcessController *controller);
@@ -327,8 +305,7 @@ protected:
   // Communicator which is a copy of the current user
   // level communicator except the context; i.e. even if the tags 
   // are the same, the RMI messages will not interfere with user 
-  // level messages. (This only works with MPI. When using threads,
-  // the tags have to be unique.)
+  // level messages. 
   // Note that since the communicators can be created differently
   // depending on the type of controller, the subclasses are
   // responsible of deleting them.
@@ -341,11 +318,11 @@ private:
 
 
 inline int vtkMultiProcessController::Send(vtkDataObject *data, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, remoteThreadId, tag);
+    return this->Communicator->Send(data, remoteProcessId, tag);
     }
   else
     {
@@ -354,11 +331,11 @@ inline int vtkMultiProcessController::Send(vtkDataObject *data,
 }
 
 inline int vtkMultiProcessController::Send(vtkDataArray *data, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, remoteThreadId, tag);
+    return this->Communicator->Send(data, remoteProcessId, tag);
     }
   else
     {
@@ -367,11 +344,11 @@ inline int vtkMultiProcessController::Send(vtkDataArray *data,
 }
 
 inline int vtkMultiProcessController::Send(int* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -380,12 +357,12 @@ inline int vtkMultiProcessController::Send(int* data, int length,
 }
 
 inline int vtkMultiProcessController::Send(unsigned long* data, 
-                                           int length, int remoteThreadId, 
+                                           int length, int remoteProcessId, 
                                            int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -394,11 +371,11 @@ inline int vtkMultiProcessController::Send(unsigned long* data,
 }
 
 inline int vtkMultiProcessController::Send(char* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -407,11 +384,11 @@ inline int vtkMultiProcessController::Send(char* data, int length,
 }
 
 inline int vtkMultiProcessController::Send(unsigned char* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -420,11 +397,11 @@ inline int vtkMultiProcessController::Send(unsigned char* data, int length,
 }
 
 inline int vtkMultiProcessController::Send(float* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -433,11 +410,11 @@ inline int vtkMultiProcessController::Send(float* data, int length,
 }
 
 inline int vtkMultiProcessController::Send(double* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -447,11 +424,11 @@ inline int vtkMultiProcessController::Send(double* data, int length,
 
 #ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Send(vtkIdType* data, int length, 
-                                           int remoteThreadId, int tag)
+                                           int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Send(data, length, remoteThreadId, tag);
+    return this->Communicator->Send(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -461,11 +438,11 @@ inline int vtkMultiProcessController::Send(vtkIdType* data, int length,
 #endif
 
 inline int vtkMultiProcessController::Receive(vtkDataObject* data, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, remoteThreadId, tag);
+    return this->Communicator->Receive(data, remoteProcessId, tag);
     }
   else
     {
@@ -474,11 +451,11 @@ inline int vtkMultiProcessController::Receive(vtkDataObject* data,
 }
 
 inline int vtkMultiProcessController::Receive(vtkDataArray* data, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, remoteThreadId, tag);
+    return this->Communicator->Receive(data, remoteProcessId, tag);
     }
   else
     {
@@ -487,11 +464,11 @@ inline int vtkMultiProcessController::Receive(vtkDataArray* data,
 }
 
 inline int vtkMultiProcessController::Receive(int* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -500,12 +477,12 @@ inline int vtkMultiProcessController::Receive(int* data, int length,
 }
 
 inline int vtkMultiProcessController::Receive(unsigned long* data, 
-                                              int length,int remoteThreadId, 
+                                              int length,int remoteProcessId, 
                                               int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -514,11 +491,11 @@ inline int vtkMultiProcessController::Receive(unsigned long* data,
 }
 
 inline int vtkMultiProcessController::Receive(char* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -527,11 +504,11 @@ inline int vtkMultiProcessController::Receive(char* data, int length,
 }
 
 inline int vtkMultiProcessController::Receive(unsigned char* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -540,11 +517,11 @@ inline int vtkMultiProcessController::Receive(unsigned char* data, int length,
 }
 
 inline int vtkMultiProcessController::Receive(float* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -553,11 +530,11 @@ inline int vtkMultiProcessController::Receive(float* data, int length,
 }
 
 inline int vtkMultiProcessController::Receive(double* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {
@@ -567,11 +544,11 @@ inline int vtkMultiProcessController::Receive(double* data, int length,
 
 #ifdef VTK_USE_64BIT_IDS
 inline int vtkMultiProcessController::Receive(vtkIdType* data, int length, 
-                                              int remoteThreadId, int tag)
+                                              int remoteProcessId, int tag)
 {
   if (this->Communicator)
     {
-    return this->Communicator->Receive(data, length, remoteThreadId, tag);
+    return this->Communicator->Receive(data, length, remoteProcessId, tag);
     }
   else
     {

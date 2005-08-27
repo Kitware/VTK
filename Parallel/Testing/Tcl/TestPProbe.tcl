@@ -49,7 +49,7 @@ vtkLineSource probeLine
   probeLine SetPoint2 67 0 50
   probeLine SetResolution 500
 
-vtkMultiProcessController controler
+vtkMPIController controler
 
 vtkPProbeFilter Probe0
 	Probe0 SetSource [ironProt0 GetOutput]

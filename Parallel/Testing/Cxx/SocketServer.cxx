@@ -15,7 +15,6 @@
 #include "vtkBYUReader.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
-#include "vtkOutputPort.h"
 #include "vtkPLOT3DReader.h"
 #include "vtkPNMReader.h"
 #include "vtkPolyData.h"
@@ -246,10 +245,6 @@ int main(int argc, char** argv)
 
   contr->SetCommunicator(comm);
 
-  vtkOutputPort* op = vtkOutputPort::New();
-  op->SetController(contr);
-  op->SetTag(45);
-
   vtkBYUReader* pd = vtkBYUReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/teapot.g");
   pd->SetGeometryFileName(fname);
@@ -257,9 +252,7 @@ int main(int argc, char** argv)
 
   pd->Update();
 
-  op->SetInput(pd->GetOutput());
-  op->WaitForUpdate();
-  pd->Delete();
+  comm->Send(pd->GetOutput(), 1, 11);
 
   vtkRectilinearGridReader* rgrid = vtkRectilinearGridReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, 
@@ -269,9 +262,7 @@ int main(int argc, char** argv)
 
   rgrid->Update();
 
-  op->SetInput(rgrid->GetOutput());
-  op->WaitForUpdate();
-  rgrid->Delete();
+  comm->Send(rgrid->GetOutput(), 1, 11);
 
   vtkPLOT3DReader* pl3d = vtkPLOT3DReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/combxyz.bin");
@@ -285,9 +276,7 @@ int main(int argc, char** argv)
 
   pl3d->Update();
 
-  op->SetInput(pl3d->GetOutput());
-  op->WaitForUpdate();
-  pl3d->Delete();
+  comm->Send(pl3d->GetOutput(), 1, 11);
 
   vtkPNMReader* imageData = vtkPNMReader::New();
   fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/earth.ppm");
@@ -296,11 +285,8 @@ int main(int argc, char** argv)
 
   imageData->Update();
 
-  op->SetInput(imageData->GetOutput());
-  op->WaitForUpdate();
-  imageData->Delete();
+  comm->Send(imageData->GetOutput(), 1, 11);
 
-  op->Delete();
   CleanUp(comm, contr);
   return 0;
 }

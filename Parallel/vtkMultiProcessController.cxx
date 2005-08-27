@@ -15,7 +15,6 @@
 // This will be the default.
 #include "vtkMultiProcessController.h"
 #include "vtkDummyController.h"
-#include "vtkThreadedController.h"
 #include "vtkToolkits.h"
 
 #ifdef VTK_USE_MPI
@@ -23,7 +22,6 @@
 #endif
 
 #include "vtkCollection.h"
-#include "vtkMultiThreader.h"
 #include "vtkObjectFactory.h"
 #include "vtkOutputWindow.h"
 
@@ -51,10 +49,10 @@ protected:
   void operator=(const vtkMultiProcessControllerRMI&);
 };
 
-vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.22");
+vtkCxxRevisionMacro(vtkMultiProcessControllerRMI, "1.23");
 vtkStandardNewMacro(vtkMultiProcessControllerRMI);
 
-vtkCxxRevisionMacro(vtkMultiProcessController, "1.22");
+vtkCxxRevisionMacro(vtkMultiProcessController, "1.23");
 
 //----------------------------------------------------------------------------
 // An RMI function that will break the "ProcessRMIs" loop.
@@ -76,10 +74,6 @@ vtkMultiProcessController::vtkMultiProcessController()
 {
   int i;
 
-  // If some one is using multiple processes, 
-  // limit the number of threads to 1
-  vtkMultiThreader::SetGlobalDefaultNumberOfThreads(1);
-  
   this->LocalProcessId = 0;
   this->NumberOfProcesses = 1;
   this->MaximumNumberOfProcesses = MAX_PROCESSES;
@@ -128,35 +122,6 @@ vtkMultiProcessController::~vtkMultiProcessController()
 }
 
  
-//----------------------------------------------------------------------------
-vtkMultiProcessController *vtkMultiProcessController::New()
-{
-  const char *temp;
-  
-  // first check the environment variable
-  temp = getenv("VTK_CONTROLLER");
-  
-#ifdef VTK_USE_MPI
-  if ( temp == NULL || !strcmp("MPI",temp))
-    {
-    return vtkMPIController::New();
-    }
-#endif
-
-#if defined(VTK_USE_SPROC) || defined(VTK_USE_WIN32_THREADS) || defined(VTK_USE_PTHREADS)
-  if ( temp == NULL || !strcmp("Threaded",temp))
-    {
-    return vtkThreadedController::New();
-    }
-#endif
-
-  vtkGenericWarningMacro("No valid parallel library was found. "
-                         "Creating dummy controller.");
-  return vtkDummyController::New();
-}
-
-
-
 //----------------------------------------------------------------------------
 void vtkMultiProcessController::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -234,8 +199,6 @@ void vtkMultiProcessController::SetNumberOfProcesses(int num)
 
 
 //----------------------------------------------------------------------------
-// Set the user defined method that will be run on NumberOfThreads threads
-// when SingleMethodExecute is called.
 void vtkMultiProcessController::SetSingleMethod( vtkProcessFunctionType f, 
                                                  void *data )
 {
@@ -449,14 +412,12 @@ vtkMultiProcessController *vtkMultiProcessController::GetGlobalController()
 }
 //----------------------------------------------------------------------------
 // This can be overridden in the subclass to translate controllers.
-// (Threads have to share a global variable.)
 vtkMultiProcessController *vtkMultiProcessController::GetLocalController()
 {
   return VTK_GLOBAL_MULTI_PROCESS_CONTROLLER;
 }
 //----------------------------------------------------------------------------
 // This can be overridden in the subclass to translate controllers.
-// (Threads have to share a global variable.)
 void vtkMultiProcessController::SetGlobalController(
                                    vtkMultiProcessController *controller)
 {
