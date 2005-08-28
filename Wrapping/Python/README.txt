@@ -291,7 +291,15 @@ in the form of Debian, RPM and other packages.
 
 The VTK install rule (`make install` under Unix) will usually do the
 right thing in installing everything.  Make sure that the
-`CMAKE_INSTALL_PREFIX` variable is set appropriately.
+`CMAKE_INSTALL_PREFIX` variable is set appropriately.  There are two
+ways to customize python module installation.  First, one may modify
+the VTK_PYTHON_SETUP_ARGS CMake cache variable to set the options
+passed to the setup.py script.  The default value for this variable
+provides reasonable behavior for packagers.  Second, one may
+define VTK_INSTALL_NO_PYTHON:BOOL=ON in the CMake cache which will
+disable the automatic execution of setup.py as part of the install
+process.  Then one may run ``python setup.py install`` manually
+with the desired options.
 
 
 Common problems
