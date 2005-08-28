@@ -12,14 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This program demonstrates the use ports by setting up a simple 
-// pipeline. All processes create an identical pipeline:
-// vtkImageReader -> vtkContourFilter -> vtkProcessIdScalars
-// In addition, the first (root) process creates n input ports
-// (where n=nProcs-1), each attached to an output port on the other 
-// processes. It then appends the polygonal output from all input 
-// ports and it's own pipeline and renders the result ISO_NUM times,
-// each time setting a different scalar value to be contoured.
+// This example demonstrates the use of data parallelism in VTK. The
+// pipeline ( vtkImageReader -> vtkContourFilter -> vtkElevationFilter )
+// is created in parallel and each process is assigned 1 piece to process.
+// All satellite processes send the result to the first process which
+// collects and renders them.
+
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkCamera.h"
@@ -94,7 +92,6 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   vtkElevationFilter *elev;
   int myid, numProcs;
   float val;
-  int numTris;
   ParallelIsoArgs_tmp* args = reinterpret_cast<ParallelIsoArgs_tmp*>(arg);
   
   // Obtain the id of the running process and the total
