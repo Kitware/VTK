@@ -66,6 +66,7 @@ ren1 SetBackground 1 1 1
 renWin SetSize 300 300
 
 # Get the camera and zoom in closer to the image.
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Zoom 1.4
 
