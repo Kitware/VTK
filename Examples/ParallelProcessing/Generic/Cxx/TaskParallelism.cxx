@@ -89,7 +89,7 @@ int main( int argc, char* argv[] )
   
   // Note that this will create a vtkMPIController if MPI
   // is configured, vtkThreadedController otherwise.
-  vtkMultiProcessController* controller = vtkMultiProcessController::New();
+  vtkMPIController* controller = vtkMPIController::New();
   controller->Initialize(&argc, &argv);
 
   // When using MPI, the number of processes is determined

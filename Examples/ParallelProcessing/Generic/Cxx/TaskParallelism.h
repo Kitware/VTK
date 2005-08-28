@@ -15,7 +15,7 @@
 #ifndef __TASKPARA_H
 #define __TASKPARA_H
 
-#include "vtkMultiProcessController.h"
+#include "vtkMPIController.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkFieldDataToAttributeDataFilter.h"
 #include "vtkAttributeDataToFieldDataFilter.h"
