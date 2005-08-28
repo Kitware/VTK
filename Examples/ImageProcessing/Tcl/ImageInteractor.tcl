@@ -72,7 +72,7 @@ vtkPolyDataMapper2D bboxMapper
 vtkActor2D bboxActor
   bboxActor SetMapper bboxMapper
   [bboxActor GetProperty] SetColor 1 0 0
-ren1 AddProp bboxActor
+ren1 AddViewProp bboxActor
 
 ### Procedures for callbacks---------------------
 set X 0
