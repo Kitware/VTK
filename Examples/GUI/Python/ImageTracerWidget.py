@@ -183,7 +183,7 @@ itw.GetGlyphSource().Modified()
 itw.ProjectToPlaneOn()
 itw.SetProjectionNormalToXAxes()
 itw.SetProjectionPosition(pos)
-itw.SetProp(imageActor)
+itw.SetViewProp(imageActor)
 itw.SetInput(shifter.GetOutput())
 itw.SetInteractor(iren)
 itw.PlaceWidget()
@@ -257,8 +257,8 @@ stencil.SetBackgroundValue(128)
 
 # Add all the actors.
 #
-ren.AddProp(imageActor)
-ren2.AddProp(imageActor2)
+ren.AddViewProp(imageActor)
+ren2.AddViewProp(imageActor2)
 #
 
 # Render the image.

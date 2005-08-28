@@ -66,10 +66,10 @@ iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, and set the background.
-ren.AddProp(foheActor)
-ren.AddProp(outlineActor)
-ren2.AddProp(foheActor)
-ren2.AddProp(outlineActor)
+ren.AddViewProp(foheActor)
+ren.AddViewProp(outlineActor)
+ren2.AddViewProp(foheActor)
+ren2.AddViewProp(outlineActor)
 
 ren.SetBackground(0.1, 0.2, 0.4)
 ren2.SetBackground(0.1, 0.2, 0.4)
@@ -89,12 +89,12 @@ axes.SetFlyModeToOuterEdges()
 axes.SetFontFactor(0.8)
 axes.SetAxisTitleTextProperty(tprop)
 axes.SetAxisLabelTextProperty(tprop)
-ren.AddProp(axes)
+ren.AddViewProp(axes)
 
 # Create a vtkCubeAxesActor2D.  Use the closest vertex to the camera to
 # determine where to draw the axes.  Add the actor to the renderer.
 axes2 = vtk.vtkCubeAxesActor2D()
-axes2.SetProp(foheActor)
+axes2.SetViewProp(foheActor)
 axes2.SetCamera(ren2.GetActiveCamera())
 axes2.SetLabelFormat("%6.4g")
 axes2.SetFlyModeToClosestTriad()
@@ -102,7 +102,7 @@ axes2.SetFontFactor(0.8)
 axes2.ScalingOff()
 axes2.SetAxisTitleTextProperty(tprop)
 axes2.SetAxisLabelTextProperty(tprop)
-ren2.AddProp(axes2)
+ren2.AddViewProp(axes2)
 
 # Set up a check for aborting rendering.
 def CheckAbort(obj, event):
