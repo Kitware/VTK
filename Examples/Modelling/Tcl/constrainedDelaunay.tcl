@@ -145,6 +145,7 @@ renWin SetSize 450 300
 # render the image
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 2
 iren Initialize
 

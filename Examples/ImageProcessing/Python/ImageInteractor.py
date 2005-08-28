@@ -62,7 +62,7 @@ bboxMapper.SetInput(pd)
 bboxActor = vtk.vtkActor2D()
 bboxActor.SetMapper(bboxMapper)
 bboxActor.GetProperty().SetColor(1, 0, 0)
-ren.AddProp(bboxActor)
+ren.AddViewProp(bboxActor)
 
 ### Functions for callbacks 
 X = 0

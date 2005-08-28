@@ -48,6 +48,7 @@ ren.AddActor(sphereActor)
 
 ren.SetBackground(1, 1, 1)
 renWin.SetSize(250, 125)
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.5)
 
 iren.Initialize()

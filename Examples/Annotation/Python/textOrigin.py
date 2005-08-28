@@ -39,6 +39,7 @@ ren.AddActor(axesActor)
 ren.AddActor(textActor)
 
 # Zoom in closer.
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.6)
 
 # Reset the clipping range of the camera; set the camera of the

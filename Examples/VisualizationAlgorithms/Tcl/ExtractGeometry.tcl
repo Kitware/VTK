@@ -67,6 +67,7 @@ ren1 AddActor outlineActor
 ren1 AddActor dataActor
 ren1 SetBackground 1 1 1
 renWin SetSize 500 500
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 iren Initialize
 

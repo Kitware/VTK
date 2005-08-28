@@ -66,6 +66,7 @@ ren.AddActor(contActor)
 ren.AddActor(outlineActor)
 
 # Zoom in a little bit.
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.5)
 
 # Initialize and start the event loop.

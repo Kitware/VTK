@@ -72,6 +72,7 @@ renWin.SetSize(500, 500)
 ren.SetBackground(0.1, 0.2, 0.4)
 
 # Set a nice camera position.
+ren.ResetCamera()
 cam1 = ren.GetActiveCamera()
 cam1.Zoom(1.4)
 cam1.Azimuth(110)

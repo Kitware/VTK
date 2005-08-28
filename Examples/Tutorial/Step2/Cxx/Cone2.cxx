@@ -66,6 +66,7 @@ int main()
   vtkRenderer *ren1= vtkRenderer::New();
   ren1->AddActor( coneActor );
   ren1->SetBackground( 0.1, 0.2, 0.4 );
+  ren1->ResetCamera();
 
   vtkRenderWindow *renWin = vtkRenderWindow::New();
   renWin->AddRenderer( ren1 );

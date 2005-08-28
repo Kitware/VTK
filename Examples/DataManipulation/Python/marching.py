@@ -204,6 +204,7 @@ case12(Scalars, caseLabel, 0, 1)
 Grid.Modified()
 
 # Position the camera.
+ren.ResetCamera()
 ren.GetActiveCamera().Dolly(1.2)
 ren.GetActiveCamera().Azimuth(30)
 ren.GetActiveCamera().Elevation(20)

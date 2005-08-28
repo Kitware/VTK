@@ -194,6 +194,7 @@ case12 Scalars 0 1
 Grid Modified
 
 # Position the camera.
+ren1 ResetCamera
 [ren1 GetActiveCamera] Dolly 1.2
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20

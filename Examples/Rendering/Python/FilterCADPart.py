@@ -57,6 +57,7 @@ renWin.SetSize(200, 200)
 
 # We'll zoom in a little by accessing the camera and invoking a "Zoom"
 # method on it.
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.5)
 
 iren.Initialize()

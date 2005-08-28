@@ -368,6 +368,7 @@ ren1 AddActor aPolyLineActor
 ren1 AddActor aVertexActor
 ren1 AddActor aPolyVertexActor
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 30
 [ren1 GetActiveCamera] Elevation 20
 [ren1 GetActiveCamera] Dolly 2.8

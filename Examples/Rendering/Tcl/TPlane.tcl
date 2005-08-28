@@ -43,6 +43,7 @@ renWin SetSize 500 500
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 renWin Render
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 Elevation -30
 $cam1 Roll -20

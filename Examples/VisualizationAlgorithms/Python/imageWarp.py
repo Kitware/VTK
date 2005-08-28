@@ -42,6 +42,7 @@ iren.SetRenderWindow(renWin)
 
 # Add the actors to the renderer, set the background and size
 ren.AddActor(actor)
+ren.ResetCamera()
 ren.GetActiveCamera().Azimuth(20)
 ren.GetActiveCamera().Elevation(30)
 ren.SetBackground(0.1, 0.2, 0.4)

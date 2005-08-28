@@ -90,6 +90,7 @@ int main()
   //
   // Make one view 90 degrees from other.
   // 
+  ren1->ResetCamera();
   ren1->GetActiveCamera()->Azimuth(90);
 
   //

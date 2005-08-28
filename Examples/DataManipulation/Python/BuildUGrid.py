@@ -374,6 +374,7 @@ ren.AddActor(aPolyLineActor)
 ren.AddActor(aVertexActor)
 ren.AddActor(aPolyVertexActor)
 
+ren.ResetCamera()
 ren.GetActiveCamera().Azimuth(30)
 ren.GetActiveCamera().Elevation(20)
 ren.GetActiveCamera().Dolly(2.8)

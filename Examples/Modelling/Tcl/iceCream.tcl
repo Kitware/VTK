@@ -90,6 +90,7 @@ ren1 AddActor coneActor
 ren1 AddActor creamActor
 ren1 SetBackground 1 1 1
 renWin SetSize 250 250
+ren1 ResetCamera
 [ren1 GetActiveCamera] Roll 90
 [ren1 GetActiveCamera] Dolly 1.5
 ren1 ResetCameraClippingRange

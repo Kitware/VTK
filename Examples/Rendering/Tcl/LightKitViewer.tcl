@@ -162,6 +162,7 @@ vtkActor actor
 
 ren1 AddActor actor
 ren1 SetBackground 0.1 0.1 0.15
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 [ren1 GetActiveCamera] Elevation 40
 [ren1 GetActiveCamera] Azimuth -20

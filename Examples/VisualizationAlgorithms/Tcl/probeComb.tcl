@@ -111,6 +111,7 @@ ren1 AddActor tpd3Actor
 ren1 SetBackground 1 1 1
 renWin SetSize 400 400
 
+ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]
 $cam1 SetClippingRange 3.95297 50
 $cam1 SetFocalPoint 8.88908 0.595038 29.3342

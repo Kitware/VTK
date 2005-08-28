@@ -65,6 +65,7 @@ ren.AddActor(outlineActor)
 ren.AddActor(dataActor)
 ren.SetBackground(1, 1, 1)
 renWin.SetSize(500, 500)
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.5)
 
 iren.Initialize()

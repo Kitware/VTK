@@ -111,6 +111,7 @@ ren.AddActor(tpd3Actor)
 ren.SetBackground(1, 1, 1)
 renWin.SetSize(400, 400)
 
+ren.ResetCamera()
 cam1 = ren.GetActiveCamera()
 cam1.SetClippingRange(3.95297, 50)
 cam1.SetFocalPoint(8.88908, 0.595038, 29.3342)

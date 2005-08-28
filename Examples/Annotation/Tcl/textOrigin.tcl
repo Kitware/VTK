@@ -41,6 +41,7 @@ ren1 AddActor axesActor
 ren1 AddActor textActor
 
 # Zoom in closer.
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.6
 
 # Reset the clipping range of the camera; set the camera of the follower;

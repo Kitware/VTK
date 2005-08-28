@@ -69,6 +69,7 @@ renWin.SetSize(600, 300)
 #
 # Make one camera view 90 degrees from other.
 #
+ren1.ResetCamera()
 ren1.GetActiveCamera().Azimuth(90)
 
 #

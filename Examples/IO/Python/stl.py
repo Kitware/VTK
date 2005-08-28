@@ -33,6 +33,7 @@ ren.SetBackground(0.1, 0.2, 0.4)
 renWin.SetSize(500, 500)
 
 # Zoom in closer
+ren.ResetCamera()
 cam1 = ren.GetActiveCamera()
 cam1.Zoom(1.4)
 

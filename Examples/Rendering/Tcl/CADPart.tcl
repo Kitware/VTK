@@ -60,6 +60,7 @@ iren Initialize
 
 # We'll zoom in a little by accessing the camera and invoking a "Zoom"
 # method on it.
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 

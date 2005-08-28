@@ -77,6 +77,7 @@ ren.AddActor(edgeActor)
 ren.SetBackground(1, 1, 1)
 renWin.SetSize(150, 150)
 
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(1.5)
 
 # Interact with the data.

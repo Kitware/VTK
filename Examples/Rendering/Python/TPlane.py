@@ -36,6 +36,7 @@ ren.AddActor(planeActor)
 ren.SetBackground(0.1, 0.2, 0.4)
 renWin.SetSize(500, 500)
 
+ren.ResetCamera()
 cam1 = ren.GetActiveCamera()
 cam1.Elevation(-30)
 cam1.Roll(-20)

@@ -142,6 +142,7 @@ ren.AddActor(edgeActor)
 ren.SetBackground(0, 0, 0)
 renWin.SetSize(450, 300)
 
+ren.ResetCamera()
 ren.GetActiveCamera().Zoom(2)
 
 iren.Initialize()

@@ -51,6 +51,7 @@ renWin SetSize 300 300
 #
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.4
 iren Initialize
 

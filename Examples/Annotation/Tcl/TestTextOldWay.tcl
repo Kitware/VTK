@@ -53,6 +53,7 @@ ren1 AddActor sphereActor
 
 ren1 SetBackground 1 1 1
 renWin SetSize 250 125
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 renWin Render
 

@@ -65,6 +65,7 @@ ren1 AddActor outlineActor
 
 # Zoom in a little bit. Associate the Tk interactor popup with a user
 # keypress-u (the UserEvent).
+ren1 ResetCamera
 [ren1 GetActiveCamera] Zoom 1.5
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren Initialize;
