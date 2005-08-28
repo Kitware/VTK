@@ -87,14 +87,6 @@ IF (VTK_DATA_ROOT)
              -V Baseline/Parallel/TestPProbe.png
              -A ${VTK_SOURCE_DIR}/Wrapping/Tcl
              ${VTK_MPI_POSTFLAGS})
-  ELSE(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
-    ADD_TEST(TestPProbe-image ${VTK_EXECUTABLE}
-             ${VTK_SOURCE_DIR}/Common/Testing/Tcl/prtImageTest.tcl
-             ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPProbe.tcl
-             -D ${VTK_DATA_ROOT}
-             -T ${VTK_BINARY_DIR}/Testing/Temporary
-             -V Baseline/Parallel/TestPProbe.png
-             -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ENDIF(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
 ELSE (VTK_DATA_ROOT)
   ADD_TEST(PolyDataPieces ${VTK_EXECUTABLE}
