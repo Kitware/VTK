@@ -73,6 +73,10 @@
 #cmakedefine VTK_USE_SYSTEM_EXPAT
 #cmakedefine VTK_USE_SYSTEM_FREETYPE
 
+/* Whether VTK is using vfw32 and if it supports video capture */
+#cmakedefine VTK_USE_VIDEO_FOR_WINDOWS
+#cmakedefine VTK_VFW_SUPPORTS_CAPTURE
+
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE
 

@@ -737,6 +737,63 @@ IF(VTK_SIZEOF_LONG_LONG)
   ENDIF("VTK_ISTREAM_SUPPORTS_LONG_LONG" MATCHES "^VTK_ISTREAM_SUPPORTS_LONG_LONG$")
 ENDIF(VTK_SIZEOF_LONG_LONG)
 
+IF(VTK_USE_RENDERING AND WIN32)
+  # Check for vfw32 support
+  IF("VTK_USE_VIDEO_FOR_WINDOWS" MATCHES "^VTK_USE_VIDEO_FOR_WINDOWS$")
+    MESSAGE(STATUS "Checking if vfw32 is available")
+    TRY_COMPILE(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT
+      ${VTK_BINARY_DIR}/CMakeTmp
+      ${VTK_SOURCE_DIR}/CMake/vtkTestvfw32.cxx
+      CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=vfw32"
+      OUTPUT_VARIABLE OUTPUT)
+    IF(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
+      MESSAGE(STATUS "Checking if vfw32 is available -- yes")
+      OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Enable using Video for Windows (vfw32) for video input and output." ON)
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+        "Checking if vfw32 is available "
+        "passed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
+    ELSE(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
+      MESSAGE(STATUS "Checking if vfw32 is available -- no")
+      OPTION(VTK_USE_VIDEO_FOR_WINDOWS "Enable using Video for Windows (vfw32) for video input and output." OFF)
+      WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+        "Checking if vfw32 is available "
+        "failed with the following output:\n"
+        "${OUTPUT}\n" APPEND)
+    ENDIF(VTK_USE_VIDEO_FOR_WINDOWS_DEFAULT)
+    MARK_AS_ADVANCED(VTK_USE_VIDEO_FOR_WINDOWS)
+  ENDIF("VTK_USE_VIDEO_FOR_WINDOWS" MATCHES "^VTK_USE_VIDEO_FOR_WINDOWS$")
+
+  # Check if vfw32 supports the video capture functions
+  IF(VTK_USE_VIDEO_FOR_WINDOWS)
+    IF("VTK_VFW_SUPPORTS_CAPTURE" MATCHES "^VTK_VFW_SUPPORTS_CAPTURE$")
+      MESSAGE(STATUS "Checking if vfw32 supports video capture")
+      TRY_COMPILE(VTK_VFW_SUPPORTS_CAPTURE
+        ${VTK_BINARY_DIR}/CMakeTmp
+        ${VTK_SOURCE_DIR}/CMake/vtkTestvfw32Capture.cxx
+        CMAKE_FLAGS "-DLINK_LIBRARIES:STRING=vfw32"
+        OUTPUT_VARIABLE OUTPUT)
+      IF(VTK_VFW_SUPPORTS_CAPTURE)
+        MESSAGE(STATUS "Checking if vfw32 supports video capture -- yes")
+        SET(VTK_VFW_SUPPORTS_CAPTURE 1 CACHE INTERNAL "Enable using Video for Windows (vfw32) for video capture.")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+          "Checking if vfw32 supports video capture "
+          "passed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ELSE(VTK_VFW_SUPPORTS_CAPTURE)
+        MESSAGE(STATUS "Checking if vfw32 supports video capture -- no")
+        SET(VTK_VFW_SUPPORTS_CAPTURE 0 CACHE INTERNAL "Enable using Video for Windows (vfw32) for video capture.")
+        WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+          "Checking if vfw32 supports video capture "
+          "failed with the following output:\n"
+          "${OUTPUT}\n" APPEND)
+      ENDIF(VTK_VFW_SUPPORTS_CAPTURE)
+    ENDIF("VTK_VFW_SUPPORTS_CAPTURE" MATCHES "^VTK_VFW_SUPPORTS_CAPTURE$")
+  ELSE(VTK_USE_VIDEO_FOR_WINDOWS)
+    SET(VTK_VFW_SUPPORTS_CAPTURE 0)
+  ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
+ENDIF(VTK_USE_RENDERING AND WIN32)
+
 #-----------------------------------------------------------------------------
 # Configure KWSys to be named "vtksys".
 SET(KWSYS_NAMESPACE vtksys)
@@ -877,9 +934,6 @@ VTK_DEPENDENT_OPTION(VTK_USE_MPI
 VTK_DEPENDENT_OPTION(VTK_USE_MATROX_IMAGING
                      "Use Matrox Imaging Library for video input." OFF
                      "VTK_USE_RENDERING;WIN32" OFF)
-VTK_DEPENDENT_OPTION(VTK_USE_VIDEO_FOR_WINDOWS
-                     "Use Video for Windows for video input." OFF
-                     "VTK_USE_RENDERING;WIN32" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
                      "VTK_USE_RENDERING" ON)
 
@@ -900,8 +954,7 @@ MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
                  VTK_USE_GL2PS
                  VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
-                 VTK_USE_MPI
-                 VTK_USE_VIDEO_FOR_WINDOWS)
+                 VTK_USE_MPI)
 
 #-----------------------------------------------------------------------------
 # Provide options to use system versions of third-party libraries.

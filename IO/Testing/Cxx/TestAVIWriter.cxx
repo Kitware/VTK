@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestMovieWriter.cxx
+  Module:    TestAVIWriter.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,19 +12,19 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME Test of vtkMPEG2Writer
+// .NAME Test of vtkAVIWriter
 // .SECTION Description
 //
 
+#include "vtkAVIWriter.h"
 #include "vtkImageCast.h"
 #include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
-#include "vtkMPEG2Writer.h"
 #include "vtksys/SystemTools.hxx"
 
-int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int err = 0;
   int cc = 0;
@@ -52,10 +52,10 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   colorize->SetLookupTable(table);
   colorize->SetInput(cast->GetOutput());
 
-  vtkMPEG2Writer *w = vtkMPEG2Writer::New();
+  vtkAVIWriter *w = vtkAVIWriter::New();
   w->SetInput(colorize->GetOutput());
-  w->SetFileName("TestMovieWriter.mpg");
-  cout << "Writing file TestMovieWriter.mpg..." << endl;
+  w->SetFileName("TestAVIWriter.avi");
+  cout << "Writing file TestAVIWriter.avi..." << endl;
   w->Start();
   for ( cc = 2; cc < 99; cc ++ )
     {
@@ -67,24 +67,24 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
     }
-  w->End();  
+  w->End();
   cout << endl;
-  cout << "Done writing file TestMovieWriter.mpg..." << endl;
+  cout << "Done writing file TestAVIWriter.avi..." << endl;
   w->Delete();
 
-  exists = (int) vtksys::SystemTools::FileExists("TestMovieWriter.mpg");
-  length = vtksys::SystemTools::FileLength("TestMovieWriter.mpg");
-  cout << "TestMovieWriter.mpg file exists: " << exists << endl;
-  cout << "TestMovieWriter.mpg file length: " << length << endl;
+  exists = (int) vtksys::SystemTools::FileExists("TestAVIWriter.avi");
+  length = vtksys::SystemTools::FileLength("TestAVIWriter.avi");
+  cout << "TestAVIWriter.avi file exists: " << exists << endl;
+  cout << "TestAVIWriter.avi file length: " << length << endl;
   if (!exists)
     {
-    err = 1;
-    cerr << "ERROR: 1 - Test failing because TestMovieWriter.mpg file doesn't exist..." << endl;
+    err = 3;
+    cerr << "ERROR: 3 - Test failing because TestAVIWriter.avi file doesn't exist..." << endl;
     }
   if (0==length)
     {
-    err = 2;
-    cerr << "ERROR: 2 - Test failing because TestMovieWriter.mpg file has zero length..." << endl;
+    err = 4;
+    cerr << "ERROR: 4 - Test failing because TestAVIWriter.avi file has zero length..." << endl;
     }
 
   cast->Delete();
