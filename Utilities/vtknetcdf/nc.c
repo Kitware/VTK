@@ -298,7 +298,10 @@ read_numrecs(NC *ncp)
 
   status = ncx_get_size_t(&xp, &ncp->numrecs);
 
-  (void) ncp->nciop->rel(ncp->nciop, NC_NUMRECS_OFFSET, 0);
+  {
+  ncio_relfunc* func = (ncio_relfunc*)(ncp->nciop->rel);
+  (void) (func(ncp->nciop, NC_NUMRECS_OFFSET, 0));
+  }
 
   if(status == NC_NOERR)
     fClr(ncp->flags, NC_NDIRTY);
@@ -327,7 +330,10 @@ write_numrecs(NC *ncp)
 
   status = ncx_put_size_t(&xp, &ncp->numrecs);
 
-  (void) ncp->nciop->rel(ncp->nciop, NC_NUMRECS_OFFSET, RGN_MODIFIED);
+  {
+  ncio_relfunc* func = (ncio_relfunc*)(ncp->nciop->rel);
+  (void) (func(ncp->nciop, NC_NUMRECS_OFFSET, RGN_MODIFIED));
+  }
 
   if(status == NC_NOERR)
     fClr(ncp->flags, NC_NDIRTY);

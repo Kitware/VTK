@@ -1133,7 +1133,10 @@ ncio_free(ncio *nciop)
     return;
 
   if(nciop->free != NULL)
-    nciop->free(nciop->pvt);
+    {
+    ncio_freefunc* func = (ncio_freefunc*)nciop->free;
+    func(nciop->pvt);
+    }
   
   free(nciop);
 }
@@ -1371,7 +1374,10 @@ ncio_close(ncio *nciop, int doUnlink)
   if(nciop == NULL)
     return EINVAL;
 
-  status = nciop->sync(nciop);
+  {
+  ncio_syncfunc* func = (ncio_syncfunc*)(nciop->sync);
+  status = func(nciop);
+  }
 
   (void) close(nciop->fd);
   
