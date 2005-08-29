@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sys/stat.h>
 #endif
 
-#ifdef VTK_USE_RENDERING
+#ifndef VTK_USE_TK
 # include "vtkTk.h"
 #else
 # include "vtkTcl.h"
@@ -141,7 +141,7 @@ main(int argc, char **argv)
   vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
   Tcl_FindExecutable(av0.c_str());
 
-#ifdef VTK_USE_RENDERING
+#ifndef VTK_USE_TK
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
@@ -179,12 +179,7 @@ extern "C" int Vtkiotcl_Init(Tcl_Interp *interp);
 #ifdef VTK_USE_RENDERING
 extern "C" int Vtkrenderingtcl_Init(Tcl_Interp *interp);
 
-// if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
-// initialized by the Rendering kit, thus we need to do it here so
-// that we can use them from the vtk executable
-// Also, Cocoa does not suport those widgets yet
-
-#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
+#if defined(VTK_USE_TK)
 extern "C" int Vtktkrenderwidget_Init(Tcl_Interp *interp);
 extern "C" int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);
 #endif
@@ -387,7 +382,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 
-#ifdef VTK_USE_RENDERING
+#ifndef VTK_USE_TK
   if (Tk_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
@@ -422,12 +417,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 
-  // if VTK_DISABLE_TK_INIT is defined, then those widgets were *not*
-  // initialized by the Rendering kit, thus we need to do it here so
-  // that we can use them from the vtk executable
-  // Also, Cocoa does not suport those widgets yet
-
-#if defined(VTK_DISABLE_TK_INIT) && !defined(VTK_USE_COCOA)
+#if defined(VTK_USE_TK)
   if (Vtktkrenderwidget_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;

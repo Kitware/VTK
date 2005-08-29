@@ -37,6 +37,7 @@
 #cmakedefine VTK_USE_MANGLED_MESA
 #cmakedefine VTK_USE_OPENGL_LIBRARY
 #cmakedefine VTK_OPENGL_HAS_OSMESA
+#cmakedefine VTK_USE_OFFSCREEN
 
 /*--------------------------------------------------------------------------*/
 /* Wrapping Configuration                                                   */

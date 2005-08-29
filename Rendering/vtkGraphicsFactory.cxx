@@ -76,9 +76,16 @@
 #include "stdlib.h"
 
 static vtkSimpleCriticalSection vtkUseMesaClassesCriticalSection;
+static vtkSimpleCriticalSection vtkOffScreenOnlyModeCriticalSection;
 int vtkGraphicsFactory::UseMesaClasses = 0;
 
-vtkCxxRevisionMacro(vtkGraphicsFactory, "1.37");
+#ifdef VTK_USE_OFFSCREEN
+int vtkGraphicsFactory::OffScreenOnlyMode = 1;
+#else
+int vtkGraphicsFactory::OffScreenOnlyMode = 0;
+#endif
+
+vtkCxxRevisionMacro(vtkGraphicsFactory, "1.38");
 vtkStandardNewMacro(vtkGraphicsFactory);
 
 const char *vtkGraphicsFactory::GetRenderLibrary()
@@ -157,16 +164,22 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
       return vtkXOpenGLRenderWindow::New();
       }
     }
-  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+  if ( !vtkGraphicsFactory::GetOffScreenOnlyMode() )
     {
-    return vtkXRenderWindowInteractor::New();
+    if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+      {
+      return vtkXRenderWindowInteractor::New();
+      }
     }
 #endif
 
 #ifdef VTK_DISPLAY_WIN32_OGL
-  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+  if ( !vtkGraphicsFactory::GetOffScreenOnlyMode() )
     {
-    return vtkWin32RenderWindowInteractor::New();
+    if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+      {
+      return vtkWin32RenderWindowInteractor::New();
+      }
     }
   if (!strcmp("Win32OpenGL",rl))
     {
@@ -178,9 +191,12 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
 #endif
 
 #ifdef VTK_USE_CARBON
-  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+  if ( !vtkGraphicsFactory::GetOffScreenOnlyMode() )
     {
-    return vtkCarbonRenderWindowInteractor::New();
+    if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+      {
+      return vtkCarbonRenderWindowInteractor::New();
+      }
     }
   if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
     {
@@ -188,9 +204,12 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
     }
 #endif
 #ifdef VTK_USE_COCOA
-  if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+  if ( !vtkGraphicsFactory::GetOffScreenOnlyMode() )
     {
-    return vtkCocoaRenderWindowInteractor::New();
+    if(strcmp(vtkclassname, "vtkRenderWindowInteractor") == 0)
+      {
+      return vtkCocoaRenderWindowInteractor::New();
+      }
     }
   if(strcmp(vtkclassname, "vtkRenderWindow") == 0)
     {
@@ -287,6 +306,7 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   return 0;
 }
 
+//----------------------------------------------------------------------------
 void vtkGraphicsFactory::SetUseMesaClasses(int use)
 {
   vtkUseMesaClassesCriticalSection.Lock();
@@ -294,9 +314,24 @@ void vtkGraphicsFactory::SetUseMesaClasses(int use)
   vtkUseMesaClassesCriticalSection.Unlock();
 }
 
+//----------------------------------------------------------------------------
 int vtkGraphicsFactory::GetUseMesaClasses()
 {
   return vtkGraphicsFactory::UseMesaClasses;
+}
+
+//----------------------------------------------------------------------------
+void vtkGraphicsFactory::SetOffScreenOnlyMode(int use)
+{
+  vtkOffScreenOnlyModeCriticalSection.Lock();
+  vtkGraphicsFactory::OffScreenOnlyMode = use;
+  vtkOffScreenOnlyModeCriticalSection.Unlock();
+}
+
+//----------------------------------------------------------------------------
+int vtkGraphicsFactory::GetOffScreenOnlyMode()
+{
+  return vtkGraphicsFactory::OffScreenOnlyMode;
 }
 
 //----------------------------------------------------------------------------

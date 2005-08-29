@@ -860,6 +860,13 @@ VTK_DEPENDENT_OPTION(VTK_USE_MANGLED_MESA "Use mangled Mesa with OpenGL." OFF
 VTK_DEPENDENT_OPTION(VTK_OPENGL_HAS_OSMESA
                      "The opengl library being used supports off screen Mesa calls." OFF
                      "VTK_USE_RENDERING;UNIX" OFF)
+SET(VTK_CAN_DO_OFF_SCREEN)
+IF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA)
+  SET(VTK_CAN_DO_OFF_SCREEN 1)
+ENDIF(VTK_USE_MANGLED_MESA OR VTK_OPENGL_HAS_OSMESA)
+VTK_DEPENDENT_OPTION(VTK_USE_OFFSCREEN
+                     "The opengl library being used supports off screen Mesa calls." OFF
+                     "VTK_CAN_DO_OFF_SCREEN" OFF)
 VTK_DEPENDENT_OPTION(VTK_USE_MPI
                      "Use Message Passing Interface (MPI) library for parallel support." OFF
                      "VTK_USE_PARALLEL" OFF)
@@ -872,7 +879,20 @@ VTK_DEPENDENT_OPTION(VTK_USE_VIDEO_FOR_WINDOWS
 VTK_DEPENDENT_OPTION(VTK_USE_GL2PS "Build VTK with gl2ps support." OFF
                      "VTK_USE_RENDERING" ON)
 
+SET(VTK_CAN_USE_TK)
+IF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
+  IF(NOT VTK_USE_COCOA)
+    IF(NOT VTK_DISABLE_TK_INIT)
+      SET(VTK_CAN_USE_TK 1)
+    ENDIF(NOT VTK_DISABLE_TK_INIT)
+  ENDIF(NOT VTK_USE_COCOA)
+ENDIF(VTK_WRAP_PYTHON OR VTK_WRAP_TCL)
+VTK_DEPENDENT_OPTION(VTK_USE_TK "Build VTK with Tk support" ON
+                     "VTK_CAN_USE_TK" OFF)
+
 MARK_AS_ADVANCED(VTK_OPENGL_HAS_OSMESA
+                 VTK_USE_OFFSCREEN
+                 VTK_USE_TK
                  VTK_USE_GL2PS
                  VTK_USE_MANGLED_MESA
                  VTK_USE_MATROX_IMAGING
@@ -1114,9 +1134,9 @@ IF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
     SET(VTK_INCLUDE_NEED_TCL 1)
   ENDIF(VTK_USE_RENDERING OR VTK_WRAP_TCL)
   IF(VTK_USE_RENDERING)
-    SET(VTK_INCLUDE_NEED_TK 1)
-    SET(VTK_DISABLE_TK_INIT ${VTK_USE_COCOA} CACHE INTERNAL
-      "Disables the automatic initialization of Tk widgets when loading the rendering library.")
+    IF(VTK_USE_TK)
+      SET(VTK_INCLUDE_NEED_TK 1)
+    ENDIF(VTK_USE_TK)
   ENDIF(VTK_USE_RENDERING)
 ENDIF(VTK_WRAP_TCL OR VTK_WRAP_PYTHON)
 
@@ -1138,9 +1158,6 @@ ENDIF(VTK_INCLUDE_NEED_TK)
 # Need Tk internal headers for Tk initialization.
 
 SET(VTK_RENDERING_NEED_TK_INTERNAL ${VTK_INCLUDE_NEED_TK})
-IF(VTK_DISABLE_TK_INIT)
-  SET(VTK_RENDERING_NEED_TK_INTERNAL 0)
-ENDIF(VTK_DISABLE_TK_INIT)
 
 IF(VTK_INCLUDE_NEED_TK)
   # Need Tk Internal headers to include tk.h on Cocoa

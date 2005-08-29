@@ -84,7 +84,7 @@ vtkXOpenGLRenderWindowInternal::vtkXOpenGLRenderWindowInternal(
 
 
 #ifndef VTK_IMPLEMENT_MESA_CXX
-vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.53");
+vtkCxxRevisionMacro(vtkXOpenGLRenderWindow, "1.54");
 vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 #endif
 
@@ -973,6 +973,12 @@ int vtkXOpenGLRenderWindow::GetEventPending()
   XEvent report;
   
   vtkXOpenGLRenderWindowFoundMatch = 0;
+#if defined(VTK_OPENGL_HAS_OSMESA)
+  if (this->OffScreenRendering)
+    {
+    return vtkXOpenGLRenderWindowFoundMatch;
+    }
+#endif
   XCheckIfEvent(this->DisplayId, &report, vtkXOpenGLRenderWindowPredProc, 
                 (char *)this->WindowId);
   return vtkXOpenGLRenderWindowFoundMatch;

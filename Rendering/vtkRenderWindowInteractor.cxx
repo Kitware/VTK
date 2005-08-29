@@ -23,8 +23,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
+#include "vtkDebugLeaks.h"
 
-vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.107");
+vtkCxxRevisionMacro(vtkRenderWindowInteractor, "1.108");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -92,7 +93,14 @@ vtkRenderWindowInteractor *vtkRenderWindowInteractor::New()
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = 
     vtkGraphicsFactory::CreateInstance("vtkRenderWindowInteractor");
-  return (vtkRenderWindowInteractor *)ret;
+  if ( ret )
+    {
+    return (vtkRenderWindowInteractor *)ret;
+    }
+#ifdef VTK_DEBUG_LEAKS
+  vtkDebugLeaks::ConstructClass("vtkRenderWindowInteractor");
+#endif
+  return new vtkRenderWindowInteractor;
 }
 
 void vtkRenderWindowInteractor::Render()

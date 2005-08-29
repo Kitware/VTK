@@ -121,11 +121,11 @@ SET(VTK_INCLUDE_DIRS_BUILD_TREE_CXX
   ${VTK_BINARY_DIR}/Utilities/ftgl
 )
 
-IF(VTK_RENDERING_NEED_TK_INTERNAL)
+IF(VTK_USE_TK)
   # Need access to internal Tk headers for the vtkTk... widget .cxx files.
   SET(VTK_INCLUDE_DIRS_BUILD_TREE_CXX ${VTK_INCLUDE_DIRS_BUILD_TREE_CXX}
       ${TK_INTERNAL_PATH})
-ENDIF(VTK_RENDERING_NEED_TK_INTERNAL)
+ENDIF(VTK_USE_TK)
 
 IF (VTK_USE_MATROX_IMAGING)
   # Need access to mil.h include file for vtkMILVideoSource.cxx.

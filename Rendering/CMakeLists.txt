@@ -358,6 +358,7 @@ SET(KIT_TCL_DEPS)
 SET(KIT_PYTHON_DEPS)
 SET(KIT_JAVA_DEPS)
 
+IF(NOT VTK_USE_OFFSCREEN)
 IF (TK_LIBRARY)
   SET (HAVE_LIMITS_H ${CMAKE_HAVE_LIMITS_H})
   SET (HAVE_UNISTD_H ${CMAKE_HAVE_UNISTD_H})
@@ -370,29 +371,27 @@ IF (TK_LIBRARY)
   ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
   INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
 ENDIF (TK_LIBRARY)
+ENDIF(NOT VTK_USE_OFFSCREEN)
 
 IF (VTK_WRAP_TCL)
   IF(NOT VTK_USE_COCOA)
-    SET(KitTCL_SRCS
-       vtkTkRenderWidget.cxx
-       vtkTkImageViewerWidget.cxx)
+    IF(NOT VTK_USE_OFFSCREEN)
+      SET(KitTCL_SRCS
+        vtkTkRenderWidget.cxx
+        vtkTkImageViewerWidget.cxx)
+    ENDIF(NOT VTK_USE_OFFSCREEN)
   ENDIF(NOT VTK_USE_COCOA)
 
-  # Use special interactor for X and Tk.
-  IF(VTK_USE_X)
-    SET(KitTCL_SRCS ${KitTCL_SRCS}
-      vtkXRenderWindowTclInteractor.cxx)
-  ENDIF(VTK_USE_X)
-
-  # if VTK_DISABLE_TK_INIT is not defined, then those widgets *will* be
-  # initialized by the Rendering kit. If *not* defined we need to do it
-  # manually when needed (for example, in vtkTkAppInit so that
-  # we can use them from the vtk executable
-  IF (NOT VTK_DISABLE_TK_INIT)
-   SET(Kit_TCL_EXTRA_CMDS 
-     vtkTkRenderWidget 
-     vtkTkImageViewerWidget)
-  ENDIF (NOT VTK_DISABLE_TK_INIT)
+  IF (VTK_USE_TK)
+    # Use special interactor for X and Tk.
+    IF(VTK_USE_X)
+      SET(KitTCL_SRCS ${KitTCL_SRCS}
+        vtkXRenderWindowTclInteractor.cxx)
+    ENDIF(VTK_USE_X)
+    SET(Kit_TCL_EXTRA_CMDS 
+      vtkTkRenderWidget 
+      vtkTkImageViewerWidget)
+  ENDIF (VTK_USE_TK)
 ENDIF (VTK_WRAP_TCL)
 
 #-----------------------------------------------------------------------------
@@ -407,8 +406,8 @@ IF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 ENDIF(NOT VTK_INSTALL_NO_DEVELOPMENT)
 
 IF (VTK_WRAP_PYTHON)
-  IF (TK_LIBRARY)
-     IF(NOT VTK_USE_COCOA)
+  IF(VTK_USE_TK)
+    IF (TK_LIBRARY)
        SET(RenderingPythonTkWidgets_SRCS
           vtkTkWidgetsInit.cxx
           vtkTkRenderWidgetPython.cxx
@@ -429,8 +428,8 @@ IF (VTK_WRAP_PYTHON)
        IF(NOT VTK_INSTALL_NO_LIBRARIES)
          INSTALL_TARGETS(${VTK_INSTALL_LIB_DIR} vtkRenderingPythonTkWidgets)
        ENDIF(NOT VTK_INSTALL_NO_LIBRARIES)
-     ENDIF(NOT VTK_USE_COCOA)
-  ENDIF (TK_LIBRARY)
+     ENDIF (TK_LIBRARY)
+   ENDIF(VTK_USE_TK)
 ENDIF (VTK_WRAP_PYTHON)
 
 IF(VTK_USE_X)

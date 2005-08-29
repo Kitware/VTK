@@ -5,7 +5,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   #
   IF (VTK_DATA_ROOT)
     IF (VTK_PYTHON_EXE)
-      IF(NOT VTK_USE_COCOA)
+      IF(VTK_USE_TK)
         FOREACH ( tfile
                   TestTkRenderWidget
                   TestTkRenderWindowInteractor
@@ -15,7 +15,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
             -B ${VTK_DATA_ROOT}/Baseline/Rendering
             -D ${VTK_DATA_ROOT}/Data)
         ENDFOREACH( tfile )
-      ENDIF(NOT VTK_USE_COCOA)
+      ENDIF(VTK_USE_TK)
       
       #############################
       # Add GL2PS specific tests.

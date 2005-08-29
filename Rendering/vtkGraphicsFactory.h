@@ -43,10 +43,17 @@ public:
   static void SetUseMesaClasses(int use);
   static int  GetUseMesaClasses();
   
+  // Description:
+  // This option enables the off-screen only mode. In this mode no X calls will
+  // be made even when interactor is used.
+  static void SetOffScreenOnlyMode(int use);
+  static int  GetOffScreenOnlyMode();
+  
 protected:
   vtkGraphicsFactory() {};
 
   static int UseMesaClasses;
+  static int OffScreenOnlyMode;
 
 private:
   vtkGraphicsFactory(const vtkGraphicsFactory&);  // Not implemented.
