@@ -9,6 +9,7 @@
 <!-- Changed by: will schroeder,  17-Jan-2003 -->
 <!-- Changed by: Prabhu Ramachandran,  6-Feb-2003 -->
 <!-- Changed by: will schroeder,  11-Aug-2004 -->
+<!-- Changed by: Bra King,  25-Aug-2005 -->
 
 </header>
 <body>
@@ -22,12 +23,12 @@ Welcome To The Visualization Toolkit
     <LI> <A HREF="#Copyright">Copyright Notice</A>
     <LI> <A HREF="#Organization">Organization</A>
     <LI> <A HREF="#Documentation">Documentation</A>
-    <LI> <A HREF="#Installation">Installation</A>
+    <LI> <A HREF="#Compilation">Compilation</A>
         <UL>
-        <LI> <A HREF="#Unix">Unix Installation</A>
-        <LI> <A HREF="#Cygwin">Cygwin Installation</A>
-        <LI> <A HREF="#PC">PC Installation</A>
+        <LI> <A HREF="#Building">Building with CMake</A>
+        <LI> <A HREF="#Configuration">Configuration Options in CMake</A>
         </UL>
+    <LI> <A HREF="#Installation">Installation</A>
     <LI> <A HREF="#Problems">Common Problems</A>
     <LI> <A HREF="#Data">Getting Data</A>
     <LI> <A HREF="#Running">Running VTK</A>
@@ -52,7 +53,7 @@ ISBN 1-930934-07-6). VTK has grown (since its initial release in 1994)
 to a world-wide user base in the commercial, academic, and research 
 communities.<p>
 
-This README is written for VTK version 4.4 and greater. For more information,
+This README is written for VTK version 5.0 and greater. For more information,
 additional resources, and the FAQ see the web page at 
 <A HREF="http://www.vtk.org">http://www.vtk.org</A><p>
 
@@ -64,7 +65,7 @@ you can use VTK in commercial products. The complete text of the
 copyright follows.
 
 <pre>
-Copyright (c) 1993-2004 Ken Martin, Will Schroeder, Bill Lorensen 
+Copyright (c) 1993-2005 Ken Martin, Will Schroeder, Bill Lorensen
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -98,23 +99,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <HR>
 <h1><A NAME="Organization">Organization</h1>
-The VTK 4.2 source code repository is organized into four major sections.
+The VTK source code repository is organized into four major sections.
   <ul>
-  <li>The source code is found in the directories Common, Rendering,
-         Filtering, Graphics, Imaging, Hybrid, Parallel, VolumeRendering and
-         GenericFiltering. In some cases additional README.html files
-         are found in the named directories. Please see these for more
-         information.<p>
+
+  <li>The toolkit source code is found in the following directories
+      next to this README.  In some cases an additional README.html
+      file may be found in the named directory. Please see these for
+      more information.
          <ul>
-         <li><b>Common</b>- Core classes
-         <li><b>Rendering</b>- Classes used to render
-         <li><b>Filtering</b>- Abstract superclasses for filtering data
+         <li><b>Common</b>- Core classes commonly used by other kits
+         <li><b>Filtering</b>- Pipeline implementation superclasses
+         <li><b>Rendering</b>- Classes used to render visualizations
          <li><b>Graphics</b>- Filters that process 3D data
          <li><b>Imaging</b>- Specialized image processing filters
-         <li><b>IO</b>- Classes for reading abd writing data
+         <li><b>IO</b>- Classes for reading and writing data
+         <li><b>VolumeRendering</b>- Classes for rendering volume visualizations
          <li><b>Hybrid</b>- Complex classes that depend on imaging and graphics
+         <li><b>Widgets</b>- Classes for interactive visualizations
          <li><b>Parallel</b>- Parallel processing support such as MPI
-         <li><b>GenericFiltering</b>- Part of an adaptor framework 
+         <li><b>GenericFiltering</b>- Part of an adaptor framework
          supporting integration of VTK with external systems
          </ul>
          </li><p>
@@ -162,150 +165,350 @@ On-line Doxygen man pages are also available at
 <A href="http://www.vtk.org/doc/nightly/html/">
 http://www.vtk.org/doc/nightly/html/</a><p>
 
+<hr>
+<h1><a name="Compilation">Compilation</h1>
+
+<div align="left" style="width:720;">
+The Visualization Toolkit can be built on UNIX, PC (Windows
+95/98/NT/2000/XP), and Mac OSX Jaguar (or greater) systems.  VTK uses
+<a href="http://www.cmake.org">CMake</a> to generate its build system.
+To build VTK one must first install CMake version 2.0 or higher.
+CMake may be downloaded from <a
+href="http://www.cmake.org/HTML/Download.html">http://www.cmake.org/HTML/Download.html</a>.
+The instructions below cover the basics of running CMake for VTK under
+the assumption that CMake is already installed.  See the CMake web
+page for details on
+  <a href="http://www.cmake.org/HTML/Install.html">intalling</a> and
+  <a href="http://www.cmake.org/HTML/RunningCMake.html">running</a> CMake.
+<p>
+Compiling VTK requires a complete VTK source tree.  Running VTK tests
+requires a complete VTK data tree.  Now is the time to extract the
+source and data archives if one has not done so already.  These
+instructions assume there is a directory "<code>VTK</code>" containing
+the source code and optionally a sibling direcory
+"<code>VTKData</code>" containing the data.
+<p>
+
+<h2><a name="Building">Building with CMake</h2>
+
+CMake must be run to generate a build system for VTK.  The build
+system may be placed either in the VTK source tree (an
+<i>in-source</i> build) or in a separate binary tree (an
+<i>out-of-source</i> build).  We strongly encourage use of
+out-of-source builds because they make it easy to have multiple builds
+with different configurations sharing the same source tree.  Once a
+single in-source build has been created it is the only build tree that
+can be associated with that source tree.  A source tree may not be
+used both for an in-source build and an out-of-source build, but any
+number of out-of-source builds may share a source tree that does not
+have an in-source build.  Having multiple out-of-source builds is
+particularly useful for installing VTK on multiple architectures using
+a single source tree on a shared disk.
+<p>
+CMake provides both a command-line tool and interactive interfaces.
+Advanced users may wish to use the command-line tool but here we
+document the CMake interactive interface for each platform:
+
+<ul>
+  <li><b>Windows</b><br>
+
+      Run the CMakeSetup dialog to get started.  It must be executed
+      from an environment configured to run the compiler to be used.
+      In the case of the Visual Studio IDE no special environment is
+      needed and CMakeSetup can be started from its icon.  In the case
+      of a Visual Studio NMake, Borland C++, or MinGW build the
+      CMakeSetup dialog should be executed from a command prompt with
+      the appropriate environment set.
+      <p>
+      The dialog prompts for the location of the source and binary
+      trees.  There may also be prompt for the build system generator
+      to be used ("Build For:").  Once these are set then CMake is
+      ready for a first pass at configuring the VTK build system.  Use
+      the "Configure" button to initiate this process.  If there was
+      no earlier prompt for the build system generator a separate
+      dialog will appear during the first configuration step to prompt
+      for generator selection.  After a while the dialog will present
+      a set of configuration options.  See <a
+      href="#Configuration">below</a> for details on the meaning of
+      each of these options.  After setting the options as desired
+      press "Configure" again to make another pass at configuring VTK.
+      New options may appear when earlier options are adjusted.  Keep
+      adjusting options and pressing "Configure" until the desired
+      configuration is reached.  Finally press the "Generate" button
+      to actually generate the build system.
+      <p>
+      Now that the build system has been generated the corresponding
+      native tools can be used to build VTK.  In the case of the
+      Visual Studio IDE simply run it and load the VTK workspace or
+      solution file from the binary tree specified in the CMakeSetup
+      dialog.  Select and build the <code>ALL_BUILD</code> target.  In
+      the case of a Visual Studio NMake, Borland C++, or MinGW build
+      use the corresponding make tool (<code>nmake</code>,
+      <code>make</code>, and <code>make</code>, respectively) from the
+      command line.
+
+  <li><b>UNIX / Cygwin / Mac OSX</b><br>
+
+      CMake should be run from the command line on these platforms.
+      The current working directory should be set to the desired
+      binary tree location in which the build system should be
+      generated.  One command-line argument is used to specify the
+      location of the source tree.  CMake will usually choose the
+      system C and C++ compilers automatically but it can be told to
+      use specific compilers through the "<code>CC</code>" and
+      "<code>CXX</code>" environment variables.
+      <p>
+      A typical in-source build for VTK might look like this:
+      <blockquote>
+        <code>
+         $ ls -d VTK<br>
+         VTK/<br>
+         $ cd VTK<br>
+         $ ccmake .<br>
+         $ make<br>
+        </code>
+      </blockquote>
+      A typical out-of-source build for VTK might look like this:
+      <blockquote>
+        <code>
+         $ ls -d VTK<br>
+         VTK/<br>
+         $ mkdir VTK-build<br>
+         $ cd VTK-build<br>
+         $ ccmake ../VTK<br>
+         $ make<br>
+        </code>
+      </blockquote>
+      In the above examples the call to <code>ccmake</code> may be
+      replaced by
+      <blockquote>
+        <code>
+         $ env CC=/your/c/compiler CXX=/your/C++/compiler ccmake /path/to/VTK<br>
+        </code>
+      </blockquote>
+      in order to tell CMake to use specific C and C++ compilers.
+      Setting the environment in this way will only change the
+      compilers the <i>first</i> time CMake is run for a specific
+      build tree.  Do not attempt to change the compiler of an
+      existing build tree.  Instead one should create a separate build
+      tree for each desired compiler.
+      <p>
+      The <code>ccmake</code> tool is a curses-based dialog that may
+      be used to interactively configure VTK.  When it appears press
+      'c' on the keyboard to run the initial configuration of the VTK
+      build system.  Eventually a set of configuration options will
+      appear.  These may be edited using the arrow-keys and the ENTER
+      key for navigation.  See <a href="#Configuration">below</a> for
+      details on the meaning of each of these options.
+      <p>
+      Once the options have been set as desired press 'c' again to
+      reconfigure.  New options may appear when earlier options are
+      adjusted.  Keep adjusting options and pressing 'c' until the
+      desired configuration is reached.  Finally press 'g' to actually
+      generate the build system.  Now that the build system has been
+      generated just run <code>make</code> or <code>gmake</code> to
+      build VTK.
+      <p>
+      NOTE: The <code>ccmake</code> curses dialog is the most commonly
+      used interactive interface for CMake on UNIX-like platforms, so
+      these instructions assume it is available.  Some system
+      administrators may not have installed curses in which case
+      <code>ccmake</code> will not be available.  On these platforms
+      one may use the command "<code>cmake -i</code>" in place of
+      <code>ccmake</code> and follow the on-screen instructions to
+      configure VTK.  A last resort is to use the command-line
+      interface to <code>cmake</code>, but that is beyond the scope of
+      this document.  See CMake documentation for further details.
+
+</ul>
+
+<h2><a name="Configuration">Configuration Options in CMake</h2>
+
+VTK is a large toolkit providing a wide variety of functionality.
+Several configuration options are available to customize the VTK build
+system.  These options are configured through an interactive CMake
+interface as described <a href="#Building">above</a>.  Note that not
+all options are available on all platforms, and some options are
+available only when other options are set to a particular value.
+<p>
+The interactive CMake interface provides brief documentation for every
+option.  Some options have more meaning than can be described in one
+sentence, so additional documentation is provided here:
+
+<p>
+<ul>
+  <li><b>BUILD_SHARED_LIBS</b><br>
+    <p>
+    Sets whether the compiled VTK libraries will be shared libraries
+    or static libraries.  When linking executables against static
+    libraries the needed symbols will be copied from the libraries
+    into the executables enabling them to run without access to the
+    original libraries.  When linking executables against shared
+    libraries references to the symbols are placed into the
+    executables.  This has the advantage that many executables can
+    share a large library without producing many copies of its code.
+    </p>
+    <p>
+    Shared libraries have the disadvantage that they must be found at
+    runtime in order for an executable to run.  Each operating system
+    supporting shared libraries has a component known as the
+    <i>dynamic loader</i>.  This component is responsible for finding
+    the shared libraries needed by an executable when it is run.  In
+    order to run VTK executables from the build tree when using shared
+    libraries one may need to help the dynamic loader find the
+    libraries (usually the bin subdirectory of the build tree).
+    </p>
+    <p>
+    On Windows, the dynamic loader will look for shared libraries in
+    the directory containing the executable, in directories listed in
+    the PATH environment variable, and in some system directories.
+    Since VTK places all of its executables and libraries in the same
+    directory nothing needs to be set to get them to run.  However,
+    when one builds outside projects against VTK the PATH environment
+    variable must be set to point at the directory containing the VTK
+    shared libraries.
+    </p>
+    <p>
+    On UNIX-style platforms, the dynamic loader will use an
+    environment variable such as LD_LIBRARY_PATH (Linux and many UNIX
+    systems) or DYLD_LIBRARY_PATH (Mac OSX) to look for shared
+    libraries.  In order to run VTK executables from the build tree
+    one must set the appropriate environment variable to point at the
+    directory containing the VTK shared libraries (unless
+    VTK_USE_RPATH is ON, see below).  The same environment setting
+    must be used for running outside projects build against the shared
+    VTK libraries.
+    </p>
+  </li>
+
+  <li><b>VTK_USE_RPATH</b><br>
+    <p>
+    This option is available on non-Windows platforms when the
+    BUILD_SHARED_LIBS option is set to ON.  It enables/disables the
+    use of the <i>rpath</i> (runtime-path) feature available on most
+    UNIX-style platforms.  If this option is enabled VTK libraries and
+    executables will be linked with an rpath pointing at the location
+    in the build tree containing them (usually the bin subdirectory).
+    This allows them to run from the build tree without setting any
+    environment variables to help the dynamic loader find the needed
+    shared libraries.
+    </p>
+    <p>
+    Warning: enabling VTK_USE_RPATH <b>DISABLES THE INSTALL TARGET</b>
+    so that the build cannot be used to install VTK!  This is
+    necessary because the installed executables and libraries would
+    contain references back to the build tree.  Running them would
+    load libraries from the build tree, which may have been updated or
+    built with an incompatible configuration since the last
+    installation.  VTK release versions set this option to OFF by
+    default so that it is easy to build and install VTK from a source
+    distribution.  VTK development versions set this option to ON by
+    default so that dashboard builds and developers (which typically
+    have many VTK build trees) can run without setting any environment
+    variables for the dynamic loader.
+    </p>
+  </li>
+
+  <li><b>VTK_WRAP_TCL</b><br>
+
+    <p>
+    Enable/Disable automatic generation of VTK bindings in the Tcl
+    language.  In order to build the Tcl-based VTK interpreter one
+    will need to have Tcl and Tk version 8.2 or newer. Look to
+
+      <a href="http://www.tcl.tk">http://www.tcl.tk</a>
+
+    for information about getting Tcl and Tk. To turn on Tcl wrapping,
+    set VTK_WRAP_TCL to ON during the configuration process.  One may
+    then have to set the values for Tcl/Tk include directories and
+    libraries during the next CMake configure iteration.  If there is
+    more than one version of Tcl installed on the computer, make sure
+    all the TCL_* and TK_* configuration options are set consistently
+    to use the proper version.  This is especially important when
+    Cygwin is installed because the Cygwin Tcl will not work for a
+    native Windows VTK build and a Windows Tcl will not work for a
+    Cygwin VTK build.  When building the Tcl/Tk wrappers on Cygwin one
+    must also install the Cygwin sources for Tcl/Tk and set
+    TK_XLIB_PATH to "/usr/src/tcltk-20030901-1/tk/xlib" or the
+    corresponding directory for one's Cygwin Tcl version.  See
+
+      <a href="Wrapping/Tcl/README">Wrapping/Tcl/README</a>
+
+    for details on using the Tcl wrappers once they are built.
+    </p>
+  </li>
+
+  <li><b>VTK_WRAP_PYTHON</b><br>
+
+    <p>
+    Enable/Disable automatic generation of VTK bindings in the Python
+    language.  In order to build the Python-based VTK interpreter one
+    will need to have Python installed. Look to
+
+      <a href="http://www.python.org">http://www.python.org</a>
+
+    for information about getting Python.  To turn on Python wrapping,
+    set VTK_WRAP_PYTHON and BUILD_SHARED_LIBS to ON during the
+    configuration process.  One may then have to set the values for
+    Python include directories and libraries during the next CMake
+    configure iteration.  If there is more than one version of Python
+    installed on the computer, make sure all the PYTHON_*
+    configuration options are set consistently to use the proper
+    version.  This is especially important when Cygwin is installed
+    because the Cygwin Python will not work for a native Windows VTK
+    build and a Windows Python will not work for a Cygwin VTK build.
+    In order to use Tkinter with VTK-Python make sure that the Tcl/Tk
+    libraries that are set correspond to the same version used by
+    Tkinter.
+    </p>
+    <p>
+    Note that the VTK-Python modules are now installed by default via
+    'make install', which is a change from previous VTK versions.  The
+    automatic python module installation is highly configurable. The
+    <a href="Wrapping/Python/README.txt">Wrapping/Python/README.txt</a>
+    file documents the installation procedure and the VTK-Python
+    modules.
+    </p>
+  </li>
+
+  <li><b>CMAKE_INSTALL_PREFIX</b><br>
+    <p>
+    When VTK is <a href="#Installation">installed</a> all files are
+    placed in a directory structure rooted at the directory specified
+    by CMAKE_INSTALL_PREFIX.
+    </p>
+  </li>
+</ul>
+
 <HR>
 <h1><A NAME="Installation">Installation</h1>
 
-The Visualization Toolkit can be built on Unix, PC 
-(Windows 95/98/NT/2000/XP) and Mac OSX Jaguar (or greater) systems.  
-VTK uses <A HREF="http://www.cmake.org">CMake</A>
-for its build process.  To build VTK for UNIX or Windows, you will first 
-have to install CMake. You can download CMake from: 
-<A HREF="http://www.cmake.org"</A>http://www.cmake.org</A>
-The following instructions assume that CMake is already installed.
-<p>
+Installing VTK from a source distribution requires first that it be
+compiled in a build tree.  See the <a
+href="#Compilation">compilation</a> section above for details.  Once
+VTK has been compiled in a build tree one may build the <i>install</i>
+target to actually put VTK in an installation tree.  If VTK was built
+using a CMake Makefile generator then this is done by running "make
+install" from the top of the build tree.  If VTK was built using a
+CMake project file generator (such as Visual Studio), then building
+the INSTALL project from inside the IDE will install VTK.  The
+installation process will install all files in a directory structure
+rooted at the directory specified by CMAKE_INSTALL_PREFIX.
 
-<h3><A NAME="Unix">Unix Installation</h3><p>
-The following instructions only apply to UNIX systems.  
-
-First we will give you the quick and dirty way to build VTK. Begin
-by telling CMake what C and C++ compilers
-you will be using. This can avoid many build problems.
-On most systems you can pass this information to CMake in the 
-following way:
-<pre>
-  env CXX=/your/C++/compiler CC=/your/c/compiler cmake
-</pre>
-otherwise you must set the CXX and CC environment variables and then
-run ccmake (or cmake -i).<p>
-
-If you will be using C++ as your development language (no Tcl/Tk, Python or Java support):
-<pre>
-  1) untar the src files
-  2) untar the data files
-  3) cd VTK
-  4) cmake -i (run cmake in wizard mode, where you have to answer 
-     questions about the build)
-or
-  4) ccmake (run the terminal based interface to cmake where you interactively
-     change build options)
-  5) if necessary change build options
-  6) make
-</pre>
-
-Note that this will create the binaries (i.e., object code, libraries, and
-executables) in the same directory as the source code. You can also build
-VTK out of source in a separate directory (this is particularly convenient
-when building VTK on multiple architectures). Instead of running CMake 
-from the VTK directory, create a new directory with enough disk space
-(not in the VTK tree) such as vtk-solaris. cd into this directory and 
-then run CMake similar to the following example:
-
-<pre>
-  ls /home/joe_user
-      vtk vtk-solaris vtk-sgi
-
-  cd vtk-solaris
-  ccmake /home/joe_user/VTK
-or
-  cmake -i /home/joe_user/VTK
-</pre>
-
-This will create makefiles in the vtk-solaris directory.  Then you can run
-make in vtk-solaris to compile VTK.  Repeate this process for each
-architecture you wish to build.<p>
-
-If you want to build the Tcl-based VTK interpreter then you will
-need to have Tcl and Tk (8.2 or newer). Look to <A href="http://www.scriptics.com">http://www.scriptics.com</A>
-for information about getting Tcl and Tk. To turn on Tcl wrapping,
-set VTK_WRAP_TCL to ON during the configuration process (as a post-build step, you might want to check the <A href="Wrapping/Tcl/README">Wrapping/Tcl/README</A> file). You will then have
-to set the values for Tcl/Tk include directories and libraries.
-
-<P>
-If you want to use VTK from <A href="http://www.python.org">Python</A>
-you will need to have Python installed.  To turn on Python wrapping,
-set VTK_WRAP_PYTHON to ON during the configuration process and then
-set the values for the Python related directories and libraries.  If
-you want to use Tkinter with VTK-Python then you should also turn on
-Tcl wrapping by setting VTK_WRAP_TCL to ON.  Make sure that the Tcl/Tk
-libraries that you set correspond to the same version used by Tkinter.
-Note that the VTK-Python modules are not installed by default via
-'make install'.  The <A
-href="Wrapping/Python/README.txt">Wrapping/Python/README.txt</A> file
-documents the installation procedure and the VTK-Python modules.
-</P>
-
-<h3><A NAME="Cygwin">Cygwin Installation</h3><p>
-The build process for Cygwin is almost exactly the same as the UNIX build process
-(see previous section)
-<p>
-If you will be using C++ as your development language (no Tcl/Tk, Python or Java support):
-<pre>
-  1) untar the src files
-  2) untar the data files
-  3) cd VTK
-  4) cmake -i (run cmake in wizard mode, where you have to answer questions 
-     about the build)
-or
-  4) ccmake (run the terminal based interface to cmake where you interactively
-     change build options)
-  5) if necessary change build options
-  6) make
-</pre>
-
-For Tcl/Tk support, you have to install the cygwin sources for Tcl/Tk, then set
-the TK_*_PATH variables to apropriate locations. For example if the TCL/TK
-cygwin version you have is 20030214-1, then set the following options:
-
-<pre>
-TK_INCLUDE_PATH /usr/src/tcltk-20030214-1/tk/generic/;/usr/src/tcltk-20030214-1/tcl/generic/
-TK_INTERNAL_PATH /usr/src/tcltk-20030214-1/tk/win/
-TK_XLIB_PATH /usr/src/tcltk-20030214-1/tk/xlib
-</pre>
-
-Also, if you have several versions of TCL installed on the computer, where some of them are regular Windows binaries, and some are Cygwin, make sure to set the TCL_TCLSH to point to the right one.
-
-<h3><A NAME="PC">PC Installation</h3><p>
-    The PC build process uses the CMake GUI CMakeSetup. Then you use the 
-    compiler make utility to compile as follows.
-  <pre>
-  1) Install the VTK 4.2 distribution by unzipping into the 
-     appropriate directory.
-
-  2) Execute CMakeSetup. This will pop-up a little
-     GUI that allows you to tailor the build. It then starts
-     building .dsw and .dsp files for Microsoft, or makefiles for Borland.
-     You'll have to tell CMakeSetup where you've placed your VTK source 
-     code, and where to build the object code and dll's 
-     (we'll call it "vtkbin").
-
-  3) When CMakeSetup completes, start up msdev and load VTK.dsw.
-     Select ALL_BUILD project, and build it.
-
-</pre>
-We recommend a 300MByte minimum swap size or you'll have trouble
-during the link phase.<p>
+</div>
 
 <HR>
 <h1><A NAME="Problems">Common Problems</h1>
   <ul>
-  <li>Strange compile errors on Unix. Make sure that you specify the
-      environment variables CXX and CC prior to running CMake.
-      (If you have already run CMake, do a "make clean" to remove
-      the cached CMake information.)
-  <li>Errors on Tcl or Tk include files. Make sure that you edit
-      CMakeCache.txt to point to the correct location.
-  <li>Errors on Tcl or Tk libraries. Make sure that you edit
-      CMakeCache.txt to point to the correct location.
+  <li>Strange compile errors on UNIX, typically involving system
+      headers and types. Make sure that you specify the environment
+      variables CC and CXX prior to running CMake.  If you have
+      already run CMake you must create a fresh build-tree and start
+      again.  If you ran CMake in the source tree then you must delete
+      the source tree, re-extract the sources, and start again.
+  <li>Errors on Tcl or Tk include files or libraries. Make sure that
+      you set the TCL_* and TK_* configuration variables to the
+      correct location when running CMake.
   <li>Link errors on Windows platforms. Make sure that the swap space is
       at least 300 MByte.
   <li>Link error with borland: TCL82.LIB contains invalid OMF record, 
@@ -331,19 +534,21 @@ be obtained much faster.
   1) Download the data at ftp://public.kitware.com/pub/vtk/VTKData.tgz
 
   2) Checkout the data from CVS using the folling commands:
-     cvs -d :pserver:anonymous@public.kitware.com:/vtk/cvsroot login
-        (respond with password vtk)
-     cvs -d :pserver:anonymous@public.kitware.com:/vtk/cvsroot checkout VTKData
+     cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK login
+        (there is no password...just press enter)
+     cvs -d :pserver:anoncvs@www.vtk.org:/cvsroot/VTK checkout VTKData
 </pre>
 
 <HR>
 <h1><A NAME="Running">Running VTK</h1>
 
-Many C++ examples will be compiled if BUILD_TESTING and/or BUILD_EXAMPLES are
-enabled in CMake. To run these C++ examples just type their name. (They will
-be found in the binary build directory.) If you have built shared libraries,
-make sure the PATH environment variable (Windows) or the LD_LIBRARY_PATH
-(Unix) point to the shared libraries.
+Many C++ examples will be compiled if BUILD_TESTING and/or
+BUILD_EXAMPLES are enabled in CMake. To run these C++ examples just
+type their name. (They will be found in the binary build directory.)
+If you have built shared libraries, make sure the PATH environment
+variable (Windows) or the LD_LIBRARY_PATH (Unix) point to the shared
+libraries (see above documentation of the BUILD_SHARED_LIBS for
+details).
 
 If you have enabled Tcl wrapping, you will want to set TCLLIBPATH to point to
 the VTK/Wrapping/Tcl directory and check the instructions located in the <A
@@ -377,8 +582,8 @@ For general information go to the VTK web site
 <a href="http://www.vtk.org">http://www.vtk.org</a>
 <p>
 If you run into problems, your best bet is to join the VTK mailing list.
-Visit <a href="http://public.kitware.com/mailman/listinfo/vtkusers">
-http://public.kitware.com/mailman/listinfo/vtkusers</a> to join the list.
+Visit <a href="http://www.vtk.org/mailman/listinfo/vtkusers">
+http://www.vtk.org/mailman/listinfo/vtkusers</a> to join the list.
 <p>
 Commercial support contracts are available from Kitware at
 <a href="http://www.kitware.com/products/vtksupport.html">
