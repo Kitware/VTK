@@ -1,3 +1,4 @@
+INCLUDE(${VTK_SOURCE_DIR}/Utilities/vtkTclTest2Py/vtkConvertTclTestToPy.cmake)
 IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   #
   # Add tests, with the data
@@ -5,80 +6,25 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   IF (VTK_DATA_ROOT)
     IF (VTK_PYTHON_EXE)
       # Add test converted from Tcl
-      SET (CONVERTED_TESTS)
-      SET (CONVERTER_SCRIPT "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/vtkTclToPyConvertor.py")
-      SET (TESTS_TO_CONVERT)
-      SET (CONVERSIONLIST)
-      IF(WIN32)
-        # VS-6.0 does not use current environment PATH when running custom commands,
-        # hence it might fail to locate the python dlls if we run vtkpython.
-        # Hence we use python executable. Python executable cannot be used to import
-        # vtk modules on Sun/SGI hence, for non-windows machines we use vtkpython.
-        SET(CMD ${PYTHON_EXECUTABLE})
-      ELSE(WIN32)
-        SET(CFG_INIT "/${CMAKE_CFG_INTDIR}")
-        IF(MAKE_SYSTEM OR UNIX)
-          SET(CFG_INIT "")
-        ENDIF(MAKE_SYSTEM OR UNIX)
-        SET(CMD ${EXECUTABLE_OUTPUT_PATH}${CFG_INIT}/vtkpython${EXE_EXT})
-      ENDIF(WIN32)
-
-      FOREACH( tfile
-          gaussian
-          TestBunykRayCastFunction
-          #TestFixedPointRayCasterLinear -- source file
-          TestFixedPointRayCasterNearest
-          #TestFixedPointRayCasterLinearCropped -- source file
-          #TestFixedPointRayCasterNearestCropped -- source file
-          TestLODProp3D
-          TestPTZSweep
-          volRCClipPlanes
-          volRCCropRegions
-          volRCRotateClip
-          volTM2DCropRegions
-          volTM2DRotateClip
-          )
-        
-        SET (input "${VTK_SOURCE_DIR}/VolumeRendering/Testing/Tcl/${tfile}.tcl")
-        SET (output "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/${tfile}.py")
-        SET (CONVERTED_TESTS ${CONVERTED_TESTS} "${output}")
-        SET (CONVERSIONLIST ${CONVERSIONLIST} "${input};${output}")
-        SET (TESTS_TO_CONVERT ${TESTS_TO_CONVERT} "${input}")
-        
-        #Add the py test.
-        ADD_TEST(${tfile}Python-image ${VTK_PYTHON_EXE}
-          ${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py/rtImageTest.py
-          ${output}
-          -D ${VTK_DATA_ROOT}
-          -T ${VTK_BINARY_DIR}/Testing/Temporary
-          -V Baseline/VolumeRendering/${tfile}.png
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
-          -A "${VTK_LIBRARY_DIR}"
-          )
-      ENDFOREACH( tfile ) 
-
-      CONFIGURE_FILE(${VTK_SOURCE_DIR}/Wrapping/Python/conversionlist.in
-                     ${CMAKE_CURRENT_BINARY_DIR}/conversionlist
-                      @ONLY IMMEDIATE)
-
-      ADD_CUSTOM_COMMAND(
-        OUTPUT "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversion_complete"
-        COMMAND ${CMD}
-        ARGS ${CONVERTER_SCRIPT}
-          -l "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversionlist"
-          -t "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversion_complete"
-          -A "${VTK_BINARY_DIR}/Utilities/vtkTclTest2Py" 
-          -A "${VTK_BINARY_DIR}/Wrapping/Python"
-          -A "${VTK_LIBRARY_DIR}"
-        DEPENDS ${TESTS_TO_CONVERT} 
-            ${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversionlist 
-            ${CONVERTER_SCRIPT}
-        COMMENT "Converting Tcl test"
+      SET( tests
+        gaussian
+        TestBunykRayCastFunction
+        #TestFixedPointRayCasterLinear -- source file
+        TestFixedPointRayCasterNearest
+        #TestFixedPointRayCasterLinearCropped -- source file
+        #TestFixedPointRayCasterNearestCropped -- source file
+        TestLODProp3D
+        TestPTZSweep
+        volRCClipPlanes
+        volRCCropRegions
+        volRCRotateClip
+        volTM2DCropRegions
+        volTM2DRotateClip
         )
 
-      ADD_CUSTOM_TARGET(VolumeRenderingPythonTests ALL 
-        DEPENDS "${VTK_BINARY_DIR}/VolumeRendering/Testing/Python/conversion_complete") 
-      ADD_DEPENDENCIES(VolumeRenderingPythonTests vtktcltest2py_pyc)
+      CONVERT_TCL_TEST_TO_PY (
+        tests
+        VolumeRendering)
     ENDIF (VTK_PYTHON_EXE)
   ENDIF (VTK_DATA_ROOT)
 ENDIF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)

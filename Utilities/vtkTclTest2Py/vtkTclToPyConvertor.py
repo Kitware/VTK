@@ -352,6 +352,7 @@ if __name__ == "__main__":
     convert_file_list_file = None
     namespace = "vtk"
     touch_file = None
+    kit_files_dir = ""
     for i in range(0, len(sys.argv)):
         if sys.argv[i] == "-i" and i < len(sys.argv)-1:
             input_file = sys.argv[i+1]
@@ -367,11 +368,17 @@ if __name__ == "__main__":
             convert_file_list_file = sys.argv[i+1]
         if sys.argv[i] == "-t" and i < len(sys.argv)-1:
             touch_file = sys.argv[i+1]
+        if sys.argv[i] == "-k" and i < len(sys.argv)-1:
+            kit_files_dir = sys.argv[i+1]
      
             
     if (not input_file or not output_file) and not convert_file_list_file:
-        print "Usage: %s -i <input tcl test> -o <output tcl test>" % sys.argv[0]
-        print `sys.argv`
+        print "Usage: %s  [-o <output tcl test> -i <input tcl test>]"\
+                "[-f <class name list>] [-n <namespace>] [-p <prefix file>]"\
+                "[-l <semi-colon separated list of tcl tests to convert>]"\
+                "[-t <file to touch on conversion complete>]"\
+                "[-k <vtk*Kit.cmake file path>] [-k ...] ..." % sys.argv[0]
+        print "Got Args: %s" % `sys.argv`
         sys.exit(1)
     class_list = []
     if class_file:
@@ -384,12 +391,15 @@ if __name__ == "__main__":
         except:
             print "Failed to read class list file %s" % class_file
             sys.exit(1)
-    try:
-        import vtk
-        class_list += vtk.__dict__.keys()
-    except:
-        print "%s"  % sys.exc_info()[1]
-        pass
+    else:
+        try:
+            import vtkClassList
+            class_list = vtkClassList.get_vtk_classes()
+            pass
+        except:
+            print "ERROR: Failed to load module vtkClassList."
+            sys.exit(1)
+     
     if not class_list:
         print "Cannot find list of classes. Please provide -f <file> option"
         sys.exit(1)

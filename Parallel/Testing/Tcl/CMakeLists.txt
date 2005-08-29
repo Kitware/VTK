@@ -5,14 +5,14 @@ IF (VTK_DATA_ROOT)
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/RectOutline.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/RectOutline.tcl.png
+           -V Baseline/Parallel/RectOutline.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(ExtractVOI-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtractVOI.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestExtractVOI.tcl.png
+           -V Baseline/Parallel/TestExtractVOI.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(TestExtractCTHPart ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
@@ -26,56 +26,56 @@ IF (VTK_DATA_ROOT)
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestExtrudePiece.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestExtrudePiece.tcl.png
+           -V Baseline/Parallel/TestExtrudePiece.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(PolyDataPieces-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPolyDataPieces.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestPolyDataPieces.tcl.png
+           -V Baseline/Parallel/TestPolyDataPieces.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(UnstructuredPieces-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestUnstructuredPieces.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestUnstructuredPieces.tcl.png
+           -V Baseline/Parallel/TestUnstructuredPieces.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(ImageStreamer-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestImageStreamer.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestImageStreamer.tcl.png
+           -V Baseline/Parallel/TestImageStreamer.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(PImageWriter-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPImageWriter.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestPImageWriter.tcl.png
+           -V Baseline/Parallel/TestPImageWriter.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(CutMaterial-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestCutMaterial.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestCutMaterial.tcl.png
+           -V Baseline/Parallel/TestCutMaterial.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(BranchExtentTranslator-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestBranchExtentTranslator.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestBranchExtentTranslator.tcl.png
+           -V Baseline/Parallel/TestBranchExtentTranslator.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   ADD_TEST(PDataSetReaderGrid-image ${VTK_EXECUTABLE}
            ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl
            ${VTK_SOURCE_DIR}/Parallel/Testing/Tcl/TestPDataSetReaderGrid.tcl
            -D ${VTK_DATA_ROOT}
            -T ${VTK_BINARY_DIR}/Testing/Temporary
-           -V Baseline/Parallel/TestPDataSetReaderGrid.tcl.png
+           -V Baseline/Parallel/TestPDataSetReaderGrid.png
            -A ${VTK_SOURCE_DIR}/Wrapping/Tcl)
   IF(PVTK_EXECUTABLE AND VTK_MPIRUN_EXE)
     ADD_TEST(TestPProbe-image 
