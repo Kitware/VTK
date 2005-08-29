@@ -6,5 +6,5 @@ IF(NOT VTK_USE_RENDERING)
 ENDIF(NOT VTK_USE_RENDERING)
 INCLUDE(${VTK_USE_FILE})
 
-ADD_EXECUTABLE(HierarchicalBoxPipeline HierarchicalBoxPipeline.cxx)
+ADD_EXECUTABLE(HierarchicalBoxPipeline HierarchicalBoxPipeline.cxx vtkTestHierarchicalDataReader.cxx)
 TARGET_LINK_LIBRARIES(HierarchicalBoxPipeline vtkRendering vtkIO)
