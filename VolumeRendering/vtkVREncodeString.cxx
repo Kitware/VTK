@@ -31,36 +31,23 @@ public:
       << "//" << endl
       << "const char* " << title << " =" 
       << endl << "\"";
-    int preproc = 0;
     while ( ( ch = fgetc(fp) ) != EOF )
       {
-      if ( preproc )
+      if ( ch == '\n' )
+        {
+        this->Stream << "\\n\"" << endl << "\"";
+        }
+      else if ( ch == '\\' )
+        {
+        this->Stream << "\\\\";
+        }
+      else if ( ch == '\"' )
+        {
+        this->Stream << "\\\"";
+        }
+      else if ( ch != '\r' )
         {
         this->Stream << (unsigned char)ch;
-        if ( ch == '\n' )
-          {
-          preproc = 0;
-          this->Stream << "\"";
-          }
-        }
-      else
-        {
-        if ( ch == '\n' )
-          {
-          this->Stream << "\\n\"" << endl << "\"";
-          }
-        else if ( ch == '\\' )
-          {
-          this->Stream << "\\\\";
-          }
-        else if ( ch == '\"' )
-          {
-          this->Stream << "\\\"";
-          }
-        else
-          {
-          this->Stream << (unsigned char)ch;
-          }
         }
       }
     this->Stream << "\\n\";" << endl;
