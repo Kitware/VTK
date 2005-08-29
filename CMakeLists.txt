@@ -108,6 +108,25 @@ IF(NOT VTK_INSTALL_JAVA_DIR)
   SET(VTK_INSTALL_JAVA_DIR ${VTK_INSTALL_PACKAGE_DIR}/java)
 ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 
+# Choose a default CMAKE_INSTALL_PREFIX on Windows.  CMake 2.2 and
+# above already choose a good default, so force a change only if the
+# current value looks like the CMake 2.0 default.
+IF(NOT UNIX)
+  IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
+    IF("$ENV{SystemDrive}" MATCHES "^$")
+      SET(VTK_GENERIC_SYSTEM_DRIVE "C:")
+    ELSE("$ENV{SystemDrive}" MATCHES "^$")
+      SET(VTK_GENERIC_SYSTEM_DRIVE "$ENV{SystemDrive}")
+    ENDIF("$ENV{SystemDrive}" MATCHES "^$")
+    SET(CMAKE_INSTALL_PREFIX
+      "${VTK_GENERIC_SYSTEM_DRIVE}/Program Files/${PROJECT_NAME}"
+      CACHE PATH "Install path prefix, prepended onto install directories."
+      FORCE)
+    SET(VTK_GENERIC_SYSTEM_DRIVE)
+  ENDIF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
+  MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_PREFIX)
+ENDIF(NOT UNIX)
+
 # There are three basic components to the VTK installation: runtime,
 # development, and documentation.  Install rules for each component
 # are surrounded by blockers.  Parent projects or users can specify
