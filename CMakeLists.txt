@@ -113,13 +113,17 @@ ENDIF(NOT VTK_INSTALL_JAVA_DIR)
 # current value looks like the CMake 2.0 default.
 IF(NOT UNIX)
   IF(CMAKE_INSTALL_PREFIX MATCHES "/usr/local")
-    IF("$ENV{SystemDrive}" MATCHES "^$")
-      SET(VTK_GENERIC_SYSTEM_DRIVE "C:")
-    ELSE("$ENV{SystemDrive}" MATCHES "^$")
-      SET(VTK_GENERIC_SYSTEM_DRIVE "$ENV{SystemDrive}")
-    ENDIF("$ENV{SystemDrive}" MATCHES "^$")
+    IF("$ENV{ProgramFiles}" MATCHES "^$")
+      IF("$ENV{SystemDrive}" MATCHES "^$")
+        SET(VTK_GENERIC_PROGRAM_FILES "C:/Program Files")
+      ELSE("$ENV{SystemDrive}" MATCHES "^$")
+        SET(VTK_GENERIC_PROGRAM_FILES "$ENV{SystemDrive}/Program Files")
+      ENDIF("$ENV{SystemDrive}" MATCHES "^$")
+    ELSE("$ENV{ProgramFiles}" MATCHES "^$")
+      SET(VTK_GENERIC_PROGRAM_FILES "$ENV{ProgramFiles}")
+    ENDIF("$ENV{ProgramFiles}" MATCHES "^$")
     SET(CMAKE_INSTALL_PREFIX
-      "${VTK_GENERIC_SYSTEM_DRIVE}/Program Files/${PROJECT_NAME}"
+      "${VTK_GENERIC_PROGRAM_FILES}/${PROJECT_NAME}"
       CACHE PATH "Install path prefix, prepended onto install directories."
       FORCE)
     SET(VTK_GENERIC_SYSTEM_DRIVE)
