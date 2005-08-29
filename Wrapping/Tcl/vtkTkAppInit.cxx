@@ -39,7 +39,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include <sys/stat.h>
 #endif
 
-#ifndef VTK_USE_TK
+#ifdef VTK_USE_TK
 # include "vtkTk.h"
 #else
 # include "vtkTcl.h"
@@ -141,7 +141,7 @@ main(int argc, char **argv)
   vtkstd::string av0 = vtksys::SystemTools::CollapseFullPath(argv[0]);
   Tcl_FindExecutable(av0.c_str());
 
-#ifndef VTK_USE_TK
+#ifdef VTK_USE_TK
   Tk_Main(argc, argv, Tcl_AppInit);
 #else
   Tcl_Main(argc, argv, Tcl_AppInit);
@@ -382,7 +382,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
     return TCL_ERROR;
     }
 
-#ifndef VTK_USE_TK
+#ifdef VTK_USE_TK
   if (Tk_Init(interp) == TCL_ERROR)
     {
     return TCL_ERROR;
