@@ -1,6 +1,8 @@
 # a generic interactor for tcl and vtk
 #
 
+if {[ info commands wm ] != ""} {
+
 catch {unset vtkInteract.bold}
 catch {unset vtkInteract.normal}
 catch {unset vtkInteract.tagcount}
@@ -98,3 +100,6 @@ proc vtkInteract {} {
     wm withdraw .vtkInteract
 }
 vtkInteract
+} else {
+  puts "Cannot use Interactor since TK does not exists"
+}
