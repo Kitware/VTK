@@ -50,7 +50,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
 
         # hijack img_data with our own.  If you comment this out everything is
         # fine.
-        # img_data = my_img_data
+        img_data = my_img_data
         # **************************************************
 
         spacing = img_data.GetSpacing()
