@@ -5,6 +5,28 @@ ADD_EXECUTABLE(ProcessShader ProcessShader.cxx)
 TARGET_LINK_LIBRARIES(ProcessShader
   vtksys)
 
+#Macro to copy files over
+MACRO(COPY_FILES_TO_DIR src_dir target_dir)
+  IF (NOT EXISTS ${target_dir})
+    MAKE_DIRECTORY(${target_dir})
+  ENDIF(NOT EXISTS ${target_dir})
+
+  FILE (GLOB files_to_copy1 ${src_dir}/*.*)
+  FOREACH(file ${files_to_copy1})
+    GET_FILENAME_COMPONENT(file_name "${file}" NAME)
+    CONFIGURE_FILE(${file} "${target_dir}/${file_name}" COPYONLY IMMEDIATE)
+  ENDFOREACH(file)
+ENDMACRO(COPY_FILES_TO_DIR)
+
+# Shaders/Materials provided in Utilities/MaterialLibrary/Repository
+# are copied over to the binary dir.
+IF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
+  # Ensure that the Source and Build dir are not same.
+  # In that case we don't need to copy anything.
+  COPY_FILES_TO_DIR(${MaterialLibrary_SOURCE_DIR}/Repository
+    ${VTK_DEFAULT_SHADERS_DIR})
+ENDIF (NOT "${VTK_BINARY_DIR}" MATCHES "^${VTK_SOURCE_DIR}$")
+
 # Build the ShaderCodes Library.
 SET (CgCodes
   ${MaterialLibrary_SOURCE_DIR}/CgShaders/FragmentTexture.cg

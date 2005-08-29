@@ -158,13 +158,17 @@ VTK_DEPENDENT_OPTION(VTK_USE_CG_SHADERS "Build pixel and vertex shader support f
 VTK_DEPENDENT_OPTION(VTK_USE_GLSL_SHADERS "Build pixel and vertex shader support for GLSL." OFF
                      "VTK_USE_RENDERING" OFF)
 
-IF(VTK_USE_CG_SHADERS OR VTK_USE_GLSL_SHADERS)
- SET(VTK_SHADERS_DIRS 
-   "${VTK_BINARY_DIR}/Materials"
-   CACHE STRING
-   "; separated directories to search for materials/shaders")
- MARK_AS_ADVANCED(VTK_SHADERS_DIRS)
-ENDIF(VTK_USE_CG_SHADERS OR VTK_USE_GLSL_SHADERS)
+SET(VTK_DEFAULT_SHADERS_DIR
+   "${VTK_BINARY_DIR}/Utilities/MaterialLibrary/Repository"
+   CACHE INTERNAL 
+   "The directory in which code for Shaders is provided.")
+
+SET(VTK_SHADERS_DIRS 
+  ${VTK_DEFAULT_SHADERS_DIR}
+  CACHE STRING
+  "; separated directories to search for materials/shaders")
+
+MARK_AS_ADVANCED(VTK_SHADERS_DIRS)
 
   
 # Determine GUI Support.
