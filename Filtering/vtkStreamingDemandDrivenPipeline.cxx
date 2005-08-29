@@ -29,7 +29,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 
-vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.34");
+vtkCxxRevisionMacro(vtkStreamingDemandDrivenPipeline, "1.35");
 vtkStandardNewMacro(vtkStreamingDemandDrivenPipeline);
 
 vtkInformationKeyMacro(vtkStreamingDemandDrivenPipeline, CONTINUE_EXECUTING, Integer);
@@ -392,6 +392,11 @@ vtkStreamingDemandDrivenPipeline
             inInfo->CopyEntry(outInfo, UPDATE_TIME_INDEX());
             }
 
+          // If an algorithm wants an exact extent it must explicitly
+          // add it to the request.  We do not want to get the setting
+          // from another consumer of the same input.
+          inInfo->Remove(EXACT_EXTENT());
+
           // Get the input data object for this connection.  It should
           // have already been created by the UpdateDataObject pass.
           vtkDataObject* inData = inInfo->Get(vtkDataObject::DATA_OBJECT());
@@ -461,6 +466,7 @@ vtkStreamingDemandDrivenPipeline
   info->Remove(WHOLE_EXTENT());
   info->Remove(MAXIMUM_NUMBER_OF_PIECES());
   info->Remove(EXTENT_TRANSLATOR());
+  info->Remove(EXACT_EXTENT());
   info->Remove(UPDATE_EXTENT_INITIALIZED());
   info->Remove(UPDATE_EXTENT());
   info->Remove(UPDATE_PIECE_NUMBER());
