@@ -77,10 +77,16 @@ if { $myProcId != 0 } {
 # set the default threshold, the Tcl script may change this
 set threshold -1
 
+if {[info commands wm] != ""} {
+  wm withdraw .
+} else {
+  proc wm args {
+    puts "wm not implemented"
+    }
+}
 source $file
 if {[info commands iren] == "iren"} {renWin Render}
 # run the event loop quickly to map any tkwidget windows
-wm withdraw .
 update
 
 # current directory
