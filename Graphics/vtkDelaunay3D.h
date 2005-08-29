@@ -75,7 +75,9 @@
 // is quite different. In the 3D case, the closest previously inserted point
 // point is found, and then the connected tetrahedra are searched to find
 // the containing one. (In 2D, a "walk" towards the enclosing triangle is
-// performed.) If the triangulation is Delaunay, then an 
+// performed.) If the triangulation is Delaunay, then an enclosing tetrahedron
+// will be found. However, in degenerate cases an enclosing tetrahedron may
+// not be found and the point will be rejected.
 
 // .SECTION See Also
 // vtkDelaunay2D vtkGaussianSplatter vtkUnstructuredGrid
