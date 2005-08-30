@@ -26,7 +26,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-vtkCxxRevisionMacro(vtkImageViewer2, "1.31");
+vtkCxxRevisionMacro(vtkImageViewer2, "1.32");
 vtkStandardNewMacro(vtkImageViewer2);
 
 //----------------------------------------------------------------------------
@@ -681,7 +681,10 @@ void vtkImageViewer2::Render()
       this->FirstRender = 0;  
       }
     }
-  this->RenderWindow->Render();
+  if (this->GetInput())
+    {
+    this->RenderWindow->Render();
+    }
 }
 
 //----------------------------------------------------------------------------
