@@ -2,6 +2,7 @@
 #
 
 if {[ info commands wm ] != ""} {
+if {[ info commands toplevel ] != ""} {
 
 catch {unset vtkInteract.bold}
 catch {unset vtkInteract.normal}
@@ -100,6 +101,5 @@ proc vtkInteract {} {
     wm withdraw .vtkInteract
 }
 vtkInteract
-} else {
-  puts "Cannot use Interactor since TK does not exists"
+}
 }
