@@ -56,49 +56,36 @@ SET( KitOpenGL_SRCS
 # Stuff we need for the vtkVolumeTextureMapper3D
 #-------------------------------------------------
 
-# CMake 2.0 has a bug in its Makefile generator that prevents more
-# than one generated header file in a directory from working properly
-# in parallel builds.  Use a hack to work-around the problem.
-SET(VTK_VR_NEED_ASM_HACK 0)
-IF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.2)
-  IF(CMAKE_GENERATOR MATCHES "^Unix Makefiles$")
-    SET(VTK_VR_NEED_ASM_HACK 1)
-  ENDIF(CMAKE_GENERATOR MATCHES "^Unix Makefiles$")
-ENDIF("${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}" LESS 2.2)
-IF(VTK_VR_NEED_ASM_HACK)
-  # Work-around the CMake 2.0 bug by building the generated
-  # headers with a try-compile.  Create a small project that just
-  # includes the generator and corresponding custom commands.
-  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/ASM/CMakeLists.txt
-    "PROJECT(VTKVRASM)\n"
-    "SET(VTK_SOURCE_DIR \"${VTK_SOURCE_DIR}\")\n"
-    "SET(VTK_BINARY_DIR \"${VTK_BINARY_DIR}\")\n"
-    "INCLUDE_DIRECTORIES(\"${VTK_BINARY_DIR}\" \"${VTK_SOURCE_DIR}/Common\")\n"
-    "INCLUDE(\"${VTK_SOURCE_DIR}/VolumeRendering/vtkVRASM.cmake\")\n"
-    )
+# Create an executable to encode source files into C string literals.
+ADD_EXECUTABLE(vtkVREncodeString
+  ${VTK_SOURCE_DIR}/VolumeRendering/vtkVREncodeString.cxx
+  )
+GET_TARGET_PROPERTY(ENCODE_EXE vtkVREncodeString LOCATION)
 
-  # Drive the custom commands with a custom target in the try-compile so
-  # that the headers exist at the end of the CMake stage.  There may be
-  # some dependency issues but the asm files do not change much.
-  TRY_COMPILE(VTK_VR_ASM_COMPILED
-    ${CMAKE_CURRENT_BINARY_DIR}/ASM
-    ${CMAKE_CURRENT_BINARY_DIR}/ASM
-    VTKVRASM vtk_vr_generate_asm_headers
-    CMAKE_FLAGS -DVTK_SOURCE_DIR:PATH=${VTK_SOURCE_DIR}
-                -DVTK_BINARY_DIR:PATH=${VTK_BINARY_DIR}
-    OUTPUT_VARIABLE VTK_VR_ASM_OUTPUT
-    )
+# The set of source files to be encoded.
+SET(asm_files
+  vtkVolumeTextureMapper3D_FourDependentNoShadeFP
+  vtkVolumeTextureMapper3D_FourDependentShadeFP
+  vtkVolumeTextureMapper3D_OneComponentNoShadeFP
+  vtkVolumeTextureMapper3D_OneComponentShadeFP
+  vtkVolumeTextureMapper3D_TwoDependentNoShadeFP
+  vtkVolumeTextureMapper3D_TwoDependentShadeFP
+  )
 
-  # Report the result of generating the headers.
-  IF(VTK_VR_ASM_COMPILED)
-    MESSAGE(STATUS "VolumeRendering asm header generation succeeded.")
-  ELSE(VTK_VR_ASM_COMPILED)
-    MESSAGE(FATAL_ERROR "VolumeRendering asm header generation failed: [${VTK_VR_ASM_OUTPUT}]")
-  ENDIF(VTK_VR_ASM_COMPILED)
-ELSE(VTK_VR_NEED_ASM_HACK)
-  # CMake is powerful enough to generate the headers correctly.
-  INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVRASM.cmake)
-ENDIF(VTK_VR_NEED_ASM_HACK)
+# Create custom commands to encode each assembly file into a C string
+# literal in a header file.
+FOREACH(file ${asm_files})
+  SET(src ${VTK_SOURCE_DIR}/VolumeRendering/${file}.asm)
+  SET(res ${VTK_BINARY_DIR}/VolumeRendering/${file}.cxx)
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${res}
+    DEPENDS ${src} vtkVREncodeString
+    COMMAND ${ENCODE_EXE}
+    ARGS ${res} ${src} ${file}
+    )
+  SET( KitOpenGL_SRCS ${KitOpenGL_SRCS} ${res} )
+  SET_SOURCE_FILES_PROPERTIES(${res} PROPERTIES WRAP_EXCLUDE 1)
+ENDFOREACH(file)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h )
