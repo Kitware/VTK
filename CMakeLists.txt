@@ -1069,7 +1069,9 @@ MACRO (VTK_INCLUDE_TCL_TK_MODULES)
     # The tcl library needs the math library on unix.
     SET(VTK_TCL_LIBRARIES ${VTK_TCL_LIBRARIES} m)
   ENDIF(UNIX)
-  SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
+  IF(VTK_USE_TK)
+    SET(VTK_TK_LIBRARIES ${TK_LIBRARY} ${VTK_TCL_LIBRARIES})
+  ENDIF(VTK_USE_TK)
   INCLUDE(${VTK_SOURCE_DIR}/CMake/vtkTclTkMacros.cmake)
   # Hide useless settings provided by FindTCL.
   FOREACH(entry 
