@@ -18,6 +18,7 @@
 // object oriented manner and shows a fairly minimal windows VTK application.
 //
 
+#include "windows.h"
 
 // first include the required header files for the vtk classes we are using
 #include "vtkConeSource.h"
