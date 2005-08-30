@@ -75,6 +75,11 @@ IF (VTK_WRAP_TCL)
          "Wrap classes into the TCL interpreted language." 
          ON)
 
+  IF(VTKMY_WRAP_TCL)
+    SET(VTK_WRAP_TCL3_INIT_DIR "${VTKMY_SOURCE_DIR}/Wrapping")
+    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapTcl.cmake)
+  ENDIF(VTKMY_WRAP_TCL)
+
 ELSE (VTK_WRAP_TCL)
 
   IF (VTKMY_WRAP_TCL)
@@ -97,6 +102,8 @@ IF (VTK_WRAP_PYTHON)
          ON)
 
   IF (VTKMY_WRAP_PYTHON)
+    SET(VTK_WRAP_PYTHON3_INIT_DIR "${VTKMY_SOURCE_DIR}/Wrapping")
+    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapPython.cmake)
     IF (WIN32)
       IF (NOT BUILD_SHARED_LIBS)
         MESSAGE("Error. Python support requires BUILD_SHARED_LIBS to be ON.")
@@ -127,6 +134,8 @@ IF (VTK_WRAP_JAVA)
          ON)
 
   IF (VTKMY_WRAP_JAVA)
+    SET(VTK_WRAP_JAVA3_INIT_DIR "${VTKMY_SOURCE_DIR}/Wrapping")
+    INCLUDE(${VTK_CMAKE_DIR}/vtkWrapJava.cmake)
     IF (WIN32)
       IF (NOT BUILD_SHARED_LIBS)
         MESSAGE("Error. Java support requires BUILD_SHARED_LIBS to be ON.")
