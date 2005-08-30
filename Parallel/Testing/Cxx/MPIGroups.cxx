@@ -112,11 +112,11 @@ void proc1( vtkMultiProcessController *controller, void *arg )
   sphere->SetPhiResolution(16);
 
   vtkPolyDataNormals* pdn = vtkPolyDataNormals::New();
-  pdn->SetInput(sphere->GetOutput());
+  pdn->SetInputConnection(sphere->GetOutputPort());
   sphere->UnRegister(0);
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(pdn->GetOutput());
+  mapper->SetInputConnection(pdn->GetOutputPort());
   pdn->UnRegister(0);
 
   vtkActor *actor = vtkActor::New();

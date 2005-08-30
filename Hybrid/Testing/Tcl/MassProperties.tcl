@@ -22,14 +22,14 @@ vtkCubeSource cube
    cube SetZLength 1
 
 vtkPolyDataMapper   sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 [sphereActor GetProperty] SetDiffuseColor 1 .2 .4
 vtkPolyDataMapper   coneMapper
-    coneMapper SetInput [cone GetOutput]
+    coneMapper SetInputConnection [cone GetOutputPort]
     coneMapper GlobalImmediateModeRenderingOn
 
 vtkActor coneActor
@@ -37,7 +37,7 @@ vtkActor coneActor
 [coneActor GetProperty] SetDiffuseColor .2 .4 1
 
 vtkPolyDataMapper   cubeMapper
-    cubeMapper SetInput [cube GetOutput]
+    cubeMapper SetInputConnection [cube GetOutputPort]
     cubeMapper GlobalImmediateModeRenderingOn
 
 vtkActor cubeActor
@@ -56,10 +56,10 @@ ren1 AddActor cubeActor
 proc MakeText { primitive } {
 
   vtkTriangleFilter ${primitive}TriangleFilter
-    ${primitive}TriangleFilter SetInput [${primitive} GetOutput]
+    ${primitive}TriangleFilter SetInputConnection [${primitive} GetOutputPort]
 
   vtkMassProperties ${primitive}Mass
-    ${primitive}Mass SetInput [${primitive}TriangleFilter GetOutput]
+    ${primitive}Mass SetInputConnection [${primitive}TriangleFilter GetOutputPort]
 
   set summary [${primitive}Mass Print]
   set startSum [string first "  VolumeX" $summary]
@@ -69,7 +69,7 @@ proc MakeText { primitive } {
     ${primitive}Text SetText [string range $summary $startSum $endSum]
 
   vtkPolyDataMapper ${primitive}TextMapper
-    ${primitive}TextMapper SetInput [${primitive}Text GetOutput]
+    ${primitive}TextMapper SetInputConnection [${primitive}Text GetOutputPort]
 
   vtkActor ${primitive}TextActor
     ${primitive}TextActor SetMapper ${primitive}TextMapper

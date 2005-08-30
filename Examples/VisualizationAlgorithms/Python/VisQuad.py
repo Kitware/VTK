@@ -22,11 +22,11 @@ sample.SetImplicitFunction(quadric)
 # GenerateValues() method creates n isocontour values between the range
 # specified.
 contours = vtk.vtkContourFilter()
-contours.SetInput(sample.GetOutput())
+contours.SetInputConnection(sample.GetOutputPort())
 contours.GenerateValues(5, 0.0, 1.2)
 
 contMapper = vtk.vtkPolyDataMapper()
-contMapper.SetInput(contours.GetOutput())
+contMapper.SetInputConnection(contours.GetOutputPort())
 contMapper.SetScalarRange(0.0, 1.2)
 
 contActor = vtk.vtkActor()
@@ -34,10 +34,10 @@ contActor.SetMapper(contMapper)
 
 # We'll put a simple outline around the data.
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(sample.GetOutput())
+outline.SetInputConnection(sample.GetOutputPort())
 
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)

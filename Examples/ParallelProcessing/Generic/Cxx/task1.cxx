@@ -44,18 +44,18 @@ vtkPolyDataMapper* task1(vtkRenderWindow* renWin, double data,
 
   // Iso-surfacing.
   vtkContourFilter* contour = vtkContourFilter::New();
-  contour->SetInput(source1->GetOutput());
+  contour->SetInputConnection(source1->GetOutputPort());
   contour->SetNumberOfContours(1);
   contour->SetValue(0, 220);
 
   // Magnitude of the gradient vector.
   vtkImageGradientMagnitude* magn = vtkImageGradientMagnitude::New();
   magn->SetDimensionality(3);
-  magn->SetInput(source1->GetOutput());
+  magn->SetInputConnection(source1->GetOutputPort());
 
   // Probe magnitude with iso-surface.
   vtkProbeFilter* probe = vtkProbeFilter::New();
-  probe->SetInput(contour->GetOutput());
+  probe->SetInputConnection(contour->GetOutputPort());
   probe->SetSource(magn->GetOutput());
   probe->SpatialMatchOn();
 

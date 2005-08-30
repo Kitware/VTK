@@ -93,11 +93,11 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   vtkThreshold *thresh = vtkThreshold::New();
   thresh->ThresholdByUpper(80);
   thresh->AllScalarsOff();
-  thresh->SetInput(reader->GetOutput());
+  thresh->SetInputConnection(reader->GetOutputPort());
 
   // Make sure we have only tetrahedra.
   vtkDataSetTriangleFilter *trifilter = vtkDataSetTriangleFilter::New();
-  trifilter->SetInput(thresh->GetOutput());
+  trifilter->SetInputConnection(thresh->GetOutputPort());
 
   // Create transfer mapping scalar value to opacity.
   vtkPiecewiseFunction *opacityTransferFunction = vtkPiecewiseFunction::New();
@@ -124,7 +124,7 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   // The mapper that renders the volume data.
   vtkProjectedTetrahedraMapper *volumeMapper
     = vtkProjectedTetrahedraMapper::New();
-  volumeMapper->SetInput(trifilter->GetOutput());
+  volumeMapper->SetInputConnection(trifilter->GetOutputPort());
 
   // The volume holds the mapper and the property and can be used to
   // position/orient the volume.
@@ -135,11 +135,11 @@ int TestProjectedTetrahedra(int argc, char *argv[])
   // Contour the second dataset.
   vtkContourFilter *contour = vtkContourFilter::New();
   contour->SetValue(0, 80);
-  contour->SetInput(reader2->GetOutput());
+  contour->SetInputConnection(reader2->GetOutputPort());
 
   // Create a mapper for the polygonal data.
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(contour->GetOutput());
+  mapper->SetInputConnection(contour->GetOutputPort());
   mapper->ScalarVisibilityOff();
 
   // Create an actor for the polygonal data.

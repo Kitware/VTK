@@ -11,7 +11,7 @@ package require vtktesting
 vtkPolyDataReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/hello.vtk"
 vtkPolyDataMapper lineMapper
-    lineMapper SetInput [reader GetOutput]
+    lineMapper SetInputConnection [reader GetOutputPort]
 vtkActor lineActor
     lineActor SetMapper lineMapper
     eval [lineActor GetProperty] SetColor $red
@@ -22,15 +22,15 @@ vtkActor lineActor
 # generating geometry.
 #
 vtkImplicitModeller imp
-    imp SetInput [reader GetOutput]
+    imp SetInputConnection [reader GetOutputPort]
     imp SetSampleDimensions 110 40 20
     imp SetMaximumDistance 0.25
     imp SetModelBounds -1.0 10.0 -1.0 3.0 -1.0 1.0
 vtkContourFilter contour
-    contour SetInput [imp GetOutput]
+    contour SetInputConnection [imp GetOutputPort]
     contour SetValue 0 0.25
 vtkPolyDataMapper impMapper
-    impMapper SetInput [contour GetOutput]
+    impMapper SetInputConnection [contour GetOutputPort]
     impMapper ScalarVisibilityOff
 vtkActor impActor;  
     impActor SetMapper impMapper

@@ -48,7 +48,7 @@ for {set i 0} {$i < $n} {incr i} {
     sampler SetModelBounds -50 50 -50 50 -50 50
 
   catch {vtkImageThreshold thres}
-    thres SetInput [sampler GetOutput]
+    thres SetInputConnection [sampler GetOutputPort]
     thres ThresholdByLower [expr $radius * $radius]
     thres ReplaceInOn
     thres ReplaceOutOn
@@ -75,7 +75,7 @@ vtkDiscreteMarchingCubes discrete
   discrete GenerateValues $n 1 $n
 
 vtkPolyDataMapper mapper
-  mapper SetInput [discrete GetOutput]
+  mapper SetInputConnection [discrete GetOutputPort]
   mapper SetLookupTable lut
   mapper SetScalarRange 0 [lut GetNumberOfColors]
 

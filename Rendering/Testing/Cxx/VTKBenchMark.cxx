@@ -89,7 +89,7 @@ double VTKBenchmark::BuildTheFractal()
   this->Mandelbrot->Update();
 
   cerr << "Smoothing...\n";
-  this->GaussianSmooth->SetInput(this->Mandelbrot->GetOutput());
+  this->GaussianSmooth->SetInputConnection(this->Mandelbrot->GetOutputPort());
   this->GaussianSmooth->Update();
 
   // extract a sphere from the fractal volume
@@ -98,23 +98,23 @@ double VTKBenchmark::BuildTheFractal()
   
   // add two contours
   cerr << "Cutting...\n";
-  this->Cutter->SetInput(this->GaussianSmooth->GetOutput());
+  this->Cutter->SetInputConnection(this->GaussianSmooth->GetOutputPort());
   this->Cutter->SetCutFunction(sphere);
   this->Cutter->Update();
   
   // convert it to all triangles
   cerr << "Converting to Triangles...\n";
-  this->TriFilter->SetInput(this->Cutter->GetOutput());
+  this->TriFilter->SetInputConnection(this->Cutter->GetOutputPort());
   this->TriFilter->Update();
 
   // generate Normals
   cerr << "Computing Normals...\n";
-  this->Normals->SetInput(this->TriFilter->GetOutput());
+  this->Normals->SetInputConnection(this->TriFilter->GetOutputPort());
   this->Normals->Update();
 
   // and then strip them
   cerr << "Creating Strips...\n";
-  this->Stripper->SetInput(this->Normals->GetOutput());
+  this->Stripper->SetInputConnection(this->Normals->GetOutputPort());
   this->Stripper->Update();
 
   
@@ -173,13 +173,13 @@ double VTKBenchmark::DrawTheFractal()
 
   if (this->UseNormals)
     {
-    this->Stripper->SetInput(this->Normals->GetOutput());
+    this->Stripper->SetInputConnection(this->Normals->GetOutputPort());
     }
   else
     {
-    this->Stripper->SetInput(this->TriFilter->GetOutput());
+    this->Stripper->SetInputConnection(this->TriFilter->GetOutputPort());
     }
-  mapper->SetInput(this->Stripper->GetOutput());
+  mapper->SetInputConnection(this->Stripper->GetOutputPort());
   mapper->SetImmediateModeRendering(this->ImmediateMode);
   mapper->SetScalarVisibility(this->ScalarColoring);
   mapper->SetScalarRange(5,30);

@@ -34,21 +34,21 @@ vtkImplicitBoolean union
 # extract those cells completely inside the function. They are then 
 # shrunk to help show what was extracted.
 vtkExtractGeometry extract
-    extract SetInput [sample GetOutput]
+    extract SetInputConnection [sample GetOutputPort]
     extract SetImplicitFunction union
 vtkShrinkFilter shrink
-    shrink SetInput [extract GetOutput]
+    shrink SetInputConnection [extract GetOutputPort]
     shrink SetShrinkFactor 0.5
 vtkDataSetMapper dataMapper
-    dataMapper SetInput [shrink GetOutput]
+    dataMapper SetInputConnection [shrink GetOutputPort]
 vtkActor dataActor
     dataActor SetMapper dataMapper
 
 # The outline gives context to the original data.
 vtkOutlineFilter outline
-    outline SetInput [sample GetOutput]
+    outline SetInputConnection [sample GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 set outlineProp [outlineActor GetProperty]

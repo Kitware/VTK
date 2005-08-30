@@ -29,7 +29,7 @@ reader SetFileName "fullHead.tri"
 reader SetLimitsFileName "fullHead.lim"
 
 vtkPolyDataMapper mapper
-    mapper SetInput [reader GetOutput]
+    mapper SetInputConnection [reader GetOutputPort]
     
 vtkActor head
     head SetMapper mapper

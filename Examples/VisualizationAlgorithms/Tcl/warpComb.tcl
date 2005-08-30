@@ -30,13 +30,13 @@ vtkPLOT3DReader pl3d
 # specification. Min and max i,j,k values are clamped to 0 and maximum value.
 #
 vtkStructuredGridGeometryFilter plane
-    plane SetInput [pl3d GetOutput]
+    plane SetInputConnection [pl3d GetOutputPort]
     plane SetExtent 10 10 1 100 1 100
 vtkStructuredGridGeometryFilter plane2
-    plane2 SetInput [pl3d GetOutput]
+    plane2 SetInputConnection [pl3d GetOutputPort]
     plane2 SetExtent 30 30 1 100 1 100
 vtkStructuredGridGeometryFilter plane3
-    plane3 SetInput [pl3d GetOutput]
+    plane3 SetInputConnection [pl3d GetOutputPort]
     plane3 SetExtent 45 45 1 100 1 100
 
 # We use an append filter because that way we can do the warping, etc. just
@@ -47,7 +47,7 @@ vtkAppendPolyData appendF
     appendF AddInput [plane2 GetOutput]
     appendF AddInput [plane3 GetOutput]
 vtkWarpScalar warp
-    warp SetInput [appendF GetOutput]
+    warp SetInputConnection [appendF GetOutputPort]
     warp UseNormalOn
     warp SetNormal 1.0 0.0 0.0
     warp SetScaleFactor 2.5
@@ -55,16 +55,16 @@ vtkPolyDataNormals normals
     normals SetInput [warp GetPolyDataOutput]
     normals SetFeatureAngle 60
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [normals GetOutput]
+    planeMapper SetInputConnection [normals GetOutputPort]
     eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper planeMapper
 
 # The outline provides context for the data and the planes.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

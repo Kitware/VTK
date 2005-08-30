@@ -268,7 +268,7 @@ int TestLineWidget( int argc, char *argv[] )
   vtkRungeKutta4 *rk4 = vtkRungeKutta4::New();
 
   vtkStreamLine *streamer = vtkStreamLine::New();
-  streamer->SetInput(pl3d->GetOutput());
+  streamer->SetInputConnection(pl3d->GetOutputPort());
   streamer->SetSource(seeds);
   streamer->SetMaximumPropagationTime(100);
   streamer->SetIntegrationStepLength(.2);
@@ -279,12 +279,12 @@ int TestLineWidget( int argc, char *argv[] )
   streamer->SetIntegrator(rk4);
 
   vtkRibbonFilter *rf = vtkRibbonFilter::New();
-  rf->SetInput(streamer->GetOutput());
+  rf->SetInputConnection(streamer->GetOutputPort());
   rf->SetWidth(0.1);
   rf->SetWidthFactor(5);
 
   vtkPolyDataMapper *streamMapper = vtkPolyDataMapper::New();
-  streamMapper->SetInput(rf->GetOutput());
+  streamMapper->SetInputConnection(rf->GetOutputPort());
   double tmp[2];
   pl3d->GetOutput()->GetScalarRange(tmp);
   streamMapper->SetScalarRange(tmp[0], tmp[1]);
@@ -296,10 +296,10 @@ int TestLineWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkStructuredGridOutlineFilter *outline = 
     vtkStructuredGridOutlineFilter::New();
-  outline->SetInput(pl3d->GetOutput());
+  outline->SetInputConnection(pl3d->GetOutputPort());
 
   vtkPolyDataMapper *outlineMapper = vtkPolyDataMapper::New();
-  outlineMapper->SetInput(outline->GetOutput());
+  outlineMapper->SetInputConnection(outline->GetOutputPort());
 
   vtkActor *outlineActor = vtkActor::New();
   outlineActor->SetMapper(outlineMapper);

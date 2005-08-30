@@ -13,7 +13,7 @@ vtkTexturedSphereSource tss
   tss SetThetaResolution 18
   tss SetPhiResolution 9
 vtkPolyDataMapper   earthMapper
-  earthMapper SetInput [tss GetOutput]
+  earthMapper SetInputConnection [tss GetOutputPort]
 vtkActor earthActor
   earthActor SetMapper earthMapper
 
@@ -23,7 +23,7 @@ vtkTexture atext
 vtkPNMReader pnmReader
   pnmReader SetFileName "$VTK_DATA_ROOT/Data/earth.ppm"
 
-atext SetInput [pnmReader GetOutput]
+atext SetInputConnection [pnmReader GetOutputPort]
 atext InterpolateOn
 earthActor SetTexture atext
 
@@ -33,7 +33,7 @@ vtkEarthSource es
   es SetRadius 0.501
   es SetOnRatio 2
 vtkPolyDataMapper   earth2Mapper
-  earth2Mapper SetInput [es GetOutput]
+  earth2Mapper SetInputConnection [es GetOutputPort]
 vtkActor earth2Actor
   earth2Actor SetMapper earth2Mapper
 

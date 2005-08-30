@@ -35,15 +35,15 @@ vtkVolume16Reader v16
 # The triangle stripper is used to create triangle strips from the
 # isosurface these render much faster on may systems.
 vtkContourFilter skinExtractor
-  skinExtractor SetInput  [v16 GetOutput]
+  skinExtractor SetInputConnection [v16 GetOutputPort]
   skinExtractor SetValue 0 500
 vtkPolyDataNormals skinNormals
-  skinNormals SetInput [skinExtractor GetOutput]
+  skinNormals SetInputConnection [skinExtractor GetOutputPort]
   skinNormals SetFeatureAngle 60.0
 vtkStripper skinStripper
-  skinStripper SetInput [skinNormals GetOutput]
+  skinStripper SetInputConnection [skinNormals GetOutputPort]
 vtkPolyDataMapper skinMapper
-  skinMapper SetInput [skinStripper GetOutput]
+  skinMapper SetInputConnection [skinStripper GetOutputPort]
   skinMapper ScalarVisibilityOff
 vtkActor skin
   skin SetMapper skinMapper
@@ -57,15 +57,15 @@ vtkActor skin
 # The triangle stripper is used to create triangle strips from the
 # isosurface these render much faster on may systems.
 vtkContourFilter boneExtractor
-  boneExtractor SetInput  [v16 GetOutput]
+  boneExtractor SetInputConnection [v16 GetOutputPort]
   boneExtractor SetValue 0 1150
 vtkPolyDataNormals boneNormals
-  boneNormals SetInput [boneExtractor GetOutput]
+  boneNormals SetInputConnection [boneExtractor GetOutputPort]
   boneNormals SetFeatureAngle 60.0
 vtkStripper boneStripper
-  boneStripper SetInput [boneNormals GetOutput]
+  boneStripper SetInputConnection [boneNormals GetOutputPort]
 vtkPolyDataMapper boneMapper
-  boneMapper SetInput [boneStripper GetOutput]
+  boneMapper SetInputConnection [boneStripper GetOutputPort]
   boneMapper ScalarVisibilityOff
 vtkActor bone
   bone SetMapper boneMapper
@@ -74,9 +74,9 @@ vtkActor bone
 # An outline provides context around the data.
 #
 vtkOutlineFilter outlineData
-  outlineData SetInput  [v16 GetOutput]
+  outlineData SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper mapOutline
-  mapOutline SetInput [outlineData GetOutput]
+  mapOutline SetInputConnection [outlineData GetOutputPort]
 vtkActor outline
   outline SetMapper mapOutline
   [outline GetProperty] SetColor 0 0 0

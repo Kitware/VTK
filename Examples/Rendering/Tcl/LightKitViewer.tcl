@@ -149,7 +149,7 @@ vtkAppendPolyData appendSquads
     appendSquads AddInput [squad GetOutput]
    
 vtkPolyDataMapper mapper
-    mapper SetInput [squad GetOutput]
+    mapper SetInputConnection [squad GetOutputPort]
     mapper ScalarVisibilityOff
 
 vtkActor actor

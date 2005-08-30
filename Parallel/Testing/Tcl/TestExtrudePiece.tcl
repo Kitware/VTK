@@ -7,14 +7,14 @@ vtkDiskSource disk
   disk SetCircumferentialResolution 9
 
 vtkCleanPolyData clean
-  clean SetInput [disk GetOutput]
+  clean SetInputConnection [disk GetOutputPort]
   clean SetTolerance 0.01
 
 vtkExtractPolyDataPiece piece
-  piece SetInput [clean GetOutput]
+  piece SetInputConnection [clean GetOutputPort]
 
 vtkPLinearExtrusionFilter extrude
-  extrude SetInput [piece GetOutput]
+  extrude SetInputConnection [piece GetOutputPort]
   extrude PieceInvariantOn
 
 
@@ -28,7 +28,7 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkPolyDataMapper mapper
-   mapper SetInput [extrude GetOutput]
+   mapper SetInputConnection [extrude GetOutputPort]
    mapper SetNumberOfPieces 2
    mapper SetPiece 1
 

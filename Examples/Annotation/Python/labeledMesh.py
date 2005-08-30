@@ -39,14 +39,14 @@ rectActor.SetMapper(rectMapper)
 # Create a sphere and its associated mapper and actor.
 sphere = vtk.vtkSphereSource()
 sphereMapper = vtk.vtkPolyDataMapper()
-sphereMapper.SetInput(sphere.GetOutput())
+sphereMapper.SetInputConnection(sphere.GetOutputPort())
 sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkActor()
 sphereActor.SetMapper(sphereMapper)
 
 # Generate data arrays containing point and cell ids
 ids = vtk.vtkIdFilter()
-ids.SetInput(sphere.GetOutput())
+ids.SetInputConnection(sphere.GetOutputPort())
 ids.PointIdsOn()
 ids.CellIdsOn()
 ids.FieldDataOn()
@@ -56,7 +56,7 @@ ren = vtk.vtkRenderer()
 
 # Create labels for points
 visPts = vtk.vtkSelectVisiblePoints()
-visPts.SetInput(ids.GetOutput())
+visPts.SetInputConnection(ids.GetOutputPort())
 visPts.SetRenderer(ren)
 visPts.SelectionWindowOn()
 visPts.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
@@ -64,7 +64,7 @@ visPts.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 # Create the mapper to display the point ids.  Specify the format to
 # use for the labels.  Also create the associated actor.
 ldm = vtk.vtkLabeledDataMapper()
-ldm.SetInput(visPts.GetOutput())
+ldm.SetInputConnection(visPts.GetOutputPort())
 ldm.SetLabelFormat("%g")
 ldm.SetLabelModeToLabelFieldData()
 pointLabels = vtk.vtkActor2D()
@@ -72,9 +72,9 @@ pointLabels.SetMapper(ldm)
 
 # Create labels for cells
 cc = vtk.vtkCellCenters()
-cc.SetInput(ids.GetOutput())
+cc.SetInputConnection(ids.GetOutputPort())
 visCells = vtk.vtkSelectVisiblePoints()
-visCells.SetInput(cc.GetOutput())
+visCells.SetInputConnection(cc.GetOutputPort())
 visCells.SetRenderer(ren)
 visCells.SelectionWindowOn()
 visCells.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
@@ -82,7 +82,7 @@ visCells.SetSelection(xmin, xmin + xLength, ymin, ymin + yLength)
 # Create the mapper to display the cell ids.  Specify the format to
 # use for the labels.  Also create the associated actor.
 cellMapper = vtk.vtkLabeledDataMapper()
-cellMapper.SetInput(visCells.GetOutput())
+cellMapper.SetInputConnection(visCells.GetOutputPort())
 cellMapper.SetLabelFormat("%g")
 cellMapper.SetLabelModeToLabelFieldData()
 cellMapper.GetLabelTextProperty().SetColor(0, 1, 0)

@@ -31,7 +31,7 @@ cone.SetRadius( 1.0 )
 cone.SetResolution( 10 )
   
 coneMapper = vtk.vtkPolyDataMapper()
-coneMapper.SetInput( cone.GetOutput() )
+coneMapper.SetInputConnection( cone.GetOutputPort() )
 coneActor = vtk.vtkActor()
 coneActor.SetMapper( coneMapper )
 

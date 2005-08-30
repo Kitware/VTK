@@ -15,13 +15,13 @@ set value [expr ($min + $max) / 2.0]
 
 #vtkGridSynchronizedTemplates3D cf
 vtkContourFilter cf
-    cf SetInput [pl3d GetOutput]
+    cf SetInputConnection [pl3d GetOutputPort]
     cf SetValue 0 $value
 	#cf ComputeNormalsOff
 
 vtkPolyDataMapper cfMapper
 	cfMapper ImmediateModeRenderingOn
-    cfMapper SetInput [cf GetOutput]
+    cfMapper SetInputConnection [cf GetOutputPort]
     eval cfMapper SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cfActor
@@ -29,9 +29,9 @@ vtkActor cfActor
 
 #outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     eval [outlineActor GetProperty] SetColor 0 0 0

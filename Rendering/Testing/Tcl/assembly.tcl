@@ -13,7 +13,7 @@ vtkRenderWindowInteractor iren
 #
 vtkSphereSource sphere
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
     sphereActor SetOrigin 2 1 3
@@ -23,7 +23,7 @@ vtkActor sphereActor
 
 vtkCubeSource cube
 vtkPolyDataMapper cubeMapper
-    cubeMapper SetInput [cube GetOutput]
+    cubeMapper SetInputConnection [cube GetOutputPort]
 vtkActor cubeActor
     cubeActor SetMapper cubeMapper
     cubeActor SetPosition 0.0 .25 0
@@ -31,7 +31,7 @@ vtkActor cubeActor
 
 vtkConeSource cone
 vtkPolyDataMapper coneMapper
-    coneMapper SetInput [cone GetOutput]
+    coneMapper SetInputConnection [cone GetOutputPort]
 vtkActor coneActor
     coneActor SetMapper coneMapper
     coneActor SetPosition 0 0 .25
@@ -39,7 +39,7 @@ vtkActor coneActor
 
 vtkCylinderSource cylinder;#top part
 vtkPolyDataMapper cylinderMapper
-    cylinderMapper SetInput [cylinder GetOutput]
+    cylinderMapper SetInputConnection [cylinder GetOutputPort]
     cylinderMapper SetResolveCoincidentTopologyToPolygonOffset
 vtkActor cylinderActor
     cylinderActor SetMapper cylinderMapper

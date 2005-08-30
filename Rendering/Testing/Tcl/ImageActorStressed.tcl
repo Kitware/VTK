@@ -20,7 +20,7 @@ gsOne SetOutValue 255
 gsOne SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssOne
-ssOne SetInput [gsOne GetOutput]
+ssOne SetInputConnection [gsOne GetOutputPort]
 ssOne SetOutputScalarTypeToUnsignedChar
 ssOne SetShift 0
 ssOne SetScale 1
@@ -41,7 +41,7 @@ gsTwo SetOutValue 150
 gsTwo SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssTwo
-ssTwo SetInput [gsTwo GetOutput]
+ssTwo SetInputConnection [gsTwo GetOutputPort]
 ssTwo SetOutputScalarTypeToUnsignedChar
 ssTwo SetShift 0
 ssTwo SetScale 1
@@ -65,7 +65,7 @@ gsThree SetOutValue 0
 gsThree SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssThree
-ssThree SetInput [gsThree GetOutput]
+ssThree SetInputConnection [gsThree GetOutputPort]
 ssThree SetOutputScalarTypeToUnsignedChar
 ssThree SetShift 0
 ssThree SetScale 1
@@ -89,7 +89,7 @@ gsFour SetOutValue 190
 gsFour SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssFour
-ssFour SetInput [gsFour GetOutput]
+ssFour SetInputConnection [gsFour GetOutputPort]
 ssFour SetOutputScalarTypeToUnsignedChar
 ssFour SetShift 0
 ssFour SetScale 1
@@ -112,7 +112,7 @@ gsFive SetOutValue 100
 gsFive SetOutputScalarTypeToUnsignedChar
 
 vtkImageShiftScale ssFive
-ssFive SetInput [gsFive GetOutput]
+ssFive SetInputConnection [gsFive GetOutputPort]
 ssFive SetOutputScalarTypeToUnsignedChar
 ssFive SetShift 0
 ssFive SetScale 1

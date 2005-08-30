@@ -5,7 +5,7 @@ package require vtkinteraction
 vtkSphereSource sphere
   sphere SetRadius 2.0
 vtkPolyDataMapper sphereMapper
-  sphereMapper SetInput [sphere GetOutput]
+  sphereMapper SetInputConnection [sphere GetOutputPort]
   sphereMapper ImmediateModeRenderingOn
 vtkActor sphereActor
   sphereActor SetMapper sphereMapper
@@ -15,18 +15,18 @@ vtkRTAnalyticSource rt
 rt SetWholeExtent -50 50 -50 50 0 0
 
 vtkExtractVOI voi
-  voi SetInput [rt GetOutput]
+  voi SetInputConnection [rt GetOutputPort]
   voi SetVOI -11 39 5 45 0 0
   voi SetSampleRate 5 5 1
 
 # Get rid ambiguous triagulation issues.
 vtkDataSetSurfaceFilter surf
-  surf SetInput [voi GetOutput]
+  surf SetInputConnection [voi GetOutputPort]
 vtkTriangleFilter tris
-  tris SetInput [surf GetOutput]
+  tris SetInputConnection [surf GetOutputPort]
 
 vtkPolyDataMapper mapper
-  mapper SetInput [tris GetOutput]
+  mapper SetInputConnection [tris GetOutputPort]
   mapper ImmediateModeRenderingOn
   mapper SetScalarRange 130 280
 vtkActor actor

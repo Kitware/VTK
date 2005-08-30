@@ -101,7 +101,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   vtkGenericOutlineFilter *outline=vtkGenericOutlineFilter::New();
   outline->SetInput(ds);
   vtkPolyDataMapper *mapOutline=vtkPolyDataMapper::New();
-  mapOutline->SetInput(outline->GetOutput());
+  mapOutline->SetInputConnection(outline->GetOutputPort());
   vtkActor *outlineActor=vtkActor::New();
   outlineActor->SetMapper(mapOutline);
   outlineActor->GetProperty()->SetColor(0,0,0);
@@ -122,7 +122,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   streamer->SetMaximumError(1.0E-8);
   
   vtkAssignAttribute *aa=vtkAssignAttribute::New();
-  aa->SetInput(streamer->GetOutput());
+  aa->SetInputConnection(streamer->GetOutputPort());
   aa->Assign("Normals",vtkDataSetAttributes::NORMALS,
              vtkAssignAttribute::POINT_DATA);
 
@@ -132,7 +132,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   rf1->VaryWidthOff();
   
   vtkPolyDataMapper *mapStream=vtkPolyDataMapper::New();
-  mapStream->SetInput(rf1->GetOutput());
+  mapStream->SetInputConnection(rf1->GetOutputPort());
   mapStream->SetScalarRange(ds->GetAttributes()->GetAttribute(0)->GetRange());
   vtkActor *streamActor=vtkActor::New();
   streamActor->SetMapper(mapStream);
@@ -149,7 +149,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
-  writer->SetInput(streamer->GetOutput());
+  writer->SetInputConnection(streamer->GetOutputPort());
   writer->SetFileName("streamed.vtu");
   writer->SetDataModeToAscii();
   writer->Write();

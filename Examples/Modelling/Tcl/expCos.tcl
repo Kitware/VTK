@@ -19,7 +19,7 @@ vtkPlaneSource plane
 vtkTransform transform
    transform Scale 10 10 1
 vtkTransformPolyDataFilter transF
-   transF SetInput [plane GetOutput]
+   transF SetInputConnection [plane GetOutputPort]
    transF SetTransform transform
 
 #
@@ -27,7 +27,7 @@ vtkTransformPolyDataFilter transF
 # for this. Note the unusual GetInput() & GetOutput() methods.
 #
 vtkProgrammableFilter besselF
-   besselF SetInput [transF GetOutput]
+   besselF SetInputConnection [transF GetOutputPort]
    besselF SetExecuteMethod bessel
 
 #

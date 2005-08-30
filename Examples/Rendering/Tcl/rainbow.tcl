@@ -24,21 +24,21 @@ vtkPLOT3DReader pl3d
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 vtkStructuredGridGeometryFilter plane
-    plane SetInput [pl3d GetOutput]
+    plane SetInputConnection [pl3d GetOutputPort]
     plane SetExtent 1 100 1 100 7 7
 vtkLookupTable lut
 vtkPolyDataMapper planeMapper
     planeMapper SetLookupTable lut
-    planeMapper SetInput [plane GetOutput]
+    planeMapper SetInputConnection [plane GetOutputPort]
     eval planeMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper planeMapper
 
 # This creates an outline around the data.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

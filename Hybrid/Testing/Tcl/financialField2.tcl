@@ -93,7 +93,7 @@ proc parseFile {} {
 
 # Create the dataset
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dos GetOutput]
+    do2ds SetInputConnection [dos GetOutputPort]
     do2ds SetDataSetTypeToPolyData
     #format: component#, arrayname, arraycomp, minArrayId, maxArrayId, normalize
     do2ds DefaultNormalizeOn
@@ -102,7 +102,7 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds SetPointComponent 2 $zAxis 0 
     do2ds Update
 vtkFieldDataToAttributeDataFilter fd2ad
-    fd2ad SetInput [do2ds GetOutput]
+    fd2ad SetInputConnection [do2ds GetOutputPort]
     fd2ad SetInputFieldToDataObjectField
     fd2ad SetOutputAttributeDataToPointData
     fd2ad DefaultNormalizeOn
@@ -110,15 +110,15 @@ vtkFieldDataToAttributeDataFilter fd2ad
 
 # construct pipeline for original population
 vtkGaussianSplatter popSplatter
-    popSplatter SetInput [fd2ad GetOutput]
+    popSplatter SetInputConnection [fd2ad GetOutputPort]
     popSplatter SetSampleDimensions 50 50 50
     popSplatter SetRadius 0.05
     popSplatter ScalarWarpingOff
 vtkContourFilter popSurface
-    popSurface SetInput [popSplatter GetOutput]
+    popSurface SetInputConnection [popSplatter GetOutputPort]
     popSurface SetValue 0 0.01
 vtkPolyDataMapper popMapper
-    popMapper SetInput [popSurface GetOutput]
+    popMapper SetInputConnection [popSurface GetOutputPort]
     popMapper ScalarVisibilityOff
     popMapper ImmediateModeRenderingOn
 vtkActor popActor
@@ -128,15 +128,15 @@ vtkActor popActor
 
 # construct pipeline for delinquent population
 vtkGaussianSplatter lateSplatter
-    lateSplatter SetInput [fd2ad GetOutput]
+    lateSplatter SetInputConnection [fd2ad GetOutputPort]
     lateSplatter SetSampleDimensions 50 50 50
     lateSplatter SetRadius 0.05
     lateSplatter SetScaleFactor 0.05
 vtkContourFilter lateSurface
-    lateSurface SetInput [lateSplatter GetOutput]
+    lateSurface SetInputConnection [lateSplatter GetOutputPort]
     lateSurface SetValue 0 0.01
 vtkPolyDataMapper lateMapper
-    lateMapper SetInput [lateSurface GetOutput]
+    lateMapper SetInputConnection [lateSurface GetOutputPort]
     lateMapper ScalarVisibilityOff
 vtkActor lateActor
     lateActor SetMapper lateMapper
@@ -149,11 +149,11 @@ vtkAxes axes
     axes SetOrigin [lindex $bounds 0]  [lindex $bounds 2]  [lindex $bounds 4]
     axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
 vtkTubeFilter axesTubes
-    axesTubes SetInput [axes GetOutput]
+    axesTubes SetInputConnection [axes GetOutputPort]
     axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
     axesTubes SetNumberOfSides 6
 vtkPolyDataMapper axesMapper
-    axesMapper SetInput [axesTubes GetOutput]
+    axesMapper SetInputConnection [axesTubes GetOutputPort]
 vtkActor axesActor
     axesActor SetMapper axesMapper
 
@@ -161,7 +161,7 @@ vtkActor axesActor
 vtkVectorText XText
     XText SetText $xAxis
 vtkPolyDataMapper XTextMapper
-    XTextMapper SetInput [XText GetOutput]
+    XTextMapper SetInputConnection [XText GetOutputPort]
 vtkFollower XActor
     XActor SetMapper XTextMapper
     XActor SetScale 0.02 .02 .02
@@ -171,7 +171,7 @@ vtkFollower XActor
 vtkVectorText YText
     YText SetText $yAxis
 vtkPolyDataMapper YTextMapper
-    YTextMapper SetInput [YText GetOutput]
+    YTextMapper SetInputConnection [YText GetOutputPort]
 vtkFollower YActor
     YActor SetMapper YTextMapper
     YActor SetScale 0.02 .02 .02
@@ -181,7 +181,7 @@ vtkFollower YActor
 vtkVectorText ZText
     ZText SetText $zAxis
 vtkPolyDataMapper ZTextMapper
-    ZTextMapper SetInput [ZText GetOutput]
+    ZTextMapper SetInputConnection [ZText GetOutputPort]
 vtkFollower ZActor
     ZActor SetMapper ZTextMapper
     ZActor SetScale 0.02 .02 .02

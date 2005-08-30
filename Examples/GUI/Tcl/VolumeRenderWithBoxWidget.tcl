@@ -35,7 +35,7 @@ vtkColorTransferFunction ctfun
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-  volumeMapper SetInput [v16 GetOutput]
+  volumeMapper SetInputConnection [v16 GetOutputPort]
   volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolumeProperty volumeProperty
@@ -49,9 +49,9 @@ vtkVolume newvol
   newvol SetProperty volumeProperty
 
 vtkOutlineFilter outline
-    outline SetInput [v16 GetOutput]
+    outline SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 
@@ -80,7 +80,7 @@ renWin SetSize 300 300
 
 # Place the interactor initially. The output of the reader is used to place
 # the box widget.
-boxWidget SetInput [v16 GetOutput]
+boxWidget SetInputConnection [v16 GetOutputPort]
 boxWidget PlaceWidget
 boxWidget InsideOutOn
 boxWidget AddObserver StartInteractionEvent StartInteraction

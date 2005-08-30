@@ -24,7 +24,7 @@ vtkSTLReader part
 # Here we add a filter that computes surface normals from the geometry.
 #
 vtkShrinkPolyData shrink
-    shrink SetInput [part GetOutput]
+    shrink SetInputConnection [part GetOutputPort]
     shrink SetShrinkFactor 0.85
 
 # The mapper is responsible for pushing the geometry into the graphics
@@ -32,7 +32,7 @@ vtkShrinkPolyData shrink
 # are defined.
 #
 vtkPolyDataMapper partMapper
-    partMapper SetInput [shrink GetOutput]
+    partMapper SetInputConnection [shrink GetOutputPort]
 
 # The LOD actor is a special type of actor. It will change appearance in
 # order to render faster. At the highest resolution, it renders ewverything

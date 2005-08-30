@@ -52,13 +52,13 @@ vtkGridTransform gridTransform
   gridTransform SetDisplacementScale [gridThinPlate GetDisplacementScale]
 
 vtkImageReslice reslice
-  reslice SetInput [reader GetOutput]
+  reslice SetInputConnection [reader GetOutputPort]
   reslice SetResliceTransform gridTransform
   reslice SetInterpolationModeToLinear
   reslice SetOutputSpacing 1 1 1
 
 vtkImageViewer viewer
-  viewer SetInput [reslice GetOutput]
+  viewer SetInputConnection [reslice GetOutputPort]
   viewer SetZSlice 70
   viewer SetColorWindow 2000
   viewer SetColorLevel 1000

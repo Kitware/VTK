@@ -14,7 +14,7 @@ vtkRenderWindowInteractor iren
 vtkSphereSource sphere
   sphere SetThetaResolution 7 ; sphere SetPhiResolution 7
 vtkPolyDataMapper sphereMapper
-  sphereMapper SetInput [sphere GetOutput]
+  sphereMapper SetInputConnection [sphere GetOutputPort]
 vtkActor sphereActor
   sphereActor SetMapper sphereMapper
 vtkActor sphereActor2
@@ -23,14 +23,14 @@ vtkConeSource cone
   cone SetResolution 5
 
 vtkGlyph3D glyph
-  glyph SetInput [sphere GetOutput]
+  glyph SetInputConnection [sphere GetOutputPort]
   glyph SetSource [cone GetOutput]
   glyph SetVectorModeToUseNormal 
   glyph SetScaleModeToScaleByVector 
   glyph SetScaleFactor 0.25
 
 vtkPolyDataMapper spikeMapper
-  spikeMapper SetInput [glyph GetOutput]
+  spikeMapper SetInputConnection [glyph GetOutputPort]
 vtkActor spikeActor
   spikeActor SetMapper spikeMapper
 vtkActor spikeActor2

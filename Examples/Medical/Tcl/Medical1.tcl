@@ -35,13 +35,13 @@ vtkVolume16Reader v16
 # The triangle stripper is used to create triangle strips from the
 # isosurface these render much faster on may systems.
 vtkContourFilter skinExtractor
-  skinExtractor SetInput  [v16 GetOutput]
+  skinExtractor SetInputConnection [v16 GetOutputPort]
   skinExtractor SetValue 0 500
 vtkPolyDataNormals skinNormals
-  skinNormals SetInput [skinExtractor GetOutput]
+  skinNormals SetInputConnection [skinExtractor GetOutputPort]
   skinNormals SetFeatureAngle 60.0
 vtkPolyDataMapper skinMapper
-  skinMapper SetInput [skinNormals GetOutput]
+  skinMapper SetInputConnection [skinNormals GetOutputPort]
   skinMapper ScalarVisibilityOff
 vtkActor skin
   skin SetMapper skinMapper
@@ -49,9 +49,9 @@ vtkActor skin
 # An outline provides context around the data.
 #
 vtkOutlineFilter outlineData
-  outlineData SetInput  [v16 GetOutput]
+  outlineData SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper mapOutline
-  mapOutline SetInput [outlineData GetOutput]
+  mapOutline SetInputConnection [outlineData GetOutputPort]
 vtkActor outline
   outline SetMapper mapOutline
   [outline GetProperty] SetColor 0 0 0

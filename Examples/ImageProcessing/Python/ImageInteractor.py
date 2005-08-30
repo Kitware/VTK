@@ -16,13 +16,13 @@ reader.SetDataSpacing(0.8, 0.8, 1.5)
 reader.SetFileName(VTK_DATA_ROOT + "/Data/fullhead15.png")
 
 shiftScale = vtk.vtkImageShiftScale()
-shiftScale.SetInput(reader.GetOutput())
+shiftScale.SetInputConnection(reader.GetOutputPort())
 shiftScale.SetShift(0)
 shiftScale.SetScale(0.07)
 shiftScale.SetOutputScalarTypeToUnsignedChar()
 
 ia = vtk.vtkImageActor()
-ia.SetInput(shiftScale.GetOutput())
+ia.SetInputConnection(shiftScale.GetOutputPort())
 
 # Create the RenderWindow, Renderer and both Actors
 ren = vtk.vtkRenderer()

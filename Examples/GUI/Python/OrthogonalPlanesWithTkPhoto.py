@@ -25,13 +25,13 @@ class SampleViewer:
         reader.Update ()
 
         self.cast = cast = vtkImageCast()
-        cast.SetInput ( reader.GetOutput() )
+        cast.SetInputConnection( reader.GetOutputPort() )
         cast.SetOutputScalarType ( reader.GetOutput().GetScalarType() )
         cast.ClampOverflowOn()
 
         # Make the image a little bigger
         self.resample = resample = vtkImageResample ()
-        resample.SetInput ( cast.GetOutput() )
+        resample.SetInputConnection( cast.GetOutputPort() )
         resample.SetAxisMagnificationFactor ( 0, 2 )
         resample.SetAxisMagnificationFactor ( 1, 2 )
         resample.SetAxisMagnificationFactor ( 2, 1 )

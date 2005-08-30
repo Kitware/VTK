@@ -8,7 +8,7 @@ import vtk
 sphere = vtk.vtkSphereSource()
 
 sphereMapper = vtk.vtkPolyDataMapper()
-sphereMapper.SetInput(sphere.GetOutput())
+sphereMapper.SetInputConnection(sphere.GetOutputPort())
 sphereMapper.GlobalImmediateModeRenderingOn()
 sphereActor = vtk.vtkLODActor()
 sphereActor.SetMapper(sphereMapper)

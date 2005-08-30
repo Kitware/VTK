@@ -13,19 +13,19 @@ vtkPNGReader reader
 reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkContourFilter iso
-    iso SetInput [reader GetOutput]
+    iso SetInputConnection [reader GetOutputPort]
     iso GenerateValues 12 500 1150
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [iso GetOutput]
+    isoMapper SetInputConnection [iso GetOutputPort]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
     eval [isoActor GetProperty] SetColor 0 0 0
 
 vtkOutlineFilter outline
-    outline SetInput [reader GetOutput]
+    outline SetInputConnection [reader GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 set outlineProp [outlineActor GetProperty]

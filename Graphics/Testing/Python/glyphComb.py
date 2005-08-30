@@ -29,7 +29,7 @@ pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
 
 eg = vtk.vtkExtractGrid()
-eg.SetInput(pl3d.GetOutput())
+eg.SetInputConnection(pl3d.GetOutputPort())
 eg.SetSampleRate(4,4,4)
 
 gs = vtk.vtkGlyphSource2D()
@@ -39,12 +39,12 @@ gs.FilledOff()
 gs.CrossOff()
 
 glyph = vtk.vtkGlyph3D()
-glyph.SetInput(eg.GetOutput())
+glyph.SetInputConnection(eg.GetOutputPort())
 glyph.SetSource(gs.GetOutput())
 glyph.SetScaleFactor( 0.75 )
 
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInput(glyph.GetOutput())
+mapper.SetInputConnection(glyph.GetOutputPort())
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)

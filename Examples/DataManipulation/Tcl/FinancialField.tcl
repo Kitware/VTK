@@ -100,7 +100,7 @@ proc parseFile {} {
 # DataObjectToDataSetFilter can create geometry using
 # fields from DataObject's FieldData
 vtkDataObjectToDataSetFilter do2ds
-do2ds SetInput [dos GetOutput]
+do2ds SetInputConnection [dos GetOutputPort]
 # We are generating polygonal data
 do2ds SetDataSetTypeToPolyData
 do2ds DefaultNormalizeOn
@@ -112,7 +112,7 @@ do2ds SetPointComponent 2 $zAxis 0
 # RearrangeFields is used to move fields between DataObject's
 # FieldData, PointData and CellData.
 vtkRearrangeFields rf
-rf SetInput [do2ds GetOutput]
+rf SetInputConnection [do2ds GetOutputPort]
 # Add an operation to "move TIME_LATE from DataObject's FieldData to
 # PointData"
 rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
@@ -125,7 +125,7 @@ set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 
 # Use an ArrayCalculator to normalize TIME_LATE
 vtkArrayCalculator calc
-calc SetInput [rf GetOutput]
+calc SetInputConnection [rf GetOutputPort]
 # Working on point data
 calc SetAttributeModeToUsePointData
 # Map $scalar to s. When setting function, we can use s to
@@ -138,24 +138,24 @@ calc SetResultArrayName resArray
 
 # Use AssignAttribute to make resArray the active scalar field
 vtkAssignAttribute aa
-aa SetInput [calc GetOutput]
+aa SetInputConnection [calc GetOutputPort]
 aa Assign resArray SCALARS POINT_DATA
 aa Update
 
 # construct pipeline for original population
 # GaussianSplatter -> Contour -> Mapper -> Actor
 vtkGaussianSplatter popSplatter
-popSplatter SetInput [aa GetOutput]
+popSplatter SetInputConnection [aa GetOutputPort]
 popSplatter SetSampleDimensions 50 50 50
 popSplatter SetRadius 0.05
 popSplatter ScalarWarpingOff
 
 vtkContourFilter popSurface
-popSurface SetInput [popSplatter GetOutput]
+popSurface SetInputConnection [popSplatter GetOutputPort]
 popSurface SetValue 0 0.01
 
 vtkPolyDataMapper popMapper
-popMapper SetInput [popSurface GetOutput]
+popMapper SetInputConnection [popSurface GetOutputPort]
 popMapper ScalarVisibilityOff
 
 vtkActor popActor
@@ -174,12 +174,12 @@ proc CreateAxes {} {
     axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
     
     vtkTubeFilter axesTubes
-    axesTubes SetInput [axes GetOutput]
+    axesTubes SetInputConnection [axes GetOutputPort]
     axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
     axesTubes SetNumberOfSides 6
     
     vtkPolyDataMapper axesMapper
-    axesMapper SetInput [axesTubes GetOutput]
+    axesMapper SetInputConnection [axesTubes GetOutputPort]
 
     vtkActor axesActor
     axesActor SetMapper axesMapper
@@ -189,7 +189,7 @@ proc CreateAxes {} {
     XText SetText $xAxis
 
     vtkPolyDataMapper XTextMapper
-    XTextMapper SetInput [XText GetOutput]
+    XTextMapper SetInputConnection [XText GetOutputPort]
 
     vtkFollower XActor
     XActor SetMapper XTextMapper
@@ -201,7 +201,7 @@ proc CreateAxes {} {
     YText SetText $yAxis
 
     vtkPolyDataMapper YTextMapper
-    YTextMapper SetInput [YText GetOutput]
+    YTextMapper SetInputConnection [YText GetOutputPort]
 
     vtkFollower YActor
     YActor SetMapper YTextMapper
@@ -213,7 +213,7 @@ proc CreateAxes {} {
     ZText SetText $zAxis
 
     vtkPolyDataMapper ZTextMapper
-    ZTextMapper SetInput [ZText GetOutput]
+    ZTextMapper SetInputConnection [ZText GetOutputPort]
     
     vtkFollower ZActor
     ZActor SetMapper ZTextMapper

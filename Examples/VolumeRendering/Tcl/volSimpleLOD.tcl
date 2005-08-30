@@ -49,7 +49,7 @@ vtkVolumeProperty volumeProperty2
 #
 vtkVolumeRayCastCompositeFunction  compositeFunction
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInputConnection [reader GetOutputPort]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 #
@@ -82,21 +82,21 @@ foreach type $types {
 	transform${i}_${type} Identity
 	
 	vtkTransformPolyDataFilter transpd${i}_${type}
-	transpd${i}_${type} SetInput [plane${i}_${type} GetOutput]
+	transpd${i}_${type} SetInputConnection [plane${i}_${type} GetOutputPort]
 	transpd${i}_${type} SetTransform transform${i}_${type}
 	
 	vtkProbeFilter probe${i}_${type}
-	probe${i}_${type} SetInput [transpd${i}_${type} GetOutput]
+	probe${i}_${type} SetInputConnection [transpd${i}_${type} GetOutputPort]
 	probe${i}_${type} SetSource [reader GetOutput]
 	
 	vtkCastToConcrete cast${i}_${type}
-	cast${i}_${type} SetInput [probe${i}_${type} GetOutput]
+	cast${i}_${type} SetInputConnection [probe${i}_${type} GetOutputPort]
 	
 	vtkTriangleFilter tf${i}_${type}
 	tf${i}_${type} SetInput [cast${i}_${type} GetPolyDataOutput]
 	
 	vtkStripper strip${i}_${type}
-	strip${i}_${type} SetInput [tf${i}_${type} GetOutput]
+	strip${i}_${type} SetInputConnection [tf${i}_${type} GetOutputPort]
     }
 
     transform0_${type} Translate 33.0 33.0 33.0
@@ -114,7 +114,7 @@ foreach type $types {
     apd_${type} AddInput [tf2_${type} GetOutput]
     
     vtkPolyDataMapper probeMapper_${type}
-    probeMapper_${type} SetInput [apd_${type} GetOutput]
+    probeMapper_${type} SetInputConnection [apd_${type} GetOutputPort]
     probeMapper_${type} SetColorModeToMapScalars
     probeMapper_${type} SetLookupTable ColorLookupTable
     probeMapper_${type} SetScalarRange 0 255
@@ -140,10 +140,10 @@ vtkProperty probeProperty
 # Create outline to be used as level 5 in the LODProp3D
 #
 vtkOutlineFilter outline
-    outline SetInput [reader GetOutput]
+    outline SetInputConnection [reader GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkProperty outlineProperty
 outlineProperty SetColor 1 1 1

@@ -12,7 +12,7 @@ vtkFacetReader facet0
   facet0 SetFileName "$VTK_DATA_ROOT/Data/clown.facet"
 
 vtkPolyDataMapper Mapper5
-  Mapper5 SetInput [facet0 GetOutput]
+  Mapper5 SetInputConnection [facet0 GetOutputPort]
   Mapper5 SetImmediateModeRendering 1
   Mapper5 UseLookupTableScalarRangeOff
   Mapper5 SetScalarVisibility 1

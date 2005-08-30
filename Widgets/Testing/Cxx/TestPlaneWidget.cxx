@@ -443,10 +443,10 @@ int TestPlaneWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkStructuredGridOutlineFilter *outline = 
     vtkStructuredGridOutlineFilter::New();
-  outline->SetInput(pl3d->GetOutput());
+  outline->SetInputConnection(pl3d->GetOutputPort());
 
   vtkPolyDataMapper *outlineMapper = vtkPolyDataMapper::New();
-  outlineMapper->SetInput(outline->GetOutput());
+  outlineMapper->SetInputConnection(outline->GetOutputPort());
 
   vtkActor *outlineActor = vtkActor::New();
   outlineActor->SetMapper(outlineMapper);

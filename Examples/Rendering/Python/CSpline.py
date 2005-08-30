@@ -51,7 +51,7 @@ glyphPoints.SetInput(inputData)
 glyphPoints.SetSource(balls.GetOutput())
 
 glyphMapper = vtk.vtkPolyDataMapper()
-glyphMapper.SetInput(glyphPoints.GetOutput())
+glyphMapper.SetInputConnection(glyphPoints.GetOutputPort())
 
 glyph = vtk.vtkActor()
 glyph.SetMapper(glyphMapper)
@@ -90,7 +90,7 @@ profileTubes.SetInput(profileData)
 profileTubes.SetRadius(.005)
 
 profileMapper = vtk.vtkPolyDataMapper()
-profileMapper.SetInput(profileTubes.GetOutput())
+profileMapper.SetInputConnection(profileTubes.GetOutputPort())
 
 profile = vtk.vtkActor()
 profile.SetMapper(profileMapper)

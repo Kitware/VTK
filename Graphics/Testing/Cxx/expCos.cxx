@@ -54,7 +54,7 @@ int expCos( int argc, char *argv[] )
   transform->Scale(10.0,10.0,1.0);
 
   vtkTransformPolyDataFilter *transF = vtkTransformPolyDataFilter::New();
-  transF->SetInput(plane->GetOutput());
+  transF->SetInputConnection(plane->GetOutputPort());
   transF->SetTransform(transform);
   transF->Update();
   
@@ -95,7 +95,7 @@ int expCos( int argc, char *argv[] )
   
   // mapper and actor
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetInput(warp->GetOutput());
+  mapper->SetInputConnection(warp->GetOutputPort());
   double tmp[2];
   bessel->GetScalarRange(tmp);
   mapper->SetScalarRange(tmp[0],tmp[1]);

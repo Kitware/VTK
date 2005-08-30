@@ -19,7 +19,7 @@ vtkImageMandelbrotSource input
 
 # make sure we have only tetrahedra
 vtkDataSetTriangleFilter trifilter
-    trifilter SetInput [input GetOutput]
+    trifilter SetInputConnection [input GetOutputPort]
 
 # Create transfer mapping scalar value to opacity
 vtkPiecewiseFunction opacityTransferFunction
@@ -45,7 +45,7 @@ vtkVolumeProperty volumeProperty
 
 # The mapper / ray cast function / ray integrator know how to render the data
 vtkUnstructuredGridVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [trifilter GetOutput]
+    volumeMapper SetInputConnection [trifilter GetOutputPort]
 
 vtkUnstructuredGridPreIntegration rayIntegrator
     volumeMapper SetRayIntegrator rayIntegrator

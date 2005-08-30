@@ -13,13 +13,13 @@ vtkPNGReader reader
   reader SetFileName "$VTK_DATA_ROOT/Data/fullhead15.png"
 
 vtkImageShiftScale shiftScale
-  shiftScale SetInput [reader GetOutput]
+  shiftScale SetInputConnection [reader GetOutputPort]
   shiftScale SetShift 0
   shiftScale SetScale 0.07
   shiftScale SetOutputScalarTypeToUnsignedChar
 
 vtkImageActor ia
-  ia SetInput [shiftScale GetOutput]
+  ia SetInputConnection [shiftScale GetOutputPort]
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1

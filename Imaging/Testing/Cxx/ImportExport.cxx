@@ -37,7 +37,7 @@ int ImportExport( int argc, char *argv[] )
  
  // create exporter
  vtkImageExport *exporter = vtkImageExport::New();
- exporter->SetInput(reader->GetOutput());
+ exporter->SetInputConnection(reader->GetOutputPort());
  exporter->ImageLowerLeftOn();
 
  // get info from exporter and create array to hold data
@@ -81,7 +81,7 @@ int ImportExport( int argc, char *argv[] )
 
 
  vtkImageViewer *viewer = vtkImageViewer::New();
- viewer->SetInput(importer->GetOutput());
+ viewer->SetInputConnection(importer->GetOutputPort());
  viewer->SetZSlice(45);
  viewer->SetColorWindow(2000);
  viewer->SetColorLevel(1000);

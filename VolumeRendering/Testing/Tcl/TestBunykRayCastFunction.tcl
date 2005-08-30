@@ -25,11 +25,11 @@ vtkSLCReader reader2
 vtkThreshold thresh
     thresh ThresholdByUpper 80
     thresh AllScalarsOff
-    thresh SetInput [reader GetOutput]
+    thresh SetInputConnection [reader GetOutputPort]
 
 # make sure we have only tetrahedra
 vtkDataSetTriangleFilter trifilter
-    trifilter SetInput [thresh GetOutput]
+    trifilter SetInputConnection [thresh GetOutputPort]
 
 # Create transfer mapping scalar value to opacity
 vtkPiecewiseFunction opacityTransferFunction
@@ -54,7 +54,7 @@ vtkVolumeProperty volumeProperty
 
 # The mapper / ray cast function know how to render the data
 vtkUnstructuredGridVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [trifilter GetOutput]
+    volumeMapper SetInputConnection [trifilter GetOutputPort]
 
 # The volume holds the mapper and the property and
 # can be used to position/orient the volume
@@ -65,11 +65,11 @@ vtkVolume volume
 # contour the second dataset
 vtkContourFilter contour
     contour SetValue 0 80
-    contour SetInput [reader2 GetOutput]
+    contour SetInputConnection [reader2 GetOutputPort]
 
 # create a mapper for the polygonal data
 vtkPolyDataMapper mapper 
-    mapper SetInput [contour GetOutput]
+    mapper SetInputConnection [contour GetOutputPort]
     mapper ScalarVisibilityOff
 
 # create an actor for the polygonal data

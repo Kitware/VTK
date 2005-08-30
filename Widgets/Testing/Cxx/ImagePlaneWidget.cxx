@@ -353,10 +353,10 @@ int ImagePlaneWidget( int argc, char *argv[] )
   delete[] fname;
 
   vtkOutlineFilter* outline = vtkOutlineFilter::New();
-    outline->SetInput(v16->GetOutput());
+    outline->SetInputConnection(v16->GetOutputPort());
 
   vtkPolyDataMapper* outlineMapper = vtkPolyDataMapper::New();
-    outlineMapper->SetInput(outline->GetOutput());
+    outlineMapper->SetInputConnection(outline->GetOutputPort());
 
   vtkActor* outlineActor =  vtkActor::New();
     outlineActor->SetMapper( outlineMapper);

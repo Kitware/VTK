@@ -47,7 +47,7 @@ extrude SetInput profile
 extrude SetResolution 60
 
 vtkPolyDataMapper map
-map SetInput [extrude GetOutput]
+map SetInputConnection [extrude GetOutputPort]
 
 vtkActor bottle
 bottle SetMapper map

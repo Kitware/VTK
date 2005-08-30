@@ -15,13 +15,13 @@ plane.SetYResolution(100)
 transform = vtk.vtkTransform()
 transform.Scale(10, 10, 1)
 transF = vtk.vtkTransformPolyDataFilter()
-transF.SetInput(plane.GetOutput())
+transF.SetInputConnection(plane.GetOutputPort())
 transF.SetTransform(transform)
 
 # Compute Bessel function and derivatives. We'll use a programmable filter
 # for this. Note the unusual GetInput() & GetOutput() methods.
 besselF = vtk.vtkProgrammableFilter()
-besselF.SetInput(transF.GetOutput())
+besselF.SetInputConnection(transF.GetOutputPort())
 
 # The SetExecuteMethod takes a Python function as an argument
 # In here is where all the processing is done.

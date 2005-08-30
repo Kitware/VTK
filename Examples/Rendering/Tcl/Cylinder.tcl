@@ -20,7 +20,7 @@ vtkCylinderSource cylinder
 # are defined.
 #
 vtkPolyDataMapper cylinderMapper
-    cylinderMapper SetInput [cylinder GetOutput]
+    cylinderMapper SetInputConnection [cylinder GetOutputPort]
 
 # The actor is a grouping mechanism: besides the geometry (mapper), it
 # also has a property, transformation matrix, and/or texture map.

@@ -30,7 +30,7 @@ class TestTkRenderWindowInteractor(Testing.vtkTest):
     cs = vtk.vtkConeSource()
     cs.SetResolution(8)
     map = vtk.vtkPolyDataMapper()
-    map.SetInput(cs.GetOutput())
+    map.SetInputConnection(cs.GetOutputPort())
     act = vtk.vtkActor()
     act.SetMapper(map)
 

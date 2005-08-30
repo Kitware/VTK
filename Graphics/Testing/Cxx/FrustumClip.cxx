@@ -43,7 +43,7 @@ int FrustumClip( int argc, char *argv[] )
     sphere->SetRadius(1);
 
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-  sphereMapper->SetInput( sphere->GetOutput());
+  sphereMapper->SetInputConnection( sphere->GetOutputPort());
 
   vtkActor *sphereActor = vtkActor::New();
     sphereActor->SetMapper(sphereMapper);
@@ -76,11 +76,11 @@ int FrustumClip( int argc, char *argv[] )
   implictplanes->SetFrustumPlanes(ped);
 
   vtkClipPolyData *clipper = vtkClipPolyData::New();
-  clipper->SetInput(sphere->GetOutput());
+  clipper->SetInputConnection(sphere->GetOutputPort());
   clipper->SetClipFunction(implictplanes);
   clipper->SetGenerateClipScalars(1);
   clipper->SetInsideOut(0);
-  sphereMapper->SetInput( clipper->GetOutput());
+  sphereMapper->SetInputConnection( clipper->GetOutputPort());
 
   camera->SetPosition(-4.0, 0.25, 0.25);
   renderer->ResetCameraClippingRange();

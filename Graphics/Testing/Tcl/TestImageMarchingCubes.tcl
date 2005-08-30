@@ -22,12 +22,12 @@ vtkVolume16Reader v16
   v16 Update
 
 vtkImageMarchingCubes iso
-  iso SetInput [v16 GetOutput]
+  iso SetInputConnection [v16 GetOutputPort]
   iso SetValue 0 1150
   iso SetInputMemoryLimit 1000
 
 vtkPolyDataMapper isoMapper
-  isoMapper SetInput [iso GetOutput]
+  isoMapper SetInputConnection [iso GetOutputPort]
   isoMapper ScalarVisibilityOff
   isoMapper ImmediateModeRenderingOn
 
@@ -36,9 +36,9 @@ vtkActor isoActor
   eval [isoActor GetProperty] SetColor $antique_white
 
 vtkOutlineFilter outline
-  outline SetInput [v16 GetOutput]
+  outline SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
   outlineActor VisibilityOff

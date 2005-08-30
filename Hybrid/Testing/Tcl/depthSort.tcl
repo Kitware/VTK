@@ -46,7 +46,7 @@ vtkAppendPolyData appendData
     appendData AddInput [sphere5 GetOutput]
 
 vtkDepthSortPolyData depthSort
-    depthSort SetInput [appendData GetOutput]
+    depthSort SetInputConnection [appendData GetOutputPort]
     depthSort SetDirectionToBackToFront
     depthSort SetVector 1 1 1
     depthSort SetCamera camera
@@ -54,7 +54,7 @@ vtkDepthSortPolyData depthSort
     depthSort Update
 
 vtkPolyDataMapper mapper
-    mapper SetInput [depthSort GetOutput]
+    mapper SetInputConnection [depthSort GetOutputPort]
     mapper SetScalarRange 0 [[depthSort GetOutput] GetNumberOfCells]
 vtkActor actor
     actor SetMapper mapper

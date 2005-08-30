@@ -29,24 +29,24 @@ vtkImageAppendComponents iac
   iac AddInput [gs2 GetOutput]
 
 vtkContourFilter cf1
-  cf1 SetInput [iac GetOutput]
+  cf1 SetInputConnection [iac GetOutputPort]
   cf1 SetValue 0 500
   cf1 SetArrayComponent 0
 
 vtkContourFilter cf2
-  cf2 SetInput [iac GetOutput]
+  cf2 SetInputConnection [iac GetOutputPort]
   cf2 SetValue 0 500
   cf2 SetArrayComponent 1
 
 vtkPolyDataMapper mapper1
-mapper1 SetInput [cf1 GetOutput]
+mapper1 SetInputConnection [cf1 GetOutputPort]
 mapper1 SetImmediateModeRendering 1
 mapper1 SetScalarRange 0 1
 mapper1 SetScalarVisibility 0
 mapper1 Update
 
 vtkPolyDataMapper mapper2
-mapper2 SetInput [cf2 GetOutput]
+mapper2 SetInputConnection [cf2 GetOutputPort]
 mapper2 SetImmediateModeRendering 1
 mapper2 SetScalarRange 0 1
 mapper2 SetScalarVisibility 0

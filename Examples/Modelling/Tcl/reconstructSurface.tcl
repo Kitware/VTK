@@ -34,19 +34,19 @@ vtkSurfaceReconstructionFilter surf
     surf SetInput [pointSource GetPolyDataOutput]
 
 vtkContourFilter cf
-    cf SetInput [surf GetOutput]
+    cf SetInputConnection [surf GetOutputPort]
     cf SetValue 0 0.0
 
 # Sometimes the contouring algorithm can create a volume whose gradient
 # vector and ordering of polygon (using the right hand rule) are 
 # inconsistent. vtkReverseSense cures this problem.
 vtkReverseSense reverse
-  reverse SetInput [cf GetOutput]
+  reverse SetInputConnection [cf GetOutputPort]
   reverse ReverseCellsOn
   reverse ReverseNormalsOn
 
 vtkPolyDataMapper map
-    map SetInput [reverse GetOutput]
+    map SetInputConnection [reverse GetOutputPort]
     map ScalarVisibilityOff
 
 vtkActor surfaceActor

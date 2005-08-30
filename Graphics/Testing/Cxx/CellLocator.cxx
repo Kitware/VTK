@@ -39,7 +39,7 @@ int CellLocator( int argc, char *argv[] )
     sphere->SetRadius(1.0);
     sphere->Update();
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-    sphereMapper->SetInput(sphere->GetOutput());
+    sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkActor *sphereActor = vtkActor::New();
     sphereActor->SetMapper(sphereMapper);
     
@@ -49,7 +49,7 @@ int CellLocator( int argc, char *argv[] )
     spot->SetRadius(0.1);
 
   vtkPolyDataMapper *spotMapper = vtkPolyDataMapper::New();
-    spotMapper->SetInput(spot->GetOutput());
+    spotMapper->SetInputConnection(spot->GetOutputPort());
 
   // Build a locator 
   vtkCellLocator *cellLocator = vtkCellLocator::New();

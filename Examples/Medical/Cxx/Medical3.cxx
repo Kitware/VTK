@@ -75,15 +75,15 @@ int main (int argc, char **argv)
   // strips from the isosurface; these render much faster on may
   // systems.
   vtkContourFilter *skinExtractor = vtkContourFilter::New();
-    skinExtractor->SetInput( v16->GetOutput());
+    skinExtractor->SetInputConnection( v16->GetOutputPort());
     skinExtractor->SetValue(0, 500);
   vtkPolyDataNormals *skinNormals = vtkPolyDataNormals::New();
-    skinNormals->SetInput(skinExtractor->GetOutput());
+    skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
     skinNormals->SetFeatureAngle(60.0);
   vtkStripper *skinStripper = vtkStripper::New();
-    skinStripper->SetInput(skinNormals->GetOutput());
+    skinStripper->SetInputConnection(skinNormals->GetOutputPort());
   vtkPolyDataMapper *skinMapper = vtkPolyDataMapper::New();
-    skinMapper->SetInput(skinStripper->GetOutput());
+    skinMapper->SetInputConnection(skinStripper->GetOutputPort());
     skinMapper->ScalarVisibilityOff();
   vtkActor *skin = vtkActor::New();
     skin->SetMapper(skinMapper);
@@ -98,15 +98,15 @@ int main (int argc, char **argv)
   // strips from the isosurface; these render much faster on may
   // systems.
   vtkContourFilter *boneExtractor = vtkContourFilter::New();
-    boneExtractor->SetInput((vtkDataSet *) v16->GetOutput());
+    boneExtractor->SetInputConnection(v16->GetOutputPort());
     boneExtractor->SetValue(0, 1150);
   vtkPolyDataNormals *boneNormals = vtkPolyDataNormals::New();
-    boneNormals->SetInput(boneExtractor->GetOutput());
+    boneNormals->SetInputConnection(boneExtractor->GetOutputPort());
     boneNormals->SetFeatureAngle(60.0);
   vtkStripper *boneStripper = vtkStripper::New();
-    boneStripper->SetInput(boneNormals->GetOutput());
+    boneStripper->SetInputConnection(boneNormals->GetOutputPort());
   vtkPolyDataMapper *boneMapper = vtkPolyDataMapper::New();
-    boneMapper->SetInput(boneStripper->GetOutput());
+    boneMapper->SetInputConnection(boneStripper->GetOutputPort());
     boneMapper->ScalarVisibilityOff();
   vtkActor *bone = vtkActor::New();
     bone->SetMapper(boneMapper);
@@ -115,9 +115,9 @@ int main (int argc, char **argv)
   // An outline provides context around the data.
   //
   vtkOutlineFilter *outlineData = vtkOutlineFilter::New();
-    outlineData->SetInput((vtkDataSet *) v16->GetOutput());
+    outlineData->SetInputConnection(v16->GetOutputPort());
   vtkPolyDataMapper *mapOutline = vtkPolyDataMapper::New();
-    mapOutline->SetInput(outlineData->GetOutput());
+    mapOutline->SetInputConnection(outlineData->GetOutputPort());
   vtkActor *outline = vtkActor::New();
     outline->SetMapper(mapOutline);
     outline->GetProperty()->SetColor(0,0,0);
@@ -161,7 +161,7 @@ int main (int argc, char **argv)
   // specifying the DisplayExtent, the pipeline requests data of this extent
   // and the vtkImageMapToColors only processes a slice of data.
   vtkImageMapToColors *saggitalColors = vtkImageMapToColors::New();
-    saggitalColors->SetInput(v16->GetOutput());
+    saggitalColors->SetInputConnection(v16->GetOutputPort());
     saggitalColors->SetLookupTable(bwLut);
   vtkImageActor *saggital = vtkImageActor::New();
     saggital->SetInput(saggitalColors->GetOutput());
@@ -170,7 +170,7 @@ int main (int argc, char **argv)
   // Create the second (axial) plane of the three planes. We use the
   // same approach as before except that the extent differs.
   vtkImageMapToColors *axialColors = vtkImageMapToColors::New();
-    axialColors->SetInput(v16->GetOutput());
+    axialColors->SetInputConnection(v16->GetOutputPort());
     axialColors->SetLookupTable(hueLut);
   vtkImageActor *axial = vtkImageActor::New();
     axial->SetInput(axialColors->GetOutput());
@@ -179,7 +179,7 @@ int main (int argc, char **argv)
   // Create the third (coronal) plane of the three planes. We use 
   // the same approach as before except that the extent differs.
   vtkImageMapToColors *coronalColors = vtkImageMapToColors::New();
-    coronalColors->SetInput(v16->GetOutput());
+    coronalColors->SetInputConnection(v16->GetOutputPort());
     coronalColors->SetLookupTable(satLut);
   vtkImageActor *coronal = vtkImageActor::New();
     coronal->SetInput(coronalColors->GetOutput());

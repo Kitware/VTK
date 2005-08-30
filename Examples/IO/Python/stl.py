@@ -15,7 +15,7 @@ sr = vtk.vtkSTLReader()
 sr.SetFileName(VTK_DATA_ROOT + "/Data/42400-IDGH.stl")
 
 stlMapper = vtk.vtkPolyDataMapper()
-stlMapper.SetInput(sr.GetOutput())
+stlMapper.SetInputConnection(sr.GetOutputPort())
 
 stlActor = vtk.vtkLODActor()
 stlActor.SetMapper(stlMapper)

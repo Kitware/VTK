@@ -16,19 +16,19 @@ fohe.SetGeometryFileName(VTK_DATA_ROOT + "/Data/teapot.g")
 # Create a vtkPolyDataNormals filter to calculate the normals of the
 # data set.
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(fohe.GetOutput())
+normals.SetInputConnection(fohe.GetOutputPort())
 # Set up the associated mapper and actor.
 foheMapper = vtk.vtkPolyDataMapper()
-foheMapper.SetInput(normals.GetOutput())
+foheMapper.SetInputConnection(normals.GetOutputPort())
 foheActor = vtk.vtkLODActor()
 foheActor.SetMapper(foheMapper)
 
 # Create a vtkOutlineFilter to draw the bounding box of the data set.
 # Also create the associated mapper and actor.
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(normals.GetOutput())
+outline.SetInputConnection(normals.GetOutputPort())
 mapOutline = vtk.vtkPolyDataMapper()
-mapOutline.SetInput(outline.GetOutput())
+mapOutline.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
@@ -82,7 +82,7 @@ tprop.ShadowOn()
 # Create a vtkCubeAxesActor2D.  Use the outer edges of the bounding box to
 # draw the axes.  Add the actor to the renderer.
 axes = vtk.vtkCubeAxesActor2D()
-axes.SetInput(normals.GetOutput())
+axes.SetInputConnection(normals.GetOutputPort())
 axes.SetCamera(ren.GetActiveCamera())
 axes.SetLabelFormat("%6.4g")
 axes.SetFlyModeToOuterEdges()

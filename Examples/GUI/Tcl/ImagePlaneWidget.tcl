@@ -39,10 +39,10 @@ set oz [lindex $origin 2]
 # An outline is shown for context.
 #
 vtkOutlineFilter outline
-  outline SetInput [v16 GetOutput]
+  outline SetInputConnection [v16 GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
@@ -57,7 +57,7 @@ vtkCellPicker picker
 #
 vtkImagePlaneWidget planeWidgetX
   planeWidgetX DisplayTextOn
-  planeWidgetX SetInput [v16 GetOutput]
+  planeWidgetX SetInputConnection [v16 GetOutputPort]
   planeWidgetX SetPlaneOrientationToXAxes
   planeWidgetX SetSliceIndex 32
   planeWidgetX SetPicker picker
@@ -67,7 +67,7 @@ vtkImagePlaneWidget planeWidgetX
 
 vtkImagePlaneWidget planeWidgetY
   planeWidgetY DisplayTextOn
-  planeWidgetY SetInput [v16 GetOutput]
+  planeWidgetY SetInputConnection [v16 GetOutputPort]
   planeWidgetY SetPlaneOrientationToYAxes
   planeWidgetY SetSliceIndex 32
   planeWidgetY SetPicker picker
@@ -82,7 +82,7 @@ vtkImagePlaneWidget planeWidgetY
 #
 vtkImagePlaneWidget planeWidgetZ
   planeWidgetZ DisplayTextOn
-  planeWidgetZ SetInput [v16 GetOutput]
+  planeWidgetZ SetInputConnection [v16 GetOutputPort]
   planeWidgetZ SetPlaneOrientationToZAxes
   planeWidgetZ SetSliceIndex 46
   planeWidgetZ SetPicker picker
@@ -292,7 +292,7 @@ proc CaptureImage { } {
 
   w2i SetInput renWin
   w2i Update
-  writer SetInput [w2i GetOutput]
+  writer SetInputConnection [w2i GetOutputPort]
   writer SetFileName image.tif
   renWin Render
   writer Write

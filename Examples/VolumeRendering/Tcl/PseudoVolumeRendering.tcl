@@ -20,7 +20,7 @@ vtkPLOT3DReader pl3d
 # A convenience, use this filter to limit data for experimentation.
 vtkExtractGrid extract
   extract SetVOI 1 55 -1000 1000 -1000 1000
-  extract SetInput [pl3d GetOutput]
+  extract SetInputConnection [pl3d GetOutputPort]
 
 # The (implicit) plane is used to do the cutting
 vtkPlane plane
@@ -31,7 +31,7 @@ vtkPlane plane
 # (SetSortByToSortByCell). This results in an ordered output of polygons 
 # which is key to the compositing.
 vtkCutter cutter
-  cutter SetInput [extract GetOutput]
+  cutter SetInputConnection [extract GetOutputPort]
   cutter SetCutFunction plane
   cutter GenerateCutScalarsOff
   cutter SetSortByToSortByCell
@@ -41,7 +41,7 @@ vtkLookupTable clut
   clut Build
 
 vtkPolyDataMapper cutterMapper
-cutterMapper SetInput [cutter GetOutput]
+cutterMapper SetInputConnection [cutter GetOutputPort]
 cutterMapper SetScalarRange .18 .7
 cutterMapper SetLookupTable clut
 
@@ -50,13 +50,13 @@ vtkActor cut
 
 # Add in some surface geometry for interest.
 vtkContourFilter iso
-    iso SetInput [pl3d GetOutput]
+    iso SetInputConnection [pl3d GetOutputPort]
     iso SetValue 0 .22
 vtkPolyDataNormals normals
-    normals SetInput [iso GetOutput]
+    normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOff
 vtkActor isoActor
     isoActor SetMapper isoMapper
@@ -67,13 +67,13 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetSpecularPower 30
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkTubeFilter outlineTubes
-  outlineTubes SetInput [outline GetOutput]
+  outlineTubes SetInputConnection [outline GetOutputPort]
   outlineTubes SetRadius .1
 
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outlineTubes GetOutput]
+    outlineMapper SetInputConnection [outlineTubes GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

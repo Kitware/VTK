@@ -21,22 +21,22 @@ vtkLODActor demActor
 # create a pipeline for each lod mapper
 vtkImageShrink3D shrink16
   shrink16 SetShrinkFactors 16 16 1
-  shrink16 SetInput [demModel GetOutput]
+  shrink16 SetInputConnection [demModel GetOutputPort]
   shrink16 AveragingOn
 
 vtkImageDataGeometryFilter geom16
-  geom16 SetInput [shrink16 GetOutput]
+  geom16 SetInputConnection [shrink16 GetOutputPort]
   geom16 ReleaseDataFlagOn
 
 vtkWarpScalar warp16
-  warp16 SetInput [geom16 GetOutput]
+  warp16 SetInputConnection [geom16 GetOutputPort]
   warp16 SetNormal 0 0 1
   warp16 UseNormalOn
   warp16 SetScaleFactor $Scale
   warp16 ReleaseDataFlagOn
 
 vtkElevationFilter elevation16
-  elevation16 SetInput [warp16 GetOutput]
+  elevation16 SetInputConnection [warp16 GetOutputPort]
   elevation16 SetLowPoint 0 0 $lo
   elevation16 SetHighPoint 0 0 $hi
 eval elevation16 SetScalarRange $lo $hi
@@ -50,7 +50,7 @@ vtkPolyDataNormals normals16
   normals16 ReleaseDataFlagOn
 
 vtkPolyDataMapper demMapper16
-  demMapper16 SetInput [normals16 GetOutput]
+  demMapper16 SetInputConnection [normals16 GetOutputPort]
   eval demMapper16 SetScalarRange $lo $hi
   demMapper16 SetLookupTable lut
   demMapper16 ImmediateModeRenderingOn

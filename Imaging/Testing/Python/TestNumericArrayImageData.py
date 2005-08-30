@@ -47,12 +47,12 @@ class TestNumericArrayImageData(Testing.vtkTest):
 
             # convert the image to a Numeric Array and convert it back
             # to an image data.            
-            exp.SetInput(reader.GetOutput())
+            exp.SetInputConnection(reader.GetOutputPort())
             imp.SetArray(exp.GetArray())
 
             # ensure there is no difference between orig image and the
             # one we converted and un-converted.            
-            idiff.SetInput(imp.GetOutput())
+            idiff.SetInputConnection(imp.GetOutputPort())
             idiff.SetImage(reader.GetOutput())
             idiff.Update()
             err = idiff.GetThresholdedError()

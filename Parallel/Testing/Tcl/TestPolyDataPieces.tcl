@@ -12,16 +12,16 @@ sphere SetPhiResolution 32
 sphere SetThetaResolution 32
 
 vtkExtractPolyDataPiece extract
-extract SetInput [sphere GetOutput]
+extract SetInputConnection [sphere GetOutputPort]
 
 vtkPolyDataNormals normals
-normals SetInput [extract GetOutput]
+normals SetInputConnection [extract GetOutputPort]
 
 vtkPieceScalars ps
-ps SetInput [normals GetOutput]
+ps SetInputConnection [normals GetOutputPort]
 
 vtkPolyDataMapper mapper
-mapper SetInput [ps GetOutput]
+mapper SetInputConnection [ps GetOutputPort]
 mapper SetNumberOfPieces 2
 
 vtkActor actor
@@ -32,10 +32,10 @@ sphere2 SetPhiResolution 32
 sphere2 SetThetaResolution 32
 
 vtkExtractPolyDataPiece extract2
-extract2 SetInput [sphere2 GetOutput]
+extract2 SetInputConnection [sphere2 GetOutputPort]
 
 vtkPolyDataMapper mapper2
-mapper2 SetInput [extract2 GetOutput]
+mapper2 SetInputConnection [extract2 GetOutputPort]
 mapper2 SetNumberOfPieces 2
 mapper2 SetPiece 1
 mapper2 SetScalarRange 0 4
@@ -63,13 +63,13 @@ sphere3 SetPhiResolution 32
 sphere3 SetThetaResolution 32
 
 vtkExtractPolyDataPiece extract3
-extract3 SetInput [sphere3 GetOutput]
+extract3 SetInputConnection [sphere3 GetOutputPort]
 
 vtkPieceScalars ps3
-ps3 SetInput [extract3 GetOutput]
+ps3 SetInputConnection [extract3 GetOutputPort]
 
 vtkPolyDataMapper mapper3
-mapper3 SetInput [ps3 GetOutput]
+mapper3 SetInputConnection [ps3 GetOutputPort]
 mapper3 SetNumberOfSubPieces 8
 mapper3 SetScalarRange 0 8
 
@@ -82,15 +82,15 @@ sphere4 SetPhiResolution 32
 sphere4 SetThetaResolution 32
 
 vtkExtractPolyDataPiece extract4
-extract4 SetInput [sphere4 GetOutput]
+extract4 SetInputConnection [sphere4 GetOutputPort]
 
 vtkPieceScalars ps4
 ps4 RandomModeOn
 ps4 SetScalarModeToCellData 
-ps4 SetInput [extract4 GetOutput]
+ps4 SetInputConnection [extract4 GetOutputPort]
 
 vtkPolyDataMapper mapper4
-mapper4 SetInput [ps4 GetOutput]
+mapper4 SetInputConnection [ps4 GetOutputPort]
 mapper4 SetNumberOfSubPieces 8
 mapper4 SetScalarRange 0 8
 

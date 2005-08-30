@@ -44,16 +44,16 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
   // Gradient vector.
   vtkImageGradient* grad = vtkImageGradient::New();
   grad->SetDimensionality( 3 );
-  grad->SetInput(source1->GetOutput());
+  grad->SetInputConnection(source1->GetOutputPort());
 
   vtkImageShrink3D* mask = vtkImageShrink3D::New();
-  mask->SetInput(grad->GetOutput());
+  mask->SetInputConnection(grad->GetOutputPort());
   mask->SetShrinkFactors(5, 5, 5);
 
 
   // Label the scalar field as the active vectors.
   vtkAssignAttribute* aa = vtkAssignAttribute::New();
-  aa->SetInput(mask->GetOutput());
+  aa->SetInputConnection(mask->GetOutputPort());
   aa->Assign(vtkDataSetAttributes::SCALARS, vtkDataSetAttributes::VECTORS,
              vtkAssignAttribute::POINT_DATA);
 
@@ -64,7 +64,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
 
   // Glyph the gradient vector (with arrows)
   vtkGlyph3D* glyph = vtkGlyph3D::New();
-  glyph->SetInput(aa->GetOutput());
+  glyph->SetInputConnection(aa->GetOutputPort());
   glyph->SetSource(arrow->GetOutput());
   glyph->ScalingOff();
   glyph->OrientOn();
@@ -73,7 +73,7 @@ vtkPolyDataMapper* task2(vtkRenderWindow* renWin, double data,
 
   // Rendering objects.
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(glyph->GetOutput());
+  mapper->SetInputConnection(glyph->GetOutputPort());
   mapper->SetScalarRange(50, 180);
   mapper->ImmediateModeRenderingOn();
 

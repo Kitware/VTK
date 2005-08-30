@@ -42,6 +42,6 @@ renderLarge.SetMagnification(4)
 # watch your screen you might see the pieces being rendered right
 # after one another.
 writer = vtk.vtkPNGWriter()
-writer.SetInput(renderLarge.GetOutput())
+writer.SetInputConnection(renderLarge.GetOutputPort())
 writer.SetFileName("largeImage.png")
 writer.Write()

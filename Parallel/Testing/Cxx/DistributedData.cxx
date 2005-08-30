@@ -116,18 +116,18 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   // COLOR BY PROCESS NUMBER
 
   vtkPieceScalars *ps = vtkPieceScalars::New();
-  ps->SetInput((vtkDataSet *)dd->GetOutput());
+  ps->SetInputConnection((vtkDataSet *)dd->GetOutputPort());
   ps->SetScalarModeToCellData();
 
   // MORE FILTERING - this will request ghost cells
 
   vtkDataSetSurfaceFilter *dss = vtkDataSetSurfaceFilter::New();
-  dss->SetInput(ps->GetOutput());
+  dss->SetInputConnection(ps->GetOutputPort());
 
   // COMPOSITE RENDER
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(dss->GetOutput());
+  mapper->SetInputConnection(dss->GetOutputPort());
 
   mapper->SetColorModeToMapScalars();
   mapper->SetScalarModeToUseCellFieldData();

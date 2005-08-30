@@ -569,14 +569,14 @@ int TestPointWidget( int argc, char *argv[] )
   cone->SetResolution(16);
 
   vtkGlyph3D *glyph = vtkGlyph3D::New();
-  glyph->SetInput(probe->GetOutput());
+  glyph->SetInputConnection(probe->GetOutputPort());
   glyph->SetSource(cone->GetOutput());
   glyph->SetVectorModeToUseVector();
   glyph->SetScaleModeToDataScalingOff();
   glyph->SetScaleFactor(pl3d->GetOutput()->GetLength() * 0.1);
 
   vtkPolyDataMapper *glyphMapper = vtkPolyDataMapper::New();
-  glyphMapper->SetInput(glyph->GetOutput());
+  glyphMapper->SetInputConnection(glyph->GetOutputPort());
 
   vtkActor *glyphActor = vtkActor::New();
   glyphActor->SetMapper(glyphMapper);
@@ -585,10 +585,10 @@ int TestPointWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkStructuredGridOutlineFilter *outline = 
     vtkStructuredGridOutlineFilter::New();
-  outline->SetInput(pl3d->GetOutput());
+  outline->SetInputConnection(pl3d->GetOutputPort());
 
   vtkPolyDataMapper *outlineMapper = vtkPolyDataMapper::New();
-  outlineMapper->SetInput(outline->GetOutput());
+  outlineMapper->SetInputConnection(outline->GetOutputPort());
 
   vtkActor *outlineActor = vtkActor::New();
   outlineActor->SetMapper(outlineMapper);

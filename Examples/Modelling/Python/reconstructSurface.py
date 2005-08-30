@@ -38,19 +38,19 @@ surf = vtk.vtkSurfaceReconstructionFilter()
 surf.SetInput(pointSource.GetPolyDataOutput())
 
 cf = vtk.vtkContourFilter()
-cf.SetInput(surf.GetOutput())
+cf.SetInputConnection(surf.GetOutputPort())
 cf.SetValue(0, 0.0)
 
 # Sometimes the contouring algorithm can create a volume whose gradient
 # vector and ordering of polygon (using the right hand rule) are
 # inconsistent. vtkReverseSense cures this problem.
 reverse = vtk.vtkReverseSense()
-reverse.SetInput(cf.GetOutput())
+reverse.SetInputConnection(cf.GetOutputPort())
 reverse.ReverseCellsOn()
 reverse.ReverseNormalsOn()
 
 map = vtk.vtkPolyDataMapper()
-map.SetInput(reverse.GetOutput())
+map.SetInputConnection(reverse.GetOutputPort())
 map.ScalarVisibilityOff()
 
 surfaceActor = vtk.vtkActor()

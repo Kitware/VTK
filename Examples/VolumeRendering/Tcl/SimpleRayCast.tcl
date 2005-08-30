@@ -40,7 +40,7 @@ vtkVolumeProperty volumeProperty
 vtkVolumeRayCastCompositeFunction  compositeFunction
 vtkVolumeRayCastMapper volumeMapper
     volumeMapper SetVolumeRayCastFunction compositeFunction
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInputConnection [reader GetOutputPort]
 
 # The volume holds the mapper and the property and
 # can be used to position/orient the volume

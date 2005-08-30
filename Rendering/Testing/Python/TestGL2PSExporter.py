@@ -34,14 +34,14 @@ class TestGL2PSExporter(Testing.vtkTest):
     # once and not for every test.
     cs = vtk.vtkConeSource()
     mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInput(cs.GetOutput())
+    mapper.SetInputConnection(cs.GetOutputPort())
 
     act = vtk.vtkActor()
     act.SetMapper(mapper)
     act.GetProperty().SetColor(0.5, 0.5, 1.0)
 
     axes = vtk.vtkCubeAxesActor2D()
-    axes.SetInput(cs.GetOutput())
+    axes.SetInputConnection(cs.GetOutputPort())
     axes.SetFontFactor(2.0)
     axes.SetCornerOffset(0.0)
     axes.GetProperty().SetColor(0,0,0)

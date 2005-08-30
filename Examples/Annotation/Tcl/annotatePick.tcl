@@ -13,7 +13,7 @@ package require vtkinteraction
 vtkSphereSource sphere
 
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
@@ -22,13 +22,13 @@ vtkLODActor sphereActor
 # and actor for the glyphs.
 vtkConeSource cone
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 vtkPolyDataMapper spikeMapper
-    spikeMapper SetInput [glyph GetOutput]
+    spikeMapper SetInputConnection [glyph GetOutputPort]
 vtkLODActor spikeActor
     spikeActor SetMapper spikeMapper
 

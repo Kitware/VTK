@@ -22,7 +22,7 @@ renWin AddRenderer ren
 vtkConeSource cone
 
 vtkMesaPolyDataMapper mp
-mp SetInput [cone GetOutput]
+mp SetInputConnection [cone GetOutputPort]
 
 vtkMesaActor actor
 actor SetMapper mp
@@ -36,7 +36,7 @@ vtkWindowToImageFilter w2if
 w2if SetInput renWin
 
 vtkPNGWriter wr
-wr SetInput [w2if GetOutput]
+wr SetInputConnection [w2if GetOutputPort]
 wr SetFileName "MangledMesaTest.png"
 wr Write
 

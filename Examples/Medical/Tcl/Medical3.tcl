@@ -36,15 +36,15 @@ vtkVolume16Reader v16
 # The triangle stripper is used to create triangle strips from the
 # isosurface these render much faster on may systems.
 vtkContourFilter skinExtractor
-  skinExtractor SetInput  [v16 GetOutput]
+  skinExtractor SetInputConnection [v16 GetOutputPort]
   skinExtractor SetValue 0 500
 vtkPolyDataNormals skinNormals
-  skinNormals SetInput [skinExtractor GetOutput]
+  skinNormals SetInputConnection [skinExtractor GetOutputPort]
   skinNormals SetFeatureAngle 60.0
 vtkStripper skinStripper
-  skinStripper SetInput [skinNormals GetOutput]
+  skinStripper SetInputConnection [skinNormals GetOutputPort]
 vtkPolyDataMapper skinMapper
-  skinMapper SetInput [skinStripper GetOutput]
+  skinMapper SetInputConnection [skinStripper GetOutputPort]
   skinMapper ScalarVisibilityOff
 vtkActor skin
   skin SetMapper skinMapper
@@ -58,15 +58,15 @@ vtkActor skin
 # The triangle stripper is used to create triangle strips from the
 # isosurface these render much faster on may systems.
 vtkContourFilter boneExtractor
-  boneExtractor SetInput  [v16 GetOutput]
+  boneExtractor SetInputConnection [v16 GetOutputPort]
   boneExtractor SetValue 0 1150
 vtkPolyDataNormals boneNormals
-  boneNormals SetInput [boneExtractor GetOutput]
+  boneNormals SetInputConnection [boneExtractor GetOutputPort]
   boneNormals SetFeatureAngle 60.0
 vtkStripper boneStripper
-  boneStripper SetInput [boneNormals GetOutput]
+  boneStripper SetInputConnection [boneNormals GetOutputPort]
 vtkPolyDataMapper boneMapper
-  boneMapper SetInput [boneStripper GetOutput]
+  boneMapper SetInputConnection [boneStripper GetOutputPort]
   boneMapper ScalarVisibilityOff
 vtkActor bone
   bone SetMapper boneMapper
@@ -75,9 +75,9 @@ vtkActor bone
 # An outline provides context around the data.
 #
 vtkOutlineFilter outlineData
-  outlineData SetInput  [v16 GetOutput]
+  outlineData SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper mapOutline
-  mapOutline SetInput [outlineData GetOutput]
+  mapOutline SetInputConnection [outlineData GetOutputPort]
 vtkActor outline
   outline SetMapper mapOutline
   [outline GetProperty] SetColor 0 0 0
@@ -117,28 +117,28 @@ vtkLookupTable satLut
 # by specifying the DisplayExtent, the pipeline requests data of this
 # extent and the vtkImageMapToColors only processes a slice of data.
 vtkImageMapToColors saggitalColors
-  saggitalColors SetInput [v16 GetOutput]
+  saggitalColors SetInputConnection [v16 GetOutputPort]
   saggitalColors SetLookupTable bwLut
 vtkImageActor saggital
-  saggital SetInput [saggitalColors GetOutput]
+  saggital SetInputConnection [saggitalColors GetOutputPort]
   saggital SetDisplayExtent 32 32  0 63  0 92
 
 # Create the second (axial) plane of the three planes. We use the same 
 # approach as before except that the extent differs.
 vtkImageMapToColors axialColors
-  axialColors SetInput [v16 GetOutput]
+  axialColors SetInputConnection [v16 GetOutputPort]
   axialColors SetLookupTable hueLut
 vtkImageActor axial
-  axial SetInput [axialColors GetOutput]
+  axial SetInputConnection [axialColors GetOutputPort]
   axial SetDisplayExtent 0 63  0 63  46 46
 
 # Create the third (coronal) plane of the three planes. We use the same 
 # approach as before except that the extent differs.
 vtkImageMapToColors coronalColors
-  coronalColors SetInput [v16 GetOutput]
+  coronalColors SetInputConnection [v16 GetOutputPort]
   coronalColors SetLookupTable satLut
 vtkImageActor coronal
-  coronal SetInput [coronalColors GetOutput]
+  coronal SetInputConnection [coronalColors GetOutputPort]
   coronal SetDisplayExtent 0 63  32 32  0 92
 
 # It is convenient to create an initial view of the data. The FocalPoint

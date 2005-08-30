@@ -15,23 +15,23 @@ vtkPolyDataReader reader
 # Perform a 2D triangulation with constraint edges.
 #
 vtkDelaunay2D del
-    del SetInput [reader GetOutput]
+    del SetInputConnection [reader GetOutputPort]
     del SetSource [reader GetOutput]
     del SetTolerance 0.00001
 vtkPolyDataNormals normals
-    normals SetInput [del GetOutput]
+    normals SetInputConnection [del GetOutputPort]
 vtkPolyDataMapper mapMesh
-    mapMesh SetInput [normals GetOutput]
+    mapMesh SetInputConnection [normals GetOutputPort]
 vtkActor meshActor
     meshActor SetMapper mapMesh
     eval [meshActor GetProperty] SetColor $beige
 
 # Now pretty up the mesh with tubed edges and balls at the vertices.
 vtkTubeFilter tuber
-    tuber SetInput [reader GetOutput]
+    tuber SetInputConnection [reader GetOutputPort]
     tuber SetRadius 25
 vtkPolyDataMapper mapLines
-    mapLines SetInput [tuber GetOutput]
+    mapLines SetInputConnection [tuber GetOutputPort]
 vtkActor linesActor
     linesActor SetMapper mapLines
     [linesActor GetProperty] SetColor 1 0 0

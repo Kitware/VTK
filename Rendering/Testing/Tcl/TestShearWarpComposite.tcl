@@ -38,7 +38,7 @@ vtkVolumeProperty volumeProperty
 
 # The mapper / ray cast function know how to render the data
 vtkOpenGLVolumeShearWarpMapper  volumeMapper
-   volumeMapper SetInput [reader GetOutput]
+   volumeMapper SetInputConnection [reader GetOutputPort]
 	volumeMapper FastClassificationOn
 	volumeMapper SetFunctionTypeToComposite
 

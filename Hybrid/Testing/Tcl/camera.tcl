@@ -25,7 +25,7 @@ camAPD AddInput [camCS GetOutput]
 camAPD AddInput [camCBS GetOutput]
 
 vtkDataSetMapper camMapper
-    camMapper SetInput [camAPD GetOutput]
+    camMapper SetInputConnection [camAPD GetOutputPort]
 vtkLODActor camActor
     camActor SetMapper camMapper
 camActor SetScale 2 2 2
@@ -72,11 +72,11 @@ arrowIM SetInput pd
 arrowIM SetSampleDimensions 50 20 8
 
 vtkContourFilter arrowCF
-arrowCF SetInput [arrowIM GetOutput]
+arrowCF SetInputConnection [arrowIM GetOutputPort]
 arrowCF SetValue 0 0.2
 
 vtkWarpTo arrowWT
-arrowWT SetInput [arrowCF GetOutput]
+arrowWT SetInputConnection [arrowCF GetOutputPort]
 arrowWT SetPosition 5 0 5
 arrowWT SetScaleFactor 0.85
 arrowWT AbsoluteOn
@@ -87,11 +87,11 @@ arrowT Translate -1.33198 0 -1.479
 arrowT Scale 1 0.5 1
 
 vtkTransformFilter arrowTF
-arrowTF SetInput [arrowWT GetOutput]
+arrowTF SetInputConnection [arrowWT GetOutputPort]
 arrowTF SetTransform arrowT
 
 vtkDataSetMapper arrowMapper
-arrowMapper SetInput [arrowTF GetOutput]
+arrowMapper SetInputConnection [arrowTF GetOutputPort]
 arrowMapper ScalarVisibilityOff
 
 # draw the azimuth arrows
@@ -153,12 +153,12 @@ arrowTF2 SetInput pd2
 arrowTF2 SetTransform arrowT2
 
 vtkRotationalExtrusionFilter arrowREF
-arrowREF SetInput [arrowTF2 GetOutput]
+arrowREF SetInputConnection [arrowTF2 GetOutputPort]
 arrowREF CappingOff
 arrowREF SetResolution 30
 
 vtkPolyDataMapper spikeMapper
-spikeMapper SetInput [arrowREF GetOutput]
+spikeMapper SetInputConnection [arrowREF GetOutputPort]
 
 vtkLODActor a5Actor
 a5Actor SetMapper spikeMapper
@@ -173,7 +173,7 @@ a5Actor SetPosition -2 0 0
 vtkSphereSource fps
 fps SetRadius 0.5
 vtkPolyDataMapper fpMapper
-fpMapper SetInput [fps GetOutput]
+fpMapper SetInputConnection [fps GetOutputPort]
 vtkLODActor fpActor
 fpActor SetMapper fpMapper
 fpActor SetPosition -9 0 0
@@ -185,7 +185,7 @@ fpActor SetPosition -9 0 0
 
 # create the roll arrows
 vtkWarpTo arrowWT2
-arrowWT2 SetInput [arrowCF GetOutput]
+arrowWT2 SetInputConnection [arrowCF GetOutputPort]
 arrowWT2 SetPosition 5 0 2.5
 arrowWT2 SetScaleFactor 0.95
 arrowWT2 AbsoluteOn
@@ -195,11 +195,11 @@ arrowT3 Translate -2.50358 0 -1.70408
 arrowT3 Scale 0.5 0.3 1
 
 vtkTransformFilter arrowTF3
-arrowTF3 SetInput [arrowWT2 GetOutput]
+arrowTF3 SetInputConnection [arrowWT2 GetOutputPort]
 arrowTF3 SetTransform arrowT3
 
 vtkDataSetMapper arrowMapper2
-arrowMapper2 SetInput [arrowTF3 GetOutput]
+arrowMapper2 SetInputConnection [arrowTF3 GetOutputPort]
 arrowMapper2 ScalarVisibilityOff
 
 # draw the roll arrows

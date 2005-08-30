@@ -48,25 +48,25 @@ imp EndAppend
 
 
 vtkContourFilter cf
-cf SetInput [imp GetOutput]
+cf SetInputConnection [imp GetOutputPort]
     cf SetValue 0 0.1
 vtkPolyDataMapper mapper
-    mapper SetInput [cf GetOutput]
+    mapper SetInputConnection [cf GetOutputPort]
 vtkActor actor
     actor SetMapper mapper
 
 vtkOutlineFilter outline
-    outline SetInput [imp GetOutput]
+    outline SetInputConnection [imp GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 
 vtkImageDataGeometryFilter plane
-    plane SetInput [imp GetOutput]
+    plane SetInputConnection [imp GetOutputPort]
     plane SetExtent 0 60 0 60 30 30
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [plane GetOutput]
+    planeMapper SetInputConnection [plane GetOutputPort]
     planeMapper SetScalarRange 0.197813 0.710419
 vtkActor planeActor
     planeActor SetMapper planeMapper

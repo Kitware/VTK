@@ -48,7 +48,7 @@ vtkCutMaterial cut
 
 
 vtkPolyDataMapper mapper2
-mapper2 SetInput [cut GetOutput]
+mapper2 SetInputConnection [cut GetOutputPort]
 mapper2 SetScalarRange 0 1
 #apper2 SetScalarModeToUseCellFieldData
 #apper2 SetColorModeToMapScalars 

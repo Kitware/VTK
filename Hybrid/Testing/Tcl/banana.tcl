@@ -65,10 +65,10 @@ weightedTrans SetTransform rotated   1
 # which data array should the filter use ? 
 weightedTrans SetWeightArray "weights"
 
-weightedTrans SetInput [stretchFilter GetOutput]
+weightedTrans SetInputConnection [stretchFilter GetOutputPort]
 
 vtkPolyDataMapper weightedTransMapper
-    weightedTransMapper SetInput [weightedTrans GetOutput]
+    weightedTransMapper SetInputConnection [weightedTrans GetOutputPort]
 vtkActor weightedTransActor
     weightedTransActor SetMapper weightedTransMapper
     [weightedTransActor GetProperty] SetDiffuseColor 0.8 0.8 0.1

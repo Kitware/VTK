@@ -23,19 +23,19 @@ sample.Update()
 # actuality the VOI request causes the sample function to operate on just the
 # slice.)
 extract = vtk.vtkExtractVOI()
-extract.SetInput(sample.GetOutput())
+extract.SetInputConnection(sample.GetOutputPort())
 extract.SetVOI(0, 29, 0, 29, 15, 15)
 extract.SetSampleRate(1, 2, 3)
 
 # The image is contoured to produce contour lines. Thirteen contour values
 # ranging from (0,1.2) inclusive are produced.
 contours = vtk.vtkContourFilter()
-contours.SetInput(extract.GetOutput())
+contours.SetInputConnection(extract.GetOutputPort())
 contours.GenerateValues(13, 0.0, 1.2)
 
 # The contour lines are mapped to the graphics library.
 contMapper = vtk.vtkPolyDataMapper()
-contMapper.SetInput(contours.GetOutput())
+contMapper.SetInputConnection(contours.GetOutputPort())
 contMapper.SetScalarRange(0.0, 1.2)
 
 contActor = vtk.vtkActor()
@@ -43,10 +43,10 @@ contActor.SetMapper(contMapper)
 
 # Create outline an outline of the sampled data.
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(sample.GetOutput())
+outline.SetInputConnection(sample.GetOutputPort())
 
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)

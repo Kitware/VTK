@@ -58,7 +58,7 @@ void pipe1(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Output port
   vtkOutputPort* op = vtkOutputPort::New();
-  op->SetInput(source1->GetOutput());
+  op->SetInputConnection(source1->GetOutputPort());
   op->SetTag(11);
 
   // Called every time data is requested from the output port

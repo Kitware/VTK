@@ -90,10 +90,10 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   vtkStructuredGridOutlineFilter* Geometry5 = 
     vtkStructuredGridOutlineFilter::New();
-  Geometry5->SetInput(Plot3D0->GetOutput());
+  Geometry5->SetInputConnection(Plot3D0->GetOutputPort());
   
   vtkPolyDataMapper* Mapper5 = vtkPolyDataMapper::New();
-  Mapper5->SetInput(Geometry5->GetOutput());
+  Mapper5->SetInputConnection(Geometry5->GetOutputPort());
   Mapper5->SetImmediateModeRendering(1);
   Mapper5->UseLookupTableScalarRangeOn();
   Mapper5->SetScalarVisibility(0);
@@ -119,7 +119,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LineSourceWidget0->SetResolution(20);
 
   vtkDistributedStreamTracer* Stream0 = vtkDistributedStreamTracer::New();; 
-  Stream0->SetInput(Plot3D0->GetOutput());
+  Stream0->SetInputConnection(Plot3D0->GetOutputPort());
   Stream0->SetSource(LineSourceWidget0->GetOutput());
   Stream0->SetMaximumPropagationUnit(0);
   Stream0->SetMaximumPropagation(0.05);
@@ -131,7 +131,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   Stream0->SetTerminalSpeed(1e-12);
 
   vtkGeometryFilter* Geometry6 = vtkGeometryFilter::New();;
-  Geometry6->SetInput(Stream0->GetOutput());
+  Geometry6->SetInputConnection(Stream0->GetOutputPort());
 
   vtkLookupTable* LookupTable1 = vtkLookupTable::New();
   LookupTable1->SetNumberOfTableValues(256);
@@ -143,7 +143,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   LookupTable1->Build();
 
   vtkPolyDataMapper* Mapper6 = vtkPolyDataMapper::New();
-  Mapper6->SetInput(Geometry6->GetOutput());
+  Mapper6->SetInputConnection(Geometry6->GetOutputPort());
   Mapper6->SetImmediateModeRendering(1);
   Mapper6->UseLookupTableScalarRangeOn();
   Mapper6->SetScalarVisibility(1);

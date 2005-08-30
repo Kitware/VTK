@@ -15,17 +15,17 @@ vtkPolyDataReader fran
 # the total reduction possible, which we have specified at 90%.
 #
 vtkDecimatePro deci
-    deci SetInput [fran GetOutput]
+    deci SetInputConnection [fran GetOutputPort]
     deci SetTargetReduction 0.9
     deci PreserveTopologyOn
 vtkSmoothPolyDataFilter smoother
-    smoother SetInput [deci GetOutput]
+    smoother SetInputConnection [deci GetOutputPort]
     smoother SetNumberOfIterations 50
 vtkPolyDataNormals normals
-    normals SetInput [smoother GetOutput]
+    normals SetInputConnection [smoother GetOutputPort]
     normals FlipNormalsOn
 vtkPolyDataMapper franMapper
-    franMapper SetInput [normals GetOutput]
+    franMapper SetInputConnection [normals GetOutputPort]
 vtkActor franActor
     franActor SetMapper franMapper
     eval [franActor GetProperty] SetColor 1.0 0.49 0.25

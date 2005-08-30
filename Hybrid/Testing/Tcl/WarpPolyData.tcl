@@ -12,7 +12,7 @@ vtkSphereSource sphere
   sphere SetPhiResolution 20
 
 vtkPolyDataNormals ap
-  ap SetInput [sphere GetOutput]   
+  ap SetInputConnection [sphere GetOutputPort]   
 
 #---------------------------
 # thin plate spline transform
@@ -52,11 +52,11 @@ vtkGeneralTransform t1
   t1 SetInput thin
 
 vtkTransformPolyDataFilter f11
-f11 SetInput [ap GetOutput]
+f11 SetInputConnection [ap GetOutputPort]
 f11 SetTransform t1
 
 vtkDataSetMapper m11
-m11 SetInput [f11 GetOutput]
+m11 SetInputConnection [f11 GetOutputPort]
 
 vtkActor a11
 a11 SetMapper m11
@@ -72,11 +72,11 @@ renWin AddRenderer ren11
 
 # inverse thin plate spline transform
 vtkTransformPolyDataFilter f12
-f12 SetInput [ap GetOutput]
+f12 SetInputConnection [ap GetOutputPort]
 f12 SetTransform [t1 GetInverse]
 
 vtkDataSetMapper m12
-m12 SetInput [f12 GetOutput]
+m12 SetInputConnection [f12 GetOutputPort]
 
 vtkActor a12
 a12 SetMapper m12
@@ -104,11 +104,11 @@ t2 SetDisplacementGrid [gridTrans GetOutput]
 t2 SetInterpolationModeToCubic
 
 vtkTransformPolyDataFilter f21
-f21 SetInput [ap GetOutput]
+f21 SetInputConnection [ap GetOutputPort]
 f21 SetTransform t2
 
 vtkDataSetMapper m21
-m21 SetInput [f21 GetOutput]
+m21 SetInputConnection [f21 GetOutputPort]
 
 vtkActor a21
 a21 SetMapper m21
@@ -124,11 +124,11 @@ renWin AddRenderer ren21
 
 # inverse
 vtkTransformPolyDataFilter f22
-f22 SetInput [ap GetOutput]
+f22 SetInputConnection [ap GetOutputPort]
 f22 SetTransform [t2 GetInverse]
 
 vtkDataSetMapper m22
-m22 SetInput [f22 GetOutput]
+m22 SetInputConnection [f22 GetOutputPort]
 
 vtkActor a22
 a22 SetMapper m22
@@ -150,11 +150,11 @@ t3 SetDisplacementGrid [gridTrans GetOutput]
 t3 SetInterpolationModeToLinear
 
 vtkTransformPolyDataFilter f31
-f31 SetInput [ap GetOutput]
+f31 SetInputConnection [ap GetOutputPort]
 f31 SetTransform t3
 
 vtkDataSetMapper m31
-m31 SetInput [f31 GetOutput]
+m31 SetInputConnection [f31 GetOutputPort]
 
 vtkActor a31
 a31 SetMapper m31
@@ -170,11 +170,11 @@ renWin AddRenderer ren31
 
 # inverse 
 vtkTransformPolyDataFilter f32
-f32 SetInput [ap GetOutput]
+f32 SetInputConnection [ap GetOutputPort]
 f32 SetTransform [t3 GetInverse]
 
 vtkDataSetMapper m32
-m32 SetInput [f32 GetOutput]
+m32 SetInputConnection [f32 GetOutputPort]
 
 vtkActor a32
 a32 SetMapper m32
@@ -197,11 +197,11 @@ t4 SetInterpolationModeToNearestNeighbor
 t4 SetInverseTolerance 0.05
 
 vtkTransformPolyDataFilter f41
-f41 SetInput [ap GetOutput]
+f41 SetInputConnection [ap GetOutputPort]
 f41 SetTransform t4
 
 vtkDataSetMapper m41
-m41 SetInput [f41 GetOutput]
+m41 SetInputConnection [f41 GetOutputPort]
 
 vtkActor a41
 a41 SetMapper m41
@@ -217,11 +217,11 @@ renWin AddRenderer ren41
 
 #inverse
 vtkTransformPolyDataFilter f42
-f42 SetInput [ap GetOutput]
+f42 SetInputConnection [ap GetOutputPort]
 f42 SetTransform [t4 GetInverse]
 
 vtkDataSetMapper m42
-m42 SetInput [f42 GetOutput]
+m42 SetInputConnection [f42 GetOutputPort]
 
 vtkActor a42
 a42 SetMapper m42

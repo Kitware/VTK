@@ -16,7 +16,7 @@ cylinder.SetResolution(8)
 # library. It may also do color mapping, if scalars or other
 # attributes are defined.
 cylinderMapper = vtk.vtkPolyDataMapper()
-cylinderMapper.SetInput(cylinder.GetOutput())
+cylinderMapper.SetInputConnection(cylinder.GetOutputPort())
 
 # The actor is a grouping mechanism: besides the geometry (mapper), it
 # also has a property, transformation matrix, and/or texture map.

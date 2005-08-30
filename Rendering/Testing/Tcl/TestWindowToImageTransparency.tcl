@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
 # create a default polygonal sphere
 vtkSphereSource sphere
 vtkPolyDataMapper sphmapper
-   sphmapper SetInput [sphere GetOutput]
+   sphmapper SetInputConnection [sphere GetOutputPort]
 vtkActor sphactor
    sphactor SetMapper sphmapper
 
@@ -36,7 +36,7 @@ w2i Update
 vtkImageMapper im
    im SetColorWindow 255
    im SetColorLevel 127.5
-   im SetInput [w2i GetOutput]
+   im SetInputConnection [w2i GetOutputPort]
 vtkActor2D ia2
    ia2 SetMapper im
 

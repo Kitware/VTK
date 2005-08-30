@@ -16,19 +16,19 @@ vtkBYUReader fohe
     fohe SetGeometryFileName "$VTK_DATA_ROOT/Data/teapot.g"
 # Create a vtkPolyDataNormals filter to calculate the normals of the data set.
 vtkPolyDataNormals normals
-    normals SetInput [fohe GetOutput]
+    normals SetInputConnection [fohe GetOutputPort]
 # Set up the associated mapper and actor.
 vtkPolyDataMapper foheMapper
-    foheMapper SetInput [normals GetOutput]
+    foheMapper SetInputConnection [normals GetOutputPort]
 vtkLODActor foheActor
     foheActor SetMapper foheMapper
 
 # Create a vtkOutlineFilter to draw the bounding box of the data set.  Also
 # create the associated mapper and actor.
 vtkOutlineFilter outline
-    outline SetInput [normals GetOutput]
+    outline SetInputConnection [normals GetOutputPort]
 vtkPolyDataMapper mapOutline
-    mapOutline SetInput [outline GetOutput]
+    mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper mapOutline
     [outlineActor GetProperty] SetColor 0 0 0
@@ -84,7 +84,7 @@ vtkTextProperty tprop
 # Create a vtkCubeAxesActor2D.  Use the outer edges of the bounding box to
 # draw the axes.  Add the actor to the renderer.
 vtkCubeAxesActor2D axes
-    axes SetInput [normals GetOutput]
+    axes SetInputConnection [normals GetOutputPort]
     axes SetCamera [ren1 GetActiveCamera]
     axes SetLabelFormat "%6.4g"
     axes SetFlyModeToOuterEdges

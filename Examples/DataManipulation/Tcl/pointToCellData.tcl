@@ -20,23 +20,23 @@ vtkUnstructuredGridReader reader
 # on cell scalar values and extracts a portion of the parison whose cell
 # scalar values lie between 0.25 and 0.75.
 vtkPointDataToCellData p2c
-    p2c SetInput [reader GetOutput]
+    p2c SetInputConnection [reader GetOutputPort]
     p2c PassPointDataOn
 vtkWarpVector warp
     warp SetInput [p2c GetUnstructuredGridOutput]
 vtkThreshold thresh
-    thresh SetInput [warp GetOutput]
+    thresh SetInputConnection [warp GetOutputPort]
     thresh ThresholdBetween 0.25 0.75
     thresh SetAttributeModeToUseCellData
 
 # This is used to extract the mold from the parison. 
 vtkConnectivityFilter connect
-    connect SetInput [thresh GetOutput]
+    connect SetInputConnection [thresh GetOutputPort]
     connect SetExtractionModeToSpecifiedRegions
     connect AddSpecifiedRegion 0
     connect AddSpecifiedRegion 1
 vtkDataSetMapper moldMapper
-    moldMapper SetInput [reader GetOutput]
+    moldMapper SetInputConnection [reader GetOutputPort]
     moldMapper ScalarVisibilityOff
 vtkActor moldActor
     moldActor SetMapper moldMapper
@@ -45,16 +45,16 @@ vtkActor moldActor
 
 # The threshold filter has been used to extract the parison.
 vtkConnectivityFilter connect2
-    connect2 SetInput [thresh GetOutput]
+    connect2 SetInputConnection [thresh GetOutputPort]
 vtkGeometryFilter parison
-    parison SetInput [connect2 GetOutput]
+    parison SetInputConnection [connect2 GetOutputPort]
 vtkPolyDataNormals normals2
-    normals2 SetInput [parison GetOutput]
+    normals2 SetInputConnection [parison GetOutputPort]
     normals2 SetFeatureAngle 60
 vtkLookupTable lut
     lut SetHueRange 0.0 0.66667
 vtkPolyDataMapper parisonMapper
-    parisonMapper SetInput [normals2 GetOutput]
+    parisonMapper SetInputConnection [normals2 GetOutputPort]
     parisonMapper SetLookupTable lut
     parisonMapper SetScalarRange 0.12 1.0
 vtkActor parisonActor
@@ -62,10 +62,10 @@ vtkActor parisonActor
 
 # We generate some contour lines on the parison.
 vtkContourFilter cf
-    cf SetInput [connect2 GetOutput]
+    cf SetInputConnection [connect2 GetOutputPort]
     cf SetValue 0 .5
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [cf GetOutput]
+    contourMapper SetInputConnection [cf GetOutputPort]
 vtkActor contours
     contours SetMapper contourMapper
 

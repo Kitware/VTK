@@ -16,10 +16,10 @@ set lo [lindex [[demReader GetOutput] GetScalarRange] 0]
 set hi [lindex [[demReader GetOutput] GetScalarRange] 1]
 
 vtkImageDataGeometryFilter surface
-  surface SetInput [demReader GetOutput]
+  surface SetInputConnection [demReader GetOutputPort]
 
 vtkWarpScalar warp
-  warp SetInput [surface GetOutput]
+  warp SetInputConnection [surface GetOutputPort]
   warp SetScaleFactor 1
   warp UseNormalOn
   warp SetNormal 0 0 1
@@ -30,7 +30,7 @@ vtkPolyDataNormals normals
   normals SplittingOff
 
 vtkPolyDataMapper demMapper
-  demMapper SetInput [normals GetOutput]
+  demMapper SetInputConnection [normals GetOutputPort]
   eval demMapper SetScalarRange $lo $hi
   demMapper SetLookupTable lut
 

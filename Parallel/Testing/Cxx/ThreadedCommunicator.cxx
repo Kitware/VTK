@@ -175,7 +175,7 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
   // send sphere source
   vtkSphereSource* pd = vtkSphereSource::New();
 
-  op->SetInput(pd->GetOutput());
+  op->SetInputConnection(pd->GetOutputPort());
   op->WaitForUpdate();
   pd->Delete();
 

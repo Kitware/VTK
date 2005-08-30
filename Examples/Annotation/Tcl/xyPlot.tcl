@@ -30,10 +30,10 @@ vtkTransform transL1
     transL1 Scale 5 5 5
     transL1 RotateY 90
 vtkTransformPolyDataFilter tf
-    tf SetInput [line GetOutput]
+    tf SetInputConnection [line GetOutputPort]
     tf SetTransform transL1
 vtkProbeFilter probe
-    probe SetInput [tf GetOutput]
+    probe SetInputConnection [tf GetOutputPort]
     probe SetSource [pl3d GetOutput]
 
 # Move the line again and create another probe filter.
@@ -42,10 +42,10 @@ vtkTransform transL2
     transL2 Scale 5 5 5
     transL2 RotateY 90
 vtkTransformPolyDataFilter tf2
-    tf2 SetInput [line GetOutput]
+    tf2 SetInputConnection [line GetOutputPort]
     tf2 SetTransform transL2
 vtkProbeFilter probe2
-    probe2 SetInput [tf2 GetOutput]
+    probe2 SetInputConnection [tf2 GetOutputPort]
     probe2 SetSource [pl3d GetOutput]
 
 # Move the line again and create a third probe filter.
@@ -54,10 +54,10 @@ vtkTransform transL3
     transL3 Scale 4.5 4.5 4.5
     transL3 RotateY 90
 vtkTransformPolyDataFilter tf3
-    tf3 SetInput [line GetOutput]
+    tf3 SetInputConnection [line GetOutputPort]
     tf3 SetTransform transL3
 vtkProbeFilter probe3
-    probe3 SetInput [tf3 GetOutput]
+    probe3 SetInputConnection [tf3 GetOutputPort]
     probe3 SetSource [pl3d GetOutput]
 
 # Create a vtkAppendPolyData to merge the output of the three probe filters
@@ -70,10 +70,10 @@ vtkAppendPolyData appendF
 # Create a tube filter to represent the lines as tubes.  Set up the associated
 # mapper and actor.
 vtkTubeFilter tuber
-    tuber SetInput [appendF GetOutput]
+    tuber SetInputConnection [appendF GetOutputPort]
     tuber SetRadius 0.1
 vtkPolyDataMapper lineMapper
-    lineMapper SetInput [tuber GetOutput]
+    lineMapper SetInputConnection [tuber GetOutputPort]
 vtkActor lineActor
     lineActor SetMapper lineMapper
 
@@ -150,9 +150,9 @@ vtkXYPlotActor xyplot3
 
 # Draw an outline of the PLOT3D data set.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

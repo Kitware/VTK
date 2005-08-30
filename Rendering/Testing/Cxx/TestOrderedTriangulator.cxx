@@ -162,7 +162,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   shrink1->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *aTetraMapper1 = vtkDataSetMapper::New();
-  aTetraMapper1->SetInput (shrink1->GetOutput());
+  aTetraMapper1->SetInputConnection(shrink1->GetOutputPort());
   
   vtkActor *aTetraActor1 = vtkActor::New();
   aTetraActor1->SetMapper (aTetraMapper1);
@@ -173,7 +173,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   shrink2->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *aTetraMapper2 = vtkDataSetMapper::New();
-  aTetraMapper2->SetInput (shrink2->GetOutput());
+  aTetraMapper2->SetInputConnection(shrink2->GetOutputPort());
 
   vtkActor *aTetraActor2 = vtkActor::New();
   aTetraActor2->SetMapper (aTetraMapper2);
@@ -185,7 +185,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   isoshrink1->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *isoTetraMapper1 = vtkDataSetMapper::New();
-  isoTetraMapper1->SetInput (isoshrink1->GetOutput());
+  isoTetraMapper1->SetInputConnection(isoshrink1->GetOutputPort());
   
   vtkActor *isoTetraActor1 = vtkActor::New();
   isoTetraActor1->SetMapper (isoTetraMapper1);
@@ -196,7 +196,7 @@ int TestOrderedTriangulator(int argc, char *argv[])
   isoshrink2->SetShrinkFactor( 0.7 );
 
   vtkDataSetMapper *isoTetraMapper2 = vtkDataSetMapper::New();
-  isoTetraMapper2->SetInput (isoshrink2->GetOutput());
+  isoTetraMapper2->SetInputConnection(isoshrink2->GetOutputPort());
 
   vtkActor *isoTetraActor2 = vtkActor::New();
   isoTetraActor2->SetMapper (isoTetraMapper2);

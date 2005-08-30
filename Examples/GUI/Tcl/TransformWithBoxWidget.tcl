@@ -9,7 +9,7 @@ package require vtkinteraction
 vtkSphereSource sphere
 vtkConeSource cone
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
@@ -18,7 +18,7 @@ vtkAppendPolyData appendData
     appendData AddInput [glyph GetOutput]
     appendData AddInput [sphere GetOutput]
 vtkPolyDataMapper maceMapper
-    maceMapper SetInput [appendData GetOutput]
+    maceMapper SetInputConnection [appendData GetOutputPort]
 vtkLODActor maceActor
     maceActor SetMapper maceMapper
     maceActor VisibilityOn

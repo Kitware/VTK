@@ -16,7 +16,7 @@ table SetAlphaRange 0.0 1.0
 table Build
 
 vtkImageMapToColors alpha
-alpha SetInput [imageGrid GetOutput]
+alpha SetInputConnection [imageGrid GetOutputPort]
 alpha SetLookupTable table
 
 vtkBMPReader reader1
@@ -72,14 +72,14 @@ vtkTransform transform2
 transform2 RotateZ 30
 
 vtkImageReslice reslice
-  reslice SetInput [blend GetOutput]
+  reslice SetInputConnection [blend GetOutputPort]
   reslice SetResliceTransform [transform GetInverse]
   reslice SetInterpolationModeToLinear
   reslice SetOptimization 1
 
 # set the window/level to 255.0/127.5 to view full range
 vtkImageViewer viewer
-viewer SetInput [reslice GetOutput]
+viewer SetInputConnection [reslice GetOutputPort]
 viewer SetColorWindow 255.0
 viewer SetColorLevel 127.5
 viewer SetZSlice 0

@@ -30,9 +30,9 @@ vtkPDataSetReader ironProt0
 	ironProt0 SetFileName "$VTK_DATA_ROOT/Data/ironProt.vtk"
 
 vtkPOutlineFilter Geometry4
-	Geometry4 SetInput [ironProt0 GetOutput]
+	Geometry4 SetInputConnection [ironProt0 GetOutputPort]
 vtkPolyDataMapper Mapper4
-	Mapper4 SetInput [Geometry4 GetOutput]
+	Mapper4 SetInputConnection [Geometry4 GetOutputPort]
 	Mapper4 SetImmediateModeRendering 0
 	Mapper4 SetScalarRange 0 1
 	Mapper4 SetScalarVisibility 0
@@ -57,7 +57,7 @@ vtkPProbeFilter Probe0
         Probe0 SetController controler
 
 vtkTubeFilter Tuber0
- 	Tuber0 SetInput [Probe0 GetOutput]
+ 	Tuber0 SetInputConnection [Probe0 GetOutputPort]
  	Tuber0 SetNumberOfSides 10
  	Tuber0 SetCapping 0
  	Tuber0 SetRadius 1
@@ -66,7 +66,7 @@ vtkTubeFilter Tuber0
 Tuber0 Update
 
 vtkPolyDataMapper Mapper6
- 	Mapper6 SetInput [Tuber0 GetOutput]
+ 	Mapper6 SetInputConnection [Tuber0 GetOutputPort]
  	Mapper6 SetImmediateModeRendering 0
  	Mapper6 SetScalarRange 0 228
  	Mapper6 SetScalarVisibility 1

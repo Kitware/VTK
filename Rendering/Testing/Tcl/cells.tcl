@@ -657,7 +657,7 @@ if { [info command vtkRIBExporter] != "" } {
   vtkTexture atext
   vtkBMPReader pnmReader
     pnmReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
-  atext SetInput [pnmReader GetOutput]
+  atext SetInputConnection [pnmReader GetOutputPort]
   atext InterpolateOff
   aTriangleActor SetTexture atext
   vtkRIBExporter rib

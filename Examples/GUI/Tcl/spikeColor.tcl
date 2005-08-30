@@ -11,7 +11,7 @@ package require vtktesting
 #
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 
@@ -20,13 +20,13 @@ vtkLODActor sphereActor
 #
 vtkConeSource cone
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 vtkPolyDataMapper spikeMapper
-    spikeMapper SetInput [glyph GetOutput]
+    spikeMapper SetInputConnection [glyph GetOutputPort]
 vtkLODActor spikeActor
     spikeActor SetMapper spikeMapper
 

@@ -191,7 +191,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
   mapper->SetLookupTable(lut);
-  mapper->SetInput( tessellator->GetOutput() );
+  mapper->SetInputConnection( tessellator->GetOutputPort() );
   
   int i=0;
   int n=ds->GetAttributes()->GetNumberOfAttributes();
@@ -217,7 +217,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   vtkActor2D *actorLabel=vtkActor2D::New();
   vtkLabeledDataMapper *labeledDataMapper=vtkLabeledDataMapper::New();
   labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-  labeledDataMapper->SetInput(tessellator->GetOutput());
+  labeledDataMapper->SetInputConnection(tessellator->GetOutputPort());
   actorLabel->SetMapper(labeledDataMapper);
   labeledDataMapper->Delete();
   renderer->AddActor(actorLabel);
@@ -234,7 +234,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   vtkGenericOutlineFilter *outlineFilter= vtkGenericOutlineFilter::New();
   outlineFilter->SetInput(ds);
   vtkPolyDataMapper *mapperOutline=vtkPolyDataMapper::New();
-  mapperOutline->SetInput(outlineFilter->GetOutput());
+  mapperOutline->SetInputConnection(outlineFilter->GetOutputPort());
   outlineFilter->Delete();
   
   vtkActor *actorOutline=vtkActor::New();
@@ -268,7 +268,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   // BE SURE to save AFTER a first rendering!
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
-  writer->SetInput(tessellator->GetOutput());
+  writer->SetInputConnection(tessellator->GetOutputPort());
   writer->SetFileName("viewdeptessellated.vtu");
   writer->SetDataModeToAscii();
   writer->DebugOn();
@@ -277,7 +277,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   
   // debug XML reader
   vtkXMLUnstructuredGridReader *rreader=vtkXMLUnstructuredGridReader::New();
-//  rreader->SetInput(tessellator->GetOutput());
+//  rreader->SetInputConnection(tessellator->GetOutputPort());
   rreader->SetFileName("viewdeptessellated.vtu");
 //  rreader->SetDataModeToAscii();
   rreader->DebugOn();

@@ -35,16 +35,16 @@ vtkDEMReader demModel
 set shrinkFactor 4
 vtkImageShrink3D shrink
   shrink SetShrinkFactors $shrinkFactor $shrinkFactor 1
-  shrink SetInput [demModel GetOutput]
+  shrink SetInputConnection [demModel GetOutputPort]
   shrink AveragingOn
 
 # Convert the image into polygons.
 vtkImageDataGeometryFilter geom
-  geom SetInput [shrink GetOutput]
+  geom SetInputConnection [shrink GetOutputPort]
 
 # Warp the polygons based on elevation.
 vtkWarpScalar warp
-  warp SetInput [geom GetOutput]
+  warp SetInputConnection [geom GetOutputPort]
   warp SetNormal 0 0 1
   warp UseNormalOn
   warp SetScaleFactor $Scale
@@ -58,13 +58,13 @@ vtkBandedPolyDataContourFilter bcf
 
 # Compute normals to give a better look.
 vtkPolyDataNormals normals
-  normals SetInput [bcf GetOutput]
+  normals SetInputConnection [bcf GetOutputPort]
   normals SetFeatureAngle 60
   normals ConsistencyOff
   normals SplittingOff
 
 vtkPolyDataMapper demMapper
-  demMapper SetInput [normals GetOutput]
+  demMapper SetInputConnection [normals GetOutputPort]
   eval demMapper SetScalarRange 0 10
   demMapper SetLookupTable lutLand
   demMapper SetScalarModeToUseCellData
@@ -90,7 +90,7 @@ vtkBandedPolyDataContourFilter bcf2
 
 # Compute normals to give a better look.
 vtkPolyDataNormals normals2
-  normals2 SetInput [bcf2 GetOutput]
+  normals2 SetInputConnection [bcf2 GetOutputPort]
   normals2 SetFeatureAngle 60
   normals2 ConsistencyOff
   normals2 SplittingOff
@@ -98,7 +98,7 @@ vtkPolyDataNormals normals2
 vtkLookupTable lut
 lut SetNumberOfColors 10
 vtkPolyDataMapper demMapper2
-  demMapper2 SetInput [normals2 GetOutput]
+  demMapper2 SetInputConnection [normals2 GetOutputPort]
   eval demMapper2 SetScalarRange [[demModel GetOutput] GetScalarRange]
   demMapper2 SetLookupTable lut
   demMapper2 SetScalarModeToUseCellData

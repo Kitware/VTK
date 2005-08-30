@@ -388,11 +388,11 @@ int TestScalarBarWidget( int argc, char *argv[] )
   // An outline is shown for context.
   vtkStructuredGridGeometryFilter *outline = 
     vtkStructuredGridGeometryFilter::New();
-  outline->SetInput(pl3d->GetOutput());
+  outline->SetInputConnection(pl3d->GetOutputPort());
   outline->SetExtent(0,100,0,100,9,9);
   
   vtkPolyDataMapper *outlineMapper = vtkPolyDataMapper::New();
-  outlineMapper->SetInput(outline->GetOutput());
+  outlineMapper->SetInputConnection(outline->GetOutputPort());
 
   vtkActor *outlineActor = vtkActor::New();
   outlineActor->SetMapper(outlineMapper);

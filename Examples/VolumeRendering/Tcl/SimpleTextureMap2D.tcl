@@ -36,7 +36,7 @@ vtkVolumeProperty volumeProperty
 
 # The mapper knows how to render the data
 vtkVolumeTextureMapper2D volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInputConnection [reader GetOutputPort]
 
 # The volume holds the mapper and the property and
 # can be used to position/orient the volume

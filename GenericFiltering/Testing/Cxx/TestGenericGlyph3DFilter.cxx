@@ -101,7 +101,7 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   glyph->SetColorModeToColorByScale();
   
   vtkPolyDataMapper *glyphMapper=vtkPolyDataMapper::New();
-  glyphMapper->SetInput(glyph->GetOutput());
+  glyphMapper->SetInputConnection(glyph->GetOutputPort());
   vtkActor *glyphActor=vtkActor::New();
   glyphActor->SetMapper(glyphMapper);
   renderer->AddActor( glyphActor );
@@ -120,7 +120,7 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetLookupTable(lut);
-  mapper->SetInput( geom->GetOutput() );
+  mapper->SetInputConnection( geom->GetOutputPort() );
   
   if(geom->GetOutput()->GetPointData()!=0)
     {

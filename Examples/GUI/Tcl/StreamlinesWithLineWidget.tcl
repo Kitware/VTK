@@ -20,7 +20,7 @@ vtkPLOT3DReader pl3d
 #
 vtkLineWidget lineWidget
 vtkPolyData seeds
-lineWidget SetInput [pl3d GetOutput]
+lineWidget SetInputConnection [pl3d GetOutputPort]
 lineWidget SetAlignToYAxis
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
@@ -28,7 +28,7 @@ lineWidget ClampToBoundsOn
 
 vtkRungeKutta4 rk4
 vtkStreamLine streamer
-    streamer SetInput [pl3d GetOutput]
+    streamer SetInputConnection [pl3d GetOutputPort]
     streamer SetSource seeds
     streamer SetMaximumPropagationTime 100
     streamer SetIntegrationStepLength .2
@@ -38,11 +38,11 @@ vtkStreamLine streamer
     streamer VorticityOn
     streamer SetIntegrator rk4
 vtkRibbonFilter rf
-    rf SetInput [streamer GetOutput]
+    rf SetInputConnection [streamer GetOutputPort]
     rf SetWidth 0.1
     rf SetWidthFactor 5
 vtkPolyDataMapper streamMapper
-    streamMapper SetInput [rf GetOutput]
+    streamMapper SetInputConnection [rf GetOutputPort]
     eval streamMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor streamline
     streamline SetMapper streamMapper
@@ -52,13 +52,13 @@ vtkActor streamline
 #
 vtkLineWidget lineWidget2
 vtkPolyData seeds2
-lineWidget2 SetInput [pl3d GetOutput]
+lineWidget2 SetInputConnection [pl3d GetOutputPort]
 lineWidget2 PlaceWidget
 lineWidget2 GetPolyData seeds2
 lineWidget2 SetKeyPressActivationValue L
 
 vtkStreamLine streamer2
-    streamer2 SetInput [pl3d GetOutput]
+    streamer2 SetInputConnection [pl3d GetOutputPort]
     streamer2 SetSource seeds2
     streamer2 SetMaximumPropagationTime 100
     streamer2 SetIntegrationStepLength .2
@@ -68,20 +68,20 @@ vtkStreamLine streamer2
     streamer2 VorticityOn
     streamer2 SetIntegrator rk4
 vtkRibbonFilter rf2
-    rf2 SetInput [streamer2 GetOutput]
+    rf2 SetInputConnection [streamer2 GetOutputPort]
     rf2 SetWidth 0.1
     rf2 SetWidthFactor 5
 vtkPolyDataMapper streamMapper2
-    streamMapper2 SetInput [rf2 GetOutput]
+    streamMapper2 SetInputConnection [rf2 GetOutputPort]
     eval streamMapper2 SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor streamline2
     streamline2 SetMapper streamMapper2
     streamline2 VisibilityOff
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

@@ -40,7 +40,7 @@ ren1 SetBackground 0.1 0.2 0.4
 for { set i 0 } { $i < 2 } { incr i } {
     for { set j 0 } { $j < 4 } { incr j } {
        vtkVolumeRayCastMapper volumeMapper_${i}_${j}
-       volumeMapper_${i}_${j} SetInput [reader GetOutput]
+       volumeMapper_${i}_${j} SetInputConnection [reader GetOutputPort]
        volumeMapper_${i}_${j} SetVolumeRayCastFunction compositeFunction
        volumeMapper_${i}_${j} SetSampleDistance 0.4
        volumeMapper_${i}_${j} CroppingOn

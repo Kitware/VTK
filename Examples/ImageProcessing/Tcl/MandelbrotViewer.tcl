@@ -34,12 +34,12 @@ vtkLookupTable table1
   table1 SetTableValue [expr $RANGE - 1]  0.0 0.0 0.0 0.0
 
 vtkImageMapToColors map1
-  map1 SetInput [mandelbrot1 GetOutput]
+  map1 SetInputConnection [mandelbrot1 GetOutputPort]
   map1 SetOutputFormatToRGB
   map1 SetLookupTable table1
 
 vtkImageViewer viewer
-  viewer SetInput [map1 GetOutput]
+  viewer SetInputConnection [map1 GetOutputPort]
   viewer SetColorWindow 255.0
   viewer SetColorLevel 127.5
   [viewer GetActor2D] SetPosition $XRAD $YRAD
@@ -64,12 +64,12 @@ vtkLookupTable table2
   table2 SetTableValue [expr $RANGE - 1]  0.0 0.0 0.0 0.0
 
 vtkImageMapToColors map2
-  map2 SetInput [mandelbrot2 GetOutput]
+  map2 SetInputConnection [mandelbrot2 GetOutputPort]
   map2 SetOutputFormatToRGB
   map2 SetLookupTable table2
 
 vtkImageViewer viewer2
-  viewer2 SetInput [map2 GetOutput]
+  viewer2 SetInputConnection [map2 GetOutputPort]
   viewer2 SetColorWindow 256.0
   viewer2 SetColorLevel 127.5
   [viewer2 GetActor2D] SetPosition $XRAD $YRAD

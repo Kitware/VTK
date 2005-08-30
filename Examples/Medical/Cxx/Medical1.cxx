@@ -64,13 +64,13 @@ int main (int argc, char **argv)
   // skin of the patient. Once generated, a vtkPolyDataNormals filter is
   // is used to create normals for smooth surface shading during rendering.
   vtkContourFilter *skinExtractor = vtkContourFilter::New();
-    skinExtractor->SetInput((vtkDataSet *) v16->GetOutput());
+    skinExtractor->SetInputConnection(v16->GetOutputPort());
     skinExtractor->SetValue(0, 500);
   vtkPolyDataNormals *skinNormals = vtkPolyDataNormals::New();
-    skinNormals->SetInput(skinExtractor->GetOutput());
+    skinNormals->SetInputConnection(skinExtractor->GetOutputPort());
     skinNormals->SetFeatureAngle(60.0);
   vtkPolyDataMapper *skinMapper = vtkPolyDataMapper::New();
-    skinMapper->SetInput(skinNormals->GetOutput());
+    skinMapper->SetInputConnection(skinNormals->GetOutputPort());
     skinMapper->ScalarVisibilityOff();
   vtkActor *skin = vtkActor::New();
     skin->SetMapper(skinMapper);
@@ -78,9 +78,9 @@ int main (int argc, char **argv)
   // An outline provides context around the data.
   //
   vtkOutlineFilter *outlineData = vtkOutlineFilter::New();
-    outlineData->SetInput((vtkDataSet *) v16->GetOutput());
+    outlineData->SetInputConnection(v16->GetOutputPort());
   vtkPolyDataMapper *mapOutline = vtkPolyDataMapper::New();
-    mapOutline->SetInput(outlineData->GetOutput());
+    mapOutline->SetInputConnection(outlineData->GetOutputPort());
   vtkActor *outline = vtkActor::New();
     outline->SetMapper(mapOutline);
     outline->GetProperty()->SetColor(0,0,0);

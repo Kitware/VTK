@@ -14,7 +14,7 @@ package require vtkinteraction
 vtkJPEGReader textureReader
   textureReader SetFileName "$VTK_DATA_ROOT/Data/beach.jpg"
 vtkTexture texture
-  texture SetInput [textureReader GetOutput]
+  texture SetInputConnection [textureReader GetOutputPort]
 
 # ------------------------------------------------------------
 # For each parametric surface:
@@ -33,7 +33,7 @@ vtkParametricFunctionSource torusSource
   torusSource SetScalarModeToPhase
 
 vtkPolyDataMapper torusMapper
-  torusMapper SetInput [torusSource GetOutput]
+  torusMapper SetInputConnection [torusSource GetOutputPort]
   torusMapper SetScalarRange 0 360
 
 vtkActor torusActor
@@ -60,7 +60,7 @@ vtkParametricFunctionSource kleinSource
   kleinSource SetScalarModeToU0V0
 
 vtkPolyDataMapper kleinMapper
-  kleinMapper SetInput [kleinSource GetOutput]
+  kleinMapper SetInputConnection [kleinSource GetOutputPort]
   kleinMapper SetScalarRange 0 3
 
 vtkActor kleinActor
@@ -87,7 +87,7 @@ vtkParametricFunctionSource klein2Source
   klein2Source GenerateTextureCoordinatesOn
 
 vtkPolyDataMapper klein2Mapper
-  klein2Mapper SetInput [klein2Source GetOutput]
+  klein2Mapper SetInputConnection [klein2Source GetOutputPort]
   klein2Mapper SetScalarRange 0 3
 
 vtkActor klein2Actor
@@ -116,7 +116,7 @@ vtkParametricFunctionSource mobiusSource
   mobiusSource GenerateTextureCoordinatesOn
 
 vtkPolyDataMapper mobiusMapper
-  mobiusMapper SetInput [mobiusSource GetOutput]
+  mobiusMapper SetInputConnection [mobiusSource GetOutputPort]
 
 vtkActor mobiusActor
   mobiusActor SetMapper mobiusMapper
@@ -146,7 +146,7 @@ vtkParametricFunctionSource toroidSource
   toroidSource SetScalarModeToU
 
 vtkPolyDataMapper toroidMapper
-  toroidMapper SetInput [toroidSource GetOutput]
+  toroidMapper SetInputConnection [toroidSource GetOutputPort]
   toroidMapper SetScalarRange 0 6.28
 
 vtkActor toroidActor
@@ -178,7 +178,7 @@ vtkParametricFunctionSource superEllipsoidSource
   superEllipsoidSource SetScalarModeToV
 
 vtkPolyDataMapper superEllipsoidMapper
-  superEllipsoidMapper SetInput [superEllipsoidSource GetOutput]
+  superEllipsoidMapper SetInputConnection [superEllipsoidSource GetOutputPort]
   superEllipsoidMapper SetScalarRange 0 3.14
 
 vtkActor superEllipsoidActor
@@ -214,7 +214,7 @@ vtkParametricFunctionSource splineSource
   splineSource SetParametricFunction spline
 
 vtkPolyDataMapper splineMapper
-  splineMapper SetInput [splineSource GetOutput]
+  splineMapper SetInputConnection [splineSource GetOutputPort]
 
 vtkActor splineActor
   splineActor SetMapper splineMapper
@@ -242,7 +242,7 @@ vtkParametricFunctionSource spline2Source
   spline2Source SetParametricFunction spline2
 
 vtkPolyDataMapper spline2Mapper
-  spline2Mapper SetInput [spline2Source GetOutput]
+  spline2Mapper SetInputConnection [spline2Source GetOutputPort]
 
 vtkActor spline2Actor
   spline2Actor SetMapper spline2Mapper
@@ -272,7 +272,7 @@ vtkParametricFunctionSource sconicSource
   sconicSource SetScalarModeToDistance
 
 vtkPolyDataMapper sconicMapper
-  sconicMapper SetInput [sconicSource GetOutput]
+  sconicMapper SetInputConnection [sconicSource GetOutputPort]
 vtkActor sconicActor
   sconicActor SetMapper sconicMapper
   sconicMapper SetScalarRange 0 9
@@ -299,7 +299,7 @@ vtkParametricFunctionSource boySource
   boySource SetScalarModeToModulus
 
 vtkPolyDataMapper boyMapper
-  boyMapper SetInput [boySource GetOutput]
+  boyMapper SetInputConnection [boySource GetOutputPort]
   boyMapper SetScalarRange 0 2
 vtkActor boyActor
   boyActor SetMapper boyMapper
@@ -326,7 +326,7 @@ vtkParametricFunctionSource crossCapSource
   crossCapSource SetScalarModeToY
 
 vtkPolyDataMapper crossCapMapper
-  crossCapMapper SetInput [crossCapSource GetOutput]
+  crossCapMapper SetInputConnection [crossCapSource GetOutputPort]
 vtkActor crossCapActor
   crossCapActor SetMapper crossCapMapper
   crossCapActor RotateX 65
@@ -353,7 +353,7 @@ vtkParametricFunctionSource diniSource
   diniSource SetParametricFunction dini
 
 vtkPolyDataMapper diniMapper
-  diniMapper SetInput [diniSource GetOutput]
+  diniMapper SetInputConnection [diniSource GetOutputPort]
 
 vtkActor diniActor
   diniActor SetMapper diniMapper
@@ -381,7 +381,7 @@ vtkParametricFunctionSource enneperSource
   enneperSource SetScalarModeToQuadrant
 
 vtkPolyDataMapper enneperMapper
-  enneperMapper SetInput [enneperSource GetOutput]
+  enneperMapper SetInputConnection [enneperSource GetOutputPort]
   enneperMapper SetScalarRange 1 4
 
 vtkActor enneperActor
@@ -412,7 +412,7 @@ vtkParametricFunctionSource ellipsoidSource
   ellipsoidSource SetScalarModeToZ
 
 vtkPolyDataMapper ellipsoidMapper
-  ellipsoidMapper SetInput [ellipsoidSource GetOutput]
+  ellipsoidMapper SetInputConnection [ellipsoidSource GetOutputPort]
   ellipsoidMapper SetScalarRange -0.5 0.5
 
 vtkActor ellipsoidActor
@@ -447,7 +447,7 @@ vtkParametricFunctionSource randomHillsSource
   randomHillsSource GenerateTextureCoordinatesOn
 
 vtkPolyDataMapper randomHillsMapper
-  randomHillsMapper SetInput [randomHillsSource GetOutput]
+  randomHillsMapper SetInputConnection [randomHillsSource GetOutputPort]
 
 vtkActor randomHillsActor
   randomHillsActor SetMapper randomHillsMapper
@@ -476,7 +476,7 @@ vtkParametricFunctionSource romanSource
   romanSource SetScalarModeToX
 
 vtkPolyDataMapper romanMapper
-  romanMapper SetInput [romanSource GetOutput]
+  romanMapper SetInputConnection [romanSource GetOutputPort]
 
 vtkActor romanActor
   romanActor SetMapper romanMapper

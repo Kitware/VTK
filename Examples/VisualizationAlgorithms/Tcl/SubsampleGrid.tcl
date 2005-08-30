@@ -28,20 +28,20 @@ vtkPLOT3DReader pl3d
 # the boundary.
 #
 vtkExtractGrid extract
-    extract SetInput [pl3d GetOutput]
+    extract SetInputConnection [pl3d GetOutputPort]
     extract SetVOI 30 30 -1000 1000 -1000 1000
     extract SetSampleRate 1 2 3
     extract IncludeBoundaryOn
 vtkDataSetMapper mapper
-    mapper SetInput [extract GetOutput]
+    mapper SetInputConnection [extract GetOutputPort]
     mapper SetScalarRange .18 .7
 vtkActor actor
     actor SetMapper mapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

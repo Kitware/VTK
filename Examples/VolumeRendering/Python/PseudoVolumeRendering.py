@@ -22,7 +22,7 @@ pl3d.Update()
 # A convenience, use this filter to limit data for experimentation.
 extract = vtk.vtkExtractGrid()
 extract.SetVOI(1, 55, -1000, 1000, -1000, 1000)
-extract.SetInput(pl3d.GetOutput())
+extract.SetInputConnection(pl3d.GetOutputPort())
 
 # The (implicit) plane is used to do the cutting
 plane = vtk.vtkPlane()
@@ -33,7 +33,7 @@ plane.SetNormal(0, 1, 0)
 # (SetSortByToSortByCell). This results in an ordered output of polygons
 # which is key to the compositing.
 cutter = vtk.vtkCutter()
-cutter.SetInput(extract.GetOutput())
+cutter.SetInputConnection(extract.GetOutputPort())
 cutter.SetCutFunction(plane)
 cutter.GenerateCutScalarsOff()
 cutter.SetSortByToSortByCell()
@@ -43,7 +43,7 @@ clut.SetHueRange(0, .67)
 clut.Build()
 
 cutterMapper = vtk.vtkPolyDataMapper()
-cutterMapper.SetInput(cutter.GetOutput())
+cutterMapper.SetInputConnection(cutter.GetOutputPort())
 cutterMapper.SetScalarRange(.18, .7)
 cutterMapper.SetLookupTable(clut)
 
@@ -52,13 +52,13 @@ cut.SetMapper(cutterMapper)
 
 # Add in some surface geometry for interest.
 iso = vtk.vtkContourFilter()
-iso.SetInput(pl3d.GetOutput())
+iso.SetInputConnection(pl3d.GetOutputPort())
 iso.SetValue(0, .22)
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(iso.GetOutput())
+normals.SetInputConnection(iso.GetOutputPort())
 normals.SetFeatureAngle(45)
 isoMapper = vtk.vtkPolyDataMapper()
-isoMapper.SetInput(normals.GetOutput())
+isoMapper.SetInputConnection(normals.GetOutputPort())
 isoMapper.ScalarVisibilityOff()
 isoActor = vtk.vtkActor()
 isoActor.SetMapper(isoMapper)
@@ -69,13 +69,13 @@ isoActor.GetProperty().SetSpecular(.5)
 isoActor.GetProperty().SetSpecularPower(30)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInput(pl3d.GetOutput())
+outline.SetInputConnection(pl3d.GetOutputPort())
 outlineTubes = vtk.vtkTubeFilter()
-outlineTubes.SetInput(outline.GetOutput())
+outlineTubes.SetInputConnection(outline.GetOutputPort())
 outlineTubes.SetRadius(.1)
 
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outlineTubes.GetOutput())
+outlineMapper.SetInputConnection(outlineTubes.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 

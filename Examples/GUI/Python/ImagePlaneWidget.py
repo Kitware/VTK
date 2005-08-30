@@ -42,10 +42,10 @@ ox, oy, oz = origin
 
 # An outline is shown for context.
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(v16.GetOutput())
+outline.SetInputConnection(v16.GetOutputPort())
 
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
@@ -58,7 +58,7 @@ picker.SetTolerance(0.005)
 # The 3 image plane widgets are used to probe the dataset.
 planeWidgetX = vtk.vtkImagePlaneWidget()
 planeWidgetX.DisplayTextOn()
-planeWidgetX.SetInput(v16.GetOutput())
+planeWidgetX.SetInputConnection(v16.GetOutputPort())
 planeWidgetX.SetPlaneOrientationToXAxes()
 planeWidgetX.SetSliceIndex(32)
 planeWidgetX.SetPicker(picker)
@@ -68,7 +68,7 @@ prop1.SetColor(1, 0, 0)
 
 planeWidgetY = vtk.vtkImagePlaneWidget()
 planeWidgetY.DisplayTextOn()
-planeWidgetY.SetInput(v16.GetOutput())
+planeWidgetY.SetInputConnection(v16.GetOutputPort())
 planeWidgetY.SetPlaneOrientationToYAxes()
 planeWidgetY.SetSliceIndex(32)
 planeWidgetY.SetPicker(picker)
@@ -82,7 +82,7 @@ planeWidgetY.SetLookupTable(planeWidgetX.GetLookupTable())
 # cross-hair cursor snapping to pixel centers
 planeWidgetZ = vtk.vtkImagePlaneWidget()
 planeWidgetZ.DisplayTextOn()
-planeWidgetZ.SetInput(v16.GetOutput())
+planeWidgetZ.SetInputConnection(v16.GetOutputPort())
 planeWidgetZ.SetPlaneOrientationToZAxes()
 planeWidgetZ.SetSliceIndex(46)
 planeWidgetZ.SetPicker(picker)
@@ -149,7 +149,7 @@ def CaptureImage():
     writer = vtk.vtkTIFFWriter()
     w2i.SetInput(renWin)
     w2i.Update()
-    writer.SetInput(w2i.GetOutput())
+    writer.SetInputConnection(w2i.GetOutputPort())
     writer.SetFileName("image.tif")
     renWin.Render()
     writer.Write()

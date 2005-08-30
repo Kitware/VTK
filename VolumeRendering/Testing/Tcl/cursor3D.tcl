@@ -27,11 +27,11 @@ vtkSLCReader reader
 # Cursor stuff
 
 vtkImageMagnify magnify
-  magnify SetInput [reader GetOutput]
+  magnify SetInputConnection [reader GetOutputPort]
   magnify SetMagnificationFactors $IMAGE_MAG_X $IMAGE_MAG_Y $IMAGE_MAG_Z
 
 vtkImageCursor3D image_cursor
-  image_cursor SetInput [magnify GetOutput]
+  image_cursor SetInputConnection [magnify GetOutputPort]
   image_cursor SetCursorPosition \
           [expr $CURSOR_X * $IMAGE_MAG_X] \
           [expr $CURSOR_Y * $IMAGE_MAG_Y] \
@@ -45,7 +45,7 @@ vtkAxes axes
   axes SetScaleFactor 50.0
 
 vtkPolyDataMapper axes_mapper
-  axes_mapper SetInput [axes GetOutput]
+  axes_mapper SetInputConnection [axes GetOutputPort]
 
 vtkActor axesActor
   axesActor SetMapper axes_mapper
@@ -54,7 +54,7 @@ vtkActor axesActor
 # Image viewer stuff
 
 vtkImageViewer viewer
-  viewer SetInput [image_cursor GetOutput]
+  viewer SetInputConnection [image_cursor GetOutputPort]
   viewer SetZSlice [expr $CURSOR_Z * $IMAGE_MAG_Z]
   viewer SetColorWindow 256
   viewer SetColorLevel 128
@@ -96,7 +96,7 @@ vtkVolumeProperty volume_property
 vtkVolumeRayCastCompositeFunction  composite_function
 
 vtkVolumeRayCastMapper volume_mapper
-  volume_mapper SetInput [reader GetOutput]
+  volume_mapper SetInputConnection [reader GetOutputPort]
   volume_mapper SetVolumeRayCastFunction composite_function
 
 vtkVolume volume
@@ -106,10 +106,10 @@ vtkVolume volume
 # Create outline
 
 vtkOutlineFilter outline
-  outline SetInput [reader GetOutput]
+  outline SetInputConnection [reader GetOutputPort]
 
 vtkPolyDataMapper outline_mapper
-  outline_mapper SetInput [outline GetOutput]
+  outline_mapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outline_mapper

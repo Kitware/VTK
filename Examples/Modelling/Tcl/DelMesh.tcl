@@ -26,7 +26,7 @@ vtkDelaunay2D del
     del SetInput profile
     del SetTolerance 0.001
 vtkPolyDataMapper mapMesh
-    mapMesh SetInput [del GetOutput]
+    mapMesh SetInputConnection [del GetOutputPort]
 vtkActor meshActor
     meshActor SetMapper mapMesh
     eval [meshActor GetProperty] SetColor .1 .2 .4
@@ -34,13 +34,13 @@ vtkActor meshActor
 # We will now create a nice looking mesh by wrapping the edges in tubes,
 # and putting fat spheres at the points.
 vtkExtractEdges extract
-    extract SetInput [del GetOutput]
+    extract SetInputConnection [del GetOutputPort]
 vtkTubeFilter tubes
-    tubes SetInput [extract GetOutput]
+    tubes SetInputConnection [extract GetOutputPort]
     tubes SetRadius 0.01
     tubes SetNumberOfSides 6
 vtkPolyDataMapper mapEdges
-    mapEdges SetInput [tubes GetOutput]
+    mapEdges SetInputConnection [tubes GetOutputPort]
 vtkActor edgeActor
     edgeActor SetMapper mapEdges
 eval [edgeActor GetProperty] SetColor $peacock
@@ -55,10 +55,10 @@ vtkSphereSource ball
     ball SetThetaResolution 12
     ball SetPhiResolution 12
 vtkGlyph3D balls
-    balls SetInput [del GetOutput]
+    balls SetInputConnection [del GetOutputPort]
     balls SetSource [ball GetOutput]
 vtkPolyDataMapper mapBalls
-    mapBalls SetInput [balls GetOutput]
+    mapBalls SetInputConnection [balls GetOutputPort]
 vtkActor ballActor
     ballActor SetMapper mapBalls
     eval [ballActor GetProperty] SetColor $hot_pink

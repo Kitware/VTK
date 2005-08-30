@@ -112,14 +112,14 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
   // Iso-surface.
   iso = vtkContourFilter::New();
-  iso->SetInput(reader->GetOutput());
+  iso->SetInputConnection(reader->GetOutputPort());
   iso->SetValue(0, ISO_START);
   iso->ComputeScalarsOff();
   iso->ComputeGradientsOff();
   
   // Compute a different color for each process.
   elev = vtkElevationFilter::New();
-  elev->SetInput(iso->GetOutput());
+  elev->SetInputConnection(iso->GetOutputPort());
   val = (myid+1) / static_cast<float>(numProcs);
   elev->SetScalarRange(val, val+0.001);
 
@@ -157,7 +157,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     iren->SetRenderWindow(renWindow);
     ren->SetBackground(0.9, 0.9, 0.9);
     renWindow->SetSize( 400, 400);
-    mapper->SetInput(app->GetOutput());
+    mapper->SetInputConnection(app->GetOutputPort());
     actor->SetMapper(mapper);
     ren->AddActor(actor);
     cam->SetFocalPoint(100, 100, 65);

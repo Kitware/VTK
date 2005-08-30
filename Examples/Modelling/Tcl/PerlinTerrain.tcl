@@ -32,15 +32,15 @@ vtkSampleFunction sample
     sample SetModelBounds -1 1 -1 1 -0.5 0.5
     sample ComputeNormalsOff
 vtkContourFilter surface
-    surface SetInput [sample GetOutput]
+    surface SetInputConnection [sample GetOutputPort]
     surface SetValue 0 0.0
 
 vtkPolyDataNormals smooth
-    smooth SetInput [surface GetOutput]
+    smooth SetInputConnection [surface GetOutputPort]
     smooth SetFeatureAngle 90
 
 vtkPolyDataMapper mapper
-    mapper SetInput [smooth GetOutput]
+    mapper SetInputConnection [smooth GetOutputPort]
     mapper ScalarVisibilityOff
 vtkActor actor
     actor SetMapper mapper

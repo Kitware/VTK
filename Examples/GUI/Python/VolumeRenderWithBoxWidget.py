@@ -38,7 +38,7 @@ ctfun.AddRGBPoint(4095.0, 0.5, 0.5, 0.5)
 compositeFunction = vtk.vtkVolumeRayCastCompositeFunction()
 
 volumeMapper = vtk.vtkVolumeRayCastMapper()
-volumeMapper.SetInput(v16.GetOutput())
+volumeMapper.SetInputConnection(v16.GetOutputPort())
 volumeMapper.SetVolumeRayCastFunction(compositeFunction)
 
 volumeProperty = vtk.vtkVolumeProperty()
@@ -52,9 +52,9 @@ newvol.SetMapper(volumeMapper)
 newvol.SetProperty(volumeProperty)
 
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(v16.GetOutput())
+outline.SetInputConnection(v16.GetOutputPort())
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
@@ -102,7 +102,7 @@ def ClipVolumeRender(obj, event):
 
 # Place the interactor initially. The output of the reader is used to
 # place the box widget.
-boxWidget.SetInput(v16.GetOutput())
+boxWidget.SetInputConnection(v16.GetOutputPort())
 boxWidget.PlaceWidget()
 boxWidget.InsideOutOn()
 boxWidget.AddObserver("StartInteractionEvent", StartInteraction)

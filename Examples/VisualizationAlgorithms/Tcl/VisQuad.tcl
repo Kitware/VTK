@@ -26,11 +26,11 @@ vtkSampleFunction sample
 # GenerateValues() method creates n isocontour values between the range
 # specified.
 vtkContourFilter contours
-  contours SetInput [sample GetOutput]
+  contours SetInputConnection [sample GetOutputPort]
   contours GenerateValues 5 0.0 1.2
 
 vtkPolyDataMapper contMapper
-  contMapper SetInput [contours GetOutput]
+  contMapper SetInputConnection [contours GetOutputPort]
   contMapper SetScalarRange 0.0 1.2
 
 vtkActor contActor
@@ -38,10 +38,10 @@ vtkActor contActor
 
 # We'll put a simple outline around the data.
 vtkOutlineFilter outline
-  outline SetInput [sample GetOutput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

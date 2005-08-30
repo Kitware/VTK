@@ -19,11 +19,11 @@ vtkImageMandelbrotSource input
 
 # make sure we have only tetrahedra
 vtkDataSetTriangleFilter trifilter
-    trifilter SetInput [input GetOutput]
+    trifilter SetInputConnection [input GetOutputPort]
 
 # Convert it to cell centered data.
 vtkPointDataToCellData celldata
-    celldata SetInput [trifilter GetOutput]
+    celldata SetInputConnection [trifilter GetOutputPort]
     celldata PassPointDataOff
 
 # Create transfer mapping scalar value to opacity
@@ -50,7 +50,7 @@ vtkVolumeProperty volumeProperty
 
 # The mapper / ray cast function / ray integrator know how to render the data
 vtkUnstructuredGridVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [celldata GetOutput]
+    volumeMapper SetInputConnection [celldata GetOutputPort]
 
 vtkUnstructuredGridLinearRayIntegrator rayIntegrator
     volumeMapper SetRayIntegrator rayIntegrator

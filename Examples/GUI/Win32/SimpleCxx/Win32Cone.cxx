@@ -153,7 +153,7 @@ myVTKApp::myVTKApp(HWND hwnd)
   this->cone->SetRadius( 1.0 );
   this->cone->SetResolution( 10 );
   this->coneMapper = vtkPolyDataMapper::New();
-  this->coneMapper->SetInput(this->cone->GetOutput());
+  this->coneMapper->SetInputConnection(this->cone->GetOutputPort());
   this->coneActor = vtkActor::New();
   this->coneActor->SetMapper(this->coneMapper);
   

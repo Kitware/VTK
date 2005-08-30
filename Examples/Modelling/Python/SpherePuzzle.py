@@ -9,13 +9,13 @@ from vtk.tk.vtkTkRenderWindowInteractor import vtkTkRenderWindowInteractor
 # Create the pipeline
 puzzle = vtk.vtkSpherePuzzle()
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInput(puzzle.GetOutput())
+mapper.SetInputConnection(puzzle.GetOutputPort())
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
 arrows = vtk.vtkSpherePuzzleArrows()
 mapper2 = vtk.vtkPolyDataMapper()
-mapper2.SetInput(arrows.GetOutput())
+mapper2.SetInputConnection(arrows.GetOutputPort())
 actor2 = vtk.vtkActor()
 actor2.SetMapper(mapper2)
 

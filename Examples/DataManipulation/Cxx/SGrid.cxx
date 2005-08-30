@@ -88,7 +88,7 @@ int main()
       hedgehog->SetScaleFactor(0.1);
 
   vtkPolyDataMapper *sgridMapper = vtkPolyDataMapper::New();
-      sgridMapper->SetInput(hedgehog->GetOutput());
+      sgridMapper->SetInputConnection(hedgehog->GetOutputPort());
   vtkActor *sgridActor = vtkActor::New();
       sgridActor->SetMapper(sgridMapper);
       sgridActor->GetProperty()->SetColor(0,0,0);

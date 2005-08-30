@@ -27,15 +27,15 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     reader SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
   vtkPDataSetWriter writer
     writer SetFileName "comb.pvtk"
-    writer SetInput [reader GetOutput]
+    writer SetInputConnection [reader GetOutputPort]
     writer SetNumberOfPieces 4
     writer Write
   vtkPDataSetReader pReader
     pReader SetFileName "comb.pvtk"
   vtkDataSetSurfaceFilter surface
-    surface SetInput [pReader GetOutput]
+    surface SetInputConnection [pReader GetOutputPort]
   vtkPolyDataMapper mapper
-    mapper SetInput [surface GetOutput]
+    mapper SetInputConnection [surface GetOutputPort]
     mapper SetNumberOfPieces 2
     mapper SetPiece 0
     mapper SetGhostLevel 1
@@ -66,7 +66,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   vtkPDataSetWriter writer2
     writer SetFileName "fractal.pvtk"
-    writer SetInput [fractal GetOutput]
+    writer SetInputConnection [fractal GetOutputPort]
     writer SetNumberOfPieces 4
     writer Write
 
@@ -74,11 +74,11 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     pReader2 SetFileName "fractal.pvtk"
  
   vtkContourFilter iso
-    iso SetInput [pReader2 GetOutput]
+    iso SetInputConnection [pReader2 GetOutputPort]
     iso SetValue 0 4
 
   vtkPolyDataMapper mapper2
-    mapper2 SetInput [iso GetOutput]
+    mapper2 SetInputConnection [iso GetOutputPort]
     mapper2 SetNumberOfPieces 3
     mapper2 SetPiece 0
     mapper2 SetGhostLevel 0
@@ -108,7 +108,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
 
   vtkPDataSetWriter writer3
     writer3 SetFileName "sphere.pvtk"
-    writer3 SetInput [sphere GetOutput]
+    writer3 SetInputConnection [sphere GetOutputPort]
     writer3 SetNumberOfPieces 4
     writer3 Write
 
@@ -116,7 +116,7 @@ if {[catch {set channel [open "test.tmp" "w"]}] == 0 } {
     pReader3 SetFileName "sphere.pvtk"
  
   vtkPolyDataMapper mapper3
-    mapper3 SetInput [pReader3 GetOutput]
+    mapper3 SetInputConnection [pReader3 GetOutputPort]
     mapper3 SetNumberOfPieces 2
     mapper3 SetPiece 0
     mapper3 SetGhostLevel 1

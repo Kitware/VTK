@@ -16,18 +16,18 @@ sphere.SetNumberOfPoints(25)
 # Triangulate the points with vtkDelaunay3D. This generates a convex hull
 # of tetrahedron.
 delny = vtk.vtkDelaunay3D()
-delny.SetInput(sphere.GetOutput())
+delny.SetInputConnection(sphere.GetOutputPort())
 delny.SetTolerance(0.01)
     
 # The triangulation has texture coordinates generated so we can map
 # a texture onto it.
 tmapper = vtk.vtkTextureMapToCylinder()
-tmapper.SetInput(delny.GetOutput())
+tmapper.SetInputConnection(delny.GetOutputPort())
 tmapper.PreventSeamOn()
 
 # We scale the texture coordinate to get some repeat patterns.
 xform = vtk.vtkTransformTextureCoords()
-xform.SetInput(tmapper.GetOutput())
+xform.SetInputConnection(tmapper.GetOutputPort())
 xform.SetScale(4, 4, 1)
 
 # vtkDataSetMapper internally uses a vtkGeometryFilter to extract the
@@ -35,14 +35,14 @@ xform.SetScale(4, 4, 1)
 # then passed to an internal vtkPolyDataMapper which does the
 # rendering.
 mapper = vtk.vtkDataSetMapper()
-mapper.SetInput(xform.GetOutput())
+mapper.SetInputConnection(xform.GetOutputPort())
 
 # A texture is loaded using an image reader. Textures are simply images.
 # The texture is eventually associated with an actor.
 bmpReader = vtk.vtkBMPReader()
 bmpReader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 atext = vtk.vtkTexture()
-atext.SetInput(bmpReader.GetOutput())
+atext.SetInputConnection(bmpReader.GetOutputPort())
 atext.InterpolateOn()
 triangulation = vtk.vtkActor()
 triangulation.SetMapper(mapper)

@@ -73,7 +73,7 @@ proc colorCells {} {
 
 # Compute random scalars (colors) for each cell
 vtkProgrammableAttributeDataFilter randomColors
-    randomColors SetInput [sphereSource GetOutput]
+    randomColors SetInputConnection [sphereSource GetOutputPort]
     randomColors SetExecuteMethod colorCells
 
 # This does not need a hierarchical mapper, but hierarchical

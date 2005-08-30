@@ -24,46 +24,46 @@ vtkVolume16Reader v16
 vtkMergePoints myLocator
 
 vtkMarchingSquares isoXY
-  isoXY SetInput [v16 GetOutput]
+  isoXY SetInputConnection [v16 GetOutputPort]
   isoXY GenerateValues 2 600 1200
   isoXY SetImageRange 0 32 32 63 45 45
   isoXY SetLocator myLocator
 
 vtkPolyDataMapper isoXYMapper
-  isoXYMapper SetInput [isoXY GetOutput]
+  isoXYMapper SetInputConnection [isoXY GetOutputPort]
   isoXYMapper SetScalarRange 600 1200
 
 vtkActor isoXYActor
   isoXYActor SetMapper isoXYMapper
 
 vtkMarchingSquares isoYZ
-  isoYZ SetInput [v16 GetOutput]
+  isoYZ SetInputConnection [v16 GetOutputPort]
   isoYZ GenerateValues 2 600 1200
   isoYZ SetImageRange 32 32 32 63 46 92
 
 vtkPolyDataMapper isoYZMapper
-  isoYZMapper SetInput [isoYZ GetOutput]
+  isoYZMapper SetInputConnection [isoYZ GetOutputPort]
   isoYZMapper SetScalarRange 600 1200
 
 vtkActor isoYZActor
   isoYZActor SetMapper isoYZMapper
 
 vtkMarchingSquares isoXZ
-  isoXZ SetInput [v16 GetOutput]
+  isoXZ SetInputConnection [v16 GetOutputPort]
   isoXZ GenerateValues 2 600 1200
   isoXZ SetImageRange 0 32 32 32 0 46
 
 vtkPolyDataMapper isoXZMapper
-  isoXZMapper SetInput [isoXZ GetOutput]
+  isoXZMapper SetInputConnection [isoXZ GetOutputPort]
   isoXZMapper SetScalarRange 600 1200
 
 vtkActor isoXZActor
   isoXZActor SetMapper isoXZMapper
 
 vtkOutlineFilter outline
-  outline SetInput [v16 GetOutput]
+  outline SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper
   outlineActor VisibilityOff

@@ -11,13 +11,13 @@ reader SetDataMask 0x7fff
 # write isosurface to file
 #vtkSynchronizedTemplates3D stemp
 vtkContourFilter stemp
-    stemp SetInput [reader GetOutput]
+    stemp SetInputConnection [reader GetOutputPort]
     stemp SetValue 0 1150
     stemp Update
 
 
 vtkPolyDataMapper mapper
-    mapper SetInput [stemp GetOutput]
+    mapper SetInputConnection [stemp GetOutputPort]
 	mapper ScalarVisibilityOff
     
 vtkActor head

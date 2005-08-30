@@ -10,7 +10,7 @@ package require vtktesting
 vtkSphereSource sphere
 vtkConeSource cone
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
@@ -23,7 +23,7 @@ vtkAppendPolyData apd
     apd AddInput [sphere GetOutput]
 
 vtkPolyDataMapper maceMapper
-maceMapper SetInput [apd GetOutput]
+maceMapper SetInputConnection [apd GetOutputPort]
 
 vtkLODActor maceActor
     maceActor SetMapper maceMapper
@@ -33,12 +33,12 @@ vtkLODActor maceActor
 # implicit function. The clipped region is colored green.
 vtkPlane plane
 vtkClipPolyData clipper
-    clipper SetInput [apd GetOutput]
+    clipper SetInputConnection [apd GetOutputPort]
     clipper SetClipFunction plane
     clipper InsideOutOn
 
 vtkPolyDataMapper selectMapper
-    selectMapper SetInput [clipper GetOutput]
+    selectMapper SetInputConnection [clipper GetOutputPort]
 
 vtkLODActor selectActor
     selectActor SetMapper selectMapper
@@ -58,7 +58,7 @@ vtkRenderWindowInteractor iren
 vtkImplicitPlaneWidget planeWidget
   planeWidget SetInteractor iren
   planeWidget SetPlaceFactor 1.25
-  planeWidget SetInput [glyph GetOutput]
+  planeWidget SetInputConnection [glyph GetOutputPort]
   planeWidget PlaceWidget
   planeWidget AddObserver InteractionEvent myCallback
 

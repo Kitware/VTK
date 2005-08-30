@@ -21,14 +21,14 @@ part.SetFileName(VTK_DATA_ROOT + "/Data/42400-IDGH.stl")
 #
 # Here we add a filter that computes surface normals from the geometry.
 shrink = vtk.vtkShrinkPolyData()
-shrink.SetInput(part.GetOutput())
+shrink.SetInputConnection(part.GetOutputPort())
 shrink.SetShrinkFactor(0.85)
 
 # The mapper is responsible for pushing the geometry into the graphics
 # library. It may also do color mapping, if scalars or other
 # attributes are defined.
 partMapper = vtk.vtkPolyDataMapper()
-partMapper.SetInput(shrink.GetOutput())
+partMapper.SetInputConnection(shrink.GetOutputPort())
 
 # The LOD actor is a special type of actor. It will change appearance
 # in order to render faster. At the highest resolution, it renders

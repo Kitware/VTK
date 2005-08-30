@@ -441,7 +441,7 @@ int TestImplicitPlaneWidget( int argc, char *argv[] )
   vtkSphereSource *sphere = vtkSphereSource::New();
   vtkConeSource *cone = vtkConeSource::New();
   vtkGlyph3D *glyph = vtkGlyph3D::New();
-  glyph->SetInput(sphere->GetOutput());
+  glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSource(cone->GetOutput());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
@@ -454,7 +454,7 @@ int TestImplicitPlaneWidget( int argc, char *argv[] )
   apd->AddInput(sphere->GetOutput());
 
   vtkPolyDataMapper *maceMapper = vtkPolyDataMapper::New();
-  maceMapper->SetInput(apd->GetOutput());
+  maceMapper->SetInputConnection(apd->GetOutputPort());
 
   vtkLODActor *maceActor = vtkLODActor::New();
   maceActor->SetMapper(maceMapper);
@@ -464,12 +464,12 @@ int TestImplicitPlaneWidget( int argc, char *argv[] )
   // implicit function. The clipped region is colored green.
   vtkPlane *plane = vtkPlane::New();
   vtkClipPolyData *clipper = vtkClipPolyData::New();
-  clipper->SetInput (apd->GetOutput());
+  clipper->SetInputConnection(apd->GetOutputPort());
   clipper->SetClipFunction(plane);
   clipper->InsideOutOn();
 
   vtkPolyDataMapper *selectMapper = vtkPolyDataMapper::New();
-  selectMapper->SetInput(clipper->GetOutput());
+  selectMapper->SetInputConnection(clipper->GetOutputPort());
 
   vtkLODActor *selectActor = vtkLODActor::New();
   selectActor->SetMapper(selectMapper);
@@ -496,7 +496,7 @@ int TestImplicitPlaneWidget( int argc, char *argv[] )
   vtkImplicitPlaneWidget *planeWidget = vtkImplicitPlaneWidget::New();
   planeWidget->SetInteractor(iren);
   planeWidget->SetPlaceFactor(1.25);
-  planeWidget->SetInput (glyph->GetOutput());
+  planeWidget->SetInput(glyph->GetOutput());
   planeWidget->PlaceWidget();
   planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
 

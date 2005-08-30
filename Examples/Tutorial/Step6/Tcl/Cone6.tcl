@@ -36,7 +36,7 @@ cone SetResolution 10
 # connect the output of the cone souece to the input of this mapper.
 #
 vtkPolyDataMapper coneMapper
-coneMapper SetInput [cone GetOutput]
+coneMapper SetInputConnection [cone GetOutputPort]
 
 # 
 # Create an actor to represent the cone. The actor orchestrates rendering of
@@ -102,7 +102,7 @@ boxWidget SetPlaceFactor 1.25
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
 #
-boxWidget SetInput [cone GetOutput]
+boxWidget SetInputConnection [cone GetOutputPort]
 boxWidget PlaceWidget
 boxWidget AddObserver InteractionEvent TransformActor
 

@@ -11,7 +11,7 @@ package require vtktesting
 vtkBYUReader cow
   cow SetGeometryFileName "$VTK_DATA_ROOT/Data/Viewpoint/cow.g"
 vtkPolyDataNormals cowNormals
-  cowNormals SetInput [cow GetOutput]
+  cowNormals SetInputConnection [cow GetOutputPort]
 
 # We clip with an implicit function. Here we use a plane positioned near
 # the center of the cow model and oriented at an arbitrary angle.
@@ -24,13 +24,13 @@ vtkPlane plane
 # can be used. Notice that we can specify the value of the implicit function
 # with the SetValue method.
 vtkClipPolyData clipper
-    clipper SetInput [cowNormals GetOutput]
+    clipper SetInputConnection [cowNormals GetOutputPort]
     clipper SetClipFunction plane
     clipper GenerateClipScalarsOn
     clipper GenerateClippedOutputOn
     clipper SetValue 0.5
 vtkPolyDataMapper clipMapper
-    clipMapper SetInput [clipper GetOutput]
+    clipMapper SetInputConnection [clipper GetOutputPort]
     clipMapper ScalarVisibilityOff
 vtkProperty backProp
     eval backProp SetDiffuseColor $tomato
@@ -49,12 +49,12 @@ vtkActor clipActor
 # polygons using the closed line segements that the stripper created.
 #
 vtkCutter cutEdges; #Generate cut lines
-  cutEdges SetInput [cowNormals GetOutput]
+  cutEdges SetInputConnection [cowNormals GetOutputPort]
   cutEdges SetCutFunction plane
   cutEdges GenerateCutScalarsOn
   cutEdges SetValue 0 0.5
 vtkStripper cutStrips; #Forms loops (closed polylines) from cutter
-  cutStrips SetInput [cutEdges GetOutput]
+  cutStrips SetInputConnection [cutEdges GetOutputPort]
   cutStrips Update
 vtkPolyData cutPoly; #This trick defines polygons as polyline loop
   cutPoly SetPoints [[cutStrips GetOutput] GetPoints]
@@ -66,7 +66,7 @@ vtkTriangleFilter cutTriangles
   cutTriangles SetInput cutPoly
 vtkPolyDataMapper cutMapper
   cutMapper SetInput cutPoly
-  cutMapper SetInput [cutTriangles GetOutput]
+  cutMapper SetInputConnection [cutTriangles GetOutputPort]
 vtkActor cutActor
   cutActor SetMapper cutMapper
   eval [cutActor GetProperty] SetColor $peacock

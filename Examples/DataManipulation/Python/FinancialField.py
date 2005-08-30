@@ -121,7 +121,7 @@ dos.SetExecuteMethod(parseFile)
 # DataObjectToDataSetFilter can create geometry using fields from
 # DataObject's FieldData
 do2ds = vtk.vtkDataObjectToDataSetFilter()
-do2ds.SetInput(dos.GetOutput())
+do2ds.SetInputConnection(dos.GetOutputPort())
 # We are generating polygonal data
 do2ds.SetDataSetTypeToPolyData()
 do2ds.DefaultNormalizeOn()
@@ -133,7 +133,7 @@ do2ds.SetPointComponent(2, zAxis, 0)
 # RearrangeFields is used to move fields between DataObject's
 # FieldData, PointData and CellData.
 rf = vtk.vtkRearrangeFields()
-rf.SetInput(do2ds.GetOutput())
+rf.SetInputConnection(do2ds.GetOutputPort())
 # Add an operation to "move TIME_LATE from DataObject's FieldData to
 # PointData"
 rf.AddOperation("MOVE", scalar, "DATA_OBJECT", "POINT_DATA")
@@ -147,7 +147,7 @@ max = rf.GetOutput().GetPointData().GetArray(scalar).GetRange()[1]
 
 # Use an ArrayCalculator to normalize TIME_LATE
 calc = vtk.vtkArrayCalculator()
-calc.SetInput(rf.GetOutput())
+calc.SetInputConnection(rf.GetOutputPort())
 # Working on point data
 calc.SetAttributeModeToUsePointData()
 # Map scalar to s. When setting function, we can use s to
@@ -160,24 +160,24 @@ calc.SetResultArrayName("resArray")
 
 # Use AssignAttribute to make resArray the active scalar field
 aa = vtk.vtkAssignAttribute()
-aa.SetInput(calc.GetOutput())
+aa.SetInputConnection(calc.GetOutputPort())
 aa.Assign("resArray", "SCALARS", "POINT_DATA")
 aa.Update()
 
 # construct pipeline for original population
 # GaussianSplatter -> Contour -> Mapper -> Actor
 popSplatter = vtk.vtkGaussianSplatter()
-popSplatter.SetInput(aa.GetOutput())
+popSplatter.SetInputConnection(aa.GetOutputPort())
 popSplatter.SetSampleDimensions(50, 50, 50)
 popSplatter.SetRadius(0.05)
 popSplatter.ScalarWarpingOff()
 
 popSurface = vtk.vtkContourFilter()
-popSurface.SetInput(popSplatter.GetOutput())
+popSurface.SetInputConnection(popSplatter.GetOutputPort())
 popSurface.SetValue(0, 0.01)
 
 popMapper = vtk.vtkPolyDataMapper()
-popMapper.SetInput(popSurface.GetOutput())
+popMapper.SetInputConnection(popSurface.GetOutputPort())
 popMapper.ScalarVisibilityOff()
 
 popActor = vtk.vtkActor()
@@ -197,12 +197,12 @@ def CreateAxes():
     axes.SetScaleFactor(popSplatter.GetOutput().GetLength()/5.0)
     
     axesTubes = vtk.vtkTubeFilter()
-    axesTubes.SetInput(axes.GetOutput())
+    axesTubes.SetInputConnection(axes.GetOutputPort())
     axesTubes.SetRadius(axes.GetScaleFactor()/25.0)
     axesTubes.SetNumberOfSides(6)
     
     axesMapper = vtk.vtkPolyDataMapper()
-    axesMapper.SetInput(axesTubes.GetOutput())
+    axesMapper.SetInputConnection(axesTubes.GetOutputPort())
 
     axesActor = vtk.vtkActor()
     axesActor.SetMapper(axesMapper)
@@ -212,7 +212,7 @@ def CreateAxes():
     XText.SetText(xAxis)
 
     XTextMapper = vtk.vtkPolyDataMapper()
-    XTextMapper.SetInput(XText.GetOutput())
+    XTextMapper.SetInputConnection(XText.GetOutputPort())
 
     XActor = vtk.vtkFollower()
     XActor.SetMapper(XTextMapper)
@@ -224,7 +224,7 @@ def CreateAxes():
     YText.SetText(yAxis)
     
     YTextMapper = vtk.vtkPolyDataMapper()
-    YTextMapper.SetInput(YText.GetOutput())
+    YTextMapper.SetInputConnection(YText.GetOutputPort())
     
     YActor = vtk.vtkFollower()
     YActor.SetMapper(YTextMapper)
@@ -236,7 +236,7 @@ def CreateAxes():
     ZText.SetText(zAxis)
     
     ZTextMapper = vtk.vtkPolyDataMapper()
-    ZTextMapper.SetInput(ZText.GetOutput())
+    ZTextMapper.SetInputConnection(ZText.GetOutputPort())
     
     ZActor = vtk.vtkFollower()
     ZActor.SetMapper(ZTextMapper)

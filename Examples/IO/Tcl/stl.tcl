@@ -14,7 +14,7 @@ vtkSTLReader sr
     sr SetFileName $VTK_DATA_ROOT/Data/42400-IDGH.stl
 
 vtkPolyDataMapper stlMapper
-    stlMapper SetInput [sr GetOutput]
+    stlMapper SetInputConnection [sr GetOutputPort]
 
 vtkLODActor stlActor
     stlActor SetMapper stlMapper

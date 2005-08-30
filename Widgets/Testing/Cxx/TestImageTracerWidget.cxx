@@ -386,7 +386,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
     shifter->SetShift(-1.0*range[0]);
     shifter->SetScale(255.0/(range[1]-range[0]));
     shifter->SetOutputScalarTypeToUnsignedChar();
-    shifter->SetInput(v16->GetOutput());
+    shifter->SetInputConnection(v16->GetOutputPort());
     shifter->ReleaseDataFlagOff();
     shifter->Update();
 
@@ -401,7 +401,7 @@ int TestImageTracerWidget( int argc, char *argv[] )
   vtkExtractVOI* extract = vtkExtractVOI::New();
     extract->SetVOI(imageActor1->GetDisplayExtent());
     extract->SetSampleRate(1, 1, 1);
-    extract->SetInput(shifter->GetOutput());
+    extract->SetInputConnection(shifter->GetOutputPort());
     extract->ReleaseDataFlagOff();
 
   vtkImageActor* imageActor2 = vtkImageActor::New();
@@ -456,10 +456,10 @@ int TestImageTracerWidget( int argc, char *argv[] )
     extrude->SetVector(1, 0, 0);
 
   vtkPolyDataToImageStencil* dataToStencil = vtkPolyDataToImageStencil::New();
-    dataToStencil->SetInput(extrude->GetOutput());
+    dataToStencil->SetInputConnection(extrude->GetOutputPort());
 
   vtkImageStencil* stencil = vtkImageStencil::New();
-    stencil->SetInput(extract->GetOutput());
+    stencil->SetInputConnection(extract->GetOutputPort());
     stencil->SetStencil(dataToStencil->GetOutput());
     stencil->ReverseStencilOff();
     stencil->SetBackgroundValue(128);

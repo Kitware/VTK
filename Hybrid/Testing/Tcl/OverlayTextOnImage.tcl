@@ -9,7 +9,7 @@ package require vtktesting
 vtkImageEllipsoidSource ellipse
 
 vtkImageMapper mapImage
-  mapImage SetInput [ellipse GetOutput]
+  mapImage SetInputConnection [ellipse GetOutputPort]
   mapImage SetColorWindow 255
   mapImage SetColorLevel 127.5
 

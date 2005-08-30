@@ -28,13 +28,13 @@ vtkLineSource rake
   rake SetPoint2 15 5 32
   rake SetResolution 21
 vtkPolyDataMapper rakeMapper
-  rakeMapper SetInput [rake GetOutput]
+  rakeMapper SetInputConnection [rake GetOutputPort]
 vtkActor rakeActor
   rakeActor SetMapper rakeMapper 
 
 vtkRungeKutta4 integ
 vtkStreamLine sl
-  sl SetInput [pl3d GetOutput]
+  sl SetInputConnection [pl3d GetOutputPort]
   sl SetSource [rake GetOutput] 
   sl SetIntegrator integ 
   sl SetMaximumPropagationTime 0.1 
@@ -48,14 +48,14 @@ vtkStreamLine sl
 # the filter generates (only when multiple lines are input).
 #
 vtkRuledSurfaceFilter scalarSurface
-  scalarSurface SetInput [sl GetOutput]
+  scalarSurface SetInputConnection [sl GetOutputPort]
   scalarSurface SetOffset 0 
   scalarSurface SetOnRatio 2 
   scalarSurface PassLinesOn
   scalarSurface SetRuledModeToPointWalk
   scalarSurface SetDistanceFactor 30 
 vtkPolyDataMapper mapper
-  mapper SetInput [scalarSurface GetOutput]
+  mapper SetInputConnection [scalarSurface GetOutputPort]
   eval mapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor actor
   actor SetMapper mapper 
@@ -63,9 +63,9 @@ vtkActor actor
 # Put an outline around for context.
 #
 vtkStructuredGridOutlineFilter outline
-  outline SetInput [pl3d GetOutput]
+  outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper 
   [outlineActor GetProperty] SetColor 0 0 0

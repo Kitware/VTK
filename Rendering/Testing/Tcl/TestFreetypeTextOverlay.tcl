@@ -28,7 +28,7 @@ plane SetPoint1 220 10 0
 plane SetPoint2 120 110 0
 
 vtkPolyDataMapper2D mapper
-mapper SetInput [plane GetOutput]
+mapper SetInputConnection [plane GetOutputPort]
 
 vtkActor2D actor
 actor SetMapper mapper

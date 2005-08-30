@@ -17,7 +17,7 @@ vtkPLOT3DReader pl3d
 # The plane widget is used probe the dataset.
 #
 vtkPlaneWidget planeWidget
-    planeWidget SetInput [pl3d GetOutput]
+    planeWidget SetInputConnection [pl3d GetOutputPort]
     planeWidget NormalToXAxisOn
     planeWidget SetResolution 20
     planeWidget SetRepresentationToOutline
@@ -30,7 +30,7 @@ vtkProbeFilter probe
     probe SetSource [pl3d GetOutput]
 
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [probe GetOutput]
+    contourMapper SetInputConnection [probe GetOutputPort]
     eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor contourActor
     contourActor SetMapper contourMapper
@@ -38,9 +38,9 @@ vtkActor contourActor
 
 # An outline is shown for context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

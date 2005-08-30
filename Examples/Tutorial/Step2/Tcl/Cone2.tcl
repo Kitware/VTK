@@ -32,7 +32,7 @@ cone SetRadius 1.0
 cone SetResolution 10
 
 vtkPolyDataMapper coneMapper
-coneMapper SetInput [cone GetOutput]
+coneMapper SetInputConnection [cone GetOutputPort]
 vtkActor coneActor
 coneActor SetMapper coneMapper
 

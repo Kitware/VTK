@@ -14,7 +14,7 @@ package require vtkinteraction
 vtkAxes axes
     axes SetOrigin 0 0 0
 vtkPolyDataMapper axesMapper
-    axesMapper SetInput [axes GetOutput]
+    axesMapper SetInputConnection [axes GetOutputPort]
 vtkActor axesActor
     axesActor SetMapper axesMapper
 
@@ -23,7 +23,7 @@ vtkActor axesActor
 vtkVectorText atext
     atext SetText "Origin"
 vtkPolyDataMapper textMapper
-    textMapper SetInput [atext GetOutput]
+    textMapper SetInputConnection [atext GetOutputPort]
 vtkFollower textActor
     textActor SetMapper textMapper
     textActor SetScale 0.2 0.2 0.2

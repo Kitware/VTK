@@ -471,7 +471,7 @@ int BoxWidget( int argc, char *argv[] )
   vtkSphereSource *sphere = vtkSphereSource::New();
     sphere->SetThetaResolution(8); sphere->SetPhiResolution(8);
   vtkGlyph3D *glyph = vtkGlyph3D::New();
-    glyph->SetInput(sphere->GetOutput());
+    glyph->SetInputConnection(sphere->GetOutputPort());
     glyph->SetSource(cone->GetOutput());
     glyph->SetVectorModeToUseNormal();
     glyph->SetScaleModeToScaleByVector();
@@ -482,7 +482,7 @@ int BoxWidget( int argc, char *argv[] )
     append->AddInput(sphere->GetOutput());
   
   vtkPolyDataMapper *maceMapper = vtkPolyDataMapper::New();
-    maceMapper->SetInput(append->GetOutput());
+    maceMapper->SetInputConnection(append->GetOutputPort());
 
   vtkActor *maceActor = vtkActor::New();
     maceActor->SetMapper(maceMapper);

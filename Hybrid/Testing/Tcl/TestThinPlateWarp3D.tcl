@@ -41,19 +41,19 @@ vtkThinPlateSplineTransform transform
   transform SetBasisToR
 
 vtkImageReslice reslice
-  reslice SetInput [reader GetOutput]
+  reslice SetInputConnection [reader GetOutputPort]
   reslice SetResliceTransform transform
   reslice SetInterpolationModeToLinear
   reslice SetOutputSpacing 1 1 1
 
 vtkImageCacheFilter cac
-  cac SetInput [reslice GetOutput]
+  cac SetInputConnection [reslice GetOutputPort]
   cac SetCacheSize 1000
 
-cac SetInput [reslice GetOutput]
+cac SetInputConnection [reslice GetOutputPort]
 
 vtkImageViewer viewer
-  viewer SetInput [cac GetOutput]
+  viewer SetInputConnection [cac GetOutputPort]
   viewer SetZSlice 90
   viewer SetColorWindow 2000
   viewer SetColorLevel 1000

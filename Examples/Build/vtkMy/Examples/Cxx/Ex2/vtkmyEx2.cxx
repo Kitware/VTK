@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   // to the input of this mapper 
   //
   vtkPolyDataMapper *coneMapper = vtkPolyDataMapper::New();
-  coneMapper->SetInput(cone->GetOutput());
+  coneMapper->SetInputConnection(cone->GetOutputPort());
 
   //
   // Create an actor to represent the cone. The actor coordinates rendering of

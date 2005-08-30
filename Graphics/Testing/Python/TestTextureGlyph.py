@@ -51,7 +51,7 @@ class TestTextureGlyph(Testing.vtkTest):
         g.SetSource(cs.GetOutput())
 
         m = vtk.vtkPolyDataMapper()
-        m.SetInput(g.GetOutput())
+        m.SetInputConnection(g.GetOutputPort())
         a = vtk.vtkActor()
         a.SetMapper(m)
 
@@ -61,7 +61,7 @@ class TestTextureGlyph(Testing.vtkTest):
         img_r = vtk.vtkBMPReader()
         img_r.SetFileName(img_file)
         t = vtk.vtkTexture()
-        t.SetInput(img_r.GetOutput())
+        t.SetInputConnection(img_r.GetOutputPort())
         t.InterpolateOn()
         a.SetTexture(t)
 

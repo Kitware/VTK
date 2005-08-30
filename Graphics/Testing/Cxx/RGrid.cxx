@@ -78,7 +78,7 @@ int RGrid( int argc, char *argv[] )
     plane->SetExtent(0,46, 16,16, 0,43);
 
   vtkPolyDataMapper *rgridMapper = vtkPolyDataMapper::New();
-      rgridMapper->SetInput(plane->GetOutput());
+      rgridMapper->SetInputConnection(plane->GetOutputPort());
 
   vtkActor *wireActor = vtkActor::New();
       wireActor->SetMapper(rgridMapper);

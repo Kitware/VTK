@@ -7,7 +7,7 @@ vtkTextSource text0Source
     text0Source SetText "Text Source with Scalars (default)"
 
 vtkPolyDataMapper text0Mapper
-    text0Mapper SetInput [text0Source GetOutput]
+    text0Mapper SetInputConnection [text0Source GetOutputPort]
 
 vtkActor text0Actor
     text0Actor SetMapper text0Mapper
@@ -20,7 +20,7 @@ vtkTextSource text1Source
     text1Source SetBackgroundColor 1 1 1
 
 vtkPolyDataMapper text1Mapper
-    text1Mapper SetInput [text1Source GetOutput]
+    text1Mapper SetInputConnection [text1Source GetOutputPort]
 
 vtkActor text1Actor
     text1Actor SetMapper text1Mapper
@@ -31,7 +31,7 @@ vtkTextSource text2Source
     text2Source BackingOff
 
 vtkPolyDataMapper text2Mapper
-    text2Mapper SetInput [text2Source GetOutput]
+    text2Mapper SetInputConnection [text2Source GetOutputPort]
     text2Mapper ScalarVisibilityOff
 
 vtkActor text2Actor
@@ -44,7 +44,7 @@ vtkVectorText text3Source
     text3Source SetText "Vector Text"
 
 vtkPolyDataMapper text3Mapper
-    text3Mapper SetInput [text3Source GetOutput]
+    text3Mapper SetInputConnection [text3Source GetOutputPort]
     text3Mapper ScalarVisibilityOff
 
 vtkActor text3Actor

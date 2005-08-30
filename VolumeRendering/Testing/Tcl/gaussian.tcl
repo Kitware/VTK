@@ -37,7 +37,7 @@ vtkOutlineFilter bounds
     bounds SetInput [reader GetGridOutput]
 
 vtkPolyDataMapper boundsMapper
-    boundsMapper SetInput [bounds GetOutput]
+    boundsMapper SetInputConnection [bounds GetOutputPort]
 
 vtkActor boundsActor
     boundsActor SetMapper boundsMapper
@@ -49,7 +49,7 @@ vtkContourFilter contour
 
 
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [contour GetOutput]
+    contourMapper SetInputConnection [contour GetOutputPort]
     eval contourMapper SetScalarRange 0 .1
    [contourMapper GetLookupTable] SetHueRange 0.32 0
 
@@ -81,7 +81,7 @@ vtkVolumeRayCastCompositeFunction  compositeFunction
 vtkVolumeRayCastMapper volumeMapper
 #vtkVolumeTextureMapper2D volumeMapper
     volumeMapper SetVolumeRayCastFunction compositeFunction
-    volumeMapper SetInput [readerSS GetOutput]
+    volumeMapper SetInputConnection [readerSS GetOutputPort]
 
 # The volume holds the mapper and the property and
 # can be used to position/orient the volume
@@ -106,7 +106,7 @@ vtkSphereSource Sphere
   Sphere SetEndPhi 180
 
 vtkGlyph3D Glyph
-  Glyph SetInput [reader GetOutput]
+  Glyph SetInputConnection [reader GetOutputPort]
   Glyph SetOrient 1
   Glyph SetColorMode 1
   #Glyph ScalingOn
@@ -115,7 +115,7 @@ vtkGlyph3D Glyph
   Glyph SetSource [Sphere GetOutput]
 
 vtkPolyDataMapper AtomsMapper
-  AtomsMapper SetInput [Glyph GetOutput]
+  AtomsMapper SetInputConnection [Glyph GetOutputPort]
   AtomsMapper SetImmediateModeRendering 1
   AtomsMapper UseLookupTableScalarRangeOff
   AtomsMapper SetScalarVisibility 1
@@ -133,7 +133,7 @@ vtkActor Atoms
   [Atoms GetProperty] SetColor 1 1 1
 
 vtkTubeFilter Tube
-  Tube SetInput [reader GetOutput]
+  Tube SetInputConnection [reader GetOutputPort]
   Tube SetNumberOfSides 16
   Tube SetCapping 0
   Tube SetRadius 0.2
@@ -141,7 +141,7 @@ vtkTubeFilter Tube
   Tube SetRadiusFactor 10
 
 vtkPolyDataMapper BondsMapper
-  BondsMapper SetInput [Tube GetOutput]
+  BondsMapper SetInputConnection [Tube GetOutputPort]
   BondsMapper SetImmediateModeRendering 1
   BondsMapper UseLookupTableScalarRangeOff
   BondsMapper SetScalarVisibility 1

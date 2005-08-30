@@ -14,7 +14,7 @@ package require vtkinteraction
 vtkBMPReader bmpReader
   bmpReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 vtkTexture atext
-  atext SetInput [bmpReader GetOutput]
+  atext SetInputConnection [bmpReader GetOutputPort]
   atext InterpolateOn
 
 # Create a plane source and actor. The vtkPlanesSource generates 
@@ -22,7 +22,7 @@ vtkTexture atext
 #
 vtkPlaneSource plane
 vtkPolyDataMapper  planeMapper
-  planeMapper SetInput [plane GetOutput]
+  planeMapper SetInputConnection [plane GetOutputPort]
 vtkActor planeActor
   planeActor SetMapper planeMapper
   planeActor SetTexture atext

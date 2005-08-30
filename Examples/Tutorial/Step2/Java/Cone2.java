@@ -46,7 +46,7 @@ public class Cone2 {
     cone.SetResolution( 10 );
   
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-    coneMapper.SetInput( cone.GetOutput() );
+    coneMapper.SetInputConnection( cone.GetOutputPort() );
     vtkActor coneActor = new vtkActor();
     coneActor.SetMapper( coneMapper );
 

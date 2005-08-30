@@ -19,10 +19,10 @@ vtkTransform transL1
     transL1 Scale 5 5 5
     transL1 RotateY 90
 vtkTransformPolyDataFilter tf
-    tf SetInput [line GetOutput]
+    tf SetInputConnection [line GetOutputPort]
     tf SetTransform transL1
 vtkProbeFilter probe
-    probe SetInput [tf GetOutput]
+    probe SetInputConnection [tf GetOutputPort]
     probe SetSource [pl3d GetOutput]
 
 vtkTransform transL2
@@ -30,10 +30,10 @@ vtkTransform transL2
     transL2 Scale 5 5 5
     transL2 RotateY 90
 vtkTransformPolyDataFilter tf2
-    tf2 SetInput [line GetOutput]
+    tf2 SetInputConnection [line GetOutputPort]
     tf2 SetTransform transL2
 vtkProbeFilter probe2
-    probe2 SetInput [tf2 GetOutput]
+    probe2 SetInputConnection [tf2 GetOutputPort]
     probe2 SetSource [pl3d GetOutput]
 
 vtkTransform transL3
@@ -41,10 +41,10 @@ vtkTransform transL3
     transL3 Scale 4.5 4.5 4.5
     transL3 RotateY 90
 vtkTransformPolyDataFilter tf3
-    tf3 SetInput [line GetOutput]
+    tf3 SetInputConnection [line GetOutputPort]
     tf3 SetTransform transL3
 vtkProbeFilter probe3
-    probe3 SetInput [tf3 GetOutput]
+    probe3 SetInputConnection [tf3 GetOutputPort]
     probe3 SetSource [pl3d GetOutput]
 
 vtkAppendPolyData appendF
@@ -52,10 +52,10 @@ vtkAppendPolyData appendF
     appendF AddInput [probe2 GetPolyDataOutput]
     appendF AddInput [probe3 GetPolyDataOutput]
 vtkTubeFilter tuber
-    tuber SetInput [appendF GetOutput]
+    tuber SetInputConnection [appendF GetOutputPort]
     tuber SetRadius 0.1
 vtkPolyDataMapper lineMapper
-    lineMapper SetInput [tuber GetOutput]
+    lineMapper SetInputConnection [tuber GetOutputPort]
 vtkActor lineActor
     lineActor SetMapper lineMapper
 
@@ -135,11 +135,11 @@ vtkXYPlotActor xyplot2
 
 #Okay exercise data object stuff
 vtkDataSetToDataObjectFilter ds2do
-    ds2do SetInput [probe GetOutput]
+    ds2do SetInputConnection [probe GetOutputPort]
 vtkDataSetToDataObjectFilter ds2do2
-    ds2do2 SetInput [probe GetOutput]
+    ds2do2 SetInputConnection [probe GetOutputPort]
 vtkDataSetToDataObjectFilter ds2do3
-    ds2do3 SetInput [probe GetOutput]
+    ds2do3 SetInputConnection [probe GetOutputPort]
 vtkXYPlotActor xyplot3
     xyplot3 AddDataObjectInput [ds2do GetOutput]
     xyplot3 SetDataObjectXComponent 0 2
@@ -179,9 +179,9 @@ vtkXYPlotActor xyplot3
 
 # draw an outline
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

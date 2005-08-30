@@ -36,13 +36,13 @@ vtkClipDataSet clipper
 # build tubes for the triangle edges
 #
 vtkExtractEdges tetEdges
-    tetEdges SetInput [clipper GetOutput]
+    tetEdges SetInputConnection [clipper GetOutputPort]
 vtkTubeFilter tetEdgeTubes
-    tetEdgeTubes SetInput [tetEdges GetOutput]
+    tetEdgeTubes SetInputConnection [tetEdges GetOutputPort]
     tetEdgeTubes SetRadius .005
     tetEdgeTubes SetNumberOfSides 6
 vtkPolyDataMapper tetEdgeMapper
-    tetEdgeMapper SetInput [tetEdgeTubes GetOutput]
+    tetEdgeMapper SetInputConnection [tetEdgeTubes GetOutputPort]
     tetEdgeMapper ScalarVisibilityOff
 vtkActor tetEdgeActor
     tetEdgeActor SetMapper tetEdgeMapper
@@ -53,10 +53,10 @@ vtkActor tetEdgeActor
 #shrink the triangles so we can see each one
 vtkShrinkFilter aShrinker
     aShrinker SetShrinkFactor 1
-    aShrinker SetInput [clipper GetOutput]
+    aShrinker SetInputConnection [clipper GetOutputPort]
 vtkDataSetMapper aMapper
     aMapper ScalarVisibilityOff
-    aMapper SetInput [aShrinker GetOutput]
+    aMapper SetInputConnection [aShrinker GetOutputPort]
 vtkActor Tets
     Tets SetMapper aMapper
     eval [Tets GetProperty] SetDiffuseColor $banana
@@ -65,11 +65,11 @@ vtkActor Tets
 vtkExtractEdges Edges
     Edges SetInput Grid
 vtkTubeFilter Tubes
-    Tubes SetInput [Edges GetOutput]
+    Tubes SetInputConnection [Edges GetOutputPort]
     Tubes SetRadius .01
     Tubes SetNumberOfSides 6
 vtkPolyDataMapper TubeMapper
-    TubeMapper SetInput [Tubes GetOutput]
+    TubeMapper SetInputConnection [Tubes GetOutputPort]
     TubeMapper ScalarVisibilityOff
 vtkActor CubeEdges
     CubeEdges SetMapper TubeMapper
@@ -87,10 +87,10 @@ vtkThresholdPoints ThresholdIn
     ThresholdIn SetInput Grid
     ThresholdIn ThresholdByUpper .5
 vtkGlyph3D Vertices
-    Vertices SetInput [ThresholdIn GetOutput]
+    Vertices SetInputConnection [ThresholdIn GetOutputPort]
     Vertices SetSource [Sphere GetOutput]
 vtkPolyDataMapper SphereMapper
-    SphereMapper SetInput [Vertices GetOutput]
+    SphereMapper SetInputConnection [Vertices GetOutputPort]
     SphereMapper ScalarVisibilityOff
 vtkActor CubeVertices
     CubeVertices SetMapper SphereMapper
@@ -108,10 +108,10 @@ vtkTransform aLabelTransform
 
 vtkTransformPolyDataFilter labelTransform
     labelTransform SetTransform aLabelTransform
-    labelTransform SetInput [caseLabel GetOutput]
+    labelTransform SetInputConnection [caseLabel GetOutputPort]
   
 vtkPolyDataMapper labelMapper
-    labelMapper SetInput [labelTransform GetOutput];
+    labelMapper SetInputConnection [labelTransform GetOutputPort];
  
 vtkActor labelActor
     labelActor SetMapper labelMapper
@@ -122,7 +122,7 @@ vtkCubeSource baseModel
     baseModel SetYLength .01
     baseModel SetZLength 1.5
 vtkPolyDataMapper baseMapper
-    baseMapper SetInput [baseModel GetOutput]
+    baseMapper SetInputConnection [baseModel GetOutputPort]
 vtkActor base
     base SetMapper baseMapper
 

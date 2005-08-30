@@ -123,7 +123,7 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetLookupTable(lut);
-  mapper->SetInput( geom->GetOutput() );
+  mapper->SetInputConnection( geom->GetOutputPort() );
   
   if(geom->GetOutput()->GetPointData()!=0)
     {
@@ -141,7 +141,7 @@ int TestGenericGeometryFilter(int argc, char* argv[])
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
-  writer->SetInput(geom->GetOutput());
+  writer->SetInputConnection(geom->GetOutputPort());
   writer->SetFileName("geometry.vtp");
   writer->SetDataModeToAscii();
   writer->Write();

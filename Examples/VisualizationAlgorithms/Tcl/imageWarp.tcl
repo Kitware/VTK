@@ -12,11 +12,11 @@ package require vtkinteraction
 vtkBMPReader reader
   reader SetFileName $VTK_DATA_ROOT/Data/masonry.bmp
 vtkImageLuminance luminance
-  luminance SetInput [reader GetOutput]
+  luminance SetInputConnection [reader GetOutputPort]
 vtkImageDataGeometryFilter geometry
-  geometry SetInput [luminance GetOutput]
+  geometry SetInputConnection [luminance GetOutputPort]
 vtkWarpScalar warp
-  warp SetInput [geometry GetOutput]
+  warp SetInputConnection [geometry GetOutputPort]
   warp SetScaleFactor -0.1
 
 # Use vtkMergeFilter to combine the original image with the warped geometry.
@@ -25,7 +25,7 @@ vtkMergeFilter merge
   merge SetGeometry [warp GetOutput]
   merge SetScalars  [reader GetOutput]
 vtkDataSetMapper mapper
-  mapper SetInput [merge GetOutput]
+  mapper SetInputConnection [merge GetOutputPort]
   mapper SetScalarRange 0 255
   mapper ImmediateModeRenderingOff
 vtkActor actor

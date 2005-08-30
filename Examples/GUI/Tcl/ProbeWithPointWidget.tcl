@@ -17,7 +17,7 @@ vtkPLOT3DReader pl3d
 # The plane widget is used probe the dataset.
 #
 vtkPointWidget pointWidget
-    pointWidget SetInput [pl3d GetOutput]
+    pointWidget SetInputConnection [pl3d GetOutputPort]
     pointWidget AllOff
     pointWidget PlaceWidget
 vtkPolyData point
@@ -31,22 +31,22 @@ vtkProbeFilter probe
 vtkConeSource cone
   cone SetResolution 16
 vtkGlyph3D glyph
-  glyph SetInput [probe GetOutput]
+  glyph SetInputConnection [probe GetOutputPort]
   glyph SetSource [cone GetOutput]
   glyph SetVectorModeToUseVector
   glyph SetScaleModeToDataScalingOff
   glyph SetScaleFactor [expr [[pl3d GetOutput] GetLength] * 0.1]
 vtkPolyDataMapper glyphMapper
-  glyphMapper SetInput [glyph GetOutput]
+  glyphMapper SetInputConnection [glyph GetOutputPort]
 vtkActor glyphActor
   glyphActor SetMapper glyphMapper
   glyphActor VisibilityOff
 
 # An outline is shown for context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

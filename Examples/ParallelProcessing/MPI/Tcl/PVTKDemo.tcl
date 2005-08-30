@@ -43,17 +43,17 @@ eval [source1 GetOutput] SetSpacing [expr 2.0/$EXTENT] \
 
 # Generate an isosurface
 vtkContourFilter cf
-cf SetInput [source1 GetOutput]
+cf SetInputConnection [source1 GetOutputPort]
 cf SetNumberOfContours 1
 cf SetValue 0 220
 
 vtkElevationFilter  elev
-elev SetInput [cf GetOutput]
+elev SetInputConnection [cf GetOutputPort]
 elev SetScalarRange $myId [expr $myId + 0.001]
 
 # Create the rendering part of the pipeline
 vtkPolyDataMapper mapper
-mapper SetInput [elev GetOutput]
+mapper SetInputConnection [elev GetOutputPort]
 mapper SetScalarRange 0 [expr [controller GetNumberOfProcesses]]
 vtkActor actor
 actor SetMapper mapper

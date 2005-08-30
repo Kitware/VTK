@@ -52,7 +52,7 @@ int main(int argc, char** argv)
   delete [] fname;
 
   vtkImageViewer* image_view = vtkImageViewer::New();
-  image_view->SetInput(reader->GetOutput());
+  image_view->SetInputConnection(reader->GetOutputPort());
 
   widget.SetRenderWindow(image_view->GetRenderWindow());
   image_view->SetupInteractor(widget.GetRenderWindow()->GetInteractor());

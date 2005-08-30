@@ -16,7 +16,7 @@ set hi [lindex [[demReader GetOutput] GetScalarRange] 1]
 
 # Decimate the terrain
 vtkGreedyTerrainDecimation deci
-  deci SetInput [demReader GetOutput]
+  deci SetInputConnection [demReader GetOutputPort]
   deci BoundaryVertexDeletionOn
 #  deci SetErrorMeasureToSpecifiedReduction
 #  deci SetReduction 0.95
@@ -28,13 +28,13 @@ vtkGreedyTerrainDecimation deci
 #  deci SetAbsoluteError 0.01
 
 vtkPolyDataNormals normals
-  normals SetInput [deci GetOutput]
+  normals SetInputConnection [deci GetOutputPort]
   normals SetFeatureAngle 60
   normals ConsistencyOn
   normals SplittingOff
 
 vtkPolyDataMapper demMapper
-  demMapper SetInput [normals GetOutput]
+  demMapper SetInputConnection [normals GetOutputPort]
   eval demMapper SetScalarRange $lo $hi
   demMapper SetLookupTable lut
 

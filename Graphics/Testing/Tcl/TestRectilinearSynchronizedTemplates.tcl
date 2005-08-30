@@ -8,14 +8,14 @@ rgridReader SetFileName "$VTK_DATA_ROOT/Data/RectGrid2.vtk"
 rgridReader Update
 
 vtkRectilinearSynchronizedTemplates contour
-contour SetInput [rgridReader GetOutput]
+contour SetInputConnection [rgridReader GetOutputPort]
 contour SetValue 0 1
 contour ComputeScalarsOff
 contour ComputeNormalsOn
 contour ComputeGradientsOn
 
 vtkPolyDataMapper cMapper
-cMapper SetInput [contour GetOutput]
+cMapper SetInputConnection [contour GetOutputPort]
 
 vtkActor cActor
 cActor SetMapper cMapper

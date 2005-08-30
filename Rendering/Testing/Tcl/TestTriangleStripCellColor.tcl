@@ -4,19 +4,19 @@ package require vtkinteraction
 vtkSphereSource sphere 
 
 vtkElevationFilter elevation
-elevation SetInput [sphere GetOutput]
+elevation SetInputConnection [sphere GetOutputPort]
 elevation SetLowPoint -1 0 0
 elevation SetHighPoint 1 0 0
 
 vtkPointDataToCellData p2c
-p2c SetInput [elevation GetOutput]
+p2c SetInputConnection [elevation GetOutputPort]
 
 vtkStripper stripper
-stripper SetInput [p2c GetOutput]
+stripper SetInputConnection [p2c GetOutputPort]
 stripper PassCellDataAsFieldDataOn
 
 vtkPolyDataMapper sphereMapper
-sphereMapper SetInput [stripper GetOutput]
+sphereMapper SetInputConnection [stripper GetOutputPort]
 sphereMapper SelectColorArray "Elevation"
 sphereMapper SetColorModeToMapScalars
 sphereMapper SetScalarModeToUseFieldData

@@ -20,7 +20,7 @@ vtkSTLReader part
 # are defined.
 #
 vtkPolyDataMapper partMapper
-    partMapper SetInput [part GetOutput]
+    partMapper SetInputConnection [part GetOutputPort]
 
 # The LOD actor is a special type of actor. It will change appearance in
 # order to render faster. At the highest resolution, it renders ewverything

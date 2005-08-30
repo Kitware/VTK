@@ -20,10 +20,10 @@ vtkPlane plane
     eval plane SetOrigin [[pl3d GetOutput] GetCenter]
     plane SetNormal -0.287 0 0.9579
 vtkCutter planeCut
-    planeCut SetInput [pl3d GetOutput]
+    planeCut SetInputConnection [pl3d GetOutputPort]
     planeCut SetCutFunction plane
 vtkPolyDataMapper cutMapper
-    cutMapper SetInput [planeCut GetOutput]
+    cutMapper SetInputConnection [planeCut GetOutputPort]
     eval cutMapper SetScalarRange \
       [[[[pl3d GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
@@ -32,10 +32,10 @@ vtkActor cutActor
 # Here we extract a computational plane from the structured grid.
 # We render it as wireframe.
 vtkStructuredGridGeometryFilter compPlane
-    compPlane SetInput [pl3d GetOutput]
+    compPlane SetInputConnection [pl3d GetOutputPort]
     compPlane SetExtent 0 100 0 100 9 9
 vtkPolyDataMapper planeMapper
-    planeMapper SetInput [compPlane GetOutput]
+    planeMapper SetInputConnection [compPlane GetOutputPort]
     planeMapper ScalarVisibilityOff
 vtkActor planeActor
     planeActor SetMapper planeMapper
@@ -44,9 +44,9 @@ vtkActor planeActor
 
 # The outline of the data puts the data in context.
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 set outlineProp [outlineActor GetProperty]

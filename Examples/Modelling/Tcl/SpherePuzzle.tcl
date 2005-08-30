@@ -74,7 +74,7 @@ pack .top.f2.l1 .top.f2.l2 .top.f2.l3 .top.f2.reset .top.f2.b1 \
 vtkSpherePuzzle puzzle
 
 vtkPolyDataMapper mapper
-   mapper SetInput [puzzle GetOutput]
+   mapper SetInputConnection [puzzle GetOutputPort]
 
 vtkActor actor
     actor SetMapper mapper
@@ -82,7 +82,7 @@ vtkActor actor
 vtkSpherePuzzleArrows arrows
 
 vtkPolyDataMapper mapper2
-   mapper2 SetInput [arrows GetOutput]
+   mapper2 SetInputConnection [arrows GetOutputPort]
 
 vtkActor actor2
     actor2 SetMapper mapper2

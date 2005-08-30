@@ -29,11 +29,11 @@ delny.BoundingTriangulationOff()
 
 # Shrink the result to help see it better.
 shrink = vtk.vtkShrinkFilter()
-shrink.SetInput(delny.GetOutput())
+shrink.SetInputConnection(delny.GetOutputPort())
 shrink.SetShrinkFactor(0.9)
 
 map = vtk.vtkDataSetMapper()
-map.SetInput(shrink.GetOutput())
+map.SetInputConnection(shrink.GetOutputPort())
 
 triangulation = vtk.vtkActor()
 triangulation.SetMapper(map)

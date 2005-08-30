@@ -21,19 +21,19 @@ vtkSampleFunction sample
 # actuality the VOI request causes the sample function to operate on just the
 # slice.)
 vtkExtractVOI extract
-  extract SetInput [sample GetOutput]
+  extract SetInputConnection [sample GetOutputPort]
   extract SetVOI 0 29 0 29 15 15
   extract SetSampleRate 1 2 3
 
 # The image is contoured to produce contour lines. Thirteen contour values
 # ranging from (0,1.2) inclusive are produced.
 vtkContourFilter contours
-  contours SetInput [extract GetOutput]
+  contours SetInputConnection [extract GetOutputPort]
   contours GenerateValues 13 0.0 1.2
 
 # The contour lines are mapped to the graphics library.
 vtkPolyDataMapper contMapper
-  contMapper SetInput [contours GetOutput]
+  contMapper SetInputConnection [contours GetOutputPort]
   contMapper SetScalarRange 0.0 1.2
 
 vtkActor contActor
@@ -41,10 +41,10 @@ vtkActor contActor
 
 # Create outline an outline of the sampled data.
 vtkOutlineFilter outline
-  outline SetInput [sample GetOutput]
+  outline SetInputConnection [sample GetOutputPort]
 
 vtkPolyDataMapper outlineMapper
-  outlineMapper SetInput [outline GetOutput]
+  outlineMapper SetInputConnection [outline GetOutputPort]
 
 vtkActor outlineActor
   outlineActor SetMapper outlineMapper

@@ -6,11 +6,11 @@ vtkPNGReader reader
     reader SetFileName "$VTK_DATA_ROOT/Data/vtk.png"
 
 vtkImageQuantizeRGBToIndex quant
-    quant SetInput [reader GetOutput]
+    quant SetInputConnection [reader GetOutputPort]
     quant SetNumberOfColors 32
 
 vtkImageToPolyDataFilter i2pd
-    i2pd SetInput [quant GetOutput]
+    i2pd SetInputConnection [quant GetOutputPort]
     i2pd SetLookupTable [quant GetLookupTable]
     i2pd SetColorModeToLUT
     i2pd SetOutputStyleToPolygonalize
@@ -21,10 +21,10 @@ vtkImageToPolyDataFilter i2pd
 
 #Need a triangle filter because the polygons are complex and concave
 vtkTriangleFilter tf
-    tf SetInput [i2pd GetOutput]
+    tf SetInputConnection [i2pd GetOutputPort]
 
 vtkPolyDataMapper mapper
-    mapper SetInput [tf GetOutput]
+    mapper SetInputConnection [tf GetOutputPort]
 
 vtkActor actor
     actor SetMapper mapper

@@ -12,11 +12,11 @@ vtkCamera camera
 vtkPolyDataReader bore
     bore SetFileName "$VTK_DATA_ROOT/Data/bore.vtk"
 vtkTubeFilter tuber
-    tuber SetInput [bore GetOutput]
+    tuber SetInputConnection [bore GetOutputPort]
     tuber SetNumberOfSides 6
     tuber SetRadius 15
 vtkPolyDataMapper mapBore
-    mapBore SetInput [tuber GetOutput]
+    mapBore SetInputConnection [tuber GetOutputPort]
     mapBore ScalarVisibilityOff
 vtkActor boreActor
     boreActor SetMapper mapBore
@@ -27,14 +27,14 @@ vtkActor boreActor
 vtkPolyDataReader track1
     track1 SetFileName "$VTK_DATA_ROOT/Data/track1.binary.vtk"
 vtkArcPlotter ap
-    ap SetInput [track1 GetOutput]
+    ap SetInputConnection [track1 GetOutputPort]
     ap SetCamera camera
     ap SetRadius 250.0
     ap SetHeight 200.0
     ap UseDefaultNormalOn
     ap SetDefaultNormal 1 1 0
 vtkPolyDataMapper mapArc
-    mapArc SetInput [ap GetOutput]
+    mapArc SetInputConnection [ap GetOutputPort]
 vtkActor arcActor
     arcActor SetMapper mapArc
     [arcActor GetProperty] SetColor 0 1 0
@@ -42,14 +42,14 @@ vtkActor arcActor
 vtkPolyDataReader track2
     track2 SetFileName "$VTK_DATA_ROOT/Data/track2.binary.vtk"
 vtkArcPlotter ap2
-    ap2 SetInput [track2 GetOutput]
+    ap2 SetInputConnection [track2 GetOutputPort]
     ap2 SetCamera camera
     ap2 SetRadius 450.0
     ap2 SetHeight 200.0
     ap2 UseDefaultNormalOn
     ap2 SetDefaultNormal 1 1 0
 vtkPolyDataMapper mapArc2
-    mapArc2 SetInput [ap2 GetOutput]
+    mapArc2 SetInputConnection [ap2 GetOutputPort]
 vtkActor arcActor2
     arcActor2 SetMapper mapArc2
     [arcActor2 GetProperty] SetColor 0 0 1
@@ -57,13 +57,13 @@ vtkActor arcActor2
 vtkPolyDataReader track3
     track3 SetFileName "$VTK_DATA_ROOT/Data/track3.binary.vtk"
 vtkArcPlotter ap3
-    ap3 SetInput [track3 GetOutput]
+    ap3 SetInputConnection [track3 GetOutputPort]
     ap3 SetCamera camera
     ap3 SetRadius 250.0
     ap3 SetHeight 50.0
     ap3 SetDefaultNormal 1 1 0
 vtkPolyDataMapper mapArc3
-    mapArc3 SetInput [ap3 GetOutput]
+    mapArc3 SetInputConnection [ap3 GetOutputPort]
 vtkActor arcActor3
     arcActor3 SetMapper mapArc3
     [arcActor3 GetProperty] SetColor 1 0 1

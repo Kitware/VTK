@@ -11,7 +11,7 @@ vtkRenderWindowInteractor iren
 
 vtkSphereSource sphere
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 

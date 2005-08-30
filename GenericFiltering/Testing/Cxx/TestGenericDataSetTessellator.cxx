@@ -165,7 +165,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   // for debugging clipping on the hexa
 #if 0
   vtkExtractGeometry *eg=vtkExtractGeometry::New();
-  eg->SetInput(tessellator->GetOutput());
+  eg->SetInputConnection(tessellator->GetOutputPort());
   
   vtkSphere *sphere=vtkSphere::New();
   sphere->SetRadius(0.1);
@@ -176,7 +176,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   eg->SetExtractBoundaryCells(0);
   
   vtkXMLUnstructuredGridWriter *cwriter=vtkXMLUnstructuredGridWriter::New();
-  cwriter->SetInput(eg->GetOutput());
+  cwriter->SetInputConnection(eg->GetOutputPort());
   cwriter->SetFileName("extracted_tessellated.vtu");
   cwriter->SetDataModeToAscii();
   cwriter->Write();
@@ -192,13 +192,13 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   
 #ifdef WITH_GEOMETRY_FILTER
   vtkGeometryFilter *geom = vtkGeometryFilter::New();
-  geom->SetInput(tessellator->GetOutput());
+  geom->SetInputConnection(tessellator->GetOutputPort());
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput( geom->GetOutput() );
+  mapper->SetInputConnection( geom->GetOutputPort() );
   geom->Delete();
 #else
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetInput( tessellator->GetOutput() );
+  mapper->SetInputConnection( tessellator->GetOutputPort() );
 #endif
   mapper->SetLookupTable(lut);
   if(tessellator->GetOutput()->GetPointData()!=0)
@@ -217,7 +217,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
-  writer->SetInput(tessellator->GetOutput());
+  writer->SetInputConnection(tessellator->GetOutputPort());
   writer->SetFileName("tessellated.vtu");
   writer->SetDataModeToAscii();
   writer->Write();
@@ -227,7 +227,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   vtkActor2D *actorLabel=vtkActor2D::New();
   vtkLabeledDataMapper *labeledDataMapper=vtkLabeledDataMapper::New();
   labeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-  labeledDataMapper->SetInput(tessellator->GetOutput());
+  labeledDataMapper->SetInputConnection(tessellator->GetOutputPort());
   actorLabel->SetMapper(labeledDataMapper);
   labeledDataMapper->Delete();
   renderer->AddActor(actorLabel);

@@ -57,7 +57,7 @@ vtkRenderLargeImage renderLarge
 # one another.
 #
 vtkTIFFWriter writer
-  writer SetInput [renderLarge GetOutput]
+  writer SetInputConnection [renderLarge GetOutputPort]
   writer SetFileName largeImage.tif
   writer Write
 

@@ -24,18 +24,18 @@ vtkPLOT3DReader pl3d
 # during the contouring process.
 #
 vtkContourFilter iso
-    iso SetInput [pl3d GetOutput]
+    iso SetInputConnection [pl3d GetOutputPort]
     iso SetValue 0 .24
 
 vtkPolyDataNormals normals
-    normals SetInput [iso GetOutput]
+    normals SetInputConnection [iso GetOutputPort]
     normals SetFeatureAngle 45
 
 # We indicate to the mapper to use the velcoity magnitude, which is a 
 # vtkDataArray that makes up part of the point attribute data.
 #
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOn
     isoMapper SetScalarRange 0 1500
     isoMapper SetScalarModeToUsePointFieldData
@@ -46,9 +46,9 @@ vtkLODActor isoActor
     isoActor SetNumberOfCloudPoints 1000
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 

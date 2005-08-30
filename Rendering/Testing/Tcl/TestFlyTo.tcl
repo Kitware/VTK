@@ -12,7 +12,7 @@ vtkRenderWindowInteractor iren
 #
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper
 eval [sphereActor GetProperty] SetDiffuseColor $banana
@@ -24,13 +24,13 @@ eval [sphereActor GetProperty] SetSpecularPower 20
 vtkConeSource cone
   cone SetResolution 20
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.25
 vtkPolyDataMapper spikeMapper
-    spikeMapper SetInput [glyph GetOutput]
+    spikeMapper SetInputConnection [glyph GetOutputPort]
 vtkLODActor spikeActor
     spikeActor SetMapper spikeMapper
 eval [spikeActor GetProperty] SetDiffuseColor $tomato

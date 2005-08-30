@@ -15,22 +15,22 @@ sphere SetCenter 102 102 0
 sphere SetRadius 60
 
 vtkTriangleFilter triangle
-triangle SetInput [sphere GetOutput]
+triangle SetInputConnection [sphere GetOutputPort]
 
 vtkStripper stripper
-stripper SetInput [triangle GetOutput]
+stripper SetInputConnection [triangle GetOutputPort]
 
 vtkPolyDataToImageStencil dataToStencil
-dataToStencil SetInput [stripper GetOutput]
+dataToStencil SetInputConnection [stripper GetOutputPort]
 
 vtkImageStencil stencil
-stencil SetInput [reader GetOutput]
+stencil SetInputConnection [reader GetOutputPort]
 stencil SetStencil [dataToStencil GetOutput]
 stencil ReverseStencilOn
 stencil SetBackgroundValue 500
 
 vtkImageViewer viewer
-viewer SetInput [stencil GetOutput]
+viewer SetInputConnection [stencil GetOutputPort]
 viewer SetZSlice 0
 viewer SetColorWindow 2000
 viewer SetColorLevel 1000

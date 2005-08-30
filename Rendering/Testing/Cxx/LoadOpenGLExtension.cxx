@@ -143,7 +143,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
   vtkConeSource *cone = vtkConeSource::New();
 
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(cone->GetOutput());
+  mapper->SetInputConnection(cone->GetOutputPort());
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);

@@ -28,17 +28,17 @@ vtkVolume16Reader v16
     v16 SetDataSpacing 3.2 3.2 1.5
 
 vtkMarchingCubes iso
-    iso SetInput [v16 GetOutput]
+    iso SetInputConnection [v16 GetOutputPort]
     iso SetValue 0 1150
     iso ComputeGradientsOn
     iso ComputeScalarsOff
     iso SetLocator locator
 
 vtkVectorNorm gradient
-  gradient SetInput [iso GetOutput]
+  gradient SetInputConnection [iso GetOutputPort]
 
 vtkDataSetMapper isoMapper
-    isoMapper SetInput [gradient GetOutput]
+    isoMapper SetInputConnection [gradient GetOutputPort]
     isoMapper ScalarVisibilityOn
     isoMapper SetScalarRange 0 1200
     isoMapper ImmediateModeRenderingOn
@@ -49,9 +49,9 @@ set isoProp [isoActor GetProperty]
 eval $isoProp SetColor $antique_white
 
 vtkOutlineFilter outline
-    outline SetInput [v16 GetOutput]
+    outline SetInputConnection [v16 GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 set outlineProp [outlineActor GetProperty]

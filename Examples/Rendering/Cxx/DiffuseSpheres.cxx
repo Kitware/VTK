@@ -38,7 +38,7 @@ int main()
   // are defined.
   //
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-  sphereMapper->SetInput(sphere->GetOutput());
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
 
   // The actor is a grouping mechanism: besides the geometry (mapper), it
   // also has a property, transformation matrix, and/or texture map.

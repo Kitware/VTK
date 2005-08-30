@@ -94,7 +94,7 @@ proc parseFile {} {
 
 # Create the dataset
 vtkDataObjectToDataSetFilter do2ds
-    do2ds SetInput [dos GetOutput]
+    do2ds SetInputConnection [dos GetOutputPort]
     do2ds SetDataSetTypeToPolyData
     #format: component#, arrayname, arraycomp, minArrayId, maxArrayId, normalize
     do2ds DefaultNormalizeOn
@@ -104,7 +104,7 @@ vtkDataObjectToDataSetFilter do2ds
     do2ds Update
 
 vtkRearrangeFields rf
-    rf SetInput [do2ds GetOutput]
+    rf SetInputConnection [do2ds GetOutputPort]
     rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
     rf RemoveOperation MOVE $scalar DATA_OBJECT POINT_DATA
     rf AddOperation MOVE $scalar DATA_OBJECT POINT_DATA
@@ -114,32 +114,32 @@ vtkRearrangeFields rf
     set max [lindex [[[[rf GetOutput] GetPointData] GetArray $scalar] GetRange 0] 1]
 
 vtkArrayCalculator calc
-    calc SetInput [rf GetOutput]
+    calc SetInputConnection [rf GetOutputPort]
     calc SetAttributeModeToUsePointData
     calc SetFunction "s / $max"
     calc AddScalarVariable s $scalar 0
     calc SetResultArrayName resArray
 
 vtkAssignAttribute aa
-    aa SetInput [calc GetOutput]
+    aa SetInputConnection [calc GetOutputPort]
     aa Assign resArray SCALARS POINT_DATA
     aa Update
 
 vtkRearrangeFields rf2
-    rf2 SetInput [aa GetOutput]
+    rf2 SetInputConnection [aa GetOutputPort]
     rf2 AddOperation COPY SCALARS POINT_DATA DATA_OBJECT
 
 # construct pipeline for original population
 vtkGaussianSplatter popSplatter
-    popSplatter SetInput [rf2 GetOutput]
+    popSplatter SetInputConnection [rf2 GetOutputPort]
     popSplatter SetSampleDimensions 50 50 50
     popSplatter SetRadius 0.05
     popSplatter ScalarWarpingOff
 vtkContourFilter popSurface
-    popSurface SetInput [popSplatter GetOutput]
+    popSurface SetInputConnection [popSplatter GetOutputPort]
     popSurface SetValue 0 0.01
 vtkPolyDataMapper popMapper
-    popMapper SetInput [popSurface GetOutput]
+    popMapper SetInputConnection [popSurface GetOutputPort]
     popMapper ScalarVisibilityOff
     popMapper ImmediateModeRenderingOn
 vtkActor popActor
@@ -149,15 +149,15 @@ vtkActor popActor
 
 # construct pipeline for delinquent population
 vtkGaussianSplatter lateSplatter
-    lateSplatter SetInput [aa GetOutput]
+    lateSplatter SetInputConnection [aa GetOutputPort]
     lateSplatter SetSampleDimensions 50 50 50
     lateSplatter SetRadius 0.05
     lateSplatter SetScaleFactor 0.05
 vtkContourFilter lateSurface
-    lateSurface SetInput [lateSplatter GetOutput]
+    lateSurface SetInputConnection [lateSplatter GetOutputPort]
     lateSurface SetValue 0 0.01
 vtkPolyDataMapper lateMapper
-    lateMapper SetInput [lateSurface GetOutput]
+    lateMapper SetInputConnection [lateSurface GetOutputPort]
     lateMapper ScalarVisibilityOff
 vtkActor lateActor
     lateActor SetMapper lateMapper
@@ -170,11 +170,11 @@ vtkAxes axes
     axes SetOrigin [lindex $bounds 0]  [lindex $bounds 2]  [lindex $bounds 4]
     axes SetScaleFactor [expr [[popSplatter GetOutput] GetLength]/5.0]
 vtkTubeFilter axesTubes
-    axesTubes SetInput [axes GetOutput]
+    axesTubes SetInputConnection [axes GetOutputPort]
     axesTubes SetRadius [expr [axes GetScaleFactor]/25.0]
     axesTubes SetNumberOfSides 6
 vtkPolyDataMapper axesMapper
-    axesMapper SetInput [axesTubes GetOutput]
+    axesMapper SetInputConnection [axesTubes GetOutputPort]
 vtkActor axesActor
     axesActor SetMapper axesMapper
 
@@ -182,7 +182,7 @@ vtkActor axesActor
 vtkVectorText XText
     XText SetText $xAxis
 vtkPolyDataMapper XTextMapper
-    XTextMapper SetInput [XText GetOutput]
+    XTextMapper SetInputConnection [XText GetOutputPort]
 vtkFollower XActor
     XActor SetMapper XTextMapper
     XActor SetScale 0.02 .02 .02
@@ -192,7 +192,7 @@ vtkFollower XActor
 vtkVectorText YText
     YText SetText $yAxis
 vtkPolyDataMapper YTextMapper
-    YTextMapper SetInput [YText GetOutput]
+    YTextMapper SetInputConnection [YText GetOutputPort]
 vtkFollower YActor
     YActor SetMapper YTextMapper
     YActor SetScale 0.02 .02 .02
@@ -202,7 +202,7 @@ vtkFollower YActor
 vtkVectorText ZText
     ZText SetText $zAxis
 vtkPolyDataMapper ZTextMapper
-    ZTextMapper SetInput [ZText GetOutput]
+    ZTextMapper SetInputConnection [ZText GetOutputPort]
 vtkFollower ZActor
     ZActor SetMapper ZTextMapper
     ZActor SetScale 0.02 .02 .02

@@ -33,21 +33,21 @@ union.SetOperationType(0) #union
 # extract those cells completely inside the function. They are then 
 # shrunk to help show what was extracted.
 extract = vtk.vtkExtractGeometry()
-extract.SetInput(sample.GetOutput())
+extract.SetInputConnection(sample.GetOutputPort())
 extract.SetImplicitFunction(union)
 shrink = vtk.vtkShrinkFilter()
-shrink.SetInput(extract.GetOutput())
+shrink.SetInputConnection(extract.GetOutputPort())
 shrink.SetShrinkFactor(0.5)
 dataMapper = vtk.vtkDataSetMapper()
-dataMapper.SetInput(shrink.GetOutput())
+dataMapper.SetInputConnection(shrink.GetOutputPort())
 dataActor = vtk.vtkActor()
 dataActor.SetMapper(dataMapper)
 
 # The outline gives context to the original data.
 outline = vtk.vtkOutlineFilter()
-outline.SetInput(sample.GetOutput())
+outline.SetInputConnection(sample.GetOutputPort())
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 outlineProp = outlineActor.GetProperty()

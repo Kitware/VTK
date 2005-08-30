@@ -10,7 +10,7 @@ package require vtkinteraction
 vtkSphereSource sphere
 vtkConeSource cone
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
@@ -22,7 +22,7 @@ vtkAppendPolyData apd
     apd AddInput [glyph GetOutput]
     apd AddInput [sphere GetOutput]
 vtkPolyDataMapper maceMapper
-    maceMapper SetInput [apd GetOutput]
+    maceMapper SetInputConnection [apd GetOutputPort]
 vtkLODActor maceActor
     maceActor SetMapper maceMapper
     maceActor VisibilityOn
@@ -31,11 +31,11 @@ vtkLODActor maceActor
 # The clipped region is colored green.
 vtkPlanes planes
 vtkClipPolyData clipper
-    clipper SetInput [apd GetOutput]
+    clipper SetInputConnection [apd GetOutputPort]
     clipper SetClipFunction planes
     clipper InsideOutOn
 vtkPolyDataMapper selectMapper
-    selectMapper SetInput [clipper GetOutput]
+    selectMapper SetInputConnection [clipper GetOutputPort]
 vtkLODActor selectActor
     selectActor SetMapper selectMapper
     [selectActor GetProperty] SetColor 0 1 0
@@ -69,7 +69,7 @@ renWin SetSize 300 300
 # Place the interactor initially. The input to a 3D widget is used to 
 # initially position and scale the widget. The EndInteractionEvent is
 # observed which invokes the SelectPolygons callback.
-boxWidget SetInput [glyph GetOutput]
+boxWidget SetInputConnection [glyph GetOutputPort]
 boxWidget PlaceWidget
 boxWidget AddObserver EndInteractionEvent SelectPolygons
 

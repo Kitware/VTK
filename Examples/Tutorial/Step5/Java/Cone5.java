@@ -42,7 +42,7 @@ public class Cone5 {
     // connect the output of the cone souece to the input of this mapper.
     //
     vtkPolyDataMapper coneMapper = new vtkPolyDataMapper();
-    coneMapper.SetInput(cone.GetOutput());
+    coneMapper.SetInputConnection(cone.GetOutputPort());
     
     // 
     // Create an actor to represent the cone. The actor orchestrates rendering of

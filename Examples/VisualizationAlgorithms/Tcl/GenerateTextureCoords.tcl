@@ -14,19 +14,19 @@ vtkPointSource sphere
 # of tetrahedron.
 #
 vtkDelaunay3D del
-  del SetInput [sphere GetOutput]
+  del SetInputConnection [sphere GetOutputPort]
   del SetTolerance 0.01
     
 # The triangulation has texture coordinates generated so we can map
 # a texture onto it.
 #
 vtkTextureMapToCylinder tmapper
-  tmapper SetInput [del GetOutput]
+  tmapper SetInputConnection [del GetOutputPort]
   tmapper PreventSeamOn
 
 # We scale the texture coordinate to get some repeat patterns.
 vtkTransformTextureCoords xform
-  xform SetInput [tmapper GetOutput]
+  xform SetInputConnection [tmapper GetOutputPort]
   xform SetScale 4 4 1
 
 # vtkDataSetMapper internally uses a vtkGeometryFilter to extract the
@@ -34,7 +34,7 @@ vtkTransformTextureCoords xform
 # then passed to an internal vtkPolyDataMapper which does the
 # rendering.
 vtkDataSetMapper mapper
-  mapper SetInput [xform GetOutput]
+  mapper SetInputConnection [xform GetOutputPort]
 
 # A texture is loaded using an image reader. Textures are simply images.
 # The texture is eventually associated with an actor.
@@ -42,7 +42,7 @@ vtkDataSetMapper mapper
 vtkBMPReader bmpReader
   bmpReader SetFileName "$VTK_DATA_ROOT/Data/masonry.bmp"
 vtkTexture atext
-  atext SetInput [bmpReader GetOutput]
+  atext SetInputConnection [bmpReader GetOutputPort]
   atext InterpolateOn
 vtkActor triangulation
   triangulation SetMapper mapper

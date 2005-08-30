@@ -20,13 +20,13 @@ scan [[reader GetOutput] GetWholeExtent] "%d %d %d %d %d %d" \
 
 set mag_factor 3
 vtkImageMagnify magnify
-  magnify SetInput [reader GetOutput]
+  magnify SetInputConnection [reader GetOutputPort]
   magnify SetMagnificationFactors $mag_factor $mag_factor 1
 
 # Create the image viewer
 
 vtkImageViewer viewer2
-  viewer2 SetInput [magnify GetOutput]
+  viewer2 SetInputConnection [magnify GetOutputPort]
   viewer2 SetZSlice 14
   viewer2 SetColorWindow 2000
   viewer2 SetColorLevel 1000

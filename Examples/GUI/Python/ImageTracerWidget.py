@@ -35,7 +35,7 @@ def AdjustSpline(evt, obj):
     npts = itw.GetNumberOfHandles()
     
     if npts < 2:
-        imageActor2.SetInput(extract.GetOutput())
+        imageActor2.SetInputConnection(extract.GetOutputPort())
         return
     
     closed = itw.GetIsClosed()
@@ -44,7 +44,7 @@ def AdjustSpline(evt, obj):
         isw.ClosedOn()
     else:
         isw.ClosedOff()
-        imageActor2.SetInput(extract.GetOutput())
+        imageActor2.SetInputConnection(extract.GetOutputPort())
 
     isw.SetNumberOfHandles(npts)
 
@@ -54,7 +54,7 @@ def AdjustSpline(evt, obj):
 
     if closed:
         isw.GetPolyData(spoly)
-        imageActor2.SetInput(stencil.GetOutput())
+        imageActor2.SetInputConnection(stencil.GetOutputPort())
         stencil.Update()
 
 def AdjustTracer(evt, obj):
@@ -69,7 +69,7 @@ def AdjustTracer(evt, obj):
 
     if closed:
         isw.GetPolyData(spoly)
-        imageActor2.SetInput(stencil.GetOutput())
+        imageActor2.SetInputConnection(stencil.GetOutputPort())
         stencil.Update()
 
     itw.InitializeHandles(points)
@@ -98,14 +98,14 @@ shifter = vtk.vtkImageShiftScale()
 shifter.SetShift(shift)
 shifter.SetScale(slope)
 shifter.SetOutputScalarTypeToUnsignedChar()
-shifter.SetInput(v16.GetOutput())
+shifter.SetInputConnection(v16.GetOutputPort())
 shifter.ReleaseDataFlagOff()
 shifter.Update()
 
 # Display a y-z plane.
 #
 imageActor = vtk.vtkImageActor()
-imageActor.SetInput(shifter.GetOutput())
+imageActor.SetInputConnection(shifter.GetOutputPort())
 imageActor.VisibilityOn()
 imageActor.SetDisplayExtent(31, 31, 0, 63, 0, 92)
 imageActor.InterpolateOff()
@@ -150,12 +150,12 @@ iren.SetRenderWindow(renWin)
 extract = vtk.vtkExtractVOI()
 extract.SetVOI(31, 31, 0, 63, 0, 92)
 extract.SetSampleRate(1, 1, 1)
-extract.SetInput(shifter.GetOutput())
+extract.SetInputConnection(shifter.GetOutputPort())
 extract.ReleaseDataFlagOff()
 #
 
 imageActor2 = vtk.vtkImageActor()
-imageActor2.SetInput(extract.GetOutput())
+imageActor2.SetInputConnection(extract.GetOutputPort())
 imageActor2.VisibilityOn()
 imageActor2.SetDisplayExtent(31, 31, 0, 63, 0, 92)
 imageActor2.InterpolateOff()
@@ -184,7 +184,7 @@ itw.ProjectToPlaneOn()
 itw.SetProjectionNormalToXAxes()
 itw.SetProjectionPosition(pos)
 itw.SetViewProp(imageActor)
-itw.SetInput(shifter.GetOutput())
+itw.SetInputConnection(shifter.GetOutputPort())
 itw.SetInteractor(iren)
 itw.PlaceWidget()
 
@@ -208,7 +208,7 @@ itw.AutoCloseOn()
 isw = vtk.vtkSplineWidget()
 isw.SetCurrentRenderer(ren2)
 isw.SetDefaultRenderer(ren2)
-isw.SetInput(extract.GetOutput())
+isw.SetInputConnection(extract.GetOutputPort())
 isw.SetInteractor(iren)
 bnds = imageActor2.GetBounds()
 isw.PlaceWidget(bnds[0], bnds[1], bnds[2], bnds[3], bnds[4], bnds[5])
@@ -245,11 +245,11 @@ extrude.SetVector(1, 0, 0)
 #
 
 dataToStencil = vtk.vtkPolyDataToImageStencil()
-dataToStencil.SetInput(extrude.GetOutput())
+dataToStencil.SetInputConnection(extrude.GetOutputPort())
 #
 
 stencil = vtk.vtkImageStencil()
-stencil.SetInput(extract.GetOutput())
+stencil.SetInputConnection(extract.GetOutputPort())
 stencil.SetStencil(dataToStencil.GetOutput())
 stencil.ReverseStencilOff()
 stencil.SetBackgroundValue(128)

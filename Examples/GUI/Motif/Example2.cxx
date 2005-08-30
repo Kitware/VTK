@@ -53,18 +53,18 @@ main (int argc, char *argv[])
   
   sphere = vtkSphereSource::New();
   sphereMapper = vtkPolyDataMapper::New();
-  sphereMapper->SetInput(sphere->GetOutput());
+  sphereMapper->SetInputConnection(sphere->GetOutputPort());
   sphereActor1 = vtkActor::New();
   sphereActor1->SetMapper(sphereMapper);
   cone = vtkConeSource::New();
   glyph = vtkGlyph3D::New();
-  glyph->SetInput(sphere->GetOutput());
+  glyph->SetInputConnection(sphere->GetOutputPort());
   glyph->SetSource(cone->GetOutput());
   glyph->SetVectorModeToUseNormal();
   glyph->SetScaleModeToScaleByVector();
   glyph->SetScaleFactor(0.25);
   spikeMapper = vtkPolyDataMapper::New();
-  spikeMapper->SetInput(glyph->GetOutput());
+  spikeMapper->SetInputConnection(glyph->GetOutputPort());
   spikeActor1 = vtkActor::New();
   spikeActor1->SetMapper(spikeMapper);
   ren1->AddActor(sphereActor1);

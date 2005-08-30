@@ -52,9 +52,9 @@ int main( int argc, char *argv[] )
   tfilter = vtkTriangleFilter::New();
   stripper = vtkStripper::New();
   
-  tfilter->SetInput(plane->GetOutput());
-  stripper->SetInput(tfilter->GetOutput());
-  mapper->SetInput(stripper->GetOutput());
+  tfilter->SetInputConnection(plane->GetOutputPort());
+  stripper->SetInputConnection(tfilter->GetOutputPort());
+  mapper->SetInputConnection(stripper->GetOutputPort());
   actor->SetMapper(mapper);
   ren1->AddActor(actor);
   

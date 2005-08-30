@@ -209,7 +209,7 @@ int volProt( int argc, char *argv[] )
   for ( i = 0; i < 48; i++ )
     {
     raycastMapper[i] = vtkVolumeRayCastMapper::New();
-    raycastMapper[i]->SetInput(reader->GetOutput());
+    raycastMapper[i]->SetInputConnection(reader->GetOutputPort());
     raycastMapper[i]->SetGradientEstimator(gradest);
     volume[i]->SetMapper( raycastMapper[i] );
 
@@ -248,7 +248,7 @@ int volProt( int argc, char *argv[] )
   for ( i = 0; i < 8; i++ )
     {
     textureMapper[i] = vtkVolumeTextureMapper2D::New();
-    textureMapper[i]->SetInput( reader->GetOutput() );    
+    textureMapper[i]->SetInputConnection( reader->GetOutputPort() );    
     volume[i+48]->SetMapper( textureMapper[i] );
     volume[i+48]->SetProperty( prop[i*2] );
     }

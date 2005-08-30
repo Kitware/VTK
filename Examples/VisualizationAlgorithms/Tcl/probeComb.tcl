@@ -23,12 +23,12 @@ vtkTransform transP1
     transP1 Scale 5 5 5
     transP1 RotateY 90
 vtkTransformPolyDataFilter tpd1
-    tpd1 SetInput [plane GetOutput]
+    tpd1 SetInputConnection [plane GetOutputPort]
     tpd1 SetTransform transP1
 vtkOutlineFilter outTpd1
-    outTpd1 SetInput [tpd1 GetOutput]
+    outTpd1 SetInputConnection [tpd1 GetOutputPort]
 vtkPolyDataMapper mapTpd1
-    mapTpd1 SetInput [outTpd1 GetOutput]
+    mapTpd1 SetInputConnection [outTpd1 GetOutputPort]
 vtkActor tpd1Actor
     tpd1Actor SetMapper mapTpd1
     [tpd1Actor GetProperty] SetColor 0 0 0
@@ -38,12 +38,12 @@ vtkTransform transP2
     transP2 Scale 5 5 5
     transP2 RotateY 90
 vtkTransformPolyDataFilter tpd2
-    tpd2 SetInput [plane GetOutput]
+    tpd2 SetInputConnection [plane GetOutputPort]
     tpd2 SetTransform transP2
 vtkOutlineFilter outTpd2
-    outTpd2 SetInput [tpd2 GetOutput]
+    outTpd2 SetInputConnection [tpd2 GetOutputPort]
 vtkPolyDataMapper mapTpd2
-    mapTpd2 SetInput [outTpd2 GetOutput]
+    mapTpd2 SetInputConnection [outTpd2 GetOutputPort]
 vtkActor tpd2Actor
     tpd2Actor SetMapper mapTpd2
     [tpd2Actor GetProperty] SetColor 0 0 0
@@ -53,12 +53,12 @@ vtkTransform transP3
     transP3 Scale 5 5 5
     transP3 RotateY 90
 vtkTransformPolyDataFilter tpd3
-    tpd3 SetInput [plane GetOutput]
+    tpd3 SetInputConnection [plane GetOutputPort]
     tpd3 SetTransform transP3
 vtkOutlineFilter outTpd3
-    outTpd3 SetInput [tpd3 GetOutput]
+    outTpd3 SetInputConnection [tpd3 GetOutputPort]
 vtkPolyDataMapper mapTpd3
-    mapTpd3 SetInput [outTpd3 GetOutput]
+    mapTpd3 SetInputConnection [outTpd3 GetOutputPort]
 vtkActor tpd3Actor
     tpd3Actor SetMapper mapTpd3
     [tpd3Actor GetProperty] SetColor 0 0 0
@@ -74,22 +74,22 @@ vtkAppendPolyData appendF
 # structure of the input. The probing process generates new data values 
 # resampled from the source.
 vtkProbeFilter probe
-    probe SetInput [appendF GetOutput]
+    probe SetInputConnection [appendF GetOutputPort]
     probe SetSource [pl3d GetOutput]
 
 vtkContourFilter contour
-    contour SetInput [probe GetOutput]
+    contour SetInputConnection [probe GetOutputPort]
     eval contour GenerateValues 50 [[pl3d GetOutput] GetScalarRange]
 vtkPolyDataMapper contourMapper
-    contourMapper SetInput [contour GetOutput]
+    contourMapper SetInputConnection [contour GetOutputPort]
     eval contourMapper SetScalarRange [[pl3d GetOutput] GetScalarRange]
 vtkActor planeActor
     planeActor SetMapper contourMapper
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
     [outlineActor GetProperty] SetColor 0 0 0

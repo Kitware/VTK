@@ -52,7 +52,7 @@ void SimpleView::fileOpen()
   // Mapper
   mapper = vtkPolyDataMapper::New();
   mapper->ImmediateModeRenderingOn();
-  mapper->SetInput(source->GetOutput());
+  mapper->SetInputConnection(source->GetOutputPort());
 
   // Actor in scene
   actor = vtkActor::New();

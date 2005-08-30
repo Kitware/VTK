@@ -18,10 +18,10 @@ package require vtktesting
 vtkPolyDataReader fran
     fran SetFileName "$VTK_DATA_ROOT/Data/fran_cut.vtk"
 vtkPolyDataNormals normals
-    normals SetInput [fran GetOutput]
+    normals SetInputConnection [fran GetOutputPort]
     normals FlipNormalsOn
 vtkPolyDataMapper franMapper
-    franMapper SetInput [normals GetOutput]
+    franMapper SetInputConnection [normals GetOutputPort]
 vtkActor franActor
     franActor SetMapper franMapper
    eval [franActor GetProperty] SetColor 1.0 0.49 0.25
@@ -32,7 +32,7 @@ vtkActor franActor
 # of every 10 points in the dataset.
 #
 vtkMaskPoints ptMask
-    ptMask SetInput [normals GetOutput]
+    ptMask SetInputConnection [normals GetOutputPort]
     ptMask SetOnRatio 10
     ptMask RandomModeOn
 
@@ -43,7 +43,7 @@ vtkConeSource cone
 vtkTransform transform
     transform Translate 0.5 0.0 0.0
 vtkTransformPolyDataFilter transformF
-    transformF SetInput [cone GetOutput]
+    transformF SetInputConnection [cone GetOutputPort]
     transformF SetTransform transform
 
 # vtkGlyph3D takes two inputs: the input point set (SetInput) which can be
@@ -51,13 +51,13 @@ vtkTransformPolyDataFilter transformF
 # We are interested in orienting the glyphs by the surface normals that
 # we previosuly generated.
 vtkGlyph3D glyph
-    glyph SetInput [ptMask GetOutput]
+    glyph SetInputConnection [ptMask GetOutputPort]
     glyph SetSource [transformF GetOutput]
     glyph SetVectorModeToUseNormal
     glyph SetScaleModeToScaleByVector
     glyph SetScaleFactor 0.004
 vtkPolyDataMapper spikeMapper
-    spikeMapper SetInput [glyph GetOutput]
+    spikeMapper SetInputConnection [glyph GetOutputPort]
 vtkActor spikeActor
     spikeActor SetMapper spikeMapper
     eval [spikeActor GetProperty] SetColor 0.0 0.79 0.34

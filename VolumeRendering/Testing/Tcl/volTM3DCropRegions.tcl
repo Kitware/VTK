@@ -40,7 +40,7 @@ renWin Render
 for { set i 0 } { $i < 2 } { incr i } {
     for { set j 0 } { $j < 4 } { incr j } {
        vtkVolumeTextureMapper3D volumeMapper_${i}_${j}
-       volumeMapper_${i}_${j} SetInput [reader GetOutput]
+       volumeMapper_${i}_${j} SetInputConnection [reader GetOutputPort]
        volumeMapper_${i}_${j} SetSampleDistance 0.25
        volumeMapper_${i}_${j} CroppingOn
        volumeMapper_${i}_${j} SetCroppingRegionPlanes 17 33 17 33 17 33

@@ -46,7 +46,7 @@ vtkBYUReader model_reader
   model_reader SetGeometryFileName "$VTK_DATA_ROOT/Data/[lindex $models 0]"
 
 vtkPolyDataNormals model_normals
-  model_normals SetInput [model_reader GetOutput]
+  model_normals SetInputConnection [model_reader GetOutputPort]
  
 #   
 # Create all texture coordinates generators/mappers and use the first one
@@ -55,7 +55,7 @@ vtkPolyDataNormals model_normals
 foreach texture_mapper_type $texture_mapper_types {
     set texture_mapper \
             [$texture_mapper_type [string tolower $texture_mapper_type]]
-    $texture_mapper SetInput [model_normals GetOutput]
+    $texture_mapper SetInputConnection [model_normals GetOutputPort]
 }
 
 #
@@ -70,7 +70,7 @@ vtkTransformTextureCoords transform_texture
 # Create polydata mapper.
 #
 vtkPolyDataMapper mapper
-  mapper SetInput [transform_texture GetOutput]
+  mapper SetInputConnection [transform_texture GetOutputPort]
 
 #
 # A texture is loaded using an image reader. 
@@ -83,7 +83,7 @@ vtkImageReader2Factory create_reader
   $texture_reader SetFileName $filename
 
 vtkTexture texture
-  texture SetInput [$texture_reader GetOutput]
+  texture SetInputConnection [$texture_reader GetOutputPort]
   texture InterpolateOn
 
 vtkActor actor
@@ -96,17 +96,17 @@ vtkActor actor
 # and actor.
 #
 vtkTriangleFilter triangle_filter
-  triangle_filter SetInput [model_normals GetOutput]
+  triangle_filter SetInputConnection [model_normals GetOutputPort]
  
 vtkFeatureEdges edges_extractor
-  edges_extractor SetInput [triangle_filter GetOutput]
+  edges_extractor SetInputConnection [triangle_filter GetOutputPort]
   edges_extractor ColoringOff
   edges_extractor BoundaryEdgesOn
   edges_extractor ManifoldEdgesOn
   edges_extractor NonManifoldEdgesOn
 
 vtkPolyDataMapper edges_mapper
-  edges_mapper SetInput [edges_extractor GetOutput]
+  edges_mapper SetInputConnection [edges_extractor GetOutputPort]
   edges_mapper SetResolveCoincidentTopologyToPolygonOffset
 
 vtkActor edges_actor
@@ -214,7 +214,7 @@ foreach texture $textures {
 proc load_texture {filename} {
     set texture_reader [create_reader CreateImageReader2 $filename]
     $texture_reader SetFileName $filename
-    texture SetInput [$texture_reader GetOutput]
+    texture SetInputConnection [$texture_reader GetOutputPort]
     renWin Render
 }
 

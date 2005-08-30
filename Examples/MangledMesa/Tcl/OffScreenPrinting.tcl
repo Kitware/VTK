@@ -29,10 +29,10 @@ vtkConeSource cone
 
 # OpenGL
 vtkPolyDataMapper map
-map SetInput [cone GetOutput]
+map SetInputConnection [cone GetOutputPort]
 # Mesa
 vtkMesaPolyDataMapper mmap
-mmap SetInput [cone GetOutput]
+mmap SetInputConnection [cone GetOutputPort]
 
 # OpenGL
 vtkActor actor
@@ -50,7 +50,7 @@ vtkWindowToImageFilter w2if
 w2if SetInput mrw
 
 vtkPNGWriter writer
-writer SetInput [w2if GetOutput]
+writer SetInputConnection [w2if GetOutputPort]
 writer SetFileName "MesaPrintout.png"
 
 set mesaCamera [mren GetActiveCamera]

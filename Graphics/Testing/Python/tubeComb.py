@@ -29,10 +29,10 @@ pl3d.SetVectorFunctionNumber( 202 )
 pl3d.Update()
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInput(pl3d.GetOutput())
+outline.SetInputConnection(pl3d.GetOutputPort())
 
 outlineMapper = vtk.vtkPolyDataMapper() 
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
@@ -46,7 +46,7 @@ integ = vtk.vtkRungeKutta4()
 
 sl = vtk.vtkStreamLine()
 sl.SetIntegrator(integ)
-sl.SetInput(pl3d.GetOutput())
+sl.SetInputConnection(pl3d.GetOutputPort())
 sl.SetSource(seeds.GetOutput())
 sl.SetMaximumPropagationTime(0.1)
 sl.SetIntegrationStepLength(0.1)
@@ -54,17 +54,17 @@ sl.SetIntegrationDirectionToBackward()
 sl.SetStepLength(0.001)
 
 tube = vtk.vtkTubeFilter()
-tube.SetInput(sl.GetOutput())
+tube.SetInputConnection(sl.GetOutputPort())
 tube.SetRadius(0.1)
 
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInput(tube.GetOutput())
+mapper.SetInputConnection(tube.GetOutputPort())
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 
 mmapper = vtk.vtkPolyDataMapper()
-mmapper.SetInput(seeds.GetOutput())
+mmapper.SetInputConnection(seeds.GetOutputPort())
 mactor = vtk.vtkActor()
 mactor.SetMapper(mmapper)
 ren.AddActor(mactor)

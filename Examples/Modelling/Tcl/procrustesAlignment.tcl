@@ -19,28 +19,28 @@ vtkTransform transform2
     transform2 Scale 1.0 0.1 1.8
 
 vtkTransformPolyDataFilter transformer1
-    transformer1 SetInput [sphere GetOutput]
+    transformer1 SetInputConnection [sphere GetOutputPort]
     transformer1 SetTransform transform1
 
 vtkTransformPolyDataFilter transformer2
-    transformer2 SetInput [sphere GetOutput]
+    transformer2 SetInputConnection [sphere GetOutputPort]
     transformer2 SetTransform transform2
 
 # map these three shapes into the first renderer
 vtkPolyDataMapper map1a
-    map1a SetInput [sphere GetOutput]
+    map1a SetInputConnection [sphere GetOutputPort]
 vtkActor Actor1a
     Actor1a SetMapper map1a
     [Actor1a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map1b
-    map1b SetInput [transformer1 GetOutput]
+    map1b SetInputConnection [transformer1 GetOutputPort]
 vtkActor Actor1b
     Actor1b SetMapper map1b
     [Actor1b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map1c
-    map1c SetInput [transformer2 GetOutput]
+    map1c SetInputConnection [transformer2 GetOutputPort]
 vtkActor Actor1c
     Actor1c SetMapper map1c
     [Actor1c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000 

@@ -27,21 +27,21 @@ vtkPLOT3DReader pl3d
     pl3d SetVectorFunctionNumber 202
     pl3d Update
 vtkContourFilter iso
-    iso SetInput [pl3d GetOutput]
+    iso SetInputConnection [pl3d GetOutputPort]
     iso SetValue 0 -100000
 
 vtkProbeFilter probe2
-  probe2 SetInput [iso GetOutput]
+  probe2 SetInputConnection [iso GetOutputPort]
   probe2 SetSource [pl3d2 GetOutput]
 
 vtkCastToConcrete cast2 
-  cast2 SetInput [probe2 GetOutput]
+  cast2 SetInputConnection [probe2 GetOutputPort]
 
 vtkPolyDataNormals normals
     normals SetInput [cast2 GetPolyDataOutput]
     normals SetFeatureAngle 45
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [normals GetOutput]
+    isoMapper SetInputConnection [normals GetOutputPort]
     isoMapper ScalarVisibilityOn
 eval isoMapper SetScalarRange [[[[pl3d2 GetOutput] GetPointData] GetScalars] GetRange]
 
@@ -50,9 +50,9 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetColor $bisque
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInput [pl3d GetOutput]
+    outline SetInputConnection [pl3d GetOutputPort]
 vtkPolyDataMapper outlineMapper
-    outlineMapper SetInput [outline GetOutput]
+    outlineMapper SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper outlineMapper
 
@@ -76,7 +76,7 @@ $cam1 SetViewUp -0.16123 0.264271 0.950876
 
 vtkPlaneSource aPlane
 vtkPolyDataMapper aPlaneMapper
-  aPlaneMapper SetInput [aPlane GetOutput]
+  aPlaneMapper SetInputConnection [aPlane GetOutputPort]
   aPlaneMapper ImmediateModeRenderingOn
 
 vtkActor screen
@@ -96,7 +96,7 @@ vtkRendererSource ren1Image
   ren1Image SetInput ren1
   ren1Image DepthValuesOn
 vtkTexture aTexture
-  aTexture SetInput [ren1Image GetOutput]
+  aTexture SetInputConnection [ren1Image GetOutputPort]
 
 screen SetTexture aTexture
 

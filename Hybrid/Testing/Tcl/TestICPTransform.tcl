@@ -57,7 +57,7 @@ for {set ridx 1} {$ridx <= 3} {incr ridx} {
 
         if {$ridx == 1 || $sidx == 1 || $ridx == $sidx} {
             vtkPolyDataMapper ren${ridx}s${sidx}m
-                ren${ridx}s${sidx}m SetInput [s${sidx} GetOutput]
+                ren${ridx}s${sidx}m SetInputConnection [s${sidx} GetOutputPort]
 
             vtkActor ren${ridx}s${sidx}a
                 ren${ridx}s${sidx}a SetMapper ren${ridx}s${sidx}m
@@ -71,7 +71,7 @@ for {set ridx 1} {$ridx <= 3} {incr ridx} {
                 $prop SetOpacity 0.2
 
                 vtkFeatureEdges ren${ridx}s${sidx}fe
-                    ren${ridx}s${sidx}fe SetInput [s${sidx} GetOutput]
+                    ren${ridx}s${sidx}fe SetInputConnection [s${sidx} GetOutputPort]
                     ren${ridx}s${sidx}fe BoundaryEdgesOn
                     ren${ridx}s${sidx}fe ColoringOff
                     ren${ridx}s${sidx}fe ManifoldEdgesOff

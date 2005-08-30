@@ -33,7 +33,7 @@ vtkSphereSource sphere
 # to the input of this mapper 
 #
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
 #
 # Create an actor to represent the sphere. The actor coordinates rendering of
 # the graphics primitives for a mapper. We set this actor's mapper to be
@@ -62,7 +62,7 @@ vtkConeSource cone
 # of cones lying on a sphere surface.
 #
 vtkGlyph3D glyph
-    glyph SetInput [sphere GetOutput]
+    glyph SetInputConnection [sphere GetOutputPort]
     glyph SetSource [cone GetOutput]
     glyph SetVectorModeToUseNormal 
     glyph SetScaleModeToScaleByVector 
@@ -74,7 +74,7 @@ vtkGlyph3D glyph
 # to the input of this mapper 
 #
 vtkPolyDataMapper spikeMapper
-    spikeMapper SetInput [glyph GetOutput]
+    spikeMapper SetInputConnection [glyph GetOutputPort]
 
 #
 # Create an actor to represent the glyphs. The actor coordinates rendering of

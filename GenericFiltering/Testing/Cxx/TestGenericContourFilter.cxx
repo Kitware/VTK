@@ -104,7 +104,7 @@ int TestGenericContourFilter(int argc, char* argv[])
   
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
   mapper->SetLookupTable(lut);
-  mapper->SetInput( contour->GetOutput() );
+  mapper->SetInputConnection( contour->GetOutputPort() );
   
   if(contour->GetOutput()->GetPointData()!=0)
     {

@@ -34,7 +34,7 @@ cone SetResolution 10
 # to the input of this mapper 
 #
 vtkPolyDataMapper coneMapper
-coneMapper SetInput [cone GetOutput]
+coneMapper SetInputConnection [cone GetOutputPort]
 
 #
 # Create an actor to represent the cone. The actor coordinates rendering of

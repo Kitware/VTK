@@ -41,7 +41,7 @@ void pipe2(vtkMultiProcessController* vtkNotUsed(controller),
 
   // Rendering objects
   vtkPolyDataMapper* mapper = vtkPolyDataMapper::New();
-  mapper->SetInput(cf->GetOutput());
+  mapper->SetInputConnection(cf->GetOutputPort());
 
   vtkActor* actor = vtkActor::New();
   actor->SetMapper(mapper);

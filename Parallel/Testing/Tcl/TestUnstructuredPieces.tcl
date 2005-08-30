@@ -13,23 +13,23 @@ pl3d SetQFileName "$VTK_DATA_ROOT/Data/combq.bin"
 pl3d SetScalarFunctionNumber 100
 
 vtkDataSetTriangleFilter dst
-dst SetInput [pl3d GetOutput]
+dst SetInputConnection [pl3d GetOutputPort]
 
 vtkExtractUnstructuredGridPiece extract
-extract SetInput [dst GetOutput]
+extract SetInputConnection [dst GetOutputPort]
 
 vtkContourFilter cf
-cf SetInput [extract GetOutput]
+cf SetInputConnection [extract GetOutputPort]
 cf SetValue 0 0.24
 
 vtkPolyDataNormals pdn
-pdn SetInput [cf GetOutput]
+pdn SetInputConnection [cf GetOutputPort]
 
 vtkPieceScalars ps
-ps SetInput [pdn GetOutput]
+ps SetInputConnection [pdn GetOutputPort]
 
 vtkPolyDataMapper mapper
-mapper SetInput [ps GetOutput]
+mapper SetInputConnection [ps GetOutputPort]
 mapper SetNumberOfPieces 3
 
 vtkActor actor

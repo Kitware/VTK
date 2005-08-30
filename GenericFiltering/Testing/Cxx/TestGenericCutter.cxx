@@ -114,7 +114,7 @@ int TestGenericCutter(int argc, char* argv[])
   
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
   mapper->SetLookupTable(lut);
-  mapper->SetInput( cutter->GetOutput() );
+  mapper->SetInputConnection( cutter->GetOutputPort() );
   
   if(cutter->GetOutput()->GetPointData()!=0)
     {

@@ -42,14 +42,14 @@ vtkActor2D rectActor
 # Create a sphere and its associated mapper and actor.
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 
 # Generate data arrays containing point and cell ids
 vtkIdFilter ids
-    ids SetInput [sphere GetOutput]
+    ids SetInputConnection [sphere GetOutputPort]
     ids PointIdsOn
     ids CellIdsOn
     ids FieldDataOn
@@ -59,7 +59,7 @@ vtkRenderer ren1
 
 # Create labels for points
 vtkSelectVisiblePoints visPts
-    visPts SetInput [ids GetOutput]
+    visPts SetInputConnection [ids GetOutputPort]
     visPts SetRenderer ren1
     visPts SelectionWindowOn
     visPts SetSelection $xmin [expr $xmin + $xLength] \
@@ -68,7 +68,7 @@ vtkSelectVisiblePoints visPts
 # Create the mapper to display the point ids.  Specify the
 # format to use for the labels.  Also create the associated actor.
 vtkLabeledDataMapper ldm
-    ldm SetInput [visPts GetOutput]
+    ldm SetInputConnection [visPts GetOutputPort]
     ldm SetLabelFormat "%g"
     ldm SetLabelModeToLabelFieldData
 vtkActor2D pointLabels
@@ -76,9 +76,9 @@ vtkActor2D pointLabels
 
 # Create labels for cells
 vtkCellCenters cc
-    cc SetInput [ids GetOutput]
+    cc SetInputConnection [ids GetOutputPort]
 vtkSelectVisiblePoints visCells
-    visCells SetInput [cc GetOutput]
+    visCells SetInputConnection [cc GetOutputPort]
     visCells SetRenderer ren1
     visCells SelectionWindowOn
     visCells SetSelection $xmin [expr $xmin + $xLength] \
@@ -86,7 +86,7 @@ vtkSelectVisiblePoints visCells
 # Create the mapper to display the cell ids.  Specify the
 # format to use for the labels.  Also create the associated actor.
 vtkLabeledDataMapper cellMapper
-    cellMapper SetInput [visCells GetOutput]
+    cellMapper SetInputConnection [visCells GetOutputPort]
     cellMapper SetLabelFormat "%g"
     cellMapper SetLabelModeToLabelFieldData
     [cellMapper GetLabelTextProperty] SetColor 0 1 0

@@ -21,22 +21,22 @@ set hi [expr $Scale * [lindex [dem GetElevationBounds] 1]]
 
 vtkImageShrink3D shrink
   shrink SetShrinkFactors 4 4 1
-  shrink SetInput [dem GetOutput]
+  shrink SetInputConnection [dem GetOutputPort]
   shrink AveragingOn
 
 vtkImageDataGeometryFilter geom
-  geom SetInput [shrink GetOutput]
+  geom SetInputConnection [shrink GetOutputPort]
   geom ReleaseDataFlagOn
 
 vtkWarpScalar warp
-  warp SetInput [geom GetOutput]
+  warp SetInputConnection [geom GetOutputPort]
   warp SetNormal 0 0 1
   warp UseNormalOn
   warp SetScaleFactor $Scale
   warp ReleaseDataFlagOn
 
 vtkElevationFilter elevation
-  elevation SetInput [warp GetOutput]
+  elevation SetInputConnection [warp GetOutputPort]
   elevation SetLowPoint 0 0 $lo
   elevation SetHighPoint 0 0 $hi
   eval elevation SetScalarRange $lo $hi
@@ -50,7 +50,7 @@ vtkPolyDataNormals normals
   normals ReleaseDataFlagOn
 
 vtkPolyDataMapper demMapper
-  demMapper SetInput [normals GetOutput]
+  demMapper SetInputConnection [normals GetOutputPort]
   eval demMapper SetScalarRange $lo $hi
   demMapper SetLookupTable lut
   demMapper ImmediateModeRenderingOn

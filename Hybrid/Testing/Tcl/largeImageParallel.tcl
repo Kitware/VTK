@@ -44,7 +44,7 @@ vtkRenderLargeImage renderLarge
   renderLarge Update
 
 vtkImageViewer viewer
-  viewer SetInput [renderLarge GetOutput]
+  viewer SetInputConnection [renderLarge GetOutputPort]
   viewer SetColorWindow 255
   viewer SetColorLevel 127.5
   viewer Render

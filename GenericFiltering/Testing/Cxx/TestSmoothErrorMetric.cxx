@@ -135,11 +135,11 @@ int TestSmoothErrorMetric(int argc, char* argv[])
   normalGenerator->SetComputeCellNormals(0);
   normalGenerator->SetFlipNormals(0);
   normalGenerator->SetNonManifoldTraversal(1);
-  normalGenerator->SetInput( geom->GetOutput() );
-  mapper->SetInput(normalGenerator->GetOutput() );
+  normalGenerator->SetInputConnection( geom->GetOutputPort() );
+  mapper->SetInputConnection(normalGenerator->GetOutputPort() );
   normalGenerator->Delete( );
 #else
-  mapper->SetInput( geom->GetOutput() );
+  mapper->SetInputConnection( geom->GetOutputPort() );
 #endif
   
   if(geom->GetOutput()->GetPointData()!=0)
@@ -158,7 +158,7 @@ int TestSmoothErrorMetric(int argc, char* argv[])
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLPolyDataWriter *writer=vtkXMLPolyDataWriter::New();
-  writer->SetInput(geom->GetOutput());
+  writer->SetInputConnection(geom->GetOutputPort());
   writer->SetFileName("geometry.vtp");
   writer->SetDataModeToAscii();
   writer->Write();

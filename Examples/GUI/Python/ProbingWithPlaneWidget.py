@@ -17,7 +17,7 @@ pl3d.Update()
 
 # The plane widget is used probe the dataset.
 planeWidget = vtk.vtkPlaneWidget()
-planeWidget.SetInput(pl3d.GetOutput())
+planeWidget.SetInputConnection(pl3d.GetOutputPort())
 planeWidget.NormalToXAxisOn()
 planeWidget.SetResolution(20)
 planeWidget.SetRepresentationToOutline()
@@ -30,7 +30,7 @@ probe.SetInput(plane)
 probe.SetSource(pl3d.GetOutput())
 
 contourMapper = vtk.vtkPolyDataMapper()
-contourMapper.SetInput(probe.GetOutput())
+contourMapper.SetInputConnection(probe.GetOutputPort())
 contourMapper.SetScalarRange(pl3d.GetOutput().GetScalarRange())
 contourActor = vtk.vtkActor()
 contourActor.SetMapper(contourMapper)
@@ -38,9 +38,9 @@ contourActor.VisibilityOff()
 
 # An outline is shown for context.
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInput(pl3d.GetOutput())
+outline.SetInputConnection(pl3d.GetOutputPort())
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 

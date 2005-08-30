@@ -11,7 +11,7 @@ reader SetDataScalarTypeToUnsignedShort
 reader Update
 
 vtkImageChangeInformation changeFilter
-changeFilter SetInput [reader GetOutput]
+changeFilter SetInputConnection [reader GetOutputPort]
 changeFilter SetOutputOrigin -63 -63 -46
 
 # Create transfer functions for opacity and color
@@ -32,7 +32,7 @@ vtkVolumeProperty volumeProperty
     volumeProperty SetScalarOpacity opacityTransferFunction
 
 vtkVolumeTextureMapper3D volumeMapper
-    volumeMapper SetInput [changeFilter GetOutput]
+    volumeMapper SetInputConnection [changeFilter GetOutputPort]
     volumeMapper SetSampleDistance 0.25
 
 vtkVolume volume
@@ -47,7 +47,7 @@ vtkSphereSource sphereSource
 
 # Compute random scalars (colors) for each cell
 vtkProgrammableAttributeDataFilter randomColors
-    randomColors SetInput [sphereSource GetOutput]
+    randomColors SetInputConnection [sphereSource GetOutputPort]
     randomColors SetExecuteMethod colorCells
 
 proc colorCells {} {

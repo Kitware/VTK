@@ -41,7 +41,7 @@ proc add_sphere {} {
     vtkSphereSource obj_source
 
     vtkPolyDataMapper obj_mapper
-    obj_mapper SetInput [obj_source GetOutput]
+    obj_mapper SetInputConnection [obj_source GetOutputPort]
 
     vtkActor obj_actor
     obj_actor SetMapper obj_mapper

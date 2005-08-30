@@ -35,19 +35,19 @@ proc changeLUT { { a 0 } { b 0 } } {
 }
 
 vtkImageMapToColors mapToRGBA
-mapToRGBA SetInput [reader GetOutput]
+mapToRGBA SetInputConnection [reader GetOutputPort]
 mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
 mapToRGBA AddObserver "EndEvent" changeLUT
 
 vtkMemoryLimitImageDataStreamer streamer
-streamer SetInput [mapToRGBA GetOutput]
+streamer SetInputConnection [mapToRGBA GetOutputPort]
 streamer SetMemoryLimit 100
 streamer UpdateWholeExtent
 
 # set the window/level to 255.0/127.5 to view full range
 vtkImageViewer viewer
-viewer SetInput [streamer GetOutput]
+viewer SetInputConnection [streamer GetOutputPort]
 viewer SetColorWindow 255.0
 viewer SetColorLevel 127.5
 viewer SetZSlice 50

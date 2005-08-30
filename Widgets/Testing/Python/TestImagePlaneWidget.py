@@ -64,7 +64,7 @@ class TestImagePlaneWidget(Testing.vtkTest):
         outline.SetInput(img_data)
 
         outlineMapper = vtk.vtkPolyDataMapper()
-        outlineMapper.SetInput(outline.GetOutput())
+        outlineMapper.SetInputConnection(outline.GetOutputPort())
 
         outlineActor = vtk.vtkActor()
         outlineActor.SetMapper(outlineMapper)

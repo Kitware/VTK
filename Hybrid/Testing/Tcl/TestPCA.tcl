@@ -23,30 +23,30 @@ vtkTransform transform2
     transform2 Scale 1.0 0.1 1.8
 
 vtkTransformPolyDataFilter transformer1
-    transformer1 SetInput [sphere GetOutput]
+    transformer1 SetInputConnection [sphere GetOutputPort]
     transformer1 SetTransform transform1
 
 vtkTransformPolyDataFilter transformer2
-    transformer2 SetInput [sphere GetOutput]
+    transformer2 SetInputConnection [sphere GetOutputPort]
     transformer2 SetTransform transform2
 
 #------------------------------------------------------------------
 # map these three shapes into the first renderer
 #------------------------------------------------------------------
 vtkPolyDataMapper map1a
-    map1a SetInput [sphere GetOutput]
+    map1a SetInputConnection [sphere GetOutputPort]
 vtkActor Actor1a
     Actor1a SetMapper map1a
     [Actor1a GetProperty] SetDiffuseColor 1.0000 0.3882 0.2784
 
 vtkPolyDataMapper map1b
-    map1b SetInput [transformer1 GetOutput]
+    map1b SetInputConnection [transformer1 GetOutputPort]
 vtkActor Actor1b
     Actor1b SetMapper map1b
     [Actor1b GetProperty] SetDiffuseColor 0.3882 1.0000 0.2784
 
 vtkPolyDataMapper map1c
-    map1c SetInput [transformer2 GetOutput]
+    map1c SetInputConnection [transformer2 GetOutputPort]
 vtkActor Actor1c
     Actor1c SetMapper map1c
     [Actor1c GetProperty] SetDiffuseColor 0.3882 0.2784 1.0000 
@@ -108,7 +108,7 @@ pca GetParameterisedShape params shapea
 vtkPolyDataNormals normalsa
   normalsa SetInput shapea
 vtkPolyDataMapper map3a
-    map3a SetInput [normalsa GetOutput]
+    map3a SetInputConnection [normalsa GetOutputPort]
 vtkActor Actor3a
     Actor3a SetMapper map3a
     [Actor3a GetProperty] SetDiffuseColor 1 1 1
@@ -120,7 +120,7 @@ pca GetParameterisedShape params shapeb
 vtkPolyDataNormals normalsb
   normalsb SetInput shapeb
 vtkPolyDataMapper map3b
-    map3b SetInput [normalsb GetOutput]
+    map3b SetInputConnection [normalsb GetOutputPort]
 vtkActor Actor3b
     Actor3b SetMapper map3b
     [Actor3b GetProperty] SetDiffuseColor 1 1 1
@@ -132,7 +132,7 @@ pca GetParameterisedShape params shapec
 vtkPolyDataNormals normalsc
   normalsc SetInput shapec
 vtkPolyDataMapper map3c
-    map3c SetInput [normalsc GetOutput]
+    map3c SetInputConnection [normalsc GetOutputPort]
 vtkActor Actor3c
     Actor3c SetMapper map3c
     [Actor3c GetProperty] SetDiffuseColor 1 1 1
@@ -151,7 +151,7 @@ pca GetParameterisedShape params4 shape4a
 vtkPolyDataNormals normals4a
   normals4a SetInput shape4a
 vtkPolyDataMapper map4a
-    map4a SetInput [normals4a GetOutput]
+    map4a SetInputConnection [normals4a GetOutputPort]
 vtkActor Actor4a
     Actor4a SetMapper map4a
     [Actor4a GetProperty] SetDiffuseColor 1 1 1
@@ -163,7 +163,7 @@ pca GetParameterisedShape params4 shape4b
 vtkPolyDataNormals normals4b
   normals4b SetInput shape4b
 vtkPolyDataMapper map4b
-    map4b SetInput [normals4b GetOutput]
+    map4b SetInputConnection [normals4b GetOutputPort]
 vtkActor Actor4b
     Actor4b SetMapper map4b
     [Actor4b GetProperty] SetDiffuseColor 1 1 1
@@ -175,7 +175,7 @@ pca GetParameterisedShape params4 shape4c
 vtkPolyDataNormals normals4c
   normals4c SetInput shape4c
 vtkPolyDataMapper map4c
-    map4c SetInput [normals4c GetOutput]
+    map4c SetInputConnection [normals4c GetOutputPort]
 vtkActor Actor4c
     Actor4c SetMapper map4c
     [Actor4c GetProperty] SetDiffuseColor 1 1 1
@@ -252,7 +252,7 @@ renWin Render
 #to_image SetInput renWin
 #vtkPNGWriter to_png
 #to_png SetFileName "TestPCA.png"
-#to_png SetInput [to_image GetOutput]
+#to_png SetInputConnection [to_image GetOutputPort]
 #to_png Write
 
 # prevent the tk window from showing up then start the event loop

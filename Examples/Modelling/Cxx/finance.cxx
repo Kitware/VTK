@@ -51,10 +51,10 @@ int main( int argc, char *argv[] )
     popSplatter->SetRadius(0.05);
     popSplatter->ScalarWarpingOff();
   vtkContourFilter *popSurface = vtkContourFilter::New();
-    popSurface->SetInput(popSplatter->GetOutput());
+    popSurface->SetInputConnection(popSplatter->GetOutputPort());
     popSurface->SetValue(0,0.01);
   vtkPolyDataMapper *popMapper = vtkPolyDataMapper::New();
-    popMapper->SetInput(popSurface->GetOutput());
+    popMapper->SetInputConnection(popSurface->GetOutputPort());
     popMapper->ScalarVisibilityOff();
   vtkActor *popActor = vtkActor::New();
     popActor->SetMapper(popMapper);
@@ -68,10 +68,10 @@ int main( int argc, char *argv[] )
     lateSplatter->SetRadius(0.05);
     lateSplatter->SetScaleFactor(0.005);
   vtkContourFilter *lateSurface = vtkContourFilter::New();
-    lateSurface->SetInput(lateSplatter->GetOutput());
+    lateSurface->SetInputConnection(lateSplatter->GetOutputPort());
     lateSurface->SetValue(0,0.01);
   vtkPolyDataMapper *lateMapper = vtkPolyDataMapper::New();
-    lateMapper->SetInput(lateSurface->GetOutput());
+    lateMapper->SetInputConnection(lateSurface->GetOutputPort());
     lateMapper->ScalarVisibilityOff();
   vtkActor *lateActor = vtkActor::New();
     lateActor->SetMapper(lateMapper);
@@ -84,11 +84,11 @@ int main( int argc, char *argv[] )
     axes->SetOrigin(bounds[0], bounds[2], bounds[4]);
     axes->SetScaleFactor(popSplatter->GetOutput()->GetLength()/5);
   vtkTubeFilter *axesTubes = vtkTubeFilter::New();
-    axesTubes->SetInput(axes->GetOutput());
+    axesTubes->SetInputConnection(axes->GetOutputPort());
     axesTubes->SetRadius(axes->GetScaleFactor()/25.0);
     axesTubes->SetNumberOfSides(6);
   vtkPolyDataMapper *axesMapper = vtkPolyDataMapper::New();
-    axesMapper->SetInput(axesTubes->GetOutput());
+    axesMapper->SetInputConnection(axesTubes->GetOutputPort());
   vtkActor *axesActor = vtkActor::New();
     axesActor->SetMapper(axesMapper);
 

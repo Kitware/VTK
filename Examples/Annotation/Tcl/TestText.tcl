@@ -11,7 +11,7 @@ package require vtkinteraction
 vtkSphereSource sphere
 
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkLODActor sphereActor
     sphereActor SetMapper sphereMapper

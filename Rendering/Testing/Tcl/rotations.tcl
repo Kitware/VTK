@@ -15,7 +15,7 @@ vtkBYUReader cow
   cow SetGeometryFileName "$VTK_DATA_ROOT/Data/Viewpoint/cow.g"
 
 vtkPolyDataMapper cowMapper
-    cowMapper SetInput [cow GetOutput]
+    cowMapper SetInputConnection [cow GetOutputPort]
 vtkActor cowActor
     cowActor SetMapper cowMapper
     [cowActor GetProperty] SetDiffuseColor 0.9608 0.8706 0.7020
@@ -25,7 +25,7 @@ vtkAxes cowAxesSource
   cowAxesSource SetOrigin 0 0 0
 
 vtkPolyDataMapper cowAxesMapper
-  cowAxesMapper SetInput [cowAxesSource GetOutput]
+  cowAxesMapper SetInputConnection [cowAxesSource GetOutputPort]
  
 vtkActor cowAxes
   cowAxes SetMapper cowAxesMapper

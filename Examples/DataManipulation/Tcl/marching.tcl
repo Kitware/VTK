@@ -54,17 +54,17 @@ vtkContourFilter Marching
 
 # Extract the edges of the triangles just found.
 vtkExtractEdges triangleEdges
-	triangleEdges SetInput [Marching GetOutput]
+	triangleEdges SetInputConnection [Marching GetOutputPort]
 # Draw the edges as tubes instead of lines.  Also create the associated
 # mapper and actor to display the tubes.
 vtkTubeFilter triangleEdgeTubes
-	triangleEdgeTubes SetInput [triangleEdges GetOutput]
+	triangleEdgeTubes SetInputConnection [triangleEdges GetOutputPort]
 	triangleEdgeTubes SetRadius .005
 	triangleEdgeTubes SetNumberOfSides 6
 	triangleEdgeTubes UseDefaultNormalOn
 	triangleEdgeTubes SetDefaultNormal .577 .577 .577
 vtkPolyDataMapper triangleEdgeMapper
-	triangleEdgeMapper SetInput [triangleEdgeTubes GetOutput]
+	triangleEdgeMapper SetInputConnection [triangleEdgeTubes GetOutputPort]
 	triangleEdgeMapper ScalarVisibilityOff
 vtkActor triangleEdgeActor
 	triangleEdgeActor SetMapper triangleEdgeMapper
@@ -76,10 +76,10 @@ vtkActor triangleEdgeActor
 # and actor.  Set the opacity of the shrunken triangles.
 vtkShrinkPolyData aShrinker
 	aShrinker SetShrinkFactor 1
-	aShrinker SetInput [Marching GetOutput]
+	aShrinker SetInputConnection [Marching GetOutputPort]
 vtkPolyDataMapper aMapper
 	aMapper ScalarVisibilityOff
-	aMapper SetInput [aShrinker GetOutput]
+	aMapper SetInputConnection [aShrinker GetOutputPort]
 vtkActor Triangles
 	Triangles SetMapper aMapper
 	eval [Triangles GetProperty] SetDiffuseColor $banana
@@ -92,16 +92,16 @@ vtkActor Triangles
 vtkCubeSource CubeModel
 	CubeModel SetCenter .5 .5 .5
 vtkExtractEdges Edges
-	Edges SetInput [CubeModel GetOutput]
+	Edges SetInputConnection [CubeModel GetOutputPort]
 vtkTubeFilter Tubes
-	Tubes SetInput [Edges GetOutput]
+	Tubes SetInputConnection [Edges GetOutputPort]
 	Tubes SetRadius .01
 	Tubes SetNumberOfSides 6
 	Tubes UseDefaultNormalOn
 	Tubes SetDefaultNormal .577 .577 .577
 # Create the mapper and actor to display the cube edges.
 vtkPolyDataMapper TubeMapper
-	TubeMapper SetInput [Tubes GetOutput]
+	TubeMapper SetInputConnection [Tubes GetOutputPort]
 vtkActor CubeEdges
 	CubeEdges SetMapper TubeMapper
 	eval [CubeEdges GetProperty] SetDiffuseColor $khaki
@@ -120,11 +120,11 @@ vtkThresholdPoints ThresholdIn
 # Display spheres at the vertices remaining in the cube data set after
 # it was passed through vtkThresholdPoints.
 vtkGlyph3D Vertices
-  Vertices SetInput [ThresholdIn GetOutput]
+  Vertices SetInputConnection [ThresholdIn GetOutputPort]
   Vertices SetSource [Sphere GetOutput]
 # Create a mapper and actor to display the glyphs.
 vtkPolyDataMapper SphereMapper
-  SphereMapper SetInput [Vertices GetOutput]
+  SphereMapper SetInputConnection [Vertices GetOutputPort]
   SphereMapper ScalarVisibilityOff
 vtkActor CubeVertices
   CubeVertices SetMapper SphereMapper
@@ -144,11 +144,11 @@ vtkTransform aLabelTransform
 # Move the label to a new position.
 vtkTransformPolyDataFilter labelTransform
   labelTransform SetTransform aLabelTransform
-  labelTransform SetInput [caseLabel GetOutput]
+  labelTransform SetInputConnection [caseLabel GetOutputPort]
   
 # Create a mapper and actor to display the text.
 vtkPolyDataMapper labelMapper
-  labelMapper SetInput [labelTransform GetOutput];
+  labelMapper SetInputConnection [labelTransform GetOutputPort];
  
 vtkActor labelActor
   labelActor SetMapper labelMapper
@@ -160,7 +160,7 @@ vtkCubeSource baseModel
   baseModel SetYLength .01
   baseModel SetZLength 1.5
 vtkPolyDataMapper baseMapper
-  baseMapper SetInput [baseModel GetOutput]
+  baseMapper SetInputConnection [baseModel GetOutputPort]
 vtkActor base
   base SetMapper baseMapper
   base SetPosition .5 -.09 .5

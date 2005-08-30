@@ -38,7 +38,7 @@ volumeProperty.SetScalarOpacity(opacityTransferFunction)
 
 # The mapper knows how to render the data
 volumeMapper = vtk.vtkVolumeTextureMapper2D()
-volumeMapper.SetInput(reader.GetOutput())
+volumeMapper.SetInputConnection(reader.GetOutputPort())
 
 # The volume holds the mapper and the property and can be used to
 # position/orient the volume

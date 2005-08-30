@@ -25,17 +25,17 @@ pl3d.DebugOn()
 # above to generate the contour surface; all other data is
 # interpolated during the contouring process.
 iso = vtk.vtkContourFilter()
-iso.SetInput(pl3d.GetOutput())
+iso.SetInputConnection(pl3d.GetOutputPort())
 iso.SetValue(0, .24)
 
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(iso.GetOutput())
+normals.SetInputConnection(iso.GetOutputPort())
 normals.SetFeatureAngle(45)
 
 # We indicate to the mapper to use the velcoity magnitude, which is a
 # vtkDataArray that makes up part of the point attribute data.
 isoMapper = vtk.vtkPolyDataMapper()
-isoMapper.SetInput(normals.GetOutput())
+isoMapper.SetInputConnection(normals.GetOutputPort())
 isoMapper.ScalarVisibilityOn()
 isoMapper.SetScalarRange(0, 1500)
 isoMapper.SetScalarModeToUsePointFieldData()
@@ -46,9 +46,9 @@ isoActor.SetMapper(isoMapper)
 isoActor.SetNumberOfCloudPoints(1000)
 
 outline = vtk.vtkStructuredGridOutlineFilter()
-outline.SetInput(pl3d.GetOutput())
+outline.SetInputConnection(pl3d.GetOutputPort())
 outlineMapper = vtk.vtkPolyDataMapper()
-outlineMapper.SetInput(outline.GetOutput())
+outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtk.vtkActor()
 outlineActor.SetMapper(outlineMapper)
 

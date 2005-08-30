@@ -31,7 +31,7 @@ proc colorCells {} {
 
 # Compute random scalars (colors) for each cell
 vtkProgrammableAttributeDataFilter randomColors
-    randomColors SetInput [sphere GetOutput]
+    randomColors SetInputConnection [sphere GetOutputPort]
     randomColors SetExecuteMethod colorCells
 
 # mapper and actor

@@ -52,7 +52,7 @@ vtkVolumeProperty volumeProperty
 vtkVolumeRayCastCompositeFunction  compositeFunction
 
 vtkVolumeRayCastMapper volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInputConnection [reader GetOutputPort]
     volumeMapper SetVolumeRayCastFunction compositeFunction
 
 vtkVolume volume
@@ -67,7 +67,7 @@ vtkSphereSource sphereSource
     sphereSource SetPhiResolution 15
 
 vtkPolyDataMapper sphereMapper
-    sphereMapper SetInput [sphereSource GetOutput]
+    sphereMapper SetInputConnection [sphereSource GetOutputPort]
 
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper

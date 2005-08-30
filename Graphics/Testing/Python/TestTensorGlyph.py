@@ -16,24 +16,24 @@ class SimpleGlyph:
         sg.SetRadius(0.5)
         sg.SetCenter(0.5, 0.0, 0.0)
         g = self.glyph = vtk.vtkTensorGlyph()        
-        g.SetInput(self.reader.GetOutput())
+        g.SetInputConnection(self.reader.GetOutputPort())
         g.SetSource(self.src_glyph.GetOutput())
         g.SetScaleFactor(0.25)
         
         # The normals are needed to generate the right colors and if
         # not used some of the glyphs are black.        
         self.normals = vtk.vtkPolyDataNormals()
-        self.normals.SetInput(g.GetOutput())
+        self.normals.SetInputConnection(g.GetOutputPort())
         self.map = vtk.vtkPolyDataMapper()
-        self.map.SetInput(self.normals.GetOutput())        
+        self.map.SetInputConnection(self.normals.GetOutputPort())        
         self.act = vtk.vtkActor()
         self.act.SetMapper(self.map)
 
         # An outline.
         self.of = vtk.vtkOutlineFilter()
-        self.of.SetInput(self.reader.GetOutput())
+        self.of.SetInputConnection(self.reader.GetOutputPort())
         self.out_map = vtk.vtkPolyDataMapper()
-        self.out_map.SetInput(self.of.GetOutput())
+        self.out_map.SetInputConnection(self.of.GetOutputPort())
         self.out_act = vtk.vtkActor()
         self.out_act.SetMapper(self.out_map)        
 

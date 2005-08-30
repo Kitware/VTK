@@ -14,13 +14,13 @@ vtkBranchExtentTranslator translator
 
 vtkImageClip clip1
   clip1 SetOutputWholeExtent 7 28 0 15 1 1
-  clip1 SetInput [gauss GetOutput]
+  clip1 SetInputConnection [gauss GetOutputPort]
 vtkDataSetSurfaceFilter surf1
-  surf1 SetInput [clip1 GetOutput]
+  surf1 SetInputConnection [clip1 GetOutputPort]
 vtkTriangleFilter tf1
-  tf1 SetInput [surf1 GetOutput]
+  tf1 SetInputConnection [surf1 GetOutputPort]
 vtkPolyDataMapper mapper1
-  mapper1 SetInput [tf1 GetOutput]
+  mapper1 SetInputConnection [tf1 GetOutputPort]
   mapper1 SetScalarRange 0 1
   mapper1 SetNumberOfPieces 4
   mapper1 SetPiece 1
@@ -33,13 +33,13 @@ vtkActor actor1
 # For coverage, a case where all four sides get clipped by the whole extent.
 vtkImageClip clip2
   clip2 SetOutputWholeExtent 16 18 3 10 0 0
-  clip2 SetInput [gauss GetOutput]
+  clip2 SetInputConnection [gauss GetOutputPort]
 vtkDataSetSurfaceFilter surf2
-  surf2 SetInput [clip2 GetOutput]
+  surf2 SetInputConnection [clip2 GetOutputPort]
 vtkTriangleFilter tf2
-  tf2 SetInput [surf2 GetOutput]
+  tf2 SetInputConnection [surf2 GetOutputPort]
 vtkPolyDataMapper mapper2
-  mapper2 SetInput [tf2 GetOutput]
+  mapper2 SetInputConnection [tf2 GetOutputPort]
   mapper2 SetScalarRange 0 1
   mapper2 SetNumberOfPieces 4
   mapper2 SetPiece 1
@@ -52,13 +52,13 @@ vtkActor actor2
 # nothing in intersection (empty case)
 vtkImageClip clip3
   clip3 SetOutputWholeExtent 1 10 0 15 0 2
-  clip3 SetInput [gauss GetOutput]
+  clip3 SetInputConnection [gauss GetOutputPort]
 vtkDataSetSurfaceFilter surf3
-  surf3 SetInput [clip3 GetOutput]
+  surf3 SetInputConnection [clip3 GetOutputPort]
 vtkTriangleFilter tf3
-  tf3 SetInput [surf3 GetOutput]
+  tf3 SetInputConnection [surf3 GetOutputPort]
 vtkPolyDataMapper mapper3
-  mapper3 SetInput [tf3 GetOutput]
+  mapper3 SetInputConnection [tf3 GetOutputPort]
   mapper3 SetScalarRange 0 1
   mapper3 SetNumberOfPieces 4
   mapper3 SetPiece 1

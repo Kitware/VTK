@@ -15,7 +15,7 @@ reader = vtk.vtkUnstructuredGridReader()
 reader.SetFileName(filename)
 
 a = vtk.vtkMeshQuality()
-a.SetInput(reader.GetOutput())
+a.SetInputConnection(reader.GetOutputPort())
 a.VolumeOn()
 a.RatioOn()
 a.Update()

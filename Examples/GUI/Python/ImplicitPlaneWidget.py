@@ -9,7 +9,7 @@ import vtk
 sphere = vtk.vtkSphereSource()
 cone = vtk.vtkConeSource()
 glyph = vtk.vtkGlyph3D()
-glyph.SetInput(sphere.GetOutput())
+glyph.SetInputConnection(sphere.GetOutputPort())
 glyph.SetSource(cone.GetOutput())
 glyph.SetVectorModeToUseNormal()
 glyph.SetScaleModeToScaleByVector()
@@ -22,7 +22,7 @@ apd.AddInput(glyph.GetOutput())
 apd.AddInput(sphere.GetOutput())
 
 maceMapper = vtk.vtkPolyDataMapper()
-maceMapper.SetInput(apd.GetOutput())
+maceMapper.SetInputConnection(apd.GetOutputPort())
 
 maceActor = vtk.vtkLODActor()
 maceActor.SetMapper(maceMapper)
@@ -32,12 +32,12 @@ maceActor.VisibilityOn()
 # implicit function. The clipped region is colored green.
 plane = vtk.vtkPlane()
 clipper = vtk.vtkClipPolyData()
-clipper.SetInput(apd.GetOutput())
+clipper.SetInputConnection(apd.GetOutputPort())
 clipper.SetClipFunction(plane)
 clipper.InsideOutOn()
 
 selectMapper = vtk.vtkPolyDataMapper()
-selectMapper.SetInput(clipper.GetOutput())
+selectMapper.SetInputConnection(clipper.GetOutputPort())
 
 selectActor = vtk.vtkLODActor()
 selectActor.SetMapper(selectMapper)
@@ -62,7 +62,7 @@ def myCallback(obj, event):
 planeWidget = vtk.vtkImplicitPlaneWidget()
 planeWidget.SetInteractor(iren)
 planeWidget.SetPlaceFactor(1.25)
-planeWidget.SetInput(glyph.GetOutput())
+planeWidget.SetInputConnection(glyph.GetOutputPort())
 planeWidget.PlaceWidget()
 planeWidget.AddObserver("InteractionEvent", myCallback)
 

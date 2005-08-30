@@ -36,7 +36,7 @@ int Mace( int argc, char *argv[] )
   vtkSphereSource *sphere = vtkSphereSource::New();
     sphere->SetThetaResolution(8); sphere->SetPhiResolution(8);
   vtkPolyDataMapper *sphereMapper = vtkPolyDataMapper::New();
-    sphereMapper->SetInput(sphere->GetOutput());
+    sphereMapper->SetInputConnection(sphere->GetOutputPort());
   vtkActor *sphereActor = vtkActor::New();
     sphereActor->SetMapper(sphereMapper);
 
@@ -44,14 +44,14 @@ int Mace( int argc, char *argv[] )
     cone->SetResolution(6);
 
   vtkGlyph3D *glyph = vtkGlyph3D::New();
-    glyph->SetInput(sphere->GetOutput());
+    glyph->SetInputConnection(sphere->GetOutputPort());
     glyph->SetSource(cone->GetOutput());
     glyph->SetVectorModeToUseNormal();
     glyph->SetScaleModeToScaleByVector();
     glyph->SetScaleFactor(0.25);
 
   vtkPolyDataMapper *spikeMapper = vtkPolyDataMapper::New();
-    spikeMapper->SetInput(glyph->GetOutput());
+    spikeMapper->SetInputConnection(glyph->GetOutputPort());
 
   vtkActor *spikeActor = vtkActor::New();
     spikeActor->SetMapper(spikeMapper);

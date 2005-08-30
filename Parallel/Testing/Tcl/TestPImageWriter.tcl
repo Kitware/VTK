@@ -15,7 +15,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
     file delete -force test.tmp
     
     vtkPImageWriter piw
-    piw SetInput [image1 GetOutput]
+    piw SetInputConnection [image1 GetOutputPort]
     piw SetFileName piw.raw
     piw SetMemoryLimit 1
     
@@ -25,7 +25,7 @@ if {[catch {set channel [open test.tmp w]}] == 0 } {
 }
 
 vtkImageViewer viewer
-viewer SetInput [image1 GetOutput]
+viewer SetInputConnection [image1 GetOutputPort]
 viewer SetColorWindow 255
 viewer SetColorLevel 127.5
 

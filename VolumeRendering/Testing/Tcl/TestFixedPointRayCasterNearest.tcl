@@ -10,14 +10,14 @@ gs SetCenter 15 15 15
 # threshold to leave a gap that should show up for
 # gradient opacity
 vtkImageThreshold t
-t SetInput [gs GetOutput]
+t SetInputConnection [gs GetOutputPort]
 t ReplaceInOn
 t SetInValue 0
 t ThresholdBetween 150 200
 
 # Use a shift scale to convert to unsigned char
 vtkImageShiftScale ss
-ss SetInput [t GetOutput]
+ss SetInputConnection [t GetOutputPort]
 ss SetOutputScalarTypeToUnsignedChar
 
 # grid will be used for two component dependent
@@ -30,7 +30,7 @@ grid0 SetDataExtent 0 30 0 30 0 30
 
 # use dilation to thicken the grid
 vtkImageContinuousDilate3D d
-d SetInput [grid0 GetOutput]
+d SetInputConnection [grid0 GetOutputPort]
 d SetKernelSize 3 3 3 
 
 # Now make a two component dependent
@@ -46,7 +46,7 @@ gs1 SetStandardDeviation 4
 gs1 SetCenter 5 5 5 
 
 vtkImageThreshold t1
-t1 SetInput [gs1 GetOutput]
+t1 SetInputConnection [gs1 GetOutputPort]
 t1 ReplaceInOn
 t1 SetInValue 0
 t1 ThresholdBetween 150 256
@@ -64,7 +64,7 @@ gs3 SetStandardDeviation 4
 gs3 SetCenter 19 19 19
 
 vtkImageThreshold t3
-t3 SetInput [gs3 GetOutput]
+t3 SetInputConnection [gs3 GetOutputPort]
 t3 ReplaceInOn
 t3 SetInValue 0
 t3 ThresholdBetween 150 256
@@ -98,7 +98,7 @@ gridR SetFillValue 100
 gridR SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dR
-dR SetInput [gridR GetOutput]
+dR SetInputConnection [gridR GetOutputPort]
 dR SetKernelSize 2 2 2 
 
 vtkImageGridSource gridG
@@ -109,7 +109,7 @@ gridG SetFillValue 100
 gridG SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dG
-dG SetInput [gridG GetOutput]
+dG SetInputConnection [gridG GetOutputPort]
 dG SetKernelSize 2 2 2 
 
 vtkImageGridSource gridB
@@ -120,7 +120,7 @@ gridB SetFillValue 250
 gridB SetDataExtent 0 30 0 30 0 30
 
 vtkImageContinuousDilate3D dB
-dB SetInput [gridB GetOutput]
+dB SetInputConnection [gridB GetOutputPort]
 dB SetKernelSize 2 2 2 
 
 # need some appending
@@ -235,11 +235,11 @@ for { set j 0 } { $j < 5 } { incr j } {
 }
 
 for { set i 0 } { $i < 5 } { incr i } {
-   volumeMapper0${i} SetInput [t GetOutput]
-   volumeMapper1${i} SetInput [ss GetOutput]
-   volumeMapper2${i} SetInput [iac GetOutput]
-   volumeMapper3${i} SetInput [iac3 GetOutput]
-   volumeMapper4${i} SetInput [iacRGBA GetOutput]
+   volumeMapper0${i} SetInputConnection [t GetOutputPort]
+   volumeMapper1${i} SetInputConnection [ss GetOutputPort]
+   volumeMapper2${i} SetInputConnection [iac GetOutputPort]
+   volumeMapper3${i} SetInputConnection [iac3 GetOutputPort]
+   volumeMapper4${i} SetInputConnection [iacRGBA GetOutputPort]
 
    volumeMapper${i}0 SetBlendModeToMaximumIntensity
    volumeMapper${i}1 SetBlendModeToComposite

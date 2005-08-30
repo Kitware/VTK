@@ -12,14 +12,14 @@ VTK_DATA_ROOT = vtkGetDataRoot()
 bmpReader = vtk.vtkBMPReader()
 bmpReader.SetFileName(VTK_DATA_ROOT + "/Data/masonry.bmp")
 atext = vtk.vtkTexture()
-atext.SetInput(bmpReader.GetOutput())
+atext.SetInputConnection(bmpReader.GetOutputPort())
 atext.InterpolateOn()
 
 # Create a plane source and actor. The vtkPlanesSource generates
 # texture coordinates.
 plane = vtk.vtkPlaneSource()
 planeMapper = vtk.vtkPolyDataMapper()
-planeMapper.SetInput(plane.GetOutput())
+planeMapper.SetInputConnection(plane.GetOutputPort())
 planeActor = vtk.vtkActor()
 planeActor.SetMapper(planeMapper)
 planeActor.SetTexture(atext)

@@ -9,14 +9,14 @@ proc vtkHistogramWidget {widget {width 512} {height 192}} {
 
     set accumulate \
             [::vtk::new_widget_object $widget vtkImageAccumulate Accumulate]
-    $accumulate SetInput [$clip GetOutput]
+    $accumulate SetInputConnection [$clip GetOutputPort]
 
     set canvas [::vtk::new_widget_object $widget vtkImageCanvasSource2D Canvas]
     $canvas SetScalarTypeToUnsignedChar
     $canvas SetNumberOfScalarComponents 3
 
     set viewer [::vtk::new_widget_object $widget vtkImageViewer Viewer]
-    $viewer SetInput [$canvas GetOutput]
+    $viewer SetInputConnection [$canvas GetOutputPort]
     $viewer SetColorWindow 256
     $viewer SetColorLevel 127
 

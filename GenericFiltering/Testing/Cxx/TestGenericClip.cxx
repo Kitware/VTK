@@ -127,13 +127,13 @@ int TestGenericClip(int argc, char* argv[])
   
 #ifdef WITH_GEOMETRY_FILTER
   vtkGeometryFilter *geom = vtkGeometryFilter::New();
-  geom->SetInput(clipper->GetOutput());
+  geom->SetInputConnection(clipper->GetOutputPort());
   vtkPolyDataMapper *mapper = vtkPolyDataMapper::New();
-  mapper->SetInput( geom->GetOutput() );
+  mapper->SetInputConnection( geom->GetOutputPort() );
   geom->Delete();
 #else
   vtkDataSetMapper *mapper = vtkDataSetMapper::New();
-  mapper->SetInput( clipper->GetOutput() );
+  mapper->SetInputConnection( clipper->GetOutputPort() );
 #endif
   mapper->SetLookupTable(lut);
   
@@ -153,7 +153,7 @@ int TestGenericClip(int argc, char* argv[])
 #ifdef WRITE_GENERIC_RESULT
   // Save the result of the filter in a file
   vtkXMLUnstructuredGridWriter *writer=vtkXMLUnstructuredGridWriter::New();
-  writer->SetInput(clipper->GetOutput());
+  writer->SetInputConnection(clipper->GetOutputPort());
   writer->SetFileName("clipped.vtu");
   writer->SetDataModeToAscii();
   writer->Write();

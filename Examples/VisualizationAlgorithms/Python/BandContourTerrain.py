@@ -39,16 +39,16 @@ demModel.Update()
 shrinkFactor = 4
 shrink = vtk.vtkImageShrink3D()
 shrink.SetShrinkFactors(shrinkFactor, shrinkFactor, 1)
-shrink.SetInput(demModel.GetOutput())
+shrink.SetInputConnection(demModel.GetOutputPort())
 shrink.AveragingOn()
 
 # Convert the image into polygons.
 geom = vtk.vtkImageDataGeometryFilter()
-geom.SetInput(shrink.GetOutput())
+geom.SetInputConnection(shrink.GetOutputPort())
 
 # Warp the polygons based on elevation.
 warp = vtk.vtkWarpScalar()
-warp.SetInput(geom.GetOutput())
+warp.SetInputConnection(geom.GetOutputPort())
 warp.SetNormal(0, 0, 1)
 warp.UseNormalOn()
 warp.SetScaleFactor(Scale)
@@ -62,13 +62,13 @@ bcf.GenerateContourEdgesOn()
 
 # Compute normals to give a better look.
 normals = vtk.vtkPolyDataNormals()
-normals.SetInput(bcf.GetOutput())
+normals.SetInputConnection(bcf.GetOutputPort())
 normals.SetFeatureAngle(60)
 normals.ConsistencyOff()
 normals.SplittingOff()
 
 demMapper = vtk.vtkPolyDataMapper()
-demMapper.SetInput(normals.GetOutput())
+demMapper.SetInputConnection(normals.GetOutputPort())
 demMapper.SetScalarRange(0, 10)
 demMapper.SetLookupTable(lutLand)
 demMapper.SetScalarModeToUseCellData()
@@ -94,7 +94,7 @@ bcf2.SetScalarModeToValue()
 
 # Compute normals to give a better look.
 normals2 = vtk.vtkPolyDataNormals()
-normals2.SetInput(bcf2.GetOutput())
+normals2.SetInputConnection(bcf2.GetOutputPort())
 normals2.SetFeatureAngle(60)
 normals2.ConsistencyOff()
 normals2.SplittingOff()
@@ -102,7 +102,7 @@ normals2.SplittingOff()
 lut = vtk.vtkLookupTable()
 lut.SetNumberOfColors(10)
 demMapper2 = vtk.vtkPolyDataMapper()
-demMapper2.SetInput(normals2.GetOutput())
+demMapper2.SetInputConnection(normals2.GetOutputPort())
 demMapper2.SetScalarRange(demModel.GetOutput().GetScalarRange())
 demMapper2.SetLookupTable(lut)
 demMapper2.SetScalarModeToUseCellData()

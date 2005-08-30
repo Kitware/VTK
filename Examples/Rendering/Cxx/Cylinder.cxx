@@ -37,7 +37,7 @@ int main()
   // are defined.
   //
   vtkPolyDataMapper *cylinderMapper = vtkPolyDataMapper::New();
-  cylinderMapper->SetInput(cylinder->GetOutput());
+  cylinderMapper->SetInputConnection(cylinder->GetOutputPort());
 
   // The actor is a grouping mechanism: besides the geometry (mapper), it
   // also has a property, transformation matrix, and/or texture map.

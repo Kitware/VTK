@@ -25,7 +25,7 @@ vtkVolumeProperty volumeProperty
 
 
 vtkVolumeTextureMapper2D volumeMapper
-    volumeMapper SetInput [reader GetOutput]
+    volumeMapper SetInputConnection [reader GetOutputPort]
 
 vtkSphereSource sphereSource
     sphereSource SetCenter  25 25 25
@@ -34,7 +34,7 @@ vtkSphereSource sphereSource
     sphereSource SetPhiResolution 15
 
 vtkPolyDataMapper geoMapper
-    geoMapper SetInput [sphereSource GetOutput]
+    geoMapper SetInputConnection [sphereSource GetOutputPort]
 
 
 vtkLODProp3D lod

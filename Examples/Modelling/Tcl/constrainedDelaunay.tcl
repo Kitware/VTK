@@ -106,19 +106,19 @@ vtkDelaunay2D del
     del SetInput polyData
     del SetSource polyData
 vtkPolyDataMapper mapMesh
-    mapMesh SetInput [del GetOutput]
+    mapMesh SetInputConnection [del GetOutputPort]
 vtkActor meshActor
     meshActor SetMapper mapMesh
 
 # Now we just pretty the mesh up with tubed edges and balls at the vertices.
 vtkExtractEdges extract
-    extract SetInput [del GetOutput]
+    extract SetInputConnection [del GetOutputPort]
 vtkTubeFilter tubes
-    tubes SetInput [extract GetOutput]
+    tubes SetInputConnection [extract GetOutputPort]
     tubes SetRadius 0.1
     tubes SetNumberOfSides 6
 vtkPolyDataMapper mapEdges
-    mapEdges SetInput [tubes GetOutput]
+    mapEdges SetInputConnection [tubes GetOutputPort]
 vtkActor edgeActor
     edgeActor SetMapper mapEdges
     eval [edgeActor GetProperty] SetColor $peacock

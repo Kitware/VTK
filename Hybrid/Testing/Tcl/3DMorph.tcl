@@ -18,21 +18,21 @@ vtkVectorText letterK
 
 # create implicit models of each
 vtkImplicitModeller blobbyV
-  blobbyV SetInput [letterV GetOutput]
+  blobbyV SetInputConnection [letterV GetOutputPort]
   blobbyV SetMaximumDistance .2
   blobbyV SetSampleDimensions 50 50 12
   blobbyV SetModelBounds -0.5 1.5 -0.5 1.5 -0.5 0.5
 
 # create implicit models of each
 vtkImplicitModeller blobbyT
-  blobbyT SetInput [letterT GetOutput]
+  blobbyT SetInputConnection [letterT GetOutputPort]
   blobbyT SetMaximumDistance .2
   blobbyT SetSampleDimensions 50 50 12
   blobbyT SetModelBounds -0.5 1.5 -0.5 1.5 -0.5 0.5
 
 # create implicit models of each
 vtkImplicitModeller blobbyK
-  blobbyK SetInput [letterK GetOutput]
+  blobbyK SetInputConnection [letterK GetOutputPort]
   blobbyK SetMaximumDistance .2
   blobbyK SetSampleDimensions 50 50 12
   blobbyK SetModelBounds -0.5 1.5 -0.5 1.5 -0.5 0.5
@@ -46,12 +46,12 @@ vtkInterpolateDataSetAttributes interpolate
 
 # extract an iso surface
 vtkContourFilter blobbyIso
-  blobbyIso SetInput [interpolate GetOutput]
+  blobbyIso SetInputConnection [interpolate GetOutputPort]
   blobbyIso SetValue 0 0.1
 
 # map to rendering primitives
 vtkPolyDataMapper blobbyMapper
-  blobbyMapper SetInput [blobbyIso GetOutput]
+  blobbyMapper SetInputConnection [blobbyIso GetOutputPort]
   blobbyMapper ScalarVisibilityOff
 
 # now an actor

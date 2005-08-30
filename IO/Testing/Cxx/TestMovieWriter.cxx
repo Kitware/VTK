@@ -38,7 +38,7 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   Fractal0->SetMaximumNumberOfIterations( 100);
 
   vtkImageCast* cast = vtkImageCast::New();
-  cast->SetInput(Fractal0->GetOutput());
+  cast->SetInputConnection(Fractal0->GetOutputPort());
   cast->SetOutputScalarTypeToUnsignedChar();
 
   vtkLookupTable* table = vtkLookupTable::New();
@@ -50,10 +50,10 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkImageMapToColors* colorize = vtkImageMapToColors::New();
   colorize->SetOutputFormatToRGB();
   colorize->SetLookupTable(table);
-  colorize->SetInput(cast->GetOutput());
+  colorize->SetInputConnection(cast->GetOutputPort());
 
   vtkMPEG2Writer *w = vtkMPEG2Writer::New();
-  w->SetInput(colorize->GetOutput());
+  w->SetInputConnection(colorize->GetOutputPort());
   w->SetFileName("TestMovieWriter.mpg");
   cout << "Writing file TestMovieWriter.mpg..." << endl;
   w->Start();

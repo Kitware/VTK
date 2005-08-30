@@ -39,7 +39,7 @@ if myProcId:
 cone = vtkConeSource()
 cone.SetResolution(8)
 coneMapper = vtkPolyDataMapper()
-coneMapper.SetInput(cone.GetOutput())
+coneMapper.SetInputConnection(cone.GetOutputPort())
 coneActor = vtkActor()
 coneActor.SetMapper(coneMapper)
 

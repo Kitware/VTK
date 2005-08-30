@@ -79,7 +79,7 @@ vtkTransformPolyDataFilter tpdf1
     tpdf1 SetInput cube
     tpdf1 SetTransform t1
 vtkPolyDataMapper cube1Mapper
-    cube1Mapper SetInput [tpdf1 GetOutput]
+    cube1Mapper SetInputConnection [tpdf1 GetOutputPort]
 vtkActor cube1
     cube1 SetMapper cube1Mapper
 
@@ -93,7 +93,7 @@ vtkTransformPolyDataFilter tpdf2
     tpdf2 SetInput cube
     tpdf2 SetTransform t2
 vtkPolyDataMapper cube2Mapper
-    cube2Mapper SetInput [tpdf2 GetOutput]
+    cube2Mapper SetInputConnection [tpdf2 GetOutputPort]
 vtkActor cube2
     cube2 SetMapper cube2Mapper
 
@@ -107,7 +107,7 @@ vtkTransformPolyDataFilter tpdf3
     tpdf3 SetInput cube
     tpdf3 SetTransform t3
 vtkPolyDataMapper cube3Mapper
-    cube3Mapper SetInput [tpdf3 GetOutput]
+    cube3Mapper SetInputConnection [tpdf3 GetOutputPort]
 vtkActor cube3
     cube3 SetMapper cube3Mapper
 
@@ -121,7 +121,7 @@ vtkTransformPolyDataFilter tpdf4
     tpdf4 SetInput cube
     tpdf4 SetTransform t4
 vtkPolyDataMapper cube4Mapper
-    cube4Mapper SetInput [tpdf4 GetOutput]
+    cube4Mapper SetInputConnection [tpdf4 GetOutputPort]
 vtkActor cube4
     cube4 SetMapper cube4Mapper
 
