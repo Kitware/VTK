@@ -108,6 +108,7 @@ int main()
   iren->Start();
 
   // Clean up
+  plane->Delete();
   renderer->Delete();
   renWin->Delete();
   iren->Delete();
