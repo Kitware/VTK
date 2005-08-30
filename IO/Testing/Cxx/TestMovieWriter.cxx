@@ -87,6 +87,8 @@ int TestMovieWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "ERROR: 2 - Test failing because TestMovieWriter.mpg file has zero length..." << endl;
     }
 
+  colorize->Delete();
+  table->Delete();
   cast->Delete();
   Fractal0->Delete();
 

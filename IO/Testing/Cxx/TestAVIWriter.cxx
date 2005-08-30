@@ -87,6 +87,8 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "ERROR: 4 - Test failing because TestAVIWriter.avi file has zero length..." << endl;
     }
 
+  colorize->Delete();
+  table->Delete();
   cast->Delete();
   Fractal0->Delete();
 
