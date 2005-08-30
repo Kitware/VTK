@@ -116,7 +116,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   // COLOR BY PROCESS NUMBER
 
   vtkPieceScalars *ps = vtkPieceScalars::New();
-  ps->SetInputConnection((vtkDataSet *)dd->GetOutputPort());
+  ps->SetInputConnection(dd->GetOutputPort());
   ps->SetScalarModeToCellData();
 
   // MORE FILTERING - this will request ghost cells
