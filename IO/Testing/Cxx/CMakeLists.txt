@@ -1,14 +1,16 @@
 SET(KIT IO)
 
 SET(ConditionalTests)
-IF(VTK_USE_VIDEO_FOR_WINDOWS)
+IF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   SET(ConditionalTests TestAVIWriter.cxx)
-ENDIF(VTK_USE_VIDEO_FOR_WINDOWS)
+ENDIF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
+  SET(ConditionalTests ${ConditionalTests} TestMovieWriter.cxx)
+ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
 
 CREATE_TEST_SOURCELIST(Tests ${KIT}CxxTests.cxx
   TestXML.cxx
   TestCompress.cxx
-  TestMovieWriter.cxx
   ${ConditionalTests}
   EXTRA_INCLUDE vtkTestDriver.h
 )
@@ -21,8 +23,9 @@ IF (VTK_DATA_ROOT)
   ADD_TEST(TestCompress ${CXX_TEST_PATH}/${KIT}CxxTests TestCompress ${VTK_DATA_ROOT}/Data/sample.xml)
 ENDIF (VTK_DATA_ROOT)
 
-ADD_TEST(TestMovieWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestMovieWriter)
-
-IF(ConditionalTests)
+IF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
   ADD_TEST(TestAVIWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestAVIWriter)
-ENDIF(ConditionalTests)
+ENDIF(WIN32 AND VTK_USE_VIDEO_FOR_WINDOWS)
+IF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
+  ADD_TEST(TestMovieWriter ${CXX_TEST_PATH}/${KIT}CxxTests TestMovieWriter)
+ENDIF(DEFINED vtkMPEG2Encode_INCLUDE_PATH)
