@@ -69,6 +69,8 @@
 
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+class vtkCompositeDataSet;
+class vtkHierarchicalDataSet;
 class vtkInformationDoubleKey;
 class vtkInformationIntegerVectorKey;
 class vtkInformationObjectBaseKey;
@@ -145,10 +147,6 @@ protected:
                                 vtkInformationVector* outInfo);
 
   virtual int ExecuteInformationForBlock(vtkInformation* request);
-  virtual int ExecuteInformation(vtkInformation* request,
-                                 vtkInformationVector** inInfoVec,
-                                 vtkInformationVector* outInfoVec);
-
 
   virtual int ExecuteDataForBlock(vtkInformation* request);
   virtual int ExecuteData(vtkInformation* request,
@@ -165,7 +163,7 @@ protected:
                                       vtkInformationVector* outInfoVec);
 
 
-  int CheckCompositeData(int port);
+  int CheckCompositeData(int port, vtkInformationVector* outInfoVec);
   int SendEndLoop(int i, int j);
 
   // True when the pipeline is iterating over the current (simple) filter
@@ -173,8 +171,39 @@ protected:
   // NOT Initialize() the composite output.
   int InLocalLoop;
   
+  virtual int SendBeginLoop(int i, int j, 
+                            vtkInformation* inInfo, 
+                            vtkHierarchicalDataSet* updateInfo);
+  virtual vtkCompositeDataSet* CreateInputCompositeData(
+    int i, vtkInformation* inInfo);
+  virtual int UpdateBlocks(int i, int j, int outputPort, 
+                           vtkHierarchicalDataSet* updateInfo, 
+                           vtkCompositeDataSet* input,
+                           vtkInformation* inInfo);
+  virtual void ExecuteSimpleAlgorithm(vtkInformation* request,
+                                      vtkInformationVector** inInfoVec,
+                                      vtkInformationVector* outInfoVec,
+                                      int compositePort);
+  void CheckInputPorts(int& inputPortIsComposite,
+                       int& inputIsComposite,
+                       int& compositePort);
 
   vtkInformation* InformationCache;
+
+  vtkInformation* GenericRequest;
+  vtkInformation* DataObjectRequest;
+  vtkInformation* InformationRequest;
+  vtkInformation* UpdateExtentRequest;
+  vtkInformation* DataRequest;
+
+//BTX
+  enum BeginForward
+  {
+    EXECUTE_BLOCK_OK,
+    EXECUTE_BLOCK_CONTINUE,
+    EXECUTE_BLOCK_ERROR
+  };
+//ETX
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.
