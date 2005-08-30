@@ -185,9 +185,6 @@ ren1 AddActor Triangles
 # Set the background color.
 eval ren1 SetBackground $slate_grey
 
-# Set the user method (bound to key 'u')
-iren AddObserver UserEvent {wm deiconify .vtkInteract}
-
 # Set the scalar values for this case of marching cubes.
 case12 Scalars 0 1
 # Force the grid to update.
