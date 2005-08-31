@@ -103,7 +103,7 @@ def parseFile():
     while file.readline()[:14] != "MONTHLY_INCOME":
         pass
     
-    monthlyIncome = vtk.vtkIntArray()
+    monthlyIncome = vtk.vtkFloatArray()
     monthlyIncome.SetName("MONTHLY_INCOME")
     for i in range(0, numLines):
         val = getNumberFromLine(file.readline())
