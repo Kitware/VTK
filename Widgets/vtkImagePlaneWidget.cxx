@@ -40,7 +40,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.3");
+vtkCxxRevisionMacro(vtkImagePlaneWidget, "1.4");
 vtkStandardNewMacro(vtkImagePlaneWidget);
 
 vtkCxxSetObjectMacro(vtkImagePlaneWidget, PlaneProperty, vtkProperty);
@@ -985,12 +985,14 @@ void vtkImagePlaneWidget::OnMouseMove()
     this->Push(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
+    this->BuildRepresentation();
     }
   else if ( this->State == vtkImagePlaneWidget::Spinning )
     {
     this->Spin(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
+    this->BuildRepresentation();
     }
   else if ( this->State == vtkImagePlaneWidget::Rotating )
     {
@@ -998,18 +1000,21 @@ void vtkImagePlaneWidget::OnMouseMove()
     this->Rotate(prevPickPoint, pickPoint, vpn);
     this->UpdatePlane();
     this->UpdateMargins();
+    this->BuildRepresentation();
     }
   else if ( this->State == vtkImagePlaneWidget::Scaling )
     {
     this->Scale(prevPickPoint, pickPoint, X, Y);
     this->UpdatePlane();
     this->UpdateMargins();
+    this->BuildRepresentation();
     }
   else if ( this->State == vtkImagePlaneWidget::Moving )
     {
     this->Translate(prevPickPoint, pickPoint);
     this->UpdatePlane();
     this->UpdateMargins();
+    this->BuildRepresentation();
     }
   else if ( this->State == vtkImagePlaneWidget::Cursoring )
     {
@@ -1149,7 +1154,6 @@ void vtkImagePlaneWidget::Push(double *p1, double *p2)
   v[2] = p2[2] - p1[2];
 
   this->PlaneSource->Push( vtkMath::Dot( v, this->PlaneSource->GetNormal() ) );
-  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::CreateDefaultProperties()
@@ -1222,8 +1226,9 @@ void vtkImagePlaneWidget::PlaceWidget(double bds[6])
     this->PlaneSource->SetPoint1(center[0],bounds[3],bounds[4]);
     this->PlaneSource->SetPoint2(center[0],bounds[2],bounds[5]);
     }
-  this->BuildRepresentation();
+
   this->UpdatePlane();
+  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::SetPlaneOrientation(int i)
@@ -1298,8 +1303,8 @@ void vtkImagePlaneWidget::SetPlaneOrientation(int i)
     this->PlaneSource->SetPoint2(xbounds[1],ybounds[0],zbounds[0]);
     }
 
-  this->BuildRepresentation();
   this->UpdatePlane();
+  this->BuildRepresentation();
   this->Modified();
 }
 
@@ -1621,7 +1626,7 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
 {
   double amount = 0.0;
   double planeOrigin[3];
-  this->PlaneSource->GetOrigin(planeOrigin);
+  this->PlaneSource->GetOrigin( planeOrigin );
 
   if ( this->PlaneOrientation == 2 ) // z axis
     {
@@ -1639,18 +1644,18 @@ void vtkImagePlaneWidget::SetSlicePosition(double position)
     {
     vtkGenericWarningMacro("only works for ortho planes: set plane orientation first");
     return;
-    } 
+    }
 
-  this->PlaneSource->Push(amount);
-  this->BuildRepresentation();
+  this->PlaneSource->Push( amount );
   this->UpdatePlane();
+  this->BuildRepresentation();
   this->Modified();
 }
 
 double vtkImagePlaneWidget::GetSlicePosition()
 {
   double planeOrigin[3];
-  this->PlaneSource->GetOrigin(planeOrigin);
+  this->PlaneSource->GetOrigin( planeOrigin);
 
   if ( this->PlaneOrientation == 2 )
     {
@@ -1722,8 +1727,8 @@ void vtkImagePlaneWidget::SetSliceIndex(int index)
   this->PlaneSource->SetOrigin(planeOrigin);
   this->PlaneSource->SetPoint1(pt1);
   this->PlaneSource->SetPoint2(pt2);
-  this->BuildRepresentation();
   this->UpdatePlane();
+  this->BuildRepresentation();
   this->Modified();
 }
 
@@ -2112,9 +2117,9 @@ vtkPolyDataAlgorithm *vtkImagePlaneWidget::GetPolyDataAlgorithm()
 
 void vtkImagePlaneWidget::UpdatePlacement(void)
 {
-  this->BuildRepresentation();
   this->UpdatePlane();
   this->UpdateMargins();
+  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::SetTextProperty(vtkTextProperty* tprop)
@@ -2348,7 +2353,6 @@ void vtkImagePlaneWidget::Spin(double *p1, double *p2)
   this->PlaneSource->SetPoint2(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
   this->PlaneSource->SetOrigin(newpt);
-  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
@@ -2400,7 +2404,6 @@ void vtkImagePlaneWidget::Rotate(double *p1, double *p2, double *vpn)
   this->PlaneSource->SetPoint2(newpt);
   this->Transform->TransformPoint(this->PlaneSource->GetOrigin(),newpt);
   this->PlaneSource->SetOrigin(newpt);
-  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::GeneratePlaneOutline()
@@ -2726,8 +2729,6 @@ void vtkImagePlaneWidget::Translate(double *p1, double *p2)
     this->PlaneSource->SetPoint1(point1);
     this->PlaneSource->SetOrigin(origin);
     }
-
-  this->BuildRepresentation();
 }
 
 void vtkImagePlaneWidget::Scale(double *p1, double *p2, 
@@ -2772,7 +2773,6 @@ void vtkImagePlaneWidget::Scale(double *p1, double *p2,
   this->PlaneSource->SetOrigin(origin);
   this->PlaneSource->SetPoint1(point1);
   this->PlaneSource->SetPoint2(point2);
-  this->BuildRepresentation();
 }
 
 
