@@ -33,8 +33,8 @@ vtkElevationFilter el
 
 vtkQuadricDecimation mesh
   mesh SetInputConnection [el GetOutputPort]
-  mesh SetMaximumCost 850
-  mesh SetMaximumCollapsedEdges 5
+  mesh SetTargetReduction .60
+  mesh AttributeErrorMetricOn
 
 vtkPolyDataMapper mapper
   mapper SetInputConnection [mesh GetOutputPort]
