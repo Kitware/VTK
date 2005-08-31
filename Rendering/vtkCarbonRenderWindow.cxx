@@ -28,7 +28,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.38");
+vtkCxxRevisionMacro(vtkCarbonRenderWindow, "1.39");
 vtkStandardNewMacro(vtkCarbonRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -390,13 +390,14 @@ void vtkCarbonRenderWindow::Clean()
 void vtkCarbonRenderWindow::SetWindowName( const char * _arg )
 {
   vtkWindow::SetWindowName(_arg);
-  Str255 newTitle; // SetWTitle takes a pascal string
 
-  CopyCStringToPascal(_arg, newTitle);
-  
-  if (this->OwnWindow)
+  if(this->OwnWindow)
     {
-    SetWTitle (this->RootWindow, newTitle);
+    CFStringRef newTitle =
+      CFStringCreateWithCString(kCFAllocatorDefault, _arg,
+                                kCFStringEncodingASCII);
+    SetWindowTitleWithCFString(this->RootWindow, newTitle);
+    CFRelease(newTitle);
     }
 }
 
