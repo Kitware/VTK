@@ -87,7 +87,7 @@ $culler SetSortingStyleToBackToFront
 set valid [volumeMapper_0_0 IsRenderSupported volumeProperty]
 
 if {!$valid} {
-   ren1 RemoveAllProps
+   ren1 RemoveAllViewProps
    vtkTextActor t
    t SetInput "Required Extensions Not Supported"
    t SetDisplayPosition 300 150

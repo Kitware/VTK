@@ -168,7 +168,7 @@ renWin AddRenderer ren1
 #
 # Add the LODProp3D to the renderer and set the background
 #
-ren1 AddProp lod
+ren1 AddViewProp lod
 ren1 SetBackground 0.1 0.2 0.4
 
 #

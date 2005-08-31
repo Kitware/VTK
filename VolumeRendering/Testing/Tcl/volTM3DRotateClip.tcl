@@ -127,7 +127,7 @@ set valid [volumeMapper IsRenderSupported volumeProperty]
 
 ren1 AddViewProp volume
 if {!$valid} {
-   ren1 RemoveAllProps
+   ren1 RemoveAllViewProps
    vtkTextActor t
    t SetInput "Required Extensions Not Supported"
    t SetDisplayPosition 128 128

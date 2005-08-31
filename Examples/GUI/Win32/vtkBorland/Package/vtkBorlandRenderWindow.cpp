@@ -61,7 +61,7 @@ __fastcall TvtkBorlandRenderWindow::~TvtkBorlandRenderWindow()
     }
   if ( FRenderer )
     {
-    FRenderer->GetProps()->RemoveAllItems();
+    FRenderer->GetViewProps()->RemoveAllItems();
     FRenderWindow->RemoveRenderer(FRenderer);
     FRenderer->Delete();
     FRenderer = 0;

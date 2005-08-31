@@ -52,7 +52,7 @@ void __fastcall TVTK_Form::FormDestroy(TObject *Sender)
   vtkRenderer* ren1 = vtkWindow1->GetRenderer();
   vtkRenderWindow* renwin1 = vtkWindow1->GetRenderWindow();
 
-  vtkPropCollection* collection = ren1->GetProps();
+  vtkPropCollection* collection = ren1->GetViewProps();
   if(collection)
     {
     collection->InitTraversal();
@@ -62,7 +62,7 @@ void __fastcall TVTK_Form::FormDestroy(TObject *Sender)
       if(actor)
         {
         actor->ReleaseGraphicsResources(renwin1);
-        ren1->RemoveProp(actor);
+        ren1->RemoveViewProp(actor);
         }
       }
     }

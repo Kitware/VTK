@@ -40,7 +40,7 @@ public:
 
 // Operations
 public:
-  vtkPropCollection *GetProps() {return this->Props;};
+  vtkPropCollection *GetViewProps() {return this->Props;};
 
 // Overrides
         // ClassWizard generated virtual function overrides

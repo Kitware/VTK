@@ -21,10 +21,10 @@ static char THIS_FILE[] = __FILE__;
 IMPLEMENT_DYNCREATE(CSampleView, vtkMFCRenderView)
 
 BEGIN_MESSAGE_MAP(CSampleView, vtkMFCRenderView)
-	//{{AFX_MSG_MAP(CSampleView)
-		// NOTE - the ClassWizard will add and remove mapping macros here.
-		//    DO NOT EDIT what you see in these blocks of generated code!
-	//}}AFX_MSG_MAP
+  //{{AFX_MSG_MAP(CSampleView)
+    // NOTE - the ClassWizard will add and remove mapping macros here.
+    //    DO NOT EDIT what you see in these blocks of generated code!
+  //}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ END_MESSAGE_MAP()
 
 CSampleView::CSampleView()
 {
-	// TODO: add construction code here
+  // TODO: add construction code here
 
 }
 
@@ -47,18 +47,18 @@ CSampleView::~CSampleView()
 #ifdef _DEBUG
 void CSampleView::AssertValid() const
 {
-	CView::AssertValid();
+  CView::AssertValid();
 }
 
 void CSampleView::Dump(CDumpContext& dc) const
 {
-	CView::Dump(dc);
+  CView::Dump(dc);
 }
 
 CSampleDoc* CSampleView::GetDocument() // non-debug version is inline
 {
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CSampleDoc)));
-	return (CSampleDoc*)m_pDocument;
+  ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CSampleDoc)));
+  return (CSampleDoc*)m_pDocument;
 }
 #endif //_DEBUG
 
@@ -67,19 +67,19 @@ CSampleDoc* CSampleView::GetDocument() // non-debug version is inline
 
 void CSampleView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) 
 {
-	// TODO: Add your specialized code here and/or call the base class
+  // TODO: Add your specialized code here and/or call the base class
   vtkPropCollection *propc;
   vtkProp *prop;
   // TODO: Add your specialized code here and/or call the base class
   // first remove any old actors
-  this->Renderer->GetProps()->RemoveAllItems();
-  propc = this->GetDocument()->GetProps();
+  this->Renderer->GetViewProps()->RemoveAllItems();
+  propc = this->GetDocument()->GetViewProps();
   propc->InitTraversal();
   while (prop = propc->GetNextProp())
     {
-    this->Renderer->AddProp(prop);
+    this->Renderer->AddViewProp(prop);
     this->Renderer->ResetCamera();
     }
   
-  this->vtkMFCRenderView::OnUpdate(pSender, lHint, pHint);			
+  this->vtkMFCRenderView::OnUpdate(pSender, lHint, pHint);      
 }
