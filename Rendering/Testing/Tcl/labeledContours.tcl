@@ -20,12 +20,12 @@ vtkVolume16Reader v16
     v16 SetImageRange 45 45
     v16 SetDataSpacing 3.2 3.2 1.5
 vtkContourFilter iso
-    iso SetInput [v16 GetOutput]
+    iso SetInputConnection [v16 GetOutputPort]
     iso GenerateValues 6 500 1150
     iso Update
 set numPts [[iso GetOutput] GetNumberOfPoints]
 vtkPolyDataMapper isoMapper
-    isoMapper SetInput [iso GetOutput]
+    isoMapper SetInputConnection [iso GetOutputPort]
     isoMapper ScalarVisibilityOn
     eval isoMapper SetScalarRange [[iso GetOutput] GetScalarRange]
 vtkActor isoActor
@@ -33,17 +33,17 @@ vtkActor isoActor
 
 # Subsample the points and label them
 vtkMaskPoints mask
-    mask SetInput [iso GetOutput]
+    mask SetInputConnection [iso GetOutputPort]
     mask SetOnRatio [expr $numPts / 50]
     mask SetMaximumNumberOfPoints 50
     mask RandomModeOn
 
 # Create labels for points - only show visible points
 vtkSelectVisiblePoints visPts
-    visPts SetInput [mask GetOutput]
+    visPts SetInputConnection [mask GetOutputPort]
     visPts SetRenderer ren1
 vtkLabeledDataMapper ldm
-    ldm SetInput [mask GetOutput]
+    ldm SetInputConnection [mask GetOutputPort]
     ldm SetLabelFormat "%g"
     ldm SetLabelModeToLabelScalars
 set tprop [ldm GetLabelTextProperty]

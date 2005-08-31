@@ -94,9 +94,9 @@ public:
   vtkGetMacro(FieldDataArray,int);
 
   // Description:
-  // Set the input dataset to the mapper.  
+  // Set the input dataset to the mapper. This mapper handles any type of data.
   virtual void SetInput(vtkDataSet*);
-  vtkGetObjectMacro(Input, vtkDataSet);
+  vtkDataSet *GetInput();
 
   // Description:
   // Specify which data to plot: scalars, vectors, normals, texture coords,
@@ -125,8 +125,6 @@ public:
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
-  // The parameter window could be used to determine which graphic
-  // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
@@ -147,6 +145,8 @@ private:
   int NumberOfLabels;
   int NumberOfLabelsAllocated;
   vtkTextMapper **TextMappers;
+
+  virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.

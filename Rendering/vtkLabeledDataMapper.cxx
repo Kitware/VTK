@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkLabeledDataMapper.h"
 
+#include "vtkExecutive.h"
+#include "vtkInformation.h"
 #include "vtkActor2D.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -22,10 +24,9 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.39");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.40");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
-vtkCxxSetObjectMacro(vtkLabeledDataMapper,Input, vtkDataSet);
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
 
 //----------------------------------------------------------------------------
@@ -76,15 +77,33 @@ vtkLabeledDataMapper::~vtkLabeledDataMapper()
     delete [] this->TextMappers;
     }
   
-  this->SetInput(NULL);
   this->SetLabelTextProperty(NULL);
 }
 
 //----------------------------------------------------------------------------
-// Release any graphics resources that are being consumed by this actor.
-// The parameter window could be used to determine which graphic
-// resources to release.
+void vtkLabeledDataMapper::SetInput(vtkDataSet *input)
+{
+  if (input)
+    {
+    this->SetInputConnection(0, input->GetProducerPort());
+    }
+  else
+    {
+    // Setting a NULL input removes the connection.
+    this->SetInputConnection(0, 0);
+    }
+}
 
+//----------------------------------------------------------------------------
+// Specify the input data or filter.
+vtkDataSet *vtkLabeledDataMapper::GetInput()
+{
+  return vtkDataSet::SafeDownCast(
+    this->GetExecutive()->GetInputData(0, 0));
+}
+
+//----------------------------------------------------------------------------
+// Release any graphics resources that are being consumed by this mapper.
 void vtkLabeledDataMapper::ReleaseGraphicsResources(vtkWindow *win)
 {
   if (this->TextMappers != NULL )
@@ -111,7 +130,7 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
     }
   for (i=0; i<this->NumberOfLabels; i++)
     {
-    this->Input->GetPoint(i,x);
+    input->GetPoint(i,x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
     actor->GetPositionCoordinate()->SetValue(x);
     this->TextMappers[i]->RenderOverlay(viewport, actor);
@@ -218,7 +237,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
       return;
       }
 
-    this->NumberOfLabels = this->Input->GetNumberOfPoints();
+    this->NumberOfLabels = input->GetNumberOfPoints();
     if ( this->NumberOfLabels > this->NumberOfLabelsAllocated )
       {
       // delete old stuff
@@ -247,18 +266,21 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
         {
         if ( numComp == 1)
           {
-            if (data->GetDataType() == VTK_CHAR) 
+          if (data->GetDataType() == VTK_CHAR) 
+            {
+            if (strcmp(this->LabelFormat,"%c") != 0) 
               {
-                if (strcmp(this->LabelFormat,"%c") != 0) {
-                  vtkErrorMacro(<<"Label format must be %c to use with char");
-                  return;
-                }
-                sprintf(string, this->LabelFormat, 
-                        (char)data->GetComponent(i, activeComp));
-              } else {
-                sprintf(string, this->LabelFormat, 
-                        data->GetComponent(i, activeComp));
+              vtkErrorMacro(<<"Label format must be %c to use with char");
+              return;
               }
+            sprintf(string, this->LabelFormat, 
+                    (char)data->GetComponent(i, activeComp));
+            } 
+          else 
+            {
+            sprintf(string, this->LabelFormat, 
+                    data->GetComponent(i, activeComp));
+            }
           }
         else
           {
@@ -282,11 +304,19 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
   for (i=0; i<this->NumberOfLabels; i++)
     {
-    this->Input->GetPoint(i,x);
+    input->GetPoint(i,x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
     actor->GetPositionCoordinate()->SetValue(x);
     this->TextMappers[i]->RenderOpaqueGeometry(viewport, actor);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkLabeledDataMapper::FillInputPortInformation(
+  int vtkNotUsed( port ), vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  return 1;
 }
 
 //----------------------------------------------------------------------------
