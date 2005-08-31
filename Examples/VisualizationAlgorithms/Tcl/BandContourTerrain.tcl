@@ -129,7 +129,8 @@ vtkCamera cam
   cam SetFocalPoint 3985.35 11930.6 5922.14
   cam SetViewUp 0 0 1
 ren1 SetActiveCamera cam
-ren1 ResetCameraClippingRange
+ren1 ResetCamera
+cam Zoom 2
  
 iren AddObserver UserEvent {wm deiconify .vtkInteract}
 iren SetDesiredUpdateRate 1
