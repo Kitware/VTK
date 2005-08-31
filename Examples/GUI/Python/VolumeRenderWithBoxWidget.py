@@ -102,7 +102,7 @@ def ClipVolumeRender(obj, event):
 
 # Place the interactor initially. The output of the reader is used to
 # place the box widget.
-boxWidget.SetInputConnection(v16.GetOutputPort())
+boxWidget.SetInput(v16.GetOutput())
 boxWidget.PlaceWidget()
 boxWidget.InsideOutOn()
 boxWidget.AddObserver("StartInteractionEvent", StartInteraction)

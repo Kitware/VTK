@@ -18,7 +18,7 @@ pl3d.Update()
 
 # The plane widget is used probe the dataset.
 pointWidget = vtk.vtkPointWidget()
-pointWidget.SetInputConnection(pl3d.GetOutputPort())
+pointWidget.SetInput(pl3d.GetOutput())
 pointWidget.AllOff()
 pointWidget.PlaceWidget()
 point = vtk.vtkPolyData()

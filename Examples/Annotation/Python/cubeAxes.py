@@ -82,7 +82,7 @@ tprop.ShadowOn()
 # Create a vtkCubeAxesActor2D.  Use the outer edges of the bounding box to
 # draw the axes.  Add the actor to the renderer.
 axes = vtk.vtkCubeAxesActor2D()
-axes.SetInputConnection(normals.GetOutputPort())
+axes.SetInput(normals.GetOutput())
 axes.SetCamera(ren.GetActiveCamera())
 axes.SetLabelFormat("%6.4g")
 axes.SetFlyModeToOuterEdges()

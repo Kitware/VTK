@@ -22,7 +22,7 @@ shiftScale.SetScale(0.07)
 shiftScale.SetOutputScalarTypeToUnsignedChar()
 
 ia = vtk.vtkImageActor()
-ia.SetInputConnection(shiftScale.GetOutputPort())
+ia.SetInput(shiftScale.GetOutput())
 
 # Create the RenderWindow, Renderer and both Actors
 ren = vtk.vtkRenderer()

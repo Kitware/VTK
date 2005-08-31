@@ -62,7 +62,7 @@ def myCallback(obj, event):
 planeWidget = vtk.vtkImplicitPlaneWidget()
 planeWidget.SetInteractor(iren)
 planeWidget.SetPlaceFactor(1.25)
-planeWidget.SetInputConnection(glyph.GetOutputPort())
+planeWidget.SetInput(glyph.GetOutput())
 planeWidget.PlaceWidget()
 planeWidget.AddObserver("InteractionEvent", myCallback)
 
