@@ -40,7 +40,7 @@ int vtkDebugLeaksIgnoreClassesCheck(const char* s)
   return 0;
 }
 
-vtkCxxRevisionMacro(vtkDebugLeaks, "1.40");
+vtkCxxRevisionMacro(vtkDebugLeaks, "1.41");
 vtkStandardNewMacro(vtkDebugLeaks);
 
 //----------------------------------------------------------------------------
@@ -69,10 +69,10 @@ public:
     {
       if(this->Count)
         {
-        char tmp[55];
-        sprintf(tmp," has %i %s still around.\n",this->Count,
+        char tmp[256];
+        sprintf(tmp,"\" has %i %s still around.\n",this->Count,
                 (this->Count == 1) ? "instance" : "instances");
-        os += "Class ";
+        os += "Class \"";
         os += this->Key;
         os += tmp;
         }
@@ -134,6 +134,7 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
   vtkDebugLeaksHashNode *pos;
   vtkDebugLeaksHashNode *newpos;
   int loc;
+
   pos = this->GetNode(name);
   if(pos)
     {
