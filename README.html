@@ -9,13 +9,13 @@
 <!-- Changed by: will schroeder,  17-Jan-2003 -->
 <!-- Changed by: Prabhu Ramachandran,  6-Feb-2003 -->
 <!-- Changed by: will schroeder,  11-Aug-2004 -->
-<!-- Changed by: Bra King,  25-Aug-2005 -->
+<!-- Changed by: Brad King,  25-Aug-2005 -->
 
 </header>
 <body>
 
 <h1>
-<IMG ALIGN="middle" SRC=vtkLogo.jpg>
+<IMG ALIGN="middle" SRC=vtkBanner.gif><br>
 Welcome To The Visualization Toolkit
 </h1>
     <UL>
@@ -37,10 +37,11 @@ Welcome To The Visualization Toolkit
     </UL>
 <HR>
 <h1><A NAME="Introduction">Introduction</h1>
-VTK is an open-source software system for image processing, 3D graphics, and
-visualization. VTK includes many advanced algorithms (e.g., surface
-reconstruction, implicit modelling, decimation) and rendering techniques
-(e.g., volume rendering, LOD control).<p>
+
+VTK is an open-source software system for image processing, 3D graphics,
+volume rendering and visualization. VTK includes many advanced algorithms
+(e.g., surface reconstruction, implicit modelling, decimation) and rendering
+techniques (e.g., hardware-accelerated volume rendering, LOD control).<p>
 
 VTK is used by academicians for teaching and research; by government research
 institutions such as Los Alamos National Lab in the US or CINECA in Italy; and
@@ -108,14 +109,14 @@ The VTK source code repository is organized into four major sections.
       more information.
          <ul>
          <li><b>Common</b>- Core classes commonly used by other kits
-         <li><b>Filtering</b>- Pipeline implementation superclasses
-         <li><b>Rendering</b>- Classes used to render visualizations
+         <li><b>Filtering</b>- Data pipeline implementation superclasses
+         <li><b>Rendering</b>- Classes used to render a scene (surface primitives)
          <li><b>Graphics</b>- Filters that process 3D data
-         <li><b>Imaging</b>- Specialized image processing filters
+         <li><b>Imaging</b>- Specialized image processing filters (2D & 3D)
          <li><b>IO</b>- Classes for reading and writing data
-         <li><b>VolumeRendering</b>- Classes for rendering volume visualizations
+         <li><b>VolumeRendering</b>- Classes for rendering volume data
          <li><b>Hybrid</b>- Complex classes that depend on imaging and graphics
-         <li><b>Widgets</b>- Classes for interactive visualizations
+         <li><b>Widgets</b>- Classes for interacting with the objects in the scene
          <li><b>Parallel</b>- Parallel processing support such as MPI
          <li><b>GenericFiltering</b>- Part of an adaptor framework
          supporting integration of VTK with external systems
@@ -228,8 +229,8 @@ document the CMake interactive interface for each platform:
       no earlier prompt for the build system generator a separate
       dialog will appear during the first configuration step to prompt
       for generator selection.  After a while the dialog will present
-      a set of configuration options.  See <a
-      href="#Configuration">below</a> for details on the meaning of
+      a set of configuration options.  
+      See <a href="#Configuration">below</a> for details on the meaning of
       each of these options.  After setting the options as desired
       press "Configure" again to make another pass at configuring VTK.
       New options may appear when earlier options are adjusted.  Keep
