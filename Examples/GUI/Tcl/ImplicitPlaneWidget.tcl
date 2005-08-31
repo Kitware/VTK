@@ -58,7 +58,7 @@ vtkRenderWindowInteractor iren
 vtkImplicitPlaneWidget planeWidget
   planeWidget SetInteractor iren
   planeWidget SetPlaceFactor 1.25
-  planeWidget SetInputConnection [glyph GetOutputPort]
+  planeWidget SetInput [glyph GetOutput]
   planeWidget PlaceWidget
   planeWidget AddObserver InteractionEvent myCallback
 

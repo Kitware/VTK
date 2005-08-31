@@ -57,7 +57,7 @@ vtkCellPicker picker
 #
 vtkImagePlaneWidget planeWidgetX
   planeWidgetX DisplayTextOn
-  planeWidgetX SetInputConnection [v16 GetOutputPort]
+  planeWidgetX SetInput [v16 GetOutput]
   planeWidgetX SetPlaneOrientationToXAxes
   planeWidgetX SetSliceIndex 32
   planeWidgetX SetPicker picker
@@ -67,7 +67,7 @@ vtkImagePlaneWidget planeWidgetX
 
 vtkImagePlaneWidget planeWidgetY
   planeWidgetY DisplayTextOn
-  planeWidgetY SetInputConnection [v16 GetOutputPort]
+  planeWidgetY SetInput [v16 GetOutput]
   planeWidgetY SetPlaneOrientationToYAxes
   planeWidgetY SetSliceIndex 32
   planeWidgetY SetPicker picker
@@ -82,7 +82,7 @@ vtkImagePlaneWidget planeWidgetY
 #
 vtkImagePlaneWidget planeWidgetZ
   planeWidgetZ DisplayTextOn
-  planeWidgetZ SetInputConnection [v16 GetOutputPort]
+  planeWidgetZ SetInput [v16 GetOutput]
   planeWidgetZ SetPlaneOrientationToZAxes
   planeWidgetZ SetSliceIndex 46
   planeWidgetZ SetPicker picker

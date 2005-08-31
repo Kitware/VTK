@@ -17,7 +17,7 @@ vtkPLOT3DReader pl3d
 # The plane widget is used probe the dataset.
 #
 vtkPlaneWidget planeWidget
-    planeWidget SetInputConnection [pl3d GetOutputPort]
+    planeWidget SetInput [pl3d GetOutput]
     planeWidget NormalToXAxisOn
     planeWidget SetResolution 20
     planeWidget SetRepresentationToOutline

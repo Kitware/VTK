@@ -17,7 +17,7 @@ vtkPLOT3DReader pl3d
 # The plane widget is used probe the dataset.
 #
 vtkPointWidget pointWidget
-    pointWidget SetInputConnection [pl3d GetOutputPort]
+    pointWidget SetInput [pl3d GetOutput]
     pointWidget AllOff
     pointWidget PlaceWidget
 vtkPolyData point

@@ -20,7 +20,7 @@ vtkPLOT3DReader pl3d
 #
 vtkLineWidget lineWidget
 vtkPolyData seeds
-lineWidget SetInputConnection [pl3d GetOutputPort]
+lineWidget SetInput [pl3d GetOutput]
 lineWidget SetAlignToYAxis
 lineWidget PlaceWidget
 lineWidget GetPolyData seeds
@@ -52,7 +52,7 @@ vtkActor streamline
 #
 vtkLineWidget lineWidget2
 vtkPolyData seeds2
-lineWidget2 SetInputConnection [pl3d GetOutputPort]
+lineWidget2 SetInput [pl3d GetOutput]
 lineWidget2 PlaceWidget
 lineWidget2 GetPolyData seeds2
 lineWidget2 SetKeyPressActivationValue L

@@ -19,7 +19,7 @@ vtkImageShiftScale shiftScale
   shiftScale SetOutputScalarTypeToUnsignedChar
 
 vtkImageActor ia
-  ia SetInputConnection [shiftScale GetOutputPort]
+  ia SetInput [shiftScale GetOutput]
 
 # Create the RenderWindow, Renderer and both Actors
 vtkRenderer ren1

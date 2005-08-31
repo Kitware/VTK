@@ -52,7 +52,7 @@ vtkImageShiftScale shifter
 # Display a y-z plane. 
 # 
 vtkImageActor imageActor
-  imageActor SetInputConnection [shifter GetOutputPort]
+  imageActor SetInput [shifter GetOutput]
   imageActor VisibilityOn
   imageActor SetDisplayExtent  31 31 0 63 0 92
   imageActor InterpolateOff
@@ -94,7 +94,7 @@ vtkExtractVOI extract
   extract ReleaseDataFlagOff
 
 vtkImageActor imageActor2  
-  imageActor2 SetInputConnection [extract GetOutputPort]
+  imageActor2 SetInput [extract GetOutput]
   imageActor2 VisibilityOn
   imageActor2 SetDisplayExtent  31 31 0 63 0 92
   imageActor2 InterpolateOff
@@ -122,7 +122,7 @@ vtkImageTracerWidget itw
   itw SetProjectionNormalToXAxes
   itw SetProjectionPosition $pos
   itw SetViewProp imageActor
-  itw SetInputConnection [shifter GetOutputPort]
+  itw SetInput [shifter GetOutput]
   itw SetInteractor iren
   itw PlaceWidget
 #
@@ -142,7 +142,7 @@ vtkImageTracerWidget itw
 vtkSplineWidget isw
   isw SetCurrentRenderer ren2
   isw SetDefaultRenderer ren2
-  isw SetInputConnection [extract GetOutputPort]
+  isw SetInput [extract GetOutput]
   isw SetInteractor iren
   set bnds [imageActor2 GetBounds] 
   isw PlaceWidget [lindex $bnds 0] [lindex $bnds 1] [lindex $bnds 2] [lindex $bnds 3] [lindex $bnds 4] [lindex $bnds 5]
