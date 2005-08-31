@@ -30,7 +30,8 @@ warp.SetInput(p2c.GetUnstructuredGridOutput())
 thresh = vtk.vtkThreshold()
 thresh.SetInputConnection(warp.GetOutputPort())
 thresh.ThresholdBetween(0.25, 0.75)
-thresh.SetAttributeModeToUseCellData()
+thresh.SetInputArrayToProcess(1, 0, 0, 0, "thickness9")
+#thresh.SetAttributeModeToUseCellData()
 
 # This is used to extract the mold from the parison. 
 connect = vtk.vtkConnectivityFilter()
@@ -84,6 +85,7 @@ ren.AddActor(moldActor)
 ren.AddActor(parisonActor)
 ren.AddActor(contours)
 
+ren.ResetCamera()
 ren.GetActiveCamera().Azimuth(60)
 ren.GetActiveCamera().Roll(-90)
 ren.GetActiveCamera().Dolly(2)
