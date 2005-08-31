@@ -27,7 +27,8 @@ vtkWarpVector warp
 vtkThreshold thresh
     thresh SetInputConnection [warp GetOutputPort]
     thresh ThresholdBetween 0.25 0.75
-    thresh SetAttributeModeToUseCellData
+    thresh SetInputArrayToProcess 1 0 0 0 "thickness9"
+#    thresh SetAttributeModeToUseCellData
 
 # This is used to extract the mold from the parison. 
 vtkConnectivityFilter connect
@@ -81,6 +82,7 @@ ren1 AddActor moldActor
 ren1 AddActor parisonActor
 ren1 AddActor contours
 
+ren1 ResetCamera
 [ren1 GetActiveCamera] Azimuth 60
 [ren1 GetActiveCamera] Roll -90
 [ren1 GetActiveCamera] Dolly 2
