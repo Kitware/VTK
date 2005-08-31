@@ -85,14 +85,17 @@ ENDIF(PYTHON_EXECUTABLE)
 
 #-----------------------------------------------------------------------------
 # Configure the VTK install test.  It is enabled only if the install
-# prefix is set to an InstallTest directory under the top of the build
-# tree.
+# prefix is set to an InstallTest/Root directory under the top of the build
+# tree.  Note that the install prefix used for the install test must
+# not be a 1-level deep subdirectory under the top of the build tree.
+# If it were such then a few executables may be confused into thinking
+# they are running from the build tree instead of the install tree.
 IF(WIN32 OR APPLE)
   STRING(TOLOWER "${CMAKE_INSTALL_PREFIX}" VTK_TEST_INSTALL_LEFT)
-  STRING(TOLOWER "${VTK_BINARY_DIR}/InstallTest" VTK_TEST_INSTALL_RIGHT)
+  STRING(TOLOWER "${VTK_BINARY_DIR}/InstallTest/Root" VTK_TEST_INSTALL_RIGHT)
 ELSE(WIN32 OR APPLE)
   SET(VTK_TEST_INSTALL_LEFT "${CMAKE_INSTALL_PREFIX}")
-  SET(VTK_TEST_INSTALL_RIGHT "${VTK_BINARY_DIR}/InstallTest")
+  SET(VTK_TEST_INSTALL_RIGHT "${VTK_BINARY_DIR}/InstallTest/Root")
 ENDIF(WIN32 OR APPLE)
 STRING(COMPARE EQUAL "${VTK_TEST_INSTALL_LEFT}" "${VTK_TEST_INSTALL_RIGHT}"
   VTK_TEST_INSTALL)
