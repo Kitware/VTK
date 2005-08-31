@@ -1,9 +1,6 @@
 # a generic interactor for tcl and vtk
 #
 
-if {[ info commands wm ] != ""} {
-if {[ info commands toplevel ] != ""} {
-
 catch {unset vtkInteract.bold}
 catch {unset vtkInteract.normal}
 catch {unset vtkInteract.tagcount}
@@ -101,5 +98,3 @@ proc vtkInteract {} {
     wm withdraw .vtkInteract
 }
 vtkInteract
-}
-}

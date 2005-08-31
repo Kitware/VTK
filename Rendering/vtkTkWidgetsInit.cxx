@@ -25,46 +25,27 @@
 // Called upon system startup to create the widget commands.
 extern "C" {VTK_TK_EXPORT int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp);}
 
-extern "C" 
-{
-  int vtkTkRenderWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                            int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
-                            CONST84
-#endif
-                            char **argv);
+extern "C" {VTK_TK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_TK_EXPORT int Vtktkimageviewerwidget_Init(Tcl_Interp *interp);}
 
-  int vtkTkImageViewerWidget_Cmd(ClientData clientData, Tcl_Interp *interp, 
-                                 int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
-                                 CONST84
-#endif
-                                 char **argv);
-  int vtkImageDataToTkPhoto_Cmd (ClientData clientData,
-                                         Tcl_Interp *interp, 
-                                         int argc, 
-#if (TCL_MAJOR_VERSION == 8) && (TCL_MINOR_VERSION >= 4 && TCL_RELEASE_LEVEL >= TCL_FINAL_RELEASE)
-                                 CONST84
-#endif
-                                 char **argv);
-}
+#define VTKTK_TO_STRING(x) VTKTK_TO_STRING0(x)
+#define VTKTK_TO_STRING0(x) VTKTK_TO_STRING1(x)
+#define VTKTK_TO_STRING1(x) #x
+#define VTKTK_VERSION VTKTK_TO_STRING(VTK_MAJOR_VERSION) "." VTKTK_TO_STRING(VTK_MINOR_VERSION)
 
 int Vtkrenderingpythontkwidgets_Init(Tcl_Interp *interp)
 {
-  if(Tcl_PkgPresent(interp, (char *)"Tk", (char *)TK_VERSION, 0))
+  // Forward the call to the real init functions.
+  if(Vtktkrenderwidget_Init(interp) == TCL_OK &&
+     Vtktkimageviewerwidget_Init(interp) == TCL_OK)
     {
-    Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
-                      Tk_MainWindow(interp), NULL);
-    Tcl_CreateCommand(interp, (char *) "vtkTkImageViewerWidget", 
-                      vtkTkImageViewerWidget_Cmd, Tk_MainWindow(interp), NULL);
-    
-    Tcl_CreateCommand(interp, (char *) "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, 
-                      NULL, NULL );
-    if (Tcl_PkgProvide(interp, (char *) "Vtkrenderingpythontkwidgets", (char *) "1.2") != TCL_OK) 
-      {
-      return TCL_ERROR;
-      }
+    // Report that the package is provided.
+    return Tcl_PkgProvide(interp, (char*)"Vtkrenderingpythontkwidgets",
+                          (char*)VTKTK_VERSION);
     }
-  return TCL_OK;
+  else
+    {
+    // One of the widgets is not provided.
+    return TCL_ERROR;
+    }
 }
-

@@ -5,18 +5,6 @@ catch {
     unset __tk_error
 }
 
-if {[info commands vtkTkRenderWidget] != ""} {
-  if {[catch {
-      package require Tk
-  } errormsg]} {
-      if {[::vtk::load_component tk] != ""} {
-          puts $errormsg
-          puts "Tk was not found: the VTK rendering package can not be used... Please check that your Tcl/Tk installation is correct. Windows users should also check that the program used to open/execute Tcl files is the Tk shell (wish), not the Tcl shell (tclsh)."
-          set __tk_error 1
-      }
-  }
-}
-
 namespace eval ::vtk::rendering {
   proc SetWin32ExitCallback {} {
     # Set the default exit method of vtkWin32RenderWindowInteractor to

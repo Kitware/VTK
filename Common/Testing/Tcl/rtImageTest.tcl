@@ -33,10 +33,17 @@ set threshold -1
 if {[info commands wm] != ""} {
   wm withdraw .
 } else {
+  # There is no Tk.  Help the tests run without it.
   proc wm args {
     puts "wm not implemented"
     }
+  # The vtkinteraction package requires Tk but since Tk is not
+  # available it will never be used anyway.  Just pretend it is
+  # already loaded so that tests that load it will not try to load Tk.
+  package provide vtkinteraction 4.5
 }
+
+# Run the test.
 source $file
 if {[info commands iren] == "iren"} {renWin Render}
 # run the event loop quickly to map any tkwidget windows

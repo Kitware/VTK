@@ -686,24 +686,34 @@ extern "C"
 //----------------------------------------------------------------------------
 // vtkTkRenderWidget_Init
 // Called upon system startup to create vtkTkRenderWidget command.
-extern "C" {int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+extern "C" {VTK_TK_EXPORT int Vtktkrenderwidget_Init(Tcl_Interp *interp);}
+
+#define VTKTK_TO_STRING(x) VTKTK_TO_STRING0(x)
+#define VTKTK_TO_STRING0(x) VTKTK_TO_STRING1(x)
+#define VTKTK_TO_STRING1(x) #x
+#define VTKTK_VERSION VTKTK_TO_STRING(VTK_MAJOR_VERSION) "." VTKTK_TO_STRING(VTK_MINOR_VERSION)
 
 int VTK_TK_EXPORT Vtktkrenderwidget_Init(Tcl_Interp *interp)
 {
-  if(Tcl_PkgPresent(interp, (char *)"Tk", (char *)TK_VERSION, 0))
+  // This widget requires Tk to function.
+  Tcl_PkgRequire(interp, (char *)"Tk", (char*)TK_VERSION, 0);
+  if(Tcl_PkgPresent(interp, (char *)"Tk", (char*)TK_VERSION, 0))
     {
-    Tcl_CreateCommand(interp, (char *) "vtkTkRenderWidget", vtkTkRenderWidget_Cmd, 
-                      Tk_MainWindow(interp), NULL);
-    
-    Tcl_CreateCommand(interp, (char *) "vtkImageDataToTkPhoto", vtkImageDataToTkPhoto_Cmd, 
-                      NULL, NULL );
-    if (Tcl_PkgProvide(interp,(char *)"Vtktkrenderwidget",(char *)"1.2") != TCL_OK) 
-      {
-      return TCL_ERROR;
-      }
+    // Register the commands for this package.
+    Tcl_CreateCommand(interp, (char*)"vtkTkRenderWidget",
+                      vtkTkRenderWidget_Cmd, Tk_MainWindow(interp), NULL);
+    Tcl_CreateCommand(interp, (char*)"vtkImageDataToTkPhoto",
+                      vtkImageDataToTkPhoto_Cmd, NULL, NULL);
+
+    // Report that the package is provided.
+    return Tcl_PkgProvide(interp, (char*)"Vtktkrenderwidget",
+                          (char*)VTKTK_VERSION);
     }
-  
-  return TCL_OK;
+  else
+    {
+    // Tk is not available.
+    return TCL_ERROR;
+    }
 }
 
 
