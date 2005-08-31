@@ -50,14 +50,16 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           TestFlyTo
           TestOnePoint
           TestParallelCoordinates
+          #TestStyleTerrain  -- file source
+          TestTiling
+          TestTriangleStripCellColor
+          )
+        SET(tests ${tests}
           #TestStyleJoystickActor --file source
           #TestStyleJoystickCamera
           TestStyleRubberBandZoom
-          #TestStyleTerrain  -- file source
           #TestStyleTrackballActor -- file source
           #TestStyleTrackballCamera -- file source
-          TestTiling
-          TestTriangleStripCellColor
           )
         CONVERT_TCL_TEST_TO_PY(
           tests

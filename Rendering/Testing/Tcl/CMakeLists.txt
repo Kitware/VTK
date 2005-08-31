@@ -4,7 +4,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
   # Add tests, with the data
   #
   IF (VTK_DATA_ROOT)
-    FOREACH ( tfile
+    SET( tests
       assembly
       CamBlur
       cells 
@@ -21,15 +21,20 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
       TestFlyTo
       TestOnePoint
       TestParallelCoordinates
-      TestStyleJoystickActor
-      TestStyleJoystickCamera
-      TestStyleRubberBandZoom
       TestStyleTerrain
-      TestStyleTrackballActor
-      TestStyleTrackballCamera
       TestTiling
       TestTriangleStripCellColor
     )
+    IF(VTK_USE_TK)
+      SET(tests ${tests}
+        TestStyleJoystickActor
+        TestStyleJoystickCamera
+        TestStyleRubberBandZoom
+        TestStyleTrackballActor
+        TestStyleTrackballCamera
+        )
+    ENDIF(VTK_USE_TK)
+    FOREACH ( tfile ${tests} )
       ADD_TEST(${tfile}-image ${VTK_EXECUTABLE}
         ${VTK_SOURCE_DIR}/Common/Testing/Tcl/rtImageTest.tcl 
         ${VTK_SOURCE_DIR}/Rendering/Testing/Tcl/${tfile}.tcl
