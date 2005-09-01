@@ -1,5 +1,5 @@
 foreach kit ${vtk::init::kits} {
-  package require -exact vtk${kit} 4.5
+  package require -exact vtk${kit} 5.0
 }
 
 # Invoke DeleteAllObjects on exit
@@ -10,4 +10,4 @@ proc ::exit {{returnCode 0}} {
     return [::vtk::exit $returnCode]
 }
 
-package provide vtk 4.5
+package provide vtk 5.0

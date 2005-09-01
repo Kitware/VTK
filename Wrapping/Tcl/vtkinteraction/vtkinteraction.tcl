@@ -1,4 +1,4 @@
-package require -exact vtkrendering 4.5
+package require -exact vtkrendering 5.0
 
 # We need Tk to implement the interactive features.
 package require Tk
@@ -8,4 +8,4 @@ foreach s {Interactor bindings-rw bindings-iw bindings setget} {
   source [file join [file dirname [info script]] "${s}.tcl"]
 }
 
-package provide vtkinteraction 4.5
+package provide vtkinteraction 5.0
