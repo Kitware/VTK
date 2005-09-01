@@ -40,7 +40,7 @@ if {[info commands wm] != ""} {
   # The vtkinteraction package requires Tk but since Tk is not
   # available it will never be used anyway.  Just pretend it is
   # already loaded so that tests that load it will not try to load Tk.
-  package provide vtkinteraction 4.5
+  package provide vtkinteraction 5.1
 }
 
 # Run the test.

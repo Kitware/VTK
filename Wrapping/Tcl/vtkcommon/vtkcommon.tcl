@@ -1,8 +1,8 @@
-package require -exact vtkbase 4.5
+package require -exact vtkbase 5.1
 
 if {[info commands ::vtk::init::require_package] != ""} {
-  if {[::vtk::init::require_package vtkCommonTCL 4.5]} {
-    package provide vtkcommon 4.5
+  if {[::vtk::init::require_package vtkCommonTCL 5.1]} {
+    package provide vtkcommon 5.1
   }
 } else {
   puts stderr "Warning: Your TCLLIBPATH points to the VTK source tree. \
@@ -15,6 +15,6 @@ if {[info commands ::vtk::init::require_package] != ""} {
  to point to the VTK build tree."
   if {[info commands vtkObject] != "" ||
     [::vtk::load_component vtkCommonTCL] == ""} {
-    package provide vtkcommon 4.5
+    package provide vtkcommon 5.1
   }
 }
