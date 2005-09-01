@@ -44,27 +44,27 @@ vtkActor2D rectActor
 # Create asphere
 vtkSphereSource sphere
 vtkPolyDataMapper   sphereMapper
-    sphereMapper SetInput [sphere GetOutput]
+    sphereMapper SetInputConnection [sphere GetOutputPort]
     sphereMapper GlobalImmediateModeRenderingOn
 vtkActor sphereActor
     sphereActor SetMapper sphereMapper
 
 # Generate ids for labeling
 vtkIdFilter ids
-    ids SetInput [sphere GetOutput]
+    ids SetInputConnection [sphere GetOutputPort]
     ids PointIdsOn
     ids CellIdsOn
     ids FieldDataOn
 
 # Create labels for points
 vtkSelectVisiblePoints visPts
-    visPts SetInput [ids GetOutput]
+    visPts SetInputConnection [ids GetOutputPort]
     visPts SetRenderer ren1
     visPts SelectionWindowOn
     visPts SetSelection $xmin [expr $xmin + $xLength] \
 	    $ymin [expr $ymin + $yLength]
 vtkLabeledDataMapper ldm
-    ldm SetInput [visPts GetOutput]
+    ldm SetInputConnection [visPts GetOutputPort]
     ldm SetLabelFormat "%g"
 #    ldm SetLabelModeToLabelScalars
 #    ldm SetLabelModeToLabelNormals
@@ -75,15 +75,15 @@ vtkActor2D pointLabels
 
 # Create labels for cells
 vtkCellCenters cc
-    cc SetInput [ids GetOutput]
+    cc SetInputConnection [ids GetOutputPort]
 vtkSelectVisiblePoints visCells
-    visCells SetInput [cc GetOutput]
+    visCells SetInputConnection [cc GetOutputPort]
     visCells SetRenderer ren1
     visCells SelectionWindowOn
     visCells SetSelection $xmin [expr $xmin + $xLength] \
 	    $ymin [expr $ymin + $yLength]
 vtkLabeledDataMapper cellMapper
-    cellMapper SetInput [visCells GetOutput]
+    cellMapper SetInputConnection [visCells GetOutputPort]
     cellMapper SetLabelFormat "%g"
 #    cellMapper SetLabelModeToLabelScalars
 #    cellMapper SetLabelModeToLabelNormals
