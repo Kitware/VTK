@@ -5,6 +5,14 @@ SET(KIT_TCL_LIBS vtkRenderingTCL vtkIOTCL)
 SET(KIT_PYTHON_LIBS vtkRenderingPythonD vtkIOPythonD)
 SET(KIT_JAVA_LIBS vtkRenderingJava vtkIOJava)
 SET(KIT_LIBS vtkRendering vtkIO)
+SET(Kit_EXTRA_SRCS)
+SET(Kit_EXTRA_CMDS)
+SET(Kit_TCL_EXTRA_SRCS)
+SET(Kit_PYTHON_EXTRA_SRCS)
+SET(Kit_JAVA_EXTRA_SRCS)
+SET(KIT_TCL_DEPS)
+SET(KIT_PYTHON_DEPS)
+SET(KIT_JAVA_DEPS)
 
 SET ( Kit_SRCS
 vtkDirectionEncoder.cxx
@@ -83,14 +91,11 @@ FOREACH(file ${asm_files})
     COMMAND ${ENCODE_EXE}
     ARGS ${res} ${src} ${file}
     )
-  SET( KitOpenGL_SRCS ${KitOpenGL_SRCS} ${res} )
-  SET_SOURCE_FILES_PROPERTIES(${res} PROPERTIES WRAP_EXCLUDE 1)
+  SET(Kit_EXTRA_SRCS ${Kit_EXTRA_SRCS} ${res})
 ENDFOREACH(file)
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/vtkVolumeRenderingToolkit.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/vtkVolumeRenderingToolkit.h )
-        
-
 
 SET_SOURCE_FILES_PROPERTIES(
 vtkDirectionEncoder
@@ -126,15 +131,6 @@ ELSE (VTK_USE_MANGLED_MESA)
   ENDIF(VTK_OPENGL_HAS_OSMESA)
 ENDIF(VTK_USE_MANGLED_MESA)
 SET(Kit_SRCS ${Kit_SRCS} ${KitOpenGL_SRCS})
-
-SET(Kit_EXTRA_SRCS)
-SET(Kit_EXTRA_CMDS)
-SET(Kit_TCL_EXTRA_SRCS)
-SET(Kit_PYTHON_EXTRA_SRCS)
-SET(Kit_JAVA_EXTRA_SRCS)
-SET(KIT_TCL_DEPS)
-SET(KIT_PYTHON_DEPS)
-SET(KIT_JAVA_DEPS)
 
 #-----------------------------------------------------------------------------
 # Include CMake code common to all kits.
