@@ -391,7 +391,7 @@ static void conv444to422( unsigned char *src, unsigned char *dst,struct MPEG2_st
         ip3 = (i<mpeg2_struct->width-3) ? i+3 : mpeg2_struct->width-1;
         ip4 = (i<mpeg2_struct->width-4) ? i+4 : mpeg2_struct->width-1;
         ip5 = (i<mpeg2_struct->width-5) ? i+5 : mpeg2_struct->width-1;
-        ip6 = (i<mpeg2_struct->width-5) ? i+6 : mpeg2_struct->width-1;
+        ip6 = (i<mpeg2_struct->width-6) ? i+6 : mpeg2_struct->width-1;
 
         /* FIR filter with 0.5 sample interval phase shift */
         dst[i>>1] = mpeg2_struct->clp[(int)(228*(src[i]+src[ip1])
@@ -454,7 +454,7 @@ static void conv422to420( unsigned char *src, unsigned char *dst,struct MPEG2_st
         jp3 = (j<mpeg2_struct->height-3) ? j+3 : mpeg2_struct->height-1;
         jp4 = (j<mpeg2_struct->height-4) ? j+4 : mpeg2_struct->height-1;
         jp5 = (j<mpeg2_struct->height-5) ? j+5 : mpeg2_struct->height-1;
-        jp6 = (j<mpeg2_struct->height-5) ? j+6 : mpeg2_struct->height-1;
+        jp6 = (j<mpeg2_struct->height-6) ? j+6 : mpeg2_struct->height-1;
 
         /* FIR filter with 0.5 sample interval phase shift */
         dst[w*(j>>1)] = mpeg2_struct->clp[(int)(228*(src[w*j]+src[w*jp1])
