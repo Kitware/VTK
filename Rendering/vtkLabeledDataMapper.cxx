@@ -24,7 +24,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
-vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.40");
+vtkCxxRevisionMacro(vtkLabeledDataMapper, "1.41");
 vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,LabelTextProperty,vtkTextProperty);
@@ -122,13 +122,14 @@ void vtkLabeledDataMapper::RenderOverlay(vtkViewport *viewport,
   int i;
   double x[3];
   vtkDataSet *input=this->GetInput();
+  vtkIdType numPts = input->GetNumberOfPoints();
 
   if ( ! input )
     {
     vtkErrorMacro(<<"Need input data to render labels");
     return;
     }
-  for (i=0; i<this->NumberOfLabels; i++)
+  for (i=0; i<this->NumberOfLabels && i<numPts; i++)
     {
     input->GetPoint(i,x);
     actor->GetPositionCoordinate()->SetCoordinateSystemToWorld();
@@ -153,7 +154,6 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     return;
     }
 
-  vtkPointData *pd=input->GetPointData();
   vtkTextProperty *tprop = this->LabelTextProperty;
   if (!tprop)
     {
@@ -162,6 +162,10 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
   input->Update();
+
+  // Input might have changed
+  input = this->GetInput();
+  vtkPointData *pd=input->GetPointData();
 
   // Check to see whether we have to rebuild everything
   if ( this->GetMTime() > this->BuildTime || 
