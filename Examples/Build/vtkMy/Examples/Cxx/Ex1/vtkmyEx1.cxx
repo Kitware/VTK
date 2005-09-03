@@ -24,7 +24,7 @@
 #include "vtkBar2.h"
 #include "vtkImageFoo.h"
 
-int main( int argc, char *argv[] )
+int main()
 {
 
   //
