@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 1.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.0)
 
 # Set the project/library name here.  Classes should be declared as
 # "class vtkLocal_EXPORT vtkFoo", where vtkLocal is the name of the
@@ -23,11 +23,15 @@ SET(vtkLocal_LIBS
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${PROJECT_BINARY_DIR})
 
+# Setup output paths.
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH
+    "Single output directory for building all libraries.")
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH
+    "Single output directory for building all executables.")
+MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+
 # Find and load VTK settings.
-FIND_PACKAGE(VTK)
-IF(NOT VTK_DIR)
-  MESSAGE(FATAL_ERROR "Please set VTK_DIR.")
-ENDIF(NOT VTK_DIR)
+FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
 # Give user option of building shared or static libraries.  Default to
@@ -42,14 +46,6 @@ IF(BUILD_SHARED_LIBS)
 ELSE(BUILD_SHARED_LIBS)
   SET(VTKLOCAL_BUILD_SHARED_LIBS_CONFIG 0)
 ENDIF(BUILD_SHARED_LIBS)
-
-SET (LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH
-     "Single output directory for building all libraries.")
-
-SET (EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH
-     "Single output directory for building all executables.")
-
-MARK_AS_ADVANCED(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
 
 IF(VTK_FOUND)
   # If this is a build tree, provide an option for putting this
