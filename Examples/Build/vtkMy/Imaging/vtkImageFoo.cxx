@@ -12,20 +12,18 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
 #include "vtkImageFoo.h"
 
 #include "vtkBar.h"
 #include "vtkImageData.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
 //----------------------------------------------------------------------------
-
-vtkCxxRevisionMacro(vtkImageFoo, "1.10");
+vtkCxxRevisionMacro(vtkImageFoo, "1.11");
 vtkStandardNewMacro(vtkImageFoo);
 
 //----------------------------------------------------------------------------
-
 vtkImageFoo::vtkImageFoo()
 {
   this->Foo = 0.0;
@@ -34,7 +32,6 @@ vtkImageFoo::vtkImageFoo()
 }
 
 //----------------------------------------------------------------------------
-
 vtkImageFoo::~vtkImageFoo()
 {
   if (this->Bar)
@@ -45,26 +42,36 @@ vtkImageFoo::~vtkImageFoo()
 }
 
 //----------------------------------------------------------------------------
-
-void vtkImageFoo::ExecuteInformation(vtkImageData *inData, 
-                                     vtkImageData *outData)
+void vtkImageFoo::PrintSelf(ostream& os, vtkIndent indent)
 {
-  this->vtkImageToImageFilter::ExecuteInformation(inData, outData);
-
-  if (this->OutputScalarType != -1)
-    {
-    outData->SetScalarType(this->OutputScalarType);
-    }
+  this->Superclass::PrintSelf(os,indent);
+  os << indent << "Foo: " << this->Foo << "\n";
+  os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
 }
 
 //----------------------------------------------------------------------------
+int vtkImageFoo::RequestInformation(vtkInformation*,
+                                    vtkInformationVector**,
+                                    vtkInformationVector* outputVector)
+{
+  // Set the scalar type we will produce in the output information for
+  // the first output port.
+  if(this->OutputScalarType != -1)
+    {
+    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+    vtkDataObject::SetPointDataActiveScalarInfo(
+      outInfo, this->OutputScalarType, -1);
+    }
+  return 1;
+}
 
-// This templated function executes the filter for any type of data.
-
+//----------------------------------------------------------------------------
+// This function template implements the filter for any combination of
+// input and output data type.
 template <class IT, class OT>
-void vtkImageFooExecute(vtkImageFoo *self,
-                        vtkImageData *inData, IT *inPtr,
-                        vtkImageData *outData, OT *outPtr,
+void vtkImageFooExecute(vtkImageFoo* self,
+                        vtkImageData* inData, IT* inPtr,
+                        vtkImageData* outData, OT* outPtr,
                         int outExt[6], int id)
 {
   float foo = self->GetFoo();
@@ -120,61 +127,54 @@ void vtkImageFooExecute(vtkImageFoo *self,
     }
 }
 
-
 //----------------------------------------------------------------------------
-
+// This function template is instantiated for each input data type and
+// forwards the call to the above function template for each output
+// data type.
 template <class T>
-void vtkImageFooExecute1(vtkImageFoo *self,
-                         vtkImageData *inData, T *inPtr,
-                         vtkImageData *outData,
+void vtkImageFooExecute1(vtkImageFoo* self,
+                         vtkImageData* inData, T* inPtr,
+                         vtkImageData* outData,
                          int outExt[6], int id)
 {
   void *outPtr = outData->GetScalarPointerForExtent(outExt);
-  
-  switch (outData->GetScalarType())
+  int outType = outData->GetScalarType();
+  switch (outType)
     {
     vtkTemplateMacro(
-      vtkImageFooExecute(self, inData, inPtr,
-                         outData, (VTK_TT *)(outPtr),outExt, id)
+      vtkImageFooExecute(self,
+                         inData, inPtr,
+                         outData, static_cast<VTK_TT*>(outPtr),
+                         outExt, id)
       );
     default:
-      vtkGenericWarningMacro("Execute: Unknown input ScalarType");
+      vtkErrorWithObjectMacro(self, "Unknown output scalar type " << outType);
       return;
     }
 }
 
 //----------------------------------------------------------------------------
-
-// This method is passed a input and output data, and executes the filter
-// algorithm to fill the output from the input.
-// It just executes a switch statement to call the correct function for
-// the datas data types.
-
-void vtkImageFoo::ThreadedExecute(vtkImageData *inData, 
-                                  vtkImageData *outData,
-                                  int outExt[6], int id)
+// This method is passed an input and output data, and executes the
+// filter algorithm to fill the output from the input.  It just
+// executes a switch statement to call the correct function for the
+// datas data types.
+void vtkImageFoo::ThreadedRequestData(vtkInformation*,
+                                      vtkInformationVector**,
+                                      vtkInformationVector*,
+                                      vtkImageData*** inData,
+                                      vtkImageData** outData,
+                                      int outExt[6], int id)
 {
-  void *inPtr = inData->GetScalarPointerForExtent(outExt);
-  
-  switch (inData->GetScalarType())
+  void* inPtr = inData[0][0]->GetScalarPointerForExtent(outExt);
+  int inType = inData[0][0]->GetScalarType();
+  switch (inType)
     {
     vtkTemplateMacro(
-      vtkImageFooExecute1(this, inData, (VTK_TT *)(inPtr),
-                          outData, outExt, id)
+      vtkImageFooExecute1(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
+                          outData[0], outExt, id)
       );
     default:
-      vtkErrorMacro(<< "Execute: Unknown ScalarType");
+      vtkErrorMacro("Unknown input scalar type " << inType);
       return;
     }
 }
-
-//----------------------------------------------------------------------------
-
-void vtkImageFoo::PrintSelf(ostream& os, vtkIndent indent)
-{
-  vtkImageToImageFilter::PrintSelf(os,indent);
-
-  os << indent << "Foo: " << this->Foo << "\n";
-  os << indent << "Output Scalar Type: " << this->OutputScalarType << "\n";
-}
-

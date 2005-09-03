@@ -19,16 +19,16 @@
 #ifndef __vtkImageFoo_h
 #define __vtkImageFoo_h
 
-#include "vtkImageToImageFilter.h"
+#include "vtkThreadedImageAlgorithm.h"
 #include "vtkmyImagingWin32Header.h"
 
 class vtkBar;
 
-class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkImageToImageFilter
+class VTK_MY_IMAGING_EXPORT vtkImageFoo : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageFoo *New();
-  vtkTypeRevisionMacro(vtkImageFoo,vtkImageToImageFilter);
+  vtkTypeRevisionMacro(vtkImageFoo,vtkThreadedImageAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -58,6 +58,8 @@ public:
     {this->SetOutputScalarType(VTK_UNSIGNED_SHORT);}
   void SetOutputScalarTypeToChar()
     {this->SetOutputScalarType(VTK_CHAR);}
+  void SetOutputScalarTypeToSignedChar()
+    {this->SetOutputScalarType(VTK_SIGNED_CHAR);}
   void SetOutputScalarTypeToUnsignedChar()
     {this->SetOutputScalarType(VTK_UNSIGNED_CHAR);}
 
@@ -69,10 +71,14 @@ protected:
   int OutputScalarType;
   vtkBar* Bar;
 
-  void ExecuteInformation(vtkImageData *inData, vtkImageData *outData);
-  void ExecuteInformation(){this->vtkImageToImageFilter::ExecuteInformation();};
-  void ThreadedExecute(vtkImageData *inData, vtkImageData *outData,
-                       int extent[6], int id);
+  virtual int RequestInformation(vtkInformation*,
+                                 vtkInformationVector**,
+                                 vtkInformationVector* outputVector);
+  void ThreadedRequestData(vtkInformation* request,
+                           vtkInformationVector** inputVector,
+                           vtkInformationVector* outputVector,
+                           vtkImageData*** inData, vtkImageData** outData,
+                           int outExt[6], int id);
 private:
   vtkImageFoo(const vtkImageFoo&);  // Not implemented.
   void operator=(const vtkImageFoo&);  // Not implemented.
