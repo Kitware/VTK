@@ -7,7 +7,7 @@ vtkWindows.h which includes a minimal part of the real windows.h
 header.  This also avoids contaminating user code with the windows.h
 API just because it included a VTK header.
 
-The main problem with windows.h what we call the "windows mangling"
+The main problem with windows.h is what we call the "windows mangling"
 problem.  In order to support UNICODE and ASCII characters APIs,
 windows.h defines most of its API as macros.  This code appears in the
 windows header:
@@ -192,7 +192,7 @@ of the common proposals and the reasons they were rejected:
     can define VTK_DO_NOT_INCLUDE_WINDOWS_H when it is building
     itself.
 
-    This help existing applications but will also allow new
+    This helps existing applications but will also allow new
     applications to be written that do not include windows.h properly.
     It will also prevent the compile-time improvements from
     propagating to application code by default.  The policy we are
@@ -201,3 +201,14 @@ of the common proposals and the reasons they were rejected:
     violations.  We are willing to let users break this policy by
     defining macros but we do not want to require users to define
     macros to get this policy.
+
+NOTE: Since GetClassName is so widely used it was decided that it
+would not be renamed or deprecated at this time.  The documentation
+above uses GetClassName as an example but not all of these changes
+were actually applied to it in VTK.  All changes were applied to other
+offending methods, but only enough changes were applied to
+GetClassName to get it to work whether or not windows.h is included or
+UNICODE is defined.  The method is no longer virtual so user code must
+define a GetClassNameInternal protected method instead of GetClassName
+in order to override it.  Since most user code defines the method with
+vtkTypeRevisionMacro anyway this should not require many changes.
