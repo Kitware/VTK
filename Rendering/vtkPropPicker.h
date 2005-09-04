@@ -42,7 +42,7 @@ public:
 
   // Description:
   // Perform the pick and set the PickedProp ivar. If something is picked, a
-  // 1 is returned, otherwise 0 is returned.  Use the GetProp() method
+  // 1 is returned, otherwise 0 is returned.  Use the GetViewProp() method
   // to get the instance of vtkProp that was picked.  Props are picked from
   // the renderers list of pickable Props.
   int PickProp(double selectionX, double selectionY, vtkRenderer *renderer);  
