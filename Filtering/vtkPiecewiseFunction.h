@@ -16,13 +16,27 @@
 // .NAME vtkPiecewiseFunction - Defines a 1D piecewise function.
 // 
 // .SECTION Description
-// Defines a piecewise linear function mapping. Used for transfer functions
-// in volume rendering.
+// Defines a piecewise function mapping. This mapping allows the addition
+// of control points, and allows the user to control the function between
+// the control points. A piecewise hermite curve is used between control 
+// points, based on the sharpness and midpoint parameters. A sharpness of
+// 0 yields a piecewise linear function and a sharpness of 1 yields a
+// piecewise constant function. The midpoint is the normalized distance
+// between control points at which the curve reaches the median Y value.
+// The midpoint and sharpness values specified when adding a node are used
+// to control the transition to the next node (the last node's values are
+// ignored) Outside the range of nodes, the values are 0 if Clamping is off,
+// or the nearest node point if Clamping is on. Using the legacy methods for
+// adding points  (which do not have Sharpness and Midpoint parameters) 
+// will default to Midpoint = 0.5 (halfway between the control points) and
+// Sharpness = 0.0 (linear).
 
 #ifndef __vtkPiecewiseFunction_h
 #define __vtkPiecewiseFunction_h
 
 #include "vtkDataObject.h"
+
+class vtkPiecewiseFunctionInternals;
 
 class VTK_FILTERING_EXPORT vtkPiecewiseFunction : public vtkDataObject
 {
@@ -31,7 +45,6 @@ public:
   vtkTypeRevisionMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  void Initialize();
   void DeepCopy( vtkDataObject *f );
   void ShallowCopy( vtkDataObject *f );
 
@@ -47,7 +60,8 @@ public:
   // Add/Remove points to/from the function. If a duplicate point is added
   // then the function value is changed at that location.
   // Return the index of the point (0 based), or -1 on error.
-  int AddPoint( double x, double val );
+  int AddPoint( double x, double y );
+  int AddPoint( double x, double y, double midpoint, double sharpness );
   int RemovePoint( double x );
 
   // Description:
@@ -56,24 +70,34 @@ public:
 
   // Description:
   // Add a line segment to the function. All points defined between the
-  // two points specified are removed from the function.
-  void AddSegment( double x1, double val1, double x2, double val2 );
+  // two points specified are removed from the function. This is a legacy
+  // method that does not allow the specification of the sharpness and
+  // midpoint values for the two nodes.
+  void AddSegment( double x1, double y1, double x2, double y2 );
 
   // Description:
   // Returns the value of the function at the specified location using
-  // the specified interpolation. Returns zero if the specified location
-  // is outside the min and max points of the function.
+  // the specified interpolation. 
   double GetValue( double x );
 
   // Description:
+  // For the node specified by index, returns the
+  // location (X), value (Y), midpoint, and sharpness 
+  // values at the node.
+  int GetNodeValue( int index, double val[4] );
+  
+  // Description:
   // Returns a pointer to the data stored in the table.
-  // Fills from a pointer to data stored in a similar table.
-  double *GetDataPointer() {return this->Function;};
+  // Fills from a pointer to data stored in a similar table. These are
+  // legacy methods which will be maintained for compatibility - however,
+  // note that the vtkPiecewiseFunction no longer stores the nodes 
+  // in a double array internally.
+  double *GetDataPointer();
   void FillFromDataPointer(int, double*);
 
   // Description:
-  // Returns the min and max point locations of the function.
-  double *GetRange();
+  // Returns the min and max node locations of the function.
+  vtkGetVector2Macro( Range, double );
 
   // Description:
   // Remove all points out of the new range, and make sure there is a point
@@ -83,9 +107,7 @@ public:
 
   // Description:
   // Fills in an array of function values evaluated at regular intervals.
-  // Parameter "stride" is used to step through the output "table". It is
-  // used by vtkColorTransferFunction to fill in an rgb table using three
-  // separate piecewise functions and three separate calls to GetTable().
+  // Parameter "stride" is used to step through the output "table". 
   void GetTable( double x1, double x2, int size, float *table, int stride=1 );
   void GetTable( double x1, double x2, int size, double *table, int stride=1 );
 
@@ -93,8 +115,7 @@ public:
   // Constructs a piecewise function from a table.  Function range is
   // is set to [x1, x2], function size is set to size, and function points
   // are regularly spaced between x1 and x2.  Parameter "stride" is
-  // is step through the input table.  It is used by vtkColorTransferFunction
-  // to construct 3 piecewise functions from an rgb table.
+  // is step through the input table.  
   void BuildFunctionFromTable( double x1, double x2, int size,
                                double *table, int stride=1 );
   
@@ -123,13 +144,19 @@ public:
   // function. Note that the value at this point may be zero.
   double GetFirstNonZeroValue();
 
+  // Description:
+  // Clears out the current function. A newly created vtkPiecewiseFunction
+  // is alreay initialized, so there is no need to call this method which
+  // in turn simply calls RemoveAllPoints() 
+  void Initialize();
+  
 protected:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();
 
-  // Size of the array used to store function points
-  int   ArraySize;
-
+  // The internal STL structures
+  vtkPiecewiseFunctionInternals *Internal;
+  
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
@@ -139,27 +166,18 @@ protected:
   // Array of points ((X,Y) pairs)
   double *Function;
 
-  // Number of points used to specify function
-  int   FunctionSize;
-
   // Min and max range of function point locations
-  double FunctionRange[2];
+  double Range[2];
 
-  // Increases size of the function array. The array grows by a factor of 2
-  // when the array limit has been reached.
-  void IncreaseArraySize();
-
-  // Private function to add a point to the function. Returns the array
-  // index of the inserted point.
-  int InsertPoint( double x, double val );
-
-  // Move points one index down or up in the array. This is useful for 
-  // inserting and deleting points into the array.
-  void MovePoints( int index, int down );
+  // Internal method to sort the vector and update the
+  // Range whenever a node is added or removed
+  void SortAndUpdateRange();
+  
 private:
   vtkPiecewiseFunction(const vtkPiecewiseFunction&);  // Not implemented.
   void operator=(const vtkPiecewiseFunction&);  // Not implemented.
 };
 
 #endif
+
 

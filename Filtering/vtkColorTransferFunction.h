@@ -15,8 +15,14 @@
 // .NAME vtkColorTransferFunction - Defines a transfer function for mapping a property to an RGB color value.
 
 // .SECTION Description
-// vtkColorTransferFunction encapsulates three vtkPiecewiseFunction instances
-// to provide a full RGB transfer function.
+// vtkColorTransferFunction is a color mapping in RGB or HSV space that
+// uses piecewise hermite functions to allow interpolation that can be
+// piecewise constant, piecewise linear, or somewhere in-between 
+// (a modified piecewise hermite function that squishes the function
+// according to a sharpness parameter). The function also allows for
+// the specification of the midpoint (the place where the function
+// reaches the average of the two bounding nodes) as a normalize distance
+// between nodes.
 
 // .SECTION see also
 // vtkPiecewiseFunction
@@ -26,7 +32,7 @@
 
 #include "vtkScalarsToColors.h"
 
-class vtkPiecewiseFunction;
+class vtkColorTransferFunctionInternals;
 
 #define VTK_CTF_RGB           0
 #define VTK_CTF_HSV           1
@@ -37,6 +43,7 @@ public:
   static vtkColorTransferFunction *New();
   vtkTypeRevisionMacro(vtkColorTransferFunction,vtkScalarsToColors);
   void DeepCopy( vtkColorTransferFunction *f );
+  void ShallowCopy( vtkColorTransferFunction *f );
 
   // Description:
   // Print method for vtkColorTransferFunction
@@ -44,13 +51,17 @@ public:
 
   // Description:
   // How many points are there defining this function?
-  int GetSize() {return this->NumberOfPoints;};
+  int GetSize();
   
   // Description:
   // Add/Remove a point to/from the function defined in RGB or HSV
   // Return the index of the point (0 based), or -1 on error.
   int AddRGBPoint( double x, double r, double g, double b );
+  int AddRGBPoint( double x, double r, double g, double b, 
+                   double midpoint, double sharpness );
   int AddHSVPoint( double x, double h, double s, double v );
+  int AddHSVPoint( double x, double h, double s, double v,
+                   double midpoint, double sharpness );
   int RemovePoint( double x );
 
   // Description:
@@ -77,6 +88,12 @@ public:
   double GetGreenValue( double x );
   double GetBlueValue( double x );
 
+  //  Description:
+  // For the node specified by index, returns the
+  // location (X), R, G, and B values, midpoint, and 
+  // sharpness values at the node.
+  int GetNodeValue( int index, double val[6] );
+  
   // Description:
   // Map one value through the lookup table.
   virtual unsigned char *MapValue(double v);
@@ -123,12 +140,11 @@ public:
   vtkSetMacro(HSVWrap, int);
   vtkGetMacro(HSVWrap, int);
   vtkBooleanMacro(HSVWrap, int);
-  VTK_LEGACY(void SetColorSpaceToHSVNoWrap());
     
   // Description:
   // Returns a list of all nodes
   // Fills from a pointer to data stored in a similar list of nodes.
-  double *GetDataPointer() {return this->Function;};
+  double *GetDataPointer();
   void FillFromDataPointer(int, double*);
 
   // Description:
@@ -141,6 +157,8 @@ protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();
 
+  vtkColorTransferFunctionInternals *Internal;
+  
   // Determines the function value outside of defined points
   // Zero = always return 0.0 outside of defined points
   // One  = clamp to the lowest value below defined points and
@@ -153,22 +171,14 @@ protected:
   // Specify if HSW is warp or not
   int HSVWrap;
   
-  // The color function
   double     *Function;
-  int         FunctionSize;
-  int         NumberOfPoints;
-
+  
+  // The min and max node locations
+  double Range[2];
+  
   // An evaluated color (0 to 255 RGBA A=255)
   unsigned char UnsignedCharRGBAValue[4];
 
-  // The min and max point locations for all three transfer functions
-  double Range[2]; 
-
-  // Transfer functions for each color component
-  // Remove after corresponding depricated methods are removed
-  vtkPiecewiseFunction  *Red;
-  vtkPiecewiseFunction  *Green;
-  vtkPiecewiseFunction  *Blue;
   vtkTimeStamp BuildTime;
   unsigned char *Table;
   int TableSize;
@@ -179,7 +189,10 @@ protected:
   virtual void SetRange(double, double) {};
   void SetRange(double rng[2]) {this->SetRange(rng[0],rng[1]);};
 
-
+  // Internal method to sort the vector and update the
+  // Range whenever a node is added or removed
+  void SortAndUpdateRange();
+  
 private:
   vtkColorTransferFunction(const vtkColorTransferFunction&);  // Not implemented.
   void operator=(const vtkColorTransferFunction&);  // Not implemented.
