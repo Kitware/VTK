@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.23");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.24");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -616,6 +616,13 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
 }
 
 //----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::InputTypeIsValid(
+  int port, int index,vtkInformationVector **)
+{
+  return 1;
+}
+
+//----------------------------------------------------------------------------
 void vtkCompositeDataPipeline::CheckInputPorts(int& inputPortIsComposite,
                                                int& inputIsComposite,
                                                int& compositePort)
@@ -914,6 +921,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
           r->Remove(REQUEST_DATA_OBJECT());
 
           r->Set(REQUEST_INFORMATION());
+          dobj->CopyInformationToPipeline(r, 0, inInfo, 1);
           this->Superclass::ExecuteInformation(r,inInfoVec,outInfoVec);
           r->Remove(REQUEST_INFORMATION());
 

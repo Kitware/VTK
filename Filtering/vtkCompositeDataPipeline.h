@@ -187,6 +187,7 @@ protected:
   void CheckInputPorts(int& inputPortIsComposite,
                        int& inputIsComposite,
                        int& compositePort);
+  virtual int InputTypeIsValid(int port, int index,vtkInformationVector **);
 
   vtkInformation* InformationCache;
 
