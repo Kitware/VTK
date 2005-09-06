@@ -32,7 +32,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.16");
+vtkCxxRevisionMacro(vtkImageData, "1.17");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -157,11 +157,22 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
     // data info of the output.  If it exists, then we assume the type and 
     // number of components are set; if not, set type and number of components
     // to default values
-    vtkInformation *scalarInfo = vtkDataObject::GetActiveFieldInformation(output, 
-      FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
-    if (!scalarInfo)
+    vtkInformation *scalarInfo = 
+      vtkDataObject::GetActiveFieldInformation(output, 
+                                               FIELD_ASSOCIATION_POINTS, 
+                                               vtkDataSetAttributes::SCALARS);
+    if (!scalarInfo || forceCopy)
       {
-      vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
+      vtkDataArray* scalars = this->GetPointData()->GetScalars();
+      if (scalars)
+        {
+        vtkDataObject::SetPointDataActiveScalarInfo(
+          output, scalars->GetDataType(), scalars->GetNumberOfComponents());
+        }
+      else
+        {
+        vtkDataObject::SetPointDataActiveScalarInfo(output, VTK_DOUBLE, 1);
+        }
       }
     }
 }
