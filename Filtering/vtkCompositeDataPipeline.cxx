@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.25");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.26");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -956,6 +956,7 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
           dobj->CopyInformationToPipeline(r, 0, inInfo, 1);
           // This should not be needed but since a lot of image filters do:
           // img->GetScalarType(), it is necessary.
+          dobj->GetProducerPort(); // make sure there is pipeline info.
           dobj->CopyInformationToPipeline(
             r, 0, dobj->GetPipelineInformation(), 1);
           this->Superclass::ExecuteInformation(r,inInfoVec,outInfoVec);
