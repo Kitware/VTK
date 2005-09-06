@@ -33,7 +33,7 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLReader, "1.38");
+vtkCxxRevisionMacro(vtkXMLReader, "1.39");
 
 //----------------------------------------------------------------------------
 vtkXMLReader::vtkXMLReader()
@@ -132,8 +132,15 @@ vtkDataSet* vtkXMLReader::GetOutputAsDataSet(int index)
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::CanReadFileVersion(int, int)
+// Major version should be incremented when older readers can no longer
+// read files written for this reader. Minor versions are for added 
+// functionality that can be safely ignored by older readers.
+int vtkXMLReader::CanReadFileVersion(int major, int minor)
 {
+  if (major > 0)
+    {
+    return 0;
+    }
   return 1;
 }
 
@@ -492,6 +499,15 @@ void vtkXMLReader::ReadXMLData()
 //----------------------------------------------------------------------------
 int vtkXMLReader::ReadVTKFile(vtkXMLDataElement* eVTKFile)
 {
+  // Check if the file version is one we support.
+  const char* version = eVTKFile->GetAttribute("version");
+  if(version && !this->CanReadFileVersionString(version))
+    {
+    vtkErrorMacro("File version: " << version << " is is higher than "
+                  "this reader supports. Cannot read file.");
+    return 0;
+    }
+
   // Setup the compressor if there is one.
   const char* compressor = eVTKFile->GetAttribute("compressor");
   if(compressor)
