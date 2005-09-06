@@ -297,7 +297,9 @@ public:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.
   virtual void CopyInformationToPipeline(vtkInformation* request,
-                                         vtkInformation* input);
+                                         vtkInformation* input,
+                                         vtkInformation* output,
+                                         int forceCopy);
   virtual void CopyInformationFromPipeline(vtkInformation* request);
 
   // Description:

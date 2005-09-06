@@ -304,13 +304,25 @@ public:
   virtual int GetMaximumNumberOfPieces();
 
   // Description:
-  // Copy information about this data object to its
-  // PipelineInformation from its own Information for the given
+  // Copy information about this data object to the output
+  // information from its own Information for the given
   // request.  If the second argument is not NULL then it is the
   // pipeline information object for the input to this data object's
-  // producer.
+  // producer. If forceCopy is true, information is copied even
+  // if it exists in the output.
   virtual void CopyInformationToPipeline(vtkInformation* request,
-                                         vtkInformation* input);
+                                         vtkInformation* input,
+                                         vtkInformation* output,
+                                         int forceCopy);
+
+  // Description:
+  // Calls CopyInformationToPipeline(request, input, this->PipelineInformation, 0). 
+  // Subclasses should not override this method (not virtual)
+  void CopyInformationToPipeline(vtkInformation* request,
+                                 vtkInformation* input)
+    {
+      this->CopyInformationToPipeline(request, input, this->PipelineInformation, 0);
+    }
 
   // Description:
   // Copy information about this data object from the

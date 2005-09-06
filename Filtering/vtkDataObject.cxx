@@ -34,7 +34,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkInformationVector.h"
 #include "vtkDataSetAttributes.h"
 
-vtkCxxRevisionMacro(vtkDataObject, "1.26");
+vtkCxxRevisionMacro(vtkDataObject, "1.27");
 vtkStandardNewMacro(vtkDataObject);
 
 vtkCxxSetObjectMacro(vtkDataObject,Information,vtkInformation);
@@ -361,14 +361,15 @@ void vtkDataObject::SetGlobalReleaseDataFlag(int val)
 
 //----------------------------------------------------------------------------
 void vtkDataObject::CopyInformationToPipeline(vtkInformation *request, 
-                                              vtkInformation *input)
+                                              vtkInformation *input,
+                                              vtkInformation *output,
+                                              int vtkNotUsed(forceCopy))
 {
   // Set default pipeline information during a request for information.
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     // Copy point and cell data from the input if available.  Otherwise use our
     // current settings.
-    vtkInformation* output = this->PipelineInformation;
 
     if (input)
       {

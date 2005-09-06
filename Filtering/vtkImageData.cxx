@@ -32,7 +32,7 @@
 #include "vtkVoxel.h"
 #include "vtkInformationVector.h"
 
-vtkCxxRevisionMacro(vtkImageData, "1.15");
+vtkCxxRevisionMacro(vtkImageData, "1.16");
 vtkStandardNewMacro(vtkImageData);
 
 //----------------------------------------------------------------------------
@@ -117,26 +117,26 @@ void vtkImageData::Initialize()
     }
 }
 
-
 //----------------------------------------------------------------------------
 void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
-                                             vtkInformation* input)
+                                             vtkInformation* input,
+                                             vtkInformation* output,
+                                             int forceCopy)
 {
   // Let the superclass copy whatever it wants.
-  this->Superclass::CopyInformationToPipeline(request, input);
+  this->Superclass::CopyInformationToPipeline(request, input, output, forceCopy);
 
   // Set default pipeline information during a request for information.
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
     // Copy settings from the input if available.  Otherwise use our
     // current settings.
-    vtkInformation* output = this->PipelineInformation;
 
     if(input && input->Has(ORIGIN()))
       {
       output->CopyEntry(input, ORIGIN());
       }
-    else if (!output->Has(ORIGIN()))
+    else if (!output->Has(ORIGIN()) || forceCopy)
       {
       // Set origin (only if it is not set).
       output->Set(ORIGIN(), this->GetOrigin(), 3);
@@ -146,7 +146,7 @@ void vtkImageData::CopyInformationToPipeline(vtkInformation* request,
       {
       output->CopyEntry(input, SPACING());
       }
-    else if (!output->Has(SPACING()))
+    else if (!output->Has(SPACING()) || forceCopy)
       {
       // Set spacing (only if it is not set).
       output->Set(SPACING(), this->GetSpacing(), 3);
