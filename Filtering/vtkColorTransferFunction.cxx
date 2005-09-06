@@ -21,7 +21,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkColorTransferFunction, "1.57");
+vtkCxxRevisionMacro(vtkColorTransferFunction, "1.58");
 vtkStandardNewMacro(vtkColorTransferFunction);
 
 class vtkCTFNode
@@ -183,18 +183,6 @@ int vtkColorTransferFunction::AddRGBPoint( double x, double r,
     return -1;
     }
 
-  // Move midpoint away from extreme ends of range to avoid
-  // degenerate math
-  if ( midpoint < 0.00001 )
-    {
-    midpoint = 0.00001;
-    }
-  
-  if ( midpoint > 0.99999 )
-    {
-    midpoint = 0.99999;
-    }
-  
   if ( sharpness < 0.0 || sharpness > 1.0 )
     {
     vtkErrorMacro("Sharpness outside range [0.0, 1.0]");
@@ -537,6 +525,18 @@ void vtkColorTransferFunction::GetTable( double xStart, double xEnd,
         // since these control this region
         midpoint  = this->Internal->Nodes[idx-1]->Midpoint;
         sharpness = this->Internal->Nodes[idx-1]->Sharpness;
+        
+        // Move midpoint away from extreme ends of range to avoid
+        // degenerate math
+        if ( midpoint < 0.00001 )
+          {
+          midpoint = 0.00001;
+          }
+        
+        if ( midpoint > 0.99999 )
+          {
+          midpoint = 0.99999;
+          }
         }
       }
     

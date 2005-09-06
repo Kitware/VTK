@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.42");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.43");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -378,18 +378,6 @@ int vtkPiecewiseFunction::AddPoint( double x, double y,
     return -1;
     }
   
-  // Move midpoint away from extreme ends of range to avoid
-  // degenerate math
-  if ( midpoint < 0.00001 )
-    {
-    midpoint = 0.00001;
-    }
-  
-  if ( midpoint > 0.99999 )
-    {
-    midpoint = 0.99999;
-    }
-  
   if ( sharpness < 0.0 || sharpness > 1.0 )
     {
     vtkErrorMacro("Sharpness outside range [0.0, 1.0]");
@@ -694,6 +682,18 @@ void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
         // since these control this region
         midpoint  = this->Internal->Nodes[idx-1]->Midpoint;
         sharpness = this->Internal->Nodes[idx-1]->Sharpness;
+        
+        // Move midpoint away from extreme ends of range to avoid
+        // degenerate math
+        if ( midpoint < 0.00001 )
+          {
+          midpoint = 0.00001;
+          }
+        
+        if ( midpoint > 0.99999 )
+          {
+          midpoint = 0.99999;
+          }
         }
       }
     
