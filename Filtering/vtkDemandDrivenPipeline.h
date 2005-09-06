@@ -163,10 +163,10 @@ protected:
   int InputCountIsValid(int port,vtkInformationVector **);
   int InputTypeIsValid(vtkInformationVector **);
   int InputTypeIsValid(int port,vtkInformationVector **);
-  int InputTypeIsValid(int port, int index,vtkInformationVector **);
+  virtual int InputTypeIsValid(int port, int index,vtkInformationVector **);
   int InputFieldsAreValid(vtkInformationVector **);
   int InputFieldsAreValid(int port,vtkInformationVector **);
-  int InputFieldsAreValid(int port, int index,vtkInformationVector **);
+  virtual int InputFieldsAreValid(int port, int index,vtkInformationVector **);
 
   // Field existence checkers.
   int DataSetAttributeExists(vtkDataSetAttributes* dsa, vtkInformation* field);
