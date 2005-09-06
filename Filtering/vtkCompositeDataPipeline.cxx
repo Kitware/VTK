@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.24");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.25");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -617,8 +617,39 @@ int vtkCompositeDataPipeline::ExecuteData(vtkInformation* request,
 
 //----------------------------------------------------------------------------
 int vtkCompositeDataPipeline::InputTypeIsValid(
-  int port, int index,vtkInformationVector **)
+  int port, int index,vtkInformationVector **inInfoVec)
 {
+  if (this->InLocalLoop || this->InSubPass)
+    {
+    return this->Superclass::InputTypeIsValid(port, index, inInfoVec);
+    }
+  if (!inInfoVec[port])
+    {
+    return 0;
+    }  
+  vtkDataObject* input = this->GetCompositeInputData(port, index, inInfoVec);
+  if (!input)
+    {
+    return this->Superclass::InputTypeIsValid(port, index, inInfoVec);
+    }
+  vtkInformation* info = this->Algorithm->GetInputPortInformation(port);
+
+  // Enforce required type, if any.
+  if(const char* dt = info->Get(
+       vtkCompositeDataPipeline::INPUT_REQUIRED_COMPOSITE_DATA_TYPE()))
+    {
+    if (!input->IsA(dt))
+      {
+      vtkErrorMacro("Input for connection index " << index
+                    << " on input port index " << port
+                    << " for algorithm " << this->Algorithm->GetClassName()
+                    << "(" << this->Algorithm << ") is of type "
+                    << input->GetClassName() << ", but a " << dt
+                    << " is required.");
+      return 0;
+      }
+    }
+
   return 1;
 }
 
@@ -921,7 +952,12 @@ void vtkCompositeDataPipeline::ExecuteSimpleAlgorithm(
           r->Remove(REQUEST_DATA_OBJECT());
 
           r->Set(REQUEST_INFORMATION());
+          // Make sure that pipeline informations is in sync with the data
           dobj->CopyInformationToPipeline(r, 0, inInfo, 1);
+          // This should not be needed but since a lot of image filters do:
+          // img->GetScalarType(), it is necessary.
+          dobj->CopyInformationToPipeline(
+            r, 0, dobj->GetPipelineInformation(), 1);
           this->Superclass::ExecuteInformation(r,inInfoVec,outInfoVec);
           r->Remove(REQUEST_INFORMATION());
 
@@ -1291,6 +1327,22 @@ int vtkCompositeDataPipeline::CheckCompositeData(
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+vtkDataObject* vtkCompositeDataPipeline::GetCompositeInputData(
+  int port, int index, vtkInformationVector **inInfoVec)
+{
+  if (!inInfoVec[port])
+    {
+    return 0;
+    }
+  vtkInformation *info = inInfoVec[port]->GetInformationObject(index);
+  if (!info)
+    {
+    return 0;
+    }
+  return info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
 }
 
 //----------------------------------------------------------------------------

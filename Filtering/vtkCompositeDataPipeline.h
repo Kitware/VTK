@@ -97,6 +97,12 @@ public:
   vtkDataObject* GetCompositeOutputData(int port);
 
   // Description:
+  // Returns the data object stored with the COMPOSITE_DATA_SET() in the
+  // input port
+  vtkDataObject* GetCompositeInputData(
+    int port, int index, vtkInformationVector **inInfoVec);
+
+  // Description:
   // vtkCompositeDataPipeline specific keys
   static vtkInformationIntegerKey*       BEGIN_LOOP();
   static vtkInformationIntegerKey*       END_LOOP();
