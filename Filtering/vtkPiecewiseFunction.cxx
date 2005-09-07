@@ -19,7 +19,7 @@
 #include <vtkstd/algorithm>
 #include <vtkstd/iterator>
 
-vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.43");
+vtkCxxRevisionMacro(vtkPiecewiseFunction, "1.44");
 vtkStandardNewMacro(vtkPiecewiseFunction);
 
 // The Node structure
@@ -127,9 +127,9 @@ void vtkPiecewiseFunction::DeepCopy( vtkDataObject *o )
     {
     this->Clamping     = f->Clamping;
     int i;
+    this->RemoveAllPoints();
     for ( i = 0; i < f->GetSize(); i++ )
       {
-      this->RemoveAllPoints();
       double val[4];
       f->GetNodeValue(i, val);
       this->AddPoint(val[0], val[1], val[2], val[3]);
@@ -149,9 +149,9 @@ void vtkPiecewiseFunction::ShallowCopy( vtkDataObject *o )
     {
     this->Clamping     = f->Clamping;
     int i;
+    this->RemoveAllPoints();
     for ( i = 0; i < f->GetSize(); i++ )
       {
-      this->RemoveAllPoints();
       double val[4];
       f->GetNodeValue(i, val);
       this->AddPoint(val[0], val[1], val[2], val[3]);
