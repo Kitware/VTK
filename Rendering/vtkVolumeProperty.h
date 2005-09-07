@@ -53,6 +53,7 @@ public:
   static vtkVolumeProperty *New();
   vtkTypeRevisionMacro(vtkVolumeProperty,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
+  void DeepCopy(vtkVolumeProperty *p);
 
   // Description:
   // Get the modified time for this object (or the properties registered
@@ -79,11 +80,6 @@ public:
   vtkBooleanMacro( IndependentComponents, int );
 
   // Description:
-  // Set/Get the scalar component weights
-  virtual void SetComponentWeight(int index, double value);
-  virtual double GetComponentWeight(int index);
-
-  // Description:
   // Set the interpolation type for sampling a volume.
   vtkSetClampMacro( InterpolationType, int,
         VTK_NEAREST_INTERPOLATION, VTK_LINEAR_INTERPOLATION);
@@ -93,6 +89,11 @@ public:
   void SetInterpolationTypeToLinear() 
         {this->SetInterpolationType(VTK_LINEAR_INTERPOLATION);};
   const char *GetInterpolationTypeAsString(void);
+
+  // Description:
+  // Set/Get the scalar component weights
+  virtual void SetComponentWeight(int index, double value);
+  virtual double GetComponentWeight(int index);
 
   // Description:
   // Set the color of a volume to a gray level transfer function

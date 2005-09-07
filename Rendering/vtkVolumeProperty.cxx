@@ -18,7 +18,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkColorTransferFunction.h"
 
-vtkCxxRevisionMacro(vtkVolumeProperty, "1.41");
+vtkCxxRevisionMacro(vtkVolumeProperty, "1.42");
 vtkStandardNewMacro(vtkVolumeProperty);
 
 // Construct a new vtkVolumeProperty with default values
@@ -80,6 +80,55 @@ vtkVolumeProperty::~vtkVolumeProperty()
       this->DefaultGradientOpacity[i]->UnRegister(this);
       }
     }
+}
+
+void vtkVolumeProperty::DeepCopy(vtkVolumeProperty *p)
+{
+  if (!p)
+    {
+    return;
+    }
+
+  this->SetIndependentComponents(p->GetIndependentComponents());
+
+  this->SetInterpolationType(p->GetInterpolationType());
+
+  for (int i = 0; i < VTK_MAX_VRCOMP; i++)
+    {
+    this->SetComponentWeight(i, p->GetComponentWeight(i));
+    
+    // Force ColorChannels to the right value and/or create a default tfunc
+    // then DeepCopy all the points
+
+    if (p->GetColorChannels(i) > 1)
+      {
+      this->SetColor(i, this->GetRGBTransferFunction(i));
+      this->GetRGBTransferFunction(i)->DeepCopy(
+        p->GetRGBTransferFunction(i));
+      }
+    else
+      {
+      this->SetColor(i, this->GetGrayTransferFunction(i));
+      this->GetGrayTransferFunction(i)->DeepCopy(
+        p->GetGrayTransferFunction(i));
+      }
+
+    this->GetScalarOpacity(i)->DeepCopy(p->GetScalarOpacity(i));
+
+    this->SetScalarOpacityUnitDistance(i, p->GetScalarOpacityUnitDistance(i));
+
+    this->GetGradientOpacity(i)->DeepCopy(p->GetGradientOpacity(i));
+
+    this->SetDisableGradientOpacity(i, p->GetDisableGradientOpacity(i));
+
+    this->SetShade(i, p->GetShade(i));
+    this->SetAmbient(i, p->GetAmbient(i));
+    this->SetDiffuse(i, p->GetDiffuse(i));
+    this->SetSpecular(i, p->GetSpecular(i));
+    this->SetSpecularPower(i, p->GetSpecularPower(i));
+    }
+
+  this->Modified();
 }
 
 void vtkVolumeProperty::UpdateMTimes() 
