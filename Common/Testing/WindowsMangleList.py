@@ -302,7 +302,7 @@ Names = [
 'GetConsoleTitle',
 'GetCurrencyFormat',
 'GetCurrentDirectory',
-'GetCurrentTime',
+#'GetCurrentTime', # Leave out GetCurrentTime for now.
 'GetDateFormat',
 'GetDefaultCommConfig',
 'GetDefaultPrinter',
@@ -886,7 +886,7 @@ Gets = [
 'ConsoleTitle',
 'CurrencyFormat',
 'CurrentDirectory',
-'CurrentTime',
+'CurrentTime', # GetCurrentTime is left out but not for GetMacro case.
 'DateFormat',
 'DefaultCommConfig',
 'DefaultPrinter',
