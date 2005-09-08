@@ -19,7 +19,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkTimerLog.h"
 
-vtkCxxRevisionMacro(vtkAnimationScene, "1.7");
+vtkCxxRevisionMacro(vtkAnimationScene, "1.7.4.1");
 vtkStandardNewMacro(vtkAnimationScene);
 
 //----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ vtkAnimationScene::vtkAnimationScene()
   this->Loop = 0;
   this->InPlay = 0;
   this->StopPlay = 0;
-  this->CurrentTime = 0.0;
+  this->AnimationTime = 0.0;
 
   this->AnimationCues = vtkCollection::New();
   this->AnimationCuesIterator = this->AnimationCues->NewIterator();
@@ -151,7 +151,7 @@ void vtkAnimationScene::Play()
   this->FrameRate = (!this->FrameRate)? 1.0 : this->FrameRate;
   // the actual play loop, check for StopPlay flag.
   double deltatime = 0.0;
-  double currenttime = this->CurrentTime;
+  double currenttime = this->AnimationTime;
   double span = this->EndTime - this->StartTime;
   
   // adjust currenttime to a valid time.
@@ -210,7 +210,7 @@ void vtkAnimationScene::Stop()
 //----------------------------------------------------------------------------
 void vtkAnimationScene::TickInternal(double currenttime, double deltatime)
 {
-  this->CurrentTime = currenttime;
+  this->AnimationTime = currenttime;
   
   vtkCollectionIterator* iter = this->AnimationCuesIterator;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
@@ -251,11 +251,11 @@ void vtkAnimationScene::EndCueInternal()
 }
 
 //----------------------------------------------------------------------------
-void vtkAnimationScene::SetCurrentTime(double currenttime)
+void vtkAnimationScene::SetAnimationTime(double currenttime)
 {
   if (this->InPlay)
     {
-    vtkErrorMacro("SetCurrentTime cannot be called while playing");
+    vtkErrorMacro("SetAnimationTime cannot be called while playing");
     return;
     }
   this->Initialize();
@@ -275,5 +275,5 @@ void vtkAnimationScene::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Loop: " << this->Loop << endl;
   os << indent << "InPlay: " << this->InPlay << endl;
   os << indent << "StopPlay: " << this->StopPlay << endl;
-  os << indent << "CurrentTime: " << this->CurrentTime << endl;
+  os << indent << "AnimationTime: " << this->AnimationTime << endl;
 }
