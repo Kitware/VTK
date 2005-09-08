@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <string.h>
 
-vtkCxxRevisionMacro(vtkMILVideoSource, "1.22");
+vtkCxxRevisionMacro(vtkMILVideoSource, "1.22.26.1");
 vtkStandardNewMacro(vtkMILVideoSource);
 
 //----------------------------------------------------------------------------
@@ -601,10 +601,10 @@ void vtkMILVideoSource::InternalGrab()
 //----------------------------------------------------------------------------
 // for accurate timing of the transformation: this solves a differential
 // equation that works to smooth out the jitter in the times that
-// are returned by vtkTimerLog::GetCurrentTime() i.e. the system clock.
+// are returned by vtkTimerLog::GetUniversalTime() i.e. the system clock.
 double vtkMILVideoSource::CreateTimeStampForFrame(unsigned long framecount)
 {
-  double timestamp = vtkTimerLog::GetCurrentTime();
+  double timestamp = vtkTimerLog::GetUniversalTime();
 
   double frameperiod = ((timestamp - this->LastTimeStamp)/
                         (framecount - this->LastFrameCount));
@@ -706,7 +706,7 @@ void vtkMILVideoSource::Record()
   this->ForceGrab = 0;
 
   // for accurate timing
-  this->LastTimeStamp = vtkTimerLog::GetCurrentTime();
+  this->LastTimeStamp = vtkTimerLog::GetUniversalTime();
 
   // this will call the hook function on every frame
   MdigGrabContinuous(this->MILDigID,this->MILBufID);
