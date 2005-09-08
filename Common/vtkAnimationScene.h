@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Makes the state of the scene same as the given time.
-  void SetCurrentTime(double time);
+  void SetAnimationTime(double time);
 
   // Description:
   // Overridden to allow change to Normalized mode only
@@ -118,7 +118,7 @@ protected:
   int Loop;
   int InPlay;
   int StopPlay;
-  double CurrentTime;
+  double AnimationTime;
 
   vtkCollection* AnimationCues;
   vtkCollectionIterator* AnimationCuesIterator;
