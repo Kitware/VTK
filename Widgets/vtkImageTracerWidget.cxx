@@ -37,7 +37,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTransform.h"
 
-vtkCxxRevisionMacro(vtkImageTracerWidget, "1.3");
+vtkCxxRevisionMacro(vtkImageTracerWidget, "1.3.4.1");
 vtkStandardNewMacro(vtkImageTracerWidget);
 
 vtkCxxSetObjectMacro(vtkImageTracerWidget, HandleProperty, vtkProperty);
@@ -1522,20 +1522,20 @@ void vtkImageTracerWidget::SizeHandles()
 #  undef SetProp
 void vtkImageTracerWidget::SetPropA(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
                            vtkImageTracerWidget::SetViewProp);
   this->SetViewProp(prop);
 }
 void vtkImageTracerWidget::SetPropW(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
                            vtkImageTracerWidget::SetViewProp);
   this->SetViewProp(prop);
 }
 # endif
 void vtkImageTracerWidget::SetProp(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkImageTracerWidget::SetProp, "VTK 5.0",
                            vtkImageTracerWidget::SetViewProp);
   this->SetViewProp(prop);
 }

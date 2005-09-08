@@ -22,7 +22,7 @@
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
-vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.52");
+vtkCxxRevisionMacro(vtkCubeAxesActor2D, "1.52.10.1");
 vtkStandardNewMacro(vtkCubeAxesActor2D);
 
 vtkCxxSetObjectMacro(vtkCubeAxesActor2D,Input, vtkDataSet);
@@ -1033,38 +1033,38 @@ static int IsInBounds(double x[3], double bounds[6])
 #  undef GetProp
 void const vtkCubeAxesActor2D::SetPropA(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
 void const vtkCubeAxesActor2D::SetPropW(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
 vtkProp* const vtkCubeAxesActor2D::GetPropA()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
   return this->GetViewProp();
 }
 vtkProp* const vtkCubeAxesActor2D::GetPropW()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
   return this->GetViewProp();
 }
 # endif
 void const vtkCubeAxesActor2D::SetProp(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::SetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::SetViewProp);
   this->SetViewProp(prop);
 }
 vtkProp* const vtkCubeAxesActor2D::GetProp()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkCubeAxesActor2D::GetProp, "VTK 5.0",
                            vtkCubeAxesActor2D::GetViewProp);
   return this->GetViewProp();
 }

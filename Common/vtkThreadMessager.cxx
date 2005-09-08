@@ -20,7 +20,7 @@
 # include "vtkWindows.h"
 #endif
 
-vtkCxxRevisionMacro(vtkThreadMessager, "1.3");
+vtkCxxRevisionMacro(vtkThreadMessager, "1.3.12.1");
 vtkStandardNewMacro(vtkThreadMessager);
 
 vtkThreadMessager::vtkThreadMessager()
@@ -96,20 +96,20 @@ void vtkThreadMessager::PrintSelf(ostream& os, vtkIndent indent)
 #  undef SendMessage
 void vtkThreadMessager::SendMessageA()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
                            vtkThreadMessager::SendWakeMessage);
   this->SendWakeMessage();
 }
 void vtkThreadMessager::SendMessageW()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
                            vtkThreadMessager::SendWakeMessage);
   this->SendWakeMessage();
 }
 # endif
 void vtkThreadMessager::SendMessage()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkThreadMessager::SendMessage, "VTK 5.0",
                            vtkThreadMessager::SendWakeMessage);
   this->SendWakeMessage();
 }

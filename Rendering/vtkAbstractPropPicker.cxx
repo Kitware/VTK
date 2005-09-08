@@ -23,7 +23,7 @@
 #include "vtkPropAssembly.h"
 #include "vtkVolume.h"
 
-vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.10");
+vtkCxxRevisionMacro(vtkAbstractPropPicker, "1.10.12.1");
 
 vtkCxxSetObjectMacro(vtkAbstractPropPicker,Path,vtkAssemblyPath);
 
@@ -171,20 +171,20 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
 #  undef GetProp
 vtkProp* const vtkAbstractPropPicker::GetPropA()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "VTK 5.0",
                            vtkAbstractPropPicker::GetViewProp);
   return this->GetViewProp();
 }
 vtkProp* const vtkAbstractPropPicker::GetPropW()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "VTK 5.0",
                            vtkAbstractPropPicker::GetViewProp);
   return this->GetViewProp();
 }
 # endif
 vtkProp* const vtkAbstractPropPicker::GetProp()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAbstractPropPicker::GetProp, "VTK 5.0",
                            vtkAbstractPropPicker::GetViewProp);
   return this->GetViewProp();
 }

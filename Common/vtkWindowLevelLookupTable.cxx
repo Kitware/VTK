@@ -17,7 +17,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.24");
+vtkCxxRevisionMacro(vtkWindowLevelLookupTable, "1.24.4.1");
 vtkStandardNewMacro(vtkWindowLevelLookupTable);
 
 //----------------------------------------------------------------------------
@@ -150,21 +150,21 @@ void vtkWindowLevelLookupTable::PrintSelf(ostream& os, vtkIndent indent)
 #ifndef VTK_LEGACY_REMOVE
 void vtkWindowLevelLookupTable::SetMinimumColor(int r, int g, int b, int a)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::SetMinimumTableValue);
   this->SetMinimumTableValue(r*255.0,g*255.0,b*255.0,a*255.0);
 }
 
 void vtkWindowLevelLookupTable::SetMinimumColor(const unsigned char rgba[4]) 
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMinimumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::SetMinimumTableValue);
   this->SetMinimumTableValue(rgba[0]*255,rgba[1]*255,rgba[2]*255,rgba[3]*255);
 }
 
 void vtkWindowLevelLookupTable::GetMinimumColor(unsigned char rgba[4])
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::GetMinimumTableValue);
   rgba[0] = int(this->MinimumTableValue[0]*255);
   rgba[1] = int(this->MinimumTableValue[1]*255);
@@ -174,7 +174,7 @@ void vtkWindowLevelLookupTable::GetMinimumColor(unsigned char rgba[4])
 
 unsigned char *vtkWindowLevelLookupTable::GetMinimumColor()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMinimumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::GetMinimumTableValue);
   static unsigned char minimumcolor[4];
   minimumcolor[0] = int(this->MinimumTableValue[0]*255);
@@ -186,21 +186,21 @@ unsigned char *vtkWindowLevelLookupTable::GetMinimumColor()
 
 void vtkWindowLevelLookupTable::SetMaximumColor(int r, int g, int b, int a)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::SetMaximumTableValue);
   this->SetMaximumTableValue(r*255.0,g*255.0,b*255.0,a*255.0);
 }
 
 void vtkWindowLevelLookupTable::SetMaximumColor(const unsigned char rgba[4])
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::SetMaximumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::SetMaximumTableValue);
   this->SetMaximumTableValue(rgba[0]*255,rgba[1]*255,rgba[2]*255,rgba[3]*255);
 }
 
 void vtkWindowLevelLookupTable::GetMaximumColor(unsigned char rgba[4])
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::GetMaximumTableValue);
   rgba[0] = int(this->MaximumTableValue[0]*255);
   rgba[1] = int(this->MaximumTableValue[1]*255);
@@ -210,7 +210,7 @@ void vtkWindowLevelLookupTable::GetMaximumColor(unsigned char rgba[4])
 
 unsigned char *vtkWindowLevelLookupTable::GetMaximumColor()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkWindowLevelLookupTable::GetMaximumColor, "VTK 5.0",
                            vtkWindowLevelLookupTable::GetMaximumTableValue);
   static unsigned char maximumcolor[4];
   maximumcolor[0] = int(this->MaximumTableValue[0]*255);

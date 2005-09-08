@@ -70,7 +70,7 @@ const int vtkParallelRenderManager::REN_INFO_DOUBLE_SIZE =
 const int vtkParallelRenderManager::LIGHT_INFO_DOUBLE_SIZE =
   sizeof(vtkParallelRenderManager::LightInfoDouble)/sizeof(double);
 
-vtkCxxRevisionMacro(vtkParallelRenderManager, "1.52");
+vtkCxxRevisionMacro(vtkParallelRenderManager, "1.52.6.1");
 
 //----------------------------------------------------------------------------
 vtkParallelRenderManager::vtkParallelRenderManager()
@@ -1931,20 +1931,20 @@ void vtkParallelRenderManager::TileWindows(int xsize, int ysize, int ncolumn)
 #  undef StartService
 void const vtkParallelRenderManager::StartServiceA()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
                            vtkParallelRenderManager::StartServices);
   this->StartServices();
 }
 void const vtkParallelRenderManager::StartServiceW()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
                            vtkParallelRenderManager::StartServices);
   this->StartServices();
 }
 # endif
 void const vtkParallelRenderManager::StartService()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkParallelRenderManager::StartService, "VTK 5.0",
                            vtkParallelRenderManager::StartServices);
   this->StartServices();
 }

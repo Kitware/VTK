@@ -38,7 +38,7 @@
 #endif
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkTimerLog, "1.42");
+vtkCxxRevisionMacro(vtkTimerLog, "1.42.12.1");
 vtkStandardNewMacro(vtkTimerLog);
 
 // Create a singleton to cleanup the table.  No other singletons
@@ -662,14 +662,14 @@ int vtkTimerLog::GetMaxEntries()
 #  undef GetCurrentTime
 double vtkTimerLog::GetTickCount()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "VTK 5.0",
                            vtkTimerLog::GetUniversalTime);
   return vtkTimerLog::GetUniversalTime();
 }
 # endif
 double vtkTimerLog::GetCurrentTime()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkTimerLog::GetCurrentTime, "VTK 5.0",
                            vtkTimerLog::GetUniversalTime);
   return vtkTimerLog::GetUniversalTime();
 }
