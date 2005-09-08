@@ -302,7 +302,7 @@ Names = [
 'GetConsoleTitle',
 'GetCurrencyFormat',
 'GetCurrentDirectory',
-#'GetCurrentTime', # Leave out GetCurrentTime for now.
+'GetCurrentTime',
 'GetDateFormat',
 'GetDefaultCommConfig',
 'GetDefaultPrinter',
@@ -710,6 +710,7 @@ Names = [
 'SetComputerName',
 'SetConsoleTitle',
 'SetCurrentDirectory',
+'SetCurrentTime', # Not actually mangled but matches GetCurrentTime
 'SetDefaultCommConfig',
 'SetDefaultPrinter',
 'SetDlgItemText',
@@ -886,7 +887,7 @@ Gets = [
 'ConsoleTitle',
 'CurrencyFormat',
 'CurrentDirectory',
-'CurrentTime', # GetCurrentTime is left out but not for GetMacro case.
+'CurrentTime',
 'DateFormat',
 'DefaultCommConfig',
 'DefaultPrinter',
@@ -1001,6 +1002,7 @@ Sets = [
 'ComputerName',
 'ConsoleTitle',
 'CurrentDirectory',
+'CurrentTime', # Not actually mangled but matches GetCurrentTime
 'DefaultCommConfig',
 'DefaultPrinter',
 'DlgItemText',
