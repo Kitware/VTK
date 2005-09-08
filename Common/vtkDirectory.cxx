@@ -18,7 +18,7 @@
 
 #include <sys/stat.h>
 
-vtkCxxRevisionMacro(vtkDirectory, "1.25");
+vtkCxxRevisionMacro(vtkDirectory, "1.26");
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -242,20 +242,20 @@ const char* vtkDirectory::GetFile(int index)
 #  undef CreateDirectory
 int vtkDirectory::CreateDirectoryA(const char* dir)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
                            vtkDirectory::MakeDirectory);
   return vtkDirectory::MakeDirectory(dir);
 }
 int vtkDirectory::CreateDirectoryW(const char* dir)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
                            vtkDirectory::MakeDirectory);
   return vtkDirectory::MakeDirectory(dir);
 }
 # endif
 int vtkDirectory::CreateDirectory(const char* dir)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkDirectory::CreateDirectory, "VTK 5.0",
                            vtkDirectory::MakeDirectory);
   return vtkDirectory::MakeDirectory(dir);
 }

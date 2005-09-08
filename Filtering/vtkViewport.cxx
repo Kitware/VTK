@@ -20,7 +20,7 @@
 #include "vtkPropCollection.h"
 #include "vtkWindow.h"
 
-vtkCxxRevisionMacro(vtkViewport, "1.5");
+vtkCxxRevisionMacro(vtkViewport, "1.6");
 
 //----------------------------------------------------------------------------
 // Create a vtkViewport with a black background, a white ambient light, 
@@ -736,44 +736,44 @@ void vtkViewport::GetTiledSizeAndOrigin(int *usize, int *vsize,
 #  undef RemoveProp
 void vtkViewport::RemovePropA(vtkProp* p)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "VTK 5.0",
                            vtkViewport::RemoveViewProp);
   this->RemoveViewProp(p);
 }
 void vtkViewport::RemovePropW(vtkProp* p)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "VTK 5.0",
                            vtkViewport::RemoveViewProp);
   this->RemoveViewProp(p);
 }
 # endif
 void vtkViewport::RemoveProp(vtkProp* p)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveProp, "VTK 5.0",
                            vtkViewport::RemoveViewProp);
   this->RemoveViewProp(p);
 }
 void vtkViewport::AddProp(vtkProp* p)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::AddProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::AddProp, "VTK 5.0",
                            vtkViewport::AddViewProp);
   this->AddViewProp(p);
 }
 vtkPropCollection* vtkViewport::GetProps()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::GetProps, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::GetProps, "VTK 5.0",
                            vtkViewport::GetViewProps);
   return this->GetViewProps();
 }
 int vtkViewport::HasProp(vtkProp* p)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::HasProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::HasProp, "VTK 5.0",
                            vtkViewport::HasViewProp);
   return this->HasViewProp(p);
 }
 void vtkViewport::RemoveAllProps()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveAllProps, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkViewport::RemoveAllProps, "VTK 5.0",
                            vtkViewport::RemoveAllViewProps);
   this->RemoveAllViewProps();
 }

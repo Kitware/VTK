@@ -744,12 +744,12 @@ virtual double *Get##name() \
 //
 //   void vtkMyClass::MyOldMethod()
 //   {
-//     VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, 5.0);
+//     VTK_LEGACY_BODY(vtkMyClass::MyOldMethod, "VTK 5.0");
 //   }
 //
 //   void vtkMyClass::MyMethod()
 //   {
-//     VTK_LEGACY_REPLACED_BODY(vtkMyClass::MyMethod, 5.0,
+//     VTK_LEGACY_REPLACED_BODY(vtkMyClass::MyMethod, "VTK 5.0",
 //                              vtkMyClass::MyOtherMethod);
 //   }
 #if defined(VTK_LEGACY_REMOVE) || defined(VTK_LEGACY_SILENT)
@@ -757,9 +757,9 @@ virtual double *Get##name() \
 # define VTK_LEGACY_REPLACED_BODY(method, version, replace)
 #else
 # define VTK_LEGACY_BODY(method, version) \
-  vtkGenericWarningMacro(#method " was deprecated for VTK " #version " and will be removed in a future version.")
+  vtkGenericWarningMacro(#method " was deprecated for " version " and will be removed in a future version.")
 # define VTK_LEGACY_REPLACED_BODY(method, version, replace) \
-  vtkGenericWarningMacro(#method " was deprecated for VTK " #version " and will be removed in a future version.  Use " #replace " instead.")
+  vtkGenericWarningMacro(#method " was deprecated for " version " and will be removed in a future version.  Use " #replace " instead.")
 #endif
 
 #endif

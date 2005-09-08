@@ -17,7 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkMatrixToHomogeneousTransform, "1.9");
+vtkCxxRevisionMacro(vtkMatrixToHomogeneousTransform, "1.10");
 vtkStandardNewMacro(vtkMatrixToHomogeneousTransform);
 vtkCxxSetObjectMacro(vtkMatrixToHomogeneousTransform,Input,vtkMatrix4x4);
 
@@ -109,7 +109,7 @@ unsigned long vtkMatrixToHomogeneousTransform::GetMTime()
 #ifndef VTK_LEGACY_REMOVE
 void vtkMatrixToHomogeneousTransform::SetMatrix(vtkMatrix4x4 *matrix)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetMatrix, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetMatrix, "VTK 5.0",
                            vtkAssemblyNode::SetInput);
   this->SetInput(matrix);
 }

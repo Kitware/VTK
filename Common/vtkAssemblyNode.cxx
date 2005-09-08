@@ -17,7 +17,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkAssemblyNode, "1.9");
+vtkCxxRevisionMacro(vtkAssemblyNode, "1.10");
 vtkStandardNewMacro(vtkAssemblyNode);
 
 vtkAssemblyNode::vtkAssemblyNode()
@@ -118,38 +118,38 @@ void vtkAssemblyNode::PrintSelf(ostream& os, vtkIndent indent)
 #  undef GetProp
 void const vtkAssemblyNode::SetPropA(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
                            vtkAssemblyNode::SetViewProp);
   this->SetViewProp(prop);
 }
 void const vtkAssemblyNode::SetPropW(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
                            vtkAssemblyNode::SetViewProp);
   this->SetViewProp(prop);
 }
 vtkProp* const vtkAssemblyNode::GetPropA()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
                            vtkAssemblyNode::GetViewProp);
   return this->GetViewProp();
 }
 vtkProp* const vtkAssemblyNode::GetPropW()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
                            vtkAssemblyNode::GetViewProp);
   return this->GetViewProp();
 }
 # endif
 void const vtkAssemblyNode::SetProp(vtkProp* prop)
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::SetProp, "VTK 5.0",
                            vtkAssemblyNode::SetViewProp);
   this->SetViewProp(prop);
 }
 vtkProp* const vtkAssemblyNode::GetProp()
 {
-  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "5.0",
+  VTK_LEGACY_REPLACED_BODY(vtkAssemblyNode::GetProp, "VTK 5.0",
                            vtkAssemblyNode::GetViewProp);
   return this->GetViewProp();
 }
