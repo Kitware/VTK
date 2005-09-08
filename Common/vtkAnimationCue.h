@@ -54,7 +54,7 @@ public:
   public:
     double StartTime;
     double EndTime;
-    double CurrentTime; // valid only on AnimationCueTickEvent
+    double AnimationTime;// valid only on AnimationCueTickEvent
     double DeltaTime;   // valid only on AnimationCueTickEvent
     };
   //ETX
