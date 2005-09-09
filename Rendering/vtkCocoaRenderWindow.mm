@@ -25,19 +25,14 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.30");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.31");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindow::vtkCocoaRenderWindow()
 {
-  // Due to the crossplatform nature of vtk, NSApplicationMain() is never
-  // called.  Ideally, this should be fixed one day.  Until then, we call
-  // +sharedApplication which has the side effect of doing some Cocoa
-  // initialisation; we are not actually interested in the return value.
-  // We also create an autorelease pool that lives for as long as this
-  // object, which should be more or less the life of the application.
-  (void)[NSApplication sharedApplication];
+  // Create an autorelease pool that lives for as long as this object,
+  // which should be more or less the life of the application.
   this->AutoreleasePool = [[NSAutoreleasePool alloc] init];
 
   this->WindowCreated = 0;
@@ -440,6 +435,15 @@ void vtkCocoaRenderWindow::SetupPalette(void*)
 void vtkCocoaRenderWindow::WindowInitialize ()
 {
   static int count = 1;
+
+  // Due to the crossplatform nature of vtk, NSApplicationMain() is never
+  // called.  Ideally, this should be fixed one day.  Until then, we call
+  // +sharedApplication which has the side effect of doing some Cocoa
+  // initialisation; we are not actually interested in the return value.
+  // This call is intentionally delayed until this WindowInitialize call
+  // to prevent Cocoa-window related stuff from happening in scenarios
+  // where vtkRenderWindows are created but never shown.
+  (void)[NSApplication sharedApplication];
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already
