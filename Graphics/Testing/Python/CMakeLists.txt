@@ -242,7 +242,7 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
           subDivideTetra
           TestBoxFunction
           TestGraphLayoutFilter
-          TestQuadricDecimation
+          testQuadricDecimation
           triangularTCoords
           triangularTexture
           warplens
