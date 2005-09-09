@@ -217,7 +217,7 @@ proc AdjustSpline { } {
     isw ClosedOn
   } else {
     isw ClosedOff
-    imageActor2 SetInputConnection [extract GetOutputPort]
+    imageActor2 SetInput [extract GetOutput]
   }
 
   set npts [ itw GetNumberOfHandles ]
@@ -233,7 +233,7 @@ proc AdjustSpline { } {
   if { $closed } {
     isw GetPolyData spoly
     stencil Update
-    imageActor2 SetInputConnection [stencil GetOutputPort]
+    imageActor2 SetInput [stencil GetOutput]
     }
 }
 
@@ -258,9 +258,9 @@ proc AdjustTracer { } {
     }
     isw GetPolyData spoly
     stencil Update
-    imageActor2 SetInputConnection [stencil GetOutputPort]
+    imageActor2 SetInput [stencil GetOutput]
     } else {
-    imageActor2 SetInputConnection [extract GetOutputPort] 
+    imageActor2 SetInput [extract GetOutput] 
     }
 
   itw InitializeHandles points  
