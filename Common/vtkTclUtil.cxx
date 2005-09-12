@@ -768,6 +768,7 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
 #ifdef VTK_TCL_TK_COPY_SUPPORT_LIBRARY
   int has_tcllibpath_env = getenv("TCL_LIBRARY") ? 1 : 0;
   int has_tklibpath_env = getenv("TK_LIBRARY") ? 1 : 0;
+  vtkstd::string selfdir;
   if(!has_tcllibpath_env || !has_tklibpath_env)
     {
     const char* nameofexec = Tcl_GetNameOfExecutable();
@@ -775,63 +776,53 @@ void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
       {
       vtkstd::string name = nameofexec;
       vtksys::SystemTools::ConvertToUnixSlashes(name);
-      vtkstd::string dir = vtksys::SystemTools::GetFilenamePath(name);
-
-      // Check if any of the given paths exist relative to the
-      // executable.
-      int exists = 0;
+      selfdir = vtksys::SystemTools::GetFilenamePath(name);
+      }
+    }
+  if(selfdir.length() > 0)
+    {
+    if(!has_tcllibpath_env)
+      {
       vtkstd::string tdir;
-      for(const char* const* p = relative_dirs; !exists && *p; ++p)
+      for(const char* const* p = relative_dirs; *p; ++p)
         {
-        tdir = dir;
+        tdir = selfdir;
         tdir += "/";
         tdir += *p;
+        tdir += "/tcl" TCL_VERSION;
         tdir = vtksys::SystemTools::CollapseFullPath(tdir.c_str());
-        exists = vtksys::SystemTools::FileExists(tdir.c_str())? 1:0;
+        if(vtksys::SystemTools::FileExists(tdir.c_str()) &&
+           vtksys::SystemTools::FileIsDirectory(tdir.c_str()))
+          {
+          // Set the tcl_library Tcl variable.
+          char tcl_library[1024];
+          strcpy(tcl_library, tdir.c_str());
+          Tcl_SetVar(interp, "tcl_library", tcl_library,
+                     TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+          break;
+          }
         }
-
-      if(exists)
+      }
+    if(!has_tklibpath_env)
+      {
+      vtkstd::string tdir;
+      for(const char* const* p = relative_dirs; *p; ++p)
         {
-        // Also prepend our Tcl Tk lib path to the library paths
-        // This *is* mandatory if we want encodings files to be found, as they
-        // are searched by browsing TclGetLibraryPath().
-        // (nope, updating the Tcl tcl_libPath var won't do the trick)
-
-        Tcl_Obj *new_libpath = Tcl_NewObj();
-
-        if (!has_tcllibpath_env)
+        tdir = selfdir;
+        tdir += "/";
+        tdir += *p;
+        tdir += "/tk" TCL_VERSION;
+        tdir = vtksys::SystemTools::CollapseFullPath(tdir.c_str());
+        if(vtksys::SystemTools::FileExists(tdir.c_str()) &&
+           vtksys::SystemTools::FileIsDirectory(tdir.c_str()))
           {
-          char tcl_library[1024] = "";
-          sprintf(tcl_library, "%s/tcl" TCL_VERSION, tdir.c_str());
-          if(vtksys::SystemTools::FileExists(tcl_library))
-            {
-            // Setting TCL_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tcl_library", tcl_library,
-                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
-            Tcl_Obj *obj = Tcl_NewStringObj(tcl_library, -1);
-            if (obj)
-              {
-              Tcl_ListObjAppendElement(interp, new_libpath, obj);
-              }
-            }
+          // Set the tk_library Tcl variable.
+          char tk_library[1024];
+          strcpy(tk_library, tdir.c_str());
+          Tcl_SetVar(interp, "tk_library", tk_library,
+                     TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
+          break;
           }
-        if (!has_tklibpath_env)
-          {
-          char tk_library[1024] = "";
-          sprintf(tk_library, "%s/tk" TCL_VERSION, tdir.c_str());
-          if(vtksys::SystemTools::FileExists(tk_library))
-            {
-            // Setting TK_LIBRARY won't do the trick, it's too late
-            Tcl_SetVar(interp, "tk_library", tk_library,
-                       TCL_GLOBAL_ONLY | TCL_LEAVE_ERR_MSG);
-            Tcl_Obj *obj = Tcl_NewStringObj(tk_library, -1);
-            if (obj)
-              {
-              Tcl_ListObjAppendElement(interp, new_libpath, obj);
-              }
-            }
-          }
-        TclSetLibraryPath(new_libpath);
         }
       }
     }
