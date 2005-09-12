@@ -205,7 +205,7 @@ int Tcl_AppInit(Tcl_Interp *interp)
   const char* relative_dirs[] =
     {
       "TclTk/lib",
-      "../" VTK_INSTALL_TCL_DIR,
+      ".." VTK_INSTALL_TCL_DIR,
       0
     };
   vtkTclApplicationInitTclTk(interp, relative_dirs);
