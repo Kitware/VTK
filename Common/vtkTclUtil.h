@@ -109,5 +109,11 @@ struct vtkTclInterpStruct
   int DeleteExistingObjectOnNew;
 };
 
+extern VTKTCL_EXPORT
+void vtkTclApplicationInitExecutable(int argc, const char* const argv[]);
+extern VTKTCL_EXPORT
+void vtkTclApplicationInitTclTk(Tcl_Interp* interp,
+                                const char* const relative_dirs[]);
+
 #endif
 
