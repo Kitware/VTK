@@ -214,10 +214,15 @@ public:
   {
     MAX_PROCESSES  = 8192,
     ANY_SOURCE     = -1,
-    INVALID_SOURCE = -2,
-    RMI_TAG        = 315167,
-    RMI_ARG_TAG    = 315168,
-    BREAK_RMI_TAG  = 239954
+    INVALID_SOURCE = -2
+  };
+
+  enum Tags 
+  {
+    RMI_TAG        = 1,
+    RMI_ARG_TAG    = 2,
+    BREAK_RMI_TAG  = 3,
+    XML_WRITER_DATA_INFO = 4
   };
 
 //ETX

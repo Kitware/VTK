@@ -93,6 +93,7 @@ vtkSubGroup.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx
+vtkXMLPHierarchicalDataWriter.cxx
 )
 
 IF(VTK_HAS_EXODUS)
