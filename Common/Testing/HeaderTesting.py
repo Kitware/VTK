@@ -35,7 +35,7 @@ import stat
 import string
 
 # Load the list of names mangled by windows.h.
-import WindowsMangleList
+execfile(os.path.join(os.path.dirname(__file__), 'WindowsMangleList.py'))
 
 ## If tested from dart, make sure to fix all the output strings
 test_from_dart = 0
@@ -375,7 +375,7 @@ class TestVTKFiles:
 
     def CheckWindowsMangling(self):
         lines = []
-        regx1 = WindowsMangleList.RegEx
+        regx1 = WindowsMangleRegEx
         regx2 = re.compile("^.*VTK_LEGACY.*$")
         # This version will leave out comment lines but we probably do
         # not want to refer to mangled (hopefully deprecated) methods
