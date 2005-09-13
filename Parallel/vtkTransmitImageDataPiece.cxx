@@ -25,7 +25,7 @@
 #include "vtkImageData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.1");
+vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.2");
 vtkStandardNewMacro(vtkTransmitImageDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitImageDataPiece,Controller,
@@ -34,6 +34,7 @@ vtkCxxSetObjectMacro(vtkTransmitImageDataPiece,Controller,
 //----------------------------------------------------------------------------
 vtkTransmitImageDataPiece::vtkTransmitImageDataPiece()
 {
+  this->Controller = NULL;
   this->CreateGhostCells = 1;
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());  

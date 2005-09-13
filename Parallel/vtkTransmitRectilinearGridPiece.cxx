@@ -25,34 +25,23 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.1");
+vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.2");
 vtkStandardNewMacro(vtkTransmitRectilinearGridPiece);
 
-/*
 vtkCxxSetObjectMacro(vtkTransmitRectilinearGridPiece,Controller,
                      vtkMultiProcessController);
-*/
-
-//----------------------------------------------------------------------------
-void vtkTransmitRectilinearGridPiece::SetController(vtkMultiProcessController *contr) 
-{
-  this->Controller = contr;
-}
 
 //----------------------------------------------------------------------------
 vtkTransmitRectilinearGridPiece::vtkTransmitRectilinearGridPiece()
 {
+  this->Controller = NULL;
   this->CreateGhostCells = 1; 
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());
   if (this->Controller) 
     {
-    if (this->Controller->GetLocalProcessId() != 0) {
+    if (this->Controller->GetLocalProcessId() != 0) 
       this->SetNumberOfInputPorts(0);
-      }
-    else
-      {
-      }    
     }
 }
 

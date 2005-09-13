@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.2");
+vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.3");
 vtkStandardNewMacro(vtkTransmitStructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredGridPiece,Controller,
@@ -34,8 +34,8 @@ vtkCxxSetObjectMacro(vtkTransmitStructuredGridPiece,Controller,
 //----------------------------------------------------------------------------
 vtkTransmitStructuredGridPiece::vtkTransmitStructuredGridPiece()
 {
+  this->Controller = NULL;
   this->CreateGhostCells = 1;
-
   this->SetNumberOfInputPorts(1);
   this->SetController(vtkMultiProcessController::GetGlobalController());  
   if (this->Controller) 
