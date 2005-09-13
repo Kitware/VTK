@@ -29,7 +29,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkExtractStructuredGridPiece, "1.2");
+vtkCxxRevisionMacro(vtkExtractStructuredGridPiece, "1.3");
 vtkStandardNewMacro(vtkExtractStructuredGridPiece);
 
 int vtkExtractStructuredGridPiece::RequestUpdateExtent(
@@ -69,7 +69,6 @@ int vtkExtractStructuredGridPiece::RequestData(
   output->SetDimensions(input->GetDimensions());
   output->SetExtent(uExtent);
 
-  int wsizek = wExtent[5]-wExtent[4]+1;
   int wsizej = wExtent[3]-wExtent[2]+1;
   int wsizei = wExtent[1]-wExtent[0]+1;
 
