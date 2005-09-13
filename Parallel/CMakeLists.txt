@@ -60,6 +60,9 @@ vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
+vtkExtractImageDataPiece.cxx
+vtkExtractRectilinearGridPiece.cxx
+vtkExtractStructuredGridPiece.cxx
 vtkExtractPolyDataPiece.cxx
 vtkExtractUnstructuredGridPiece.cxx
 vtkExtractUserDefinedPiece.cxx
@@ -90,6 +93,9 @@ vtkRectilinearGridOutlineFilter.cxx
 vtkSocketCommunicator.cxx
 vtkSocketController.cxx
 vtkSubGroup.cxx
+vtkTransmitImageDataPiece.cxx
+vtkTransmitRectilinearGridPiece.cxx
+vtkTransmitStructuredGridPiece.cxx
 vtkTransmitPolyDataPiece.cxx
 vtkTransmitUnstructuredGridPiece.cxx
 vtkTreeCompositer.cxx

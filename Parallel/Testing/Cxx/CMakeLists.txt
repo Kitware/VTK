@@ -20,6 +20,15 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
     ADD_EXECUTABLE(DistributedData DistributedData.cxx)
     TARGET_LINK_LIBRARIES(DistributedData vtkParallel)
 
+    ADD_EXECUTABLE(TransmitImageData TransmitImageData.cxx)
+    TARGET_LINK_LIBRARIES(TransmitImageData vtkParallel)
+
+    ADD_EXECUTABLE(TransmitRectilinearGrid TransmitRectilinearGrid.cxx)
+    TARGET_LINK_LIBRARIES(TransmitRectilinearGrid vtkParallel)
+
+    ADD_EXECUTABLE(TransmitStructuredGrid TransmitStructuredGrid.cxx)
+    TARGET_LINK_LIBRARIES(TransmitStructuredGrid vtkParallel)
+
     ADD_TEST(GenericCommunicator-image 
       ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS} 
       ${CXX_TEST_PATH}/GenericCommunicator
@@ -52,6 +61,27 @@ IF(VTK_USE_DISPLAY AND VTK_USE_RENDERING)
             -D ${VTK_DATA_ROOT}
             -T ${VTK_BINARY_DIR}/Testing/Temporary
             -V Baseline/Parallel/DistributedData.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TransmitImageData-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TransmitImageData
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TransmitImageData.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TransmitRectilinearGrid-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TransmitRectilinearGrid
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TransmitRectilinearGrid.cxx.png
+            ${VTK_MPI_POSTFLAGS})
+          ADD_TEST(TransmitStructuredGrid-image
+            ${VTK_MPIRUN_EXE} ${VTK_MPI_NUMPROC_FLAG} 2 ${VTK_MPI_PREFLAGS}
+            ${CXX_TEST_PATH}/TransmitStructuredGrid
+            -D ${VTK_DATA_ROOT}
+            -T ${VTK_BINARY_DIR}/Testing/Temporary
+            -V Baseline/Parallel/TransmitStructuredGrid.cxx.png
             ${VTK_MPI_POSTFLAGS})
         ENDIF(VTK_MPI_MAX_NUMPROCS GREATER 1)
         IF (VTK_MPI_MAX_NUMPROCS GREATER 3)
