@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.1");
+vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.2");
 vtkStandardNewMacro(vtkTransmitStructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredGridPiece,Controller,
@@ -285,7 +285,6 @@ void vtkTransmitStructuredGridPiece::SatelliteExecute(
   int usizek = uExtent[5]-uExtent[4]+1;
   int usizej = uExtent[3]-uExtent[2]+1;
   int usizei = uExtent[1]-uExtent[0]+1;
-  int usize  = usizek*usizej*usizei; 
 
   vtkPoints *ip = tmp->GetPoints();  
   vtkPoints *op = vtkPoints::New();
