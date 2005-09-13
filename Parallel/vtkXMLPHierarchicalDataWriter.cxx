@@ -19,7 +19,7 @@
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkXMLPHierarchicalDataWriter);
-vtkCxxRevisionMacro(vtkXMLPHierarchicalDataWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLPHierarchicalDataWriter, "1.2");
 
 vtkCxxSetObjectMacro(vtkXMLPHierarchicalDataWriter, 
                      Controller,
@@ -43,6 +43,16 @@ vtkXMLPHierarchicalDataWriter::~vtkXMLPHierarchicalDataWriter()
 void vtkXMLPHierarchicalDataWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "Controller: ";
+  if (this->Controller)
+    {
+    this->Controller->PrintSelf(os, indent.GetNextIndent());
+    }
+  else
+    {
+    os << "(none)" << endl;
+    }
 }
 
 //----------------------------------------------------------------------------
