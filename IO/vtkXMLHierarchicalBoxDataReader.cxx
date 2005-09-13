@@ -23,7 +23,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.1");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.2");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
 //----------------------------------------------------------------------------
@@ -99,10 +99,10 @@ void vtkXMLHierarchicalBoxDataReader::HandleBlock(vtkXMLDataElement* ds,
     vtkAMRBox abox;
     abox.LoCorner[0] = box[0];
     abox.HiCorner[0] = box[1];
-    abox.LoCorner[1] = box[3];
-    abox.HiCorner[1] = box[4];
-    abox.LoCorner[2] = box[5];
-    abox.HiCorner[2] = box[6];
+    abox.LoCorner[1] = box[2];
+    abox.HiCorner[1] = box[3];
+    abox.LoCorner[2] = box[4];
+    abox.HiCorner[2] = box[5];
     hbds->SetDataSet(level, dsId, abox, ugrid);
     }
   else
