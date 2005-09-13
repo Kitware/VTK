@@ -161,6 +161,9 @@ protected:
   //helper functions
   void ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output);
 
+  int ClipPoints(vtkDataSet* input, vtkUnstructuredGrid* output,
+                 vtkInformationVector** inputVector);
+
 private:
   vtkClipDataSet(const vtkClipDataSet&);  // Not implemented.
   void operator=(const vtkClipDataSet&);  // Not implemented.

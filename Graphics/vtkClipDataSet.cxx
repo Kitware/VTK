@@ -33,7 +33,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkClipDataSet, "1.41");
+vtkCxxRevisionMacro(vtkClipDataSet, "1.42");
 vtkStandardNewMacro(vtkClipDataSet);
 vtkCxxSetObjectMacro(vtkClipDataSet,ClipFunction,vtkImplicitFunction);
 
@@ -186,6 +186,11 @@ int vtkClipDataSet::RequestData(
     return 1;
     }
 
+  if ( numCells < 1 )
+    {
+    return this->ClipPoints(input, output, inputVector);
+    }
+
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
@@ -272,7 +277,8 @@ int vtkClipDataSet::RequestData(
       }
     }
     
-  if ( !this->GenerateClipScalars && !this->GetInputArrayToProcess(0,inputVector))
+  if ( !this->GenerateClipScalars && 
+       !this->GetInputArrayToProcess(0,inputVector))
     {
     outPD->CopyScalarsOff();
     }
@@ -390,6 +396,87 @@ int vtkClipDataSet::RequestData(
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
   output->Squeeze();
+
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkClipDataSet::ClipPoints(vtkDataSet* input, 
+                               vtkUnstructuredGrid* output,
+                               vtkInformationVector** inputVector)
+{
+  vtkPoints* outPoints = vtkPoints::New();
+
+  vtkPointData* inPD=input->GetPointData();
+  vtkPointData* outPD = output->GetPointData();
+
+  vtkIdType numPts = input->GetNumberOfPoints();
+
+  outPD->CopyAllocate(inPD, numPts/2, numPts/4);
+
+  if (this->ClipFunction)
+    {
+    for(vtkIdType i=0; i<numPts; i++)
+      {
+      double* pt = input->GetPoint(i);
+      double fv = this->ClipFunction->FunctionValue(pt);
+      int addPoint = 0;
+      if (this->InsideOut)
+        {
+        if (fv <= this->Value)
+          {
+          addPoint = 1;
+          }
+        }
+      else
+        {
+        if (fv > this->Value)
+          {
+          addPoint = 1;
+          }
+        }
+      if (addPoint)
+        {
+        vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
+        outPD->CopyData(inPD, i, id);
+        }
+      }
+    }
+  else
+    {
+    vtkDataArray* clipScalars = 
+      this->GetInputArrayToProcess(0,inputVector);
+    if (clipScalars)
+      {
+      for(vtkIdType i=0; i<numPts; i++)
+        {
+        int addPoint = 0;
+        double fv = clipScalars->GetTuple1(i);
+        if (this->InsideOut)
+          {
+          if (fv <= this->Value)
+            {
+            addPoint = 1;
+            }
+          }
+        else
+          {
+          if (fv > this->Value)
+            {
+            addPoint = 1;
+            }
+          }
+        if (addPoint)
+          {
+          vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
+          outPD->CopyData(inPD, i, id);
+          }
+        }
+      }
+    }
+
+  output->SetPoints(outPoints);
+  outPoints->Delete();
 
   return 1;
 }
