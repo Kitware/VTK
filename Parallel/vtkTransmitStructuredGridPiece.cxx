@@ -25,7 +25,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.4");
+vtkCxxRevisionMacro(vtkTransmitStructuredGridPiece, "1.5");
 vtkStandardNewMacro(vtkTransmitStructuredGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitStructuredGridPiece,Controller,
@@ -302,6 +302,7 @@ void vtkTransmitStructuredGridPiece::SatelliteExecute(
     }
   op->Squeeze();
   output->SetPoints(op);
+  op->Delete();
   
   // Retrieve attributes within requested region.
   vtkPointData *ipd = tmp->GetPointData();  
