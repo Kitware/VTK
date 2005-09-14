@@ -10,8 +10,12 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkGenericEnSightReader reader
-    reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office6_bin.case"
-    reader Update;#force a read to occur
+# Make sure all algorithms use the composite data pipeline
+vtkCompositeDataPipeline cdp
+reader SetDefaultExecutivePrototype cdp
+cdp Delete
+reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office6_bin.case"
+reader Update
 
 # to add coverage for vtkMultiPartExtentTranslator
 vtkMultiPartExtentTranslator translator
@@ -19,7 +23,7 @@ vtkMultiPartExtentTranslator translator
 
 vtkStructuredGridOutlineFilter outline
     outline SetInputConnection [reader GetOutputPort]
-vtkPolyDataMapper mapOutline
+vtkHierarchicalPolyDataMapper mapOutline
     mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
     outlineActor SetMapper mapOutline
@@ -40,9 +44,10 @@ vtkGlyph3D cones
     cones SetSource [cone GetOutput]
     cones SetScaleFactor 0.9
     cones SetScaleModeToScaleByVector
-vtkPolyDataMapper mapCones
+
+vtkHierarchicalPolyDataMapper mapCones
     mapCones SetInputConnection [cones GetOutputPort]
-    eval mapCones SetScalarRange [[reader GetOutput] GetScalarRange]
+eval mapCones SetScalarRange [[[reader GetOutput] GetDataSet 0 0] GetScalarRange]
 vtkActor conesActor
     conesActor SetMapper mapCones
 

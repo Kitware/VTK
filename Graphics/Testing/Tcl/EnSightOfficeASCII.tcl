@@ -10,15 +10,16 @@ vtkRenderWindowInteractor iren
 # read data
 #
 vtkGenericEnSightReader reader
-    reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office_ascii.case"
-    reader Update;#force a read to occur
+reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/office_ascii.case"
+reader Update
 
 # to add coverage for vtkMultiPartExtentTranslator
 vtkMultiPartExtentTranslator translator
 [reader GetOutput] SetExtentTranslator translator
 
 vtkStructuredGridOutlineFilter outline
-    outline SetInputConnection [reader GetOutputPort]
+#    outline SetInputConnection [reader GetOutputPort]
+outline SetInput [[reader GetOutput] GetDataSet 0 0]
 vtkPolyDataMapper mapOutline
     mapOutline SetInputConnection [outline GetOutputPort]
 vtkActor outlineActor
@@ -27,7 +28,8 @@ vtkActor outlineActor
 
 # Create source for streamtubes
 vtkStreamPoints streamer
-    streamer SetInputConnection [reader GetOutputPort]
+#    streamer SetInputConnection [reader GetOutputPort]
+streamer SetInput [[reader GetOutput] GetDataSet 0 0]
     streamer SetStartPosition 0.1 2.1 0.5
     streamer SetMaximumPropagationTime 500
     streamer SetTimeIncrement 0.5
@@ -42,7 +44,8 @@ vtkGlyph3D cones
     cones SetScaleModeToScaleByVector
 vtkPolyDataMapper mapCones
     mapCones SetInputConnection [cones GetOutputPort]
-    eval mapCones SetScalarRange [[reader GetOutput] GetScalarRange]
+#    eval mapCones SetScalarRange [[reader GetOutput] GetScalarRange]
+eval mapCones SetScalarRange [[[reader GetOutput] GetDataSet 0 0] GetScalarRange]
 vtkActor conesActor
     conesActor SetMapper mapCones
 

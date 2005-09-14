@@ -10,7 +10,8 @@ vtkGenericEnSightReader reader
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/RectGrid_ascii.case"
     reader Update
 vtkCastToConcrete toRectilinearGrid
-    toRectilinearGrid SetInputConnection [reader GetOutputPort] 
+#    toRectilinearGrid SetInputConnection [reader GetOutputPort] 
+toRectilinearGrid SetInput [[reader GetOutput] GetDataSet 0 0]
 vtkRectilinearGridGeometryFilter plane
     plane SetInput [toRectilinearGrid GetRectilinearGridOutput]
     plane SetExtent 0 100 0 100 15 15 
@@ -26,7 +27,8 @@ vtkActor planeActor
     planeActor SetMapper planeMapper
 
 vtkPlane cutPlane
-    eval cutPlane SetOrigin [[reader GetOutput] GetCenter]
+#    eval cutPlane SetOrigin [[reader GetOutput] GetCenter]
+eval cutPlane SetOrigin [[[reader GetOutput] GetDataSet 0 0] GetCenter]
     cutPlane SetNormal 1 0 0
 vtkCutter planeCut
     planeCut SetInput [toRectilinearGrid GetRectilinearGridOutput]
@@ -34,7 +36,8 @@ vtkCutter planeCut
 vtkDataSetMapper cutMapper
     cutMapper SetInputConnection [planeCut GetOutputPort]
     eval cutMapper SetScalarRange \
-      [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
+  [[[[[reader GetOutput] GetDataSet 0 0] GetPointData] GetScalars] GetRange]
+#      [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor cutActor
     cutActor SetMapper cutMapper
 
@@ -53,7 +56,8 @@ vtkActor isoActor
     eval [isoActor GetProperty] SetRepresentationToWireframe
 
 vtkStreamLine streamer
-    streamer SetInputConnection [reader GetOutputPort]
+#    streamer SetInputConnection [reader GetOutputPort]
+streamer SetInput [[reader GetOutput] GetDataSet 0 0]
     streamer SetStartPosition -1.2 -0.1 1.3
     streamer SetMaximumPropagationTime 500
     streamer SetStepLength 0.05
@@ -68,7 +72,8 @@ vtkTubeFilter streamTube
 vtkPolyDataMapper mapStreamTube
     mapStreamTube SetInputConnection [streamTube GetOutputPort]
     eval mapStreamTube SetScalarRange \
-       [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
+  [[[[[reader GetOutput] GetDataSet 0 0] GetPointData] GetScalars] GetRange]
+#       [[[[reader GetOutput] GetPointData] GetScalars] GetRange]
 vtkActor streamTubeActor
     streamTubeActor SetMapper mapStreamTube
     [streamTubeActor GetProperty] BackfaceCullingOn
