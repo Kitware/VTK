@@ -242,6 +242,17 @@ public:
   vtkSetMacro(ErrorStatus, int);
   vtkGetMacro(ErrorStatus, int);
 
+  // ATTRIBUTE EDITOR
+  // Description:
+  //    If this writer is writing to the original data file, set 
+  //    this flag so that it will only write out the variable array. 
+  //    If a vtkAttributeEditor filter is the input to this writer, set the attribute name here
+  vtkSetMacro(EditorFlag,int);
+  vtkGetMacro(EditorFlag,int);
+  vtkSetStringMacro(EditedVariableName);
+  vtkGetStringMacro(EditedVariableName);
+
+
 protected:
 
   vtkExodusIIWriter();
@@ -316,8 +327,9 @@ private:
   int GetTimeStepIndex();
   float GetTimeStepValue(int timeStepIndex);
   int WriteNextTimeStep();
-  float *ExtractComponentF(vtkDataArray *da, int comp, int *idx);
-  double *ExtractComponentD(vtkDataArray *da, int comp, int *idx);
+  // ATTRIBUTE EDITOR:
+  float *ExtractComponentF(vtkDataArray *da, vtkFloatArray *fa, vtkIntArray *ids, int comp, int *idx);
+  double *ExtractComponentD(vtkDataArray *da, vtkDoubleArray *dba, vtkIntArray *ids, int comp, int *idx);
 
   vtkModelMetadata *ModelMetadata;
 
@@ -422,6 +434,10 @@ private:
   int GhostLevel;
 
   int ErrorStatus;
+
+  // ATTRIBUTE EDITOR
+  char *EditedVariableName;
+  int EditorFlag;
 };
 
 #endif
