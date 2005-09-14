@@ -34,8 +34,14 @@ import os
 import stat
 import string
 
+# Get the path to the directory containing this script.
+if __name__ == '__main__':
+    selfpath = os.path.abspath(sys.path[0] or os.curdir)
+else:
+    selfpath = os.path.abspath(os.path.dirname(__file__))
+
 # Load the list of names mangled by windows.h.
-execfile(os.path.join(os.path.dirname(__file__), 'WindowsMangleList.py'))
+execfile(os.path.join(selfpath, 'WindowsMangleList.py'))
 
 ## If tested from dart, make sure to fix all the output strings
 test_from_dart = 0
