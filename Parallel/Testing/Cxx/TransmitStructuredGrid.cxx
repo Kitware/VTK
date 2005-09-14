@@ -93,8 +93,7 @@ void Run(vtkMultiProcessController *contr, void *arg)
   comm->Broadcast(&go, 1, 0);
 
   if (!go){
-    sgr->Delete();
-    sg->Delete();
+    if (sgr) sgr->Delete();
     prm->Delete();
     return;
   }
