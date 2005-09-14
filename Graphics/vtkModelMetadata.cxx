@@ -1,3 +1,4 @@
+
 /*=========================================================================
 
   Program:   ParaView
@@ -30,7 +31,7 @@
 #include "vtkPointData.h"
 #include <time.h>
 
-vtkCxxRevisionMacro(vtkModelMetadata, "1.3");
+vtkCxxRevisionMacro(vtkModelMetadata, "1.4");
 vtkStandardNewMacro(vtkModelMetadata);
 
 #include <vtkstd/set>
@@ -4183,6 +4184,25 @@ int vtkModelMetadata::CalculateMaximumLengths(int &maxString, int &maxLine)
     {
     sizeLine = (this->GlobalVariableNames[i] ? 
                 strlen(this->GlobalVariableNames[i]) : 0);
+    maxString = (sizeLine > maxString) ? sizeLine : maxString;
+    }
+
+  // Figure the node and element variable name lengths into the calculations.
+  // Note: sizeLine++ is necessary (for the null-terminating char?)
+
+  for (i=0; i<this->NumberOfNodeVariables; i++)
+    {
+    sizeLine = (this->NodeVariableNames[i] ? 
+                strlen(this->NodeVariableNames[i]) : 0);
+    sizeLine++;
+    maxString = (sizeLine > maxString) ? sizeLine : maxString;
+    }
+
+  for (i=0; i<this->NumberOfElementVariables; i++)
+    {
+    sizeLine = (this->ElementVariableNames[i] ? 
+                strlen(this->ElementVariableNames[i]) : 0);
+    sizeLine++;
     maxString = (sizeLine > maxString) ? sizeLine : maxString;
     }
 
