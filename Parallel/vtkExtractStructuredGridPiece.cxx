@@ -29,7 +29,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkExtractStructuredGridPiece, "1.3");
+vtkCxxRevisionMacro(vtkExtractStructuredGridPiece, "1.4");
 vtkStandardNewMacro(vtkExtractStructuredGridPiece);
 
 int vtkExtractStructuredGridPiece::RequestUpdateExtent(
@@ -97,6 +97,7 @@ int vtkExtractStructuredGridPiece::RequestData(
     }
   op->Squeeze();
   output->SetPoints(op);
+  op->Delete();
 
   // Extract attributes.
   vtkPointData *ipd = input->GetPointData();  
