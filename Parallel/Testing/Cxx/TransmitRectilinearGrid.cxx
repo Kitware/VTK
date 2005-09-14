@@ -40,6 +40,8 @@
 */
 #include "vtkMPICommunicator.h"
 
+#include <mpi.h>
+
 static int NumProcs, Me;
 
 struct DDArgs_tmp
@@ -49,7 +51,7 @@ struct DDArgs_tmp
   char** argv;
 };
 
-static void Run(vtkMultiProcessController *contr, void *arg)
+void Run(vtkMultiProcessController *contr, void *arg)
 {
   int i, go;
   DDArgs_tmp *args = reinterpret_cast<DDArgs_tmp *>(arg);
@@ -58,11 +60,13 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   // READER
 
-  vtkRectilinearGridReader *rgr = vtkRectilinearGridReader::New();
-  vtkRectilinearGrid *rg = vtkRectilinearGrid::New();
+  vtkRectilinearGridReader *rgr = NULL;
+  vtkRectilinearGrid *rg = NULL;
 
   if (Me == 0)
     {
+    rgr = vtkRectilinearGridReader::New();
+
     char* fname = 
       vtkTestUtilities::ExpandDataFileName(
         args->argc, args->argv, "Data/RectGrid2.vtk");
@@ -101,7 +105,7 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   pass->SetController(contr);
   if (Me == 0)
     {
-    pass->SetInput((vtkDataObject*)rg); 
+    pass->SetInput(rg); 
     }
   else 
     {
@@ -109,10 +113,10 @@ static void Run(vtkMultiProcessController *contr, void *arg)
 
   // FILTERING
   vtkContourFilter *cf = vtkContourFilter::New();
-  cf->SetInput((vtkDataObject*)pass->GetOutput());
+  cf->SetInput(pass->GetOutput());
   cf->SetNumberOfContours(1);
   cf->SetValue(0,0.1);
-  ((vtkDataObject*)cf->GetInput())->RequestExactExtentOn();
+  (cf->GetInput())->RequestExactExtentOn();
   cf->ComputeNormalsOff();
   vtkElevationFilter *elev = vtkElevationFilter::New();
   elev->SetInput(cf->GetOutput());
@@ -181,16 +185,26 @@ static void Run(vtkMultiProcessController *contr, void *arg)
   elev->Delete(); 
   cf->Delete(); 
   pass->Delete();
-  rgr->Delete();
+  if (Me == 0)
+    rgr->Delete();
   prm->Delete();
 }
 
 int main(int argc, char **argv)
 {
-  int retVal = 1;
+  // This is here to avoid false leak messages from vtkDebugLeaks when
+  // using mpich. It appears that the root process which spawns all the
+  // main processes waits in MPI_Init() and calls exit() when
+  // the others are done, causing apparent memory leaks for any objects
+  // created before MPI_Init().
+  MPI_Init(&argc, &argv);
 
+  // Note that this will create a vtkMPIController if MPI
+  // is configured, vtkThreadedController otherwise.
   vtkMPIController *contr = vtkMPIController::New();
-  contr->Initialize(&argc, &argv);
+  contr->Initialize(&argc, &argv, 1);
+
+  int retVal = 1;
 
   vtkMultiProcessController::SetGlobalController(contr);
 
