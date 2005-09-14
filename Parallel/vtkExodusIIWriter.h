@@ -327,9 +327,8 @@ private:
   int GetTimeStepIndex();
   float GetTimeStepValue(int timeStepIndex);
   int WriteNextTimeStep();
-  // ATTRIBUTE EDITOR:
-  float *ExtractComponentF(vtkDataArray *da, vtkFloatArray *fa, vtkIntArray *ids, int comp, int *idx);
-  double *ExtractComponentD(vtkDataArray *da, vtkDoubleArray *dba, vtkIntArray *ids, int comp, int *idx);
+  float *ExtractComponentF(vtkDataArray *da, int comp, int *idx);
+  double *ExtractComponentD(vtkDataArray *da, int comp, int *idx);
 
   vtkModelMetadata *ModelMetadata;
 
@@ -436,6 +435,8 @@ private:
   int ErrorStatus;
 
   // ATTRIBUTE EDITOR
+  int ExtractComponentForEditorF(vtkDataArray *da, vtkFloatArray *fa, vtkIntArray *ids, int comp, int *idx);
+  int ExtractComponentForEditorD(vtkDataArray *da, vtkDoubleArray *dba, vtkIntArray *ids, int comp, int *idx);
   char *EditedVariableName;
   int EditorFlag;
 };
