@@ -300,6 +300,11 @@ public:
   virtual unsigned long ComputePipelineMTime(vtkInformation * /* request */) 
   { return this->GetMTime(); };
   
+  // Description:
+  // If the DefaultExecutivePrototype is set, a copy of it is created
+  // in CreateDefaultExecutive() using NewInstance().
+  static void SetDefaultExecutivePrototype(vtkExecutive* proto);
+
 protected:
   vtkAlgorithm();
   ~vtkAlgorithm();
@@ -361,11 +366,6 @@ protected:
                                                 vtkInformationVector **inputVector);
   
     
-  // Description:
-  // If the DefaultExecutivePrototype is set, a copy of it is created
-  // in CreateDefaultExecutive() using NewInstance().
-  static void SetDefaultExecutivePrototype(vtkExecutive* proto);
-
   // Description:
   // Create a default executive.
   // If the DefaultExecutivePrototype is set, a copy of it is created
