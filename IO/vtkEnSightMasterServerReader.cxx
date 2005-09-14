@@ -14,12 +14,14 @@
 =========================================================================*/
 #include "vtkEnSightMasterServerReader.h"
 
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 
 #include <vtkstd/string>
 
 //----------------------------------------------------------------------------
-vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.11");
+vtkCxxRevisionMacro(vtkEnSightMasterServerReader, "1.12");
 vtkStandardNewMacro(vtkEnSightMasterServerReader);
 
 static int vtkEnSightMasterServerReaderStartsWith(const char* str1, const char* str2)
@@ -46,24 +48,27 @@ vtkEnSightMasterServerReader::~vtkEnSightMasterServerReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightMasterServerReader::Execute()
+int vtkEnSightMasterServerReader::RequestData(
+  vtkInformation *request,
+  vtkInformationVector **inputVector,
+  vtkInformationVector *outputVector)
 {
   if ( !this->MaxNumberOfPieces )
     {
     vtkErrorMacro("No pieces to read");
-    return;
+    return 0;
     }
 
   if ( this->CurrentPiece < 0 || 
        this->CurrentPiece >= this->MaxNumberOfPieces )
     {
     vtkErrorMacro("Current piece has to be set before reading the file");
-    return;
+    return 0;
     }
   if ( this->DetermineFileName(this->CurrentPiece) != VTK_OK )
     {
     vtkErrorMacro("Cannot update piece: " << this->CurrentPiece);
-    return;
+    return 0;
     }
   if ( !this->Reader )
     {
@@ -74,17 +79,21 @@ void vtkEnSightMasterServerReader::Execute()
     {
     this->Reader->SetFilePath( this->GetFilePath() );
     }
-  this->Superclass::Execute();
+  return this->Superclass::RequestData(request, inputVector, outputVector);
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightMasterServerReader::ExecuteInformation()
+int vtkEnSightMasterServerReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {  
   if ( this->DetermineFileName(-1) != VTK_OK )
     {
     vtkErrorMacro("Problem parsing the case file");
-    return;
-    }  
+    return 0;
+    }
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -176,6 +185,23 @@ int vtkEnSightMasterServerReader::DetermineFileName(int piece)
   delete this->IS;
   this->IS = 0;
   return VTK_OK;
+}
+
+//----------------------------------------------------------------------------
+int vtkEnSightMasterServerReader::CanReadFile(const char* fname)
+{
+  // We may have to read quite a few lines of the file to do this test
+  // for real.  Just check the extension.
+  size_t len = strlen(fname);
+  if((len >= 4) && (strcmp(fname+len-4, ".sos") == 0))
+    {
+    return 1;
+    }
+  else if((len >= 5) && (strcmp(fname+len-5, ".case") == 0))
+    {
+    return 1;
+    }
+  return 0;
 }
 
 //----------------------------------------------------------------------------

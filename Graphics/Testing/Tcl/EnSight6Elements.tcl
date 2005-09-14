@@ -11,7 +11,6 @@ vtkRenderWindowInteractor iren
 
 vtkGenericEnSightReader reader
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/elements6.case"
-    reader Update
 
 vtkGeometryFilter geom
     geom SetInputConnection [reader GetOutputPort]
@@ -25,7 +24,7 @@ vtkArrayCalculator calc
     calc AddVectorArrayName "pointCVectors_i" 0 1 2
     calc SetResultArrayName "test"
 
-vtkPolyDataMapper mapper
+vtkHierarchicalPolyDataMapper mapper
     mapper SetInputConnection [calc GetOutputPort]
     mapper SetColorModeToMapScalars
     mapper SetScalarModeToUsePointFieldData

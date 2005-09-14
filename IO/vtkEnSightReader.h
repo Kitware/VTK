@@ -20,6 +20,7 @@
 #include "vtkGenericEnSightReader.h"
 
 class vtkDataSetCollection;
+class vtkHierarchicalDataSet;
 class vtkIdList;
 class vtkEnSightReaderCellIdsType;
 
@@ -28,9 +29,6 @@ class VTK_IO_EXPORT vtkEnSightReader : public vtkGenericEnSightReader
 public:
   vtkTypeRevisionMacro(vtkEnSightReader, vtkGenericEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent);
-  
-  void Update();
-  void ExecuteInformation();
   
   //BTX
   enum ElementTypesList
@@ -77,26 +75,16 @@ public:
   };
   //ETX
 
-  // Description:
-  // This method sets/replaces one of the outputs of the
-  // reader without changing it's modification time.
-  // Make sure that you pass the right type of data object.
-  void ReplaceNthOutput(int n, vtkDataObject* output);
-  
-  // Description:
-  // OutputsAreValid indicates whether the outputs from this reader have
-  // changed in a consistent way.  If during re-reading (because of a change in
-  // time step or data set) the number of outputs becomes less than the current
-  // number or the type of a particular output changes (e.g., from
-  // vtkUnstructuredGrid to vtkImageData), then this flag is set to 0.
-  // Otherwise it is set to 1.
-  vtkGetMacro(OutputsAreValid, int);
-  
 protected:
   vtkEnSightReader();
   ~vtkEnSightReader();
   
-  void Execute();
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
 
   // Description:
   // Read the case file.  If an error occurred, 0 is returned; otherwise 1.
@@ -107,75 +95,76 @@ protected:
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
-  virtual int ReadGeometryFile(const char* fileName, int timeStep) = 0;
+  virtual int ReadGeometryFile(const char* fileName, int timeStep,
+                               vtkHierarchicalDataSet *output) = 0;
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
-  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep) = 0;
+  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
+                                       vtkHierarchicalDataSet *output) = 0;
 
   // Description:
   // Read the variable files. If an error occurred, 0 is returned; otherwise 1.
-  int ReadVariableFiles();
+  int ReadVariableFiles(vtkHierarchicalDataSet *output);
 
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadScalarsPerNode(const char* fileName, const char* description,
-                                 int timeStep, int measured = 0,
-                                 int numberOfComponents = 1,
+                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int measured = 0, int numberOfComponents = 1,
                                  int component = 0) = 0;
   
   // Description:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, int measured = 0) = 0;
+                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int measured = 0) = 0;
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep) = 0;
+                                 int timeStep, vtkHierarchicalDataSet *output) = 0;
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadScalarsPerElement(const char* fileName, const char* description,
-                                    int timeStep, int numberOfComponents = 1,
+                                    int timeStep, vtkHierarchicalDataSet *output,
+                                    int numberOfComponents = 1,
                                     int component = 0) = 0;
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep) = 0;
+                                    int timeStep, vtkHierarchicalDataSet *output) = 0;
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep) = 0;
+                                    int timeStep, vtkHierarchicalDataSet *output) = 0;
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
   // vtkUnstructuredGrid output.  Return 0 if EOF reached.
   virtual int CreateUnstructuredGridOutput(int partId, 
                                            char line[80],
-                                           const char* name) = 0;
+                                           const char* name,
+                                           vtkHierarchicalDataSet *output) = 0;
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGridOutput.  Return 0 if EOF reached.
   virtual int CreateStructuredGridOutput(int partId, 
                                          char line[80],
-                                         const char* name) = 0;
+                                         const char* name,
+                                         vtkHierarchicalDataSet *output) = 0;
   
-  // Description:
-  // Set/Get the Model file name.
-  vtkSetStringMacro(GeometryFileName);
-  vtkGetStringMacro(GeometryFileName);
-
   // Description:
   // Set/Get the Measured file name.
   vtkSetStringMacro(MeasuredFileName);
@@ -273,13 +262,10 @@ protected:
   
   int NumberOfGeometryParts;
   
-  void SetNumberOfOutputsInternal(int num);
-
   // global list of points for measured geometry
   int NumberOfMeasuredPoints;
   
   int NumberOfNewOutputs;
-  int OutputsAreValid;
   int InitialRead;
   
   int CheckOutputConsistency();

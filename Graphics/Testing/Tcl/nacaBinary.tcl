@@ -10,34 +10,21 @@ vtkRenderWindowInteractor iren
 vtkEnSightGoldBinaryReader reader
    reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/naca.bin.case"
    reader SetTimeValue 3
-   reader Update
-
 
 vtkLookupTable lut
  lut SetHueRange 0.667 0.0
  lut SetTableRange 0.636 1.34
 
+vtkGeometryFilter geom
+geom SetInputConnection [reader GetOutputPort]
 
-vtkDataSetMapper blockMapper0
-   blockMapper0 SetInput [reader GetOutput 0]
+vtkHierarchicalPolyDataMapper blockMapper0
+   blockMapper0 SetInputConnection [geom GetOutputPort]
+
 vtkActor blockActor0
    blockActor0 SetMapper blockMapper0
 
-vtkDataSetMapper blockMapper1
-   blockMapper1 SetInput [reader GetOutput 1]
-vtkActor blockActor1
-   blockActor1 SetMapper blockMapper1
-
-
-vtkDataSetMapper blockMapper2
-   blockMapper2 SetInput [reader GetOutput 2]
-vtkActor blockActor2
-   blockActor2 SetMapper blockMapper2
-
-
 ren1 AddActor blockActor0
-ren1 AddActor blockActor1
-ren1 AddActor blockActor2
 
 ren1 ResetCamera
 set cam1 [ren1 GetActiveCamera]

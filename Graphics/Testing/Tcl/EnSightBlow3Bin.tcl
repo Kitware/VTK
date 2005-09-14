@@ -14,12 +14,11 @@ iren SetRenderWindow renWin
 vtkGenericEnSightReader reader
 reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/blow3_bin.case"
 reader SetTimeValue 1
-reader Update
 
 vtkGeometryFilter geom
 geom SetInputConnection [reader GetOutputPort]
 
-vtkPolyDataMapper mapper
+vtkHierarchicalPolyDataMapper mapper
 mapper SetInputConnection [geom GetOutputPort]
 mapper SetColorModeToMapScalars
 mapper SetScalarModeToUsePointFieldData

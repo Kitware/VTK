@@ -41,6 +41,8 @@
 class UndefPartialInternal;
 //ETX
 
+class vtkHierarchicalDataSet;
+
 class VTK_IO_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 {
 public:
@@ -54,19 +56,22 @@ protected:
   
   // Description:
   // Read the geometry file.  If an error occurred, 0 is returned; otherwise 1.
-  virtual int ReadGeometryFile(const char* fileName, int timeStep);
+  virtual int ReadGeometryFile(const char* fileName, int timeStep,
+                               vtkHierarchicalDataSet *output);
 
   // Description:
   // Read the measured geometry file.  If an error occurred, 0 is returned;
   // otherwise 1.
-  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep);
+  virtual int ReadMeasuredGeometryFile(const char* fileName, int timeStep,
+                                       vtkHierarchicalDataSet *output);
 
   // Description:
   // Read scalars per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one component in
   // the data array, it is assumed that 0 is the first component added.
   virtual int ReadScalarsPerNode(const char* fileName, const char* description,
-                                 int timeStep, int measured = 0,
+                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int measured = 0,
                                  int numberOfComponents = 1,
                                  int component = 0);
   
@@ -74,33 +79,35 @@ protected:
   // Read vectors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerNode(const char* fileName, const char* description,
-                                 int timeStep, int measured = 0);
+                                 int timeStep, vtkHierarchicalDataSet *output,
+                                 int measured = 0);
 
   // Description:
   // Read tensors per node for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerNode(const char* fileName, const char* description,
-                                 int timeStep);
+                                 int timeStep, vtkHierarchicalDataSet *output);
 
   // Description:
   // Read scalars per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.  If there will be more than one componenet in the
   // data array, it is assumed that 0 is the first component added.
   virtual int ReadScalarsPerElement(const char* fileName, const char* description,
-                                    int timeStep, int numberOfComponents = 1,
+                                    int timeStep, vtkHierarchicalDataSet *output,
+                                    int numberOfComponents = 1,
                                     int component = 0);
 
   // Description:
   // Read vectors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadVectorsPerElement(const char* fileName, const char* description,
-                                    int timeStep);
+                                    int timeStep, vtkHierarchicalDataSet *output);
 
   // Description:
   // Read tensors per element for this dataset.  If an error occurred, 0 is
   // returned; otherwise 1.
   virtual int ReadTensorsPerElement(const char* fileName, const char* description,
-                                    int timeStep);
+                                    int timeStep, vtkHierarchicalDataSet *output);
 
   // Description:
   // Read an unstructured part (partId) from the geometry file and create a
@@ -108,24 +115,28 @@ protected:
   // an error occurred.
   virtual int CreateUnstructuredGridOutput(int partId, 
                                            char line[256],
-                                           const char* name);
+                                           const char* name,
+                                           vtkHierarchicalDataSet *output);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkStructuredGrid output.  Return 0 if EOF reached.
   virtual int CreateStructuredGridOutput(int partId, 
                                          char line[256],
-                                         const char* name);
+                                         const char* name,
+                                         vtkHierarchicalDataSet *output);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkRectilinearGrid output.  Return 0 if EOF reached.
-  int CreateRectilinearGridOutput(int partId, char line[256], const char* name);
+  int CreateRectilinearGridOutput(int partId, char line[256], const char* name,
+                                  vtkHierarchicalDataSet *output);
   
   // Description:
   // Read a structured part from the geometry file and create a
   // vtkImageData output.  Return 0 if EOF reached.
-  int CreateImageDataOutput(int partId, char line[256], const char* name);
+  int CreateImageDataOutput(int partId, char line[256], const char* name,
+                            vtkHierarchicalDataSet *output);
   
   // Description:
   // Set/Get the Model file name.

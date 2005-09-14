@@ -41,13 +41,17 @@ public:
   // Set or get the current piece.
   vtkSetMacro(CurrentPiece, int);
   vtkGetMacro(CurrentPiece, int);
-  
+
+  int CanReadFile(const char *fname);
+
 protected:
   vtkEnSightMasterServerReader();
   ~vtkEnSightMasterServerReader();
   
-  void Execute();
-  void ExecuteInformation();
+  virtual int RequestData(vtkInformation *, vtkInformationVector **,
+                          vtkInformationVector *);
+  virtual int RequestInformation(vtkInformation *, vtkInformationVector **,
+                                 vtkInformationVector *);
 
   vtkSetStringMacro(PieceCaseFileName);
   char* PieceCaseFileName;

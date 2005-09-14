@@ -17,6 +17,7 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
+#include "vtkHierarchicalDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
@@ -32,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.57");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.58");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -153,7 +154,8 @@ int vtkEnSight6ReaderRead4(const char *line, float *point1)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
+int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep,
+                                        vtkHierarchicalDataSet *output)
 {
   char line[256], subLine[256];
   int partId;
@@ -313,11 +315,11 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
     
     if (strncmp(line, "block", 5) == 0)
       {
-      lineRead = this->CreateStructuredGridOutput(realId, line, name);
+      lineRead = this->CreateStructuredGridOutput(realId, line, name, output);
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(realId, line, name);
+      lineRead = this->CreateUnstructuredGridOutput(realId, line, name, output);
       }
     free(name);
     }
@@ -334,7 +336,9 @@ int vtkEnSight6Reader::ReadGeometryFile(const char* fileName, int timeStep)
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName, int timeStep)
+int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
+                                                int timeStep,
+                                                vtkHierarchicalDataSet *output)
 {
   char line[256], subLine[256];
   vtkPoints *newPoints;
@@ -413,24 +417,19 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName, int timeSt
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(this->NumberOfGeometryParts) == NULL)
+  if (output->GetDataSet(0, this->NumberOfGeometryParts) == NULL ||
+      ! output->GetDataSet(0, this->NumberOfGeometryParts)->IsA("vtkPolyData"))
     {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
-    this->SetNthOutput(this->NumberOfGeometryParts, pd);
+    output->SetDataSet(0, this->NumberOfGeometryParts, pd);
     pd->Delete();
-    }
-  else if ( ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    return 0;
     }
   
   vtkPolyData *pd = vtkPolyData::SafeDownCast( 
-      this->GetOutput( this->NumberOfGeometryParts) );
+    output->GetDataSet(0, this->NumberOfGeometryParts) );
   pd->Allocate(this->NumberOfMeasuredPoints);
-    
+
   newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfMeasuredPoints);
     
@@ -460,11 +459,10 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName, int timeSt
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
-                                          const char* description,
-                                          int timeStep, int measured,
-                                          int numberOfComponents,
-                                          int component)
+int vtkEnSight6Reader::ReadScalarsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int measured,
+  int numberOfComponents, int component)
 {
   char line[256];
   char tempLine[256];
@@ -538,7 +536,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
       }
     else
       {
-      numPts = this->GetOutput(this->NumberOfGeometryParts)->
+      numPts = static_cast<vtkDataSet*>(
+        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts))->
         GetNumberOfPoints();
       }
     numLines = numPts / 6;
@@ -556,8 +555,9 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
       // It does not matter which unstructured part we get the point data from
       // because it is the same for all of them.
       partId = this->UnstructuredPartIds->GetId(0);
-      scalars = static_cast<vtkFloatArray*>(this->GetOutput(partId)->
-                  GetPointData()->GetArray(description));
+      scalars = static_cast<vtkFloatArray*>(
+        static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, partId))->
+        GetPointData()->GetArray(description));
       }
     for (i = 0; i < numLines; i++)
       {
@@ -588,7 +588,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
       for (i = 0; i < this->UnstructuredPartIds->GetNumberOfIds(); i++)
         {
         partId = this->UnstructuredPartIds->GetId(i);
-        output = this->GetOutput(partId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, partId));
         if (component == 0)
           {
           scalars->SetName(description);
@@ -607,7 +608,8 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
     else
       {
       scalars->SetName(description);
-      output = this->GetOutput(this->NumberOfGeometryParts);
+      output = static_cast<vtkDataSet*>(
+        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
       output->GetPointData()->AddArray(scalars);
       if (!output->GetPointData()->GetScalars())
         {
@@ -628,7 +630,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
     partId--;  // EnSight starts #ing at 1.
     int realId = this->InsertNewPartId(partId);
 
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     this->ReadNextDataLine(line); // block
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
@@ -692,9 +694,9 @@ int vtkEnSight6Reader::ReadScalarsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
-                                          const char* description,
-                                          int timeStep, int measured)
+int vtkEnSight6Reader::ReadVectorsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int measured)
 {
   char line[256];
   char tempLine[256];
@@ -767,7 +769,8 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
       }
     else
       {
-      numPts = this->GetOutput(this->NumberOfGeometryParts)->
+      numPts = static_cast<vtkDataSet*>(
+        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts))->
         GetNumberOfPoints();
       }
     numLines = numPts / 2;
@@ -808,7 +811,8 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
         {
         partId = this->UnstructuredPartIds->GetId(i);
         vectors->SetName(description);
-        output = this->GetOutput(partId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, partId));
         output->GetPointData()->AddArray(vectors);
         if (!output->GetPointData()->GetVectors())
           {
@@ -819,7 +823,8 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
     else
       {
       vectors->SetName(description);
-      output = this->GetOutput(this->NumberOfGeometryParts);
+      output = static_cast<vtkDataSet*>(
+        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
       output->GetPointData()->AddArray(vectors);
       if (!output->GetPointData()->GetVectors())
         {
@@ -836,7 +841,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
     partId--;
     int realId = this->InsertNewPartId(partId);
 
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreVectors = numPts % 6;
@@ -888,9 +893,9 @@ int vtkEnSight6Reader::ReadVectorsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName,
-                                          const char* description,
-                                          int timeStep)
+int vtkEnSight6Reader::ReadTensorsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[256];
   char tempLine[256];
@@ -977,7 +982,8 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName,
       {
       partId = this->UnstructuredPartIds->GetId(i);
       tensors->SetName(description);
-      this->GetOutput(partId)->GetPointData()->AddArray(tensors);
+      static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, partId))->
+        GetPointData()->AddArray(tensors);
       }
     tensors->Delete();
     }
@@ -989,7 +995,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName,
     partId--;
     int realId = this->InsertNewPartId(partId);
     this->ReadNextDataLine(line); // block
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreTensors = numPts % 6;
@@ -1036,11 +1042,10 @@ int vtkEnSight6Reader::ReadTensorsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName, 
-                                             const char* description,
-                                             int timeStep,
-                                             int numberOfComponents,
-                                             int component)
+int vtkEnSight6Reader::ReadScalarsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int numberOfComponents,
+  int component)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, idx;
@@ -1109,7 +1114,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName,
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     if (component == 0)
@@ -1220,9 +1225,9 @@ int vtkEnSight6Reader::ReadScalarsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName,
-                                             const char* description,
-                                             int timeStep)
+int vtkEnSight6Reader::ReadVectorsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, k, idx;
@@ -1292,7 +1297,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName,
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     vectors->SetNumberOfTuples(numCells);
@@ -1390,9 +1395,9 @@ int vtkEnSight6Reader::ReadVectorsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName,
-                                             const char* description,
-                                             int timeStep)
+int vtkEnSight6Reader::ReadTensorsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[256];
   int partId, numCells, numCellsPerElement, i, j, k, idx;
@@ -1462,7 +1467,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName,
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     tensors->SetNumberOfTuples(numCells);
@@ -1540,9 +1545,9 @@ int vtkEnSight6Reader::ReadTensorsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
-                                                    char line[256],
-                                                    const char* name)
+int vtkEnSight6Reader::CreateUnstructuredGridOutput(
+  int partId, char line[256], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   int lineRead = 1;
   char subLine[256];
@@ -1554,24 +1559,19 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkUnstructuredGrid"))
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    this->SetNthOutput(partId, ugrid);
+    compositeOutput->SetDataSet(0, partId, ugrid);
     ugrid->Delete();
  
     this->UnstructuredPartIds->InsertNextId(partId);
     }
-  else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    return 0;
-    }
   
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-    this->GetOutput(partId));
+    compositeOutput->GetDataSet(0, partId));
 
   vtkCharArray* nmArray = vtkCharArray::New();
   nmArray->SetName("Name");
@@ -2062,9 +2062,9 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(int partId,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
-                                                  char line[256],
-                                                  const char* name)
+int vtkEnSight6Reader::CreateStructuredGridOutput(
+  int partId, char line[256], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char subLine[256];
   char formatLine[256], tempLine[256];
@@ -2081,22 +2081,17 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkStructuredGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    this->SetNthOutput(partId, sgrid);
+    compositeOutput->SetDataSet(0, partId, sgrid);
     sgrid->Delete();
-    }
-  else if ( ! this->GetOutput(partId)->IsA("vtkStructuredGrid"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    return 0;
     }
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-    this->GetOutput(partId));    
+    compositeOutput->GetDataSet(0, partId));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");

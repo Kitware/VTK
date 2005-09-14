@@ -18,6 +18,7 @@
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkFloatArray.h"
+#include "vtkHierarchicalDataSet.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -31,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.61");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.62");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -101,7 +102,8 @@ int vtkEnSightGoldBinaryReader::OpenFile(const char* filename)
 
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep)
+int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeStep,
+                                                 vtkHierarchicalDataSet *output)
 {
   char line[80], subLine[80];
   int partId, realId;
@@ -231,28 +233,33 @@ int vtkEnSightGoldBinaryReader::ReadGeometryFile(const char* fileName, int timeS
         if (strncmp(subLine, "rectilinear", 11) == 0)
           {
           // block rectilinear
-          lineRead = this->CreateRectilinearGridOutput(realId, line, name);
+          lineRead = this->CreateRectilinearGridOutput(realId, line, name,
+                                                       output);
           }
         else if (strncmp(subLine, "uniform", 7) == 0)
           {
           // block uniform
-          lineRead = this->CreateImageDataOutput(realId, line, name);
+          lineRead = this->CreateImageDataOutput(realId, line, name,
+                                                 output);
           }
         else
           {
           // block iblanked
-          lineRead = this->CreateStructuredGridOutput(realId, line, name);
+          lineRead = this->CreateStructuredGridOutput(realId, line, name,
+                                                      output);
           }
         }
       else
         {
         // block
-        lineRead = this->CreateStructuredGridOutput(realId, line, name);
+        lineRead = this->CreateStructuredGridOutput(realId, line, name,
+                                                    output);
         }
       }
     else
       {
-      lineRead = this->CreateUnstructuredGridOutput(realId, line, name);
+      lineRead = this->CreateUnstructuredGridOutput(realId, line, name,
+                                                    output);
       if (lineRead < 0)
         {
         free(name);
@@ -901,7 +908,8 @@ int vtkEnSightGoldBinaryReader::SkipImageData(char line[256])
 
 //----------------------------------------------------------------------------
 int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
-                                                         int timeStep)
+                                                         int timeStep,
+                                                         vtkHierarchicalDataSet *output)
 {
   char line[80], subLine[80];
   int i;
@@ -939,14 +947,6 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
   if (this->OpenFile(sfilename.c_str()) == 0)
     {
     vtkErrorMacro("Unable to open file: " << sfilename.c_str());
-    return 0;
-    }
-  
-  if (this->GetOutput(this->NumberOfGeometryParts) &&
-      ! this->GetOutput(this->NumberOfGeometryParts)->IsA("vtkPolyData"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
     return 0;
     }
   
@@ -1019,7 +1019,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
     }
 
   pd->SetPoints(points);
-  this->SetNthOutput(this->NumberOfGeometryParts, pd);
+  output->SetDataSet(0, this->NumberOfGeometryParts, pd);
   
   points->Delete();
   pd->Delete();
@@ -1038,12 +1038,10 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
-                                                   const char* description,
-                                                   int timeStep,
-                                                   int measured,
-                                                   int numberOfComponents,
-                                                   int component)
+int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int measured,
+  int numberOfComponents, int component)
 {
   char line[80];
   int partId, realId, numPts, i, lineRead;
@@ -1093,7 +1091,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
       
       if (measured)
         {
-        output = this->GetOutput(this->NumberOfGeometryParts);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1109,7 +1108,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1130,7 +1130,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
   
   if (measured)
     {
-    output = this->GetOutput(this->NumberOfGeometryParts);
+    output = static_cast<vtkDataSet*>(
+      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1173,7 +1174,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numPts = output->GetNumberOfPoints();
     // If the part has no points, then only the part number is listed in
     // the variable file.
@@ -1235,10 +1236,9 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
-                                                   const char* description,
-                                                   int timeStep,
-                                                   int measured)
+int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int measured)
 {
   char line[80]; 
   int partId, realId, numPts, i, lineRead;
@@ -1290,7 +1290,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
       
       if (measured)
         {
-        output = this->GetOutput(this->NumberOfGeometryParts);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1306,7 +1307,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1327,7 +1329,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
 
   if (measured)
     {
-    output = this->GetOutput(this->NumberOfGeometryParts);
+    output = static_cast<vtkDataSet*>(
+      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1361,7 +1364,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1413,9 +1416,9 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
-                                                   const char* description,
-                                                   int timeStep)
+int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numPts, i, lineRead;
@@ -1470,7 +1473,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1495,7 +1499,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1556,11 +1560,10 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
-                                                      const char* description,
-                                                      int timeStep,
-                                                      int numberOfComponents,
-                                                      int component)
+int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput, int numberOfComponents,
+  int component)
 {
   char line[80];
   int partId, realId, numCells, numCellsPerElement, i, idx;
@@ -1616,7 +1619,8 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1677,7 +1681,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1795,9 +1799,9 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
-                                                      const char* description,
-                                                      int timeStep)
+int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numCells, numCellsPerElement, i, idx;
@@ -1854,7 +1858,8 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1912,7 +1917,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -2027,9 +2032,9 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
-                                                      const char* description,
-                                                      int timeStep)
+int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
+  const char* fileName, const char* description, int timeStep,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char line[80];
   int partId, realId, numCells, numCellsPerElement, i, idx;
@@ -2086,7 +2091,8 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
         this->ReadPartId(&partId);
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
-        output = this->GetOutput(realId);
+        output = static_cast<vtkDataSet*>(
+          compositeOutput->GetDataSet(0, realId));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -2144,7 +2150,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = this->GetOutput(realId);
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -2280,9 +2286,9 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(const char* fileName,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
-                                                             char line[80],
-                                                             const char* name)
+int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
+  int partId, char line[80], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   int lineRead = 1;
   int i, j;
@@ -2294,24 +2300,19 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkUnstructuredGrid"))
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    this->SetNthOutput(partId, ugrid);
+    compositeOutput->SetDataSet(0, partId, ugrid);
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);    
     }
-  else if ( ! this->GetOutput(partId)->IsA("vtkUnstructuredGrid"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    return 0;
-    }
 
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-    this->GetOutput(partId));    
+    compositeOutput->GetDataSet(0, partId));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -2922,9 +2923,9 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(int partId,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
-                                                           char line[80],
-                                                           const char* name)
+int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
+  int partId, char line[80], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char subLine[80];
   int lineRead;
@@ -2937,23 +2938,17 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkStructuredGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    this->SetNthOutput(partId, sgrid);
+    compositeOutput->SetDataSet(0, partId, sgrid);
     sgrid->Delete();
-    }
-  else if ( ! this->GetOutput(partId)->IsA("vtkStructuredGrid"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    points->Delete();
-    return 0;
     }
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-    this->GetOutput(partId));    
+    compositeOutput->GetDataSet(0, partId));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -3056,9 +3051,9 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(int partId,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
-                                                            char line[80],
-                                                            const char* name)
+int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
+  int partId, char line[80], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char subLine[80];
   int lineRead;
@@ -3073,25 +3068,17 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkRectilinearGrid"))
     {
     vtkDebugMacro("creating new rectilinear grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
-    this->SetNthOutput(partId, rgrid);
+    compositeOutput->SetDataSet(0, partId, rgrid);
     rgrid->Delete();
-    }
-  else if ( ! this->GetOutput(partId)->IsA("vtkRectilinearGrid"))
-    {
-    vtkErrorMacro("Cannot change type of output");
-    this->OutputsAreValid = 0;
-    xCoords->Delete();
-    yCoords->Delete();
-    zCoords->Delete();
-    return 0;
     }
 
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
-    this->GetOutput(partId));    
+    compositeOutput->GetDataSet(0, partId));
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -3180,9 +3167,9 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(int partId,
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightGoldBinaryReader::CreateImageDataOutput(int partId,
-                                                      char line[80],
-                                                      const char* name)
+int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
+  int partId, char line[80], const char* name,
+  vtkHierarchicalDataSet *compositeOutput)
 {
   char subLine[80];
   int lineRead;
@@ -3193,22 +3180,17 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (this->GetOutput(partId) == NULL)
+  if (compositeOutput->GetDataSet(0, partId) == NULL ||
+      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkImageData"))
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
-    this->SetNthOutput(partId, idata);
+    compositeOutput->SetDataSet(0, partId, idata);
     idata->Delete();
-    }
-  else if ( ! this->GetOutput(partId)->IsA("vtkImageData"))
-    {
-    vtkErrorMacro("Cannot change output type");
-    this->OutputsAreValid = 0;
-    return 0;
     }
 
   vtkImageData* output = vtkImageData::SafeDownCast(
-    this->GetOutput(partId));    
+    compositeOutput->GetDataSet(0, partId));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");

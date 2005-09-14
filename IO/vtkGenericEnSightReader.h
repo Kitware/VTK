@@ -20,7 +20,7 @@
 #ifndef __vtkGenericEnSightReader_h
 #define __vtkGenericEnSightReader_h
 
-#include "vtkDataSetSource.h"
+#include "vtkHierarchicalDataSetAlgorithm.h"
 
 class vtkCallbackCommand;
 class vtkDataArrayCollection;
@@ -30,11 +30,11 @@ class vtkIdListCollection;
 class TranslationTableType;
 //ETX
 
-class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkDataSetSource
+class VTK_IO_EXPORT vtkGenericEnSightReader : public vtkHierarchicalDataSetAlgorithm
 {
 public:
   static vtkGenericEnSightReader *New();
-  vtkTypeRevisionMacro(vtkGenericEnSightReader, vtkDataSetSource);
+  vtkTypeRevisionMacro(vtkGenericEnSightReader, vtkHierarchicalDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -46,9 +46,6 @@ public:
   // Set/Get the file path.
   vtkSetStringMacro(FilePath);
   vtkGetStringMacro(FilePath);
-  
-  virtual void Update();
-  virtual void ExecuteInformation();
   
   // Description:
   // Get the number of variables listed in the case file.
@@ -181,7 +178,13 @@ protected:
   vtkGenericEnSightReader();
   ~vtkGenericEnSightReader();
 
-  void Execute();
+  virtual int FillOutputPortInformation(int port, vtkInformation* info);
+  virtual int RequestInformation(vtkInformation*, 
+                                 vtkInformationVector**, 
+                                 vtkInformationVector*);
+  virtual int RequestData(vtkInformation*, 
+                          vtkInformationVector**, 
+                          vtkInformationVector*);
   
   // Description:
   // Internal function to read in a line up to 256 characters.

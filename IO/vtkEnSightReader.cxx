@@ -16,8 +16,11 @@
 
 #include "vtkDataArrayCollection.h"
 #include "vtkFloatArray.h"
+#include "vtkHierarchicalDataSet.h"
 #include "vtkIdList.h"
 #include "vtkIdListCollection.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
@@ -28,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightReader, "1.58");
+vtkCxxRevisionMacro(vtkEnSightReader, "1.59");
 
 //----------------------------------------------------------------------------
 typedef vtkstd::vector< vtkSmartPointer<vtkIdList> > vtkEnSightReaderCellIdsTypeBase;
@@ -83,7 +86,6 @@ vtkEnSightReader::vtkEnSightReader()
 
   this->NumberOfMeasuredPoints = 0;
   
-  this->OutputsAreValid = 1;
   this->InitialRead = 1;
   this->NumberOfNewOutputs = 0;
 }
@@ -162,9 +164,17 @@ vtkEnSightReader::~vtkEnSightReader()
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightReader::Execute()
+int vtkEnSightReader::RequestData(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *outputVector)
 {
   vtkDebugMacro("In execute ");
+
+  vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  vtkHierarchicalDataSet *output = vtkHierarchicalDataSet::SafeDownCast(
+    outInfo->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET()));
+  output->SetNumberOfLevels(1);
 
   int i, timeSet, fileSet, timeStep, timeStepInFile, fileNum;
   vtkDataArray *times;
@@ -177,10 +187,9 @@ void vtkEnSightReader::Execute()
   if ( ! this->CaseFileRead)
     {
     vtkErrorMacro("error reading case file");
-    return;
+    return 0;
     }
   
-  this->OutputsAreValid = 1;
   this->NumberOfNewOutputs = 0;
   this->NumberOfGeometryParts = 0;
   if (this->GeometryFileName)
@@ -257,11 +266,11 @@ void vtkEnSightReader::Execute()
         }
       }
     
-    if (!this->ReadGeometryFile(fileName, timeStepInFile))
+    if (!this->ReadGeometryFile(fileName, timeStepInFile, output))
       {
       vtkErrorMacro("error reading geometry file");
       delete [] fileName;
-      return;
+      return 0;
       }
     
     delete [] fileName;
@@ -339,56 +348,36 @@ void vtkEnSightReader::Execute()
           }
         }
       }
-    if (!this->ReadMeasuredGeometryFile(fileName, timeStepInFile))
+    if (!this->ReadMeasuredGeometryFile(fileName, timeStepInFile, output))
       {
       vtkErrorMacro("error reading measured geometry file");
       delete [] fileName;
-      return;
+      return 0;
       }
     delete [] fileName;
-    }
-  if (!this->CheckOutputConsistency())
-    {
-    for (i = 0; i < this->NumberOfOutputs; i++)
-      {
-      this->GetOutput(i)->Initialize();
-      }
-    return;
     }
 
   if ((this->NumberOfVariables + this->NumberOfComplexVariables) > 0)
     {
-    if (!this->ReadVariableFiles())
+    if (!this->ReadVariableFiles(output))
       {
       vtkErrorMacro("error reading variable files");
-      return;
+      return 0;
       }
     }
+
+  return 1;
 }
 
 //----------------------------------------------------------------------------
-void vtkEnSightReader::Update()
-{
-  vtkDebugMacro("In update");;
-  int i;
-  
-  this->UpdateInformation();
-  this->UpdateData(0);
-  
-  for (i = 0; i < this->GetNumberOfOutputs(); i++)
-    {
-    if ( this->GetOutput(i) )
-      {
-      this->GetOutput(i)->DataHasBeenGenerated();
-      this->GetOutput(i)->SetUpdateExtentToWholeExtent();
-      }
-    }
-}
-//----------------------------------------------------------------------------
-void vtkEnSightReader::ExecuteInformation()
+int vtkEnSightReader::RequestInformation(
+  vtkInformation *vtkNotUsed(request),
+  vtkInformationVector **vtkNotUsed(inputVector),
+  vtkInformationVector *vtkNotUsed(outputVector))
 {
   vtkDebugMacro("In execute information");
   this->CaseFileRead = this->ReadCaseFile();
+  return this->CaseFileRead;
 }
 
 //----------------------------------------------------------------------------
@@ -1146,7 +1135,7 @@ int vtkEnSightReader::ReadCaseFile()
 }
 
 //----------------------------------------------------------------------------
-int vtkEnSightReader::ReadVariableFiles()
+int vtkEnSightReader::ReadVariableFiles(vtkHierarchicalDataSet *output)
 {
   int i, j;
   char description[256];
@@ -1271,35 +1260,35 @@ int vtkEnSightReader::ReadVariableFiles()
         {
         case vtkEnSightReader::SCALAR_PER_NODE:
           this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i],
-                                   timeStepInFile);
+                                   timeStepInFile, output);
           break;
         case vtkEnSightReader::SCALAR_PER_MEASURED_NODE:
           this->ReadScalarsPerNode(fileName, this->VariableDescriptions[i], 
-                                   timeStepInFile, 1);
+                                   timeStepInFile, output, 1);
           break;
         case vtkEnSightReader::VECTOR_PER_NODE:
           this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
-                                   timeStepInFile);
+                                   timeStepInFile, output);
           break;
         case vtkEnSightReader::VECTOR_PER_MEASURED_NODE:
           this->ReadVectorsPerNode(fileName, this->VariableDescriptions[i],
-                                   timeStepInFile, 1);
+                                   timeStepInFile, output, 1);
           break;
         case vtkEnSightReader::TENSOR_SYMM_PER_NODE:
           this->ReadTensorsPerNode(fileName, this->VariableDescriptions[i],
-                                   timeStepInFile);
+                                   timeStepInFile, output);
           break;
         case vtkEnSightReader::SCALAR_PER_ELEMENT:
           this->ReadScalarsPerElement(fileName, this->VariableDescriptions[i],
-                                      timeStepInFile);
+                                      timeStepInFile, output);
           break;
         case vtkEnSightReader::VECTOR_PER_ELEMENT:
           this->ReadVectorsPerElement(fileName, this->VariableDescriptions[i],
-                                      timeStepInFile);
+                                      timeStepInFile, output);
           break;
         case vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT:
           this->ReadTensorsPerElement(fileName, this->VariableDescriptions[i],
-                                      timeStepInFile);
+                                      timeStepInFile, output);
           break;
         }
       }
@@ -1416,34 +1405,38 @@ int vtkEnSightReader::ReadVariableFiles()
         case vtkEnSightReader::COMPLEX_SCALAR_PER_NODE:
           this->ReadScalarsPerNode(fileName,
                                    this->ComplexVariableDescriptions[i],
-                                   timeStepInFile, 0, 2);
+                                   timeStepInFile, output, 0, 2);
           this->ReadScalarsPerNode(fileName2,
                                    this->ComplexVariableDescriptions[i],
-                                   timeStepInFile, 0, 2, 1);
+                                   timeStepInFile, output, 0, 2, 1);
           break;
         case vtkEnSightReader::COMPLEX_VECTOR_PER_NODE:
           strcpy(description, this->ComplexVariableDescriptions[i]);
           strcat(description, "_r");
-          this->ReadVectorsPerNode(fileName, description, timeStepInFile);
+          this->ReadVectorsPerNode(fileName, description, timeStepInFile,
+                                   output);
           strcpy(description, this->ComplexVariableDescriptions[i]);
           strcat(description, "_i");
-          this->ReadVectorsPerNode(fileName2, description, timeStepInFile);
+          this->ReadVectorsPerNode(fileName2, description, timeStepInFile,
+                                   output);
           break;
         case vtkEnSightReader::COMPLEX_SCALAR_PER_ELEMENT:
           this->ReadScalarsPerElement(fileName,
                                       this->ComplexVariableDescriptions[i],
-                                      timeStepInFile, 2);
+                                      timeStepInFile, output, 2);
           this->ReadScalarsPerElement(fileName2,
                                       this->ComplexVariableDescriptions[i],
-                                      timeStepInFile, 2, 1);
+                                      timeStepInFile, output, 2, 1);
           break;
         case vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT:
           strcpy(description, this->ComplexVariableDescriptions[i]);
           strcat(description, "_r");
-          this->ReadVectorsPerElement(fileName, description, timeStepInFile);
+          this->ReadVectorsPerElement(fileName, description, timeStepInFile,
+                                      output);
           strcpy(description, this->ComplexVariableDescriptions[i]);
           strcat(description, "_i");
-          this->ReadVectorsPerElement(fileName2, description, timeStepInFile);
+          this->ReadVectorsPerElement(fileName2, description, timeStepInFile,
+                                      output);
           break;
         }
       }
@@ -1841,125 +1834,6 @@ void vtkEnSightReader::ReplaceWildcards(char* filename, int num)
 }
 
 //----------------------------------------------------------------------------
-// Called by constructor to set up output array.
-void vtkEnSightReader::SetNumberOfOutputsInternal(int num)
-{
-  int idx;
-  vtkDataObject **outputs;
-
-  // in case nothing has changed.
-  if (num == this->NumberOfOutputs)
-    {
-    return;
-    }
-  
-  // Allocate new arrays.
-  outputs = new vtkDataObject *[num];
-
-  // Initialize with NULLs.
-  for (idx = 0; idx < num; ++idx)
-    {
-    outputs[idx] = NULL;
-    }
-
-  // Copy old outputs
-  for (idx = 0; idx < num && idx < this->NumberOfOutputs; ++idx)
-    {
-    outputs[idx] = this->Outputs[idx];
-    }
-  
-  // delete the previous arrays
-  if (this->Outputs)
-    {
-    delete [] this->Outputs;
-    this->Outputs = NULL;
-    this->NumberOfOutputs = 0;
-    }
-  
-  // Set the new arrays
-  this->Outputs = outputs;
-  
-  this->NumberOfOutputs = num;
-}
-
-//----------------------------------------------------------------------------
-void vtkEnSightReader::ReplaceNthOutput(int idx, vtkDataObject* newOutput)
-{
-  vtkDataObject *oldOutput;
-  
-  if (idx < 0)
-    {
-    vtkErrorMacro(<< "SetNthOutput: " << idx << ", cannot set output. ");
-    return;
-    }
-  // Expand array if necessary.
-  if (idx >= this->NumberOfOutputs)
-    {
-    this->SetNumberOfOutputsInternal(idx + 1);
-    }
-  
-  // does this change anything?
-  oldOutput = this->Outputs[idx];
-  if (newOutput == oldOutput)
-    {
-    return;
-    }
-
-  if ( !newOutput->IsA(oldOutput->GetClassName()) )
-    {
-    vtkErrorMacro("Can not replace the output with a different type.");
-    return;
-    }
-  
-  if (newOutput)
-    {
-    vtkSource *newOutputOldSource = newOutput->GetSource();
-    if (newOutputOldSource)
-      {
-      vtkErrorMacro("The new output can not have a source.");
-      return;
-      }
-    }
-
-  // disconnect first existing source-output relationship.
-  if (oldOutput)
-    {
-    oldOutput->SetSource(NULL);
-    oldOutput->UnRegister(this);
-    this->Outputs[idx] = NULL;
-    }
-  
-  if (newOutput)
-    {
-    // Register the newOutput so it does not get deleted.
-    // Don't set the link yet until previous links is disconnected.
-    newOutput->Register(this);
-    newOutput->SetSource(this);
-    }
-
-  // now actually make the link that was registered previously.
-  this->Outputs[idx] = newOutput;
-
-}
-
-int vtkEnSightReader::CheckOutputConsistency()
-{
-  if (this->NumberOfOutputs > this->NumberOfNewOutputs &&
-      ! this->InitialRead)
-    {
-    vtkErrorMacro("Cannot decrease number of outputs after initial read");
-    this->OutputsAreValid = 0;
-    }
-  
-  if (this->InitialRead)
-    {
-    this->InitialRead = 0;
-    }
-  
-  return this->OutputsAreValid;
-}
-
-//----------------------------------------------------------------------------
 vtkIdList* vtkEnSightReader::GetCellIds(int index, int cellType)
 {
   // Check argument range.
@@ -2041,5 +1915,4 @@ void vtkEnSightReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MinimumTimeValue: " << this->MinimumTimeValue << endl;
   os << indent << "MaximumTimeValue: " << this->MaximumTimeValue << endl;
   os << indent << "TimeSets: " << this->TimeSets << endl;
-  os << indent << "OutputsAreValid: " << this->OutputsAreValid << endl;
 }
