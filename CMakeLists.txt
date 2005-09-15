@@ -1178,7 +1178,7 @@ IF(VTK_WRAP_PYTHON)
   ENDIF(UNIX)
 
   # Include any extra libraries for python.
-  SET(VTK_PYTHON_LIBRARIES ${PYTHON_EXTRA_LIBS})
+  SET(VTK_PYTHON_LIBRARIES ${VTK_PYTHON_LIBRARIES} ${PYTHON_EXTRA_LIBS})
 ENDIF(VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
