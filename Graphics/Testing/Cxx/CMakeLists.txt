@@ -10,6 +10,11 @@ IF (VTK_USE_RENDERING AND VTK_USE_DISPLAY)
     PointLocator.cxx
     FrustumClip.cxx
     RGrid.cxx
+    TestClipHyperOctree.cxx
+    TestHyperOctreeContourFilter.cxx
+    TestHyperOctreeCutter.cxx
+    TestHyperOctreeSurfaceFilter.cxx
+    TestHyperOctreeToUniformGrid.cxx
     TestSortDataArray.cxx
     )
   IF (VTK_DATA_ROOT)
