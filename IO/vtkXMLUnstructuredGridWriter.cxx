@@ -28,7 +28,7 @@
 
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.13");
+vtkCxxRevisionMacro(vtkXMLUnstructuredGridWriter, "1.14");
 vtkStandardNewMacro(vtkXMLUnstructuredGridWriter);
 
 //----------------------------------------------------------------------------
@@ -216,10 +216,19 @@ void vtkXMLUnstructuredGridWriter::CalculateSuperclassFraction(float* fractions)
   vtkIdType pointsSize = this->GetNumberOfInputPoints();
   
   // This class will write cell specifications.
-  vtkIdType connectSize = (input->GetCells()->GetData()->GetNumberOfTuples() -
-                           input->GetNumberOfCells());
+  vtkIdType connectSize;
+  if(input->GetCells()==0)
+    {
+    connectSize=0;
+    }
+  else
+    {
+    connectSize = (input->GetCells()->GetData()->GetNumberOfTuples() -
+                   input->GetNumberOfCells());
+    }
   vtkIdType offsetSize = input->GetNumberOfCells();
   vtkIdType typesSize = input->GetNumberOfCells();
+  
   int total = (pdSize+cdSize+pointsSize+connectSize+offsetSize+typesSize);
   if(total == 0)
     {
