@@ -24,7 +24,7 @@
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkTetra, "1.4");
+vtkCxxRevisionMacro(vtkTetra, "1.5");
 vtkStandardNewMacro(vtkTetra);
 
 //----------------------------------------------------------------------------
@@ -520,9 +520,9 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
     n12[i] = x2[i] - x1[i];
     n13[i] = x3[i] - x1[i];
     n14[i] = x4[i] - x1[i];
-    x12[i] = (x2[i] + x1[i]) / 2.0;
-    x13[i] = (x3[i] + x1[i]) / 2.0;
-    x14[i] = (x4[i] + x1[i]) / 2.0;
+    x12[i] = (x2[i] + x1[i]) * 0.5;
+    x13[i] = (x3[i] + x1[i]) * 0.5;
+    x14[i] = (x4[i] + x1[i]) * 0.5;
     }
 
   //  Compute solutions to the intersection of two bisecting lines
@@ -566,7 +566,7 @@ double vtkTetra::Circumsphere(double  x1[3], double x2[3], double x3[3],
     sum += diff*diff;
     }
 
-  if ( (sum /= 4.0) > VTK_DOUBLE_MAX )
+  if ( (sum *= 0.25) > VTK_DOUBLE_MAX )
     {
     return VTK_DOUBLE_MAX;
     }
