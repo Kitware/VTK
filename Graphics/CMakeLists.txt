@@ -30,6 +30,7 @@ vtkCellDataToPointData.cxx
 vtkCellDerivatives.cxx
 vtkCleanPolyData.cxx
 vtkClipDataSet.cxx
+vtkClipHyperOctree.cxx
 vtkClipPolyData.cxx
 vtkClipVolume.cxx
 vtkConeSource.cxx
@@ -79,6 +80,12 @@ vtkHierarchicalDataExtractDataSets.cxx
 vtkHierarchicalDataExtractLevel.cxx
 vtkHierarchicalDataLevelFilter.cxx
 vtkHull.cxx
+vtkHyperOctreeContourFilter.cxx
+vtkHyperOctreeCutter.cxx
+vtkHyperOctreeClipCutPointsGrabber.cxx
+vtkHyperOctreeSampleFunction.cxx
+vtkHyperOctreeSurfaceFilter.cxx
+vtkHyperOctreeToUniformGridFilter.cxx
 vtkHyperStreamline.cxx
 vtkIdFilter.cxx
 vtkImageDataGeometryFilter.cxx
