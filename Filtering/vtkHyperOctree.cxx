@@ -87,7 +87,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.2");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -487,13 +487,13 @@ protected:
   // tree at the current level was a uniform grid.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.1");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.2");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.1" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.2" << '\n';
 }
   
 
@@ -625,7 +625,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.1");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.2");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -913,15 +913,18 @@ protected:
   vtkstd::vector<vtkCompactHyperOctreeNode<D> > Nodes;
   vtkstd::vector<int> LeafParent; // record the parent of each leaf
   vtkDataSetAttributes *Attributes; // cell data or point data.
+private:
+  vtkCompactHyperOctree(const vtkCompactHyperOctree<D> &);  // Not implemented.
+  void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.1");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.2");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.1" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.2" << '\n';
 }
   
 
@@ -929,7 +932,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.2");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
