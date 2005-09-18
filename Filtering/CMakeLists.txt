@@ -71,6 +71,10 @@ vtkHierarchicalDataInformation.cxx
 vtkHierarchicalDataIterator.cxx
 vtkHierarchicalDataSet.cxx
 vtkHierarchicalDataSetAlgorithm.cxx
+vtkHyperOctree.cxx
+vtkHyperOctreeAlgorithm.cxx
+vtkHyperOctreeCursor.cxx
+vtkHyperOctreePointsGrabber.cxx
 vtkImageAlgorithm.cxx
 vtkImageData.cxx
 vtkImageInPlaceFilter.cxx
@@ -217,6 +221,9 @@ vtkGenericDataSetAlgorithm
 vtkGenericPointIterator
 vtkGenericSubdivisionErrorMetric
 vtkHierarchicalDataSetAlgorithm
+vtkHyperOctreeAlgorithm
+vtkHyperOctreeCursor
+vtkHyperOctreePointsGrabber
 vtkImageAlgorithm
 vtkImageInPlaceFilter
 vtkImageIterator
