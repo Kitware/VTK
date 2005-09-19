@@ -23,6 +23,7 @@
 // This is just a test program so that CMake can determine if
 // glXGetProcAddressARB needs to be declared.
 
+#include <GL/gl.h>
 #include <GL/glx.h>
 
 int main(int, char **)
