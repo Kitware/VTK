@@ -65,6 +65,7 @@ class vtkCell;
 class vtkKdNode;
 class vtkBSPCuts;
 class vtkBSPIntersections;
+class vtkDataSetCollection;
 
 class VTK_GRAPHICS_EXPORT vtkKdTree : public vtkLocator
 {
@@ -162,28 +163,47 @@ public:
   //   removes that data set from the list of data sets.
   //     AddDataSet adds a data set to the list of data sets.
 
-  void SetDataSet(vtkDataSet *set);
-  void SetNthDataSet(int index, vtkDataSet *set);
-  void RemoveDataSet(int index);
-  void RemoveDataSet(vtkDataSet *set);
-  void AddDataSet(vtkDataSet *set);
+  // Description:
+  // Clear out all data sets and replace with single data set.  For backward
+  // compatibility with superclass.
+  virtual void SetDataSet(vtkDataSet *set);
+
+  // Description:
+  // This class can compute a spatial decomposition based on the cells in a list
+  // of one or more input data sets.  Add them one at a time with this method.
+  virtual void AddDataSet(vtkDataSet *set);
+
+  // Description:
+  // Remove the given data set.
+  virtual void RemoveDataSet(int index);
+  virtual void RemoveDataSet(vtkDataSet *set);
 
   // Description:
   //   Get the number of data sets included in spatial paritioning
-  int GetNumberOfDataSets(){return this->NumDataSets;};
+  int GetNumberOfDataSets();
 
   // Description:
   //   Get the nth defined data set in the spatial partitioning.
   //   (If you used SetNthDataSet to define 0,1 and 3 and ask for
   //   data set 2, you get 3.)
 
+  // Description:
+  // Return the n'th data set.
   vtkDataSet *GetDataSet(int n);
+
+  // Description:
+  // Return the 0'th data set.  For compatability with the superclass'
+  // interface.
   vtkDataSet *GetDataSet(){ return this->GetDataSet(0); }
 
   // Description:
-  //   Get handle for one of the data sets included in spatial paritioning.
-  //   Handles can change after RemoveDataSet.
-  int GetDataSet(vtkDataSet *set);
+  // Return a collection of all the data sets.
+  vtkGetObjectMacro(DataSets, vtkDataSetCollection);
+
+  // Description:
+  // Return the index of the given data set.  Returns -1 if that data
+  // set does not exist.
+  int GetDataSetIndex(vtkDataSet *set);
 
   // Description:
   //   Get the spatial bounds of the entire k-d tree space. Sets
@@ -231,7 +251,7 @@ public:
   //   When CreateCellLists is called again, the lists created
   //   on the previous call  are deleted.
   
-  void CreateCellLists(int DataSet, int *regionReqList, 
+  void CreateCellLists(int dataSetIndex, int *regionReqList, 
                        int reqListSize);
   void CreateCellLists(vtkDataSet *set, int *regionReqList,
                        int reqListSize);
@@ -450,13 +470,19 @@ public:
   // Description:
   //    Return 1 if the geometry of the input data sets
   //    has changed since the last time the k-d tree was built.
-  int NewGeometry();
+  virtual int NewGeometry();
 
   // Description:
   //    Return 1 if the geometry of these data sets differs
   //    for the geometry of the last data sets used to build
   //    the k-d tree.
-  int NewGeometry(vtkDataSet **sets, int numDataSets);
+  virtual int NewGeometry(vtkDataSet **sets, int numDataSets);
+
+  // Description:
+  // Forget about the last geometry used.  The next call to NewGeometry will
+  // return 1.  A new k-d tree will be built the next time BuildLocator is
+  // called.
+  virtual void InvalidateGeometry();
 
   // Description:
   //    Create a copy of the binary tree representation of the
@@ -557,6 +583,8 @@ protected:
   float *ComputeCellCenters(int set);
   float *ComputeCellCenters(vtkDataSet *set);
 
+  vtkDataSetCollection *DataSets;
+
   virtual void ReportReferences(vtkGarbageCollector*);
 
 private:
@@ -654,8 +682,6 @@ private:
 
   void NewPartitioningRequest(int req);
 
-  int NumDataSetsAllocated;
-
   int NumberOfRegionsOrLess;
   int NumberOfRegionsOrMore;
 
@@ -679,9 +705,6 @@ private:
   int Timing;
   double FudgeFactor;   // a very small distance, relative to the dataset's size
 
-  vtkDataSet **DataSets;
-  int NumDataSets;
-
   // These instance variables are used by the special locator created
   // to find duplicate points. (BuildLocatorFromPoints)
 
@@ -698,11 +721,12 @@ private:
   int LastNumDataSets;
   int LastDataCacheSize;
   vtkDataSet **LastInputDataSets;
+  unsigned long *LastDataSetObserverTags;
   int *LastDataSetType;
   double *LastInputDataInfo;
   double *LastBounds;
-  int *LastNumPoints;
-  int *LastNumCells;
+  vtkIdType *LastNumPoints;
+  vtkIdType *LastNumCells;
 
   vtkBSPCuts *Cuts;
 
