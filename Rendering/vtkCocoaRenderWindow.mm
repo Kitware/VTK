@@ -25,7 +25,7 @@
 #define MAC_OS_X_VERSION_10_4 1040
 #endif
 
-vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.31");
+vtkCxxRevisionMacro(vtkCocoaRenderWindow, "1.32");
 vtkStandardNewMacro(vtkCocoaRenderWindow);
 
 //----------------------------------------------------------------------------
@@ -474,13 +474,6 @@ void vtkCocoaRenderWindow::WindowInitialize ()
       vtkErrorMacro("Could not create window, serious error!");
       return;
       }
-    NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
-    [theWindow setTitle:winName];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
-    this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
-#else
-    this->SetWindowName([winName cString]);
-#endif
 
     [theWindow makeKeyAndOrderFront:nil];
 
@@ -504,6 +497,21 @@ void vtkCocoaRenderWindow::WindowInitialize ()
     }
 
   this->CreateGLContext();
+
+  // Set the window title *after* CreateGLContext. We cannot do it earlier
+  // because of a bug in panther's java library (OSX 10.3.9, Java 1.4.2_09)
+  //
+  // Details on Apple bug:
+  // http://lists.apple.com/archives/Quartz-dev/2005/Apr/msg00043.html
+  // Appears to be fixed in Mac OSX 10.4, but we workaround it here anyhow
+  // so that we can still work on 10.3...
+  //
+  NSString * winName = [NSString stringWithFormat:@"Visualization Toolkit - Cocoa #%i", count++];
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_4
+  this->SetWindowName([winName cStringUsingEncoding:NSASCIIStringEncoding]);
+#else
+  this->SetWindowName([winName cString]);
+#endif
 
   this->MakeCurrent();
   this->OpenGLInit();
@@ -761,4 +769,3 @@ void vtkCocoaRenderWindow::ShowCursor()
 
   [NSCursor unhide];
 }
-
