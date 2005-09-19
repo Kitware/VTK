@@ -35,7 +35,7 @@
 #include <vtkstd/set>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkAlgorithm, "1.27");
+vtkCxxRevisionMacro(vtkAlgorithm, "1.28");
 vtkStandardNewMacro(vtkAlgorithm);
 
 vtkCxxSetObjectMacro(vtkAlgorithm,Information,vtkInformation);
@@ -579,7 +579,10 @@ void vtkAlgorithm::SetDefaultExecutivePrototype(vtkExecutive* proto)
     vtkAlgorithm::DefaultExecutivePrototype->UnRegister(0);
     vtkAlgorithm::DefaultExecutivePrototype = 0;
     }
-  proto->Register(0);
+  if (proto)
+    {
+    proto->Register(0);
+    }
   vtkAlgorithm::DefaultExecutivePrototype = proto;
 }
 
