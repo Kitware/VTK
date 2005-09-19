@@ -67,7 +67,7 @@ int TestHyperOctreeCutter(int argc, char* argv[])
   source3d->SetWidth(2);
   source3d->SetHeight(3);
   source3d->SetDepth(4);
-  source3d->SetLevels(10); // 7
+  source3d->SetLevels(7); // 10
   source3d->SetMinLevels(0);
  
   cout<<"update source3d..."<<endl;
