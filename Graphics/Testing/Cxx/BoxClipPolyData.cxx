@@ -46,6 +46,9 @@ const double maxpoint1[] = { -0.0511337, 0.5, 0.5 };
 const double minpoint2[] = { -1.0, -1.0, -1.0 };
 const double maxpoint2[] = { 1.0, 1.0, 1.0 };
 
+const double minpoint3[] = { -1.0, -1.0, 0.0 };
+const double maxpoint3[] = { 2.0, 0.5, 1.0 };
+
 const double minusx[] = { -1.0, 0.0, 0.0 };
 const double minusy[] = { 0.0, -1.0, 0.0 };
 const double minusz[] = { 0.0, 0.0, -1.0 };
@@ -83,7 +86,7 @@ static double trianglePointData[numTrianglePoints] = {
 
 //-----------------------------------------------------------------------------
 
-const int numPolySets = 4;
+const int numPolySets = 5;
 
 static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
                          const double minBoxPoint[3],
@@ -110,8 +113,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer1);
   renderer1->AddActor(actor1);
   renderer1->SetBackground(0.0, 0.5, 0.5);
-  renderer1->SetViewport(0.0, (double)num/numPolySets,
-                         0.25, (double)(num+1)/numPolySets);
+  renderer1->SetViewport((double)num/numPolySets, 0.75,
+                         (double)(num+1)/numPolySets, 1.0);
   renwin->AddRenderer(renderer1);
 
   // Set up test of normal box with generation of clipped output.
@@ -147,8 +150,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer2->AddActor(actor2_1);
   renderer2->AddActor(actor2_2);
   renderer2->SetBackground(0.0, 0.5, 0.5);
-  renderer2->SetViewport(0.25, (double)num/numPolySets,
-                         0.5, (double)(num+1)/numPolySets);
+  renderer2->SetViewport((double)num/numPolySets, 0.5,
+                         (double)(num+1)/numPolySets, 0.75);
   renwin->AddRenderer(renderer2);
 
   // Set up test of an oriented box.
@@ -175,8 +178,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   VTK_CREATE(vtkRenderer, renderer3);
   renderer3->AddActor(actor3);
   renderer3->SetBackground(0.0, 0.5, 0.5);
-  renderer3->SetViewport(0.5, (double)num/numPolySets,
-                         0.75, (double)(num+1)/numPolySets);
+  renderer3->SetViewport((double)num/numPolySets, 0.25,
+                         (double)(num+1)/numPolySets, 0.5);
   renwin->AddRenderer(renderer3);
 
   // Set up test of an oriented box with generation of clipped output.
@@ -215,8 +218,8 @@ static void TestPolyData(vtkPolyData *data, int num, vtkRenderWindow *renwin,
   renderer4->AddActor(actor4_1);
   renderer4->AddActor(actor4_2);
   renderer4->SetBackground(0.0, 0.5, 0.5);
-  renderer4->SetViewport(0.75, (double)num/numPolySets,
-                         1.0, (double)(num+1)/numPolySets);
+  renderer4->SetViewport((double)num/numPolySets, 0.0,
+                         (double)(num+1)/numPolySets, 0.25);
   renwin->AddRenderer(renderer4);
 }
 
@@ -228,7 +231,7 @@ int BoxClipPolyData(int argc, char *argv[])
 
   // The render window.
   VTK_CREATE(vtkRenderWindow, renwin);
-  renwin->SetSize(640, 640);
+  renwin->SetSize(800, 640);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   iren->SetRenderWindow(renwin);
@@ -272,6 +275,9 @@ int BoxClipPolyData(int argc, char *argv[])
 
   TestPolyData(triangles, 1, renwin, minpoint2, maxpoint2);
 
+  // Test triangles co-planer with a face of the bounding box.
+  TestPolyData(triangles, 2, renwin, minpoint3, maxpoint3);
+
   // Test lines.
   VTK_CREATE(vtkPolyData, sphereNoNormals);
   sphereNoNormals->CopyStructure(sphere->GetOutput());
@@ -285,7 +291,7 @@ int BoxClipPolyData(int argc, char *argv[])
   cutter->SetCutFunction(plane);
   cutter->Update();
 
-  TestPolyData(cutter->GetOutput(), 2, renwin, minpoint1, maxpoint1);
+  TestPolyData(cutter->GetOutput(), 3, renwin, minpoint1, maxpoint1);
 
   // Test verts.
   VTK_CREATE(vtkPolyData, verts);
@@ -300,7 +306,7 @@ int BoxClipPolyData(int argc, char *argv[])
     }
   verts->SetVerts(vertsCells);
 
-  TestPolyData(verts, 3, renwin, minpoint1, maxpoint1);
+  TestPolyData(verts, 4, renwin, minpoint1, maxpoint1);
 
   // Run the regression test.
   renwin->Render();
