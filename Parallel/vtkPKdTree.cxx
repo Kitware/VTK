@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.16");
+vtkCxxRevisionMacro(vtkPKdTree, "1.17");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -103,7 +103,7 @@ static char errstr[256];
 
 vtkPKdTree::vtkPKdTree()
 {
-  this->RegionAssignment = NoRegionAssignment;
+  this->RegionAssignment = ContiguousAssignment;
 
   this->Controller = NULL;
   this->SubGroup   = NULL;
@@ -444,10 +444,10 @@ done:
 
   FreeObject(this->SubGroup);
 
-  this->UpdateBuildTime();
-  
   this->SetCalculator(this->Top);
 
+  this->UpdateBuildTime();
+  
   return;
 }
 int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
@@ -472,7 +472,8 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   int totalPts = this->GetNumberOfCells();    // total on local node
   this->CurrentPtArray = this->PtArray;
 
-  int fail = (this->PtArray == NULL);
+//   int fail = (this->PtArray == NULL);
+  int fail = ((this->PtArray == NULL) && (totalPts > 0));
 
   if (this->AllCheckForFailure(fail, 
           "MultiProcessBuildLocator", "memory allocation"))
@@ -3646,4 +3647,3 @@ void vtkPKdTree::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NextPtArray: " << this->NextPtArray << endl;
   os << indent << "SelectBuffer: " << this->SelectBuffer << endl;
 }
-
