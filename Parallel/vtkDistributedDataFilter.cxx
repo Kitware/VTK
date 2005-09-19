@@ -57,7 +57,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.28")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.29")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -752,7 +752,8 @@ int vtkDistributedDataFilter::PartitionDataAndAssignToProcesses(vtkDataSet *set)
       }
     else
       {
-      vtkErrorMacro("K-d tree must have at least one region per process");
+      vtkErrorMacro(<< "K-d tree must have at least one region per process.  "
+                    << "Needed " << this->NumProcesses << ", has " << nregions);
       }
     this->Kdtree->Delete();
     this->Kdtree = NULL;
@@ -1014,14 +1015,6 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
     return input;
     }
 
-  if (numTotalCells < nprocs)
-    {
-    vtkErrorMacro(<< "D3 - fewer cells than processes");
-    delete [] nodeType;
-    inputSize->Delete();
-    return NULL;
-    }    
-
   int cellsPerNode = numTotalCells / nprocs;
 
   vtkIdList **sendCells = new vtkIdList * [ nprocs ];
@@ -1036,25 +1029,49 @@ vtkDataSet *vtkDistributedDataFilter::TestFixTooFewInputFiles(vtkDataSet *input)
 
     if (nodeType[me] == Producer)
       {
-      int sizeLast = numTotalCells - ((nprocs-1) * cellsPerNode);
-      vtkIdType cellId = 0;
-  
-      for (proc=0; proc<nprocs; proc++)
+      if (numTotalCells < nprocs)
         {
-        int ncells = ((proc == nprocs - 1) ? sizeLast :cellsPerNode);
-        
-        sendCells[proc] = vtkIdList::New();
-        sendCells[proc]->SetNumberOfIds(ncells);
-  
-        for (i=0; i<ncells; i++)
+        // If there are not enough cells to go around, just give one cell
+        // to each process, duplicating as necessary.
+        for (proc = 0; proc < nprocs; proc++)
           {
-          sendCells[proc]->SetId(i, cellId++);
+          sendCells[proc] = vtkIdList::New();
+          sendCells[proc]->SetNumberOfIds(1);
+          sendCells[proc]->SetId(0, proc%numTotalCells);
+          }
+        }
+      else
+        {
+        int sizeLast = numTotalCells - ((nprocs-1) * cellsPerNode);
+        vtkIdType cellId = 0;
+  
+        for (proc=0; proc<nprocs; proc++)
+          {
+          int ncells = ((proc == nprocs - 1) ? sizeLast :cellsPerNode);
+        
+          sendCells[proc] = vtkIdList::New();
+          sendCells[proc]->SetNumberOfIds(ncells);
+  
+          for (i=0; i<ncells; i++)
+            {
+            sendCells[proc]->SetId(i, cellId++);
+            }
           }
         }
       }
     }
   else
     {
+    // This is an uncommon enough event to not bothering to implement (until
+    // someone needs it).
+    if (numTotalCells < nprocs)
+      {
+      vtkErrorMacro(<< "D3 - fewer cells than processes");
+      delete [] nodeType;
+      inputSize->Delete();
+      return NULL;
+      }    
+
     // The processes with data send it to processes without data.
     // This is not the most balanced decomposition, and it is not the
     // fastest.  It is somewhere inbetween.
