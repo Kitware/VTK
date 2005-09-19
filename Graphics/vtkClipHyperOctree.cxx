@@ -43,7 +43,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.2");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.3");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -511,8 +511,8 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
 #if 0 // just to not break compilation
       outPD->InterpolateAllocate(inPD,estimatedSize,estimatedSize/2);
 #endif
-
-      for ( int i=0; i < numPts; i++ )
+      int i;
+      for (i=0; i < numPts; i++ )
         {
         double s = clipScalars->GetComponent(i, 0);
         cellScalars->InsertTuple(i, &s);
@@ -559,7 +559,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       vtkIdType *pts;
       int cellType;
       
-      for (int i=0; i<numOutputs; i++) //for both outputs
+      for (i=0; i<numOutputs; i++) //for both outputs
         {
         for (int j=0; j < numNew[i]; j++) 
           {
