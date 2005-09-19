@@ -69,6 +69,14 @@ public:
   // Set the internal attributes.
   // \pre attributes_exist: attributes!=0
   virtual void SetAttributes(vtkDataSetAttributes *attributes)=0;
+  
+protected:
+  vtkHyperOctreeInternal()
+    {
+    }
+private:
+  vtkHyperOctreeInternal(const vtkHyperOctreeInternal &);  // Not implemented.
+  void operator=(const vtkHyperOctreeInternal &);    // Not implemented.
 };
 
 //-----------------------------------------------------------------------------
@@ -87,7 +95,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.3");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -485,15 +493,18 @@ protected:
   vtkstd::deque<int> ChildHistory; // a stack, but stack does not have clear()
   int Index[D]; // index in each dimension of the current node, as if the
   // tree at the current level was a uniform grid.
+private:
+  vtkCompactHyperOctreeCursor(const vtkCompactHyperOctreeCursor<D> &);  // Not implemented.
+  void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.2");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.3");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.2" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.3" << '\n';
 }
   
 
@@ -625,7 +636,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.2");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.3");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -918,13 +929,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.2");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.3");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.2" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.3" << '\n';
 }
   
 
@@ -932,7 +943,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.2");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.3");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
