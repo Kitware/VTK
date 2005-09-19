@@ -43,7 +43,7 @@
 #include <math.h>
 #include <assert.h>
 
-vtkCxxRevisionMacro(vtkClipHyperOctree, "1.1");
+vtkCxxRevisionMacro(vtkClipHyperOctree, "1.2");
 vtkStandardNewMacro(vtkClipHyperOctree);
 vtkCxxSetObjectMacro(vtkClipHyperOctree,ClipFunction,vtkImplicitFunction);
 
@@ -406,7 +406,7 @@ void vtkClipHyperOctree::ClipNode(vtkHyperOctreeCursor *cursor,
       // just create a voxel/pixel/line and clip it.
 
       vtkCell *cell=0;
-      vtkIdType cellId=cellId=cursor->GetLeafId(); // only one cell.
+      vtkIdType cellId=cursor->GetLeafId(); // only one cell.
       
       vtkDoubleArray *cellScalars;
       cellScalars=vtkDoubleArray::New();// scalar at each corner point.

@@ -43,7 +43,7 @@
 #include <assert.h>
 #include "vtkHyperOctreeClipCutPointsGrabber.h"
 
-vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.1");
+vtkCxxRevisionMacro(vtkHyperOctreeCutter, "1.2");
 vtkStandardNewMacro(vtkHyperOctreeCutter);
 vtkCxxSetObjectMacro(vtkHyperOctreeCutter,CutFunction,vtkImplicitFunction);
 
@@ -360,7 +360,7 @@ void vtkHyperOctreeCutter::CutNode(vtkHyperOctreeCursor *cursor,
       // just create a voxel/pixel/line and cut it.
 
       vtkCell *cell=0;
-      vtkIdType cellId=cellId=cursor->GetLeafId(); // only one cell.
+      vtkIdType cellId=cursor->GetLeafId(); // only one cell.
       
       vtkDoubleArray *cellScalars;
       cellScalars=vtkDoubleArray::New();// scalar at each corner point.
