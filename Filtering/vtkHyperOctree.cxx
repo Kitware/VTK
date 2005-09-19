@@ -31,7 +31,6 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationDoubleVectorKey.h"
 
-const int VTK_HYPEROCTREE=15;
 vtkInformationKeyMacro(vtkHyperOctree, LEVELS, Integer);
 vtkInformationKeyMacro(vtkHyperOctree, DIMENSION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperOctree, SIZES, DoubleVector, 3);
@@ -95,7 +94,7 @@ void vtkHyperOctree::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 
-vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctreeInternal, "1.4");
 
 template<unsigned int D> class vtkCompactHyperOctree;
 template<unsigned int D> class vtkCompactHyperOctreeNode;
@@ -498,13 +497,13 @@ private:
   void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.3");
+// vtkCxxRevisionMacro(vtkCompactHyperOctreeCursor, "1.4");
 template<unsigned int D>
 void vtkCompactHyperOctreeCursor<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.3" << '\n';
+  os << "vtkCompactHyperOctreeCursor<" << D <<"> " << "1.4" << '\n';
 }
   
 
@@ -636,7 +635,7 @@ protected:
   int Children[1<<D]; // indices
 };
 
-//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.3");
+//vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.4");
 
 template<unsigned int D> class vtkCompactHyperOctree
   : public vtkHyperOctreeInternal
@@ -929,13 +928,13 @@ private:
   void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
 };
 
-// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.3");
+// vtkCxxRevisionMacro(vtkCompactHyperOctree, "1.4");
 template<unsigned int D>
 void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 {
   vtkOStreamWrapper os(sos);
   this->Superclass::CollectRevisions(os);
-  os << "vtkCompactHyperOctree<" << D <<"> " << "1.3" << '\n';
+  os << "vtkCompactHyperOctree<" << D <<"> " << "1.4" << '\n';
 }
   
 
@@ -943,7 +942,7 @@ void vtkCompactHyperOctree<D>::CollectRevisions(ostream& sos)
 // quadtree: vtkHyperOctreeInternal<2>
 // bittree: vtkHyperOctreeInternal<1>
 
-vtkCxxRevisionMacro(vtkHyperOctree, "1.3");
+vtkCxxRevisionMacro(vtkHyperOctree, "1.4");
 vtkStandardNewMacro(vtkHyperOctree);
 
 //-----------------------------------------------------------------------------
@@ -988,7 +987,7 @@ vtkHyperOctree::~vtkHyperOctree()
   // Return what type of dataset this is.
 int vtkHyperOctree::GetDataObjectType()
 {
-  return VTK_HYPEROCTREE;
+  return VTK_HYPER_OCTREE;
 }
   
 //-----------------------------------------------------------------------------
