@@ -2183,7 +2183,7 @@ public:
 //-----------------------------------------------------------------------------
 // Implementation of the public class.
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.3");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeZSweepMapper, "1.4");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeZSweepMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeZSweepMapper, RayIntegrator,
@@ -2785,14 +2785,14 @@ void vtkUnstructuredGridVolumeZSweepMapper::Render(vtkRenderer *ren,
       float alpha=this->RealRGBAImage[j+3];
       if(alpha!=0)
         {
-        this->Image[j]=this->ColorComponentRealToByte(this->RealRGBAImage[j]/alpha);
-        this->Image[j+1]=this->ColorComponentRealToByte(this->RealRGBAImage[j+1]/alpha);
-        this->Image[j+2]=this->ColorComponentRealToByte(this->RealRGBAImage[j+2]/alpha);
+        this->Image[j+0]=this->ColorComponentRealToByte(this->RealRGBAImage[j+0]);
+        this->Image[j+1]=this->ColorComponentRealToByte(this->RealRGBAImage[j+1]);
+        this->Image[j+2]=this->ColorComponentRealToByte(this->RealRGBAImage[j+2]);
         this->Image[j+3]=this->ColorComponentRealToByte(alpha);
         }
       else
         {
-        this->Image[j]=0;
+        this->Image[j+0]=0;
         this->Image[j+1]=0;
         this->Image[j+2]=0;
         this->Image[j+3]=0;

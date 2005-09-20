@@ -43,7 +43,7 @@
 VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays( void *arg );
 
 
-vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.2");
+vtkCxxRevisionMacro(vtkUnstructuredGridVolumeRayCastMapper, "1.3");
 vtkStandardNewMacro(vtkUnstructuredGridVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkUnstructuredGridVolumeRayCastMapper, RayCastFunction,
@@ -670,17 +670,17 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays( int threadID, int threadC
       if ( color[3] > 0.0 )
         {
         int val;
-        val = static_cast<int>((color[0]/color[3])*255.0);
+        val = static_cast<int>(color[0]*255.0);
         val = (val > 255)?(255):(val);
         val = (val <   0)?(  0):(val);
         ucptr[0] = static_cast<unsigned char>(val);
         
-        val = static_cast<int>((color[1]/color[3])*255.0);
+        val = static_cast<int>(color[1]*255.0);
         val = (val > 255)?(255):(val);
         val = (val <   0)?(  0):(val);
         ucptr[1] = static_cast<unsigned char>(val);
         
-        val = static_cast<int>((color[2]/color[3])*255.0);
+        val = static_cast<int>(color[2]*255.0);
         val = (val > 255)?(255):(val);
         val = (val <   0)?(  0):(val);
         ucptr[2] = static_cast<unsigned char>(val);
