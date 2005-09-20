@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.1");
+vtkCxxRevisionMacro(vtkVolumeRayCastMapper, "1.2");
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
 vtkCxxSetObjectMacro(vtkVolumeRayCastMapper,VolumeRayCastFunction,
@@ -830,17 +830,17 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
           me->VolumeRayCastFunction->CastRay( dynamicInfo, staticInfo );
           if ( dynamicInfo->Color[3] > 0.0 )
             {
-            val = (dynamicInfo->Color[0]/dynamicInfo->Color[3])*255.0;
+            val = dynamicInfo->Color[0]*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
             ucptr[0] = static_cast<unsigned char>(val);
             
-            val = (dynamicInfo->Color[1]/dynamicInfo->Color[3])*255.0;
+            val = dynamicInfo->Color[1]*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
             ucptr[1] = static_cast<unsigned char>(val);
             
-            val = (dynamicInfo->Color[2]/dynamicInfo->Color[3])*255.0;
+            val = dynamicInfo->Color[2]*255.0;
             val = (val > 255.0)?(255.0):(val);
             val = (val <   0.0)?(  0.0):(val);
             ucptr[2] = static_cast<unsigned char>(val);
@@ -1158,17 +1158,17 @@ VTK_THREAD_RETURN_TYPE VolumeRayCastMapper_CastRays( void *arg )
             dynamicInfo->Color[3] = 1.0 - dynamicInfo->Color[3];
             }
           
-          val = (dynamicInfo->Color[0]/dynamicInfo->Color[3])*255.0;
+          val = dynamicInfo->Color[0]*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
           ucptr[0] = static_cast<unsigned char>(val);
           
-          val = (dynamicInfo->Color[1]/dynamicInfo->Color[3])*255.0;
+          val = dynamicInfo->Color[1]*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
           ucptr[1] = static_cast<unsigned char>(val);
           
-          val = (dynamicInfo->Color[2]/dynamicInfo->Color[3])*255.0;
+          val = dynamicInfo->Color[2]*255.0;
           val = (val > 255.0)?(255.0):(val);
           val = (val <   0.0)?(  0.0):(val);
           ucptr[2] = static_cast<unsigned char>(val);
