@@ -10,8 +10,13 @@ INCLUDE(${VTK_USE_FILE})
 SET(QT_MOC_EXECUTABLE ${VTK_QT_MOC_EXECUTABLE} CACHE FILEPATH "")
 SET(QT_UIC_EXECUTABLE ${VTK_QT_UIC_EXECUTABLE} CACHE FILEPATH "")
 SET(QT_QMAKE_EXECUTABLE ${VTK_QT_QMAKE_EXECUTABLE} CACHE FILEPATH "")
-SET(QT_MAX_VERSION "4.9.9")
+SET(DESIRED_QT_VERSION ${VTK_DESIRED_QT_VERSION} CACHE FILEPATH "")
 FIND_PACKAGE(Qt)
+IF(QT_USE_FILE)
+  INCLUDE(${QT_USE_FILE})
+ELSE(QT_USE_FILE)
+  SET(QT_LIBRARIES   ${QT_QT_LIBRARY})
+ENDIF(QT_USE_FILE)
 
 SET (SimpleViewSrcs
   main.cxx
@@ -20,13 +25,11 @@ SET (SimpleViewSrcs
 # Use the include path and library for Qt that is used by VTK.
 INCLUDE_DIRECTORIES(
   ${QT_INCLUDE_DIR}
-  ${QT_QTGUI_INCLUDE_DIR}
-  ${QT_QTCORE_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-IF(QT_INST_MAJOR_VERSION GREATER 3)
+IF(DESIRED_QT_VERSION MATCHES 4)
   
   SET(SimpleViewSrcs ${SimpleViewSrcs} SimpleView4.cxx)
   SET(UIS uiSimpleView4.ui)
@@ -37,7 +40,7 @@ IF(QT_INST_MAJOR_VERSION GREATER 3)
   SET_SOURCE_FILES_PROPERTIES(${SimpleViewSrcs} PROPERTIES
                             OBJECT_DEPENDS "${UIHeaders}")
 
-ELSE(QT_INST_MAJOR_VERSION GREATER 3)
+ELSE(DESIRED_QT_VERSION MATCHES 4)
   
   SET(SimpleViewSrcs ${SimpleViewSrcs} SimpleView3.cxx)
   SET(UIS uiSimpleView3.ui)
@@ -47,7 +50,7 @@ ELSE(QT_INST_MAJOR_VERSION GREATER 3)
   SET_SOURCE_FILES_PROPERTIES(${SimpleViewSrcs} PROPERTIES
                             OBJECT_DEPENDS "${UIHeaders}")
 
-ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
+ENDIF(DESIRED_QT_VERSION MATCHES 4)
 
 # It's nice to have the ui in the windows project file...just double click on it
 # and designer comes up on that ui file :)
@@ -60,34 +63,9 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 
 ADD_EXECUTABLE( qtsimpleview MACOSX_BUNDLE ${SimpleViewSrcs} ${UISrcs} ${MOCSrcs})
 
-# note: if you use Mesa in VTK and get link errors about opengl symbols
-#       they are coming from Qt.  Either link OpenGL in, configure Qt to 
-#       dlopen the GL library, or configure Qt without OpenGL support.
-
-IF(QT_INST_MAJOR_VERSION GREATER 3)
-  IF(APPLE)
-    SET(QT_LIBS   "-framework QtGui" "-framework QtCore")
-    SET_TARGET_PROPERTIES(qtsimpleview PROPERTIES LINK_FLAGS "-F${QT_LIBRARY_DIR}")
-  ELSE(APPLE)
-    IF(CMAKE_BUILD_TYPE)
-      SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
-                  optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
-    ELSE(CMAKE_BUILD_TYPE)
-      IF(CMAKE_CONFIGURATION_TYPES)
-        SET(QT_LIBS optimized ${QT_QTGUI_LIBRARY} debug ${QT_QTGUI_LIBRARY_DEBUG}
-                    optimized ${QT_QTCORE_LIBRARY} debug ${QT_QTCORE_LIBRARY_DEBUG} )
-      ELSE(CMAKE_CONFIGURATION_TYPES)
-        SET(QT_LIBS ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-      ENDIF(CMAKE_CONFIGURATION_TYPES)
-    ENDIF(CMAKE_BUILD_TYPE)
-  ENDIF(APPLE)
-ELSE(QT_INST_MAJOR_VERSION GREATER 3)
-  SET(QT_LIBS   ${QT_QT_LIBRARY})
-ENDIF(QT_INST_MAJOR_VERSION GREATER 3)
-
 TARGET_LINK_LIBRARIES( qtsimpleview
   QVTK
-  ${QT_LIBS}
+  ${QT_LIBRARIES}
   vtkRendering
   vtkGraphics
   vtkIO
