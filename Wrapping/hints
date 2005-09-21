@@ -12,6 +12,7 @@ vtkAbstractTransform    TransformPoint          307 3
 vtkAbstractTransform    TransformVectorAtPoint  307 3
 vtkActor                GetBounds               307 6
 vtkAssembly             GetBounds               307 6
+vtkAxesActor            GetBounds               307 6
 vtkCamera               GetOrientation          307 3
 vtkCamera               GetOrientationWXYZ      307 4
 vtkCell                 GetBounds               307 6
