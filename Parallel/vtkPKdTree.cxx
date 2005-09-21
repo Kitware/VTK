@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.18");
+vtkCxxRevisionMacro(vtkPKdTree, "1.19");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -674,7 +674,57 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 {
   if (!this->DivideTest(kd->GetNumberOfPoints(), level)) return 0;
 
-  int R = L + kd->GetNumberOfPoints() - 1;
+  int numpoints = kd->GetNumberOfPoints();
+  int R = L + numpoints - 1;
+
+  if (numpoints < 2)
+    {
+    // Special case: not enough points to go around.
+    int p = this->WhoHas(L);
+    if (this->MyId != p) return 0;
+
+    int maxdim = this->SelectCutDirection(kd);
+    kd->SetDim(maxdim);
+
+    vtkKdNode *left = vtkKdNode::New();
+    vtkKdNode *right = vtkKdNode::New();
+    kd->AddChildNodes(left, right);
+
+    double bounds[6];
+    kd->GetBounds(bounds);
+
+    float *val = this->GetLocalVal(L);
+
+    double coord;
+    if (numpoints > 0)
+      {
+      coord = val[maxdim];
+      }
+    else
+      {
+      coord = (bounds[maxdim*2] + bounds[maxdim*2+1])*0.5;
+      }
+
+    left->SetBounds(bounds[0], ((maxdim == XDIM) ? coord : bounds[1]),
+                    bounds[2], ((maxdim == YDIM) ? coord : bounds[3]),
+                    bounds[4], ((maxdim == ZDIM) ? coord : bounds[5]));
+
+    left->SetNumberOfPoints(numpoints);
+
+    right->SetBounds(((maxdim == XDIM) ? coord : bounds[0]), bounds[1],
+                     ((maxdim == YDIM) ? coord : bounds[2]), bounds[3],
+                     ((maxdim == ZDIM) ? coord : bounds[4]), bounds[5]);
+
+    right->SetNumberOfPoints(0);
+
+    // Set the data bounds tightly around L.  This will inevitably mean some
+    // regions that are empty will have their data bounds outside of them.
+    // Hopefully, that will not screw up anything down the road.
+    left ->SetDataBounds(val[0], val[0], val[1], val[1], val[2], val[2]);
+    right->SetDataBounds(val[0], val[0], val[1], val[1], val[2], val[2]);
+
+    return L + numpoints;
+    }
 
   int p1 = this->WhoHas(L);
   int p2 = this->WhoHas(R);
@@ -706,11 +756,13 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
         if (newdim > vtkKdTree::ZDIM)
           {
           // Exhausted all possible divisions.  All points must be at same
-          // location.
-          vtkWarningMacro(<< "Could not divide anywhere.");
-          kd->SetDim(3);  // indicates region is not divided 
-          FreeObject(this->SubGroup);
-          return 0;
+          // location.  Just split in the middle and hope for the best.
+          vtkDebugMacro(<< "Must have coincident points.");
+          newdim = maxdim;
+          kd->SetDim(maxdim);
+          // Add one to make sure there is always something to the left.
+          midpt = (L+R)/2 + 1;
+          goto FindMidptBreakout;
           }
         } while (   (newdim == maxdim)
                  || ((this->ValidDirections & (1 << newdim)) == 0) );
@@ -719,6 +771,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
       vtkDebugMacro(<< " newdim " << newdim
                     << " L " << L << " R " << R << " midpt " << midpt);
       }
+  FindMidptBreakout:
     // Pretend the dimension we used was the minimum.
     maxdim = newdim;
     }
