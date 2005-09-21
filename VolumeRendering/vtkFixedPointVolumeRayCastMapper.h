@@ -246,6 +246,17 @@ public:
   void RenderSubVolume();
   void DisplayRenderedImage( vtkRenderer *, vtkVolume * );
   void AbortRender();
+
+  // Description:
+  // Get an estimate of the rendering time for a given volume / renderer.
+  // Only valid if this mapper has been used to render that volume for
+  // that renderer previously. Estimate is good when the viewing parameters
+  // have not changed much since that last render.
+  float GetEstimatedRenderTime( vtkRenderer *ren,
+                                vtkVolume   *vol )
+    { return this->RetrieveRenderTime( ren, vol ); }
+  float GetEstimatedRenderTime( vtkRenderer *ren )
+    { return this->RetrieveRenderTime( ren ); }
   
   
 protected:

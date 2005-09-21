@@ -43,7 +43,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.20");
+vtkCxxRevisionMacro(vtkFixedPointVolumeRayCastMapper, "1.21");
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper); 
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
 
@@ -634,7 +634,7 @@ float vtkFixedPointVolumeRayCastMapper::ComputeRequiredImageSampleDistance( floa
 }
 
 float vtkFixedPointVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren, 
-                                                    vtkVolume   *vol )
+                                                            vtkVolume   *vol )
 {
   int i;
   
@@ -666,8 +666,8 @@ float vtkFixedPointVolumeRayCastMapper::RetrieveRenderTime( vtkRenderer *ren )
 }
 
 void vtkFixedPointVolumeRayCastMapper::StoreRenderTime( vtkRenderer *ren, 
-                                                vtkVolume   *vol, 
-                                                float       time )
+                                                        vtkVolume   *vol, 
+                                                        float       time )
 {
   int i;
   for ( i = 0; i < this->RenderTableEntries; i++ )
