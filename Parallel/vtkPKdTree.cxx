@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.17");
+vtkCxxRevisionMacro(vtkPKdTree, "1.18");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -693,12 +693,34 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 
   if (midpt < L + 1)
     {
-    // couldn't divide along maxdim - all points we're at same location
-    // should probably try a different direction
-
-    kd->SetDim(3);  // indicates region is not divided 
-    FreeObject(this->SubGroup);
-    return 0;
+    // Couldn't divide.  Try a different direction.
+    int newdim = vtkKdTree::XDIM - 1;
+    vtkDebugMacro(<< "Could not divide along maxdim"
+                  << " maxdim " << maxdim
+                  << " L " << L << " R " << R << " midpt " << midpt);
+    while (midpt < L + 1)
+      {
+      do
+        {
+        newdim++;
+        if (newdim > vtkKdTree::ZDIM)
+          {
+          // Exhausted all possible divisions.  All points must be at same
+          // location.
+          vtkWarningMacro(<< "Could not divide anywhere.");
+          kd->SetDim(3);  // indicates region is not divided 
+          FreeObject(this->SubGroup);
+          return 0;
+          }
+        } while (   (newdim == maxdim)
+                 || ((this->ValidDirections & (1 << newdim)) == 0) );
+      kd->SetDim(newdim);
+      midpt = this->Select(newdim, L, R);
+      vtkDebugMacro(<< " newdim " << newdim
+                    << " L " << L << " R " << R << " midpt " << midpt);
+      }
+    // Pretend the dimension we used was the minimum.
+    maxdim = newdim;
     }
 
   float *newDataBounds = this->DataBounds(L, midpt, R);
@@ -915,7 +937,7 @@ int vtkPKdTree::Select(int dim, int L, int R)
 
   int firstKval = this->TotalNumCells;  // greater than any valid index
 
-  if (this->MyId <= hasKleft)
+  if ((this->MyId <= hasKleft) && (this->NumCells[this->MyId] > 0))
     {
     int start = this->EndVal[this->MyId];
     if (start > K-1) start = K-1;
@@ -1360,6 +1382,13 @@ int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
   int numGreater = 0;
   int numLess = 0;
   int totalVals = R - L + 1;
+
+  if (totalVals == 0)
+    {
+    // Special case: no values.
+    vals[0] = vals[1] = L;
+    return vals;
+    }
 
   Ipt = this->GetLocalVal(L) + dim;
   Lval = *Ipt;
