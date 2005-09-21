@@ -25,7 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkUnstructuredGrid.h"
 
-vtkCxxRevisionMacro(vtkAppendFilter, "1.73");
+vtkCxxRevisionMacro(vtkAppendFilter, "1.74");
 vtkStandardNewMacro(vtkAppendFilter);
 
 //----------------------------------------------------------------------------
@@ -117,7 +117,6 @@ int vtkAppendFilter::RequestData(
   vtkIdType ptId, cellId, newCellId;
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
-  int numInputs = this->GetNumberOfInputConnections(0);
 
   vtkDebugMacro(<<"Appending data together");
 
@@ -131,6 +130,7 @@ int vtkAppendFilter::RequestData(
   numPts = 0;
   numCells = 0;
 
+  int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   vtkDataSetAttributes::FieldList ptList(numInputs);
   vtkDataSetAttributes::FieldList cellList(numInputs);
   int firstPD=1;
