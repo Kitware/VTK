@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.26");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.27");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -1076,6 +1076,102 @@ int vtkCompositeDataPipeline::ExecuteDataForBlock(vtkInformation* request)
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataPipeline::MarkOutputsGenerated
+(vtkInformation* request,
+ vtkInformationVector** inInfoVec,
+ vtkInformationVector* outputs)                    
+{
+  this->Superclass::MarkOutputsGenerated(request, inInfoVec, outputs);
+
+  // Tell all generated outputs that they have been generated.
+  for(int i=0; i < outputs->GetNumberOfInformationObjects(); ++i)
+    {
+    vtkInformation* outInfo = outputs->GetInformationObject(i);
+    vtkDataObject* data = outInfo->Get(
+      vtkCompositeDataSet::COMPOSITE_DATA_SET());
+    if(data && !outInfo->Get(DATA_NOT_GENERATED()))
+      {
+      data->DataHasBeenGenerated();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+int vtkCompositeDataPipeline::NeedToExecuteData(
+  int outputPort,
+  vtkInformationVector** inInfoVec,
+  vtkInformationVector* outInfoVec)
+{
+  // Has the algorithm asked to be executed again?
+  if(this->ContinueExecuting)
+    {
+    return 1;
+    }
+
+  // If no port is specified, check all ports.  This behavior is
+  // implemented by the superclass.
+  if(outputPort < 0)
+    {
+    return this->Superclass::NeedToExecuteData(outputPort,
+                                               inInfoVec,outInfoVec);
+    }
+
+  // Does the superclass want to execute?
+  if(this->vtkDemandDrivenPipeline::NeedToExecuteData(
+       outputPort,inInfoVec,outInfoVec))
+    {
+    return 1;
+    }
+
+  // We need to check the requested update extent.  Get the output
+  // port information and data information.  We do not need to check
+  // existence of values because it has already been verified by
+  // VerifyOutputInformation.
+  vtkInformation* outInfo = outInfoVec->GetInformationObject(outputPort);
+  vtkDataObject* dataObject = outInfo->Get(
+    vtkCompositeDataSet::COMPOSITE_DATA_SET());
+  if (!dataObject)
+    {
+    return this->Superclass::NeedToExecuteData(outputPort,
+                                               inInfoVec,outInfoVec);
+    }
+  vtkInformation* dataInfo = dataObject->GetInformation();
+
+  // Check the unstructured extent.  If we do not have the requested
+  // piece, we need to execute.
+  int updateNumberOfPieces = outInfo->Get(UPDATE_NUMBER_OF_PIECES());
+  int dataNumberOfPieces = dataInfo->Get(vtkDataObject::DATA_NUMBER_OF_PIECES());
+  if(dataNumberOfPieces != updateNumberOfPieces)
+    {
+    return 1;
+    }
+  if (dataNumberOfPieces != 1)
+    {
+    int dataPiece = dataInfo->Get(vtkDataObject::DATA_PIECE_NUMBER());
+    int updatePiece = outInfo->Get(UPDATE_PIECE_NUMBER());
+    if (dataPiece != updatePiece)
+      {
+      return 1;
+      }
+    }
+
+  // if we are requesting a particular update time index, check
+  // if we have the desired time index
+  if ( outInfo->Has(UPDATE_TIME_INDEX()) )
+    {
+    if (!dataInfo->Has(vtkDataObject::DATA_TIME_INDEX()) ||
+      dataInfo->Get(vtkDataObject::DATA_TIME_INDEX()) !=
+      outInfo->Get(UPDATE_TIME_INDEX()))
+      {
+      return 1;
+      }
+    }
+
+  // We do not need to execute.
+  return 0;
 }
 
 //----------------------------------------------------------------------------
