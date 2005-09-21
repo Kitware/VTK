@@ -78,6 +78,7 @@ vtkHierarchicalDataSetGeometryFilter.cxx
 vtkHedgeHog.cxx
 vtkHierarchicalDataExtractDataSets.cxx
 vtkHierarchicalDataExtractLevel.cxx
+vtkHierarchicalDataGroupFilter.cxx
 vtkHierarchicalDataLevelFilter.cxx
 vtkHull.cxx
 vtkHyperOctreeContourFilter.cxx
