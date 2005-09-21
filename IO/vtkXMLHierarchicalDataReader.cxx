@@ -27,7 +27,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLHierarchicalDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLHierarchicalDataReader);
 
 struct vtkXMLHierarchicalDataReaderEntry
@@ -162,6 +162,11 @@ void vtkXMLHierarchicalDataReader::ReadXMLData()
   vtkExecutive* exec = this->GetExecutive();
   vtkInformation* info = exec->GetOutputInformation(0);
 
+  unsigned int updatePiece = static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()));
+  unsigned int updateNumPieces =  static_cast<unsigned int>(
+    info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES()));
+
   vtkDataObject* doOutput = 
     info->Get(vtkCompositeDataSet::COMPOSITE_DATA_SET());
   vtkHierarchicalDataSet* hb = 
@@ -185,6 +190,9 @@ void vtkXMLHierarchicalDataReader::ReadXMLData()
     }
 
   vtkstd::vector<vtkXMLDataElement*>::iterator d;
+
+  vtkstd::vector<unsigned int> numDataSets;
+
   for(d=this->Internal->DataSets.begin();
       d != this->Internal->DataSets.end(); ++d)
     {
@@ -204,50 +212,108 @@ void vtkXMLHierarchicalDataReader::ReadXMLData()
       level = levelRead;
       }
 
-    // Construct the name of the internal file.
-    vtkstd::string fileName;
-    const char* file = ds->GetAttribute("file");
-    if(!(file[0] == '/' || file[1] == ':'))
+    if (level >= static_cast<int>(numDataSets.size()))
       {
-      fileName = filePath;
-      if(fileName.length())
-        {
-        fileName += "/";
-        }
+      numDataSets.resize(level+1);
+      numDataSets[level] = 0;
       }
-    fileName += file;
-    
-    // Get the file extension.
-    vtkstd::string ext;
-    vtkstd::string::size_type pos2 = fileName.rfind('.');
-    if(pos2 != fileName.npos)
+    if (dsId >= static_cast<int>(numDataSets[level]))
       {
-      ext = fileName.substr(pos2+1);
+      numDataSets[level] = dsId + 1;
       }
+    }
 
-    // Search for the reader matching this extension.
-    const char* rname = 0;
-    for(const vtkXMLHierarchicalDataReaderEntry* r = this->Internal->ReaderList;
-        !rname && r->extension; ++r)
-      {
-      if(ext == r->extension)
-        {
-        rname = r->name;
-        }
-      }
-    vtkXMLReader* reader = this->GetReaderOfType(rname);
-    reader->SetFileName(fileName.c_str());
-    reader->Update();
-    vtkDataSet* output = reader->GetOutputAsDataSet();
-    if (!output)
+  for (unsigned int i=0; i<numDataSets.size(); i++)
+    {
+    hb->SetNumberOfDataSets(i, numDataSets[i]);
+    }
+
+  for(d=this->Internal->DataSets.begin();
+      d != this->Internal->DataSets.end(); ++d)
+    {
+    vtkXMLDataElement* ds = *d;
+
+    int level = 0;
+    int dsId = 0;
+
+    if (!ds->GetScalarAttribute("block", dsId))
       {
       continue;
       }
-    vtkDataSet* outputCopy = output->NewInstance();
-    outputCopy->ShallowCopy(output);
+
+    int levelRead;
+    if (ds->GetScalarAttribute("level", levelRead))
+      {
+      level = levelRead;
+      }
+
+    unsigned int numBlocks = hb->GetNumberOfDataSets(level);
+    unsigned int numBlocksPerPiece = 1;
+    if (updateNumPieces < numBlocks)
+      {
+      numBlocksPerPiece = numBlocks / updateNumPieces;
+      }
+    int minBlock = numBlocksPerPiece*updatePiece;
+    int maxBlock = numBlocksPerPiece*(updatePiece+1);
+    if (updatePiece == updateNumPieces - 1)
+      {
+      maxBlock = numBlocks;
+      }
+
+    vtkDataSet* outputCopy = 0;
+
+    if (dsId >= minBlock && dsId < maxBlock)
+      {
+      
+      // Construct the name of the internal file.
+      vtkstd::string fileName;
+      const char* file = ds->GetAttribute("file");
+      if(!(file[0] == '/' || file[1] == ':'))
+        {
+        fileName = filePath;
+        if(fileName.length())
+          {
+          fileName += "/";
+          }
+        }
+      fileName += file;
+      
+      // Get the file extension.
+      vtkstd::string ext;
+      vtkstd::string::size_type pos2 = fileName.rfind('.');
+      if(pos2 != fileName.npos)
+        {
+        ext = fileName.substr(pos2+1);
+        }
+      
+      // Search for the reader matching this extension.
+      const char* rname = 0;
+      for(const vtkXMLHierarchicalDataReaderEntry* r = 
+            this->Internal->ReaderList;
+          !rname && r->extension; ++r)
+        {
+        if(ext == r->extension)
+          {
+          rname = r->name;
+          }
+        }
+      vtkXMLReader* reader = this->GetReaderOfType(rname);
+      reader->SetFileName(fileName.c_str());
+      reader->Update();
+      vtkDataSet* output = reader->GetOutputAsDataSet();
+      if (!output)
+        {
+        continue;
+        }
+      outputCopy = output->NewInstance();
+      outputCopy->ShallowCopy(output);
+      output->Initialize();
+      }
     this->HandleBlock(ds, level, dsId, hb, outputCopy);
-    output->Initialize();
-    outputCopy->Delete();
+    if (outputCopy)
+      {
+      outputCopy->Delete();
+      }
     }
 }
 

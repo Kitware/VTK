@@ -23,7 +23,7 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
-vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.2");
+vtkCxxRevisionMacro(vtkXMLHierarchicalBoxDataReader, "1.3");
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataReader);
 
 //----------------------------------------------------------------------------
@@ -84,12 +84,16 @@ void vtkXMLHierarchicalBoxDataReader::HandleBlock(vtkXMLDataElement* ds,
                                                   vtkHierarchicalDataSet* output,
                                                   vtkDataSet* data)
 {
-  vtkUniformGrid* ugrid = vtkUniformGrid::SafeDownCast(data);
-  if (!ugrid)
+  vtkUniformGrid* ugrid = 0;
+  if (data)
     {
-    vtkErrorMacro("HierarchicalBoxDataSet can only contain uniform grids."
-                  << " The file contains: " << data->GetClassName()
-                  << "dataset. Ignoring block.");
+    ugrid = vtkUniformGrid::SafeDownCast(data);
+    if (!ugrid)
+      {
+      vtkErrorMacro("HierarchicalBoxDataSet can only contain uniform grids."
+                    << " The file contains: " << data->GetClassName()
+                    << "dataset. Ignoring block.");
+      }
     }
   int box[6];
   if (ds->GetVectorAttribute("amr_box", 6, box))
