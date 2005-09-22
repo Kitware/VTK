@@ -20,7 +20,7 @@
 #include "vtkPointsProjectedHull.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.1");
+vtkCxxRevisionMacro(vtkPointsProjectedHull, "1.2");
 vtkStandardNewMacro(vtkPointsProjectedHull);
 
 static const int xdim=0, ydim=1, zdim=2;
@@ -512,10 +512,10 @@ RectangleBoundingBoxIntersection(double hmin, double hmax,
 {       
   float *r2Bounds = this->HullBBox[dim];
 
-  if ((hmin >= r2Bounds[xmax]) ||
-      (hmax <= r2Bounds[xmin]) ||
-      (vmin >= r2Bounds[ymax]) ||
-      (vmax <= r2Bounds[ymin]))
+  if ((hmin > r2Bounds[xmax]) ||
+      (hmax < r2Bounds[xmin]) ||
+      (vmin > r2Bounds[ymax]) ||
+      (vmax < r2Bounds[ymin]))
     {
     return 0;     
     }
@@ -672,6 +672,21 @@ int vtkPointsProjectedHull::RectangleOutside(double hmin, double hmax,
     }
 
   delete [] insidePt;
+
+  // KDM: The test above is sufficient for the polygon to be outside the box,
+  // but not necessary.  Consider the following bounding box and triangle.
+  //
+  //                    +-----------------------+                       //
+  //                    |                       |                       //
+  //                    |                       |                       //
+  //                    +-----------------------+                       //
+  //                                                                    //
+  //                                /\                                  //
+  //                               /  \                                 //
+  //                               ----                                 //
+  //
+  // In this case, the triangle fails the test above but is still outside.
+  // Someone concerned about this should fix this test.
 
   return 0; 
 }

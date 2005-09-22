@@ -24,7 +24,7 @@
 #include "vtkCell.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkPlanesIntersection, "1.3");
+vtkCxxRevisionMacro(vtkPlanesIntersection, "1.4");
 vtkStandardNewMacro(vtkPlanesIntersection);
 
 // Experiment shows that we get plane equation values on the
@@ -384,6 +384,12 @@ int vtkPlanesIntersection::PolygonIntersectsBBox(double bounds[6], vtkPoints *pt
 //
 //      If Box's projection lies outside any of these projections, they
 //      don't intersect in 3D.  Otherwise they do intersect in 3D.
+//
+//      KDM: I'm pretty sure the above statement is untrue.  I can think of a
+//      situation where all 3 projections intersect, but the 3D intersection
+//      does not.  However, if the two intersect in 3D, then they will
+//      intersect in the 3 2D projections.  Since I'm not worried about
+//      false positives, I'm not going to fix this right now.
 
     if ((pi->IntersectsProjection(Box, Xdim) == 0) ||
         (pi->IntersectsProjection(Box, Ydim) == 0) ||
@@ -734,12 +740,12 @@ int vtkPlanesIntersection::IntersectsBoundingBox(vtkPoints *R)
 
   this->regionPts->GetBounds(RegionBounds);
 
-  if ((BoxBounds[1] <= RegionBounds[0]) ||
-      (BoxBounds[0] >= RegionBounds[1]) ||
-      (BoxBounds[3] <= RegionBounds[2]) ||
-      (BoxBounds[2] >= RegionBounds[3]) ||
-      (BoxBounds[5] <= RegionBounds[4]) ||
-      (BoxBounds[4] >= RegionBounds[5])) 
+  if ((BoxBounds[1] < RegionBounds[0]) ||
+      (BoxBounds[0] > RegionBounds[1]) ||
+      (BoxBounds[3] < RegionBounds[2]) ||
+      (BoxBounds[2] > RegionBounds[3]) ||
+      (BoxBounds[5] < RegionBounds[4]) ||
+      (BoxBounds[4] > RegionBounds[5])) 
     {
     return 0;
     }
@@ -802,7 +808,7 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
 
     vtkPlanesIntersection::EvaluatePlaneEquation(oppositeN, p);
 
-  if (negVal >= 0)
+  if (negVal > 0)
     {
     return Outside;
     }
@@ -811,7 +817,7 @@ int vtkPlanesIntersection::EvaluateFacePlane(int plane, vtkPoints *R)
 
     vtkPlanesIntersection::EvaluatePlaneEquation(withN, p);
 
-  if (posVal <= 0)
+  if (posVal < 0)
     {
     return Inside;
     }
