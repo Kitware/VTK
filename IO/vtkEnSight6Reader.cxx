@@ -33,7 +33,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSight6Reader, "1.58");
+vtkCxxRevisionMacro(vtkEnSight6Reader, "1.59");
 vtkStandardNewMacro(vtkEnSight6Reader);
 
 //----------------------------------------------------------------------------
@@ -417,17 +417,17 @@ int vtkEnSight6Reader::ReadMeasuredGeometryFile(const char* fileName,
   
   this->NumberOfNewOutputs++;
   
-  if (output->GetDataSet(0, this->NumberOfGeometryParts) == NULL ||
-      ! output->GetDataSet(0, this->NumberOfGeometryParts)->IsA("vtkPolyData"))
+  if (output->GetDataSet(this->NumberOfGeometryParts, 0) == NULL ||
+      ! output->GetDataSet(this->NumberOfGeometryParts, 0)->IsA("vtkPolyData"))
     {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
-    output->SetDataSet(0, this->NumberOfGeometryParts, pd);
+    output->SetDataSet(this->NumberOfGeometryParts, 0, pd);
     pd->Delete();
     }
   
   vtkPolyData *pd = vtkPolyData::SafeDownCast( 
-    output->GetDataSet(0, this->NumberOfGeometryParts) );
+    output->GetDataSet(this->NumberOfGeometryParts, 0) );
   pd->Allocate(this->NumberOfMeasuredPoints);
 
   newPoints = vtkPoints::New();
@@ -537,7 +537,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
     else
       {
       numPts = static_cast<vtkDataSet*>(
-        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts))->
+        compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0))->
         GetNumberOfPoints();
       }
     numLines = numPts / 6;
@@ -556,7 +556,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
       // because it is the same for all of them.
       partId = this->UnstructuredPartIds->GetId(0);
       scalars = static_cast<vtkFloatArray*>(
-        static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, partId))->
+        static_cast<vtkDataSet*>(compositeOutput->GetDataSet(partId, 0))->
         GetPointData()->GetArray(description));
       }
     for (i = 0; i < numLines; i++)
@@ -589,7 +589,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
         {
         partId = this->UnstructuredPartIds->GetId(i);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, partId));
+          compositeOutput->GetDataSet(partId, 0));
         if (component == 0)
           {
           scalars->SetName(description);
@@ -609,7 +609,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
       {
       scalars->SetName(description);
       output = static_cast<vtkDataSet*>(
-        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+        compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
       output->GetPointData()->AddArray(scalars);
       if (!output->GetPointData()->GetScalars())
         {
@@ -630,7 +630,7 @@ int vtkEnSight6Reader::ReadScalarsPerNode(
     partId--;  // EnSight starts #ing at 1.
     int realId = this->InsertNewPartId(partId);
 
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     this->ReadNextDataLine(line); // block
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
@@ -770,7 +770,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
     else
       {
       numPts = static_cast<vtkDataSet*>(
-        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts))->
+        compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0))->
         GetNumberOfPoints();
       }
     numLines = numPts / 2;
@@ -812,7 +812,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
         partId = this->UnstructuredPartIds->GetId(i);
         vectors->SetName(description);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, partId));
+          compositeOutput->GetDataSet(partId, 0));
         output->GetPointData()->AddArray(vectors);
         if (!output->GetPointData()->GetVectors())
           {
@@ -824,7 +824,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
       {
       vectors->SetName(description);
       output = static_cast<vtkDataSet*>(
-        compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+        compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
       output->GetPointData()->AddArray(vectors);
       if (!output->GetPointData()->GetVectors())
         {
@@ -841,7 +841,7 @@ int vtkEnSight6Reader::ReadVectorsPerNode(
     partId--;
     int realId = this->InsertNewPartId(partId);
 
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreVectors = numPts % 6;
@@ -982,7 +982,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
       {
       partId = this->UnstructuredPartIds->GetId(i);
       tensors->SetName(description);
-      static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, partId))->
+      static_cast<vtkDataSet*>(compositeOutput->GetDataSet(partId, 0))->
         GetPointData()->AddArray(tensors);
       }
     tensors->Delete();
@@ -995,7 +995,7 @@ int vtkEnSight6Reader::ReadTensorsPerNode(
     partId--;
     int realId = this->InsertNewPartId(partId);
     this->ReadNextDataLine(line); // block
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     numLines = numPts / 6;
     moreTensors = numPts % 6;
@@ -1114,7 +1114,7 @@ int vtkEnSight6Reader::ReadScalarsPerElement(
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     if (component == 0)
@@ -1297,7 +1297,7 @@ int vtkEnSight6Reader::ReadVectorsPerElement(
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     vectors->SetNumberOfTuples(numCells);
@@ -1467,7 +1467,7 @@ int vtkEnSight6Reader::ReadTensorsPerElement(
     sscanf(line, " part %d", &partId);
     partId--; // EnSight starts #ing with 1.
     int realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     this->ReadNextDataLine(line); // element type or "block"
     tensors->SetNumberOfTuples(numCells);
@@ -1559,19 +1559,19 @@ int vtkEnSight6Reader::CreateUnstructuredGridOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkUnstructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkUnstructuredGrid"))
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, ugrid);
+    compositeOutput->SetDataSet(partId, 0, ugrid);
     ugrid->Delete();
  
     this->UnstructuredPartIds->InsertNextId(partId);
     }
   
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));
+    compositeOutput->GetDataSet(partId, 0));
 
   vtkCharArray* nmArray = vtkCharArray::New();
   nmArray->SetName("Name");
@@ -2081,17 +2081,17 @@ int vtkEnSight6Reader::CreateStructuredGridOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkStructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkStructuredGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, sgrid);
+    compositeOutput->SetDataSet(partId, 0, sgrid);
     sgrid->Delete();
     }
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");

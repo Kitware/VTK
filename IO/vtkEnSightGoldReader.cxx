@@ -31,7 +31,7 @@
 #include <vtkstd/string>
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.54");
+vtkCxxRevisionMacro(vtkEnSightGoldReader, "1.55");
 vtkStandardNewMacro(vtkEnSightGoldReader);
 
 //BTX
@@ -288,17 +288,17 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
   this->ReadLine(line);
   this->NumberOfMeasuredPoints = atoi(line);
   
-  if (output->GetDataSet(0, this->NumberOfGeometryParts) == NULL ||
-      ! output->GetDataSet(0, this->NumberOfGeometryParts)->IsA("vtkPolyData"))
+  if (output->GetDataSet(this->NumberOfGeometryParts, 0) == NULL ||
+      ! output->GetDataSet(this->NumberOfGeometryParts, 0)->IsA("vtkPolyData"))
     {
     vtkDebugMacro("creating new measured geometry output");
     vtkPolyData* pd = vtkPolyData::New();
     pd->Allocate(this->NumberOfMeasuredPoints);
-    output->SetDataSet(0, this->NumberOfGeometryParts, pd);
+    output->SetDataSet(this->NumberOfGeometryParts, 0, pd);
     pd->Delete();
     }
 
-  geom = ((vtkPolyData*)output->GetDataSet(0, this->NumberOfGeometryParts));
+  geom = ((vtkPolyData*)output->GetDataSet(this->NumberOfGeometryParts, 0));
 
   newPoints = vtkPoints::New();
   newPoints->Allocate(this->NumberOfMeasuredPoints);
@@ -313,7 +313,7 @@ int vtkEnSightGoldReader::ReadMeasuredGeometryFile(
     geom->InsertNextCell(VTK_VERTEX, 1, &id);
     }
   
-  ((vtkPolyData*)output->GetDataSet(0, this->NumberOfGeometryParts))->
+  ((vtkPolyData*)output->GetDataSet(this->NumberOfGeometryParts, 0))->
     SetPoints(newPoints);
   
   newPoints->Delete();
@@ -389,7 +389,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
   if (measured)
     {
     output = static_cast<vtkDataSet*>(
-      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+      compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -443,7 +443,7 @@ int vtkEnSightGoldReader::ReadScalarsPerNode(const char* fileName, const char* d
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -580,7 +580,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
   if (measured)
     {
     output = static_cast<vtkDataSet*>(
-      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+      compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -629,7 +629,7 @@ int vtkEnSightGoldReader::ReadVectorsPerNode(const char* fileName, const char* d
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -728,7 +728,7 @@ int vtkEnSightGoldReader::ReadTensorsPerNode(const char* fileName, const char* d
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -829,7 +829,7 @@ int vtkEnSightGoldReader::ReadScalarsPerElement(const char* fileName,
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1011,7 +1011,7 @@ int vtkEnSightGoldReader::ReadVectorsPerElement(const char* fileName,
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1156,7 +1156,7 @@ int vtkEnSightGoldReader::ReadTensorsPerElement(const char* fileName,
     this->ReadNextDataLine(line);
     partId = atoi(line) - 1; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1243,19 +1243,19 @@ int vtkEnSightGoldReader::CreateUnstructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkUnstructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkUnstructuredGrid"))
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, ugrid);
+    compositeOutput->SetDataSet(partId, 0, ugrid);
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);
     }
   
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -1825,17 +1825,17 @@ int vtkEnSightGoldReader::CreateStructuredGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkStructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkStructuredGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, sgrid);
+    compositeOutput->SetDataSet(partId, 0, sgrid);
     sgrid->Delete();
     }
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -1917,17 +1917,17 @@ int vtkEnSightGoldReader::CreateRectilinearGridOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkRectilinearGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkRectilinearGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
-    compositeOutput->SetDataSet(0, partId, rgrid);
+    compositeOutput->SetDataSet(partId, 0, rgrid);
     rgrid->Delete();
     }
 
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -2016,17 +2016,17 @@ int vtkEnSightGoldReader::CreateImageDataOutput(int partId,
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkImageData"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkImageData"))
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
-    compositeOutput->SetDataSet(0, partId, idata);
+    compositeOutput->SetDataSet(partId, 0, idata);
     idata->Delete();
     }
 
   vtkImageData* output = vtkImageData::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");

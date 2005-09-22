@@ -32,7 +32,7 @@
 #include <ctype.h>
 #include <vtkstd/string>
 
-vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.62");
+vtkCxxRevisionMacro(vtkEnSightGoldBinaryReader, "1.63");
 vtkStandardNewMacro(vtkEnSightGoldBinaryReader);
 
 // This is half the precision of an int.
@@ -1019,7 +1019,7 @@ int vtkEnSightGoldBinaryReader::ReadMeasuredGeometryFile(const char* fileName,
     }
 
   pd->SetPoints(points);
-  output->SetDataSet(0, this->NumberOfGeometryParts, pd);
+  output->SetDataSet(this->NumberOfGeometryParts, 0, pd);
   
   points->Delete();
   pd->Delete();
@@ -1092,7 +1092,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
       if (measured)
         {
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+          compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1109,7 +1109,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1131,7 +1131,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
   if (measured)
     {
     output = static_cast<vtkDataSet*>(
-      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+      compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1174,7 +1174,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerNode(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     // If the part has no points, then only the part number is listed in
     // the variable file.
@@ -1291,7 +1291,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
       if (measured)
         {
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+          compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1308,7 +1308,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1330,7 +1330,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
   if (measured)
     {
     output = static_cast<vtkDataSet*>(
-      compositeOutput->GetDataSet(0, this->NumberOfGeometryParts));
+      compositeOutput->GetDataSet(this->NumberOfGeometryParts, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1364,7 +1364,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerNode(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1474,7 +1474,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numPts = output->GetNumberOfPoints();
         if (numPts)
           {
@@ -1499,7 +1499,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerNode(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numPts = output->GetNumberOfPoints();
     if (numPts)
       {
@@ -1620,7 +1620,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1681,7 +1681,7 @@ int vtkEnSightGoldBinaryReader::ReadScalarsPerElement(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -1859,7 +1859,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -1917,7 +1917,7 @@ int vtkEnSightGoldBinaryReader::ReadVectorsPerElement(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -2092,7 +2092,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
         partId--; // EnSight starts #ing with 1.
         realId = this->InsertNewPartId(partId);
         output = static_cast<vtkDataSet*>(
-          compositeOutput->GetDataSet(0, realId));
+          compositeOutput->GetDataSet(realId, 0));
         numCells = output->GetNumberOfCells();
         if (numCells)
           {
@@ -2150,7 +2150,7 @@ int vtkEnSightGoldBinaryReader::ReadTensorsPerElement(
     this->ReadPartId(&partId);
     partId--; // EnSight starts #ing with 1.
     realId = this->InsertNewPartId(partId);
-    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(0, realId));
+    output = static_cast<vtkDataSet*>(compositeOutput->GetDataSet(realId, 0));
     numCells = output->GetNumberOfCells();
     if (numCells)
       {
@@ -2300,19 +2300,19 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkUnstructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkUnstructuredGrid"))
     {
     vtkDebugMacro("creating new unstructured output");
     vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, ugrid);
+    compositeOutput->SetDataSet(partId, 0, ugrid);
     ugrid->Delete();
     
     this->UnstructuredPartIds->InsertNextId(partId);    
     }
 
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -2938,17 +2938,17 @@ int vtkEnSightGoldBinaryReader::CreateStructuredGridOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkStructuredGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkStructuredGrid"))
     {
     vtkDebugMacro("creating new structured grid output");
     vtkStructuredGrid* sgrid = vtkStructuredGrid::New();
-    compositeOutput->SetDataSet(0, partId, sgrid);
+    compositeOutput->SetDataSet(partId, 0, sgrid);
     sgrid->Delete();
     }
   
   vtkStructuredGrid* output = vtkStructuredGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -3068,17 +3068,17 @@ int vtkEnSightGoldBinaryReader::CreateRectilinearGridOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkRectilinearGrid"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkRectilinearGrid"))
     {
     vtkDebugMacro("creating new rectilinear grid output");
     vtkRectilinearGrid* rgrid = vtkRectilinearGrid::New();
-    compositeOutput->SetDataSet(0, partId, rgrid);
+    compositeOutput->SetDataSet(partId, 0, rgrid);
     rgrid->Delete();
     }
 
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));
+    compositeOutput->GetDataSet(partId, 0));
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");
@@ -3180,17 +3180,17 @@ int vtkEnSightGoldBinaryReader::CreateImageDataOutput(
   
   this->NumberOfNewOutputs++;
   
-  if (compositeOutput->GetDataSet(0, partId) == NULL ||
-      ! compositeOutput->GetDataSet(0, partId)->IsA("vtkImageData"))
+  if (compositeOutput->GetDataSet(partId, 0) == NULL ||
+      ! compositeOutput->GetDataSet(partId, 0)->IsA("vtkImageData"))
     {
     vtkDebugMacro("creating new image data output");
     vtkImageData* idata = vtkImageData::New();
-    compositeOutput->SetDataSet(0, partId, idata);
+    compositeOutput->SetDataSet(partId, 0, idata);
     idata->Delete();
     }
 
   vtkImageData* output = vtkImageData::SafeDownCast(
-    compositeOutput->GetDataSet(0, partId));    
+    compositeOutput->GetDataSet(partId, 0));    
 
   vtkCharArray* nmArray =  vtkCharArray::New();
   nmArray->SetName("Name");

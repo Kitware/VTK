@@ -60,6 +60,7 @@ vtkDistributedStreamTracer.cxx
 vtkDummyController.cxx
 vtkEnSightWriter.cxx
 vtkExtractCTHPart.cxx
+vtkExtractHierarchicalDataPiece.cxx
 vtkExtractImageDataPiece.cxx
 vtkExtractRectilinearGridPiece.cxx
 vtkExtractStructuredGridPiece.cxx
