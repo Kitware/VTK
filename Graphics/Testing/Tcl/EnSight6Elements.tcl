@@ -10,6 +10,10 @@ vtkRenderWindowInteractor iren
     iren SetRenderWindow renWin
 
 vtkGenericEnSightReader reader
+# Make sure all algorithms use the composite data pipeline
+vtkCompositeDataPipeline cdp
+reader SetDefaultExecutivePrototype cdp
+cdp Delete
     reader SetCaseFileName "$VTK_DATA_ROOT/Data/EnSight/elements6.case"
 
 vtkGeometryFilter geom
@@ -46,3 +50,4 @@ renWin Render
 # prevent the tk window from showing up then start the event loop
 wm withdraw .
 
+reader SetDefaultExecutivePrototype {}
