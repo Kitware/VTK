@@ -57,7 +57,7 @@
 #include "vtkMPIController.h"
 #endif
 
-vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.29")
+vtkCxxRevisionMacro(vtkDistributedDataFilter, "1.30")
 
 vtkStandardNewMacro(vtkDistributedDataFilter)
 
@@ -886,6 +886,12 @@ void vtkDistributedDataFilter::SingleProcessExecute(vtkDataSet *input,
 }
 void vtkDistributedDataFilter::ComputeMyRegionBounds()
 {
+  if (this->ConvexSubRegionBounds)
+    {
+    delete [] this->ConvexSubRegionBounds;
+    this->ConvexSubRegionBounds = NULL;
+    }
+
   vtkIntArray *myRegions = vtkIntArray::New();
 
   this->Kdtree->GetRegionAssignmentList(this->MyId, myRegions);
@@ -899,11 +905,6 @@ void vtkDistributedDataFilter::ComputeMyRegionBounds()
   else
     {
     this->NumConvexSubRegions = 0;
-    if (this->ConvexSubRegionBounds)
-      {
-      delete [] this->ConvexSubRegionBounds;
-      this->ConvexSubRegionBounds = NULL;
-      }
     }
 
   myRegions->Delete();
@@ -2902,10 +2903,7 @@ void vtkDistributedDataFilter::ClipWithBoxClipDataSet(
 
 void vtkDistributedDataFilter::ClipCellsToSpatialRegion(vtkUnstructuredGrid *grid)
 {
-  if (this->ConvexSubRegionBounds == NULL)
-    {
-    this->ComputeMyRegionBounds();
-    }
+  this->ComputeMyRegionBounds();
 
   if (this->NumConvexSubRegions > 1)
     {
@@ -3285,10 +3283,7 @@ vtkIntArray **vtkDistributedDataFilter::FindGlobalPointIds(
 
   if (this->IncludeAllIntersectingCells == 0)
     {
-    if (this->ConvexSubRegionBounds == NULL)
-      {
-      this->ComputeMyRegionBounds();
-      }
+    this->ComputeMyRegionBounds();
     pl = vtkPointLocator::New();
     pl->SetTolerance(this->Kdtree->GetFudgeFactor());
     missingPoints = vtkPoints::New();
@@ -3409,10 +3404,7 @@ int vtkDistributedDataFilter::InMySpatialRegion(float x, float y, float z)
 }
 int vtkDistributedDataFilter::InMySpatialRegion(double x, double y, double z)
 {
-  if (this->ConvexSubRegionBounds == NULL)
-    {
-    this->ComputeMyRegionBounds();
-    }
+  this->ComputeMyRegionBounds();
 
   double *box = this->ConvexSubRegionBounds;
 
@@ -3441,10 +3433,7 @@ int vtkDistributedDataFilter::StrictlyInsideMyBounds(float x, float y, float z)
 }
 int vtkDistributedDataFilter::StrictlyInsideMyBounds(double x, double y, double z)
 {
-  if (this->ConvexSubRegionBounds == NULL)
-    {
-    this->ComputeMyRegionBounds();
-    }
+  this->ComputeMyRegionBounds();
 
   double *box = this->ConvexSubRegionBounds;
 
