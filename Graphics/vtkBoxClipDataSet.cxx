@@ -36,7 +36,7 @@
 
 #include <math.h>
 
-vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.18");
+vtkCxxRevisionMacro(vtkBoxClipDataSet, "1.19");
 vtkStandardNewMacro(vtkBoxClipDataSet);
 
 //----------------------------------------------------------------------------
@@ -5325,27 +5325,27 @@ void vtkBoxClipDataSet::ClipBox1D(vtkPoints *newPoints,
         {       
         cellPts->GetPoint(v_id[i],v);
 
-        if (v[0] > this->BoundBoxClip[0][0])
+        if (v[0] >= this->BoundBoxClip[0][0])
           {
           test[0] = 0;
           }
-        if (v[0] < this->BoundBoxClip[0][1])
+        if (v[0] <= this->BoundBoxClip[0][1])
           {
           test[1] = 0;
           }
-        if (v[1] > this->BoundBoxClip[1][0])
+        if (v[1] >= this->BoundBoxClip[1][0])
           {
           test[2] = 0;
           }
-        if (v[1] < this->BoundBoxClip[1][1])
+        if (v[1] <= this->BoundBoxClip[1][1])
           {
           test[3] = 0;
           }
-        if (v[2] > this->BoundBoxClip[2][0])
+        if (v[2] >= this->BoundBoxClip[2][0])
           {
           test[4] = 0;
           }
-        if (v[2] < this->BoundBoxClip[2][1])
+        if (v[2] <= this->BoundBoxClip[2][1])
           {
           test[5] = 0;
           }
@@ -5552,27 +5552,27 @@ void vtkBoxClipDataSet::ClipBoxInOut1D(vtkPoints *newPoints,
         {       
         cellPts->GetPoint(v_id[i],v);
 
-        if (v[0] > this->BoundBoxClip[0][0])
+        if (v[0] >= this->BoundBoxClip[0][0])
           {
           test[0] = 0;
           }
-        if (v[0] < this->BoundBoxClip[0][1])
+        if (v[0] <= this->BoundBoxClip[0][1])
           {
           test[1] = 0;
           }
-        if (v[1] > this->BoundBoxClip[1][0])
+        if (v[1] >= this->BoundBoxClip[1][0])
           {
           test[2] = 0;
           }
-        if (v[1] < this->BoundBoxClip[1][1])
+        if (v[1] <= this->BoundBoxClip[1][1])
           {
           test[3] = 0;
           }
-        if (v[2] > this->BoundBoxClip[2][0])
+        if (v[2] >= this->BoundBoxClip[2][0])
           {
           test[4] = 0;
           }
-        if (v[2] < this->BoundBoxClip[2][1])
+        if (v[2] <= this->BoundBoxClip[2][1])
           {
           test[5] = 0;
           }
@@ -5791,7 +5791,7 @@ void vtkBoxClipDataSet::ClipHexahedron1D(vtkPoints *newPoints,
             = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
                + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
                + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
-          if (values[0] < 0)
+          if (values[0] <= 0)
             {
             test[k] = 0;
             }
@@ -5998,7 +5998,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut1D(vtkPoints *newPoints,
             = (  this->PlaneNormal[k][0]*(v[0] - this->PlanePoint[k][0])
                + this->PlaneNormal[k][1]*(v[1] - this->PlanePoint[k][1])
                + this->PlaneNormal[k][2]*(v[2] - this->PlanePoint[k][2]) );
-          if (values[0] < 0)
+          if (values[0] <= 0)
             {
             test[k] = 0;
             }
