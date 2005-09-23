@@ -26,7 +26,7 @@
 #include "vtkPlanesIntersection.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkKdNode, "1.3");
+vtkCxxRevisionMacro(vtkKdNode, "1.4");
 vtkStandardNewMacro(vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Left, vtkKdNode);
 vtkCxxSetObjectMacro(vtkKdNode, Right, vtkKdNode);
@@ -198,6 +198,25 @@ void vtkKdNode::GetDataBounds(double *b) const
    b[0] = this->MinVal[0]; b[1] = this->MaxVal[0];
    b[2] = this->MinVal[1]; b[3] = this->MaxVal[1];
    b[4] = this->MinVal[2]; b[5] = this->MaxVal[2];
+}
+
+//-----------------------------------------------------------------------------
+double vtkKdNode::GetDivisionPosition()
+{
+  if (this->Dim == 3)
+    {
+    vtkErrorMacro("Called GetDivisionPosition() on a leaf node.");
+    return 0.0;
+    }
+
+  vtkKdNode *left = this->GetLeft();
+  if (!left)
+    {
+    vtkErrorMacro("Called GetDivisionPosition() on a leaf node.");
+    return 0.0;
+    }
+
+  return left->GetMaxBounds()[this->Dim];
 }
 
 //----------------------------------------------------------------------------

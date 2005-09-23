@@ -76,7 +76,7 @@ static char * makeEntry(const char *s)
 
 // Timing data ---------------------------------------------
 
-vtkCxxRevisionMacro(vtkPKdTree, "1.19");
+vtkCxxRevisionMacro(vtkPKdTree, "1.20");
 vtkStandardNewMacro(vtkPKdTree);
 
 const int vtkPKdTree::NoRegionAssignment = 0;   // default
@@ -3267,11 +3267,52 @@ int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, double range[2])
 
   return 0;
 }
+
+#ifndef VTK_LEGACY_REMOVE
 int vtkPKdTree::DepthOrderAllProcesses(double *dop, vtkIntArray *orderedList)
-{ 
+{
+  VTK_LEGACY_REPLACED_BODY(vtkPKdTree::DepthOrderAllProcesses, "VTK 5.2",
+                           vtkPKdTree::ViewOrderAllProcessesInDirection);
+  return this->ViewOrderAllProcessesInDirection(dop, orderedList);
+}
+#endif //VTK_LEGACY_REMOVE
+
+int vtkPKdTree::ViewOrderAllProcessesInDirection(const double dop[3],
+                                                 vtkIntArray *orderedList)
+{
   vtkIntArray *regionList = vtkIntArray::New();
   
-  this->DepthOrderAllRegions(dop, regionList);
+  this->ViewOrderAllRegionsInDirection(dop, regionList);
+  
+  orderedList->SetNumberOfValues(this->NumProcesses);
+  
+  int nextId = 0;
+  
+  // if regions were not assigned contiguously, this
+  // produces the wrong result
+  
+  for (int r=0; r<this->GetNumberOfRegions(); )
+    {
+    int procId = this->RegionAssignmentMap[regionList->GetValue(r)];
+    
+    orderedList->SetValue(nextId++, procId);
+    
+    int nregions = this->NumRegionsAssigned[procId];
+    
+    r += nregions;
+    }
+  
+  regionList->Delete();
+  
+  return this->NumProcesses;
+}
+
+int vtkPKdTree::ViewOrderAllProcessesFromPosition(const double pos[3],
+                                                  vtkIntArray *orderedList)
+{
+  vtkIntArray *regionList = vtkIntArray::New();
+  
+  this->ViewOrderAllRegionsFromPosition(pos, regionList);
   
   orderedList->SetNumberOfValues(this->NumProcesses);
   

@@ -51,6 +51,12 @@ public:
   vtkGetMacro(Dim, int);
 
   // Description:
+  // Get the location of the division plane along the axis the region
+  // is divided.  See also GetDim().  The result is undertermined if
+  // this node is not divided (a leaf node).
+  virtual double GetDivisionPosition();
+
+  // Description:
   // Set/Get the number of points contained in this region.
 
   vtkSetMacro(NumberOfPoints, int);

@@ -252,11 +252,24 @@ public:
                                     vtkIdList *onBoundaryCells);
 
   // Description:
-  //    Return a list of all processes in order from front to
-  //    back, given a vector direction of projection.
+  // DO NOT CALL.  Deprecated in VTK 5.2.  Use ViewOrderAllProcessesInDirection
+  // or ViewOrderAllProcessesFromPosition.
+  VTK_LEGACY(int DepthOrderAllProcesses(double *directionOfProjection, 
+                                        vtkIntArray *orderedList));
 
-  int DepthOrderAllProcesses(double *directionOfProjection, 
-                                 vtkIntArray *orderedList);
+  // Description:
+  // Return a list of all process in order from front to back given a
+  // vector direction of projection.  Use this to do visibility sorts
+  // in parallel projection mode.
+  int ViewOrderAllProcessesInDirection(const double directionOfProjection[3],
+                                       vtkIntArray *orderedList);
+
+  // Description:
+  // Return a list of all processes in order from front to back given a
+  // camera position.  Use this to do visibility sorts in perspective
+  // projection mode.
+  int ViewOrderAllProcessesFromPosition(const double cameraPosition[3],
+                                        vtkIntArray *orderedList);
 
   // Description:
   //    An added feature of vtkPKdTree is that it will calculate the

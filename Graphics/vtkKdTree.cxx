@@ -47,7 +47,7 @@
 #include <vtkstd/set>
 #include <vtkstd/algorithm>
 
-vtkCxxRevisionMacro(vtkKdTree, "1.5");
+vtkCxxRevisionMacro(vtkKdTree, "1.6");
 
 // Timing data ---------------------------------------------
 
@@ -3875,11 +3875,37 @@ int vtkKdTree::__ConvexSubRegions(int *ids, int len, vtkKdNode *tree, vtkKdNode 
     return (numNodesLeft + numNodesRight);                                               
     }
 }
-  
-//----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+#ifndef VTK_LEGACY_REMOVE
+
 int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
-                       double *directionOfProjection, vtkIntArray *orderedList)
+                                 double *directionOfProjection,
+                                 vtkIntArray *orderedList)
 {   
+  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderRegions, "VTK 5.2",
+                           vtkKdTree::ViewOrderRegionsInDirection);
+  return this->ViewOrderRegionsInDirection(regionIds, directionOfProjection,
+                                           orderedList);
+}
+
+int vtkKdTree::DepthOrderAllRegions(double *directionOfProjection,
+                                    vtkIntArray *orderedList)
+{   
+  VTK_LEGACY_REPLACED_BODY(vtkKdTree::DepthOrderAllRegions, "VTK 5.2",
+                           vtkKdTree::ViewOrderAllRegionsInDirection);
+  return this->ViewOrderAllRegionsInDirection(directionOfProjection,
+                                              orderedList);
+}
+
+#endif //VTK_LEGACY_REMOVE
+
+//----------------------------------------------------------------------------
+int vtkKdTree::ViewOrderRegionsInDirection(
+                                          vtkIntArray *regionIds,
+                                          const double directionOfProjection[3],
+                                          vtkIntArray *orderedList)
+{
   int i;
         
   vtkIntArray *IdsOfInterest = NULL;
@@ -3909,8 +3935,9 @@ int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
       }
     }
 
-  int size = this->_DepthOrderRegions(IdsOfInterest, 
-                         directionOfProjection, orderedList);
+  int size = this->_ViewOrderRegionsInDirection(IdsOfInterest, 
+                                                directionOfProjection,
+                                                orderedList);
 
   if (IdsOfInterest)
     {
@@ -3921,15 +3948,71 @@ int vtkKdTree::DepthOrderRegions(vtkIntArray *regionIds,
 }
 
 //----------------------------------------------------------------------------
-int vtkKdTree::DepthOrderAllRegions(double *directionOfProjection, 
-                                    vtkIntArray *orderedList)
+int vtkKdTree::ViewOrderAllRegionsInDirection(
+                                          const double directionOfProjection[3],
+                                          vtkIntArray *orderedList)
 {
-  return this->_DepthOrderRegions(NULL, directionOfProjection, orderedList);
+  return this->_ViewOrderRegionsInDirection(NULL, directionOfProjection,
+                                            orderedList);
 }     
-      
+
 //----------------------------------------------------------------------------
-int vtkKdTree::_DepthOrderRegions(vtkIntArray *IdsOfInterest,
-                        double *dir, vtkIntArray *orderedList)
+int vtkKdTree::ViewOrderRegionsFromPosition(vtkIntArray *regionIds,
+                                            const double cameraPosition[3],
+                                            vtkIntArray *orderedList)
+{
+  int i;
+        
+  vtkIntArray *IdsOfInterest = NULL;
+      
+  if (regionIds && (regionIds->GetNumberOfTuples() > 0))
+    {   
+    // Created sorted list of unique ids
+      
+    vtkstd::set<int> ids;
+    vtkstd::set<int>::iterator it;
+    int nids = regionIds->GetNumberOfTuples();
+
+    for (i=0; i<nids; i++)
+      {
+      ids.insert(regionIds->GetValue(i));
+      }
+
+    if (ids.size() < (unsigned int)this->NumberOfRegions)
+      {
+      IdsOfInterest = vtkIntArray::New();
+      IdsOfInterest->SetNumberOfValues(ids.size());
+
+      for (it = ids.begin(), i=0; it != ids.end(); ++it, ++i)
+        {
+        IdsOfInterest->SetValue(i, *it);
+        }
+      }
+    }
+
+  int size = this->_ViewOrderRegionsFromPosition(IdsOfInterest, 
+                                                 cameraPosition,
+                                                 orderedList);
+
+  if (IdsOfInterest)
+    {
+    IdsOfInterest->Delete();
+    }
+
+  return size;
+}
+
+//----------------------------------------------------------------------------
+int vtkKdTree::ViewOrderAllRegionsFromPosition(const double cameraPosition[3],
+                                               vtkIntArray *orderedList)
+{
+  return this->_ViewOrderRegionsFromPosition(NULL, cameraPosition, orderedList);
+}
+
+//----------------------------------------------------------------------------
+int vtkKdTree::_ViewOrderRegionsInDirection(vtkIntArray *IdsOfInterest,
+                                            const double dir[3],
+                                            vtkIntArray *orderedList)
 {
   int nextId = 0;
       
@@ -3939,8 +4022,9 @@ int vtkKdTree::_DepthOrderRegions(vtkIntArray *IdsOfInterest,
   orderedList->Initialize();
   orderedList->SetNumberOfValues(numValues);
 
-  int size =
-    vtkKdTree::__DepthOrderRegions(this->Top, orderedList, IdsOfInterest, dir, nextId);                                      
+  int size = vtkKdTree::__ViewOrderRegionsInDirection(this->Top, orderedList,
+                                                      IdsOfInterest, dir,
+                                                      nextId);
   if (size < 0)
     {
     vtkErrorMacro(<<"vtkKdTree::DepthOrderRegions k-d tree structure is corrupt");
@@ -3951,9 +4035,10 @@ int vtkKdTree::_DepthOrderRegions(vtkIntArray *IdsOfInterest,
   return size;
 }
 //----------------------------------------------------------------------------
-int vtkKdTree::__DepthOrderRegions(vtkKdNode *node,
-                                   vtkIntArray *list, vtkIntArray *IdsOfInterest,
-                                   double *dir, int nextId)
+int vtkKdTree::__ViewOrderRegionsInDirection(vtkKdNode *node,
+                                             vtkIntArray *list,
+                                             vtkIntArray *IdsOfInterest,
+                                             const double dir[3], int nextId)
 {
   if (node->GetLeft() == NULL)
     {
@@ -3978,16 +4063,88 @@ int vtkKdTree::__DepthOrderRegions(vtkKdNode *node,
   vtkKdNode *closeNode = (closest < 0) ? node->GetLeft() : node->GetRight();
   vtkKdNode *farNode  = (closest >= 0) ? node->GetLeft() : node->GetRight();
     
-  int nextNextId = vtkKdTree::__DepthOrderRegions(closeNode, list,
-                                         IdsOfInterest, dir, nextId);
+  int nextNextId = vtkKdTree::__ViewOrderRegionsInDirection(closeNode, list,
+                                                            IdsOfInterest, dir,
+                                                            nextId);
                                    
   if (nextNextId == -1)
     {
     return -1;
     }
       
-  nextNextId = vtkKdTree::__DepthOrderRegions(farNode, list,
-                                     IdsOfInterest, dir, nextNextId);
+  nextNextId = vtkKdTree::__ViewOrderRegionsInDirection(farNode, list,
+                                                        IdsOfInterest, dir,
+                                                        nextNextId);
+      
+  return nextNextId;
+}     
+
+//----------------------------------------------------------------------------
+int vtkKdTree::_ViewOrderRegionsFromPosition(vtkIntArray *IdsOfInterest,
+                                             const double pos[3],
+                                             vtkIntArray *orderedList)
+{
+  int nextId = 0;
+      
+  int numValues = (IdsOfInterest ? IdsOfInterest->GetNumberOfTuples() :
+                                   this->NumberOfRegions);
+    
+  orderedList->Initialize();
+  orderedList->SetNumberOfValues(numValues);
+
+  int size = vtkKdTree::__ViewOrderRegionsFromPosition(this->Top, orderedList,
+                                                       IdsOfInterest, pos,
+                                                       nextId);
+  if (size < 0)
+    {
+    vtkErrorMacro(<<"vtkKdTree::DepthOrderRegions k-d tree structure is corrupt");
+    orderedList->Initialize();
+    return 0;
+    }
+
+  return size;
+}
+//----------------------------------------------------------------------------
+int vtkKdTree::__ViewOrderRegionsFromPosition(vtkKdNode *node,
+                                              vtkIntArray *list,
+                                              vtkIntArray *IdsOfInterest,
+                                              const double pos[3], int nextId)
+{
+  if (node->GetLeft() == NULL)
+    {
+    if (!IdsOfInterest || vtkKdTree::FoundId(IdsOfInterest, node->GetID()))
+      {
+      list->SetValue(nextId, node->GetID());
+      nextId = nextId+1;
+      }
+
+      return nextId;
+    }
+
+  int cutPlane = node->GetDim();
+
+  if ((cutPlane < 0) || (cutPlane > 2))
+    {
+    return -1;
+    }
+
+  double closest = pos[cutPlane] - node->GetDivisionPosition();
+
+  vtkKdNode *closeNode = (closest < 0) ? node->GetLeft() : node->GetRight();
+  vtkKdNode *farNode  = (closest >= 0) ? node->GetLeft() : node->GetRight();
+    
+  int nextNextId = vtkKdTree::__ViewOrderRegionsFromPosition(closeNode, list,
+                                                             IdsOfInterest, pos,
+                                                             nextId);
+                                   
+  if (nextNextId == -1)
+    {
+    return -1;
+    }
+      
+  nextNextId = vtkKdTree::__ViewOrderRegionsFromPosition(farNode, list,
+                                                         IdsOfInterest, pos,
+                                                         nextNextId);
       
   return nextNextId;
 }     
