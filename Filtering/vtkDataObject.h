@@ -455,6 +455,7 @@ public:
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_COMPONENTS();
   static vtkInformationIntegerKey* FIELD_NUMBER_OF_TUPLES();
   static vtkInformationIntegerKey* FIELD_OPERATION();
+  static vtkInformationDoubleVectorKey* FIELD_RANGE();
   static vtkInformationStringKey* FIELD_NAME();
   static vtkInformationDoubleVectorKey* ORIGIN();
   static vtkInformationDoubleVectorKey* SPACING();
