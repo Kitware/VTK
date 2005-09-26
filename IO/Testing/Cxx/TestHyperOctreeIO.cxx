@@ -12,8 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This example demonstrates how to create and then save a vtkHyperOctree.
-
+// This example creates, saves to disk, reloads from disk, and then draws
+// a vtkHyperOctree. The purpose is to check that disk IO of HyperOctrees
+// works.
 
 #include "vtkActor.h"
 #include "vtkCellData.h"
@@ -50,13 +51,6 @@
 
 int TestHyperOctreeIO(int argc, char* argv[])
 {
-
-  char dirname[224];
-  char filename1[256];
-  char filename2[256];
-
-  sprintf(dirname,".");
-
   int dimension = 3;
   int levels = 5;
   int skipreader = 0;
@@ -120,11 +114,6 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         interactive = 1;
         }
-      else if (!strcmp("-T",argv[i]))
-        {
-        i++;
-        sprintf(dirname, "%s", argv[i]);
-        }
       else if (i > 1)
         {
 #ifdef HYPEROCTREEIO_STANDALONE
@@ -133,9 +122,6 @@ int TestHyperOctreeIO(int argc, char* argv[])
         }
       }
     }
-
-  sprintf(filename1, "%s/HyperOctreeSample.vto", dirname);
-  sprintf(filename2, "%s/HyperOctreeSample2.vto", dirname);
 
   //-----------------------------------------------------------------
   vtkTimerLog *timer=vtkTimerLog::New();
@@ -188,7 +174,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   // Test saving it to file
   vtkXMLHyperOctreeWriter *writerX=vtkXMLHyperOctreeWriter::New();
   writerX->SetInputConnection(0,source->GetOutputPort(0));
-  writerX->SetFileName(filename1);
+  writerX->SetFileName("HyperOctreeSample.vto");
   writerX->SetDataModeToAscii();
   if (binary==1) writerX->SetDataModeToBinary();
   if (binary==2) writerX->SetDataModeToAppended();
@@ -206,7 +192,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   // Test reading back the saved file
 
   vtkXMLHyperOctreeReader *readerX=vtkXMLHyperOctreeReader::New();
-  readerX->SetFileName(filename1);
+  readerX->SetFileName("HyperOctreeSample.vto");
 
   cout<<"update readerX..."<<endl;
   timer->StartTimer();
@@ -219,7 +205,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
     {
     writerX=vtkXMLHyperOctreeWriter::New();
     writerX->SetInputConnection(0,readerX->GetOutputPort(0));
-    writerX->SetFileName(filename2);
+    writerX->SetFileName("HyperOctreeSample2.vto");
     writerX->SetDataModeToAscii();
     if (binary==1) writerX->SetDataModeToBinary();
     if (binary==2) writerX->SetDataModeToAppended();
@@ -334,7 +320,7 @@ int TestHyperOctreeIO(int argc, char* argv[])
   if (retVal == 1)
     {
     //test passed
-    unlink(filename1);
+    unlink("HyperOctreeSample.vto");
     }
 #endif
 
