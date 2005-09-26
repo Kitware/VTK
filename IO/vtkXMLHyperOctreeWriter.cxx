@@ -33,7 +33,7 @@
 #undef  vtkOffsetsManager_DoNotInclude
 
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.1");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.2");
 vtkStandardNewMacro(vtkXMLHyperOctreeWriter);
 
 //----------------------------------------------------------------------------
@@ -325,4 +325,5 @@ int vtkXMLHyperOctreeWriter::FinishPrimElement(vtkIndent indent)
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     return 0;
     }
+  return 1;
 }
