@@ -117,7 +117,7 @@ class my_install_data (install_data):
 if __name__ == '__main__':
     # Get the optional build type argument.
     for x in sys.argv[:]:
-        if 'BUILD_TYPE' in x:
+        if string.find(x, 'BUILD_TYPE') > -1:
             vtk_build_type = string.strip(string.split(x, '=')[1])
             sys.argv.remove(x)
             break
