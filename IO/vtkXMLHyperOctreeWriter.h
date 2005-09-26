@@ -69,7 +69,7 @@ protected:
   int WriteTopology(vtkIndent);
 
   //Used by WriteTopology to make and array from the Tree structure recursively
-  void SerializeTopology(vtkHyperOctreeCursor *, vtkIntArray *, int);
+  void SerializeTopology(vtkHyperOctreeCursor *, int);
 
   //Writes PointData and CellData attribute data.
   int WriteAttributeData(vtkIndent);
@@ -78,7 +78,7 @@ protected:
   int FinishPrimElement(vtkIndent);
 
   //For appended mode placekeeping
-  vtkIntArray *ta;
+  vtkIntArray *TopologyArray;
   unsigned long TopoOffset;
   OffsetsManagerGroup * TopologyOM;
   OffsetsManagerGroup * PointDataOM;

@@ -33,13 +33,13 @@
 #undef  vtkOffsetsManager_DoNotInclude
 
 
-vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.2");
+vtkCxxRevisionMacro(vtkXMLHyperOctreeWriter, "1.3");
 vtkStandardNewMacro(vtkXMLHyperOctreeWriter);
 
 //----------------------------------------------------------------------------
 vtkXMLHyperOctreeWriter::vtkXMLHyperOctreeWriter()
 {
-  this->ta = NULL;
+  this->TopologyArray = NULL;
   this->TopologyOM = new OffsetsManagerGroup;
   this->PointDataOM = new OffsetsManagerGroup;
   this->CellDataOM = new OffsetsManagerGroup;
@@ -48,7 +48,7 @@ vtkXMLHyperOctreeWriter::vtkXMLHyperOctreeWriter()
 //----------------------------------------------------------------------------
 vtkXMLHyperOctreeWriter::~vtkXMLHyperOctreeWriter()
 {
-  if (this->ta) this->ta->Delete();
+  if (this->TopologyArray) this->TopologyArray->Delete();
   delete this->TopologyOM;
   delete this->PointDataOM;
   delete this->CellDataOM;
@@ -131,7 +131,7 @@ int vtkXMLHyperOctreeWriter::WriteData()
     //and filling in empty offset space in previously written entries
 
     unsigned long dummy;
-    this->WriteDataArrayAppendedData(this->ta, this->TopoOffset, dummy);
+    this->WriteDataArrayAppendedData(this->TopologyArray, this->TopoOffset, dummy);
 
     this->SetProgressRange(progressRange, 1, fractions);
 
@@ -148,8 +148,8 @@ int vtkXMLHyperOctreeWriter::WriteData()
     this->EndAppendedData();
     }
 
-  this->ta->Delete();
-  this->ta = NULL;
+  this->TopologyArray->Delete();
+  this->TopologyArray = NULL;
 
   if (!this->EndFile())
     return 0;
@@ -184,9 +184,9 @@ void vtkXMLHyperOctreeWriter::WritePrimaryElementAttributes(ostream &os, vtkInde
 int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
 {
 
-  if (this->ta) this->ta->Delete();
-  this->ta = vtkIntArray::New();
-  ta->SetNumberOfComponents(1);
+  if (this->TopologyArray) this->TopologyArray->Delete();
+  this->TopologyArray = vtkIntArray::New();
+  this->TopologyArray->SetNumberOfComponents(1);
 
   vtkHyperOctree* input = this->GetInput();
   vtkHyperOctreeCursor *cursor=input->NewCellCursor();
@@ -205,7 +205,7 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
     };
   this->SetProgressRange(progressRange, 0, fractions);
 
-  this->SerializeTopology(cursor, this->ta, cursor->GetNumberOfChildren());
+  this->SerializeTopology(cursor, cursor->GetNumberOfChildren());
 
   //write out the array
   this->SetProgressRange(progressRange, 1, fractions);
@@ -220,9 +220,9 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
   //...,1) to save length of array for easy recovery by reader
 
   if (this->GetDataMode() == vtkXMLWriter::Appended)
-    this->TopoOffset = this->WriteDataArrayAppended(ta, indent.GetNextIndent(), "Topology", 1);
+    this->TopoOffset = this->WriteDataArrayAppended(this->TopologyArray, indent.GetNextIndent(), "Topology", 1);
   else
-    this->WriteDataArrayInline(this->ta, indent.GetNextIndent(), "Topology", 1);
+    this->WriteDataArrayInline(this->TopologyArray, indent.GetNextIndent(), "Topology", 1);
 
   os << indent << "</" << "Topology" << ">\n";
   os.flush();
@@ -238,33 +238,32 @@ int vtkXMLHyperOctreeWriter::WriteTopology(vtkIndent indent)
 
 //----------------------------------------------------------------------------
 void vtkXMLHyperOctreeWriter::SerializeTopology(vtkHyperOctreeCursor *cursor,
-                                                vtkIntArray *ta,
                                                 int nchildren)
 {
   if (cursor->CurrentIsLeaf())
     {
     //this node is a leaf, we must stop now
-    ta->InsertNextValue(1);
+    this->TopologyArray->InsertNextValue(1);
     }
   /*
   else if (cursor->CurrentIsTerminalNode()) 
     {
     //this node has 'nchildren' children, 
     //all of which are leaves, so we can stop now too
-    ta->InsertNextValue(2);
+    this->TopologyArray->InsertNextValue(2);
     } 
   */
   else
     {
     //this node has 'nchildren' children, 
     //some of which are internal nodes, so we must continue down
-    ta->InsertNextValue(0);
+    this->TopologyArray->InsertNextValue(0);
     
     int i=0;
     while(i<nchildren)
       {
       cursor->ToChild(i);
-      this->SerializeTopology(cursor, ta, nchildren);
+      this->SerializeTopology(cursor, nchildren);
       cursor->ToParent();
       ++i;
       }
