@@ -99,6 +99,8 @@ vtkXMLHierarchicalDataReader.cxx
 vtkXMLHierarchicalDataWriter.cxx
 vtkXMLImageDataReader.cxx
 vtkXMLImageDataWriter.cxx
+vtkXMLHyperOctreeReader.cxx
+vtkXMLHyperOctreeWriter.cxx
 vtkXMLPDataReader.cxx
 vtkXMLPDataSetWriter.cxx
 vtkXMLPDataWriter.cxx
