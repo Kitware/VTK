@@ -26,6 +26,7 @@
 #include "vtkDemandDrivenPipeline.h"
 
 class vtkExtentTranslator;
+class vtkInformationDoubleKey;
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
@@ -129,6 +130,11 @@ public:
   static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT();
 
   // Description:
+  // Key defining a request to propagate information about the update
+  // extent downstream.
+  static vtkInformationRequestKey* REQUEST_UPDATE_EXTENT_INFORMATION();
+
+  // Description:
   // Key for an algorithm to store in a request to tell this executive
   // to keep executing it.
   static vtkInformationIntegerKey* CONTINUE_EXECUTING();
@@ -170,6 +176,10 @@ public:
   // Description:
   // Update time requested by the pipeline.
   static vtkInformationIntegerKey* UPDATE_TIME_INDEX();
+
+  // Description:
+  // Key to specify from 0 to 1 the priority of this update extent
+  static vtkInformationDoubleKey* PRIORITY();
 
 protected:
   vtkStreamingDemandDrivenPipeline();
