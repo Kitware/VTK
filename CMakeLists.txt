@@ -1162,6 +1162,23 @@ IF(VTK_WRAP_PYTHON)
   ELSE(PYTHON_DEBUG_LIBRARY)
     SET(VTK_PYTHON_LIBRARIES ${PYTHON_LIBRARY})
   ENDIF(PYTHON_DEBUG_LIBRARY)
+
+  # Some python installations on UNIX need to link to extra libraries
+  # such as zlib (-lz).  It is hard to automatically detect the needed
+  # libraries so instead just give the user an easy way to specify
+  # the libraries.  This should be needed only rarely.  It should
+  # also be moved to the CMake FindPython.cmake module at some point.
+  IF(UNIX)
+    IF(DEFINED PYTHON_EXTRA_LIBS)
+    ELSE(DEFINED PYTHON_EXTRA_LIBS)
+      SET(PYTHON_EXTRA_LIBS "" CACHE STRING
+        "Extra libraries to link when linking to python (such as \"z\" for zlib).  Separate multiple libraries with semicolons.")
+      MARK_AS_ADVANCED(PYTHON_EXTRA_LIBS)
+    ENDIF(DEFINED PYTHON_EXTRA_LIBS)
+  ENDIF(UNIX)
+
+  # Include any extra libraries for python.
+  SET(VTK_PYTHON_LIBRARIES ${VTK_PYTHON_LIBRARIES} ${PYTHON_EXTRA_LIBS})
 ENDIF(VTK_WRAP_PYTHON)
 
 #-----------------------------------------------------------------------------
