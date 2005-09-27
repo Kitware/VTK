@@ -25,7 +25,7 @@
 #include "vtkImageData.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.2");
+vtkCxxRevisionMacro(vtkTransmitImageDataPiece, "1.3");
 vtkStandardNewMacro(vtkTransmitImageDataPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitImageDataPiece,Controller,
@@ -41,7 +41,9 @@ vtkTransmitImageDataPiece::vtkTransmitImageDataPiece()
   if (this->Controller) 
     {
     if (this->Controller->GetLocalProcessId() != 0)
+      {
       this->SetNumberOfInputPorts(0);
+      }
     }
 }
 

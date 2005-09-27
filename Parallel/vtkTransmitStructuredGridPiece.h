@@ -12,8 +12,9 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkTransmitStructuredGridPiece - Use node 0 to read StructureGrid data
-// for all nodes.
+// .NAME vtkTransmitStructuredGridPiece - For parallel processing, restrict 
+// IO to the first process in the cluster.
+//
 // .SECTION Description
 // This filter updates the appropriate piece by requesting the piece from 
 // process 0.  Process 0 always updates all of the data.  It is important that 

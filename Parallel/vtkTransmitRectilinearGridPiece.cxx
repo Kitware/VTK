@@ -25,7 +25,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkDoubleArray.h"
 
-vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.2");
+vtkCxxRevisionMacro(vtkTransmitRectilinearGridPiece, "1.3");
 vtkStandardNewMacro(vtkTransmitRectilinearGridPiece);
 
 vtkCxxSetObjectMacro(vtkTransmitRectilinearGridPiece,Controller,
@@ -41,7 +41,9 @@ vtkTransmitRectilinearGridPiece::vtkTransmitRectilinearGridPiece()
   if (this->Controller) 
     {
     if (this->Controller->GetLocalProcessId() != 0) 
+      {
       this->SetNumberOfInputPorts(0);
+      }
     }
 }
 

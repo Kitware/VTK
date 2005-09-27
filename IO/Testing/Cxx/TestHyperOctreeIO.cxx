@@ -71,15 +71,27 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         i++;
         dimension = atoi(argv[i]);
-        if (dimension < 1) dimension = 1;
-        if (dimension > 3) dimension = 3;
+        if (dimension < 1) 
+          {
+          dimension = 1;
+          }
+        if (dimension > 3) 
+          {
+          dimension = 3;
+          }
         }
       else if (!strcmp("-levels",argv[i]))
         {
         i++;
         levels = atoi(argv[i]);
-        if (levels < 1) levels = 1;
-        if (levels > 10) levels = 10;
+        if (levels < 1) 
+          {
+          levels = 1;
+          }
+        if (levels > 10) 
+          {
+          levels = 10;
+          }
         }
       else if (!strcmp("-skipreader",argv[i]))
         {
@@ -109,8 +121,14 @@ int TestHyperOctreeIO(int argc, char* argv[])
         {
         i++;
         ncontours = atoi(argv[i]);
-        if (ncontours < 1) ncontours = 1;
-        if (ncontours > 3) ncontours = 3;
+        if (ncontours < 1) 
+          {
+          ncontours = 1;
+          }
+        if (ncontours > 3) 
+          {
+          ncontours = 3;
+          }
         }
 #ifdef HYPEROCTREEIO_STANDALONE
       else if (!strcmp("-interactive",argv[i]))
@@ -178,9 +196,18 @@ int TestHyperOctreeIO(int argc, char* argv[])
   writerX->SetInputConnection(0,source->GetOutputPort(0));
   writerX->SetFileName("HyperOctreeSample.vto");
   writerX->SetDataModeToAscii();
-  if (binary==1) writerX->SetDataModeToBinary();
-  if (binary==2) writerX->SetDataModeToAppended();
-  if (!compressed) writerX->SetCompressor(NULL);
+  if (binary==1) 
+    {
+    writerX->SetDataModeToBinary();
+    }
+  if (binary==2) 
+    {
+    writerX->SetDataModeToAppended();
+    }
+  if (!compressed) 
+    {
+    writerX->SetCompressor(NULL);
+    }
 
   cout<<"update writerX..."<<endl;
   timer->StartTimer();
@@ -209,9 +236,18 @@ int TestHyperOctreeIO(int argc, char* argv[])
     writerX->SetInputConnection(0,readerX->GetOutputPort(0));
     writerX->SetFileName("HyperOctreeSample2.vto");
     writerX->SetDataModeToAscii();
-    if (binary==1) writerX->SetDataModeToBinary();
-    if (binary==2) writerX->SetDataModeToAppended();
-    if (!compressed) writerX->SetCompressor(NULL);
+    if (binary==1) 
+      {
+      writerX->SetDataModeToBinary();
+      }
+    if (binary==2) 
+      {
+      writerX->SetDataModeToAppended();
+      }
+    if (!compressed) 
+      {
+      writerX->SetCompressor(NULL);
+      }
     writerX->Write(); 
     writerX->Delete();
     cout<<"HyperOctree written again"<<endl;
@@ -222,8 +258,14 @@ int TestHyperOctreeIO(int argc, char* argv[])
   vtkHyperOctreeContourFilter *contour=vtkHyperOctreeContourFilter::New();
   contour->SetNumberOfContours(ncontours);
   contour->SetValue(0,0.5);
-  if (ncontours > 1) contour->SetValue(1,4.0);
-  if (ncontours > 2) contour->SetValue(2,8.0);
+  if (ncontours > 1) 
+    {
+    contour->SetValue(1,4.0);
+    }
+  if (ncontours > 2) 
+    {
+    contour->SetValue(2,8.0);
+    }
 
   vtkHierarchicalDataSet *hds=vtkHierarchicalDataSet::New();
   hds->SetNumberOfLevels(1);
@@ -311,7 +353,10 @@ int TestHyperOctreeIO(int argc, char* argv[])
 
   int retVal = 1;
 #ifdef HYPEROCTREEIO_STANDALONE
-  if (interactive) iren->Start();
+  if (interactive) 
+    {
+    iren->Start();
+    }
 #else
   retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
