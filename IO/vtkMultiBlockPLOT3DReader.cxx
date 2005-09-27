@@ -32,7 +32,7 @@
 #include "vtkSmartPointer.h"
 #include <vtkstd/vector>
 
-vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.4");
+vtkCxxRevisionMacro(vtkMultiBlockPLOT3DReader, "1.5");
 vtkStandardNewMacro(vtkMultiBlockPLOT3DReader);
 
 #define VTK_RHOINF 1.0
@@ -582,6 +582,35 @@ int vtkMultiBlockPLOT3DReader::ReadQHeader(FILE* fp)
     {
     return VTK_ERROR;
     }
+
+  // The number of grids read from q file does not match
+  // internal structure, regenerate it.
+  if (numGrid != static_cast<int>(this->Internal->Blocks.size()))
+    {
+    FILE* xyzFp;
+    if ( this->CheckGeometryFile(xyzFp) != VTK_OK)
+      {
+      return VTK_ERROR;
+      }
+    
+    if ( this->ReadGeometryHeader(xyzFp) != VTK_OK )
+      {
+      vtkErrorMacro("Error reading geometry file.");
+      fclose(xyzFp);
+      return VTK_ERROR;
+      }
+    fclose(xyzFp);
+    }
+
+  // If the numbers of grids still do not match, the
+  // q file is wrong
+  if (numGrid != static_cast<int>(this->Internal->Blocks.size()))
+    {
+    vtkErrorMacro("The number of grids between the geometry "
+                  "and the q file do not match.");
+    return VTK_ERROR;
+    }
+
 
   this->SkipByteCount(fp);
   for(int i=0; i<numGrid; i++)
