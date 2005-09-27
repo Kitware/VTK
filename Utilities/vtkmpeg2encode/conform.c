@@ -34,7 +34,7 @@
 #include "mpeg2enc_global.h"
 
 /* check for (level independent) parameter limits */
-GLOBAL(void) MPEG2_range_checks(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_range_checks(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   int i;
@@ -186,7 +186,7 @@ static struct level_limits {
 #define H14  6
 #define HL   4
 
-GLOBAL(void) MPEG2_profile_and_level_checks(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_profile_and_level_checks(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   int i;

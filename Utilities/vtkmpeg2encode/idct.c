@@ -202,7 +202,7 @@ short *block;
     MPEG2_idctcol(block+i);
 }
 
-GLOBAL(void) MPEG2_init_idct()
+VTK_MPEG2ENC_EXPORT void MPEG2_init_idct()
 {
   int i;
 

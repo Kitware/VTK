@@ -39,7 +39,7 @@ static int frametotc _ANSI_ARGS_((int frame,struct MPEG2_structure *mpeg2_struct
  *
  * matrix download not implemented
  */
-GLOBAL(void) MPEG2_putseqhdr(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqhdr(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   int i;
@@ -67,7 +67,7 @@ GLOBAL(void) MPEG2_putseqhdr(mpeg2_struct)
 }
 
 /* generate sequence extension (6.2.2.3, 6.3.5) header (MPEG-2 only) */
-GLOBAL(void) MPEG2_putseqext(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqext(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   MPEG2_alignbits(mpeg2_struct);
@@ -90,7 +90,7 @@ GLOBAL(void) MPEG2_putseqext(mpeg2_struct)
  *
  * content not yet user setable
  */
-GLOBAL(void) MPEG2_putseqdispext(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqdispext(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   MPEG2_alignbits(mpeg2_struct);
@@ -110,7 +110,7 @@ GLOBAL(void) MPEG2_putseqdispext(mpeg2_struct)
  *
  * string must not emulate start codes
  */
-GLOBAL(void) MPEG2_putuserdata(userdata,mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_putuserdata(userdata,mpeg2_struct)
 char *userdata;
 struct MPEG2_structure *mpeg2_struct;
 {
@@ -222,7 +222,7 @@ void MPEG2_putpictcodext(mpeg2_struct)
 }
 
 /* generate sequence_end_code (6.2.2) */
-GLOBAL(void) MPEG2_putseqend(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqend(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   MPEG2_alignbits(mpeg2_struct);

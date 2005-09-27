@@ -32,43 +32,19 @@ extern "C" {
 
 #include <vtkmpeg2encode/mpeg2encDllConfig.h>
 
-#if defined( _WIN32 ) && defined (vtkMPEG2Encode_EXPORTS)
-#define GLOBAL(type)            __declspec(dllexport) type
-#else
-#define GLOBAL(type)            type
-#endif
-
-/* a reference to a GLOBAL function: */
-#ifdef GLOBAL_DEF
-# define VTK_MPEG2ENC_EXTERN
-#else
-# define VTK_MPEG2ENC_EXTERN extern
-#endif
+/*  VTK_MPEG2ENC_EXPORT designates exported functions...
+ */
 #if defined(_WIN32) && !defined(VTK_MPEG2ENC_STATIC)
-# if defined(vtkMPEG2Encode_EXPORTS)
-   /* Win32, building a dll */
-#  define EXTERN(type) __declspec(dllexport) VTK_MPEG2ENC_EXTERN type
-# else
-   /* Win32, not building a dll but using the dll */
-#  define EXTERN(type) __declspec(dllimport) extern type
-# endif
+ #if defined(vtkMPEG2Encode_EXPORTS)
+  #define VTK_MPEG2ENC_EXPORT __declspec( dllexport )
+ #else
+  #define VTK_MPEG2ENC_EXPORT __declspec( dllimport )
+ #endif
 #else
-  /* not a Win32 system or building a static Win32 lib */
-# define EXTERN(type) VTK_MPEG2ENC_EXTERN type
+ #define VTK_MPEG2ENC_EXPORT
 #endif
 
 #include "mpeg2enc.h"
-
-/* GLOBAL_DEF is defined in exactly one file (putpic.c)
- */
-
-/*
-#ifndef GLOBAL
-#define EXTERN extern
-#else
-#define EXTERN
-#endif
-*/
 
 /* picture data arrays */
 
@@ -188,16 +164,16 @@ struct MPEG2_structure
 /* prototypes of global functions */
 
 /* conform.c */
-EXTERN(void) MPEG2_range_checks _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
-EXTERN(void) MPEG2_profile_and_level_checks _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_range_checks _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_profile_and_level_checks _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
 
 /* fdctref.c */
-EXTERN(void) MPEG2_init_fdct _ANSI_ARGS_((void));
+VTK_MPEG2ENC_EXPORT void MPEG2_init_fdct _ANSI_ARGS_((void));
 void MPEG2_fdct _ANSI_ARGS_((short *block));
 
 /* idct.c */
 void MPEG2_idct _ANSI_ARGS_((short *block));
-EXTERN(void) MPEG2_init_idct _ANSI_ARGS_((void));
+VTK_MPEG2ENC_EXPORT void MPEG2_init_idct _ANSI_ARGS_((void));
 
 /* motion.c */
 void MPEG2_motion_estimation _ANSI_ARGS_((unsigned char *oldorg, unsigned char *neworg,
@@ -210,20 +186,20 @@ void MPEG2_predict _ANSI_ARGS_((unsigned char *reff[], unsigned char *refb[],
   unsigned char *cur[3], int secondfield, struct mbinfo *mbi, struct MPEG2_structure *mpeg2_struct));
 
 /* putbits.c */
-EXTERN(void) MPEG2_initbits _ANSI_ARGS_((void));
+VTK_MPEG2ENC_EXPORT void MPEG2_initbits _ANSI_ARGS_((void));
 void MPEG2_putbits _ANSI_ARGS_((int val, int n,struct MPEG2_structure *mpeg2_struct));
 void MPEG2_alignbits _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
 int MPEG2_bitcount _ANSI_ARGS_((void));
 
 /* puthdr.c */
-EXTERN(void) MPEG2_putseqhdr _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
-EXTERN(void) MPEG2_putseqext _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
-EXTERN(void) MPEG2_putseqdispext _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
-EXTERN(void) MPEG2_putuserdata _ANSI_ARGS_((char *userdata,struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqhdr _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqext _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqdispext _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_putuserdata _ANSI_ARGS_((char *userdata,struct MPEG2_structure *mpeg2_struct));
 void MPEG2_putgophdr _ANSI_ARGS_((int frame, int closed_gop, struct MPEG2_structure *mpeg2_struct));
 void MPEG2_putpicthdr _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
 void MPEG2_putpictcodext _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
-EXTERN(void) MPEG2_putseqend _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_putseqend _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
 
 /* putmpg.c */
 void MPEG2_putintrablk _ANSI_ARGS_((short *blk, int cc,struct MPEG2_structure *mpeg2_struct));
@@ -234,7 +210,7 @@ void MPEG2_putmv _ANSI_ARGS_((int dmv, int f_code,struct MPEG2_structure *mpeg2_
 void MPEG2_putpict _ANSI_ARGS_((unsigned char *frame,struct MPEG2_structure *mpeg2_struct));
 
 /* putseq.c */
-EXTERN(int) MPEG2_putseq_one _ANSI_ARGS_((int cframe, int max,struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT int MPEG2_putseq_one _ANSI_ARGS_((int cframe, int max,struct MPEG2_structure *mpeg2_struct));
 
 /* putvlc.c */
 void MPEG2_putDClum _ANSI_ARGS_((int val,struct MPEG2_structure *mpeg2_struct));
@@ -258,7 +234,7 @@ void MPEG2_iquant_non_intra _ANSI_ARGS_((short *src, short *dst,
   unsigned char *quant_mat, int mquant,struct MPEG2_structure *mpeg2_struct));
 
 /* ratectl.c */
-EXTERN(void) MPEG2_rc_init_seq _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
+VTK_MPEG2ENC_EXPORT void MPEG2_rc_init_seq _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
 void MPEG2_rc_init_GOP _ANSI_ARGS_((int np, int nb,struct MPEG2_structure *mpeg2_struct));
 void MPEG2_rc_init_pict _ANSI_ARGS_((unsigned char *frame,struct MPEG2_structure *mpeg2_struct));
 void MPEG2_rc_update_pict _ANSI_ARGS_((struct MPEG2_structure *mpeg2_struct));
@@ -288,20 +264,28 @@ void MPEG2_writeframe _ANSI_ARGS_((char *fname, unsigned char *frame[],struct MP
 
 /* global variables */
 
-EXTERN(char) MPEG2_version[]
+/* GLOBAL_DEF is defined in exactly one file (putpic.c)
+ */
+#ifdef GLOBAL_DEF
+ #define MPEG2ENC_EXTERN
+#else
+ #define MPEG2ENC_EXTERN extern
+#endif
+
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN char MPEG2_version[]
 #ifdef GLOBAL_DEF
   ="mpeg2encode V1.2, 96/07/19"
 #endif
 ;
 
-EXTERN(char) MPEG2_author[]
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN char MPEG2_author[]
 #ifdef GLOBAL_DEF
   ="(C) 1996, MPEG Software Simulation Group"
 #endif
 ;
 
 /* zig-zag scan */
-EXTERN(unsigned char) MPEG2_zig_zag_scan[64]
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN unsigned char MPEG2_zig_zag_scan[64]
 #ifdef GLOBAL_DEF
 =
 {
@@ -314,7 +298,7 @@ EXTERN(unsigned char) MPEG2_zig_zag_scan[64]
 ;
 
 /* alternate scan */
-EXTERN(unsigned char) MPEG2_alternate_scan[64]
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN unsigned char MPEG2_alternate_scan[64]
 #ifdef GLOBAL_DEF
 =
 {
@@ -327,7 +311,7 @@ EXTERN(unsigned char) MPEG2_alternate_scan[64]
 ;
 
 /* default intra quantization matrix */
-EXTERN(unsigned char) MPEG2_default_intra_quantizer_matrix[64]
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN unsigned char MPEG2_default_intra_quantizer_matrix[64]
 #ifdef GLOBAL_DEF
 =
 {
@@ -344,7 +328,7 @@ EXTERN(unsigned char) MPEG2_default_intra_quantizer_matrix[64]
 ;
 
 /* non-linear quantization coefficient table */
-EXTERN(unsigned char) MPEG2_non_linear_mquant_table[32]
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN unsigned char MPEG2_non_linear_mquant_table[32]
 #ifdef GLOBAL_DEF
 =
 {
@@ -361,7 +345,7 @@ EXTERN(unsigned char) MPEG2_non_linear_mquant_table[32]
  * it is up to the designer to determine most of the quantization levels
  */
 
-EXTERN(unsigned char) MPEG2_map_non_linear_mquant[113] 
+VTK_MPEG2ENC_EXPORT MPEG2ENC_EXTERN unsigned char MPEG2_map_non_linear_mquant[113] 
 #ifdef GLOBAL_DEF
 =
 {
@@ -377,4 +361,3 @@ EXTERN(unsigned char) MPEG2_map_non_linear_mquant[113]
 #ifdef __cplusplus
 }
 #endif
-

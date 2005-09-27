@@ -39,7 +39,7 @@ static double var_sblk _ANSI_ARGS_((unsigned char *p, int lx));
 
 /* rate control variables */
 
-GLOBAL(void) MPEG2_rc_init_seq(mpeg2_struct)
+VTK_MPEG2ENC_EXPORT void MPEG2_rc_init_seq(mpeg2_struct)
   struct MPEG2_structure *mpeg2_struct;
 {
   /* reaction parameter (constant) */

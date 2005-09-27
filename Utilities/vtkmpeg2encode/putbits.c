@@ -37,7 +37,7 @@ static int outcnt;
 static int bytecnt;
 
 /* initialize buffer, call once before first putbits or alignbits */
-GLOBAL(void) MPEG2_initbits()
+VTK_MPEG2ENC_EXPORT void MPEG2_initbits()
 {
   outcnt = 8;
   bytecnt = 0;
