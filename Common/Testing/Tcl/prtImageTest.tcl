@@ -42,7 +42,8 @@ proc ExitMaster { code } {
     for { set i 1 } { $i < $numProcs } { incr i } {
         # Send break to all the nodes
         #puts "Send break to: $i"
-        catch [ [ compManager GetController ] TriggerRMI $i 239954 ]
+        set contr [ compManager GetController ]
+        catch [ $contr TriggerRMI $i [$contr GetBreakRMITag] ]
     }
     
     vtkCommand DeleteAllObjects

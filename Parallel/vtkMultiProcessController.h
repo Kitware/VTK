@@ -199,7 +199,15 @@ public:
   vtkGetMacro(BreakFlag, int);
 
   // Description:
+  // Returns the communicator associated with this controller.
+  // A default communicator is created in constructor.
   vtkGetObjectMacro(Communicator, vtkCommunicator);
+
+  // Description:
+  // Accessor to some default tags.
+  static int GetBreakRMITag() { return BREAK_RMI_TAG; }
+  static int GetRMITag() { return RMI_TAG; }
+  static int GetRMIArgTag() { return RMI_ARG_TAG; }  
   
 //BTX
 

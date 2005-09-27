@@ -60,7 +60,8 @@ def ExitMaster(a, b):
         #print "Trigger exit RMI on all satellite nodes"
         for a in range(1, numProcs):
             #print "Trigger exit in satellite node %d" % a
-            compManager.GetController().TriggerRMI(a, 239954)
+            contr = compManager.GetController()
+            contr.TriggerRMI(a, contr.GetBreakRMITag())
 
 if myProcId == 0:
     iren = vtkRenderWindowInteractor()
