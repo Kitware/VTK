@@ -109,6 +109,14 @@ public:
   vtkIdType InsertNextValue(T f);
 
   // Description:
+  // These methods remove tuples from the data array. They shift data and
+  // resize array, so the data array is still valid after this operation. Note,
+  // this operation is fairly slow.
+  virtual void RemoveTuple(vtkIdType id);
+  virtual void RemoveFirstTuple();
+  virtual void RemoveLastTuple();
+
+  // Description:
   // Return the data component at the ith tuple and jth component location.
   // Note that i is less then NumberOfTuples and j is less then
   // NumberOfComponents.

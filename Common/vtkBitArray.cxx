@@ -15,7 +15,7 @@
 #include "vtkBitArray.h"
 #include "vtkObjectFactory.h"
 
-vtkCxxRevisionMacro(vtkBitArray, "1.59");
+vtkCxxRevisionMacro(vtkBitArray, "1.60");
 vtkStandardNewMacro(vtkBitArray);
 
 // Instantiate object.
@@ -394,3 +394,34 @@ void vtkBitArray::SetComponent(vtkIdType i, int j, double c)
 {
   this->SetValue(i*this->NumberOfComponents + j, static_cast<int>(c));
 }
+
+//----------------------------------------------------------------------------
+void vtkBitArray::RemoveTuple(vtkIdType id)
+{
+  if ( id < 0 || id >= this->GetNumberOfTuples())
+    {
+    // Nothing to be done
+    return;
+    }
+  if ( id == this->GetNumberOfTuples() - 1 )
+    {
+    // To remove last item, just decrease the size by one
+    this->RemoveLastTuple();
+    return;
+    }
+  vtkErrorMacro("Not yet implemented...");
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::RemoveFirstTuple()
+{
+  this->RemoveFirstTuple();
+}
+
+//----------------------------------------------------------------------------
+void vtkBitArray::RemoveLastTuple()
+{
+  this->Resize(this->GetNumberOfTuples()- 1);
+}
+
+

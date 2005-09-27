@@ -501,6 +501,43 @@ vtkIdType vtkDataArrayTemplate<T>::InsertNextTupleValue(const T* tuple)
 }
 
 //----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::RemoveTuple(vtkIdType id)
+{
+  if ( id < 0 || id >= this->GetNumberOfTuples())
+    {
+    // Nothing to be done
+    return;
+    }
+  if ( id == this->GetNumberOfTuples() - 1 )
+    {
+    // To remove last item, just decrease the size by one
+    this->RemoveLastTuple();
+    return;
+    }
+  vtkIdType len = (this->GetNumberOfTuples() - id) - 1;
+  len *= this->GetNumberOfComponents();
+  vtkIdType from = (id+1) * this->GetNumberOfComponents();
+  vtkIdType to = id * this->GetNumberOfComponents();
+  memcpy(this->Array + to, this->Array + from, len * sizeof(T));
+  this->Resize(this->GetNumberOfTuples() - 1);
+}
+
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::RemoveFirstTuple()
+{
+  this->RemoveTuple(0);
+}
+
+//----------------------------------------------------------------------------
+template <class T>
+void vtkDataArrayTemplate<T>::RemoveLastTuple()
+{
+  this->Resize(this->GetNumberOfTuples()- 1);
+}
+
+//----------------------------------------------------------------------------
 // Return the data component at the ith tuple and jth component location.
 // Note that i<NumberOfTuples and j<NumberOfComponents.
 template <class T>
