@@ -35,7 +35,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 
-vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.27");
+vtkCxxRevisionMacro(vtkCompositeDataPipeline, "1.28");
 vtkStandardNewMacro(vtkCompositeDataPipeline);
 
 vtkInformationKeyMacro(vtkCompositeDataPipeline,BEGIN_LOOP,Integer);
@@ -1228,8 +1228,54 @@ void vtkCompositeDataPipeline::CopyDefaultInformation(
         }
       }
     }
+
   this->Superclass::CopyDefaultInformation(request, direction, 
                                            inInfoVec, outInfoVec);
+
+  if(request->Has(REQUEST_UPDATE_EXTENT()))
+    {
+    int inputPortIsComposite;
+    int inputIsComposite;
+    int compositePort;
+    this->CheckInputPorts(
+      inputPortIsComposite, inputIsComposite, compositePort);
+    if (inputPortIsComposite)
+      {
+      // Get the output port from which to copy the extent.
+      int outputPort = -1;
+      if(request->Has(FROM_OUTPUT_PORT()))
+        {
+        outputPort = request->Get(FROM_OUTPUT_PORT());
+        }
+      
+      // Setup default information for the inputs.
+      if(outInfoVec->GetNumberOfInformationObjects() > 0)
+        {
+        // Copy information from the output port that made the request.
+        // Since VerifyOutputInformation has already been called we know
+        // there is output information with a data object.
+        vtkInformation* outInfo =
+          outInfoVec->GetInformationObject((outputPort >= 0)? outputPort : 0);
+        // Loop over all input ports.
+        for(int i=0; i < this->Algorithm->GetNumberOfInputPorts(); ++i)
+          {
+          // Loop over all connections on this input port.
+          int numInConnections = inInfoVec[i]->GetNumberOfInformationObjects();
+          for (int j=0; j<numInConnections; j++)
+            {
+            // Get the pipeline information for this input connection.
+            vtkInformation* inInfo = inInfoVec[i]->GetInformationObject(j);
+            
+            inInfo->CopyEntry(outInfo, UPDATE_PIECE_NUMBER());
+            inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_PIECES());
+            inInfo->CopyEntry(outInfo, UPDATE_NUMBER_OF_GHOST_LEVELS());
+            inInfo->CopyEntry(outInfo, UPDATE_EXTENT_INITIALIZED());
+            }
+          }
+        }
+      }
+    }
+
   if (hasUpdateBlocks)
     {
     request->Append(vtkExecutive::KEYS_TO_COPY(), 
